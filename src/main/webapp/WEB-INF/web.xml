@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+	http://java.sun.com/xml/ns/javaee
+	http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+	metadata-complete="true">
+	<display-name>appfactory-servlet</display-name>
+
+	<servlet>
+		<servlet-name>AccessServlet</servlet-name>
+		<servlet-class>mc.gouv.appfactory.servlet.AccessServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>AccessServlet</servlet-name>
+		<url-pattern>/access</url-pattern>
+	</servlet-mapping>
+	
+    <servlet>
+        <servlet-name>SessionServlet</servlet-name>
+        <servlet-class>mc.gouv.appfactory.servlet.SessionServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>SessionServlet</servlet-name>
+        <url-pattern>/session</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>DemandesServlet</servlet-name>
+        <servlet-class>mc.gouv.appfactory.servlet.DemandesServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>DemandesServlet</servlet-name>
+        <url-pattern>/demandes</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>LoginServlet</servlet-name>
+        <servlet-class>mc.gouv.appfactory.servlet.LoginServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>LoginServlet</servlet-name>
+        <url-pattern>/login</url-pattern>
+    </servlet-mapping>
+    
+    <context-param>
+        <param-name>DemarcheID</param-name>
+        <param-value>embauchage-personnel-maison</param-value>
+    </context-param>
+    
+</web-app>

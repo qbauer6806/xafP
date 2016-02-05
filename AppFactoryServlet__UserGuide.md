@@ -1,0 +1,367 @@
+FORMAT: 1A
+HOST: http://<serveur>
+REFERENCE: **SRV_APPFACTORYSERVLET**
+
+# AppFactoryServlet
+Le JAR *AppFactoryServlet* constitue une interface entre la partie front-end de l'AppFactory et sa partie back-end générique.
+Il est situé entre l'interface graphique générée par le builder, et les services REST métier du back-end générique.
+
+Cette interface est référencée sous l'identifiant **SRV_APPFACTORYSERVLET**.
+
+## Authentification
+Le SessionID du Logon sera utilisé pour créer une session dans AppFactoryServlet, qui contiendra diverses informations concernant l'usager, et notamment son ID.
+Le but de cette session est que le front-end puisse appeler les services sans rappeler à chaque fois à AppFactoryServlet qui est l'usager connecté.
+
+## User-Agent
+Afin d'auditer l'usage de l'*API AppFactoryServlet* il est demandé de renseigner dans le header HTTP User-Agent les information suivantes:
+
+    User-Agent: NomDuLogiciel/Version
+
+## Content-Type
+L'API utilise le format [JSON](http://www.json.org/) avec un charset **UTF-8** pour représenter l'état des ressources.
+
+
+## Codes HTTP
+Les codes de réponses HTTP standards sont utilisés. On utilise particulièrement les codes suivants:
+- `200` **OK** code de succès sur les GET et les PUT.
+- `201` **Created** code de succès sur les POST.
+- `204` **No Content** code de succès sur un DELETE et ne retourne aucun contenu.
+- `304` **Not Modified** Document non modifié depuis la dernière requête. Certaines Ressources/méthodes de l'API permettent la gestion de cache via les HTTP-Headers standards 'Request:If-None-Match' et 'Response:ETag' (cf. http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html).
+- `400` **Bad Request** la requête n'est pas valide. Consulter l'attribut message du body de la requête pour plus de détails.
+- `401` **Unauthorized** la requête n'est pas authentifiée avec HTTP Basic Auth.
+- `403` **Forbidden** l'utilisateur n'est pas autorisé à faire cette action.
+- `404` **Not Found** la ressource n'existe pas.
+
+## Erreurs
+Dans l'éventualité d'une erreur, en plus du status HTTP, l'API retourne un message d'erreur au format JSON avec l'attribut suivant :
+- `message` (obligatoire) - décrivant le problème
+
+Exemple :
+
+        {
+          "message": "Accès déjà existant"
+        }
+
+# Group Login et Session AppFactoryServlet
+*AppFactoryServlet* permet de créer une session interne à partir du SessionID retourné par l'étape de login auprès de l'application Logon.
+Cette session stockera les informations de l'usager, retournées par le service externe /login/rest/loggedUsagers/ au format JSON.
+
+## Login [/appfactoryservlet/v1/login?id={id}]
+
+Appelle le service externe /login/rest/loggedUsagers/ et enregistre dans une nouvelle session le JSON retourné.
+
+Voici le JSON qui sera stocké dans la session :
+
+- `adresse1`: 15 allée des palmiers (string, required) - Adresse de l'usager
+- `codePostal`: 06000 (string, required) - Code postal de l'usager
+- `dateActivation`: 2016-01-25T09:29:08.329+01:00 (date, required) - Date d'activation du compte de l'usager
+- `dateCreation`: 2016-01-25T09:29:08.329+01:00 (date, required) - Date de création du compte de l'usager
+- `dateDerConnexion`: 2016-01-25T09:29:08.329+01:00 (date, required) - Date de dernière connexion de l'usager
+- `email`: qdeme.ext@gouv.mc (string, required) - Adresse email de l'usager
+- `etat`: 10 (string, required) - Entier représentant l'état du compte de l'usager
+- `id`: 3071 (string, required) - Identifiant de l'usager
+- `login`: qdeme (string, required) - Login de l'usager
+- `nom`: Demé (string, required) - Nom de l'usager
+- `nomPays`: France (string, required) - Pays de l'usager
+- `prenom`: Quentin (string, required) - Prénom de l'usager
+- `titre`: 0 (string, required) - Titre de l'usager
+- `ville`: Nice (string, required) - Ville de l'usager
+
++ Parameters
+    + id (required, string, `ojss26rcr910yq3f6an6ot2u`) ... L'id de la session retournée après le login sur Logon
+
+
+### Déposer [PUT]
+
++ Request
+    + Headers
+
+            User-Agent: NomDuLogiciel/Version
+
+
++ Response 200
+
+
++ Response 404 (application/json)
+
+## Session [/appfactoryservlet/v1/session]
+
+Retourne le contenu de la session stockée dans AppFactoryServlet.
+
+Voici le JSON qui est stocké dans la session :
+
+- `adresse1`: 15 allée des palmiers (string, required) - Adresse de l'usager
+- `codePostal`: 06000 (string, required) - Code postal de l'usager
+- `dateActivation`: 2016-01-25T09:29:08.329+01:00 (date, required) - Date d'activation du compte de l'usager
+- `dateCreation`: 2016-01-25T09:15:25.057+01:00 (date, required) - Date de création du compte de l'usager
+- `dateDerConnexion`: 2016-02-03T14:40:03.751+01:00 (date, required) - Date de dernière connexion de l'usager
+- `email`: qdeme.ext@gouv.mc (string, required) - Adresse email de l'usager
+- `etat`: 10 (string, required) - Entier représentant l'état du compte de l'usager
+- `id`: 3071 (string, required) - Identifiant de l'usager
+- `login`: qdeme (string, required) - Login de l'usager
+- `nom`: Demé (string, required) - Nom de l'usager
+- `nomPays`: France (string, required) - Pays de l'usager
+- `prenom`: Quentin (string, required) - Prénom de l'usager
+- `titre`: 0 (string, required) - Titre de l'usager
+- `ville`: Nice (string, required) - Ville de l'usager
+
+
+### Récupérer [GET]
+
++ Request
+    + Headers
+
+            User-Agent: NomDuLogiciel/Version
+
+
++ Response 200 (application/json)
+
+        {
+          "adresse1": "15 allée des palmiers",
+          "codePostal": "06000",
+          "dateActivation": "2016-01-25T09:29:08.329+01:00",
+          "dateCreation": "2016-01-25T09:15:25.057+01:00",
+          "dateDerConnexion": "2016-02-03T14:40:03.751+01:00",
+          "email": "qdeme.ext@gouv.mc",
+          "etat": "10",
+          "id": "3071",
+          "login": "qdeme",
+          "nom": "Demé",
+          "nomPays": "France",
+          "prenom": "Quentin",
+          "titre": "0",
+          "ville": "Nice"
+        }
+
++ Response 404
+
+# Group Accès à la démarche et désinscription
+*AppFactoryServlet* permet de créer un accès d'un usager à une démarche et de le désinscrire d'une démarche.
+
+## Access [/appfactoryservlet/v1/access]
+
+Permet l'accès au back-end générique qui enregistre en base de données l'accès d'un usager à une démarche particulière.
+Le JSON custom inséré en base est retourné dans l'attribut "contenu" de la réponse.
+Les DemarcheID et UsagerID (récupérés de la session) sont envoyés par AppFactoryServlet au back-end générique de manière transparente.
+Il n'y a donc aucun paramètre à donner à ce service, si ce n'est le JSON.
+
+### Créer [PUT]
+
++ Request
+    + Headers
+
+            User-Agent: NomDuLogiciel/Version
+
+    + Body
+
+            JSON custom
+
++ Response 201 (application/json)
+
+        {
+          "pkAccess": 14,
+          "demarcheId": "embauchage-personnel-maison",
+          "usagerId": "3071",
+          "dateCreation": 1454514660092,
+          "dateDerModif": 1454514671287,
+          "contenu": "{    "test":"mes données"}"
+        }
+
++ Response 400 (application/json)
+
+        {
+          "message": "Accès déjà existant"
+        {
+
+### Mettre à jour [POST]
+
++ Request
+    + Headers
+
+            User-Agent: NomDuLogiciel/Version
+
+    + Body
+
+            JSON custom
+
++ Response 200 (application/json)
+
+        {
+          "pkAccess": 14,
+          "demarcheId": "embauchage-personnel-maison",
+          "usagerId": "3071",
+          "dateCreation": 1454514660092,
+          "dateDerModif": 1454514671287,
+          "contenu": "{    "test":"mes données"}"
+        }
+
++ Response 404 (application/json)
+
+        {
+          "message": "Accès introuvable"
+        }
+
+### Récupérer [GET]
+
++ Request
+    + Headers
+
+            User-Agent: NomDuLogiciel/Version
+
+
++ Response 200 (application/json)
+
+        {
+          "pkAccess": 14,
+          "demarcheId": "embauchage-personnel-maison",
+          "usagerId": "3071",
+          "dateCreation": 1454514660092,
+          "dateDerModif": 1454514671287,
+          "contenu": "{    "test":"mes données"}"
+        }
+
++ Response 404 (application/json)
+
+        {
+          "message": "Accès introuvable"
+        }
+
+### Supprimer [DELETE]
+
++ Request
+    + Headers
+
+            User-Agent: NomDuLogiciel/Version
+
+
++ Response 200 (application/json)
+
++ Response 404 (application/json)
+
+        {
+          "message": "Accès introuvable"
+        }
+
+# Group Gestion des demandes
+*AppFactoryServlet* permet de créer des demandes pour un usager et une démarche particulière.
+
+## Créer [/appfactoryservlet/v1/demandes]
+
+Permet l'accès au back-end générique qui enregistre en base de données une demande d'un usager sur une démarche particulière.
+Le JSON custom inséré en base est retourné dans l'attribut "contenu" de la réponse.
+Les DemarcheID et UsagerID (récupérés de la session) sont envoyés par AppFactoryServlet au back-end générique de manière transparente.
+Il est nécessaire d'envoyer le DemandeID dans certains cas.
+
+
+### Créer [PUT]
+
++ Request
+    + Headers
+
+            User-Agent: NomDuLogiciel/Version
+
+    + Body
+
+            JSON custom
+
++ Response 201 (application/json)
+
+        {
+          "pkDemandes": 1,
+          "dateCreation": 1454406768105,
+          "dateDerModif": 1454420783566,
+          "contenu": "{    "test":"mes données"}",
+          "demarcheId": "derfrf",
+          "usagerId": "2345"
+        }
+
++ Response 404 (application/json)
+
+        {
+          "message": "Accès correspondant introuvable"
+        {
+
+## Récupérer [/appfactoryservlet/v1/demandes?demandeId={demandeId}]
+
+Le DemandeID est facultatif. S'il est indiqué, le service ne retournera que la demande indiquée.
+S'il n'est pas indiqué, le service retournera toutes les demandes crées pour l'accès courant (DemarcheID, UsagerId).
+
++ Parameters
+    + demandeId (optional, integer, `15`) ... L'id de la demande à mettre à jour, récupérer ou supprimer.
+
+### Récupérer [GET]
+
++ Request
+        
+    + Headers
+
+            User-Agent: NomDuLogiciel/Version
+
+
++ Response 200 (application/json)
+
+        {
+          "pkAccess": 14,
+          "demarcheId": "embauchage-personnel-maison",
+          "usagerId": "3071",
+          "dateCreation": 1454514660092,
+          "dateDerModif": 1454514671287,
+          "contenu": "{    "test":"mes données"}",
+        }
+
++ Response 404 (application/json)
+
+        {
+          "message": "Demande introuvable"
+        }
+        
+## Mettre à jour ou supprimer [/appfactoryservlet/v1/demandes?demandeId={demandeId}]
+
++ Parameters
+    + demandeId (required, integer, `15`) ... L'id de la demande à mettre à jour ou supprimer
+
+### Mettre à jour [POST]
+
++ Request
+    
+    + Headers
+
+            User-Agent: NomDuLogiciel/Version
+
+    + Body
+
+            JSON custom
+
++ Response 200 (application/json)
+
+        {
+          "pkAccess": 14,
+          "demarcheId": "embauchage-personnel-maison",
+          "usagerId": "3071",
+          "dateCreation": 1454514660092,
+          "dateDerModif": 1454514671287,
+          "contenu": "{    "test":"mes données"}",
+        }
+
++ Response 404 (application/json)
+
+        {
+          "message": "Demande introuvable"
+        }
+
+### Supprimer [DELETE]
+
++ Request
+        
+    + Headers
+
+            User-Agent: NomDuLogiciel/Version
+
+
++ Response 200 (application/json)
+
++ Response 404 (application/json)
+
+        {
+          "message": "Demande introuvable"
+        }

@@ -1,6 +1,7 @@
 package mc.gouv.appfactory.servlet;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -12,24 +13,24 @@ import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * 
  * @author qdeme
  *
  */
-public class SessionServlet extends HttpServlet {
+public class SessionsServlet extends HttpServlet {
 
     private static final long serialVersionUID = -7833206552171322810L;
     
-    private static Logger LOGGER = LoggerFactory.getLogger(SessionServlet.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(SessionsServlet.class);
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         
-        LOGGER.info("/session doGet()");
+        LOGGER.info("/sessions doGet()");
         
         // On tente de récupérer une session existante sans en créer une
         HttpSession session = request.getSession(false);
@@ -38,10 +39,12 @@ public class SessionServlet extends HttpServlet {
             // Récupération de l'objet attaché à la session
             UsagerInfos usagerInfos = (UsagerInfos)session.getAttribute("login");
             
-            Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX").create();
-            
             // Retour au client
-            response.getOutputStream().print(gson.toJson(usagerInfos));
+            response.setContentType("application/json");
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+            mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX"));
+            mapper.writeValue(response.getOutputStream(), usagerInfos);
             response.getOutputStream().flush();
         }
         else {
@@ -49,7 +52,7 @@ public class SessionServlet extends HttpServlet {
             response.setStatus(HttpStatus.SC_NOT_FOUND);
         }
         
-        LOGGER.info("Fin /session doGet()");
+        LOGGER.info("Fin /sessions doGet()");
     }
 
 }

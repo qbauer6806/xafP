@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.auth.AuthScope;
@@ -19,7 +20,6 @@ import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCredentialsProvider;
@@ -30,20 +30,20 @@ import org.slf4j.LoggerFactory;
 import mc.gouv.Static;
 
 /**
- * Servlet mettant à disposition le service /access avec les méthodes PUT, POST, GET, DELETE.
+ * Servlet mettant à disposition le service /accesses avec les méthodes PUT, POST, GET, DELETE.
  * Cette servlet récupère le DemarcheID ainsi que l'UsagerID (depuis la session) et appelle les WS
  * correspontants dans le back-end générique.
  * 
  * @author qdeme
  *
  */
-public class AccessServlet extends HttpServlet {
+public class AccessesServlet extends HttpServlet {
 
     private static final long serialVersionUID = 520893456441444275L;
     
-    private static Logger LOGGER = LoggerFactory.getLogger(AccessServlet.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(AccessesServlet.class);
     
-    private static final String ACCESS_URL_KEY = "mc.gouv.appfactory.demarchesws.access.url";
+    private static final String ACCESSES_URL = Static.getValue("mc.gouv.appfactory.demarchesws.accesses.url");
     
     private enum HttpMethod {
         PUT,
@@ -58,7 +58,7 @@ public class AccessServlet extends HttpServlet {
      * 
      * @param request Requête initiale de la Servlet
      * @param response Réponse initiale de la Servlet
-     * @param put Boolean indiquant si l'on souhaite effectuer un POST ou un PUT
+     * @param httpMethod Indique si l'on souhaite effectuer un POST ou un PUT
      * @return La réponse que la Servlet doit transmettre
      * @throws UnsupportedOperationException
      * @throws IOException
@@ -75,7 +75,7 @@ public class AccessServlet extends HttpServlet {
             }
             else {
                 // Récupération de l'ID de l'usager
-                String usagerId = usagerInfos.getId();
+                Integer usagerId = usagerInfos.getId();
                 
                 // Récupération de l'ID de la démarche dans le Context-Param
                 String demarcheId = getServletContext().getInitParameter("DemarcheID");
@@ -91,23 +91,20 @@ public class AccessServlet extends HttpServlet {
                 
                 // Création du client HTTP avec la bonne adresse
                 HttpClient httpClient = HttpClientBuilder.create().setDefaultCredentialsProvider(credentialsProvider).build();
-                HttpRequestBase putOrPostRequest = null;
-                String url = Static.getValue(ACCESS_URL_KEY) + "?demarcheId=" + demarcheId + "&usagerId=" + usagerId;
-                if (HttpMethod.PUT.equals(httpMethod)) {
-                    putOrPostRequest = new HttpPut(url);
-                }
-                else if (HttpMethod.POST.equals(httpMethod)) {
-                    putOrPostRequest = new HttpPost(url);
+                HttpRequestBase finalRequest = null;
+                String url = ACCESSES_URL + "?demarcheId=" + demarcheId + "&usagerId=" + usagerId;
+                if (HttpMethod.POST.equals(httpMethod)) {
+                    finalRequest = new HttpPost(url);
                 }
                 else if (HttpMethod.GET.equals(httpMethod)) {
-                    putOrPostRequest = new HttpGet(url);
+                    finalRequest = new HttpGet(url);
                 }
                 else if (HttpMethod.DELETE.equals(httpMethod)) {
-                    putOrPostRequest = new HttpDelete(url);
+                    finalRequest = new HttpDelete(url);
                 }
                 
-                if (HttpMethod.PUT.equals(httpMethod) || HttpMethod.POST.equals(httpMethod)) {
-                    putOrPostRequest.setHeader("Content-Type", "application/json; charset=UTF-8");
+                if (HttpMethod.POST.equals(httpMethod)) {
+                    finalRequest.setHeader("Content-Type", "application/json; charset=UTF-8");
                     
                     // Récupération du JSON reçu en input et transmission au 2ème service en UTF8
                     StringBuilder buffer = new StringBuilder();
@@ -116,67 +113,56 @@ public class AccessServlet extends HttpServlet {
                     while ((line = reader.readLine()) != null) {
                         buffer.append(line);
                     }
-                    String data = buffer.toString();
+                    String data = "{ \"contenu\" : " + buffer.toString() + " }";
                     
                     StringEntity input = new StringEntity(data,"UTF-8");
                     
-                    ((HttpEntityEnclosingRequestBase)putOrPostRequest).setEntity(input);
+                    ((HttpEntityEnclosingRequestBase)finalRequest).setEntity(input);
                 }
                 
                 // Envoi de la requête
-                LOGGER.info("Appel du WS Demarches /access...");
-                HttpResponse putOrPostResponse = httpClient.execute(putOrPostRequest);
-                LOGGER.info("Code réponse : " + putOrPostResponse.getStatusLine().getStatusCode());
+                LOGGER.info("Appel du WS Demarches /accesses...");
+                HttpResponse finalResponse = httpClient.execute(finalRequest);
+                LOGGER.info("Code réponse : " + finalResponse.getStatusLine().getStatusCode());
                 
                 // Constitution de la réponse en redirigeant la réponse du WS ansi que son code réponse
                 LOGGER.info("Constitution de la réponse pour retour au client");
                 response.setContentType("application/json");
                 
-                response.setStatus(putOrPostResponse.getStatusLine().getStatusCode());
+                response.setStatus(finalResponse.getStatusLine().getStatusCode());
                 
-                AppFactoryUtils.copyStream(putOrPostResponse.getEntity().getContent(), response.getOutputStream());
+                IOUtils.copy(finalResponse.getEntity().getContent(), response.getOutputStream());
                 
                 return response;
             }
         }
         return null;
     }
-
-    @Override
-    public void doPut(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        LOGGER.info("/access doPut()");
-        
-        response = doHttpMethod(request, response, HttpMethod.PUT);
-        
-        LOGGER.info("Fin /access doPut()");
-    }
-    
-
     
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        LOGGER.info("/access doPost()");
+        LOGGER.info("/accesses doPost()");
         
         response = doHttpMethod(request, response, HttpMethod.POST);
         
-        LOGGER.info("Fin /access doPost()");
+        LOGGER.info("Fin /accesses doPost()");
     }
     
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        LOGGER.info("/access doGet()");
+        LOGGER.info("/accesses doGet()");
         
         response = doHttpMethod(request, response, HttpMethod.GET);
         
-        LOGGER.info("Fin /access doGet()");
+        LOGGER.info("Fin /accesses doGet()");
     }
     
     @Override
     public void doDelete(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        LOGGER.info("/access doDelete");
+        LOGGER.info("/accesses doDelete");
         
         response = doHttpMethod(request, response, HttpMethod.DELETE);
         
-        LOGGER.info("Fin /access doDelete");
+        LOGGER.info("Fin /accesses doDelete");
     }
 }

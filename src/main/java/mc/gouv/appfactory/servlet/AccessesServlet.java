@@ -92,7 +92,7 @@ public class AccessesServlet extends HttpServlet {
                 // Création du client HTTP avec la bonne adresse
                 HttpClient httpClient = HttpClientBuilder.create().setDefaultCredentialsProvider(credentialsProvider).build();
                 HttpRequestBase finalRequest = null;
-                String url = ACCESSES_URL + "?demarcheId=" + demarcheId + "&usagerId=" + usagerId;
+                String url = ACCESSES_URL + "/" + demarcheId + "/" + usagerId;
                 if (HttpMethod.POST.equals(httpMethod)) {
                     finalRequest = new HttpPost(url);
                 }
@@ -113,6 +113,13 @@ public class AccessesServlet extends HttpServlet {
                     while ((line = reader.readLine()) != null) {
                         buffer.append(line);
                     }
+                    
+                    if (buffer.toString().length() == 0) {
+                        LOGGER.error("Erreur: JSON manquant");
+                        response.setStatus(HttpStatus.SC_BAD_REQUEST);
+                        return response;
+                    }
+                    
                     String data = "{ \"contenu\" : " + buffer.toString() + " }";
                     
                     StringEntity input = new StringEntity(data,"UTF-8");
@@ -121,7 +128,7 @@ public class AccessesServlet extends HttpServlet {
                 }
                 
                 // Envoi de la requête
-                LOGGER.info("Appel du WS Demarches /accesses...");
+                LOGGER.info("Appel du WS Demarches: " + url);
                 HttpResponse finalResponse = httpClient.execute(finalRequest);
                 LOGGER.info("Code réponse : " + finalResponse.getStatusLine().getStatusCode());
                 
@@ -159,10 +166,10 @@ public class AccessesServlet extends HttpServlet {
     
     @Override
     public void doDelete(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        LOGGER.info("/accesses doDelete");
+        LOGGER.info("/accesses doDelete()");
         
         response = doHttpMethod(request, response, HttpMethod.DELETE);
         
-        LOGGER.info("Fin /accesses doDelete");
+        LOGGER.info("Fin /accesses doDelete()");
     }
 }

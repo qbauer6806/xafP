@@ -238,12 +238,11 @@ Il n'y a donc aucun paramètre à donner à ce service, si ce n'est le JSON.
 # Group Gestion des demandes
 *AppFactoryServlet* permet de créer des demandes pour un usager et une démarche particulière.
 
-## Créer [/appfactoryservlet/v1/demandes]
+## Créer et récupérer [/appfactoryservlet/v1/demandes]
 
 Permet l'accès au back-end générique qui enregistre en base de données une demande d'un usager sur une démarche particulière.
 Le JSON custom inséré en base est retourné dans l'attribut "contenu" de la réponse.
 Les DemarcheID et UsagerID (récupérés de la session) sont envoyés par AppFactoryServlet au back-end générique de manière transparente.
-Il est nécessaire d'envoyer le DemandeID dans certains cas.
 
 
 ### Créer [POST]
@@ -283,15 +282,46 @@ Il est nécessaire d'envoyer le DemandeID dans certains cas.
           "message": "Accès correspondant introuvable"
         }
 
-## Récupérer [/appfactoryservlet/v1/demandes?demandeId={demandeId}]
+### Récupérer [GET]
 
-Le DemandeID est facultatif. S'il est indiqué, le service ne retournera que la demande indiquée.
-S'il n'est pas indiqué, le service retournera toutes les demandes crées pour l'accès courant (DemarcheID, UsagerId).
+Récupérer toutes les demandes de l'usager connecté pour cette démarche.
+
++ Request
+        
+    + Headers
+
+            User-Agent: NomDuLogiciel/Version
+            Cookie: JSESSIONID=1jyzh76rqbx66q2cxa0j0zvaf
+
+
++ Response 200 (application/json)
+
+        {
+          "pkAccess": 14,
+          "demarcheId": "embauchage-personnel-maison",
+          "usagerId": "3071",
+          "dateCreation": "2016-01-25T09:29:08.329+01:00",
+          "dateDerModif": "2016-01-25T09:29:08.329+01:00",
+          "contenu":
+                "donnee1" : "Donnée custom 1",
+                "donnee2" : "Donnée custom 2"
+          }
+        }
+
++ Response 404 (application/json)
+
+        {
+          "message": "Accès correspondant introuvable"
+        }
+
+## Récupérer, mettre à jour, et supprimer [/appfactoryservlet/v1/demandes/{demandeId}]
 
 + Parameters
     + demandeId (optional, integer, `15`) ... L'id de la demande à mettre à jour, récupérer ou supprimer.
 
 ### Récupérer [GET]
+
+Permet de récupérer une demande spécifique.
 
 + Request
         
@@ -320,13 +350,10 @@ S'il n'est pas indiqué, le service retournera toutes les demandes crées pour l
         {
           "message": "Demande introuvable"
         }
-        
-## Mettre à jour ou supprimer [/appfactoryservlet/v1/demandes?demandeId={demandeId}]
-
-+ Parameters
-    + demandeId (required, integer, `15`) ... L'id de la demande à mettre à jour ou supprimer
 
 ### Mettre à jour [POST]
+
+Met à jour une demande particulière.
 
 + Request
     
@@ -365,6 +392,8 @@ S'il n'est pas indiqué, le service retournera toutes les demandes crées pour l
         }
 
 ### Supprimer [DELETE]
+
+Supprime une demande.
 
 + Request
         

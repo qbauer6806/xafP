@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import mc.gouv.Static;
+import mc.gouv.appfactory.util.AppFactoryServletUtils;
 
 /**
  * Servlet mettant à disposition le service /accesses avec les méthodes PUT, POST, GET, DELETE.
@@ -115,9 +116,7 @@ public class AccessesServlet extends HttpServlet {
                     }
                     
                     if (buffer.toString().length() == 0) {
-                        LOGGER.error("Erreur: JSON manquant");
-                        response.setStatus(HttpStatus.SC_BAD_REQUEST);
-                        return response;
+                        return AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_BAD_REQUEST, "Erreur: JSON manquant");
                     }
                     
                     String data = "{ \"contenu\" : " + buffer.toString() + " }";

@@ -42,13 +42,17 @@ Les codes de réponses HTTP standards sont utilisés. On utilise particulièreme
 - `404` **Not Found** la ressource n'existe pas.
 
 ## Erreurs
-Dans l'éventualité d'une erreur, en plus du status HTTP, l'API retourne un message d'erreur au format JSON avec l'attribut suivant :
-- `message` (obligatoire) - décrivant le problème
+Dans l'éventualité d'une erreur, en plus du status HTTP, l'API retourne un ou plusieurs messages d'erreurs `errors` au format JSON avec l'attribut suivant :
+- `libelle` (obligatoire) - décrivant le problème.
 
 Exemple :
 
         {
-          "message": "Accès déjà existant"
+            "errors": [
+                {
+                    "libelle": "Le container spécifié n'existe pas"
+                }
+            ]
         }
 
 # Group Login et Session AppFactoryServlet
@@ -181,7 +185,7 @@ Il n'y a donc aucun paramètre à donner à ce service, si ce n'est le JSON.
           "usagerId": "3071",
           "dateCreation": "2016-01-25T09:29:08.329+01:00",
           "dateDerModif": "2016-01-25T09:29:08.329+01:00",
-          "contenu":
+          "contenu": {
                 "donnee1" : "Donnée custom 1",
                 "donnee2" : "Donnée custom 2"
           }
@@ -206,7 +210,7 @@ Il n'y a donc aucun paramètre à donner à ce service, si ce n'est le JSON.
           "usagerId": "3071",
           "dateCreation": "2016-01-25T09:29:08.329+01:00",
           "dateDerModif": "2016-01-25T09:29:08.329+01:00",
-          "contenu":
+          "contenu": {
                 "donnee1" : "Donnée custom 1",
                 "donnee2" : "Donnée custom 2"
           }
@@ -215,7 +219,11 @@ Il n'y a donc aucun paramètre à donner à ce service, si ce n'est le JSON.
 + Response 404 (application/json)
 
         {
-          "message": "Accès introuvable"
+          "errors": [
+            {
+              "libelle": "Accès introuvable"
+            }
+          ]
         }
 
 ### Supprimer [DELETE]
@@ -232,7 +240,11 @@ Il n'y a donc aucun paramètre à donner à ce service, si ce n'est le JSON.
 + Response 404 (application/json)
 
         {
-          "message": "Accès introuvable"
+          "errors": [
+            {
+              "libelle": "Accès introuvable"
+            }
+          ]
         }
 
 # Group Gestion des demandes
@@ -266,20 +278,24 @@ Les DemarcheID et UsagerID (récupérés de la session) sont envoyés par AppFac
 
         {
           "pkDemandes": 1,
+          "demarcheId": "embauchage-personnel-maison",
+          "usagerId": 3071
           "dateCreation": "2016-01-25T09:29:08.329+01:00",
           "dateDerModif": "2016-01-25T09:29:08.329+01:00",
-          "contenu":
+          "contenu": {
                 "donnee1" : "Donnée custom 1",
                 "donnee2" : "Donnée custom 2"
-          },
-          "demarcheId": "derfrf",
-          "usagerId": "2345"
+          }
         }
 
 + Response 404 (application/json)
 
         {
-          "message": "Accès correspondant introuvable"
+          "errors": [
+            {
+              "libelle": "Erreur: Accès correspondant introuvable"
+            }
+          ]
         }
 
 ### Récupérer [GET]
@@ -296,22 +312,28 @@ Récupérer toutes les demandes de l'usager connecté pour cette démarche.
 
 + Response 200 (application/json)
 
-        {
-          "pkAccess": 14,
-          "demarcheId": "embauchage-personnel-maison",
-          "usagerId": "3071",
-          "dateCreation": "2016-01-25T09:29:08.329+01:00",
-          "dateDerModif": "2016-01-25T09:29:08.329+01:00",
-          "contenu":
-                "donnee1" : "Donnée custom 1",
-                "donnee2" : "Donnée custom 2"
-          }
-        }
+        [
+            {
+              "pkDemandes": 14,
+              "demarcheId": "embauchage-personnel-maison",
+              "usagerId": 3071,
+              "dateCreation": "2016-01-25T09:29:08.329+01:00",
+              "dateDerModif": "2016-01-25T09:29:08.329+01:00",
+              "contenu": {
+                    "donnee1" : "Donnée custom 1",
+                    "donnee2" : "Donnée custom 2"
+              }
+            }
+        ]
 
 + Response 404 (application/json)
 
         {
-          "message": "Accès correspondant introuvable"
+          "errors": [
+            {
+              "libelle": "Erreur: Accès correspondant introuvable"
+            }
+          ]
         }
 
 ## Récupérer, mettre à jour, et supprimer [/appfactoryservlet/v1/demandes/{demandeId}]
@@ -334,12 +356,12 @@ Permet de récupérer une demande spécifique.
 + Response 200 (application/json)
 
         {
-          "pkAccess": 14,
+          "pkDemandes": 14,
           "demarcheId": "embauchage-personnel-maison",
-          "usagerId": "3071",
+          "usagerId": 3071,
           "dateCreation": "2016-01-25T09:29:08.329+01:00",
           "dateDerModif": "2016-01-25T09:29:08.329+01:00",
-          "contenu":
+          "contenu": {
                 "donnee1" : "Donnée custom 1",
                 "donnee2" : "Donnée custom 2"
           }
@@ -348,7 +370,11 @@ Permet de récupérer une demande spécifique.
 + Response 404 (application/json)
 
         {
-          "message": "Demande introuvable"
+          "errors": [
+            {
+              "libelle": "Erreur: Accès correspondant introuvable"
+            }
+          ]
         }
 
 ### Mettre à jour [POST]
@@ -374,12 +400,12 @@ Met à jour une demande particulière.
 + Response 200 (application/json)
 
         {
-          "pkAccess": 14,
+          "pkDemandes": 14,
           "demarcheId": "embauchage-personnel-maison",
-          "usagerId": "3071",
+          "usagerId": 3071,
           "dateCreation": "2016-01-25T09:29:08.329+01:00",
           "dateDerModif": "2016-01-25T09:29:08.329+01:00",
-          "contenu":
+          "contenu": {
                 "donnee1" : "Donnée custom 1",
                 "donnee2" : "Donnée custom 2"
           }
@@ -388,7 +414,11 @@ Met à jour une demande particulière.
 + Response 404 (application/json)
 
         {
-          "message": "Demande introuvable"
+          "errors": [
+            {
+              "libelle": "Erreur: Demande introuvable"
+            }
+          ]
         }
 
 ### Supprimer [DELETE]
@@ -408,5 +438,9 @@ Supprime une demande.
 + Response 404 (application/json)
 
         {
-          "message": "Demande introuvable"
+          "errors": [
+            {
+              "libelle": "Erreur: Demande introuvable"
+            }
+          ]
         }

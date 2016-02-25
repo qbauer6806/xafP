@@ -42,7 +42,7 @@
         <servlet-name>LoginServlet</servlet-name>
         <url-pattern>/login</url-pattern>
     </servlet-mapping>
-    
+
     <servlet>
         <servlet-name>PaysServlet</servlet-name>
         <servlet-class>mc.gouv.appfactory.servlet.PaysServlet</servlet-class>

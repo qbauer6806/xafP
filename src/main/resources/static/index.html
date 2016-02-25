@@ -53,13 +53,17 @@ Pour cela, le client doit mentionner le JSESSIONID de la session en tant que Coo
 </li>
 </ul>
 <h2 id="header-erreurs">Erreurs <a class="permalink" href="#header-erreurs" aria-hidden="true">¶</a></h2>
-<p>Dans l’éventualité d’une erreur, en plus du status HTTP, l’API retourne un message d’erreur au format JSON avec l’attribut suivant :</p>
+<p>Dans l’éventualité d’une erreur, en plus du status HTTP, l’API retourne un ou plusieurs messages d’erreurs <code>errors</code> au format JSON avec l’attribut suivant :</p>
 <ul>
-<li><code>message</code> (obligatoire) - décrivant le problème</li>
+<li><code>libelle</code> (obligatoire) - décrivant le problème.</li>
 </ul>
 <p>Exemple :</p>
 <pre><code>{
-      "<span class="hljs-attribute">message</span>": <span class="hljs-value"><span class="hljs-string">"Accès déjà existant"</span>
+        "<span class="hljs-attribute">errors</span>": <span class="hljs-value">[
+            {
+                "<span class="hljs-attribute">libelle</span>": <span class="hljs-value"><span class="hljs-string">"Le container spécifié n'existe pas"</span>
+            </span>}
+        ]
     </span>}</code></pre>
 <section id="login-et-session-appfactoryservlet" class="resource-group"><h2 class="group-heading">Login et Session AppFactoryServlet<a href="#login-et-session-appfactoryservlet" class="permalink">&para;</a></h2><p><em>AppFactoryServlet</em> permet de créer une session interne à partir du SessionID retourné par l’étape de login auprès de l’application Logon.
 Cette session stockera les informations de l’usager, retournées par le service externe /login/rest/loggedUsagers/ au format JSON.</p>
@@ -182,29 +186,37 @@ Il n’y a donc aucun paramètre à donner à ce service, si ce n’est le JSON.
     "<span class="hljs-attribute">donnee2</span>": <span class="hljs-value"><span class="hljs-string">"Donnée custom 2"</span>
   </span>}
 </span>}</code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Response&nbsp;&nbsp;<code>201</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
-  <span class="hljs-string">"pkAccess"</span>: <span class="hljs-number">14</span>,
-  <span class="hljs-string">"demarcheId"</span>: <span class="hljs-string">"embauchage-personnel-maison"</span>,
-  <span class="hljs-string">"usagerId"</span>: <span class="hljs-string">"3071"</span>,
-  <span class="hljs-string">"dateCreation"</span>: <span class="hljs-string">"2016-01-25T09:29:08.329+01:00"</span>,
-  <span class="hljs-string">"dateDerModif"</span>: <span class="hljs-string">"2016-01-25T09:29:08.329+01:00"</span>,
-  <span class="hljs-string">"contenu"</span>:
-        <span class="hljs-string">"donnee1"</span> : <span class="hljs-string">"Donnée custom 1"</span>,
-        <span class="hljs-string">"donnee2"</span> : <span class="hljs-string">"Donnée custom 2"</span>
-  }
-}</code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Response&nbsp;&nbsp;<code>400</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div></div></div></div><div id="accès-à-la-démarche-et-désinscription-accès-get" class="action get"><h4 class="action-heading"><div class="name">Récupérer</div><a href="#accès-à-la-démarche-et-désinscription-accès-get" class="method get">GET</a><code class="uri">/appfactoryservlet/v1/accesses</code></h4><h4>Example URI</h4><div class="definition"><span class="method get">GET</span>&nbsp;<span class="uri"><span class="hostname">http://&lt;serveur&gt;</span>/appfactoryservlet/v1/accesses</span></div><div class="title"><strong>Request</strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">User-Agent</span>: <span class="hljs-string">NomDuLogiciel/Version</span><br><span class="hljs-attribute">Cookie</span>: <span class="hljs-string">JSESSIONID=1jyzh76rqbx66q2cxa0j0zvaf</span></code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Response&nbsp;&nbsp;<code>200</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
-  <span class="hljs-string">"pkAccess"</span>: <span class="hljs-number">14</span>,
-  <span class="hljs-string">"demarcheId"</span>: <span class="hljs-string">"embauchage-personnel-maison"</span>,
-  <span class="hljs-string">"usagerId"</span>: <span class="hljs-string">"3071"</span>,
-  <span class="hljs-string">"dateCreation"</span>: <span class="hljs-string">"2016-01-25T09:29:08.329+01:00"</span>,
-  <span class="hljs-string">"dateDerModif"</span>: <span class="hljs-string">"2016-01-25T09:29:08.329+01:00"</span>,
-  <span class="hljs-string">"contenu"</span>:
-        <span class="hljs-string">"donnee1"</span> : <span class="hljs-string">"Donnée custom 1"</span>,
-        <span class="hljs-string">"donnee2"</span> : <span class="hljs-string">"Donnée custom 2"</span>
-  }
-}</code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Response&nbsp;&nbsp;<code>404</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
-  "<span class="hljs-attribute">message</span>": <span class="hljs-value"><span class="hljs-string">"Accès introuvable"</span>
+  "<span class="hljs-attribute">pkAccess</span>": <span class="hljs-value"><span class="hljs-number">14</span></span>,
+  "<span class="hljs-attribute">demarcheId</span>": <span class="hljs-value"><span class="hljs-string">"embauchage-personnel-maison"</span></span>,
+  "<span class="hljs-attribute">usagerId</span>": <span class="hljs-value"><span class="hljs-string">"3071"</span></span>,
+  "<span class="hljs-attribute">dateCreation</span>": <span class="hljs-value"><span class="hljs-string">"2016-01-25T09:29:08.329+01:00"</span></span>,
+  "<span class="hljs-attribute">dateDerModif</span>": <span class="hljs-value"><span class="hljs-string">"2016-01-25T09:29:08.329+01:00"</span></span>,
+  "<span class="hljs-attribute">contenu</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">donnee1</span>": <span class="hljs-value"><span class="hljs-string">"Donnée custom 1"</span></span>,
+    "<span class="hljs-attribute">donnee2</span>": <span class="hljs-value"><span class="hljs-string">"Donnée custom 2"</span>
+  </span>}
+</span>}</code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Response&nbsp;&nbsp;<code>400</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div></div></div></div><div id="accès-à-la-démarche-et-désinscription-accès-get" class="action get"><h4 class="action-heading"><div class="name">Récupérer</div><a href="#accès-à-la-démarche-et-désinscription-accès-get" class="method get">GET</a><code class="uri">/appfactoryservlet/v1/accesses</code></h4><h4>Example URI</h4><div class="definition"><span class="method get">GET</span>&nbsp;<span class="uri"><span class="hostname">http://&lt;serveur&gt;</span>/appfactoryservlet/v1/accesses</span></div><div class="title"><strong>Request</strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">User-Agent</span>: <span class="hljs-string">NomDuLogiciel/Version</span><br><span class="hljs-attribute">Cookie</span>: <span class="hljs-string">JSESSIONID=1jyzh76rqbx66q2cxa0j0zvaf</span></code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Response&nbsp;&nbsp;<code>200</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">pkAccess</span>": <span class="hljs-value"><span class="hljs-number">14</span></span>,
+  "<span class="hljs-attribute">demarcheId</span>": <span class="hljs-value"><span class="hljs-string">"embauchage-personnel-maison"</span></span>,
+  "<span class="hljs-attribute">usagerId</span>": <span class="hljs-value"><span class="hljs-string">"3071"</span></span>,
+  "<span class="hljs-attribute">dateCreation</span>": <span class="hljs-value"><span class="hljs-string">"2016-01-25T09:29:08.329+01:00"</span></span>,
+  "<span class="hljs-attribute">dateDerModif</span>": <span class="hljs-value"><span class="hljs-string">"2016-01-25T09:29:08.329+01:00"</span></span>,
+  "<span class="hljs-attribute">contenu</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">donnee1</span>": <span class="hljs-value"><span class="hljs-string">"Donnée custom 1"</span></span>,
+    "<span class="hljs-attribute">donnee2</span>": <span class="hljs-value"><span class="hljs-string">"Donnée custom 2"</span>
+  </span>}
+</span>}</code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Response&nbsp;&nbsp;<code>404</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">errors</span>": <span class="hljs-value">[
+    {
+      "<span class="hljs-attribute">libelle</span>": <span class="hljs-value"><span class="hljs-string">"Accès introuvable"</span>
+    </span>}
+  ]
 </span>}</code></pre><div style="height: 1px;"></div></div></div></div><div id="accès-à-la-démarche-et-désinscription-accès-delete" class="action delete"><h4 class="action-heading"><div class="name">Supprimer</div><a href="#accès-à-la-démarche-et-désinscription-accès-delete" class="method delete">DELETE</a><code class="uri">/appfactoryservlet/v1/accesses</code></h4><h4>Example URI</h4><div class="definition"><span class="method delete">DELETE</span>&nbsp;<span class="uri"><span class="hostname">http://&lt;serveur&gt;</span>/appfactoryservlet/v1/accesses</span></div><div class="title"><strong>Request</strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">User-Agent</span>: <span class="hljs-string">NomDuLogiciel/Version</span><br><span class="hljs-attribute">Cookie</span>: <span class="hljs-string">JSESSIONID=1jyzh76rqbx66q2cxa0j0zvaf</span></code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Response&nbsp;&nbsp;<code>200</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Response&nbsp;&nbsp;<code>404</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
-  "<span class="hljs-attribute">message</span>": <span class="hljs-value"><span class="hljs-string">"Accès introuvable"</span>
+  "<span class="hljs-attribute">errors</span>": <span class="hljs-value">[
+    {
+      "<span class="hljs-attribute">libelle</span>": <span class="hljs-value"><span class="hljs-string">"Accès introuvable"</span>
+    </span>}
+  ]
 </span>}</code></pre><div style="height: 1px;"></div></div></div></div></div></section><section id="gestion-des-demandes" class="resource-group"><h2 class="group-heading">Gestion des demandes<a href="#gestion-des-demandes" class="permalink">&para;</a></h2><p><em>AppFactoryServlet</em> permet de créer des demandes pour un usager et une démarche particulière.</p>
 <div id="gestion-des-demandes-créer-et-récupérer" class="resource"><h3 class="resource-heading">Créer et récupérer<a href="#gestion-des-demandes-créer-et-récupérer" class="permalink">&para;</a></h3><p>Permet l’accès au back-end générique qui enregistre en base de données une demande d’un usager sur une démarche particulière.
 Le JSON custom inséré en base est retourné dans l’attribut “contenu” de la réponse.
@@ -215,44 +227,58 @@ Les DemarcheID et UsagerID (récupérés de la session) sont envoyés par AppFac
     "<span class="hljs-attribute">donnee2</span>": <span class="hljs-value"><span class="hljs-string">"Donnée custom 2"</span>
   </span>}
 </span>}</code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Response&nbsp;&nbsp;<code>201</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
-  <span class="hljs-string">"pkDemandes"</span>: <span class="hljs-number">1</span>,
-  <span class="hljs-string">"dateCreation"</span>: <span class="hljs-string">"2016-01-25T09:29:08.329+01:00"</span>,
-  <span class="hljs-string">"dateDerModif"</span>: <span class="hljs-string">"2016-01-25T09:29:08.329+01:00"</span>,
-  <span class="hljs-string">"contenu"</span>:
-        <span class="hljs-string">"donnee1"</span> : <span class="hljs-string">"Donnée custom 1"</span>,
-        <span class="hljs-string">"donnee2"</span> : <span class="hljs-string">"Donnée custom 2"</span>
-  },
-  <span class="hljs-string">"demarcheId"</span>: <span class="hljs-string">"derfrf"</span>,
-  <span class="hljs-string">"usagerId"</span>: <span class="hljs-string">"2345"</span>
-}</code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Response&nbsp;&nbsp;<code>404</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
-  "<span class="hljs-attribute">message</span>": <span class="hljs-value"><span class="hljs-string">"Accès correspondant introuvable"</span>
+  "<span class="hljs-attribute">pkDemandes</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+  "<span class="hljs-attribute">demarcheId</span>": <span class="hljs-value"><span class="hljs-string">"embauchage-personnel-maison"</span></span>,
+  "<span class="hljs-attribute">usagerId</span>": <span class="hljs-value"><span class="hljs-number">3071</span>
+  <span class="hljs-string">"dateCreation"</span>: <span class="hljs-string">"2016-01-25T09:29:08.329+01:00"</span></span>,
+  "<span class="hljs-attribute">dateDerModif</span>": <span class="hljs-value"><span class="hljs-string">"2016-01-25T09:29:08.329+01:00"</span></span>,
+  "<span class="hljs-attribute">contenu</span>": <span class="hljs-value">{
+        "<span class="hljs-attribute">donnee1</span>" : <span class="hljs-value"><span class="hljs-string">"Donnée custom 1"</span></span>,
+        "<span class="hljs-attribute">donnee2</span>" : <span class="hljs-value"><span class="hljs-string">"Donnée custom 2"</span>
+  </span>}
+</span>}</code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Response&nbsp;&nbsp;<code>404</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">errors</span>": <span class="hljs-value">[
+    {
+      "<span class="hljs-attribute">libelle</span>": <span class="hljs-value"><span class="hljs-string">"Erreur: Accès correspondant introuvable"</span>
+    </span>}
+  ]
 </span>}</code></pre><div style="height: 1px;"></div></div></div></div><div id="gestion-des-demandes-créer-et-récupérer-get" class="action get"><h4 class="action-heading"><div class="name">Récupérer</div><a href="#gestion-des-demandes-créer-et-récupérer-get" class="method get">GET</a><code class="uri">/appfactoryservlet/v1/demandes</code></h4><p>Récupérer toutes les demandes de l’usager connecté pour cette démarche.</p>
-<h4>Example URI</h4><div class="definition"><span class="method get">GET</span>&nbsp;<span class="uri"><span class="hostname">http://&lt;serveur&gt;</span>/appfactoryservlet/v1/demandes</span></div><div class="title"><strong>Request</strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">User-Agent</span>: <span class="hljs-string">NomDuLogiciel/Version</span><br><span class="hljs-attribute">Cookie</span>: <span class="hljs-string">JSESSIONID=1jyzh76rqbx66q2cxa0j0zvaf</span></code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Response&nbsp;&nbsp;<code>200</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
-  <span class="hljs-string">"pkAccess"</span>: <span class="hljs-number">14</span>,
-  <span class="hljs-string">"demarcheId"</span>: <span class="hljs-string">"embauchage-personnel-maison"</span>,
-  <span class="hljs-string">"usagerId"</span>: <span class="hljs-string">"3071"</span>,
-  <span class="hljs-string">"dateCreation"</span>: <span class="hljs-string">"2016-01-25T09:29:08.329+01:00"</span>,
-  <span class="hljs-string">"dateDerModif"</span>: <span class="hljs-string">"2016-01-25T09:29:08.329+01:00"</span>,
-  <span class="hljs-string">"contenu"</span>:
-        <span class="hljs-string">"donnee1"</span> : <span class="hljs-string">"Donnée custom 1"</span>,
-        <span class="hljs-string">"donnee2"</span> : <span class="hljs-string">"Donnée custom 2"</span>
-  }
-}</code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Response&nbsp;&nbsp;<code>404</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
-  "<span class="hljs-attribute">message</span>": <span class="hljs-value"><span class="hljs-string">"Accès correspondant introuvable"</span>
+<h4>Example URI</h4><div class="definition"><span class="method get">GET</span>&nbsp;<span class="uri"><span class="hostname">http://&lt;serveur&gt;</span>/appfactoryservlet/v1/demandes</span></div><div class="title"><strong>Request</strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">User-Agent</span>: <span class="hljs-string">NomDuLogiciel/Version</span><br><span class="hljs-attribute">Cookie</span>: <span class="hljs-string">JSESSIONID=1jyzh76rqbx66q2cxa0j0zvaf</span></code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Response&nbsp;&nbsp;<code>200</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>[
+  {
+    "<span class="hljs-attribute">pkDemandes</span>": <span class="hljs-value"><span class="hljs-number">14</span></span>,
+    "<span class="hljs-attribute">demarcheId</span>": <span class="hljs-value"><span class="hljs-string">"embauchage-personnel-maison"</span></span>,
+    "<span class="hljs-attribute">usagerId</span>": <span class="hljs-value"><span class="hljs-number">3071</span></span>,
+    "<span class="hljs-attribute">dateCreation</span>": <span class="hljs-value"><span class="hljs-string">"2016-01-25T09:29:08.329+01:00"</span></span>,
+    "<span class="hljs-attribute">dateDerModif</span>": <span class="hljs-value"><span class="hljs-string">"2016-01-25T09:29:08.329+01:00"</span></span>,
+    "<span class="hljs-attribute">contenu</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">donnee1</span>": <span class="hljs-value"><span class="hljs-string">"Donnée custom 1"</span></span>,
+      "<span class="hljs-attribute">donnee2</span>": <span class="hljs-value"><span class="hljs-string">"Donnée custom 2"</span>
+    </span>}
+  </span>}
+]</code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Response&nbsp;&nbsp;<code>404</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">errors</span>": <span class="hljs-value">[
+    {
+      "<span class="hljs-attribute">libelle</span>": <span class="hljs-value"><span class="hljs-string">"Erreur: Accès correspondant introuvable"</span>
+    </span>}
+  ]
 </span>}</code></pre><div style="height: 1px;"></div></div></div></div></div><div id="gestion-des-demandes-récupérer,-mettre-à-jour,-et-supprimer" class="resource"><h3 class="resource-heading">Récupérer, mettre à jour, et supprimer<a href="#gestion-des-demandes-récupérer,-mettre-à-jour,-et-supprimer" class="permalink">&para;</a></h3><div id="gestion-des-demandes-récupérer,-mettre-à-jour,-et-supprimer-get" class="action get"><h4 class="action-heading"><div class="name">Récupérer</div><a href="#gestion-des-demandes-récupérer,-mettre-à-jour,-et-supprimer-get" class="method get">GET</a><code class="uri">/appfactoryservlet/v1/demandes/{demandeId}</code></h4><p>Permet de récupérer une demande spécifique.</p>
 <h4>Example URI</h4><div class="definition"><span class="method get">GET</span>&nbsp;<span class="uri"><span class="hostname">http://&lt;serveur&gt;</span>/appfactoryservlet/v1/demandes/<span class="hljs-attribute">demandeId</span></span></div><div class="title"><strong>URI Parameters</strong><div class="collapse-button show"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><dl class="inner"><dt>demandeId</dt><dd><code>integer</code>&nbsp;<span>(optional)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>15</span></span><p>L’id de la demande à mettre à jour, récupérer ou supprimer.</p>
 </dd></dl></div><div class="title"><strong>Request</strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">User-Agent</span>: <span class="hljs-string">NomDuLogiciel/Version</span><br><span class="hljs-attribute">Cookie</span>: <span class="hljs-string">JSESSIONID=1jyzh76rqbx66q2cxa0j0zvaf</span></code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Response&nbsp;&nbsp;<code>200</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
-  <span class="hljs-string">"pkAccess"</span>: <span class="hljs-number">14</span>,
-  <span class="hljs-string">"demarcheId"</span>: <span class="hljs-string">"embauchage-personnel-maison"</span>,
-  <span class="hljs-string">"usagerId"</span>: <span class="hljs-string">"3071"</span>,
-  <span class="hljs-string">"dateCreation"</span>: <span class="hljs-string">"2016-01-25T09:29:08.329+01:00"</span>,
-  <span class="hljs-string">"dateDerModif"</span>: <span class="hljs-string">"2016-01-25T09:29:08.329+01:00"</span>,
-  <span class="hljs-string">"contenu"</span>:
-        <span class="hljs-string">"donnee1"</span> : <span class="hljs-string">"Donnée custom 1"</span>,
-        <span class="hljs-string">"donnee2"</span> : <span class="hljs-string">"Donnée custom 2"</span>
-  }
-}</code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Response&nbsp;&nbsp;<code>404</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
-  "<span class="hljs-attribute">message</span>": <span class="hljs-value"><span class="hljs-string">"Demande introuvable"</span>
+  "<span class="hljs-attribute">pkDemandes</span>": <span class="hljs-value"><span class="hljs-number">14</span></span>,
+  "<span class="hljs-attribute">demarcheId</span>": <span class="hljs-value"><span class="hljs-string">"embauchage-personnel-maison"</span></span>,
+  "<span class="hljs-attribute">usagerId</span>": <span class="hljs-value"><span class="hljs-number">3071</span></span>,
+  "<span class="hljs-attribute">dateCreation</span>": <span class="hljs-value"><span class="hljs-string">"2016-01-25T09:29:08.329+01:00"</span></span>,
+  "<span class="hljs-attribute">dateDerModif</span>": <span class="hljs-value"><span class="hljs-string">"2016-01-25T09:29:08.329+01:00"</span></span>,
+  "<span class="hljs-attribute">contenu</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">donnee1</span>": <span class="hljs-value"><span class="hljs-string">"Donnée custom 1"</span></span>,
+    "<span class="hljs-attribute">donnee2</span>": <span class="hljs-value"><span class="hljs-string">"Donnée custom 2"</span>
+  </span>}
+</span>}</code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Response&nbsp;&nbsp;<code>404</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">errors</span>": <span class="hljs-value">[
+    {
+      "<span class="hljs-attribute">libelle</span>": <span class="hljs-value"><span class="hljs-string">"Erreur: Accès correspondant introuvable"</span>
+    </span>}
+  ]
 </span>}</code></pre><div style="height: 1px;"></div></div></div></div><div id="gestion-des-demandes-récupérer,-mettre-à-jour,-et-supprimer-post" class="action post"><h4 class="action-heading"><div class="name">Mettre à jour</div><a href="#gestion-des-demandes-récupérer,-mettre-à-jour,-et-supprimer-post" class="method post">POST</a><code class="uri">/appfactoryservlet/v1/demandes/{demandeId}</code></h4><p>Met à jour une demande particulière.</p>
 <h4>Example URI</h4><div class="definition"><span class="method post">POST</span>&nbsp;<span class="uri"><span class="hostname">http://&lt;serveur&gt;</span>/appfactoryservlet/v1/demandes/<span class="hljs-attribute">demandeId</span></span></div><div class="title"><strong>URI Parameters</strong><div class="collapse-button show"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><dl class="inner"><dt>demandeId</dt><dd><code>integer</code>&nbsp;<span>(optional)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>15</span></span><p>L’id de la demande à mettre à jour, récupérer ou supprimer.</p>
 </dd></dl></div><div class="title"><strong>Request</strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">User-Agent</span>: <span class="hljs-string">NomDuLogiciel/Version</span><br><span class="hljs-attribute">Cookie</span>: <span class="hljs-string">JSESSIONID=1jyzh76rqbx66q2cxa0j0zvaf</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
@@ -261,22 +287,30 @@ Les DemarcheID et UsagerID (récupérés de la session) sont envoyés par AppFac
     "<span class="hljs-attribute">donnee2</span>": <span class="hljs-value"><span class="hljs-string">"Donnée custom 2"</span>
   </span>}
 </span>}</code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Response&nbsp;&nbsp;<code>200</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
-  <span class="hljs-string">"pkAccess"</span>: <span class="hljs-number">14</span>,
-  <span class="hljs-string">"demarcheId"</span>: <span class="hljs-string">"embauchage-personnel-maison"</span>,
-  <span class="hljs-string">"usagerId"</span>: <span class="hljs-string">"3071"</span>,
-  <span class="hljs-string">"dateCreation"</span>: <span class="hljs-string">"2016-01-25T09:29:08.329+01:00"</span>,
-  <span class="hljs-string">"dateDerModif"</span>: <span class="hljs-string">"2016-01-25T09:29:08.329+01:00"</span>,
-  <span class="hljs-string">"contenu"</span>:
-        <span class="hljs-string">"donnee1"</span> : <span class="hljs-string">"Donnée custom 1"</span>,
-        <span class="hljs-string">"donnee2"</span> : <span class="hljs-string">"Donnée custom 2"</span>
-  }
-}</code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Response&nbsp;&nbsp;<code>404</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
-  "<span class="hljs-attribute">message</span>": <span class="hljs-value"><span class="hljs-string">"Demande introuvable"</span>
+  "<span class="hljs-attribute">pkDemandes</span>": <span class="hljs-value"><span class="hljs-number">14</span></span>,
+  "<span class="hljs-attribute">demarcheId</span>": <span class="hljs-value"><span class="hljs-string">"embauchage-personnel-maison"</span></span>,
+  "<span class="hljs-attribute">usagerId</span>": <span class="hljs-value"><span class="hljs-number">3071</span></span>,
+  "<span class="hljs-attribute">dateCreation</span>": <span class="hljs-value"><span class="hljs-string">"2016-01-25T09:29:08.329+01:00"</span></span>,
+  "<span class="hljs-attribute">dateDerModif</span>": <span class="hljs-value"><span class="hljs-string">"2016-01-25T09:29:08.329+01:00"</span></span>,
+  "<span class="hljs-attribute">contenu</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">donnee1</span>": <span class="hljs-value"><span class="hljs-string">"Donnée custom 1"</span></span>,
+    "<span class="hljs-attribute">donnee2</span>": <span class="hljs-value"><span class="hljs-string">"Donnée custom 2"</span>
+  </span>}
+</span>}</code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Response&nbsp;&nbsp;<code>404</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">errors</span>": <span class="hljs-value">[
+    {
+      "<span class="hljs-attribute">libelle</span>": <span class="hljs-value"><span class="hljs-string">"Erreur: Demande introuvable"</span>
+    </span>}
+  ]
 </span>}</code></pre><div style="height: 1px;"></div></div></div></div><div id="gestion-des-demandes-récupérer,-mettre-à-jour,-et-supprimer-delete" class="action delete"><h4 class="action-heading"><div class="name">Supprimer</div><a href="#gestion-des-demandes-récupérer,-mettre-à-jour,-et-supprimer-delete" class="method delete">DELETE</a><code class="uri">/appfactoryservlet/v1/demandes/{demandeId}</code></h4><p>Supprime une demande.</p>
 <h4>Example URI</h4><div class="definition"><span class="method delete">DELETE</span>&nbsp;<span class="uri"><span class="hostname">http://&lt;serveur&gt;</span>/appfactoryservlet/v1/demandes/<span class="hljs-attribute">demandeId</span></span></div><div class="title"><strong>URI Parameters</strong><div class="collapse-button show"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><dl class="inner"><dt>demandeId</dt><dd><code>integer</code>&nbsp;<span>(optional)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>15</span></span><p>L’id de la demande à mettre à jour, récupérer ou supprimer.</p>
 </dd></dl></div><div class="title"><strong>Request</strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">User-Agent</span>: <span class="hljs-string">NomDuLogiciel/Version</span><br><span class="hljs-attribute">Cookie</span>: <span class="hljs-string">JSESSIONID=1jyzh76rqbx66q2cxa0j0zvaf</span></code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Response&nbsp;&nbsp;<code>200</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Response&nbsp;&nbsp;<code>404</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
-  "<span class="hljs-attribute">message</span>": <span class="hljs-value"><span class="hljs-string">"Demande introuvable"</span>
-</span>}</code></pre><div style="height: 1px;"></div></div></div></div></div></section></div></div></div><p style="text-align: center;" class="text-muted">Generated by&nbsp;<a href="https://github.com/danielgtaylor/aglio" class="aglio">aglio</a>&nbsp;on 15 Feb 2016</p><script>/* eslint-env browser */
+  "<span class="hljs-attribute">errors</span>": <span class="hljs-value">[
+    {
+      "<span class="hljs-attribute">libelle</span>": <span class="hljs-value"><span class="hljs-string">"Erreur: Demande introuvable"</span>
+    </span>}
+  ]
+</span>}</code></pre><div style="height: 1px;"></div></div></div></div></div></section></div></div></div><p style="text-align: center;" class="text-muted">Generated by&nbsp;<a href="https://github.com/danielgtaylor/aglio" class="aglio">aglio</a>&nbsp;on 24 Feb 2016</p><script>/* eslint-env browser */
 /* eslint quotes: [2, "single"] */
 'use strict';
 

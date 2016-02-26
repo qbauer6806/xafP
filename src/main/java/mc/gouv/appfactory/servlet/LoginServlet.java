@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.fluent.Request;
@@ -26,7 +27,7 @@ import mc.gouv.Static;
  */
 public class LoginServlet extends HttpServlet {
     
-    private static final String LOGIN_REST_URL = Static.getValue("appfactoryLoginRestUrl", "http://linuxas-dev/login/rest") + "/loggedUsagers/";
+    private static final String LOGIN_REST_URL = Static.getValue("mc.gouv.appfactory.external.login.url");
     
     private static final long serialVersionUID = -394488730959377371L;
     
@@ -40,10 +41,17 @@ public class LoginServlet extends HttpServlet {
         
         LOGGER.info("/login doPost() sessionId=" + sessionId);
         
-        String serviceUrl = LOGIN_REST_URL + sessionId;
+        if (StringUtils.isBlank(sessionId)) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+        
+        // Appel du service ts-login
+        String serviceUrl = LOGIN_REST_URL + "/" + sessionId;
         Request serviceRequest = Request.Get(serviceUrl);
         serviceRequest.setHeader("Accept", "application/json");
         try {
+            LOGGER.info("Appel du service ts-login...");
             HttpResponse serviceResponse = serviceRequest.execute().returnResponse();
             int code = serviceResponse.getStatusLine().getStatusCode();
             if (code == HttpServletResponse.SC_NOT_FOUND || code != HttpServletResponse.SC_OK) {
@@ -67,6 +75,41 @@ public class LoginServlet extends HttpServlet {
         }
         
         LOGGER.info("Fin /login doPost()");
+            
+    }
+    
+    @Override
+    public void doDelete(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+        
+        // Le SessionID est stocké dans l'URL parameter "id"
+        String sessionId = request.getParameter("id");
+        
+        LOGGER.info("/login doDelete() sessionId=" + sessionId);
+        
+        if (StringUtils.isBlank(sessionId)) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        }
+        
+        // Appel du service ts-login
+        String serviceUrl = LOGIN_REST_URL + "/" + sessionId;
+        Request serviceRequest = Request.Delete(serviceUrl);
+        try {
+            LOGGER.info("Appel du service ts-login...");
+            HttpResponse serviceResponse = serviceRequest.execute().returnResponse();
+            int statusCode = serviceResponse.getStatusLine().getStatusCode();
+            response.setStatus(statusCode);
+            // Si tout s'est bien passé, alors on détruit la session côté AppFactoryServlet
+            if (statusCode == HttpServletResponse.SC_NO_CONTENT) {
+                request.getSession().invalidate();
+            }
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+        }
+        
+        LOGGER.info("Fin /login doDelete()");
             
     }
     

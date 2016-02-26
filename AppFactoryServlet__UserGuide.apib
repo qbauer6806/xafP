@@ -59,7 +59,7 @@ Exemple :
 *AppFactoryServlet* permet de créer une session interne à partir du SessionID retourné par l'étape de login auprès de l'application Logon.
 Cette session stockera les informations de l'usager, retournées par le service externe /login/rest/loggedUsagers/ au format JSON.
 
-## Login [/appfactoryservlet/v1/login?id={id}]
+## Login [/appfactoryservlet/login?id={id}]
 
 Appelle le service externe /login/rest/loggedUsagers/ et enregistre dans une nouvelle session le JSON retourné.
 
@@ -84,7 +84,7 @@ Voici le JSON qui sera stocké dans la session :
     + id (required, string, `ojss26rcr910yq3f6an6ot2u`) ... L'id de la session retournée après l'authentification sur Logon
 
 
-### Déposer [POST]
+### Login [POST]
 
 + Request
     + Headers
@@ -98,7 +98,23 @@ Voici le JSON qui sera stocké dans la session :
 
 + Response 404 (application/json)
 
-## Sessions [/appfactoryservlet/v1/sessions]
+### Logout [DELETE]
+
+Effectue un logout
+
++ Request
+    + Headers
+
+            User-Agent: NomDuLogiciel/Version
+            Cookie: JSESSIONID=1jyzh76rqbx66q2cxa0j0zvaf
+
+
++ Response 204
+
+
++ Response 404 (application/json)
+
+## Sessions [/appfactoryservlet/sessions]
 
 Retourne le contenu de la session stockée dans AppFactoryServlet.
 
@@ -153,7 +169,7 @@ Voici le JSON qui est stocké dans la session :
 # Group Accès à la démarche et désinscription
 *AppFactoryServlet* permet de créer un accès d'un usager à une démarche et de le désinscrire d'une démarche.
 
-## Accès [/appfactoryservlet/v1/accesses]
+## Accès [/appfactoryservlet/accesses]
 
 Permet l'accès au back-end générique qui enregistre en base de données l'accès d'un usager à une démarche particulière.
 Le JSON custom inséré en base est retourné dans l'attribut "contenu" de la réponse.
@@ -250,7 +266,7 @@ Il n'y a donc aucun paramètre à donner à ce service, si ce n'est le JSON.
 # Group Gestion des demandes
 *AppFactoryServlet* permet de créer des demandes pour un usager et une démarche particulière.
 
-## Créer et récupérer [/appfactoryservlet/v1/demandes]
+## Créer et récupérer [/appfactoryservlet/demandes]
 
 Permet l'accès au back-end générique qui enregistre en base de données une demande d'un usager sur une démarche particulière.
 Le JSON custom inséré en base est retourné dans l'attribut "contenu" de la réponse.
@@ -336,7 +352,7 @@ Récupérer toutes les demandes de l'usager connecté pour cette démarche.
           ]
         }
 
-## Récupérer, mettre à jour, et supprimer [/appfactoryservlet/v1/demandes/{demandeId}]
+## Récupérer, mettre à jour, et supprimer [/appfactoryservlet/demandes/{demandeId}]
 
 + Parameters
     + demandeId (optional, integer, `15`) ... L'id de la demande à mettre à jour, récupérer ou supprimer.
@@ -444,3 +460,10 @@ Supprime une demande.
             }
           ]
         }
+        
+## Référentiel pays et nationalité [/appfactoryservlet/pays]
+
+AppFactoryServlet met à disposition en tant que proxy le service de référentiel pays et nationalité.
+
+Se référer à la documentation de l'API référencée sous l'identifiant **REF_PAYS**.
+

@@ -142,9 +142,7 @@ public class DemandesServlet extends HttpServlet {
                         return AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_BAD_REQUEST, "Erreur: JSON manquant");
                     }
                     
-                    String data = "{ \"contenu\" : " + buffer.toString() + " }";
-                    
-                    StringEntity input = new StringEntity(data,"UTF-8");
+                    StringEntity input = new StringEntity(buffer.toString(),"UTF-8");
                     
                     ((HttpEntityEnclosingRequestBase)finalRequest).setEntity(input);
                 }

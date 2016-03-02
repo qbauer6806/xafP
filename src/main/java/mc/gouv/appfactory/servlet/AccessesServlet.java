@@ -101,10 +101,10 @@ public class AccessesServlet extends HttpServlet {
                     finalRequest = new HttpGet(url);
                 }
                 else if (HttpMethod.DELETE.equals(httpMethod)) {
-                    finalRequest = new HttpDelete(url);
+                    finalRequest = new HttpDeleteWithBody(url);
                 }
                 
-                if (HttpMethod.POST.equals(httpMethod)) {
+                if (HttpMethod.POST.equals(httpMethod) || HttpMethod.DELETE.equals(httpMethod)) {
                     finalRequest.setHeader("Content-Type", "application/json; charset=UTF-8");
                     
                     // Récupération du JSON reçu en input et transmission au 2ème service en UTF8
@@ -119,9 +119,7 @@ public class AccessesServlet extends HttpServlet {
                         return AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_BAD_REQUEST, "Erreur: JSON manquant");
                     }
                     
-                    String data = "{ \"contenu\" : " + buffer.toString() + " }";
-                    
-                    StringEntity input = new StringEntity(data,"UTF-8");
+                    StringEntity input = new StringEntity(buffer.toString(),"UTF-8");
                     
                     ((HttpEntityEnclosingRequestBase)finalRequest).setEntity(input);
                 }

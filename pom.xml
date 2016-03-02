@@ -22,6 +22,7 @@
                 <configuration>
                     <httpConnector>
                         <port>20041</port>
+                        <host>127.0.0.1</host>
                     </httpConnector>
                     <stopKey>STOPITNOW</stopKey>
                     <stopPort>20049</stopPort>

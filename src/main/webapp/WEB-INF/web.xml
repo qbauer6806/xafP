@@ -51,6 +51,15 @@
         <servlet-name>PaysServlet</servlet-name>
         <url-pattern>/pays/*</url-pattern>
     </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>CaptchaServlet</servlet-name>
+        <servlet-class>mc.gouv.appfactory.servlet.CaptchaServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CaptchaServlet</servlet-name>
+        <url-pattern>/captcha</url-pattern>
+    </servlet-mapping>
 
     <context-param>
         <param-name>DemarcheID</param-name>

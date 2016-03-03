@@ -16,7 +16,6 @@ import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -29,6 +28,7 @@ import org.slf4j.LoggerFactory;
 
 import mc.gouv.Static;
 import mc.gouv.appfactory.util.AppFactoryServletUtils;
+import mc.gouv.appfactory.util.HttpDeleteWithBody;
 
 /**
  * Servlet mettant à disposition le service /accesses avec les méthodes PUT, POST, GET, DELETE.

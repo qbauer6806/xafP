@@ -487,3 +487,30 @@ AppFactoryServlet met à disposition en tant que proxy le service de référenti
 
 Se référer à la documentation de l'API référencée sous l'identifiant **REF_PAYS**.
 
+# Group Captcha
+*AppFactoryServlet* expose un service faisant appel à l'API reCAPTCHA.
+
+## Captcha [/appfactoryservlet/captcha?token={token}]
+
+Appelle l'API reCAPTCHA pour vérifier le Captcha.
+
++ Parameters
+    + token (required, string, `recaptcha_127.0.0.1_challenge_response`) ... Le token comprenant l'IP du client, le challenge (ID du test à vérifier, généré par Google), et la réponse de l'utilisateur au challenge
+
+
+### Captcha [GET]
+
++ Request
+    + Headers
+
+            User-Agent: NomDuLogiciel/Version
+            Cookie: JSESSIONID=1jyzh76rqbx66q2cxa0j0zvaf
+
+
++ Response 200 (application/json)
+
+        {
+          "valid" : "true"
+        }
+
++ Response 400

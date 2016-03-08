@@ -14,7 +14,7 @@ import org.apache.http.client.fluent.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import mc.gouv.Static;
+import mc.gouv.appfactory.util.AppFactoryServletUtils;
 
 /**
  * Proxy vers le référentiel Pays
@@ -28,8 +28,6 @@ public class PaysServlet extends HttpServlet {
     
     private static Logger LOGGER = LoggerFactory.getLogger(PaysServlet.class);
 
-    private static final String PAYS_URL = Static.getValue("mc.gouv.appfactory.external.pays.url");
-
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         LOGGER.info("/accesses doGet()");
@@ -37,7 +35,7 @@ public class PaysServlet extends HttpServlet {
         String pathToQuery = request.getPathInfo();
         String queryString = request.getQueryString();
         
-        String serviceUrl = PAYS_URL + (pathToQuery != null ? pathToQuery : "") + (queryString != null ? "?" + queryString : "");
+        String serviceUrl = AppFactoryServletUtils.PAYS_URL + (pathToQuery != null ? pathToQuery : "") + (queryString != null ? "?" + queryString : "");
         
         LOGGER.info("Appel à " + serviceUrl);
         

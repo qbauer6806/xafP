@@ -514,3 +514,35 @@ Appelle l'API reCAPTCHA pour vérifier le Captcha.
         }
 
 + Response 400
+
+# Group Pièces jointes
+*AppFactoryServlet* expose des services de stockage et de récupération de pièces jointes
+
+## Stockage de pièce jointe [/appfactoryservlet/fileupload/{filename}]
+
+Appelle l'API FILE afin de stocker une pièce jointe. Le fichier est à envoyer dans un appel multipart/form-data.
+La réponse contient l'identifiant du fichier au format uuid/filename.
+
++ Parameters
+    + filename (required, string, `CV.pdf`) ... Le nom du fichier à envoyer
+
+
+### Stocker [POST]
+
++ Request
+    + Headers
+
+            User-Agent: NomDuLogiciel/Version
+            Cookie: JSESSIONID=1jyzh76rqbx66q2cxa0j0zvaf
+            Content-Type: multipart/form-data; boundary=---011000010111000001101001
+
+
++ Response 201 (application/json)
+
+        {
+          "fileId" : "c6152835-e539-11e5-9d2a-08002700c066/CV.pdf"
+        }
+
++ Response 404
+
+

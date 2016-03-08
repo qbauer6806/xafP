@@ -51,7 +51,7 @@
         <servlet-name>PaysServlet</servlet-name>
         <url-pattern>/pays/*</url-pattern>
     </servlet-mapping>
-    
+
     <servlet>
         <servlet-name>CaptchaServlet</servlet-name>
         <servlet-class>mc.gouv.appfactory.servlet.CaptchaServlet</servlet-class>
@@ -61,9 +61,28 @@
         <url-pattern>/captcha</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>FileUploadServlet</servlet-name>
+        <servlet-class>mc.gouv.appfactory.servlet.FileUploadServlet</servlet-class>
+        <multipart-config>
+            <max-file-size>10485760</max-file-size>
+            <max-request-size>20971520</max-request-size>
+            <file-size-threshold>5242880</file-size-threshold>
+        </multipart-config>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>FileUploadServlet</servlet-name>
+        <url-pattern>/fileupload/*</url-pattern>
+    </servlet-mapping>
+
     <context-param>
         <param-name>DemarcheID</param-name>
         <param-value>embauchage-personnel-maison</param-value>
+    </context-param>
+
+    <context-param>
+        <param-name>AppFactoryID</param-name>
+        <param-value>appfactory</param-value>
     </context-param>
 
 </web-app>

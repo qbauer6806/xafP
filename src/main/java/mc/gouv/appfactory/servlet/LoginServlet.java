@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import mc.gouv.Static;
+import mc.gouv.appfactory.util.AppFactoryServletUtils;
 
 /**
  * 
@@ -26,8 +26,6 @@ import mc.gouv.Static;
  *
  */
 public class LoginServlet extends HttpServlet {
-    
-    private static final String LOGIN_REST_URL = Static.getValue("mc.gouv.appfactory.external.login.url");
     
     private static final long serialVersionUID = -394488730959377371L;
     
@@ -47,7 +45,7 @@ public class LoginServlet extends HttpServlet {
         }
         
         // Appel du service ts-login
-        String serviceUrl = LOGIN_REST_URL + "/" + sessionId;
+        String serviceUrl = AppFactoryServletUtils.LOGIN_REST_URL + "/" + sessionId;
         Request serviceRequest = Request.Get(serviceUrl);
         serviceRequest.setHeader("Accept", "application/json");
         try {
@@ -92,7 +90,7 @@ public class LoginServlet extends HttpServlet {
         }
         
         // Appel du service ts-login
-        String serviceUrl = LOGIN_REST_URL + "/" + sessionId;
+        String serviceUrl = AppFactoryServletUtils.LOGIN_REST_URL + "/" + sessionId;
         Request serviceRequest = Request.Delete(serviceUrl);
         try {
             LOGGER.info("Appel du service ts-login...");

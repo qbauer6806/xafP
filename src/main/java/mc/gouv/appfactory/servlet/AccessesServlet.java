@@ -26,7 +26,6 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import mc.gouv.Static;
 import mc.gouv.appfactory.util.AppFactoryServletUtils;
 import mc.gouv.appfactory.util.HttpDeleteWithBody;
 
@@ -43,8 +42,6 @@ public class AccessesServlet extends HttpServlet {
     private static final long serialVersionUID = 520893456441444275L;
     
     private static Logger LOGGER = LoggerFactory.getLogger(AccessesServlet.class);
-    
-    private static final String ACCESSES_URL = Static.getValue("mc.gouv.appfactory.demarchesws.accesses.url");
     
     private enum HttpMethod {
         PUT,
@@ -93,7 +90,7 @@ public class AccessesServlet extends HttpServlet {
                 // Création du client HTTP avec la bonne adresse
                 HttpClient httpClient = HttpClientBuilder.create().setDefaultCredentialsProvider(credentialsProvider).build();
                 HttpRequestBase finalRequest = null;
-                String url = ACCESSES_URL + "/" + demarcheId + "/" + usagerId;
+                String url = AppFactoryServletUtils.ACCESSES_URL + "/" + demarcheId + "/" + usagerId;
                 if (HttpMethod.POST.equals(httpMethod)) {
                     finalRequest = new HttpPost(url);
                 }

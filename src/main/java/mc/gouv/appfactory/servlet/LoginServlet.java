@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import mc.gouv.appfactory.dto.UsagerInfosDTO;
 import mc.gouv.appfactory.util.AppFactoryServletUtils;
 
 /**
@@ -58,7 +59,7 @@ public class LoginServlet extends HttpServlet {
             else {
                 ObjectMapper mapper = new ObjectMapper();
                 mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX"));
-                UsagerInfos uinfos = mapper.readValue(serviceResponse.getEntity().getContent(), UsagerInfos.class);
+                UsagerInfosDTO uinfos = mapper.readValue(serviceResponse.getEntity().getContent(), UsagerInfosDTO.class);
 
                 if (uinfos != null) {
                     // Stockage de cet objet d'infos d'usager dans la session HTTP
@@ -68,8 +69,7 @@ public class LoginServlet extends HttpServlet {
             }
         }
         catch (Exception e) {
-            e.printStackTrace();
-            response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+            response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_INTERNAL_SERVER_ERROR, "Erreur interne: " + e.toString() + e.getMessage());
         }
         
         LOGGER.info("Fin /login doPost()");
@@ -103,8 +103,7 @@ public class LoginServlet extends HttpServlet {
             }
         }
         catch (Exception e) {
-            e.printStackTrace();
-            response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+            response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_INTERNAL_SERVER_ERROR, "Erreur interne: " + e.toString() + e.getMessage());
         }
         
         LOGGER.info("Fin /login doDelete()");

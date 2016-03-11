@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import mc.gouv.appfactory.dto.UsagerInfosDTO;
+
 /**
  * 
  * @author qdeme
@@ -37,14 +39,14 @@ public class SessionsServlet extends HttpServlet {
         
         if (session != null) {
             // Récupération de l'objet attaché à la session
-            UsagerInfos usagerInfos = (UsagerInfos)session.getAttribute("login");
+            UsagerInfosDTO usagerInfosDTO = (UsagerInfosDTO)session.getAttribute("login");
             
             // Retour au client
             response.setContentType("application/json");
             ObjectMapper mapper = new ObjectMapper();
             mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
             mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX"));
-            mapper.writeValue(response.getOutputStream(), usagerInfos);
+            mapper.writeValue(response.getOutputStream(), usagerInfosDTO);
             response.getOutputStream().flush();
         }
         else {

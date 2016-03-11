@@ -1,4 +1,4 @@
-package mc.gouv.appfactory.servlet;
+package mc.gouv.appfactory.dto;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -13,7 +13,7 @@ import java.util.Date;
  * 
  * @author dinfo10
  */
-public class UsagerInfos implements Serializable {
+public class UsagerInfosDTO implements Serializable {
     private static final long serialVersionUID = -7219376931453637516L;
 
     // la map des usagers loggés est stockée avec la clé suivante dans le

@@ -9,28 +9,18 @@ import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import javax.servlet.http.Part;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.AuthCache;
-import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.InputStreamBody;
-import org.apache.http.impl.auth.BasicScheme;
-import org.apache.http.impl.client.BasicAuthCache;
-import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +28,9 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import mc.gouv.appfactory.dto.FileUploadResponseDTO;
+import mc.gouv.appfactory.dto.UsagerInfosDTO;
 import mc.gouv.appfactory.util.AppFactoryServletUtils;
+import mc.gouv.appfactory.util.AppFactoryServletUtils.ServiceTarget;
 
 @MultipartConfig
 public class FileUploadServlet extends HttpServlet {
@@ -51,13 +43,8 @@ public class FileUploadServlet extends HttpServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         LOGGER.info("/fileupload doPost()");
         
-        HttpSession session = request.getSession(false);
-        if (session == null) {
-            response.setStatus(HttpStatus.SC_UNAUTHORIZED);
-            return;
-        }
-        UsagerInfos usagerInfos = (UsagerInfos)session.getAttribute("login");
-        if (usagerInfos == null) {
+        UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(request);
+        if (usagerInfosDTO == null) {
             response.setStatus(HttpStatus.SC_UNAUTHORIZED);
             return;
         }
@@ -80,14 +67,14 @@ public class FileUploadServlet extends HttpServlet {
         UUID uuid = AppFactoryServletUtils.generateUUID();
         LOGGER.debug("UUID généré : {}", uuid.toString());
 
-        String appFactoryId = getServletContext().getInitParameter("AppFactoryID");
-        String demarcheId = getServletContext().getInitParameter("DemarcheID");
+        String appFactoryId = getServletContext().getInitParameter(AppFactoryServletUtils.APPFACTORYID_KEY);
+        String demarcheId = getServletContext().getInitParameter(AppFactoryServletUtils.DEMARCHEID_KEY);
         
         LOGGER.debug("AppFactoryID = {}, DemarcheID = {}", appFactoryId, demarcheId);
         
         // Récupération de l'AccessID via appel WS à Demarches
         LOGGER.info("Récupération de l'AccessID correspondant");
-        Integer accessId = AppFactoryServletUtils.getAccessID(demarcheId, usagerInfos.getId());
+        Integer accessId = AppFactoryServletUtils.getAccessID(demarcheId, usagerInfosDTO.getId());
         LOGGER.debug("AccessID = {}", accessId);
         
         
@@ -105,24 +92,7 @@ public class FileUploadServlet extends HttpServlet {
         URL url = new URL(AppFactoryServletUtils.FILE_URL + virtualPath);
         LOGGER.info("URL d'appel : {}", url);
         
-        // Définition de l'authentification
-        // Utilisation d'un AuthCache puis d'un Context que l'on donne au moment de l'appel au serveur, afin de faire
-        // une authentification dès la première tentative, et non dès la deuxième tentative, car dans le deuxième cas,
-        // cela force à faire un retry et donc à lire une deuxième fois l'InputStream, or c'est impossible
-        // (NonRepeatableRequestException)
-        LOGGER.info("Constitution de la requête...");
-        HttpHost targetHost = new HttpHost(url.getHost(), url.getPort(), "http");
-        CredentialsProvider credsProvider = new BasicCredentialsProvider();
-        credsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials("abc", "abc"));
-         
-        AuthCache authCache = new BasicAuthCache();
-        authCache.put(targetHost, new BasicScheme());
-         
-        // Ajout de l'AuthCache au contexte d'exécution
-        final HttpClientContext context = HttpClientContext.create();
-        context.setCredentialsProvider(credsProvider);
-        context.setAuthCache(authCache);
-        
+        // Constitution de la requête
         HttpClient client = HttpClientBuilder.create().build();
         Part part = request.getParts().iterator().next();
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
@@ -132,7 +102,7 @@ public class FileUploadServlet extends HttpServlet {
         postRequest.setEntity(multipart);
         
         LOGGER.info("Appel du WS FILE");
-        HttpResponse postResponse = client.execute(postRequest, context);
+        HttpResponse postResponse = client.execute(postRequest, AppFactoryServletUtils.getHttpContextForAuth(url, ServiceTarget.FILE));
 
         // Constitution de la réponse en redirigeant la réponse du WS ansi que son code réponse
         LOGGER.info("Constitution de la réponse pour retour au client");

@@ -292,6 +292,24 @@ Permet l'accès au back-end générique qui enregistre en base de données une d
 Le JSON custom inséré en base est retourné dans l'attribut "contenu" de la réponse.
 Les DemarcheID et UsagerID (récupérés de la session) sont envoyés par AppFactoryServlet au back-end générique de manière transparente.
 
+Note : si l'on a uploadé des pièces jointes avant création de la demande, alors il faut spécifier lors de la création de la demande le ou les fichiers qui ont été précédemment uploadés en utilisant ce qui suit dans le "JSON custom".
+Sachant que le format de l'URL est à construire comme suit : /{uuid}/{filename}.
+{uuid}/{filename} étant généré et retourné par le service d'upload de fichiers.
+
+            {
+                "contenu" : {
+                	"fichiers" : [
+                		{
+		                    "nom" : "CV.pdf",
+		                    "url" : "/ece7a75e-e5f9-11e5-a7a3-08002700c066/CV.pdf"
+		                },
+		                {
+		                    "nom" : "lettremotivation.doc",
+		                    "url" : "/ada9b78b-a43f-11e5-a7a3-08002700c066/lettremotivation.doc"
+		                }
+		            ]
+                }
+            }
 
 ### Créer [POST]
 
@@ -545,4 +563,25 @@ La réponse contient l'identifiant du fichier au format uuid/filename.
 
 + Response 404
 
+## Récupération de pièce jointe [/appfactoryservlet/filedownload/{uuid}/{filename}]
+
+Appelle l'API FILE afin de stocker une pièce jointe. Le fichier est à envoyer dans un appel multipart/form-data.
+La réponse contient l'identifiant du fichier au format uuid/filename.
+
++ Parameters
+	+ uuid (required, string, `cb14459c-e53c-11e5-8a2a-08002700c066`) ... L'UUID du fichier, retourné par le service **fileupload**
+    + filename (required, string, `CV.pdf`) ... Le nom du fichier à envoyer
+
+
+### Récupérer [GET]
+
++ Request
+    + Headers
+
+            User-Agent: NomDuLogiciel/Version
+            Cookie: JSESSIONID=1jyzh76rqbx66q2cxa0j0zvaf
+
++ Response 200 (application/json)
+
++ Response 404
 

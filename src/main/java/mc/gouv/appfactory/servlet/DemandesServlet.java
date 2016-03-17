@@ -151,28 +151,28 @@ public class DemandesServlet extends HttpServlet {
     
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        LOGGER.info("/demandes doPost()");
+        LOGGER.info("====================== /demandes doPost()");
         
         response = doHttpMethod(request, response, HttpMethod.POST);
         
-        LOGGER.info("Fin /demandes doPost()");
+        LOGGER.info("====================== Fin /demandes doPost()");
     }
     
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        LOGGER.info("/demandes doGet()");
+        LOGGER.info("====================== /demandes doGet()");
         
         response = doHttpMethod(request, response, HttpMethod.GET);
         
-        LOGGER.info("Fin /demandes doGet()");
+        LOGGER.info("====================== Fin /demandes doGet()");
     }
     
     @Override
     public void doDelete(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        LOGGER.info("/demandes doDelete()");
+        LOGGER.info("====================== /demandes doDelete()");
         
         response =doHttpMethod(request, response, HttpMethod.DELETE);
         
-        LOGGER.info("Fin /demandes doDelete()");
+        LOGGER.info("====================== Fin /demandes doDelete()");
     }
 }

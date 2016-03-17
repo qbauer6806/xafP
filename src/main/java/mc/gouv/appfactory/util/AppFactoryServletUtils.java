@@ -2,13 +2,16 @@ package mc.gouv.appfactory.util;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.StringTokenizer;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
@@ -36,6 +39,8 @@ import com.fasterxml.uuid.impl.TimeBasedGenerator;
 import mc.gouv.Static;
 import mc.gouv.appfactory.dto.UsagerInfosDTO;
 import mc.gouv.demarches.api.model.AccessDTO;
+import net.tanesha.recaptcha.ReCaptchaImpl;
+import net.tanesha.recaptcha.ReCaptchaResponse;
 
 public class AppFactoryServletUtils {
     
@@ -50,6 +55,8 @@ public class AppFactoryServletUtils {
     public static final String PAYS_URL = Static.getValue("mc.gouv.appfactory.external.pays.url");
     
     public static final String FILE_URL = Static.getValue("mc.gouv.appfactory.filews.file.url");
+    
+    public static final String MAIL_URL = Static.getValue("mc.gouv.appfactory.mailws.mail.url");
     
     public static final String DEMARCHEID_KEY = "DemarcheID";
     
@@ -66,6 +73,14 @@ public class AppFactoryServletUtils {
     public static final String DEMARCHES_USER = Static.getValue("mc.gouv.appfactory.demarchesws.user");
     
     public static final String DEMARCHES_PWD = Static.getValue("mc.gouv.appfactory.demarchesws.pwd");
+    
+    public static final String FILE_METADATA_DEMANDEID = "X-MC-DEMANDEID";
+    
+    public static final String CAPTCHA_TOKEN_REGEXP = "^recaptcha_([0-9.]+)_(.*)_(.*)$";
+    
+    public static final String CAPTCHA_PRIVATE_KEY = Static.getValue("mc.gouv.appfactory.captcha.privatekey");
+    
+    public static final String GOUV_CONTACT_EMAIL = Static.getValue("mc.gouv.appfactory.mailws.gouvemail");
     
     public enum ServiceTarget {
         DEMARCHES,
@@ -205,6 +220,53 @@ public class AppFactoryServletUtils {
         CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
         credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(user, pwd));
         return credentialsProvider;
+    }
+    
+    /**
+     * Effectue la vérification Captcha
+     * @param token Le token Captcha
+     * @return true ou false selon le résultat
+     */
+    public static boolean checkCaptcha(String token) {
+        if (StringUtils.isBlank(token) || !isValidCaptchaToken(token)) {
+            LOGGER.error("Token au mauvais format");
+            return false;
+        }
+        
+        // Extraction de l'adresse IP, du challenge, et de la réponse
+        // Le challenge pouvait contenir plusieurs "_", mais pas la réponse
+        StringTokenizer st = new StringTokenizer(token, "_");
+        int count = st.countTokens()-1;
+        st.nextToken(); // skip "recaptcha"
+        String ip = st.nextToken();
+        String challenge = "";
+        for (int i = 2; i < count; i++) {
+            if (!challenge.equals("")) {
+                challenge += "_" + st.nextToken();
+            }
+            else {
+                challenge = st.nextToken();
+            }
+        }
+        String response = st.nextToken();
+        // Fin extraction
+        
+        ReCaptchaImpl reCaptcha = new ReCaptchaImpl();
+        
+        // Initialisation de la clef privée pour la vérification du CAPTCHA via les properties
+        reCaptcha.setPrivateKey(AppFactoryServletUtils.CAPTCHA_PRIVATE_KEY);
+        ReCaptchaResponse reCaptchaResponse = reCaptcha.checkAnswer(ip, challenge, response);
+        
+        return reCaptchaResponse.isValid();
+    }
+    
+    /**
+     * Vérifie que le token est conforme au format voulu
+     * @param token
+     * @return
+     */
+    private static boolean isValidCaptchaToken(String token) {
+        return Pattern.compile(CAPTCHA_TOKEN_REGEXP).matcher(token).matches();
     }
 
 }

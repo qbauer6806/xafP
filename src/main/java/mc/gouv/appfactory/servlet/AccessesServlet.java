@@ -23,8 +23,8 @@ import org.slf4j.LoggerFactory;
 
 import mc.gouv.appfactory.dto.UsagerInfosDTO;
 import mc.gouv.appfactory.util.AppFactoryServletUtils;
-import mc.gouv.appfactory.util.HttpDeleteWithBody;
 import mc.gouv.appfactory.util.AppFactoryServletUtils.ServiceTarget;
+import mc.gouv.appfactory.util.HttpDeleteWithBody;
 
 /**
  * Servlet mettant à disposition le service /accesses avec les méthodes PUT, POST, GET, DELETE.
@@ -129,28 +129,28 @@ public class AccessesServlet extends HttpServlet {
     
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        LOGGER.info("/accesses doPost()");
+        LOGGER.info("====================== /accesses doPost()");
         
         response = doHttpMethod(request, response, HttpMethod.POST);
         
-        LOGGER.info("Fin /accesses doPost()");
+        LOGGER.info("====================== Fin /accesses doPost()");
     }
     
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        LOGGER.info("/accesses doGet()");
+        LOGGER.info("====================== /accesses doGet()");
         
         response = doHttpMethod(request, response, HttpMethod.GET);
         
-        LOGGER.info("Fin /accesses doGet()");
+        LOGGER.info("====================== Fin /accesses doGet()");
     }
     
     @Override
     public void doDelete(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        LOGGER.info("/accesses doDelete()");
+        LOGGER.info("====================== /accesses doDelete()");
         
         response = doHttpMethod(request, response, HttpMethod.DELETE);
         
-        LOGGER.info("Fin /accesses doDelete()");
+        LOGGER.info("====================== Fin /accesses doDelete()");
     }
 }

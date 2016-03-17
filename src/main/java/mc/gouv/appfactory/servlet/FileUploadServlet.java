@@ -41,7 +41,7 @@ public class FileUploadServlet extends HttpServlet {
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        LOGGER.info("/fileupload doPost()");
+        LOGGER.info("====================== /fileupload doPost()");
         
         UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(request);
         if (usagerInfosDTO == null) {
@@ -130,7 +130,7 @@ public class FileUploadServlet extends HttpServlet {
             response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_INTERNAL_SERVER_ERROR, "Erreur interne: " + e.toString() + " / " + e.getMessage());
         }
         
-        LOGGER.info("Fin /fileupload doPost()");
+        LOGGER.info("====================== Fin /fileupload doPost()");
     }
     
 }

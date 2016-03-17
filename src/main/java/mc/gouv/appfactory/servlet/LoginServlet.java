@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.fluent.Request;
+import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,10 +36,12 @@ public class LoginServlet extends HttpServlet {
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         
+        LOGGER.info("====================== /login doPost()");
+        
         // Le SessionID est stocké dans l'URL parameter "id"
         String sessionId = request.getParameter("id");
         
-        LOGGER.info("/login doPost() sessionId=" + sessionId);
+        LOGGER.info("SessionID = " + sessionId);
         
         if (StringUtils.isBlank(sessionId)) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -72,17 +75,19 @@ public class LoginServlet extends HttpServlet {
             response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_INTERNAL_SERVER_ERROR, "Erreur interne: " + e.toString() + e.getMessage());
         }
         
-        LOGGER.info("Fin /login doPost()");
+        LOGGER.info("====================== Fin /login doPost()");
             
     }
     
     @Override
     public void doDelete(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         
+        LOGGER.info("====================== /login doDelete()");
+        
         // Le SessionID est stocké dans l'URL parameter "id"
         String sessionId = request.getParameter("id");
         
-        LOGGER.info("/login doDelete() sessionId=" + sessionId);
+        LOGGER.info("SessionID = " + sessionId);
         
         if (StringUtils.isBlank(sessionId)) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -101,12 +106,21 @@ public class LoginServlet extends HttpServlet {
             if (statusCode == HttpServletResponse.SC_NO_CONTENT) {
                 request.getSession().invalidate();
             }
+            else {
+                if (serviceResponse.getEntity() != null) {
+                    response = AppFactoryServletUtils.logAndSendError(LOGGER, response, statusCode, "Erreur: le service ts-login a retourné le code "
+                            + statusCode + " (" + EntityUtils.toString(serviceResponse.getEntity()) + ")");
+                }
+                else {
+                    response = AppFactoryServletUtils.logAndSendError(LOGGER, response, statusCode, "Erreur: le service ts-login a retourné le code " + statusCode);   
+                }
+            }
         }
         catch (Exception e) {
             response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_INTERNAL_SERVER_ERROR, "Erreur interne: " + e.toString() + e.getMessage());
         }
         
-        LOGGER.info("Fin /login doDelete()");
+        LOGGER.info("====================== Fin /login doDelete()");
             
     }
     

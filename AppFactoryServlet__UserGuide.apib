@@ -505,33 +505,36 @@ AppFactoryServlet met à disposition en tant que proxy le service de référenti
 
 Se référer à la documentation de l'API référencée sous l'identifiant **REF_PAYS**.
 
-# Group Captcha
-*AppFactoryServlet* expose un service faisant appel à l'API reCAPTCHA.
+# Group Contact
+*AppFactoryServlet* expose un service faisant permettant d'envoyer un email de contact et de vérifier le Captcha via appel à l'API reCAPTCHA.
 
-## Captcha [/appfactoryservlet/captcha?token={token}]
+## Contact [/appfactoryservlet/contact]
 
 Appelle l'API reCAPTCHA pour vérifier le Captcha.
 
-+ Parameters
-    + token (required, string, `recaptcha_127.0.0.1_challenge_response`) ... Le token comprenant l'IP du client, le challenge (ID du test à vérifier, généré par Google), et la réponse de l'utilisateur au challenge
+Les 4 champs suivants doivent être fournis au service en x-www-form-urlencoded:
+
+    - captcha (recaptcha_127.0.0.1_challenge_response)  Le token comprenant l'IP du client, le challenge (ID du test à vérifier, généré par Google), et la réponse de l'utilisateur au challenge
+    - email (utilisateur@google.com) L'adresse email entrée dans le formulaire
+    - titre (Question sur la démarche) Le titre entré dans le formulaire
+    - message (Bonjour, j'aurais une question à vous poser) Le message entré dans le formulaire
 
 
-### Captcha [GET]
+### Contact [POST]
 
-+ Request
++ Request (application/x-www-form-urlencoded)
     + Headers
 
             User-Agent: NomDuLogiciel/Version
-            Cookie: JSESSIONID=1jyzh76rqbx66q2cxa0j0zvaf
+            
+	+ Body
+			
+			captcha=recaptcha_127.0.0.1_challenge_response&email=utilisateur%40google.com&titre=Question+sur+la+d%C3%A9marche&message=Bonjour%2C%20j%27aurais%20une%20question%20%C3%A0%20vous%20poser
 
 
-+ Response 200 (application/json)
++ Response 200
 
-        {
-          "valid" : "true"
-        }
-
-+ Response 400
++ Response 403
 
 # Group Pièces jointes
 *AppFactoryServlet* expose des services de stockage et de récupération de pièces jointes

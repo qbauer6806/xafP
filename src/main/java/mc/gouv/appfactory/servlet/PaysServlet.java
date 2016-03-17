@@ -30,7 +30,7 @@ public class PaysServlet extends HttpServlet {
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        LOGGER.info("/accesses doGet()");
+        LOGGER.info("====================== /pays doGet()");
         
         String pathToQuery = request.getPathInfo();
         String queryString = request.getQueryString();
@@ -55,7 +55,7 @@ public class PaysServlet extends HttpServlet {
             LOGGER.error("Erreur lors du traitement de la réponse",e);
         }
         
-        LOGGER.info("Fin /accesses doGet()");
+        LOGGER.info("====================== Fin /pays doGet()");
     }
     
 }

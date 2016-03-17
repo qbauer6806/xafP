@@ -2,11 +2,8 @@ package mc.gouv.appfactory.util;
 
 import java.net.URI;
 
-import javax.annotation.concurrent.NotThreadSafe;
-
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 
-@NotThreadSafe
 public class HttpDeleteWithBody extends HttpEntityEnclosingRequestBase {
     
     public static final String METHOD_NAME = "DELETE";

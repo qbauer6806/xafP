@@ -47,21 +47,10 @@
                 </configuration>
                 <dependencies>
                     <dependency>
-                        <groupId>mc.gouv.tools_dev</groupId>
-                        <artifactId>dev_config</artifactId>
-                        <version>1.0.1</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>mc.gouv.tools_jar</groupId>
-                        <artifactId>tools_jar</artifactId>
-                        <version>3.0.2</version>
-                    </dependency><!-- Use simple logger in dev env -->
-                    <dependency>
                         <groupId>org.slf4j</groupId>
                         <artifactId>slf4j-simple</artifactId>
                         <version>1.7.5</version>
-                    </dependency><!-- For sanity Redirect log4j to slf4j 
-                        by replacing log4j jar -->
+                    </dependency>
                     <dependency>
                         <groupId>org.slf4j</groupId>
                         <artifactId>log4j-over-slf4j</artifactId>
@@ -88,14 +77,7 @@
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
-            <version>3.1.0</version>
             <scope>provided</scope>
-        </dependency>
-        <!-- dépendances restproxy.java -->
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>18.0</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -117,56 +99,22 @@
             <artifactId>fluent-hc</artifactId>
             <version>4.5.1</version>
         </dependency>
-
-        <dependency>
-            <groupId>mc.gouv.tools_monitor</groupId>
-            <artifactId>tools_monitor</artifactId>
-            <version>1.0.8</version>
-            <scope>compile</scope>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>mc.gouv.tools_www</groupId>
-            <artifactId>tools_www</artifactId>
-            <version>1.0.3</version>
-            <scope>compile</scope>
-            <type>jar</type>
-        </dependency>
         <dependency>
             <groupId>mc.gouv.tools_jar</groupId>
             <artifactId>tools_jar</artifactId>
             <version>3.0.2</version>
             <scope>compile</scope>
         </dependency>
-        <!-- dépendances mailProxy Internal -->
-        <dependency>
-            <groupId>com.lyncode</groupId>
-            <artifactId>jtwig-core</artifactId>
-            <version>3.1.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.googlecode.json-simple</groupId>
-            <artifactId>json-simple</artifactId>
-            <version>1.1.1</version>
-        </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
-            <artifactId>commons-email</artifactId>
-            <version>1.4</version>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.0</version>
         </dependency>
-        <!-- dépendances fileHelper filesystem -->
         <dependency>
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
             <version>1.3.1</version>
         </dependency>
-        <!-- dépendances serviceRestProxy -->
-        <dependency>
-            <groupId>commons-codec</groupId>
-            <artifactId>commons-codec</artifactId>
-            <version>1.10</version>
-        </dependency>
-        <!-- dépendances loginHome -->
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
@@ -180,6 +128,11 @@
         <dependency>
             <groupId>mc.gouv.demarches</groupId>
             <artifactId>demarches-api-client</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>mc.gouv.mail</groupId>
+            <artifactId>mail-api-client</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
     </dependencies>

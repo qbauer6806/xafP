@@ -32,7 +32,7 @@ public class SessionsServlet extends HttpServlet {
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         
-        LOGGER.info("/sessions doGet()");
+        LOGGER.info("====================== /sessions doGet()");
         
         // On tente de récupérer une session existante sans en créer une
         HttpSession session = request.getSession(false);
@@ -54,7 +54,7 @@ public class SessionsServlet extends HttpServlet {
             response.setStatus(HttpStatus.SC_NOT_FOUND);
         }
         
-        LOGGER.info("Fin /sessions doGet()");
+        LOGGER.info("====================== Fin /sessions doGet()");
     }
 
 }

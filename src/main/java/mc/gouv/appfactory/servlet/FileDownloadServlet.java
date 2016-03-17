@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
@@ -30,7 +31,7 @@ public class FileDownloadServlet extends HttpServlet {
     
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        LOGGER.info("/filedownload doGet()");
+        LOGGER.info("====================== /filedownload doGet()");
 
         UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(request);
         if (usagerInfosDTO == null) {
@@ -89,13 +90,19 @@ public class FileDownloadServlet extends HttpServlet {
             IOUtils.copy(getResponse.getEntity().getContent(), response.getOutputStream());
             response.setStatus(getResponse.getStatusLine().getStatusCode());
             response.setContentType(getResponse.getEntity().getContentType().getValue());
+            // Ajout de la métadonnée indiquant le demandeId lié
+            for (Header header : getResponse.getAllHeaders()) {
+                if (header.getName().startsWith(AppFactoryServletUtils.FILE_METADATA_DEMANDEID)) {
+                    response.addHeader(header.getName(), header.getValue());
+                }
+            }
             
         }
         catch (Exception e) {
             response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_INTERNAL_SERVER_ERROR, "Erreur interne: " + e.toString() + " / " + e.getMessage());
         }
         
-        LOGGER.info("Fin /filedownload doGet()");
+        LOGGER.info("====================== Fin /filedownload doGet()");
         
     }
 

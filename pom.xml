@@ -2,10 +2,10 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>AppFactoryServlet</artifactId>
     <groupId>mc.gouv.tp</groupId>
-    <version>0.0.2</version>
+    <version>0.0.2-SNAPSHOT</version>
     <packaging>war</packaging>
     <build>
-        <finalName>appfactory-servlet</finalName>
+        <finalName>AppFactoryServlet</finalName>
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
@@ -143,8 +143,8 @@
 
 
     <scm>
-        <developerConnection>${svn.connection}/${project.artifactId}/tags/AppFactoryServlet-0.0.2</developerConnection>
-        <connection>${svn.connection}/${project.artifactId}/tags/AppFactoryServlet-0.0.2</connection>
-        <url>${svn.url}/${project.artifactId}/tags/AppFactoryServlet-0.0.2</url>
+        <developerConnection>${svn.connection}/${project.artifactId}/trunk</developerConnection>
+        <connection>${svn.connection}/${project.artifactId}/trunk</connection>
+        <url>${svn.url}/${project.artifactId}/trunk</url>
     </scm>
 </project>

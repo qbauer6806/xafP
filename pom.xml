@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>appfactory-servlet</artifactId>
     <groupId>mc.gouv.tp</groupId>
-    <version>0.0.1</version>
+    <version>0.0.2-SNAPSHOT</version>
     <packaging>war</packaging>
     <build>
         <finalName>appfactory-servlet</finalName>
@@ -142,9 +142,9 @@
     </parent>
 
 
-  <scm>
-    <connection>scm:svn:http://linuxic/jsrc/super-pom-java7/tags/appfactory-servlet-0.0.1</connection>
-    <developerConnection>scm:svn:http://linuxic/jsrc/super-pom-java7/tags/appfactory-servlet-0.0.1</developerConnection>
-    <url>http://linuxic/jsrc/super-pom-java7/tags/appfactory-servlet-0.0.1</url>
-  </scm>
+    <scm>
+        <developerConnection>${svn.connection}/${project.artifactId}/trunk</developerConnection>
+        <connection>${svn.connection}/${project.artifactId}/trunk</connection>
+        <url>${svn.url}/${project.artifactId}/trunk</url>
+    </scm>
 </project>

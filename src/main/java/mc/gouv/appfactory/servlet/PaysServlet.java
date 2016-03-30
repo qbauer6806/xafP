@@ -32,6 +32,11 @@ public class PaysServlet extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         LOGGER.info("====================== /pays doGet()");
         
+        if (!AppFactoryServletUtils.goodIp(request)) {
+            response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED, "Utilisateur non autorisé");
+            return;
+        }
+        
         String pathToQuery = request.getPathInfo();
         String queryString = request.getQueryString();
         

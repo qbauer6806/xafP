@@ -44,8 +44,8 @@ public class FileUploadServlet extends HttpServlet {
         LOGGER.info("====================== /fileupload doPost()");
         
         UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(request);
-        if (usagerInfosDTO == null) {
-            response.setStatus(HttpStatus.SC_UNAUTHORIZED);
+        if (usagerInfosDTO == null || !AppFactoryServletUtils.goodIp(request)) {
+            response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED, "Utilisateur non autorisé");
             return;
         }
         

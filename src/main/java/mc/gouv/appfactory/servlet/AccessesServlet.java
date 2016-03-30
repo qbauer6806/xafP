@@ -12,6 +12,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -24,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import mc.gouv.appfactory.dto.UsagerInfosDTO;
 import mc.gouv.appfactory.util.AppFactoryServletUtils;
 import mc.gouv.appfactory.util.AppFactoryServletUtils.ServiceTarget;
-import mc.gouv.appfactory.util.HttpDeleteWithBody;
 
 /**
  * Servlet mettant à disposition le service /accesses avec les méthodes PUT, POST, GET, DELETE.
@@ -61,9 +61,8 @@ public class AccessesServlet extends HttpServlet {
     public HttpServletResponse doHttpMethod(HttpServletRequest request, HttpServletResponse response, HttpMethod httpMethod) throws UnsupportedOperationException, IOException {
 
         UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(request);
-        if (usagerInfosDTO == null) {
-            response.setStatus(HttpStatus.SC_UNAUTHORIZED);
-            return response;
+        if (usagerInfosDTO == null || !AppFactoryServletUtils.goodIp(request)) {
+            return AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED, "Utilisateur non autorisé");
         }
         
         // Récupération de l'ID de l'usager
@@ -88,10 +87,13 @@ public class AccessesServlet extends HttpServlet {
             finalRequest = new HttpGet(url);
         }
         else if (HttpMethod.DELETE.equals(httpMethod)) {
-            finalRequest = new HttpDeleteWithBody(url);
+            // Le hashPassword est stocké dans l'URL
+            String hashedPassword = request.getParameter("hashedPassword");
+            url += "?hashedPassword=" + hashedPassword;
+            finalRequest = new HttpDelete(url);
         }
         
-        if (HttpMethod.POST.equals(httpMethod) || HttpMethod.DELETE.equals(httpMethod)) {
+        if (HttpMethod.POST.equals(httpMethod)) {
             finalRequest.setHeader("Content-Type", "application/json; charset=UTF-8");
             
             // Récupération du JSON reçu en input et transmission au 2ème service en UTF8

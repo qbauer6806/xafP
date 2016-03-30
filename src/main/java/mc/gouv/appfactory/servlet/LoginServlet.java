@@ -104,6 +104,7 @@ public class LoginServlet extends HttpServlet {
             response.setStatus(statusCode);
             // Si tout s'est bien passé, alors on détruit la session côté AppFactoryServlet
             if (statusCode == HttpServletResponse.SC_NO_CONTENT) {
+                request.getSession().removeAttribute("login");
                 request.getSession().invalidate();
             }
             else {

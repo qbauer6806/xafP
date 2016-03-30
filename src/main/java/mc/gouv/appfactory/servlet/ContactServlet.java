@@ -6,12 +6,12 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import mc.gouv.appfactory.dto.UsagerInfosDTO;
 import mc.gouv.appfactory.util.AppFactoryServletUtils;
 import mc.gouv.mail.api.client.MailClient;
 import mc.gouv.mail.api.model.AddressBlock;
@@ -36,8 +36,8 @@ public class ContactServlet extends HttpServlet {
         try {
             
             // Si l'utilisateur n'est pas logué, alors il faut vérifier le Captcha
-            HttpSession session = request.getSession(false);
-            if (session == null) {
+            UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(request);
+            if (usagerInfosDTO == null) {
                 // 1ère étape : vérification du Captcha
                 LOGGER.info("Utilisateur non logué, vérification du Captcha...");
                 if (!AppFactoryServletUtils.checkCaptcha(captcha)) {

@@ -28,11 +28,6 @@ public class ContactServlet extends HttpServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         LOGGER.info("====================== /contact doPost()");
         
-        if (!AppFactoryServletUtils.goodIp(request)) {
-            response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED, "Utilisateur non autorisé");
-            return;
-        }
-        
         String captcha = request.getParameter("captcha");
         String emailAddress = request.getParameter("email");
         String titre = request.getParameter("titre");

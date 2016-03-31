@@ -50,7 +50,7 @@ public class DemandesServlet extends HttpServlet {
     public HttpServletResponse doHttpMethod(HttpServletRequest request, HttpServletResponse response, HttpMethod httpMethod) throws UnsupportedOperationException, IOException {
         
         UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(request);
-        if (usagerInfosDTO == null || !AppFactoryServletUtils.goodIp(request)) {
+        if (usagerInfosDTO == null) {
             return AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED, "Utilisateur non autorisé");
         }
         

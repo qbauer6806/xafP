@@ -38,11 +38,6 @@ public class LoginServlet extends HttpServlet {
         
         LOGGER.info("====================== /login doPost()");
         
-        if (!AppFactoryServletUtils.goodIp(request)) {
-            response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED, "Utilisateur non autorisé");
-            return;
-        }
-        
         // Le SessionID est stocké dans l'URL parameter "id"
         String sessionId = request.getParameter("id");
         

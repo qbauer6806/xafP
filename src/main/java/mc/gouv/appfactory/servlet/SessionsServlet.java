@@ -17,7 +17,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import mc.gouv.appfactory.dto.UsagerInfosDTO;
-import mc.gouv.appfactory.util.AppFactoryServletUtils;
 
 /**
  * 
@@ -34,11 +33,6 @@ public class SessionsServlet extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         
         LOGGER.info("====================== /sessions doGet()");
-        
-        if (!AppFactoryServletUtils.goodIp(request)) {
-            response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED, "Utilisateur non autorisé");
-            return;
-        }
         
         // On tente de récupérer une session existante sans en créer une
         HttpSession session = request.getSession(false);

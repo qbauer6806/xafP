@@ -269,17 +269,4 @@ public class AppFactoryServletUtils {
         return Pattern.compile(CAPTCHA_TOKEN_REGEXP).matcher(token).matches();
     }
 
-    /**
-     * Vérifie que l'IP du client est la même que l'IP distante, pour des raisons de sécurité
-     * @param request
-     * @return
-     */
-    public static boolean goodIp(HttpServletRequest request) {
-        boolean test = request.getRemoteAddr().equals(request.getLocalAddr());
-        if (!test) {
-            LOGGER.info("Adresse IP incorrecte. Local=" + request.getLocalAddr() + ", Remote=" + request.getRemoteAddr());
-        }
-        return test;
-    }
-
 }

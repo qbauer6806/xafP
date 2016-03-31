@@ -34,7 +34,7 @@ public class FileDownloadServlet extends HttpServlet {
         LOGGER.info("====================== /filedownload doGet()");
 
         UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(request);
-        if (usagerInfosDTO == null || !AppFactoryServletUtils.goodIp(request)) {
+        if (usagerInfosDTO == null) {
             response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED, "Utilisateur non autorisé");
             return;
         }

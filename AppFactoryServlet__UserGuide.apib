@@ -245,6 +245,11 @@ Il n'y a donc aucun paramètre à donner à ce service, si ce n'est le JSON.
           ]
         }
 
+## Supprimer un accès [/appfactoryservlet/accesses?hashedPassword={hashedPassword}]
+
++ Parameters
+    + hashedPassword (required, string, `bccc46ab40cc6b2f0454623bb7623ed58984345a`) ... Le mot de passe haché
+
 ### Supprimer [DELETE]
 
 Afin de supprimer un accès, il est nécessaire de fournir le mot de passe encrypté en SHA1.
@@ -255,12 +260,6 @@ Afin de supprimer un accès, il est nécessaire de fournir le mot de passe encry
             User-Agent: NomDuLogiciel/Version
             Cookie: JSESSIONID=1jyzh76rqbx66q2cxa0j0zvaf
 
-    + Body
-
-            {
-                "hashedPassword" : "bccc46ab40cc6b2f0454623bb7623ed58984345a"
-            }
-
 + Response 200 (application/json)
 
 + Response 401 (application/json)
@@ -268,7 +267,7 @@ Afin de supprimer un accès, il est nécessaire de fournir le mot de passe encry
         {
           "errors": [
             {
-              "libelle": "Mt de passe invalide"
+              "libelle": "Mot de passe invalide"
             }
           ]
         }

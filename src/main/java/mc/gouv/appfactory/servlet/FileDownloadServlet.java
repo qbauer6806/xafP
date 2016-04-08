@@ -87,7 +87,6 @@ public class FileDownloadServlet extends HttpServlet {
             HttpResponse getResponse = client.execute(getRequest, AppFactoryServletUtils.getHttpContextForAuth(url, ServiceTarget.FILE));
             
             LOGGER.info("Constitution de la réponse pour retour au client");
-            IOUtils.copy(getResponse.getEntity().getContent(), response.getOutputStream());
             response.setStatus(getResponse.getStatusLine().getStatusCode());
             response.setContentType(getResponse.getEntity().getContentType().getValue());
             // Ajout de la métadonnée indiquant le demandeId lié
@@ -95,7 +94,13 @@ public class FileDownloadServlet extends HttpServlet {
                 if (header.getName().startsWith(AppFactoryServletUtils.FILE_METADATA_DEMANDEID)) {
                     response.addHeader(header.getName(), header.getValue());
                 }
+                else if (header.getName().equals("Content-Disposition")) {
+                    response.addHeader(header.getName(), header.getValue());
+                }
             }
+            
+            // Et en dernier on copie le stream... Car si on met les headers après, ils sont tous ignorés !
+            IOUtils.copy(getResponse.getEntity().getContent(), response.getOutputStream());
             
         }
         catch (Exception e) {

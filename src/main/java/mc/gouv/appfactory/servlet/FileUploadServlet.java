@@ -18,7 +18,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.InputStreamBody;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -39,6 +38,7 @@ public class FileUploadServlet extends HttpServlet {
     
     private static Logger LOGGER = LoggerFactory.getLogger(FileUploadServlet.class);
 
+    @SuppressWarnings("deprecation")
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         LOGGER.info("====================== /fileupload doPost()");
@@ -49,7 +49,7 @@ public class FileUploadServlet extends HttpServlet {
             return;
         }
         
-        // Récupération du nom du fichier à envoyer        
+        // Récupération du nom du fichier à envoyer
         String pathInfo = request.getPathInfo();
         String filename = null;
         if (pathInfo != null && pathInfo.length() > 1) {
@@ -96,7 +96,7 @@ public class FileUploadServlet extends HttpServlet {
         HttpClient client = HttpClientBuilder.create().build();
         Part part = request.getParts().iterator().next();
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-        builder.addPart("data", new InputStreamBody(part.getInputStream(), ContentType.DEFAULT_BINARY, "data"));
+        builder.addPart("data", new InputStreamBody(part.getInputStream(), part.getContentType(), part.getSubmittedFileName()));
         HttpEntity multipart = builder.build();
         HttpPost postRequest = new HttpPost(url.toString());
         postRequest.setEntity(multipart);

@@ -16,15 +16,19 @@ import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import mc.gouv.appfactory.dto.UsagerInfosDTO;
 import mc.gouv.appfactory.util.AppFactoryServletUtils;
 import mc.gouv.appfactory.util.AppFactoryServletUtils.ServiceTarget;
+import mc.gouv.demarches.api.model.DemandeComplementsReponseDTO;
 
 /**
  * Servlet mettant à disposition le service /demandes avec les méthodes PUT, POST, GET, DELETE.
@@ -56,8 +60,25 @@ public class DemandesServlet extends HttpServlet {
         
         String pathInfo = request.getPathInfo();
         String demandeId = null;
+        boolean demandeInfosCompl = false;
+        Integer demandeInfosComplId = null;
         if (pathInfo != null && pathInfo.length() > 1) {
-            demandeId = pathInfo.split("/")[1];
+            String[] pathElems = pathInfo.split("/");
+            demandeId = pathElems[1];
+            // Gérer le cas des demandes d'informations complémentaires par rapport à une demande
+            // Et le cas des affectations à une demande
+            if (pathElems.length > 2) {
+                if (pathElems[2].equals("complements")) {
+                    demandeInfosCompl = true;
+                    if (pathElems.length > 3) {
+                        demandeInfosComplId = Integer.valueOf(pathElems[3]);
+                    }
+                }
+                else {
+                    // Opération interdite (exemple /statuts ou /affectations, auxquelles le FRONT ne doit pas avoir accès)
+                    return AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_FORBIDDEN, "Erreur: opération interdite");
+                }
+            }
         }
         
         // Récupération de l'ID de l'usager
@@ -66,7 +87,7 @@ public class DemandesServlet extends HttpServlet {
         // Récupération de l'ID de la démarche dans le Context-Param
         String demarcheId = getServletContext().getInitParameter(AppFactoryServletUtils.DEMARCHEID_KEY);
         
-        LOGGER.info("DemarcheID=" + demarcheId + ", UsagerID=" + usagerId);
+        LOGGER.info("DemarcheID=" + demarcheId + ", UsagerID=" + usagerId + ", DemandeID=" + demandeId + ", DemandeCompl?=" + demandeInfosCompl + ", DemandeComplID=" + demandeInfosComplId);
         
         // Transmission du JSON d'infos du compte démarche, reçu en input, dans le WS back-end
         
@@ -81,38 +102,60 @@ public class DemandesServlet extends HttpServlet {
                 setDefaultCredentialsProvider(AppFactoryServletUtils.getCredentialsProvider(ServiceTarget.DEMARCHES)).build();
         HttpRequestBase finalRequest = null;
         String url = AppFactoryServletUtils.DEMANDES_URL;
-        if (HttpMethod.POST.equals(httpMethod)) {
-            if (demandeId != null) {
-                // Modification
-                url += "/" + demarcheId + "/" + demandeId;
+        if (HttpMethod.GET.equals(httpMethod) || HttpMethod.POST.equals(httpMethod) || (HttpMethod.PUT.equals(httpMethod) && demandeInfosCompl)) {
+            if (!demandeInfosCompl) {
+                // Demande
+                if (demandeId != null) {
+                    // Modification
+                    url += "/" + demarcheId + "/" + demandeId;
+                }
+                else {
+                    // Création
+                    url += "/" + demarcheId + "?usagerId=" + usagerId;
+                }
             }
             else {
-                // Création
-                url += "/" + demarcheId + "?usagerId=" + usagerId;
+                // Demande d'informations complémentaires
+                if (demandeInfosComplId != null) {
+                    // Modification
+                    url += "/" + demarcheId + "/" + demandeId + "/complements/" + demandeInfosComplId;
+                }
+                else {
+                    // Création
+                    url += "/" + demarcheId + "/" + demandeId + "/complements";
+                }
             }
-            finalRequest = new HttpPost(url);
-        }
-        else if (HttpMethod.GET.equals(httpMethod)) {
-            if (demandeId != null) {
-                // Demande spécifique
-                url += "/" + demarcheId + "/" + demandeId;
+            if (HttpMethod.PUT.equals(httpMethod)) {
+                finalRequest = new HttpPut(url);
+            }
+            else if (HttpMethod.GET.equals(httpMethod)) {
+                finalRequest = new HttpGet(url);
             }
             else {
-                // Toutes les demandes pour cet usager et cette démarche
-                url += "/" + demarcheId + "?usagerId=" + usagerId;
+                if (demandeInfosCompl) {
+                    // Demande d'informations complémentaires en POST = création de demande d'IC : interdit pour le FRONT
+                    return AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_FORBIDDEN, "Erreur: opération interdite");
+                }
+                finalRequest = new HttpPost(url);
             }
-            finalRequest = new HttpGet(url);
         }
         else if (HttpMethod.DELETE.equals(httpMethod)) {
             if (demandeId == null) {
-                response.setStatus(HttpStatus.SC_BAD_REQUEST);
-                return response;
+                return AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_BAD_REQUEST, "demandeId manquant");
             }
-            url += "/" + demarcheId + "/" + demandeId;
+            if (!demandeInfosCompl) {
+                // Demande
+                url += "/" + demarcheId + "/" + demandeId;
+            }
+            else {
+                // Suppression d'une demande d'informations complémentaires : interdit pour le FRONT
+                return AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_FORBIDDEN, "Erreur: opération interdite");
+            }
             finalRequest = new HttpDelete(url);
         }
         
-        if (HttpMethod.POST.equals(httpMethod)) {
+        if (HttpMethod.POST.equals(httpMethod) || (HttpMethod.PUT.equals(httpMethod) && demandeInfosCompl)) {
+            // Soit POST pour demande et demande d'IC, soit PUT pour demande d'IC uniquement
             finalRequest.setHeader("Content-Type", "application/json; charset=UTF-8");
             
             // Récupération du JSON reçu en input et transmission au 2ème service en UTF8
@@ -127,7 +170,23 @@ public class DemandesServlet extends HttpServlet {
                 return AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_BAD_REQUEST, "Erreur: JSON manquant");
             }
             
-            StringEntity input = new StringEntity(buffer.toString(),"UTF-8");
+            StringEntity input = null;
+            
+            // Étape importante pour le PUT (répondre à une demande d'informations complémentaires)
+            // L'usagerId est à remplir par AppFactoryServlet.
+            // Il faut donc analyser le JSON fourni afin de renseigner ce champ et de le réinjecter dans l'appel à Demarches
+            // Et également supprimer un éventuel "usagerId" ou "agentId" que le client aurait déjà mis... (il faut l'empêcher)
+            if (HttpMethod.PUT.equals(httpMethod) && demandeInfosCompl) {
+                ObjectMapper mapper = new ObjectMapper();
+                DemandeComplementsReponseDTO reponse = mapper.readValue(buffer.toString(), DemandeComplementsReponseDTO.class);
+                reponse.setAgentId(null);
+                reponse.setUsagerId(usagerId.toString());
+                String reponseStr = mapper.writeValueAsString(reponse);
+                input = new StringEntity(reponseStr,"UTF-8");
+            }
+            else {
+                input = new StringEntity(buffer.toString(),"UTF-8");
+            }
             
             ((HttpEntityEnclosingRequestBase)finalRequest).setEntity(input);
         }
@@ -158,6 +217,15 @@ public class DemandesServlet extends HttpServlet {
     }
     
     @Override
+    public void doPut(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+        LOGGER.info("====================== /demandes doPut()");
+        
+        response = doHttpMethod(request, response, HttpMethod.PUT);
+        
+        LOGGER.info("====================== Fin /demandes doPut()");
+    }
+    
+    @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         LOGGER.info("====================== /demandes doGet()");
         
@@ -170,7 +238,7 @@ public class DemandesServlet extends HttpServlet {
     public void doDelete(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         LOGGER.info("====================== /demandes doDelete()");
         
-        response =doHttpMethod(request, response, HttpMethod.DELETE);
+        response = doHttpMethod(request, response, HttpMethod.DELETE);
         
         LOGGER.info("====================== Fin /demandes doDelete()");
     }

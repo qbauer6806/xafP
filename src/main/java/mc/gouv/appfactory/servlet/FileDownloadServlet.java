@@ -62,6 +62,7 @@ public class FileDownloadServlet extends HttpServlet {
             // Récupération de l'AccessID via appel WS à Demarches
             LOGGER.info("Récupération de l'AccessID correspondant");
             Integer accessId = AppFactoryServletUtils.getAccessID(demarcheId, usagerInfosDTO.getId());
+
             LOGGER.debug("AccessID = {}", accessId);
             
             

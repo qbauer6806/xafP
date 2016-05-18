@@ -291,23 +291,32 @@ Permet l'accès au back-end générique qui enregistre en base de données une d
 Le JSON custom inséré en base est retourné dans l'attribut "contenu" de la réponse.
 Les DemarcheID et UsagerID (récupérés de la session) sont envoyés par AppFactoryServlet au back-end générique de manière transparente.
 
-Note : si l'on a uploadé des pièces jointes avant création de la demande, alors il faut spécifier lors de la création de la demande le ou les fichiers qui ont été précédemment uploadés en utilisant ce qui suit dans le "JSON custom".
+Note : si l'on a uploadé des pièces jointes avant création de la demande, alors il faut spécifier lors de la création de la demande le ou les fichiers qui ont été précédemment uploadés en utilisant ce qui suit dans le bloc "fichiers".
 Sachant que le format de l'URL est à construire comme suit : /{uuid}/{filename}.
 {uuid}/{filename} étant généré et retourné par le service d'upload de fichiers.
 
             {
                 "contenu" : {
-                	"fichiers" : [
-                		{
-		                    "nom" : "CV.pdf",
-		                    "url" : "/ece7a75e-e5f9-11e5-a7a3-08002700c066/CV.pdf"
-		                },
-		                {
-		                    "nom" : "lettremotivation.doc",
-		                    "url" : "/ada9b78b-a43f-11e5-a7a3-08002700c066/lettremotivation.doc"
-		                }
-		            ]
-                }
+                	"donneeCustom1" : "valeurCustom1",
+                	"donneeCustom2" : [
+                	    {
+                		"donneeCustom3" : "valeurCustom3",
+                		"donneeCustom4" : "valeurCustom4"
+                	    }
+                	]
+                },
+            	"fichiers" : [
+            		{
+	                    "name" : "CV.pdf",
+	                    "url" : "/ece7a75e-e5f9-11e5-a7a3-08002700c066/CV.pdf",
+	                    "meta" : "meta1"
+	                },
+	                {
+	                    "name" : "lettremotivation.doc",
+	                    "url" : "/ada9b78b-a43f-11e5-a7a3-08002700c066/lettremotivation.doc",
+	                    "meta" : "meta2"
+	                }
+	            ]
             }
 
 ### Créer [POST]
@@ -320,26 +329,70 @@ Sachant que le format de l'URL est à construire comme suit : /{uuid}/{filename}
 
     + Body
 
-            {
-                "contenu" : {
-                    "donnee1" : "Donnée custom 1",
-                    "donnee2" : "Donnée custom 2"
-                }
-            }
+			{
+				"contenu" : {
+					"donneeCustom1" : "valeurCustom1",
+					"donneeCustom2" : [
+					    {
+						"donneeCustom3" : "valeurCustom3",
+						"donneeCustom4" : "valeurCustom4"
+					    }
+					]
+				},
+				"fichiers" : [
+					{
+				        "name" : "CV.pdf",
+				        "url" : "/ece7a75e-e5f9-11e5-a7a3-08002700c066/CV.pdf",
+				        "meta" : "meta1"
+				    },
+				    {
+				        "name" : "lettremotivation.doc",
+				        "url" : "/ada9b78b-a43f-11e5-a7a3-08002700c066/lettremotivation.doc",
+				        "meta" : "meta2"
+				    }
+				]
+			}
 
 + Response 201 (application/json)
 
-        {
-          "pkDemandes": 1,
-          "demarcheId": "embauchage-personnel-maison",
-          "usagerId": 3071
-          "dateCreation": "2016-01-25T09:29:08.329+01:00",
-          "dateDerModif": "2016-01-25T09:29:08.329+01:00",
-          "contenu": {
-                "donnee1" : "Donnée custom 1",
-                "donnee2" : "Donnée custom 2"
-          }
-        }
+		{
+		  "pkDemandes": 13,
+		  "dateCreation": "2016-05-17T08:05:04.654+01:00",
+		  "dateDerModif": "2016-05-17T08:05:04.654+01:00",
+		  "contenu": {
+		    "donneeCustom1": "valeurCustom1",
+		    "donneeCustom2": [
+		      {
+		        "donneeCustom3": "valeurCustom3",
+		        "donneeCustom4": "valeurCustom4"
+		      }
+		    ]
+		  },
+		  "demarcheId": "embauchage-personnel-maison",
+		  "usagerId": "3071",
+		  "complements": null,
+		  "fichiers": [
+		    {
+		      "name": "CV.pdf",
+		      "url": "/ece7a75e-e5f9-11e5-a7a3-08002700c066/CV.pdf",
+		      "meta": "meta1"
+		    },
+		    {
+		      "name": "lettremotivation.doc",
+		      "url": "/ada9b78b-a43f-11e5-a7a3-08002700c066/lettremotivation.doc",
+		      "meta": "meta2"
+		    }
+		  ],
+		  "statuts": [
+		    {
+		      "pkStatut": 8,
+		      "libelle": "EN_ATTENTE",
+		      "date": "2016-05-17T08:05:04.662+01:00",
+		      "agentId": null,
+		      "usagerId": "3071"
+		    }
+		  ]
+		}
 
 + Response 404 (application/json)
 
@@ -365,19 +418,46 @@ Récupérer toutes les demandes de l'usager connecté pour cette démarche.
 
 + Response 200 (application/json)
 
-        [
-            {
-              "pkDemandes": 14,
-              "demarcheId": "embauchage-personnel-maison",
-              "usagerId": 3071,
-              "dateCreation": "2016-01-25T09:29:08.329+01:00",
-              "dateDerModif": "2016-01-25T09:29:08.329+01:00",
-              "contenu": {
-                    "donnee1" : "Donnée custom 1",
-                    "donnee2" : "Donnée custom 2"
-              }
-            }
-        ]
+		[
+		  {
+		    "pkDemandes": 13,
+		    "dateCreation": "2016-05-17T08:05:04.654+01:00",
+		    "dateDerModif": "2016-05-17T08:05:04.654+01:00",
+		    "contenu": {
+		      "donneeCustom1": "valeurCustom1",
+		      "donneeCustom2": [
+		        {
+		          "donneeCustom3": "valeurCustom3",
+		          "donneeCustom4": "valeurCustom4"
+		        }
+		      ]
+		    },
+		    "demarcheId": "embauchage-personnel-maison",
+		    "usagerId": "3071",
+		    "complements": null,
+		    "fichiers": [
+		      {
+		        "name": "lettremotivation.doc",
+		        "url": "/ada9b78b-a43f-11e5-a7a3-08002700c066/lettremotivation.doc",
+		        "meta": "meta2"
+		      },
+		      {
+		        "name": "CV.pdf",
+		        "url": "/ece7a75e-e5f9-11e5-a7a3-08002700c066/CV.pdf",
+		        "meta": "meta1"
+		      }
+		    ],
+		    "statuts": [
+		      {
+		        "pkStatut": 8,
+		        "libelle": "EN_ATTENTE",
+		        "date": "2016-05-17T08:05:04.662+01:00",
+		        "agentId": null,
+		        "usagerId": "3071"
+		      }
+		    ]
+		  }
+		]
 
 + Response 404 (application/json)
 
@@ -408,17 +488,44 @@ Permet de récupérer une demande spécifique.
 
 + Response 200 (application/json)
 
-        {
-          "pkDemandes": 14,
-          "demarcheId": "embauchage-personnel-maison",
-          "usagerId": 3071,
-          "dateCreation": "2016-01-25T09:29:08.329+01:00",
-          "dateDerModif": "2016-01-25T09:29:08.329+01:00",
-          "contenu": {
-                "donnee1" : "Donnée custom 1",
-                "donnee2" : "Donnée custom 2"
-          }
-        }
+		{
+		  "pkDemandes": 13,
+		  "dateCreation": "2016-05-17T08:05:04.654+01:00",
+		  "dateDerModif": "2016-05-17T08:05:04.654+01:00",
+		  "contenu": {
+		    "donneeCustom1": "valeurCustom1",
+		    "donneeCustom2": [
+		      {
+		        "donneeCustom3": "valeurCustom3",
+		        "donneeCustom4": "valeurCustom4"
+		      }
+		    ]
+		  },
+		  "demarcheId": "embauchage-personnel-maison",
+		  "usagerId": "3071",
+		  "complements": null,
+		  "fichiers": [
+		    {
+		      "name": "lettremotivation.doc",
+		      "url": "/ada9b78b-a43f-11e5-a7a3-08002700c066/lettremotivation.doc",
+		      "meta": "meta2"
+		    },
+		    {
+		      "name": "CV.pdf",
+		      "url": "/ece7a75e-e5f9-11e5-a7a3-08002700c066/CV.pdf",
+		      "meta": "meta1"
+		    }
+		  ],
+		  "statuts": [
+		    {
+		      "pkStatut": 8,
+		      "libelle": "EN_ATTENTE",
+		      "date": "2016-05-17T08:05:04.662+01:00",
+		      "agentId": null,
+		      "usagerId": "3071"
+		    }
+		  ]
+		}
 
 + Response 404 (application/json)
 
@@ -432,7 +539,7 @@ Permet de récupérer une demande spécifique.
 
 ### Mettre à jour [POST]
 
-Met à jour une demande particulière.
+Met à jour une demande particulière (contenu et fichiers).
 
 + Request
     
@@ -443,26 +550,48 @@ Met à jour une demande particulière.
 
     + Body
 
-            {
-                "contenu" : {
-                    "donnee1" : "Donnée custom 1",
-                    "donnee2" : "Donnée custom 2"
-                }
-            }
+			{
+				"contenu" : {
+					"donneeCustom5" : "valeurCustom5"
+				},
+				"fichiers" : [
+					{
+				        "name" : "CV2.pdf",
+				        "url" : "/ece7a75e-e5f9-11e5-a7a3-08002700c066/CV2.pdf",
+				        "meta" : "meta2"
+				    }
+				]
+			}
 
 + Response 200 (application/json)
 
-        {
-          "pkDemandes": 14,
-          "demarcheId": "embauchage-personnel-maison",
-          "usagerId": 3071,
-          "dateCreation": "2016-01-25T09:29:08.329+01:00",
-          "dateDerModif": "2016-01-25T09:29:08.329+01:00",
-          "contenu": {
-                "donnee1" : "Donnée custom 1",
-                "donnee2" : "Donnée custom 2"
-          }
-        }
+		{
+		  "pkDemandes": 13,
+		  "dateCreation": "2016-05-17T08:05:04.654+01:00",
+		  "dateDerModif": "2016-05-17T08:08:25.382+01:00",
+		  "contenu": {
+		    "donneeCustom5": "valeurCustom5"
+		  },
+		  "demarcheId": "embauchage-personnel-maison",
+		  "usagerId": "3071",
+		  "complements": null,
+		  "fichiers": [
+		    {
+		      "name": "CV2.pdf",
+		      "url": "/ece7a75e-e5f9-11e5-a7a3-08002700c066/CV2.pdf",
+		      "meta": "meta2"
+		    }
+		  ],
+		  "statuts": [
+		    {
+		      "pkStatut": 8,
+		      "libelle": "EN_ATTENTE",
+		      "date": "2016-05-17T08:05:04.662+01:00",
+		      "agentId": null,
+		      "usagerId": "3071"
+		    }
+		  ]
+		}
 
 + Response 404 (application/json)
 
@@ -498,6 +627,167 @@ Supprime une demande.
           ]
         }
         
+# Group Gestion des demandes d'informations complémentaires
+*AppFactoryServlet* permet de récupérer des demandes d'informations complémentaires par rapport à des demandes préexistantes, et d'y répondre.
+
+## Récupérer demandes d'informations complémentaires [/appfactoryservlet/demandes/{demandeId}/complements]
+
++ Parameters
+    + demandeId (required, integer, `13`) ... L'identifiant de la demande concernée.
+        
+### Récupérer les demandes d'informations complémentaires d'une demande [GET]
+
+Permet de récupérer toutes les demandes d'informations complémentaires concernant une demande.
+
++ Request
+        
+    + Headers
+    
+            User-Agent: NomDuLogiciel/Version
+            Cookie: JSESSIONID=1jyzh76rqbx66q2cxa0j0zvaf
+
+
++ Response 200 (application/json)
+
+			[
+			  {
+			    "pkDemandeComplements": 13,
+			    "demandeId": 13,
+			    "statut": "EN_ATTENTE",
+			    "question": {
+			      "motif": "Motif de test",
+			      "date": "2016-05-17T13:02:37.535+01:00",
+			      "agentId": "agentid0"
+			    },
+			    "reponse": null
+			  }
+			]
+
++ Response 404 (application/json)
+
+        {
+          "errors": [
+            {
+              "libelle": "Erreur: Demande associée introuvable"
+            }
+          ]
+        }
+
+## Récupérer ou répondre [/appfactoryservlet/demandes/{demandeId}/complements/{demandeIcId}]
+
++ Parameters
+    + demandeId (required, integer, `15`) ... L'id de la demande concernée.
+	+ demandeIcId (required, integer, `15`) ... L'id de la demande d'informations complémentaires à mettre à jour ou supprimer.
+
+### Récupérer une demande d'informations complémentaires [GET]
+
+Récupérer une demande d'informations complémentaires précise.
+
++ Request
+        
+    + Headers
+    
+            User-Agent: NomDuLogiciel/Version
+            Cookie: JSESSIONID=1jyzh76rqbx66q2cxa0j0zvaf
+
+
++ Response 200 (application/json)
+
+		{
+		  "pkDemandeComplements": 13,
+		  "demandeId": 13,
+		  "statut": "EN_ATTENTE",
+		  "question": {
+		    "motif": "Motif de test 3",
+		    "date": "2016-05-17T13:02:37.535+01:00",
+		    "agentId": "agentid0"
+		  },
+		  "reponse": null
+		}
+
++ Response 404 (application/json)
+
+        {
+          "errors": [
+            {
+              "libelle": "Erreur: Demande d'informations complémentaires introuvable"
+            }
+          ]
+        }
+
+### Répondre [PUT]
+
+Permet de répondre à une demande d'informations complémentaires.
+Une réponse comporte éventuellement des liens vers des fichiers précédemment uploadés dans FILE.
+
++ Request
+    
+    + Headers
+    
+            User-Agent: NomDuLogiciel/Version
+            Cookie: JSESSIONID=1jyzh76rqbx66q2cxa0j0zvaf
+
+    + Body
+
+			{
+			    "texte" : "La réponse",
+			    "fichiers" : [
+			            {
+			                "name" : "nom1",
+			                "url" : "url1",
+			                "meta" : "meta1"
+			            },
+			            {
+			                "name" : "nom2",
+			                "url" : "url2",
+			                "meta" : "meta2"
+			            }
+			        ],
+			    "usagerId" : "UsagerLambda"
+			}
+
++ Response 200 (application/json)
+
+			{
+			  "pkDemandeComplements": 13,
+			  "demandeId": 13,
+			  "statut": "REPONDUE",
+			  "question": {
+			    "motif": "Motif de test 2",
+			    "date": "2016-05-17T13:02:37.535+01:00",
+			    "agentId": "agentId2"
+			  },
+			  "reponse": {
+			    "texte": "La réponse",
+			    "date": "2016-05-17T13:15:04.872+01:00",
+			    "usagerId": "UsagerLambda",
+			    "fichiers": [
+			      {
+			        "name": "nom2",
+			        "url": "url2",
+			        "meta": "meta2"
+			      },
+			      {
+			        "name": "nom1",
+			        "url": "url1",
+			        "meta": "meta1"
+			      }
+			    ]
+			  }
+			}
+
++ Response 404 (application/json)
+
+        {
+          "errors": [
+            {
+              "libelle": "Erreur: Demande d'informations complémentaires introuvable"
+            }
+          ]
+        }
+
+# Group Référentiel pays et nationalité
+
 ## Référentiel pays et nationalité [/appfactoryservlet/pays]
 
 AppFactoryServlet met à disposition en tant que proxy le service de référentiel pays et nationalité.

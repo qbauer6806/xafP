@@ -2,6 +2,7 @@ package mc.gouv.appfactory.servlet;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Enumeration;
 import java.util.UUID;
 
 import javax.servlet.ServletException;
@@ -92,6 +93,16 @@ public class FileUploadServlet extends HttpServlet {
         URL url = new URL(AppFactoryServletUtils.FILE_URL + virtualPath);
         LOGGER.info("URL d'appel : {}", url);
         
+        // Extraction du demandeId si le client le connaît déjà et l'a fourni à AFS
+        String demandeId = null;
+        Enumeration<String> headers = request.getHeaderNames();
+        while (headers.hasMoreElements()) {
+            String headerName = headers.nextElement();
+            if (headerName.startsWith(AppFactoryServletUtils.FILE_METADATA_DEMANDEID)) {
+                demandeId = request.getHeader(headerName);
+            }
+        }
+        
         // Constitution de la requête
         HttpClient client = HttpClientBuilder.create().build();
         Part part = request.getParts().iterator().next();
@@ -100,6 +111,10 @@ public class FileUploadServlet extends HttpServlet {
         HttpEntity multipart = builder.build();
         HttpPost postRequest = new HttpPost(url.toString());
         postRequest.setEntity(multipart);
+        // Renseigner le demandeId le cas échéant
+        if (demandeId != null) {
+            postRequest.setHeader(AppFactoryServletUtils.FILE_METADATA_DEMANDEID, demandeId);
+        }
         
         LOGGER.info("Appel du WS FILE");
         HttpResponse postResponse = client.execute(postRequest, AppFactoryServletUtils.getHttpContextForAuth(url, ServiceTarget.FILE));

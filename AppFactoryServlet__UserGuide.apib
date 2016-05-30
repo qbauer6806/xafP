@@ -839,12 +839,15 @@ La réponse contient l'identifiant du fichier au format uuid/filename.
 
 ### Stocker [POST]
 
+Il est possible d'indiquer le demandeId (si on le connait déjà) de la demande liée à ces fichiers en utilisant le header X-MC-DEMANDEID.
+
 + Request
     + Headers
 
             User-Agent: NomDuLogiciel/Version
             Cookie: JSESSIONID=1jyzh76rqbx66q2cxa0j0zvaf
             Content-Type: multipart/form-data; boundary=---011000010111000001101001
+            X-MC-DEMANDEID: 68
 
 
 + Response 201 (application/json)

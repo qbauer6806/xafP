@@ -1,4 +1,4 @@
-package mc.gouv.appfactory.servlet;
+package mc.gouv.af.servlet;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import mc.gouv.appfactory.dto.UsagerInfosDTO;
+import mc.gouv.af.servlet.dto.UsagerInfosDTO;
 
 /**
  * 

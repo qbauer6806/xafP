@@ -1,4 +1,4 @@
-package mc.gouv.appfactory.filter;
+package mc.gouv.af.servlet.filter;
 
 import java.io.IOException;
 

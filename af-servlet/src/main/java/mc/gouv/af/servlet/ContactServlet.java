@@ -1,4 +1,4 @@
-package mc.gouv.appfactory.servlet;
+package mc.gouv.af.servlet;
 
 import java.io.IOException;
 
@@ -11,8 +11,8 @@ import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import mc.gouv.appfactory.dto.UsagerInfosDTO;
-import mc.gouv.appfactory.util.AppFactoryServletUtils;
+import mc.gouv.af.servlet.dto.UsagerInfosDTO;
+import mc.gouv.af.servlet.util.AppFactoryServletUtils;
 import mc.gouv.mail.api.client.MailClient;
 import mc.gouv.mail.api.model.AddressBlock;
 import mc.gouv.mail.api.model.Email;

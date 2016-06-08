@@ -1,4 +1,4 @@
-package mc.gouv.appfactory.servlet;
+package mc.gouv.af.servlet;
 
 import java.io.IOException;
 import java.net.URL;
@@ -27,10 +27,10 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import mc.gouv.appfactory.dto.FileUploadResponseDTO;
-import mc.gouv.appfactory.dto.UsagerInfosDTO;
-import mc.gouv.appfactory.util.AppFactoryServletUtils;
-import mc.gouv.appfactory.util.AppFactoryServletUtils.ServiceTarget;
+import mc.gouv.af.servlet.dto.FileUploadResponseDTO;
+import mc.gouv.af.servlet.dto.UsagerInfosDTO;
+import mc.gouv.af.servlet.util.AppFactoryServletUtils;
+import mc.gouv.af.servlet.util.AppFactoryServletUtils.ServiceTarget;
 
 @MultipartConfig
 public class FileUploadServlet extends HttpServlet {

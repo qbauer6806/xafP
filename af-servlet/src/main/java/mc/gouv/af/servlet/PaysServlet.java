@@ -1,4 +1,4 @@
-package mc.gouv.appfactory.servlet;
+package mc.gouv.af.servlet;
 
 import java.io.IOException;
 
@@ -14,7 +14,7 @@ import org.apache.http.client.fluent.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import mc.gouv.appfactory.util.AppFactoryServletUtils;
+import mc.gouv.af.servlet.util.AppFactoryServletUtils;
 
 /**
  * Proxy vers le référentiel Pays

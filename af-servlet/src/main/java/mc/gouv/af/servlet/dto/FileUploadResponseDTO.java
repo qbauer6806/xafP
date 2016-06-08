@@ -1,4 +1,4 @@
-package mc.gouv.appfactory.dto;
+package mc.gouv.af.servlet.dto;
 
 public class FileUploadResponseDTO {
     

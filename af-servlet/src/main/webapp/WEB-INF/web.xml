@@ -9,7 +9,7 @@
 
     <servlet>
         <servlet-name>AccessesServlet</servlet-name>
-        <servlet-class>mc.gouv.appfactory.servlet.AccessesServlet</servlet-class>
+        <servlet-class>mc.gouv.af.servlet.AccessesServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>AccessesServlet</servlet-name>
@@ -18,7 +18,7 @@
 
     <servlet>
         <servlet-name>SessionsServlet</servlet-name>
-        <servlet-class>mc.gouv.appfactory.servlet.SessionsServlet</servlet-class>
+        <servlet-class>mc.gouv.af.servlet.SessionsServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>SessionsServlet</servlet-name>
@@ -27,7 +27,7 @@
 
     <servlet>
         <servlet-name>DemandesServlet</servlet-name>
-        <servlet-class>mc.gouv.appfactory.servlet.DemandesServlet</servlet-class>
+        <servlet-class>mc.gouv.af.servlet.DemandesServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>DemandesServlet</servlet-name>
@@ -36,7 +36,7 @@
 
     <servlet>
         <servlet-name>LoginServlet</servlet-name>
-        <servlet-class>mc.gouv.appfactory.servlet.LoginServlet</servlet-class>
+        <servlet-class>mc.gouv.af.servlet.LoginServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>LoginServlet</servlet-name>
@@ -45,7 +45,7 @@
 
     <servlet>
         <servlet-name>PaysServlet</servlet-name>
-        <servlet-class>mc.gouv.appfactory.servlet.PaysServlet</servlet-class>
+        <servlet-class>mc.gouv.af.servlet.PaysServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>PaysServlet</servlet-name>
@@ -54,7 +54,7 @@
 
     <servlet>
         <servlet-name>FileUploadServlet</servlet-name>
-        <servlet-class>mc.gouv.appfactory.servlet.FileUploadServlet</servlet-class>
+        <servlet-class>mc.gouv.af.servlet.FileUploadServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>FileUploadServlet</servlet-name>
@@ -63,7 +63,7 @@
 
     <servlet>
         <servlet-name>FileDownloadServlet</servlet-name>
-        <servlet-class>mc.gouv.appfactory.servlet.FileDownloadServlet</servlet-class>
+        <servlet-class>mc.gouv.af.servlet.FileDownloadServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>FileDownloadServlet</servlet-name>
@@ -72,7 +72,7 @@
 
     <servlet>
         <servlet-name>ContactServlet</servlet-name>
-        <servlet-class>mc.gouv.appfactory.servlet.ContactServlet</servlet-class>
+        <servlet-class>mc.gouv.af.servlet.ContactServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>ContactServlet</servlet-name>
@@ -81,7 +81,7 @@
 
     <filter>
         <filter-name>IPFilter</filter-name>
-        <filter-class>mc.gouv.appfactory.filter.IPFilter</filter-class>
+        <filter-class>mc.gouv.af.servlet.filter.IPFilter</filter-class>
     </filter>
     <filter-mapping>
         <filter-name>IPFilter</filter-name>

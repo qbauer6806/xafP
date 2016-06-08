@@ -1,4 +1,4 @@
-package mc.gouv.appfactory.servlet;
+package mc.gouv.af.servlet;
 
 import java.io.IOException;
 import java.net.URL;
@@ -19,9 +19,9 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import mc.gouv.appfactory.dto.UsagerInfosDTO;
-import mc.gouv.appfactory.util.AppFactoryServletUtils;
-import mc.gouv.appfactory.util.AppFactoryServletUtils.ServiceTarget;
+import mc.gouv.af.servlet.dto.UsagerInfosDTO;
+import mc.gouv.af.servlet.util.AppFactoryServletUtils;
+import mc.gouv.af.servlet.util.AppFactoryServletUtils.ServiceTarget;
 
 public class FileDownloadServlet extends HttpServlet {
     

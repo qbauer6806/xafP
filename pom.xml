@@ -21,5 +21,6 @@
 
     <modules>
         <module>af-servlet</module>
+        <module>af-back</module>
     </modules>
 </project>

@@ -30,7 +30,7 @@
     </build>
 
     <properties>
-        <activiti.version>5.19.0.2</activiti.version>
+        <activiti.version>5.21.0</activiti.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 

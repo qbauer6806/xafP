@@ -1,0 +1,224 @@
+package mc.gouv.af.back.bpm.activiti;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.activiti.engine.ActivitiObjectNotFoundException;
+import org.activiti.engine.IdentityService;
+import org.activiti.engine.ProcessEngine;
+import org.activiti.engine.ProcessEngineConfiguration;
+import org.activiti.engine.RuntimeService;
+import org.activiti.engine.TaskService;
+import org.activiti.engine.identity.Group;
+import org.activiti.engine.identity.User;
+import org.activiti.engine.impl.ProcessEngineImpl;
+import org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl;
+import org.activiti.engine.impl.context.Context;
+import org.activiti.engine.impl.interceptor.Command;
+import org.activiti.engine.impl.interceptor.CommandContext;
+import org.activiti.engine.impl.interceptor.CommandExecutor;
+import org.activiti.engine.impl.persistence.entity.ExecutionEntity;
+import org.activiti.engine.impl.persistence.entity.TaskEntity;
+import org.activiti.engine.impl.pvm.process.ActivityImpl;
+import org.activiti.engine.impl.pvm.process.ProcessDefinitionImpl;
+import org.activiti.engine.runtime.ProcessInstance;
+import org.activiti.engine.task.Task;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import mc.gouv.af.back.bpm.GouvBPM;
+import mc.gouv.af.back.bpm.GouvBPMException;
+import mc.gouv.af.back.bpm.GouvBPMProcessVariableTypeEnum;
+import mc.gouv.af.back.bpm.model.GouvBPMGroup;
+import mc.gouv.af.back.bpm.model.GouvBPMTask;
+import mc.gouv.af.back.bpm.model.GouvBPMUser;
+
+/**
+ * Composant exposant le BPM interne d'AppFactory
+ * 
+ * @author qdeme
+ *
+ */
+@Component
+public class GouvBPMImpl implements GouvBPM {
+    
+    private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMImpl.class);
+
+    @Autowired
+    private RuntimeService runtimeService;
+    
+    @Autowired
+    private IdentityService identityService;
+    
+    @Autowired
+    private TaskService taskService;
+    
+    @Autowired
+    private ProcessEngineConfiguration processEngineConfiguration;
+    
+    @Autowired
+    private ProcessEngine processEngine;
+    
+    @Override
+    public void startProcessInstance(String processDefinitionKey, GouvBPMUser user, String demandeId, Map<String, Object> businessVariables) {
+        LOGGER.info("Démarrage d'une instance du process \"" + processDefinitionKey + "\" assignée à l'utilisateur \"" + user + "\" et concernant la demande \"" + demandeId + "\"");
+        
+        checkUser(user);
+        
+        // Création des variables du process
+        Map<String, Object> variables = new HashMap<String, Object>();
+        // Variables techniques
+        variables.put(GouvBPMProcessVariableTypeEnum.MC_USERID.name(), user.getId());
+        // Variables business éventuellement fournies par le client
+        if (businessVariables != null) {
+            variables.putAll(businessVariables);
+        }
+        
+        ProcessInstance process = null;
+        try {
+            // On utilise le demandeId pour la "businessKey"
+            process = runtimeService.startProcessInstanceByKey(processDefinitionKey, demandeId, variables);
+            LOGGER.info("Instance démarrée : " + process.getDeploymentId() + " , " + process.getActivityId() + " , " + process.getId() + " , "  + process.getDescription() + " , " + process.getProcessInstanceId());
+        }
+        catch (ActivitiObjectNotFoundException e) {
+            throw new GouvBPMException("Erreur lors du démarrage de l'instance de process", e);
+        }
+
+    }
+
+    @Override
+    public Map<String, Object> getProcessBusinessVariables(String demandeId) {
+        ProcessInstance processInstance = getActiveProcessInstanceForDemandeId(demandeId);
+        return runtimeService.getVariables(processInstance.getId());
+    }
+
+    @Override
+    public void setProcessBusinessVariables(String demandeId, Map<String, Object> businessVariables) {
+        ProcessInstance processInstance = getActiveProcessInstanceForDemandeId(demandeId);
+        runtimeService.setVariables(processInstance.getId(), businessVariables);
+    }
+    
+    @Override
+    public List<GouvBPMTask> getTasksAssignedToUser(GouvBPMUser user) {
+        
+        checkUser(user);
+        
+        List<Task> tasks = taskService.createTaskQuery().taskAssignee(user.getId()).active().list();
+        return GouvBPMTransformer.toGouvModelTasks(tasks);
+    }
+
+    @Override
+    public List<GouvBPMTask> getActiveTasksForDemande(String demandeId) {
+        List<Task> tasks = taskService.createTaskQuery().processInstanceBusinessKey(demandeId).active().list();
+        return GouvBPMTransformer.toGouvModelTasks(tasks);
+    }
+
+    @Override
+    public void claimTask(GouvBPMTask task, GouvBPMUser user) {
+        
+        checkUser(user);
+        
+        taskService.claim(task.getId(), user.getId());
+    }
+
+    @Override
+    public void completeTask(GouvBPMTask task) {
+        taskService.complete(task.getId());
+    }
+
+    @Override
+    public List<GouvBPMTask> getTasksWhereUserIsCandidate(GouvBPMUser user) {
+        
+        checkUser(user);
+
+        List<Task> tasks = taskService.createTaskQuery().taskCandidateUser(user.getId()).list();
+        return GouvBPMTransformer.toGouvModelTasks(tasks);
+    }
+    
+    @Override
+    public List<GouvBPMTask> getTasksWhereGroupIsCandidate(GouvBPMGroup group) {
+        
+        checkGroup(group);
+
+        List<Task> tasks = taskService.createTaskQuery().taskCandidateGroup(group.getId()).list();
+        return GouvBPMTransformer.toGouvModelTasks(tasks);
+    }
+
+    private ProcessInstance getActiveProcessInstanceForDemandeId(String demandeId) {
+        return runtimeService.createProcessInstanceQuery().processInstanceBusinessKey(demandeId).active().singleResult();
+    }
+
+    @Override
+    public boolean isProcessInstanceAlive(String demandeId) {
+        ProcessInstance processInstance = getActiveProcessInstanceForDemandeId(demandeId);
+        return processInstance != null && !processInstance.isEnded();
+    }
+
+    @Override
+    public void jump(String demandeId, final GouvBPMTask taskFrom, final GouvBPMTask taskTo) {
+        
+        LOGGER.info("jump(" + taskFrom.getTaskDefinitionKey() + "," + taskTo.getTaskDefinitionKey() + ")");
+        
+        final ProcessInstance process = getActiveProcessInstanceForDemandeId(demandeId);
+        
+        LOGGER.info("Création de la nouvelle tâche (" + taskTo + ")...");
+        
+        ProcessInstance pi = runtimeService.createProcessInstanceQuery().processInstanceBusinessKey(demandeId).singleResult();
+        Context.setProcessEngineConfiguration((ProcessEngineConfigurationImpl)processEngineConfiguration);
+        ProcessDefinitionImpl pdd = ((ExecutionEntity)pi).getProcessDefinition();
+        ActivityImpl activity = pdd.findActivity(taskTo.getTaskDefinitionKey());
+        
+        final ProcessInstance processInstanceFinal = process;
+        final ActivityImpl activityFinal = activity;
+
+        CommandExecutor commandExecutor = ((ProcessEngineImpl) processEngine).getProcessEngineConfiguration()
+                .getCommandExecutor();
+        commandExecutor.execute(new Command<Void>() {
+            public Void execute(CommandContext commandContext) {
+                ExecutionEntity ee = commandContext.getExecutionEntityManager()
+                        .findExecutionById(processInstanceFinal.getId());
+                ee.executeActivity(activityFinal);
+                return null;
+            }
+        });
+
+        LOGGER.info("Suppression de l'ancienne tâche (" + taskFrom + ")...");
+        
+        Task previousTask = processEngineConfiguration.getTaskService().createTaskQuery()
+                .taskDefinitionKey(taskFrom.getTaskDefinitionKey()).singleResult();
+        final TaskEntity te = (TaskEntity) previousTask;
+
+        commandExecutor = ((ProcessEngineImpl) processEngine).getProcessEngineConfiguration().getCommandExecutor();
+        commandExecutor.execute(new Command<Void>() {
+            public Void execute(CommandContext commandContext) {
+                commandContext.getTaskEntityManager().deleteTask(te, "jump requested", true);
+                return null;
+            }
+        });
+    }
+    
+    /**
+     * Vérification de l'existence de l'utilisateur donné en paramètre
+     * @param user
+     */
+    private void checkUser(GouvBPMUser user) {
+        User activitiUser = identityService.createUserQuery().userId(user.getId()).singleResult();
+        if (activitiUser == null) {
+            throw new GouvBPMException("Utilisateur " + user + " non reconnu");
+        }
+    }
+    
+    /**
+     * Vérification de l'existence du groupe donné en paramètre
+     * @param group
+     */
+    private void checkGroup(GouvBPMGroup group) {
+        Group activitiGroup = identityService.createGroupQuery().groupId(group.getId()).singleResult();
+        if (activitiGroup == null) {
+            throw new GouvBPMException("Groupe " + group + " non reconnu");
+        }
+    }
+}

@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import mc.gouv.af.back.bpm.GouvBPMException;
 import mc.gouv.af.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.af.back.util.LogonProxy;
 import mc.gouv.logon.apiclient.RestException;
@@ -112,27 +111,27 @@ public class GouvBPMGroupManager extends GroupEntityManager {
     
     @Override
     public Group createNewGroup(String groupId) {
-        throw new GouvBPMException("createNewGroup() not supported");
+        return super.createNewGroup(groupId);
     }
 
     @Override
     public void insertGroup(Group group) {
-        throw new GouvBPMException("insertGroup() not supported");
+        super.insertGroup(group);
     }
 
     @Override
     public void updateGroup(Group updatedGroup) {
-        throw new GouvBPMException("updateGroup() not supported");
+        super.updateGroup(updatedGroup);
     }
 
     @Override
     public void deleteGroup(String groupId) {
-        throw new GouvBPMException("deleteGroup() not supported");
+        super.deleteGroup(groupId);
     }
 
     @Override
     public GroupQuery createNewGroupQuery() {
-        throw new GouvBPMException("createNewGroupQuery() not supported");
+        return super.createNewGroupQuery();
     }
 
 }

@@ -44,8 +44,6 @@ public class GouvBPMUserManager extends UserEntityManager {
         } catch (RestException e) {
             e.printStackTrace();
         }
-        
-        LOGGER.info("User = " + user);
 
         if (user != null && user.getId() != null) {
             UserEntity ue = new UserEntity();

@@ -77,6 +77,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>db2</groupId>
+            <artifactId>db2jcc4</artifactId>
+            <version>9.7</version>
+        </dependency>
     </dependencies>
 
     <scm>

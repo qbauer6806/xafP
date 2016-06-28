@@ -55,6 +55,8 @@ public class AfBPMTest {
     
     public static final String task2Name = "Valider demande";
     
+    public static final String CODE_APPLI = "TESTAPP";
+    
     public static boolean majDemandeServiceExecuted = false;
 
     /**
@@ -80,12 +82,12 @@ public class AfBPMTest {
         assertTrue(!gouvBPM.isProcessInstanceAlive(DEMANDE_ID));
         
         LOGGER.info("==== Démarrage du process...");
-        gouvBPM.startProcessInstance("habitatProcess", user, DEMANDE_ID, businessVariables);
+        gouvBPM.startProcessInstance("habitatProcess", user, DEMANDE_ID, CODE_APPLI, businessVariables);
         
         LOGGER.info("==== isProcessInstanceAlive() ?");
         assertTrue(gouvBPM.isProcessInstanceAlive(DEMANDE_ID));
         
-        LOGGER.info("==== listActiveTasksForDemande() :");
+        LOGGER.info("==== getActiveTasksForDemande() :");
         List<GouvBPMTask> tasks = gouvBPM.getActiveTasksForDemande(DEMANDE_ID);
         assertTrue(tasks.size() == 1);
         assertTrue(tasks.get(0).getName().equals(task1Name));
@@ -94,7 +96,7 @@ public class AfBPMTest {
         
         GouvBPMTask task = tasks.get(0);
         
-        LOGGER.info("==== listTasksAssignedToUser() :");
+        LOGGER.info("==== getTasksAssignedToUser() :");
         tasks = gouvBPM.getTasksAssignedToUser(user);
         // Car activiti:assignee="${MC_USERID}" dans habitat.bpmn
         assertTrue(tasks.size() == 1);
@@ -105,7 +107,7 @@ public class AfBPMTest {
         LOGGER.info("==== completeTask()...");
         gouvBPM.completeTask(task);
 
-        LOGGER.info("==== listActiveTasksForDemande() :");
+        LOGGER.info("==== getActiveTasksForDemande() :");
         tasks = gouvBPM.getActiveTasksForDemande(DEMANDE_ID);
         assertTrue(tasks.size() == 1);
         assertTrue(tasks.get(0).getName().equals(task2Name));
@@ -113,14 +115,14 @@ public class AfBPMTest {
         assertTrue(tasks.get(0).getAssignee() == null);
         task = tasks.get(0);
 
-        LOGGER.info("==== listTasksAssignedToUser() :");
+        LOGGER.info("==== getTasksAssignedToUser() :");
         tasks = gouvBPM.getTasksAssignedToUser(user);
         assertTrue(tasks.size() == 0);
         
         LOGGER.info("==== claimTask()...");
         gouvBPM.claimTask(task, user);
         
-        LOGGER.info("==== listTasksAssignedToUser() :");
+        LOGGER.info("==== getTasksAssignedToUser() :");
         tasks = gouvBPM.getTasksAssignedToUser(user);
         assertTrue(tasks.size() == 1);
         assertTrue(tasks.get(0).getName().equals(task2Name));
@@ -162,7 +164,7 @@ public class AfBPMTest {
         gouvBPM.completeTask(task);
         assertTrue(majDemandeServiceExecuted);
         
-        LOGGER.info("==== listActiveTasksForDemande() :");
+        LOGGER.info("==== getActiveTasksForDemande() :");
         tasks = gouvBPM.getActiveTasksForDemande(DEMANDE_ID);
         for (GouvBPMTask t : tasks) {
             LOGGER.info("    - task : " + t);

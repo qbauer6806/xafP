@@ -2,9 +2,10 @@ package mc.gouv.af.back.util;
 
 import java.util.List;
 
+import mc.gouv.logon.apiclient.RestException;
+import mc.gouv.logon.model.Droit;
 import mc.gouv.logon.model.Role;
 import mc.gouv.logon.model.User;
-import mc.gouv.logon.rest.client.RestException;
 
 /**
  * Interface servant de proxy vers Logon afin de pouvoir mocker l'appel à logon
@@ -24,6 +25,8 @@ public interface LogonProxy {
     public List<User> getUsersWithRole(Integer idRole) throws RestException;
     
     public List<Role> getRolesByCodeAppli(String codeAppli) throws RestException;
+    
+    public List<Droit> getDroitsByCodeAppli(String codeAppli) throws RestException;
     
     public User getLoggedUser(String sessionId) throws RestException;
     

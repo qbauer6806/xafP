@@ -20,9 +20,10 @@ public interface GouvBPM {
      * @param processDefinitionKey Identifiant du process
      * @param user Utilisateur à l'origine de l'action
      * @param demandeId Identifiant de la demande liée à l'instance
+     * @param codeAppli Code de l'application concernée
      * @param businessVariables Variables métier destinées à être stockées dans l'instance
      */
-    public void startProcessInstance(String processDefinitionKey, GouvBPMUser user, String demandeId, Map<String, Object> businessVariables);
+    public void startProcessInstance(String processDefinitionKey, GouvBPMUser user, String demandeId, String codeAppli, Map<String, Object> businessVariables);
     
     /**
      * Permet de récupérer les variables métier liées à une instance de process
@@ -67,16 +68,18 @@ public interface GouvBPM {
     /**
      * Permet de lister les tâches pour lesquelles un utilisateur est désigné comme candidat
      * @param user Utilisateur concerné
+     * @param codeAppli Code de l'application concernée
      * @return
      */
-    public List<GouvBPMTask> getTasksWhereUserIsCandidate(GouvBPMUser user);
+    public List<GouvBPMTask> getTasksWhereUserIsCandidate(GouvBPMUser user, String codeAppli);
     
     /**
      * Permet de lister les tâches pour lesquelles un groupe est désigné comme candidat
      * @param group Groupe concerné
+     * @param codeAppli Code de l'application concernée
      * @return
      */
-    public List<GouvBPMTask> getTasksWhereGroupIsCandidate(GouvBPMGroup group);
+    public List<GouvBPMTask> getTasksWhereGroupIsCandidate(GouvBPMGroup group, String codeAppli);
     
     /**
      * Permet de savoir si l'instance de process liée à une demande est vivante ou terminée

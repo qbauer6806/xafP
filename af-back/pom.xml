@@ -63,8 +63,8 @@
 
         <dependency>
             <groupId>mc.gouv.logon</groupId>
-            <artifactId>logon_rest_client</artifactId>
-            <version>4.0.36</version>
+            <artifactId>logon-apiclient</artifactId>
+            <version>4.0.37-SNAPSHOT</version>
         </dependency>
 
         <dependency>

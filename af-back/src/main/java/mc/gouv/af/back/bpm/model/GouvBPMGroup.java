@@ -37,5 +37,10 @@ public class GouvBPMGroup {
     public void setType(String type) {
         this.type = type;
     }
+
+    @Override
+    public String toString() {
+        return "GouvBPMGroup [id=" + id + ", name=" + name + ", type=" + type + "]";
+    }
     
 }

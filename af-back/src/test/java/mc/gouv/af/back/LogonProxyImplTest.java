@@ -7,9 +7,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import mc.gouv.af.back.util.LogonProxy;
+import mc.gouv.logon.apiclient.RestException;
+import mc.gouv.logon.model.Droit;
 import mc.gouv.logon.model.Role;
 import mc.gouv.logon.model.User;
-import mc.gouv.logon.rest.client.RestException;
 
 /**
  * Mock de LogonProxy afin de mocker l'appel à Logon pour les tests
@@ -60,6 +61,11 @@ public class LogonProxyImplTest implements LogonProxy {
 
     @Override
     public User getLoggedUser(String sessionId) throws RestException {
+        return null;
+    }
+
+    @Override
+    public List<Droit> getDroitsByCodeAppli(String codeAppli) throws RestException {
         return null;
     }
 

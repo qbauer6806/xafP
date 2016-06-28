@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * Factory pour le GouvUserManager
+ * Factory pour le GouvBPMUserManager
  * 
  * @author qdeme
  *

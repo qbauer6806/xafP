@@ -63,8 +63,8 @@ public class GouvBPMImpl implements GouvBPM {
     private ProcessEngine processEngine;
     
     @Override
-    public void startProcessInstance(String processDefinitionKey, GouvBPMUser user, String demandeId, Map<String, Object> businessVariables) {
-        LOGGER.info("Démarrage d'une instance du process \"" + processDefinitionKey + "\" assignée à l'utilisateur \"" + user + "\" et concernant la demande \"" + demandeId + "\"");
+    public void startProcessInstance(String processDefinitionKey, GouvBPMUser user, String demandeId, String codeAppli, Map<String, Object> businessVariables) {
+        LOGGER.info("startProcessInstance() Démarrage d'une instance du process \"" + processDefinitionKey + "\" assignée à l'utilisateur \"" + user + "\" et concernant la demande \"" + demandeId + "\"");
         
         checkUser(user);
         
@@ -72,6 +72,7 @@ public class GouvBPMImpl implements GouvBPM {
         Map<String, Object> variables = new HashMap<String, Object>();
         // Variables techniques
         variables.put(GouvBPMProcessVariableTypeEnum.MC_USERID.name(), user.getId());
+        variables.put(GouvBPMProcessVariableTypeEnum.MC_CODEAPPLI.name(), codeAppli);
         // Variables business éventuellement fournies par le client
         if (businessVariables != null) {
             variables.putAll(businessVariables);
@@ -91,18 +92,21 @@ public class GouvBPMImpl implements GouvBPM {
 
     @Override
     public Map<String, Object> getProcessBusinessVariables(String demandeId) {
+        LOGGER.info("getProcessBusinessVariables(" + demandeId + ")");
         ProcessInstance processInstance = getActiveProcessInstanceForDemandeId(demandeId);
         return runtimeService.getVariables(processInstance.getId());
     }
 
     @Override
     public void setProcessBusinessVariables(String demandeId, Map<String, Object> businessVariables) {
+        LOGGER.info("setProcessBusinessVariables(" + demandeId + ")");
         ProcessInstance processInstance = getActiveProcessInstanceForDemandeId(demandeId);
         runtimeService.setVariables(processInstance.getId(), businessVariables);
     }
     
     @Override
     public List<GouvBPMTask> getTasksAssignedToUser(GouvBPMUser user) {
+        LOGGER.info("getTasksAssignedToUser(" + user  +")");
         
         checkUser(user);
         
@@ -112,12 +116,15 @@ public class GouvBPMImpl implements GouvBPM {
 
     @Override
     public List<GouvBPMTask> getActiveTasksForDemande(String demandeId) {
+        LOGGER.info("getActiveTasksForDemande(" + demandeId + ")");
+        
         List<Task> tasks = taskService.createTaskQuery().processInstanceBusinessKey(demandeId).active().list();
         return GouvBPMTransformer.toGouvModelTasks(tasks);
     }
 
     @Override
     public void claimTask(GouvBPMTask task, GouvBPMUser user) {
+        LOGGER.info("claimTask(" + task + "," + user + ")");
         
         checkUser(user);
         
@@ -126,28 +133,42 @@ public class GouvBPMImpl implements GouvBPM {
 
     @Override
     public void completeTask(GouvBPMTask task) {
+        LOGGER.info("completeTask(" + task + ")");
+        
         taskService.complete(task.getId());
     }
 
     @Override
-    public List<GouvBPMTask> getTasksWhereUserIsCandidate(GouvBPMUser user) {
+    public List<GouvBPMTask> getTasksWhereUserIsCandidate(GouvBPMUser user, String codeAppli) {
+        LOGGER.info("getTasksWhereUserIsCandidate(" + user + "," + codeAppli + ")");
         
-        checkUser(user);
+        // À la fin c'est logonProxy.getUserByMatricule() du GouvBPMGroupManager qui est utilisé, donc inutile
+        // de vérifier l'utilisateur avant puisque c'est fait après pour trouver ses groupes
+        // checkUser(user);
 
-        List<Task> tasks = taskService.createTaskQuery().taskCandidateUser(user.getId()).list();
+        // On transfère le code appli au GouvBPMGroupManager par le biais d'un critère de recherche sur les processVariables
+        // Seul moyen de transférer cela au GouvBPMGroupManager, qui a besoin du code appli
+        List<Task> tasks = taskService.createTaskQuery()
+                .processVariableValueEquals(GouvBPMProcessVariableTypeEnum.MC_CODEAPPLI.name(), codeAppli)
+                .taskCandidateUser(user.getId()).list();
+        
         return GouvBPMTransformer.toGouvModelTasks(tasks);
     }
     
     @Override
-    public List<GouvBPMTask> getTasksWhereGroupIsCandidate(GouvBPMGroup group) {
+    public List<GouvBPMTask> getTasksWhereGroupIsCandidate(GouvBPMGroup group, String codeAppli) {
+        LOGGER.info("getTasksWhereGroupIsCandidate(" + group + "," + codeAppli + ")");
         
-        checkGroup(group);
+        checkGroup(group, codeAppli);
 
-        List<Task> tasks = taskService.createTaskQuery().taskCandidateGroup(group.getId()).list();
+        List<Task> tasks = taskService.createTaskQuery()
+                .processVariableValueEquals(GouvBPMProcessVariableTypeEnum.MC_CODEAPPLI.name(), codeAppli)
+                .taskCandidateGroup(group.getId()).list();
         return GouvBPMTransformer.toGouvModelTasks(tasks);
     }
 
     private ProcessInstance getActiveProcessInstanceForDemandeId(String demandeId) {
+        LOGGER.info("getActiveProcessInstanceForDemandeId(" + demandeId + ")");
         return runtimeService.createProcessInstanceQuery().processInstanceBusinessKey(demandeId).active().singleResult();
     }
 
@@ -205,8 +226,10 @@ public class GouvBPMImpl implements GouvBPM {
      * @param user
      */
     private void checkUser(GouvBPMUser user) {
+        LOGGER.info("checkUser(" + user + ")");
         User activitiUser = identityService.createUserQuery().userId(user.getId()).singleResult();
         if (activitiUser == null) {
+            LOGGER.info("User inexistant");
             throw new GouvBPMException("Utilisateur " + user + " non reconnu");
         }
     }
@@ -215,9 +238,12 @@ public class GouvBPMImpl implements GouvBPM {
      * Vérification de l'existence du groupe donné en paramètre
      * @param group
      */
-    private void checkGroup(GouvBPMGroup group) {
-        Group activitiGroup = identityService.createGroupQuery().groupId(group.getId()).singleResult();
+    private void checkGroup(GouvBPMGroup group, String codeAppli) {
+        LOGGER.info("checkGroup(" + group + "," + codeAppli + ")");
+        // HACK On utilise un critère "groupType" pour faire passer l'info du code appli...
+        Group activitiGroup = identityService.createGroupQuery().groupId(group.getId()).groupType(codeAppli).singleResult();
         if (activitiGroup == null) {
+            LOGGER.info("Groupe inexistant");
             throw new GouvBPMException("Groupe " + group + " non reconnu");
         }
     }

@@ -9,6 +9,7 @@ package mc.gouv.af.back.bpm;
  */
 public enum GouvBPMProcessVariableTypeEnum {
 
-    MC_USERID
+    MC_USERID,
+    MC_CODEAPPLI
     
 }

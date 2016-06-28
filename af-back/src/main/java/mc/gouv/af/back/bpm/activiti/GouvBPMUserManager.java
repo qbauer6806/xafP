@@ -3,7 +3,6 @@ package mc.gouv.af.back.bpm.activiti;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.activiti.engine.ActivitiException;
 import org.activiti.engine.identity.Picture;
 import org.activiti.engine.identity.User;
 import org.activiti.engine.impl.Page;
@@ -16,8 +15,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import mc.gouv.af.back.bpm.GouvBPMException;
 import mc.gouv.af.back.util.LogonProxy;
-import mc.gouv.logon.rest.client.RestException;
+import mc.gouv.logon.apiclient.RestException;
 
 /**
  * Provider d'utilisateurs custom du gouvernement pour Activiti
@@ -36,7 +36,7 @@ public class GouvBPMUserManager extends UserEntityManager {
     @Override
     public UserEntity findUserById(String userLogin) {
 
-        LOGGER.info("findUserById(" + userLogin + ")");
+        LOGGER.info("GouvBPMUserManager.findUserById(" + userLogin + ")");
 
         mc.gouv.logon.model.User user = null;
         try {
@@ -62,29 +62,9 @@ public class GouvBPMUserManager extends UserEntityManager {
     }
 
     @Override
-    public User createNewUser(String userId) {
-        throw new ActivitiException("createNewUser() not supported");
-    }
-
-    @Override
-    public void insertUser(User user) {
-        throw new ActivitiException("insertUser() not supported");
-    }
-
-    @Override
-    public void updateUser(User updatedUser) {
-        throw new ActivitiException("updateUser() not supported");
-    }
-
-    @Override
-    public void deleteUser(String userId) {
-        throw new ActivitiException("Pas encore supporté");
-    }
-
-    @Override
     public List<User> findUserByQueryCriteria(UserQueryImpl query, Page page) {
         
-        LOGGER.info("findUserByQueryCriteria(query)");
+        LOGGER.info("GouvBPMUserManager.findUserByQueryCriteria(query)");
         
         List<User> userList = new ArrayList<User>();
         UserQueryImpl userQuery = (UserQueryImpl) query;
@@ -106,12 +86,32 @@ public class GouvBPMUserManager extends UserEntityManager {
 
     @Override
     public Boolean checkPassword(String userId, String password) {
-        throw new ActivitiException("checkPassword() not supported");
+        throw new GouvBPMException("checkPassword() not supported");
     }
 
     @Override
     public Picture getUserPicture(String userId) {
-        throw new ActivitiException("getUserPicture() not supported");
+        throw new GouvBPMException("getUserPicture() not supported");
+    }
+    
+    @Override
+    public User createNewUser(String userId) {
+        throw new GouvBPMException("createNewUser() not supported");
+    }
+
+    @Override
+    public void insertUser(User user) {
+        throw new GouvBPMException("insertUser() not supported");
+    }
+
+    @Override
+    public void updateUser(User updatedUser) {
+        throw new GouvBPMException("updateUser() not supported");
+    }
+
+    @Override
+    public void deleteUser(String userId) {
+        throw new GouvBPMException("deleteUser() not supported");
     }
 
 }

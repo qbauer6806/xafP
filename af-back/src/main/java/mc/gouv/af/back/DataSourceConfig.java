@@ -24,20 +24,6 @@ import mc.gouv.Static;
 @EnableAutoConfiguration
 public class DataSourceConfig {
 
-    // @Bean
-    // @Primary
-    // public DataSource getDataSource() throws Exception {
-    // PoolProperties poolProperties = new PoolProperties();
-    // poolProperties.setDriverClassName("org.h2.Driver");
-    // poolProperties.setUrl("jdbc:h2:tcp://190.1.37.34/~/activiti;MV_STORE=FALSE;MVCC=FALSE");
-    // poolProperties.setUsername("sa");
-    // poolProperties.setPassword("");
-    // org.apache.tomcat.jdbc.pool.DataSource dataSource = new
-    // org.apache.tomcat.jdbc.pool.DataSource();
-    // dataSource.setPoolProperties(poolProperties);
-    // return dataSource;
-    // }
-
     @Bean
     @Primary
     public DataSource getDataSource() throws Exception {

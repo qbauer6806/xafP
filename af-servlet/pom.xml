@@ -4,6 +4,14 @@
     <groupId>mc.gouv.af</groupId>
     <version>0.0.6-SNAPSHOT</version>
     <packaging>war</packaging>
+    
+    <parent>
+        <groupId>mc.gouv.pom</groupId>
+        <artifactId>super-pom-war-frontoffice</artifactId>
+        <version>1.44.20</version>
+        <relativePath />
+    </parent>
+    
     <build>
         <finalName>AppFactoryServlet</finalName>
         <resources>
@@ -134,13 +142,6 @@
             <version>0.0.1</version>
         </dependency>
     </dependencies>
-    <parent>
-        <groupId>mc.gouv.pom</groupId>
-        <artifactId>super-pom-war-frontoffice</artifactId>
-        <version>1.44.20</version>
-        <relativePath />
-    </parent>
-
 
     <scm>
         <developerConnection>${svn.connection}/${project.artifactId}/trunk</developerConnection>

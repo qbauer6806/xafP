@@ -28,7 +28,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import mc.gouv.af.servlet.dto.UsagerInfosDTO;
 import mc.gouv.af.servlet.util.AppFactoryServletUtils;
 import mc.gouv.af.servlet.util.AppFactoryServletUtils.ServiceTarget;
-import mc.gouv.demarches.api.model.DemandeComplementsReponseDTO;
+import mc.gouv.dem.apishared.model.DemandeComplementsReponseDTO;
 
 /**
  * Servlet mettant à disposition le service /demandes avec les méthodes PUT, POST, GET, DELETE.

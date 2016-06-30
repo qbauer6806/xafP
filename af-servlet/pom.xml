@@ -132,14 +132,14 @@
             <version>4.5.1</version>
         </dependency>
         <dependency>
-            <groupId>mc.gouv.demarches</groupId>
-            <artifactId>demarches-api-client</artifactId>
-            <version>0.0.5</version>
+            <groupId>mc.gouv.dem</groupId>
+            <artifactId>dem-apishared</artifactId>
+            <version>0.0.7</version>
         </dependency>
         <dependency>
             <groupId>mc.gouv.mail</groupId>
-            <artifactId>mail-api-client</artifactId>
-            <version>0.0.1</version>
+            <artifactId>mail-apiclient</artifactId>
+            <version>0.0.3</version>
         </dependency>
     </dependencies>
 

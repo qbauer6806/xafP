@@ -13,10 +13,10 @@ import org.slf4j.LoggerFactory;
 
 import mc.gouv.af.servlet.dto.UsagerInfosDTO;
 import mc.gouv.af.servlet.util.AppFactoryServletUtils;
-import mc.gouv.mail.api.client.MailClient;
-import mc.gouv.mail.api.model.AddressBlock;
-import mc.gouv.mail.api.model.Email;
-import mc.gouv.mail.api.model.EmailSent;
+import mc.gouv.mail.apiclient.client.MailClient;
+import mc.gouv.mail.apishared.model.AddressBlock;
+import mc.gouv.mail.apishared.model.Email;
+import mc.gouv.mail.apishared.model.EmailSent;
 
 public class ContactServlet extends HttpServlet {
 

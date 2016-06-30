@@ -38,7 +38,7 @@ import com.fasterxml.uuid.impl.TimeBasedGenerator;
 
 import mc.gouv.Static;
 import mc.gouv.af.servlet.dto.UsagerInfosDTO;
-import mc.gouv.demarches.api.model.AccessDTO;
+import mc.gouv.dem.apishared.model.AccessDTO;
 import net.tanesha.recaptcha.ReCaptchaImpl;
 import net.tanesha.recaptcha.ReCaptchaResponse;
 

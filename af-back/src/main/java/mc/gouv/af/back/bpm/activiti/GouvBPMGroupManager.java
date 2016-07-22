@@ -89,16 +89,18 @@ public class GouvBPMGroupManager extends GroupEntityManager {
         if (codeAppli != null) {
             try {
                 User user = logonProxy.getUserByMatricule(userId);
-                Set<Role> roles = user.getRoles();
-                for (Role role : roles) {
-                    // Il faut que ces droits concernent l'application en question
-                    if (role.getAppli().getCode().equals(codeAppli)) {
-                        Set<Droit> droits = role.getDroits();
-                        for (Droit droit : droits) {
-                            GroupEntity ge = new GroupEntity();
-                            ge.setId(droit.getCode());
-                            ge.setName(droit.getTitre());
-                            liste.add(ge);
+                if (user != null) {
+                    Set<Role> roles = user.getRoles();
+                    for (Role role : roles) {
+                        // Il faut que ces droits concernent l'application en question
+                        if (role.getAppli().getCode().equals(codeAppli)) {
+                            Set<Droit> droits = role.getDroits();
+                            for (Droit droit : droits) {
+                                GroupEntity ge = new GroupEntity();
+                                ge.setId(droit.getCode());
+                                ge.setName(droit.getTitre());
+                                liste.add(ge);
+                            }
                         }
                     }
                 }

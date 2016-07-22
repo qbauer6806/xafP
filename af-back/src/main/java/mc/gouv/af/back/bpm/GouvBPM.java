@@ -23,20 +23,20 @@ public interface GouvBPM {
      * @param codeAppli Code de l'application concernée
      * @param businessVariables Variables métier destinées à être stockées dans l'instance
      */
-    public void startProcessInstance(String processDefinitionKey, GouvBPMUser user, String demandeId, String codeAppli, Map<String, Object> businessVariables);
+    public void startProcessInstance(String processDefinitionKey, GouvBPMUser user, Integer demandeId, String codeAppli, Map<String, Object> businessVariables);
     
     /**
      * Permet de récupérer les variables métier liées à une instance de process
      * @param demandeId Identifiant de la demande correspondant à l'instance de process
      * @return Les variables métier demandées
      */
-    public Map<String, Object> getProcessBusinessVariables(String demandeId);
+    public Map<String, Object> getProcessBusinessVariables(Integer demandeId);
     
     /**
      * Permet de définir les variables métier liées à une instance de process
      * @param businessVariables
      */
-    public void setProcessBusinessVariables(String demandeId, Map<String, Object> businessVariables);
+    public void setProcessBusinessVariables(Integer demandeId, Map<String, Object> businessVariables);
     
     /**
      * Permet à un utilisateur de s'affecter une tâche
@@ -63,7 +63,7 @@ public interface GouvBPM {
      * @param demandeId Identifiant de la demande
      * @return
      */
-    public List<GouvBPMTask> getActiveTasksForDemande(String demandeId);
+    public List<GouvBPMTask> getActiveTasksForDemande(Integer demandeId);
 
     /**
      * Permet de lister les tâches pour lesquelles un utilisateur est désigné comme candidat
@@ -86,7 +86,7 @@ public interface GouvBPM {
      * @param demandeId
      * @return
      */
-    public boolean isProcessInstanceAlive(String demandeId);
+    public boolean isProcessInstanceAlive(Integer demandeId);
     
     /**
      * Permet de sauter d'une tâche à une autre
@@ -94,6 +94,15 @@ public interface GouvBPM {
      * @param taskFrom
      * @param taskTo
      */
-    public void jump(String demandeId, GouvBPMTask taskFrom, GouvBPMTask taskTo);
+    public void jump(Integer demandeId, GouvBPMTask taskFrom, GouvBPMTask taskTo);
+
+    /**
+     * Permet de lister les DemandeID d'une demarche (codeAppli) qui sont dans une certaine tâche courante
+     * Exemple : on souhaite lister toutes les demandes en attente de validation d'une démarche
+     * @param codeAppli
+     * @param task
+     * @return
+     */
+    public List<Integer> getDemandesIdsByCodeAppliAndTacheCourante(String codeAppli, GouvBPMTask task);
     
 }

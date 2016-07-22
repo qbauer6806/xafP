@@ -1,5 +1,6 @@
 package mc.gouv.af.back.bpm.activiti;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,7 +64,7 @@ public class GouvBPMImpl implements GouvBPM {
     private ProcessEngine processEngine;
     
     @Override
-    public void startProcessInstance(String processDefinitionKey, GouvBPMUser user, String demandeId, String codeAppli, Map<String, Object> businessVariables) {
+    public void startProcessInstance(String processDefinitionKey, GouvBPMUser user, Integer demandeId, String codeAppli, Map<String, Object> businessVariables) {
         LOGGER.info("startProcessInstance() Démarrage d'une instance du process \"" + processDefinitionKey + "\" assignée à l'utilisateur \"" + user + "\" et concernant la demande \"" + demandeId + "\"");
         
         checkUser(user);
@@ -81,7 +82,7 @@ public class GouvBPMImpl implements GouvBPM {
         ProcessInstance process = null;
         try {
             // On utilise le demandeId pour la "businessKey"
-            process = runtimeService.startProcessInstanceByKey(processDefinitionKey, demandeId, variables);
+            process = runtimeService.startProcessInstanceByKey(processDefinitionKey, demandeId.toString(), variables);
             LOGGER.info("Instance démarrée : " + process.getDeploymentId() + " , " + process.getActivityId() + " , " + process.getId() + " , "  + process.getDescription() + " , " + process.getProcessInstanceId());
         }
         catch (ActivitiObjectNotFoundException e) {
@@ -91,14 +92,14 @@ public class GouvBPMImpl implements GouvBPM {
     }
 
     @Override
-    public Map<String, Object> getProcessBusinessVariables(String demandeId) {
+    public Map<String, Object> getProcessBusinessVariables(Integer demandeId) {
         LOGGER.info("getProcessBusinessVariables(" + demandeId + ")");
         ProcessInstance processInstance = getActiveProcessInstanceForDemandeId(demandeId);
         return runtimeService.getVariables(processInstance.getId());
     }
 
     @Override
-    public void setProcessBusinessVariables(String demandeId, Map<String, Object> businessVariables) {
+    public void setProcessBusinessVariables(Integer demandeId, Map<String, Object> businessVariables) {
         LOGGER.info("setProcessBusinessVariables(" + demandeId + ")");
         ProcessInstance processInstance = getActiveProcessInstanceForDemandeId(demandeId);
         runtimeService.setVariables(processInstance.getId(), businessVariables);
@@ -115,10 +116,10 @@ public class GouvBPMImpl implements GouvBPM {
     }
 
     @Override
-    public List<GouvBPMTask> getActiveTasksForDemande(String demandeId) {
+    public List<GouvBPMTask> getActiveTasksForDemande(Integer demandeId) {
         LOGGER.info("getActiveTasksForDemande(" + demandeId + ")");
         
-        List<Task> tasks = taskService.createTaskQuery().processInstanceBusinessKey(demandeId).active().list();
+        List<Task> tasks = taskService.createTaskQuery().processInstanceBusinessKey(demandeId.toString()).active().list();
         return GouvBPMTransformer.toGouvModelTasks(tasks);
     }
 
@@ -167,19 +168,34 @@ public class GouvBPMImpl implements GouvBPM {
         return GouvBPMTransformer.toGouvModelTasks(tasks);
     }
 
-    private ProcessInstance getActiveProcessInstanceForDemandeId(String demandeId) {
+    private ProcessInstance getActiveProcessInstanceForDemandeId(Integer demandeId) {
         LOGGER.info("getActiveProcessInstanceForDemandeId(" + demandeId + ")");
-        return runtimeService.createProcessInstanceQuery().processInstanceBusinessKey(demandeId).active().singleResult();
+        return runtimeService.createProcessInstanceQuery().processInstanceBusinessKey(demandeId.toString()).active().singleResult();
+    }
+    
+    @Override
+    public List<Integer> getDemandesIdsByCodeAppliAndTacheCourante(String codeAppli, GouvBPMTask task) {
+        LOGGER.info("getDemandesIdsByCodeAppliAndTacheCourante(" + codeAppli + "," + task.getTaskDefinitionKey() + ")");
+        List<Integer> demandeIds = new ArrayList<Integer>();
+        List<Task> tasks = taskService.createTaskQuery()
+                .processVariableValueEquals(GouvBPMProcessVariableTypeEnum.MC_CODEAPPLI.name(), codeAppli)
+                .taskDefinitionKey(task.getTaskDefinitionKey()).active().list();
+        for (Task t : tasks) {
+            Integer demandeId = Integer.parseInt(runtimeService.createProcessInstanceQuery()
+                    .processInstanceId(t.getProcessInstanceId()).singleResult().getBusinessKey());
+            demandeIds.add(demandeId);
+        }
+        return demandeIds;
     }
 
     @Override
-    public boolean isProcessInstanceAlive(String demandeId) {
+    public boolean isProcessInstanceAlive(Integer demandeId) {
         ProcessInstance processInstance = getActiveProcessInstanceForDemandeId(demandeId);
         return processInstance != null && !processInstance.isEnded();
     }
 
     @Override
-    public void jump(String demandeId, final GouvBPMTask taskFrom, final GouvBPMTask taskTo) {
+    public void jump(Integer demandeId, final GouvBPMTask taskFrom, final GouvBPMTask taskTo) {
         
         LOGGER.info("jump(" + taskFrom.getTaskDefinitionKey() + "," + taskTo.getTaskDefinitionKey() + ")");
         
@@ -187,7 +203,7 @@ public class GouvBPMImpl implements GouvBPM {
         
         LOGGER.info("Création de la nouvelle tâche (" + taskTo + ")...");
         
-        ProcessInstance pi = runtimeService.createProcessInstanceQuery().processInstanceBusinessKey(demandeId).singleResult();
+        ProcessInstance pi = runtimeService.createProcessInstanceQuery().processInstanceBusinessKey(demandeId.toString()).singleResult();
         Context.setProcessEngineConfiguration((ProcessEngineConfigurationImpl)processEngineConfiguration);
         ProcessDefinitionImpl pdd = ((ExecutionEntity)pi).getProcessDefinition();
         ActivityImpl activity = pdd.findActivity(taskTo.getTaskDefinitionKey());
@@ -230,7 +246,8 @@ public class GouvBPMImpl implements GouvBPM {
         User activitiUser = identityService.createUserQuery().userId(user.getId()).singleResult();
         if (activitiUser == null) {
             LOGGER.info("User inexistant");
-            throw new GouvBPMException("Utilisateur " + user + " non reconnu");
+            // TODO REVERT
+            //throw new GouvBPMException("Utilisateur " + user + " non reconnu");
         }
     }
     
@@ -244,7 +261,8 @@ public class GouvBPMImpl implements GouvBPM {
         Group activitiGroup = identityService.createGroupQuery().groupId(group.getId()).groupType(codeAppli).singleResult();
         if (activitiGroup == null) {
             LOGGER.info("Groupe inexistant");
-            throw new GouvBPMException("Groupe " + group + " non reconnu");
+            // TODO REVERT
+            //throw new GouvBPMException("Groupe " + group + " non reconnu");
         }
     }
 }

@@ -39,7 +39,7 @@ public class AfBPMTest {
     
     public static final String USER_MATRICULE = "99999";
     
-    public static final String DEMANDE_ID = "12";
+    public static final Integer DEMANDE_ID = 12;
     
     public static final String HAB_NOMLOC = "Dupont";
     

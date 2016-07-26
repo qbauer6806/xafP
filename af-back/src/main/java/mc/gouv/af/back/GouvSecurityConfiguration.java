@@ -1,11 +1,18 @@
 package mc.gouv.af.back;
 
+import java.util.Arrays;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.web.DispatcherServletAutoConfiguration;
+import org.springframework.boot.context.embedded.FilterRegistrationBean;
+import org.springframework.boot.context.embedded.ServletRegistrationBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 /**
@@ -30,38 +37,27 @@ public class GouvSecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         // Ajout du filtre GouvPreAuthFilter avant le BasicAuthenticationFilter
-      http.addFilterBefore(new GouvPreAuthFilter(), BasicAuthenticationFilter.class)
+      http.authorizeRequests().anyRequest().authenticated()
+      .and().addFilterBefore(new GouvPreAuthFilter(), BasicAuthenticationFilter.class)
         .authenticationProvider(gouvAuthenticationProvider)
-        .csrf().disable()
-        .authorizeRequests()
-          .anyRequest().authenticated()
-          .and()
-        .httpBasic();
+        //.csrf().disable()
+        
+          // #4
+          
+          ;
     }
     
-//    @Autowired
-//    private GouvAuthenticationProvider gouvAuthenticationProvider;
-//    
-//    @Override
-//    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-//        System.out.println("BBB");
-//        auth.userDetailsService(new UserDetailsServiceImpl());
-//    }
-//    
-//    @Bean
-//    public AuthenticationProvider authenticationProvider() {
-//      return new GouvAuthenticationProvider();
-//    }
-//
-//    @Override
-//    protected void configure(HttpSecurity http) throws Exception {
-//        System.out.println("CCC");
-//      http
-//        .authenticationProvider(gouvAuthenticationProvider)
-//        .csrf().disable()
-//        .authorizeRequests()
-//          .anyRequest().authenticated()
-//          .and()
-//        .httpBasic();
-//    }
+    
+    /*
+    @Bean
+    public ServletRegistrationBean dispatcherServletRegistration() {
+        ServletRegistrationBean registration = new ServletRegistrationBean(new IndexServlet(),"/index_re.jsp");
+        
+        return registration;
+    }
+    
+    */
+    
+    
+
 }

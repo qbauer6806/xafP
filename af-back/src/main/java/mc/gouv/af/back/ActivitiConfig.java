@@ -43,12 +43,12 @@ public class ActivitiConfig {
         };
     }
     
-    
+    /*
     @Bean
     public FilterRegistrationBean someFilterRegistration() {
 
         FilterRegistrationBean registration = new FilterRegistrationBean();
-        registration.setFilter(someFilter());
+        //registration.setFilter(someFilter());
         registration.addUrlPatterns("*");
         registration.addInitParameter("paramName", "paramValue");
         registration.setName("someFilter");
@@ -56,9 +56,12 @@ public class ActivitiConfig {
         return registration;
     } 
 
+   
     @Bean(name = "someFilter")
     public Filter someFilter() {
         return new GouvPreAuthFilter();
     }
+    
+    */
     
 }

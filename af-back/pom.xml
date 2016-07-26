@@ -29,12 +29,8 @@
             <artifactId>h2</artifactId>
             <version>1.4.190</version>
         </dependency>
-        <dependency>
-            <groupId>org.activiti</groupId>
-            <artifactId>activiti-spring-boot-starter-rest-api</artifactId>
-            <!--<artifactId>spring-boot-starter-rest-api</artifactId> -->
-            <version>${activiti.version}</version>
-        </dependency>
+        
+
 
         <dependency>
             <groupId>mc.gouv.tools_jar</groupId>
@@ -64,7 +60,22 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <version>1.3.2.RELEASE</version>
         </dependency>
+        
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+            <version>1.3.2.RELEASE</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.activiti</groupId>
+            <artifactId>activiti-spring-boot-starter-rest-api</artifactId>
+            <!--<artifactId>spring-boot-starter-rest-api</artifactId> -->
+            <version>${activiti.version}</version>
+        </dependency>
+        
 
+	    
         <dependency>
             <groupId>db2</groupId>
             <artifactId>db2jcc4</artifactId>

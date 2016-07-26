@@ -1,8 +1,7 @@
 package mc.gouv.af.back;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
+
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -11,7 +10,6 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -51,22 +49,14 @@ public class GouvPreAuthFilter implements Filter {
     	
     	
     	HttpServletRequest httpRequest = (HttpServletRequest) request;
-    	HttpServletResponse httpResponse= (HttpServletResponse) response;
 
-    	
-    	
     	SecurityContext context = SecurityContextHolder.getContext();
     			
     	if (context.getAuthentication() != null && context.getAuthentication().isAuthenticated()) {
             // do nothing
         } else {
-        	//Redirection sur la page d'index de l'application
-        	if("/hab/index_re.jsp".equals(httpRequest.getRequestURI())){
-        		//redirect
-        		LogonBean logonBean = new LogonBean(httpRequest);
-        		httpResponse.sendRedirect("/hab/form?"+logonBean.getQueryString());
-        		return;
-        	}
+        	
+        	
         	
         	String gouvSession = httpRequest.getParameter(LogonBean.GOUV_SESSION_REQUEST_PARAM);
             

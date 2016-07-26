@@ -1,7 +1,5 @@
 package mc.gouv.af.back;
 
-
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -19,7 +17,8 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 @Configuration
 @EnableWebSecurity
 // Order nécessaire pour passer devant org.activiti.spring.boot.SecurityAutoConfiguration$SecurityConfiguration
-// (ExcludeFilter n'y fait rien...) Sinon "@Order on WebSecurityConfigurers must be unique. Order of 100 was already used"
+// (ExcludeFilter n'y fait rien...) Sinon "@Order on WebSecurityConfigurers must be unique. Order of 100 was already
+// used"
 @Order(1)
 public class GouvSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
@@ -32,27 +31,22 @@ public class GouvSecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         // Ajout du filtre GouvPreAuthFilter avant le BasicAuthenticationFilter
-      http.authorizeRequests().anyRequest().authenticated()
-      .and().addFilterBefore(new GouvPreAuthFilter(), BasicAuthenticationFilter.class)
-        .authenticationProvider(gouvAuthenticationProvider)
-        //.csrf().disable()
-        
-          // #4
-          
-          ;
+        http.authorizeRequests().anyRequest().authenticated().and()
+                .addFilterBefore(new GouvPreAuthFilter(), BasicAuthenticationFilter.class)
+                .authenticationProvider(gouvAuthenticationProvider)
+                // .csrf().disable()
+
+        // #4
+
+        ;
     }
-    
-    
+
     /*
-    @Bean
-    public ServletRegistrationBean dispatcherServletRegistration() {
-        ServletRegistrationBean registration = new ServletRegistrationBean(new IndexServlet(),"/index_re.jsp");
-        
-        return registration;
-    }
-    
-    */
-    
-    
+     * @Bean public ServletRegistrationBean dispatcherServletRegistration() { ServletRegistrationBean registration = new
+     * ServletRegistrationBean(new IndexServlet(),"/index_re.jsp");
+     * 
+     * return registration; }
+     * 
+     */
 
 }

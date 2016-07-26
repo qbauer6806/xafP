@@ -2,7 +2,6 @@ package mc.gouv.af.back;
 
 import java.io.IOException;
 
-
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -20,22 +19,19 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-
 /**
- * Pour que GouvAuthenticationProvider.authenticate() puisse être appelé et puisse donc analyser le header
- * "ksession" pour appeler Logon afin d'effectuer l'authentification, il faut d'abord fournir un user/mdp à Spring
- * en premier lieu... or ce n'est pas ce que l'on souhaite. On souhaite simplement donner le ksession dans les headers
- * HTTP. Du coup, ce filter crée une authentification factice afin d'entrer dans le authenticate() qui vérifie le ksession
+ * Pour que GouvAuthenticationProvider.authenticate() puisse être appelé et puisse donc analyser le header "ksession"
+ * pour appeler Logon afin d'effectuer l'authentification, il faut d'abord fournir un user/mdp à Spring en premier
+ * lieu... or ce n'est pas ce que l'on souhaite. On souhaite simplement donner le ksession dans les headers HTTP. Du
+ * coup, ce filter crée une authentification factice afin d'entrer dans le authenticate() qui vérifie le ksession
  * 
  * @author qdeme
  *
  */
 public class GouvPreAuthFilter implements Filter {
 
-    
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvPreAuthFilter.class);
-    
-    
+
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         // Rien à faire
@@ -44,54 +40,48 @@ public class GouvPreAuthFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
-        
 
-    	
-    	
-    	HttpServletRequest httpRequest = (HttpServletRequest) request;
+        HttpServletRequest httpRequest = (HttpServletRequest) request;
 
-    	SecurityContext context = SecurityContextHolder.getContext();
-    			
-    	if (context.getAuthentication() != null && context.getAuthentication().isAuthenticated()) {
+        SecurityContext context = SecurityContextHolder.getContext();
+
+        if (context.getAuthentication() != null && context.getAuthentication().isAuthenticated()) {
             // do nothing
         } else {
-        	
-        	
-        	
-        	String gouvSession = httpRequest.getParameter(LogonBean.GOUV_SESSION_REQUEST_PARAM);
-            
+
+            String gouvSession = httpRequest.getParameter(LogonBean.GOUV_SESSION_REQUEST_PARAM);
+
             if (StringUtils.isBlank(gouvSession)) {
                 LOGGER.error("Session Logon inexistante dans la requête");
                 throw new BadCredentialsException("Invalid kSession");
             }
-            
-        	String appRoot = httpRequest.getParameter(LogonBean.GOUV_APP_ROOT_REQUEST_PARAM);
-            
+
+            String appRoot = httpRequest.getParameter(LogonBean.GOUV_APP_ROOT_REQUEST_PARAM);
+
             if (StringUtils.isBlank(gouvSession)) {
                 LOGGER.error("appRoot inexistant dans la requête");
                 throw new BadCredentialsException("Invalid appRoot");
             }
-            
-        	String appId = httpRequest.getParameter(LogonBean.GOUV_APP_ID_REQUEST_PARAM);
-            
+
+            String appId = httpRequest.getParameter(LogonBean.GOUV_APP_ID_REQUEST_PARAM);
+
             if (StringUtils.isBlank(appId)) {
                 LOGGER.error("appId inexistante dans la requête");
                 throw new BadCredentialsException("Invalid appId");
             }
-            
-            
-            LogonBean logonBean = new LogonBean( gouvSession,  appRoot,  appId);
-            
+
+            LogonBean logonBean = new LogonBean(gouvSession, appRoot, appId);
+
             String name = "user";
-            //On se sert de UsernamePasswordAuthenticationToken pour arriver dans GouvAuthenticationProvider et récupérer le token dans le password
+            // On se sert de UsernamePasswordAuthenticationToken pour arriver dans GouvAuthenticationProvider et
+            // récupérer le token dans le password
             UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(name, logonBean, null);
-            //Gestion de l'authentification via le provider (si à true, le système pense que l'utilisateur est admis
+            // Gestion de l'authentification via le provider (si à true, le système pense que l'utilisateur est admis
             auth.setAuthenticated(false);
             context.setAuthentication(auth);
             //
         }
-    	
-    	 
+
         chain.doFilter(request, response);
     }
 

@@ -105,6 +105,7 @@ public class GouvBPMGroupManager extends GroupEntityManager {
                     }
                 }
             } catch (RestException e) {
+                // TODO
                 e.printStackTrace();
             }
         }

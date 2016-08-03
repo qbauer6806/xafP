@@ -33,20 +33,7 @@ public class GouvSecurityConfiguration extends WebSecurityConfigurerAdapter {
         // Ajout du filtre GouvPreAuthFilter avant le BasicAuthenticationFilter
         http.authorizeRequests().anyRequest().authenticated().and()
                 .addFilterBefore(new GouvPreAuthFilter(), BasicAuthenticationFilter.class)
-                .authenticationProvider(gouvAuthenticationProvider)
-                // .csrf().disable()
-
-        // #4
-
-        ;
+                .authenticationProvider(gouvAuthenticationProvider);
     }
-
-    /*
-     * @Bean public ServletRegistrationBean dispatcherServletRegistration() { ServletRegistrationBean registration = new
-     * ServletRegistrationBean(new IndexServlet(),"/index_re.jsp");
-     * 
-     * return registration; }
-     * 
-     */
 
 }

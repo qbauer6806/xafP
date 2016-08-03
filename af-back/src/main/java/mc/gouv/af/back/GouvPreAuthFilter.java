@@ -20,10 +20,11 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
- * Pour que GouvAuthenticationProvider.authenticate() puisse être appelé et puisse donc analyser le header "ksession"
- * pour appeler Logon afin d'effectuer l'authentification, il faut d'abord fournir un user/mdp à Spring en premier
- * lieu... or ce n'est pas ce que l'on souhaite. On souhaite simplement donner le ksession dans les headers HTTP. Du
- * coup, ce filter crée une authentification factice afin d'entrer dans le authenticate() qui vérifie le ksession
+ * 
+ * Filter qui récupère le header HTTP "ksession" de Logon afin de créer un UsernamePasswordAuthenticationToken
+ * contenant comme Credential un LogonBean contenant ce ksession.
+ * Ce ksession sera en suite lu par GouvAuthenticationProvider.authenticate() pour appeler Logon et s'assurer
+ * que cette session correspond bien à un utilisateur connecté.
  * 
  * @author qdeme
  *
@@ -76,10 +77,9 @@ public class GouvPreAuthFilter implements Filter {
             // On se sert de UsernamePasswordAuthenticationToken pour arriver dans GouvAuthenticationProvider et
             // récupérer le token dans le password
             UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(name, logonBean, null);
-            // Gestion de l'authentification via le provider (si à true, le système pense que l'utilisateur est admis
+            // Gestion de l'authentification via le provider (si à true, le système pense que l'utilisateur est admis)
             auth.setAuthenticated(false);
             context.setAuthentication(auth);
-            //
         }
 
         chain.doFilter(request, response);

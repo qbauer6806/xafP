@@ -16,6 +16,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
+import mc.gouv.Static;
 import mc.gouv.af.back.util.LogonProxy;
 import mc.gouv.logon.apiclient.RestException;
 import mc.gouv.logon.model.Droit;
@@ -33,7 +34,7 @@ public class GouvAuthenticationProvider implements AuthenticationProvider {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvAuthenticationProvider.class);
     
-
+    private static final String DEMARCHE_ID = Static.getValue("mc.gouv.af.back.demarcheId");
     
     @Autowired
     private LogonProxy logonProxy;
@@ -65,15 +66,12 @@ public class GouvAuthenticationProvider implements AuthenticationProvider {
        LOGGER.info("Utilisateur retrouvé suite à l'appel à Logon : " + user);
         
         // Constitution de l'Authentication Spring à l'aide des données obtenues de Logon
-        
-        String password = "none";
-        
+
         Collection<GrantedAuthority> grantedAuthorities = new ArrayList<GrantedAuthority>();
         Set<Role> roles = user.getRoles();
         for (Role role : roles) {
             // Il faut que ces droits concernent l'application en question
-            // TODO Comment récupérer le code Appli ici ?
-            if (role.getAppli().getCode().equals("CITES")) {
+            if (role.getAppli().getCode().equals(DEMARCHE_ID)) {
                 Set<Droit> droits = role.getDroits();
                 for (Droit droit : droits) {
                     grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_" + droit.getCode()));

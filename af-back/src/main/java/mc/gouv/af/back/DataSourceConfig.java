@@ -3,9 +3,12 @@ package mc.gouv.af.back;
 
 
 
+import java.lang.management.ManagementFactory;
+
+import javax.management.ObjectName;
 import javax.sql.DataSource;
 
-
+import org.apache.tomcat.jdbc.pool.ConnectionPool;
 import org.apache.tomcat.jdbc.pool.PoolProperties;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -24,7 +27,6 @@ import mc.gouv.Static;
 @EnableAutoConfiguration
 public class DataSourceConfig {
 
-	/*
     @Bean
     @Primary
     public DataSource getDataSource() throws Exception {
@@ -62,19 +64,18 @@ public class DataSourceConfig {
 
         return dataSource;
     }
-    */
 	
-    @Bean
-    @Primary
-    public DataSource getDataSource() throws Exception {
-        PoolProperties poolProperties = new PoolProperties();
-        poolProperties.setDriverClassName("org.h2.Driver");
-        poolProperties.setUrl("jdbc:h2:file:D:\\java_dev_env\\h2_activiti;MV_STORE=FALSE");
-        poolProperties.setUsername("sa");
-        poolProperties.setPassword("");
-        org.apache.tomcat.jdbc.pool.DataSource dataSource = new org.apache.tomcat.jdbc.pool.DataSource();
-        dataSource.setPoolProperties(poolProperties);
-        return dataSource;
-    }
+//    @Bean
+//    @Primary
+//    public DataSource getDataSource() throws Exception {
+//        PoolProperties poolProperties = new PoolProperties();
+//        poolProperties.setDriverClassName("org.h2.Driver");
+//        poolProperties.setUrl("jdbc:h2:file:D:\\java_dev_env\\h2_activiti;MV_STORE=FALSE");
+//        poolProperties.setUsername("sa");
+//        poolProperties.setPassword("");
+//        org.apache.tomcat.jdbc.pool.DataSource dataSource = new org.apache.tomcat.jdbc.pool.DataSource();
+//        dataSource.setPoolProperties(poolProperties);
+//        return dataSource;
+//    }
 
 }

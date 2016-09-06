@@ -21,6 +21,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import mc.gouv.af.servlet.dto.UsagerInfosDTO;
 import mc.gouv.af.servlet.util.AppFactoryServletUtils;
+import mc.gouv.dem.apiclient.DemClient;
+import mc.gouv.dem.apishared.model.UsagerCourrierDTO;
 
 /**
  * 
@@ -48,32 +50,87 @@ public class LoginServlet extends HttpServlet {
             return;
         }
         
-        // Appel du service ts-login
-        String serviceUrl = AppFactoryServletUtils.LOGIN_REST_URL + "/" + sessionId;
-        Request serviceRequest = Request.Get(serviceUrl);
-        serviceRequest.setHeader("Accept", "application/json");
-        try {
-            LOGGER.info("Appel du service ts-login...");
-            HttpResponse serviceResponse = serviceRequest.execute().returnResponse();
-            int code = serviceResponse.getStatusLine().getStatusCode();
-            if (code == HttpServletResponse.SC_NOT_FOUND || code != HttpServletResponse.SC_OK) {
+        if (!sessionId.startsWith("c_")) {
+            // Le sessionId ne commence pas par "c_", donc appel du service ts-login
+            
+            LOGGER.info("<Usager classique>");
+            
+            String serviceUrl = AppFactoryServletUtils.LOGIN_REST_URL + "/" + sessionId;
+            Request serviceRequest = Request.Get(serviceUrl);
+            serviceRequest.setHeader("Accept", "application/json");
+            try {
+                LOGGER.info("Appel du service ts-login...");
+                HttpResponse serviceResponse = serviceRequest.execute().returnResponse();
+                int code = serviceResponse.getStatusLine().getStatusCode();
+                if (code == HttpServletResponse.SC_NOT_FOUND || code != HttpServletResponse.SC_OK) {
+                    LOGGER.info("Login infructueux");
+                    response.setStatus(HttpStatus.SC_NOT_FOUND);
+                }
+                else {
+                    LOGGER.info("Stockage des informations usager dans la session...");
+                    ObjectMapper mapper = new ObjectMapper();
+                    mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX"));
+                    UsagerInfosDTO uinfos = mapper.readValue(serviceResponse.getEntity().getContent(), UsagerInfosDTO.class);
+    
+                    if (uinfos != null) {
+                        // Stockage de cet objet d'infos d'usager dans la session HTTP
+                        HttpSession session = request.getSession();
+                        session.setAttribute("login", uinfos);
+                    }
+                }
+            }
+            catch (Exception e) {
+                response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_INTERNAL_SERVER_ERROR, "Erreur interne: " + e.toString() + e.getMessage());
+            }
+        }
+        else {
+            // Le sessionId commence par "c_", donc il s'agit du login d'un usager courrier
+            // Effectuer l'appel au WS de DEM
+            
+            LOGGER.info("<Usager courrier>");
+            
+            Integer usagerCourrierId = Integer.parseInt(sessionId.substring(2));
+            
+            LOGGER.info("UsagerCourrierId : " + usagerCourrierId);
+            
+            // Création du DemClient
+            DemClient dc = new DemClient(AppFactoryServletUtils.DEM_URL, AppFactoryServletUtils.DEMARCHES_USER, AppFactoryServletUtils.DEMARCHES_PWD);
+            
+            // Récupération de l'ID de la démarche dans le Context-Param
+            String demarcheId = getServletContext().getInitParameter(AppFactoryServletUtils.DEMARCHEID_KEY);
+            
+            LOGGER.info("Appel du service DEM...");
+            UsagerCourrierDTO usagerCourrier = dc.getUsagerCourrier(demarcheId, usagerCourrierId);
+            
+            if (usagerCourrier == null) {
                 LOGGER.info("Login infructueux");
                 response.setStatus(HttpStatus.SC_NOT_FOUND);
             }
             else {
-                ObjectMapper mapper = new ObjectMapper();
-                mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX"));
-                UsagerInfosDTO uinfos = mapper.readValue(serviceResponse.getEntity().getContent(), UsagerInfosDTO.class);
-
-                if (uinfos != null) {
-                    // Stockage de cet objet d'infos d'usager dans la session HTTP
-                    HttpSession session = request.getSession();
-                    session.setAttribute("login", uinfos);
-                }
+                LOGGER.info("Stockage des informations usager dans la session...");
+                UsagerInfosDTO uinfos = new UsagerInfosDTO();
+                uinfos.setAdresse1(usagerCourrier.getAdresse1());
+                uinfos.setAdresse2(usagerCourrier.getAdresse2());
+                uinfos.setCodePostal(usagerCourrier.getCodePostal());
+                uinfos.setComplementAdresse(usagerCourrier.getAdresseComplement());
+                // uinfos.setDateActivation(), que mettre ?
+                uinfos.setDateCreation(usagerCourrier.getDateCreation());
+                // uinfos.setDateDerConnexion(), que mettre ?
+                uinfos.setEmail(usagerCourrier.getEmail());
+                // uinfos.setEtat(), que mettre ?
+                uinfos.setId(usagerCourrier.getPkUsagersCourrier());
+                uinfos.setLogin(usagerCourrier.getLogin());
+                uinfos.setNom(usagerCourrier.getNom());
+                // uinfos.setNomPays(), usagerCourrier.getPays() est Integer, que mettre ?
+                uinfos.setPrenom(usagerCourrier.getPrenom());
+                uinfos.setRaisonSociale(usagerCourrier.getRaisonSociale());
+                uinfos.setTitre(usagerCourrier.getTitre().shortValue());
+                uinfos.setVille(usagerCourrier.getVille());
+                
+                // Stockage de cet objet d'infos d'usager dans la session HTTP
+                HttpSession session = request.getSession();
+                session.setAttribute("login", uinfos);
             }
-        }
-        catch (Exception e) {
-            response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_INTERNAL_SERVER_ERROR, "Erreur interne: " + e.toString() + e.getMessage());
         }
         
         LOGGER.info("====================== Fin /login doPost()");
@@ -95,31 +152,45 @@ public class LoginServlet extends HttpServlet {
             return;
         }
         
-        // Appel du service ts-login
-        String serviceUrl = AppFactoryServletUtils.LOGIN_REST_URL + "/" + sessionId;
-        Request serviceRequest = Request.Delete(serviceUrl);
-        try {
-            LOGGER.info("Appel du service ts-login...");
-            HttpResponse serviceResponse = serviceRequest.execute().returnResponse();
-            int statusCode = serviceResponse.getStatusLine().getStatusCode();
-            response.setStatus(statusCode);
-            // Si tout s'est bien passé, alors on détruit la session côté AppFactoryServlet
-            if (statusCode == HttpServletResponse.SC_NO_CONTENT) {
-                request.getSession().removeAttribute("login");
-                request.getSession().invalidate();
-            }
-            else {
-                if (serviceResponse.getEntity() != null) {
-                    response = AppFactoryServletUtils.logAndSendError(LOGGER, response, statusCode, "Erreur: le service ts-login a retourné le code "
-                            + statusCode + " (" + EntityUtils.toString(serviceResponse.getEntity()) + ")");
+        if (!sessionId.startsWith("c_")) {
+            // Le sessionId ne commence pas par "c_", donc appel du service ts-login
+
+            String serviceUrl = AppFactoryServletUtils.LOGIN_REST_URL + "/" + sessionId;
+            Request serviceRequest = Request.Delete(serviceUrl);
+            try {
+                LOGGER.info("Appel du service ts-login...");
+                HttpResponse serviceResponse = serviceRequest.execute().returnResponse();
+                int statusCode = serviceResponse.getStatusLine().getStatusCode();
+                response.setStatus(statusCode);
+                // Si tout s'est bien passé, alors on détruit la session côté AppFactoryServlet
+                if (statusCode == HttpServletResponse.SC_NO_CONTENT) {
+                    request.getSession().removeAttribute("login");
+                    request.getSession().invalidate();
                 }
                 else {
-                    response = AppFactoryServletUtils.logAndSendError(LOGGER, response, statusCode, "Erreur: le service ts-login a retourné le code " + statusCode);   
+                    if (serviceResponse.getEntity() != null) {
+                        response = AppFactoryServletUtils.logAndSendError(LOGGER, response, statusCode, "Erreur: le service ts-login a retourné le code "
+                                + statusCode + " (" + EntityUtils.toString(serviceResponse.getEntity()) + ")");
+                    }
+                    else {
+                        response = AppFactoryServletUtils.logAndSendError(LOGGER, response, statusCode, "Erreur: le service ts-login a retourné le code " + statusCode);   
+                    }
                 }
             }
+            catch (Exception e) {
+                response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_INTERNAL_SERVER_ERROR, "Erreur interne: " + e.toString() + e.getMessage());
+            }
         }
-        catch (Exception e) {
-            response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_INTERNAL_SERVER_ERROR, "Erreur interne: " + e.toString() + e.getMessage());
+        else {
+            // Usager courrier, pas d'appel à DEM pour faire un logout
+            // Juste destruction de la session
+            
+            LOGGER.info("Usager courrier : suppression de la session sans appel à DEM...");
+            
+            request.getSession().removeAttribute("login");
+            request.getSession().invalidate();
+            
+            response.setStatus(HttpServletResponse.SC_NO_CONTENT);
         }
         
         LOGGER.info("====================== Fin /login doDelete()");

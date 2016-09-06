@@ -101,7 +101,7 @@ public class DemandesServlet extends HttpServlet {
         HttpClient httpClient = HttpClientBuilder.create().
                 setDefaultCredentialsProvider(AppFactoryServletUtils.getCredentialsProvider(ServiceTarget.DEMARCHES)).build();
         HttpRequestBase finalRequest = null;
-        String url = AppFactoryServletUtils.DEMANDES_URL;
+        String url = AppFactoryServletUtils.DEM_DEMANDES_URL;
         if (HttpMethod.GET.equals(httpMethod) || HttpMethod.POST.equals(httpMethod) || (HttpMethod.PUT.equals(httpMethod) && demandeInfosCompl)) {
             if (!demandeInfosCompl) {
                 // Demande
@@ -180,7 +180,7 @@ public class DemandesServlet extends HttpServlet {
                 ObjectMapper mapper = new ObjectMapper();
                 DemandeComplementsReponseDTO reponse = mapper.readValue(buffer.toString(), DemandeComplementsReponseDTO.class);
                 reponse.setAgentId(null);
-                reponse.setUsagerId(usagerId.toString());
+                reponse.setUsagerId(usagerId);
                 String reponseStr = mapper.writeValueAsString(reponse);
                 input = new StringEntity(reponseStr,"UTF-8");
             }

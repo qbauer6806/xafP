@@ -133,8 +133,8 @@
         </dependency>
         <dependency>
             <groupId>mc.gouv.dem</groupId>
-            <artifactId>dem-apishared</artifactId>
-            <version>0.0.7</version>
+            <artifactId>dem-apiclient</artifactId>
+            <version>0.0.8-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>mc.gouv.mail</groupId>

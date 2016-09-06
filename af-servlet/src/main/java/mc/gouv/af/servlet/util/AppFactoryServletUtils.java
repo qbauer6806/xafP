@@ -46,9 +46,11 @@ public class AppFactoryServletUtils {
     
     private static Logger LOGGER = LoggerFactory.getLogger(AppFactoryServletUtils.class);
     
-    public static final String ACCESSES_URL = Static.getValue("mc.gouv.appfactory.demarchesws.accesses.url");
+    public static final String DEM_ACCESSES_URL = Static.getValue("mc.gouv.appfactory.demarchesws.accesses.url");
     
-    public static final String DEMANDES_URL = Static.getValue("mc.gouv.appfactory.demarchesws.demandes.url");
+    public static final String DEM_DEMANDES_URL = Static.getValue("mc.gouv.appfactory.demarchesws.demandes.url");
+    
+    public static final String DEM_URL = Static.getValue("mc.gouv.appfactory.demarchesws.url");
     
     public static final String LOGIN_REST_URL = Static.getValue("mc.gouv.appfactory.external.login.url");
     
@@ -130,7 +132,7 @@ public class AppFactoryServletUtils {
         
         // Création du client HTTP avec la bonne adresse
         HttpClient httpClient = HttpClientBuilder.create().setDefaultCredentialsProvider(getCredentialsProvider(ServiceTarget.DEMARCHES)).build();
-        String url = ACCESSES_URL + "/" + demarcheId + "/" + usagerId;
+        String url = DEM_ACCESSES_URL + "/" + demarcheId + "/" + usagerId;
         HttpRequestBase finalRequest = new HttpGet(url);
         
         // Envoi de la requête

@@ -79,7 +79,7 @@ public class AccessesServlet extends HttpServlet {
         HttpClient httpClient = HttpClientBuilder.create().
                 setDefaultCredentialsProvider(AppFactoryServletUtils.getCredentialsProvider(ServiceTarget.DEMARCHES)).build();
         HttpRequestBase finalRequest = null;
-        String url = AppFactoryServletUtils.ACCESSES_URL + "/" + demarcheId + "/" + usagerId;
+        String url = AppFactoryServletUtils.DEM_ACCESSES_URL + "/" + demarcheId + "/" + usagerId;
         if (HttpMethod.POST.equals(httpMethod)) {
             finalRequest = new HttpPost(url);
         }

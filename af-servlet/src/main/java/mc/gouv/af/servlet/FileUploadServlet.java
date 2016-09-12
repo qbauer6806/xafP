@@ -36,116 +36,120 @@ import mc.gouv.af.servlet.util.AppFactoryServletUtils.ServiceTarget;
 public class FileUploadServlet extends HttpServlet {
 
     private static final long serialVersionUID = 484237515919955392L;
-    
+
     private static Logger LOGGER = LoggerFactory.getLogger(FileUploadServlet.class);
 
     @SuppressWarnings("deprecation")
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         LOGGER.info("====================== /fileupload doPost()");
-        
+
         UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(request);
         if (usagerInfosDTO == null) {
-            response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED, "Utilisateur non autorisé");
+            response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
+                    "Utilisateur non autorisé");
             return;
         }
-        
+
         // Récupération du nom du fichier à envoyer
         String pathInfo = request.getPathInfo();
         String filename = null;
         if (pathInfo != null && pathInfo.length() > 1) {
             filename = pathInfo.split("/")[1];
         }
-        
+
         if (StringUtils.isBlank(filename)) {
-            response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_BAD_REQUEST, "Erreur: nom du fichier manquant");
+            response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_BAD_REQUEST,
+                    "Erreur: nom du fichier manquant");
             return;
         }
-        
+
         try {
-        
-        // Génération de l'UUID
-        UUID uuid = AppFactoryServletUtils.generateUUID();
-        LOGGER.debug("UUID généré : {}", uuid.toString());
 
-        String appFactoryId = getServletContext().getInitParameter(AppFactoryServletUtils.APPFACTORYID_KEY);
-        String demarcheId = getServletContext().getInitParameter(AppFactoryServletUtils.DEMARCHEID_KEY);
-        
-        LOGGER.debug("AppFactoryID = {}, DemarcheID = {}", appFactoryId, demarcheId);
-        
-        // Récupération de l'AccessID via appel WS à Demarches
-        LOGGER.info("Récupération de l'AccessID correspondant");
-        Integer accessId = AppFactoryServletUtils.getAccessID(demarcheId, usagerInfosDTO.getId());
-        LOGGER.debug("AccessID = {}", accessId);
-        
-        
-        if (accessId == null) {
-            response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_NOT_FOUND, "Erreur: impossible de récupérer l'accès");
-            return;
-        }
-        
-        // Constitution du chemin virtuel du fichier
-        // /appfactory/demarcheId/accessId/UUID/nomDuFichier
-        String virtualPath = "/" + appFactoryId + "/" + demarcheId + "/" + accessId + "/" + uuid + "/" + filename;
-        LOGGER.info("Chemin virtuel : {}", virtualPath);
-        
-        // Constitution de l'URL d'appel
-        URL url = new URL(AppFactoryServletUtils.FILE_URL + virtualPath);
-        LOGGER.info("URL d'appel : {}", url);
-        
-        // Extraction du demandeId si le client le connaît déjà et l'a fourni à AFS
-        String demandeId = null;
-        Enumeration<String> headers = request.getHeaderNames();
-        while (headers.hasMoreElements()) {
-            String headerName = headers.nextElement();
-            if (headerName.startsWith(AppFactoryServletUtils.FILE_METADATA_DEMANDEID)) {
-                demandeId = request.getHeader(headerName);
+            // Génération de l'UUID
+            UUID uuid = AppFactoryServletUtils.generateUUID();
+            LOGGER.debug("UUID généré : {}", uuid.toString());
+
+            String appFactoryId = getServletContext().getInitParameter(AppFactoryServletUtils.APPFACTORYID_KEY);
+            String demarcheId = getServletContext().getInitParameter(AppFactoryServletUtils.DEMARCHEID_KEY);
+
+            LOGGER.debug("AppFactoryID = {}, DemarcheID = {}", appFactoryId, demarcheId);
+
+            // Récupération de l'AccessID via appel WS à Demarches
+            LOGGER.info("Récupération de l'AccessID correspondant");
+            Integer accessId = AppFactoryServletUtils.getAccessID(demarcheId, usagerInfosDTO.getId());
+            LOGGER.debug("AccessID = {}", accessId);
+
+            if (accessId == null) {
+                response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_NOT_FOUND,
+                        "Erreur: impossible de récupérer l'accès");
+                return;
             }
-        }
-        
-        // Constitution de la requête
-        HttpClient client = HttpClientBuilder.create().build();
-        Part part = request.getParts().iterator().next();
-        MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-        builder.addPart("data", new InputStreamBody(part.getInputStream(), part.getContentType(), part.getSubmittedFileName()));
-        HttpEntity multipart = builder.build();
-        HttpPost postRequest = new HttpPost(url.toString());
-        postRequest.setEntity(multipart);
-        // Renseigner le demandeId le cas échéant
-        if (demandeId != null) {
-            postRequest.setHeader(AppFactoryServletUtils.FILE_METADATA_DEMANDEID, demandeId);
-        }
-        
-        LOGGER.info("Appel du WS FILE");
-        HttpResponse postResponse = client.execute(postRequest, AppFactoryServletUtils.getHttpContextForAuth(url, ServiceTarget.FILE));
 
-        // Constitution de la réponse en redirigeant la réponse du WS ansi que son code réponse
-        LOGGER.info("Constitution de la réponse pour retour au client");
-        response.setContentType("application/json");
-        
-        int statusCode = postResponse.getStatusLine().getStatusCode();
-        response.setStatus(statusCode);
-        
-        if (statusCode == HttpServletResponse.SC_OK || statusCode == HttpServletResponse.SC_CREATED) {
-            // Si tout s'est bien passé, alors on forme une réponse différente que celle qui nous est retournée par FILE
+            // Constitution du chemin virtuel du fichier
+            // /appfactory/demarcheId/accessId/UUID/nomDuFichier
+            String virtualPath = "/" + appFactoryId + "/" + demarcheId + "/" + accessId + "/" + uuid + "/" + filename;
+            LOGGER.info("Chemin virtuel : {}", virtualPath);
+
+            // Constitution de l'URL d'appel
+            URL url = new URL(AppFactoryServletUtils.FILE_URL + virtualPath);
+            LOGGER.info("URL d'appel : {}", url);
+
+            // Extraction du demandeId si le client le connaît déjà et l'a fourni à AFS
+            String demandeId = null;
+            Enumeration<String> headers = request.getHeaderNames();
+            while (headers.hasMoreElements()) {
+                String headerName = headers.nextElement();
+                if (headerName.startsWith(AppFactoryServletUtils.FILE_METADATA_DEMANDEID)) {
+                    demandeId = request.getHeader(headerName);
+                }
+            }
+
+            // Constitution de la requête
+            HttpClient client = HttpClientBuilder.create().build();
+            Part part = request.getParts().iterator().next();
+            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+            builder.addPart("data",
+                    new InputStreamBody(part.getInputStream(), part.getContentType(), part.getSubmittedFileName()));
+            HttpEntity multipart = builder.build();
+            HttpPost postRequest = new HttpPost(url.toString());
+            postRequest.setEntity(multipart);
+            // Renseigner le demandeId le cas échéant
+            if (demandeId != null) {
+                postRequest.setHeader(AppFactoryServletUtils.FILE_METADATA_DEMANDEID, demandeId);
+            }
+
+            LOGGER.info("Appel du WS FILE");
+            HttpResponse postResponse = client.execute(postRequest,
+                    AppFactoryServletUtils.getHttpContextForAuth(url, ServiceTarget.FILE));
+
+            // Constitution de la réponse en redirigeant la réponse du WS ansi que son code réponse
+            LOGGER.info("Constitution de la réponse pour retour au client");
             response.setContentType("application/json");
-            ObjectMapper mapper = new ObjectMapper();
-            // Répondre uuid/nomDuFichier
-            FileUploadResponseDTO responseObj = new FileUploadResponseDTO(uuid + "/" + filename);
-            String responseStr = mapper.writeValueAsString(responseObj);
-            response.getOutputStream().write(responseStr.getBytes());
+
+            int statusCode = postResponse.getStatusLine().getStatusCode();
+            response.setStatus(statusCode);
+
+            if (statusCode == HttpServletResponse.SC_OK || statusCode == HttpServletResponse.SC_CREATED) {
+                // Si tout s'est bien passé, alors on forme une réponse différente que celle qui nous est retournée par
+                // FILE
+                response.setContentType("application/json");
+                ObjectMapper mapper = new ObjectMapper();
+                // Répondre uuid/nomDuFichier
+                FileUploadResponseDTO responseObj = new FileUploadResponseDTO(uuid + "/" + filename);
+                String responseStr = mapper.writeValueAsString(responseObj);
+                response.getOutputStream().write(responseStr.getBytes());
+            } else {
+                // S'il y a eu un problème, alors on retourne le message d'erreur au client
+                IOUtils.copy(postResponse.getEntity().getContent(), response.getOutputStream());
+            }
+
+        } catch (Exception e) {
+            response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_INTERNAL_SERVER_ERROR,
+                    "Erreur interne: ", e);
         }
-        else {
-            // S'il y a eu un problème, alors on retourne le message d'erreur au client
-            IOUtils.copy(postResponse.getEntity().getContent(), response.getOutputStream());
-        }
-        
-        }
-        catch (Exception e) {
-            response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_INTERNAL_SERVER_ERROR, "Erreur interne: " + e.toString() + " / " + e.getMessage());
-        }
-        
+
         LOGGER.info("====================== Fin /fileupload doPost()");
     }
-    
+
 }

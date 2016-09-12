@@ -21,20 +21,20 @@ import mc.gouv.mail.apishared.model.EmailSent;
 public class ContactServlet extends HttpServlet {
 
     private static final long serialVersionUID = -6944883275123392719L;
-    
+
     private static Logger LOGGER = LoggerFactory.getLogger(ContactServlet.class);
-    
+
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         LOGGER.info("====================== /contact doPost()");
-        
+
         String captcha = request.getParameter("captcha");
         String emailAddress = request.getParameter("email");
         String titre = request.getParameter("titre");
         String message = request.getParameter("message");
-        
+
         try {
-            
+
             // Si l'utilisateur n'est pas logué, alors il faut vérifier le Captcha
             UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(request);
             if (usagerInfosDTO == null) {
@@ -45,28 +45,28 @@ public class ContactServlet extends HttpServlet {
                     response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                     return;
                 }
-            }
-            else {
+            } else {
                 LOGGER.info("Utilisateur logué, pas de vérification du Captcha");
             }
-            
+
             // 2ème étape : envoi du mail
             LOGGER.info("Envoi de l'email...");
-            MailClient mc = new MailClient(AppFactoryServletUtils.MAIL_URL, AppFactoryServletUtils.MAIL_USER, AppFactoryServletUtils.MAIL_PWD);
+            MailClient mc = new MailClient(AppFactoryServletUtils.MAIL_URL, AppFactoryServletUtils.MAIL_USER,
+                    AppFactoryServletUtils.MAIL_PWD);
             Email email = new Email();
             email.setFrom(new AddressBlock(emailAddress, null));
             email.setTo(new AddressBlock[] { new AddressBlock(AppFactoryServletUtils.GOUV_CONTACT_EMAIL, null) });
             email.setText(message);
             email.setSubject(titre);
             EmailSent es = mc.sendEmail(email);
-    
+
             LOGGER.info("Email envoyé : " + es);
-        
+
+        } catch (Exception e) {
+            response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_INTERNAL_SERVER_ERROR,
+                    "Erreur interne: ", e);
         }
-        catch (Exception e) {
-            response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_INTERNAL_SERVER_ERROR, "Erreur interne: " + e.toString() + " / " + e.getMessage());
-        }
-        
+
         LOGGER.info("====================== Fin /contact doPost()");
     }
 

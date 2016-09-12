@@ -30,31 +30,31 @@ import mc.gouv.dem.apishared.model.UsagerCourrierDTO;
  *
  */
 public class LoginServlet extends HttpServlet {
-    
+
     private static final long serialVersionUID = -394488730959377371L;
-    
+
     private static Logger LOGGER = LoggerFactory.getLogger(LoginServlet.class);
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        
+
         LOGGER.info("====================== /login doPost()");
-        
+
         // Le SessionID est stocké dans l'URL parameter "id"
         String sessionId = request.getParameter("id");
-        
+
         LOGGER.info("SessionID = " + sessionId);
-        
+
         if (StringUtils.isBlank(sessionId)) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
-        
+
         if (!sessionId.startsWith("c_")) {
             // Le sessionId ne commence pas par "c_", donc appel du service ts-login
-            
+
             LOGGER.info("<Usager classique>");
-            
+
             String serviceUrl = AppFactoryServletUtils.LOGIN_REST_URL + "/" + sessionId;
             Request serviceRequest = Request.Get(serviceUrl);
             serviceRequest.setHeader("Accept", "application/json");
@@ -65,48 +65,47 @@ public class LoginServlet extends HttpServlet {
                 if (code == HttpServletResponse.SC_NOT_FOUND || code != HttpServletResponse.SC_OK) {
                     LOGGER.info("Login infructueux");
                     response.setStatus(HttpStatus.SC_NOT_FOUND);
-                }
-                else {
+                } else {
                     LOGGER.info("Stockage des informations usager dans la session...");
                     ObjectMapper mapper = new ObjectMapper();
                     mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX"));
-                    UsagerInfosDTO uinfos = mapper.readValue(serviceResponse.getEntity().getContent(), UsagerInfosDTO.class);
-    
+                    UsagerInfosDTO uinfos = mapper.readValue(serviceResponse.getEntity().getContent(),
+                            UsagerInfosDTO.class);
+
                     if (uinfos != null) {
                         // Stockage de cet objet d'infos d'usager dans la session HTTP
                         HttpSession session = request.getSession();
                         session.setAttribute("login", uinfos);
                     }
                 }
+            } catch (Exception e) {
+                response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_INTERNAL_SERVER_ERROR,
+                        "Erreur interne: ", e);
             }
-            catch (Exception e) {
-                response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_INTERNAL_SERVER_ERROR, "Erreur interne: " + e.toString() + e.getMessage());
-            }
-        }
-        else {
+        } else {
             // Le sessionId commence par "c_", donc il s'agit du login d'un usager courrier
             // Effectuer l'appel au WS de DEM
-            
+
             LOGGER.info("<Usager courrier>");
-            
+
             Integer usagerCourrierId = Integer.parseInt(sessionId.substring(2));
-            
+
             LOGGER.info("UsagerCourrierId : " + usagerCourrierId);
-            
+
             // Création du DemClient
-            DemClient dc = new DemClient(AppFactoryServletUtils.DEM_URL, AppFactoryServletUtils.DEMARCHES_USER, AppFactoryServletUtils.DEMARCHES_PWD);
-            
+            DemClient dc = new DemClient(AppFactoryServletUtils.DEM_URL, AppFactoryServletUtils.DEMARCHES_USER,
+                    AppFactoryServletUtils.DEMARCHES_PWD);
+
             // Récupération de l'ID de la démarche dans le Context-Param
             String demarcheId = getServletContext().getInitParameter(AppFactoryServletUtils.DEMARCHEID_KEY);
-            
+
             LOGGER.info("Appel du service DEM...");
             UsagerCourrierDTO usagerCourrier = dc.getUsagerCourrier(demarcheId, usagerCourrierId);
-            
+
             if (usagerCourrier == null) {
                 LOGGER.info("Login infructueux");
                 response.setStatus(HttpStatus.SC_NOT_FOUND);
-            }
-            else {
+            } else {
                 LOGGER.info("Stockage des informations usager dans la session...");
                 UsagerInfosDTO uinfos = new UsagerInfosDTO();
                 uinfos.setAdresse1(usagerCourrier.getAdresse1());
@@ -126,32 +125,33 @@ public class LoginServlet extends HttpServlet {
                 uinfos.setRaisonSociale(usagerCourrier.getRaisonSociale());
                 uinfos.setTitre(usagerCourrier.getTitre().shortValue());
                 uinfos.setVille(usagerCourrier.getVille());
-                
+
                 // Stockage de cet objet d'infos d'usager dans la session HTTP
                 HttpSession session = request.getSession();
                 session.setAttribute("login", uinfos);
             }
         }
-        
+
         LOGGER.info("====================== Fin /login doPost()");
-            
+
     }
-    
+
     @Override
-    public void doDelete(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        
+    public void doDelete(HttpServletRequest request, HttpServletResponse response)
+            throws IOException, ServletException {
+
         LOGGER.info("====================== /login doDelete()");
-        
+
         // Le SessionID est stocké dans l'URL parameter "id"
         String sessionId = request.getParameter("id");
-        
+
         LOGGER.info("SessionID = " + sessionId);
-        
+
         if (StringUtils.isBlank(sessionId)) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
-        
+
         if (!sessionId.startsWith("c_")) {
             // Le sessionId ne commence pas par "c_", donc appel du service ts-login
 
@@ -166,35 +166,34 @@ public class LoginServlet extends HttpServlet {
                 if (statusCode == HttpServletResponse.SC_NO_CONTENT) {
                     request.getSession().removeAttribute("login");
                     request.getSession().invalidate();
-                }
-                else {
+                } else {
                     if (serviceResponse.getEntity() != null) {
-                        response = AppFactoryServletUtils.logAndSendError(LOGGER, response, statusCode, "Erreur: le service ts-login a retourné le code "
-                                + statusCode + " (" + EntityUtils.toString(serviceResponse.getEntity()) + ")");
-                    }
-                    else {
-                        response = AppFactoryServletUtils.logAndSendError(LOGGER, response, statusCode, "Erreur: le service ts-login a retourné le code " + statusCode);   
+                        response = AppFactoryServletUtils.logAndSendError(LOGGER, response, statusCode,
+                                "Erreur: le service ts-login a retourné le code " + statusCode + " ("
+                                        + EntityUtils.toString(serviceResponse.getEntity()) + ")");
+                    } else {
+                        response = AppFactoryServletUtils.logAndSendError(LOGGER, response, statusCode,
+                                "Erreur: le service ts-login a retourné le code " + statusCode);
                     }
                 }
+            } catch (Exception e) {
+                response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_INTERNAL_SERVER_ERROR,
+                        "Erreur interne: ", e);
             }
-            catch (Exception e) {
-                response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_INTERNAL_SERVER_ERROR, "Erreur interne: " + e.toString() + e.getMessage());
-            }
-        }
-        else {
+        } else {
             // Usager courrier, pas d'appel à DEM pour faire un logout
             // Juste destruction de la session
-            
+
             LOGGER.info("Usager courrier : suppression de la session sans appel à DEM...");
-            
+
             request.getSession().removeAttribute("login");
             request.getSession().invalidate();
-            
+
             response.setStatus(HttpServletResponse.SC_NO_CONTENT);
         }
-        
+
         LOGGER.info("====================== Fin /login doDelete()");
-            
+
     }
-    
+
 }

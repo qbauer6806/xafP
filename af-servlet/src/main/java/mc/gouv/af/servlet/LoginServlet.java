@@ -62,6 +62,7 @@ public class LoginServlet extends HttpServlet {
                 LOGGER.info("Appel du service ts-login...");
                 HttpResponse serviceResponse = serviceRequest.execute().returnResponse();
                 int code = serviceResponse.getStatusLine().getStatusCode();
+                LOGGER.info("Code retour ts-login : " + code);
                 if (code == HttpServletResponse.SC_NOT_FOUND || code != HttpServletResponse.SC_OK) {
                     LOGGER.info("Login infructueux");
                     response.setStatus(HttpStatus.SC_NOT_FOUND);

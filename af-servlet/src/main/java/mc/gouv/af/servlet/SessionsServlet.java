@@ -26,21 +26,22 @@ import mc.gouv.af.servlet.dto.UsagerInfosDTO;
 public class SessionsServlet extends HttpServlet {
 
     private static final long serialVersionUID = -7833206552171322810L;
-    
+
     private static Logger LOGGER = LoggerFactory.getLogger(SessionsServlet.class);
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        
+
         LOGGER.info("====================== /sessions doGet()");
-        
+
         // On tente de récupérer une session existante sans en créer une
         HttpSession session = request.getSession(false);
-        
+
+        LOGGER.info("SESSION : " + session);
         if (session != null) {
             // Récupération de l'objet attaché à la session
-            UsagerInfosDTO usagerInfosDTO = (UsagerInfosDTO)session.getAttribute("login");
-            
+            UsagerInfosDTO usagerInfosDTO = (UsagerInfosDTO) session.getAttribute("login");
+            LOGGER.info("usagerInfosDTO : " + usagerInfosDTO);
             // Retour au client
             response.setContentType("application/json");
             ObjectMapper mapper = new ObjectMapper();
@@ -48,12 +49,12 @@ public class SessionsServlet extends HttpServlet {
             mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX"));
             mapper.writeValue(response.getOutputStream(), usagerInfosDTO);
             response.getOutputStream().flush();
-        }
-        else {
+        } else {
             // Pas de session trouvée
+            LOGGER.info("Aucune session trouvée");
             response.setStatus(HttpStatus.SC_NOT_FOUND);
         }
-        
+
         LOGGER.info("====================== Fin /sessions doGet()");
     }
 

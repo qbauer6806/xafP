@@ -49,6 +49,8 @@ public class AppFactoryServletUtils {
     public static final String DEM_ACCESSES_URL = Static.getValue("mc.gouv.appfactory.demarchesws.accesses.url");
 
     public static final String DEM_DEMANDES_URL = Static.getValue("mc.gouv.appfactory.demarchesws.demandes.url");
+    
+    public static final String DEM_MOTIFS_URL = Static.getValue("mc.gouv.appfactory.demarchesws.motifs.url");
 
     public static final String DEM_URL = Static.getValue("mc.gouv.appfactory.demarchesws.url");
 

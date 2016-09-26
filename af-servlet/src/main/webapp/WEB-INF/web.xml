@@ -78,6 +78,15 @@
         <servlet-name>ContactServlet</servlet-name>
         <url-pattern>/contact</url-pattern>
     </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>MotifsServlet</servlet-name>
+        <servlet-class>mc.gouv.af.servlet.MotifsServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>MotifsServlet</servlet-name>
+        <url-pattern>/motifs</url-pattern>
+    </servlet-mapping>
 
     <filter>
         <filter-name>IPFilter</filter-name>

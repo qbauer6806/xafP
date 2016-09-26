@@ -157,6 +157,24 @@ public class GouvBPMImpl implements GouvBPM {
     }
     
     @Override
+    public List<GouvBPMTask> getTasksForDemandeWhereUserIsCandidate(GouvBPMUser user, String codeAppli, Integer demandeId) {
+        LOGGER.info("getTasksWhereUserIsCandidate(" + user + "," + codeAppli + ")");
+        
+        // À la fin c'est logonProxy.getUserByMatricule() du GouvBPMGroupManager qui est utilisé, donc inutile
+        // de vérifier l'utilisateur avant puisque c'est fait après pour trouver ses groupes
+        // checkUser(user);
+
+        // On transfère le code appli au GouvBPMGroupManager par le biais d'un critère de recherche sur les processVariables
+        // Seul moyen de transférer cela au GouvBPMGroupManager, qui a besoin du code appli
+        List<Task> tasks = taskService.createTaskQuery()
+                .processVariableValueEquals(GouvBPMProcessVariableTypeEnum.MC_CODEAPPLI.name(), codeAppli)
+                .processInstanceBusinessKey(demandeId.toString())
+                .taskCandidateUser(user.getId()).list();
+        
+        return GouvBPMTransformer.toGouvModelTasks(tasks);
+    }
+    
+    @Override
     public List<GouvBPMTask> getTasksWhereGroupIsCandidate(GouvBPMGroup group, String codeAppli) {
         LOGGER.info("getTasksWhereGroupIsCandidate(" + group + "," + codeAppli + ")");
         

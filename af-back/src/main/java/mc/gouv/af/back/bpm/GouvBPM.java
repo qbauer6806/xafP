@@ -74,6 +74,15 @@ public interface GouvBPM {
     public List<GouvBPMTask> getTasksWhereUserIsCandidate(GouvBPMUser user, String codeAppli);
     
     /**
+     * Permet de lister les tâches d'une demande pour lesquelles un utilisateur est désigné comme candidat
+     * @param user Utilisateur concerné
+     * @param codeAppli Code de l'application concernée
+     * @param demandeId Demande concernée
+     * @return
+     */
+    public List<GouvBPMTask> getTasksForDemandeWhereUserIsCandidate(GouvBPMUser user, String codeAppli, Integer demandeId);
+    
+    /**
      * Permet de lister les tâches pour lesquelles un groupe est désigné comme candidat
      * @param group Groupe concerné
      * @param codeAppli Code de l'application concernée

@@ -6,8 +6,11 @@ import org.activiti.engine.impl.el.Expression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import mc.gouv.Static;
 import mc.gouv.af.back.bpm.GouvBPMProcessVariableTypeEnum;
+import mc.gouv.dem.apiclient.DemClient;
 import mc.gouv.dem.apishared.model.DemandeStatutEnum;
+import mc.gouv.dem.apishared.model.StatutInputDTO;
 
 /**
  * Classe service appelée par le process Activiti pour changer le statut d'une demande.
@@ -27,7 +30,11 @@ public class GouvBPMStatusChangeService implements JavaDelegate {
         
         DemandeStatutEnum statut = getTargetState(execution);
         
-        // TODO Appeler DEM
+//        // Appel à DEM
+//        DemClient demClient = new DemClient(Static.getValue("mc.gouv.dem.url"), Static.getValue("mc.gouv.dem.user"), Static.getValue("mc.gouv.dem.pwd"));
+//        StatutInputDTO statutInput = new StatutInputDTO();
+//        statutInput.set
+//        demClient.changerStatutDemande(Static.getValue("mc.gouv.af.back.demarcheId"), execution.getBusinessKey(), statut);
         
         LOGGER.info("Statut à mettre : " + statut);
     }

@@ -888,3 +888,47 @@ La réponse contient l'identifiant du fichier au format uuid/filename.
 
 + Response 404
 
+# Group Motifs liés à une démarche
+*AppFactoryServlet* permet de récupérer tous les motifs liés à une démarche, dans toutes les langues.
+
+## Motifs [/appfactoryservlet/motifs]
+
+### Récupérer [GET]
+
++ Request
+    + Headers
+
+            User-Agent: NomDuLogiciel/Version
+            Cookie: JSESSIONID=1jyzh76rqbx66q2cxa0j0zvaf
+
+
++ Response 200 (application/json)
+
+        [
+          {
+            "pkMotifs": 1,
+            "demarcheId": "HAB",
+            "code": "PAS_MONEGASQUE",
+            "libelle": "Il faut être de nationalité monégasque",
+            "statut": "REFUSEE",
+            "langue": "FR"
+          },
+          {
+            "pkMotifs": 2,
+            "demarcheId": "HAB",
+            "code": "PAS_MONEGASQUE",
+            "libelle": "You have to be Monegasque",
+            "statut": "REFUSEE",
+            "langue": "EN"
+          }
+        ]
+
++ Response 404 (application/json)
+
+        {
+          "errors": [
+            {
+              "libelle": "Erreur: La démarche spécifiée est introuvable"
+            }
+          ]
+        }

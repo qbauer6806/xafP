@@ -6,8 +6,8 @@ import org.activiti.engine.impl.el.Expression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import mc.gouv.Static;
 import mc.gouv.af.back.bpm.GouvBPMProcessVariableTypeEnum;
+import mc.gouv.af.back.util.AfBackUtils;
 import mc.gouv.dem.apiclient.DemClient;
 import mc.gouv.dem.apishared.model.DemandeStatutEnum;
 import mc.gouv.dem.apishared.model.StatutInputDTO;
@@ -26,17 +26,23 @@ public class GouvBPMStatusChangeService implements JavaDelegate {
 
     @Override
     public void execute(DelegateExecution execution) throws Exception {
+        
         LOGGER.info("==== AF-BACK CHANGEMENT STATUT ...");
         
         DemandeStatutEnum statut = getTargetState(execution);
         
-//        // Appel à DEM
-//        DemClient demClient = new DemClient(Static.getValue("mc.gouv.dem.url"), Static.getValue("mc.gouv.dem.user"), Static.getValue("mc.gouv.dem.pwd"));
-//        StatutInputDTO statutInput = new StatutInputDTO();
-//        statutInput.set
-//        demClient.changerStatutDemande(Static.getValue("mc.gouv.af.back.demarcheId"), execution.getBusinessKey(), statut);
-        
         LOGGER.info("Statut à mettre : " + statut);
+        
+        DemClient demClient = new DemClient(AfBackUtils.getDemUrl(), AfBackUtils.getDemUser(), AfBackUtils.getDemPwd());
+        StatutInputDTO statutInput = new StatutInputDTO();
+        statutInput.setAgentId(AfBackUtils.getAuthenticatedAgentId());
+        statutInput.setStatut(statut);
+        
+        LOGGER.info("Appel à DEM (" + AfBackUtils.getDemUrl() + ")...");
+        
+        demClient.changerStatutDemande(AfBackUtils.getDemarcheId(), Integer.parseInt(execution.getProcessBusinessKey()), statutInput);
+        
+        LOGGER.info("==== AF-BACK CHANGEMENT STATUT <fin>");
     }
 
     public Expression getTargetState() {

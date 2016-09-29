@@ -36,6 +36,8 @@ public class AfBackUtils {
     
     private static String PROCESS_DEFINITION_KEY = null;
     
+    private static String DEMARCHE_LANGUE = null;
+    
     private final static String version = AfBackUtils.class.getPackage().getImplementationVersion();
     
     @Autowired
@@ -49,6 +51,7 @@ public class AfBackUtils {
         DEM_PWD = gouvPropertiesResolver.getValue("mc.gouv.af.back.dem.pwd");
         DEMARCHE_ID = gouvPropertiesResolver.getValue("mc.gouv.af.back.demarcheId");
         PROCESS_DEFINITION_KEY = gouvPropertiesResolver.getValue("mc.gouv.af.back.processDefinitionKey");
+        DEMARCHE_LANGUE = gouvPropertiesResolver.getValue("mc.gouv.af.back.langue");
     }
     
     public static Integer calculerDureeTraitement(Date dateCreationDemande) {
@@ -90,6 +93,10 @@ public class AfBackUtils {
 
     public static String getProcessDefinitionKey() {
         return PROCESS_DEFINITION_KEY;
+    }
+    
+    public static String getDemarcheLangue() {
+        return DEMARCHE_LANGUE;
     }
 
 }

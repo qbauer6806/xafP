@@ -11,6 +11,8 @@ public enum GouvBPMProcessVariableTypeEnum {
 
     MC_USERID,
     MC_CODEAPPLI,
-    MC_TARGETSTATE
+    MC_TARGETSTATE,
+    MC_COMMENTAIRE_USAGER,
+    MC_CODE_MOTIF
     
 }

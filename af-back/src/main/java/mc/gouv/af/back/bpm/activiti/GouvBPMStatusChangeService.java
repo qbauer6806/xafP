@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import mc.gouv.af.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.af.back.util.AfBackUtils;
 import mc.gouv.dem.apiclient.DemClient;
+import mc.gouv.dem.apishared.model.DemandeComplementsQuestionDTO;
 import mc.gouv.dem.apishared.model.DemandeStatutEnum;
 import mc.gouv.dem.apishared.model.StatutInputDTO;
 
@@ -31,16 +32,44 @@ public class GouvBPMStatusChangeService implements JavaDelegate {
         
         DemandeStatutEnum statut = getTargetState(execution);
         
+        Integer demandeId = Integer.parseInt(execution.getProcessBusinessKey());
+        
+        LOGGER.info("Demande : " + demandeId);
         LOGGER.info("Statut à mettre : " + statut);
         
         DemClient demClient = new DemClient(AfBackUtils.getDemUrl(), AfBackUtils.getDemUser(), AfBackUtils.getDemPwd());
-        StatutInputDTO statutInput = new StatutInputDTO();
-        statutInput.setAgentId(AfBackUtils.getAuthenticatedAgentId());
-        statutInput.setStatut(statut);
         
-        LOGGER.info("Appel à DEM (" + AfBackUtils.getDemUrl() + ")...");
+        // Récupération du commentaire usager et du code motif si besoin plus tars dans le traitement
+        String commentaireUsager = (String)execution.getVariables().get(GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name());
+        String codeMotif = (String)execution.getVariables().get(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name());
         
-        demClient.changerStatutDemande(AfBackUtils.getDemarcheId(), Integer.parseInt(execution.getProcessBusinessKey()), statutInput);
+        if (!statut.equals(DemandeStatutEnum.EN_ATTENTE_COMPL)) {
+            // Statut différent de EN_ATTENTE_COMPL (on peut le traiter avec un appel à DEM pour changer le statut)
+            StatutInputDTO statutInput = new StatutInputDTO();
+            statutInput.setAgentId(AfBackUtils.getAuthenticatedAgentId());
+            statutInput.setStatut(statut);
+            if (statut.equals(DemandeStatutEnum.ACCEPTEE) || statut.equals(DemandeStatutEnum.REFUSEE)) {
+                // Si statut ACCEPTEE ou REFUSEE, indiquer un commentaire usager et un motif
+                LOGGER.info("Statut requérant l'indication d'un commentaire usager et d'un code motif");
+                LOGGER.info("Commentaire usager : " + commentaireUsager);
+                LOGGER.info("Code motif : " + codeMotif);
+                statutInput.setCommentaire(commentaireUsager);
+                statutInput.setCodeMotif(codeMotif);
+            }
+            
+            LOGGER.info("Appel à DEM changerStatutDemande() (" + AfBackUtils.getDemUrl() + ")...");
+            demClient.changerStatutDemande(AfBackUtils.getDemarcheId(), demandeId, statutInput);
+        }
+        else {
+            // Statut EN_ATTENTE_COMPL, il convient alors de créer dans DEM une demande d'informations complémentaires
+            DemandeComplementsQuestionDTO questionDto = new DemandeComplementsQuestionDTO();
+            questionDto.setAgentId(AfBackUtils.getAuthenticatedAgentId());
+            questionDto.setCodeMotif(codeMotif);
+            questionDto.setTexte(commentaireUsager);
+            
+            LOGGER.info("Appel à DEM createDemandeComplements() (" + AfBackUtils.getDemUrl() + ")...");
+            demClient.createDemandeComplements(AfBackUtils.getDemarcheId(), demandeId, questionDto);
+        }
         
         LOGGER.info("==== AF-BACK CHANGEMENT STATUT <fin>");
     }

@@ -47,6 +47,10 @@ public class AfBackUtils {
     
     private static String USAGERS_REST_URL = null;
     
+    private static String FILE_URL = null;
+    
+    private static String APPFACTORYID = "appfactory";
+    
     private final static String version = AfBackUtils.class.getPackage().getImplementationVersion();
     
     private static RestTemplate restTemplate;
@@ -67,6 +71,7 @@ public class AfBackUtils {
         PROCESS_DEFINITION_KEY = gouvPropertiesResolver.getValue("mc.gouv.af.back.processDefinitionKey");
         DEMARCHE_LANGUE = gouvPropertiesResolver.getValue("mc.gouv.af.back.langue");
         USAGERS_REST_URL = gouvPropertiesResolver.getValue("mc.gouv.demarches.external.usagers.url");
+        FILE_URL = gouvPropertiesResolver.getValue("mc.gouv.af.back.file.url");
         
         restTemplate = new RestTemplate();
         List<HttpMessageConverter<?>> list = new ArrayList<HttpMessageConverter<?>>();
@@ -108,6 +113,10 @@ public class AfBackUtils {
         return DEM_PWD;
     }
     
+    public static String getFileUrl() {
+        return FILE_URL;
+    }
+    
     public static String getYear() {
         return String.valueOf(Calendar.getInstance().get(Calendar.YEAR));
     }
@@ -122,6 +131,10 @@ public class AfBackUtils {
     
     public static String getDemarcheLangue() {
         return DEMARCHE_LANGUE;
+    }
+    
+    public static String getAppFactoryId() {
+        return APPFACTORYID;
     }
     
     /**

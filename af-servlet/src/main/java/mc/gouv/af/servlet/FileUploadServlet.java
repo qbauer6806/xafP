@@ -135,8 +135,8 @@ public class FileUploadServlet extends HttpServlet {
                 // FILE
                 response.setContentType("application/json");
                 ObjectMapper mapper = new ObjectMapper();
-                // Répondre uuid/nomDuFichier
-                FileUploadResponseDTO responseObj = new FileUploadResponseDTO(uuid + "/" + filename);
+                // Répondre accessId/uuid/nomDuFichier
+                FileUploadResponseDTO responseObj = new FileUploadResponseDTO(accessId + "/" + uuid + "/" + filename);
                 String responseStr = mapper.writeValueAsString(responseObj);
                 response.getOutputStream().write(responseStr.getBytes());
             } else {

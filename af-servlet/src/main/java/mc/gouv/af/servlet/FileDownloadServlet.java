@@ -44,8 +44,8 @@ public class FileDownloadServlet extends HttpServlet {
         String pathInfo = request.getPathInfo();
         String filename = null;
         if (pathInfo != null && pathInfo.length() > 1) {
-            // Format: /uuid/filename
-            filename = pathInfo.split("/")[1] + "/" + pathInfo.split("/")[2];
+            // Format: /accessId/uuid/filename
+            filename = pathInfo.split("/")[1] + "/" + pathInfo.split("/")[2] + pathInfo.split("/")[3];
         }
 
         if (StringUtils.isBlank(filename)) {
@@ -61,21 +61,21 @@ public class FileDownloadServlet extends HttpServlet {
 
             LOGGER.debug("AppFactoryID = {}, DemarcheID = {}", appFactoryId, demarcheId);
 
-            // Récupération de l'AccessID via appel WS à Demarches
-            LOGGER.info("Récupération de l'AccessID correspondant");
-            Integer accessId = AppFactoryServletUtils.getAccessID(demarcheId, usagerInfosDTO.getId());
-
-            LOGGER.debug("AccessID = {}", accessId);
-
-            if (accessId == null) {
-                response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_NOT_FOUND,
-                        "Erreur: impossible de récupérer l'accès");
-                return;
-            }
+//            // Récupération de l'AccessID via appel WS à Demarches
+//            LOGGER.info("Récupération de l'AccessID correspondant");
+//            Integer accessId = AppFactoryServletUtils.getAccessID(demarcheId, usagerInfosDTO.getId());
+//
+//            LOGGER.debug("AccessID = {}", accessId);
+//
+//            if (accessId == null) {
+//                response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_NOT_FOUND,
+//                        "Erreur: impossible de récupérer l'accès");
+//                return;
+//            }
 
             // Constitution du chemin virtuel du fichier
             // /appfactory/demarcheId/accessId/UUID/nomDuFichier
-            String virtualPath = "/" + appFactoryId + "/" + demarcheId + "/" + accessId + "/" + filename;
+            String virtualPath = "/" + appFactoryId + "/" + demarcheId + "/" + filename;
             LOGGER.info("Chemin virtuel : {}", virtualPath);
 
             // Constitution de l'URL d'appel

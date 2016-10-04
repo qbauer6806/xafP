@@ -42,7 +42,7 @@ public class GouvBPMGroupManager extends GroupEntityManager {
 
     @Override
     public List<Group> findGroupByQueryCriteria(GroupQueryImpl query, Page page) {
-        LOGGER.info("GouvBPMGroupManager.findGroupByQueryCriteria()");
+        LOGGER.debug("GouvBPMGroupManager.findGroupByQueryCriteria()");
         
         // Il faut récupérer le code appli pour appeler getUserByMatricule() du Logon
         // HACK On utilise un critère "groupType" pour faire passer l'info du code appli...
@@ -74,7 +74,7 @@ public class GouvBPMGroupManager extends GroupEntityManager {
 
     @Override
     public List<Group> findGroupsByUser(String userId) {
-        LOGGER.info("GouvBPMGroupManager.findGroupsByUser(" + userId + ")");
+        LOGGER.debug("GouvBPMGroupManager.findGroupsByUser(" + userId + ")");
         
         // Il faut récupérer le code appli pour appeler getUserByMatricule() du Logon
         String codeAppli = null;

@@ -107,7 +107,7 @@ public class GouvBPMImpl implements GouvBPM {
     
     @Override
     public List<GouvBPMTask> getTasksAssignedToUser(GouvBPMUser user) {
-        LOGGER.info("getTasksAssignedToUser(" + user  +")");
+        LOGGER.debug("getTasksAssignedToUser(" + user  +")");
         
         checkUser(user);
         
@@ -117,7 +117,7 @@ public class GouvBPMImpl implements GouvBPM {
 
     @Override
     public List<GouvBPMTask> getActiveTasksForDemande(Integer demandeId) {
-        LOGGER.info("getActiveTasksForDemande(" + demandeId + ")");
+        LOGGER.debug("getActiveTasksForDemande(" + demandeId + ")");
         
         List<Task> tasks = taskService.createTaskQuery().processInstanceBusinessKey(demandeId.toString()).active().list();
         return GouvBPMTransformer.toGouvModelTasks(tasks);

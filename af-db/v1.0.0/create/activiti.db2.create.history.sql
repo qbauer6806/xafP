@@ -14,7 +14,7 @@ create table ACT_HI_PROCINST (
     TENANT_ID_ varchar(255) default '',
     NAME_ varchar(255),
     primary key (ID_)
-);
+) in "HABLOB_TB";
 
 alter table ACT_HI_PROCINST add constraint PROC_INST_ID_ unique(PROC_INST_ID_);
 
@@ -35,7 +35,7 @@ create table ACT_HI_ACTINST (
     DURATION_ bigint,
     TENANT_ID_ varchar(255) default '',
     primary key (ID_)
-);
+) in "HAB_TB";
 
 create table ACT_HI_TASKINST (
     ID_ varchar(64) not null,
@@ -59,7 +59,7 @@ create table ACT_HI_TASKINST (
     CATEGORY_ varchar(255),
     TENANT_ID_ varchar(255) default '',
     primary key (ID_)
-);
+) in "HABLOB_TB";
 
 create table ACT_HI_VARINST (
     ID_ varchar(64) not null,
@@ -77,7 +77,7 @@ create table ACT_HI_VARINST (
     CREATE_TIME_ timestamp,
     LAST_UPDATED_TIME_ timestamp,
     primary key (ID_)
-);
+) in "HABLOB_TB";
 
 create table ACT_HI_DETAIL (
     ID_ varchar(64) not null,
@@ -96,7 +96,7 @@ create table ACT_HI_DETAIL (
     TEXT_ varchar(4000),
     TEXT2_ varchar(4000),
     primary key (ID_)
-);
+) in "HABLOB_TB";
 
 create table ACT_HI_COMMENT (
     ID_ varchar(64) not null,
@@ -109,7 +109,7 @@ create table ACT_HI_COMMENT (
     MESSAGE_ varchar(4000),
     FULL_MSG_ BLOB,
     primary key (ID_)
-);
+) in "HABLOB_TB";
 
 create table ACT_HI_ATTACHMENT (
     ID_ varchar(64) not null,
@@ -124,7 +124,7 @@ create table ACT_HI_ATTACHMENT (
     CONTENT_ID_ varchar(64),
     TIME_ timestamp,
     primary key (ID_)
-);
+) in "HABLOB_TB";
 
 create table ACT_HI_IDENTITYLINK (
     ID_ varchar(64) not null,
@@ -134,7 +134,7 @@ create table ACT_HI_IDENTITYLINK (
     TASK_ID_ varchar(64),
     PROC_INST_ID_ varchar(64),
     primary key (ID_)
-);
+) in "HAB_TB";
 
 create index ACT_IDX_HI_PRO_INST_END on ACT_HI_PROCINST(END_TIME_);
 create index ACT_IDX_HI_PRO_I_BUSKEY on ACT_HI_PROCINST(BUSINESS_KEY_);

@@ -4,13 +4,13 @@ create table ACT_ID_GROUP (
     NAME_ varchar(255),
     TYPE_ varchar(255),
     primary key (ID_)
-);
+) in "HAB_TB";
 
 create table ACT_ID_MEMBERSHIP (
     USER_ID_ varchar(64) not null,
     GROUP_ID_ varchar(64) not null,
     primary key (USER_ID_, GROUP_ID_)
-);
+) in "HAB_TB";
 
 create table ACT_ID_USER (
     ID_ varchar(64) not null,
@@ -21,7 +21,7 @@ create table ACT_ID_USER (
     PWD_ varchar(255),
     PICTURE_ID_ varchar(64),
     primary key (ID_)
-);
+) in "HAB_TB";
 
 create table ACT_ID_INFO (
     ID_ varchar(64) not null,
@@ -33,7 +33,7 @@ create table ACT_ID_INFO (
     PASSWORD_ BLOB,
     PARENT_ID_ varchar(255),
     primary key (ID_)
-);
+) in "HAB_TB";
 
 alter table ACT_ID_MEMBERSHIP 
     add constraint ACT_FK_MEMB_GROUP 

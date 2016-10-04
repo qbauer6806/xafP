@@ -1,9 +1,35 @@
+--CREATE LARGE TABLESPACE "HAB_TB"
+--	IN DATABASE PARTITION GROUP "IBMDEFAULTGROUP"
+--	PAGESIZE 4 K
+--	MANAGED BY AUTOMATIC STORAGE
+--	AUTORESIZE YES
+--	EXTENTSIZE 32
+--	BUFFERPOOL "IBMDEFAULTBP"
+--	OVERHEAD INHERIT
+--	TRANSFERRATE INHERIT
+--	DATA TAG INHERIT
+--	USING STOGROUP "IBMSTOGROUP"
+--	NO FILE SYSTEM CACHING;
+--
+--CREATE LARGE TABLESPACE "HABLOB_TB"
+--	IN DATABASE PARTITION GROUP "IBMDEFAULTGROUP"
+--	PAGESIZE 32 K
+--	MANAGED BY AUTOMATIC STORAGE
+--	AUTORESIZE YES
+--	EXTENTSIZE 32
+--	BUFFERPOOL "BUFPOOL32"
+--	OVERHEAD INHERIT
+--	TRANSFERRATE INHERIT
+--	DATA TAG INHERIT
+--	USING STOGROUP "IBMSTOGROUP"
+--	NO FILE SYSTEM CACHING;
+
 create table ACT_GE_PROPERTY (
     NAME_ varchar(64) not null,
     VALUE_ varchar(300),
     REV_ integer,
     primary key (NAME_)
-);
+) in "HAB_TB";
 
 insert into ACT_GE_PROPERTY
 values ('schema.version', '5.21.0.0', 1);
@@ -22,7 +48,7 @@ create table ACT_GE_BYTEARRAY (
     BYTES_ BLOB,
     GENERATED_ smallint check(GENERATED_ in (1,0)),
     primary key (ID_)
-);
+) in "HAB_TB";
 
 create table ACT_RE_DEPLOYMENT (
     ID_ varchar(64) not null,
@@ -31,7 +57,7 @@ create table ACT_RE_DEPLOYMENT (
     TENANT_ID_ varchar(255) default '',
     DEPLOY_TIME_ timestamp,
     primary key (ID_)
-);
+) in "HAB_TB";
 
 create table ACT_RE_MODEL (
     ID_ varchar(64) not null,
@@ -48,7 +74,7 @@ create table ACT_RE_MODEL (
     EDITOR_SOURCE_EXTRA_VALUE_ID_ varchar(64),
     TENANT_ID_ varchar(255) default '',
     primary key (ID_)
-);
+) in "HABLOB_TB";
 
 create table ACT_RU_EXECUTION (
     ID_ varchar(64) not null,
@@ -69,7 +95,7 @@ create table ACT_RU_EXECUTION (
 	NAME_ varchar(255),
 	LOCK_TIME_ timestamp,
     primary key (ID_)
-);
+) in "HAB_TB";
 
 create table ACT_RU_JOB (
     ID_ varchar(64) not null,
@@ -90,7 +116,7 @@ create table ACT_RU_JOB (
     HANDLER_CFG_ varchar(4000),
     TENANT_ID_ varchar(255) default '',
     primary key (ID_)
-);
+) in "HABLOB_TB";
 
 create table ACT_RE_PROCDEF (
     ID_ varchar(64) not null,
@@ -108,7 +134,7 @@ create table ACT_RE_PROCDEF (
     SUSPENSION_STATE_ integer,
     TENANT_ID_ varchar(255) not null default '',
     primary key (ID_)
-);
+) in "HABLOB_TB";
 
 create table ACT_RU_TASK (
     ID_ varchar(64) not null,
@@ -131,7 +157,7 @@ create table ACT_RU_TASK (
     TENANT_ID_ varchar(255) default '',
     FORM_KEY_ varchar(255),
     primary key (ID_)
-);
+) in "HABLOB_TB";
 
 create table ACT_RU_IDENTITYLINK (
     ID_ varchar(64) not null,
@@ -143,7 +169,7 @@ create table ACT_RU_IDENTITYLINK (
     PROC_INST_ID_ varchar(64),
     PROC_DEF_ID_ varchar(64),
     primary key (ID_)
-);
+) in "HAB_TB";
 
 create table ACT_RU_VARIABLE (
     ID_ varchar(64) not null,
@@ -159,7 +185,7 @@ create table ACT_RU_VARIABLE (
     TEXT_ varchar(4000),
     TEXT2_ varchar(4000),
     primary key (ID_)
-);
+) in "HABLOB_TB";
 
 create table ACT_RU_EVENT_SUBSCR (
     ID_ varchar(64) not null,
@@ -174,7 +200,7 @@ create table ACT_RU_EVENT_SUBSCR (
     PROC_DEF_ID_ varchar(64),
     TENANT_ID_ varchar(255) default '',
     primary key (ID_)
-);
+) in "HAB_TB";
 
 create table ACT_EVT_LOG (
     LOG_NR_ bigint not null GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
@@ -190,7 +216,7 @@ create table ACT_EVT_LOG (
     LOCK_TIME_ timestamp,
     IS_PROCESSED_ integer default 0,
     primary key (LOG_NR_)
-);
+) in "HAB_TB";
 
 create table ACT_PROCDEF_INFO (
 	ID_ varchar(64) not null,
@@ -198,7 +224,7 @@ create table ACT_PROCDEF_INFO (
     REV_ integer,
     INFO_JSON_ID_ varchar(64),
     primary key (ID_)
-);
+) in "HAB_TB";
 
 create index ACT_IDX_EXEC_BUSKEY on ACT_RU_EXECUTION(BUSINESS_KEY_);
 create index ACT_IDX_TASK_CREATE on ACT_RU_TASK(CREATE_TIME_);

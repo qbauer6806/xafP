@@ -47,6 +47,8 @@ public class AfBackUtils {
     
     private static String USAGERS_REST_URL = null;
     
+    private static String PAYS_REST_URL = null;
+    
     private static String FILE_URL = null;
     
     private static String APPFACTORYID = "appfactory";
@@ -72,6 +74,7 @@ public class AfBackUtils {
         DEMARCHE_LANGUE = gouvPropertiesResolver.getValue("mc.gouv.af.back.langue");
         USAGERS_REST_URL = gouvPropertiesResolver.getValue("mc.gouv.demarches.external.usagers.url");
         FILE_URL = gouvPropertiesResolver.getValue("mc.gouv.af.back.file.url");
+        PAYS_REST_URL = gouvPropertiesResolver.getValue("mc.gouv.demarches.external.pays.url");
         
         restTemplate = new RestTemplate();
         List<HttpMessageConverter<?>> list = new ArrayList<HttpMessageConverter<?>>();
@@ -135,6 +138,14 @@ public class AfBackUtils {
     
     public static String getAppFactoryId() {
         return APPFACTORYID;
+    }
+    
+    public static String getUsagersRestUrl() {
+        return USAGERS_REST_URL;
+    }
+    
+    public static String getPaysRestUrl() {
+        return PAYS_REST_URL;
     }
     
     /**

@@ -2,6 +2,7 @@ package mc.gouv.af.back.util;
 
 import java.util.List;
 
+import mc.gouv.dem.apishared.model.DemandeStatutEnum;
 import mc.gouv.dem.apishared.model.MotifDTO;
 
 /**
@@ -42,5 +43,20 @@ public interface MotifsCache {
      * @return
      */
     public MotifDTO getMotif(String codeMotif, String langue);
+    
+    /**
+     * Permet de retourner tous les motifs d'une certaine langue
+     * @param langue
+     * @return
+     */
+    public List<MotifDTO> getMotifs(String langue);
+    
+    /**
+     * Permet de retourner tous les motifs d'une certaine langue et d'un certain statut
+     * @param langue
+     * @param statut
+     * @return
+     */
+    public List<MotifDTO> getMotifs(String langue, DemandeStatutEnum statut);
     
 }

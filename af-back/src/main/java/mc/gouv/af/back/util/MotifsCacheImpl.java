@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 import mc.gouv.dem.apiclient.DemClient;
+import mc.gouv.dem.apishared.model.DemandeStatutEnum;
 import mc.gouv.dem.apishared.model.MotifDTO;
 
 /**
@@ -85,6 +86,30 @@ public class MotifsCacheImpl implements MotifsCache {
         if (demClient == null) {
             demClient = new DemClient(AfBackUtils.getDemUrl(), AfBackUtils.getDemUser(), AfBackUtils.getDemPwd());
         }
+    }
+
+    @Override
+    public List<MotifDTO> getMotifs(String langue) {
+        List<MotifDTO> motifs = getMotifs();
+        List<MotifDTO> ret = new ArrayList<MotifDTO>();
+        for (MotifDTO motif : motifs) {
+            if (motif.getLangue().equals(langue)) {
+                ret.add(motif);
+            }
+        }
+        return ret;
+    }
+
+    @Override
+    public List<MotifDTO> getMotifs(String langue, DemandeStatutEnum statut) {
+        List<MotifDTO> motifs = getMotifs();
+        List<MotifDTO> ret = new ArrayList<MotifDTO>();
+        for (MotifDTO motif : motifs) {
+            if (motif.getLangue().equals(langue) && motif.getStatut().equals(statut)) {
+                ret.add(motif);
+            }
+        }
+        return ret;
     }
 
 }

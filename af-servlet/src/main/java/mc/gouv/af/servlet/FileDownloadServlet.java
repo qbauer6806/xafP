@@ -45,7 +45,7 @@ public class FileDownloadServlet extends HttpServlet {
         String filename = null;
         if (pathInfo != null && pathInfo.length() > 1) {
             // Format: /accessId/uuid/filename
-            filename = pathInfo.split("/")[1] + "/" + pathInfo.split("/")[2] + pathInfo.split("/")[3];
+            filename = pathInfo.split("/")[1] + "/" + pathInfo.split("/")[2] + "/" + pathInfo.split("/")[3];
         }
 
         if (StringUtils.isBlank(filename)) {

@@ -1,5 +1,7 @@
 package mc.gouv.af.back.bpm.activiti;
 
+import java.util.Map;
+
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.delegate.JavaDelegate;
 import org.activiti.engine.impl.el.Expression;
@@ -66,6 +68,11 @@ public class GouvBPMStatusChangeService implements JavaDelegate {
             questionDto.setAgentId(AfBackUtils.getAuthenticatedAgentId());
             questionDto.setCodeMotif(codeMotif);
             questionDto.setTexte(commentaireUsager);
+            
+            // Supprimer le codeMotif et le commentaireUsager du process BPM car on ne s'en sert plus
+            // (ne pas les reproposer à l'utilisateur)
+            execution.removeVariable(GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name());
+            execution.removeVariable(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name());
             
             LOGGER.info("Appel à DEM createDemandeComplements() (" + AfBackUtils.getDemUrl() + ")...");
             demClient.createDemandeComplements(AfBackUtils.getDemarcheId(), demandeId, questionDto);

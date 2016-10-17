@@ -359,46 +359,60 @@ Sachant que le format de l'URL est à construire comme suit : /{uuid}/{filename}
 
 + Response 201 (application/json)
 
-		{
-		  "pkDemandes": 13,
-		  "dateCreation": "2016-05-17T08:05:04.654+01:00",
-		  "dateDerModif": "2016-05-17T08:05:04.654+01:00",
-		  "contenu": {
-		    "donneeCustom1": "valeurCustom1",
-		    "donneeCustom2": [
-		      {
-		        "donneeCustom3": "valeurCustom3",
-		        "donneeCustom4": "valeurCustom4"
-		      }
-		    ]
-		  },
-		  "demarcheId": "embauchage-personnel-maison",
-		  "usagerId": 3071,
-		  "complements": null,
-		  "fichiers": [
-		    {
-		      "name": "CV.pdf",
-		      "url": "/ece7a75e-e5f9-11e5-a7a3-08002700c066/CV.pdf",
-		      "meta": "meta1"
-		    },
-		    {
-		      "name": "lettremotivation.doc",
-		      "url": "/ada9b78b-a43f-11e5-a7a3-08002700c066/lettremotivation.doc",
-		      "meta": "meta2"
-		    }
-		  ],
-		  "statuts": [
-		    {
-		      "pkStatut": 8,
-		      "libelle": "EN_ATTENTE",
-		      "date": "2016-05-17T08:05:04.662+01:00",
-		      "agentId": null,
-		      "usagerId": 3071
-		    }
-		  ],
-		  "langue" : "IT",
-		  "canal" : "GUICHET"
-		}
+			{
+			  "pkDemandes": 50,
+			  "dateCreation": "2016-10-17T08:58:14.417+01:00",
+			  "dateDerModif": "2016-10-17T08:58:14.417+01:00",
+			  "contenu": {
+			    "donneeCustom1": "valeurCustom1",
+			    "donneeCustom2": [
+			      {
+			        "donneeCustom3": "valeurCustom3",
+			        "donneeCustom4": "valeurCustom4"
+			      }
+			    ]
+			  },
+			  "demarcheId": "HAB",
+			  "usagerId": 3071,
+			  "complements": null,
+			  "fichiers": [
+			    {
+			      "name": "lettremotivation.doc",
+			      "url": "/ada9b78b-a43f-11e5-a7a3-08002700c066/lettremotivation.doc",
+			      "meta": "meta2"
+			    },
+			    {
+			      "name": "CV.pdf",
+			      "url": "/ece7a75e-e5f9-11e5-a7a3-08002700c066/CV.pdf",
+			      "meta": "meta1"
+			    }
+			  ],
+			  "statuts": [
+			    {
+			      "pkStatut": 131,
+			      "libelle": "EN_ATTENTE_TRAIT",
+			      "date": "2016-10-17T08:58:14.494+01:00",
+			      "agentId": null,
+			      "usagerId": 3071,
+			      "codeMotif": null,
+			      "commentaire": null
+			    }
+			  ],
+			  "langue": "IT",
+			  "canal": "GUICHET",
+			  "observations": null,
+			  "agentAffecteId": null,
+			  "dernierStatut": {
+			    "pkStatut": 131,
+			    "libelle": "EN_ATTENTE_TRAIT",
+			    "date": "2016-10-17T08:58:14.494+01:00",
+			    "agentId": null,
+			    "usagerId": 3071,
+			    "codeMotif": null,
+			    "commentaire": null
+			  },
+			  "identifiant": "HAB-20161017-s33l"
+			}
 
 + Response 404 (application/json)
 

@@ -114,4 +114,15 @@ public interface GouvBPM {
      */
     public List<Integer> getDemandesIdsByCodeAppliAndTacheCourante(String codeAppli, GouvBPMTask task);
     
+    /**
+     * Permet de lister les DemandeID d'une demarche (codeAppli) qui sont dans une certaine tâche courante et qu'un certain
+     * utilisateur pourrait compléter.
+     * Exemple : on souhaite lister toutes les demandes en attente de validation d'une démarche par un certain utilisateur
+     * @param codeAppli
+     * @param task
+     * @param user
+     * @return
+     */
+    public List<Integer> getDemandesIdsByCodeAppliAndTacheCouranteAndCandidateUser(String codeAppli, GouvBPMTask task, GouvBPMUser user);
+    
 }

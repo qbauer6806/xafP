@@ -205,6 +205,23 @@ public class GouvBPMImpl implements GouvBPM {
         }
         return demandeIds;
     }
+    
+    @Override
+    public List<Integer> getDemandesIdsByCodeAppliAndTacheCouranteAndCandidateUser(String codeAppli, GouvBPMTask task, GouvBPMUser user) {
+        LOGGER.info("getDemandesIdsByCodeAppliAndTacheCourante(" + codeAppli + "," + task.getTaskDefinitionKey() + ")");
+        List<Integer> demandeIds = new ArrayList<Integer>();
+        List<Task> tasks = taskService.createTaskQuery()
+                .processVariableValueEquals(GouvBPMProcessVariableTypeEnum.MC_CODEAPPLI.name(), codeAppli)
+                .taskDefinitionKey(task.getTaskDefinitionKey())
+                .taskCandidateUser(user.getId())
+                .active().list();
+        for (Task t : tasks) {
+            Integer demandeId = Integer.parseInt(runtimeService.createProcessInstanceQuery()
+                    .processInstanceId(t.getProcessInstanceId()).singleResult().getBusinessKey());
+            demandeIds.add(demandeId);
+        }
+        return demandeIds;
+    }
 
     @Override
     public boolean isProcessInstanceAlive(Integer demandeId) {

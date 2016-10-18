@@ -6,6 +6,7 @@ import java.util.Map;
 import mc.gouv.af.back.bpm.model.GouvBPMGroup;
 import mc.gouv.af.back.bpm.model.GouvBPMTask;
 import mc.gouv.af.back.bpm.model.GouvBPMUser;
+import mc.gouv.af.back.util.CommentaireInterneDTO;
 
 /**
  * Composant exposant le BPM interne d'AppFactory
@@ -124,5 +125,19 @@ public interface GouvBPM {
      * @return
      */
     public List<Integer> getDemandesIdsByCodeAppliAndTacheCouranteAndCandidateUser(String codeAppli, GouvBPMTask task, GouvBPMUser user);
+    
+    /**
+     * Permet de récupérer les commentaires internes liés à une demande
+     * @param demandeId
+     * @return
+     */
+    public List<CommentaireInterneDTO> getCommentairesInternes(Integer demandeId);
+    
+    /**
+     * Permet d'ajouter un commentaire interne à une demande
+     * @param demandeId
+     * @param commentaire
+     */
+    public void putCommentaireInterne(Integer demandeId, CommentaireInterneDTO commentaire);
     
 }

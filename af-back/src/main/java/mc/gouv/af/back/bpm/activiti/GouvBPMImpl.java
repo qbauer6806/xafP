@@ -36,6 +36,7 @@ import mc.gouv.af.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.af.back.bpm.model.GouvBPMGroup;
 import mc.gouv.af.back.bpm.model.GouvBPMTask;
 import mc.gouv.af.back.bpm.model.GouvBPMUser;
+import mc.gouv.af.back.util.CommentaireInterneDTO;
 
 /**
  * Composant exposant le BPM interne d'AppFactory
@@ -93,14 +94,14 @@ public class GouvBPMImpl implements GouvBPM {
 
     @Override
     public Map<String, Object> getProcessBusinessVariables(Integer demandeId) {
-        LOGGER.info("getProcessBusinessVariables(" + demandeId + ")");
+        LOGGER.debug("getProcessBusinessVariables(" + demandeId + ")");
         ProcessInstance processInstance = getActiveProcessInstanceForDemandeId(demandeId);
         return runtimeService.getVariables(processInstance.getId());
     }
 
     @Override
     public void setProcessBusinessVariables(Integer demandeId, Map<String, Object> businessVariables) {
-        LOGGER.info("setProcessBusinessVariables(" + demandeId + ")");
+        LOGGER.debug("setProcessBusinessVariables(" + demandeId + ")");
         ProcessInstance processInstance = getActiveProcessInstanceForDemandeId(demandeId);
         runtimeService.setVariables(processInstance.getId(), businessVariables);
     }
@@ -299,5 +300,33 @@ public class GouvBPMImpl implements GouvBPM {
             // TODO REVERT
             //throw new GouvBPMException("Groupe " + group + " non reconnu");
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public List<CommentaireInterneDTO> getCommentairesInternes(Integer demandeId) {
+        LOGGER.debug("getCommentairesInternes(" + demandeId + ")");
+        ProcessInstance processInstance = getActiveProcessInstanceForDemandeId(demandeId);
+        if (processInstance != null) {
+            List<CommentaireInterneDTO> commInternes = (List<CommentaireInterneDTO>)runtimeService.getVariable(processInstance.getId(), GouvBPMProcessVariableTypeEnum.MC_COMMINTERNES.name());
+            if (commInternes == null) {
+                commInternes = new ArrayList<CommentaireInterneDTO>();
+            }
+            return commInternes;
+        }
+        return null;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public void putCommentaireInterne(Integer demandeId, CommentaireInterneDTO commentaire) {
+        LOGGER.debug("putCommentaireInterne(" + demandeId + "," + commentaire+ ")");
+        ProcessInstance processInstance = getActiveProcessInstanceForDemandeId(demandeId);
+        List<CommentaireInterneDTO> commInternes = (List<CommentaireInterneDTO>)runtimeService.getVariable(processInstance.getId(), GouvBPMProcessVariableTypeEnum.MC_COMMINTERNES.name());
+        if (commInternes == null) {
+            commInternes = new ArrayList<CommentaireInterneDTO>();
+        }
+        commInternes.add(commentaire);
+        runtimeService.setVariable(processInstance.getId(), GouvBPMProcessVariableTypeEnum.MC_COMMINTERNES.name(), commInternes);
     }
 }

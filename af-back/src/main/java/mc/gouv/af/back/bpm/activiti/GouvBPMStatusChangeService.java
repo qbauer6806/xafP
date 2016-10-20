@@ -1,7 +1,5 @@
 package mc.gouv.af.back.bpm.activiti;
 
-import java.util.Map;
-
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.delegate.JavaDelegate;
 import org.activiti.engine.impl.el.Expression;
@@ -50,9 +48,9 @@ public class GouvBPMStatusChangeService implements JavaDelegate {
             StatutInputDTO statutInput = new StatutInputDTO();
             statutInput.setAgentId(AfBackUtils.getAuthenticatedAgentId());
             statutInput.setStatut(statut);
-            if (statut.equals(DemandeStatutEnum.ACCEPTEE) || statut.equals(DemandeStatutEnum.REFUSEE)) {
+            if (statut.equals(DemandeStatutEnum.ACCEPTEE) || statut.equals(DemandeStatutEnum.REFUSEE) || statut.equals(DemandeStatutEnum.ANNULEE)) {
                 // Si statut ACCEPTEE ou REFUSEE, indiquer un commentaire usager et un motif
-                LOGGER.info("Statut requérant l'indication d'un commentaire usager et d'un code motif");
+                LOGGER.info("Statut requérant l'indication d'un commentaire usager et/ou d'un code motif");
                 LOGGER.info("Commentaire usager : " + commentaireUsager);
                 LOGGER.info("Code motif : " + codeMotif);
                 statutInput.setCommentaire(commentaireUsager);

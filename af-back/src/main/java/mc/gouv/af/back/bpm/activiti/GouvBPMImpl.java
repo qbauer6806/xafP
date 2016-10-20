@@ -96,6 +96,10 @@ public class GouvBPMImpl implements GouvBPM {
     public Map<String, Object> getProcessBusinessVariables(Integer demandeId) {
         LOGGER.debug("getProcessBusinessVariables(" + demandeId + ")");
         ProcessInstance processInstance = getActiveProcessInstanceForDemandeId(demandeId);
+        if (processInstance == null) {
+            LOGGER.error("ProcessInstance null !");
+            return null;
+        }
         return runtimeService.getVariables(processInstance.getId());
     }
 
@@ -103,7 +107,12 @@ public class GouvBPMImpl implements GouvBPM {
     public void setProcessBusinessVariables(Integer demandeId, Map<String, Object> businessVariables) {
         LOGGER.debug("setProcessBusinessVariables(" + demandeId + ")");
         ProcessInstance processInstance = getActiveProcessInstanceForDemandeId(demandeId);
-        runtimeService.setVariables(processInstance.getId(), businessVariables);
+        if (processInstance != null) {
+            runtimeService.setVariables(processInstance.getId(), businessVariables);
+        }
+        else {
+            LOGGER.error("ProcessInstance null !");
+        }
     }
     
     @Override
@@ -314,6 +323,9 @@ public class GouvBPMImpl implements GouvBPM {
             }
             return commInternes;
         }
+        else {
+            LOGGER.error("ProcessInstance null !");
+        }
         return null;
     }
 
@@ -322,11 +334,16 @@ public class GouvBPMImpl implements GouvBPM {
     public void putCommentaireInterne(Integer demandeId, CommentaireInterneDTO commentaire) {
         LOGGER.debug("putCommentaireInterne(" + demandeId + "," + commentaire+ ")");
         ProcessInstance processInstance = getActiveProcessInstanceForDemandeId(demandeId);
-        List<CommentaireInterneDTO> commInternes = (List<CommentaireInterneDTO>)runtimeService.getVariable(processInstance.getId(), GouvBPMProcessVariableTypeEnum.MC_COMMINTERNES.name());
-        if (commInternes == null) {
-            commInternes = new ArrayList<CommentaireInterneDTO>();
+        if (processInstance != null) {
+            List<CommentaireInterneDTO> commInternes = (List<CommentaireInterneDTO>)runtimeService.getVariable(processInstance.getId(), GouvBPMProcessVariableTypeEnum.MC_COMMINTERNES.name());
+            if (commInternes == null) {
+                commInternes = new ArrayList<CommentaireInterneDTO>();
+            }
+            commInternes.add(commentaire);
+            runtimeService.setVariable(processInstance.getId(), GouvBPMProcessVariableTypeEnum.MC_COMMINTERNES.name(), commInternes);
         }
-        commInternes.add(commentaire);
-        runtimeService.setVariable(processInstance.getId(), GouvBPMProcessVariableTypeEnum.MC_COMMINTERNES.name(), commInternes);
+        else {
+            LOGGER.error("ProcessInstance null !");
+        }
     }
 }

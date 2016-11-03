@@ -34,6 +34,18 @@ public class MotifsCacheImpl implements MotifsCache {
         if (cachedList.size() == 0) {
             cachedList.addAll(demClient.getMotifs(AfBackUtils.getDemarcheId()));
         }
+        
+        // Ignorer les motifs désactivés
+        List<MotifDTO> toDelete = new ArrayList<MotifDTO>();
+        for (MotifDTO motif : cachedList) {
+            if (motif.getDateArchive() != null) {
+                toDelete.add(motif);
+            }
+        }
+        for (MotifDTO motif : toDelete) {
+            cachedList.remove(motif);
+        }
+        
         // Retour de la liste
         return cachedList;
     }

@@ -6,6 +6,7 @@ import org.activiti.engine.impl.el.Expression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import mc.gouv.Static;
 import mc.gouv.af.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.af.back.util.AfBackUtils;
 import mc.gouv.dem.apiclient.DemClient;
@@ -30,6 +31,12 @@ public class GouvBPMStatusChangeService implements JavaDelegate {
         
         LOGGER.info("==== AF-BACK CHANGEMENT STATUT ...");
         
+        // TODO voir si on ne peut pas utiliser AfBackUtils à la place...
+        String DEM_URL = Static.getValue("mc.gouv.af.back.dem.url");
+        String DEM_USER = Static.getValue("mc.gouv.af.back.dem.user");
+        String DEM_PWD = Static.getValue("mc.gouv.af.back.dem.pwd");
+        String DEMARCHE_ID = Static.getValue("mc.gouv.af.back.demarcheId");
+        
         DemandeStatutEnum statut = getTargetState(execution);
         
         Integer demandeId = Integer.parseInt(execution.getProcessBusinessKey());
@@ -37,7 +44,7 @@ public class GouvBPMStatusChangeService implements JavaDelegate {
         LOGGER.info("Demande : " + demandeId);
         LOGGER.info("Statut à mettre : " + statut);
         
-        DemClient demClient = new DemClient(AfBackUtils.getDemUrl(), AfBackUtils.getDemUser(), AfBackUtils.getDemPwd());
+        DemClient demClient = new DemClient(DEM_URL, DEM_USER, DEM_PWD);
         
         // Récupération du commentaire usager et du code motif si besoin plus tars dans le traitement
         String commentaireUsager = (String)execution.getVariables().get(GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name());
@@ -57,8 +64,8 @@ public class GouvBPMStatusChangeService implements JavaDelegate {
                 statutInput.setCodeMotif(codeMotif);
             }
             
-            LOGGER.info("Appel à DEM changerStatutDemande() (" + AfBackUtils.getDemUrl() + ")...");
-            demClient.changerStatutDemande(AfBackUtils.getDemarcheId(), demandeId, statutInput);
+            LOGGER.info("Appel à DEM changerStatutDemande() (" + DEM_URL + ")...");
+            demClient.changerStatutDemande(DEMARCHE_ID, demandeId, statutInput);
         }
         else {
             // Statut EN_ATTENTE_COMPL, il convient alors de créer dans DEM une demande d'informations complémentaires
@@ -72,8 +79,8 @@ public class GouvBPMStatusChangeService implements JavaDelegate {
             execution.removeVariable(GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name());
             execution.removeVariable(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name());
             
-            LOGGER.info("Appel à DEM createDemandeComplements() (" + AfBackUtils.getDemUrl() + ")...");
-            demClient.createDemandeComplements(AfBackUtils.getDemarcheId(), demandeId, questionDto);
+            LOGGER.info("Appel à DEM createDemandeComplements() (" + DEM_URL + ")...");
+            demClient.createDemandeComplements(DEMARCHE_ID, demandeId, questionDto);
         }
         
         LOGGER.info("==== AF-BACK CHANGEMENT STATUT <fin>");

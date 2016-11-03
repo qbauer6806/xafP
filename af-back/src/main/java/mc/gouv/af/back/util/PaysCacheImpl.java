@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -24,6 +25,9 @@ public class PaysCacheImpl implements PaysCache {
     
     private RestTemplate restTemplate;
     
+    @Autowired
+    private AfBackUtils afBackUtils;
+    
     @Override
     public Map<String,PaysDTO> getPays() {
         // Initialisation du DemClient si pas déjà fait
@@ -31,7 +35,7 @@ public class PaysCacheImpl implements PaysCache {
         
         // Remplissage de la map si pas déjà fait
         if (cachedMap.size() == 0) {
-            PaysListDTO pays = restTemplate.getForObject(AfBackUtils.getPaysRestUrl(), PaysListDTO.class);
+            PaysListDTO pays = restTemplate.getForObject(afBackUtils.getPaysRestUrl(), PaysListDTO.class);
             for (PaysDTO p : pays.getPaysBean()) {
                 cachedMap.put(p.getCodeIso(), p);
             }

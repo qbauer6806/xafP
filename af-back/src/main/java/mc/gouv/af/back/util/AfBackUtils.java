@@ -33,23 +33,23 @@ public class AfBackUtils {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(AfBackUtils.class);
     
-    private static String DEM_URL = null;
+    private String DEM_URL = null;
     
-    private static String DEM_USER = null;
+    private String DEM_USER = null;
     
-    private static String DEM_PWD = null;
+    private String DEM_PWD = null;
     
-    private static String DEMARCHE_ID = null;
+    private String DEMARCHE_ID = null;
     
-    private static String PROCESS_DEFINITION_KEY = null;
+    private String PROCESS_DEFINITION_KEY = null;
     
-    private static String DEMARCHE_LANGUE = null;
+    private String DEMARCHE_LANGUE = null;
     
-    private static String USAGERS_REST_URL = null;
+    private String USAGERS_REST_URL = null;
     
-    private static String PAYS_REST_URL = null;
+    private String PAYS_REST_URL = null;
     
-    private static String FILE_URL = null;
+    private String FILE_URL = null;
     
     private static String APPFACTORYID = "appfactory";
     
@@ -104,19 +104,19 @@ public class AfBackUtils {
         return version;
     }
     
-    public static String getDemUrl() {
+    public String getDemUrl() {
         return DEM_URL;
     }
     
-    public static String getDemUser() {
+    public String getDemUser() {
         return DEM_USER;
     }
     
-    public static String getDemPwd() {
+    public String getDemPwd() {
         return DEM_PWD;
     }
     
-    public static String getFileUrl() {
+    public String getFileUrl() {
         return FILE_URL;
     }
     
@@ -124,15 +124,15 @@ public class AfBackUtils {
         return String.valueOf(Calendar.getInstance().get(Calendar.YEAR));
     }
     
-    public static String getDemarcheId() {
+    public String getDemarcheId() {
         return DEMARCHE_ID;
     }
 
-    public static String getProcessDefinitionKey() {
+    public String getProcessDefinitionKey() {
         return PROCESS_DEFINITION_KEY;
     }
     
-    public static String getDemarcheLangue() {
+    public String getDemarcheLangue() {
         return DEMARCHE_LANGUE;
     }
     
@@ -140,11 +140,11 @@ public class AfBackUtils {
         return APPFACTORYID;
     }
     
-    public static String getUsagersRestUrl() {
+    public String getUsagersRestUrl() {
         return USAGERS_REST_URL;
     }
     
-    public static String getPaysRestUrl() {
+    public String getPaysRestUrl() {
         return PAYS_REST_URL;
     }
     
@@ -153,7 +153,7 @@ public class AfBackUtils {
      * @param usagerId
      * @return
      */
-    public static String getUsagerNameFromID(Integer usagerId) {
+    public String getUsagerNameFromID(Integer usagerId) {
         LOGGER.debug("getUsagerNameFromID() : Appel au référentiel Usagers...");
         UsagerInfosDTO usager = restTemplate.getForObject(USAGERS_REST_URL + "/" + usagerId, UsagerInfosDTO.class);
         if (usager != null) {

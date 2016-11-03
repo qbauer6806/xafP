@@ -3,6 +3,7 @@ package mc.gouv.af.back.util;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import mc.gouv.dem.apiclient.DemClient;
@@ -22,6 +23,9 @@ public class MotifsCacheImpl implements MotifsCache {
     
     private DemClient demClient;
     
+    @Autowired
+    private AfBackUtils afBackUtils;
+    
     /**
      * {@inheritDoc}
      */
@@ -32,7 +36,7 @@ public class MotifsCacheImpl implements MotifsCache {
         
         // Remplissage de la liste si pas déjà fait
         if (cachedList.size() == 0) {
-            cachedList.addAll(demClient.getMotifs(AfBackUtils.getDemarcheId()));
+            cachedList.addAll(demClient.getMotifs(afBackUtils.getDemarcheId()));
         }
         
         // Ignorer les motifs désactivés
@@ -96,7 +100,7 @@ public class MotifsCacheImpl implements MotifsCache {
      */
     private void ensureInitialized() {
         if (demClient == null) {
-            demClient = new DemClient(AfBackUtils.getDemUrl(), AfBackUtils.getDemUser(), AfBackUtils.getDemPwd());
+            demClient = new DemClient(afBackUtils.getDemUrl(), afBackUtils.getDemUser(), afBackUtils.getDemPwd());
         }
     }
 

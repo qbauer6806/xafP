@@ -212,6 +212,8 @@ Il n'y a donc aucun paramètre à donner à ce service, si ce n'est le JSON.
 
 + Response 400 (application/json)
 
++ Response 401 (application/json)
+
 ### Récupérer [GET]
 
 + Request
@@ -244,6 +246,8 @@ Il n'y a donc aucun paramètre à donner à ce service, si ce n'est le JSON.
             }
           ]
         }
+
++ Response 401 (application/json)
 
 ## Supprimer un accès [/appfactoryservlet/accesses?hashedPassword={hashedPassword}]
 
@@ -423,6 +427,8 @@ Sachant que le format de l'URL est à construire comme suit : /{uuid}/{filename}
             }
           ]
         }
+
++ Response 401 (application/json)
 
 ### Récupérer [GET]
 

@@ -14,6 +14,7 @@ import org.apache.http.client.fluent.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import mc.gouv.af.servlet.dto.UsagerInfosDTO;
 import mc.gouv.af.servlet.util.AppFactoryServletUtils;
 
 /**
@@ -25,20 +26,27 @@ import mc.gouv.af.servlet.util.AppFactoryServletUtils;
 public class PaysServlet extends HttpServlet {
 
     private static final long serialVersionUID = 4105537492545284465L;
-    
+
     private static Logger LOGGER = LoggerFactory.getLogger(PaysServlet.class);
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         LOGGER.info("====================== /pays doGet()");
-        
+
+        UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(request);
+        if (usagerInfosDTO == null) {
+            response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
+                    "Utilisateur non autorisé");
+            return;
+        }
         String pathToQuery = request.getPathInfo();
         String queryString = request.getQueryString();
-        
-        String serviceUrl = AppFactoryServletUtils.PAYS_URL + (pathToQuery != null ? pathToQuery : "") + (queryString != null ? "?" + queryString : "");
-        
+
+        String serviceUrl = AppFactoryServletUtils.PAYS_URL + (pathToQuery != null ? pathToQuery : "")
+                + (queryString != null ? "?" + queryString : "");
+
         LOGGER.info("Appel à " + serviceUrl);
-        
+
         Request serviceRequest = Request.Get(serviceUrl);
         serviceRequest.setHeader("Accept", "application/json");
         try {
@@ -49,13 +57,12 @@ public class PaysServlet extends HttpServlet {
                 response.setContentType(serviceResponse.getEntity().getContentType().getValue());
                 IOUtils.copy(serviceResponse.getEntity().getContent(), response.getOutputStream());
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
-            LOGGER.error("Erreur lors du traitement de la réponse",e);
+            LOGGER.error("Erreur lors du traitement de la réponse", e);
         }
-        
+
         LOGGER.info("====================== Fin /pays doGet()");
     }
-    
+
 }

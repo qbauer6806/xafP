@@ -212,7 +212,7 @@ Il n'y a donc aucun paramètre à donner à ce service, si ce n'est le JSON.
 
 + Response 400 (application/json)
 
-+ Response 401 (application/json)
++ Response 401 
 
 ### Récupérer [GET]
 
@@ -247,7 +247,7 @@ Il n'y a donc aucun paramètre à donner à ce service, si ce n'est le JSON.
           ]
         }
 
-+ Response 401 (application/json)
++ Response 401 
 
 ## Supprimer un accès [/appfactoryservlet/accesses?hashedPassword={hashedPassword}]
 
@@ -266,7 +266,7 @@ Afin de supprimer un accès, il est nécessaire de fournir le mot de passe encry
 
 + Response 200 (application/json)
 
-+ Response 401 (application/json)
++ Response 401 
 
         {
           "errors": [
@@ -428,7 +428,7 @@ Sachant que le format de l'URL est à construire comme suit : /{uuid}/{filename}
           ]
         }
 
-+ Response 401 (application/json)
++ Response 401
 
 ### Récupérer [GET]
 
@@ -494,6 +494,8 @@ Récupérer toutes les demandes de l'usager connecté pour cette démarche.
             }
           ]
         }
+
++ Response 401
 
 ## Récupérer, mettre à jour, et supprimer [/appfactoryservlet/demandes/{demandeId}]
 
@@ -563,6 +565,8 @@ Permet de récupérer une demande spécifique.
           ]
         }
 
++ Response 401 
+
 ### Mettre à jour [POST]
 
 Met à jour une demande particulière (contenu et fichiers).
@@ -629,6 +633,8 @@ Met à jour une demande particulière (contenu et fichiers).
           ]
         }
 
++ Response 401 
+
 ### Supprimer [DELETE]
 
 Supprime une demande.
@@ -652,7 +658,9 @@ Supprime une demande.
             }
           ]
         }
-        
+ 
++ Response 401
+
 # Group Gestion des demandes d'informations complémentaires
 *AppFactoryServlet* permet de récupérer des demandes d'informations complémentaires par rapport à des demandes préexistantes, et d'y répondre.
 
@@ -699,6 +707,8 @@ Permet de récupérer toutes les demandes d'informations complémentaires concer
           ]
         }
 
++ Response 401
+
 ## Récupérer ou répondre [/appfactoryservlet/demandes/{demandeId}/complements/{demandeIcId}]
 
 + Parameters
@@ -740,6 +750,8 @@ Récupérer une demande d'informations complémentaires précise.
             }
           ]
         }
+
++ Response 401
 
 ### Répondre [PUT]
 
@@ -812,6 +824,8 @@ Une réponse comporte éventuellement des liens vers des fichiers précédemment
           ]
         }
 
++ Response 401 
+
 # Group Référentiel pays et nationalité
 
 ## Référentiel pays et nationalité [/appfactoryservlet/pays]
@@ -851,6 +865,8 @@ Les 4 champs suivants doivent être fournis au service en x-www-form-urlencoded:
 
 + Response 403
 
++ Response 401 
+
 # Group Pièces jointes
 *AppFactoryServlet* expose des services de stockage et de récupération de pièces jointes
 
@@ -884,6 +900,8 @@ Il est possible d'indiquer le demandeId (si on le connait déjà) de la demande 
 
 + Response 404
 
++ Response 401 
+
 ## Récupération de pièce jointe [/appfactoryservlet/filedownload/{uuid}/{filename}]
 
 Appelle l'API FILE afin de stocker une pièce jointe. Le fichier est à envoyer dans un appel multipart/form-data.
@@ -907,6 +925,9 @@ La réponse contient l'identifiant du fichier au format uuid/filename.
 + Response 200 (application/json)
 
 + Response 404
+
++ Response 401 
+
 
 # Group Motifs liés à une démarche
 *AppFactoryServlet* permet de récupérer tous les motifs liés à une démarche, dans toutes les langues.
@@ -952,3 +973,4 @@ La réponse contient l'identifiant du fichier au format uuid/filename.
             }
           ]
         }
++ Response 401 

@@ -10,13 +10,13 @@
 
     <groupId>mc.gouv.af</groupId>
     <artifactId>af</artifactId>
-    <version>0.0.8</version>
+    <version>0.0.9-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <scm>
-        <developerConnection>${svn.connection}/${project.artifactId}/tags/af-0.0.8</developerConnection>
-        <connection>${svn.connection}/${project.artifactId}/tags/af-0.0.8</connection>
-        <url>${svn.url}/${project.artifactId}/tags/af-0.0.8</url>
+        <developerConnection>${svn.connection}/${project.artifactId}/trunk</developerConnection>
+        <connection>${svn.connection}/${project.artifactId}/trunk</connection>
+        <url>${svn.url}/${project.artifactId}/trunk</url>
     </scm>
 
     <modules>

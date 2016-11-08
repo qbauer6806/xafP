@@ -6,6 +6,7 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.lang.StringUtils;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +23,7 @@ import mc.gouv.af.back.service.properties.GouvPropertyNotFoundException;
  *
  */
 @Component
+@Profile("gouv")
 @Transactional(rollbackFor = Exception.class)
 public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
 

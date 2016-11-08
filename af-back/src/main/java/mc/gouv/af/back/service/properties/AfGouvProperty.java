@@ -1,0 +1,25 @@
+package mc.gouv.af.back.service.properties;
+
+public enum AfGouvProperty implements GouvProperty {
+
+    DEM_URL("mc.gouv.af.back.dem.url"),
+    DEM_USER("mc.gouv.hab.backserver.dem.user"),
+    DEM_PWD("mc.gouv.hab.backserver.dem.pwd"),
+    DEMARCHE_ID("mc.gouv.hab.backserver.demarcheId"),
+    PROCESS_DEFINITION_KEY("mc.gouv.hab.backserver.processDefinitionKey"),
+    USAGERS_REST_URL("mc.gouv.demarches.external.usagers.url"),
+    FILE_URL("mc.gouv.af.back.file.url"),
+    PAYS_REST_URL("mc.gouv.demarches.external.pays.url");
+
+    private String code;
+
+    AfGouvProperty(String code) {
+        this.code = code;
+
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+}

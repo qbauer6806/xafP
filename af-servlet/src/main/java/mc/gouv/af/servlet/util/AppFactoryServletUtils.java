@@ -38,6 +38,7 @@ import com.fasterxml.uuid.impl.TimeBasedGenerator;
 
 import mc.gouv.Static;
 import mc.gouv.af.servlet.dto.UsagerInfosDTO;
+import mc.gouv.af.servlet.properties.AfServletGouvProperty;
 import mc.gouv.dem.apishared.model.AccessDTO;
 import net.tanesha.recaptcha.ReCaptchaImpl;
 import net.tanesha.recaptcha.ReCaptchaResponse;
@@ -46,45 +47,46 @@ public class AppFactoryServletUtils {
 
     private static Logger LOGGER = LoggerFactory.getLogger(AppFactoryServletUtils.class);
 
-    public static final String DEM_ACCESSES_URL = Static.getValue("mc.gouv.appfactory.demarchesws.accesses.url");
+    public static final String DEM_ACCESSES_URL = Static.getValue(AfServletGouvProperty.DEM_ACCESSES_URL.getCode());
 
-    public static final String DEM_DEMANDES_URL = Static.getValue("mc.gouv.appfactory.demarchesws.demandes.url");
-    
-    public static final String DEM_MOTIFS_URL = Static.getValue("mc.gouv.appfactory.demarchesws.motifs.url");
+    public static final String DEM_DEMANDES_URL = Static.getValue(AfServletGouvProperty.DEM_DEMANDES_URL.getCode());
 
-    public static final String DEM_URL = Static.getValue("mc.gouv.appfactory.demarchesws.url");
+    public static final String DEM_MOTIFS_URL = Static.getValue(AfServletGouvProperty.DEM_MOTIFS_URL.getCode());
 
-    public static final String LOGIN_REST_URL = Static.getValue("mc.gouv.appfactory.external.login.url");
+    public static final String DEM_URL = Static.getValue(AfServletGouvProperty.DEM_URL.getCode());
 
-    public static final String PAYS_URL = Static.getValue("mc.gouv.appfactory.external.pays.url");
+    public static final String LOGIN_REST_URL = Static.getValue(AfServletGouvProperty.LOGIN_REST_URL.getCode());
 
-    public static final String FILE_URL = Static.getValue("mc.gouv.appfactory.filews.file.url");
+    public static final String PAYS_URL = Static.getValue(AfServletGouvProperty.PAYS_URL.getCode());
 
-    public static final String MAIL_URL = Static.getValue("mc.gouv.appfactory.mailws.mail.url");
+    public static final String FILE_URL = Static.getValue(AfServletGouvProperty.FILE_URL.getCode());
+
+    public static final String MAIL_URL = Static.getValue(AfServletGouvProperty.MAIL_URL.getCode());
 
     public static final String DEMARCHEID_KEY = "DemarcheID";
 
     public static final String APPFACTORYID_KEY = "AppFactoryID";
 
-    public static final String FILE_USER = Static.getValue("mc.gouv.appfactory.filews.user");
+    public static final String FILE_USER = Static.getValue(AfServletGouvProperty.FILE_USER.getCode());
 
-    public static final String FILE_PWD = Static.getValue("mc.gouv.appfactory.filews.pwd");
+    public static final String FILE_PWD = Static.getValue(AfServletGouvProperty.FILE_PWD.getCode());
 
-    public static final String MAIL_USER = Static.getValue("mc.gouv.appfactory.mailws.user");
+    public static final String MAIL_USER = Static.getValue(AfServletGouvProperty.MAIL_USER.getCode());
 
-    public static final String MAIL_PWD = Static.getValue("mc.gouv.appfactory.mailws.pwd");
+    public static final String MAIL_PWD = Static.getValue(AfServletGouvProperty.MAIL_PWD.getCode());
 
-    public static final String DEMARCHES_USER = Static.getValue("mc.gouv.appfactory.demarchesws.user");
+    public static final String DEMARCHES_USER = Static.getValue(AfServletGouvProperty.DEMARCHES_USER.getCode());
 
-    public static final String DEMARCHES_PWD = Static.getValue("mc.gouv.appfactory.demarchesws.pwd");
+    public static final String DEMARCHES_PWD = Static.getValue(AfServletGouvProperty.DEMARCHES_PWD.getCode());
 
     public static final String FILE_METADATA_DEMANDEID = "X-MC-DEMANDEID";
 
     public static final String CAPTCHA_TOKEN_REGEXP = "^recaptcha_([0-9.]+)_(.*)_(.*)$";
 
-    public static final String CAPTCHA_PRIVATE_KEY = Static.getValue("mc.gouv.appfactory.captcha.privatekey");
+    public static final String CAPTCHA_PRIVATE_KEY = Static
+            .getValue(AfServletGouvProperty.CAPTCHA_PRIVATE_KEY.getCode());
 
-    public static final String GOUV_CONTACT_EMAIL = Static.getValue("mc.gouv.appfactory.mailws.gouvemail");
+    public static final String GOUV_CONTACT_EMAIL = Static.getValue(AfServletGouvProperty.GOUV_CONTACT_EMAIL.getCode());
 
     public enum ServiceTarget {
         DEMARCHES,

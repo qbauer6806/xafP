@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
 
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +15,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
-import mc.gouv.Static;
+import mc.gouv.af.back.util.AfBackUtils;
 import mc.gouv.af.back.util.LogonProxy;
 import mc.gouv.logon.apiclient.RestException;
 import mc.gouv.logon.model.Droit;
@@ -31,47 +30,49 @@ import mc.gouv.logon.model.User;
  */
 @Component
 public class GouvAuthenticationProvider implements AuthenticationProvider {
-    
+
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvAuthenticationProvider.class);
-    
-    private static final String DEMARCHE_ID = Static.getValue("mc.gouv.af.back.demarcheId");
-    
+
     @Autowired
     private LogonProxy logonProxy;
-    
+
+    @Autowired
+    private AfBackUtils afBackUtils;
+
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        
+
         LOGGER.info("GouvAuthenticationProvider.authenticate(" + authentication + ")");
-        
+
         UsernamePasswordAuthenticationToken auth = (UsernamePasswordAuthenticationToken) authentication;
-        
+
         LogonBean logonBean = (LogonBean) auth.getCredentials();
-        
+
         String sessionId = logonBean.getSessionId();
-        
+
         User user = null;
-        
+
         try {
             user = logonProxy.getLoggedUser(sessionId);
         } catch (RestException e) {
             LOGGER.error("Une erreur s'est produite lors de l'appel à Logon", e);
             return null;
         }
-        
+
         if (user == null) {
             LOGGER.info("Aucun utilisateur n'a pu être récupéré à partir de la session");
             return null;
         }
-       LOGGER.info("Utilisateur retrouvé suite à l'appel à Logon : " + user);
-        
-        // Constitution de l'Authentication Spring à l'aide des données obtenues de Logon
+        LOGGER.info("Utilisateur retrouvé suite à l'appel à Logon : " + user);
 
+        // Constitution de l'Authentication Spring à l'aide des données obtenues
+        // de Logon
+        String demarcheId = afBackUtils.getDemarcheId();
         Collection<GrantedAuthority> grantedAuthorities = new ArrayList<GrantedAuthority>();
         Set<Role> roles = user.getRoles();
         for (Role role : roles) {
             // Il faut que ces droits concernent l'application en question
-            if (role.getAppli().getCode().equals(DEMARCHE_ID)) {
+            if (role.getAppli().getCode().equals(demarcheId)) {
                 Set<Droit> droits = role.getDroits();
                 for (Droit droit : droits) {
                     grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_" + droit.getCode()));

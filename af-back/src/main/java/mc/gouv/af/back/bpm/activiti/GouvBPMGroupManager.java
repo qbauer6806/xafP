@@ -62,7 +62,7 @@ public class GouvBPMGroupManager extends GroupEntityManager {
                 }
             }
         } catch (RestException e) {
-            e.printStackTrace();
+            LOGGER.error("Erreur", e);
         }
         return liste;
     }
@@ -108,7 +108,7 @@ public class GouvBPMGroupManager extends GroupEntityManager {
                 }
             } catch (RestException e) {
                 // TODO
-                e.printStackTrace();
+                LOGGER.error("Erreur", e);
             }
         }
         return liste;

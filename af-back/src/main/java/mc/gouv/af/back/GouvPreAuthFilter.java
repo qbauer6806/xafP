@@ -59,7 +59,7 @@ public class GouvPreAuthFilter implements Filter {
 
             String appRoot = httpRequest.getParameter(LogonBean.GOUV_APP_ROOT_REQUEST_PARAM);
 
-            if (StringUtils.isBlank(gouvSession)) {
+            if (StringUtils.isBlank(appRoot)) {
                 LOGGER.error("appRoot inexistant dans la requête");
                 throw new BadCredentialsException("Invalid appRoot");
             }

@@ -42,7 +42,7 @@ public class GouvBPMUserManager extends UserEntityManager {
         try {
             user = logonProxy.getUserByMatricule(userLogin);
         } catch (RestException e) {
-            e.printStackTrace();
+            LOGGER.error("Erreur", e);
         }
 
         if (user != null && user.getId() != null) {

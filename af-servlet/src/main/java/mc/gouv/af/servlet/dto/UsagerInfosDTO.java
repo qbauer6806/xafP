@@ -7,13 +7,13 @@ import java.util.Date;
  * Usager loggé géré par l'application de gestion des usagers (login).<br/>
  * Cet usager est partagé avec les autres téléservices via un service rest (voir
  * mc.gouv.servicerest.usager.model.UsagerBean).<br/>
- * Le nom historique du package mc.gouv.tp.crosscontext est conservé pour ne pas
- * impacter le code existant (l'usager fut un temps partagé entre les
- * téléservices via un contexte partagé).
+ * Le nom historique du package mc.gouv.tp.crosscontext est conservé pour ne pas impacter le code existant (l'usager fut
+ * un temps partagé entre les téléservices via un contexte partagé).
  * 
  * @author dinfo10
  */
 public class UsagerInfosDTO implements Serializable {
+
     private static final long serialVersionUID = -7219376931453637516L;
 
     // la map des usagers loggés est stockée avec la clé suivante dans le
@@ -59,16 +59,20 @@ public class UsagerInfosDTO implements Serializable {
     // pour simplifier les choses.
     protected String nomPays;
 
+    protected String paysId;
+
+    protected String paysCode;
+
     public String getTitreLabel() {
         switch (titre) {
-        case GENDER_MR_INDEX:
-            return "Monsieur";
-        case GENDER_MME_INDEX:
-            return "Madame";
-        case GENDER_MLLE_INDEX:
-            return "Mademoiselle";
-        default:
-            return "[ TITRE INCONNU: '" + titre + "' ]";
+            case GENDER_MR_INDEX:
+                return "Monsieur";
+            case GENDER_MME_INDEX:
+                return "Madame";
+            case GENDER_MLLE_INDEX:
+                return "Mademoiselle";
+            default:
+                return "[ TITRE INCONNU: '" + titre + "' ]";
         }
     }
 
@@ -215,6 +219,22 @@ public class UsagerInfosDTO implements Serializable {
 
     public void setNomPays(String nomPays) {
         this.nomPays = nomPays;
+    }
+
+    public String getPaysId() {
+        return paysId;
+    }
+
+    public void setPaysId(String paysId) {
+        this.paysId = paysId;
+    }
+
+    public String getPaysCode() {
+        return paysCode;
+    }
+
+    public void setPaysCode(String paysCode) {
+        this.paysCode = paysCode;
     }
 
 }

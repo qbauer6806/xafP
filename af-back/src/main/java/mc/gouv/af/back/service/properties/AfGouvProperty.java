@@ -9,7 +9,9 @@ public enum AfGouvProperty implements GouvProperty {
     PROCESS_DEFINITION_KEY("mc.gouv.hab.backserver.processDefinitionKey"),
     USAGERS_REST_URL("mc.gouv.demarches.external.usagers.url"),
     FILE_URL("mc.gouv.af.back.file.url"),
-    PAYS_REST_URL("mc.gouv.demarches.external.pays.url");
+    PAYS_REST_URL("mc.gouv.demarches.external.pays.url"),
+    DEM_JMS_HOST("mc.gouv.af.back.dem.jms.host"),
+    DEM_JMS_PORT("mc.gouv.af.back.dem.jms.port");
 
     private String code;
 

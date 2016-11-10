@@ -49,6 +49,10 @@ public class AfBackUtils {
     private String PAYS_REST_URL = null;
 
     private String FILE_URL = null;
+    
+    private String DEM_JMS_HOST = null;
+    
+    private int DEM_JMS_PORT;
 
     private static String APPFACTORYID = "appfactory";
 
@@ -73,6 +77,8 @@ public class AfBackUtils {
         USAGERS_REST_URL = gouvPropertiesResolver.getValue(AfGouvProperty.USAGERS_REST_URL);
         FILE_URL = gouvPropertiesResolver.getValue(AfGouvProperty.FILE_URL);
         PAYS_REST_URL = gouvPropertiesResolver.getValue(AfGouvProperty.PAYS_REST_URL);
+        DEM_JMS_HOST = gouvPropertiesResolver.getValue(AfGouvProperty.DEM_JMS_HOST);
+        DEM_JMS_PORT = Integer.parseInt(gouvPropertiesResolver.getValue(AfGouvProperty.DEM_JMS_PORT));
 
         restTemplate = new RestTemplate();
         List<HttpMessageConverter<?>> list = new ArrayList<HttpMessageConverter<?>>();
@@ -116,6 +122,14 @@ public class AfBackUtils {
 
     public String getFileUrl() {
         return FILE_URL;
+    }
+    
+    public String getDemJmsHost() {
+        return DEM_JMS_HOST;
+    }
+    
+    public int getDemJmsPort() {
+        return DEM_JMS_PORT;
     }
 
     public static String getYear() {

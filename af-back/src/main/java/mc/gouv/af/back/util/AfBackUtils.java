@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import javax.annotation.PostConstruct;
 
@@ -18,6 +19,10 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+
+import com.fasterxml.uuid.EthernetAddress;
+import com.fasterxml.uuid.Generators;
+import com.fasterxml.uuid.impl.TimeBasedGenerator;
 
 import mc.gouv.af.back.service.properties.AfGouvProperty;
 import mc.gouv.logon.apiclient.RestException;
@@ -50,6 +55,10 @@ public class AfBackUtils {
 
     private String FILE_URL = null;
     
+    private String FILE_USER = null;
+    
+    private String FILE_PWD = null;
+    
     private String DEM_JMS_HOST = null;
     
     private int DEM_JMS_PORT;
@@ -76,6 +85,8 @@ public class AfBackUtils {
         PROCESS_DEFINITION_KEY = gouvPropertiesResolver.getValue(AfGouvProperty.PROCESS_DEFINITION_KEY);
         USAGERS_REST_URL = gouvPropertiesResolver.getValue(AfGouvProperty.USAGERS_REST_URL);
         FILE_URL = gouvPropertiesResolver.getValue(AfGouvProperty.FILE_URL);
+        FILE_USER = gouvPropertiesResolver.getValue(AfGouvProperty.FILE_USER);
+        FILE_PWD = gouvPropertiesResolver.getValue(AfGouvProperty.FILE_PWD);
         PAYS_REST_URL = gouvPropertiesResolver.getValue(AfGouvProperty.PAYS_REST_URL);
         DEM_JMS_HOST = gouvPropertiesResolver.getValue(AfGouvProperty.DEM_JMS_HOST);
         DEM_JMS_PORT = Integer.parseInt(gouvPropertiesResolver.getValue(AfGouvProperty.DEM_JMS_PORT));
@@ -122,6 +133,14 @@ public class AfBackUtils {
 
     public String getFileUrl() {
         return FILE_URL;
+    }
+    
+    public String getFileUser() {
+        return FILE_USER;
+    }
+    
+    public String getFilePwd() {
+        return FILE_PWD;
     }
     
     public String getDemJmsHost() {
@@ -185,6 +204,19 @@ public class AfBackUtils {
             return user.getNom();
         }
         return null;
+    }
+    
+    /**
+     * Génère un UUID version 1 (time+location based UUID)
+     * TODO copié de afservlet, supprimer dans l'un des deux
+     * 
+     * @return
+     */
+    public static UUID generateUUID() {
+        EthernetAddress addr = EthernetAddress.fromInterface();
+        TimeBasedGenerator uuidGenerator = Generators.timeBasedGenerator(addr);
+        UUID uuid = uuidGenerator.generate();
+        return uuid;
     }
 
 }

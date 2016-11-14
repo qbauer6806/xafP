@@ -86,6 +86,12 @@
             <artifactId>db2jcc4</artifactId>
             <version>9.7</version>
         </dependency>
+        
+        <dependency>
+            <groupId>com.fasterxml.uuid</groupId>
+            <artifactId>java-uuid-generator</artifactId>
+            <version>3.1.4</version>
+        </dependency>
     </dependencies>
 
     <scm>

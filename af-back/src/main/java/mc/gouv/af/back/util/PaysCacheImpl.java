@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -20,6 +22,8 @@ import org.springframework.web.client.RestTemplate;
  */
 @Component
 public class PaysCacheImpl implements PaysCache {
+    
+    private static final Logger LOGGER = LoggerFactory.getLogger(PaysCacheImpl.class);
 
     private Map<String,PaysDTO> cachedMap = new HashMap<String,PaysDTO>();
     
@@ -35,6 +39,7 @@ public class PaysCacheImpl implements PaysCache {
         
         // Remplissage de la map si pas déjà fait
         if (cachedMap.size() == 0) {
+            LOGGER.info("Récupération des pays dans le référentiel Pays...");
             PaysListDTO pays = restTemplate.getForObject(afBackUtils.getPaysRestUrl(), PaysListDTO.class);
             for (PaysDTO p : pays.getPaysBean()) {
                 cachedMap.put(p.getCodeIso(), p);

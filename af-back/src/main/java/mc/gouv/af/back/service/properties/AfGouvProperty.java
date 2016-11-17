@@ -13,7 +13,10 @@ public enum AfGouvProperty implements GouvProperty {
     FILE_PWD("mc.gouv.hab.backserver.file.pwd"),
     PAYS_REST_URL("mc.gouv.demarches.external.pays.url"),
     DEM_JMS_HOST("mc.gouv.af.back.dem.jms.host"),
-    DEM_JMS_PORT("mc.gouv.af.back.dem.jms.port");
+    DEM_JMS_PORT("mc.gouv.af.back.dem.jms.port"),
+    MAIL_URL("mc.gouv.af.back.mail.url"),
+    MAIL_USER("mc.gouv.hab.backserver.mail.user"),
+    MAIL_PWD("mc.gouv.hab.backserver.mail.pwd");
 
     private String code;
 

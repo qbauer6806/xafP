@@ -25,6 +25,8 @@ import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.impl.TimeBasedGenerator;
 
 import mc.gouv.af.back.service.properties.AfGouvProperty;
+import mc.gouv.dem.apiclient.DemClient;
+import mc.gouv.dem.apishared.model.DemarcheDTO;
 import mc.gouv.logon.apiclient.RestException;
 import mc.gouv.logon.model.User;
 
@@ -62,18 +64,31 @@ public class AfBackUtils {
     private String DEM_JMS_HOST = null;
     
     private int DEM_JMS_PORT;
+    
+    private String MAIL_URL = null;
+    
+    private String MAIL_USER = null;
+    
+    private String MAIL_PWD = null;
 
     private static String APPFACTORYID = "appfactory";
 
     private final static String version = AfBackUtils.class.getPackage().getImplementationVersion();
 
     private static RestTemplate restTemplate;
+    
+    /**
+     * Version en cache des infos de la démarche
+     */
+    private DemarcheDTO demarche = null;
 
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
 
     @Autowired
     private LogonProxy logonProxy;
+    
+    private DemClient demClient;
 
     @PostConstruct
     public void postConstruct() {
@@ -90,6 +105,9 @@ public class AfBackUtils {
         PAYS_REST_URL = gouvPropertiesResolver.getValue(AfGouvProperty.PAYS_REST_URL);
         DEM_JMS_HOST = gouvPropertiesResolver.getValue(AfGouvProperty.DEM_JMS_HOST);
         DEM_JMS_PORT = Integer.parseInt(gouvPropertiesResolver.getValue(AfGouvProperty.DEM_JMS_PORT));
+        MAIL_URL = gouvPropertiesResolver.getValue(AfGouvProperty.MAIL_URL);
+        MAIL_USER = gouvPropertiesResolver.getValue(AfGouvProperty.MAIL_USER);
+        MAIL_PWD = gouvPropertiesResolver.getValue(AfGouvProperty.MAIL_PWD);
 
         restTemplate = new RestTemplate();
         List<HttpMessageConverter<?>> list = new ArrayList<HttpMessageConverter<?>>();
@@ -143,6 +161,18 @@ public class AfBackUtils {
         return FILE_PWD;
     }
     
+    public String getMailUrl() {
+        return MAIL_URL;
+    }
+    
+    public String getMailUser() {
+        return MAIL_USER;
+    }
+    
+    public String getMailPwd() {
+        return MAIL_PWD;
+    }
+    
     public String getDemJmsHost() {
         return DEM_JMS_HOST;
     }
@@ -189,6 +219,17 @@ public class AfBackUtils {
         }
         return null;
     }
+    
+    /**
+     * Retourne les informations d'un usager à partir de son ID
+     * 
+     * @param usagerId
+     * @return
+     */
+    public UsagerInfosDTO getUsagerFromID(Integer usagerId) {
+        LOGGER.debug("getUsagerEmailFromID() : Appel au référentiel Usagers...");
+        return restTemplate.getForObject(USAGERS_REST_URL + "/" + usagerId, UsagerInfosDTO.class);
+    }
 
     /**
      * Retourne le nom d'un utilisateur à partir de son ID
@@ -217,6 +258,24 @@ public class AfBackUtils {
         TimeBasedGenerator uuidGenerator = Generators.timeBasedGenerator(addr);
         UUID uuid = uuidGenerator.generate();
         return uuid;
+    }
+    
+    private DemClient getDemClient() {
+        if (demClient == null) {
+            demClient = new DemClient(getDemUrl(), getDemUser(), getDemPwd());
+        }
+        return demClient;
+    }
+    
+    /**
+     * Retourne une version "cachée" des informations de la démarche
+     * @return
+     */
+    public DemarcheDTO getDemarcheInfos() {
+        if (demarche == null) {
+            demarche = getDemClient().getDemarche(getDemarcheId());
+        }
+        return demarche;
     }
 
 }

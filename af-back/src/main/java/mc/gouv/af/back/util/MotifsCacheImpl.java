@@ -3,6 +3,8 @@ package mc.gouv.af.back.util;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -18,6 +20,8 @@ import mc.gouv.dem.apishared.model.MotifDTO;
  */
 @Component
 public class MotifsCacheImpl implements MotifsCache {
+    
+    private static final Logger LOGGER = LoggerFactory.getLogger(MotifsCacheImpl.class);
 
     private List<MotifDTO> cachedList = new ArrayList<MotifDTO>();
     
@@ -36,6 +40,7 @@ public class MotifsCacheImpl implements MotifsCache {
         
         // Remplissage de la liste si pas déjà fait
         if (cachedList.size() == 0) {
+            LOGGER.info("Récupération des motifs dans DEM...");
             cachedList.addAll(demClient.getMotifs(afBackUtils.getDemarcheId()));
         }
         

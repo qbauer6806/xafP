@@ -50,10 +50,10 @@ public class MailServiceImpl implements MailService {
 
         LOGGER.info("MailServiceImpl.sendMail(" + emailInfo + "," + model + ")");
         
-        LOGGER.info("Appel à DEM pour récupérer le template demandé pour le corps de l'email...");
+        LOGGER.info("Récupération du template demandé pour le corps de l'email...");
         TemplateDTO templateBody = templatesCache.getTemplate(emailInfo.getBodyTemplateCode(), emailInfo.getLangue());
         
-        LOGGER.info("Appel à DEM pour récupérer le template demandé pour le sujet de l'email...");
+        LOGGER.info("Récupération du template demandé pour le sujet de l'email...");
         TemplateDTO templateSubject = templatesCache.getTemplate(emailInfo.getSubjectTemplateCode(), emailInfo.getLangue());
         
         LOGGER.info("Appel à Velocity pour le templating du corps et du sujet de l'email...");
@@ -99,6 +99,41 @@ public class MailServiceImpl implements MailService {
     }
     
     /**
+     * {@inheritDoc}
+     * @throws Exception 
+     */
+    @Override
+    public String[] getMailPreview(String bodyTemplateCode, String subjectTemplateCode, String langue, Map<String, Object> model) throws Exception {
+        LOGGER.info("MailServiceImpl.getMailPreview(" + bodyTemplateCode + "," + subjectTemplateCode + "," + langue + "," + model + ")");
+        
+        LOGGER.info("Récupération du template demandé pour le corps de l'email...");
+        TemplateDTO templateBody = templatesCache.getTemplate(bodyTemplateCode, langue);
+        
+        LOGGER.info("Récupération du template demandé pour le sujet de l'email...");
+        TemplateDTO templateSubject = templatesCache.getTemplate(subjectTemplateCode, langue);
+        
+        LOGGER.info("Appel à Velocity pour le templating du corps et du sujet de l'email...");
+        Context context = manager.createContext();
+        for (String key : model.keySet()) {
+            context.put(key, model.get(key));
+        }
+        
+        StringWriter output = new StringWriter();
+
+        if (!Velocity.evaluate(context, output, templateBody.getCode(), templateBody.getContenu())) {
+            throw new Exception("Velocity.evaluate() n'a pas fonctionné.");
+        }
+        String mailBodyToSend = output.toString();
+        output = new StringWriter();
+        if (!Velocity.evaluate(context, output, templateSubject.getCode(), templateSubject.getContenu())) {
+            throw new Exception("Velocity.evaluate() n'a pas fonctionné.");
+        }
+        String mailSubjectToSend = output.toString();
+        
+        return new String[] { mailSubjectToSend , mailBodyToSend };
+    }
+    
+    /**
      * Initialisation du MailClient si pas déjà fait
      */
     private MailClient getMailClient() {
@@ -107,5 +142,6 @@ public class MailServiceImpl implements MailService {
         }
         return mailClient;
     }
+
 
 }

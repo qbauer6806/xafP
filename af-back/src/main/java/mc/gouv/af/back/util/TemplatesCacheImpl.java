@@ -82,7 +82,7 @@ public class TemplatesCacheImpl implements TemplatesCache {
     
     private TemplateDTO internalGetTemplate(String codeTemplate, String langue) {
         for (TemplateDTO template : getTemplates()) {
-            if (template.getCode().equals(codeTemplate) && template.getLangue().equals(langue)) {
+            if (template.getCode().equals(codeTemplate) && template.getLangue().equalsIgnoreCase(langue)) {
                 return template;
             }
         }

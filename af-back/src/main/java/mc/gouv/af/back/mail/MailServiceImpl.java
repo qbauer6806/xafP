@@ -58,8 +58,10 @@ public class MailServiceImpl implements MailService {
         
         LOGGER.info("Appel à Velocity pour le templating du corps et du sujet de l'email...");
         Context context = manager.createContext();
-        for (String key : model.keySet()) {
-            context.put(key, model.get(key));
+        if (model != null) {
+            for (String key : model.keySet()) {
+                context.put(key, model.get(key));
+            }
         }
         
         StringWriter output = new StringWriter();
@@ -114,8 +116,10 @@ public class MailServiceImpl implements MailService {
         
         LOGGER.info("Appel à Velocity pour le templating du corps et du sujet de l'email...");
         Context context = manager.createContext();
-        for (String key : model.keySet()) {
-            context.put(key, model.get(key));
+        if (model != null) {
+            for (String key : model.keySet()) {
+                context.put(key, model.get(key));
+            }
         }
         
         StringWriter output = new StringWriter();

@@ -26,6 +26,8 @@ import com.fasterxml.uuid.impl.TimeBasedGenerator;
 
 import mc.gouv.af.back.service.properties.AfGouvProperty;
 import mc.gouv.dem.apiclient.DemClient;
+import mc.gouv.dem.apishared.model.DemandeDTO;
+import mc.gouv.dem.apishared.model.DemandeDataDTO;
 import mc.gouv.dem.apishared.model.DemarcheDTO;
 import mc.gouv.logon.apiclient.RestException;
 import mc.gouv.logon.model.User;
@@ -276,6 +278,20 @@ public class AfBackUtils {
             demarche = getDemClient().getDemarche(getDemarcheId());
         }
         return demarche;
+    }
+    
+    /**
+     * Permet de récupérer une donnée d'une demande
+     */
+    public static String getDemandeData(DemandeDTO demande, String key) {
+        if (demande.getData() != null) {
+            for (DemandeDataDTO demandeData : demande.getData()) {
+                if (demandeData.getKey().equals(key)) {
+                    return demandeData.getValue();
+                }
+            }
+        }
+        return null;
     }
 
 }

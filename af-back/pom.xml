@@ -76,7 +76,7 @@
 		<dependency>
             <groupId>mc.gouv.dem</groupId>
             <artifactId>dem-apiclient</artifactId>
-            <version>0.0.12</version>
+            <version>0.0.13-SNAPSHOT</version>
         </dependency>
         
         <dependency>

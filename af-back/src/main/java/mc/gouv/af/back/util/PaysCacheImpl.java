@@ -1,6 +1,5 @@
 package mc.gouv.af.back.util;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,11 +7,9 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
+
+import mc.gouv.servicerest.pays.model.PaysBean;
 
 /**
  * Composant permettant de gérer un cache des pays
@@ -25,23 +22,19 @@ public class PaysCacheImpl implements PaysCache {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(PaysCacheImpl.class);
 
-    private Map<String,PaysDTO> cachedMap = new HashMap<String,PaysDTO>();
-    
-    private RestTemplate restTemplate;
+    private Map<String,PaysBean> cachedMap = new HashMap<String,PaysBean>();
     
     @Autowired
     private AfBackUtils afBackUtils;
     
     @Override
-    public Map<String,PaysDTO> getPays() {
-        // Initialisation du DemClient si pas déjà fait
-        ensureInitialized();
+    public Map<String,PaysBean> getPays() {
         
         // Remplissage de la map si pas déjà fait
         if (cachedMap.size() == 0) {
             LOGGER.info("Récupération des pays dans le référentiel Pays...");
-            PaysListDTO pays = restTemplate.getForObject(afBackUtils.getPaysRestUrl(), PaysListDTO.class);
-            for (PaysDTO p : pays.getPaysBean()) {
+            List<PaysBean> pays = afBackUtils.getReferentielPaysClient().getListPays();
+            for (PaysBean p : pays) {
                 cachedMap.put(p.getCodeIso(), p);
             }
         }
@@ -50,7 +43,7 @@ public class PaysCacheImpl implements PaysCache {
     }
 
     @Override
-    public Map<String,PaysDTO> fetchPays() {
+    public Map<String,PaysBean> fetchPays() {
         // Vider la map (forcera getPays() à récupérer les nouveaux du WS)
         cachedMap.clear();
         
@@ -59,34 +52,17 @@ public class PaysCacheImpl implements PaysCache {
     }
 
     @Override
-    public PaysDTO getPaysFromCodeIso(String codePays) {
+    public PaysBean getPaysFromCodeIso(String codePays) {
         return getPays().get(codePays);
     }
     
     @Override
     public String getNationaliteFromCodeIso(String codePays) {
-        PaysDTO pays = getPaysFromCodeIso(codePays);
+        PaysBean pays = getPaysFromCodeIso(codePays);
         if (pays != null) {
             return pays.getNationalite();
         }
         return null;
-    }
-    
-    /**
-     * Initialisation du DemClient si pas déjà fait
-     */
-    private void ensureInitialized() {
-        if (restTemplate == null) {
-            restTemplate = new RestTemplate();
-            List<HttpMessageConverter<?>> list = new ArrayList<HttpMessageConverter<?>>();
-            MappingJackson2HttpMessageConverter conv = new MappingJackson2HttpMessageConverter();
-            List<MediaType> mediaTypes = new ArrayList<MediaType>();
-            mediaTypes.add(new MediaType("application", "json", MappingJackson2HttpMessageConverter.DEFAULT_CHARSET));
-            mediaTypes.add(new MediaType("text", "html", MappingJackson2HttpMessageConverter.DEFAULT_CHARSET));
-            conv.setSupportedMediaTypes(mediaTypes);
-            list.add(conv);
-            restTemplate.setMessageConverters(list);
-        }
     }
 
 }

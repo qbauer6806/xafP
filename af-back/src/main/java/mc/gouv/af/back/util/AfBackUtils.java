@@ -31,6 +31,9 @@ import mc.gouv.dem.apishared.model.DemandeDataDTO;
 import mc.gouv.dem.apishared.model.DemarcheDTO;
 import mc.gouv.logon.apiclient.RestException;
 import mc.gouv.logon.model.User;
+import mc.gouv.servicerest.pays.ReferentielPaysClient;
+import mc.gouv.servicerest.usager.ReferentielUsagersClient;
+import mc.gouv.servicerest.usager.model.UsagerBean;
 
 /**
  * Classe utilitaire pour le projet af-back
@@ -91,6 +94,10 @@ public class AfBackUtils {
     private LogonProxy logonProxy;
     
     private DemClient demClient;
+    
+    private ReferentielPaysClient referentielPaysClient;
+    
+    private ReferentielUsagersClient referentielUsagersClient;
 
     @PostConstruct
     public void postConstruct() {
@@ -215,7 +222,7 @@ public class AfBackUtils {
      */
     public String getUsagerNameFromID(Integer usagerId) {
         LOGGER.debug("getUsagerNameFromID() : Appel au référentiel Usagers...");
-        UsagerInfosDTO usager = restTemplate.getForObject(USAGERS_REST_URL + "/" + usagerId, UsagerInfosDTO.class);
+        UsagerBean usager = getUsagerFromID(usagerId);
         if (usager != null) {
             return usager.getPrenom() + " " + usager.getNom();
         }
@@ -228,9 +235,9 @@ public class AfBackUtils {
      * @param usagerId
      * @return
      */
-    public UsagerInfosDTO getUsagerFromID(Integer usagerId) {
+    public UsagerBean getUsagerFromID(Integer usagerId) {
         LOGGER.debug("getUsagerEmailFromID() : Appel au référentiel Usagers...");
-        return restTemplate.getForObject(USAGERS_REST_URL + "/" + usagerId, UsagerInfosDTO.class);
+        return getReferentielUsagersClient().getUsager(usagerId);
     }
 
     /**
@@ -262,11 +269,25 @@ public class AfBackUtils {
         return uuid;
     }
     
-    private DemClient getDemClient() {
+    public DemClient getDemClient() {
         if (demClient == null) {
             demClient = new DemClient(getDemUrl(), getDemUser(), getDemPwd());
         }
         return demClient;
+    }
+    
+    public ReferentielPaysClient getReferentielPaysClient() {
+        if (referentielPaysClient == null) {
+            referentielPaysClient = new ReferentielPaysClient(getPaysRestUrl(), null, null);
+        }
+        return referentielPaysClient;
+    }
+    
+    public ReferentielUsagersClient getReferentielUsagersClient() {
+        if (referentielUsagersClient == null) {
+            referentielUsagersClient = new ReferentielUsagersClient(getUsagersRestUrl(), null, null);
+        }
+        return referentielUsagersClient;
     }
     
     /**

@@ -4,8 +4,6 @@ import org.activiti.engine.impl.persistence.entity.GroupIdentityManager;
 import org.activiti.engine.impl.persistence.entity.UserIdentityManager;
 import org.activiti.spring.SpringProcessEngineConfiguration;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -19,7 +17,7 @@ import mc.gouv.af.back.bpm.activiti.GouvBPMUserManagerFactory;
  *
  */
 @Configuration
-@EnableAutoConfiguration
+//@EnableAutoConfiguration
 public class ActivitiConfig {
 
     /**

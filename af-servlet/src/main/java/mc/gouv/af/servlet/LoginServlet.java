@@ -121,7 +121,7 @@ public class LoginServlet extends HttpServlet {
                 uinfos.setId(usagerCourrier.getPkUsagersCourrier());
                 uinfos.setLogin(usagerCourrier.getLogin());
                 uinfos.setNom(usagerCourrier.getNom());
-                // uinfos.setNomPays(), usagerCourrier.getPays() est Integer, que mettre ?
+                uinfos.setPaysCode(usagerCourrier.getPays());
                 uinfos.setPrenom(usagerCourrier.getPrenom());
                 uinfos.setRaisonSociale(usagerCourrier.getRaisonSociale());
                 uinfos.setTitre(usagerCourrier.getTitre().shortValue());

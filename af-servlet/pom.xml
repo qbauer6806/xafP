@@ -134,7 +134,7 @@
         <dependency>
             <groupId>mc.gouv.dem</groupId>
             <artifactId>dem-apiclient</artifactId>
-            <version>0.0.10</version>
+            <version>0.0.15-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>mc.gouv.mail</groupId>

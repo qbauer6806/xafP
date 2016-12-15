@@ -101,6 +101,8 @@ public class AfBackUtils {
     private ReferentielPaysClient referentielPaysClient;
     
     private ReferentielUsagersClient referentielUsagersClient;
+    
+    public static final int USAGERID_OFFSET = 1000000000;
 
     @PostConstruct
     public void postConstruct() {
@@ -244,8 +246,31 @@ public class AfBackUtils {
      * @return
      */
     public UsagerBean getUsagerFromID(Integer usagerId) {
-        LOGGER.debug("getUsagerEmailFromID() : Appel au référentiel Usagers...");
-        return getReferentielUsagersClient().getUsager(usagerId);
+        
+        if (!isUsagerCourrier(usagerId)) {
+            LOGGER.debug("getUsagerEmailFromID() : Appel au référentiel Usagers...");
+            return getReferentielUsagersClient().getUsager(usagerId);
+        }
+        else {
+            LOGGER.debug("getUsagerFromID(); : Appel à DEM car usager courrier...");
+            UsagerCourrierDTO uc = getUsagerCourrierFromID(usagerId);
+            UsagerBean ub = new UsagerBean();
+            ub.setAdresse1(uc.getAdresse1());
+            ub.setAdresse2(uc.getAdresse2());
+            ub.setCodePostal(uc.getCodePostal());
+            ub.setComplementAdresse(uc.getAdresseComplement());
+            ub.setDateCreation(uc.getDateCreation());
+            ub.setEmail(uc.getEmail());
+            ub.setId(uc.getPkUsagersCourrier());
+            ub.setLogin(uc.getLogin());
+            ub.setNom(uc.getNom());
+            ub.setPrenom(uc.getPrenom());
+            ub.setNomPays(uc.getPays());
+            ub.setRaisonSociale(uc.getRaisonSociale());
+            ub.setTitre(uc.getTitre().shortValue());
+            ub.setVille(uc.getVille());
+            return ub;
+        }
     }
     
     /**
@@ -332,6 +357,17 @@ public class AfBackUtils {
             }
         }
         return null;
+    }
+    
+    /**
+     * Indique si l'usager correspond à un usager courrier ou pas. Si l'usagerId est supérieur à un milliard, alors il
+     * s'agit d'un usager courrier.
+     * 
+     * @param usagerId
+     * @return
+     */
+    public static boolean isUsagerCourrier(Integer usagerId) {
+        return usagerId > USAGERID_OFFSET;
     }
 
 }

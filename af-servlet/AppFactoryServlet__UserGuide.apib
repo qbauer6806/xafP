@@ -328,7 +328,9 @@ Sachant que le format de l'URL est à construire comme suit : /{uuid}/{filename}
 	                }
 	            ],
 	            "langue" : "IT",
-	            "canal" : "GUICHET"
+	            "canal" : "GUICHET",
+	            "courrierDateReception" : "2016-12-14",
+	            "courrierRefInterne" : "maRefInterne"
             }
 
 ### Créer [POST]
@@ -364,7 +366,9 @@ Sachant que le format de l'URL est à construire comme suit : /{uuid}/{filename}
 				    }
 				],
 	            "langue" : "IT",
-	            "canal" : "GUICHET"
+	            "canal" : "GUICHET",
+	            "courrierDateReception" : "2016-12-14",
+	            "courrierRefInterne" : "maRefInterne"
 			}
 
 + Response 201 (application/json)
@@ -410,6 +414,8 @@ Sachant que le format de l'URL est à construire comme suit : /{uuid}/{filename}
 			  ],
 			  "langue": "IT",
 			  "canal": "GUICHET",
+		      "courrierDateReception" : "2016-12-14",
+	          "courrierRefInterne" : "maRefInterne",
 			  "observations": null,
 			  "agentAffecteId": null,
 			  "dernierStatut": {

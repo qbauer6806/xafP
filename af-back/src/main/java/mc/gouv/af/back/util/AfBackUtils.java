@@ -29,6 +29,7 @@ import mc.gouv.dem.apiclient.DemClient;
 import mc.gouv.dem.apishared.model.DemandeDTO;
 import mc.gouv.dem.apishared.model.DemandeDataDTO;
 import mc.gouv.dem.apishared.model.DemarcheDTO;
+import mc.gouv.dem.apishared.model.UsagerCourrierDTO;
 import mc.gouv.logon.apiclient.RestException;
 import mc.gouv.logon.model.User;
 import mc.gouv.servicerest.pays.ReferentielPaysClient;
@@ -75,6 +76,8 @@ public class AfBackUtils {
     private String MAIL_USER = null;
     
     private String MAIL_PWD = null;
+    
+    private String FRONT_URL = null;
 
     private static String APPFACTORYID = "appfactory";
 
@@ -117,6 +120,7 @@ public class AfBackUtils {
         MAIL_URL = gouvPropertiesResolver.getValue(AfGouvProperty.MAIL_URL);
         MAIL_USER = gouvPropertiesResolver.getValue(AfGouvProperty.MAIL_USER);
         MAIL_PWD = gouvPropertiesResolver.getValue(AfGouvProperty.MAIL_PWD);
+        FRONT_URL = gouvPropertiesResolver.getValue(AfGouvProperty.FRONT_URL);
 
         restTemplate = new RestTemplate();
         List<HttpMessageConverter<?>> list = new ArrayList<HttpMessageConverter<?>>();
@@ -213,6 +217,10 @@ public class AfBackUtils {
     public String getPaysRestUrl() {
         return PAYS_REST_URL;
     }
+    
+    public String getFrontUrl() {
+        return FRONT_URL;
+    }
 
     /**
      * Retourne le nom d'un usager à partir de son ID
@@ -238,6 +246,17 @@ public class AfBackUtils {
     public UsagerBean getUsagerFromID(Integer usagerId) {
         LOGGER.debug("getUsagerEmailFromID() : Appel au référentiel Usagers...");
         return getReferentielUsagersClient().getUsager(usagerId);
+    }
+    
+    /**
+     * Retourne les informations d'un usager courrier à partir de son ID
+     * 
+     * @param usagerId
+     * @return
+     */
+    public UsagerCourrierDTO getUsagerCourrierFromID(Integer usagerId) {
+        LOGGER.debug("getUsagerCourrierFromID() : Appel à DEM...");
+        return getDemClient().getUsagerCourrier(getDemarcheId(), usagerId);
     }
 
     /**

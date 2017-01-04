@@ -17,7 +17,7 @@ public enum AfGouvProperty implements GouvProperty {
     MAIL_URL("mc.gouv.af.back.mail.url"),
     MAIL_USER("mc.gouv.hab.backserver.mail.user"),
     MAIL_PWD("mc.gouv.hab.backserver.mail.pwd"),
-    FRONT_URL("mc.gouv.af.back.front.url");
+    FRONT_URL("mc.gouv.hab.backserver.front.url");
 
     private String code;
 

@@ -6,6 +6,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import mc.gouv.dem.apiclient.DemClient;
@@ -19,17 +20,18 @@ import mc.gouv.dem.apishared.model.MotifDTO;
  *
  */
 @Component
+@Profile("gouv")
 public class MotifsCacheImpl implements MotifsCache {
-    
+
     private static final Logger LOGGER = LoggerFactory.getLogger(MotifsCacheImpl.class);
 
     private List<MotifDTO> cachedList = new ArrayList<MotifDTO>();
-    
+
     private DemClient demClient;
-    
+
     @Autowired
     private AfBackUtils afBackUtils;
-    
+
     /**
      * {@inheritDoc}
      */
@@ -37,13 +39,13 @@ public class MotifsCacheImpl implements MotifsCache {
     public List<MotifDTO> getMotifs() {
         // Initialisation du DemClient si pas déjà fait
         ensureInitialized();
-        
+
         // Remplissage de la liste si pas déjà fait
         if (cachedList.size() == 0) {
             LOGGER.info("Récupération des motifs dans DEM...");
             cachedList.addAll(demClient.getMotifs(afBackUtils.getDemarcheId()));
         }
-        
+
         // Ignorer les motifs désactivés
         List<MotifDTO> toDelete = new ArrayList<MotifDTO>();
         for (MotifDTO motif : cachedList) {
@@ -54,7 +56,7 @@ public class MotifsCacheImpl implements MotifsCache {
         for (MotifDTO motif : toDelete) {
             cachedList.remove(motif);
         }
-        
+
         // Retour de la liste
         return cachedList;
     }
@@ -66,25 +68,25 @@ public class MotifsCacheImpl implements MotifsCache {
     public List<MotifDTO> fetchMotifs() {
         // Vider la liste (forcera getMotifs() à récupérer les nouveaux du WS)
         cachedList.clear();
-        
+
         // Retour de la nouvelle liste
         return getMotifs();
     }
 
-//    /**
-//     * {@inheritDoc}
-//     */
-//    @Override
-//    public MotifDTO getMotif(String codeMotif, DemandeStatutEnum statut, String langue) {
-//        List<MotifDTO> motifs = getMotifs();
-//        for (MotifDTO motif : motifs) {
-//            if (motif.getCode().equals(codeMotif) && motif.getStatut().equals(statut) && motif.getLangue().equals(langue)) {
-//                return motif;
-//            }
-//        }
-//        return null;
-//    }
-    
+    //    /**
+    //     * {@inheritDoc}
+    //     */
+    //    @Override
+    //    public MotifDTO getMotif(String codeMotif, DemandeStatutEnum statut, String langue) {
+    //        List<MotifDTO> motifs = getMotifs();
+    //        for (MotifDTO motif : motifs) {
+    //            if (motif.getCode().equals(codeMotif) && motif.getStatut().equals(statut) && motif.getLangue().equals(langue)) {
+    //                return motif;
+    //            }
+    //        }
+    //        return null;
+    //    }
+
     /**
      * {@inheritDoc}
      */
@@ -98,8 +100,7 @@ public class MotifsCacheImpl implements MotifsCache {
         }
         return null;
     }
-    
-    
+
     /**
      * Initialisation du DemClient si pas déjà fait
      */

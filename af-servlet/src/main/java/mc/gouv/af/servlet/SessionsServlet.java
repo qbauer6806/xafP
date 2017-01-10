@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -17,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import mc.gouv.af.servlet.dto.UsagerInfosDTO;
+import mc.gouv.af.servlet.util.AppFactoryServletUtils;
 
 /**
  * 
@@ -39,6 +41,13 @@ public class SessionsServlet extends HttpServlet {
 
         LOGGER.info("SESSION : " + session);
         if (session != null) {
+
+            //https://docs.angularjs.org/api/ng/service/$http#cross-site-request-forgery-xsrf-protection
+            //Ajout du cookie XSRF-TOKEN
+            Cookie xsrfCookie = new Cookie(AppFactoryServletUtils.XSRF_COOKIE,
+                    session.getAttribute(AppFactoryServletUtils.XSRF_SESSION_ATTRIBUTE).toString());
+            response.addCookie(xsrfCookie);
+
             // Récupération de l'objet attaché à la session
             UsagerInfosDTO usagerInfosDTO = (UsagerInfosDTO) session.getAttribute("login");
             LOGGER.info("usagerInfosDTO : " + usagerInfosDTO);

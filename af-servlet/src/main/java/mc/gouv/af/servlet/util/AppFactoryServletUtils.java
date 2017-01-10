@@ -88,6 +88,10 @@ public class AppFactoryServletUtils {
 
     public static final String GOUV_CONTACT_EMAIL = Static.getValue(AfServletGouvProperty.GOUV_CONTACT_EMAIL.getCode());
 
+    public static final String XSRF_COOKIE = "XSRF-TOKEN";
+    public static final String XSRF_HEADER = "X-XSRF-TOKEN";
+    public static final String XSRF_SESSION_ATTRIBUTE = "XSRF-TOKEN";
+
     public enum ServiceTarget {
         DEMARCHES,
         FILE,
@@ -206,6 +210,21 @@ public class AppFactoryServletUtils {
         if (session == null) {
             return null;
         }
+
+        //Check le csrf token
+
+        String xsrfToken = request.getHeader(XSRF_HEADER);
+
+        if (StringUtils.isBlank(xsrfToken)) {
+            return null;
+        }
+
+        if (!StringUtils.equals(xsrfToken, session.getAttribute(XSRF_SESSION_ATTRIBUTE).toString())) {
+            LOGGER.warn("Mauvais XSRF TOKEN : " + xsrfToken);
+            return null;
+
+        }
+
         return (UsagerInfosDTO) session.getAttribute("login");
     }
 

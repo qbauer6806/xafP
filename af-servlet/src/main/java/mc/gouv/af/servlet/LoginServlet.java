@@ -2,6 +2,7 @@ package mc.gouv.af.servlet;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -9,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -77,6 +79,12 @@ public class LoginServlet extends HttpServlet {
                         // Stockage de cet objet d'infos d'usager dans la session HTTP
                         HttpSession session = request.getSession();
                         session.setAttribute("login", uinfos);
+
+                        //https://docs.angularjs.org/api/ng/service/$http#cross-site-request-forgery-xsrf-protection
+
+                        String xsrfToken = session.getId() + Calendar.getInstance().getTime();
+                        String xsrfTokenHash = DigestUtils.sha256Hex(xsrfToken);
+                        session.setAttribute(AppFactoryServletUtils.XSRF_SESSION_ATTRIBUTE, xsrfTokenHash);
                     }
                 }
             } catch (Exception e) {

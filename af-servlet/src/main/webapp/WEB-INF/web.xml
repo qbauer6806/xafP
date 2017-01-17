@@ -110,6 +110,11 @@
         <param-name>DemarcheID</param-name>
         <param-value>HAB</param-value>
     </context-param>
+    
+    <context-param>
+        <param-name>CodeMotifAnnulation</param-name>
+        <param-value>ANNULATION_PAR_USAGER</param-value>
+    </context-param>
 
     <context-param>
         <param-name>AppFactoryID</param-name>

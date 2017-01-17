@@ -66,6 +66,8 @@ public class AppFactoryServletUtils {
     public static final String DEMARCHEID_KEY = "DemarcheID";
 
     public static final String APPFACTORYID_KEY = "AppFactoryID";
+    
+    public static final String CODE_MOTIF_ANNULATION_KEY = "CodeMotifAnnulation";
 
     public static final String FILE_USER = Static.getValue(AfServletGouvProperty.FILE_USER.getCode());
 

@@ -992,25 +992,16 @@ La réponse contient l'identifiant du fichier au format uuid/filename.
 
 ## Annulation [/appfactoryservlet/annulation/{demandeId}]
 
-Le code motif et le commentaire dans le JSON sont facultatifs.
-
 + Parameters
     + demandeId (required, integer, `15`) ... L'id de la demande concernée.
 
-### Annuler [POST]
+### Annuler [DELETE]
 
 + Request
     + Headers
 
             User-Agent: NomDuLogiciel/Version
             Cookie: JSESSIONID=1jyzh76rqbx66q2cxa0j0zvaf
-            
-    + Body
-
-			{
-				"codeMotif" : "ANNULATION_LOC_LOC",
-				"commentaire" : "Un commentaire"
-			}
 
 
 + Response 200 (application/json)

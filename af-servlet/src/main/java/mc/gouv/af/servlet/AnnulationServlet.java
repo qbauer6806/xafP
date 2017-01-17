@@ -1,6 +1,5 @@
 package mc.gouv.af.servlet;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
@@ -12,9 +11,6 @@ import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import mc.gouv.af.servlet.dto.AnnulationRequestDTO;
 import mc.gouv.af.servlet.dto.UsagerInfosDTO;
 import mc.gouv.af.servlet.util.AppFactoryServletUtils;
 import mc.gouv.dem.apiclient.DemClient;
@@ -35,9 +31,9 @@ public class AnnulationServlet extends HttpServlet {
     private static Logger LOGGER = LoggerFactory.getLogger(AnnulationServlet.class);
     
     @Override
-    public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    public void doDelete(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         
-        LOGGER.info("====================== /annulation doPost()");
+        LOGGER.info("====================== /annulation doDelete()");
         
         UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(request);
         if (usagerInfosDTO == null) {
@@ -60,34 +56,17 @@ public class AnnulationServlet extends HttpServlet {
         // Récupération de l'ID de la démarche dans le Context-Param
         String demarcheId = getServletContext().getInitParameter(AppFactoryServletUtils.DEMARCHEID_KEY);
         
+        String codeMotifAnnulation = getServletContext().getInitParameter(AppFactoryServletUtils.CODE_MOTIF_ANNULATION_KEY);
+        
         Integer usagerId = usagerInfosDTO.getId();
         
         LOGGER.info("DemarcheID=" + demarcheId + ", UsagerID=" + usagerId + ", DemandeID=" + demandeId);
-        
-        // Récupération du JSON reçu en input
-        StringBuilder buffer = new StringBuilder();
-        BufferedReader reader = request.getReader();
-        String line;
-        while ((line = reader.readLine()) != null) {
-            buffer.append(line);
-        }
-        
-        if (buffer.toString().length() == 0) {
-            response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_BAD_REQUEST, "Erreur: JSON manquant");
-            return;
-        }
-        
-        LOGGER.info("Sérialisation du JSON reçu...");
-        // Sérialisation du JSON reçu
-        ObjectMapper mapper = new ObjectMapper();
-        AnnulationRequestDTO annulationRequest = mapper.readValue(buffer.toString(), AnnulationRequestDTO.class);
         
         LOGGER.info("Appel à DEM...");
         StatutInputDTO statutInput = new StatutInputDTO();
         statutInput.setUsagerId(usagerId);
         statutInput.setStatut(DemandeStatutEnum.ANNULEE);
-        statutInput.setCodeMotif(annulationRequest.getCodeMotif());
-        statutInput.setCommentaire(annulationRequest.getCommentaire());
+        statutInput.setCodeMotif(codeMotifAnnulation);
         DemClient demClient = new DemClient(AppFactoryServletUtils.DEM_URL, AppFactoryServletUtils.DEMARCHES_USER,AppFactoryServletUtils.DEMARCHES_PWD);
         
         demClient.changerStatutDemande(demarcheId, Integer.parseInt(demandeId), statutInput);
@@ -97,6 +76,6 @@ public class AnnulationServlet extends HttpServlet {
         // TODO Gestion des erreurs ?
         response.setStatus(HttpStatus.SC_OK);
         
-        LOGGER.info("====================== Fin /annulation doPost()");
+        LOGGER.info("====================== Fin /annulation doDelete()");
     }
 }

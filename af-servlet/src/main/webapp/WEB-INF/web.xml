@@ -87,6 +87,15 @@
         <servlet-name>MotifsServlet</servlet-name>
         <url-pattern>/motifs</url-pattern>
     </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>AnnulationServlet</servlet-name>
+        <servlet-class>mc.gouv.af.servlet.AnnulationServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AnnulationServlet</servlet-name>
+        <url-pattern>/annulation/*</url-pattern>
+    </servlet-mapping>
 
     <filter>
         <filter-name>IPFilter</filter-name>

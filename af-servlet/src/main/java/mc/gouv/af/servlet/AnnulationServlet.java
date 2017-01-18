@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +30,8 @@ public class AnnulationServlet extends HttpServlet {
     private static final long serialVersionUID = -7898768899143027088L;
 
     private static Logger LOGGER = LoggerFactory.getLogger(AnnulationServlet.class);
+    
+    private static final String CODE_MOTIF_ANNULATION = "ANNULATION_PAR_USAGER";
     
     @Override
     public void doDelete(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
@@ -56,8 +59,6 @@ public class AnnulationServlet extends HttpServlet {
         // Récupération de l'ID de la démarche dans le Context-Param
         String demarcheId = getServletContext().getInitParameter(AppFactoryServletUtils.DEMARCHEID_KEY);
         
-        String codeMotifAnnulation = getServletContext().getInitParameter(AppFactoryServletUtils.CODE_MOTIF_ANNULATION_KEY);
-        
         Integer usagerId = usagerInfosDTO.getId();
         
         LOGGER.info("DemarcheID=" + demarcheId + ", UsagerID=" + usagerId + ", DemandeID=" + demandeId);
@@ -66,7 +67,15 @@ public class AnnulationServlet extends HttpServlet {
         StatutInputDTO statutInput = new StatutInputDTO();
         statutInput.setUsagerId(usagerId);
         statutInput.setStatut(DemandeStatutEnum.ANNULEE);
-        statutInput.setCodeMotif(codeMotifAnnulation);
+        
+        // Par défaut, on utilise le code motif d'annulation défini en static, sauf s'il est indiqué dans le web.xml
+        String localCodeMotifAnnulation = getServletContext().getInitParameter(AppFactoryServletUtils.CODE_MOTIF_ANNULATION_KEY);
+        if (!StringUtils.isBlank(localCodeMotifAnnulation)) {
+            statutInput.setCodeMotif(localCodeMotifAnnulation);
+        }
+        else {
+            statutInput.setCodeMotif(CODE_MOTIF_ANNULATION);
+        }
         DemClient demClient = new DemClient(AppFactoryServletUtils.DEM_URL, AppFactoryServletUtils.DEMARCHES_USER,AppFactoryServletUtils.DEMARCHES_PWD);
         
         demClient.changerStatutDemande(demarcheId, Integer.parseInt(demandeId), statutInput);

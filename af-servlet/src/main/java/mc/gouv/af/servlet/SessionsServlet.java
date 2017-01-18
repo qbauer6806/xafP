@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +45,13 @@ public class SessionsServlet extends HttpServlet {
 
             //https://docs.angularjs.org/api/ng/service/$http#cross-site-request-forgery-xsrf-protection
             //Ajout du cookie XSRF-TOKEN
+            
+            String xsrfValue = (String) session.getAttribute(AppFactoryServletUtils.XSRF_SESSION_ATTRIBUTE);
+            if(StringUtils.isBlank(xsrfValue)){
+                LOGGER.info("Aucun cookie xsrf trouvé en session");
+                response.setStatus(HttpStatus.SC_NOT_FOUND);
+                return;
+            }
             Cookie xsrfCookie = new Cookie(AppFactoryServletUtils.XSRF_COOKIE,
                     session.getAttribute(AppFactoryServletUtils.XSRF_SESSION_ATTRIBUTE).toString());
             response.addCookie(xsrfCookie);

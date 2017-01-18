@@ -248,11 +248,11 @@ public class AfBackUtils {
     public UsagerBean getUsagerFromID(Integer usagerId) {
         
         if (!isUsagerCourrier(usagerId)) {
-            LOGGER.debug("getUsagerEmailFromID() : Appel au référentiel Usagers...");
+            LOGGER.debug("getUsagerFromID(" + usagerId + ") : Appel au référentiel Usagers...");
             return getReferentielUsagersClient().getUsager(usagerId);
         }
         else {
-            LOGGER.debug("getUsagerFromID(); : Appel à DEM car usager courrier...");
+            LOGGER.debug("getUsagerFromID(" + usagerId + ") : Appel à DEM car usager courrier...");
             UsagerCourrierDTO uc = getUsagerCourrierFromID(usagerId);
             UsagerBean ub = new UsagerBean();
             ub.setAdresse1(uc.getAdresse1());

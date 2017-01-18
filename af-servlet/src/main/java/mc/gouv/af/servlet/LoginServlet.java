@@ -79,12 +79,8 @@ public class LoginServlet extends HttpServlet {
                         // Stockage de cet objet d'infos d'usager dans la session HTTP
                         HttpSession session = request.getSession();
                         session.setAttribute("login", uinfos);
-
                         //https://docs.angularjs.org/api/ng/service/$http#cross-site-request-forgery-xsrf-protection
-
-                        String xsrfToken = session.getId() + Calendar.getInstance().getTime();
-                        String xsrfTokenHash = DigestUtils.sha256Hex(xsrfToken);
-                        session.setAttribute(AppFactoryServletUtils.XSRF_SESSION_ATTRIBUTE, xsrfTokenHash);
+                        session.setAttribute(AppFactoryServletUtils.XSRF_SESSION_ATTRIBUTE, createXsrfToken(session));
                     }
                 }
             } catch (Exception e) {
@@ -138,11 +134,18 @@ public class LoginServlet extends HttpServlet {
                 // Stockage de cet objet d'infos d'usager dans la session HTTP
                 HttpSession session = request.getSession();
                 session.setAttribute("login", uinfos);
+                session.setAttribute(AppFactoryServletUtils.XSRF_SESSION_ATTRIBUTE, createXsrfToken(session));
             }
         }
 
         LOGGER.info("====================== Fin /login doPost()");
 
+    }
+
+    private String createXsrfToken(HttpSession session) {
+        String xsrfToken = session.getId() + Calendar.getInstance().getTime();
+        String xsrfTokenHash = DigestUtils.sha256Hex(xsrfToken);
+        return xsrfTokenHash;
     }
 
     @Override

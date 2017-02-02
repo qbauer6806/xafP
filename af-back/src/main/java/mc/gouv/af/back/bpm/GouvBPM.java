@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import mc.gouv.af.back.bpm.model.GouvBPMGroup;
+import mc.gouv.af.back.bpm.model.GouvBPMStatutAction;
 import mc.gouv.af.back.bpm.model.GouvBPMTask;
 import mc.gouv.af.back.bpm.model.GouvBPMUser;
 import mc.gouv.af.back.util.CommentaireInterneDTO;
@@ -139,5 +140,20 @@ public interface GouvBPM {
      * @param commentaire
      */
     public void putCommentaireInterne(Integer demandeId, CommentaireInterneDTO commentaire);
+
+    /**
+     * Permet de compléter une tâche en lui donnant les données du formulaire qu'elle requiert
+     * @param task
+     * @param properties
+     */
+    public void submitTaskFormData(GouvBPMTask task, Map<String, String> properties);
+
+    /**
+     * Permet d'obtenir la liste disponible d'associations action / statut cible, depuis le BPM, pour une tâche
+     * 
+     * @param task
+     * @return
+     */
+    public List<GouvBPMStatutAction> getTaskStatutActions(GouvBPMTask task);
     
 }

@@ -2,6 +2,7 @@ package mc.gouv.af.back.bpm.activiti;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.delegate.JavaDelegate;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,12 +54,13 @@ public class GouvBPMDemandeInfoComplService implements JavaDelegate {
         DemandeComplementsQuestionDTO questionDto = new DemandeComplementsQuestionDTO();
         questionDto.setAgentId(AfBackUtils.getAuthenticatedAgentId());
         questionDto.setCodeMotif(codeMotif);
-        questionDto.setTexte(commentaireUsager);
-
-//        // Supprimer le codeMotif et le commentaireUsager du process BPM car on ne s'en sert plus
-//        // (ne pas les reproposer à l'utilisateur)
-//        execution.removeVariable(GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name());
-//        execution.removeVariable(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name());
+        if (!StringUtils.isBlank(commentaireUsager)) {
+            questionDto.setTexte(commentaireUsager);
+        }
+        else {
+            // Texte vide si commentaireUsager null
+            questionDto.setTexte("");
+        }
 
         LOGGER.info("Appel à DEM createDemandeComplements() (" + DEM_URL + ")...");
         demClient.createDemandeComplements(DEMARCHE_ID, demandeId, questionDto);

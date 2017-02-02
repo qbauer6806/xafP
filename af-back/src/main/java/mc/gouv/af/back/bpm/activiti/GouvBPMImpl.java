@@ -6,11 +6,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.activiti.engine.ActivitiObjectNotFoundException;
+import org.activiti.engine.FormService;
 import org.activiti.engine.IdentityService;
 import org.activiti.engine.ProcessEngine;
 import org.activiti.engine.ProcessEngineConfiguration;
 import org.activiti.engine.RuntimeService;
 import org.activiti.engine.TaskService;
+import org.activiti.engine.form.FormProperty;
 import org.activiti.engine.identity.Group;
 import org.activiti.engine.identity.User;
 import org.activiti.engine.impl.ProcessEngineImpl;
@@ -34,9 +36,11 @@ import mc.gouv.af.back.bpm.GouvBPM;
 import mc.gouv.af.back.bpm.GouvBPMException;
 import mc.gouv.af.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.af.back.bpm.model.GouvBPMGroup;
+import mc.gouv.af.back.bpm.model.GouvBPMStatutAction;
 import mc.gouv.af.back.bpm.model.GouvBPMTask;
 import mc.gouv.af.back.bpm.model.GouvBPMUser;
 import mc.gouv.af.back.util.CommentaireInterneDTO;
+import mc.gouv.dem.apishared.model.DemandeStatutEnum;
 
 /**
  * Composant exposant le BPM interne d'AppFactory
@@ -63,6 +67,9 @@ public class GouvBPMImpl implements GouvBPM {
     
     @Autowired
     private ProcessEngine processEngine;
+    
+    @Autowired
+    private FormService formService;
     
     @Override
     public void startProcessInstance(String processDefinitionKey, GouvBPMUser user, Integer demandeId, String codeAppli, Map<String, Object> businessVariables) {
@@ -345,5 +352,36 @@ public class GouvBPMImpl implements GouvBPM {
         else {
             LOGGER.error("ProcessInstance null !");
         }
+    }
+    
+    @Override
+    public void submitTaskFormData(GouvBPMTask task, Map<String, String> properties) {
+        // Pour éviter les NPE dans Activiti et éviter d'avoir à déclarer de nouveaux HashMaps
+        // si on ne veut rien transmettre dans le formulaire
+        if (properties == null) {
+            properties = new HashMap<String, String>();
+        }
+        formService.submitTaskFormData(task.getId(), properties);
+    }
+    
+    @SuppressWarnings("unchecked")
+    @Override
+    public List<GouvBPMStatutAction> getTaskStatutActions(GouvBPMTask task) {
+        
+        List<GouvBPMStatutAction> statutActions = new ArrayList<GouvBPMStatutAction>();
+        List<FormProperty> formProps = formService.getTaskFormData(task.getId()).getFormProperties();
+        
+        // Isoler le FormProperty correspondant à MC_TARGETSTATE
+        for (FormProperty formProp : formProps) {
+            if (formProp.getId().equals(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE.name())) {
+                Map<String, String> map = (Map<String, String>)formProp.getType().getInformation("values");
+                // Lister les valeurs de l'enum et créer les objets faisant l'association action / statut cible
+                for (String key : map.keySet()) {
+                    statutActions.add(new GouvBPMStatutAction(DemandeStatutEnum.valueOf(key), map.get(key)));
+                }
+            }
+        }
+        
+        return statutActions;
     }
 }

@@ -3,6 +3,12 @@ package mc.gouv.af.back.util;
 import java.io.Serializable;
 import java.util.Date;
 
+/**
+ * Classe représentant un commentaire interne entre intervenants du back-office
+ * 
+ * @author qdeme
+ *
+ */
 public class CommentaireInterneDTO implements Serializable {
 
     private static final long serialVersionUID = -3630330943792014082L;

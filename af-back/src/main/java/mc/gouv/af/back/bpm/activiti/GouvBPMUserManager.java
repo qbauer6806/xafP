@@ -20,6 +20,7 @@ import mc.gouv.af.back.util.LogonProxy;
 import mc.gouv.logon.apiclient.RestException;
 
 /**
+ * 
  * Provider d'utilisateurs custom du gouvernement pour Activiti
  * 
  * @author qdeme

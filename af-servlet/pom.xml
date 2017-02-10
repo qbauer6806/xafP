@@ -141,6 +141,11 @@
             <artifactId>mail-apiclient</artifactId>
             <version>0.0.3</version>
         </dependency>
+        <dependency>
+            <groupId>mc.gouv.af</groupId>
+            <artifactId>af-apiclient</artifactId>
+            <version>0.0.13-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <scm>

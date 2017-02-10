@@ -150,10 +150,16 @@ public interface GouvBPM {
 
     /**
      * Permet d'obtenir la liste disponible d'associations action / statut cible, depuis le BPM, pour une tâche
-     * 
      * @param task
      * @return
      */
     public List<GouvBPMStatutAction> getTaskStatutActions(GouvBPMTask task);
+
+    /**
+     * Permet de supprimer une variable du process
+     * @param demandeId
+     * @param businessVariable
+     */
+    public void removeProcessBusinessVariables(Integer demandeId, String businessVariable);
     
 }

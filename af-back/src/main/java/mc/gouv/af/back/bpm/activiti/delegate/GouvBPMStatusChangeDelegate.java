@@ -1,4 +1,4 @@
-package mc.gouv.af.back.bpm.activiti;
+package mc.gouv.af.back.bpm.activiti.delegate;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.delegate.JavaDelegate;
@@ -15,16 +15,17 @@ import mc.gouv.dem.apishared.model.DemandeStatutEnum;
 import mc.gouv.dem.apishared.model.StatutInputDTO;
 
 /**
+ * 
  * Classe service appelée par le process Activiti pour changer le statut d'une demande.
  * 
  * @author qdeme
  *
  */
-public class GouvBPMStatusChangeService implements JavaDelegate {
+public class GouvBPMStatusChangeDelegate implements JavaDelegate {
 
     // voir pour l'autowiring dans les javaDelegate
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMStatusChangeService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMStatusChangeDelegate.class);
 
     private Expression targetState;
 
@@ -54,8 +55,8 @@ public class GouvBPMStatusChangeService implements JavaDelegate {
 
         String agentId = (String)execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_AGENT.name());
         String usagerId = (String)execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_USAGER.name());
-        execution.removeVariable(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_AGENT.name());
-        execution.removeVariable(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_USAGER.name());
+//        execution.removeVariable(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_AGENT.name());
+//        execution.removeVariable(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_USAGER.name());
         
         // Définition de la personne à l'origine du changement de statut : soit on l'a indiqué à ce JavaDelegate
         // via des variables process (que ce soit un agent ou un usager), soit on n'a rien indiqué et on prend
@@ -81,8 +82,8 @@ public class GouvBPMStatusChangeService implements JavaDelegate {
         // alors y'a un problème
         // Supprimer le codeMotif et le commentaireUsager du process BPM car on ne s'en sert plus
         // (ne pas les reproposer à l'utilisateur)
-        execution.removeVariable(GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name());
-        execution.removeVariable(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name());
+//        execution.removeVariable(GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name());
+//        execution.removeVariable(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name());
 
         LOGGER.info("Appel à DEM changerStatutDemande() (" + DEM_URL + ")...");
         demClient.changerStatutDemande(DEMARCHE_ID, demandeId, statutInput);

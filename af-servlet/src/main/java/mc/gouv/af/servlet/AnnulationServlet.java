@@ -7,16 +7,13 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import mc.gouv.af.apiclient.AfApiClient;
 import mc.gouv.af.servlet.dto.UsagerInfosDTO;
 import mc.gouv.af.servlet.util.AppFactoryServletUtils;
-import mc.gouv.dem.apiclient.DemClient;
-import mc.gouv.dem.apishared.model.DemandeStatutEnum;
-import mc.gouv.dem.apishared.model.StatutInputDTO;
 
 /**
  * Servlet mettant à disposition le service /annulation avec la méthode POST, permettant
@@ -30,8 +27,6 @@ public class AnnulationServlet extends HttpServlet {
     private static final long serialVersionUID = -7898768899143027088L;
 
     private static Logger LOGGER = LoggerFactory.getLogger(AnnulationServlet.class);
-    
-    private static final String CODE_MOTIF_ANNULATION = "ANNULATION_PAR_USAGER";
     
     @Override
     public void doDelete(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
@@ -63,22 +58,10 @@ public class AnnulationServlet extends HttpServlet {
         
         LOGGER.info("DemarcheID=" + demarcheId + ", UsagerID=" + usagerId + ", DemandeID=" + demandeId);
         
-        LOGGER.info("Appel à DEM...");
-        StatutInputDTO statutInput = new StatutInputDTO();
-        statutInput.setUsagerId(usagerId);
-        statutInput.setStatut(DemandeStatutEnum.ANNULEE);
+        LOGGER.info("Appel à la démarche...");
         
-        // Par défaut, on utilise le code motif d'annulation défini en static, sauf s'il est indiqué dans le web.xml
-        String localCodeMotifAnnulation = getServletContext().getInitParameter(AppFactoryServletUtils.CODE_MOTIF_ANNULATION_KEY);
-        if (!StringUtils.isBlank(localCodeMotifAnnulation)) {
-            statutInput.setCodeMotif(localCodeMotifAnnulation);
-        }
-        else {
-            statutInput.setCodeMotif(CODE_MOTIF_ANNULATION);
-        }
-        DemClient demClient = new DemClient(AppFactoryServletUtils.DEM_URL, AppFactoryServletUtils.DEMARCHES_USER,AppFactoryServletUtils.DEMARCHES_PWD);
-        
-        demClient.changerStatutDemande(demarcheId, Integer.parseInt(demandeId), statutInput);
+        AfApiClient afApiClient = new AfApiClient(AppFactoryServletUtils.HAB_URL, AppFactoryServletUtils.HAB_USER, AppFactoryServletUtils.HAB_PWD);
+        afApiClient.annulerDemande(Integer.parseInt(demandeId), usagerId);
         
         LOGGER.info("Retour au client...");
         

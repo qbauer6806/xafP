@@ -1,4 +1,4 @@
-package mc.gouv.af.back.bpm.activiti;
+package mc.gouv.af.back.bpm.activiti.delegate;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.delegate.JavaDelegate;
@@ -14,17 +14,18 @@ import mc.gouv.dem.apiclient.DemClient;
 import mc.gouv.dem.apishared.model.DemandeComplementsQuestionDTO;
 
 /**
+ * 
  * Classe service appelée par le process Activiti pour créer une demande d'informations
  * complémentaires.
  * 
  * @author qdeme
  *
  */
-public class GouvBPMDemandeInfoComplService implements JavaDelegate {
+public class GouvBPMDemandeInfoComplDelegate implements JavaDelegate {
 
     // voir pour l'autowiring dans les javaDelegate
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMDemandeInfoComplService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMDemandeInfoComplDelegate.class);
 
     @Override
     public void execute(DelegateExecution execution) throws Exception {

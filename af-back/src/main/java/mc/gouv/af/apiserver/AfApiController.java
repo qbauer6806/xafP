@@ -2,10 +2,35 @@ package mc.gouv.af.apiserver;
 
 import java.util.List;
 
+import mc.gouv.dem.apishared.model.DemandeComplementsDTO;
+import mc.gouv.dem.apishared.model.DemandeComplementsReponseDTO;
 import mc.gouv.dem.apishared.model.DemandeDTO;
+import mc.gouv.dem.apishared.model.DemandeInputDTO;
 
+/**
+ * 
+ * Interface spécifiant les méthodes devant être implémentées en tant que Web Services
+ * dans les démarches BACK.
+ * 
+ * @author qdeme
+ * @author fgaujous
+ *
+ */
 public interface AfApiController {
 
-    public List<DemandeDTO> getDemandes();
+    public void annulerDemande(Integer demandeId, Integer usagerId);
+    
+    public DemandeDTO creerDemande(DemandeInputDTO demande, Integer usagerId);
+    
+    public DemandeComplementsDTO repondreDemandeComplements(Integer demandeId, Integer icId,
+            DemandeComplementsReponseDTO reponse);
+    
+    public DemandeDTO getDemande(Integer demandeId);
+
+    public List<DemandeDTO> getDemandes(Integer usagerId);
+    
+    public List<DemandeComplementsDTO> getDemandeComplements(Integer demandeId);
+    
+    public DemandeComplementsDTO getDemandeComplements(Integer demandeId, Integer icId);
     
 }

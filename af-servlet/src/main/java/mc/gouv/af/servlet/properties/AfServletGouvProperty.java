@@ -10,14 +10,17 @@ public enum AfServletGouvProperty implements GouvProperty {
     PAYS_URL("mc.gouv.appfactory.external.pays.url"),
     FILE_URL("mc.gouv.appfactory.filews.file.url"),
     MAIL_URL("mc.gouv.appfactory.mailws.mail.url"),
+    HAB_URL("mc.gouv.hab.frontserver.url"),
 
     /**
-     * SORTIR CES PROPERTIES PROPRE à HAB
+     * TODO SORTIR CES PROPERTIES PROPRE à HAB
      */
     FILE_USER("mc.gouv.hab.frontserver.file.user"),
     FILE_PWD("mc.gouv.hab.frontserver.file.pwd"),
     MAIL_USER("mc.gouv.hab.frontserver.mail.user"),
     MAIL_PWD("mc.gouv.hab.frontserver.mail.pwd"),
+    HAB_USER("mc.gouv.hab.frontserver.user"),
+    HAB_PWD("mc.gouv.hab.frontserver.pwd"),
     DEMARCHES_USER("mc.gouv.hab.frontserver.dem.user"),
     DEMARCHES_PWD("mc.gouv.hab.frontserver.dem.pwd"),
     GOUV_CONTACT_EMAIL("mc.gouv.hab.frontserver.mail.contact"),

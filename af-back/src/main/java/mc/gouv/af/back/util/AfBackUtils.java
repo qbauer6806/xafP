@@ -80,6 +80,8 @@ public class AfBackUtils {
     private String FRONT_URL = null;
 
     private static String APPFACTORYID = "appfactory";
+    
+    public static final String MAIL_METADATA_DEMANDEID = "MC_DEMANDEID";
 
     private final static String version = AfBackUtils.class.getPackage().getImplementationVersion();
 

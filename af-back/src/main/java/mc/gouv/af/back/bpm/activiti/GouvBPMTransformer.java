@@ -12,6 +12,7 @@ import mc.gouv.af.back.bpm.model.GouvBPMTask;
 import mc.gouv.af.back.bpm.model.GouvBPMUser;
 
 /**
+ * 
  * Transformer pour les classes métier du gouvernement vs. celles d'Activiti
  * 
  * @author qdeme

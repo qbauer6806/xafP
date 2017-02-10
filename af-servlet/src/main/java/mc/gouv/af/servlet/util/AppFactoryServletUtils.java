@@ -60,6 +60,8 @@ public class AppFactoryServletUtils {
     public static final String PAYS_URL = Static.getValue(AfServletGouvProperty.PAYS_URL.getCode());
 
     public static final String FILE_URL = Static.getValue(AfServletGouvProperty.FILE_URL.getCode());
+    
+    public static final String HAB_URL = Static.getValue(AfServletGouvProperty.HAB_URL.getCode());
 
     public static final String MAIL_URL = Static.getValue(AfServletGouvProperty.MAIL_URL.getCode());
 
@@ -76,6 +78,10 @@ public class AppFactoryServletUtils {
     public static final String MAIL_USER = Static.getValue(AfServletGouvProperty.MAIL_USER.getCode());
 
     public static final String MAIL_PWD = Static.getValue(AfServletGouvProperty.MAIL_PWD.getCode());
+    
+    public static final String HAB_USER = Static.getValue(AfServletGouvProperty.HAB_USER.getCode());
+
+    public static final String HAB_PWD = Static.getValue(AfServletGouvProperty.HAB_PWD.getCode());
 
     public static final String DEMARCHES_USER = Static.getValue(AfServletGouvProperty.DEMARCHES_USER.getCode());
 

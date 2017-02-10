@@ -43,6 +43,7 @@ import mc.gouv.af.back.util.CommentaireInterneDTO;
 import mc.gouv.dem.apishared.model.DemandeStatutEnum;
 
 /**
+ * 
  * Composant exposant le BPM interne d'AppFactory
  * 
  * @author qdeme
@@ -116,6 +117,18 @@ public class GouvBPMImpl implements GouvBPM {
         ProcessInstance processInstance = getActiveProcessInstanceForDemandeId(demandeId);
         if (processInstance != null) {
             runtimeService.setVariables(processInstance.getId(), businessVariables);
+        }
+        else {
+            LOGGER.error("ProcessInstance null !");
+        }
+    }
+    
+    @Override
+    public void removeProcessBusinessVariables(Integer demandeId, String businessVariable) {
+        LOGGER.debug("removeProcessBusinessVariables(" + demandeId + ")");
+        ProcessInstance processInstance = getActiveProcessInstanceForDemandeId(demandeId);
+        if (processInstance != null) {
+            runtimeService.removeVariable(processInstance.getId(), businessVariable);
         }
         else {
             LOGGER.error("ProcessInstance null !");

@@ -27,6 +27,7 @@ import mc.gouv.logon.model.Role;
 import mc.gouv.logon.model.User;
 
 /**
+ * 
  * Provider de groupes custom du gouvernement pour Activiti
  * 
  * @author qdeme

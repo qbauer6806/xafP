@@ -4,6 +4,11 @@ import java.util.List;
 
 public class GouvPropertyNotFoundException extends Exception {
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 5998373316409301775L;
+
     public GouvPropertyNotFoundException(GouvProperty prop) {
         super(prop.getCode() + " inexistant dans les fichiers de properties");
     }

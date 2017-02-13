@@ -5,6 +5,8 @@ public enum AfGouvProperty implements GouvProperty {
     DEM_URL("mc.gouv.af.back.dem.url"),
     DEM_USER("mc.gouv.hab.backserver.dem.user"),
     DEM_PWD("mc.gouv.hab.backserver.dem.pwd"),
+    DEM_FRONTUSER("mc.gouv.hab.backserver.dem.frontserver.user"),
+    DEM_FRONTPWD("mc.gouv.hab.backserver.dem.frontserver.pwd"),
     DEMARCHE_ID("mc.gouv.hab.backserver.demarcheId"),
     PROCESS_DEFINITION_KEY("mc.gouv.hab.backserver.processDefinitionKey"),
     USAGERS_REST_URL("mc.gouv.demarches.external.usagers.url"),

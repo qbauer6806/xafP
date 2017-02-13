@@ -52,6 +52,10 @@ public class AfBackUtils {
     private String DEM_USER = null;
 
     private String DEM_PWD = null;
+    
+    private String DEM_FRONTUSER = null;
+    
+    private String DEM_FRONTPWD = null;
 
     private String DEMARCHE_ID = null;
 
@@ -112,6 +116,8 @@ public class AfBackUtils {
         DEM_URL = gouvPropertiesResolver.getValue(AfGouvProperty.DEM_URL);
         DEM_USER = gouvPropertiesResolver.getValue(AfGouvProperty.DEM_USER);
         DEM_PWD = gouvPropertiesResolver.getValue(AfGouvProperty.DEM_PWD);
+        DEM_FRONTUSER = gouvPropertiesResolver.getValue(AfGouvProperty.DEM_FRONTUSER);
+        DEM_FRONTPWD = gouvPropertiesResolver.getValue(AfGouvProperty.DEM_FRONTPWD);
         DEMARCHE_ID = gouvPropertiesResolver.getValue(AfGouvProperty.DEMARCHE_ID);
         PROCESS_DEFINITION_KEY = gouvPropertiesResolver.getValue(AfGouvProperty.PROCESS_DEFINITION_KEY);
         USAGERS_REST_URL = gouvPropertiesResolver.getValue(AfGouvProperty.USAGERS_REST_URL);
@@ -372,4 +378,11 @@ public class AfBackUtils {
         return usagerId > USAGERID_OFFSET;
     }
 
+    public String getDemFrontUser() {
+        return DEM_FRONTUSER;
+    }
+
+    public String getDemFrontPwd() {
+        return DEM_FRONTPWD;
+    }
 }

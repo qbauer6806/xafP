@@ -48,10 +48,10 @@ public class DemandesServlet extends HttpServlet {
     
     public HttpServletResponse doHttpMethod(HttpServletRequest request, HttpServletResponse response, HttpMethod httpMethod) throws UnsupportedOperationException, IOException {
         
-//        UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(request);
-//        if (usagerInfosDTO == null) {
-//            return AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED, "Utilisateur non autorisé");
-//        }
+        UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(request);
+        if (usagerInfosDTO == null) {
+            return AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED, "Utilisateur non autorisé");
+        }
         
         String pathInfo = request.getPathInfo();
         String demandeId = null;
@@ -77,8 +77,7 @@ public class DemandesServlet extends HttpServlet {
         }
         
         // Récupération de l'ID de l'usager
-//        Integer usagerId = usagerInfosDTO.getId();
-        Integer usagerId = 3071;
+        Integer usagerId = usagerInfosDTO.getId();
         
         // Récupération de l'ID de la démarche dans le Context-Param
         String demarcheId = getServletContext().getInitParameter(AppFactoryServletUtils.DEMARCHEID_KEY);

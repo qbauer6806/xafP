@@ -19,18 +19,18 @@ import mc.gouv.dem.apishared.model.DemandeInputDTO;
 public interface AfApiController {
 
     public void annulerDemande(Integer demandeId, Integer usagerId);
-    
+
     public DemandeDTO creerDemande(DemandeInputDTO demande, Integer usagerId);
-    
+
     public DemandeComplementsDTO repondreDemandeComplements(Integer demandeId, Integer icId,
             DemandeComplementsReponseDTO reponse);
-    
-    public DemandeDTO getDemande(Integer demandeId);
+
+    public DemandeDTO getDemande(Integer usagerId, Integer demandeId);
 
     public List<DemandeDTO> getDemandes(Integer usagerId);
-    
+
     public List<DemandeComplementsDTO> getDemandeComplements(Integer demandeId);
-    
+
     public DemandeComplementsDTO getDemandeComplements(Integer demandeId, Integer icId);
-    
+
 }

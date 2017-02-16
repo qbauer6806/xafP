@@ -28,13 +28,13 @@ import mc.gouv.dem.apishared.model.DemandeInputDTO;
 public class AfApiClient {
 
     private String serviceUrl;
-    
+
     private String user;
-    
+
     private String password;
-    
+
     private WebTarget target;
-    
+
     /**
      * Crée une instance du client
      * @param serviceUrl URL du WS à appeler
@@ -45,16 +45,14 @@ public class AfApiClient {
         this.serviceUrl = serviceUrl;
         this.user = user;
         this.password = password;
-        
+
         Client client = ClientBuilder.newClient().register(JacksonJsonProvider.class);
         target = client.target(serviceUrl);
     }
 
     public void annulerDemande(Integer demandeId, Integer usagerId) {
-        target.path("demandes/" + demandeId + "/annuler")
-                .queryParam("usagerId", usagerId).request(MediaType.APPLICATION_JSON)
-                .header("Authorization", getBasicAuthString())
-                .put(Entity.text(""));
+        target.path("demandes/" + demandeId + "/annuler").queryParam("usagerId", usagerId)
+                .request(MediaType.APPLICATION_JSON).header("Authorization", getBasicAuthString()).put(Entity.text(""));
     }
 
     public DemandeDTO creerDemande(DemandeInputDTO demande, Integer usagerId) {
@@ -69,33 +67,31 @@ public class AfApiClient {
                 .header("Authorization", getBasicAuthString())
                 .put(Entity.entity(reponse, MediaType.APPLICATION_JSON), DemandeComplementsDTO.class);
     }
-    
-    public DemandeDTO getDemande(Integer demandeId) {
-        return target.path("demandes/" + demandeId).request(MediaType.APPLICATION_JSON)
-                .header("Authorization", getBasicAuthString())
-                .get(DemandeDTO.class);
+
+    public DemandeDTO getDemande(Integer usagerId, Integer demandeId) {
+        return target.path("/usagers/" + usagerId + "/demandes/" + demandeId).request(MediaType.APPLICATION_JSON)
+                .header("Authorization", getBasicAuthString()).get(DemandeDTO.class);
     }
-    
+
     public List<DemandeDTO> getDemandes(Integer usagerId) {
         return target.path("demandes").queryParam("usagerId", usagerId).request(MediaType.APPLICATION_JSON)
-                .header("Authorization", getBasicAuthString())
-                .get(new GenericType<List<DemandeDTO>>(){});
+                .header("Authorization", getBasicAuthString()).get(new GenericType<List<DemandeDTO>>() {
+                });
     }
-    
+
     public DemandeComplementsDTO getDemandeComplements(Integer demandeId, Integer icId) {
         return target.path("demandes/" + demandeId + "/complements/" + icId).request(MediaType.APPLICATION_JSON)
-                .header("Authorization", getBasicAuthString())
-                .get(DemandeComplementsDTO.class);
+                .header("Authorization", getBasicAuthString()).get(DemandeComplementsDTO.class);
     }
-    
+
     public List<DemandeComplementsDTO> getDemandesComplements(Integer demandeId) {
         return target.path("demandes/" + demandeId + "/complements").request(MediaType.APPLICATION_JSON)
-                .header("Authorization", getBasicAuthString())
-                .get(new GenericType<List<DemandeComplementsDTO>>(){});
+                .header("Authorization", getBasicAuthString()).get(new GenericType<List<DemandeComplementsDTO>>() {
+                });
     }
-    
+
     private String getBasicAuthString() {
-        return "Basic " + new String (Base64.encodeBase64(new String(user + ":" + password).getBytes()));
+        return "Basic " + new String(Base64.encodeBase64(new String(user + ":" + password).getBytes()));
     }
 
     public String getServiceUrl() {
@@ -121,5 +117,5 @@ public class AfApiClient {
     public void setPassword(String password) {
         this.password = password;
     }
-    
+
 }

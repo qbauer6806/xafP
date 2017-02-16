@@ -38,21 +38,23 @@ public class DemandesServlet extends HttpServlet {
     private static final long serialVersionUID = -7898768899143027088L;
 
     private static Logger LOGGER = LoggerFactory.getLogger(DemandesServlet.class);
-    
+
     private enum HttpMethod {
         PUT,
         POST,
         GET,
         DELETE;
     }
-    
-    public HttpServletResponse doHttpMethod(HttpServletRequest request, HttpServletResponse response, HttpMethod httpMethod) throws UnsupportedOperationException, IOException {
-        
+
+    public HttpServletResponse doHttpMethod(HttpServletRequest request, HttpServletResponse response,
+            HttpMethod httpMethod) throws UnsupportedOperationException, IOException {
+
         UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(request);
         if (usagerInfosDTO == null) {
-            return AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED, "Utilisateur non autorisé");
+            return AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
+                    "Utilisateur non autorisé");
         }
-        
+
         String pathInfo = request.getPathInfo();
         String demandeId = null;
         boolean demandeInfosCompl = false;
@@ -68,25 +70,27 @@ public class DemandesServlet extends HttpServlet {
                     if (pathElems.length > 3) {
                         demandeInfosComplId = Integer.valueOf(pathElems[3]);
                     }
-                }
-                else {
+                } else {
                     // Opération interdite (exemple /statuts ou /affectations, auxquelles le FRONT ne doit pas avoir accès)
-                    return AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_FORBIDDEN, "Erreur: opération interdite");
+                    return AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_FORBIDDEN,
+                            "Erreur: opération interdite");
                 }
             }
         }
-        
+
         // Récupération de l'ID de l'usager
         Integer usagerId = usagerInfosDTO.getId();
-        
+
         // Récupération de l'ID de la démarche dans le Context-Param
         String demarcheId = getServletContext().getInitParameter(AppFactoryServletUtils.DEMARCHEID_KEY);
-        
-        LOGGER.info("DemarcheID=" + demarcheId + ", UsagerID=" + usagerId + ", DemandeID=" + demandeId + ", DemandeCompl?=" + demandeInfosCompl + ", DemandeComplID=" + demandeInfosComplId);
-        
-        AfApiClient afApiClient = new AfApiClient(AppFactoryServletUtils.HAB_URL, AppFactoryServletUtils.HAB_USER, AppFactoryServletUtils.HAB_PWD);
+
+        LOGGER.info("DemarcheID=" + demarcheId + ", UsagerID=" + usagerId + ", DemandeID=" + demandeId
+                + ", DemandeCompl?=" + demandeInfosCompl + ", DemandeComplID=" + demandeInfosComplId);
+
+        AfApiClient afApiClient = new AfApiClient(AppFactoryServletUtils.HAB_URL, AppFactoryServletUtils.HAB_USER,
+                AppFactoryServletUtils.HAB_PWD);
         ObjectMapper mapper = new ObjectMapper();
-        
+
         String repJson = null;
         if (HttpMethod.PUT.equals(httpMethod) || HttpMethod.POST.equals(httpMethod)) {
             // Récupération du JSON reçu en input et transmission au 2ème service en
@@ -102,87 +106,87 @@ public class DemandesServlet extends HttpServlet {
                 return AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_BAD_REQUEST,
                         "Erreur: JSON manquant");
             }
-            
+
             if (demandeInfosCompl) {
                 LOGGER.info("Appel à la démarche pour répondre à la demande d'informations complémentaires");
-                DemandeComplementsReponseDTO reponse = mapper.readValue(buffer.toString(), DemandeComplementsReponseDTO.class);
+                DemandeComplementsReponseDTO reponse = mapper.readValue(buffer.toString(),
+                        DemandeComplementsReponseDTO.class);
                 reponse.setAgentId(null);
                 reponse.setUsagerId(usagerId);
-                DemandeComplementsDTO demandeComplement = afApiClient.repondreDemandeComplements(Integer.parseInt(demandeId), demandeInfosComplId, reponse);
-                
+                DemandeComplementsDTO demandeComplement = afApiClient
+                        .repondreDemandeComplements(Integer.parseInt(demandeId), demandeInfosComplId, reponse);
+
                 response.setStatus(HttpStatus.SC_OK);
                 repJson = mapper.writeValueAsString(demandeComplement);
-            }
-            else {
+            } else {
                 LOGGER.info("Appel à la démarche pour créer la demande");
                 DemandeInputDTO demandeInput = mapper.readValue(buffer.toString(), DemandeInputDTO.class);
                 DemandeDTO demandeDto = afApiClient.creerDemande(demandeInput, usagerId);
-                
+
                 response.setStatus(HttpStatus.SC_CREATED);
                 repJson = mapper.writeValueAsString(demandeDto);
             }
-        }
-        else if (HttpMethod.GET.equals(httpMethod)) {
+        } else if (HttpMethod.GET.equals(httpMethod)) {
             if (!demandeInfosCompl) {
                 if (demandeId != null) {
                     LOGGER.info("Appel à la démarche pour récupérer la demande");
-                    DemandeDTO demandeDto = afApiClient.getDemande(Integer.parseInt(demandeId));
+                    DemandeDTO demandeDto = afApiClient.getDemande(usagerId, Integer.parseInt(demandeId));
                     response.setStatus(HttpStatus.SC_OK);
                     repJson = mapper.writeValueAsString(demandeDto);
-                }
-                else {
+                } else {
                     LOGGER.info("Appel à la démarche pour récupérer toutes les demandes");
                     List<DemandeDTO> demandeDtos = afApiClient.getDemandes(usagerId);
                     response.setStatus(HttpStatus.SC_OK);
                     repJson = mapper.writeValueAsString(demandeDtos);
                 }
-            }
-            else {
+            } else {
                 if (demandeInfosComplId != null) {
                     LOGGER.info("Appel à la démarche pour récupérer la demande d'informations complémentaires");
-                    DemandeComplementsDTO demandeComplementsDto = afApiClient.getDemandeComplements(Integer.parseInt(demandeId), demandeInfosComplId);
+                    DemandeComplementsDTO demandeComplementsDto = afApiClient
+                            .getDemandeComplements(Integer.parseInt(demandeId), demandeInfosComplId);
                     response.setStatus(HttpStatus.SC_OK);
                     repJson = mapper.writeValueAsString(demandeComplementsDto);
-                }
-                else {
-                    LOGGER.info("Appel à la démarche pour récupérer toutes les demandes d'informations complémentaires");
-                    List<DemandeComplementsDTO> demandeComplementsDtos = afApiClient.getDemandesComplements(Integer.parseInt(demandeId));
+                } else {
+                    LOGGER.info(
+                            "Appel à la démarche pour récupérer toutes les demandes d'informations complémentaires");
+                    List<DemandeComplementsDTO> demandeComplementsDtos = afApiClient
+                            .getDemandesComplements(Integer.parseInt(demandeId));
                     response.setStatus(HttpStatus.SC_OK);
                     repJson = mapper.writeValueAsString(demandeComplementsDtos);
                 }
             }
         }
-        
+
         response.setContentType("application/json");
         IOUtils.copy(new ByteArrayInputStream(repJson.getBytes()), response.getOutputStream());
-        
+
         return response;
     }
-    
+
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         LOGGER.info("====================== /demandes doPost()");
-        
+
         response = doHttpMethod(request, response, HttpMethod.POST);
-        
+
         LOGGER.info("====================== Fin /demandes doPost()");
     }
-    
+
     @Override
     public void doPut(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         LOGGER.info("====================== /demandes doPut()");
-        
+
         response = doHttpMethod(request, response, HttpMethod.PUT);
-        
+
         LOGGER.info("====================== Fin /demandes doPut()");
     }
-    
+
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         LOGGER.info("====================== /demandes doGet()");
-        
+
         response = doHttpMethod(request, response, HttpMethod.GET);
-        
+
         LOGGER.info("====================== Fin /demandes doGet()");
     }
 }

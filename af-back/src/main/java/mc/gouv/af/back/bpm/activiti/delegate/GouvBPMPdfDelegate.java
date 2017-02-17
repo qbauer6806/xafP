@@ -12,6 +12,13 @@ import mc.gouv.af.back.util.AfBackUtils;
 import mc.gouv.dem.apiclient.DemClient;
 import mc.gouv.dem.apishared.model.DemandeDTO;
 
+/**
+ * 
+ * Classe service appelée par le process Activiti pour générer un courrier PDF.
+ * 
+ * @author qdeme
+ *
+ */
 @Component
 public class GouvBPMPdfDelegate implements JavaDelegate {
 

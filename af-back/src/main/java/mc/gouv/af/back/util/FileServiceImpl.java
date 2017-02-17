@@ -1,0 +1,107 @@
+package mc.gouv.af.back.util;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.Part;
+
+import org.apache.http.client.ClientProtocolException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.stereotype.Component;
+
+import mc.gouv.dem.apishared.model.DemandeDTO;
+import mc.gouv.file.apiclient.FileClient;
+
+/**
+ * 
+ * Service d'appel à FILE pour les démarches
+ * 
+ * @author qdeme
+ *
+ */
+@Component
+public class FileServiceImpl implements FileService {
+    
+    private static final Logger LOGGER = LoggerFactory.getLogger(FileServiceImpl.class);
+    
+    @Autowired
+    private AfBackUtils afBackUtils;
+    
+    private FileClient fileClient = null;
+
+    @Override
+    public void getFile(String filename, HttpServletResponse response) throws ClientProtocolException, IOException {
+        
+        LOGGER.info("FileService.getFile(" + filename + ")");
+
+        String appfactoryId = AfBackUtils.getAppFactoryId();
+        String demarcheId = afBackUtils.getDemarcheId();
+        LOGGER.info("FileClient.getFile(" + appfactoryId + "," + demarcheId + "," + filename + ")");
+        getFileClient().getFile(appfactoryId, demarcheId, filename, response);
+        
+        // Reconstitution des headers pour les métadonnées
+        HttpHeaders headers = new HttpHeaders();
+        for (String headerName : response.getHeaderNames()) {
+            headers.add(headerName, response.getHeader(headerName));
+        }
+        
+    }
+
+    @Override
+    public String saveFile(DemandeDTO demande, String filename, String contentType, InputStream inputStream,
+            OutputStream outputStream) throws Exception {
+
+        LOGGER.info("FileService.saveFile(" + demande.getPkDemandes() + "," + filename + "," + contentType + ")");
+        
+        // Définition de la meta pour le demande ID
+        Map<String, String> customHeaders = new HashMap<String, String>();
+        customHeaders.put(AfBackUtils.FILE_METADATA_DEMANDEID, demande.getPkDemandes().toString());
+        
+        filename = demande.getFkAccess() + "/" + AfBackUtils.generateUUID() + "/" + filename;
+        
+        LOGGER.info("Filename à donner à FILE : " + filename);
+
+        String appfactoryId = AfBackUtils.getAppFactoryId();
+        String demarcheId = afBackUtils.getDemarcheId();
+        LOGGER.info("FileClient.saveFile(" + appfactoryId + "," + demarcheId + "," + filename + ")");
+        return getFileClient().saveFile(appfactoryId, demarcheId, inputStream, filename,
+                contentType, customHeaders, outputStream);
+        
+    }
+
+    @Override
+    public String saveFile(DemandeDTO demande, Part part, HttpServletResponse response) throws IOException, ServletException {
+        
+        LOGGER.info("FileService.saveFile(" + demande.getPkDemandes() + "," + part.getSubmittedFileName() + ")");
+        
+        String filename = demande.getFkAccess() + "/" + AfBackUtils.generateUUID() + "/" + URLEncoder.encode(part.getSubmittedFileName(), "UTF-8");
+        
+        LOGGER.info("Filename à donner à FILE : " + filename);
+        
+        Map<String, String> customHeaders = new HashMap<String, String>();
+        customHeaders.put(AfBackUtils.FILE_METADATA_DEMANDEID, demande.getPkDemandes().toString());
+        
+        String appfactoryId = AfBackUtils.getAppFactoryId();
+        String demarcheId = afBackUtils.getDemarcheId();
+        LOGGER.info("FileClient.saveFile(" + appfactoryId + "," + demarcheId + "," + filename + ")");
+        return getFileClient().saveFile(appfactoryId, demarcheId, part, filename, customHeaders, response);
+        
+    }
+    
+    private FileClient getFileClient() {
+        if (fileClient == null) {
+            fileClient = new FileClient(afBackUtils.getFileUrl(), afBackUtils.getFileUser(), afBackUtils.getFilePwd());
+        }
+        return fileClient;
+    }
+
+}

@@ -219,22 +219,23 @@ public class AppFactoryServletUtils {
             return null;
         }
 
-        //Check le csrf token
+        //Check le csrf token seulement si POST
+        if (request.getMethod().equalsIgnoreCase("POST")) {
+            String xsrfToken = request.getHeader(XSRF_HEADER);
 
-        String xsrfToken = request.getHeader(XSRF_HEADER);
+            if (StringUtils.isBlank(xsrfToken)) {
+                return null;
+            }
 
-        if (StringUtils.isBlank(xsrfToken)) {
-            return null;
-        }
+            if (session.getAttribute(XSRF_SESSION_ATTRIBUTE) == null) {
+                return null;
+            }
 
-        if (session.getAttribute(XSRF_SESSION_ATTRIBUTE) == null) {
-            return null;
-        }
+            if (!StringUtils.equals(xsrfToken, session.getAttribute(XSRF_SESSION_ATTRIBUTE).toString())) {
+                LOGGER.warn("Mauvais XSRF TOKEN : " + xsrfToken);
+                return null;
 
-        if (!StringUtils.equals(xsrfToken, session.getAttribute(XSRF_SESSION_ATTRIBUTE).toString())) {
-            LOGGER.warn("Mauvais XSRF TOKEN : " + xsrfToken);
-            return null;
-
+            }
         }
 
         return (UsagerInfosDTO) session.getAttribute("login");

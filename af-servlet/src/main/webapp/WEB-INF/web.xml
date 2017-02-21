@@ -96,6 +96,15 @@
         <servlet-name>AnnulationServlet</servlet-name>
         <url-pattern>/annulation/*</url-pattern>
     </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>RedirectToBackOfficeServlet</servlet-name>
+        <servlet-class>mc.gouv.af.servlet.RedirectToBackOfficeServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>RedirectToBackOfficeServlet</servlet-name>
+        <url-pattern>/redirect-to-backoffice</url-pattern>
+    </servlet-mapping>
 
     <filter>
         <filter-name>IPFilter</filter-name>
@@ -105,7 +114,7 @@
         <filter-name>IPFilter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
-
+    
     <context-param>
         <param-name>DemarcheID</param-name>
         <param-value>HAB</param-value>

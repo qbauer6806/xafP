@@ -100,6 +100,8 @@ public class AppFactoryServletUtils {
     public static final String XSRF_HEADER = "X-XSRF-TOKEN";
     public static final String XSRF_SESSION_ATTRIBUTE = "XSRF-TOKEN";
 
+    public static final String BACKOFFICE_URL = Static.getValue(AfServletGouvProperty.BACKOFFICE_URL.getCode());
+
     public enum ServiceTarget {
         DEMARCHES,
         FILE,

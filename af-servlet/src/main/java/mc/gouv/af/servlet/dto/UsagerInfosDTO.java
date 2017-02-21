@@ -63,6 +63,8 @@ public class UsagerInfosDTO implements Serializable {
 
     protected String paysCode;
 
+    protected boolean isUsagerCourrier = false;
+
     public String getTitreLabel() {
         switch (titre) {
             case GENDER_MR_INDEX:
@@ -235,6 +237,14 @@ public class UsagerInfosDTO implements Serializable {
 
     public void setPaysCode(String paysCode) {
         this.paysCode = paysCode;
+    }
+
+    public boolean isUsagerCourrier() {
+        return isUsagerCourrier;
+    }
+
+    public void setUsagerCourrier(boolean isUsagerCourrier) {
+        this.isUsagerCourrier = isUsagerCourrier;
     }
 
 }

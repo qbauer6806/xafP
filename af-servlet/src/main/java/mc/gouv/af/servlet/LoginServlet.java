@@ -130,7 +130,7 @@ public class LoginServlet extends HttpServlet {
                 uinfos.setRaisonSociale(usagerCourrier.getRaisonSociale());
                 uinfos.setTitre(usagerCourrier.getTitre().shortValue());
                 uinfos.setVille(usagerCourrier.getVille());
-
+                uinfos.setUsagerCourrier(true);
                 // Stockage de cet objet d'infos d'usager dans la session HTTP
                 HttpSession session = request.getSession();
                 session.setAttribute("login", uinfos);

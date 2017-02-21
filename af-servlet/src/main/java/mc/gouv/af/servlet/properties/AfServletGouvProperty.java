@@ -11,7 +11,7 @@ public enum AfServletGouvProperty implements GouvProperty {
     FILE_URL("mc.gouv.appfactory.filews.file.url"),
     MAIL_URL("mc.gouv.appfactory.mailws.mail.url"),
     HAB_URL("mc.gouv.appfactory.hab.url"),
-
+    BACKOFFICE_URL("mc.gouv.appfactory.hab.backoffice.url"),
     /**
      * TODO SORTIR CES PROPERTIES PROPRE à HAB
      */

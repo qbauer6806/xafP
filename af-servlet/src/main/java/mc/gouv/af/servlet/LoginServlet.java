@@ -123,7 +123,7 @@ public class LoginServlet extends HttpServlet {
                 uinfos.setEmail(usagerCourrier.getEmail());
                 // uinfos.setEtat(), que mettre ?
                 uinfos.setId(usagerCourrier.getPkUsagersCourrier());
-                uinfos.setLogin(usagerCourrier.getLogin());
+                uinfos.setLogin(usagerCourrier.getPrenom() + " " + usagerCourrier.getNom());
                 uinfos.setNom(usagerCourrier.getNom());
                 uinfos.setPaysCode(usagerCourrier.getPays());
                 uinfos.setPrenom(usagerCourrier.getPrenom());

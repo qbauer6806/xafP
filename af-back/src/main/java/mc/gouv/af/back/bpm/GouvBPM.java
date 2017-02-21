@@ -25,41 +25,42 @@ public interface GouvBPM {
      * @param codeAppli Code de l'application concernée
      * @param businessVariables Variables métier destinées à être stockées dans l'instance
      */
-    public void startProcessInstance(String processDefinitionKey, GouvBPMUser user, Integer demandeId, String codeAppli, Map<String, Object> businessVariables);
-    
+    public void startProcessInstance(String processDefinitionKey, GouvBPMUser user, Integer demandeId, String codeAppli,
+            Map<String, Object> businessVariables);
+
     /**
      * Permet de récupérer les variables métier liées à une instance de process
      * @param demandeId Identifiant de la demande correspondant à l'instance de process
      * @return Les variables métier demandées
      */
     public Map<String, Object> getProcessBusinessVariables(Integer demandeId);
-    
+
     /**
      * Permet de définir les variables métier liées à une instance de process
      * @param businessVariables
      */
     public void setProcessBusinessVariables(Integer demandeId, Map<String, Object> businessVariables);
-    
+
     /**
      * Permet à un utilisateur de s'affecter une tâche
      * @param task Tâche concernée
      * @param user Utilisateur à assigner
      */
     public void claimTask(GouvBPMTask task, GouvBPMUser user);
-    
+
     /**
      * Permet de finaliser une tâche
      * @param taskId Identifiant de la tâche concernée
      */
     public void completeTask(GouvBPMTask task);
-    
+
     /**
      * Permet de lister les tâches actives sur lesquelles un utilisateur est assigné
      * @param user Utilisateur
      * @return
      */
     public List<GouvBPMTask> getTasksAssignedToUser(GouvBPMUser user);
-    
+
     /**
      * Permet de lister les tâches actives concernant une demande
      * @param demandeId Identifiant de la demande
@@ -74,7 +75,7 @@ public interface GouvBPM {
      * @return
      */
     public List<GouvBPMTask> getTasksWhereUserIsCandidate(GouvBPMUser user, String codeAppli);
-    
+
     /**
      * Permet de lister les tâches d'une demande pour lesquelles un utilisateur est désigné comme candidat
      * @param user Utilisateur concerné
@@ -82,8 +83,9 @@ public interface GouvBPM {
      * @param demandeId Demande concernée
      * @return
      */
-    public List<GouvBPMTask> getTasksForDemandeWhereUserIsCandidate(GouvBPMUser user, String codeAppli, Integer demandeId);
-    
+    public List<GouvBPMTask> getTasksForDemandeWhereUserIsCandidate(GouvBPMUser user, String codeAppli,
+            Integer demandeId);
+
     /**
      * Permet de lister les tâches pour lesquelles un groupe est désigné comme candidat
      * @param group Groupe concerné
@@ -91,14 +93,14 @@ public interface GouvBPM {
      * @return
      */
     public List<GouvBPMTask> getTasksWhereGroupIsCandidate(GouvBPMGroup group, String codeAppli);
-    
+
     /**
      * Permet de savoir si l'instance de process liée à une demande est vivante ou terminée
      * @param demandeId
      * @return
      */
     public boolean isProcessInstanceAlive(Integer demandeId);
-    
+
     /**
      * Permet de sauter d'une tâche à une autre
      * @param demandeId
@@ -115,7 +117,7 @@ public interface GouvBPM {
      * @return
      */
     public List<Integer> getDemandesIdsByCodeAppliAndTacheCourante(String codeAppli, GouvBPMTask task);
-    
+
     /**
      * Permet de lister les DemandeID d'une demarche (codeAppli) qui sont dans une certaine tâche courante et qu'un certain
      * utilisateur pourrait compléter.
@@ -125,15 +127,16 @@ public interface GouvBPM {
      * @param user
      * @return
      */
-    public List<Integer> getDemandesIdsByCodeAppliAndTacheCouranteAndCandidateUser(String codeAppli, GouvBPMTask task, GouvBPMUser user);
-    
+    public List<Integer> getDemandesIdsByCodeAppliAndTacheCouranteAndCandidateUser(String codeAppli, GouvBPMTask task,
+            GouvBPMUser user);
+
     /**
      * Permet de récupérer les commentaires internes liés à une demande
      * @param demandeId
      * @return
      */
     public List<CommentaireInterneDTO> getCommentairesInternes(Integer demandeId);
-    
+
     /**
      * Permet d'ajouter un commentaire interne à une demande
      * @param demandeId
@@ -161,5 +164,14 @@ public interface GouvBPM {
      * @param businessVariable
      */
     public void removeProcessBusinessVariables(Integer demandeId, String businessVariable);
-    
+
+    /**
+     * Annulation d'une demande
+     * @param demandeId
+     * @param user
+     * @param commentaire 
+     * @param codeMotif 
+     */
+    public void annulerDemande(Integer demandeId, GouvBPMUser user, String codeMotif, String commentaire);
+
 }

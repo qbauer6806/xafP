@@ -48,12 +48,6 @@ public class FileServiceImpl implements FileService {
         LOGGER.info("FileClient.getFile(" + appfactoryId + "," + demarcheId + "," + filename + ")");
         getFileClient().getFile(appfactoryId, demarcheId, filename, response);
         
-        // Reconstitution des headers pour les métadonnées
-        HttpHeaders headers = new HttpHeaders();
-        for (String headerName : response.getHeaderNames()) {
-            headers.add(headerName, response.getHeader(headerName));
-        }
-        
     }
 
     @Override

@@ -40,7 +40,7 @@ public class AfServletGouvPropertiesResolver {
                 if (StringUtils.isBlank(applicationName)) {
                     LOGGER.warn("Impossible de charger la propriété application.name");
                 } else {
-                    applicationPrefix = "." + applicationName;
+                    applicationPrefix = "." + applicationName.toLowerCase();
                     LOGGER.info("Prefix = {}", applicationPrefix);
                 }
             } catch (IOException e) {

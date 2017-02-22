@@ -3,7 +3,6 @@ package mc.gouv.af.servlet;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -12,13 +11,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import mc.gouv.af.servlet.dto.UsagerInfosDTO;
+import mc.gouv.af.servlet.properties.AfServletGouvPropertiesResolver;
 import mc.gouv.af.servlet.util.AppFactoryServletUtils;
 import mc.gouv.mail.apiclient.client.MailClient;
 import mc.gouv.mail.apishared.model.AddressBlock;
 import mc.gouv.mail.apishared.model.Email;
 import mc.gouv.mail.apishared.model.EmailSent;
 
-public class ContactServlet extends HttpServlet {
+public class ContactServlet extends AbstractAfServlet {
 
     private static final long serialVersionUID = -6944883275123392719L;
 
@@ -51,11 +51,12 @@ public class ContactServlet extends HttpServlet {
 
             // 2ème étape : envoi du mail
             LOGGER.info("Envoi de l'email...");
-            MailClient mc = new MailClient(AppFactoryServletUtils.MAIL_URL, AppFactoryServletUtils.MAIL_USER,
-                    AppFactoryServletUtils.MAIL_PWD);
+            MailClient mc = new MailClient(AfServletGouvPropertiesResolver.getMailUrl(),
+                    AfServletGouvPropertiesResolver.getMailUser(), AfServletGouvPropertiesResolver.getMailPwd());
             Email email = new Email();
             email.setFrom(new AddressBlock(emailAddress, null));
-            email.setTo(new AddressBlock[] { new AddressBlock(AppFactoryServletUtils.GOUV_CONTACT_EMAIL, null) });
+            email.setTo(new AddressBlock[] {
+                    new AddressBlock(AfServletGouvPropertiesResolver.getGouvContactEmail(), null) });
             email.setText(message);
             email.setSubject(titre);
             EmailSent es = mc.sendEmail(email);

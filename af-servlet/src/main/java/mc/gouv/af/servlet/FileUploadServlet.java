@@ -7,7 +7,6 @@ import java.util.UUID;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
@@ -29,11 +28,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import mc.gouv.af.servlet.dto.FileUploadResponseDTO;
 import mc.gouv.af.servlet.dto.UsagerInfosDTO;
+import mc.gouv.af.servlet.properties.AfServletGouvPropertiesResolver;
 import mc.gouv.af.servlet.util.AppFactoryServletUtils;
 import mc.gouv.af.servlet.util.AppFactoryServletUtils.ServiceTarget;
 
 @MultipartConfig
-public class FileUploadServlet extends HttpServlet {
+public class FileUploadServlet extends AbstractAfServlet {
 
     private static final long serialVersionUID = 484237515919955392L;
 
@@ -92,7 +92,7 @@ public class FileUploadServlet extends HttpServlet {
             LOGGER.info("Chemin virtuel : {}", virtualPath);
 
             // Constitution de l'URL d'appel
-            URL url = new URL(AppFactoryServletUtils.FILE_URL + virtualPath);
+            URL url = new URL(AfServletGouvPropertiesResolver.getFileUrl() + virtualPath);
             LOGGER.info("URL d'appel : {}", url);
 
             // Extraction du demandeId si le client le connaît déjà et l'a fourni à AFS

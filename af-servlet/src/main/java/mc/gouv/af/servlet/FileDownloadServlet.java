@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.URL;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -20,10 +19,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import mc.gouv.af.servlet.dto.UsagerInfosDTO;
+import mc.gouv.af.servlet.properties.AfServletGouvPropertiesResolver;
 import mc.gouv.af.servlet.util.AppFactoryServletUtils;
 import mc.gouv.af.servlet.util.AppFactoryServletUtils.ServiceTarget;
 
-public class FileDownloadServlet extends HttpServlet {
+public class FileDownloadServlet extends AbstractAfServlet {
 
     private static final long serialVersionUID = -2464829773835748491L;
 
@@ -61,17 +61,17 @@ public class FileDownloadServlet extends HttpServlet {
 
             LOGGER.debug("AppFactoryID = {}, DemarcheID = {}", appFactoryId, demarcheId);
 
-//            // Récupération de l'AccessID via appel WS à Demarches
-//            LOGGER.info("Récupération de l'AccessID correspondant");
-//            Integer accessId = AppFactoryServletUtils.getAccessID(demarcheId, usagerInfosDTO.getId());
-//
-//            LOGGER.debug("AccessID = {}", accessId);
-//
-//            if (accessId == null) {
-//                response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_NOT_FOUND,
-//                        "Erreur: impossible de récupérer l'accès");
-//                return;
-//            }
+            //            // Récupération de l'AccessID via appel WS à Demarches
+            //            LOGGER.info("Récupération de l'AccessID correspondant");
+            //            Integer accessId = AppFactoryServletUtils.getAccessID(demarcheId, usagerInfosDTO.getId());
+            //
+            //            LOGGER.debug("AccessID = {}", accessId);
+            //
+            //            if (accessId == null) {
+            //                response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_NOT_FOUND,
+            //                        "Erreur: impossible de récupérer l'accès");
+            //                return;
+            //            }
 
             // Constitution du chemin virtuel du fichier
             // /appfactory/demarcheId/accessId/UUID/nomDuFichier
@@ -79,7 +79,7 @@ public class FileDownloadServlet extends HttpServlet {
             LOGGER.info("Chemin virtuel : {}", virtualPath);
 
             // Constitution de l'URL d'appel
-            URL url = new URL(AppFactoryServletUtils.FILE_URL + virtualPath);
+            URL url = new URL(AfServletGouvPropertiesResolver.getFileUrl() + virtualPath);
             LOGGER.info("URL d'appel : {}", url);
 
             // Constitution de la requête

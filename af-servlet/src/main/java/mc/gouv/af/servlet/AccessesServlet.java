@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -23,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import mc.gouv.af.servlet.dto.UsagerInfosDTO;
+import mc.gouv.af.servlet.properties.AfServletGouvPropertiesResolver;
 import mc.gouv.af.servlet.util.AppFactoryServletUtils;
 import mc.gouv.af.servlet.util.AppFactoryServletUtils.ServiceTarget;
 
@@ -34,7 +34,7 @@ import mc.gouv.af.servlet.util.AppFactoryServletUtils.ServiceTarget;
  * @author qdeme
  *
  */
-public class AccessesServlet extends HttpServlet {
+public class AccessesServlet extends AbstractAfServlet {
 
     private static final long serialVersionUID = 520893456441444275L;
 
@@ -83,7 +83,7 @@ public class AccessesServlet extends HttpServlet {
                 .setDefaultCredentialsProvider(AppFactoryServletUtils.getCredentialsProvider(ServiceTarget.DEMARCHES))
                 .build();
         HttpRequestBase finalRequest = null;
-        String url = AppFactoryServletUtils.DEM_ACCESSES_URL + "/" + demarcheId + "/" + usagerId;
+        String url = AfServletGouvPropertiesResolver.getDemAccessUrl() + "/" + demarcheId + "/" + usagerId;
         if (HttpMethod.POST.equals(httpMethod)) {
             finalRequest = new HttpPost(url);
         } else if (HttpMethod.GET.equals(httpMethod)) {

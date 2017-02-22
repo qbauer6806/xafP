@@ -3,7 +3,6 @@ package mc.gouv.af.servlet;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -15,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import mc.gouv.af.servlet.dto.UsagerInfosDTO;
+import mc.gouv.af.servlet.properties.AfServletGouvPropertiesResolver;
 import mc.gouv.af.servlet.util.AppFactoryServletUtils;
 
 /**
@@ -23,7 +23,7 @@ import mc.gouv.af.servlet.util.AppFactoryServletUtils;
  * @author qdeme
  *
  */
-public class PaysServlet extends HttpServlet {
+public class PaysServlet extends AbstractAfServlet {
 
     private static final long serialVersionUID = 4105537492545284465L;
 
@@ -42,7 +42,7 @@ public class PaysServlet extends HttpServlet {
         String pathToQuery = request.getPathInfo();
         String queryString = request.getQueryString();
 
-        String serviceUrl = AppFactoryServletUtils.PAYS_URL + (pathToQuery != null ? pathToQuery : "")
+        String serviceUrl = AfServletGouvPropertiesResolver.getPaysUrl() + (pathToQuery != null ? pathToQuery : "")
                 + (queryString != null ? "?" + queryString : "");
 
         LOGGER.info("Appel à " + serviceUrl);

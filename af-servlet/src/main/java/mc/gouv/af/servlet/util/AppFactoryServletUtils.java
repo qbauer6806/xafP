@@ -36,9 +36,8 @@ import com.fasterxml.uuid.EthernetAddress;
 import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.impl.TimeBasedGenerator;
 
-import mc.gouv.Static;
 import mc.gouv.af.servlet.dto.UsagerInfosDTO;
-import mc.gouv.af.servlet.properties.AfServletGouvProperty;
+import mc.gouv.af.servlet.properties.AfServletGouvPropertiesResolver;
 import mc.gouv.dem.apishared.model.AccessDTO;
 import net.tanesha.recaptcha.ReCaptchaImpl;
 import net.tanesha.recaptcha.ReCaptchaResponse;
@@ -47,60 +46,19 @@ public class AppFactoryServletUtils {
 
     private static Logger LOGGER = LoggerFactory.getLogger(AppFactoryServletUtils.class);
 
-    public static final String DEM_ACCESSES_URL = Static.getValue(AfServletGouvProperty.DEM_ACCESSES_URL.getCode());
-
-    public static final String DEM_DEMANDES_URL = Static.getValue(AfServletGouvProperty.DEM_DEMANDES_URL.getCode());
-
-    public static final String DEM_MOTIFS_URL = Static.getValue(AfServletGouvProperty.DEM_MOTIFS_URL.getCode());
-
-    public static final String DEM_URL = Static.getValue(AfServletGouvProperty.DEM_URL.getCode());
-
-    public static final String LOGIN_REST_URL = Static.getValue(AfServletGouvProperty.LOGIN_REST_URL.getCode());
-
-    public static final String PAYS_URL = Static.getValue(AfServletGouvProperty.PAYS_URL.getCode());
-
-    public static final String FILE_URL = Static.getValue(AfServletGouvProperty.FILE_URL.getCode());
-
-    public static final String HAB_URL = Static.getValue(AfServletGouvProperty.HAB_URL.getCode());
-
-    public static final String MAIL_URL = Static.getValue(AfServletGouvProperty.MAIL_URL.getCode());
-
     public static final String DEMARCHEID_KEY = "DemarcheID";
 
     public static final String APPFACTORYID_KEY = "AppFactoryID";
 
     public static final String CODE_MOTIF_ANNULATION_KEY = "CodeMotifAnnulation";
 
-    public static final String FILE_USER = Static.getValue(AfServletGouvProperty.FILE_USER.getCode());
-
-    public static final String FILE_PWD = Static.getValue(AfServletGouvProperty.FILE_PWD.getCode());
-
-    public static final String MAIL_USER = Static.getValue(AfServletGouvProperty.MAIL_USER.getCode());
-
-    public static final String MAIL_PWD = Static.getValue(AfServletGouvProperty.MAIL_PWD.getCode());
-
-    public static final String HAB_USER = Static.getValue(AfServletGouvProperty.HAB_USER.getCode());
-
-    public static final String HAB_PWD = Static.getValue(AfServletGouvProperty.HAB_PWD.getCode());
-
-    public static final String DEMARCHES_USER = Static.getValue(AfServletGouvProperty.DEMARCHES_USER.getCode());
-
-    public static final String DEMARCHES_PWD = Static.getValue(AfServletGouvProperty.DEMARCHES_PWD.getCode());
-
     public static final String FILE_METADATA_DEMANDEID = "X-MC-DEMANDEID";
 
     public static final String CAPTCHA_TOKEN_REGEXP = "^recaptcha_([0-9.]+)_(.*)_(.*)$";
 
-    public static final String CAPTCHA_PRIVATE_KEY = Static
-            .getValue(AfServletGouvProperty.CAPTCHA_PRIVATE_KEY.getCode());
-
-    public static final String GOUV_CONTACT_EMAIL = Static.getValue(AfServletGouvProperty.GOUV_CONTACT_EMAIL.getCode());
-
     public static final String XSRF_COOKIE = "XSRF-TOKEN";
     public static final String XSRF_HEADER = "X-XSRF-TOKEN";
     public static final String XSRF_SESSION_ATTRIBUTE = "XSRF-TOKEN";
-
-    public static final String BACKOFFICE_URL = Static.getValue(AfServletGouvProperty.BACKOFFICE_URL.getCode());
 
     public enum ServiceTarget {
         DEMARCHES,
@@ -186,7 +144,7 @@ public class AppFactoryServletUtils {
         // Création du client HTTP avec la bonne adresse
         HttpClient httpClient = HttpClientBuilder.create()
                 .setDefaultCredentialsProvider(getCredentialsProvider(ServiceTarget.DEMARCHES)).build();
-        String url = DEM_ACCESSES_URL + "/" + demarcheId + "/" + usagerId;
+        String url = AfServletGouvPropertiesResolver.getDemAccessUrl() + "/" + demarcheId + "/" + usagerId;
         HttpRequestBase finalRequest = new HttpGet(url);
 
         // Envoi de la requête
@@ -281,18 +239,18 @@ public class AppFactoryServletUtils {
 
         switch (serviceTarget) {
             case DEMARCHES:
-                user = DEMARCHES_USER;
-                pwd = DEMARCHES_PWD;
+                user = AfServletGouvPropertiesResolver.getDemarchesUser();
+                pwd = AfServletGouvPropertiesResolver.getDemarchesPwd();
                 break;
 
             case FILE:
-                user = FILE_USER;
-                pwd = FILE_PWD;
+                user = AfServletGouvPropertiesResolver.getFileUser();
+                pwd = AfServletGouvPropertiesResolver.getFilePwd();
                 break;
 
             case MAIL:
-                user = MAIL_USER;
-                pwd = MAIL_PWD;
+                user = AfServletGouvPropertiesResolver.getMailUser();
+                pwd = AfServletGouvPropertiesResolver.getMailPwd();
                 break;
         }
 
@@ -334,7 +292,7 @@ public class AppFactoryServletUtils {
         ReCaptchaImpl reCaptcha = new ReCaptchaImpl();
 
         // Initialisation de la clef privée pour la vérification du CAPTCHA via les properties
-        reCaptcha.setPrivateKey(AppFactoryServletUtils.CAPTCHA_PRIVATE_KEY);
+        reCaptcha.setPrivateKey(AfServletGouvPropertiesResolver.getCaptchaPrivateKey());
         ReCaptchaResponse reCaptchaResponse = reCaptcha.checkAnswer(ip, challenge, response);
 
         return reCaptchaResponse.isValid();

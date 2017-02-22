@@ -5,7 +5,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -22,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import mc.gouv.af.servlet.dto.UsagerInfosDTO;
+import mc.gouv.af.servlet.properties.AfServletGouvPropertiesResolver;
 import mc.gouv.af.servlet.util.AppFactoryServletUtils;
 import mc.gouv.dem.apiclient.DemClient;
 import mc.gouv.dem.apishared.model.UsagerCourrierDTO;
@@ -31,7 +31,7 @@ import mc.gouv.dem.apishared.model.UsagerCourrierDTO;
  * @author qdeme
  *
  */
-public class LoginServlet extends HttpServlet {
+public class LoginServlet extends AbstractAfServlet {
 
     private static final long serialVersionUID = -394488730959377371L;
 
@@ -57,7 +57,7 @@ public class LoginServlet extends HttpServlet {
 
             LOGGER.info("<Usager classique>");
 
-            String serviceUrl = AppFactoryServletUtils.LOGIN_REST_URL + "/" + sessionId;
+            String serviceUrl = AfServletGouvPropertiesResolver.getLoginRestUrl() + "/" + sessionId;
             Request serviceRequest = Request.Get(serviceUrl);
             serviceRequest.setHeader("Accept", "application/json");
             try {
@@ -98,8 +98,7 @@ public class LoginServlet extends HttpServlet {
             LOGGER.info("UsagerCourrierId : " + usagerCourrierId);
 
             // Création du DemClient
-            DemClient dc = new DemClient(AppFactoryServletUtils.DEM_URL, AppFactoryServletUtils.DEMARCHES_USER,
-                    AppFactoryServletUtils.DEMARCHES_PWD);
+            DemClient dc = getDemClient();
 
             // Récupération de l'ID de la démarche dans le Context-Param
             String demarcheId = getServletContext().getInitParameter(AppFactoryServletUtils.DEMARCHEID_KEY);
@@ -167,7 +166,7 @@ public class LoginServlet extends HttpServlet {
         if (!sessionId.startsWith("c_")) {
             // Le sessionId ne commence pas par "c_", donc appel du service ts-login
 
-            String serviceUrl = AppFactoryServletUtils.LOGIN_REST_URL + "/" + sessionId;
+            String serviceUrl = AfServletGouvPropertiesResolver.getLoginRestUrl() + "/" + sessionId;
             Request serviceRequest = Request.Delete(serviceUrl);
             try {
                 LOGGER.info("Appel du service ts-login...");

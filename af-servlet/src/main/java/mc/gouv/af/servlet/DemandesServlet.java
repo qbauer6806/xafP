@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.util.List;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -33,7 +32,7 @@ import mc.gouv.dem.apishared.model.DemandeInputDTO;
  * @author qdeme
  *
  */
-public class DemandesServlet extends HttpServlet {
+public class DemandesServlet extends AbstractAfServlet {
 
     private static final long serialVersionUID = -7898768899143027088L;
 
@@ -87,8 +86,7 @@ public class DemandesServlet extends HttpServlet {
         LOGGER.info("DemarcheID=" + demarcheId + ", UsagerID=" + usagerId + ", DemandeID=" + demandeId
                 + ", DemandeCompl?=" + demandeInfosCompl + ", DemandeComplID=" + demandeInfosComplId);
 
-        AfApiClient afApiClient = new AfApiClient(AppFactoryServletUtils.HAB_URL, AppFactoryServletUtils.HAB_USER,
-                AppFactoryServletUtils.HAB_PWD);
+        AfApiClient afApiClient = getAfApiClient();
         ObjectMapper mapper = new ObjectMapper();
 
         String repJson = null;

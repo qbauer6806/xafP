@@ -3,7 +3,6 @@ package mc.gouv.af.servlet;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -18,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import mc.gouv.af.servlet.dto.UsagerInfosDTO;
+import mc.gouv.af.servlet.properties.AfServletGouvPropertiesResolver;
 import mc.gouv.af.servlet.util.AppFactoryServletUtils;
 import mc.gouv.af.servlet.util.AppFactoryServletUtils.ServiceTarget;
 
@@ -28,7 +28,7 @@ import mc.gouv.af.servlet.util.AppFactoryServletUtils.ServiceTarget;
  * @author qdeme
  *
  */
-public class MotifsServlet extends HttpServlet {
+public class MotifsServlet extends AbstractAfServlet {
 
     private static final long serialVersionUID = -7898768899143027088L;
 
@@ -37,38 +37,40 @@ public class MotifsServlet extends HttpServlet {
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         LOGGER.info("====================== /motifs doGet()");
-        
+
         UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(request);
         if (usagerInfosDTO == null) {
-            response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED, "Utilisateur non autorisé");
+            response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
+                    "Utilisateur non autorisé");
             return;
         }
-        
+
         // Récupération de l'ID de la démarche dans le Context-Param
         String demarcheId = getServletContext().getInitParameter(AppFactoryServletUtils.DEMARCHEID_KEY);
-        
+
         LOGGER.info("DemarcheID=" + demarcheId);
-        
+
         // Création du client HTTP avec la bonne adresse
-        HttpClient httpClient = HttpClientBuilder.create().
-                setDefaultCredentialsProvider(AppFactoryServletUtils.getCredentialsProvider(ServiceTarget.DEMARCHES)).build();
+        HttpClient httpClient = HttpClientBuilder.create()
+                .setDefaultCredentialsProvider(AppFactoryServletUtils.getCredentialsProvider(ServiceTarget.DEMARCHES))
+                .build();
         HttpRequestBase finalRequest = null;
-        String url = AppFactoryServletUtils.DEM_MOTIFS_URL + "/" + demarcheId;
+        String url = AfServletGouvPropertiesResolver.getDemMotifsUrl() + "/" + demarcheId;
         finalRequest = new HttpGet(url);
-        
+
         // Envoi de la requête
         LOGGER.info("Appel du WS Demarches: " + url);
         HttpResponse finalResponse = httpClient.execute(finalRequest);
         LOGGER.info("Code réponse : " + finalResponse.getStatusLine().getStatusCode());
-        
+
         // Constitution de la réponse en redirigeant la réponse du WS ansi que son code réponse
         LOGGER.info("Constitution de la réponse pour retour au client");
         response.setContentType("application/json");
-        
+
         response.setStatus(finalResponse.getStatusLine().getStatusCode());
-        
+
         IOUtils.copy(finalResponse.getEntity().getContent(), response.getOutputStream());
-        
+
         LOGGER.info("====================== Fin /motifs doGet()");
     }
 }

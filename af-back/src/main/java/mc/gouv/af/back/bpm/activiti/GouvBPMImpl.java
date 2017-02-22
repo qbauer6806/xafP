@@ -28,6 +28,7 @@ import org.activiti.engine.impl.pvm.process.ProcessDefinitionImpl;
 import org.activiti.engine.runtime.Execution;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,9 +73,8 @@ public class GouvBPMImpl implements GouvBPM {
 
     @Autowired
     private FormService formService;
-
-    @Override
-    public void startProcessInstance(String processDefinitionKey, GouvBPMUser user, Integer demandeId, String codeAppli,
+    
+    public void startProcessInstanceByKeyOrMessage(String processDefinitionKey, String messageName, GouvBPMUser user, Integer demandeId, String codeAppli,
             Map<String, Object> businessVariables) {
         LOGGER.info("startProcessInstance() Démarrage d'une instance du process \"" + processDefinitionKey
                 + "\" assignée à l'utilisateur \"" + user + "\" et concernant la demande \"" + demandeId + "\"");
@@ -94,12 +94,33 @@ public class GouvBPMImpl implements GouvBPM {
         ProcessInstance process = null;
         try {
             // On utilise le demandeId pour la "businessKey"
-            process = runtimeService.startProcessInstanceByKey(processDefinitionKey, demandeId.toString(), variables);
+            if (!StringUtils.isBlank(processDefinitionKey)) {
+                process = runtimeService.startProcessInstanceByKey(processDefinitionKey, demandeId.toString(), variables);
+            }
+            else {
+                process = runtimeService.startProcessInstanceByMessage(messageName, demandeId.toString(), variables);
+            }
             LOGGER.info("Instance démarrée : " + process.getDeploymentId() + " , " + process.getActivityId() + " , "
                     + process.getId() + " , " + process.getDescription() + " , " + process.getProcessInstanceId());
         } catch (ActivitiObjectNotFoundException e) {
             throw new GouvBPMException("Erreur lors du démarrage de l'instance de process", e);
         }
+
+    }
+
+    @Override
+    public void startProcessInstance(String processDefinitionKey, GouvBPMUser user, Integer demandeId, String codeAppli,
+            Map<String, Object> businessVariables) {
+
+        startProcessInstanceByKeyOrMessage(processDefinitionKey, null, user, demandeId, codeAppli, businessVariables);
+
+    }
+    
+    @Override
+    public void startProcessInstanceByMessage(String messageName, GouvBPMUser user, Integer demandeId, String codeAppli,
+            Map<String, Object> businessVariables) {
+
+        startProcessInstanceByKeyOrMessage(null, messageName, user, demandeId, codeAppli, businessVariables);
 
     }
 

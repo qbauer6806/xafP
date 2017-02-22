@@ -174,4 +174,15 @@ public interface GouvBPM {
      */
     public void annulerDemande(Integer demandeId, GouvBPMUser user, String codeMotif, String commentaire);
 
+    /**
+     * Permet de démarrer une instance de process sur message
+     * @param messageName Message correspondant
+     * @param user Utilisateur à l'origine de l'action
+     * @param demandeId Identifiant de la demande liée à l'instance
+     * @param codeAppli Code de l'application concernée
+     * @param businessVariables Variables métier destinées à être stockées dans l'instance
+     */
+    void startProcessInstanceByMessage(String messageName, GouvBPMUser user, Integer demandeId, String codeAppli,
+            Map<String, Object> businessVariables);
+
 }

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.UUID;
 
 import javax.annotation.PostConstruct;
+import javax.ws.rs.NotFoundException;
 
 import org.joda.time.DateTime;
 import org.joda.time.Days;
@@ -259,7 +260,11 @@ public class AfBackUtils {
         
         if (!isUsagerCourrier(usagerId)) {
             LOGGER.debug("getUsagerFromID(" + usagerId + ") : Appel au référentiel Usagers...");
-            return getReferentielUsagersClient().getUsager(usagerId);
+            try {
+                return getReferentielUsagersClient().getUsager(usagerId);
+            } catch (NotFoundException exception) {
+                return null;
+            }
         }
         else {
             LOGGER.debug("getUsagerFromID(" + usagerId + ") : Appel à DEM car usager courrier...");

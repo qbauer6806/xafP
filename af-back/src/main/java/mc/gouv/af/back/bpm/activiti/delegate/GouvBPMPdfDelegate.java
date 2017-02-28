@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import mc.gouv.af.back.pdf.PdfService;
-import mc.gouv.af.back.util.AfBackUtils;
+import mc.gouv.af.back.service.properties.GouvPropertiesResolver;
 import mc.gouv.dem.apiclient.DemClient;
 import mc.gouv.dem.apishared.model.DemandeDTO;
 
@@ -23,30 +23,32 @@ import mc.gouv.dem.apishared.model.DemandeDTO;
 public class GouvBPMPdfDelegate implements JavaDelegate {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMPdfDelegate.class);
-    
+
     @Autowired
     private PdfService pdfService;
-    
+
     @Autowired
-    private AfBackUtils afBackUtils;
-    
+    private GouvPropertiesResolver gouvPropertiesResolver;
+
     private DemClient demClient;
-    
+
     @Override
     public void execute(DelegateExecution execution) throws Exception {
 
         LOGGER.info("==== AF-BACK PDF SERVICE ...");
-        
-        DemandeDTO demandeDto = getDemClient().getDemande(afBackUtils.getDemarcheId(), Integer.parseInt(execution.getProcessBusinessKey()));
-        
+
+        DemandeDTO demandeDto = getDemClient().getDemande(gouvPropertiesResolver.getDemarcheId(),
+                Integer.parseInt(execution.getProcessBusinessKey()));
+
         pdfService.generatePdf(demandeDto);
-        
+
         LOGGER.info("==== AF-BACK PDF SERVICE <fin>");
     }
-    
+
     private DemClient getDemClient() {
         if (demClient == null) {
-            demClient = new DemClient(afBackUtils.getDemUrl(), afBackUtils.getDemUser(), afBackUtils.getDemPwd());
+            demClient = new DemClient(gouvPropertiesResolver.getDemUrl(), gouvPropertiesResolver.getDemUser(),
+                    gouvPropertiesResolver.getDemPwd());
         }
         return demClient;
     }

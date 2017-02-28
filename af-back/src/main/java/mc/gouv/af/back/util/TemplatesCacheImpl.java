@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import mc.gouv.af.back.service.properties.GouvPropertiesResolver;
 import mc.gouv.dem.apiclient.DemClient;
 import mc.gouv.dem.apishared.model.TemplateDTO;
 
@@ -19,14 +20,17 @@ import mc.gouv.dem.apishared.model.TemplateDTO;
  */
 @Component
 public class TemplatesCacheImpl implements TemplatesCache {
-    
+
     private static final Logger LOGGER = LoggerFactory.getLogger(TemplatesCacheImpl.class);
-    
+
     private List<TemplateDTO> cachedList = new ArrayList<TemplateDTO>();
-    
+
+    @Autowired
+    private GouvPropertiesResolver gouvPropertiesResolver;
+
     @Autowired
     private AfBackUtils afBackUtils;
-    
+
     private DemClient demClient;
 
     /**
@@ -36,13 +40,13 @@ public class TemplatesCacheImpl implements TemplatesCache {
     public List<TemplateDTO> getTemplates() {
         // Initialisation du DemClient si pas déjà fait
         ensureInitialized();
-        
+
         // Remplissage de la liste si pas déjà fait
         if (cachedList.size() == 0) {
             LOGGER.info("Récupération des templates dans DEM...");
-            cachedList.addAll(demClient.getTemplates(afBackUtils.getDemarcheId()));
+            cachedList.addAll(demClient.getTemplates(gouvPropertiesResolver.getDemarcheId()));
         }
-        
+
         // Retour de la liste
         return cachedList;
     }
@@ -54,7 +58,7 @@ public class TemplatesCacheImpl implements TemplatesCache {
     public List<TemplateDTO> fetchTemplates() {
         // Vider la liste (forcera getTemplates() à récupérer les nouveaux du WS)
         cachedList.clear();
-        
+
         // Retour de la nouvelle liste
         return getTemplates();
     }
@@ -71,15 +75,14 @@ public class TemplatesCacheImpl implements TemplatesCache {
                 template = internalGetTemplate(codeTemplate, "fr");
                 if (template == null) {
                     LOGGER.error("Template (" + codeTemplate + ",fr) introuvable également");
-                }
-                else {
+                } else {
                     LOGGER.info("Template (" + codeTemplate + ",fr) trouvé et utilisé à la place");
                 }
             }
         }
         return template;
     }
-    
+
     private TemplateDTO internalGetTemplate(String codeTemplate, String langue) {
         for (TemplateDTO template : getTemplates()) {
             if (template.getCode().equals(codeTemplate) && template.getLangue().equalsIgnoreCase(langue)) {
@@ -88,13 +91,14 @@ public class TemplatesCacheImpl implements TemplatesCache {
         }
         return null;
     }
-    
+
     /**
      * Initialisation du DemClient si pas déjà fait
      */
     private void ensureInitialized() {
         if (demClient == null) {
-            demClient = new DemClient(afBackUtils.getDemUrl(), afBackUtils.getDemUser(), afBackUtils.getDemPwd());
+            demClient = new DemClient(gouvPropertiesResolver.getDemUrl(), gouvPropertiesResolver.getDemUser(),
+                    gouvPropertiesResolver.getDemPwd());
         }
     }
 

@@ -1,4 +1,4 @@
-package mc.gouv.af.back.service.properties;
+package mc.gouv.af.servlet.properties;
 
 import java.util.List;
 

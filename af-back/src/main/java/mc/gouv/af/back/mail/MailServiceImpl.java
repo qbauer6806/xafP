@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import mc.gouv.af.back.util.AfBackUtils;
+import mc.gouv.af.back.service.properties.GouvPropertiesResolver;
 import mc.gouv.af.back.util.TemplatesCache;
 import mc.gouv.dem.apishared.model.TemplateDTO;
 import mc.gouv.mail.apiclient.client.MailClient;
@@ -29,16 +29,16 @@ import mc.gouv.mail.apishared.model.Param;
  */
 @Component
 public class MailServiceImpl implements MailService {
-    
+
     private static final Logger LOGGER = LoggerFactory.getLogger(MailServiceImpl.class);
-    
+
     private ToolManager manager = new ToolManager();
-    
+
     private MailClient mailClient = null;
-    
+
     @Autowired
-    private AfBackUtils afBackUtils;
-    
+    private GouvPropertiesResolver gouvPropertiesResolver;
+
     @Autowired
     private TemplatesCache templatesCache;
 
@@ -49,13 +49,14 @@ public class MailServiceImpl implements MailService {
     public void sendMail(EmailInfoDTO emailInfo, Map<String, Object> model) throws Exception {
 
         LOGGER.info("MailServiceImpl.sendMail(" + emailInfo + "," + model + ")");
-        
+
         LOGGER.info("Récupération du template demandé pour le corps de l'email...");
         TemplateDTO templateBody = templatesCache.getTemplate(emailInfo.getBodyTemplateCode(), emailInfo.getLangue());
-        
+
         LOGGER.info("Récupération du template demandé pour le sujet de l'email...");
-        TemplateDTO templateSubject = templatesCache.getTemplate(emailInfo.getSubjectTemplateCode(), emailInfo.getLangue());
-        
+        TemplateDTO templateSubject = templatesCache.getTemplate(emailInfo.getSubjectTemplateCode(),
+                emailInfo.getLangue());
+
         LOGGER.info("Appel à Velocity pour le templating du corps et du sujet de l'email...");
         Context context = manager.createContext();
         if (model != null) {
@@ -63,7 +64,7 @@ public class MailServiceImpl implements MailService {
                 context.put(key, model.get(key));
             }
         }
-        
+
         StringWriter output = new StringWriter();
 
         if (!Velocity.evaluate(context, output, templateBody.getCode(), templateBody.getContenu())) {
@@ -75,7 +76,7 @@ public class MailServiceImpl implements MailService {
             throw new Exception("Velocity.evaluate() n'a pas fonctionné.");
         }
         String mailSubjectToSend = output.toString();
-        
+
         LOGGER.info("Transformation des informations d'email vers les structures pour MAIL...");
         List<AddressBlock> to = EmailTransform.toMailApiAddresses(emailInfo.getTo());
         List<AddressBlock> cc = EmailTransform.toMailApiAddresses(emailInfo.getCc());
@@ -83,7 +84,7 @@ public class MailServiceImpl implements MailService {
         AddressBlock from = EmailTransform.toMailApiAddress(emailInfo.getFrom());
         AddressBlock replyTo = EmailTransform.toMailApiAddress(emailInfo.getReplyto());
         List<Param> params = EmailTransform.toMailApiParams(emailInfo.getParams());
-        
+
         Email email = new Email();
         email.setTo(to.toArray(new AddressBlock[to.size()]));
         email.setCc(cc.toArray(new AddressBlock[cc.size()]));
@@ -94,26 +95,28 @@ public class MailServiceImpl implements MailService {
         email.setSubject(mailSubjectToSend);
         email.setHtml(mailBodyToSend);
         // Pas de email.setText() ==> on considère que les templates body des démarches sont toujours en HTML !
-        
+
         LOGGER.info("Appel à MAIL pour envoi de l'email...");
         getMailClient().sendEmail(email);
-        
+
     }
-    
+
     /**
      * {@inheritDoc}
      * @throws Exception 
      */
     @Override
-    public String[] getMailPreview(String bodyTemplateCode, String subjectTemplateCode, String langue, Map<String, Object> model) throws Exception {
-        LOGGER.info("MailServiceImpl.getMailPreview(" + bodyTemplateCode + "," + subjectTemplateCode + "," + langue + "," + model + ")");
-        
+    public String[] getMailPreview(String bodyTemplateCode, String subjectTemplateCode, String langue,
+            Map<String, Object> model) throws Exception {
+        LOGGER.info("MailServiceImpl.getMailPreview(" + bodyTemplateCode + "," + subjectTemplateCode + "," + langue
+                + "," + model + ")");
+
         LOGGER.info("Récupération du template demandé pour le corps de l'email...");
         TemplateDTO templateBody = templatesCache.getTemplate(bodyTemplateCode, langue);
-        
+
         LOGGER.info("Récupération du template demandé pour le sujet de l'email...");
         TemplateDTO templateSubject = templatesCache.getTemplate(subjectTemplateCode, langue);
-        
+
         LOGGER.info("Appel à Velocity pour le templating du corps et du sujet de l'email...");
         Context context = manager.createContext();
         if (model != null) {
@@ -121,7 +124,7 @@ public class MailServiceImpl implements MailService {
                 context.put(key, model.get(key));
             }
         }
-        
+
         StringWriter output = new StringWriter();
 
         if (!Velocity.evaluate(context, output, templateBody.getCode(), templateBody.getContenu())) {
@@ -133,19 +136,19 @@ public class MailServiceImpl implements MailService {
             throw new Exception("Velocity.evaluate() n'a pas fonctionné.");
         }
         String mailSubjectToSend = output.toString();
-        
-        return new String[] { mailSubjectToSend , mailBodyToSend };
+
+        return new String[] { mailSubjectToSend, mailBodyToSend };
     }
-    
+
     /**
      * Initialisation du MailClient si pas déjà fait
      */
     private MailClient getMailClient() {
         if (mailClient == null) {
-            mailClient = new MailClient(afBackUtils.getMailUrl(), afBackUtils.getMailUser(), afBackUtils.getMailPwd());
+            mailClient = new MailClient(gouvPropertiesResolver.getMailUrl(), gouvPropertiesResolver.getMailUser(),
+                    gouvPropertiesResolver.getMailPwd());
         }
         return mailClient;
     }
-
 
 }

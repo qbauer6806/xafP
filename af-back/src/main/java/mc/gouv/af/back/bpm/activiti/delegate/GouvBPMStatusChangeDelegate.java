@@ -5,10 +5,12 @@ import org.activiti.engine.delegate.JavaDelegate;
 import org.activiti.engine.impl.el.Expression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import mc.gouv.Static;
 import mc.gouv.af.back.bpm.GouvBPMProcessVariableTypeEnum;
-import mc.gouv.af.back.service.properties.AfGouvProperty;
+import mc.gouv.af.back.service.properties.GouvPropertiesResolver;
 import mc.gouv.af.back.util.AfBackUtils;
 import mc.gouv.dem.apiclient.DemClient;
 import mc.gouv.dem.apishared.model.DemandeStatutEnum;
@@ -21,6 +23,7 @@ import mc.gouv.dem.apishared.model.StatutInputDTO;
  * @author qdeme
  *
  */
+@Component
 public class GouvBPMStatusChangeDelegate implements JavaDelegate {
 
     // voir pour l'autowiring dans les javaDelegate
@@ -29,16 +32,18 @@ public class GouvBPMStatusChangeDelegate implements JavaDelegate {
 
     private Expression targetState;
 
+    @Autowired
+    GouvPropertiesResolver gouvPropertiesResolver;
+
     @Override
     public void execute(DelegateExecution execution) throws Exception {
 
         LOGGER.info("==== AF-BACK CHANGEMENT STATUT ...");
 
-        // TODO voir si on ne peut pas utiliser AfBackUtils à la place...
-        String DEM_URL = Static.getValue(AfGouvProperty.DEM_URL.getCode());
-        String DEM_USER = Static.getValue(AfGouvProperty.DEM_USER.getCode());
-        String DEM_PWD = Static.getValue(AfGouvProperty.DEM_PWD.getCode());
-        String DEMARCHE_ID = Static.getValue(AfGouvProperty.DEMARCHE_ID.getCode());
+        String DEM_URL = Static.getValue(gouvPropertiesResolver.getDemUrl());
+        String DEM_USER = Static.getValue(gouvPropertiesResolver.getDemUser());
+        String DEM_PWD = Static.getValue(gouvPropertiesResolver.getDemPwd());
+        String DEMARCHE_ID = Static.getValue(gouvPropertiesResolver.getDemarcheId());
 
         DemandeStatutEnum statut = getTargetState(execution);
 
@@ -50,40 +55,41 @@ public class GouvBPMStatusChangeDelegate implements JavaDelegate {
         DemClient demClient = new DemClient(DEM_URL, DEM_USER, DEM_PWD);
 
         // Récupération du commentaire usager et du code motif si besoin plus tard dans le traitement
-        String commentaireUsager = (String) execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name());
+        String commentaireUsager = (String) execution
+                .getVariable(GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name());
         String codeMotif = (String) execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name());
 
-        String agentId = (String)execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_AGENT.name());
-        String usagerId = (String)execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_USAGER.name());
-//        execution.removeVariable(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_AGENT.name());
-//        execution.removeVariable(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_USAGER.name());
-        
+        String agentId = (String) execution
+                .getVariable(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_AGENT.name());
+        String usagerId = (String) execution
+                .getVariable(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_USAGER.name());
+        //        execution.removeVariable(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_AGENT.name());
+        //        execution.removeVariable(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_USAGER.name());
+
         // Définition de la personne à l'origine du changement de statut : soit on l'a indiqué à ce JavaDelegate
         // via des variables process (que ce soit un agent ou un usager), soit on n'a rien indiqué et on prend
         // par défaut l'agent authentifié
         StatutInputDTO statutInput = new StatutInputDTO();
         if (usagerId != null) {
             statutInput.setUsagerId(Integer.parseInt(usagerId));
-        }
-        else if (agentId != null) {
+        } else if (agentId != null) {
             statutInput.setAgentId(agentId);
-        }
-        else {
+        } else {
             statutInput.setAgentId(AfBackUtils.getAuthenticatedAgentId());
         }
-        
+
         statutInput.setStatut(statut);
         LOGGER.info("Commentaire usager : " + commentaireUsager);
         LOGGER.info("Code motif : " + codeMotif);
         statutInput.setCommentaire(commentaireUsager);
         statutInput.setCodeMotif(codeMotif);
-        
+
         // TODO Peut-être gérer les variables autrement... si on met après ce serviceTask, un autre qui en a besoin
         // alors y'a un problème
         // Supprimer le codeMotif et le commentaireUsager du process BPM car on ne s'en sert plus
         // (ne pas les reproposer à l'utilisateur)
-//        execution.removeVariable(GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name());
-//        execution.removeVariable(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name());
+        //        execution.removeVariable(GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name());
+        //        execution.removeVariable(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name());
 
         LOGGER.info("Appel à DEM changerStatutDemande() (" + DEM_URL + ")...");
         demClient.changerStatutDemande(DEMARCHE_ID, demandeId, statutInput);

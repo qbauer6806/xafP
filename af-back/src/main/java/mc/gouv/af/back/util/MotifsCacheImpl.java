@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
+import mc.gouv.af.back.service.properties.GouvPropertiesResolver;
 import mc.gouv.dem.apiclient.DemClient;
 import mc.gouv.dem.apishared.model.DemandeStatutEnum;
 import mc.gouv.dem.apishared.model.MotifDTO;
@@ -30,7 +31,7 @@ public class MotifsCacheImpl implements MotifsCache {
     private DemClient demClient;
 
     @Autowired
-    private AfBackUtils afBackUtils;
+    private GouvPropertiesResolver gouvPropertiesResolver;
 
     /**
      * {@inheritDoc}
@@ -43,7 +44,7 @@ public class MotifsCacheImpl implements MotifsCache {
         // Remplissage de la liste si pas déjà fait
         if (cachedList.size() == 0) {
             LOGGER.info("Récupération des motifs dans DEM...");
-            cachedList.addAll(demClient.getMotifs(afBackUtils.getDemarcheId()));
+            cachedList.addAll(demClient.getMotifs(gouvPropertiesResolver.getDemarcheId()));
         }
 
         // Ignorer les motifs désactivés
@@ -106,7 +107,8 @@ public class MotifsCacheImpl implements MotifsCache {
      */
     private void ensureInitialized() {
         if (demClient == null) {
-            demClient = new DemClient(afBackUtils.getDemUrl(), afBackUtils.getDemUser(), afBackUtils.getDemPwd());
+            demClient = new DemClient(gouvPropertiesResolver.getDemUrl(), gouvPropertiesResolver.getDemUser(),
+                    gouvPropertiesResolver.getDemPwd());
         }
     }
 

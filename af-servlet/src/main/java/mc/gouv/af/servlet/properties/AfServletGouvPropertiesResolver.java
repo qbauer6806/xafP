@@ -2,6 +2,12 @@ package mc.gouv.af.servlet.properties;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
@@ -103,6 +109,12 @@ public class AfServletGouvPropertiesResolver {
         return Static.getValue(MAIL_URL);
     }
 
+    public static final String CAPTCHA_PRIVATE_KEY = "mc.gouv.appfactory.captcha.privatekey";
+
+    public static String getCaptchaPrivateKey() {
+        return Static.getValue(CAPTCHA_PRIVATE_KEY);
+    }
+
     /**
      * Properties propres à la démarche
      */
@@ -113,13 +125,7 @@ public class AfServletGouvPropertiesResolver {
         return Static.getValue(API_URL);
     }
 
-    public static final String CAPTCHA_PRIVATE_KEY = "mc.gouv.appfactory" + applicationPrefix + ".captcha.privatekey";
-
-    public static String getCaptchaPrivateKey() {
-        return Static.getValue(CAPTCHA_PRIVATE_KEY);
-    }
-
-    public static final String BACKOFFICE_URL = "mc.gouv.appfactory" + applicationPrefix + ".backoffice.url";
+    public static final String BACKOFFICE_URL = "mc.gouv.appfactory" + applicationPrefix + ".url";
 
     public static String getBackOfficeUrl() {
         return Static.getValue(BACKOFFICE_URL);
@@ -177,6 +183,45 @@ public class AfServletGouvPropertiesResolver {
 
     public static String getGouvContactEmail() {
         return Static.getValue(GOUV_CONTACT_EMAIL);
+    }
+
+    static {
+        //Vérification que chaque propriété a bien été configurée
+        List<String> propertiesNotFound = new ArrayList<String>();
+        try {
+            Method m = Static.class.getDeclaredMethod("getValue", String.class);
+
+            Field[] fields = AfServletGouvPropertiesResolver.class.getDeclaredFields();
+            for (Field f : fields) {
+                if (Modifier.isStatic(f.getModifiers()) && !f.getName().equals("LOGGER")
+                        && !f.getName().equals("applicationName") && !f.getName().equals("applicationPrefix")) {
+                    LOGGER.info("Vérification de la propriété {}", f.getName());
+                    String propertyName = (String) f.get(null);
+                    String value = (String) m.invoke(null, f.get(null));
+
+                    if (StringUtils.isBlank(value)) {
+                        propertiesNotFound.add(propertyName);
+                    }
+                }
+            }
+
+        } catch (NoSuchMethodException e) {
+            LOGGER.error("Erreur lors de l'introspection", e);
+        } catch (SecurityException e) {
+            LOGGER.error("Erreur lors de l'introspection", e);
+        } catch (IllegalAccessException e) {
+            LOGGER.error("Erreur lors de l'introspection", e);
+        } catch (IllegalArgumentException e) {
+            LOGGER.error("Erreur lors de l'introspection", e);
+        } catch (InvocationTargetException e) {
+            LOGGER.error("Erreur lors de l'introspection", e);
+        }
+
+        if (!propertiesNotFound.isEmpty()) {
+
+            LOGGER.error("Des propriétés n'ont pas été trouvée : {}", propertiesNotFound);
+            System.exit(1);
+        }
     }
 
 }

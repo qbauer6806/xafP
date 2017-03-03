@@ -12,6 +12,7 @@ import mc.gouv.Static;
 import mc.gouv.af.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.af.back.service.properties.GouvPropertiesResolver;
 import mc.gouv.af.back.util.AfBackUtils;
+import mc.gouv.af.back.util.HistoService;
 import mc.gouv.dem.apiclient.DemClient;
 import mc.gouv.dem.apishared.model.DemandeStatutEnum;
 import mc.gouv.dem.apishared.model.StatutInputDTO;
@@ -30,20 +31,23 @@ public class GouvBPMStatusChangeDelegate implements JavaDelegate {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMStatusChangeDelegate.class);
 
-    private Expression targetState;
+    private Expression targetState; 
 
     @Autowired
-    GouvPropertiesResolver gouvPropertiesResolver;
+    private GouvPropertiesResolver gouvPropertiesResolver;
+    
+    @Autowired
+    private HistoService histoService;
 
     @Override
     public void execute(DelegateExecution execution) throws Exception {
 
         LOGGER.info("==== AF-BACK CHANGEMENT STATUT ...");
 
-        String DEM_URL = Static.getValue(gouvPropertiesResolver.getDemUrl());
-        String DEM_USER = Static.getValue(gouvPropertiesResolver.getDemUser());
-        String DEM_PWD = Static.getValue(gouvPropertiesResolver.getDemPwd());
-        String DEMARCHE_ID = Static.getValue(gouvPropertiesResolver.getDemarcheId());
+        String DEM_URL = gouvPropertiesResolver.getDemUrl();
+        String DEM_USER = gouvPropertiesResolver.getDemUser();
+        String DEM_PWD = gouvPropertiesResolver.getDemPwd();
+        String DEMARCHE_ID = gouvPropertiesResolver.getDemarcheId();
 
         DemandeStatutEnum statut = getTargetState(execution);
 

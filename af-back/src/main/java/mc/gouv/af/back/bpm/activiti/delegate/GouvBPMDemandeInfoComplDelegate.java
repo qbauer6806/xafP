@@ -39,10 +39,10 @@ public class GouvBPMDemandeInfoComplDelegate implements JavaDelegate {
         LOGGER.info("==== AF-BACK CREATION INFO COMPL ...");
 
         // TODO voir si on ne peut pas utiliser AfBackUtils à la place...
-        String DEM_URL = Static.getValue(gouvPropertiesResolver.getDemUrl());
-        String DEM_USER = Static.getValue(gouvPropertiesResolver.getDemUser());
-        String DEM_PWD = Static.getValue(gouvPropertiesResolver.getDemPwd());
-        String DEMARCHE_ID = Static.getValue(gouvPropertiesResolver.getDemarcheId());
+        String DEM_URL = gouvPropertiesResolver.getDemUrl();
+        String DEM_USER = gouvPropertiesResolver.getDemUser();
+        String DEM_PWD = gouvPropertiesResolver.getDemPwd();
+        String DEMARCHE_ID = gouvPropertiesResolver.getDemarcheId();
 
         Integer demandeId = Integer.parseInt(execution.getProcessBusinessKey());
 

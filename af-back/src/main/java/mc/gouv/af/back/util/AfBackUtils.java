@@ -53,6 +53,8 @@ public class AfBackUtils {
     public static final String MAIL_METADATA_DEMANDEID = "MC_DEMANDEID";
 
     public static final String FILE_METADATA_DEMANDEID = "X-MC-DEMANDEID";
+    
+    public static final String FILE_METADATA_DEMANDESTATUT = "X-MC-DEMANDESTATUT";
 
     private final static String version = AfBackUtils.class.getPackage().getImplementationVersion();
 

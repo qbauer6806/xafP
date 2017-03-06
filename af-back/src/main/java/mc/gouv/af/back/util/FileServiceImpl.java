@@ -59,6 +59,7 @@ public class FileServiceImpl implements FileService {
         // Définition de la meta pour le demande ID
         Map<String, String> customHeaders = new HashMap<String, String>();
         customHeaders.put(AfBackUtils.FILE_METADATA_DEMANDEID, demande.getPkDemandes().toString());
+        customHeaders.put(AfBackUtils.FILE_METADATA_DEMANDESTATUT, demande.getDernierStatut().getLibelle().name());
 
         filename = demande.getFkAccess() + "/" + AfBackUtils.generateUUID() + "/" + filename;
 
@@ -85,6 +86,7 @@ public class FileServiceImpl implements FileService {
 
         Map<String, String> customHeaders = new HashMap<String, String>();
         customHeaders.put(AfBackUtils.FILE_METADATA_DEMANDEID, demande.getPkDemandes().toString());
+        customHeaders.put(AfBackUtils.FILE_METADATA_DEMANDESTATUT, demande.getDernierStatut().getLibelle().name());
 
         String appfactoryId = AfBackUtils.getAppFactoryId();
         String demarcheId = gouvPropertiesResolver.getDemarcheId();

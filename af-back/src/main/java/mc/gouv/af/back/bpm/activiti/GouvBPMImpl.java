@@ -251,7 +251,7 @@ public class GouvBPMImpl implements GouvBPM {
         List<Integer> demandeIds = new ArrayList<Integer>();
         List<Task> tasks = taskService.createTaskQuery()
                 .processVariableValueEquals(GouvBPMProcessVariableTypeEnum.MC_CODEAPPLI.name(), codeAppli)
-                .taskDefinitionKey(task.getTaskDefinitionKey()).active().list();
+                .taskDefinitionKeyLike(task.getTaskDefinitionKey()).active().list();
         for (Task t : tasks) {
             Integer demandeId = Integer.parseInt(runtimeService.createProcessInstanceQuery()
                     .processInstanceId(t.getProcessInstanceId()).singleResult().getBusinessKey());

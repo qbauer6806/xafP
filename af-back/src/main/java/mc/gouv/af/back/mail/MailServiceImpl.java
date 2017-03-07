@@ -4,14 +4,6 @@ import java.io.StringWriter;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.velocity.app.Velocity;
-import org.apache.velocity.context.Context;
-import org.apache.velocity.tools.ToolManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import mc.gouv.af.back.service.properties.GouvPropertiesResolver;
 import mc.gouv.af.back.util.TemplatesCache;
 import mc.gouv.dem.apishared.model.TemplateDTO;
@@ -20,12 +12,21 @@ import mc.gouv.mail.apishared.model.AddressBlock;
 import mc.gouv.mail.apishared.model.Email;
 import mc.gouv.mail.apishared.model.Param;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.velocity.app.Velocity;
+import org.apache.velocity.context.Context;
+import org.apache.velocity.tools.ToolManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 /**
  * 
  * Composant permettant l'envoi d'emails "templatés"
  * 
  * @author qdeme
- *
+ * 
  */
 @Component
 public class MailServiceImpl implements MailService {
@@ -59,6 +60,7 @@ public class MailServiceImpl implements MailService {
 
         LOGGER.info("Appel à Velocity pour le templating du corps et du sujet de l'email...");
         Context context = manager.createContext();
+        context.put("StringUtils", StringUtils.class);
         if (model != null) {
             for (String key : model.keySet()) {
                 context.put(key, model.get(key));
@@ -103,7 +105,8 @@ public class MailServiceImpl implements MailService {
 
     /**
      * {@inheritDoc}
-     * @throws Exception 
+     * 
+     * @throws Exception
      */
     @Override
     public String[] getMailPreview(String bodyTemplateCode, String subjectTemplateCode, String langue,
@@ -119,6 +122,7 @@ public class MailServiceImpl implements MailService {
 
         LOGGER.info("Appel à Velocity pour le templating du corps et du sujet de l'email...");
         Context context = manager.createContext();
+        model.put("StringUtils", StringUtils.class);
         if (model != null) {
             for (String key : model.keySet()) {
                 context.put(key, model.get(key));

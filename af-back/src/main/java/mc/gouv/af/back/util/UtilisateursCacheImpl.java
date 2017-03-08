@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import mc.gouv.af.back.service.properties.GouvPropertiesResolver;
@@ -18,6 +19,7 @@ import mc.gouv.logon.apiclient.RestException;
 import mc.gouv.logon.apiclient.UserRest;
 import mc.gouv.logon.model.User;
 
+@Profile("gouv")
 @Component
 public class UtilisateursCacheImpl implements UtilisateursCache {
 

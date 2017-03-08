@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import mc.gouv.af.back.service.properties.GouvPropertiesResolver;
@@ -19,6 +20,7 @@ import mc.gouv.dem.apishared.model.UsagerCourrierDTO;
 import mc.gouv.servicerest.usager.ReferentielUsagersClient;
 import mc.gouv.servicerest.usager.model.UsagerBean;
 
+@Profile("gouv")
 @Component
 public class UsagersCacheImpl implements UsagersCache {
 

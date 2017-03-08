@@ -12,9 +12,10 @@ import org.springframework.stereotype.Component;
 
 import mc.gouv.af.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.af.back.mail.EmailInfoDTO;
-import mc.gouv.af.back.mail.TemplateModelProvider;
 import mc.gouv.af.back.mail.MailService;
+import mc.gouv.af.back.mail.TemplateModelProvider;
 import mc.gouv.af.back.util.AfBackUtils;
+import mc.gouv.af.back.util.UsagersCache;
 import mc.gouv.servicerest.usager.model.UsagerBean;
 
 /**
@@ -26,42 +27,45 @@ import mc.gouv.servicerest.usager.model.UsagerBean;
  */
 @Component
 public class GouvBPMEnvoiEmailUsagerDelegate implements JavaDelegate {
-    
+
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMEnvoiEmailUsagerDelegate.class);
-    
+
     @Autowired
     private AfBackUtils afBackUtils;
-    
+
+    @Autowired
+    private UsagersCache usagerCache;
+
     @Autowired
     private MailService mailService;
-    
+
     @Autowired
     private TemplateModelProvider templateModelProvider;
-    
+
     private Expression emailBodyTemplateCode;
-    
+
     private Expression emailSubjectTemplateCode;
 
     @Override
     public void execute(DelegateExecution execution) throws Exception {
-        
+
         LOGGER.info("==== AF-BACK ENVOI EMAIL USAGER ...");
-        
-        String bodyTemplateCode = (String)emailBodyTemplateCode.getValue(execution);
-        String subjectTemplateCode = (String)emailSubjectTemplateCode.getValue(execution);
-        
-        Integer usagerId = (Integer)execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_USAGERID.name());
-        String langue = (String)execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_DEMANDE_LANGUE.name());
-        
-        UsagerBean usager = afBackUtils.getUsagerFromID(usagerId);
-        
+
+        String bodyTemplateCode = (String) emailBodyTemplateCode.getValue(execution);
+        String subjectTemplateCode = (String) emailSubjectTemplateCode.getValue(execution);
+
+        Integer usagerId = (Integer) execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_USAGERID.name());
+        String langue = (String) execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_DEMANDE_LANGUE.name());
+
+        UsagerBean usager = usagerCache.getUsager(usagerId);
+
         EmailInfoDTO emailInfo = new EmailInfoDTO();
         emailInfo.setBodyTemplateCode(bodyTemplateCode);
         emailInfo.setSubjectTemplateCode(subjectTemplateCode);
-        emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailService(), afBackUtils.getDemarcheInfos()
-                .getEmailServiceNom());
-        emailInfo.setReplyto(afBackUtils.getDemarcheInfos().getEmailReplyto(), afBackUtils.getDemarcheInfos()
-                .getEmailReplytoNom());
+        emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailService(),
+                afBackUtils.getDemarcheInfos().getEmailServiceNom());
+        emailInfo.setReplyto(afBackUtils.getDemarcheInfos().getEmailReplyto(),
+                afBackUtils.getDemarcheInfos().getEmailReplytoNom());
         emailInfo.addTo(usager.getEmail(), usager.getPrenom() + " " + usager.getNom());
         emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, execution.getProcessBusinessKey());
         emailInfo.setLangue(langue);
@@ -73,7 +77,7 @@ public class GouvBPMEnvoiEmailUsagerDelegate implements JavaDelegate {
         } catch (Exception e) {
             LOGGER.error("Échec lors de l'envoi de l'email", e);
         }
-        
+
         LOGGER.info("==== AF-BACK ENVOI EMAIL USAGER <fin>");
     }
 

@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import mc.gouv.servicerest.pays.ReferentielPaysClient;
 import mc.gouv.servicerest.pays.model.PaysBean;
 
 /**
@@ -19,21 +20,21 @@ import mc.gouv.servicerest.pays.model.PaysBean;
  */
 @Component
 public class PaysCacheImpl implements PaysCache {
-    
+
     private static final Logger LOGGER = LoggerFactory.getLogger(PaysCacheImpl.class);
 
-    private Map<String,PaysBean> cachedMap = new HashMap<String,PaysBean>();
-    
+    private Map<String, PaysBean> cachedMap = new HashMap<String, PaysBean>();
+
     @Autowired
-    private AfBackUtils afBackUtils;
-    
+    private ReferentielPaysClient referentielPaysClient;
+
     @Override
-    public Map<String,PaysBean> getPays() {
-        
+    public Map<String, PaysBean> getPays() {
+
         // Remplissage de la map si pas déjà fait
         if (cachedMap.size() == 0) {
             LOGGER.info("Récupération des pays dans le référentiel Pays...");
-            List<PaysBean> pays = afBackUtils.getReferentielPaysClient().getListPays();
+            List<PaysBean> pays = referentielPaysClient.getListPays();
             for (PaysBean p : pays) {
                 cachedMap.put(p.getCodeIso(), p);
             }
@@ -43,10 +44,10 @@ public class PaysCacheImpl implements PaysCache {
     }
 
     @Override
-    public Map<String,PaysBean> fetchPays() {
+    public Map<String, PaysBean> fetchPays() {
         // Vider la map (forcera getPays() à récupérer les nouveaux du WS)
         cachedMap.clear();
-        
+
         // Retour de la nouvelle map
         return getPays();
     }
@@ -55,7 +56,7 @@ public class PaysCacheImpl implements PaysCache {
     public PaysBean getPaysFromCodeIso(String codePays) {
         return getPays().get(codePays);
     }
-    
+
     @Override
     public String getNationaliteFromCodeIso(String codePays) {
         PaysBean pays = getPaysFromCodeIso(codePays);

@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.UUID;
 
 import javax.annotation.PostConstruct;
-import javax.ws.rs.NotFoundException;
 
+import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
 import org.slf4j.Logger;
@@ -30,11 +30,8 @@ import mc.gouv.dem.apiclient.DemClient;
 import mc.gouv.dem.apishared.model.DemandeDTO;
 import mc.gouv.dem.apishared.model.DemandeDataDTO;
 import mc.gouv.dem.apishared.model.DemarcheDTO;
-import mc.gouv.dem.apishared.model.UsagerCourrierDTO;
 import mc.gouv.logon.apiclient.RestException;
 import mc.gouv.logon.model.User;
-import mc.gouv.servicerest.pays.ReferentielPaysClient;
-import mc.gouv.servicerest.usager.ReferentielUsagersClient;
 import mc.gouv.servicerest.usager.model.UsagerBean;
 
 /**
@@ -53,7 +50,7 @@ public class AfBackUtils {
     public static final String MAIL_METADATA_DEMANDEID = "MC_DEMANDEID";
 
     public static final String FILE_METADATA_DEMANDEID = "X-MC-DEMANDEID";
-    
+
     public static final String FILE_METADATA_DEMANDESTATUT = "X-MC-DEMANDESTATUT";
 
     private final static String version = AfBackUtils.class.getPackage().getImplementationVersion();
@@ -71,13 +68,14 @@ public class AfBackUtils {
     @Autowired
     private LogonProxy logonProxy;
 
+    @Autowired
     private DemClient demClient;
 
-    private ReferentielPaysClient referentielPaysClient;
+    @Autowired
+    UsagersCache usagersCache;
 
-    private ReferentielUsagersClient referentielUsagersClient;
-
-    public static final int USAGERID_OFFSET = 1000000000;
+    @Autowired
+    UtilisateursCache utilisateursCache;
 
     @PostConstruct
     public void postConstruct() {
@@ -102,21 +100,6 @@ public class AfBackUtils {
         return Days.daysBetween(new DateTime(dateCreationDemande), new DateTime(new Date())).getDays();
     }
 
-    /**
-     * Retourne le nom d'un usager à partir de son ID
-     * 
-     * @param usagerId
-     * @return
-     */
-    public String getUsagerNameFromID(Integer usagerId) {
-        LOGGER.debug("getUsagerNameFromID() : Appel au référentiel Usagers...");
-        UsagerBean usager = getUsagerFromID(usagerId);
-        if (usager != null) {
-            return usager.getPrenom() + " " + usager.getNom();
-        }
-        return null;
-    }
-
     public static String getAuthenticatedAgentId() {
         return ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getMatricule();
     }
@@ -126,63 +109,33 @@ public class AfBackUtils {
     }
 
     /**
-     * Retourne les informations d'un usager à partir de son ID
+     * Retourne le nom d'un usager à partir de son ID
      * 
      * @param usagerId
      * @return
      */
-    public UsagerBean getUsagerFromID(Integer usagerId) {
-
-        if (!isUsagerCourrier(usagerId)) {
-            LOGGER.debug("getUsagerFromID(" + usagerId + ") : Appel au référentiel Usagers...");
-            try {
-                return getReferentielUsagersClient().getUsager(usagerId);
-            } catch (NotFoundException exception) {
-                return null;
-            }
-        } else {
-            LOGGER.debug("getUsagerFromID(" + usagerId + ") : Appel à DEM car usager courrier...");
-            UsagerCourrierDTO uc = getUsagerCourrierFromID(usagerId);
-            UsagerBean ub = new UsagerBean();
-            ub.setAdresse1(uc.getAdresse1());
-            ub.setAdresse2(uc.getAdresse2());
-            ub.setCodePostal(uc.getCodePostal());
-            ub.setComplementAdresse(uc.getAdresseComplement());
-            ub.setDateCreation(uc.getDateCreation());
-            ub.setEmail(uc.getEmail());
-            ub.setId(uc.getPkUsagersCourrier());
-            ub.setLogin(uc.getLogin());
-            ub.setNom(uc.getNom());
-            ub.setPrenom(uc.getPrenom());
-            ub.setNomPays(uc.getPays());
-            ub.setRaisonSociale(uc.getRaisonSociale());
-            ub.setTitre(uc.getTitre().shortValue());
-            ub.setVille(uc.getVille());
-            return ub;
+    public String getUsagerNameFromID(Integer usagerId) {
+        UsagerBean u = usagersCache.getUsager(usagerId);
+        String prenomNom = StringUtils.EMPTY;
+        if (u.getPrenom() != null) {
+            prenomNom += u.getPrenom();
         }
+        if (u.getNom() != null) {
+            prenomNom += u.getNom();
+        }
+        return prenomNom;
     }
 
     /**
-     * Retourne les informations d'un usager courrier à partir de son ID
-     * 
-     * @param usagerId
-     * @return
-     */
-    public UsagerCourrierDTO getUsagerCourrierFromID(Integer usagerId) {
-        LOGGER.debug("getUsagerCourrierFromID() : Appel à DEM...");
-        return getDemClient().getUsagerCourrier(gouvPropertiesResolver.getDemarcheId(), usagerId);
-    }
-
-    /**
-     * Retourne le nom d'un utilisateur à partir de son ID
+     * Retourne le nom d'un utilisateur à partir de son matricule
      * 
      * @param userId
      * @return
      * @throws RestException
      */
-    public String getUserNameFromID(String userId) throws RestException {
+    public String getUserNameFromID(String matricule) throws RestException {
         LOGGER.debug("getUserNameFromID() : Appel à Logon...");
-        User user = logonProxy.getUserByMatricule(userId);
+        User user = utilisateursCache.getUtilisateur(matricule);
         if (user != null) {
             return user.getNom();
         }
@@ -210,21 +163,6 @@ public class AfBackUtils {
         return demClient;
     }
 
-    public ReferentielPaysClient getReferentielPaysClient() {
-        if (referentielPaysClient == null) {
-            referentielPaysClient = new ReferentielPaysClient(gouvPropertiesResolver.getPaysRestUrl(), null, null);
-        }
-        return referentielPaysClient;
-    }
-
-    public ReferentielUsagersClient getReferentielUsagersClient() {
-        if (referentielUsagersClient == null) {
-            referentielUsagersClient = new ReferentielUsagersClient(gouvPropertiesResolver.getUsagersRestUrl(), null,
-                    null);
-        }
-        return referentielUsagersClient;
-    }
-
     /**
      * Retourne une version "cachée" des informations de la démarche
      * @return
@@ -248,17 +186,6 @@ public class AfBackUtils {
             }
         }
         return null;
-    }
-
-    /**
-     * Indique si l'usager correspond à un usager courrier ou pas. Si l'usagerId est supérieur à un milliard, alors il
-     * s'agit d'un usager courrier.
-     * 
-     * @param usagerId
-     * @return
-     */
-    public static boolean isUsagerCourrier(Integer usagerId) {
-        return usagerId > USAGERID_OFFSET;
     }
 
     public static String getAppFactoryId() {

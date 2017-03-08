@@ -24,7 +24,11 @@
 			<artifactId>activiti-spring-boot-starter-basic</artifactId>
 			<version>${activiti.version}</version>
 		</dependency>
-
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<version>1.4.190</version>
+		</dependency>
 
 
 
@@ -101,11 +105,11 @@
 			<version>1.4.2.RELEASE</version>
 		</dependency>
 
-        <dependency>
-            <groupId>javax.cache</groupId>
-            <artifactId>cache-api</artifactId>
-            <version>1.0.0</version>
-          </dependency>
+		<dependency>
+			<groupId>javax.cache</groupId>
+			<artifactId>cache-api</artifactId>
+			<version>1.0.0</version>
+		</dependency>
 
 		<dependency>
 			<groupId>org.apache.velocity</groupId>

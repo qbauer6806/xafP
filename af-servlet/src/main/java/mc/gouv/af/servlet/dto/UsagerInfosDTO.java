@@ -3,6 +3,8 @@ package mc.gouv.af.servlet.dto;
 import java.io.Serializable;
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * Usager loggé géré par l'application de gestion des usagers (login).<br/>
  * Cet usager est partagé avec les autres téléservices via un service rest (voir
@@ -239,10 +241,12 @@ public class UsagerInfosDTO implements Serializable {
         this.paysCode = paysCode;
     }
 
+    @JsonProperty("isUsagerCourrier")
     public boolean isUsagerCourrier() {
         return isUsagerCourrier;
     }
 
+    @JsonProperty("isUsagerCourrier")
     public void setUsagerCourrier(boolean isUsagerCourrier) {
         this.isUsagerCourrier = isUsagerCourrier;
     }

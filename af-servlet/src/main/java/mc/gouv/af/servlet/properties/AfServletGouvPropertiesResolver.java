@@ -119,7 +119,7 @@ public class AfServletGouvPropertiesResolver {
      * Properties propres à la démarche
      */
 
-    public static final String API_URL = "mc.gouv.appfactory" + applicationPrefix + ".url";
+    public static final String API_URL = "mc.gouv.appfactory" + applicationPrefix + ".api.url";
 
     public static String getApiUrl() {
         return Static.getValue(API_URL);

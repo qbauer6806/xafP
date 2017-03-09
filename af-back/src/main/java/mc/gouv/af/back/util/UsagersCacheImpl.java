@@ -67,42 +67,48 @@ public class UsagersCacheImpl implements UsagersCache {
     public List<UsagerBean> getAll() {
 
         LOGGER.info("MISE A JOUR DU CACHE DES USAGERS");
-        //Récupération de tous les ids des usagers
-        List<Integer> usagersIds = demClient.getUsagersIds(gouvPropertiesResolver.getDemarcheId());
-        List<Integer> usagersCourriersIds = new ArrayList<Integer>();
-        List<Integer> usagersInternetIds = new ArrayList<Integer>();
+        List<UsagerBean> usagers = new ArrayList<UsagerBean>();
+        try {
+            //Récupération de tous les ids des usagers
+            List<Integer> usagersIds = demClient.getUsagersIds(gouvPropertiesResolver.getDemarcheId());
+            List<Integer> usagersCourriersIds = new ArrayList<Integer>();
+            List<Integer> usagersInternetIds = new ArrayList<Integer>();
 
-        for (Integer usagerId : usagersIds) {
-            if (!isUsagerCourrier(usagerId)) {
-                usagersInternetIds.add(usagerId);
+            for (Integer usagerId : usagersIds) {
+                if (!isUsagerCourrier(usagerId)) {
+                    usagersInternetIds.add(usagerId);
 
-            } else {
-                usagersCourriersIds.add(usagerId);
+                } else {
+                    usagersCourriersIds.add(usagerId);
+
+                }
+            }
+
+            //Si des usagers se sont désinscrits, il m'en sortira moins que le nombre d'ids donnés en paramètre
+            usagers = referentielUsagersClient.getUsagers(usagersInternetIds);
+            List<UsagerBean> usagersCourriers = new ArrayList<UsagerBean>();
+            //Voir pour faire la fonction qui prend une liste d'ids
+            for (Integer usagerCourrierId : usagersCourriersIds) {
+                LOGGER.debug("getUsagerFromID(" + usagerCourrierId + ") : Appel à DEM car usager courrier...");
+
+                UsagerCourrierDTO uc = demClient.getUsagerCourrier(gouvPropertiesResolver.getDemarcheId(),
+                        usagerCourrierId);
+                UsagerBean ub = convertUsagerCourrierDTOToUsagerBean(uc);
+
+                usagersCourriers.add(ub);
 
             }
+            //Ajout des usagers courriers à la liste
+            usagers.addAll(usagersCourriers);
+            for (UsagerBean u : usagers) {
+                cacheManager.getCache("usager").put(u.getId(), u);
+            }
+
+            LOGGER.info(usagers.toString());
+
+        } catch (Exception e) {
+            LOGGER.error("Erreur lors de la mise en cache des usagers", e);
         }
-
-        //Si des usagers se sont désinscrits, il m'en sortira moins que le nombre d'ids donnés en paramètre
-        List<UsagerBean> usagers = referentielUsagersClient.getUsagers(usagersInternetIds);
-        List<UsagerBean> usagersCourriers = new ArrayList<UsagerBean>();
-        //Voir pour faire la fonction qui prend une liste d'ids
-        for (Integer usagerCourrierId : usagersCourriersIds) {
-            LOGGER.debug("getUsagerFromID(" + usagerCourrierId + ") : Appel à DEM car usager courrier...");
-
-            UsagerCourrierDTO uc = demClient.getUsagerCourrier(gouvPropertiesResolver.getDemarcheId(),
-                    usagerCourrierId);
-            UsagerBean ub = convertUsagerCourrierDTOToUsagerBean(uc);
-
-            usagersCourriers.add(ub);
-
-        }
-        //Ajout des usagers courriers à la liste
-        usagers.addAll(usagersCourriers);
-        for (UsagerBean u : usagers) {
-            cacheManager.getCache("usager").put(u.getId(), u);
-        }
-
-        LOGGER.info(usagers.toString());
         return usagers;
 
     }

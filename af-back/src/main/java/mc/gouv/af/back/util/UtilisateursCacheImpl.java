@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 
 import mc.gouv.af.back.service.properties.GouvPropertiesResolver;
 import mc.gouv.dem.apiclient.DemClient;
-import mc.gouv.logon.apiclient.RestException;
 import mc.gouv.logon.apiclient.UserRest;
 import mc.gouv.logon.model.User;
 
@@ -59,7 +58,7 @@ public class UtilisateursCacheImpl implements UtilisateursCache {
             for (User u : agents) {
                 cacheManager.getCache("utilisateur").put(u.getMatricule(), u);
             }
-        } catch (RestException e) {
+        } catch (Exception e) {
             LOGGER.error("Erreur à la récupération des utilisateurs", e);
         }
 

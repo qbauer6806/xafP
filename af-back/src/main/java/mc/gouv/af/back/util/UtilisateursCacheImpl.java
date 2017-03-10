@@ -55,9 +55,12 @@ public class UtilisateursCacheImpl implements UtilisateursCache {
         List<User> agents = null;
         try {
             agents = UserRest.getListUserByCodeAppli(gouvPropertiesResolver.getDemarcheId());
-            for (User u : agents) {
-                cacheManager.getCache("utilisateur").put(u.getMatricule(), u);
+            if(agents != null){
+                for (User u : agents) {
+                    cacheManager.getCache("utilisateur").put(u.getMatricule(), u);
+                }
             }
+            
         } catch (Exception e) {
             LOGGER.error("Erreur à la récupération des utilisateurs", e);
         }

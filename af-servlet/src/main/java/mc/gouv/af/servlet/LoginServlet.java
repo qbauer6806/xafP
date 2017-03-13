@@ -122,7 +122,7 @@ public class LoginServlet extends AbstractAfServlet {
                 uinfos.setEmail(usagerCourrier.getEmail());
                 // uinfos.setEtat(), que mettre ?
                 uinfos.setId(usagerCourrier.getPkUsagersCourrier());
-                uinfos.setLogin(usagerCourrier.getPrenom() + " " + usagerCourrier.getNom());
+                uinfos.setLogin(usagerCourrier.getPrenom() + " " + usagerCourrier.getNom() + " (courrier)");
                 uinfos.setNom(usagerCourrier.getNom());
                 uinfos.setPaysCode(usagerCourrier.getPays());
                 uinfos.setPrenom(usagerCourrier.getPrenom());

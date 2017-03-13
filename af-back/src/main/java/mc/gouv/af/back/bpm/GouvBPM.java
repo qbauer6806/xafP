@@ -185,4 +185,6 @@ public interface GouvBPM {
     void startProcessInstanceByMessage(String messageName, GouvBPMUser user, Integer demandeId, String codeAppli,
             Map<String, Object> businessVariables);
 
+    void setAssignee(Integer demandeId, String assignee);
+
 }

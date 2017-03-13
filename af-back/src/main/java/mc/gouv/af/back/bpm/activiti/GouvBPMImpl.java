@@ -13,8 +13,6 @@ import org.activiti.engine.ProcessEngineConfiguration;
 import org.activiti.engine.RuntimeService;
 import org.activiti.engine.TaskService;
 import org.activiti.engine.form.FormProperty;
-import org.activiti.engine.identity.Group;
-import org.activiti.engine.identity.User;
 import org.activiti.engine.impl.ProcessEngineImpl;
 import org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl;
 import org.activiti.engine.impl.context.Context;
@@ -73,13 +71,11 @@ public class GouvBPMImpl implements GouvBPM {
 
     @Autowired
     private FormService formService;
-    
-    public void startProcessInstanceByKeyOrMessage(String processDefinitionKey, String messageName, GouvBPMUser user, Integer demandeId, String codeAppli,
-            Map<String, Object> businessVariables) {
+
+    public void startProcessInstanceByKeyOrMessage(String processDefinitionKey, String messageName, GouvBPMUser user,
+            Integer demandeId, String codeAppli, Map<String, Object> businessVariables) {
         LOGGER.info("startProcessInstance() Démarrage d'une instance du process \"" + processDefinitionKey
                 + "\" assignée à l'utilisateur \"" + user + "\" et concernant la demande \"" + demandeId + "\"");
-
-        checkUser(user);
 
         // Création des variables du process
         Map<String, Object> variables = new HashMap<String, Object>();
@@ -95,9 +91,9 @@ public class GouvBPMImpl implements GouvBPM {
         try {
             // On utilise le demandeId pour la "businessKey"
             if (!StringUtils.isBlank(processDefinitionKey)) {
-                process = runtimeService.startProcessInstanceByKey(processDefinitionKey, demandeId.toString(), variables);
-            }
-            else {
+                process = runtimeService.startProcessInstanceByKey(processDefinitionKey, demandeId.toString(),
+                        variables);
+            } else {
                 process = runtimeService.startProcessInstanceByMessage(messageName, demandeId.toString(), variables);
             }
             LOGGER.info("Instance démarrée : " + process.getDeploymentId() + " , " + process.getActivityId() + " , "
@@ -115,7 +111,7 @@ public class GouvBPMImpl implements GouvBPM {
         startProcessInstanceByKeyOrMessage(processDefinitionKey, null, user, demandeId, codeAppli, businessVariables);
 
     }
-    
+
     @Override
     public void startProcessInstanceByMessage(String messageName, GouvBPMUser user, Integer demandeId, String codeAppli,
             Map<String, Object> businessVariables) {
@@ -160,9 +156,6 @@ public class GouvBPMImpl implements GouvBPM {
     @Override
     public List<GouvBPMTask> getTasksAssignedToUser(GouvBPMUser user) {
         LOGGER.debug("getTasksAssignedToUser(" + user + ")");
-
-        checkUser(user);
-
         List<Task> tasks = taskService.createTaskQuery().taskAssignee(user.getId()).active().list();
         return GouvBPMTransformer.toGouvModelTasks(tasks);
     }
@@ -179,8 +172,6 @@ public class GouvBPMImpl implements GouvBPM {
     @Override
     public void claimTask(GouvBPMTask task, GouvBPMUser user) {
         LOGGER.info("claimTask(" + task + "," + user + ")");
-
-        checkUser(user);
 
         taskService.claim(task.getId(), user.getId());
     }
@@ -230,9 +221,6 @@ public class GouvBPMImpl implements GouvBPM {
     @Override
     public List<GouvBPMTask> getTasksWhereGroupIsCandidate(GouvBPMGroup group, String codeAppli) {
         LOGGER.info("getTasksWhereGroupIsCandidate(" + group + "," + codeAppli + ")");
-
-        checkGroup(group, codeAppli);
-
         List<Task> tasks = taskService.createTaskQuery()
                 .processVariableValueEquals(GouvBPMProcessVariableTypeEnum.MC_CODEAPPLI.name(), codeAppli)
                 .taskCandidateGroup(group.getId()).list();
@@ -328,36 +316,6 @@ public class GouvBPMImpl implements GouvBPM {
         });
     }
 
-    /**
-     * Vérification de l'existence de l'utilisateur donné en paramètre
-     * @param user
-     */
-    private void checkUser(GouvBPMUser user) {
-        LOGGER.info("checkUser(" + user + ")");
-        User activitiUser = identityService.createUserQuery().userId(user.getId()).singleResult();
-        if (activitiUser == null) {
-            LOGGER.info("User inexistant");
-            // TODO REVERT
-            //throw new GouvBPMException("Utilisateur " + user + " non reconnu");
-        }
-    }
-
-    /**
-     * Vérification de l'existence du groupe donné en paramètre
-     * @param group
-     */
-    private void checkGroup(GouvBPMGroup group, String codeAppli) {
-        LOGGER.info("checkGroup(" + group + "," + codeAppli + ")");
-        // HACK On utilise un critère "groupType" pour faire passer l'info du code appli...
-        Group activitiGroup = identityService.createGroupQuery().groupId(group.getId()).groupType(codeAppli)
-                .singleResult();
-        if (activitiGroup == null) {
-            LOGGER.info("Groupe inexistant");
-            // TODO REVERT
-            //throw new GouvBPMException("Groupe " + group + " non reconnu");
-        }
-    }
-
     @SuppressWarnings("unchecked")
     @Override
     public List<CommentaireInterneDTO> getCommentairesInternes(Integer demandeId) {
@@ -390,6 +348,20 @@ public class GouvBPMImpl implements GouvBPM {
             commInternes.add(commentaire);
             runtimeService.setVariable(processInstance.getId(), GouvBPMProcessVariableTypeEnum.MC_COMMINTERNES.name(),
                     commInternes);
+        } else {
+            LOGGER.error("ProcessInstance null !");
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public void setAssignee(Integer demandeId, String assignee) {
+        LOGGER.debug("setAssignee(" + demandeId + "," + assignee + ")");
+        ProcessInstance processInstance = getActiveProcessInstanceForDemandeId(demandeId);
+        if (processInstance != null) {
+            runtimeService.setVariable(processInstance.getId(), GouvBPMProcessVariableTypeEnum.MC_ASSIGNEE.name(),
+                    assignee);
+           
         } else {
             LOGGER.error("ProcessInstance null !");
         }

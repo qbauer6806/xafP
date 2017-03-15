@@ -187,9 +187,6 @@ public class GouvBPMImpl implements GouvBPM {
     public List<GouvBPMTask> getTasksWhereUserIsCandidate(GouvBPMUser user, String codeAppli) {
         LOGGER.info("getTasksWhereUserIsCandidate(" + user + "," + codeAppli + ")");
 
-        // À la fin c'est logonProxy.getUserByMatricule() du GouvBPMGroupManager qui est utilisé, donc inutile
-        // de vérifier l'utilisateur avant puisque c'est fait après pour trouver ses groupes
-        // checkUser(user);
 
         // On transfère le code appli au GouvBPMGroupManager par le biais d'un critère de recherche sur les processVariables
         // Seul moyen de transférer cela au GouvBPMGroupManager, qui a besoin du code appli

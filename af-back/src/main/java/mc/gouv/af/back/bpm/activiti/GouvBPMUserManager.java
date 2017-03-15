@@ -16,8 +16,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import mc.gouv.af.back.bpm.GouvBPMException;
-import mc.gouv.af.back.util.LogonProxy;
-import mc.gouv.logon.apiclient.RestException;
+import mc.gouv.af.back.util.UsagersCache;
+import mc.gouv.af.back.util.UtilisateursCache;
+import mc.gouv.servicerest.usager.model.UsagerBean;
 
 /**
  * 
@@ -30,31 +31,41 @@ import mc.gouv.logon.apiclient.RestException;
 public class GouvBPMUserManager extends UserEntityManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMUserManager.class);
-    
+
     @Autowired
-    private LogonProxy logonProxy;
+    private UsagersCache usagerCache;
+
+    @Autowired
+    private UtilisateursCache utilisateursCache;
 
     @Override
     public UserEntity findUserById(String userLogin) {
 
         LOGGER.info("GouvBPMUserManager.findUserById(" + userLogin + ")");
 
-        mc.gouv.logon.model.User user = null;
-        try {
-            user = logonProxy.getUserByMatricule(userLogin);
-        } catch (RestException e) {
-            LOGGER.error("Erreur", e);
-        }
+        //Vérification si c'est un usager 
 
-        if (user != null && user.getId() != null) {
+        mc.gouv.logon.model.User user = utilisateursCache.getUtilisateur(userLogin);
+        if (user != null) {
             UserEntity ue = new UserEntity();
             ue.setId(userLogin);
-            // Logon ne possède pas d'informations Nom et Prénom séparées
-            // ue.setFirstName("ker");
-            // ue.setLastName("mit");
             ue.setEmail(user.getMail());
             ue.setRevision(0);
             return ue;
+        } else
+
+        {
+            //On teste si c'est un usager
+            UsagerBean usager = usagerCache.getUsager(Integer.parseInt(userLogin));
+
+            if (usager != null) {
+                //Ajout au groupe usager
+                UserEntity ue = new UserEntity();
+                ue.setId(userLogin);
+                ue.setEmail(usager.getEmail());
+                ue.setRevision(0);
+                return ue;
+            }
         }
 
         return null;
@@ -62,9 +73,9 @@ public class GouvBPMUserManager extends UserEntityManager {
 
     @Override
     public List<User> findUserByQueryCriteria(UserQueryImpl query, Page page) {
-        
+
         LOGGER.info("GouvBPMUserManager.findUserByQueryCriteria(query)");
-        
+
         List<User> userList = new ArrayList<User>();
         UserQueryImpl userQuery = (UserQueryImpl) query;
         if (StringUtils.isNotEmpty(userQuery.getId())) {
@@ -92,7 +103,7 @@ public class GouvBPMUserManager extends UserEntityManager {
     public Picture getUserPicture(String userId) {
         throw new GouvBPMException("getUserPicture() not supported");
     }
-    
+
     @Override
     public User createNewUser(String userId) {
         throw new GouvBPMException("createNewUser() not supported");

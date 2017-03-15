@@ -66,9 +66,6 @@ public class AfBackUtils {
     private GouvPropertiesResolver gouvPropertiesResolver;
 
     @Autowired
-    private LogonProxy logonProxy;
-
-    @Autowired
     private DemClient demClient;
 
     @Autowired

@@ -131,6 +131,12 @@ public class AfServletGouvPropertiesResolver {
         return Static.getValue(BACKOFFICE_URL);
     }
 
+    public static final String BACKOFFICE_DEMANDE_URL = "mc.gouv.appfactory" + applicationPrefix + "demande.url";
+
+    public static String getBackOfficeDemandeUrl() {
+        return Static.getValue(BACKOFFICE_DEMANDE_URL);
+    }
+
     public static final String FILE_USER = "mc.gouv" + applicationPrefix + ".frontserver.file.user";
 
     public static String getFileUser() {

@@ -6,6 +6,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,8 @@ public class RedirectToBackOfficeServlet extends AbstractAfServlet {
      */
     private static final long serialVersionUID = -9158173804027496532L;
     private static Logger LOGGER = LoggerFactory.getLogger(RedirectToBackOfficeServlet.class);
+
+    private static final String TOKEN_ID_DEMANDE = "<id>";
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
@@ -39,8 +42,13 @@ public class RedirectToBackOfficeServlet extends AbstractAfServlet {
             return;
         }
 
-        response.sendRedirect(AfServletGouvPropertiesResolver.getBackOfficeUrl());
+        String idDemande = request.getParameter("id");
+        String urlDemande = AfServletGouvPropertiesResolver.getBackOfficeDemandeUrl();
 
+        urlDemande = StringUtils.replace(urlDemande, TOKEN_ID_DEMANDE, idDemande);
+        response.sendRedirect(urlDemande);
+
+        LOGGER.info("Redirection vers : " + urlDemande);
         LOGGER.info("====================== Fin /redirect-to-backoffice doGet()");
     }
 }

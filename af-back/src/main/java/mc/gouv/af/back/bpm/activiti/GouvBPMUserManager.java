@@ -45,7 +45,7 @@ public class GouvBPMUserManager extends UserEntityManager {
 
         //Vérification si c'est un usager 
 
-        mc.gouv.logon.model.User user = utilisateursCache.getUtilisateur(userLogin);
+        mc.gouv.logon.shared.User user = utilisateursCache.getUtilisateur(userLogin);
         if (user != null) {
             UserEntity ue = new UserEntity();
             ue.setId(userLogin);

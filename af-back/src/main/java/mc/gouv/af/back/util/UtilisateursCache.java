@@ -2,7 +2,7 @@ package mc.gouv.af.back.util;
 
 import java.util.List;
 
-import mc.gouv.logon.model.User;
+import mc.gouv.logon.shared.User;
 
 public interface UtilisateursCache {
 
@@ -11,5 +11,7 @@ public interface UtilisateursCache {
     User getUtilisateur(String matricule);
 
     void clearCache();
+
+    void updateUtilisateur(User u);
 
 }

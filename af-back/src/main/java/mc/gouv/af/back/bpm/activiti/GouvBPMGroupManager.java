@@ -20,9 +20,9 @@ import org.springframework.stereotype.Component;
 import mc.gouv.af.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.af.back.util.UsagersCache;
 import mc.gouv.af.back.util.UtilisateursCache;
-import mc.gouv.logon.model.Droit;
-import mc.gouv.logon.model.Role;
-import mc.gouv.logon.model.User;
+import mc.gouv.logon.shared.Droit;
+import mc.gouv.logon.shared.Role;
+import mc.gouv.logon.shared.User;
 import mc.gouv.servicerest.usager.model.UsagerBean;
 
 /**

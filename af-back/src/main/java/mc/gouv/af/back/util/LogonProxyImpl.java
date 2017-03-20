@@ -8,9 +8,9 @@ import org.springframework.stereotype.Component;
 
 import mc.gouv.logon.apiclient.RestException;
 import mc.gouv.logon.apiclient.UserRest;
-import mc.gouv.logon.model.Droit;
-import mc.gouv.logon.model.Role;
-import mc.gouv.logon.model.User;
+import mc.gouv.logon.shared.Droit;
+import mc.gouv.logon.shared.Role;
+import mc.gouv.logon.shared.User;
 
 /**
  * Sert de proxy vers Logon afin de pouvoir mocker l'appel à logon
@@ -21,7 +21,7 @@ import mc.gouv.logon.model.User;
  */
 @Component
 public class LogonProxyImpl implements LogonProxy {
-    
+
     private static final Logger LOGGER = LoggerFactory.getLogger(LogonProxyImpl.class);
 
     @Override

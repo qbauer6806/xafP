@@ -45,7 +45,7 @@
 		<dependency>
 			<groupId>mc.gouv.logon</groupId>
 			<artifactId>logon-apiclient</artifactId>
-			<version>4.0.38</version>
+			<version>5.0.3</version>
 		</dependency>
 
 		<dependency>

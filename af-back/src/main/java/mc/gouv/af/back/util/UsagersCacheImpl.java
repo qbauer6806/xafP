@@ -43,12 +43,16 @@ public class UsagersCacheImpl implements UsagersCache {
     @Override
     @CacheResult(cacheName = "usager")
     public UsagerBean getUsager(@CacheKey Integer usagerId) {
+
+        LOGGER.info("Récupération de l'usager {}", usagerId);
         UsagerBean usager = null;
         try {
             if (!isUsagerCourrier(usagerId)) {
+                LOGGER.info("Récupération d'un usager INTERNET");
                 usager = referentielUsagersClient.getUsager(usagerId);
 
             } else {
+                LOGGER.info("Récupération d'un usager COURRIER");
                 UsagerCourrierDTO uc = demClient.getUsagerCourrier(gouvPropertiesResolver.getDemarcheId(), usagerId);
                 usager = convertUsagerCourrierDTOToUsagerBean(uc);
 
@@ -83,7 +87,8 @@ public class UsagersCacheImpl implements UsagersCache {
 
                 }
             }
-
+            LOGGER.info("Récupération des usagers INTERNET: {}", usagersInternetIds);
+            LOGGER.info("Récupération des usagers COURRIER: {}", usagersCourriersIds);
             //Si des usagers se sont désinscrits, il m'en sortira moins que le nombre d'ids donnés en paramètre
             usagers = referentielUsagersClient.getUsagers(usagersInternetIds);
             List<UsagerBean> usagersCourriers = new ArrayList<UsagerBean>();

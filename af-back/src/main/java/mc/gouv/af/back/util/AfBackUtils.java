@@ -31,7 +31,7 @@ import mc.gouv.dem.apishared.model.DemandeDTO;
 import mc.gouv.dem.apishared.model.DemandeDataDTO;
 import mc.gouv.dem.apishared.model.DemarcheDTO;
 import mc.gouv.logon.apiclient.RestException;
-import mc.gouv.logon.model.User;
+import mc.gouv.logon.shared.User;
 import mc.gouv.servicerest.usager.model.UsagerBean;
 
 /**

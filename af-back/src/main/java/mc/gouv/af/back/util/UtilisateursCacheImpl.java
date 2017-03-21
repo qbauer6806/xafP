@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
@@ -51,9 +50,9 @@ public class UtilisateursCacheImpl implements UtilisateursCache {
     }
 
     @Override
-    @CachePut(value = "utilisateur", key = "#u.matricule")
+    //@CachePut(value = "utilisateur", key = "#u.matricule")
     public void updateUtilisateur(@CacheValue User u) {
-        LOGGER.info("Mise à jour de l'utilisateur : {}", u.getMatricule());
+        cacheManager.getCache("utilisateur").put(u.getMatricule(), u);
 
     }
 
@@ -81,4 +80,13 @@ public class UtilisateursCacheImpl implements UtilisateursCache {
     public void clearCache() {
 
     }
+
+    public CacheManager getCacheManager() {
+        return cacheManager;
+    }
+
+    public void setCacheManager(CacheManager cacheManager) {
+        this.cacheManager = cacheManager;
+    }
+
 }

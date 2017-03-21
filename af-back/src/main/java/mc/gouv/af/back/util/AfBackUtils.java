@@ -45,8 +45,6 @@ public class AfBackUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AfBackUtils.class);
 
-    private static String APPFACTORYID = "appfactory";
-
     public static final String MAIL_METADATA_DEMANDEID = "MC_DEMANDEID";
 
     public static final String FILE_METADATA_DEMANDEID = "X-MC-DEMANDEID";
@@ -183,10 +181,6 @@ public class AfBackUtils {
             }
         }
         return null;
-    }
-
-    public static String getAppFactoryId() {
-        return APPFACTORYID;
     }
 
     public static String getYear() {

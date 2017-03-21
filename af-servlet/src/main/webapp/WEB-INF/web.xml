@@ -121,8 +121,8 @@
     </context-param>
 
     <context-param>
-        <param-name>AppFactoryID</param-name>
-        <param-value>appfactory</param-value>
+        <param-name>ContainerID</param-name>
+        <param-value>ROOT</param-value>
     </context-param>
 
 </web-app>

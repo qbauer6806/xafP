@@ -41,4 +41,6 @@ public interface GouvPropertiesResolver {
 
     String getDemFrontPwd();
 
+    String getContainerId();
+
 }

@@ -48,12 +48,12 @@ public class AppFactoryServletUtils {
 
     public static final String DEMARCHEID_KEY = "DemarcheID";
 
-    public static final String APPFACTORYID_KEY = "AppFactoryID";
+    public static final String CONTAINER_KEY = "ContainerID";
 
     public static final String CODE_MOTIF_ANNULATION_KEY = "CodeMotifAnnulation";
 
     public static final String FILE_METADATA_DEMANDEID = "X-MC-DEMANDEID";
-    
+
     public static final String FILE_METADATA_DEMANDESTATUT = "X-MC-DEMANDESTATUT";
 
     public static final String CAPTCHA_TOKEN_REGEXP = "^recaptcha_([0-9.]+)_(.*)_(.*)$";

@@ -39,6 +39,11 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     @Value("${application.name}")
     private String applicationName;
 
+    /**
+     * Uppercase de applicaition.name
+     */
+    private String demarcheId;
+
     /*
      * .hab
      * Sert à gérer s'il n'y a pas de fichier config.properties alors 
@@ -52,6 +57,7 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
 
         if (StringUtils.isNotBlank(applicationName)) {
             applicationPrefix = "." + applicationName;
+            demarcheId = StringUtils.upperCase(applicationName);
         }
 
         //Vérification que chaque propriété a bien été configurée
@@ -121,8 +127,13 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     }
 
     @Override
+    public String getContainerId() {
+        return Static.getValue("mc.gouv" + applicationPrefix + ".backserver.file.containerId");
+    }
+
+    @Override
     public String getDemarcheId() {
-        return Static.getValue("mc.gouv" + applicationPrefix + ".backserver.demarcheId");
+        return demarcheId;
     }
 
     @Override

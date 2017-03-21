@@ -43,10 +43,10 @@ public class FileServiceImpl implements FileService {
 
         LOGGER.info("FileService.getFile(" + filename + ")");
 
-        String appfactoryId = AfBackUtils.getAppFactoryId();
-        String demarcheId = gouvPropertiesResolver.getDemarcheId();
-        LOGGER.info("FileClient.getFile(" + appfactoryId + "," + demarcheId + "," + filename + ")");
-        getFileClient().getFile(appfactoryId, demarcheId, filename, response);
+        String accountId = gouvPropertiesResolver.getDemarcheId();
+        String containerId = gouvPropertiesResolver.getContainerId();
+        LOGGER.info("FileClient.getFile(" + accountId + "," + containerId + "," + filename + ")");
+        getFileClient().getFile(accountId, containerId, filename, response);
 
     }
 
@@ -57,18 +57,16 @@ public class FileServiceImpl implements FileService {
         LOGGER.info("FileService.saveFile(" + demande.getPkDemandes() + "," + filename + "," + contentType + ")");
 
         // Définition de la meta pour le demande ID
-        Map<String, String> customHeaders = new HashMap<String, String>();
-        customHeaders.put(AfBackUtils.FILE_METADATA_DEMANDEID, demande.getPkDemandes().toString());
-        customHeaders.put(AfBackUtils.FILE_METADATA_DEMANDESTATUT, demande.getDernierStatut().getLibelle().name());
+        Map<String, String> customHeaders = createCustomHeaders(demande);
 
         filename = demande.getFkAccess() + "/" + AfBackUtils.generateUUID() + "/" + filename;
 
         LOGGER.info("Filename à donner à FILE : " + filename);
 
-        String appfactoryId = AfBackUtils.getAppFactoryId();
-        String demarcheId = gouvPropertiesResolver.getDemarcheId();
-        LOGGER.info("FileClient.saveFile(" + appfactoryId + "," + demarcheId + "," + filename + ")");
-        return getFileClient().saveFile(appfactoryId, demarcheId, inputStream, filename, contentType, customHeaders,
+        String accountId = gouvPropertiesResolver.getDemarcheId();
+        String containerId = gouvPropertiesResolver.getContainerId();
+        LOGGER.info("FileClient.saveFile(" + accountId + "," + containerId + "," + filename + ")");
+        return getFileClient().saveFile(accountId, containerId, inputStream, filename, contentType, customHeaders,
                 outputStream);
 
     }
@@ -84,14 +82,12 @@ public class FileServiceImpl implements FileService {
 
         LOGGER.info("Filename à donner à FILE : " + filename);
 
-        Map<String, String> customHeaders = new HashMap<String, String>();
-        customHeaders.put(AfBackUtils.FILE_METADATA_DEMANDEID, demande.getPkDemandes().toString());
-        customHeaders.put(AfBackUtils.FILE_METADATA_DEMANDESTATUT, demande.getDernierStatut().getLibelle().name());
+        Map<String, String> customHeaders = createCustomHeaders(demande);
 
-        String appfactoryId = AfBackUtils.getAppFactoryId();
-        String demarcheId = gouvPropertiesResolver.getDemarcheId();
-        LOGGER.info("FileClient.saveFile(" + appfactoryId + "," + demarcheId + "," + filename + ")");
-        return getFileClient().saveFile(appfactoryId, demarcheId, part, filename, customHeaders, response);
+        String accountId = gouvPropertiesResolver.getDemarcheId();
+        String containerId = gouvPropertiesResolver.getContainerId();
+        LOGGER.info("FileClient.saveFile(" + accountId + "," + containerId + "," + filename + ")");
+        return getFileClient().saveFile(accountId, containerId, part, filename, customHeaders, response);
 
     }
 
@@ -101,6 +97,14 @@ public class FileServiceImpl implements FileService {
                     gouvPropertiesResolver.getFilePwd());
         }
         return fileClient;
+    }
+
+    private Map<String, String> createCustomHeaders(DemandeDTO demande) {
+        Map<String, String> customHeaders = new HashMap<String, String>();
+        customHeaders.put(AfBackUtils.FILE_METADATA_DEMANDEID, demande.getPkDemandes().toString());
+        customHeaders.put(AfBackUtils.FILE_METADATA_DEMANDESTATUT, demande.getDernierStatut().getLibelle().name());
+        return customHeaders;
+
     }
 
 }

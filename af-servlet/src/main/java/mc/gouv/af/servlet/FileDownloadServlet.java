@@ -56,26 +56,14 @@ public class FileDownloadServlet extends AbstractAfServlet {
 
         try {
 
-            String appFactoryId = getServletContext().getInitParameter(AppFactoryServletUtils.APPFACTORYID_KEY);
-            String demarcheId = getServletContext().getInitParameter(AppFactoryServletUtils.DEMARCHEID_KEY);
+            String accountId = getServletContext().getInitParameter(AppFactoryServletUtils.DEMARCHEID_KEY);
+            String containerId = getServletContext().getInitParameter(AppFactoryServletUtils.CONTAINER_KEY);
 
-            LOGGER.debug("AppFactoryID = {}, DemarcheID = {}", appFactoryId, demarcheId);
-
-            //            // Récupération de l'AccessID via appel WS à Demarches
-            //            LOGGER.info("Récupération de l'AccessID correspondant");
-            //            Integer accessId = AppFactoryServletUtils.getAccessID(demarcheId, usagerInfosDTO.getId());
-            //
-            //            LOGGER.debug("AccessID = {}", accessId);
-            //
-            //            if (accessId == null) {
-            //                response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_NOT_FOUND,
-            //                        "Erreur: impossible de récupérer l'accès");
-            //                return;
-            //            }
+            LOGGER.debug("accountId = {}, containerId = {}", accountId, containerId);
 
             // Constitution du chemin virtuel du fichier
             // /appfactory/demarcheId/accessId/UUID/nomDuFichier
-            String virtualPath = "/" + appFactoryId + "/" + demarcheId + "/" + filename;
+            String virtualPath = "/" + accountId + "/" + containerId + "/" + filename;
             LOGGER.info("Chemin virtuel : {}", virtualPath);
 
             // Constitution de l'URL d'appel

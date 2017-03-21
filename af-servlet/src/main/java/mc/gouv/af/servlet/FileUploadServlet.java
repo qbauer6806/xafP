@@ -70,10 +70,11 @@ public class FileUploadServlet extends AbstractAfServlet {
             UUID uuid = AppFactoryServletUtils.generateUUID();
             LOGGER.debug("UUID généré : {}", uuid.toString());
 
-            String appFactoryId = getServletContext().getInitParameter(AppFactoryServletUtils.APPFACTORYID_KEY);
+            String accountId = getServletContext().getInitParameter(AppFactoryServletUtils.DEMARCHEID_KEY);
+            String containerId = getServletContext().getInitParameter(AppFactoryServletUtils.CONTAINER_KEY);
             String demarcheId = getServletContext().getInitParameter(AppFactoryServletUtils.DEMARCHEID_KEY);
 
-            LOGGER.debug("AppFactoryID = {}, DemarcheID = {}", appFactoryId, demarcheId);
+            LOGGER.debug("accountId = {}, containerId = {}", accountId, containerId);
 
             // Récupération de l'AccessID via appel WS à Demarches
             LOGGER.info("Récupération de l'AccessID correspondant");
@@ -88,7 +89,7 @@ public class FileUploadServlet extends AbstractAfServlet {
 
             // Constitution du chemin virtuel du fichier
             // /appfactory/demarcheId/accessId/UUID/nomDuFichier
-            String virtualPath = "/" + appFactoryId + "/" + demarcheId + "/" + accessId + "/" + uuid + "/" + filename;
+            String virtualPath = "/" + accountId + "/" + containerId + "/" + accessId + "/" + uuid + "/" + filename;
             LOGGER.info("Chemin virtuel : {}", virtualPath);
 
             // Constitution de l'URL d'appel

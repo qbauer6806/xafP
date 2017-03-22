@@ -43,9 +43,15 @@ public class RedirectToBackOfficeServlet extends AbstractAfServlet {
         }
 
         String idDemande = request.getParameter("id");
-        String urlDemande = AfServletGouvPropertiesResolver.getBackOfficeDemandeUrl();
+        //redirection par default sur l'accueil car le lien abandon a été cliqué
+        String urlDemande = AfServletGouvPropertiesResolver.getBackOfficeUrl();
+        if (StringUtils.isNotBlank(idDemande)) {
+            //dans le cas de la fin de la création
+            urlDemande = AfServletGouvPropertiesResolver.getBackOfficeDemandeUrl();
+            urlDemande = StringUtils.replace(urlDemande, TOKEN_ID_DEMANDE, idDemande);
 
-        urlDemande = StringUtils.replace(urlDemande, TOKEN_ID_DEMANDE, idDemande);
+        }
+
         response.sendRedirect(urlDemande);
 
         LOGGER.info("Redirection vers : " + urlDemande);

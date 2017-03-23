@@ -5,6 +5,7 @@ import java.util.Map;
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.delegate.JavaDelegate;
 import org.activiti.engine.impl.el.Expression;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,7 +67,19 @@ public class GouvBPMEnvoiEmailUsagerDelegate implements JavaDelegate {
                 afBackUtils.getDemarcheInfos().getEmailServiceNom());
         emailInfo.setReplyto(afBackUtils.getDemarcheInfos().getEmailReplyto(),
                 afBackUtils.getDemarcheInfos().getEmailReplytoNom());
-        emailInfo.addTo(usager.getEmail(), usager.getPrenom() + " " + usager.getNom());
+
+        String prenom = StringUtils.EMPTY;
+        String nom = StringUtils.EMPTY;
+
+        if (StringUtils.isNotBlank(usager.getPrenom())) {
+            prenom = usager.getPrenom();
+        }
+
+        if (StringUtils.isNotBlank(usager.getNom())) {
+            nom = usager.getNom();
+        }
+
+        emailInfo.addTo(usager.getEmail(), prenom + " " + nom);
         emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, execution.getProcessBusinessKey());
         emailInfo.setLangue(langue);
 

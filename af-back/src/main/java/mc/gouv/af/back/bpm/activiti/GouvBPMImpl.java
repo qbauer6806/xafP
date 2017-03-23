@@ -7,7 +7,6 @@ import java.util.Map;
 
 import org.activiti.engine.ActivitiObjectNotFoundException;
 import org.activiti.engine.FormService;
-import org.activiti.engine.IdentityService;
 import org.activiti.engine.ProcessEngine;
 import org.activiti.engine.ProcessEngineConfiguration;
 import org.activiti.engine.RuntimeService;
@@ -31,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import mc.gouv.af.back.bpm.GouvBPM;
 import mc.gouv.af.back.bpm.GouvBPMException;
@@ -50,15 +50,13 @@ import mc.gouv.dem.apishared.model.DemandeStatutEnum;
  *
  */
 @Component
+@Transactional(rollbackFor = Exception.class)
 public class GouvBPMImpl implements GouvBPM {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMImpl.class);
 
     @Autowired
     private RuntimeService runtimeService;
-
-    @Autowired
-    private IdentityService identityService;
 
     @Autowired
     private TaskService taskService;
@@ -186,7 +184,6 @@ public class GouvBPMImpl implements GouvBPM {
     @Override
     public List<GouvBPMTask> getTasksWhereUserIsCandidate(GouvBPMUser user, String codeAppli) {
         LOGGER.info("getTasksWhereUserIsCandidate(" + user + "," + codeAppli + ")");
-
 
         // On transfère le code appli au GouvBPMGroupManager par le biais d'un critère de recherche sur les processVariables
         // Seul moyen de transférer cela au GouvBPMGroupManager, qui a besoin du code appli
@@ -358,7 +355,21 @@ public class GouvBPMImpl implements GouvBPM {
         if (processInstance != null) {
             runtimeService.setVariable(processInstance.getId(), GouvBPMProcessVariableTypeEnum.MC_ASSIGNEE.name(),
                     assignee);
-           
+
+            //Si des taches sont affecté directement à un certain utilisateur il faut les réaffecté çà celui qui vient de prendre en charge la demande
+            List<Task> tasks = taskService.createTaskQuery().processInstanceBusinessKey(demandeId.toString()).active()
+                    .list();
+
+            if (tasks != null && !tasks.isEmpty()) {
+                for (Task t : tasks) {
+                    if (StringUtils.isNotBlank(t.getAssignee())) {
+                        LOGGER.info("Reprise en charge de la tache {} par {} ", t.getDescription(), assignee);
+                        t.setAssignee(assignee);
+                        taskService.saveTask(t);
+                    }
+                }
+            }
+
         } else {
             LOGGER.error("ProcessInstance null !");
         }

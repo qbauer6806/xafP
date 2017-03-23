@@ -356,7 +356,7 @@ public class GouvBPMImpl implements GouvBPM {
             runtimeService.setVariable(processInstance.getId(), GouvBPMProcessVariableTypeEnum.MC_ASSIGNEE.name(),
                     assignee);
 
-            //Si des taches sont affecté directement à un certain utilisateur il faut les réaffecté çà celui qui vient de prendre en charge la demande
+            // Si des tâches sont affectées directement à un certain utilisateur, il faut les réaffecter à celui qui vient de prendre en charge la demande
             List<Task> tasks = taskService.createTaskQuery().processInstanceBusinessKey(demandeId.toString()).active()
                     .list();
 

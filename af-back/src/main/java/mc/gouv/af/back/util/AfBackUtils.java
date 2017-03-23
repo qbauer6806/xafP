@@ -116,7 +116,7 @@ public class AfBackUtils {
             prenomNom += u.getPrenom();
         }
         if (u.getNom() != null) {
-            prenomNom += u.getNom();
+            prenomNom += " " + u.getNom();
         }
         return prenomNom;
     }

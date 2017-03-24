@@ -96,11 +96,21 @@ public class AfBackUtils {
     }
 
     public static String getAuthenticatedAgentId() {
-        return ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getMatricule();
+        Object o = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (o instanceof User) {
+            return ((User) o).getMatricule();
+        }
+
+        return null;
     }
 
     public static String getAuthenticatedAgentName() {
-        return ((User) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getNom();
+        Object o = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (o instanceof User) {
+            return ((User) o).getNom();
+        }
+
+        return null;
     }
 
     /**

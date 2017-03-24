@@ -54,6 +54,10 @@ public class AfBackUtils {
     private final static String version = AfBackUtils.class.getPackage().getImplementationVersion();
 
     private static RestTemplate restTemplate;
+    
+    private static String envName;
+    
+    private static String envColor;
 
     /**
      * Version en cache des infos de la démarche
@@ -67,14 +71,48 @@ public class AfBackUtils {
     private DemClient demClient;
 
     @Autowired
-    UsagersCache usagersCache;
+    private UsagersCache usagersCache;
 
     @Autowired
-    UtilisateursCache utilisateursCache;
+    private UtilisateursCache utilisateursCache;
+    
+    @PostConstruct
+    public void postConstructEnv() {
+        String env = gouvPropertiesResolver.getGouvSharedEnv();
+        // Si production, ne rien afficher
+        if ("prod".equals(env)) {
+            envName = "";
+        }
+        else if ("sup".equals(env)) {
+            envName = "Support";
+        }
+        else if ("pre".equals(env)) {
+            envName = "Pré-production";
+        }
+        else if ("rec".equals(env)) {
+            envName = "Recette";
+        }
+        else if ("dev".equals(env)) {
+            envName = "Développement";
+        }
+        else if ("loc".equals(env)) {
+            envName = "Local";
+        }
+        else {
+            envName = "Environnement inconnu";
+        }
+
+        // Fond noir si environnement de production, et non pas rouge
+        if ("prod".equals(env)) {
+            envColor = "#000000";
+        }
+        else {
+            envColor = gouvPropertiesResolver.getGouvSharedEnvColor();
+        }
+    }
 
     @PostConstruct
-    public void postConstruct() {
-
+    public void postConstructRestTemplate() {
         restTemplate = new RestTemplate();
         List<HttpMessageConverter<?>> list = new ArrayList<HttpMessageConverter<?>>();
         MappingJackson2HttpMessageConverter conv = new MappingJackson2HttpMessageConverter();
@@ -196,4 +234,13 @@ public class AfBackUtils {
     public static String getYear() {
         return String.valueOf(Calendar.getInstance().get(Calendar.YEAR));
     }
+    
+    public static String getEnvName() {
+        return envName;
+    }
+    
+    public static String getEnvColor() {
+        return envColor;
+    }
+    
 }

@@ -108,7 +108,7 @@
         <dependency>
             <groupId>mc.gouv.tools_jar</groupId>
             <artifactId>tools_jar</artifactId>
-            <version>3.0.2</version>
+            <version>3.0.3</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

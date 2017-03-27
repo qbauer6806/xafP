@@ -24,23 +24,23 @@
 --	USING STOGROUP "IBMSTOGROUP"
 --	NO FILE SYSTEM CACHING;
 
-create table ACT_GE_PROPERTY (
+create table HAB.ACT_GE_PROPERTY (
     NAME_ varchar(64) not null,
     VALUE_ varchar(300),
     REV_ integer,
     primary key (NAME_)
 ) in "HAB_TB";
 
-insert into ACT_GE_PROPERTY
+insert into HAB.ACT_GE_PROPERTY
 values ('schema.version', '5.21.0.0', 1);
 
-insert into ACT_GE_PROPERTY
+insert into HAB.ACT_GE_PROPERTY
 values ('schema.history', 'create(5.21.0.0)', 1);
 
-insert into ACT_GE_PROPERTY
+insert into HAB.ACT_GE_PROPERTY
 values ('next.dbid', '1', 1);
 
-create table ACT_GE_BYTEARRAY (
+create table HAB.ACT_GE_BYTEARRAY (
     ID_ varchar(64) not null,
     REV_ integer,
     NAME_ varchar(255),
@@ -50,7 +50,7 @@ create table ACT_GE_BYTEARRAY (
     primary key (ID_)
 ) in "HAB_TB";
 
-create table ACT_RE_DEPLOYMENT (
+create table HAB.ACT_RE_DEPLOYMENT (
     ID_ varchar(64) not null,
     NAME_ varchar(255),
     CATEGORY_ varchar(255),
@@ -59,7 +59,7 @@ create table ACT_RE_DEPLOYMENT (
     primary key (ID_)
 ) in "HAB_TB";
 
-create table ACT_RE_MODEL (
+create table HAB.ACT_RE_MODEL (
     ID_ varchar(64) not null,
     REV_ integer,
     NAME_ varchar(255),
@@ -76,7 +76,7 @@ create table ACT_RE_MODEL (
     primary key (ID_)
 ) in "HABLOB_TB";
 
-create table ACT_RU_EXECUTION (
+create table HAB.ACT_RU_EXECUTION (
     ID_ varchar(64) not null,
     REV_ integer,
     PROC_INST_ID_ varchar(64),
@@ -97,7 +97,7 @@ create table ACT_RU_EXECUTION (
     primary key (ID_)
 ) in "HAB_TB";
 
-create table ACT_RU_JOB (
+create table HAB.ACT_RU_JOB (
     ID_ varchar(64) not null,
     REV_ integer,
     TYPE_ varchar(255) not null,
@@ -118,7 +118,7 @@ create table ACT_RU_JOB (
     primary key (ID_)
 ) in "HABLOB_TB";
 
-create table ACT_RE_PROCDEF (
+create table HAB.ACT_RE_PROCDEF (
     ID_ varchar(64) not null,
     REV_ integer,
     CATEGORY_ varchar(255),
@@ -136,7 +136,7 @@ create table ACT_RE_PROCDEF (
     primary key (ID_)
 ) in "HABLOB_TB";
 
-create table ACT_RU_TASK (
+create table HAB.ACT_RU_TASK (
     ID_ varchar(64) not null,
     REV_ integer,
     EXECUTION_ID_ varchar(64),
@@ -159,7 +159,7 @@ create table ACT_RU_TASK (
     primary key (ID_)
 ) in "HABLOB_TB";
 
-create table ACT_RU_IDENTITYLINK (
+create table HAB.ACT_RU_IDENTITYLINK (
     ID_ varchar(64) not null,
     REV_ integer,
     GROUP_ID_ varchar(255),
@@ -171,7 +171,7 @@ create table ACT_RU_IDENTITYLINK (
     primary key (ID_)
 ) in "HAB_TB";
 
-create table ACT_RU_VARIABLE (
+create table HAB.ACT_RU_VARIABLE (
     ID_ varchar(64) not null,
     REV_ integer,
     TYPE_ varchar(255) not null,
@@ -187,7 +187,7 @@ create table ACT_RU_VARIABLE (
     primary key (ID_)
 ) in "HABLOB_TB";
 
-create table ACT_RU_EVENT_SUBSCR (
+create table HAB.ACT_RU_EVENT_SUBSCR (
     ID_ varchar(64) not null,
     REV_ integer,
     EVENT_TYPE_ varchar(255) not null,
@@ -202,7 +202,7 @@ create table ACT_RU_EVENT_SUBSCR (
     primary key (ID_)
 ) in "HAB_TB";
 
-create table ACT_EVT_LOG (
+create table HAB.ACT_EVT_LOG (
     LOG_NR_ bigint not null GENERATED ALWAYS AS IDENTITY (START WITH 1, INCREMENT BY 1),
     TYPE_ varchar(64),
     PROC_DEF_ID_ varchar(64),
@@ -218,7 +218,7 @@ create table ACT_EVT_LOG (
     primary key (LOG_NR_)
 ) in "HAB_TB";
 
-create table ACT_PROCDEF_INFO (
+create table HAB.ACT_PROCDEF_INFO (
 	ID_ varchar(64) not null,
     PROC_DEF_ID_ varchar(64) not null,
     REV_ integer,
@@ -226,139 +226,139 @@ create table ACT_PROCDEF_INFO (
     primary key (ID_)
 ) in "HAB_TB";
 
-create index ACT_IDX_EXEC_BUSKEY on ACT_RU_EXECUTION(BUSINESS_KEY_);
-create index ACT_IDX_TASK_CREATE on ACT_RU_TASK(CREATE_TIME_);
-create index ACT_IDX_IDENT_LNK_USER on ACT_RU_IDENTITYLINK(USER_ID_);
-create index ACT_IDX_IDENT_LNK_GROUP on ACT_RU_IDENTITYLINK(GROUP_ID_);
-create index ACT_IDX_EVENT_SUBSCR_CONFIG_ on ACT_RU_EVENT_SUBSCR(CONFIGURATION_);
-create index ACT_IDX_VARIABLE_TASK_ID on ACT_RU_VARIABLE(TASK_ID_);
-create index ACT_IDX_ATHRZ_PROCEDEF on ACT_RU_IDENTITYLINK(PROC_DEF_ID_);
-create index ACT_IDX_EXECUTION_PROC on ACT_RU_EXECUTION(PROC_DEF_ID_);
-create index ACT_IDX_EXECUTION_PARENT on ACT_RU_EXECUTION(PARENT_ID_);
-create index ACT_IDX_EXECUTION_SUPER on ACT_RU_EXECUTION(SUPER_EXEC_);
-create index ACT_IDX_EXECUTION_IDANDREV on ACT_RU_EXECUTION(ID_, REV_);
-create index ACT_IDX_VARIABLE_BA on ACT_RU_VARIABLE(BYTEARRAY_ID_);
-create index ACT_IDX_VARIABLE_EXEC on ACT_RU_VARIABLE(EXECUTION_ID_);
-create index ACT_IDX_VARIABLE_PROCINST on ACT_RU_VARIABLE(PROC_INST_ID_);
-create index ACT_IDX_IDENT_LNK_TASK on ACT_RU_IDENTITYLINK(TASK_ID_);
-create index ACT_IDX_IDENT_LNK_PROCINST on ACT_RU_IDENTITYLINK(PROC_INST_ID_);
-create index ACT_IDX_TASK_EXEC on ACT_RU_TASK(EXECUTION_ID_);
-create index ACT_IDX_TASK_PROCINST on ACT_RU_TASK(PROC_INST_ID_);
-create index ACT_IDX_EXEC_PROC_INST_ID on ACT_RU_EXECUTION(PROC_INST_ID_);
-create index ACT_IDX_TASK_PROC_DEF_ID on ACT_RU_TASK(PROC_DEF_ID_);
-create index ACT_IDX_EVENT_SUBSCR_EXEC_ID on ACT_RU_EVENT_SUBSCR(EXECUTION_ID_);
-create index ACT_IDX_JOB_EXCEPTION_STACK_ID on ACT_RU_JOB(EXCEPTION_STACK_ID_);
-create index ACT_IDX_INFO_PROCDEF on ACT_PROCDEF_INFO(PROC_DEF_ID_);
+create index HAB.ACT_IDX_EXEC_BUSKEY on HAB.ACT_RU_EXECUTION(BUSINESS_KEY_);
+create index HAB.ACT_IDX_TASK_CREATE on HAB.ACT_RU_TASK(CREATE_TIME_);
+create index HAB.ACT_IDX_IDENT_LNK_USER on HAB.ACT_RU_IDENTITYLINK(USER_ID_);
+create index HAB.ACT_IDX_IDENT_LNK_GROUP on HAB.ACT_RU_IDENTITYLINK(GROUP_ID_);
+create index HAB.ACT_IDX_EVENT_SUBSCR_CONFIG_ on HAB.ACT_RU_EVENT_SUBSCR(CONFIGURATION_);
+create index HAB.ACT_IDX_VARIABLE_TASK_ID on HAB.ACT_RU_VARIABLE(TASK_ID_);
+create index HAB.ACT_IDX_ATHRZ_PROCEDEF on HAB.ACT_RU_IDENTITYLINK(PROC_DEF_ID_);
+create index HAB.ACT_IDX_EXECUTION_PROC on HAB.ACT_RU_EXECUTION(PROC_DEF_ID_);
+create index HAB.ACT_IDX_EXECUTION_PARENT on HAB.ACT_RU_EXECUTION(PARENT_ID_);
+create index HAB.ACT_IDX_EXECUTION_SUPER on HAB.ACT_RU_EXECUTION(SUPER_EXEC_);
+create index HAB.ACT_IDX_EXECUTION_IDANDREV on HAB.ACT_RU_EXECUTION(ID_, REV_);
+create index HAB.ACT_IDX_VARIABLE_BA on HAB.ACT_RU_VARIABLE(BYTEARRAY_ID_);
+create index HAB.ACT_IDX_VARIABLE_EXEC on HAB.ACT_RU_VARIABLE(EXECUTION_ID_);
+create index HAB.ACT_IDX_VARIABLE_PROCINST on HAB.ACT_RU_VARIABLE(PROC_INST_ID_);
+create index HAB.ACT_IDX_IDENT_LNK_TASK on HAB.ACT_RU_IDENTITYLINK(TASK_ID_);
+create index HAB.ACT_IDX_IDENT_LNK_PROCINST on HAB.ACT_RU_IDENTITYLINK(PROC_INST_ID_);
+create index HAB.ACT_IDX_TASK_EXEC on HAB.ACT_RU_TASK(EXECUTION_ID_);
+create index HAB.ACT_IDX_TASK_PROCINST on HAB.ACT_RU_TASK(PROC_INST_ID_);
+create index HAB.ACT_IDX_EXEC_PROC_INST_ID on HAB.ACT_RU_EXECUTION(PROC_INST_ID_);
+create index HAB.ACT_IDX_TASK_PROC_DEF_ID on HAB.ACT_RU_TASK(PROC_DEF_ID_);
+create index HAB.ACT_IDX_EVENT_SUBSCR_EXEC_ID on HAB.ACT_RU_EVENT_SUBSCR(EXECUTION_ID_);
+create index HAB.ACT_IDX_JOB_EXCEPTION_STACK_ID on HAB.ACT_RU_JOB(EXCEPTION_STACK_ID_);
+create index HAB.ACT_IDX_INFO_PROCDEF on HAB.ACT_PROCDEF_INFO(PROC_DEF_ID_);
 
-alter table ACT_GE_BYTEARRAY
+alter table HAB.ACT_GE_BYTEARRAY
     add constraint ACT_FK_BYTEARR_DEPL 
     foreign key (DEPLOYMENT_ID_) 
-    references ACT_RE_DEPLOYMENT (ID_);
+    references HAB.ACT_RE_DEPLOYMENT (ID_);
 
-alter table ACT_RE_PROCDEF
+alter table HAB.ACT_RE_PROCDEF
     add constraint ACT_UNIQ_PROCDEF
     unique (KEY_,VERSION_, TENANT_ID_);
     
-alter table ACT_RU_EXECUTION
+alter table HAB.ACT_RU_EXECUTION
     add constraint ACT_FK_EXE_PROCINST 
     foreign key (PROC_INST_ID_) 
-    references ACT_RU_EXECUTION (ID_);
+    references HAB.ACT_RU_EXECUTION (ID_);
 
-alter table ACT_RU_EXECUTION
+alter table HAB.ACT_RU_EXECUTION
     add constraint ACT_FK_EXE_PARENT 
     foreign key (PARENT_ID_) 
-    references ACT_RU_EXECUTION (ID_);
+    references HAB.ACT_RU_EXECUTION (ID_);
     
-alter table ACT_RU_EXECUTION
+alter table HAB.ACT_RU_EXECUTION
     add constraint ACT_FK_EXE_SUPER 
     foreign key (SUPER_EXEC_) 
-    references ACT_RU_EXECUTION (ID_);
+    references HAB.ACT_RU_EXECUTION (ID_);
     
-alter table ACT_RU_EXECUTION
+alter table HAB.ACT_RU_EXECUTION
     add constraint ACT_FK_EXE_PROCDEF 
     foreign key (PROC_DEF_ID_) 
-    references ACT_RE_PROCDEF (ID_);    
+    references HAB.ACT_RE_PROCDEF (ID_);    
     
-alter table ACT_RU_IDENTITYLINK
+alter table HAB.ACT_RU_IDENTITYLINK
     add constraint ACT_FK_TSKASS_TASK 
     foreign key (TASK_ID_) 
-    references ACT_RU_TASK (ID_);
+    references HAB.ACT_RU_TASK (ID_);
 
-alter table ACT_RU_IDENTITYLINK
+alter table HAB.ACT_RU_IDENTITYLINK
     add constraint ACT_FK_ATHRZ_PROCEDEF 
     foreign key (PROC_DEF_ID_) 
-    references ACT_RE_PROCDEF (ID_);
+    references HAB.ACT_RE_PROCDEF (ID_);
     
-alter table ACT_RU_IDENTITYLINK
+alter table HAB.ACT_RU_IDENTITYLINK
     add constraint ACT_FK_IDL_PROCINST
     foreign key (PROC_INST_ID_) 
-    references ACT_RU_EXECUTION (ID_);       
+    references HAB.ACT_RU_EXECUTION (ID_);       
 
-alter table ACT_RU_TASK
+alter table HAB.ACT_RU_TASK
     add constraint ACT_FK_TASK_EXE
     foreign key (EXECUTION_ID_)
-    references ACT_RU_EXECUTION (ID_);
+    references HAB.ACT_RU_EXECUTION (ID_);
     
-alter table ACT_RU_TASK
+alter table HAB.ACT_RU_TASK
     add constraint ACT_FK_TASK_PROCINST
     foreign key (PROC_INST_ID_)
-    references ACT_RU_EXECUTION (ID_);
+    references HAB.ACT_RU_EXECUTION (ID_);
     
-alter table ACT_RU_TASK
+alter table HAB.ACT_RU_TASK
   	add constraint ACT_FK_TASK_PROCDEF
   	foreign key (PROC_DEF_ID_)
-  	references ACT_RE_PROCDEF (ID_);
+  	references HAB.ACT_RE_PROCDEF (ID_);
   
-alter table ACT_RU_VARIABLE 
+alter table HAB.ACT_RU_VARIABLE 
     add constraint ACT_FK_VAR_EXE 
     foreign key (EXECUTION_ID_) 
-    references ACT_RU_EXECUTION (ID_);
+    references HAB.ACT_RU_EXECUTION (ID_);
 
-alter table ACT_RU_VARIABLE
+alter table HAB.ACT_RU_VARIABLE
     add constraint ACT_FK_VAR_PROCINST
     foreign key (PROC_INST_ID_)
-    references ACT_RU_EXECUTION(ID_);
+    references HAB.ACT_RU_EXECUTION(ID_);
 
-alter table ACT_RU_VARIABLE 
+alter table HAB.ACT_RU_VARIABLE 
     add constraint ACT_FK_VAR_BYTEARRAY 
     foreign key (BYTEARRAY_ID_) 
-    references ACT_GE_BYTEARRAY (ID_);
+    references HAB.ACT_GE_BYTEARRAY (ID_);
 
-alter table ACT_RU_JOB 
+alter table HAB.ACT_RU_JOB 
     add constraint ACT_FK_JOB_EXCEPTION 
     foreign key (EXCEPTION_STACK_ID_) 
-    references ACT_GE_BYTEARRAY (ID_);
+    references HAB.ACT_GE_BYTEARRAY (ID_);
     
-alter table ACT_RU_EVENT_SUBSCR
+alter table HAB.ACT_RU_EVENT_SUBSCR
     add constraint ACT_FK_EVENT_EXEC
     foreign key (EXECUTION_ID_)
-    references ACT_RU_EXECUTION(ID_);
+    references HAB.ACT_RU_EXECUTION(ID_);
     
-alter table ACT_RE_MODEL 
+alter table HAB.ACT_RE_MODEL 
     add constraint ACT_FK_MODEL_SOURCE 
     foreign key (EDITOR_SOURCE_VALUE_ID_) 
-    references ACT_GE_BYTEARRAY (ID_);
+    references HAB.ACT_GE_BYTEARRAY (ID_);
 
-alter table ACT_RE_MODEL 
+alter table HAB.ACT_RE_MODEL 
     add constraint ACT_FK_MODEL_SOURCE_EXTRA 
     foreign key (EDITOR_SOURCE_EXTRA_VALUE_ID_) 
-    references ACT_GE_BYTEARRAY (ID_);
+    references HAB.ACT_GE_BYTEARRAY (ID_);
     
-alter table ACT_RE_MODEL 
+alter table HAB.ACT_RE_MODEL 
     add constraint ACT_FK_MODEL_DEPLOYMENT 
     foreign key (DEPLOYMENT_ID_) 
-    references ACT_RE_DEPLOYMENT (ID_);    
+    references HAB.ACT_RE_DEPLOYMENT (ID_);    
 
-alter table ACT_PROCDEF_INFO 
+alter table HAB.ACT_PROCDEF_INFO 
     add constraint ACT_FK_INFO_JSON_BA 
     foreign key (INFO_JSON_ID_) 
-    references ACT_GE_BYTEARRAY (ID_);
+    references HAB.ACT_GE_BYTEARRAY (ID_);
 
-alter table ACT_PROCDEF_INFO 
+alter table HAB.ACT_PROCDEF_INFO 
     add constraint ACT_FK_INFO_PROCDEF 
     foreign key (PROC_DEF_ID_) 
-    references ACT_RE_PROCDEF (ID_);
+    references HAB.ACT_RE_PROCDEF (ID_);
     
-alter table ACT_PROCDEF_INFO
+alter table HAB.ACT_PROCDEF_INFO
     add constraint ACT_UNIQ_INFO_PROCDEF
     unique (PROC_DEF_ID_);

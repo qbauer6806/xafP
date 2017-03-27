@@ -1,4 +1,4 @@
-create table ACT_HI_PROCINST (
+create table HAB.ACT_HI_PROCINST (
     ID_ varchar(64) not null,
     PROC_INST_ID_ varchar(64) not null,
     BUSINESS_KEY_ varchar(255),
@@ -16,9 +16,9 @@ create table ACT_HI_PROCINST (
     primary key (ID_)
 ) in "HABLOB_TB";
 
-alter table ACT_HI_PROCINST add constraint PROC_INST_ID_ unique(PROC_INST_ID_);
+alter table HAB.ACT_HI_PROCINST add constraint PROC_INST_ID_ unique(PROC_INST_ID_);
 
-create table ACT_HI_ACTINST (
+create table HAB.ACT_HI_ACTINST (
     ID_ varchar(64) not null,
     PROC_DEF_ID_ varchar(64) not null,
     PROC_INST_ID_ varchar(64) not null,
@@ -37,7 +37,7 @@ create table ACT_HI_ACTINST (
     primary key (ID_)
 ) in "HAB_TB";
 
-create table ACT_HI_TASKINST (
+create table HAB.ACT_HI_TASKINST (
     ID_ varchar(64) not null,
     PROC_DEF_ID_ varchar(64),
     TASK_DEF_KEY_ varchar(255),
@@ -61,7 +61,7 @@ create table ACT_HI_TASKINST (
     primary key (ID_)
 ) in "HABLOB_TB";
 
-create table ACT_HI_VARINST (
+create table HAB.ACT_HI_VARINST (
     ID_ varchar(64) not null,
     PROC_INST_ID_ varchar(64),
     EXECUTION_ID_ varchar(64),
@@ -79,7 +79,7 @@ create table ACT_HI_VARINST (
     primary key (ID_)
 ) in "HABLOB_TB";
 
-create table ACT_HI_DETAIL (
+create table HAB.ACT_HI_DETAIL (
     ID_ varchar(64) not null,
     TYPE_ varchar(255) not null,
     PROC_INST_ID_ varchar(64),
@@ -98,7 +98,7 @@ create table ACT_HI_DETAIL (
     primary key (ID_)
 ) in "HABLOB_TB";
 
-create table ACT_HI_COMMENT (
+create table HAB.ACT_HI_COMMENT (
     ID_ varchar(64) not null,
     TYPE_ varchar(255),
     TIME_ timestamp not null,
@@ -111,7 +111,7 @@ create table ACT_HI_COMMENT (
     primary key (ID_)
 ) in "HABLOB_TB";
 
-create table ACT_HI_ATTACHMENT (
+create table HAB.ACT_HI_ATTACHMENT (
     ID_ varchar(64) not null,
     REV_ integer,
     USER_ID_ varchar(255),
@@ -126,7 +126,7 @@ create table ACT_HI_ATTACHMENT (
     primary key (ID_)
 ) in "HABLOB_TB";
 
-create table ACT_HI_IDENTITYLINK (
+create table HAB.ACT_HI_IDENTITYLINK (
     ID_ varchar(64) not null,
     GROUP_ID_ varchar(255),
     TYPE_ varchar(255),
@@ -136,21 +136,21 @@ create table ACT_HI_IDENTITYLINK (
     primary key (ID_)
 ) in "HAB_TB";
 
-create index ACT_IDX_HI_PRO_INST_END on ACT_HI_PROCINST(END_TIME_);
-create index ACT_IDX_HI_PRO_I_BUSKEY on ACT_HI_PROCINST(BUSINESS_KEY_);
-create index ACT_IDX_HI_ACT_INST_START on ACT_HI_ACTINST(START_TIME_);
-create index ACT_IDX_HI_ACT_INST_END on ACT_HI_ACTINST(END_TIME_);
-create index ACT_IDX_HI_DETAIL_PROC_INST on ACT_HI_DETAIL(PROC_INST_ID_);
-create index ACT_IDX_HI_DETAIL_ACT_INST on ACT_HI_DETAIL(ACT_INST_ID_);
-create index ACT_IDX_HI_DETAIL_TIME on ACT_HI_DETAIL(TIME_);
-create index ACT_IDX_HI_DETAIL_NAME on ACT_HI_DETAIL(NAME_);
-create index ACT_IDX_HI_DETAIL_TASK_ID on ACT_HI_DETAIL(TASK_ID_);
-create index ACT_IDX_HI_PROCVAR_PROC_INST on ACT_HI_VARINST(PROC_INST_ID_);
-create index ACT_IDX_HI_PROCVAR_NAME_TYPE on ACT_HI_VARINST(NAME_, VAR_TYPE_);
-create index ACT_IDX_HI_PROCVAR_TASK_ID on ACT_HI_VARINST(TASK_ID_);
-create index ACT_IDX_HI_ACT_INST_PROCINST on ACT_HI_ACTINST(PROC_INST_ID_, ACT_ID_);
-create index ACT_IDX_HI_ACT_INST_EXEC on ACT_HI_ACTINST(EXECUTION_ID_, ACT_ID_);
-create index ACT_IDX_HI_IDENT_LNK_USER on ACT_HI_IDENTITYLINK(USER_ID_);
-create index ACT_IDX_HI_IDENT_LNK_TASK on ACT_HI_IDENTITYLINK(TASK_ID_);
-create index ACT_IDX_HI_IDENT_LNK_PROCINST on ACT_HI_IDENTITYLINK(PROC_INST_ID_);
-create index ACT_IDX_HI_TASK_INST_PROCINST on ACT_HI_TASKINST(PROC_INST_ID_);
+create index HAB.ACT_IDX_HI_PRO_INST_END on HAB.ACT_HI_PROCINST(END_TIME_);
+create index HAB.ACT_IDX_HI_PRO_I_BUSKEY on HAB.ACT_HI_PROCINST(BUSINESS_KEY_);
+create index HAB.ACT_IDX_HI_ACT_INST_START on HAB.ACT_HI_ACTINST(START_TIME_);
+create index HAB.ACT_IDX_HI_ACT_INST_END on HAB.ACT_HI_ACTINST(END_TIME_);
+create index HAB.ACT_IDX_HI_DETAIL_PROC_INST on HAB.ACT_HI_DETAIL(PROC_INST_ID_);
+create index HAB.ACT_IDX_HI_DETAIL_ACT_INST on HAB.ACT_HI_DETAIL(ACT_INST_ID_);
+create index HAB.ACT_IDX_HI_DETAIL_TIME on HAB.ACT_HI_DETAIL(TIME_);
+create index HAB.ACT_IDX_HI_DETAIL_NAME on HAB.ACT_HI_DETAIL(NAME_);
+create index HAB.ACT_IDX_HI_DETAIL_TASK_ID on HAB.ACT_HI_DETAIL(TASK_ID_);
+create index HAB.ACT_IDX_HI_PROCVAR_PROC_INST on HAB.ACT_HI_VARINST(PROC_INST_ID_);
+create index HAB.ACT_IDX_HI_PROCVAR_NAME_TYPE on HAB.ACT_HI_VARINST(NAME_, VAR_TYPE_);
+create index HAB.ACT_IDX_HI_PROCVAR_TASK_ID on HAB.ACT_HI_VARINST(TASK_ID_);
+create index HAB.ACT_IDX_HI_ACT_INST_PROCINST on HAB.ACT_HI_ACTINST(PROC_INST_ID_, ACT_ID_);
+create index HAB.ACT_IDX_HI_ACT_INST_EXEC on HAB.ACT_HI_ACTINST(EXECUTION_ID_, ACT_ID_);
+create index HAB.ACT_IDX_HI_IDENT_LNK_USER on HAB.ACT_HI_IDENTITYLINK(USER_ID_);
+create index HAB.ACT_IDX_HI_IDENT_LNK_TASK on HAB.ACT_HI_IDENTITYLINK(TASK_ID_);
+create index HAB.ACT_IDX_HI_IDENT_LNK_PROCINST on HAB.ACT_HI_IDENTITYLINK(PROC_INST_ID_);
+create index HAB.ACT_IDX_HI_TASK_INST_PROCINST on HAB.ACT_HI_TASKINST(PROC_INST_ID_);

@@ -1,4 +1,4 @@
-create table HAB.ACT_HI_PROCINST (
+create table ${SCHEMA}.ACT_HI_PROCINST (
     ID_ varchar(64) not null,
     PROC_INST_ID_ varchar(64) not null,
     BUSINESS_KEY_ varchar(255),
@@ -14,11 +14,11 @@ create table HAB.ACT_HI_PROCINST (
     TENANT_ID_ varchar(255) default '',
     NAME_ varchar(255),
     primary key (ID_)
-) in "HABLOB_TB";
+) in "${SCHEMA}LOB_TB";
 
-alter table HAB.ACT_HI_PROCINST add constraint PROC_INST_ID_ unique(PROC_INST_ID_);
+alter table ${SCHEMA}.ACT_HI_PROCINST add constraint PROC_INST_ID_ unique(PROC_INST_ID_);
 
-create table HAB.ACT_HI_ACTINST (
+create table ${SCHEMA}.ACT_HI_ACTINST (
     ID_ varchar(64) not null,
     PROC_DEF_ID_ varchar(64) not null,
     PROC_INST_ID_ varchar(64) not null,
@@ -35,9 +35,9 @@ create table HAB.ACT_HI_ACTINST (
     DURATION_ bigint,
     TENANT_ID_ varchar(255) default '',
     primary key (ID_)
-) in "HAB_TB";
+) in "${SCHEMA}_TB";
 
-create table HAB.ACT_HI_TASKINST (
+create table ${SCHEMA}.ACT_HI_TASKINST (
     ID_ varchar(64) not null,
     PROC_DEF_ID_ varchar(64),
     TASK_DEF_KEY_ varchar(255),
@@ -59,9 +59,9 @@ create table HAB.ACT_HI_TASKINST (
     CATEGORY_ varchar(255),
     TENANT_ID_ varchar(255) default '',
     primary key (ID_)
-) in "HABLOB_TB";
+) in "${SCHEMA}LOB_TB";
 
-create table HAB.ACT_HI_VARINST (
+create table ${SCHEMA}.ACT_HI_VARINST (
     ID_ varchar(64) not null,
     PROC_INST_ID_ varchar(64),
     EXECUTION_ID_ varchar(64),
@@ -77,9 +77,9 @@ create table HAB.ACT_HI_VARINST (
     CREATE_TIME_ timestamp,
     LAST_UPDATED_TIME_ timestamp,
     primary key (ID_)
-) in "HABLOB_TB";
+) in "${SCHEMA}LOB_TB";
 
-create table HAB.ACT_HI_DETAIL (
+create table ${SCHEMA}.ACT_HI_DETAIL (
     ID_ varchar(64) not null,
     TYPE_ varchar(255) not null,
     PROC_INST_ID_ varchar(64),
@@ -96,9 +96,9 @@ create table HAB.ACT_HI_DETAIL (
     TEXT_ varchar(4000),
     TEXT2_ varchar(4000),
     primary key (ID_)
-) in "HABLOB_TB";
+) in "${SCHEMA}LOB_TB";
 
-create table HAB.ACT_HI_COMMENT (
+create table ${SCHEMA}.ACT_HI_COMMENT (
     ID_ varchar(64) not null,
     TYPE_ varchar(255),
     TIME_ timestamp not null,
@@ -109,9 +109,9 @@ create table HAB.ACT_HI_COMMENT (
     MESSAGE_ varchar(4000),
     FULL_MSG_ BLOB,
     primary key (ID_)
-) in "HABLOB_TB";
+) in "${SCHEMA}LOB_TB";
 
-create table HAB.ACT_HI_ATTACHMENT (
+create table ${SCHEMA}.ACT_HI_ATTACHMENT (
     ID_ varchar(64) not null,
     REV_ integer,
     USER_ID_ varchar(255),
@@ -124,9 +124,9 @@ create table HAB.ACT_HI_ATTACHMENT (
     CONTENT_ID_ varchar(64),
     TIME_ timestamp,
     primary key (ID_)
-) in "HABLOB_TB";
+) in "${SCHEMA}LOB_TB";
 
-create table HAB.ACT_HI_IDENTITYLINK (
+create table ${SCHEMA}.ACT_HI_IDENTITYLINK (
     ID_ varchar(64) not null,
     GROUP_ID_ varchar(255),
     TYPE_ varchar(255),
@@ -134,23 +134,23 @@ create table HAB.ACT_HI_IDENTITYLINK (
     TASK_ID_ varchar(64),
     PROC_INST_ID_ varchar(64),
     primary key (ID_)
-) in "HAB_TB";
+) in "${SCHEMA}_TB";
 
-create index HAB.ACT_IDX_HI_PRO_INST_END on HAB.ACT_HI_PROCINST(END_TIME_);
-create index HAB.ACT_IDX_HI_PRO_I_BUSKEY on HAB.ACT_HI_PROCINST(BUSINESS_KEY_);
-create index HAB.ACT_IDX_HI_ACT_INST_START on HAB.ACT_HI_ACTINST(START_TIME_);
-create index HAB.ACT_IDX_HI_ACT_INST_END on HAB.ACT_HI_ACTINST(END_TIME_);
-create index HAB.ACT_IDX_HI_DETAIL_PROC_INST on HAB.ACT_HI_DETAIL(PROC_INST_ID_);
-create index HAB.ACT_IDX_HI_DETAIL_ACT_INST on HAB.ACT_HI_DETAIL(ACT_INST_ID_);
-create index HAB.ACT_IDX_HI_DETAIL_TIME on HAB.ACT_HI_DETAIL(TIME_);
-create index HAB.ACT_IDX_HI_DETAIL_NAME on HAB.ACT_HI_DETAIL(NAME_);
-create index HAB.ACT_IDX_HI_DETAIL_TASK_ID on HAB.ACT_HI_DETAIL(TASK_ID_);
-create index HAB.ACT_IDX_HI_PROCVAR_PROC_INST on HAB.ACT_HI_VARINST(PROC_INST_ID_);
-create index HAB.ACT_IDX_HI_PROCVAR_NAME_TYPE on HAB.ACT_HI_VARINST(NAME_, VAR_TYPE_);
-create index HAB.ACT_IDX_HI_PROCVAR_TASK_ID on HAB.ACT_HI_VARINST(TASK_ID_);
-create index HAB.ACT_IDX_HI_ACT_INST_PROCINST on HAB.ACT_HI_ACTINST(PROC_INST_ID_, ACT_ID_);
-create index HAB.ACT_IDX_HI_ACT_INST_EXEC on HAB.ACT_HI_ACTINST(EXECUTION_ID_, ACT_ID_);
-create index HAB.ACT_IDX_HI_IDENT_LNK_USER on HAB.ACT_HI_IDENTITYLINK(USER_ID_);
-create index HAB.ACT_IDX_HI_IDENT_LNK_TASK on HAB.ACT_HI_IDENTITYLINK(TASK_ID_);
-create index HAB.ACT_IDX_HI_IDENT_LNK_PROCINST on HAB.ACT_HI_IDENTITYLINK(PROC_INST_ID_);
-create index HAB.ACT_IDX_HI_TASK_INST_PROCINST on HAB.ACT_HI_TASKINST(PROC_INST_ID_);
+create index ${SCHEMA}.ACT_IDX_HI_PRO_INST_END on ${SCHEMA}.ACT_HI_PROCINST(END_TIME_);
+create index ${SCHEMA}.ACT_IDX_HI_PRO_I_BUSKEY on ${SCHEMA}.ACT_HI_PROCINST(BUSINESS_KEY_);
+create index ${SCHEMA}.ACT_IDX_HI_ACT_INST_START on ${SCHEMA}.ACT_HI_ACTINST(START_TIME_);
+create index ${SCHEMA}.ACT_IDX_HI_ACT_INST_END on ${SCHEMA}.ACT_HI_ACTINST(END_TIME_);
+create index ${SCHEMA}.ACT_IDX_HI_DETAIL_PROC_INST on ${SCHEMA}.ACT_HI_DETAIL(PROC_INST_ID_);
+create index ${SCHEMA}.ACT_IDX_HI_DETAIL_ACT_INST on ${SCHEMA}.ACT_HI_DETAIL(ACT_INST_ID_);
+create index ${SCHEMA}.ACT_IDX_HI_DETAIL_TIME on ${SCHEMA}.ACT_HI_DETAIL(TIME_);
+create index ${SCHEMA}.ACT_IDX_HI_DETAIL_NAME on ${SCHEMA}.ACT_HI_DETAIL(NAME_);
+create index ${SCHEMA}.ACT_IDX_HI_DETAIL_TASK_ID on ${SCHEMA}.ACT_HI_DETAIL(TASK_ID_);
+create index ${SCHEMA}.ACT_IDX_HI_PROCVAR_PROC_INST on ${SCHEMA}.ACT_HI_VARINST(PROC_INST_ID_);
+create index ${SCHEMA}.ACT_IDX_HI_PROCVAR_NAME_TYPE on ${SCHEMA}.ACT_HI_VARINST(NAME_, VAR_TYPE_);
+create index ${SCHEMA}.ACT_IDX_HI_PROCVAR_TASK_ID on ${SCHEMA}.ACT_HI_VARINST(TASK_ID_);
+create index ${SCHEMA}.ACT_IDX_HI_ACT_INST_PROCINST on ${SCHEMA}.ACT_HI_ACTINST(PROC_INST_ID_, ACT_ID_);
+create index ${SCHEMA}.ACT_IDX_HI_ACT_INST_EXEC on ${SCHEMA}.ACT_HI_ACTINST(EXECUTION_ID_, ACT_ID_);
+create index ${SCHEMA}.ACT_IDX_HI_IDENT_LNK_USER on ${SCHEMA}.ACT_HI_IDENTITYLINK(USER_ID_);
+create index ${SCHEMA}.ACT_IDX_HI_IDENT_LNK_TASK on ${SCHEMA}.ACT_HI_IDENTITYLINK(TASK_ID_);
+create index ${SCHEMA}.ACT_IDX_HI_IDENT_LNK_PROCINST on ${SCHEMA}.ACT_HI_IDENTITYLINK(PROC_INST_ID_);
+create index ${SCHEMA}.ACT_IDX_HI_TASK_INST_PROCINST on ${SCHEMA}.ACT_HI_TASKINST(PROC_INST_ID_);

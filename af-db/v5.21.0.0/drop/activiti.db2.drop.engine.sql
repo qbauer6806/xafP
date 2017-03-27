@@ -1,0 +1,22 @@
+drop index ${SCHEMA}.ACT_IDX_EXEC_BUSKEY;
+drop index ${SCHEMA}.ACT_IDX_TASK_CREATE;
+drop index ${SCHEMA}.ACT_IDX_IDENT_LNK_USER;
+drop index ${SCHEMA}.ACT_IDX_IDENT_LNK_GROUP;
+drop index ${SCHEMA}.ACT_IDX_VARIABLE_TASK_ID;
+
+drop index ${SCHEMA}.ACT_IDX_EVENT_SUBSCR_CONFIG_;
+drop index ${SCHEMA}.ACT_IDX_ATHRZ_PROCEDEF;
+    
+drop table ${SCHEMA}.ACT_GE_PROPERTY;
+drop table ${SCHEMA}.ACT_GE_BYTEARRAY;
+drop table ${SCHEMA}.ACT_RE_DEPLOYMENT;
+drop table ${SCHEMA}.ACT_RE_MODEL;
+drop table ${SCHEMA}.ACT_RE_PROCDEF;
+drop table ${SCHEMA}.ACT_RU_VARIABLE;
+drop table ${SCHEMA}.ACT_RU_IDENTITYLINK;
+drop table ${SCHEMA}.ACT_RU_TASK;
+drop table ${SCHEMA}.ACT_RU_EXECUTION;
+drop table ${SCHEMA}.ACT_RU_JOB;
+drop table ${SCHEMA}.ACT_RU_EVENT_SUBSCR;
+drop table ${SCHEMA}.ACT_EVT_LOG;
+drop table ${SCHEMA}.ACT_PROCDEF_INFO;

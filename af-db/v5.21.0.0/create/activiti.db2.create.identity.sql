@@ -1,18 +1,18 @@
-create table HAB.ACT_ID_GROUP (
+create table ${SCHEMA}.ACT_ID_GROUP (
     ID_ varchar(64) not null,
     REV_ integer,
     NAME_ varchar(255),
     TYPE_ varchar(255),
     primary key (ID_)
-) in "HAB_TB";
+) in "${SCHEMA}_TB";
 
-create table HAB.ACT_ID_MEMBERSHIP (
+create table ${SCHEMA}.ACT_ID_MEMBERSHIP (
     USER_ID_ varchar(64) not null,
     GROUP_ID_ varchar(64) not null,
     primary key (USER_ID_, GROUP_ID_)
-) in "HAB_TB";
+) in "${SCHEMA}_TB";
 
-create table HAB.ACT_ID_USER (
+create table ${SCHEMA}.ACT_ID_USER (
     ID_ varchar(64) not null,
     REV_ integer,
     FIRST_ varchar(255),
@@ -21,9 +21,9 @@ create table HAB.ACT_ID_USER (
     PWD_ varchar(255),
     PICTURE_ID_ varchar(64),
     primary key (ID_)
-) in "HAB_TB";
+) in "${SCHEMA}_TB";
 
-create table HAB.ACT_ID_INFO (
+create table ${SCHEMA}.ACT_ID_INFO (
     ID_ varchar(64) not null,
     REV_ integer,
     USER_ID_ varchar(64),
@@ -33,14 +33,14 @@ create table HAB.ACT_ID_INFO (
     PASSWORD_ BLOB,
     PARENT_ID_ varchar(255),
     primary key (ID_)
-) in "HAB_TB";
+) in "${SCHEMA}_TB";
 
-alter table HAB.ACT_ID_MEMBERSHIP 
+alter table ${SCHEMA}.ACT_ID_MEMBERSHIP 
     add constraint ACT_FK_MEMB_GROUP 
     foreign key (GROUP_ID_) 
-    references HAB.ACT_ID_GROUP (ID_);
+    references ${SCHEMA}.ACT_ID_GROUP (ID_);
 
-alter table HAB.ACT_ID_MEMBERSHIP 
+alter table ${SCHEMA}.ACT_ID_MEMBERSHIP 
     add constraint ACT_FK_MEMB_USER 
     foreign key (USER_ID_) 
-    references HAB.ACT_ID_USER (ID_);
+    references ${SCHEMA}.ACT_ID_USER (ID_);

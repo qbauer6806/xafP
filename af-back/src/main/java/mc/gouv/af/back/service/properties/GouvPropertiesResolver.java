@@ -42,9 +42,11 @@ public interface GouvPropertiesResolver {
     String getDemFrontPwd();
 
     String getContainerId();
-    
+
     String getGouvSharedEnv();
-    
+
     String getGouvSharedEnvColor();
+
+    String getContactSupportUrl();
 
 }

@@ -203,19 +203,26 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     public String getFrontUrl() {
         return Static.getValue("mc.gouv" + applicationPrefix + ".backserver.front.url");
     }
-    
+
     private static final String GOUV_SHARED_ENV = "mc.gouv.shared.env";
 
     @Override
     public String getGouvSharedEnv() {
         return Static.getValue(GOUV_SHARED_ENV);
     }
-    
+
     private static final String GOUV_SHARED_ENV_COLOR = "mc.gouv.shared.env.color";
 
     @Override
     public String getGouvSharedEnvColor() {
         return Static.getValue(GOUV_SHARED_ENV_COLOR);
+    }
+
+    private static final String CONTACT_SUPPORT_URL = "mc.gouv.af.back.contactSupport.url";
+
+    @Override
+    public String getContactSupportUrl() {
+        return Static.getValue(CONTACT_SUPPORT_URL);
     }
 
 }

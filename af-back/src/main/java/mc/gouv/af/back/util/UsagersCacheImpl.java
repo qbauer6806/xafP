@@ -90,7 +90,18 @@ public class UsagersCacheImpl implements UsagersCache {
             LOGGER.info("Récupération des usagers INTERNET: {}", usagersInternetIds);
             LOGGER.info("Récupération des usagers COURRIER: {}", usagersCourriersIds);
             //Si des usagers se sont désinscrits, il m'en sortira moins que le nombre d'ids donnés en paramètre
-            usagers = referentielUsagersClient.getUsagers(usagersInternetIds);
+            if (!usagersInternetIds.isEmpty()) {
+                if (usagersInternetIds.size() == 1) {
+                    UsagerBean usagerBean = referentielUsagersClient.getUsager(usagersInternetIds.get(0));
+                    if (usagerBean != null) {
+                        usagers.add(usagerBean);
+                    }
+
+                } else {
+                    usagers = referentielUsagersClient.getUsagers(usagersInternetIds);
+                }
+            }
+
             List<UsagerBean> usagersCourriers = new ArrayList<UsagerBean>();
             //Voir pour faire la fonction qui prend une liste d'ids
             for (Integer usagerCourrierId : usagersCourriersIds) {

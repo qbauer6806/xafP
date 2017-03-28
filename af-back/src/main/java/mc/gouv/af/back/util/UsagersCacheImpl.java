@@ -99,6 +99,10 @@ public class UsagersCacheImpl implements UsagersCache {
 
                 } else {
                     usagers = referentielUsagersClient.getUsagers(usagersInternetIds);
+                    //usagers peut être null
+                    if (usagers == null) {
+                        usagers = new ArrayList<UsagerBean>();
+                    }
                 }
             }
 

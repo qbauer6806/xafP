@@ -141,6 +141,7 @@ public class FileUploadServlet extends AbstractAfServlet {
                 String responseStr = mapper.writeValueAsString(responseObj);
                 response.getOutputStream().write(responseStr.getBytes());
             } else {
+                LOGGER.error("Status code : {}", statusCode);
                 // S'il y a eu un problème, alors on retourne le message d'erreur au client
                 IOUtils.copy(postResponse.getEntity().getContent(), response.getOutputStream());
             }

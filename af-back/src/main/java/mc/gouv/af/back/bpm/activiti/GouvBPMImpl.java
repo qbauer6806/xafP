@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.activiti.engine.ActivitiObjectNotFoundException;
+import org.activiti.engine.ActivitiTaskAlreadyClaimedException;
 import org.activiti.engine.FormService;
 import org.activiti.engine.ProcessEngine;
 import org.activiti.engine.ProcessEngineConfiguration;
@@ -35,6 +36,7 @@ import org.springframework.transaction.annotation.Transactional;
 import mc.gouv.af.back.bpm.GouvBPM;
 import mc.gouv.af.back.bpm.GouvBPMException;
 import mc.gouv.af.back.bpm.GouvBPMProcessVariableTypeEnum;
+import mc.gouv.af.back.bpm.activiti.exception.TaskAlreadyClaimedException;
 import mc.gouv.af.back.bpm.model.GouvBPMGroup;
 import mc.gouv.af.back.bpm.model.GouvBPMStatutAction;
 import mc.gouv.af.back.bpm.model.GouvBPMTask;
@@ -100,6 +102,14 @@ public class GouvBPMImpl implements GouvBPM {
             throw new GouvBPMException("Erreur lors du démarrage de l'instance de process", e);
         }
 
+    }
+
+    public void deleteProcessInstance(String processDefinitionKey, Integer demandeId) {
+        //runtimeService.createExecutionQuery().
+        ProcessInstance processInstance = getActiveProcessInstanceForDemandeId(demandeId);
+
+        runtimeService.deleteProcessInstance(processInstance.getId(),
+                "Suppression système pour cause d'erreur lors de la création");
     }
 
     @Override
@@ -168,10 +178,15 @@ public class GouvBPMImpl implements GouvBPM {
     }
 
     @Override
-    public void claimTask(GouvBPMTask task, GouvBPMUser user) {
+    public void claimTask(GouvBPMTask task, GouvBPMUser user) throws TaskAlreadyClaimedException {
         LOGGER.info("claimTask(" + task + "," + user + ")");
 
-        taskService.claim(task.getId(), user.getId());
+        try {
+            taskService.claim(task.getId(), user.getId());
+        } catch (ActivitiTaskAlreadyClaimedException e) {
+            throw new TaskAlreadyClaimedException("Erreur lors du claim de la tache " + task + " pour le user :" + user,
+                    e);
+        }
     }
 
     @Override

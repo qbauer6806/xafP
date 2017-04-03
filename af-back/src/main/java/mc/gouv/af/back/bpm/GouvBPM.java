@@ -3,6 +3,7 @@ package mc.gouv.af.back.bpm;
 import java.util.List;
 import java.util.Map;
 
+import mc.gouv.af.back.bpm.activiti.exception.TaskAlreadyClaimedException;
 import mc.gouv.af.back.bpm.model.GouvBPMGroup;
 import mc.gouv.af.back.bpm.model.GouvBPMStatutAction;
 import mc.gouv.af.back.bpm.model.GouvBPMTask;
@@ -45,8 +46,9 @@ public interface GouvBPM {
      * Permet à un utilisateur de s'affecter une tâche
      * @param task Tâche concernée
      * @param user Utilisateur à assigner
+     * @throws TaskAlreadyClaimedException 
      */
-    public void claimTask(GouvBPMTask task, GouvBPMUser user);
+    public void claimTask(GouvBPMTask task, GouvBPMUser user) throws TaskAlreadyClaimedException;
 
     /**
      * Permet de finaliser une tâche

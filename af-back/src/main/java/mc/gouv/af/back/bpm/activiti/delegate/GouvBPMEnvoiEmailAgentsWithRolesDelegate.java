@@ -79,45 +79,50 @@ public class GouvBPMEnvoiEmailAgentsWithRolesDelegate implements JavaDelegate {
         String rolesStr = (String)roles.getValue(execution);
         String[] rolesList = rolesStr.split(",");
         List<User> agents = utilisateursCache.getAll();
-        for (User agent : agents) {
-            boolean toAdd = false;
-            Set<Role> agentRoles = agent.getRoles();
-            for (Role role : agentRoles) {
-                if (role.getAppli().getCode().equals(codeAppli)) {
-                    for (Droit droit : role.getDroits()) {
-                        for (String roleFromList : rolesList) {
-                            if (roleFromList.trim().equals(droit.getCode())) {
-                                toAdd = true;
+        if (agents != null) {
+            for (User agent : agents) {
+                boolean toAdd = false;
+                Set<Role> agentRoles = agent.getRoles();
+                for (Role role : agentRoles) {
+                    if (role.getAppli().getCode().equals(codeAppli)) {
+                        for (Droit droit : role.getDroits()) {
+                            for (String roleFromList : rolesList) {
+                                if (roleFromList.trim().equals(droit.getCode())) {
+                                    toAdd = true;
+                                }
                             }
                         }
+    
                     }
-
+                }
+                if (toAdd) {
+                    destinataires.add(agent);
                 }
             }
-            if (toAdd) {
-                destinataires.add(agent);
+            
+            for (User dest : destinataires) {
+                if (dest.getMail() != null) {
+                    emailInfo.addTo(dest.getMail(), dest.getNom());
+                }
+                else {
+                    LOGGER.warn("Attention : l'utilisateur " + dest.getMatricule() + " n'a pas d'adresse email associée. Pas d'envoi d'email.");
+                }
+            }
+            LOGGER.info("Liste de destinataires calculée pour la liste de rôles [" + rolesStr + "] : " + emailInfo.getTo());
+            
+            emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, execution.getProcessBusinessKey());
+            emailInfo.setLangue("fr");
+            
+            Map<String,Object> model = templateModelProvider.getModel(execution);
+    
+            try {
+                mailService.sendMail(emailInfo, model);
+            } catch (Exception e) {
+                LOGGER.error("Erreur lors de l'envoi de l'email", e);
             }
         }
-        
-        for (User dest : destinataires) {
-            if (dest.getMail() != null) {
-                emailInfo.addTo(dest.getMail(), dest.getNom());
-            }
-            else {
-                LOGGER.warn("Attention : l'utilisateur " + dest.getMatricule() + " n'a pas d'adresse email associée. Pas d'envoi d'email.");
-            }
-        }
-        LOGGER.info("Liste de destinataires calculée pour la liste de rôles [" + rolesStr + "] : " + emailInfo.getTo());
-        
-        emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, execution.getProcessBusinessKey());
-        emailInfo.setLangue("fr");
-        
-        Map<String,Object> model = templateModelProvider.getModel(execution);
-
-        try {
-            mailService.sendMail(emailInfo, model);
-        } catch (Exception e) {
-            LOGGER.error("Erreur lors de l'envoi de l'email", e);
+        else {
+            LOGGER.warn("Attention : aucun agent n'a pu être retrouvé. Par conséquent, pas d'envoi d'email.");
         }
         
         LOGGER.info("==== AF-BACK ENVOI EMAIL AGENT WITH ROLES <fin>");

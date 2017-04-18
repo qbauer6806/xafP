@@ -40,7 +40,7 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     private String applicationName;
 
     /**
-     * Uppercase de applicaition.name
+     * Uppercase de application.name
      */
     private String demarcheId;
 

@@ -157,7 +157,11 @@ public class UsagersCacheImpl implements UsagersCache {
         ub.setPrenom(uc.getPrenom());
         ub.setNomPays(uc.getPays());
         ub.setRaisonSociale(uc.getRaisonSociale());
-        ub.setTitre(uc.getTitre().shortValue());
+
+        if (uc.getTitre() != null) {
+            ub.setTitre(uc.getTitre().shortValue());
+        }
+
         ub.setVille(uc.getVille());
 
         return ub;

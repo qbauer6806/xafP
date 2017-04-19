@@ -122,12 +122,16 @@ public class LoginServlet extends AbstractAfServlet {
                 uinfos.setEmail(usagerCourrier.getEmail());
                 // uinfos.setEtat(), que mettre ?
                 uinfos.setId(usagerCourrier.getPkUsagersCourrier());
-                uinfos.setLogin(usagerCourrier.getPrenom() + " " + usagerCourrier.getNom() + " (courrier)");
+                uinfos.setLogin(StringUtils.defaultString(usagerCourrier.getPrenom()) + " " + usagerCourrier.getNom()
+                        + " (courrier)");
                 uinfos.setNom(usagerCourrier.getNom());
                 uinfos.setPaysCode(usagerCourrier.getPays());
                 uinfos.setPrenom(usagerCourrier.getPrenom());
                 uinfos.setRaisonSociale(usagerCourrier.getRaisonSociale());
-                uinfos.setTitre(usagerCourrier.getTitre().shortValue());
+                if (usagerCourrier.getTitre() != null) {
+                    uinfos.setTitre(usagerCourrier.getTitre().shortValue());
+                }
+
                 uinfos.setVille(usagerCourrier.getVille());
                 uinfos.setUsagerCourrier(true);
                 // Stockage de cet objet d'infos d'usager dans la session HTTP

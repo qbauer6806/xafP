@@ -18,21 +18,6 @@ public class UsagerInfosDTO implements Serializable {
 
     private static final long serialVersionUID = -7219376931453637516L;
 
-    // la map des usagers loggés est stockée avec la clé suivante dans le
-    // contexte partagé entre les applications
-    public static final String USR_MAP_CTX_KEY = "loggedUsrMap";
-
-    // l'usager loggé est stocké (par le CheckLoginPhaseListener) avec la clé
-    // suivante dans la session d'une application
-    public static final String USAGER_SESSION_KEY = "loggedUsr";
-
-    // etats
-    public static final short ETAT_CREE = 0;
-    public static final short ETAT_ACTIF = 10;
-    public static final short ETAT_SUSPENDU_CHGT_EMAIL = 20;
-    public static final short ETAT_RADIE = 30;
-    public static final short ETAT_ANONYMISE = 40;
-
     // gender identifiers and labels
     public static final short GENDER_MR_INDEX = 0;
     public static final short GENDER_MME_INDEX = 1;
@@ -68,6 +53,9 @@ public class UsagerInfosDTO implements Serializable {
     protected boolean isUsagerCourrier = false;
 
     public String getTitreLabel() {
+        if (titre == null) {
+            return null;
+        }
         switch (titre) {
             case GENDER_MR_INDEX:
                 return "Monsieur";
@@ -76,17 +64,13 @@ public class UsagerInfosDTO implements Serializable {
             case GENDER_MLLE_INDEX:
                 return "Mademoiselle";
             default:
-                return "[ TITRE INCONNU: '" + titre + "' ]";
+                return null;
         }
     }
 
     @Override
     public String toString() {
-        return "UsagerReadOnlyBean [id=" + id + ", login=" + login + ", etat=" + etat + ", email=" + email
-                + ", dateCreation=" + dateCreation + ", dateActivation=" + dateActivation + ", dateDerConnexion="
-                + dateDerConnexion + ", titre=" + titre + ", prenom=" + prenom + ", nom=" + nom + ", raisonSociale="
-                + raisonSociale + ", adresse1=" + adresse1 + ", adresse2=" + adresse2 + ", complementAdresse="
-                + complementAdresse + ", codePostal=" + codePostal + ", ville=" + ville + ", nomPays=" + nomPays + "]";
+        return "UsagerReadOnlyBean [id=" + id + ", login=" + login + "]";
     }
 
     public Integer getId() {

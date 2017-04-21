@@ -21,4 +21,10 @@ public class AfBackControllerAdvice {
 
         return gouvPropertiesResolver.getDemarcheId();
     }
+
+    @ModelAttribute(name = "helpUrl")
+    public String addHelpUrl() {
+
+        return gouvPropertiesResolver.getHelpUrl();
+    }
 }

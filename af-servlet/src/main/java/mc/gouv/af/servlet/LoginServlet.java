@@ -3,6 +3,7 @@ package mc.gouv.af.servlet;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.StringTokenizer;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -44,12 +45,35 @@ public class LoginServlet extends AbstractAfServlet {
 
         // Le SessionID est stocké dans l'URL parameter "id"
         String sessionId = request.getParameter("id");
+        String sig = request.getParameter("sig");
 
         LOGGER.info("SessionID = " + sessionId);
 
         if (StringUtils.isBlank(sessionId)) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
+        }
+
+        if (StringUtils.isBlank(sig)) {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            return;
+        } else {
+            LOGGER.info("Vérification du sig : {}", sig);
+            StringTokenizer strToken = new StringTokenizer(sig, ":");
+            String signature = strToken.nextToken();
+            String currentMilli = strToken.nextToken();
+
+            String signatureComputed = DigestUtils
+                    .sha256Hex(AfServletGouvPropertiesResolver.getSharedKey() + sessionId + currentMilli);
+
+            LOGGER.info("Sig calculé : {}", signatureComputed);
+
+            if (!StringUtils.equals(signature, signatureComputed)) {
+                LOGGER.info("SIGS DIFFERENT");
+                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                return;
+            }
+
         }
 
         if (!sessionId.startsWith("c_")) {

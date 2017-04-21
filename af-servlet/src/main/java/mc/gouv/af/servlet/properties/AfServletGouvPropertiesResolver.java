@@ -137,6 +137,12 @@ public class AfServletGouvPropertiesResolver {
         return Static.getValue(BACKOFFICE_DEMANDE_URL);
     }
 
+    public static final String SHARED_KEY = "mc.gouv" + applicationPrefix + ".frontserver.key";
+
+    public static String getSharedKey() {
+        return Static.getValue(SHARED_KEY);
+    }
+
     public static final String FILE_USER = "mc.gouv" + applicationPrefix + ".frontserver.file.user";
 
     public static String getFileUser() {
@@ -185,26 +191,30 @@ public class AfServletGouvPropertiesResolver {
         return Static.getValue(DEMARCHES_PWD);
     }
 
-    public static final String GOUV_CONTACT_EMAIL_EXPEDITEUR_ADRESSE = "mc.gouv" + applicationPrefix + ".frontserver.mail.contact.expediteur.adresse";
+    public static final String GOUV_CONTACT_EMAIL_EXPEDITEUR_ADRESSE = "mc.gouv" + applicationPrefix
+            + ".frontserver.mail.contact.expediteur.adresse";
 
     public static String getGouvContactEmailExpediteurAdresse() {
         return Static.getValue(GOUV_CONTACT_EMAIL_EXPEDITEUR_ADRESSE);
     }
-    
-    public static final String GOUV_CONTACT_EMAIL_EXPEDITEUR_NOM = "mc.gouv" + applicationPrefix + ".frontserver.mail.contact.expediteur.nom";
+
+    public static final String GOUV_CONTACT_EMAIL_EXPEDITEUR_NOM = "mc.gouv" + applicationPrefix
+            + ".frontserver.mail.contact.expediteur.nom";
 
     public static String getGouvContactEmailExpediteurNom() {
         return Static.getValue(GOUV_CONTACT_EMAIL_EXPEDITEUR_NOM);
     }
-    
-    public static final String GOUV_CONTACT_EMAIL_SERVICE_ADRESSE = "mc.gouv" + applicationPrefix + ".frontserver.mail.contact.service.adresse";
-    
+
+    public static final String GOUV_CONTACT_EMAIL_SERVICE_ADRESSE = "mc.gouv" + applicationPrefix
+            + ".frontserver.mail.contact.service.adresse";
+
     public static String getGouvContactEmailServiceAdresse() {
         return Static.getValue(GOUV_CONTACT_EMAIL_SERVICE_ADRESSE);
     }
-    
-    public static final String GOUV_CONTACT_EMAIL_SERVICE_NOM = "mc.gouv" + applicationPrefix + ".frontserver.mail.contact.service.nom";
-    
+
+    public static final String GOUV_CONTACT_EMAIL_SERVICE_NOM = "mc.gouv" + applicationPrefix
+            + ".frontserver.mail.contact.service.nom";
+
     public static String getGouvContactEmailServiceNom() {
         return Static.getValue(GOUV_CONTACT_EMAIL_SERVICE_NOM);
     }

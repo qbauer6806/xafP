@@ -49,4 +49,8 @@ public interface GouvPropertiesResolver {
 
     String getContactSupportUrl();
 
+    String getFrontSharedKey();
+
+    String getHelpUrl();
+
 }

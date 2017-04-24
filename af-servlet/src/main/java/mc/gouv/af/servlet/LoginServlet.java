@@ -54,28 +54,6 @@ public class LoginServlet extends AbstractAfServlet {
             return;
         }
 
-        if (StringUtils.isBlank(sig)) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            return;
-        } else {
-            LOGGER.info("Vérification du sig : {}", sig);
-            StringTokenizer strToken = new StringTokenizer(sig, ":");
-            String signature = strToken.nextToken();
-            String currentMilli = strToken.nextToken();
-
-            String signatureComputed = DigestUtils
-                    .sha256Hex(AfServletGouvPropertiesResolver.getSharedKey() + sessionId + currentMilli);
-
-            LOGGER.info("Sig calculé : {}", signatureComputed);
-
-            if (!StringUtils.equals(signature, signatureComputed)) {
-                LOGGER.info("SIGS DIFFERENT");
-                response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                return;
-            }
-
-        }
-
         if (!sessionId.startsWith("c_")) {
             // Le sessionId ne commence pas par "c_", donc appel du service ts-login
 
@@ -114,6 +92,29 @@ public class LoginServlet extends AbstractAfServlet {
         } else {
             // Le sessionId commence par "c_", donc il s'agit du login d'un usager courrier
             // Effectuer l'appel au WS de DEM
+
+            //Vérification du sig
+            if (StringUtils.isBlank(sig)) {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                return;
+            } else {
+                LOGGER.info("Vérification du sig : {}", sig);
+                StringTokenizer strToken = new StringTokenizer(sig, ":");
+                String signature = strToken.nextToken();
+                String currentMilli = strToken.nextToken();
+
+                String signatureComputed = DigestUtils
+                        .sha256Hex(AfServletGouvPropertiesResolver.getSharedKey() + sessionId + currentMilli);
+
+                LOGGER.info("Sig calculé : {}", signatureComputed);
+
+                if (!StringUtils.equals(signature, signatureComputed)) {
+                    LOGGER.info("SIGS DIFFERENT");
+                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                    return;
+                }
+
+            }
 
             LOGGER.info("<Usager courrier>");
 

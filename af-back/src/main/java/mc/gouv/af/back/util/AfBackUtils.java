@@ -54,9 +54,9 @@ public class AfBackUtils {
     private final static String version = AfBackUtils.class.getPackage().getImplementationVersion();
 
     private static RestTemplate restTemplate;
-    
+
     private static String envName;
-    
+
     private static String envColor;
 
     /**
@@ -75,38 +75,31 @@ public class AfBackUtils {
 
     @Autowired
     private UtilisateursCache utilisateursCache;
-    
+
     @PostConstruct
     public void postConstructEnv() {
         String env = gouvPropertiesResolver.getGouvSharedEnv();
         // Si production, ne rien afficher
         if ("prod".equals(env)) {
             envName = "";
-        }
-        else if ("sup".equals(env)) {
+        } else if ("sup".equals(env)) {
             envName = "Support";
-        }
-        else if ("pre".equals(env)) {
+        } else if ("pre".equals(env)) {
             envName = "Pré-production";
-        }
-        else if ("rec".equals(env)) {
+        } else if ("rec".equals(env)) {
             envName = "Recette";
-        }
-        else if ("dev".equals(env)) {
+        } else if ("dev".equals(env)) {
             envName = "Développement";
-        }
-        else if ("loc".equals(env)) {
+        } else if ("loc".equals(env)) {
             envName = "Local";
-        }
-        else {
+        } else {
             envName = "Environnement inconnu";
         }
 
         // Fond noir si environnement de production, et non pas rouge
         if ("prod".equals(env)) {
             envColor = "#000000";
-        }
-        else {
+        } else {
             envColor = gouvPropertiesResolver.getGouvSharedEnvColor();
         }
     }
@@ -159,6 +152,9 @@ public class AfBackUtils {
      */
     public String getUsagerNameFromID(Integer usagerId) {
         UsagerBean u = usagersCache.getUsager(usagerId);
+        if (u == null) {
+            return null;
+        }
         String prenomNom = StringUtils.EMPTY;
         if (u.getPrenom() != null) {
             prenomNom += u.getPrenom();
@@ -234,13 +230,13 @@ public class AfBackUtils {
     public static String getYear() {
         return String.valueOf(Calendar.getInstance().get(Calendar.YEAR));
     }
-    
+
     public static String getEnvName() {
         return envName;
     }
-    
+
     public static String getEnvColor() {
         return envColor;
     }
-    
+
 }

@@ -54,11 +54,11 @@ public class ContactServlet extends AbstractAfServlet {
             MailClient mc = new MailClient(AfServletGouvPropertiesResolver.getMailUrl(),
                     AfServletGouvPropertiesResolver.getMailUser(), AfServletGouvPropertiesResolver.getMailPwd());
             Email email = new Email();
-            email.setFrom(new AddressBlock(emailAddress, null));
-            email.setTo(new AddressBlock[] {
-                    new AddressBlock(AfServletGouvPropertiesResolver.getGouvContactEmailExpediteurAdresse(), AfServletGouvPropertiesResolver.getGouvContactEmailExpediteurNom()) });
+            email.setFrom(new AddressBlock(AfServletGouvPropertiesResolver.getGouvContactEmailExpediteurAdresse(), AfServletGouvPropertiesResolver.getGouvContactEmailExpediteurNom()));
+            email.setTo(new AddressBlock[] { new AddressBlock(emailAddress, null) });
             email.setBcc(new AddressBlock[] {
                     new AddressBlock(AfServletGouvPropertiesResolver.getGouvContactEmailServiceAdresse(), AfServletGouvPropertiesResolver.getGouvContactEmailServiceNom()) });
+            email.setReplyto(new AddressBlock(emailAddress, null));
             email.setText(message);
             email.setSubject(titre);
             EmailSent es = mc.sendEmail(email);

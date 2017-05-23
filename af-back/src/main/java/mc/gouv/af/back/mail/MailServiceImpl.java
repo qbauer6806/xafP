@@ -4,14 +4,6 @@ import java.io.StringWriter;
 import java.util.List;
 import java.util.Map;
 
-import mc.gouv.af.back.service.properties.GouvPropertiesResolver;
-import mc.gouv.af.back.util.TemplatesCache;
-import mc.gouv.dem.apishared.model.TemplateDTO;
-import mc.gouv.mail.apiclient.client.MailClient;
-import mc.gouv.mail.apishared.model.AddressBlock;
-import mc.gouv.mail.apishared.model.Email;
-import mc.gouv.mail.apishared.model.Param;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.context.Context;
@@ -20,6 +12,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import mc.gouv.af.back.service.properties.GouvPropertiesResolver;
+import mc.gouv.af.back.util.TemplatesCache;
+import mc.gouv.dem.apishared.model.TemplateDTO;
+import mc.gouv.mail.apiclient.client.MailClient;
+import mc.gouv.mail.shared.dto.AddressBlockDTO;
+import mc.gouv.mail.shared.dto.MailDTO;
+import mc.gouv.mail.shared.dto.ParamDTO;
 
 /**
  * 
@@ -80,20 +80,20 @@ public class MailServiceImpl implements MailService {
         String mailSubjectToSend = output.toString();
 
         LOGGER.info("Transformation des informations d'email vers les structures pour MAIL...");
-        List<AddressBlock> to = EmailTransform.toMailApiAddresses(emailInfo.getTo());
-        List<AddressBlock> cc = EmailTransform.toMailApiAddresses(emailInfo.getCc());
-        List<AddressBlock> bcc = EmailTransform.toMailApiAddresses(emailInfo.getBcc());
-        AddressBlock from = EmailTransform.toMailApiAddress(emailInfo.getFrom());
-        AddressBlock replyTo = EmailTransform.toMailApiAddress(emailInfo.getReplyto());
-        List<Param> params = EmailTransform.toMailApiParams(emailInfo.getParams());
+        List<AddressBlockDTO> to = EmailTransform.toMailApiAddresses(emailInfo.getTo());
+        List<AddressBlockDTO> cc = EmailTransform.toMailApiAddresses(emailInfo.getCc());
+        List<AddressBlockDTO> bcc = EmailTransform.toMailApiAddresses(emailInfo.getBcc());
+        AddressBlockDTO from = EmailTransform.toMailApiAddress(emailInfo.getFrom());
+        AddressBlockDTO replyTo = EmailTransform.toMailApiAddress(emailInfo.getReplyto());
+        List<ParamDTO> params = EmailTransform.toMailApiParams(emailInfo.getParams());
 
-        Email email = new Email();
-        email.setTo(to.toArray(new AddressBlock[to.size()]));
-        email.setCc(cc.toArray(new AddressBlock[cc.size()]));
-        email.setBcc(bcc.toArray(new AddressBlock[bcc.size()]));
+        MailDTO email = new MailDTO();
+        email.setTo(to.toArray(new AddressBlockDTO[to.size()]));
+        email.setCc(cc.toArray(new AddressBlockDTO[cc.size()]));
+        email.setBcc(bcc.toArray(new AddressBlockDTO[bcc.size()]));
         email.setFrom(from);
         email.setReplyto(replyTo);
-        email.setParams(params.toArray(new Param[params.size()]));
+        email.setParams(params.toArray(new ParamDTO[params.size()]));
         email.setSubject(mailSubjectToSend);
         email.setHtml(mailBodyToSend);
         // Pas de email.setText() ==> on considère que les templates body des démarches sont toujours en HTML !

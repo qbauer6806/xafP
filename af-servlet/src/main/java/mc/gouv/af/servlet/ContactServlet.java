@@ -14,9 +14,9 @@ import mc.gouv.af.servlet.dto.UsagerInfosDTO;
 import mc.gouv.af.servlet.properties.AfServletGouvPropertiesResolver;
 import mc.gouv.af.servlet.util.AppFactoryServletUtils;
 import mc.gouv.mail.apiclient.client.MailClient;
-import mc.gouv.mail.apishared.model.AddressBlock;
-import mc.gouv.mail.apishared.model.Email;
-import mc.gouv.mail.apishared.model.EmailSent;
+import mc.gouv.mail.shared.dto.AddressBlockDTO;
+import mc.gouv.mail.shared.dto.MailDTO;
+import mc.gouv.mail.shared.dto.MailSentDTO;
 
 public class ContactServlet extends AbstractAfServlet {
 
@@ -53,15 +53,15 @@ public class ContactServlet extends AbstractAfServlet {
             LOGGER.info("Envoi de l'email...");
             MailClient mc = new MailClient(AfServletGouvPropertiesResolver.getMailUrl(),
                     AfServletGouvPropertiesResolver.getMailUser(), AfServletGouvPropertiesResolver.getMailPwd());
-            Email email = new Email();
-            email.setFrom(new AddressBlock(AfServletGouvPropertiesResolver.getGouvContactEmailExpediteurAdresse(), AfServletGouvPropertiesResolver.getGouvContactEmailExpediteurNom()));
-            email.setTo(new AddressBlock[] { new AddressBlock(emailAddress, null) });
-            email.setBcc(new AddressBlock[] {
-                    new AddressBlock(AfServletGouvPropertiesResolver.getGouvContactEmailServiceAdresse(), AfServletGouvPropertiesResolver.getGouvContactEmailServiceNom()) });
-            email.setReplyto(new AddressBlock(emailAddress, null));
+            MailDTO email = new MailDTO();
+            email.setFrom(new AddressBlockDTO(AfServletGouvPropertiesResolver.getGouvContactEmailExpediteurAdresse(), AfServletGouvPropertiesResolver.getGouvContactEmailExpediteurNom()));
+            email.setTo(new AddressBlockDTO[] { new AddressBlockDTO(emailAddress, null) });
+            email.setBcc(new AddressBlockDTO[] {
+                    new AddressBlockDTO(AfServletGouvPropertiesResolver.getGouvContactEmailServiceAdresse(), AfServletGouvPropertiesResolver.getGouvContactEmailServiceNom()) });
+            email.setReplyto(new AddressBlockDTO(emailAddress, null));
             email.setText(message);
             email.setSubject(titre);
-            EmailSent es = mc.sendEmail(email);
+            MailSentDTO es = mc.sendEmail(email);
 
             LOGGER.info("Email envoyé : " + es);
 

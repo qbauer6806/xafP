@@ -3,41 +3,41 @@ package mc.gouv.af.back.mail;
 import java.util.ArrayList;
 import java.util.List;
 
-import mc.gouv.mail.apishared.model.AddressBlock;
-import mc.gouv.mail.apishared.model.Param;
+import mc.gouv.mail.shared.dto.AddressBlockDTO;
+import mc.gouv.mail.shared.dto.ParamDTO;
 
 public class EmailTransform {
 
-    public static AddressBlock toMailApiAddress(EmailInfoAddressDTO addr) {
+    public static AddressBlockDTO toMailApiAddress(EmailInfoAddressDTO addr) {
         if (addr == null) {
             return null;
         }
-        AddressBlock to = new AddressBlock();
+        AddressBlockDTO to = new AddressBlockDTO();
         to.setAddress(addr.getAddress());
         to.setName(addr.getName());
         return to;
     }
     
-    public static List<AddressBlock> toMailApiAddresses(List<EmailInfoAddressDTO> addrList) {
-        List<AddressBlock> to = new ArrayList<AddressBlock>();
+    public static List<AddressBlockDTO> toMailApiAddresses(List<EmailInfoAddressDTO> addrList) {
+        List<AddressBlockDTO> to = new ArrayList<AddressBlockDTO>();
         for (EmailInfoAddressDTO addr : addrList) {
             to.add(toMailApiAddress(addr));
         }
         return to;
     }
     
-    public static Param toMailApiParam(EmailInfoParamDTO param) {
+    public static ParamDTO toMailApiParam(EmailInfoParamDTO param) {
         if (param == null) {
             return null;
         }
-        Param retParam = new Param();
+        ParamDTO retParam = new ParamDTO();
         retParam.setKey(param.getKey());
         retParam.setValue(param.getValue());
         return retParam;
     }
 
-    public static List<Param> toMailApiParams(List<EmailInfoParamDTO> params) {
-        List<Param> retParams = new ArrayList<Param>();
+    public static List<ParamDTO> toMailApiParams(List<EmailInfoParamDTO> params) {
+        List<ParamDTO> retParams = new ArrayList<ParamDTO>();
         for (EmailInfoParamDTO param : params) {
             retParams.add(toMailApiParam(param));
         }

@@ -10,7 +10,7 @@
 
 	<groupId>mc.gouv.af</groupId>
 	<artifactId>af-back</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1-SNAPSHOT</version>
 
 	<properties>
 		<activiti.version>5.22.0</activiti.version>
@@ -131,8 +131,8 @@
 	</dependencies>
 
 	<scm>
-		<developerConnection>${svn.connection}/${project.artifactId}/tags/af-1.0.0/trunk</developerConnection>
-		<connection>${svn.connection}/${project.artifactId}/tags/af-1.0.0/trunk</connection>
-		<url>${svn.url}/${project.artifactId}/tags/af-1.0.0/trunk</url>
+		<developerConnection>${svn.connection}/${project.artifactId}/trunk</developerConnection>
+		<connection>${svn.connection}/${project.artifactId}/trunk</connection>
+		<url>${svn.url}/${project.artifactId}/trunk</url>
 	</scm>
 </project>

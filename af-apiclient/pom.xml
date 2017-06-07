@@ -50,7 +50,7 @@
         <dependency>
             <groupId>mc.gouv.dem</groupId>
             <artifactId>dem-apishared</artifactId>
-            <version>0.0.15-SNAPSHOT</version>
+            <version>1.0.0</version>
         </dependency>
     </dependencies>
 

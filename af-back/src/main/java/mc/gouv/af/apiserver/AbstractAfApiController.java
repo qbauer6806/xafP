@@ -80,5 +80,13 @@ public abstract class AbstractAfApiController implements AfApiController {
         LOGGER.info("AbstractAfApiController.getDemandeComplements(" + demandeId + "," + icId + ")");
         return getDemandeComplements(demandeId, icId);
     }
+    
+    @RequestMapping(value = "/demandes/associerDemandeCourrier", method = RequestMethod.POST)
+    public DemandeDTO associerDemandeCourrierRequest(@RequestParam(value = "identifiantDemande", required = true) String identifiantDemande,
+            @RequestParam(value = "nomProprio", required = true) String nomProprio,
+            @RequestParam(value = "usagerId", required = true) Integer usagerId) {
+        LOGGER.info("AbstractAfApiController.associerDemandeCourrierRequest(" + identifiantDemande + "," + nomProprio + "," + usagerId + ")");
+        return associerDemandeCourrier(identifiantDemande, nomProprio, usagerId);
+    }
 
 }

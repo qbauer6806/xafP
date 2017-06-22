@@ -32,5 +32,7 @@ public interface AfApiController {
     public List<DemandeComplementsDTO> getDemandeComplements(Integer demandeId);
 
     public DemandeComplementsDTO getDemandeComplements(Integer demandeId, Integer icId);
+    
+    public DemandeDTO associerDemandeCourrier(String identifiantDemande, String nomProprio, Integer usagerId);
 
 }

@@ -1005,3 +1005,24 @@ La réponse contient l'identifiant du fichier au format uuid/filename.
 
 
 + Response 200 (application/json)
+
+# Group Association d'une demande courrier à un usager téléservice
+*AppFactoryServlet* permet également de rattacher une demande courrier à un usager téléservice/web (guichet virtuel).
+
+## Rattachement [/appfactoryservlet/associerDemandeCourrier?identifiant={identifiant}&nomProprio={nomProprio}]
+
++ Parameters
+    + identifiant (required, string, `HAB-20170620-G864`) ... L'identifiant de la demande concernée.
+    + nomProprio (required, string, `DEME`) ... Le nom du propriétaire de la demande.
+
+### Associer / rattacher [POST]
+
++ Request
+    + Headers
+
+            User-Agent: NomDuLogiciel/Version
+            Cookie: JSESSIONID=1jyzh76rqbx66q2cxa0j0zvaf
+
+
++ Response 200 (application/json)
+

@@ -89,6 +89,15 @@ public class AfApiClient {
                 .header("Authorization", getBasicAuthString()).get(new GenericType<List<DemandeComplementsDTO>>() {
                 });
     }
+    
+    public DemandeDTO associerDemandeCourrier(String identifiantDemande, String nomProprio, Integer usagerId) {
+        return target.path("demandes/associerDemandeCourrier").queryParam("identifiantDemande", identifiantDemande)
+                .queryParam("nomProprio", nomProprio)
+                .queryParam("usagerId", usagerId)
+                .request(MediaType.APPLICATION_JSON)
+                .header("Authorization", getBasicAuthString())
+                .post(Entity.json(null), DemandeDTO.class);
+    }
 
     private String getBasicAuthString() {
         return "Basic " + new String(Base64.encodeBase64(new String(user + ":" + password).getBytes()));

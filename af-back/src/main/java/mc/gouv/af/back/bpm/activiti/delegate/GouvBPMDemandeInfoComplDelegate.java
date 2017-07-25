@@ -8,11 +8,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import mc.gouv.Static;
 import mc.gouv.af.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.af.back.service.properties.GouvPropertiesResolver;
 import mc.gouv.af.back.util.AfBackUtils;
-import mc.gouv.dem.apiclient.DemClient;
 import mc.gouv.dem.apishared.model.DemandeComplementsQuestionDTO;
 
 /**
@@ -31,24 +29,21 @@ public class GouvBPMDemandeInfoComplDelegate implements JavaDelegate {
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMDemandeInfoComplDelegate.class);
 
     @Autowired
-    GouvPropertiesResolver gouvPropertiesResolver;
+    private GouvPropertiesResolver gouvPropertiesResolver;
+    
+    @Autowired
+    private AfBackUtils afBackUtils;
 
     @Override
     public void execute(DelegateExecution execution) throws Exception {
 
         LOGGER.info("==== AF-BACK CREATION INFO COMPL ...");
 
-        // TODO voir si on ne peut pas utiliser AfBackUtils à la place...
-        String DEM_URL = gouvPropertiesResolver.getDemUrl();
-        String DEM_USER = gouvPropertiesResolver.getDemUser();
-        String DEM_PWD = gouvPropertiesResolver.getDemPwd();
         String DEMARCHE_ID = gouvPropertiesResolver.getDemarcheId();
 
         Integer demandeId = Integer.parseInt(execution.getProcessBusinessKey());
 
         LOGGER.info("Demande : " + demandeId);
-
-        DemClient demClient = new DemClient(DEM_URL, DEM_USER, DEM_PWD);
 
         // Récupération du commentaire usager et du code motif si besoin plus tars dans le traitement
         String commentaireUsager = (String) execution.getVariables()
@@ -68,8 +63,8 @@ public class GouvBPMDemandeInfoComplDelegate implements JavaDelegate {
             questionDto.setTexte("");
         }
 
-        LOGGER.info("Appel à DEM createDemandeComplements() (" + DEM_URL + ")...");
-        demClient.createDemandeComplements(DEMARCHE_ID, demandeId, questionDto);
+        LOGGER.info("Appel à DEM createDemandeComplements()...");
+        afBackUtils.getDemClient().createDemandeComplements(DEMARCHE_ID, demandeId, questionDto);
 
         LOGGER.info("==== AF-BACK CREATION INFO COMPL <fin>");
 

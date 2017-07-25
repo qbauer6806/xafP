@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 import mc.gouv.af.back.bpm.GouvBPMException;
 import mc.gouv.af.back.service.properties.GouvPropertiesResolver;
-import mc.gouv.dem.apiclient.DemClient;
+import mc.gouv.af.back.util.AfBackUtils;
 
 @Component
 public class GouvBPMUpdateDemandeDataDelegate implements JavaDelegate {
@@ -23,15 +23,15 @@ public class GouvBPMUpdateDemandeDataDelegate implements JavaDelegate {
 
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
+    
+    @Autowired
+    private AfBackUtils afBackUtils;
 
     @Override
     public void execute(DelegateExecution execution) throws Exception {
 
         LOGGER.info("==== AF-BACK MISE A JOUR DATA ...");
 
-        String DEM_URL = gouvPropertiesResolver.getDemUrl();
-        String DEM_USER = gouvPropertiesResolver.getDemUser();
-        String DEM_PWD = gouvPropertiesResolver.getDemPwd();
         String DEMARCHE_ID = gouvPropertiesResolver.getDemarcheId();
 
         Integer demandeId = Integer.parseInt(execution.getProcessBusinessKey());
@@ -46,8 +46,7 @@ public class GouvBPMUpdateDemandeDataDelegate implements JavaDelegate {
             throw new GouvBPMException("Impossible d'insérer une data avec une clé vide");
         }
 
-        DemClient demClient = new DemClient(DEM_URL, DEM_USER, DEM_PWD);
-        demClient.createOrUpdateDemandeData(DEMARCHE_ID, demandeId, dataKeyStr, dataValueStr);
+        afBackUtils.getDemClient().createOrUpdateDemandeData(DEMARCHE_ID, demandeId, dataKeyStr, dataValueStr);
     }
 
     public Expression getDataKey() {

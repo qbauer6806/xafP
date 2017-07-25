@@ -13,10 +13,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import mc.gouv.af.back.service.properties.GouvPropertiesResolver;
+import mc.gouv.af.back.util.AfBackUtils;
 import mc.gouv.af.back.util.TemplatesCache;
 import mc.gouv.dem.apishared.model.TemplateDTO;
-import mc.gouv.mail.apiclient.client.MailClient;
 import mc.gouv.mail.shared.dto.AddressBlockDTO;
 import mc.gouv.mail.shared.dto.MailDTO;
 import mc.gouv.mail.shared.dto.ParamDTO;
@@ -35,13 +34,11 @@ public class MailServiceImpl implements MailService {
 
     private ToolManager manager = new ToolManager();
 
-    private MailClient mailClient = null;
-
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
-
     @Autowired
     private TemplatesCache templatesCache;
+    
+    @Autowired
+    private AfBackUtils afBackUtils;
 
     /**
      * {@inheritDoc}
@@ -99,7 +96,7 @@ public class MailServiceImpl implements MailService {
         // Pas de email.setText() ==> on considère que les templates body des démarches sont toujours en HTML !
 
         LOGGER.info("Appel à MAIL pour envoi de l'email...");
-        getMailClient().sendEmail(email);
+        afBackUtils.getMailClient().sendEmail(email);
 
     }
 
@@ -142,17 +139,6 @@ public class MailServiceImpl implements MailService {
         String mailSubjectToSend = output.toString();
 
         return new String[] { mailSubjectToSend, mailBodyToSend };
-    }
-
-    /**
-     * Initialisation du MailClient si pas déjà fait
-     */
-    private MailClient getMailClient() {
-        if (mailClient == null) {
-            mailClient = new MailClient(gouvPropertiesResolver.getMailUrl(), gouvPropertiesResolver.getMailUser(),
-                    gouvPropertiesResolver.getMailPwd());
-        }
-        return mailClient;
     }
 
 }

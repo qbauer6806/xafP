@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 import mc.gouv.af.back.pdf.PdfService;
 import mc.gouv.af.back.service.properties.GouvPropertiesResolver;
-import mc.gouv.dem.apiclient.DemClient;
+import mc.gouv.af.back.util.AfBackUtils;
 import mc.gouv.dem.apishared.model.DemandeDTO;
 
 /**
@@ -30,27 +30,20 @@ public class GouvBPMPdfDelegate implements JavaDelegate {
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
 
-    private DemClient demClient;
+    @Autowired
+    private AfBackUtils afBackUtils;
 
     @Override
     public void execute(DelegateExecution execution) throws Exception {
 
         LOGGER.info("==== AF-BACK PDF SERVICE ...");
 
-        DemandeDTO demandeDto = getDemClient().getDemande(gouvPropertiesResolver.getDemarcheId(),
+        DemandeDTO demandeDto = afBackUtils.getDemClient().getDemande(gouvPropertiesResolver.getDemarcheId(),
                 Integer.parseInt(execution.getProcessBusinessKey()));
 
         pdfService.generatePdf(demandeDto);
 
         LOGGER.info("==== AF-BACK PDF SERVICE <fin>");
-    }
-
-    private DemClient getDemClient() {
-        if (demClient == null) {
-            demClient = new DemClient(gouvPropertiesResolver.getDemUrl(), gouvPropertiesResolver.getDemUser(),
-                    gouvPropertiesResolver.getDemPwd());
-        }
-        return demClient;
     }
 
 }

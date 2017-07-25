@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import mc.gouv.af.back.service.properties.GouvPropertiesResolver;
-import mc.gouv.dem.apiclient.DemClient;
 import mc.gouv.dem.apishared.model.TemplateDTO;
 
 /**
@@ -31,20 +30,16 @@ public class TemplatesCacheImpl implements TemplatesCache {
     @Autowired
     private AfBackUtils afBackUtils;
 
-    private DemClient demClient;
-
     /**
      * {@inheritDoc}
      */
     @Override
     public List<TemplateDTO> getTemplates() {
-        // Initialisation du DemClient si pas déjà fait
-        ensureInitialized();
 
         // Remplissage de la liste si pas déjà fait
         if (cachedList.size() == 0) {
             LOGGER.info("Récupération des templates dans DEM...");
-            cachedList.addAll(demClient.getTemplates(gouvPropertiesResolver.getDemarcheId()));
+            cachedList.addAll(afBackUtils.getDemClient().getTemplates(gouvPropertiesResolver.getDemarcheId()));
         }
 
         // Retour de la liste
@@ -90,16 +85,6 @@ public class TemplatesCacheImpl implements TemplatesCache {
             }
         }
         return null;
-    }
-
-    /**
-     * Initialisation du DemClient si pas déjà fait
-     */
-    private void ensureInitialized() {
-        if (demClient == null) {
-            demClient = new DemClient(gouvPropertiesResolver.getDemUrl(), gouvPropertiesResolver.getDemUser(),
-                    gouvPropertiesResolver.getDemPwd());
-        }
     }
 
 }

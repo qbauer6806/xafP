@@ -8,12 +8,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import mc.gouv.Static;
 import mc.gouv.af.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.af.back.service.properties.GouvPropertiesResolver;
 import mc.gouv.af.back.util.AfBackUtils;
-import mc.gouv.af.back.util.HistoService;
-import mc.gouv.dem.apiclient.DemClient;
 import mc.gouv.dem.apishared.model.DemandeStatutEnum;
 import mc.gouv.dem.apishared.model.StatutInputDTO;
 
@@ -37,16 +34,13 @@ public class GouvBPMStatusChangeDelegate implements JavaDelegate {
     private GouvPropertiesResolver gouvPropertiesResolver;
     
     @Autowired
-    private HistoService histoService;
+    private AfBackUtils afBackUtils;
 
     @Override
     public void execute(DelegateExecution execution) throws Exception {
 
         LOGGER.info("==== AF-BACK CHANGEMENT STATUT ...");
 
-        String DEM_URL = gouvPropertiesResolver.getDemUrl();
-        String DEM_USER = gouvPropertiesResolver.getDemUser();
-        String DEM_PWD = gouvPropertiesResolver.getDemPwd();
         String DEMARCHE_ID = gouvPropertiesResolver.getDemarcheId();
 
         DemandeStatutEnum statut = getTargetState(execution);
@@ -55,8 +49,6 @@ public class GouvBPMStatusChangeDelegate implements JavaDelegate {
 
         LOGGER.info("Demande : " + demandeId);
         LOGGER.info("Statut à mettre : " + statut);
-
-        DemClient demClient = new DemClient(DEM_URL, DEM_USER, DEM_PWD);
 
         // Récupération du commentaire usager et du code motif si besoin plus tard dans le traitement
         String commentaireUsager = (String) execution
@@ -95,8 +87,8 @@ public class GouvBPMStatusChangeDelegate implements JavaDelegate {
         //        execution.removeVariable(GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name());
         //        execution.removeVariable(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name());
 
-        LOGGER.info("Appel à DEM changerStatutDemande() (" + DEM_URL + ")...");
-        demClient.changerStatutDemande(DEMARCHE_ID, demandeId, statutInput);
+        LOGGER.info("Appel à DEM changerStatutDemande()...");
+        afBackUtils.getDemClient().changerStatutDemande(DEMARCHE_ID, demandeId, statutInput);
 
         LOGGER.info("==== AF-BACK CHANGEMENT STATUT <fin>");
     }

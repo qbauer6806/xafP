@@ -31,8 +31,7 @@ public class AfBackConfig {
 
     @Bean
     public DemClient getDemClient() {
-        return new DemClient(gouvPropertiesResolver.getDemUrl(), gouvPropertiesResolver.getDemUser(),
-                gouvPropertiesResolver.getDemPwd());
+        return new DemClient(gouvPropertiesResolver.getDemUrl(), gouvPropertiesResolver.getDemJwt());
 
     }
 

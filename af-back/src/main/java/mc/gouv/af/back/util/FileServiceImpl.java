@@ -19,7 +19,6 @@ import org.springframework.stereotype.Component;
 
 import mc.gouv.af.back.service.properties.GouvPropertiesResolver;
 import mc.gouv.dem.apishared.model.DemandeDTO;
-import mc.gouv.file.apiclient.FileClient;
 
 /**
  * 
@@ -33,7 +32,8 @@ public class FileServiceImpl implements FileService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileServiceImpl.class);
 
-    private FileClient fileClient = null;
+    @Autowired
+    private AfBackUtils afBackUtils;
 
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
@@ -46,7 +46,7 @@ public class FileServiceImpl implements FileService {
         String accountId = gouvPropertiesResolver.getDemarcheId();
         String containerId = gouvPropertiesResolver.getContainerId();
         LOGGER.info("FileClient.getFile(" + accountId + "," + containerId + "," + filename + ")");
-        getFileClient().getFile(accountId, containerId, filename, response);
+        afBackUtils.getFileClient().getFile(accountId, containerId, filename, response);
 
     }
 
@@ -66,7 +66,7 @@ public class FileServiceImpl implements FileService {
         String accountId = gouvPropertiesResolver.getDemarcheId();
         String containerId = gouvPropertiesResolver.getContainerId();
         LOGGER.info("FileClient.saveFile(" + accountId + "," + containerId + "," + filename + ")");
-        return getFileClient().saveFile(accountId, containerId, inputStream, filename, contentType, customHeaders,
+        return afBackUtils.getFileClient().saveFile(accountId, containerId, inputStream, filename, contentType, customHeaders,
                 outputStream);
 
     }
@@ -87,16 +87,8 @@ public class FileServiceImpl implements FileService {
         String accountId = gouvPropertiesResolver.getDemarcheId();
         String containerId = gouvPropertiesResolver.getContainerId();
         LOGGER.info("FileClient.saveFile(" + accountId + "," + containerId + "," + filename + ")");
-        return getFileClient().saveFile(accountId, containerId, part, filename, customHeaders, response);
+        return afBackUtils.getFileClient().saveFile(accountId, containerId, part, filename, customHeaders, response);
 
-    }
-
-    private FileClient getFileClient() {
-        if (fileClient == null) {
-            fileClient = new FileClient(gouvPropertiesResolver.getFileUrl(), gouvPropertiesResolver.getFileUser(),
-                    gouvPropertiesResolver.getFilePwd());
-        }
-        return fileClient;
     }
 
     private Map<String, String> createCustomHeaders(DemandeDTO demande) {

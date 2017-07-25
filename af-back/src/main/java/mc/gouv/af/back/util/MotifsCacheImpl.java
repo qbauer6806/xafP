@@ -3,16 +3,17 @@ package mc.gouv.af.back.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import mc.gouv.af.back.service.properties.GouvPropertiesResolver;
-import mc.gouv.dem.apiclient.DemClient;
-import mc.gouv.dem.apishared.model.DemandeStatutEnum;
-import mc.gouv.dem.apishared.model.MotifDTO;
-
+import org.apache.taglibs.standard.extra.spath.AbsolutePath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
+
+import mc.gouv.af.back.service.properties.GouvPropertiesResolver;
+import mc.gouv.dem.apiclient.DemClient;
+import mc.gouv.dem.apishared.model.DemandeStatutEnum;
+import mc.gouv.dem.apishared.model.MotifDTO;
 
 /**
  * Composant permettant de gérer un cache des motifs de la démarche courante
@@ -30,10 +31,11 @@ public class MotifsCacheImpl implements MotifsCache {
 
     private List<MotifDTO> cachedActiveList = new ArrayList<MotifDTO>();
 
-    private DemClient demClient;
-
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
+    
+    @Autowired
+    private AfBackUtils afBackUtils;
 
     /**
      * {@inheritDoc}
@@ -54,13 +56,11 @@ public class MotifsCacheImpl implements MotifsCache {
      * @return
      */
     private List<MotifDTO> getMotifs() {
-        // Initialisation du DemClient si pas déjà fait
-        ensureInitialized();
 
         // Remplissage de la liste si pas déjà fait
         if (cachedList.size() == 0) {
             LOGGER.info("Récupération des motifs dans DEM...");
-            cachedList.addAll(demClient.getMotifs(gouvPropertiesResolver.getDemarcheId()));
+            cachedList.addAll(afBackUtils.getDemClient().getMotifs(gouvPropertiesResolver.getDemarcheId()));
 
             for (MotifDTO motif : cachedList) {
                 if (motif.getDateArchive() == null) {
@@ -98,16 +98,6 @@ public class MotifsCacheImpl implements MotifsCache {
         }
 
         return null;
-    }
-
-    /**
-     * Initialisation du DemClient si pas déjà fait
-     */
-    private void ensureInitialized() {
-        if (demClient == null) {
-            demClient = new DemClient(gouvPropertiesResolver.getDemUrl(), gouvPropertiesResolver.getDemUser(),
-                    gouvPropertiesResolver.getDemPwd());
-        }
     }
 
     @Override

@@ -30,8 +30,10 @@ import mc.gouv.dem.apiclient.DemClient;
 import mc.gouv.dem.apishared.model.DemandeDTO;
 import mc.gouv.dem.apishared.model.DemandeDataDTO;
 import mc.gouv.dem.apishared.model.DemarcheDTO;
+import mc.gouv.file.apiclient.FileClient;
 import mc.gouv.logon.apiclient.RestException;
 import mc.gouv.logon.shared.User;
+import mc.gouv.mail.apiclient.client.MailClient;
 import mc.gouv.servicerest.usager.model.UsagerBean;
 
 /**
@@ -67,8 +69,11 @@ public class AfBackUtils {
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
 
-    @Autowired
-    private DemClient demClient;
+    private DemClient demClient = null;
+    
+    private MailClient mailClient = null;
+    
+    private FileClient fileClient = null;
 
     @Autowired
     private UsagersCache usagersCache;
@@ -196,10 +201,23 @@ public class AfBackUtils {
 
     public DemClient getDemClient() {
         if (demClient == null) {
-            demClient = new DemClient(gouvPropertiesResolver.getDemUrl(), gouvPropertiesResolver.getDemUser(),
-                    gouvPropertiesResolver.getDemPwd());
+            demClient = new DemClient(gouvPropertiesResolver.getDemUrl(), gouvPropertiesResolver.getDemJwt());
         }
         return demClient;
+    }
+    
+    public MailClient getMailClient() {
+        if (mailClient == null) {
+            mailClient = new MailClient(gouvPropertiesResolver.getMailUrl(), gouvPropertiesResolver.getMailJwt());
+        }
+        return mailClient;
+    }
+    
+    public FileClient getFileClient() {
+        if (fileClient == null) {
+            fileClient = new FileClient(gouvPropertiesResolver.getFileUrl(), gouvPropertiesResolver.getFileJwt());
+        }
+        return fileClient;
     }
 
     /**

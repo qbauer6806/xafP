@@ -10,22 +10,16 @@ package mc.gouv.af.back.service.properties;
 public interface GouvPropertiesResolver {
 
     String getDemUrl();
-
-    String getDemUser();
+    
+    String getDemJwt();
 
     String getFileUrl();
 
-    String getDemPwd();
-
-    String getFileUser();
+    String getFileJwt();
 
     String getMailUrl();
 
-    String getFilePwd();
-
-    String getMailUser();
-
-    String getMailPwd();
+    String getMailJwt();
 
     String getProcessDefinitionKey();
 
@@ -36,10 +30,6 @@ public interface GouvPropertiesResolver {
     String getPaysRestUrl();
 
     String getFrontUrl();
-
-    String getDemFrontUser();
-
-    String getDemFrontPwd();
 
     String getContainerId();
 

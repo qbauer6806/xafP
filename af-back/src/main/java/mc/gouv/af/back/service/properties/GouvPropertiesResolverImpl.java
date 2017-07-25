@@ -115,15 +115,10 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     public String getDemUrl() {
         return Static.getValue(DEM_URL);
     }
-
+    
     @Override
-    public String getDemUser() {
-        return Static.getValue("mc.gouv" + applicationPrefix + ".backserver.dem.user");
-    }
-
-    @Override
-    public String getDemPwd() {
-        return Static.getValue("mc.gouv" + applicationPrefix + ".backserver.dem.pwd");
+    public String getDemJwt() {
+        return Static.getValue("mc.gouv" + applicationPrefix + ".backserver.dem.jwt");
     }
 
     @Override
@@ -170,33 +165,13 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     }
 
     @Override
-    public String getDemFrontUser() {
-        return Static.getValue("mc.gouv" + applicationPrefix + ".backserver.dem.frontserver.user");
+    public String getFileJwt() {
+        return Static.getValue("mc.gouv" + applicationPrefix + ".backserver.file.jwt");
     }
-
+    
     @Override
-    public String getDemFrontPwd() {
-        return Static.getValue("mc.gouv" + applicationPrefix + ".backserver.dem.frontserver.pwd");
-    }
-
-    @Override
-    public String getFileUser() {
-        return Static.getValue("mc.gouv" + applicationPrefix + ".backserver.file.user");
-    }
-
-    @Override
-    public String getFilePwd() {
-        return Static.getValue("mc.gouv" + applicationPrefix + ".backserver.file.pwd");
-    }
-
-    @Override
-    public String getMailUser() {
-        return Static.getValue("mc.gouv" + applicationPrefix + ".backserver.mail.user");
-    }
-
-    @Override
-    public String getMailPwd() {
-        return Static.getValue("mc.gouv" + applicationPrefix + ".backserver.mail.pwd");
+    public String getMailJwt() {
+        return Static.getValue("mc.gouv" + applicationPrefix + ".backserver.mail.jwt");
     }
 
     @Override
@@ -234,5 +209,5 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     public String getContactSupportUrl() {
         return Static.getValue(CONTACT_SUPPORT_URL);
     }
-
+    
 }

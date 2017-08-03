@@ -14,6 +14,7 @@ import javax.servlet.http.Part;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
@@ -119,10 +120,11 @@ public class FileUploadServlet extends AbstractAfServlet {
             if (demandeId != null) {
                 postRequest.setHeader(AppFactoryServletUtils.FILE_METADATA_DEMANDEID, demandeId);
             }
+            
+            postRequest.setHeader(HttpHeaders.AUTHORIZATION, AppFactoryServletUtils.getAuthHeader(ServiceTarget.FILE));
 
             LOGGER.info("Appel du WS FILE");
-            HttpResponse postResponse = client.execute(postRequest,
-                    AppFactoryServletUtils.getHttpContextForAuth(url, ServiceTarget.FILE));
+            HttpResponse postResponse = client.execute(postRequest);
 
             // Constitution de la réponse en redirigeant la réponse du WS ansi que son code réponse
             LOGGER.info("Constitution de la réponse pour retour au client");

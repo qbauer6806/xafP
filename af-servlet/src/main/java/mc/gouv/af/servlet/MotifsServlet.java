@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
@@ -51,12 +52,12 @@ public class MotifsServlet extends AbstractAfServlet {
         LOGGER.info("DemarcheID=" + demarcheId);
 
         // Création du client HTTP avec la bonne adresse
-        HttpClient httpClient = HttpClientBuilder.create()
-                .setDefaultCredentialsProvider(AppFactoryServletUtils.getCredentialsProvider(ServiceTarget.DEMARCHES))
-                .build();
+        HttpClient httpClient = HttpClientBuilder.create().build();
         HttpRequestBase finalRequest = null;
         String url = AfServletGouvPropertiesResolver.getDemMotifsUrl() + "/" + demarcheId;
         finalRequest = new HttpGet(url);
+        
+        finalRequest.setHeader(HttpHeaders.AUTHORIZATION, AppFactoryServletUtils.getAuthHeader(ServiceTarget.DEMARCHES));
 
         // Envoi de la requête
         LOGGER.info("Appel du WS Demarches: " + url);

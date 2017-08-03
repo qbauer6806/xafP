@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
@@ -73,10 +74,11 @@ public class FileDownloadServlet extends AbstractAfServlet {
             // Constitution de la requête
             HttpClient client = HttpClientBuilder.create().build();
             HttpGet getRequest = new HttpGet(url.toString());
+            
+            getRequest.setHeader(HttpHeaders.AUTHORIZATION, AppFactoryServletUtils.getAuthHeader(ServiceTarget.FILE));
 
             LOGGER.info("Appel du WS FILE");
-            HttpResponse getResponse = client.execute(getRequest,
-                    AppFactoryServletUtils.getHttpContextForAuth(url, ServiceTarget.FILE));
+            HttpResponse getResponse = client.execute(getRequest);
 
             LOGGER.info("Constitution de la réponse pour retour au client");
             response.setStatus(getResponse.getStatusLine().getStatusCode());

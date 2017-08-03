@@ -51,8 +51,7 @@ public class ContactServlet extends AbstractAfServlet {
 
             // 2ème étape : envoi du mail
             LOGGER.info("Envoi de l'email...");
-            MailClient mc = new MailClient(AfServletGouvPropertiesResolver.getMailUrl(),
-                    AfServletGouvPropertiesResolver.getMailUser(), AfServletGouvPropertiesResolver.getMailPwd());
+            MailClient mc = new MailClient(AfServletGouvPropertiesResolver.getMailUrl(), AfServletGouvPropertiesResolver.getMailJwt());
             MailDTO email = new MailDTO();
             email.setFrom(new AddressBlockDTO(AfServletGouvPropertiesResolver.getGouvContactEmailExpediteurAdresse(), AfServletGouvPropertiesResolver.getGouvContactEmailExpediteurNom()));
             email.setTo(new AddressBlockDTO[] { new AddressBlockDTO(emailAddress, null) });

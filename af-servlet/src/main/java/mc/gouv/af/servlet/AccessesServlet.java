@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
@@ -79,9 +80,7 @@ public class AccessesServlet extends AbstractAfServlet {
         // Transmission du JSON d'infos du compte démarche, reçu en input, dans le WS back-end
 
         // Création du client HTTP avec la bonne adresse
-        HttpClient httpClient = HttpClientBuilder.create()
-                .setDefaultCredentialsProvider(AppFactoryServletUtils.getCredentialsProvider(ServiceTarget.DEMARCHES))
-                .build();
+        HttpClient httpClient = HttpClientBuilder.create().build();
         HttpRequestBase finalRequest = null;
         String url = AfServletGouvPropertiesResolver.getDemAccessUrl() + "/" + demarcheId + "/" + usagerId;
         if (HttpMethod.POST.equals(httpMethod)) {
@@ -115,6 +114,8 @@ public class AccessesServlet extends AbstractAfServlet {
 
             ((HttpEntityEnclosingRequestBase) finalRequest).setEntity(input);
         }
+        
+        finalRequest.setHeader(HttpHeaders.AUTHORIZATION, AppFactoryServletUtils.getAuthHeader(ServiceTarget.DEMARCHES));
 
         // Envoi de la requête
         LOGGER.info("Appel du WS Demarches: " + url);

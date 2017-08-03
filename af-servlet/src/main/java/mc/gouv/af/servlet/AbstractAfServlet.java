@@ -19,8 +19,7 @@ public class AbstractAfServlet extends HttpServlet {
     }
 
     protected DemClient getDemClient() {
-        return new DemClient(AfServletGouvPropertiesResolver.getDemUrl(),
-                AfServletGouvPropertiesResolver.getDemarchesUser(), AfServletGouvPropertiesResolver.getDemarchesPwd());
+        return new DemClient(AfServletGouvPropertiesResolver.getDemUrl(), AfServletGouvPropertiesResolver.getDemarchesJwt());
     }
 
 }

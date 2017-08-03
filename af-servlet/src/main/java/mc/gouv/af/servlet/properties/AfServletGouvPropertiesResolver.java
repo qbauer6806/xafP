@@ -143,28 +143,16 @@ public class AfServletGouvPropertiesResolver {
         return Static.getValue(SHARED_KEY);
     }
 
-    public static final String FILE_USER = "mc.gouv" + applicationPrefix + ".frontserver.file.user";
+    public static final String FILE_JWT = "mc.gouv" + applicationPrefix + ".frontserver.file.jwt";
 
-    public static String getFileUser() {
-        return Static.getValue(FILE_USER);
+    public static String getFileJwt() {
+        return Static.getValue(FILE_JWT);
     }
 
-    public static final String FILE_PWD = "mc.gouv" + applicationPrefix + ".frontserver.file.pwd";
+    public static final String MAIL_JWT = "mc.gouv" + applicationPrefix + ".frontserver.mail.jwt";
 
-    public static String getFilePwd() {
-        return Static.getValue(FILE_PWD);
-    }
-
-    public static final String MAIL_USER = "mc.gouv" + applicationPrefix + ".frontserver.mail.user";
-
-    public static String getMailUser() {
-        return Static.getValue(MAIL_USER);
-    }
-
-    public static final String MAIL_PWD = "mc.gouv" + applicationPrefix + ".frontserver.mail.pwd";
-
-    public static String getMailPwd() {
-        return Static.getValue(MAIL_PWD);
+    public static String getMailJwt() {
+        return Static.getValue(MAIL_JWT);
     }
 
     public static final String API_USER = "mc.gouv" + applicationPrefix + ".frontserver.user";
@@ -179,16 +167,10 @@ public class AfServletGouvPropertiesResolver {
         return Static.getValue(API_PWD);
     }
 
-    public static final String DEMARCHES_USER = "mc.gouv" + applicationPrefix + ".frontserver.dem.user";
+    public static final String DEMARCHES_JWT = "mc.gouv" + applicationPrefix + ".frontserver.dem.jwt";
 
-    public static String getDemarchesUser() {
-        return Static.getValue(DEMARCHES_USER);
-    }
-
-    public static final String DEMARCHES_PWD = "mc.gouv" + applicationPrefix + ".frontserver.dem.pwd";
-
-    public static String getDemarchesPwd() {
-        return Static.getValue(DEMARCHES_PWD);
+    public static String getDemarchesJwt() {
+        return Static.getValue(DEMARCHES_JWT);
     }
 
     public static final String GOUV_CONTACT_EMAIL_EXPEDITEUR_ADRESSE = "mc.gouv" + applicationPrefix

@@ -1,7 +1,6 @@
 package mc.gouv.af.servlet.util;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.StringTokenizer;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -12,19 +11,11 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpHost;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.AuthCache;
-import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.impl.auth.BasicScheme;
-import org.apache.http.impl.client.BasicAuthCache;
-import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -144,10 +135,11 @@ public class AppFactoryServletUtils {
             throws JsonParseException, JsonMappingException, UnsupportedOperationException, IOException {
 
         // Création du client HTTP avec la bonne adresse
-        HttpClient httpClient = HttpClientBuilder.create()
-                .setDefaultCredentialsProvider(getCredentialsProvider(ServiceTarget.DEMARCHES)).build();
+        HttpClient httpClient = HttpClientBuilder.create().build();
         String url = AfServletGouvPropertiesResolver.getDemAccessUrl() + "/" + demarcheId + "/" + usagerId;
         HttpRequestBase finalRequest = new HttpGet(url);
+        
+        finalRequest.setHeader(HttpHeaders.AUTHORIZATION, getAuthHeader(ServiceTarget.DEMARCHES));
 
         // Envoi de la requête
         LOGGER.info("Appel du WS Demarches: " + url);
@@ -203,62 +195,90 @@ public class AppFactoryServletUtils {
         return (UsagerInfosDTO) session.getAttribute("login");
     }
 
+//    /**
+//     * Définition de l'authentification Utilisation d'un AuthCache puis d'un Context que l'on donne au moment de l'appel
+//     * au serveur, afin de faire une authentification dès la première tentative, et non dès la deuxième tentative, car
+//     * dans le deuxième cas, cela force à faire un retry et donc si on utilise un InputStream, étant donné qu'on ne peut
+//     * pas le lire deux fois, cela donnerait une NonRepeatableRequestException.
+//     * 
+//     * @param url
+//     *            URL du service à appeler
+//     * @return
+//     */
+//    public static HttpClientContext getHttpContextForAuth(URL url, ServiceTarget serviceTarget) {
+//
+//        LOGGER.info("Constitution de la requête...");
+//        HttpHost targetHost = new HttpHost(url.getHost(), url.getPort(), "http");
+//
+//        AuthCache authCache = new BasicAuthCache();
+//        authCache.put(targetHost, new BasicScheme());
+//
+//        // Ajout de l'AuthCache au contexte d'exécution
+//        final HttpClientContext context = HttpClientContext.create();
+//        context.setCredentialsProvider(getCredentialsProvider(serviceTarget));
+//        context.setAuthCache(authCache);
+//
+//        return context;
+//
+//    }
+
+//    /**
+//     * Définition de l'authentification
+//     * 
+//     * @return
+//     */
+//    public static CredentialsProvider getCredentialsProvider(ServiceTarget serviceTarget) {
+//        String user = null;
+//        String pwd = null;
+//
+//        switch (serviceTarget) {
+//            case DEMARCHES:
+//                user = AfServletGouvPropertiesResolver.getDemarchesUser();
+//                pwd = AfServletGouvPropertiesResolver.getDemarchesPwd();
+//                break;
+//
+//            case FILE:
+//                user = AfServletGouvPropertiesResolver.getFileUser();
+//                pwd = AfServletGouvPropertiesResolver.getFilePwd();
+//                break;
+//
+//            case MAIL:
+//                user = AfServletGouvPropertiesResolver.getMailUser();
+//                pwd = AfServletGouvPropertiesResolver.getMailPwd();
+//                break;
+//        }
+//
+//        CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+//        credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(user, pwd));
+//        return credentialsProvider;
+//    }
+    
     /**
-     * Définition de l'authentification Utilisation d'un AuthCache puis d'un Context que l'on donne au moment de l'appel
-     * au serveur, afin de faire une authentification dès la première tentative, et non dès la deuxième tentative, car
-     * dans le deuxième cas, cela force à faire un retry et donc si on utilise un InputStream, étant donné qu'on ne peut
-     * pas le lire deux fois, cela donnerait une NonRepeatableRequestException.
+     * Retourne le header d'authentification JWT correspondant au service à appeler
      * 
-     * @param url
-     *            URL du service à appeler
+     * @param serviceTarget
      * @return
      */
-    public static HttpClientContext getHttpContextForAuth(URL url, ServiceTarget serviceTarget) {
-
-        LOGGER.info("Constitution de la requête...");
-        HttpHost targetHost = new HttpHost(url.getHost(), url.getPort(), "http");
-
-        AuthCache authCache = new BasicAuthCache();
-        authCache.put(targetHost, new BasicScheme());
-
-        // Ajout de l'AuthCache au contexte d'exécution
-        final HttpClientContext context = HttpClientContext.create();
-        context.setCredentialsProvider(getCredentialsProvider(serviceTarget));
-        context.setAuthCache(authCache);
-
-        return context;
-
-    }
-
-    /**
-     * Définition de l'authentification
-     * 
-     * @return
-     */
-    public static CredentialsProvider getCredentialsProvider(ServiceTarget serviceTarget) {
-        String user = null;
-        String pwd = null;
-
+    public static String getAuthHeader(ServiceTarget serviceTarget) {
+        
+        String jwt = null;
+        
         switch (serviceTarget) {
             case DEMARCHES:
-                user = AfServletGouvPropertiesResolver.getDemarchesUser();
-                pwd = AfServletGouvPropertiesResolver.getDemarchesPwd();
+                jwt = AfServletGouvPropertiesResolver.getDemarchesJwt();
                 break;
 
             case FILE:
-                user = AfServletGouvPropertiesResolver.getFileUser();
-                pwd = AfServletGouvPropertiesResolver.getFilePwd();
+                jwt = AfServletGouvPropertiesResolver.getFileJwt();
                 break;
 
             case MAIL:
-                user = AfServletGouvPropertiesResolver.getMailUser();
-                pwd = AfServletGouvPropertiesResolver.getMailPwd();
+                jwt = AfServletGouvPropertiesResolver.getMailJwt();
                 break;
         }
-
-        CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-        credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(user, pwd));
-        return credentialsProvider;
+        
+        // Authentification JWT
+        return "Bearer " + jwt;
     }
 
     /**

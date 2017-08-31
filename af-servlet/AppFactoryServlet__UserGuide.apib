@@ -1011,6 +1011,9 @@ La réponse contient l'identifiant du fichier au format uuid/filename.
 
 ## Rattachement [/appfactoryservlet/associerDemandeCourrier?identifiant={identifiant}&nomProprio={nomProprio}]
 
+Deux cas d'erreurs sont possibles : si l'identifiant de la demande ne correspond à aucune demande, alors le statut HTTP sera 404 (Not Found).
+Si le nom du propriétaire ne correspond pas à celui de la demande, alors le statut HTTP sera 400 (Bad Request).
+
 + Parameters
     + identifiant (required, string, `HAB-20170620-G864`) ... L'identifiant de la demande concernée.
     + nomProprio (required, string, `DEME`) ... Le nom du propriétaire de la demande.
@@ -1024,5 +1027,8 @@ La réponse contient l'identifiant du fichier au format uuid/filename.
             Cookie: JSESSIONID=1jyzh76rqbx66q2cxa0j0zvaf
 
 
-+ Response 200 (application/json)
++ Response 200
 
++ Response 404
+
++ Response 400

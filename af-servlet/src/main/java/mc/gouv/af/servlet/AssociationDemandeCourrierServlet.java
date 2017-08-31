@@ -5,6 +5,7 @@ import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.ClientErrorException;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
@@ -14,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import mc.gouv.af.apiclient.AfApiClient;
 import mc.gouv.af.servlet.dto.UsagerInfosDTO;
 import mc.gouv.af.servlet.util.AppFactoryServletUtils;
-import mc.gouv.dem.apishared.model.DemandeDTO;
 
 /**
  * Servlet permettant d'associer une demande courrier à un usager téléservice.
@@ -65,17 +65,15 @@ public class AssociationDemandeCourrierServlet extends AbstractAfServlet {
         LOGGER.info("Appel à la démarche...");
 
         AfApiClient afApiClient = getAfApiClient();
-        DemandeDTO demande = afApiClient.associerDemandeCourrier(identifiant, nomProprio, usagerId);
+                
+        try {
+            afApiClient.associerDemandeCourrier(identifiant, nomProprio, usagerId);
+        } catch (ClientErrorException e) {
+            LOGGER.info("Erreur lors de l'appel à la démarche, code : " + e.getResponse().getStatus());
+            response.setStatus(e.getResponse().getStatus());
+        }
 
         LOGGER.info("Retour au client...");
-
-        // TODO Gestion des erreurs : faire mieux / différemment ?
-        if (demande != null) {
-            response.setStatus(HttpStatus.SC_OK);
-        }
-        else {
-            response.setStatus(HttpStatus.SC_BAD_REQUEST);
-        }
 
         LOGGER.info("====================== Fin /associerDemandeCourrier doPost()");
     }

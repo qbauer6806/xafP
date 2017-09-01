@@ -1,7 +1,6 @@
 package mc.gouv.af.servlet;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.StringTokenizer;
 
@@ -20,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 
 import mc.gouv.af.servlet.dto.UsagerInfosDTO;
 import mc.gouv.af.servlet.properties.AfServletGouvPropertiesResolver;
@@ -73,7 +73,8 @@ public class LoginServlet extends AbstractAfServlet {
                 } else {
                     LOGGER.info("Stockage des informations usager dans la session...");
                     ObjectMapper mapper = new ObjectMapper();
-                    mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX"));
+                    mapper.setDateFormat(new ISO8601DateFormat());
+
                     UsagerInfosDTO uinfos = mapper.readValue(serviceResponse.getEntity().getContent(),
                             UsagerInfosDTO.class);
 

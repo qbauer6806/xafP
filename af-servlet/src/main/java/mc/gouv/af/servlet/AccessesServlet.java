@@ -12,7 +12,6 @@ import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -87,12 +86,15 @@ public class AccessesServlet extends AbstractAfServlet {
             finalRequest = new HttpPost(url);
         } else if (HttpMethod.GET.equals(httpMethod)) {
             finalRequest = new HttpGet(url);
-        } else if (HttpMethod.DELETE.equals(httpMethod)) {
-            // Le hashPassword est stocké dans l'URL
-            String hashedPassword = request.getParameter("hashedPassword");
-            url += "?hashedPassword=" + hashedPassword;
-            finalRequest = new HttpDelete(url);
         }
+            
+        // Plus utile ainsi (#4622). Code dans doDelete() maintenant
+//        } else if (HttpMethod.DELETE.equals(httpMethod)) {
+//            // Le hashPassword est stocké dans l'URL
+//            String hashedPassword = request.getParameter("hashedPassword");
+//            url += "?hashedPassword=" + hashedPassword;
+//            finalRequest = new HttpDelete(url);
+//        }
 
         if (HttpMethod.POST.equals(httpMethod)) {
             finalRequest.setHeader("Content-Type", "application/json; charset=UTF-8");
@@ -156,7 +158,29 @@ public class AccessesServlet extends AbstractAfServlet {
             throws IOException, ServletException {
         LOGGER.info("====================== /accesses doDelete()");
 
-        response = doHttpMethod(request, response, HttpMethod.DELETE);
+        // Si en DELETE, cela signifie que l'usager se désinscrit
+        // Dans ce cas, appeler la démarche concernée (exemple : HAB)
+        
+        UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(request);
+
+        if (usagerInfosDTO == null) {
+            response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
+                    "Utilisateur non autorisé");
+        }
+        else {
+    
+            // Récupération de l'ID de l'usager
+            Integer usagerId = usagerInfosDTO.getId();
+            
+            // Le hashPassword est stocké dans l'URL
+            String hashedPassword = request.getParameter("hashedPassword");
+            
+            LOGGER.info("Appel de la démarche pour désinscrire l'usager...");
+            getAfApiClient().desinscriptionUsager(usagerId, hashedPassword);
+            
+            // TODO : gestion des erreurs
+            response.setStatus(HttpStatus.SC_OK);
+        }
 
         LOGGER.info("====================== Fin /accesses doDelete()");
     }

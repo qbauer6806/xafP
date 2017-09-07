@@ -98,6 +98,13 @@ public class AfApiClient {
                 .header("Authorization", getBasicAuthString())
                 .post(Entity.json(null), DemandeDTO.class);
     }
+    
+    public void desinscriptionUsager(Integer usagerId, String hashedPassword) {
+        target.path("/accesses/" + usagerId)
+                .queryParam("hashedPassword", hashedPassword)
+                .request(MediaType.APPLICATION_JSON)
+                .header("Authorization", getBasicAuthString()).delete();
+    }
 
     private String getBasicAuthString() {
         return "Basic " + new String(Base64.encodeBase64(new String(user + ":" + password).getBytes()));

@@ -89,4 +89,11 @@ public abstract class AbstractAfApiController implements AfApiController {
         return associerDemandeCourrier(identifiantDemande, nomProprio, usagerId);
     }
 
+    @RequestMapping(value = "/accesses/{usagerId}", method = RequestMethod.DELETE)
+    public void desinscriptionUsagerRequest(@PathVariable(value = "usagerId") Integer usagerId,
+            @RequestParam(value = "hashedPassword", required = true) String hashedPassword) {
+        LOGGER.info("AbstractAfApiController.desinscriptionUsagerRequest(" + usagerId + " (+hashedPassword))");
+        desinscriptionUsager(usagerId, hashedPassword);
+    }
+    
 }

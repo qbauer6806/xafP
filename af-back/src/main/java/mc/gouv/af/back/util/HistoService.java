@@ -1,5 +1,6 @@
 package mc.gouv.af.back.util;
 
+import mc.gouv.dem.apishared.model.DemandeDTO;
 import mc.gouv.dem.apishared.model.DemandeHistoriqueDTO;
 import mc.gouv.dem.apishared.model.DemandeStatutEnum;
 
@@ -20,6 +21,8 @@ public interface HistoService {
 
     public DemandeHistoriqueDTO traiter(Integer demandeId, DemandeStatutEnum targetState, String agentId);
 
-    DemandeHistoriqueDTO creationDemande(Integer demandeId, Integer usagerId, String agentId);
+    public DemandeHistoriqueDTO creationDemande(Integer demandeId, Integer usagerId, String agentId);
+
+    public DemandeHistoriqueDTO desinscriptionUsager(DemandeDTO demande, Integer usagerId);
 
 }

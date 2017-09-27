@@ -9,30 +9,25 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpHeaders;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.uuid.EthernetAddress;
 import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.impl.TimeBasedGenerator;
 
 import mc.gouv.af.servlet.dto.UsagerInfosDTO;
 import mc.gouv.af.servlet.properties.AfServletGouvPropertiesResolver;
-import mc.gouv.dem.apishared.model.AccessDTO;
 import net.tanesha.recaptcha.ReCaptchaImpl;
 import net.tanesha.recaptcha.ReCaptchaResponse;
 
+/**
+ * Classe utilitaire pour af-servlet
+ * 
+ * @author qdeme
+ *
+ */
 public class AppFactoryServletUtils {
 
     private static Logger LOGGER = LoggerFactory.getLogger(AppFactoryServletUtils.class);
@@ -54,7 +49,6 @@ public class AppFactoryServletUtils {
     public static final String XSRF_SESSION_ATTRIBUTE = "XSRF-TOKEN";
 
     public enum ServiceTarget {
-        DEMARCHES,
         FILE,
         MAIL
     }
@@ -120,47 +114,6 @@ public class AppFactoryServletUtils {
     }
 
     /**
-     * Appelle le WS Demarches de récupération d'accès afin de connaître l'AccessID en fonction du demarcheID et de
-     * l'usagerID
-     * 
-     * @param demarcheId
-     * @param usagerId
-     * @return L'accessID
-     * @throws JsonParseException
-     * @throws JsonMappingException
-     * @throws UnsupportedOperationException
-     * @throws IOException
-     */
-    public static Integer getAccessID(String demarcheId, Integer usagerId)
-            throws JsonParseException, JsonMappingException, UnsupportedOperationException, IOException {
-
-        // Création du client HTTP avec la bonne adresse
-        HttpClient httpClient = HttpClientBuilder.create().build();
-        String url = AfServletGouvPropertiesResolver.getDemAccessUrl() + "/" + demarcheId + "/" + usagerId;
-        HttpRequestBase finalRequest = new HttpGet(url);
-        
-        finalRequest.setHeader(HttpHeaders.AUTHORIZATION, getAuthHeader(ServiceTarget.DEMARCHES));
-
-        // Envoi de la requête
-        LOGGER.info("Appel du WS Demarches: " + url);
-        HttpResponse response = httpClient.execute(finalRequest);
-
-        if (response.getStatusLine().getStatusCode() != HttpServletResponse.SC_OK) {
-            // Loguer le résultat de la requête en cas d'erreur puis retourner null
-            String content = IOUtils.toString(response.getEntity().getContent(), "UTF-8");
-            LOGGER.error("Erreur : " + content);
-            return null;
-        }
-
-        // Lecture de la réponse
-        LOGGER.info("Lecture de la réponse...");
-        ObjectMapper mapper = new ObjectMapper();
-        AccessDTO access = mapper.readValue(response.getEntity().getContent(), AccessDTO.class);
-
-        return access.getPkAccess();
-    }
-
-    /**
      * Récupère l'utilisateur logué depuis la session
      * 
      * @param request
@@ -194,64 +147,6 @@ public class AppFactoryServletUtils {
 
         return (UsagerInfosDTO) session.getAttribute("login");
     }
-
-//    /**
-//     * Définition de l'authentification Utilisation d'un AuthCache puis d'un Context que l'on donne au moment de l'appel
-//     * au serveur, afin de faire une authentification dès la première tentative, et non dès la deuxième tentative, car
-//     * dans le deuxième cas, cela force à faire un retry et donc si on utilise un InputStream, étant donné qu'on ne peut
-//     * pas le lire deux fois, cela donnerait une NonRepeatableRequestException.
-//     * 
-//     * @param url
-//     *            URL du service à appeler
-//     * @return
-//     */
-//    public static HttpClientContext getHttpContextForAuth(URL url, ServiceTarget serviceTarget) {
-//
-//        LOGGER.info("Constitution de la requête...");
-//        HttpHost targetHost = new HttpHost(url.getHost(), url.getPort(), "http");
-//
-//        AuthCache authCache = new BasicAuthCache();
-//        authCache.put(targetHost, new BasicScheme());
-//
-//        // Ajout de l'AuthCache au contexte d'exécution
-//        final HttpClientContext context = HttpClientContext.create();
-//        context.setCredentialsProvider(getCredentialsProvider(serviceTarget));
-//        context.setAuthCache(authCache);
-//
-//        return context;
-//
-//    }
-
-//    /**
-//     * Définition de l'authentification
-//     * 
-//     * @return
-//     */
-//    public static CredentialsProvider getCredentialsProvider(ServiceTarget serviceTarget) {
-//        String user = null;
-//        String pwd = null;
-//
-//        switch (serviceTarget) {
-//            case DEMARCHES:
-//                user = AfServletGouvPropertiesResolver.getDemarchesUser();
-//                pwd = AfServletGouvPropertiesResolver.getDemarchesPwd();
-//                break;
-//
-//            case FILE:
-//                user = AfServletGouvPropertiesResolver.getFileUser();
-//                pwd = AfServletGouvPropertiesResolver.getFilePwd();
-//                break;
-//
-//            case MAIL:
-//                user = AfServletGouvPropertiesResolver.getMailUser();
-//                pwd = AfServletGouvPropertiesResolver.getMailPwd();
-//                break;
-//        }
-//
-//        CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-//        credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(user, pwd));
-//        return credentialsProvider;
-//    }
     
     /**
      * Retourne le header d'authentification JWT correspondant au service à appeler
@@ -264,10 +159,6 @@ public class AppFactoryServletUtils {
         String jwt = null;
         
         switch (serviceTarget) {
-            case DEMARCHES:
-                jwt = AfServletGouvPropertiesResolver.getDemarchesJwt();
-                break;
-
             case FILE:
                 jwt = AfServletGouvPropertiesResolver.getFileJwt();
                 break;

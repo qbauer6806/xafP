@@ -32,6 +32,7 @@ import mc.gouv.af.servlet.dto.UsagerInfosDTO;
 import mc.gouv.af.servlet.properties.AfServletGouvPropertiesResolver;
 import mc.gouv.af.servlet.util.AppFactoryServletUtils;
 import mc.gouv.af.servlet.util.AppFactoryServletUtils.ServiceTarget;
+import mc.gouv.dem.apishared.model.AccessDTO;
 
 @MultipartConfig
 public class FileUploadServlet extends AbstractAfServlet {
@@ -73,13 +74,16 @@ public class FileUploadServlet extends AbstractAfServlet {
 
             String accountId = getServletContext().getInitParameter(AppFactoryServletUtils.DEMARCHEID_KEY);
             String containerId = getServletContext().getInitParameter(AppFactoryServletUtils.CONTAINER_KEY);
-            String demarcheId = getServletContext().getInitParameter(AppFactoryServletUtils.DEMARCHEID_KEY);
 
             LOGGER.debug("accountId = {}, containerId = {}", accountId, containerId);
 
             // Récupération de l'AccessID via appel WS à Demarches
-            LOGGER.info("Récupération de l'AccessID correspondant");
-            Integer accessId = AppFactoryServletUtils.getAccessID(demarcheId, usagerInfosDTO.getId());
+            LOGGER.info("Appel à la démarche pour récupérer l'AccessID correspondant..");
+
+            //Integer accessId = AppFactoryServletUtils.getAccessID(demarcheId, usagerInfosDTO.getId());
+            AccessDTO access = getAfApiClient().getAccess(usagerInfosDTO.getId());
+            Integer accessId = access.getPkAccess();
+            
             LOGGER.debug("AccessID = {}", accessId);
 
             if (accessId == null) {

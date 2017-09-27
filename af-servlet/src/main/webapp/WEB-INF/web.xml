@@ -133,5 +133,19 @@
         <param-name>ContainerID</param-name>
         <param-value>ROOT</param-value>
     </context-param>
+    
+    <error-page>
+        <exception-type>mc.gouv.xapi.error.exception.WebException</exception-type>
+        <location>/erreur</location>
+    </error-page>
+    
+    <servlet>
+        <servlet-name>ErreurServlet</servlet-name>
+        <servlet-class>mc.gouv.af.servlet.ErreurServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ErreurServlet</servlet-name>
+        <url-pattern>/erreur</url-pattern>
+    </servlet-mapping>
 
 </web-app>

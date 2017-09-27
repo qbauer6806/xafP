@@ -117,8 +117,13 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     }
     
     @Override
-    public String getDemJwt() {
-        return Static.getValue("mc.gouv" + applicationPrefix + ".backserver.dem.jwt");
+    public String getDemJwtBack() {
+        return Static.getValue("mc.gouv" + applicationPrefix + ".backserver.dem.backuser.jwt");
+    }
+    
+    @Override
+    public String getDemJwtFront() {
+        return Static.getValue("mc.gouv" + applicationPrefix + ".backserver.dem.frontuser.jwt");
     }
 
     @Override

@@ -61,30 +61,6 @@ public class AfServletGouvPropertiesResolver {
 
     }
 
-    public static final String DEM_ACCESSES_URL = "mc.gouv.appfactory.demarchesws.accesses.url";
-
-    public static String getDemAccessUrl() {
-        return Static.getValue(DEM_ACCESSES_URL);
-    }
-
-    public static final String DEM_DEMANDES_URL = "mc.gouv.appfactory.demarchesws.demandes.url";
-
-    public static String getDemDemandesUrl() {
-        return Static.getValue(DEM_ACCESSES_URL);
-    }
-
-    public static final String DEM_MOTIFS_URL = "mc.gouv.appfactory.demarchesws.motifs.url";
-
-    public static String getDemMotifsUrl() {
-        return Static.getValue(DEM_MOTIFS_URL);
-    }
-
-    public static final String DEM_URL = "mc.gouv.appfactory.demarchesws.url";
-
-    public static String getDemUrl() {
-        return Static.getValue(DEM_URL);
-    }
-
     public static final String LOGIN_REST_URL = "mc.gouv.appfactory.external.login.url";
 
     public static String getLoginRestUrl() {
@@ -165,12 +141,6 @@ public class AfServletGouvPropertiesResolver {
 
     public static String getApiPwd() {
         return Static.getValue(API_PWD);
-    }
-
-    public static final String DEMARCHES_JWT = "mc.gouv" + applicationPrefix + ".frontserver.dem.jwt";
-
-    public static String getDemarchesJwt() {
-        return Static.getValue(DEMARCHES_JWT);
     }
 
     public static final String GOUV_CONTACT_EMAIL_EXPEDITEUR_ADRESSE = "mc.gouv" + applicationPrefix

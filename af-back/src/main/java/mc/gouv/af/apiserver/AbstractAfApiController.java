@@ -2,10 +2,12 @@ package mc.gouv.af.apiserver;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,10 +15,16 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import mc.gouv.dem.apishared.model.AccessDTO;
+import mc.gouv.dem.apishared.model.AccessInputDTO;
 import mc.gouv.dem.apishared.model.DemandeComplementsDTO;
 import mc.gouv.dem.apishared.model.DemandeComplementsReponseDTO;
 import mc.gouv.dem.apishared.model.DemandeDTO;
 import mc.gouv.dem.apishared.model.DemandeInputDTO;
+import mc.gouv.dem.apishared.model.MotifDTO;
+import mc.gouv.dem.apishared.model.UsagerCourrierDTO;
+import mc.gouv.xapi.error.dto.ErrorsDTO;
+import mc.gouv.xapi.error.exception.WebException;
 
 /**
  * 
@@ -94,6 +102,41 @@ public abstract class AbstractAfApiController implements AfApiController {
             @RequestParam(value = "hashedPassword", required = true) String hashedPassword) {
         LOGGER.info("AbstractAfApiController.desinscriptionUsagerRequest(" + usagerId + " (+hashedPassword))");
         desinscriptionUsager(usagerId, hashedPassword);
+    }
+    
+    @RequestMapping(value = "/accesses/{usagerId}", method = RequestMethod.POST)
+    public AccessDTO createOrUpdateAccessRequest(@PathVariable(value = "usagerId") Integer usagerId,
+            @Valid @RequestBody AccessInputDTO dto) {
+        LOGGER.info("AbstractAfApiController.createOrUpdateAccessRequest(" + usagerId + " (+dto))");
+        return createOrUpdateAccess(usagerId, dto);
+    }
+    
+    @RequestMapping(value = "/accesses/{usagerId}", method = RequestMethod.GET)
+    public AccessDTO getAccessRequest(@PathVariable(value = "usagerId") Integer usagerId) {
+        LOGGER.info("AbstractAfApiController.getAccessRequest(" + usagerId + ")");
+        return getAccess(usagerId);
+    }
+    
+    @RequestMapping(value = "/usagerscourrier/{usagerCourrierId}", method = RequestMethod.GET)
+    public UsagerCourrierDTO getUsagerCourrierRequest(@PathVariable(value = "usagerCourrierId") Integer usagerCourrierId) {
+        LOGGER.info("AbstractAfApiController.getUsagerCourrierRequest(" + usagerCourrierId + ")");
+        return getUsagerCourrier(usagerCourrierId);
+    }
+    
+    @RequestMapping(value = "/motifs", method = RequestMethod.GET)
+    public List<MotifDTO> getMotifsRequest() {
+        LOGGER.info("AbstractAfApiController.getMotifsRequest()");
+        return getMotifs();
+    }
+    
+    @ExceptionHandler(WebException.class)
+    public @ResponseBody ErrorsDTO handleMetierWebException(HttpServletResponse res, WebException ex) {
+        ErrorsDTO errorsDTO = new ErrorsDTO();
+        errorsDTO.setHttpStatus(ex.getHttpStatus());
+        errorsDTO.setMessage(ex.getMessage());
+        errorsDTO.setErrors(ex.getErrors());
+        res.setStatus(ex.getHttpStatus());
+        return errorsDTO;
     }
     
 }

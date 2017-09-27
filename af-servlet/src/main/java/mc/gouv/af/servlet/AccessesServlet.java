@@ -1,6 +1,7 @@
 package mc.gouv.af.servlet;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
@@ -8,23 +9,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpHeaders;
-import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import mc.gouv.af.servlet.dto.UsagerInfosDTO;
-import mc.gouv.af.servlet.properties.AfServletGouvPropertiesResolver;
 import mc.gouv.af.servlet.util.AppFactoryServletUtils;
-import mc.gouv.af.servlet.util.AppFactoryServletUtils.ServiceTarget;
+import mc.gouv.dem.apishared.model.AccessDTO;
+import mc.gouv.dem.apishared.model.AccessInputDTO;
 
 /**
  * Servlet mettant à disposition le service /accesses avec les méthodes PUT, POST, GET, DELETE.
@@ -76,30 +70,11 @@ public class AccessesServlet extends AbstractAfServlet {
 
         LOGGER.info("DemarcheID=" + demarcheId + ", UsagerID=" + usagerId);
 
-        // Transmission du JSON d'infos du compte démarche, reçu en input, dans le WS back-end
-
-        // Création du client HTTP avec la bonne adresse
-        HttpClient httpClient = HttpClientBuilder.create().build();
-        HttpRequestBase finalRequest = null;
-        String url = AfServletGouvPropertiesResolver.getDemAccessUrl() + "/" + demarcheId + "/" + usagerId;
+        String repJson = null;
+        
         if (HttpMethod.POST.equals(httpMethod)) {
-            finalRequest = new HttpPost(url);
-        } else if (HttpMethod.GET.equals(httpMethod)) {
-            finalRequest = new HttpGet(url);
-        }
             
-        // Plus utile ainsi (#4622). Code dans doDelete() maintenant
-//        } else if (HttpMethod.DELETE.equals(httpMethod)) {
-//            // Le hashPassword est stocké dans l'URL
-//            String hashedPassword = request.getParameter("hashedPassword");
-//            url += "?hashedPassword=" + hashedPassword;
-//            finalRequest = new HttpDelete(url);
-//        }
-
-        if (HttpMethod.POST.equals(httpMethod)) {
-            finalRequest.setHeader("Content-Type", "application/json; charset=UTF-8");
-
-            // Récupération du JSON reçu en input et transmission au 2ème service en UTF8
+            // Récupération du JSON reçu en input et transmission au 2ème service
             StringBuilder buffer = new StringBuilder();
             BufferedReader reader = request.getReader();
             String line;
@@ -111,26 +86,53 @@ public class AccessesServlet extends AbstractAfServlet {
                 return AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_BAD_REQUEST,
                         "Erreur: JSON manquant");
             }
-
-            StringEntity input = new StringEntity(buffer.toString(), "UTF-8");
-
-            ((HttpEntityEnclosingRequestBase) finalRequest).setEntity(input);
+            
+            ObjectMapper mapper = new ObjectMapper();
+            AccessInputDTO accessInput = mapper.readValue(buffer.toString(), AccessInputDTO.class);
+            
+            LOGGER.info("Appel à la démarche pour créer l'accès...");
+            
+            AccessDTO access = getAfApiClient().createOrUpdateAccess(usagerId, accessInput);
+            
+            LOGGER.info("Inclure la réponse dans le HttpServletResponse...");
+            
+            response.setStatus(HttpStatus.SC_OK);
+            repJson = mapper.writeValueAsString(access);
+            
+        }
+        else if (HttpMethod.GET.equals(httpMethod)) {
+            
+            LOGGER.info("Appel à la démarche pour récupérer l'accès...");
+            
+            AccessDTO access = getAfApiClient().getAccess(usagerId);
+            
+            LOGGER.info("Inclure la réponse dans le HttpServletResponse...");
+            
+            response.setStatus(HttpStatus.SC_OK);
+            ObjectMapper mapper = new ObjectMapper();
+            repJson = mapper.writeValueAsString(access);
+            
+        }
+        else if (HttpMethod.DELETE.equals(httpMethod)) {
+            
+            // Si en DELETE, cela signifie que l'usager se désinscrit
+            // Dans ce cas, appeler la démarche concernée (exemple : HAB)
+                
+            // Le hashPassword est stocké dans l'URL
+            String hashedPassword = request.getParameter("hashedPassword");
+            
+            LOGGER.info("Appel de la démarche pour désinscrire l'usager...");
+            
+            getAfApiClient().desinscriptionUsager(usagerId, hashedPassword);
+            
+            response.setStatus(HttpStatus.SC_OK);
+            
         }
         
-        finalRequest.setHeader(HttpHeaders.AUTHORIZATION, AppFactoryServletUtils.getAuthHeader(ServiceTarget.DEMARCHES));
-
-        // Envoi de la requête
-        LOGGER.info("Appel du WS Demarches: " + url);
-        HttpResponse finalResponse = httpClient.execute(finalRequest);
-        LOGGER.info("Code réponse : " + finalResponse.getStatusLine().getStatusCode());
-
-        // Constitution de la réponse en redirigeant la réponse du WS ansi que son code réponse
-        LOGGER.info("Constitution de la réponse pour retour au client");
-        response.setContentType("application/json");
-
-        response.setStatus(finalResponse.getStatusLine().getStatusCode());
-
-        IOUtils.copy(finalResponse.getEntity().getContent(), response.getOutputStream());
+        if (!HttpMethod.DELETE.equals(httpMethod)) {
+            response.setContentType("application/json");
+            IOUtils.copy(new ByteArrayInputStream(repJson.getBytes()), response.getOutputStream());
+        }
 
         return response;
     }
@@ -158,29 +160,7 @@ public class AccessesServlet extends AbstractAfServlet {
             throws IOException, ServletException {
         LOGGER.info("====================== /accesses doDelete()");
 
-        // Si en DELETE, cela signifie que l'usager se désinscrit
-        // Dans ce cas, appeler la démarche concernée (exemple : HAB)
-        
-        UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(request);
-
-        if (usagerInfosDTO == null) {
-            response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
-                    "Utilisateur non autorisé");
-        }
-        else {
-    
-            // Récupération de l'ID de l'usager
-            Integer usagerId = usagerInfosDTO.getId();
-            
-            // Le hashPassword est stocké dans l'URL
-            String hashedPassword = request.getParameter("hashedPassword");
-            
-            LOGGER.info("Appel de la démarche pour désinscrire l'usager...");
-            getAfApiClient().desinscriptionUsager(usagerId, hashedPassword);
-            
-            // TODO : gestion des erreurs
-            response.setStatus(HttpStatus.SC_OK);
-        }
+        response = doHttpMethod(request, response, HttpMethod.DELETE);
 
         LOGGER.info("====================== Fin /accesses doDelete()");
     }

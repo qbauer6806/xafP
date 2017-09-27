@@ -24,7 +24,6 @@ import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import mc.gouv.af.servlet.dto.UsagerInfosDTO;
 import mc.gouv.af.servlet.properties.AfServletGouvPropertiesResolver;
 import mc.gouv.af.servlet.util.AppFactoryServletUtils;
-import mc.gouv.dem.apiclient.DemClient;
 import mc.gouv.dem.apishared.model.UsagerCourrierDTO;
 
 /**
@@ -123,14 +122,9 @@ public class LoginServlet extends AbstractAfServlet {
 
             LOGGER.info("UsagerCourrierId : " + usagerCourrierId);
 
-            // Création du DemClient
-            DemClient dc = getDemClient();
-
-            // Récupération de l'ID de la démarche dans le Context-Param
-            String demarcheId = getServletContext().getInitParameter(AppFactoryServletUtils.DEMARCHEID_KEY);
-
-            LOGGER.info("Appel du service DEM...");
-            UsagerCourrierDTO usagerCourrier = dc.getUsagerCourrier(demarcheId, usagerCourrierId);
+            LOGGER.info("Appel de la démarche pour récupérer l'usager courrier...");
+            // UsagerCourrierDTO usagerCourrier = dc.getUsagerCourrier(demarcheId, usagerCourrierId);
+            UsagerCourrierDTO usagerCourrier = getAfApiClient().getUsagerCourrier(usagerCourrierId);
 
             if (usagerCourrier == null) {
                 LOGGER.info("Login infructueux");

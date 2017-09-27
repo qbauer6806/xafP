@@ -201,7 +201,7 @@ public class AfBackUtils {
 
     public DemClient getDemClient() {
         if (demClient == null) {
-            demClient = new DemClient(gouvPropertiesResolver.getDemUrl(), gouvPropertiesResolver.getDemJwt());
+            demClient = new DemClient(gouvPropertiesResolver.getDemUrl(), gouvPropertiesResolver.getDemJwtBack());
         }
         return demClient;
     }

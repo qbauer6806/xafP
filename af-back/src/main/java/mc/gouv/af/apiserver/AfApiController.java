@@ -2,10 +2,14 @@ package mc.gouv.af.apiserver;
 
 import java.util.List;
 
+import mc.gouv.dem.apishared.model.AccessDTO;
+import mc.gouv.dem.apishared.model.AccessInputDTO;
 import mc.gouv.dem.apishared.model.DemandeComplementsDTO;
 import mc.gouv.dem.apishared.model.DemandeComplementsReponseDTO;
 import mc.gouv.dem.apishared.model.DemandeDTO;
 import mc.gouv.dem.apishared.model.DemandeInputDTO;
+import mc.gouv.dem.apishared.model.MotifDTO;
+import mc.gouv.dem.apishared.model.UsagerCourrierDTO;
 
 /**
  * 
@@ -36,5 +40,13 @@ public interface AfApiController {
     public DemandeDTO associerDemandeCourrier(String identifiantDemande, String nomProprio, Integer usagerId);
     
     public void desinscriptionUsager(Integer usagerId, String hashedPassword);
+    
+    public AccessDTO createOrUpdateAccess(Integer usagerId, AccessInputDTO dto);
+    
+    public AccessDTO getAccess(Integer usagerId);
+    
+    public UsagerCourrierDTO getUsagerCourrier(Integer usagerCourrierId);
+    
+    public List<MotifDTO> getMotifs();
 
 }

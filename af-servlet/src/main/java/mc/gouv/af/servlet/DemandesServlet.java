@@ -114,6 +114,7 @@ public class DemandesServlet extends AbstractAfServlet {
                 DemandeComplementsDTO demandeComplement = afApiClient
                         .repondreDemandeComplements(Integer.parseInt(demandeId), demandeInfosComplId, reponse);
 
+                // TODO : gestion des erreurs
                 response.setStatus(HttpStatus.SC_OK);
                 repJson = mapper.writeValueAsString(demandeComplement);
             } else {
@@ -121,6 +122,7 @@ public class DemandesServlet extends AbstractAfServlet {
                 DemandeInputDTO demandeInput = mapper.readValue(buffer.toString(), DemandeInputDTO.class);
                 DemandeDTO demandeDto = afApiClient.creerDemande(demandeInput, usagerId);
 
+                // TODO : gestion des erreurs
                 response.setStatus(HttpStatus.SC_CREATED);
                 repJson = mapper.writeValueAsString(demandeDto);
             }
@@ -129,11 +131,13 @@ public class DemandesServlet extends AbstractAfServlet {
                 if (demandeId != null) {
                     LOGGER.info("Appel à la démarche pour récupérer la demande");
                     DemandeDTO demandeDto = afApiClient.getDemande(usagerId, Integer.parseInt(demandeId));
+                    // TODO : gestion des erreurs
                     response.setStatus(HttpStatus.SC_OK);
                     repJson = mapper.writeValueAsString(demandeDto);
                 } else {
                     LOGGER.info("Appel à la démarche pour récupérer toutes les demandes");
                     List<DemandeDTO> demandeDtos = afApiClient.getDemandes(usagerId);
+                    // TODO : gestion des erreurs
                     response.setStatus(HttpStatus.SC_OK);
                     repJson = mapper.writeValueAsString(demandeDtos);
                 }
@@ -142,6 +146,7 @@ public class DemandesServlet extends AbstractAfServlet {
                     LOGGER.info("Appel à la démarche pour récupérer la demande d'informations complémentaires");
                     DemandeComplementsDTO demandeComplementsDto = afApiClient
                             .getDemandeComplements(Integer.parseInt(demandeId), demandeInfosComplId);
+                    // TODO : gestion des erreurs
                     response.setStatus(HttpStatus.SC_OK);
                     repJson = mapper.writeValueAsString(demandeComplementsDto);
                 } else {
@@ -149,6 +154,7 @@ public class DemandesServlet extends AbstractAfServlet {
                             "Appel à la démarche pour récupérer toutes les demandes d'informations complémentaires");
                     List<DemandeComplementsDTO> demandeComplementsDtos = afApiClient
                             .getDemandesComplements(Integer.parseInt(demandeId));
+                    // TODO : gestion des erreurs
                     response.setStatus(HttpStatus.SC_OK);
                     repJson = mapper.writeValueAsString(demandeComplementsDtos);
                 }

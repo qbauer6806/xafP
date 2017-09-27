@@ -11,7 +11,9 @@ public interface GouvPropertiesResolver {
 
     String getDemUrl();
     
-    String getDemJwt();
+    String getDemJwtBack();
+    
+    String getDemJwtFront();
 
     String getFileUrl();
 

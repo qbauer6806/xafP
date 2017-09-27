@@ -8,15 +8,21 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.apache.commons.codec.binary.Base64;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 
+import mc.gouv.dem.apishared.model.AccessDTO;
+import mc.gouv.dem.apishared.model.AccessInputDTO;
 import mc.gouv.dem.apishared.model.DemandeComplementsDTO;
 import mc.gouv.dem.apishared.model.DemandeComplementsReponseDTO;
 import mc.gouv.dem.apishared.model.DemandeDTO;
 import mc.gouv.dem.apishared.model.DemandeInputDTO;
+import mc.gouv.dem.apishared.model.MotifDTO;
+import mc.gouv.dem.apishared.model.UsagerCourrierDTO;
+import mc.gouv.xboot.apiclient.exception.ExceptionManager;
 
 /**
  * 
@@ -51,61 +57,136 @@ public class AfApiClient {
     }
 
     public void annulerDemande(Integer demandeId, Integer usagerId) {
-        target.path("demandes/" + demandeId + "/annuler").queryParam("usagerId", usagerId)
+        Response res = target.path("demandes/" + demandeId + "/annuler").queryParam("usagerId", usagerId)
                 .request(MediaType.APPLICATION_JSON).header("Authorization", getBasicAuthString()).put(Entity.text(""));
+        
+        ExceptionManager.checkExceptionResponse(res);
+
     }
 
     public DemandeDTO creerDemande(DemandeInputDTO demande, Integer usagerId) {
-        return target.path("demandes").queryParam("usagerId", usagerId).request(MediaType.APPLICATION_JSON)
+        Response res = target.path("demandes").queryParam("usagerId", usagerId).request(MediaType.APPLICATION_JSON)
                 .header("Authorization", getBasicAuthString())
-                .post(Entity.entity(demande, MediaType.APPLICATION_JSON), DemandeDTO.class);
+                .post(Entity.entity(demande, MediaType.APPLICATION_JSON));
+        
+        ExceptionManager.checkExceptionResponse(res);
+        
+        return res.readEntity(DemandeDTO.class);
     }
 
     public DemandeComplementsDTO repondreDemandeComplements(Integer demandeId, Integer icId,
             DemandeComplementsReponseDTO reponse) {
-        return target.path("demandes/" + demandeId + "/complements/" + icId).request(MediaType.APPLICATION_JSON)
+        Response res = target.path("demandes/" + demandeId + "/complements/" + icId).request(MediaType.APPLICATION_JSON)
                 .header("Authorization", getBasicAuthString())
-                .put(Entity.entity(reponse, MediaType.APPLICATION_JSON), DemandeComplementsDTO.class);
+                .put(Entity.entity(reponse, MediaType.APPLICATION_JSON));
+        
+        ExceptionManager.checkExceptionResponse(res);
+        
+        return res.readEntity(DemandeComplementsDTO.class);
     }
 
     public DemandeDTO getDemande(Integer usagerId, Integer demandeId) {
-        return target.path("/usagers/" + usagerId + "/demandes/" + demandeId).request(MediaType.APPLICATION_JSON)
-                .header("Authorization", getBasicAuthString()).get(DemandeDTO.class);
+        Response res = target.path("/usagers/" + usagerId + "/demandes/" + demandeId).request(MediaType.APPLICATION_JSON)
+                .header("Authorization", getBasicAuthString()).get();
+        
+        ExceptionManager.checkExceptionResponse(res);
+        
+        return res.readEntity(DemandeDTO.class);
     }
 
     public List<DemandeDTO> getDemandes(Integer usagerId) {
-        return target.path("demandes").queryParam("usagerId", usagerId).request(MediaType.APPLICATION_JSON)
-                .header("Authorization", getBasicAuthString()).get(new GenericType<List<DemandeDTO>>() {
-                });
+        Response res = target.path("demandes").queryParam("usagerId", usagerId).request(MediaType.APPLICATION_JSON)
+                .header("Authorization", getBasicAuthString()).get();
+        
+        ExceptionManager.checkExceptionResponse(res);
+        
+        return res.readEntity(new GenericType<List<DemandeDTO>>() { });
     }
 
     public DemandeComplementsDTO getDemandeComplements(Integer demandeId, Integer icId) {
-        return target.path("demandes/" + demandeId + "/complements/" + icId).request(MediaType.APPLICATION_JSON)
-                .header("Authorization", getBasicAuthString()).get(DemandeComplementsDTO.class);
+        Response res = target.path("demandes/" + demandeId + "/complements/" + icId).request(MediaType.APPLICATION_JSON)
+                .header("Authorization", getBasicAuthString()).get();
+        
+        ExceptionManager.checkExceptionResponse(res);
+        
+        return res.readEntity(DemandeComplementsDTO.class);
     }
 
     public List<DemandeComplementsDTO> getDemandesComplements(Integer demandeId) {
-        return target.path("demandes/" + demandeId + "/complements").request(MediaType.APPLICATION_JSON)
-                .header("Authorization", getBasicAuthString()).get(new GenericType<List<DemandeComplementsDTO>>() {
-                });
+        Response res = target.path("demandes/" + demandeId + "/complements").request(MediaType.APPLICATION_JSON)
+                .header("Authorization", getBasicAuthString()).get();
+    
+        ExceptionManager.checkExceptionResponse(res);
+        
+        return res.readEntity(new GenericType<List<DemandeComplementsDTO>>() { });
     }
     
     public DemandeDTO associerDemandeCourrier(String identifiantDemande, String nomProprio, Integer usagerId) {
-        return target.path("demandes/associerDemandeCourrier").queryParam("identifiantDemande", identifiantDemande)
+        Response res = target.path("demandes/associerDemandeCourrier").queryParam("identifiantDemande", identifiantDemande)
                 .queryParam("nomProprio", nomProprio)
                 .queryParam("usagerId", usagerId)
                 .request(MediaType.APPLICATION_JSON)
                 .header("Authorization", getBasicAuthString())
-                .post(Entity.json(null), DemandeDTO.class);
+                .post(Entity.json(null));
+        
+        ExceptionManager.checkExceptionResponse(res);
+        
+        return res.readEntity(DemandeDTO.class);
     }
     
     public void desinscriptionUsager(Integer usagerId, String hashedPassword) {
-        target.path("/accesses/" + usagerId)
+        Response res = target.path("/accesses/" + usagerId)
                 .queryParam("hashedPassword", hashedPassword)
                 .request(MediaType.APPLICATION_JSON)
                 .header("Authorization", getBasicAuthString()).delete();
+        
+        ExceptionManager.checkExceptionResponse(res);
     }
-
+    
+    public AccessDTO createOrUpdateAccess(Integer usagerId, AccessInputDTO dto) {
+       Response res = target.path("/accesses/" + usagerId)
+            .request(MediaType.APPLICATION_JSON)
+            .header("Authorization", getBasicAuthString())
+            .post(Entity.entity(dto, MediaType.APPLICATION_JSON));
+       
+       ExceptionManager.checkExceptionResponse(res);
+       
+       return res.readEntity(AccessDTO.class);
+    }
+    
+    public AccessDTO getAccess(Integer usagerId) {
+       Response res = target.path("/accesses/" + usagerId)
+            .request(MediaType.APPLICATION_JSON)
+            .header("Authorization", getBasicAuthString())
+            .get();
+       
+       ExceptionManager.checkExceptionResponse(res);
+       
+       return res.readEntity(AccessDTO.class);
+    }
+    
+    public UsagerCourrierDTO getUsagerCourrier(Integer usagerCourrierId) {
+        Response res = target.path("/usagerscourrier/" + usagerCourrierId)
+                .request(MediaType.APPLICATION_JSON)
+                .header("Authorization", getBasicAuthString())
+                .get();
+       
+       ExceptionManager.checkExceptionResponse(res);
+       
+       return res.readEntity(UsagerCourrierDTO.class);
+    }
+    
+    public List<MotifDTO> getMotifs() {
+        Response res = target.path("/motifs")
+                .request(MediaType.APPLICATION_JSON)
+                .header("Authorization", getBasicAuthString())
+                .get();
+       
+       ExceptionManager.checkExceptionResponse(res);
+       
+       return res.readEntity(new GenericType<List<MotifDTO>>() { });
+    }
+    
     private String getBasicAuthString() {
         return "Basic " + new String(Base64.encodeBase64(new String(user + ":" + password).getBytes()));
     }

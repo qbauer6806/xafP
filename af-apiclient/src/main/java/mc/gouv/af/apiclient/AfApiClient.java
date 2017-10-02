@@ -2,15 +2,13 @@ package mc.gouv.af.apiclient;
 
 import java.util.List;
 
-import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.apache.commons.codec.binary.Base64;
+import org.glassfish.jersey.media.multipart.internal.MultiPartWriter;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 
@@ -22,6 +20,9 @@ import mc.gouv.dem.apishared.model.DemandeDTO;
 import mc.gouv.dem.apishared.model.DemandeInputDTO;
 import mc.gouv.dem.apishared.model.MotifDTO;
 import mc.gouv.dem.apishared.model.UsagerCourrierDTO;
+import mc.gouv.xboot.apiclient.authentication.impl.BasicAuthorizationHeaderProvider;
+import mc.gouv.xboot.apiclient.authentication.impl.JwtAuthorizationHeaderProvider;
+import mc.gouv.xboot.apiclient.client.ApiClient;
 import mc.gouv.xboot.apiclient.exception.ExceptionManager;
 
 /**
@@ -31,42 +32,40 @@ import mc.gouv.xboot.apiclient.exception.ExceptionManager;
  * @author qdeme
  *
  */
-public class AfApiClient {
-
-    private String serviceUrl;
-
-    private String user;
-
-    private String password;
-
-    private WebTarget target;
+public class AfApiClient extends ApiClient {
 
     /**
-     * Crée une instance du client
+     * Crée une instance du client avec sécurisation Basic Auth
      * @param serviceUrl URL du WS à appeler
      * @param user User à utiliser pour l'authentification
      * @param password Mot de passe à utiliser pour l'authentification
      */
     public AfApiClient(String serviceUrl, String user, String password) {
-        this.serviceUrl = serviceUrl;
-        this.user = user;
-        this.password = password;
-
-        Client client = ClientBuilder.newClient().register(JacksonJsonProvider.class);
-        target = client.target(serviceUrl);
+        super(serviceUrl, new BasicAuthorizationHeaderProvider(user, password),
+                ClientBuilder.newClient().register(JacksonJsonProvider.class).register(MultiPartWriter.class));
+    }
+    
+    /**
+     * Crée une instance du client avec sécurisation JWT
+     * @param serviceUrl URL du WS à appeler
+     * @param jwtToken JWT à utiliser pour l'authentification
+     */
+    public AfApiClient(String serviceUrl, String jwtToken) {
+        super(serviceUrl, new JwtAuthorizationHeaderProvider(jwtToken),
+                ClientBuilder.newClient().register(JacksonJsonProvider.class).register(MultiPartWriter.class));
     }
 
     public void annulerDemande(Integer demandeId, Integer usagerId) {
-        Response res = target.path("demandes/" + demandeId + "/annuler").queryParam("usagerId", usagerId)
-                .request(MediaType.APPLICATION_JSON).header("Authorization", getBasicAuthString()).put(Entity.text(""));
+        Response res = getTarget().path("demandes/" + demandeId + "/annuler").queryParam("usagerId", usagerId)
+                .request(MediaType.APPLICATION_JSON).header("Authorization", getAuthorizationHeaderProvider().getHeaderValue()).put(Entity.text(""));
         
         ExceptionManager.checkExceptionResponse(res);
 
     }
 
     public DemandeDTO creerDemande(DemandeInputDTO demande, Integer usagerId) {
-        Response res = target.path("demandes").queryParam("usagerId", usagerId).request(MediaType.APPLICATION_JSON)
-                .header("Authorization", getBasicAuthString())
+        Response res = getTarget().path("demandes").queryParam("usagerId", usagerId).request(MediaType.APPLICATION_JSON)
+                .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue())
                 .post(Entity.entity(demande, MediaType.APPLICATION_JSON));
         
         ExceptionManager.checkExceptionResponse(res);
@@ -76,8 +75,8 @@ public class AfApiClient {
 
     public DemandeComplementsDTO repondreDemandeComplements(Integer demandeId, Integer icId,
             DemandeComplementsReponseDTO reponse) {
-        Response res = target.path("demandes/" + demandeId + "/complements/" + icId).request(MediaType.APPLICATION_JSON)
-                .header("Authorization", getBasicAuthString())
+        Response res = getTarget().path("demandes/" + demandeId + "/complements/" + icId).request(MediaType.APPLICATION_JSON)
+                .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue())
                 .put(Entity.entity(reponse, MediaType.APPLICATION_JSON));
         
         ExceptionManager.checkExceptionResponse(res);
@@ -86,8 +85,8 @@ public class AfApiClient {
     }
 
     public DemandeDTO getDemande(Integer usagerId, Integer demandeId) {
-        Response res = target.path("/usagers/" + usagerId + "/demandes/" + demandeId).request(MediaType.APPLICATION_JSON)
-                .header("Authorization", getBasicAuthString()).get();
+        Response res = getTarget().path("/usagers/" + usagerId + "/demandes/" + demandeId).request(MediaType.APPLICATION_JSON)
+                .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue()).get();
         
         ExceptionManager.checkExceptionResponse(res);
         
@@ -95,8 +94,8 @@ public class AfApiClient {
     }
 
     public List<DemandeDTO> getDemandes(Integer usagerId) {
-        Response res = target.path("demandes").queryParam("usagerId", usagerId).request(MediaType.APPLICATION_JSON)
-                .header("Authorization", getBasicAuthString()).get();
+        Response res = getTarget().path("demandes").queryParam("usagerId", usagerId).request(MediaType.APPLICATION_JSON)
+                .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue()).get();
         
         ExceptionManager.checkExceptionResponse(res);
         
@@ -104,8 +103,8 @@ public class AfApiClient {
     }
 
     public DemandeComplementsDTO getDemandeComplements(Integer demandeId, Integer icId) {
-        Response res = target.path("demandes/" + demandeId + "/complements/" + icId).request(MediaType.APPLICATION_JSON)
-                .header("Authorization", getBasicAuthString()).get();
+        Response res = getTarget().path("demandes/" + demandeId + "/complements/" + icId).request(MediaType.APPLICATION_JSON)
+                .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue()).get();
         
         ExceptionManager.checkExceptionResponse(res);
         
@@ -113,8 +112,8 @@ public class AfApiClient {
     }
 
     public List<DemandeComplementsDTO> getDemandesComplements(Integer demandeId) {
-        Response res = target.path("demandes/" + demandeId + "/complements").request(MediaType.APPLICATION_JSON)
-                .header("Authorization", getBasicAuthString()).get();
+        Response res = getTarget().path("demandes/" + demandeId + "/complements").request(MediaType.APPLICATION_JSON)
+                .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue()).get();
     
         ExceptionManager.checkExceptionResponse(res);
         
@@ -122,11 +121,11 @@ public class AfApiClient {
     }
     
     public DemandeDTO associerDemandeCourrier(String identifiantDemande, String nomProprio, Integer usagerId) {
-        Response res = target.path("demandes/associerDemandeCourrier").queryParam("identifiantDemande", identifiantDemande)
+        Response res = getTarget().path("demandes/associerDemandeCourrier").queryParam("identifiantDemande", identifiantDemande)
                 .queryParam("nomProprio", nomProprio)
                 .queryParam("usagerId", usagerId)
                 .request(MediaType.APPLICATION_JSON)
-                .header("Authorization", getBasicAuthString())
+                .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue())
                 .post(Entity.json(null));
         
         ExceptionManager.checkExceptionResponse(res);
@@ -135,18 +134,18 @@ public class AfApiClient {
     }
     
     public void desinscriptionUsager(Integer usagerId, String hashedPassword) {
-        Response res = target.path("/accesses/" + usagerId)
+        Response res = getTarget().path("/accesses/" + usagerId)
                 .queryParam("hashedPassword", hashedPassword)
                 .request(MediaType.APPLICATION_JSON)
-                .header("Authorization", getBasicAuthString()).delete();
+                .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue()).delete();
         
         ExceptionManager.checkExceptionResponse(res);
     }
     
     public AccessDTO createOrUpdateAccess(Integer usagerId, AccessInputDTO dto) {
-       Response res = target.path("/accesses/" + usagerId)
+       Response res = getTarget().path("/accesses/" + usagerId)
             .request(MediaType.APPLICATION_JSON)
-            .header("Authorization", getBasicAuthString())
+            .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue())
             .post(Entity.entity(dto, MediaType.APPLICATION_JSON));
        
        ExceptionManager.checkExceptionResponse(res);
@@ -155,9 +154,9 @@ public class AfApiClient {
     }
     
     public AccessDTO getAccess(Integer usagerId) {
-       Response res = target.path("/accesses/" + usagerId)
+       Response res = getTarget().path("/accesses/" + usagerId)
             .request(MediaType.APPLICATION_JSON)
-            .header("Authorization", getBasicAuthString())
+            .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue())
             .get();
        
        ExceptionManager.checkExceptionResponse(res);
@@ -166,9 +165,9 @@ public class AfApiClient {
     }
     
     public UsagerCourrierDTO getUsagerCourrier(Integer usagerCourrierId) {
-        Response res = target.path("/usagerscourrier/" + usagerCourrierId)
+        Response res = getTarget().path("/usagerscourrier/" + usagerCourrierId)
                 .request(MediaType.APPLICATION_JSON)
-                .header("Authorization", getBasicAuthString())
+                .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue())
                 .get();
        
        ExceptionManager.checkExceptionResponse(res);
@@ -177,9 +176,9 @@ public class AfApiClient {
     }
     
     public List<MotifDTO> getMotifs() {
-        Response res = target.path("/motifs")
+        Response res = getTarget().path("/motifs")
                 .request(MediaType.APPLICATION_JSON)
-                .header("Authorization", getBasicAuthString())
+                .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue())
                 .get();
        
        ExceptionManager.checkExceptionResponse(res);
@@ -187,32 +186,4 @@ public class AfApiClient {
        return res.readEntity(new GenericType<List<MotifDTO>>() { });
     }
     
-    private String getBasicAuthString() {
-        return "Basic " + new String(Base64.encodeBase64(new String(user + ":" + password).getBytes()));
-    }
-
-    public String getServiceUrl() {
-        return serviceUrl;
-    }
-
-    public void setServiceUrl(String serviceUrl) {
-        this.serviceUrl = serviceUrl;
-    }
-
-    public String getUser() {
-        return user;
-    }
-
-    public void setUser(String user) {
-        this.user = user;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
 }

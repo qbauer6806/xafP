@@ -15,6 +15,10 @@ public class AbstractAfServlet extends HttpServlet {
     protected AfApiClient getAfApiClient() {
         return new AfApiClient(AfServletGouvPropertiesResolver.getApiUrl(),
                 AfServletGouvPropertiesResolver.getApiUser(), AfServletGouvPropertiesResolver.getApiPwd());
+        
+        // Pour quand on sera prêt à appeler HAB en JWT :
+//        return new AfApiClient(AfServletGouvPropertiesResolver.getApiUrl(),
+//                AfServletGouvPropertiesResolver.getApiJwt());
     }
 
 }

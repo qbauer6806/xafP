@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import mc.gouv.af.back.bpm.GouvBPMException;
 import mc.gouv.af.back.service.properties.GouvPropertiesResolver;
 import mc.gouv.af.back.util.AfBackUtils;
+import mc.gouv.xapi.error.exception.client.NotFoundWebException;
 
 @Component
 public class GouvBPMDeleteDemandeDataDelegate implements JavaDelegate {
@@ -43,7 +44,12 @@ public class GouvBPMDeleteDemandeDataDelegate implements JavaDelegate {
             throw new GouvBPMException("Impossible d'insérer une data avec une clé vide");
         }
 
-        afBackUtils.getDemClient().deleteDemandeData(DEMARCHE_ID, demandeId, dataKeyStr);
+        try {
+            afBackUtils.getDemClient().deleteDemandeData(DEMARCHE_ID, demandeId, dataKeyStr);
+        }
+        catch (NotFoundWebException e) {
+            LOGGER.info("Le service retourne que la data n'existait pas (404 : " + e.getErrors().get(0).getLibelle() + ")");
+        }
     }
 
     public Expression getDataKey() {

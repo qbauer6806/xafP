@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 
 import mc.gouv.af.back.util.AfBackUtils;
 import mc.gouv.af.back.util.TemplatesCache;
-import mc.gouv.dem.apishared.model.TemplateDTO;
+import mc.gouv.dem.shared.model.TemplateDTO;
 import mc.gouv.mail.shared.dto.AddressBlockDTO;
 import mc.gouv.mail.shared.dto.MailDTO;
 import mc.gouv.mail.shared.dto.ParamDTO;

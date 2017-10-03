@@ -12,8 +12,8 @@ import org.springframework.stereotype.Component;
 
 import mc.gouv.af.back.service.properties.GouvPropertiesResolver;
 import mc.gouv.dem.apiclient.DemClient;
-import mc.gouv.dem.apishared.model.DemandeStatutEnum;
-import mc.gouv.dem.apishared.model.MotifDTO;
+import mc.gouv.dem.shared.model.DemandeStatutEnum;
+import mc.gouv.dem.shared.model.MotifDTO;
 
 /**
  * Composant permettant de gérer un cache des motifs de la démarche courante

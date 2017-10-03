@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import mc.gouv.af.back.service.properties.GouvPropertiesResolver;
-import mc.gouv.dem.apishared.model.TemplateDTO;
+import mc.gouv.dem.shared.model.TemplateDTO;
 
 /**
  * Composant permettant de gérer un cache des templates de la démarche courante

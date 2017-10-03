@@ -1,6 +1,6 @@
 package mc.gouv.af.back.bpm.model;
 
-import mc.gouv.dem.apishared.model.DemandeStatutEnum;
+import mc.gouv.dem.shared.model.DemandeStatutEnum;
 
 /**
  * Classe permettant de représenter une association entre action et son statut

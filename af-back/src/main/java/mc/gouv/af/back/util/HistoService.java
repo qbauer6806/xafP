@@ -1,8 +1,8 @@
 package mc.gouv.af.back.util;
 
-import mc.gouv.dem.apishared.model.DemandeDTO;
-import mc.gouv.dem.apishared.model.DemandeHistoriqueDTO;
-import mc.gouv.dem.apishared.model.DemandeStatutEnum;
+import mc.gouv.dem.shared.model.DemandeDTO;
+import mc.gouv.dem.shared.model.DemandeHistoriqueDTO;
+import mc.gouv.dem.shared.model.DemandeStatutEnum;
 
 /**
  * 

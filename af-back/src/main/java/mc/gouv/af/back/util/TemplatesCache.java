@@ -2,7 +2,7 @@ package mc.gouv.af.back.util;
 
 import java.util.List;
 
-import mc.gouv.dem.apishared.model.TemplateDTO;
+import mc.gouv.dem.shared.model.TemplateDTO;
 
 /**
  * Composant permettant de gérer un cache des templates de la démarche courante

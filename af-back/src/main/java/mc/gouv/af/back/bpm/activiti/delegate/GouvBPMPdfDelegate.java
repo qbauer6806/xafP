@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import mc.gouv.af.back.pdf.PdfService;
 import mc.gouv.af.back.service.properties.GouvPropertiesResolver;
 import mc.gouv.af.back.util.AfBackUtils;
-import mc.gouv.dem.apishared.model.DemandeDTO;
+import mc.gouv.dem.shared.model.DemandeDTO;
 
 /**
  * 

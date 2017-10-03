@@ -42,7 +42,7 @@ import mc.gouv.af.back.bpm.model.GouvBPMStatutAction;
 import mc.gouv.af.back.bpm.model.GouvBPMTask;
 import mc.gouv.af.back.bpm.model.GouvBPMUser;
 import mc.gouv.af.back.util.CommentaireInterneDTO;
-import mc.gouv.dem.apishared.model.DemandeStatutEnum;
+import mc.gouv.dem.shared.model.DemandeStatutEnum;
 
 /**
  * 

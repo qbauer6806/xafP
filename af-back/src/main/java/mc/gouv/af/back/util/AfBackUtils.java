@@ -27,9 +27,9 @@ import com.fasterxml.uuid.impl.TimeBasedGenerator;
 
 import mc.gouv.af.back.service.properties.GouvPropertiesResolver;
 import mc.gouv.dem.apiclient.DemClient;
-import mc.gouv.dem.apishared.model.DemandeDTO;
-import mc.gouv.dem.apishared.model.DemandeDataDTO;
-import mc.gouv.dem.apishared.model.DemarcheDTO;
+import mc.gouv.dem.shared.model.DemandeDTO;
+import mc.gouv.dem.shared.model.DemandeDataDTO;
+import mc.gouv.dem.shared.model.DemarcheDTO;
 import mc.gouv.file.apiclient.FileClient;
 import mc.gouv.logon.apiclient.RestException;
 import mc.gouv.logon.shared.User;

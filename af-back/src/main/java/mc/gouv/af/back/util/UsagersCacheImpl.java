@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 
 import mc.gouv.af.back.service.properties.GouvPropertiesResolver;
 import mc.gouv.dem.apiclient.DemClient;
-import mc.gouv.dem.apishared.model.UsagerCourrierDTO;
+import mc.gouv.dem.shared.model.UsagerCourrierDTO;
 import mc.gouv.servicerest.usager.ReferentielUsagersClient;
 import mc.gouv.servicerest.usager.model.UsagerBean;
 

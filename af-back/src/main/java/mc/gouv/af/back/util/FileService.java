@@ -11,7 +11,7 @@ import javax.servlet.http.Part;
 
 import org.apache.http.client.ClientProtocolException;
 
-import mc.gouv.dem.apishared.model.DemandeDTO;
+import mc.gouv.dem.shared.model.DemandeDTO;
 
 /**
  * 

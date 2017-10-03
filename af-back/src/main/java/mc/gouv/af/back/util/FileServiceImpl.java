@@ -18,7 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import mc.gouv.af.back.service.properties.GouvPropertiesResolver;
-import mc.gouv.dem.apishared.model.DemandeDTO;
+import mc.gouv.dem.shared.model.DemandeDTO;
 
 /**
  * 

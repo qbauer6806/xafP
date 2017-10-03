@@ -1,6 +1,6 @@
 package mc.gouv.af.back.pdf;
 
-import mc.gouv.dem.apishared.model.DemandeDTO;
+import mc.gouv.dem.shared.model.DemandeDTO;
 
 /**
  * 

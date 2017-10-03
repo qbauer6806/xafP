@@ -2,8 +2,8 @@ package mc.gouv.af.back.util;
 
 import java.util.List;
 
-import mc.gouv.dem.apishared.model.DemandeStatutEnum;
-import mc.gouv.dem.apishared.model.MotifDTO;
+import mc.gouv.dem.shared.model.DemandeStatutEnum;
+import mc.gouv.dem.shared.model.MotifDTO;
 
 /**
  * Composant permettant de gérer un cache des motifs de la démarche courante

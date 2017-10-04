@@ -83,6 +83,13 @@
 			<groupId>mc.gouv.mail</groupId>
 			<artifactId>mail-apiclient</artifactId>
 			<version>1.2.0-SNAPSHOT</version>
+			<!-- Exclusion pour récupérer le nouveau ApiClient qui est dasn l'artifact xboot-apiclient -->
+			<exclusions>
+				<exclusion>
+				 <artifactId>xboot-spring-apiclient</artifactId>
+				 <groupId>mc.gouv.xboot</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>

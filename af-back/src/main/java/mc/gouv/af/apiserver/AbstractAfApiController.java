@@ -131,6 +131,7 @@ public abstract class AbstractAfApiController implements AfApiController {
     
     @ExceptionHandler(WebException.class)
     public @ResponseBody ErrorsDTO handleMetierWebException(HttpServletResponse res, WebException ex) {
+        LOGGER.error("handleMetierWebException : " + ex.getMessage(), ex);
         ErrorsDTO errorsDTO = new ErrorsDTO();
         errorsDTO.setHttpStatus(ex.getHttpStatus());
         errorsDTO.setMessage(ex.getMessage());

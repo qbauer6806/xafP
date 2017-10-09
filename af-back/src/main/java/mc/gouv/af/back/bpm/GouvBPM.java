@@ -41,6 +41,12 @@ public interface GouvBPM {
      * @param businessVariables
      */
     public void setProcessBusinessVariables(Integer demandeId, Map<String, Object> businessVariables);
+    
+    /**
+     * Permet de définir une variable métier liée à une instance de process
+     * @param businessVariables
+     */
+    public void setProcessBusinessVariable(Integer demandeId, String key, Object value);
 
     /**
      * Permet à un utilisateur de s'affecter une tâche

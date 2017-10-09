@@ -149,6 +149,17 @@ public class GouvBPMImpl implements GouvBPM {
             LOGGER.error("ProcessInstance null !");
         }
     }
+    
+    @Override
+    public void setProcessBusinessVariable(Integer demandeId, String key, Object value) {
+        LOGGER.debug("setProcessBusinessVariable(" + demandeId + "," + key + "," + value + ")");
+        ProcessInstance processInstance = getActiveProcessInstanceForDemandeId(demandeId);
+        if (processInstance != null) {
+            runtimeService.setVariable(processInstance.getId(), key, value);
+        } else {
+            LOGGER.error("ProcessInstance null !");
+        }
+    }
 
     @Override
     public void removeProcessBusinessVariables(Integer demandeId, String businessVariable) {
@@ -362,7 +373,6 @@ public class GouvBPMImpl implements GouvBPM {
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void setAssignee(Integer demandeId, String assignee) {
         LOGGER.debug("setAssignee(" + demandeId + "," + assignee + ")");

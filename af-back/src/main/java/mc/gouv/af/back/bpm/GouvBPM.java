@@ -174,13 +174,14 @@ public interface GouvBPM {
     public void removeProcessBusinessVariables(Integer demandeId, String businessVariable);
 
     /**
-     * Annulation d'une demande
+     * Annulation d'une demande, par un agent ou un usager (mettre l'un ou l'autre)
      * @param demandeId
      * @param user
+     * @param usager
      * @param commentaire 
      * @param codeMotif 
      */
-    public void annulerDemande(Integer demandeId, GouvBPMUser user, String codeMotif, String commentaire);
+    public void annulerDemande(Integer demandeId, GouvBPMUser agent, GouvBPMUser usager, String codeMotif, String commentaire);
 
     /**
      * Permet de démarrer une instance de process sur message

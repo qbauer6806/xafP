@@ -432,8 +432,8 @@ public class GouvBPMImpl implements GouvBPM {
     }
 
     @Override
-    public void annulerDemande(Integer demandeId, GouvBPMUser user, String codeMotif, String commentaire) {
-        LOGGER.info("Annulation de la demande {} par l'utilisateur : {}", demandeId, user);
+    public void annulerDemande(Integer demandeId, GouvBPMUser agent, GouvBPMUser usager, String codeMotif, String commentaire) {
+        LOGGER.info("Annulation de la demande {} par l'agent '{}' ou l'usager {}", demandeId, agent, usager);
         List<Execution> executions = runtimeService.createExecutionQuery()
                 .processInstanceBusinessKey(demandeId.toString(), true)
                 .messageEventSubscriptionName("annulationMessage").list();
@@ -442,7 +442,12 @@ public class GouvBPMImpl implements GouvBPM {
         variables.put(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name(), codeMotif);
         variables.put(GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name(), commentaire);
         variables.put(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE.name(), DemandeStatutEnum.ANNULEE.name());
-        variables.put(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_USAGER.name(), user.getId());
+        if (usager != null) {
+            variables.put(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_USAGER.name(), usager.getId());
+        }
+        else if (agent != null) {
+            variables.put(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_AGENT.name(), agent.getId());
+        }
 
         //normalement il y en a une seule
 

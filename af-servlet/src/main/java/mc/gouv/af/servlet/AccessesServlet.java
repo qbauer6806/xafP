@@ -17,8 +17,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import mc.gouv.af.servlet.dto.UsagerInfosDTO;
 import mc.gouv.af.servlet.util.AppFactoryServletUtils;
-import mc.gouv.dem.apishared.model.AccessDTO;
-import mc.gouv.dem.apishared.model.AccessInputDTO;
+import mc.gouv.dem.shared.model.AccessDTO;
+import mc.gouv.dem.shared.model.AccessInputDTO;
 
 /**
  * Servlet mettant à disposition le service /accesses avec les méthodes PUT, POST, GET, DELETE.

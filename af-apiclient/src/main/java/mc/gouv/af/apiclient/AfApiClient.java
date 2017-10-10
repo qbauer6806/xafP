@@ -12,14 +12,14 @@ import org.glassfish.jersey.media.multipart.internal.MultiPartWriter;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 
-import mc.gouv.dem.apishared.model.AccessDTO;
-import mc.gouv.dem.apishared.model.AccessInputDTO;
-import mc.gouv.dem.apishared.model.DemandeComplementsDTO;
-import mc.gouv.dem.apishared.model.DemandeComplementsReponseDTO;
-import mc.gouv.dem.apishared.model.DemandeDTO;
-import mc.gouv.dem.apishared.model.DemandeInputDTO;
-import mc.gouv.dem.apishared.model.MotifDTO;
-import mc.gouv.dem.apishared.model.UsagerCourrierDTO;
+import mc.gouv.dem.shared.model.AccessDTO;
+import mc.gouv.dem.shared.model.AccessInputDTO;
+import mc.gouv.dem.shared.model.DemandeComplementsDTO;
+import mc.gouv.dem.shared.model.DemandeComplementsReponseDTO;
+import mc.gouv.dem.shared.model.DemandeDTO;
+import mc.gouv.dem.shared.model.DemandeInputDTO;
+import mc.gouv.dem.shared.model.MotifDTO;
+import mc.gouv.dem.shared.model.UsagerCourrierDTO;
 import mc.gouv.xboot.apiclient.authentication.impl.BasicAuthorizationHeaderProvider;
 import mc.gouv.xboot.apiclient.authentication.impl.JwtAuthorizationHeaderProvider;
 import mc.gouv.xboot.apiclient.client.ApiClient;

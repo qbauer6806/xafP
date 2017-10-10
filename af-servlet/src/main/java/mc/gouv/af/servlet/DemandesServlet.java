@@ -19,10 +19,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import mc.gouv.af.apiclient.AfApiClient;
 import mc.gouv.af.servlet.dto.UsagerInfosDTO;
 import mc.gouv.af.servlet.util.AppFactoryServletUtils;
-import mc.gouv.dem.apishared.model.DemandeComplementsDTO;
-import mc.gouv.dem.apishared.model.DemandeComplementsReponseDTO;
-import mc.gouv.dem.apishared.model.DemandeDTO;
-import mc.gouv.dem.apishared.model.DemandeInputDTO;
+import mc.gouv.dem.shared.model.DemandeComplementsDTO;
+import mc.gouv.dem.shared.model.DemandeComplementsReponseDTO;
+import mc.gouv.dem.shared.model.DemandeDTO;
+import mc.gouv.dem.shared.model.DemandeInputDTO;
 
 /**
  * Servlet mettant à disposition le service /demandes avec les méthodes PUT, POST, GET, DELETE.

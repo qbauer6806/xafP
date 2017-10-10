@@ -25,4 +25,6 @@ public interface HistoService {
 
     public DemandeHistoriqueDTO desinscriptionUsager(DemandeDTO demande, Integer usagerId);
 
+    public DemandeHistoriqueDTO associationDemandeCourrier(DemandeDTO demande, Integer usagerId);
+
 }

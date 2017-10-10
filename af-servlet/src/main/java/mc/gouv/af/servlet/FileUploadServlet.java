@@ -32,7 +32,7 @@ import mc.gouv.af.servlet.dto.UsagerInfosDTO;
 import mc.gouv.af.servlet.properties.AfServletGouvPropertiesResolver;
 import mc.gouv.af.servlet.util.AppFactoryServletUtils;
 import mc.gouv.af.servlet.util.AppFactoryServletUtils.ServiceTarget;
-import mc.gouv.dem.apishared.model.AccessDTO;
+import mc.gouv.dem.shared.model.AccessDTO;
 
 @MultipartConfig
 public class FileUploadServlet extends AbstractAfServlet {

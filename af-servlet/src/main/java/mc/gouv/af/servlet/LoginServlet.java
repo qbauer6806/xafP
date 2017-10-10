@@ -24,7 +24,7 @@ import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 import mc.gouv.af.servlet.dto.UsagerInfosDTO;
 import mc.gouv.af.servlet.properties.AfServletGouvPropertiesResolver;
 import mc.gouv.af.servlet.util.AppFactoryServletUtils;
-import mc.gouv.dem.apishared.model.UsagerCourrierDTO;
+import mc.gouv.dem.shared.model.UsagerCourrierDTO;
 
 /**
  * 

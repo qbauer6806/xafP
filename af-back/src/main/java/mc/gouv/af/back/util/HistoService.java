@@ -23,7 +23,7 @@ public interface HistoService {
 
     public DemandeHistoriqueDTO creationDemande(Integer demandeId, Integer usagerId, String agentId);
 
-    public DemandeHistoriqueDTO desinscriptionUsager(DemandeDTO demande, Integer usagerId);
+    public DemandeHistoriqueDTO desinscriptionUsager(DemandeDTO demande, Integer usagerId, boolean avecAnnulation);
 
     public DemandeHistoriqueDTO associationDemandeCourrier(DemandeDTO demande, Integer usagerId);
 

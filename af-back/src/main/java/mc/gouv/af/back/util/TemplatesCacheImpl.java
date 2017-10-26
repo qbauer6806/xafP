@@ -40,7 +40,6 @@ public class TemplatesCacheImpl implements TemplatesCache {
         // Remplissage de la liste si pas déjà fait
         if (cachedList.size() == 0) {
             LOGGER.info("Récupération des templates dans DEM...");
-            // ARCHICHANGE
             //cachedList.addAll(afBackUtils.getDemClient().getTemplates(gouvPropertiesResolver.getDemarcheId()));
             cachedList.addAll(templatesService.getTemplates(gouvPropertiesResolver.getDemarcheId()));
         }

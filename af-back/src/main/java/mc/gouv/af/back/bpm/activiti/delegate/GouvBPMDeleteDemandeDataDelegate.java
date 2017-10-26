@@ -43,7 +43,6 @@ public class GouvBPMDeleteDemandeDataDelegate implements JavaDelegate {
         }
 
         try {
-            // ARCHICHANGE
             //afBackUtils.getDemClient().deleteDemandeData(DEMARCHE_ID, demandeId, dataKeyStr);
             demandesDataService.deleteDemandeData(gouvPropertiesResolver.getDemarcheId(), demandeId, dataKeyStr);
         }

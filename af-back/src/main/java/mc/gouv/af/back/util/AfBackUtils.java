@@ -220,7 +220,6 @@ public class AfBackUtils {
      */
     public DemarcheDTO getDemarcheInfos() {
         if (demarche == null) {
-            // ARCHICHANGE
             //demarche = getDemClient().getDemarche(gouvPropertiesResolver.getDemarcheId());
             demarche = demarchesService.getDemarche(gouvPropertiesResolver.getDemarcheId());
         }

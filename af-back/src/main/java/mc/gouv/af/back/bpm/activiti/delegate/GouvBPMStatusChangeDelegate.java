@@ -73,7 +73,6 @@ public class GouvBPMStatusChangeDelegate implements JavaDelegate {
 
         LOGGER.info("Appel à DEM changerStatutDemande()...");
         
-        // ARCHICHANGE
         //afBackUtils.getDemClient().changerStatutDemande(DEMARCHE_ID, demandeId, statutInput);
         
         // Définition de la personne à l'origine du changement de statut : soit on l'a indiqué à ce JavaDelegate

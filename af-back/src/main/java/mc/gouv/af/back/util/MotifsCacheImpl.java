@@ -59,7 +59,6 @@ public class MotifsCacheImpl implements MotifsCache {
         // Remplissage de la liste si pas déjà fait
         if (cachedList.size() == 0) {
             LOGGER.info("Récupération des motifs dans DEM...");
-            // ARCHICHANGE
             //cachedList.addAll(afBackUtils.getDemClient().getMotifs(gouvPropertiesResolver.getDemarcheId()));
             cachedList.addAll(motifsService.getMotifs(gouvPropertiesResolver.getDemarcheId()));
 

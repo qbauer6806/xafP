@@ -57,7 +57,6 @@ public class UsagersCacheImpl implements UsagersCache {
 
             } else {
                 LOGGER.info("Récupération d'un usager COURRIER");
-                // ARCHICHANGE
                 //UsagerCourrierDTO uc = demClient.getUsagerCourrier(gouvPropertiesResolver.getDemarcheId(), usagerId);
                 UsagerCourrierDTO uc = usagersCourrierService.getUsagerCourrier(gouvPropertiesResolver.getDemarcheId(), usagerId);
                 usager = convertUsagerCourrierDTOToUsagerBean(uc);
@@ -80,7 +79,6 @@ public class UsagersCacheImpl implements UsagersCache {
         List<UsagerBean> usagers = new ArrayList<UsagerBean>();
         try {
             //Récupération de tous les ids des usagers
-            // ARCHICHANGE
             //List<Integer> usagersIds = demClient.getUsagersIds(gouvPropertiesResolver.getDemarcheId());
             List<Integer> usagersIds = accessService.getUsagersIds(gouvPropertiesResolver.getDemarcheId());
             List<Integer> usagersCourriersIds = new ArrayList<Integer>();
@@ -119,7 +117,6 @@ public class UsagersCacheImpl implements UsagersCache {
             for (Integer usagerCourrierId : usagersCourriersIds) {
                 LOGGER.debug("getUsagerFromID(" + usagerCourrierId + ") : Appel à DEM car usager courrier...");
 
-                // ARCHICHANGE
 //                UsagerCourrierDTO uc = demClient.getUsagerCourrier(gouvPropertiesResolver.getDemarcheId(),
 //                        usagerCourrierId);
                 UsagerCourrierDTO uc = usagersCourrierService.getUsagerCourrier(gouvPropertiesResolver.getDemarcheId(), usagerCourrierId);

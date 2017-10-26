@@ -9,12 +9,6 @@ package mc.gouv.af.back.service.properties;
  */
 public interface GouvPropertiesResolver {
 
-    String getDemUrl();
-    
-    String getDemJwtBack();
-    
-    String getDemJwtFront();
-
     String getFileUrl();
 
     String getFileJwt();

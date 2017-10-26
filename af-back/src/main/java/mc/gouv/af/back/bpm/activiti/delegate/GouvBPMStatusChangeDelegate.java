@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import mc.gouv.af.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.af.back.service.properties.GouvPropertiesResolver;
 import mc.gouv.af.back.util.AfBackUtils;
+import mc.gouv.dem.service.DemandesStatutsService;
 import mc.gouv.dem.shared.model.DemandeStatutEnum;
 import mc.gouv.dem.shared.model.StatutInputDTO;
 
@@ -32,16 +33,14 @@ public class GouvBPMStatusChangeDelegate implements JavaDelegate {
 
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
-    
+
     @Autowired
-    private AfBackUtils afBackUtils;
+    private DemandesStatutsService demandesStatutsService;
 
     @Override
     public void execute(DelegateExecution execution) throws Exception {
 
         LOGGER.info("==== AF-BACK CHANGEMENT STATUT ...");
-
-        String DEMARCHE_ID = gouvPropertiesResolver.getDemarcheId();
 
         DemandeStatutEnum statut = getTargetState(execution);
 
@@ -62,23 +61,8 @@ public class GouvBPMStatusChangeDelegate implements JavaDelegate {
         //        execution.removeVariable(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_AGENT.name());
         //        execution.removeVariable(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_USAGER.name());
 
-        // Définition de la personne à l'origine du changement de statut : soit on l'a indiqué à ce JavaDelegate
-        // via des variables process (que ce soit un agent ou un usager), soit on n'a rien indiqué et on prend
-        // par défaut l'agent authentifié
-        StatutInputDTO statutInput = new StatutInputDTO();
-        if (usagerId != null) {
-            statutInput.setUsagerId(Integer.parseInt(usagerId));
-        } else if (agentId != null) {
-            statutInput.setAgentId(agentId);
-        } else {
-            statutInput.setAgentId(AfBackUtils.getAuthenticatedAgentId());
-        }
-
-        statutInput.setStatut(statut);
         LOGGER.info("Commentaire usager : " + commentaireUsager);
         LOGGER.info("Code motif : " + codeMotif);
-        statutInput.setCommentaire(commentaireUsager);
-        statutInput.setCodeMotif(codeMotif);
 
         // TODO Peut-être gérer les variables autrement... si on met après ce serviceTask, un autre qui en a besoin
         // alors y'a un problème
@@ -88,7 +72,22 @@ public class GouvBPMStatusChangeDelegate implements JavaDelegate {
         //        execution.removeVariable(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name());
 
         LOGGER.info("Appel à DEM changerStatutDemande()...");
-        afBackUtils.getDemClient().changerStatutDemande(DEMARCHE_ID, demandeId, statutInput);
+        
+        // ARCHICHANGE
+        //afBackUtils.getDemClient().changerStatutDemande(DEMARCHE_ID, demandeId, statutInput);
+        
+        // Définition de la personne à l'origine du changement de statut : soit on l'a indiqué à ce JavaDelegate
+        // via des variables process (que ce soit un agent ou un usager), soit on n'a rien indiqué et on prend
+        // par défaut l'agent authentifié
+        StatutInputDTO statutInput = new StatutInputDTO();
+        if (usagerId != null) {
+            demandesStatutsService.updateStatut(gouvPropertiesResolver.getDemarcheId(), demandeId, statut, null, Integer.parseInt(usagerId), codeMotif, commentaireUsager);
+            statutInput.setUsagerId(Integer.parseInt(usagerId));
+        } else if (agentId != null) {
+            demandesStatutsService.updateStatut(gouvPropertiesResolver.getDemarcheId(), demandeId, statut, agentId, null, codeMotif, commentaireUsager);
+        } else {
+            demandesStatutsService.updateStatut(gouvPropertiesResolver.getDemarcheId(), demandeId, statut, AfBackUtils.getAuthenticatedAgentId(), null, codeMotif, commentaireUsager);
+        }
 
         LOGGER.info("==== AF-BACK CHANGEMENT STATUT <fin>");
     }

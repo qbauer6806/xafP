@@ -109,23 +109,6 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
 
     }
 
-    private static final String DEM_URL = "mc.gouv.af.back.dem.url";
-
-    @Override
-    public String getDemUrl() {
-        return Static.getValue(DEM_URL);
-    }
-    
-    @Override
-    public String getDemJwtBack() {
-        return Static.getValue("mc.gouv" + applicationPrefix + ".backserver.dem.backuser.jwt");
-    }
-    
-    @Override
-    public String getDemJwtFront() {
-        return Static.getValue("mc.gouv" + applicationPrefix + ".backserver.dem.frontuser.jwt");
-    }
-
     @Override
     public String getContainerId() {
         return Static.getValue("mc.gouv" + applicationPrefix + ".backserver.file.containerId");

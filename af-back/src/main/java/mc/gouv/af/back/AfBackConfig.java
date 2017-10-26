@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import mc.gouv.af.back.service.properties.GouvPropertiesResolver;
-import mc.gouv.dem.apiclient.DemClient;
 import mc.gouv.servicerest.pays.ReferentielPaysClient;
 import mc.gouv.servicerest.usager.ReferentielUsagersClient;
 
@@ -27,12 +26,6 @@ public class AfBackConfig {
     public ReferentielUsagersClient getReferentielUsagersClient() {
 
         return new ReferentielUsagersClient(gouvPropertiesResolver.getUsagersRestUrl(), null, null);
-    }
-
-    @Bean
-    public DemClient getDemClient() {
-        return new DemClient(gouvPropertiesResolver.getDemUrl(), gouvPropertiesResolver.getDemJwtBack());
-
     }
 
 }

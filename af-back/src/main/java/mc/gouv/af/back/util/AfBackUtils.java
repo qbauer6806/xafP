@@ -26,7 +26,7 @@ import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.impl.TimeBasedGenerator;
 
 import mc.gouv.af.back.service.properties.GouvPropertiesResolver;
-import mc.gouv.dem.apiclient.DemClient;
+import mc.gouv.dem.service.DemarchesService;
 import mc.gouv.dem.shared.model.DemandeDTO;
 import mc.gouv.dem.shared.model.DemandeDataDTO;
 import mc.gouv.dem.shared.model.DemarcheDTO;
@@ -69,8 +69,6 @@ public class AfBackUtils {
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
 
-    private DemClient demClient = null;
-    
     private MailClient mailClient = null;
     
     private FileClient fileClient = null;
@@ -80,6 +78,9 @@ public class AfBackUtils {
 
     @Autowired
     private UtilisateursCache utilisateursCache;
+    
+    @Autowired
+    private DemarchesService demarchesService;
 
     @PostConstruct
     public void postConstructEnv() {
@@ -198,13 +199,6 @@ public class AfBackUtils {
         UUID uuid = uuidGenerator.generate();
         return uuid;
     }
-
-    public DemClient getDemClient() {
-        if (demClient == null) {
-            demClient = new DemClient(gouvPropertiesResolver.getDemUrl(), gouvPropertiesResolver.getDemJwtBack());
-        }
-        return demClient;
-    }
     
     public MailClient getMailClient() {
         if (mailClient == null) {
@@ -226,7 +220,9 @@ public class AfBackUtils {
      */
     public DemarcheDTO getDemarcheInfos() {
         if (demarche == null) {
-            demarche = getDemClient().getDemarche(gouvPropertiesResolver.getDemarcheId());
+            // ARCHICHANGE
+            //demarche = getDemClient().getDemarche(gouvPropertiesResolver.getDemarcheId());
+            demarche = demarchesService.getDemarche(gouvPropertiesResolver.getDemarcheId());
         }
         return demarche;
     }

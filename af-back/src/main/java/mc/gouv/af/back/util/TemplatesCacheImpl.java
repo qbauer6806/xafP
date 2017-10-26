@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import mc.gouv.af.back.service.properties.GouvPropertiesResolver;
+import mc.gouv.dem.service.TemplatesService;
 import mc.gouv.dem.shared.model.TemplateDTO;
 
 /**
@@ -26,9 +27,9 @@ public class TemplatesCacheImpl implements TemplatesCache {
 
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
-
+    
     @Autowired
-    private AfBackUtils afBackUtils;
+    private TemplatesService templatesService;
 
     /**
      * {@inheritDoc}
@@ -39,7 +40,9 @@ public class TemplatesCacheImpl implements TemplatesCache {
         // Remplissage de la liste si pas déjà fait
         if (cachedList.size() == 0) {
             LOGGER.info("Récupération des templates dans DEM...");
-            cachedList.addAll(afBackUtils.getDemClient().getTemplates(gouvPropertiesResolver.getDemarcheId()));
+            // ARCHICHANGE
+            //cachedList.addAll(afBackUtils.getDemClient().getTemplates(gouvPropertiesResolver.getDemarcheId()));
+            cachedList.addAll(templatesService.getTemplates(gouvPropertiesResolver.getDemarcheId()));
         }
 
         // Retour de la liste

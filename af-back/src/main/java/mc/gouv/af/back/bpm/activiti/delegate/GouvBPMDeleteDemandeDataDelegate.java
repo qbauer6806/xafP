@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 import mc.gouv.af.back.bpm.GouvBPMException;
 import mc.gouv.af.back.service.properties.GouvPropertiesResolver;
-import mc.gouv.af.back.util.AfBackUtils;
+import mc.gouv.dem.service.DemandesDataService;
 import mc.gouv.xapi.error.exception.client.NotFoundWebException;
 
 @Component
@@ -25,14 +25,12 @@ public class GouvBPMDeleteDemandeDataDelegate implements JavaDelegate {
     private GouvPropertiesResolver gouvPropertiesResolver;
     
     @Autowired
-    private AfBackUtils afBackUtils;
+    private DemandesDataService demandesDataService;
 
     @Override
     public void execute(DelegateExecution execution) throws Exception {
 
         LOGGER.info("==== AF-BACK DELETE DATA ...");
-
-        String DEMARCHE_ID = gouvPropertiesResolver.getDemarcheId();
 
         Integer demandeId = Integer.parseInt(execution.getProcessBusinessKey());
 
@@ -45,7 +43,9 @@ public class GouvBPMDeleteDemandeDataDelegate implements JavaDelegate {
         }
 
         try {
-            afBackUtils.getDemClient().deleteDemandeData(DEMARCHE_ID, demandeId, dataKeyStr);
+            // ARCHICHANGE
+            //afBackUtils.getDemClient().deleteDemandeData(DEMARCHE_ID, demandeId, dataKeyStr);
+            demandesDataService.deleteDemandeData(gouvPropertiesResolver.getDemarcheId(), demandeId, dataKeyStr);
         }
         catch (NotFoundWebException e) {
             LOGGER.info("Le service retourne que la data n'existait pas (404 : " + e.getErrors().get(0).getLibelle() + ")");

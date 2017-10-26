@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import mc.gouv.af.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.af.back.service.properties.GouvPropertiesResolver;
 import mc.gouv.af.back.util.AfBackUtils;
+import mc.gouv.dem.service.DemandesComplementsService;
 import mc.gouv.dem.shared.model.DemandeComplementsQuestionDTO;
 
 /**
@@ -32,7 +33,7 @@ public class GouvBPMDemandeInfoComplDelegate implements JavaDelegate {
     private GouvPropertiesResolver gouvPropertiesResolver;
     
     @Autowired
-    private AfBackUtils afBackUtils;
+    private DemandesComplementsService demandesComplementsService;
 
     @Override
     public void execute(DelegateExecution execution) throws Exception {
@@ -64,7 +65,9 @@ public class GouvBPMDemandeInfoComplDelegate implements JavaDelegate {
         }
 
         LOGGER.info("Appel à DEM createDemandeComplements()...");
-        afBackUtils.getDemClient().createDemandeComplements(DEMARCHE_ID, demandeId, questionDto);
+        // ARCHICHANGE
+        //afBackUtils.getDemClient().createDemandeComplements(DEMARCHE_ID, demandeId, questionDto);
+        demandesComplementsService.saveDemandeComplements(DEMARCHE_ID, demandeId, questionDto);
 
         LOGGER.info("==== AF-BACK CREATION INFO COMPL <fin>");
 

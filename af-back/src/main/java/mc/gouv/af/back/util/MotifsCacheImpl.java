@@ -3,7 +3,6 @@ package mc.gouv.af.back.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.taglibs.standard.extra.spath.AbsolutePath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +10,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import mc.gouv.af.back.service.properties.GouvPropertiesResolver;
-import mc.gouv.dem.apiclient.DemClient;
+import mc.gouv.dem.service.MotifsService;
 import mc.gouv.dem.shared.model.DemandeStatutEnum;
 import mc.gouv.dem.shared.model.MotifDTO;
 
@@ -35,7 +34,7 @@ public class MotifsCacheImpl implements MotifsCache {
     private GouvPropertiesResolver gouvPropertiesResolver;
     
     @Autowired
-    private AfBackUtils afBackUtils;
+    private MotifsService motifsService;
 
     /**
      * {@inheritDoc}
@@ -60,7 +59,9 @@ public class MotifsCacheImpl implements MotifsCache {
         // Remplissage de la liste si pas déjà fait
         if (cachedList.size() == 0) {
             LOGGER.info("Récupération des motifs dans DEM...");
-            cachedList.addAll(afBackUtils.getDemClient().getMotifs(gouvPropertiesResolver.getDemarcheId()));
+            // ARCHICHANGE
+            //cachedList.addAll(afBackUtils.getDemClient().getMotifs(gouvPropertiesResolver.getDemarcheId()));
+            cachedList.addAll(motifsService.getMotifs(gouvPropertiesResolver.getDemarcheId()));
 
             for (MotifDTO motif : cachedList) {
                 if (motif.getDateArchive() == null) {

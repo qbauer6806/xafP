@@ -14,7 +14,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import mc.gouv.af.back.service.properties.GouvPropertiesResolver;
-import mc.gouv.dem.apiclient.DemClient;
 import mc.gouv.logon.apiclient.UserRest;
 import mc.gouv.logon.shared.User;
 
@@ -25,13 +24,10 @@ public class UtilisateursCacheImpl implements UtilisateursCache {
     private static final Logger LOGGER = LoggerFactory.getLogger(UtilisateursCacheImpl.class);
 
     @Autowired
-    DemClient demClient;
+    private GouvPropertiesResolver gouvPropertiesResolver;
 
     @Autowired
-    GouvPropertiesResolver gouvPropertiesResolver;
-
-    @Autowired
-    CacheManager cacheManager;
+    private CacheManager cacheManager;
 
     @Override
     @CacheResult(cacheName = "utilisateur")

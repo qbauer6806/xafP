@@ -65,7 +65,7 @@ public class GouvBPMGroupManager extends GroupEntityManager {
         ArrayList<Group> liste = new ArrayList<Group>();
         if (codeAppli != null) {
 
-            User user = utilisateursCache.getUtilisateur(userId);
+            User user = utilisateursCache.get(userId);
             if (user != null) {
                 Set<Role> roles = user.getRoles();
                 if (roles != null) {
@@ -84,7 +84,7 @@ public class GouvBPMGroupManager extends GroupEntityManager {
                 }
             } else {
                 //On teste si c'est un usager
-                UsagerBean usager = usagerCache.getUsager(Integer.parseInt(userId));
+                UsagerBean usager = usagerCache.get(Integer.parseInt(userId));
 
                 if (usager != null) {
                     //Ajout au groupe usager

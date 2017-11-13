@@ -67,7 +67,7 @@ public class GouvBPMEnvoiEmailAgentAffecteDelegate implements JavaDelegate {
         
         // Récupérer l'adresse email de l'agent affecté à la demande
         String agentId = (String) execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_ASSIGNEE.name());
-        User agent = utilisateursCache.getUtilisateur(agentId);
+        User agent = utilisateursCache.get(agentId);
         LOGGER.info("Adresse / Nom de l'agent affecté à la demande : " + agent.getMail() + " / " + agent.getNom());
         emailInfo.addTo(agent.getMail(), agent.getNom());
         

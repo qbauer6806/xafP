@@ -45,7 +45,7 @@ public class GouvBPMUserManager extends UserEntityManager {
 
         //Vérification si c'est un usager 
 
-        mc.gouv.logon.shared.User user = utilisateursCache.getUtilisateur(userLogin);
+        mc.gouv.logon.shared.User user = utilisateursCache.get(userLogin);
         if (user != null) {
             UserEntity ue = new UserEntity();
             ue.setId(userLogin);
@@ -56,7 +56,7 @@ public class GouvBPMUserManager extends UserEntityManager {
 
         {
             //On teste si c'est un usager
-            UsagerBean usager = usagerCache.getUsager(Integer.parseInt(userLogin));
+            UsagerBean usager = usagerCache.get(Integer.parseInt(userLogin));
 
             if (usager != null) {
                 //Ajout au groupe usager

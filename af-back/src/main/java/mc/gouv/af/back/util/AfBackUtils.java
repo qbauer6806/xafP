@@ -157,7 +157,7 @@ public class AfBackUtils {
      * @return
      */
     public String getUsagerNameFromID(Integer usagerId) {
-        UsagerBean u = usagersCache.getUsager(usagerId);
+        UsagerBean u = usagersCache.get(usagerId);
         if (u == null) {
             return null;
         }
@@ -180,7 +180,7 @@ public class AfBackUtils {
      */
     public String getUserNameFromID(String matricule) throws RestException {
         LOGGER.debug("getUserNameFromID() : Appel à Logon...");
-        User user = utilisateursCache.getUtilisateur(matricule);
+        User user = utilisateursCache.get(matricule);
         if (user != null) {
             return user.getNom();
         }

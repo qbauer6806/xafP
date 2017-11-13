@@ -58,7 +58,7 @@ public class GouvBPMEnvoiEmailUsagerDelegate implements JavaDelegate {
         Integer usagerId = (Integer) execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_USAGERID.name());
         String langue = (String) execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_DEMANDE_LANGUE.name());
 
-        UsagerBean usager = usagerCache.getUsager(usagerId);
+        UsagerBean usager = usagerCache.get(usagerId);
         if (usager == null) {
             throw new Exception("Impossible d'envoyer un mail pour un usager inconnu : " + usagerId);
         }

@@ -1,5 +1,6 @@
 package mc.gouv.af.back.bpm.activiti.delegate;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -78,8 +79,8 @@ public class GouvBPMEnvoiEmailAgentsWithRolesDelegate implements JavaDelegate {
         Set<User> destinataires = new HashSet<User>();
         String rolesStr = (String)roles.getValue(execution);
         String[] rolesList = rolesStr.split(",");
-        List<User> agents = utilisateursCache.getAll();
-        if (agents != null) {
+        List<User> agents = new ArrayList<User>(utilisateursCache.getAll().values());
+        if (agents != null && !agents.isEmpty()) {
             for (User agent : agents) {
                 boolean toAdd = false;
                 Set<Role> agentRoles = agent.getRoles();

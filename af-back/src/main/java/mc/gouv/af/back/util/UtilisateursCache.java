@@ -1,17 +1,8 @@
 package mc.gouv.af.back.util;
 
-import java.util.List;
-
 import mc.gouv.logon.shared.User;
+import mc.gouv.xboot.caching.GouvCache;
 
-public interface UtilisateursCache {
-
-    List<User> getAll();
-
-    User getUtilisateur(String matricule);
-
-    void clearCache();
-
-    void updateUtilisateur(User u);
+public interface UtilisateursCache extends GouvCache<String, User> {
 
 }

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import mc.gouv.af.back.service.properties.GouvPropertiesResolver;
 import mc.gouv.dem.service.AccessService;
 import mc.gouv.dem.service.UsagersCourrierService;
+import mc.gouv.dem.service.exception.DemarchesServiceException;
 import mc.gouv.dem.shared.model.UsagerCourrierDTO;
 import mc.gouv.servicerest.usager.ReferentielUsagersClient;
 import mc.gouv.servicerest.usager.model.UsagerBean;
@@ -88,10 +89,15 @@ public class UsagersCacheDataProvider implements GouvCacheDataProvider<Integer, 
         for (Integer usagerCourrierId : usagersCourriersIds) {
 //                UsagerCourrierDTO uc = demClient.getUsagerCourrier(gouvPropertiesResolver.getDemarcheId(),
 //                        usagerCourrierId);
-            UsagerCourrierDTO uc = usagersCourrierService.getUsagerCourrier(gouvPropertiesResolver.getDemarcheId(), usagerCourrierId);
-            UsagerBean ub = convertUsagerCourrierDTOToUsagerBean(uc);
-
-            usagersCourriers.add(ub);
+            UsagerCourrierDTO uc = null;
+            try {
+                uc = usagersCourrierService.getUsagerCourrier(gouvPropertiesResolver.getDemarcheId(), usagerCourrierId);
+                UsagerBean ub = convertUsagerCourrierDTOToUsagerBean(uc);
+                usagersCourriers.add(ub);
+            }
+            catch (DemarchesServiceException dse) {
+                // Usager courrier introuvable
+            }
 
         }
         //Ajout des usagers courriers à la liste

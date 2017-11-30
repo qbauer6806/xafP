@@ -212,7 +212,7 @@ public class AfServletGouvPropertiesResolver {
 
         if (!propertiesNotFound.isEmpty()) {
 
-            LOGGER.error("Des propriétés n'ont pas été trouvée : {}", propertiesNotFound);
+            LOGGER.error("Des propriétés n'ont pas été trouvées : {}", propertiesNotFound);
             System.exit(1);
         }
     }

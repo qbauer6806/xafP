@@ -9,6 +9,9 @@ import org.springframework.context.annotation.Profile;
 import mc.gouv.af.back.service.properties.GouvPropertiesResolver;
 import mc.gouv.af.back.util.PaysCache;
 import mc.gouv.af.back.util.PaysCacheImpl;
+import mc.gouv.af.back.util.UsagersCache;
+import mc.gouv.af.back.util.UsagersCacheDataProvider;
+import mc.gouv.af.back.util.UsagersCacheImpl;
 import mc.gouv.af.back.util.UtilisateursCache;
 import mc.gouv.af.back.util.UtilisateursCacheImpl;
 import mc.gouv.servicerest.usager.ReferentielUsagersClient;
@@ -26,6 +29,9 @@ public class AfBackConfig {
 
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
+    
+    @Autowired
+    private UsagersCacheDataProvider usagersCacheDataProvider;
 
     @Bean
     public ReferentielUsagersClient getReferentielUsagersClient() {
@@ -41,6 +47,11 @@ public class AfBackConfig {
     @Bean
     public UtilisateursCache getUtilisateursCache() {
         return new UtilisateursCacheImpl(gouvPropertiesResolver.getDemarcheId(), UTILISATEURS_CACHE_DURATION);
+    }
+    
+    @Bean(name = "usagersCacheImpl")
+    public UsagersCache getUsagersCache() {
+        return new UsagersCacheImpl(usagersCacheDataProvider, gouvPropertiesResolver.getUsagersCacheDuration());
     }
 
 }

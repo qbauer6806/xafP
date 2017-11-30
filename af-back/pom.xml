@@ -42,12 +42,6 @@
 			<artifactId>tools_sql2_www</artifactId> <version>2.0.5</version> </dependency> -->
 
 		<dependency>
-			<groupId>mc.gouv.logon</groupId>
-			<artifactId>logon-apiclient</artifactId>
-			<version>5.0.3</version>
-		</dependency>
-
-		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.9</version>

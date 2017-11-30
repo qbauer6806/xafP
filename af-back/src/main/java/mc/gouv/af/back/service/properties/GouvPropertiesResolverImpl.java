@@ -80,8 +80,13 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
                 }
 
                 try {
-                    String value = (String) method.invoke(this);
-                    if (StringUtils.isBlank(value)) {
+                    Object value = method.invoke(this);
+                    if (value instanceof String) {
+                        if (StringUtils.isBlank((String)value)) {
+                            propertiesNotFound.add(propertyDescriptor.getReadMethod().toString());
+                        }
+                    }
+                    else if (value == null) {
                         propertiesNotFound.add(propertyDescriptor.getReadMethod().toString());
                     }
                 } catch (IllegalArgumentException e) {
@@ -196,6 +201,11 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     @Override
     public String getContactSupportUrl() {
         return Static.getValue(CONTACT_SUPPORT_URL);
+    }
+
+    @Override
+    public long getUsagersCacheDuration() {
+        return Long.parseLong(Static.getValue("mc.gouv" + applicationPrefix + ".backserver.usagerscache.duration"));
     }
     
 }

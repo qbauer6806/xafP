@@ -38,5 +38,7 @@ public interface GouvPropertiesResolver {
     String getFrontSharedKey();
 
     String getHelpUrl();
+    
+    long getUsagersCacheDuration();
 
 }

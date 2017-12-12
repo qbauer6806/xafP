@@ -19,6 +19,7 @@ import mc.gouv.af.servlet.dto.UsagerInfosDTO;
 import mc.gouv.af.servlet.util.AppFactoryServletUtils;
 import mc.gouv.dem.shared.model.AccessDTO;
 import mc.gouv.dem.shared.model.AccessInputDTO;
+import mc.gouv.xapi.error.exception.client.UnauthorizedWebException;
 
 /**
  * Servlet mettant à disposition le service /accesses avec les méthodes PUT, POST, GET, DELETE.
@@ -123,10 +124,15 @@ public class AccessesServlet extends AbstractAfServlet {
             
             LOGGER.info("Appel de la démarche pour désinscrire l'usager...");
             
-            getAfApiClient().desinscriptionUsager(usagerId, hashedPassword);
-            
-            response.setStatus(HttpStatus.SC_OK);
-            
+            try {
+                getAfApiClient().desinscriptionUsager(usagerId, hashedPassword);
+                response.setStatus(HttpStatus.SC_OK);
+            }
+            catch (UnauthorizedWebException e) {
+                LOGGER.info("Erreur lors de la désinscription : unauthorized");
+                response.setStatus(HttpStatus.SC_UNAUTHORIZED);
+            }
+
         }
         
         if (!HttpMethod.DELETE.equals(httpMethod)) {

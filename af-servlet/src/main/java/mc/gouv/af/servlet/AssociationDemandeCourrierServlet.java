@@ -66,12 +66,7 @@ public class AssociationDemandeCourrierServlet extends AbstractAfServlet {
 
         AfApiClient afApiClient = getAfApiClient();
                 
-        try {
-            afApiClient.associerDemandeCourrier(identifiant, nomProprio, usagerId);
-        } catch (ClientErrorException e) {
-            LOGGER.info("Erreur lors de l'appel à la démarche, code : " + e.getResponse().getStatus());
-            response.setStatus(e.getResponse().getStatus());
-        }
+        afApiClient.associerDemandeCourrier(identifiant, nomProprio, usagerId);
 
         LOGGER.info("Retour au client...");
 

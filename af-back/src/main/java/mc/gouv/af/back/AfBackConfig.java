@@ -39,12 +39,12 @@ public class AfBackConfig {
         return new ReferentielUsagersClient(gouvPropertiesResolver.getUsagersRestUrl(), null, null);
     }
     
-    @Bean
+    @Bean(name = "paysCacheImpl")
     public PaysCache getPaysCache() {
         return new PaysCacheImpl(gouvPropertiesResolver.getPaysRestUrl(), null, null, PAYS_CACHE_DURATION);
     }
     
-    @Bean
+    @Bean(name = "utilisateursCacheImpl")
     public UtilisateursCache getUtilisateursCache() {
         return new UtilisateursCacheImpl(gouvPropertiesResolver.getDemarcheId(), UTILISATEURS_CACHE_DURATION);
     }

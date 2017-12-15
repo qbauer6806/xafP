@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>af-servlet</artifactId>
 	<groupId>mc.gouv.af</groupId>
-	<version>2.0.0-SNAPSHOT</version>
+	<version>2.0.0-b2</version>
 	<packaging>war</packaging>
 
 	<parent>
@@ -139,13 +139,13 @@
 		<dependency>
 			<groupId>mc.gouv.af</groupId>
 			<artifactId>af-apiclient</artifactId>
-			<version>2.0.0-SNAPSHOT</version>
+			<version>2.0.0-b2</version>
 		</dependency>
 	</dependencies>
 
 	<scm>
-		<developerConnection>${svn.connection}/${project.artifactId}/trunk</developerConnection>
-		<connection>${svn.connection}/${project.artifactId}/trunk</connection>
-		<url>${svn.url}/${project.artifactId}/trunk</url>
+		<developerConnection>${svn.connection}/${project.artifactId}/tags/af-2.0.0-b2/trunk</developerConnection>
+		<connection>${svn.connection}/${project.artifactId}/tags/af-2.0.0-b2/trunk</connection>
+		<url>${svn.url}/${project.artifactId}/tags/af-2.0.0-b2/trunk</url>
 	</scm>
 </project>

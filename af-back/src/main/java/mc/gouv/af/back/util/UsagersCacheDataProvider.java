@@ -89,14 +89,10 @@ public class UsagersCacheDataProvider implements GouvCacheDataProvider<Integer, 
         for (Integer usagerCourrierId : usagersCourriersIds) {
 //                UsagerCourrierDTO uc = demClient.getUsagerCourrier(gouvPropertiesResolver.getDemarcheId(),
 //                        usagerCourrierId);
-            UsagerCourrierDTO uc = null;
-            try {
-                uc = usagersCourrierService.getUsagerCourrier(gouvPropertiesResolver.getDemarcheId(), usagerCourrierId);
+            UsagerCourrierDTO uc = usagersCourrierService.getUsagerCourrier(gouvPropertiesResolver.getDemarcheId(), usagerCourrierId);
+            if (uc != null) {
                 UsagerBean ub = convertUsagerCourrierDTOToUsagerBean(uc);
                 usagersCourriers.add(ub);
-            }
-            catch (DemarchesServiceException dse) {
-                // Usager courrier introuvable
             }
 
         }

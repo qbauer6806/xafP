@@ -94,7 +94,7 @@ public class FileServiceImpl implements FileService {
     private Map<String, String> createCustomHeaders(DemandeDTO demande) {
         Map<String, String> customHeaders = new HashMap<String, String>();
         customHeaders.put(AfBackUtils.FILE_METADATA_DEMANDEID, demande.getPkDemandes().toString());
-        customHeaders.put(AfBackUtils.FILE_METADATA_DEMANDESTATUT, demande.getDernierStatut().getLibelle().name());
+        customHeaders.put(AfBackUtils.FILE_METADATA_DEMANDESTATUT, demande.getDernierStatut().getLibelle());
         return customHeaders;
 
     }

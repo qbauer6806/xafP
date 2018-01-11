@@ -12,7 +12,6 @@ import mc.gouv.af.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.af.back.service.properties.GouvPropertiesResolver;
 import mc.gouv.af.back.util.AfBackUtils;
 import mc.gouv.dem.service.DemandesStatutsService;
-import mc.gouv.dem.shared.model.DemandeStatutEnum;
 import mc.gouv.dem.shared.model.StatutInputDTO;
 
 /**
@@ -42,7 +41,7 @@ public class GouvBPMStatusChangeDelegate implements JavaDelegate {
 
         LOGGER.info("==== AF-BACK CHANGEMENT STATUT ...");
 
-        DemandeStatutEnum statut = getTargetState(execution);
+        String statut = getTargetState(execution);
 
         Integer demandeId = Integer.parseInt(execution.getProcessBusinessKey());
 
@@ -107,14 +106,13 @@ public class GouvBPMStatusChangeDelegate implements JavaDelegate {
      * @param execution
      * @return
      */
-    private DemandeStatutEnum getTargetState(DelegateExecution execution) {
+    private String getTargetState(DelegateExecution execution) {
         if (targetState != null) {
             // L'état cible a été indiqué dans le .bpmn
-            return DemandeStatutEnum.valueOf((String) targetState.getValue(execution));
+            return (String) targetState.getValue(execution);
         } else {
             // L'état cible a été indiqué dans une variable du process
-            return DemandeStatutEnum
-                    .valueOf((String) execution.getVariableLocal(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE.name()));
+            return (String) execution.getVariableLocal(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE.name());
         }
     }
 

@@ -42,7 +42,6 @@ import mc.gouv.af.back.bpm.model.GouvBPMStatutAction;
 import mc.gouv.af.back.bpm.model.GouvBPMTask;
 import mc.gouv.af.back.bpm.model.GouvBPMUser;
 import mc.gouv.af.back.util.CommentaireInterneDTO;
-import mc.gouv.dem.shared.model.DemandeStatutEnum;
 
 /**
  * 
@@ -423,7 +422,7 @@ public class GouvBPMImpl implements GouvBPM {
                 Map<String, String> map = (Map<String, String>) formProp.getType().getInformation("values");
                 // Lister les valeurs de l'enum et créer les objets faisant l'association action / statut cible
                 for (String key : map.keySet()) {
-                    statutActions.add(new GouvBPMStatutAction(DemandeStatutEnum.valueOf(key), map.get(key)));
+                    statutActions.add(new GouvBPMStatutAction(key, map.get(key)));
                 }
             }
         }
@@ -432,7 +431,7 @@ public class GouvBPMImpl implements GouvBPM {
     }
 
     @Override
-    public void annulerDemande(Integer demandeId, GouvBPMUser agent, GouvBPMUser usager, String codeMotif, String commentaire) {
+    public void annulerDemande(Integer demandeId, GouvBPMUser agent, GouvBPMUser usager, String codeMotif, String commentaire, String statutAnnulation) {
         LOGGER.info("Annulation de la demande {} par l'agent '{}' ou l'usager {}", demandeId, agent, usager);
         List<Execution> executions = runtimeService.createExecutionQuery()
                 .processInstanceBusinessKey(demandeId.toString(), true)
@@ -441,7 +440,7 @@ public class GouvBPMImpl implements GouvBPM {
         Map<String, Object> variables = new HashMap<String, Object>();
         variables.put(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name(), codeMotif);
         variables.put(GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name(), commentaire);
-        variables.put(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE.name(), DemandeStatutEnum.ANNULEE.name());
+        variables.put(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE.name(), statutAnnulation);
         if (usager != null) {
             variables.put(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_USAGER.name(), usager.getId());
         }

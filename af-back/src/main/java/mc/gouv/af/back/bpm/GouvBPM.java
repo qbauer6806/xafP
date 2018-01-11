@@ -181,7 +181,7 @@ public interface GouvBPM {
      * @param commentaire 
      * @param codeMotif 
      */
-    public void annulerDemande(Integer demandeId, GouvBPMUser agent, GouvBPMUser usager, String codeMotif, String commentaire);
+    public void annulerDemande(Integer demandeId, GouvBPMUser agent, GouvBPMUser usager, String codeMotif, String commentaire, String statutAnnulation);
 
     /**
      * Permet de démarrer une instance de process sur message

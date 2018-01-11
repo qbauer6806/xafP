@@ -1,7 +1,5 @@
 package mc.gouv.af.back.bpm.model;
 
-import mc.gouv.dem.shared.model.DemandeStatutEnum;
-
 /**
  * Classe permettant de représenter une association entre action et son statut
  * cible
@@ -11,20 +9,20 @@ import mc.gouv.dem.shared.model.DemandeStatutEnum;
  */
 public class GouvBPMStatutAction {
 
-    private DemandeStatutEnum statut;
+    private String statut;
 
     private String action;
 
-    public GouvBPMStatutAction(DemandeStatutEnum statut, String action) {
+    public GouvBPMStatutAction(String statut, String action) {
         this.statut = statut;
         this.action = action;
     }
 
-    public DemandeStatutEnum getStatut() {
+    public String getStatut() {
         return statut;
     }
 
-    public void setStatut(DemandeStatutEnum statut) {
+    public void setStatut(String statut) {
         this.statut = statut;
     }
 

@@ -6,7 +6,6 @@ import java.util.List;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-import mc.gouv.dem.shared.model.DemandeStatutEnum;
 import mc.gouv.dem.shared.model.MotifDTO;
 import mc.gouv.xboot.caching.GouvMemoryCache;
 
@@ -47,7 +46,7 @@ public class MotifsCacheImpl extends GouvMemoryCache<Integer, MotifDTO> implemen
         return motifs;
     }
     
-    public List<MotifDTO> getMotifs(String langue, DemandeStatutEnum statut) {
+    public List<MotifDTO> getMotifs(String langue, String statut) {
         List<MotifDTO> ret = new ArrayList<MotifDTO>();
         for (MotifDTO motif : getValues()) {
             if (motif.getLangue().equals(langue) && motif.getStatut().equals(statut) && motif.getDateArchive() == null) {

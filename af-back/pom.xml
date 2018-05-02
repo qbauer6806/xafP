@@ -133,6 +133,58 @@
             <artifactId>logon-caching</artifactId>
             <version>5.1.0-b1</version>
         </dependency>
+        
+        <!-- Pour la génération de PDF : -->
+    
+        <dependency>
+            <groupId>fr.opensagres.xdocreport</groupId>
+            <artifactId>fr.opensagres.xdocreport.document</artifactId>
+            <version>2.0.1</version>
+        </dependency>
+    
+        <dependency>
+            <groupId>fr.opensagres.xdocreport</groupId>
+            <artifactId>fr.opensagres.xdocreport.document.docx</artifactId>
+            <version>2.0.1</version>
+        </dependency>
+    
+        <dependency>
+            <groupId>fr.opensagres.xdocreport</groupId>
+            <artifactId>fr.opensagres.xdocreport.template.velocity</artifactId>
+            <version>2.0.1</version>
+        </dependency>
+    
+        <dependency>
+            <groupId>fr.opensagres.xdocreport</groupId>
+            <artifactId>fr.opensagres.xdocreport.converter</artifactId>
+            <version>2.0.1</version>
+        </dependency>
+    
+        <dependency>
+            <groupId>fr.opensagres.xdocreport</groupId>
+            <artifactId>fr.opensagres.xdocreport.converter.docx.xwpf</artifactId>
+            <version>2.0.1</version>
+        </dependency>
+    
+        <dependency>
+            <groupId>fr.opensagres.xdocreport</groupId>
+            <artifactId>fr.opensagres.xdocreport.document.odt</artifactId>
+            <version>2.0.1</version>
+    
+        </dependency>
+        <dependency>
+            <groupId>fr.opensagres.xdocreport</groupId>
+            <artifactId>fr.opensagres.xdocreport.document.ods</artifactId>
+            <version>2.0.1</version>
+        </dependency>
+    
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>3.15-beta2</version>
+        </dependency>
+
+        <!-- Fin génération de PDF -->
 
 	</dependencies>
 

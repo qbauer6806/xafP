@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import mc.gouv.af.back.pdf.PdfService;
+import mc.gouv.af.back.pdf.PdfGenerationService;
 import mc.gouv.af.back.service.properties.GouvPropertiesResolver;
 import mc.gouv.dem.service.DemandesService;
 import mc.gouv.dem.shared.model.DemandeDTO;
@@ -25,7 +25,7 @@ public class GouvBPMPdfDelegate implements JavaDelegate {
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMPdfDelegate.class);
 
     @Autowired
-    private PdfService pdfService;
+    private PdfGenerationService pdfGenerationService;
 
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
@@ -42,7 +42,7 @@ public class GouvBPMPdfDelegate implements JavaDelegate {
 //                Integer.parseInt(execution.getProcessBusinessKey()));
         DemandeDTO demandeDto = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), Integer.parseInt(execution.getProcessBusinessKey()));
 
-        pdfService.generatePdf(demandeDto);
+        pdfGenerationService.generateAndStorePdf(demandeDto);
 
         LOGGER.info("==== AF-BACK PDF SERVICE <fin>");
     }

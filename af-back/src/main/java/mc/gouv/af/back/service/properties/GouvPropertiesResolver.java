@@ -41,4 +41,6 @@ public interface GouvPropertiesResolver {
     
     long getUsagersCacheDuration();
 
+    String getFrontFormStartPage();
+
 }

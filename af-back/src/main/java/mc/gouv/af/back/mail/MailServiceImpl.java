@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.context.Context;
 import org.apache.velocity.tools.ToolManager;
+import org.apache.velocity.tools.generic.DateTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,33 +49,7 @@ public class MailServiceImpl implements MailService {
 
         LOGGER.info("MailServiceImpl.sendMail(" + emailInfo + "," + model + ")");
 
-        LOGGER.info("Récupération du template demandé pour le corps de l'email...");
-        TemplateDTO templateBody = templatesCache.getTemplate(emailInfo.getBodyTemplateCode(), emailInfo.getLangue());
-
-        LOGGER.info("Récupération du template demandé pour le sujet de l'email...");
-        TemplateDTO templateSubject = templatesCache.getTemplate(emailInfo.getSubjectTemplateCode(),
-                emailInfo.getLangue());
-
-        LOGGER.info("Appel à Velocity pour le templating du corps et du sujet de l'email...");
-        Context context = manager.createContext();
-        context.put("StringUtils", StringUtils.class);
-        if (model != null) {
-            for (String key : model.keySet()) {
-                context.put(key, model.get(key));
-            }
-        }
-
-        StringWriter output = new StringWriter();
-
-        if (!Velocity.evaluate(context, output, templateBody.getCode(), templateBody.getContenu())) {
-            throw new Exception("Velocity.evaluate() n'a pas fonctionné.");
-        }
-        String mailBodyToSend = output.toString();
-        output = new StringWriter();
-        if (!Velocity.evaluate(context, output, templateSubject.getCode(), templateSubject.getContenu())) {
-            throw new Exception("Velocity.evaluate() n'a pas fonctionné.");
-        }
-        String mailSubjectToSend = output.toString();
+        String[] subjectAndBody = getSubjectAndBody(emailInfo.getSubjectTemplateCode(), emailInfo.getBodyTemplateCode(), emailInfo.getLangue(), model);
 
         LOGGER.info("Transformation des informations d'email vers les structures pour MAIL...");
         List<AddressBlockDTO> to = EmailTransform.toMailApiAddresses(emailInfo.getTo());
@@ -91,8 +66,8 @@ public class MailServiceImpl implements MailService {
         email.setFrom(from);
         email.setReplyto(replyTo);
         email.setParams(params.toArray(new ParamDTO[params.size()]));
-        email.setSubject(mailSubjectToSend);
-        email.setHtml(mailBodyToSend);
+        email.setSubject(subjectAndBody[0]);
+        email.setHtml(subjectAndBody[1]);
         // Pas de email.setText() ==> on considère que les templates body des démarches sont toujours en HTML !
 
         LOGGER.info("Appel à MAIL pour envoi de l'email...");
@@ -106,11 +81,14 @@ public class MailServiceImpl implements MailService {
      * @throws Exception
      */
     @Override
-    public String[] getMailPreview(String bodyTemplateCode, String subjectTemplateCode, String langue,
-            Map<String, Object> model) throws Exception {
-        LOGGER.info("MailServiceImpl.getMailPreview(" + bodyTemplateCode + "," + subjectTemplateCode + "," + langue
-                + "," + model + ")");
+    public String[] getMailPreview(String bodyTemplateCode, String subjectTemplateCode, String langue, Map<String, Object> model) throws Exception {
+        LOGGER.info("MailServiceImpl.getMailPreview(" + bodyTemplateCode + "," + subjectTemplateCode + ")");
 
+        return getSubjectAndBody(subjectTemplateCode, bodyTemplateCode, langue, model);
+    }
+    
+    private String[] getSubjectAndBody(String subjectTemplateCode, String bodyTemplateCode, String langue, Map<String, Object> model) throws Exception {
+        
         LOGGER.info("Récupération du template demandé pour le corps de l'email...");
         TemplateDTO templateBody = templatesCache.getTemplate(bodyTemplateCode, langue);
 
@@ -118,8 +96,7 @@ public class MailServiceImpl implements MailService {
         TemplateDTO templateSubject = templatesCache.getTemplate(subjectTemplateCode, langue);
 
         LOGGER.info("Appel à Velocity pour le templating du corps et du sujet de l'email...");
-        Context context = manager.createContext();
-        model.put("StringUtils", StringUtils.class);
+        Context context = getContext();
         if (model != null) {
             for (String key : model.keySet()) {
                 context.put(key, model.get(key));
@@ -137,8 +114,15 @@ public class MailServiceImpl implements MailService {
             throw new Exception("Velocity.evaluate() n'a pas fonctionné.");
         }
         String mailSubjectToSend = output.toString();
-
+        
         return new String[] { mailSubjectToSend, mailBodyToSend };
+    }
+    
+    private Context getContext() {
+        Context context = manager.createContext();
+        context.put("StringUtils", StringUtils.class);
+        context.put("date", new DateTool());
+        return context;
     }
 
 }

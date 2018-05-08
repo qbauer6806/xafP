@@ -10,10 +10,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import mc.gouv.af.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.af.back.mail.EmailInfoDTO;
 import mc.gouv.af.back.mail.TemplateModelProvider;
+import mc.gouv.af.back.service.properties.GouvPropertiesResolver;
 import mc.gouv.af.back.mail.MailService;
 import mc.gouv.af.back.util.AfBackUtils;
+import mc.gouv.dem.service.DemandesService;
+import mc.gouv.dem.shared.model.DemandeDTO;
 
 /**
  * 
@@ -32,6 +36,12 @@ public class GouvBPMEnvoiEmailAgentsDelegate implements JavaDelegate {
     
     @Autowired
     private MailService mailService;
+    
+    @Autowired
+    private DemandesService demandesService;
+    
+    @Autowired
+    private GouvPropertiesResolver gouvPropertiesResolver;
     
     @Autowired
     private TemplateModelProvider templateModelProvider;
@@ -60,7 +70,14 @@ public class GouvBPMEnvoiEmailAgentsDelegate implements JavaDelegate {
         emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, execution.getProcessBusinessKey());
         emailInfo.setLangue("fr");
         
-        Map<String,Object> model = templateModelProvider.getModel(execution);
+        String codeMotif = (String) execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name());
+        String commentaire = (String) execution
+                .getVariable(GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name());
+
+        Integer demandeId = Integer.parseInt(execution.getProcessBusinessKey());
+        DemandeDTO demande = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), demandeId);
+        
+        Map<String,Object> model = templateModelProvider.getModel(subjectTemplateCode, bodyTemplateCode, demande, execution.getVariables(), codeMotif, commentaire);
 
         try {
             mailService.sendMail(emailInfo, model);

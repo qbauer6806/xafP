@@ -26,6 +26,8 @@ public interface GouvPropertiesResolver {
     String getPaysRestUrl();
 
     String getFrontUrl();
+    
+    String getBackUrl();
 
     String getContainerId();
 

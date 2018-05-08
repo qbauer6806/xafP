@@ -171,6 +171,11 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     public String getFrontUrl() {
         return Static.getValue("mc.gouv" + applicationPrefix + ".backserver.front.url");
     }
+    
+    @Override
+    public String getBackUrl() {
+        return Static.getValue("mc.gouv" + applicationPrefix + ".backserver.back.url");
+    }
 
     @Override
     public String getFrontSharedKey() {

@@ -1,4 +1,4 @@
-package mc.gouv.af.back.util;
+package mc.gouv.af.back.cache;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-import mc.gouv.af.back.service.properties.GouvPropertiesResolver;
+import mc.gouv.af.back.properties.GouvPropertiesResolver;
 import mc.gouv.dem.service.MotifsService;
 import mc.gouv.dem.shared.model.MotifDTO;
 import mc.gouv.xboot.caching.GouvCacheDataProvider;

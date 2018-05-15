@@ -14,8 +14,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import mc.gouv.af.back.cache.TemplatesCache;
 import mc.gouv.af.back.util.AfBackUtils;
-import mc.gouv.af.back.util.TemplatesCache;
 import mc.gouv.dem.shared.model.TemplateDTO;
 import mc.gouv.mail.shared.dto.AddressBlockDTO;
 import mc.gouv.mail.shared.dto.MailDTO;

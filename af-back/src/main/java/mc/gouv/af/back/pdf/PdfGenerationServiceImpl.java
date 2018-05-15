@@ -23,8 +23,8 @@ import fr.opensagres.xdocreport.document.IXDocReport;
 import fr.opensagres.xdocreport.document.registry.XDocReportRegistry;
 import fr.opensagres.xdocreport.template.IContext;
 import fr.opensagres.xdocreport.template.TemplateEngineKind;
-import mc.gouv.af.back.service.properties.GouvPropertiesResolver;
-import mc.gouv.af.back.util.FileService;
+import mc.gouv.af.back.file.FileService;
+import mc.gouv.af.back.properties.GouvPropertiesResolver;
 import mc.gouv.dem.service.DemandesCourriersService;
 import mc.gouv.dem.shared.model.DemandeCourrierDTO;
 import mc.gouv.dem.shared.model.DemandeDTO;
@@ -111,7 +111,7 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
         
         try {
             LOGGER.info("Chargement du template " + templateFileName + "...");
-            File templateFile = new ClassPathResource("/templatespdf/" + templateFileName).getFile();
+            File templateFile = new ClassPathResource("/pdf/" + templateFileName).getFile();
             InputStream in = new FileInputStream(templateFile);
             IXDocReport report = XDocReportRegistry.getRegistry().loadReport(in, TemplateEngineKind.Velocity);
 

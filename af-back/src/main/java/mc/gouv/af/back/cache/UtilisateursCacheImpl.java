@@ -1,4 +1,4 @@
-package mc.gouv.af.back.util;
+package mc.gouv.af.back.cache;
 
 public class UtilisateursCacheImpl extends mc.gouv.logon.caching.UtilisateursCacheImpl implements UtilisateursCache {
 

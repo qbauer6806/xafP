@@ -1,4 +1,4 @@
-package mc.gouv.af.back.util;
+package mc.gouv.af.back.cache;
 
 import mc.gouv.logon.shared.User;
 import mc.gouv.xboot.caching.GouvCache;

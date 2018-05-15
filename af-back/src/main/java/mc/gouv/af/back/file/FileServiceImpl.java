@@ -1,4 +1,4 @@
-package mc.gouv.af.back.util;
+package mc.gouv.af.back.file;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,7 +17,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import mc.gouv.af.back.service.properties.GouvPropertiesResolver;
+import mc.gouv.af.back.properties.GouvPropertiesResolver;
+import mc.gouv.af.back.util.AfBackUtils;
 import mc.gouv.dem.shared.model.DemandeDTO;
 
 /**

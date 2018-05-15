@@ -12,12 +12,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import mc.gouv.af.back.bpm.GouvBPMProcessVariableTypeEnum;
+import mc.gouv.af.back.cache.UsagersCache;
 import mc.gouv.af.back.mail.EmailInfoDTO;
 import mc.gouv.af.back.mail.MailService;
 import mc.gouv.af.back.mail.TemplateModelProvider;
-import mc.gouv.af.back.service.properties.GouvPropertiesResolver;
+import mc.gouv.af.back.properties.GouvPropertiesResolver;
 import mc.gouv.af.back.util.AfBackUtils;
-import mc.gouv.af.back.util.UsagersCache;
 import mc.gouv.dem.service.DemandesService;
 import mc.gouv.dem.shared.model.DemandeDTO;
 import mc.gouv.servicerest.usager.model.UsagerBean;

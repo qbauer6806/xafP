@@ -4,11 +4,11 @@ import java.util.List;
 import java.util.Map;
 
 import mc.gouv.af.back.bpm.activiti.exception.TaskAlreadyClaimedException;
+import mc.gouv.af.back.bpm.model.CommentaireInterneDTO;
 import mc.gouv.af.back.bpm.model.GouvBPMGroup;
 import mc.gouv.af.back.bpm.model.GouvBPMStatutAction;
 import mc.gouv.af.back.bpm.model.GouvBPMTask;
 import mc.gouv.af.back.bpm.model.GouvBPMUser;
-import mc.gouv.af.back.util.CommentaireInterneDTO;
 
 /**
  * Composant exposant le BPM interne d'AppFactory

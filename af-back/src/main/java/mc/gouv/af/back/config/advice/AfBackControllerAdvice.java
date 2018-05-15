@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
-import mc.gouv.af.back.service.properties.GouvPropertiesResolver;
+import mc.gouv.af.back.properties.GouvPropertiesResolver;
 
 @ControllerAdvice
 public class AfBackControllerAdvice {

@@ -1,4 +1,4 @@
-package mc.gouv.af.back.util;
+package mc.gouv.af.back.bpm.model;
 
 import java.io.Serializable;
 import java.util.Date;

@@ -25,10 +25,14 @@ import com.fasterxml.uuid.EthernetAddress;
 import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.impl.TimeBasedGenerator;
 
-import mc.gouv.af.back.service.properties.GouvPropertiesResolver;
+import mc.gouv.af.back.cache.UsagersCache;
+import mc.gouv.af.back.cache.UtilisateursCache;
+import mc.gouv.af.back.properties.GouvPropertiesResolver;
+import mc.gouv.af.back.service.DemarchesDataProvider;
 import mc.gouv.dem.service.DemarchesService;
 import mc.gouv.dem.shared.model.DemandeDTO;
 import mc.gouv.dem.shared.model.DemandeDataDTO;
+import mc.gouv.dem.shared.model.DemandeFlatDTO;
 import mc.gouv.dem.shared.model.DemarcheDTO;
 import mc.gouv.file.apiclient.FileClient;
 import mc.gouv.logon.apiclient.RestException;
@@ -81,6 +85,9 @@ public class AfBackUtils {
     
     @Autowired
     private DemarchesService demarchesService;
+    
+    @Autowired
+    private DemarchesDataProvider demarchesDataProvider;
 
     @PostConstruct
     public void postConstructEnv() {
@@ -216,6 +223,7 @@ public class AfBackUtils {
 
     /**
      * Retourne une version "cachée" des informations de la démarche
+     * 
      * @return
      */
     public DemarcheDTO getDemarcheInfos() {
@@ -228,6 +236,7 @@ public class AfBackUtils {
 
     /**
      * Permet de récupérer une donnée d'une demande
+     * 
      */
     public static String getDemandeData(DemandeDTO demande, String key) {
         if (demande.getData() != null) {
@@ -250,6 +259,36 @@ public class AfBackUtils {
 
     public static String getEnvColor() {
         return envColor;
+    }
+    
+    /**
+     * Permet de générer un DemandeFlatDTO à partir d'un DemandeDTO
+     * 
+     * @param demande
+     * @return
+     */
+    public DemandeFlatDTO getDemandeFlatDTO(DemandeDTO demande) {
+        DemandeFlatDTO flat = new DemandeFlatDTO();
+        flat.setAgentAffecteId(demande.getAgentAffecteId());
+        if (!StringUtils.isBlank(demande.getAgentAffecteId())) {
+            try {
+                flat.setAgentAffecteNom(getUserNameFromID(demande.getAgentAffecteId()));
+            } catch (RestException e) {
+                LOGGER.error("Erreur lors de la récupération du nom de l'agent affecté à la demande", e);
+            }
+        }
+        flat.setCanal(demande.getCanal().libelle);
+        flat.setCourrierDateReception(demande.getCourrierDateReception());
+        flat.setCourrierRefInterne(demande.getCourrierRefInterne());
+        flat.setDateCreation(demande.getDateCreation());
+        flat.setDernierStatut(demarchesDataProvider.getStatusLibelle(demande.getDernierStatut().getLibelle()));
+        flat.setIdentifiant(demande.getIdentifiant());
+        flat.setLangue(demande.getLangue());
+        flat.setObservations(demande.getObservations());
+        flat.setPkDemandes(demande.getPkDemandes());
+        flat.setUsagerId(demande.getUsagerId());
+        flat.setUsagerNom(getUsagerNameFromID(demande.getUsagerId()));
+        return flat;
     }
 
 }

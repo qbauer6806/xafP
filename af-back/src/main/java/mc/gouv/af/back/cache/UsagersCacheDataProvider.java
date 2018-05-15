@@ -1,4 +1,4 @@
-package mc.gouv.af.back.util;
+package mc.gouv.af.back.cache;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,10 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-import mc.gouv.af.back.service.properties.GouvPropertiesResolver;
+import mc.gouv.af.back.properties.GouvPropertiesResolver;
 import mc.gouv.dem.service.AccessService;
 import mc.gouv.dem.service.UsagersCourrierService;
-import mc.gouv.dem.service.exception.DemarchesServiceException;
 import mc.gouv.dem.shared.model.UsagerCourrierDTO;
 import mc.gouv.servicerest.usager.ReferentielUsagersClient;
 import mc.gouv.servicerest.usager.model.UsagerBean;

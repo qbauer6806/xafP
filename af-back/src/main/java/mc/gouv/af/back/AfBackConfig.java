@@ -6,14 +6,14 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
-import mc.gouv.af.back.service.properties.GouvPropertiesResolver;
-import mc.gouv.af.back.util.PaysCache;
-import mc.gouv.af.back.util.PaysCacheImpl;
-import mc.gouv.af.back.util.UsagersCache;
-import mc.gouv.af.back.util.UsagersCacheDataProvider;
-import mc.gouv.af.back.util.UsagersCacheImpl;
-import mc.gouv.af.back.util.UtilisateursCache;
-import mc.gouv.af.back.util.UtilisateursCacheImpl;
+import mc.gouv.af.back.cache.PaysCache;
+import mc.gouv.af.back.cache.PaysCacheImpl;
+import mc.gouv.af.back.cache.UsagersCache;
+import mc.gouv.af.back.cache.UsagersCacheDataProvider;
+import mc.gouv.af.back.cache.UsagersCacheImpl;
+import mc.gouv.af.back.cache.UtilisateursCache;
+import mc.gouv.af.back.cache.UtilisateursCacheImpl;
+import mc.gouv.af.back.properties.GouvPropertiesResolver;
 import mc.gouv.servicerest.usager.ReferentielUsagersClient;
 
 @Configuration

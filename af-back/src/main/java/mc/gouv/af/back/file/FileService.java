@@ -1,4 +1,4 @@
-package mc.gouv.af.back.util;
+package mc.gouv.af.back.file;
 
 import java.io.IOException;
 import java.io.InputStream;

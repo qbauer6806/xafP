@@ -18,8 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import mc.gouv.af.back.bpm.GouvBPMProcessVariableTypeEnum;
-import mc.gouv.af.back.util.UsagersCache;
-import mc.gouv.af.back.util.UtilisateursCache;
+import mc.gouv.af.back.cache.UsagersCache;
+import mc.gouv.af.back.cache.UtilisateursCache;
 import mc.gouv.logon.shared.Droit;
 import mc.gouv.logon.shared.Role;
 import mc.gouv.logon.shared.User;

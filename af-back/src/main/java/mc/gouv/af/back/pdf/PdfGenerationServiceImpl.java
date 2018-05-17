@@ -10,6 +10,9 @@ import java.io.OutputStream;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.velocity.context.Context;
+import org.apache.velocity.tools.generic.DateTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -117,6 +120,7 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 
             LOGGER.info("Création du contexte avec le modèle fourni par la démarche...");
             IContext context = report.createContext();
+            context.put("StringUtils", StringUtils.class);
             for (Entry<String, Object> entry : model.entrySet()) {
                 context.put(entry.getKey(), entry.getValue());
             }

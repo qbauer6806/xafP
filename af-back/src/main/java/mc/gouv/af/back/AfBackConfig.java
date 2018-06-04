@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+import mc.gouv.Static;
 import mc.gouv.af.back.cache.PaysCache;
 import mc.gouv.af.back.cache.PaysCacheImpl;
 import mc.gouv.af.back.cache.UsagersCache;
@@ -14,6 +15,7 @@ import mc.gouv.af.back.cache.UsagersCacheImpl;
 import mc.gouv.af.back.cache.UtilisateursCache;
 import mc.gouv.af.back.cache.UtilisateursCacheImpl;
 import mc.gouv.af.back.properties.GouvPropertiesResolver;
+import mc.gouv.logon.apiclient.LogonApiClient;
 import mc.gouv.servicerest.usager.ReferentielUsagersClient;
 
 @Configuration
@@ -46,7 +48,8 @@ public class AfBackConfig {
     
     @Bean(name = "utilisateursCacheImpl")
     public UtilisateursCache getUtilisateursCache() {
-        return new UtilisateursCacheImpl(gouvPropertiesResolver.getDemarcheId(), UTILISATEURS_CACHE_DURATION);
+        String url = Static.getValue(LogonApiClient.DEFAULT_GOUV_PROPERTY_URL);
+        return new UtilisateursCacheImpl(url, gouvPropertiesResolver.getDemarcheId(), UTILISATEURS_CACHE_DURATION);
     }
     
     @Bean(name = "usagersCacheImpl")

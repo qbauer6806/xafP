@@ -15,6 +15,8 @@
 	<properties>
 		<activiti.version>5.22.0</activiti.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <logon-apiclient.version>5.1.0-b3-SNAPSHOT</logon-apiclient.version>
+        <logon.version>5.1.0-b3-SNAPSHOT</logon.version>
 	</properties>
 
 	<dependencies>
@@ -36,10 +38,7 @@
 			<artifactId>tools_jar</artifactId>
 			<version>3.0.3</version>
 		</dependency>
-
-		<!-- <dependency> <groupId>mc.gouv.logon</groupId> <artifactId>logon_service</artifactId> 
-			<version>4.0.37-SNAPSHOT</version> </dependency> <dependency> <groupId>mc.gouv.tools_sql2</groupId> 
-			<artifactId>tools_sql2_www</artifactId> <version>2.0.5</version> </dependency> -->
+		
 
 		<dependency>
 			<groupId>junit</groupId>
@@ -123,6 +122,12 @@
         </dependency>
         
         <dependency>
+            <groupId>mc.gouv.server</groupId>
+            <artifactId>servicerest_client</artifactId>
+            <version>2.2.14-SNAPSHOT</version>
+        </dependency>
+        
+        <dependency>
             <groupId>mc.gouv.servicerest</groupId>
             <artifactId>servicerest-caching</artifactId>
             <version>2.2.14-SNAPSHOT</version>
@@ -131,13 +136,13 @@
         <dependency>
             <groupId>mc.gouv.logon</groupId>
             <artifactId>logon-caching</artifactId>
-            <version>5.1.0-b1</version>
+            <version>5.1.0-b3-SNAPSHOT</version>
         </dependency>
         
         <dependency>
             <groupId>mc.gouv.logon</groupId>
             <artifactId>logon-apiclient</artifactId>
-            <version>5.1.0-b1</version>
+            <version>5.1.0-b3-SNAPSHOT</version>
         </dependency>
         
         <!-- Pour la génération de PDF : -->

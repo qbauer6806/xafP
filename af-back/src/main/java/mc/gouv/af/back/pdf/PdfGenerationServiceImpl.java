@@ -11,8 +11,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.velocity.context.Context;
-import org.apache.velocity.tools.generic.DateTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -114,8 +112,7 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
         
         try {
             LOGGER.info("Chargement du template " + templateFileName + "...");
-            File templateFile = new ClassPathResource("/pdf/" + templateFileName).getFile();
-            InputStream in = new FileInputStream(templateFile);
+            InputStream in = new ClassPathResource("/pdf/" + templateFileName).getInputStream();
             IXDocReport report = XDocReportRegistry.getRegistry().loadReport(in, TemplateEngineKind.Velocity);
 
             LOGGER.info("Création du contexte avec le modèle fourni par la démarche...");

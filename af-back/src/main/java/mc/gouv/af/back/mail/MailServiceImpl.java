@@ -7,6 +7,8 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.context.Context;
+import org.apache.velocity.runtime.RuntimeConstants;
+import org.apache.velocity.runtime.log.NullLogChute;
 import org.apache.velocity.tools.ToolManager;
 import org.apache.velocity.tools.generic.DateTool;
 import org.slf4j.Logger;
@@ -96,6 +98,8 @@ public class MailServiceImpl implements MailService {
         TemplateDTO templateSubject = templatesCache.getTemplate(subjectTemplateCode, langue);
 
         LOGGER.info("Appel à Velocity pour le templating du corps et du sujet de l'email...");
+        Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM, new NullLogChute());
+        Velocity.init();
         Context context = getContext();
         if (model != null) {
             for (String key : model.keySet()) {

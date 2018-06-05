@@ -1,6 +1,5 @@
 package mc.gouv.af.back.xls;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -21,7 +20,7 @@ public class ExcelExportServiceImpl implements ExcelExportService {
     @Override
     public void exportExcel(String templateFileName, Map<String, Object> model, OutputStream outputStream) {
 
-        try (InputStream is = new FileInputStream(new ClassPathResource("/xls/" + templateFileName).getFile())) {
+        try (InputStream is = new ClassPathResource("/xls/" + templateFileName).getInputStream()) {
             Context context = new Context();
             for (String key : model.keySet()) {
                 context.putVar(key, model.get(key));

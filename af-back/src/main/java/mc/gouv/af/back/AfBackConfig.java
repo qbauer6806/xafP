@@ -1,10 +1,17 @@
 package mc.gouv.af.back;
 
+import java.text.SimpleDateFormat;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
+import org.springframework.web.multipart.commons.CommonsMultipartResolver;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.handler.MappedInterceptor;
 
 import mc.gouv.Static;
 import mc.gouv.af.back.cache.PaysCache;
@@ -21,7 +28,7 @@ import mc.gouv.servicerest.usager.ReferentielUsagersClient;
 @Configuration
 @EnableCaching
 @Profile("gouv")
-public class AfBackConfig {
+public class AfBackConfig extends WebMvcConfigurerAdapter {
     
     // 24h
     private static final long PAYS_CACHE_DURATION = 24*60*60*1000;
@@ -34,6 +41,9 @@ public class AfBackConfig {
     
     @Autowired
     private UsagersCacheDataProvider usagersCacheDataProvider;
+    
+    @Autowired
+    private GouvInterceptor gouvInterceptor;
 
     @Bean
     public ReferentielUsagersClient getReferentielUsagersClient() {
@@ -57,4 +67,25 @@ public class AfBackConfig {
         return new UsagersCacheImpl(usagersCacheDataProvider, gouvPropertiesResolver.getUsagersCacheDuration());
     }
 
+    @Bean
+    public MappedInterceptor mappedInterceptor() {
+        return new MappedInterceptor(null, gouvInterceptor);
+    }
+
+    @Bean
+    public CommonsMultipartResolver multipartResolver() {
+        CommonsMultipartResolver resolver = new CommonsMultipartResolver();
+        resolver.setDefaultEncoding("utf-8");
+        return resolver;
+    }
+
+    @Bean
+    @Primary
+    public Jackson2ObjectMapperBuilder objectMapperBuilder() {
+        Jackson2ObjectMapperBuilder builder = new Jackson2ObjectMapperBuilder();
+        SimpleDateFormat iso8601DateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+        builder.dateFormat(iso8601DateFormat);
+        return builder;
+    }
+    
 }

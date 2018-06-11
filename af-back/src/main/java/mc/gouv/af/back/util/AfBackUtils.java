@@ -233,6 +233,15 @@ public class AfBackUtils {
         }
         return demarche;
     }
+    
+    /**
+     * Retourne le nom complet de la démarche
+     * 
+     * @return
+     */
+    public String getDemarcheNom() {
+        return getDemarcheInfos().getNom();
+    }
 
     /**
      * Permet de récupérer une donnée d'une demande

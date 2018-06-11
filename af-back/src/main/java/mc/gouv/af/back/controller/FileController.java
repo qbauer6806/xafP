@@ -1,4 +1,4 @@
-package mc.gouv.af.back.file;
+package mc.gouv.af.back.controller;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.HandlerMapping;
 
+import mc.gouv.af.back.file.FileService;
 import mc.gouv.af.back.properties.GouvPropertiesResolver;
 import mc.gouv.dem.service.DemandesService;
 import mc.gouv.dem.shared.model.DemandeDTO;

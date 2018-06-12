@@ -74,7 +74,6 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
         DemandeCourrierDTO courrier = new DemandeCourrierDTO();
         courrier.setName(tempFile.getName());
         courrier.setUrl(url);
-        //habUtils.getDemClientBack().createCourrier(gouvPropertiesResolver.getDemarcheId(), demande.getPkDemandes(), courrier);
         demandesCourriersService.saveCourrier(gouvPropertiesResolver.getDemarcheId(), demande.getPkDemandes(), courrier);
 
         LOGGER.info("Fin PdfGenerationServiceImpl.generateAndStorePdf(" + demande.getPkDemandes() + ")");

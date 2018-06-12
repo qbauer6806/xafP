@@ -134,11 +134,6 @@ public class AfBackUtils {
         return version;
     }
 
-    public static Integer calculerDureeTraitement(Date dateCreationDemande) {
-        // TODO : compléter ! Spec "durée en jours ouvrés depuis la création de la demande"
-        return Days.daysBetween(new DateTime(dateCreationDemande), new DateTime(new Date())).getDays();
-    }
-
     public static String getAuthenticatedAgentId() {
         Object o = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (o instanceof User) {
@@ -228,7 +223,6 @@ public class AfBackUtils {
      */
     public DemarcheDTO getDemarcheInfos() {
         if (demarche == null) {
-            //demarche = getDemClient().getDemarche(gouvPropertiesResolver.getDemarcheId());
             demarche = demarchesService.getDemarche(gouvPropertiesResolver.getDemarcheId());
         }
         return demarche;
@@ -298,6 +292,21 @@ public class AfBackUtils {
         flat.setUsagerId(demande.getUsagerId());
         flat.setUsagerNom(getUsagerNameFromID(demande.getUsagerId()));
         return flat;
+    }
+    
+    public static String getTitreStr(Short titre) {
+        if (titre == 0) {
+            return "Monsieur";
+        }
+        else if (titre == 1) {
+            return "Madame";
+        }
+        else if (titre == 2) {
+            return "Mademoiselle";
+        }
+        else {
+            return "";
+        }
     }
 
 }

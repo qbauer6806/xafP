@@ -54,12 +54,12 @@ public class MailServiceImpl implements MailService {
         String[] subjectAndBody = getSubjectAndBody(emailInfo.getSubjectTemplateCode(), emailInfo.getBodyTemplateCode(), emailInfo.getLangue(), model);
 
         LOGGER.info("Transformation des informations d'email vers les structures pour MAIL...");
-        List<AddressBlockDTO> to = EmailTransform.toMailApiAddresses(emailInfo.getTo());
-        List<AddressBlockDTO> cc = EmailTransform.toMailApiAddresses(emailInfo.getCc());
-        List<AddressBlockDTO> bcc = EmailTransform.toMailApiAddresses(emailInfo.getBcc());
-        AddressBlockDTO from = EmailTransform.toMailApiAddress(emailInfo.getFrom());
-        AddressBlockDTO replyTo = EmailTransform.toMailApiAddress(emailInfo.getReplyto());
-        List<ParamDTO> params = EmailTransform.toMailApiParams(emailInfo.getParams());
+        List<AddressBlockDTO> to = EmailTransformer.toMailApiAddresses(emailInfo.getTo());
+        List<AddressBlockDTO> cc = EmailTransformer.toMailApiAddresses(emailInfo.getCc());
+        List<AddressBlockDTO> bcc = EmailTransformer.toMailApiAddresses(emailInfo.getBcc());
+        AddressBlockDTO from = EmailTransformer.toMailApiAddress(emailInfo.getFrom());
+        AddressBlockDTO replyTo = EmailTransformer.toMailApiAddress(emailInfo.getReplyto());
+        List<ParamDTO> params = EmailTransformer.toMailApiParams(emailInfo.getParams());
 
         MailDTO email = new MailDTO();
         email.setTo(to.toArray(new AddressBlockDTO[to.size()]));

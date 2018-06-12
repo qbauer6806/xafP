@@ -6,7 +6,7 @@ import java.util.List;
 import mc.gouv.mail.shared.dto.AddressBlockDTO;
 import mc.gouv.mail.shared.dto.ParamDTO;
 
-public class EmailTransform {
+public class EmailTransformer {
 
     public static AddressBlockDTO toMailApiAddress(EmailInfoAddressDTO addr) {
         if (addr == null) {

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import mc.gouv.af.back.properties.GouvPropertiesResolver;
 import mc.gouv.dem.service.AccessService;
 import mc.gouv.dem.service.UsagersCourrierService;
+import mc.gouv.dem.service.util.DemarchesUtils;
 import mc.gouv.dem.shared.model.UsagerCourrierDTO;
 import mc.gouv.servicerest.usager.ReferentielUsagersClient;
 import mc.gouv.servicerest.usager.model.UsagerBean;
@@ -42,8 +43,6 @@ public class UsagersCacheDataProvider implements GouvCacheDataProvider<Integer, 
     
     @Autowired
     private AccessService accessService;
-    
-    public static final int USAGERID_OFFSET = 1000000000;
     
     @Override
     public ConcurrentHashMap<Integer, UsagerBean> getAll() {
@@ -149,7 +148,7 @@ public class UsagersCacheDataProvider implements GouvCacheDataProvider<Integer, 
     }
     
     public static boolean isUsagerCourrier(Integer usagerId) {
-        return usagerId > USAGERID_OFFSET;
+        return usagerId > DemarchesUtils.USAGERID_OFFSET;
     }
 
 }

@@ -65,7 +65,6 @@ public class GouvBPMDemandeInfoComplDelegate implements JavaDelegate {
         }
 
         LOGGER.info("Appel à DEM createDemandeComplements()...");
-        //afBackUtils.getDemClient().createDemandeComplements(DEMARCHE_ID, demandeId, questionDto);
         demandesComplementsService.saveDemandeComplements(DEMARCHE_ID, demandeId, questionDto);
 
         LOGGER.info("==== AF-BACK CREATION INFO COMPL <fin>");

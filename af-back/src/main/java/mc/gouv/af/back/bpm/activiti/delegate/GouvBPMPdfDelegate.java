@@ -38,8 +38,6 @@ public class GouvBPMPdfDelegate implements JavaDelegate {
 
         LOGGER.info("==== AF-BACK PDF SERVICE ...");
 
-//        DemandeDTO demandeDto = afBackUtils.getDemClient().getDemande(gouvPropertiesResolver.getDemarcheId(),
-//                Integer.parseInt(execution.getProcessBusinessKey()));
         DemandeDTO demandeDto = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), Integer.parseInt(execution.getProcessBusinessKey()));
 
         pdfGenerationService.generateAndStorePdf(demandeDto);

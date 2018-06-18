@@ -2,6 +2,8 @@ package mc.gouv.af.servlet;
 
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -46,7 +48,7 @@ public class FileDownloadServlet extends AbstractAfServlet {
         String filename = null;
         if (pathInfo != null && pathInfo.length() > 1) {
             // Format: /accessId/uuid/filename
-            filename = pathInfo.split("/")[1] + "/" + pathInfo.split("/")[2] + "/" + pathInfo.split("/")[3];
+            filename = pathInfo.split("/")[1] + "/" + pathInfo.split("/")[2] + "/" + URLEncoder.encode(pathInfo.split("/")[3], "UTF-8");
         }
 
         if (StringUtils.isBlank(filename)) {
@@ -88,7 +90,7 @@ public class FileDownloadServlet extends AbstractAfServlet {
                 if (header.getName().startsWith(AppFactoryServletUtils.FILE_METADATA_DEMANDEID)) {
                     response.addHeader(header.getName(), header.getValue());
                 } else if (header.getName().equals("Content-Disposition")) {
-                    response.addHeader(header.getName(), header.getValue());
+                    response.addHeader(header.getName(), URLDecoder.decode(header.getValue(), "UTF-8"));
                 }
             }
 

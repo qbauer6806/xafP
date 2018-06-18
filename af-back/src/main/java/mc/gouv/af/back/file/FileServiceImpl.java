@@ -46,6 +46,9 @@ public class FileServiceImpl implements FileService {
 
         String accountId = gouvPropertiesResolver.getDemarcheId();
         String containerId = gouvPropertiesResolver.getContainerId();
+        
+        // Remplacement des espaces par des "+"...
+        filename = filename.replace(" ", "+");
         LOGGER.info("FileClient.getFile(" + accountId + "," + containerId + "," + filename + ")");
         afBackUtils.getFileClient().getFile(accountId, containerId, filename, response);
 

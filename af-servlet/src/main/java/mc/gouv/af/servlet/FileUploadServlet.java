@@ -2,6 +2,7 @@ package mc.gouv.af.servlet;
 
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.Enumeration;
 import java.util.UUID;
 
@@ -94,7 +95,7 @@ public class FileUploadServlet extends AbstractAfServlet {
 
             // Constitution du chemin virtuel du fichier
             // /appfactory/demarcheId/accessId/UUID/nomDuFichier
-            String virtualPath = "/" + accountId + "/" + containerId + "/" + accessId + "/" + uuid + "/" + filename;
+            String virtualPath = "/" + accountId + "/" + containerId + "/" + accessId + "/" + uuid + "/" + URLEncoder.encode(filename, "UTF-8");
             LOGGER.info("Chemin virtuel : {}", virtualPath);
 
             // Constitution de l'URL d'appel

@@ -1,8 +1,5 @@
 package mc.gouv.af.back.controller;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,31 +26,22 @@ public abstract class AbstractController extends HandlerInterceptorAdapter {
     @Autowired
     private AfBackUtils afBackUtils;
 
-    public static final String URL_ERROR_500 = "error/500";
-    public static final String URL_ERROR_403 = "error/403";
-
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(Exception.class)
-    public String handleException(Exception ex) {
+    public ModelAndView handleException(Exception ex) {
         LOGGER.error("Erreur interne", ex);
-        return URL_ERROR_500;
+        ModelAndView mav = new ModelAndView("error/500");
+        mav.addObject("AfBackUtils", afBackUtils);
+        return mav;
     }
 
     @ResponseStatus(value = HttpStatus.FORBIDDEN)
     @ExceptionHandler(AccessDeniedException.class)
-    public String handleAccessDeniedException(AccessDeniedException ex) {
+    public ModelAndView handleAccessDeniedException(AccessDeniedException ex) {
         LOGGER.error("Access Denied", ex);
-        return URL_ERROR_403;
-    }
-
-    @Override
-    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
-            ModelAndView modelAndView) throws Exception {
-        LOGGER.info("TESTTTT");
-        modelAndView.addObject("AfBackUtils", afBackUtils);
-        super.postHandle(request, response, handler, modelAndView);
-    }
-    
-    
+        ModelAndView mav = new ModelAndView("error/403");
+        mav.addObject("AfBackUtils", afBackUtils);
+        return mav;
+    } 
 
 }

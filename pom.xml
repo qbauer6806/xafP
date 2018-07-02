@@ -23,5 +23,6 @@
         <module>af-servlet</module>
         <module>af-back</module>
         <module>af-apiclient</module>
+		<module>af-backweb</module>
     </modules>
 </project>

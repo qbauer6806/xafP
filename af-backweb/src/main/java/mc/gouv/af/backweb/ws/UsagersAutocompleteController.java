@@ -1,4 +1,4 @@
-package mc.gouv.af.back.controller;
+package mc.gouv.af.backweb.ws;
 
 import java.util.ArrayList;
 import java.util.Collection;

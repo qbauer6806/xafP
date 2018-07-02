@@ -1,4 +1,4 @@
-package mc.gouv.af.back;
+package mc.gouv.af.backweb;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

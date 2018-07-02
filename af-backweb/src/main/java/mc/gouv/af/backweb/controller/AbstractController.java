@@ -1,4 +1,4 @@
-package mc.gouv.af.back.controller;
+package mc.gouv.af.backweb.controller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

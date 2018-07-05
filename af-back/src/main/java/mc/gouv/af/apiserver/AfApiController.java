@@ -37,7 +37,7 @@ public interface AfApiController {
 
     public DemandeComplementsDTO getDemandeComplements(Integer demandeId, Integer icId);
     
-    public DemandeDTO associerDemandeCourrier(String identifiantDemande, String nomProprio, Integer usagerId);
+    public DemandeDTO associerDemandeCourrier(String identifiantDemande, String stringToCheck, Integer usagerId);
     
     public void desinscriptionUsager(Integer usagerId, String hashedPassword);
     

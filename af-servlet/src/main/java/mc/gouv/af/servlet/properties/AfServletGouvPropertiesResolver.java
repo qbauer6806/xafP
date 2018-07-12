@@ -131,24 +131,11 @@ public class AfServletGouvPropertiesResolver {
         return Static.getValue(MAIL_JWT);
     }
 
-    public static final String API_USER = "mc.gouv" + applicationPrefix + ".frontserver.user";
+    public static final String API_JWT = "mc.gouv" + applicationPrefix + ".frontserver.jwt";
 
-    public static String getApiUser() {
-        return Static.getValue(API_USER);
+    public static String getApiJwt() {
+        return Static.getValue(API_JWT);
     }
-
-    public static final String API_PWD = "mc.gouv" + applicationPrefix + ".frontserver.pwd";
-
-    public static String getApiPwd() {
-        return Static.getValue(API_PWD);
-    }
-
-    // Pour quand on sera prêt à appeler HAB en JWT :
-//    public static final String API_JWT = "mc.gouv" + applicationPrefix + ".frontserver.jwt";
-//
-//    public static String getApiJwt() {
-//        return Static.getValue(API_JWT);
-//    }
 
     public static final String GOUV_CONTACT_EMAIL_EXPEDITEUR_ADRESSE = "mc.gouv" + applicationPrefix
             + ".frontserver.mail.contact.expediteur.adresse";

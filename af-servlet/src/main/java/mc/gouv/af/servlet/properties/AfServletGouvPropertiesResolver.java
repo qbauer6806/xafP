@@ -79,12 +79,6 @@ public class AfServletGouvPropertiesResolver {
         return Static.getValue(FILE_URL);
     }
 
-    public static final String MAIL_URL = "mc.gouv.appfactory.mailws.mail.url";
-
-    public static String getMailUrl() {
-        return Static.getValue(MAIL_URL);
-    }
-
     public static final String CAPTCHA_PRIVATE_KEY = "mc.gouv.appfactory.captcha.privatekey";
 
     public static String getCaptchaPrivateKey() {
@@ -125,44 +119,10 @@ public class AfServletGouvPropertiesResolver {
         return Static.getValue(FILE_JWT);
     }
 
-    public static final String MAIL_JWT = "mc.gouv" + applicationPrefix + ".frontserver.mail.jwt";
-
-    public static String getMailJwt() {
-        return Static.getValue(MAIL_JWT);
-    }
-
     public static final String API_JWT = "mc.gouv" + applicationPrefix + ".frontserver.jwt";
 
     public static String getApiJwt() {
         return Static.getValue(API_JWT);
-    }
-
-    public static final String GOUV_CONTACT_EMAIL_EXPEDITEUR_ADRESSE = "mc.gouv" + applicationPrefix
-            + ".frontserver.mail.contact.expediteur.adresse";
-
-    public static String getGouvContactEmailExpediteurAdresse() {
-        return Static.getValue(GOUV_CONTACT_EMAIL_EXPEDITEUR_ADRESSE);
-    }
-
-    public static final String GOUV_CONTACT_EMAIL_EXPEDITEUR_NOM = "mc.gouv" + applicationPrefix
-            + ".frontserver.mail.contact.expediteur.nom";
-
-    public static String getGouvContactEmailExpediteurNom() {
-        return Static.getValue(GOUV_CONTACT_EMAIL_EXPEDITEUR_NOM);
-    }
-
-    public static final String GOUV_CONTACT_EMAIL_SERVICE_ADRESSE = "mc.gouv" + applicationPrefix
-            + ".frontserver.mail.contact.service.adresse";
-
-    public static String getGouvContactEmailServiceAdresse() {
-        return Static.getValue(GOUV_CONTACT_EMAIL_SERVICE_ADRESSE);
-    }
-
-    public static final String GOUV_CONTACT_EMAIL_SERVICE_NOM = "mc.gouv" + applicationPrefix
-            + ".frontserver.mail.contact.service.nom";
-
-    public static String getGouvContactEmailServiceNom() {
-        return Static.getValue(GOUV_CONTACT_EMAIL_SERVICE_NOM);
     }
 
     static {

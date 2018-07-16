@@ -49,8 +49,7 @@ public class AppFactoryServletUtils {
     public static final String XSRF_SESSION_ATTRIBUTE = "XSRF-TOKEN";
 
     public enum ServiceTarget {
-        FILE,
-        MAIL
+        FILE
     }
 
     /**
@@ -161,10 +160,6 @@ public class AppFactoryServletUtils {
         switch (serviceTarget) {
             case FILE:
                 jwt = AfServletGouvPropertiesResolver.getFileJwt();
-                break;
-
-            case MAIL:
-                jwt = AfServletGouvPropertiesResolver.getMailJwt();
                 break;
         }
         

@@ -11,7 +11,6 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -20,6 +19,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import mc.gouv.af.back.cache.UsagersCache;
 import mc.gouv.dem.service.util.DemarchesUtils;
 import mc.gouv.servicerest.usager.model.UsagerBean;
+import mc.gouv.xboot.config.web.annotation.GouvRestController;
 
 /**
  * 
@@ -28,7 +28,7 @@ import mc.gouv.servicerest.usager.model.UsagerBean;
  * @author qdeme
  * 
  */
-@Controller
+@GouvRestController
 @RequestMapping(value = "/usagersAutocomplete", produces = "application/json")
 public class UsagersAutocompleteController {
 

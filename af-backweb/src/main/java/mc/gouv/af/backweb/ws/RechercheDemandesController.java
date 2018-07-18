@@ -14,7 +14,6 @@ import org.springframework.format.annotation.DateTimeFormat.ISO;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 
 import mc.gouv.af.back.properties.GouvPropertiesResolver;
 import mc.gouv.af.backweb.controller.AbstractController;
@@ -23,8 +22,9 @@ import mc.gouv.dem.service.model.DemandeRechercheDTO;
 import mc.gouv.dem.shared.model.DataRechercheDTO;
 import mc.gouv.dem.shared.model.DemandeCanalEnum;
 import mc.gouv.dem.shared.model.DemandeDTO;
+import mc.gouv.xboot.config.web.annotation.GouvRestController;
 
-@RestController
+@GouvRestController
 @RequestMapping("/ws/demandes")
 public class RechercheDemandesController extends AbstractController {
 

@@ -79,12 +79,6 @@ public class AfServletGouvPropertiesResolver {
         return Static.getValue(FILE_URL);
     }
 
-    public static final String CAPTCHA_PRIVATE_KEY = "mc.gouv.appfactory.captcha.privatekey";
-
-    public static String getCaptchaPrivateKey() {
-        return Static.getValue(CAPTCHA_PRIVATE_KEY);
-    }
-
     /**
      * Properties propres à la démarche
      */

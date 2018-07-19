@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 import mc.gouv.Static;
 import mc.gouv.af.back.cache.PaysCache;
@@ -27,7 +26,7 @@ import mc.gouv.servicerest.usager.ReferentielUsagersClient;
 @Configuration
 @EnableCaching
 @Profile("gouv")
-public class AfBackConfig extends WebMvcConfigurerAdapter {
+public class AfBackConfig {
     
     // 24h
     private static final long PAYS_CACHE_DURATION = 24*60*60*1000;

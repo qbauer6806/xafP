@@ -22,11 +22,6 @@
         </dependency>
 
         <dependency>
-            <groupId>mc.gouv.xboot</groupId>
-            <artifactId>xboot-spring-starter-web</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>mc.gouv.tools_jar</groupId>
             <artifactId>tools_jar</artifactId>
         </dependency>

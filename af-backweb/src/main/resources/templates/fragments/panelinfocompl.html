@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<body>
+
+	<div id="panelinfocompl" th:fragment="panelinfocompl" th:remove="tag">
+
+		<div role="tabpanel" class="tab-pane" id="tab2">
+			<h3>Pièces justificatives</h3>
+			<dl>
+				<div th:each="fichier : ${demandeDTO.fichiers}">
+					<dd>
+						<span>Fichier : </span>
+					</dd>
+					<dt>
+						<a th:href="@{/ws/file/get/}+${fichier.url}"><span
+							class="btn btn-action ripple-effect greyTooltip"
+							data-toggle="tooltip" data-placement="bottom"
+							data-original-title="Télécharger" title=""> <i
+								class="icon-action_telecharger"></i></span></a>&nbsp;&nbsp;&nbsp;<span
+							th:text="${fichier.name}" />
+					</dt>
+				</div>
+			</dl>
+		</div>
+
+	</div>
+</body>
+</html>

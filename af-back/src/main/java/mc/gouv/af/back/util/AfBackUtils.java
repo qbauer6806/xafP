@@ -26,6 +26,7 @@ import com.fasterxml.uuid.impl.TimeBasedGenerator;
 
 import mc.gouv.af.back.cache.UsagersCache;
 import mc.gouv.af.back.cache.UtilisateursCache;
+import mc.gouv.af.back.dto.StatutPublicOuInterneDTO;
 import mc.gouv.af.back.properties.GouvPropertiesResolver;
 import mc.gouv.af.back.service.DemarchesDataProvider;
 import mc.gouv.dem.service.DemarchesService;
@@ -91,6 +92,10 @@ public class AfBackUtils {
 
 	@Autowired
 	private DemarchesDataProvider demarchesDataProvider;
+	
+    public static final short GENDER_MR_INDEX = 0;
+    public static final short GENDER_MME_INDEX = 1;
+    public static final short GENDER_MLLE_INDEX = 2;
 
 	@PostConstruct
 	public void postConstructEnv() {
@@ -308,5 +313,26 @@ public class AfBackUtils {
 			return "";
 		}
 	}
+	
+    public String getStatusLibelleFromName(String status) {
+        return demarchesDataProvider.getStatusLibelle(status);
+    }
+    
+    /**
+     * Retourne la classe CSS de la couleur associée à un statut
+     * Attention, changer la fonction js getStatusColorClass
+     * @param statutPublicOuInterne
+     * @return
+     */
+    public String getStatusColorClass(StatutPublicOuInterneDTO statutPublicOuInterne) {
+        return demarchesDataProvider.getStatusColorClass(statutPublicOuInterne);
+    }
+    
+    /**
+     * Permet de récupérer le d'un demandeur (ici, la raison sociale de l'entreprise)
+     */
+    public String getDemandeur(Object contenuDemandeDTO) {
+        return demarchesDataProvider.getDemandeur(contenuDemandeDTO);
+    }
 
 }

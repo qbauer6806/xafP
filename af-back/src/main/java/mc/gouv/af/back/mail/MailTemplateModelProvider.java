@@ -1,6 +1,7 @@
 package mc.gouv.af.back.mail;
 
 import java.util.Map;
+import java.util.Map.Entry;
 
 import mc.gouv.dem.shared.model.DemandeDTO;
 
@@ -11,7 +12,9 @@ import mc.gouv.dem.shared.model.DemandeDTO;
  * @author qdeme
  *
  */
-public interface TemplateModelProvider {
+public interface MailTemplateModelProvider {
+    
+    public Entry<String, String> getMailTemplateCodesForAction(String action);
     
     public Map<String,Object> getModel(String subjectTemplateCode, String bodyTemplateCode, DemandeDTO demande, Map<String, Object> bpmVariables, String codeMotif, String commentaire);
 

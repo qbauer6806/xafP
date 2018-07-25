@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<body>
+
+	<div id="header" class="gouv-header" th:fragment="header"
+		th:remove="tag">
+
+		<!-- Barre d'identification -->
+
+		<div id="loginNav"
+			th:style="'background-color:'+${gouvEnvironmentColor}">
+			<div class="container-fluid">
+				<div class="row">
+					<div class="col-xs-12 col-sm-3">
+						<span th:text="${gouvEnvironmentLibelle}" />
+					</div>
+
+					<div class="col-xs-12 col-sm-9 text-right loginNavRight">
+						<ul>
+							<li>
+								<div class="iconBackground">
+									<i class="icon icon-menu_profil"></i>
+								</div> <span><span sec:authentication="principal.nom"
+									th:remove="tag"></span></span>
+							</li>
+							<li><a th:href="@{/logout}"> <span>Se déconnecter</span>
+									<div class="iconBackground">
+										<i class="icon icon-menu_deconnexion"></i>
+									</div>
+							</a></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Header -->
+
+		<div id="header">
+			<div class="headerContent">
+				<div class="headerTitle">
+					<a href="/logon/menu.jsp"> <img class="img img-responsive"
+						alt="Déclarer l'accueil d'un stagiaire"
+						th:src="@{/img/logo_ts.svg}" />
+					</a>
+				</div>
+				<div class="headerSubtitle hidden-sm-down">Déclarer l'accueil
+					d'un stagiaire</div>
+			</div>
+		</div>
+
+	</div>
+
+
+</body>
+</html>

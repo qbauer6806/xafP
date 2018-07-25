@@ -3,6 +3,8 @@ package mc.gouv.af.backweb.ws;
 import java.util.Date;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -27,6 +29,8 @@ import mc.gouv.xboot.config.web.annotation.GouvRestController;
 @GouvRestController
 @RequestMapping("/ws/demandes")
 public class RechercheDemandesController extends AbstractController {
+    
+    private static final Logger LOGGER = LoggerFactory.getLogger(RechercheDemandesController.class);
 
 	@Autowired
 	private GouvPropertiesResolver gouvPropertiesResolver;
@@ -43,6 +47,9 @@ public class RechercheDemandesController extends AbstractController {
 			@RequestParam(value = "creationEndDate", required = false) @DateTimeFormat(iso = ISO.DATE) Date creationEndDate,
 			@RequestParam(value = "texte", required = false) String texte,
 			@RequestParam(value = "data", required = false) DataRechercheDTO data, Pageable pageable) {
+	    
+	    LOGGER.info("======================= Appel de /ws/demandes/pageable (statuts=" + statuts + ",canaux=" + canaux + ",agentId=" + agentId +
+	            ",creationStartDate=" + creationStartDate + ",creationEndDate=" + creationEndDate + ",texte=" + texte + ",data=" + data);
 
 		DemandeRechercheDTO demandeRecherche = new DemandeRechercheDTO();
 		demandeRecherche.setDemarcheId(gouvPropertiesResolver.getDemarcheId());
@@ -65,6 +72,9 @@ public class RechercheDemandesController extends AbstractController {
 
 		Pageable newPageable = new PageRequest(pageable.getPageNumber(), pageable.getPageSize(), Sort.Direction.ASC,
 				"identifiant");
+		
+		LOGGER.info("======================= Fin appel de /ws/demandes/pageable");
+		
 		return demandesService.getDemandes(demandeRecherche, newPageable, new String[] {});
 	}
 

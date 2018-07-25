@@ -32,7 +32,7 @@ import mc.gouv.xboot.config.web.annotation.GouvRestController;
  *
  */
 @GouvRestController
-@RequestMapping("/file")
+@RequestMapping("/ws/file")
 public class FileController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileController.class);
@@ -53,7 +53,7 @@ public class FileController {
         LOGGER.info("====================== getFile()");
 
         String file = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
-        file = file.replace("/file/get/", "");
+        file = file.replace("/ws/file/get/", "");
 
         fileService.getFile(file, response);
 

@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import mc.gouv.af.back.cache.UsagersCache;
+import mc.gouv.af.backweb.dto.AutocompleteUsagerDTO;
+import mc.gouv.af.backweb.dto.AutocompleteUsagerListeDTO;
 import mc.gouv.dem.service.util.DemarchesUtils;
 import mc.gouv.servicerest.usager.model.UsagerBean;
 import mc.gouv.xboot.config.web.annotation.GouvRestController;
@@ -29,7 +31,7 @@ import mc.gouv.xboot.config.web.annotation.GouvRestController;
  * 
  */
 @GouvRestController
-@RequestMapping(value = "/usagersAutocomplete", produces = "application/json")
+@RequestMapping(value = "/ws/usagersAutocomplete", produces = "application/json")
 public class UsagersAutocompleteController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UsagersAutocompleteController.class);
@@ -41,7 +43,7 @@ public class UsagersAutocompleteController {
     public @ResponseBody AutocompleteUsagerListeDTO usagersAutoComplete(
             @RequestParam(required = true) String query) throws Exception {
 
-        LOGGER.info("======================= Appel de /usagersAutocomplete/usagers");
+        LOGGER.info("======================= Appel de /ws/usagersAutocomplete/usagers");
 
         Collection<UsagerBean> usagers = usagersCache.getAll().values();
         Set<AutocompleteUsagerDTO> liste = new TreeSet<AutocompleteUsagerDTO>();
@@ -83,7 +85,7 @@ public class UsagersAutocompleteController {
 
         ret.setSuggestions(liste.toArray(new AutocompleteUsagerDTO[liste.size()]));
 
-        LOGGER.info("======================= Fin appel de /usagersAutocomplete/usagers");
+        LOGGER.info("======================= Fin appel de /ws/usagersAutocomplete/usagers");
 
         return ret;
 

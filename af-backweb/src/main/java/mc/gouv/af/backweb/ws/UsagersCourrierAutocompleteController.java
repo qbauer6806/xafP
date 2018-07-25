@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import mc.gouv.af.back.properties.GouvPropertiesResolver;
+import mc.gouv.af.backweb.dto.AutocompleteUsagerDTO;
+import mc.gouv.af.backweb.dto.AutocompleteUsagerListeDTO;
 import mc.gouv.dem.service.UsagersCourrierService;
 import mc.gouv.dem.shared.model.UsagerCourrierDTO;
 import mc.gouv.xboot.config.web.annotation.GouvRestController;
@@ -26,7 +28,7 @@ import mc.gouv.xboot.config.web.annotation.GouvRestController;
  * 
  */
 @GouvRestController
-@RequestMapping(value = "/usagersCourrierAutocomplete", produces = "application/json")
+@RequestMapping(value = "/ws/usagersCourrierAutocomplete", produces = "application/json")
 public class UsagersCourrierAutocompleteController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UsagersCourrierAutocompleteController.class);
@@ -41,11 +43,11 @@ public class UsagersCourrierAutocompleteController {
     public @ResponseBody AutocompleteUsagerListeDTO usagersAutoComplete(
             @RequestParam(required = true) String query) throws Exception {
 
-        LOGGER.info("======================= Appel de /demandesCourrierAutocomplete/usagers");
+        LOGGER.info("======================= Appel de /ws/demandesCourrierAutocomplete/usagers");
 
         AutocompleteUsagerListeDTO ret = usagersAutoComplete(query, false);
 
-        LOGGER.info("======================= Fin appel de /demandesCourrierAutocomplete/usagers");
+        LOGGER.info("======================= Fin appel de /ws/demandesCourrierAutocomplete/usagers");
 
         return ret;
 
@@ -56,7 +58,7 @@ public class UsagersCourrierAutocompleteController {
             @RequestParam(required = true) String query,
             @RequestParam(required = true) Integer usagerSourceId) throws Exception {
 
-        LOGGER.info("======================= Appel de /demandesCourrierAutocomplete/usagersFullText");
+        LOGGER.info("======================= Appel de /ws/demandesCourrierAutocomplete/usagersFullText");
 
         AutocompleteUsagerListeDTO ret = usagersAutoComplete(query, true);
         
@@ -71,7 +73,7 @@ public class UsagersCourrierAutocompleteController {
             ret.setSuggestions(ArrayUtils.removeElement(ret.getSuggestions(), toRemove));
         }
 
-        LOGGER.info("======================= Fin appel de /demandesCourrierAutocomplete/usagersFullText");
+        LOGGER.info("======================= Fin appel de /ws/demandesCourrierAutocomplete/usagersFullText");
 
         return ret;
 

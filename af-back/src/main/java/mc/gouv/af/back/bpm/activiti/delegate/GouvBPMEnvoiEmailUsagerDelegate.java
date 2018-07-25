@@ -15,7 +15,7 @@ import mc.gouv.af.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.af.back.cache.UsagersCache;
 import mc.gouv.af.back.mail.EmailInfoDTO;
 import mc.gouv.af.back.mail.MailService;
-import mc.gouv.af.back.mail.TemplateModelProvider;
+import mc.gouv.af.back.mail.MailTemplateModelProvider;
 import mc.gouv.af.back.properties.GouvPropertiesResolver;
 import mc.gouv.af.back.util.AfBackUtils;
 import mc.gouv.dem.service.DemandesService;
@@ -50,7 +50,7 @@ public class GouvBPMEnvoiEmailUsagerDelegate implements JavaDelegate {
     private GouvPropertiesResolver gouvPropertiesResolver;
 
     @Autowired
-    private TemplateModelProvider templateModelProvider;
+    private MailTemplateModelProvider mailTemplateModelProvider;
 
     private Expression emailBodyTemplateCode;
 
@@ -102,7 +102,7 @@ public class GouvBPMEnvoiEmailUsagerDelegate implements JavaDelegate {
         Integer demandeId = Integer.parseInt(execution.getProcessBusinessKey());
         DemandeDTO demande = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), demandeId);
         
-        Map<String, Object> model = templateModelProvider.getModel(subjectTemplateCode, bodyTemplateCode, demande, execution.getVariables(), codeMotif, commentaire);
+        Map<String, Object> model = mailTemplateModelProvider.getModel(subjectTemplateCode, bodyTemplateCode, demande, execution.getVariables(), codeMotif, commentaire);
 
         try {
             mailService.sendMail(emailInfo, model);

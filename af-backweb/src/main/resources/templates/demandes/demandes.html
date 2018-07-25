@@ -1,0 +1,476 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org"
+	class="no-js sidebar-left-collapsed" lang="fr" dir="ltr">
+
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="x-ua-compatible" content="ie=edge" />
+<meta name="viewport"
+	content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+<title th:text="${AfBackUtils.getDemarcheNom()}"></title>
+
+<!-- Import FONTS -->
+<link th:href="@{/webjars/xcb-wlib/fonts/style.css}" rel="stylesheet" />
+<link rel="stylesheet" th:href="@{/webjars/xcb-wlib/fonts/ie7/ie7.css}" />
+
+<!-- Import CSS -->
+<link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"
+	rel="stylesheet" type="text/css" />
+<link th:href="@{/webjars/xcb-wlib/css/template.css}" rel="stylesheet" />
+<link th:href="@{/webjars/xcb-wlib/css/sidebar.css}" rel="stylesheet" />
+<link th:href="@{/webjars/xcb-wlib/css/element.css}" rel="stylesheet" />
+<link th:href="@{/webjars/datatables/css/dataTables.bootstrap.css}"
+	rel="stylesheet" />
+<link
+	th:href="@{/webjars/bootstrap-datepicker/css/bootstrap-datepicker.css}"
+	rel="stylesheet" />
+
+<link rel="shortcut icon" type="image/x-icon"
+	th:href="@{/img/favicon.ico}" />
+<link th:href="@{/css/tsgen.css(${applicationBuildTimestamp})}"
+	rel="stylesheet" />
+<link th:href="@{/css/tsdem.css(${applicationBuildTimestamp})}"
+	rel="stylesheet" />
+<link rel="stylesheet"
+	th:href="@{/webjars/fancybox/jquery.fancybox.css}" />
+</head>
+
+<body th:with="pageDemandesActive='active'">
+
+	<div th:replace="fragments/header :: header" />
+
+	<div id="wrapper">
+
+		<div th:replace="fragments/sidebar :: sidebar" />
+
+		<!-- DEBUT CONTENU -->
+		<div id="page-content-wrapper">
+
+			<div class="breadcrumbContent">
+				<div class="breadcrumb">
+					<span> <a th:href="@{/}"
+						class="breadcrumb-item active">ACCUEIL</a>&nbsp;&gt;&nbsp; <a
+						th:href="@{/demandes}" class="breadcrumb-item active">DEMANDES</a>
+						&gt;
+					</span>
+				</div>
+				<div class="triangleTopright"></div>
+			</div>
+
+			<div class="container-fluid">
+				<form id="rechercheForm">
+					<div class="row">
+						<div class="col-xs-12">
+							<h1>Toutes les demandes</h1>
+
+							<span class="titre">Recherche</span>
+							<div class="panel panel-simple">
+								<div class="form-group">
+									<label for="texteInput">Identifiant de la demande</label>
+									<div class="row">
+										<div class="col-xs-11">
+											<input type="text" th:value="${texte}" name="texte"
+												class="form-control" id="texteInput" title="" />
+										</div>
+										<div class="col-xs-1 nopadding">
+											<button type="submit" class="btn btn-action ripple-effect"
+												name="action" value="Rechercher" id="rechercherButton1">
+												<i class="icon-action_chercher"></i>
+											</button>
+										</div>
+									</div>
+
+								</div>
+							</div>
+
+							<div class="row">
+								<div class="col-xs-12">
+
+									<div class="panel-group accordion" aria-multiselectable="true">
+										<div class="panel panel-default">
+											<div class="panel-heading" role="tab" id="headingOne">
+												<h4 class="panel-title">
+													<a role="button" data-toggle="collapse"
+														data-parent="#accordion" href="#collapseOne"
+														aria-expanded="false" aria-controls="collapseOne"
+														class="collapsed"> <i
+														class="pannelState icon-action_accordeon-ferme"></i>
+														Recherche avancée
+													</a>
+												</h4>
+											</div>
+											<div id="collapseOne"
+												class="sectionrecherche panel-collapse collapse"
+												role="tabpanel" aria-labelledby="headingOne">
+												<div class="panel-body">
+													<h3>
+														<div class="row">
+															<div class="col-xs-10">
+																<span>Mode de réception</span>
+															</div>
+															<div class="col-xs-2">
+																<a id="tousModeTr" href="#"><span>TOUS</span></a><span>
+																	/ </span><a id="aucunModeTr" href="#"><span>AUCUN</span></a>
+															</div>
+														</div>
+													</h3>
+													<div class="row">
+														<div class="col-xs-3">
+															<div class="toggle">
+																<label class="switch"> <input
+																	class="switch-input" id="switchTS" type="checkbox"
+																	checked="" name="canal" value="GUICHET_VIRTUEL" /> <input
+																	type="hidden" checked="" /> <span class="slider"></span>
+																</label> <label class="toggleLabel">Téléservice</label>
+
+															</div>
+														</div>
+
+														<div class="col-xs-3">
+															<div class="toggle">
+																<label class="switch"> <input
+																	class="switch-input" id="switchGuichet" type="checkbox"
+																	checked="" name="canal" value="GUICHET_PHYSIQUE" /> <input
+																	type="hidden" checked="" /> <span class="slider"></span>
+																</label> <label class="toggleLabel">Au guichet</label>
+															</div>
+														</div>
+
+														<div class="col-xs-3">
+															<div class="toggle">
+																<label class="switch"> <input
+																	class="switch-input" id="switchCourrier"
+																	type="checkbox" checked="" name="canal"
+																	value="COURRIER" /> <input type="hidden" checked="" />
+																	<span class="slider"></span>
+																</label> <label class="toggleLabel">Par courrier</label>
+															</div>
+														</div>
+													</div>
+
+													<br />
+													<h3>
+														<div class="row">
+															<div class="col-xs-10">
+																<span>Etat de la demande</span>
+															</div>
+															<div class="col-xs-2">
+																<a id="tousEtat" href="#"><span>TOUS</span></a><span>
+																	/ </span><a id="aucunEtat" href="#"><span>AUCUN</span></a>
+															</div>
+														</div>
+													</h3>
+
+													<div class="row">
+														<div class="col-xs-3">
+															<div class="toggle">
+																<label class="switch"> <input
+																	class="switch-input" id="switchEnAttTrait"
+																	type="checkbox" checked="" name="statut"
+																	value="EN_ATTENTE_TRAIT" /> <input type="hidden"
+																	checked="" /> <span class="slider"></span>
+																</label> <label class="toggleLabel">En attente de
+																	traitement</label>
+
+															</div>
+														</div>
+
+														<div class="col-xs-3">
+															<div class="toggle">
+																<label class="switch"> <input
+																	class="switch-input" id="switchEnCoursTrait"
+																	type="checkbox" checked="" name="statut"
+																	value="EN_COURS_TRAIT" /> <input type="hidden"
+																	checked="" /> <span class="slider"></span>
+																</label> <label class="toggleLabel">En cours de
+																	traitement</label>
+															</div>
+														</div>
+
+														<div class="col-xs-3">
+															<div class="toggle">
+																<label class="switch"> <input
+																	class="switch-input" id="switchEnAttInf"
+																	type="checkbox" checked="" name="statut"
+																	value="EN_ATTENTE_COMPL" /> <input type="hidden"
+																	checked="" /> <span class="slider"></span>
+																</label> <label class="toggleLabel">En attente
+																	d'informations</label>
+															</div>
+														</div>
+
+														<div class="col-xs-3">
+															<div class="toggle">
+																<label class="switch"> <input
+																	class="switch-input" id="switchAnnulee" type="checkbox"
+																	checked="" name="statut" value="ANNULEE" /> <input
+																	type="hidden" checked="" /> <span class="slider"></span>
+																</label> <label class="toggleLabel">Annulée</label>
+															</div>
+														</div>
+													</div>
+
+													<div class="row">
+														<div class="col-xs-3">
+															<div class="toggle">
+																<label class="switch"> <input
+																	class="switch-input" id="switchAccSousRes"
+																	type="checkbox" checked="" name="statut"
+																	value="ACCEPTEE_SOUS_RESERVE" /> <input type="hidden"
+																	checked="" /> <span class="slider"></span>
+																</label> <label class="toggleLabel">Acceptée sous
+																	réserve</label>
+
+															</div>
+														</div>
+
+														<div class="col-xs-3">
+															<div class="toggle">
+																<label class="switch"> <input
+																	class="switch-input" id="switchEnAttFin"
+																	type="checkbox" checked="" name="statut"
+																	value="EN_ATTENTE_FINALISATION" /> <input
+																	type="hidden" checked="" /> <span class="slider"></span>
+																</label> <label class="toggleLabel">En attente de
+																	finalisation</label>
+															</div>
+														</div>
+
+														<div class="col-xs-3">
+															<div class="toggle">
+																<label class="switch"> <input
+																	class="switch-input" id="switchValidee" type="checkbox"
+																	checked="" name="statut" value="VALIDEE" /> <input
+																	type="hidden" checked="" /> <span class="slider"></span>
+																</label> <label class="toggleLabel">Validée</label>
+															</div>
+														</div>
+
+														<div class="col-xs-3">
+															<div class="toggle">
+																<label class="switch"> <input
+																	class="switch-input" id="switchAnnulee" type="checkbox"
+																	checked="" name="statut" value="REFUSEE" /> <input
+																	type="hidden" checked="" /> <span class="slider"></span>
+																</label> <label class="toggleLabel">Refusée</label>
+															</div>
+														</div>
+													</div>
+													<br />
+													<div class="row">
+														<div class="col-xs-12">
+															<h3>Responsable</h3>
+														</div>
+													</div>
+
+													<div class="row">
+														<div class="col-xs-4">
+															<select name="agentId" id="agentId" class="form-control">
+																<option th:value="null" th:text="Tous" />
+																<option th:each="agent : ${agentsInit}"
+																	th:text="${agent.nom}" th:value="${agent.matricule}" />
+															</select>
+														</div>
+													</div>
+													<br />
+													<div class="row">
+														<div class="col-xs-12">
+															<h3>Usager</h3>
+														</div>
+													</div>
+
+													<div class="row">
+														<div class="col-xs-4">
+															<input type="text" id="autocomplete" class="form-control" />
+															<input type="hidden" id="usagerId" name="usagerId" />
+														</div>
+														<div class="col-xs-8"></div>
+													</div>
+													<br />
+													<div class="row">
+														<div class="col-xs-12">
+															<h3>Date de dépôt de la demande</h3>
+														</div>
+													</div>
+
+													<div class="row text-center">
+														<div class="col-xs-3 col-sm-offset-3">
+															<div class="form-group text-center">
+																<label for="creationStartDate">Après le</label>
+																<div class="input-group date">
+																	<input type="text" id="creationStartDate"
+																		name="creationStartDate" placeholder="__/__/____"
+																		class="form-control" /> <span
+																		class="input-group-addon"><i
+																		class="icon-action_calendrier"></i></span>
+																</div>
+															</div>
+														</div>
+														<div class="col-xs-3">
+															<div class="form-group text-center">
+																<label for="creationEndDate">AVANT LE</label>
+																<div class="input-group date">
+																	<input type="text" id="creationEndDate"
+																		name="creationEndDate" placeholder="__/__/____"
+																		class="form-control" /> <span
+																		class="input-group-addon"><i
+																		class="icon-action_calendrier"></i></span>
+																</div>
+															</div>
+														</div>
+													</div>
+
+
+
+													<div class="row">
+														<div class="col-xs-12 text-center">
+															<a id="rechercherButton2"
+																class="btn btn-action ripple-effect">Appliquer le
+																filtre</a>
+														</div>
+													</div>
+
+												</div>
+											</div>
+										</div>
+									</div>
+
+								</div>
+							</div>
+
+						</div>
+					</div>
+				</form>
+
+				<div class="row">
+					<div class="col-xs-12">
+						<div class="tableContent">
+							<div class="tableTitle">Demandes</div>
+							<table id="datatable-demandes" class="table table-striped">
+								<thead>
+									<tr>
+										<th>Identifiant</th>
+										<th>Date demande</th>
+										<th>Dernier changement</th>
+										<th>Demandeur</th>
+										<th>Etat</th>
+										<th>Langue</th>
+										<th>Mode de réception</th>
+										<th>Responsable</th>
+										<th>Actions</th>
+									</tr>
+								</thead>
+							</table>
+						</div>
+					</div>
+				</div>
+
+			</div>
+
+		</div>
+
+		<!-- FIN CONTENU -->
+
+	</div>
+
+	<div th:replace="fragments/footer :: footer"></div>
+		
+	<script type="text/javascript" th:inline="javascript">
+		/*<![CDATA[*/
+		var buildSearchDatafunction = function(params) {
+
+			//Ajout des champs de recherche
+			var rechercheParams = $("#rechercheForm").serializeArray();
+
+			$.each(rechercheParams, function(i, o) {
+				var n = o.name, v = o.value;
+
+				if (v !== '') {
+
+					params[n] = params[n] === undefined ? v : $
+							.isArray(params[n]) ? params[n].concat(v) : [
+							params[n], v ];
+				}
+
+			});
+
+			//Suppression de toutes les valeurs renvoyées par datatable
+			params.columns = null;
+			params.search = null;
+
+			//conversion des params pour Pageable Spring MVC
+			params.size = params.length;
+			params.page = params.start / params.length;
+
+			//sort=identifiant,desc
+			params.sort = columns[params.order[0].column].data + ","
+					+ params.order[0].dir;
+			console.log("params", params);
+		}
+
+		$(document).ready(function() {
+
+			// Sélection d'une date dans un calendrier
+			$('#creationStartDate, #creationEndDate').datepicker({
+				format : "dd/mm/yyyy",
+				weekStart : 1,
+				language : "fr",
+				todayHighlight : true
+			});
+
+			$('.input-group-addon').click(function() {
+				var $input = $(this).closest('div').find(':input');
+				$input.focus();
+			});
+
+			$('#rechercherButton1').click(function(e) {
+				e.preventDefault();
+				$('#rechercherButton2').click();
+			});
+
+			$('#rechercheButton1, #rechercherButton2').click(function(e) {
+				var autocompleteValueTexte = $('#autocomplete').val();
+				//Si l'utilisateur a supprimé la valeur dans l'autocomplete et que c'est vide
+				if (!autocompleteValueTexte) {
+					$('#usagerId').prop('value', '');
+				}
+				$('#datatable-demandes').DataTable().ajax.reload(null, false);
+		
+			});
+
+			configurationDataTable.ajax.data = buildSearchDatafunction;
+			var table = $('#datatable-demandes').DataTable(configurationDataTable);
+
+			$('#tousModeTr').click(function(e) {
+				e.preventDefault();
+				$("input[name='canal']").prop('checked', true);
+			});
+
+			$('#aucunModeTr').click(function(e) {
+				e.preventDefault();
+				$("input[name='canal']").prop('checked', false);
+			});
+
+			$('#tousEtat').click(function(e) {
+				e.preventDefault();
+				$("input[name='statut']").prop('checked', true);
+			});
+
+			$('#aucunEtat').click(function(e) {
+				e.preventDefault();
+				$("input[name='statut']").prop('checked', false);
+			});
+
+		});
+
+		$('#autocomplete').autocomplete({
+			serviceUrl : APP.getContextPath()+'/ws/usagersAutocomplete/usagers',
+			onSelect : function(suggestion) {
+				$("#usagerId").prop('value', suggestion.data);
+			}
+		});
+
+		/*]]>*/
+	</script>
+</body>
+</html>

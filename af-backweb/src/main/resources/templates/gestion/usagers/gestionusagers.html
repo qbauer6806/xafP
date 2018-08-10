@@ -193,24 +193,6 @@
 				$('#rechercherButton2').click();
 			});
 			
-			var datatablePersonnes = $('#datatable-usagers').DataTable({
-                paging: true,
-                searching: false,
-                select: false,
-                bInfo: false,
-                order: [[ 1, "asc" ]], 
-                columnDefs: [ {
-       	            targets: [ 0 ],
-       	            orderData: [ 1, 3 ]
-                } ,	{
-                	targets: 3,
-                  	orderable: false
-                } ],
-                language: frenchTranslation,
-                lengthMenu: [ 5, 10, 25, 50, 100 ]  
-            });
-			
-
             $(".supprimer-annuler").click(function(e){
                 e.preventDefault();
             	$.fancybox.close();
@@ -311,6 +293,24 @@
 
 	 			return true;
  	    	});
+ 	    	
+			var datatablePersonnes = $('#datatable-usagers').DataTable({
+                paging: true,
+                searching: false,
+                select: false,
+                bInfo: false,
+                order: [[ 1, "asc" ]], 
+                columnDefs: [ {
+       	            targets: [ 0 ],
+       	            orderData: [ 1, 3 ]
+                } ,	{
+                	targets: 3,
+                  	orderable: false
+                } ],
+                language: frenchTranslation,
+                lengthMenu: [ 5, 10, 25, 50, 100 ]  
+            });
+			
 
 	    } );
 		/*]]>*/

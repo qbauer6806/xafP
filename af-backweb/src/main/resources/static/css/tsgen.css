@@ -264,4 +264,9 @@ dt {
 	width: 80%;
 }
 
+.required::after {
+	content: "*";
+	font-weight: bold;
+}
+
 

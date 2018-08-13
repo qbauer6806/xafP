@@ -54,6 +54,21 @@ $(document).ready(function() {
         $("#topRechercheButtonInput").click();
     	return false;
      });
+    
+    /**
+     * icônes ouvrir/fermer les accordéons 
+     */
+	$('.panel-heading a').click(function() {
+		var pannelState = $(this).find('.pannelState');
+		if ($(this).hasClass('collapsed') === true) {
+			pannelState.addClass('icon-action_accordeon-ouvert');
+			pannelState.removeClass('icon-action_accordeon-ferme');
+		} else {
+			pannelState.addClass('icon-action_accordeon-ferme');
+			pannelState.removeClass('icon-action_accordeon-ouvert');
+		}
+	});
+
 });
 
 var configurationSpinner = {
@@ -78,3 +93,4 @@ var configurationSpinner = {
 		, hwaccel: false // Whether to use hardware acceleration
 		, position: 'absolute' // Element positioning
 }
+

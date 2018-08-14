@@ -334,5 +334,9 @@ public class AfBackUtils {
     public String getDemandeur(Object contenuDemandeDTO) {
         return demarchesDataProvider.getDemandeur(contenuDemandeDTO);
     }
+    
+    public StatutPublicOuInterneDTO getStatutPublicOuInterne(DemandeDTO demandeDto) {
+        return demarchesDataProvider.getStatutPublicOuInterne(demandeDto);
+    }
 
 }

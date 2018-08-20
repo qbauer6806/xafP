@@ -192,7 +192,7 @@ public class AfBackUtils {
 		LOGGER.debug("getUserNameFromID() : Appel à Logon...");
 		User user = utilisateursCache.get(matricule);
 		if (user != null) {
-			return user.getNom();
+			return user.getPrenom() + " " + user.getNomAffichage();
 		}
 		return null;
 	}

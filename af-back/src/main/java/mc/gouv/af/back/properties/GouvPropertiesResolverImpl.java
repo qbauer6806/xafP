@@ -126,7 +126,7 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
 
     @Override
     public String getProcessDefinitionKey() {
-        return Static.getValue("mc.gouv" + applicationPrefix + ".backserver.processDefinitionKey");
+        return Static.getValue("mc.gouv.af.back.processDefinitionKey");
     }
 
     private static final String FILE_URL = "mc.gouv.af.back.file.url";

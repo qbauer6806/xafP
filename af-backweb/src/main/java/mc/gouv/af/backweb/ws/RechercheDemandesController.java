@@ -90,9 +90,11 @@ public class RechercheDemandesController extends AbstractController {
         List<AfBackDemandeDTO> newDemandes = new ArrayList<AfBackDemandeDTO>();
         for (DemandeDTO demande : demandes) {
             AfBackDemandeDTO newDem = new AfBackDemandeDTO(demande);
-            User user = utilisateursCache.get(demande.getAgentAffecteId());
-            newDem.setAgentAffectePrenom(user.getPrenom());
-            newDem.setAgentAffecteNom(user.getNom());
+            if (demande.getAgentAffecteId() != null) {
+                User user = utilisateursCache.get(demande.getAgentAffecteId());
+                newDem.setAgentAffectePrenom(user.getPrenom());
+                newDem.setAgentAffecteNom(user.getNom());
+            }
             newDemandes.add(newDem);
         }
         Pageable newPageable = new PageRequest(demandes.getNumber(), demandes.getSize(), demandes.getSort());

@@ -85,23 +85,23 @@
 											<th>Statut</th>
 											<th>Libellé Français</th>
 											<th>Libellé Anglais</th>
+											<th>Commentaire prérempli Français</th>
+											<th>Commentaire prérempli Anglais</th>
 											<th>Code</th>
 											<th>Date Archive</th>
 										</tr>
 									</thead>
 									<tbody>
 										<tr th:each="obj : ${motifs}">
-											<td th:if="${obj.getDateArchive()}"><a th:href="@{/gestion/parametres/updateInit(code=${obj.code})}" th:text="${AfBackUtils.getStatusLibelleFromName(obj.getStatut())}"></a></td>
-							                <td th:unless="${obj.getDateArchive()}"><a th:href="@{/gestion/parametres/updateInit(code=${obj.code})}" th:text="${AfBackUtils.getStatusLibelleFromName(obj.getStatut())}"></a></td>
+											<td ><a th:href="@{/gestion/parametres/updateInit(code=${obj.code})}" th:text="${AfBackUtils.getStatusLibelleFromName(obj.getStatut())}"></a></td>
 							                
-							                <td th:if="${obj.getDateArchive()}" th:text="${obj.getLibelleFr()}"></td>
-							                <td th:unless="${obj.getDateArchive()}" th:text="${obj.getLibelleFr()}"></td>
-							                
-							                <td th:if="${obj.getDateArchive()}" th:text="${obj.getLibelleEn()}"></td>
-							               	<td th:unless="${obj.getDateArchive()}" th:text="${obj.getLibelleEn()}"></td>
+							                <td th:text="${obj.getLibelleFr()}"></td>
+							                <td th:text="${obj.getLibelleEn()}"></td>
+							               	
+							               	 <td th:text="${obj.getCommentairePrerempliFr()}"></td>
+							               	<td th:text="${obj.getCommentairePrerempliEn()}"></td>
 							               
-							                <td th:if="${obj.getDateArchive()}" th:text="${obj.getCode()}"></td>
-							                <td th:unless="${obj.getDateArchive()}" th:text="${obj.getCode()}"></td>
+							                <td th:text="${obj.getCode()}"></td>
 							                
 							                <td th:if="${obj.getDateArchive()}" th:text="${#dates.format(obj.getDateArchive(),'dd/MM/yyyy')}"></td> 
 							                <td th:unless="${obj.getDateArchive()}"></td>		

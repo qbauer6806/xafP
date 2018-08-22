@@ -177,7 +177,8 @@
 										</div>
 									</div>
 
-									<div class="row">
+									<div class="row container-fluid">
+									<div th:class="${#fields.hasErrors('libelleEn') || motifsFormBean.isErrGlobale} ? 'form-group error' : 'form-group'">
 										<div class="col-xs-3">
 											<label for="libelleEn">Libellé Anglais</label>
 										</div>
@@ -192,6 +193,33 @@
 												id="libelleEn" th:value="${motifsFormBean.libelleEn}"
 												name="libelleEn" required="required" />
 										</div>
+									</div>
+									</div>
+									
+									<div class="row container-fluid">
+									<div th:class="${#fields.hasErrors('commentairePrerempliFr') || motifsFormBean.isErrGlobale} ? 'form-group error' : 'form-group'">
+										<div class="col-xs-3">
+											<label for="commentairePrerempliFr">Commentaire prérempli Français</label>
+										</div>
+										<div  class="col-xs-9" th:required="true">
+											<input class="form-control" type="text" id="commentairePrerempliFr" th:class="form-control"
+												name="commentairePrerempliFr" th:value="${motifsFormBean.commentairePrerempliFr}" 
+												th:disabled="${not motifsFormBean.isMotifActif()}" />
+										</div>
+									</div>
+									</div>
+									
+									<div class="row container-fluid">
+									<div th:class="${#fields.hasErrors('commentairePrerempliEn') || motifsFormBean.isErrGlobale} ? 'form-group error' : 'form-group'">
+										<div class="col-xs-3">
+											<label for="commentairePrerempliEn">Commentaire prérempli Anglais</label>
+										</div>
+										<div  class="col-xs-9" >
+											<input class="form-control" type="text" id="commentairePrerempliEn"
+												name="commentairePrerempliEn" th:value="${motifsFormBean.commentairePrerempliEn}" 
+												th:disabled="${not motifsFormBean.isMotifActif()}" />
+										</div>
+									</div>
 									</div>
 									
 									<br/>

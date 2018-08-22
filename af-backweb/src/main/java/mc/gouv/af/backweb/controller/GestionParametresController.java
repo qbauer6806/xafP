@@ -42,255 +42,257 @@ import mc.gouv.dem.shared.model.MotifDTO;
 @RequestMapping("/gestion/parametres")
 public class GestionParametresController extends AbstractController {
 
-	@Autowired
-	private MotifsCache motifsCache;
+    @Autowired
+    private MotifsCache motifsCache;
 
-	@Autowired
-	private GouvPropertiesResolver gouvPropertiesResolver;
+    @Autowired
+    private GouvPropertiesResolver gouvPropertiesResolver;
 
-	@Autowired
-	private MotifsService motifsService;
-	
-	@Autowired
-	private DemarchesDataProvider demarchesDataProvider;
+    @Autowired
+    private MotifsService motifsService;
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(GestionParametresController.class);
+    @Autowired
+    private DemarchesDataProvider demarchesDataProvider;
 
-	private String errContact = "Un problème technique a été rencontré veuillez contacter la Direction Informatique.";
+    private static final Logger LOGGER = LoggerFactory.getLogger(GestionParametresController.class);
 
-	@RequestMapping(method = RequestMethod.GET)
-	public ModelAndView form(@ModelAttribute("motifsFormBean") MotifsFormBean motifsFormBean) throws Exception {
+    private String errContact = "Un problème technique a été rencontré veuillez contacter la Direction Informatique.";
 
-		LOGGER.info("Appel de la page /gestion/parametres. Méthode form");
-		String errorList = null;
-		ModelAndView mav = new ModelAndView("gestion/parametres/parametres");
+    @RequestMapping(method = RequestMethod.GET)
+    public ModelAndView form(@ModelAttribute("motifsFormBean") MotifsFormBean motifsFormBean) throws Exception {
 
-		try {
-			List<MotifDTO> list = motifsService.getMotifs(gouvPropertiesResolver.getDemarcheId());
+        LOGGER.info("Appel de la page /gestion/parametres. Méthode form");
+        String errorList = null;
+        ModelAndView mav = new ModelAndView("gestion/parametres/parametres");
 
-			List<CustomMotifDTO> customlist = regroupeLibelle(list);
-			if (customlist == null) {
-				errorList = errContact;
-			}
+        try {
+            List<MotifDTO> list = motifsService.getMotifs(gouvPropertiesResolver.getDemarcheId());
 
-			mav.addObject("motifs", customlist);
-		} catch (Exception e) {
-			LOGGER.error("Exception rencontrée dans form (/)", e);
-			throw new Exception(e);
-		}
+            List<CustomMotifDTO> customlist = regroupeLibelle(list);
+            if (customlist == null) {
+                errorList = errContact;
+            }
 
-		mav.addObject("errorList", errorList);
+            mav.addObject("motifs", customlist);
+        } catch (Exception e) {
+            LOGGER.error("Exception rencontrée dans form (/)", e);
+            throw new Exception(e);
+        }
 
-		LOGGER.info("======================= Fin /gestion/parametres. Méthode form");
+        mav.addObject("errorList", errorList);
 
-		return mav;
-	}
+        LOGGER.info("======================= Fin /gestion/parametres. Méthode form");
 
-	@RequestMapping(method = RequestMethod.GET, value = "/newInit")
-	public ModelAndView formInit(@ModelAttribute("motifsFormBean") MotifsFormBean motifsFormBean) throws Exception {
+        return mav;
+    }
 
-		LOGGER.info("Appel de la page /gestion/parametres/newInit. Méthode formInit");
+    @RequestMapping(method = RequestMethod.GET, value = "/newInit")
+    public ModelAndView formInit(@ModelAttribute("motifsFormBean") MotifsFormBean motifsFormBean) throws Exception {
 
-		ModelAndView mav = new ModelAndView("gestion/parametres/parametresNew");
+        LOGGER.info("Appel de la page /gestion/parametres/newInit. Méthode formInit");
 
-		try {
-			// Liste des enum actuellement utilisés
-			List<GenericStatusDTO> list = demarchesDataProvider.getCandidateStatusesForMotifs();
-			mav.addObject("statuts", list);
-		} catch (Exception e) {
-			LOGGER.error("Exception rencontrée dans formInit (/newInit)", e);
-			throw new Exception(e);
-		}
+        ModelAndView mav = new ModelAndView("gestion/parametres/parametresNew");
 
-		LOGGER.info("======================= Fin /gestion/parametres/newInit. Méthode formInit");
+        try {
+            // Liste des enum actuellement utilisés
+            List<GenericStatusDTO> list = demarchesDataProvider.getCandidateStatusesForMotifs();
+            mav.addObject("statuts", list);
+        } catch (Exception e) {
+            LOGGER.error("Exception rencontrée dans formInit (/newInit)", e);
+            throw new Exception(e);
+        }
 
-		return mav;
-	}
+        LOGGER.info("======================= Fin /gestion/parametres/newInit. Méthode formInit");
 
-	/**
-	 * Activation du motif (mise de la date du jour)
-	 * 
-	 * @param le
-	 *            code du motif devant être activer (date mise à null)
-	 */
-	private boolean activationMotif(String code) throws Exception {
+        return mav;
+    }
 
-		LOGGER.info("Appel de la fonction activationMotif");
-		boolean isMotifFound = false;
-		boolean isCodeMotif = false;
+    /**
+     * Activation du motif (mise de la date du jour)
+     * 
+     * @param le
+     *            code du motif devant être activer (date mise à null)
+     */
+    private boolean activationMotif(String code) throws Exception {
 
-		if (StringUtils.isNotBlank(code)) {
-			isCodeMotif = true;
-			List<MotifDTO> listMotif = motifsService.getMotifs(gouvPropertiesResolver.getDemarcheId());
-			for (MotifDTO motif : listMotif) {
-				if (motif.getCode().equals(code)) {
-					motif.setDateArchive(null);
-					motifsService.saveOrUpdateMotif(gouvPropertiesResolver.getDemarcheId(), motif);
+        LOGGER.info("Appel de la fonction activationMotif");
+        boolean isMotifFound = false;
+        boolean isCodeMotif = false;
 
-					isMotifFound = true;
-				}
-			}
-		}
+        if (StringUtils.isNotBlank(code)) {
+            isCodeMotif = true;
+            List<MotifDTO> listMotif = motifsService.getMotifs(gouvPropertiesResolver.getDemarcheId());
+            for (MotifDTO motif : listMotif) {
+                if (motif.getCode().equals(code)) {
+                    motif.setDateArchive(null);
+                    motifsService.saveOrUpdateMotif(gouvPropertiesResolver.getDemarcheId(), motif);
 
-		return isMotifFound && isCodeMotif;
-	}
+                    isMotifFound = true;
+                }
+            }
+        }
 
-	/**
-	 * Desactivation du motif (mise de la date du jour) * @param le code du
-	 * motif devant être desactiver (date à renseigner)
-	 */
-	private boolean desactivationMotif(String code) throws Exception {
+        return isMotifFound && isCodeMotif;
+    }
 
-		LOGGER.info("Appel de la fonction desactivationMotif");
-		boolean isMotifFound = false;
-		boolean isCodeMotif = false;
+    /**
+     * Desactivation du motif (mise de la date du jour) * @param le code du motif devant être desactiver (date à
+     * renseigner)
+     */
+    private boolean desactivationMotif(String code) throws Exception {
 
-		if ((StringUtils.isNotBlank(code))) {
-			isCodeMotif = true;
+        LOGGER.info("Appel de la fonction desactivationMotif");
+        boolean isMotifFound = false;
+        boolean isCodeMotif = false;
 
-			// Liste des motifs
-			List<MotifDTO> listMotif = motifsService.getMotifs(gouvPropertiesResolver.getDemarcheId());
-			for (MotifDTO motif : listMotif) {
-				if (motif.getCode().equals(code)) {
-					motifsService.deleteMotif(gouvPropertiesResolver.getDemarcheId(), motif.getPkMotifs());
-					isMotifFound = true;
-				}
-			}
-		}
+        if ((StringUtils.isNotBlank(code))) {
+            isCodeMotif = true;
 
-		return (isMotifFound && isCodeMotif);
-	}
+            // Liste des motifs
+            List<MotifDTO> listMotif = motifsService.getMotifs(gouvPropertiesResolver.getDemarcheId());
+            for (MotifDTO motif : listMotif) {
+                if (motif.getCode().equals(code)) {
+                    motifsService.deleteMotif(gouvPropertiesResolver.getDemarcheId(), motif.getPkMotifs());
+                    isMotifFound = true;
+                }
+            }
+        }
 
-	@RequestMapping(method = RequestMethod.POST, value = "/newCreate")
-	public ModelAndView formCreate(@Valid @ModelAttribute("motifsFormBean") MotifsFormBean motifsFormBean,
-			BindingResult results, @RequestParam(required = false) String desactiveMotif,
-			@RequestParam(required = false) String activeMotif) throws Exception {
+        return (isMotifFound && isCodeMotif);
+    }
 
-		LOGGER.info("Appel de la page /gestion/parametres/newCreate. Méthode formCreate");
-		boolean bIsErrDetec = false;
+    @RequestMapping(method = RequestMethod.POST, value = "/newCreate")
+    public ModelAndView formCreate(@Valid @ModelAttribute("motifsFormBean") MotifsFormBean motifsFormBean,
+            BindingResult results, @RequestParam(required = false) String desactiveMotif,
+            @RequestParam(required = false) String activeMotif) throws Exception {
 
-		// Recupere le code hidden (codeVisible), si renseigné
-		if (StringUtils.isBlank(motifsFormBean.getCode()) && StringUtils.isNotBlank(motifsFormBean.getCodeVisible())) {
-			motifsFormBean.setCode(motifsFormBean.getCodeVisible());
-		}
-		// Unset le code visible, pour éviter de le reprendre si code principal
-		// renseigné
-		motifsFormBean.setCodeVisible(null);
+        LOGGER.info("Appel de la page /gestion/parametres/newCreate. Méthode formCreate");
+        boolean bIsErrDetec = false;
 
-		if (StringUtils.isNotBlank(desactiveMotif)) {
-			LOGGER.info("Desactivation du motif de code : " + motifsFormBean.getCodeVisible());
+        // Recupere le code hidden (codeVisible), si renseigné
+        if (StringUtils.isBlank(motifsFormBean.getCode()) && StringUtils.isNotBlank(motifsFormBean.getCodeVisible())) {
+            motifsFormBean.setCode(motifsFormBean.getCodeVisible());
+        }
+        // Unset le code visible, pour éviter de le reprendre si code principal
+        // renseigné
+        motifsFormBean.setCodeVisible(null);
 
-			try {
-				if (desactivationMotif(motifsFormBean.getCode()) == false) {
-					// Code motif non exploitable ou non existant
-					motifsFormBean.setIsErrGlobale(true);
-				} else {
-					motifsCache.refresh();
-				}
-			} catch (Exception e) {
-				LOGGER.error("Exception rencontrée dans desactivationMotif", e);
-				throw new Exception(e);
-			}
+        if (StringUtils.isNotBlank(desactiveMotif)) {
+            LOGGER.info("Desactivation du motif de code : " + motifsFormBean.getCodeVisible());
 
-			LOGGER.info("sortie méthode desactivationMotif");
-			ModelAndView mav = new ModelAndView("redirect:/gestion/parametres");
-			return mav;
-		} else if (StringUtils.isNotBlank(activeMotif)) {
-			LOGGER.info("Activation du motif de code : " + motifsFormBean.getCodeVisible());
+            try {
+                if (desactivationMotif(motifsFormBean.getCode()) == false) {
+                    // Code motif non exploitable ou non existant
+                    motifsFormBean.setIsErrGlobale(true);
+                } else {
+                    motifsCache.refresh();
+                }
+            } catch (Exception e) {
+                LOGGER.error("Exception rencontrée dans desactivationMotif", e);
+                throw new Exception(e);
+            }
 
-			try {
-				if (activationMotif(motifsFormBean.getCode()) == false) {
-					// Code motif non exploitable ou non existant
-					motifsFormBean.setIsErrGlobale(true);
-				} else {
-					motifsCache.refresh();
-				}
-			} catch (Exception e) {
-				LOGGER.error("Exception rencontrée dans activationMotif", e);
-				throw new Exception(e);
-			}
+            LOGGER.info("sortie méthode desactivationMotif");
+            ModelAndView mav = new ModelAndView("redirect:/gestion/parametres");
+            return mav;
+        } else if (StringUtils.isNotBlank(activeMotif)) {
+            LOGGER.info("Activation du motif de code : " + motifsFormBean.getCodeVisible());
 
-			LOGGER.info("sortie méthode activationMotif");
-			ModelAndView mav = new ModelAndView("redirect:/gestion/parametres");
-			return mav;
-		} else {
-			ModelAndView mav;
-			String errorList = "";
-			boolean bIsUpd = false;
+            try {
+                if (activationMotif(motifsFormBean.getCode()) == false) {
+                    // Code motif non exploitable ou non existant
+                    motifsFormBean.setIsErrGlobale(true);
+                } else {
+                    motifsCache.refresh();
+                }
+            } catch (Exception e) {
+                LOGGER.error("Exception rencontrée dans activationMotif", e);
+                throw new Exception(e);
+            }
 
-			if (results.hasErrors()) {
-				bIsErrDetec = true;
-			} else {
-				bIsUpd = motifsFormBean.getMotifPkFr() != null && motifsFormBean.getMotifPkFr() > 0;
-				if (bIsUpd) {
-					LOGGER.info("Méthode formCreate --> update");
-					try {
+            LOGGER.info("sortie méthode activationMotif");
+            ModelAndView mav = new ModelAndView("redirect:/gestion/parametres");
+            return mav;
+        } else {
+            ModelAndView mav;
+            String errorList = "";
+            boolean bIsUpd = false;
 
-						Integer pkMotFr = motifsFormBean.getMotifPkFr();
+            if (results.hasErrors()) {
+                bIsErrDetec = true;
+            } else {
+                bIsUpd = motifsFormBean.getMotifPkFr() != null && motifsFormBean.getMotifPkFr() > 0;
+                if (bIsUpd) {
+                    LOGGER.info("Méthode formCreate --> update");
+                    try {
 
-						if ((pkMotFr == null || (pkMotFr != null && pkMotFr <= 0))) {
-							motifsFormBean.setIsErrGlobale(true);
-							errorList = "Motif(s) non identifié(s)";
-						} else {
-							miseAjourMotif(motifsFormBean);
-						}
+                        Integer pkMotFr = motifsFormBean.getMotifPkFr();
 
-						// MAJ du cache
-						motifsCache.refresh();
+                        if ((pkMotFr == null || (pkMotFr != null && pkMotFr <= 0))) {
+                            motifsFormBean.setIsErrGlobale(true);
+                            errorList = "Motif(s) non identifié(s)";
+                        } else {
+                            miseAjourMotif(motifsFormBean);
+                        }
 
-					} catch (Exception e) {
-						LOGGER.error("Exception rencontrée dans formCreate", e);
-						errorList = errContact;
-						throw new Exception(e);
-					}
-				} else {
+                        // MAJ du cache
+                        motifsCache.refresh();
 
-					LOGGER.info("Méthode formCreate --> create");
+                    } catch (Exception e) {
+                        LOGGER.error("Exception rencontrée dans formCreate", e);
+                        errorList = errContact;
+                        throw new Exception(e);
+                    }
+                } else {
 
-					try {
+                    LOGGER.info("Méthode formCreate --> create");
 
-						boolean bIsCodeOK = StringUtils.isNotBlank(motifsFormBean.getCode());
-						boolean bIsLibFrOK = StringUtils.isNotBlank(motifsFormBean.getLibelleFr());
+                    try {
 
-						if (bIsCodeOK && bIsLibFrOK && motifsFormBean.getStatutEnum() != null) {
-							// Saisie des donnees
+                        boolean bIsCodeOK = StringUtils.isNotBlank(motifsFormBean.getCode());
+                        boolean bIsLibFrOK = StringUtils.isNotBlank(motifsFormBean.getLibelleFr());
 
-							List<MotifDTO> localAllMotifs = motifsService
-									.getMotifs(gouvPropertiesResolver.getDemarcheId());
+                        if (bIsCodeOK && bIsLibFrOK && motifsFormBean.getStatutEnum() != null) {
+                            // Saisie des donnees
 
-							boolean bIsMotifCodeExists = checkCodeExistence(localAllMotifs,
-									motifsFormBean.getCode().replaceAll(" ", "_").toUpperCase());
+                            List<MotifDTO> localAllMotifs = motifsService
+                                    .getMotifs(gouvPropertiesResolver.getDemarcheId());
 
-							if (!bIsMotifCodeExists) {
-								// Donnees communes
-								MotifDTO motif = new MotifDTO();
-								motif.setCode(motifsFormBean.getCode().replaceAll(" ", "_").toUpperCase());
-								motif.setCode(StringUtils.stripAccents(motif.getCode()));
+                            boolean bIsMotifCodeExists = checkCodeExistence(localAllMotifs,
+                                    motifsFormBean.getCode().replaceAll(" ", "_").toUpperCase());
 
-								String statEnum = motifsFormBean.getStatutEnum();
-								if (statEnum == null) {
-									errorList = "Un problème technique a été rencontré. " + errContact;
-								} else {
-									motif.setStatut(statEnum);
-								}
+                            if (!bIsMotifCodeExists) {
+                                // Donnees communes
+                                MotifDTO motif = new MotifDTO();
+                                motif.setCode(motifsFormBean.getCode().replaceAll(" ", "_").toUpperCase());
+                                motif.setCode(StringUtils.stripAccents(motif.getCode()));
 
-								motif.setDemarcheId(gouvPropertiesResolver.getDemarcheId().trim());
+                                String statEnum = motifsFormBean.getStatutEnum();
+                                if (statEnum == null) {
+                                    errorList = "Un problème technique a été rencontré. " + errContact;
+                                } else {
+                                    motif.setStatut(statEnum);
+                                }
 
-								// Donnees specifiques et insert (français)
-								motif.setLibelle(motifsFormBean.getLibelleFr());
-								motif.setLangue("fr");
-								motifsService.saveOrUpdateMotif(gouvPropertiesResolver.getDemarcheId(), motif);
+                                motif.setDemarcheId(gouvPropertiesResolver.getDemarcheId().trim());
+
+                                // Donnees specifiques et insert (français)
+                                motif.setLibelle(motifsFormBean.getLibelleFr());
+                                motif.setCommentairePrerempli(motifsFormBean.getCommentairePrerempliFr());
+                                motif.setLangue("fr");
+                                motifsService.saveOrUpdateMotif(gouvPropertiesResolver.getDemarcheId(), motif);
 
                                 // Donnees specifiques et insert (anglais)
                                 if (!StringUtils.isEmpty(motifsFormBean.getLibelleEn())) {
                                     motif.setLibelle(motifsFormBean.getLibelleEn());
+                                    motif.setCommentairePrerempli(motifsFormBean.getCommentairePrerempliEn());
                                     motif.setLangue("en");
                                     motifsService.saveOrUpdateMotif(gouvPropertiesResolver.getDemarcheId(), motif);
                                 }
-                                
-                                //MAJ du cache
+
+                                // MAJ du cache
                                 motifsCache.refresh();
-                                
+
                             } else {
                                 motifsFormBean.setIsErrCodeExiste(true);
                                 motifsFormBean.setIsErrGlobale(true);
@@ -309,183 +311,189 @@ public class GestionParametresController extends AbstractController {
                 }
             }
 
-			if (motifsFormBean.getIsErrGlobale() || bIsErrDetec) {
-				mav = new ModelAndView("gestion/parametres/parametresNew");
+            if (motifsFormBean.getIsErrGlobale() || bIsErrDetec) {
+                mav = new ModelAndView("gestion/parametres/parametresNew");
 
-				// Liste des enum actuellement utilisés
-				List<GenericStatusDTO> list = demarchesDataProvider.getCandidateStatusesForMotifs();
-				mav.addObject("statuts", list);
+                // Liste des enum actuellement utilisés
+                List<GenericStatusDTO> list = demarchesDataProvider.getCandidateStatusesForMotifs();
+                mav.addObject("statuts", list);
 
-				mav.addObject("errorList", errorList);
-			} else {
-				mav = new ModelAndView("redirect:/gestion/parametres");
-			}
+                mav.addObject("errorList", errorList);
+            } else {
+                mav = new ModelAndView("redirect:/gestion/parametres");
+            }
 
-			LOGGER.info("======================= Fin /gestion/parametres/newCreate. Méthode formCreate");
+            LOGGER.info("======================= Fin /gestion/parametres/newCreate. Méthode formCreate");
 
-			return mav;
+            return mav;
 
-		}
-	}
+        }
+    }
 
-	/**
-	 * Mise à jour d'un motif
-	 */
-	private void miseAjourMotif(MotifsFormBean motifsFormBean) throws Exception {
-		if (motifsFormBean.getMotifPkFr() != null) {
-			MotifDTO motifFr = motifsService.getMotif(gouvPropertiesResolver.getDemarcheId(),
-					motifsFormBean.getMotifPkFr());
-			motifFr.setCode(motifsFormBean.getCode());
-			motifFr.setStatut(motifsFormBean.getStatutEnum());
-			motifFr.setLibelle(motifsFormBean.getLibelleFr());
-			motifsService.saveOrUpdateMotif(gouvPropertiesResolver.getDemarcheId(), motifFr);
-		}
+    /**
+     * Mise à jour d'un motif
+     */
+    private void miseAjourMotif(MotifsFormBean motifsFormBean) throws Exception {
+        if (motifsFormBean.getMotifPkFr() != null) {
+            MotifDTO motifFr = motifsService.getMotif(gouvPropertiesResolver.getDemarcheId(),
+                    motifsFormBean.getMotifPkFr());
+            motifFr.setCode(motifsFormBean.getCode());
+            motifFr.setStatut(motifsFormBean.getStatutEnum());
+            motifFr.setLibelle(motifsFormBean.getLibelleFr());
+            motifFr.setCommentairePrerempli(motifsFormBean.getCommentairePrerempliFr());
+            motifsService.saveOrUpdateMotif(gouvPropertiesResolver.getDemarcheId(), motifFr);
+        }
 
-		if (motifsFormBean.getMotifPkEn() != null) {
-			MotifDTO motifEn = motifsService.getMotif(gouvPropertiesResolver.getDemarcheId(),
-					motifsFormBean.getMotifPkEn());
-			motifEn.setCode(motifsFormBean.getCode());
-			motifEn.setStatut(motifsFormBean.getStatutEnum());
-			motifEn.setLibelle(motifsFormBean.getLibelleEn());
-			motifsService.saveOrUpdateMotif(gouvPropertiesResolver.getDemarcheId(), motifEn);
-		}
-	}
+        if (motifsFormBean.getMotifPkEn() != null) {
+            MotifDTO motifEn = motifsService.getMotif(gouvPropertiesResolver.getDemarcheId(),
+                    motifsFormBean.getMotifPkEn());
+            motifEn.setCode(motifsFormBean.getCode());
+            motifEn.setStatut(motifsFormBean.getStatutEnum());
+            motifEn.setLibelle(motifsFormBean.getLibelleEn());
+            motifEn.setCommentairePrerempli(motifsFormBean.getCommentairePrerempliEn());
+            motifsService.saveOrUpdateMotif(gouvPropertiesResolver.getDemarcheId(), motifEn);
+        }
+    }
 
-	/**
-	 * Renvoie true si le code du motif a creer existe déjà
-	 */
-	private boolean checkCodeExistence(List<MotifDTO> localAllMotifs, String code) {
-		for (MotifDTO motif : localAllMotifs) {
-			if (motif.getCode().equals(code)) {
-				return true;
-			}
-		}
+    /**
+     * Renvoie true si le code du motif a creer existe déjà
+     */
+    private boolean checkCodeExistence(List<MotifDTO> localAllMotifs, String code) {
+        for (MotifDTO motif : localAllMotifs) {
+            if (motif.getCode().equals(code)) {
+                return true;
+            }
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	@RequestMapping(method = RequestMethod.GET, path = "/updateInit")
-	public ModelAndView formUpdateInit(@ModelAttribute("motifsFormBean") MotifsFormBean motifsFormBean)
-			throws Exception {
+    @RequestMapping(method = RequestMethod.GET, path = "/updateInit")
+    public ModelAndView formUpdateInit(@ModelAttribute("motifsFormBean") MotifsFormBean motifsFormBean)
+            throws Exception {
 
-		LOGGER.info("Appel de la page /gestion/parametres/updateInit. Méthode formUpdateInit");
-		String errorList = "";
-		ModelAndView mav = null;
+        LOGGER.info("Appel de la page /gestion/parametres/updateInit. Méthode formUpdateInit");
+        String errorList = "";
+        ModelAndView mav = null;
 
-		try {
-			mav = new ModelAndView("gestion/parametres/parametresNew");
+        try {
+            mav = new ModelAndView("gestion/parametres/parametresNew");
 
-			if (StringUtils.isNotBlank(motifsFormBean.getCode())) {
-				// Saisie des donnees
+            if (StringUtils.isNotBlank(motifsFormBean.getCode())) {
+                // Saisie des donnees
 
-				// Donnees communes
-				List<MotifDTO> listMotif = motifsService.getMotifs(gouvPropertiesResolver.getDemarcheId());
+                // Donnees communes
+                List<MotifDTO> listMotif = motifsService.getMotifs(gouvPropertiesResolver.getDemarcheId());
 
-				// Donnees specifiques et insert (français)
-				for (MotifDTO motif : listMotif) {
-					if (motif.getCode().equals(motifsFormBean.getCode())) {
-						motifsFormBean.setCode(motif.getCode());
-						if ("fr".equalsIgnoreCase(motif.getLangue())) {
-							motifsFormBean.setLibelleFr(motif.getLibelle());
-							motifsFormBean.setMotifPkFr(motif.getPkMotifs());
-						} else {
-							motifsFormBean.setLibelleEn(motif.getLibelle());
-							motifsFormBean.setMotifPkEn(motif.getPkMotifs());
-						}
+                // Donnees specifiques et insert (français)
+                for (MotifDTO motif : listMotif) {
+                    if (motif.getCode().equals(motifsFormBean.getCode())) {
+                        motifsFormBean.setCode(motif.getCode());
+                        if ("fr".equalsIgnoreCase(motif.getLangue())) {
+                            motifsFormBean.setLibelleFr(motif.getLibelle());
+                            motifsFormBean.setCommentairePrerempliFr(motif.getCommentairePrerempli());
+                            motifsFormBean.setMotifPkFr(motif.getPkMotifs());
+                        } else {
+                            motifsFormBean.setLibelleEn(motif.getLibelle());
+                            motifsFormBean.setCommentairePrerempliEn(motif.getCommentairePrerempli());
+                            motifsFormBean.setMotifPkEn(motif.getPkMotifs());
+                        }
 
-						motifsFormBean.setDateArchive(getDateArchiveStr(motif));
-						motifsFormBean.setStatutEnum(motif.getStatut());
-						motifsFormBean.setStatut(motif.getStatut());
-						motifsFormBean.setHashCode(motif.getStatut().hashCode());
-					}
-				}
-			} else {
-				motifsFormBean.setIsErrGlobale(true);
-				errorList = "Motif non identifié";
-			}
+                        motifsFormBean.setDateArchive(getDateArchiveStr(motif));
+                        motifsFormBean.setStatutEnum(motif.getStatut());
+                        motifsFormBean.setStatut(motif.getStatut());
+                        motifsFormBean.setHashCode(motif.getStatut().hashCode());
+                    }
+                }
+            } else {
+                motifsFormBean.setIsErrGlobale(true);
+                errorList = "Motif non identifié";
+            }
 
-			// Liste des enum actuellement utilisés
-			mav.addObject("statuts", getListEnumsContainsMotifs());
+            // Liste des enum actuellement utilisés
+            mav.addObject("statuts", getListEnumsContainsMotifs());
 
-			if (errorList.length() > 0) {
-				mav.addObject("errorList", errorList);
-			}
+            if (errorList.length() > 0) {
+                mav.addObject("errorList", errorList);
+            }
 
-		} catch (Exception e) {
-			LOGGER.error("Exception rencontrée dans formUpdateInit. Msg : " + e);
-			throw new Exception(e);
-		}
+        } catch (Exception e) {
+            LOGGER.error("Exception rencontrée dans formUpdateInit. Msg : " + e);
+            throw new Exception(e);
+        }
 
-		LOGGER.info("======================= Fin /gestion/parametres/updateInit. Méthode formUpdateInit");
+        LOGGER.info("======================= Fin /gestion/parametres/updateInit. Méthode formUpdateInit");
 
-		return mav;
-	}
+        return mav;
+    }
 
-	/**
-	 * Liste des enums actuellement utilisés (au 02/11/2016)
-	 */
-	private List<GenericStatusDTO> getListEnumsContainsMotifs() {
-		return demarchesDataProvider.getCandidateStatusesForMotifs();
-	}
+    /**
+     * Liste des enums actuellement utilisés (au 02/11/2016)
+     */
+    private List<GenericStatusDTO> getListEnumsContainsMotifs() {
+        return demarchesDataProvider.getCandidateStatusesForMotifs();
+    }
 
-	private String getDateArchiveStr(MotifDTO motif) throws Exception {
-		try {
+    private String getDateArchiveStr(MotifDTO motif) throws Exception {
+        try {
 
-			if (motif.getDateArchive() != null) {
-				Locale.setDefault(Locale.FRANCE);
-				String frm = "dd/MM/yyyy";
-				SimpleDateFormat sf = new SimpleDateFormat(frm);
-				return sf.format(motif.getDateArchive());
-			}
-		} catch (Exception e) {
-			LOGGER.error("Exception rencontrée dans getDateArchiveStr", e);
-			throw new Exception(e);
-		}
+            if (motif.getDateArchive() != null) {
+                Locale.setDefault(Locale.FRANCE);
+                String frm = "dd/MM/yyyy";
+                SimpleDateFormat sf = new SimpleDateFormat(frm);
+                return sf.format(motif.getDateArchive());
+            }
+        } catch (Exception e) {
+            LOGGER.error("Exception rencontrée dans getDateArchiveStr", e);
+            throw new Exception(e);
+        }
 
-		return "";
-	}
+        return "";
+    }
 
-	/**
-	 * Regroupement des libellés fr et en
-	 */
-	List<CustomMotifDTO> regroupeLibelle(List<MotifDTO> list) throws Exception {
+    /**
+     * Regroupement des libellés fr et en
+     */
+    List<CustomMotifDTO> regroupeLibelle(List<MotifDTO> list) throws Exception {
 
-		List<CustomMotifDTO> listFinale = null;
-		try {
-			listFinale = new ArrayList<CustomMotifDTO>();
-			Map<String, CustomMotifDTO> map = new HashMap<String, CustomMotifDTO>();
-			CustomMotifDTO customMotifDTO = null;
+        List<CustomMotifDTO> listFinale = null;
+        try {
+            listFinale = new ArrayList<CustomMotifDTO>();
+            Map<String, CustomMotifDTO> map = new HashMap<String, CustomMotifDTO>();
+            CustomMotifDTO customMotifDTO = null;
 
-			// Regroupe Les libellés
-			for (MotifDTO m : list) {
-				if (!map.containsKey(m.getCode())) {
-					customMotifDTO = new CustomMotifDTO();
-					customMotifDTO.setCode(m.getCode());
-					customMotifDTO.setDateArchive(m.getDateArchive());
-					customMotifDTO.setDemarcheId(m.getDemarcheId());
-					customMotifDTO.setLangue(m.getLangue());
-					customMotifDTO.setPkMotifs(m.getPkMotifs());
-					customMotifDTO.setStatut(m.getStatut());
-					map.put(m.getCode(), customMotifDTO);
-				} else {
-					customMotifDTO = map.get(m.getCode());
-				}
-				if ("fr".equalsIgnoreCase(m.getLangue())) {
-					customMotifDTO.setLibelleFr(m.getLibelle());
-				} else {
-					customMotifDTO.setLibelleEn(m.getLibelle());
-				}
-			}
+            // Regroupe Les libellés
+            for (MotifDTO m : list) {
+                if (!map.containsKey(m.getCode())) {
+                    customMotifDTO = new CustomMotifDTO();
+                    customMotifDTO.setCode(m.getCode());
+                    customMotifDTO.setDateArchive(m.getDateArchive());
+                    customMotifDTO.setDemarcheId(m.getDemarcheId());
+                    customMotifDTO.setLangue(m.getLangue());
+                    customMotifDTO.setPkMotifs(m.getPkMotifs());
+                    customMotifDTO.setStatut(m.getStatut());
+                    map.put(m.getCode(), customMotifDTO);
+                } else {
+                    customMotifDTO = map.get(m.getCode());
+                }
+                if ("fr".equalsIgnoreCase(m.getLangue())) {
+                    customMotifDTO.setLibelleFr(m.getLibelle());
+                    customMotifDTO.setCommentairePrerempliFr(m.getCommentairePrerempli());
+                } else {
+                    customMotifDTO.setLibelleEn(m.getLibelle());
+                    customMotifDTO.setCommentairePrerempliEn(m.getCommentairePrerempli());
+                }
+            }
 
-			for (Map.Entry<String, CustomMotifDTO> entry : map.entrySet()) {
-				listFinale.add(entry.getValue());
-			}
-		} catch (Exception e) {
-			LOGGER.error("Exception rencontrée dans regroupeLibelle", e);
-			throw new Exception(e);
-		}
+            for (Map.Entry<String, CustomMotifDTO> entry : map.entrySet()) {
+                listFinale.add(entry.getValue());
+            }
+        } catch (Exception e) {
+            LOGGER.error("Exception rencontrée dans regroupeLibelle", e);
+            throw new Exception(e);
+        }
 
-		return listFinale;
-	}
+        return listFinale;
+    }
 
 }

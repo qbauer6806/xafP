@@ -93,7 +93,7 @@ public class RechercheDemandesController extends AbstractController {
             if (demande.getAgentAffecteId() != null) {
                 User user = utilisateursCache.get(demande.getAgentAffecteId());
                 newDem.setAgentAffectePrenom(user.getPrenom());
-                newDem.setAgentAffecteNom(user.getNom());
+                newDem.setAgentAffecteNom(user.getNomAffichage());
             }
             newDemandes.add(newDem);
         }

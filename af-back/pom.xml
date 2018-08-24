@@ -68,6 +68,10 @@
                     <groupId>javax.servlet</groupId>
                     <artifactId>servlet-api</artifactId>
                 </exclusion>
+                 <exclusion>
+                 	<groupId>org.apache.struts</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <!-- Fin Apache Velocity -->

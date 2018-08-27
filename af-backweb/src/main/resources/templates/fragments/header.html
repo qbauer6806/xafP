@@ -41,12 +41,11 @@
 			<div class="headerContent">
 				<div class="headerTitle">
 					<a href="/logon/menu.jsp"> <img class="img img-responsive"
-						alt="Déclarer l'accueil d'un stagiaire"
+						th:alt="${AfBackUtils.getDemarcheNom()}"
 						th:src="@{/img/logo_TS.svg}" />
 					</a>
 				</div>
-				<div class="headerSubtitle hidden-sm-down">Déclarer l'accueil
-					d'un stagiaire</div>
+				<div class="headerSubtitle hidden-sm-down"><span th:text="${AfBackUtils.getDemarcheNom()}"></span></div>
 			</div>
 		</div>
 

@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 import javax.annotation.PostConstruct;
@@ -13,6 +14,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -92,6 +94,9 @@ public class AfBackUtils {
 
 	@Autowired
 	private DemarchesDataProvider demarchesDataProvider;
+	
+    @Autowired
+    private MessageSource messageSource;
 	
     public static final short GENDER_MR_INDEX = 0;
     public static final short GENDER_MME_INDEX = 1;
@@ -337,6 +342,10 @@ public class AfBackUtils {
     
     public StatutPublicOuInterneDTO getStatutPublicOuInterne(DemandeDTO demandeDto) {
         return demarchesDataProvider.getStatutPublicOuInterne(demandeDto);
+    }
+    
+    public String getCivilite(Short titre, String locale) {
+        return messageSource.getMessage("civilite." + titre, null, new Locale(locale));
     }
 
 }

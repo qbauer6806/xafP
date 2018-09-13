@@ -199,6 +199,10 @@
 	
 		$(document).ready(function() {
 
+			$('input[name="select_all"]').change(function() {
+				$('input[name="checkedDemandes"]').prop('checked',this.checked);
+			});
+
 			function enableValider() {
 	    		if ($("[name=checkedDemandes]:checked").length > 0) {
 	    			$("#validerButton").prop('disabled', false);

@@ -1,30 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>mc.gouv.xboot</groupId>
-        <artifactId>xboot-spring-starter-parent</artifactId>
-        <version>2.4.9</version>
-    </parent>
+	<parent>
+		<groupId>mc.gouv.xboot</groupId>
+		<artifactId>xboot-spring-starter-parent</artifactId>
+		<version>2.4.9</version>
+	</parent>
 
-    <groupId>mc.gouv.af</groupId>
-    <artifactId>af</artifactId>
-    <version>3.0.0-SNAPSHOT</version>
-    <packaging>pom</packaging>
+	<groupId>mc.gouv.af</groupId>
+	<artifactId>af</artifactId>
+	<version>3.0.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
 
-    <scm>
-        <developerConnection>${svn.connection}/${project.artifactId}/trunk</developerConnection>
-        <connection>${svn.connection}/${project.artifactId}/trunk</connection>
-        <url>${svn.url}/${project.artifactId}/trunk</url>
-    </scm>
-    
+	<properties>
+		<servicerest_client.version>2.2.14</servicerest_client.version>
+	</properties>
 
-
-    <modules>
-        <module>af-servlet</module>
-        <module>af-back</module>
-        <module>af-apiclient</module>
+	<modules>
+		<module>af-servlet</module>
+		<module>af-back</module>
+		<module>af-apiclient</module>
 		<module>af-backweb</module>
-    </modules>
+	</modules>
 </project>

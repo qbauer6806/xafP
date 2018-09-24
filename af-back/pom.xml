@@ -12,7 +12,6 @@
 
     <properties>
         <activiti.version>5.22.0</activiti.version>
-        <servicerest_client.version>2.2.14</servicerest_client.version>
     </properties>
 
     <dependencies>

@@ -75,10 +75,10 @@
 							th:object="${motifsFormBean}" novalidate="novalidate">
 
 							<div class="col-xs-12">
-								<span class="titre" th:if="${motifsFormBean.motifPkFr != null}">Formulaire
-									de modification du motif</span>
-								<span class="titre" th:unless="${motifsFormBean.motifPkFr != null}">Formulaire
-									de création du motif</span>
+								<h1 class="titre" th:if="${motifsFormBean.motifPkFr != null}">Formulaire
+									de modification du motif</h1>
+								<h1 class="titre" th:unless="${motifsFormBean.motifPkFr != null}">Formulaire
+									de création du motif</h1>
 
 								<div class="panel panel-simple">
 									<input th:if="${motifsFormBean.motifPkFr != null}"

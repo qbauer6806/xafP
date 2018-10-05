@@ -27,5 +27,7 @@ public interface DemarchesDataProvider {
     public StatutPublicOuInterneDTO getStatutPublicOuInterne(DemandeDTO demandeDto);
     
     public List<String> getStatusList();
+    
+    public String getVersion();
 
 }

@@ -59,8 +59,6 @@ public class AfBackUtils {
 
 	public static final String FILE_METADATA_DEMANDESTATUT = "X-MC-DEMANDESTATUT";
 
-	private final static String version = AfBackUtils.class.getPackage().getImplementationVersion();
-
 	private static RestTemplate restTemplate;
 
 	private static String envName;
@@ -141,10 +139,6 @@ public class AfBackUtils {
 		conv.setSupportedMediaTypes(mediaTypes);
 		list.add(conv);
 		restTemplate.setMessageConverters(list);
-	}
-
-	public static String getVersion() {
-		return version;
 	}
 
 	public static String getAuthenticatedAgentId() {

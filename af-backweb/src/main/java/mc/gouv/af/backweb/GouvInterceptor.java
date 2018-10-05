@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
+import mc.gouv.af.back.service.DemarchesDataProvider;
 import mc.gouv.af.back.util.AfBackUtils;
 
 /**
@@ -25,12 +26,16 @@ public class GouvInterceptor extends HandlerInterceptorAdapter {
     
     @Autowired
     private AfBackUtils afBackUtils;
+    
+    @Autowired
+    private DemarchesDataProvider demarchesDataProvider;
 
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
             ModelAndView modelAndView) throws Exception {
         if (modelAndView != null) {
             modelAndView.addObject("AfBackUtils", afBackUtils);
+            modelAndView.addObject("DemarchesDataProvider", demarchesDataProvider);
         }
         super.postHandle(request, response, handler, modelAndView);
     }

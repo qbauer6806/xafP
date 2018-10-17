@@ -71,7 +71,7 @@ public class DemandesCourrierController extends AbstractController {
 
 		ModelAndView mav;
 		LOGGER.info("======================= Appel de la page POST /demandes/courriers/creer/{usagerId}");
-
+		
 		if (bindingResult.hasErrors()) {
 			mav = new ModelAndView("demandes/demandescourrier2");
 			mav = initForm(mav, usagerId);

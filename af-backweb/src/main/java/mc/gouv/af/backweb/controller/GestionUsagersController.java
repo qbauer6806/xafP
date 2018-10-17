@@ -14,6 +14,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -186,6 +187,13 @@ public class GestionUsagersController extends AbstractController {
 		}
 		usagerCourrier.setTitre(titre);
 		usagerCourrier.setPays(usagerCourrierFormBean.getPaysChoisi());
+		
+		if (StringUtils.isBlank(usagerCourrierFormBean.getNom()) && StringUtils.isBlank(usagerCourrierFormBean.getRaisonSociale())) {
+    		FieldError fe1 = new FieldError("usagerCourrierFormBean", "nom", "Au moins le nom OU la raison sociale doivent être renseignés");
+    		FieldError fe2 = new FieldError("usagerCourrierFormBean", "raisonSociale", "Au moins le nom OU la raison sociale doivent être renseignés");
+    		bindingResult.addError(fe1);
+    		bindingResult.addError(fe2);
+		}
 
 		if (bindingResult.hasErrors()) {
 			mav = new ModelAndView("gestion/usagers/creationusagercourrier");

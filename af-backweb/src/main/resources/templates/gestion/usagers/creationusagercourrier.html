@@ -94,7 +94,7 @@
 													<div
 														th:class="${#fields.hasErrors('nom')} ? 'form-group error' : 'form-group'">
 														<div class="col-xs-2">
-															<label for="nom">Nom<span class="required" /></label>
+															<label for="nom">Nom</label>
 														</div>
 														<div class="col-xs-10">
 															<input type="text" class="form-control nom" id="nom"
@@ -119,13 +119,18 @@
 												
 												<br/>
 												<div class="row">
-													<div class="col-xs-2">
-														<label for="inputRaisonSociale">Raison sociale</label>
-													</div>
-													<div class="col-xs-10">
-														<input type="text" class="form-control"
-															id="inputRaisonSociale" th:field="*{raisonSociale}"
-															maxlength="20" />
+													<div
+														th:class="${#fields.hasErrors('nom')} ? 'form-group error' : 'form-group'">
+														<div class="col-xs-2">
+															<label for="inputRaisonSociale">Raison sociale</label>
+														</div>
+														<div class="col-xs-10">
+															<input type="text" class="form-control"
+																id="inputRaisonSociale" th:field="*{raisonSociale}"
+																th:errorclass="errorTooltip"
+																th:attr="data-title=${#fields.hasErrors('raisonSociale')} ? ${#fields.errors('raisonSociale')} :''"
+																maxlength="20" />
+														</div>
 													</div>
 												</div>
 												

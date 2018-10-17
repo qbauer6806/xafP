@@ -15,8 +15,6 @@ public class UsagerCourrierFormBean {
 
 	private String titre;
 
-	@NotBlank
-	@Size(min = 1, max = 50, message = "Le nom ou la raison sociale doit avoir une taille comprise entre 1 et 50")
 	private String nom;
 
 	private String prenom;

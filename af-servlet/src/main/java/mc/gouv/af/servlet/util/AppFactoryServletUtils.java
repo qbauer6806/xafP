@@ -1,9 +1,7 @@
 package mc.gouv.af.servlet.util;
 
 import java.io.IOException;
-import java.util.StringTokenizer;
 import java.util.UUID;
-import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -19,8 +17,6 @@ import com.fasterxml.uuid.impl.TimeBasedGenerator;
 
 import mc.gouv.af.servlet.dto.UsagerInfosDTO;
 import mc.gouv.af.servlet.properties.AfServletGouvPropertiesResolver;
-import net.tanesha.recaptcha.ReCaptchaImpl;
-import net.tanesha.recaptcha.ReCaptchaResponse;
 
 /**
  * Classe utilitaire pour af-servlet
@@ -65,8 +61,9 @@ public class AppFactoryServletUtils {
      *            Le message d'erreur à renvoyer
      * @param e
      *            L'exception
-     * @return
+     * @return Reponse de la servlet
      * @throws IOException
+     *             Exception Input/Output
      */
     public static HttpServletResponse logAndSendError(Logger logger, HttpServletResponse response, int httpStatus,
             String errMsg, Exception e) throws IOException {
@@ -88,8 +85,9 @@ public class AppFactoryServletUtils {
      *            Le statut HTTP à renvoyer
      * @param errMsg
      *            Le message d'erreur à renvoyer
-     * @return
+     * @return Réponse de la servlet
      * @throws IOException
+     *             Exception Input/Output
      */
     public static HttpServletResponse logAndSendError(Logger logger, HttpServletResponse response, int httpStatus,
             String errMsg) throws IOException {
@@ -103,7 +101,7 @@ public class AppFactoryServletUtils {
     /**
      * Génère un UUID version 1 (time+location based UUID)
      * 
-     * @return
+     * @return UUID
      */
     public static UUID generateUUID() {
         EthernetAddress addr = EthernetAddress.fromInterface();
@@ -116,7 +114,8 @@ public class AppFactoryServletUtils {
      * Récupère l'utilisateur logué depuis la session
      * 
      * @param request
-     * @return
+     *            Requete récupérée par la servlet
+     * @return Utilisateur logué
      */
     public static UsagerInfosDTO getLoggedUser(HttpServletRequest request) {
         // Récupère la session courante sans en créer une nouvelle
@@ -125,7 +124,7 @@ public class AppFactoryServletUtils {
             return null;
         }
 
-        //Check le csrf token seulement si POST
+        // Check le csrf token seulement si POST
         if (request.getMethod().equalsIgnoreCase("POST")) {
             String xsrfToken = request.getHeader(XSRF_HEADER);
 
@@ -146,23 +145,24 @@ public class AppFactoryServletUtils {
 
         return (UsagerInfosDTO) session.getAttribute("login");
     }
-    
+
     /**
      * Retourne le header d'authentification JWT correspondant au service à appeler
      * 
      * @param serviceTarget
-     * @return
+     *            Service à appeler
+     * @return Le header d'authentification JWT
      */
     public static String getAuthHeader(ServiceTarget serviceTarget) {
-        
+
         String jwt = null;
-        
+
         switch (serviceTarget) {
             case FILE:
                 jwt = AfServletGouvPropertiesResolver.getFileJwt();
                 break;
         }
-        
+
         // Authentification JWT
         return "Bearer " + jwt;
     }

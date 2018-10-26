@@ -10,14 +10,14 @@ import org.springframework.stereotype.Component;
 
 import mc.gouv.af.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.af.back.properties.GouvPropertiesResolver;
+import mc.gouv.af.back.service.IndexedDemandeService;
 import mc.gouv.af.back.util.AfBackUtils;
 import mc.gouv.dem.service.DemandesComplementsService;
 import mc.gouv.dem.shared.model.DemandeComplementsQuestionDTO;
 
 /**
  * 
- * Classe service appelée par le process Activiti pour créer une demande d'informations
- * complémentaires.
+ * Classe service appelée par le process Activiti pour créer une demande d'informations complémentaires.
  * 
  * @author qdeme
  *
@@ -31,16 +31,19 @@ public class GouvBPMDemandeInfoComplDelegate implements JavaDelegate {
 
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
-    
+
     @Autowired
     private DemandesComplementsService demandesComplementsService;
+
+    @Autowired(required = false)
+    private IndexedDemandeService indexedDemandeService;
 
     @Override
     public void execute(DelegateExecution execution) throws Exception {
 
         LOGGER.info("==== AF-BACK CREATION INFO COMPL ...");
 
-        String DEMARCHE_ID = gouvPropertiesResolver.getDemarcheId();
+        String demarcheId = gouvPropertiesResolver.getDemarcheId();
 
         Integer demandeId = Integer.parseInt(execution.getProcessBusinessKey());
 
@@ -65,8 +68,11 @@ public class GouvBPMDemandeInfoComplDelegate implements JavaDelegate {
         }
 
         LOGGER.info("Appel à DEM createDemandeComplements()...");
-        demandesComplementsService.saveDemandeComplements(DEMARCHE_ID, demandeId, questionDto);
+        demandesComplementsService.saveDemandeComplements(demarcheId, demandeId, questionDto);
 
+        if (indexedDemandeService != null) {
+            indexedDemandeService.indexDemande(gouvPropertiesResolver.getDemarcheId(), demandeId);
+        }
         LOGGER.info("==== AF-BACK CREATION INFO COMPL <fin>");
 
     }

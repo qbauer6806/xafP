@@ -83,11 +83,11 @@ public class GouvBPMGroupManager extends GroupEntityManager {
                     }
                 }
             } else {
-                //On teste si c'est un usager
+                // On teste si c'est un usager
                 UsagerBean usager = usagerCache.get(Integer.parseInt(userId));
 
                 if (usager != null) {
-                    //Ajout au groupe usager
+                    // Ajout au groupe usager
                     GroupEntity ge = new GroupEntity();
                     ge.setId("USAGER");
                     ge.setName("USAGER");

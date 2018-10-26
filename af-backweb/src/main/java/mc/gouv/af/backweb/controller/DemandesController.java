@@ -16,6 +16,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import mc.gouv.af.back.cache.UsagersCache;
 import mc.gouv.af.back.cache.UtilisateursCache;
+import mc.gouv.af.back.service.DemarchesDataProvider;
 import mc.gouv.af.back.util.UserComparator;
 import mc.gouv.logon.shared.User;
 import mc.gouv.servicerest.usager.model.UsagerBean;
@@ -36,6 +37,9 @@ public class DemandesController extends AbstractController {
     @Autowired
     private UtilisateursCache utilisateursCache;
 
+    @Autowired
+    DemarchesDataProvider demarchesDataProvider;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandesController.class);
 
     @RequestMapping(method = RequestMethod.GET)
@@ -46,7 +50,7 @@ public class DemandesController extends AbstractController {
         LOGGER.info("======================= Appel de la page /demandes");
 
         List<User> agents = new ArrayList<User>(utilisateursCache.getAll().values());
-        
+
         // Tri des agents par nom
         if (agents != null) {
             Collections.sort(agents, new UserComparator());
@@ -58,6 +62,7 @@ public class DemandesController extends AbstractController {
 
         ModelAndView mav = new ModelAndView("demandes/demandes");
         mav.addObject("agentsInit", agents);
+        mav.addObject("statuts", demarchesDataProvider.getStatusMap());
         mav.addObject("usagersInit", usagers);
         mav.addObject("texte", texte);
         return mav;

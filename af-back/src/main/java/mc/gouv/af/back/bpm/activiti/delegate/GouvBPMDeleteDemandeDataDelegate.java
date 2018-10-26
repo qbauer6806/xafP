@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import mc.gouv.af.back.bpm.GouvBPMException;
 import mc.gouv.af.back.properties.GouvPropertiesResolver;
+import mc.gouv.af.back.service.IndexedDemandeService;
 import mc.gouv.dem.service.DemandesDataService;
 
 @Component
@@ -25,6 +26,9 @@ public class GouvBPMDeleteDemandeDataDelegate implements JavaDelegate {
 
     @Autowired
     private DemandesDataService demandesDataService;
+
+    @Autowired(required = false)
+    private IndexedDemandeService indexedDemandeService;
 
     @Override
     public void execute(DelegateExecution execution) throws Exception {
@@ -43,6 +47,9 @@ public class GouvBPMDeleteDemandeDataDelegate implements JavaDelegate {
 
         demandesDataService.deleteDemandeData(gouvPropertiesResolver.getDemarcheId(), demandeId, dataKeyStr);
 
+        if (indexedDemandeService != null) {
+            indexedDemandeService.indexDemande(gouvPropertiesResolver.getDemarcheId(), demandeId);
+        }
     }
 
     public Expression getDataKey() {

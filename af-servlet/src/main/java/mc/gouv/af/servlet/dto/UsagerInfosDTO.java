@@ -6,11 +6,17 @@ import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * Usager loggé géré par l'application de gestion des usagers (login).<br/>
+ * <p>
+ * Usager loggé géré par l'application de gestion des usagers (login).
+ * </p>
+ * <p>
  * Cet usager est partagé avec les autres téléservices via un service rest (voir
- * mc.gouv.servicerest.usager.model.UsagerBean).<br/>
+ * mc.gouv.servicerest.usager.model.UsagerBean).
+ * </p>
+ * <p>
  * Le nom historique du package mc.gouv.tp.crosscontext est conservé pour ne pas impacter le code existant (l'usager fut
  * un temps partagé entre les téléservices via un contexte partagé).
+ * </p>
  * 
  * @author dinfo10
  */

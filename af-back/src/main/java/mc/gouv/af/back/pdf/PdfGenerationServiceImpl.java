@@ -32,8 +32,8 @@ import mc.gouv.dem.shared.model.DemandeDTO;
 
 /**
  * 
- * Classe appelée par le workflow BPM, permettant d'appeler un sous-service de génération de PDF (implémenté
- * dans la démarche cible et de stocker le résultat de cette génération.
+ * Classe appelée par le workflow BPM, permettant d'appeler un sous-service de génération de PDF (implémenté dans la
+ * démarche cible et de stocker le résultat de cette génération.
  * 
  * @author qdeme
  *
@@ -54,15 +54,14 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 
     @Autowired
     private DemandesCourriersService demandesCourriersService;
-    
+
     @Override
     public void generateAndStorePdf(DemandeDTO demande) throws Exception {
 
         LOGGER.info("PdfGenerationServiceImpl.generateAndStorePdf(" + demande.getPkDemandes() + ")");
 
-        LOGGER.info("Génération du PDF avec XDocReport...");        
+        LOGGER.info("Génération du PDF avec XDocReport...");
         File tempFile = generatePdf(demande);
-        
 
         LOGGER.info("Stockage du PDF généré dans FILE...");
         ByteArrayOutputStream output = new ByteArrayOutputStream();
@@ -74,41 +73,44 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
         DemandeCourrierDTO courrier = new DemandeCourrierDTO();
         courrier.setName(tempFile.getName());
         courrier.setUrl(url);
-        demandesCourriersService.saveCourrier(gouvPropertiesResolver.getDemarcheId(), demande.getPkDemandes(), courrier);
+        demandesCourriersService.saveCourrier(gouvPropertiesResolver.getDemarcheId(), demande.getPkDemandes(),
+                courrier);
 
         LOGGER.info("Fin PdfGenerationServiceImpl.generateAndStorePdf(" + demande.getPkDemandes() + ")");
     }
-    
+
     @Override
     public File generatePdf(DemandeDTO demande) {
-        
-        LOGGER.info("Appel au TemplateAndModelProvider de la démarche " + gouvPropertiesResolver.getDemarcheId() + "...");
+
+        LOGGER.info(
+                "Appel au TemplateAndModelProvider de la démarche " + gouvPropertiesResolver.getDemarcheId() + "...");
         Entry<String, Map<String, Object>> templateAndModel = pdfTemplateAndModelProvider.getTemplateAndModel(demande);
         String templateFileName = templateAndModel.getKey();
-        Map<String,Object> model = templateAndModel.getValue();
-        
+        Map<String, Object> model = templateAndModel.getValue();
+
         return generate(demande, templateFileName, model);
 
     }
-    
+
     @Override
     public File generatePdfPreview(DemandeDTO demande, String statutSuivant, String codeMotif, String langue,
             String commentaire) {
-        
-        LOGGER.info("Appel au TemplateAndModelProvider de la démarche " + gouvPropertiesResolver.getDemarcheId() + "...");
-        Entry<String, Map<String, Object>> templateAndModel = pdfTemplateAndModelProvider.getTemplateAndModelForPreview(demande, statutSuivant,
-                codeMotif, langue, commentaire);
+
+        LOGGER.info(
+                "Appel au TemplateAndModelProvider de la démarche " + gouvPropertiesResolver.getDemarcheId() + "...");
+        Entry<String, Map<String, Object>> templateAndModel = pdfTemplateAndModelProvider
+                .getTemplateAndModelForPreview(demande, statutSuivant, codeMotif, langue, commentaire);
         String templateFileName = templateAndModel.getKey();
         Map<String, Object> model = templateAndModel.getValue();
-        
+
         return generate(demande, templateFileName, model);
 
     }
-    
+
     private File generate(DemandeDTO demande, String templateFileName, Map<String, Object> model) {
-        
+
         File temp = null;
-        
+
         try {
             LOGGER.info("Chargement du template " + templateFileName + "...");
             InputStream in = new ClassPathResource("/pdf/" + templateFileName).getInputStream();

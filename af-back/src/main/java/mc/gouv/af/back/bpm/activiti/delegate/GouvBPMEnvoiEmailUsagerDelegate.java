@@ -42,10 +42,10 @@ public class GouvBPMEnvoiEmailUsagerDelegate implements JavaDelegate {
 
     @Autowired
     private MailService mailService;
-    
+
     @Autowired
     private DemandesService demandesService;
-    
+
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
 
@@ -94,15 +94,16 @@ public class GouvBPMEnvoiEmailUsagerDelegate implements JavaDelegate {
         emailInfo.addTo(usager.getEmail(), prenom + " " + nom);
         emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, execution.getProcessBusinessKey());
         emailInfo.setLangue(langue);
-        
+
         String codeMotif = (String) execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name());
         String commentaire = (String) execution
                 .getVariable(GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name());
 
         Integer demandeId = Integer.parseInt(execution.getProcessBusinessKey());
         DemandeDTO demande = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), demandeId);
-        
-        Map<String, Object> model = mailTemplateModelProvider.getModel(subjectTemplateCode, bodyTemplateCode, demande, execution.getVariables(), codeMotif, commentaire);
+
+        Map<String, Object> model = mailTemplateModelProvider.getModel(subjectTemplateCode, bodyTemplateCode, demande,
+                execution.getVariables(), codeMotif, commentaire);
 
         try {
             mailService.sendMail(emailInfo, model);

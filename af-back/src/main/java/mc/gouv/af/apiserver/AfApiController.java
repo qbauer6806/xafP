@@ -1,6 +1,14 @@
 package mc.gouv.af.apiserver;
 
+import java.io.IOException;
 import java.util.List;
+
+import javax.jms.JMSException;
+
+import org.apache.tika.exception.TikaException;
+import org.xml.sax.SAXException;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import mc.gouv.dem.shared.model.AccessDTO;
 import mc.gouv.dem.shared.model.AccessInputDTO;
@@ -13,8 +21,7 @@ import mc.gouv.dem.shared.model.UsagerCourrierDTO;
 
 /**
  * 
- * Interface spécifiant les méthodes devant être implémentées en tant que Web Services
- * dans les démarches BACK.
+ * Interface spécifiant les méthodes devant être implémentées en tant que Web Services dans les démarches BACK.
  * 
  * @author qdeme
  * @author fgaujous
@@ -24,10 +31,8 @@ public interface AfApiController {
 
     public void annulerDemande(Integer demandeId, Integer usagerId);
 
-    public DemandeDTO creerDemande(DemandeInputDTO demande, Integer usagerId);
-
     public DemandeComplementsDTO repondreDemandeComplements(Integer demandeId, Integer icId,
-            DemandeComplementsReponseDTO reponse);
+            DemandeComplementsReponseDTO reponse) throws IOException;
 
     public DemandeDTO getDemande(Integer usagerId, Integer demandeId);
 
@@ -36,17 +41,20 @@ public interface AfApiController {
     public List<DemandeComplementsDTO> getDemandeComplements(Integer demandeId);
 
     public DemandeComplementsDTO getDemandeComplements(Integer demandeId, Integer icId);
-    
+
     public DemandeDTO associerDemandeCourrier(String identifiantDemande, String stringToCheck, Integer usagerId);
-    
+
     public void desinscriptionUsager(Integer usagerId, String hashedPassword);
-    
+
     public AccessDTO createOrUpdateAccess(Integer usagerId, AccessInputDTO dto);
-    
+
     public AccessDTO getAccess(Integer usagerId);
-    
+
     public UsagerCourrierDTO getUsagerCourrier(Integer usagerCourrierId);
-    
+
     public List<MotifDTO> getMotifs();
 
+    DemandeDTO creerDemande(DemandeInputDTO demande, Integer usagerId) throws JsonProcessingException, JMSException;
+
+    String reindex() throws IOException, SAXException, TikaException;
 }

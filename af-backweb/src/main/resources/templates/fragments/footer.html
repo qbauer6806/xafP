@@ -23,7 +23,7 @@
 		<!-- Import JS -->
 
 		<script th:src="@{/webjars/jquery/dist/jquery.min.js}"></script>
-		<script th:src="@{/webjars/bootstrap/bootstrap.min.js}"></script>
+		<script th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
 		<script th:src="@{/webjars/bootstrap-notify/bootstrap-notify.min.js}"></script>
 		<script th:src="@{/webjars/momentjs/moment.js}"></script>
 		<script th:src="@{/webjars/datatables/js/jquery.dataTables.js}"></script>
@@ -50,6 +50,7 @@
 		
 		<script th:src="@{/js/tsgen.js(${applicationBuildTimestamp})}"></script>
 		<script th:src="@{/js/tsdem.js(${applicationBuildTimestamp})}"></script>
+		<script th:src="@{/js/tsgenrechercheavancee.js(${applicationBuildTimestamp})}"></script>
 
 		<div th:if="${piwikTracker != null}"
 			th:utext="${piwikTracker.getPiwikJavaScriptTrackingCode()}"

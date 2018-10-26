@@ -269,4 +269,9 @@ dt {
 	font-weight: bold;
 }
 
+.active-facet {
+  background: #068BAD;
+  color: white;
+}
+
 

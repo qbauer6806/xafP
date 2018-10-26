@@ -27,16 +27,16 @@ import mc.gouv.servicerest.usager.ReferentielUsagersClient;
 @EnableCaching
 @Profile("gouv")
 public class AfBackConfig {
-    
+
     // 24h
-    private static final long PAYS_CACHE_DURATION = 24*60*60*1000;
-    
+    private static final long PAYS_CACHE_DURATION = 24 * 60 * 60 * 1000;
+
     // 6h
-    private static final long UTILISATEURS_CACHE_DURATION = 6*60*60*1000;
+    private static final long UTILISATEURS_CACHE_DURATION = 6 * 60 * 60 * 1000;
 
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
-    
+
     @Autowired
     private UsagersCacheDataProvider usagersCacheDataProvider;
 
@@ -45,18 +45,18 @@ public class AfBackConfig {
 
         return new ReferentielUsagersClient(gouvPropertiesResolver.getUsagersRestUrl(), null, null);
     }
-    
+
     @Bean(name = "paysCacheImpl")
     public PaysCache getPaysCache() {
         return new PaysCacheImpl(gouvPropertiesResolver.getPaysRestUrl(), null, null, PAYS_CACHE_DURATION);
     }
-    
+
     @Bean(name = "utilisateursCacheImpl")
     public UtilisateursCache getUtilisateursCache() {
         String url = Static.getValue(LogonApiClient.DEFAULT_GOUV_PROPERTY_URL);
         return new UtilisateursCacheImpl(url, gouvPropertiesResolver.getDemarcheId(), UTILISATEURS_CACHE_DURATION);
     }
-    
+
     @Bean(name = "usagersCacheImpl")
     public UsagersCache getUsagersCache() {
         return new UsagersCacheImpl(usagersCacheDataProvider, gouvPropertiesResolver.getUsagersCacheDuration());
@@ -77,5 +77,5 @@ public class AfBackConfig {
         builder.dateFormat(iso8601DateFormat);
         return builder;
     }
-    
+
 }

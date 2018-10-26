@@ -5,29 +5,65 @@
 	<parent>
 		<groupId>mc.gouv.xboot</groupId>
 		<artifactId>xboot-spring-starter-parent</artifactId>
-		<version>2.4.9</version>
+		<version>3.0.0-SNAPSHOT</version>
 	</parent>
-
-	<groupId>mc.gouv.af</groupId>
-	<artifactId>af</artifactId>
-	<version>3.0.4-SNAPSHOT</version>
-	<packaging>pom</packaging>
 
 	<properties>
 		<servicerest_client.version>2.2.14</servicerest_client.version>
+		<tika.version>1.18</tika.version>
 	</properties>
 
-    <scm>
-        <developerConnection>${svn.connection}/${project.artifactId}/trunk</developerConnection>
-        <connection>${svn.connection}/${project.artifactId}/trunk</connection>
-        <url>${svn.url}/${project.artifactId}/trunk</url>
-    </scm>
-    
+	<groupId>mc.gouv.af</groupId>
+	<artifactId>af</artifactId>
+	<version>3.1.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+
+
+	<scm>
+		<developerConnection>${svn.connection}/${project.artifactId}/trunk</developerConnection>
+		<connection>${svn.connection}/${project.artifactId}/trunk</connection>
+		<url>${svn.url}/${project.artifactId}/trunk</url>
+	</scm>
+
 	<modules>
 		<module>af-servlet</module>
 		<module>af-back</module>
 		<module>af-apiclient</module>
 		<module>af-backweb</module>
 	</modules>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-elasticsearch</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.elasticsearch.client</groupId>
+			<artifactId>transport</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.elasticsearch.plugin</groupId>
+			<artifactId>transport-netty4-client</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>net.java.dev.jna</groupId>
+			<artifactId>jna</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+	</dependencies>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.apache.tika</groupId>
+				<artifactId>tika-app</artifactId>
+				<version>${tika.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
 
 </project>

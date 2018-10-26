@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import mc.gouv.af.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.af.back.properties.GouvPropertiesResolver;
+import mc.gouv.af.back.service.IndexedDemandeService;
 import mc.gouv.af.back.util.AfBackUtils;
 import mc.gouv.dem.service.DemandesStatutsService;
 import mc.gouv.dem.shared.model.StatutInputDTO;
@@ -28,13 +29,16 @@ public class GouvBPMStatusChangeDelegate implements JavaDelegate {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMStatusChangeDelegate.class);
 
-    private Expression targetState; 
+    private Expression targetState;
 
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
 
     @Autowired
     private DemandesStatutsService demandesStatutsService;
+
+    @Autowired(required = false)
+    private IndexedDemandeService indexedDemandeService;
 
     @Override
     public void execute(DelegateExecution execution) throws Exception {
@@ -57,8 +61,8 @@ public class GouvBPMStatusChangeDelegate implements JavaDelegate {
                 .getVariable(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_AGENT.name());
         String usagerId = (String) execution
                 .getVariable(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_USAGER.name());
-        //        execution.removeVariable(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_AGENT.name());
-        //        execution.removeVariable(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_USAGER.name());
+        // execution.removeVariable(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_AGENT.name());
+        // execution.removeVariable(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_USAGER.name());
 
         LOGGER.info("Commentaire usager : " + commentaireUsager);
         LOGGER.info("Code motif : " + codeMotif);
@@ -67,22 +71,29 @@ public class GouvBPMStatusChangeDelegate implements JavaDelegate {
         // alors y'a un problème
         // Supprimer le codeMotif et le commentaireUsager du process BPM car on ne s'en sert plus
         // (ne pas les reproposer à l'utilisateur)
-        //        execution.removeVariable(GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name());
-        //        execution.removeVariable(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name());
+        // execution.removeVariable(GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name());
+        // execution.removeVariable(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name());
 
         LOGGER.info("Appel à DEM changerStatutDemande()...");
-        
+
         // Définition de la personne à l'origine du changement de statut : soit on l'a indiqué à ce JavaDelegate
         // via des variables process (que ce soit un agent ou un usager), soit on n'a rien indiqué et on prend
         // par défaut l'agent authentifié
         StatutInputDTO statutInput = new StatutInputDTO();
         if (usagerId != null) {
-            demandesStatutsService.updateStatut(gouvPropertiesResolver.getDemarcheId(), demandeId, statut, null, Integer.parseInt(usagerId), codeMotif, commentaireUsager);
+            demandesStatutsService.updateStatut(gouvPropertiesResolver.getDemarcheId(), demandeId, statut, null,
+                    Integer.parseInt(usagerId), codeMotif, commentaireUsager);
             statutInput.setUsagerId(Integer.parseInt(usagerId));
         } else if (agentId != null) {
-            demandesStatutsService.updateStatut(gouvPropertiesResolver.getDemarcheId(), demandeId, statut, agentId, null, codeMotif, commentaireUsager);
+            demandesStatutsService.updateStatut(gouvPropertiesResolver.getDemarcheId(), demandeId, statut, agentId,
+                    null, codeMotif, commentaireUsager);
         } else {
-            demandesStatutsService.updateStatut(gouvPropertiesResolver.getDemarcheId(), demandeId, statut, AfBackUtils.getAuthenticatedAgentId(), null, codeMotif, commentaireUsager);
+            demandesStatutsService.updateStatut(gouvPropertiesResolver.getDemarcheId(), demandeId, statut,
+                    AfBackUtils.getAuthenticatedAgentId(), null, codeMotif, commentaireUsager);
+        }
+
+        if (indexedDemandeService != null) {
+            indexedDemandeService.indexDemande(gouvPropertiesResolver.getDemarcheId(), demandeId);
         }
 
         LOGGER.info("==== AF-BACK CHANGEMENT STATUT <fin>");

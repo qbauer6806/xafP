@@ -1,5 +1,8 @@
 var APP = {};
 
+
+
+
 APP.getContextPath = function() {
 	   return window.location.pathname.substring(0, window.location.pathname.indexOf("/",2));
 }
@@ -10,7 +13,7 @@ APP.getContextPath = function() {
 
 APP.buildDefaultDatafunction = function (params){
     
- 
+	
     //Suppression de toutes les valeurs renvoyées par datatable
     params.columns = null;
     params.search = null;
@@ -23,7 +26,13 @@ APP.buildDefaultDatafunction = function (params){
     params.sort = columns[params.order[0].column].data+","+params.order[0].dir;
 }
 
+
+
 APP.getConfigurationDataTable = function(columns) {
+	
+	
+	
+	
 	var configurationDataTable = {
 		serverSide : true,
 		"ajax": {
@@ -32,24 +41,28 @@ APP.getConfigurationDataTable = function(columns) {
     		"traditional": true,
 		    "url": APP.getContextPath()+"/ws/demandes/pageable",
 		    "dataSrc": function(json) {
-		        json['recordsTotal'] = json['totalElements'];
+		      
+		    	json['recordsTotal'] = json['totalElements'];
 		        json['recordsFiltered'] = json['totalElements'];
 		        
 		        //json['data'] = json['content'];
+		        $("#demandesSize").html(json.totalElements)
 		        return json.content;
 		     }
 		  },
+		  
 		  "columns": columns,
 		  autoWidth: false,
 	      filter : false,
 		  language: frenchTranslation,
-		  iDisplayLength : 10,
+		  iDisplayLength : 10
 		            
 	}
 	return configurationDataTable;
 }
 
 $(document).ready(function() {
+	
     $("#topRechercheButton").click(function(e){
         $("#topRechercheButtonInput").click();
     	return false;
@@ -70,6 +83,8 @@ $(document).ready(function() {
 	});
 
 });
+
+
 
 var configurationSpinner = {
 		  lines: 13 // The number of lines to draw
@@ -94,3 +109,4 @@ var configurationSpinner = {
 		, position: 'absolute' // Element positioning
 }
 
+var recherche_libelles = new Map();

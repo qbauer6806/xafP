@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import mc.gouv.af.back.bpm.GouvBPMException;
 import mc.gouv.af.back.properties.GouvPropertiesResolver;
+import mc.gouv.af.back.service.IndexedDemandeService;
 import mc.gouv.dem.service.DemandesDataService;
 
 @Component
@@ -23,9 +24,12 @@ public class GouvBPMUpdateDemandeDataDelegate implements JavaDelegate {
 
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
-    
+
     @Autowired
     private DemandesDataService demandesDataService;
+
+    @Autowired(required = false)
+    private IndexedDemandeService indexedDemandeService;
 
     @Override
     public void execute(DelegateExecution execution) throws Exception {
@@ -44,7 +48,12 @@ public class GouvBPMUpdateDemandeDataDelegate implements JavaDelegate {
             throw new GouvBPMException("Impossible d'insérer une data avec une clé vide");
         }
 
-        demandesDataService.saveOrUpdateDemandeData(gouvPropertiesResolver.getDemarcheId(), demandeId, dataKeyStr, dataValueStr);
+        demandesDataService.saveOrUpdateDemandeData(gouvPropertiesResolver.getDemarcheId(), demandeId, dataKeyStr,
+                dataValueStr);
+
+        if (indexedDemandeService != null) {
+            indexedDemandeService.indexDemande(gouvPropertiesResolver.getDemarcheId(), demandeId);
+        }
     }
 
     public Expression getDataKey() {

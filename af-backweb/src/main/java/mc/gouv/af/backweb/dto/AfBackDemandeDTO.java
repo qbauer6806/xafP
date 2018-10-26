@@ -3,19 +3,18 @@ package mc.gouv.af.backweb.dto;
 import mc.gouv.dem.shared.model.DemandeDTO;
 
 /**
- * Classe permettant de rajouter des champs dans DemandeDTO, qui sont utiles pour les démarches,
- * sans avoir à encombrer DEM avec ça (et avec le calcul de ces champs)
+ * Classe permettant de rajouter des champs dans DemandeDTO, qui sont utiles pour les démarches, sans avoir à encombrer
+ * DEM avec ça (et avec le calcul de ces champs)
  * 
  * @author qdeme
  *
  */
 public class AfBackDemandeDTO extends DemandeDTO {
-    
+
     private String agentAffectePrenom;
-    
+
     private String agentAffecteNom;
-    
-    
+
     public AfBackDemandeDTO(DemandeDTO demande) {
         setAgentAffecteId(demande.getAgentAffecteId());
         setCanal(demande.getCanal());
@@ -43,7 +42,7 @@ public class AfBackDemandeDTO extends DemandeDTO {
     public String getAgentAffectePrenom() {
         return agentAffectePrenom;
     }
-    
+
     public void setAgentAffectePrenom(String agentAffectePrenom) {
         this.agentAffectePrenom = agentAffectePrenom;
     }

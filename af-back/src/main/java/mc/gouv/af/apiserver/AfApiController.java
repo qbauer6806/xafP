@@ -5,9 +5,6 @@ import java.util.List;
 
 import javax.jms.JMSException;
 
-import org.apache.tika.exception.TikaException;
-import org.xml.sax.SAXException;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import mc.gouv.dem.shared.model.AccessDTO;
@@ -56,5 +53,4 @@ public interface AfApiController {
 
     DemandeDTO creerDemande(DemandeInputDTO demande, Integer usagerId) throws JsonProcessingException, JMSException;
 
-    String reindex() throws IOException, SAXException, TikaException;
 }

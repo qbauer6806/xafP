@@ -1,6 +1,7 @@
 package mc.gouv.af.apiserver;
 
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.List;
 
 import javax.jms.JMSException;
@@ -9,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.apache.tika.exception.TikaException;
+import org.hibernate.TransactionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +26,8 @@ import org.xml.sax.SAXException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import mc.gouv.af.back.properties.GouvPropertiesResolver;
+import mc.gouv.af.back.service.impl.IndexedEsDemandeServiceImpl;
+import mc.gouv.dem.service.DemandesService;
 import mc.gouv.dem.shared.model.AccessDTO;
 import mc.gouv.dem.shared.model.AccessInputDTO;
 import mc.gouv.dem.shared.model.DemandeComplementsDTO;
@@ -47,9 +51,13 @@ import mc.gouv.xapi.error.exception.WebException;
 public abstract class AbstractAfApiController implements AfApiController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractAfApiController.class);
+    private static final String REINDEX_MESSAGE = "Le nombre de demandes reindexés est {0}";
 
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
+
+    @Autowired
+    private DemandesService demandesService;
 
     @RequestMapping(value = "/demandes/{demandeId}/annuler", method = RequestMethod.PUT)
     public void annulerDemandeRequest(@PathVariable(value = "demandeId") Integer demandeId,
@@ -152,11 +160,22 @@ public abstract class AbstractAfApiController implements AfApiController {
 
         LOGGER.info("======================= Appel de /ws/demandes/reindex");
 
-        String message = reindex();
-
-        LOGGER.info("======================= Fin appel de /ws/demandes/reindex");
-
-        return message;
+        if (demandesService instanceof IndexedEsDemandeServiceImpl) {
+            try {
+                Long demandesCount = ((IndexedEsDemandeServiceImpl) demandesService).reindex();
+                return MessageFormat.format(REINDEX_MESSAGE, demandesCount);
+            } catch (TransactionException e) {
+                if (e.getCause() != null) {
+                    return e.getCause().getMessage();
+                }
+                return e.getMessage();
+            } finally {
+                LOGGER.info("======================= Fin appel de /ws/demandes/reindex");
+            }
+        } else {
+            LOGGER.info("======================= Fin appel de /ws/demandes/reindex");
+            return "Indexing is disabled, please enable it";
+        }
 
     }
 

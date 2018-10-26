@@ -25,10 +25,6 @@ public interface DemarchesDataProvider {
     public List<GenericStatusDTO> getCandidateStatusesForMotifs();
 
     public StatutPublicOuInterneDTO getStatutPublicOuInterne(DemandeDTO demandeDto);
-    
-    public List<String> getStatusList();
-    
-    public String getVersion();
 
     public Map<String, String> getStatusMap();
 

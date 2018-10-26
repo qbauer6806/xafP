@@ -85,11 +85,6 @@
             <artifactId>servicerest_client</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>mc.gouv.servicerest</groupId>
-            <artifactId>servicerest-caching</artifactId>
-            <version>2.2.14-SNAPSHOT</version>
-        </dependency>
 
         <dependency>
             <groupId>mc.gouv.logon</groupId>

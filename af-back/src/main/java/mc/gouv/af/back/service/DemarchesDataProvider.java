@@ -28,4 +28,6 @@ public interface DemarchesDataProvider {
 
     public Map<String, String> getStatusMap();
 
+    public String getVersion();
+
 }

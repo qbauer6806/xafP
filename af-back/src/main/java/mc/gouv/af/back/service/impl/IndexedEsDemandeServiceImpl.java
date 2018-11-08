@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -31,9 +32,10 @@ import javax.transaction.Transactional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.search.join.ScoreMode;
 import org.apache.tika.exception.TikaException;
-import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.cluster.metadata.MappingMetaData;
+import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.InnerHitBuilder;
@@ -169,8 +171,6 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IndexedEsDemandeServiceImpl.class);
 
-    List<String> indices = new ArrayList<>();
-
     /**
      * Récupération des du mapping à partir d'un alias
      * @param aliasName Nom de l'alias
@@ -183,19 +183,21 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         Map mappings = null;
         try {
 
-            if (indices.isEmpty()) {
-                String[] indicesNames = elasticsearchTemplate.getClient().admin().indices()
-                        .getIndex(new GetIndexRequest()).actionGet().getIndices();
-                indices.addAll(Arrays.asList(indicesNames));
-            }
+            ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetaData>> globalMappings = elasticsearchTemplate
+                    .getClient().admin().indices().getMappings(new GetMappingsRequest().indices(aliasName).types(type))
+                    .actionGet().getMappings();
 
-            if (indices.isEmpty()) {
+            String indexName;
+            Iterator it = globalMappings.keysIt();
+            if (it.hasNext()) {
+                indexName = (String) it.next();
+            } else {
                 throw new AfIndexingException("Problem retrieving index name");
             }
 
             mappings = elasticsearchTemplate.getClient().admin().indices()
                     .getMappings(new GetMappingsRequest().indices(aliasName).types(type)).actionGet().getMappings()
-                    .get(indices.get(0)).get(type).getSourceAsMap();
+                    .get(indexName).get(type).getSourceAsMap();
 
         } catch (Exception e) {
             throw new ElasticsearchException("Error while getting mapping for indexName : " + aliasName + " type : "

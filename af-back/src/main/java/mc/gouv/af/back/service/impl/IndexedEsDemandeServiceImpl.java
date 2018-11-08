@@ -31,6 +31,8 @@ import javax.transaction.Transactional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.search.join.ScoreMode;
 import org.apache.tika.exception.TikaException;
+import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
+import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -60,6 +62,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.elasticsearch.ElasticsearchException;
 import org.springframework.data.elasticsearch.core.DefaultResultMapper;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.data.elasticsearch.core.ResultsExtractor;
@@ -71,6 +74,7 @@ import org.springframework.data.elasticsearch.core.query.IndexQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.data.elasticsearch.core.query.SourceFilter;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 import org.xml.sax.SAXException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -165,15 +169,50 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IndexedEsDemandeServiceImpl.class);
 
+    List<String> indices = new ArrayList<>();
+
+    /**
+     * Récupération des du mapping à partir d'un alias
+     * @param aliasName Nom de l'alias
+     * @param type Type de l'index
+     * @return Mapping Elasticsearch
+     */
+    public Map getMapping(String aliasName, String type) {
+        Assert.notNull(aliasName, "No index defined for putMapping()");
+        Assert.notNull(type, "No type defined for putMapping()");
+        Map mappings = null;
+        try {
+
+            if (indices.isEmpty()) {
+                String[] indicesNames = elasticsearchTemplate.getClient().admin().indices()
+                        .getIndex(new GetIndexRequest()).actionGet().getIndices();
+                indices.addAll(Arrays.asList(indicesNames));
+            }
+
+            if (indices.isEmpty()) {
+                throw new AfIndexingException("Problem retrieving index name");
+            }
+
+            mappings = elasticsearchTemplate.getClient().admin().indices()
+                    .getMappings(new GetMappingsRequest().indices(aliasName).types(type)).actionGet().getMappings()
+                    .get(indices.get(0)).get(type).getSourceAsMap();
+
+        } catch (Exception e) {
+            throw new ElasticsearchException("Error while getting mapping for indexName : " + aliasName + " type : "
+                    + type + " " + e.getMessage());
+        }
+        return mappings;
+    }
+
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public synchronized void initMappingProperties() {
         if (demandesProperties.isEmpty()) {
-            Map<String, Map> mapping = elasticsearchTemplate.getMapping(indexAlias, DemandeEsDTO.INDEX_TYPE);
+            Map<String, Map> mapping = getMapping(indexAlias, DemandeEsDTO.INDEX_TYPE);
             initMappingProperties(demandesProperties, mapping);
         }
 
         if (filesProperties.isEmpty()) {
-            Map<String, Map> mapping = elasticsearchTemplate.getMapping(indexAlias, DemandeEsDTO.INDEX_FILES_TYPE);
+            Map<String, Map> mapping = getMapping(indexAlias, DemandeEsDTO.INDEX_FILES_TYPE);
             initMappingProperties(filesProperties, mapping);
         }
     }

@@ -17,4 +17,8 @@ public class AfIndexingException extends RuntimeException {
         super(message, cause);
     }
 
+    public AfIndexingException(String message) {
+        super(message);
+    }
+
 }

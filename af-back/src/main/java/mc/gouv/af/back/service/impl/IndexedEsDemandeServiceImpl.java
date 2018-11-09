@@ -16,7 +16,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -32,10 +31,9 @@ import javax.transaction.Transactional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.search.join.ScoreMode;
 import org.apache.tika.exception.TikaException;
+import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.cluster.metadata.MappingMetaData;
-import org.elasticsearch.common.collect.ImmutableOpenMap;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.InnerHitBuilder;
@@ -183,21 +181,16 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         Map mappings = null;
         try {
 
-            ImmutableOpenMap<String, ImmutableOpenMap<String, MappingMetaData>> globalMappings = elasticsearchTemplate
-                    .getClient().admin().indices().getMappings(new GetMappingsRequest().indices(aliasName).types(type))
-                    .actionGet().getMappings();
+            String[] indicesNames = elasticsearchTemplate.getClient().admin().indices()
+                    .getIndex(new GetIndexRequest().indices(indexAlias)).actionGet().getIndices();
 
-            String indexName;
-            Iterator it = globalMappings.keysIt();
-            if (it.hasNext()) {
-                indexName = (String) it.next();
-            } else {
+            if (indicesNames == null || indicesNames.length == 0) {
                 throw new AfIndexingException("Problem retrieving index name");
             }
 
             mappings = elasticsearchTemplate.getClient().admin().indices()
                     .getMappings(new GetMappingsRequest().indices(aliasName).types(type)).actionGet().getMappings()
-                    .get(indexName).get(type).getSourceAsMap();
+                    .get(indicesNames[0]).get(type).getSourceAsMap();
 
         } catch (Exception e) {
             throw new ElasticsearchException("Error while getting mapping for indexName : " + aliasName + " type : "

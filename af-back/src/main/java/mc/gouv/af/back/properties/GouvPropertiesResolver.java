@@ -26,7 +26,7 @@ public interface GouvPropertiesResolver {
     String getPaysRestUrl();
 
     String getFrontUrl();
-    
+
     String getBackUrl();
 
     String getContainerId();
@@ -40,9 +40,13 @@ public interface GouvPropertiesResolver {
     String getFrontSharedKey();
 
     String getHelpUrl();
-    
+
     long getUsagersCacheDuration();
 
     String getFrontFormStartPage();
+
+    String getSearchHighlightPreTags();
+
+    String getSearchHighlightPostTags();
 
 }

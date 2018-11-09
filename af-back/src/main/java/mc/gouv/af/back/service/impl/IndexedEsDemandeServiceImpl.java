@@ -24,6 +24,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.jms.JMSException;
 import javax.transaction.Transactional;
@@ -55,7 +56,6 @@ import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.glassfish.jersey.internal.guava.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Primary;
@@ -94,6 +94,7 @@ import mc.gouv.af.back.data.es.model.EsProperty;
 import mc.gouv.af.back.enumeration.JMSActionEnum;
 import mc.gouv.af.back.exception.AfIndexingException;
 import mc.gouv.af.back.exception.FileConnectionException;
+import mc.gouv.af.back.properties.GouvPropertiesResolver;
 import mc.gouv.af.back.service.DemandeJmsTopicSendService;
 import mc.gouv.af.back.service.IndexedDemandeService;
 import mc.gouv.af.back.service.transformer.DemandeEsTransformer;
@@ -140,17 +141,18 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     @Value("${application.name}")
     private String indexAlias;
 
-    @Value("${mc.gouv.stage.search.highlight.pretags:<b>}")
     private String highlightPretags;
 
-    @Value("${mc.gouv.stage.search.highlight.posttags:</b>}")
     private String highlightPosttags;
 
-    @Autowired
+    @Inject
     private DemandesRepository demandesRepository;
 
-    @Autowired
+    @Inject
     private ElasticsearchTemplate elasticsearchTemplate;
+
+    @Inject
+    private GouvPropertiesResolver gouvPropertiesResolver;
 
     private List<EsProperty> demandesProperties = new ArrayList<>();
     private List<EsProperty> filesProperties = new ArrayList<>();
@@ -168,6 +170,12 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             "complements.reponse.fichiers.url", "fichiers.demandeId");
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IndexedEsDemandeServiceImpl.class);
+
+    @PostConstruct
+    public void init() {
+        highlightPretags = gouvPropertiesResolver.getSearchHighlightPreTags();
+        highlightPosttags = gouvPropertiesResolver.getSearchHighlightPostTags();
+    }
 
     /**
      * Récupération des du mapping à partir d'un alias

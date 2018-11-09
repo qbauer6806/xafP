@@ -8,12 +8,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,6 +45,9 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
      * Uppercase de application.name
      */
     private String demarcheId;
+
+    @Inject
+    private Environment environment;
 
     /*
      * .hab
@@ -82,11 +87,10 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
                 try {
                     Object value = method.invoke(this);
                     if (value instanceof String) {
-                        if (StringUtils.isBlank((String)value)) {
+                        if (StringUtils.isBlank((String) value)) {
                             propertiesNotFound.add(propertyDescriptor.getReadMethod().toString());
                         }
-                    }
-                    else if (value == null) {
+                    } else if (value == null) {
                         propertiesNotFound.add(propertyDescriptor.getReadMethod().toString());
                     }
                 } catch (IllegalArgumentException e) {
@@ -161,7 +165,7 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     public String getFileJwt() {
         return Static.getValue("mc.gouv" + applicationPrefix + ".backserver.file.jwt");
     }
-    
+
     @Override
     public String getMailJwt() {
         return Static.getValue("mc.gouv" + applicationPrefix + ".backserver.mail.jwt");
@@ -171,7 +175,7 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     public String getFrontUrl() {
         return Static.getValue("mc.gouv" + applicationPrefix + ".backserver.front.url");
     }
-    
+
     @Override
     public String getBackUrl() {
         return Static.getValue("mc.gouv" + applicationPrefix + ".backserver.back.url");
@@ -186,7 +190,7 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     public String getHelpUrl() {
         return Static.getValue("mc.gouv" + applicationPrefix + ".backserver.help.url");
     }
-    
+
     @Override
     public String getFrontFormStartPage() {
         return Static.getValue("mc.gouv" + applicationPrefix + ".backserver.front.formstartpage");
@@ -217,5 +221,17 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     public long getUsagersCacheDuration() {
         return Long.parseLong(Static.getValue("mc.gouv" + applicationPrefix + ".backserver.usagerscache.duration"));
     }
-    
+
+    @Override
+    public String getSearchHighlightPreTags() {
+        String searchPreTags = environment.getProperty("mc.gouv" + applicationPrefix + ".search.highlight.pretags");
+        return searchPreTags != null ? searchPreTags : "<b>";
+    }
+
+    @Override
+    public String getSearchHighlightPostTags() {
+        String searchPostTags = environment.getProperty("mc.gouv" + applicationPrefix + ".search.highlight.posttags");
+        return searchPostTags != null ? searchPostTags : "</b>";
+    }
+
 }

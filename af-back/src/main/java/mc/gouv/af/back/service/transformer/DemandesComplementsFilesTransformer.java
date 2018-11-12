@@ -21,8 +21,6 @@ public class DemandesComplementsFilesTransformer
         dto.setName(bo.getName());
         dto.setUrl(bo.getUrl());
         dto.setMeta(bo.getMeta());
-        dto.setContent(bo.getContent());
-        dto.setLanguage(bo.getLanguage());
         return dto;
     }
 

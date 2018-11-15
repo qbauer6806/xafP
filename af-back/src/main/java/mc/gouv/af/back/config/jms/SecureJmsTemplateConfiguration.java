@@ -15,31 +15,31 @@ import org.springframework.jms.support.converter.MessageConverter;
 import org.springframework.jms.support.converter.MessageType;
 
 import mc.gouv.af.back.config.es.IndexationEnabledCondition;
-import mc.gouv.dem.service.DemGouvPropertiesResolver;
+import mc.gouv.af.back.properties.GouvPropertiesResolver;
 
 @Configuration
 @Conditional(IndexationEnabledCondition.class)
 public class SecureJmsTemplateConfiguration {
 
     @Inject
-    private DemGouvPropertiesResolver demGouvPropertiesResolver;
+    private GouvPropertiesResolver gouvPropertiesResolver;
 
     @Bean
     public ActiveMQConnectionFactory activeMQSenderConnectionFactory() {
-        String host = demGouvPropertiesResolver.getJmsHost();
-        String port = String.valueOf(demGouvPropertiesResolver.getJmsPort());
-        String user = demGouvPropertiesResolver.getJmsSenderUser();
-        String password = demGouvPropertiesResolver.getJmsSenderPassword();
+        String host = gouvPropertiesResolver.getJmsHost();
+        String port = String.valueOf(gouvPropertiesResolver.getJmsPort());
+        String user = gouvPropertiesResolver.getJmsSenderUser();
+        String password = gouvPropertiesResolver.getJmsSenderPassword();
 
         return getActiveMQConnectionFactory(host, port, user, password);
     }
 
     @Bean
     public ActiveMQConnectionFactory activeMQConsumerConnectionFactory() {
-        String host = demGouvPropertiesResolver.getJmsHost();
-        String port = String.valueOf(demGouvPropertiesResolver.getJmsPort());
-        String user = demGouvPropertiesResolver.getJmsConsumerUser();
-        String password = demGouvPropertiesResolver.getJmsConsumerPassword();
+        String host = gouvPropertiesResolver.getJmsHost();
+        String port = String.valueOf(gouvPropertiesResolver.getJmsPort());
+        String user = gouvPropertiesResolver.getJmsConsumerUser();
+        String password = gouvPropertiesResolver.getJmsConsumerPassword();
 
         return getActiveMQConnectionFactory(host, port, user, password);
     }
@@ -60,7 +60,7 @@ public class SecureJmsTemplateConfiguration {
 
         factory.setPubSubDomain(true);
         factory.setSubscriptionDurable(true);
-        factory.setClientId(demGouvPropertiesResolver.getSubscriptionKey());
+        factory.setClientId(gouvPropertiesResolver.getSubscriptionKey());
         // This provides all boot's default to this factory, including the message converter
         configurer.configure(factory, activeMQConsumerConnectionFactory());
         // You could still override some of Boot's default if necessary.

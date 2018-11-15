@@ -8,14 +8,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
-import javax.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,9 +43,6 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
      * Uppercase de application.name
      */
     private String demarcheId;
-
-    @Inject
-    private Environment environment;
 
     /*
      * .hab
@@ -224,14 +219,123 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
 
     @Override
     public String getSearchHighlightPreTags() {
-        String searchPreTags = environment.getProperty("mc.gouv" + applicationPrefix + ".search.highlight.pretags");
+        String searchPreTags = Static.getValue("mc.gouv" + applicationPrefix + ".search.highlight.pretags");
         return searchPreTags != null ? searchPreTags : "<b>";
     }
 
     @Override
     public String getSearchHighlightPostTags() {
-        String searchPostTags = environment.getProperty("mc.gouv" + applicationPrefix + ".search.highlight.posttags");
+        String searchPostTags = Static.getValue("mc.gouv" + applicationPrefix + ".search.highlight.posttags");
         return searchPostTags != null ? searchPostTags : "</b>";
     }
 
+    @Override
+    public Integer getJmsPort() {
+
+        String port = Static.getValue("mc.gouv" + applicationPrefix + ".jms.port");
+
+        if (port != null) {
+            return Integer.parseInt(port);
+        }
+
+        return null;
+
+    }
+
+    @Override
+    public String getJmsDataDir() {
+        return Static.getValue("mc.gouv" + applicationPrefix + ".jms.data.dir");
+    }
+
+    @Override
+    public String getJmsRedeliveryDelay() {
+        return Static.getValue("mc.gouv" + applicationPrefix + ".jms.redelivery.delay");
+    }
+
+    @Override
+    public String getJmsRedeliveryMultiplier() {
+        return Static.getValue("mc.gouv" + applicationPrefix + ".jms.redelivery.multiplier");
+    }
+
+    @Override
+    public String getJmsRedeliveryMaxAttemps() {
+        return Static.getValue("mc.gouv" + applicationPrefix + ".jms.redelivery.maxAttemps");
+    }
+
+    @Override
+    public String getJmsDlq() {
+        return Static.getValue("mc.gouv" + applicationPrefix + ".jms.dlq");
+    }
+
+    @Override
+    public String getJmsTopic() {
+        return Static.getValue("mc.gouv" + applicationPrefix + ".jms.topic");
+    }
+
+    @Override
+    public String getJmsHost() {
+        return Static.getValue("mc.gouv" + applicationPrefix + ".jms.host");
+    }
+
+    @Override
+    public String getJmsSenderUser() {
+        return Static.getValue("mc.gouv" + applicationPrefix + ".jms.topic.sender.user");
+    }
+
+    @Override
+    public String getJmsSenderPassword() {
+        return Static.getValue("mc.gouv" + applicationPrefix + ".jms.topic.sender.password");
+    }
+
+    @Override
+    public String getJmsConsumerUser() {
+        return Static.getValue("mc.gouv" + applicationPrefix + ".jms.topic.consumer.user");
+    }
+
+    @Override
+    public String getJmsConsumerPassword() {
+        return Static.getValue("mc.gouv" + applicationPrefix + ".jms.topic.consumer.password");
+    }
+
+    @Override
+    public String getSubscriptionKey() {
+        return Static.getValue("mc.gouv" + applicationPrefix + ".jms.topic.subscription.key");
+    }
+
+    @Override
+    public String getEsClusterName() {
+        return Static.getValue("mc.gouv" + applicationPrefix + ".elasticsearch.clustername");
+    }
+
+    @Override
+    public String getEsHost() {
+        return Static.getValue("mc.gouv" + applicationPrefix + ".elasticsearch.host");
+    }
+
+    @Override
+    public Integer getEsPort() {
+        String batchSize = Static.getValue("mc.gouv" + applicationPrefix + ".elasticsearch.port");
+
+        if (batchSize != null) {
+            return Integer.parseInt(batchSize);
+        }
+
+        return null;
+    }
+
+    @Override
+    public String getEsNodeName() {
+        return Static.getValue("mc.gouv" + applicationPrefix + ".elasticsearch.nodename");
+    }
+
+    @Override
+    public Integer getEsReindexBulkSize() {
+        String esReindexBulkSize = Static.getValue("mc.gouv" + applicationPrefix + ".elasticsearch.reindex.bulksize");
+
+        if (esReindexBulkSize != null) {
+            return Integer.parseInt(esReindexBulkSize);
+        }
+
+        return null;
+    }
 }

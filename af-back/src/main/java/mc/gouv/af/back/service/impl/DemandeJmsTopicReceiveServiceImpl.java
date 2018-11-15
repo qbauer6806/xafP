@@ -14,7 +14,7 @@ import mc.gouv.af.back.data.es.model.DemandeEsJmsDto;
 import mc.gouv.af.back.enumeration.JMSActionEnum;
 import mc.gouv.af.back.service.DemandeJmsTopicReceiveService;
 import mc.gouv.af.back.service.IndexedDemandeService;
-import mc.gouv.dem.shared.util.Constants;
+import mc.gouv.af.back.util.Constants;
 
 @Service
 @Conditional(CreateTopicCondition.class)

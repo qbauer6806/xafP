@@ -17,9 +17,9 @@ import org.springframework.transaction.annotation.Transactional;
 import mc.gouv.af.back.config.es.IndexationEnabledCondition;
 import mc.gouv.af.back.data.es.model.DemandeEsJmsDto;
 import mc.gouv.af.back.enumeration.JMSActionEnum;
+import mc.gouv.af.back.properties.GouvPropertiesResolver;
 import mc.gouv.af.back.service.DemandeJmsTopicSendService;
-import mc.gouv.dem.service.DemGouvPropertiesResolver;
-import mc.gouv.dem.shared.util.Constants;
+import mc.gouv.af.back.util.Constants;
 
 @Service
 @Conditional(IndexationEnabledCondition.class)
@@ -32,13 +32,13 @@ public class DemandeJmsTopicSendServiceImpl implements DemandeJmsTopicSendServic
     private JmsTemplate jmsTemplate;
 
     @Inject
-    private DemGouvPropertiesResolver demGouvPropertiesResolver;
+    private GouvPropertiesResolver gouvPropertiesResolver;
 
     @Override
     @Transactional(propagation = Propagation.MANDATORY)
     public void send(final DemandeEsJmsDto demande, final JMSActionEnum action) {
 
-        jmsTemplate.convertAndSend(demGouvPropertiesResolver.getJmsTopic(), demande, new MessagePostProcessor() {
+        jmsTemplate.convertAndSend(gouvPropertiesResolver.getJmsTopic(), demande, new MessagePostProcessor() {
 
             public Message postProcessMessage(Message message) throws JMSException {
                 message.setObjectProperty(Constants.ACTION, action.name());

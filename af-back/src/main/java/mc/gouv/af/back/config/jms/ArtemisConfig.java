@@ -26,7 +26,7 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 
 import mc.gouv.af.back.config.es.IndexationEnabledCondition;
-import mc.gouv.dem.service.DemGouvPropertiesResolver;
+import mc.gouv.af.back.properties.GouvPropertiesResolver;
 
 /*****
  * Classe pour surcharger la configuration de EmbeddedJMS{****
@@ -57,8 +57,7 @@ public class ArtemisConfig implements ArtemisConfigurationCustomizer {
     private final ArtemisProperties properties;
 
     @Inject
-    private DemGouvPropertiesResolver demGouvPropertiesResolver;
-
+    private GouvPropertiesResolver gouvPropertiesResolver;
     /**
      * Voir pour gérer le multi protocoles
      */
@@ -75,7 +74,7 @@ public class ArtemisConfig implements ArtemisConfigurationCustomizer {
 
         LOGGER.info("Paramétrage de ArtemisMQ pour le gouvernement");
 
-        int port = demGouvPropertiesResolver.getJmsPort();
+        int port = gouvPropertiesResolver.getJmsPort();
         LOGGER.info("Port : " + port);
 
         protocols = StringUtils.isNotBlank(protocols) ? protocols : DEFAULT_TRANSPORT_PROTOCOLS;
@@ -101,7 +100,7 @@ public class ArtemisConfig implements ArtemisConfigurationCustomizer {
 
         if (persistent) {
             configuration.setPersistenceEnabled(true);
-            String dir = demGouvPropertiesResolver.getJmsDataDir();
+            String dir = gouvPropertiesResolver.getJmsDataDir();
 
             configuration.setCreateBindingsDir(true);
             configuration.setCreateJournalDir(true);
@@ -115,7 +114,7 @@ public class ArtemisConfig implements ArtemisConfigurationCustomizer {
 
         AddressSettings addressSettings = new AddressSettings();
 
-        String redeliverayDelayStr = demGouvPropertiesResolver.getJmsRedeliveryDelay();
+        String redeliverayDelayStr = gouvPropertiesResolver.getJmsRedeliveryDelay();
         if (StringUtils.isNotBlank(redeliverayDelayStr)) {
             long redeliverayDelay = Long.parseLong(redeliverayDelayStr);
 
@@ -124,21 +123,21 @@ public class ArtemisConfig implements ArtemisConfigurationCustomizer {
             addressSettings.setRedeliveryDelay(redeliverayDelay);
         }
 
-        String redeliverayMultiplierStr = demGouvPropertiesResolver.getJmsRedeliveryMultiplier();
+        String redeliverayMultiplierStr = gouvPropertiesResolver.getJmsRedeliveryMultiplier();
         if (StringUtils.isNotBlank(redeliverayMultiplierStr)) {
             double redeliverayMultiplier = Double.parseDouble(redeliverayMultiplierStr);
             addressSettings.setRedeliveryMultiplier(redeliverayMultiplier);
             LOGGER.info("RedeliverayMultiplier : " + redeliverayMultiplier);
         }
 
-        String maxDeliveryAttempsStr = demGouvPropertiesResolver.getJmsRedeliveryMaxAttemps();
+        String maxDeliveryAttempsStr = gouvPropertiesResolver.getJmsRedeliveryMaxAttemps();
         if (StringUtils.isNotBlank(maxDeliveryAttempsStr)) {
             int maxDeliveryAttemps = Integer.parseInt(maxDeliveryAttempsStr);
             LOGGER.info("MaxDeliveryAttemps : " + maxDeliveryAttemps);
             addressSettings.setMaxDeliveryAttempts(maxDeliveryAttemps);
         }
 
-        String demJmsDlq = demGouvPropertiesResolver.getJmsDlq();
+        String demJmsDlq = gouvPropertiesResolver.getJmsDlq();
         if (StringUtils.isNotBlank(demJmsDlq)) {
 
             String dlq = "jms.queue." + demJmsDlq;
@@ -155,7 +154,7 @@ public class ArtemisConfig implements ArtemisConfigurationCustomizer {
 
         List<SecuritySettingPlugin> ssplugins = new ArrayList<>();
         CustomArtemisSecuritySettingPlugin ssplugin = new CustomArtemisSecuritySettingPlugin(
-                demGouvPropertiesResolver.getJmsTopic());
+                gouvPropertiesResolver.getJmsTopic());
         ssplugins.add(ssplugin);
         configuration.setSecuritySettingPlugins(ssplugins);
 

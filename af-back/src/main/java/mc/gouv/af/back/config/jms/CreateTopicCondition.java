@@ -4,7 +4,7 @@ import org.springframework.context.annotation.Condition;
 import org.springframework.context.annotation.ConditionContext;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 
-import mc.gouv.dem.shared.util.Constants;
+import mc.gouv.af.back.util.Constants;
 
 /**
  * Classe permettant de vérifier si le topic doit être créé

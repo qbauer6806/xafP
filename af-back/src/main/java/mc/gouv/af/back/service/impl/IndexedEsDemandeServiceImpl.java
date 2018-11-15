@@ -104,7 +104,6 @@ import mc.gouv.dem.data.entity.DemandeBO;
 import mc.gouv.dem.data.entity.DemandesComplementsBO;
 import mc.gouv.dem.data.entity.DemandesFilesBO;
 import mc.gouv.dem.service.AccessService;
-import mc.gouv.dem.service.DemGouvPropertiesResolver;
 import mc.gouv.dem.service.impl.DemandesServiceImpl;
 import mc.gouv.dem.service.model.DemandeRechercheDTO;
 import mc.gouv.dem.service.transformer.DemandesComplementsFilesTransformer;
@@ -128,9 +127,6 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     @Inject
     private DemandeEsRepository demandeEsRepository;
-
-    @Inject
-    private DemGouvPropertiesResolver demGouvPropertiesResolver;
 
     @Inject
     private AccessService accessService;
@@ -432,7 +428,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         if (demandeEsRepository != null) {
             long demCount = demandesRepository.count();
             demandeEsRepository.deleteAll();
-            final int size = demGouvPropertiesResolver.getEsReindexBulkSize();
+            final int size = gouvPropertiesResolver.getEsReindexBulkSize();
             int additionalPage = 0;
             if (demCount % size > 0) {
                 additionalPage = 1;

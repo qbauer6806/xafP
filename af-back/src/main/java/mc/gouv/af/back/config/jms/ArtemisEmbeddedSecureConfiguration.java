@@ -25,7 +25,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 
 import mc.gouv.af.back.config.es.IndexationEnabledCondition;
-import mc.gouv.dem.service.DemGouvPropertiesResolver;
+import mc.gouv.af.back.properties.GouvPropertiesResolver;
 
 /***
  * Configuration used to create the embedded Artemis server.**
@@ -49,7 +49,7 @@ class ArtemisEmbeddedSecureConfiguration {
     private final List<TopicConfiguration> topicsConfiguration;
 
     @Inject
-    private DemGouvPropertiesResolver demGouvPropertiesResolver;
+    private GouvPropertiesResolver gouvPropertiesResolver;
 
     ArtemisEmbeddedSecureConfiguration(ArtemisProperties properties,
             ObjectProvider<List<ArtemisConfigurationCustomizer>> configurationCustomizers,
@@ -82,9 +82,9 @@ class ArtemisEmbeddedSecureConfiguration {
     }
 
     private void manageUsersAndRoles(EmbeddedJMS server) {
-        ArtemisSecurityManager securityManager = new ArtemisSecurityManager(
-                demGouvPropertiesResolver.getJmsSenderUser(), demGouvPropertiesResolver.getJmsSenderPassword(),
-                demGouvPropertiesResolver.getJmsConsumerUser(), demGouvPropertiesResolver.getJmsConsumerPassword());
+        ArtemisSecurityManager securityManager = new ArtemisSecurityManager(gouvPropertiesResolver.getJmsSenderUser(),
+                gouvPropertiesResolver.getJmsSenderPassword(), gouvPropertiesResolver.getJmsConsumerUser(),
+                gouvPropertiesResolver.getJmsConsumerPassword());
         server.setSecurityManager(securityManager);
     }
 

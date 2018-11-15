@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 
-import mc.gouv.dem.service.DemGouvPropertiesResolver;
+import mc.gouv.af.back.properties.GouvPropertiesResolver;
 
 @Profile("simulateur")
 @Configuration
@@ -22,7 +22,7 @@ import mc.gouv.dem.service.DemGouvPropertiesResolver;
 public class EsConfigSimulateur {
 
     @Inject
-    private DemGouvPropertiesResolver demGouvPropertiesResolver;
+    private GouvPropertiesResolver gouvPropertiesResolver;
 
     @Autowired
     NodeBuilder nodeBuilder;
@@ -31,7 +31,7 @@ public class EsConfigSimulateur {
 
     @PostConstruct
     public void init() throws NodeValidationException {
-        node = nodeBuilder.getNode(demGouvPropertiesResolver.getEsNodeName(), demGouvPropertiesResolver.getEsPort());
+        node = nodeBuilder.getNode(gouvPropertiesResolver.getEsNodeName(), gouvPropertiesResolver.getEsPort());
         node.start();
     }
 

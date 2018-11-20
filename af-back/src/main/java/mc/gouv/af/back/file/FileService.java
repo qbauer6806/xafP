@@ -3,13 +3,11 @@ package mc.gouv.af.back.file;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.Part;
 
 import org.apache.http.client.ClientProtocolException;
+import org.springframework.web.multipart.MultipartFile;
 
 import mc.gouv.dem.shared.model.DemandeDTO;
 
@@ -26,6 +24,6 @@ public interface FileService {
     
     public String saveFile(DemandeDTO demande, String filename, String contentType, InputStream inputStream, OutputStream outputStream) throws Exception;
     
-    public String saveFile(DemandeDTO demande, Part part, HttpServletResponse response) throws UnsupportedEncodingException, IOException, ServletException;
+    public String saveFile(DemandeDTO demande, MultipartFile file, HttpServletResponse response) throws Exception;
     
 }

@@ -1,12 +1,10 @@
 package mc.gouv.af.backweb.ws;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.Part;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -16,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.HandlerMapping;
 
 import mc.gouv.af.back.file.FileService;
@@ -69,7 +68,7 @@ public class FileController {
      * @return
      * @throws Exception
      */
-    public Map<String, String> saveFiles(Integer demandeId, HttpServletRequest request, HttpServletResponse response,
+    public Map<String, String> saveFiles(Integer demandeId, MultipartFile[] files, HttpServletResponse response,
             Integer pkDemande) throws Exception {
 
         LOGGER.info("====================== saveFiles()");
@@ -79,17 +78,14 @@ public class FileController {
 
         Map<String, String> fileNames = new HashMap<String, String>();
         
-        Iterator<Part> it = request.getParts().iterator();
-        while (it.hasNext()) {
-            Part part = it.next();
-
-            if (!StringUtils.isBlank(part.getSubmittedFileName())) {
-                LOGGER.info("Part à traiter : " + part.getSubmittedFileName());
+        for (MultipartFile file : files) {
+            if (!StringUtils.isBlank(file.getOriginalFilename())) {
+                LOGGER.info("Part à traiter : " + file.getOriginalFilename());
 
                 LOGGER.info("Appel au FileService...");
-                String filename = fileService.saveFile(demande, part, response);
+                String filename = fileService.saveFile(demande, file, response);
 
-                fileNames.put(part.getSubmittedFileName(), filename);
+                fileNames.put(file.getOriginalFilename(), filename);
             }
         }
 

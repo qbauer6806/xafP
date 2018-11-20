@@ -81,6 +81,7 @@ public class GouvBPMImpl implements GouvBPM {
         // Variables techniques
         variables.put(GouvBPMProcessVariableTypeEnum.MC_USERID.name(), user.getId());
         variables.put(GouvBPMProcessVariableTypeEnum.MC_CODEAPPLI.name(), codeAppli);
+        variables.put(GouvBPMProcessVariableTypeEnum.MC_EXPIRED.name(), false);
         // Variables business éventuellement fournies par le client
         if (businessVariables != null) {
             variables.putAll(businessVariables);

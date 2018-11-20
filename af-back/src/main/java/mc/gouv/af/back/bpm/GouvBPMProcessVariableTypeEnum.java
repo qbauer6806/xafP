@@ -22,5 +22,6 @@ public enum GouvBPMProcessVariableTypeEnum {
     MC_DEMANDE_CANAL,
     MC_DEMANDE_IDENTIFIANT,
     MC_CONTENU_DEMANDE,
-    MC_ASSIGNEE
+    MC_ASSIGNEE,
+    MC_EXPIRED
 }

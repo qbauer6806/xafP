@@ -198,7 +198,7 @@
 					<input type="hidden" id="demandeId" name="demandeId" /> <input
 						type="hidden" id="courrierId" name="courrierId" /> <span>Identifiant
 						de courrier :</span><br />
-					<textarea name="refCourrier" maxlength="128" />
+					<textarea name="refCourrier" maxlength="128"></textarea>
 					<div class="row-mt-5">
 						<input id="print-button" type="submit" name="action"
 							value="Continuer" class="btn btn-action ripple-effect"
@@ -212,11 +212,10 @@
 
 
 
-	<script>
+	<script th:inline="javascript">
 		/*<![CDATA[*/
-				
-		$(document)
-				.ready(
+		
+		$(document).ready(
 						function() {
 
 							$(".print").click(function(e) {
@@ -224,6 +223,8 @@
 
 								var courrierId = $(this).data("courrierid");
 								var demandeId = $(this).data("demandeid");
+
+								console.log('salut');
 
 								$.fancybox.open($("#print-box"));
 

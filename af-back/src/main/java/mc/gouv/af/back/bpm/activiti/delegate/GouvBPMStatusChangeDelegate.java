@@ -3,6 +3,7 @@ package mc.gouv.af.back.bpm.activiti.delegate;
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.delegate.JavaDelegate;
 import org.activiti.engine.impl.el.Expression;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +40,8 @@ public class GouvBPMStatusChangeDelegate implements JavaDelegate {
 
     @Autowired(required = false)
     private IndexedDemandeService indexedDemandeService;
+    
+    private Expression codeMotif;
 
     @Override
     public void execute(DelegateExecution execution) throws Exception {
@@ -51,11 +54,20 @@ public class GouvBPMStatusChangeDelegate implements JavaDelegate {
 
         LOGGER.info("Demande : " + demandeId);
         LOGGER.info("Statut à mettre : " + statut);
+        
+        String codeMotifStr = null;
+        if (codeMotif != null && codeMotif.getValue(execution) != null) {
+            codeMotifStr = (String)codeMotif.getValue(execution);
+        }
 
         // Récupération du commentaire usager et du code motif si besoin plus tard dans le traitement
         String commentaireUsager = (String) execution
                 .getVariable(GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name());
-        String codeMotif = (String) execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name());
+        
+        // Si le code motif n'a pas été indiqué dans le BPMN, alors le récupérer des process variables
+        if (StringUtils.isBlank(codeMotifStr)) {
+            codeMotifStr = (String) execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name());
+        }
 
         String agentId = (String) execution
                 .getVariable(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_AGENT.name());
@@ -65,7 +77,7 @@ public class GouvBPMStatusChangeDelegate implements JavaDelegate {
         // execution.removeVariable(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_USAGER.name());
 
         LOGGER.info("Commentaire usager : " + commentaireUsager);
-        LOGGER.info("Code motif : " + codeMotif);
+        LOGGER.info("Code motif : " + codeMotifStr);
 
         // TODO Peut-être gérer les variables autrement... si on met après ce serviceTask, un autre qui en a besoin
         // alors y'a un problème
@@ -82,14 +94,14 @@ public class GouvBPMStatusChangeDelegate implements JavaDelegate {
         StatutInputDTO statutInput = new StatutInputDTO();
         if (usagerId != null) {
             demandesStatutsService.updateStatut(gouvPropertiesResolver.getDemarcheId(), demandeId, statut, null,
-                    Integer.parseInt(usagerId), codeMotif, commentaireUsager);
+                    Integer.parseInt(usagerId), codeMotifStr, commentaireUsager);
             statutInput.setUsagerId(Integer.parseInt(usagerId));
         } else if (agentId != null) {
             demandesStatutsService.updateStatut(gouvPropertiesResolver.getDemarcheId(), demandeId, statut, agentId,
-                    null, codeMotif, commentaireUsager);
+                    null, codeMotifStr, commentaireUsager);
         } else {
             demandesStatutsService.updateStatut(gouvPropertiesResolver.getDemarcheId(), demandeId, statut,
-                    AfBackUtils.getAuthenticatedAgentId(), null, codeMotif, commentaireUsager);
+                    AfBackUtils.getAuthenticatedAgentId(), null, codeMotifStr, commentaireUsager);
         }
 
         if (indexedDemandeService != null) {

@@ -10,6 +10,7 @@ import static org.elasticsearch.join.query.JoinQueryBuilders.hasChildQuery;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.ConnectException;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -542,8 +543,15 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             FileClient fileClient = new FileClient(DemarchesUtils.FILE_REST_URL, DemarchesUtils.FILE_JWT);
             InputStream is;
             try {
+                
+                String finalFilename = fichier.getUrl();
+                String[] split = fichier.getUrl().split("/");
+                String isolatedFileName = split[split.length-1];
+                finalFilename = finalFilename.replace(isolatedFileName, URLEncoder.encode(isolatedFileName,"UTF-8"));
+                
+                
                 is = fileClient.getFile(
-                        demarcheId + "/" + DemarchesUtils.CONTAINERID + "/" + fichier.getUrl().replace(" ", "%20"));
+                        demarcheId + "/" + DemarchesUtils.CONTAINERID + "/" + finalFilename);
             } catch (ConnectException e) {
                 throw new FileConnectionException("Could not connect to file", e);
             }

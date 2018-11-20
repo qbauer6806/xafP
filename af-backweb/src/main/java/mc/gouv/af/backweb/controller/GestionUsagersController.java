@@ -309,7 +309,7 @@ public class GestionUsagersController extends AbstractController {
 
 		// TODO gestion des erreurs ?
 
-		mav = new ModelAndView("redirect:");
+		mav = new ModelAndView("redirect:/gestion/usagers");
 
 		// Ajout du message de succès
 		List<String> messages = new ArrayList<String>();

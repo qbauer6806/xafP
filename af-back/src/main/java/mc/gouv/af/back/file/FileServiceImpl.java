@@ -1,5 +1,6 @@
 package mc.gouv.af.back.file;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -7,15 +8,14 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.Part;
 
 import org.apache.http.client.ClientProtocolException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 import mc.gouv.af.back.properties.GouvPropertiesResolver;
 import mc.gouv.af.back.util.AfBackUtils;
@@ -76,13 +76,13 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public String saveFile(DemandeDTO demande, Part part, HttpServletResponse response)
-            throws IOException, ServletException {
+    public String saveFile(DemandeDTO demande, MultipartFile file, HttpServletResponse response)
+            throws Exception {
 
-        LOGGER.info("FileService.saveFile(" + demande.getPkDemandes() + "," + part.getSubmittedFileName() + ")");
+        LOGGER.info("FileService.saveFile(" + demande.getPkDemandes() + "," + file.getOriginalFilename() + ")");
 
         String filename = demande.getFkAccess() + "/" + AfBackUtils.generateUUID() + "/"
-                + URLEncoder.encode(part.getSubmittedFileName(), "UTF-8");
+                + URLEncoder.encode(file.getOriginalFilename(), "UTF-8");
 
         LOGGER.info("Filename à donner à FILE : " + filename);
 
@@ -91,7 +91,10 @@ public class FileServiceImpl implements FileService {
         String accountId = gouvPropertiesResolver.getDemarcheId();
         String containerId = gouvPropertiesResolver.getContainerId();
         LOGGER.info("FileClient.saveFile(" + accountId + "," + containerId + "," + filename + ")");
-        return afBackUtils.getFileClient().saveFile(accountId, containerId, part, filename, customHeaders, response);
+        
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        
+        return afBackUtils.getFileClient().saveFile(accountId, containerId, file.getInputStream(), filename, file.getContentType(), customHeaders, outputStream);
 
     }
 

@@ -8,7 +8,7 @@ import org.springframework.data.elasticsearch.annotations.Parent;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-import mc.gouv.dem.shared.model.AbstractDemandeDto;
+import mc.gouv.dem.shared.model.AbstractDemandeDTO;
 
 /**
  * Modélise une demande
@@ -16,7 +16,7 @@ import mc.gouv.dem.shared.model.AbstractDemandeDto;
  *
  */
 @Document(indexName = "#{propertiesResolver.indexAlias}", type = DemandeEsDTO.INDEX_TYPE)
-public class DemandeEsDTO extends AbstractDemandeDto {
+public class DemandeEsDTO extends AbstractDemandeDTO {
 
     public static final String INDEX_TYPE = "demandes";
     public static final String INDEX_FILES_TYPE = "fichiers";

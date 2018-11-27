@@ -1,8 +1,5 @@
 package mc.gouv.af.back.bpm.activiti.delegate;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -15,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import mc.gouv.af.back.bpm.GouvBPMProcessVariableTypeEnum;
-import mc.gouv.af.back.cache.UtilisateursCache;
 import mc.gouv.af.back.mail.EmailInfoDTO;
 import mc.gouv.af.back.mail.MailService;
 import mc.gouv.af.back.mail.MailTemplateModelProvider;
@@ -23,8 +19,6 @@ import mc.gouv.af.back.properties.GouvPropertiesResolver;
 import mc.gouv.af.back.util.AfBackUtils;
 import mc.gouv.dem.service.DemandesService;
 import mc.gouv.dem.shared.model.DemandeDTO;
-import mc.gouv.logon.shared.Droit;
-import mc.gouv.logon.shared.Role;
 import mc.gouv.logon.shared.User;
 
 /**
@@ -55,9 +49,6 @@ public class GouvBPMEnvoiEmailAgentsWithRolesDelegate implements JavaDelegate {
     @Autowired
     private MailTemplateModelProvider mailTemplateModelProvider;
     
-    @Autowired
-    private UtilisateursCache utilisateursCache;
-    
     private Expression emailBodyTemplateCode;
     
     private Expression emailSubjectTemplateCode;
@@ -81,32 +72,10 @@ public class GouvBPMEnvoiEmailAgentsWithRolesDelegate implements JavaDelegate {
                 .getEmailReplytoNom());
         
         LOGGER.info("Calcul des agents ayant les rôles requis pour l'envoi de l'email...");
-        String codeAppli = gouvPropertiesResolver.getDemarcheId();
-        Set<User> destinataires = new HashSet<User>();
         String rolesStr = (String)roles.getValue(execution);
         String[] rolesList = rolesStr.split(",");
-        List<User> agents = new ArrayList<User>(utilisateursCache.getAll().values());
-        if (agents != null && !agents.isEmpty()) {
-            for (User agent : agents) {
-                boolean toAdd = false;
-                Set<Role> agentRoles = agent.getRoles();
-                for (Role role : agentRoles) {
-                    if (role.getAppli().getCode().equals(codeAppli)) {
-                        for (Droit droit : role.getDroits()) {
-                            for (String roleFromList : rolesList) {
-                                if (roleFromList.trim().equals(droit.getCode())) {
-                                    toAdd = true;
-                                }
-                            }
-                        }
-    
-                    }
-                }
-                if (toAdd) {
-                    destinataires.add(agent);
-                }
-            }
-            
+        Set<User> destinataires = afBackUtils.getAgentsWithRoles(rolesList);
+        if (destinataires != null && !destinataires.isEmpty()) {
             for (User dest : destinataires) {
                 if (dest.getMail() != null) {
                     emailInfo.addTo(dest.getMail(), dest.getNom());
@@ -136,7 +105,7 @@ public class GouvBPMEnvoiEmailAgentsWithRolesDelegate implements JavaDelegate {
             }
         }
         else {
-            LOGGER.warn("Attention : aucun agent n'a pu être retrouvé. Par conséquent, pas d'envoi d'email.");
+            LOGGER.warn("Attention : aucun agent n'a pu être retrouvé pour ces rôles. Par conséquent, pas d'envoi d'email.");
         }
         
         LOGGER.info("==== AF-BACK ENVOI EMAIL AGENT WITH ROLES <fin>");

@@ -4,8 +4,10 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.annotation.PostConstruct;
@@ -38,6 +40,8 @@ import mc.gouv.dem.shared.model.DemandeFlatDTO;
 import mc.gouv.dem.shared.model.DemarcheDTO;
 import mc.gouv.file.apiclient.FileClient;
 import mc.gouv.logon.apiclient.RestException;
+import mc.gouv.logon.shared.Droit;
+import mc.gouv.logon.shared.Role;
 import mc.gouv.logon.shared.User;
 import mc.gouv.mail.apiclient.client.MailClient;
 import mc.gouv.servicerest.usager.model.UsagerBean;
@@ -345,6 +349,38 @@ public class AfBackUtils {
     
     public String getCivilite(Short titre, String locale) {
         return messageSource.getMessage("civilite." + titre, null, new Locale(locale));
+    }
+    
+    /**
+     * Permet de retourner la liste des agents ayant un certain rôle
+     * 
+     * @param
+     * @return
+     */
+    public Set<User> getAgentsWithRoles(String[] rolesList) {
+        Set<User> destinataires = new HashSet<User>();
+        String codeAppli = gouvPropertiesResolver.getDemarcheId();
+        List<User> agents = new ArrayList<User>(utilisateursCache.getAll().values());
+        for (User agent : agents) {
+            boolean toAdd = false;
+            Set<Role> agentRoles = agent.getRoles();
+            for (Role role : agentRoles) {
+                if (role.getAppli().getCode().equals(codeAppli)) {
+                    for (Droit droit : role.getDroits()) {
+                        for (String roleFromList : rolesList) {
+                            if (roleFromList.trim().equals(droit.getCode())) {
+                                toAdd = true;
+                            }
+                        }
+                    }
+
+                }
+            }
+            if (toAdd) {
+                destinataires.add(agent);
+            }
+        }
+        return destinataires;
     }
 
 }

@@ -315,8 +315,10 @@
 										<th>Date demande</th>
 										<th>Dernier changement</th>
 										<th>Demandeur</th>
+                                        <th>Suppléant</th>
+                                        <th>Fonction recherchée</th>
+                                        <th>Résidence</th>
 										<th>Etat</th>
-										<th>Langue</th>
 										<th>Mode de réception</th>
 										<th>Responsable</th>
 										<th>Actions</th>
@@ -336,6 +338,8 @@
 	</div>
 
 	<div th:replace="fragments/footer :: footer"></div>
+	
+	<script type="text/javascript" th:src="@{/dynamicjs/enums.js}"></script>
 
 	<script type="text/javascript" th:inline="javascript">
 	/*<![CDATA[*/

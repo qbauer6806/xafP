@@ -51,7 +51,7 @@ import mc.gouv.xapi.error.exception.WebException;
 public abstract class AbstractAfApiController implements AfApiController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractAfApiController.class);
-    private static final String REINDEX_MESSAGE = "Le nombre de demandes reindexés est {0}";
+    private static final String REINDEX_MESSAGE = "Le nombre de demandes réindexées est {0}";
 
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;

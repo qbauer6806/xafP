@@ -124,16 +124,19 @@ $(document).ready(function() {
 					var category = default_category
 					var categoryId = default_category
 					var libelle = facetName
+					facetName=facetName.replace(/'/g,"")
 					var facetLink = facetName + linkIdSuffix
 					if (recherche_libelles.get(facetName)) {
 						category = recherche_libelles.get(facetName).categorie
 						categoryId = category.split(' ').join('_')
 						libelle = recherche_libelles.get(facetName).libelle
 					}
+					
+					categoryId = categoryId.replace(/'/g,"")
 
 					if (!categories[categoryId]) {
 						var newfacetCategoryDiv = $("#facetCategory").clone();
-						newfacetCategoryDiv.attr("id", categoryId)
+						newfacetCategoryDiv.attr("id", categoryId.replace(/'/g,""))
 						newfacetCategoryDiv
 							.find("#facetCategoryName").html(category);
 						newfacetCategoryDiv.show()

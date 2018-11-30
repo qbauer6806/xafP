@@ -242,7 +242,7 @@
 									</div>
 								</div>
 
-								<div class="row">
+								<div class="row" id="affinerDiv" style='display: none'>
 									<div class="col-xs-12">
 
 										<div class="panel-group accordion" aria-multiselectable="true">
@@ -310,7 +310,7 @@
 							<table id="datatable-demandes" class="table table-striped ">
 								<thead>
 									<tr>
-										<th>Information</th>
+										<th></th>
 										<th>Identifiant</th>
 										<th>Date demande</th>
 										<th>Dernier changement</th>
@@ -385,7 +385,11 @@
 			params.page = params.start / params.length;
 	
 			if (!params['texte']) {
-				params.sort = columns[params.order[0].column].data + ".keyword" + ","
+				var col=columns[params.order[0].column]
+				var keyword=""
+				if(col.keyword)
+					keyword=".keyword"
+				params.sort = columns[params.order[0].column].data + keyword + ","
 				+ params.order[0].dir;
 			}
 		}

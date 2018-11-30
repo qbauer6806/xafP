@@ -10,6 +10,8 @@ $(document).ready(function() {
 
 		columns.unshift({
 			"data" : "highlightedField",
+			"orderable": false,
+			"keyword" : false,
 			render : function(data, type, demande) {
 
 				var fragments = ""
@@ -42,13 +44,15 @@ $(document).ready(function() {
 				}
 
 
-				if (fragments == "") {
-					fragments = "Aucune recherche"
-				}
-
-
-				return "<a href='javascript:;' class='col-md-12 text-center greyTooltip'   data-toggle='tooltip'	data-placement='right' " +
+				if (fragments !== "") {
+					return "<a href='javascript:;' class='col-md-12 text-center greyTooltip'   data-toggle='tooltip'	data-placement='right' " +
 					"title='" + fragments + "' data-html='true' href='#'><span class='badge'>i</span></a>";
+				}
+				
+				return ""
+
+
+				
 			}
 		})
 	}
@@ -156,6 +160,15 @@ $(document).ready(function() {
 				}
 
 
+			}
+			
+			if(facets !== undefined && facets.length > 0)
+			{
+				$("#affinerDiv").show()
+			}
+			else
+			{
+				$("#affinerDiv").hide()
 			}
 
 			orderAndInsertFacets(categories, facetsByCat)

@@ -99,6 +99,16 @@ $(document).ready(function() {
 			traditional : true,
 			data : facetParams
 		}).done(function(facets) {
+			
+			
+			if(facets !== undefined && facets.length > 0)
+			{
+				$("#affinerDiv").show()
+			}
+			else
+			{
+				$("#affinerDiv").hide()
+			}
 
 			if ($("#affinerLink").hasClass('collapsed') === true) {
 				$("#affinerLink").click()
@@ -162,14 +172,7 @@ $(document).ready(function() {
 
 			}
 			
-			if(facets !== undefined && facets.length > 0)
-			{
-				$("#affinerDiv").show()
-			}
-			else
-			{
-				$("#affinerDiv").hide()
-			}
+			
 
 			orderAndInsertFacets(categories, facetsByCat)
 

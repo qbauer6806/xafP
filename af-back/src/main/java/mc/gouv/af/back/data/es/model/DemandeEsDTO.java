@@ -30,6 +30,7 @@ public class DemandeEsDTO extends AbstractDemandeDTO {
     protected DemandeStatutEsDTO[] statuts;
     protected DemandeStatutEsDTO dernierStatut;
     protected JsonNode data;
+    private String agentAffecteNomAffichage;
 
     @Id
     protected String identifiant;
@@ -104,6 +105,14 @@ public class DemandeEsDTO extends AbstractDemandeDTO {
 
     public void setData(JsonNode data) {
         this.data = data;
+    }
+
+    public String getAgentAffecteNomAffichage() {
+        return agentAffecteNomAffichage;
+    }
+
+    public void setAgentAffecteNomAffichage(String agentAffecteNomAffichage) {
+        this.agentAffecteNomAffichage = agentAffecteNomAffichage;
     }
 
     @Document(indexName = "#{propertiesResolver.indexAlias}", type = DemandeEsDTO.INDEX_FILES_TYPE)

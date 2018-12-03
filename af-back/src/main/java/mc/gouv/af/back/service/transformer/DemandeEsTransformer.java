@@ -139,6 +139,7 @@ public class DemandeEsTransformer {
         Set<DemandeCourrierDTO> courriers = DemandesCourriersTransformer.bo2Dto(demande.getCourriers());
         demandeEsDTO.setCourriers(courriers.toArray(new DemandeCourrierDTO[courriers.size()]));
         demandeEsDTO.setCreeParAgentId(demande.getCreeParAgentId());
+        demandeEsDTO.setAgentAffecteId(demande.getAgentAffecteId());
 
         if (demande.getData() != null) {
             JsonNode data = mapper.createObjectNode();
@@ -158,6 +159,12 @@ public class DemandeEsTransformer {
         demandeEsDTO.setPkDemandes(demande.getPkDemandes());
         Set<DemandeStatutEsDTO> statuts = demandesStatutsEsTransformer.bo2Dto(demande.getStatuts());
         demandeEsDTO.setStatuts(statuts.toArray(new DemandeStatutEsDTO[statuts.size()]));
+
+        if (demande.getAgentAffecteId() != null) {
+            User user = utilisateursCache.get(demande.getAgentAffecteId());
+            demandeEsDTO.setAgentAffecteNomAffichage(getAgentAffecteNomAffichage(user));
+        }
+
         return demandeEsDTO;
 
     }
@@ -194,6 +201,7 @@ public class DemandeEsTransformer {
         demandeEsDTO.setCourrierRefInterne(demandeDTO.getCourrierRefInterne());
         demandeEsDTO.setCourriers(demandeDTO.getCourriers());
         demandeEsDTO.setCreeParAgentId(demandeDTO.getCreeParAgentId());
+        demandeEsDTO.setAgentAffecteId(demandeDTO.getAgentAffecteId());
 
         if (demandeDTO.getData() != null) {
             ObjectMapper mapper = new ObjectMapper();
@@ -213,6 +221,12 @@ public class DemandeEsTransformer {
         demandeEsDTO.setPkDemandes(demandeDTO.getPkDemandes());
         demandeEsDTO.setStatuts(demandesStatutsEsTransformer.toEs(demandeDTO.getStatuts()));
         demandeEsDTO.setUpdated(demandeDTO.isUpdated());
+
+        if (demandeEsDTO.getAgentAffecteId() != null) {
+            User user = utilisateursCache.get(demandeDTO.getAgentAffecteId());
+            demandeEsDTO.setAgentAffecteNomAffichage(getAgentAffecteNomAffichage(user));
+        }
+
         return demandeEsDTO;
     }
 
@@ -282,6 +296,13 @@ public class DemandeEsTransformer {
         dto.setObservations(bo.getObservations());
         dto.setPkDemandes(bo.getPkDemandes());
         dto.setCreeParAgentId(bo.getCreeParAgentId());
+        dto.setAgentAffecteId(bo.getAgentAffecteId());
+
+        if (bo.getAgentAffecteId() != null) {
+            User user = utilisateursCache.get(bo.getAgentAffecteId());
+            dto.setAgentAffecteNomAffichage(getAgentAffecteNomAffichage(user));
+        }
+
         // Mapper les demandes d'informations complémentaires
         if (addDemandesComplementsField && bo.getDemandesComplements() != null
                 && bo.getDemandesComplements().size() > 0) {
@@ -349,6 +370,24 @@ public class DemandeEsTransformer {
             LOGGER.error("Erreur lors de la conversion JSON", e);
         }
         return dto;
+    }
+
+    private String getAgentAffecteNomAffichage(User user) {
+        if (user != null) {
+            char prenom = ' ';
+            if (user.getPrenom() != null && user.getPrenom().length() > 1) {
+                prenom = user.getPrenom().charAt(0);
+            }
+
+            String nom = "";
+
+            if (user.getNomAffichage() != null) {
+                nom = user.getNomAffichage();
+            }
+
+            return prenom + "." + nom;
+        }
+        return null;
     }
 
     private JsonNode transform(JsonNode jsonNode) {

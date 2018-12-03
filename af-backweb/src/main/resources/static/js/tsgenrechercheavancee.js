@@ -1,7 +1,7 @@
 $(document).ready(function() {
 
 
-	configurationDataTable.order = [ 1, "asc" ]
+	configurationDataTable.order = [ 0 , "asc" ]
 
 	var default_category = "Autres"
 

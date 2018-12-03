@@ -35,6 +35,7 @@ public class AfBackDemandeEsDTO extends DemandeEsRechercheDTO {
         setObservations(demande.getObservations());
         setPkDemandes(demande.getPkDemandes());
         setStatuts(demande.getStatuts());
+        setAgentAffecteNomAffichage(demande.getAgentAffecteNomAffichage());
     }
 
     public AfBackDemandeEsDTO(DemandeEsRechercheDTO demande) {
@@ -57,6 +58,7 @@ public class AfBackDemandeEsDTO extends DemandeEsRechercheDTO {
         setPkDemandes(demande.getPkDemandes());
         setStatuts(demande.getStatuts());
         setHighlightedField(demande.getHighlightedField());
+        setAgentAffecteNomAffichage(demande.getAgentAffecteNomAffichage());
     }
 
     public String getAgentAffectePrenom() {

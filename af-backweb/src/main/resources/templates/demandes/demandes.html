@@ -169,7 +169,8 @@
 
 														<div>
 															<div class="row">
-																<div class="col-xs-12 col-md-3" th:each="statut,iter: ${statuts}"
+																<div class="col-xs-12 col-md-3"
+																	th:each="statut,iter: ${statuts}"
 																	th:style="${iter.index}>
 																	3? 'margin-top:1em': ''">
 																	<div class="toggle">
@@ -191,19 +192,18 @@
 														<div class="row text-center">
 															<div class="form-inline  ">
 																<div class="form-group">
-																	<label for="agentId">Responsable</label>
-																	
-																	 <select style="margin-left:1em"
-																		name="agentId" id="agentId" class="form-control">
+																	<label for="agentId">Responsable</label> <select
+																		style="margin-left: 1em" name="agentId" id="agentId"
+																		class="form-control">
 																		<option th:value="null" th:text="Tous" />
 																		<option th:each="agent : ${agentsInit}"
 																			th:text="${agent.nom}" th:value="${agent.matricule}" />
 																	</select>
 																</div>
 
-																<div class="form-group" style="margin-left:2em">
+																<div class="form-group" style="margin-left: 2em">
 																	<label for="creationStartDate">Après le</label>
-																	<div class="input-group date" style="margin-left:1em">
+																	<div class="input-group date" style="margin-left: 1em">
 																		<input type="text" id="creationStartDate"
 																			name="creationStartDate" placeholder="__/__/____"
 																			class="form-control" /> <span
@@ -211,16 +211,16 @@
 																			class="icon-action_calendrier"></i></span>
 																	</div>
 																</div>
-																<div class="form-group" style="margin-left:2em">
-																		<label for="creationEndDate">AVANT LE</label>
-																		<div class="input-group date" style="margin-left:1em">
-																			<input type="text" id="creationEndDate"
-																				name="creationEndDate" placeholder="__/__/____"
-																				class="form-control" /> <span
-																				class="input-group-addon"><i
-																				class="icon-action_calendrier"></i></span>
-																		</div>
+																<div class="form-group" style="margin-left: 2em">
+																	<label for="creationEndDate">AVANT LE</label>
+																	<div class="input-group date" style="margin-left: 1em">
+																		<input type="text" id="creationEndDate"
+																			name="creationEndDate" placeholder="__/__/____"
+																			class="form-control" /> <span
+																			class="input-group-addon"><i
+																			class="icon-action_calendrier"></i></span>
 																	</div>
+																</div>
 															</div>
 														</div>
 
@@ -315,9 +315,9 @@
 										<th>Date demande</th>
 										<th>Dernier changement</th>
 										<th>Demandeur</th>
-                                        <th>Suppléant</th>
-                                        <th>Fonction recherchée</th>
-                                        <th>Résidence</th>
+										<th>Suppléant</th>
+										<th>Fonction recherchée</th>
+										<th>Résidence</th>
 										<th>Etat</th>
 										<th>Mode de réception</th>
 										<th>Responsable</th>
@@ -338,11 +338,12 @@
 	</div>
 
 	<div th:replace="fragments/footer :: footer"></div>
-	
+
 	<script type="text/javascript" th:src="@{/dynamicjs/enums.js}"></script>
 
 	<script type="text/javascript" th:inline="javascript">
 	/*<![CDATA[*/
+	
 	
 	
 	
@@ -384,16 +385,17 @@
 			params.size = params.length;
 			params.page = params.start / params.length;
 	
-			if (!params['texte']) {
-				var col=columns[params.order[0].column]
-				var keyword=""
-				if(col.keyword)
-					keyword=".keyword"
+	
+			var col = columns[params.order[0].column]
+			if (col.data !== "highlightedField") {
+				var keyword = ""
+				if (col.keyword)
+					keyword = ".keyword"
 				params.sort = columns[params.order[0].column].data + keyword + ","
 				+ params.order[0].dir;
 			}
-		}
 	
+		}
 	
 	
 		var self = this
@@ -401,7 +403,11 @@
 		self.buildSearchDatafunction = buildSearchDatafunction
 		self.facets = {}
 	
+	
+	
 		$(document).ready(function() {
+	
+	
 	
 			// Sélection d'une date dans un calendrier
 			$('#creationStartDate, #creationEndDate').datepicker({
@@ -423,11 +429,8 @@
 	
 			$('#rechercheButton1, #rechercherButton2').click(function(e) {
 				APP.selectedField = null
-				
 				$('#datatable-demandes').DataTable().ajax.reload(null, true);
 				APP.buildFacets()
-	
-	
 			});
 	
 	
@@ -436,8 +439,8 @@
 			}
 	
 	
-	
 			configurationDataTable.ajax.data = buildSearchDatafunction;
+	
 			var table = $('#datatable-demandes').DataTable(configurationDataTable);
 	
 			$('#tousModeTr').click(function(e) {
@@ -460,9 +463,10 @@
 				$("input[name='statut']").prop('checked', false);
 			});
 	
+	
 		});
 	
-		
+	
 	
 		$("body").tooltip({
 			selector : '[data-toggle=tooltip]'

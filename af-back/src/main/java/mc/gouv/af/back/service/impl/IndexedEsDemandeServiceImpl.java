@@ -58,7 +58,6 @@ import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.glassfish.jersey.internal.guava.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Primary;
@@ -99,7 +98,6 @@ import mc.gouv.af.back.exception.AfIndexingException;
 import mc.gouv.af.back.exception.FileConnectionException;
 import mc.gouv.af.back.properties.GouvPropertiesResolver;
 import mc.gouv.af.back.service.DemandeJmsTopicSendService;
-import mc.gouv.af.back.service.FacetsExcludeService;
 import mc.gouv.af.back.service.IndexedDemandeService;
 import mc.gouv.af.back.service.transformer.DemandeEsTransformer;
 import mc.gouv.af.back.util.FileUtils;
@@ -154,9 +152,6 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     @Inject
     private GouvPropertiesResolver gouvPropertiesResolver;
 
-    @Autowired(required = false)
-    private FacetsExcludeService facetsExcludeService;
-
     private List<EsProperty> demandesProperties = new ArrayList<>();
     private List<EsProperty> filesProperties = new ArrayList<>();
 
@@ -169,10 +164,6 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     public static final String ES_MAPPING_TYPE_KEY = "type";
     public static final String FILE_PJ_HIGHLIGHT_AND_FACET_PREFIX = "fichiers.";
     public static final String FILE_COMPLEMENT_HIGHLIGHT_AND_FACET_PREFIX = "fichiers.complement.";
-    private List<String> facetsToExclude = Arrays.asList("complements.reponse.fichiers.name",
-            "complements.reponse.fichiers.url", "fichiers.demandeId", "agentAffecteNomAffichage",
-            "dernierStatut.codeMotif", "usager.paysCode", "complements.question.codeMotif", "canal.code",
-            "agentAffecteId", "pkDemandes");
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IndexedEsDemandeServiceImpl.class);
 
@@ -180,12 +171,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     public void init() {
         highlightPretags = gouvPropertiesResolver.getSearchHighlightPreTags();
         highlightPosttags = gouvPropertiesResolver.getSearchHighlightPostTags();
-        if (facetsExcludeService != null) {
-            List<String> facetsToExcludeCopy = new ArrayList<>();
-            facetsToExcludeCopy.addAll(facetsToExclude);
-            facetsToExcludeCopy.addAll(facetsExcludeService.exclude());
-            facetsToExclude = facetsToExcludeCopy;
-        }
+
     }
 
     /**
@@ -704,8 +690,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                             for (Aggregation agg : response.getAggregations().asList()) {
                                 InternalFilters filters = (InternalFilters) agg;
                                 for (InternalBucket bucket : filters.getBuckets()) {
-                                    if (bucket.getDocCount() > 0
-                                            && !facetsToExclude.contains(bucket.getKeyAsString())) {
+                                    if (bucket.getDocCount() > 0) {
                                         facets.add(new DemandesFacet(bucket.getKeyAsString(), bucket.getDocCount()));
                                     }
 

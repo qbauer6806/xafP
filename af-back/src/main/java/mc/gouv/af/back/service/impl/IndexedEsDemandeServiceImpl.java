@@ -33,6 +33,7 @@ import javax.transaction.Transactional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.search.join.ScoreMode;
 import org.apache.tika.exception.TikaException;
+import org.apache.tika.exception.ZeroByteFileException;
 import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
 import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
 import org.elasticsearch.action.search.SearchResponse;
@@ -555,14 +556,16 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         if (fichier != null) {
             FileClient fileClient = new FileClient(DemarchesUtils.FILE_REST_URL, DemarchesUtils.FILE_JWT);
             InputStream is;
+            String fileUrl = "";
             try {
 
                 String finalFilename = fichier.getUrl();
                 String[] split = fichier.getUrl().split("/");
                 String isolatedFileName = split[split.length - 1];
                 finalFilename = finalFilename.replace(isolatedFileName, URLEncoder.encode(isolatedFileName, "UTF-8"));
-
-                is = fileClient.getFile(demarcheId + "/" + DemarchesUtils.CONTAINERID + "/" + finalFilename);
+                fileUrl = demarcheId + "/" + DemarchesUtils.CONTAINERID + "/" + finalFilename;
+                LOGGER.info("Le fichier à indexer est le {}", fileUrl);
+                is = fileClient.getFile(fileUrl);
             } catch (ConnectException e) {
                 throw new FileConnectionException("Could not connect to file", e);
             }
@@ -579,6 +582,9 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                     fileText = FileUtils.parseToPlainText(is);
                     demandeFileEsDTO.setContent(fileText);
                     demandeFileEsDTO.setLanguage(FileUtils.detectLanguage(fileText));
+
+                } catch (ZeroByteFileException e) {
+                    LOGGER.info("Le fichier : {} est vide (a une taille de 0 byte)", fileUrl);
                 } catch (Exception e) {
                     LOGGER.error(e.getMessage(), e);
                 }

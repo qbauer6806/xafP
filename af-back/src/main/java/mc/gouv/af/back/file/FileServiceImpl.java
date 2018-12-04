@@ -81,7 +81,7 @@ public class FileServiceImpl implements FileService {
 
         LOGGER.info("FileService.saveFile(" + demande.getPkDemandes() + "," + file.getOriginalFilename() + ")");
 
-        String filename = demande.getFkAccess() + "/" + AfBackUtils.generateUUID() + "/"
+        String filename = "/" + demande.getFkAccess() + "/" + AfBackUtils.generateUUID() + "/"
                 + URLEncoder.encode(file.getOriginalFilename(), "UTF-8");
 
         LOGGER.info("Filename à donner à FILE : " + filename);

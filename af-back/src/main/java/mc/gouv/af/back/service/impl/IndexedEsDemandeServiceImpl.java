@@ -951,17 +951,20 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                         fieldsForHighlight[i] = new HighlightBuilder.Field(serachField).preTags(highlightPretags)
                                 .postTags(highlightPosttags)
                                 .highlightQuery(simpleQueryStringQuery(demandeRecherche.getTexte())
-                                        .defaultOperator(Operator.OR).useAllFields(true));
+                                        .defaultOperator(Operator.OR).useAllFields(true))
+                                .requireFieldMatch(true);
                         i++;
                     }
                 }
 
                 return nativeSearchQueryBuilder.withHighlightFields(fieldsForHighlight);
             } else {
-                return nativeSearchQueryBuilder.withHighlightFields(
-                        new HighlightBuilder.Field("*").preTags(highlightPretags).postTags(highlightPosttags)
-                                .highlightQuery(simpleQueryStringQuery(demandeRecherche.getTexte())
-                                        .defaultOperator(Operator.OR).useAllFields(true)));
+                return nativeSearchQueryBuilder
+                        .withHighlightFields(
+                                new HighlightBuilder.Field("*").preTags(highlightPretags).postTags(highlightPosttags)
+                                        .highlightQuery(simpleQueryStringQuery(demandeRecherche.getTexte())
+                                                .defaultOperator(Operator.OR).useAllFields(true))
+                                        .requireFieldMatch(true));
             }
 
         }
@@ -1043,7 +1046,8 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         filesQueryStringQueryBuilder = filesQueryStringQueryBuilder.useAllFields(true);
         HighlightBuilder.Field field = new HighlightBuilder.Field("*").preTags(highlightPretags)
                 .postTags(highlightPosttags)
-                .highlightQuery(simpleQueryStringQuery(rechercheText).defaultOperator(Operator.OR).useAllFields(true));
+                .highlightQuery(simpleQueryStringQuery(rechercheText).defaultOperator(Operator.OR).useAllFields(true))
+                .requireFieldMatch(true);
         HighlightBuilder hb = new HighlightBuilder().field(field);
         InnerHitBuilder ihb = new InnerHitBuilder().setHighlightBuilder(hb)
                 .setStoredFieldNames(Arrays.asList(DemandeFileEsDTO.TYPE_FIELD));
@@ -1103,8 +1107,10 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             for (String f : serachFilesFields) {
                 filesFields.put(f, 1f);
                 HighlightBuilder.Field field = new HighlightBuilder.Field(f).preTags(highlightPretags)
-                        .postTags(highlightPosttags).highlightQuery(
-                                simpleQueryStringQuery(rechercheText).defaultOperator(Operator.OR).useAllFields(true));
+                        .postTags(highlightPosttags)
+                        .highlightQuery(
+                                simpleQueryStringQuery(rechercheText).defaultOperator(Operator.OR).useAllFields(true))
+                        .requireFieldMatch(true);
                 hb = hb.field(field);
 
             }

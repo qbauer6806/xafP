@@ -170,7 +170,8 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     public static final String FILE_COMPLEMENT_HIGHLIGHT_AND_FACET_PREFIX = "fichiers.complement.";
     private List<String> facetsToExclude = Arrays.asList("complements.reponse.fichiers.name",
             "complements.reponse.fichiers.url", "fichiers.demandeId", "agentAffecteNomAffichage",
-            "dernierStatut.codeMotif", "usager.paysCode", "complements.question.codeMotif", "canal.code");
+            "dernierStatut.codeMotif", "usager.paysCode", "complements.question.codeMotif", "canal.code",
+            "agentAffecteId", "pkDemandes");
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IndexedEsDemandeServiceImpl.class);
 

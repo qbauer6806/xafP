@@ -195,7 +195,7 @@ recherche_libelles.set("canal.code", {
 	libelle : "Code",
 	categorie : "Canal"
 });
-recherche_libelles.set("canal.label", {
+recherche_libelles.set("canal.libelle", {
 	libelle : "Mode de transmission",
 	categorie : "Canal"
 });
@@ -321,7 +321,7 @@ recherche_libelles.set("complements.question.codeMotif", {
 });
 recherche_libelles.set("statuts.pkStatut", {
 	libelle : "Id du statut",
-	categorie : "Historique des statutss"
+	categorie : "Historique des statuts"
 });
 recherche_libelles.set("statuts.libelle", {
 	libelle : "Libelle du statut",

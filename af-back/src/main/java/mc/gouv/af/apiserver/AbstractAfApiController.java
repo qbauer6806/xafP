@@ -25,7 +25,6 @@ import org.xml.sax.SAXException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import mc.gouv.af.back.properties.GouvPropertiesResolver;
 import mc.gouv.af.back.service.impl.IndexedEsDemandeServiceImpl;
 import mc.gouv.dem.service.DemandesService;
 import mc.gouv.dem.shared.model.AccessDTO;
@@ -52,9 +51,6 @@ public abstract class AbstractAfApiController implements AfApiController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractAfApiController.class);
     private static final String REINDEX_MESSAGE = "Le nombre de demandes réindexées est {0}";
-
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
 
     @Autowired
     private DemandesService demandesService;

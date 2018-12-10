@@ -1,5 +1,7 @@
 package mc.gouv.af.back.data.es.model;
 
+import java.util.List;
+
 import javax.validation.constraints.NotNull;
 
 import org.springframework.data.annotation.Id;
@@ -9,6 +11,7 @@ import org.springframework.data.elasticsearch.annotations.Parent;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import mc.gouv.dem.shared.model.AbstractDemandeDTO;
+import mc.gouv.dem.shared.model.DemandeComplementsStatutEnum;
 
 /**
  * Modélise une demande
@@ -27,10 +30,11 @@ public class DemandeEsDTO extends AbstractDemandeDTO {
     private CanalEsDto canal;
     private UsagerEsDTO usager;
     private AgentEsDTO agent;
-    protected DemandeStatutEsDTO[] statuts;
-    protected DemandeStatutEsDTO dernierStatut;
-    protected JsonNode data;
+    private DemandeStatutEsDTO[] statuts;
+    private DemandeStatutEsDTO dernierStatut;
+    private JsonNode data;
     private String agentAffecteNomAffichage;
+    private List<DemandeComplementsStatutEnum> complementsStatuts;
 
     @Id
     protected String identifiant;
@@ -113,6 +117,14 @@ public class DemandeEsDTO extends AbstractDemandeDTO {
 
     public void setAgentAffecteNomAffichage(String agentAffecteNomAffichage) {
         this.agentAffecteNomAffichage = agentAffecteNomAffichage;
+    }
+
+    public List<DemandeComplementsStatutEnum> getComplementsStatuts() {
+        return complementsStatuts;
+    }
+
+    public void setComplementsStatuts(List<DemandeComplementsStatutEnum> complementsStatuts) {
+        this.complementsStatuts = complementsStatuts;
     }
 
     @Document(indexName = "#{propertiesResolver.indexAlias}", type = DemandeEsDTO.INDEX_FILES_TYPE)

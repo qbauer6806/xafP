@@ -15,8 +15,6 @@ public class AgentEsTransformer {
         }
 
         AgentEsDTO agent = new AgentEsDTO();
-        agent.setCivilite((bo.getCivilite() != null) ? bo.getCivilite().getLibelle() : null);
-        agent.setDateCreation(bo.getDateCrea());
         agent.setFonction(bo.getFonction());
         agent.setMail(bo.getMail());
         agent.setMatricule(bo.getMatricule());
@@ -24,10 +22,6 @@ public class AgentEsTransformer {
         agent.setNomNaissance(bo.getNomNaissance());
         agent.setNomUsage(bo.getNomUsage());
         agent.setPrenom(bo.getPrenom());
-        agent.setService(bo.getService());
-        agent.setTelMobilePro(bo.getTelMobilePro());
-        agent.setTelPro(bo.getTelPro());
-        agent.setUfCode(bo.getUfCode());
 
         return agent;
 

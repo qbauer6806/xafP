@@ -18,18 +18,16 @@ public class AfBackDemandeEsDTO extends DemandeEsRechercheDTO {
 
     public AfBackDemandeEsDTO(DemandeEsDTO demande) {
         setCanal(demande.getCanal());
-        setComplements(demande.getComplements());
+        setComplementsStatuts(demande.getComplementsStatuts());
         setContenu(demande.getContenu());
         setCourrierDateReception(demande.getCourrierDateReception());
         setCourrierRefInterne(demande.getCourrierRefInterne());
         setCourriers(demande.getCourriers());
-        setCreeParAgentId(demande.getCreeParAgentId());
         setData(demande.getData());
         setDateCreation(demande.getDateCreation());
         setDateDerModif(demande.getDateDerModif());
         setAccess(demande.getAccess());
         setDernierStatut(demande.getDernierStatut());
-        // setFichiers(demande.getFichiers());
         setIdentifiant(demande.getIdentifiant());
         setLangue(demande.getLangue());
         setObservations(demande.getObservations());
@@ -40,18 +38,16 @@ public class AfBackDemandeEsDTO extends DemandeEsRechercheDTO {
 
     public AfBackDemandeEsDTO(DemandeEsRechercheDTO demande) {
         setCanal(demande.getCanal());
-        setComplements(demande.getComplements());
+        setComplementsStatuts(demande.getComplementsStatuts());
         setContenu(demande.getContenu());
         setCourrierDateReception(demande.getCourrierDateReception());
         setCourrierRefInterne(demande.getCourrierRefInterne());
         setCourriers(demande.getCourriers());
-        setCreeParAgentId(demande.getCreeParAgentId());
         setData(demande.getData());
         setDateCreation(demande.getDateCreation());
         setDateDerModif(demande.getDateDerModif());
         setAccess(demande.getAccess());
         setDernierStatut(demande.getDernierStatut());
-        // setFichiers(demande.getFichiers());
         setIdentifiant(demande.getIdentifiant());
         setLangue(demande.getLangue());
         setObservations(demande.getObservations());

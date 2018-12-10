@@ -18,17 +18,12 @@ public class UsagerTransformer {
         usagerEsDTO.setAdresse2(bo.getAdresse2());
         usagerEsDTO.setCodePostal(bo.getCodePostal());
         usagerEsDTO.setComplementAdresse(bo.getComplementAdresse());
-        usagerEsDTO.setDateActivation(bo.getDateActivation());
-        usagerEsDTO.setDateCreation(bo.getDateCreation());
-        usagerEsDTO.setDateDerConnexion(bo.getDateDerConnexion());
         usagerEsDTO.setEmail(bo.getEmail());
         usagerEsDTO.setEtat((bo.getEtat() != null) ? bo.getEtat().toString() : null);
         usagerEsDTO.setId((bo.getId() != null) ? bo.getId().toString() : null);
         usagerEsDTO.setLogin(bo.getLogin());
         usagerEsDTO.setNom(bo.getNom());
         usagerEsDTO.setNomPays(bo.getNomPays());
-        usagerEsDTO.setPaysCode(bo.getPaysCode());
-        usagerEsDTO.setPaysId((bo.getPaysId() != null) ? bo.getPaysId().toString() : null);
         usagerEsDTO.setPrenom(bo.getPrenom());
         usagerEsDTO.setRaisonSociale(bo.getRaisonSociale());
         usagerEsDTO.setTitre((bo.getTitre() != null) ? bo.getTitre().toString() : null);

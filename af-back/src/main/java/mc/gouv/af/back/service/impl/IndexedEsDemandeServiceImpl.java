@@ -58,6 +58,7 @@ import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.glassfish.jersey.internal.guava.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Primary;
@@ -67,7 +68,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.ElasticsearchException;
 import org.springframework.data.elasticsearch.core.DefaultResultMapper;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
-import org.springframework.data.elasticsearch.core.ResultsExtractor;
 import org.springframework.data.elasticsearch.core.SearchResultMapper;
 import org.springframework.data.elasticsearch.core.aggregation.AggregatedPage;
 import org.springframework.data.elasticsearch.core.aggregation.impl.AggregatedPageImpl;
@@ -97,6 +97,7 @@ import mc.gouv.af.back.enumeration.JMSActionEnum;
 import mc.gouv.af.back.exception.AfIndexingException;
 import mc.gouv.af.back.exception.FileConnectionException;
 import mc.gouv.af.back.properties.GouvPropertiesResolver;
+import mc.gouv.af.back.service.DemandeFieldsExcludeService;
 import mc.gouv.af.back.service.DemandeJmsTopicSendService;
 import mc.gouv.af.back.service.IndexedDemandeService;
 import mc.gouv.af.back.service.transformer.DemandeEsTransformer;
@@ -118,6 +119,12 @@ import mc.gouv.dem.shared.model.DemandeFileDTO;
 import mc.gouv.dem.shared.model.DemandeStatutDTO;
 import mc.gouv.file.apiclient.FileClient;
 
+/**
+ * Service permettant de faire de la recherche full-text sur les demandes en utilisant le moteur elasticsearch
+ * 
+ * @author asouabni.ext
+ *
+ */
 @Primary
 @Service
 @Conditional(IndexationEnabledCondition.class)
@@ -139,8 +146,9 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     @Value("${application.name}")
     private String indexAlias;
 
+    //Balise à insérer au début des mots recherchés dans le résultat de la recherche
     private String highlightPretags;
-
+    //Balise à insérer à la fin des mots recherchés dans le résultat de la recherche
     private String highlightPosttags;
 
     @Inject
@@ -152,8 +160,17 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     @Inject
     private GouvPropertiesResolver gouvPropertiesResolver;
 
+    @Autowired(required = false)
+    private DemandeFieldsExcludeService demandeFieldsExcludeService;
+
     private List<EsProperty> demandesProperties = new ArrayList<>();
     private List<EsProperty> filesProperties = new ArrayList<>();
+    //Map contenant les champs et le boost (si on veut augmenter le score de la recherche par rapport à un champ) 
+    //sur lesquels on va faire la recherche du type demandes de l'index <application.name>-index
+    private Map<String, Float> demandesPropertiesWithBoost = new HashMap<>();
+    //Map contenant les champs et le boost (si on veut augmenter le score de la recherche par rapport à un champ) 
+    //sur lesquels on va faire la recherche du type fichiers de l'index <application.name>-index
+    private Map<String, Float> filesPropertiesWithBoost = new HashMap<>();
 
     private Map<String, String> propertiesFields = new HashMap<>();
 
@@ -167,15 +184,28 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IndexedEsDemandeServiceImpl.class);
 
+    //Liste des champs à exclure de la recherche du type demandes
+    private List<String> demandesFieldsToExclude = Arrays.asList("access.demarcheId", "access.usagerId",
+            "access.fkAccess", "agentAffecteNomAffichage", "usager.paysCode", "canal.code", "agentAffecteId",
+            "dernierStatut.codeMotif", "pkDemandes");
+    //Liste des champs à exclure de la recherche du type fichiers
+    private List<String> fichiersFieldsToExclude = Arrays.asList("demandeId", "url");
+
     @PostConstruct
     public void init() {
         highlightPretags = gouvPropertiesResolver.getSearchHighlightPreTags();
         highlightPosttags = gouvPropertiesResolver.getSearchHighlightPostTags();
-
+        if (demandeFieldsExcludeService != null) {
+            List<String> demandesFieldsToExcludeCopy = new ArrayList<>();
+            demandesFieldsToExcludeCopy.addAll(demandesFieldsToExclude);
+            demandesFieldsToExcludeCopy.addAll(demandeFieldsExcludeService.exclude());
+            demandesFieldsToExclude = demandesFieldsToExcludeCopy;
+        }
     }
 
     /**
      * Récupération des du mapping à partir d'un alias
+     * 
      * @param aliasName Nom de l'alias
      * @param type Type de l'index
      * @return Mapping Elasticsearch
@@ -204,48 +234,84 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         return mappings;
     }
 
+    /**
+     * Méthode permettant d'initialiser les propriétés elasticsearch sur lesquels on va faire la recherche
+     */
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public synchronized void initMappingProperties() {
         if (demandesProperties.isEmpty()) {
             Map<String, Map> mapping = getMapping(indexAlias, DemandeEsDTO.INDEX_TYPE);
-            initMappingProperties(demandesProperties, mapping);
+            initMappingProperties(demandesProperties, mapping, demandesFieldsToExclude);
+            initMappingPropertiesMap(demandesProperties, demandesPropertiesWithBoost);
+
         }
 
         if (filesProperties.isEmpty()) {
             Map<String, Map> mapping = getMapping(indexAlias, DemandeEsDTO.INDEX_FILES_TYPE);
-            initMappingProperties(filesProperties, mapping);
+            initMappingProperties(filesProperties, mapping, fichiersFieldsToExclude);
+            initMappingPropertiesMap(filesProperties, filesPropertiesWithBoost);
         }
     }
 
+    /**
+     * Méthode permettant d'initialiser une map des propriétés sur lesquels on va faire la recherche avec le boost correspondant
+     * 
+     * @param properties Liste des propriétés
+     * @param propertiesWithBoost Map avec le boost à initialiser
+     */
+    private void initMappingPropertiesMap(List<EsProperty> properties, Map<String, Float> propertiesWithBoost) {
+        for (EsProperty prop : properties) {
+            getSearchFields(prop.getName(), properties).forEach(p -> propertiesWithBoost.put(p, 1f));
+        }
+    }
+
+    /**
+     * Méthode permettant de parser le mapping elasticsearch pour avoir la liste des champs, leurs types et leurs sous fields
+     * 
+     * @param properties Liste des propriétés à remplir
+     * @param mapping Mapping récupéré à partir de l'API elasticsearch
+     * @param fieldsToExclude Les champs qu'on veut pas récupérer
+     */
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public synchronized void initMappingProperties(List<EsProperty> properties, Map<String, Map> mapping) {
-        if (elasticsearchTemplate != null) {
+    public synchronized void initMappingProperties(List<EsProperty> properties, Map<String, Map> mapping,
+            List<String> fieldsToExclude) {
+        if (elasticsearchTemplate != null && mapping != null) {
 
-            if (mapping != null) {
-                for (Entry<String, Map> entry : mapping.entrySet()) {
+            for (Entry<String, Map> entry : mapping.entrySet()) {
 
-                    if (entry.getKey().equals(ES_MAPPING_PROPERTIES_KEY)) {
-                        Map<String, Map> map = entry.getValue();
-                        for (Entry<String, Map> subMapentry : map.entrySet()) {
-                            properties.add(new EsProperty(subMapentry.getKey()));
-                            getPropertyName(subMapentry.getValue(), subMapentry.getKey(), properties);
-                        }
-                    } else {
-
-                        Map<String, Map> mappingCheck = mapping.get(entry.getKey());
-                        if (mappingCheck != null)
-                            mapping = mappingCheck;
-                        else
-                            continue;
+                if (entry.getKey().equals(ES_MAPPING_PROPERTIES_KEY)) {
+                    Map<String, Map> map = entry.getValue();
+                    for (Entry<String, Map> subMapentry : map.entrySet()) {
+                        properties.add(new EsProperty(subMapentry.getKey()));
+                        getPropertyName(subMapentry.getValue(), subMapentry.getKey(), properties);
                     }
+                } else {
 
+                    Map<String, Map> mappingCheck = mapping.get(entry.getKey());
+                    if (mappingCheck != null)
+                        mapping = mappingCheck;
+                    else
+                        continue;
                 }
+
             }
+
+            if (fieldsToExclude != null) {
+                properties.removeIf(p -> fieldsToExclude.contains(p.getName()));
+            }
+
         }
     }
 
+    /**
+     * Méthode permettant de parser une propriété à partir de son nom
+     * 
+     * @param map Map des propriétés
+     * @param propertyName Nom de la propriété
+     * @param properties Liste des propriétés à remplir
+     */
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public void getPropertyName(Map<String, Map> map, String propertyName, List<EsProperty> peroperties) {
+    public void getPropertyName(Map<String, Map> map, String propertyName, List<EsProperty> properties) {
 
         if (map == null || map.isEmpty()) {
             return;
@@ -255,32 +321,35 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                 Map<String, Map> submap = entry.getValue();
                 for (Entry<String, Map> subMapentry : submap.entrySet()) {
                     String newFiledName = propertyName + "." + subMapentry.getKey();
-                    Integer filedIndex = peroperties.indexOf(new EsProperty(propertyName));
-                    if (filedIndex < 0) {
-                        peroperties.add(new EsProperty(newFiledName));
+                    Integer fieldIndex = properties.indexOf(new EsProperty(propertyName));
+                    if (fieldIndex < 0) {
+                        properties.add(new EsProperty(newFiledName));
                     } else {
-                        peroperties.set(filedIndex, new EsProperty(newFiledName));
+                        properties.set(fieldIndex, new EsProperty(newFiledName));
                     }
-                    getPropertyName(subMapentry.getValue(), newFiledName, peroperties);
+                    getPropertyName(subMapentry.getValue(), newFiledName, properties);
                 }
             } else if (entry.getKey().equals(ES_MAPPING_FIELDS_KEY)) {
                 Map<String, Map> submap = entry.getValue();
                 for (Entry<String, Map> subMapentry : submap.entrySet()) {
 
-                    Integer filedIndex = peroperties.indexOf(new EsProperty(propertyName));
-                    if (filedIndex >= 0) {
-                        peroperties.get(filedIndex).addField(subMapentry.getKey());
+                    Integer fieldIndex = properties.indexOf(new EsProperty(propertyName));
+                    if (fieldIndex >= 0) {
+                        properties.get(fieldIndex).addField(subMapentry.getKey());
                         propertiesFields.put(propertyName + "." + subMapentry.getKey(), propertyName);
                     }
                 }
 
-            }
-
-            else if (entry.getKey().equals(ES_MAPPING_TYPE_KEY)) {
+            } else if (entry.getKey().equals(ES_MAPPING_TYPE_KEY)) {
                 String type = (String) ((Object) entry.getValue());
-                Integer filedIndex = peroperties.indexOf(new EsProperty(propertyName));
-                if (filedIndex >= 0) {
-                    peroperties.get(filedIndex).setType(type);
+                Integer fieldIndex = properties.indexOf(new EsProperty(propertyName));
+                if (fieldIndex >= 0) {
+                    //On exclut les champs de type boolean car il faussent la recherche
+                    if (!type.equals(EsProperty.BOOLEAN_TYPE)) {
+                        properties.get(fieldIndex).setType(type);
+                    } else {
+                        properties.remove(properties.get(fieldIndex));
+                    }
                 }
 
             }
@@ -452,6 +521,9 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         return 0l;
     }
 
+    /**
+     * @see mc.gouv.af.back.service.IndexedDemandeService#indexDemande(mc.gouv.dem.shared.model.DemandeDTO)
+     */
     @Override
     public void indexDemande(DemandeDTO demandeDTO) throws IOException, SAXException, TikaException, JMSException {
 
@@ -461,6 +533,13 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     }
 
+    /**
+     * Méthode permettant d'envoyer une demande au topic afin de l'indexer
+     * 
+     * @param demandeDTO demande à indexer
+     * 
+     * @see mc.gouv.af.back.service.IndexedDemandeService#sendToTopic(mc.gouv.dem.shared.model.DemandeDTO)
+     */
     @Override
     public void sendToTopic(DemandeDTO demandeDTO) throws IOException, SAXException, TikaException, JMSException {
 
@@ -483,6 +562,11 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     }
 
+    /**
+     * Méthode permettant de récupérer une demande de la base et de l'indexer
+     * 
+     * @see mc.gouv.af.back.service.IndexedDemandeService#indexDemande(java.lang.String, java.lang.Integer)
+     */
     @Override
     public void indexDemande(String demarcheId, Integer demandeId)
             throws IOException, SAXException, TikaException, JMSException {
@@ -675,31 +759,26 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
             NativeSearchQueryBuilder nativeSearchQueryBuilder = getFacetsAggregationQuery(demandeRecherche);
 
-            return elasticsearchTemplate.query(nativeSearchQueryBuilder.build(),
-                    new ResultsExtractor<DemandesFacets>() {
+            return elasticsearchTemplate.query(nativeSearchQueryBuilder.build(), (SearchResponse response) -> {
 
-                        @Override
-                        public DemandesFacets extract(SearchResponse response) {
+                DemandesFacets facets = new DemandesFacets();
 
-                            DemandesFacets facets = new DemandesFacets();
+                if (response.getAggregations().asList().isEmpty()) {
+                    return null;
+                }
 
-                            if (response.getAggregations().asList().isEmpty()) {
-                                return null;
-                            }
-
-                            for (Aggregation agg : response.getAggregations().asList()) {
-                                InternalFilters filters = (InternalFilters) agg;
-                                for (InternalBucket bucket : filters.getBuckets()) {
-                                    if (bucket.getDocCount() > 0) {
-                                        facets.add(new DemandesFacet(bucket.getKeyAsString(), bucket.getDocCount()));
-                                    }
-
-                                }
-
-                            }
-                            return facets;
+                for (Aggregation agg : response.getAggregations().asList()) {
+                    InternalFilters filters = (InternalFilters) agg;
+                    for (InternalBucket bucket : filters.getBuckets()) {
+                        if (bucket.getDocCount() > 0) {
+                            facets.add(new DemandesFacet(bucket.getKeyAsString(), bucket.getDocCount()));
                         }
-                    });
+
+                    }
+
+                }
+                return facets;
+            });
         }
 
         return new DemandesFacets();
@@ -766,8 +845,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                 }
 
                 if (searchInChild) {
-                    SimpleQueryStringBuilder sqsb = simpleQueryStringQuery(text).defaultOperator(Operator.OR)
-                            .fields(fields).lenient(true);
+                    SimpleQueryStringBuilder sqsb = getSimpleQueryStringBuilder(text, fields);
                     TermQueryBuilder pjtqb = termQuery(DemandeFileEsDTO.TYPE_FIELD,
                             DemandeFileEsDTO.TYPE.PIECE_JOINTE.name());
                     BoolQueryBuilder pjbqb = boolQuery().must(sqsb).must(pjtqb);
@@ -792,7 +870,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
                 } else {
                     queryStringQueryBuilders[index] = new KeyedFilter(property.getName(),
-                            simpleQueryStringQuery(text).defaultOperator(Operator.OR).fields(fields).lenient(true));
+                            getSimpleQueryStringBuilder(text, fields));
                 }
 
                 index++;
@@ -802,6 +880,27 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         return index;
     }
 
+    /**
+     * Méthode permettant de construire le SimpleQueryStringBuilder  permettant de faire la requete de recherche sur tous les champs en paramètres
+     * 
+     * @param text Texte de la recherche
+     * @param fields Les fields sur lesquels on va faire la recherche
+     * @return Le SimpleQueryStringBuilder permettant de faire la requete de recherche sur tous les champs en paramètres
+     */
+    public SimpleQueryStringBuilder getSimpleQueryStringBuilder(String text, Map<String, Float> fields) {
+
+        SimpleQueryStringBuilder simpleQueryStringBuilder = simpleQueryStringQuery(text).defaultOperator(Operator.OR)
+                .lenient(true);
+        if (fields != null) {
+            return simpleQueryStringBuilder.fields(fields);
+        }
+
+        return simpleQueryStringBuilder;
+    }
+
+    /**
+     * @see mc.gouv.af.back.service.IndexedDemandeService#getIndexedDemandes(mc.gouv.dem.service.model.DemandeRechercheDTO, org.springframework.data.domain.Pageable, java.lang.String[])
+     */
     @Override
     public Page<DemandeEsRechercheDTO> getIndexedDemandes(DemandeRechercheDTO demandeRecherche, Pageable pageable,
             String[] fields) {
@@ -948,23 +1047,17 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
                 if (!demandeSearchFields.isEmpty()) {
                     for (String serachField : demandeSearchFields) {
-                        fieldsForHighlight[i] = new HighlightBuilder.Field(serachField).preTags(highlightPretags)
-                                .postTags(highlightPosttags)
-                                .highlightQuery(simpleQueryStringQuery(demandeRecherche.getTexte())
-                                        .defaultOperator(Operator.OR).useAllFields(true))
-                                .requireFieldMatch(true);
+                        fieldsForHighlight[i] = getHighlightField(new HighlightBuilder.Field(serachField),
+                                demandeRecherche.getTexte());
+
                         i++;
                     }
                 }
 
                 return nativeSearchQueryBuilder.withHighlightFields(fieldsForHighlight);
             } else {
-                return nativeSearchQueryBuilder
-                        .withHighlightFields(
-                                new HighlightBuilder.Field("*").preTags(highlightPretags).postTags(highlightPosttags)
-                                        .highlightQuery(simpleQueryStringQuery(demandeRecherche.getTexte())
-                                                .defaultOperator(Operator.OR).useAllFields(true))
-                                        .requireFieldMatch(true));
+                return nativeSearchQueryBuilder.withHighlightFields(
+                        getHighlightField(new HighlightBuilder.Field("*"), demandeRecherche.getTexte()));
             }
 
         }
@@ -972,12 +1065,24 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     }
 
     /**
+     * Méthode permettant de mettre à jour le field à highlighter
+     * 
+     * @param field Field à highlighter
+     * @param searchText Recherche à faire
+     * @return Field mis à jour
+     */
+    private HighlightBuilder.Field getHighlightField(HighlightBuilder.Field field, String searchText) {
+        return field.preTags(highlightPretags).postTags(highlightPosttags)
+                .highlightQuery(getSimpleQueryStringBuilder(searchText, demandesPropertiesWithBoost));
+    }
+
+    /**
      * Méthode permettant de récupérer les fields sur lesquels on va faire la recherche à partir d'une propriété
      * 
      * @param propertyName
      *            Nom de la propriétés
-     * @param liste
-     *            des propriétés elasticsearch
+     * @param properties
+     *              liste des propriétés elasticsearch
      * @return Liste des fields sur lesquels on va faire la recherche
      */
     private List<String> getSearchFields(String propertyName, List<EsProperty> properties) {
@@ -1004,10 +1109,10 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
         if (!StringUtils.isBlank(demandeRecherche.getTexte())) {
 
-            SimpleQueryStringBuilder demandeQueryStringQueryBuilder = simpleQueryStringQuery(
-                    demandeRecherche.getTexte()).defaultOperator(Operator.OR);
-            SimpleQueryStringBuilder filesQueryStringQueryBuilder = simpleQueryStringQuery(demandeRecherche.getTexte())
-                    .defaultOperator(Operator.OR);
+            SimpleQueryStringBuilder demandeQueryStringQueryBuilder = getSimpleQueryStringBuilder(
+                    demandeRecherche.getTexte(), null);
+            SimpleQueryStringBuilder filesQueryStringQueryBuilder = getSimpleQueryStringBuilder(
+                    demandeRecherche.getTexte(), null);
 
             if (!StringUtils.isBlank(demandeRecherche.getSearchField())) {
                 boolQueryBuilder = getQueryWhereFacetClicked(demandeQueryStringQueryBuilder,
@@ -1026,7 +1131,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     }
 
     /**
-     * Méthode permattant la construction de la requete de recupération des demandes lorsque on a cliqué sur aucune
+     * Méthode permattant la construction de la requete de recupération des demandes lorsque on n'a pas cliqué sur aucune
      * facet
      * 
      * @param demandeQueryStringQueryBuilder
@@ -1042,12 +1147,12 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     private BoolQueryBuilder getQueryWhereFacetNotClicked(SimpleQueryStringBuilder demandeQueryStringQueryBuilder,
             SimpleQueryStringBuilder filesQueryStringQueryBuilder, String rechercheText,
             BoolQueryBuilder boolQueryBuilder) {
-        demandeQueryStringQueryBuilder = demandeQueryStringQueryBuilder.useAllFields(true);
-        filesQueryStringQueryBuilder = filesQueryStringQueryBuilder.useAllFields(true);
+        demandeQueryStringQueryBuilder = demandeQueryStringQueryBuilder.fields(demandesPropertiesWithBoost)
+                .lenient(true);
+        filesQueryStringQueryBuilder = filesQueryStringQueryBuilder.fields(filesPropertiesWithBoost);
         HighlightBuilder.Field field = new HighlightBuilder.Field("*").preTags(highlightPretags)
-                .postTags(highlightPosttags)
-                .highlightQuery(simpleQueryStringQuery(rechercheText).defaultOperator(Operator.OR).useAllFields(true))
-                .requireFieldMatch(true);
+                .postTags(highlightPosttags).highlightQuery(simpleQueryStringQuery(rechercheText)
+                        .defaultOperator(Operator.OR).fields(filesPropertiesWithBoost).lenient(true));
         HighlightBuilder hb = new HighlightBuilder().field(field);
         InnerHitBuilder ihb = new InnerHitBuilder().setHighlightBuilder(hb)
                 .setStoredFieldNames(Arrays.asList(DemandeFileEsDTO.TYPE_FIELD));
@@ -1108,25 +1213,23 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                 filesFields.put(f, 1f);
                 HighlightBuilder.Field field = new HighlightBuilder.Field(f).preTags(highlightPretags)
                         .postTags(highlightPosttags)
-                        .highlightQuery(
-                                simpleQueryStringQuery(rechercheText).defaultOperator(Operator.OR).useAllFields(true))
-                        .requireFieldMatch(true);
+                        .highlightQuery(getSimpleQueryStringBuilder(rechercheText, filesPropertiesWithBoost));
                 hb = hb.field(field);
 
             }
             InnerHitBuilder ihb = new InnerHitBuilder().setHighlightBuilder(hb)
                     .setStoredFieldNames(Arrays.asList(DemandeFileEsDTO.TYPE_FIELD));
             filesQueryStringQueryBuilder = filesQueryStringQueryBuilder.fields(filesFields);
+            HasChildQueryBuilder hasChildQueryBuilder;
             if (tqb != null) {
                 BoolQueryBuilder bqb = boolQuery().must(filesQueryStringQueryBuilder).must(tqb);
-                HasChildQueryBuilder hasChildQueryBuilder = hasChildQuery(DemandeEsDTO.INDEX_FILES_TYPE, bqb,
-                        ScoreMode.Avg).innerHit(ihb);
-                boolQueryBuilder = boolQueryBuilder.should(hasChildQueryBuilder);
+                hasChildQueryBuilder = hasChildQuery(DemandeEsDTO.INDEX_FILES_TYPE, bqb, ScoreMode.Avg).innerHit(ihb);
             } else {
-                HasChildQueryBuilder hasChildQueryBuilder = hasChildQuery(DemandeEsDTO.INDEX_FILES_TYPE,
-                        filesQueryStringQueryBuilder, ScoreMode.Avg).innerHit(ihb);
-                boolQueryBuilder = boolQueryBuilder.should(hasChildQueryBuilder);
+                hasChildQueryBuilder = hasChildQuery(DemandeEsDTO.INDEX_FILES_TYPE, filesQueryStringQueryBuilder,
+                        ScoreMode.Avg).innerHit(ihb);
             }
+
+            boolQueryBuilder = boolQueryBuilder.should(hasChildQueryBuilder);
 
         }
         return boolQueryBuilder;
@@ -1137,7 +1240,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      * 
      * @param boolQueryBuilder
      *            Requete globale qui combine les requetes sur les demandes, sur les fichiers et sur les filtres
-     *            définits dans l'interface graphique
+     *            définis dans l'interface graphique
      * @param demandeRecherche
      *            DTO contenant les champs de la recherche (filtres+barre de recherche)
      * @return Requete globale qui combine les requetes sur les demandes, sur les fichiers et sur les filtres définits
@@ -1176,9 +1279,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         }
 
         if (demandeRecherche.getCreationEndDate() != null) {
-
             rangeQueryBuilder = rangeQueryBuilder.lte(getFormatedDate(demandeRecherche.getCreationEndDate()));
-
         }
 
         if (demandeRecherche.getCreationStartDate() != null || demandeRecherche.getCreationEndDate() != null) {
@@ -1195,10 +1296,9 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     }
 
     /**
-     * {@inheritDoc}
+     * Méthode permettant de sauvgarder une demande et de l'indexer
      * 
-     * @throws SAXException
-     * @throws IOException
+     * @see mc.gouv.dem.service.impl.DemandesServiceImpl#saveDemande(mc.gouv.dem.shared.model.DemandeDTO, java.lang.String)
      */
     @Override
     public DemandeDTO saveDemande(DemandeDTO demande, String premierStatut) throws IOException, SAXException {
@@ -1213,6 +1313,11 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         return demandeDto;
     }
 
+    /**
+     * Méhode permettant de mettre à jour une demande et de la réindexer
+     * 
+     * @see mc.gouv.dem.service.impl.DemandesServiceImpl#updateDemande(mc.gouv.dem.shared.model.DemandeDTO, boolean)
+     */
     @Override
     public DemandeDTO updateDemande(DemandeDTO demande, boolean partialUpdate) throws IOException, SAXException {
 
@@ -1227,10 +1332,8 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     }
 
     /**
-     * {@inheritDoc}
-     * 
-     * @throws JMSException
-     * @throws JsonProcessingException
+     * Méthode permettant de supprimer une demande et de la supprimer de l'index elasticsearch
+     * @see mc.gouv.dem.service.impl.DemandesServiceImpl#deleteDemande(java.lang.String, java.lang.Integer)
      */
     @Override
     public void deleteDemande(String demarcheId, Integer demandeId) throws JsonProcessingException, JMSException {
@@ -1243,7 +1346,13 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         }
     }
 
-    public String getFormatedDate(Date date) {
+    /**
+     * Méthode permettant de formatter une date au format 'dd/MM/yyyy'
+     * 
+     * @param date La date à formatter
+     * @return la date formattée
+     */
+    private String getFormatedDate(Date date) {
 
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);

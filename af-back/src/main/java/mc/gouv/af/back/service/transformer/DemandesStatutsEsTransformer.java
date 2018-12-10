@@ -27,11 +27,7 @@ public class DemandesStatutsEsTransformer {
             return null;
         }
         DemandeStatutEsDTO dto = new DemandeStatutEsDTO();
-        dto.setPkStatut(bo.getPkDemandesStatuts());
         dto.setLibelle(bo.getLibelle());
-        dto.setDate(bo.getDate());
-        dto.setAgentId(bo.getAgentId());
-        dto.setUsagerId(bo.getUsagerId());
         dto.setCodeMotif(bo.getCodeMotif());
         dto.setCommentaire(bo.getCommentaire());
         MotifDTO motif = motifsCache.getMotif(bo.getCodeMotif(), "fr");
@@ -45,11 +41,7 @@ public class DemandesStatutsEsTransformer {
             return null;
         }
         DemandeStatutEsDTO dto = new DemandeStatutEsDTO();
-        dto.setPkStatut(demandeStatutDTO.getPkStatut());
         dto.setLibelle(demandeStatutDTO.getLibelle());
-        dto.setDate(demandeStatutDTO.getDate());
-        dto.setAgentId(demandeStatutDTO.getAgentId());
-        dto.setUsagerId(demandeStatutDTO.getUsagerId());
         dto.setCodeMotif(demandeStatutDTO.getCodeMotif());
         dto.setCommentaire(demandeStatutDTO.getCommentaire());
         MotifDTO motif = motifsCache.getMotif(demandeStatutDTO.getCodeMotif(), "fr");

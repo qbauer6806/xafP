@@ -1,10 +1,11 @@
 package mc.gouv.af.back.data.es.model;
 
-import mc.gouv.dem.shared.model.DemandeStatutDTO;
+public class DemandeStatutEsDTO {
 
-public class DemandeStatutEsDTO extends DemandeStatutDTO {
-
+    private String commentaire;
+    private String libelle;
     private String libelleMotif;
+    private String codeMotif;
 
     public String getLibelleMotif() {
         return libelleMotif;
@@ -12,6 +13,30 @@ public class DemandeStatutEsDTO extends DemandeStatutDTO {
 
     public void setLibelleMotif(String libelleMotif) {
         this.libelleMotif = libelleMotif;
+    }
+
+    public String getCommentaire() {
+        return commentaire;
+    }
+
+    public void setCommentaire(String commentaire) {
+        this.commentaire = commentaire;
+    }
+
+    public String getLibelle() {
+        return libelle;
+    }
+
+    public void setLibelle(String libelle) {
+        this.libelle = libelle;
+    }
+
+    public String getCodeMotif() {
+        return codeMotif;
+    }
+
+    public void setCodeMotif(String codeMotif) {
+        this.codeMotif = codeMotif;
     }
 
 }

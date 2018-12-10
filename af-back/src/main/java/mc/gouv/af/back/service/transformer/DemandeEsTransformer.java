@@ -35,13 +35,13 @@ import mc.gouv.dem.data.entity.DemandesComplementsBO;
 import mc.gouv.dem.data.entity.DemandesCourriersBO;
 import mc.gouv.dem.data.entity.DemandesDataBO;
 import mc.gouv.dem.data.entity.DemandesStatutsBO;
-import mc.gouv.dem.service.transformer.DemandesComplementsTransformer;
 import mc.gouv.dem.service.transformer.DemandesCourriersTransformer;
 import mc.gouv.dem.service.transformer.DemandesStatutsTransformer;
 import mc.gouv.dem.service.transformer.DemandesTransformer;
 import mc.gouv.dem.service.util.DemarchesUtils;
 import mc.gouv.dem.shared.model.DemandeCanalEnum;
 import mc.gouv.dem.shared.model.DemandeComplementsDTO;
+import mc.gouv.dem.shared.model.DemandeComplementsStatutEnum;
 import mc.gouv.dem.shared.model.DemandeCourrierDTO;
 import mc.gouv.dem.shared.model.DemandeDTO;
 import mc.gouv.dem.shared.model.DemandeDataDTO;
@@ -127,9 +127,14 @@ public class DemandeEsTransformer {
         canal.setLibelle(DemandeCanalEnum.valueOf(demande.getCanal()).libelle);
         demandeEsDTO.setCanal(canal);
 
-        Set<DemandeComplementsDTO> complements = DemandesComplementsTransformer.bo2Dto(demande.getDemandesComplements(),
-                false);
-        demandeEsDTO.setComplements(complements.toArray(new DemandeComplementsDTO[complements.size()]));
+        if (demande.getDemandesComplements() != null) {
+            List<DemandeComplementsStatutEnum> complementsStatuts = new ArrayList<>();
+            for (DemandesComplementsBO demandeComplement : demande.getDemandesComplements()) {
+                complementsStatuts.add(DemandeComplementsStatutEnum.valueOf(demandeComplement.getStatut()));
+            }
+            demandeEsDTO.setComplementsStatuts(complementsStatuts);
+        }
+
         ObjectMapper mapper = new ObjectMapper();
         JsonNode contenu = mapper.readTree(demande.getContenu());
         demandeEsDTO.setContenu(transform(contenu));
@@ -138,7 +143,6 @@ public class DemandeEsTransformer {
 
         Set<DemandeCourrierDTO> courriers = DemandesCourriersTransformer.bo2Dto(demande.getCourriers());
         demandeEsDTO.setCourriers(courriers.toArray(new DemandeCourrierDTO[courriers.size()]));
-        demandeEsDTO.setCreeParAgentId(demande.getCreeParAgentId());
         demandeEsDTO.setAgentAffecteId(demande.getAgentAffecteId());
 
         if (demande.getData() != null) {
@@ -195,12 +199,18 @@ public class DemandeEsTransformer {
             canal.setLibelle(demandeDTO.getCanal().libelle);
             demandeEsDTO.setCanal(canal);
         }
-        demandeEsDTO.setComplements(demandeDTO.getComplements());
+
+        if (demandeDTO.getComplements() != null) {
+            List<DemandeComplementsStatutEnum> complementsStatuts = new ArrayList<>();
+            for (DemandeComplementsDTO demandeComplement : demandeDTO.getComplements()) {
+                complementsStatuts.add(demandeComplement.getStatut());
+            }
+            demandeEsDTO.setComplementsStatuts(complementsStatuts);
+        }
         demandeEsDTO.setContenu(transform(demandeDTO.getContenu()));
         demandeEsDTO.setCourrierDateReception(demandeDTO.getCourrierDateReception());
         demandeEsDTO.setCourrierRefInterne(demandeDTO.getCourrierRefInterne());
         demandeEsDTO.setCourriers(demandeDTO.getCourriers());
-        demandeEsDTO.setCreeParAgentId(demandeDTO.getCreeParAgentId());
         demandeEsDTO.setAgentAffecteId(demandeDTO.getAgentAffecteId());
 
         if (demandeDTO.getData() != null) {
@@ -295,7 +305,6 @@ public class DemandeEsTransformer {
         }
         dto.setObservations(bo.getObservations());
         dto.setPkDemandes(bo.getPkDemandes());
-        dto.setCreeParAgentId(bo.getCreeParAgentId());
         dto.setAgentAffecteId(bo.getAgentAffecteId());
 
         if (bo.getAgentAffecteId() != null) {
@@ -305,14 +314,16 @@ public class DemandeEsTransformer {
 
         // Mapper les demandes d'informations complémentaires
         if (addDemandesComplementsField && bo.getDemandesComplements() != null
-                && bo.getDemandesComplements().size() > 0) {
-            dto.setComplements(DemandesComplementsTransformer
-                    .bo2Dto(new ArrayList<DemandesComplementsBO>(bo.getDemandesComplements()))
-                    .toArray(new DemandeComplementsDTO[bo.getDemandesComplements().size()]));
+                && !bo.getDemandesComplements().isEmpty()) {
+            List<DemandeComplementsStatutEnum> complementsStatuts = new ArrayList<>();
+            for (DemandesComplementsBO demandeComplement : bo.getDemandesComplements()) {
+                complementsStatuts.add(DemandeComplementsStatutEnum.valueOf(demandeComplement.getStatut()));
+            }
+            dto.setComplementsStatuts(complementsStatuts);
         }
 
         // Mapper les statuts
-        if (addStatutsField && bo.getStatuts() != null && bo.getStatuts().size() > 0) {
+        if (addStatutsField && bo.getStatuts() != null && !bo.getStatuts().isEmpty()) {
             if (DemarchesUtils.isFrontUser()) {
                 // Front Office : remonter uniquement le dernier statut de la demande
                 DemandesStatutsBO statut = DemarchesUtils.getLatestStatus(bo);

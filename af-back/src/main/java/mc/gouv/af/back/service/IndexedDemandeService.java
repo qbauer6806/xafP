@@ -19,8 +19,24 @@ import mc.gouv.dem.data.entity.DemandeBO;
 import mc.gouv.dem.service.model.DemandeRechercheDTO;
 import mc.gouv.dem.shared.model.DemandeDTO;
 
+/**
+ * Interface définissant le contrat du service d'indexation
+ * 
+ * @author asouabni.ext
+ *
+ */
 public interface IndexedDemandeService {
 
+    /**
+     * Méthode permettant d'indexer une demande
+     * 
+     * @param demandeDTO La demande à indexer
+     * 
+     * @throws IOException
+     * @throws SAXException
+     * @throws TikaException
+     * @throws JMSException
+     */
     void indexDemande(DemandeDTO demandeDTO) throws IOException, SAXException, TikaException, JMSException;
 
     /**
@@ -36,26 +52,81 @@ public interface IndexedDemandeService {
      * Méthode permettant de faire la réindexation des demandes dans elasticsearch
      * 
      * @return nombre de demandes reindexées
-     * @throws IOException
-     * @throws TikaException
-     * @throws SAXException
-     * @throws FileConnectionException 
+     * 
+     * @throws IOException Exception I/O
+     * @throws TikaException Exception du parsing de la piece jointe
+     * @throws SAXException Exception SAX
+     * @throws FileConnectionException Exception lors de la connextion à File afn de récupérer la piece jointe à indexer
      */
     Long reindex() throws IOException, SAXException, TikaException;
 
+    /**
+     * Méthode permettant de récupérer une demande de la base et de l'indexer
+     * 
+     * @param demarcheId Identifiant de la demarche
+     * @param demandeId Identifiant de la demande
+     * 
+     * @throws IOException Exception I/O
+     * @throws SAXException Exception SAX
+     * @throws TikaException Exception du parsing de la piece jointe
+     * @throws JMSException Exception lors de l'envoi de la demande au topic
+     */
     void indexDemande(String demarcheId, Integer demandeId)
             throws IOException, SAXException, TikaException, JMSException;
 
+    /**
+     * Méthode permettant d'indexer les pieces jointes
+     * 
+     * @param demandeFileEsDTOs Liste des DTOs de la piece jointe
+     * @return Liste des DTOs de la piece jointe
+     */
     List<DemandeFileEsDTO> indexFiles(List<DemandeFileEsDTO> demandeFileEsDTOs);
 
+    /**
+     * Méthode permettant d'indexer les pieces jointe d'une demande
+     * 
+     * @param demande Entite Demande dont on doit indexer les pieces jointes
+     * @throws IOException Exception I/O
+     */
     void indexFiles(DemandeBO demande) throws IOException;
 
+    /**
+     * Méthode permettant d'indexer les pieces jointe d'une demande
+     * 
+     * @param demande DTO demande dont on doit indexer les pieces jointes
+     * @throws IOException Exception I/O
+     */
     void indexFiles(DemandeDTO demande) throws IOException;
 
+    /**
+     * Méthode permettant d'envoyer une demande au topic afin d'être indexer
+     *  
+     * @param demandeDTO DTO de la demande
+     * 
+     * @throws IOException Exception I/O
+     * @throws SAXException Exception SAX
+     * @throws TikaException Exception du parsing de la piece jointe
+     * @throws JMSException Exception lors de l'envoi de la demande au topic
+     */
     void sendToTopic(DemandeDTO demandeDTO) throws IOException, SAXException, TikaException, JMSException;
 
+    /**
+     * 
+     * Méthode permettant de rechercher des demandes à partir des critères en input
+     * 
+     * @param demandeRecherche Critères de recherche
+     * @return Résultat de la recherche
+     */
     List<DemandeEsDTO> getIndexedDemandes(DemandeRechercheDTO demandeRecherche);
 
+    /**
+     * Méthode permettant de rechercher des demandes à partir des critères en input (recherche paginée)
+     * 
+     * @param demandeRecherche Critères de recherche
+     * @param pageable Page de la recherche
+     * @param fields fields de la demande à récupérer
+     * @return Résultat de la recherche
+     */
     Page<DemandeEsRechercheDTO> getIndexedDemandes(DemandeRechercheDTO demandeRecherche, Pageable pageable,
             String[] fields);
 

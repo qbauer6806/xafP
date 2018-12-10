@@ -1,21 +1,12 @@
 package mc.gouv.af.back.data.es.model;
 
-import java.util.Date;
-
-import com.fasterxml.jackson.annotation.JsonFormat;
-
 public class UsagerEsDTO {
 
     private String id;
     private String login;
     private String etat;
     private String email;
-    @JsonFormat(locale = "fr", shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", timezone = "GMT+1")
-    private Date dateCreation;
-    @JsonFormat(locale = "fr", shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", timezone = "GMT+1")
-    private Date dateActivation;
-    @JsonFormat(locale = "fr", shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", timezone = "GMT+1")
-    private Date dateDerConnexion;
+
     private String titre;
     private String prenom;
     private String nom;
@@ -25,9 +16,7 @@ public class UsagerEsDTO {
     private String complementAdresse;
     private String codePostal;
     private String ville;
-    private String paysId;
     private String nomPays;
-    private String paysCode;
 
     public String getId() {
         return id;
@@ -59,30 +48,6 @@ public class UsagerEsDTO {
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public Date getDateCreation() {
-        return dateCreation;
-    }
-
-    public void setDateCreation(Date dateCreation) {
-        this.dateCreation = dateCreation;
-    }
-
-    public Date getDateActivation() {
-        return dateActivation;
-    }
-
-    public void setDateActivation(Date dateActivation) {
-        this.dateActivation = dateActivation;
-    }
-
-    public Date getDateDerConnexion() {
-        return dateDerConnexion;
-    }
-
-    public void setDateDerConnexion(Date dateDerConnexion) {
-        this.dateDerConnexion = dateDerConnexion;
     }
 
     public String getTitre() {
@@ -157,28 +122,12 @@ public class UsagerEsDTO {
         this.ville = ville;
     }
 
-    public String getPaysId() {
-        return paysId;
-    }
-
-    public void setPaysId(String paysId) {
-        this.paysId = paysId;
-    }
-
     public String getNomPays() {
         return nomPays;
     }
 
     public void setNomPays(String nomPays) {
         this.nomPays = nomPays;
-    }
-
-    public String getPaysCode() {
-        return paysCode;
-    }
-
-    public void setPaysCode(String paysCode) {
-        this.paysCode = paysCode;
     }
 
 }

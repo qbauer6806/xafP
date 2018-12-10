@@ -146,7 +146,7 @@ $(document).ready(function() {
 						libelle = recherche_libelles.get(facetName).libelle
 					}
 					
-					categoryId = categoryId.replace(/'/g,"")
+					categoryId = categoryId.replace(/'/g,"").replace(/\(|\)/g, "");
 
 					if (!categories[categoryId]) {
 						var newfacetCategoryDiv = $("#facetCategory").clone();
@@ -196,12 +196,16 @@ recherche_libelles.set("canal.code", {
 	categorie : "Canal"
 });
 recherche_libelles.set("canal.libelle", {
-	libelle : "Mode de transmission",
+	libelle : "Mode de réception",
 	categorie : "Canal"
 });
 recherche_libelles.set("langue", {
 	libelle : "Langue",
-	categorie : "Autres"
+	categorie : "Demande"
+});
+recherche_libelles.set("observations", {
+	libelle : "Observations",
+	categorie : "Informations réservées à l'administration"
 });
 recherche_libelles.set("dernierStatut.pkStatut", {
 	libelle : "Id du statut",
@@ -237,12 +241,10 @@ recherche_libelles.set("dernierStatut.libelleMotif", {
 });
 recherche_libelles.set("identifiant", {
 	libelle : "Identifiant",
-	categorie : "Autres"
+	categorie : "Demande"
 });
-recherche_libelles.set("access.usagerId", {
-	libelle : "Id usager",
-	categorie : "Usager"
-});
+
+
 recherche_libelles.set("access.active", {
 	libelle : "Actif",
 	categorie : "Usager"
@@ -251,21 +253,18 @@ recherche_libelles.set("access.demarcheId", {
 	libelle : "Id démarche",
 	categorie : "Usager"
 });
-recherche_libelles.set("access.fkAccess", {
-	libelle : "FK access",
-	categorie : "Usager"
-});
+
 recherche_libelles.set("fichiers.content", {
 	libelle : "Contenu",
-	categorie : "Pièce jointe"
+	categorie : "Pièce(s) jointe(s)"
 });
 recherche_libelles.set("fichiers.name", {
 	libelle : "Nom",
-	categorie : "Pièce jointe"
+	categorie : "Pièce(s) jointe(s)"
 });
 recherche_libelles.set("fichiers.url", {
 	libelle : "Url",
-	categorie : "Pièce jointe"
+	categorie : "Pièce(s) jointe(s)"
 });
 recherche_libelles.set("fichiers.complement.content", {
 	libelle : "Contenu",
@@ -283,38 +282,7 @@ recherche_libelles.set("complements.statut", {
 	libelle : "Statut",
 	categorie : "Complément de demande"
 });
-recherche_libelles.set("complements.pkDemandeComplements", {
-	libelle : "Id du complément",
-	categorie : "Complément de demande"
-});
-recherche_libelles.set("complements.question.texte", {
-	libelle : "Question",
-	categorie : "Complément de demande"
-});
-recherche_libelles.set("complements.reponse.date", {
-	libelle : "Date de la réponse",
-	categorie : "Complément de demande"
-});
-recherche_libelles.set("complements.question.agentId", {
-	libelle : "Identifiant de l'agent qui a posé la question",
-	categorie : "Complément de demande"
-});
-recherche_libelles.set("complements.question.date", {
-	libelle : "Date de la question",
-	categorie : "Complément de demande"
-});
-recherche_libelles.set("complements.reponse.usagerId", {
-	libelle : "Identifiant de l'usager qui à répondu",
-	categorie : "Complément de demande"
-});
-recherche_libelles.set("complements.demandeId", {
-	libelle : "Identifiant de la demande",
-	categorie : "Complément de demande"
-});
-recherche_libelles.set("complements.reponse.texte", {
-	libelle : "Réponse",
-	categorie : "Complément de demande"
-});
+
 recherche_libelles.set("complements.question.codeMotif", {
 	libelle : "Code du motif",
 	categorie : "Complément de demande"
@@ -436,7 +404,7 @@ recherche_libelles.set("usager.etat", {
 	categorie : "Usager"
 });
 recherche_libelles.set("usager.login", {
-	libelle : "Login",
+	libelle : "Identifiant du compte usager",
 	categorie : "Usager"
 });
 recherche_libelles.set("usager.titre", {
@@ -444,10 +412,6 @@ recherche_libelles.set("usager.titre", {
 	categorie : "Usager"
 });
 
-recherche_libelles.set("agent.civilite", {
-	libelle : "Civilité",
-	categorie : "Agent"
-});
 recherche_libelles.set("agent.matricule", {
 	libelle : "Matricule",
 	categorie : "Agent"
@@ -472,26 +436,7 @@ recherche_libelles.set("agent.mail", {
 	libelle : "Email",
 	categorie : "Agent"
 });
-recherche_libelles.set("agent.service", {
-	libelle : "Service",
-	categorie : "Agent"
-});
-recherche_libelles.set("agent.ufCode", {
-	libelle : "Code de l'unité fonctionnelle",
-	categorie : "Agent"
-});
-recherche_libelles.set("agent.dateCreation", {
-	libelle : "Date de création",
-	categorie : "Agent"
-});
-recherche_libelles.set("agent.telPro", {
-	libelle : "Téléphone professionnel",
-	categorie : "Agent"
-});
-recherche_libelles.set("agent.telMobilePro", {
-	libelle : "Téléphone mobile professionnel",
-	categorie : "Agent"
-});
+
 recherche_libelles.set("agent.fonction", {
 	libelle : "Fonction",
 	categorie : "Agent"

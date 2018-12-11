@@ -101,6 +101,7 @@ import mc.gouv.af.back.service.DemandeFieldsExcludeService;
 import mc.gouv.af.back.service.DemandeJmsTopicSendService;
 import mc.gouv.af.back.service.IndexedDemandeService;
 import mc.gouv.af.back.service.transformer.DemandeEsTransformer;
+import mc.gouv.af.back.util.ESQueryUtils;
 import mc.gouv.af.back.util.FileUtils;
 import mc.gouv.dem.data.dao.DemandesRepository;
 import mc.gouv.dem.data.entity.DemandeBO;
@@ -743,7 +744,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     @Override
     public List<DemandeEsDTO> getIndexedDemandes(DemandeRechercheDTO demandeRecherche) {
-
+        demandeRecherche.setTexte(ESQueryUtils.getFormatedQuery(demandeRecherche.getTexte()));
         return Lists.newArrayList(demandeEsRepository.search(getQueryBuilder(demandeRecherche)));
     }
 
@@ -753,6 +754,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     @Override
     public DemandesFacets getDemandesFacets(DemandeRechercheDTO demandeRecherche) {
 
+        demandeRecherche.setTexte(ESQueryUtils.getFormatedQuery(demandeRecherche.getTexte()));
         initMappingProperties();
 
         if (!StringUtils.isBlank(demandeRecherche.getTexte())) {
@@ -889,8 +891,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      */
     public SimpleQueryStringBuilder getSimpleQueryStringBuilder(String text, Map<String, Float> fields) {
 
-        SimpleQueryStringBuilder simpleQueryStringBuilder = simpleQueryStringQuery(text).defaultOperator(Operator.OR)
-                .lenient(true);
+        SimpleQueryStringBuilder simpleQueryStringBuilder = simpleQueryStringQuery(text).lenient(true);
         if (fields != null) {
             return simpleQueryStringBuilder.fields(fields);
         }
@@ -905,6 +906,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     public Page<DemandeEsRechercheDTO> getIndexedDemandes(DemandeRechercheDTO demandeRecherche, Pageable pageable,
             String[] fields) {
 
+        demandeRecherche.setTexte(ESQueryUtils.getFormatedQuery(demandeRecherche.getTexte()));
         initMappingProperties();
 
         NativeSearchQueryBuilder nativeSearchQueryBuilder = new NativeSearchQueryBuilder().withIndices(indexAlias)

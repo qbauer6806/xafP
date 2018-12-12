@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import mc.gouv.af.back.cache.MotifsCache;
 import mc.gouv.af.back.config.es.IndexationEnabledCondition;
 import mc.gouv.af.back.data.es.model.DemandeStatutEsDTO;
+import mc.gouv.af.back.service.DemarchesDataProvider;
 import mc.gouv.dem.data.entity.DemandesStatutsBO;
 import mc.gouv.dem.shared.model.DemandeStatutDTO;
 import mc.gouv.dem.shared.model.MotifDTO;
@@ -22,12 +23,16 @@ public class DemandesStatutsEsTransformer {
     @Inject
     MotifsCache motifsCache;
 
+    @Inject
+    DemarchesDataProvider demarchesDataProvider;
+
     public DemandeStatutEsDTO bo2Dto(DemandesStatutsBO bo) {
         if (bo == null) {
             return null;
         }
         DemandeStatutEsDTO dto = new DemandeStatutEsDTO();
-        dto.setLibelle(bo.getLibelle());
+        dto.setCode(bo.getLibelle());
+        dto.setLibelle(demarchesDataProvider.getStatusLibelle(bo.getLibelle()));
         dto.setCodeMotif(bo.getCodeMotif());
         dto.setCommentaire(bo.getCommentaire());
         MotifDTO motif = motifsCache.getMotif(bo.getCodeMotif(), "fr");
@@ -41,7 +46,8 @@ public class DemandesStatutsEsTransformer {
             return null;
         }
         DemandeStatutEsDTO dto = new DemandeStatutEsDTO();
-        dto.setLibelle(demandeStatutDTO.getLibelle());
+        dto.setCode(demandeStatutDTO.getLibelle());
+        dto.setLibelle(demarchesDataProvider.getStatusLibelle(demandeStatutDTO.getLibelle()));
         dto.setCodeMotif(demandeStatutDTO.getCodeMotif());
         dto.setCommentaire(demandeStatutDTO.getCommentaire());
         MotifDTO motif = motifsCache.getMotif(demandeStatutDTO.getCodeMotif(), "fr");

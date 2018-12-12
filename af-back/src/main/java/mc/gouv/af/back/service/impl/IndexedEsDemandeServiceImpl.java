@@ -90,6 +90,7 @@ import mc.gouv.af.back.data.es.model.DemandeEsDTO;
 import mc.gouv.af.back.data.es.model.DemandeEsDTO.DemandeFileEsDTO;
 import mc.gouv.af.back.data.es.model.DemandeEsJmsDto;
 import mc.gouv.af.back.data.es.model.DemandeEsRechercheDTO;
+import mc.gouv.af.back.data.es.model.DemandeStatutEsDTO;
 import mc.gouv.af.back.data.es.model.DemandesFacet;
 import mc.gouv.af.back.data.es.model.DemandesFacets;
 import mc.gouv.af.back.data.es.model.EsProperty;
@@ -117,7 +118,6 @@ import mc.gouv.dem.shared.model.DemandeCanalEnum;
 import mc.gouv.dem.shared.model.DemandeComplementsDTO;
 import mc.gouv.dem.shared.model.DemandeDTO;
 import mc.gouv.dem.shared.model.DemandeFileDTO;
-import mc.gouv.dem.shared.model.DemandeStatutDTO;
 import mc.gouv.file.apiclient.FileClient;
 
 /**
@@ -188,7 +188,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     //Liste des champs à exclure de la recherche du type demandes
     private List<String> demandesFieldsToExclude = Arrays.asList("access.demarcheId", "access.usagerId",
             "access.fkAccess", "agentAffecteNomAffichage", "usager.paysCode", "canal.code", "agentAffecteId",
-            "dernierStatut.codeMotif", "pkDemandes");
+            "dernierStatut.codeMotif", "pkDemandes", "creeParAgentId", "dernierStatut.code", "statuts.code");
     //Liste des champs à exclure de la recherche du type fichiers
     private List<String> fichiersFieldsToExclude = Arrays.asList("demandeId", "url", "language");
 
@@ -1251,7 +1251,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     private BoolQueryBuilder getUiFilterQuery(BoolQueryBuilder boolQueryBuilder, DemandeRechercheDTO demandeRecherche) {
         if (demandeRecherche.getStatuts() != null) {
             boolQueryBuilder = boolQueryBuilder.must(termsQuery(
-                    DemandeEsDTO.DERNIER_STATUT_FIELD_NAME + "." + DemandeStatutDTO.LIBELLE_FIELD_NAME + ES_KEYWORD,
+                    DemandeEsDTO.DERNIER_STATUT_FIELD_NAME + "." + DemandeStatutEsDTO.CODE_FIELD_NAME + ES_KEYWORD,
                     demandeRecherche.getStatuts()));
         }
 

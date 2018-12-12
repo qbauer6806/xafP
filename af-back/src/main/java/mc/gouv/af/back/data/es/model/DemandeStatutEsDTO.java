@@ -2,8 +2,11 @@ package mc.gouv.af.back.data.es.model;
 
 public class DemandeStatutEsDTO {
 
+    public static final String CODE_FIELD_NAME = "code";
+
     private String commentaire;
     private String libelle;
+    private String code;
     private String libelleMotif;
     private String codeMotif;
 
@@ -37,6 +40,14 @@ public class DemandeStatutEsDTO {
 
     public void setCodeMotif(String codeMotif) {
         this.codeMotif = codeMotif;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 
 }

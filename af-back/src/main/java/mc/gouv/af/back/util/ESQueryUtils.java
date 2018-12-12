@@ -15,8 +15,8 @@ public class ESQueryUtils {
      * <p>Méthode permettant de rajouter un "+" lorsqu'on veut exclure un terme de la recherche</p>
      * <p>
      *  Par exemple: <br/>
-     *  Si on recherche: a -b le resultat sera: a +-b sinon si on ne modifie pas la query on va rechercher a ou -b (default_operator = OR)
-     *  pour plus de détails https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-simple-query-string-query.html#_simple_query_string_syntax
+     *  Si on recherche: a -b le resultat sera: a +-b sinon si on ne modifie pas la query on va rechercher a ou -b (default_operator = OR)<br/>
+     *  Pour plus de détails https://www.elastic.co/guide/en/elasticsearch/reference/5.6/query-dsl-simple-query-string-query.html#_simple_query_string_syntax
      * </p>
      * @param query Les termes à rechercher
      * @return La requête formatée
@@ -40,7 +40,6 @@ public class ESQueryUtils {
                 }
                 query = formatedQuery.toString();
             }
-
         }
 
         return query;

@@ -18,7 +18,7 @@ import mc.gouv.dem.shared.model.DemandeComplementsStatutEnum;
  * 
  *
  */
-@Document(indexName = "#{propertiesResolver.indexAlias}", type = DemandeEsDTO.INDEX_TYPE)
+@Document(indexName = "#{propertiesResolver.indexAlias}", type = DemandeEsDTO.INDEX_TYPE, createIndex = false)
 public class DemandeEsDTO extends AbstractDemandeDTO {
 
     public static final String INDEX_TYPE = "demandes";

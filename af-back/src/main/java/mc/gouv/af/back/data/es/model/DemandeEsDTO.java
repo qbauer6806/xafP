@@ -127,7 +127,7 @@ public class DemandeEsDTO extends AbstractDemandeDTO {
         this.complementsStatuts = complementsStatuts;
     }
 
-    @Document(indexName = "#{propertiesResolver.indexAlias}", type = DemandeEsDTO.INDEX_FILES_TYPE)
+    @Document(indexName = "#{propertiesResolver.indexAlias}", type = DemandeEsDTO.INDEX_FILES_TYPE, createIndex = false)
     public static class DemandeFileEsDTO {
 
         public enum TYPE {

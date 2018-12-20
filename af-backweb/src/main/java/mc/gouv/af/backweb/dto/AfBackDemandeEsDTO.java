@@ -18,11 +18,10 @@ public class AfBackDemandeEsDTO extends DemandeEsRechercheDTO {
 
     public AfBackDemandeEsDTO(DemandeEsDTO demande) {
         setCanal(demande.getCanal());
-        setComplementsStatuts(demande.getComplementsStatuts());
         setContenu(demande.getContenu());
         setCourrierDateReception(demande.getCourrierDateReception());
         setCourrierRefInterne(demande.getCourrierRefInterne());
-        setCourriers(demande.getCourriers());
+        setNomsCourriers(demande.getNomsCourriers());
         setData(demande.getData());
         setDateCreation(demande.getDateCreation());
         setDateDerModif(demande.getDateDerModif());
@@ -38,11 +37,10 @@ public class AfBackDemandeEsDTO extends DemandeEsRechercheDTO {
 
     public AfBackDemandeEsDTO(DemandeEsRechercheDTO demande) {
         setCanal(demande.getCanal());
-        setComplementsStatuts(demande.getComplementsStatuts());
         setContenu(demande.getContenu());
         setCourrierDateReception(demande.getCourrierDateReception());
         setCourrierRefInterne(demande.getCourrierRefInterne());
-        setCourriers(demande.getCourriers());
+        setNomsCourriers(demande.getNomsCourriers());
         setData(demande.getData());
         setDateCreation(demande.getDateCreation());
         setDateDerModif(demande.getDateDerModif());

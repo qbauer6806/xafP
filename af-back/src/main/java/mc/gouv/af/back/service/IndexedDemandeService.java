@@ -16,6 +16,7 @@ import mc.gouv.af.back.data.es.model.DemandeEsRechercheDTO;
 import mc.gouv.af.back.data.es.model.DemandesFacets;
 import mc.gouv.af.back.exception.FileConnectionException;
 import mc.gouv.dem.data.entity.DemandeBO;
+import mc.gouv.dem.service.DemandesService;
 import mc.gouv.dem.service.model.DemandeRechercheDTO;
 import mc.gouv.dem.shared.model.DemandeDTO;
 
@@ -25,7 +26,7 @@ import mc.gouv.dem.shared.model.DemandeDTO;
  * @author asouabni.ext
  *
  */
-public interface IndexedDemandeService {
+public interface IndexedDemandeService extends DemandesService {
 
     /**
      * Méthode permettant d'indexer une demande

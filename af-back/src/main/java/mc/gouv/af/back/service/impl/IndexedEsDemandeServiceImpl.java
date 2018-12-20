@@ -190,7 +190,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             "access.fkAccess", "agentAffecteNomAffichage", "usager.paysCode", "canal.code", "agentAffecteId",
             "dernierStatut.codeMotif", "pkDemandes", "creeParAgentId", "dernierStatut.code", "statuts.code");
     //Liste des champs à exclure de la recherche du type fichiers
-    private List<String> fichiersFieldsToExclude = Arrays.asList("demandeId", "url", "language");
+    private List<String> fichiersFieldsToExclude = Arrays.asList("demandeId", "url", "language", "id");
 
     @PostConstruct
     public void init() {
@@ -211,7 +211,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      * @param type Type de l'index
      * @return Mapping Elasticsearch
      */
-    public Map getMapping(String aliasName, String type) {
+    private Map getMapping(String aliasName, String type) {
         Assert.notNull(aliasName, "No index defined for putMapping()");
         Assert.notNull(type, "No type defined for putMapping()");
         Map mappings = null;
@@ -239,7 +239,8 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      * Méthode permettant d'initialiser les propriétés elasticsearch sur lesquels on va faire la recherche
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public synchronized void initMappingProperties() {
+    private synchronized void initMappingProperties() {
+
         if (demandesProperties.isEmpty()) {
             Map<String, Map> mapping = getMapping(indexAlias, DemandeEsDTO.INDEX_TYPE);
             initMappingProperties(demandesProperties, mapping, demandesFieldsToExclude);
@@ -274,7 +275,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      * @param fieldsToExclude Les champs qu'on veut pas récupérer
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public synchronized void initMappingProperties(List<EsProperty> properties, Map<String, Map> mapping,
+    private synchronized void initMappingProperties(List<EsProperty> properties, Map<String, Map> mapping,
             List<String> fieldsToExclude) {
         if (elasticsearchTemplate != null && mapping != null) {
 
@@ -312,7 +313,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      * @param properties Liste des propriétés à remplir
      */
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public void getPropertyName(Map<String, Map> map, String propertyName, List<EsProperty> properties) {
+    private void getPropertyName(Map<String, Map> map, String propertyName, List<EsProperty> properties) {
 
         if (map == null || map.isEmpty()) {
             return;
@@ -889,7 +890,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      * @param fields Les fields sur lesquels on va faire la recherche
      * @return Le SimpleQueryStringBuilder permettant de faire la requete de recherche sur tous les champs en paramètres
      */
-    public SimpleQueryStringBuilder getSimpleQueryStringBuilder(String text, Map<String, Float> fields) {
+    private SimpleQueryStringBuilder getSimpleQueryStringBuilder(String text, Map<String, Float> fields) {
 
         SimpleQueryStringBuilder simpleQueryStringBuilder = simpleQueryStringQuery(text).lenient(true);
         if (fields != null) {

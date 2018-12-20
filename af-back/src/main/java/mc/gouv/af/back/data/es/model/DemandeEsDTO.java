@@ -11,7 +11,6 @@ import org.springframework.data.elasticsearch.annotations.Parent;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import mc.gouv.dem.shared.model.AbstractDemandeDTO;
-import mc.gouv.dem.shared.model.DemandeComplementsStatutEnum;
 
 /**
  * Modélise une demande
@@ -34,7 +33,7 @@ public class DemandeEsDTO extends AbstractDemandeDTO {
     private DemandeStatutEsDTO dernierStatut;
     private JsonNode data;
     private String agentAffecteNomAffichage;
-    private List<DemandeComplementsStatutEnum> complementsStatuts;
+    private List<String> nomsCourriers;
 
     @Id
     protected String identifiant;
@@ -119,12 +118,12 @@ public class DemandeEsDTO extends AbstractDemandeDTO {
         this.agentAffecteNomAffichage = agentAffecteNomAffichage;
     }
 
-    public List<DemandeComplementsStatutEnum> getComplementsStatuts() {
-        return complementsStatuts;
+    public List<String> getNomsCourriers() {
+        return nomsCourriers;
     }
 
-    public void setComplementsStatuts(List<DemandeComplementsStatutEnum> complementsStatuts) {
-        this.complementsStatuts = complementsStatuts;
+    public void setNomsCourriers(List<String> nomsCourriers) {
+        this.nomsCourriers = nomsCourriers;
     }
 
     @Document(indexName = "#{propertiesResolver.indexAlias}", type = DemandeEsDTO.INDEX_FILES_TYPE, createIndex = false)

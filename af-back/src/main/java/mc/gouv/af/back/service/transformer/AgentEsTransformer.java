@@ -15,7 +15,6 @@ public class AgentEsTransformer {
         }
 
         AgentEsDTO agent = new AgentEsDTO();
-        agent.setFonction(bo.getFonction());
         agent.setMail(bo.getMail());
         agent.setMatricule(bo.getMatricule());
         agent.setNom(bo.getNom());

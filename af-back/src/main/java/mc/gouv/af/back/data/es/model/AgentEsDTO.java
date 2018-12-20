@@ -11,8 +11,6 @@ public class AgentEsDTO {
     private String prenom;
     private String mail;
 
-    private String fonction;
-
     public String getMatricule() {
         return matricule;
     }
@@ -59,14 +57,6 @@ public class AgentEsDTO {
 
     public void setMail(String mail) {
         this.mail = mail;
-    }
-
-    public String getFonction() {
-        return fonction;
-    }
-
-    public void setFonction(String fonction) {
-        this.fonction = fonction;
     }
 
 }

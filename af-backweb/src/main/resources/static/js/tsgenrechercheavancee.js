@@ -191,10 +191,7 @@ recherche_libelles.set("dateDerModif", {
 	libelle : "Date de dernière modification",
 	categorie : "Autres"
 });
-recherche_libelles.set("canal.code", {
-	libelle : "Code",
-	categorie : "Canal"
-});
+
 recherche_libelles.set("canal.libelle", {
 	libelle : "Mode de réception",
 	categorie : "Canal"
@@ -212,7 +209,7 @@ recherche_libelles.set("dernierStatut.pkStatut", {
 	categorie : "Dernier statut"
 });
 recherche_libelles.set("dernierStatut.libelle", {
-	libelle : "Libelle",
+	libelle : "Libellé",
 	categorie : "Dernier statut"
 });
 recherche_libelles.set("dernierStatut.date", {
@@ -227,43 +224,29 @@ recherche_libelles.set("dernierStatut.usagerId", {
 	libelle : "Id usager",
 	categorie : "Dernier statut"
 });
-recherche_libelles.set("dernierStatut.codeMotif", {
-	libelle : "Code du motif",
-	categorie : "Dernier statut"
-});
+
 recherche_libelles.set("dernierStatut.commentaire", {
 	libelle : "Commentaire",
 	categorie : "Dernier statut"
 });
 recherche_libelles.set("dernierStatut.libelleMotif", {
-	libelle : "Libelle du motif",
+	libelle : "Libellé du motif",
 	categorie : "Dernier statut"
 });
 recherche_libelles.set("identifiant", {
 	libelle : "Identifiant",
 	categorie : "Demande"
 });
-
-
 recherche_libelles.set("access.active", {
 	libelle : "Actif",
 	categorie : "Usager"
 });
-recherche_libelles.set("access.demarcheId", {
-	libelle : "Id démarche",
-	categorie : "Usager"
-});
-
 recherche_libelles.set("fichiers.content", {
 	libelle : "Contenu",
 	categorie : "Pièce(s) jointe(s)"
 });
 recherche_libelles.set("fichiers.name", {
 	libelle : "Nom",
-	categorie : "Pièce(s) jointe(s)"
-});
-recherche_libelles.set("fichiers.url", {
-	libelle : "Url",
 	categorie : "Pièce(s) jointe(s)"
 });
 recherche_libelles.set("fichiers.complement.content", {
@@ -292,7 +275,7 @@ recherche_libelles.set("statuts.pkStatut", {
 	categorie : "Historique des statuts"
 });
 recherche_libelles.set("statuts.libelle", {
-	libelle : "Libelle du statut",
+	libelle : "Libellé du statut",
 	categorie : "Historique des statuts"
 });
 recherche_libelles.set("statuts.date", {
@@ -437,7 +420,16 @@ recherche_libelles.set("agent.mail", {
 	categorie : "Agent"
 });
 
-recherche_libelles.set("agent.fonction", {
-	libelle : "Fonction",
-	categorie : "Agent"
+recherche_libelles.set("courrierRefInterne", {
+	libelle : "Référence interne",
+	categorie : "Courrier"
+});
+
+recherche_libelles.set("nomsCourriers", {
+	libelle : "Nom",
+	categorie : "Courrier"
+});
+recherche_libelles.set("courrierDateReception", {
+	libelle : "Date de réception",
+	categorie : "Courrier"
 });

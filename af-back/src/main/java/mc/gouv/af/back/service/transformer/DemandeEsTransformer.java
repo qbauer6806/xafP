@@ -2,8 +2,10 @@ package mc.gouv.af.back.service.transformer;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -31,7 +33,6 @@ import mc.gouv.af.back.data.es.model.DemandeEsDTO;
 import mc.gouv.af.back.data.es.model.DemandeStatutEsDTO;
 import mc.gouv.dem.data.entity.AccessBO;
 import mc.gouv.dem.data.entity.DemandeBO;
-import mc.gouv.dem.data.entity.DemandesComplementsBO;
 import mc.gouv.dem.data.entity.DemandesCourriersBO;
 import mc.gouv.dem.data.entity.DemandesDataBO;
 import mc.gouv.dem.data.entity.DemandesStatutsBO;
@@ -40,8 +41,6 @@ import mc.gouv.dem.service.transformer.DemandesStatutsTransformer;
 import mc.gouv.dem.service.transformer.DemandesTransformer;
 import mc.gouv.dem.service.util.DemarchesUtils;
 import mc.gouv.dem.shared.model.DemandeCanalEnum;
-import mc.gouv.dem.shared.model.DemandeComplementsDTO;
-import mc.gouv.dem.shared.model.DemandeComplementsStatutEnum;
 import mc.gouv.dem.shared.model.DemandeCourrierDTO;
 import mc.gouv.dem.shared.model.DemandeDTO;
 import mc.gouv.dem.shared.model.DemandeDataDTO;
@@ -127,14 +126,6 @@ public class DemandeEsTransformer {
         canal.setLibelle(DemandeCanalEnum.valueOf(demande.getCanal()).libelle);
         demandeEsDTO.setCanal(canal);
 
-        if (demande.getDemandesComplements() != null) {
-            List<DemandeComplementsStatutEnum> complementsStatuts = new ArrayList<>();
-            for (DemandesComplementsBO demandeComplement : demande.getDemandesComplements()) {
-                complementsStatuts.add(DemandeComplementsStatutEnum.valueOf(demandeComplement.getStatut()));
-            }
-            demandeEsDTO.setComplementsStatuts(complementsStatuts);
-        }
-
         ObjectMapper mapper = new ObjectMapper();
         JsonNode contenu = mapper.readTree(demande.getContenu());
         demandeEsDTO.setContenu(transform(contenu));
@@ -142,7 +133,12 @@ public class DemandeEsTransformer {
         demandeEsDTO.setCourrierRefInterne(demande.getCourrierRefInterne());
 
         Set<DemandeCourrierDTO> courriers = DemandesCourriersTransformer.bo2Dto(demande.getCourriers());
-        demandeEsDTO.setCourriers(courriers.toArray(new DemandeCourrierDTO[courriers.size()]));
+
+        if (courriers != null && !courriers.isEmpty()) {
+            List<String> nomsCourriers = courriers.stream().map(DemandeCourrierDTO::getName)
+                    .collect(Collectors.toList());
+            demandeEsDTO.setNomsCourriers(nomsCourriers);
+        }
         demandeEsDTO.setAgentAffecteId(demande.getAgentAffecteId());
 
         if (demande.getData() != null) {
@@ -200,17 +196,16 @@ public class DemandeEsTransformer {
             demandeEsDTO.setCanal(canal);
         }
 
-        if (demandeDTO.getComplements() != null) {
-            List<DemandeComplementsStatutEnum> complementsStatuts = new ArrayList<>();
-            for (DemandeComplementsDTO demandeComplement : demandeDTO.getComplements()) {
-                complementsStatuts.add(demandeComplement.getStatut());
-            }
-            demandeEsDTO.setComplementsStatuts(complementsStatuts);
-        }
         demandeEsDTO.setContenu(transform(demandeDTO.getContenu()));
         demandeEsDTO.setCourrierDateReception(demandeDTO.getCourrierDateReception());
         demandeEsDTO.setCourrierRefInterne(demandeDTO.getCourrierRefInterne());
-        demandeEsDTO.setCourriers(demandeDTO.getCourriers());
+
+        if (demandeDTO.getCourriers() != null && demandeDTO.getCourriers().length > 0) {
+            List<String> nomsCourriers = Arrays.stream(demandeDTO.getCourriers()).map(DemandeCourrierDTO::getName)
+                    .collect(Collectors.toList());
+            demandeEsDTO.setNomsCourriers(nomsCourriers);
+        }
+
         demandeEsDTO.setAgentAffecteId(demandeDTO.getAgentAffecteId());
 
         if (demandeDTO.getData() != null) {
@@ -312,16 +307,6 @@ public class DemandeEsTransformer {
             dto.setAgentAffecteNomAffichage(getAgentAffecteNomAffichage(user));
         }
 
-        // Mapper les demandes d'informations complémentaires
-        if (addDemandesComplementsField && bo.getDemandesComplements() != null
-                && !bo.getDemandesComplements().isEmpty()) {
-            List<DemandeComplementsStatutEnum> complementsStatuts = new ArrayList<>();
-            for (DemandesComplementsBO demandeComplement : bo.getDemandesComplements()) {
-                complementsStatuts.add(DemandeComplementsStatutEnum.valueOf(demandeComplement.getStatut()));
-            }
-            dto.setComplementsStatuts(complementsStatuts);
-        }
-
         // Mapper les statuts
         if (addStatutsField && bo.getStatuts() != null && !bo.getStatuts().isEmpty()) {
             if (DemarchesUtils.isFrontUser()) {
@@ -352,9 +337,16 @@ public class DemandeEsTransformer {
             // Ne remonter les courriers que pour le back
             if (!DemarchesUtils.isFrontUser()) {
                 // Back Office : tout remonter
-                dto.setCourriers(
-                        DemandesCourriersTransformer.bo2Dto(new ArrayList<DemandesCourriersBO>(bo.getCourriers()))
-                                .toArray(new DemandeCourrierDTO[bo.getCourriers().size()]));
+
+                List<DemandeCourrierDTO> courriers = DemandesCourriersTransformer
+                        .bo2Dto(new ArrayList<DemandesCourriersBO>(bo.getCourriers()));
+
+                if (courriers != null && !courriers.isEmpty()) {
+                    List<String> nomsCourriers = courriers.stream().map(DemandeCourrierDTO::getName)
+                            .collect(Collectors.toList());
+                    dto.setNomsCourriers(nomsCourriers);
+                }
+
             }
         }
         dto.setIdentifiant(bo.getIdentifiant());

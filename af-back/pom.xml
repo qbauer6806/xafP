@@ -28,7 +28,7 @@
 		<dependency>
 			<groupId>mc.gouv.dem</groupId>
 			<artifactId>dem-service</artifactId>
-			<version>3.0.0</version>
+			<version>3.0.1-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<groupId>javax.servlet</groupId>

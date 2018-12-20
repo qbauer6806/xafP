@@ -261,6 +261,11 @@ recherche_libelles.set("fichiers.complement.url", {
 	libelle : "Url de la pièce jointe",
 	categorie : "Complément de demande"
 });
+
+recherche_libelles.set("fichiers.type", {
+	libelle : "Type de fichier",
+	categorie : "Pièce(s) jointe(s)"
+});
 recherche_libelles.set("complements.statut", {
 	libelle : "Statut",
 	categorie : "Complément de demande"

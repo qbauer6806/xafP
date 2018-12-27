@@ -29,7 +29,7 @@ public class ESQueryUtils {
             if (queryTokenized != null) {
                 StringBuilder formatedQuery = new StringBuilder("");
                 for (String token : queryTokenized) {
-                    if (token.contains("\"") || token.contains("\'")) {
+                    if (token.contains("\"")) {
                         apostropheCount++;
                     }
 

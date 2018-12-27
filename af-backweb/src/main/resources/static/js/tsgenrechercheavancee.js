@@ -185,11 +185,11 @@ $(document).ready(function() {
 
 recherche_libelles.set("dateCreation", {
 	libelle : "Date de création",
-	categorie : "Autres"
+	categorie : "Demande"
 });
 recherche_libelles.set("dateDerModif", {
 	libelle : "Date de dernière modification",
-	categorie : "Autres"
+	categorie : "Demande"
 });
 
 recherche_libelles.set("canal.libelle", {

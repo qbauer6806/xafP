@@ -187,10 +187,11 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     //Liste des champs à exclure de la recherche du type demandes
     private List<String> demandesFieldsToExclude = Arrays.asList("access.demarcheId", "access.usagerId",
-            "access.fkAccess", "agentAffecteNomAffichage", "usager.paysCode", "canal.code", "agentAffecteId",
+            "access.fkAccess", "agentAffecteNomAffichage", "usager.paysCode", "usager.dateActivation",
+            "usager.dateCreation", "usager.dateDerConnexion", "usager.paysId", "canal.code", "agentAffecteId",
             "dernierStatut.codeMotif", "pkDemandes", "creeParAgentId", "dernierStatut.code", "statuts.code");
     //Liste des champs à exclure de la recherche du type fichiers
-    private List<String> fichiersFieldsToExclude = Arrays.asList("demandeId", "url", "language", "id");
+    private List<String> fichiersFieldsToExclude = Arrays.asList("demandeId", "url", "language", "id", "type");
 
     @PostConstruct
     public void init() {

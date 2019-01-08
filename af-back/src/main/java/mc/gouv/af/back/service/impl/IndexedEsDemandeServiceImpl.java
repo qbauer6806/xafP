@@ -488,8 +488,13 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             }
         }
 
+        // Permet d'éviter une NPE dans Arrays.asList si aucun fichier joint
+        List<DemandeFileDTO> fichiers = new ArrayList<DemandeFileDTO>();
+        if (demande.getFichiers() != null) {
+            fichiers.addAll(Arrays.asList(demande.getFichiers()));
+        }
         pjs.addAll(getFileEsContent(demande.getDemarcheId(), demande.getIdentifiant(),
-                DemandeFileEsDTO.TYPE.PIECE_JOINTE, Arrays.asList(demande.getFichiers())));
+                DemandeFileEsDTO.TYPE.PIECE_JOINTE, fichiers));
     }
 
     /**

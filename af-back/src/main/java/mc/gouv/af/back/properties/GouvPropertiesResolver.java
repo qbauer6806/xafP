@@ -85,4 +85,6 @@ public interface GouvPropertiesResolver {
 
     Integer getEsReindexBulkSize();
 
+    boolean getNovalidate();
+
 }

@@ -3,6 +3,7 @@ package mc.gouv.af.backweb.controller;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -17,7 +18,9 @@ import org.springframework.web.servlet.ModelAndView;
 import mc.gouv.af.back.cache.UsagersCache;
 import mc.gouv.af.back.cache.UtilisateursCache;
 import mc.gouv.af.back.service.DemarchesDataProvider;
+import mc.gouv.af.back.util.AfBackUtils;
 import mc.gouv.af.back.util.UserComparator;
+import mc.gouv.af.backweb.dto.AgentAffichageDTO;
 import mc.gouv.logon.shared.User;
 import mc.gouv.servicerest.usager.model.UsagerBean;
 
@@ -53,7 +56,11 @@ public class DemandesController extends AbstractController {
 
         // Tri des agents par nom
         if (agents != null) {
-            Collections.sort(agents, new UserComparator());
+            Collections.sort(agents, new AgentComparator());
+        }
+        List<AgentAffichageDTO> agentsAffichage = new ArrayList<AgentAffichageDTO>();
+        for (User u : agents) {
+            agentsAffichage.add(getAgentAffichageFromUser(u));
         }
 
         Collection<UsagerBean> usagers = usagersCache.getAll().values();
@@ -61,11 +68,59 @@ public class DemandesController extends AbstractController {
         LOGGER.info("======================= Fin /demandes");
 
         ModelAndView mav = new ModelAndView("demandes/demandes");
-        mav.addObject("agentsInit", agents);
+        mav.addObject("agentsInit", agentsAffichage);
         mav.addObject("statuts", demarchesDataProvider.getStatusMap());
         mav.addObject("usagersInit", usagers);
         mav.addObject("texte", texte);
         return mav;
+    }
+
+    public class AgentComparator implements Comparator<User> {
+        
+        @Override
+        public int compare(User u1, User u2) {
+            String u1Nom = "";
+            if (u1.getNomAffichage() != null) {
+                u1Nom = u1.getNomAffichage();
+            }
+            else {
+                u1Nom = u1.getNom();
+            }
+            String u2Nom = "";
+            if (u2.getNomAffichage() != null) {
+                u2Nom = u2.getNomAffichage();
+            }
+            else {
+                u2Nom = u2.getNom();
+            }
+            return u1Nom.compareTo(u2Nom);
+        }
+        
+    }
+    
+    public String getDisplayNameFromUser(User u) {
+        String displayName = "";
+        if (u.getCivilite() != null) {
+            displayName = u.getCivilite().getLibelle() + " ";
+        }
+        if (u.getPrenom() != null) {
+            displayName += u.getPrenom() + " ";
+        }
+        
+        if (u.getNomAffichage() != null) {
+            displayName += u.getNomAffichage();
+        }
+        else {
+            displayName += u.getNom();
+        }
+        return displayName;
+    }
+    
+    private AgentAffichageDTO getAgentAffichageFromUser(User u) {
+        AgentAffichageDTO a = new AgentAffichageDTO();
+        a.setDisplayName(getDisplayNameFromUser(u));
+        a.setMatricule(u.getMatricule());
+        return a;
     }
 
 }

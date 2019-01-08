@@ -338,4 +338,13 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
 
         return null;
     }
+    
+    @Override
+    public boolean getNovalidate() {
+        String value = Static.getValue("mc.gouv" + applicationPrefix + ".novalidate");
+        if (value == null) {
+            return false;
+        }
+        return Boolean.parseBoolean(value);
+    }
 }

@@ -96,13 +96,23 @@ public class DemandesCourrierController extends AbstractController {
 
 		// c_ pour que AfServlet sache qu'il s'agit d'un usager courrier et
 		// qu'il faut appeler DEM à la place de Login
+		
+		// Récupérer des properties s'il faut ordonner au Front de désactiver la validation des champs du formulaire
+		String novalidate = "";
+		if (gouvPropertiesResolver.getNovalidate()) {
+		    novalidate = "&novalidate=true";
+		}
+		
+		String redirect = "redirect:" + gouvPropertiesResolver.getFrontUrl() + "acces_teleservice.html?id=" + id
+                + "&international=fr" + novalidate + "&canal=" + demandesCourrierFormBean.getCanal() + "&langue="
+                + demandesCourrierFormBean.getLangue() + "&courrierDateReception=" + dateReceptionIso
+                + "&courrierRefInterne=" + demandesCourrierFormBean.getRefInterne() + "&target=/"
+                + gouvPropertiesResolver.getFrontFormStartPage() + "&creeParAgentId="
+                + AfBackUtils.getAuthenticatedAgentId() + "&sig=" + sig;
+		
+		LOGGER.info("URL de redirection vers le front : " + redirect);
 
-		mav = new ModelAndView("redirect:" + gouvPropertiesResolver.getFrontUrl() + "acces_teleservice.html?id=" + id
-				+ "&international=fr&canal=" + demandesCourrierFormBean.getCanal() + "&langue="
-				+ demandesCourrierFormBean.getLangue() + "&courrierDateReception=" + dateReceptionIso
-				+ "&courrierRefInterne=" + demandesCourrierFormBean.getRefInterne() + "&target=/"
-				+ gouvPropertiesResolver.getFrontFormStartPage() + "&creeParAgentId="
-				+ AfBackUtils.getAuthenticatedAgentId() + "&sig=" + sig);
+		mav = new ModelAndView(redirect);
 
 		LOGGER.info("======================= Fin /demandes/courriers/redirFront");
 

@@ -11,6 +11,7 @@
 
 	<properties>
 		<activiti.version>5.22.0</activiti.version>
+        <logon-apiclient.version>5.2.2-SNAPSHOT</logon-apiclient.version>
 	</properties>
 
 	<dependencies>

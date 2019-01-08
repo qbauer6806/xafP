@@ -197,7 +197,7 @@
 																		class="form-control">
 																		<option th:value="null" th:text="Tous" />
 																		<option th:each="agent : ${agentsInit}"
-																			th:text="${agent.nom}" th:value="${agent.matricule}" />
+																			th:text="${agent.displayName}" th:value="${agent.matricule}" />
 																	</select>
 																</div>
 

@@ -146,10 +146,14 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
                     if (familyName.equalsIgnoreCase("Times New Roman")) {
                         BaseFont baseFont =
                                 BaseFont.createFont("/static/fonts/TIMES.TTF", encoding, BaseFont.EMBEDDED);
-                        System.out.println("baseFont=" + baseFont);
-                        System.out.println("familyFontName=" + baseFont.getFamilyFontName());
-                        System.out.println("familyFontName=" + baseFont.getFamilyFontName()[0][0]);
-                        System.out.println("fullFontName=" + baseFont.getFullFontName());
+                        LOGGER.info("baseFont=" + baseFont);
+                        LOGGER.info("familyFontName=" + baseFont.getFamilyFontName());
+                        LOGGER.info("familyFontName=" + baseFont.getFamilyFontName()[0][0]);
+                        LOGGER.info("fullFontName=" + baseFont.getFullFontName());
+                        LOGGER.warn("baseFont=" + baseFont);
+                        LOGGER.warn("familyFontName=" + baseFont.getFamilyFontName());
+                        LOGGER.warn("familyFontName=" + baseFont.getFamilyFontName()[0][0]);
+                        LOGGER.warn("fullFontName=" + baseFont.getFullFontName());
                         return new Font(baseFont, size, style, color);
 
                     }

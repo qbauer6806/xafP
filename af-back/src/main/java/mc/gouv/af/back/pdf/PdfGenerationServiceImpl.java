@@ -1,5 +1,6 @@
 package mc.gouv.af.back.pdf;
 
+import java.awt.Color;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,11 +18,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
+import com.lowagie.text.Font;
+import com.lowagie.text.FontFactory;
+import com.lowagie.text.pdf.BaseFont;
+
+import fr.opensagres.poi.xwpf.converter.pdf.PdfOptions;
 import fr.opensagres.xdocreport.converter.ConverterTypeTo;
 import fr.opensagres.xdocreport.converter.Options;
 import fr.opensagres.xdocreport.core.XDocReportException;
 import fr.opensagres.xdocreport.document.IXDocReport;
 import fr.opensagres.xdocreport.document.registry.XDocReportRegistry;
+import fr.opensagres.xdocreport.itext.extension.font.IFontProvider;
 import fr.opensagres.xdocreport.template.IContext;
 import fr.opensagres.xdocreport.template.TemplateEngineKind;
 import mc.gouv.af.back.file.FileService;
@@ -124,6 +131,37 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
             }
 
             Options options = Options.getTo(ConverterTypeTo.PDF);
+            
+            Font font = FontFactory.getFont("/static/fonts/TIMES.TTF",
+                    BaseFont.IDENTITY_H, BaseFont.EMBEDDED, 0.8f, Font.NORMAL, Color.BLACK);
+            System.out.println("font:" + font.getFamilyname());
+            
+            PdfOptions pdfOptions = PdfOptions.create();
+            System.out.println("dbg0");
+            pdfOptions.fontProvider(new IFontProvider() {
+
+                @Override
+                public Font getFont(String familyName, String encoding, float size, int style, Color color) {
+                try {
+                    if (familyName.equalsIgnoreCase("Times New Roman")) {
+                        BaseFont baseFont =
+                                BaseFont.createFont("/static/fonts/TIMES.TTF", encoding, BaseFont.EMBEDDED);
+                        System.out.println("baseFont=" + baseFont);
+                        System.out.println("familyFontName=" + baseFont.getFamilyFontName());
+                        System.out.println("familyFontName=" + baseFont.getFamilyFontName()[0][0]);
+                        System.out.println("fullFontName=" + baseFont.getFullFontName());
+                        return new Font(baseFont, size, style, color);
+
+                    }
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+
+                return FontFactory.getFont(familyName, encoding, size, style, color);
+                }
+            });
+            
+            options.subOptions(pdfOptions);
 
             LOGGER.info("Génération du courrier PDF avec les template et modèle fournis...");
             temp = File.createTempFile("courrierDEM_pk" + demande.getPkDemandes().toString() + "_", ".pdf");

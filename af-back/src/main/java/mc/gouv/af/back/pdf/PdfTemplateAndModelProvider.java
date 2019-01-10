@@ -3,6 +3,7 @@ package mc.gouv.af.back.pdf;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import fr.opensagres.poi.xwpf.converter.pdf.PdfOptions;
 import mc.gouv.dem.shared.model.DemandeDTO;
 
 /**
@@ -19,5 +20,7 @@ public interface PdfTemplateAndModelProvider {
 
     public Entry<String, Map<String, Object>> getTemplateAndModelForPreview(DemandeDTO demande, String statutSuivant,
             String codeMotif, String langue, String commentaire);
+    
+    public PdfOptions getPdfOptions();
     
 }

@@ -1,6 +1,7 @@
 package mc.gouv.af.back.service.transformer;
 
 import mc.gouv.af.back.data.es.model.UsagerEsDTO;
+import mc.gouv.af.back.util.AfBackUtils;
 import mc.gouv.servicerest.usager.model.UsagerBean;
 
 public class UsagerTransformer {
@@ -20,13 +21,11 @@ public class UsagerTransformer {
         usagerEsDTO.setComplementAdresse(bo.getComplementAdresse());
         usagerEsDTO.setEmail(bo.getEmail());
         usagerEsDTO.setEtat((bo.getEtat() != null) ? bo.getEtat().toString() : null);
-        usagerEsDTO.setId((bo.getId() != null) ? bo.getId().toString() : null);
-        usagerEsDTO.setLogin(bo.getLogin());
         usagerEsDTO.setNom(bo.getNom());
         usagerEsDTO.setNomPays(bo.getNomPays());
         usagerEsDTO.setPrenom(bo.getPrenom());
         usagerEsDTO.setRaisonSociale(bo.getRaisonSociale());
-        usagerEsDTO.setTitre((bo.getTitre() != null) ? bo.getTitre().toString() : null);
+        usagerEsDTO.setTitre((bo.getTitre() != null) ? AfBackUtils.getTitreStr(bo.getTitre()) : null);
         usagerEsDTO.setVille(bo.getVille());
 
         return usagerEsDTO;

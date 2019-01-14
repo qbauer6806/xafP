@@ -2,11 +2,8 @@ package mc.gouv.af.back.data.es.model;
 
 public class UsagerEsDTO {
 
-    private String id;
-    private String login;
     private String etat;
     private String email;
-
     private String titre;
     private String prenom;
     private String nom;
@@ -17,22 +14,6 @@ public class UsagerEsDTO {
     private String codePostal;
     private String ville;
     private String nomPays;
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getLogin() {
-        return login;
-    }
-
-    public void setLogin(String login) {
-        this.login = login;
-    }
 
     public String getEtat() {
         return etat;

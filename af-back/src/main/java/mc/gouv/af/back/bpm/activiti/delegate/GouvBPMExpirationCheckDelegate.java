@@ -56,7 +56,7 @@ public class GouvBPMExpirationCheckDelegate implements JavaDelegate {
 
         Integer numberOfDaysInt = Integer.parseInt((String)numberOfDays.getValue(execution));
         
-        LOGGER.info("days = " + days + ", numberOfDaysInt = " + numberOfDaysInt);
+        LOGGER.info("pkDemande = " + demandeDto.getPkDemandes() + ", days = " + days + ", numberOfDaysInt = " + numberOfDaysInt);
         
         if (days > numberOfDaysInt) {
             LOGGER.info("Demande expirée !");

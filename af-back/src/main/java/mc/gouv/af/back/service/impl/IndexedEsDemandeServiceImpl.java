@@ -1357,6 +1357,31 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     }
 
     /**
+     * Méthode permettant de cloner une demande et d'indexer la nouvelle demande
+     * 
+     * @param demarcheId Identifiant de la démarche
+     * @param Identifiant de la demande
+     * 
+     * @return retourne de DTO de la demande
+     * 
+     * @see mc.gouv.dem.service.impl.DemandesServiceImpl#cloneDemande(java.lang.String, java.lang.Integer)
+     */
+    @Override
+    public DemandeDTO cloneDemande(String demarcheId, Integer pkDemande) {
+
+        DemandeDTO demandeDTO = super.cloneDemande(demarcheId, pkDemande);
+
+        try {
+            sendToTopic(demandeDTO);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+            throw new AfIndexingException(e.getMessage(), e);
+        }
+
+        return demandeDTO;
+    }
+
+    /**
      * Méthode permettant de formatter une date au format 'dd/MM/yyyy'
      * 
      * @param date La date à formatter

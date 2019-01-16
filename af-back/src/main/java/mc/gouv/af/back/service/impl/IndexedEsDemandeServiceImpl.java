@@ -102,6 +102,7 @@ import mc.gouv.af.back.service.DemandeFieldsExcludeService;
 import mc.gouv.af.back.service.DemandeJmsTopicSendService;
 import mc.gouv.af.back.service.IndexedDemandeService;
 import mc.gouv.af.back.service.transformer.DemandeEsTransformer;
+import mc.gouv.af.back.util.AfBackUtils;
 import mc.gouv.af.back.util.ESQueryUtils;
 import mc.gouv.af.back.util.FileUtils;
 import mc.gouv.dem.data.dao.DemandesRepository;
@@ -144,6 +145,9 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     @Inject
     private DemandeEsTransformer demandeEsTransformer;
 
+    @Inject
+    private AfBackUtils afBackUtils;
+
     @Value("${application.name}")
     private String indexAlias;
 
@@ -182,6 +186,8 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     public static final String ES_MAPPING_TYPE_KEY = "type";
     public static final String FILE_PJ_HIGHLIGHT_AND_FACET_PREFIX = "fichiers.";
     public static final String FILE_COMPLEMENT_HIGHLIGHT_AND_FACET_PREFIX = "fichiers.complement.";
+
+    private static String demarchePrefix;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IndexedEsDemandeServiceImpl.class);
 
@@ -752,7 +758,8 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     @Override
     public List<DemandeEsDTO> getIndexedDemandes(DemandeRechercheDTO demandeRecherche) {
-        demandeRecherche.setTexte(ESQueryUtils.getFormatedQuery(demandeRecherche.getTexte()));
+        demandeRecherche.setTexte(ESQueryUtils.getFormatedQuery(demandeRecherche.getTexte(),
+                afBackUtils.getDemarcheInfos().getIdentifiantPrefixe()));
         return Lists.newArrayList(demandeEsRepository.search(getQueryBuilder(demandeRecherche)));
     }
 
@@ -762,7 +769,8 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     @Override
     public DemandesFacets getDemandesFacets(DemandeRechercheDTO demandeRecherche) {
 
-        demandeRecherche.setTexte(ESQueryUtils.getFormatedQuery(demandeRecherche.getTexte()));
+        demandeRecherche.setTexte(ESQueryUtils.getFormatedQuery(demandeRecherche.getTexte(),
+                afBackUtils.getDemarcheInfos().getIdentifiantPrefixe()));
         initMappingProperties();
 
         if (!StringUtils.isBlank(demandeRecherche.getTexte())) {
@@ -914,7 +922,8 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     public Page<DemandeEsRechercheDTO> getIndexedDemandes(DemandeRechercheDTO demandeRecherche, Pageable pageable,
             String[] fields) {
 
-        demandeRecherche.setTexte(ESQueryUtils.getFormatedQuery(demandeRecherche.getTexte()));
+        demandeRecherche.setTexte(ESQueryUtils.getFormatedQuery(demandeRecherche.getTexte(),
+                afBackUtils.getDemarcheInfos().getIdentifiantPrefixe()));
         initMappingProperties();
 
         NativeSearchQueryBuilder nativeSearchQueryBuilder = new NativeSearchQueryBuilder().withIndices(indexAlias)

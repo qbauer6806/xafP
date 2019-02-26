@@ -12,12 +12,15 @@ import javax.annotation.PostConstruct;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import mc.gouv.Static;
+import mc.gouv.af.back.config.es.IndexationEnabledCondition;
 
 /**
  * Composant permettant de récupérer des éléments de configuration propres au gouvernement. Proxy vers Static.getValue()
@@ -43,6 +46,9 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
      * Uppercase de application.name
      */
     private String demarcheId;
+    
+    @Autowired
+    private Environment environment;
 
     /*
      * .hab
@@ -80,13 +86,25 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
                 }
 
                 try {
-                    Object value = method.invoke(this);
-                    if (value instanceof String) {
-                        if (StringUtils.isBlank((String) value)) {
+                    
+                    // Est-ce que l'indexation est activée ?
+                    String indexingPropStr = environment.getProperty("mc.gouv" + applicationPrefix + ".indexing.enabled");
+                    boolean indexingEnabled = false;
+                    if (StringUtils.isNotBlank(indexingPropStr) && indexingPropStr.equals(true)) {
+                        indexingEnabled = true;
+                    }
+                    
+                    // On ignore la présence de la property si la méthode possède @GouvIndexationProperty mais que l'appli a indexationEnabled=false
+                    if (!(method.getDeclaredAnnotation(GouvIndexationProperty.class) instanceof GouvIndexationProperty) ||
+                            (method.getDeclaredAnnotation(GouvIndexationProperty.class) instanceof GouvIndexationProperty && indexingEnabled)) {
+                        Object value = method.invoke(this);
+                        if (value instanceof String) {
+                            if (StringUtils.isBlank((String) value)) {
+                                propertiesNotFound.add(propertyDescriptor.getReadMethod().toString());
+                            }
+                        } else if (value == null) {
                             propertiesNotFound.add(propertyDescriptor.getReadMethod().toString());
                         }
-                    } else if (value == null) {
-                        propertiesNotFound.add(propertyDescriptor.getReadMethod().toString());
                     }
                 } catch (IllegalArgumentException e) {
                     LOGGER.error("Erreur lors de l'invocation de la méthode", e);
@@ -217,18 +235,21 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
         return Long.parseLong(Static.getValue("mc.gouv" + applicationPrefix + ".backserver.usagerscache.duration"));
     }
 
+    @GouvIndexationProperty
     @Override
     public String getSearchHighlightPreTags() {
         String searchPreTags = Static.getValue("mc.gouv" + applicationPrefix + ".search.highlight.pretags");
         return searchPreTags != null ? searchPreTags : "<b>";
     }
 
+    @GouvIndexationProperty
     @Override
     public String getSearchHighlightPostTags() {
         String searchPostTags = Static.getValue("mc.gouv" + applicationPrefix + ".search.highlight.posttags");
         return searchPostTags != null ? searchPostTags : "</b>";
     }
 
+    @GouvIndexationProperty
     @Override
     public Integer getJmsPort() {
 
@@ -242,76 +263,91 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
 
     }
 
+    @GouvIndexationProperty
     @Override
     public String getJmsDataDir() {
         return Static.getValue("mc.gouv" + applicationPrefix + ".jms.data.dir");
     }
 
+    @GouvIndexationProperty
     @Override
     public String getJmsRedeliveryDelay() {
         return Static.getValue("mc.gouv" + applicationPrefix + ".jms.redelivery.delay");
     }
 
+    @GouvIndexationProperty
     @Override
     public String getJmsRedeliveryMultiplier() {
         return Static.getValue("mc.gouv" + applicationPrefix + ".jms.redelivery.multiplier");
     }
 
+    @GouvIndexationProperty
     @Override
     public String getJmsRedeliveryMaxAttemps() {
         return Static.getValue("mc.gouv" + applicationPrefix + ".jms.redelivery.maxAttemps");
     }
 
+    @GouvIndexationProperty
     @Override
     public String getJmsDlq() {
         return Static.getValue("mc.gouv" + applicationPrefix + ".jms.dlq");
     }
 
+    @GouvIndexationProperty
     @Override
     public String getJmsTopic() {
         return Static.getValue("mc.gouv" + applicationPrefix + ".jms.topic");
     }
 
+    @GouvIndexationProperty
     @Override
     public String getJmsHost() {
         return Static.getValue("mc.gouv" + applicationPrefix + ".jms.host");
     }
 
+    @GouvIndexationProperty
     @Override
     public String getJmsSenderUser() {
         return Static.getValue("mc.gouv" + applicationPrefix + ".jms.topic.sender.user");
     }
 
+    @GouvIndexationProperty
     @Override
     public String getJmsSenderPassword() {
         return Static.getValue("mc.gouv" + applicationPrefix + ".jms.topic.sender.password");
     }
 
+    @GouvIndexationProperty
     @Override
     public String getJmsConsumerUser() {
         return Static.getValue("mc.gouv" + applicationPrefix + ".jms.topic.consumer.user");
     }
 
+    @GouvIndexationProperty
     @Override
     public String getJmsConsumerPassword() {
         return Static.getValue("mc.gouv" + applicationPrefix + ".jms.topic.consumer.password");
     }
 
+    @GouvIndexationProperty
     @Override
     public String getSubscriptionKey() {
         return Static.getValue("mc.gouv" + applicationPrefix + ".jms.topic.subscription.key");
     }
 
+    @GouvIndexationProperty
     @Override
     public String getEsClusterName() {
         return Static.getValue("mc.gouv" + applicationPrefix + ".elasticsearch.clustername");
     }
 
+    @GouvIndexationProperty
     @Override
     public String getEsHost() {
         return Static.getValue("mc.gouv" + applicationPrefix + ".elasticsearch.host");
     }
 
+    @GouvIndexationProperty
     @Override
     public Integer getEsPort() {
         String batchSize = Static.getValue("mc.gouv" + applicationPrefix + ".elasticsearch.port");
@@ -323,11 +359,13 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
         return null;
     }
 
+    @GouvIndexationProperty
     @Override
     public String getEsNodeName() {
         return Static.getValue("mc.gouv" + applicationPrefix + ".elasticsearch.nodename");
     }
 
+    @GouvIndexationProperty
     @Override
     public Integer getEsReindexBulkSize() {
         String esReindexBulkSize = Static.getValue("mc.gouv" + applicationPrefix + ".elasticsearch.reindex.bulksize");

@@ -306,7 +306,9 @@ public class AfBackUtils {
         flat.setObservations(demande.getObservations());
         flat.setPkDemandes(demande.getPkDemandes());
         flat.setUsagerId(demande.getUsagerId());
-        flat.setUsagerNom(getUsagerNameFromID(demande.getUsagerId()));
+        flat.setUsagerNom(demande.getUsagerNom());
+        flat.setUsagerPrenom(demande.getUsagerPrenom());
+        flat.setUsagerEmail(demande.getUsagerEmail());
         return flat;
     }
 

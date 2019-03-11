@@ -103,6 +103,11 @@
 			<artifactId>logon-apiclient</artifactId>
 		</dependency>
 
+
+        <dependency>
+            <artifactId>xboot-spring-starter-test</artifactId>
+            <groupId>mc.gouv.xboot</groupId>
+        </dependency>
 		<!-- Pour la génération de PDF : -->
 
 		<dependency>
@@ -233,7 +238,7 @@
 			<exclusions> <exclusion> <groupId>org.apache.cxf</groupId> <artifactId>cxf-rt-rs-client</artifactId> 
 			</exclusion> </exclusions> </dependency> -->
 		<!-- Fin export Excel -->
-
+		
 	</dependencies>
 
 </project>

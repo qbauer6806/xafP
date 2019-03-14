@@ -35,6 +35,7 @@ public class PdfGenerationTest {
 	private final String CHECK_CURRENT_DATE_PATTERN = "Monaco, le (\\d{2}/\\d{2}/\\d{4})";
 	private final String CHECK_BEGIN_DATE_PATTERN = "lieu le (\\d{2}/\\d{2}/\\d{4})";
 	private final String CHECK_END_DATE_PATTERN = "au (\\d{2}/\\d{2}/\\d{4})";
+	private final String CHECK_BLANK_FIELD_ADJASMENT_PATTERN = "_RAPPELLE_\\n_FIN_RAPPELLE_";
 	
 	@Autowired
 	private PdfGenerationServiceImpl pdfGenerationService;
@@ -156,17 +157,28 @@ public class PdfGenerationTest {
 		int end = 0;
 		
 		for(int i = 0; i < lines.length; i++) {
+			
 			if(lines[i].trim().equals("ma part.")) {
 				begin = i;
 			}
+			
 			if(lines[i].trim().equals(PDFServiceConstantsMock.COMMENT)) {
 				end  = i;
 			}
-				
 		}
-		
+				
 		System.out.println("Begin : " + begin);
 		System.out.println("End : " + end);
-		assertTrue(end-begin == 4);
+		assertTrue(end-begin == 2);
+	}
+	
+	@Test(expected = Test.None.class)
+	public void givenPdfContentShouldNotHaveBlankLigneForBlankField() throws IOException, XDocReportException {
+		
+		Pattern pattern = Pattern.compile(CHECK_BLANK_FIELD_ADJASMENT_PATTERN);
+		Matcher matcher = pattern.matcher(extractPdfText());
+
+		
+		assertTrue(matcher.find());
 	}
 }

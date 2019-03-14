@@ -44,6 +44,7 @@ public class PdfTemplateAndModelProviderImpl implements PdfTemplateAndModelProvi
     private Entry<String, Map<String, Object>> getTemplateAndModelGeneric( ) {
         	        
         Map<String,Object> model = new HashMap<String,Object>();
+        
         model.put("dateCourante", PDFServiceConstantsMock.CURRENT_DATE);
         model.put("adresse", PDFServiceConstantsMock.ADDRESS);
         model.put("codePostal", PDFServiceConstantsMock.CODEPOSTAL);
@@ -59,6 +60,7 @@ public class PdfTemplateAndModelProviderImpl implements PdfTemplateAndModelProvi
         model.put("dateDebut", PDFServiceConstantsMock.BEGIN_DATE);
         model.put("dateFin", PDFServiceConstantsMock.END_DATE);
         model.put("raisonSocial", PDFServiceConstantsMock.RAISON_SOCIAL);
+        model.put("psMessage", null);
         
         String templateFileName = "DemandeAccepteeTest.docx";
        

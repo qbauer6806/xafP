@@ -156,7 +156,7 @@ public class PdfGenerationTest {
 		int end = 0;
 		
 		for(int i = 0; i < lines.length; i++) {
-			if(lines[i].trim().equals("ma part.")) {²
+			if(lines[i].trim().equals("ma part.")) {
 				begin = i;
 			}
 			if(lines[i].trim().equals(PDFServiceConstantsMock.COMMENT)) {

@@ -33,7 +33,7 @@ public class MailTemplateModelProviderImpl implements MailTemplateModelProvider{
         String subjectTemplateCode = SUBJECT_TEPLATE_CODE;
         
         return new SimpleEntry<String, String>(bodyTemplateCode, subjectTemplateCode);
-        
+       
     }
 
 	@Override

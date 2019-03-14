@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Map.Entry;
+
+import org.apache.tika.metadata.PDF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
@@ -22,18 +24,7 @@ import mc.gouv.dem.shared.model.DemandeDTO;
 @Profile("test")
 public class PdfTemplateAndModelProviderImpl implements PdfTemplateAndModelProvider{
 	
-	 private final String CURRENT_DATE = "06/03/2019";
-	 private final String ADDRESS = " 9 rue alber II , Monaco ";
-	 private final String CODEPOSTAL = "123456";
-	 private final String CITY = "Monte Carlo";
-	 private final String IDENTIFIER = "TestUserID";
-	 private final String DEPOSITE_DATE = "01/03/2019";
-	 private final String TITLE = "Mr";
-	 private final String FIRST_NAME = "Bob";
-	 private final String LAST_NAME = "TestMan";
-	 private final String MOTIF = "TestMotif";
-	 private final String REFERENCE = "Test Reference";
-	 private final String COMMENT = "Celui c'est un commentaire";
+	 
 	 
  	private static final Logger LOGGER = LoggerFactory.getLogger(PdfTemplateAndModelProviderImpl.class);
  
@@ -53,21 +44,24 @@ public class PdfTemplateAndModelProviderImpl implements PdfTemplateAndModelProvi
     private Entry<String, Map<String, Object>> getTemplateAndModelGeneric( ) {
         	        
         Map<String,Object> model = new HashMap<String,Object>();
-        model.put("dateCourante", CURRENT_DATE);
-        model.put("adresse", ADDRESS);
-        model.put("codePostal", CODEPOSTAL);
-        model.put("ville", CITY);
-        model.put("identifiant", IDENTIFIER);
-        model.put("refCourrier", REFERENCE);
-        model.put("dateDepot", DEPOSITE_DATE);
+        model.put("dateCourante", PDFServiceConstantsMock.CURRENT_DATE);
+        model.put("adresse", PDFServiceConstantsMock.ADDRESS);
+        model.put("codePostal", PDFServiceConstantsMock.CODEPOSTAL);
+        model.put("ville", PDFServiceConstantsMock.CITY);
+        model.put("identifiant", PDFServiceConstantsMock.IDENTIFIER);
+        model.put("refCourrier", PDFServiceConstantsMock.REFERENCE);
+        model.put("dateDepot", PDFServiceConstantsMock.DEPOSITE_DATE);
+        model.put("titre", PDFServiceConstantsMock.TITLE);
+        model.put("prenom", PDFServiceConstantsMock.FIRST_NAME);
+        model.put("nom", PDFServiceConstantsMock.LAST_NAME);
+        model.put("motif", PDFServiceConstantsMock.MOTIF);
+        model.put("commentaire", PDFServiceConstantsMock.COMMENT);
+        model.put("dateDebut", PDFServiceConstantsMock.BEGIN_DATE);
+        model.put("dateFin", PDFServiceConstantsMock.END_DATE);
+        model.put("raisonSocial", PDFServiceConstantsMock.RAISON_SOCIAL);
         
-        model.put("titre", TITLE);
-        model.put("prenom", FIRST_NAME);
-        model.put("nom", LAST_NAME);
-        
-        String templateFileName = "DemandeAcceptee.docx";
-        model.put("motif", MOTIF);
-        model.put("commentaire", COMMENT);
+        String templateFileName = "DemandeAccepteeTest.docx";
+       
         
         LOGGER.info("Template=" + templateFileName + ", model=" + model);
         
@@ -85,26 +79,26 @@ public class PdfTemplateAndModelProviderImpl implements PdfTemplateAndModelProvi
                 if (familyName.equalsIgnoreCase("Times New Roman") && style == Font.NORMAL) {
                     BaseFont baseFont =
                             BaseFont.createFont("/static/fonts/TIMES.TTF", encoding, BaseFont.EMBEDDED);
-                    return new Font(baseFont, size, style, color);
-
+                    Font font = new Font(baseFont, size, style, color);
+                    font.setFamily(familyName);
+                    return font;
                 }
                 else if (familyName.equalsIgnoreCase("Times New Roman") && style == Font.BOLD) {
                     BaseFont baseFont =
                             BaseFont.createFont("/static/fonts/TIMESBD.TTF", encoding, BaseFont.EMBEDDED);
-                    return new Font(baseFont, size, style, color);
-
+                    Font font = new Font(baseFont, size, style, color);
+                    font.setFamily(familyName);
+                    return font;
                 }
                 else if (familyName.equalsIgnoreCase("Times New Roman") && style == Font.BOLDITALIC) {
                     BaseFont baseFont =
                             BaseFont.createFont("/static/fonts/TIMESBI.TTF", encoding, BaseFont.EMBEDDED);
                     return new Font(baseFont, size, style, color);
-
                 }
                 else if (familyName.equalsIgnoreCase("Times New Roman") && style == Font.ITALIC) {
                     BaseFont baseFont =
                             BaseFont.createFont("/static/fonts/TIMESI.TTF", encoding, BaseFont.EMBEDDED);
                     return new Font(baseFont, size, style, color);
-
                 }
             } catch (Exception e) {
                 throw new RuntimeException(e);

@@ -33,8 +33,9 @@ import mc.gouv.dem.shared.model.DemandeDTO;
 
 /**
  * 
- * Classe appelée par le workflow BPM, permettant d'appeler un sous-service de génération de PDF (implémenté dans la
- * démarche cible et de stocker le résultat de cette génération.
+ * Classe appelée par le workflow BPM, permettant d'appeler un sous-service de
+ * génération de PDF (implémenté dans la démarche cible et de stocker le
+ * résultat de cette génération.
  * 
  * @author qdeme
  *
@@ -42,108 +43,131 @@ import mc.gouv.dem.shared.model.DemandeDTO;
 @Component
 public class PdfGenerationServiceImpl implements PdfGenerationService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PdfGenerationServiceImpl.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(PdfGenerationServiceImpl.class);
 
-    @Autowired
-    private PdfTemplateAndModelProvider pdfTemplateAndModelProvider;
+	@Autowired
+	private PdfTemplateAndModelProvider pdfTemplateAndModelProvider;
 
-    @Autowired
-    private FileService fileService;
+	@Autowired
+	private FileService fileService;
 
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
+	@Autowired
+	private GouvPropertiesResolver gouvPropertiesResolver;
 
-    @Autowired
-    private DemandesCourriersService demandesCourriersService;
+	@Autowired
+	private DemandesCourriersService demandesCourriersService;
 
-    @Override
-    public void generateAndStorePdf(DemandeDTO demande) throws Exception {
+	@Override
+	public void generateAndStorePdf(DemandeDTO demande) throws Exception {
 
-        LOGGER.info("PdfGenerationServiceImpl.generateAndStorePdf(" + demande.getPkDemandes() + ")");
+		LOGGER.info("PdfGenerationServiceImpl.generateAndStorePdf(" + demande.getPkDemandes() + ")");
 
-        LOGGER.info("Génération du PDF avec XDocReport...");
-        File tempFile = generatePdf(demande);
+		LOGGER.info("Génération du PDF avec XDocReport...");
+		File tempFile = generatePdf(demande);
 
-        LOGGER.info("Stockage du PDF généré dans FILE...");
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
-        String url = fileService.saveFile(demande, tempFile.getName(), "application/pdf", new FileInputStream(tempFile),
-                output);
-        output.close();
+		LOGGER.info("Stockage du PDF généré dans FILE...");
+		ByteArrayOutputStream output = new ByteArrayOutputStream();
+		String url = fileService.saveFile(demande, tempFile.getName(), "application/pdf", new FileInputStream(tempFile),
+				output);
+		output.close();
 
-        LOGGER.info("Ajout de la référence à ce courrier dans DEM...");
-        DemandeCourrierDTO courrier = new DemandeCourrierDTO();
-        courrier.setName(tempFile.getName());
-        courrier.setUrl(url);
-        demandesCourriersService.saveCourrier(gouvPropertiesResolver.getDemarcheId(), demande.getPkDemandes(),
-                courrier);
+		LOGGER.info("Ajout de la référence à ce courrier dans DEM...");
+		DemandeCourrierDTO courrier = new DemandeCourrierDTO();
+		courrier.setName(tempFile.getName());
+		courrier.setUrl(url);
+		demandesCourriersService.saveCourrier(gouvPropertiesResolver.getDemarcheId(), demande.getPkDemandes(),
+				courrier);
 
-        LOGGER.info("Fin PdfGenerationServiceImpl.generateAndStorePdf(" + demande.getPkDemandes() + ")");
-    }
+		LOGGER.info("Fin PdfGenerationServiceImpl.generateAndStorePdf(" + demande.getPkDemandes() + ")");
+	}
 
-    @Override
-    public File generatePdf(DemandeDTO demande) {
+	@Override
+	public File generatePdf(DemandeDTO demande) {
+		LOGGER.info(
+				"Appel au TemplateAndModelProvider de la démarche " + gouvPropertiesResolver.getDemarcheId() + "...");
+		Entry<String, Map<String, Object>> templateAndModel = getTemplateAndModel(demande);
+		return generateToFile(demande, getTemplateFileName(templateAndModel), getModel(templateAndModel));
+	}
 
-        LOGGER.info(
-                "Appel au TemplateAndModelProvider de la démarche " + gouvPropertiesResolver.getDemarcheId() + "...");
-        Entry<String, Map<String, Object>> templateAndModel = pdfTemplateAndModelProvider.getTemplateAndModel(demande);
-        String templateFileName = templateAndModel.getKey();
-        Map<String, Object> model = templateAndModel.getValue();
+	@Override
+	public File generatePdfPreview(DemandeDTO demande, String statutSuivant, String codeMotif, String langue,
+			String commentaire) {
 
-        return generate(demande, templateFileName, model);
+		LOGGER.info(
+				"Appel au TemplateAndModelProvider de la démarche " + gouvPropertiesResolver.getDemarcheId() + "...");
+		Entry<String, Map<String, Object>> templateAndModel = pdfTemplateAndModelProvider
+				.getTemplateAndModelForPreview(demande, statutSuivant, codeMotif, langue, commentaire);
+		return generateToFile(demande, getTemplateFileName(templateAndModel), getModel(templateAndModel));
+	}
 
-    }
+	public byte[] generatePdfToStream(DemandeDTO demande) throws IOException, XDocReportException {
 
-    @Override
-    public File generatePdfPreview(DemandeDTO demande, String statutSuivant, String codeMotif, String langue,
-            String commentaire) {
+		LOGGER.info(
+				"Appel au TemplateAndModelProvider de la démarche " + gouvPropertiesResolver.getDemarcheId() + "...");
+		Entry<String, Map<String, Object>> templateAndModel = getTemplateAndModel(demande);
+		return generateToStream(demande, getTemplateFileName(templateAndModel), getModel(templateAndModel));
+	}
 
-        LOGGER.info(
-                "Appel au TemplateAndModelProvider de la démarche " + gouvPropertiesResolver.getDemarcheId() + "...");
-        Entry<String, Map<String, Object>> templateAndModel = pdfTemplateAndModelProvider
-                .getTemplateAndModelForPreview(demande, statutSuivant, codeMotif, langue, commentaire);
-        String templateFileName = templateAndModel.getKey();
-        Map<String, Object> model = templateAndModel.getValue();
+	private Entry<String, Map<String, Object>> getTemplateAndModel(DemandeDTO demande) {
+		return pdfTemplateAndModelProvider.getTemplateAndModel(demande);
+	}
 
-        return generate(demande, templateFileName, model);
+	private String getTemplateFileName(Entry<String, Map<String, Object>> templateAndModel) {
+		return templateAndModel.getKey();
+	}
 
-    }
+	private Map<String, Object> getModel(Entry<String, Map<String, Object>> templateAndModel) {
+		return templateAndModel.getValue();
+	}
 
-    private File generate(DemandeDTO demande, String templateFileName, Map<String, Object> model) {
+	private File generateToFile(DemandeDTO demande, String templateFileName, Map<String, Object> model) {
 
-        File temp = null;
+		File temp = null;
+		
+		try {
+			temp = File.createTempFile("courrierDEM_pk" + demande.getPkDemandes().toString() + "_", ".pdf");
+			try (OutputStream out = new FileOutputStream(temp)) {
+				byte[] bytes = generateToStream(demande, templateFileName, model);
+				out.write(bytes);
+			}
+		} catch (IOException | XDocReportException e) {
+			LOGGER.error("Erreur lors de la génération PDF", e);
+		}
 
-        try {
-            LOGGER.info("Chargement du template " + templateFileName + "...");
-            InputStream in = new ClassPathResource("/pdf/" + templateFileName).getInputStream();
-            IXDocReport report = XDocReportRegistry.getRegistry().loadReport(in, TemplateEngineKind.Velocity);
+		return temp;
+	}
 
-            LOGGER.info("Création du contexte avec le modèle fourni par la démarche...");
-            IContext context = report.createContext();
-            context.put("StringUtils", StringUtils.class);
-            for (Entry<String, Object> entry : model.entrySet()) {
-                context.put(entry.getKey(), entry.getValue());
-            }
+	private byte[] generateToStream(DemandeDTO demande, String templateFileName, Map<String, Object> model)
+			throws IOException, XDocReportException {
 
-            Options options = Options.getTo(ConverterTypeTo.PDF);
-            
-            LOGGER.info("Récupération des PdfOptions...");
-            PdfOptions pdfOptions = pdfTemplateAndModelProvider.getPdfOptions();
-            if (pdfOptions != null) {
-                options.subOptions(pdfOptions);
-            }
+		byte[] bytes = null;
 
-            LOGGER.info("Génération du courrier PDF avec les template et modèle fournis...");
-            temp = File.createTempFile("courrierDEM_pk" + demande.getPkDemandes().toString() + "_", ".pdf");
-            OutputStream out = new FileOutputStream(temp);
-            report.convert(context, options, out);
+		try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+			LOGGER.info("Chargement du template " + templateFileName + "...");
+			InputStream in = new ClassPathResource("/pdf/" + templateFileName).getInputStream();
+			IXDocReport report = XDocReportRegistry.getRegistry().loadReport(in, TemplateEngineKind.Velocity);
 
-            out.close();
+			LOGGER.info("Création du contexte avec le modèle fourni par la démarche...");
+			IContext context = report.createContext();
+			context.put("StringUtils", StringUtils.class);
+			for (Entry<String, Object> entry : model.entrySet()) {
+				context.put(entry.getKey(), entry.getValue());
+			}
 
-        } catch (IOException | XDocReportException e) {
-            LOGGER.error("Erreur lors de la génération PDF", e);
-        }
+			Options options = Options.getTo(ConverterTypeTo.PDF);
 
-        return temp;
-    }
+			LOGGER.info("Récupération des PdfOptions...");
+			PdfOptions pdfOptions = pdfTemplateAndModelProvider.getPdfOptions();
+			if (pdfOptions != null) {
+				options.subOptions(pdfOptions);
+			}
+
+			LOGGER.info("Génération du courrier PDF avec les template et modèle fournis...");
+			report.convert(context, options, bos);
+			bytes = bos.toByteArray();
+		}
+
+		return bytes;
+	}
 
 }

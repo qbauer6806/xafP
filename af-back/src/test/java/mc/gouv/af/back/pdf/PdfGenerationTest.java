@@ -168,12 +168,5 @@ public class PdfGenerationTest {
 		System.out.println("Begin : " + begin);
 		System.out.println("End : " + end);
 		assertTrue(end-begin == 4);
-		
-//		Pattern pattern = Pattern.compile("ma part.(\\n){4}(\\W*)*(\\n)");
-//		Matcher matcher = pattern.matcher(extractPdfText());
-//		assertTrue(matcher.find());
-		
-		//assertTrue(PDFServiceConstantsMock.COMMENT.equals(matcher.group(2)));
-		
 	}
 }

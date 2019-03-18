@@ -218,13 +218,17 @@
 		$(document).ready(
 						function() {
 
+							// Prevent double form submission
+							$("form").submit(function (e) {
+								$('form input[type=submit]').prop('disabled',true);
+								return true;
+							});
+
 							$(".print").click(function(e) {
 								e.preventDefault();
 
 								var courrierId = $(this).data("courrierid");
 								var demandeId = $(this).data("demandeid");
-
-								console.log('salut');
 
 								$.fancybox.open($("#print-box"));
 

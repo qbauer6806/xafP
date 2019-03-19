@@ -3,11 +3,9 @@ package mc.gouv.af.back.pdf;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,15 +25,15 @@ import mc.gouv.af.back.AfBackServiceTestConfiguration;
 @SpringBootTest(classes=AfBackServiceTestConfiguration.class)
 public class PdfGenerationTest {
 	
-	private final String CHECK_TIITLE_FAMILY_PATTERN = "(\\w*) (\\w*) (\\w*) qui aura lieu le";
-	private final String CHECK_IDENTIFIER_PATTERN = "Objet : Votre demande (\\w*)";
-	private final String CHECK_REFERENCE_PATTERN = "Reference : (\\w*)";
-	private final String CHECK_MOTIF_PATTERN = "Motif : (\\w*)";
-	private final String CHECK_DATEDEPOT_PATTERN = "Date de déposition : (\\d{2}/\\d{2}/\\d{4})";
-	private final String CHECK_CURRENT_DATE_PATTERN = "Monaco, le (\\d{2}/\\d{2}/\\d{4})";
-	private final String CHECK_BEGIN_DATE_PATTERN = "lieu le (\\d{2}/\\d{2}/\\d{4})";
-	private final String CHECK_END_DATE_PATTERN = "au (\\d{2}/\\d{2}/\\d{4})";
-	private final String CHECK_BLANK_FIELD_ADJASMENT_PATTERN = "_RAPPELLE_\\n_FIN_RAPPELLE_";
+	private static final String CHECK_TITLE_FAMILY_PATTERN = "(\\w*) (\\w*) (\\w*) qui aura lieu le";
+	private static final String CHECK_IDENTIFIER_PATTERN = "Objet : Votre demande (\\w*-\\w*-\\w*)";
+	private static final String CHECK_REFERENCE_PATTERN = "Reference : (\\w*)";
+	private static final String CHECK_MOTIF_PATTERN = "Motif : (\\w*)";
+	private static final String CHECK_DATEDEPOT_PATTERN = "Date de déposition : (\\d{2}/\\d{2}/\\d{4})";
+	private static final String CHECK_CURRENT_DATE_PATTERN = "Monaco, le (\\d{2}/\\d{2}/\\d{4})";
+	private static final String CHECK_BEGIN_DATE_PATTERN = "lieu le (\\d{2}/\\d{2}/\\d{4})";
+	private static final String CHECK_END_DATE_PATTERN = "au (\\d{2}/\\d{2}/\\d{4})";
+	private static final String CHECK_BLANK_FIELD_ADJASMENT_PATTERN = "_RAPPELLE_\\n_FIN_RAPPELLE_";
 	
 	@Autowired
 	private PdfGenerationServiceImpl pdfGenerationService;
@@ -71,7 +69,7 @@ public class PdfGenerationTest {
 	
 	@Test(expected = Test.None.class)
 	public void givenPdfContentShouldFindTittleFirstNameLastName () throws IOException, XDocReportException{
-		Pattern pattern =  Pattern.compile(CHECK_TIITLE_FAMILY_PATTERN);
+		Pattern pattern =  Pattern.compile(CHECK_TITLE_FAMILY_PATTERN);
 		Matcher matcher = pattern.matcher(extractPdfText());
 		assertTrue(matcher.find());
 		assertTrue(PDFServiceConstantsMock.TITLE.equals(matcher.group(1)));
@@ -115,7 +113,7 @@ public class PdfGenerationTest {
 		Pattern pattern =  Pattern.compile(CHECK_DATEDEPOT_PATTERN);
 		Matcher matcher = pattern.matcher(extractPdfText());
 		assertTrue(matcher.find());
-		assertTrue(PDFServiceConstantsMock.DEPOSITE_DATE.equals(matcher.group(1)));
+		assertTrue(PDFServiceConstantsMock.DATE_DEPOT.equals(matcher.group(1)));
 	}
 	
 	@Test(expected = Test.None.class) 
@@ -127,7 +125,7 @@ public class PdfGenerationTest {
 
 	@Test(expected = Test.None.class)
 	public void givenPdfContentShouldFindRaisonSocial() throws IOException, XDocReportException {
-		Pattern pattern = Pattern.compile(PDFServiceConstantsMock.RAISON_SOCIAL);
+		Pattern pattern = Pattern.compile(PDFServiceConstantsMock.RAISON_SOCIALE);
 		Matcher matcher = pattern.matcher(extractPdfText());
 		assertTrue(matcher.find());
 	}

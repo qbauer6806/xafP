@@ -1,12 +1,11 @@
 package mc.gouv.af.back.pdf;
 
 import java.awt.Color;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.AbstractMap.SimpleEntry;
 import java.util.Map.Entry;
 
-import org.apache.tika.metadata.PDF;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Profile;
@@ -15,9 +14,9 @@ import org.springframework.stereotype.Component;
 import com.lowagie.text.Font;
 import com.lowagie.text.FontFactory;
 import com.lowagie.text.pdf.BaseFont;
+
 import fr.opensagres.poi.xwpf.converter.pdf.PdfOptions;
 import fr.opensagres.xdocreport.itext.extension.font.IFontProvider;
-import mc.gouv.af.back.pdf.PdfTemplateAndModelProvider;
 import mc.gouv.dem.shared.model.DemandeDTO;
 
 @Component
@@ -51,7 +50,7 @@ public class PdfTemplateAndModelProviderImpl implements PdfTemplateAndModelProvi
         model.put("ville", PDFServiceConstantsMock.CITY);
         model.put("identifiant", PDFServiceConstantsMock.IDENTIFIER);
         model.put("refCourrier", PDFServiceConstantsMock.REFERENCE);
-        model.put("dateDepot", PDFServiceConstantsMock.DEPOSITE_DATE);
+        model.put("dateDepot", PDFServiceConstantsMock.DATE_DEPOT);
         model.put("titre", PDFServiceConstantsMock.TITLE);
         model.put("prenom", PDFServiceConstantsMock.FIRST_NAME);
         model.put("nom", PDFServiceConstantsMock.LAST_NAME);
@@ -59,7 +58,7 @@ public class PdfTemplateAndModelProviderImpl implements PdfTemplateAndModelProvi
         model.put("commentaire", PDFServiceConstantsMock.COMMENT);
         model.put("dateDebut", PDFServiceConstantsMock.BEGIN_DATE);
         model.put("dateFin", PDFServiceConstantsMock.END_DATE);
-        model.put("raisonSocial", PDFServiceConstantsMock.RAISON_SOCIAL);
+        model.put("raisonSociale", PDFServiceConstantsMock.RAISON_SOCIALE);
         model.put("psMessage", null);
         
         String templateFileName = "DemandeAccepteeTest.docx";

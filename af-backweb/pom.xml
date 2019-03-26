@@ -4,7 +4,7 @@
     <parent>
         <groupId>mc.gouv.af</groupId>
         <artifactId>af</artifactId>
-        <version>4.0.2</version>
+        <version>4.0.3-SNAPSHOT</version>
     </parent>
 
     <artifactId>af-backweb</artifactId>
@@ -18,7 +18,7 @@
         <dependency>
             <groupId>mc.gouv.af</groupId>
             <artifactId>af-back</artifactId>
-            <version>4.0.2</version>
+            <version>4.0.3-SNAPSHOT</version>
         </dependency>
         
         <dependency>

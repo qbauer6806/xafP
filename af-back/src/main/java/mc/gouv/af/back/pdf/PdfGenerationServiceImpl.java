@@ -85,8 +85,12 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 	public File generatePdf(DemandeDTO demande) {
 		LOGGER.info(
 				"Appel au TemplateAndModelProvider de la démarche " + gouvPropertiesResolver.getDemarcheId() + "...");
-		Entry<String, Map<String, Object>> templateAndModel = getTemplateAndModel(demande);
-		return generateToFile(demande, getTemplateFileName(templateAndModel), getModel(templateAndModel));
+		Entry<String, Map<String, Object>> templateAndModel = pdfTemplateAndModelProvider.getTemplateAndModel(demande);
+		String templateFileName = templateAndModel.getKey();
+		Map<String, Object> model = templateAndModel.getValue();
+
+		return generate(demande, templateFileName, model);
+
 	}
 
 	@Override
@@ -95,9 +99,13 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 
 		LOGGER.info(
 				"Appel au TemplateAndModelProvider de la démarche " + gouvPropertiesResolver.getDemarcheId() + "...");
-		Entry<String, Map<String, Object>> templateAndModel = pdfTemplateAndModelProvider
-				.getTemplateAndModelForPreview(demande, statutSuivant, codeMotif, langue, commentaire);
-		return generateToFile(demande, getTemplateFileName(templateAndModel), getModel(templateAndModel));
+		
+        Entry<String, Map<String, Object>> templateAndModel = pdfTemplateAndModelProvider
+                .getTemplateAndModelForPreview(demande, statutSuivant, codeMotif, langue, commentaire);
+        String templateFileName = templateAndModel.getKey();
+        Map<String, Object> model = templateAndModel.getValue();
+
+        return generate(demande, templateFileName, model);
 	}
 
 	public byte[] generatePdfToStream(DemandeDTO demande) throws IOException, XDocReportException {
@@ -106,6 +114,44 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 				"Appel au TemplateAndModelProvider de la démarche " + gouvPropertiesResolver.getDemarcheId() + "...");
 		Entry<String, Map<String, Object>> templateAndModel = getTemplateAndModel(demande);
 		return generateToStream(demande, getTemplateFileName(templateAndModel), getModel(templateAndModel));
+	}
+
+	private File generate(DemandeDTO demande, String templateFileName, Map<String, Object> model) {
+
+		File temp = null;
+
+		try {
+			LOGGER.info("Chargement du template " + templateFileName + "...");
+			InputStream in = new ClassPathResource("/pdf/" + templateFileName).getInputStream();
+			IXDocReport report = XDocReportRegistry.getRegistry().loadReport(in, TemplateEngineKind.Velocity);
+
+			LOGGER.info("Création du contexte avec le modéle fourni par la démarche...");
+			IContext context = report.createContext();
+			context.put("StringUtils", StringUtils.class);
+			for (Entry<String, Object> entry : model.entrySet()) {
+				context.put(entry.getKey(), entry.getValue());
+			}
+
+			Options options = Options.getTo(ConverterTypeTo.PDF);
+
+			LOGGER.info("Récupération des PdfOptions...");
+			PdfOptions pdfOptions = pdfTemplateAndModelProvider.getPdfOptions();
+			if (pdfOptions != null) {
+				options.subOptions(pdfOptions);
+			}
+
+			LOGGER.info("Génération du courrier PDF avec les template et modéle fournis...");
+			temp = File.createTempFile("courrierDEM_pk" + demande.getPkDemandes().toString() + "_", ".pdf");
+			OutputStream out = new FileOutputStream(temp);
+			report.convert(context, options, out);
+
+			out.close();
+
+		} catch (IOException | XDocReportException e) {
+			LOGGER.error("Erreur lors de la génération PDF", e);
+		}
+
+		return temp;
 	}
 
 	private Entry<String, Map<String, Object>> getTemplateAndModel(DemandeDTO demande) {
@@ -123,7 +169,7 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 	private File generateToFile(DemandeDTO demande, String templateFileName, Map<String, Object> model) {
 
 		File temp = null;
-		
+
 		try {
 			temp = File.createTempFile("courrierDEM_pk" + demande.getPkDemandes().toString() + "_", ".pdf");
 			try (OutputStream out = new FileOutputStream(temp)) {

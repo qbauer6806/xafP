@@ -62,7 +62,7 @@ public class AfBackUtils {
     public static final String FILE_METADATA_DEMANDEID = "X-MC-DEMANDEID";
 
     public static final String FILE_METADATA_DEMANDESTATUT = "X-MC-DEMANDESTATUT";
-    
+
     private static RestTemplate restTemplate;
 
     private static String envName;
@@ -99,7 +99,7 @@ public class AfBackUtils {
 
     @Autowired
     private MessageSource messageSource;
-	
+
     public static final short GENDER_MR_INDEX = 0;
     public static final short GENDER_MME_INDEX = 1;
     public static final short GENDER_MLLE_INDEX = 2;
@@ -145,9 +145,9 @@ public class AfBackUtils {
         restTemplate.setMessageConverters(list);
     }
 
-
     public static String getAuthenticatedAgentId() {
-        if (SecurityContextHolder.getContext() != null && SecurityContextHolder.getContext().getAuthentication() != null) {
+        if (SecurityContextHolder.getContext() != null
+                && SecurityContextHolder.getContext().getAuthentication() != null) {
             Object o = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             if (o instanceof User) {
                 return ((User) o).getMatricule();
@@ -158,7 +158,8 @@ public class AfBackUtils {
     }
 
     public static String getAuthenticatedAgentName() {
-        if (SecurityContextHolder.getContext() != null && SecurityContextHolder.getContext().getAuthentication() != null) {
+        if (SecurityContextHolder.getContext() != null
+                && SecurityContextHolder.getContext().getAuthentication() != null) {
             Object o = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             if (o instanceof User) {
                 return ((User) o).getNom();
@@ -206,8 +207,8 @@ public class AfBackUtils {
     }
 
     /**
-	 * Génère un UUID version 1 (time+location based UUID) TODO copié de
-	 * afservlet, supprimer dans l'un des deux
+     * Génère un UUID version 1 (time+location based UUID) TODO copié de
+     * afservlet, supprimer dans l'un des deux
      * 
      * @return
      */
@@ -348,11 +349,11 @@ public class AfBackUtils {
     public StatutPublicOuInterneDTO getStatutPublicOuInterne(DemandeDTO demandeDto) {
         return demarchesDataProvider.getStatutPublicOuInterne(demandeDto);
     }
-    
+
     public String getCivilite(Short titre, String locale) {
         return messageSource.getMessage("civilite." + titre, null, new Locale(locale));
     }
-    
+
     /**
      * Permet de retourner la liste des agents ayant un certain rôle
      * 

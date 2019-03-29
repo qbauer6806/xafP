@@ -92,10 +92,10 @@ public class RechercheIndexedDemandesController extends AbstractController {
         Pageable newPageable;
         if (StringUtils.isBlank(texte)) {
 
-            newPageable = new PageRequest(pageable.getPageNumber(), pageable.getPageSize(), Sort.Direction.ASC,
+            newPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.Direction.ASC,
                     "identifiant.keyword");
         } else {
-            newPageable = new PageRequest(pageable.getPageNumber(), pageable.getPageSize());
+            newPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
         }
 
         LOGGER.info("======================= Fin appel de /ws/demandes/pageable");

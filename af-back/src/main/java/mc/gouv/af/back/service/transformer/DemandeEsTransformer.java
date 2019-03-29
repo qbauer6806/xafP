@@ -30,6 +30,7 @@ import mc.gouv.af.back.config.es.IndexationEnabledCondition;
 import mc.gouv.af.back.data.es.model.CanalEsDto;
 import mc.gouv.af.back.data.es.model.DemandeAccessEsDTO;
 import mc.gouv.af.back.data.es.model.DemandeEsDTO;
+import mc.gouv.af.back.data.es.model.DemandeJoinFieldEsDTO;
 import mc.gouv.af.back.data.es.model.DemandeStatutEsDTO;
 import mc.gouv.dem.data.entity.AccessBO;
 import mc.gouv.dem.data.entity.DemandeBO;
@@ -101,6 +102,7 @@ public class DemandeEsTransformer {
         }
 
         DemandeEsDTO demandeEsDTO = new DemandeEsDTO();
+        demandeEsDTO.setDemandeJoinField(new DemandeJoinFieldEsDTO(DemandeEsDTO.INDEX_TYPE));
         DemandeAccessEsDTO demandeAccessEsDto = new DemandeAccessEsDTO();
 
         AccessBO accessBO = demande.getFkAccess();

@@ -11,8 +11,8 @@ import org.springframework.data.domain.Pageable;
 import org.xml.sax.SAXException;
 
 import mc.gouv.af.back.data.es.model.DemandeEsDTO;
-import mc.gouv.af.back.data.es.model.DemandeEsDTO.DemandeFileEsDTO;
 import mc.gouv.af.back.data.es.model.DemandeEsRechercheDTO;
+import mc.gouv.af.back.data.es.model.DemandeFileEsDTO;
 import mc.gouv.af.back.data.es.model.DemandesFacets;
 import mc.gouv.af.back.exception.FileConnectionException;
 import mc.gouv.dem.data.entity.DemandeBO;

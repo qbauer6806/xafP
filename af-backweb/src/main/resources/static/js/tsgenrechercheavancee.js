@@ -249,11 +249,11 @@ recherche_libelles.set("fichiers.name", {
 	libelle : "Nom",
 	categorie : "Pièce(s) jointe(s)"
 });
-recherche_libelles.set("fichiers.complement.content", {
+recherche_libelles.set("complement.fichiers.content", {
 	libelle : "Contenu",
 	categorie : "Complément de demande"
 });
-recherche_libelles.set("fichiers.complement.name", {
+recherche_libelles.set("complement.fichiers.name", {
 	libelle : "Nom de la pièce jointe",
 	categorie : "Complément de demande"
 });

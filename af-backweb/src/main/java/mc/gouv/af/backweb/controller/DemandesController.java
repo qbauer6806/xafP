@@ -18,8 +18,6 @@ import org.springframework.web.servlet.ModelAndView;
 import mc.gouv.af.back.cache.UsagersCache;
 import mc.gouv.af.back.cache.UtilisateursCache;
 import mc.gouv.af.back.service.DemarchesDataProvider;
-import mc.gouv.af.back.util.AfBackUtils;
-import mc.gouv.af.back.util.UserComparator;
 import mc.gouv.af.backweb.dto.AgentAffichageDTO;
 import mc.gouv.logon.shared.User;
 import mc.gouv.servicerest.usager.model.UsagerBean;
@@ -76,28 +74,26 @@ public class DemandesController extends AbstractController {
     }
 
     public class AgentComparator implements Comparator<User> {
-        
+
         @Override
         public int compare(User u1, User u2) {
             String u1Nom = "";
             if (u1.getNomAffichage() != null) {
                 u1Nom = u1.getNomAffichage();
-            }
-            else {
+            } else {
                 u1Nom = u1.getNom();
             }
             String u2Nom = "";
             if (u2.getNomAffichage() != null) {
                 u2Nom = u2.getNomAffichage();
-            }
-            else {
+            } else {
                 u2Nom = u2.getNom();
             }
             return u1Nom.compareTo(u2Nom);
         }
-        
+
     }
-    
+
     public String getDisplayNameFromUser(User u) {
         String displayName = "";
         if (u.getCivilite() != null) {
@@ -106,16 +102,15 @@ public class DemandesController extends AbstractController {
         if (u.getPrenom() != null) {
             displayName += u.getPrenom() + " ";
         }
-        
+
         if (u.getNomAffichage() != null) {
             displayName += u.getNomAffichage();
-        }
-        else {
+        } else {
             displayName += u.getNom();
         }
         return displayName;
     }
-    
+
     private AgentAffichageDTO getAgentAffichageFromUser(User u) {
         AgentAffichageDTO a = new AgentAffichageDTO();
         a.setDisplayName(getDisplayNameFromUser(u));

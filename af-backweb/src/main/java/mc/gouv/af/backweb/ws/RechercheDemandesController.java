@@ -82,7 +82,7 @@ public class RechercheDemandesController extends AbstractController {
             }
         }
 
-        Pageable newPageable = new PageRequest(pageable.getPageNumber(), pageable.getPageSize(), Sort.Direction.ASC,
+        Pageable newPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.Direction.ASC,
                 "identifiant");
 
         LOGGER.info("======================= Fin appel de /ws/demandes/pageable");
@@ -91,7 +91,7 @@ public class RechercheDemandesController extends AbstractController {
     }
 
     private Page<AfBackDemandeDTO> processCustomData(Page<DemandeDTO> demandes) {
-        List<AfBackDemandeDTO> newDemandes = new ArrayList<AfBackDemandeDTO>();
+        List<AfBackDemandeDTO> newDemandes = new ArrayList<>();
         for (DemandeDTO demande : demandes) {
             AfBackDemandeDTO newDem = new AfBackDemandeDTO(demande);
             if (demande.getAgentAffecteId() != null) {
@@ -101,9 +101,7 @@ public class RechercheDemandesController extends AbstractController {
             }
             newDemandes.add(newDem);
         }
-        Pageable newPageable = new PageRequest(demandes.getNumber(), demandes.getSize(), demandes.getSort());
-        Page<AfBackDemandeDTO> newPage = new PageImpl<AfBackDemandeDTO>(newDemandes, newPageable,
-                demandes.getTotalElements());
-        return newPage;
+        Pageable newPageable = PageRequest.of(demandes.getNumber(), demandes.getSize(), demandes.getSort());
+        return new PageImpl<>(newDemandes, newPageable, demandes.getTotalElements());
     }
 }

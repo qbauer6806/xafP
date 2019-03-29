@@ -2,8 +2,6 @@ package mc.gouv.af.back.data.es.model;
 
 import java.util.List;
 
-import mc.gouv.af.back.data.es.model.DemandeEsDTO.DemandeFileEsDTO;
-
 public class DemandeEsJmsDto {
 
     DemandeEsDTO demande;

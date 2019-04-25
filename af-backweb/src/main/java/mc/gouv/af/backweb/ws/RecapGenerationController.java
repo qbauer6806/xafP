@@ -108,9 +108,11 @@ public class RecapGenerationController {
 						html += getHTML(demande.getContenu(), champ, demande.getBuildId());
 					}
 					else {
-						html += "<dd><span>"+ champ.get("label") + "</span></dd>";
 						String value = getHTML(demande.getContenu(), champ, demande.getBuildId());
-						html += "<dt><span>" + (value == null ? "" : value) + "</span></dt>";
+						if (!StringUtils.isBlank(value)) {
+							html += "<dd><span>"+ champ.get("label") + "</span></dd>";
+							html += "<dt><span>" + value + "</span></dt>";
+						}
 					}
 				}
 			}

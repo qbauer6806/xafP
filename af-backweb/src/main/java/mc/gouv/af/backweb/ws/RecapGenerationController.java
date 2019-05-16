@@ -86,64 +86,67 @@ public class RecapGenerationController {
 		JSONParser jsonParser = new JSONParser();
 		JSONArray jsonArray = (JSONArray)jsonParser.parse(
 		      new InputStreamReader(inputStream, "UTF-8"));
-		System.out.println("json="+jsonArray);
 		
 		LOGGER.info("Construction du recap HTML...");
 		String html = "";
 		
-		JSONArray sections = (JSONArray)((JSONObject)jsonArray.get(0)).get("sections");
-		for (int i = 0; i < sections.size(); i++) {
-			JSONObject section = (JSONObject)sections.get(i);
-			System.out.println(section);
-			
-			html += "<div class=\"sectiondemande\"><h3>" + section.get("titre") + "</h3><dl>";
-			
-			String sectionType = (String)section.get("type");
-			if (sectionType.equals("champs")) {
-				JSONArray champs = (JSONArray)section.get("champs");
-				for (int j = 0; j < champs.size(); j++) {
-					JSONObject champ = (JSONObject)champs.get(j);
-					String type = (String)champ.get("type");
-					if (type.equals("adresse")) {
-						html += getHTML(demande.getContenu(), champ, demande.getBuildId());
-					}
-					else {
-						String value = getHTML(demande.getContenu(), champ, demande.getBuildId());
-						if (!StringUtils.isBlank(value)) {
-							html += "<dd><span>"+ champ.get("label") + "</span></dd>";
-							html += "<dt><span>" + value + "</span></dt>";
+		for (int k = 0; k < jsonArray.size(); k++) {
+			if ("projectDemandeRecap".equals(((JSONObject)jsonArray.get(k)).get("name"))) {
+				JSONArray sections = (JSONArray)((JSONObject)jsonArray.get(k)).get("sections");
+				for (int i = 0; i < sections.size(); i++) {
+					JSONObject section = (JSONObject)sections.get(i);
+					System.out.println(section);
+					
+					html += "<div class=\"sectiondemande\"><h3>" + section.get("titre") + "</h3><dl>";
+					
+					String sectionType = (String)section.get("type");
+					if (sectionType.equals("champs")) {
+						JSONArray champs = (JSONArray)section.get("champs");
+						for (int j = 0; j < champs.size(); j++) {
+							JSONObject champ = (JSONObject)champs.get(j);
+							String type = (String)champ.get("type");
+							if (type.equals("adresse")) {
+								html += getHTML(demande.getContenu(), champ, demande.getBuildId());
+							}
+							else {
+								String value = getHTML(demande.getContenu(), champ, demande.getBuildId());
+								if (!StringUtils.isBlank(value)) {
+									html += "<dd><span>"+ champ.get("label") + "</span></dd>";
+									html += "<dt><span>" + value + "</span></dt>";
+								}
+							}
 						}
 					}
-				}
-			}
-			else if (sectionType.equals("tableau")) {
-				html += "<table id=\"datatable-demandes\" class=\"table table-striped\">";
-				JSONArray columns = (JSONArray)section.get("columns");
-				html += "<thead><tr>";
-				for (Object column : columns.toArray()) {
-					html += "<th>" + ((JSONObject)column).get("label") + "</th>";
-				}
-				html += "</tr></thead>";
-				ArrayNode valeurs = (ArrayNode)getNode(demande.getContenu(),section,"path");
-				Iterator<JsonNode> it = valeurs.elements();
-				html += "<tbody>";
-				while (it.hasNext()) {
-					JsonNode valeur = it.next();
-					html += "<tr>";
-					for (Object column : columns.toArray()) {
-						String value = getHTML(valeur,(JSONObject)column, demande.getBuildId());
-						html += "<td>" + (value == null ? "" : value) + "</td>";
+					else if (sectionType.equals("tableau")) {
+						html += "<table id=\"datatable-demandes\" class=\"table table-striped\">";
+						JSONArray columns = (JSONArray)section.get("columns");
+						html += "<thead><tr>";
+						for (Object column : columns.toArray()) {
+							html += "<th>" + ((JSONObject)column).get("label") + "</th>";
+						}
+						html += "</tr></thead>";
+						ArrayNode valeurs = (ArrayNode)getNode(demande.getContenu(),section,"path");
+						Iterator<JsonNode> it = valeurs.elements();
+						html += "<tbody>";
+						while (it.hasNext()) {
+							JsonNode valeur = it.next();
+							html += "<tr>";
+							for (Object column : columns.toArray()) {
+								String value = getHTML(valeur,(JSONObject)column, demande.getBuildId());
+								html += "<td>" + (value == null ? "" : value) + "</td>";
+							}
+							html += "</tr>";
+						}
+						html += "</tbody>";
+						html += "</table>";
 					}
-					html += "</tr>";
+					else if (sectionType.equals("adresse")) {
+						html += "<dd><span>Adresse</span></dd>";
+					}
+					
+					html += "</dl></div>";
 				}
-				html += "</tbody>";
-				html += "</table>";
 			}
-			else if (sectionType.equals("adresse")) {
-				html += "<dd><span>Adresse</span></dd>";
-			}
-			
-			html += "</dl></div>";
 		}
 		
 		return html;

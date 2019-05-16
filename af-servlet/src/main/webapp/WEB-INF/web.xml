@@ -98,6 +98,15 @@
     </servlet-mapping>
     
     <servlet>
+        <servlet-name>VerificationIbanServlet</servlet-name>
+        <servlet-class>mc.gouv.af.servlet.VerificationIbanServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>VerificationIbanServlet</servlet-name>
+        <url-pattern>/verification-iban</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
         <servlet-name>RedirectToBackOfficeServlet</servlet-name>
         <servlet-class>mc.gouv.af.servlet.RedirectToBackOfficeServlet</servlet-class>
     </servlet>

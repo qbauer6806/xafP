@@ -118,6 +118,18 @@ public class AfServletGouvPropertiesResolver {
     public static String getApiJwt() {
         return Static.getValue(API_JWT);
     }
+    
+    public static final String TGFAPI_URL = "mc.gouv.appfactory.tgfapi.url";
+
+    public static String getTgfApiUrl() {
+        return Static.getValue(TGFAPI_URL);
+    }
+    
+    public static final String TGFAPI_JWT = "mc.gouv.appfactory.tgfapi.jwt";
+
+    public static String getTgfApiJwt() {
+        return Static.getValue(TGFAPI_JWT);
+    }
 
     static {
         //Vérification que chaque propriété a bien été configurée

@@ -197,7 +197,8 @@
 																		class="form-control">
 																		<option th:value="null" th:text="Tous" />
 																		<option th:each="agent : ${agentsInit}"
-																			th:text="${agent.displayName}" th:value="${agent.matricule}" />
+																			th:text="${agent.displayName}"
+																			th:value="${agent.matricule}" />
 																	</select>
 																</div>
 
@@ -303,29 +304,9 @@
 
 				<div class="row">
 					<div class="col-xs-12">
-						<div class="tableContent">
-							<div class="tableTitle">
-								Demandes <span class="badge" id="demandesSize"></span>
-							</div>
-							<table id="datatable-demandes" class="table table-striped ">
-								<thead>
-									<tr>
-										<th></th>
-										<th>Identifiant</th>
-										<th>Date demande</th>
-										<th>Dernier changement</th>
-										<th>Demandeur</th>
-										<th>Suppléant</th>
-										<th>Fonction recherchée</th>
-										<th>Résidence</th>
-										<th>Etat</th>
-										<th>Mode de réception</th>
-										<th>Responsable</th>
-										<th>Actions</th>
-									</tr>
-								</thead>
-							</table>
-						</div>
+						<div  th:insert="demandes/demandetable"></div>
+						
+						
 					</div>
 				</div>
 
@@ -337,6 +318,8 @@
 
 	</div>
 
+	<script type="text/javascript"
+		th:src="@{/recherchedynamicjs/dynamicjs.js}"></script>
 	<div th:replace="fragments/footer :: footer"></div>
 
 	<script type="text/javascript" th:inline="javascript">
@@ -463,7 +446,6 @@
 	
 	
 		});
-	
 	
 	
 		$("body").tooltip({

@@ -21,6 +21,7 @@ public class DemandeEsDTO extends AbstractDemandeDTO {
 
     public static final String ACCESS_FIELD_NAME = "access";
     public static final String AGENT_FIELD_NAME = "agent";
+    public static final String JOIN_FIELD_NAME = "fichiers.demandeJoinField";
 
     private DemandeAccessEsDTO access;
     private CanalEsDto canal;

@@ -14,6 +14,7 @@ import mc.gouv.af.back.data.es.model.DemandeEsDTO;
 import mc.gouv.af.back.data.es.model.DemandeEsRechercheDTO;
 import mc.gouv.af.back.data.es.model.DemandeFileEsDTO;
 import mc.gouv.af.back.data.es.model.DemandesFacets;
+import mc.gouv.af.back.data.es.model.EsProperty;
 import mc.gouv.af.back.exception.FileConnectionException;
 import mc.gouv.dem.data.entity.DemandeBO;
 import mc.gouv.dem.service.DemandesService;
@@ -130,5 +131,25 @@ public interface IndexedDemandeService extends DemandesService {
      */
     Page<DemandeEsRechercheDTO> getIndexedDemandes(DemandeRechercheDTO demandeRecherche, Pageable pageable,
             String[] fields);
+
+    /**
+     * Methode permettant de récupérer la liste des propriétés du moteur de recherche
+     * @param reload Recharger le schème elasticsearch  
+     * @return Liste des propriétés elasticsearch
+     */
+    List<EsProperty> getProperties(boolean reload);
+
+    /**
+     * Méthode permettant d'initialiser le schèma du moteur de recherche
+     * 
+     * @param reload Recharger le schéma elasticsearch
+     * 
+     */
+    void initMappingProperties(boolean reload);
+
+    /**
+     * Méthode permettant de charger les propriétés à exclure de la recherche avancée
+     */
+    void loadPropertiesToExclude();
 
 }

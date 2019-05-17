@@ -109,4 +109,4 @@ var configurationSpinner = {
 		, position: 'absolute' // Element positioning
 }
 
-var recherche_libelles = new Map();
+

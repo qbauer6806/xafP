@@ -107,13 +107,14 @@ import mc.gouv.af.back.enumeration.JMSActionEnum;
 import mc.gouv.af.back.exception.AfIndexingException;
 import mc.gouv.af.back.exception.FileConnectionException;
 import mc.gouv.af.back.properties.GouvPropertiesResolver;
-import mc.gouv.af.back.service.DemandeFieldsExcludeService;
 import mc.gouv.af.back.service.DemandeJmsTopicSendService;
 import mc.gouv.af.back.service.IndexedDemandeService;
 import mc.gouv.af.back.service.transformer.DemandeEsTransformer;
 import mc.gouv.af.back.util.AfBackUtils;
 import mc.gouv.af.back.util.ESQueryUtils;
 import mc.gouv.af.back.util.FileUtils;
+import mc.gouv.af.data.dao.RechercheChampConfigRepository;
+import mc.gouv.af.data.entity.RechercheChampConfigBo;
 import mc.gouv.dem.data.dao.DemandesRepository;
 import mc.gouv.dem.data.entity.DemandeBO;
 import mc.gouv.dem.data.entity.DemandesComplementsBO;
@@ -174,11 +175,12 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     @Inject
     private GouvPropertiesResolver gouvPropertiesResolver;
 
-    @Autowired(required = false)
-    private DemandeFieldsExcludeService demandeFieldsExcludeService;
+    @Autowired
+    RechercheChampConfigRepository rechercheChampConfigRepository;
 
     private List<EsProperty> demandesProperties = new ArrayList<>();
     private List<EsProperty> filesProperties = new ArrayList<>();
+    List<EsProperty> allProperties = new ArrayList<>();
     //Map contenant les champs et le boost (si on veut augmenter le score de la recherche par rapport à un champ) 
     //sur lesquels on va faire la recherche du type demandes de l'index <application.name>-index
     private Map<String, Float> demandesPropertiesWithBoost = new HashMap<>();
@@ -194,18 +196,15 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     public static final String ES_MAPPING_FIELDS_KEY = "fields";
     public static final String ES_MAPPING_TYPE_KEY = "type";
     public static final String FILE_COMPLEMENT_HIGHLIGHT_AND_FACET_PREFIX = "complement.";
+    public static final String FILE_PROPERTIES_PREFIX = "fichiers.";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IndexedEsDemandeServiceImpl.class);
 
-    //Liste des champs à exclure de la recherche du type demandes
-    private List<String> demandesFieldsToExclude = Arrays.asList("access.demarcheId", "access.usagerId",
-            "access.fkAccess", "agentAffecteNomAffichage", "usager.paysCode", "usager.dateActivation", "usager.etat",
-            "usager.dateCreation", "usager.dateDerConnexion", "usager.paysId", "canal.code", "agentAffecteId",
-            "dernierStatut.codeMotif", "pkDemandes", "creeParAgentId", "dernierStatut.code", "statuts.code",
-            "statuts.codeMotif");
-    //Liste des champs à exclure de la recherche du type fichiers
-    private List<String> fichiersFieldsToExclude = Arrays.asList("fichiers.demandeId", "fichiers.url",
-            "fichiers.language", "fichiers.id", "fichiers.type");
+    //Liste des champs à exclure de la recherche des demandes
+    private List<String> demandesFieldsToExclude = new ArrayList<>();
+
+    //Liste des champs à exclure de la recherche dans les fichiers associés aux demandes
+    private List<String> fichiersFieldsToExclude = new ArrayList<>();
 
     private ResultsMapper resultsMapper;
 
@@ -216,11 +215,25 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         resultsMapper = new DefaultResultMapper(elasticsearchConverter.getMappingContext());
         highlightPretags = gouvPropertiesResolver.getSearchHighlightPreTags();
         highlightPosttags = gouvPropertiesResolver.getSearchHighlightPostTags();
-        if (demandeFieldsExcludeService != null) {
-            List<String> demandesFieldsToExcludeCopy = new ArrayList<>();
-            demandesFieldsToExcludeCopy.addAll(demandesFieldsToExclude);
-            demandesFieldsToExcludeCopy.addAll(demandeFieldsExcludeService.exclude());
-            demandesFieldsToExclude = demandesFieldsToExcludeCopy;
+        loadPropertiesToExclude();
+    }
+
+    /**
+     * Méthode permettant de charger les propriétés à exclure lors de la recherche avancée
+     */
+    @Override
+    public void loadPropertiesToExclude() {
+        List<RechercheChampConfigBo> propertiesToExclude = rechercheChampConfigRepository.findByEnabled(false);
+        demandesFieldsToExclude.clear();
+        fichiersFieldsToExclude.clear();
+        if (propertiesToExclude != null) {
+            for (RechercheChampConfigBo champConfigBo : propertiesToExclude) {
+                if (champConfigBo.getCle().startsWith(FILE_PROPERTIES_PREFIX)) {
+                    fichiersFieldsToExclude.add(champConfigBo.getCle());
+                } else {
+                    demandesFieldsToExclude.add(champConfigBo.getCle());
+                }
+            }
         }
 
     }
@@ -260,16 +273,17 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      * Méthode permettant d'initialiser les propriétés elasticsearch sur lesquels on va faire la recherche
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    private synchronized void initMappingProperties() {
+    @Override
+    public synchronized void initMappingProperties(boolean reload) {
 
         Map<String, Map> mapping = getMapping(indexAlias, DemandeEsDTO.INDEX_TYPE);
-        if (demandesProperties.isEmpty()) {
+        if (demandesProperties.isEmpty() || reload) {
             initMappingProperties(demandesProperties, mapping, demandesFieldsToExclude, false);
             initMappingPropertiesMap(demandesProperties, demandesPropertiesWithBoost);
 
         }
 
-        if (filesProperties.isEmpty()) {
+        if (filesProperties.isEmpty() || reload) {
             initMappingProperties(filesProperties, mapping, fichiersFieldsToExclude, true);
             initMappingPropertiesMap(filesProperties, filesPropertiesWithBoost);
         }
@@ -382,6 +396,22 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
         }
 
+    }
+
+    /**
+     * Methode permettant de récupérer la liste des propriétés elasticsearch
+     * 
+     * @return liste des propriétés elasticsearch
+     */
+    @Override
+    public List<EsProperty> getProperties(boolean reload) {
+
+        if (allProperties.isEmpty() || reload) {
+            Map<String, Map> mapping = getMapping(indexAlias, DemandeEsDTO.INDEX_TYPE);
+            initMappingProperties(allProperties, mapping, new ArrayList<>(), false);
+            initMappingProperties(allProperties, mapping, new ArrayList<>(), true);
+        }
+        return allProperties;
     }
 
     /**
@@ -832,7 +862,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
         demandeRecherche.setTexte(ESQueryUtils.getFormatedQuery(demandeRecherche.getTexte(),
                 afBackUtils.getDemarcheInfos().getIdentifiantPrefixe()));
-        initMappingProperties();
+        initMappingProperties(false);
 
         if (!StringUtils.isBlank(demandeRecherche.getTexte())) {
 
@@ -984,7 +1014,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
         demandeRecherche.setTexte(ESQueryUtils.getFormatedQuery(demandeRecherche.getTexte(),
                 afBackUtils.getDemarcheInfos().getIdentifiantPrefixe()));
-        initMappingProperties();
+        initMappingProperties(false);
 
         NativeSearchQueryBuilder nativeSearchQueryBuilder = new NativeSearchQueryBuilder().withIndices(indexAlias)
                 .withQuery(getQueryBuilder(demandeRecherche)).withPageable(pageable);

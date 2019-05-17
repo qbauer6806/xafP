@@ -46,7 +46,7 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
      * Uppercase de application.name
      */
     private String demarcheId;
-    
+
     @Autowired
     private Environment environment;
 
@@ -86,17 +86,20 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
                 }
 
                 try {
-                    
+
                     // Est-ce que l'indexation est activée ?
-                    String indexingPropStr = environment.getProperty("mc.gouv" + applicationPrefix + ".indexing.enabled");
+                    String indexingPropStr = environment
+                            .getProperty("mc.gouv" + applicationPrefix + ".indexing.enabled");
                     boolean indexingEnabled = false;
                     if (StringUtils.isNotBlank(indexingPropStr) && indexingPropStr.equals(true)) {
                         indexingEnabled = true;
                     }
-                    
+
                     // On ignore la présence de la property si la méthode possède @GouvIndexationProperty mais que l'appli a indexationEnabled=false
-                    if (!(method.getDeclaredAnnotation(GouvIndexationProperty.class) instanceof GouvIndexationProperty) ||
-                            (method.getDeclaredAnnotation(GouvIndexationProperty.class) instanceof GouvIndexationProperty && indexingEnabled)) {
+                    if (!(method.getDeclaredAnnotation(GouvIndexationProperty.class) instanceof GouvIndexationProperty)
+                            || (method.getDeclaredAnnotation(
+                                    GouvIndexationProperty.class) instanceof GouvIndexationProperty
+                                    && indexingEnabled)) {
                         Object value = method.invoke(this);
                         if (value instanceof String) {
                             if (StringUtils.isBlank((String) value)) {
@@ -376,7 +379,7 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
 
         return null;
     }
-    
+
     @Override
     public boolean getNovalidate() {
         String value = Static.getValue("mc.gouv" + applicationPrefix + ".novalidate");

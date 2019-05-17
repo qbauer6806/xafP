@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.ws.rs.BadRequestException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Service;
@@ -264,15 +266,25 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
     }
 
     @Override
-    public void importConfig(byte[] file) throws JsonParseException, JsonMappingException, IOException {
+    public void importConfig(byte[] file) throws IOException {
 
         ObjectMapper mapper = new ObjectMapper();
-        ExportImportConfigDTO config = mapper.readValue(file, ExportImportConfigDTO.class);
+        ExportImportConfigDTO config = null;
+        try {
+            config = mapper.readValue(file, ExportImportConfigDTO.class);
+        } catch (JsonParseException | JsonMappingException e) {
+            throw new BadRequestException("Le fichier ne respecte pas la structure des fichiers à importer");
+        }
 
         if (config != null) {
 
             rechercheChampConfigRepository.deleteAll();
             rechercheCatConfigRepository.deleteAll();
+
+            //https://stackoverflow.com/questions/42124030/delete-then-create-records-are-causing-a-duplicate-key-violation-with-spring-dat
+            rechercheCatConfigRepository.findAll();
+            rechercheChampConfigRepository.findAll();
+
             Map<String, RechercheCatConfigBo> categoriesMap = new HashMap<>();
             List<ExportImportCategoryDTO> categories = config.getCategories();
             if (categories != null) {

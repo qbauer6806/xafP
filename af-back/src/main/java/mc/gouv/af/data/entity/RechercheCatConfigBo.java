@@ -26,7 +26,7 @@ public class RechercheCatConfigBo {
     @Column(name = "id", nullable = false)
     private Integer id;
 
-    @Column(name = "libelle", nullable = false)
+    @Column(name = "libelle", nullable = false, unique = true)
     private String libelle;
 
     @Column(name = "editable", nullable = false)

@@ -32,7 +32,7 @@ public class IndexedDemandesComplementsServiceImpl extends DemandesComplementsSe
 
         DemandeDTO demandeDTO = indexedDemandeService.getDemande(demarcheId, pkDemande);
 
-        indexedDemandeService.sendToTopic(demandeDTO);
+        indexedDemandeService.sendToTopic(demandeDTO, true);
 
         return demandeComplementsDTO;
 

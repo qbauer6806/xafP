@@ -27,7 +27,7 @@ public class IndexedEsDemandesCourriersServiceImpl extends DemandesCourriersServ
             throws Exception {
 
         DemandeCourrierDTO demandeCourrierDTO = super.saveCourrier(demarcheId, pkDemande, courrierDto);
-        indexCourrier(demarcheId, pkDemande, demandeCourrierDTO);
+        indexCourrier(demarcheId, pkDemande);
         return demandeCourrierDTO;
     }
 
@@ -35,13 +35,13 @@ public class IndexedEsDemandesCourriersServiceImpl extends DemandesCourriersServ
     public DemandeCourrierDTO updateCourrier(String demarcheId, Integer pkDemande, DemandeCourrierDTO courrierDto)
             throws Exception {
         DemandeCourrierDTO demandeCourrierDTO = super.updateCourrier(demarcheId, pkDemande, courrierDto);
-        indexCourrier(demarcheId, pkDemande, demandeCourrierDTO);
+        indexCourrier(demarcheId, pkDemande);
         return demandeCourrierDTO;
     }
 
-    private void indexCourrier(String demarcheId, Integer pkDemande, DemandeCourrierDTO courrierDto) throws Exception {
+    private void indexCourrier(String demarcheId, Integer pkDemande) throws Exception {
         DemandeDTO demandeDTO = indexedDemandeService.getDemande(demarcheId, pkDemande);
 
-        indexedDemandeService.sendToTopic(demandeDTO);
+        indexedDemandeService.sendToTopic(demandeDTO, false);
     }
 }

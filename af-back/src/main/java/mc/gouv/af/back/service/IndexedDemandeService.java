@@ -104,13 +104,15 @@ public interface IndexedDemandeService extends DemandesService {
      * Méthode permettant d'envoyer une demande au topic afin d'être indexer
      *  
      * @param demandeDTO DTO de la demande
+     * @param indexFiles Boolean pour indiquer si on doit indexer les fichiers associés à la demande
      * 
      * @throws IOException Exception I/O
      * @throws SAXException Exception SAX
      * @throws TikaException Exception du parsing de la piece jointe
      * @throws JMSException Exception lors de l'envoi de la demande au topic
      */
-    void sendToTopic(DemandeDTO demandeDTO) throws IOException, SAXException, TikaException, JMSException;
+    void sendToTopic(DemandeDTO demandeDTO, boolean indexFiles)
+            throws IOException, SAXException, TikaException, JMSException;
 
     /**
      * 

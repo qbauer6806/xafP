@@ -602,21 +602,24 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      * @see mc.gouv.af.back.service.IndexedDemandeService#sendToTopic(mc.gouv.dem.shared.model.DemandeDTO)
      */
     @Override
-    public void sendToTopic(DemandeDTO demandeDTO) throws IOException, SAXException, TikaException, JMSException {
+    public void sendToTopic(DemandeDTO demandeDTO, boolean indexFiles)
+            throws IOException, SAXException, TikaException, JMSException {
 
         if (demandeDTO != null) {
 
             Boolean activeAccess = accessService.isAccessActive(demandeDTO.getFkAccess());
             DemandeEsDTO demandeEsDTO = demandeEsTransformer.toEs(demandeDTO, activeAccess);
 
-            List<DemandeFileEsDTO> files = new ArrayList<>();
+            List<DemandeFileEsDTO> files = null;
+            if (indexFiles) {
+                files = new ArrayList<>();
 
-            List<DemandeFileEsDTO> pjs = new ArrayList<>();
-            List<DemandeFileEsDTO> complementsFiles = new ArrayList<>();
-            fillPjAndComplementsFilesList(pjs, complementsFiles, demandeDTO);
-
-            files.addAll(pjs);
-            files.addAll(complementsFiles);
+                List<DemandeFileEsDTO> pjs = new ArrayList<>();
+                List<DemandeFileEsDTO> complementsFiles = new ArrayList<>();
+                fillPjAndComplementsFilesList(pjs, complementsFiles, demandeDTO);
+                files.addAll(pjs);
+                files.addAll(complementsFiles);
+            }
 
             demandeJmsService.send(new DemandeEsJmsDto(demandeEsDTO, files), JMSActionEnum.SAVE);
         }
@@ -1412,7 +1415,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
         DemandeDTO demandeDto = super.saveDemande(demande, premierStatut);
         try {
-            sendToTopic(demandeDto);
+            sendToTopic(demandeDto, true);
         } catch (TikaException | JMSException e) {
             LOGGER.error(e.getMessage(), e);
             throw new AfIndexingException(e.getMessage(), e);
@@ -1469,7 +1472,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         DemandeDTO demandeDTO = super.cloneDemande(demarcheId, pkDemande);
 
         try {
-            sendToTopic(demandeDTO);
+            sendToTopic(demandeDTO, true);
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
             throw new AfIndexingException(e.getMessage(), e);

@@ -70,6 +70,9 @@ public class DemandeEsTransformer {
     @Autowired(required = false)
     IndexedDemandeJsonNodeTransformer indexedDemandeJsonNodeTransformer;
 
+    @Autowired(required = false)
+    IndexedDemandeDataJsonNodeTransformer indexedDemandeDataJsonNodeTransformer;
+
     @Inject
     MotifsCache motifsCache;
 
@@ -130,7 +133,7 @@ public class DemandeEsTransformer {
 
         ObjectMapper mapper = new ObjectMapper();
         JsonNode contenu = mapper.readTree(demande.getContenu());
-        demandeEsDTO.setContenu(transform(contenu));
+        demandeEsDTO.setContenu(transformContenu(contenu));
         demandeEsDTO.setCourrierDateReception(demande.getCourrierDateReception());
         demandeEsDTO.setCourrierRefInterne(demande.getCourrierRefInterne());
 
@@ -143,14 +146,13 @@ public class DemandeEsTransformer {
         }
         demandeEsDTO.setAgentAffecteId(demande.getAgentAffecteId());
 
+        JsonNode data = mapper.createObjectNode();
         if (demande.getData() != null) {
-            JsonNode data = mapper.createObjectNode();
             for (DemandesDataBO demandesDataBO : demande.getData()) {
                 ((ObjectNode) data).put(demandesDataBO.getKey(), demandesDataBO.getValue());
             }
-            demandeEsDTO.setData(data);
         }
-
+        demandeEsDTO.setData(transformData(data));
         demandeEsDTO.setDateCreation(demande.getDateCreation());
         demandeEsDTO.setDateDerModif(demande.getDateDerModif());
         demandeEsDTO.setDernierStatut(demandesStatutsEsTransformer.bo2Dto(demande.getDernierStatut()));
@@ -198,7 +200,7 @@ public class DemandeEsTransformer {
             demandeEsDTO.setCanal(canal);
         }
 
-        demandeEsDTO.setContenu(transform(demandeDTO.getContenu()));
+        demandeEsDTO.setContenu(transformContenu(demandeDTO.getContenu()));
         demandeEsDTO.setCourrierDateReception(demandeDTO.getCourrierDateReception());
         demandeEsDTO.setCourrierRefInterne(demandeDTO.getCourrierRefInterne());
 
@@ -210,14 +212,14 @@ public class DemandeEsTransformer {
 
         demandeEsDTO.setAgentAffecteId(demandeDTO.getAgentAffecteId());
 
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode data = mapper.createObjectNode();
         if (demandeDTO.getData() != null) {
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode data = mapper.createObjectNode();
             for (DemandeDataDTO demandeDataDTO : demandeDTO.getData()) {
                 ((ObjectNode) data).put(demandeDataDTO.getKey(), demandeDataDTO.getValue());
             }
-            demandeEsDTO.setData(data);
         }
+        demandeEsDTO.setData(transformData(data));
         demandeEsDTO.setDateCreation(demandeDTO.getDateCreation());
         demandeEsDTO.setDateDerModif(demandeDTO.getDateDerModif());
         demandeEsDTO.setDernierStatut(demandesStatutsEsTransformer.toEs(demandeDTO.getDernierStatut()));
@@ -358,19 +360,19 @@ public class DemandeEsTransformer {
         // Mapper les données de demande
         if (addDataField && bo.getData() != null && !bo.getData().isEmpty()) {
 
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode data = mapper.createObjectNode();
             if (bo.getData() != null) {
-                ObjectMapper mapper = new ObjectMapper();
-                JsonNode data = mapper.createObjectNode();
                 for (DemandesDataBO demandesDataBO : bo.getData()) {
                     ((ObjectNode) data).put(demandesDataBO.getKey(), demandesDataBO.getValue());
                 }
-                dto.setData(data);
             }
+            dto.setData(transformData(data));
         }
 
         ObjectMapper mapper = new ObjectMapper();
         try {
-            dto.setContenu(transform(mapper.readTree(bo.getContenu())));
+            dto.setContenu(transformContenu(mapper.readTree(bo.getContenu())));
         } catch (IOException e) {
             LOGGER.error("Erreur lors de la conversion JSON", e);
         }
@@ -395,10 +397,19 @@ public class DemandeEsTransformer {
         return null;
     }
 
-    private JsonNode transform(JsonNode jsonNode) {
+    private JsonNode transformContenu(JsonNode jsonNode) {
 
         if (indexedDemandeJsonNodeTransformer != null) {
             return indexedDemandeJsonNodeTransformer.transform(jsonNode);
+        }
+
+        return jsonNode;
+    }
+
+    private JsonNode transformData(JsonNode jsonNode) {
+
+        if (indexedDemandeDataJsonNodeTransformer != null) {
+            return indexedDemandeDataJsonNodeTransformer.transform(jsonNode);
         }
 
         return jsonNode;

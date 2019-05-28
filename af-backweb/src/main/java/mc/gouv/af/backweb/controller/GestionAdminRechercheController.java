@@ -11,9 +11,9 @@ import org.springframework.web.servlet.ModelAndView;
 @Controller
 @RequestMapping("/gestion/adminrecherche")
 @Secured("ROLE_PARAMETRAGE")
-public class AdminRechercheController {
+public class GestionAdminRechercheController {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(AdminRechercheController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GestionAdminRechercheController.class);
 
     @RequestMapping(method = RequestMethod.GET)
     public ModelAndView form() throws Exception {

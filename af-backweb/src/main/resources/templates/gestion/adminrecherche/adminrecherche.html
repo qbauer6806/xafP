@@ -383,8 +383,56 @@
 		
 			var tableProperties = $('#datatable-search-properties').DataTable(configurationDataTableFacets);
 		
-			$("#datatable-search-properties").on('change', "input[type='checkbox']", function(e) {
+			
 		
+			function equals(val1, val2) {
+				if ((val1 == null && val2 == "") || (val1 == "" && val2 == null))
+					return true;
+				else
+					return val1 == val2;
+			}
+		
+			var changedProperties = [];
+			
+			function checkSavePropertiesButton()
+			{
+				if (typeof changedProperties !== 'undefined' && changedProperties.length > 0) {
+					$("#savePropertiesButton").removeAttr("disabled");
+				} else {
+					$("#savePropertiesButton").attr("disabled", true);
+				}
+			}
+			
+			function checkPropertiesToUpdate(that)
+			{
+				var rowData = tableProperties.row($(that).parents('tr')).data();
+				
+				var id = that.name.replace(/\./g, '');
+				var propLabel = tableProperties.$('#' + id + 'Label')[0].value;
+				var catId = tableProperties.$('#' + id + 'Category')[0].value;
+				var enabled = tableProperties.$('#' + id + 'Check').is(":checked");
+		
+				var propIndex = changedProperties.indexOf(that.name);
+		
+				if (propIndex === -1 && (!equals(propLabel, rowData.label) || !equals(catId, rowData.categoryId) || enabled !== rowData.enabled)) {
+					changedProperties.push(that.name);
+					$(that).parents("tr").addClass("updated-value");
+				}
+				if (propIndex !== -1 && equals(propLabel, rowData.label) && equals(catId, rowData.categoryId) && enabled == rowData.enabled) {
+					changedProperties.splice(propIndex, 1);
+					$(that).parents("tr").removeClass("updated-value");
+				}
+			}
+			
+			$("#datatable-search-properties").on('keyup', "input,select", function(e) {
+		
+				checkPropertiesToUpdate(this);
+				checkSavePropertiesButton();
+			});
+		
+			
+			$("#datatable-search-properties").on('change', "input[type='checkbox']", function(e) {
+				
 				if (this.labels[0].innerText === "Actif") {
 					this.labels[0].innerText = "Inactif";
 				} else {
@@ -395,41 +443,16 @@
 					var idComplement = "complement" + this.name.replace(/\./g, '') + "Check";
 					$("#" + idComplement).removeAttr("disabled").click().attr("disabled", true);
 				}
+				
+				checkPropertiesToUpdate(this);
+				checkSavePropertiesButton();
 		
 		
 			});
+			
+			
 		
-			function equals(val1, val2) {
-				if ((val1 == null && val2 == "") || (val1 == "" && val2 == null))
-					return true;
-				else
-					return val1 == val2;
-			}
-		
-			var changedProperties = [];
-			$("#datatable-search-properties").on('change', "input,select", function(e) {
-		
-				var rowData = tableProperties.row($(this).parents('tr')).data();
-		
-				var id = this.name.replace(/\./g, '');
-				var propLabel = tableProperties.$('#' + id + 'Label')[0].value;
-				var catId = tableProperties.$('#' + id + 'Category')[0].value;
-				var enabled = tableProperties.$('#' + id + 'Check').is(":checked");
-		
-				var propIndex = changedProperties.indexOf(this.name);
-		
-				if (propIndex === -1 && (!equals(propLabel, rowData.label) || !equals(catId, rowData.categoryId) || enabled !== rowData.enabled)) {
-					changedProperties.push(this.name);
-					$(this).parents("tr").addClass("updated-value");
-				}
-				if (propIndex !== -1 && equals(propLabel, rowData.label) && equals(catId, rowData.categoryId) && enabled == rowData.enabled) {
-					changedProperties.splice(propIndex, 1);
-					$(this).parents("tr").removeClass("updated-value");
-				}
-				console.log(this);
-			});
-		
-		
+			
 		
 		
 		
@@ -548,7 +571,17 @@
 		
 		
 			var changedCategories = [];
-			$("#datatable-categories").on('change', "input", function(e) {
+			
+			function checkSaveCatButton()
+			{
+				if (typeof changedCategories !== 'undefined' && changedCategories.length > 0) {
+					$("#saveCatButton").removeAttr("disabled");
+				} else {
+					$("#saveCatButton").attr("disabled", true);
+				}
+			}
+			
+			$("#datatable-categories").on('keyup', "input", function(e) {
 		
 				var catId = Number(this.name);
 		
@@ -559,11 +592,14 @@
 				if (catIndex === -1 && rowData.label !== categoryValue) {
 					changedCategories.push(catId);
 					$(this).parents("tr").addClass("updated-value");
+					
 				}
 				if (catIndex !== -1 && rowData.label == categoryValue) {
 					changedCategories.splice(catIndex, 1);
 					$(this).parents("tr").removeClass("updated-value");
 				}
+				
+				checkSaveCatButton();
 		
 			});
 		
@@ -669,25 +705,11 @@
 		
 			});
 		
-			$("#datatable-categories").on('change', "tr", function(e) {
-		
-				if (typeof changedCategories !== 'undefined' && changedCategories.length > 0) {
-					$("#saveCatButton").removeAttr("disabled");
-				} else {
-					$("#saveCatButton").attr("disabled", true);
-				}
-			});
+			
+			
 		
 		
-			$("#datatable-search-properties").on('change', "tr", function(e) {
-		
-				if (typeof changedProperties !== 'undefined' && changedProperties.length > 0) {
-					$("#savePropertiesButton").removeAttr("disabled");
-				} else {
-					$("#savePropertiesButton").attr("disabled", true);
-				}
-		
-			});
+			
 		
 		
 		

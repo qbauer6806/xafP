@@ -304,9 +304,9 @@
 
 				<div class="row">
 					<div class="col-xs-12">
-						<div  th:insert="demandes/demandetable"></div>
-						
-						
+						<div th:insert="demandes/demandetable"></div>
+
+
 					</div>
 				</div>
 
@@ -422,6 +422,10 @@
 	
 			configurationDataTable.ajax.data = buildSearchDatafunction;
 	
+			if(typeof searchDefaultSort !== 'undefined' )
+			{
+				configurationDataTable.order = searchDefaultSort;	
+			}
 			var table = $('#datatable-demandes').DataTable(configurationDataTable);
 	
 			$('#tousModeTr').click(function(e) {

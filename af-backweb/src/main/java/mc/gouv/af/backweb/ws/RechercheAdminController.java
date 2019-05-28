@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -30,6 +31,7 @@ import mc.gouv.af.backweb.controller.AbstractController;
 import mc.gouv.xboot.config.web.annotation.GouvRestController;
 
 @GouvRestController
+@Secured("ROLE_CONFIGURATION")
 @RequestMapping("/ws/admin/")
 @Conditional(IndexationEnabledCondition.class)
 public class RechercheAdminController extends AbstractController {

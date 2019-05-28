@@ -91,32 +91,27 @@
 						<div class="menuContent">Utilisateurs</div>
 				</a></li>
 
-				<li th:class="${pageParametresActive} ? 'active' : ''"
-					sec:authorize="hasRole('ROLE_PARAMETRAGE')"><a
-					href="javascript:void(0);">
-						<div class="contentTooltip">
-							<span class="greyTooltip" data-toggle="tooltip"
-								data-placement="right" title=""
-								data-original-title="Configuration"></span>
-						</div>
-						<div class="iconContent">
-							<i class="icon icon-menu_parametres"></i>
-						</div>
-						<div class="menuContent">Configuration</div> <span
-						class="icon-action_suivant"></span>
+				
 
-				</a>
-					<ul class="" style="left: 40px; display: none;">
-						<li><a th:href="@{/gestion/parametres}">
-								<div class="whiteBullet"></div> Paramètres
-						</a></li>
-						<li><a th:href="@{/gestion/adminrecherche}">
-								<div class="whiteBullet"></div> Administration de la recherche
-								avancée
-						</a></li>
-					</ul></li>
-
-
+				<li th:class="${pageParametresActive} ? 'active' : ''" sec:authorize="hasRole('ROLE_PARAMETRAGE')" >
+	               <a th:href="@{/gestion/parametres}">
+	               		<div class="contentTooltip">
+	               			<span class="greyTooltip" data-toggle="tooltip" data-placement="right" title="" data-original-title="Paramètres"></span>
+	               		</div>
+	               		<div class="iconContent"><i class="icon icon-menu_parametres"></i></div>
+                        <div class="menuContent">Paramètres</div>
+                   </a>
+	            </li>
+	            
+	           <li th:class="${pageConfigurationActive} ? 'active' : ''" sec:authorize="hasRole('ROLE_CONFIGURATION')" >
+	               <a th:href="@{/gestion/adminrecherche}">
+	               		<div class="contentTooltip">
+	               			<span class="greyTooltip" data-toggle="tooltip" data-placement="right" title="" data-original-title="Configuration"></span>
+	               		</div>
+	               		<div class="iconContent"><i class="icon icon-menu_parametres"></i></div>
+                        <div class="menuContent">Configuration</div>
+                   </a>
+	            </li>
 
 
 				<li th:class="${pageAideActive} ? 'active' : ''"><a

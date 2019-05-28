@@ -10,7 +10,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @RequestMapping("/gestion/adminrecherche")
-@Secured("ROLE_PARAMETRAGE")
+@Secured("ROLE_CONFIGURATION")
 public class GestionAdminRechercheController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GestionAdminRechercheController.class);

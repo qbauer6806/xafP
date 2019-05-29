@@ -59,8 +59,9 @@
 			<div class="breadcrumbContent">
 				<div class="breadcrumb">
 					<span> <a th:href="@{/}" class="breadcrumb-item active">Accueil</a>&nbsp;&gt;&nbsp;
-						<a th:href="@{/gestion/adminrecherche}" class="breadcrumb-item active">Administration
-							de la recherche avancée</a> &gt;
+						<a th:href="@{/gestion/adminrecherche}"
+						class="breadcrumb-item active">Administration de la recherche
+							avancée</a> &gt;
 					</span>
 				</div>
 				<div class="triangleTopright"></div>
@@ -72,19 +73,21 @@
 						id="addCategoryButton" class="btn btn-action ripple-effect ">
 				</div>
 				<div class="text-right col-md-9">
-	
-				
-				
-					<a th:href="@{/ws/admin/export}" id="exportConfigButton" style="float: right; margin-left:10px"
-							class="btn btn-action ripple-effect pull-right"><i
-							class="icon-action_telecharger"></i> <span>Exporter</span></a>
-					<input type="submit" value="Valider l'import" style="float: right; margin-left:10px" id="submitImportConfigButtonButton"
-									class="btn btn-action ripple-effect pull-right" />
-									
-					<input type="file" value="Importer"  style="margin-left:10px"
-									id="importConfigButtonButton"  accept=".json"
-									class="btn btn-action ripple-effect pull-right" />
-								
+
+
+
+					<a th:href="@{/ws/admin/export}" id="exportConfigButton"
+						style="float: right; margin-left: 10px"
+						class="btn btn-action ripple-effect pull-right"><i
+						class="icon-action_telecharger"></i> <span>Exporter</span></a> <input
+						type="submit" value="Valider l'import"
+						style="float: right; margin-left: 10px"
+						id="submitImportConfigButtonButton"
+						class="btn btn-action ripple-effect pull-right" /> <input
+						type="file" value="Importer" style="margin-left: 10px"
+						id="importConfigButtonButton" accept=".json"
+						class="btn btn-action ripple-effect pull-right" />
+
 
 
 				</div>
@@ -204,8 +207,11 @@
 									<h1>Ajouter une catégorie</h1>
 								</div>
 								<div class="row">
-									<div class="form-group" style="visibility: hidden; display: none;" id="addCategoryMsgDiv">
-										<p id="catErrorMessage" class="bg-danger" style="padding: 15px; "></p>
+									<div class="form-group"
+										style="visibility: hidden; display: none; overflow: visible;"
+										id="addCategoryMsgDiv">
+										<p id="catErrorMessage" class="bg-danger"
+											style="padding: 15px;"></p>
 									</div>
 									<div class="form-group">
 										<label for="libelleCatInput">Catégorie</label> <input
@@ -231,11 +237,10 @@
 
 			<input type="hidden" href="javascript:void(0);" data-type="success"
 				data-delay="5000" data-message="sss" id="successMessage"
-				class="notification" /> 
-			<input type="hidden"
+				class="notification" /> <input type="hidden"
 				href="javascript:void(0);" data-type="danger" data-delay="0"
 				data-message="" id="errorMessage" class="notification" />
-			
+
 
 			<!-- FIN CONTENU -->
 		</div>
@@ -681,25 +686,27 @@
 						xhr.setRequestHeader(header, token);
 					},
 					success : function(data) {
-						$("#successMessage").attr("data-message", "La catégorie a été supprimée avec succès").click();
+					
 						tableCategories.ajax.reload(null, true);
 						tableProperties.$("select option[value='" + categoryToDelete + "']").remove();
 						categoryToDelete = null;
 						$.fancybox.close();
+						$("#successMessage").attr("data-message", "La catégorie a été supprimée avec succès").click();
 		
 					},
 					error : function(xhr) {
 		
 						var error = jQuery.parseJSON(xhr.responseText);
-						$("#errorMessage").attr("data-message", "Un problème est survenu lors de la suppression de la catégorie: " + error.message).click();
-						console.log("failed to submit : " + error);
+						$("#errorMessage").attr("data-message", "Un problème est survenu lors de la suppression de la catégorie: " + error.message);
 						$.fancybox.close();
+						$("#errorMessage").click();
+						console.log("failed to submit : " + error);
 					}
 				});
 		
 			});
 		
-			$("#cancelDeleteCategoryButton, #cancelSaveCategoriesButton, #cancelSavePropertiesButton").click(function() {
+			$("#cancelDeleteCategoryButton, #cancelSaveCategoriesButton, #cancelAddCategoryConfirmButton, #cancelSavePropertiesButton").click(function() {
 		
 				$.fancybox.close();
 		
@@ -707,28 +714,22 @@
 		
 			
 			
-		
-		
-			$("#cancelAddCategoryConfirmButton").click(function() {
-				
-				$("#libelleCatInput").val('');
-				$("#addCategoryMsgDiv").css("visibility","hidden").css("display","none");
-				$.fancybox.close();
-		
-			});
-			
-		
-		
 		
 			$("#addCategoryButton").click(function() {
 		
+				$("#libelleCatInput").val('');
+				$("#addCategoryMsgDiv").css("visibility","hidden").css("display","none");
+				
 				$.fancybox.open($("#addCategoryPanel"),
 					{
 						autoSize : false,
 						width : "40%",
 						height : "auto"
+						
+					
 					});
 			});
+		
 		
 		
 		
@@ -743,16 +744,17 @@
 						xhr.setRequestHeader(header, token);
 					},
 					success : function(data) {
-						$("#successMessage").attr("data-message", "La catégorie a été enregistrée avec succès").click();
-						console.log("Success" + data);
 						tableCategories.ajax.reload(null, true);
 						tableProperties.$("select").append($('<option/>', {
 							value : data.id,
 							text : data.label
 						}));
+						
+						$("#successMessage").attr("data-message", "La catégorie a été enregistrée avec succès");
 						$("#libelleCatInput").val('');
 						$("#addCategoryMsgDiv").css("visibility","hidden").css("display","none");
 						$.fancybox.close();
+						$("#successMessage").click();
 						
 		
 					},

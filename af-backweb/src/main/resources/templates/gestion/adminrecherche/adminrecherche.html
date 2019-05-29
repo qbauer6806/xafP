@@ -208,10 +208,10 @@
 								</div>
 								<div class="row">
 									<div class="form-group"
-										style="visibility: hidden; display: none; overflow: visible;"
+									style="overflow: visible;"
 										id="addCategoryMsgDiv">
 										<p id="catErrorMessage" class="bg-danger"
-											style="padding: 15px;"></p>
+											style="padding: 15px;visibility: hidden; display: none;"></p>
 									</div>
 									<div class="form-group">
 										<label for="libelleCatInput">Catégorie</label> <input
@@ -236,8 +236,8 @@
 			</div>
 
 			<input type="hidden" href="javascript:void(0);" data-type="success"
-				data-delay="5000" data-message="sss" id="successMessage"
-				class="notification" /> <input type="hidden"
+				data-delay="5000" data-message="" id="successMessage" class="notification"
+				 /> <input type="hidden"
 				href="javascript:void(0);" data-type="danger" data-delay="0"
 				data-message="" id="errorMessage" class="notification" />
 
@@ -502,7 +502,7 @@
 						xhr.setRequestHeader(header, token);
 					},
 					success : function(data) {
-						$("#successMessage").attr("data-message", "La configuration a été enregistrée avec succès").click();
+						$("#successMessage").data("message", "La configuration a été enregistrée avec succès").click();
 						console.log("Success" + data);
 						changedProperties = [];
 						tableProperties.ajax.reload(null, true);
@@ -510,8 +510,7 @@
 		
 					},
 					error : function(e) {
-						$("#errorMessage").attr("data-message", "Un problème est survenu lors de l'enregistrement de la configuration");
-						$("#errorMessage").click();
+						$("#errorMessage").data("message", "Un problème est survenu lors de l'enregistrement de la configuration").click();
 						console.log("failed to submit : " + e);
 					}
 				});
@@ -643,7 +642,7 @@
 						xhr.setRequestHeader(header, token);
 					},
 					success : function(categories) {
-						$("#successMessage").attr("data-message", "Les catégories ont bien été mis à jour avec succès").click();
+						$("#successMessage").data("message", "Les catégories ont bien été mis à jour avec succès").click();
 						console.log("Success" + categories);
 						categories.forEach(function(category) {
 							tableProperties.$("select option[value='" + category.id + "']").text(category.label);
@@ -654,7 +653,7 @@
 					},
 					error : function(xhr) {
 						var error = jQuery.parseJSON(xhr.responseText);
-						$("#errorMessage").attr("data-message", "Un problème est survenu lors de la mise à jour des catégories: " + error.message).click();
+						$("#errorMessage").data("message", "Un problème est survenu lors de la mise à jour des catégories: " + error.message).click();
 						console.log("failed to submit : " + error);
 					}
 				});
@@ -691,15 +690,14 @@
 						tableProperties.$("select option[value='" + categoryToDelete + "']").remove();
 						categoryToDelete = null;
 						$.fancybox.close();
-						$("#successMessage").attr("data-message", "La catégorie a été supprimée avec succès").click();
+						$("#successMessage").data("message", "La catégorie a été supprimée avec succès").click();
 		
 					},
 					error : function(xhr) {
 		
 						var error = jQuery.parseJSON(xhr.responseText);
-						$("#errorMessage").attr("data-message", "Un problème est survenu lors de la suppression de la catégorie: " + error.message);
+						$("#errorMessage").data("message", "Un problème est survenu lors de la suppression de la catégorie: " + error.message).click();
 						$.fancybox.close();
-						$("#errorMessage").click();
 						console.log("failed to submit : " + error);
 					}
 				});
@@ -718,7 +716,7 @@
 			$("#addCategoryButton").click(function() {
 		
 				$("#libelleCatInput").val('');
-				$("#addCategoryMsgDiv").css("visibility","hidden").css("display","none");
+				$("#catErrorMessage").css("visibility","hidden").css("display","none");
 				
 				$.fancybox.open($("#addCategoryPanel"),
 					{
@@ -750,18 +748,17 @@
 							text : data.label
 						}));
 						
-						$("#successMessage").attr("data-message", "La catégorie a été enregistrée avec succès");
+						$("#successMessage").data("message", "La catégorie a été enregistrée avec succès").click();
 						$("#libelleCatInput").val('');
-						$("#addCategoryMsgDiv").css("visibility","hidden").css("display","none");
+						$("#catErrorMessage").css("visibility","hidden").css("display","none");
 						$.fancybox.close();
-						$("#successMessage").click();
 						
 		
 					},
 					error : function(xhr) {
 						var error = jQuery.parseJSON(xhr.responseText);
 						
-						$("#addCategoryMsgDiv").css("visibility","visible").css("display","block");
+						$("#catErrorMessage").css("visibility","visible").css("display","block");
 						
 						$("#catErrorMessage").text("Un problème est survenu lors de l'enregistrement de la catégorie: " + error.message);
 						console.log("failed to submit : " + error);
@@ -774,7 +771,7 @@
 				
 				 if($("#importConfigButtonButton").val() === '')
 				 {
-					 $("#errorMessage").attr("data-message", "Le fichier à importer est obligatoire").click();
+					 $("#errorMessage").data("message", "Le fichier à importer est obligatoire").click();
 				 }
 				 else
 					 {
@@ -792,14 +789,14 @@
 				        data: formdata,                         
 				        type: 'post',
 				        success: function(message){
-				        	$("#successMessage").attr("data-message", message).click();
+				        	$("#successMessage").data("message", message).click();
 				        	tableCategories.ajax.reload(null, true);
 				        	tableProperties.ajax.reload(null, true);
 				        	$("#importConfigButtonButton").val('');
 				        },
 						error : function(xhr) {
 							var error = jQuery.parseJSON(xhr.responseText);
-							$("#errorMessage").attr("data-message", "Un problème est survenu lors de l'import de la configuration: " + error.message).click();
+							$("#errorMessage").data("message", "Un problème est survenu lors de l'import de la configuration: " + error.message).click();
 						}
 				     });}
 			});

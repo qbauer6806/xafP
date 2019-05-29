@@ -594,13 +594,6 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     }
 
-    /**
-     * Méthode permettant d'envoyer une demande au topic afin de l'indexer
-     * 
-     * @param demandeDTO demande à indexer
-     * 
-     * @see mc.gouv.af.back.service.IndexedDemandeService#sendToTopic(mc.gouv.dem.shared.model.DemandeDTO)
-     */
     @Override
     public void sendToTopic(DemandeDTO demandeDTO, boolean indexFiles)
             throws IOException, SAXException, TikaException, JMSException {
@@ -622,6 +615,45 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             }
 
             demandeJmsService.send(new DemandeEsJmsDto(demandeEsDTO, files), JMSActionEnum.SAVE);
+        }
+
+    }
+
+    /**
+     * @see mc.gouv.af.back.service.IndexedDemandeService#sendToTopic(mc.gouv.dem.shared.model.DemandeFileDTO, java.lang.String, java.lang.String)
+     */
+    @Override
+    public void sendToTopic(DemandeFileDTO demandeFileDTO, String demarcheId, String demandeId)
+            throws IOException, SAXException, TikaException, JMSException {
+
+        if (demandeFileDTO != null) {
+
+            DemandeFileEsDTO demandeFileEsDTO = getFileEsContent(demarcheId, demandeId,
+                    DemandeFileEsDTO.TYPE.PIECE_JOINTE, demandeFileDTO);
+
+            List<DemandeFileEsDTO> demFileEsDtoList = new ArrayList<>();
+            demFileEsDtoList.add(demandeFileEsDTO);
+
+            demandeJmsService.send(new DemandeEsJmsDto(null, demFileEsDtoList), JMSActionEnum.SAVE);
+        }
+
+    }
+
+    /**
+     * @see mc.gouv.af.back.service.IndexedDemandeService#sendToTopic(mc.gouv.dem.shared.model.DemandeFileDTO, java.lang.String, java.lang.String)
+     */
+    @Override
+    public void sendToTopic(DemandeFileDTO[] demandeFileDTOList, String demarcheId, String demandeId)
+            throws IOException, SAXException, TikaException, JMSException {
+
+        if (demandeFileDTOList != null) {
+
+            List<DemandeFileEsDTO> demFileEsDtoList = new ArrayList<>();
+            for (DemandeFileDTO file : demandeFileDTOList) {
+                demFileEsDtoList.add(getFileEsContent(demarcheId, demandeId, DemandeFileEsDTO.TYPE.PIECE_JOINTE, file));
+            }
+
+            demandeJmsService.send(new DemandeEsJmsDto(null, demFileEsDtoList), JMSActionEnum.SAVE);
         }
 
     }
@@ -1407,11 +1439,12 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     /**
      * Méthode permettant de sauvgarder une demande et de l'indexer
+     * @throws Exception 
      * 
      * @see mc.gouv.dem.service.impl.DemandesServiceImpl#saveDemande(mc.gouv.dem.shared.model.DemandeDTO, java.lang.String)
      */
     @Override
-    public DemandeDTO saveDemande(DemandeDTO demande, String premierStatut) throws IOException, SAXException {
+    public DemandeDTO saveDemande(DemandeDTO demande, String premierStatut) throws Exception {
 
         DemandeDTO demandeDto = super.saveDemande(demande, premierStatut);
         try {

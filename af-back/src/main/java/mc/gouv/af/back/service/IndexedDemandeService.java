@@ -20,6 +20,7 @@ import mc.gouv.dem.data.entity.DemandeBO;
 import mc.gouv.dem.service.DemandesService;
 import mc.gouv.dem.service.model.DemandeRechercheDTO;
 import mc.gouv.dem.shared.model.DemandeDTO;
+import mc.gouv.dem.shared.model.DemandeFileDTO;
 
 /**
  * Interface définissant le contrat du service d'indexation
@@ -112,6 +113,36 @@ public interface IndexedDemandeService extends DemandesService {
      * @throws JMSException Exception lors de l'envoi de la demande au topic
      */
     void sendToTopic(DemandeDTO demandeDTO, boolean indexFiles)
+            throws IOException, SAXException, TikaException, JMSException;
+
+    /**
+     * Méthode permettant d'envoyer un fichier au topic afin d'être indexer
+     * 
+     * @param demandeFileDTO DTO du fichier à indexer
+     * @param demarcheId Identifiant de la démarche
+     * @param demandeId Identifiant de la demande
+     * 
+     * @throws IOException Exception I/O
+     * @throws SAXException Exception SAX
+     * @throws TikaException Exception du parsing de la piece jointe
+     * @throws JMSException Exception lors de l'envoi de la demande au topic
+     */
+    void sendToTopic(DemandeFileDTO demandeFileDTO, String demarcheId, String demandeId)
+            throws IOException, SAXException, TikaException, JMSException;
+
+    /**
+     * Méthode permettant d'envoyer un fichier au topic afin d'être indexer
+     * 
+     * @param demandeFileDTOList DTOs des fichier à indexer
+     * @param demarcheId Identifiant de la démarche
+     * @param demandeId Identifiant de la demande
+     * 
+     * @throws IOException Exception I/O
+     * @throws SAXException Exception SAX
+     * @throws TikaException Exception du parsing de la piece jointe
+     * @throws JMSException Exception lors de l'envoi de la demande au topic
+     */
+    void sendToTopic(DemandeFileDTO[] demandeFileDTOList, String demarcheId, String demandeId)
             throws IOException, SAXException, TikaException, JMSException;
 
     /**

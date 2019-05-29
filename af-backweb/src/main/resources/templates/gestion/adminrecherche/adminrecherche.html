@@ -202,13 +202,12 @@
 					</div>
 					<div id="addCategoryPanel" style="display: none">
 						<form>
-							<div class="container-fluid">
+							<div class="container-fluid" >
 								<div class="row">
 									<h1>Ajouter une catégorie</h1>
 								</div>
 								<div class="row">
 									<div class="form-group"
-									style="overflow: visible;"
 										id="addCategoryMsgDiv">
 										<p id="catErrorMessage" class="bg-danger"
 											style="padding: 15px;visibility: hidden; display: none;"></p>
@@ -750,7 +749,7 @@
 						
 						$("#successMessage").data("message", "La catégorie a été enregistrée avec succès").click();
 						$("#libelleCatInput").val('');
-						$("#catErrorMessage").css("visibility","hidden").css("display","none");
+						$("#catErrorMessage").css("visibility","hidden").css("display","none");						
 						$.fancybox.close();
 						
 		
@@ -758,9 +757,10 @@
 					error : function(xhr) {
 						var error = jQuery.parseJSON(xhr.responseText);
 						
-						$("#catErrorMessage").css("visibility","visible").css("display","block");
-						
 						$("#catErrorMessage").text("Un problème est survenu lors de l'enregistrement de la catégorie: " + error.message);
+						$("#catErrorMessage").css("visibility","visible").css("display","block");
+						$.fancybox.update();
+						
 						console.log("failed to submit : " + error);
 					}
 				});

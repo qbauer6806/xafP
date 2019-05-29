@@ -9,6 +9,7 @@ import java.util.Optional;
 
 import javax.ws.rs.BadRequestException;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Service;
@@ -144,16 +145,18 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
     @Override
     public EsCategory addCategory(String label) {
 
-        if (label != null) {
-            RechercheCatConfigBo catBo = rechercheCatConfigRepository.findByLibelle(label);
-            if (catBo != null) {
-                throw new CategoryAlreadyExist("La catégorie " + label + " existe dejà");
-            }
-
-            RechercheCatConfigBo newCatBo = rechercheCatConfigRepository.save(new RechercheCatConfigBo(label, true));
-            return new EsCategory(newCatBo.getId(), newCatBo.getLibelle(), true);
+        if (StringUtils.isBlank(label)) {
+            throw new IllegalArgumentException("Le libellé de la catégorie ne peut pas être vide");
         }
-        return null;
+
+        RechercheCatConfigBo catBo = rechercheCatConfigRepository.findByLibelle(label);
+        if (catBo != null) {
+            throw new CategoryAlreadyExist("La catégorie " + label + " existe dejà");
+        }
+
+        RechercheCatConfigBo newCatBo = rechercheCatConfigRepository.save(new RechercheCatConfigBo(label, true));
+
+        return new EsCategory(newCatBo.getId(), newCatBo.getLibelle(), true);
     }
 
     @Override

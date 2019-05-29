@@ -204,7 +204,9 @@
 									<h1>Ajouter une catégorie</h1>
 								</div>
 								<div class="row">
-
+									<div class="form-group" style="visibility: hidden; display: none;" id="addCategoryMsgDiv">
+										<p id="catErrorMessage" class="bg-danger" style="padding: 15px; "></p>
+									</div>
 									<div class="form-group">
 										<label for="libelleCatInput">Catégorie</label> <input
 											class="form-control" id="libelleCatInput">
@@ -679,8 +681,7 @@
 						xhr.setRequestHeader(header, token);
 					},
 					success : function(data) {
-						$("#successMessage").attr("data-message", "La catégorie a été supprimer avec succès").click();
-						console.log("Success" + data);
+						$("#successMessage").attr("data-message", "La catégorie a été supprimée avec succès").click();
 						tableCategories.ajax.reload(null, true);
 						tableProperties.$("select option[value='" + categoryToDelete + "']").remove();
 						categoryToDelete = null;
@@ -690,7 +691,6 @@
 					error : function(xhr) {
 		
 						var error = jQuery.parseJSON(xhr.responseText);
-		
 						$("#errorMessage").attr("data-message", "Un problème est survenu lors de la suppression de la catégorie: " + error.message).click();
 						console.log("failed to submit : " + error);
 						$.fancybox.close();
@@ -699,7 +699,7 @@
 		
 			});
 		
-			$("#cancelDeleteCategoryButton, #cancelSaveCategoriesButton, #cancelAddCategoryConfirmButton, #cancelSavePropertiesButton").click(function() {
+			$("#cancelDeleteCategoryButton, #cancelSaveCategoriesButton, #cancelSavePropertiesButton").click(function() {
 		
 				$.fancybox.close();
 		
@@ -709,8 +709,14 @@
 			
 		
 		
-			
+			$("#cancelAddCategoryConfirmButton").click(function() {
+				
+				$("#libelleCatInput").val('');
+				$("#addCategoryMsgDiv").css("visibility","hidden").css("display","none");
+				$.fancybox.close();
 		
+			});
+			
 		
 		
 		
@@ -744,12 +750,18 @@
 							value : data.id,
 							text : data.label
 						}));
+						$("#libelleCatInput").val('');
+						$("#addCategoryMsgDiv").css("visibility","hidden").css("display","none");
 						$.fancybox.close();
+						
 		
 					},
 					error : function(xhr) {
 						var error = jQuery.parseJSON(xhr.responseText);
-						$("#errorMessage").attr("data-message", "Un problème est survenu lors de l'enregistrement de la catégorie: " + error.message).click();
+						
+						$("#addCategoryMsgDiv").css("visibility","visible").css("display","block");
+						
+						$("#catErrorMessage").text("Un problème est survenu lors de l'enregistrement de la catégorie: " + error.message);
 						console.log("failed to submit : " + error);
 					}
 				});

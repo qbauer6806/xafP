@@ -2,6 +2,7 @@ package mc.gouv.af.back.service.impl;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,6 +68,7 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
                 || p.getName().startsWith(DemandeEsDTO.JOIN_FIELD_NAME));
         Map<String, EsProperty> complementsFichiersPropertiesMap = addComplementsFichiersDemandeProperties(properties);
         List<EsCategory> categories = getCategories();
+        Collections.sort(categories);
         for (EsProperty property : properties) {
             RechercheChampConfigBo champBo = champsMap.get(property.getName());
             if (champBo != null) {

@@ -1,6 +1,6 @@
 package mc.gouv.af.back.data.es.model;
 
-public class EsCategory {
+public class EsCategory implements Comparable<EsCategory> {
 
     private Integer id;
     private String label;
@@ -44,6 +44,19 @@ public class EsCategory {
 
     public void setEditable(boolean editable) {
         this.editable = editable;
+    }
+
+    @Override
+    public int compareTo(EsCategory o) {
+
+        if (o == null) {
+            return -1;
+        }
+        if (this.label == null) {
+            return 1;
+        }
+
+        return this.label.compareTo(o.getLabel());
     }
 
 }

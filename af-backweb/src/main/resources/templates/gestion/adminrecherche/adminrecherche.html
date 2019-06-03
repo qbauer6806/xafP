@@ -435,6 +435,13 @@
 				checkPropertiesToUpdate(this);
 				checkSavePropertiesButton();
 			});
+			
+			
+			$("#datatable-search-properties").on('change', "select", function(e) {
+				
+				checkPropertiesToUpdate(this);
+				checkSavePropertiesButton();
+			});
 		
 			
 			$("#datatable-search-properties").on('change', "input[type='checkbox']", function(e) {

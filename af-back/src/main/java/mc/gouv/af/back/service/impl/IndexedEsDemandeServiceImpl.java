@@ -282,7 +282,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     }
 
     /**
-     * Méthode permettant d'initialiser les propriétés elasticsearch sur lesquels on va faire la recherche
+     * Méthode permettant d'initialiser les propriétés elasticsearch sur lesquelles on va faire la recherche
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override

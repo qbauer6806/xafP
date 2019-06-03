@@ -236,6 +236,18 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             }
         }
 
+        initMappingProperties(true);
+
+    }
+
+    /**
+     * Méthode permettant de supprimer tous les properties chargées
+     */
+    private void clearProperties() {
+        demandesProperties.clear();
+        filesProperties.clear();
+        demandesPropertiesWithBoost.clear();
+        filesPropertiesWithBoost.clear();
     }
 
     /**
@@ -277,6 +289,11 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     public synchronized void initMappingProperties(boolean reload) {
 
         Map<String, Map> mapping = getMapping(indexAlias, DemandeEsDTO.INDEX_TYPE);
+
+        if (reload) {
+            clearProperties();
+        }
+
         if (demandesProperties.isEmpty() || reload) {
             initMappingProperties(demandesProperties, mapping, demandesFieldsToExclude, false);
             initMappingPropertiesMap(demandesProperties, demandesPropertiesWithBoost);

@@ -313,6 +313,9 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
                     rechercheChampConfigRepository.save(champConfig);
                 }
             }
+
+            indexedDemandeService.loadPropertiesToExclude();
+            rechercheDynamicJSService.createJsFile();
         }
 
     }

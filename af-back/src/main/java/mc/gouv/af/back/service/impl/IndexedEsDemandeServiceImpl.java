@@ -307,7 +307,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     }
 
     /**
-     * Méthode permettant d'initialiser une map des propriétés sur lesquels on va faire la recherche avec le boost correspondant
+     * Méthode permettant d'initialiser une map des propriétés sur lesquelles on va faire la recherche avec le boost correspondant
      * 
      * @param properties Liste des propriétés
      * @param propertiesWithBoost Map avec le boost à initialiser

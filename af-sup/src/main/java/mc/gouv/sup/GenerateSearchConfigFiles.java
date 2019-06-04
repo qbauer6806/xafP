@@ -270,7 +270,7 @@ public class GenerateSearchConfigFiles {
                     if (champ != null) {
 
                         String champType = champ.get(RECAP_CHAMP_TYPE).toString();
-                        if (champType.toString().equals(RecapChampType.ADRESSE.getType())) {
+                        if (champType.equals(RecapChampType.ADRESSE.getType())) {
                             buildJsonProperty(champ, contenu, mapper, RECAP_CHAMP_ADRESSE_LIGNE1);
                             buildJsonProperty(champ, contenu, mapper, RECAP_CHAMP_ADRESSE_LIGNE2);
                             buildJsonProperty(champ, contenu, mapper, RECAP_CHAMP_ADRESSE_LIGNE3);

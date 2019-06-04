@@ -17,9 +17,10 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.MissingNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * 
@@ -41,6 +42,67 @@ public class GenerateSearchConfigFiles {
     private static final String DEFAULT_SQL_CONF_FILE_PATH = "./src/main/resources/default-config.sql";
     private static final String ES_TEMPLATE_FILE_PATH = "./src/main/resources/ts-es-schema.json";
     private static final String ES_TEMPLATE_CHANGE_ME_TAG = "//CHANGE_ME";
+    private static final String FALSE = "false";
+    private static final String TRUE = "true";
+    private static final String PROPERTIES_ES_NODE_NAME = "properties";
+    private static final String ES_PROPERTY_TYPE = "type";
+    private static final String RECAP_CHAMP_TYPE = "type";
+    private static final String RECAP_CHAMP_ADRESSE_LIGNE1 = "ligne1";
+    private static final String RECAP_CHAMP_ADRESSE_LIGNE2 = "ligne2";
+    private static final String RECAP_CHAMP_ADRESSE_LIGNE3 = "ligne3";
+    private static final String RECAP_CHAMP_ADRESSE_CP = "codePostal";
+    private static final String RECAP_CHAMP_ADRESSE_VILLE = "ville";
+    private static final String RECAP_CHAMP_ADRESSE_PAYS = "pays";
+
+    private static final Path destSqlFilePath = Paths.get(
+            MessageFormat.format(DEST_SQL_FILE_PATH, new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date())));
+
+    enum EsType {
+
+        TEXT("text"),
+        KEYWORD("keyword"),
+        DATE("date");
+
+        private String type;
+
+        private EsType(String type) {
+            this.type = type;
+        }
+
+        public String getType() {
+            return type;
+        }
+
+    }
+
+    enum RecapChampType {
+
+        CHAINE("chaine"),
+        CHOIX("choix"),
+        DATE("date"),
+        ADRESSE("adresse");
+
+        private String type;
+
+        private RecapChampType(String type) {
+            this.type = type;
+        }
+
+        public static RecapChampType getFromType(String type) {
+            if (type != null) {
+                for (RecapChampType recapChampType : values()) {
+                    if (type.equals(recapChampType.getType())) {
+                        return recapChampType;
+                    }
+                }
+            }
+            return null;
+        }
+
+        public String getType() {
+            return type;
+        }
+    }
 
     public static void main(String[] args) throws Exception {
 
@@ -57,25 +119,13 @@ public class GenerateSearchConfigFiles {
         LOGGER.info("Chemin du fichier à parser: {0}", path);
         LOGGER.info("Schéma de la base de données: {0}", schema);
 
-        generateSqlScript(path, schema);
-        generateElasticSearchMappings(path, schema);
+        generateConfigFiles(path, schema);
 
     }
 
-    /**
-     * Méthode permettant de générer le fichier sql contenant les requetes insert de la configuration des champs et des catégories à partir du front
-     * 
-     * @param path Chemin du fichier à parser
-     * @param schema Schéma de la base de données
-     * @throws Exception Exception declenchée si le fichier json ne contient pas de sections
-     */
-    @SuppressWarnings({ "unchecked" })
-    private static void generateSqlScript(String path, String schema) throws Exception {
-
-        LOGGER.info(
-                "Début de la génération du fichier SQL de la configuration des champs et des catégories de la recherche avancée...");
-        Path destFilePath = Paths.get(MessageFormat.format(DEST_SQL_FILE_PATH,
-                new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date())));
+    @SuppressWarnings("unchecked")
+    private static void generateConfigFiles(String path, String schema) throws Exception {
+        LOGGER.info("Début de la génération des fichiers de configuration de la recherche avancée...");
 
         byte[] mapData = Files.readAllBytes(Paths.get(path));
 
@@ -88,54 +138,67 @@ public class GenerateSearchConfigFiles {
 
                     List<LinkedHashMap<String, Object>> sectionsList = (List<LinkedHashMap<String, Object>>) recap
                             .get("sections");
-                    if (recap.get("sections") == null) {
+                    if (sectionsList == null) {
                         throw new Exception("Le fichier recap ne contient pas les sections");
+                    } else {
+                        generateSqlScript(sectionsList, schema);
+                        generateElasticSearchMappings(sectionsList, schema);
                     }
-                    if (sectionsList != null) {
-                        List<String> categoriesQueries = new ArrayList<>();
-                        List<String> champsQueries = new ArrayList<>();
-                        for (LinkedHashMap<String, Object> section : sectionsList) {
-
-                            categoriesQueries.add(MessageFormat.format(INSERT_CATEGORY_REQUEST_TEMPLATE, schema,
-                                    getColumnValue(section.get("titre")), "false"));
-                            List<LinkedHashMap<String, Object>> champs = (List<LinkedHashMap<String, Object>>) section
-                                    .get("champs");
-                            if (champs != null) {
-                                for (LinkedHashMap<String, Object> champ : champs) {
-
-                                    if (champ.get("type").toString().equals("adresse")) {
-                                        fillAdressesQueries(champsQueries, champ, getColumnValue(section.get("titre")),
-                                                schema);
-                                    } else {
-                                        champsQueries.add(MessageFormat.format(INSERT_CHAMP_REQUEST_TEMPLATE, schema,
-                                                "true", getColumnValue(champ.get("path")),
-                                                getColumnValue(champ.get("label")),
-                                                getColumnValue(section.get("titre")), "false"));
-                                    }
-
-                                }
-                            }
-
-                        }
-                        Files.write(destFilePath,
-                                Arrays.asList("--Requête générées depuis la moulinette à partir des données du front"),
-                                StandardOpenOption.CREATE);
-                        Files.write(destFilePath, categoriesQueries, StandardOpenOption.APPEND);
-                        Files.write(destFilePath, champsQueries, StandardOpenOption.APPEND);
-
-                    }
-
-                    byte[] encodedDefaultScript = Files.readAllBytes(Paths.get(DEFAULT_SQL_CONF_FILE_PATH));
-                    String defaultScript = new String(encodedDefaultScript);
-                    defaultScript = MessageFormat.format(defaultScript, schema);
-                    Files.write(destFilePath, Arrays.asList("--Configuration par défaut"), StandardOpenOption.APPEND);
-                    Files.write(destFilePath, Arrays.asList(defaultScript), StandardOpenOption.APPEND);
-
-                    LOGGER.info("Script Sql généré avec succès dans " + destFilePath.toFile().getAbsolutePath());
 
                 }
             }
         }
+    }
+
+    /**
+     * Méthode permettant de générer le fichier sql contenant les requetes insert de la configuration des champs et des catégories à partir du front
+     * 
+     * @param sectionsList Liste des sections
+     * @param schema Schéma de la base de données
+     * @throws IOException Exception Input/Output
+     */
+    @SuppressWarnings({ "unchecked" })
+    private static void generateSqlScript(List<LinkedHashMap<String, Object>> sectionsList, String schema)
+            throws IOException {
+
+        LOGGER.info(
+                "Début de la génération du fichier SQL de la configuration des champs et des catégories de la recherche avancée...");
+
+        List<String> categoriesQueries = new ArrayList<>();
+        List<String> champsQueries = new ArrayList<>();
+        for (LinkedHashMap<String, Object> section : sectionsList) {
+
+            categoriesQueries.add(MessageFormat.format(INSERT_CATEGORY_REQUEST_TEMPLATE, schema,
+                    getColumnValue(section.get("titre")), FALSE));
+            List<LinkedHashMap<String, Object>> champs = (List<LinkedHashMap<String, Object>>) section.get("champs");
+            if (champs != null) {
+                for (LinkedHashMap<String, Object> champ : champs) {
+
+                    if (champ.get("type").toString().equals("adresse")) {
+                        fillAdressesQueries(champsQueries, champ, getColumnValue(section.get("titre")), schema);
+                    } else {
+                        champsQueries.add(MessageFormat.format(INSERT_CHAMP_REQUEST_TEMPLATE, schema, TRUE,
+                                getColumnValue(champ.get("path")), getColumnValue(champ.get("label")),
+                                getColumnValue(section.get("titre")), FALSE));
+                    }
+
+                }
+            }
+
+        }
+        Files.write(destSqlFilePath,
+                Arrays.asList("--Requête générées depuis la moulinette à partir des données du front"),
+                StandardOpenOption.CREATE);
+        Files.write(destSqlFilePath, categoriesQueries, StandardOpenOption.APPEND);
+        Files.write(destSqlFilePath, champsQueries, StandardOpenOption.APPEND);
+
+        byte[] encodedDefaultScript = Files.readAllBytes(Paths.get(DEFAULT_SQL_CONF_FILE_PATH));
+        String defaultScript = new String(encodedDefaultScript);
+        defaultScript = MessageFormat.format(defaultScript, schema);
+        Files.write(destSqlFilePath, Arrays.asList("--Configuration par défaut"), StandardOpenOption.APPEND);
+        Files.write(destSqlFilePath, Arrays.asList(defaultScript), StandardOpenOption.APPEND);
+
+        LOGGER.info("Script Sql généré avec succès dans " + destSqlFilePath.toFile().getAbsolutePath());
 
     }
 
@@ -160,59 +223,150 @@ public class GenerateSearchConfigFiles {
      * @param category Catégorie du champ (section)
      * @param schema Schema de la base de données
      */
-    @SuppressWarnings("rawtypes")
     private static void fillAdressesQueries(List<String> champsQueries, LinkedHashMap<String, Object> champ,
             String category, String schema) {
         if (champsQueries == null) {
-            champsQueries = new ArrayList();
+            champsQueries = new ArrayList<>();
         }
 
-        champsQueries.add(MessageFormat.format(INSERT_CHAMP_REQUEST_TEMPLATE, schema, "true",
-                getColumnValue(champ.get("ligne1")), "Adresse ligne 1", getColumnValue(category), "false"));
-        champsQueries.add(MessageFormat.format(INSERT_CHAMP_REQUEST_TEMPLATE, schema, "true",
-                getColumnValue(champ.get("ligne2")), "Adresse ligne 2", getColumnValue(category), "false"));
-        champsQueries.add(MessageFormat.format(INSERT_CHAMP_REQUEST_TEMPLATE, schema, "true",
-                getColumnValue(champ.get("ligne3")), "Adresse ligne 3", getColumnValue(category), "false"));
-        champsQueries.add(MessageFormat.format(INSERT_CHAMP_REQUEST_TEMPLATE, schema, "true",
-                getColumnValue(champ.get("codePostal")), "Code postal", getColumnValue(category), "false"));
-        champsQueries.add(MessageFormat.format(INSERT_CHAMP_REQUEST_TEMPLATE, schema, "true",
-                getColumnValue(champ.get("ville")), "Ville", getColumnValue(category), "false"));
-        champsQueries.add(MessageFormat.format(INSERT_CHAMP_REQUEST_TEMPLATE, schema, "true",
-                getColumnValue(champ.get("pays")), "Pays", getColumnValue(category), "false"));
+        champsQueries.add(MessageFormat.format(INSERT_CHAMP_REQUEST_TEMPLATE, schema, TRUE,
+                getColumnValue(champ.get(RECAP_CHAMP_ADRESSE_LIGNE1)), "Adresse ligne 1", getColumnValue(category),
+                FALSE));
+        champsQueries.add(MessageFormat.format(INSERT_CHAMP_REQUEST_TEMPLATE, schema, TRUE,
+                getColumnValue(champ.get(RECAP_CHAMP_ADRESSE_LIGNE2)), "Adresse ligne 2", getColumnValue(category),
+                FALSE));
+        champsQueries.add(MessageFormat.format(INSERT_CHAMP_REQUEST_TEMPLATE, schema, TRUE,
+                getColumnValue(champ.get(RECAP_CHAMP_ADRESSE_LIGNE3)), "Adresse ligne 3", getColumnValue(category),
+                FALSE));
+        champsQueries.add(MessageFormat.format(INSERT_CHAMP_REQUEST_TEMPLATE, schema, TRUE,
+                getColumnValue(champ.get(RECAP_CHAMP_ADRESSE_CP)), "Code postal", getColumnValue(category), FALSE));
+        champsQueries.add(MessageFormat.format(INSERT_CHAMP_REQUEST_TEMPLATE, schema, TRUE,
+                getColumnValue(champ.get(RECAP_CHAMP_ADRESSE_VILLE)), "Ville", getColumnValue(category), FALSE));
+        champsQueries.add(MessageFormat.format(INSERT_CHAMP_REQUEST_TEMPLATE, schema, TRUE,
+                getColumnValue(champ.get(RECAP_CHAMP_ADRESSE_PAYS)), "Pays", getColumnValue(category), FALSE));
     }
 
     /**
      * Méthode permettant de génrer le fichier de mappings d'elasticsearch
      * 
-     * @param path Chemin du fichier à parser
-     * @throws JsonProcessingException Exception déclenchée si il ya des problèmes de parsing json
+     * @param sectionsList Liste des sections
+     * @param appName Nom de l'application
      * @throws IOException Exception Input/Output
      */
-    private static void generateElasticSearchMappings(String path, String schema)
-            throws JsonProcessingException, IOException {
+    @SuppressWarnings("unchecked")
+    private static void generateElasticSearchMappings(List<LinkedHashMap<String, Object>> sectionsList, String appName)
+            throws IOException {
 
         LOGGER.info("Début de la génération du mapping elasticsearch...");
-        Path destFilePath = Paths.get(MessageFormat.format(DEST_ES_MAPPINGS_FILE_PATH, schema));
-
         ObjectMapper mapper = new ObjectMapper();
-        JsonNode rootEsMappingsTemplateNode = mapper.readTree(Paths.get(path).toFile());
-        for (JsonNode recap : rootEsMappingsTemplateNode) {
-            if (recap.get("name").asText().equals(SECTION_TO_PARSE)) {
-                byte[] encodedJsonTemplate = Files.readAllBytes(Paths.get(ES_TEMPLATE_FILE_PATH));
-                String jsonTemplate = new String(encodedJsonTemplate);
-                String parsedMapping = recap.get("elasticMappings").toString().replaceFirst("\\{", "");
-                int curlybraceLastIndex = parsedMapping.lastIndexOf("}");
-                parsedMapping = new StringBuilder(parsedMapping)
-                        .replace(curlybraceLastIndex, curlybraceLastIndex + 1, "").append(",").toString();
-                jsonTemplate = jsonTemplate.replace(ES_TEMPLATE_CHANGE_ME_TAG, parsedMapping);
-                jsonTemplate = mapper.writerWithDefaultPrettyPrinter()
-                        .writeValueAsString(mapper.readValue(jsonTemplate.getBytes(), Object.class));
-                Files.write(destFilePath, Arrays.asList(jsonTemplate), StandardOpenOption.CREATE);
-                LOGGER.info(
-                        "Mappings elasticsearch généré avec succès dans " + destFilePath.toFile().getAbsolutePath());
+        ObjectNode contenu = mapper.createObjectNode();
+        Path destEsMappingsFilePath = Paths.get(MessageFormat.format(DEST_ES_MAPPINGS_FILE_PATH, appName));
+
+        for (LinkedHashMap<String, Object> section : sectionsList) {
+
+            List<LinkedHashMap<String, Object>> champs = (List<LinkedHashMap<String, Object>>) section.get("champs");
+            if (champs != null) {
+                for (LinkedHashMap<String, Object> champ : champs) {
+                    if (champ != null) {
+
+                        String champType = champ.get(RECAP_CHAMP_TYPE).toString();
+                        if (champType.toString().equals(RecapChampType.ADRESSE.getType())) {
+                            buildJsonProperty(champ, contenu, mapper, RECAP_CHAMP_ADRESSE_LIGNE1);
+                            buildJsonProperty(champ, contenu, mapper, RECAP_CHAMP_ADRESSE_LIGNE2);
+                            buildJsonProperty(champ, contenu, mapper, RECAP_CHAMP_ADRESSE_LIGNE3);
+                            buildJsonProperty(champ, contenu, mapper, RECAP_CHAMP_ADRESSE_CP);
+                            buildJsonProperty(champ, contenu, mapper, RECAP_CHAMP_ADRESSE_VILLE);
+                            buildJsonProperty(champ, contenu, mapper, RECAP_CHAMP_ADRESSE_PAYS);
+                        } else {
+                            buildJsonProperty(champ, contenu, mapper, "path");
+
+                        }
+                    }
+
+                }
             }
+
         }
 
+        byte[] encodedJsonTemplate = Files.readAllBytes(Paths.get(ES_TEMPLATE_FILE_PATH));
+        String jsonTemplate = new String(encodedJsonTemplate);
+        String parsedMapping = contenu.toString().replaceFirst("\\{", "");
+        int curlybraceLastIndex = parsedMapping.lastIndexOf("}");
+        parsedMapping = new StringBuilder(parsedMapping).replace(curlybraceLastIndex, curlybraceLastIndex + 1, "")
+                .append(",").toString();
+        jsonTemplate = jsonTemplate.replace(ES_TEMPLATE_CHANGE_ME_TAG, parsedMapping);
+        jsonTemplate = mapper.writerWithDefaultPrettyPrinter()
+                .writeValueAsString(mapper.readValue(jsonTemplate.getBytes(), Object.class));
+        Files.write(destEsMappingsFilePath, Arrays.asList(jsonTemplate), StandardOpenOption.CREATE);
+        LOGGER.info(
+                "Mappings elasticsearch généré avec succès dans " + destEsMappingsFilePath.toFile().getAbsolutePath());
+
+    }
+
+    /**
+     * Méthode permettant de générer le json d'un propriété elasticsearch
+     * 
+     * @param champ Champ du fichier récapitulatif du front
+     * @param contenu Noeud json à alimenter avec le contenu de la propriété
+     * @param mapper Mapper jackson
+     * @param esMappingsKey Clé du fichier récapitulatif du front contenant le chemin le propriété
+     */
+    private static void buildJsonProperty(LinkedHashMap<String, Object> champ, ObjectNode contenu, ObjectMapper mapper,
+            String esMappingsKey) {
+        String[] champProperties = champ.get(esMappingsKey).toString().split("\\.");
+        ObjectNode node = contenu;
+        if (champProperties != null && champProperties.length > 0) {
+
+            for (int i = 0; i <= champProperties.length - 1; i++) {
+
+                if (i == champProperties.length - 1) {
+                    ObjectNode leafNode = mapper.createObjectNode();
+                    String esType = getEsType(champ.get(RECAP_CHAMP_TYPE).toString());
+                    leafNode.put(ES_PROPERTY_TYPE, esType);
+                    if (esType != null && esType.equals(EsType.TEXT.getType())) {
+                        ObjectNode keyword = mapper.createObjectNode();
+                        ObjectNode keywordField = mapper.createObjectNode();
+                        keyword.put(ES_PROPERTY_TYPE, EsType.KEYWORD.getType());
+                        keyword.put("ignore_above", 256);
+                        keywordField.set("keyword", keyword);
+                        leafNode.set("fields", keywordField);
+                    }
+                    leafNode.put("analyzer", "default");
+                    leafNode.put("search_analyzer", "default_search");
+                    node.set(champProperties[i], leafNode);
+                } else {
+                    if (isMissingNode(node.get(champProperties[i]))) {
+                        ObjectNode propertiesNode = mapper.createObjectNode();
+                        propertiesNode.set(PROPERTIES_ES_NODE_NAME, mapper.createObjectNode());
+                        node.set(champProperties[i], propertiesNode);
+                    }
+
+                    node = (ObjectNode) node.get(champProperties[i]).get(PROPERTIES_ES_NODE_NAME);
+
+                }
+
+            }
+        }
+    }
+
+    private static String getEsType(String type) {
+        switch (RecapChampType.getFromType(type)) {
+            case CHAINE:
+                return EsType.TEXT.getType();
+            case CHOIX:
+                return EsType.TEXT.getType();
+            case ADRESSE:
+                return EsType.TEXT.getType();
+            case DATE:
+                return EsType.DATE.getType();
+            default:
+                return null;
+
+        }
+    }
+
+    private static boolean isMissingNode(JsonNode node) {
+        return node == null || node instanceof MissingNode;
     }
 
 }

@@ -53,6 +53,7 @@ public class GenerateSearchConfigFiles {
     private static final String RECAP_CHAMP_ADRESSE_CP = "codePostal";
     private static final String RECAP_CHAMP_ADRESSE_VILLE = "ville";
     private static final String RECAP_CHAMP_ADRESSE_PAYS = "pays";
+    private static final String RECAP_CHAMP_PATH = "path";
 
     private static final Path destSqlFilePath = Paths.get(
             MessageFormat.format(DEST_SQL_FILE_PATH, new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date())));
@@ -174,11 +175,11 @@ public class GenerateSearchConfigFiles {
             if (champs != null) {
                 for (LinkedHashMap<String, Object> champ : champs) {
 
-                    if (champ.get("type").toString().equals("adresse")) {
+                    if (champ.get(RECAP_CHAMP_TYPE).toString().equals(RecapChampType.ADRESSE.getType())) {
                         fillAdressesQueries(champsQueries, champ, getColumnValue(section.get("titre")), schema);
                     } else {
                         champsQueries.add(MessageFormat.format(INSERT_CHAMP_REQUEST_TEMPLATE, schema, TRUE,
-                                getColumnValue(champ.get("path")), getColumnValue(champ.get("label")),
+                                getColumnValue(champ.get(RECAP_CHAMP_PATH)), getColumnValue(champ.get("label")),
                                 getColumnValue(section.get("titre")), FALSE));
                     }
 
@@ -278,7 +279,7 @@ public class GenerateSearchConfigFiles {
                             buildJsonProperty(champ, contenu, mapper, RECAP_CHAMP_ADRESSE_VILLE);
                             buildJsonProperty(champ, contenu, mapper, RECAP_CHAMP_ADRESSE_PAYS);
                         } else {
-                            buildJsonProperty(champ, contenu, mapper, "path");
+                            buildJsonProperty(champ, contenu, mapper, RECAP_CHAMP_PATH);
 
                         }
                     }

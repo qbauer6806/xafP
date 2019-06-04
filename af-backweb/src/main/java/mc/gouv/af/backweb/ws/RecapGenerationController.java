@@ -205,7 +205,7 @@ public class RecapGenerationController {
 		}
 		else if (type.equals("date")) {
 			JsonNode node0 = getNode(node,champ,"path");
-			if (node0 == null || node0 instanceof NullNode) {
+			if (node0 == null || node0 instanceof NullNode || StringUtils.isBlank(node0.asText())) {
 				return null;
 			}
 			Date date = new Date(OffsetDateTime.parse(node0.asText()).toInstant().toEpochMilli());

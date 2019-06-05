@@ -141,8 +141,8 @@ public class GenerateSearchConfigFiles {
             }
         }
 
-        LOGGER.info("Chemin du fichier à parser: {0}", path);
-        LOGGER.info("Schéma de la base de données: {0}", schema);
+        LOGGER.info("Chemin du fichier à parser: {}", path);
+        LOGGER.info("Schéma de la base de données: {}", schema);
 
         generateConfigFiles(path, schema);
 

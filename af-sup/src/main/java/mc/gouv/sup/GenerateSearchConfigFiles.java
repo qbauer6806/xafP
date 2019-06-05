@@ -58,6 +58,7 @@ public class GenerateSearchConfigFiles {
     private static final String RECAP_CHAMP_ADRESSE_VILLE = "ville";
     private static final String RECAP_CHAMP_ADRESSE_PAYS = "pays";
     private static final String RECAP_CHAMP_PATH = "path";
+    private static final String LOG_SEPARATOR = "-------------------------------------------------------------------------------------------------------------";
 
     private static final Path destSqlFilePath = Paths.get(
             MessageFormat.format(DEST_SQL_FILE_PATH, new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date())));
@@ -143,7 +144,6 @@ public class GenerateSearchConfigFiles {
 
         LOGGER.info("Chemin du fichier à parser: {}", path);
         LOGGER.info("Schéma de la base de données: {}", schema);
-
         generateConfigFiles(path, schema);
 
     }
@@ -230,7 +230,9 @@ public class GenerateSearchConfigFiles {
         Files.write(destSqlFilePath, Arrays.asList("--Configuration par défaut"), StandardOpenOption.APPEND);
         Files.write(destSqlFilePath, Arrays.asList(defaultScript), StandardOpenOption.APPEND);
 
+        LOGGER.info(LOG_SEPARATOR);
         LOGGER.info("Script Sql généré avec succès dans " + destSqlFilePath.toFile().getAbsolutePath());
+        LOGGER.info(LOG_SEPARATOR);
 
     }
 
@@ -342,8 +344,10 @@ public class GenerateSearchConfigFiles {
         jsonTemplate = mapper.writerWithDefaultPrettyPrinter()
                 .writeValueAsString(mapper.readValue(jsonTemplate.getBytes(), Object.class));
         Files.write(destEsMappingsFilePath, Arrays.asList(jsonTemplate), StandardOpenOption.CREATE);
+        LOGGER.info(LOG_SEPARATOR);
         LOGGER.info(
                 "Mappings elasticsearch généré avec succès dans " + destEsMappingsFilePath.toFile().getAbsolutePath());
+        LOGGER.info(LOG_SEPARATOR);
 
     }
 

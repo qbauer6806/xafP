@@ -195,7 +195,7 @@
 					"analyzer": "default",
 					"search_analyzer": "default_search"
 				},
-				//CHANGE_ME
+				//CHANGE_ME_CONTENU
 				"courrierDateReception": {
 					"type": "date"
 				},
@@ -221,6 +221,7 @@
 					"analyzer": "default",
 					"search_analyzer": "default_search"
 				},
+				//CHANGE_ME_DATA
 				"dateCreation": {
 					"type": "date"
 				},

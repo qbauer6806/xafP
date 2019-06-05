@@ -100,48 +100,20 @@ public class RecapGenerationController {
 					html += "<div class=\"sectiondemande\"><h3>" + section.get("titre") + "</h3><dl>";
 					
 					String sectionType = (String)section.get("type");
-					if (sectionType.equals("champs")) {
-						JSONArray champs = (JSONArray)section.get("champs");
-						for (int j = 0; j < champs.size(); j++) {
-							JSONObject champ = (JSONObject)champs.get(j);
-							String type = (String)champ.get("type");
-							if (type.equals("adresse")) {
-								html += getHTML(demande.getContenu(), champ, demande.getBuildId());
-							}
-							else {
-								String value = getHTML(demande.getContenu(), champ, demande.getBuildId());
-								if (!StringUtils.isBlank(value)) {
-									html += "<dd><span>"+ champ.get("label") + "</span></dd>";
-									html += "<dt><span>" + value + "</span></dt>";
-								}
-							}
-						}
-					}
-					else if (sectionType.equals("tableau")) {
-						html += "<table id=\"datatable-demandes\" class=\"table table-striped\">";
-						JSONArray columns = (JSONArray)section.get("columns");
-						html += "<thead><tr>";
-						for (Object column : columns.toArray()) {
-							html += "<th>" + ((JSONObject)column).get("label") + "</th>";
-						}
-						html += "</tr></thead>";
-						ArrayNode valeurs = (ArrayNode)getNode(demande.getContenu(),section,"path");
-						Iterator<JsonNode> it = valeurs.elements();
-						html += "<tbody>";
-						while (it.hasNext()) {
-							JsonNode valeur = it.next();
-							html += "<tr>";
-							for (Object column : columns.toArray()) {
-								String value = getHTML(valeur,(JSONObject)column, demande.getBuildId());
-								html += "<td>" + (value == null ? "" : value) + "</td>";
-							}
-							html += "</tr>";
-						}
-						html += "</tbody>";
-						html += "</table>";
-					}
-					else if (sectionType.equals("adresse")) {
+
+					html = getFirstLevelHTML(html, demande, sectionType, section);
+					
+					if (sectionType.equals("adresse")) {
 						html += "<dd><span>Adresse</span></dd>";
+					}
+					else if (sectionType.equals("sousSections")) {
+						System.out.println("hop!");
+						JSONArray sousSections = (JSONArray)section.get("sousSections");
+						for (Object sousSection : sousSections.toArray()) {
+							String sousSectionType = (String)((JSONObject)sousSection).get("type");
+							html += ((JSONObject)sousSection).get("introHtml");
+							html = getFirstLevelHTML(html, demande, sousSectionType, (JSONObject)sousSection);
+						}
 					}
 					
 					html += "</dl></div>";
@@ -152,7 +124,51 @@ public class RecapGenerationController {
 		return html;
 	}
 	
-	private String getHTML(JsonNode node, JSONObject champ, String buildId) throws ClassNotFoundException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
+	private String getFirstLevelHTML(String html, DemandeDTO demande, String sectionType, JSONObject section) throws ClassNotFoundException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
+		if (sectionType.equals("champs")) {
+			JSONArray champs = (JSONArray)section.get("champs");
+			for (int j = 0; j < champs.size(); j++) {
+				JSONObject champ = (JSONObject)champs.get(j);
+				String type = (String)champ.get("type");
+				if (type.equals("adresse")) {
+					html += getSecondLevelHTML(demande.getContenu(), champ, demande.getBuildId());
+				}
+				else {
+					String value = getSecondLevelHTML(demande.getContenu(), champ, demande.getBuildId());
+					if (!StringUtils.isBlank(value)) {
+						html += "<dd><span>"+ champ.get("label") + "</span></dd>";
+						html += "<dt><span>" + value + "</span></dt>";
+					}
+				}
+			}
+		}
+		else if (sectionType.equals("tableau")) {
+			html += "<table id=\"datatable-demandes\" class=\"table table-striped\">";
+			JSONArray columns = (JSONArray)section.get("columns");
+			html += "<thead><tr>";
+			for (Object column : columns.toArray()) {
+				html += "<th>" + ((JSONObject)column).get("label") + "</th>";
+			}
+			html += "</tr></thead>";
+			ArrayNode valeurs = (ArrayNode)getNode(demande.getContenu(),section,"path");
+			Iterator<JsonNode> it = valeurs.elements();
+			html += "<tbody>";
+			while (it.hasNext()) {
+				JsonNode valeur = it.next();
+				html += "<tr>";
+				for (Object column : columns.toArray()) {
+					String value = getSecondLevelHTML(valeur,(JSONObject)column, demande.getBuildId());
+					html += "<td>" + (value == null ? "" : value) + "</td>";
+				}
+				html += "</tr>";
+			}
+			html += "</tbody>";
+			html += "</table>";
+		}
+		return html;
+	}
+	
+	private String getSecondLevelHTML(JsonNode node, JSONObject champ, String buildId) throws ClassNotFoundException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
 		String type = (String)champ.get("type");
 		if (type.equals("chaine") || type.equals("texte")) {
 			JsonNode node0 = getNode(node,champ,"path");

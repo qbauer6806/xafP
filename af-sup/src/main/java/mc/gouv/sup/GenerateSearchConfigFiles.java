@@ -10,15 +10,18 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.MissingNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -41,7 +44,8 @@ public class GenerateSearchConfigFiles {
     private static final String DEST_ES_MAPPINGS_FILE_PATH = "./target/{0}-es-schema.json";
     private static final String DEFAULT_SQL_CONF_FILE_PATH = "./src/main/resources/default-config.sql";
     private static final String ES_TEMPLATE_FILE_PATH = "./src/main/resources/ts-es-schema.json";
-    private static final String ES_TEMPLATE_CHANGE_ME_TAG = "//CHANGE_ME";
+    private static final String ES_TEMPLATE_CHANGE_ME_CONTENU_TAG = "//CHANGE_ME_CONTENU";
+    private static final String ES_TEMPLATE_CHANGE_ME_DATA_TAG = "//CHANGE_ME_DATA";
     private static final String FALSE = "false";
     private static final String TRUE = "true";
     private static final String PROPERTIES_ES_NODE_NAME = "properties";
@@ -57,6 +61,7 @@ public class GenerateSearchConfigFiles {
 
     private static final Path destSqlFilePath = Paths.get(
             MessageFormat.format(DEST_SQL_FILE_PATH, new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date())));
+    private static Map<String, String> datas = new HashMap<>();
 
     enum EsType {
 
@@ -65,6 +70,17 @@ public class GenerateSearchConfigFiles {
         DATE("date");
 
         private String type;
+
+        public static EsType getFromType(String type) {
+            if (type != null) {
+                for (EsType estype : values()) {
+                    if (type.equals(estype.getType())) {
+                        return estype;
+                    }
+                }
+            }
+            return null;
+        }
 
         private EsType(String type) {
             this.type = type;
@@ -97,7 +113,7 @@ public class GenerateSearchConfigFiles {
                     }
                 }
             }
-            return null;
+            return CHAINE;
         }
 
         public String getType() {
@@ -117,6 +133,14 @@ public class GenerateSearchConfigFiles {
 
         String path = args[0];
         String schema = args[1];
+
+        if (args.length > 2) {
+            for (int i = 2; i < args.length; i++) {
+                String[] dataKeyValue = args[i].split(":");
+                datas.put("data." + dataKeyValue[0], dataKeyValue[1]);
+            }
+        }
+
         LOGGER.info("Chemin du fichier à parser: {0}", path);
         LOGGER.info("Schéma de la base de données: {0}", schema);
 
@@ -124,14 +148,21 @@ public class GenerateSearchConfigFiles {
 
     }
 
+    /**
+     * 
+     * Méthode permettant de générer les fichiers de configuration de la recherche avancée
+     * @param path Chemin du fichier récapitulatif à parser
+     * @param schema Schéma de la base de données
+     * @throws Exception Exception suite à la génération des fichiers de configuration
+     */
     @SuppressWarnings("unchecked")
     private static void generateConfigFiles(String path, String schema) throws Exception {
         LOGGER.info("Début de la génération des fichiers de configuration de la recherche avancée...");
 
-        byte[] mapData = Files.readAllBytes(Paths.get(path));
+        byte[] recapMapData = Files.readAllBytes(Paths.get(path));
 
         ObjectMapper objectMapper = new ObjectMapper();
-        List<Map<String, Object>> listRecap = objectMapper.readValue(mapData, ArrayList.class);
+        List<Map<String, Object>> listRecap = objectMapper.readValue(recapMapData, ArrayList.class);
 
         if (listRecap != null) {
             for (Map<String, Object> recap : listRecap) {
@@ -272,14 +303,22 @@ public class GenerateSearchConfigFiles {
 
                         String champType = champ.get(RECAP_CHAMP_TYPE).toString();
                         if (champType.equals(RecapChampType.ADRESSE.getType())) {
-                            buildJsonProperty(champ, contenu, mapper, RECAP_CHAMP_ADRESSE_LIGNE1);
-                            buildJsonProperty(champ, contenu, mapper, RECAP_CHAMP_ADRESSE_LIGNE2);
-                            buildJsonProperty(champ, contenu, mapper, RECAP_CHAMP_ADRESSE_LIGNE3);
-                            buildJsonProperty(champ, contenu, mapper, RECAP_CHAMP_ADRESSE_CP);
-                            buildJsonProperty(champ, contenu, mapper, RECAP_CHAMP_ADRESSE_VILLE);
-                            buildJsonProperty(champ, contenu, mapper, RECAP_CHAMP_ADRESSE_PAYS);
+
+                            buildJsonProperty(getPropertiesAsArray(champ, RECAP_CHAMP_ADRESSE_LIGNE1), champType,
+                                    contenu, mapper, RECAP_CHAMP_ADRESSE_LIGNE1);
+                            buildJsonProperty(getPropertiesAsArray(champ, RECAP_CHAMP_ADRESSE_LIGNE2), champType,
+                                    contenu, mapper, RECAP_CHAMP_ADRESSE_LIGNE2);
+                            buildJsonProperty(getPropertiesAsArray(champ, RECAP_CHAMP_ADRESSE_LIGNE3), champType,
+                                    contenu, mapper, RECAP_CHAMP_ADRESSE_LIGNE3);
+                            buildJsonProperty(getPropertiesAsArray(champ, RECAP_CHAMP_ADRESSE_CP), champType, contenu,
+                                    mapper, RECAP_CHAMP_ADRESSE_CP);
+                            buildJsonProperty(getPropertiesAsArray(champ, RECAP_CHAMP_ADRESSE_VILLE), champType,
+                                    contenu, mapper, RECAP_CHAMP_ADRESSE_VILLE);
+                            buildJsonProperty(getPropertiesAsArray(champ, RECAP_CHAMP_ADRESSE_PAYS), champType, contenu,
+                                    mapper, RECAP_CHAMP_ADRESSE_PAYS);
                         } else {
-                            buildJsonProperty(champ, contenu, mapper, RECAP_CHAMP_PATH);
+                            buildJsonProperty(getPropertiesAsArray(champ, RECAP_CHAMP_PATH), champType, contenu, mapper,
+                                    RECAP_CHAMP_PATH);
 
                         }
                     }
@@ -289,13 +328,17 @@ public class GenerateSearchConfigFiles {
 
         }
 
+        ObjectNode data = mapper.createObjectNode();
+
+        for (Entry<String, String> dataEntry : datas.entrySet()) {
+            buildJsonProperty(dataEntry.getKey().split("\\."), dataEntry.getValue(), data, mapper, RECAP_CHAMP_PATH);
+        }
+
         byte[] encodedJsonTemplate = Files.readAllBytes(Paths.get(ES_TEMPLATE_FILE_PATH));
         String jsonTemplate = new String(encodedJsonTemplate);
-        String parsedMapping = contenu.toString().replaceFirst("\\{", "");
-        int curlybraceLastIndex = parsedMapping.lastIndexOf("}");
-        parsedMapping = new StringBuilder(parsedMapping).replace(curlybraceLastIndex, curlybraceLastIndex + 1, "")
-                .append(",").toString();
-        jsonTemplate = jsonTemplate.replace(ES_TEMPLATE_CHANGE_ME_TAG, parsedMapping);
+        jsonTemplate = getJsonFromTemplate(jsonTemplate, contenu, ES_TEMPLATE_CHANGE_ME_CONTENU_TAG);
+        jsonTemplate = getJsonFromTemplate(jsonTemplate, data, ES_TEMPLATE_CHANGE_ME_DATA_TAG);
+        mapper.configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
         jsonTemplate = mapper.writerWithDefaultPrettyPrinter()
                 .writeValueAsString(mapper.readValue(jsonTemplate.getBytes(), Object.class));
         Files.write(destEsMappingsFilePath, Arrays.asList(jsonTemplate), StandardOpenOption.CREATE);
@@ -304,17 +347,30 @@ public class GenerateSearchConfigFiles {
 
     }
 
+    private static String getJsonFromTemplate(String jsonTemplate, ObjectNode node, String tag) {
+        String parsedMapping = node.toString().replaceFirst("\\{", "");
+        int curlybraceLastIndex = parsedMapping.lastIndexOf("}");
+        parsedMapping = new StringBuilder(parsedMapping).replace(curlybraceLastIndex, curlybraceLastIndex + 1, "")
+                .append(",").toString();
+        return jsonTemplate.replace(tag, parsedMapping);
+    }
+
+    private static String[] getPropertiesAsArray(LinkedHashMap<String, Object> champ, String recapPath) {
+        return champ.get(recapPath).toString().split("\\.");
+    }
+
     /**
      * Méthode permettant de générer le json d'un propriété elasticsearch
      * 
-     * @param champ Champ du fichier récapitulatif du front
+     * @param champProperties propriétés du champ du fichier récapitulatif du front
+     * @param champType Type u champ du fichier récapitulatif du front
      * @param contenu Noeud json à alimenter avec le contenu de la propriété
      * @param mapper Mapper jackson
      * @param esMappingsKey Clé du fichier récapitulatif du front contenant le chemin le propriété
      */
-    private static void buildJsonProperty(LinkedHashMap<String, Object> champ, ObjectNode contenu, ObjectMapper mapper,
-            String esMappingsKey) {
-        String[] champProperties = champ.get(esMappingsKey).toString().split("\\.");
+    private static void buildJsonProperty(String[] champProperties, String champType, ObjectNode contenu,
+            ObjectMapper mapper, String esMappingsKey) {
+
         ObjectNode node = contenu;
         if (champProperties != null && champProperties.length > 0) {
 
@@ -322,7 +378,7 @@ public class GenerateSearchConfigFiles {
 
                 if (i == champProperties.length - 1) {
                     ObjectNode leafNode = mapper.createObjectNode();
-                    String esType = getEsType(champ.get(RECAP_CHAMP_TYPE).toString());
+                    String esType = getEsType(champType);
                     leafNode.put(ES_PROPERTY_TYPE, esType);
                     if (esType != null && esType.equals(EsType.TEXT.getType())) {
                         ObjectNode keyword = mapper.createObjectNode();
@@ -331,9 +387,10 @@ public class GenerateSearchConfigFiles {
                         keyword.put("ignore_above", 256);
                         keywordField.set("keyword", keyword);
                         leafNode.set("fields", keywordField);
+                        leafNode.put("analyzer", "default");
+                        leafNode.put("search_analyzer", "default_search");
                     }
-                    leafNode.put("analyzer", "default");
-                    leafNode.put("search_analyzer", "default_search");
+
                     node.set(champProperties[i], leafNode);
                 } else {
                     if (isMissingNode(node.get(champProperties[i]))) {
@@ -351,6 +408,10 @@ public class GenerateSearchConfigFiles {
     }
 
     private static String getEsType(String type) {
+
+        if (EsType.getFromType(type) != null) {
+            return type;
+        }
         switch (RecapChampType.getFromType(type)) {
             case CHAINE:
                 return EsType.TEXT.getType();

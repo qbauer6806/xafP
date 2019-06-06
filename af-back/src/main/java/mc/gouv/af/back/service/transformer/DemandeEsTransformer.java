@@ -32,6 +32,7 @@ import mc.gouv.af.back.data.es.model.DemandeAccessEsDTO;
 import mc.gouv.af.back.data.es.model.DemandeEsDTO;
 import mc.gouv.af.back.data.es.model.DemandeJoinFieldEsDTO;
 import mc.gouv.af.back.data.es.model.DemandeStatutEsDTO;
+import mc.gouv.af.back.service.DemarchesDataProvider;
 import mc.gouv.dem.data.entity.AccessBO;
 import mc.gouv.dem.data.entity.DemandeBO;
 import mc.gouv.dem.data.entity.DemandesCourriersBO;
@@ -78,6 +79,9 @@ public class DemandeEsTransformer {
 
     @Inject
     DemandesStatutsEsTransformer demandesStatutsEsTransformer;
+
+    @Inject
+    DemarchesDataProvider demarchesDataProvider;
 
     private DemandeEsTransformer() {
     }
@@ -155,13 +159,15 @@ public class DemandeEsTransformer {
         demandeEsDTO.setData(transformData(data));
         demandeEsDTO.setDateCreation(demande.getDateCreation());
         demandeEsDTO.setDateDerModif(demande.getDateDerModif());
-        demandeEsDTO.setDernierStatut(demandesStatutsEsTransformer.bo2Dto(demande.getDernierStatut()));
+        demandeEsDTO.setDernierStatut(
+                demandesStatutsEsTransformer.bo2Dto(demande.getDernierStatut(), demande.getPkDemandes()));
 
         demandeEsDTO.setIdentifiant(demande.getIdentifiant());
         demandeEsDTO.setLangue(demande.getLangue());
         demandeEsDTO.setObservations(demande.getObservations());
         demandeEsDTO.setPkDemandes(demande.getPkDemandes());
-        Set<DemandeStatutEsDTO> statuts = demandesStatutsEsTransformer.bo2Dto(demande.getStatuts());
+        Set<DemandeStatutEsDTO> statuts = demandesStatutsEsTransformer.bo2Dto(demande.getStatuts(),
+                demande.getPkDemandes());
         demandeEsDTO.setStatuts(statuts.toArray(new DemandeStatutEsDTO[statuts.size()]));
 
         if (demande.getAgentAffecteId() != null) {
@@ -222,13 +228,14 @@ public class DemandeEsTransformer {
         demandeEsDTO.setData(transformData(data));
         demandeEsDTO.setDateCreation(demandeDTO.getDateCreation());
         demandeEsDTO.setDateDerModif(demandeDTO.getDateDerModif());
-        demandeEsDTO.setDernierStatut(demandesStatutsEsTransformer.toEs(demandeDTO.getDernierStatut()));
+        demandeEsDTO.setDernierStatut(
+                demandesStatutsEsTransformer.toEs(demandeDTO.getDernierStatut(), demandeDTO.getPkDemandes()));
 
         demandeEsDTO.setIdentifiant(demandeDTO.getIdentifiant());
         demandeEsDTO.setLangue(demandeDTO.getLangue());
         demandeEsDTO.setObservations(demandeDTO.getObservations());
         demandeEsDTO.setPkDemandes(demandeDTO.getPkDemandes());
-        demandeEsDTO.setStatuts(demandesStatutsEsTransformer.toEs(demandeDTO.getStatuts()));
+        demandeEsDTO.setStatuts(demandesStatutsEsTransformer.toEs(demandeDTO.getStatuts(), demandeDTO.getPkDemandes()));
         demandeEsDTO.setUpdated(demandeDTO.isUpdated());
 
         if (demandeEsDTO.getAgentAffecteId() != null) {
@@ -319,10 +326,12 @@ public class DemandeEsTransformer {
                 DemandeStatutDTO statutDto = DemandesStatutsTransformer.bo2Dto(statut);
                 // Cacher l'agentId au Front Office
                 statutDto.setAgentId(null);
-                dto.setStatuts(new DemandeStatutEsDTO[] { demandesStatutsEsTransformer.toEs(statutDto) });
+                dto.setStatuts(
+                        new DemandeStatutEsDTO[] { demandesStatutsEsTransformer.toEs(statutDto, bo.getPkDemandes()) });
             } else {
                 // Back Office : tout remonter
-                Set<DemandeStatutEsDTO> statuts = demandesStatutsEsTransformer.bo2Dto(bo.getStatuts());
+                Set<DemandeStatutEsDTO> statuts = demandesStatutsEsTransformer.bo2Dto(bo.getStatuts(),
+                        bo.getPkDemandes());
                 dto.setStatuts(statuts.toArray(new DemandeStatutEsDTO[statuts.size()]));
             }
         }
@@ -334,7 +343,7 @@ public class DemandeEsTransformer {
                 // Cacher l'agentId au Front Office
                 statutDto.setAgentId(null);
             }
-            dto.setDernierStatut(demandesStatutsEsTransformer.toEs(statutDto));
+            dto.setDernierStatut(demandesStatutsEsTransformer.toEs(statutDto, bo.getPkDemandes()));
         }
         // Mapper les courriers
         if (addCourriersField && bo.getCourriers() != null && !bo.getCourriers().isEmpty()) {

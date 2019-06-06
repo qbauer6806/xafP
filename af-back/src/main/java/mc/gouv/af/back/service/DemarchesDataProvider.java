@@ -30,4 +30,6 @@ public interface DemarchesDataProvider {
 
     public String getVersion();
 
+    StatutPublicOuInterneDTO getStatutPublicOuInterne(Integer pkDemande, String statutLibelle);
+
 }

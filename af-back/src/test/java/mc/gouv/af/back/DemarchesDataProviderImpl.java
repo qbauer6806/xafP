@@ -54,5 +54,11 @@ public class DemarchesDataProviderImpl implements DemarchesDataProvider {
         // TODO Auto-generated method stub
         return null;
     }
-    
+
+    @Override
+    public StatutPublicOuInterneDTO getStatutPublicOuInterne(Integer pkDemande, String statutLibelle) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }

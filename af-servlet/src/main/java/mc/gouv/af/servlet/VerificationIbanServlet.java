@@ -1,18 +1,26 @@
 package mc.gouv.af.servlet;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.fluent.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import mc.gouv.af.servlet.dto.TgfApiIbanResponseDTO;
+import mc.gouv.af.servlet.dto.TgfApiIbanResponseErreurDTO;
 import mc.gouv.af.servlet.dto.UsagerInfosDTO;
 import mc.gouv.af.servlet.properties.AfServletGouvPropertiesResolver;
 import mc.gouv.af.servlet.util.AppFactoryServletUtils;
@@ -50,7 +58,25 @@ public class VerificationIbanServlet extends AbstractAfServlet {
             int statusCode = serviceResponse.getStatusLine().getStatusCode();
             response.setStatus(statusCode);
             response.setContentType(serviceResponse.getEntity().getContentType().getValue());
-            IOUtils.copy(serviceResponse.getEntity().getContent(), response.getOutputStream());
+            
+            String responseContent = IOUtils.toString(serviceResponse.getEntity().getContent());
+            if (StringUtils.isBlank(responseContent)) {
+            	IOUtils.copy(serviceResponse.getEntity().getContent(), response.getOutputStream());
+            }
+            else {
+	            ObjectMapper mapper = new ObjectMapper();
+	            TgfApiIbanResponseDTO responsePojo = mapper.readValue(responseContent, TgfApiIbanResponseDTO.class);
+	            List<TgfApiIbanResponseErreurDTO> newErreurList = new ArrayList<TgfApiIbanResponseErreurDTO>();
+	            for (TgfApiIbanResponseErreurDTO erreur : responsePojo.getErreurs()) {
+	            	if (!"mc.gouv.tgf.api.iban.iban.codePaysIbanBicNonCorrespondant".equals(erreur.getCode())) {
+	            		newErreurList.add(erreur);
+	            	}
+	            }
+	            responsePojo.setErreurs(newErreurList.toArray(new TgfApiIbanResponseErreurDTO[newErreurList.size()]));
+	            String newResponse = mapper.writeValueAsString(responsePojo);
+	            
+	            IOUtils.copy(new ByteArrayInputStream(newResponse.getBytes()), response.getOutputStream());
+            }
         } catch (Exception e) {
             response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
             LOGGER.error("Erreur lors de l'appel à l'API TGF", e);

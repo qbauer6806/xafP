@@ -339,7 +339,11 @@ public class GenerateSearchConfigFiles {
         byte[] encodedJsonTemplate = Files.readAllBytes(Paths.get(ES_TEMPLATE_FILE_PATH));
         String jsonTemplate = new String(encodedJsonTemplate);
         jsonTemplate = getJsonFromTemplate(jsonTemplate, contenu, ES_TEMPLATE_CHANGE_ME_CONTENU_TAG);
-        jsonTemplate = getJsonFromTemplate(jsonTemplate, data, ES_TEMPLATE_CHANGE_ME_DATA_TAG);
+        if (!datas.isEmpty()) {
+            jsonTemplate = getJsonFromTemplate(jsonTemplate, data, ES_TEMPLATE_CHANGE_ME_DATA_TAG);
+        } else {
+            jsonTemplate = jsonTemplate.replaceAll(ES_TEMPLATE_CHANGE_ME_DATA_TAG, "");
+        }
         mapper.configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
         jsonTemplate = mapper.writerWithDefaultPrettyPrinter()
                 .writeValueAsString(mapper.readValue(jsonTemplate.getBytes(), Object.class));

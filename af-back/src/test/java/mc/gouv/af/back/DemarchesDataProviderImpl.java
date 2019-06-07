@@ -61,4 +61,10 @@ public class DemarchesDataProviderImpl implements DemarchesDataProvider {
         return null;
     }
 
+    @Override
+    public List<String> getFichiersInternesMetas() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }

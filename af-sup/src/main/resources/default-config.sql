@@ -5,6 +5,7 @@ INSERT INTO {0}.dem_recherche_cat_config (libelle, editable) VALUES (''Dernier s
 INSERT INTO {0}.dem_recherche_cat_config (libelle, editable) VALUES (''Usager'', ''true'');
 INSERT INTO {0}.dem_recherche_cat_config (libelle, editable) VALUES (''Pièce(s) jointe(s)'', ''true'');
 INSERT INTO {0}.dem_recherche_cat_config (libelle, editable) VALUES (''Complément de demande'', ''true'');
+INSERT INTO {0}.dem_recherche_cat_config (libelle, editable) VALUES (''Fichiers internes'', ''true'');
 INSERT INTO {0}.dem_recherche_cat_config (libelle, editable) VALUES (''Historique des statuts'', ''true'');
 INSERT INTO {0}.dem_recherche_cat_config (libelle, editable) VALUES (''Données'', ''true'');
 INSERT INTO {0}.dem_recherche_cat_config (libelle, editable) VALUES (''Agent'', ''true'');
@@ -50,6 +51,11 @@ INSERT INTO {0}.dem_recherche_champ_config (enabled, cle, libelle, fk_categorie,
 INSERT INTO {0}.dem_recherche_champ_config (enabled, cle, libelle, fk_categorie, editable) VALUES (''false'', ''complement.fichiers.language'', ''Langue'', (select id from {0}.dem_recherche_cat_config where libelle = ''Complément de demande''), ''true'');
 INSERT INTO {0}.dem_recherche_champ_config (enabled, cle, libelle, fk_categorie, editable) VALUES (''false'', ''complement.fichiers.id'', ''Identifiant'', (select id from {0}.dem_recherche_cat_config where libelle = ''Complément de demande''), ''true'');
 INSERT INTO {0}.dem_recherche_champ_config (enabled, cle, libelle, fk_categorie, editable) VALUES (''false'', ''complement.fichiers.type'', ''Type de fichier'', (select id from {0}.dem_recherche_cat_config where libelle = ''Complément de demande''), ''true'');
+INSERT INTO {0}.dem_recherche_champ_config (enabled, cle, libelle, fk_categorie, editable) VALUES (''false'', ''fichierinterne.fichiers.demandeId'', ''Id demande'', (select id from {0}.dem_recherche_cat_config where libelle = ''Fichiers internes''), ''true'');
+INSERT INTO {0}.dem_recherche_champ_config (enabled, cle, libelle, fk_categorie, editable) VALUES (''false'', ''fichierinterne.fichiers.url'', ''Url'', (select id from {0}.dem_recherche_cat_config where libelle = ''Fichiers internes''), ''true'');
+INSERT INTO {0}.dem_recherche_champ_config (enabled, cle, libelle, fk_categorie, editable) VALUES (''false'', ''fichierinterne.fichiers.language'', ''Langue'', (select id from {0}.dem_recherche_cat_config where libelle = ''Fichiers internes''), ''true'');
+INSERT INTO {0}.dem_recherche_champ_config (enabled, cle, libelle, fk_categorie, editable) VALUES (''false'', ''fichierinterne.fichiers.id'', ''Identifiant'', (select id from {0}.dem_recherche_cat_config where libelle = ''Fichiers internes''), ''true'');
+INSERT INTO {0}.dem_recherche_champ_config (enabled, cle, libelle, fk_categorie, editable) VALUES (''false'', ''fichierinterne.fichiers.type'', ''Type de fichier'', (select id from {0}.dem_recherche_cat_config where libelle = ''Fichiers internes''), ''true'');
 INSERT INTO {0}.dem_recherche_champ_config (enabled, cle, libelle, fk_categorie, editable) VALUES (''true'', ''canal.libelle'', ''Mode de réception'', (select id from {0}.dem_recherche_cat_config where libelle = ''Canal''), ''true'');
 INSERT INTO {0}.dem_recherche_champ_config (enabled, cle, libelle, fk_categorie, editable) VALUES (''true'', ''langue'', ''Langue'', (select id from {0}.dem_recherche_cat_config where libelle = ''Demande''), ''true'');
 INSERT INTO {0}.dem_recherche_champ_config (enabled, cle, libelle, fk_categorie, editable) VALUES (''true'', ''observations'', ''Observations'', (select id from {0}.dem_recherche_cat_config where libelle = ''Informations réservées à l''''administration''), ''true'');
@@ -90,4 +96,6 @@ INSERT INTO {0}.dem_recherche_champ_config (enabled, cle, libelle, fk_categorie,
 INSERT INTO {0}.dem_recherche_champ_config (enabled, cle, libelle, fk_categorie, editable) VALUES (''true'', ''agent.mail'', ''Email'', (select id from {0}.dem_recherche_cat_config where libelle = ''Agent''), ''true'');
 INSERT INTO {0}.dem_recherche_champ_config (enabled, cle, libelle, fk_categorie, editable) VALUES (''true'', ''courrierRefInterne'', ''Référence interne'', (select id from {0}.dem_recherche_cat_config where libelle = ''Courrier''), ''true'');
 INSERT INTO {0}.dem_recherche_champ_config (enabled, cle, libelle, fk_categorie, editable) VALUES (''true'', ''nomsCourriers'', ''Nom'', (select id from {0}.dem_recherche_cat_config where libelle = ''Courrier''), ''true'');
+INSERT INTO {0}.dem_recherche_champ_config (enabled, cle, libelle, fk_categorie, editable) VALUES (''true'', ''fichierinterne.fichiers.content'', ''Contenu'', (select id from {0}.dem_recherche_cat_config where libelle = ''Fichiers internes''), ''true'');
+INSERT INTO {0}.dem_recherche_champ_config (enabled, cle, libelle, fk_categorie, editable) VALUES (''true'', ''fichierinterne.fichiers.name'', ''Nom du fichier'', (select id from {0}.dem_recherche_cat_config where libelle = ''Fichiers internes''), ''true'');
 

@@ -66,7 +66,8 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
         Map<String, RechercheChampConfigBo> champsMap = getChampsMap();
         properties.removeIf(p -> p.getType().equals(EsProperty.BOOLEAN_TYPE)
                 || p.getName().startsWith(DemandeEsDTO.JOIN_FIELD_NAME));
-        Map<String, EsProperty> complementsFichiersPropertiesMap = addComplementsFichiersDemandeProperties(properties);
+        Map<String, EsProperty> complementsFichiersPropertiesMap = addComplementsFilesAndInternalFilesProperties(
+                properties);
         List<EsCategory> categories = getCategories();
         Collections.sort(categories);
         for (EsProperty property : properties) {
@@ -80,6 +81,9 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
                     complementsFichiersPropertiesMap.get(
                             IndexedEsDemandeServiceImpl.FILE_COMPLEMENT_HIGHLIGHT_AND_FACET_PREFIX + champBo.getCle())
                             .setEnabled(champBo.isEnabled());
+                    complementsFichiersPropertiesMap.get(
+                            IndexedEsDemandeServiceImpl.INTERNAL_FILE_HIGHLIGHT_AND_FACET_PREFIX + champBo.getCle())
+                            .setEnabled(champBo.isEnabled());
                 }
             } else {
                 property.setEditable(true);
@@ -90,24 +94,30 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
         return properties;
     }
 
-    private Map<String, EsProperty> addComplementsFichiersDemandeProperties(List<EsProperty> properties) {
-        Map<String, EsProperty> complementsFichiersPropertiesMap = new HashMap<>();
-        List<EsProperty> complementsProperties = new ArrayList<>();
+    private Map<String, EsProperty> addComplementsFilesAndInternalFilesProperties(List<EsProperty> properties) {
+        Map<String, EsProperty> complementsFilesAndInternalFilesPropertiesMap = new HashMap<>();
+        List<EsProperty> complementsAndInternalFilesProperties = new ArrayList<>();
         for (EsProperty property : properties) {
             if (property.getName().startsWith(IndexedEsDemandeServiceImpl.FILE_PROPERTIES_PREFIX)) {
                 EsProperty complementProperty = new EsProperty(
                         IndexedEsDemandeServiceImpl.FILE_COMPLEMENT_HIGHLIGHT_AND_FACET_PREFIX + property.getName(),
                         property.getType(), property.getFields());
-                complementsProperties.add(complementProperty);
-                complementsFichiersPropertiesMap.put(complementProperty.getName(), complementProperty);
+                EsProperty internalFileProperty = new EsProperty(
+                        IndexedEsDemandeServiceImpl.INTERNAL_FILE_HIGHLIGHT_AND_FACET_PREFIX + property.getName(),
+                        property.getType(), property.getFields());
+
+                complementsAndInternalFilesProperties.add(complementProperty);
+                complementsAndInternalFilesProperties.add(internalFileProperty);
+                complementsFilesAndInternalFilesPropertiesMap.put(complementProperty.getName(), complementProperty);
+                complementsFilesAndInternalFilesPropertiesMap.put(internalFileProperty.getName(), internalFileProperty);
             }
         }
 
-        if (!complementsProperties.isEmpty()) {
-            properties.addAll(complementsProperties);
+        if (!complementsAndInternalFilesProperties.isEmpty()) {
+            properties.addAll(complementsAndInternalFilesProperties);
         }
 
-        return complementsFichiersPropertiesMap;
+        return complementsFilesAndInternalFilesPropertiesMap;
 
     }
 
@@ -117,7 +127,7 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
             for (ConfigPropertyDTO property : properties.getProperties()) {
                 updateProperty(property);
             }
-            indexedDemandeService.loadPropertiesToExclude();
+            indexedDemandeService.loadProperties();
             rechercheDynamicJSService.createJsFile();
         }
     }
@@ -314,7 +324,7 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
                 }
             }
 
-            indexedDemandeService.loadPropertiesToExclude();
+            indexedDemandeService.loadProperties();
             rechercheDynamicJSService.createJsFile();
         }
 

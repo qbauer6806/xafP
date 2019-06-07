@@ -367,7 +367,7 @@
 							}
 		
 							var disabled = '';
-							if (property.name.startsWith("complement.fichiers")) {
+							if (property.name.startsWith("complement.fichiers") || property.name.startsWith("fichierinterne.fichiers")) {
 								disabled = 'disabled';
 							}
 		
@@ -455,6 +455,8 @@
 				if (this.name.startsWith("fichiers.")) {
 					var idComplement = "complement" + this.name.replace(/\./g, '') + "Check";
 					$("#" + idComplement).removeAttr("disabled").click().attr("disabled", true);
+					var idFichierInterne = "fichierinterne" + this.name.replace(/\./g, '') + "Check";
+					$("#" + idFichierInterne).removeAttr("disabled").click().attr("disabled", true);
 				}
 				
 				checkPropertiesToUpdate(this);

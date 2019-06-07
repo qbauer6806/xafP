@@ -181,8 +181,9 @@ public interface IndexedDemandeService extends DemandesService {
     void initMappingProperties(boolean reload);
 
     /**
-     * Méthode permettant de charger les propriétés à exclure de la recherche avancée
+     * Méthode permettant de charger les propriétés à exclure de la recherche avancée et du mapping elasticsearch 
+     * 
      */
-    void loadPropertiesToExclude();
+    void loadProperties();
 
 }

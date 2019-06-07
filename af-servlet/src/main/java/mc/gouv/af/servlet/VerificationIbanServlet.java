@@ -60,6 +60,7 @@ public class VerificationIbanServlet extends AbstractAfServlet {
             response.setContentType(serviceResponse.getEntity().getContentType().getValue());
             
             String responseContent = IOUtils.toString(serviceResponse.getEntity().getContent());
+            LOGGER.info("Response content:" + responseContent);
             if (StringUtils.isBlank(responseContent)) {
             	IOUtils.copy(serviceResponse.getEntity().getContent(), response.getOutputStream());
             }

@@ -107,7 +107,6 @@ public class RecapGenerationController {
 						html += "<dd><span>Adresse</span></dd>";
 					}
 					else if (sectionType.equals("sousSections")) {
-						System.out.println("hop!");
 						JSONArray sousSections = (JSONArray)section.get("sousSections");
 						for (Object sousSection : sousSections.toArray()) {
 							String sousSectionType = (String)((JSONObject)sousSection).get("type");

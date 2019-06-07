@@ -265,6 +265,13 @@ public class RecapGenerationController {
 			ret += "<dd><span>Pays</span></dd><dt><span>" + paysCache.get(pays, "fr").getNom() + "</span></dt>";
 			return ret;
 		}
+		else if (type.equals("iban")) {
+			String titulaire = getNode(node,champ,"titulaire").textValue();
+			String bic = getNode(node,champ,"bic").textValue();
+			String iban = getNode(node,champ,"iban").textValue();
+			String ret = iban + " (Titulaire: " + titulaire + ", BIC: " + bic + ")";
+			return ret;
+		}
 		else {
 			return type;
 		}

@@ -1,6 +1,7 @@
 package mc.gouv.af.back.service.impl;
 
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.elasticsearch.index.query.QueryBuilders.existsQuery;
 import static org.elasticsearch.index.query.QueryBuilders.rangeQuery;
 import static org.elasticsearch.index.query.QueryBuilders.simpleQueryStringQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
@@ -45,6 +46,7 @@ import org.elasticsearch.client.Requests;
 import org.elasticsearch.common.document.DocumentField;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.ExistsQueryBuilder;
 import org.elasticsearch.index.query.InnerHitBuilder;
 import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.RangeQueryBuilder;
@@ -125,6 +127,7 @@ import mc.gouv.dem.service.model.DemandeRechercheDTO;
 import mc.gouv.dem.service.transformer.DemandesComplementsFilesTransformer;
 import mc.gouv.dem.service.transformer.DemandesFilesTransformer;
 import mc.gouv.dem.service.util.DemarchesUtils;
+import mc.gouv.dem.shared.model.DataRechercheDTO;
 import mc.gouv.dem.shared.model.DemandeCanalEnum;
 import mc.gouv.dem.shared.model.DemandeComplementsDTO;
 import mc.gouv.dem.shared.model.DemandeDTO;
@@ -1504,6 +1507,60 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         if (!StringUtils.isBlank(demandeRecherche.getIdentifiant())) {
             boolQueryBuilder = boolQueryBuilder.must(
                     termQuery(DemandeEsDTO.IDENTIFIANT_FIELD_NAME + ES_KEYWORD, demandeRecherche.getIdentifiant()));
+        }
+
+        DataRechercheDTO dataRechercheDTO = demandeRecherche.getData();
+
+        // Pour le moment nous faisons un OU sur les data pour remonter
+        // Les demandes en cours de traitement ET sur un agent OU data.IS_EN_ATTENTE_TRAITEMENT=1
+        // En attendant un vrai service de recherche ou on pourra définir les OU / ET via json body (comme ES par
+        // exemple)
+
+        boolean predicatAnd = false;
+
+        if (dataRechercheDTO != null) {
+            if (dataRechercheDTO.getOperand() != null
+                    && dataRechercheDTO.getOperand().equals(DataRechercheDTO.DataRechercheOperand.AND)) {
+                predicatAnd = true;
+            }
+            // Pour le moment en fait on n'en gère qu'un
+            //
+
+            // HACK pour avoir tout ceux qui n'ont pas de data IS_EN_ATTENTE_VALIDATION
+            // data=IS_EN_ATTENTE_VALIDATION=null
+            // C'est à dire ceux dont le statut est en attente de traitement mais qui n'ont pas de data c'est à dire qui
+            // ne sont pas en attente de validation
+            if (StringUtils.equalsIgnoreCase(dataRechercheDTO.getValue(), "null")) {
+
+                ExistsQueryBuilder existQueryBuilder = existsQuery(
+                        DemandeEsDTO.DATA_FIELD_NAME + "." + dataRechercheDTO.getKey() + ES_KEYWORD);
+                if (predicatAnd) {
+                    boolQueryBuilder = boolQueryBuilder.mustNot(existQueryBuilder);
+                } else {
+
+                    BoolQueryBuilder tmpQB = boolQuery();
+                    tmpQB = tmpQB.should(tmpQB.mustNot(existQueryBuilder));
+                    tmpQB = tmpQB.should(boolQueryBuilder);
+                    boolQueryBuilder = tmpQB;
+
+                }
+
+            } else {
+                if (predicatAnd) {
+                    boolQueryBuilder = boolQueryBuilder
+                            .must(termQuery(DemandeEsDTO.DATA_FIELD_NAME + "." + dataRechercheDTO.getKey() + ES_KEYWORD,
+                                    dataRechercheDTO.getValue()));
+                } else {
+                    BoolQueryBuilder tmpQB = boolQuery();
+                    tmpQB = tmpQB.should(boolQueryBuilder);
+                    tmpQB = tmpQB.should(
+                            termQuery(DemandeEsDTO.DATA_FIELD_NAME + "." + dataRechercheDTO.getKey() + ES_KEYWORD,
+                                    dataRechercheDTO.getValue()));
+                    boolQueryBuilder = tmpQB;
+                }
+
+            }
+
         }
 
         return boolQueryBuilder;

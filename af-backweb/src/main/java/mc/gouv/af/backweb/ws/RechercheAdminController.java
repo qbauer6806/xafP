@@ -76,7 +76,7 @@ public class RechercheAdminController extends AbstractController {
         String jsonFile = rechercheAdminService.exportConfig();
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=recherche-config-"
-                + new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date()) + ".json");
+                + new SimpleDateFormat("yyyy-MM-dd'T'HH_mm_ss").format(new Date()) + ".json");
         responseHeaders.add(HttpHeaders.CONTENT_TYPE, "application/json");
         responseHeaders.add("Content-Transfer-Encoding", "binary");
 

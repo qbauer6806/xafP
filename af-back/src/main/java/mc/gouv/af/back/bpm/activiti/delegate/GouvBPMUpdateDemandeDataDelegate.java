@@ -51,9 +51,6 @@ public class GouvBPMUpdateDemandeDataDelegate implements JavaDelegate {
         demandesDataService.saveOrUpdateDemandeData(gouvPropertiesResolver.getDemarcheId(), demandeId, dataKeyStr,
                 dataValueStr);
 
-        if (indexedDemandeService != null) {
-            indexedDemandeService.indexDemande(gouvPropertiesResolver.getDemarcheId(), demandeId);
-        }
     }
 
     public Expression getDataKey() {

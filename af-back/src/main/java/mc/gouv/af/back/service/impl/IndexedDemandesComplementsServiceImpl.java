@@ -11,6 +11,7 @@ import mc.gouv.af.back.config.es.IndexationEnabledCondition;
 import mc.gouv.af.back.service.IndexedDemandeService;
 import mc.gouv.dem.service.impl.DemandesComplementsServiceImpl;
 import mc.gouv.dem.shared.model.DemandeComplementsDTO;
+import mc.gouv.dem.shared.model.DemandeComplementsQuestionDTO;
 import mc.gouv.dem.shared.model.DemandeComplementsReponseDTO;
 import mc.gouv.dem.shared.model.DemandeDTO;
 
@@ -22,6 +23,18 @@ public class IndexedDemandesComplementsServiceImpl extends DemandesComplementsSe
 
     @Inject
     IndexedDemandeService indexedDemandeService;
+
+    @Override
+    @Transactional
+    public DemandeComplementsDTO saveDemandeComplements(String demarcheId, Integer demandeId,
+            DemandeComplementsQuestionDTO demandeComplements) throws Exception {
+
+        DemandeComplementsDTO DemandeComplementsDTO = super.saveDemandeComplements(demarcheId, demandeId,
+                demandeComplements);
+        indexedDemandeService.indexDemande(demarcheId, demandeId);
+        return DemandeComplementsDTO;
+
+    }
 
     @Override
     public DemandeComplementsDTO repondreDemandeComplements(String demarcheId, Integer pkDemande,

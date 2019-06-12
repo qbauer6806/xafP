@@ -47,9 +47,6 @@ public class GouvBPMDeleteDemandeDataDelegate implements JavaDelegate {
 
         demandesDataService.deleteDemandeData(gouvPropertiesResolver.getDemarcheId(), demandeId, dataKeyStr);
 
-        if (indexedDemandeService != null) {
-            indexedDemandeService.indexDemande(gouvPropertiesResolver.getDemarcheId(), demandeId);
-        }
     }
 
     public Expression getDataKey() {

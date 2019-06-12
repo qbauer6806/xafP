@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -95,7 +96,6 @@ public class RecapGenerationController {
 				JSONArray sections = (JSONArray)((JSONObject)jsonArray.get(k)).get("sections");
 				for (int i = 0; i < sections.size(); i++) {
 					JSONObject section = (JSONObject)sections.get(i);
-					System.out.println(section);
 					
 					html += "<div class=\"sectiondemande\"><h3>" + section.get("titre") + "</h3><dl>";
 					
@@ -136,7 +136,7 @@ public class RecapGenerationController {
 					String value = getSecondLevelHTML(demande.getContenu(), champ, demande.getBuildId());
 					if (!StringUtils.isBlank(value)) {
 						html += "<dd><span>"+ champ.get("label") + "</span></dd>";
-						html += "<dt><span>" + value + "</span></dt>";
+						html += "<dt><span>" + escape(value) + "</span></dt>";
 					}
 				}
 			}
@@ -157,7 +157,7 @@ public class RecapGenerationController {
 				html += "<tr>";
 				for (Object column : columns.toArray()) {
 					String value = getSecondLevelHTML(valeur,(JSONObject)column, demande.getBuildId());
-					html += "<td>" + (value == null ? "" : value) + "</td>";
+					html += "<td>" + (value == null ? "" : escape(value)) + "</td>";
 				}
 				html += "</tr>";
 			}
@@ -174,7 +174,7 @@ public class RecapGenerationController {
 			if (node0 == null || node0 instanceof NullNode) {
 				return null;
 			}
-			return node0.asText();
+			return escape(node0.asText());
 		}
 		else if (type.equals("choix")) {
 			String mapping = champ.get("mapping").toString();
@@ -203,7 +203,7 @@ public class RecapGenerationController {
 						if (node0 == null || node0 instanceof NullNode) {
 							return null;
 						}
-						return ((TextNode)node0).textValue();
+						return escape(((TextNode)node0).textValue());
 					}
 				}
 				
@@ -247,9 +247,9 @@ public class RecapGenerationController {
 			return ret;
 		}
 		else if (type.equals("adresse")) {
-			String ligne1 = getNode(node,champ,"ligne1").textValue();
-			String ligne2 = getNode(node,champ,"ligne2").textValue();
-			String ligne3 = getNode(node,champ,"ligne3").textValue();
+			String ligne1 = escape(getNode(node,champ,"ligne1").textValue());
+			String ligne2 = escape(getNode(node,champ,"ligne2").textValue());
+			String ligne3 = escape(getNode(node,champ,"ligne3").textValue());
 			String ret = "<dd><span>Adresse</span></dd><dt><span>" + ligne1 + "</span>";
 			if (StringUtils.isNotBlank(ligne2)) {
 				ret += "<br><span>" + ligne2 + "</span>";
@@ -258,17 +258,17 @@ public class RecapGenerationController {
 				ret += "<br><span>" + ligne3 + "</span>";
 			}
 			ret += "</dt>";
-			String codePostal = getNode(node,champ,"codePostal").textValue();
-			String ville = getNode(node,champ,"ville").textValue();
+			String codePostal = escape(getNode(node,champ,"codePostal").textValue());
+			String ville = escape(getNode(node,champ,"ville").textValue());
 			ret += "<dd><span>Ville</span></dd><dt><span>" + codePostal + " " + ville + "</span></dt>";
 			String pays = getNode(node,champ,"pays").textValue();
 			ret += "<dd><span>Pays</span></dd><dt><span>" + paysCache.get(pays, "fr").getNom() + "</span></dt>";
 			return ret;
 		}
 		else if (type.equals("iban")) {
-			String titulaire = getNode(node,champ,"titulaire").textValue();
-			String bic = getNode(node,champ,"bic").textValue();
-			String iban = getNode(node,champ,"iban").textValue();
+			String titulaire = escape(getNode(node,champ,"titulaire").textValue());
+			String bic = escape(getNode(node,champ,"bic").textValue());
+			String iban = escape(getNode(node,champ,"iban").textValue());
 			String ret = iban + " (Titulaire: " + titulaire + ", BIC: " + bic + ")";
 			return ret;
 		}
@@ -284,5 +284,9 @@ public class RecapGenerationController {
 		}
 		return node.at(path);
 		
+	}
+	
+	private String escape(String str) {
+		return StringEscapeUtils.escapeHtml4(str);
 	}
 }

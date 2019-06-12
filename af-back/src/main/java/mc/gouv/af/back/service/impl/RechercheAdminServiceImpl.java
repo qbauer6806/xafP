@@ -11,6 +11,8 @@ import java.util.Optional;
 import javax.ws.rs.BadRequestException;
 
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Service;
@@ -45,6 +47,8 @@ import mc.gouv.af.data.entity.RechercheChampConfigBo;
 @Conditional(IndexationEnabledCondition.class)
 @Transactional(rollbackFor = Exception.class)
 public class RechercheAdminServiceImpl implements RechercheAdminService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RechercheAdminServiceImpl.class);
 
     @Autowired
     RechercheChampConfigRepository rechercheChampConfigRepository;
@@ -123,6 +127,7 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
 
     @Override
     public void updateProperties(ConfigPropertiesDTO properties) {
+        LOGGER.info("Début de la maj des propriétés");
         if (properties != null && properties.getProperties() != null) {
             for (ConfigPropertyDTO property : properties.getProperties()) {
                 updateProperty(property);
@@ -130,33 +135,47 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
             indexedDemandeService.loadProperties();
             rechercheDynamicJSService.createJsFile();
         }
+        LOGGER.info("Fin de la maj des propriétés");
     }
 
     @Override
     public void updateProperty(ConfigPropertyDTO property) {
+
+        LOGGER.info("Début de la maj de la propriété {}", property.getName());
         RechercheChampConfigBo champBo = rechercheChampConfigRepository.findByCle(property.getName());
 
         if (champBo == null) {
+            LOGGER.info("La propriété n'existe pas");
             champBo = new RechercheChampConfigBo();
+            LOGGER.info("Création de la propriété\nClé: {}", property.getName());
             champBo.setCle(property.getName());
+
             champBo.setEditable(true);
         }
         if (property.getCategoryId() != null) {
+
             Optional<RechercheCatConfigBo> catBoOp = rechercheCatConfigRepository.findById(property.getCategoryId());
             if (catBoOp.isPresent()) {
                 champBo.setCategorie(catBoOp.get());
             }
+        } else {
+            LOGGER.info("La propriété n'est pas associée à une catégorie");
         }
 
+        LOGGER.info("Enabled : {}", property.isEnabled());
         champBo.setEnabled(property.isEnabled());
+        LOGGER.info("Libelle : {}", property.getLabel());
         champBo.setLibelle(property.getLabel());
 
         rechercheChampConfigRepository.save(champBo);
+
+        LOGGER.info("Fin de la maj de la propriété {}", property.getName());
     }
 
     @Override
     public EsCategory addCategory(String label) {
 
+        LOGGER.info("Début de l'ajout de la catégorie {}", label);
         if (StringUtils.isBlank(label)) {
             throw new IllegalArgumentException("Le libellé de la catégorie ne peut pas être vide");
         }
@@ -168,12 +187,15 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
 
         RechercheCatConfigBo newCatBo = rechercheCatConfigRepository.save(new RechercheCatConfigBo(label, true));
 
-        return new EsCategory(newCatBo.getId(), newCatBo.getLibelle(), true);
+        EsCategory category = new EsCategory(newCatBo.getId(), newCatBo.getLibelle(), true);
+        LOGGER.info("Fin de l'ajout de la catégorie {}", label);
+        return category;
     }
 
     @Override
     public void deleteCategory(Integer id) {
 
+        LOGGER.info("Début de la suppression de la catégorie {}", id);
         List<RechercheChampConfigBo> properties = rechercheChampConfigRepository.findByCategorieId(id);
         if (properties != null && !properties.isEmpty()) {
             throw new UsedCategoryException("La catégorie est dejà utilisée");
@@ -183,26 +205,32 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
         if (categoryOpt.isPresent() && categoryOpt.get().isEditable()) {
             rechercheCatConfigRepository.deleteById(id);
         }
+        LOGGER.info("Fin de la suppression de la catégorie {}", id);
     }
 
     @Override
     public List<EsCategory> updateCategories(ConfigCategoriesDTO categories) {
 
+        LOGGER.info("Début de la maj des catégories");
         if (categories != null && categories.getCategories() != null) {
             List<EsCategory> cats = new ArrayList<>();
             for (EsCategory cat : categories.getCategories()) {
                 cats.add(updateCategory(cat));
             }
             rechercheDynamicJSService.createJsFile();
+            LOGGER.info("Fin de la maj des catégories");
             return cats;
         }
+        LOGGER.info("Fin de la maj des catégories");
         return new ArrayList<>();
     }
 
     @Override
     public EsCategory updateCategory(EsCategory category) {
 
+        LOGGER.info("Début de la maj de la catégorie");
         if (category != null) {
+            LOGGER.info("Catégorie: libelle : {}, isEditable: {}", category.getLabel(), category.isEditable());
             Optional<RechercheCatConfigBo> catBoOpt = rechercheCatConfigRepository.findById(category.getId());
             if (catBoOpt.isPresent() && catBoOpt.get().isEditable()) {
                 RechercheCatConfigBo catBo = catBoOpt.get();
@@ -211,12 +239,14 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
                 return new EsCategory(updatedCat.getId(), updatedCat.getLibelle(), updatedCat.isEditable());
             }
         }
+        LOGGER.info("Fin de la maj de la catégorie");
         return null;
     }
 
     @Override
     public List<EsCategory> getCategories() {
 
+        LOGGER.info("Début de la récupération des catégories");
         Iterable<RechercheCatConfigBo> categoriesBo = rechercheCatConfigRepository.findAll();
         List<EsCategory> categories = new ArrayList<>();
 
@@ -226,6 +256,7 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
             }
         }
 
+        LOGGER.info("Fin de la récupération des catégories");
         return categories;
     }
 
@@ -247,10 +278,13 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
     @Override
     public String exportConfig() throws JsonGenerationException, JsonMappingException, IOException {
 
+        LOGGER.info("Début de l'export de la configuration");
+
         ExportImportConfigDTO exportConfig = new ExportImportConfigDTO();
         Iterable<RechercheCatConfigBo> categoriesBo = rechercheCatConfigRepository.findAll();
 
         if (categoriesBo != null) {
+
             for (RechercheCatConfigBo catConfig : categoriesBo) {
                 exportConfig.getCategories()
                         .add(new ExportImportCategoryDTO(catConfig.getLibelle(), catConfig.isEditable()));
@@ -277,11 +311,17 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
 
         ObjectMapper mapper = new ObjectMapper();
 
-        return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(exportConfig);
+        String exportedConfig = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(exportConfig);
+
+        LOGGER.info("Fin de l'export de la configuration, fichier exporté {}", exportedConfig);
+
+        return exportedConfig;
     }
 
     @Override
     public void importConfig(byte[] file) throws IOException {
+
+        LOGGER.info("Début de l'import de la configuration");
 
         ObjectMapper mapper = new ObjectMapper();
         ExportImportConfigDTO config = null;
@@ -327,6 +367,8 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
             indexedDemandeService.loadProperties();
             rechercheDynamicJSService.createJsFile();
         }
+
+        LOGGER.info("Fin de l'import de la configuration");
 
     }
 

@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.jms.JMSException;
+import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 
 import org.apache.commons.lang3.StringUtils;
@@ -65,6 +66,7 @@ import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.glassfish.jersey.internal.guava.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Primary;
@@ -183,6 +185,9 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     @Inject
     DemarchesDataProvider demarchesDataProvider;
+    
+    @Autowired
+    private EntityManager entityManager;
 
     private List<EsProperty> demandesProperties = new ArrayList<>();
     private List<EsProperty> filesProperties = new ArrayList<>();
@@ -717,6 +722,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     public void indexDemande(String demarcheId, Integer demandeId)
             throws IOException, SAXException, TikaException, JMSException {
 
+    	
         DemandeBO demandeBo = getDemandeBo(demarcheId, demandeId);
         DemandeEsDTO demandeEsDTO = demandeEsTransformer.bo2Dto(demandeBo, null);
         demandeJmsService.send(new DemandeEsJmsDto(demandeEsDTO, null), JMSActionEnum.SAVE);

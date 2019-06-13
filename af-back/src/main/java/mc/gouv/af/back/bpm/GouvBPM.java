@@ -60,7 +60,7 @@ public interface GouvBPM {
      * Permet de finaliser une tâche
      * @param taskId Identifiant de la tâche concernée
      */
-    public void completeTask(GouvBPMTask task);
+    public void completeTask(GouvBPMTask task, Integer demandeId) throws Exception;
 
     /**
      * Permet de lister les tâches actives sur lesquelles un utilisateur est assigné
@@ -156,8 +156,9 @@ public interface GouvBPM {
      * Permet de compléter une tâche en lui donnant les données du formulaire qu'elle requiert
      * @param task
      * @param properties
+     * @throws Exception 
      */
-    public void submitTaskFormData(GouvBPMTask task, Map<String, String> properties);
+    public void submitTaskFormData(GouvBPMTask task, Map<String, String> properties, Integer demandeId) throws Exception;
 
     /**
      * Permet d'obtenir la liste disponible d'associations action / statut cible, depuis le BPM, pour une tâche

@@ -42,6 +42,8 @@ import mc.gouv.af.back.bpm.model.GouvBPMGroup;
 import mc.gouv.af.back.bpm.model.GouvBPMStatutAction;
 import mc.gouv.af.back.bpm.model.GouvBPMTask;
 import mc.gouv.af.back.bpm.model.GouvBPMUser;
+import mc.gouv.af.back.properties.GouvPropertiesResolver;
+import mc.gouv.af.back.service.IndexedDemandeService;
 
 /**
  * 
@@ -70,6 +72,12 @@ public class GouvBPMImpl implements GouvBPM {
 
     @Autowired
     private FormService formService;
+    
+    @Autowired
+    private GouvPropertiesResolver gouvPropertiesResolver;
+    
+    @Autowired(required = false)
+    private IndexedDemandeService indexedDemandeService;
 
     public void startProcessInstanceByKeyOrMessage(String processDefinitionKey, String messageName, GouvBPMUser user,
             Integer demandeId, String codeAppli, Map<String, Object> businessVariables) {
@@ -201,10 +209,13 @@ public class GouvBPMImpl implements GouvBPM {
     }
 
     @Override
-    public void completeTask(GouvBPMTask task) {
+    public void completeTask(GouvBPMTask task, Integer demandeId) throws Exception {
         LOGGER.info("completeTask(" + task + ")");
 
         taskService.complete(task.getId());
+        
+        // Réindexation pour prendre en compte le nouveau statutPublicOuInterne
+        reindex(demandeId);
     }
 
     @Override
@@ -401,13 +412,22 @@ public class GouvBPMImpl implements GouvBPM {
     }
 
     @Override
-    public void submitTaskFormData(GouvBPMTask task, Map<String, String> properties) {
+    public void submitTaskFormData(GouvBPMTask task, Map<String, String> properties, Integer demandeId) throws Exception {
         // Pour éviter les NPE dans Activiti et éviter d'avoir à déclarer de nouveaux HashMaps
         // si on ne veut rien transmettre dans le formulaire
         if (properties == null) {
             properties = new HashMap<String, String>();
         }
         formService.submitTaskFormData(task.getId(), properties);
+        // Réindexation pour prendre en compte le nouveau statutPublicOuInterne
+        reindex(demandeId);
+    }
+    
+    private void reindex(Integer demandeId) throws Exception {
+        // Réindexation pour prendre en compte le nouveau statutPublicOuInterne
+        if (indexedDemandeService != null) {
+            indexedDemandeService.indexDemande(gouvPropertiesResolver.getDemarcheId(), demandeId);
+        }
     }
 
     @SuppressWarnings("unchecked")

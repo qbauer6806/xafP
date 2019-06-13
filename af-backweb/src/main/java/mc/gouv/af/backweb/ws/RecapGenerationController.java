@@ -136,7 +136,7 @@ public class RecapGenerationController {
 					String value = getSecondLevelHTML(demande.getContenu(), champ, demande.getBuildId());
 					if (!StringUtils.isBlank(value)) {
 						html += "<dd><span>"+ champ.get("label") + "</span></dd>";
-						html += "<dt><span>" + escape(value) + "</span></dt>";
+						html += "<dt><span>" + value + "</span></dt>";
 					}
 				}
 			}

@@ -59,6 +59,7 @@ APP.getConfigurationDataTable = function(columns) {
 		  "columns": columns,
 		  autoWidth: false,
 	      filter : false,
+	      render: $.fn.dataTable.render.text(),
 		  language: frenchTranslation,
 		  iDisplayLength : 10
 		            

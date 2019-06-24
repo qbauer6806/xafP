@@ -40,8 +40,7 @@ public class IndexedEsDemandesStatutsServiceImpl extends DemandesStatutsServiceI
         DemandeDTO demandeDTO = null;
         try {
             demandeDTO = super.updateStatut(demarcheId, demandeId, statut, agentId, usagerId, codeMotif, commentaire);
-
-            indexDemandeStatus(demarcheId, demandeDTO.getPkDemandes());
+            indexDemandeStatus(demandeDTO);
         } catch (Exception ex) {
             LOGGER.error("l'erreur suivant  est survenu suit à  le mis à jour le statut \n" + ex.getMessage());
         }
@@ -49,9 +48,8 @@ public class IndexedEsDemandesStatutsServiceImpl extends DemandesStatutsServiceI
         return demandeDTO;
     }
 
-    private void indexDemandeStatus(String demarcheId, Integer pkDemande) throws Exception {
+    private void indexDemandeStatus(DemandeDTO demandeDTO) throws Exception {
         LOGGER.info("Indexation de Statuts de la demande");
-        DemandeDTO demandeDTO = indexedDemandeService.getDemande(demarcheId, pkDemande);
         indexedDemandeService.sendToTopic(demandeDTO, false);
     }
 }

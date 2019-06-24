@@ -42,14 +42,14 @@ public class IndexedEsDemandesStatutsServiceImpl extends DemandesStatutsServiceI
             demandeDTO = super.updateStatut(demarcheId, demandeId, statut, agentId, usagerId, codeMotif, commentaire);
             indexDemandeStatus(demandeDTO);
         } catch (Exception ex) {
-            LOGGER.error("l'erreur suivant  est survenu suit à  le mis à jour le statut \n" + ex.getMessage());
+            LOGGER.error("Erreur lors de la mise à jour du statut" + ex.getMessage());
         }
 
         return demandeDTO;
     }
 
     private void indexDemandeStatus(DemandeDTO demandeDTO) throws Exception {
-        LOGGER.info("Indexation de Statuts de la demande");
+        LOGGER.info("Indexation de Statuts de la demande " + demandeDTO.getPkDemandes());
         indexedDemandeService.sendToTopic(demandeDTO, false);
     }
 }

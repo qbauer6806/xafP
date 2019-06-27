@@ -168,6 +168,10 @@ public class AfBackUtils {
 
         return null;
     }
+    
+    public String getLogonUrl() {
+    	return gouvPropertiesResolver.getGouvSharedLogonUrl();
+    }
 
     /**
      * Retourne le nom d'un usager à partir de son ID

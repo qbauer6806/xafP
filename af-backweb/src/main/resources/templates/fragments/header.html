@@ -24,7 +24,7 @@
 								</div> <span><span sec:authentication="principal.nom"
 									th:remove="tag"></span></span>
 							</li>
-							<li><a th:href="@{/logout}"> <span>Se déconnecter</span>
+							<li><a th:href="${AfBackUtils.getLogonUrl()}+'/logout.jsp'"> <span>Se déconnecter</span>
 									<div class="iconBackground">
 										<i class="icon icon-menu_deconnexion"></i>
 									</div>
@@ -40,7 +40,7 @@
 		<div id="header">
 			<div class="headerContent">
 				<div class="headerTitle">
-					<a href="/logon/menu.jsp"> <img class="img img-responsive"
+					<a th:href="${AfBackUtils.getLogonUrl()}+'/menu.jsp'"> <img class="img img-responsive"
 						th:alt="${AfBackUtils.getDemarcheNom()}"
 						th:src="@{/img/logo_TS.svg}" />
 					</a>

@@ -241,4 +241,10 @@ public class GouvPropertiesResolverImplTest implements GouvPropertiesResolver {
         return false;
     }
 
+	@Override
+	public String getGouvSharedLogonUrl() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

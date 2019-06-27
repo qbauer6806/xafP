@@ -20,7 +20,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import mc.gouv.Static;
-import mc.gouv.af.back.config.es.IndexationEnabledCondition;
 
 /**
  * Composant permettant de récupérer des éléments de configuration propres au gouvernement. Proxy vers Static.getValue()
@@ -224,6 +223,13 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     @Override
     public String getGouvSharedEnvColor() {
         return Static.getValue(GOUV_SHARED_ENV_COLOR);
+    }
+    
+    private static final String GOUV_SHARED_LOGON_URL = "mc.gouv.shared.backserver.logon.url";
+
+    @Override
+    public String getGouvSharedLogonUrl() {
+        return Static.getValue(GOUV_SHARED_LOGON_URL);
     }
 
     private static final String CONTACT_SUPPORT_URL = "mc.gouv.af.back.contactSupport.url";

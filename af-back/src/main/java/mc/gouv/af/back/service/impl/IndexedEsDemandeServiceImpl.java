@@ -185,7 +185,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     @Inject
     DemarchesDataProvider demarchesDataProvider;
-    
+
     @Autowired
     private EntityManager entityManager;
 
@@ -722,7 +722,6 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     public void indexDemande(String demarcheId, Integer demandeId)
             throws IOException, SAXException, TikaException, JMSException {
 
-    	
         DemandeBO demandeBo = getDemandeBo(demarcheId, demandeId);
         DemandeEsDTO demandeEsDTO = demandeEsTransformer.bo2Dto(demandeBo, null);
         demandeJmsService.send(new DemandeEsJmsDto(demandeEsDTO, null), JMSActionEnum.SAVE);
@@ -1471,16 +1470,27 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      *         dans l'interface graphique
      */
     private BoolQueryBuilder getUiFilterQuery(BoolQueryBuilder boolQueryBuilder, DemandeRechercheDTO demandeRecherche) {
+
         if (demandeRecherche.getStatuts() != null) {
             boolQueryBuilder = boolQueryBuilder.must(termsQuery(
                     DemandeEsDTO.DERNIER_STATUT_FIELD_NAME + "." + DemandeStatutEsDTO.CODE_FIELD_NAME + ES_KEYWORD,
                     demandeRecherche.getStatuts()));
+        } else {
+
+            boolQueryBuilder = boolQueryBuilder.mustNot(termsQuery(
+                    DemandeEsDTO.DERNIER_STATUT_FIELD_NAME + "." + DemandeStatutEsDTO.CODE_FIELD_NAME + ES_KEYWORD,
+                    demarchesDataProvider.getStatusMap().keySet()));
         }
 
         if (demandeRecherche.getCanaux() != null) {
             boolQueryBuilder = boolQueryBuilder.must(termsQuery(
                     DemandeEsDTO.CANAL_FIELD_NAME + "." + CanalEsDto.CANAL_CODE_FIELD_NAME + ES_KEYWORD,
                     demandeRecherche.getCanaux().stream().map(DemandeCanalEnum::name).collect(Collectors.toList())));
+        } else {
+            boolQueryBuilder = boolQueryBuilder.mustNot(
+                    termsQuery(DemandeEsDTO.CANAL_FIELD_NAME + "." + CanalEsDto.CANAL_CODE_FIELD_NAME + ES_KEYWORD,
+                            Arrays.asList(DemandeCanalEnum.values()).stream().map(DemandeCanalEnum::name)
+                                    .collect(Collectors.toList())));
         }
 
         if (DemarchesUtils.isFrontUser()) {

@@ -1471,26 +1471,24 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      */
     private BoolQueryBuilder getUiFilterQuery(BoolQueryBuilder boolQueryBuilder, DemandeRechercheDTO demandeRecherche) {
 
+        String statutKey = DemandeEsDTO.DERNIER_STATUT_FIELD_NAME + "." + DemandeStatutEsDTO.CODE_FIELD_NAME
+                + ES_KEYWORD;
         if (demandeRecherche.getStatuts() != null) {
-            boolQueryBuilder = boolQueryBuilder.must(termsQuery(
-                    DemandeEsDTO.DERNIER_STATUT_FIELD_NAME + "." + DemandeStatutEsDTO.CODE_FIELD_NAME + ES_KEYWORD,
-                    demandeRecherche.getStatuts()));
+            boolQueryBuilder = boolQueryBuilder.must(termsQuery(statutKey, demandeRecherche.getStatuts()));
         } else {
 
-            boolQueryBuilder = boolQueryBuilder.mustNot(termsQuery(
-                    DemandeEsDTO.DERNIER_STATUT_FIELD_NAME + "." + DemandeStatutEsDTO.CODE_FIELD_NAME + ES_KEYWORD,
-                    demarchesDataProvider.getStatusMap().keySet()));
+            boolQueryBuilder = boolQueryBuilder
+                    .mustNot(termsQuery(statutKey, demarchesDataProvider.getStatusMap().keySet()))
+                    .must(existsQuery(statutKey));
         }
 
+        String canauxKey = DemandeEsDTO.CANAL_FIELD_NAME + "." + CanalEsDto.CANAL_CODE_FIELD_NAME + ES_KEYWORD;
         if (demandeRecherche.getCanaux() != null) {
-            boolQueryBuilder = boolQueryBuilder.must(termsQuery(
-                    DemandeEsDTO.CANAL_FIELD_NAME + "." + CanalEsDto.CANAL_CODE_FIELD_NAME + ES_KEYWORD,
+            boolQueryBuilder = boolQueryBuilder.must(termsQuery(canauxKey,
                     demandeRecherche.getCanaux().stream().map(DemandeCanalEnum::name).collect(Collectors.toList())));
         } else {
-            boolQueryBuilder = boolQueryBuilder.mustNot(
-                    termsQuery(DemandeEsDTO.CANAL_FIELD_NAME + "." + CanalEsDto.CANAL_CODE_FIELD_NAME + ES_KEYWORD,
-                            Arrays.asList(DemandeCanalEnum.values()).stream().map(DemandeCanalEnum::name)
-                                    .collect(Collectors.toList())));
+            boolQueryBuilder = boolQueryBuilder.mustNot(termsQuery(canauxKey, Arrays.asList(DemandeCanalEnum.values())
+                    .stream().map(DemandeCanalEnum::name).collect(Collectors.toList()))).must(existsQuery(canauxKey));
         }
 
         if (DemarchesUtils.isFrontUser()) {

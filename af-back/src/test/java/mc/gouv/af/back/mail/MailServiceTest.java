@@ -18,8 +18,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import mc.gouv.af.back.AfBackServiceTestConfiguration;
 import mc.gouv.dem.shared.model.DemandeDTO;
 
-|||||||.merge-left.r48976=======
-
 /**
  * Test unitaire pour la classe MailService
  * 

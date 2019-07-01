@@ -23,7 +23,7 @@ public class GouvPropertiesResolverImplTest implements GouvPropertiesResolver {
     @Override
     public String getMailUrl() {
         // TODO Auto-generated method stub
-        return null;
+        return "localhost:30485";
     }
 
     @Override

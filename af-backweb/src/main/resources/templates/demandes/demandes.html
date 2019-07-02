@@ -365,6 +365,16 @@
 			//conversion des params pour Pageable Spring MVC
 			params.size = params.length;
 			params.page = params.start / params.length;
+			
+			if($("input[name='canal']:checked").length==0)
+			{
+				params.aucunCanal=true;
+			}
+	
+			if($("input[name='statut']:checked").length==0)
+			{
+				params.aucunStatut=true;
+			}
 	
 	
 			var col = columns[params.order[0].column]

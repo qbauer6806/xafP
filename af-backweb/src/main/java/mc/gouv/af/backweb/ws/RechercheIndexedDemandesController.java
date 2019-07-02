@@ -61,7 +61,9 @@ public class RechercheIndexedDemandesController extends AbstractController {
             @RequestParam(value = "creationEndDate", required = false) @DateTimeFormat(iso = ISO.DATE) Date creationEndDate,
             @RequestParam(value = "texte", required = false) String texte,
             @RequestParam(value = "searchField", required = false) String searchField,
-            @RequestParam(value = "data", required = false) DataRechercheDTO data, Pageable pageable) {
+            @RequestParam(value = "data", required = false) DataRechercheDTO data,
+            @RequestParam(value = "aucunCanal", required = false) boolean aucunCanal,
+            @RequestParam(value = "aucunStatut", required = false) boolean aucunStatut, Pageable pageable) {
 
         LOGGER.info("======================= Appel de /ws/demandes/pageable (statuts=" + statuts + ",canaux=" + canaux
                 + ",agentId=" + agentId + ",creationStartDate=" + creationStartDate + ",creationEndDate="
@@ -78,6 +80,8 @@ public class RechercheIndexedDemandesController extends AbstractController {
         demandeRecherche.setCanaux(canaux);
         demandeRecherche.setData(data);
         demandeRecherche.setIdentifiant(null);
+        demandeRecherche.setAucunStatut(aucunStatut);
+        demandeRecherche.setAucunCanal(aucunCanal);
 
         demandeRecherche.setSearchField(searchField);
 

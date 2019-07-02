@@ -57,7 +57,9 @@ public class RechercheDemandesController extends AbstractController {
             @RequestParam(value = "creationStartDate", required = false) @DateTimeFormat(iso = ISO.DATE) Date creationStartDate,
             @RequestParam(value = "creationEndDate", required = false) @DateTimeFormat(iso = ISO.DATE) Date creationEndDate,
             @RequestParam(value = "texte", required = false) String texte,
-            @RequestParam(value = "data", required = false) DataRechercheDTO data, Pageable pageable) {
+            @RequestParam(value = "data", required = false) DataRechercheDTO data,
+            @RequestParam(value = "aucunCanal", required = false) boolean aucunCanal,
+            @RequestParam(value = "aucunStatut", required = false) boolean aucunStatut, Pageable pageable) {
 
         LOGGER.info("======================= Appel de /ws/demandes/pageable (statuts=" + statuts + ",canaux=" + canaux
                 + ",agentId=" + agentId + ",creationStartDate=" + creationStartDate + ",creationEndDate="
@@ -74,6 +76,8 @@ public class RechercheDemandesController extends AbstractController {
         demandeRecherche.setCanaux(canaux);
         demandeRecherche.setData(data);
         demandeRecherche.setIdentifiant(null);
+        demandeRecherche.setAucunCanal(aucunCanal);
+        demandeRecherche.setAucunStatut(aucunStatut);
 
         if (pageable.getSort() != null) {
             Order order = pageable.getSort().iterator().next();

@@ -615,10 +615,13 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     @Override
     public Long reindex() throws IOException, SAXException, TikaException {
 
+        LOGGER.info("Début de la réindexation");
         if (demandeEsRepository != null) {
             long demCount = demandesRepository.count();
+            LOGGER.info("Nombre de demandes à réindexé : {}", demCount);
             demandeEsRepository.deleteAll();
             final int size = gouvPropertiesResolver.getEsReindexBulkSize();
+            LOGGER.info("Bulk size : {}", size);
             int additionalPage = 0;
             if (demCount % size > 0) {
                 additionalPage = 1;
@@ -636,8 +639,10 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                 }
             }
 
+            LOGGER.info("Fin de la réindexation");
             return demCount;
         }
+        LOGGER.info("Fin de la réindexation");
         return 0l;
     }
 
@@ -1473,22 +1478,23 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
         String statutKey = DemandeEsDTO.DERNIER_STATUT_FIELD_NAME + "." + DemandeStatutEsDTO.CODE_FIELD_NAME
                 + ES_KEYWORD;
-        if (demandeRecherche.getStatuts() != null) {
-            boolQueryBuilder = boolQueryBuilder.must(termsQuery(statutKey, demandeRecherche.getStatuts()));
-        } else {
 
+        if (demandeRecherche.getAucunStatut()) {
             boolQueryBuilder = boolQueryBuilder
                     .mustNot(termsQuery(statutKey, demarchesDataProvider.getStatusMap().keySet()))
                     .must(existsQuery(statutKey));
+        } else if (demandeRecherche.getStatuts() != null) {
+            boolQueryBuilder = boolQueryBuilder.must(termsQuery(statutKey, demandeRecherche.getStatuts()));
         }
 
         String canauxKey = DemandeEsDTO.CANAL_FIELD_NAME + "." + CanalEsDto.CANAL_CODE_FIELD_NAME + ES_KEYWORD;
-        if (demandeRecherche.getCanaux() != null) {
-            boolQueryBuilder = boolQueryBuilder.must(termsQuery(canauxKey,
-                    demandeRecherche.getCanaux().stream().map(DemandeCanalEnum::name).collect(Collectors.toList())));
-        } else {
+
+        if (demandeRecherche.getAucunCanal()) {
             boolQueryBuilder = boolQueryBuilder.mustNot(termsQuery(canauxKey, Arrays.asList(DemandeCanalEnum.values())
                     .stream().map(DemandeCanalEnum::name).collect(Collectors.toList()))).must(existsQuery(canauxKey));
+        } else if (demandeRecherche.getCanaux() != null) {
+            boolQueryBuilder = boolQueryBuilder.must(termsQuery(canauxKey,
+                    demandeRecherche.getCanaux().stream().map(DemandeCanalEnum::name).collect(Collectors.toList())));
         }
 
         if (DemarchesUtils.isFrontUser()) {

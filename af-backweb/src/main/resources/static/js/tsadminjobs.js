@@ -14,7 +14,7 @@ var jobsColumns = [
 
 				return '<span>'
 						+ moment(job.dateCreation)
-								.format("DD/MM/YYYY hh:mm:ss") + '</span>';
+								.format("DD/MM/YYYY HH:mm:ss") + '</span>';
 			}
 		},
 		{
@@ -22,7 +22,7 @@ var jobsColumns = [
 			render : function(data, type, job) {
 				return '<span>'
 						+ moment(job.dateDernModif).format(
-								"DD/MM/YYYY hh:mm:ss") + '</span>';
+								"DD/MM/YYYY HH:mm:ss") + '</span>';
 			}
 		}, {
 			"data" : "statut",

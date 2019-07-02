@@ -208,12 +208,14 @@ $("#datatable-search-properties").on('keyup', "input,select", function(e) {
 
 	checkPropertiesToUpdate(this);
 	checkSavePropertiesButton();
+	
 });
 
 $("#datatable-search-properties").on('change', "select", function(e) {
 
 	checkPropertiesToUpdate(this);
 	checkSavePropertiesButton();
+	
 });
 
 $("#datatable-search-properties").on(
@@ -603,10 +605,10 @@ $("#submitImportConfigButtonButton").click(
 				formdata.append('file', filedata);
 				$.ajax({
 					url : APP.getContextPath() + '/ws/admin/import', // point
-																		// to
-																		// server-side
-																		// PHP
-																		// script
+					// to
+					// server-side
+					// PHP
+					// script
 					cache : false,
 					contentType : false,
 					processData : false,

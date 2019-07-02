@@ -104,14 +104,26 @@
 	            </li>
 	            
 	           <li th:class="${pageConfigurationActive} ? 'active' : ''" sec:authorize="hasRole('ROLE_CONFIGURATION')" >
-	               <a th:href="@{/gestion/adminrecherche}">
+	               <a>
 	               		<div class="contentTooltip">
 	               			<span class="greyTooltip" data-toggle="tooltip" data-placement="right" title="" data-original-title="Configuration"></span>
 	               		</div>
 	               		<div class="iconContent"><i class="icon icon-menu_parametres_admin"></i></div>
-                        <div class="menuContent">Configuration</div>
+                        <div class="menuContent">Configuration</div> <span class="icon-action_suivant"></span>
                    </a>
-	            </li>
+                   <ul class="" style="left: 40px; display: none;">
+						<li><a th:href="@{/gestion/adminrecherche}">
+								<div class="whiteBullet"></div> Administration de la recherche avancée
+						</a></li>
+						<li><a th:href="@{/gestion/jobs}">
+								<div class="whiteBullet"></div> Jobs
+						</a></li>
+					</ul>
+				</li>
+
+
+
+								
 
 
 				<li th:class="${pageAideActive} ? 'active' : ''"><a

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import mc.gouv.af.back.xls.ExcelExportModelProvider;
 import mc.gouv.af.back.xls.ExcelExportService;
 import mc.gouv.af.backweb.controller.AbstractController;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * Controller pour l'extraction des données des demandes (export excel)
@@ -36,7 +37,7 @@ public class DemandeExportController extends AbstractController {
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandeExportController.class);
 
     @RequestMapping(method = RequestMethod.GET, value = "/excel")
-    public void exportExcel(HttpServletResponse response) {
+    public void exportExcel(HttpServletResponse response, @RequestParam(required = false) String creationStartDate , @RequestParam(required = false) String creationEndDate) {
 
         LOGGER.info("======================= Appel du controller /ws/export/excel");
 
@@ -45,7 +46,7 @@ public class DemandeExportController extends AbstractController {
             response.setHeader("Content-disposition", "attachment; filename=" + "demandes.xlsx");
             
             LOGGER.info("Constitution du modèle pour la génération Excel...");
-            Map<String, Object> model = excelExportModelProvider.getModel();
+            Map<String, Object> model = excelExportModelProvider.getModel(creationStartDate, creationEndDate);
             
             LOGGER.info("Appel export Excel...");
             excelExportService.exportExcel("demandes.xlsx", model, response.getOutputStream());

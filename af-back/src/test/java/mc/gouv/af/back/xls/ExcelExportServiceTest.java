@@ -49,7 +49,7 @@ public class ExcelExportServiceTest {
 		 byte[] result = null;
 		 
 		try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-			excelExportServie.exportExcel("demandes.xlsx", excelExportModelProvider.getModel(), out);
+			excelExportServie.exportExcel("demandes.xlsx", excelExportModelProvider.getModel(null, null), out);
 			result = out.toByteArray();
 		}
 		return result;

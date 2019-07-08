@@ -20,7 +20,7 @@ public class ExcelExportModelProviderImplTest implements ExcelExportModelProvide
 	    private AfBackUtils afBackUtils;
 	 
 	@Override
-	public Map<String, Object> getModel() {
+	public Map<String, Object> getModel(String plainStartDate, String plainEndDate) {
 		
         Map<String, Object> model = new HashMap<String, Object>();
         List<Object> demandesFlat = new ArrayList<Object>();

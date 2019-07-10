@@ -14,5 +14,10 @@ public class TaskAlreadyClaimedException extends Exception {
     public TaskAlreadyClaimedException(String message, Exception e) {
         super(message, e);
     }
+    
+    public TaskAlreadyClaimedException(String message) {
+        super(message);
+    }
+
 
 }

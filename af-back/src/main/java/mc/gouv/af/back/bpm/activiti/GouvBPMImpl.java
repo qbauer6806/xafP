@@ -1,9 +1,7 @@
 package mc.gouv.af.back.bpm.activiti;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.activiti.engine.ActivitiObjectNotFoundException;
 import org.activiti.engine.ActivitiTaskAlreadyClaimedException;
@@ -197,6 +195,19 @@ public class GouvBPMImpl implements GouvBPM {
     }
 
     @Override
+    public List<String> getNumberActiveDemandesInState(String state) {
+        LOGGER.debug("getNumberActiveDemandesInState(" + state + ")");
+        List<Task> tasks = taskService.createTaskQuery().taskDefinitionKey(state).active().list();
+        Set<String> tasksProcessIds = tasks.stream().map(Task::getProcessDefinitionId).collect(Collectors.toSet());
+        List<String> instancesIds = new ArrayList<>();
+        if (!tasksProcessIds.isEmpty()) {
+            List<ProcessInstance> processInstanceInTheState = runtimeService.createProcessInstanceQuery().processDefinitionIds(tasksProcessIds).active().list();
+            instancesIds = processInstanceInTheState.stream().map(ProcessInstance::getBusinessKey).collect(Collectors.toList());
+        }
+        return instancesIds;
+    }
+
+    @Override
     @Transactional(noRollbackFor = { ActivitiTaskAlreadyClaimedException.class, TaskAlreadyClaimedException.class })
     public void claimTask(GouvBPMTask task, GouvBPMUser user) throws TaskAlreadyClaimedException {
         LOGGER.info("claimTask(" + task + "," + user + ")");
@@ -204,7 +215,7 @@ public class GouvBPMImpl implements GouvBPM {
         if (task != null && task.getAssignee() != null && user != null && !task.getAssignee().equals(user.getId())) {
         	throw new TaskAlreadyClaimedException("Tâche déjà claimed par un autre user");
         }
-        
+
         try {
             taskService.claim(task.getId(), user.getId());
         } catch (ActivitiTaskAlreadyClaimedException e) {

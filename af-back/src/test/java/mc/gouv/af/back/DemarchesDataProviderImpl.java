@@ -50,6 +50,11 @@ public class DemarchesDataProviderImpl implements DemarchesDataProvider {
     }
 
     @Override
+    public Map<String, String> getPrivateStatusMap() {
+        return null;
+    }
+
+    @Override
     public String getVersion() {
         // TODO Auto-generated method stub
         return null;

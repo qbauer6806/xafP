@@ -28,6 +28,8 @@ public interface DemarchesDataProvider {
 
     public Map<String, String> getStatusMap();
 
+    Map<String, String> getPrivateStatusMap();
+
     public String getVersion();
 
     StatutPublicOuInterneDTO getStatutPublicOuInterne(Integer pkDemande, String statutLibelle);

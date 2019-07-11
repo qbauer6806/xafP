@@ -77,6 +77,13 @@ public interface GouvBPM {
     public List<GouvBPMTask> getActiveTasksForDemande(Integer demandeId);
 
     /**
+     * Permet de récupérer le nombres de tâches dans un certain état
+     * @param name
+     * @return
+     */
+    List<String> getNumberActiveDemandesInState(String name);
+
+    /**
      * Permet de lister les tâches pour lesquelles un utilisateur est désigné comme candidat
      * @param user Utilisateur concerné
      * @param codeAppli Code de l'application concernée

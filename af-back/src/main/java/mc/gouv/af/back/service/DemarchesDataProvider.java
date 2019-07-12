@@ -34,6 +34,4 @@ public interface DemarchesDataProvider {
 
     StatutPublicOuInterneDTO getStatutPublicOuInterne(Integer pkDemande, String statutLibelle);
 
-    List<String> getFichiersInternesMetas();
-
 }

@@ -389,5 +389,19 @@ public class AfBackUtils {
         }
         return destinataires;
     }
+    
+    // Norme sur les métadonnées des fichiers
+    public boolean isFileCreatedByFront(String meta) {
+    	return (StringUtils.isBlank(meta) || meta.startsWith("FRONT_"));
+    }
+    
+    public boolean isFileCreatedByBack(String meta) {
+    	return (!StringUtils.isBlank(meta) && !meta.startsWith("FRONT_"));
+    }
+    
+    public boolean isFileCreatedByBackVisibleByFront(String meta) {
+    	return (!StringUtils.isBlank(meta) && meta.startsWith("BACK_FRONT_"));
+    }
+    // FIN Norme sur les métadonnées des fichiers
 
 }

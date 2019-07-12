@@ -66,6 +66,12 @@ public class AfServletGouvPropertiesResolver {
     public static String getLoginRestUrl() {
         return Static.getValue(LOGIN_REST_URL);
     }
+    
+    public static final String LOGIN_SERVICEREST_URL = "mc.gouv.appfactory.external.login.servicerest.url";
+
+    public static String getLoginServiceRestUrl() {
+        return Static.getValue(LOGIN_SERVICEREST_URL);
+    }
 
     public static final String PAYS_URL = "mc.gouv.appfactory.external.pays.url";
 

@@ -1,12 +1,14 @@
 package mc.gouv.af.servlet.util;
 
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -165,6 +167,12 @@ public class AppFactoryServletUtils {
 
         // Authentification JWT
         return "Bearer " + jwt;
+    }
+    
+    public static String createXsrfToken(HttpSession session) {
+        String xsrfToken = session.getId() + Calendar.getInstance().getTime();
+        String xsrfTokenHash = DigestUtils.sha256Hex(xsrfToken);
+        return xsrfTokenHash;
     }
 
 }

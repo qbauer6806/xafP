@@ -11,14 +11,18 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.fluent.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 
 import mc.gouv.af.servlet.dto.UsagerInfosDTO;
+import mc.gouv.af.servlet.properties.AfServletGouvPropertiesResolver;
 import mc.gouv.af.servlet.util.AppFactoryServletUtils;
 
 /**
@@ -73,6 +77,60 @@ public class SessionsServlet extends HttpServlet {
         }
 
         LOGGER.info("====================== Fin /sessions doGet()");
+    }
+    
+    @Override
+    public void doPut(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+        LOGGER.info("====================== /sessions doPut()");
+
+        // On tente de récupérer une session existante sans en créer une
+        HttpSession session = request.getSession(false);
+        LOGGER.info("SESSION : " + session);
+        if (session != null) {
+            // Récupération de l'objet attaché à la session
+            UsagerInfosDTO usagerInfosDTO = (UsagerInfosDTO) session.getAttribute("login");
+            LOGGER.info("usagerInfosDTO : " + usagerInfosDTO + ", userId=" + usagerInfosDTO.getId());
+            
+            String serviceUrl = AfServletGouvPropertiesResolver.getLoginServiceRestUrl() + "/" + String.valueOf(usagerInfosDTO.getId());
+            LOGGER.info("Calling " + serviceUrl + "...");
+            Request serviceRequest = Request.Get(serviceUrl);
+            serviceRequest.setHeader("Accept", "application/json");
+            try {
+                LOGGER.info("Appel du service ts-login...");
+                HttpResponse serviceResponse = serviceRequest.execute().returnResponse();
+                int code = serviceResponse.getStatusLine().getStatusCode();
+                LOGGER.info("Code retour ts-login : " + code);
+                if (code == HttpServletResponse.SC_NOT_FOUND || code != HttpServletResponse.SC_OK) {
+                    LOGGER.error("Erreur lors de l'appel à servicerest/rest/usagers : " + code);
+                    response.setStatus(code);
+                } else {
+                    LOGGER.info("Stockage des informations usager dans la session...");
+                    ObjectMapper mapper = new ObjectMapper();
+                    mapper.setDateFormat(new ISO8601DateFormat());
+
+                    UsagerInfosDTO uinfos = mapper.readValue(serviceResponse.getEntity().getContent(),
+                            UsagerInfosDTO.class);
+
+                    if (uinfos != null) {
+                        // Stockage de cet objet d'infos d'usager dans la session HTTP
+                        session = request.getSession();
+                        session.setAttribute("login", uinfos);
+                        //https://docs.angularjs.org/api/ng/service/$http#cross-site-request-forgery-xsrf-protection
+                        session.setAttribute(AppFactoryServletUtils.XSRF_SESSION_ATTRIBUTE, AppFactoryServletUtils.createXsrfToken(session));
+                    }
+                }
+            } catch (Exception e) {
+                response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_INTERNAL_SERVER_ERROR,
+                        "Erreur interne: ", e);
+            }
+            
+        } else {
+            // Pas de session trouvée
+            LOGGER.info("Aucune session trouvée");
+            response.setStatus(HttpStatus.SC_NOT_FOUND);
+        }
+
+        LOGGER.info("====================== Fin /sessions doPut()");
     }
 
 }

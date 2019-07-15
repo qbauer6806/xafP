@@ -81,7 +81,7 @@
                             <tr>
                                 <th></th>
                                 <th th:each="obj, index : ${statusEnum.values()}" th:text="${obj}"
-                                    th:classappend="${prigetLibelleFromNamevateStatusEnum.containsValue(obj)? 'private' : ''}">
+                                    th:classappend="${privateStatusEnum.containsValue(obj)? 'private' : ''}">
                                 </th>
                                 <th>TOTAL</th>
                             </tr>

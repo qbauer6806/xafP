@@ -72,11 +72,11 @@
                 <br />
                 <form style="display: inline;" action="*"
                       th:action="@{/ws/export/excel}" method="GET">
-                    <div class="row" style="display: flex; align-items: center">
-                        <div class="col-xs-4 text-center">
+                    <div class="row" style="display: flex;align-items: center;justify-content: center;">
+                        <div class="col-xs-4 col-md-3 col-lg-2 text-center">
                             <h2 style="margin-top:0; margin-bottom: 0">Date de création</h2>
                         </div>
-                        <div class="col-xs-4 form-group">
+                        <div class="col-xs-4 col-md-3 col-lg-2 form-group">
                             <label for="creationStartDate">Après le (Optionnel)</label>
                             <div class="input-group date">
                                 <input type="text" id="creationStartDate"
@@ -86,7 +86,7 @@
                                     class="icon-action_calendrier"></i></span>
                             </div>
                         </div>
-                        <div class="col-xs-4 form-group">
+                        <div class="col-xs-4 col-md-3 col-lg-2 form-group">
                             <label for="creationEndDate">Avant le (Optionnel)</label>
                             <div class="input-group date">
                                 <input type="text" id="creationEndDate"
@@ -120,6 +120,10 @@
         weekStart : 1,
         language : "fr",
         todayHighlight : true
+    });
+    $('.input-group-addon').click(function() {
+        var $input = $(this).closest('div').find(':input');
+        $input.focus();
     });
 </script>
 </html>

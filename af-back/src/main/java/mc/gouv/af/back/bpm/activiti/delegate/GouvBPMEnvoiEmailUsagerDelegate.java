@@ -66,10 +66,16 @@ public class GouvBPMEnvoiEmailUsagerDelegate implements JavaDelegate {
 
         Integer usagerId = (Integer) execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_USAGERID.name());
         String langue = (String) execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_DEMANDE_LANGUE.name());
+        
+        Integer demandeId = Integer.parseInt(execution.getProcessBusinessKey());
+        DemandeDTO demande = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), demandeId);
 
         UsagerBean usager = usagerCache.get(usagerId);
         if (usager == null) {
-            throw new Exception("Impossible d'envoyer un mail pour un usager inconnu : " + usagerId);
+            usager = new UsagerBean();
+            usager.setNom(demande.getUsagerNom());
+            usager.setPrenom(demande.getUsagerPrenom());
+            usager.setEmail(demande.getUsagerEmail());
         }
 
         EmailInfoDTO emailInfo = new EmailInfoDTO();
@@ -98,9 +104,6 @@ public class GouvBPMEnvoiEmailUsagerDelegate implements JavaDelegate {
         String codeMotif = (String) execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name());
         String commentaire = (String) execution
                 .getVariable(GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name());
-
-        Integer demandeId = Integer.parseInt(execution.getProcessBusinessKey());
-        DemandeDTO demande = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), demandeId);
 
         Map<String, Object> model = mailTemplateModelProvider.getModel(subjectTemplateCode, bodyTemplateCode, demande,
                 execution.getVariables(), codeMotif, commentaire);

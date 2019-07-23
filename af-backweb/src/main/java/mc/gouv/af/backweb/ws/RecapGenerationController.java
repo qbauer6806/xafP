@@ -40,7 +40,7 @@ import mc.gouv.dem.shared.model.DemandeDTO;
 import mc.gouv.xboot.config.web.annotation.GouvRestController;
 
 /**
- * 
+ *
  * @author qdeme
  *
  */
@@ -49,27 +49,27 @@ import mc.gouv.xboot.config.web.annotation.GouvRestController;
 public class RecapGenerationController {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(RecapGenerationController.class);
-	
+
 	private static SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-	
+
 	@Autowired
 	private PaysCacheImpl paysCache;
-	
+
 	@Autowired
 	private DemandesService demandesService;
-	
+
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
-	
+
     @RequestMapping(value = "/{pkDemande}", method = RequestMethod.GET, produces = "text/html")
     public @ResponseBody String getRecap(@PathVariable(value = "pkDemande") Integer pkDemande) throws Exception {
 
         LOGGER.info("======================= Appel de /ws/recap/" + pkDemande);
 
         DemandeDTO demande = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), pkDemande);
-        
+
         String ret = "";
-        
+
         if (demande != null) {
         	ret = getHTML(demande);
         }
@@ -79,30 +79,30 @@ public class RecapGenerationController {
         return ret;
 
     }
-	
+
 	public String getHTML(DemandeDTO demande) throws IOException, ParseException, ClassNotFoundException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
-		
+
 		LOGGER.info("Chargement du fichier recap...");
 		InputStream inputStream = new ClassPathResource("/recaps/" + "recaps_" + demande.getBuildId() + ".json").getInputStream();
 		JSONParser jsonParser = new JSONParser();
 		JSONArray jsonArray = (JSONArray)jsonParser.parse(
 		      new InputStreamReader(inputStream, "UTF-8"));
-		
+
 		LOGGER.info("Construction du recap HTML...");
 		String html = "";
-		
+
 		for (int k = 0; k < jsonArray.size(); k++) {
 			if ("projectDemandeRecap".equals(((JSONObject)jsonArray.get(k)).get("name"))) {
 				JSONArray sections = (JSONArray)((JSONObject)jsonArray.get(k)).get("sections");
 				for (int i = 0; i < sections.size(); i++) {
 					JSONObject section = (JSONObject)sections.get(i);
-					
+
 					html += "<div class=\"sectiondemande\"><h3>" + section.get("titre") + "</h3><dl>";
-					
+
 					String sectionType = (String)section.get("type");
 
 					html = getFirstLevelHTML(html, demande, sectionType, section);
-					
+
 					if (sectionType.equals("adresse")) {
 						html += "<dd><span>Adresse</span></dd>";
 					}
@@ -114,15 +114,15 @@ public class RecapGenerationController {
 							html = getFirstLevelHTML(html, demande, sousSectionType, (JSONObject)sousSection);
 						}
 					}
-					
+
 					html += "</dl></div>";
 				}
 			}
 		}
-		
+
 		return html;
 	}
-	
+
 	private String getFirstLevelHTML(String html, DemandeDTO demande, String sectionType, JSONObject section) throws ClassNotFoundException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
 		if (sectionType.equals("champs")) {
 			JSONArray champs = (JSONArray)section.get("champs");
@@ -166,7 +166,7 @@ public class RecapGenerationController {
 		}
 		return html;
 	}
-	
+
 	private String getSecondLevelHTML(JsonNode node, JSONObject champ, String buildId) throws ClassNotFoundException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
 		String type = (String)champ.get("type");
 		if (type.equals("chaine") || type.equals("texte")) {
@@ -194,7 +194,7 @@ public class RecapGenerationController {
 				if (pathNode instanceof MissingNode) {
 					return "N/A";
 				}
-				
+
 				// Prise en compte valeur/valeurExtra
 				if (pathNode instanceof ObjectNode) {
 					pathNode = node.at(path+"/valeur");
@@ -206,12 +206,12 @@ public class RecapGenerationController {
 						return escape(((TextNode)node0).textValue());
 					}
 				}
-				
+
 				String enumField = pathNode.asText();
 				if (enumField == null || pathNode instanceof NullNode || StringUtils.isBlank(enumField) || enumField.equals("null")) {
 					return null;
 				}
-				
+
 				mapping = mapping.substring(0,1).toUpperCase() + mapping.substring(1);
 				Class<?> klass = Class.forName("mc.gouv." + gouvPropertiesResolver.getDemarcheId().toLowerCase() + ".shared.model.v" + buildId + "." + mapping + "Enum");
 				Object value = klass.getMethod("forValue", String.class).invoke(klass,enumField);
@@ -250,19 +250,22 @@ public class RecapGenerationController {
 			String ligne1 = escape(getNode(node,champ,"ligne1").textValue());
 			String ligne2 = escape(getNode(node,champ,"ligne2").textValue());
 			String ligne3 = escape(getNode(node,champ,"ligne3").textValue());
-			String ret = "<dd><span>Adresse</span></dd><dt><span>" + ligne1 + "</span>";
-			if (StringUtils.isNotBlank(ligne2)) {
-				ret += "<br><span>" + ligne2 + "</span>";
+			String ret = "";
+			if (StringUtils.isNotEmpty(ligne1)) {
+				ret = "<dd><span>Adresse</span></dd><dt><span>" + ligne1 + "</span>";
+				if (StringUtils.isNotBlank(ligne2)) {
+					ret += "<br><span>" + ligne2 + "</span>";
+				}
+				if (StringUtils.isNotBlank(ligne3)) {
+					ret += "<br><span>" + ligne3 + "</span>";
+				}
+				ret += "</dt>";
+				String codePostal = escape(getNode(node,champ,"codePostal").textValue());
+				String ville = escape(getNode(node,champ,"ville").textValue());
+				ret += "<dd><span>Ville</span></dd><dt><span>" + codePostal + " " + ville + "</span></dt>";
+				String pays = getNode(node,champ,"pays").textValue();
+				ret += "<dd><span>Pays</span></dd><dt><span>" + paysCache.get(pays, "fr").getNom() + "</span></dt>";
 			}
-			if (StringUtils.isNotBlank(ligne3)) {
-				ret += "<br><span>" + ligne3 + "</span>";
-			}
-			ret += "</dt>";
-			String codePostal = escape(getNode(node,champ,"codePostal").textValue());
-			String ville = escape(getNode(node,champ,"ville").textValue());
-			ret += "<dd><span>Ville</span></dd><dt><span>" + codePostal + " " + ville + "</span></dt>";
-			String pays = getNode(node,champ,"pays").textValue();
-			ret += "<dd><span>Pays</span></dd><dt><span>" + paysCache.get(pays, "fr").getNom() + "</span></dt>";
 			return ret;
 		}
 		else if (type.equals("iban")) {
@@ -276,16 +279,16 @@ public class RecapGenerationController {
 			return type;
 		}
 	}
-	
+
 	private JsonNode getNode(JsonNode node, JSONObject champ, String ref) {
 		String path = champ.get(ref).toString().replace("contenu.", "/").replace(".", "/");
 		if (path.charAt(0) != '/') {
 			path = "/" + path;
 		}
 		return node.at(path);
-		
+
 	}
-	
+
 	private String escape(String str) {
 		return StringEscapeUtils.escapeHtml4(str);
 	}

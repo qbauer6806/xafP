@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 
 import mc.gouv.af.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.af.back.properties.GouvPropertiesResolver;
-import mc.gouv.af.back.service.IndexedDemandeService;
 import mc.gouv.af.back.util.AfBackUtils;
 import mc.gouv.dem.service.DemandesStatutsService;
 import mc.gouv.dem.shared.model.StatutInputDTO;
@@ -37,9 +36,6 @@ public class GouvBPMStatusChangeDelegate implements JavaDelegate {
 
     @Autowired
     private DemandesStatutsService demandesStatutsService;
-
-    @Autowired(required = false)
-    private IndexedDemandeService indexedDemandeService;
 
     private Expression codeMotif;
 

@@ -618,7 +618,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         LOGGER.info("Début de la réindexation");
         if (demandeEsRepository != null) {
             long demCount = demandesRepository.count();
-            LOGGER.info("Nombre de demandes à réindexé : {}", demCount);
+            LOGGER.info("Nombre de demandes à réindexer : {}", demCount);
             demandeEsRepository.deleteAll();
             final int size = gouvPropertiesResolver.getEsReindexBulkSize();
             LOGGER.info("Bulk size : {}", size);

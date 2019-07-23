@@ -97,7 +97,7 @@ public class DemandeJobServiceImpl implements DemandeJobService {
         job.setDateCreation(now);
         job.setDateDernModif(now);
         job.setJobName(jobName);
-        job.setMsg("Début de l'exéxution du job");
+        job.setMsg("Début de l'exécution du job");
         job.setStatut(JobStatutsEnum.RUNNING);
         demandeJobRepository.save(job);
     }

@@ -1,12 +1,11 @@
 package mc.gouv.af.backweb.controller;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import javax.validation.Valid;
 
+import mc.gouv.af.back.service.TeleserviceDataProvider;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
@@ -44,6 +43,9 @@ public class DemandesCourrierController extends AbstractController {
 
 	@Autowired
 	private UsagersCache usagersCache;
+
+	@Autowired
+	TeleserviceDataProvider teleserviceDataProvider;
 
 	@Autowired
 	private GouvPropertiesResolver gouvPropertiesResolver;
@@ -153,6 +155,7 @@ public class DemandesCourrierController extends AbstractController {
 		canaux.add(DemandeCanalEnum.COURRIER);
 		canaux.add(DemandeCanalEnum.GUICHET_PHYSIQUE);
 		mav.addObject("canaux", canaux);
+		mav.addObject("langues", teleserviceDataProvider.getLanguesDisponibles());
 		return mav;
 	}
 

@@ -66,4 +66,10 @@ public class DemarchesDataProviderImpl implements DemarchesDataProvider {
         return null;
     }
 
+	@Override
+	public Map<String, String> getLanguesDisponibles() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

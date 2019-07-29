@@ -28,10 +28,12 @@ public interface DemarchesDataProvider {
 
     public Map<String, String> getStatusMap();
 
-    Map<String, String> getPrivateStatusMap();
+    public Map<String, String> getPrivateStatusMap();
 
     public String getVersion();
 
-    StatutPublicOuInterneDTO getStatutPublicOuInterne(Integer pkDemande, String statutLibelle);
+    public StatutPublicOuInterneDTO getStatutPublicOuInterne(Integer pkDemande, String statutLibelle);
+
+	public Map<String, String> getLanguesDisponibles();
 
 }

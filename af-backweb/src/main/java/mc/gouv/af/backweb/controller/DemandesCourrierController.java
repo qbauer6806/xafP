@@ -1,11 +1,12 @@
 package mc.gouv.af.backweb.controller;
 
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 import javax.validation.Valid;
 
-import mc.gouv.af.back.service.TeleserviceDataProvider;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
@@ -25,6 +26,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import mc.gouv.af.back.cache.UsagersCache;
 import mc.gouv.af.back.properties.GouvPropertiesResolver;
+import mc.gouv.af.back.service.DemarchesDataProvider;
 import mc.gouv.af.back.util.AfBackUtils;
 import mc.gouv.af.backweb.formbean.DemandesCourrierFormBean;
 import mc.gouv.af.backweb.formbean.UsagerCourrierFormBean;
@@ -45,7 +47,7 @@ public class DemandesCourrierController extends AbstractController {
 	private UsagersCache usagersCache;
 
 	@Autowired
-	TeleserviceDataProvider teleserviceDataProvider;
+	private DemarchesDataProvider demarchesDataProvider;
 
 	@Autowired
 	private GouvPropertiesResolver gouvPropertiesResolver;
@@ -155,7 +157,7 @@ public class DemandesCourrierController extends AbstractController {
 		canaux.add(DemandeCanalEnum.COURRIER);
 		canaux.add(DemandeCanalEnum.GUICHET_PHYSIQUE);
 		mav.addObject("canaux", canaux);
-		mav.addObject("langues", teleserviceDataProvider.getLanguesDisponibles());
+		mav.addObject("langues", demarchesDataProvider.getLanguesDisponibles());
 		return mav;
 	}
 

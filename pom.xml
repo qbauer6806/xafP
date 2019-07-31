@@ -12,15 +12,15 @@
 	</properties>
 	<groupId>mc.gouv.af</groupId>
 	<artifactId>af</artifactId>
-	<version>5.0.0</version>
+	<version>5.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 
 
 	<scm>
-		<developerConnection>${svn.connection}/${project.artifactId}/tags/af-5.0.0</developerConnection>
-		<connection>${svn.connection}/${project.artifactId}/tags/af-5.0.0</connection>
-		<url>${svn.url}/${project.artifactId}/tags/af-5.0.0</url>
+		<developerConnection>${svn.connection}/${project.artifactId}/trunk</developerConnection>
+		<connection>${svn.connection}/${project.artifactId}/trunk</connection>
+		<url>${svn.url}/${project.artifactId}/trunk</url>
 	</scm>
 
 	<modules>

@@ -8,11 +8,11 @@ import mc.gouv.dem.service.properties.GouvProperty;
 
 @Component
 @Profile("test")
-public class DemGouvPropertiesResolverImplTest implements DemGouvPropertiesResolver {
+public class DemGouvPropertiesResolverImplMock implements DemGouvPropertiesResolver {
 
     @Override
     public String getValue(GouvProperty prop) {
         // TODO Auto-generated method stub
-        return null;
+        return "TestDEM";
     }
 }

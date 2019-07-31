@@ -1,7 +1,6 @@
 package mc.gouv.af.servlet;
 
 import java.io.IOException;
-import java.util.Calendar;
 import java.util.StringTokenizer;
 
 import javax.servlet.ServletException;
@@ -82,7 +81,7 @@ public class LoginServlet extends AbstractAfServlet {
                         HttpSession session = request.getSession();
                         session.setAttribute("login", uinfos);
                         //https://docs.angularjs.org/api/ng/service/$http#cross-site-request-forgery-xsrf-protection
-                        session.setAttribute(AppFactoryServletUtils.XSRF_SESSION_ATTRIBUTE, createXsrfToken(session));
+                        session.setAttribute(AppFactoryServletUtils.XSRF_SESSION_ATTRIBUTE, AppFactoryServletUtils.createXsrfToken(session));
                     }
                 }
             } catch (Exception e) {
@@ -157,18 +156,12 @@ public class LoginServlet extends AbstractAfServlet {
                 // Stockage de cet objet d'infos d'usager dans la session HTTP
                 HttpSession session = request.getSession();
                 session.setAttribute("login", uinfos);
-                session.setAttribute(AppFactoryServletUtils.XSRF_SESSION_ATTRIBUTE, createXsrfToken(session));
+                session.setAttribute(AppFactoryServletUtils.XSRF_SESSION_ATTRIBUTE, AppFactoryServletUtils.createXsrfToken(session));
             }
         }
 
         LOGGER.info("====================== Fin /login doPost()");
 
-    }
-
-    private String createXsrfToken(HttpSession session) {
-        String xsrfToken = session.getId() + Calendar.getInstance().getTime();
-        String xsrfTokenHash = DigestUtils.sha256Hex(xsrfToken);
-        return xsrfTokenHash;
     }
 
     @Override

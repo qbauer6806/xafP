@@ -114,20 +114,20 @@ public class ArtemisConfig implements ArtemisConfigurationCustomizer {
 
         AddressSettings addressSettings = new AddressSettings();
 
-        String redeliverayDelayStr = gouvPropertiesResolver.getJmsRedeliveryDelay();
-        if (StringUtils.isNotBlank(redeliverayDelayStr)) {
-            long redeliverayDelay = Long.parseLong(redeliverayDelayStr);
+        String redeliveryDelayStr = gouvPropertiesResolver.getJmsRedeliveryDelay();
+        if (StringUtils.isNotBlank(redeliveryDelayStr)) {
+            long redeliveryDelay = Long.parseLong(redeliveryDelayStr);
 
-            LOGGER.info("RedeliverayDelay : " + redeliverayDelay);
+            LOGGER.info("redeliveryDelay : " + redeliveryDelay);
 
-            addressSettings.setRedeliveryDelay(redeliverayDelay);
+            addressSettings.setRedeliveryDelay(redeliveryDelay);
         }
 
-        String redeliverayMultiplierStr = gouvPropertiesResolver.getJmsRedeliveryMultiplier();
-        if (StringUtils.isNotBlank(redeliverayMultiplierStr)) {
-            double redeliverayMultiplier = Double.parseDouble(redeliverayMultiplierStr);
-            addressSettings.setRedeliveryMultiplier(redeliverayMultiplier);
-            LOGGER.info("RedeliverayMultiplier : " + redeliverayMultiplier);
+        String redeliveryMultiplierStr = gouvPropertiesResolver.getJmsRedeliveryMultiplier();
+        if (StringUtils.isNotBlank(redeliveryMultiplierStr)) {
+            double redeliveryMultiplier = Double.parseDouble(redeliveryMultiplierStr);
+            addressSettings.setRedeliveryMultiplier(redeliveryMultiplier);
+            LOGGER.info("redeliveryMultiplier : " + redeliveryMultiplier);
         }
 
         String maxDeliveryAttempsStr = gouvPropertiesResolver.getJmsRedeliveryMaxAttemps();

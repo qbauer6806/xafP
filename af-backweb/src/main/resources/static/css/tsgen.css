@@ -274,4 +274,24 @@ dt {
   color: white;
 }
 
+.updated-value {
+	background-color: #F2DDDD !important;
+}
 
+
+.job-en-cours-execution {
+    background-color: #EC661C;
+}
+
+.job-erreur {
+    background-color: #E83F40;
+}
+
+.job-reussi {
+    background-color: #00983A;
+}
+
+.job-statut-inconnu {
+    background-color: #FFDE00;
+    color: #0F607C;
+}

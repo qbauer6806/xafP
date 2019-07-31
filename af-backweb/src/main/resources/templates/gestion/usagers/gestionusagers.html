@@ -33,11 +33,11 @@
 </head>
 <body th:with="pageUsagersActive='active'">
 
-	<div th:replace="fragments/header :: header" />
+	<div th:replace="fragments/header :: header"></div>
 
 	<div id="wrapper">
 
-		<div th:replace="fragments/sidebar :: sidebar" />
+		<div th:replace="fragments/sidebar :: sidebar"></div>
 
 
 		<!-- DEBUT CONTENU -->
@@ -52,7 +52,7 @@
 				</ol>
 				<div class="triangleTopright"></div>
 			</div>
-			
+
 
 			<div class="container-fluid">
 
@@ -80,8 +80,8 @@
 						<span class="titre">Recherche</span>
 						<div class="panel panel-simple">
 							<div class="form-group">
-								<form action="#"
-									th:action="@{/gestion/usagers/rechercher}" method="post">
+								<form action="#" th:action="@{/gestion/usagers/rechercher}"
+									method="post">
 									<label for="inputSearch">Par nom d'usager - Par raison
 										sociale - Par adresse</label>
 									<div class="row">
@@ -126,24 +126,28 @@
 										<td><span th:text="${usager.nomRaisonSociale}"></span></td>
 										<td><span th:text="${usager.adresse}"></span></td>
 										<td><span th:text="${usager.nbDemandes}"></span></td>
-										<td class="text-right">
-											<a th:href="@{/gestion/usagers/}+${usager.usagerId}">												
-												<span class="btn btn-action ripple-effect greyTooltip" data-toggle="tooltip" data-placement="bottom" data-original-title="Visualiser/Modifier" title="">
-												<i class="icon-action_editer"></i></span>
-											</a> &nbsp;&nbsp;
-											
-											<a href="#" th:attr="data-usagerid=${usager.usagerId},data-raisonsociale=${usager.raisonSociale},data-nomprenom=${usager.nomPrenom},data-ville=${usager.ville},data-codepostal=${usager.codePostal},data-adresse=${usager.adresse},data-urltransfert=@{/gestion/usagers/transferer/}"
-											class="transferer">
-												<span class="btn btn-action ripple-effect greyTooltip" data-toggle="tooltip" data-placement="bottom" data-original-title="Transférer des demandes" title="">
-												<i class="icon-action_transferer_demande"></i></span>
-											</a> &nbsp;&nbsp;
-											
-											<a href="#" th:attr="data-usagerid=${usager.usagerId},data-raisonsociale=${usager.raisonSociale},data-nomprenom=${usager.nomPrenom},data-ville=${usager.ville},data-codepostal=${usager.codePostal},data-adresse=${usager.adresse},data-nbdemandes=${usager.nbDemandes},data-urltransfert=@{/gestion/usagers/transferer/}"
-											class="supprimer">
-												<span class="btn btn-action ripple-effect greyTooltip" data-toggle="tooltip" data-placement="bottom" data-original-title="Supprimer l'usager" title="">
-												<i class="icon-action_supprimer"></i></span>
-											</a>
-										</td>
+										<td class="text-right"><a
+											th:href="@{/gestion/usagers/}+${usager.usagerId}"> <span
+												class="btn btn-action ripple-effect greyTooltip"
+												data-toggle="tooltip" data-placement="bottom"
+												data-original-title="Visualiser/Modifier" title=""> <i
+													class="icon-action_editer"></i></span>
+										</a> &nbsp;&nbsp; <a href="#"
+											th:attr="data-usagerid=${usager.usagerId},data-raisonsociale=${usager.raisonSociale},data-nomprenom=${usager.nomPrenom},data-ville=${usager.ville},data-codepostal=${usager.codePostal},data-adresse=${usager.adresse},data-urltransfert=@{/gestion/usagers/transferer/}"
+											class="transferer"> <span
+												class="btn btn-action ripple-effect greyTooltip"
+												data-toggle="tooltip" data-placement="bottom"
+												data-original-title="Transférer des demandes" title="">
+													<i class="icon-action_transferer_demande"></i>
+											</span>
+										</a> &nbsp;&nbsp; <a href="#"
+											th:attr="data-usagerid=${usager.usagerId},data-raisonsociale=${usager.raisonSociale},data-nomprenom=${usager.nomPrenom},data-ville=${usager.ville},data-codepostal=${usager.codePostal},data-adresse=${usager.adresse},data-nbdemandes=${usager.nbDemandes},data-urltransfert=@{/gestion/usagers/transferer/}"
+											class="supprimer"> <span
+												class="btn btn-action ripple-effect greyTooltip"
+												data-toggle="tooltip" data-placement="bottom"
+												data-original-title="Supprimer l'usager" title=""> <i
+													class="icon-action_supprimer"></i></span>
+										</a></td>
 
 									</tr>
 
@@ -161,17 +165,11 @@
 		<!-- FIN CONTENU -->
 
 	</div>
-	<div class="container-fluid">
-
-		<div class="row">
-			<div th:replace="fragments/footer :: footer" />
-		</div>
-	</div>
+	<div th:replace="fragments/footer :: footer"></div>
 
 	<!-- Template Suppression -->
 
-	<div
-		th:replace="fragments/supprimerusager :: supprimerusager" />
+	<div th:replace="fragments/supprimerusager :: supprimerusager" />
 
 
 	<!-- Template selection transfert -->

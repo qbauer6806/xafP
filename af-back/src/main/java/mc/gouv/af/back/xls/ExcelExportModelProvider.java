@@ -4,6 +4,5 @@ import java.util.Map;
 
 public interface ExcelExportModelProvider {
 
-    public Map<String, Object> getModel();
-    
+    Map<String, Object> getModel(String startDate, String endDate);
 }

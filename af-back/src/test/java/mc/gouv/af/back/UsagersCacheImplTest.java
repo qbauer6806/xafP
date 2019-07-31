@@ -11,6 +11,7 @@ import mc.gouv.servicerest.usager.model.UsagerBean;
 
 @Component
 @Profile("test")
+
 public class UsagersCacheImplTest implements UsagersCache {
 
     @Override

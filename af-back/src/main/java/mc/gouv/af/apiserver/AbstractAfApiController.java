@@ -74,7 +74,7 @@ public abstract class AbstractAfApiController implements AfApiController {
     @RequestMapping(value = "/demandes/{demandeId}/complements/{icId}", method = RequestMethod.PUT)
     public DemandeComplementsDTO repondreDemandeComplementsRequest(@PathVariable(value = "demandeId") Integer demandeId,
             @PathVariable(value = "icId") Integer icId, @Valid @RequestBody DemandeComplementsReponseDTO reponse)
-            throws IOException {
+            throws Exception {
         LOGGER.info(
                 "AbstractAfApiController.repondreDemandeComplements(" + demandeId + "," + icId + "," + reponse + ")");
         return repondreDemandeComplements(demandeId, icId, reponse);

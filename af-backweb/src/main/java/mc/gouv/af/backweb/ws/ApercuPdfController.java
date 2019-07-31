@@ -7,10 +7,10 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
-import org.eclipse.jetty.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,10 +36,10 @@ public class ApercuPdfController extends AbstractController {
 
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
-    
+
     @Autowired
     private DemandesService demandesService;
-    
+
     @Autowired
     private PdfGenerationService pdfGenerationService;
 
@@ -51,23 +51,25 @@ public class ApercuPdfController extends AbstractController {
             @RequestParam(required = false) String langue, @RequestParam(required = false) String codeMotif) {
 
         LOGGER.info("======================= /pdf/apercu Génération d'aperçu PDF");
-        
-        DemandeDTO demande = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), Integer.valueOf(pkDemande));
-        
+
+        DemandeDTO demande = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(),
+                Integer.valueOf(pkDemande));
+
         response.setContentType("application/pdf");
         response.setHeader("Content-disposition", "attachment; filename=" + demande.getIdentifiant() + ".pdf");
 
         LOGGER.info("Appel au service de génération de PDF...");
-        File file = pdfGenerationService.generatePdfPreview(demande, statut, codeMotif, demande.getLangue(), commentaire);
-        
+        File file = pdfGenerationService.generatePdfPreview(demande, statut, codeMotif, demande.getLangue(),
+                commentaire);
+
         try {
             LOGGER.info("Écriture du PDF dans l'OutputStream...");
             IOUtils.copy(new FileInputStream(file), response.getOutputStream());
         } catch (IOException e) {
             LOGGER.error("Erreur lors de l'écriture du PDF dans l'OutputStream", e);
-            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR_500);
+            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
-        
+
         LOGGER.info("======================= Fin /pdf/apercu");
     }
 

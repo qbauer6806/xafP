@@ -50,9 +50,26 @@ public class DemarchesDataProviderImpl implements DemarchesDataProvider {
     }
 
     @Override
+    public Map<String, String> getPrivateStatusMap() {
+        return null;
+    }
+
+    @Override
     public String getVersion() {
         // TODO Auto-generated method stub
         return null;
     }
-    
+
+    @Override
+    public StatutPublicOuInterneDTO getStatutPublicOuInterne(Integer pkDemande, String statutLibelle) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+	@Override
+	public Map<String, String> getLanguesDisponibles() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

@@ -71,15 +71,17 @@
 								<div class="panel panel-simple">
 									<div class="row">
 										<div class="col-xs-12">
-											<form id="form-creationUsager" th:action="@{/gestion/usagers/creer}" method="post"
+											<form id="form-creationUsager"
+												th:action="@{/gestion/usagers/creer}" method="post"
 												th:object="${usagerCourrierFormBean}">
-											
+
 												<div class="row">
 													<div class="col-xs-2">
 														<label for="selectTitre">Titre </label>
 													</div>
 													<div class="col-xs-10">
-														<select id="selectTitre" class="form-control" th:field="*{titre}">
+														<select id="selectTitre" class="form-control"
+															th:field="*{titre}">
 															<option th:value="null">Veuillez sélectionner
 																une valeur...</option>
 															<option th:value="Mr">Monsieur</option>
@@ -88,8 +90,8 @@
 														</select>
 													</div>
 												</div>
-												
-												<br/>
+
+												<br />
 												<div class="row">
 													<div
 														th:class="${#fields.hasErrors('nom')} ? 'form-group error' : 'form-group'">
@@ -98,26 +100,25 @@
 														</div>
 														<div class="col-xs-10">
 															<input type="text" class="form-control nom" id="nom"
-																th:field="*{nom}" 
-																th:errorclass="errorTooltip"
+																th:field="*{nom}" th:errorclass="errorTooltip"
 																th:attr="data-title=${#fields.hasErrors('nom')} ? ${#fields.errors('nom')} :''" />
 														</div>
 													</div>
 												</div>
-												
-												<br/>
-													<div class="row">
-														<div class="col-xs-2">
-															<label for="inputPrenom">Prénom</label>
-														</div>
-														<div class="col-xs-10">
-															<input type="text" class="form-control" id="inputPrenom"
-																th:field="*{prenom}" maxlength="20" />
-														</div>
+
+												<br />
+												<div class="row">
+													<div class="col-xs-2">
+														<label for="inputPrenom">Prénom</label>
 													</div>
-											
-												
-												<br/>
+													<div class="col-xs-10">
+														<input type="text" class="form-control" id="inputPrenom"
+															th:field="*{prenom}" maxlength="20" />
+													</div>
+												</div>
+
+
+												<br />
 												<div class="row">
 													<div
 														th:class="${#fields.hasErrors('nom')} ? 'form-group error' : 'form-group'">
@@ -133,8 +134,8 @@
 														</div>
 													</div>
 												</div>
-												
-												<br/>
+
+												<br />
 												<div class="row">
 													<div
 														th:class="${#fields.hasErrors('adresse1')} ? 'form-group error' : 'form-group'">
@@ -153,18 +154,17 @@
 													</div>
 												</div>
 
-												<br/>
+												<br />
 												<div class="row">
 													<div class="col-xs-2"></div>
 													<div class="col-xs-10">
 
-														<input type="text" class="form-control"
-															id="inputAdresse2" th:field="*{adresse2}"
-															maxlength="128" />
+														<input type="text" class="form-control" id="inputAdresse2"
+															th:field="*{adresse2}" maxlength="128" />
 													</div>
 												</div>
-												
-												<br/>
+
+												<br />
 												<div class="row">
 													<div class="col-xs-2"></div>
 													<div class="col-xs-10">
@@ -174,8 +174,8 @@
 
 													</div>
 												</div>
-										
-												<br/>
+
+												<br />
 												<div class="row">
 													<div
 														th:class="${#fields.hasErrors('codePostal')} ? 'form-group error' : 'form-group'">
@@ -191,8 +191,8 @@
 														</div>
 													</div>
 												</div>
-											
-												<br/>
+
+												<br />
 												<div class="row">
 													<div
 														th:class="${#fields.hasErrors('ville')} ? 'form-group error' : 'form-group'">
@@ -202,14 +202,13 @@
 														</div>
 														<div class="col-xs-10">
 															<input type="text" class="form-control" id="inputVille"
-																th:field="*{ville}" 
-																th:errorclass="errorTooltip" 
+																th:field="*{ville}" th:errorclass="errorTooltip"
 																th:attr="data-title=${#fields.hasErrors('ville')} ? ${#fields.errors('ville')} :''" />
 														</div>
 													</div>
 												</div>
-											
-												<br/>												
+
+												<br />
 												<div class="row">
 													<div
 														th:class="${#fields.hasErrors('paysChoisi')} ? 'form-group error' : 'form-group'">
@@ -219,8 +218,7 @@
 														</div>
 														<div class="col-xs-10">
 															<select id="selectPays" th:field="*{paysChoisi}"
-																class="form-control" 
-																th:errorclass="errorTooltip"
+																class="form-control" th:errorclass="errorTooltip"
 																th:attr="data-title=${#fields.hasErrors('paysChoisi')} ? ${#fields.errors('paysChoisi')} :''">
 																<option value="">Veuillez sélectionner une
 																	valeur...</option>
@@ -236,9 +234,9 @@
 														</div>
 													</div>
 												</div>
-											
 
-												<br/>
+
+												<br />
 												<div class="row">
 													<div class="col-xs-2">
 														<label for="inputTelephone">Téléphone </label>
@@ -249,8 +247,8 @@
 															maxlength="64" />
 													</div>
 												</div>
-												
-												<br/>
+
+												<br />
 												<div class="row">
 													<div class="col-xs-2">
 														<label for="inputEmail">Adresse email </label>
@@ -260,17 +258,18 @@
 															th:field="*{email}" maxlength="256" />
 													</div>
 												</div>
-										
-												<br/>
+
+												<br />
 												<div class="row">
 													<div class="col-xs-12">
 														<div class="text-center">
 															<input type="hidden" name="updateUsagerId"
 																th:value="${updateUsagerId}" /> <a
 																th:href="@{/gestion/usagers}"
-																class="btn btn-action-second ripple-effect"> Retour </a>
-															<input type="submit" name="action" value="Sauvegarder" class="btn btn-action ripple-effect"/>
-															<a class="btn btn-action ripple-effect"
+																class="btn btn-action-second ripple-effect"> Retour
+															</a> <input type="submit" name="action" value="Sauvegarder"
+																class="btn btn-action ripple-effect" /> <a
+																class="btn btn-action ripple-effect"
 																th:if="${updateUsagerId} != null"
 																th:href="@{/demandes/courriers/creer/}+${updateUsagerId}">
 																Ajouter une demande </a>
@@ -300,11 +299,7 @@
 		<!-- FIN CONTENU -->
 
 	</div>
-	<div class="container-fluid">
-		<div class="row">
-			<div th:replace="fragments/footer :: footer"></div>
-		</div>
-	</div>
+	<div th:replace="fragments/footer :: footer"></div>
 
 	<div th:replace="fragments/message :: message"></div>
 

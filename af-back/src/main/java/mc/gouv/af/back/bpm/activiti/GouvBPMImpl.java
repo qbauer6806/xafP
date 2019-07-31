@@ -1,9 +1,7 @@
 package mc.gouv.af.back.bpm.activiti;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.activiti.engine.ActivitiObjectNotFoundException;
 import org.activiti.engine.ActivitiTaskAlreadyClaimedException;
@@ -42,6 +40,8 @@ import mc.gouv.af.back.bpm.model.GouvBPMGroup;
 import mc.gouv.af.back.bpm.model.GouvBPMStatutAction;
 import mc.gouv.af.back.bpm.model.GouvBPMTask;
 import mc.gouv.af.back.bpm.model.GouvBPMUser;
+import mc.gouv.af.back.properties.GouvPropertiesResolver;
+import mc.gouv.af.back.service.IndexedDemandeService;
 
 /**
  * 
@@ -70,6 +70,12 @@ public class GouvBPMImpl implements GouvBPM {
 
     @Autowired
     private FormService formService;
+    
+    @Autowired
+    private GouvPropertiesResolver gouvPropertiesResolver;
+    
+    @Autowired(required = false)
+    private IndexedDemandeService indexedDemandeService;
 
     public void startProcessInstanceByKeyOrMessage(String processDefinitionKey, String messageName, GouvBPMUser user,
             Integer demandeId, String codeAppli, Map<String, Object> businessVariables) {
@@ -189,8 +195,26 @@ public class GouvBPMImpl implements GouvBPM {
     }
 
     @Override
+    public List<String> getNumberActiveDemandesInState(String state) {
+        LOGGER.debug("getNumberActiveDemandesInState(" + state + ")");
+        List<Task> tasks = taskService.createTaskQuery().taskDefinitionKey(state).active().list();
+        Set<String> tasksProcessIds = tasks.stream().map(Task::getProcessInstanceId).collect(Collectors.toSet());
+        List<String> instancesIds = new ArrayList<>();
+        if (!tasksProcessIds.isEmpty()) {
+            List<ProcessInstance> processInstanceInTheState = runtimeService.createProcessInstanceQuery().processInstanceIds(tasksProcessIds).active().list();
+            instancesIds = processInstanceInTheState.stream().map(ProcessInstance::getBusinessKey).collect(Collectors.toList());
+        }
+        return instancesIds;
+    }
+
+    @Override
+    @Transactional(noRollbackFor = { ActivitiTaskAlreadyClaimedException.class, TaskAlreadyClaimedException.class })
     public void claimTask(GouvBPMTask task, GouvBPMUser user) throws TaskAlreadyClaimedException {
         LOGGER.info("claimTask(" + task + "," + user + ")");
+
+        if (task != null && task.getAssignee() != null && user != null && !task.getAssignee().equals(user.getId())) {
+        	throw new TaskAlreadyClaimedException("Tâche déjà claimed par un autre user");
+        }
 
         try {
             taskService.claim(task.getId(), user.getId());
@@ -201,10 +225,13 @@ public class GouvBPMImpl implements GouvBPM {
     }
 
     @Override
-    public void completeTask(GouvBPMTask task) {
+    public void completeTask(GouvBPMTask task, Integer demandeId) throws Exception {
         LOGGER.info("completeTask(" + task + ")");
 
         taskService.complete(task.getId());
+        
+        // Réindexation pour prendre en compte le nouveau statutPublicOuInterne
+        reindex(demandeId);
     }
 
     @Override
@@ -401,13 +428,22 @@ public class GouvBPMImpl implements GouvBPM {
     }
 
     @Override
-    public void submitTaskFormData(GouvBPMTask task, Map<String, String> properties) {
+    public void submitTaskFormData(GouvBPMTask task, Map<String, String> properties, Integer demandeId) throws Exception {
         // Pour éviter les NPE dans Activiti et éviter d'avoir à déclarer de nouveaux HashMaps
         // si on ne veut rien transmettre dans le formulaire
         if (properties == null) {
             properties = new HashMap<String, String>();
         }
         formService.submitTaskFormData(task.getId(), properties);
+        // Réindexation pour prendre en compte le nouveau statutPublicOuInterne
+        reindex(demandeId);
+    }
+    
+    private void reindex(Integer demandeId) throws Exception {
+        // Réindexation pour prendre en compte le nouveau statutPublicOuInterne
+        if (indexedDemandeService != null) {
+            indexedDemandeService.indexDemande(gouvPropertiesResolver.getDemarcheId(), demandeId);
+        }
     }
 
     @SuppressWarnings("unchecked")

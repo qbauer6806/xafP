@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 
 import mc.gouv.af.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.af.back.properties.GouvPropertiesResolver;
-import mc.gouv.af.back.service.IndexedDemandeService;
 import mc.gouv.af.back.util.AfBackUtils;
 import mc.gouv.dem.service.DemandesStatutsService;
 import mc.gouv.dem.shared.model.StatutInputDTO;
@@ -38,9 +37,6 @@ public class GouvBPMStatusChangeDelegate implements JavaDelegate {
     @Autowired
     private DemandesStatutsService demandesStatutsService;
 
-    @Autowired(required = false)
-    private IndexedDemandeService indexedDemandeService;
-    
     private Expression codeMotif;
 
     @Override
@@ -54,16 +50,16 @@ public class GouvBPMStatusChangeDelegate implements JavaDelegate {
 
         LOGGER.info("Demande : " + demandeId);
         LOGGER.info("Statut à mettre : " + statut);
-        
+
         String codeMotifStr = null;
         if (codeMotif != null && codeMotif.getValue(execution) != null) {
-            codeMotifStr = (String)codeMotif.getValue(execution);
+            codeMotifStr = (String) codeMotif.getValue(execution);
         }
 
         // Récupération du commentaire usager et du code motif si besoin plus tard dans le traitement
         String commentaireUsager = (String) execution
                 .getVariable(GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name());
-        
+
         // Si le code motif n'a pas été indiqué dans le BPMN, alors le récupérer des process variables
         if (StringUtils.isBlank(codeMotifStr)) {
             codeMotifStr = (String) execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name());
@@ -102,10 +98,6 @@ public class GouvBPMStatusChangeDelegate implements JavaDelegate {
         } else {
             demandesStatutsService.updateStatut(gouvPropertiesResolver.getDemarcheId(), demandeId, statut,
                     AfBackUtils.getAuthenticatedAgentId(), null, codeMotifStr, commentaireUsager);
-        }
-
-        if (indexedDemandeService != null) {
-            indexedDemandeService.indexDemande(gouvPropertiesResolver.getDemarcheId(), demandeId);
         }
 
         LOGGER.info("==== AF-BACK CHANGEMENT STATUT <fin>");

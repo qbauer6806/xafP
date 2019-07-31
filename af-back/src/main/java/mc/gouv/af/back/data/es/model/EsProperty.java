@@ -8,6 +8,11 @@ public class EsProperty {
     private String name;
     private String type;
     private List<String> fields = new ArrayList<>();
+    private String label;
+    private Integer categoryId;
+    private List<EsCategory> allCategories = new ArrayList<>();
+    private boolean enabled = true;
+    private boolean editable;
 
     public static final String BOOLEAN_TYPE = "boolean";
 
@@ -19,6 +24,13 @@ public class EsProperty {
     public EsProperty(String name, List<String> fields) {
         super();
         this.name = name;
+        this.fields = fields;
+    }
+
+    public EsProperty(String name, String type, List<String> fields) {
+        super();
+        this.name = name;
+        this.type = type;
         this.fields = fields;
     }
 
@@ -46,8 +58,48 @@ public class EsProperty {
         this.fields = fields;
     }
 
+    public String getLabel() {
+        return label;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
+    public Integer getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(Integer categoryId) {
+        this.categoryId = categoryId;
+    }
+
     public void addField(String fieldName) {
         fields.add(fieldName);
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public List<EsCategory> getAllCategories() {
+        return allCategories;
+    }
+
+    public void setAllCategories(List<EsCategory> allCategories) {
+        this.allCategories = allCategories;
+    }
+
+    public boolean isEditable() {
+        return editable;
+    }
+
+    public void setEditable(boolean editable) {
+        this.editable = editable;
     }
 
     @Override

@@ -9,6 +9,7 @@ import javax.validation.Valid;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.client.utils.URIBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import mc.gouv.af.back.cache.UsagersCache;
 import mc.gouv.af.back.properties.GouvPropertiesResolver;
+import mc.gouv.af.back.service.DemarchesDataProvider;
 import mc.gouv.af.back.util.AfBackUtils;
 import mc.gouv.af.backweb.formbean.DemandesCourrierFormBean;
 import mc.gouv.af.backweb.formbean.UsagerCourrierFormBean;
@@ -43,6 +45,9 @@ public class DemandesCourrierController extends AbstractController {
 
 	@Autowired
 	private UsagersCache usagersCache;
+
+	@Autowired
+	private DemarchesDataProvider demarchesDataProvider;
 
 	@Autowired
 	private GouvPropertiesResolver gouvPropertiesResolver;
@@ -102,13 +107,19 @@ public class DemandesCourrierController extends AbstractController {
 		if (gouvPropertiesResolver.getNovalidate()) {
 		    novalidate = "&novalidate=true";
 		}
-		
-		String redirect = "redirect:" + gouvPropertiesResolver.getFrontUrl() + "acces_teleservice.html?id=" + id
-                + "&international=fr" + novalidate + "&canal=" + demandesCourrierFormBean.getCanal() + "&langue="
-                + demandesCourrierFormBean.getLangue() + "&courrierDateReception=" + dateReceptionIso
-                + "&courrierRefInterne=" + demandesCourrierFormBean.getRefInterne() + "&target=/"
-                + gouvPropertiesResolver.getFrontFormStartPage() + "&creeParAgentId="
-                + AfBackUtils.getAuthenticatedAgentId() + "&sig=" + sig;
+
+		URIBuilder ub = new URIBuilder(gouvPropertiesResolver.getFrontUrl() + "acces_teleservice.html");
+		ub.addParameter("id", id);
+		ub.addParameter("international", "fr"+novalidate);
+		ub.addParameter("canal", demandesCourrierFormBean.getCanal());
+		ub.addParameter("langue", demandesCourrierFormBean.getLangue());
+		ub.addParameter("courrierDateReception", dateReceptionIso);
+		ub.addParameter("courrierRefInterne", demandesCourrierFormBean.getRefInterne());
+		ub.addParameter("target", "/" + gouvPropertiesResolver.getFrontFormStartPage());
+		ub.addParameter("creeParAgentId", AfBackUtils.getAuthenticatedAgentId());
+		ub.addParameter("sig", sig);
+
+		String redirect = "redirect:" + ub;
 		
 		LOGGER.info("URL de redirection vers le front : " + redirect);
 
@@ -146,6 +157,7 @@ public class DemandesCourrierController extends AbstractController {
 		canaux.add(DemandeCanalEnum.COURRIER);
 		canaux.add(DemandeCanalEnum.GUICHET_PHYSIQUE);
 		mav.addObject("canaux", canaux);
+		mav.addObject("langues", demarchesDataProvider.getLanguesDisponibles());
 		return mav;
 	}
 

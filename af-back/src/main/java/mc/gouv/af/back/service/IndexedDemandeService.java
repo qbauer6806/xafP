@@ -11,14 +11,16 @@ import org.springframework.data.domain.Pageable;
 import org.xml.sax.SAXException;
 
 import mc.gouv.af.back.data.es.model.DemandeEsDTO;
-import mc.gouv.af.back.data.es.model.DemandeEsDTO.DemandeFileEsDTO;
 import mc.gouv.af.back.data.es.model.DemandeEsRechercheDTO;
+import mc.gouv.af.back.data.es.model.DemandeFileEsDTO;
 import mc.gouv.af.back.data.es.model.DemandesFacets;
+import mc.gouv.af.back.data.es.model.EsProperty;
 import mc.gouv.af.back.exception.FileConnectionException;
 import mc.gouv.dem.data.entity.DemandeBO;
 import mc.gouv.dem.service.DemandesService;
 import mc.gouv.dem.service.model.DemandeRechercheDTO;
 import mc.gouv.dem.shared.model.DemandeDTO;
+import mc.gouv.dem.shared.model.DemandeFileDTO;
 
 /**
  * Interface définissant le contrat du service d'indexation
@@ -103,13 +105,45 @@ public interface IndexedDemandeService extends DemandesService {
      * Méthode permettant d'envoyer une demande au topic afin d'être indexer
      *  
      * @param demandeDTO DTO de la demande
+     * @param indexFiles Boolean pour indiquer si on doit indexer les fichiers associés à la demande
      * 
      * @throws IOException Exception I/O
      * @throws SAXException Exception SAX
      * @throws TikaException Exception du parsing de la piece jointe
      * @throws JMSException Exception lors de l'envoi de la demande au topic
      */
-    void sendToTopic(DemandeDTO demandeDTO) throws IOException, SAXException, TikaException, JMSException;
+    void sendToTopic(DemandeDTO demandeDTO, boolean indexFiles)
+            throws IOException, SAXException, TikaException, JMSException;
+
+    /**
+     * Méthode permettant d'envoyer un fichier au topic afin d'être indexer
+     * 
+     * @param demandeFileDTO DTO du fichier à indexer
+     * @param demarcheId Identifiant de la démarche
+     * @param demandeId Identifiant de la demande
+     * 
+     * @throws IOException Exception I/O
+     * @throws SAXException Exception SAX
+     * @throws TikaException Exception du parsing de la piece jointe
+     * @throws JMSException Exception lors de l'envoi de la demande au topic
+     */
+    void sendToTopic(DemandeFileDTO demandeFileDTO, String demarcheId, String demandeId)
+            throws IOException, SAXException, TikaException, JMSException;
+
+    /**
+     * Méthode permettant d'envoyer un fichier au topic afin d'être indexer
+     * 
+     * @param demandeFileDTOList DTOs des fichier à indexer
+     * @param demarcheId Identifiant de la démarche
+     * @param demandeId Identifiant de la demande
+     * 
+     * @throws IOException Exception I/O
+     * @throws SAXException Exception SAX
+     * @throws TikaException Exception du parsing de la piece jointe
+     * @throws JMSException Exception lors de l'envoi de la demande au topic
+     */
+    void sendToTopic(DemandeFileDTO[] demandeFileDTOList, String demarcheId, String demandeId)
+            throws IOException, SAXException, TikaException, JMSException;
 
     /**
      * 
@@ -130,5 +164,26 @@ public interface IndexedDemandeService extends DemandesService {
      */
     Page<DemandeEsRechercheDTO> getIndexedDemandes(DemandeRechercheDTO demandeRecherche, Pageable pageable,
             String[] fields);
+
+    /**
+     * Methode permettant de récupérer la liste des propriétés du moteur de recherche
+     * @param reload Recharger le schème elasticsearch  
+     * @return Liste des propriétés elasticsearch
+     */
+    List<EsProperty> getProperties(boolean reload);
+
+    /**
+     * Méthode permettant d'initialiser le schèma du moteur de recherche
+     * 
+     * @param reload Recharger le schéma elasticsearch
+     * 
+     */
+    void initMappingProperties(boolean reload);
+
+    /**
+     * Méthode permettant de charger les propriétés à exclure de la recherche avancée et du mapping elasticsearch 
+     * 
+     */
+    void loadProperties();
 
 }

@@ -66,6 +66,12 @@ public class AfServletGouvPropertiesResolver {
     public static String getLoginRestUrl() {
         return Static.getValue(LOGIN_REST_URL);
     }
+    
+    public static final String LOGIN_SERVICEREST_URL = "mc.gouv.appfactory.external.login.servicerest.url";
+
+    public static String getLoginServiceRestUrl() {
+        return Static.getValue(LOGIN_SERVICEREST_URL);
+    }
 
     public static final String PAYS_URL = "mc.gouv.appfactory.external.pays.url";
 
@@ -117,6 +123,18 @@ public class AfServletGouvPropertiesResolver {
 
     public static String getApiJwt() {
         return Static.getValue(API_JWT);
+    }
+    
+    public static final String TGFAPI_URL = "mc.gouv.appfactory.tgfapi.url";
+
+    public static String getTgfApiUrl() {
+        return Static.getValue(TGFAPI_URL);
+    }
+    
+    public static final String TGFAPI_JWT = "mc.gouv.appfactory.tgfapi.jwt";
+
+    public static String getTgfApiJwt() {
+        return Static.getValue(TGFAPI_JWT);
     }
 
     static {

@@ -18,6 +18,11 @@ import org.apache.activemq.artemis.core.settings.HierarchicalRepository;
  */
 public class CustomArtemisSecuritySettingPlugin implements SecuritySettingPlugin {
 
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 1779497446806702032L;
+
     public static final String PERMISSION_CREATE_NON_DURABLE_QUEUE = "createNonDurableQueue";
     public static final String PERMISSION_DELETE_NON_DURABLE_QUEUE = "deleteNonDurableQueue";
     public static final String PERMISSION_CREATE_DURABLE_QUEUE = "createDurableQueue";

@@ -11,7 +11,7 @@ import mc.gouv.logon.shared.User;
 
 @Component
 @Profile("test")
-public class UtilisateursCacheImpl implements UtilisateursCache {
+public class UtilisateursCacheImplTest implements UtilisateursCache {
 
     @Override
     public Map<String, User> getAll() {

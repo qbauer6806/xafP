@@ -6,24 +6,33 @@
 	<div id="panelinfocompl" th:fragment="panelinfocompl" th:remove="tag">
 
 		<div role="tabpanel" class="tab-pane" id="tab2">
-			<h3>Pièces justificatives</h3>
-			<dl>
-				<div th:each="fichier : ${demandeDTO.fichiers}">
-					<dd>
-						<span>Fichier : </span>
-					</dd>
-					<dt>
-						<a th:href="@{/ws/file/get}+${fichier.url}"><span
-							class="btn btn-action ripple-effect greyTooltip"
-							data-toggle="tooltip" data-placement="bottom"
-							data-original-title="Télécharger" title=""> <i
-								class="icon-action_telecharger"></i></span></a>&nbsp;&nbsp;&nbsp;<span
-							th:text="${fichier.name}" />
-					</dt>
-				</div>
-			</dl>
+			<div th:each="cat : ${categories}">
+				<h3 th:text="${cat.name}"></h3>
+				<table id="datatable-fichiers" class="table table-striped datatablefichiers">
+					<thead>
+						<tr>
+							<th>Nom du fichier</th>
+							<th>Date</th>
+							<th>Action</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="file : ${cat.files}">
+							<td th:text="${file.name}" />
+							
+							<td th:text="${#dates.format(file.date, 'dd/MM/yyyy HH:mm')}" />
+							<td><a th:href="@{/ws/file/get}+${file.url}"> <span
+									class="btn btn-action ripple-effect greyTooltip"
+									data-toggle="tooltip" data-placement="bottom"
+									data-original-title="Télécharger" title=""> <i
+										class="icon-action_pdf"></i></span>
+							</a></td>
+						</tr>
+					</tbody>
+				</table>
+				<br/>
+			</div>
 		</div>
-
 	</div>
 </body>
 </html>

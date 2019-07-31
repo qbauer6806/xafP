@@ -2,11 +2,8 @@ package mc.gouv.af.back.data.es.model;
 
 import java.util.List;
 
-import javax.validation.constraints.NotNull;
-
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
-import org.springframework.data.elasticsearch.annotations.Parent;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -21,9 +18,11 @@ import mc.gouv.dem.shared.model.AbstractDemandeDTO;
 public class DemandeEsDTO extends AbstractDemandeDTO {
 
     public static final String INDEX_TYPE = "demandes";
-    public static final String INDEX_FILES_TYPE = "fichiers";
+
     public static final String ACCESS_FIELD_NAME = "access";
     public static final String AGENT_FIELD_NAME = "agent";
+    public static final String JOIN_FIELD_NAME = "fichiers.demandeJoinField";
+    public static final String DATA_FIELD_NAME = "data";
 
     private DemandeAccessEsDTO access;
     private CanalEsDto canal;
@@ -34,12 +33,14 @@ public class DemandeEsDTO extends AbstractDemandeDTO {
     private JsonNode data;
     private String agentAffecteNomAffichage;
     private List<String> nomsCourriers;
+    private DemandeJoinFieldEsDTO demandeJoinField;
 
     @Id
     protected String identifiant;
 
     public DemandeEsDTO() {
         super();
+        setDemandeJoinField(new DemandeJoinFieldEsDTO(INDEX_TYPE));
     }
 
     public DemandeEsDTO(String identifiant) {
@@ -126,96 +127,12 @@ public class DemandeEsDTO extends AbstractDemandeDTO {
         this.nomsCourriers = nomsCourriers;
     }
 
-    @Document(indexName = "#{propertiesResolver.indexAlias}", type = DemandeEsDTO.INDEX_FILES_TYPE, createIndex = false)
-    public static class DemandeFileEsDTO {
+    public DemandeJoinFieldEsDTO getDemandeJoinField() {
+        return demandeJoinField;
+    }
 
-        public enum TYPE {
-            PIECE_JOINTE,
-            COMPLEMENT
-        }
-
-        public static final String TYPE_FIELD = "type";
-
-        @NotNull
-        protected String name;
-
-        @Id
-        protected String id;
-
-        @NotNull
-        protected String url;
-        protected String meta;
-        private String content;
-        private String language;
-        private String type;
-
-        @Parent(type = INDEX_TYPE)
-        private String demandeId;
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public String getUrl() {
-            return url;
-        }
-
-        public void setUrl(String url) {
-            this.url = url;
-        }
-
-        public String getMeta() {
-            return meta;
-        }
-
-        public void setMeta(String meta) {
-            this.meta = meta;
-        }
-
-        public String getContent() {
-            return content;
-        }
-
-        public void setContent(String content) {
-            this.content = content;
-        }
-
-        public String getLanguage() {
-            return language;
-        }
-
-        public void setLanguage(String language) {
-            this.language = language;
-        }
-
-        public String getDemandeId() {
-            return demandeId;
-        }
-
-        public void setDemandeId(String demandeId) {
-            this.demandeId = demandeId;
-        }
-
-        public void setId(String id) {
-            this.id = id;
-        }
-
-        public String getId() {
-            return url.replace("/", "-").replace("\\", "-");
-        }
-
-        public String getType() {
-            return type;
-        }
-
-        public void setType(String type) {
-            this.type = type;
-        }
-
+    public void setDemandeJoinField(DemandeJoinFieldEsDTO demandeJoinField) {
+        this.demandeJoinField = demandeJoinField;
     }
 
 }

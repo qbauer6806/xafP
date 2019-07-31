@@ -22,8 +22,13 @@ APP.buildDefaultDatafunction = function (params){
     params.size = params.length;
     params.page = params.start / params.length;
     
+    var keyword = ""
+    	var col = columns[params.order[0].column]
+		if (col.keyword)
+			keyword = ".keyword"
+    
     //sort=identifiant,desc
-    params.sort = columns[params.order[0].column].data+","+params.order[0].dir;
+    params.sort = columns[params.order[0].column].data + keyword+","+params.order[0].dir;
 }
 
 
@@ -109,4 +114,4 @@ var configurationSpinner = {
 		, position: 'absolute' // Element positioning
 }
 
-var recherche_libelles = new Map();
+

@@ -57,7 +57,9 @@ public class RechercheDemandesController extends AbstractController {
             @RequestParam(value = "creationStartDate", required = false) @DateTimeFormat(iso = ISO.DATE) Date creationStartDate,
             @RequestParam(value = "creationEndDate", required = false) @DateTimeFormat(iso = ISO.DATE) Date creationEndDate,
             @RequestParam(value = "texte", required = false) String texte,
-            @RequestParam(value = "data", required = false) DataRechercheDTO data, Pageable pageable) {
+            @RequestParam(value = "data", required = false) DataRechercheDTO data,
+            @RequestParam(value = "aucunCanal", required = false) boolean aucunCanal,
+            @RequestParam(value = "aucunStatut", required = false) boolean aucunStatut, Pageable pageable) {
 
         LOGGER.info("======================= Appel de /ws/demandes/pageable (statuts=" + statuts + ",canaux=" + canaux
                 + ",agentId=" + agentId + ",creationStartDate=" + creationStartDate + ",creationEndDate="
@@ -74,6 +76,8 @@ public class RechercheDemandesController extends AbstractController {
         demandeRecherche.setCanaux(canaux);
         demandeRecherche.setData(data);
         demandeRecherche.setIdentifiant(null);
+        demandeRecherche.setAucunCanal(aucunCanal);
+        demandeRecherche.setAucunStatut(aucunStatut);
 
         if (pageable.getSort() != null) {
             Order order = pageable.getSort().iterator().next();
@@ -82,7 +86,7 @@ public class RechercheDemandesController extends AbstractController {
             }
         }
 
-        Pageable newPageable = new PageRequest(pageable.getPageNumber(), pageable.getPageSize(), Sort.Direction.ASC,
+        Pageable newPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.Direction.ASC,
                 "identifiant");
 
         LOGGER.info("======================= Fin appel de /ws/demandes/pageable");
@@ -91,7 +95,7 @@ public class RechercheDemandesController extends AbstractController {
     }
 
     private Page<AfBackDemandeDTO> processCustomData(Page<DemandeDTO> demandes) {
-        List<AfBackDemandeDTO> newDemandes = new ArrayList<AfBackDemandeDTO>();
+        List<AfBackDemandeDTO> newDemandes = new ArrayList<>();
         for (DemandeDTO demande : demandes) {
             AfBackDemandeDTO newDem = new AfBackDemandeDTO(demande);
             if (demande.getAgentAffecteId() != null) {
@@ -101,9 +105,7 @@ public class RechercheDemandesController extends AbstractController {
             }
             newDemandes.add(newDem);
         }
-        Pageable newPageable = new PageRequest(demandes.getNumber(), demandes.getSize(), demandes.getSort());
-        Page<AfBackDemandeDTO> newPage = new PageImpl<AfBackDemandeDTO>(newDemandes, newPageable,
-                demandes.getTotalElements());
-        return newPage;
+        Pageable newPageable = PageRequest.of(demandes.getNumber(), demandes.getSize(), demandes.getSort());
+        return new PageImpl<>(newDemandes, newPageable, demandes.getTotalElements());
     }
 }

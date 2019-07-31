@@ -87,4 +87,6 @@ public interface GouvPropertiesResolver {
 
     boolean getNovalidate();
 
+	String getGouvSharedLogonUrl();
+
 }

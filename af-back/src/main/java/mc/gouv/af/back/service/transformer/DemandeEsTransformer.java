@@ -30,7 +30,9 @@ import mc.gouv.af.back.config.es.IndexationEnabledCondition;
 import mc.gouv.af.back.data.es.model.CanalEsDto;
 import mc.gouv.af.back.data.es.model.DemandeAccessEsDTO;
 import mc.gouv.af.back.data.es.model.DemandeEsDTO;
+import mc.gouv.af.back.data.es.model.DemandeJoinFieldEsDTO;
 import mc.gouv.af.back.data.es.model.DemandeStatutEsDTO;
+import mc.gouv.af.back.service.DemarchesDataProvider;
 import mc.gouv.dem.data.entity.AccessBO;
 import mc.gouv.dem.data.entity.DemandeBO;
 import mc.gouv.dem.data.entity.DemandesCourriersBO;
@@ -69,11 +71,17 @@ public class DemandeEsTransformer {
     @Autowired(required = false)
     IndexedDemandeJsonNodeTransformer indexedDemandeJsonNodeTransformer;
 
+    @Autowired(required = false)
+    IndexedDemandeDataJsonNodeTransformer indexedDemandeDataJsonNodeTransformer;
+
     @Inject
     MotifsCache motifsCache;
 
     @Inject
     DemandesStatutsEsTransformer demandesStatutsEsTransformer;
+
+    @Inject
+    DemarchesDataProvider demarchesDataProvider;
 
     private DemandeEsTransformer() {
     }
@@ -101,6 +109,7 @@ public class DemandeEsTransformer {
         }
 
         DemandeEsDTO demandeEsDTO = new DemandeEsDTO();
+        demandeEsDTO.setDemandeJoinField(new DemandeJoinFieldEsDTO(DemandeEsDTO.INDEX_TYPE));
         DemandeAccessEsDTO demandeAccessEsDto = new DemandeAccessEsDTO();
 
         AccessBO accessBO = demande.getFkAccess();
@@ -128,7 +137,7 @@ public class DemandeEsTransformer {
 
         ObjectMapper mapper = new ObjectMapper();
         JsonNode contenu = mapper.readTree(demande.getContenu());
-        demandeEsDTO.setContenu(transform(contenu));
+        demandeEsDTO.setContenu(transformContenu(contenu));
         demandeEsDTO.setCourrierDateReception(demande.getCourrierDateReception());
         demandeEsDTO.setCourrierRefInterne(demande.getCourrierRefInterne());
 
@@ -141,23 +150,24 @@ public class DemandeEsTransformer {
         }
         demandeEsDTO.setAgentAffecteId(demande.getAgentAffecteId());
 
+        JsonNode data = mapper.createObjectNode();
         if (demande.getData() != null) {
-            JsonNode data = mapper.createObjectNode();
             for (DemandesDataBO demandesDataBO : demande.getData()) {
                 ((ObjectNode) data).put(demandesDataBO.getKey(), demandesDataBO.getValue());
             }
-            demandeEsDTO.setData(data);
         }
-
+        demandeEsDTO.setData(transformData(data));
         demandeEsDTO.setDateCreation(demande.getDateCreation());
         demandeEsDTO.setDateDerModif(demande.getDateDerModif());
-        demandeEsDTO.setDernierStatut(demandesStatutsEsTransformer.bo2Dto(demande.getDernierStatut()));
+        demandeEsDTO.setDernierStatut(
+                demandesStatutsEsTransformer.bo2Dto(demande.getDernierStatut(), demande.getPkDemandes()));
 
         demandeEsDTO.setIdentifiant(demande.getIdentifiant());
         demandeEsDTO.setLangue(demande.getLangue());
         demandeEsDTO.setObservations(demande.getObservations());
         demandeEsDTO.setPkDemandes(demande.getPkDemandes());
-        Set<DemandeStatutEsDTO> statuts = demandesStatutsEsTransformer.bo2Dto(demande.getStatuts());
+        Set<DemandeStatutEsDTO> statuts = demandesStatutsEsTransformer.bo2Dto(demande.getStatuts(),
+                demande.getPkDemandes());
         demandeEsDTO.setStatuts(statuts.toArray(new DemandeStatutEsDTO[statuts.size()]));
 
         if (demande.getAgentAffecteId() != null) {
@@ -196,7 +206,7 @@ public class DemandeEsTransformer {
             demandeEsDTO.setCanal(canal);
         }
 
-        demandeEsDTO.setContenu(transform(demandeDTO.getContenu()));
+        demandeEsDTO.setContenu(transformContenu(demandeDTO.getContenu()));
         demandeEsDTO.setCourrierDateReception(demandeDTO.getCourrierDateReception());
         demandeEsDTO.setCourrierRefInterne(demandeDTO.getCourrierRefInterne());
 
@@ -208,23 +218,24 @@ public class DemandeEsTransformer {
 
         demandeEsDTO.setAgentAffecteId(demandeDTO.getAgentAffecteId());
 
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode data = mapper.createObjectNode();
         if (demandeDTO.getData() != null) {
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode data = mapper.createObjectNode();
             for (DemandeDataDTO demandeDataDTO : demandeDTO.getData()) {
                 ((ObjectNode) data).put(demandeDataDTO.getKey(), demandeDataDTO.getValue());
             }
-            demandeEsDTO.setData(data);
         }
+        demandeEsDTO.setData(transformData(data));
         demandeEsDTO.setDateCreation(demandeDTO.getDateCreation());
         demandeEsDTO.setDateDerModif(demandeDTO.getDateDerModif());
-        demandeEsDTO.setDernierStatut(demandesStatutsEsTransformer.toEs(demandeDTO.getDernierStatut()));
+        demandeEsDTO.setDernierStatut(
+                demandesStatutsEsTransformer.toEs(demandeDTO.getDernierStatut(), demandeDTO.getPkDemandes()));
 
         demandeEsDTO.setIdentifiant(demandeDTO.getIdentifiant());
         demandeEsDTO.setLangue(demandeDTO.getLangue());
         demandeEsDTO.setObservations(demandeDTO.getObservations());
         demandeEsDTO.setPkDemandes(demandeDTO.getPkDemandes());
-        demandeEsDTO.setStatuts(demandesStatutsEsTransformer.toEs(demandeDTO.getStatuts()));
+        demandeEsDTO.setStatuts(demandesStatutsEsTransformer.toEs(demandeDTO.getStatuts(), demandeDTO.getPkDemandes()));
         demandeEsDTO.setUpdated(demandeDTO.isUpdated());
 
         if (demandeEsDTO.getAgentAffecteId() != null) {
@@ -315,10 +326,12 @@ public class DemandeEsTransformer {
                 DemandeStatutDTO statutDto = DemandesStatutsTransformer.bo2Dto(statut);
                 // Cacher l'agentId au Front Office
                 statutDto.setAgentId(null);
-                dto.setStatuts(new DemandeStatutEsDTO[] { demandesStatutsEsTransformer.toEs(statutDto) });
+                dto.setStatuts(
+                        new DemandeStatutEsDTO[] { demandesStatutsEsTransformer.toEs(statutDto, bo.getPkDemandes()) });
             } else {
                 // Back Office : tout remonter
-                Set<DemandeStatutEsDTO> statuts = demandesStatutsEsTransformer.bo2Dto(bo.getStatuts());
+                Set<DemandeStatutEsDTO> statuts = demandesStatutsEsTransformer.bo2Dto(bo.getStatuts(),
+                        bo.getPkDemandes());
                 dto.setStatuts(statuts.toArray(new DemandeStatutEsDTO[statuts.size()]));
             }
         }
@@ -330,7 +343,7 @@ public class DemandeEsTransformer {
                 // Cacher l'agentId au Front Office
                 statutDto.setAgentId(null);
             }
-            dto.setDernierStatut(demandesStatutsEsTransformer.toEs(statutDto));
+            dto.setDernierStatut(demandesStatutsEsTransformer.toEs(statutDto, bo.getPkDemandes()));
         }
         // Mapper les courriers
         if (addCourriersField && bo.getCourriers() != null && !bo.getCourriers().isEmpty()) {
@@ -356,19 +369,19 @@ public class DemandeEsTransformer {
         // Mapper les données de demande
         if (addDataField && bo.getData() != null && !bo.getData().isEmpty()) {
 
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode data = mapper.createObjectNode();
             if (bo.getData() != null) {
-                ObjectMapper mapper = new ObjectMapper();
-                JsonNode data = mapper.createObjectNode();
                 for (DemandesDataBO demandesDataBO : bo.getData()) {
                     ((ObjectNode) data).put(demandesDataBO.getKey(), demandesDataBO.getValue());
                 }
-                dto.setData(data);
             }
+            dto.setData(transformData(data));
         }
 
         ObjectMapper mapper = new ObjectMapper();
         try {
-            dto.setContenu(transform(mapper.readTree(bo.getContenu())));
+            dto.setContenu(transformContenu(mapper.readTree(bo.getContenu())));
         } catch (IOException e) {
             LOGGER.error("Erreur lors de la conversion JSON", e);
         }
@@ -393,10 +406,19 @@ public class DemandeEsTransformer {
         return null;
     }
 
-    private JsonNode transform(JsonNode jsonNode) {
+    private JsonNode transformContenu(JsonNode jsonNode) {
 
         if (indexedDemandeJsonNodeTransformer != null) {
             return indexedDemandeJsonNodeTransformer.transform(jsonNode);
+        }
+
+        return jsonNode;
+    }
+
+    private JsonNode transformData(JsonNode jsonNode) {
+
+        if (indexedDemandeDataJsonNodeTransformer != null) {
+            return indexedDemandeDataJsonNodeTransformer.transform(jsonNode);
         }
 
         return jsonNode;

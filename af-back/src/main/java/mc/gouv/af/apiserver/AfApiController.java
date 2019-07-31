@@ -1,6 +1,5 @@
 package mc.gouv.af.apiserver;
 
-import java.io.IOException;
 import java.util.List;
 
 import javax.jms.JMSException;
@@ -29,7 +28,7 @@ public interface AfApiController {
     public void annulerDemande(Integer demandeId, Integer usagerId);
 
     public DemandeComplementsDTO repondreDemandeComplements(Integer demandeId, Integer icId,
-            DemandeComplementsReponseDTO reponse) throws IOException;
+            DemandeComplementsReponseDTO reponse) throws Exception;
 
     public DemandeDTO getDemande(Integer usagerId, Integer demandeId);
 

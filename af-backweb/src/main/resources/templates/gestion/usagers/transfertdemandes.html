@@ -37,11 +37,11 @@
 <body th:with="pageUsagersActive='active'">
 
 
-	<div th:replace="fragments/header :: header" />
+	<div th:replace="fragments/header :: header"></div>
 
 	<div id="wrapper">
 
-		<div th:replace="fragments/sidebar :: sidebar" />
+		<div th:replace="fragments/sidebar :: sidebar"></div>
 
 
 		<!-- DEBUT CONTENU -->
@@ -174,15 +174,10 @@
 		<!-- FIN CONTENU -->
 
 	</div>
-	<div class="container-fluid">
-
-		<div class="row">
-			<div th:replace="fragments/footer :: footer" />
-		</div>
-	</div>
+	<div th:replace="fragments/footer :: footer"></div>
 
 	<div
-		th:replace="fragments/selectionusagertransfert :: selectionusagertransfert" />
+		th:replace="fragments/selectionusagertransfert :: selectionusagertransfert"></div>
 
 	<script th:inline="javascript">
 	/*<![CDATA[*/
@@ -292,7 +287,7 @@
 		/*]]>*/
 	</script>
 
-	<div th:replace="fragments/message :: message" />
+	<div th:replace="fragments/message :: message"></div>
 
 </body>
 </html>

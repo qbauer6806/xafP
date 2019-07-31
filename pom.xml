@@ -8,7 +8,7 @@
 		<version>3.1.0</version>
 	</parent>
 	<properties>
-		<servicerest_client.version>2.2.16</servicerest_client.version>
+		<servicerest_client.version>2.2.15</servicerest_client.version>
 		<tika.version>1.18</tika.version>
 	</properties>
 	<groupId>mc.gouv.af</groupId>

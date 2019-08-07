@@ -121,13 +121,10 @@ public class AccessesServlet extends AbstractAfServlet {
             // Si en DELETE, cela signifie que l'usager se désinscrit
             // Dans ce cas, appeler la démarche concernée (exemple : HAB)
 
-            // Le hashPassword est stocké dans l'URL
-            String hashedPassword = request.getParameter("hashedPassword");
-
             LOGGER.info("Appel de la démarche pour désinscrire l'usager...");
 
             try {
-                getAfApiClient().desinscriptionUsager(usagerId, hashedPassword);
+                getAfApiClient().desinscriptionUsager(usagerId);
                 response.setStatus(HttpStatus.SC_OK);
             } catch (UnauthorizedWebException e) {
                 LOGGER.info("Erreur lors de la désinscription : unauthorized");

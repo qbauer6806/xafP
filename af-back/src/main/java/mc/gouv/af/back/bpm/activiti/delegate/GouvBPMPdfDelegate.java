@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import mc.gouv.af.back.pdf.PdfGenerationService;
+import mc.gouv.af.back.pdf.PdfType;
 import mc.gouv.af.back.properties.GouvPropertiesResolver;
 import mc.gouv.dem.service.DemandesService;
 import mc.gouv.dem.shared.model.DemandeDTO;
@@ -41,7 +42,7 @@ public class GouvBPMPdfDelegate implements JavaDelegate {
         DemandeDTO demandeDto = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(),
                 Integer.parseInt(execution.getProcessBusinessKey()));
 
-        pdfGenerationService.generateAndStorePdf(demandeDto);
+        pdfGenerationService.generateAndStorePdf(demandeDto, PdfType.COURRIER);
 
         LOGGER.info("==== AF-BACK PDF SERVICE <fin>");
     }

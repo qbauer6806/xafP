@@ -30,6 +30,11 @@ public class PdfTemplateAndModelProviderImpl implements PdfTemplateAndModelProvi
 
         return getTemplateAndModelGeneric();
     }
+    
+	@Override
+	public Entry<String, Map<String, Object>> getFichierInterneTemplateAndModel(DemandeDTO demande) {
+		return getTemplateAndModelGeneric();
+	}
 
     @Override
     public Entry<String, Map<String, Object>> getTemplateAndModelForPreview(DemandeDTO demande, String statutSuivant,

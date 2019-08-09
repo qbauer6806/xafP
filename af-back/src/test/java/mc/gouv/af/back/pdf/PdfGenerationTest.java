@@ -59,7 +59,7 @@ public class PdfGenerationTest {
         byte[] bytes = null;
         StringBuilder content = new StringBuilder();
 
-        bytes = pdfGenerationService.generatePdfToStream(GenericDemandeDtoMockGenerator.getGenericMockDemandeDTO());
+        bytes = pdfGenerationService.generatePdfToStream(GenericDemandeDtoMockGenerator.getGenericMockDemandeDTO(), PdfType.COURRIER);
 
         PdfReader reader = new PdfReader(bytes);
         PdfTextExtractor extractor = new PdfTextExtractor(reader);

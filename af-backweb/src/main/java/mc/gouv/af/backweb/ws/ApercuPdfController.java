@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import mc.gouv.af.back.pdf.PdfGenerationService;
+import mc.gouv.af.back.pdf.PdfType;
 import mc.gouv.af.back.properties.GouvPropertiesResolver;
 import mc.gouv.af.backweb.controller.AbstractController;
 import mc.gouv.dem.service.DemandesService;
@@ -60,7 +61,7 @@ public class ApercuPdfController extends AbstractController {
 
         LOGGER.info("Appel au service de génération de PDF...");
         File file = pdfGenerationService.generatePdfPreview(demande, statut, codeMotif, demande.getLangue(),
-                commentaire);
+                commentaire, PdfType.COURRIER);
 
         try {
             LOGGER.info("Écriture du PDF dans l'OutputStream...");

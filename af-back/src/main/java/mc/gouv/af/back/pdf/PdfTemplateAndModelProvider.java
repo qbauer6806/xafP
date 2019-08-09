@@ -17,6 +17,8 @@ import mc.gouv.dem.shared.model.DemandeDTO;
 public interface PdfTemplateAndModelProvider {
 
     public Entry<String,Map<String,Object>> getTemplateAndModel(DemandeDTO demande);
+    
+    public Entry<String,Map<String,Object>> getFichierInterneTemplateAndModel(DemandeDTO demande);
 
     public Entry<String, Map<String, Object>> getTemplateAndModelForPreview(DemandeDTO demande, String statutSuivant,
             String codeMotif, String langue, String commentaire);

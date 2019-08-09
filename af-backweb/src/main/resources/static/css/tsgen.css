@@ -197,6 +197,10 @@ label[data-toggle]{
 	margin-top: 0px;
 }
 
+.display-commentaire {
+	white-space: pre-wrap;
+}
+
 .sectiondemande h3 {
 	text-align: left;
 	font-size: 1em;

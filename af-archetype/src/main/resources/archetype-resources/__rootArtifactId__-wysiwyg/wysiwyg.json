@@ -1,0 +1,365 @@
+{
+  "demo": {
+    "presets": {
+      "default": "inscritFr",
+      "list": [
+        {
+          "demotags": [
+            "dataplus",
+            "fr",
+            "noncourrier",
+            "noninscrit",
+            "ok"
+          ],
+          "description": "Usager non inscrit (pays/nationalités en Français)",
+          "name": "nonInscritFr",
+          "properties": [
+            {
+              "key": "mc.gouv.appfactory.front.login.keepalive.url",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.front.login.url",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.front.login.profil.url",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.login.contact.url",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.copyright.years",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.piwik.external.piwikUrl",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.piwik.external.GEN.piwikSiteId",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.quitterTsUrl.fr",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.ficheDemarcheUrl.fr",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.sondageUrl.fr",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.sondageAbandonUrl.fr",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.joDemarcheUrl.fr",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.quitterTsUrl.en",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.ficheDemarcheUrl.en",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.sondageUrl.en",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.sondageAbandonUrl.en",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.joDemarcheUrl.en",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.joCcinUrl.fr",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.joCcinUrl.en",
+              "value": ""
+            }
+          ]
+        },
+        {
+          "demotags": [
+            "dataplus",
+            "en",
+            "noncourrier",
+            "noninscrit",
+            "ok"
+          ],
+          "description": "Usager non inscrit (pays/nationalités en Anglais)",
+          "name": "nonInscritEn",
+          "properties": [
+            {
+              "key": "mc.gouv.appfactory.front.login.keepalive.url",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.front.login.url",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.front.login.profil.url",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.login.contact.url",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.copyright.years",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.piwik.external.piwikUrl",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.piwik.external.GEN.piwikSiteId",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.quitterTsUrl.fr",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.ficheDemarcheUrl.fr",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.sondageUrl.fr",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.sondageAbandonUrl.fr",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.joDemarcheUrl.fr",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.quitterTsUrl.en",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.ficheDemarcheUrl.en",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.sondageUrl.en",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.sondageAbandonUrl.en",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.joDemarcheUrl.en",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.joCcinUrl.fr",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.joCcinUrl.en",
+              "value": ""
+            }
+          ]
+        },
+        {
+          "demotags": [
+            "dataplus",
+            "fr",
+            "inscrit",
+            "noncourrier",
+            "ok"
+          ],
+          "description": "Usager inscrit à la démarche (pays/nationalités en Français)",
+          "name": "inscritFr",
+          "properties": [
+            {
+              "key": "mc.gouv.appfactory.front.login.keepalive.url",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.front.login.url",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.front.login.profil.url",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.login.contact.url",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.copyright.years",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.piwik.external.piwikUrl",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.piwik.external.GEN.piwikSiteId",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.quitterTsUrl.fr",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.ficheDemarcheUrl.fr",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.sondageUrl.fr",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.sondageAbandonUrl.fr",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.joDemarcheUrl.fr",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.quitterTsUrl.en",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.ficheDemarcheUrl.en",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.sondageUrl.en",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.sondageAbandonUrl.en",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.joDemarcheUrl.en",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.joCcinUrl.fr",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.joCcinUrl.en",
+              "value": ""
+            }
+          ]
+        },
+        {
+          "demotags": [
+            "dataplus",
+            "en",
+            "inscrit",
+            "noncourrier",
+            "ok"
+          ],
+          "description": "Usager inscrit à la démarche (pays/nationalités en Anglais)",
+          "name": "inscritEn",
+          "properties": [
+            {
+              "key": "mc.gouv.appfactory.front.login.keepalive.url",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.front.login.url",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.front.login.profil.url",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.login.contact.url",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.copyright.years",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.piwik.external.piwikUrl",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.piwik.external.GEN.piwikSiteId",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.quitterTsUrl.fr",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.ficheDemarcheUrl.fr",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.sondageUrl.fr",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.sondageAbandonUrl.fr",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.joDemarcheUrl.fr",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.quitterTsUrl.en",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.ficheDemarcheUrl.en",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.sondageUrl.en",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.sondageAbandonUrl.en",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.joDemarcheUrl.en",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.joCcinUrl.fr",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.joCcinUrl.en",
+              "value": ""
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

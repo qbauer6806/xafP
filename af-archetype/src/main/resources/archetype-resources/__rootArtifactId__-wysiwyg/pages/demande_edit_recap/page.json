@@ -1,0 +1,8 @@
+{
+  "name": "demande_edit_recap",
+  "componentInstances": [
+  {
+    "name": "mcCharteTshiPageDemandeEditRecap"
+  }
+  ]
+}

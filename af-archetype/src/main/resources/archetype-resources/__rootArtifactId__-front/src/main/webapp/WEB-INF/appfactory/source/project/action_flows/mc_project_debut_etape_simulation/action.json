@@ -1,0 +1,63 @@
+{
+  "name": "mcProjectDebutEtapeSimulation",
+  "type": "simple",
+  "synchronized": false,
+  "description": "Action pour initialiser les données de la page de simulation",
+  "parameter": {
+    "$ref": "http://app-factory.gouv.mc/mcCharteTshiDebutEtapeParameter/trunk#"
+  },
+  "errorCodes": [
+    {
+      "code": 0,
+      "description": "Initialisation ok"
+    },
+    {
+      "code": 1,
+      "description": "Erreur traductions non disponibles pour la langue courante (utilisateur redirigé sur pages d'erreur)"
+    },
+    {
+      "code": 2,
+      "description": "Erreur parcours mal définis dans les messages (utilisateur redirigé sur pages d'erreur)"
+    },
+    {
+      "code": 3,
+      "description": "Erreur mappings mal définis dans les messages (utilisateur redirigé sur pages d'erreur)"
+    },
+    {
+      "code": 4,
+      "description": "Erreur etatsEnAttente/etatsFinaux mal définis (utilisateur redirigé sur pages d'erreur)"
+    },
+    {
+      "code": 5,
+      "description": "Session expirée (utilisateur redirigé sur pages de session expirée)"
+    },
+    {
+      "code": 6,
+      "description": "Erreur appel service rest (utilisateur redirigé sur pages de session erreur)"
+    },
+    {
+      "code": 7,
+      "description": "Usager n'était pas inscrit au TS redirigé vers la page d'accès au TS"
+    },
+    {
+      "code": 8,
+      "description": "Erreur dans le paramètre passé (utilisateur redirigé sur page d'erreur)"
+    },
+    {
+      "code": 9,
+      "description": "Parcours ou étape non trouvée (utilisateur redirigé sur page d'erreur)"
+    },
+    {
+      "code": 10,
+      "description": "Pas le droit d'accéder à l'étape en question (utilisateur redirigé sur page d'erreur)"
+    },
+    {
+      "code": 11,
+      "description": "Erreur lors de l'initialisation de la donnée"
+    },
+    {
+      "code": 12,
+      "description": "Erreur lors du calcul du montant"
+    }
+  ]
+}

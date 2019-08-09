@@ -1,0 +1,22 @@
+{
+  "content": {
+    "sections": [
+      {
+        "isSousSection": true,
+        "ref": "donneeVehicule"
+      },
+      {
+        "isSousSection": false,
+        "nom": "aideSimulation",
+        "sousSections": [
+          {
+            "ref": "donneeSimulation"
+          }
+        ]
+      }
+    ],
+    "typeDonnee": "projectDemande"
+  },
+  "description": "Recap de l'aide",
+  "name": "projectAideRecap"
+}

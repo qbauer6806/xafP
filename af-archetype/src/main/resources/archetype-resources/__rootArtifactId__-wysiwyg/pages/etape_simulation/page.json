@@ -1,0 +1,88 @@
+{
+  "componentInstances": [
+    {
+      "name": "mcCharteTshiPageEtape",
+      "parameterValue": {
+        "valueJson": {
+          "abandon": "abandon_parcours",
+          "actionChargement": {
+            "action": "mcProjectDebutEtapeSimulation",
+            "parameter": {
+              "valueJson": {
+                "nomParcours": "p1",
+                "nomParcoursAlternatif": "std",
+                "numeroEtape": 4,
+                "typeDonnee": "projectDemande"
+              },
+              "valueType": "json"
+            }
+          },
+          "actionSoumission": {
+            "action": "mcCharteTshiSauvegarderEtape",
+            "parameter": {
+              "valueJson": {
+                "redirection": "etape_pieces_justificatives"
+              },
+              "valueType": "json"
+            }
+          },
+          "mentionObligatoire": 0
+        },
+        "valueType": "json"
+      },
+      "zones": [
+        {
+          "$$hashKey": "object:30510",
+          "componentInstances": [
+            {
+              "name": "mcCharteTshiFormStdButton",
+              "parameterValue": {
+                "valueJson": {
+                  "action": {
+                    "action": "mcCharteTshiGoToPage",
+                    "parameter": {
+                      "valueJson": {
+                        "page": "etape_vehicule"
+                      },
+                      "valueType": "json"
+                    }
+                  },
+                  "isSubmit": false,
+                  "messageId": "ts.boutonEtapePrecedente"
+                },
+                "valueType": "json"
+              }
+            },
+            {
+              "name": "mcCharteTshiFormStdButton",
+              "parameterValue": {
+                "valueJson": {
+                  "isSubmit": true,
+                  "messageId": "ts.boutonEtapeSuivante"
+                },
+                "valueType": "json"
+              }
+            }
+          ],
+          "name": "boutons"
+        },
+        {
+          "$$hashKey": "object:30541",
+          "componentInstances": [
+            {
+              "name": "mcCharteTshiDemandeRecap",
+              "parameterValue": {
+                "valueJson": {
+                  "typeRecap": "projectAideRecap"
+                },
+                "valueType": "json"
+              }
+            }
+          ],
+          "name": "sections"
+        }
+      ]
+    }
+  ],
+  "name": "etapeSimulation"
+}

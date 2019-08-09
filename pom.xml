@@ -28,6 +28,7 @@
 		<module>af-back</module>
 		<module>af-apiclient</module>
 		<module>af-backweb</module>
+		<module>af-archetype</module>
 	</modules>
 
 	<dependencies>

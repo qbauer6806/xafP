@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>mc.gouv.${artifactIdLower}</groupId>
+		<artifactId>${artifactIdLower}</artifactId>
+		<version>${version}</version>
+	</parent>
+
+	<artifactId>${artifactIdLower}-backserver</artifactId>
+
+	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+				<includes>
+					<include>application.properties</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+			</resource>
+
+		</resources>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>repackage</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+	<properties>
+		<buildDate>${maven.build.timestamp}</buildDate>
+		<java.version>1.8</java.version>
+		<activiti.version>5.19.0.2</activiti.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <logon-apiclient.version>5.1.0</logon-apiclient.version>
+        <logon.verion>5.1.0</logon.verion>
+        
+        <!-- Afin d'éviter un conflit sur commons-compress avec tika-parsers (NoSuchMethodError au runtime à l'indexion d'un courrier PDF généré d'info compl) -->
+        <webjars-locator-core.version>0.36</webjars-locator-core.version>
+	</properties>
+
+
+	<dependencies>
+
+		<dependency>
+			<groupId>mc.gouv.xboot</groupId>
+			<artifactId>xboot-spring-starter-web</artifactId>
+		</dependency>
+        
+        <dependency>
+            <groupId>mc.gouv.${artifactIdLower}</groupId>
+            <artifactId>${artifactIdLower}-service</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>mc.gouv.${artifactIdLower}</groupId>
+            <artifactId>${artifactIdLower}-bpm</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>fancybox</artifactId>
+			<version>2.1.5</version>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>pdf-js</artifactId>
+			<version>1.9.426</version>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>momentjs</artifactId>
+			<version>2.18.1</version>
+		</dependency>
+
+        <dependency>
+            <groupId>mc.gouv.af</groupId>
+            <artifactId>af-backweb</artifactId>
+            <version>${af.version}</version>
+        </dependency>
+
+	</dependencies>
+
+
+</project>

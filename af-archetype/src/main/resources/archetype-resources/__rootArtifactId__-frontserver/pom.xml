@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>mc.gouv.pom</groupId>
+        <artifactId>super-pom-server</artifactId>
+        <version>1.44.20</version>
+    </parent>
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>mc.gouv.${artifactIdLower}</groupId>
+    <artifactId>${artifactIdLower}-frontserver</artifactId>
+    <version>${version}</version>
+
+    <dependencies>
+        <dependency>
+            <groupId>mc.gouv.${artifactIdLower}</groupId>
+            <artifactId>${artifactIdLower}-front</artifactId>
+            <type>war</type>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.1</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <!-- Don't copy jar signatures otherwise it won't work -->
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                        <!-- Remove all bundled logging frameworks -->
+                                        <exclude>WEB-INF/lib/logback-*</exclude>
+                                        <exclude>WEB-INF/lib/slf4j-*</exclude>
+                                        <exclude>WEB-INF/lib/log4j-*</exclude>
+                                        <exclude>WEB-INF/lib/tools_jar_cross*</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <manifestEntries>
+                                        <Main-Class>mc.gouv.${artifactIdLower}.frontserver.App</Main-Class>
+                                        <Class-Path>resources/</Class-Path>
+                                    </manifestEntries>
+                                </transformer>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.2.1</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <executable>java</executable>
+                    <arguments>
+                        <!-- Uncomment this line for debugging-->
+                        <!--<argument>-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=20009</argument>-->
+
+                        <!-- Uncomment this line if you want to specify a different path to the mc.gouv.properties file -->
+                        <argument>-DMC_GOUV_PROPERTIES_FILE=file:///d:/java_dev_env/propertiesJETTY/mc.gouv.properties</argument>
+                        <argument>-jar</argument>
+                        <argument>${project.build.directory}/${project.build.finalName}.jar</argument>
+                    </arguments>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+  <scm>
+    <connection>scm:svn:http://linuxic/jsrc/super-pom-java7/tags/${artifactIdLower}-0.0.1/${artifactIdLower}-frontserver</connection>
+    <developerConnection>scm:svn:http://linuxic/jsrc/super-pom-java7/tags/${artifactIdLower}-0.0.1/${artifactIdLower}-frontserver</developerConnection>
+    <url>http://linuxic/jsrc/super-pom-java7/tags/${artifactIdLower}-0.0.1/${artifactIdLower}-frontserver</url>
+  </scm>
+</project>

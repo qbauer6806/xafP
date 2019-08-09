@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  
+  	<parent>
+		<groupId>mc.gouv.af</groupId>
+		<artifactId>af</artifactId>
+		<version>5.0.1-SNAPSHOT</version>
+	</parent>
+
+  <artifactId>af-archetype</artifactId>
+  <packaging>maven-archetype</packaging>
+
+  <name>af-archetype</name>
+
+  <build>
+    <extensions>
+      <extension>
+        <groupId>org.apache.maven.archetype</groupId>
+        <artifactId>archetype-packaging</artifactId>
+        <version>3.1.1</version>
+      </extension>
+    </extensions>
+
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <artifactId>maven-archetype-plugin</artifactId>
+          <version>3.1.1</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+
+  <description>Parent pom providing dependency and plugin management for applications
+		built with Maven</description>
+
+  <url>https://projects.spring.io/spring-boot/#/spring-boot-starter-parent/xboot/xboot-spring-starter-parent/subveco</url>
+
+  <developers>
+    <developer>
+      <name>Pivotal</name>
+      <email>info@pivotal.io</email>
+      <organization>Pivotal Software, Inc.</organization>
+      <organizationUrl>http://www.spring.io</organizationUrl>
+    </developer>
+  </developers>
+
+  <licenses>
+    <license>
+      <name>Apache License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+    </license>
+  </licenses>
+
+  <scm>
+    <connection>scm:svn:http://linuxic/jsrc/subveco/trunk</connection>
+    <developerConnection>scm:svn:http://linuxic/jsrc/subveco/trunk</developerConnection>
+    <url>http://linuxic/jsrc/subveco/trunk</url>
+  </scm>
+
+  <distributionManagement>
+    <repository>
+      <id>releases</id>
+      <name>Internal Releases</name>
+      <url>http://linuxic/nexus/content/repositories/releases/</url>
+    </repository>
+    <snapshotRepository>
+      <id>snapshots</id>
+      <name>Internal Snapshots</name>
+      <url>http://linuxic/nexus/content/repositories/snapshots</url>
+    </snapshotRepository>
+  </distributionManagement>
+</project>

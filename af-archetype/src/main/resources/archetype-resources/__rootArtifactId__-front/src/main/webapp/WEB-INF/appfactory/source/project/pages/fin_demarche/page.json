@@ -1,0 +1,53 @@
+{
+  "componentInstances": [
+    {
+      "name": "mcCharteTshiPageFinDemarche",
+      "zones": [
+        {
+          "componentInstances": [
+            {
+              "name": "mcCharteTshiFormStdButton",
+              "parameterValue": {
+                "valueJson": {
+                  "action": {
+                    "action": "mcCharteTshiGoToPage",
+                    "parameter": {
+                      "valueJson": {
+                        "page": "etape_usager"
+                      },
+                      "valueType": "json"
+                    }
+                  },
+                  "isSubmit": false,
+                  "messageId": "ts.pageFinDemarche.boutonDeclarer"
+                },
+                "valueType": "json"
+              }
+            },
+            {
+              "name": "mcCharteTshiFormStdButton",
+              "parameterValue": {
+                "valueJson": {
+                  "action": {
+                    "action": "mcCharteTshiGoToPage",
+                    "parameter": {
+                      "valueJson": {
+                        "page": "menu"
+                      },
+                      "valueType": "json"
+                    }
+                  },
+                  "isSubmit": true,
+                  "messageId": "ts.boutonTerminer"
+                },
+                "valueType": "json"
+              }
+            }
+          ],
+          "name": "boutons"
+        }
+      ]
+    }
+  ],
+  "name": "finDemarche"
+}

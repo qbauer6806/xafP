@@ -1,0 +1,84 @@
+{
+  "name": "etapeTest",
+  "componentInstances": [
+  {
+    "name": "mcCharteTshiPageEtape",
+    "parameterValue": {
+      "valueType": "json",
+      "valueJson": {
+        "abandon": "abandon_parcours",
+        "mentionObligatoire": 1,
+        "actionChargement": {
+          "action": "mcCharteTshiDebutEtape",
+          "parameter": {
+            "valueType": "json",
+            "valueJson": {
+              "numeroEtape": 1,
+              "nomParcours": "p1",
+              "nomParcoursAlternatif": "std",
+              "typeDonnee": "projectDemande"
+            }
+          }
+        },
+        "actionSoumission": {
+          "action": "mcCharteTshiSauvegarderEtape",
+          "parameter": {
+            "valueType": "json",
+            "valueJson": {
+              "redirection": "etape_recapitulatif"
+            }
+          }
+        }
+      }
+    },
+    "zones": [
+    {
+      "name": "sections",
+      "componentInstances": [
+      {
+        "name": "mcCharteTshiFormSection",
+        "parameterValue": {
+          "valueType": "json",
+          "valueJson": {
+            "titreId": "ts.pageEtapeTest.sectionFiles.title",
+            "introHtmlId": "ts.pageEtapeTest.sectionFiles.introHtml"
+          }
+        },
+        "zones": [
+        {
+          "name": "contenu",
+          "componentInstances": [
+          {
+            "name": "mcCharteTshiChamp",
+            "parameterValue": {
+              "valueType": "json",
+              "valueJson": {
+                "donneeRef": "page.demande@projectDemande.fichiers"
+              }
+            }
+          }
+          ]
+        }
+        ]
+      }
+      ]
+    },
+    {
+      "name": "boutons",
+      "componentInstances": [
+      {
+        "name": "mcCharteTshiFormStdButton",
+        "parameterValue": {
+          "valueType": "json",
+          "valueJson": {
+            "messageId": "ts.boutonEtapeSuivante",
+            "isSubmit": true
+          }
+        }
+      }
+      ]
+    }
+    ]
+  }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "content": {
+    "sections": [
+      {
+        "isSousSection": true,
+        "ref": "donneeUsager"
+      },
+      {
+        "isSousSection": true,
+        "ref": "donneeVehicule"
+      },
+      {
+        "isSousSection": false,
+        "nom": "simulation",
+        "sousSections": [
+          {
+            "ref": "donneeSimulation"
+          }
+        ]
+      },
+      {
+        "isSousSection": true,
+        "ref": "donneeBancaire"
+      },
+      {
+        "ref": "fichiers"
+      },
+      {
+        "champs": [
+          {
+            "ref": "donneeDeclarationRecap"
+          }
+        ],
+        "isSousSection": true,
+        "nom": "declarationRecap"
+      }
+    ],
+    "typeDonnee": "projectDemande"
+  },
+  "description": "Recap d'une demande du projet",
+  "name": "projectDemandeRecap"
+}

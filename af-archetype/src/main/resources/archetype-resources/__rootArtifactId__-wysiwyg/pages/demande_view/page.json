@@ -1,0 +1,14 @@
+{
+  "name": "demande_view",
+  "componentInstances": [
+  {
+    "name": "mcCharteTshiPageDemandeView",
+    "parameterValue": {
+      "valueType": "json",
+      "valueJson": {
+        "typeRecap": "projectDemandeRecap"
+      }
+    }
+  }
+  ]
+}

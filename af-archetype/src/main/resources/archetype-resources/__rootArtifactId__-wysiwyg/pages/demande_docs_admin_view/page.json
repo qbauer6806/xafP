@@ -1,0 +1,14 @@
+{
+  "componentInstances": [
+    {
+      "name": "mcCharteTshiPageDemandeDocsAdminView",
+      "parameterValue": {
+        "valueJson": {
+          "typeRecap": "projectDemandeRecap"
+        },
+        "valueType": "json"
+      }
+    }
+  ],
+  "name": "demande_docs_admin_view"
+}

@@ -67,6 +67,8 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 	@Autowired(required = false)
 	private IndexedDemandeService indexedDemandeService;
 
+	private String BACK_FRONT_PREFIX = "BACK_FRONT_";
+
 	@Override
 	public void generateAndStorePdf(DemandeDTO demande, PdfType pdfType) throws Exception {
 
@@ -81,10 +83,10 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 		String url = fileService.saveFile(demande, fileName, "application/pdf", new FileInputStream(tempFile), output);
 		output.close();
 
-		if (pdfType == PdfType.FICHIER_INTERNE) {
-			saveFichierInterne(fileName, url, demande);
-		} else {
+		if (pdfType == PdfType.COURRIER) {
 			saveCourrier(fileName, url, demande);
+		} else {
+			saveFichier(fileName, url, demande, pdfType);
 		}
 
 		if (indexedDemandeService != null) {
@@ -103,13 +105,13 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 				courrier);
 	}
 
-	private void saveFichierInterne(String fileName, String url, DemandeDTO demande) throws Exception {
+	private void saveFichier(String fileName, String url, DemandeDTO demande, PdfType typeFichier) throws Exception {
 		LOGGER.info("Ajout de la référence à ce fichier interne dans DEM...");
 		DemandeFileDTO file = new DemandeFileDTO();
 		file.setName(fileName);
 		file.setUrl('/' + url);
 		file.setDate(new Date());
-		file.setMeta(PdfType.FICHIER_INTERNE.name());
+		file.setMeta(BACK_FRONT_PREFIX + "_" + typeFichier.name());
 		demandesFileService.saveFile(file, gouvPropertiesResolver.getDemarcheId(), demande.getPkDemandes());
 	}
 
@@ -170,7 +172,7 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 	}
 
 	private String buildFileName(PdfType pdfType, String pkString) {
-		String fileType = (pdfType == PdfType.FICHIER_INTERNE) ? "fichierInterne" : "courrier";
+		String fileType = pdfType.libelle.toLowerCase();
 		StringBuilder builder = new StringBuilder();
 		builder.append(fileType);
 		builder.append("DEM_pk");

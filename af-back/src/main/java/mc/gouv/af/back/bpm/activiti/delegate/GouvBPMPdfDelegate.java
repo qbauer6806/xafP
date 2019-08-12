@@ -2,6 +2,7 @@ package mc.gouv.af.back.bpm.activiti.delegate;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.delegate.JavaDelegate;
+import org.activiti.engine.impl.el.Expression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,8 @@ public class GouvBPMPdfDelegate implements JavaDelegate {
     @Autowired
     private DemandesService demandesService;
 
+    private Expression pdfTypeCodeExpr;
+
     @Override
     public void execute(DelegateExecution execution) throws Exception {
 
@@ -41,8 +44,9 @@ public class GouvBPMPdfDelegate implements JavaDelegate {
 
         DemandeDTO demandeDto = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(),
                 Integer.parseInt(execution.getProcessBusinessKey()));
+        String pdfTypeCode = (String) pdfTypeCodeExpr.getValue(execution);
 
-        pdfGenerationService.generateAndStorePdf(demandeDto, PdfType.COURRIER);
+        pdfGenerationService.generateAndStorePdf(demandeDto, PdfType.getFromLibelle(pdfTypeCode));
 
         LOGGER.info("==== AF-BACK PDF SERVICE <fin>");
     }

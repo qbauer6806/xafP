@@ -15,7 +15,6 @@ public class MailPreviewFormBean {
 	@NotBlank
 	private String action;
 
-	@NotBlank
 	private String codeMotifChoisi;
 
 	@NotNull

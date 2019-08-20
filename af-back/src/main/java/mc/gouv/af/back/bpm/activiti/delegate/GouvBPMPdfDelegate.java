@@ -51,4 +51,11 @@ public class GouvBPMPdfDelegate implements JavaDelegate {
         LOGGER.info("==== AF-BACK PDF SERVICE <fin>");
     }
 
+    public Expression getPdfTypeCodeExpr() {
+        return pdfTypeCodeExpr;
+    }
+
+    public void setPdfTypeCodeExpr(Expression pdfTypeCodeExpr) {
+        this.pdfTypeCodeExpr = pdfTypeCodeExpr;
+    }
 }

@@ -10,7 +10,10 @@ import org.apache.tika.language.detect.LanguageResult;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.sax.BodyContentHandler;
+import org.springframework.stereotype.Component;
 import org.xml.sax.SAXException;
+
+import mc.gouv.af.back.pdf.PdfType;
 
 /**
  * 
@@ -19,6 +22,7 @@ import org.xml.sax.SAXException;
  * @author asouabni.ext
  *
  */
+@Component
 public class FileUtils {
 
     private FileUtils() {
@@ -55,5 +59,23 @@ public class FileUtils {
         LanguageResult result = detector.detect(text);
         return result.getLanguage();
     }
+    
+	/**
+	 * Méthode permettant de générer un fichier en fonction du type donné et de la
+	 * PK de la demande donné
+	 * 
+	 * @param pdfType
+	 * @param pkString
+	 * @return le nom de fichier
+	 */
+	public String buildFileName(PdfType pdfType, String pkString) {
+		String fileType = pdfType.libelle.toLowerCase();
+		StringBuilder builder = new StringBuilder();
+		builder.append(fileType);
+		builder.append("DEM_pk");
+		builder.append(pkString);
+		builder.append('_');
+		return builder.toString();
+	}
 
 }

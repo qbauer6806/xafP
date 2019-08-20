@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -24,6 +25,7 @@ import mc.gouv.dem.shared.model.DemandeDTO;
  * @author dsaidiparto.ext
  *
  */
+@Ignore
 @ActiveProfiles("test")
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = AfBackServiceTestConfiguration.class)

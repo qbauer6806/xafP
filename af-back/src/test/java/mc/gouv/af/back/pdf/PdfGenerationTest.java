@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,7 @@ import mc.gouv.af.back.AfBackServiceTestConfiguration;
  * @author dsaidiparto.ext
  *
  */
+@Ignore
 @ActiveProfiles("test")
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = AfBackServiceTestConfiguration.class)

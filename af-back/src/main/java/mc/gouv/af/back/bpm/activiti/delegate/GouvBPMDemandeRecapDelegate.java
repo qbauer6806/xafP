@@ -7,8 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import mc.gouv.af.back.pdf.PdfGenerationService;
-import mc.gouv.af.back.pdf.PdfType;
+import mc.gouv.af.back.pdf.recap.RecapGenerationService;
 import mc.gouv.af.back.properties.GouvPropertiesResolver;
 import mc.gouv.dem.service.DemandesService;
 import mc.gouv.dem.shared.model.DemandeDTO;
@@ -16,18 +15,15 @@ import mc.gouv.dem.shared.model.DemandeDTO;
 /**
  * 
  * Classe service appelée par le process Activiti pour générer le fichier
- * interne d'une demande au format PDF.
+ * interne de la récapitulation d'une demande au format PDF.
  * 
  * @author mboutelier.ext
  *
  */
 @Component
-public class GouvBPMFichierInterneDelegate implements JavaDelegate {
+public class GouvBPMDemandeRecapDelegate implements JavaDelegate {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMFichierInterneDelegate.class);
-
-	@Autowired
-	private PdfGenerationService pdfGenerationService;
+	private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMDemandeRecapDelegate.class);
 
 	@Autowired
 	private GouvPropertiesResolver gouvPropertiesResolver;
@@ -35,17 +31,20 @@ public class GouvBPMFichierInterneDelegate implements JavaDelegate {
 	@Autowired
 	private DemandesService demandesService;
 
+	@Autowired
+	private RecapGenerationService recapGenerationService;
+
 	@Override
 	public void execute(DelegateExecution execution) throws Exception {
 
-		LOGGER.info("==== AF-BACK FICHIER INTERNE SERVICE ...");
+		LOGGER.info("==== AF-BACK DEMANDE RECAP SERVICE ...");
 
 		DemandeDTO demandeDto = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(),
 				Integer.parseInt(execution.getProcessBusinessKey()));
 
-		pdfGenerationService.generateAndStorePdf(demandeDto, PdfType.FICHIER_INTERNE);
+		recapGenerationService.generateAndStorePdf(demandeDto);
 
-		LOGGER.info("==== AF-BACK FICHIER INTERNE SERVICE <fin>");
+		LOGGER.info("==== AF-BACK DEMANDE RECAP SERVICE <fin>");
 	}
 
 }

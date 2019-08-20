@@ -29,6 +29,7 @@ import fr.opensagres.xdocreport.template.TemplateEngineKind;
 import mc.gouv.af.back.file.FileService;
 import mc.gouv.af.back.properties.GouvPropertiesResolver;
 import mc.gouv.af.back.service.IndexedDemandeService;
+import mc.gouv.af.back.util.FileUtils;
 import mc.gouv.dem.service.DemandesCourriersService;
 import mc.gouv.dem.service.DemandesFilesService;
 import mc.gouv.dem.shared.model.DemandeCourrierDTO;
@@ -66,6 +67,9 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 
 	@Autowired(required = false)
 	private IndexedDemandeService indexedDemandeService;
+	
+	@Autowired
+	private FileUtils fileUtils;
 
 	private String BACK_FRONT_PREFIX = "BACK_FRONT_";
 
@@ -156,7 +160,7 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 			PdfType pdfType) {
 
 		File temp = null;
-		String fileName = buildFileName(pdfType, demande.getPkDemandes().toString());
+		String fileName = fileUtils.buildFileName(pdfType, demande.getPkDemandes().toString());
 
 		try {
 			temp = File.createTempFile(fileName, ".pdf");
@@ -169,16 +173,6 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 		}
 
 		return temp;
-	}
-
-	private String buildFileName(PdfType pdfType, String pkString) {
-		String fileType = pdfType.libelle.toLowerCase();
-		StringBuilder builder = new StringBuilder();
-		builder.append(fileType);
-		builder.append("DEM_pk");
-		builder.append(pkString);
-		builder.append('_');
-		return builder.toString();
 	}
 
 	private byte[] generateToStream(DemandeDTO demande, String templateFileName, Map<String, Object> model)

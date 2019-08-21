@@ -32,11 +32,15 @@ th {
 	font-size: 20px;
 }
 
+td > :first-child {
+	margin-top: 0;
+}
+
 dl {
 	width: 100%;
 	overflow: hidden;
 	padding: 0;
-	margin: 0
+	margin: 0;
 }
 
 dd {
@@ -45,7 +49,7 @@ dd {
 	padding: 0;
 	margin: 0;
 	font-weight: bold;
-	clear: both
+	clear: both;
 }
 
 dt {
@@ -53,27 +57,12 @@ dt {
 	float: left;
 	padding: 0;
 	margin: 0;
-	font-weight: normal !important
-}
-
-.sectiondemande dd {
-	width: 40%;
-}
-
-.sectiondemande dt {
-	width: 60%;
+	font-weight: normal !important;
+	margin-left: 20px;
 }
 
 .sectiondemande h3 {
 	margin-bottom: 0;
-}
-
-.sectionic dd {
-	width: 20%;
-}
-
-.sectionic dt {
-	width: 80%;
 }
 
 .display-commentaire {

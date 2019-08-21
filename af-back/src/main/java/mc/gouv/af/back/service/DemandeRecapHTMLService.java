@@ -25,7 +25,14 @@ public interface DemandeRecapHTMLService {
 	 * @return
 	 */
 	String getHTMLDemandeGeneric(DemandeDTO demande);
-	
+
+	/**
+	 * Méthode générant la partie des informations complémentaires de la demande.
+	 * 
+	 * @param demande
+	 * @return
+	 * @throws RestException
+	 */
 	String getHTMLDemandeComplements(DemandeDTO demande) throws RestException;
 
 	/**

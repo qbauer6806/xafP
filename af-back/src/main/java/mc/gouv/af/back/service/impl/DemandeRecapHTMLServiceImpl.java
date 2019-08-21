@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 
+import mc.gouv.af.back.cache.PaysCache;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONArray;
@@ -57,7 +58,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 	private static SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 
 	@Autowired
-	private PaysCacheImpl paysCache;
+	private PaysCache paysCache;
 
 	@Autowired
 	private GouvPropertiesResolver gouvPropertiesResolver;
@@ -262,7 +263,8 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 				if (node0 == null || node0 instanceof NullNode) {
 					return null;
 				}
-				return paysCache.get(node0.asText(), "fr").getNationalite();
+				// TODO need to change this cast as it breaks Spring injection strategy
+				return ((PaysCacheImpl) paysCache).get(node0.asText(), "fr").getNationalite();
 			} else {
 				String path = champ.get("path").toString().replace("contenu.", "/").replace(".", "/");
 				if (path.charAt(0) != '/') {
@@ -343,7 +345,8 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 				String ville = escape(getNode(node, champ, "ville").textValue());
 				ret += "<dd><span>Ville</span></dd><dt><span>" + codePostal + " " + ville + "</span></dt>";
 				String pays = getNode(node, champ, "pays").textValue();
-				ret += "<dd><span>Pays</span></dd><dt><span>" + paysCache.get(pays, "fr").getNom() + "</span></dt>";
+				// TODO need to change this cast as it breaks Spring injection strategy
+				ret += "<dd><span>Pays</span></dd><dt><span>" + ((PaysCacheImpl) paysCache).get(pays, "fr").getNom() + "</span></dt>";
 			}
 			return ret;
 		} else if (type.equals("iban")) {

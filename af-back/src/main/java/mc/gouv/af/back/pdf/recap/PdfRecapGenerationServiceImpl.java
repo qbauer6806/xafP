@@ -109,7 +109,7 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
 		pdfDocument.addEventHandler(PdfDocumentEvent.END_PAGE, footerHandler);
 
 		LOGGER.info("Réccupération du base URI...");
-		URI baseURI = PdfRecapGenerationServiceImpl.class.getClassLoader().getResource("pdf/css/").toURI();
+		URI baseURI = PdfRecapGenerationServiceImpl.class.getClassLoader().getResource("pdfrecap/css/").toURI();
 		String baseURIPath = new File(baseURI).getPath();
 		ConverterProperties converterProperties = new ConverterProperties();
 		converterProperties.setBaseUri(baseURIPath);
@@ -136,7 +136,7 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
 			DemandeComplementsDTO[] complements = demande.getComplements();
 			String htmlComp = null != complements && complements.length > 0
 					? demandeRecapHTMLService.getHTMLDemandeComplements(demande)
-					: "Aucune demandes d'informations complémentaires.";
+					: "Aucune demande d'informations complémentaires.";
 
 			LOGGER.info("Génération du code HTML de la récap...");
 			String htmlRecap = demandeRecapHTMLService.getHTMLDemandeContenuRecap(demande);
@@ -169,7 +169,7 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
 			writer.println(htmlComp);
 			writer.println("</td></tr></table>");
 
-			writer.println("<table class=\"sectiondemande\"><tr><th>Demande Initiale</th></tr><tr><td>");
+			writer.println("<table class=\"sectionrecap\"><tr><th>Demande Initiale</th></tr><tr><td>");
 			writer.println(htmlRecap);
 			writer.println("</td></tr></table>");
 

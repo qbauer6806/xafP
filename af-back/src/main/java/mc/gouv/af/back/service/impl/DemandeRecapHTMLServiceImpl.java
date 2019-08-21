@@ -6,12 +6,16 @@ import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.text.SimpleDateFormat;
 import java.time.OffsetDateTime;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.LocalDate;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -111,7 +115,20 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 	public String getHTMLDemandeComplements(DemandeDTO demande) throws RestException {
 		StringBuilder htmlBuilder = new StringBuilder();
 
-		for (DemandeComplementsDTO complement : demande.getComplements()) {
+		List<DemandeComplementsDTO> complements = Arrays.asList(demande.getComplements());
+		complements.sort(new Comparator<DemandeComplementsDTO>() {
+			@Override
+			public int compare(DemandeComplementsDTO o1, DemandeComplementsDTO o2) {
+				LocalDate date1 = LocalDate.fromDateFields(o1.getQuestion().getDate());
+				LocalDate date2 = LocalDate.fromDateFields(o2.getQuestion().getDate());
+				if (date1.equals(date2)) {
+					return 0;
+				}
+				return date1.isBefore(date2) ? 1 : -1;
+			}
+		});
+
+		for (DemandeComplementsDTO complement : complements) {
 			DemandeComplementsQuestionDTO question = complement.getQuestion();
 			DemandeComplementsReponseDTO reponse = complement.getReponse();
 			String date = dateFormat.format(question.getDate());
@@ -120,6 +137,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 			htmlBuilder.append(date);
 			htmlBuilder.append("</h3>");
 
+			htmlBuilder.append("<div class=\"dem-admin\">");
 			htmlBuilder.append("<span>Demande de l'administration</span>");
 
 			// Date de création
@@ -142,6 +160,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 			htmlBuilder.append(afBackUtils.getUserNameFromID(question.getAgentId()));
 			htmlBuilder.append("</span></dt></dl>");
 
+			htmlBuilder.append("</div><div class=\"rep-usager\">");
 			htmlBuilder.append("<span>Réponse de l'usager</span>");
 
 			// Date
@@ -152,7 +171,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 			// Texte
 			htmlBuilder.append("<dl><dd><span>Texte</span></dd><dt><span class=\"display-commentaire\">");
 			htmlBuilder.append(reponse.getTexte());
-			htmlBuilder.append("</span></dt></dl>");
+			htmlBuilder.append("</span></dt></dl></div>");
 		}
 
 		return htmlBuilder.toString();
@@ -347,7 +366,8 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 				ret += "<dd><span>Ville</span></dd><dt><span>" + codePostal + " " + ville + "</span></dt>";
 				String pays = getNode(node, champ, "pays").textValue();
 				// TODO need to change this cast as it breaks Spring injection strategy
-				ret += "<dd><span>Pays</span></dd><dt><span>" + ((PaysCacheImpl) paysCache).get(pays, "fr").getNom() + "</span></dt>";
+				ret += "<dd><span>Pays</span></dd><dt><span>" + ((PaysCacheImpl) paysCache).get(pays, "fr").getNom()
+						+ "</span></dt>";
 			}
 			return ret;
 		} else if (type.equals("iban")) {

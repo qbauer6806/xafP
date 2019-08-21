@@ -12,6 +12,7 @@ import mc.gouv.logon.apiclient.RestException;
  * Service permettant de générer une page HTML contenant le récapitulatif d'une
  * demande.
  * 
+ * @author qdeme
  * @author mboutelier.ext
  *
  */
@@ -23,9 +24,9 @@ public interface DemandeRecapHTMLService {
 	 * @param demande
 	 * @return
 	 */
-	String getHTMLDemande(DemandeDTO demande);
+	String getHTMLDemandeGeneric(DemandeDTO demande);
 	
-	String getHTMLComplements(DemandeDTO demande) throws RestException;
+	String getHTMLDemandeComplements(DemandeDTO demande) throws RestException;
 
 	/**
 	 * Méthode générant la partie demande initiale de la page, elle est générée en
@@ -42,7 +43,7 @@ public interface DemandeRecapHTMLService {
 	 * @throws NoSuchMethodException
 	 * @throws SecurityException
 	 */
-	String getHTMLRecap(DemandeDTO demande)
+	String getHTMLDemandeContenuRecap(DemandeDTO demande)
 			throws IOException, ParseException, ClassNotFoundException, IllegalAccessException,
 			IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException;
 

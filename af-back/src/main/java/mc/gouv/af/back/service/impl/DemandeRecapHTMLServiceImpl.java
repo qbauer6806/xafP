@@ -10,7 +10,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 
-import mc.gouv.af.back.cache.PaysCache;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONArray;
@@ -20,11 +19,8 @@ import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Conditional;
-import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -35,8 +31,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
 import mc.gouv.af.back.cache.MotifsCache;
+import mc.gouv.af.back.cache.PaysCache;
 import mc.gouv.af.back.cache.PaysCacheImpl;
-import mc.gouv.af.back.config.es.IndexationEnabledCondition;
 import mc.gouv.af.back.properties.GouvPropertiesResolver;
 import mc.gouv.af.back.service.DemandeRecapHTMLService;
 import mc.gouv.af.back.util.AfBackUtils;
@@ -47,10 +43,15 @@ import mc.gouv.dem.shared.model.DemandeComplementsReponseDTO;
 import mc.gouv.dem.shared.model.DemandeDTO;
 import mc.gouv.logon.apiclient.RestException;
 
-@Service
-@Primary
-@Conditional(IndexationEnabledCondition.class)
-@Transactional(rollbackFor = Exception.class)
+/**
+ * Service permettant de générer une page HTML contenant le récapitulatif d'une
+ * demande.
+ * 
+ * @author qdeme
+ * @author mboutelier.ext
+ *
+ */
+@Component
 public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DemandeRecapHTMLServiceImpl.class);
@@ -70,7 +71,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 	private MotifsCache motifsCache;
 
 	@Override
-	public String getHTMLDemande(DemandeDTO demande) {
+	public String getHTMLDemandeGeneric(DemandeDTO demande) {
 		StringBuilder htmlBuilder = new StringBuilder();
 
 		// Numéro de la demande
@@ -107,7 +108,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 		return htmlBuilder.toString();
 	}
 
-	public String getHTMLComplements(DemandeDTO demande) throws RestException {
+	public String getHTMLDemandeComplements(DemandeDTO demande) throws RestException {
 		StringBuilder htmlBuilder = new StringBuilder();
 
 		for (DemandeComplementsDTO complement : demande.getComplements()) {
@@ -158,7 +159,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 	}
 
 	@Override
-	public String getHTMLRecap(DemandeDTO demande)
+	public String getHTMLDemandeContenuRecap(DemandeDTO demande)
 			throws IOException, ParseException, ClassNotFoundException, IllegalAccessException,
 			IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
 

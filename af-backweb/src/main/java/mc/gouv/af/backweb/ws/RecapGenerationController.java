@@ -60,6 +60,6 @@ public class RecapGenerationController {
 	public String getHTML(DemandeDTO demande)
 			throws IOException, ParseException, ClassNotFoundException, IllegalAccessException,
 			IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
-		return demandeRecapHTMLService.getHTMLRecap(demande);
+		return demandeRecapHTMLService.getHTMLDemandeContenuRecap(demande);
 	}
 }

@@ -32,9 +32,9 @@ import mc.gouv.dem.shared.model.DemandeDTO;
 import mc.gouv.dem.shared.model.DemandeFileDTO;
 
 @Component
-public class RecapGenerationServiceImpl implements RecapGenerationService {
+public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(RecapGenerationServiceImpl.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(PdfRecapGenerationServiceImpl.class);
 
 	@Autowired
 	private FileService fileService;
@@ -109,7 +109,7 @@ public class RecapGenerationServiceImpl implements RecapGenerationService {
 		pdfDocument.addEventHandler(PdfDocumentEvent.END_PAGE, footerHandler);
 
 		LOGGER.info("Réccupération du base URI...");
-		URI baseURI = RecapGenerationServiceImpl.class.getClassLoader().getResource("pdf/css/").toURI();
+		URI baseURI = PdfRecapGenerationServiceImpl.class.getClassLoader().getResource("pdf/css/").toURI();
 		String baseURIPath = new File(baseURI).getPath();
 		ConverterProperties converterProperties = new ConverterProperties();
 		converterProperties.setBaseUri(baseURIPath);

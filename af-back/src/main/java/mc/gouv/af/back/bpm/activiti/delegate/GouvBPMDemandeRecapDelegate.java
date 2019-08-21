@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import mc.gouv.af.back.pdf.recap.RecapGenerationService;
+import mc.gouv.af.back.pdf.recap.PdfRecapGenerationService;
 import mc.gouv.af.back.properties.GouvPropertiesResolver;
 import mc.gouv.dem.service.DemandesService;
 import mc.gouv.dem.shared.model.DemandeDTO;
@@ -32,7 +32,7 @@ public class GouvBPMDemandeRecapDelegate implements JavaDelegate {
 	private DemandesService demandesService;
 
 	@Autowired
-	private RecapGenerationService recapGenerationService;
+	private PdfRecapGenerationService pdfRecapGenerationService;
 
 	@Override
 	public void execute(DelegateExecution execution) throws Exception {
@@ -42,7 +42,7 @@ public class GouvBPMDemandeRecapDelegate implements JavaDelegate {
 		DemandeDTO demandeDto = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(),
 				Integer.parseInt(execution.getProcessBusinessKey()));
 
-		recapGenerationService.generateAndStorePdf(demandeDto);
+		pdfRecapGenerationService.generateAndStorePdf(demandeDto);
 
 		LOGGER.info("==== AF-BACK DEMANDE RECAP SERVICE <fin>");
 	}

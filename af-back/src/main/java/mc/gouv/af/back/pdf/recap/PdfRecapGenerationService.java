@@ -11,7 +11,7 @@ import mc.gouv.dem.shared.model.DemandeDTO;
  * @author mboutelier.ext
  *
  */
-public interface RecapGenerationService {
+public interface PdfRecapGenerationService {
 
 	public void generateAndStorePdf(DemandeDTO demande) throws Exception;
 

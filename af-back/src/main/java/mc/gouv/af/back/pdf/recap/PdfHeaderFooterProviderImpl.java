@@ -17,7 +17,7 @@ public class PdfHeaderFooterProviderImpl implements PdfHeaderFooterProvider {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(PdfHeaderFooterProviderImpl.class);
 
-	private static final String PATH = "pdf/img/";
+	private static final String PATH = "pdfrecap/img/";
 	private static final String HEADER = "_Entete.jpg";
 	private static final String FOOTER = "_Pied_de_page.jpg";
 	

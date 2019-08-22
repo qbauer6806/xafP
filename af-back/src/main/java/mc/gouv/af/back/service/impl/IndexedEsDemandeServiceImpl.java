@@ -600,7 +600,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      */
     private DemandeFileEsDTO.TYPE getDemandeFileType(DemandeFileDTO file) {
         DemandeFileEsDTO.TYPE fileType;
-        if (afBackUtils.isFileCreatedByFront(file.getMeta())) {
+        if (FileUtils.isFileCreatedByFront(file.getMeta())) {
         	fileType = DemandeFileEsDTO.TYPE.PIECE_JOINTE;
         }
         else {

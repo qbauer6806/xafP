@@ -1,10 +1,8 @@
 package mc.gouv.af.back.pdf;
 
 import java.awt.Color;
-import java.util.AbstractMap.SimpleEntry;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +15,7 @@ import com.lowagie.text.pdf.BaseFont;
 
 import fr.opensagres.poi.xwpf.converter.pdf.PdfOptions;
 import fr.opensagres.xdocreport.itext.extension.font.IFontProvider;
+import mc.gouv.af.back.dto.PdfTemplateAndModelDTO;
 import mc.gouv.dem.shared.model.DemandeDTO;
 
 @Component
@@ -26,24 +25,19 @@ public class PdfTemplateAndModelProviderImpl implements PdfTemplateAndModelProvi
     private static final Logger LOGGER = LoggerFactory.getLogger(PdfTemplateAndModelProviderImpl.class);
 
     @Override
-    public Entry<String, Map<String, Object>> getTemplateAndModel(DemandeDTO demande) {
+    public PdfTemplateAndModelDTO getTemplateAndModel(DemandeDTO demande, PdfTypeEnum pdfType) {
 
         return getTemplateAndModelGeneric();
     }
-    
-	@Override
-	public Entry<String, Map<String, Object>> getFichierInterneTemplateAndModel(DemandeDTO demande) {
-		return getTemplateAndModelGeneric();
-	}
 
     @Override
-    public Entry<String, Map<String, Object>> getTemplateAndModelForPreview(DemandeDTO demande, String statutSuivant,
-            String codeMotif, String langue, String commentaire) {
+    public PdfTemplateAndModelDTO getTemplateAndModelForPreview(DemandeDTO demande, String statutSuivant,
+            String codeMotif, String langue, String commentaire, PdfTypeEnum pdfType) {
 
         return null;
     }
 
-    private Entry<String, Map<String, Object>> getTemplateAndModelGeneric() {
+    private PdfTemplateAndModelDTO getTemplateAndModelGeneric() {
 
         Map<String, Object> model = new HashMap<String, Object>();
         model.put("dateCourante", PDFServiceConstantsMock.CURRENT_DATE);
@@ -65,8 +59,13 @@ public class PdfTemplateAndModelProviderImpl implements PdfTemplateAndModelProvi
         String templateFileName = "DemandeAccepteeTest.docx";
 
         LOGGER.info("Template=" + templateFileName + ", model=" + model);
+        
+        PdfTemplateAndModelDTO dto = new PdfTemplateAndModelDTO();
+        dto.setFilename("test.doc");
+        dto.setTemplateFilename(templateFileName);
+        dto.setModel(model);
 
-        return new SimpleEntry<String, Map<String, Object>>(templateFileName, model);
+        return dto;
     }
 
     @Override

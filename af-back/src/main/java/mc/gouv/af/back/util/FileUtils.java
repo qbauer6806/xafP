@@ -3,6 +3,7 @@ package mc.gouv.af.back.util;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.langdetect.OptimaizeLangDetector;
 import org.apache.tika.language.detect.LanguageDetector;
@@ -13,7 +14,7 @@ import org.apache.tika.sax.BodyContentHandler;
 import org.springframework.stereotype.Component;
 import org.xml.sax.SAXException;
 
-import mc.gouv.af.back.pdf.PdfType;
+import mc.gouv.af.back.pdf.PdfTypeEnum;
 
 /**
  * 
@@ -24,6 +25,12 @@ import mc.gouv.af.back.pdf.PdfType;
  */
 @Component
 public class FileUtils {
+	
+	public static final String META_BACK = "BACK_";
+	
+	public static final String META_FRONT = "FRONT_";
+	
+	public static final String META_BACK_FRONT = "BACK_FRONT_";
 
     private FileUtils() {
     }
@@ -59,23 +66,19 @@ public class FileUtils {
         LanguageResult result = detector.detect(text);
         return result.getLanguage();
     }
+	
+    // Norme sur les métadonnées des fichiers
+    public static boolean isFileCreatedByFront(String meta) {
+    	return (StringUtils.isBlank(meta) || meta.startsWith(META_FRONT));
+    }
     
-	/**
-	 * Méthode permettant de générer un fichier en fonction du type donné et de la
-	 * PK de la demande donné
-	 * 
-	 * @param pdfType
-	 * @param pkString
-	 * @return le nom de fichier
-	 */
-	public String buildFileName(PdfType pdfType, String pkString) {
-		String fileType = pdfType.libelle.toLowerCase();
-		StringBuilder builder = new StringBuilder();
-		builder.append(fileType);
-		builder.append("DEM_pk");
-		builder.append(pkString);
-		builder.append('_');
-		return builder.toString();
-	}
+    public static boolean isFileCreatedByBack(String meta) {
+    	return (!StringUtils.isBlank(meta) && !meta.startsWith(META_FRONT));
+    }
+    
+    public static boolean isFileCreatedByBackVisibleByFront(String meta) {
+    	return (!StringUtils.isBlank(meta) && meta.startsWith(META_BACK_FRONT));
+    }
+    // FIN Norme sur les métadonnées des fichiers
 
 }

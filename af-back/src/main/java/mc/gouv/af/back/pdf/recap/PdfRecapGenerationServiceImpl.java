@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.PrintWriter;
 import java.net.URI;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.slf4j.Logger;
@@ -20,7 +22,6 @@ import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.element.Image;
 
 import mc.gouv.af.back.file.FileService;
-import mc.gouv.af.back.pdf.PdfType;
 import mc.gouv.af.back.properties.GouvPropertiesResolver;
 import mc.gouv.af.back.service.DemandeRecapHTMLService;
 import mc.gouv.af.back.service.IndexedDemandeService;
@@ -35,6 +36,8 @@ import mc.gouv.dem.shared.model.DemandeFileDTO;
 public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(PdfRecapGenerationServiceImpl.class);
+	
+	private DateFormat dateFormat = new SimpleDateFormat("HHmm");
 
 	@Autowired
 	private FileService fileService;
@@ -50,9 +53,6 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
 
 	@Autowired
 	private DemandeRecapHTMLService demandeRecapHTMLService;
-
-	@Autowired
-	private FileUtils fileUtils;
 
 	@Autowired
 	private PdfHeaderFooterProvider pdfHeaderFooterProvider;
@@ -78,7 +78,7 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
 		file.setName(fileName);
 		file.setUrl('/' + url);
 		file.setDate(new Date());
-		file.setMeta(PdfType.FICHIER_INTERNE.name());
+		file.setMeta(FileUtils.META_BACK + "RECAP");
 		demandesFileService.saveFile(file, gouvPropertiesResolver.getDemarcheId(), demande.getPkDemandes());
 
 		if (indexedDemandeService != null) {
@@ -101,14 +101,14 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
 		File htmlSource = generateHtmlSource(demande, headerHandler.getHeight(), footerHandler.getHeight());
 
 		LOGGER.info("Conversion du code HTML en PDF...");
-		String fileName = fileUtils.buildFileName(PdfType.FICHIER_INTERNE, demande.getPkDemandes().toString());
+		String fileName = "Demande_" + demande.getIdentifiant() + "_" + dateFormat.format(new Date());
 		File pdfDest = File.createTempFile(fileName, ".pdf");
 		PdfWriter writer = new PdfWriter(pdfDest);
 		PdfDocument pdfDocument = new PdfDocument(writer);
 		pdfDocument.addEventHandler(PdfDocumentEvent.START_PAGE, headerHandler);
 		pdfDocument.addEventHandler(PdfDocumentEvent.END_PAGE, footerHandler);
 
-		LOGGER.info("Réccupération du base URI...");
+		LOGGER.info("Récupération du base URI...");
 		URI baseURI = PdfRecapGenerationServiceImpl.class.getClassLoader().getResource("pdfrecap/css/").toURI();
 		String baseURIPath = new File(baseURI).getPath();
 		ConverterProperties converterProperties = new ConverterProperties();

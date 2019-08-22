@@ -14,11 +14,9 @@ import mc.gouv.dem.shared.model.DemandeDTO;
  */
 public interface PdfGenerationService {
 
-    public void generateAndStorePdf(DemandeDTO demande, PdfType pdfType) throws Exception;
-
-    public File generatePdf(DemandeDTO demande, PdfType pdfType);
+    public void generateAndStorePdf(DemandeDTO demande, PdfTypeEnum pdfType, String meta) throws Exception;
 
     public File generatePdfPreview(DemandeDTO demande, String statutSuivant, String codeMotif, String langue,
-            String commentaire, PdfType pdfType);
+            String commentaire, PdfTypeEnum pdfType);
     
 }

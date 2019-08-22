@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import mc.gouv.af.back.pdf.PdfGenerationService;
-import mc.gouv.af.back.pdf.PdfType;
+import mc.gouv.af.back.pdf.PdfTypeEnum;
 import mc.gouv.af.back.properties.GouvPropertiesResolver;
 import mc.gouv.dem.service.DemandesService;
 import mc.gouv.dem.shared.model.DemandeDTO;
@@ -36,6 +36,8 @@ public class GouvBPMPdfDelegate implements JavaDelegate {
     private DemandesService demandesService;
 
     private Expression pdfTypeCodeExpr;
+    
+    private Expression meta;
 
     @Override
     public void execute(DelegateExecution execution) throws Exception {
@@ -44,9 +46,22 @@ public class GouvBPMPdfDelegate implements JavaDelegate {
 
         DemandeDTO demandeDto = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(),
                 Integer.parseInt(execution.getProcessBusinessKey()));
-        String pdfTypeCode = (String) pdfTypeCodeExpr.getValue(execution);
+        
+        PdfTypeEnum pdfType;
+        if (pdfTypeCodeExpr == null) {
+        	pdfType = PdfTypeEnum.COURRIER;
+        }
+        else {
+        	String pdfTypeCodeStr = (String) pdfTypeCodeExpr.getValue(execution);
+        	pdfType = PdfTypeEnum.valueOf(pdfTypeCodeStr);
+        }
+        
+        String metaStr = null;
+        if (meta != null) {
+        	metaStr = (String)meta.getValue(execution);
+        }
 
-        pdfGenerationService.generateAndStorePdf(demandeDto, PdfType.getFromLibelle(pdfTypeCode));
+        pdfGenerationService.generateAndStorePdf(demandeDto, pdfType, metaStr);
 
         LOGGER.info("==== AF-BACK PDF SERVICE <fin>");
     }

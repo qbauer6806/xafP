@@ -1,17 +1,18 @@
 package mc.gouv.af.back.service;
 
+import mc.gouv.dem.shared.model.DemandeDTO;
 import mc.gouv.dem.shared.model.MotifDTO;
 
 import java.util.List;
-import java.util.Map;
 
 /**
- * Used to retrieve the Motifs previously populated with Velocity pattern
+ * Used to retrieve the Motifs populated with Velocity pattern
  */
 public interface MotifTemplateService {
 
-    /**
-     * Populate the Motif list with model variables
-     */
-    public List<MotifDTO> populatedMotifs(List<MotifDTO> motifsList, Map<String, Object> model) throws Exception;
+    public MotifDTO getMotif(DemandeDTO demande, String codeMotif, String langue) throws Exception;
+
+    public List<MotifDTO> getMotifs(DemandeDTO demande, String langue) throws Exception;
+
+    public List<MotifDTO> getMotifs(DemandeDTO demande, String langue, String statut) throws Exception;
 }

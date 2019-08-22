@@ -76,36 +76,20 @@ public class MailPreviewController extends AbstractController {
 		return mav;
 	}
 
-	@RequestMapping(method = RequestMethod.POST)
-	public ModelAndView mailpreview(@RequestParam(required = true) String action,
-			@RequestParam(required = true) String codeMotifChoisi, @RequestParam(required = true) Integer pkDemande,
-			@RequestParam(required = true) String commentaire) throws Exception {
-
-		LOGGER.info("======================= Appel de /ws/mailpreview (" + action + "," + codeMotifChoisi + ","
-				+ pkDemande + "," + commentaire + ")");
-
-		ModelAndView mav = buildMailPreview(action, codeMotifChoisi, pkDemande, commentaire);
-
-		LOGGER.info("======================= Fin /ws/mailpreview");
-
-		return mav;
-
-	}
-
-	@RequestMapping(value = "/data", method = RequestMethod.POST, consumes = "application/json")
-	public ModelAndView mailpreviewData(@Valid @RequestBody MailPreviewFormBean mailPreviewFormBean) throws Exception {
+	@RequestMapping(method = RequestMethod.POST, consumes = "application/json")
+	public ModelAndView mailpreview(@Valid @RequestBody MailPreviewFormBean mailPreviewFormBean) throws Exception {
 
 		String action = mailPreviewFormBean.getAction();
 		String codeMotifChoisi = mailPreviewFormBean.getCodeMotifChoisi();
 		Integer pkDemande = mailPreviewFormBean.getPkDemande();
 		String commentaire = mailPreviewFormBean.getCommentaire();
 
-		LOGGER.info("======================= Appel de /ws/mailpreview/data ({}, {}, {}, {})", action, codeMotifChoisi,
+		LOGGER.info("======================= Appel de /ws/mailpreview ({}, {}, {}, {})", action, codeMotifChoisi,
 				pkDemande, commentaire);
 
 		ModelAndView mav = buildMailPreview(action, codeMotifChoisi, pkDemande, commentaire);
 
-		LOGGER.info("======================= Fin /ws/mailpreview/data");
+		LOGGER.info("======================= Fin /ws/mailpreview");
 
 		return mav;
 

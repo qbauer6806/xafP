@@ -4,7 +4,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.PrintWriter;
-import java.net.URI;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -36,7 +35,7 @@ import mc.gouv.dem.shared.model.DemandeFileDTO;
 public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(PdfRecapGenerationServiceImpl.class);
-	
+
 	private DateFormat dateFormat = new SimpleDateFormat("HHmm");
 
 	@Autowired
@@ -56,7 +55,7 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
 
 	@Autowired
 	private PdfHeaderFooterProvider pdfHeaderFooterProvider;
-	
+
 	@Autowired
 	private AfBackUtils afBackUtils;
 
@@ -109,12 +108,11 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
 		pdfDocument.addEventHandler(PdfDocumentEvent.END_PAGE, footerHandler);
 
 		LOGGER.info("Récupération du base URI...");
-		URI baseURI = this.getClass().getResource("/pdfrecap/css/").toURI();
-		String baseURIPath = new File(baseURI).getPath();
-		LOGGER.info("baseURI = {}", baseURIPath);
+		String baseURI = this.getClass().getResource("/pdfrecap/css/").toURI().getPath().substring(1);
+		LOGGER.info("baseURI = {}", baseURI);
 		ConverterProperties converterProperties = new ConverterProperties();
-		converterProperties.setBaseUri(baseURIPath);
-		
+		converterProperties.setBaseUri(baseURI);
+
 		LOGGER.info("Appel du HTML Converter...");
 		HtmlConverter.convertToPdf(new FileInputStream(htmlSource), pdfDocument, converterProperties);
 
@@ -146,8 +144,7 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
 			htmlSource = File.createTempFile("tmpRecapHtml", ".html");
 			PrintWriter writer = new PrintWriter(htmlSource);
 
-			writer.println(
-					"<html><head><link rel=\"stylesheet\" type=\"text/css\" href=\"genpdf.css\"></head><body>");
+			writer.println("<html><head><link rel=\"stylesheet\" type=\"text/css\" href=\"genpdf.css\"></head><body>");
 
 			// Ajout d'un style CSS sur les pages pour laisser de la place au header et
 			// au footer

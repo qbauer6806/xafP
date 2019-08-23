@@ -109,8 +109,9 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
 		pdfDocument.addEventHandler(PdfDocumentEvent.END_PAGE, footerHandler);
 
 		LOGGER.info("Récupération du base URI...");
-		URI baseURI = PdfRecapGenerationServiceImpl.class.getClassLoader().getResource("pdfrecap/css/").toURI();
+		URI baseURI = this.getClass().getResource("/pdfrecap/css/").toURI();
 		String baseURIPath = new File(baseURI).getPath();
+		LOGGER.info("baseURI = {}", baseURIPath);
 		ConverterProperties converterProperties = new ConverterProperties();
 		converterProperties.setBaseUri(baseURIPath);
 		

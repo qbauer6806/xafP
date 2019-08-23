@@ -47,6 +47,7 @@ public class HeaderFooterPageEvent implements IEventHandler {
 		Rectangle area = header ? page.getPageSize() : new Rectangle(0, 0, PageSize.A4.getWidth(), height);
 		Canvas canvas = new Canvas(aboveCanvas, pdfDoc, area);
 		canvas.add(image);
+		canvas.close();
 	}
 
 	public Float getHeight() {

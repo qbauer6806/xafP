@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.PrintWriter;
+import java.net.URI;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -108,10 +109,13 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
 		pdfDocument.addEventHandler(PdfDocumentEvent.END_PAGE, footerHandler);
 
 		LOGGER.info("Récupération du base URI...");
-		String baseURI = this.getClass().getResource("/pdfrecap/css/").toURI().getPath().substring(1);
-		LOGGER.info("baseURI = {}", baseURI);
+		URI baseURI = this.getClass().getResource("/pdfrecap/css/genpdf.css").toURI();
+		LOGGER.info("baseURI = {}", baseURI.getPath());
+		File file = new File(baseURI);
+		String parent = file.getParent();
+		LOGGER.info("parent = {}", parent);
 		ConverterProperties converterProperties = new ConverterProperties();
-		converterProperties.setBaseUri(baseURI);
+		converterProperties.setBaseUri(parent);
 
 		LOGGER.info("Appel du HTML Converter...");
 		HtmlConverter.convertToPdf(new FileInputStream(htmlSource), pdfDocument, converterProperties);

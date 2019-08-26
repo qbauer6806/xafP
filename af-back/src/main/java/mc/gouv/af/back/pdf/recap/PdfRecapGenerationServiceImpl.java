@@ -12,6 +12,7 @@ import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
 import com.itextpdf.html2pdf.ConverterProperties;
@@ -109,13 +110,14 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
 		pdfDocument.addEventHandler(PdfDocumentEvent.END_PAGE, footerHandler);
 
 		LOGGER.info("Récupération du base URI...");
-		URI baseURI = this.getClass().getResource("/pdfrecap/css/genpdf.css").toURI();
+		URI baseURI = new ClassPathResource("/pdfrecap/css/").getURL().toURI();
+//		URI baseURI = this.getClass().getResource("/pdfrecap/css/genpdf.css").toURI();
 		LOGGER.info("baseURI = {}", baseURI.getPath());
-		File file = new File(baseURI);
-		String parent = file.getParent();
-		LOGGER.info("parent = {}", parent);
+		String baseURIPath = new File(baseURI).getPath();
+//		String parent = file.getParent();
+		LOGGER.info("path = {}", baseURIPath);
 		ConverterProperties converterProperties = new ConverterProperties();
-		converterProperties.setBaseUri(parent);
+		converterProperties.setBaseUri(baseURIPath);
 
 		LOGGER.info("Appel du HTML Converter...");
 		HtmlConverter.convertToPdf(new FileInputStream(htmlSource), pdfDocument, converterProperties);

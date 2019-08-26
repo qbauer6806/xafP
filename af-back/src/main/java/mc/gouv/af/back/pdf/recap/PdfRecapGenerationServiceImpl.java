@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.PrintWriter;
 import java.net.URI;
+import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -12,7 +13,6 @@ import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
 import com.itextpdf.html2pdf.ConverterProperties;
@@ -110,13 +110,17 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
 		pdfDocument.addEventHandler(PdfDocumentEvent.END_PAGE, footerHandler);
 
 		LOGGER.info("Récupération du base URI...");
+		LOGGER.info("COMMIT 5");
 		
-		URI baseURI = this.getClass().getResource("/pdfrecap/css/").toURI();
-
+		URL baseURL = this.getClass().getResource("/pdfrecap/css/");
+		LOGGER.info("URL path = {}", baseURL);
+		
+		URI baseURI = baseURL.toURI();
 		String baseURIPath = baseURI.getPath();
-		LOGGER.info("path = {}", baseURIPath);
+		LOGGER.info("URI path = {}", baseURIPath);
 		
 		File styleFolder = new File(baseURIPath) ;
+		LOGGER.info("File path = {}", baseURIPath);
 		
 		ConverterProperties converterProperties = new ConverterProperties();
 		converterProperties.setBaseUri(styleFolder.getPath());

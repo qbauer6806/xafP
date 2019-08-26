@@ -3,8 +3,8 @@ package mc.gouv.af.back.pdf.recap;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.PrintWriter;
-import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -124,15 +124,6 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
 		File htmlSource = null;
 
 		try {
-			LOGGER.info("Import du fichier CSS pdfrecap/css/genpdf.css ...");
-			URL fileURL = this.getClass().getResource("/pdfrecap/css/genpdf.css");
-			String fileURLPath = fileURL.getPath();
-			LOGGER.info("URL path = {}", fileURLPath);
-			
-			File file  = new File(fileURLPath);
-			String filePath = file.getPath();
-			LOGGER.info("File path = {}", filePath);
-			
 			LOGGER.info("Génération du code HTML de la demande intiale...");
 			String htmlDemande = demandeRecapHTMLService.getHTMLDemandeGeneric(demande);
 
@@ -150,8 +141,8 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
 			PrintWriter writer = new PrintWriter(htmlSource);
 
 			writer.println("<html><head><style>");
-			LOGGER.info("Récupération de l'InputStream pour le CSS...");
-			FileInputStream fis = new FileInputStream(file);
+			LOGGER.info("Récupération de l'InputStream pour le fichier CSS pdfrecap/css/genpdf.css ...");
+			InputStream fis = this.getClass().getResourceAsStream("/pdfrecap/css/genpdf.css");
 			LOGGER.info("Largeur du fchier CSS à lire : {} bytes...", fis.available());
 			int content;
 			while ((content = fis.read()) != -1) {
@@ -161,7 +152,6 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
 			fis.close();
 			writer.println("</style></head><body>");
 			LOGGER.info("Fin de l'écriture du CSS...");
-			
 
 			// Ajout d'un style CSS sur les pages pour laisser de la place au header et
 			// au footer

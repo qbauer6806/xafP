@@ -110,19 +110,16 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
 		pdfDocument.addEventHandler(PdfDocumentEvent.END_PAGE, footerHandler);
 
 		LOGGER.info("Récupération du base URI...");
-		LOGGER.info("COMMIT 3");
-		ClassPathResource resource = new ClassPathResource("/pdfrecap/css/genpdf.css");
-		LOGGER.info("resource = {}", resource.getPath());
-		File baseURIFile = resource.getFile();
-		LOGGER.info("file = {}", baseURIFile.getPath());
 		
-//		URI baseURI = this.getClass().getResource("/pdfrecap/css/genpdf.css").toURI();
+		URI baseURI = this.getClass().getResource("/pdfrecap/css/").toURI();
 
-		
-		String baseURIPath = baseURIFile.getParent();
+		String baseURIPath = baseURI.getPath();
 		LOGGER.info("path = {}", baseURIPath);
+		
+		File styleFolder = new File(baseURIPath) ;
+		
 		ConverterProperties converterProperties = new ConverterProperties();
-		converterProperties.setBaseUri(baseURIPath);
+		converterProperties.setBaseUri(styleFolder.getPath());
 
 		LOGGER.info("Appel du HTML Converter...");
 		HtmlConverter.convertToPdf(new FileInputStream(htmlSource), pdfDocument, converterProperties);

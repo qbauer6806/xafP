@@ -1,18 +1,15 @@
 package mc.gouv.af.back.service.impl;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.lang.reflect.InvocationTargetException;
-import java.text.SimpleDateFormat;
-import java.time.OffsetDateTime;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.*;
+import mc.gouv.af.back.cache.MotifsCache;
+import mc.gouv.af.back.cache.PaysCache;
+import mc.gouv.af.back.cache.PaysCacheImpl;
+import mc.gouv.af.back.properties.GouvPropertiesResolver;
+import mc.gouv.af.back.service.DemandeRecapHTMLService;
+import mc.gouv.af.back.util.AfBackUtils;
+import mc.gouv.dem.shared.model.*;
+import mc.gouv.logon.apiclient.RestException;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.LocalDate;
@@ -26,26 +23,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.BooleanNode;
-import com.fasterxml.jackson.databind.node.MissingNode;
-import com.fasterxml.jackson.databind.node.NullNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
-
-import mc.gouv.af.back.cache.MotifsCache;
-import mc.gouv.af.back.cache.PaysCache;
-import mc.gouv.af.back.cache.PaysCacheImpl;
-import mc.gouv.af.back.properties.GouvPropertiesResolver;
-import mc.gouv.af.back.service.DemandeRecapHTMLService;
-import mc.gouv.af.back.util.AfBackUtils;
-import mc.gouv.dem.shared.model.DemandeCanalEnum;
-import mc.gouv.dem.shared.model.DemandeComplementsDTO;
-import mc.gouv.dem.shared.model.DemandeComplementsQuestionDTO;
-import mc.gouv.dem.shared.model.DemandeComplementsReponseDTO;
-import mc.gouv.dem.shared.model.DemandeDTO;
-import mc.gouv.logon.apiclient.RestException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
+import java.text.SimpleDateFormat;
+import java.time.OffsetDateTime;
+import java.util.*;
 
 /**
  * Service permettant de générer une page HTML contenant le récapitulatif d'une
@@ -115,20 +99,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 	public String getHTMLDemandeComplements(DemandeDTO demande) throws RestException {
 		StringBuilder htmlBuilder = new StringBuilder();
 
-		List<DemandeComplementsDTO> complements = Arrays.asList(demande.getComplements());
-		complements.sort(new Comparator<DemandeComplementsDTO>() {
-			@Override
-			public int compare(DemandeComplementsDTO o1, DemandeComplementsDTO o2) {
-				LocalDate date1 = LocalDate.fromDateFields(o1.getQuestion().getDate());
-				LocalDate date2 = LocalDate.fromDateFields(o2.getQuestion().getDate());
-				if (date1.equals(date2)) {
-					return 0;
-				}
-				return date1.isBefore(date2) ? 1 : -1;
-			}
-		});
-
-		for (DemandeComplementsDTO complement : complements) {
+		for (DemandeComplementsDTO complement :  demande.getComplements()) {
 			DemandeComplementsQuestionDTO question = complement.getQuestion();
 			DemandeComplementsReponseDTO reponse = complement.getReponse();
 			String date = dateFormat.format(question.getDate());

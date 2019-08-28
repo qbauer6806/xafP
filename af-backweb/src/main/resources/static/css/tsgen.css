@@ -197,10 +197,6 @@ label[data-toggle]{
 	margin-top: 0px;
 }
 
-.display-commentaire {
-	white-space: pre-wrap;
-}
-
 .sectiondemande h3 {
 	text-align: left;
 	font-size: 1em;
@@ -224,7 +220,11 @@ dd {
 	padding : 0;
 	margin: 0;
 	font-weight: bold;
-	clear: both
+	clear: both;
+}
+
+dt span {
+	white-space: pre-wrap;
 }
 
 dt {

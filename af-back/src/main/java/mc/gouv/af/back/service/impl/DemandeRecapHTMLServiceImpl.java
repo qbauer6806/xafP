@@ -1,18 +1,17 @@
 package mc.gouv.af.back.service.impl;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.*;
-import mc.gouv.af.back.cache.MotifsCache;
-import mc.gouv.af.back.cache.PaysCache;
-import mc.gouv.af.back.cache.PaysCacheImpl;
-import mc.gouv.af.back.properties.GouvPropertiesResolver;
-import mc.gouv.af.back.service.DemandeRecapHTMLService;
-import mc.gouv.af.back.util.AfBackUtils;
-import mc.gouv.dem.shared.model.*;
-import mc.gouv.logon.apiclient.RestException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
+import java.text.SimpleDateFormat;
+import java.time.OffsetDateTime;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.Map;
+
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.LocalDate;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -23,13 +22,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.lang.reflect.InvocationTargetException;
-import java.text.SimpleDateFormat;
-import java.time.OffsetDateTime;
-import java.util.*;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.BooleanNode;
+import com.fasterxml.jackson.databind.node.MissingNode;
+import com.fasterxml.jackson.databind.node.NullNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
+
+import mc.gouv.af.back.cache.MotifsCache;
+import mc.gouv.af.back.cache.PaysCache;
+import mc.gouv.af.back.properties.GouvPropertiesResolver;
+import mc.gouv.af.back.service.DemandeRecapHTMLService;
+import mc.gouv.af.back.util.AfBackUtils;
+import mc.gouv.dem.shared.model.DemandeCanalEnum;
+import mc.gouv.dem.shared.model.DemandeComplementsDTO;
+import mc.gouv.dem.shared.model.DemandeComplementsQuestionDTO;
+import mc.gouv.dem.shared.model.DemandeComplementsReponseDTO;
+import mc.gouv.dem.shared.model.DemandeDTO;
+import mc.gouv.logon.apiclient.RestException;
 
 /**
  * Service permettant de générer une page HTML contenant le récapitulatif d'une
@@ -99,7 +110,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 	public String getHTMLDemandeComplements(DemandeDTO demande) throws RestException {
 		StringBuilder htmlBuilder = new StringBuilder();
 
-		for (DemandeComplementsDTO complement :  demande.getComplements()) {
+		for (DemandeComplementsDTO complement : demande.getComplements()) {
 			DemandeComplementsQuestionDTO question = complement.getQuestion();
 			DemandeComplementsReponseDTO reponse = complement.getReponse();
 			String date = dateFormat.format(question.getDate());
@@ -254,8 +265,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 				if (node0 == null || node0 instanceof NullNode) {
 					return null;
 				}
-				// TODO need to change this cast as it breaks Spring injection strategy
-				return ((PaysCacheImpl) paysCache).get(node0.asText(), "fr").getNationalite();
+				return paysCache.get(node0.asText(), "fr").getNationalite();
 			} else {
 				String path = champ.get("path").toString().replace("contenu.", "/").replace(".", "/");
 				if (path.charAt(0) != '/') {
@@ -336,9 +346,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 				String ville = escape(getNode(node, champ, "ville").textValue());
 				ret += "<dd><span>Ville</span></dd><dt><span>" + codePostal + " " + ville + "</span></dt>";
 				String pays = getNode(node, champ, "pays").textValue();
-				// TODO need to change this cast as it breaks Spring injection strategy
-				ret += "<dd><span>Pays</span></dd><dt><span>" + ((PaysCacheImpl) paysCache).get(pays, "fr").getNom()
-						+ "</span></dt>";
+				ret += "<dd><span>Pays</span></dd><dt><span>" + paysCache.get(pays, "fr").getNom() + "</span></dt>";
 			}
 			return ret;
 		} else if (type.equals("iban")) {

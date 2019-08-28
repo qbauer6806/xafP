@@ -1,8 +1,7 @@
 package mc.gouv.af.back.cache;
 
-import mc.gouv.servicerest.pays.model.PaysBean;
-import mc.gouv.xboot.caching.GouvCache;
+import mc.gouv.servicerest.caching.PaysNationalitesCache;
 
-public interface PaysCache extends GouvCache<Integer, PaysBean> {
+public interface PaysCache extends PaysNationalitesCache {
 
 }

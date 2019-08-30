@@ -14,8 +14,6 @@ import org.apache.tika.sax.BodyContentHandler;
 import org.springframework.stereotype.Component;
 import org.xml.sax.SAXException;
 
-import mc.gouv.af.back.pdf.PdfTypeEnum;
-
 /**
  * 
  * Classe utilitaire pour traiter les fichiers

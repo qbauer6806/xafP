@@ -129,4 +129,16 @@ public class MailServiceImpl implements MailService {
         return context;
     }
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String formatCommentaire(String commentaire) {
+		if (!StringUtils.isBlank(commentaire)) {
+			String lineSep = System.getProperty("line.separator");
+			commentaire = commentaire.replace(lineSep, "<br/>");
+		}
+		return commentaire;
+	}
+
 }

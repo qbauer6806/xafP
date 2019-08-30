@@ -104,7 +104,7 @@ public class GouvBPMEnvoiEmailUsagerDelegate implements JavaDelegate {
         String codeMotif = (String) execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name());
         String commentaire = (String) execution
                 .getVariable(GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name());
-
+        commentaire = mailService.formatCommentaire(commentaire);
         Map<String, Object> model = mailTemplateModelProvider.getModel(subjectTemplateCode, bodyTemplateCode, demande,
                 execution.getVariables(), codeMotif, commentaire);
 

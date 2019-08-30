@@ -67,6 +67,7 @@ public class GenerateSearchConfigFiles {
     enum EsType {
 
         TEXT("text"),
+        CHOIX_MULTIPLE("choixMultiple"),
         KEYWORD("keyword"),
         DATE("date");
 
@@ -319,8 +320,19 @@ public class GenerateSearchConfigFiles {
                             buildJsonProperty(getPropertiesAsArray(champ, RECAP_CHAMP_ADRESSE_PAYS), champType, contenu,
                                     mapper, RECAP_CHAMP_ADRESSE_PAYS);
                         } else {
-                            buildJsonProperty(getPropertiesAsArray(champ, RECAP_CHAMP_PATH), champType, contenu, mapper,
-                                    RECAP_CHAMP_PATH);
+                            if (champType.equals("choixMultiple")) {
+                                List<LinkedHashMap<String, Object>> mappingValues = (List<LinkedHashMap<String, Object>>) champ.get("mappingValues");
+                                for (LinkedHashMap<String, Object> choix : mappingValues) {
+                                    // Ajout du path pour connaitre le chemin de la value
+                                    choix.put("path", champ.get("path") + "." + choix.get("camelKey"));
+                                    buildJsonProperty(getPropertiesAsArray(choix, RECAP_CHAMP_PATH), RecapChampType.CHOIX.type, contenu, mapper,
+                                            RECAP_CHAMP_PATH);
+                                }
+                            }
+                            else {
+                                buildJsonProperty(getPropertiesAsArray(champ, RECAP_CHAMP_PATH), champType, contenu, mapper,
+                                        RECAP_CHAMP_PATH);
+                            }
 
                         }
                     }

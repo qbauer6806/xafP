@@ -207,6 +207,10 @@ label[data-toggle]{
 	padding-bottom: 3px;
 }
 
+.display-commentaire {
+	white-space: pre-wrap;
+}
+
 dl {
 	width: 100%;
 	overflow: hidden;

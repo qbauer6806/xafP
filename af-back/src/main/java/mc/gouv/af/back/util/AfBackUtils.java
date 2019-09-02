@@ -2,13 +2,7 @@ package mc.gouv.af.back.util;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import javax.annotation.PostConstruct;
 
@@ -70,6 +64,8 @@ public class AfBackUtils {
     private static String envColor;
 
     public static DateFormat sdf_JJ_MM_AAAA = new SimpleDateFormat("dd/MM/yyyy");
+
+    public static DateFormat FILE_DATE_SUFFIX = new SimpleDateFormat("HHmmssSSS");
 
     public static final String MESSAGE_ERREURS_FORMULAIRE = "Le formulaire contient des erreurs.";
 
@@ -221,6 +217,14 @@ public class AfBackUtils {
         TimeBasedGenerator uuidGenerator = Generators.timeBasedGenerator(addr);
         UUID uuid = uuidGenerator.generate();
         return uuid;
+    }
+
+    /**
+     * Génère un suffixe de fichier en fonction de la date de génération conformément au
+     * pattern suivant: HHmmssSSS
+     */
+    public static String generateFileDateSuffix() {
+        return FILE_DATE_SUFFIX.format(new Date());
     }
 
     public MailClient getMailClient() {

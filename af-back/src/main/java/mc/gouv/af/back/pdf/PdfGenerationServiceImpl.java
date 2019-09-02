@@ -10,6 +10,7 @@ import java.io.OutputStream;
 import java.util.Date;
 import java.util.Map.Entry;
 
+import mc.gouv.af.back.util.AfBackUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -138,10 +139,11 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 
 	private File generateToFile(DemandeDTO demande, PdfTemplateAndModelDTO dto) {
 
-		File temp = null;
+		String tempDir = System.getProperty("java.io.tmpdir");
+		String fileName = dto.getFilename() + AfBackUtils.generateFileDateSuffix() + ".pdf";
+		File temp = new File(tempDir, fileName);
 
 		try {
-			temp = File.createTempFile(dto.getFilename(), ".pdf");
 			try (OutputStream out = new FileOutputStream(temp)) {
 				byte[] bytes = generateToStream(demande, dto);
 				out.write(bytes);

@@ -37,8 +37,6 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(PdfRecapGenerationServiceImpl.class);
 
-	private DateFormat dateFormat = new SimpleDateFormat("HHmm");
-
 	@Autowired
 	private FileService fileService;
 
@@ -101,8 +99,7 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
 		File htmlSource = generateHtmlSource(demande, headerHandler.getHeight(), footerHandler.getHeight());
 
 		LOGGER.info("Conversion du code HTML en PDF...");
-		String fileName = "Demande_" + demande.getIdentifiant() + "_" + dateFormat.format(new Date());
-		File pdfDest = File.createTempFile(fileName, ".pdf");
+		File pdfDest = createTempFile("Demande_" + demande.getIdentifiant() + "_");
 		PdfWriter writer = new PdfWriter(pdfDest);
 		PdfDocument pdfDocument = new PdfDocument(writer);
 		pdfDocument.addEventHandler(PdfDocumentEvent.START_PAGE, headerHandler);
@@ -187,6 +184,12 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
 		}
 
 		return htmlSource;
+	}
+
+	private File createTempFile(String filename) {
+		String tempDir = System.getProperty("java.io.tmpdir");
+		String fileName = filename + AfBackUtils.generateFileDateSuffix() + ".pdf";
+		return new File(tempDir, fileName);
 	}
 
 }

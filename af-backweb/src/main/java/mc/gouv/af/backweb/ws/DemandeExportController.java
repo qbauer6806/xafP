@@ -4,6 +4,9 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
+import mc.gouv.af.back.properties.GouvPropertiesResolver;
+import mc.gouv.af.back.util.AfBackUtils;
+import mc.gouv.dem.service.DemarchesService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +37,12 @@ public class DemandeExportController extends AbstractController {
     @Autowired
     private ExcelExportModelProvider excelExportModelProvider;
 
+    @Autowired
+    private GouvPropertiesResolver gouvPropertiesResolver;
+
+    @Autowired
+    private DemarchesService demarchesService;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandeExportController.class);
 
     @RequestMapping(method = RequestMethod.GET, value = "/excel")
@@ -42,8 +51,10 @@ public class DemandeExportController extends AbstractController {
         LOGGER.info("======================= Appel du controller /ws/export/excel");
 
         try {
+            String demarcheId = gouvPropertiesResolver.getDemarcheId();
             response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-            response.setHeader("Content-disposition", "attachment; filename=" + "demandes.xlsx");
+            response.setHeader("Content-disposition", "attachment; filename=" +
+                    demarchesService.getDemarche(demarcheId).getIdentifiantPrefixe() + "_Demande_Stat_" + AfBackUtils.generateFileDateSuffix() + ".xlsx");
             
             LOGGER.info("Constitution du modèle pour la génération Excel...");
             Map<String, Object> model = excelExportModelProvider.getModel(creationStartDate, creationEndDate);

@@ -8,20 +8,23 @@
 		<div role="tabpanel" class="tab-pane" id="tab2">
 			<div th:each="cat : ${categories}">
 				<h3 th:text="${cat.name}"></h3>
-				<table id="datatable-fichiers" class="table table-striped datatablefichiers">
+				<table id="datatable-fichiers"
+					class="table table-striped datatablefichiers fixed-layout">
 					<thead>
 						<tr>
-							<th>Nom du fichier</th>
-							<th>Date</th>
-							<th>Action</th>
+							<th class="file-name-col">Nom du fichier</th>
+							<th class="date-col">Date</th>
+							<th class="action-col">Action</th>
 						</tr>
 					</thead>
 					<tbody>
 						<tr th:each="file : ${cat.files}">
-							<td th:text="${file.name}" />
-							
-							<td th:text="${#dates.format(file.date, 'dd/MM/yyyy HH:mm')}" />
-							<td><a th:href="@{/ws/file/get}+${file.url}"> <span
+							<td class="file-name-col" th:text="${file.name}" />
+
+							<td class="date-col"
+								th:text="${#dates.format(file.date, 'dd/MM/yyyy HH:mm')}" />
+							<td class="action-col"><a
+								th:href="@{/ws/file/get}+${file.url}"> <span
 									class="btn btn-action ripple-effect greyTooltip"
 									data-toggle="tooltip" data-placement="bottom"
 									data-original-title="Télécharger" title=""> <i
@@ -30,7 +33,7 @@
 						</tr>
 					</tbody>
 				</table>
-				<br/>
+				<br />
 			</div>
 		</div>
 	</div>

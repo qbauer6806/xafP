@@ -303,3 +303,17 @@ dt {
     background-color: #FFDE00;
     color: #0F607C;
 }
+
+.fixed-layout {
+	table-layout: fixed;
+}
+
+.file-name-col {
+	width: 70%;
+	padding-right: 0 !important;
+}
+
+.date-col, .action-col {
+	width: 15%;
+	padding-right: 0 !important;
+}

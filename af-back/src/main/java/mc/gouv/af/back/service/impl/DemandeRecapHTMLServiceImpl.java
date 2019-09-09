@@ -55,6 +55,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DemandeRecapHTMLServiceImpl.class);
 
+	private static SimpleDateFormat dateHeureFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
 	private static SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 
 	@Autowired
@@ -84,14 +85,14 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 		htmlBuilder.append(isVirtuel ? "transmission" : "dépôt");
 		htmlBuilder.append("</span></dd><dt><span>");
 		Date dateCreation = isVirtuel ? demande.getDateCreation() : demande.getCourrierDateReception();
-		htmlBuilder.append(dateFormat.format(dateCreation));
+		htmlBuilder.append(dateHeureFormat.format(dateCreation));
 		htmlBuilder.append("</span></dt></dl>");
 
 		// Etat de la demande
 		htmlBuilder.append("<dl><dd><span>Etat de la demande</span></dd><dt><span>");
 		htmlBuilder.append(afBackUtils.getStatusLibelleFromName(demande.getDernierStatut().getLibelle()));
 		htmlBuilder.append(" le ");
-		htmlBuilder.append(dateFormat.format(demande.getDernierStatut().getDate()));
+		htmlBuilder.append(dateHeureFormat.format(demande.getDernierStatut().getDate()));
 		htmlBuilder.append("</span></dt></dl>");
 
 		// Langue
@@ -113,7 +114,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 		for (DemandeComplementsDTO complement : demande.getComplements()) {
 			DemandeComplementsQuestionDTO question = complement.getQuestion();
 			DemandeComplementsReponseDTO reponse = complement.getReponse();
-			String date = dateFormat.format(question.getDate());
+			String date = dateHeureFormat.format(question.getDate());
 
 			htmlBuilder.append("<h3>Compléments du ");
 			htmlBuilder.append(date);
@@ -147,7 +148,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 
 			// Date
 			htmlBuilder.append("<dl><dd><span>Date</span></dd><dt><span>");
-			htmlBuilder.append(dateFormat.format(reponse.getDate()));
+			htmlBuilder.append(dateHeureFormat.format(reponse.getDate()));
 			htmlBuilder.append("</span></dt></dl>");
 
 			// Texte

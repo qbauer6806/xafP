@@ -309,11 +309,20 @@ dt {
 }
 
 .file-name-col {
-	width: 70%;
+	width: 75%;
 	padding-right: 0 !important;
+	overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.date-col, .action-col {
+.date-col {
 	width: 15%;
+}
+
+.action-col {
+	width: 10%;
+}
+
+.file-name-col, .date-col, .action-col {
 	padding-right: 0 !important;
 }

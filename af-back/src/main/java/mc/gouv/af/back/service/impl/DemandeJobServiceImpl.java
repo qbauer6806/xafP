@@ -128,7 +128,7 @@ public class DemandeJobServiceImpl implements DemandeJobService {
         Optional<DemandeJobBO> jobOpt = demandeJobRepository.findById(jobId);
         if (jobOpt.isPresent()) {
             DemandeJobBO job = jobOpt.get();
-            LOGGER.error("Le job {} a été exécuté avec succès", job.getJobName().getLibelle());
+            LOGGER.info("Le job {} a été exécuté avec succès", job.getJobName().getLibelle());
             job.setStatut(JobStatutsEnum.SUCCEEDED);
             job.setMsg(msg);
             job.setDateDernModif(new Date());

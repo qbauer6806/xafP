@@ -55,7 +55,18 @@
 				<div class="triangleTopright"></div>
 			</div>
 
-			<div class="container-fluid">
+			<div th:if="!${AfBackUtils.getDemarcheCanGenerateMails()}"
+				class="container-fluid">
+				<div class="row">
+					<div class="col-xs-12">
+						<h1>Pas de courriers pour cette démarche</h1>
+					</div>
+				</div>
+			</div>
+
+
+			<div th:if="${AfBackUtils.getDemarcheCanGenerateMails()}"
+				class="container-fluid">
 
 				<div class="row">
 					<div class="col-xs-12">
@@ -95,8 +106,7 @@
 												<tr th:each="courrier : ${courriersEnAttente}">
 													<td
 														th:text="${#dates.format(courrier.dateCreation,'dd/MM/yyyy')}" />
-													<td><a
-														th:href="@{'/demandes/'+${courrier.demandeId}}"><span
+													<td><a th:href="@{'/demandes/'+${courrier.demandeId}}"><span
 															th:text="${courrier.demandeIdentifiant}" /></a></td>
 													<td
 														th:text="${AfBackUtils.getStatusLibelleFromName(courrier.fkStatut.libelle)}" />
@@ -157,8 +167,7 @@
 												<tr th:each="courrier : ${courriersImprimes}">
 													<td
 														th:text="${#dates.format(courrier.dateCreation,'dd/MM/yyyy')}" />
-													<td><a
-														th:href="@{'/demandes/'+${courrier.demandeId}}"><span
+													<td><a th:href="@{'/demandes/'+${courrier.demandeId}}"><span
 															title="Télécharger"
 															th:text="${courrier.demandeIdentifiant}" /></a></td>
 													<td

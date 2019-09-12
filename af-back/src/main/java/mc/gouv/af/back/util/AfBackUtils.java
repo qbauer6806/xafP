@@ -393,5 +393,15 @@ public class AfBackUtils {
         }
         return destinataires;
     }
+    
+	/**
+	 * Permet de récupérer le flag indiquant que la démarche peut générer des
+	 * courriers
+	 * 
+	 * @return
+	 */
+	public boolean getDemarcheCanGenerateMails() {
+		return getDemarcheInfos().getCanGenerateMails();
+	}
 
 }

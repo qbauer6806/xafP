@@ -35,7 +35,8 @@
 				</a></li>
 
 				<!-- Lien simple -->
-				<li th:class="${pageCourriersActive} ? 'active' : ''"
+				<li th:if="${AfBackUtils.getDemarcheCanGenerateMails()}"
+					th:class="${pageCourriersActive} ? 'active' : ''"
 					sec:authorize="hasRole('ROLE_TRAITEMENT')"><a
 					th:href="@{/gestion/courriers}">
 						<div class="contentTooltip">
@@ -49,7 +50,8 @@
 				</a></li>
 
 				<!-- Lien simple -->
-				<li th:class="${pageUsagersActive} ? 'active' : ''"
+				<li th:if="${AfBackUtils.getDemarcheCanGenerateMails()}"
+					th:class="${pageUsagersActive} ? 'active' : ''"
 					sec:authorize="hasRole('ROLE_TRAITEMENT')"><a
 					th:href="@{/gestion/usagers}">
 						<div class="contentTooltip">

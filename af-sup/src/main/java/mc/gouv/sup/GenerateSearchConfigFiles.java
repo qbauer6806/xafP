@@ -202,17 +202,17 @@ public class GenerateSearchConfigFiles {
         for (LinkedHashMap<String, Object> section : sectionsList) {
 
             categoriesQueries.add(MessageFormat.format(INSERT_CATEGORY_REQUEST_TEMPLATE, schema,
-                    getColumnValue(section.get("titre")), FALSE));
+                    getEscapedColumnValue(section.get("titre")), FALSE));
             List<LinkedHashMap<String, Object>> champs = (List<LinkedHashMap<String, Object>>) section.get("champs");
             if (champs != null) {
                 for (LinkedHashMap<String, Object> champ : champs) {
 
                     if (champ.get(RECAP_CHAMP_TYPE).toString().equals(RecapChampType.ADRESSE.getType())) {
-                        fillAdressesQueries(champsQueries, champ, getColumnValue(section.get("titre")), schema);
+                        fillAdressesQueries(champsQueries, champ, (String) section.get("titre"), schema);
                     } else {
                         champsQueries.add(MessageFormat.format(INSERT_CHAMP_REQUEST_TEMPLATE, schema, TRUE,
-                                getColumnValue(champ.get(RECAP_CHAMP_PATH)), getColumnValue(champ.get("label")),
-                                getColumnValue(section.get("titre")), FALSE));
+                                getEscapedColumnValue(champ.get(RECAP_CHAMP_PATH)), getEscapedColumnValue(champ.get("label")),
+                                getEscapedColumnValue(section.get("titre")), FALSE));
                     }
 
                 }
@@ -243,7 +243,7 @@ public class GenerateSearchConfigFiles {
      * @param jsonValue Valeur récupérée depuis le fichier json à parser
      * @return Valeur à inserer dans la requete insert
      */
-    private static String getColumnValue(Object jsonValue) {
+    private static String getEscapedColumnValue(Object jsonValue) {
         if (jsonValue != null) {
             return ((String) jsonValue).replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t")
                     .replace("\b", "\\b").replace("\f", "\\f").replace("'", "''");
@@ -265,20 +265,20 @@ public class GenerateSearchConfigFiles {
         }
 
         champsQueries.add(MessageFormat.format(INSERT_CHAMP_REQUEST_TEMPLATE, schema, TRUE,
-                getColumnValue(champ.get(RECAP_CHAMP_ADRESSE_LIGNE1)), "Adresse ligne 1", getColumnValue(category),
+                getEscapedColumnValue(champ.get(RECAP_CHAMP_ADRESSE_LIGNE1)), "Adresse ligne 1", getEscapedColumnValue(category),
                 FALSE));
         champsQueries.add(MessageFormat.format(INSERT_CHAMP_REQUEST_TEMPLATE, schema, TRUE,
-                getColumnValue(champ.get(RECAP_CHAMP_ADRESSE_LIGNE2)), "Adresse ligne 2", getColumnValue(category),
+                getEscapedColumnValue(champ.get(RECAP_CHAMP_ADRESSE_LIGNE2)), "Adresse ligne 2", getEscapedColumnValue(category),
                 FALSE));
         champsQueries.add(MessageFormat.format(INSERT_CHAMP_REQUEST_TEMPLATE, schema, TRUE,
-                getColumnValue(champ.get(RECAP_CHAMP_ADRESSE_LIGNE3)), "Adresse ligne 3", getColumnValue(category),
+                getEscapedColumnValue(champ.get(RECAP_CHAMP_ADRESSE_LIGNE3)), "Adresse ligne 3", getEscapedColumnValue(category),
                 FALSE));
         champsQueries.add(MessageFormat.format(INSERT_CHAMP_REQUEST_TEMPLATE, schema, TRUE,
-                getColumnValue(champ.get(RECAP_CHAMP_ADRESSE_CP)), "Code postal", getColumnValue(category), FALSE));
+                getEscapedColumnValue(champ.get(RECAP_CHAMP_ADRESSE_CP)), "Code postal", getEscapedColumnValue(category), FALSE));
         champsQueries.add(MessageFormat.format(INSERT_CHAMP_REQUEST_TEMPLATE, schema, TRUE,
-                getColumnValue(champ.get(RECAP_CHAMP_ADRESSE_VILLE)), "Ville", getColumnValue(category), FALSE));
+                getEscapedColumnValue(champ.get(RECAP_CHAMP_ADRESSE_VILLE)), "Ville", getEscapedColumnValue(category), FALSE));
         champsQueries.add(MessageFormat.format(INSERT_CHAMP_REQUEST_TEMPLATE, schema, TRUE,
-                getColumnValue(champ.get(RECAP_CHAMP_ADRESSE_PAYS)), "Pays", getColumnValue(category), FALSE));
+                getEscapedColumnValue(champ.get(RECAP_CHAMP_ADRESSE_PAYS)), "Pays", getEscapedColumnValue(category), FALSE));
     }
 
     /**

@@ -40,7 +40,7 @@ public interface AfApiController {
 
     public DemandeDTO associerDemandeCourrier(String identifiantDemande, String stringToCheck, Integer usagerId);
 
-    public void desinscriptionUsager(Integer usagerId);
+    public void desinscriptionUsager(Integer usagerId, String langue);
 
     public AccessDTO createOrUpdateAccess(Integer usagerId, AccessInputDTO dto);
 

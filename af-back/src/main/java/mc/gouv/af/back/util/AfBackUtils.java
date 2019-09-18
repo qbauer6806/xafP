@@ -411,7 +411,7 @@ public class AfBackUtils {
 	 * @return
 	 */
 	public boolean getDemarcheCanGenerateMails() {
-		return getDemarcheInfos().getCanGenerateMails();
+		return demarchesDataProvider.getGenerationDesCourriers();
 	}
 
 }

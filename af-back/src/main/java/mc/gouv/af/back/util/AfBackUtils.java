@@ -66,6 +66,8 @@ public class AfBackUtils {
     public static DateFormat sdf_JJ_MM_AAAA = new SimpleDateFormat("dd/MM/yyyy");
 
     public static DateFormat FILE_DATE_SUFFIX = new SimpleDateFormat("HHmmssSSS");
+    
+    public static DateFormat FILE_DATE_AND_TIME_SUFFIX = new SimpleDateFormat("YYYYMMddHHmmssSS");
 
     public static final String MESSAGE_ERREURS_FORMULAIRE = "Le formulaire contient des erreurs.";
 
@@ -225,6 +227,14 @@ public class AfBackUtils {
      */
     public static String generateFileDateSuffix() {
         return FILE_DATE_SUFFIX.format(new Date());
+    }
+    
+    /**
+     * Génère un suffixe de fichier en fonction de la date de génération conformément au
+     * pattern suivant: YYYYMMDDHHmmssSS
+     */
+    public static String generateFileDateAndTimeSuffix() {
+        return FILE_DATE_AND_TIME_SUFFIX.format(new Date());
     }
 
     public MailClient getMailClient() {

@@ -119,9 +119,10 @@ public abstract class AbstractAfApiController implements AfApiController {
     }
 
     @RequestMapping(value = "/accesses/{usagerId}", method = RequestMethod.DELETE)
-    public void desinscriptionUsagerRequest(@PathVariable(value = "usagerId") Integer usagerId) {
+    public void desinscriptionUsagerRequest(@PathVariable(value = "usagerId") Integer usagerId,
+                                            @RequestParam(value = "langue", required = true) String langue) {
         LOGGER.info("AbstractAfApiController.desinscriptionUsagerRequest(" + usagerId + ")");
-        desinscriptionUsager(usagerId);
+        desinscriptionUsager(usagerId, langue);
     }
 
     @RequestMapping(value = "/accesses/{usagerId}", method = RequestMethod.POST)

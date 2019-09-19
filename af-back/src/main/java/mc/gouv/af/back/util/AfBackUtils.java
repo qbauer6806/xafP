@@ -400,8 +400,8 @@ public class AfBackUtils {
 	 * 
 	 * @return
 	 */
-	public boolean getDemarcheCanGenerateMails() {
-		return getDemarcheInfos().getCanGenerateMails();
-	}
+    public boolean getDemarcheCanGenerateCourriers() {
+        return demarchesDataProvider.getDemarcheCanGenerateCourriers();
+    }
 
 }

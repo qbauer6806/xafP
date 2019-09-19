@@ -72,4 +72,9 @@ public class DemarchesDataProviderImpl implements DemarchesDataProvider {
 		return null;
 	}
 
+    @Override
+    public boolean getDemarcheCanGenerateCourriers() {
+        // TODO Auto-generated method stub
+        return false;
+    }
 }

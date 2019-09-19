@@ -124,7 +124,8 @@ public class AccessesServlet extends AbstractAfServlet {
             LOGGER.info("Appel de la démarche pour désinscrire l'usager...");
 
             try {
-                getAfApiClient().desinscriptionUsager(usagerId);
+                String langue = request.getParameter("langue");
+                getAfApiClient().desinscriptionUsager(usagerId, langue);
                 response.setStatus(HttpStatus.SC_OK);
             } catch (UnauthorizedWebException e) {
                 LOGGER.info("Erreur lors de la désinscription : unauthorized");

@@ -55,7 +55,7 @@
 				<div class="triangleTopright"></div>
 			</div>
 
-			<div th:if="!${AfBackUtils.getDemarcheCanGenerateMails()}"
+			<div th:if="!${AfBackUtils.getDemarcheCanGenerateCourriers()}"
 				class="container-fluid">
 				<div class="row">
 					<div class="col-xs-12">
@@ -65,7 +65,7 @@
 			</div>
 
 
-			<div th:if="${AfBackUtils.getDemarcheCanGenerateMails()}"
+			<div th:if="${AfBackUtils.getDemarcheCanGenerateCourriers()}"
 				class="container-fluid">
 
 				<div class="row">

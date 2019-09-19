@@ -410,8 +410,8 @@ public class AfBackUtils {
 	 * 
 	 * @return
 	 */
-	public boolean getDemarcheCanGenerateMails() {
-		return demarchesDataProvider.getGenerationDesCourriers();
+	public boolean getDemarcheCanGenerateCourriers() {
+		return demarchesDataProvider.getDemarcheCanGenerateCourriers();
 	}
 
 }

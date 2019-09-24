@@ -38,6 +38,4 @@ public interface DemarchesDataProvider {
 	
 	public boolean getDemarcheCanGenerateCourriers();
 
-    public boolean getDemarcheCanGenerateCourriers();
-
 }

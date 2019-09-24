@@ -35,6 +35,8 @@ public interface DemarchesDataProvider {
     public StatutPublicOuInterneDTO getStatutPublicOuInterne(Integer pkDemande, String statutLibelle);
 
 	public Map<String, String> getLanguesDisponibles();
+	
+	public boolean getDemarcheCanGenerateCourriers();
 
     public boolean getDemarcheCanGenerateCourriers();
 

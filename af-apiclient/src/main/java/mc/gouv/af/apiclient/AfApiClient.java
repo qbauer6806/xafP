@@ -144,10 +144,10 @@ public class AfApiClient extends ApiClient {
         return res.readEntity(DemandeDTO.class);
     }
 
-    public void desinscriptionUsager(Integer usagerId) {
-        Response res = getTarget().path("/accesses/" + usagerId)
-                .request(MediaType.APPLICATION_JSON)
-                .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue()).delete();
+    public void desinscriptionUsager(Integer usagerId, String langue) {
+		Response res = getTarget().path("/accesses/" + usagerId).queryParam("langue", langue)
+				.request(MediaType.APPLICATION_JSON)
+				.header("Authorization", getAuthorizationHeaderProvider().getHeaderValue()).delete();
 
         ExceptionManager.checkExceptionResponse(res);
     }

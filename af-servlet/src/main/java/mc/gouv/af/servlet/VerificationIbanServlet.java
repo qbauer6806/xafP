@@ -73,10 +73,20 @@ public class VerificationIbanServlet extends AbstractAfServlet {
 	            		newErreurList.add(erreur);
 	            	}
 	            }
-	            responsePojo.setErreurs(newErreurList.toArray(new TgfApiIbanResponseErreurDTO[newErreurList.size()]));
-	            String newResponse = mapper.writeValueAsString(responsePojo);
 	            
-	            IOUtils.copy(new ByteArrayInputStream(newResponse.getBytes()), response.getOutputStream());
+	            // Si après suppression de l'erreur codePaysIbanBicNonCorrespondant, il ne reste plus d'erreurs, alors remettre un statut 200
+	            if (newErreurList.size() == 0) {
+	            	LOGGER.info("Final response OK");
+	            	response.setStatus(HttpStatus.SC_OK);
+	            	IOUtils.write("", response.getOutputStream());
+	            }
+	            else {
+	            	LOGGER.info("Final response NOK, with error list");
+		            responsePojo.setErreurs(newErreurList.toArray(new TgfApiIbanResponseErreurDTO[newErreurList.size()]));
+		            String newResponse = mapper.writeValueAsString(responsePojo);
+		            
+		            IOUtils.copy(new ByteArrayInputStream(newResponse.getBytes()), response.getOutputStream());	
+	            }
             }
         } catch (Exception e) {
             response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);

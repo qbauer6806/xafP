@@ -54,7 +54,7 @@ public class DemandeExportController extends AbstractController {
             String demarcheId = gouvPropertiesResolver.getDemarcheId();
             response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
             response.setHeader("Content-disposition", "attachment; filename=" +
-                    demarchesService.getDemarche(demarcheId).getIdentifiantPrefixe() + "_Demande_Stat_" + AfBackUtils.generateFileDateSuffix() + ".xlsx");
+                    demarchesService.getDemarche(demarcheId).getIdentifiantPrefixe() + "_Donnees_Stat_" + AfBackUtils.generateFileDateAndTimeSuffix() + ".xlsx");
             
             LOGGER.info("Constitution du modèle pour la génération Excel...");
             Map<String, Object> model = excelExportModelProvider.getModel(creationStartDate, creationEndDate);

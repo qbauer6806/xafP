@@ -44,12 +44,15 @@ public class ApercuPdfController extends AbstractController {
     @Autowired
     private PdfGenerationService pdfGenerationService;
 
+    private static final String COURRIER_TYPE = "COURRIER";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ApercuPdfController.class);
 
     @RequestMapping(method = RequestMethod.GET, value = "/apercu")
     public void apercuPdf(HttpServletResponse response, @RequestParam(required = true) String pkDemande,
             @RequestParam(required = false) String commentaire, @RequestParam(required = true) String statut,
-            @RequestParam(required = false) String langue, @RequestParam(required = false) String codeMotif) {
+            @RequestParam(required = false) String langue, @RequestParam(required = false) String codeMotif,
+                          @RequestParam(required = false, defaultValue = COURRIER_TYPE) PdfTypeEnum pdfType) {
 
         LOGGER.info("======================= /pdf/apercu Génération d'aperçu PDF");
 
@@ -61,7 +64,7 @@ public class ApercuPdfController extends AbstractController {
 
         LOGGER.info("Appel au service de génération de PDF...");
         File file = pdfGenerationService.generatePdfPreview(demande, statut, codeMotif, demande.getLangue(),
-                commentaire, PdfTypeEnum.COURRIER);
+                commentaire, pdfType);
 
         try {
             LOGGER.info("Écriture du PDF dans l'OutputStream...");

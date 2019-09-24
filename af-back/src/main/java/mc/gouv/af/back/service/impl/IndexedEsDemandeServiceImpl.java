@@ -474,7 +474,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     /**
      * Méthode permettant l'indexation des fichiers d'une demande
      * 
-     * @param demandes
+     * @param demande
      *            Liste des demandes dont on va indexer les fichiers
      * @throws IOException
      */
@@ -493,8 +493,8 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     /**
      * Méthode permettant l'indexation des fichiers d'une demande
      * 
-     * @param demandes
-     *            Liste des demandes dont on va indexer les fichiers
+     * @param demande
+     *            Demande dont on va indexer les fichiers
      * @throws IOException
      */
     @Override
@@ -510,7 +510,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     /**
      * Méthode permettant de récupérer la liste des pieces jointes et des complements au format elasticsearch
      * 
-     * @param pjsAndFichiersInternes
+     * @param files
      *            Liste des fichiers à remplir
      * @param demande
      *            Demande concernée
@@ -541,7 +541,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     /**
      * Méthode permettant de récupérer la liste des pieces jointes et des complements au format elasticsearch
      * 
-     * @param pjs
+     * @param files
      *            Liste des fichiers à remplir
      * @param demande
      *            Demande concernée
@@ -609,9 +609,6 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         return fileType;
     }
 
-    /**
-     * @see mc.gouv.dem.service.DemandesService#reindex()
-     */
     @Override
     public Long reindex() throws IOException, SAXException, TikaException {
 
@@ -850,8 +847,6 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      * 
      * @param demandeFileEsDTO
      *            Fichier à indexer
-     * @param type
-     *            Type du fichier à indexer
      * @return Fichier indexé
      */
     private DemandeFileEsDTO indexFile(DemandeFileEsDTO demandeFileEsDTO) {
@@ -949,9 +944,6 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         return Lists.newArrayList(demandeEsRepository.search(getQueryBuilder(demandeRecherche)));
     }
 
-    /**
-     * @see mc.gouv.dem.service.DemandesService#getDemandesFacets(mc.gouv.dem.service.model.DemandeRechercheDTO)
-     */
     @Override
     public DemandesFacets getDemandesFacets(DemandeRechercheDTO demandeRecherche) {
 
@@ -1261,8 +1253,8 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             NativeSearchQueryBuilder nativeSearchQueryBuilder) {
         if (!StringUtils.isBlank(demandeRecherche.getTexte())) {
 
-            if (!StringUtils.isBlank(demandeRecherche.getSearchField())) {
-                List<String> demandeSearchFields = getSearchFields(demandeRecherche.getSearchField(),
+            if (demandeRecherche.getSearchFields() != null && demandeRecherche.getSearchFields().length > 0) {
+                List<String> demandeSearchFields = getSearchFields(demandeRecherche.getSearchFields(),
                         demandesProperties);
                 HighlightBuilder.Field[] fieldsForHighlight = new HighlightBuilder.Field[demandeSearchFields.size()];
                 int i = 0;
@@ -1308,14 +1300,22 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      * @return Liste des fields sur lesquels on va faire la recherche
      */
     private List<String> getSearchFields(String propertyName, List<EsProperty> properties) {
-        List<String> serachFields = new ArrayList<>();
+        List<String> searchFields = new ArrayList<>();
         if (properties.contains(new EsProperty(propertyName))) {
             EsProperty property = properties.get(properties.indexOf(new EsProperty(propertyName)));
-            serachFields.add(propertyName);
-            property.getFields().stream().forEach(field -> serachFields.add(propertyName + "." + field));
+            searchFields.add(propertyName);
+            property.getFields().stream().forEach(field -> searchFields.add(propertyName + "." + field));
         }
 
-        return serachFields;
+        return searchFields;
+    }
+
+    private List<String> getSearchFields(String[] searchedProperties, List<EsProperty> properties) {
+        List<String> searchFields = new ArrayList<>();
+        for (String propertyName : searchedProperties) {
+            searchFields.addAll(this.getSearchFields(propertyName, properties));
+        }
+        return searchFields;
     }
 
     /**
@@ -1336,9 +1336,9 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             SimpleQueryStringBuilder filesQueryStringQueryBuilder = getSimpleQueryStringBuilder(
                     demandeRecherche.getTexte(), null);
 
-            if (!StringUtils.isBlank(demandeRecherche.getSearchField())) {
+            if (demandeRecherche.getSearchFields() != null && demandeRecherche.getSearchFields().length > 0) {
                 boolQueryBuilder = getQueryWhereFacetClicked(demandeQueryStringQueryBuilder,
-                        filesQueryStringQueryBuilder, demandeRecherche.getTexte(), demandeRecherche.getSearchField(),
+                        filesQueryStringQueryBuilder, demandeRecherche.getTexte(), demandeRecherche.getSearchFields(),
                         boolQueryBuilder);
 
             } else {
@@ -1393,50 +1393,55 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      *            Requete sur les attributs des fichiers
      * @param rechercheText
      *            Texte de la barre de recherche
-     * @param searchField
+     * @param searchFields
      *            facet sur lequel on a cliqué
      * @param boolQueryBuilder
      *            Requete globale qui combine les requetes sur les demandes et sur les fichiers
      * @return Requete globale qui combine les requetes sur les demandes et sur les fichiers
      */
     private BoolQueryBuilder getQueryWhereFacetClicked(SimpleQueryStringBuilder demandeQueryStringQueryBuilder,
-            SimpleQueryStringBuilder filesQueryStringQueryBuilder, String rechercheText, String searchField,
+            SimpleQueryStringBuilder filesQueryStringQueryBuilder, String rechercheText, String[] searchFields,
             BoolQueryBuilder boolQueryBuilder) {
         TermQueryBuilder tqb = null;
 
-        if (searchField != null) {
-            if (searchField.startsWith(FILE_COMPLEMENT_HIGHLIGHT_AND_FACET_PREFIX)) {
-                searchField = searchField.replaceFirst(FILE_COMPLEMENT_HIGHLIGHT_AND_FACET_PREFIX, "");
-                tqb = termQuery(DemandeFileEsDTO.TYPE_FIELD, DemandeFileEsDTO.TYPE.COMPLEMENT.name());
-                boolQueryBuilder.must(hasChildQuery(DemandeFileEsDTO.INDEX_FILES_JOIN_DOC, tqb, ScoreMode.Avg));
-            } else if (searchField.startsWith(FILE_PROPERTIES_PREFIX)) {
-                tqb = termQuery(DemandeFileEsDTO.TYPE_FIELD, DemandeFileEsDTO.TYPE.PIECE_JOINTE.name());
-                boolQueryBuilder.must(hasChildQuery(DemandeFileEsDTO.INDEX_FILES_JOIN_DOC, tqb, ScoreMode.Avg));
-            } else if (searchField.startsWith(INTERNAL_FILE_HIGHLIGHT_AND_FACET_PREFIX)) {
-                searchField = searchField.replaceFirst(INTERNAL_FILE_HIGHLIGHT_AND_FACET_PREFIX, "");
-                tqb = termQuery(DemandeFileEsDTO.TYPE_FIELD, DemandeFileEsDTO.TYPE.FICHIER_INTERNE.name());
-                boolQueryBuilder.must(hasChildQuery(DemandeFileEsDTO.INDEX_FILES_JOIN_DOC, tqb, ScoreMode.Avg));
+        // Supression du suffixe par type de fichier
+        List<String> replacedSearchFields = new ArrayList<>();
+        for (String searchField : searchFields) {
+             if (searchField != null) {
+                if (searchField.startsWith(FILE_COMPLEMENT_HIGHLIGHT_AND_FACET_PREFIX)) {
+                    replacedSearchFields.add(searchField.replaceFirst(FILE_COMPLEMENT_HIGHLIGHT_AND_FACET_PREFIX, ""));
+                    tqb = termQuery(DemandeFileEsDTO.TYPE_FIELD, DemandeFileEsDTO.TYPE.COMPLEMENT.name());
+                    boolQueryBuilder.must(hasChildQuery(DemandeFileEsDTO.INDEX_FILES_JOIN_DOC, tqb, ScoreMode.Avg));
+                } else if (searchField.startsWith(FILE_PROPERTIES_PREFIX)) {
+                    tqb = termQuery(DemandeFileEsDTO.TYPE_FIELD, DemandeFileEsDTO.TYPE.PIECE_JOINTE.name());
+                    boolQueryBuilder.must(hasChildQuery(DemandeFileEsDTO.INDEX_FILES_JOIN_DOC, tqb, ScoreMode.Avg));
+                } else if (searchField.startsWith(INTERNAL_FILE_HIGHLIGHT_AND_FACET_PREFIX)) {
+                    replacedSearchFields.add(searchField.replaceFirst(INTERNAL_FILE_HIGHLIGHT_AND_FACET_PREFIX, ""));
+                    tqb = termQuery(DemandeFileEsDTO.TYPE_FIELD, DemandeFileEsDTO.TYPE.FICHIER_INTERNE.name());
+                    boolQueryBuilder.must(hasChildQuery(DemandeFileEsDTO.INDEX_FILES_JOIN_DOC, tqb, ScoreMode.Avg));
+                } else {
+                    replacedSearchFields.add(searchField);
+                }
             }
         }
 
         boolQueryBuilder = boolQueryBuilder.minimumShouldMatch(1);
 
-        List<String> serachDemandeFields = getSearchFields(searchField, demandesProperties);
+        List<String> searchDemandeFields = getSearchFields(replacedSearchFields.toArray(new String[0]), demandesProperties);
+        List<String> searchFilesFields = getSearchFields(replacedSearchFields.toArray(new String[0]), filesProperties);
 
-        List<String> serachFilesFields = getSearchFields(searchField, filesProperties);
-
-        if (!serachDemandeFields.isEmpty()) {
+        if (!searchDemandeFields.isEmpty()) {
             Map<String, Float> demandeFields = new HashMap<>();
-            serachDemandeFields.stream().forEach(f -> demandeFields.put(f, 1f));
+            searchDemandeFields.forEach(f -> demandeFields.put(f, 1f));
             demandeQueryStringQueryBuilder = demandeQueryStringQueryBuilder.fields(demandeFields);
             boolQueryBuilder = boolQueryBuilder.should(demandeQueryStringQueryBuilder);
         }
 
-        if (!serachFilesFields.isEmpty()) {
+        if (!searchFilesFields.isEmpty()) {
 
             Map<String, Float> filesFields = new HashMap<>();
             HighlightBuilder hb = new HighlightBuilder();
-            for (String f : serachFilesFields) {
+            for (String f : searchFilesFields) {
                 filesFields.put(f, 1f);
                 HighlightBuilder.Field field = new HighlightBuilder.Field(f).preTags(highlightPretags)
                         .postTags(highlightPosttags)
@@ -1643,7 +1648,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      * Méthode permettant de cloner une demande et d'indexer la nouvelle demande
      * 
      * @param demarcheId Identifiant de la démarche
-     * @param Identifiant de la demande
+     * @param pkDemande Identifiant de la demande
      * 
      * @return retourne de DTO de la demande
      * 

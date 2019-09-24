@@ -1,288 +1,361 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org" class="no-js" lang="en"
-	dir="ltr"
-	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+      dir="ltr"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
 <head>
-<meta charset="utf-8" />
-<meta http-equiv="x-ua-compatible" content="ie=edge" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title th:text="${AfBackUtils.getDemarcheNom()}"></title>
-<link rel="shortcut icon" th:href="@{/img/favicon.ico}" />
-<!-- Import FONTS -->
-<link th:href="@{/webjars/xcb-wlib/fonts/style.css}" rel="stylesheet" />
-<link rel="stylesheet" th:href="@{/webjars/xcb-wlib/fonts/ie7/ie7.css}" />
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title th:text="${AfBackUtils.getDemarcheNom()}"></title>
+    <link rel="shortcut icon" th:href="@{/img/favicon.ico}" />
+    <!-- Import FONTS -->
+    <link th:href="@{/webjars/xcb-wlib/fonts/style.css}" rel="stylesheet" />
+    <link rel="stylesheet" th:href="@{/webjars/xcb-wlib/fonts/ie7/ie7.css}" />
 
-<!-- Import CSS -->
-<link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"
-	rel="stylesheet" type="text/css" />
-<link th:href="@{/webjars/xcb-wlib/css/template.css}" rel="stylesheet" />
-<link th:href="@{/webjars/xcb-wlib/css/sidebar.css}" rel="stylesheet" />
-<link th:href="@{/webjars/xcb-wlib/css/element.css}" rel="stylesheet" />
-<link th:href="@{/webjars/datatables/css/dataTables.bootstrap.css}"
-	rel="stylesheet" />
-<link
-	th:href="@{/webjars/bootstrap-datepicker/css/bootstrap-datepicker.css}"
-	rel="stylesheet" />
-<link rel="stylesheet"
-	th:href="@{/webjars/fancybox/jquery.fancybox.css}" />
+    <!-- Import CSS -->
+    <link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"
+          rel="stylesheet" type="text/css" />
+    <link th:href="@{/webjars/xcb-wlib/css/template.css}" rel="stylesheet" />
+    <link th:href="@{/webjars/xcb-wlib/css/sidebar.css}" rel="stylesheet" />
+    <link th:href="@{/webjars/xcb-wlib/css/element.css}" rel="stylesheet" />
+    <link th:href="@{/webjars/datatables/css/dataTables.bootstrap.css}"
+          rel="stylesheet" />
+    <link
+            th:href="@{/webjars/bootstrap-datepicker/css/bootstrap-datepicker.css}"
+            rel="stylesheet" />
+    <link rel="stylesheet"
+          th:href="@{/webjars/fancybox/jquery.fancybox.css}" />
 
-<link rel="shortcut icon" type="image/x-icon"
-	th:href="@{/img/favicon.ico}" />
-<link th:href="@{/css/tsgen.css(${applicationBuildTimestamp})}"
-	rel="stylesheet" />
-<link th:href="@{/css/tsdem.css(${applicationBuildTimestamp})}"
-	rel="stylesheet" />
+    <link rel="shortcut icon" type="image/x-icon"
+          th:href="@{/img/favicon.ico}" />
+    <link th:href="@{/css/tsgen.css(${applicationBuildTimestamp})}"
+          rel="stylesheet" />
+    <link th:href="@{/css/tsdem.css(${applicationBuildTimestamp})}"
+          rel="stylesheet" />
 </head>
 
 <body th:with="pageCourriersActive='active'">
 
-	<div th:replace="fragments/header :: header"></div>
+<div th:replace="fragments/header :: header"></div>
 
-	<div id="wrapper">
+<div id="wrapper">
 
-		<div th:replace="fragments/sidebar :: sidebar"></div>
+    <div th:replace="fragments/sidebar :: sidebar"></div>
 
-		<!-- DEBUT CONTENU -->
-		<div id="page-content-wrapper">
-			<div class="breadcrumbContent">
-				<ol class="breadcrumb">
+    <!-- DEBUT CONTENU -->
+    <div id="page-content-wrapper">
+        <div class="breadcrumbContent">
+            <ol class="breadcrumb">
 					<span class="breadcrumb-item active"> <a
-						th:href="@{/}" class="breadcrumb-link">ACCUEIL</a>&nbsp;&gt;&nbsp;
+                            th:href="@{/}" class="breadcrumb-link">ACCUEIL</a>&nbsp;&gt;&nbsp;
 						<a th:href="@{/gestion/courriers}" class="breadcrumb-link">COURRIERS</a>
 						&gt;
 					</span>
-				</ol>
-				<div class="triangleTopright"></div>
-			</div>
+            </ol>
+            <div class="triangleTopright"></div>
+        </div>
 
-			<div th:if="!${AfBackUtils.getDemarcheCanGenerateMails()}"
-				class="container-fluid">
-				<div class="row">
-					<div class="col-xs-12">
-						<h1>Pas de courriers pour cette démarche</h1>
-					</div>
-				</div>
-			</div>
+        <div th:if="!${AfBackUtils.getDemarcheCanGenerateCourriers()}"
+             class="container-fluid">
+            <div class="row">
+                <div class="col-xs-12">
+                    <h1>Pas de courriers pour cette démarche</h1>
+                </div>
+            </div>
+        </div>
 
 
-			<div th:if="${AfBackUtils.getDemarcheCanGenerateMails()}"
-				class="container-fluid">
+        <div th:if="${AfBackUtils.getDemarcheCanGenerateCourriers()}"
+             class="container-fluid">
 
-				<div class="row">
-					<div class="col-xs-12">
-						<h1>Gestion du courrier</h1>
-					</div>
-				</div>
+            <div class="row">
+                <div class="col-xs-12">
+                    <h1>Gestion du courrier</h1>
+                </div>
+            </div>
 
-				<div class="row">
-					<div class="col-xs-12">
-						<div class="panel-group accordion" id="accordion" role="tablist"
-							aria-multiselectable="true">
-							<div class="panel panel-default">
-								<div class="panel-heading" role="tab" id="headingOne">
-									<h4 class="panel-title">
-										<a role="button" data-toggle="collapse"
-											data-parent="#accordion" href="#collapseOne"
-											aria-expanded="true" aria-controls="collapseOne"> <i
-											class="pannelState icon-action_accordeon-ouvert"></i>
-											COURRIERS EN ATTENTE D'IMPRESSION <span class="badge info"
-											th:text="${#lists.size(courriersEnAttente)}"></span>
-										</a>
-									</h4>
-								</div>
-								<div id="collapseOne" class="panel-collapse collapse in"
-									role="tabpanel" aria-labelledby="headingOne">
-									<div class="panel-body">
-										<table id="courriersEnAttente" class="table table-striped">
-											<thead>
-												<tr>
-													<th>Date génération</th>
-													<th>Demande</th>
-													<th>État</th>
-													<th>Actions</th>
-												</tr>
-											</thead>
-											<tbody>
-												<tr th:each="courrier : ${courriersEnAttente}">
-													<td
-														th:text="${#dates.format(courrier.dateCreation,'dd/MM/yyyy')}" />
-													<td><a th:href="@{'/demandes/'+${courrier.demandeId}}"><span
-															th:text="${courrier.demandeIdentifiant}" /></a></td>
-													<td
-														th:text="${AfBackUtils.getStatusLibelleFromName(courrier.fkStatut.libelle)}" />
-													<td><a th:href="@{/ws/file/get/}+${courrier.url}">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div id="rechercheForm">
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div class="panel panel-simple">
+                                    <h4 class="titre">Recherche</h4>
+                                    <div class="form-group">
+                                        <label for="texteInput">Saisissez un terme ou une
+                                            expression de recherche</label>
+                                        <div class="row">
+                                            <div class="col-xs-8">
+                                                <input type="text" th:value="${texte}" name="texte"
+                                                       class="form-control" id="texteInput" title="" />
+                                            </div>
+                                            <div class="col-xs-4 nopadding">
+												<span class="btn btn-action ripple-effect" id="rechercherButton1">
+													<i class="icon-action_chercher"></i>
+												</span>
+                                                <span class="btn btn-action ripple-effect greyTooltip"
+                                                      data-placement="right" data-html="true"
+                                                      data-original-title="<p style='text-align: left;'>Recherche d'une expression exacte:<br/> &quot;pierre étudiant&quot;<br/>Recherche intégrant un second terme:<br/>pierre +étudiant<br/>Recherche excluant un terme:<br/>pierre -étudiant</p>"
+                                                      data-toggle="tooltip">
+													<i class="icon-menu_aide"></i>
+												</span>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="panel-group accordion" id="accordion" role="tablist"
+                         aria-multiselectable="true">
+                        <div class="panel panel-default">
+                            <div class="panel-heading" role="tab" id="headingOne">
+                                <h4 class="panel-title">
+                                    <a role="button" data-toggle="collapse"
+                                       data-parent="#accordion" href="#collapseOne"
+                                       aria-expanded="true" aria-controls="collapseOne"> <i
+                                            class="pannelState icon-action_accordeon-ouvert"></i>
+                                        COURRIERS EN ATTENTE D'IMPRESSION <span id="numberEnAttente" class="badge info numberEnAttente"
+                                                                                th:text="${#lists.size(courriersEnAttente)}"></span>
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="collapseOne" class="panel-collapse collapse in"
+                                 role="tabpanel" aria-labelledby="headingOne">
+                                <div class="panel-body">
+                                    <table id="courriersEnAttente" class="table table-striped">
+                                        <thead>
+                                        <tr>
+                                            <th>IDENTIFIANT</th>
+                                            <th>DATE GENERATION</th>
+                                            <th>IDENTIFIANT DEMANDE</th>
+                                            <th>ACTIONS</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr th:each="courrier : ${courriersEnAttente}">
+                                            <td th:text="${courrier.name}"></td>
+                                            <td th:text="${#dates.format(courrier.dateCreation,'dd/MM/yyyy')}"></td>
+                                            <td><a th:href="@{'/demandes/'+${courrier.demandeId}}"><span
+                                                    th:text="${courrier.demandeIdentifiant}" /></a></td>
+                                            <td><a th:href="@{/ws/file/get/}+${courrier.url}">
 															<span class="btn btn-action ripple-effect greyTooltip"
-															data-toggle="tooltip" data-placement="bottom"
-															data-original-title="Télécharger" title=""> <i
-																class="icon-action_pdf"></i></span>
-													</a>&nbsp;&nbsp; <a href="#"
-														th:attr="data-courrierid=${courrier.pkCourrier},data-demandeid=${courrier.demandeId}"
-														class="print"> <span
-															class="btn btn-action ripple-effect greyTooltip"
-															data-toggle="tooltip" data-placement="bottom"
-															data-original-title="Valider l'impression" title="">
+                                                                  data-toggle="tooltip" data-placement="bottom"
+                                                                  data-original-title="Télécharger" title=""> <i
+                                                                    class="icon-action_pdf"></i></span>
+                                            </a>&nbsp;&nbsp; <a href="#"
+                                                                th:attr="data-courrierid=${courrier.pkCourrier},data-demandeid=${courrier.demandeId}"
+                                                                class="print"> <span
+                                                    class="btn btn-action ripple-effect greyTooltip"
+                                                    data-toggle="tooltip" data-placement="bottom"
+                                                    data-original-title="Valider l'impression" title="">
 																<i class="icon-action_expedie_ok"></i>
 														</span>
-													</a></td>
-												</tr>
-											</tbody>
-										</table>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
+                                            </a></td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
 
-				<div class="row">
-					<div class="col-xs-12">
-						<div class="panel-group accordion" role="tablist"
-							aria-multiselectable="true">
-							<div class="panel panel-default">
-								<div class="panel-heading" role="tab" id="headingTwo">
-									<h4 class="panel-title">
-										<a role="button" data-toggle="collapse"
-											data-parent="#accordion" href="#collapseTwo"
-											aria-expanded="true" aria-controls="collapseTwo"> <i
-											class="pannelState icon-action_accordeon-ouvert"></i>
-											COURRIERS IMPRIMÉS <span class="badge info"
-											th:text="${#lists.size(courriersImprimes)}"></span>
-										</a>
-									</h4>
-								</div>
-								<div id="collapseTwo" class="panel-collapse collapse in"
-									role="tabpanel" aria-labelledby="headingTwo">
-									<div class="panel panel-body">
-										<table id="courriersImprimes" class="table table-striped">
-											<thead>
-												<tr>
-													<th>Date génération</th>
-													<th>Demande</th>
-													<th>État</th>
-													<th>Identifiant</th>
-													<th>Actions</th>
-												</tr>
-											<tbody>
-												<tr th:each="courrier : ${courriersImprimes}">
-													<td
-														th:text="${#dates.format(courrier.dateCreation,'dd/MM/yyyy')}" />
-													<td><a th:href="@{'/demandes/'+${courrier.demandeId}}"><span
-															title="Télécharger"
-															th:text="${courrier.demandeIdentifiant}" /></a></td>
-													<td
-														th:text="${AfBackUtils.getStatusLibelleFromName(courrier.fkStatut.libelle)}" />
-													<td th:text="${courrier.identifiant}" />
-													<td><a th:href="@{/ws/file/get/}+${courrier.url}"><span
-															class="btn btn-action ripple-effect greyTooltip"
-															data-toggle="tooltip" data-placement="bottom"
-															data-original-title="Télécharger" title=""> <i
-																class="icon-action_pdf"></i></span></a></td>
-												</tr>
-											</tbody>
-											</thead>
-										</table>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="panel-group accordion" role="tablist"
+                         aria-multiselectable="true">
+                        <div class="panel panel-default">
+                            <div class="panel-heading" role="tab" id="headingTwo">
+                                <h4 class="panel-title">
+                                    <a role="button" data-toggle="collapse"
+                                       data-parent="#accordion" href="#collapseTwo"
+                                       aria-expanded="true" aria-controls="collapseTwo"> <i
+                                            class="pannelState icon-action_accordeon-ouvert"></i>
+                                        COURRIERS IMPRIMÉS <span id="numberImprimes" class="badge info"
+                                                                 th:text="${#lists.size(courriersImprimes)}"></span>
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="collapseTwo" class="panel-collapse collapse in"
+                                 role="tabpanel" aria-labelledby="headingTwo">
+                                <div class="panel panel-body">
+                                    <table id="courriersImprimes" class="table table-striped">
+                                        <thead>
+                                        <tr>
+                                            <th>IDENTIFIANT</th>
+                                            <th>DATE GENERATION</th>
+                                            <th>IDENTIFIANT DEMANDE</th>
+                                            <th>ACTIONS</th>
+                                        </tr>
+                                        <tbody>
+                                        <tr th:each="courrier : ${courriersImprimes}">
+                                            <td th:text="${courrier.name}"></td>
+                                            <td th:text="${#dates.format(courrier.dateCreation,'dd/MM/yyyy')}"></td>
+                                            <td><a th:href="@{'/demandes/'+${courrier.demandeId}}"><span
+                                                    title="Télécharger"
+                                                    th:text="${courrier.demandeIdentifiant}" /></a></td>
+                                            <td><a th:href="@{/ws/file/get/}+${courrier.url}"><span
+                                                    class="btn btn-action ripple-effect greyTooltip"
+                                                    data-toggle="tooltip" data-placement="bottom"
+                                                    data-original-title="Télécharger" title=""> <i
+                                                    class="icon-action_pdf"></i></span></a></td>
+                                        </tr>
+                                        </tbody>
+                                        </thead>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-			</div>
+        </div>
 
-		</div>
-		<!-- FIN CONTENU -->
+    </div>
+    <!-- FIN CONTENU -->
 
-	</div>
+</div>
 
-	<div th:replace="fragments/footer :: footer"></div>
+<div th:replace="fragments/footer :: footer"></div>
 
 
-	<div class="row">
-		<div id="print-box" style="display: none" class="container-fluid">
-			<div id="print-content">
-				<form id="form-print" action="#"
-					th:action="@{/gestion/courriers/print}" method="post">
-					<input type="hidden" id="demandeId" name="demandeId" /> <input
-						type="hidden" id="courrierId" name="courrierId" /> <span>Identifiant
+<div class="row">
+    <div id="print-box" style="display: none" class="container-fluid">
+        <div id="print-content">
+            <form id="form-print" action="#"
+                  th:action="@{/gestion/courriers/print}" method="post">
+                <input type="hidden" id="demandeId" name="demandeId" /> <input
+                    type="hidden" id="courrierId" name="courrierId" /> <span>Identifiant
 						de courrier :</span><br />
-					<textarea name="refCourrier" maxlength="128"></textarea>
-					<div class="row-mt-5">
-						<input id="print-button" type="submit" name="action"
-							value="Continuer" class="btn btn-action ripple-effect"
-							style="margin-top: 20px;" />
-					</div>
-				</form>
-			</div>
+                <textarea name="refCourrier" maxlength="128"></textarea>
+                <div class="row-mt-5">
+                    <input id="print-button" type="submit" name="action"
+                           value="Continuer" class="btn btn-action ripple-effect"
+                           style="margin-top: 20px;" />
+                </div>
+            </form>
+        </div>
 
-		</div>
-	</div>
+    </div>
+</div>
 
 
 
-	<script th:inline="javascript">
-		/*<![CDATA[*/
-		
-		$(document).ready(
-						function() {
+<script th:inline="javascript">
+    /*<![CDATA[*/
 
-							// Prevent double form submission
-							$("form").submit(function (e) {
-								$('form input[type=submit]').prop('disabled',true);
-								return true;
-							});
+    $(document).ready(function() {
 
-							$(".print").click(function(e) {
-								e.preventDefault();
+        // Prevent double form submission
+        $("form").submit(function (e) {
+            $('form input[type=submit]').prop('disabled',true);
+            return true;
+        });
 
-								var courrierId = $(this).data("courrierid");
-								var demandeId = $(this).data("demandeid");
+        $(".print").click(function(e) {
+            e.preventDefault();
 
-								$.fancybox.open($("#print-box"));
+            var courrierId = $(this).data("courrierid");
+            var demandeId = $(this).data("demandeid");
 
-								$("#demandeId").val(demandeId);
-								$("#courrierId").val(courrierId);
+            $.fancybox.open($("#print-box"));
 
-								return false;
+            $("#demandeId").val(demandeId);
+            $("#courrierId").val(courrierId);
 
-							});
+            return false;
 
-				            $('#courriersEnAttente').each(function(index,value){
-				                $(this).DataTable({
-				                    paging: true,
-				                    searching: false,
-				                    select: false,
-				                    bInfo: false,
-				                    lengthChange : false,
-				                    order : [ [ 0, "desc" ] ],
-				                    columnDefs: [
-                                       {"orderable": false, "targets": 3}
-                                       ],
-                                       language: frenchTranslation,
-                                       lengthMenu: [ 5, 10, 25, 50, 100 ]
-				                });
-				            });
+        });
 
-				            $('#courriersImprimes').each(function(index,value){
-				                $(this).DataTable({
-				                    paging: true,
-				                    searching: false,
-				                    select: false,
-				                    bInfo: false,
-				                    lengthChange : false,
-				                    order : [ [ 0, "desc" ] ],
-				                    columnDefs: [
-                                       {"orderable": false, "targets": 4}
-                                       ],
-                                       language: frenchTranslation,
-                                       lengthMenu: [ 5, 10, 25, 50, 100 ]
-				                });
-				            });
 
-						});
-		/*]]>*/
-	</script>
+        var tableImprimes = $('#courriersImprimes').DataTable({
+            paging: true,
+            select: false,
+            bInfo: false,
+            lengthChange : false,
+            order : [ [ 1, "desc" ] ],
+            columnDefs: [
+                {"orderable": false, "targets": 3}
+            ],
+            language: frenchTranslation,
+            lengthMenu: [ 5, 10, 25, 50, 100 ]
+        });
+
+        $('#rechercherButton1').click(function(e) {
+            e.preventDefault();
+            filterTable($("#texteInput").val());
+        });
+
+        var tableAttente = $('#courriersEnAttente').DataTable({
+            paging: true,
+            select: false,
+            bInfo: false,
+            lengthChange : false,
+            order : [ [ 1, "desc" ] ],
+            columnDefs: [
+                {"orderable": false, "targets": 3}
+            ],
+            language: frenchTranslation,
+            lengthMenu: [ 5, 10, 25, 50, 100 ]
+        });
+
+
+        $('.dataTables_filter').hide();
+
+        $("#texteInput").on('keypress',function(e) {
+            if(e.which == 13) {
+                e.preventDefault();
+                filterTable($("#texteInput").val());
+            }
+        });
+
+        var filterTable = function(text) {
+            // check if user entered a date with format dd/mm/yyyy and convert it to elastic search mapped format
+            var dateFormatted = moment(text, 'DD/MM/YYYY').format('YYYY-MM-DD');
+            if (dateFormatted && dateFormatted !== 'Invalid date') {
+                text = dateFormatted;
+            }
+
+            var textEncoded = encodeURIComponent(text);
+            var url = APP.getContextPath()+"/ws/demandes/pageable?texte="+textEncoded+"&canal=COURRIER&searchFields=fichierinterne.fichiers.name&searchFields=identifiant" +
+                "&searchFields=courrierDateReception&searchFields=dernierStatut.libelle&searchFields=fichierinterne.fichiers.content&statut=EN_ATTENTE_TRAIT&statut=EN_COURS_TRAIT" +
+                "&statut=EN_ATTENTE_COMPL&statut=validationHierarchiqueTask&statut=ANNULEE&statut=REFUSEE&statut=ACCORDEE";
+            $.ajax({
+                url : url,
+                method : "GET",
+                traditional : true
+            }).done(function(demandes) {
+                var filter = null;
+                if(demandes.content.length > 0) {
+                    demandes.content.forEach(function(demande){
+                        filter = (filter) ? filter + '|' + demande.identifiant : demande.identifiant;
+                    });
+                }
+                tableAttente.column(2).search(filter, true, false).draw();
+                var numberEnAttente = tableAttente.$('tr', {"filter":"applied"}).length;
+                $("#numberEnAttente").text(numberEnAttente);
+                tableImprimes.column(2).search(filter, true, false).draw();
+                var numberImprimes = tableImprimes.$('tr', {"filter":"applied"}).length;
+                $("#numberImprimes").text(numberImprimes);
+            });
+        }
+    });
+
+    /*]]>*/
+</script>
 
 </body>
 </html>

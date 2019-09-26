@@ -110,7 +110,7 @@ public class GestionParametresController extends AbstractController {
     /**
      * Activation du motif (mise de la date du jour)
      * 
-     * @param le
+     * @param code
      *            code du motif devant être activer (date mise à null)
      */
     private boolean activationMotif(String code) throws Exception {
@@ -279,6 +279,7 @@ public class GestionParametresController extends AbstractController {
                                 // Donnees specifiques et insert (français)
                                 motif.setLibelle(motifsFormBean.getLibelleFr());
                                 motif.setCommentairePrerempli(motifsFormBean.getCommentairePrerempliFr());
+                                motif.setTexteAEnvoyer(motifsFormBean.getTexteAEnvoyerFr());
                                 motif.setLangue("fr");
                                 motifsService.saveOrUpdateMotif(gouvPropertiesResolver.getDemarcheId(), motif);
 
@@ -286,6 +287,7 @@ public class GestionParametresController extends AbstractController {
                                 if (!StringUtils.isEmpty(motifsFormBean.getLibelleEn())) {
                                     motif.setLibelle(motifsFormBean.getLibelleEn());
                                     motif.setCommentairePrerempli(motifsFormBean.getCommentairePrerempliEn());
+                                    motif.setTexteAEnvoyer(motifsFormBean.getTexteAEnvoyerEn());
                                     motif.setLangue("en");
                                     motifsService.saveOrUpdateMotif(gouvPropertiesResolver.getDemarcheId(), motif);
                                 }
@@ -341,6 +343,7 @@ public class GestionParametresController extends AbstractController {
             motifFr.setStatut(motifsFormBean.getStatutEnum());
             motifFr.setLibelle(motifsFormBean.getLibelleFr());
             motifFr.setCommentairePrerempli(motifsFormBean.getCommentairePrerempliFr());
+            motifFr.setTexteAEnvoyer(motifsFormBean.getTexteAEnvoyerFr());
             motifsService.saveOrUpdateMotif(gouvPropertiesResolver.getDemarcheId(), motifFr);
         }
 
@@ -351,6 +354,7 @@ public class GestionParametresController extends AbstractController {
             motifEn.setStatut(motifsFormBean.getStatutEnum());
             motifEn.setLibelle(motifsFormBean.getLibelleEn());
             motifEn.setCommentairePrerempli(motifsFormBean.getCommentairePrerempliEn());
+            motifEn.setTexteAEnvoyer(motifsFormBean.getTexteAEnvoyerEn());
             motifsService.saveOrUpdateMotif(gouvPropertiesResolver.getDemarcheId(), motifEn);
         }
     }

@@ -5,6 +5,7 @@ public class DemandeStatutEsDTO {
     public static final String CODE_FIELD_NAME = "code";
 
     private String commentaire;
+    private String texteAEnvoyer;
     private String libelle;
     private String code;
     private String libelleMotif;
@@ -24,6 +25,14 @@ public class DemandeStatutEsDTO {
 
     public void setCommentaire(String commentaire) {
         this.commentaire = commentaire;
+    }
+
+    public String getTexteAEnvoyer() {
+        return texteAEnvoyer;
+    }
+
+    public void setTexteAEnvoyer(String texteAEnvoyer) {
+        this.texteAEnvoyer = texteAEnvoyer;
     }
 
     public String getLibelle() {

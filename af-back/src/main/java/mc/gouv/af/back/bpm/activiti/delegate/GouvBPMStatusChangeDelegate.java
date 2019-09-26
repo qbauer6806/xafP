@@ -56,9 +56,11 @@ public class GouvBPMStatusChangeDelegate implements JavaDelegate {
             codeMotifStr = (String) codeMotif.getValue(execution);
         }
 
-        // Récupération du commentaire usager et du code motif si besoin plus tard dans le traitement
+        // Récupération du commentaire usager, du texte à envoyer et du code motif si besoin plus tard dans le traitement
         String commentaireUsager = (String) execution
                 .getVariable(GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name());
+        String texteAEnvoyer = (String) execution
+                .getVariable(GouvBPMProcessVariableTypeEnum.MC_TEXTE_A_ENVOYER.name());
 
         // Si le code motif n'a pas été indiqué dans le BPMN, alors le récupérer des process variables
         if (StringUtils.isBlank(codeMotifStr)) {
@@ -73,6 +75,7 @@ public class GouvBPMStatusChangeDelegate implements JavaDelegate {
         // execution.removeVariable(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_USAGER.name());
 
         LOGGER.info("Commentaire usager : " + commentaireUsager);
+        LOGGER.info("Texte à envoyer : " + texteAEnvoyer);
         LOGGER.info("Code motif : " + codeMotifStr);
 
         // TODO Peut-être gérer les variables autrement... si on met après ce serviceTask, un autre qui en a besoin
@@ -90,14 +93,14 @@ public class GouvBPMStatusChangeDelegate implements JavaDelegate {
         StatutInputDTO statutInput = new StatutInputDTO();
         if (usagerId != null) {
             demandesStatutsService.updateStatut(gouvPropertiesResolver.getDemarcheId(), demandeId, statut, null,
-                    Integer.parseInt(usagerId), codeMotifStr, commentaireUsager);
+                    Integer.parseInt(usagerId), codeMotifStr, commentaireUsager, texteAEnvoyer);
             statutInput.setUsagerId(Integer.parseInt(usagerId));
         } else if (agentId != null) {
             demandesStatutsService.updateStatut(gouvPropertiesResolver.getDemarcheId(), demandeId, statut, agentId,
-                    null, codeMotifStr, commentaireUsager);
+                    null, codeMotifStr, commentaireUsager, texteAEnvoyer);
         } else {
             demandesStatutsService.updateStatut(gouvPropertiesResolver.getDemarcheId(), demandeId, statut,
-                    AfBackUtils.getAuthenticatedAgentId(), null, codeMotifStr, commentaireUsager);
+                    AfBackUtils.getAuthenticatedAgentId(), null, codeMotifStr, commentaireUsager, texteAEnvoyer);
         }
 
         LOGGER.info("==== AF-BACK CHANGEMENT STATUT <fin>");

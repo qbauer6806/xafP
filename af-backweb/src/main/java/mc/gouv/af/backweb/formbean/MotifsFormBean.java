@@ -30,6 +30,9 @@ public class MotifsFormBean {
     private String commentairePrerempliFr;
     private String commentairePrerempliEn;
 
+    private String texteAEnvoyerFr;
+    private String texteAEnvoyerEn;
+
     private String statut;
 
     private String statutEnum;
@@ -187,4 +190,19 @@ public class MotifsFormBean {
         this.commentairePrerempliEn = commentairePrerempliEn;
     }
 
+    public String getTexteAEnvoyerFr() {
+        return texteAEnvoyerFr;
+    }
+
+    public void setTexteAEnvoyerFr(String texteAEnvoyerFr) {
+        this.texteAEnvoyerFr = texteAEnvoyerFr;
+    }
+
+    public String getTexteAEnvoyerEn() {
+        return texteAEnvoyerEn;
+    }
+
+    public void setTexteAEnvoyerEn(String texteAEnvoyerEn) {
+        this.texteAEnvoyerEn = texteAEnvoyerEn;
+    }
 }

@@ -35,11 +35,11 @@ public class IndexedEsDemandesStatutsServiceImpl extends DemandesStatutsServiceI
      */
     @Override
     public DemandeDTO updateStatut(String demarcheId, Integer demandeId, String statut, String agentId,
-            Integer usagerId, String codeMotif, String commentaire) {
+            Integer usagerId, String codeMotif, String commentaire, String texteAEnvoyer) {
 
         DemandeDTO demandeDTO = null;
         try {
-            demandeDTO = super.updateStatut(demarcheId, demandeId, statut, agentId, usagerId, codeMotif, commentaire);
+            demandeDTO = super.updateStatut(demarcheId, demandeId, statut, agentId, usagerId, codeMotif, commentaire, texteAEnvoyer);
             indexDemandeStatus(demandeDTO);
         } catch (Exception ex) {
             LOGGER.error("Erreur lors de la mise à jour du statut" + ex.getMessage());

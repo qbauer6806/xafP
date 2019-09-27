@@ -5,7 +5,7 @@
   	<parent>
 		<groupId>mc.gouv.af</groupId>
 		<artifactId>af</artifactId>
-		<version>6.0.2-SNAPSHOT</version>
+		<version>6.1.0</version>
 	</parent>
 
   <artifactId>af-archetype</artifactId>
@@ -54,9 +54,9 @@
   </licenses>
 
   <scm>
-    <connection>scm:svn:http://linuxic/jsrc/subveco/trunk</connection>
-    <developerConnection>scm:svn:http://linuxic/jsrc/subveco/trunk</developerConnection>
-    <url>http://linuxic/jsrc/subveco/trunk</url>
+    <connection>scm:svn:http://linuxic/jsrc/subveco/tags/af-6.1.0/trunk</connection>
+    <developerConnection>scm:svn:http://linuxic/jsrc/subveco/tags/af-6.1.0/trunk</developerConnection>
+    <url>http://linuxic/jsrc/subveco/tags/af-6.1.0/trunk</url>
   </scm>
 
   <distributionManagement>

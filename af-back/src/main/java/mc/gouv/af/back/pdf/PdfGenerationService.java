@@ -17,6 +17,6 @@ public interface PdfGenerationService {
     public void generateAndStorePdf(DemandeDTO demande, PdfTypeEnum pdfType, String meta) throws Exception;
 
     public File generatePdfPreview(DemandeDTO demande, String statutSuivant, String codeMotif, String langue,
-            String commentaire, PdfTypeEnum pdfType);
+            String commentaire, String texteAEnvoyer, PdfTypeEnum pdfType);
     
 }

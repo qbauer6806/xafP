@@ -17,7 +17,7 @@ public interface PdfTemplateAndModelProvider {
     public PdfTemplateAndModelDTO getTemplateAndModel(DemandeDTO demande, PdfTypeEnum pdfType);
 
     public PdfTemplateAndModelDTO getTemplateAndModelForPreview(DemandeDTO demande, String statutSuivant,
-            String codeMotif, String langue, String commentaire, PdfTypeEnum pdfType);
+            String codeMotif, String langue, String commentaire, String texteAEnvoyer, PdfTypeEnum pdfType);
     
     public PdfOptions getPdfOptions();
     

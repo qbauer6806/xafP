@@ -123,11 +123,11 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 
 	@Override
 	public File generatePdfPreview(DemandeDTO demande, String statutSuivant, String codeMotif, String langue,
-			String commentaire, PdfTypeEnum pdfType) {
+			String commentaire, String texteAEnvoyer, PdfTypeEnum pdfType) {
 
 		LOGGER.info("Appel au TemplateAndModelProvider de la démarche {}...", gouvPropertiesResolver.getDemarcheId());
 		PdfTemplateAndModelDTO dto = pdfTemplateAndModelProvider
-				.getTemplateAndModelForPreview(demande, statutSuivant, codeMotif, langue, commentaire, pdfType);
+				.getTemplateAndModelForPreview(demande, statutSuivant, codeMotif, langue, commentaire, texteAEnvoyer, pdfType);
 		return generateToFile(demande, dto);
 	}
 

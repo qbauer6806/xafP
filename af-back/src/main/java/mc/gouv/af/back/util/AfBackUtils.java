@@ -6,6 +6,7 @@ import java.util.*;
 
 import javax.annotation.PostConstruct;
 
+import mc.gouv.af.back.service.MotifTemplateService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,6 +98,9 @@ public class AfBackUtils {
 
     @Autowired
     private MessageSource messageSource;
+
+    @Autowired
+    private MotifTemplateService motifTemplateService;
 
     public static final short GENDER_MR_INDEX = 0;
     public static final short GENDER_MME_INDEX = 1;
@@ -328,6 +332,16 @@ public class AfBackUtils {
         flat.setUsagerNom(demande.getUsagerNom());
         flat.setUsagerPrenom(demande.getUsagerPrenom());
         flat.setUsagerEmail(demande.getUsagerEmail());
+
+        String codeDernierMotif = demande.getDernierStatut().getCodeMotif();
+        String motif = codeDernierMotif;
+
+        try {
+            motif = motifTemplateService.getMotif(demande, codeDernierMotif, "fr").getLibelle();
+        } catch (Exception e) {
+            LOGGER.error("Erreur lors de la récupération du motif", e);
+        }
+        flat.setMotif(motif);
         return flat;
     }
 

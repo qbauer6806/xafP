@@ -337,7 +337,9 @@ public class AfBackUtils {
         String motif = codeDernierMotif;
 
         try {
-            motif = motifTemplateService.getMotif(demande, codeDernierMotif, "fr").getLibelle();
+            if (codeDernierMotif != null) {
+                motif = motifTemplateService.getMotif(demande, codeDernierMotif, "fr").getLibelle();
+            }
         } catch (Exception e) {
             LOGGER.error("Erreur lors de la récupération du motif", e);
         }

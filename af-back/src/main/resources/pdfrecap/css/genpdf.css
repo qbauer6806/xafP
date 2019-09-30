@@ -32,6 +32,15 @@ th {
 	font-size: 20px;
 }
 
+#datatable-demandes {
+	width: 90%;
+	margin-top: 20px;
+}
+
+#datatable-demandes th {
+	font-size: 13px;
+}
+
 td> :first-child, td> :first-child > h3 {
 	margin-top: 0;
 }

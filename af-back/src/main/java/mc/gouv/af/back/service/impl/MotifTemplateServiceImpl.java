@@ -99,6 +99,15 @@ public class MotifTemplateServiceImpl implements MotifTemplateService {
                 clonedMotif.setCommentairePrerempli(output.toString());
             }
 
+            // Population du texte à envoyer
+            if (motif.getTexteAEnvoyer() != null) {
+                output = new StringWriter();
+                if (!Velocity.evaluate(context, output, clonedMotif.getCode(), clonedMotif.getTexteAEnvoyer())) {
+                    throw new Exception("Velocity.evaluate() n'a pas fonctionné.");
+                }
+                clonedMotif.setTexteAEnvoyer(output.toString());
+            }
+
             motifDTOList.add(clonedMotif);
         }
 

@@ -192,7 +192,8 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 						JSONArray sousSections = (JSONArray) section.get("sousSections");
 						for (Object sousSection : sousSections.toArray()) {
 							String sousSectionType = (String) ((JSONObject) sousSection).get("type");
-							html += ((JSONObject) sousSection).get("introHtml");
+							String introHtml = (String) ((JSONObject) sousSection).get("introHtml");
+							html += (introHtml != null)? introHtml : "";
 							html = getFirstLevelHTML(html, demande, sousSectionType, (JSONObject) sousSection);
 						}
 					}
@@ -224,27 +225,29 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 				}
 			}
 		} else if (sectionType.equals("tableau")) {
-			html += "<table id=\"datatable-demandes\" class=\"table table-striped\">";
-			JSONArray columns = (JSONArray) section.get("columns");
-			html += "<thead><tr>";
-			for (Object column : columns.toArray()) {
-				html += "<th>" + ((JSONObject) column).get("label") + "</th>";
-			}
-			html += "</tr></thead>";
 			ArrayNode valeurs = (ArrayNode) getNode(demande.getContenu(), section, "path");
-			Iterator<JsonNode> it = valeurs.elements();
-			html += "<tbody>";
-			while (it.hasNext()) {
-				JsonNode valeur = it.next();
-				html += "<tr>";
+			if (valeurs.size() > 0) {
+				html += "<table id=\"datatable-demandes\" class=\"table table-striped\">";
+				JSONArray columns = (JSONArray) section.get("columns");
+				html += "<thead><tr>";
 				for (Object column : columns.toArray()) {
-					String value = getSecondLevelHTML(valeur, (JSONObject) column, demande.getBuildId());
-					html += "<td>" + (value == null ? "" : escape(value)) + "</td>";
+					html += "<th>" + ((JSONObject) column).get("label") + "</th>";
 				}
-				html += "</tr>";
+				html += "</tr></thead>";
+				Iterator<JsonNode> it = valeurs.elements();
+				html += "<tbody>";
+				while (it.hasNext()) {
+					JsonNode valeur = it.next();
+					html += "<tr>";
+					for (Object column : columns.toArray()) {
+						String value = getSecondLevelHTML(valeur, (JSONObject) column, demande.getBuildId());
+						html += "<td>" + (value == null ? "" : escape(value)) + "</td>";
+					}
+					html += "</tr>";
+				}
+				html += "</tbody>";
+				html += "</table>";
 			}
-			html += "</tbody>";
-			html += "</table>";
 		}
 		return html;
 	}

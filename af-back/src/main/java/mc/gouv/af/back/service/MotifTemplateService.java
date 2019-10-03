@@ -10,9 +10,11 @@ import java.util.List;
  */
 public interface MotifTemplateService {
 
-    public MotifDTO getMotif(DemandeDTO demande, String codeMotif, String langue) throws Exception;
+    MotifDTO getMotif(DemandeDTO demande, String codeMotif, String langue) throws Exception;
 
-    public List<MotifDTO> getMotifs(DemandeDTO demande, String langue) throws Exception;
+    List<MotifDTO> getMotifs(DemandeDTO demande, String langue) throws Exception;
 
-    public List<MotifDTO> getMotifs(DemandeDTO demande, String langue, String statut) throws Exception;
+    List<MotifDTO> getMotifs(DemandeDTO demande, String langue, String statut) throws Exception;
+
+    List<MotifDTO> getFilteredMotifs(DemandeDTO demande, String langue, List<String> codes) throws Exception;
 }

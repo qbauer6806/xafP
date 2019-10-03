@@ -52,6 +52,11 @@ public class MotifTemplateServiceImpl implements MotifTemplateService {
         return populateMotifs(demande, motifList);
     }
 
+    public List<MotifDTO> getFilteredMotifs(DemandeDTO demande, String langue, List<String> codes) throws Exception {
+        List<MotifDTO> motifList = motifsCache.getFilteredMotifs(langue, codes);
+        return populateMotifs(demande, motifList);
+    }
+
     private List<MotifDTO> populateMotifs(DemandeDTO demande, List<MotifDTO> motifList) throws Exception {
         Map<String, Object> motifsModel = motifsTemplateModelProvider.getModel(demande);
         List<MotifDTO> motifListPopulated = motifList;

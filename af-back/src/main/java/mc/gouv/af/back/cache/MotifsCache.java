@@ -19,5 +19,7 @@ public interface MotifsCache extends GouvCache<Integer, MotifDTO> {
     public List<MotifDTO> getMotifs(String langue);
     
     public List<MotifDTO> getMotifs(String langue, String statut);
-    
+
+    public List<MotifDTO> getFilteredMotifs(String langue, List<String> codes);
+
 }

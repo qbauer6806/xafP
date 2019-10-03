@@ -26,7 +26,7 @@ public class MotifsCacheImpl extends GouvMemoryCache<Integer, MotifDTO> implemen
     public MotifsCacheImpl(MotifsCacheDataProvider gouvCacheDataProvider) {
         super(gouvCacheDataProvider, CACHE_DURATION);
     }
-    
+
     public MotifDTO getMotif(String codeMotif, String langue) {
         for (MotifDTO motif : getValues()) {
             if (motif.getCode().equals(codeMotif) && motif.getLangue().equals(langue)) {
@@ -56,4 +56,14 @@ public class MotifsCacheImpl extends GouvMemoryCache<Integer, MotifDTO> implemen
         return ret;
     }
 
+    @Override
+    public List<MotifDTO> getFilteredMotifs(String langue, List<String> codes) {
+        List<MotifDTO> filteredMotifs = new ArrayList<>();
+        for (MotifDTO motif : getMotifs(langue)) {
+            if (codes.contains(motif.getCode())) {
+                filteredMotifs.add(motif);
+            }
+        }
+        return filteredMotifs;
+    }
 }

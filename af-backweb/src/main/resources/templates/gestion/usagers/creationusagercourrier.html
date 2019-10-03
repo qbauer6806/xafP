@@ -264,12 +264,15 @@
 													<div class="col-xs-12">
 														<div class="text-center">
 															<input type="hidden" name="updateUsagerId"
-																th:value="${updateUsagerId}" /> <a
-																th:href="@{/gestion/usagers}"
-																class="btn btn-action-second ripple-effect"> Retour
-															</a> <input type="submit" name="action" value="Sauvegarder"
-																class="btn btn-action ripple-effect" /> <a
-																class="btn btn-action ripple-effect"
+																th:value="${updateUsagerId}" /> 
+															
+															<a th:href="@{/gestion/usagers}"
+																class="btn btn-action-second ripple-effect"> Retour	</a>
+															
+															<input id="sauvegarder-button" type="button" name="action"
+									            				value="Sauvegarder" class="btn btn-action ripple-effect" /> 
+																
+															<a class="btn btn-action ripple-effect"
 																th:if="${updateUsagerId} != null"
 																th:href="@{/demandes/courriers/creer/}+${updateUsagerId}">
 																Ajouter une demande </a>
@@ -307,34 +310,44 @@
 		/*<![CDATA[*/
 
 		$(document).ready(function() {
-												
-			//Initialisaiton des tooltips pour les erreurs
-			$(".errorTooltip").each(function() {
-				var $this = $(this);
-				var title = $this.data("title");
-				//New title sans les crochets car les erreurs et un toString d'un tableau d'erreur messages
-				var newTitle = title.substring(1, title.length - 1);
-				$this.tooltip({
-					placement : "bottom",
-					title : newTitle
-				});
 
-			});
-		
+			//Initialisaiton des tooltips pour les erreurs
+			$(".errorTooltip").each(
+					function() {
+						var $this = $(this);
+						var title = $this.data("title");
+						//New title sans les crochets car les erreurs et un toString d'un tableau d'erreur messages
+						var newTitle = title.substring(1,
+								title.length - 1);
+						$this.tooltip({
+							placement : "bottom",
+							title : newTitle
+						});
+
+					});
+
 			var messagesSuccessList = /*[[${successMessages}]]*/'default';
 
-			if (messagesSuccessList !== 'undefined'	&& messagesSuccessList !== null) {
+			if (messagesSuccessList !== 'undefined'
+					&& messagesSuccessList !== null) {
 				$.each(messagesSuccessList, function(key, msg) {
 					$.notify({
-						message: msg 
-					},{
-						type: 'success'
+						message : msg
+					}, {
+						type : 'success'
 					});
 				});
 			}
+			
+	        $('#sauvegarder-button').click(function(e){
+	            $('#sauvegarder-button').prop('disabled', true);
+	            e.preventDefault();
+	            $('#form-creationUsager').submit();
+	            return false;
+	        });
 
 		})
-		
+
 		/*]]>*/
 	</script>
 </body>

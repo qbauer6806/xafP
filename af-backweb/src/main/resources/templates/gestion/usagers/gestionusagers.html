@@ -52,7 +52,7 @@
 				</ol>
 				<div class="triangleTopright"></div>
 			</div>
-			
+
 			<div th:if="!${AfBackUtils.getDemarcheCanGenerateCourriers()}"
 				class="container-fluid">
 				<div class="row">
@@ -194,7 +194,6 @@
 		var urlTransfert = /*[[@{/gestion/usagers/transferer/}]]*/;
 	
 		$(document).ready(function() {
-			
 
 			$('#rechercherButton1').click(function(e){
 				e.preventDefault();
@@ -205,7 +204,15 @@
                 e.preventDefault();
             	$.fancybox.close();
             	return false;
-             });
+            });
+            
+            $("#supprimer-button").click(function(e){
+                $("#supprimer-button").prop('disabled', true);
+                e.preventDefault();
+            	$.fancybox.close();
+            	$('#form-supprimer').submit();
+            	return false;
+            });
 
             $(".transferer-annuler").click(function(e){
                 e.preventDefault();

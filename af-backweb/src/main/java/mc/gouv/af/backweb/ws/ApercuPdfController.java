@@ -31,7 +31,7 @@ import mc.gouv.dem.shared.model.DemandeDTO;
  * 
  */
 @Controller
-@Secured("ROLE_TRAITEMENT")
+@Secured({ "ROLE_TRAITEMENT", "ROLE_VALIDATION" })
 @RequestMapping("/ws/pdf")
 public class ApercuPdfController extends AbstractController {
 

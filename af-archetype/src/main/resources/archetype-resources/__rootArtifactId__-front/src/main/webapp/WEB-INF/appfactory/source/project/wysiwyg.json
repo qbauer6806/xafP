@@ -1,16 +1,10 @@
 {
   "demo": {
     "presets": {
-      "default": "inscritFr",
+      "default": "nonInscritFr",
       "list": [
         {
-          "demotags": [
-            "dataplus",
-            "fr",
-            "noncourrier",
-            "noninscrit",
-            "ok"
-          ],
+          "demotags": ["dataplus", "fr", "noncourrier", "noninscrit", "ok"],
           "description": "Usager non inscrit (pays/nationalités en Français)",
           "name": "nonInscritFr",
           "properties": [
@@ -93,13 +87,7 @@
           ]
         },
         {
-          "demotags": [
-            "dataplus",
-            "en",
-            "noncourrier",
-            "noninscrit",
-            "ok"
-          ],
+          "demotags": ["dataplus", "en", "noncourrier", "noninscrit", "ok"],
           "description": "Usager non inscrit (pays/nationalités en Anglais)",
           "name": "nonInscritEn",
           "properties": [
@@ -182,13 +170,7 @@
           ]
         },
         {
-          "demotags": [
-            "dataplus",
-            "fr",
-            "inscrit",
-            "noncourrier",
-            "ok"
-          ],
+          "demotags": ["dataplus", "fr", "inscrit", "noncourrier", "ok"],
           "description": "Usager inscrit à la démarche (pays/nationalités en Français)",
           "name": "inscritFr",
           "properties": [
@@ -271,13 +253,7 @@
           ]
         },
         {
-          "demotags": [
-            "dataplus",
-            "en",
-            "inscrit",
-            "noncourrier",
-            "ok"
-          ],
+          "demotags": ["dataplus", "en", "inscrit", "noncourrier", "ok"],
           "description": "Usager inscrit à la démarche (pays/nationalités en Anglais)",
           "name": "inscritEn",
           "properties": [

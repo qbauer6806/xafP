@@ -1,8 +1,9 @@
 #set( $symbol_pound = '#' )
 #set( $symbol_dollar = '$' )
 #set( $symbol_escape = '\' )
-package mc.gouv.${artifactIdLower}.backserver.controller;
+package ${groupId}.backserver.controller;
 
+import mc.gouv.af.backweb.controller.AbstractController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -10,12 +11,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
-import mc.gouv.af.backweb.controller.AbstractController;
-
 /**
  * Controller pour la page /
  * 
- * @author qdeme
+ * @author mpavone
  *
  */
 @Controller

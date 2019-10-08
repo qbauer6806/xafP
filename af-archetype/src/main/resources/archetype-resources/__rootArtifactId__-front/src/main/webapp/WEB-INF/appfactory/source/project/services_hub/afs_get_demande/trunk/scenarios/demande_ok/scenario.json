@@ -6,34 +6,33 @@
   "return": {
     "pkDemandes": 15,
     "demarcheId": "GEN",
-    "identifiant" : "GEN20160505det6",
+    "identifiant": "GEN20160505det6",
     "usagerId": 3701,
     "dateCreation": "2015-09-29T14:23:50.464Z",
     "dateDerModif": "2015-09-29T14:24:36.411Z",
-    "contenu": {
-    },
+    "contenu": {},
     "fichiers": [
-    {
-      "name": "lettremotivation.doc",
-      "url": "/ada9b78b-a43f-11e5-a7a3-08002700c066/lettremotivation.doc",
-      "meta": "meta2"
-    },
-    {
-      "name": "CV.pdf",
-      "url": "/ece7a75e-e5f9-11e5-a7a3-08002700c066/CV.pdf",
-      "meta": "meta1"
-    }
-    ],
-      "dernierStatut": {
-        "pkStatut": 8,
-        "libelle": "EN_ATTENTE_COMPL",
-        "date": "2016-05-17T08:05:04.662+01:00",
-        "agentId": null,
-        "usagerId": 3071,
-        "codeMotif": "ELEMENT_MANQUANT",
-        "commentaire": "Motif de test"
+      {
+        "name": "lettremotivation.doc",
+        "url": "/ada9b78b-a43f-11e5-a7a3-08002700c066/lettremotivation.doc",
+        "meta": "meta2"
       },
-      "statuts": [
+      {
+        "name": "CV.pdf",
+        "url": "/ece7a75e-e5f9-11e5-a7a3-08002700c066/CV.pdf",
+        "meta": "meta1"
+      }
+    ],
+    "dernierStatut": {
+      "pkStatut": 8,
+      "libelle": "EN_ATTENTE_COMPL",
+      "date": "2016-05-17T08:05:04.662+01:00",
+      "agentId": null,
+      "usagerId": 3071,
+      "codeMotif": "ELEMENT_MANQUANT",
+      "commentaire": "Motif de test"
+    },
+    "statuts": [
       {
         "pkStatut": 7,
         "libelle": "EN_ATTENTE_TRAIT",
@@ -53,7 +52,7 @@
         "commentaire": "Motif de test"
       }
     ],
-      "complements": [
+    "complements": [
       {
         "pkDemandeComplements": 13,
         "demandeId": 15,

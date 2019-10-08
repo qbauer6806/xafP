@@ -1,12 +1,12 @@
 #set( $symbol_pound = '#' )
 #set( $symbol_dollar = '$' )
 #set( $symbol_escape = '\' )
-package mc.gouv.${artifactIdLower}.backserver.formbean;
+package ${groupId}.backserver.formbean;
 
 /**
  * Formulaire de la page /traitement
  * 
- * @author qdeme
+ * @author mpavone
  *
  */
 public class TraitementFormBean {
@@ -22,8 +22,6 @@ public class TraitementFormBean {
     private String commentaireInterne;
 
     private String activeTaskDefinitionKey;
-
-    private CalculAideFormBean calculAideFormBean;
 
     public String getCodeMotifChoisi() {
         return codeMotifChoisi;
@@ -71,14 +69,6 @@ public class TraitementFormBean {
 
     public void setActiveTaskDefinitionKey(String activeTaskDefinitionKey) {
         this.activeTaskDefinitionKey = activeTaskDefinitionKey;
-    }
-
-    public CalculAideFormBean getCalculAideFormBean() {
-        return calculAideFormBean;
-    }
-
-    public void setCalculAideFormBean(CalculAideFormBean calculAideFormBean) {
-        this.calculAideFormBean = calculAideFormBean;
     }
 
 }

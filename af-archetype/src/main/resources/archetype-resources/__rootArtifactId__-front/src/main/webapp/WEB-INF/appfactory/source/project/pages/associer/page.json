@@ -2,7 +2,7 @@
   "name": "associer",
   "componentInstances": [
     {
-	    "name": "mcCharteTshiPageAssocier"
+      "name": "mcCharteTshiPageAssocier"
     }
   ]
 }

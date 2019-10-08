@@ -1,18 +1,16 @@
 #set( $symbol_pound = '#' )
 #set( $symbol_dollar = '$' )
 #set( $symbol_escape = '\' )
-package mc.gouv.${artifactIdLower}.service.afimpl;
+package ${groupId}.service.afimpl;
 
-import mc.gouv.af.back.cache.PaysCache;
 import mc.gouv.af.back.dto.StatutPublicOuInterneDTO;
 import mc.gouv.af.back.properties.GouvPropertiesResolver;
 import mc.gouv.af.back.util.AfBackUtils;
 import mc.gouv.af.back.xls.ExcelExportModelProvider;
 import mc.gouv.dem.service.DemandesService;
 import mc.gouv.dem.shared.model.DemandeDTO;
-import mc.gouv.${artifactIdLower}.service.${artifactIdCamelCase}DataService;
-import mc.gouv.${artifactIdLower}.shared.dto.DemandeExcelFlatDTO;
-import mc.gouv.${artifactIdLower}.shared.util.${artifactIdCamelCase}Utils;
+import ${groupId}.shared.dto.DemandeExcelFlatDTO;
+import ${groupId}.shared.util.${artifactIdCamelCase}Utils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,13 +36,7 @@ public class ExcelExportModelProviderImpl implements ExcelExportModelProvider {
     private AfBackUtils afBackUtils;
 
     @Autowired
-    private PaysCache paysCache;
-
-    @Autowired
     private ${artifactIdCamelCase}Utils ${artifactIdLower}Utils;
-
-    @Autowired
-    private ${artifactIdCamelCase}DataService ${artifactIdLower}DataService;
 
     @Override
     public Map<String, Object> getModel(String plainStartDate, String plainEndDate) {
@@ -62,15 +54,12 @@ public class ExcelExportModelProviderImpl implements ExcelExportModelProvider {
                     ${artifactIdCamelCase}Utils.getContenuDemande(demande));
 
             demandeFlatDTO.setEtatInterne(getEtatIntern(demande));
-            demandeFlatDTO.setCalculAide(${artifactIdLower}DataService.getCalculAideDTO(demande.getPkDemandes()));
-            demandeFlatDTO.setSuiviComptable(${artifactIdLower}DataService.getSuiviComptableDTO(demande.getPkDemandes()));
             demandesFlat.add(demandeFlatDTO);
         });
 
         model.put("demandes", demandesFlat);
         model.put("${artifactIdLower}Utils", ${artifactIdLower}Utils);
         model.put("afBackUtils", afBackUtils);
-        model.put("paysCache", paysCache);
 
         LOGGER.info("Fin ExcelExportModelProviderImpl.getModel()");
 
@@ -109,15 +98,6 @@ public class ExcelExportModelProviderImpl implements ExcelExportModelProvider {
 
     private String getEtatIntern(DemandeDTO demande) {
         StatutPublicOuInterneDTO statut = afBackUtils.getStatutPublicOuInterne(demande);
-
-        /*
-         * if (${artifactIdCamelCase}StatutInterneEnum.validationComptableTask.name().equals(statut.getName())) { return
-         * statut.getLibelle(); }
-         * 
-         * if (${artifactIdCamelCase}StatutInterneEnum.validationCGDTask.name().equals(statut.getName())) { return statut.getLibelle();
-         * }
-         */
-
         return statut.getLibelle();
     }
 

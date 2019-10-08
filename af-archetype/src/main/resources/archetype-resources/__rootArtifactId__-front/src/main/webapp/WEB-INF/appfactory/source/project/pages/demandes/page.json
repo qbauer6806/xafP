@@ -1,14 +1,14 @@
 {
+  "name": "demandes",
   "componentInstances": [
     {
       "name": "mcCharteTshiPageDemandes",
       "parameterValue": {
+        "valueType": "json",
         "valueJson": {
           "typeDonnee": "projectDemande"
-        },
-        "valueType": "json"
+        }
       }
     }
-  ],
-  "name": "demandes"
+  ]
 }

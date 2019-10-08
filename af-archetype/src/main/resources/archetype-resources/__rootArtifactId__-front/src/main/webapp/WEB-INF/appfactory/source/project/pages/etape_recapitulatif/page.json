@@ -6,13 +6,13 @@
         "valueJson": {
           "abandon": "abandon_parcours",
           "debutEtape": {
-            "nomParcours": "p1",
+            "nomParcours": "${artifactIdLower}",
             "nomParcoursAlternatif": "std",
-            "numeroEtape": 6,
+            "numeroEtape": 4,
             "typeDonnee": "projectDemande",
             "typeRecap": "projectDemandeRecap"
           },
-          "etapePrecedente": "etape_pieces_justificatives"
+          "etapePrecedente": "etape_justificatif"
         },
         "valueType": "json"
       }

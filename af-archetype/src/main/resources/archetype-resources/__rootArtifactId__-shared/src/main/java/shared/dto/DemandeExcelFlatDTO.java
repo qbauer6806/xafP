@@ -1,10 +1,10 @@
 #set( $symbol_pound = '#' )
 #set( $symbol_dollar = '$' )
 #set( $symbol_escape = '\' )
-package mc.gouv.${artifactIdLower}.shared.dto;
+package ${groupId}.shared.dto;
 
 import mc.gouv.dem.shared.model.DemandeFlatDTO;
-import mc.gouv.${artifactIdLower}.shared.model.v1563199701514.ContenuProjectDemandeDTO;
+import ${groupId}.shared.model.v1568884433537.ContenuProjectDemandeDTO;
 
 public class DemandeExcelFlatDTO {
 
@@ -16,10 +16,6 @@ public class DemandeExcelFlatDTO {
     private DemandeFlatDTO generic;
 
     private ContenuProjectDemandeDTO contenu;
-
-    private SuiviComptableDTO suiviComptable;
-
-    private CalculAideDTO calculAide;
 
     private String etatInterne;
 
@@ -37,22 +33,6 @@ public class DemandeExcelFlatDTO {
 
     public void setContenu(ContenuProjectDemandeDTO contenu) {
         this.contenu = contenu;
-    }
-
-    public SuiviComptableDTO getSuiviComptable() {
-        return suiviComptable;
-    }
-
-    public void setSuiviComptable(SuiviComptableDTO suiviComptable) {
-        this.suiviComptable = suiviComptable;
-    }
-
-    public CalculAideDTO getCalculAide() {
-        return calculAide;
-    }
-
-    public void setCalculAide(CalculAideDTO calculAide) {
-        this.calculAide = calculAide;
     }
 
     public String getEtatInterne() {

@@ -3,11 +3,11 @@
 #set( $symbol_escape = '\' )
 package mc.gouv.appfactory;
 
-import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 public class LoginContact extends HttpServlet {
 

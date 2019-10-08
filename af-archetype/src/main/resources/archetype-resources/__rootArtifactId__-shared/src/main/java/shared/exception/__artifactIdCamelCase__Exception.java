@@ -1,12 +1,12 @@
 #set( $symbol_pound = '#' )
 #set( $symbol_dollar = '$' )
 #set( $symbol_escape = '\' )
-package mc.gouv.${artifactIdLower}.shared.exception;
+package ${groupId}.shared.exception;
 
 /**
  * Classe d'exceptions spécifiques à la démarche
  * 
- * @author qdeme
+ * @author mpavone
  *
  */
 public class ${artifactIdCamelCase}Exception extends RuntimeException {

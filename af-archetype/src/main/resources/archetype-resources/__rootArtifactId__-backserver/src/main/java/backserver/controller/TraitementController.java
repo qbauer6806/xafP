@@ -1,43 +1,9 @@
 #set( $symbol_pound = '#' )
 #set( $symbol_dollar = '$' )
 #set( $symbol_escape = '\' )
-package mc.gouv.${artifactIdLower}.backserver.controller;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletResponse;
-import javax.transaction.Transactional;
-import javax.validation.Valid;
-
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.security.access.annotation.Secured;
-import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.xml.sax.SAXException;
+package ${groupId}.backserver.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import mc.gouv.af.back.bpm.GouvBPM;
 import mc.gouv.af.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.af.back.bpm.activiti.exception.TaskAlreadyClaimedException;
@@ -52,6 +18,7 @@ import mc.gouv.af.back.dto.FileCategoryDTO;
 import mc.gouv.af.back.dto.StatutPublicOuInterneDTO;
 import mc.gouv.af.back.properties.GouvPropertiesResolver;
 import mc.gouv.af.back.service.DemandeFilesCategorizer;
+import mc.gouv.af.back.service.MotifTemplateService;
 import mc.gouv.af.back.util.AfBackUtils;
 import mc.gouv.af.back.util.DemandesComplementsComparator;
 import mc.gouv.af.backweb.controller.AbstractController;
@@ -59,40 +26,47 @@ import mc.gouv.af.backweb.ws.FileController;
 import mc.gouv.dem.service.DemandesHistoriqueService;
 import mc.gouv.dem.service.DemandesService;
 import mc.gouv.dem.service.DemandesStatutsService;
-import mc.gouv.dem.shared.model.DemandeComplementsDTO;
-import mc.gouv.dem.shared.model.DemandeComplementsFileDTO;
-import mc.gouv.dem.shared.model.DemandeComplementsReponseDTO;
-import mc.gouv.dem.shared.model.DemandeDTO;
-import mc.gouv.dem.shared.model.DemandeFileDTO;
-import mc.gouv.dem.shared.model.DemandeHistoriqueDTO;
-import mc.gouv.dem.shared.model.MotifDTO;
+import mc.gouv.dem.shared.model.*;
+import ${groupId}.backserver.formbean.TraitementFormBean;
+import ${groupId}.backserver.util.StateManagerUtil;
+import ${groupId}.service.${artifactIdCamelCase}ApiService;
+import ${groupId}.service.HistoService;
+import ${groupId}.shared.dto.*;
+import ${groupId}.shared.model.v1568884433537.ContenuProjectDemandeDTO;
+import ${groupId}.shared.util.${artifactIdCamelCase}Utils;
 import mc.gouv.logon.shared.User;
-import mc.gouv.${artifactIdLower}.backserver.formbean.CalculAideFormBean;
-import mc.gouv.${artifactIdLower}.backserver.formbean.SuiviComptableFormBean;
-import mc.gouv.${artifactIdLower}.backserver.formbean.TraitementFormBean;
-import mc.gouv.${artifactIdLower}.backserver.util.StateManagerUtil;
-import mc.gouv.${artifactIdLower}.backserver.util.TraitementUtil;
-import mc.gouv.${artifactIdLower}.service.HistoService;
-import mc.gouv.${artifactIdLower}.service.${artifactIdCamelCase}ApiService;
-import mc.gouv.${artifactIdLower}.service.${artifactIdCamelCase}DataService;
-import mc.gouv.${artifactIdLower}.service.pdf.PdfGeneratorService;
-import mc.gouv.${artifactIdLower}.service.provider.PdfModelProvider;
-import mc.gouv.${artifactIdLower}.shared.dto.CalculAideDTO;
-import mc.gouv.${artifactIdLower}.shared.dto.${artifactIdCamelCase}DemandeHistoriqueDTO;
-import mc.gouv.${artifactIdLower}.shared.dto.${artifactIdCamelCase}DemandeStatutEnum;
-import mc.gouv.${artifactIdLower}.shared.dto.${artifactIdCamelCase}StatutInterneEnum;
-import mc.gouv.${artifactIdLower}.shared.model.v1563199701514.ContenuProjectDemandeDTO;
-import mc.gouv.${artifactIdLower}.shared.util.${artifactIdCamelCase}Utils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.xml.sax.SAXException;
+
+import javax.servlet.http.HttpServletResponse;
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.util.*;
 
 /**
  * Controller pour la page /traitement
  * 
- * @author qdeme
+ * @author mpavone
  * 
  */
 @Controller
 @RequestMapping("/demandes")
 public class TraitementController extends AbstractController {
+
+    // Actions de traitement
+    private static final String TRAITER = "traiter";
+    private static final String VALIDER = "valider";
+    private static final String REFUSER = "refuser";
 
     // Les messages d'erreurs externalisés
 
@@ -101,7 +75,7 @@ public class TraitementController extends AbstractController {
     private static final String I18N_TRAITEMENT_CONCURRENT_TRAIT_ERROR_CODE_MESSAGE = "message.error.traitement.concurrent.traitement";
     private static final String I18N_TRAITEMENT_CONCURRENT_FINAL_ERROR_CODE_MESSAGE = "message.error.traitement.concurrent.final";
     private static final String I18N_TRAITEMENT_CODEMOTIF_ABSENT_ERROR_CODE_MESSAGE = "message.error.traitement.codemotif.absent";
-    private static final String I18N_TRAITEMENT_COMPTABLE_PDF_NON_GENERE_ERROR_CODE_MESSAGE = "message.error.traitement.comptable.pdf.non.genere";
+    private static final String I18N_VALIDATION_HIERARCHIQUE_SUCCESS_CODE_MESSAGE = "message.success.validation";
 
     // Les messages en cas de success externalisés
 
@@ -142,14 +116,9 @@ public class TraitementController extends AbstractController {
     @Autowired
     private DemandesStatutsService demandesStatutsService;
     @Autowired
-    private ${artifactIdCamelCase}DataService ${artifactIdLower}DataService;
-    @Autowired
-    private PdfGeneratorService pdfGeneratorService;
-    @Autowired
-    private PdfModelProvider pdfModelProvider;
-    
-    @Autowired
     private DemandeFilesCategorizer demandeFilesCategorizer;
+    @Autowired
+    private MotifTemplateService motifTemplateService;
 
     @RequestMapping(value = "/{demandeId}", method = RequestMethod.GET)
     @Transactional
@@ -158,7 +127,7 @@ public class TraitementController extends AbstractController {
             @RequestParam(name = "validationModifier", required = false) boolean validationModifier,
             @RequestParam(name = "origin", required = false) String origin,
             final RedirectAttributes redirectAttributes)
-            throws IOException {
+            throws Exception {
 
         LOGGER.info(new StringBuilder().append("======================= Appel de la page /traitement (")
                 .append(demandeId).append(")").toString());
@@ -201,8 +170,7 @@ public class TraitementController extends AbstractController {
         // Initialiser le select des motifs par rapport à l'action choisie
         List<MotifDTO> motifsInit = null;
         if (traitementFormBean.getStatutChoisi() != null) {
-            motifsInit = motifsCache.getMotifs(demande.getLangue(),
-                    traitementFormBean.getStatutChoisi());
+            motifsInit = motifTemplateService.getMotifs(demande,"fr", traitementFormBean.getStatutChoisi());
         }
 
         traitementFormBean.setObservations(demande.getObservations());
@@ -254,22 +222,14 @@ public class TraitementController extends AbstractController {
             Arrays.sort(demande.getComplements(), new DemandesComplementsComparator());
         }
 
-        mav.addObject("MotifsCache", /* motifsCache.getMotifs(demande.getLangue()) */motifsCache);
+        mav.addObject("MotifsCache", motifsCache);
         mav.addObject("PaysCache", paysCache);
 
         mav.addObject(statutPublicOuInterne);
         mav.addObject(demande);
         mav.addObject(contenuDemande);
-        mav.addObject("typeEmission", TraitementUtil.getVehiculeEmissionCode(contenuDemande));
-
-        mav.addObject("typeVehicule", contenuDemande.getDonnee().getVehiculetypetous().name());
 
         mav.addObject("motifsInit", motifsInit);
-        CalculAideDTO calculAideDTO = (getCalculeAideDTO(demandeId));
-        SuiviComptableFormBean suiviComptableFormBean = getSuiviComptableFormBean(demandeId);
-
-        mav.addObject(TraitementUtil.mapCalculAideDTO2FormBean(calculAideDTO));
-        mav.addObject(suiviComptableFormBean);
 
         /** Section control de visibilité **/
 
@@ -277,31 +237,16 @@ public class TraitementController extends AbstractController {
                 statutPublicOuInterne.getName().equals(${artifactIdCamelCase}DemandeStatutEnum.EN_ATTENTE_TRAIT.name()));
         mav.addObject("isEnCoursTraitement",
                 statutPublicOuInterne.getName().equals(${artifactIdCamelCase}DemandeStatutEnum.EN_COURS_TRAIT.name()));
-        mav.addObject("isEnAttendValidationComptable",
-                "validationComptableTask".equals(statutPublicOuInterne.getName()));
-        mav.addObject("isEnAttendValidationCGD", "validationCGDTask".equals(statutPublicOuInterne.getName()));
-        mav.addObject("isEnAttentPaiemant",
-                statutPublicOuInterne.getName().equals(${artifactIdCamelCase}DemandeStatutEnum.VALIDEE_EN_ATTENTE_PAIEMENT.name()));
-        mav.addObject("isEnValideePayee",
-                statutPublicOuInterne.getName().equals(${artifactIdCamelCase}DemandeStatutEnum.VALIDEE_ET_PAYEE.name()));
-        mav.addObject("isComptablePanelActive",
-                StateManagerUtil.isComptablePanelActive(statutPublicOuInterne, false));
-        mav.addObject("isCalculAidePanelActive",
-                StateManagerUtil.isCalculAidePanelActive(statutPublicOuInterne, demande, false));
-
-        mav.addObject("isComptableAccardeonIsOpen",
-                StateManagerUtil.isComptablePanelActive(statutPublicOuInterne, true));
-
-        mav.addObject("isCalculAideAccardeonIsOpen",
-                StateManagerUtil.isCalculAidePanelActive(statutPublicOuInterne, demande, true));
-
-        mav.addObject("isValidationActive", StateManagerUtil.isValidationActive(statutPublicOuInterne,
-                calculAideDTO, suiviComptableFormBean, demande));
+        mav.addObject("isEnAccordee",
+                statutPublicOuInterne.getName().equals(${artifactIdCamelCase}DemandeStatutEnum.ACCORDEE.name()));
+        mav.addObject("isEnAttendValidationHierarchique",
+                ${artifactIdCamelCase}StatutInterneEnum.validationHierarchiqueTask.name().equals(statutPublicOuInterne.getName()));
+        mav.addObject("isValidationActive", true);
         mav.addObject("isRefuseActive",
                 StateManagerUtil.isRefuseActive(statutPublicOuInterne, demande));
         mav.addObject("isComplementActive",
                 StateManagerUtil.isComplementActive(statutPublicOuInterne, demande));
-        mav.addObject("isAnnulationActivce",
+        mav.addObject("isAnnulationActive",
                 StateManagerUtil.isAnnulationActive(statutPublicOuInterne, demande));
         mav.addObject("isMotifActive", StateManagerUtil.isMotifActive(statutPublicOuInterne, demande));
         mav.addObject("isTraitementVisible", StateManagerUtil.isTraitementVisible(statutPublicOuInterne, demande));
@@ -331,7 +276,7 @@ public class TraitementController extends AbstractController {
 
         mav.addObject("isTerminee", isTerminee);
         // Pour le script JS de mise à jour du select des motifs
-        List<MotifDTO> motifsJS = motifsCache.getMotifs(demande.getLangue());
+        List<MotifDTO> motifsJS = motifTemplateService.getMotifs(demande, "fr");
 
         boolean containsDTO = false;
         boolean condition = demande.getDernierStatut() != null && demande.getDernierStatut().getCodeMotif() != null;
@@ -348,8 +293,7 @@ public class TraitementController extends AbstractController {
         // désactivé
         if (condition && !containsDTO && motifsInit != null) {
 
-            MotifDTO motifDesactive = motifsCache.getMotif(demande.getDernierStatut().getCodeMotif(),
-                    demande.getLangue());
+            MotifDTO motifDesactive = motifTemplateService.getMotif(demande, demande.getDernierStatut().getCodeMotif(),"fr");
             motifsInit.add(motifDesactive);
             motifsJS.add(motifDesactive);
         }
@@ -366,8 +310,7 @@ public class TraitementController extends AbstractController {
         }
 
         if (condition && !containsDTO && motifsInit != null) {
-            MotifDTO motifDesactive = motifsCache.getMotif(traitementFormBean.getCodeMotifChoisi(),
-                    demande.getLangue());
+            MotifDTO motifDesactive = motifTemplateService.getMotif(demande, traitementFormBean.getCodeMotifChoisi(), "fr");
             motifsInit.add(motifDesactive);
             motifsJS.add(motifDesactive);
         }
@@ -394,7 +337,7 @@ public class TraitementController extends AbstractController {
         mav.addObject("commInternes", commInternes);
         mav.addObject("actionsDisponibles", actionsDisponibles);
 
-        if (${artifactIdCamelCase}DemandeStatutEnum.VALIDEE_ET_PAYEE.name().equals(demande.getDernierStatut().getLibelle()) ||
+        if (${artifactIdCamelCase}DemandeStatutEnum.ACCORDEE.name().equals(demande.getDernierStatut().getLibelle()) ||
                 ${artifactIdCamelCase}DemandeStatutEnum.REFUSEE.name().equals(demande.getDernierStatut().getLibelle()) ||
                 ${artifactIdCamelCase}DemandeStatutEnum.ANNULEE.name().equals(demande.getDernierStatut().getLibelle())) {
             mav.addObject("accesDesactive",
@@ -599,30 +542,18 @@ public class TraitementController extends AbstractController {
 
         ${artifactIdCamelCase}DemandeStatutEnum targetState = ${artifactIdCamelCase}DemandeStatutEnum.valueOf(traitementFormBean.getStatutChoisi());
 
-        // Pas de code motif ni commentaire si statut cible VALIDEE
-        if (StringUtils.startsWith(targetState.name(), ${artifactIdCamelCase}DemandeStatutEnum.VALIDEE.name())) {
-            traitementFormBean.setCodeMotifChoisi(null);
-            traitementFormBean.setCommentaireUsager(null);
-        }
-
-        ModelAndView mav = traiterGeneric(traitementFormBean, pkDemande, redirectAttributes);
+        ModelAndView mav = traiterGeneric(traitementFormBean, pkDemande, redirectAttributes, TRAITER);
         if (mav != null) {
             return mav;
         }
 
         DemandeHistoriqueDTO histo = null;
         // Ajout d'une ligne à l'historique
-
-        if (${artifactIdCamelCase}DemandeStatutEnum.VALIDEE == targetState) {
-            histo = histoService.traiter(pkDemande,
-                    targetState.name(), AfBackUtils.getAuthenticatedAgentId());
-        } else if (${artifactIdCamelCase}DemandeStatutEnum.EN_ATTENTE_COMPL == targetState) {
-            histo = histoService.statusChange(pkDemande,
-                    ${artifactIdCamelCase}DemandeStatutEnum.EN_ATTENTE_COMPL.name(), null, null,
+        if (${artifactIdCamelCase}DemandeStatutEnum.REFUSEE == targetState) {
+            histo = histoService.traiter(pkDemande, targetState.name(), AfBackUtils.getAuthenticatedAgentId());
+        } else {
+            histo = histoService.statusChange(pkDemande, targetState.name(), null, null,
                     AfBackUtils.getAuthenticatedAgentId());
-        } else if (${artifactIdCamelCase}DemandeStatutEnum.REFUSEE == targetState) {
-            histo = histoService.statusChange(pkDemande,
-                    ${artifactIdCamelCase}DemandeStatutEnum.REFUSEE.name(), null, null, AfBackUtils.getAuthenticatedAgentId());
         }
 
         LOGGER.info("Appel à DEM pour historique...");
@@ -637,6 +568,70 @@ public class TraitementController extends AbstractController {
 
         return returnSuccessMessage(pkDemande, I18N_TRAITEMENT_SUCCESS_CODE_MESSAGE, redirectAttributes);
     }
+
+    @Secured("ROLE_VALIDATION")
+    @RequestMapping(value = "/traiter", method = RequestMethod.POST, params = "action=Refuser")
+    @Transactional
+    public ModelAndView refuser(@ModelAttribute("traitementFormBean") TraitementFormBean traitementFormBean,
+                                @RequestParam(required = true) Integer pkDemande, final RedirectAttributes redirectAttributes)
+            throws Exception {
+
+        LOGGER.info("======================= Appel de la page /traitement/traiter action=Refuser (" + pkDemande + ")");
+
+        ModelAndView mav = validation(traitementFormBean, false, pkDemande, false, redirectAttributes);
+
+        LOGGER.info("======================= Fin /traitement/traiter action=Refuser");
+
+        return mav;
+    }
+
+    @Secured("ROLE_VALIDATION")
+    @RequestMapping(value = "/traiter", method = RequestMethod.POST, params = "action=Valider")
+    @Transactional
+    public ModelAndView valider(@ModelAttribute("traitementFormBean") TraitementFormBean traitementFormBean,
+                                @RequestParam(required = true) Integer pkDemande, @RequestParam(required = true) String modif,
+                                final RedirectAttributes redirectAttributes) throws Exception {
+
+        LOGGER.info("======================= Appel de la page /traitement/traiter action=Valider (" + pkDemande + ")");
+
+        ModelAndView mav = validation(traitementFormBean, true, pkDemande, Boolean.parseBoolean(modif),
+                redirectAttributes);
+
+        LOGGER.info("======================= Fin /traitement/traiter action=Valider");
+
+        return mav;
+    }
+
+    private ModelAndView validation(TraitementFormBean traitementFormBean, boolean validation, Integer pkDemande,
+                                    boolean modif, final RedirectAttributes redirectAttributes) throws Exception {
+
+        String targetStateStr = (StringUtils.isBlank(traitementFormBean.getStatutChoisi()))
+                ? (String) gouvBPM.getProcessBusinessVariables(pkDemande)
+                .get(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE.name())
+                : traitementFormBean.getStatutChoisi();
+
+        String action = validation ? VALIDER : REFUSER;
+        ModelAndView mav = traiterGeneric(traitementFormBean, pkDemande, redirectAttributes, action);
+        if (mav != null) {
+            return mav;
+        }
+
+        // Ajout d'une ligne à l'historique
+        String valState = validation ? ${artifactIdCamelCase}HistoCustomContextParamEnum.VALIDATION_ACCEPTATION.name()
+                : ${artifactIdCamelCase}HistoCustomContextParamEnum.VALIDATION_REFUS.name();
+        DemandeHistoriqueDTO histo = histoService.statusChange(pkDemande, targetStateStr, valState, null,
+                AfBackUtils.getAuthenticatedAgentId());
+
+        LOGGER.info("Appel à DEM pour historique...");
+        try {
+            demandesHistoriqueService.saveHistorique(gouvPropertiesResolver.getDemarcheId(), pkDemande, histo);
+        } catch (Exception e) {
+            LOGGER.error("Erreur lors de la création de l'historique {}", histo, e);
+        }
+
+        return returnSuccessMessage(pkDemande, I18N_VALIDATION_HIERARCHIQUE_SUCCESS_CODE_MESSAGE, redirectAttributes);
+    }
+
 
     /**
      * Retourne un ModelAndView en cas d'erreur
@@ -648,7 +643,7 @@ public class TraitementController extends AbstractController {
      * @throws Exception
      */
     private ModelAndView traiterGeneric(@ModelAttribute("traitementFormBean") TraitementFormBean traitementFormBean,
-            @RequestParam(required = true) Integer pkDemande, final RedirectAttributes redirectAttributes)
+            @RequestParam(required = true) Integer pkDemande, final RedirectAttributes redirectAttributes, String action)
             throws Exception {
 
         LOGGER.info("Statut choisi : " + traitementFormBean.getStatutChoisi());
@@ -659,12 +654,10 @@ public class TraitementController extends AbstractController {
 
         StatutPublicOuInterneDTO statutPublicOuInterne = afBackUtils.getStatutPublicOuInterne(demande);
 
-        if (!${artifactIdCamelCase}StatutInterneEnum.validationComptableTask.name().equals(statutPublicOuInterne.getName())) {
-            if (!StringUtils.startsWith(traitementFormBean.getStatutChoisi(), ${artifactIdCamelCase}DemandeStatutEnum.VALIDEE.name())
-                    && StringUtils.isBlank(traitementFormBean.getCodeMotifChoisi())) {
-                return returnErrorMessage(pkDemande, I18N_TRAITEMENT_CODEMOTIF_ABSENT_ERROR_CODE_MESSAGE,
-                        redirectAttributes);
-            }
+        if (!StringUtils.startsWith(traitementFormBean.getStatutChoisi(), ${artifactIdCamelCase}DemandeStatutEnum.ACCORDEE.name())
+                && StringUtils.isBlank(traitementFormBean.getCodeMotifChoisi())) {
+            return returnErrorMessage(pkDemande, I18N_TRAITEMENT_CODEMOTIF_ABSENT_ERROR_CODE_MESSAGE,
+                    redirectAttributes);
         }
 
         // Gestion pour voir si la tache courante est bien Validation Hiérarchique
@@ -681,12 +674,50 @@ public class TraitementController extends AbstractController {
             return mav;
         }
 
-        LOGGER.info(
-                "Stockage dans le process du statut cible, du code motif choisi, ainsi que du commentaire usager...");
-        ${artifactIdCamelCase}DemandeStatutEnum targetState = null;
+        String codeMotifChoisi = null;
+        String commentaireUsager = null;
+        String targetStateStr = null;
 
-        targetState = ${artifactIdCamelCase}DemandeStatutEnum.valueOf(traitementFormBean.getStatutChoisi());
+        // Cas de validation hiérarchique sans édition du statut
+        if (StringUtils.isBlank(traitementFormBean.getStatutChoisi())) {
+            targetStateStr = (String) gouvBPM.getProcessBusinessVariables(pkDemande)
+                    .get(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE.name());
+            codeMotifChoisi = (String) gouvBPM.getProcessBusinessVariables(pkDemande)
+                    .get(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name());
+            commentaireUsager = (String) gouvBPM.getProcessBusinessVariables(pkDemande)
+                    .get(GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name());
+        } else {
+            if (TRAITER.equals(action)) {
+                LOGGER.info(
+                        "Stockage dans le process du statut cible, du code motif choisi, ainsi que du commentaire usager...");
+            } else {
+                LOGGER.info("Formulaire modifié par le valideur : prise en compte des nouvelles valeurs...");
+            }
+            targetStateStr = traitementFormBean.getStatutChoisi();
+            codeMotifChoisi = traitementFormBean.getCodeMotifChoisi();
+            commentaireUsager = traitementFormBean.getCommentaireUsager();
+        }
 
+        // Pas de code motif ni commentaire si statut cible VALIDEE
+        if (${artifactIdCamelCase}DemandeStatutEnum.ACCORDEE.name().equals(targetStateStr)) {
+            traitementFormBean.setCodeMotifChoisi(null);
+            traitementFormBean.setCommentaireUsager(null);
+            // Si on est en validation hiérarchique, on retire le motif et le commentaire de BPMN
+            if (!TRAITER.equals(action)) {
+                gouvBPM.removeProcessBusinessVariables(pkDemande,
+                        GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name());
+                gouvBPM.removeProcessBusinessVariables(pkDemande, GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name());
+            }
+        }
+
+        Map<String, String> formData = new HashMap<>();
+        if (!TRAITER.equals(action)) {
+            boolean validation = VALIDER.equals(action);
+            LOGGER.info("Inscription dans le process du booléen de validation... : {}", validation);
+            formData.put(${artifactIdCamelCase}ProcessVariableTypeEnum.${artifactIdUpper}_VALIDATION.name(), Boolean.toString(validation));
+        }
+
+        ${artifactIdCamelCase}DemandeStatutEnum targetState = ${artifactIdCamelCase}DemandeStatutEnum.valueOf(targetStateStr);
         GouvBPMTask task = gouvBPM.getActiveTasksForDemande(pkDemande).get(0);
 
         LOGGER.info("claimTask() puis submitTaskFormData()...");
@@ -698,20 +729,23 @@ public class TraitementController extends AbstractController {
             return mav;
         }
 
-        Map<String, String> formData = new HashMap<>();
         formData.put(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE.name(), targetState.name());
-        if (!StringUtils.isBlank(traitementFormBean.getCommentaireUsager())) {
-            formData.put(GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name(),
-                    traitementFormBean.getCommentaireUsager());
+        if (!StringUtils.isBlank(codeMotifChoisi)) {
+            formData.put(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name(), codeMotifChoisi);
         }
-        if (!StringUtils.isBlank(traitementFormBean.getCodeMotifChoisi())) {
-            formData.put(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name(), traitementFormBean.getCodeMotifChoisi());
+        if (!StringUtils.isBlank(commentaireUsager)) {
+            formData.put(GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name(), commentaireUsager);
         }
         gouvBPM.submitTaskFormData(task, formData, pkDemande);
 
-        gouvBPM.removeProcessBusinessVariables(pkDemande, GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE.name());
-        gouvBPM.removeProcessBusinessVariables(pkDemande, GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name());
-        gouvBPM.removeProcessBusinessVariables(pkDemande, GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name());
+        // On n'efface pas le formulaire si la prochaine tâche est une validation hiérarchique
+        // Donc on n'efface pas que lorsque l'on a quand action = TRAITER et targetState = REFUSEE
+        if (!(TRAITER.equals(action) && ${artifactIdCamelCase}DemandeStatutEnum.REFUSEE.equals(targetState))) {
+            gouvBPM.removeProcessBusinessVariables(pkDemande, GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE.name());
+            gouvBPM.removeProcessBusinessVariables(pkDemande,
+                    GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name());
+            gouvBPM.removeProcessBusinessVariables(pkDemande, GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name());
+        }
 
         LOGGER.info("======================= Fin /traitement/traiter action=Traiter");
 
@@ -720,99 +754,15 @@ public class TraitementController extends AbstractController {
     }
 
     @Secured("ROLE_VALIDATION")
-    @RequestMapping(value = "/traiter", method = RequestMethod.POST, params = "traiterComptable=Traiter")
-    @Transactional
-    public ModelAndView traiterComptable(@ModelAttribute("traitementFormBean") TraitementFormBean traitementFormBean,
-            @RequestParam(required = true) Integer pkDemande, final RedirectAttributes redirectAttributes)
-            throws Exception {
-
-        LOGGER.info(
-                new StringBuilder().append(
-                        "======================= Appel de la page /traitement/traiter action=Traiter name=traiterComptable (")
-                        .append(pkDemande).append(")").toString());
-
-        ${artifactIdCamelCase}DemandeStatutEnum targetState = ${artifactIdCamelCase}DemandeStatutEnum.valueOf(traitementFormBean.getStatutChoisi());
-
-        // Si statut cible VALIDEE, vérifier si le comptable a bien généré le PDF...
-        if (${artifactIdCamelCase}DemandeStatutEnum.VALIDEE == targetState) {
-            DemandeDTO demande = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), pkDemande);
-            boolean pdfGenerated = false;
-            for (DemandeFileDTO demandeFile : demande.getFichiers()) {
-                if (StringUtils.isNotBlank(demandeFile.getMeta())
-                        && demandeFile.getMeta().equals(${artifactIdCamelCase}Utils.${artifactIdUpper}_CALCULAIDE_FILE)) {
-                    pdfGenerated = true;
-                }
-            }
-            if (!pdfGenerated) {
-                return returnErrorMessage(pkDemande, I18N_TRAITEMENT_COMPTABLE_PDF_NON_GENERE_ERROR_CODE_MESSAGE,
-                        redirectAttributes);
-            }
-        }
-
-        ModelAndView mav = traiterGeneric(traitementFormBean, pkDemande, redirectAttributes);
-        if (mav != null) {
-            return mav;
-        }
-
-        // Ajout d'une ligne à l'historique
-        DemandeHistoriqueDTO histo = histoService.traiterComptable(pkDemande, targetState.name(),
-                AfBackUtils.getAuthenticatedAgentId());
-        LOGGER.info("Appel à DEM pour historique...");
-        try {
-            demandesHistoriqueService.saveHistorique(gouvPropertiesResolver.getDemarcheId(), pkDemande, histo);
-
-        } catch (Exception e) {
-            LOGGER.error("Erreur lors de la création de l'historique {}", histo, e);
-        }
-
-        LOGGER.info("======================= Fin /traitement/traiter action=Traiter name=traiterComptable");
-
-        return returnSuccessMessage(pkDemande, I18N_TRAITEMENT_SUCCESS_CODE_MESSAGE, redirectAttributes);
-    }
-
-    @Secured("ROLE_VALIDATION")
-    @RequestMapping(value = "/traiter", method = RequestMethod.POST, params = "traiterCGD=Traiter")
-    @Transactional
-    public ModelAndView traiterCGD(@ModelAttribute("traitementFormBean") TraitementFormBean traitementFormBean,
-            @RequestParam(required = true) Integer pkDemande, final RedirectAttributes redirectAttributes)
-            throws Exception {
-
-        LOGGER.info(new StringBuilder()
-                .append("======================= Appel de la page /traitement/traiter action=Traiter name=traiterCGD (")
-                .append(pkDemande).append(")").toString());
-
-        ModelAndView mav = traiterGeneric(traitementFormBean, pkDemande, redirectAttributes);
-        if (mav != null) {
-            return mav;
-        }
-
-        // Ajout d'une ligne à l'historique
-        ${artifactIdCamelCase}DemandeStatutEnum targetState = ${artifactIdCamelCase}DemandeStatutEnum.valueOf(traitementFormBean.getStatutChoisi());
-        DemandeHistoriqueDTO histo = histoService.traiterCGD(pkDemande, targetState.name(),
-                AfBackUtils.getAuthenticatedAgentId());
-        LOGGER.info("Appel à DEM pour historique...");
-        try {
-            demandesHistoriqueService.saveHistorique(gouvPropertiesResolver.getDemarcheId(), pkDemande, histo);
-
-        } catch (Exception e) {
-            LOGGER.error("Erreur lors de la création de l'historique {}", histo, e);
-        }
-
-        LOGGER.info("======================= Fin /traitement/traiter action=Traiter name=traiterCGD");
-
-        return returnSuccessMessage(pkDemande, I18N_TRAITEMENT_SUCCESS_CODE_MESSAGE, redirectAttributes);
-    }
-
-    @Secured("ROLE_VALIDATION")
-    @RequestMapping(value = "/traiter", method = RequestMethod.POST, params = "traiterFinal=Déclarer validée et payée")
+    @RequestMapping(value = "/traiter", method = RequestMethod.POST, params = "traiterFinal=Déclarer accordée")
     @Transactional
     public ModelAndView traiterFinal(@ModelAttribute("traitementFormBean") TraitementFormBean traitementFormBean,
-            @RequestParam(required = true) Integer pkDemande, final RedirectAttributes redirectAttributes)
+                                     @RequestParam(required = true) Integer pkDemande, final RedirectAttributes redirectAttributes)
             throws Exception {
 
         LOGGER.info(
                 new StringBuilder().append(
-                        "======================= Appel de la page /traitement/traiter action=Déclarer validée et payée name=traiterFinal (")
+                        "======================= Appel de la page /traitement/traiter action=Déclarer accordée et payée name=traiterFinal (")
                         .append(pkDemande).append(")").toString());
 
         // Gestion pour voir si la tache courante est bien Validation Hiérarchique
@@ -847,7 +797,7 @@ public class TraitementController extends AbstractController {
         gouvBPM.submitTaskFormData(task, formData, pkDemande);
 
         // Ajout d'une ligne à l'historique
-        ${artifactIdCamelCase}DemandeStatutEnum targetState = ${artifactIdCamelCase}DemandeStatutEnum.VALIDEE_ET_PAYEE;
+        ${artifactIdCamelCase}DemandeStatutEnum targetState = ${artifactIdCamelCase}DemandeStatutEnum.ACCORDEE;
         DemandeHistoriqueDTO histo = histoService.traiterFinal(pkDemande, targetState.name(),
                 AfBackUtils.getAuthenticatedAgentId());
         LOGGER.info("Appel à DEM pour historique...");
@@ -862,7 +812,7 @@ public class TraitementController extends AbstractController {
         gouvBPM.removeProcessBusinessVariables(pkDemande, GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name());
 
         LOGGER.info(
-                "======================= Fin /traitement/traiter action=Déclarer validée et payée name=traiterFinal");
+                "======================= Fin /traitement/traiter action=Déclarer accordée et payée name=traiterFinal");
 
         return returnSuccessMessage(pkDemande, I18N_TRAITEMENT_SUCCESS_CODE_MESSAGE, redirectAttributes);
     }
@@ -987,7 +937,7 @@ public class TraitementController extends AbstractController {
         gouvBPM.submitTaskFormData(activeTask, formData, pkDemande);
 
         // Ajout d'une ligne à l'historique
-        DemandeHistoriqueDTO histo = histoService.traiter(pkDemande, targetState.name(),
+        DemandeHistoriqueDTO histo = histoService.traiterFinal(pkDemande, targetState.name(),
                 AfBackUtils.getAuthenticatedAgentId());
         LOGGER.info("Appel à DEM pour historique...");
         try {
@@ -1168,50 +1118,6 @@ public class TraitementController extends AbstractController {
         LOGGER.info("======================= Fin /traitement/dupliquer");
 
         return mav;
-    }
-
-    @Secured("ROLE_TRAITEMENT")
-    @RequestMapping(value = "/calculaide", method = RequestMethod.POST)
-    @Transactional
-    public ModelAndView calculAide(@Valid @ModelAttribute("calculAideFormBean") CalculAideFormBean calculAideFormBean,
-
-            @RequestParam(required = true) Integer pkDemande, final RedirectAttributes redirectAttributes,
-            BindingResult bindingResult) throws Exception {
-
-        if (bindingResult.hasErrors()) {
-            throw new Exception(bindingResult.getAllErrors().get(0).getDefaultMessage());
-        }
-        ${artifactIdLower}DataService.saveCalculAideDTO(TraitementUtil.mapCalculAideFormToDTO(calculAideFormBean), pkDemande);
-
-        return returnSuccessMessage(pkDemande, I18N_SAUVEGARDE_SUCCESS_CODE_MESSAGE, redirectAttributes);
-    }
-
-    private CalculAideDTO getCalculeAideDTO(Integer demandeID) {
-        return ${artifactIdLower}DataService.getCalculAideDTO(demandeID);
-    }
-
-    @Secured("ROLE_VALIDATION")
-    @RequestMapping(value = "/suivicomptable", method = RequestMethod.POST)
-    @Transactional
-    public ModelAndView suivicomptable(
-            @Valid @ModelAttribute("suiviComptableFormBean") SuiviComptableFormBean suiviComptableFormBean,
-            @RequestParam(required = true) Integer pkDemande, final RedirectAttributes redirectAttributes,
-            BindingResult bindingResult)
-            throws Exception {
-
-        if (bindingResult.hasErrors()) {
-            throw new Exception(bindingResult.getAllErrors().get(0).getDefaultMessage());
-        }
-        ${artifactIdLower}DataService.saveSuiviComptableDTO(TraitementUtil.mapSuiviComptableFormToDTO(suiviComptableFormBean),
-                pkDemande);
-        pdfGeneratorService.saveFile(demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), pkDemande),
-                pdfModelProvider);
-
-        return returnSuccessMessage(pkDemande, I18N_SAUVEGARDE_SUCCESS_CODE_MESSAGE, redirectAttributes);
-    }
-
-    private SuiviComptableFormBean getSuiviComptableFormBean(Integer demandeID) {
-        return TraitementUtil.mapSuiviComptableDTO2Form(${artifactIdLower}DataService.getSuiviComptableDTO(demandeID));
     }
 
 }

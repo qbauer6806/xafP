@@ -3,12 +3,13 @@
 #set( $symbol_escape = '\' )
 package mc.gouv.appfactory;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.regex.Pattern;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ConfigHelper {
   private static Logger logger = LoggerFactory.getLogger(ConfigHelper.class);

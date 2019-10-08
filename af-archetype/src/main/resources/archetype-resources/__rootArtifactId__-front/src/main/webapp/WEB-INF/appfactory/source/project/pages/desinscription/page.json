@@ -2,7 +2,7 @@
   "name": "desinscription",
   "componentInstances": [
     {
-	    "name": "mcCharteTshiPageDesinscription"
+      "name": "mcCharteTshiPageDesinscription"
     }
   ]
 }

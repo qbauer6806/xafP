@@ -1,55 +1,44 @@
 #set( $symbol_pound = '#' )
 #set( $symbol_dollar = '$' )
 #set( $symbol_escape = '\' )
-package mc.gouv.${artifactIdLower}.shared.util;
+package ${groupId}.shared.util;
 
-import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import mc.gouv.af.back.util.DemandeHistoriqueComparator;
+import mc.gouv.dem.shared.model.DemandeDTO;
+import mc.gouv.dem.shared.model.DemandeHistoriqueDTO;
+import ${groupId}.shared.dto.${artifactIdCamelCase}DemandeHistoriqueContenuDTO;
+import ${groupId}.shared.dto.${artifactIdCamelCase}DemandeHistoriqueDTO;
+import ${groupId}.shared.model.v1568884433537.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import mc.gouv.af.back.util.DemandeHistoriqueComparator;
-import mc.gouv.dem.shared.model.DemandeDTO;
-import mc.gouv.dem.shared.model.DemandeHistoriqueDTO;
-import mc.gouv.${artifactIdLower}.shared.dto.${artifactIdCamelCase}DemandeHistoriqueContenuDTO;
-import mc.gouv.${artifactIdLower}.shared.dto.${artifactIdCamelCase}DemandeHistoriqueDTO;
-import mc.gouv.${artifactIdLower}.shared.model.v1563199701514.ContenuProjectDemandeDTO;
-import mc.gouv.${artifactIdLower}.shared.model.v1563199701514.Emission2RouesEnum;
-import mc.gouv.${artifactIdLower}.shared.model.v1563199701514.EmissionVeloEnum;
-import mc.gouv.${artifactIdLower}.shared.model.v1563199701514.EmissionVoitureEnum;
-import mc.gouv.${artifactIdLower}.shared.model.v1563199701514.VehiculeTypetousEnum;
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 /**
  * Classe utilitaire pour le projet ${artifactIdUpper}
  * 
- * @author qdeme
+ * @author mpavone
  *
  */
 @Component
 public class ${artifactIdCamelCase}Utils {
 
-    public static final String ${artifactIdUpper}_CALCULAIDE = "${artifactIdUpper}_CALCULAIDE";
-    public static final String ${artifactIdUpper}_SUIVI_COMPTABLE = "${artifactIdUpper}_SUIVI_COMPTABLE";
-    public static final String ${artifactIdUpper}_CALCULAIDE_FILE = "${artifactIdUpper}_CALCULAIDE_FILE";
-
     private static final Logger LOGGER = LoggerFactory.getLogger(${artifactIdCamelCase}Utils.class);
+
+    private static final JoursFeriesEnum[] joursFeries = JoursFeriesEnum.values();
 
     /**
      * Permet de convertir une ligne d'historique DEM en une ligne d'historique ${artifactIdUpper} avec tous les détails
      * spécifiques à ${artifactIdUpper}.
-     * 
+     *
      * @param demHisto
      * @return
      */
@@ -70,8 +59,8 @@ public class ${artifactIdCamelCase}Utils {
     /**
      * Permet de convertir un ensemble de lignes d'historique DEM en un ensemble de lignes d'historique ${artifactIdUpper} avec
      * tous les détails spécifiques à ${artifactIdUpper}.
-     * 
-     * @param demHisto
+     *
+     * @param demHistos
      * @return
      */
     public static List<${artifactIdCamelCase}DemandeHistoriqueDTO> histoDem2${artifactIdCamelCase}(List<DemandeHistoriqueDTO> demHistos) {
@@ -95,8 +84,8 @@ public class ${artifactIdCamelCase}Utils {
      * @return
      */
     public static DemandeHistoriqueDTO histo${artifactIdCamelCase}2Dem(${artifactIdCamelCase}DemandeHistoriqueContenuDTO ${artifactIdLower}HistoContenu,
-            Integer usagerId,
-            String agentId) {
+                                                        Integer usagerId,
+                                                        String agentId) {
         DemandeHistoriqueDTO demHisto = new DemandeHistoriqueDTO();
         demHisto.setAgentId(agentId);
         demHisto.setUsagerId(usagerId);
@@ -142,43 +131,6 @@ public class ${artifactIdCamelCase}Utils {
         return "";
     }
 
-    public static String getVehiculeEmission(ContenuProjectDemandeDTO contenuDemande) {
-        String emission = "";
-        VehiculeTypetousEnum typeVehicule = contenuDemande.getDonnee().getVehiculetypetous();
-
-        if (typeVehicule.equals(VehiculeTypetousEnum.CAT1)) {
-            return EmissionVoitureEnum
-                    .forValue(contenuDemande.getDonnee().getVehicule().getEmissionvoiture().name()).originalName;
-        }
-        if (typeVehicule.equals(VehiculeTypetousEnum.CAT2)) {
-            return Emission2RouesEnum
-                    .forValue(contenuDemande.getDonnee().getVehicule().getEmissiondeuxroues().name()).originalName;
-        }
-        if (typeVehicule.equals(VehiculeTypetousEnum.CAT3)) {
-            return EmissionVeloEnum
-                    .forValue(contenuDemande.getDonnee().getVehicule().getEmissionvelo().name()).originalName;
-        }
-        return emission;
-    }
-
-    public static String getVehiculeEmissionLibelle(ContenuProjectDemandeDTO contenuDemande) {
-        String emission = "";
-        VehiculeTypetousEnum typeVehicule = contenuDemande.getDonnee().getVehiculetypetous();
-
-        if (typeVehicule.equals(VehiculeTypetousEnum.CAT1)) {
-            return EmissionVoitureEnum
-                    .getLibelle(contenuDemande.getDonnee().getVehicule().getEmissionvoiture().name());
-        }
-        if (typeVehicule.equals(VehiculeTypetousEnum.CAT2)) {
-            return Emission2RouesEnum
-                    .getLibelle(contenuDemande.getDonnee().getVehicule().getEmissiondeuxroues().name());
-        }
-        if (typeVehicule.equals(VehiculeTypetousEnum.CAT3)) {
-            return EmissionVeloEnum
-                    .getLibelle(contenuDemande.getDonnee().getVehicule().getEmissionvelo().name());
-        }
-        return emission;
-    }
 
     public static String convertDateToSring(final Date date) {
         if (date == null) {
@@ -199,4 +151,62 @@ public class ${artifactIdCamelCase}Utils {
                 .format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
     }
 
+    private static boolean[] createJoursFeriesBooleanList(ContenuProjectDemandeDTO contenuDemande) {
+        ProjectDemandeFieldDonneeDerogationJoursferiesDTO joursferies = contenuDemande.getDonnee().getDerogation().getJoursferies();
+        return new boolean[] {false, joursferies.getSainteDevote(), joursferies.getLundiDePaques(), false, joursferies.getAscension(),
+                joursferies.getLundiDePentecote(), joursferies.getFeteDieu(), joursferies.getAssomption(), joursferies.getToussaint(),
+                false, joursferies.getImmaculeeConception(), false};
+    }
+
+    private static boolean[] createJoursFeriesExceptionnelsBooleanList(ContenuProjectDemandeDTO contenuDemande) {
+        ProjectDemandeFieldDonneeDerogationJoursferiesDTO joursferies = contenuDemande.getDonnee().getDerogation().getJoursferies();
+        return new boolean[] {joursferies.getJourDeL_An(), false, false, joursferies.getLe1erMai(), false, false, false, false, false,
+                joursferies.getFeteDuPrince(), false, joursferies.getNoel()};
+    }
+
+    /**
+     * Convertisseurs des jours feries exceptionnels selectionnés en phrase ou liste
+     */
+    public static String convertJourFeriesExceptionnelsToSentence(ContenuProjectDemandeDTO contenuDemande) {
+        boolean[] joursFeriesExceptionnels = createJoursFeriesExceptionnelsBooleanList(contenuDemande);
+        return convertSelectedJourFeriesTypesToString(joursFeriesExceptionnels);
+    }
+
+    public static String convertJourFeriesExceptionnelsToList(ContenuProjectDemandeDTO contenuDemande) {
+        boolean[] joursFeriesExceptionnels = createJoursFeriesExceptionnelsBooleanList(contenuDemande);
+        return convertSelectedJourFeriesTypesToStringList(joursFeriesExceptionnels);
+    }
+
+    /**
+     * Convertisseurs des jours feries normaux selectionnés en phrase ou liste
+     */
+    public static String convertJourFeriesTypesToSentence(ContenuProjectDemandeDTO contenuDemande) {
+        boolean[] jourFeriesBooleanArray = createJoursFeriesBooleanList(contenuDemande);
+        return convertSelectedJourFeriesTypesToString(jourFeriesBooleanArray);
+    }
+
+    public static String convertJourFeriesTypesToList(ContenuProjectDemandeDTO contenuDemande) {
+        boolean[] jourFeriesBooleanArray = createJoursFeriesBooleanList(contenuDemande);
+        return convertSelectedJourFeriesTypesToStringList(jourFeriesBooleanArray);
+    }
+
+    public static String convertSelectedJourFeriesTypesToString(boolean ...jourFeriesSelected) {
+        String formatedJFeries = "";
+        for(int i = 0; i < jourFeriesSelected.length; i++) {
+            if (jourFeriesSelected[i]) {
+                formatedJFeries += ((StringUtils.isEmpty(formatedJFeries))? "" : ", ") + joursFeries[i].libelle;
+            }
+        }
+        return formatedJFeries;
+    }
+
+    public static String convertSelectedJourFeriesTypesToStringList(boolean ...jourFeriesSelected) {
+        StringBuilder formatedJFeries = new StringBuilder();
+        for(int derogIndex = 0; derogIndex < jourFeriesSelected.length; derogIndex++) {
+            if (jourFeriesSelected[derogIndex]) {
+                formatedJFeries.append("${symbol_escape}n${symbol_escape}t- ").append(joursFeries[derogIndex].libelle);
+            }
+        }
+        return formatedJFeries.append("${symbol_escape}n").toString();
+    }
 }

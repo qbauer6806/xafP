@@ -28,26 +28,11 @@ var columns = [
 		//return demande.dernierStatut.libelle;
 		}
 	},
-	
 	{
-		"data" : "contenu.usager.nomaffichage",
+		"data" : "contenu.donnee.entreprise.raisonsociale",
 		"keyword" : true,
 		render : function(data, type, demande) {
-			return textRenderer(demande.contenu.usager.nomaffichage);
-		}
-	},
-	{
-		"data" : "contenu.donnee.vehicule.nomaffichageproprietaire",
-		"keyword" : true,
-		render : function(data, type, demande) {
-			return textRenderer(demande.contenu.donnee.vehicule.nomaffichageproprietaire);
-		}
-	},
-	{
-		"data" : "data.numeroOrdre",
-		"keyword" : true,
-		render : function(data, type, demande) {
-			return ( demande.data == null || typeof demande.data["numeroOrdre"] == 'undefined' )?"":demande.data.numeroOrdre;
+			return textRenderer(demande.contenu.donnee.entreprise.raisonsociale);
 		}
 	},
 	{

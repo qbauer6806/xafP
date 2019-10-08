@@ -1,19 +1,17 @@
 #set( $symbol_pound = '#' )
 #set( $symbol_dollar = '$' )
 #set( $symbol_escape = '\' )
-package mc.gouv.${artifactIdLower}.service.impl;
-
-import org.springframework.context.annotation.Conditional;
-import org.springframework.stereotype.Service;
+package ${groupId}.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.MissingNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
 import mc.gouv.af.back.config.es.IndexationEnabledCondition;
 import mc.gouv.af.back.service.transformer.IndexedDemandeDataJsonNodeTransformer;
+import org.springframework.context.annotation.Conditional;
+import org.springframework.stereotype.Service;
 
 @Service
 @Conditional(IndexationEnabledCondition.class)

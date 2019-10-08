@@ -1,14 +1,14 @@
 #set( $symbol_pound = '#' )
 #set( $symbol_dollar = '$' )
 #set( $symbol_escape = '\' )
-package mc.gouv.${artifactIdLower}.shared.dto;
+package ${groupId}.shared.dto;
 
 import mc.gouv.af.back.dto.StatutPublicOuInterneDTO;
 
 /**
  * Représente le contenu d'une ligne d'historique de demande selon ${artifactIdCamelCase}
  * 
- * @author qdeme
+ * @author mpavone
  *
  */
 public class ${artifactIdCamelCase}DemandeHistoriqueContenuDTO {

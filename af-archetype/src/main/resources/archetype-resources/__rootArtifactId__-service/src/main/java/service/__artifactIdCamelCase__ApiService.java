@@ -1,7 +1,7 @@
 #set( $symbol_pound = '#' )
 #set( $symbol_dollar = '$' )
 #set( $symbol_escape = '\' )
-package mc.gouv.${artifactIdLower}.service;
+package ${groupId}.service;
 
 import mc.gouv.af.apiserver.AfApiController;
 

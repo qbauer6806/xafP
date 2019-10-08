@@ -1,14 +1,14 @@
 {
-  "name": "demande_view",
   "componentInstances": [
-  {
-    "name": "mcCharteTshiPageDemandeView",
-    "parameterValue": {
-      "valueType": "json",
-      "valueJson": {
-        "typeRecap": "projectDemandeRecap"
+    {
+      "name": "mcCharteTshiPageDemandeView",
+      "parameterValue": {
+        "valueJson": {
+          "typeRecap": "projectDemandeRecap"
+        },
+        "valueType": "json"
       }
     }
-  }
-  ]
+  ],
+  "name": "demande_view"
 }

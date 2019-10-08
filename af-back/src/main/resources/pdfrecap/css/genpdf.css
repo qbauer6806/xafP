@@ -32,7 +32,7 @@ th {
 	font-size: 20px;
 }
 
-td> :first-child, td> :first-child > h3 {
+td> :first-child, td> :first-child>h3 {
 	margin-top: 0;
 }
 
@@ -80,4 +80,17 @@ dt span {
 
 .display-commentaire {
 	white-space: pre-wrap;
+}
+
+.long-text {
+	float: left;
+	clear: both;
+}
+
+.long-text>p {
+	margin: 0;
+}
+
+.long-text-title {
+	font-weight: bold;
 }

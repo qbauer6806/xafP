@@ -161,7 +161,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 	}
 
 	@Override
-	public String getHTMLDemandeContenuRecap(DemandeDTO demande)
+	public String getHTMLDemandeContenuRecap(DemandeDTO demande, boolean isPdfRecap)
 			throws IOException, ParseException, ClassNotFoundException, IllegalAccessException,
 			IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
 
@@ -184,7 +184,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 
 					String sectionType = (String) section.get("type");
 
-					html = getFirstLevelHTML(html, demande, sectionType, section);
+					html = getFirstLevelHTML(html, demande, sectionType, section, isPdfRecap);
 
 					if (sectionType.equals("adresse")) {
 						html += "<dd><span>Adresse</span></dd>";
@@ -193,7 +193,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 						for (Object sousSection : sousSections.toArray()) {
 							String sousSectionType = (String) ((JSONObject) sousSection).get("type");
 							html += ((JSONObject) sousSection).get("introHtml");
-							html = getFirstLevelHTML(html, demande, sousSectionType, (JSONObject) sousSection);
+							html = getFirstLevelHTML(html, demande, sousSectionType, (JSONObject) sousSection, isPdfRecap);
 						}
 					}
 
@@ -205,7 +205,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 		return html;
 	}
 
-	private String getFirstLevelHTML(String html, DemandeDTO demande, String sectionType, JSONObject section)
+	private String getFirstLevelHTML(String html, DemandeDTO demande, String sectionType, JSONObject section, boolean isPdfRecap)
 			throws ClassNotFoundException, IllegalAccessException, IllegalArgumentException, InvocationTargetException,
 			NoSuchMethodException, SecurityException {
 		if (sectionType.equals("champs")) {
@@ -218,8 +218,13 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 				} else {
 					String value = getSecondLevelHTML(demande.getContenu(), champ, demande.getBuildId());
 					if (!StringUtils.isBlank(value)) {
-						html += "<dd><span>" + champ.get("label") + "</span></dd>";
-						html += "<dt><span>" + value + "</span></dt>";
+						if (isPdfRecap && value.contains("\n")) {
+							html += "<div class=\"long-text\"><p class=\"long-text-title\">" + champ.get("label") + "</p>";
+							html += "<p class=\"display-commentaire\">" + value + "</p></div>";
+						} else {
+							html += "<dd><span>" + champ.get("label") + "</span></dd>";
+							html += "<dt><span>" + value + "</span></dt>";
+						}						
 					}
 				}
 			}

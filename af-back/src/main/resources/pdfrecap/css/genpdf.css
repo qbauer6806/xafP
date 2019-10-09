@@ -41,7 +41,6 @@ dl {
 	overflow: hidden;
 	padding: 0;
 	margin: 0;
-	word-break: break-word;
 }
 
 dd {
@@ -63,7 +62,8 @@ dt {
 	padding-right: 20px;
 }
 
-dt span {
+dt span, dd span {
+	width: 95%;
 	white-space: pre-wrap;
 }
 
@@ -95,8 +95,7 @@ dt span {
 .long-text-content {
 	display: inline-block;
 	padding-left: 20px;
-	word-break: break-word;
-	word-wrap: break-word;
+	width: 95%;
 	white-space: pre-wrap;
 }
 

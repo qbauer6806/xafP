@@ -41,6 +41,7 @@ dl {
 	overflow: hidden;
 	padding: 0;
 	margin: 0;
+	word-break: break-word;
 }
 
 dd {
@@ -89,6 +90,14 @@ dt span {
 
 .long-text>p {
 	margin: 0;
+}
+
+.long-text-content {
+	display: inline-block;
+	padding-left: 20px;
+	word-break: break-word;
+	word-wrap: break-word;
+	white-space: pre-wrap;
 }
 
 .long-text-title {

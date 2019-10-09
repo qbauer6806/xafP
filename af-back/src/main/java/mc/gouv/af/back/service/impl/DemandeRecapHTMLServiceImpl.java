@@ -219,12 +219,13 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 					String value = getSecondLevelHTML(demande.getContenu(), champ, demande.getBuildId());
 					if (!StringUtils.isBlank(value)) {
 						if (isPdfRecap && value.contains("\n")) {
-							html += "<div class=\"long-text\"><p class=\"long-text-title\">" + champ.get("label") + "</p>";
-							html += "<p class=\"display-commentaire\">" + value + "</p></div>";
+							html += "<div class=\"long-text\"><p class=\"long-text-title\">" + champ.get("label")
+									+ "</p>";
+							html += "<p class=\"long-text-content\">" + value + "</p></div>";
 						} else {
 							html += "<dd><span>" + champ.get("label") + "</span></dd>";
 							html += "<dt><span>" + value + "</span></dt>";
-						}						
+						}
 					}
 				}
 			}

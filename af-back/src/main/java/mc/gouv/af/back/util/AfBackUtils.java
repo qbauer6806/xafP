@@ -2,7 +2,14 @@ package mc.gouv.af.back.util;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+import java.util.UUID;
 
 import javax.annotation.PostConstruct;
 
@@ -27,6 +34,7 @@ import mc.gouv.af.back.cache.UtilisateursCache;
 import mc.gouv.af.back.dto.StatutPublicOuInterneDTO;
 import mc.gouv.af.back.properties.GouvPropertiesResolver;
 import mc.gouv.af.back.service.DemarchesDataProvider;
+import mc.gouv.af.back.util.users.UtilisateursUtils;
 import mc.gouv.dem.service.DemarchesService;
 import mc.gouv.dem.shared.model.DemandeDTO;
 import mc.gouv.dem.shared.model.DemandeDataDTO;
@@ -85,9 +93,9 @@ public class AfBackUtils {
 
     @Autowired
     private UsagersCache usagersCache;
-
+    
     @Autowired
-    private UtilisateursCache utilisateursCache;
+	private UtilisateursCache utilisateursCache;
 
     @Autowired
     private DemarchesService demarchesService;
@@ -97,6 +105,9 @@ public class AfBackUtils {
 
     @Autowired
     private MessageSource messageSource;
+    
+    @Autowired
+    private UtilisateursUtils utilisateursUtils;
 
     public static final short GENDER_MR_INDEX = 0;
     public static final short GENDER_MME_INDEX = 1;
@@ -194,18 +205,16 @@ public class AfBackUtils {
 
     /**
      * Retourne le nom d'un utilisateur à partir de son matricule
+     * <br>
+     * deprecated : Utiliser la méthode de {@link UtilisateursUtils}
      * 
      * @param userId
      * @return
      * @throws RestException
      */
+    @Deprecated
     public String getUserNameFromID(String matricule) throws RestException {
-        LOGGER.debug("getUserNameFromID() : Appel à Logon...");
-        User user = utilisateursCache.get(matricule);
-        if (user != null) {
-            return user.getPrenom() + " " + user.getNomAffichage();
-        }
-        return null;
+        return utilisateursUtils.getUserNameFromID(matricule);
     }
 
     /**

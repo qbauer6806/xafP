@@ -241,7 +241,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 					html += "<tr>";
 					for (Object column : columns.toArray()) {
 						String value = getSecondLevelHTML(valeur, (JSONObject) column, demande.getBuildId());
-						html += "<td>" + (value == null ? "" : escape(value)) + "</td>";
+						html += "<td>" + (value == null ? "" : value) + "</td>";
 					}
 					html += "</tr>";
 				}

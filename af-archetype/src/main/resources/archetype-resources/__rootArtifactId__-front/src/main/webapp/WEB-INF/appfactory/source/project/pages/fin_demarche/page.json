@@ -13,7 +13,7 @@
                     "action": "mcCharteTshiGoToPage",
                     "parameter": {
                       "valueJson": {
-                        "page": "etape_usager"
+                        "page": "etape_entreprise"
                       },
                       "valueType": "json"
                     }

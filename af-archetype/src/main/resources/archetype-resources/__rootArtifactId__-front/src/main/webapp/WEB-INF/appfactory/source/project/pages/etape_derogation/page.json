@@ -1,0 +1,178 @@
+{
+  "componentInstances": [
+    {
+      "name": "mcCharteTshiPageEtape",
+      "parameterValue": {
+        "valueJson": {
+          "abandon": "abandon_parcours",
+          "actionChargement": {
+            "action": "mcCharteTshiDebutEtape",
+            "parameter": {
+              "valueJson": {
+                "nomParcours": "${artifactIdLower}",
+                "nomParcoursAlternatif": "std",
+                "numeroEtape": 2,
+                "typeDonnee": "projectDemande",
+                "typeRecap": ""
+              },
+              "valueType": "json"
+            }
+          },
+          "actionSoumission": {
+            "action": "mcCharteTshiSauvegarderEtape",
+            "parameter": {
+              "valueJson": {
+                "noValidateTables": false,
+                "redirection": "etape_justificatif"
+              },
+              "valueType": "json"
+            }
+          },
+          "mentionObligatoire": 1
+        },
+        "valueType": "json"
+      },
+      "zones": [
+        {
+          "$$hashKey": "object:1785",
+          "componentInstances": [
+            {
+              "name": "mcCharteTshiFormSection",
+              "parameterValue": {
+                "valueJson": {
+                  "introHtmlId": "ts.page.joursFeries.introHTML",
+                  "titreId": "ts.page.joursFeries.Title"
+                },
+                "valueType": "json"
+              },
+              "zones": [
+                {
+                  "componentInstances": [
+                    {
+                      "name": "mcCharteTshiChamp",
+                      "parameterValue": {
+                        "valueJson": {
+                          "donneeRef": "page.demande@projectDemande.donneeDerogationJoursferies"
+                        },
+                        "valueType": "json"
+                      }
+                    },
+                    {
+                      "name": "mcCharteTshiContenuHtml",
+                      "parameterValue": {
+                        "valueJson": {
+                          "content": "ts.page.joursferies.message.introHTML"
+                        },
+                        "valueType": "json"
+                      }
+                    },
+                    {
+                      "name": "mcCharteTshiContenuHtml",
+                      "parameterValue": {
+                        "valueJson": {
+                          "content": "ts.page.joursFeries.lien.Title"
+                        },
+                        "valueType": "json"
+                      }
+                    }
+                  ],
+                  "name": "contenu"
+                }
+              ]
+            },
+            {
+              "name": "mcCharteTshiFormSection",
+              "parameterValue": {
+                "valueJson": {
+                  "introHtmlId": "ts.page.derogation.motivationdemande.introHTML",
+                  "titreId": "ts.page.derogation.motivationdemande.title"
+                },
+                "valueType": "json"
+              },
+              "zones": [
+                {
+                  "componentInstances": [
+                    {
+                      "name": "mcCharteTshiChamp",
+                      "parameterValue": {
+                        "valueJson": {
+                          "donneeRef": "page.demande@projectDemande.donneeDerogationEmployeConcerne"
+                        },
+                        "valueType": "json"
+                      }
+                    },
+                    {
+                      "name": "mcCharteTshiChamp",
+                      "parameterValue": {
+                        "valueJson": {
+                          "donneeRef": "page.demande@projectDemande.donneeDerogationMotivationdemande"
+                        },
+                        "valueType": "json"
+                      }
+                    },
+                    {
+                      "name": "mcCharteTshiChamp",
+                      "parameterValue": {
+                        "valueJson": {
+                          "donneeRef": "page.demande@projectDemande.donneeDerogationPresencedeleguespersonnel"
+                        },
+                        "valueType": "json"
+                      }
+                    },
+                    {
+                      "name": "mcCharteTshiChamp",
+                      "parameterValue": {
+                        "valueJson": {
+                          "donneeRef": "page.demande@projectDemande.donneeDerogationNombresalarie"
+                        },
+                        "valueType": "json"
+                      }
+                    }
+                  ],
+                  "name": "contenu"
+                }
+              ]
+            }
+          ],
+          "name": "sections"
+        },
+        {
+          "$$hashKey": "object:1786",
+          "componentInstances": [
+            {
+              "name": "mcCharteTshiFormStdButton",
+              "parameterValue": {
+                "valueJson": {
+                  "action": {
+                    "action": "mcCharteTshiGoToPage",
+                    "parameter": {
+                      "valueJson": {
+                        "page": "etape_entreprise"
+                      },
+                      "valueType": "json"
+                    }
+                  },
+                  "isSubmit": false,
+                  "messageId": "ts.boutonEtapePrecedente"
+                },
+                "valueType": "json"
+              }
+            },
+            {
+              "name": "mcCharteTshiFormStdButton",
+              "parameterValue": {
+                "valueJson": {
+                  "isSubmit": true,
+                  "messageId": "ts.boutonEtapeSuivante"
+                },
+                "valueType": "json"
+              }
+            }
+          ],
+          "name": "boutons"
+        }
+      ]
+    }
+  ],
+  "name": "etapeDerogation"
+}

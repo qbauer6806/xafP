@@ -3,7 +3,7 @@
     "containerId": "ROOT",
     "demarcheId": "GEN"
   },
-  "builderVersion": "2.5.0",
+  "builderVersion": "3.4.0",
   "charte": {
     "name": "tshi"
   },
@@ -12,7 +12,7 @@
       "$ref": "http://app-factory.gouv.mc/mcCharteTsProjectData/trunk#",
       "content": {
         "copyrightYears": "mc.gouv.appfactory.gen.front.copyright.years",
-        "isTsEntreprises": false,
+        "isTsEntreprises": true,
         "isTsUsager": true,
         "login": {
           "contactUrl": "mc.gouv.appfactory.gen.front.login.contact.url",
@@ -32,16 +32,21 @@
       "content": {
         "projectConfig": {
           "etatsEnAttente": [
-            "EN_ATTENTE_COMPL"
+            "EN_ATTENTE_COMPL",
+            "ACCEPTEE_SOUS_RESERVE"
           ],
           "etatsFinaux": [
-            "EN_COURS_TRAIT",
-            "VALIDEE_EN_ATTENTE_PAIEMENT",
-            "VALIDEE_ET_PAYEE",
+            "ACCORDEE",
             "ANNULEE",
             "REFUSEE"
           ]
         }
+      }
+    },
+    {
+      "$ref": "http://app-factory.gouv.mc/mcCharteTshiProjectData/trunk#",
+      "content": {
+        "enableDemandesCourrier": true
       }
     }
   ],
@@ -78,7 +83,7 @@
       "mc.gouv.appfactory.gen.front.joCcinUrl.en"
     ]
   },
-  "name": "subventionVehiculePropre",
+  "name": "generiqueTshi",
   "optimizeCSS": false,
   "optimizeHTML": false,
   "optimizeJS": false,
@@ -90,6 +95,7 @@
     "extraXml": "<parent><groupId>mc.gouv.pom</groupId><artifactId>super-pom-war-frontoffice</artifactId><version>1.44.20</version><relativePath /></parent>\n\n<properties><jettyVersion>9.4.12.v20180830</jettyVersion></properties>\n",
     "finalName": "generique-tshi",
     "groupId": "mc.gouv.gen",
+    "mavenWarPluginExtraConfiguration": "<packagingExcludes>\nWEB-INF/lib/logback-*.jar,\nWEB-INF/lib/slf4j-*.jar,\nWEB-INF/lib/log4j-*.jar,\nWEB-INF/lib/tools_jar_cross*.jar\n</packagingExcludes>",
     "version": "0.0.1-SNAPSHOT"
   },
   "runtime": {

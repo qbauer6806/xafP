@@ -3,18 +3,19 @@
 #set( $symbol_escape = '\' )
 package mc.gouv.appfactory;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Properties;
-import java.util.regex.Pattern;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import mc.gouv.Static;
 import org.json.simple.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Properties;
+import java.util.regex.Pattern;
 
 public class PropertiesProxy extends HttpServlet {
   private static Logger logger = LoggerFactory.getLogger(PropertiesProxy.class);

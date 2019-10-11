@@ -3,36 +3,18 @@
     "sections": [
       {
         "isSousSection": true,
-        "ref": "donneeUsager"
+        "ref": "donneeDemandeur"
       },
       {
         "isSousSection": true,
-        "ref": "donneeVehicule"
-      },
-      {
-        "isSousSection": false,
-        "nom": "simulation",
-        "sousSections": [
-          {
-            "ref": "donneeSimulation"
-          }
-        ]
+        "ref": "donneeEntreprise"
       },
       {
         "isSousSection": true,
-        "ref": "donneeBancaire"
+        "ref": "donneeDerogation"
       },
       {
         "ref": "fichiers"
-      },
-      {
-        "champs": [
-          {
-            "ref": "donneeDeclarationRecap"
-          }
-        ],
-        "isSousSection": true,
-        "nom": "declarationRecap"
       }
     ],
     "typeDonnee": "projectDemande"

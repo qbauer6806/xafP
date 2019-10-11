@@ -1,7 +1,7 @@
 #set( $symbol_pound = '#' )
 #set( $symbol_dollar = '$' )
 #set( $symbol_escape = '\' )
-package mc.gouv.${artifactIdLower}.shared.dto;
+package ${groupId}.shared.dto;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,7 +9,7 @@ import java.util.Map;
 /**
  * Enum représentant les états possibles pour une demande
  * 
- * @author qdeme
+ * @author mpavone
  * 
  */
 public enum ${artifactIdCamelCase}DemandeStatutEnum {
@@ -18,9 +18,7 @@ public enum ${artifactIdCamelCase}DemandeStatutEnum {
     EN_COURS_TRAIT("En cours de traitement", false),
     REFUSEE("Refusée", true),
     EN_ATTENTE_COMPL("En attente d'informations complémentaires", true),
-    VALIDEE("Validée", true),
-    VALIDEE_EN_ATTENTE_PAIEMENT("Validée en attente de paiement", false),
-    VALIDEE_ET_PAYEE("Validée et payée", false),
+    ACCORDEE("Accordée", true),
     ANNULEE("Annulée", true);
 
     public String libelle;

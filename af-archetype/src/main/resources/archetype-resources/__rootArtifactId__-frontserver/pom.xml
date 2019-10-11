@@ -8,16 +8,16 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>mc.gouv.${artifactIdLower}</groupId>
-    <artifactId>${artifactIdLower}-frontserver</artifactId>
+    <groupId>${groupId}</groupId>
+    <artifactId>${artifactId}</artifactId>
     <version>${version}</version>
 
     <dependencies>
         <dependency>
-            <groupId>mc.gouv.${artifactIdLower}</groupId>
-            <artifactId>${artifactIdLower}-front</artifactId>
+            <groupId>${groupId}</groupId>
+            <artifactId>${rootArtifactId}-front</artifactId>
             <type>war</type>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>${version}</version>
         </dependency>
     </dependencies>
 
@@ -54,7 +54,7 @@
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <manifestEntries>
-                                        <Main-Class>mc.gouv.${artifactIdLower}.frontserver.App</Main-Class>
+                                        <Main-Class>mc.gouv.${tscode}.frontserver.App</Main-Class>
                                         <Class-Path>resources/</Class-Path>
                                     </manifestEntries>
                                 </transformer>
@@ -91,9 +91,9 @@
         </plugins>
     </build>
 
-  <scm>
-    <connection>scm:svn:http://linuxic/jsrc/super-pom-java7/tags/${artifactIdLower}-0.0.1/${artifactIdLower}-frontserver</connection>
-    <developerConnection>scm:svn:http://linuxic/jsrc/super-pom-java7/tags/${artifactIdLower}-0.0.1/${artifactIdLower}-frontserver</developerConnection>
-    <url>http://linuxic/jsrc/super-pom-java7/tags/${artifactIdLower}-0.0.1/${artifactIdLower}-frontserver</url>
-  </scm>
+    <scm>
+        <connection>scm:svn:http://linuxic/jsrc/super-pom-java7/tags/${tscode}-0.0.1/${tscode}-frontserver</connection>
+        <developerConnection>scm:svn:http://linuxic/jsrc/super-pom-java7/tags/${tscode}-0.0.1/${tscode}-frontserver</developerConnection>
+        <url>http://linuxic/jsrc/super-pom-java7/tags/${tscode}-0.0.1/${tscode}-frontserver</url>
+    </scm>
 </project>

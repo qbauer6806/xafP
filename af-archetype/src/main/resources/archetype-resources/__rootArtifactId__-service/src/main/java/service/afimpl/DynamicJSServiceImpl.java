@@ -1,17 +1,16 @@
 #set( $symbol_pound = '#' )
 #set( $symbol_dollar = '$' )
 #set( $symbol_escape = '\' )
-package mc.gouv.${artifactIdLower}.service.afimpl;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+package ${groupId}.service.afimpl;
 
 import mc.gouv.af.back.dto.StatutPublicOuInterneDTO;
 import mc.gouv.af.back.service.DemarchesDataProvider;
 import mc.gouv.af.back.service.DynamicJSService;
 import mc.gouv.dem.shared.model.DemandeCanalEnum;
-import mc.gouv.${artifactIdLower}.shared.dto.${artifactIdCamelCase}DemandeStatutEnum;
-import mc.gouv.${artifactIdLower}.shared.dto.${artifactIdCamelCase}StatutInterneEnum;
+import ${groupId}.shared.dto.${artifactIdCamelCase}DemandeStatutEnum;
+import ${groupId}.shared.dto.${artifactIdCamelCase}StatutInterneEnum;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 @Component
 public class DynamicJSServiceImpl implements DynamicJSService {
@@ -62,16 +61,6 @@ public class DynamicJSServiceImpl implements DynamicJSService {
                 if (first) {
                     js += "${symbol_escape}nif ";
                     first = false;
-                } else {
-                    js += "${symbol_escape}nelse if ";
-                }
-                js += "${symbol_escape}n(${symbol_escape}"" + status.name() + "${symbol_escape}" === statut) {${symbol_escape}n";
-                js += "return ${symbol_escape}"" + status.libelle + "${symbol_escape}";${symbol_escape}n";
-                js += "}${symbol_escape}n";
-            }
-            for (${artifactIdCamelCase}StatutInterneEnum status : ${artifactIdCamelCase}StatutInterneEnum.values()) {
-                if (first) {
-                    js += "${symbol_escape}nif ";
                 } else {
                     js += "${symbol_escape}nelse if ";
                 }

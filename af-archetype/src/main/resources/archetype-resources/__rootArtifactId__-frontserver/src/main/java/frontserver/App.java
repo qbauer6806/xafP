@@ -1,7 +1,7 @@
 #set( $symbol_pound = '#' )
 #set( $symbol_dollar = '$' )
 #set( $symbol_escape = '\' )
-package mc.gouv.${artifactIdLower}.frontserver;
+package ${groupId}.frontserver;
 
 import mc.gouv.Static;
 import mc.gouv.server.JettyLauncher;

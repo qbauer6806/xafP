@@ -1,26 +1,9 @@
 #set( $symbol_pound = '#' )
 #set( $symbol_dollar = '$' )
 #set( $symbol_escape = '\' )
-package mc.gouv.${artifactIdLower}.service.impl;
-
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.jms.JMSException;
-import javax.transaction.Transactional;
-
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+package ${groupId}.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-
 import mc.gouv.af.back.bpm.GouvBPM;
 import mc.gouv.af.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.af.back.bpm.activiti.exception.TaskAlreadyClaimedException;
@@ -31,39 +14,29 @@ import mc.gouv.af.back.mail.EmailInfoDTO;
 import mc.gouv.af.back.mail.MailService;
 import mc.gouv.af.back.properties.GouvPropertiesResolver;
 import mc.gouv.af.back.util.AfBackUtils;
-import mc.gouv.dem.service.AccessService;
-import mc.gouv.dem.service.DemandesComplementsService;
-import mc.gouv.dem.service.DemandesHistoriqueService;
-import mc.gouv.dem.service.DemandesService;
-import mc.gouv.dem.service.MotifsService;
-import mc.gouv.dem.service.UsagersCourrierService;
-import mc.gouv.dem.service.UsagersService;
+import mc.gouv.dem.service.*;
 import mc.gouv.dem.service.model.DemandeRechercheDTO;
-import mc.gouv.dem.shared.model.AccessDTO;
-import mc.gouv.dem.shared.model.AccessInputDTO;
-import mc.gouv.dem.shared.model.DemandeCanalEnum;
-import mc.gouv.dem.shared.model.DemandeComplementsDTO;
-import mc.gouv.dem.shared.model.DemandeComplementsReponseDTO;
-import mc.gouv.dem.shared.model.DemandeDTO;
-import mc.gouv.dem.shared.model.DemandeHistoriqueDTO;
-import mc.gouv.dem.shared.model.DemandeInputDTO;
-import mc.gouv.dem.shared.model.DemandeStatutDTO;
-import mc.gouv.dem.shared.model.MotifDTO;
-import mc.gouv.dem.shared.model.UsagerCourrierDTO;
+import mc.gouv.dem.shared.model.*;
+import ${groupId}.service.${artifactIdCamelCase}ApiService;
+import ${groupId}.service.HistoService;
+import ${groupId}.shared.dto.${artifactIdCamelCase}CodeMotifEnum;
+import ${groupId}.shared.dto.${artifactIdCamelCase}DemandeStatutEnum;
+import ${groupId}.shared.dto.${artifactIdCamelCase}TemplateEnum;
+import ${groupId}.shared.model.v1568884433537.ContenuProjectDemandeDTO;
+import ${groupId}.shared.util.${artifactIdCamelCase}Utils;
 import mc.gouv.logon.shared.User;
 import mc.gouv.servicerest.usager.model.UsagerBean;
-import mc.gouv.${artifactIdLower}.service.HistoService;
-import mc.gouv.${artifactIdLower}.service.${artifactIdCamelCase}ApiService;
-import mc.gouv.${artifactIdLower}.service.${artifactIdCamelCase}DataService;
-import mc.gouv.${artifactIdLower}.shared.dto.CalculAideDTO;
-import mc.gouv.${artifactIdLower}.shared.dto.${artifactIdCamelCase}CodeMotifEnum;
-import mc.gouv.${artifactIdLower}.shared.dto.${artifactIdCamelCase}DemandeStatutEnum;
-import mc.gouv.${artifactIdLower}.shared.dto.${artifactIdCamelCase}TemplateEnum;
-import mc.gouv.${artifactIdLower}.shared.dto.SuiviComptableDTO;
-import mc.gouv.${artifactIdLower}.shared.model.v1563199701514.ContenuProjectDemandeDTO;
-import mc.gouv.${artifactIdLower}.shared.util.${artifactIdCamelCase}Utils;
 import mc.gouv.xapi.error.exception.client.BadRequestWebException;
 import mc.gouv.xapi.error.exception.client.NotFoundWebException;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import javax.jms.JMSException;
+import javax.transaction.Transactional;
+import java.util.*;
 
 @Component
 public class ${artifactIdCamelCase}ApiServiceImpl implements ${artifactIdCamelCase}ApiService {
@@ -109,9 +82,6 @@ public class ${artifactIdCamelCase}ApiServiceImpl implements ${artifactIdCamelCa
     @Autowired
     private MotifsService motifsService;
 
-    @Autowired
-    private ${artifactIdCamelCase}DataService ${artifactIdLower}DataService;
-
     @Override
     @Transactional
     public void annulerDemande(Integer demandeId, Integer usagerId) {
@@ -127,7 +97,7 @@ public class ${artifactIdCamelCase}ApiServiceImpl implements ${artifactIdCamelCa
         variables.put(GouvBPMProcessVariableTypeEnum.MC_ANNULATION_ORIGINATOR_USAGER.name(), usagerId.toString());
         gouvBPM.setProcessBusinessVariables(demandeId, variables);
 
-        gouvBPM.annulerDemande(demandeId, null, usager, ${artifactIdCamelCase}CodeMotifEnum.ANNULATION_PAR_USAGER.name(), null,
+        gouvBPM.annulerDemande(demandeId, null, usager, ${artifactIdCamelCase}CodeMotifEnum.ANNULATION_PAR_ENTREPRISE.name(), null,
                 ${artifactIdCamelCase}DemandeStatutEnum.ANNULEE.name());
 
         DemandeHistoriqueDTO histo = histoService.statusChange(demandeId, ${artifactIdCamelCase}DemandeStatutEnum.ANNULEE.name(), null,
@@ -193,8 +163,6 @@ public class ${artifactIdCamelCase}ApiServiceImpl implements ${artifactIdCamelCa
                 }
             }
 
-            saveCalculAideData(demandeDto);
-            saveSuiviComptable(demandeDto.getPkDemandes());
             LOGGER.info("Création d'une instance de process dans le BPM pour cette demande ("
                     + demandeDto.getPkDemandes() + ")...");
             GouvBPMUser user = new GouvBPMUser();
@@ -327,12 +295,12 @@ public class ${artifactIdCamelCase}ApiServiceImpl implements ${artifactIdCamelCa
 
             ContenuProjectDemandeDTO contenu = ${artifactIdCamelCase}Utils.getContenuDemande(demande);
 
-            if (contenu == null || contenu.getUsager().getNom() == null) {
+            if (contenu == null || contenu.getDonnee().getDemandeur().getNom() == null) {
                 LOGGER.error("Contenu de la demande null, ou nom null");
                 return null;
             }
 
-            String contenuNomStagiaire = contenu.getUsager().getNom();
+            String contenuNomStagiaire = contenu.getDonnee().getDemandeur().getNom();
             LOGGER.info("Nom stagiaire : " + contenuNomStagiaire);
             if (StringUtils.equalsIgnoreCase(contenuNomStagiaire, stringToCheck)) {
 
@@ -403,7 +371,7 @@ public class ${artifactIdCamelCase}ApiServiceImpl implements ${artifactIdCamelCa
 
     @Override
     @Transactional
-    public void desinscriptionUsager(Integer usagerId) {
+    public void desinscriptionUsager(Integer usagerId, String langue) {
 
         LOGGER.info("Récupération de l'usager...");
         UsagerBean usager = usagersCache.get(usagerId);
@@ -413,9 +381,8 @@ public class ${artifactIdCamelCase}ApiServiceImpl implements ${artifactIdCamelCa
         List<DemandeDTO> demandes = demandesService.getDemandes(gouvPropertiesResolver.getDemarcheId(), usagerId);
 
         List<String> statutsFinaux = new ArrayList<String>();
-        statutsFinaux.add(${artifactIdCamelCase}DemandeStatutEnum.VALIDEE.name());
+        statutsFinaux.add(${artifactIdCamelCase}DemandeStatutEnum.ACCORDEE.name());
         statutsFinaux.add(${artifactIdCamelCase}DemandeStatutEnum.REFUSEE.name());
-        statutsFinaux.add(${artifactIdCamelCase}DemandeStatutEnum.VALIDEE_ET_PAYEE.name());
 
         List<Integer> demandesAPasserEnAnnulee = new ArrayList<Integer>();
         List<DemandeDTO> demandesAPasserEnAnnuleeDTO = new ArrayList<DemandeDTO>();
@@ -473,12 +440,11 @@ public class ${artifactIdCamelCase}ApiServiceImpl implements ${artifactIdCamelCa
             }
 
             gouvBPM.annulerDemande(demande.getPkDemandes(), null, user,
-                    ${artifactIdCamelCase}CodeMotifEnum.ANNULATION_PAR_USAGER.name(), null, ${artifactIdCamelCase}DemandeStatutEnum.ANNULEE.name());
+                    ${artifactIdCamelCase}CodeMotifEnum.ANNULATION_DESINSCRIPTION.name(), null, ${artifactIdCamelCase}DemandeStatutEnum.ANNULEE.name());
         }
 
         LOGGER.info("Appel à DEM afin d'effectuer la désinscription...");
-        usagersService.desinscriptionUsager(gouvPropertiesResolver.getDemarcheId(), usagerId,
-                statutsFinaux, ${artifactIdCamelCase}DemandeStatutEnum.ANNULEE.name(),
+        usagersService.desinscriptionUsager(gouvPropertiesResolver.getDemarcheId(), usagerId, statutsFinaux, ${artifactIdCamelCase}DemandeStatutEnum.ANNULEE.name(),
                 ${artifactIdCamelCase}CodeMotifEnum.ANNULATION_DESINSCRIPTION.name());
 
         LOGGER.info(
@@ -507,7 +473,7 @@ public class ${artifactIdCamelCase}ApiServiceImpl implements ${artifactIdCamelCa
         // emailInfo.addTo(afBackUtils.getDemarcheInfos().getEmailService(),
         // afBackUtils.getDemarcheInfos().getEmailServiceNom());
         emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, demandesImpacteesPk);
-        emailInfo.setLangue("fr");
+        emailInfo.setLangue(langue);
         Map<String, Object> model = new HashMap<String, Object>();
         model.put("usager", usager.getPrenom() + " " + usager.getNom());
         model.put("demandes", demandesImpacteesIdentifiants);
@@ -587,64 +553,6 @@ public class ${artifactIdCamelCase}ApiServiceImpl implements ${artifactIdCamelCa
     @Override
     public List<MotifDTO> getMotifs() {
         return motifsService.getMotifs(gouvPropertiesResolver.getDemarcheId());
-    }
-
-    private void saveCalculAideData(final DemandeDTO dto) throws JsonProcessingException {
-
-        ContenuProjectDemandeDTO demandeContenu = ${artifactIdCamelCase}Utils.getContenuDemande(dto);
-        CalculAideDTO calculAideDTO = new CalculAideDTO();
-
-        calculAideDTO
-                .setMontantSimule(${artifactIdCamelCase}Utils.convertStringToBigDecimal(demandeContenu.getSimulation().getMontant()));
-        calculAideDTO
-                .setPrixBasVehicule(${artifactIdCamelCase}Utils.convertStringToBigDecimal(demandeContenu.getDonnee().getPrixbase()));
-        calculAideDTO.setRemiseDeduire(
-                ${artifactIdCamelCase}Utils.convertStringToBigDecimal(demandeContenu.getDonnee().getSimulation().getRemises()));
-        calculAideDTO.setMontantBatterie(
-                ${artifactIdCamelCase}Utils.convertStringToBigDecimal(demandeContenu.getDonnee().getLocationbatterie()));
-        calculAideDTO.setTva(${artifactIdCamelCase}Utils.convertStringToBigDecimal(demandeContenu.getDonnee().getSimulationtva()));
-        calculAideDTO.setPrixTotalVehicule(
-                ${artifactIdCamelCase}Utils.convertStringToBigDecimal(demandeContenu.getDonnee().getSimulationprixtotalvehicule()));
-        calculAideDTO.setApplicationPourcentage(
-                ${artifactIdCamelCase}Utils.convertStringToBigDecimal(demandeContenu.getDonnee().getSimulationprixapplication30()));
-        calculAideDTO.setPrimeTaxi(
-                ${artifactIdCamelCase}Utils.convertStringToBigDecimal(demandeContenu.getDonnee().getSimulation().getPrimetaxi()));
-
-        calculAideDTO.setMontantSimulePlus20(!"EMI4".equals(${artifactIdCamelCase}Utils.getVehiculeEmission(demandeContenu))
-                ? ${artifactIdCamelCase}Utils.convertStringToBigDecimal(demandeContenu.getSimulation().getMontant())
-                : new BigDecimal("0.00"));
-
-        calculAideDTO.setMontantSimuleMoins20(${artifactIdCamelCase}Utils.getVehiculeEmission(demandeContenu).equals("EMI4")
-                ? ${artifactIdCamelCase}Utils.convertStringToBigDecimal(demandeContenu.getSimulation().getMontant())
-                : new BigDecimal("0.00"));
-
-        calculAideDTO
-                .setMontantSimule(${artifactIdCamelCase}Utils.convertStringToBigDecimal(demandeContenu.getSimulation().getMontant()));
-
-        calculAideDTO.setPrimeForfaitaire(getPrimeforfaitaire(demandeContenu));
-
-        ${artifactIdLower}DataService.saveCalculAideDTO(calculAideDTO, dto.getPkDemandes());
-    }
-
-    private void saveSuiviComptable(Integer demandeID) {
-        SuiviComptableDTO suiviComptableDTO = new SuiviComptableDTO();
-        ${artifactIdLower}DataService.saveSuiviComptableDTO(suiviComptableDTO, demandeID);
-    }
-
-    private BigDecimal getPrimeforfaitaire(ContenuProjectDemandeDTO demandeDto) {
-        BigDecimal prime = new BigDecimal("0.00");
-
-        if (${artifactIdCamelCase}Utils.getVehiculeEmission(demandeDto) != "EMI4") {
-            if (!StringUtils.isBlank(demandeDto.getDonnee().getSimulation().getPrimetaxi())) {
-                prime = ${artifactIdCamelCase}Utils.convertStringToBigDecimal(demandeDto.getSimulation().getMontant())
-                        .subtract(${artifactIdCamelCase}Utils
-                                .convertStringToBigDecimal(demandeDto.getDonnee().getSimulation().getPrimetaxi()));
-            } else {
-                prime = ${artifactIdCamelCase}Utils.convertStringToBigDecimal(demandeDto.getSimulation().getMontant());
-            }
-
-        }
-        return prime;
     }
 
 }

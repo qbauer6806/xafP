@@ -1,14 +1,14 @@
 {
-  "name": "abandonParcours",
   "componentInstances": [
     {
-	    "name": "mcCharteTshiPageAbandon",
+      "name": "mcCharteTshiPageAbandon",
       "parameterValue": {
-        "valueType": "json",
         "valueJson": {
           "messageIdHtml": "ts.pageAbandonParcours.introHtml"
-        }
+        },
+        "valueType": "json"
       }
     }
-  ]
+  ],
+  "name": "abandonParcours"
 }

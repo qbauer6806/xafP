@@ -50,7 +50,7 @@ public interface DemandeRecapHTMLService {
 	 * @throws NoSuchMethodException
 	 * @throws SecurityException
 	 */
-	String getHTMLDemandeContenuRecap(DemandeDTO demande)
+	String getHTMLDemandeContenuRecap(DemandeDTO demande, boolean isPdfRecap)
 			throws IOException, ParseException, ClassNotFoundException, IllegalAccessException,
 			IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException;
 

@@ -1,7 +1,7 @@
 #set( $symbol_pound = '#' )
 #set( $symbol_dollar = '$' )
 #set( $symbol_escape = '\' )
-package mc.gouv.${artifactIdLower}.shared.dto;
+package ${groupId}.shared.dto;
 
 /**
  * Identifie les code motifs utilisés dans l'application en "dur" pour des raisons métier
@@ -10,7 +10,7 @@ package mc.gouv.${artifactIdLower}.shared.dto;
  */
 public enum ${artifactIdCamelCase}CodeMotifEnum {
 
-    ANNULATION_PAR_USAGER,
+    ANNULATION_PAR_ENTREPRISE,
     ANNULATION_DESINSCRIPTION
 
 }

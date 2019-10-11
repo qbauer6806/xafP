@@ -1,8 +1,10 @@
 #set( $symbol_pound = '#' )
 #set( $symbol_dollar = '$' )
 #set( $symbol_escape = '\' )
-package mc.gouv.${artifactIdLower}.backserver;
+package ${groupId}.backserver;
 
+import mc.gouv.Static;
+import mc.gouv.xboot.config.web.FilterConfig;
 import org.activiti.spring.boot.SecurityAutoConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -11,16 +13,13 @@ import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-import mc.gouv.Static;
-import mc.gouv.xboot.config.web.FilterConfig;
-
 /**
  * 
- * @author qdeme
+ * @author mpavone
  *
  */
 @SpringBootApplication(exclude = { MongoAutoConfiguration.class, SecurityAutoConfiguration.class })
-@ComponentScan(basePackages = { "mc.gouv.${artifactIdLower}", "mc.gouv.af.back", "mc.gouv.af.backweb", "mc.gouv.dem" })
+@ComponentScan(basePackages = { "${groupId}", "mc.gouv.af.back", "mc.gouv.af.backweb", "mc.gouv.dem" })
 @EnableJpaRepositories(basePackages = { "mc.gouv.dem.data", "mc.gouv.af.data" })
 @EntityScan(basePackages = { "mc.gouv.dem.data", "mc.gouv.af.data" })
 public class ${artifactIdCamelCase}BackApp {

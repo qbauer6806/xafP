@@ -129,7 +129,7 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
 					: "Aucune demande d'informations complémentaires.";
 
 			LOGGER.info("Génération du code HTML de la récap...");
-			String htmlRecap = demandeRecapHTMLService.getHTMLDemandeContenuRecap(demande);
+			String htmlRecap = demandeRecapHTMLService.getHTMLDemandeContenuRecap(demande, true);
 
 			LOGGER.info("Création d'un fichier temporaire pour stocker le HTML...");
 			htmlSource = File.createTempFile("tmpRecapHtml", ".html");

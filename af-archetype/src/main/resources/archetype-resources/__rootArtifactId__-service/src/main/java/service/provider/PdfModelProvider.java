@@ -1,7 +1,7 @@
 #set( $symbol_pound = '#' )
 #set( $symbol_dollar = '$' )
 #set( $symbol_escape = '\' )
-package mc.gouv.${artifactIdLower}.service.provider;
+package ${groupId}.service.provider;
 
 import mc.gouv.dem.shared.model.DemandeDTO;
 

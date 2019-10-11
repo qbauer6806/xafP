@@ -1,0 +1,19 @@
+{
+  "description": "mise à jour demande réussie",
+  "errorCode": 0,
+  "name": "demandeOk",
+  "overrided": true,
+  "return": {
+    "contenu": {
+      "Accepted": true
+    },
+    "dateCreation": "2015-09-29T14:23:50.464Z",
+    "dateDerModif": "2016-09-29T14:24:36.411Z",
+    "demarcheId": "embauchage",
+    "pkDemandes": 15,
+    "usagerId": 3701
+  },
+  "tags": [
+    "ok"
+  ]
+}

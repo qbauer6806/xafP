@@ -1,8 +1,8 @@
 {
-  "name": "demande_edit",
   "componentInstances": [
-  {
-    "name": "mcCharteTshiPageDemandeEdit"
-  }
-  ]
+    {
+      "name": "mcCharteTshiPageDemandeEdit"
+    }
+  ],
+  "name": "demande_edit"
 }

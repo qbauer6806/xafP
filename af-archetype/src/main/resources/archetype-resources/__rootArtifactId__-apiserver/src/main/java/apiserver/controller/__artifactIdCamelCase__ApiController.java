@@ -1,13 +1,14 @@
 #set( $symbol_pound = '#' )
 #set( $symbol_dollar = '$' )
 #set( $symbol_escape = '\' )
-package mc.gouv.${artifactIdLower}.apiserver.controller;
+package ${groupId}.apiserver.controller;
 
-import java.util.List;
-
-import javax.jms.JMSException;
-import javax.servlet.http.HttpServletResponse;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import mc.gouv.af.apiserver.AbstractAfApiController;
+import mc.gouv.dem.service.exception.DemarchesServiceException;
+import mc.gouv.dem.shared.model.*;
+import ${groupId}.service.${artifactIdCamelCase}ApiService;
+import mc.gouv.xapi.error.dto.ErrorsDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,27 +17,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
-import mc.gouv.af.apiserver.AbstractAfApiController;
-import mc.gouv.dem.service.exception.DemarchesServiceException;
-import mc.gouv.dem.shared.model.AccessDTO;
-import mc.gouv.dem.shared.model.AccessInputDTO;
-import mc.gouv.dem.shared.model.DemandeComplementsDTO;
-import mc.gouv.dem.shared.model.DemandeComplementsReponseDTO;
-import mc.gouv.dem.shared.model.DemandeDTO;
-import mc.gouv.dem.shared.model.DemandeInputDTO;
-import mc.gouv.dem.shared.model.MotifDTO;
-import mc.gouv.dem.shared.model.UsagerCourrierDTO;
-import mc.gouv.${artifactIdLower}.service.${artifactIdCamelCase}ApiService;
-import mc.gouv.xapi.error.dto.ErrorsDTO;
+import javax.jms.JMSException;
+import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 /**
  * 
  * Web Services de ${artifactIdUpper}
  * 
- * @author qdeme
- * @author fgaujous
+ * @author mpavone
  *
  */
 @RestController
@@ -61,7 +50,7 @@ public class ${artifactIdCamelCase}ApiController extends AbstractAfApiController
 
     @Override
     public DemandeComplementsDTO repondreDemandeComplements(Integer demandeId, Integer icId,
-            DemandeComplementsReponseDTO reponse) throws Exception {
+                                                            DemandeComplementsReponseDTO reponse) throws Exception {
         return ${artifactIdLower}ApiService.repondreDemandeComplements(demandeId, icId, reponse);
     }
 
@@ -91,8 +80,8 @@ public class ${artifactIdCamelCase}ApiController extends AbstractAfApiController
     }
 
     @Override
-    public void desinscriptionUsager(Integer usagerId) {
-        ${artifactIdLower}ApiService.desinscriptionUsager(usagerId);
+    public void desinscriptionUsager(Integer usagerId, String langue) {
+        ${artifactIdLower}ApiService.desinscriptionUsager(usagerId, langue);
     }
 
     @Override
@@ -119,7 +108,7 @@ public class ${artifactIdCamelCase}ApiController extends AbstractAfApiController
      * Permet de traiter une exception
      * 
      * @param dse
-     *            L'exception DemarchesServiceException
+     *            L'exception DemarchesServiceExceptionStatistiquesModelProviderImplTest
      * @param resp
      *            Permet de définir nous-même le HttpStatus de la réponse
      * @return Le JSON décrivant l'erreur pour le client

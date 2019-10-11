@@ -1,30 +1,29 @@
 #set( $symbol_pound = '#' )
 #set( $symbol_dollar = '$' )
 #set( $symbol_escape = '\' )
-package mc.gouv.${artifactIdLower}.service.impl;
+package ${groupId}.service.impl;
 
+import mc.gouv.af.back.dto.StatutPublicOuInterneDTO;
+import mc.gouv.af.back.util.AfBackUtils;
+import mc.gouv.dem.shared.model.DemandeDTO;
+import mc.gouv.dem.shared.model.DemandeHistoriqueDTO;
+import ${groupId}.service.HistoService;
+import ${groupId}.shared.dto.${artifactIdCamelCase}DemandeHistoriqueContenuDTO;
+import ${groupId}.shared.dto.${artifactIdCamelCase}DemandeStatutEnum;
+import ${groupId}.shared.dto.${artifactIdCamelCase}HistoCustomContextParamEnum;
+import ${groupId}.shared.dto.${artifactIdCamelCase}StatutInterneEnum;
+import ${groupId}.shared.util.${artifactIdCamelCase}Utils;
+import mc.gouv.logon.apiclient.RestException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import mc.gouv.af.back.dto.StatutPublicOuInterneDTO;
-import mc.gouv.af.back.util.AfBackUtils;
-import mc.gouv.dem.shared.model.DemandeDTO;
-import mc.gouv.dem.shared.model.DemandeHistoriqueDTO;
-import mc.gouv.logon.apiclient.RestException;
-import mc.gouv.${artifactIdLower}.service.HistoService;
-import mc.gouv.${artifactIdLower}.shared.dto.${artifactIdCamelCase}DemandeHistoriqueContenuDTO;
-import mc.gouv.${artifactIdLower}.shared.dto.${artifactIdCamelCase}DemandeStatutEnum;
-import mc.gouv.${artifactIdLower}.shared.dto.${artifactIdCamelCase}HistoCustomContextParamEnum;
-import mc.gouv.${artifactIdLower}.shared.dto.${artifactIdCamelCase}StatutInterneEnum;
-import mc.gouv.${artifactIdLower}.shared.util.${artifactIdCamelCase}Utils;
-
 /**
  * Implémentation ${artifactIdCamelCase} du service d'ajout d'historique.
  * 
- * @author qdeme
+ * @author mpavone
  *
  */
 @Component
@@ -73,74 +72,62 @@ public class HistoServiceImpl implements HistoService {
                 && customContextParamEnum.equals(${artifactIdCamelCase}HistoCustomContextParamEnum.VALIDATION_ACCEPTATION)) {
             spoi.setName(targetStateEnum.name());
             spoi.setLibelle(targetStateEnum.libelle);
-             if (targetStateEnum.equals(${artifactIdCamelCase}DemandeStatutEnum.VALIDEE)) {
-                html = "<span class='histo-valideur'>Valideur " + agentName
-                        + "</span><span class='histo-separator'></span>Choisit de <span class='histo-action'>valider la demande</span>";
+            if (targetStateEnum.equals(${artifactIdCamelCase}DemandeStatutEnum.ACCORDEE)) {
+                html = "<span class='histo-valideur'>Valideur " + agentName + "</span><span class='histo-separator'></span>Choisit de <span class='histo-action'>valider la demande</span>";
                 texte = "Valideur " + agentName + " : Choisit de valider la demande";
             } else if (targetStateEnum.equals(${artifactIdCamelCase}DemandeStatutEnum.REFUSEE)) {
-                html = "<span class='histo-valideur'>Valideur " + agentName
-                        + "</span><span class='histo-separator'></span>Choisit le <span class='histo-action'>refus</span>";
+                html = "<span class='histo-valideur'>Valideur " + agentName + "</span><span class='histo-separator'></span>Choisit le <span class='histo-action'>refus</span>";
                 texte = "Valideur " + agentName + " : Choisit le refus";
             } else if (targetStateEnum.equals(${artifactIdCamelCase}DemandeStatutEnum.EN_ATTENTE_COMPL)) {
-                html = "<span class='histo-valideur'>Valideur " + agentName
-                        + "</span><span class='histo-separator'></span>Choisit la <span class='histo-action'>demande d'informations complémentaires</span>";
+                html = "<span class='histo-valideur'>Valideur " + agentName + "</span><span class='histo-separator'></span>Choisit la <span class='histo-action'>demande d'informations complémentaires</span>";
                 texte = "Valideur " + agentName + " : Choisit la demande d'informations complémentaires";
             }
         } else if (customContextParamEnum != null
                 && customContextParamEnum.equals(${artifactIdCamelCase}HistoCustomContextParamEnum.VALIDATION_REFUS)) {
             spoi.setName(${artifactIdCamelCase}DemandeStatutEnum.EN_COURS_TRAIT.name());
             spoi.setLibelle(${artifactIdCamelCase}DemandeStatutEnum.EN_COURS_TRAIT.libelle);
-            if (targetStateEnum.equals(${artifactIdCamelCase}DemandeStatutEnum.VALIDEE)) {
-                html = "<span class='histo-valideur'>Valideur " + agentName
-                        + "</span><span class='histo-separator'></span>Refuse la <span class='histo-action'>validation</span>";
+            if (targetStateEnum.equals(${artifactIdCamelCase}DemandeStatutEnum.ACCORDEE)) {
+                html = "<span class='histo-valideur'>Valideur " + agentName + "</span><span class='histo-separator'></span>Refuse la <span class='histo-action'>validation</span>";
                 texte = "Valideur " + agentName + " : Refuse la validation";
             } else if (targetStateEnum.equals(${artifactIdCamelCase}DemandeStatutEnum.REFUSEE)) {
-                html = "<span class='histo-valideur'>Valideur " + agentName
-                        + "</span><span class='histo-separator'></span>Refuse le <span class='histo-action'>refus</span>";
+                html = "<span class='histo-valideur'>Valideur " + agentName + "</span><span class='histo-separator'></span>Refuse le <span class='histo-action'>refus</span>";
                 texte = "Valideur " + agentName + " : Refuse le refus";
             } else if (targetStateEnum.equals(${artifactIdCamelCase}DemandeStatutEnum.EN_ATTENTE_COMPL)) {
-                html = "<span class='histo-valideur'>Valideur " + agentName
-                        + "</span><span class='histo-separator'></span>Refuse la <span class='histo-action'>demande d'informations complémentaires</span>";
+                html = "<span class='histo-valideur'>Valideur " + agentName + "</span><span class='histo-separator'></span>Refuse la <span class='histo-action'>demande d'informations complémentaires</span>";
                 texte = "Valideur " + agentName + " : Refuse la demande d'informations complémentaires";
             }
         } else {
-            if (targetStateEnum.equals(${artifactIdCamelCase}DemandeStatutEnum.VALIDEE)) {
-                spoi.setName(${artifactIdCamelCase}DemandeStatutEnum.VALIDEE.name());
-                spoi.setLibelle(${artifactIdCamelCase}DemandeStatutEnum.VALIDEE.libelle);
-                html = "<span class='histo-user'>Utilisateur " + agentName
-                        + "</span><span class='histo-separator'></span><span class='histo-action'>valide</span> la demande";
+            if (targetStateEnum.equals(${artifactIdCamelCase}DemandeStatutEnum.ACCORDEE)) {
+                spoi.setName(${artifactIdCamelCase}DemandeStatutEnum.ACCORDEE.name());
+                spoi.setLibelle(${artifactIdCamelCase}DemandeStatutEnum.ACCORDEE.libelle);
+                html = "<span class='histo-user'>Utilisateur " + agentName + "</span><span class='histo-separator'></span><span class='histo-action'>valide</span> la demande";
                 texte = "Utilisateur " + agentName + " : valide la demande";
             } else if (targetStateEnum.equals(${artifactIdCamelCase}DemandeStatutEnum.REFUSEE)) {
                 spoi.setName(${artifactIdCamelCase}DemandeStatutEnum.REFUSEE.name());
                 spoi.setLibelle(${artifactIdCamelCase}DemandeStatutEnum.REFUSEE.libelle);
-                html = "<span class='histo-user'>Utilisateur " + agentName
-                        + "</span><span class='histo-separator'></span><span class='histo-action'>refuse</span> la demande";
+                html = "<span class='histo-user'>Utilisateur " + agentName + "</span><span class='histo-separator'></span><span class='histo-action'>refuse</span> la demande";
                 texte = "Utilisateur " + agentName + " : refuse la demande";
             } else if (targetStateEnum.equals(${artifactIdCamelCase}DemandeStatutEnum.EN_COURS_TRAIT)) {
                 spoi.setName(${artifactIdCamelCase}DemandeStatutEnum.EN_COURS_TRAIT.name());
                 spoi.setLibelle(${artifactIdCamelCase}DemandeStatutEnum.EN_COURS_TRAIT.libelle);
-                html = "<span class='histo-user'>Utilisateur " + agentName
-                        + "</span><span class='histo-separator'></span>Prise en charge de la demande";
+                html = "<span class='histo-user'>Utilisateur " + agentName + "</span><span class='histo-separator'></span>Prise en charge de la demande";
                 texte = "Utilisateur " + agentName + " : Prise en charge de la demande";
             } else if (targetStateEnum.equals(${artifactIdCamelCase}DemandeStatutEnum.ANNULEE)) {
                 spoi.setName(${artifactIdCamelCase}DemandeStatutEnum.ANNULEE.name());
                 spoi.setLibelle(${artifactIdCamelCase}DemandeStatutEnum.ANNULEE.libelle);
                 if (!StringUtils.isBlank(agentId)) {
-                    html = "<span class='histo-user'>Utilisateur " + agentName
-                            + "</span><span class='histo-separator'></span>Annule la demande";
+                    html = "<span class='histo-user'>Utilisateur " + agentName + "</span><span class='histo-separator'></span>Annule la demande";
                     texte = "Utilisateur " + agentName + " : Annule la demande";
                 } else {
-                    html = "<span class='histo-user'>Usager " + usagerName
-                            + "</span><span class='histo-separator'></span>Annule la demande";
+                    html = "<span class='histo-user'>Usager " + usagerName + "</span><span class='histo-separator'></span>Annule la demande";
                     texte = "Usager " + usagerName + " : Annule la demande";
                 }
-	        } else if (targetStateEnum.equals(${artifactIdCamelCase}DemandeStatutEnum.EN_ATTENTE_COMPL)) {
-	            spoi.setName(${artifactIdCamelCase}DemandeStatutEnum.EN_ATTENTE_COMPL.name());
-	            spoi.setLibelle(${artifactIdCamelCase}DemandeStatutEnum.EN_ATTENTE_COMPL.libelle);
-                html = "<span class='histo-user'>Utilisateur " + agentName
-                        + "</span><span class='histo-separator'></span>Demande des informations complémentaires";
+            } else if (targetStateEnum.equals(${artifactIdCamelCase}DemandeStatutEnum.EN_ATTENTE_COMPL)) {
+                spoi.setName(${artifactIdCamelCase}DemandeStatutEnum.EN_ATTENTE_COMPL.name());
+                spoi.setLibelle(${artifactIdCamelCase}DemandeStatutEnum.EN_ATTENTE_COMPL.libelle);
+                html = "<span class='histo-user'>Utilisateur " + agentName + "</span><span class='histo-separator'></span>Demande des informations complémentaires";
                 texte = "Utilisateur " + agentName + " : Demande des informations complémentaires";
-	        }
+            }
         }
 
         ${artifactIdCamelCase}DemandeHistoriqueContenuDTO contenu = new ${artifactIdCamelCase}DemandeHistoriqueContenuDTO();
@@ -298,40 +285,6 @@ public class HistoServiceImpl implements HistoService {
         DemandeHistoriqueDTO demandeHistorique = ${artifactIdCamelCase}Utils.histo${artifactIdCamelCase}2Dem(contenu, usagerId, agentId);
         return demandeHistorique;
     }
-
-    @Override
-    public DemandeHistoriqueDTO traiter(Integer demandeId, String targetState, String agentId) {
-
-        LOGGER.info("HistoServiceImpl.traiter(" + demandeId + "," + targetState + "," + agentId);
-
-        String agentName = null;
-        try {
-            agentName = afBackUtils.getUserNameFromID(agentId);
-        } catch (RestException e) {
-            LOGGER.error("Impossible de récupérer le nom de l'agentId = " + agentId, e);
-        }
-
-        StatutPublicOuInterneDTO spoi = new StatutPublicOuInterneDTO();
-        spoi.setName(${artifactIdCamelCase}StatutInterneEnum.validationComptableTask.name());
-        spoi.setLibelle(${artifactIdCamelCase}StatutInterneEnum.validationComptableTask.libelle);
-
-        String html = "<span class='histo-user'>Utilisateur " + agentName
-                + "</span><span class='histo-separator'></span>Demande de validation comptable en cours";
-
-        String texte = "Utilisateur " + agentName + " : Demande de validation comptable en cours";
-
-        ${artifactIdCamelCase}DemandeHistoriqueContenuDTO contenu = new ${artifactIdCamelCase}DemandeHistoriqueContenuDTO();
-        contenu.setStatutPublicOuInterne(spoi);
-        contenu.setHtml(html);
-        contenu.setTexte(texte);
-        try {
-            contenu.setUtilisateurNom(afBackUtils.getUserNameFromID(agentId));
-        } catch (RestException e) {
-            LOGGER.error("Erreur", e);
-        }
-        DemandeHistoriqueDTO demandeHistorique = ${artifactIdCamelCase}Utils.histo${artifactIdCamelCase}2Dem(contenu, null, agentId);
-        return demandeHistorique;
-    }
     
     @Override
     public DemandeHistoriqueDTO desinscriptionUsager(DemandeDTO demande, Integer usagerId, boolean avecAnnulation) {
@@ -387,90 +340,6 @@ public class HistoServiceImpl implements HistoService {
     }
 
 	@Override
-	public DemandeHistoriqueDTO traiterComptable(Integer demandeId, String targetState, String agentId) {
-        LOGGER.info("HistoServiceImpl.traiterComptable(" + demandeId + "," + targetState + "," + agentId);
-
-        String agentName = null;
-        try {
-            agentName = afBackUtils.getUserNameFromID(agentId);
-        } catch (RestException e) {
-            LOGGER.error("Impossible de récupérer le nom de l'agentId = " + agentId, e);
-        }
-
-        ${artifactIdCamelCase}DemandeStatutEnum targetStateEnum = ${artifactIdCamelCase}DemandeStatutEnum.valueOf(targetState);
-        StatutPublicOuInterneDTO spoi = new StatutPublicOuInterneDTO();
-        spoi.setName(targetStateEnum.name());
-        spoi.setLibelle(targetStateEnum.libelle);
-
-        String html = "";
-        String texte = "";
-        if (${artifactIdCamelCase}DemandeStatutEnum.VALIDEE.name().equals(targetState)) {
-            html = "<span class='histo-user'>Utilisateur " + agentName
-                    + "</span><span class='histo-separator'></span>Validation comptable effectuée";
-            texte = "Utilisateur " + agentName + " : Validation comptable effectuée";
-        }
-        else if (${artifactIdCamelCase}DemandeStatutEnum.REFUSEE.name().equals(targetState)) {
-	        html = "<span class='histo-user'>Utilisateur " + agentName
-	                + "</span><span class='histo-separator'></span>Validation comptable refusée";
-	        texte = "Utilisateur " + agentName + " : Validation comptable refusée";
-        }
-
-        ${artifactIdCamelCase}DemandeHistoriqueContenuDTO contenu = new ${artifactIdCamelCase}DemandeHistoriqueContenuDTO();
-        contenu.setStatutPublicOuInterne(spoi);
-        contenu.setHtml(html);
-        contenu.setTexte(texte);
-        try {
-            contenu.setUtilisateurNom(afBackUtils.getUserNameFromID(agentId));
-        } catch (RestException e) {
-            LOGGER.error("Erreur", e);
-        }
-        DemandeHistoriqueDTO demandeHistorique = ${artifactIdCamelCase}Utils.histo${artifactIdCamelCase}2Dem(contenu, null, agentId);
-        return demandeHistorique;
-	}
-	
-	@Override
-	public DemandeHistoriqueDTO traiterCGD(Integer demandeId, String targetState, String agentId) {
-        LOGGER.info("HistoServiceImpl.traiterCGD(" + demandeId + "," + targetState + "," + agentId);
-
-        String agentName = null;
-        try {
-            agentName = afBackUtils.getUserNameFromID(agentId);
-        } catch (RestException e) {
-            LOGGER.error("Impossible de récupérer le nom de l'agentId = " + agentId, e);
-        }
-
-        ${artifactIdCamelCase}DemandeStatutEnum targetStateEnum = ${artifactIdCamelCase}DemandeStatutEnum.valueOf(targetState);
-        StatutPublicOuInterneDTO spoi = new StatutPublicOuInterneDTO();
-        spoi.setName(targetStateEnum.name());
-        spoi.setLibelle(targetStateEnum.libelle);
-
-        String html = "";
-        String texte = "";
-        if (${artifactIdCamelCase}DemandeStatutEnum.VALIDEE_EN_ATTENTE_PAIEMENT.name().equals(targetState)) {
-            html = "<span class='histo-user'>Utilisateur " + agentName
-                    + "</span><span class='histo-separator'></span>Validation CGD effectuée";
-            texte = "Utilisateur " + agentName + " : Validation CGD effectuée";
-        }
-        else if (${artifactIdCamelCase}DemandeStatutEnum.REFUSEE.name().equals(targetState)) {
-	        html = "<span class='histo-user'>Utilisateur " + agentName
-	                + "</span><span class='histo-separator'></span>Validation CGD refusée";
-	        texte = "Utilisateur " + agentName + " : Validation CGD refusée";
-        }
-
-        ${artifactIdCamelCase}DemandeHistoriqueContenuDTO contenu = new ${artifactIdCamelCase}DemandeHistoriqueContenuDTO();
-        contenu.setStatutPublicOuInterne(spoi);
-        contenu.setHtml(html);
-        contenu.setTexte(texte);
-        try {
-            contenu.setUtilisateurNom(afBackUtils.getUserNameFromID(agentId));
-        } catch (RestException e) {
-            LOGGER.error("Erreur", e);
-        }
-        DemandeHistoriqueDTO demandeHistorique = ${artifactIdCamelCase}Utils.histo${artifactIdCamelCase}2Dem(contenu, null, agentId);
-        return demandeHistorique;
-	}
-
-	@Override
 	public DemandeHistoriqueDTO traiterFinal(Integer demandeId, String targetState, String agentId) {
         LOGGER.info("HistoServiceImpl.traiterFinal(" + demandeId + "," + targetState + "," + agentId);
 
@@ -487,8 +356,8 @@ public class HistoServiceImpl implements HistoService {
         spoi.setLibelle(targetStateEnum.libelle);
 
         String html = "<span class='histo-user'>Utilisateur " + agentName
-                    + "</span><span class='histo-separator'></span>Déclare la demande validée et payée";
-        String texte = "Utilisateur " + agentName + " : Déclare la demande validée et payée";
+                    + "</span><span class='histo-separator'></span>Déclare la demande accordée et payée";
+        String texte = "Utilisateur " + agentName + " : Déclare la demande accordée et payée";
 
         ${artifactIdCamelCase}DemandeHistoriqueContenuDTO contenu = new ${artifactIdCamelCase}DemandeHistoriqueContenuDTO();
         contenu.setStatutPublicOuInterne(spoi);
@@ -503,4 +372,42 @@ public class HistoServiceImpl implements HistoService {
         return demandeHistorique;
 	}
 
+    @Override
+    public DemandeHistoriqueDTO traiter(Integer demandeId, String targetState, String agentId) {
+
+        LOGGER.info("HistoServiceImpl.traiter({}, {}, {})", demandeId, targetState, agentId);
+
+        String agentName = null;
+        try {
+            agentName = afBackUtils.getUserNameFromID(agentId);
+        } catch (RestException e) {
+            LOGGER.error("Impossible de récupérer le nom de l'agentId = " + agentId, e);
+        }
+
+        StatutPublicOuInterneDTO spoi = new StatutPublicOuInterneDTO();
+        spoi.setName(${artifactIdCamelCase}StatutInterneEnum.validationHierarchiqueTask.name());
+        spoi.setLibelle(${artifactIdCamelCase}StatutInterneEnum.validationHierarchiqueTask.libelle);
+
+        StringBuilder htmlBuilder = new StringBuilder();
+        htmlBuilder.append("<span class='histo-user'>Utilisateur ");
+        htmlBuilder.append(agentName);
+        htmlBuilder.append("</span><span class='histo-separator'></span>Demande de validation hiérarchique en cours");
+
+        StringBuilder texteBuilder = new StringBuilder();
+        texteBuilder.append("Utilisateur ");
+        texteBuilder.append(agentName);
+        texteBuilder.append(" : Demande de validation hiérarchique en cours");
+
+        ${artifactIdCamelCase}DemandeHistoriqueContenuDTO contenu = new ${artifactIdCamelCase}DemandeHistoriqueContenuDTO();
+        contenu.setStatutPublicOuInterne(spoi);
+        contenu.setHtml(htmlBuilder.toString());
+        contenu.setTexte(texteBuilder.toString());
+        try {
+            contenu.setUtilisateurNom(afBackUtils.getUserNameFromID(agentId));
+        } catch (RestException e) {
+            LOGGER.error("Erreur", e);
+        }
+        DemandeHistoriqueDTO demandeHistorique = ${artifactIdCamelCase}Utils.histo${artifactIdCamelCase}2Dem(contenu, null, agentId);
+        return demandeHistorique;
+    }
 }

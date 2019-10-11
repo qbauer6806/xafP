@@ -1,7 +1,7 @@
 #set( $symbol_pound = '#' )
 #set( $symbol_dollar = '$' )
 #set( $symbol_escape = '\' )
-package mc.gouv.${artifactIdLower}.shared.dto;
+package ${groupId}.shared.dto;
 
 
 public enum ${artifactIdCamelCase}HistoCustomContextParamEnum {

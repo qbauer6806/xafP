@@ -1,21 +1,7 @@
 #set( $symbol_pound = '#' )
 #set( $symbol_dollar = '$' )
 #set( $symbol_escape = '\' )
-package mc.gouv.${artifactIdLower}.service.afimpl;
-
-import java.util.AbstractMap.SimpleEntry;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
+package ${groupId}.service.afimpl;
 
 import mc.gouv.af.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.af.back.cache.MotifsCache;
@@ -25,17 +11,29 @@ import mc.gouv.af.back.properties.GouvPropertiesResolver;
 import mc.gouv.af.back.util.AfBackUtils;
 import mc.gouv.dem.shared.model.DemandeDTO;
 import mc.gouv.dem.shared.model.MotifDTO;
+import ${groupId}.shared.dto.${artifactIdCamelCase}DemandeStatutEnum;
+import ${groupId}.shared.dto.${artifactIdCamelCase}TemplateEnum;
+import ${groupId}.shared.exception.${artifactIdCamelCase}Exception;
+import ${groupId}.shared.model.v1568884433537.ContenuProjectDemandeDTO;
+import ${groupId}.shared.util.${artifactIdCamelCase}Utils;
 import mc.gouv.logon.apiclient.RestException;
 import mc.gouv.servicerest.usager.model.UsagerBean;
-import mc.gouv.${artifactIdLower}.shared.dto.${artifactIdCamelCase}DemandeStatutEnum;
-import mc.gouv.${artifactIdLower}.shared.dto.${artifactIdCamelCase}TemplateEnum;
-import mc.gouv.${artifactIdLower}.shared.exception.${artifactIdCamelCase}Exception;
-import mc.gouv.${artifactIdLower}.shared.model.v1563199701514.ContenuProjectDemandeDTO;
-import mc.gouv.${artifactIdLower}.shared.util.${artifactIdCamelCase}Utils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.AbstractMap.SimpleEntry;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * 
- * @author qdeme
+ * @author mpavone
  *
  */
 @Component
@@ -64,12 +62,6 @@ public class MailTemplateModelProviderImpl implements MailTemplateModelProvider 
 
         LOGGER.info("Récupération de l'usager...");
         UsagerBean usager = usagersCache.get(demande.getUsagerId());
-        if (usager == null) {
-        	usager = new UsagerBean();
-        	usager.setNom(demande.getUsagerNom());
-        	usager.setPrenom(demande.getUsagerPrenom());
-        	usager.setEmail(demande.getUsagerEmail());
-        }
 
         LOGGER.info("Construction du modèle pour le template (demandeId=" + demande.getPkDemandes() + ") ...");
 
@@ -80,7 +72,7 @@ public class MailTemplateModelProviderImpl implements MailTemplateModelProvider 
         model.put("identifiant", demande.getIdentifiant());
 
         if (!StringUtils.isBlank(codeMotif) && !"null".equals(codeMotif)) {
-            MotifDTO motif = motifsCache.getMotif(codeMotif, demande.getLangue());
+            MotifDTO motif = motifsCache.getMotif(codeMotif, "fr");
             if (motif == null) {
                 throw new ${artifactIdCamelCase}Exception(
                         "Impossible de trouver le motif pour le code : " + codeMotif + " et la langue : " + demande.getLangue());
@@ -90,11 +82,12 @@ public class MailTemplateModelProviderImpl implements MailTemplateModelProvider 
         if (!StringUtils.isBlank(commentaire)) {
             model.put("commentaire", commentaire);
         }
-        
-        String titre = messageSource.getMessage("civilite." + contenuDemande.getUsager().getTitre().originalName, null, new Locale(demande.getLangue()));
-        model.put("titre", titre);
-        model.put("prenom", contenuDemande.getUsager().getPrenom());
-        model.put("nom", contenuDemande.getUsager().getNom());
+
+        // TODO retrieve civilité
+        //String titre = messageSource.getMessage("civilite." + "m", null, new Locale(demande.getLangue()));
+        model.put("titre", "titre");
+        model.put("prenom", contenuDemande.getDonnee().getDemandeur().getPrenom());
+        model.put("nom", contenuDemande.getDonnee().getDemandeur().getNom());
         model.put("urlBack", gouvPropertiesResolver.getBackUrl());
         model.put("urlFront", gouvPropertiesResolver.getFrontUrl());
         model.put("usager", usager.getPrenom() + " " + usager.getNom());
@@ -122,12 +115,9 @@ public class MailTemplateModelProviderImpl implements MailTemplateModelProvider 
         String bodyTemplateCode = null;
         String subjectTemplateCode = null;
         
-        if (action.equals(${artifactIdCamelCase}DemandeStatutEnum.VALIDEE_EN_ATTENTE_PAIEMENT.name())) {
-            bodyTemplateCode = ${artifactIdCamelCase}TemplateEnum.MAIL_ACTION_VALIDEE_EN_ATTENTE_PAIEMENT_CORPS.name();
-            subjectTemplateCode = ${artifactIdCamelCase}TemplateEnum.MAIL_ACTION_VALIDEE_EN_ATTENTE_PAIEMENT_OBJET.name();
-        } else if (action.equals(${artifactIdCamelCase}DemandeStatutEnum.VALIDEE_ET_PAYEE.name())) {
-            bodyTemplateCode = ${artifactIdCamelCase}TemplateEnum.MAIL_ACTION_VALIDEE_ET_PAYEE_CORPS.name();
-            subjectTemplateCode = ${artifactIdCamelCase}TemplateEnum.MAIL_ACTION_VALIDEE_ET_PAYEE_OBJET.name();
+        if (action.equals(${artifactIdCamelCase}DemandeStatutEnum.ACCORDEE.name())) {
+            bodyTemplateCode = ${artifactIdCamelCase}TemplateEnum.MAIL_ACTION_ACCORDEE_CORPS.name();
+            subjectTemplateCode = ${artifactIdCamelCase}TemplateEnum.MAIL_ACTION_ACCORDEE_OBJET.name();
         } else if (action.equals(${artifactIdCamelCase}DemandeStatutEnum.REFUSEE.name())) {
             bodyTemplateCode = ${artifactIdCamelCase}TemplateEnum.MAIL_ACTION_REFUSER_CORPS.name();
             subjectTemplateCode = ${artifactIdCamelCase}TemplateEnum.MAIL_ACTION_REFUSER_OBJET.name();

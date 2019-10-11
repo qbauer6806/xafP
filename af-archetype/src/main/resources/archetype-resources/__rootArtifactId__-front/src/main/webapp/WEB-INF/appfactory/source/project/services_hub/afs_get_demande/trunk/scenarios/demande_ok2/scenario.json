@@ -5,27 +5,36 @@
   "errorCode": 0,
   "return": {
     "pkDemandes": 16,
-    "identifiant" : "GEN20160505det6",
+    "identifiant": "GEN20160505det6",
     "demarcheId": "GEN",
     "usagerId": 3701,
     "dateCreation": "2016-09-29T14:23:50.464Z",
     "dateDerModif": "2016-09-29T14:24:36.411Z",
-    "contenu": {
-    },
+    "contenu": {},
     "fichiers": [
-    {
-      "name": "toto.pdf",
-      "url": "/f0ec502d-2ec9-6182-db63-276f34d71485/toto.pdf"
-    }
-    ],
-      "dernierStatut": {
-        "pkStatut": 9,
-        "libelle": "EN_COURS_TRAIT",
-        "date": "2016-05-20T08:05:04.662+01:00",
-        "agentId": null,
-        "usagerId": 3071
+      {
+        "name": "toto.pdf",
+        "url": "/f0ec502d-2ec9-6182-db63-276f34d71485/toto.pdf"
       },
-      "statuts": [
+      {
+        "name": "recap.pdf",
+        "url": "/f0ec502d-2ec9-6182-db63-276f34d71485/recap.pdf",
+        "meta": "BACK_FRONT_Y"
+      },
+      {
+        "name": "recap2.pdf",
+        "url": "/f0ec502d-2ec9-6182-db63-276f34d71485/recap2.pdf",
+        "meta": "BACK_FRONT_X"
+      }
+    ],
+    "dernierStatut": {
+      "pkStatut": 9,
+      "libelle": "EN_COURS_TRAIT",
+      "date": "2016-05-20T08:05:04.662+01:00",
+      "agentId": null,
+      "usagerId": 3071
+    },
+    "statuts": [
       {
         "pkStatut": 8,
         "libelle": "EN_ATTENTE_TRAIT",
@@ -41,7 +50,7 @@
         "usagerId": 3071
       }
     ],
-      "complements": [
+    "complements": [
       {
         "pkDemandeComplements": 13,
         "demandeId": 16,
@@ -56,14 +65,14 @@
           "texte": "Mon mari est né le 5/07/1962 et il est de nationalité latvérienne",
           "date": "2016-05-17T13:20:37.535+01:00",
           "fichiers": [
-          {
-            "name": "livret.doc",
-            "url": "/aba9b78b-a43f-11e5-a7a3-08002700c066/livret.doc"
-          },
-          {
-            "name": "livret2.doc",
-            "url": "/adc9b78b-a43f-11e5-a7a3-08002700c066/livret2.doc"
-          }
+            {
+              "name": "livret.doc",
+              "url": "/aba9b78b-a43f-11e5-a7a3-08002700c066/livret.doc"
+            },
+            {
+              "name": "livret2.doc",
+              "url": "/adc9b78b-a43f-11e5-a7a3-08002700c066/livret2.doc"
+            }
           ]
         }
       },

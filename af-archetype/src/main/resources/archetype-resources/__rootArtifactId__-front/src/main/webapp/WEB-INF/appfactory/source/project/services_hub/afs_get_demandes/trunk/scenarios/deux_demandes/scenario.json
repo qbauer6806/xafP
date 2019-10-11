@@ -1,197 +1,100 @@
 {
-  "description": "récupération de deux demandes",
-  "errorCode": 0,
   "name": "deuxDemandes",
+  "description": "récupération de deux demandes",
+  "tags": ["ok"],
+  "errorCode": 0,
   "return": {
     "liste": [
       {
-        "complements": [
-          {
-            "demandeId": 15,
-            "pkDemandeComplements": 13,
-            "question": {
-              "agentId": null,
-              "codeMotif": "ELEMENT_MANQUANT",
-              "date": "2016-05-17T13:02:37.535+01:00",
-              "texte": "Motif de test"
-            },
-            "reponse": null,
-            "statut": "EN_ATTENTE"
-          }
-        ],
-        "contenu": {
-        },
+        "pkDemandes": 15,
+        "demarcheId": "GEN",
+        "identifiant": "HAB20160505de40",
+        "usagerId": 3701,
         "dateCreation": "2015-09-29T14:23:50.464Z",
         "dateDerModif": "2015-09-29T14:24:36.411Z",
-        "demarcheId": "GEN",
-        "dernierStatut": {
-          "agentId": null,
-          "date": "2016-05-17T08:05:04.662+01:00",
-          "libelle": "EN_ATTENTE_COMPL",
-          "pkStatut": 8,
-          "usagerId": 3071
-        },
+        "contenu": {},
         "fichiers": [
           {
-            "meta": "meta2",
             "name": "lettremotivation.doc",
-            "url": "/ada9b78b-a43f-11e5-a7a3-08002700c066/lettremotivation.doc"
+            "url": "/ada9b78b-a43f-11e5-a7a3-08002700c066/lettremotivation.doc",
+            "meta": "meta2"
           },
           {
-            "meta": "meta1",
             "name": "CV.pdf",
-            "url": "/ece7a75e-e5f9-11e5-a7a3-08002700c066/CV.pdf"
+            "url": "/ece7a75e-e5f9-11e5-a7a3-08002700c066/CV.pdf",
+            "meta": "meta1"
           }
         ],
-        "identifiant": "HAB20160505de40",
-        "pkDemandes": 0,
-        "statuts": [
-          {
-            "agentId": null,
-            "date": "2016-05-16T08:05:04.662+01:00",
-            "libelle": "EN_ATTENTE_TRAIT",
-            "pkStatut": 7,
-            "usagerId": 3071
-          },
-          {
-            "agentId": null,
-            "date": "2016-05-17T08:05:04.662+01:00",
-            "libelle": "EN_ATTENTE_COMPL",
-            "pkStatut": 8,
-            "usagerId": 3071
-          }
-        ],
-        "usagerId": 3701
-      },
-      {
-        "complements": null,
-        "contenu": {
-        },
-        "dateCreation": "2016-09-29T14:23:50.464Z",
-        "dateDerModif": "2016-09-29T14:24:36.411Z",
-        "demarcheId": "GEN",
         "dernierStatut": {
-          "agentId": null,
+          "pkStatut": 8,
+          "libelle": "EN_ATTENTE_COMPL",
           "date": "2016-05-17T08:05:04.662+01:00",
-          "libelle": "EN_ATTENTE_TRAIT",
-          "pkStatut": 9,
+          "agentId": null,
           "usagerId": 3071
         },
+        "statuts": [
+          {
+            "pkStatut": 7,
+            "libelle": "EN_ATTENTE_TRAIT",
+            "date": "2016-05-16T08:05:04.662+01:00",
+            "agentId": null,
+            "usagerId": 3071
+          },
+          {
+            "pkStatut": 8,
+            "libelle": "EN_ATTENTE_COMPL",
+            "date": "2016-05-17T08:05:04.662+01:00",
+            "agentId": null,
+            "usagerId": 3071
+          }
+        ],
+        "complements": [
+          {
+            "pkDemandeComplements": 13,
+            "demandeId": 15,
+            "statut": "EN_ATTENTE",
+            "question": {
+              "codeMotif": "ELEMENT_MANQUANT",
+              "texte": "Motif de test",
+              "date": "2016-05-17T13:02:37.535+01:00",
+              "agentId": null
+            },
+            "reponse": null
+          }
+        ]
+      },
+      {
+        "pkDemandes": 16,
+        "demarcheId": "GEN",
+        "identifiant": "HAB20160505de41",
+        "usagerId": 3701,
+        "dateCreation": "2016-09-29T14:23:50.464Z",
+        "dateDerModif": "2016-09-29T14:24:36.411Z",
+        "contenu": {},
         "fichiers": [
           {
             "name": "toto.pdf",
             "url": "/f0ec502d-2ec9-6182-db63-276f34d71485/toto.pdf"
           }
         ],
-        "identifiant": "HAB20160505de41",
-        "pkDemandes": 1,
+        "dernierStatut": {
+          "pkStatut": 9,
+          "libelle": "EN_ATTENTE_TRAIT",
+          "date": "2016-05-17T08:05:04.662+01:00",
+          "agentId": null,
+          "usagerId": 3071
+        },
         "statuts": [
           {
-            "agentId": null,
-            "date": "2016-05-17T08:05:04.662+01:00",
-            "libelle": "EN_ATTENTE_TRAIT",
             "pkStatut": 9,
+            "libelle": "EN_ATTENTE_TRAIT",
+            "date": "2016-05-17T08:05:04.662+01:00",
+            "agentId": null,
             "usagerId": 3071
           }
         ],
-        "usagerId": 3701
-      },
-      {
-        "contenu": {
-          "declaration": {
-          },
-          "donnee": {
-            "bancaire": {
-            },
-            "simulation": {
-            },
-            "usager": {
-            },
-            "vehicule": {
-            }
-          },
-          "simulation": {
-          },
-          "usager": {
-            "adresse": {
-            }
-          },
-          "vehicule": {
-          }
-        },
-        "dateCreation": "2019-05-04T00:00:00+02:00",
-        "dateDerModif": "2019-05-05T00:00:00+02:00",
-        "demarcheId": "GEN",
-        "dernierStatut": {
-          "agentId": "1",
-          "date": "2019-05-06T00:00:00+02:00",
-          "libelle": "EN_COURS_TRAIT",
-          "pkStatut": 1,
-          "usagerId": "1"
-        },
-        "identifiant": "SUBVECO-20190512",
-        "pkDemandes": 2,
-        "statuts": [
-          {
-            "agentId": "1",
-            "date": "2019-06-04T00:00:00+02:00",
-            "libelle": "EN_COURS_TRAIT",
-            "pkStatut": 1,
-            "usagerId": "1"
-          }
-        ],
-        "usagerId": "1"
-      },
-      {
-        "contenu": {
-          "declaration": {
-          },
-          "donnee": {
-            "bancaire": {
-            },
-            "simulation": {
-            },
-            "usager": {
-            },
-            "vehicule": {
-            }
-          },
-          "simulation": {
-          },
-          "usager": {
-            "adresse": {
-            }
-          },
-          "vehicule": {
-          }
-        },
-        "dateCreation": "1979-01-01T00:00:00Z",
-        "dateDerModif": "1979-01-01T00:00:00Z",
-        "demarcheId": "GEN",
-        "dernierStatut": {
-          "agentId": "1",
-          "date": "1979-01-01T00:00:00Z",
-          "libelle": "VALIDEE_EN_ATTENTE_PAIEMENT",
-          "pkStatut": 1,
-          "usagerId": "1"
-        },
-        "identifiant": "SUBVECO_25052019",
-        "pkDemandes": 3,
-        "statuts": [
-          {
-            "agentId": "1",
-            "date": "1979-01-01T00:00:00Z",
-            "libelle": "EN_COURS_TRAIT",
-            "pkStatut": 1,
-            "usagerId": "1"
-          }
-        ],
-        "usagerId": "1"
+        "complements": null
       }
     ]
-  },
-  "tags": [
-    "ok",
-    "dataplus"
-  ]
+  }
 }

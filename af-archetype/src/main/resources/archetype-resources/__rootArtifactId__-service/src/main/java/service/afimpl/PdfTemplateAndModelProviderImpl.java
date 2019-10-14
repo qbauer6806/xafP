@@ -48,6 +48,9 @@ public class PdfTemplateAndModelProviderImpl implements PdfTemplateAndModelProvi
     @Autowired
     private UtilisateursCache utilisateursCache;
 
+    @Autowired
+    private UtilisateursUtils utilisateursUtils;
+
     @Override
     public PdfTemplateAndModelDTO getTemplateAndModel(DemandeDTO demande, PdfTypeEnum pdfType) {
         return getCommonModelForPreviewOrFinalFile(demande, demande.getDernierStatut().getLibelle(),
@@ -105,11 +108,12 @@ public class PdfTemplateAndModelProviderImpl implements PdfTemplateAndModelProvi
     private PdfTemplateAndModelDTO getTemplateAndModelGeneric(DemandeDTO demande, String codeMotif, String langue, String commentaire) {
 
         ContenuProjectDemandeDTO contenuDemande = ${artifactIdCamelCase}Utils.getContenuDemande(demande);
+        User agent = utilisateursCache.get(demande.getAgentAffecteId());
 
         Map<String, Object> model = new HashMap<>();
         model.put("dateCourante", FRENCH_DATE_FORMAT.format(new Date()));
         model.put("identifiant", demande.getIdentifiant());
-        model.put("nomAgent", utilisateursCache.get(demande.getAgentAffecteId()).getNom());
+        model.put("nomAgent", utilisateursUtils.getUserFullNameFromUser(agent));
         model.put("refCourrier", demande.getCourrierRefInterne());
         model.put("raisonSociale", contenuDemande.getDonnee().getEntreprise().getRaisonsociale());
         model.put("prenom", contenuDemande.getDonnee().getDemandeur().getPrenom());

@@ -332,7 +332,7 @@
             <div class="row ">
                 <div class="col-xs-12 text-right">
                     <a href="" class="annuler-preview btn btn-action ripple-effect">Annuler</a>
-                    <a href="" class="valider-preview btn btn-action ripple-effect">Valider</a>
+                    <bouton class="valider-preview btn btn-action ripple-effect">Valider</bouton>
                 </div>
             </div>
         </div>
@@ -350,7 +350,7 @@
             <div class="row ">
                 <div class="col-xs-12 text-right">
                     <a href="" class="annuler-preview btn btn-action ripple-effect">Annuler</a>
-                    <a href="" class="valider-preview btn btn-action ripple-effect">Valider</a>
+                    <bouton class="valider-preview btn btn-action ripple-effect">Valider</bouton>
                 </div>
             </div>
         </div>
@@ -406,13 +406,15 @@
         var len = val ? val.length : 0;
         if (len > maxlength) {
             ${symbol_dollar}(formGroupId).addClass('error');
-            ${symbol_dollar}(commentaireId).tooltip("enable");
             ${symbol_dollar}(button).prop('disabled', true);
-        } else {
+			${symbol_dollar}(commentaireId).tooltip("enable");
+			${symbol_dollar}(commentaireId).tooltip("show");
+		} else {
             ${symbol_dollar}(formGroupId).removeClass('error');
-            ${symbol_dollar}(commentaireId).tooltip("disable");
             ${symbol_dollar}(button).prop('disabled', false);
-        }
+			${symbol_dollar}(commentaireId).tooltip("disable");
+			${symbol_dollar}(commentaireId).tooltip("hide");
+		}
     }
     ${symbol_dollar}("${symbol_pound}commentaireUsager").tooltip({ disabled: true });
 
@@ -456,6 +458,7 @@
         // Au départ, ACCORDEE est sélectionné, griser le code motif et le commentaire
         ${symbol_dollar}("${symbol_pound}codeMotifChoisi").prop('disabled',true);
         ${symbol_dollar}("${symbol_pound}commentaireUsager").prop('disabled',true);
+        ${symbol_dollar}("${symbol_pound}commentaireUsager").tooltip("hide");
 
         // Prevent double form submission
         // not(${symbol_pound}discussion-demande) car c'est la seule requête sans rechargement de la page
@@ -711,7 +714,8 @@
 
         // Lorsque l'on clique sur le bouton Valider
         ${symbol_dollar}("${symbol_pound}valider-button").click(function(e){
-            e.preventDefault();
+			${symbol_dollar}("${symbol_pound}valider-button").prop('disabled', true);
+			e.preventDefault();
             traiterFunction();
             return false;
         });
@@ -726,13 +730,6 @@
         function traiterFunction() {
             var statutChoisi = ${symbol_dollar}('input[name=statutChoisi]:checked').val();
             console.log("statutPublicOuInterne: " + ${symbol_dollar}("input[name='statutPublicOuInterne']").val());
-
-            // TODO On ne montre pas la génération de mail pour la partie validée ???
-            if (statutChoisi == 'VALIDEE') {
-                ${symbol_dollar}("${symbol_pound}confirmer-button").click();
-                ${symbol_dollar}("${symbol_pound}traiter-button").prop('disabled', false);
-                return false;
-            }
 
             // Aucun statut choisi
             if(${symbol_dollar}("${symbol_pound}NoRadio").length == 0 && !statutChoisi){
@@ -776,6 +773,7 @@
 				} else {
 					PDFJS.getDocument(APP.getContextPath() + '/ws/pdf/apercu?pkDemande=' + pkDemande + '&statut=' + statutChoisi + '&commentaire=' + commentaire + '&codeMotif=' + motifChoisiCode + '&pdfType=FICHIER').then(function (pdf) {
 						pdf.getPage(1).then(function (page) {
+							${symbol_dollar}(".valider-preview").prop('disabled', false);
 							var scale = 2;
 							var viewport = page.getViewport(scale);
 
@@ -808,7 +806,7 @@
 							});
 
 							${symbol_dollar}(".valider-preview").click(function (e) {
-
+								${symbol_dollar}(".valider-preview").prop('disabled', true);
 								e.preventDefault();
 								${symbol_dollar}.fancybox.close();
 								mailPreview(statutChoisi, motifChoisiCode, motifChoisiText, commentaire, pkDemande);
@@ -827,6 +825,7 @@
 				} else {
 					PDFJS.getDocument(APP.getContextPath() + '/ws/pdf/apercu?pkDemande=' + pkDemande + '&statut=' + statutChoisi + '&commentaire=' + commentaire + '&codeMotif=' + motifChoisiCode + '&pdfType=FICHIER').then(function (pdf) {
 						pdf.getPage(1).then(function (page) {
+							${symbol_dollar}(".valider-preview").prop('disabled', false);
 							var scale = 2;
 							var viewport = page.getViewport(scale);
 
@@ -859,7 +858,7 @@
 							});
 
 							${symbol_dollar}(".valider-preview").click(function (e) {
-
+								${symbol_dollar}(".valider-preview").prop('disabled', true);
 								e.preventDefault();
 								${symbol_dollar}.fancybox.close();
 								courrierPreview(statutChoisi, motifChoisiCode, motifChoisiText, commentaire, pkDemande);
@@ -878,7 +877,8 @@
     var courrierPreview = function (statutChoisi, motifChoisiCode, motifChoisiText, commentaire) {
         PDFJS.getDocument(APP.getContextPath() + '/ws/pdf/apercu?pkDemande=' + pkDemande + '&statut=' + statutChoisi + '&commentaire=' + commentaire + '&codeMotif=' + motifChoisiCode).then(function (pdf) {
             pdf.getPage(1).then(function (page) {
-                var scale = 2;
+				${symbol_dollar}(".valider-preview").prop('disabled', false);
+				var scale = 2;
                 var viewport = page.getViewport(scale);
 
                 var canvas = document.getElementById('pdf-canvas-second');
@@ -910,7 +910,7 @@
                 });
 
                 ${symbol_dollar}(".valider-preview").click(function (e) {
-
+					${symbol_dollar}(".valider-preview").prop('disabled', true);
                     e.preventDefault();
                     ${symbol_dollar}.fancybox.close();
                     ${symbol_dollar}("${symbol_pound}confirmer-button").click();
@@ -924,7 +924,7 @@
     }
 
     var mailPreview = function (statutChoisi, motifChoisiCode, motifChoisiText, commentaire, pkDemande) {
-
+		${symbol_dollar}(".valider-preview").prop('disabled', false);
         var token = ${symbol_dollar}("meta[name='_csrf']").attr("content");
         var header = ${symbol_dollar}("meta[name='_csrf_header']").attr("content");
 
@@ -945,7 +945,7 @@
                 xhr.setRequestHeader(header, token);
             },
             success: function (data) {
-
+				${symbol_dollar}(".valider-preview").prop('disabled', false);
                 ${symbol_dollar}("${symbol_pound}preview-content-second").html(data);
 
                 ${symbol_dollar}.fancybox.open(${symbol_dollar}("${symbol_pound}preview-container-second"),
@@ -968,7 +968,8 @@
                 });
 
                 ${symbol_dollar}(".valider-preview").click(function (e) {
-                    e.preventDefault();
+					${symbol_dollar}(".valider-preview").prop('disabled', true);
+					e.preventDefault();
                     ${symbol_dollar}.fancybox.close();
                     ${symbol_dollar}("${symbol_pound}confirmer-button").click();
                     return false;
@@ -981,6 +982,7 @@
 
 	onClosePreview = () => {
 		${symbol_dollar}("${symbol_pound}traiter-button").prop('disabled', false);
+		${symbol_dollar}("${symbol_pound}valider-button").prop('disabled', false);
 	};
 
     getFloat =(s)=>{

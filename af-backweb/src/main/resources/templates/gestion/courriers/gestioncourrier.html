@@ -320,8 +320,7 @@
 
             var textEncoded = encodeURIComponent(text);
             var url = APP.getContextPath()+"/ws/demandes/pageable?texte="+textEncoded+"&canal=COURRIER&searchFields=fichierinterne.fichiers.name&searchFields=identifiant" +
-                "&searchFields=courrierDateReception&searchFields=dernierStatut.libelle&searchFields=fichierinterne.fichiers.content&statut=EN_ATTENTE_TRAIT&statut=EN_COURS_TRAIT" +
-                "&statut=EN_ATTENTE_COMPL&statut=validationHierarchiqueTask&statut=ANNULEE&statut=REFUSEE&statut=ACCORDEE";
+                "&searchFields=courrierDateReception&searchFields=dernierStatut.libelle&searchFields=fichierinterne.fichiers.content";
             $.ajax({
                 url : url,
                 method : "GET",

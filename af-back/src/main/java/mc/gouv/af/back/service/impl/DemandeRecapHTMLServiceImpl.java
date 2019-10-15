@@ -172,37 +172,55 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 		JSONArray jsonArray = (JSONArray) jsonParser.parse(new InputStreamReader(inputStream, "UTF-8"));
 
 		LOGGER.info("Construction du recap HTML...");
-		String html = "";
+		StringBuilder html = new StringBuilder();
 
 		for (int k = 0; k < jsonArray.size(); k++) {
 			if ("projectDemandeRecap".equals(((JSONObject) jsonArray.get(k)).get("name"))) {
 				JSONArray sections = (JSONArray) ((JSONObject) jsonArray.get(k)).get("sections");
 				for (int i = 0; i < sections.size(); i++) {
 					JSONObject section = (JSONObject) sections.get(i);
-
-					html += "<div class=\"sectiondemande\"><h3>" + section.get("titre") + "</h3><dl>";
-
 					String sectionType = (String) section.get("type");
 
-					html = getFirstLevelHTML(html, demande, sectionType, section, isPdfRecap);
-
-					if (sectionType.equals("adresse")) {
-						html += "<dd><span>Adresse</span></dd>";
-					} else if (sectionType.equals("sousSections")) {
-						JSONArray sousSections = (JSONArray) section.get("sousSections");
-						for (Object sousSection : sousSections.toArray()) {
-							String sousSectionType = (String) ((JSONObject) sousSection).get("type");
-							String introHtml = (String) ((JSONObject) sousSection).get("introHtml");
-							html += (introHtml != null)? introHtml : "";
-							html = getFirstLevelHTML(html, demande, sousSectionType, (JSONObject) sousSection, isPdfRecap);
-						}
+					if (!sectionType.equals("sousSections")) {
+						html.append(generateSectionHTML(section, sectionType, demande, isPdfRecap));
+					} else {
+						html.append(generateSectionAndSousSection(section, sectionType, demande, isPdfRecap));
 					}
-
-					html += "</dl></div>";
 				}
 			}
 		}
 
+		return html.toString();
+	}
+
+	private String generateSectionHTML(JSONObject section, String sectionType, DemandeDTO demande, boolean isPdfRecap)
+			throws ClassNotFoundException, IllegalAccessException, IllegalArgumentException, InvocationTargetException,
+			NoSuchMethodException, SecurityException {
+		String html = "<div class=\"sectiondemande\"><h3>" + section.get("titre") + "</h3><dl>";
+		html = getFirstLevelHTML(html, demande, sectionType, section, isPdfRecap);
+
+		if (sectionType.equals("adresse")) {
+			html += "<dd><span>Adresse</span></dd>";
+		}
+		html += "</dl></div>";
+		return html;
+	}
+
+	private String generateSectionAndSousSection(JSONObject section, String sectionType , DemandeDTO demande, boolean isPdfRecap)
+			throws ClassNotFoundException, IllegalAccessException, IllegalArgumentException, InvocationTargetException,
+			NoSuchMethodException, SecurityException {
+		String html = "";
+		JSONArray sousSections = (JSONArray) section.get("sousSections");
+		if (sousSections.toArray().length > 0) {
+			html += "<div class=\"sectiondemande\"><h3>" + section.get("titre") + "</h3><dl>";
+			html = getFirstLevelHTML(html, demande, sectionType, section, isPdfRecap);
+			for (Object sousSection : sousSections.toArray()) {
+				String sousSectionType = (String) ((JSONObject) sousSection).get("type");
+				String introHtml = (String) ((JSONObject) sousSection).get("introHtml");
+				html += (introHtml != null)? introHtml : "";
+				html = getFirstLevelHTML(html, demande, sousSectionType, (JSONObject) sousSection, isPdfRecap);
+			}
+		}
 		return html;
 	}
 

@@ -139,9 +139,4 @@
 		</dependency>
 	</dependencies>
 
-    <scm>
-		<developerConnection>${svn.connection}/${project.artifactId}/branches/v6.0.2-Refs15178</developerConnection>
-		<connection>${svn.connection}/${project.artifactId}/branches/v6.0.2-Refs15178</connection>
-		<url>${svn.url}/${project.artifactId}/branches/v6.0.2-Refs15178</url>
-    </scm>
 </project>

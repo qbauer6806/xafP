@@ -45,7 +45,7 @@ import mc.gouv.logon.apiclient.RestException;
 /**
  * Service permettant de générer une page HTML contenant le récapitulatif d'une
  * demande.
- * 
+ *
  * @author qdeme
  * @author mboutelier.ext
  *
@@ -186,6 +186,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 					} else {
 						html.append(generateSectionAndSousSection(section, sectionType, demande, isPdfRecap));
 					}
+					html.append("</dl></div>");
 				}
 			}
 		}
@@ -202,7 +203,6 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 		if (sectionType.equals("adresse")) {
 			html += "<dd><span>Adresse</span></dd>";
 		}
-		html += "</dl></div>";
 		return html;
 	}
 

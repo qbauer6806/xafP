@@ -46,7 +46,6 @@ td> :first-child, td> :first-child>h3 {
 }
 
 dl {
-	width: 100%;
 	overflow: hidden;
 	padding: 0;
 	margin: 0;

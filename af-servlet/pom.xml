@@ -139,9 +139,4 @@
 		</dependency>
 	</dependencies>
 
-    <scm>
-        <developerConnection>${svn.connection}/${project.artifactId}/trunk</developerConnection>
-        <connection>${svn.connection}/${project.artifactId}/trunk</connection>
-        <url>${svn.url}/${project.artifactId}/trunk</url>
-    </scm>
 </project>

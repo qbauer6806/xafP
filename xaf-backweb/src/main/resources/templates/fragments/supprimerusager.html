@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<body>
+	<div id="supprimerusager" th:fragment="supprimerusager">
+		<div id="supprimer-box" style="display: none">
+			<div id="supprimer-content">
+				<div class="container-fluid">
+					<div class="row">
+						<div class="col-xs-12">
+							<span style="color: rgb(94, 97, 100); font-size: 16pt">Suppression
+								d'un usager</span><br /> <br /> <span class="suppressionOk"
+								style="color: rgb(94, 97, 100);">Vous êtes sur le point
+								de supprimer l'usager :</span> <span class="demandesAffectees"
+								style="color: rgb(94, 97, 100);">Des demandes sont
+								affectées à l'usager :</span> <br /> <span id="nomPrenomRaisonSociale"
+								style="font-weight: bold;" /><br /> <span id="adresse"
+								style="font-weight: bold;" /><br /> <span id="codePostal"
+								style="font-weight: bold;" />&nbsp;<span id="ville"
+								style="font-weight: bold;" /><br /> <span
+								class="demandesAffectees" style="color: rgb(94, 97, 100);">Voulez-vous
+								réaffecter ces demandes à un autre usager ?</span>
+						</div>
+					</div>
+					<div class="row ">
+						<div class="col-xs-12 text-center demandesAffectees margin-top">
+							<a href="#"
+								class="btn btn-action-second ripple-effect transferer-annuler">Annuler</a>
+							<a class="btn btn-action ripple-effect margin-left"
+								id="lienpopuptransfert" href="#">Valider</a>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-xs-12 text-center  suppressionOk margin-top">
+							<form id="form-supprimer" action="#"
+								th:action="@{/gestion/usagers/supprimer}" method="post">
+								<div>
+									<input type="hidden" class="usagerId" name="usagerId" />
+								</div>
+								<a href="#"
+									class="btn btn-action-second ripple-effect supprimer-annuler">Annuler</a>
+								<button class="btn btn-action ripple-effect margin-left"
+									id="supprimer-button" type="button" name="action"
+									value="Valider">Valider</button>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

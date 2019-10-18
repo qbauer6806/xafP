@@ -1,0 +1,328 @@
+/* Override top bar */
+#header .headerTitle img {
+	width: 204px;
+	float: left;
+}
+
+#header .headerSubtitle {
+	float: left;
+}
+
+
+/* Override footer */
+#footer {
+	padding-left: 15;
+}
+
+/* Override padding col boostrap */
+.nopadding {
+	padding: 0 !important;
+	margin: 0 !important;
+}
+
+.margin-left {
+	margin-left: 15px;
+}
+
+.margin-top {
+	margin-top: 10px;
+}
+
+.mt-15{
+	margin-top: 15px;
+}
+
+
+
+
+/* Radio Button (source de RHEIGEL) */
+
+
+.radiobuttons{
+    display:table;  
+}
+
+.radiobuttons li{
+    list-style-type:none;
+    margin:0px;
+    padding-right:10px;
+    border-radius:15px;
+    background:none;
+    display:table-cell;
+    vertical-align:top;
+}
+
+.radiobuttons label{
+  border:4px solid #0F607C;
+  padding:4px;
+  margin:0px;
+  border-radius:15px;
+  background:none;
+  color:#0F607C;
+  font-size:1.2em;
+  font-weight:bold;
+  font-variant:small-caps;
+
+}
+
+.radiobuttons label span{
+    margin:0px;
+    padding:0px;
+    display:table-cell;
+    vertical-align:middle;
+    line-height:1.5em;
+}
+.radiobuttons label .ico:before{
+    font-family: 'icomoon-ts';
+    content: "\e910";
+    font-size:1.5em;
+    margin-right:5px;
+}
+
+.radiobuttons li.disabled label{
+  border:4px solid #676767;
+  color:#676767;    
+}
+
+
+
+/**
+
+Gestion du Tous : Aucun
+*/
+
+
+#tousModeTr,#aucunModeTr,#tousEtat,#aucunEtat {
+    color : rgb(21, 98, 124);
+}
+
+
+#aucunModeTr {
+    color : rgb(21, 98, 124);
+}
+
+
+#commentairesInternes .row {
+	margin-right: 0px;
+    margin-left: 0px;
+}
+
+.statusbox {
+	border-radius: 15px;
+	vertical-align: middle;
+	font-weight: bold;
+	text-transform: uppercase;
+	display: inline-block;
+
+    font-size: 1.3rem;
+    line-height: 1;
+    white-space: nowrap;
+    cursor: default;
+}
+
+.histo-user {
+	font-weight: bold;
+}
+
+.disabled input[data-toggle]:checked + label,
+.disabled input[data-toggle]:checked + label:active {
+  border:4px solid #676767;
+  background-color:#676767; 
+  color:#E7F4F8;
+}
+
+.disabled label[data-toggle]{
+    color:#676767;
+}
+
+
+input[data-toggle]{
+    display:none;   
+}
+
+input[data-toggle]:checked + label .ico:before{
+    font-family: 'icomoon-ts';
+    content: "\e90e";
+}
+
+input[data-toggle]:checked + label,
+input[data-toggle]:checked + label:active {
+  margin:0px;
+  border:4px solid #0F607C;
+  padding:4px;
+  border-radius:15px;
+  background-color:#0F607C; 
+  color:#E7F4F8;
+}
+
+label[data-toggle]{
+    border:1px solid #ff0000;
+    font-weight:bold;
+    padding-left:10px;
+    font-size:16px;
+    font-variant:small-caps;
+    color:#0F607C;
+    margin-left:30px;
+    display:block;
+}
+
+.histo-valideur {
+	font-weight: bold;
+}
+
+.histo-usager {
+	font-weight: bold;
+}
+
+.histo-action {
+	font-weight: bold;
+}
+
+.histo-separator:after {
+	content: " : ";
+}
+
+.autocomplete-suggestions { -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box; border: 1px solid #999; background: #FFF; cursor: default; overflow: auto; -webkit-box-shadow: 1px 4px 3px rgba(50, 50, 50, 0.64); -moz-box-shadow: 1px 4px 3px rgba(50, 50, 50, 0.64); box-shadow: 1px 4px 3px rgba(50, 50, 50, 0.64); }
+.autocomplete-suggestion { padding: 2px 5px; white-space: nowrap; overflow: hidden; }
+.autocomplete-no-suggestion { padding: 2px 5px;}
+.autocomplete-selected { background: #F0F0F0; }
+.autocomplete-suggestions strong { font-weight: bold; color: #000; }
+.autocomplete-group { padding: 2px 5px; }
+.autocomplete-group strong { font-weight: bold; font-size: 16px; color: #000; display: block; border-bottom: 1px solid #000; }
+
+.sectiondemande {
+	padding: 5px;
+	padding-top: 15px;
+	margin-bottom: 10px;
+	margin-top: 0px;
+}
+
+.sectiondemande h3 {
+	text-align: left;
+	font-size: 1em;
+	margin-bottom: 10px;
+	text-transform: uppercase;
+	color: #333333;
+	border-bottom: 3px solid #DDDDDD;
+	padding-bottom: 3px;
+}
+
+.display-commentaire {
+	white-space: pre-wrap;
+}
+
+dl {
+	width: 100%;
+	overflow: hidden;
+	padding: 0;
+	margin: 0
+}
+
+dd {
+	margin-bottom: 0;
+	float: left;
+	padding : 0;
+	margin: 0;
+	font-weight: bold;
+	clear: both;
+}
+
+dt span {
+	white-space: pre-wrap;
+}
+
+dt {
+	margin-bottom: 0;
+	float: left;
+	padding : 0;
+	margin: 0;
+	font-weight: normal !important
+}
+
+.sectiondemande dd {
+	width: 40%;
+}
+
+.sectiondemande dt {
+	width: 60%;
+}
+
+.sectionic {
+	padding: 5px;
+	padding-top: 15px;
+	margin-bottom: 10px;
+	margin-top: 0px;
+}
+
+.sectionic h3 {
+	text-align: left;
+	font-size: 1em;
+	margin-bottom: 10px;
+	text-transform: uppercase;
+	color: #333333;
+	border-bottom: 3px solid #DDDDDD;
+	padding-bottom: 3px;
+}
+
+.sectionic dd {
+	width: 20%;
+}
+
+.sectionic dt {
+	width: 80%;
+}
+
+.required::after {
+	content: "*";
+	font-weight: bold;
+}
+
+.active-facet {
+  background: #068BAD;
+  color: white;
+}
+
+.updated-value {
+	background-color: #F2DDDD !important;
+}
+
+
+.job-en-cours-execution {
+    background-color: #EC661C;
+}
+
+.job-erreur {
+    background-color: #E83F40;
+}
+
+.job-reussi {
+    background-color: #00983A;
+}
+
+.job-statut-inconnu {
+    background-color: #FFDE00;
+    color: #0F607C;
+}
+
+.fixed-layout {
+	table-layout: fixed;
+}
+
+.file-name-col {
+	width: 75%;
+	padding-right: 0 !important;
+	overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.date-col {
+	width: 15%;
+}
+
+.action-col {
+	width: 10%;
+}
+
+.file-name-col, .date-col, .action-col {
+	padding-right: 0 !important;
+}

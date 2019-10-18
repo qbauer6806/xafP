@@ -1,0 +1,97 @@
+package mc.gouv.xaf.backweb.ws;
+
+import java.util.Map;
+import java.util.Map.Entry;
+
+import javax.validation.Valid;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.ModelAndView;
+
+import mc.gouv.xaf.back.bpm.GouvBPM;
+import mc.gouv.xaf.back.mail.MailService;
+import mc.gouv.xaf.back.mail.MailTemplateModelProvider;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.backweb.controller.AbstractController;
+import mc.gouv.xaf.backweb.formbean.MailPreviewFormBean;
+import mc.gouv.dem.service.DemandesService;
+import mc.gouv.dem.shared.model.DemandeDTO;
+
+/**
+ * 
+ * Sert à générer la preview des emails
+ * 
+ * @author qdeme
+ *
+ */
+@Controller
+@RequestMapping("/ws/mailpreview")
+public class MailPreviewController extends AbstractController {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(MailPreviewController.class);
+
+	@Autowired
+	private MailService mailService;
+
+	@Autowired
+	private MailTemplateModelProvider mailTemplateModelProvider;
+
+	@Autowired
+	private DemandesService demandesService;
+
+	@Autowired
+	private GouvPropertiesResolver gouvPropertiesResolver;
+
+	@Autowired
+	private GouvBPM gouvBPM;
+
+	private ModelAndView buildMailPreview(String action, String codeMotifChoisi, Integer pkDemande, String commentaire)
+			throws Exception {
+		Entry<String, String> templateCodes = mailTemplateModelProvider.getMailTemplateCodesForAction(action);
+		String bodyTemplateCode = templateCodes.getKey();
+		String subjectTemplateCode = templateCodes.getValue();
+
+		Map<String, Object> bpmVariables = gouvBPM.getProcessBusinessVariables(pkDemande);
+
+		DemandeDTO demande = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), pkDemande);
+
+		Map<String, Object> model = mailTemplateModelProvider.getModel(subjectTemplateCode, bodyTemplateCode, demande,
+				bpmVariables, codeMotifChoisi, commentaire);
+
+		LOGGER.info("Génération de l'aperçu de l'email...");
+		String[] preview = mailService.getMailPreview(bodyTemplateCode, subjectTemplateCode, demande.getLangue(),
+				model);
+
+		ModelAndView mav = new ModelAndView("misc/mailpreview");
+		mav.addObject("mailSubject", preview[0]);
+		mav.addObject("mailBody", preview[1]);
+
+		return mav;
+	}
+
+	@RequestMapping(method = RequestMethod.POST, consumes = "application/json")
+	public ModelAndView mailpreview(@Valid @RequestBody MailPreviewFormBean mailPreviewFormBean) throws Exception {
+
+		String action = mailPreviewFormBean.getAction();
+		String codeMotifChoisi = mailPreviewFormBean.getCodeMotifChoisi();
+		Integer pkDemande = mailPreviewFormBean.getPkDemande();
+		String commentaire = mailPreviewFormBean.getCommentaire();
+
+		LOGGER.info("======================= Appel de /ws/mailpreview ({}, {}, {}, {})", action, codeMotifChoisi,
+				pkDemande, commentaire);
+
+		ModelAndView mav = buildMailPreview(action, codeMotifChoisi, pkDemande, commentaire);
+
+		LOGGER.info("======================= Fin /ws/mailpreview");
+
+		return mav;
+
+	}
+
+}

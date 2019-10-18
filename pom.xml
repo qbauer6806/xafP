@@ -13,9 +13,9 @@
 		<itext.pdf.version>2.1.4</itext.pdf.version>
 	</properties>
 
-	<groupId>mc.gouv.af</groupId>
-	<artifactId>af</artifactId>
-	<version>6.2.0-SNAPSHOT</version>
+	<groupId>mc.gouv.xaf</groupId>
+	<artifactId>xaf</artifactId>
+	<version>7.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 
@@ -28,11 +28,11 @@
     </scm>
 
 	<modules>
-		<module>af-servlet</module>
-		<module>af-back</module>
-		<module>af-apiclient</module>
-		<module>af-backweb</module>
-		<module>af-archetype</module>
+		<module>xaf-servlet</module>
+		<module>xaf-back</module>
+		<module>xaf-apiclient</module>
+		<module>xaf-backweb</module>
+		<module>xaf-archetype</module>
 	</modules>
 
 	<!-- All add-ons and iText 7 core -->

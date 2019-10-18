@@ -1,0 +1,772 @@
+#set ( $d = "$")
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://activiti.org/bpmn20" id="review-definitions">
+  <message id="annulationMessage" name="annulationMessage"></message>
+  <message id="duplicationMessage" name="duplicationMessage"></message>
+  <process id="process" name="Process ${artifactIdUpper} Gouvernement" isExecutable="true">
+    <extensionElements>
+      <activiti:executionListener event="Envois d'un email aux valideurs" delegateExpression="${d}{gouvBPMEnvoiEmailAgentsWithRolesDelegate}"></activiti:executionListener>
+    </extensionElements>
+    <startEvent id="start" activiti:formKey="wf:submitReviewTask"></startEvent>
+    <serviceTask id="envoiMailUsagerServiceTask1" name="Envoi d'un email à l'usager" activiti:delegateExpression="${d}{gouvBPMEnvoiEmailUsagerDelegate}">
+      <extensionElements>
+        <activiti:field name="emailBodyTemplateCode">
+          <activiti:string><![CDATA[MAIL_CREATION_DEMANDE_USAGER_CORPS]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="emailSubjectTemplateCode">
+          <activiti:string><![CDATA[MAIL_CREATION_DEMANDE_USAGER_OBJET]]></activiti:string>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="flow62" sourceRef="start" targetRef="exclusivegateway19"></sequenceFlow>
+    <subProcess id="subprocess1" name="Sub Process">
+      <startEvent id="startevent1" name="Start"></startEvent>
+      <sequenceFlow id="flow92" sourceRef="startevent1" targetRef="prendreEnChargeTask"></sequenceFlow>
+      <serviceTask id="servicetask5" name="Génération des fichiers remis par l'administration" activiti:delegateExpression="${d}{gouvBPMPdfDelegate}">
+        <extensionElements>
+          <activiti:field name="pdfTypeCodeExpr">
+            <activiti:string><![CDATA[FICHIER]]></activiti:string>
+          </activiti:field>
+          <activiti:field name="meta">
+            <activiti:string><![CDATA[BACK_FRONT_JUSTIFICATIF_DEMANDE]]></activiti:string>
+          </activiti:field>
+        </extensionElements>
+      </serviceTask>
+      <serviceTask id="creationDICTask" name="Création d'une demande d'informations complémentaires" activiti:delegateExpression="${d}{gouvBPMDemandeInfoComplDelegate}"></serviceTask>
+      <sequenceFlow id="flow36" sourceRef="creationDICTask" targetRef="chgtEtatServiceTask3"></sequenceFlow>
+      <serviceTask id="envoiMailUsagerServiceTask2" name="Envoi d'un email à l'usager" activiti:delegateExpression="${d}{gouvBPMEnvoiEmailUsagerDelegate}">
+        <extensionElements>
+          <activiti:field name="emailBodyTemplateCode">
+            <activiti:string><![CDATA[MAIL_ACTION_DEMANDEIC_CORPS]]></activiti:string>
+          </activiti:field>
+          <activiti:field name="emailSubjectTemplateCode">
+            <activiti:string><![CDATA[MAIL_ACTION_DEMANDEIC_OBJET]]></activiti:string>
+          </activiti:field>
+        </extensionElements>
+      </serviceTask>
+      <userTask id="traiterDemandeTask" name="Traiter la demande" activiti:assignee="${d}{MC_ASSIGNEE}" activiti:candidateGroups="TRAITEMENT">
+        <extensionElements>
+          <activiti:formProperty id="MC_TARGETSTATE" type="enum" required="true">
+            <activiti:value id="ACCORDEE" name="Accorder"></activiti:value>
+            <activiti:value id="REFUSEE" name="Refuser"></activiti:value>
+            <activiti:value id="EN_ATTENTE_COMPL" name="Demander des informations complémentaires"></activiti:value>
+          </activiti:formProperty>
+          <activiti:formProperty id="MC_COMMENTAIRE_USAGER" type="string"></activiti:formProperty>
+          <activiti:formProperty id="MC_CODE_MOTIF" type="string"></activiti:formProperty>
+        </extensionElements>
+      </userTask>
+      <serviceTask id="chgtEtatServiceTask7" name="Passage à l'état public ACCORDEE" activiti:delegateExpression="${d}{gouvBPMStatusChangeDelegate}">
+        <extensionElements>
+          <activiti:field name="targetState">
+            <activiti:string><![CDATA[ACCORDEE]]></activiti:string>
+          </activiti:field>
+        </extensionElements>
+      </serviceTask>
+      <sequenceFlow id="flow82" sourceRef="chgtEtatServiceTask7" targetRef="exclusivegateway18"></sequenceFlow>
+      <serviceTask id="servicetask6" name="Envoi d'un email à l'usager" activiti:delegateExpression="${d}{gouvBPMEnvoiEmailUsagerDelegate}">
+        <extensionElements>
+          <activiti:field name="emailBodyTemplateCode">
+            <activiti:string><![CDATA[MAIL_ACTION_ACCORDEE_CORPS]]></activiti:string>
+          </activiti:field>
+          <activiti:field name="emailSubjectTemplateCode">
+            <activiti:string><![CDATA[MAIL_ACTION_ACCORDEE_OBJET]]></activiti:string>
+          </activiti:field>
+        </extensionElements>
+      </serviceTask>
+      <serviceTask id="chgtEtatServiceTask6" name="Passage à l'état public REFUSEE" activiti:delegateExpression="${d}{gouvBPMStatusChangeDelegate}">
+        <extensionElements>
+          <activiti:field name="targetState">
+            <activiti:string><![CDATA[REFUSEE]]></activiti:string>
+          </activiti:field>
+        </extensionElements>
+      </serviceTask>
+      <sequenceFlow id="flow77" sourceRef="chgtEtatServiceTask6" targetRef="exclusivegateway9"></sequenceFlow>
+      <serviceTask id="servicetask4" name="Envoi d'un email à l'usager" activiti:delegateExpression="${d}{gouvBPMEnvoiEmailUsagerDelegate}">
+        <extensionElements>
+          <activiti:field name="emailBodyTemplateCode">
+            <activiti:string><![CDATA[MAIL_ACTION_REFUSER_CORPS]]></activiti:string>
+          </activiti:field>
+          <activiti:field name="emailSubjectTemplateCode">
+            <activiti:string><![CDATA[MAIL_ACTION_REFUSER_OBJET]]></activiti:string>
+          </activiti:field>
+        </extensionElements>
+      </serviceTask>
+      <exclusiveGateway id="exclusivegateway9" name="Exclusive Gateway"></exclusiveGateway>
+      <sequenceFlow id="flow78" sourceRef="exclusivegateway9" targetRef="servicetask4">
+        <conditionExpression xsi:type="tFormalExpression"><![CDATA[${d}{MC_DEMANDE_CANAL.equals('GUICHET_VIRTUEL')}]]></conditionExpression>
+      </sequenceFlow>
+      <sequenceFlow id="flow79" sourceRef="exclusivegateway9" targetRef="servicetask18">
+        <conditionExpression xsi:type="tFormalExpression"><![CDATA[${d}{MC_DEMANDE_CANAL.equals('COURRIER') || MC_DEMANDE_CANAL.equals('GUICHET_PHYSIQUE')}]]></conditionExpression>
+      </sequenceFlow>
+      <serviceTask id="chgtEtatServiceTask1" name="Passage à l'état public &quot;En cours de traitement&quot;" activiti:delegateExpression="${d}{gouvBPMStatusChangeDelegate}">
+        <extensionElements>
+          <activiti:field name="targetState">
+            <activiti:string><![CDATA[EN_COURS_TRAIT]]></activiti:string>
+          </activiti:field>
+        </extensionElements>
+      </serviceTask>
+      <serviceTask id="chgtEtatServiceTask3" name="Passage à l'état public EN_ATTENTE_COMPL" activiti:delegateExpression="${d}{gouvBPMStatusChangeDelegate}">
+        <extensionElements>
+          <activiti:field name="targetState">
+            <activiti:string><![CDATA[EN_ATTENTE_COMPL]]></activiti:string>
+          </activiti:field>
+        </extensionElements>
+      </serviceTask>
+      <sequenceFlow id="flow35" sourceRef="traiterDemandeTask" targetRef="creationDICTask">
+        <conditionExpression xsi:type="tFormalExpression"><![CDATA[${d}{MC_TARGETSTATE.equals('EN_ATTENTE_COMPL')}]]></conditionExpression>
+      </sequenceFlow>
+      <sequenceFlow id="flow49" sourceRef="traiterDemandeTask" targetRef="enAttenteValidationData">
+        <conditionExpression xsi:type="tFormalExpression"><![CDATA[${d}{MC_TARGETSTATE.equals('REFUSEE')}]]></conditionExpression>
+      </sequenceFlow>
+      <sequenceFlow id="flow50" sourceRef="traiterDemandeTask" targetRef="chgtEtatServiceTask7">
+        <conditionExpression xsi:type="tFormalExpression"><![CDATA[${d}{MC_TARGETSTATE.equals('ACCORDEE')}]]></conditionExpression>
+      </sequenceFlow>
+      <userTask id="depotICTask" name="Dépôt des pièces par l'usager ou l'agent" activiti:candidateGroups="TRAITEMENT">
+        <extensionElements>
+          <activiti:formProperty id="STAGE_PAR_USAGER_OU_AGENT" type="string" required="true">
+            <activiti:value id="USAGER" name="USAGER"></activiti:value>
+            <activiti:value id="AGENT" name="AGENT"></activiti:value>
+          </activiti:formProperty>
+        </extensionElements>
+      </userTask>
+      <sequenceFlow id="flow55" sourceRef="exclusivegateway22" targetRef="servicetask8">
+        <conditionExpression xsi:type="tFormalExpression"><![CDATA[${d}{MC_TARGETSTATE_ORIGINATOR_AGENT != MC_ASSIGNEE}]]></conditionExpression>
+      </sequenceFlow>
+      <serviceTask id="servicetask8" name="Envoi d'un email à l'agent affecté (template &quot;par agent&quot;)" activiti:delegateExpression="${d}{gouvBPMEnvoiEmailAgentAffecteDelegate}">
+        <extensionElements>
+          <activiti:field name="emailBodyTemplateCode">
+            <activiti:string><![CDATA[MAIL_NOTIFICATION_REPONSE_IC_PAR_AGENT_CORPS]]></activiti:string>
+          </activiti:field>
+          <activiti:field name="emailSubjectTemplateCode">
+            <activiti:string><![CDATA[MAIL_NOTIFICATION_REPONSE_IC_PAR_AGENT_OBJET]]></activiti:string>
+          </activiti:field>
+        </extensionElements>
+      </serviceTask>
+      <sequenceFlow id="flow108" sourceRef="servicetask8" targetRef="chgtEtatServiceTask1"></sequenceFlow>
+      <serviceTask id="servicetask9" name="Envoi d'un email à l'agent affecté (template &quot;par usager&quot;)" activiti:delegateExpression="${d}{gouvBPMEnvoiEmailAgentAffecteDelegate}">
+        <extensionElements>
+          <activiti:field name="emailBodyTemplateCode">
+            <activiti:string><![CDATA[MAIL_NOTIFICATION_REPONSE_IC_PAR_USAGER_CORPS]]></activiti:string>
+          </activiti:field>
+          <activiti:field name="emailSubjectTemplateCode">
+            <activiti:string><![CDATA[MAIL_NOTIFICATION_REPONSE_IC_PAR_USAGER_OBJET]]></activiti:string>
+          </activiti:field>
+        </extensionElements>
+      </serviceTask>
+      <sequenceFlow id="flow112" sourceRef="servicetask9" targetRef="chgtEtatServiceTask1"></sequenceFlow>
+      <sequenceFlow id="flow113" sourceRef="depotICTask" targetRef="servicetask9">
+        <conditionExpression xsi:type="tFormalExpression"><![CDATA[${d}{MC_TARGETSTATE_ORIGINATOR_USAGER != null}]]></conditionExpression>
+      </sequenceFlow>
+      <userTask id="prendreEnChargeTask" name="Prendre en charge" activiti:candidateGroups="TRAITEMENT"></userTask>
+      <sequenceFlow id="flow93" sourceRef="prendreEnChargeTask" targetRef="chgtEtatServiceTask1"></sequenceFlow>
+      <exclusiveGateway id="exclusivegateway13" name="Exclusive Gateway"></exclusiveGateway>
+      <sequenceFlow id="flow120" sourceRef="chgtEtatServiceTask1" targetRef="exclusivegateway13"></sequenceFlow>
+      <sequenceFlow id="flow121" sourceRef="exclusivegateway13" targetRef="traiterDemandeTask"></sequenceFlow>
+      <endEvent id="endevent3" name="End"></endEvent>
+      <sequenceFlow id="flow142" sourceRef="servicetask6" targetRef="servicetask5"></sequenceFlow>
+      <sequenceFlow id="flow143" sourceRef="servicetask4" targetRef="servicetask5"></sequenceFlow>
+      <sequenceFlow id="flow144" sourceRef="servicetask5" targetRef="servicetask19"></sequenceFlow>
+      <serviceTask id="servicetask17" name="Envoi d'un email aux valideurs" activiti:delegateExpression="${d}{gouvBPMEnvoiEmailAgentsWithRolesDelegate}">
+        <extensionElements>
+          <activiti:field name="emailBodyTemplateCode">
+            <activiti:string><![CDATA[MAIL_NOTIFICATION_ATTENTE_VALIDATION_CORPS]]></activiti:string>
+          </activiti:field>
+          <activiti:field name="emailSubjectTemplateCode">
+            <activiti:string><![CDATA[MAIL_NOTIFICATION_ATTENTE_VALIDATION_OBJET]]></activiti:string>
+          </activiti:field>
+          <activiti:field name="roles">
+            <activiti:string><![CDATA[VALIDATION]]></activiti:string>
+          </activiti:field>
+        </extensionElements>
+      </serviceTask>
+      <serviceTask id="enAttenteValidationData" name="Ajout du flag IS_EN_ATTENTE_VALIDATION" activiti:delegateExpression="${d}{gouvBPMUpdateDemandeDataDelegate}">
+        <extensionElements>
+          <activiti:field name="dataKey">
+            <activiti:string><![CDATA[IS_EN_ATTENTE_VALIDATION]]></activiti:string>
+          </activiti:field>
+          <activiti:field name="dataValue">
+            <activiti:string><![CDATA[1]]></activiti:string>
+          </activiti:field>
+        </extensionElements>
+      </serviceTask>
+      <userTask id="validationHierarchiqueTask1" name="Traiter la demande" activiti:candidateGroups="VALIDATION">
+        <extensionElements>
+          <activiti:formProperty id="MC_TARGETSTATE" type="enum" required="true">
+            <activiti:value id="ACCORDEE" name="Accorder"></activiti:value>
+            <activiti:value id="REFUSEE" name="Refuser"></activiti:value>
+            <activiti:value id="EN_ATTENTE_COMPL" name="Demander des informations complémentaires"></activiti:value>
+          </activiti:formProperty>
+          <activiti:formProperty id="MC_COMMENTAIRE_USAGER" type="string"></activiti:formProperty>
+          <activiti:formProperty id="MC_CODE_MOTIF" type="string"></activiti:formProperty>
+          <activiti:formProperty id="${artifactIdUpper}_VALIDATION" type="boolean" required="true"></activiti:formProperty>
+        </extensionElements>
+      </userTask>
+      <serviceTask id="deleteEnAttenteValidationData" name="Supression du flag IS_EN_ATTENTE_VALIDATION" activiti:delegateExpression="${d}{gouvBPMDeleteDemandeDataDelegate}">
+        <extensionElements>
+          <activiti:field name="dataKey">
+            <activiti:string><![CDATA[IS_EN_ATTENTE_VALIDATION]]></activiti:string>
+          </activiti:field>
+        </extensionElements>
+      </serviceTask>
+      <sequenceFlow id="flow146" sourceRef="enAttenteValidationData" targetRef="servicetask17"></sequenceFlow>
+      <sequenceFlow id="flow147" sourceRef="servicetask17" targetRef="validationHierarchiqueTask1"></sequenceFlow>
+      <sequenceFlow id="flow148" sourceRef="validationHierarchiqueTask1" targetRef="deleteEnAttenteValidationData"></sequenceFlow>
+      <exclusiveGateway id="exclusivegateway16" name="Exclusive Gateway"></exclusiveGateway>
+      <sequenceFlow id="flow149" sourceRef="deleteEnAttenteValidationData" targetRef="exclusivegateway16"></sequenceFlow>
+      <sequenceFlow id="flow150" sourceRef="exclusivegateway16" targetRef="chgtEtatServiceTask1">
+        <conditionExpression xsi:type="tFormalExpression"><![CDATA[${d}{${artifactIdUpper}_VALIDATION == false}]]></conditionExpression>
+      </sequenceFlow>
+      <sequenceFlow id="flow151" sourceRef="exclusivegateway16" targetRef="exclusivegateway17">
+        <conditionExpression xsi:type="tFormalExpression"><![CDATA[${d}{${artifactIdUpper}_VALIDATION == true}]]></conditionExpression>
+      </sequenceFlow>
+      <exclusiveGateway id="exclusivegateway17" name="Exclusive Gateway"></exclusiveGateway>
+      <sequenceFlow id="flow152" sourceRef="exclusivegateway17" targetRef="chgtEtatServiceTask6">
+        <conditionExpression xsi:type="tFormalExpression"><![CDATA[${d}{MC_TARGETSTATE.equals('REFUSEE')}]]></conditionExpression>
+      </sequenceFlow>
+      <sequenceFlow id="flow154" sourceRef="exclusivegateway17" targetRef="chgtEtatServiceTask7">
+        <conditionExpression xsi:type="tFormalExpression"><![CDATA[${d}{MC_TARGETSTATE.equals('ACCORDEE')}]]></conditionExpression>
+      </sequenceFlow>
+      <sequenceFlow id="flow156" sourceRef="exclusivegateway17" targetRef="creationDICTask">
+        <conditionExpression xsi:type="tFormalExpression"><![CDATA[${d}{MC_TARGETSTATE.equals('EN_ATTENTE_COMPL')}]]></conditionExpression>
+      </sequenceFlow>
+      <sequenceFlow id="flow157" sourceRef="exclusivegateway20" targetRef="envoiMailUsagerServiceTask2">
+        <conditionExpression xsi:type="tFormalExpression"><![CDATA[${d}{MC_DEMANDE_CANAL.equals('GUICHET_VIRTUEL')}]]></conditionExpression>
+      </sequenceFlow>
+      <sequenceFlow id="flow158" sourceRef="envoiMailUsagerServiceTask2" targetRef="depotICTask"></sequenceFlow>
+      <exclusiveGateway id="exclusivegateway18" name="Exclusive Gateway"></exclusiveGateway>
+      <sequenceFlow id="flow159" sourceRef="exclusivegateway18" targetRef="servicetask6">
+        <conditionExpression xsi:type="tFormalExpression"><![CDATA[${d}{MC_DEMANDE_CANAL.equals('GUICHET_VIRTUEL')}]]></conditionExpression>
+      </sequenceFlow>
+      <sequenceFlow id="flow160" sourceRef="exclusivegateway18" targetRef="servicetask18">
+        <conditionExpression xsi:type="tFormalExpression"><![CDATA[${d}{MC_DEMANDE_CANAL.equals('COURRIER') || MC_DEMANDE_CANAL.equals('GUICHET_PHYSIQUE')}]]></conditionExpression>
+      </sequenceFlow>
+      <serviceTask id="servicetask18" name="Génération du courrier" activiti:delegateExpression="${d}{gouvBPMPdfDelegate}">
+        <extensionElements>
+          <activiti:field name="pdfTypeCodeExpr">
+            <activiti:string><![CDATA[COURRIER]]></activiti:string>
+          </activiti:field>
+        </extensionElements>
+      </serviceTask>
+      <sequenceFlow id="flow161" sourceRef="servicetask18" targetRef="servicetask5"></sequenceFlow>
+      <serviceTask id="servicetask19" name="Génération des fichiers internes" activiti:delegateExpression="${d}{gouvBPMDemandeRecapDelegate}"></serviceTask>
+      <sequenceFlow id="flow164" sourceRef="servicetask19" targetRef="endevent3"></sequenceFlow>
+      <exclusiveGateway id="exclusivegateway20" name="Exclusive Gateway"></exclusiveGateway>
+      <sequenceFlow id="flow165" sourceRef="chgtEtatServiceTask3" targetRef="exclusivegateway20"></sequenceFlow>
+      <serviceTask id="servicetask20" name="Génération du courrier" activiti:delegateExpression="${d}{gouvBPMPdfDelegate}">
+        <extensionElements>
+          <activiti:field name="pdfTypeCodeExpr">
+            <activiti:string><![CDATA[COURRIER]]></activiti:string>
+          </activiti:field>
+        </extensionElements>
+      </serviceTask>
+      <sequenceFlow id="flow166" sourceRef="exclusivegateway20" targetRef="servicetask20"></sequenceFlow>
+      <sequenceFlow id="flow167" sourceRef="servicetask20" targetRef="depotICTask"></sequenceFlow>
+      <exclusiveGateway id="exclusivegateway22" name="Exclusive Gateway"></exclusiveGateway>
+      <sequenceFlow id="flow169" sourceRef="exclusivegateway22" targetRef="chgtEtatServiceTask1">
+        <conditionExpression xsi:type="tFormalExpression"><![CDATA[${d}{MC_TARGETSTATE_ORIGINATOR_AGENT == MC_ASSIGNEE}]]></conditionExpression>
+      </sequenceFlow>
+      <sequenceFlow id="flow170" sourceRef="depotICTask" targetRef="exclusivegateway22"></sequenceFlow>
+    </subProcess>
+    <serviceTask id="annulationTask" name="annulation de la demande" activiti:delegateExpression="${d}{gouvBPMStatusChangeDelegate}">
+      <extensionElements>
+        <activiti:field name="targetState">
+          <activiti:string><![CDATA[ANNULEE]]></activiti:string>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <endEvent id="terminateendeventAnnulation" name="terminateendeventAnnulation">
+      <terminateEventDefinition></terminateEventDefinition>
+    </endEvent>
+    <endEvent id="endevent2" name="End"></endEvent>
+    <sequenceFlow id="flow94" sourceRef="subprocess1" targetRef="endevent2"></sequenceFlow>
+    <boundaryEvent id="boundarymessageAnnulation" name="boundarymessageAnnulation" attachedToRef="subprocess1" cancelActivity="true">
+      <messageEventDefinition messageRef="annulationMessage"></messageEventDefinition>
+    </boundaryEvent>
+    <sequenceFlow id="flow95" sourceRef="boundarymessageAnnulation" targetRef="annulationTask">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${d}{!MC_CODE_MOTIF.equals('ANNULATION_DESINSCRIPTION')}]]></conditionExpression>
+    </sequenceFlow>
+    <serviceTask id="envoiEmailAnnulationTask" name="Envoi d'un email à l'usager pour annulation" activiti:delegateExpression="${d}{gouvBPMEnvoiEmailUsagerDelegate}">
+      <extensionElements>
+        <activiti:field name="emailBodyTemplateCode">
+          <activiti:string><![CDATA[MAIL_CONFIRMATION_ACTION_ANNULER_CORPS]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="emailSubjectTemplateCode">
+          <activiti:string><![CDATA[MAIL_CONFIRMATION_ACTION_ANNULER_OBJET]]></activiti:string>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="flow96" sourceRef="annulationTask" targetRef="DeleteEnAttenteValidationData2"></sequenceFlow>
+    <sequenceFlow id="flow97" sourceRef="envoiEmailAnnulationTask" targetRef="exclusivegateway15"></sequenceFlow>
+    <startEvent id="duplicationMessageStartEvent" name="duplicationMessageStartEvent">
+      <messageEventDefinition messageRef="duplicationMessage"></messageEventDefinition>
+    </startEvent>
+    <sequenceFlow id="flow98" sourceRef="duplicationMessageStartEvent" targetRef="subprocess1"></sequenceFlow>
+    <exclusiveGateway id="exclusivegateway11" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow103" sourceRef="exclusivegateway11" targetRef="envoiEmailAnnulationTask">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${d}{MC_DEMANDE_CANAL.equals('GUICHET_VIRTUEL') && !MC_CODE_MOTIF.equals("ANNULATION_DESINSCRIPTION")}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow104" sourceRef="exclusivegateway11" targetRef="exclusivegateway15">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${d}{(MC_DEMANDE_CANAL.equals('COURRIER') || MC_DEMANDE_CANAL.equals('GUICHET_PHYSIQUE')) && !MC_CODE_MOTIF.equals("ANNULATION_DESINSCRIPTION")}]]></conditionExpression>
+    </sequenceFlow>
+    <serviceTask id="DeleteEnAttenteValidationData2" name="Suppression du flag IS_EN_ATTENTE_VALIDATION" activiti:delegateExpression="${d}{gouvBPMDeleteDemandeDataDelegate}">
+      <extensionElements>
+        <activiti:field name="dataKey">
+          <activiti:string><![CDATA[IS_EN_ATTENTE_VALIDATION]]></activiti:string>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="flow105" sourceRef="DeleteEnAttenteValidationData2" targetRef="exclusivegateway11"></sequenceFlow>
+    <sequenceFlow id="flow137" sourceRef="envoiMailUsagerServiceTask1" targetRef="subprocess1"></sequenceFlow>
+    <serviceTask id="servicetask14" name="Envoi d'un email aux agents qui ont le droit de traitement" activiti:delegateExpression="${d}{gouvBPMEnvoiEmailAgentsWithRolesDelegate}">
+      <extensionElements>
+        <activiti:field name="emailBodyTemplateCode">
+          <activiti:string><![CDATA[MAIL_NOTIFICATION_ANNULATION_DEMANDE_PAR_USAGER_CORPS]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="emailSubjectTemplateCode">
+          <activiti:string><![CDATA[MAIL_NOTIFICATION_ANNULATION_DEMANDE_PAR_USAGER_OBJET]]></activiti:string>
+        </activiti:field>
+        <activiti:field name="roles">
+          <activiti:string><![CDATA[TRAITEMENT]]></activiti:string>
+        </activiti:field>
+      </extensionElements>
+    </serviceTask>
+    <sequenceFlow id="flow138" sourceRef="servicetask14" targetRef="terminateendeventAnnulation"></sequenceFlow>
+    <exclusiveGateway id="exclusivegateway15" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow139" sourceRef="exclusivegateway15" targetRef="terminateendeventAnnulation">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${d}{MC_CODE_MOTIF.equals("ANNULATION_PAR_AGENT")}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow140" sourceRef="exclusivegateway15" targetRef="servicetask14">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${d}{MC_CODE_MOTIF.equals("ANNULATION_PAR_ENTREPRISE")}]]></conditionExpression>
+    </sequenceFlow>
+    <exclusiveGateway id="exclusivegateway19" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow162" sourceRef="exclusivegateway19" targetRef="envoiMailUsagerServiceTask1">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${d}{MC_DEMANDE_CANAL.equals('GUICHET_VIRTUEL')}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow163" sourceRef="exclusivegateway19" targetRef="subprocess1"></sequenceFlow>
+    <sequenceFlow id="flow168" sourceRef="exclusivegateway11" targetRef="terminateendeventAnnulation">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${d}{MC_CODE_MOTIF.equals("ANNULATION_DESINSCRIPTION")}]]></conditionExpression>
+    </sequenceFlow>
+    <textAnnotation id="textannotation9">
+      <text>Statut cible ACCORDEE</text>
+    </textAnnotation>
+    <textAnnotation id="textannotation11">
+      <text>Statut cible REFUSEE</text>
+    </textAnnotation>
+    <textAnnotation id="textannotation12">
+      <text>Statut cible EN_ATTENTE_COMPL</text>
+    </textAnnotation>
+    <textAnnotation id="textannotation13">
+      <text>Annulation d'une demande</text>
+    </textAnnotation>
+    <textAnnotation id="textannotation14">
+      <text>Démarrage du process suite duplication (pas d'envoi d'emails)</text>
+    </textAnnotation>
+    <textAnnotation id="textannotation15">
+      <text>Si usager courrier, aucun document n'est envoyé</text>
+    </textAnnotation>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_process">
+    <bpmndi:BPMNPlane bpmnElement="process" id="BPMNPlane_process">
+      <bpmndi:BPMNShape bpmnElement="start" id="BPMNShape_start">
+        <omgdc:Bounds height="35.0" width="35.0" x="601.0" y="155.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="envoiMailUsagerServiceTask1" id="BPMNShape_envoiMailUsagerServiceTask1">
+        <omgdc:Bounds height="71.0" width="121.0" x="556.0" y="276.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="subprocess1" id="BPMNShape_subprocess1">
+        <omgdc:Bounds height="850.0" width="1040.0" x="700.0" y="60.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="800.0" y="69.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetask5" id="BPMNShape_servicetask5">
+        <omgdc:Bounds height="80.0" width="121.0" x="1395.0" y="700.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="creationDICTask" id="BPMNShape_creationDICTask">
+        <omgdc:Bounds height="81.0" width="121.0" x="1060.0" y="787.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="envoiMailUsagerServiceTask2" id="BPMNShape_envoiMailUsagerServiceTask2">
+        <omgdc:Bounds height="71.0" width="121.0" x="740.0" y="596.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="traiterDemandeTask" id="BPMNShape_traiterDemandeTask">
+        <omgdc:Bounds height="59.0" width="142.0" x="1210.0" y="220.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="chgtEtatServiceTask7" id="BPMNShape_chgtEtatServiceTask7">
+        <omgdc:Bounds height="81.0" width="131.0" x="1215.0" y="410.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetask6" id="BPMNShape_servicetask6">
+        <omgdc:Bounds height="71.0" width="121.0" x="1220.0" y="704.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="chgtEtatServiceTask6" id="BPMNShape_chgtEtatServiceTask6">
+        <omgdc:Bounds height="55.0" width="131.0" x="1507.0" y="536.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetask4" id="BPMNShape_servicetask4">
+        <omgdc:Bounds height="71.0" width="121.0" x="1592.0" y="704.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway9" id="BPMNShape_exclusivegateway9">
+        <omgdc:Bounds height="40.0" width="40.0" x="1632.0" y="611.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="chgtEtatServiceTask1" id="BPMNShape_chgtEtatServiceTask1">
+        <omgdc:Bounds height="71.0" width="121.0" x="1220.0" y="69.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="chgtEtatServiceTask3" id="BPMNShape_chgtEtatServiceTask3">
+        <omgdc:Bounds height="81.0" width="121.0" x="810.0" y="787.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="depotICTask" id="BPMNShape_depotICTask">
+        <omgdc:Bounds height="60.0" width="121.0" x="810.0" y="450.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetask8" id="BPMNShape_servicetask8">
+        <omgdc:Bounds height="86.0" width="121.0" x="885.0" y="301.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetask9" id="BPMNShape_servicetask9">
+        <omgdc:Bounds height="86.0" width="122.0" x="740.0" y="301.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="prendreEnChargeTask" id="BPMNShape_prendreEnChargeTask">
+        <omgdc:Bounds height="75.0" width="136.0" x="750.0" y="119.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway13" id="BPMNShape_exclusivegateway13">
+        <omgdc:Bounds height="40.0" width="40.0" x="1260.0" y="160.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent3" id="BPMNShape_endevent3">
+        <omgdc:Bounds height="35.0" width="35.0" x="1438.0" y="870.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetask17" id="BPMNShape_servicetask17">
+        <omgdc:Bounds height="55.0" width="181.0" x="1482.0" y="210.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="enAttenteValidationData" id="BPMNShape_enAttenteValidationData">
+        <omgdc:Bounds height="55.0" width="181.0" x="1482.0" y="139.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="validationHierarchiqueTask1" id="BPMNShape_validationHierarchiqueTask1">
+        <omgdc:Bounds height="59.0" width="181.0" x="1482.0" y="278.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="deleteEnAttenteValidationData" id="BPMNShape_deleteEnAttenteValidationData">
+        <omgdc:Bounds height="55.0" width="181.0" x="1482.0" y="350.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway16" id="BPMNShape_exclusivegateway16">
+        <omgdc:Bounds height="40.0" width="40.0" x="1552.0" y="430.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway17" id="BPMNShape_exclusivegateway17">
+        <omgdc:Bounds height="40.0" width="40.0" x="1552.0" y="480.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway18" id="BPMNShape_exclusivegateway18">
+        <omgdc:Bounds height="40.0" width="40.0" x="1260.0" y="611.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetask18" id="BPMNShape_servicetask18">
+        <omgdc:Bounds height="71.0" width="131.0" x="1390.0" y="596.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetask19" id="BPMNShape_servicetask19">
+        <omgdc:Bounds height="55.0" width="121.0" x="1395.0" y="800.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway20" id="BPMNShape_exclusivegateway20">
+        <omgdc:Bounds height="40.0" width="40.0" x="850.0" y="719.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetask20" id="BPMNShape_servicetask20">
+        <omgdc:Bounds height="71.0" width="131.0" x="880.0" y="596.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway22" id="BPMNShape_exclusivegateway22">
+        <omgdc:Bounds height="40.0" width="40.0" x="970.0" y="410.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="boundarymessageAnnulation" id="BPMNShape_boundarymessageAnnulation">
+        <omgdc:Bounds height="30.0" width="30.0" x="690.0" y="898.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="annulationTask" id="BPMNShape_annulationTask">
+        <omgdc:Bounds height="61.0" width="109.0" x="797.0" y="952.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="terminateendeventAnnulation" id="BPMNShape_terminateendeventAnnulation">
+        <omgdc:Bounds height="35.0" width="35.0" x="1787.0" y="965.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent2" id="BPMNShape_endevent2">
+        <omgdc:Bounds height="35.0" width="35.0" x="1777.0" y="707.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="envoiEmailAnnulationTask" id="BPMNShape_envoiEmailAnnulationTask">
+        <omgdc:Bounds height="65.0" width="121.0" x="1260.0" y="950.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="duplicationMessageStartEvent" id="BPMNShape_duplicationMessageStartEvent">
+        <omgdc:Bounds height="35.0" width="35.0" x="650.0" y="9.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway11" id="BPMNShape_exclusivegateway11">
+        <omgdc:Bounds height="40.0" width="40.0" x="1132.0" y="962.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="DeleteEnAttenteValidationData2" id="BPMNShape_DeleteEnAttenteValidationData2">
+        <omgdc:Bounds height="70.0" width="171.0" x="935.0" y="948.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetask14" id="BPMNShape_servicetask14">
+        <omgdc:Bounds height="74.0" width="121.0" x="1582.0" y="946.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway15" id="BPMNShape_exclusivegateway15">
+        <omgdc:Bounds height="40.0" width="40.0" x="1442.0" y="962.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway19" id="BPMNShape_exclusivegateway19">
+        <omgdc:Bounds height="40.0" width="40.0" x="598.0" y="213.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="textannotation9" id="BPMNShape_textannotation9">
+        <omgdc:Bounds height="53.0" width="100.0" x="1161.0" y="323.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="textannotation11" id="BPMNShape_textannotation11">
+        <omgdc:Bounds height="50.0" width="100.0" x="1600.0" y="476.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="textannotation12" id="BPMNShape_textannotation12">
+        <omgdc:Bounds height="50.0" width="114.0" x="1010.0" y="476.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="textannotation13" id="BPMNShape_textannotation13">
+        <omgdc:Bounds height="50.0" width="152.0" x="627.0" y="958.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="textannotation14" id="BPMNShape_textannotation14">
+        <omgdc:Bounds height="50.0" width="171.0" x="715.0" y="2.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="textannotation15" id="BPMNShape_textannotation15">
+        <omgdc:Bounds height="60.0" width="121.0" x="1202.0" y="1032.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow62" id="BPMNEdge_flow62">
+        <omgdi:waypoint x="618.0" y="190.0"></omgdi:waypoint>
+        <omgdi:waypoint x="618.0" y="213.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow92" id="BPMNEdge_flow92">
+        <omgdi:waypoint x="817.0" y="104.0"></omgdi:waypoint>
+        <omgdi:waypoint x="818.0" y="119.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow36" id="BPMNEdge_flow36">
+        <omgdi:waypoint x="1060.0" y="827.0"></omgdi:waypoint>
+        <omgdi:waypoint x="931.0" y="827.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow82" id="BPMNEdge_flow82">
+        <omgdi:waypoint x="1280.0" y="491.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1280.0" y="611.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow77" id="BPMNEdge_flow77">
+        <omgdi:waypoint x="1572.0" y="591.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1652.0" y="611.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow78" id="BPMNEdge_flow78">
+        <omgdi:waypoint x="1652.0" y="651.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1652.0" y="704.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow79" id="BPMNEdge_flow79">
+        <omgdi:waypoint x="1632.0" y="631.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1521.0" y="631.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow35" id="BPMNEdge_flow35">
+        <omgdi:waypoint x="1210.0" y="249.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1120.0" y="245.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1120.0" y="787.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow49" id="BPMNEdge_flow49">
+        <omgdi:waypoint x="1352.0" y="249.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1412.0" y="249.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1412.0" y="165.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1482.0" y="166.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow50" id="BPMNEdge_flow50">
+        <omgdi:waypoint x="1281.0" y="279.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1280.0" y="410.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow55" id="BPMNEdge_flow55">
+        <omgdi:waypoint x="970.0" y="430.0"></omgdi:waypoint>
+        <omgdi:waypoint x="945.0" y="422.0"></omgdi:waypoint>
+        <omgdi:waypoint x="945.0" y="387.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow108" id="BPMNEdge_flow108">
+        <omgdi:waypoint x="945.0" y="301.0"></omgdi:waypoint>
+        <omgdi:waypoint x="944.0" y="259.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1280.0" y="140.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow112" id="BPMNEdge_flow112">
+        <omgdi:waypoint x="801.0" y="301.0"></omgdi:waypoint>
+        <omgdi:waypoint x="800.0" y="237.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1280.0" y="140.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow113" id="BPMNEdge_flow113">
+        <omgdi:waypoint x="870.0" y="450.0"></omgdi:waypoint>
+        <omgdi:waypoint x="870.0" y="420.0"></omgdi:waypoint>
+        <omgdi:waypoint x="800.0" y="420.0"></omgdi:waypoint>
+        <omgdi:waypoint x="801.0" y="387.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow93" id="BPMNEdge_flow93">
+        <omgdi:waypoint x="886.0" y="156.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1280.0" y="140.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow120" id="BPMNEdge_flow120">
+        <omgdi:waypoint x="1280.0" y="140.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1280.0" y="160.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow121" id="BPMNEdge_flow121">
+        <omgdi:waypoint x="1280.0" y="200.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1281.0" y="220.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow142" id="BPMNEdge_flow142">
+        <omgdi:waypoint x="1341.0" y="739.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1395.0" y="740.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow143" id="BPMNEdge_flow143">
+        <omgdi:waypoint x="1592.0" y="739.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1516.0" y="740.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow144" id="BPMNEdge_flow144">
+        <omgdi:waypoint x="1455.0" y="780.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1455.0" y="800.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow146" id="BPMNEdge_flow146">
+        <omgdi:waypoint x="1572.0" y="194.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1572.0" y="210.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow147" id="BPMNEdge_flow147">
+        <omgdi:waypoint x="1572.0" y="265.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1572.0" y="278.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow148" id="BPMNEdge_flow148">
+        <omgdi:waypoint x="1572.0" y="337.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1572.0" y="350.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow149" id="BPMNEdge_flow149">
+        <omgdi:waypoint x="1572.0" y="405.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1572.0" y="430.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow150" id="BPMNEdge_flow150">
+        <omgdi:waypoint x="1592.0" y="450.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1704.0" y="450.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1704.0" y="104.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1341.0" y="104.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow151" id="BPMNEdge_flow151">
+        <omgdi:waypoint x="1592.0" y="450.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1572.0" y="480.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow152" id="BPMNEdge_flow152">
+        <omgdi:waypoint x="1572.0" y="520.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1572.0" y="536.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow154" id="BPMNEdge_flow154">
+        <omgdi:waypoint x="1552.0" y="500.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1443.0" y="499.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1443.0" y="450.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1346.0" y="450.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow156" id="BPMNEdge_flow156">
+        <omgdi:waypoint x="1552.0" y="500.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1448.0" y="500.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1448.0" y="525.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1120.0" y="525.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1120.0" y="787.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow157" id="BPMNEdge_flow157">
+        <omgdi:waypoint x="850.0" y="739.0"></omgdi:waypoint>
+        <omgdi:waypoint x="800.0" y="739.0"></omgdi:waypoint>
+        <omgdi:waypoint x="800.0" y="667.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow158" id="BPMNEdge_flow158">
+        <omgdi:waypoint x="800.0" y="596.0"></omgdi:waypoint>
+        <omgdi:waypoint x="800.0" y="545.0"></omgdi:waypoint>
+        <omgdi:waypoint x="870.0" y="545.0"></omgdi:waypoint>
+        <omgdi:waypoint x="870.0" y="510.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow159" id="BPMNEdge_flow159">
+        <omgdi:waypoint x="1280.0" y="651.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1280.0" y="704.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow160" id="BPMNEdge_flow160">
+        <omgdi:waypoint x="1300.0" y="631.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1390.0" y="631.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow161" id="BPMNEdge_flow161">
+        <omgdi:waypoint x="1455.0" y="667.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1455.0" y="700.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow164" id="BPMNEdge_flow164">
+        <omgdi:waypoint x="1455.0" y="855.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1455.0" y="870.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow165" id="BPMNEdge_flow165">
+        <omgdi:waypoint x="870.0" y="787.0"></omgdi:waypoint>
+        <omgdi:waypoint x="870.0" y="759.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow166" id="BPMNEdge_flow166">
+        <omgdi:waypoint x="890.0" y="739.0"></omgdi:waypoint>
+        <omgdi:waypoint x="945.0" y="738.0"></omgdi:waypoint>
+        <omgdi:waypoint x="945.0" y="667.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow167" id="BPMNEdge_flow167">
+        <omgdi:waypoint x="945.0" y="596.0"></omgdi:waypoint>
+        <omgdi:waypoint x="945.0" y="544.0"></omgdi:waypoint>
+        <omgdi:waypoint x="870.0" y="544.0"></omgdi:waypoint>
+        <omgdi:waypoint x="870.0" y="510.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow169" id="BPMNEdge_flow169">
+        <omgdi:waypoint x="1010.0" y="430.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1060.0" y="429.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1060.0" y="247.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1280.0" y="140.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow170" id="BPMNEdge_flow170">
+        <omgdi:waypoint x="931.0" y="480.0"></omgdi:waypoint>
+        <omgdi:waypoint x="988.0" y="480.0"></omgdi:waypoint>
+        <omgdi:waypoint x="990.0" y="450.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow94" id="BPMNEdge_flow94">
+        <omgdi:waypoint x="1740.0" y="485.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1794.0" y="707.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow95" id="BPMNEdge_flow95">
+        <omgdi:waypoint x="705.0" y="928.0"></omgdi:waypoint>
+        <omgdi:waypoint x="851.0" y="952.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow96" id="BPMNEdge_flow96">
+        <omgdi:waypoint x="906.0" y="982.0"></omgdi:waypoint>
+        <omgdi:waypoint x="935.0" y="983.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow97" id="BPMNEdge_flow97">
+        <omgdi:waypoint x="1381.0" y="982.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1442.0" y="982.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow98" id="BPMNEdge_flow98">
+        <omgdi:waypoint x="667.0" y="44.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1220.0" y="60.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow103" id="BPMNEdge_flow103">
+        <omgdi:waypoint x="1172.0" y="982.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1260.0" y="982.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow104" id="BPMNEdge_flow104">
+        <omgdi:waypoint x="1152.0" y="1002.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1152.0" y="1025.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1461.0" y="1025.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1462.0" y="1002.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow105" id="BPMNEdge_flow105">
+        <omgdi:waypoint x="1106.0" y="983.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1132.0" y="982.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow137" id="BPMNEdge_flow137">
+        <omgdi:waypoint x="677.0" y="311.0"></omgdi:waypoint>
+        <omgdi:waypoint x="700.0" y="485.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow138" id="BPMNEdge_flow138">
+        <omgdi:waypoint x="1703.0" y="983.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1787.0" y="982.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow139" id="BPMNEdge_flow139">
+        <omgdi:waypoint x="1462.0" y="962.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1462.0" y="922.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1804.0" y="922.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1804.0" y="965.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow140" id="BPMNEdge_flow140">
+        <omgdi:waypoint x="1482.0" y="982.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1582.0" y="983.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow162" id="BPMNEdge_flow162">
+        <omgdi:waypoint x="618.0" y="253.0"></omgdi:waypoint>
+        <omgdi:waypoint x="616.0" y="276.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow163" id="BPMNEdge_flow163">
+        <omgdi:waypoint x="638.0" y="233.0"></omgdi:waypoint>
+        <omgdi:waypoint x="700.0" y="485.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow168" id="BPMNEdge_flow168">
+        <omgdi:waypoint x="1152.0" y="1002.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1152.0" y="1110.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1804.0" y="1110.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1804.0" y="1000.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

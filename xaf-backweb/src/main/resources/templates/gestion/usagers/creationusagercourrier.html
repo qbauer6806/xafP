@@ -1,0 +1,354 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" class="no-js" lang="en"
+	dir="ltr"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="x-ua-compatible" content="ie=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title th:text="${AfBackUtils.getDemarcheNom()}"></title>
+<link rel="shortcut icon" th:href="@{/img/favicon.ico}" />
+
+<!-- Import FONTS -->
+<link th:href="@{/webjars/xcb-wlib/fonts/style.css}" rel="stylesheet" />
+<link rel="stylesheet" th:href="@{/webjars/xcb-wlib/fonts/ie7/ie7.css}" />
+
+<!-- Import CSS -->
+<link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"
+	rel="stylesheet" type="text/css" />
+<link th:href="@{/webjars/xcb-wlib/css/template.css}" rel="stylesheet" />
+<link th:href="@{/webjars/xcb-wlib/css/sidebar.css}" rel="stylesheet" />
+<link th:href="@{/webjars/xcb-wlib/css/element.css}" rel="stylesheet" />
+<link th:href="@{/webjars/datatables/css/dataTables.bootstrap.css}"
+	rel="stylesheet" />
+<link
+	th:href="@{/webjars/bootstrap-datepicker/css/bootstrap-datepicker.css}"
+	rel="stylesheet" />
+
+<link rel="shortcut icon" type="image/x-icon"
+	th:href="@{/img/favicon.ico}" />
+<link th:href="@{/css/tsgen.css(${applicationBuildTimestamp})}"
+	rel="stylesheet" />
+<link th:href="@{/css/tsdem.css(${applicationBuildTimestamp})}"
+	rel="stylesheet" />
+
+</head>
+<body th:with="pageUsagersActive='active'">
+
+	<div th:replace="fragments/header :: header"></div>
+
+	<div id="wrapper">
+
+		<div th:replace="fragments/sidebar :: sidebar"></div>
+
+		<!-- DEBUT CONTENU -->
+		<div id="page-content-wrapper">
+			<div class="breadcrumbContent">
+				<ol class="breadcrumb">
+					<span><a th:href="@{/}" class="breadcrumb-link">ACCUEIL</a>&nbsp;&gt;&nbsp;<a
+						th:href="@{/gestion/usagers}" class="breadcrumb-link">USAGERS</a>
+						&gt; <span th:if="${updateUsagerId} == null">Création d'un
+							usager courrier</span> <span th:if="${updateUsagerId} != null">Visualisation
+							ou modification d'un usager courrier</span></span>
+				</ol>
+				<div class="triangleTopright"></div>
+			</div>
+
+			<div class="container-fluid">
+
+				<div class="row">
+					<div class="col-xs-12">
+						<div class="row">
+							<div class="col-xs-12">
+								<h1 th:if="${updateUsagerId} == null">Création d'un usager
+									courrier</h1>
+								<h1 th:if="${updateUsagerId} != null">Visualisation ou
+									modification d'un usager courrier</h1>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-xs-12">
+								<div class="panel panel-simple">
+									<div class="row">
+										<div class="col-xs-12">
+											<form id="form-creationUsager"
+												th:action="@{/gestion/usagers/creer}" method="post"
+												th:object="${usagerCourrierFormBean}">
+
+												<div class="row">
+													<div class="col-xs-2">
+														<label for="selectTitre">Titre </label>
+													</div>
+													<div class="col-xs-10">
+														<select id="selectTitre" class="form-control"
+															th:field="*{titre}">
+															<option th:value="null">Veuillez sélectionner
+																une valeur...</option>
+															<option th:value="Mr">Monsieur</option>
+															<option th:value="Mme">Madame</option>
+															<option th:value="Mlle">Mademoiselle</option>
+														</select>
+													</div>
+												</div>
+
+												<br />
+												<div class="row">
+													<div
+														th:class="${#fields.hasErrors('nom')} ? 'form-group error' : 'form-group'">
+														<div class="col-xs-2">
+															<label for="nom">Nom</label>
+														</div>
+														<div class="col-xs-10">
+															<input type="text" class="form-control nom" id="nom"
+																th:field="*{nom}" th:errorclass="errorTooltip"
+																th:attr="data-title=${#fields.hasErrors('nom')} ? ${#fields.errors('nom')} :''" />
+														</div>
+													</div>
+												</div>
+
+												<br />
+												<div class="row">
+													<div class="col-xs-2">
+														<label for="inputPrenom">Prénom</label>
+													</div>
+													<div class="col-xs-10">
+														<input type="text" class="form-control" id="inputPrenom"
+															th:field="*{prenom}" maxlength="20" />
+													</div>
+												</div>
+
+
+												<br />
+												<div class="row">
+													<div
+														th:class="${#fields.hasErrors('nom')} ? 'form-group error' : 'form-group'">
+														<div class="col-xs-2">
+															<label for="inputRaisonSociale">Raison sociale</label>
+														</div>
+														<div class="col-xs-10">
+															<input type="text" class="form-control"
+																id="inputRaisonSociale" th:field="*{raisonSociale}"
+																th:errorclass="errorTooltip"
+																th:attr="data-title=${#fields.hasErrors('raisonSociale')} ? ${#fields.errors('raisonSociale')} :''"
+																maxlength="20" />
+														</div>
+													</div>
+												</div>
+
+												<br />
+												<div class="row">
+													<div
+														th:class="${#fields.hasErrors('adresse1')} ? 'form-group error' : 'form-group'">
+														<div class="col-xs-2">
+															<label for="inputAdresse1">Adresse<span
+																class="required" />
+
+															</label>
+														</div>
+														<div class="col-xs-10">
+															<input type="text" class="form-control"
+																id="inputAdresse1" th:field="*{adresse1}"
+																th:errorclass="errorTooltip"
+																th:attr="data-title=${#fields.hasErrors('adresse1')} ? ${#fields.errors('adresse1')} :''" />
+														</div>
+													</div>
+												</div>
+
+												<br />
+												<div class="row">
+													<div class="col-xs-2"></div>
+													<div class="col-xs-10">
+
+														<input type="text" class="form-control" id="inputAdresse2"
+															th:field="*{adresse2}" maxlength="128" />
+													</div>
+												</div>
+
+												<br />
+												<div class="row">
+													<div class="col-xs-2"></div>
+													<div class="col-xs-10">
+														<input type="text" class="form-control"
+															id="inputAdresseComplement"
+															th:field="*{adresseComplement}" maxlength="128" />
+
+													</div>
+												</div>
+
+												<br />
+												<div class="row">
+													<div
+														th:class="${#fields.hasErrors('codePostal')} ? 'form-group error' : 'form-group'">
+														<div class="col-xs-2">
+															<label for="inputCodePostal">Code postal<span
+																class="required" /></label>
+														</div>
+														<div class="col-xs-10">
+															<input type="text" class="form-control"
+																id="inputCodePostal" th:field="*{codePostal}"
+																th:errorclass="errorTooltip"
+																th:attr="data-title=${#fields.hasErrors('codePostal')} ? ${#fields.errors('codePostal')} :''" />
+														</div>
+													</div>
+												</div>
+
+												<br />
+												<div class="row">
+													<div
+														th:class="${#fields.hasErrors('ville')} ? 'form-group error' : 'form-group'">
+														<div class="col-xs-2">
+															<label for="inputVille">Ville<span
+																class="required" /></label>
+														</div>
+														<div class="col-xs-10">
+															<input type="text" class="form-control" id="inputVille"
+																th:field="*{ville}" th:errorclass="errorTooltip"
+																th:attr="data-title=${#fields.hasErrors('ville')} ? ${#fields.errors('ville')} :''" />
+														</div>
+													</div>
+												</div>
+
+												<br />
+												<div class="row">
+													<div
+														th:class="${#fields.hasErrors('paysChoisi')} ? 'form-group error' : 'form-group'">
+														<div class="col-xs-2">
+															<label for="selectPays">Pays<span
+																class="required" /></label>
+														</div>
+														<div class="col-xs-10">
+															<select id="selectPays" th:field="*{paysChoisi}"
+																class="form-control" th:errorclass="errorTooltip"
+																th:attr="data-title=${#fields.hasErrors('paysChoisi')} ? ${#fields.errors('paysChoisi')} :''">
+																<option value="">Veuillez sélectionner une
+																	valeur...</option>
+																<option th:each="pays : ${listePaysP1}"
+																	th:value="${pays.codeIso}" th:text="${pays.nom}" />
+																<option value="">----------------------------</option>
+																<option th:each="pays : ${listePaysP2}"
+																	th:value="${pays.codeIso}" th:text="${pays.nom}" />
+																<option value="">----------------------------</option>
+																<option th:each="pays : ${listePaysP3}"
+																	th:value="${pays.codeIso}" th:text="${pays.nom}" />
+															</select>
+														</div>
+													</div>
+												</div>
+
+
+												<br />
+												<div class="row">
+													<div class="col-xs-2">
+														<label for="inputTelephone">Téléphone </label>
+													</div>
+													<div class="col-xs-10">
+														<input type="text" class="form-control"
+															id="inputTelephone" th:field="*{telephone}"
+															maxlength="64" />
+													</div>
+												</div>
+
+												<br />
+												<div class="row">
+													<div class="col-xs-2">
+														<label for="inputEmail">Adresse email </label>
+													</div>
+													<div class="col-xs-10">
+														<input type="text" class="form-control" id="inputEmail"
+															th:field="*{email}" maxlength="256" />
+													</div>
+												</div>
+
+												<br />
+												<div class="row">
+													<div class="col-xs-12">
+														<div class="text-center">
+															<input type="hidden" name="updateUsagerId"
+																th:value="${updateUsagerId}" /> 
+															
+															<a th:href="@{/gestion/usagers}"
+																class="btn btn-action-second ripple-effect"> Retour	</a>
+															
+															<input id="sauvegarder-button" type="button" name="action"
+									            				value="Sauvegarder" class="btn btn-action ripple-effect" /> 
+																
+															<a class="btn btn-action ripple-effect"
+																th:if="${updateUsagerId} != null"
+																th:href="@{/demandes/courriers/creer/}+${updateUsagerId}">
+																Ajouter une demande </a>
+														</div>
+													</div>
+												</div>
+
+											</form>
+
+										</div>
+
+									</div>
+
+								</div>
+							</div>
+							<div class="container-fluid">
+								<small>Les champs obligatoires sont suivis par *</small>
+							</div>
+						</div>
+					</div>
+				</div>
+
+
+			</div>
+
+		</div>
+		<!-- FIN CONTENU -->
+
+	</div>
+	<div th:replace="fragments/footer :: footer"></div>
+
+	<div th:replace="fragments/message :: message"></div>
+
+	<script th:inline="javascript">
+		/*<![CDATA[*/
+
+		$(document).ready(function() {
+
+			//Initialisaiton des tooltips pour les erreurs
+			$(".errorTooltip").each(
+					function() {
+						var $this = $(this);
+						var title = $this.data("title");
+						//New title sans les crochets car les erreurs et un toString d'un tableau d'erreur messages
+						var newTitle = title.substring(1,
+								title.length - 1);
+						$this.tooltip({
+							placement : "bottom",
+							title : newTitle
+						});
+
+					});
+
+			var messagesSuccessList = /*[[${successMessages}]]*/'default';
+
+			if (messagesSuccessList !== 'undefined'
+					&& messagesSuccessList !== null) {
+				$.each(messagesSuccessList, function(key, msg) {
+					$.notify({
+						message : msg
+					}, {
+						type : 'success'
+					});
+				});
+			}
+			
+	        $('#sauvegarder-button').click(function(e){
+	            $('#sauvegarder-button').prop('disabled', true);
+	            e.preventDefault();
+	            $('#form-creationUsager').submit();
+	            return false;
+	        });
+
+		})
+
+		/*]]>*/
+	</script>
+</body>
+</html>

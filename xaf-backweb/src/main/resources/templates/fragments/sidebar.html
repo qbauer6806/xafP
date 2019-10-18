@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+	<div id="sidebar" th:fragment="sidebar" th:remove="tag">
+
+		<!-- Sidebar -->
+		<div id="sidebar-wrapper">
+			<ul class="sidebar-nav">
+				<li class="sidebar-brand"><i id="iconMenu"
+					class="icon-menu_menu"></i></li>
+				<!-- Lien simple -->
+				<li th:class="${pageAccueilActive} ? 'active' : ''"><a
+					th:href="@{/index}">
+						<div class="contentTooltip">
+							<span class="greyTooltip" data-toggle="tooltip"
+								data-placement="right" title="" data-original-title="Accueil"></span>
+						</div>
+						<div class="iconContent greyTooltip">
+							<i class="icon icon-menu_accueil"></i>
+						</div>
+						<div class="menuContent">Accueil</div>
+				</a></li>
+
+				<!-- Lien simple -->
+				<li th:class="${pageDemandesActive} ? 'active' : ''"><a
+					th:href="@{/demandes}">
+						<div class="contentTooltip">
+							<span class="greyTooltip" data-toggle="tooltip"
+								data-placement="right" title="" data-original-title="Demandes"></span>
+						</div>
+						<div class="iconContent">
+							<i class="icon icon-menu_demandes"></i>
+						</div>
+						<div class="menuContent">Demandes</div>
+				</a></li>
+
+				<!-- Lien simple -->
+				<li th:if="${AfBackUtils.getDemarcheCanGenerateCourriers()}"
+					th:class="${pageCourriersActive} ? 'active' : ''"
+					sec:authorize="hasRole('ROLE_TRAITEMENT')"><a
+					th:href="@{/gestion/courriers}">
+						<div class="contentTooltip">
+							<span class="greyTooltip" data-toggle="tooltip"
+								data-placement="right" title="" data-original-title="Courriers"></span>
+						</div>
+						<div class="iconContent">
+							<i class="icon icon-menu_courriers"></i>
+						</div>
+						<div class="menuContent">Courriers</div>
+				</a></li>
+
+				<!-- Lien simple -->
+				<li th:if="${AfBackUtils.getDemarcheCanGenerateCourriers()}"
+					th:class="${pageUsagersActive} ? 'active' : ''"
+					sec:authorize="hasRole('ROLE_TRAITEMENT')"><a
+					th:href="@{/gestion/usagers}">
+						<div class="contentTooltip">
+							<span class="greyTooltip" data-toggle="tooltip"
+								data-placement="right" title="" data-original-title="Usagers"></span>
+						</div>
+						<div class="iconContent">
+							<i class="icon icon-menu_usagers"></i>
+						</div>
+						<div class="menuContent">Usagers</div>
+				</a></li>
+
+				<!-- Lien simple -->
+				<li th:class="${pageIndicateursActive} ? 'active' : ''"
+					sec:authorize="hasRole('ROLE_PARAMETRAGE')"><a
+					th:href="@{/gestion/indicateurs}">
+						<div class="contentTooltip">
+							<span class="greyTooltip" data-toggle="tooltip"
+								data-placement="right" title=""
+								data-original-title="Indicateurs"></span>
+						</div>
+						<div class="iconContent">
+							<i class="icon icon-menu_indicateurs"></i>
+						</div>
+						<div class="menuContent">Indicateurs</div>
+				</a></li>
+
+				<li th:class="${pageUtilisateursActive} ? 'active' : ''"
+					sec:authorize="hasRole('ROLE_PARAMETRAGE')"><a
+					th:href="@{/gestion/utilisateurs}">
+						<div class="contentTooltip">
+							<span class="greyTooltip" data-toggle="tooltip"
+								data-placement="right" title=""
+								data-original-title="Utilisateurs"></span>
+						</div>
+						<div class="iconContent">
+							<i class="icon icon-menu_utilisateurs"></i>
+						</div>
+						<div class="menuContent">Utilisateurs</div>
+				</a></li>
+
+				
+
+				<li th:class="${pageParametresActive} ? 'active' : ''" sec:authorize="hasRole('ROLE_PARAMETRAGE')" >
+	               <a th:href="@{/gestion/parametres}">
+	               		<div class="contentTooltip">
+	               			<span class="greyTooltip" data-toggle="tooltip" data-placement="right" title="" data-original-title="Paramètres"></span>
+	               		</div>
+	               		<div class="iconContent"><i class="icon icon-menu_parametres"></i></div>
+                        <div class="menuContent">Paramètres</div>
+                   </a>
+	            </li>
+	            
+	           <li th:class="${pageConfigurationActive} ? 'active' : ''" sec:authorize="hasRole('ROLE_CONFIGURATION')" >
+	               <a>
+	               		<div class="contentTooltip">
+	               			<span class="greyTooltip" data-toggle="tooltip" data-placement="right" title="" data-original-title="Configuration"></span>
+	               		</div>
+	               		<div class="iconContent"><i class="icon icon-menu_parametres_admin"></i></div>
+                        <div class="menuContent">Configuration</div> <span class="icon-action_suivant"></span>
+                   </a>
+                   <ul class="" style="left: 40px; display: none;">
+						<li><a th:href="@{/gestion/adminrecherche}">
+								<div class="whiteBullet"></div> Administration de la recherche avancée
+						</a></li>
+						<li><a th:href="@{/gestion/jobs}">
+								<div class="whiteBullet"></div> Jobs
+						</a></li>
+					   <li><a th:href="@{/gestion/statistiques}">
+						   <div class="whiteBullet"></div> Statistiques
+					   </a></li>
+					</ul>
+				</li>
+
+
+
+								
+
+
+				<li th:class="${pageAideActive} ? 'active' : ''"><a
+					th:href="${helpUrl}" target="_blank">
+						<div class="contentTooltip">
+							<span class="greyTooltip" data-toggle="tooltip"
+								data-placement="right" title="" data-original-title="Aide"></span>
+						</div>
+						<div class="iconContent">
+							<i class="icon icon-menu_aide"></i>
+						</div>
+						<div class="menuContent">Aide</div>
+				</a></li>
+
+			</ul>
+		</div>
+		<!-- FIN Sidebar -->
+
+	</div>
+
+
+
+</body>
+</html>

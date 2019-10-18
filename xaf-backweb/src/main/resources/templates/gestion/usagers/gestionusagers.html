@@ -1,0 +1,334 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" class="no-js" lang="en"
+	dir="ltr">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="x-ua-compatible" content="ie=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title th:text="${AfBackUtils.getDemarcheNom()}"></title>
+<!-- Import FONTS -->
+<link th:href="@{/webjars/xcb-wlib/fonts/style.css}" rel="stylesheet" />
+<link rel="stylesheet" th:href="@{/webjars/xcb-wlib/fonts/ie7/ie7.css}" />
+
+<!-- Import CSS -->
+<link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"
+	rel="stylesheet" type="text/css" />
+<link th:href="@{/webjars/xcb-wlib/css/template.css}" rel="stylesheet" />
+<link th:href="@{/webjars/xcb-wlib/css/sidebar.css}" rel="stylesheet" />
+<link th:href="@{/webjars/xcb-wlib/css/element.css}" rel="stylesheet" />
+<link th:href="@{/webjars/datatables/css/dataTables.bootstrap.css}"
+	rel="stylesheet" />
+<link
+	th:href="@{/webjars/bootstrap-datepicker/css/bootstrap-datepicker.css}"
+	rel="stylesheet" />
+<link rel="stylesheet"
+	th:href="@{/webjars/fancybox/jquery.fancybox.css}" />
+
+<link rel="shortcut icon" type="image/x-icon"
+	th:href="@{/img/favicon.ico}" />
+<link th:href="@{/css/tsgen.css(${applicationBuildTimestamp})}"
+	rel="stylesheet" />
+<link th:href="@{/css/tsdem.css(${applicationBuildTimestamp})}"
+	rel="stylesheet" />
+</head>
+<body th:with="pageUsagersActive='active'">
+
+	<div th:replace="fragments/header :: header"></div>
+
+	<div id="wrapper">
+
+		<div th:replace="fragments/sidebar :: sidebar"></div>
+
+
+		<!-- DEBUT CONTENU -->
+		<div id="page-content-wrapper">
+
+			<div class="breadcrumbContent">
+				<ol class="breadcrumb">
+					<span class="breadcrumb-item active"><a th:href="@{/}"
+						class="breadcrumb-item">ACCUEIL</a>&nbsp;&gt;&nbsp;<a
+						th:href="@{/gestion/usagers}" class="breadcrumb-item">USAGERS</a>
+						&gt;</span>
+				</ol>
+				<div class="triangleTopright"></div>
+			</div>
+
+			<div th:if="!${AfBackUtils.getDemarcheCanGenerateCourriers()}"
+				class="container-fluid">
+				<div class="row">
+					<div class="col-xs-12">
+						<h1>Pas d'usagers courrier pour cette démarche</h1>
+					</div>
+				</div>
+			</div>
+
+
+			<div th:if="${AfBackUtils.getDemarcheCanGenerateCourriers()}"
+				class="container-fluid">
+
+				<div class="row">
+					<div class="col-xs-12"></div>
+				</div>
+
+				<div class="row">
+					<div class="col-xs-12">
+						<h1>Tous les usagers courrier</h1>
+					</div>
+				</div>
+
+				<div class="row" align="right">
+					<div class="col-xs-12">
+						<a th:href="@{/gestion/usagers/creer}"
+							class="btn btn-action ripple-effect"><i
+							class="icon-action_plus"></i><span>AJOUTER UN USAGER</span></a>
+					</div>
+				</div>
+
+
+				<div class="row">
+					<div class="col-xs-12">
+						<span class="titre">Recherche</span>
+						<div class="panel panel-simple">
+							<div class="form-group">
+								<form action="#" th:action="@{/gestion/usagers/rechercher}"
+									method="post">
+									<label for="inputSearch">Par nom d'usager - Par raison
+										sociale - Par adresse</label>
+									<div class="row">
+										<div class="col-xs-11">
+											<input type="text" th:value="${usagerInput}"
+												name="usagerInput" class="form-control" id="inputSearch"
+												title=""></input>
+										</div>
+										<div class="col-xs-1 nopadding">
+											<button type="submit" class="btn btn-action ripple-effect"
+												name="action" value="Rechercher" id="rechercherButton2">
+												<i class="icon-action_chercher"></i>
+											</button>
+										</div>
+
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-xs-12">
+						<div class="tableContent">
+							<div class="tableTitle">
+								Résultats <span class="badge" th:text="${#lists.size(usagers)}"></span>
+							</div>
+
+							<table id="datatable-usagers" class="table table-striped">
+								<thead>
+									<tr>
+										<th>Nom / Raison sociale</th>
+										<th>Adresse</th>
+										<th>Nombre de demandes</th>
+										<th class="text-center">Actions</th>
+									</tr>
+								</thead>
+								<tbody>
+
+									<tr th:each="usager :  ${usagers}">
+										<td><span th:text="${usager.nomRaisonSociale}"></span></td>
+										<td><span th:text="${usager.adresse}"></span></td>
+										<td><span th:text="${usager.nbDemandes}"></span></td>
+										<td class="text-right"><a
+											th:href="@{/gestion/usagers/}+${usager.usagerId}"> <span
+												class="btn btn-action ripple-effect greyTooltip"
+												data-toggle="tooltip" data-placement="bottom"
+												data-original-title="Visualiser/Modifier" title=""> <i
+													class="icon-action_editer"></i></span>
+										</a> &nbsp;&nbsp; <a href="#"
+											th:attr="data-usagerid=${usager.usagerId},data-raisonsociale=${usager.raisonSociale},data-nomprenom=${usager.nomPrenom},data-ville=${usager.ville},data-codepostal=${usager.codePostal},data-adresse=${usager.adresse},data-urltransfert=@{/gestion/usagers/transferer/}"
+											class="transferer"> <span
+												class="btn btn-action ripple-effect greyTooltip"
+												data-toggle="tooltip" data-placement="bottom"
+												data-original-title="Transférer des demandes" title="">
+													<i class="icon-action_transferer_demande"></i>
+											</span>
+										</a> &nbsp;&nbsp; <a href="#"
+											th:attr="data-usagerid=${usager.usagerId},data-raisonsociale=${usager.raisonSociale},data-nomprenom=${usager.nomPrenom},data-ville=${usager.ville},data-codepostal=${usager.codePostal},data-adresse=${usager.adresse},data-nbdemandes=${usager.nbDemandes},data-urltransfert=@{/gestion/usagers/transferer/}"
+											class="supprimer"> <span
+												class="btn btn-action ripple-effect greyTooltip"
+												data-toggle="tooltip" data-placement="bottom"
+												data-original-title="Supprimer l'usager" title=""> <i
+													class="icon-action_supprimer"></i></span>
+										</a></td>
+
+									</tr>
+
+								</tbody>
+							</table>
+
+						</div>
+					</div>
+
+				</div>
+
+			</div>
+		</div>
+
+		<!-- FIN CONTENU -->
+
+	</div>
+	<div th:replace="fragments/footer :: footer"></div>
+
+	<!-- Template Suppression -->
+
+	<div th:replace="fragments/supprimerusager :: supprimerusager" />
+
+
+	<!-- Template selection transfert -->
+	<div
+		th:replace="fragments/selectionusagertransfert :: selectionusagertransfert" />
+
+
+	<script th:inline="javascript">
+	/*<![CDATA[*/
+	
+		var urlTransfertSuppression = /*[[@{/gestion/usagers/transferersupprimer/}]]*/;
+		var urlTransfert = /*[[@{/gestion/usagers/transferer/}]]*/;
+	
+		$(document).ready(function() {
+
+			$('#rechercherButton1').click(function(e){
+				e.preventDefault();
+				$('#rechercherButton2').click();
+			});
+			
+            $(".supprimer-annuler").click(function(e){
+                e.preventDefault();
+            	$.fancybox.close();
+            	return false;
+            });
+            
+            $("#supprimer-button").click(function(e){
+                $("#supprimer-button").prop('disabled', true);
+                e.preventDefault();
+            	$.fancybox.close();
+            	$('#form-supprimer').submit();
+            	return false;
+            });
+
+            $(".transferer-annuler").click(function(e){
+                e.preventDefault();
+            	$.fancybox.close();
+            	return false;
+             });
+
+ 	    	$(".supprimer").click(function(e) {
+	    		e.preventDefault();
+	    		
+ 	    		var usagerId = $(this).data("usagerid");
+ 	    		var raisonSociale = $(this).data("raisonsociale");
+ 	    		var nomPrenom = $(this).data("nomprenom");
+ 	    		var adresse = $(this).data("adresse");
+ 	    		var codePostal = $(this).data("codepostal");
+ 	    		var ville = $(this).data("ville");
+ 	    		var nbDemandes = $(this).data("nbdemandes");
+
+ 	    		urlTransfert = urlTransfertSuppression;
+
+	            $.fancybox.open($("#supprimer-box"), {
+	            	   afterShow :function(){},
+	            	   minWidth : 600
+	           	});
+
+	    		$(".usagerId").val(usagerId);
+
+	    		var nomPrenomRaisonSociale = nomPrenom;
+	    		if (typeof raisonSociale !== 'undefined') {
+	    			nomPrenomRaisonSociale = nomPrenomRaisonSociale + '<br/>(' + raisonSociale + ')';
+	    		}
+	    		
+	    		$("#nomPrenomRaisonSociale").html(nomPrenomRaisonSociale);
+	    		$("#adresse").text(adresse);
+	    		$("#codePostal").text(codePostal);
+	    		$("#ville").text(ville);
+
+	    		if (nbDemandes > 0) {
+		    		$(".suppressionOk").hide();
+		    		$(".demandesAffectees").show();
+		    	}
+	    		else {
+		    		$(".suppressionOk").show();
+		    		$(".demandesAffectees").hide();
+		    	}
+
+		        $("#lienpopuptransfert").click(function(e) {
+			        e.preventDefault();
+			        $.fancybox.close();
+			        $("[data-usagerid=" + usagerId + "][class=transferer]").click();
+		        });
+		    	
+				return true;
+	        	
+	        });
+	        
+ 	    	$(".transferer").click(function(e) {
+	    		e.preventDefault();
+
+ 	    		var usagerId = $(this).data("usagerid");
+ 	    		usagerSourceId = usagerId;
+ 	    		var raisonSociale = $(this).data("raisonsociale");
+ 	    		var nomPrenom = $(this).data("nomprenom");
+ 	    		var adresse = $(this).data("adresse");
+ 	    		var codePostal = $(this).data("codepostal");
+ 	    		var ville = $(this).data("ville");
+ 
+	            $.fancybox.open($("#transferer-box"), {
+	            	   afterShow :function(){},
+	            	   minWidth : 1000
+	           	});
+
+	            $('#autocomplete').val('');
+
+	    		var nomPrenomRaisonSociale = nomPrenom;
+	    		if (typeof raisonSociale !== 'undefined') {
+	    			nomPrenomRaisonSociale = nomPrenomRaisonSociale + '<br/>(' + raisonSociale + ')';
+	    		}
+	    		
+	           	$("#transfertNomPrenomRaisonSociale").html(nomPrenomRaisonSociale);
+	    		$("#transfertAdresse").text(adresse);
+	    		$("#transfertCodePostal").text(codePostal);
+	    		$("#transfertVille").text(ville);
+
+	 			$('#autocomplete').autocomplete({
+	 				serviceUrl: APP.getContextPath()+'/ws/usagersCourrierAutocomplete/usagersFullText',
+	 				params: { 'usagerSourceId' : usagerSourceId },
+	 			    onSelect: function (suggestion) {
+	 			    	var usagerCibleId = suggestion.data;
+	 			    	$("#lientransfert").attr("href", urlTransfert + usagerSourceId + '/' + usagerCibleId);
+	 			    }
+	 			});
+
+	 			return true;
+ 	    	});
+ 	    	
+			var datatablePersonnes = $('#datatable-usagers').DataTable({
+                paging: true,
+                searching: false,
+                select: false,
+                bInfo: false,
+                order: [ [ 1, "asc" ] ], 
+                columnDefs: [ {
+       	            targets: [ 0 ],
+       	            orderData: [ 1, 3 ]
+                } ,	{
+                	targets: 3,
+                  	orderable: false
+                } ],
+                language: frenchTranslation,
+                lengthMenu: [ 5, 10, 25, 50, 100 ]  
+            });
+			
+
+	    } );
+		/*]]>*/
+	</script>
+</body>
+</html>

@@ -54,7 +54,7 @@ public class DemandesCourrierController extends AbstractController {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DemandesCourrierController.class);
 
-	@Secured("ROLE_TRAITEMENT")
+	@Secured({"ROLE_TRAITEMENT","ROLE_SAISIE"})
 	@RequestMapping(method = RequestMethod.GET)
 	public ModelAndView form(@ModelAttribute("usagerCourrierFormBean") UsagerCourrierFormBean usagerCourrierFormBean)
 			throws JsonProcessingException {
@@ -68,7 +68,7 @@ public class DemandesCourrierController extends AbstractController {
 		return mav;
 	}
 
-	@Secured("ROLE_TRAITEMENT")
+	@Secured({"ROLE_TRAITEMENT","ROLE_SAISIE"})
 	@RequestMapping(value = "/creer/{usagerId}", method = RequestMethod.POST)
 	public ModelAndView creerDemandeCourrier(@PathVariable(value = "usagerId") Integer usagerId,
 			@Valid @ModelAttribute("demandesCourrierFormBean") DemandesCourrierFormBean demandesCourrierFormBean,
@@ -130,7 +130,7 @@ public class DemandesCourrierController extends AbstractController {
 		return mav;
 	}
 
-	@Secured("ROLE_TRAITEMENT")
+	@Secured({"ROLE_TRAITEMENT","ROLE_SAISIE"})
 	@RequestMapping(value = "/creer/{usagerId}", method = RequestMethod.GET)
 	public ModelAndView form(@PathVariable(value = "usagerId") Integer usagerId,
 			@ModelAttribute("demandesCourrierFormBean") DemandesCourrierFormBean demandesCourrierFormBean)

@@ -37,7 +37,7 @@
 				<!-- Lien simple -->
 				<li th:if="${AfBackUtils.getDemarcheCanGenerateCourriers()}"
 					th:class="${pageCourriersActive} ? 'active' : ''"
-					sec:authorize="hasRole('ROLE_TRAITEMENT')"><a
+					sec:authorize="hasRole('ROLE_TRAITEMENT') || hasRole('ROLE_SAISIE')"><a
 					th:href="@{/gestion/courriers}">
 						<div class="contentTooltip">
 							<span class="greyTooltip" data-toggle="tooltip"
@@ -52,7 +52,7 @@
 				<!-- Lien simple -->
 				<li th:if="${AfBackUtils.getDemarcheCanGenerateCourriers()}"
 					th:class="${pageUsagersActive} ? 'active' : ''"
-					sec:authorize="hasRole('ROLE_TRAITEMENT')"><a
+					sec:authorize="hasRole('ROLE_TRAITEMENT') || hasRole('ROLE_SAISIE')"><a
 					th:href="@{/gestion/usagers}">
 						<div class="contentTooltip">
 							<span class="greyTooltip" data-toggle="tooltip"

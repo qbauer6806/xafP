@@ -88,7 +88,7 @@ public class GestionUsagersController extends AbstractController {
 	/**
 	 * Affichage de la page principale
 	 */
-	@Secured("ROLE_TRAITEMENT")
+	@Secured({"ROLE_TRAITEMENT","ROLE_SAISIE"})
 	@RequestMapping(method = RequestMethod.GET)
 	public ModelAndView form(@RequestParam(name = "usagers", required = false) List<UsagerCourrierResultDTO> usagers) {
 
@@ -112,7 +112,7 @@ public class GestionUsagersController extends AbstractController {
 	/**
 	 * Recherche d'un usager courrier depuis la page principale (POST)
 	 */
-	@Secured("ROLE_TRAITEMENT")
+	@Secured({"ROLE_TRAITEMENT","ROLE_SAISIE"})
 	@RequestMapping(value = "/rechercher", method = RequestMethod.POST)
 	public ModelAndView print(@RequestParam(required = true) String usagerInput) throws Exception {
 
@@ -135,7 +135,7 @@ public class GestionUsagersController extends AbstractController {
 	/**
 	 * Affichage du formulaire de création d'usager courrier (GET)
 	 */
-	@Secured("ROLE_TRAITEMENT")
+	@Secured({"ROLE_TRAITEMENT","ROLE_SAISIE"})
 	@RequestMapping(value = "/creer", method = RequestMethod.GET)
 	public ModelAndView form(@ModelAttribute("usagerCourrierFormBean") UsagerCourrierFormBean usagerCourrierFormBean)
 			throws JsonProcessingException {
@@ -153,7 +153,7 @@ public class GestionUsagersController extends AbstractController {
 	/**
 	 * Création de l'usager courrier depuis le formulaire de création (POST)
 	 */
-	@Secured("ROLE_TRAITEMENT")
+	@Secured({"ROLE_TRAITEMENT","ROLE_SAISIE"})
 	@RequestMapping(value = "/creer", method = RequestMethod.POST)
 	public ModelAndView creerUsagerCourrier(
 			@Valid @ModelAttribute("usagerCourrierFormBean") UsagerCourrierFormBean usagerCourrierFormBean,
@@ -250,7 +250,7 @@ public class GestionUsagersController extends AbstractController {
 	/**
 	 * Affichage de la page d'un usager courrier
 	 */
-	@Secured("ROLE_TRAITEMENT")
+	@Secured({"ROLE_TRAITEMENT","ROLE_SAISIE"})
 	@RequestMapping(value = "/{usagerId}", method = RequestMethod.GET)
 	public ModelAndView visualiserUsager(@PathVariable(value = "usagerId") Integer usagerId,
 			@ModelAttribute("usagerCourrierFormBean") UsagerCourrierFormBean usagerCourrierFormBean) {
@@ -293,7 +293,7 @@ public class GestionUsagersController extends AbstractController {
 	/**
 	 * Suppression d'un usager courrier depuis la page principale (POST)
 	 */
-	@Secured("ROLE_TRAITEMENT")
+	@Secured({"ROLE_TRAITEMENT","ROLE_SAISIE"})
 	@RequestMapping(value = "/supprimer", method = RequestMethod.POST)
 	public ModelAndView supprimer(@RequestParam(required = true) Integer usagerId,
 			final RedirectAttributes redirectAttributes) {
@@ -326,7 +326,7 @@ public class GestionUsagersController extends AbstractController {
 	 * Transfert de demandes tout court Permettre de sélectionner/déselectionner
 	 * les demandes
 	 */
-	@Secured("ROLE_TRAITEMENT")
+	@Secured({"ROLE_TRAITEMENT","ROLE_SAISIE"})
 	@RequestMapping(value = "/transferer/{usagerSourceId}/{usagerCibleId}", method = RequestMethod.GET)
 	public ModelAndView transferer(@PathVariable(value = "usagerSourceId") Integer usagerSourceId,
 			@PathVariable(value = "usagerCibleId") Integer usagerCibleId, final RedirectAttributes redirectAttributes) {
@@ -347,7 +347,7 @@ public class GestionUsagersController extends AbstractController {
 	 * Transfert de demandes suivi de la suppression de l'usager Ne pas
 	 * permettre la désélection des demandes
 	 */
-	@Secured("ROLE_TRAITEMENT")
+	@Secured({"ROLE_TRAITEMENT","ROLE_SAISIE"})
 	@RequestMapping(value = "/transferersupprimer/{usagerSourceId}/{usagerCibleId}", method = RequestMethod.GET)
 	public ModelAndView transfererSupprimer(@PathVariable(value = "usagerSourceId") Integer usagerSourceId,
 			@PathVariable(value = "usagerCibleId") Integer usagerCibleId, final RedirectAttributes redirectAttributes) {
@@ -403,7 +403,7 @@ public class GestionUsagersController extends AbstractController {
 	 * Transfert de demandes tout court ou suivi de la suppression de l'usager
 	 * courrier
 	 */
-	@Secured("ROLE_TRAITEMENT")
+	@Secured({"ROLE_TRAITEMENT","ROLE_SAISIE"})
 	@RequestMapping(value = "/transferer", method = RequestMethod.POST, params = "action=Valider")
 	public ModelAndView transfererPost(
 			@ModelAttribute("transfertDemandesFormBean") TransfertDemandesFormBean transfertDemandesFormBean,

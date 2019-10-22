@@ -36,7 +36,7 @@ public class GestionCourrierController extends AbstractController {
     @Autowired
     private DemandesCourriersService demandesCourrierService;
 
-    @Secured("ROLE_TRAITEMENT")
+    @Secured({"ROLE_TRAITEMENT","ROLE_SAISIE"})
     @RequestMapping(method = RequestMethod.GET)
     public ModelAndView form() {
 
@@ -63,7 +63,7 @@ public class GestionCourrierController extends AbstractController {
         return mav;
     }
 
-    @Secured("ROLE_TRAITEMENT")
+    @Secured({"ROLE_TRAITEMENT","ROLE_SAISIE"})
     @RequestMapping(value = "/print", method = RequestMethod.POST)
     public ModelAndView print(@RequestParam(required = true) Integer demandeId,
             @RequestParam(required = true) Integer courrierId, @RequestParam(required = false) String refCourrier)

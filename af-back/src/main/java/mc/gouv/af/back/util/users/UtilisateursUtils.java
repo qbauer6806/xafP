@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import mc.gouv.af.back.cache.UtilisateursCache;
 import mc.gouv.logon.apiclient.RestException;
 import mc.gouv.logon.shared.User;
+import mc.gouv.logon.shared.User.Civilite;
 
 /**
  * Classe utilitaire pour la gestion des utilisateurs.
@@ -52,12 +53,23 @@ public class UtilisateursUtils {
 	}
 	
 	public String getUserFullNameFromUser(User user) {
+		StringBuilder builder = new StringBuilder();
 		if (user != null) {
-			CiviliteUtilisateurs civ = CiviliteUtilisateurs.valueOf(user.getCivilite().toString());
+			Civilite civilite = user.getCivilite();
+			if (civilite != null) {
+				CiviliteUtilisateurs civ = CiviliteUtilisateurs.valueOf(civilite.toString());
+				builder.append(civ.getAbbreviation()).append(' ');
+			}
+			String prenom = user.getPrenom();
+			if (prenom != null) {
+				builder.append(prenom).append(' ');
+			}
 			String nom = StringUtils.isNotEmpty(user.getNomUsage()) ? user.getNomUsage() : user.getNomNaissance();
-			return civ.getAbbreviation() + " " + user.getPrenom() + " " + nom;
+			if (nom != null) {
+				builder.append(nom);
+			}
 		}
-		return null;
+		return builder.toString();
 	}
 
 	public String getUsagerCourrierFromId(Integer usagerId) {

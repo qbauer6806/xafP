@@ -153,17 +153,18 @@
 							<div class="col-xs-12">
 								<form method="POST" enctype="multipart/form-data"
 									  th:action="@{/demandes/repondreDIC}+'?'+${symbol_dollar}{_csrf.parameterName}+'='+${symbol_dollar}{_csrf.token}">
+									
 									<div class="row">
-										<div class="col-xs-12">
-												<span>Répondre à la demande d'informations
+										<div id="commentaireReponseFormGroup"
+											class="col-xs-12 form-group">
+											<span class="titre">Répondre à la demande d'informations
 													complémentaires à la place de l'usager</span>
-										</div>
-									</div>
-
-									<div class="row">
-										<div class="col-xs-12">
-											<textarea class="form-control" name="commentaireReponse"
-													  th:disabled="!${symbol_dollar}{${symbol_pound}authorization.expression('hasRole(''ROLE_TRAITEMENT'')')}"></textarea>
+											<textarea id="commentaireReponse"
+												class="form-control greyTooltip" name="commentaireReponse"
+												oninput="checkCommentaireLength('${symbol_pound}commentaireReponse')"
+												data-toggle="tooltip" data-placement="bottom"
+												title="Commentaire limité à 1500 caractères"
+												th:disabled="!${symbol_dollar}{${symbol_pound}authorization.expression('hasRole(''ROLE_TRAITEMENT'')')}"></textarea>
 										</div>
 									</div>
 

@@ -3,9 +3,22 @@
 #set( $symbol_escape = '\' )
 package ${groupId}.service.afimpl;
 
+import java.awt.Color;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import com.lowagie.text.Font;
 import com.lowagie.text.FontFactory;
 import com.lowagie.text.pdf.BaseFont;
+
 import fr.opensagres.poi.xwpf.converter.pdf.PdfOptions;
 import fr.opensagres.xdocreport.itext.extension.font.IFontProvider;
 import mc.gouv.af.back.cache.MotifsCache;
@@ -13,21 +26,13 @@ import mc.gouv.af.back.cache.UtilisateursCache;
 import mc.gouv.af.back.dto.PdfTemplateAndModelDTO;
 import mc.gouv.af.back.pdf.PdfTemplateAndModelProvider;
 import mc.gouv.af.back.pdf.PdfTypeEnum;
+import mc.gouv.af.back.util.users.UtilisateursUtils;
 import mc.gouv.dem.shared.model.DemandeDTO;
 import ${groupId}.shared.dto.${artifactIdCamelCase}DemandeStatutEnum;
 import ${groupId}.shared.model.v1568884433537.ContenuProjectDemandeDTO;
+import ${groupId}.shared.model.v1568884433537.TitreEnum;
 import ${groupId}.shared.util.${artifactIdCamelCase}Utils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import java.awt.*;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
+import mc.gouv.logon.shared.User;
 
 /**
  * @author mpavone
@@ -47,6 +52,9 @@ public class PdfTemplateAndModelProviderImpl implements PdfTemplateAndModelProvi
 
     @Autowired
     private UtilisateursCache utilisateursCache;
+
+    @Autowired
+    private UtilisateursUtils utilisateursUtils;
 
     @Override
     public PdfTemplateAndModelDTO getTemplateAndModel(DemandeDTO demande, PdfTypeEnum pdfType) {
@@ -105,21 +113,39 @@ public class PdfTemplateAndModelProviderImpl implements PdfTemplateAndModelProvi
     private PdfTemplateAndModelDTO getTemplateAndModelGeneric(DemandeDTO demande, String codeMotif, String langue, String commentaire) {
 
         ContenuProjectDemandeDTO contenuDemande = ${artifactIdCamelCase}Utils.getContenuDemande(demande);
+        User agent = utilisateursCache.get(demande.getAgentAffecteId());
 
         Map<String, Object> model = new HashMap<>();
         model.put("dateCourante", FRENCH_DATE_FORMAT.format(new Date()));
         model.put("identifiant", demande.getIdentifiant());
-        model.put("nomAgent", utilisateursCache.get(demande.getAgentAffecteId()).getNom());
+        model.put("nomAgent", utilisateursUtils.getUserFullNameFromUser(agent));
         model.put("refCourrier", demande.getCourrierRefInterne());
         model.put("raisonSociale", contenuDemande.getDonnee().getEntreprise().getRaisonsociale());
-        model.put("prenom", contenuDemande.getDonnee().getDemandeur().getPrenom());
         model.put("adresseLigne1", contenuDemande.getDonnee().getEntreprise().getAdresse().getLigne1());
         model.put("adresseLigne2", contenuDemande.getDonnee().getEntreprise().getAdresse().getLigne2());
         model.put("adresseLigne3", contenuDemande.getDonnee().getEntreprise().getAdresse().getLigne3());
         model.put("codePostal", contenuDemande.getDonnee().getEntreprise().getAdresse().getCodePostal());
         model.put("ville", contenuDemande.getDonnee().getEntreprise().getAdresse().getVille());
-        model.put("nom", contenuDemande.getDonnee().getDemandeur().getNom());
-        model.put("titre", contenuDemande.getDonnee().getDemandeur().getTitre());
+        
+        TitreEnum titre = contenuDemande.getDonnee().getDemandeur().getTitre();
+        String titreStr = (null == titre) ? "Madame, Monsieur" : titre.toString();
+		model.put("titre", titreStr);
+		String prenom = contenuDemande.getDonnee().getDemandeur().getPrenom();
+		model.put("prenom", prenom);
+		String nom = contenuDemande.getDonnee().getDemandeur().getNom();
+		model.put("nom", nom);
+		
+		StringBuilder builder = new StringBuilder();
+		if (null != titre) {
+			builder.append(titre.toString()).append(' ');
+		}
+		if (StringUtils.isNotBlank(prenom)) {
+			builder.append(prenom).append(' ');
+		}
+		if (StringUtils.isNotBlank(nom)) {
+			builder.append(nom);
+		}
+		model.put("nomCompletUsager", builder.toString());
 
         String motif = "";
         if (StringUtils.isNotBlank(codeMotif) && motifsCache.getMotif(codeMotif, "fr") != null) {

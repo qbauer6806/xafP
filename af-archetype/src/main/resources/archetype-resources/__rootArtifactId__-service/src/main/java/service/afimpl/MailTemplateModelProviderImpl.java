@@ -62,6 +62,12 @@ public class MailTemplateModelProviderImpl implements MailTemplateModelProvider 
 
         LOGGER.info("Récupération de l'usager...");
         UsagerBean usager = usagersCache.get(demande.getUsagerId());
+        if (usager == null) {
+        	usager = new UsagerBean();
+        	usager.setNom(demande.getUsagerNom());
+        	usager.setPrenom(demande.getUsagerPrenom());
+        	usager.setEmail(demande.getUsagerEmail());
+        }
 
         LOGGER.info("Construction du modèle pour le template (demandeId=" + demande.getPkDemandes() + ") ...");
 

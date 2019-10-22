@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import mc.gouv.af.back.util.users.UtilisateursUtils;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
@@ -44,13 +45,13 @@ import mc.gouv.servicerest.usager.model.UsagerBean;
 public class DemandesCourrierController extends AbstractController {
 
 	@Autowired
-	private UsagersCache usagersCache;
-
-	@Autowired
 	private DemarchesDataProvider demarchesDataProvider;
 
 	@Autowired
 	private GouvPropertiesResolver gouvPropertiesResolver;
+
+	@Autowired
+	private UtilisateursUtils utilisateursUtils;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DemandesCourrierController.class);
 
@@ -149,9 +150,7 @@ public class DemandesCourrierController extends AbstractController {
 
 	private ModelAndView initForm(ModelAndView mav, Integer usagerId) {
 
-		UsagerBean usagerCourrier = usagersCache.get(usagerId);
-		mav.addObject("usager", StringUtils.trim(StringUtils.defaultString(usagerCourrier.getPrenom()) + " "
-				+ StringUtils.defaultString(usagerCourrier.getNom())));
+		mav.addObject("usager", utilisateursUtils.getUsagerCourrierFromId(usagerId));
 
 		ArrayList<DemandeCanalEnum> canaux = new ArrayList<DemandeCanalEnum>();
 		canaux.add(DemandeCanalEnum.COURRIER);

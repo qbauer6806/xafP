@@ -102,8 +102,7 @@
 															<input type="text" class="form-control nom" id="nom"
 																th:field="*{nom}" th:errorclass="errorTooltip"
 																th:attr="data-title=${#fields.hasErrors('nom')} ? ${#fields.errors('nom')} :''"
-																maxlength="50"
-																pattern="^[a-zA-Z]{1,50}$" title="Maximum 50 lettres autorisées"/>
+																maxlength="50" pattern="^[a-zA-Z]{1,50}$" />
 														</div>
 													</div>
 												</div>

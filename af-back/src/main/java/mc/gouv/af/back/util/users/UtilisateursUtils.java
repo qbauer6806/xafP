@@ -1,5 +1,7 @@
 package mc.gouv.af.back.util.users;
 
+import mc.gouv.af.back.cache.UsagersCache;
+import mc.gouv.servicerest.usager.model.UsagerBean;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +30,9 @@ public class UtilisateursUtils {
 	@Autowired
 	private UtilisateursCache utilisateursCache;
 
+	@Autowired
+	private UsagersCache usagersCache;
+
 	/**
 	 * Retourne le prénom et le nom d'un utilisateur à partir de son matricule.
 	 * <br>
@@ -53,6 +58,20 @@ public class UtilisateursUtils {
 			return civ.getAbbreviation() + " " + user.getPrenom() + " " + nom;
 		}
 		return null;
+	}
+
+	public String getUsagerCourrierFromId(Integer usagerId) {
+		LOGGER.debug("getUsagerFromId() : Récupération de l'usager courrier {}...", usagerId);
+		UsagerBean usagerCourrier = usagersCache.get(usagerId);
+		String nomUsager = "";
+		if (usagerCourrier != null) {
+			if (!StringUtils.isEmpty(usagerCourrier.getNom())) {
+				nomUsager = StringUtils.defaultString(usagerCourrier.getPrenom()) + " " + usagerCourrier.getNom();
+			} else {
+				nomUsager = usagerCourrier.getRaisonSociale();
+			}
+		}
+		return StringUtils.trim(StringUtils.defaultString(nomUsager));
 	}
 
 }

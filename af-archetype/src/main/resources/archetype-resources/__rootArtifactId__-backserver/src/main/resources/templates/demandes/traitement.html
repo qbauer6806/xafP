@@ -396,10 +396,16 @@
     // Gestion de la zone de texte des commentaires
     // Gestion de la taille en fonction de l'entrée utilisateur
     autosize(${symbol_dollar}("${symbol_pound}commentaireUsager"));
+    autosize(${symbol_dollar}("${symbol_pound}commentaireReponse"));
     // Gestion des erreurs pour la taille du texte (limité à 1500 caractères)
     var checkCommentaireLength = function (commentaireId) {
     	var isEnAttendValidationHierarchique = /*[[(${symbol_dollar}{isEnAttendValidationHierarchique})]]*/;
-    	var button = isEnAttendValidationHierarchique ? '${symbol_pound}valider-button' : "${symbol_pound}traiter-button";
+	    var button;
+	    if (commentaireId === '${symbol_pound}commentaireReponse') {
+			button = '${symbol_pound}envoyer-button';
+		} else {
+			button = isEnAttendValidationHierarchique ? '${symbol_pound}valider-button' : "${symbol_pound}traiter-button";
+		}
         var maxlength = 1500;
         var val = ${symbol_dollar}(commentaireId).val();
         var formGroupId = commentaireId + 'FormGroup';
@@ -416,7 +422,6 @@
 			${symbol_dollar}(commentaireId).tooltip("hide");
 		}
     }
-    ${symbol_dollar}("${symbol_pound}commentaireUsager").tooltip({ disabled: true });
 
     // Génération de la partie Détails de la demande si besoin
     if (${symbol_dollar}(".dynamictab").length == 1) {
@@ -458,8 +463,13 @@
         // Au départ, ACCORDEE est sélectionné, griser le code motif et le commentaire
         ${symbol_dollar}("${symbol_pound}codeMotifChoisi").prop('disabled',true);
         ${symbol_dollar}("${symbol_pound}commentaireUsager").prop('disabled',true);
-        ${symbol_dollar}("${symbol_pound}commentaireUsager").tooltip("hide");
 
+     	// Correction des bugs où la tooltip apparaît au chargement de la page
+		${symbol_dollar}("${symbol_pound}commentaireUsager").tooltip("hide");
+		${symbol_dollar}("${symbol_pound}commentaireUsager").tooltip("disable");
+		${symbol_dollar}("${symbol_pound}commentaireReponse").tooltip("hide");
+		${symbol_dollar}("${symbol_pound}commentaireReponse").tooltip("disable");
+        
         // Prevent double form submission
         // not(${symbol_pound}discussion-demande) car c'est la seule requête sans rechargement de la page
         // et not(${symbol_pound}form-validation) car ce cas est traité dans un autre callback plus bas

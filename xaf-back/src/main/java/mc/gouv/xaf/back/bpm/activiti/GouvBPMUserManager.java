@@ -16,8 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import mc.gouv.xaf.back.bpm.GouvBPMException;
-import mc.gouv.xaf.back.cache.UsagersCache;
-import mc.gouv.xaf.back.cache.UtilisateursCache;
+import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
+import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.servicerest.usager.model.UsagerBean;
 
 /**

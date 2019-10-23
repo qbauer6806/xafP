@@ -17,12 +17,12 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import mc.gouv.xaf.apiclient.AfApiClient;
+import mc.gouv.xaf.back.shared.dto.DemandeComplementsDTO;
+import mc.gouv.xaf.back.shared.dto.DemandeComplementsReponseDTO;
+import mc.gouv.xaf.back.shared.dto.DemandeDTO;
+import mc.gouv.xaf.back.shared.dto.DemandeInputDTO;
 import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
-import mc.gouv.dem.shared.model.DemandeComplementsDTO;
-import mc.gouv.dem.shared.model.DemandeComplementsReponseDTO;
-import mc.gouv.dem.shared.model.DemandeDTO;
-import mc.gouv.dem.shared.model.DemandeInputDTO;
 
 /**
  * Servlet mettant à disposition le service /demandes avec les méthodes PUT, POST, GET, DELETE.

@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 import mc.gouv.xaf.back.bpm.GouvBPMException;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.dem.service.DemandesDataService;
+import mc.gouv.xaf.back.service.data.DemandesDataService;
 
 @Component
 public class GouvBPMUpdateDemandeDataDelegate implements JavaDelegate {

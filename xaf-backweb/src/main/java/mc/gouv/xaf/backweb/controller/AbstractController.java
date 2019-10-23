@@ -6,7 +6,7 @@ import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 
-import mc.gouv.xaf.back.util.AfBackUtils;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
 
 /**
  * 

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
-import mc.gouv.xaf.data.enums.JobNamesEnum;
+import mc.gouv.xaf.back.shared.dto.JobNamesEnum;
 
 @Controller
 @RequestMapping("/gestion/jobs")

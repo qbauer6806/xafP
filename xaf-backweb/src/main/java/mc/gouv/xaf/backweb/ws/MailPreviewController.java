@@ -15,13 +15,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
 import mc.gouv.xaf.back.bpm.GouvBPM;
-import mc.gouv.xaf.back.mail.MailService;
-import mc.gouv.xaf.back.mail.MailTemplateModelProvider;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.back.service.itg.mail.MailService;
+import mc.gouv.xaf.back.service.itg.mail.MailTemplateModelProvider;
+import mc.gouv.xaf.back.shared.dto.DemandeDTO;
 import mc.gouv.xaf.backweb.controller.AbstractController;
 import mc.gouv.xaf.backweb.formbean.MailPreviewFormBean;
-import mc.gouv.dem.service.DemandesService;
-import mc.gouv.dem.shared.model.DemandeDTO;
 
 /**
  * 

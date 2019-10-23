@@ -5,8 +5,8 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
 import org.springframework.stereotype.Component;
 
-import mc.gouv.xaf.back.cache.UtilisateursCache;
 import mc.gouv.logon.shared.User;
+import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 
 @Component
 public class AuthenticationListener implements ApplicationListener<AuthenticationSuccessEvent> {

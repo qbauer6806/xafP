@@ -15,10 +15,10 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import mc.gouv.xaf.back.shared.dto.AccessDTO;
+import mc.gouv.xaf.back.shared.dto.AccessInputDTO;
 import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
-import mc.gouv.dem.shared.model.AccessDTO;
-import mc.gouv.dem.shared.model.AccessInputDTO;
 import mc.gouv.xapi.error.exception.client.UnauthorizedWebException;
 
 /**

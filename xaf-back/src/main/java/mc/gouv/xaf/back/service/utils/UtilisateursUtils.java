@@ -1,0 +1,58 @@
+package mc.gouv.xaf.back.service.utils;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import mc.gouv.logon.apiclient.RestException;
+import mc.gouv.logon.shared.User;
+import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
+
+/**
+ * Classe utilitaire pour la gestion des utilisateurs.
+ * <br>
+ * Les utilisateurs sont les agents qui s'occupent des demandes dans le Back-Office.
+ * <br>
+ * Leurs données viennent de l'application LOGON (mc.gouv.logon)
+ * 
+ * @author mboutelier.ext
+ *
+ */
+@Component
+public class UtilisateursUtils {
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(UtilisateursUtils.class);
+
+	@Autowired
+	private UtilisateursCache utilisateursCache;
+
+	/**
+	 * Retourne le prénom et le nom d'un utilisateur à partir de son matricule.
+	 * <br>
+	 * Retourne {@code null} si le maticule donné n'est pas trouvé dans logon.
+	 * 
+	 * @param userId
+	 * @return
+	 * @throws RestException
+	 */
+	public String getUserNameFromID(String matricule) throws RestException {
+		LOGGER.debug("getUserNameFromID() : Appel à Logon afin de récupérer l'utilisateur {}...", matricule);
+		User user = utilisateursCache.get(matricule);
+		if (user != null) {
+			return user.getPrenom() + " " + user.getNomAffichage();
+		}
+		return null;
+	}
+	
+	public String getUserFullNameFromUser(User user) {
+		if (user != null) {
+			CiviliteUtilisateurs civ = CiviliteUtilisateurs.valueOf(user.getCivilite().toString());
+			String nom = StringUtils.isNotEmpty(user.getNomUsage()) ? user.getNomUsage() : user.getNomNaissance();
+			return civ.getAbbreviation() + " " + user.getPrenom() + " " + nom;
+		}
+		return null;
+	}
+
+}

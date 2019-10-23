@@ -28,7 +28,7 @@ import mc.gouv.xaf.back.data.es.model.ConfigCategoriesDTO;
 import mc.gouv.xaf.back.data.es.model.ConfigPropertiesDTO;
 import mc.gouv.xaf.back.data.es.model.EsCategory;
 import mc.gouv.xaf.back.data.es.model.EsProperty;
-import mc.gouv.xaf.back.service.RechercheAdminService;
+import mc.gouv.xaf.back.service.es.RechercheAdminService;
 import mc.gouv.xaf.backweb.controller.AbstractController;
 import mc.gouv.xboot.config.web.annotation.GouvRestController;
 

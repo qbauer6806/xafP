@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import mc.gouv.xaf.back.dto.JobDTO;
-import mc.gouv.xaf.back.service.DemandeJobService;
-import mc.gouv.xaf.data.enums.JobNamesEnum;
+import mc.gouv.xaf.back.service.data.DemandeJobService;
+import mc.gouv.xaf.back.shared.dto.DemandeJobDTO;
+import mc.gouv.xaf.back.shared.dto.JobNamesEnum;
 import mc.gouv.xboot.config.web.annotation.GouvRestController;
 
 @GouvRestController
@@ -34,7 +34,7 @@ public class JobController {
     }
 
     @RequestMapping(value = "/list", method = RequestMethod.GET)
-    public Page<JobDTO> list(Pageable pageable) {
+    public Page<DemandeJobDTO> list(Pageable pageable) {
         LOGGER.info("Appel du webservice /ws/admin/job/list");
         return demandeJobService.list(pageable);
     }

@@ -14,10 +14,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.data.UsagersCourrierService;
+import mc.gouv.xaf.back.shared.dto.UsagerCourrierDTO;
 import mc.gouv.xaf.backweb.dto.AutocompleteUsagerDTO;
 import mc.gouv.xaf.backweb.dto.AutocompleteUsagerListeDTO;
-import mc.gouv.dem.service.UsagersCourrierService;
-import mc.gouv.dem.shared.model.UsagerCourrierDTO;
 import mc.gouv.xboot.config.web.annotation.GouvRestController;
 
 /**

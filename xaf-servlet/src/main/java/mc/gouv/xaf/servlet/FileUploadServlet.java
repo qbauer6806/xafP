@@ -28,12 +28,12 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import mc.gouv.xaf.back.shared.dto.AccessDTO;
 import mc.gouv.xaf.servlet.dto.FileUploadResponseDTO;
 import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
 import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils.ServiceTarget;
-import mc.gouv.dem.shared.model.AccessDTO;
 
 @MultipartConfig
 public class FileUploadServlet extends AbstractAfServlet {

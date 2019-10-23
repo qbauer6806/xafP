@@ -12,8 +12,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import mc.gouv.xaf.back.cache.UtilisateursCache;
-import mc.gouv.xaf.back.util.users.UtilisateursUtils;
+import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
+import mc.gouv.xaf.back.service.utils.UtilisateursUtils;
 import mc.gouv.logon.apiclient.RestException;
 import mc.gouv.logon.shared.User;
 import mc.gouv.logon.shared.User.Civilite;

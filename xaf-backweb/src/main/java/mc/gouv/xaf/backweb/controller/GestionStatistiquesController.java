@@ -1,8 +1,9 @@
 package mc.gouv.xaf.backweb.controller;
 
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
-import mc.gouv.xaf.back.stats.StatistiquesService;
-import mc.gouv.dem.shared.model.DemandeCanalEnum;
+import mc.gouv.xaf.back.service.StatistiquesService;
+import mc.gouv.xaf.back.shared.dto.DemandeCanalEnum;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

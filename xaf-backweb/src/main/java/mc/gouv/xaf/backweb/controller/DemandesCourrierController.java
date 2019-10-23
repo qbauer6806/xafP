@@ -24,13 +24,13 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import mc.gouv.xaf.back.cache.UsagersCache;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
-import mc.gouv.xaf.back.util.AfBackUtils;
+import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.back.shared.dto.DemandeCanalEnum;
 import mc.gouv.xaf.backweb.formbean.DemandesCourrierFormBean;
 import mc.gouv.xaf.backweb.formbean.UsagerCourrierFormBean;
-import mc.gouv.dem.shared.model.DemandeCanalEnum;
 import mc.gouv.servicerest.usager.model.UsagerBean;
 
 /**

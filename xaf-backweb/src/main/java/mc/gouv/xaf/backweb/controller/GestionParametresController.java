@@ -22,14 +22,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-import mc.gouv.xaf.back.cache.MotifsCache;
-import mc.gouv.xaf.back.dto.GenericStatusDTO;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
+import mc.gouv.xaf.back.service.data.MotifsService;
+import mc.gouv.xaf.back.service.motifs.MotifsCache;
+import mc.gouv.xaf.back.shared.dto.GenericStatusDTO;
+import mc.gouv.xaf.back.shared.dto.MotifDTO;
 import mc.gouv.xaf.backweb.dto.CustomMotifDTO;
 import mc.gouv.xaf.backweb.formbean.MotifsFormBean;
-import mc.gouv.dem.service.MotifsService;
-import mc.gouv.dem.shared.model.MotifDTO;
 
 /**
  * Controller pour les fonctionnalites (onglets) Utilisateurs et Paramtres

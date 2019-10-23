@@ -5,10 +5,10 @@ import java.util.Map;
 
 import org.springframework.stereotype.Component;
 
-import mc.gouv.xaf.back.dto.GenericStatusDTO;
-import mc.gouv.xaf.back.dto.StatutPublicOuInterneDTO;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
-import mc.gouv.dem.shared.model.DemandeDTO;
+import mc.gouv.xaf.back.shared.dto.DemandeDTO;
+import mc.gouv.xaf.back.shared.dto.GenericStatusDTO;
+import mc.gouv.xaf.back.shared.dto.StatutPublicOuInterneDTO;
 
 @Component
 public class DemarchesDataProviderImpl implements DemarchesDataProvider {

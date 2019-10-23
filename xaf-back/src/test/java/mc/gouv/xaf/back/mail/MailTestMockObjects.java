@@ -1,5 +1,7 @@
 package mc.gouv.xaf.back.mail;
 
+import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
+
 public class MailTestMockObjects {
 
     public static final EmailInfoDTO emailInfoDTOMock() {

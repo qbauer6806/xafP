@@ -10,7 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-import mc.gouv.xaf.back.util.AfBackUtils;
+import mc.gouv.xaf.back.service.excel.ExcelExportModelProvider;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
 
 @Profile("test")
 @Component

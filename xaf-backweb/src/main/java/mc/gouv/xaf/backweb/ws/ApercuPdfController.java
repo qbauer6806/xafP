@@ -17,12 +17,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import mc.gouv.xaf.back.pdf.PdfGenerationService;
-import mc.gouv.xaf.back.pdf.PdfTypeEnum;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.back.service.pdf.PdfGenerationService;
+import mc.gouv.xaf.back.service.pdf.PdfTypeEnum;
+import mc.gouv.xaf.back.shared.dto.DemandeDTO;
 import mc.gouv.xaf.backweb.controller.AbstractController;
-import mc.gouv.dem.service.DemandesService;
-import mc.gouv.dem.shared.model.DemandeDTO;
 
 /**
  * Controller pour le service de génération d'aperçu PDF

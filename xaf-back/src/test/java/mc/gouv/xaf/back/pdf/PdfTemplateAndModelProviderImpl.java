@@ -15,8 +15,10 @@ import com.lowagie.text.pdf.BaseFont;
 
 import fr.opensagres.poi.xwpf.converter.pdf.PdfOptions;
 import fr.opensagres.xdocreport.itext.extension.font.IFontProvider;
-import mc.gouv.xaf.back.dto.PdfTemplateAndModelDTO;
-import mc.gouv.dem.shared.model.DemandeDTO;
+import mc.gouv.xaf.back.service.pdf.PdfTemplateAndModelProvider;
+import mc.gouv.xaf.back.service.pdf.PdfTypeEnum;
+import mc.gouv.xaf.back.shared.dto.DemandeDTO;
+import mc.gouv.xaf.back.shared.dto.PdfTemplateAndModelDTO;
 
 @Component
 @Profile("test")

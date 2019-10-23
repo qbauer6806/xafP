@@ -11,9 +11,9 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @Configuration
 @SpringBootApplication(exclude = { MongoAutoConfiguration.class, SecurityAutoConfiguration.class })
-@ComponentScan(basePackages = { "mc.gouv.xaf.back", "mc.gouv.dem" })
-@EnableJpaRepositories(basePackages = { "mc.gouv.dem.data" })
-@EntityScan(basePackages = { "mc.gouv.dem.data" })
+@ComponentScan(basePackages = { "mc.gouv.xaf.back" })
+@EnableJpaRepositories(basePackages = { "mc.gouv.xaf.back.data" })
+@EntityScan(basePackages = { "mc.gouv.xaf.back.data" })
 @PropertySource("classpath:application-test.properties")
 public class AfBackServiceTestConfiguration {
 }

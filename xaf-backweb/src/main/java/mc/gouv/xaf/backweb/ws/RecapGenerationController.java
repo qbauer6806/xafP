@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemandeRecapHTMLService;
-import mc.gouv.dem.service.DemandesService;
-import mc.gouv.dem.shared.model.DemandeDTO;
+import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.back.shared.dto.DemandeDTO;
 import mc.gouv.xboot.config.web.annotation.GouvRestController;
 
 /**

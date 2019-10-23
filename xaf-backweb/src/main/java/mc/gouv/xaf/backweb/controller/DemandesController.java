@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-import mc.gouv.xaf.back.cache.UsagersCache;
-import mc.gouv.xaf.back.cache.UtilisateursCache;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
+import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
+import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.backweb.dto.AgentAffichageDTO;
 import mc.gouv.logon.shared.User;
 import mc.gouv.servicerest.usager.model.UsagerBean;

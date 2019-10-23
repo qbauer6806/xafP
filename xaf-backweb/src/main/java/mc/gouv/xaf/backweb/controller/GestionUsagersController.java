@@ -29,17 +29,17 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
-import mc.gouv.xaf.back.cache.PaysCache;
-import mc.gouv.xaf.back.cache.UsagersCache;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.util.AfBackUtils;
+import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.back.service.data.UsagersCourrierService;
+import mc.gouv.xaf.back.service.itg.rest.PaysCache;
+import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.back.shared.dto.DemandeDTO;
+import mc.gouv.xaf.back.shared.dto.UsagerCourrierDTO;
 import mc.gouv.xaf.backweb.dto.UsagerCourrierResultDTO;
 import mc.gouv.xaf.backweb.formbean.TransfertDemandesFormBean;
 import mc.gouv.xaf.backweb.formbean.UsagerCourrierFormBean;
-import mc.gouv.dem.service.DemandesService;
-import mc.gouv.dem.service.UsagersCourrierService;
-import mc.gouv.dem.shared.model.DemandeDTO;
-import mc.gouv.dem.shared.model.UsagerCourrierDTO;
 import mc.gouv.servicerest.pays.model.PaysBean;
 
 /**

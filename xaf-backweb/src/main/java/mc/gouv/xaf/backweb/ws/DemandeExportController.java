@@ -5,8 +5,11 @@ import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.util.AfBackUtils;
-import mc.gouv.dem.service.DemarchesService;
+import mc.gouv.xaf.back.service.data.DemarchesService;
+import mc.gouv.xaf.back.service.excel.ExcelExportModelProvider;
+import mc.gouv.xaf.back.service.excel.ExcelExportService;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +18,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import mc.gouv.xaf.back.xls.ExcelExportModelProvider;
-import mc.gouv.xaf.back.xls.ExcelExportService;
 import mc.gouv.xaf.backweb.controller.AbstractController;
 import org.springframework.web.bind.annotation.RequestParam;
 

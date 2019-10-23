@@ -16,10 +16,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import mc.gouv.xaf.back.cache.UsagersCache;
+import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
+import mc.gouv.xaf.back.service.utils.DemarchesUtils;
 import mc.gouv.xaf.backweb.dto.AutocompleteUsagerDTO;
 import mc.gouv.xaf.backweb.dto.AutocompleteUsagerListeDTO;
-import mc.gouv.dem.service.util.DemarchesUtils;
 import mc.gouv.servicerest.usager.model.UsagerBean;
 import mc.gouv.xboot.config.web.annotation.GouvRestController;
 

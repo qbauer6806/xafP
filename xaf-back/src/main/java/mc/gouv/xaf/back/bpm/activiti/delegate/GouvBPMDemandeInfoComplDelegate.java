@@ -10,10 +10,10 @@ import org.springframework.stereotype.Component;
 
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.IndexedDemandeService;
-import mc.gouv.xaf.back.util.AfBackUtils;
-import mc.gouv.dem.service.DemandesComplementsService;
-import mc.gouv.dem.shared.model.DemandeComplementsQuestionDTO;
+import mc.gouv.xaf.back.service.data.DemandesComplementsService;
+import mc.gouv.xaf.back.service.es.IndexedDemandeService;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.back.shared.dto.DemandeComplementsQuestionDTO;
 
 /**
  * 

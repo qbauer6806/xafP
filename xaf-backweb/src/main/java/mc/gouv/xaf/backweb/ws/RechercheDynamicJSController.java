@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
-import mc.gouv.xaf.back.service.RechercheDynamicJSService;
+import mc.gouv.xaf.back.service.es.RechercheDynamicJSService;
 import mc.gouv.xboot.config.web.annotation.GouvRestController;
 
 @GouvRestController

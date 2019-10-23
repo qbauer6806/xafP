@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.dem.service.DemandesCourriersService;
-import mc.gouv.dem.shared.model.DemandeCourrierDTO;
+import mc.gouv.xaf.back.service.data.DemandesCourriersService;
+import mc.gouv.xaf.back.shared.dto.DemandeCourrierDTO;
 
 /**
  * Controller pour la page /gestioncourrier

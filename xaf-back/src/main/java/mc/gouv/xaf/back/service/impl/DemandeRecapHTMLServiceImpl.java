@@ -30,16 +30,16 @@ import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
-import mc.gouv.xaf.back.cache.MotifsCache;
-import mc.gouv.xaf.back.cache.PaysCache;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemandeRecapHTMLService;
-import mc.gouv.xaf.back.util.AfBackUtils;
-import mc.gouv.dem.shared.model.DemandeCanalEnum;
-import mc.gouv.dem.shared.model.DemandeComplementsDTO;
-import mc.gouv.dem.shared.model.DemandeComplementsQuestionDTO;
-import mc.gouv.dem.shared.model.DemandeComplementsReponseDTO;
-import mc.gouv.dem.shared.model.DemandeDTO;
+import mc.gouv.xaf.back.service.itg.rest.PaysCache;
+import mc.gouv.xaf.back.service.motifs.MotifsCache;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.back.shared.dto.DemandeCanalEnum;
+import mc.gouv.xaf.back.shared.dto.DemandeComplementsDTO;
+import mc.gouv.xaf.back.shared.dto.DemandeComplementsQuestionDTO;
+import mc.gouv.xaf.back.shared.dto.DemandeComplementsReponseDTO;
+import mc.gouv.xaf.back.shared.dto.DemandeDTO;
 import mc.gouv.logon.apiclient.RestException;
 
 /**

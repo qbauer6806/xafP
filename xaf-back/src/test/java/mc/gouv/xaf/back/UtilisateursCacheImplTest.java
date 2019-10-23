@@ -6,8 +6,8 @@ import java.util.Map;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-import mc.gouv.xaf.back.cache.UtilisateursCache;
 import mc.gouv.logon.shared.User;
+import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 
 @Component
 @Profile("test")

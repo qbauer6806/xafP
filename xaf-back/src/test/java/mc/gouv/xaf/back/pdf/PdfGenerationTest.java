@@ -20,6 +20,7 @@ import com.lowagie.text.pdf.parser.PdfTextExtractor;
 
 import fr.opensagres.xdocreport.core.XDocReportException;
 import mc.gouv.xaf.back.AfBackServiceTestConfiguration;
+import mc.gouv.xaf.back.service.pdf.impl.PdfGenerationServiceImpl;
 
 /**
  * Les tests unitaires pour le PdfGenerationService

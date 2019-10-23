@@ -15,9 +15,9 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import mc.gouv.xaf.back.shared.dto.MotifDTO;
 import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
-import mc.gouv.dem.shared.model.MotifDTO;
 
 /**
  * Servlet mettant à disposition le service /motifs avec uniquement la méthode GET pour le front.

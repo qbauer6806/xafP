@@ -17,10 +17,10 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.HandlerMapping;
 
-import mc.gouv.xaf.back.file.FileService;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.dem.service.DemandesService;
-import mc.gouv.dem.shared.model.DemandeDTO;
+import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.back.service.itg.file.FileService;
+import mc.gouv.xaf.back.shared.dto.DemandeDTO;
 import mc.gouv.xboot.config.web.annotation.GouvRestController;
 
 /**

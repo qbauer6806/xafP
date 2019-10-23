@@ -7,8 +7,8 @@ import java.util.Map.Entry;
 import org.springframework.stereotype.Component;
 import org.springframework.test.context.ActiveProfiles;
 
-import mc.gouv.xaf.back.mail.MailTemplateModelProvider;
-import mc.gouv.dem.shared.model.DemandeDTO;
+import mc.gouv.xaf.back.service.itg.mail.MailTemplateModelProvider;
+import mc.gouv.xaf.back.shared.dto.DemandeDTO;
 
 @ActiveProfiles("test")
 @Component

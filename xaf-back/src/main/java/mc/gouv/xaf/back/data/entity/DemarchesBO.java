@@ -1,0 +1,140 @@
+package mc.gouv.xaf.back.data.entity;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.validation.constraints.Size;
+
+import org.hibernate.validator.constraints.NotBlank;
+
+/**
+ * 
+ * Classe BO de la table DEM.DEMARCHES
+ * 
+ * @author qdeme
+ *
+ */
+@Entity
+@Table(name = "DEM_DEMARCHES")
+public class DemarchesBO {
+
+    @Id
+    @NotBlank
+    @Column(name = "PK_DEMARCHEID", nullable = false)
+    @Size(min = 1, max = 128)
+    private String pkDemarches;
+    
+    @Column(name = "NOM", length = 256, nullable = false)
+    @NotBlank
+    @Size(min = 1, max = 256)
+    private String nom;
+
+    @Column(name = "EMAIL_SERVICE", length = 256, nullable = false)
+    @NotBlank
+    @Size(min = 1, max = 256)
+    private String emailService;
+
+    @Column(name = "EMAIL_SERVICE_NOM", length = 256, nullable = false)
+    @NotBlank
+    @Size(min = 1, max = 256)
+    private String emailServiceNom;
+
+    @Column(name = "EMAIL_REPLYTO", length = 256, nullable = false)
+    @NotBlank
+    @Size(min = 1, max = 256)
+    private String emailReplyto;
+
+    @Column(name = "EMAIL_REPLYTO_NOM", length = 256, nullable = false)
+    @NotBlank
+    @Size(min = 1, max = 256)
+    private String emailReplytoNom;
+
+    @Column(name = "EMAIL_FROM", length = 256, nullable = false)
+    @NotBlank
+    @Size(min = 1, max = 256)
+    private String emailFrom;
+
+    @Column(name = "EMAIL_FROM_NOM", length = 256, nullable = false)
+    @NotBlank
+    @Size(min = 1, max = 256)
+    private String emailFromNom;
+    
+    @Column(name = "IDENTIFIANT_PREFIXE", length = 256, nullable = false)
+    @NotBlank
+    @Size(min = 1, max = 128)
+    private String identifiantPrefixe;
+
+	public String getPkDemarches() {
+        return pkDemarches;
+    }
+
+    public void setPkDemarches(String pkDemarches) {
+        this.pkDemarches = pkDemarches;
+    }
+
+    public String getNom() {
+        return nom;
+    }
+    
+    public void setNom(String nom) {
+        this.nom = nom;
+    }
+
+    public String getEmailService() {
+        return emailService;
+    }
+
+    public void setEmailService(String emailService) {
+        this.emailService = emailService;
+    }
+
+    public String getEmailServiceNom() {
+        return emailServiceNom;
+    }
+
+    public void setEmailServiceNom(String emailServiceNom) {
+        this.emailServiceNom = emailServiceNom;
+    }
+
+    public String getEmailReplyto() {
+        return emailReplyto;
+    }
+
+    public void setEmailReplyto(String emailReplyto) {
+        this.emailReplyto = emailReplyto;
+    }
+
+    public String getEmailReplytoNom() {
+        return emailReplytoNom;
+    }
+
+    public void setEmailReplytoNom(String emailReplytoNom) {
+        this.emailReplytoNom = emailReplytoNom;
+    }
+
+    public String getEmailFrom() {
+        return emailFrom;
+    }
+
+    public void setEmailFrom(String emailFrom) {
+        this.emailFrom = emailFrom;
+    }
+
+    public String getEmailFromNom() {
+        return emailFromNom;
+    }
+
+    public void setEmailFromNom(String emailFromNom) {
+        this.emailFromNom = emailFromNom;
+    }
+    
+    public String getIdentifiantPrefixe() {
+        return identifiantPrefixe;
+    }
+
+    public void setIdentifiantPrefixe(String identifiantPrefixe) {
+        this.identifiantPrefixe = identifiantPrefixe;
+    }
+
+}

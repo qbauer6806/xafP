@@ -10,7 +10,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
-import mc.gouv.xaf.back.util.AfBackUtils;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
 
 /**
  * 

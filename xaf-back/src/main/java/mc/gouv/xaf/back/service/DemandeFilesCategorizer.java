@@ -2,8 +2,8 @@ package mc.gouv.xaf.back.service;
 
 import java.util.List;
 
-import mc.gouv.xaf.back.dto.FileCategoryDTO;
-import mc.gouv.dem.shared.model.DemandeDTO;
+import mc.gouv.xaf.back.shared.dto.DemandeDTO;
+import mc.gouv.xaf.back.shared.dto.FileCategoryDTO;
 
 /**
  * Service permettant de lister les catégories de fichiers ainsi que les fichiers associés

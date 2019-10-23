@@ -7,7 +7,7 @@ import org.springframework.data.elasticsearch.annotations.Document;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-import mc.gouv.dem.shared.model.AbstractDemandeDTO;
+import mc.gouv.xaf.back.shared.dto.AbstractDemandeDTO;
 
 /**
  * Modélise une demande

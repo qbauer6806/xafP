@@ -1,0 +1,183 @@
+package mc.gouv.xaf.back.shared.dto;
+
+import java.util.Arrays;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+/**
+ * Modélise une demande
+ * 
+ * @author qdeme
+ *
+ */
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class DemandeDTO extends AbstractDemandeDTO {
+
+    private Integer fkAccess;
+    private Integer usagerId;
+    private String demarcheId;
+    protected DemandeCanalEnum canal;
+    private DemandeFileDTO[] fichiers;
+    private String identifiant;
+    private DemandeStatutDTO[] statuts;
+    private DemandeStatutDTO dernierStatut;
+    private DemandeDataDTO[] data;
+    private DemandeComplementsDTO[] complements;
+    protected String creeParAgentId;
+    protected DemandeCourrierDTO[] courriers;
+    private String usagerNom;
+    private String usagerPrenom;
+    private String usagerEmail;
+    private String buildId;
+    private String recapType;
+
+    public Integer getFkAccess() {
+        return fkAccess;
+    }
+
+    public void setFkAccess(Integer fkAccess) {
+        this.fkAccess = fkAccess;
+    }
+
+    public Integer getUsagerId() {
+        return usagerId;
+    }
+
+    public void setUsagerId(Integer usagerId) {
+        this.usagerId = usagerId;
+    }
+
+    public String getDemarcheId() {
+        return demarcheId;
+    }
+
+    public void setDemarcheId(String demarcheId) {
+        this.demarcheId = demarcheId;
+    }
+
+    public DemandeCanalEnum getCanal() {
+        return canal;
+    }
+
+    public void setCanal(DemandeCanalEnum canal) {
+        this.canal = canal;
+    }
+
+    public DemandeFileDTO[] getFichiers() {
+        return fichiers;
+    }
+
+    public void setFichiers(DemandeFileDTO[] fichiers) {
+        this.fichiers = fichiers;
+    }
+
+    public String getIdentifiant() {
+        return identifiant;
+    }
+
+    public void setIdentifiant(String identifiant) {
+        this.identifiant = identifiant;
+    }
+
+    public DemandeStatutDTO[] getStatuts() {
+        return statuts;
+    }
+
+    public void setStatuts(DemandeStatutDTO[] statuts) {
+        this.statuts = statuts;
+    }
+
+    public DemandeStatutDTO getDernierStatut() {
+        return dernierStatut;
+    }
+
+    public void setDernierStatut(DemandeStatutDTO dernierStatut) {
+        this.dernierStatut = dernierStatut;
+    }
+
+    public DemandeDataDTO[] getData() {
+        return data;
+    }
+
+    public void setData(DemandeDataDTO[] data) {
+        this.data = data;
+    }
+
+    public DemandeComplementsDTO[] getComplements() {
+        return complements;
+    }
+
+    public void setComplements(DemandeComplementsDTO[] complements) {
+        this.complements = complements;
+    }
+
+    public String getCreeParAgentId() {
+        return creeParAgentId;
+    }
+
+    public void setCreeParAgentId(String creeParAgentId) {
+        this.creeParAgentId = creeParAgentId;
+    }
+
+    public DemandeCourrierDTO[] getCourriers() {
+        return courriers;
+    }
+
+    public void setCourriers(DemandeCourrierDTO[] courriers) {
+        this.courriers = courriers;
+    }
+    
+    public String getUsagerNom() {
+        return usagerNom;
+    }
+
+    public void setUsagerNom(String usagerNom) {
+        this.usagerNom = usagerNom;
+    }
+    
+    public String getUsagerPrenom() {
+        return usagerPrenom;
+    }
+    
+    public void setUsagerPrenom(String usagerPrenom) {
+        this.usagerPrenom = usagerPrenom;
+    }
+    
+    public String getUsagerEmail() {
+        return usagerEmail;
+    }
+
+    public void setUsagerEmail(String usagerEmail) {
+        this.usagerEmail = usagerEmail;
+    }
+
+    public String getBuildId() {
+		return buildId;
+	}
+
+	public void setBuildId(String buildId) {
+		this.buildId = buildId;
+	}
+
+	public String getRecapType() {
+		return recapType;
+	}
+
+	public void setRecapType(String recapType) {
+		this.recapType = recapType;
+	}
+
+	@Override
+    public String toString() {
+        return "DemandeDTO [pkDemandes=" + pkDemandes + ", dateCreation=" + dateCreation + ", dateDerModif="
+                + dateDerModif + ", contenu=" + contenu + ", demarcheId=" + demarcheId + ", usagerId=" + usagerId
+                + ", complements=" + Arrays.toString(complements) + ", statuts=" + Arrays.toString(statuts)
+                + ", langue=" + langue + ", canal=" + canal + ", observations=" + observations + ", agentAffecteId="
+                + agentAffecteId + ", creeParAgentId=" + creeParAgentId + ", dernierStatut=" + dernierStatut
+                + ", identifiant=" + identifiant + ", data=" + Arrays.toString(data) + ", courrierDateReception="
+                + courrierDateReception + ", courrierRefInterne=" + courrierRefInterne + ", updated=" + updated + "]" +
+                ", usagerNom=" + usagerNom + ", usagerPrenom="
+                + usagerPrenom + ", usagerEmail=" + usagerEmail + ", buildId=" + buildId + ", recapType=" + recapType + "]";
+    }
+
+}

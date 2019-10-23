@@ -41,7 +41,7 @@ import mc.gouv.xaf.back.bpm.model.GouvBPMStatutAction;
 import mc.gouv.xaf.back.bpm.model.GouvBPMTask;
 import mc.gouv.xaf.back.bpm.model.GouvBPMUser;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.IndexedDemandeService;
+import mc.gouv.xaf.back.service.es.IndexedDemandeService;
 
 /**
  * 

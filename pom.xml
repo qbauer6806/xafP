@@ -15,14 +15,14 @@
 
 	<groupId>mc.gouv.af</groupId>
 	<artifactId>af</artifactId>
-	<version>6.1.1-SNAPSHOT</version>
+	<version>6.1.1</version>
 	<packaging>pom</packaging>
 	
 	<scm>
         <url>https://git.monaco-gouvernement.mc/libs/xaf.git</url>
         <connection>scm:git:git@git.monaco-gouvernement.mc:libs/xaf.git</connection>
         <developerConnection>scm:git:git@git.monaco-gouvernement.mc:libs/xaf.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>af-6.1.1</tag>
     </scm>
 	
 

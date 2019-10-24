@@ -1,5 +1,7 @@
 package mc.gouv.xaf.back.service.utils;
 
+import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
+import mc.gouv.servicerest.usager.model.UsagerBean;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,6 +11,7 @@ import org.springframework.stereotype.Component;
 import mc.gouv.logon.apiclient.RestException;
 import mc.gouv.logon.shared.User;
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
+import mc.gouv.logon.shared.User.Civilite;
 
 /**
  * Classe utilitaire pour la gestion des utilisateurs.
@@ -27,6 +30,9 @@ public class UtilisateursUtils {
 
 	@Autowired
 	private UtilisateursCache utilisateursCache;
+
+	@Autowired
+	private UsagersCache usagersCache;
 
 	/**
 	 * Retourne le prénom et le nom d'un utilisateur à partir de son matricule.
@@ -47,12 +53,37 @@ public class UtilisateursUtils {
 	}
 	
 	public String getUserFullNameFromUser(User user) {
+		StringBuilder builder = new StringBuilder();
 		if (user != null) {
-			CiviliteUtilisateurs civ = CiviliteUtilisateurs.valueOf(user.getCivilite().toString());
+			Civilite civilite = user.getCivilite();
+			if (civilite != null) {
+				CiviliteUtilisateurs civ = CiviliteUtilisateurs.valueOf(civilite.toString());
+				builder.append(civ.getAbbreviation()).append(' ');
+			}
+			String prenom = user.getPrenom();
+			if (prenom != null) {
+				builder.append(prenom).append(' ');
+			}
 			String nom = StringUtils.isNotEmpty(user.getNomUsage()) ? user.getNomUsage() : user.getNomNaissance();
-			return civ.getAbbreviation() + " " + user.getPrenom() + " " + nom;
+			if (nom != null) {
+				builder.append(nom);
+			}
 		}
-		return null;
+		return builder.toString();
+	}
+
+	public String getUsagerCourrierFromId(Integer usagerId) {
+		LOGGER.debug("getUsagerFromId() : Récupération de l'usager courrier {}...", usagerId);
+		UsagerBean usagerCourrier = usagersCache.get(usagerId);
+		String nomUsager = "";
+		if (usagerCourrier != null) {
+			if (!StringUtils.isEmpty(usagerCourrier.getNom())) {
+				nomUsager = StringUtils.defaultString(usagerCourrier.getPrenom()) + " " + usagerCourrier.getNom();
+			} else {
+				nomUsager = usagerCourrier.getRaisonSociale();
+			}
+		}
+		return StringUtils.trim(StringUtils.defaultString(nomUsager));
 	}
 
 }

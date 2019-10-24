@@ -7,8 +7,8 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import mc.gouv.xaf.back.service.utils.UtilisateursUtils;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,12 +26,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
-import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.shared.dto.DemandeCanalEnum;
 import mc.gouv.xaf.backweb.formbean.DemandesCourrierFormBean;
 import mc.gouv.xaf.backweb.formbean.UsagerCourrierFormBean;
-import mc.gouv.servicerest.usager.model.UsagerBean;
 
 /**
  * Controller pour les demandes courrier
@@ -44,17 +42,17 @@ import mc.gouv.servicerest.usager.model.UsagerBean;
 public class DemandesCourrierController extends AbstractController {
 
 	@Autowired
-	private UsagersCache usagersCache;
-
-	@Autowired
 	private DemarchesDataProvider demarchesDataProvider;
 
 	@Autowired
 	private GouvPropertiesResolver gouvPropertiesResolver;
 
+	@Autowired
+	private UtilisateursUtils utilisateursUtils;
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(DemandesCourrierController.class);
 
-	@Secured("ROLE_TRAITEMENT")
+	@Secured({"ROLE_TRAITEMENT","ROLE_SAISIE"})
 	@RequestMapping(method = RequestMethod.GET)
 	public ModelAndView form(@ModelAttribute("usagerCourrierFormBean") UsagerCourrierFormBean usagerCourrierFormBean)
 			throws JsonProcessingException {
@@ -68,7 +66,7 @@ public class DemandesCourrierController extends AbstractController {
 		return mav;
 	}
 
-	@Secured("ROLE_TRAITEMENT")
+	@Secured({"ROLE_TRAITEMENT","ROLE_SAISIE"})
 	@RequestMapping(value = "/creer/{usagerId}", method = RequestMethod.POST)
 	public ModelAndView creerDemandeCourrier(@PathVariable(value = "usagerId") Integer usagerId,
 			@Valid @ModelAttribute("demandesCourrierFormBean") DemandesCourrierFormBean demandesCourrierFormBean,
@@ -130,7 +128,7 @@ public class DemandesCourrierController extends AbstractController {
 		return mav;
 	}
 
-	@Secured("ROLE_TRAITEMENT")
+	@Secured({"ROLE_TRAITEMENT","ROLE_SAISIE"})
 	@RequestMapping(value = "/creer/{usagerId}", method = RequestMethod.GET)
 	public ModelAndView form(@PathVariable(value = "usagerId") Integer usagerId,
 			@ModelAttribute("demandesCourrierFormBean") DemandesCourrierFormBean demandesCourrierFormBean)
@@ -149,9 +147,7 @@ public class DemandesCourrierController extends AbstractController {
 
 	private ModelAndView initForm(ModelAndView mav, Integer usagerId) {
 
-		UsagerBean usagerCourrier = usagersCache.get(usagerId);
-		mav.addObject("usager", StringUtils.trim(StringUtils.defaultString(usagerCourrier.getPrenom()) + " "
-				+ StringUtils.defaultString(usagerCourrier.getNom())));
+		mav.addObject("usager", utilisateursUtils.getUsagerCourrierFromId(usagerId));
 
 		ArrayList<DemandeCanalEnum> canaux = new ArrayList<DemandeCanalEnum>();
 		canaux.add(DemandeCanalEnum.COURRIER);

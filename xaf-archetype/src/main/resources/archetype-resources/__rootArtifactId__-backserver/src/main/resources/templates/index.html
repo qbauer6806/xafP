@@ -75,13 +75,12 @@
 
 			<div class="row">
 				<div class="col-xs-12">
-					<div class="panel-group" id="accordion" role="tablist"
+					<div class="panel-group" role="tablist"
 						 aria-multiselectable="true">
 						<div class="panel panel-default">
 							<div class="panel-heading" role="tab" id="headingOne">
 								<h4 class="panel-title">
-									<a role="button" data-toggle="collapse"
-									   data-parent="${symbol_pound}accordion" href="${symbol_pound}collapseOne"
+									<a role="button" data-toggle="collapse" href="${symbol_pound}collapseOne"
 									   aria-expanded="true" aria-controls="collapseOne"> <span
 											class="pannelState icon-action_accordeon-ouvert"></span>
 										Nouvelles demandes à prendre en charge <span
@@ -116,22 +115,21 @@
 
 			<div class="row">
 				<div class="col-xs-12" sec:authorize="hasRole('ROLE_TRAITEMENT')">
-					<div class="panel-group" id="accordion" role="tablist"
+					<div class="panel-group" role="tablist"
 						 aria-multiselectable="true">
 						<div class="panel panel-default">
-							<div class="panel-heading" role="tab" id="headingOneBis">
+							<div class="panel-heading" role="tab" id="headingTwo">
 								<h4 class="panel-title">
-									<a role="button" data-toggle="collapse"
-									   data-parent="${symbol_pound}accordion" href="${symbol_pound}" aria-expanded="true"
-									   aria-controls="collapseOneBis"> <span
+									<a role="button" data-toggle="collapse" href="${symbol_pound}collapseTwo" aria-expanded="true"
+									   aria-controls="collapseTwo"> <span
 											class="pannelState icon-action_accordeon-ouvert"></span> À
 										traiter <span class="badge badgeState info"
 													  id="demandesATraiterCounter">0</span>
 									</a>
 								</h4>
 							</div>
-							<div id="collapseOneBis" class="panel-collapse collapse in"
-								 role="tabpanel" aria-labelledby="headingOneBis">
+							<div id="collapseTwo" class="panel-collapse collapse in"
+								 role="tabpanel" aria-labelledby="collapseTwo">
 								<div class="panel-body">
 									<table id="demandesATraiter" class="table table-striped"
 										   th:attr="data-href=@{'~/${artifactIdLower}/ws/demandes/pageable?statut=EN_COURS_TRAIT&amp;agentId='+${symbol_dollar}{T(mc.gouv.xaf.back.util.AfBackUtils).getAuthenticatedAgentId()}}">
@@ -157,22 +155,21 @@
 
 			<div class="row">
 				<div class="col-xs-12" sec:authorize="hasRole('ROLE_VALIDATION')">
-					<div class="panel-group" id="accordion" role="tablist"
+					<div class="panel-group" role="tablist"
 						 aria-multiselectable="true">
 						<div class="panel panel-default">
-							<div class="panel-heading" role="tab" id="headingTwo">
+							<div class="panel-heading" role="tab" id="headingThree">
 								<h4 class="panel-title">
 									<a role="button" data-toggle="collapse"
-									   data-parent="${symbol_pound}accordion" href="${symbol_pound}collapseTwo"
-									   aria-expanded="true" aria-controls="collapseTwo"> <span
+									   href="${symbol_pound}collapseThree" aria-expanded="true" aria-controls="collapseThree"> <span
 											class="pannelState icon-action_accordeon-ouvert"></span> À
 										valider <span class="badge badgeState info"
 													  id="demandesAValiderCounter">0</span>
 									</a>
 								</h4>
 							</div>
-							<div id="collapseTwo" class="panel-collapse collapse in"
-								 role="tabpanel" aria-labelledby="headingTwo">
+							<div id="collapseThree" class="panel-collapse collapse in"
+								 role="tabpanel" aria-labelledby="headingThree">
 								<div class="panel-body">
 									<table id="demandesAValider" class="table table-striped"
 										   th:attr="data-href=@{'~/${artifactIdLower}/ws/demandes/pageable?statut=validationHierarchiqueTask&amp;data=and:IS_EN_ATTENTE_VALIDATION=1'}">
@@ -204,13 +201,13 @@
 
 			<div class="row">
 				<div class="col-xs-12">
-					<div class="panel-group" id="accordion" role="tablist"
+					<div class="panel-group" role="tablist"
 						 aria-multiselectable="true">
 						<div class="panel panel-default">
 							<div class="panel-heading" role="tab" id="headingFour">
 								<h4 class="panel-title">
 									<a role="button" data-toggle="collapse"
-									   data-parent="${symbol_pound}accordion" href="${symbol_pound}collapseFour"
+									   href="${symbol_pound}collapseFour"
 									   aria-expanded="true" aria-controls="collapseFour"> <span
 											class="pannelState icon-action_accordeon-ouvert"></span>
 										Demandes en attente d'informations complémentaires <span

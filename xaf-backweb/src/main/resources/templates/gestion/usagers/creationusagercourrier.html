@@ -101,7 +101,8 @@
 														<div class="col-xs-10">
 															<input type="text" class="form-control nom" id="nom"
 																th:field="*{nom}" th:errorclass="errorTooltip"
-																th:attr="data-title=${#fields.hasErrors('nom')} ? ${#fields.errors('nom')} :''" />
+																th:attr="data-title=${#fields.hasErrors('nom')} ? ${#fields.errors('nom')} :''"
+																maxlength="50" pattern="^[a-zA-Z]{1,50}$" />
 														</div>
 													</div>
 												</div>
@@ -113,7 +114,8 @@
 													</div>
 													<div class="col-xs-10">
 														<input type="text" class="form-control" id="inputPrenom"
-															th:field="*{prenom}" maxlength="20" />
+															th:field="*{prenom}" maxlength="20"
+															pattern="^[a-zA-Z]{1,20}$" title="Maximum 20 lettres autorisées"/>
 													</div>
 												</div>
 
@@ -130,7 +132,7 @@
 																id="inputRaisonSociale" th:field="*{raisonSociale}"
 																th:errorclass="errorTooltip"
 																th:attr="data-title=${#fields.hasErrors('raisonSociale')} ? ${#fields.errors('raisonSociale')} :''"
-																maxlength="20" />
+																maxlength="100" />
 														</div>
 													</div>
 												</div>

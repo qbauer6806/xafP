@@ -32,7 +32,7 @@ public class UsagerCourrierFormBean {
 
 	@NotBlank
 	@NotNull(message = "Le code postal doit être précisé")
-	@Size(min = 1, max = 128, message = "Le code postal doit avoir une taille comprise entre 1 et 128")
+	@Size(min = 1, max = 10, message = "Le code postal doit avoir une taille comprise entre 1 et 10")
 	private String codePostal;
 
 	@NotBlank

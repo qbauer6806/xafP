@@ -1,10 +1,10 @@
-﻿#set( $symbol_pound = '#' )
+#set( $symbol_pound = '#' )
 #set( $symbol_dollar = '$' )
 #set( $symbol_escape = '\' )
 -- 1) Important pour ne pas avoir des caractères mal encodés à l'affichage.
 set client_encoding = 'utf8';
 -- 2) Création du schéma
-drop schema ${artifactIdUpper} cascade;
+drop schema if exists ${artifactIdUpper} cascade;
 create schema ${artifactIdUpper};
 -- 3) Paramètrage du schéma
 set search_path = ${artifactIdUpper}, pg_catalog;

@@ -11,8 +11,8 @@
     <properties>
         <logon-apiclient.version>5.1.0</logon-apiclient.version>
         <logon.version>5.1.0</logon.version>
-        <servicerest_client.version>2.2.14</servicerest_client.version>
-        <af.version>6.0.1-SNAPSHOT</af.version>
+        <servicerest_client.version>2.2.15</servicerest_client.version>
+        <af.version>7.0.0-SNAPSHOT</af.version>
         <java.version>1.8</java.version>
         <tscode>derrdom</tscode>
         <!-- Afin d'éviter un conflit sur commons-compress avec tika-parsers (NoSuchMethodError au runtime à l'indexion d'un courrier PDF généré d'info compl) -->

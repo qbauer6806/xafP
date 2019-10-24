@@ -18,14 +18,13 @@
 	<version>7.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
-
-
 	<scm>
         <url>https://git.monaco-gouvernement.mc/libs/xaf.git</url>
         <connection>scm:git:git@git.monaco-gouvernement.mc:libs/xaf.git</connection>
         <developerConnection>scm:git:git@git.monaco-gouvernement.mc:libs/xaf.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
+
 
 	<modules>
 		<module>xaf-servlet</module>

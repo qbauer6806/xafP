@@ -22,7 +22,7 @@ import mc.gouv.logon.shared.User.Civilite;
 public class UtilisateursUtilsTest {
 	
 	// Données de l'utilisateur 1
-	private User user;
+	private User user_monsieur;
 	private static final String MATRICULE = "1";
 	private static final String PRENOM = "Toto";
 	private static final String NOM = "Titi";
@@ -43,26 +43,23 @@ public class UtilisateursUtilsTest {
 	@Mock
 	private UtilisateursCache utilisateursCache;
 	
+	private User createUser(String matricule, String prenom, String nom, String nomUsage, String nomNaissance, Civilite civ) {
+		User user = new User();
+		user.resetData();
+		user.setMatricule(matricule);
+		user.setPrenom(prenom);
+		user.setNomAffichage(nom);
+		user.setNomUsage(nomUsage);
+		user.setNomNaissance(nomNaissance);
+		user.setCivilite(civ);
+		return user;
+	}
+
 	@Before
 	public void setUp() {
-		user = new User();
-		user.resetData();
-		user.setMatricule(MATRICULE);
-		user.setPrenom(PRENOM);
-		user.setNomAffichage(NOM);
-		user.setNomUsage(NOM);
-		user.setNomNaissance(NOM);
-		user.setCivilite(Civilite.MONSIEUR);
-		
-		user_dame = new User();
-		user_dame.resetData();
-		user_dame.setMatricule(MATRICULE_DAME);
-		user_dame.setPrenom(PRENOM_DAME);
-		user_dame.setNomAffichage(NOM_DAME);
-		user_dame.setNomNaissance(NOM_NAISSANCE);
-		user_dame.setCivilite(Civilite.MADAME);
-		
-		Mockito.when(utilisateursCache.get(MATRICULE)).thenReturn(user);
+		user_monsieur = createUser(MATRICULE, PRENOM, NOM, NOM, NOM, Civilite.MONSIEUR);
+		user_dame = createUser(MATRICULE_DAME, PRENOM_DAME, NOM_DAME, null, NOM_NAISSANCE, Civilite.MADAME);
+		Mockito.when(utilisateursCache.get(MATRICULE)).thenReturn(user_monsieur);
 		Mockito.when(utilisateursCache.get(MAUVAIS_MATRICULE)).thenReturn(null);
 	}
 
@@ -94,7 +91,7 @@ public class UtilisateursUtilsTest {
 	@Test
 	public void getUserFullNameFromUserTest_bon_utilisateur() {
 		String expected = "M. " + PRENOM + " " + NOM;
-		String fullname = utilisateursUtils.getUserFullNameFromUser(user);
+		String fullname = utilisateursUtils.getUserFullNameFromUser(user_monsieur);
 		assertEquals(expected, fullname);
 	}
 	
@@ -110,6 +107,62 @@ public class UtilisateursUtilsTest {
 		String expected = "Mme. " + PRENOM_DAME + " " + NOM_DAME;
 		user_dame.setNomUsage(NOM_DAME);
 		String fullname = utilisateursUtils.getUserFullNameFromUser(user_dame);
+		assertEquals(expected, fullname);
+	}
+
+	@Test
+	public void getUserFullNameFromUserTest_null() {
+		String expected = "";
+		User user = createUser(MATRICULE, null, null, null, null, null);
+		String fullname = utilisateursUtils.getUserFullNameFromUser(user);
+		assertEquals(expected, fullname);
+	}
+
+	@Test
+	public void getUserFullNameFromUserTest_nomSeulement() {
+		String expected = NOM;
+		User user = createUser(MATRICULE, null, NOM, NOM, NOM, null);
+		String fullname = utilisateursUtils.getUserFullNameFromUser(user);
+		assertEquals(expected, fullname);
+	}
+
+	@Test
+	public void getUserFullNameFromUserTest_prenomSeulement() {
+		String expected = PRENOM + " ";
+		User user = createUser(MATRICULE, PRENOM, null, null, null, null);
+		String fullname = utilisateursUtils.getUserFullNameFromUser(user);
+		assertEquals(expected, fullname);
+	}
+
+	@Test
+	public void getUserFullNameFromUserTest_civSeulement() {
+		String expected = "M. ";
+		User user = createUser(MATRICULE, null, null, null, null, Civilite.MONSIEUR);
+		String fullname = utilisateursUtils.getUserFullNameFromUser(user);
+		assertEquals(expected, fullname);
+	}
+
+	@Test
+	public void getUserFullNameFromUserTest_prenomNull() {
+		String expected = "M. " + NOM;
+		User user = createUser(MATRICULE, null, NOM, NOM, NOM, Civilite.MONSIEUR);
+		String fullname = utilisateursUtils.getUserFullNameFromUser(user);
+		assertEquals(expected, fullname);
+	}
+
+	@Test
+	public void getUserFullNameFromUserTest_civNull() {
+		String expected = PRENOM + " " + NOM;
+		User user = createUser(MATRICULE, PRENOM, NOM, NOM, NOM, null);
+		String fullname = utilisateursUtils.getUserFullNameFromUser(user);
+		assertEquals(expected, fullname);
+	}
+
+	@Test
+	public void getUserFullNameFromUserTest_nomNull() {
+		String expected = "M. " + PRENOM + " ";
+		User user = createUser(MATRICULE, PRENOM, null, null, null, Civilite.MONSIEUR);
+		String fullname = utilisateursUtils.getUserFullNameFromUser(user);
 		assertEquals(expected, fullname);
 	}
 

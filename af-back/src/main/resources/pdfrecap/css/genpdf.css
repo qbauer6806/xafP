@@ -84,6 +84,7 @@ dl>p, dt span, dd span {
 .long-text {
 	float: left;
 	clear: both;
+	width: 100%;
 }
 
 .long-text>p {

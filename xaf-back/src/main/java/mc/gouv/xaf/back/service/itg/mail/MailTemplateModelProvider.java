@@ -3,7 +3,7 @@ package mc.gouv.xaf.back.service.itg.mail;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import mc.gouv.xaf.back.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
 
 /**
  * 

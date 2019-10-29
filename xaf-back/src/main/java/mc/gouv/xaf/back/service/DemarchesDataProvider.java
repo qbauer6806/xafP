@@ -3,9 +3,9 @@ package mc.gouv.xaf.back.service;
 import java.util.List;
 import java.util.Map;
 
-import mc.gouv.xaf.back.shared.dto.DemandeDTO;
-import mc.gouv.xaf.back.shared.dto.GenericStatusDTO;
-import mc.gouv.xaf.back.shared.dto.StatutPublicOuInterneDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.GenericStatusDTO;
+import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
 
 /**
  * 

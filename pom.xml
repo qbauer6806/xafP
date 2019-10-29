@@ -32,7 +32,8 @@
 		<module>xaf-apiclient</module>
 		<module>xaf-backweb</module>
 		<module>xaf-archetype</module>
-	</modules>
+        <module>xaf-shared</module>
+    </modules>
 
 	<!-- All add-ons and iText 7 core -->
 	<repositories>

@@ -3,9 +3,9 @@ package mc.gouv.xaf.back.service.data;
 import java.io.IOException;
 import java.util.List;
 
-import mc.gouv.xaf.back.shared.dto.DemandeComplementsDTO;
-import mc.gouv.xaf.back.shared.dto.DemandeComplementsQuestionDTO;
-import mc.gouv.xaf.back.shared.dto.DemandeComplementsReponseDTO;
+import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
+import mc.gouv.xaf.shared.dto.DemandeComplementsQuestionDTO;
+import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
 
 /**
  * Service permettant la manipulation des demandes d'informations complémentaires

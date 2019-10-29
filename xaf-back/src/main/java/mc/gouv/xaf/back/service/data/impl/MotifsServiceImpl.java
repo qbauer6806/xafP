@@ -18,7 +18,7 @@ import mc.gouv.xaf.back.data.entity.MotifBO;
 import mc.gouv.xaf.back.data.transformer.MotifTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.service.data.MotifsService;
-import mc.gouv.xaf.back.shared.dto.MotifDTO;
+import mc.gouv.xaf.shared.dto.MotifDTO;
 
 /**
  * Service permettant la manipulation des motifs.

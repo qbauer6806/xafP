@@ -18,9 +18,9 @@ import org.springframework.stereotype.Component;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
-import mc.gouv.xaf.back.shared.dto.DemandeDTO;
-import mc.gouv.xaf.back.shared.dto.DemandeFileDTO;
-import mc.gouv.xaf.back.shared.dto.DemandeStatutDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeFileDTO;
+import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
 
 /**
  * Classe utilitaire pour le projet Demarches

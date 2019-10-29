@@ -6,7 +6,7 @@ import java.lang.reflect.InvocationTargetException;
 import org.json.simple.parser.ParseException;
 
 import mc.gouv.logon.apiclient.RestException;
-import mc.gouv.xaf.back.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
 
 /**
  * Service permettant de générer une page HTML contenant le récapitulatif d'une

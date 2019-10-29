@@ -26,8 +26,8 @@ import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.MotifsService;
 import mc.gouv.xaf.back.service.motifs.MotifsCache;
-import mc.gouv.xaf.back.shared.dto.GenericStatusDTO;
-import mc.gouv.xaf.back.shared.dto.MotifDTO;
+import mc.gouv.xaf.shared.dto.GenericStatusDTO;
+import mc.gouv.xaf.shared.dto.MotifDTO;
 import mc.gouv.xaf.backweb.dto.CustomMotifDTO;
 import mc.gouv.xaf.backweb.formbean.MotifsFormBean;
 

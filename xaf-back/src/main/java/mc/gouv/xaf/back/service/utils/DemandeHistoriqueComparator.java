@@ -2,7 +2,7 @@ package mc.gouv.xaf.back.service.utils;
 
 import java.util.Comparator;
 
-import mc.gouv.xaf.back.shared.dto.DemandeHistoriqueDTO;
+import mc.gouv.xaf.shared.dto.DemandeHistoriqueDTO;
 
 /**
  * Sert à trier l'historique par date

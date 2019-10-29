@@ -18,7 +18,7 @@ import mc.gouv.xaf.back.data.transformer.DemandesHistoriqueTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.service.data.DemandesHistoriqueService;
 import mc.gouv.xaf.back.service.data.DemandesService;
-import mc.gouv.xaf.back.shared.dto.DemandeHistoriqueDTO;
+import mc.gouv.xaf.shared.dto.DemandeHistoriqueDTO;
 
 /**
  * 

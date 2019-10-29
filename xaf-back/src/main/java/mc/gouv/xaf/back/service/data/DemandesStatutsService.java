@@ -3,8 +3,8 @@ package mc.gouv.xaf.back.service.data;
 import java.util.List;
 
 import mc.gouv.xaf.back.data.entity.DemandeBO;
-import mc.gouv.xaf.back.shared.dto.DemandeDTO;
-import mc.gouv.xaf.back.shared.dto.DemandeStatutDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
 
 /**
  * Service permettant la manipulation des demandes.

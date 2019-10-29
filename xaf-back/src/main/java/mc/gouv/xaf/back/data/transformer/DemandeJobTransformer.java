@@ -9,7 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import mc.gouv.xaf.back.data.entity.DemandeJobBO;
-import mc.gouv.xaf.back.shared.dto.DemandeJobDTO;
+import mc.gouv.xaf.shared.dto.DemandeJobDTO;
 
 public class DemandeJobTransformer {
 

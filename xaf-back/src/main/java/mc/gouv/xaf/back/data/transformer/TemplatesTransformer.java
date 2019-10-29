@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import mc.gouv.xaf.back.data.entity.TemplateBO;
-import mc.gouv.xaf.back.shared.dto.TemplateDTO;
+import mc.gouv.xaf.shared.dto.TemplateDTO;
 
 /**
  * 

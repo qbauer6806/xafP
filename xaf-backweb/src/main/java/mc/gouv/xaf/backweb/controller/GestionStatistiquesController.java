@@ -2,7 +2,7 @@ package mc.gouv.xaf.backweb.controller;
 
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.StatistiquesService;
-import mc.gouv.xaf.back.shared.dto.DemandeCanalEnum;
+import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

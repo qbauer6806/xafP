@@ -2,7 +2,7 @@ package mc.gouv.xaf.back.service.data;
 
 import java.net.MalformedURLException;
 
-import mc.gouv.xaf.back.shared.dto.DemandeFileDTO;
+import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 
 /**
  * Service permettant de faire appel aux WS de FILE afin de lier les fichiers aux démarches

@@ -5,7 +5,7 @@ import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.StatistiquesService;
 import mc.gouv.xaf.back.service.data.DemandesStatistiquesService;
-import mc.gouv.xaf.back.shared.dto.DemandeCanalEnum;
+import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

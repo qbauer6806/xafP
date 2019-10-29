@@ -4,7 +4,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import mc.gouv.xaf.back.service.templates.TemplatesCache;
-import mc.gouv.xaf.back.shared.dto.TemplateDTO;
+import mc.gouv.xaf.shared.dto.TemplateDTO;
 import mc.gouv.xboot.caching.GouvMemoryCache;
 
 /**

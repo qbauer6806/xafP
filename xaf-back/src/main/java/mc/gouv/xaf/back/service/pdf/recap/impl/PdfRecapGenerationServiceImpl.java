@@ -28,9 +28,9 @@ import mc.gouv.xaf.back.service.pdf.recap.PdfHeaderFooterProvider;
 import mc.gouv.xaf.back.service.pdf.recap.PdfRecapGenerationService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.FileUtils;
-import mc.gouv.xaf.back.shared.dto.DemandeComplementsDTO;
-import mc.gouv.xaf.back.shared.dto.DemandeDTO;
-import mc.gouv.xaf.back.shared.dto.DemandeFileDTO;
+import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 
 @Component
 public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService {

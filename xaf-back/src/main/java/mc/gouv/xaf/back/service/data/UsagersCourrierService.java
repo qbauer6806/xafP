@@ -2,7 +2,7 @@ package mc.gouv.xaf.back.service.data;
 
 import java.util.List;
 
-import mc.gouv.xaf.back.shared.dto.UsagerCourrierDTO;
+import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 
 /**
  * Service permettant la manipulation des usagers courrier.

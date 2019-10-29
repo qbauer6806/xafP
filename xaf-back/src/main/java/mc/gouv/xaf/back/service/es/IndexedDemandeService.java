@@ -18,9 +18,9 @@ import mc.gouv.xaf.back.data.es.model.DemandesFacets;
 import mc.gouv.xaf.back.data.es.model.EsProperty;
 import mc.gouv.xaf.back.exception.FileConnectionException;
 import mc.gouv.xaf.back.service.data.DemandesService;
-import mc.gouv.xaf.back.shared.dto.DemandeDTO;
-import mc.gouv.xaf.back.shared.dto.DemandeFileDTO;
-import mc.gouv.xaf.back.shared.dto.DemandeRechercheDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeFileDTO;
+import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 
 /**
  * Interface définissant le contrat du service d'indexation

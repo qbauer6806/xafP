@@ -2,7 +2,7 @@ package mc.gouv.xaf.back.service.motifs;
 
 import java.util.List;
 
-import mc.gouv.xaf.back.shared.dto.MotifDTO;
+import mc.gouv.xaf.shared.dto.MotifDTO;
 import mc.gouv.xboot.caching.GouvCache;
 
 /**

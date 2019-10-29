@@ -9,7 +9,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import mc.gouv.xaf.back.data.entity.AccessBO;
-import mc.gouv.xaf.back.shared.dto.AccessDTO;
+import mc.gouv.xaf.shared.dto.AccessDTO;
 
 /**
  * 

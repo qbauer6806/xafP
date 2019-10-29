@@ -22,9 +22,9 @@ import mc.gouv.xaf.back.data.entity.DemandeJobBO;
 import mc.gouv.xaf.back.data.transformer.DemandeJobTransformer;
 import mc.gouv.xaf.back.service.data.DemandeJobService;
 import mc.gouv.xaf.back.service.es.IndexedDemandeService;
-import mc.gouv.xaf.back.shared.dto.DemandeJobDTO;
-import mc.gouv.xaf.back.shared.dto.JobNamesEnum;
-import mc.gouv.xaf.back.shared.dto.JobStatutsEnum;
+import mc.gouv.xaf.shared.dto.DemandeJobDTO;
+import mc.gouv.xaf.shared.dto.JobNamesEnum;
+import mc.gouv.xaf.shared.dto.JobStatutsEnum;
 
 @Service
 @Conditional(IndexationEnabledCondition.class)

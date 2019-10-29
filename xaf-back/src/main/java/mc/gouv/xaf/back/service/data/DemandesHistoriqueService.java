@@ -2,7 +2,7 @@ package mc.gouv.xaf.back.service.data;
 
 import java.util.List;
 
-import mc.gouv.xaf.back.shared.dto.DemandeHistoriqueDTO;
+import mc.gouv.xaf.shared.dto.DemandeHistoriqueDTO;
 
 /**
  * Service permettant la manipulation de l'historique des demandes.

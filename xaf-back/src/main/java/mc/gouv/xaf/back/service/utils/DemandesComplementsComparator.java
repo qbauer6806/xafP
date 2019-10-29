@@ -2,7 +2,7 @@ package mc.gouv.xaf.back.service.utils;
 
 import java.util.Comparator;
 
-import mc.gouv.xaf.back.shared.dto.DemandeComplementsDTO;
+import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
 
 /**
  * Sert à trier les demandes d'informations complémentaires par date

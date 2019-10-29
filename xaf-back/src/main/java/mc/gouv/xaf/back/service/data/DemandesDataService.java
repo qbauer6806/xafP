@@ -3,7 +3,7 @@ package mc.gouv.xaf.back.service.data;
 import java.util.List;
 import java.util.Map;
 
-import mc.gouv.xaf.back.shared.dto.DemandeDataDTO;
+import mc.gouv.xaf.shared.dto.DemandeDataDTO;
 
 /**
  * Service permettant la manipulation des données d'une demande.

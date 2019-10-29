@@ -32,8 +32,8 @@ import mc.gouv.xaf.back.service.data.AccessService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.data.UsagersCourrierService;
-import mc.gouv.xaf.back.shared.dto.AccessDTO;
-import mc.gouv.xaf.back.shared.dto.UsagerCourrierDTO;
+import mc.gouv.xaf.shared.dto.AccessDTO;
+import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 
 /**
  * Service permettant la manipulation des usagers courrier.

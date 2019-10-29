@@ -1,7 +1,7 @@
 package mc.gouv.xaf.back.service.data;
 
 import mc.gouv.xaf.back.data.entity.DemandeBO;
-import mc.gouv.xaf.back.shared.dto.DemandeFileDTO;
+import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 
 /**
  * 

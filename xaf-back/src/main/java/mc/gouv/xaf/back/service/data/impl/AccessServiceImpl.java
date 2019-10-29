@@ -28,7 +28,7 @@ import mc.gouv.xaf.back.data.transformer.AccessTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.service.data.AccessService;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
-import mc.gouv.xaf.back.shared.dto.AccessDTO;
+import mc.gouv.xaf.shared.dto.AccessDTO;
 
 /**
  * Service permettant la manipulation des accès.

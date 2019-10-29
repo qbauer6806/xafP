@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import mc.gouv.xaf.back.data.entity.UsagersCourrierBO;
-import mc.gouv.xaf.back.shared.dto.UsagerCourrierDTO;
+import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 
 /**
  * 

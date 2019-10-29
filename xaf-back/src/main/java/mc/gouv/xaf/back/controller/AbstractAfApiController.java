@@ -27,14 +27,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.es.impl.IndexedEsDemandeServiceImpl;
-import mc.gouv.xaf.back.shared.dto.AccessDTO;
-import mc.gouv.xaf.back.shared.dto.AccessInputDTO;
-import mc.gouv.xaf.back.shared.dto.DemandeComplementsDTO;
-import mc.gouv.xaf.back.shared.dto.DemandeComplementsReponseDTO;
-import mc.gouv.xaf.back.shared.dto.DemandeDTO;
-import mc.gouv.xaf.back.shared.dto.DemandeInputDTO;
-import mc.gouv.xaf.back.shared.dto.MotifDTO;
-import mc.gouv.xaf.back.shared.dto.UsagerCourrierDTO;
+import mc.gouv.xaf.shared.dto.AccessDTO;
+import mc.gouv.xaf.shared.dto.AccessInputDTO;
+import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
+import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeInputDTO;
+import mc.gouv.xaf.shared.dto.MotifDTO;
+import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 import mc.gouv.xapi.error.dto.ErrorsDTO;
 import mc.gouv.xapi.error.exception.WebException;
 

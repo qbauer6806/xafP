@@ -20,7 +20,7 @@ import org.springframework.web.servlet.HandlerMapping;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
-import mc.gouv.xaf.back.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xboot.config.web.annotation.GouvRestController;
 
 /**

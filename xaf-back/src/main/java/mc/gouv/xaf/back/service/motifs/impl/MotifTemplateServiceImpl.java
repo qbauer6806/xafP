@@ -3,8 +3,8 @@ package mc.gouv.xaf.back.service.motifs.impl;
 import mc.gouv.xaf.back.service.motifs.MotifTemplateService;
 import mc.gouv.xaf.back.service.motifs.MotifsCache;
 import mc.gouv.xaf.back.service.motifs.MotifsTemplateModelProvider;
-import mc.gouv.xaf.back.shared.dto.DemandeDTO;
-import mc.gouv.xaf.back.shared.dto.MotifDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.MotifDTO;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.velocity.app.Velocity;

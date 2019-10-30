@@ -14,6 +14,15 @@
 		<logon-apiclient.version>5.2.2</logon-apiclient.version>
 	</properties>
 
+	<!-- All add-ons and iText 7 core -->
+	<repositories>
+		<repository>
+			<id>itext</id>
+			<name>iText Repository - releases</name>
+			<url>https://repo.itextsupport.com/releases</url>
+		</repository>
+	</repositories>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.activiti</groupId>
@@ -31,19 +40,6 @@
 			<artifactId>xaf-shared</artifactId>
 			<version>7.0.0-SNAPSHOT</version>
 		</dependency>
-
-
-		<!-- 		<dependency>
-                    <groupId>mc.gouv.dem</groupId>
-                    <artifactId>dem-service</artifactId>
-                    <version>5.0.2-SNAPSHOT</version>
-                    <exclusions>
-                        <exclusion>
-                            <groupId>javax.servlet</groupId>
-                            <artifactId>servlet-api</artifactId>
-                        </exclusion>
-                    </exclusions>
-                </dependency> -->
 
 		<dependency>
 			<groupId>mc.gouv.file</groupId>
@@ -114,6 +110,13 @@
 				</exclusion>
 
 			</exclusions>
+		</dependency>
+
+		<!-- itext -->
+		<dependency>
+			<groupId>com.itextpdf</groupId>
+			<artifactId>html2pdf</artifactId>
+			<version>${itext.pdf.version}</version>
 		</dependency>
 
 		<!-- Apache Velocity -->
@@ -317,6 +320,18 @@
 			<exclusions> <exclusion> <groupId>org.apache.cxf</groupId> <artifactId>cxf-rt-rs-client</artifactId> 
 			</exclusion> </exclusions> </dependency> -->
 		<!-- Fin export Excel -->
+
+		<dependency>
+			<groupId>org.apache.tika</groupId>
+			<artifactId>tika-app</artifactId>
+			<version>${tika.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.cxf</groupId>
+					<artifactId>cxf-rt-rs-client</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
 
 	</dependencies>
 

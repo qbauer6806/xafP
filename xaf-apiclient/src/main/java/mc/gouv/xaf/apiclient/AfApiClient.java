@@ -12,14 +12,14 @@ import org.glassfish.jersey.media.multipart.internal.MultiPartWriter;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 
-import mc.gouv.xaf.back.shared.dto.AccessDTO;
-import mc.gouv.xaf.back.shared.dto.AccessInputDTO;
-import mc.gouv.xaf.back.shared.dto.DemandeComplementsDTO;
-import mc.gouv.xaf.back.shared.dto.DemandeComplementsReponseDTO;
-import mc.gouv.xaf.back.shared.dto.DemandeDTO;
-import mc.gouv.xaf.back.shared.dto.DemandeInputDTO;
-import mc.gouv.xaf.back.shared.dto.MotifDTO;
-import mc.gouv.xaf.back.shared.dto.UsagerCourrierDTO;
+import mc.gouv.xaf.shared.dto.AccessDTO;
+import mc.gouv.xaf.shared.dto.AccessInputDTO;
+import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
+import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeInputDTO;
+import mc.gouv.xaf.shared.dto.MotifDTO;
+import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 import mc.gouv.xboot.apiclient.authentication.impl.BasicAuthorizationHeaderProvider;
 import mc.gouv.xboot.apiclient.authentication.impl.JwtAuthorizationHeaderProvider;
 import mc.gouv.xboot.apiclient.client.ApiClient;

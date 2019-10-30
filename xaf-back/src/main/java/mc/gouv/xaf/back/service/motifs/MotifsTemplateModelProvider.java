@@ -2,7 +2,7 @@ package mc.gouv.xaf.back.service.motifs;
 
 import java.util.Map;
 
-import mc.gouv.xaf.back.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
 
 public interface MotifsTemplateModelProvider {
 

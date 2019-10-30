@@ -21,7 +21,7 @@ import mc.gouv.xaf.back.service.itg.mail.EmailTransformer;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.templates.TemplatesCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import mc.gouv.xaf.back.shared.dto.TemplateDTO;
+import mc.gouv.xaf.shared.dto.TemplateDTO;
 import mc.gouv.mail.shared.dto.AddressBlockDTO;
 import mc.gouv.mail.shared.dto.MailDTO;
 import mc.gouv.mail.shared.dto.ParamDTO;

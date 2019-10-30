@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import mc.gouv.xaf.back.service.data.DemandeJobService;
-import mc.gouv.xaf.back.shared.dto.DemandeJobDTO;
-import mc.gouv.xaf.back.shared.dto.JobNamesEnum;
+import mc.gouv.xaf.shared.dto.DemandeJobDTO;
+import mc.gouv.xaf.shared.dto.JobNamesEnum;
 import mc.gouv.xboot.config.web.annotation.GouvRestController;
 
 @GouvRestController

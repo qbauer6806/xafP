@@ -10,8 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
 import mc.gouv.xaf.back.service.data.impl.DemandesCourriersServiceImpl;
 import mc.gouv.xaf.back.service.es.IndexedDemandeService;
-import mc.gouv.xaf.back.shared.dto.DemandeCourrierDTO;
-import mc.gouv.xaf.back.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeCourrierDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
 
 @Service
 @Primary

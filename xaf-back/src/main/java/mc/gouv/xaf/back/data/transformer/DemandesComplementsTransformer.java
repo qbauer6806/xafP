@@ -9,11 +9,11 @@ import java.util.Set;
 import mc.gouv.xaf.back.data.entity.DemandesComplementsBO;
 import mc.gouv.xaf.back.data.entity.DemandesComplementsFilesBO;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
-import mc.gouv.xaf.back.shared.dto.DemandeComplementsDTO;
-import mc.gouv.xaf.back.shared.dto.DemandeComplementsFileDTO;
-import mc.gouv.xaf.back.shared.dto.DemandeComplementsQuestionDTO;
-import mc.gouv.xaf.back.shared.dto.DemandeComplementsReponseDTO;
-import mc.gouv.xaf.back.shared.dto.DemandeComplementsStatutEnum;
+import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
+import mc.gouv.xaf.shared.dto.DemandeComplementsFileDTO;
+import mc.gouv.xaf.shared.dto.DemandeComplementsQuestionDTO;
+import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
+import mc.gouv.xaf.shared.dto.DemandeComplementsStatutEnum;
 
 /**
  * 

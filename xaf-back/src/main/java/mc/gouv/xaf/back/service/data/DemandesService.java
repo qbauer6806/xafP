@@ -13,8 +13,8 @@ import org.xml.sax.SAXException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import mc.gouv.xaf.back.data.entity.DemandeBO;
-import mc.gouv.xaf.back.shared.dto.DemandeDTO;
-import mc.gouv.xaf.back.shared.dto.DemandeRechercheDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 
 /**
  * Service permettant la manipulation des demandes.

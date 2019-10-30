@@ -27,7 +27,7 @@ import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.service.data.DemandesCourriersService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.DemarchesService;
-import mc.gouv.xaf.back.shared.dto.DemandeCourrierDTO;
+import mc.gouv.xaf.shared.dto.DemandeCourrierDTO;
 
 /**
  * Service permettant la manipulation des courriers liés à une demande.

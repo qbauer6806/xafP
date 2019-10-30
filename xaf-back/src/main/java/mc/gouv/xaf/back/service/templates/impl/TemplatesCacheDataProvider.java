@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.TemplatesService;
-import mc.gouv.xaf.back.shared.dto.TemplateDTO;
+import mc.gouv.xaf.shared.dto.TemplateDTO;
 import mc.gouv.xboot.caching.GouvCacheDataProvider;
 
 @Profile("gouv")

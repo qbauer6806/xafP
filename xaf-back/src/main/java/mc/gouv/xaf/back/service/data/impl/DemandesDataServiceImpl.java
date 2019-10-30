@@ -16,7 +16,7 @@ import mc.gouv.xaf.back.data.entity.DemandesDataBO;
 import mc.gouv.xaf.back.data.transformer.DemandesDataTransformer;
 import mc.gouv.xaf.back.service.data.DemandesDataService;
 import mc.gouv.xaf.back.service.data.DemandesService;
-import mc.gouv.xaf.back.shared.dto.DemandeDataDTO;
+import mc.gouv.xaf.shared.dto.DemandeDataDTO;
 
 /**
  * Service permettant la manipulation des données d'une demande.

@@ -3,7 +3,7 @@ package mc.gouv.xaf.back.service.impl;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.DemandesStatistiquesService;
-import mc.gouv.xaf.back.shared.dto.DemandeCanalEnum;
+import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
 
 import org.junit.Before;
 import org.junit.Test;

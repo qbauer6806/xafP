@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.pdf.recap.PdfRecapGenerationService;
-import mc.gouv.xaf.back.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
 
 /**
  * 

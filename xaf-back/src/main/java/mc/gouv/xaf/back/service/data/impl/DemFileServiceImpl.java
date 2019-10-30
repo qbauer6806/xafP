@@ -25,7 +25,7 @@ import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemFileService;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
-import mc.gouv.xaf.back.shared.dto.DemandeFileDTO;
+import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 
 /**
  * Service permettant de faire appel aux WS de FILE afin de lier les fichiers aux démarches

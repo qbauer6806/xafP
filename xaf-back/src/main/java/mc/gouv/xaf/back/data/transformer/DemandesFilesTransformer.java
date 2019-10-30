@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import mc.gouv.xaf.back.data.entity.DemandesFilesBO;
-import mc.gouv.xaf.back.shared.dto.DemandeFileDTO;
+import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 
 /**
  * 

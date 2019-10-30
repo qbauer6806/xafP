@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Set;
 
 import mc.gouv.xaf.back.data.entity.DemandesComplementsFilesBO;
-import mc.gouv.xaf.back.shared.dto.DemandeComplementsFileDTO;
-import mc.gouv.xaf.back.shared.dto.DemandeFileDTO;
+import mc.gouv.xaf.shared.dto.DemandeComplementsFileDTO;
+import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 
 /**
  * 

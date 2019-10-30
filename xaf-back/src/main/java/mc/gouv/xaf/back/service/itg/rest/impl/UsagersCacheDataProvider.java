@@ -14,7 +14,7 @@ import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.AccessService;
 import mc.gouv.xaf.back.service.data.UsagersCourrierService;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
-import mc.gouv.xaf.back.shared.dto.UsagerCourrierDTO;
+import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 import mc.gouv.servicerest.usager.ReferentielUsagersClient;
 import mc.gouv.servicerest.usager.model.UsagerBean;
 import mc.gouv.xboot.caching.GouvCacheDataProvider;

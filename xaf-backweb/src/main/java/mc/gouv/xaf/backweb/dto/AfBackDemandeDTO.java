@@ -1,6 +1,6 @@
 package mc.gouv.xaf.backweb.dto;
 
-import mc.gouv.xaf.back.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
 
 /**
  * Classe permettant de rajouter des champs dans DemandeDTO, qui sont utiles pour les démarches, sans avoir à encombrer

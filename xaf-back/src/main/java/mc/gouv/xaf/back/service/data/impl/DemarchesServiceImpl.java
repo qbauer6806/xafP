@@ -14,7 +14,7 @@ import mc.gouv.xaf.back.data.entity.DemarchesBO;
 import mc.gouv.xaf.back.data.transformer.DemarchesTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.service.data.DemarchesService;
-import mc.gouv.xaf.back.shared.dto.DemarcheDTO;
+import mc.gouv.xaf.shared.dto.DemarcheDTO;
 
 /**
  * Service permettant la manipulation des démarches.

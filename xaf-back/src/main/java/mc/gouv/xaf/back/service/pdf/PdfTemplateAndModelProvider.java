@@ -1,8 +1,8 @@
 package mc.gouv.xaf.back.service.pdf;
 
 import fr.opensagres.poi.xwpf.converter.pdf.PdfOptions;
-import mc.gouv.xaf.back.shared.dto.DemandeDTO;
-import mc.gouv.xaf.back.shared.dto.PdfTemplateAndModelDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.PdfTemplateAndModelDTO;
 
 /**
  * 

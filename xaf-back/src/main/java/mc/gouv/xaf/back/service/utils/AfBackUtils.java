@@ -17,11 +17,11 @@ import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.motifs.MotifTemplateService;
-import mc.gouv.xaf.back.shared.dto.DemandeDTO;
-import mc.gouv.xaf.back.shared.dto.DemandeDataDTO;
-import mc.gouv.xaf.back.shared.dto.DemandeFlatDTO;
-import mc.gouv.xaf.back.shared.dto.DemarcheDTO;
-import mc.gouv.xaf.back.shared.dto.StatutPublicOuInterneDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeDataDTO;
+import mc.gouv.xaf.shared.dto.DemandeFlatDTO;
+import mc.gouv.xaf.shared.dto.DemarcheDTO;
+import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;

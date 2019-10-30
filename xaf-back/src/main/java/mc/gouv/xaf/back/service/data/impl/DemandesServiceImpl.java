@@ -77,16 +77,16 @@ import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
-import mc.gouv.xaf.back.shared.dto.DataRechercheDTO;
-import mc.gouv.xaf.back.shared.dto.DemandeCanalEnum;
-import mc.gouv.xaf.back.shared.dto.DemandeComplementsDTO;
-import mc.gouv.xaf.back.shared.dto.DemandeComplementsFileDTO;
-import mc.gouv.xaf.back.shared.dto.DemandeCourrierDTO;
-import mc.gouv.xaf.back.shared.dto.DemandeDTO;
-import mc.gouv.xaf.back.shared.dto.DemandeDataDTO;
-import mc.gouv.xaf.back.shared.dto.DemandeFileDTO;
-import mc.gouv.xaf.back.shared.dto.DemandeRechercheDTO;
-import mc.gouv.xaf.back.shared.dto.DemandeStatutDTO;
+import mc.gouv.xaf.shared.dto.DataRechercheDTO;
+import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
+import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
+import mc.gouv.xaf.shared.dto.DemandeComplementsFileDTO;
+import mc.gouv.xaf.shared.dto.DemandeCourrierDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeDataDTO;
+import mc.gouv.xaf.shared.dto.DemandeFileDTO;
+import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
+import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
 
 /**
  * Service permettant la manipulation des demandes.

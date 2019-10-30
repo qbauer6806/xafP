@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import mc.gouv.xaf.back.data.entity.DemandesCourriersBO;
-import mc.gouv.xaf.back.shared.dto.DemandeCourrierDTO;
+import mc.gouv.xaf.shared.dto.DemandeCourrierDTO;
 
 /**
  * 

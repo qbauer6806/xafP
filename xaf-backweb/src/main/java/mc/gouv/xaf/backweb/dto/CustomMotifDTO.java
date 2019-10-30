@@ -1,6 +1,6 @@
 package mc.gouv.xaf.backweb.dto;
 
-import mc.gouv.xaf.back.shared.dto.MotifDTO;
+import mc.gouv.xaf.shared.dto.MotifDTO;
 
 public class CustomMotifDTO extends MotifDTO {
 

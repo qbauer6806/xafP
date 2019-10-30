@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import mc.gouv.xaf.back.data.entity.AccessBO;
-import mc.gouv.xaf.back.shared.dto.AccessDTO;
+import mc.gouv.xaf.shared.dto.AccessDTO;
 
 /**
  * Service permettant la manipulation des accès.

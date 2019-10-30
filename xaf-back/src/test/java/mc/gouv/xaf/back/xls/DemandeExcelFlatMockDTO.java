@@ -1,7 +1,7 @@
 package mc.gouv.xaf.back.xls;
 
 import mc.gouv.xaf.back.DemandeContenuMockDTO;
-import mc.gouv.xaf.back.shared.dto.DemandeFlatDTO;
+import mc.gouv.xaf.shared.dto.DemandeFlatDTO;
 
 public class DemandeExcelFlatMockDTO {
 

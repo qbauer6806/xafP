@@ -13,9 +13,9 @@ import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
 import mc.gouv.xaf.back.data.es.model.DemandeStatutEsDTO;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.motifs.MotifsCache;
-import mc.gouv.xaf.back.shared.dto.DemandeStatutDTO;
-import mc.gouv.xaf.back.shared.dto.MotifDTO;
-import mc.gouv.xaf.back.shared.dto.StatutPublicOuInterneDTO;
+import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
+import mc.gouv.xaf.shared.dto.MotifDTO;
+import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
 
 @Service
 @Conditional(IndexationEnabledCondition.class)

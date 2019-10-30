@@ -3,7 +3,7 @@ package mc.gouv.xaf.back.xls;
 import java.util.Calendar;
 import java.util.Date;
 
-import mc.gouv.xaf.back.shared.dto.DemandeCanalEnum;
+import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
 
 public class ExcelMockData {
 

@@ -13,7 +13,7 @@ import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import mc.gouv.xaf.back.shared.dto.StatutInputDTO;
+import mc.gouv.xaf.shared.dto.StatutInputDTO;
 
 /**
  * 

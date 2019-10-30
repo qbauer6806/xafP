@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
 import mc.gouv.xaf.back.service.data.impl.DemandesStatutsServiceImpl;
 import mc.gouv.xaf.back.service.es.IndexedDemandeService;
-import mc.gouv.xaf.back.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
 
 /**
  * @author dsaidiparto.ext

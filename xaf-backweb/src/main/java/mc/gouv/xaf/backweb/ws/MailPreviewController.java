@@ -19,7 +19,7 @@ import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.itg.mail.MailTemplateModelProvider;
-import mc.gouv.xaf.back.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.backweb.controller.AbstractController;
 import mc.gouv.xaf.backweb.formbean.MailPreviewFormBean;
 

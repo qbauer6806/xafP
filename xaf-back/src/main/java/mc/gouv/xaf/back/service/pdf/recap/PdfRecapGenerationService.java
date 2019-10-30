@@ -2,7 +2,7 @@ package mc.gouv.xaf.back.service.pdf.recap;
 
 import java.io.File;
 
-import mc.gouv.xaf.back.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
 
 /**
  * Classe appelée par le workflow BPM, permettant d'appeler un sous-service de

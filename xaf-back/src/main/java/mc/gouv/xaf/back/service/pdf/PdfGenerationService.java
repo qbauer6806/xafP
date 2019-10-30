@@ -2,7 +2,7 @@ package mc.gouv.xaf.back.service.pdf;
 
 import java.io.File;
 
-import mc.gouv.xaf.back.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
 
 /**
  * 

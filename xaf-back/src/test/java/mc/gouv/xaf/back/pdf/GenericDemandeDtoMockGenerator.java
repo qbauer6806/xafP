@@ -1,6 +1,6 @@
 package mc.gouv.xaf.back.pdf;
 
-import mc.gouv.xaf.back.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
 
 public class GenericDemandeDtoMockGenerator {
 

@@ -10,10 +10,10 @@ import org.springframework.transaction.annotation.Transactional;
 import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
 import mc.gouv.xaf.back.service.data.impl.DemandesComplementsServiceImpl;
 import mc.gouv.xaf.back.service.es.IndexedDemandeService;
-import mc.gouv.xaf.back.shared.dto.DemandeComplementsDTO;
-import mc.gouv.xaf.back.shared.dto.DemandeComplementsQuestionDTO;
-import mc.gouv.xaf.back.shared.dto.DemandeComplementsReponseDTO;
-import mc.gouv.xaf.back.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
+import mc.gouv.xaf.shared.dto.DemandeComplementsQuestionDTO;
+import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
 
 @Service
 @Primary

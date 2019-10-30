@@ -27,7 +27,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import mc.gouv.xaf.back.shared.dto.DemandeCanalEnum;
+import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
 import mc.gouv.xaf.backweb.formbean.DemandesCourrierFormBean;
 import mc.gouv.xaf.backweb.formbean.UsagerCourrierFormBean;
 

@@ -15,7 +15,7 @@ import mc.gouv.xaf.back.data.transformer.TemplatesTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.data.TemplatesService;
-import mc.gouv.xaf.back.shared.dto.TemplateDTO;
+import mc.gouv.xaf.shared.dto.TemplateDTO;
 
 /**
  * Service permettant la manipulation des templates.

@@ -21,7 +21,7 @@ import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.pdf.PdfGenerationService;
 import mc.gouv.xaf.back.service.pdf.PdfTypeEnum;
-import mc.gouv.xaf.back.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.backweb.controller.AbstractController;
 
 /**

@@ -2,8 +2,8 @@ package mc.gouv.xaf.back.service.motifs;
 
 import java.util.List;
 
-import mc.gouv.xaf.back.shared.dto.DemandeDTO;
-import mc.gouv.xaf.back.shared.dto.MotifDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.MotifDTO;
 
 /**
  * Used to retrieve the Motifs populated with Velocity pattern

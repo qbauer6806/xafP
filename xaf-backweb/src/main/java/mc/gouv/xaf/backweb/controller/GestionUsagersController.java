@@ -27,6 +27,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import mc.gouv.servicerest.pays.model.PaysBean;
 import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
@@ -35,12 +36,12 @@ import mc.gouv.xaf.back.service.data.UsagersCourrierService;
 import mc.gouv.xaf.back.service.itg.rest.PaysCache;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
+import mc.gouv.xaf.back.service.utils.UsagersUtils;
 import mc.gouv.xaf.backweb.dto.UsagerCourrierResultDTO;
 import mc.gouv.xaf.backweb.formbean.TransfertDemandesFormBean;
 import mc.gouv.xaf.backweb.formbean.UsagerCourrierFormBean;
-import mc.gouv.servicerest.pays.model.PaysBean;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 
 /**
  * Controller pour la page /gestionusagers
@@ -69,6 +70,9 @@ public class GestionUsagersController extends AbstractController {
 
 	@Autowired
 	private AfBackUtils afBackUtils;
+	
+	@Autowired
+    private UsagersUtils usagersUtils;
 
 	@Autowired
 	private MessageSource messageSource;
@@ -174,18 +178,7 @@ public class GestionUsagersController extends AbstractController {
 		usagerCourrier.setRaisonSociale(usagerCourrierFormBean.getRaisonSociale());
 		usagerCourrier.setTelephone(usagerCourrierFormBean.getTelephone());
 		usagerCourrier.setVille(usagerCourrierFormBean.getVille());
-		Integer titre = null;
-
-		if (usagerCourrierFormBean.getTitre() == null) {
-			// TODO gérer erreur
-		} else if ("Mr".equals(usagerCourrierFormBean.getTitre())) {
-			titre = Integer.valueOf(AfBackUtils.GENDER_MR_INDEX);
-		} else if ("Mme".equals(usagerCourrierFormBean.getTitre())) {
-			titre = Integer.valueOf(AfBackUtils.GENDER_MME_INDEX);
-		} else if ("Mlle".equals(usagerCourrierFormBean.getTitre())) {
-			titre = Integer.valueOf(AfBackUtils.GENDER_MLLE_INDEX);
-		}
-		usagerCourrier.setTitre(titre);
+		usagerCourrier.setTitre(usagersUtils.abbreviationToTitre(usagerCourrierFormBean.getTitre()));
 		usagerCourrier.setPays(usagerCourrierFormBean.getPaysChoisi());
 		
 		if (StringUtils.isBlank(usagerCourrierFormBean.getNom()) && StringUtils.isBlank(usagerCourrierFormBean.getRaisonSociale())) {
@@ -269,17 +262,7 @@ public class GestionUsagersController extends AbstractController {
 		usagerCourrierFormBean.setPrenom(usager.getPrenom());
 		usagerCourrierFormBean.setRaisonSociale(usager.getRaisonSociale());
 		usagerCourrierFormBean.setTelephone(usager.getTelephone());
-		String titre = null;
-		if (usager.getTitre() != null) {
-			if (AfBackUtils.GENDER_MR_INDEX == usager.getTitre().shortValue()) {
-				titre = "Mr";
-			} else if (AfBackUtils.GENDER_MME_INDEX == usager.getTitre().shortValue()) {
-				titre = "Mme";
-			} else if (AfBackUtils.GENDER_MLLE_INDEX == usager.getTitre().shortValue()) {
-				titre = "Mlle";
-			}
-		}
-		usagerCourrierFormBean.setTitre(titre);
+		usagerCourrierFormBean.setTitre(usagersUtils.titreToAbbreviation(usager.getTitre()));
 		usagerCourrierFormBean.setVille(usager.getVille());
 
 		LOGGER.info("======================= Fin /gestion/usagers");

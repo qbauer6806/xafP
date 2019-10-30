@@ -11,8 +11,9 @@ public class UsagerTransformer {
 
     public static UsagerEsDTO bo2Dto(UsagerBean bo) {
 
-        if (bo == null)
+        if (bo == null) {
             return null;
+        }
 
         UsagerEsDTO usagerEsDTO = new UsagerEsDTO();
         usagerEsDTO.setAdresse1(bo.getAdresse1());

@@ -15,19 +15,19 @@ public class UsagersUtilsTest {
     private UsagersUtils usagersUtils;
 
     @Test
-    public void titreToAbbreviation_titreNull() {
+    public void titreToAbbreviationTitreNull() {
         String resultat = usagersUtils.titreToAbbreviation(null);
         assertNull(resultat);
     }
 
     @Test
-    public void titreToAbbreviation_fakeData() {
+    public void titreToAbbreviationFakeData() {
         String resultat = usagersUtils.titreToAbbreviation(-1);
         assertNull(resultat);
     }
 
     @Test
-    public void titreToAbbreviation_monsieur() {
+    public void titreToAbbreviationMonsieur() {
         Integer titre = new Integer(AfBackUtils.GENDER_MR_INDEX);
         String resultat = usagersUtils.titreToAbbreviation(titre);
         String expected = "Mr";
@@ -35,7 +35,7 @@ public class UsagersUtilsTest {
     }
 
     @Test
-    public void titreToAbbreviation_madame() {
+    public void titreToAbbreviationMadame() {
         Integer titre = new Integer(AfBackUtils.GENDER_MME_INDEX);
         String resultat = usagersUtils.titreToAbbreviation(titre);
         String expected = "Mme";
@@ -43,7 +43,7 @@ public class UsagersUtilsTest {
     }
 
     @Test
-    public void titreToAbbreviation_mademoiselle() {
+    public void titreToAbbreviationMademoiselle() {
         Integer titre = new Integer(AfBackUtils.GENDER_MLLE_INDEX);
         String resultat = usagersUtils.titreToAbbreviation(titre);
         String expected = "Mlle";
@@ -51,25 +51,25 @@ public class UsagersUtilsTest {
     }
 
     @Test
-    public void abbreviationToTitre_abbrNull() {
+    public void abbreviationToTitreAbbrNull() {
         Integer resultat = usagersUtils.abbreviationToTitre(null);
         assertNull(resultat);
     }
 
     @Test
-    public void abbreviationToTitre_emptyString() {
+    public void abbreviationToTitreEmptyString() {
         Integer resultat = usagersUtils.abbreviationToTitre("");
         assertNull(resultat);
     }
 
     @Test
-    public void abbreviationToTitre_fakeData() {
+    public void abbreviationToTitreFakeData() {
         Integer resultat = usagersUtils.abbreviationToTitre("fake");
         assertNull(resultat);
     }
 
     @Test
-    public void abbreviationToTitre_monsieur() {
+    public void abbreviationToTitreMonsieur() {
         String abbr = "Mr";
         Integer resultat = usagersUtils.abbreviationToTitre(abbr);
         Integer expected = new Integer(AfBackUtils.GENDER_MR_INDEX);
@@ -77,7 +77,7 @@ public class UsagersUtilsTest {
     }
 
     @Test
-    public void abbreviationToTitre_madame() {
+    public void abbreviationToTitreMadame() {
         String abbr = "Mme";
         Integer resultat = usagersUtils.abbreviationToTitre(abbr);
         Integer expected = new Integer(AfBackUtils.GENDER_MME_INDEX);
@@ -85,7 +85,7 @@ public class UsagersUtilsTest {
     }
 
     @Test
-    public void abbreviationToTitre_mademoiselle() {
+    public void abbreviationToTitreMademoiselle() {
         String abbr = "Mlle";
         Integer resultat = usagersUtils.abbreviationToTitre(abbr);
         Integer expected = new Integer(AfBackUtils.GENDER_MLLE_INDEX);

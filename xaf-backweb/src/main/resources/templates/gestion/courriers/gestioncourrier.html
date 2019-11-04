@@ -126,6 +126,7 @@
                                         <tr>
                                             <th>IDENTIFIANT</th>
                                             <th>DATE GENERATION</th>
+                                            <th>TYPE</th>
                                             <th>IDENTIFIANT DEMANDE</th>
                                             <th>ACTIONS</th>
                                         </tr>
@@ -134,8 +135,12 @@
                                         <tr th:each="courrier : ${courriersEnAttente}">
                                             <td th:text="${courrier.name}"></td>
                                             <td th:text="${#dates.format(courrier.dateCreation,'dd/MM/yyyy')}"></td>
-                                            <td><a th:href="@{'/demandes/'+${courrier.demandeId}}"><span
-                                                    th:text="${courrier.demandeIdentifiant}" /></a></td>
+                                            <td th:text="${AfBackUtils.getStatusLibelleFromName(courrier.fkStatut.libelle)}"></td>
+                                            <td>
+                                                <a th:href="@{'/demandes/'+${courrier.demandeId}}">
+                                                    <span th:text="${courrier.demandeIdentifiant}"></span>
+                                                </a>
+                                            </td>
                                             <td><a th:href="@{/ws/file/get/}+${courrier.url}">
 															<span class="btn btn-action ripple-effect greyTooltip"
                                                                   data-toggle="tooltip" data-placement="bottom"
@@ -185,16 +190,22 @@
                                         <tr>
                                             <th>IDENTIFIANT</th>
                                             <th>DATE GENERATION</th>
+                                            <th>TYPE</th>
                                             <th>IDENTIFIANT DEMANDE</th>
+                                            <th>REFERENCE INTERNE</th>
                                             <th>ACTIONS</th>
                                         </tr>
                                         <tbody>
                                         <tr th:each="courrier : ${courriersImprimes}">
                                             <td th:text="${courrier.name}"></td>
                                             <td th:text="${#dates.format(courrier.dateCreation,'dd/MM/yyyy')}"></td>
-                                            <td><a th:href="@{'/demandes/'+${courrier.demandeId}}"><span
-                                                    title="Télécharger"
-                                                    th:text="${courrier.demandeIdentifiant}" /></a></td>
+                                            <td th:text="${AfBackUtils.getStatusLibelleFromName(courrier.fkStatut.libelle)}"></td>
+                                            <td>
+                                                <a th:href="@{'/demandes/'+${courrier.demandeId}}">
+                                                    <span title="Télécharger" th:text="${courrier.demandeIdentifiant}"></span>
+                                                </a>
+                                            </td>
+                                            <td th:text="${courrier.identifiant}"></td>
                                             <td><a th:href="@{/ws/file/get/}+${courrier.url}"><span
                                                     class="btn btn-action ripple-effect greyTooltip"
                                                     data-toggle="tooltip" data-placement="bottom"

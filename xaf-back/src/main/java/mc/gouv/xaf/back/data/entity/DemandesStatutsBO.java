@@ -58,8 +58,7 @@ public class DemandesStatutsBO {
     @Size(min = 0, max = 8000)
     private String commentaire;
 
-    @Column(name = "TEXTE_A_ENVOYER", length = 8000, nullable = true)
-    @Size(min = 0, max = 8000)
+    @Column(name = "TEXTE_A_ENVOYER", columnDefinition = "TEXT")
     private String texteAEnvoyer;
 
     public Integer getPkDemandesStatuts() {

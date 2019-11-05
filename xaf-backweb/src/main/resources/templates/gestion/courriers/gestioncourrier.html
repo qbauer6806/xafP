@@ -346,10 +346,10 @@
                         filter = (filter) ? filter + '|' + demande.identifiant : demande.identifiant;
                     });
                 }
-                tableAttente.column(2).search(filter, true, false).draw();
+                tableAttente.column(3).search(filter, true, false).draw();
                 var numberEnAttente = tableAttente.$('tr', {"filter":"applied"}).length;
                 $("#numberEnAttente").text(numberEnAttente);
-                tableImprimes.column(2).search(filter, true, false).draw();
+                tableImprimes.column(3).search(filter, true, false).draw();
                 var numberImprimes = tableImprimes.$('tr', {"filter":"applied"}).length;
                 $("#numberImprimes").text(numberImprimes);
             });

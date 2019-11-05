@@ -324,9 +324,12 @@
 
         var filterTable = function(text) {
             // check if user entered a date with format dd/mm/yyyy and convert it to elastic search mapped format
-            var dateFormatted = moment(text, 'DD/MM/YYYY').format('YYYY-MM-DD');
-            if (dateFormatted && dateFormatted !== 'Invalid date') {
-                text = dateFormatted;
+            var regexDate = /^(0?[1-9]|[12][0-9]|3[01])\/(0?[1-9]|1[012])\/\d{4}$/;
+            if (text.match(regexDate)) {
+	            var dateFormatted = moment(text, 'DD/MM/YYYY').format('YYYY-MM-DD');
+	            if (dateFormatted && dateFormatted !== 'Invalid date') {
+	                text = dateFormatted;
+	            }
             }
 
             var textEncoded = encodeURIComponent(text);

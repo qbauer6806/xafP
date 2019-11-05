@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.jms.JMSException;
 import javax.persistence.EntityManager;
@@ -27,6 +28,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
+import mc.gouv.xaf.back.service.utils.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jdal.dao.jpa.JpaUtils;
 import org.slf4j.Logger;
@@ -672,7 +674,7 @@ public class DemandesServiceImpl implements DemandesService {
         if (demandeBo.getFiles() != null) {
             LOGGER.info("Etape pièces jointes");
             List<DemandeFileDTO> filesDto = DemandesFilesTransformer
-                    .bo2Dto(new ArrayList<DemandesFilesBO>(demandeBo.getFiles()));
+                    .bo2Dto(new ArrayList<>(getFichiersUsager(demandeBo)));
             List<DemandesFilesBO> filesBo = DemandesFilesTransformer.dto2Bo(filesDto);
             for (DemandesFilesBO fileBo : filesBo) {
                 fileBo.setPkDemandesFiles(null);
@@ -778,28 +780,6 @@ public class DemandesServiceImpl implements DemandesService {
             newDemandeBo.setData(new HashSet<DemandesDataBO>(datasBo));
         }
 
-        // Courriers des demandes
-        if (demandeBo.getCourriers() != null) {
-            LOGGER.info("Etape courriers");
-
-            List<DemandeCourrierDTO> courriersDto = DemandesCourriersTransformer
-                    .bo2Dto(new ArrayList<DemandesCourriersBO>(demandeBo.getCourriers()));
-            List<DemandesCourriersBO> courriersBo = new ArrayList<DemandesCourriersBO>();
-            for (DemandeCourrierDTO courrierDto : courriersDto) {
-                Integer fkStatut = courrierDto.getFkStatut().getPkStatut();
-                DemandesCourriersBO courrierBo = DemandesCourriersTransformer.dto2Bo(courrierDto);
-
-                // Utilisation de la statusMap afin de retrouver le nouveau StatutBO correspondant
-                courrierBo.setFkDemandesStatuts(statusMap.get(fkStatut));
-                courrierBo.setPkDemandesCourriers(null);
-                courrierBo.setFkDemandes(newDemandeBo);
-                courriersBo.add(courrierBo);
-                demandesCourriersRepository.save(courrierBo);
-                courriersBo.add(courrierBo);
-            }
-            newDemandeBo.setCourriers(new HashSet<DemandesCourriersBO>(courriersBo));
-        }
-
         // Génération d'un nouvel identifiant de demande
         String identifiant = generatePublicID(demarcheId);
         newDemandeBo.setIdentifiant(identifiant);
@@ -809,6 +789,10 @@ public class DemandesServiceImpl implements DemandesService {
         LOGGER.info("Duplication terminée");
 
         return DemandesTransformer.bo2Dto(newDemandeBo);
+    }
+
+    private List<DemandesFilesBO> getFichiersUsager(DemandeBO demandeBo) {
+        return demandeBo.getFiles().stream().filter(fichier -> FileUtils.isFileCreatedByFront(fichier.getMeta())).collect(Collectors.toList());
     }
 
     @Override

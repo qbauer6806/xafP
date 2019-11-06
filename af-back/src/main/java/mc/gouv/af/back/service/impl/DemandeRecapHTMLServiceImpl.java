@@ -55,328 +55,329 @@ import mc.gouv.logon.apiclient.RestException;
 @Component
 public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(DemandeRecapHTMLServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DemandeRecapHTMLServiceImpl.class);
 
-	private static SimpleDateFormat dateHeureFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-	private static SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+    private static SimpleDateFormat dateHeureFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+    private static SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 
-	@Autowired
-	private PaysCache paysCache;
+    @Autowired
+    private PaysCache paysCache;
 
-	@Autowired
-	private GouvPropertiesResolver gouvPropertiesResolver;
+    @Autowired
+    private GouvPropertiesResolver gouvPropertiesResolver;
 
-	@Autowired
-	private AfBackUtils afBackUtils;
-	
-	@Autowired
-	private UtilisateursUtils utilisateursUtils;
+    @Autowired
+    private AfBackUtils afBackUtils;
 
-	@Autowired
-	private MotifsCache motifsCache;
+    @Autowired
+    private UtilisateursUtils utilisateursUtils;
 
-	@Override
-	public String getHTMLDemandeGeneric(DemandeDTO demande) {
-		StringBuilder htmlBuilder = new StringBuilder();
+    @Autowired
+    private MotifsCache motifsCache;
 
-		// Numéro de la demande
-		htmlBuilder.append("<dl><dt><span>Numéro de la demande</span></dt><dd><span>");
-		htmlBuilder.append(demande.getIdentifiant());
-		htmlBuilder.append("</span></dd>");
+    @Override
+    public String getHTMLDemandeGeneric(DemandeDTO demande) {
+        StringBuilder htmlBuilder = new StringBuilder();
 
-		// Date de transmission/dépôt
-		boolean isVirtuel = demande.getCanal() == DemandeCanalEnum.GUICHET_VIRTUEL;
-		htmlBuilder.append("<dt><span>Date de ");
-		htmlBuilder.append(isVirtuel ? "transmission" : "dépôt");
-		htmlBuilder.append("</span></dt><dd><span>");
-		Date dateCreation = isVirtuel ? demande.getDateCreation() : demande.getCourrierDateReception();
-		htmlBuilder.append(dateHeureFormat.format(dateCreation));
-		htmlBuilder.append("</span></dd>");
+        // Numéro de la demande
+        htmlBuilder.append("<dl><dt><span>Numéro de la demande</span></dt><dd><span>");
+        htmlBuilder.append(demande.getIdentifiant());
+        htmlBuilder.append("</span></dd>");
 
-		// Etat de la demande
-		htmlBuilder.append("<dt><span>Etat de la demande</span></dt><dd><span>");
-		htmlBuilder.append(afBackUtils.getStatusLibelleFromName(demande.getDernierStatut().getLibelle()));
-		htmlBuilder.append(" le ");
-		htmlBuilder.append(dateHeureFormat.format(demande.getDernierStatut().getDate()));
-		htmlBuilder.append("</span></dd>");
+        // Date de transmission/dépôt
+        boolean isVirtuel = demande.getCanal() == DemandeCanalEnum.GUICHET_VIRTUEL;
+        htmlBuilder.append("<dt><span>Date de ");
+        htmlBuilder.append(isVirtuel ? "transmission" : "dépôt");
+        htmlBuilder.append("</span></dt><dd><span>");
+        Date dateCreation = isVirtuel ? demande.getDateCreation() : demande.getCourrierDateReception();
+        htmlBuilder.append(dateHeureFormat.format(dateCreation));
+        htmlBuilder.append("</span></dd>");
 
-		// Langue
-		htmlBuilder.append("<dt><span>Langue</span></dt><dd><span>");
-		htmlBuilder.append(demande.getLangue());
-		htmlBuilder.append("</span></dd>");
+        // Etat de la demande
+        htmlBuilder.append("<dt><span>Etat de la demande</span></dt><dd><span>");
+        htmlBuilder.append(afBackUtils.getStatusLibelleFromName(demande.getDernierStatut().getLibelle()));
+        htmlBuilder.append(" le ");
+        htmlBuilder.append(dateHeureFormat.format(demande.getDernierStatut().getDate()));
+        htmlBuilder.append("</span></dd>");
 
-		// Canal
-		htmlBuilder.append("<dt><span>Canal</span></dt><dd><span>");
-		htmlBuilder.append(demande.getCanal());
-		htmlBuilder.append("</span></dd></dl>");
+        // Langue
+        htmlBuilder.append("<dt><span>Langue</span></dt><dd><span>");
+        htmlBuilder.append(demande.getLangue());
+        htmlBuilder.append("</span></dd>");
 
-		return htmlBuilder.toString();
-	}
+        // Canal
+        htmlBuilder.append("<dt><span>Canal</span></dt><dd><span>");
+        htmlBuilder.append(demande.getCanal());
+        htmlBuilder.append("</span></dd></dl>");
 
-	public String getHTMLDemandeComplements(DemandeDTO demande) throws RestException {
-		StringBuilder htmlBuilder = new StringBuilder();
+        return htmlBuilder.toString();
+    }
 
-		for (DemandeComplementsDTO complement : demande.getComplements()) {
-			DemandeComplementsQuestionDTO question = complement.getQuestion();
-			DemandeComplementsReponseDTO reponse = complement.getReponse();
-			String date = dateHeureFormat.format(question.getDate());
+    public String getHTMLDemandeComplements(DemandeDTO demande) throws RestException {
+        StringBuilder htmlBuilder = new StringBuilder();
 
-			htmlBuilder.append("<h3>Compléments du ");
-			htmlBuilder.append(date);
-			htmlBuilder.append("</h3>");
+        for (DemandeComplementsDTO complement : demande.getComplements()) {
+            DemandeComplementsQuestionDTO question = complement.getQuestion();
+            DemandeComplementsReponseDTO reponse = complement.getReponse();
+            String date = dateHeureFormat.format(question.getDate());
 
-			htmlBuilder.append("<div class=\"dem-admin\">");
-			htmlBuilder.append("<span>Demande de l'administration</span>");
+            htmlBuilder.append("<h3>Compléments du ");
+            htmlBuilder.append(date);
+            htmlBuilder.append("</h3>");
 
-			// Date de création
-			htmlBuilder.append("<dl><dt><span>Date création</span></dt><dd><span>");
-			htmlBuilder.append(date);
-			htmlBuilder.append("</span></dd>");
+            htmlBuilder.append("<div class=\"dem-admin\">");
+            htmlBuilder.append("<span>Demande de l'administration</span>");
 
-			// Motif
-			htmlBuilder.append("<dt><span>Motif</span></dt><dd><span>");
-			htmlBuilder.append(motifsCache.getMotif(question.getCodeMotif(), "fr").getLibelle());
-			htmlBuilder.append("</span></dd>");
+            // Date de création
+            htmlBuilder.append("<dl><dt><span>Date création</span></dt><dd><span>");
+            htmlBuilder.append(date);
+            htmlBuilder.append("</span></dd>");
 
-			// Texte
-			htmlBuilder.append("<dt><span>Texte</span></dt><dd><span>");
-			htmlBuilder.append(escape(question.getTexte(), true));
-			htmlBuilder.append("</span></dd>");
+            // Motif
+            htmlBuilder.append("<dt><span>Motif</span></dt><dd><span>");
+            htmlBuilder.append(motifsCache.getMotif(question.getCodeMotif(), "fr").getLibelle());
+            htmlBuilder.append("</span></dd>");
 
-			// Agent
-			htmlBuilder.append("<dt><span>Agent</span></dt><dd><span>");
-			htmlBuilder.append(utilisateursUtils.getUserNameFromID(question.getAgentId()));
-			htmlBuilder.append("</span></dd></dl>");
+            // Texte
+            htmlBuilder.append("<dt><span>Texte</span></dt><dd><span>");
+            htmlBuilder.append(escape(question.getTexte(), true));
+            htmlBuilder.append("</span></dd>");
 
-			htmlBuilder.append("</div><div class=\"rep-usager\">");
-			htmlBuilder.append("<span>Réponse de l'usager</span>");
+            // Agent
+            htmlBuilder.append("<dt><span>Agent</span></dt><dd><span>");
+            htmlBuilder.append(utilisateursUtils.getUserNameFromID(question.getAgentId()));
+            htmlBuilder.append("</span></dd></dl>");
 
-			// Date
-			htmlBuilder.append("<dl><dt><span>Date</span></dt><dd><span>");
-			htmlBuilder.append(dateHeureFormat.format(reponse.getDate()));
-			htmlBuilder.append("</span></dd>");
+            htmlBuilder.append("</div><div class=\"rep-usager\">");
+            htmlBuilder.append("<span>Réponse de l'usager</span>");
 
-			// Texte
-			htmlBuilder.append("<dt><span>Texte</span></dt><dd><span>");
-			htmlBuilder.append(escape(reponse.getTexte(), true));
-			htmlBuilder.append("</span></dd></dl></div>");
-		}
+            // Date
+            htmlBuilder.append("<dl><dt><span>Date</span></dt><dd><span>");
+            htmlBuilder.append(dateHeureFormat.format(reponse.getDate()));
+            htmlBuilder.append("</span></dd>");
 
-		return htmlBuilder.toString();
-	}
+            // Texte
+            htmlBuilder.append("<dt><span>Texte</span></dt><dd><span>");
+            htmlBuilder.append(escape(reponse.getTexte(), true));
+            htmlBuilder.append("</span></dd></dl></div>");
+        }
 
-	@Override
-	public String getHTMLDemandeContenuRecap(DemandeDTO demande, boolean isPdfRecap)
-			throws IOException, ParseException, ClassNotFoundException, IllegalAccessException,
-			IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
+        return htmlBuilder.toString();
+    }
 
-		LOGGER.info("Chargement du fichier recap...");
-		InputStream inputStream = new ClassPathResource("/recaps/" + "recaps_" + demande.getBuildId() + ".json")
-				.getInputStream();
-		JSONParser jsonParser = new JSONParser();
-		JSONArray jsonArray = (JSONArray) jsonParser.parse(new InputStreamReader(inputStream, "UTF-8"));
+    @Override
+    public String getHTMLDemandeContenuRecap(DemandeDTO demande, boolean isPdfRecap)
+            throws IOException, ParseException, ClassNotFoundException, IllegalAccessException,
+            IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
 
-		LOGGER.info("Construction du recap HTML...");
-		String html = "";
+        LOGGER.info("Chargement du fichier recap...");
+        InputStream inputStream = new ClassPathResource("/recaps/recaps_" + demande.getBuildId() + ".json")
+                .getInputStream();
+        JSONParser jsonParser = new JSONParser();
+        JSONArray jsonArray = (JSONArray) jsonParser.parse(new InputStreamReader(inputStream, "UTF-8"));
 
-		for (int k = 0; k < jsonArray.size(); k++) {
-			if ("projectDemandeRecap".equals(((JSONObject) jsonArray.get(k)).get("name"))) {
-				JSONArray sections = (JSONArray) ((JSONObject) jsonArray.get(k)).get("sections");
-				for (int i = 0; i < sections.size(); i++) {
-					JSONObject section = (JSONObject) sections.get(i);
+        LOGGER.info("Construction du recap HTML...");
+        String html = "";
 
-					html += "<div class=\"sectiondemande\"><h3>" + section.get("titre") + "</h3><dl>";
+        for (int k = 0; k < jsonArray.size(); k++) {
+            if ("projectDemandeRecap".equals(((JSONObject) jsonArray.get(k)).get("name"))) {
+                JSONArray sections = (JSONArray) ((JSONObject) jsonArray.get(k)).get("sections");
+                for (int i = 0; i < sections.size(); i++) {
+                    JSONObject section = (JSONObject) sections.get(i);
 
-					String sectionType = (String) section.get("type");
+                    html += "<div class=\"sectiondemande\"><h3>" + section.get("titre") + "</h3><dl>";
 
-					html = getFirstLevelHTML(html, demande, sectionType, section, isPdfRecap);
+                    String sectionType = (String) section.get("type");
 
-					if (sectionType.equals("adresse")) {
-						html += "<dt><span>Adresse</span></dt>";
-					} else if (sectionType.equals("sousSections")) {
-						JSONArray sousSections = (JSONArray) section.get("sousSections");
-						for (Object sousSection : sousSections.toArray()) {
-							String sousSectionType = (String) ((JSONObject) sousSection).get("type");
-							html += ((JSONObject) sousSection).get("introHtml");
-							html = getFirstLevelHTML(html, demande, sousSectionType, (JSONObject) sousSection, isPdfRecap);
-						}
-					}
+                    html = getFirstLevelHTML(html, demande, sectionType, section, isPdfRecap);
 
-					html += "</dl></div>";
-				}
-			}
-		}
+                    if (sectionType.equals("adresse")) {
+                        html += "<dt><span>Adresse</span></dt>";
+                    } else if (sectionType.equals("sousSections")) {
+                        JSONArray sousSections = (JSONArray) section.get("sousSections");
+                        for (Object sousSection : sousSections.toArray()) {
+                            String sousSectionType = (String) ((JSONObject) sousSection).get("type");
+                            html += ((JSONObject) sousSection).get("introHtml");
+                            html = getFirstLevelHTML(html, demande, sousSectionType, (JSONObject) sousSection,
+                                    isPdfRecap);
+                        }
+                    }
 
-		return html;
-	}
+                    html += "</dl></div>";
+                }
+            }
+        }
 
-	private String getFirstLevelHTML(String html, DemandeDTO demande, String sectionType, JSONObject section, boolean isPdfRecap)
-			throws ClassNotFoundException, IllegalAccessException, IllegalArgumentException, InvocationTargetException,
-			NoSuchMethodException, SecurityException {
-		if (sectionType.equals("champs")) {
-			JSONArray champs = (JSONArray) section.get("champs");
-			for (int j = 0; j < champs.size(); j++) {
-				JSONObject champ = (JSONObject) champs.get(j);
-				String type = (String) champ.get("type");
-				if (type.equals("adresse")) {
-					html += getSecondLevelHTML(demande.getContenu(), champ, demande.getBuildId(), isPdfRecap);
-				} else {
-					String value = getSecondLevelHTML(demande.getContenu(), champ, demande.getBuildId(), isPdfRecap);
-					if (!StringUtils.isBlank(value)) {
-					    html += "<dt><span>" + champ.get("label") + "</span></dt>";
-						html += "<dd><span>" + value + "</span></dd>";
-					}
-				}
-			}
-		} else if (sectionType.equals("tableau")) {
-			html += "<table id=\"datatable-demandes\" class=\"table table-striped\">";
-			JSONArray columns = (JSONArray) section.get("columns");
-			html += "<thead><tr>";
-			for (Object column : columns.toArray()) {
-				html += "<th>" + ((JSONObject) column).get("label") + "</th>";
-			}
-			html += "</tr></thead>";
-			ArrayNode valeurs = (ArrayNode) getNode(demande.getContenu(), section, "path");
-			Iterator<JsonNode> it = valeurs.elements();
-			html += "<tbody>";
-			while (it.hasNext()) {
-				JsonNode valeur = it.next();
-				html += "<tr>";
-				for (Object column : columns.toArray()) {
-					String value = getSecondLevelHTML(valeur, (JSONObject) column, demande.getBuildId(), isPdfRecap);
-					html += "<td>" + (value == null ? "" : escape(value, isPdfRecap)) + "</td>";
-				}
-				html += "</tr>";
-			}
-			html += "</tbody>";
-			html += "</table>";
-		}
-		return html;
-	}
+        return html;
+    }
 
-	private String getSecondLevelHTML(JsonNode node, JSONObject champ, String buildId, boolean isPdfRecap)
-			throws ClassNotFoundException, IllegalAccessException, IllegalArgumentException, InvocationTargetException,
-			NoSuchMethodException, SecurityException {
-		String type = (String) champ.get("type");
-		if (type.equals("chaine") || type.equals("texte")) {
-			JsonNode node0 = getNode(node, champ, "path");
-			if (node0 == null || node0 instanceof NullNode) {
-				return null;
-			}
-			return escape(node0.asText(), isPdfRecap);
-		} else if (type.equals("choix")) {
-			String mapping = champ.get("mapping").toString();
-			if (mapping.equals("nationalites")) {
-				JsonNode node0 = getNode(node, champ, "path");
-				if (node0 == null || node0 instanceof NullNode) {
-					return null;
-				}
-				return paysCache.get(node0.asText(), "fr").getNationalite();
-			} else {
-				String path = champ.get("path").toString().replace("contenu.", "/").replace(".", "/");
-				if (path.charAt(0) != '/') {
-					path = "/" + path;
-				}
-				JsonNode pathNode = node.at(path);
-				if (pathNode instanceof MissingNode) {
-					return "N/A";
-				}
+    private String getFirstLevelHTML(String html, DemandeDTO demande, String sectionType, JSONObject section,
+            boolean isPdfRecap) throws ClassNotFoundException, IllegalAccessException, IllegalArgumentException,
+            InvocationTargetException, NoSuchMethodException, SecurityException {
+        if (sectionType.equals("champs")) {
+            JSONArray champs = (JSONArray) section.get("champs");
+            for (int j = 0; j < champs.size(); j++) {
+                JSONObject champ = (JSONObject) champs.get(j);
+                String type = (String) champ.get("type");
+                if (type.equals("adresse")) {
+                    html += getSecondLevelHTML(demande.getContenu(), champ, demande.getBuildId(), isPdfRecap);
+                } else {
+                    String value = getSecondLevelHTML(demande.getContenu(), champ, demande.getBuildId(), isPdfRecap);
+                    if (!StringUtils.isBlank(value)) {
+                        html += "<dt><span>" + champ.get("label") + "</span></dt>";
+                        html += "<dd><span>" + value + "</span></dd>";
+                    }
+                }
+            }
+        } else if (sectionType.equals("tableau")) {
+            html += "<table id=\"datatable-demandes\" class=\"table table-striped\">";
+            JSONArray columns = (JSONArray) section.get("columns");
+            html += "<thead><tr>";
+            for (Object column : columns.toArray()) {
+                html += "<th>" + ((JSONObject) column).get("label") + "</th>";
+            }
+            html += "</tr></thead>";
+            ArrayNode valeurs = (ArrayNode) getNode(demande.getContenu(), section, "path");
+            Iterator<JsonNode> it = valeurs.elements();
+            html += "<tbody>";
+            while (it.hasNext()) {
+                JsonNode valeur = it.next();
+                html += "<tr>";
+                for (Object column : columns.toArray()) {
+                    String value = getSecondLevelHTML(valeur, (JSONObject) column, demande.getBuildId(), isPdfRecap);
+                    html += "<td>" + (value == null ? "" : escape(value, isPdfRecap)) + "</td>";
+                }
+                html += "</tr>";
+            }
+            html += "</tbody>";
+            html += "</table>";
+        }
+        return html;
+    }
 
-				// Prise en compte valeur/valeurExtra
-				if (pathNode instanceof ObjectNode) {
-					pathNode = node.at(path + "/valeur");
-					if (pathNode instanceof MissingNode || pathNode instanceof NullNode
-							|| (pathNode instanceof TextNode && ((TextNode) pathNode).textValue().equals("AUTRE"))) {
-						JsonNode node0 = node.at(path + "/valeurExtra");
-						if (node0 == null || node0 instanceof NullNode) {
-							return null;
-						}
-						return escape(((TextNode) node0).textValue(), isPdfRecap);
-					}
-				}
+    private String getSecondLevelHTML(JsonNode node, JSONObject champ, String buildId, boolean isPdfRecap)
+            throws ClassNotFoundException, IllegalAccessException, IllegalArgumentException, InvocationTargetException,
+            NoSuchMethodException, SecurityException {
+        String type = (String) champ.get("type");
+        if (type.equals("chaine") || type.equals("texte")) {
+            JsonNode node0 = getNode(node, champ, "path");
+            if (node0 == null || node0 instanceof NullNode) {
+                return null;
+            }
+            return escape(node0.asText(), isPdfRecap);
+        } else if (type.equals("choix")) {
+            String mapping = champ.get("mapping").toString();
+            if (mapping.equals("nationalites")) {
+                JsonNode node0 = getNode(node, champ, "path");
+                if (node0 == null || node0 instanceof NullNode) {
+                    return null;
+                }
+                return paysCache.get(node0.asText(), "fr").getNationalite();
+            } else {
+                String path = champ.get("path").toString().replace("contenu.", "/").replace(".", "/");
+                if (path.charAt(0) != '/') {
+                    path = "/" + path;
+                }
+                JsonNode pathNode = node.at(path);
+                if (pathNode instanceof MissingNode) {
+                    return "N/A";
+                }
 
-				String enumField = pathNode.asText();
-				if (enumField == null || pathNode instanceof NullNode || StringUtils.isBlank(enumField)
-						|| enumField.equals("null")) {
-					return null;
-				}
+                // Prise en compte valeur/valeurExtra
+                if (pathNode instanceof ObjectNode) {
+                    pathNode = node.at(path + "/valeur");
+                    if (pathNode instanceof MissingNode || pathNode instanceof NullNode
+                            || (pathNode instanceof TextNode && ((TextNode) pathNode).textValue().equals("AUTRE"))) {
+                        JsonNode node0 = node.at(path + "/valeurExtra");
+                        if (node0 == null || node0 instanceof NullNode) {
+                            return null;
+                        }
+                        return escape(((TextNode) node0).textValue(), isPdfRecap);
+                    }
+                }
 
-				mapping = mapping.substring(0, 1).toUpperCase() + mapping.substring(1);
-				Class<?> klass = Class.forName("mc.gouv." + gouvPropertiesResolver.getDemarcheId().toLowerCase()
-						+ ".shared.model.v" + buildId + "." + mapping + "Enum");
-				Object value = klass.getMethod("forValue", String.class).invoke(klass, enumField);
-				return value.toString();
-			}
-		} else if (type.equals("date")) {
-			JsonNode node0 = getNode(node, champ, "path");
-			if (node0 == null || node0 instanceof NullNode || StringUtils.isBlank(node0.asText())) {
-				return null;
-			}
-			Date date = new Date(OffsetDateTime.parse(node0.asText()).toInstant().toEpochMilli());
-			return dateFormat.format(date);
-		} else if (type.equals("choixMultiple")) {
-			ObjectNode list = (ObjectNode) getNode(node, champ, "path");
-			Iterator<Map.Entry<String, JsonNode>> it = list.fields();
-			String ret = "";
-			String mapping = champ.get("mapping").toString();
-			while (it.hasNext()) {
-				Map.Entry<String, JsonNode> entry = it.next();
-				if (((BooleanNode) entry.getValue()).asBoolean()) {
-					mapping = mapping.substring(0, 1).toUpperCase() + mapping.substring(1);
-					Class<?> klass = Class.forName("mc.gouv." + gouvPropertiesResolver.getDemarcheId().toLowerCase()
-							+ ".shared.model.v" + buildId + "." + mapping + "Enum");
-					Object[] parameters = { entry.getKey().toUpperCase(), true };
-					Object value = klass.getMethod("forValue", String.class, boolean.class).invoke(klass, parameters);
-					if (!ret.equals("")) {
-						ret += ", ";
-					}
-					ret += value.toString();
-				}
-			}
-			return ret;
-		} else if (type.equals("adresse")) {
-			String ligne1 = escape(getNode(node, champ, "ligne1").textValue(), isPdfRecap);
-			String ligne2 = escape(getNode(node, champ, "ligne2").textValue(), isPdfRecap);
-			String ligne3 = escape(getNode(node, champ, "ligne3").textValue(), isPdfRecap);
-			String ret = "";
-			if (StringUtils.isNotEmpty(ligne1)) {
-				ret = "<dt>Adresse</dt><dd><span>" + ligne1 + "</span>";
-				if (StringUtils.isNotBlank(ligne2)) {
-					ret += "<br/><span>" + ligne2 + "</span>";
-				}
-				if (StringUtils.isNotBlank(ligne3)) {
-					ret += "<br/><span>" + ligne3 + "</span>";
-				}
-				ret += "</dd>";
-				String codePostal = escape(getNode(node, champ, "codePostal").textValue(), isPdfRecap);
-				String ville = escape(getNode(node, champ, "ville").textValue(), isPdfRecap);
-				ret += "<dt><span>Ville</span></dt><dd><span>" + codePostal + " " + ville + "</span></dd>";
-				String pays = getNode(node, champ, "pays").textValue();
-				ret += "<dt><span>Pays</span></dt><dd><span>" + paysCache.get(pays, "fr").getNom() + "</span></dd>";
-			}
-			return ret;
-		} else if (type.equals("iban")) {
-			String titulaire = escape(getNode(node, champ, "titulaire").textValue(), isPdfRecap);
-			String bic = escape(getNode(node, champ, "bic").textValue(), isPdfRecap);
-			String iban = escape(getNode(node, champ, "iban").textValue(), isPdfRecap);
-			String ret = iban + " (Titulaire: " + titulaire + ", BIC: " + bic + ")";
-			return ret;
-		} else {
-			return type;
-		}
-	}
+                String enumField = pathNode.asText();
+                if (enumField == null || pathNode instanceof NullNode || StringUtils.isBlank(enumField)
+                        || enumField.equals("null")) {
+                    return null;
+                }
 
-	private JsonNode getNode(JsonNode node, JSONObject champ, String ref) {
-		String path = champ.get(ref).toString().replace("contenu.", "/").replace(".", "/");
-		if (path.charAt(0) != '/') {
-			path = "/" + path;
-		}
-		return node.at(path);
+                mapping = mapping.substring(0, 1).toUpperCase() + mapping.substring(1);
+                Class<?> klass = Class.forName("mc.gouv." + gouvPropertiesResolver.getDemarcheId().toLowerCase()
+                        + ".shared.model.v" + buildId + "." + mapping + "Enum");
+                Object value = klass.getMethod("forValue", String.class).invoke(klass, enumField);
+                return value.toString();
+            }
+        } else if (type.equals("date")) {
+            JsonNode node0 = getNode(node, champ, "path");
+            if (node0 == null || node0 instanceof NullNode || StringUtils.isBlank(node0.asText())) {
+                return null;
+            }
+            Date date = new Date(OffsetDateTime.parse(node0.asText()).toInstant().toEpochMilli());
+            return dateFormat.format(date);
+        } else if (type.equals("choixMultiple")) {
+            ObjectNode list = (ObjectNode) getNode(node, champ, "path");
+            Iterator<Map.Entry<String, JsonNode>> it = list.fields();
+            String ret = "";
+            String mapping = champ.get("mapping").toString();
+            while (it.hasNext()) {
+                Map.Entry<String, JsonNode> entry = it.next();
+                if (((BooleanNode) entry.getValue()).asBoolean()) {
+                    mapping = mapping.substring(0, 1).toUpperCase() + mapping.substring(1);
+                    Class<?> klass = Class.forName("mc.gouv." + gouvPropertiesResolver.getDemarcheId().toLowerCase()
+                            + ".shared.model.v" + buildId + "." + mapping + "Enum");
+                    Object[] parameters = { entry.getKey().toUpperCase(), true };
+                    Object value = klass.getMethod("forValue", String.class, boolean.class).invoke(klass, parameters);
+                    if (!ret.equals("")) {
+                        ret += ", ";
+                    }
+                    ret += value.toString();
+                }
+            }
+            return ret;
+        } else if (type.equals("adresse")) {
+            String ligne1 = escape(getNode(node, champ, "ligne1").textValue(), isPdfRecap);
+            String ligne2 = escape(getNode(node, champ, "ligne2").textValue(), isPdfRecap);
+            String ligne3 = escape(getNode(node, champ, "ligne3").textValue(), isPdfRecap);
+            String ret = "";
+            if (StringUtils.isNotEmpty(ligne1)) {
+                ret = "<dt>Adresse</dt><dd><span>" + ligne1 + "</span>";
+                if (StringUtils.isNotBlank(ligne2)) {
+                    ret += "<br/><span>" + ligne2 + "</span>";
+                }
+                if (StringUtils.isNotBlank(ligne3)) {
+                    ret += "<br/><span>" + ligne3 + "</span>";
+                }
+                ret += "</dd>";
+                String codePostal = escape(getNode(node, champ, "codePostal").textValue(), isPdfRecap);
+                String ville = escape(getNode(node, champ, "ville").textValue(), isPdfRecap);
+                ret += "<dt><span>Ville</span></dt><dd><span>" + codePostal + " " + ville + "</span></dd>";
+                String pays = getNode(node, champ, "pays").textValue();
+                ret += "<dt><span>Pays</span></dt><dd><span>" + paysCache.get(pays, "fr").getNom() + "</span></dd>";
+            }
+            return ret;
+        } else if (type.equals("iban")) {
+            String titulaire = escape(getNode(node, champ, "titulaire").textValue(), isPdfRecap);
+            String bic = escape(getNode(node, champ, "bic").textValue(), isPdfRecap);
+            String iban = escape(getNode(node, champ, "iban").textValue(), isPdfRecap);
+            String ret = iban + " (Titulaire: " + titulaire + ", BIC: " + bic + ")";
+            return ret;
+        } else {
+            return type;
+        }
+    }
 
-	}
+    private JsonNode getNode(JsonNode node, JSONObject champ, String ref) {
+        String path = champ.get(ref).toString().replace("contenu.", "/").replace(".", "/");
+        if (path.charAt(0) != '/') {
+            path = "/" + path;
+        }
+        return node.at(path);
 
-	private String escape(String str, boolean isPdfRecap) {
-		return isPdfRecap ? HtmlUtils.htmlEscapeDecimal(str) : StringEscapeUtils.escapeHtml4(str);
-	}
+    }
+
+    private String escape(String str, boolean isPdfRecap) {
+        return isPdfRecap ? HtmlUtils.htmlEscapeDecimal(str) : StringEscapeUtils.escapeHtml4(str);
+    }
 
 }

@@ -1,10 +1,6 @@
 package mc.gouv.af.back.pdf.recap;
 
-import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.net.URL;
-
-import javax.imageio.ImageIO;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

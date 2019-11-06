@@ -322,18 +322,6 @@
 		<!-- Fin export Excel -->
 
 		<dependency>
-			<groupId>org.apache.tika</groupId>
-			<artifactId>tika-app</artifactId>
-			<version>${tika.version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.apache.cxf</groupId>
-					<artifactId>cxf-rt-rs-client</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-
-		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-elasticsearch</artifactId>
 		</dependency>

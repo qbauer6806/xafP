@@ -218,7 +218,7 @@ dl {
 	margin: 0
 }
 
-dd {
+dt {
 	margin-bottom: 0;
 	float: left;
 	padding : 0;
@@ -227,23 +227,23 @@ dd {
 	clear: both;
 }
 
-dt span {
-	white-space: pre-wrap;
-}
-
-dt {
+dd {
 	margin-bottom: 0;
 	float: left;
 	padding : 0;
 	margin: 0;
-	font-weight: normal !important
+	font-weight: normal !important;
 }
 
-.sectiondemande dd {
-	width: 40%;
+dd span {
+	white-space: pre-wrap;
 }
 
 .sectiondemande dt {
+	width: 40%;
+}
+
+.sectiondemande dd {
 	width: 60%;
 }
 
@@ -264,11 +264,11 @@ dt {
 	padding-bottom: 3px;
 }
 
-.sectionic dd {
+.sectionic dt {
 	width: 20%;
 }
 
-.sectionic dt {
+.sectionic dd {
 	width: 80%;
 }
 

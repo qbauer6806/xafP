@@ -1,3 +1,32 @@
+@page {
+	margin-top: 80px;
+	margin-bottom: 80px;
+	@top-left {
+		content: element(pageHeader);
+	}
+	@bottom-left {
+		content: element(pageFooter);
+	}
+}
+
+#pageHeader {
+	position: running(pageHeader);
+	width: 700px;
+	height: 60px;
+	padding-top: 20px;
+}
+
+#pageFooter {
+	position: running(pageFooter);
+	width: 700px;
+	height: 80px;
+}
+
+#pageHeader>img, #pageFooter>img {
+	max-width: 100%;
+	height: auto;
+}
+
 table {
 	width: 100%;
 	border-collapse: collapse;
@@ -32,8 +61,12 @@ th {
 	font-size: 20px;
 }
 
-td> :first-child, td> :first-child>h3 {
+td>:first-child, td>:first-child>h3 {
 	margin-top: 0;
+}
+
+dt {
+	font-weight: bold;
 }
 
 dl {
@@ -42,26 +75,11 @@ dl {
 	margin: 0;
 }
 
-dd {
-	margin-bottom: 0;
-	float: left;
-	padding: 0;
-	margin: 0;
-	font-weight: bold;
-	clear: both;
-}
-
-dt {
-	margin-bottom: 0;
-	float: left;
-	padding: 0;
-	margin: 0;
-	font-weight: normal !important;
+.dem-admin>dl, .rep-usager>dl, .sectionrecap dl {
 	padding-left: 20px;
-	padding-right: 20px;
 }
 
-dl>p, dt span, dd span {
+dt span, dd span {
 	white-space: pre-wrap;
 }
 
@@ -73,30 +91,6 @@ dl>p, dt span, dd span {
 	margin-top: 20px;
 }
 
-.dem-admin>dl, .rep-usager>dl, .sectionrecap dl {
-	padding-left: 20px;
-}
-
 .display-commentaire {
 	white-space: pre-wrap;
-}
-
-.long-text {
-	float: left;
-	clear: both;
-	width: 100%;
-}
-
-.long-text>p {
-	margin: 0;
-}
-
-.long-text-content {
-	display: inline-block;
-	padding-left: 20px;
-	white-space: pre-wrap;
-}
-
-.long-text-title {
-	font-weight: bold;
 }

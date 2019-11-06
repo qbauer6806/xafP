@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.HtmlUtils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -35,6 +36,7 @@ import mc.gouv.af.back.cache.PaysCache;
 import mc.gouv.af.back.properties.GouvPropertiesResolver;
 import mc.gouv.af.back.service.DemandeRecapHTMLService;
 import mc.gouv.af.back.util.AfBackUtils;
+import mc.gouv.af.back.util.users.UtilisateursUtils;
 import mc.gouv.dem.shared.model.DemandeCanalEnum;
 import mc.gouv.dem.shared.model.DemandeComplementsDTO;
 import mc.gouv.dem.shared.model.DemandeComplementsQuestionDTO;
@@ -66,6 +68,9 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 
 	@Autowired
 	private AfBackUtils afBackUtils;
+	
+	@Autowired
+	private UtilisateursUtils utilisateursUtils;
 
 	@Autowired
 	private MotifsCache motifsCache;
@@ -75,35 +80,35 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 		StringBuilder htmlBuilder = new StringBuilder();
 
 		// Numéro de la demande
-		htmlBuilder.append("<dl><dd><span>Numéro de la demande</span></dd><dt><span>");
+		htmlBuilder.append("<dl><dt><span>Numéro de la demande</span></dt><dd><span>");
 		htmlBuilder.append(demande.getIdentifiant());
-		htmlBuilder.append("</span></dt></dl>");
+		htmlBuilder.append("</span></dd>");
 
 		// Date de transmission/dépôt
 		boolean isVirtuel = demande.getCanal() == DemandeCanalEnum.GUICHET_VIRTUEL;
-		htmlBuilder.append("<dl><dd><span>Date de ");
+		htmlBuilder.append("<dt><span>Date de ");
 		htmlBuilder.append(isVirtuel ? "transmission" : "dépôt");
-		htmlBuilder.append("</span></dd><dt><span>");
+		htmlBuilder.append("</span></dt><dd><span>");
 		Date dateCreation = isVirtuel ? demande.getDateCreation() : demande.getCourrierDateReception();
 		htmlBuilder.append(dateHeureFormat.format(dateCreation));
-		htmlBuilder.append("</span></dt></dl>");
+		htmlBuilder.append("</span></dd>");
 
 		// Etat de la demande
-		htmlBuilder.append("<dl><dd><span>Etat de la demande</span></dd><dt><span>");
+		htmlBuilder.append("<dt><span>Etat de la demande</span></dt><dd><span>");
 		htmlBuilder.append(afBackUtils.getStatusLibelleFromName(demande.getDernierStatut().getLibelle()));
 		htmlBuilder.append(" le ");
 		htmlBuilder.append(dateHeureFormat.format(demande.getDernierStatut().getDate()));
-		htmlBuilder.append("</span></dt></dl>");
+		htmlBuilder.append("</span></dd>");
 
 		// Langue
-		htmlBuilder.append("<dl><dd><span>Langue</span></dd><dt><span>");
+		htmlBuilder.append("<dt><span>Langue</span></dt><dd><span>");
 		htmlBuilder.append(demande.getLangue());
-		htmlBuilder.append("</span></dt></dl>");
+		htmlBuilder.append("</span></dd>");
 
 		// Canal
-		htmlBuilder.append("<dl><dd><span>Canal</span></dd><dt><span>");
+		htmlBuilder.append("<dt><span>Canal</span></dt><dd><span>");
 		htmlBuilder.append(demande.getCanal());
-		htmlBuilder.append("</span></dt></dl>");
+		htmlBuilder.append("</span></dd></dl>");
 
 		return htmlBuilder.toString();
 	}
@@ -124,37 +129,37 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 			htmlBuilder.append("<span>Demande de l'administration</span>");
 
 			// Date de création
-			htmlBuilder.append("<dl><dd><span>Date création</span></dd><dt><span>");
+			htmlBuilder.append("<dl><dt><span>Date création</span></dt><dd><span>");
 			htmlBuilder.append(date);
-			htmlBuilder.append("</span></dt></dl>");
+			htmlBuilder.append("</span></dd>");
 
 			// Motif
-			htmlBuilder.append("<dl><dd><span>Motif</span></dd><dt><span>");
+			htmlBuilder.append("<dt><span>Motif</span></dt><dd><span>");
 			htmlBuilder.append(motifsCache.getMotif(question.getCodeMotif(), "fr").getLibelle());
-			htmlBuilder.append("</span></dt></dl>");
+			htmlBuilder.append("</span></dd>");
 
 			// Texte
-			htmlBuilder.append("<dl><dd><span>Texte</span></dd><dt><span class=\"display-commentaire\">");
-			htmlBuilder.append(question.getTexte());
-			htmlBuilder.append("</span></dt></dl>");
+			htmlBuilder.append("<dt><span>Texte</span></dt><dd><span>");
+			htmlBuilder.append(escape(question.getTexte(), true));
+			htmlBuilder.append("</span></dd>");
 
 			// Agent
-			htmlBuilder.append("<dl><dd><span>Agent</span></dd><dt><span>");
-			htmlBuilder.append(afBackUtils.getUserNameFromID(question.getAgentId()));
-			htmlBuilder.append("</span></dt></dl>");
+			htmlBuilder.append("<dt><span>Agent</span></dt><dd><span>");
+			htmlBuilder.append(utilisateursUtils.getUserNameFromID(question.getAgentId()));
+			htmlBuilder.append("</span></dd></dl>");
 
 			htmlBuilder.append("</div><div class=\"rep-usager\">");
 			htmlBuilder.append("<span>Réponse de l'usager</span>");
 
 			// Date
-			htmlBuilder.append("<dl><dd><span>Date</span></dd><dt><span>");
+			htmlBuilder.append("<dl><dt><span>Date</span></dt><dd><span>");
 			htmlBuilder.append(dateHeureFormat.format(reponse.getDate()));
-			htmlBuilder.append("</span></dt></dl>");
+			htmlBuilder.append("</span></dd>");
 
 			// Texte
-			htmlBuilder.append("<dl><dd><span>Texte</span></dd><dt><span class=\"display-commentaire\">");
-			htmlBuilder.append(reponse.getTexte());
-			htmlBuilder.append("</span></dt></dl></div>");
+			htmlBuilder.append("<dt><span>Texte</span></dt><dd><span>");
+			htmlBuilder.append(escape(reponse.getTexte(), true));
+			htmlBuilder.append("</span></dd></dl></div>");
 		}
 
 		return htmlBuilder.toString();
@@ -187,7 +192,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 					html = getFirstLevelHTML(html, demande, sectionType, section, isPdfRecap);
 
 					if (sectionType.equals("adresse")) {
-						html += "<dd><span>Adresse</span></dd>";
+						html += "<dt><span>Adresse</span></dt>";
 					} else if (sectionType.equals("sousSections")) {
 						JSONArray sousSections = (JSONArray) section.get("sousSections");
 						for (Object sousSection : sousSections.toArray()) {
@@ -214,18 +219,12 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 				JSONObject champ = (JSONObject) champs.get(j);
 				String type = (String) champ.get("type");
 				if (type.equals("adresse")) {
-					html += getSecondLevelHTML(demande.getContenu(), champ, demande.getBuildId());
+					html += getSecondLevelHTML(demande.getContenu(), champ, demande.getBuildId(), isPdfRecap);
 				} else {
-					String value = getSecondLevelHTML(demande.getContenu(), champ, demande.getBuildId());
+					String value = getSecondLevelHTML(demande.getContenu(), champ, demande.getBuildId(), isPdfRecap);
 					if (!StringUtils.isBlank(value)) {
-						if (isPdfRecap && value.contains("\n")) {
-							html += "<div class=\"long-text\"><p class=\"long-text-title\">" + champ.get("label")
-									+ "</p>";
-							html += "<p class=\"long-text-content\">" + value + "</p></div>";
-						} else {
-							html += "<dd><span>" + champ.get("label") + "</span></dd>";
-							html += "<dt><span>" + value + "</span></dt>";
-						}
+					    html += "<dt><span>" + champ.get("label") + "</span></dt>";
+						html += "<dd><span>" + value + "</span></dd>";
 					}
 				}
 			}
@@ -244,8 +243,8 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 				JsonNode valeur = it.next();
 				html += "<tr>";
 				for (Object column : columns.toArray()) {
-					String value = getSecondLevelHTML(valeur, (JSONObject) column, demande.getBuildId());
-					html += "<td>" + (value == null ? "" : escape(value)) + "</td>";
+					String value = getSecondLevelHTML(valeur, (JSONObject) column, demande.getBuildId(), isPdfRecap);
+					html += "<td>" + (value == null ? "" : escape(value, isPdfRecap)) + "</td>";
 				}
 				html += "</tr>";
 			}
@@ -255,7 +254,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 		return html;
 	}
 
-	private String getSecondLevelHTML(JsonNode node, JSONObject champ, String buildId)
+	private String getSecondLevelHTML(JsonNode node, JSONObject champ, String buildId, boolean isPdfRecap)
 			throws ClassNotFoundException, IllegalAccessException, IllegalArgumentException, InvocationTargetException,
 			NoSuchMethodException, SecurityException {
 		String type = (String) champ.get("type");
@@ -264,7 +263,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 			if (node0 == null || node0 instanceof NullNode) {
 				return null;
 			}
-			return escape(node0.asText());
+			return escape(node0.asText(), isPdfRecap);
 		} else if (type.equals("choix")) {
 			String mapping = champ.get("mapping").toString();
 			if (mapping.equals("nationalites")) {
@@ -292,7 +291,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 						if (node0 == null || node0 instanceof NullNode) {
 							return null;
 						}
-						return escape(((TextNode) node0).textValue());
+						return escape(((TextNode) node0).textValue(), isPdfRecap);
 					}
 				}
 
@@ -336,30 +335,30 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 			}
 			return ret;
 		} else if (type.equals("adresse")) {
-			String ligne1 = escape(getNode(node, champ, "ligne1").textValue());
-			String ligne2 = escape(getNode(node, champ, "ligne2").textValue());
-			String ligne3 = escape(getNode(node, champ, "ligne3").textValue());
+			String ligne1 = escape(getNode(node, champ, "ligne1").textValue(), isPdfRecap);
+			String ligne2 = escape(getNode(node, champ, "ligne2").textValue(), isPdfRecap);
+			String ligne3 = escape(getNode(node, champ, "ligne3").textValue(), isPdfRecap);
 			String ret = "";
 			if (StringUtils.isNotEmpty(ligne1)) {
-				ret = "<dd><span>Adresse</span></dd><dt><span>" + ligne1 + "</span>";
+				ret = "<dt>Adresse</dt><dd><span>" + ligne1 + "</span>";
 				if (StringUtils.isNotBlank(ligne2)) {
-					ret += "<br><span>" + ligne2 + "</span>";
+					ret += "<br/><span>" + ligne2 + "</span>";
 				}
 				if (StringUtils.isNotBlank(ligne3)) {
-					ret += "<br><span>" + ligne3 + "</span>";
+					ret += "<br/><span>" + ligne3 + "</span>";
 				}
-				ret += "</dt>";
-				String codePostal = escape(getNode(node, champ, "codePostal").textValue());
-				String ville = escape(getNode(node, champ, "ville").textValue());
-				ret += "<dd><span>Ville</span></dd><dt><span>" + codePostal + " " + ville + "</span></dt>";
+				ret += "</dd>";
+				String codePostal = escape(getNode(node, champ, "codePostal").textValue(), isPdfRecap);
+				String ville = escape(getNode(node, champ, "ville").textValue(), isPdfRecap);
+				ret += "<dt><span>Ville</span></dt><dd><span>" + codePostal + " " + ville + "</span></dd>";
 				String pays = getNode(node, champ, "pays").textValue();
-				ret += "<dd><span>Pays</span></dd><dt><span>" + paysCache.get(pays, "fr").getNom() + "</span></dt>";
+				ret += "<dt><span>Pays</span></dt><dd><span>" + paysCache.get(pays, "fr").getNom() + "</span></dd>";
 			}
 			return ret;
 		} else if (type.equals("iban")) {
-			String titulaire = escape(getNode(node, champ, "titulaire").textValue());
-			String bic = escape(getNode(node, champ, "bic").textValue());
-			String iban = escape(getNode(node, champ, "iban").textValue());
+			String titulaire = escape(getNode(node, champ, "titulaire").textValue(), isPdfRecap);
+			String bic = escape(getNode(node, champ, "bic").textValue(), isPdfRecap);
+			String iban = escape(getNode(node, champ, "iban").textValue(), isPdfRecap);
 			String ret = iban + " (Titulaire: " + titulaire + ", BIC: " + bic + ")";
 			return ret;
 		} else {
@@ -376,8 +375,8 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 
 	}
 
-	private String escape(String str) {
-		return StringEscapeUtils.escapeHtml4(str);
+	private String escape(String str, boolean isPdfRecap) {
+		return isPdfRecap ? HtmlUtils.htmlEscapeDecimal(str) : StringEscapeUtils.escapeHtml4(str);
 	}
 
 }

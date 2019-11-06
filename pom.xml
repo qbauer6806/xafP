@@ -10,7 +10,8 @@
 	<properties>
 		<servicerest_client.version>2.2.15</servicerest_client.version>
 		<tika.version>1.18</tika.version>
-		<itext.pdf.version>2.1.4</itext.pdf.version>
+		<!-- Librairie pour générer le fichier récap. d'une demande (sous license LGPL). -->  	       
+  		<openhtml.version>1.0.0</openhtml.version>
 	</properties>
 
 	<groupId>mc.gouv.af</groupId>
@@ -33,15 +34,6 @@
 		<module>af-backweb</module>
 		<module>af-archetype</module>
 	</modules>
-
-	<!-- All add-ons and iText 7 core -->
-	<repositories>
-		<repository>
-			<id>itext</id>
-			<name>iText Repository - releases</name>
-			<url>https://repo.itextsupport.com/releases</url>
-		</repository>
-	</repositories>
 
 	<dependencies>
 		<dependency>
@@ -67,13 +59,6 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-compress</artifactId>
 			<version>1.18</version>
-		</dependency>
-
-		<!-- itext -->
-		<dependency>
-			<groupId>com.itextpdf</groupId>
-			<artifactId>html2pdf</artifactId>
-			<version>${itext.pdf.version}</version>
 		</dependency>
 	</dependencies>
 

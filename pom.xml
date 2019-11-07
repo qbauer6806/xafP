@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>mc.gouv.xboot</groupId>
@@ -10,21 +12,23 @@
 	<properties>
 		<servicerest_client.version>2.2.15</servicerest_client.version>
 		<tika.version>1.18</tika.version>
-		<itext.pdf.version>2.1.4</itext.pdf.version>
+		<!-- Librairie pour générer le fichier récap. d'une demande (sous license 
+			LGPL). -->
+		<openhtml.version>1.0.0</openhtml.version>
 	</properties>
 
 	<groupId>mc.gouv.af</groupId>
 	<artifactId>af</artifactId>
 	<version>6.1.2-SNAPSHOT</version>
 	<packaging>pom</packaging>
-	
+
 	<scm>
-        <url>https://git.monaco-gouvernement.mc/libs/xaf.git</url>
-        <connection>scm:git:git@git.monaco-gouvernement.mc:libs/xaf.git</connection>
-        <developerConnection>scm:git:git@git.monaco-gouvernement.mc:libs/xaf.git</developerConnection>
-        <tag>HEAD</tag>
-    </scm>
-	
+		<url>https://git.monaco-gouvernement.mc/libs/xaf.git</url>
+		<connection>scm:git:git@git.monaco-gouvernement.mc:libs/xaf.git</connection>
+		<developerConnection>scm:git:git@git.monaco-gouvernement.mc:libs/xaf.git</developerConnection>
+		<tag>HEAD</tag>
+	</scm>
+
 
 	<modules>
 		<module>af-servlet</module>
@@ -33,15 +37,6 @@
 		<module>af-backweb</module>
 		<module>af-archetype</module>
 	</modules>
-
-	<!-- All add-ons and iText 7 core -->
-	<repositories>
-		<repository>
-			<id>itext</id>
-			<name>iText Repository - releases</name>
-			<url>https://repo.itextsupport.com/releases</url>
-		</repository>
-	</repositories>
 
 	<dependencies>
 		<dependency>
@@ -67,13 +62,6 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-compress</artifactId>
 			<version>1.18</version>
-		</dependency>
-
-		<!-- itext -->
-		<dependency>
-			<groupId>com.itextpdf</groupId>
-			<artifactId>html2pdf</artifactId>
-			<version>${itext.pdf.version}</version>
 		</dependency>
 	</dependencies>
 

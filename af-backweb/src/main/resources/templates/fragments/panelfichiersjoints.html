@@ -34,60 +34,60 @@
 								<div class="col-xs-12">
 									<p>Demande de l'administration</p>
 									<dl>
-										<dd>
-											<span>Date création</span>
-										</dd>
 										<dt>
+											<span>Date création</span>
+										</dt>
+										<dd>
 											<span
 												th:text="${#dates.format(complement.question.date,'dd/MM/yyyy HH:mm:ss')}" />
-										</dt>
-										<dd>
-											<span>Motif</span>
 										</dd>
 										<dt>
+											<span>Motif</span>
+										</dt>
+										<dd>
 											<span
 												th:text="${MotifsCache.getMotif(complement.question.codeMotif, demandeDTO.langue).libelle}" />
-										</dt>
-										<dd>
+										</dd>
+										<dt>
 											<span>Texte</span>
-										</dd>
-										<dt>
-											<span th:text="${complement.question.texte}" class="display-commentaire" />
 										</dt>
 										<dd>
-											<span>Agent</span>
+											<span th:text="${complement.question.texte}" class="display-commentaire" />
 										</dd>
 										<dt>
+											<span>Agent</span>
+										</dt>
+										<dd>
 											<span
 												th:text="${AfBackUtils.getUserNameFromID(complement.question.agentId)}" />
-										</dt>
+										</dd>
 									</dl>
 									<br />
 									<div th:if="${complement.reponse} != null">
 										<p>Réponse de l'usager</p>
 										<dl>
-											<dd>
-												<span>Date</span>
-											</dd>
 											<dt>
+												<span>Date</span>
+											</dt>
+											<dd>
 												<span
 													th:text="${#dates.format(complement.reponse.date,'dd/MM/yyyy HH:mm:ss')}" />
-											</dt>
-											<dd>
-												<span>Texte</span>
 											</dd>
 											<dt>
-												<span th:text="${complement.reponse.texte}" />
+												<span>Texte</span>
 											</dt>
+											<dd>
+												<span th:text="${complement.reponse.texte}" />
+											</dd>
 											<div th:each="fichier : ${complement.reponse.fichiers}">
-												<dd>
-													<span>Fichier</span>
-												</dd>
 												<dt>
+													<span>Fichier</span>
+												</dt>
+												<dd>
 													<span th:text="${fichier.name}" /> <a
 														th:href="@{/ws/file/get}+${fichier.url}"><span
 														class="btn btn-action icon-action_telecharger" /></a>
-												</dt>
+												</dd>
 											</div>
 										</dl>
 									</div>

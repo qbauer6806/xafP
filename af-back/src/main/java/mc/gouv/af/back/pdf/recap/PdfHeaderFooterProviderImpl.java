@@ -30,12 +30,12 @@ public class PdfHeaderFooterProviderImpl implements PdfHeaderFooterProvider {
     public String getFooterPath() {
         String demarcheId = gouvPropertiesResolver.getDemarcheId();
         String path = getImagePath(PATH + demarcheId + FOOTER).getPath();
-        LOGGER.info("Chargement de l'image à l'adresse: {} ...", path);
         return path;
     }
 
     private URL getImagePath(String imgPath) {
         URL path = this.getClass().getResource(imgPath);
+        LOGGER.info("Chargement de l'image à l'adresse: {} ...", path);
         return path;
     }
 

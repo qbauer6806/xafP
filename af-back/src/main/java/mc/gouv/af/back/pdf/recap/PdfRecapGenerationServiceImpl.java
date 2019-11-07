@@ -57,7 +57,7 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
     public void generateAndStorePdf(DemandeDTO demande) throws Exception {
         LOGGER.info("RecapGenerationServiceImpl.generateAndStorePdf({})", demande.getPkDemandes());
 
-        LOGGER.info("Génération du PDF avec iText...");
+        LOGGER.info("Génération du PDF avec Open HTML to PDF...");
         File tempFile = generatePdf(demande);
         String fileName = tempFile.getName();
 

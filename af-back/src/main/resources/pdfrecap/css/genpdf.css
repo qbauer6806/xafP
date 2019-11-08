@@ -66,7 +66,18 @@ td>:first-child, td>:first-child>h3 {
 }
 
 dt {
+	margin-top: 10px;
+	float: left;
+	clear: both;
 	font-weight: bold;
+	width: 30%;
+}
+
+dd {
+	margin-top: 10px;
+	float: left;
+	margin-left: 0;
+	width: 70%;
 }
 
 dl {

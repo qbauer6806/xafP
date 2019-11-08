@@ -83,7 +83,10 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
 
     @Override
     public File generatePdf(DemandeDTO demande) throws Exception {
-        File htmlSource = generateHtmlSource(demande);
+        LOGGER.info("Récuppération des images pour le header et le footer...");
+        File header = pdfHeaderFooterProvider.getHeader();
+        File footer = pdfHeaderFooterProvider.getFooter();
+        File htmlSource = generateHtmlSource(demande, header, footer);
 
         LOGGER.info("Conversion du code HTML en PDF...");
         File pdfDest = createTempFile("Demande_" + demande.getIdentifiant() + "_");
@@ -95,14 +98,16 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
         builder.toStream(os);
         builder.run();
 
-        LOGGER.info("Suppression du fichier temporaire...");
+        LOGGER.info("Suppression des fichiers temporaires...");
         htmlSource.delete();
+        header.delete();
+        footer.delete();
 
         LOGGER.info("Fin de la génération du PDF.");
         return pdfDest;
     }
 
-    private File generateHtmlSource(DemandeDTO demande) {
+    private File generateHtmlSource(DemandeDTO demande, File header, File footer) {
         File htmlSource = null;
 
         try {
@@ -141,13 +146,13 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
 
             writer.println("<div id=\"pageHeader\">");
             writer.print("<img src=\"");
-            writer.print(pdfHeaderFooterProvider.getHeaderPath());
+            writer.print(header.toURI().getPath());
             writer.println("\" alt=\"HEADER\"></img>");
             writer.println("</div>");
 
             writer.println("<div id=\"pageFooter\">");
             writer.print("<img src=\"");
-            writer.print(pdfHeaderFooterProvider.getFooterPath());
+            writer.print(footer.toURI().getPath());
             writer.println("\" alt=\"FOOTER\"></img>");
             writer.println("</div>");
 

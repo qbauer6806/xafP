@@ -1,9 +1,11 @@
 package mc.gouv.af.back.pdf.recap;
 
+import java.io.File;
+
 public interface PdfHeaderFooterProvider {
 
-    String getHeaderPath();
+    File getHeader();
 
-    String getFooterPath();
+    File getFooter();
 
 }

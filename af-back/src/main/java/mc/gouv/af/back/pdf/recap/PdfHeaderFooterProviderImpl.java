@@ -1,6 +1,11 @@
 package mc.gouv.af.back.pdf.recap;
 
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
+
+import javax.imageio.ImageIO;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,22 +26,34 @@ public class PdfHeaderFooterProviderImpl implements PdfHeaderFooterProvider {
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
 
-    public String getHeaderPath() {
+    @Override
+    public File getHeader() {
         String demarcheId = gouvPropertiesResolver.getDemarcheId();
-        String path = getImagePath(PATH + demarcheId + HEADER).getPath();
-        return path;
+        return getImage(PATH + demarcheId + HEADER, "header");
     }
 
-    public String getFooterPath() {
+    @Override
+    public File getFooter() {
         String demarcheId = gouvPropertiesResolver.getDemarcheId();
-        String path = getImagePath(PATH + demarcheId + FOOTER).getPath();
-        return path;
+        return getImage(PATH + demarcheId + FOOTER, "footer");
     }
 
-    private URL getImagePath(String imgPath) {
+    private File getImage(String imgPath, String tempName) {
         URL path = this.getClass().getResource(imgPath);
         LOGGER.info("Chargement de l'image à l'adresse: {} ...", path);
-        return path;
+        File file = null;
+        try {
+            BufferedImage img = ImageIO.read(path);
+            file = File.createTempFile(tempName, ".jpg");
+            ImageIO.write(img, "jpg", file);
+        } catch (IOException e) {
+            LOGGER.error("Problème lors de la récuppération de l'image...", e);
+        }
+        if (null != file) {
+            LOGGER.info("Fichier temporaire: {} ...", file.getPath());
+        } else {
+            LOGGER.info("Aucune image chargée à l'adresse: {} ...", path);
+        }
+        return file;
     }
-
 }

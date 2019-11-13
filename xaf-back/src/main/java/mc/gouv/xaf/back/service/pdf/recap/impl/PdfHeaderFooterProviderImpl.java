@@ -1,15 +1,16 @@
 package mc.gouv.xaf.back.service.pdf.recap.impl;
 
-import java.net.MalformedURLException;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
+
+import javax.imageio.ImageIO;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import com.itextpdf.io.image.ImageDataFactory;
-import com.itextpdf.layout.element.Image;
 
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.pdf.recap.PdfHeaderFooterProvider;
@@ -26,31 +27,34 @@ public class PdfHeaderFooterProviderImpl implements PdfHeaderFooterProvider {
 	@Autowired
 	private GouvPropertiesResolver gouvPropertiesResolver;
 
-	public Image getHeader() {
-		Image img = null;
-		try {
-			String demarcheId = gouvPropertiesResolver.getDemarcheId();
-			img = getImage(PATH + demarcheId + HEADER);
-		} catch (MalformedURLException e) {
-			LOGGER.error("Problème lors de la génération du header...", e);
-		}
-		return img;
-	}
+    @Override
+    public File getHeader() {
+        String demarcheId = gouvPropertiesResolver.getDemarcheId();
+        return getImage(PATH + demarcheId + HEADER, "header");
+    }
 
-	public Image getFooter() {
-		Image img = null;
-		try {
-			String demarcheId = gouvPropertiesResolver.getDemarcheId();
-			img = getImage(PATH + demarcheId + FOOTER);
-		} catch (MalformedURLException e) {
-			LOGGER.error("Problème lors de la génération du footer...", e);
-		}
-		return img;
-	}
+    @Override
+    public File getFooter() {
+        String demarcheId = gouvPropertiesResolver.getDemarcheId();
+        return getImage(PATH + demarcheId + FOOTER, "footer");
+    }
 
-	private Image getImage(String imgPath) throws MalformedURLException {
-		URL path = this.getClass().getResource(imgPath);
-		LOGGER.info("Chargement de l'image à l'adresse: {} ...", path.getPath());
-		return new Image(ImageDataFactory.create(path));
-	}
+    private File getImage(String imgPath, String tempName) {
+        URL path = this.getClass().getResource(imgPath);
+        LOGGER.info("Chargement de l'image à l'adresse: {} ...", path);
+        File file = null;
+        try {
+            BufferedImage img = ImageIO.read(path);
+            file = File.createTempFile(tempName, ".jpg");
+            ImageIO.write(img, "jpg", file);
+        } catch (IOException e) {
+            LOGGER.error("Problème lors de la récuppération de l'image...", e);
+        }
+        if (null != file) {
+            LOGGER.info("Fichier temporaire: {} ...", file.getPath());
+        } else {
+            LOGGER.info("Aucune image chargée à l'adresse: {} ...", path);
+        }
+        return file;
+    }
 }

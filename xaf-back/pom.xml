@@ -14,15 +14,6 @@
 		<logon-apiclient.version>5.2.2</logon-apiclient.version>
 	</properties>
 
-	<!-- All add-ons and iText 7 core -->
-	<repositories>
-		<repository>
-			<id>itext</id>
-			<name>iText Repository - releases</name>
-			<url>https://repo.itextsupport.com/releases</url>
-		</repository>
-	</repositories>
-
 	<dependencies>
 		<dependency>
 			<groupId>org.activiti</groupId>
@@ -112,12 +103,6 @@
 			</exclusions>
 		</dependency>
 
-		<!-- itext -->
-		<dependency>
-			<groupId>com.itextpdf</groupId>
-			<artifactId>html2pdf</artifactId>
-			<version>${itext.pdf.version}</version>
-		</dependency>
 
 		<!-- Apache Velocity -->
 
@@ -228,6 +213,22 @@
 		</dependency>
 
 		<!-- Fin génération de PDF -->
+
+		<!-- Génération de fichier PDF à partir de HTML -->
+
+		<dependency>
+			<groupId>com.openhtmltopdf</groupId>
+			<artifactId>openhtmltopdf-core</artifactId>
+			<version>${openhtml.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.openhtmltopdf</groupId>
+			<artifactId>openhtmltopdf-pdfbox</artifactId>
+			<version>${openhtml.version}</version>
+		</dependency>
+
+		<!-- Fin HTML to PDF -->
 
 		<!-- Pour export Excel -->
 

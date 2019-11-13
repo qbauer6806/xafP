@@ -1,11 +1,11 @@
 package mc.gouv.xaf.back.service.pdf.recap;
 
-import com.itextpdf.layout.element.Image;
+import java.io.File;
 
 public interface PdfHeaderFooterProvider {
-	
-	Image getHeader();
-	
-	Image getFooter();
+
+    File getHeader();
+
+    File getFooter();
 
 }

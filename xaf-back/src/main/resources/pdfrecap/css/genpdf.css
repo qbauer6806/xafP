@@ -1,3 +1,32 @@
+@page {
+	margin-top: 80px;
+	margin-bottom: 80px;
+	@top-left {
+		content: element( pageHeader);
+	}
+	@bottom-left {
+		content: element(pageFooter);
+	}
+}
+
+#pageHeader {
+	position: running(pageHeader);
+	width: 700px;
+	height: 60px;
+	padding-top: 20px;
+}
+
+#pageFooter {
+	position: running(pageFooter);
+	width: 700px;
+	height: 80px;
+}
+
+#pageHeader>img, #pageFooter>img {
+	max-width: 100%;
+	height: auto;
+}
+
 table {
 	width: 100%;
 	border-collapse: collapse;
@@ -32,17 +61,23 @@ th {
 	font-size: 20px;
 }
 
-#datatable-demandes {
-	width: 90%;
-	margin-top: 20px;
-}
-
-#datatable-demandes th {
-	font-size: 13px;
-}
-
-td> :first-child, td> :first-child>h3 {
+td>:first-child, td>:first-child>h3 {
 	margin-top: 0;
+}
+
+dt {
+	margin-top: 10px;
+	float: left;
+	clear: both;
+	font-weight: bold;
+	width: 30%;
+}
+
+dd {
+	margin-top: 10px;
+	float: left;
+	margin-left: 0;
+	width: 70%;
 }
 
 dl {
@@ -51,27 +86,11 @@ dl {
 	margin: 0;
 }
 
-dd {
-	margin-bottom: 0;
-	float: left;
-	padding: 0;
-	margin: 0;
-	font-weight: bold;
-	clear: both;
-}
-
-dt {
-	margin-bottom: 0;
-	float: left;
-	padding: 0;
-	margin: 0;
-	font-weight: normal !important;
+.dem-admin>dl, .rep-usager>dl, .sectionrecap dl {
 	padding-left: 20px;
-	padding-right: 20px;
 }
 
 dt span, dd span {
-	width: 95%;
 	white-space: pre-wrap;
 }
 
@@ -83,30 +102,6 @@ dt span, dd span {
 	margin-top: 20px;
 }
 
-.dem-admin>dl, .rep-usager>dl, .sectionrecap dl {
-	padding-left: 20px;
-}
-
 .display-commentaire {
 	white-space: pre-wrap;
-}
-
-.long-text {
-	float: left;
-	clear: both;
-}
-
-.long-text>p {
-	margin: 0;
-}
-
-.long-text-content {
-	display: inline-block;
-	padding-left: 20px;
-	width: 95%;
-	white-space: pre-wrap;
-}
-
-.long-text-title {
-	font-weight: bold;
 }

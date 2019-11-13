@@ -3,7 +3,9 @@ package mc.gouv.xaf.back.service.pdf.recap.impl;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.Date;
 
@@ -12,12 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.itextpdf.html2pdf.ConverterProperties;
-import com.itextpdf.html2pdf.HtmlConverter;
-import com.itextpdf.kernel.events.PdfDocumentEvent;
-import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfWriter;
-import com.itextpdf.layout.element.Image;
+import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemandeRecapHTMLService;
@@ -62,9 +59,9 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
 	public void generateAndStorePdf(DemandeDTO demande) throws Exception {
 		LOGGER.info("RecapGenerationServiceImpl.generateAndStorePdf({})", demande.getPkDemandes());
 
-		LOGGER.info("Génération du PDF avec iText...");
-		File tempFile = generatePdf(demande);
-		String fileName = tempFile.getName();
+        LOGGER.info("Génération du PDF avec Open HTML to PDF...");
+        File tempFile = generatePdf(demande);
+        String fileName = tempFile.getName();
 
 		LOGGER.info("Stockage du PDF généré dans FILE...");
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
@@ -86,110 +83,115 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
 		LOGGER.info("Fin PdfGenerationServiceImpl.generateAndStorePdf({})", demande.getPkDemandes());
 	}
 
-	@Override
-	public File generatePdf(DemandeDTO demande) throws Exception {
-		// Header
-		Image header = pdfHeaderFooterProvider.getHeader();
-		HeaderFooterPageEvent headerHandler = new HeaderFooterPageEvent(header, true);
+    @Override
+    public File generatePdf(DemandeDTO demande) throws Exception {
+        LOGGER.info("Récuppération des images pour le header et le footer...");
+        File header = pdfHeaderFooterProvider.getHeader();
+        File footer = pdfHeaderFooterProvider.getFooter();
+        File htmlSource = generateHtmlSource(demande, header, footer);
 
-		// Footer
-		Image footer = pdfHeaderFooterProvider.getFooter();
-		HeaderFooterPageEvent footerHandler = new HeaderFooterPageEvent(footer, false);
+        LOGGER.info("Conversion du code HTML en PDF...");
+        File pdfDest = createTempFile("Demande_" + demande.getIdentifiant() + "_");
 
-		File htmlSource = generateHtmlSource(demande, headerHandler.getHeight(), footerHandler.getHeight());
+        OutputStream os = new FileOutputStream(pdfDest);
+        PdfRendererBuilder builder = new PdfRendererBuilder();
+        builder.useFastMode();
+        builder.withFile(htmlSource);
+        builder.toStream(os);
+        builder.run();
 
-		LOGGER.info("Conversion du code HTML en PDF...");
-		File pdfDest = createTempFile("Demande_" + demande.getIdentifiant() + "_");
-		PdfWriter writer = new PdfWriter(pdfDest);
-		PdfDocument pdfDocument = new PdfDocument(writer);
-		pdfDocument.addEventHandler(PdfDocumentEvent.START_PAGE, headerHandler);
-		pdfDocument.addEventHandler(PdfDocumentEvent.END_PAGE, footerHandler);
+        LOGGER.info("Suppression des fichiers temporaires...");
+        htmlSource.delete();
+        header.delete();
+        footer.delete();
 
-		LOGGER.info("Appel du HTML Converter...");
-		ConverterProperties converterProperties = new ConverterProperties();
-		HtmlConverter.convertToPdf(new FileInputStream(htmlSource), pdfDocument, converterProperties);
+        LOGGER.info("Fin de la génération du PDF.");
+        return pdfDest;
+    }
 
-		LOGGER.info("Suppression du fichier temporaire...");
-		htmlSource.delete();
-		pdfDocument.close();
+    private File generateHtmlSource(DemandeDTO demande, File header, File footer) {
+        File htmlSource = null;
 
-		LOGGER.info("Fin de la génération du PDF.");
-		return pdfDest;
-	}
+        try {
+            LOGGER.info("Génération du code HTML de la demande intiale...");
+            String htmlDemande = demandeRecapHTMLService.getHTMLDemandeGeneric(demande);
 
-	private File generateHtmlSource(DemandeDTO demande, Float headerHeight, Float footerHeight) {
-		File htmlSource = null;
+            LOGGER.info("Génération du code HTML des demandes d'informations complémentaires...");
+            DemandeComplementsDTO[] complements = demande.getComplements();
+            String htmlComp = null != complements && complements.length > 0
+                    ? demandeRecapHTMLService.getHTMLDemandeComplements(demande)
+                    : "Aucune demande d'informations complémentaires.";
 
-		try {
-			LOGGER.info("Génération du code HTML de la demande intiale...");
-			String htmlDemande = demandeRecapHTMLService.getHTMLDemandeGeneric(demande);
+            LOGGER.info("Génération du code HTML de la récap...");
+            String htmlRecap = demandeRecapHTMLService.getHTMLDemandeContenuRecap(demande, true);
 
-			LOGGER.info("Génération du code HTML des demandes d'informations complémentaires...");
-			DemandeComplementsDTO[] complements = demande.getComplements();
-			String htmlComp = null != complements && complements.length > 0
-					? demandeRecapHTMLService.getHTMLDemandeComplements(demande)
-					: "Aucune demande d'informations complémentaires.";
+            LOGGER.info("Création d'un fichier temporaire pour stocker le HTML...");
+            htmlSource = File.createTempFile("tmpRecapHtml", ".html");
+            PrintWriter writer = new PrintWriter(htmlSource);
+            writer.println("<!DOCTYPE html><html><head>");
 
-			LOGGER.info("Génération du code HTML de la récap...");
-			String htmlRecap = demandeRecapHTMLService.getHTMLDemandeContenuRecap(demande, true);
+            LOGGER.info("Récupération de l'InputStream pour le fichier CSS pdfrecap/css/genpdf.css ...");
+            InputStream fis = this.getClass().getResourceAsStream("/pdfrecap/css/genpdf.css");
+            LOGGER.info("Largeur du fchier CSS à lire : {} bytes...", fis.available());
+            writer.println("<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>");
+            writer.println("<style>");
 
-			LOGGER.info("Création d'un fichier temporaire pour stocker le HTML...");
-			htmlSource = File.createTempFile("tmpRecapHtml", ".html");
-			PrintWriter writer = new PrintWriter(htmlSource);
+            int content;
+            while ((content = fis.read()) != -1) {
+                // conversion en char avant écriture
+                writer.print((char) content);
+            }
+            fis.close();
 
-			writer.println("<html><head><style>");
-			LOGGER.info("Récupération de l'InputStream pour le fichier CSS pdfrecap/css/genpdf.css ...");
-			InputStream fis = this.getClass().getResourceAsStream("/pdfrecap/css/genpdf.css");
-			LOGGER.info("Largeur du fchier CSS à lire : {} bytes...", fis.available());
-			int content;
-			while ((content = fis.read()) != -1) {
-				// conversion en char avant écriture
-				writer.print((char) content);
-			}
-			fis.close();
-			writer.println("</style></head><body>");
-			LOGGER.info("Fin de l'écriture du CSS...");
+            writer.println("</style></head><body>");
+            LOGGER.info("Fin de l'écriture du CSS...");
 
-			// Ajout d'un style CSS sur les pages pour laisser de la place au header et
-			// au footer
-			writer.println("<style>@page { margin-top: ");
-			writer.println(headerHeight.intValue());
-			writer.println("px; margin-bottom: ");
-			writer.println(footerHeight.intValue());
-			writer.println("px; }</style>");
+            writer.println("<div id=\"pageHeader\">");
+            writer.print("<img src=\"");
+            writer.print(header.toURI().getPath());
+            writer.println("\" alt=\"HEADER\"></img>");
+            writer.println("</div>");
 
-			writer.println("<h1>Récapitulatif de la demande</h1>");
-			writer.println("<h2>");
-			writer.println(afBackUtils.getDemarcheNom());
-			writer.println("</h2>");
+            writer.println("<div id=\"pageFooter\">");
+            writer.print("<img src=\"");
+            writer.print(footer.toURI().getPath());
+            writer.println("\" alt=\"FOOTER\"></img>");
+            writer.println("</div>");
 
-			writer.println("<table class=\"sectiondemande\"><tr><th>La Demande</th></tr><tr><td>");
-			writer.println(htmlDemande);
-			writer.println("</td></tr></table>");
+            LOGGER.info("Fin du header et footer...");
 
-			writer.println("<table class=\"sectionic\"><tr><th>Informations Complémentaires</th></tr><tr><td>");
-			writer.println(htmlComp);
-			writer.println("</td></tr></table>");
+            writer.println("<h1>Récapitulatif de la demande</h1>");
+            writer.println("<h2>");
+            writer.println(afBackUtils.getDemarcheNom());
+            writer.println("</h2>");
 
-			writer.println("<table class=\"sectionrecap\"><tr><th>Demande Initiale</th></tr><tr><td>");
-			writer.println(htmlRecap);
-			writer.println("</td></tr></table>");
+            writer.println("<table class=\"sectiondemande\"><tr><th>La Demande</th></tr><tr><td>");
+            writer.println(htmlDemande);
+            writer.println("</td></tr></table>");
 
-			writer.println("</body></html>");
+            writer.println("<table class=\"sectionic\"><tr><th>Informations Complémentaires</th></tr><tr><td>");
+            writer.println(htmlComp);
+            writer.println("</td></tr></table>");
 
-			writer.close();
+            writer.println("<table class=\"sectionrecap\"><tr><th>Demande Initiale</th></tr><tr><td>");
+            writer.println(htmlRecap);
+            writer.println("</td></tr></table>");
 
-		} catch (Exception e) {
-			LOGGER.error("Erreur lors de la génération du code HTML", e);
-		}
+            writer.println("</body></html>");
 
-		return htmlSource;
-	}
+            writer.close();
 
-	private File createTempFile(String filename) {
-		String tempDir = System.getProperty("java.io.tmpdir");
-		String fileName = filename + AfBackUtils.generateFileDateSuffix() + ".pdf";
-		return new File(tempDir, fileName);
-	}
+        } catch (Exception e) {
+            LOGGER.error("Erreur lors de la génération du code HTML", e);
+        }
+
+        return htmlSource;
+    }
+
+    private File createTempFile(String filename) {
+        String tempDir = System.getProperty("java.io.tmpdir");
+        String fileName = filename + AfBackUtils.generateFileDateSuffix() + ".pdf";
+        return new File(tempDir, fileName);
+    }
 
 }

@@ -109,61 +109,61 @@
 									<div class="sectiondemande">
 										<h3>Informations de la demande</h3>
 										<dl>
-											<dd th:if="${symbol_dollar}{demandeDTO.canal.name()} == 'GUICHET_VIRTUEL'">
-												<span>Date de transmission</span>
-											</dd>
 											<dt th:if="${symbol_dollar}{demandeDTO.canal.name()} == 'GUICHET_VIRTUEL'">
+												<span>Date de transmission</span>
+											</dt>
+											<dd th:if="${symbol_dollar}{demandeDTO.canal.name()} == 'GUICHET_VIRTUEL'">
 												<span
 													th:text="${symbol_dollar}{${symbol_pound}dates.format(demandeDTO.dateCreation,'dd/MM/yyyy')}" />
-											</dt>
-											<dd th:if="${symbol_dollar}{demandeDTO.canal.name()} != 'GUICHET_VIRTUEL'">
-												<span>Date de dépôt</span>
 											</dd>
 											<dt th:if="${symbol_dollar}{demandeDTO.canal.name()} != 'GUICHET_VIRTUEL'">
+												<span>Date de dépôt</span>
+											</dt>
+											<dd th:if="${symbol_dollar}{demandeDTO.canal.name()} != 'GUICHET_VIRTUEL'">
 												<span
 													th:text="${symbol_dollar}{${symbol_pound}dates.format(demandeDTO.courrierDateReception,'dd/MM/yyyy')}" />
-											</dt>
-											<dd>
-												<span>Etat de la demande</span>
 											</dd>
 											<dt>
+												<span>Etat de la demande</span>
+											</dt>
+											<dd>
 												<span
 													th:text="${symbol_dollar}{AfBackUtils.getStatusLibelleFromName(demandeDTO.dernierStatut.libelle)+', le '}+${symbol_dollar}{${symbol_pound}dates.format(demandeDTO.dernierStatut.date,'dd/MM/yyyy')}"></span>
-											</dt>
-											<dd>
+											</dd>
+											<dt>
 												<span>Langue</span>
-											</dd>
-											<dt>
-												<span th:text="${symbol_dollar}{demandeDTO.langue}"></span>
 											</dt>
 											<dd>
-												<span>Canal</span>
+												<span th:text="${symbol_dollar}{demandeDTO.langue}"></span>
 											</dd>
 											<dt>
-												<span th:text="${symbol_dollar}{demandeDTO.canal}" ></span>
+												<span>Canal</span>
 											</dt>
-
-											<dd th:if="${symbol_dollar}{demandeDTO.creeParAgentId != null}">
-												<span>Créé par</span>
+											<dd>
+												<span th:text="${symbol_dollar}{demandeDTO.canal}" ></span>
 											</dd>
+
 											<dt th:if="${symbol_dollar}{demandeDTO.creeParAgentId != null}">
+												<span>Créé par</span>
+											</dt>
+											<dd th:if="${symbol_dollar}{demandeDTO.creeParAgentId != null}">
 												<span
 													th:text="${symbol_dollar}{AfBackUtils.getUserNameFromID(demandeDTO.creeParAgentId)}" ></span>
-											</dt>
-											<dd th:if="${symbol_dollar}{isTerminee}">
-												<span>Motif</span>
 											</dd>
-											<dt
+											<dt th:if="${symbol_dollar}{isTerminee}">
+												<span>Motif</span>
+											</dt>
+											<dd
 												th:if="${symbol_dollar}{isTerminee} and ${symbol_dollar}{demandeDTO.dernierStatut.codeMotif} != null">
 												<span
 													th:text="${symbol_dollar}{MotifsCache.getMotif(demandeDTO.dernierStatut.codeMotif,'fr').libelle}" ></span>
-											</dt>
-											<dd th:if="${symbol_dollar}{isTerminee}">
-												<span>Commentaire</span>
 											</dd>
 											<dt th:if="${symbol_dollar}{isTerminee}">
-												<span th:text="${symbol_dollar}{demandeDTO.dernierStatut.commentaire}" class="display-commentaire"></span>
+												<span>Commentaire</span>
 											</dt>
+											<dd th:if="${symbol_dollar}{isTerminee}">
+												<span th:text="${symbol_dollar}{demandeDTO.dernierStatut.commentaire}" class="display-commentaire"></span>
+											</dd>
 										</dl>
 									</div>
 									<div class="dynamictab" th:if="${symbol_dollar}{demandeDTO.buildId != null}">

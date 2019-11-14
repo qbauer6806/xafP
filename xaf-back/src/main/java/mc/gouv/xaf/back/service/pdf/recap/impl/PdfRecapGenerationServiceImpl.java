@@ -93,17 +93,28 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
         LOGGER.info("Conversion du code HTML en PDF...");
         File pdfDest = createTempFile("Demande_" + demande.getIdentifiant() + "_");
 
-        OutputStream os = new FileOutputStream(pdfDest);
-        PdfRendererBuilder builder = new PdfRendererBuilder();
-        builder.useFastMode();
-        builder.withFile(htmlSource);
-        builder.toStream(os);
-        builder.run();
-
-        LOGGER.info("Suppression des fichiers temporaires...");
-        htmlSource.delete();
-        header.delete();
-        footer.delete();
+        try {
+            OutputStream os = new FileOutputStream(pdfDest);
+            PdfRendererBuilder builder = new PdfRendererBuilder();
+            builder.useFastMode();
+            builder.withFile(htmlSource);
+            builder.toStream(os);
+            builder.run();
+        } catch (Exception e) {
+            LOGGER.error("Erreur lors de la construction du fichier PDF: ", e);
+            throw e;
+        } finally {
+            LOGGER.info("Suppression des fichiers temporaires...");
+            if (null != htmlSource) {
+                htmlSource.delete();
+            }
+            if (null != header) {
+                header.delete();
+            }
+            if (null != footer) {
+                footer.delete();
+            }
+        }
 
         LOGGER.info("Fin de la génération du PDF.");
         return pdfDest;

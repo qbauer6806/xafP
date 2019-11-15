@@ -30,6 +30,9 @@
 table {
 	width: 100%;
 	border-collapse: collapse;
+}
+
+table.table-section {
 	margin-top: 50px;
 }
 
@@ -37,7 +40,7 @@ table, th, td {
 	border: grey solid 1px;
 }
 
-h1, .sectiondemande h3, th {
+h1, .sectiondemande h3 {
 	text-transform: uppercase;
 }
 
@@ -55,7 +58,8 @@ h2 {
 	font-size: 18px;
 }
 
-th {
+th.table-section {
+	text-transform: uppercase;
 	text-align: left;
 	background-color: #e5e5e5;
 	font-size: 20px;
@@ -104,4 +108,26 @@ dt span, dd span {
 
 .display-commentaire {
 	white-space: pre-wrap;
+}
+
+.table, .table td, .table th {
+	border: 0;
+	border-spacing: 0;
+}
+
+.table td {
+	vertical-align: top;
+	border-top: 1px solid #ddd;
+}
+
+.table thead th {
+	vertical-align: middle;
+	display: table-cell;
+	font-weight: bold;
+	text-align: left;
+	border-bottom: 2px solid #ddd;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+	background-color: #f9f9f9;
 }

@@ -32,56 +32,56 @@ import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 @Component
 public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(PdfRecapGenerationServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PdfRecapGenerationServiceImpl.class);
 
-	@Autowired
-	private FileService fileService;
+    @Autowired
+    private FileService fileService;
 
-	@Autowired
-	private DemandesFilesService demandesFileService;
+    @Autowired
+    private DemandesFilesService demandesFileService;
 
-	@Autowired
-	private GouvPropertiesResolver gouvPropertiesResolver;
+    @Autowired
+    private GouvPropertiesResolver gouvPropertiesResolver;
 
-	@Autowired(required = false)
-	private IndexedDemandeService indexedDemandeService;
+    @Autowired(required = false)
+    private IndexedDemandeService indexedDemandeService;
 
-	@Autowired
-	private DemandeRecapHTMLService demandeRecapHTMLService;
+    @Autowired
+    private DemandeRecapHTMLService demandeRecapHTMLService;
 
-	@Autowired
-	private PdfHeaderFooterProvider pdfHeaderFooterProvider;
+    @Autowired
+    private PdfHeaderFooterProvider pdfHeaderFooterProvider;
 
-	@Autowired
-	private AfBackUtils afBackUtils;
+    @Autowired
+    private AfBackUtils afBackUtils;
 
-	@Override
-	public void generateAndStorePdf(DemandeDTO demande) throws Exception {
-		LOGGER.info("RecapGenerationServiceImpl.generateAndStorePdf({})", demande.getPkDemandes());
+    @Override
+    public void generateAndStorePdf(DemandeDTO demande) throws Exception {
+        LOGGER.info("RecapGenerationServiceImpl.generateAndStorePdf({})", demande.getPkDemandes());
 
         LOGGER.info("Génération du PDF avec Open HTML to PDF...");
         File tempFile = generatePdf(demande);
         String fileName = tempFile.getName();
 
-		LOGGER.info("Stockage du PDF généré dans FILE...");
-		ByteArrayOutputStream output = new ByteArrayOutputStream();
-		String url = fileService.saveFile(demande, fileName, "application/pdf", new FileInputStream(tempFile), output);
-		output.close();
+        LOGGER.info("Stockage du PDF généré dans FILE...");
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        String url = fileService.saveFile(demande, fileName, "application/pdf", new FileInputStream(tempFile), output);
+        output.close();
 
-		LOGGER.info("Ajout de la référence à ce fichier interne dans DEM...");
-		DemandeFileDTO file = new DemandeFileDTO();
-		file.setName(fileName);
-		file.setUrl('/' + url);
-		file.setDate(new Date());
-		file.setMeta(FileUtils.META_BACK + "RECAP");
-		demandesFileService.saveFile(file, gouvPropertiesResolver.getDemarcheId(), demande.getPkDemandes());
+        LOGGER.info("Ajout de la référence à ce fichier interne dans DEM...");
+        DemandeFileDTO file = new DemandeFileDTO();
+        file.setName(fileName);
+        file.setUrl('/' + url);
+        file.setDate(new Date());
+        file.setMeta(FileUtils.META_BACK + "RECAP");
+        demandesFileService.saveFile(file, gouvPropertiesResolver.getDemarcheId(), demande.getPkDemandes());
 
-		if (indexedDemandeService != null) {
-			indexedDemandeService.indexDemande(gouvPropertiesResolver.getDemarcheId(), demande.getPkDemandes());
-		}
+        if (indexedDemandeService != null) {
+            indexedDemandeService.indexDemande(gouvPropertiesResolver.getDemarcheId(), demande.getPkDemandes());
+        }
 
-		LOGGER.info("Fin PdfGenerationServiceImpl.generateAndStorePdf({})", demande.getPkDemandes());
-	}
+        LOGGER.info("Fin PdfGenerationServiceImpl.generateAndStorePdf({})", demande.getPkDemandes());
+    }
 
     @Override
     public File generatePdf(DemandeDTO demande) throws Exception {
@@ -176,15 +176,18 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
             writer.println(afBackUtils.getDemarcheNom());
             writer.println("</h2>");
 
-            writer.println("<table class=\"sectiondemande\"><tr><th>La Demande</th></tr><tr><td>");
+            writer.println("<table class=\"table-section sectiondemande\">");
+            writer.println("<tr><th class=\"table-section\">La Demande</th></tr><tr><td>");
             writer.println(htmlDemande);
             writer.println("</td></tr></table>");
 
-            writer.println("<table class=\"sectionic\"><tr><th>Informations Complémentaires</th></tr><tr><td>");
+            writer.println("<table class=\"table-section sectionic\">");
+            writer.println("<tr><th class=\"table-section\">Informations Complémentaires</th></tr><tr><td>");
             writer.println(htmlComp);
             writer.println("</td></tr></table>");
 
-            writer.println("<table class=\"sectionrecap\"><tr><th>Demande Initiale</th></tr><tr><td>");
+            writer.println("<table class=\"table-section sectionrecap\">");
+            writer.println("<tr><th class=\"table-section\">Demande Initiale</th></tr><tr><td>");
             writer.println(htmlRecap);
             writer.println("</td></tr></table>");
 

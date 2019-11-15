@@ -40,6 +40,20 @@ table, th, td {
 	border: grey solid 1px;
 }
 
+th {
+	text-transform: uppercase;
+	text-align: left;
+	background-color: #e5e5e5;
+}
+
+th.table-section {
+	font-size: 20px;
+}
+
+td>:first-child, td>:first-child>h3 {
+	margin-top: 0;
+}
+
 h1, .sectiondemande h3 {
 	text-transform: uppercase;
 }
@@ -56,17 +70,6 @@ h1 {
 h2 {
 	font-weight: normal;
 	font-size: 18px;
-}
-
-th.table-section {
-	text-transform: uppercase;
-	text-align: left;
-	background-color: #e5e5e5;
-	font-size: 20px;
-}
-
-td>:first-child, td>:first-child>h3 {
-	margin-top: 0;
 }
 
 dt {
@@ -111,23 +114,15 @@ dt span, dd span {
 }
 
 .table, .table td, .table th {
-	border: 0;
 	border-spacing: 0;
 }
 
 .table td {
 	vertical-align: top;
-	border-top: 1px solid #ddd;
 }
 
 .table thead th {
 	vertical-align: middle;
 	display: table-cell;
 	font-weight: bold;
-	text-align: left;
-	border-bottom: 2px solid #ddd;
-}
-
-.table-striped tbody tr:nth-of-type(odd) {
-	background-color: #f9f9f9;
 }

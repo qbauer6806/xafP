@@ -6,7 +6,7 @@ maven:
     group_id: mc.gouv.${tscode}
     artifact_id: ${tscode}-apiserver
 context: /${tscode}
-url: https://${tscode}-api-dev.monaco-gouvernement.mc/${tscode}
+url: https://${tscode}-api.monaco-gouvernement.mc/${tscode}
 http_port: 30${TSPORT}0
 jmx_port: 30${TSPORT}1
 rmi_port: 30${TSPORT}2
@@ -15,6 +15,4 @@ xms: ${XMS}
 xmx: ${XMX}
 tags:
     - ${tscode}backapi
-java_extra_opts: -Dspring.profiles.active=gouv -Dfile.encoding=UTF-8 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/var/tmp/heap-dump/${tscode}-apiserver/
-
-
+java_extra_opts: -Dspring.profiles.active=gouv -Dfile.encoding=UTF-8

@@ -1,0 +1,29 @@
+---
+tcp_checks:
+  - name: zabbix-agent
+    host: ${tscode}-appl1-3
+    port: 10050
+  - name: zabbix-agent
+    host: ${tscode}-frnt1-3
+    port: 10050
+  - name: ${tscode}-backserver-jmx
+    host: ${tscode}-appl1-3
+    port: 10${TSPORT}1
+  - name: ${tscode}-backserver-rmi
+    host: ${tscode}-appl1-3
+    port: 10${TSPORT}2
+  - name: ${tscode}-apiserver-jmx
+    host: ${tscode}-appl1-3
+    port: 30${TSPORT}1
+  - name: ${tscode}-apiserver-rmi
+    host: ${tscode}-appl1-3
+    port: 30${TSPORT}2
+  - name: zabbix-agent
+    host: ${tscode}-frnt1-3
+    port: 10050
+  - name: ${tscode}-frontserver-jmx
+    host: ${tscode}-frnt1-3
+    port: 20${TSPORT}1
+  - name: ${tscode}-frontserver-rmi
+    host: ${tscode}-frnt1-3
+    port: 20${TSPORT}2

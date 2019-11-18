@@ -1,35 +1,30 @@
 ---
-ansible_host: ${tscode}-appl1-3-mgmt
+ansible_host: ${tscode}-appl1-0-mgmt
 zabbix_host_name: ${TSAPPLZABBIX}
 mc_fs_installed: false
 
 tcp_checks:
   - name: logon-backserver
-    host: back-rec.monaco-gouvernement.mc
+    host: linuxprod.monaco-gouvernement.mc
     port: 80
   - name: rest-apiserver
-    host: as-api-1-rec.monaco-gouvernement.mc
+    host: linuxas-2.monaco-gouvernement.mc
     port: 20110
   - name: mail-apiserver
-    host: as-api-1-rec.monaco-gouvernement.mc
+    host: linuxas-1.monaco-gouvernement.mc
     port: 30480
   - name: file-apiserver
-    host: as-api-1-rec.monaco-gouvernement.mc
+    host: linuxas-1.monaco-gouvernement.mc
     port: 30490
   - name: postgresql
-    host: gents-eosd1-3.monaco-gouvernement.mc
+    host: gents-eosd1-0.monaco-gouvernement.mc
     port: 5432
   - name: elasticsearch
-    host: ${tscode}-eose1-3.monaco-gouvernement.mc
+    host: ${tscode}-eose1-0.monaco-gouvernement.mc
     port: 9300
   - name: nexus
     host: linuxic.monaco-gouvernement.mc
     port: 80
   - name: zabbix-server
-    host: zabbix1
+    host: zabbix3
     port: 10051
-  - name: zabbix-proxy
-    host: linux-zabbix-proxyr1
-    port: 10051
-
-    

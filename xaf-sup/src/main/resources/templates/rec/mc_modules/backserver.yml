@@ -10,9 +10,9 @@ url: https://${tscode}-back-rec.monaco-gouvernement.mc/${tscode}
 http_port: 10${TSPORT}0
 jmx_port: 10${TSPORT}1
 rmi_port: 10${TSPORT}2
-xms: 512m
-xmx: 512m
+xms: ${XMS}
+xmx: ${XMX}
 tags:
     - ${tscode}backapi
-java_extra_opts: -Dspring.profiles.active=gouv -Dfile.encoding=UTF-8
+java_extra_opts: -Dspring.profiles.active=gouv -Dfile.encoding=UTF-8 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/var/tmp/heap-dump/${tscode}-backserver/
 

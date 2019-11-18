@@ -9,15 +9,15 @@ proxy_env:
 
 elasticsearch_cluster_name: ${tscode}
 
-mc_env: rec
-mc_env_color: "#FFA726"
+mc_env: prod
+mc_env_color: "#EF5350"
 
 mc_fs_installed: false
 
 batch_user: batch
 batch_group: batch
 
-mc_batch_host: batch-rec
+mc_batch_host: linuxbatch
 mc_batch_private_key: /www/mc_lib/id_dsa
 
 nfsshared_group: nfsshared 
@@ -26,12 +26,12 @@ nfsnobody_user: nfsnobody
 
 mc_http_proxy_host: proxy-infra
 mc_http_proxy_port: 3129
-mc_http_non_proxy_hosts: back-rec
+mc_http_non_proxy_hosts: linuxas-1
 
 mc_mail_host: 127.0.0.1
 mc_mail_port: 25
 
-mc_module_maven_repositort_url: http://linuxic.monaco-gouvernement.mc/nexus/content/groups/public/
+mc_module_maven_repositort_url: http://linuxic/nexus/content/groups/public/
 
 mc_module_types:
   - backserver

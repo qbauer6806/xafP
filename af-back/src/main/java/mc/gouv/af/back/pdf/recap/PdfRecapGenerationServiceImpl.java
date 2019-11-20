@@ -91,17 +91,28 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
         LOGGER.info("Conversion du code HTML en PDF...");
         File pdfDest = createTempFile("Demande_" + demande.getIdentifiant() + "_");
 
-        OutputStream os = new FileOutputStream(pdfDest);
-        PdfRendererBuilder builder = new PdfRendererBuilder();
-        builder.useFastMode();
-        builder.withFile(htmlSource);
-        builder.toStream(os);
-        builder.run();
-
-        LOGGER.info("Suppression des fichiers temporaires...");
-        htmlSource.delete();
-        header.delete();
-        footer.delete();
+        try {
+            OutputStream os = new FileOutputStream(pdfDest);
+            PdfRendererBuilder builder = new PdfRendererBuilder();
+            builder.useFastMode();
+            builder.withFile(htmlSource);
+            builder.toStream(os);
+            builder.run();
+        } catch (Exception e) {
+            LOGGER.error("Erreur lors de la construction du fichier PDF: ", e);
+            throw e;
+        } finally {
+            LOGGER.info("Suppression des fichiers temporaires...");
+            if (null != htmlSource) {
+                htmlSource.delete();
+            }
+            if (null != header) {
+                header.delete();
+            }
+            if (null != footer) {
+                footer.delete();
+            }
+        }
 
         LOGGER.info("Fin de la génération du PDF.");
         return pdfDest;
@@ -163,15 +174,18 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
             writer.println(afBackUtils.getDemarcheNom());
             writer.println("</h2>");
 
-            writer.println("<table class=\"sectiondemande\"><tr><th>La Demande</th></tr><tr><td>");
+            writer.println("<table class=\"table-section sectiondemande\">");
+            writer.println("<tr><th class=\"table-section\">La Demande</th></tr><tr><td>");
             writer.println(htmlDemande);
             writer.println("</td></tr></table>");
 
-            writer.println("<table class=\"sectionic\"><tr><th>Informations Complémentaires</th></tr><tr><td>");
+            writer.println("<table class=\"table-section sectionic\">");
+            writer.println("<tr><th class=\"table-section\">Informations Complémentaires</th></tr><tr><td>");
             writer.println(htmlComp);
             writer.println("</td></tr></table>");
 
-            writer.println("<table class=\"sectionrecap\"><tr><th>Demande Initiale</th></tr><tr><td>");
+            writer.println("<table class=\"table-section sectionrecap\">");
+            writer.println("<tr><th class=\"table-section\">Demande Initiale</th></tr><tr><td>");
             writer.println(htmlRecap);
             writer.println("</td></tr></table>");
 

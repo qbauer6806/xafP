@@ -1407,21 +1407,21 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         List<String> replacedSearchFields = new ArrayList<>();
         for (String searchField : searchFields) {
              if (searchField != null) {
+                 String replacedSearchField = searchField;
                 if (searchField.startsWith(FILE_COMPLEMENT_HIGHLIGHT_AND_FACET_PREFIX)) {
-                    replacedSearchFields.add(searchField.replaceFirst(FILE_COMPLEMENT_HIGHLIGHT_AND_FACET_PREFIX, ""));
+                    replacedSearchField = searchField.replaceFirst(FILE_COMPLEMENT_HIGHLIGHT_AND_FACET_PREFIX, "");
                     tqb = termQuery(DemandeFileEsDTO.TYPE_FIELD, DemandeFileEsDTO.TYPE.COMPLEMENT.name());
                     boolQueryBuilder.must(hasChildQuery(DemandeFileEsDTO.INDEX_FILES_JOIN_DOC, tqb, ScoreMode.Avg));
                 } else if (searchField.startsWith(FILE_PROPERTIES_PREFIX)) {
                     tqb = termQuery(DemandeFileEsDTO.TYPE_FIELD, DemandeFileEsDTO.TYPE.PIECE_JOINTE.name());
                     boolQueryBuilder.must(hasChildQuery(DemandeFileEsDTO.INDEX_FILES_JOIN_DOC, tqb, ScoreMode.Avg));
                 } else if (searchField.startsWith(INTERNAL_FILE_HIGHLIGHT_AND_FACET_PREFIX)) {
-                    replacedSearchFields.add(searchField.replaceFirst(INTERNAL_FILE_HIGHLIGHT_AND_FACET_PREFIX, ""));
+                    replacedSearchField = searchField.replaceFirst(INTERNAL_FILE_HIGHLIGHT_AND_FACET_PREFIX, "");
                     tqb = termQuery(DemandeFileEsDTO.TYPE_FIELD, DemandeFileEsDTO.TYPE.FICHIER_INTERNE.name());
                     boolQueryBuilder.must(hasChildQuery(DemandeFileEsDTO.INDEX_FILES_JOIN_DOC, tqb, ScoreMode.Avg));
-                } else {
-                    replacedSearchFields.add(searchField);
                 }
-            }
+                replacedSearchFields.add(replacedSearchField);
+             }
         }
 
         boolQueryBuilder = boolQueryBuilder.minimumShouldMatch(1);

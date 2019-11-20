@@ -333,7 +333,7 @@
             }
 
             var textEncoded = encodeURIComponent(text);
-            var url = APP.getContextPath()+"/ws/demandes/pageable?texte="+textEncoded+"&canal=COURRIER&searchFields=fichierinterne.fichiers.name&searchFields=identifiant" +
+            var url = APP.getContextPath()+"/ws/demandes/pageable?texte="+textEncoded+"&canal=COURRIER&canal=GUICHET_PHYSIQUE&searchFields=fichierinterne.fichiers.name&searchFields=identifiant" +
                 "&searchFields=courrierDateReception&searchFields=dernierStatut.libelle&searchFields=fichierinterne.fichiers.content";
             $.ajax({
                 url : url,

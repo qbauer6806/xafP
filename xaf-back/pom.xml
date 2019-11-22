@@ -99,7 +99,6 @@
 					<groupId>commons-beanutils</groupId>
 					<artifactId>commons-beanutils</artifactId>
 				</exclusion>
-
 			</exclusions>
 		</dependency>
 
@@ -227,6 +226,13 @@
 			<artifactId>openhtmltopdf-pdfbox</artifactId>
 			<version>${openhtml.version}</version>
 		</dependency>
+		
+		<dependency>
+	  	    <!-- logs via slf4j. -->
+	  		<groupId>com.openhtmltopdf</groupId>
+	  		<artifactId>openhtmltopdf-slf4j</artifactId>
+	  		<version>${openhtml.version}</version>
+	  	</dependency>
 
 		<!-- Fin HTML to PDF -->
 

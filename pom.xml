@@ -14,7 +14,7 @@
 		<tika.version>1.18</tika.version>
 		<!-- Librairie pour générer le fichier récap. d'une demande (sous license 
 			LGPL). -->
-		<openhtml.version>1.0.0</openhtml.version>
+		<openhtml.version>1.0.1</openhtml.version>
 	</properties>
 
 	<groupId>mc.gouv.xaf</groupId>

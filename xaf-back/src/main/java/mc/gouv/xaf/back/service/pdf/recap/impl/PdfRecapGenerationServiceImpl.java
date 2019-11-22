@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.net.URL;
 import java.util.Date;
 
 import org.slf4j.Logger;
@@ -15,6 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
+import com.openhtmltopdf.slf4j.Slf4jLogger;
+import com.openhtmltopdf.util.XRLog;
 
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemandeRecapHTMLService;
@@ -92,11 +95,20 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
 
         LOGGER.info("Conversion du code HTML en PDF...");
         File pdfDest = createTempFile("Demande_" + demande.getIdentifiant() + "_");
-
+        
+        LOGGER.info("Open HTML To PDF setup du logger");        
+        XRLog.setLoggingEnabled(true);
+        XRLog.setLoggerImpl(new Slf4jLogger());
+        
         try {
+            URL path = this.getClass().getResource("/pdfrecap/fonts/SourceSansPro-Light.ttf");
+            LOGGER.info("Chargement de la font à l'adresse: {}", path);
+            File font = new File(path.getFile());
+            
             OutputStream os = new FileOutputStream(pdfDest);
             PdfRendererBuilder builder = new PdfRendererBuilder();
             builder.useFastMode();
+            builder.useFont(font, "SourceSansPro");
             builder.withFile(htmlSource);
             builder.toStream(os);
             builder.run();

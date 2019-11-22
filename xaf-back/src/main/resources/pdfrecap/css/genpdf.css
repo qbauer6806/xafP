@@ -27,6 +27,10 @@
 	height: auto;
 }
 
+body {
+	font-family: 'SourceSansPro';
+}
+
 table {
 	width: 100%;
 	border-collapse: collapse;

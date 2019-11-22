@@ -11,31 +11,22 @@
     <artifactId>xaf-apiclient</artifactId>
 
     <dependencies>
-        <!-- acces au fournisseur de service rest -->
-        <dependency>
-            <groupId>org.glassfish.jersey.core</groupId>
-            <artifactId>jersey-client</artifactId>
-            <version>2.22.1</version>
-        </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.ext</groupId>
             <artifactId>jersey-bean-validation</artifactId>
             <version>2.22.1</version>
         </dependency>
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>2.7.1</version>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.jaxrs</groupId>
             <artifactId>jackson-jaxrs-json-provider</artifactId>
-            <version>2.7.1</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
-            <version>2.7.1</version>
         </dependency>
         <dependency>
             <groupId>commons-codec</groupId>
@@ -51,13 +42,10 @@
             <groupId>mc.gouv.xboot</groupId>
             <artifactId>xboot-apiclient</artifactId>
         </dependency>
-
         <dependency>
             <groupId>mc.gouv.xaf</groupId>
             <artifactId>xaf-shared</artifactId>
             <version>7.0.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
-
-
 </project>

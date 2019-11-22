@@ -14,7 +14,7 @@
 		<tika.version>1.18</tika.version>
 		<!-- Librairie pour générer le fichier récap. d'une demande (sous license 
 			LGPL). -->
-		<openhtml.version>1.0.0</openhtml.version>
+		<jackson.version>2.9.10</jackson.version>
 	</properties>
 
 	<groupId>mc.gouv.xaf</groupId>
@@ -39,14 +39,6 @@
         <module>xaf-shared</module>
     </modules>
 
-	<dependencies>
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-compress</artifactId>
-			<version>1.18</version>
-		</dependency>
-	</dependencies>
-
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
@@ -59,6 +51,30 @@
 						<artifactId>cxf-rt-rs-client</artifactId>
 					</exclusion>
 				</exclusions>
+			</dependency>
+
+			<dependency>
+				<groupId>org.apache.commons</groupId>
+				<artifactId>commons-compress</artifactId>
+				<version>1.19</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-databind</artifactId>
+				<version>${jackson.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.fasterxml.jackson.jaxrs</groupId>
+				<artifactId>jackson-jaxrs-json-provider</artifactId>
+				<version>${jackson.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-annotations</artifactId>
+				<version>${jackson.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

@@ -20,17 +20,10 @@ import java.util.stream.Collectors;
 import javax.jms.JMSException;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import javax.persistence.criteria.Subquery;
+import javax.persistence.criteria.*;
 
 import mc.gouv.xaf.back.service.utils.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.jdal.dao.jpa.JpaUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,14 +53,12 @@ import mc.gouv.xaf.back.data.entity.AccessBO;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandesComplementsBO;
 import mc.gouv.xaf.back.data.entity.DemandesComplementsFilesBO;
-import mc.gouv.xaf.back.data.entity.DemandesCourriersBO;
 import mc.gouv.xaf.back.data.entity.DemandesDataBO;
 import mc.gouv.xaf.back.data.entity.DemandesFilesBO;
 import mc.gouv.xaf.back.data.entity.DemandesHistoriqueBO;
 import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
 import mc.gouv.xaf.back.data.transformer.DemandesComplementsFilesTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesComplementsTransformer;
-import mc.gouv.xaf.back.data.transformer.DemandesCourriersTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesDataTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesFilesTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesStatutsTransformer;
@@ -83,7 +74,6 @@ import mc.gouv.xaf.shared.dto.DataRechercheDTO;
 import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
 import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
 import mc.gouv.xaf.shared.dto.DemandeComplementsFileDTO;
-import mc.gouv.xaf.shared.dto.DemandeCourrierDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeDataDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
@@ -943,8 +933,6 @@ public class DemandesServiceImpl implements DemandesService {
             select = cquery.select(root).where(builder.and(pAttributs));
         }
 
-        Long count = JpaUtils.count(em, select);
-
         // Ajout du order
         if (pageable.getSort() != null) {
             Order order = pageable.getSort().iterator().next();
@@ -970,6 +958,7 @@ public class DemandesServiceImpl implements DemandesService {
         }
 
         TypedQuery<DemandeBO> typedQuery = em.createQuery(select);
+        int count = typedQuery.getResultList().size();
 
         typedQuery.setFirstResult((pageable.getPageNumber()) * pageable.getPageSize());
         typedQuery.setMaxResults(pageable.getPageSize());

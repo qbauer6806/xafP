@@ -108,7 +108,10 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
             OutputStream os = new FileOutputStream(pdfDest);
             PdfRendererBuilder builder = new PdfRendererBuilder();
             builder.useFastMode();
-            builder.useFont(font, "SourceSansPro");
+            
+            // Ligne pour ajouter une font (erreur sur le serveur, impossible de charger le fichier)
+            // builder.useFont(font, "SourceSansPro");
+            
             builder.withFile(htmlSource);
             builder.toStream(os);
             builder.run();

@@ -12,8 +12,6 @@
 	<properties>
 		<servicerest_client.version>2.2.15</servicerest_client.version>
 		<tika.version>1.18</tika.version>
-		<!-- Librairie pour générer le fichier récap. d'une demande (sous license 
-			LGPL). -->
 		<jackson.version>2.9.10</jackson.version>
 	</properties>
 

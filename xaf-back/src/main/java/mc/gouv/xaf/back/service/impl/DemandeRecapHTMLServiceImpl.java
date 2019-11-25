@@ -81,7 +81,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 
         // Numéro de la demande
         htmlBuilder.append("<dl><dt><span>Numéro de la demande</span></dt><dd><span>");
-        htmlBuilder.append(demande.getIdentifiant());
+        htmlBuilder.append(escape(demande.getIdentifiant(), true));
         htmlBuilder.append("</span></dd>");
 
         // Date de transmission/dépôt
@@ -102,7 +102,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 
         // Langue
         htmlBuilder.append("<dt><span>Langue</span></dt><dd><span>");
-        htmlBuilder.append(demande.getLangue());
+        htmlBuilder.append(escape(demande.getLangue(), true));
         htmlBuilder.append("</span></dd>");
 
         // Canal
@@ -135,7 +135,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 
             // Motif
             htmlBuilder.append("<dt><span>Motif</span></dt><dd><span>");
-            htmlBuilder.append(motifsCache.getMotif(question.getCodeMotif(), "fr").getLibelle());
+            htmlBuilder.append(escape(motifsCache.getMotif(question.getCodeMotif(), "fr").getLibelle(), true));
             htmlBuilder.append("</span></dd>");
 
             // Texte
@@ -145,7 +145,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 
             // Agent
             htmlBuilder.append("<dt><span>Agent</span></dt><dd><span>");
-            htmlBuilder.append(utilisateursUtils.getUserNameFromID(question.getAgentId()));
+            htmlBuilder.append(escape(utilisateursUtils.getUserNameFromID(question.getAgentId()), true));
             htmlBuilder.append("</span></dd></dl>");
 
             htmlBuilder.append("</div><div class=\"rep-usager\">");

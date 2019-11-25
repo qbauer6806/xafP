@@ -12,7 +12,9 @@
 	<properties>
 		<activiti.version>5.23.0</activiti.version>
 		<logon-apiclient.version>5.2.2</logon-apiclient.version>
-		<openhtml.version>1.0.0</openhtml.version>
+		<!-- Librairie pour generer le fichier recap d'une demande (sous license 
+			LGPL). -->
+		<openhtml.version>1.0.1</openhtml.version>
 		<pdfbox.version>2.0.15</pdfbox.version>
 	</properties>
 
@@ -214,6 +216,13 @@
 			<artifactId>openhtmltopdf-pdfbox</artifactId>
 			<version>${openhtml.version}</version>
 		</dependency>
+		
+		<dependency>
+	  	    <!-- logs via slf4j. -->
+	  		<groupId>com.openhtmltopdf</groupId>
+	  		<artifactId>openhtmltopdf-slf4j</artifactId>
+	  		<version>${openhtml.version}</version>
+	  	</dependency>
 
 		<!-- Fin HTML to PDF -->
 

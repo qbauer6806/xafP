@@ -27,7 +27,10 @@ public class MotifsFormBean {
     @Size(min = 0, max = 256, message = "Le libellé en Anglais doit avoir une taille comprise entre 0 et 256")
     private String libelleEn;
 
+    @Size(min = 0, max = 1500, message = "Le commentaire en Français doit avoir une taille comprise entre 0 et 1500")
     private String commentairePrerempliFr;
+
+    @Size(min = 0, max = 1500, message = "Le commentaire en Anglais doit avoir une taille comprise entre 0 et 1500")
     private String commentairePrerempliEn;
 
     private String texteAEnvoyerFr;

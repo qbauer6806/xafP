@@ -261,6 +261,10 @@
 					<groupId>org.apache.cxf</groupId>
 					<artifactId>cxf-rt-rs-client</artifactId>
 				</exclusion>
+				<exclusion>
+					<groupId>xerces</groupId>
+					<artifactId>xercesImpl</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>

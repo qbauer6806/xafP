@@ -9,11 +9,15 @@ import org.elasticsearch.plugins.Plugin;
 
 public class EsNode extends Node {
 
-    public EsNode(Settings preparedSettings, Collection<Class<? extends Plugin>> classpathPlugins) {
-        super(InternalSettingsPreparer.prepareEnvironment(preparedSettings, null), classpathPlugins);
+    EsNode(Settings preparedSettings, Collection<Class<? extends Plugin>> classpathPlugins) {
+        super(InternalSettingsPreparer.prepareEnvironment(preparedSettings, null), classpathPlugins, false);
     }
 
     public EsNode(Settings preparedSettings) {
         super(InternalSettingsPreparer.prepareEnvironment(preparedSettings, null));
+    }
+
+    @Override
+    protected void registerDerivedNodeNameWithLogger(String s) {
     }
 }

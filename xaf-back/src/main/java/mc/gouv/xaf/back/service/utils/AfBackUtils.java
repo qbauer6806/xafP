@@ -1,5 +1,6 @@
 package mc.gouv.xaf.back.service.utils;
 
+import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -151,8 +152,8 @@ public class AfBackUtils {
         List<HttpMessageConverter<?>> list = new ArrayList<HttpMessageConverter<?>>();
         MappingJackson2HttpMessageConverter conv = new MappingJackson2HttpMessageConverter();
         List<MediaType> mediaTypes = new ArrayList<MediaType>();
-        mediaTypes.add(new MediaType("application", "json", MappingJackson2HttpMessageConverter.DEFAULT_CHARSET));
-        mediaTypes.add(new MediaType("text", "html", MappingJackson2HttpMessageConverter.DEFAULT_CHARSET));
+        mediaTypes.add(new MediaType("application", "json", StandardCharsets.UTF_8));
+        mediaTypes.add(new MediaType("text", "html", StandardCharsets.UTF_8));
         conv.setSupportedMediaTypes(mediaTypes);
         list.add(conv);
         restTemplate.setMessageConverters(list);

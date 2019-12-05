@@ -3,6 +3,7 @@ package mc.gouv.xaf.back.service.data.impl;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,8 +72,8 @@ public class DemFileServiceImpl implements DemFileService {
                 MappingJackson2HttpMessageConverter conv = new MappingJackson2HttpMessageConverter();
                 List<MediaType> mediaTypes = new ArrayList<MediaType>();
                 mediaTypes
-                        .add(new MediaType("application", "json", MappingJackson2HttpMessageConverter.DEFAULT_CHARSET));
-                mediaTypes.add(new MediaType("text", "html", MappingJackson2HttpMessageConverter.DEFAULT_CHARSET));
+                        .add(new MediaType("application", "json", StandardCharsets.UTF_8));
+                mediaTypes.add(new MediaType("text", "html", StandardCharsets.UTF_8));
                 conv.setSupportedMediaTypes(mediaTypes);
                 list.add(conv);
                 restTemplate.setMessageConverters(list);

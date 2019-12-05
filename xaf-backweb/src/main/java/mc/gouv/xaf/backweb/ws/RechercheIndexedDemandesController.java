@@ -142,7 +142,7 @@ public class RechercheIndexedDemandesController extends AbstractController {
             }
             newDemandes.add(newDem);
         }
-        Pageable newPageable = new PageRequest(demandes.getNumber(), demandes.getSize(), demandes.getSort());
+        Pageable newPageable = PageRequest.of(demandes.getNumber(), demandes.getSize(), demandes.getSort());
         return new PageImpl<>(newDemandes, newPageable, demandes.getTotalElements());
     }
 

@@ -27,6 +27,12 @@
 	height: auto;
 }
 
+/* CSS pour ajouter une font
+body {
+	font-family: 'SourceSansPro';
+}
+*/
+
 table {
 	width: 100%;
 	border-collapse: collapse;

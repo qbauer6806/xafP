@@ -1187,6 +1187,11 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                                 response.getHits().getTotalHits());
                     }
 
+                    @Override
+                    public <T> T mapSearchHit(SearchHit searchHit, Class<T> type) {
+                        return null;
+                    }
+
                 });
 
     }

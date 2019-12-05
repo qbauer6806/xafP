@@ -146,20 +146,24 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
             // Agent
             htmlBuilder.append("<dt><span>Agent</span></dt><dd><span>");
             htmlBuilder.append(escape(utilisateursUtils.getUserNameFromID(question.getAgentId()), true));
-            htmlBuilder.append("</span></dd></dl>");
-
-            htmlBuilder.append("</div><div class=\"rep-usager\">");
-            htmlBuilder.append("<span>Réponse de l'usager</span>");
-
-            // Date
-            htmlBuilder.append("<dl><dt><span>Date</span></dt><dd><span>");
-            htmlBuilder.append(dateHeureFormat.format(reponse.getDate()));
-            htmlBuilder.append("</span></dd>");
-
-            // Texte
-            htmlBuilder.append("<dt><span>Texte</span></dt><dd><span>");
-            htmlBuilder.append(escape(reponse.getTexte(), true));
             htmlBuilder.append("</span></dd></dl></div>");
+            
+            if (null != reponse) {
+                htmlBuilder.append("<div class=\"rep-usager\">");
+                htmlBuilder.append("<span>Réponse de l'usager</span>");
+                // Date
+                Date reponseDate = reponse.getDate();
+                htmlBuilder.append("<dl><dt><span>Date</span></dt><dd><span>");
+                if (null != reponseDate) {
+                    htmlBuilder.append(dateHeureFormat.format(reponseDate));
+                }
+                htmlBuilder.append("</span></dd>");
+
+                // Texte
+                htmlBuilder.append("<dt><span>Texte</span></dt><dd><span>");
+                htmlBuilder.append(escape(reponse.getTexte(), true));
+                htmlBuilder.append("</span></dd></dl></div>");
+            }
         }
 
         return htmlBuilder.toString();

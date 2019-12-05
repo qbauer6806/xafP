@@ -1,9 +1,8 @@
 package mc.gouv.xaf.backweb.formbean;
 
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-
-import org.hibernate.validator.constraints.NotBlank;
 
 /**
  * Formulaire pour les usagers courrier
@@ -24,7 +23,7 @@ public class UsagerCourrierFormBean {
     @Size(min = 0, max = 100, message = "La raison sociale doit avoir une taille comprise entre 0 et 100")
     private String raisonSociale;
 
-    @NotBlank
+    @NotEmpty
     @NotNull(message = "L’adresse doit être précisée")
     @Size(min = 1, max = 128, message = "L’adresse doit avoir une taille comprise entre 1 et 128")
     private String adresse1;
@@ -35,12 +34,12 @@ public class UsagerCourrierFormBean {
     @Size(min = 0, max = 128, message = "Le complément d’adresse doit avoir une taille comprise entre 0 et 128")
     private String adresseComplement;
 
-    @NotBlank
+    @NotEmpty
     @NotNull(message = "Le code postal doit être précisé")
     @Size(min = 1, max = 10, message = "Le code postal doit avoir une taille comprise entre 1 et 10")
     private String codePostal;
 
-    @NotBlank
+    @NotEmpty
     @NotNull(message = "La ville doit être précisée")
     @Size(min = 1, max = 50, message = "La ville doit avoir une taille comprise entre 1 et 50")
     private String ville;
@@ -51,7 +50,7 @@ public class UsagerCourrierFormBean {
     @Size(min = 0, max = 256, message = "L’adresse email doit avoir une taille comprise entre 0 et 256")
     private String email;
 
-    @NotBlank(message = "Le pays doit être précisé")
+    @NotEmpty(message = "Le pays doit être précisé")
     private String paysChoisi;
 
     public String getNom() {

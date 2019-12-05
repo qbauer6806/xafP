@@ -1,8 +1,7 @@
 package mc.gouv.xaf.backweb.formbean;
 
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
-
-import org.hibernate.validator.constraints.NotBlank;
 
 /**
  * Formulaire pour les demandes courrier
@@ -14,16 +13,16 @@ public class DemandesCourrierFormBean {
 
 	private Integer usagerId;
 
-	@NotBlank
+	@NotEmpty
 	private String dateReception;
 
     @Size(min = 0, max = 128, message = "La référence interne ne peut contenir plus de 128 caractères")
     private String refInterne;
 
-	@NotBlank
+    @NotEmpty
 	private String canal;
 
-	@NotBlank
+    @NotEmpty
 	private String langue;
 
 	public Integer getUsagerId() {

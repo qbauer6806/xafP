@@ -1,8 +1,7 @@
 package mc.gouv.xaf.backweb.formbean;
 
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-
-import org.hibernate.validator.constraints.NotBlank;
 
 /**
  * Formulaire pour le preview des emails
@@ -12,7 +11,7 @@ import org.hibernate.validator.constraints.NotBlank;
  */
 public class MailPreviewFormBean {
 
-	@NotBlank
+    @NotEmpty
 	private String action;
 
 	private String codeMotifChoisi;

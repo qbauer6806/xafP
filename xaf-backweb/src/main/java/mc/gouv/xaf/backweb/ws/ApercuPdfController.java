@@ -1,28 +1,29 @@
 package mc.gouv.xaf.backweb.ws;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletResponse;
-
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.back.service.pdf.PdfGenerationService;
+import mc.gouv.xaf.back.service.pdf.PdfTypeEnum;
+import mc.gouv.xaf.backweb.controller.AbstractController;
+import mc.gouv.xaf.backweb.formbean.PdfPreviewFormBean;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.data.DemandesService;
-import mc.gouv.xaf.back.service.pdf.PdfGenerationService;
-import mc.gouv.xaf.back.service.pdf.PdfTypeEnum;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.xaf.backweb.controller.AbstractController;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 
 /**
  * Controller pour le service de génération d'aperçu PDF
@@ -48,16 +49,19 @@ public class ApercuPdfController extends AbstractController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ApercuPdfController.class);
 
-    @RequestMapping(method = RequestMethod.GET, value = "/apercu")
+
+    @RequestMapping(method = RequestMethod.POST, value = "/apercu", produces = MediaType.APPLICATION_PDF_VALUE)
     public void apercuPdf(HttpServletResponse response,
-                          @RequestParam(required = true) String pkDemande,
-                          @RequestParam(required = false) String commentaire,
-                          @RequestParam(required = false) String texteAEnvoyer,
-                          @RequestParam(required = true) String statut, @RequestParam(required = false) String langue,
-                          @RequestParam(required = false) String codeMotif,
-                          @RequestParam(required = false, defaultValue = COURRIER_TYPE) PdfTypeEnum pdfType) {
+                          @Valid @RequestBody PdfPreviewFormBean pdfPreviewFormBean) {
 
         LOGGER.info("======================= /pdf/apercu Génération d'aperçu PDF");
+
+        String statut = pdfPreviewFormBean.getAction();
+        String codeMotif = pdfPreviewFormBean.getCodeMotifChoisi();
+        Integer pkDemande = pdfPreviewFormBean.getPkDemande();
+        String commentaire = pdfPreviewFormBean.getCommentaire();
+        String texteAEnvoyer = pdfPreviewFormBean.getTexteAEnvoyer();
+        PdfTypeEnum pdfType = pdfPreviewFormBean.getPdfType();
 
         DemandeDTO demande = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(),
                 Integer.valueOf(pkDemande));

@@ -1,6 +1,5 @@
 package mc.gouv.xaf.backweb.formbean;
 
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -9,9 +8,9 @@ import javax.validation.constraints.NotNull;
  * @author mboutelier.ext
  *
  */
-public class MailPreviewFormBean {
+public class PreviewFormBean {
 
-    @NotEmpty
+	@NotNull
 	private String action;
 
 	private String codeMotifChoisi;

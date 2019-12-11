@@ -3,7 +3,6 @@ package mc.gouv.xaf.backweb.formbean;
 import javax.validation.constraints.NotNull;
 
 import mc.gouv.xaf.back.service.pdf.PdfTypeEnum;
-import org.hibernate.validator.constraints.NotBlank;
 
 /**
  * Formulaire pour le preview des emails

@@ -64,9 +64,18 @@
 				</div>
 
 				<div class="row">
+<<<<<<< HEAD
+					<form id="form-courrier" method="post" th:action="@{''}"
+						th:object="${demandesCourrierFormBean}" text-align="center">
+||||||| refs #16178 - Identifier les dépendances externes à risque et MAJ
+					<form id="form-courrier"  method="post"
+						th:action="@{''}" th:object="${demandesCourrierFormBean}"
+						text-align="center">
+=======
 					<form id="form-courrier"  method="post" target="_blank"
 						th:action="@{''}" th:object="${demandesCourrierFormBean}"
 						text-align="center">
+>>>>>>> v7.1.0
 
 						<div class="col-xs-12">
 							<span class="titre">Création de la demande</span>

@@ -34,11 +34,14 @@
 										<form id="infos-demande" action="${symbol_pound}"
 											th:action="@{/demandes/infosAdministration}" method="post">
 											<div class="row">
-												<div class="col-xs-12">
+												<div id="observation-adminFormGroup" class="col-xs-12 form-group">
 													<label for="observation-admin">OBSERVATIONS</label>
-													<textarea id="observation-admin" class="form-control"
+													<textarea class="form-control greyTooltip"
+														oninput="checkObservationValidity()" data-toggle="tooltip"
+														data-placement="bottom" id="observation-admin"
+														title="Le champ Observation est limité à 1500 caractères"
 														th:field="${symbol_dollar}{traitementFormBean.observations}"
-														th:disabled="!${symbol_dollar}{isObservationPanelActive}" ></textarea>
+														th:disabled="!${symbol_dollar}{isObservationPanelActive}"></textarea>
 												</div>
 											</div>
 											<div class="row mt-15">

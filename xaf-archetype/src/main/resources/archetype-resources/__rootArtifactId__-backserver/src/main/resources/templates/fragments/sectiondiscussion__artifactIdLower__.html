@@ -57,12 +57,16 @@
 
 
 										<div class="row">
-											<div class="col-xs-12">
+											<div id="com-interne-inputFormGroup" class="col-xs-12 form-group">
 												<label for="com-interne-input">AJOUTER UN
-													COMMENTAIRE</label> <input type="text" class="form-control"
+													COMMENTAIRE</label> 
+												<textarea class="form-control greyTooltip"
+													oninput="checkCommentaireDiscussionValidity()"
+													data-toggle="tooltip" data-placement="bottom"
+													title="Commentaire limité à 140 caractères"
 													th:field="${symbol_dollar}{traitementFormBean.commentaireInterne}"
 													id="com-interne-input"
-													th:disabled="!${symbol_dollar}{isDiscussionPanelActive}" />
+													th:disabled="!${symbol_dollar}{isDiscussionPanelActive}"></textarea>
 											</div>
 
 										</div>

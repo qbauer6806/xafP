@@ -101,7 +101,7 @@
                                         <span class="titre">Commentaire (envoyé à l'usager) :</span>
                                         <textarea id="commentaireUsager"
                                                   class="form-control greyTooltip"
-                                                  oninput="checkCommentaireLength('${symbol_pound}commentaireUsager')"
+                                                  oninput="checkTraitementFormValidity()"
                                                   data-toggle="tooltip" data-placement="bottom"
                                                   title="Commentaire limité à 1500 caractères"
                                                   th:disabled="!${symbol_dollar}{isMotifActive}"
@@ -161,7 +161,7 @@
 													complémentaires à la place de l'usager</span>
 											<textarea id="commentaireReponse"
 												class="form-control greyTooltip" name="commentaireReponse"
-												oninput="checkCommentaireLength('${symbol_pound}commentaireReponse')"
+												oninput="checkInfoComplFormValidity()"
 												data-toggle="tooltip" data-placement="bottom"
 												title="Commentaire limité à 1500 caractères"
 												th:disabled="!${symbol_dollar}{${symbol_pound}authorization.expression('hasRole(''ROLE_TRAITEMENT'')')}"></textarea>

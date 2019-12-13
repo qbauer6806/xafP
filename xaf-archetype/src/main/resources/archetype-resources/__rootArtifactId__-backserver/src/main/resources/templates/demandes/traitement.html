@@ -397,31 +397,29 @@
     // Gestion de la taille en fonction de l'entrée utilisateur
     autosize(${symbol_dollar}("${symbol_pound}commentaireUsager"));
     autosize(${symbol_dollar}("${symbol_pound}commentaireReponse"));
-    // Gestion des erreurs pour la taille du texte (limité à 1500 caractères)
-    var checkCommentaireLength = function (commentaireId) {
-    	var isEnAttendValidationHierarchique = /*[[(${symbol_dollar}{isEnAttendValidationHierarchique})]]*/;
-	    var button;
-	    if (commentaireId === '${symbol_pound}commentaireReponse') {
-			button = '${symbol_pound}envoyer-button';
-		} else {
-			button = isEnAttendValidationHierarchique ? '${symbol_pound}valider-button' : "${symbol_pound}traiter-button";
-		}
-        var maxlength = 1500;
-        var val = ${symbol_dollar}(commentaireId).val();
+    autosize(${symbol_dollar}("${symbol_pound}com-interne-input"));
+    autosize(${symbol_dollar}("${symbol_pound}observation-admin"));
+	 
+	// Gestion des erreurs générique
+	var checkLengthGeneric = function (commentaireId, maxlength) {
+		var val = ${symbol_dollar}(commentaireId).val();
+		var len = val ? val.length : 0;
+        return showTooltip(commentaireId, len > maxlength);
+	};
+
+	var showTooltip = function(commentaireId, state) {
         var formGroupId = commentaireId + 'FormGroup';
-        var len = val ? val.length : 0;
-        if (len > maxlength) {
-            ${symbol_dollar}(formGroupId).addClass('error');
-            ${symbol_dollar}(button).prop('disabled', true);
-			${symbol_dollar}(commentaireId).tooltip("enable");
-			${symbol_dollar}(commentaireId).tooltip("show");
-		} else {
-            ${symbol_dollar}(formGroupId).removeClass('error');
-            ${symbol_dollar}(button).prop('disabled', false);
-			${symbol_dollar}(commentaireId).tooltip("disable");
-			${symbol_dollar}(commentaireId).tooltip("hide");
-		}
-    }
+        if(state) {
+        	${symbol_dollar}(formGroupId).addClass('error');
+        	${symbol_dollar}(commentaireId).tooltip("enable");
+        	${symbol_dollar}(commentaireId).tooltip("show");
+        } else {
+        	${symbol_dollar}(commentaireId).tooltip("hide");
+        	${symbol_dollar}(formGroupId).removeClass('error');
+        	${symbol_dollar}(commentaireId).tooltip("disable");
+        }
+        return state;
+    };
 
     // Génération de la partie Détails de la demande si besoin
     if (${symbol_dollar}(".dynamictab").length == 1) {
@@ -1009,6 +1007,31 @@
 
         return f.toFixed(2).toString().replace('.',',');
     }
+
+    var checkTraitementFormValidity = function() {
+		var commentaireLengthInvalid = checkLengthGeneric("${symbol_pound}commentaireUsager", 1500);
+		var isEnAttendValidationHierarchique = /*[[(${symbol_dollar}{isEnAttendValidationHierarchique})]]*/;
+		var button = isEnAttendValidationHierarchique ? '${symbol_pound}valider-button' : "${symbol_pound}traiter-button";
+		${symbol_dollar}(button).prop('disabled', commentaireLengthInvalid);
+	};
+ 
+	var checkInfoComplFormValidity = function() {
+		var commentaireReponseLengthInvalid = checkLengthGeneric('${symbol_pound}commentaireReponse', 1500);
+		${symbol_dollar}("${symbol_pound}envoyer-button").prop('disabled', commentaireReponseLengthInvalid);
+	};
+
+	// Gestion des erreurs pour la taille d'un ajout à la discussion 
+	var checkCommentaireDiscussionValidity = function () {
+		var commentaireDiscussionLengthInvalid = checkLengthGeneric('${symbol_pound}com-interne-input', 140);
+		${symbol_dollar}("${symbol_pound}envoyer-commentaire-button").prop('disabled', commentaireDiscussionLengthInvalid);
+	};
+
+	// Gestion des erreurs pour la taille de l'observation 
+	var checkObservationValidity = function () {
+		var observationLengthInvalid = checkLengthGeneric('${symbol_pound}observation-admin', 1500);
+		${symbol_dollar}("${symbol_pound}envoyer-observation-button").prop('disabled', observationLengthInvalid);
+	};
+
     /*]]>*/
 </script>
 

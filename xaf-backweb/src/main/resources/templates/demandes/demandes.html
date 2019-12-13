@@ -389,87 +389,71 @@
 		self.buildSearchDatafunction = buildSearchDatafunction
 		self.facets = {}
 
-		$(document)
-				.ready(
-						function() {
-							// Cacher le tooltip au chargement de la page
-							$("#texteInput").tooltip("hide");
-							$("#texteInput").tooltip("disable");
+		$(document).ready(function() {
+			// Cacher le tooltip au chargement de la page
+			$("#texteInput").tooltip("hide");
+			$("#texteInput").tooltip("disable");
 
-							// Sélection d'une date dans un calendrier
-							$('#creationStartDate, #creationEndDate')
-									.datepicker({
-										format : "dd/mm/yyyy",
-										weekStart : 1,
-										language : "fr",
-										todayHighlight : true
-									});
+			// Sélection d'une date dans un calendrier
+			$('#creationStartDate, #creationEndDate').datepicker({
+				format : "dd/mm/yyyy",
+				weekStart : 1,
+				language : "fr",
+				todayHighlight : true
+			});
 
-							$('.input-group-addon').click(
-									function() {
-										var $input = $(this).closest('div')
-												.find(':input');
-										$input.focus();
-									});
+			$('.input-group-addon').click(function() {
+				var $input = $(this).closest('div').find(':input');
+				$input.focus();
+			});
 
-							$('#rechercherButton1').click(function(e) {
-								e.preventDefault();
-								$('#rechercherButton2').click();
-							});
+			$('#rechercherButton1').click(function(e) {
+				e.preventDefault();
+				$('#rechercherButton2').click();
+			});
 
-							$('#rechercheButton1, #rechercherButton2')
-									.click(
-											function(e) {
-												var textInputLengthInvalid = checkLengthGeneric(
-														'#texteInput', 1500);
-												if (!textInputLengthInvalid) {
-													APP.selectedField = null;
-													$('#datatable-demandes')
-															.DataTable().ajax
-															.reload(null, true);
-													APP.buildFacets();
-												}
-											});
+			$('#rechercheButton1, #rechercherButton2').click(function(e) {
+				var textInputLengthInvalid = checkLengthGeneric('#texteInput', 1500);
+				if (!textInputLengthInvalid) {
+					APP.selectedField = null;
+					$('#datatable-demandes').DataTable().ajax.reload(null, true);
+					APP.buildFacets();
+				}
+			});
 
-							if ($("#texteInput").val() !== '') {
-								APP.buildFacets();
-							}
+			if ($("#texteInput").val() !== '') {
+				APP.buildFacets();
+			}
 
-							configurationDataTable.ajax.data = buildSearchDatafunction;
+			configurationDataTable.ajax.data = buildSearchDatafunction;
 
-							if (typeof searchDefaultSort !== 'undefined') {
-								configurationDataTable.order = searchDefaultSort;
-							}
-							var table = $('#datatable-demandes').DataTable(
-									configurationDataTable);
+			if (typeof searchDefaultSort !== 'undefined') {
+				configurationDataTable.order = searchDefaultSort;
+			}
+			var table = $('#datatable-demandes').DataTable(
+					configurationDataTable);
 
-							$('#tousModeTr').click(function(e) {
-								e.preventDefault();
-								$("input[name='canal']").prop('checked', true);
-							});
+			$('#tousModeTr').click(function(e) {
+				e.preventDefault();
+				$("input[name='canal']").prop('checked', true);
+			});
 
-							$('#aucunModeTr').click(
-									function(e) {
-										e.preventDefault();
-										$("input[name='canal']").prop(
-												'checked', false);
-									});
+			$('#aucunModeTr').click(function(e) {
+				e.preventDefault();
+				$("input[name='canal']").prop('checked', false);
+			});
 
-							$('#tousEtat').click(
-									function(e) {
-										e.preventDefault();
-										$("input[name='statut']").prop(
-												'checked', true);
-									});
+			$('#tousEtat').click(function(e) {
+				e.preventDefault();
+				$("input[name='statut']").prop('checked', true);
+			});
 
-							$('#aucunEtat').click(
-									function(e) {
-										e.preventDefault();
-										$("input[name='statut']").prop(
-												'checked', false);
-									});
+			$('#aucunEtat').click(function(e) {
+				e.preventDefault();
+				$("input[name='statut']").prop('checked', false);
+			});
 
-						});
+		});
 
 		$("body").tooltip({
 			selector : '[data-toggle=tooltip]'

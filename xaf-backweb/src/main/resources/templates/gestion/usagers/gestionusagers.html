@@ -89,27 +89,26 @@
 					<div class="col-xs-12">
 						<span class="titre">Recherche</span>
 						<div class="panel panel-simple">
-							<div class="form-group">
-								<form action="#" th:action="@{/gestion/usagers/rechercher}"
-									method="post">
-									<label for="inputSearch">Par nom d'usager - Par raison
-										sociale - Par adresse</label>
-									<div class="row">
-										<div class="col-xs-11">
-											<input type="text" th:value="${usagerInput}"
-												name="usagerInput" class="form-control" id="inputSearch"
-												title=""></input>
-										</div>
-										<div class="col-xs-1 nopadding">
-											<button type="submit" class="btn btn-action ripple-effect"
-												name="action" value="Rechercher" id="rechercherButton2">
-												<i class="icon-action_chercher"></i>
-											</button>
-										</div>
-
+							<form action="#" th:action="@{/gestion/usagers/rechercher}"
+								method="post" id="searchForm">
+								<div id="inputSearchFormGroup" class="row form-group">
+									<label style="padding-left: 15px;" for="inputSearch">Par
+										nom d'usager - Par raison sociale - Par adresse</label>
+									<div class="col-xs-11">
+										<textarea th:value="${usagerInput}" name="usagerInput"
+											class="form-control greyTooltip" id="inputSearch"
+											data-toggle="tooltip" data-placement="bottom"
+											style="height: 40px;"
+											title="Le champ de recherche est limité à 1500 caractères"></textarea>
 									</div>
-								</form>
-							</div>
+									<div class="col-xs-1 nopadding">
+										<button type="submit" class="btn btn-action ripple-effect"
+											name="action" value="Rechercher" id="rechercherButton2">
+											<i class="icon-action_chercher"></i>
+										</button>
+									</div>
+								</div>
+							</form>
 						</div>
 					</div>
 				</div>
@@ -186,6 +185,7 @@
 	<div
 		th:replace="fragments/selectionusagertransfert :: selectionusagertransfert" />
 
+	<script type="text/javascript" th:src="@{/js/tsgenutils.js}"></script>
 
 	<script th:inline="javascript">
 	/*<![CDATA[*/
@@ -194,11 +194,19 @@
 		var urlTransfert = /*[[@{/gestion/usagers/transferer/}]]*/;
 	
 		$(document).ready(function() {
+			// Cacher le tooltip au chargement de la page
+			$("#inputSearch").tooltip("hide");
+			$("#inputSearch").tooltip("disable");
 
 			$('#rechercherButton1').click(function(e){
 				e.preventDefault();
 				$('#rechercherButton2').click();
 			});
+			
+			document.getElementById('searchForm').onsubmit = function() {
+				var textInputLengthInvalid = checkLengthGeneric('#inputSearch', 1500);
+			    return !textInputLengthInvalid;
+			};
 			
             $(".supprimer-annuler").click(function(e){
                 e.preventDefault();

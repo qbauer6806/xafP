@@ -65,13 +65,16 @@
 
 							<div class="panel panel-simple">
 								<h4 class="titre">Recherche</h4>
-								<div class="form-group">
+								<div id="texteInputFormGroup" class="form-group">
 									<label for="texteInput">Saisissez un terme ou une
 										expression de recherche</label>
 									<div class="row">
 										<div class="col-xs-8">
-											<input type="text" th:value="${texte}" name="texte"
-												class="form-control" id="texteInput" title="" />
+											<textarea th:value="${texte}" name="texte"
+												class="form-control greyTooltip" id="texteInput"
+												data-toggle="tooltip" data-placement="bottom"
+												style="height: 40px;"
+												title="Le champ de recherche est limité à 1500 caractères"></textarea>
 										</div>
 										<div class="col-xs-4 nopadding">
 											<button type="submit" class="btn btn-action ripple-effect"
@@ -322,84 +325,75 @@
 		th:src="@{/recherchedynamicjs/dynamicjs.js}"></script>
 	<div th:replace="fragments/footer :: footer"></div>
 
+	<script type="text/javascript" th:src="@{/js/tsgenutils.js}"></script>
 	<script type="text/javascript" th:inline="javascript">
-	/*<![CDATA[*/
-	
-	
-	
-	
-	
+		/*<![CDATA[*/
+
 		var buildFacetsSerachData = function(params) {
 			if (params === undefined) {
 				params = {}
 			}
-	
+
 			var rechercheParams = $("#rechercheForm").serializeArray();
-	
+
 			$.each(rechercheParams, function(i, o) {
-				var n = o.name,
-					v = o.value;
-	
+				var n = o.name, v = o.value;
+
 				if (v !== '') {
-	
+
 					params[n] = params[n] === undefined ? v : $
-						.isArray(params[n]) ? params[n].concat(v) : [
-						params[n], v ];
+							.isArray(params[n]) ? params[n].concat(v) : [
+							params[n], v ];
 				}
-	
+
 			});
-	
+
 			return params
 		}
-	
+
 		var buildSearchDatafunction = function(params) {
-	
+
 			//Ajout des champs de recherche
 			self.buildFacetsSerachData(params)
-	
+
 			//Suppression de toutes les valeurs renvoyées par datatable
 			params.columns = null;
 			params.search = null;
 			params.searchFields = APP.selectedField
-	
+
 			//conversion des params pour Pageable Spring MVC
 			params.size = params.length;
 			params.page = params.start / params.length;
-			
-			if($("input[name='canal']:checked").length==0)
-			{
-				params.aucunCanal=true;
+
+			if ($("input[name='canal']:checked").length == 0) {
+				params.aucunCanal = true;
 			}
-	
-			if($("input[name='statut']:checked").length==0)
-			{
-				params.aucunStatut=true;
+
+			if ($("input[name='statut']:checked").length == 0) {
+				params.aucunStatut = true;
 			}
-	
-	
+
 			var col = columns[params.order[0].column]
 			if (col.data !== "highlightedField") {
 				var keyword = ""
 				if (col.keyword)
 					keyword = ".keyword"
-				params.sort = columns[params.order[0].column].data + keyword + ","
-				+ params.order[0].dir;
+				params.sort = columns[params.order[0].column].data + keyword
+						+ "," + params.order[0].dir;
 			}
-	
+
 		}
-	
-	
+
 		var self = this
 		self.buildFacetsSerachData = buildFacetsSerachData
 		self.buildSearchDatafunction = buildSearchDatafunction
 		self.facets = {}
-	
-	
-	
+
 		$(document).ready(function() {
-	
-	
-	
+			// Cacher le tooltip au chargement de la page
+			$("#texteInput").tooltip("hide");
+			$("#texteInput").tooltip("disable");
+
 			// Sélection d'une date dans un calendrier
 			$('#creationStartDate, #creationEndDate').datepicker({
 				format : "dd/mm/yyyy",
@@ -407,65 +401,64 @@
 				language : "fr",
 				todayHighlight : true
 			});
-	
+
 			$('.input-group-addon').click(function() {
 				var $input = $(this).closest('div').find(':input');
 				$input.focus();
 			});
-	
+
 			$('#rechercherButton1').click(function(e) {
 				e.preventDefault();
 				$('#rechercherButton2').click();
 			});
-	
+
 			$('#rechercheButton1, #rechercherButton2').click(function(e) {
-				APP.selectedField = null
-				$('#datatable-demandes').DataTable().ajax.reload(null, true);
-				APP.buildFacets()
+				var textInputLengthInvalid = checkLengthGeneric('#texteInput', 1500);
+				if (!textInputLengthInvalid) {
+					APP.selectedField = null;
+					$('#datatable-demandes').DataTable().ajax.reload(null, true);
+					APP.buildFacets();
+				}
 			});
-	
-	
+
 			if ($("#texteInput").val() !== '') {
-				APP.buildFacets()
+				APP.buildFacets();
 			}
-	
-	
+
 			configurationDataTable.ajax.data = buildSearchDatafunction;
-	
-			if(typeof searchDefaultSort !== 'undefined' )
-			{
-				configurationDataTable.order = searchDefaultSort;	
+
+			if (typeof searchDefaultSort !== 'undefined') {
+				configurationDataTable.order = searchDefaultSort;
 			}
-			var table = $('#datatable-demandes').DataTable(configurationDataTable);
-	
+			var table = $('#datatable-demandes').DataTable(
+					configurationDataTable);
+
 			$('#tousModeTr').click(function(e) {
 				e.preventDefault();
 				$("input[name='canal']").prop('checked', true);
 			});
-	
+
 			$('#aucunModeTr').click(function(e) {
 				e.preventDefault();
 				$("input[name='canal']").prop('checked', false);
 			});
-	
+
 			$('#tousEtat').click(function(e) {
 				e.preventDefault();
 				$("input[name='statut']").prop('checked', true);
 			});
-	
+
 			$('#aucunEtat').click(function(e) {
 				e.preventDefault();
 				$("input[name='statut']").prop('checked', false);
 			});
-	
-	
+
 		});
-	
-	
+
 		$("body").tooltip({
 			selector : '[data-toggle=tooltip]'
 		}).tooltip();
-	
+
 		/*]]>*/
 	</script>
 </body>

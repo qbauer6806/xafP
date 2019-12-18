@@ -1,10 +1,10 @@
 package mc.gouv.xaf.backweb.formbean;
 
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.validator.constraints.NotBlank;
 
 /**
  * Formulaire de la page de gestion des motifs
@@ -14,12 +14,12 @@ import org.hibernate.validator.constraints.NotBlank;
  */
 public class MotifsFormBean {
 
-    @NotBlank
+    @NotEmpty
     @NotNull(message = "Le code doit être précisé")
     @Size(min = 3, max = 128, message = "Le code doit avoir une taille comprise entre 3 et 128")
     private String code = null;
 
-    @NotBlank
+    @NotEmpty
     @NotNull(message = "Le libellé en Français doit être précisé")
     @Size(min = 3, max = 256, message = "Le libellé en Français doit avoir une taille comprise entre 3 et 256")
     private String libelleFr;
@@ -27,7 +27,10 @@ public class MotifsFormBean {
     @Size(min = 0, max = 256, message = "Le libellé en Anglais doit avoir une taille comprise entre 0 et 256")
     private String libelleEn;
 
+    @Size(min = 0, max = 1500, message = "Le commentaire en Français doit avoir une taille comprise entre 0 et 1500")
     private String commentairePrerempliFr;
+
+    @Size(min = 0, max = 1500, message = "Le commentaire en Anglais doit avoir une taille comprise entre 0 et 1500")
     private String commentairePrerempliEn;
 
     private String texteAEnvoyerFr;

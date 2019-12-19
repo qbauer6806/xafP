@@ -291,7 +291,7 @@
 
 	<div id="annulerDemandeConfirm" style="display: none">
 		<form method="POST" th:action="@{/demandes/annuler}"
-			id="annulerDemande">
+			id="annulerDemandeForm">
 			<div class="row">
 				<div class="col-xs-12">
 					<div class="row">
@@ -393,6 +393,9 @@
 
     var utilisateurConnecte = /*[[(${symbol_dollar}{utilisateurConnecte})]]*/;
 
+ 	// Valeur pour changer le blocage des champs 
+	var toggleValue = false; 
+
     // Gestion de la zone de texte des commentaires
     // Gestion de la taille en fonction de l'entrée utilisateur
     autosize(${symbol_dollar}("${symbol_pound}commentaireUsager"));
@@ -430,7 +433,6 @@
         });
     }
 
-
     var addDataClicked = function(){
         ${symbol_dollar}("input[type=submit]", ${symbol_dollar}(this).parents("form")).removeAttr("data-clicked");
         ${symbol_dollar}(this).attr("data-clicked", "true");
@@ -448,7 +450,6 @@
         });
 
     }
-
 
     function scrollCommentairesToBottom(){
         if (${symbol_dollar}("${symbol_pound}commentairesInternes").length > 0) {
@@ -639,7 +640,7 @@
 
         // Condition disabled != 'disabled' car il faut empêcher l'action si le bouton est disabled
         // pour cause de manque de droits
-        ${symbol_dollar}("a[id='annulerDemande'][disabled!='disabled']").click(function(e){
+        ${symbol_dollar}("input[id='annulerDemande'][disabled!='disabled']").click(function(e){
             e.preventDefault();
             ${symbol_dollar}.fancybox.open(${symbol_dollar}("${symbol_pound}annulerDemandeConfirm"));
         });
@@ -768,7 +769,8 @@
         }
 
         function executeTraitement(statutChoisi, motifChoisiCode, motifChoisiText, commentaire) {
-
+        	toggleFields(true);
+        	toggleValue = false;
 
             ${symbol_dollar}("${symbol_pound}confirmer-button").addClass("loading");
 
@@ -796,8 +798,12 @@
 								viewport: viewport
 							};
 							page.render(renderContext).then(function () {
-								${symbol_dollar}.fancybox.open(${symbol_dollar}("${symbol_pound}preview-container"), {
-									afterClose: onClosePreview()
+								${symbol_dollar}.fancybox.open({
+									src: '${symbol_pound}preview-container',
+									type: 'inline',
+									opts: {
+										afterClose: onClosePreview
+									}
 								});
 							}, function () {
 								alert("Erreur lors de l'affichage du pdf")
@@ -816,6 +822,7 @@
 							${symbol_dollar}(".valider-preview").click(function (e) {
 								${symbol_dollar}(".valider-preview").prop('disabled', true);
 								e.preventDefault();
+								toggleValue = true;
 								${symbol_dollar}.fancybox.close();
 								mailPreview(statutChoisi, motifChoisiCode, motifChoisiText, commentaire, pkDemande);
 
@@ -848,8 +855,12 @@
 								viewport: viewport
 							};
 							page.render(renderContext).then(function () {
-								${symbol_dollar}.fancybox.open(${symbol_dollar}("${symbol_pound}preview-container"), {
-									afterClose: onClosePreview()
+								${symbol_dollar}.fancybox.open({
+									src: '${symbol_pound}preview-container',
+									type: 'inline',
+									opts: {
+										afterClose: onClosePreview
+									}
 								});
 							}, function () {
 								alert("Erreur lors de l'affichage du pdf")
@@ -868,6 +879,7 @@
 							${symbol_dollar}(".valider-preview").click(function (e) {
 								${symbol_dollar}(".valider-preview").prop('disabled', true);
 								e.preventDefault();
+								toggleValue = true;
 								${symbol_dollar}.fancybox.close();
 								courrierPreview(statutChoisi, motifChoisiCode, motifChoisiText, commentaire, pkDemande);
 
@@ -883,6 +895,7 @@
     });
 
     var courrierPreview = function (statutChoisi, motifChoisiCode, motifChoisiText, commentaire) {
+    	toggleValue = false;
         PDFJS.getDocument(APP.getContextPath() + '/ws/pdf/apercu?pkDemande=' + pkDemande + '&statut=' + statutChoisi + '&commentaire=' + commentaire + '&codeMotif=' + motifChoisiCode).then(function (pdf) {
             pdf.getPage(1).then(function (page) {
 				${symbol_dollar}(".valider-preview").prop('disabled', false);
@@ -900,13 +913,16 @@
                     viewport: viewport
                 };
                 page.render(renderContext).then(function () {
-                    ${symbol_dollar}.fancybox.open(${symbol_dollar}("${symbol_pound}preview-container-second"), {
-						afterClose: onClosePreview()
+                    ${symbol_dollar}.fancybox.open({
+						src: '${symbol_pound}preview-container-second',
+						type: 'inline',
+						opts: {
+							afterClose: onClosePreview
+						}
 					});
                 }, function () {
                     alert("Erreur lors de l'affichage du pdf")
                 });
-                ;
 
                 ${symbol_dollar}(".annuler-preview").unbind();
                 ${symbol_dollar}(".valider-preview").unbind();
@@ -920,6 +936,7 @@
                 ${symbol_dollar}(".valider-preview").click(function (e) {
 					${symbol_dollar}(".valider-preview").prop('disabled', true);
                     e.preventDefault();
+                    toggleValue = true;
                     ${symbol_dollar}.fancybox.close();
                     ${symbol_dollar}("${symbol_pound}confirmer-button").click();
 
@@ -932,6 +949,7 @@
     }
 
     var mailPreview = function (statutChoisi, motifChoisiCode, motifChoisiText, commentaire, pkDemande) {
+    	toggleValue = false;
 		${symbol_dollar}(".valider-preview").prop('disabled', false);
         var token = ${symbol_dollar}("meta[name='_csrf']").attr("content");
         var header = ${symbol_dollar}("meta[name='_csrf_header']").attr("content");
@@ -955,14 +973,17 @@
             success: function (data) {
 				${symbol_dollar}(".valider-preview").prop('disabled', false);
                 ${symbol_dollar}("${symbol_pound}preview-content-second").html(data);
-
-                ${symbol_dollar}.fancybox.open(${symbol_dollar}("${symbol_pound}preview-container-second"),
-                    {
-                        autoSize: false,
+                
+                ${symbol_dollar}.fancybox.open({
+					src: '${symbol_pound}preview-container-second',
+					type: 'inline',
+					opts: {
+						autoSize: false,
                         width: "80%",
                         height: "auto",
-						afterClose: onClosePreview()
-                    });
+						afterClose: onClosePreview
+					}
+				});
 
                 ${symbol_dollar}("${symbol_pound}pdf-canvas-second").remove();
 
@@ -978,6 +999,7 @@
                 ${symbol_dollar}(".valider-preview").click(function (e) {
 					${symbol_dollar}(".valider-preview").prop('disabled', true);
 					e.preventDefault();
+					toggleValue = true;
                     ${symbol_dollar}.fancybox.close();
                     ${symbol_dollar}("${symbol_pound}confirmer-button").click();
                     return false;
@@ -989,8 +1011,8 @@
     }
 
 	onClosePreview = () => {
-		${symbol_dollar}("${symbol_pound}traiter-button").prop('disabled', false);
-		${symbol_dollar}("${symbol_pound}valider-button").prop('disabled', false);
+		// Déverouillage des champs en cas d'annulation 
+		toggleFields(toggleValue); 
 	};
 
     getFloat =(s)=>{
@@ -1032,7 +1054,28 @@
 		${symbol_dollar}("${symbol_pound}envoyer-observation-button").prop('disabled', observationLengthInvalid);
 	};
 
-    /*]]>*/
+	/**  
+	 * Active ou désactive les champs et les boutons. 
+	 */ 
+	var toggleFields = function (newValue) { 
+		// Sélection des actions 
+		var actions = /*[[${symbol_dollar}{actionsDisponibles}]]*/; 
+		for (var i = 0; i < actions.length; i++) { 
+			var action = actions[i]; 
+			$("${symbol_pound}" + action.statut).prop('disabled', newValue); 
+		} 
+ 
+		// Champs de la demande 
+		${symbol_dollar}("${symbol_pound}codeMotifChoisi").prop('disabled', newValue); 
+		${symbol_dollar}("${symbol_pound}commentaireUsager").prop('disabled', newValue); 
+		${symbol_dollar}("${symbol_pound}texteAEnvoyer").prop('disabled', newValue); 
+ 
+		// Boutons 
+		${symbol_dollar}("${symbol_pound}annulerDemande").prop('disabled', newValue); 
+		${symbol_dollar}("${symbol_pound}traiter-button").prop('disabled', newValue); 
+	} 
+ 
+	/*]]>*/
 </script>
 
 </body>

@@ -16,15 +16,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import mc.gouv.mail.apiclient.client.MailClient;
+import mc.gouv.mail.shared.dto.AddressBlockDTO;
+import mc.gouv.mail.shared.dto.MailDTO;
+import mc.gouv.mail.shared.dto.ParamDTO;
 import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.EmailTransformer;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.templates.TemplatesCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.TemplateDTO;
-import mc.gouv.mail.shared.dto.AddressBlockDTO;
-import mc.gouv.mail.shared.dto.MailDTO;
-import mc.gouv.mail.shared.dto.ParamDTO;
 
 /**
  * 
@@ -76,8 +77,8 @@ public class MailServiceImpl implements MailService {
         // Pas de email.setText() ==> on considère que les templates body des démarches sont toujours en HTML !
 
         LOGGER.info("Appel à MAIL pour envoi de l'email...");
-        afBackUtils.getMailClient().sendEmail(email);
-
+        MailClient mailClient = afBackUtils.getMailClient();
+        mailClient.sendEmail(email);
     }
 
     /**

@@ -1,4 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
@@ -12,7 +14,7 @@
 	<properties>
 		<activiti.version>5.23.0</activiti.version>
 		<logon-apiclient.version>5.2.2</logon-apiclient.version>
-		<!-- Librairie pour generer le fichier recap d'une demande (sous license
+		<!-- Librairie pour generer le fichier recap d'une demande (sous license 
 			LGPL). -->
 		<openhtml.version>1.0.1</openhtml.version>
 		<pdfbox.version>2.0.15</pdfbox.version>
@@ -55,12 +57,12 @@
 			<artifactId>java-uuid-generator</artifactId>
 			<version>3.1.4</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-web</artifactId>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-artemis</artifactId>
@@ -70,28 +72,28 @@
 			<groupId>org.apache.activemq</groupId>
 			<artifactId>artemis-jms-server</artifactId>
 		</dependency>
-		
+
 		<dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
-        </dependency>
-        <dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>commons-beanutils</groupId>
 			<artifactId>commons-beanutils</artifactId>
 			<version>1.9.3</version>
 		</dependency>
-		
-        <dependency>
-            <groupId>mc.gouv.xboot</groupId>
-            <artifactId>xboot-spring-starter-data-jpa</artifactId>
-        </dependency>
-        
-        <dependency>
-            <groupId>mc.gouv.xboot</groupId>
-            <artifactId>xboot-spring-starter-api</artifactId>
-        </dependency>
-        
-        <dependency>
+
+		<dependency>
+			<groupId>mc.gouv.xboot</groupId>
+			<artifactId>xboot-spring-starter-data-jpa</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>mc.gouv.xboot</groupId>
+			<artifactId>xboot-spring-starter-api</artifactId>
+		</dependency>
+
+		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-core</artifactId>
 		</dependency>
@@ -220,11 +222,11 @@
 		</dependency>
 
 		<dependency>
-	  	    <!-- logs via slf4j. -->
-	  		<groupId>com.openhtmltopdf</groupId>
-	  		<artifactId>openhtmltopdf-slf4j</artifactId>
-	  		<version>${openhtml.version}</version>
-	  	</dependency>
+			<!-- logs via slf4j. -->
+			<groupId>com.openhtmltopdf</groupId>
+			<artifactId>openhtmltopdf-slf4j</artifactId>
+			<version>${openhtml.version}</version>
+		</dependency>
 
 		<!-- Fin HTML to PDF -->
 
@@ -250,12 +252,22 @@
 					<groupId>xerces</groupId>
 					<artifactId>xercesImpl</artifactId>
 				</exclusion>
+				<exclusion>
+					<groupId>org.apache.cxf</groupId>
+					<artifactId>cxf-rt-rs-client</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.tika</groupId>
 			<artifactId>tika-langdetect</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.cxf</groupId>
+					<artifactId>cxf-rt-rs-client</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -293,7 +305,8 @@
 
 	<dependencyManagement>
 		<dependencies>
-			<!-- CVE-2019-13990 : mettre à jour tika quand celui-ci utilisera cette nouvelle version de quartz-->
+			<!-- CVE-2019-13990 : mettre à jour tika quand celui-ci utilisera cette 
+				nouvelle version de quartz -->
 			<dependency>
 				<groupId>org.quartz-scheduler</groupId>
 				<artifactId>quartz</artifactId>

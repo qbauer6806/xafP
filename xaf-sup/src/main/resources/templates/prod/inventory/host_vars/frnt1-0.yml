@@ -1,6 +1,7 @@
 ---
 ansible_host: ${tscode}-frnt1-0-mgmt
 zabbix_host_name: ${TSFRNTZABBIX}
+zabbix_server: zabbix3-dmz
 
 tcp_checks:
   - name: login-frontserver

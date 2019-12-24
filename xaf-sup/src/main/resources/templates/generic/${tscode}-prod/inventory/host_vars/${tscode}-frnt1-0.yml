@@ -1,3 +1,0 @@
----
-ansible_host: ${tscode}-frnt1-0-mgmt
-zabbix_host_name: 10.64.123.11

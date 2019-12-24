@@ -2,15 +2,12 @@
 
 [as-frontserver]
 ${tscode}-frnt1-3
-${tscode}-frnt2-3
 
 [as-backserver]
 ${tscode}-appl1-3
-${tscode}-appl2-3
 
 [as-apiserver]
 ${tscode}-appl1-3
-${tscode}-appl2-3
 
 [as-shell]
 

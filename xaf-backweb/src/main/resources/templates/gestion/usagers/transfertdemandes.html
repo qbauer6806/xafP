@@ -134,8 +134,7 @@
 												th:value="${demande.pkDemandes}" name="checkedDemandes" />
 												<input th:if="${transfererSupprimer}" type="hidden"
 												th:value="${demande.pkDemandes}" name="checkedDemandes" /></td>
-											<td><a
-												th:href="@{/demandes/}+${demande.pkDemandes}"><span
+											<td><a th:href="@{/demandes/}+${demande.pkDemandes}"><span
 													class="identifiant-demande"
 													th:text="${demande.identifiant}" /></a></td>
 											<td
@@ -248,10 +247,15 @@
 	    	$("#rechercherAutreUsager").click(function(e) {
 	    		e.preventDefault();
 
-	            $.fancybox.open($("#transferer-box"), {
-	            	   afterShow :function(){},
-	            	   minWidth : 1000
-	           	});
+	    		$.fancybox.open({
+	        		src: '#transferer-box',
+	        		type: 'inline',
+	        		opts: {
+	        			autoSize: false,
+	        			minWidth : 1000,
+	        			height: "auto",
+	        		}
+	        	});
 
 	            $('#autocomplete').val('');
 

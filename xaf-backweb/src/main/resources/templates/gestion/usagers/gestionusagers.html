@@ -232,10 +232,15 @@
 
  	    		urlTransfert = urlTransfertSuppression;
 
-	            $.fancybox.open($("#supprimer-box"), {
-	            	   afterShow :function(){},
-	            	   minWidth : 600
-	           	});
+	            $.fancybox.open({
+	        		src: '#supprimer-box',
+	        		type: 'inline',
+	        		opts: {
+	        			autoSize: false,
+	        			minWidth : 600,
+	        			height: "auto",
+	        		}
+	        	});
 
 	    		$(".usagerId").val(usagerId);
 
@@ -279,10 +284,15 @@
  	    		var codePostal = $(this).data("codepostal");
  	    		var ville = $(this).data("ville");
  
-	            $.fancybox.open($("#transferer-box"), {
-	            	   afterShow :function(){},
-	            	   minWidth : 1000
-	           	});
+ 	    		$.fancybox.open({
+	        		src: '#transferer-box',
+	        		type: 'inline',
+	        		opts: {
+	        			autoSize: false,
+	        			minWidth : 1000,
+	        			height: "auto",
+	        		}
+	        	});
 
 	            $('#autocomplete').val('');
 

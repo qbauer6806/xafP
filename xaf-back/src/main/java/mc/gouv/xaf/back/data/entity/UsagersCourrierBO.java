@@ -8,9 +8,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
-
-import org.hibernate.validator.constraints.NotBlank;
 
 /**
  * 
@@ -29,12 +28,12 @@ public class UsagersCourrierBO {
     private Integer pkUsagersCourrier;
 
     @Column(name = "FK_DEMARCHEID", length = 128, nullable = false)
-    @NotBlank
+    @NotEmpty
     @Size(min = 1, max = 128)
     private String demarcheId;
 
     @Column(name = "LOGIN", length = 20, nullable = false)
-    @NotBlank
+    @NotEmpty
     @Size(min = 1, max = 20)
     private String login;
 
@@ -54,7 +53,7 @@ public class UsagersCourrierBO {
     private String raisonSociale;
 
     @Column(name = "ADRESSE1", length = 128, nullable = false)
-    @NotBlank
+    @NotEmpty
     @Size(min = 1, max = 128)
     private String adresse1;
 
@@ -67,17 +66,17 @@ public class UsagersCourrierBO {
     private String adresseComplement;
 
     @Column(name = "CODE_POSTAL", length = 10, nullable = false)
-    @NotBlank
+    @NotEmpty
     @Size(min = 1, max = 10)
     private String codePostal;
 
     @Column(name = "VILLE", length = 50, nullable = false)
-    @NotBlank
+    @NotEmpty
     @Size(min = 1, max = 50)
     private String ville;
 
     @Column(name = "PAYS", length = 2, nullable = false)
-    @NotBlank
+    @NotEmpty
     @Size(min = 2, max = 2)
     private String pays;
 

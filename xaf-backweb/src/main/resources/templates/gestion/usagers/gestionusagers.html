@@ -39,7 +39,6 @@
 
 		<div th:replace="fragments/sidebar :: sidebar"></div>
 
-
 		<!-- DEBUT CONTENU -->
 		<div id="page-content-wrapper">
 
@@ -95,11 +94,9 @@
 									<label style="padding-left: 15px;" for="inputSearch">Par
 										nom d'usager - Par raison sociale - Par adresse</label>
 									<div class="col-xs-11">
-										<textarea th:value="${usagerInput}" name="usagerInput"
-											class="form-control greyTooltip" id="inputSearch"
-											data-toggle="tooltip" data-placement="bottom"
-											style="height: 40px;"
-											title="Le champ de recherche est limité à 1500 caractères"></textarea>
+										<input type="text" th:value="${usagerInput}"
+											name="usagerInput" class="form-control" id="inputSearch"
+											maxlength="160"></input>
 									</div>
 									<div class="col-xs-1 nopadding">
 										<button type="submit" class="btn btn-action ripple-effect"
@@ -178,12 +175,11 @@
 
 	<!-- Template Suppression -->
 
-	<div th:replace="fragments/supprimerusager :: supprimerusager" />
+	<div th:replace="fragments/supprimerusager :: supprimerusager"></div>
 
 
 	<!-- Template selection transfert -->
-	<div
-		th:replace="fragments/selectionusagertransfert :: selectionusagertransfert" />
+	<div th:replace="fragments/selectionusagertransfert :: selectionusagertransfert"></div>
 
 	<script type="text/javascript" th:src="@{/js/tsgenutils.js}"></script>
 
@@ -202,12 +198,7 @@
 				e.preventDefault();
 				$('#rechercherButton2').click();
 			});
-			
-			document.getElementById('searchForm').onsubmit = function() {
-				var textInputLengthInvalid = checkLengthGeneric('#inputSearch', 1500);
-			    return !textInputLengthInvalid;
-			};
-			
+
             $(".supprimer-annuler").click(function(e){
                 e.preventDefault();
             	$.fancybox.close();

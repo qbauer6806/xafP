@@ -238,7 +238,7 @@
 	        		opts: {
 	        			autoSize: false,
 	        			minWidth : 600,
-	        			height: "auto",
+	        			height: "auto"
 	        		}
 	        	});
 
@@ -291,6 +291,9 @@
 	        			autoSize: false,
 	        			minWidth : 1000,
 	        			height: "auto",
+	        			afterClose: function () {
+	        				$('.autocomplete-suggestions').hide();
+	        			}
 	        		}
 	        	});
 

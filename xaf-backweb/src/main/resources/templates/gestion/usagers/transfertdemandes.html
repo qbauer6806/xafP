@@ -48,15 +48,15 @@
 		<div id="page-content-wrapper">
 
 			<div class="breadcrumbContent">
-				<ol class="breadcrumb">
+				<div class="breadcrumb">
 					<span><a th:href="@{/}" class="breadcrumb-link">ACCUEIL</a>&nbsp;&gt;&nbsp;<a
 						th:href="@{/gestion/usagers}" class="breadcrumb-link">USAGERS</a>
-						&gt; Transfert demande(s) - </span>
-					<span th:text="${AfBackUtils.getUsagerNameFromID(usagerSourceId)}" />
-					vers
-					<span th:text="${AfBackUtils.getUsagerNameFromID(usagerCibleId)}" />
+						&gt; Transfert demande(s) - </span> <span
+						th:text="${AfBackUtils.getUsagerNameFromID(usagerSourceId)}"></span>
+					vers <span
+						th:text="${AfBackUtils.getUsagerNameFromID(usagerCibleId)}"></span>
 					<span th:if="${transfererSupprimer}"> (pour suppression)</span>
-				</ol>
+				</div>
 				<div class="triangleTopright"></div>
 			</div>
 
@@ -114,10 +114,9 @@
 								<table id="datatable-usagers" class="table table-striped">
 									<thead>
 										<tr>
-											<th style="padding-left: 10px"><input
-												th:if="!${transfererSupprimer}" type="checkbox"
-												name="select_all" value="1" id="select-all" /> <input
-												th:if="${transfererSupprimer}" checked="checked"
+											<th><input th:if="!${transfererSupprimer}"
+												type="checkbox" name="select_all" value="1" id="select-all" />
+												<input th:if="${transfererSupprimer}" checked="checked"
 												disabled="disabled" type="checkbox" name="select_all"
 												value="1" id="select-all" /></th>
 											<th>Identifiant</th>
@@ -134,14 +133,15 @@
 												th:value="${demande.pkDemandes}" name="checkedDemandes" />
 												<input th:if="${transfererSupprimer}" type="hidden"
 												th:value="${demande.pkDemandes}" name="checkedDemandes" /></td>
-											<td><a th:href="@{/demandes/}+${demande.pkDemandes}"><span
+											<td><a style="padding: 0;"
+												th:href="@{/demandes/}+${demande.pkDemandes}"><span
 													class="identifiant-demande"
-													th:text="${demande.identifiant}" /></a></td>
+													th:text="${demande.identifiant}"></span></a></td>
 											<td
 												th:text="${#dates.format(demande.dateCreation,'dd/MM/yyyy')}" />
 											<td><span
 												th:class="${'label statusbox ' + AfBackUtils.getStatusColorClass(AfBackUtils.getStatutPublicOuInterne(demande))}"
-												th:text="${AfBackUtils.getStatutPublicOuInterne(demande)}" /></td>
+												th:text="${AfBackUtils.getStatutPublicOuInterne(demande)}"></span></td>
 											<td th:text="${demande.canal}" />
 											<td th:text="${demande.langue}" />
 										</tr>
@@ -193,10 +193,6 @@
 	
 		$(document).ready(function() {
 
-			$('input[name="select_all"]').change(function() {
-				$('input[name="checkedDemandes"]').prop('checked',this.checked);
-			});
-
 			function enableValider() {
 	    		if ($("[name=checkedDemandes]:checked").length > 0) {
 	    			$("#validerButton").prop('disabled', false);
@@ -234,9 +230,9 @@
 
 	    	// Prise en charge de la checkbox de la colonne : tout (dé)sélectionner
 	    	$('#select-all').on('click', function(){
-	    		   var rows = table.rows({ 'search': 'applied' }).nodes();
-	    		   $('input[type="checkbox"]', rows).prop('checked', this.checked);
-	    		   enableValider();
+    		   var rows = table.rows({ 'search': 'applied' }).nodes();
+    		   $('input[name="checkedDemandes"]').prop('checked',this.checked);
+    		   enableValider();
 	    	});
 
 	    	// Gérer le fait qu'on puisse valider que si au moins une demande a été cochée

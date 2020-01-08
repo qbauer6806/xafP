@@ -71,16 +71,16 @@
 									<div class="panel panel-simple">
 										<h4 class="titre">Recherche</h4>
 										<div class="form-group">
-											<label for="texteInput">Saisissez un terme ou une
+											<label for="txtRechercheCourriers">Saisissez un terme ou une
 												expression de recherche</label>
 											<div class="row">
 												<div class="col-xs-8">
 													<input type="text" th:value="${texte}" name="texte"
-														class="form-control" id="texteInput" title="" />
+														class="form-control" id="txtRechercheCourriers" title="" />
 												</div>
 												<div class="col-xs-4 nopadding">
 													<span class="btn btn-action ripple-effect"
-														id="rechercherButton1"> <i
+														id="btnRechercherCourriers"> <i
 														class="icon-action_chercher"></i>
 													</span> <span class="btn btn-action ripple-effect greyTooltip"
 														data-placement="right" data-html="true"
@@ -92,9 +92,6 @@
 
 										</div>
 									</div>
-
-
-
 								</div>
 							</div>
 						</div>
@@ -109,8 +106,8 @@
 								<div class="panel-heading" role="tab" id="headingOne">
 									<h4 class="panel-title">
 										<a role="button" data-toggle="collapse"
-											data-parent="#accordion" href="#collapseOne"
-											aria-expanded="true" aria-controls="collapseOne"> <i
+											data-parent="#accordion" href="#grilleCourriersEnAttente"
+											aria-expanded="true" aria-controls="grilleCourriersEnAttente"> <i
 											class="pannelState icon-action_accordeon-ouvert"></i>
 											COURRIERS EN ATTENTE D'IMPRESSION <span id="numberEnAttente"
 											class="badge info numberEnAttente"
@@ -118,7 +115,7 @@
 										</a>
 									</h4>
 								</div>
-								<div id="collapseOne" class="panel-collapse collapse in"
+								<div id="grilleCourriersEnAttente" class="panel-collapse collapse in"
 									role="tabpanel" aria-labelledby="headingOne">
 									<div class="panel-body">
 										<table id="courriersEnAttente" class="table table-striped">
@@ -180,8 +177,8 @@
 								<div class="panel-heading" role="tab" id="headingTwo">
 									<h4 class="panel-title">
 										<a role="button" data-toggle="collapse"
-											data-parent="#accordion" href="#collapseTwo"
-											aria-expanded="true" aria-controls="collapseTwo"> <i
+											data-parent="#accordion" href="#grilleCourriersImprimes"
+											aria-expanded="true" aria-controls="grilleCourriersImprimes"> <i
 											class="pannelState icon-action_accordeon-ouvert"></i>
 											COURRIERS IMPRIMÉS <span id="numberImprimes"
 											class="badge info"
@@ -189,7 +186,7 @@
 										</a>
 									</h4>
 								</div>
-								<div id="collapseTwo" class="panel-collapse collapse in"
+								<div id="grilleCourriersImprimes" class="panel-collapse collapse in"
 									role="tabpanel" aria-labelledby="headingTwo">
 									<div class="panel panel-body">
 										<table id="courriersImprimes" class="table table-striped">
@@ -255,7 +252,7 @@
 					<textarea id="txtIdentifiantCourrier" name="refCourrier"
 						maxlength="128"></textarea>
 					<div class="row-mt-5">
-						<input id="print-button" type="submit" name="action"
+						<input id="btnValiderIdentifiantCourrier" type="submit" name="action"
 							value="Continuer" class="btn btn-action ripple-effect"
 							style="margin-top: 20px;" />
 					</div>
@@ -313,9 +310,9 @@
             lengthMenu: [ 5, 10, 25, 50, 100 ]
         });
 
-        $('#rechercherButton1').click(function(e) {
+        $('#btnRechercherCourriers').click(function(e) {
             e.preventDefault();
-            filterTable($("#texteInput").val());
+            filterTable($("#txtRechercheCourriers").val());
         });
 
         var tableAttente = $('#courriersEnAttente').DataTable({
@@ -334,10 +331,10 @@
 
         $('.dataTables_filter').hide();
 
-        $("#texteInput").on('keypress',function(e) {
+        $("#txtRechercheCourriers").on('keypress',function(e) {
             if(e.which == 13) {
                 e.preventDefault();
-                filterTable($("#texteInput").val());
+                filterTable($("#txtRechercheCourriers").val());
             }
         });
 

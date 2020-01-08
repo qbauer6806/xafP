@@ -85,17 +85,17 @@
 						<div class="panel panel-simple">
 							<form action="#" th:action="@{/gestion/usagers/rechercher}"
 								method="post" id="searchForm">
-								<div id="inputSearchFormGroup" class="row form-group">
-									<label style="padding-left: 15px;" for="inputSearch">Par
+								<div id="txtRechercheUsagersFormGroup" class="row form-group">
+									<label style="padding-left: 15px;" for="txtRechercheUsagers">Par
 										nom d'usager - Par raison sociale - Par adresse</label>
 									<div class="col-xs-11">
 										<input type="text" th:value="${usagerInput}"
-											name="usagerInput" class="form-control" id="inputSearch"
+											name="usagerInput" class="form-control" id="txtRechercheUsagers"
 											maxlength="160"></input>
 									</div>
 									<div class="col-xs-1 nopadding">
 										<button type="submit" class="btn btn-action ripple-effect"
-											name="action" value="Rechercher" id="rechercherButton2">
+											name="action" value="Rechercher" id="btnRechercherUsagers">
 											<i class="icon-action_chercher"></i>
 										</button>
 									</div>
@@ -189,12 +189,12 @@
 	
 		$(document).ready(function() {
 			// Cacher le tooltip au chargement de la page
-			$("#inputSearch").tooltip("hide");
-			$("#inputSearch").tooltip("disable");
+			$("#txtRechercheUsagers").tooltip("hide");
+			$("#txtRechercheUsagers").tooltip("disable");
 
 			$('#rechercherButton1').click(function(e){
 				e.preventDefault();
-				$('#rechercherButton2').click();
+				$('#btnRechercherUsagers').click();
 			});
 
             $(".supprimer-annuler").click(function(e){

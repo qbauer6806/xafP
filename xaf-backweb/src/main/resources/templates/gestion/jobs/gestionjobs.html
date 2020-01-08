@@ -46,11 +46,11 @@
 
 <body th:with="pageConfigurationActive='active'">
 
-	<div th:replace="fragments/header :: header" />
+	<div th:replace="fragments/header :: header"></div>
 
 	<div id="wrapper">
 
-		<div th:replace="fragments/sidebar :: sidebar" />
+		<div th:replace="fragments/sidebar :: sidebar"></div>
 
 		<!-- DEBUT CONTENU -->
 		<div id="page-content-wrapper">
@@ -58,20 +58,19 @@
 
 			<div class="breadcrumbContent">
 				<div class="breadcrumb">
-					<span> <a th:href="@{/}" class="breadcrumb-item active">Accueil</a>&nbsp;&gt;&nbsp;
-						<a th:href="@{/gestion/jobs}"
+					<a id="ariane0" th:href="@{/}" class="breadcrumb-item active">Accueil</a>&nbsp;&gt;&nbsp;
+					<a id="ariane1" th:href="@{/gestion/jobs}"
 						class="breadcrumb-item active">JOBS</a> &gt;
-					</span>
 				</div>
 				<div class="triangleTopright"></div>
 			</div>
 
 			<div class="container-fluid">
 				<h2 class="col-xs-12 col-md-12">Administration des Jobs</h2>
-				<div class="text-left" >
+				<div class="text-left">
 					<div class="col-xs-6 col-md-6" style="padding-left: 0px">
-						<select style="margin-left: 1em" name="jobsSelect" id="jobsSelectId"
-							class="form-control">
+						<select style="margin-left: 1em" name="jobsSelect"
+							id="jobsSelectId" class="form-control">
 							<option value="">Merci de selectionner un job</option>
 							<option th:each="job : ${jobs}" th:value="${job.name()}"
 								th:text="${job.libelle}"></option>
@@ -86,11 +85,9 @@
 					<div class="col-xs-12 col-md-12">
 						<div class="tableContent">
 							<div class="tableTitle">
-								Historique des jobs <span
-									class="badge" id="jobsSize"></span>
+								Historique des jobs <span class="badge" id="jobsSize"></span>
 							</div>
-							<table id="datatable-jobs"
-								class="table table-striped ">
+							<table id="datatable-jobs" class="table table-striped ">
 								<thead>
 									<tr>
 										<th class="col-md-2">Nom</th>
@@ -103,10 +100,10 @@
 							</table>
 						</div>
 
-					
+
 					</div>
 				</div>
-				
+
 				<div class="row">
 					<div id="executeJobConfirmPanel" style="display: none">
 						<div class="container-fluid">
@@ -141,9 +138,9 @@
 			<!-- FIN CONTENU -->
 		</div>
 
+	</div>
 
-
-		<div th:replace="fragments/footer :: footer" />
-		<script th:src="@{/js/tsadminjobs.js(${applicationBuildTimestamp})}"></script>
+	<div th:replace="fragments/footer :: footer"></div>
+	<script th:src="@{/js/tsadminjobs.js(${applicationBuildTimestamp})}"></script>
 </body>
 </html>

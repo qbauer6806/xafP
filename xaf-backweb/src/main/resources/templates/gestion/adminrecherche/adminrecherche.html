@@ -46,23 +46,21 @@
 
 <body th:with="pageConfigurationActive='active'">
 
-	<div th:replace="fragments/header :: header" />
+	<div th:replace="fragments/header :: header"></div>
 
 	<div id="wrapper">
 
-		<div th:replace="fragments/sidebar :: sidebar" />
+		<div th:replace="fragments/sidebar :: sidebar"></div>
 
 		<!-- DEBUT CONTENU -->
 		<div id="page-content-wrapper">
 
-
 			<div class="breadcrumbContent">
 				<div class="breadcrumb">
-					<span> <a th:href="@{/}" class="breadcrumb-item active">Accueil</a>&nbsp;&gt;&nbsp;
-						<a th:href="@{/gestion/adminrecherche}"
+					<a id="ariane0" th:href="@{/}" class="breadcrumb-item active">Accueil</a>&nbsp;&gt;&nbsp;
+					<a id="ariane1" th:href="@{/gestion/adminrecherche}"
 						class="breadcrumb-item active">Administration de la recherche
-							avancée</a> &gt;
-					</span>
+						avancée</a> &gt;
 				</div>
 				<div class="triangleTopright"></div>
 			</div>
@@ -202,15 +200,14 @@
 					</div>
 					<div id="addCategoryPanel" style="display: none">
 						<form>
-							<div class="container-fluid" >
+							<div class="container-fluid">
 								<div class="row">
 									<h1>Ajouter une catégorie</h1>
 								</div>
 								<div class="row">
-									<div class="form-group"
-										id="addCategoryMsgDiv">
+									<div class="form-group" id="addCategoryMsgDiv">
 										<p id="catErrorMessage" class="bg-danger"
-											style="padding: 15px;visibility: hidden; display: none;"></p>
+											style="padding: 15px; visibility: hidden; display: none;"></p>
 									</div>
 									<div class="form-group">
 										<label for=libelleCatInput>Catégorie</label> <input
@@ -235,8 +232,8 @@
 			</div>
 
 			<input type="hidden" href="javascript:void(0);" data-type="success"
-				data-delay="5000" data-message="" id="successMessage" class="notification"
-				 /> <input type="hidden"
+				data-delay="5000" data-message="" id="successMessage"
+				class="notification" /> <input type="hidden"
 				href="javascript:void(0);" data-type="danger" data-delay="0"
 				data-message="" id="errorMessage" class="notification" />
 
@@ -244,9 +241,10 @@
 			<!-- FIN CONTENU -->
 		</div>
 
+	</div>
 
-		
-		<div th:replace="fragments/footer :: footer" />
-		<script th:src="@{/js/tsadminrechercheavancee.js(${applicationBuildTimestamp})}"></script>
+	<div th:replace="fragments/footer :: footer"></div>
+	<script
+		th:src="@{/js/tsadminrechercheavancee.js(${applicationBuildTimestamp})}"></script>
 </body>
 </html>

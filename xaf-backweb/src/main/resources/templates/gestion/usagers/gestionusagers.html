@@ -43,12 +43,12 @@
 		<div id="page-content-wrapper">
 
 			<div class="breadcrumbContent">
-				<ol class="breadcrumb">
-					<span class="breadcrumb-item active"><a th:href="@{/}"
-						class="breadcrumb-item">ACCUEIL</a>&nbsp;&gt;&nbsp;<a
-						th:href="@{/gestion/usagers}" class="breadcrumb-item">USAGERS</a>
+				<div class="breadcrumb">
+					<span class="breadcrumb-item active"><a id="ariane0"
+						th:href="@{/}" class="breadcrumb-item">ACCUEIL</a>&nbsp;&gt;&nbsp;<a
+						id="ariane1" th:href="@{/gestion/usagers}" class="breadcrumb-item">USAGERS</a>
 						&gt;</span>
-				</ol>
+				</div>
 				<div class="triangleTopright"></div>
 			</div>
 
@@ -66,10 +66,6 @@
 				class="container-fluid">
 
 				<div class="row">
-					<div class="col-xs-12"></div>
-				</div>
-
-				<div class="row">
 					<div class="col-xs-12">
 						<h1>Tous les usagers courrier</h1>
 					</div>
@@ -77,12 +73,11 @@
 
 				<div class="row" align="right">
 					<div class="col-xs-12">
-						<a th:href="@{/gestion/usagers/creer}"
+						<a id="btnAjouterUsager" th:href="@{/gestion/usagers/creer}"
 							class="btn btn-action ripple-effect"><i
 							class="icon-action_plus"></i><span>AJOUTER UN USAGER</span></a>
 					</div>
 				</div>
-
 
 				<div class="row">
 					<div class="col-xs-12">
@@ -128,17 +123,19 @@
 								</thead>
 								<tbody>
 
-									<tr th:each="usager :  ${usagers}">
+									<tr th:each="usager, usagerStat :  ${usagers}">
 										<td><span th:text="${usager.nomRaisonSociale}"></span></td>
 										<td><span th:text="${usager.adresse}"></span></td>
 										<td><span th:text="${usager.nbDemandes}"></span></td>
 										<td class="text-right"><a
+											th:id="'btnModifUsager' + ${usagerStat.index}"
 											th:href="@{/gestion/usagers/}+${usager.usagerId}"> <span
 												class="btn btn-action ripple-effect greyTooltip"
 												data-toggle="tooltip" data-placement="bottom"
 												data-original-title="Visualiser/Modifier" title=""> <i
 													class="icon-action_editer"></i></span>
-										</a> &nbsp;&nbsp; <a href="#"
+										</a> &nbsp;&nbsp; <a th:id="'btnTransfert' + ${usagerStat.index}"
+											href="#"
 											th:attr="data-usagerid=${usager.usagerId},data-raisonsociale=${usager.raisonSociale},data-nomprenom=${usager.nomPrenom},data-ville=${usager.ville},data-codepostal=${usager.codePostal},data-adresse=${usager.adresse},data-urltransfert=@{/gestion/usagers/transferer/}"
 											class="transferer"> <span
 												class="btn btn-action ripple-effect greyTooltip"
@@ -146,7 +143,8 @@
 												data-original-title="Transférer des demandes" title="">
 													<i class="icon-action_transferer_demande"></i>
 											</span>
-										</a> &nbsp;&nbsp; <a href="#"
+										</a> &nbsp;&nbsp; <a
+											th:id="'btnSupprimerUsager' + ${usagerStat.index}" href="#"
 											th:attr="data-usagerid=${usager.usagerId},data-raisonsociale=${usager.raisonSociale},data-nomprenom=${usager.nomPrenom},data-ville=${usager.ville},data-codepostal=${usager.codePostal},data-adresse=${usager.adresse},data-nbdemandes=${usager.nbDemandes},data-urltransfert=@{/gestion/usagers/transferer/}"
 											class="supprimer"> <span
 												class="btn btn-action ripple-effect greyTooltip"

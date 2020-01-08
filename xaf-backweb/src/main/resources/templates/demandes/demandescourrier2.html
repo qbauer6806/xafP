@@ -44,14 +44,13 @@
 		<!-- DEBUT CONTENU -->
 		<div id="page-content-wrapper">
 
-
 			<div class="breadcrumbContent">
-				<ol class="breadcrumb">
-					<span class="breadcrumb-item active"><a th:href="@{/}"
-						class="breadcrumb-link">Accueil</a>&nbsp;&gt;&nbsp;<a
-						th:href="@{/gestion/usagers}" class="breadcrumb-link">Demandes</a>
+				<div class="breadcrumb">
+					<span class="breadcrumb-item active"><a id="ariane0"
+						th:href="@{/}" class="breadcrumb-link">Accueil</a>&nbsp;&gt;&nbsp;<a
+						id="ariane1" th:href="@{/gestion/usagers}" class="breadcrumb-link">Demandes</a>
 						&gt; Nouvelle demande</span>
-				</ol>
+				</div>
 				<div class="triangleTopright"></div>
 			</div>
 
@@ -64,9 +63,8 @@
 				</div>
 
 				<div class="row">
-					<form id="form-courrier"  method="post"
-						th:action="@{''}" th:object="${demandesCourrierFormBean}"
-						text-align="center">
+					<form id="form-courrier" method="post" th:action="@{''}"
+						th:object="${demandesCourrierFormBean}" text-align="center">
 
 						<div class="col-xs-12">
 							<span class="titre">Création de la demande</span>
@@ -77,9 +75,10 @@
 										<label>Usager</label>
 									</div>
 									<div class="col-xs-9">
-										<input class="form-control" type="text" th:value="${usager}"
-											disabled="disabled" /> <input class="form-control"
-											type="hidden" th:value="${usager}" th:field="*{usagerId}" />
+										<input id="txtUsager" class="form-control" type="text"
+											th:value="${usager}" disabled="disabled" /> <input
+											class="form-control" type="hidden" th:value="${usager}"
+											th:field="*{usagerId}" />
 									</div>
 								</div>
 
@@ -138,7 +137,7 @@
 									<div
 										th:class="${#fields.hasErrors('langue')} ? 'form-group error' : 'form-group'">
 										<div class="col-xs-3">
-											<label for="code">Langue <span class="required" /></label>
+											<label for="code">Langue <span class="required"></span></label>
 										</div>
 										<div class="col-xs-9">
 
@@ -173,7 +172,7 @@
 								<br />
 								<div class="row">
 									<div class="col-xs-12 text-center">
-										<a class="btn btn-action ripple-effect"
+										<a id="btnRetourUsager" class="btn btn-action ripple-effect"
 											th:href="@{/gestion/usagers/}+${usagerId}">Retour</a> <input
 											id="submitButton" type="submit" name="action"
 											value="Étape suivante" class="btn btn-action ripple-effect" />
@@ -239,8 +238,8 @@
 					var maxlenght = 128;
 					if (len <= maxlenght) {
 						$(inputId).tooltip("hide");
-			            $(formGroup).removeClass('error');
-			            $(inputId).tooltip("disable");
+						$(formGroup).removeClass('error');
+						$(inputId).tooltip("disable");
 					}
 				}
 			});

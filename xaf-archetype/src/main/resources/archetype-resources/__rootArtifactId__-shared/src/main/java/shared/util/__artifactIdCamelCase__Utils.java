@@ -3,24 +3,32 @@
 #set( $symbol_escape = '\' )
 package ${groupId}.shared.util;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import mc.gouv.xaf.back.util.DemandeHistoriqueComparator;
-import mc.gouv.dem.shared.model.DemandeDTO;
-import mc.gouv.dem.shared.model.DemandeHistoriqueDTO;
-import ${groupId}.shared.dto.${artifactIdCamelCase}DemandeHistoriqueContenuDTO;
-import ${groupId}.shared.dto.${artifactIdCamelCase}DemandeHistoriqueDTO;
-import ${groupId}.shared.model.v1568884433537.*;
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+
+import ${groupId}.shared.model.v1573825612706.ProjectDemandeDataDonneeSalariesDTO;
+import ${groupId}.shared.model.v1573825612706.ProjectDemandeFieldDonneeSalariesTabsalariesfranceDTO;
+import ${groupId}.shared.model.v1573825612706.ProjectDemandeFieldDonneeSalariesTabsalariesitalieDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import mc.gouv.xaf.back.service.utils.DemandeHistoriqueComparator;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeHistoriqueDTO;
+import ${groupId}.shared.dto.${artifactIdCamelCase}DemandeHistoriqueContenuDTO;
+import ${groupId}.shared.dto.${artifactIdCamelCase}DemandeHistoriqueDTO;
+import ${groupId}.shared.model.v1573825612706.ContenuProjectDemandeDTO;
 
 /**
  * Classe utilitaire pour le projet ${artifactIdUpper}
@@ -32,8 +40,6 @@ import java.util.*;
 public class ${artifactIdCamelCase}Utils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(${artifactIdCamelCase}Utils.class);
-
-    private static final JoursFeriesEnum[] joursFeries = JoursFeriesEnum.values();
 
     /**
      * Permet de convertir une ligne d'historique DEM en une ligne d'historique ${artifactIdUpper} avec tous les détails
@@ -104,6 +110,36 @@ public class ${artifactIdCamelCase}Utils {
         return null;
     }
 
+    public static String getSalariesADetacher(ContenuProjectDemandeDTO contenuDemande) {
+        StringBuilder salariesADetacher = new StringBuilder();
+        ProjectDemandeDataDonneeSalariesDTO salaries = contenuDemande.getDonnee().getSalaries();
+
+        if (salaries != null) {
+            ProjectDemandeFieldDonneeSalariesTabsalariesfranceDTO[] salariesFR = salaries.getTabsalariesfrance();
+            ProjectDemandeFieldDonneeSalariesTabsalariesitalieDTO[] salariesIT = salaries.getTabsalariesitalie();
+
+            if (salariesFR != null && salariesFR.length > 0) {
+                for (ProjectDemandeFieldDonneeSalariesTabsalariesfranceDTO salarie : salariesFR) {
+                    salariesADetacher.append("${symbol_escape}n    - ")
+                            .append(salarie.getDonneeSalariesTabsalariesfranceChampnom())
+                            .append(" ").append(salarie.getDonneeSalariesTabsalariesfranceChampprenom())
+                            .append(" ").append(salarie.getDonneeSalariesTabsalariesfranceChampdebutdetach());
+                }
+            } else if (salariesIT != null && salariesIT.length > 0) {
+                for (ProjectDemandeFieldDonneeSalariesTabsalariesitalieDTO salarie : salariesIT) {
+                    salariesADetacher.append("${symbol_escape}n    - ")
+                            .append(salarie.getDonneeSalariesTabsalariesitalieChampnom())
+                            .append(" ").append(salarie.getDonneeSalariesTabsalariesitalieChampprenom())
+                            .append(" ").append(salarie.getDonneeSalariesTabsalariesitalieChampdebutdetach());
+                }
+            } else {
+                salariesADetacher.append("${symbol_escape}n    - [INCLURE ICI LA LISTE DES SALARIES]");
+            }
+        }
+        return salariesADetacher.toString();
+    }
+
+
     public static BigDecimal convertStringToBigDecimal(String decimalStr) {
         // BigDecimal decimalValue = new BigDecimal(0.00);
         final String regexDecimal = "[0-9]*${symbol_escape}${symbol_escape},?[0-9]*";
@@ -149,64 +185,5 @@ public class ${artifactIdCamelCase}Utils {
         }
         return LocalDateTime.parse(dateString, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
                 .format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-    }
-
-    private static boolean[] createJoursFeriesBooleanList(ContenuProjectDemandeDTO contenuDemande) {
-        ProjectDemandeFieldDonneeDerogationJoursferiesDTO joursferies = contenuDemande.getDonnee().getDerogation().getJoursferies();
-        return new boolean[] {false, joursferies.getSainteDevote(), joursferies.getLundiDePaques(), false, joursferies.getAscension(),
-                joursferies.getLundiDePentecote(), joursferies.getFeteDieu(), joursferies.getAssomption(), joursferies.getToussaint(),
-                false, joursferies.getImmaculeeConception(), false};
-    }
-
-    private static boolean[] createJoursFeriesExceptionnelsBooleanList(ContenuProjectDemandeDTO contenuDemande) {
-        ProjectDemandeFieldDonneeDerogationJoursferiesDTO joursferies = contenuDemande.getDonnee().getDerogation().getJoursferies();
-        return new boolean[] {joursferies.getJourDeL_An(), false, false, joursferies.getLe1erMai(), false, false, false, false, false,
-                joursferies.getFeteDuPrince(), false, joursferies.getNoel()};
-    }
-
-    /**
-     * Convertisseurs des jours feries exceptionnels selectionnés en phrase ou liste
-     */
-    public static String convertJourFeriesExceptionnelsToSentence(ContenuProjectDemandeDTO contenuDemande) {
-        boolean[] joursFeriesExceptionnels = createJoursFeriesExceptionnelsBooleanList(contenuDemande);
-        return convertSelectedJourFeriesTypesToString(joursFeriesExceptionnels);
-    }
-
-    public static String convertJourFeriesExceptionnelsToList(ContenuProjectDemandeDTO contenuDemande) {
-        boolean[] joursFeriesExceptionnels = createJoursFeriesExceptionnelsBooleanList(contenuDemande);
-        return convertSelectedJourFeriesTypesToStringList(joursFeriesExceptionnels);
-    }
-
-    /**
-     * Convertisseurs des jours feries normaux selectionnés en phrase ou liste
-     */
-    public static String convertJourFeriesTypesToSentence(ContenuProjectDemandeDTO contenuDemande) {
-        boolean[] jourFeriesBooleanArray = createJoursFeriesBooleanList(contenuDemande);
-        return convertSelectedJourFeriesTypesToString(jourFeriesBooleanArray);
-    }
-
-    public static String convertJourFeriesTypesToList(ContenuProjectDemandeDTO contenuDemande) {
-        boolean[] jourFeriesBooleanArray = createJoursFeriesBooleanList(contenuDemande);
-        return convertSelectedJourFeriesTypesToStringList(jourFeriesBooleanArray);
-    }
-
-    public static String convertSelectedJourFeriesTypesToString(boolean ...jourFeriesSelected) {
-        String formatedJFeries = "";
-        for(int i = 0; i < jourFeriesSelected.length; i++) {
-            if (jourFeriesSelected[i]) {
-                formatedJFeries += ((StringUtils.isEmpty(formatedJFeries))? "" : ", ") + joursFeries[i].libelle;
-            }
-        }
-        return formatedJFeries;
-    }
-
-    public static String convertSelectedJourFeriesTypesToStringList(boolean ...jourFeriesSelected) {
-        StringBuilder formatedJFeries = new StringBuilder();
-        for(int derogIndex = 0; derogIndex < jourFeriesSelected.length; derogIndex++) {
-            if (jourFeriesSelected[derogIndex]) {
-                formatedJFeries.append("${symbol_escape}n${symbol_escape}t- ").append(joursFeries[derogIndex].libelle);
-            }
-        }
-        return formatedJFeries.append("${symbol_escape}n").toString();
     }
 }

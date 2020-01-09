@@ -1,10 +1,10 @@
-#set( $symbol_pound = '#' )
+﻿#set( $symbol_pound = '#' )
 #set( $symbol_dollar = '$' )
 #set( $symbol_escape = '\' )
 -- 1) Important pour ne pas avoir des caractères mal encodés à l'affichage.
 set client_encoding = 'utf8';
 -- 2) Création du schéma
-drop schema if exists ${artifactIdUpper} cascade;
+drop schema ${artifactIdUpper} cascade;
 create schema ${artifactIdUpper};
 -- 3) Paramètrage du schéma
 set search_path = ${artifactIdUpper}, pg_catalog;
@@ -448,7 +448,7 @@ create table ${artifactIdLower}.ACT_HI_DETAIL (
     BYTEARRAY_ID_ varchar(64),
     DOUBLE_ double precision,
     LONG_ bigint,
-    TEXT_ text,
+    TEXT_ varchar(4000),
     TEXT2_ varchar(4000),
     primary key (ID_)
 );
@@ -560,7 +560,6 @@ alter table ${artifactIdLower}.ACT_ID_MEMBERSHIP
     foreign key (USER_ID_)
     references ${artifactIdLower}.ACT_ID_USER (ID_);
 
-
 CREATE SEQUENCE dem_access_pk_access_seq START 1;
 
 CREATE TABLE ${artifactIdUpper}.dem_access (
@@ -574,7 +573,6 @@ CREATE TABLE ${artifactIdUpper}.dem_access (
 );
 
 
-ALTER TABLE ${artifactIdUpper}.dem_access OWNER TO ${artifactIdUpper};
 
 CREATE SEQUENCE dem_demandes_pk_demandes_seq START 1;
 
@@ -582,7 +580,7 @@ CREATE TABLE ${artifactIdUpper}.dem_demandes (
     pk_demandes integer DEFAULT nextval('dem_demandes_pk_demandes_seq'),
     agent_affecte_id character varying(128),
     canal character varying(30) NOT NULL,
-    contenu character varying(10000) NOT NULL,
+    contenu text NOT NULL,
     courrier_date_reception timestamp without time zone,
     courrier_ref_interne character varying(256),
     cree_par_agent_id character varying(128),
@@ -596,7 +594,7 @@ CREATE TABLE ${artifactIdUpper}.dem_demandes (
 );
 
 
-ALTER TABLE ${artifactIdUpper}.dem_demandes OWNER TO ${artifactIdUpper};
+
 
 CREATE SEQUENCE dem_demandes_complements_pk_demandescomplements_seq START 1;
 
@@ -615,7 +613,7 @@ CREATE TABLE ${artifactIdUpper}.dem_demandes_complements (
 );
 
 
-ALTER TABLE ${artifactIdUpper}.dem_demandes_complements OWNER TO ${artifactIdUpper};
+
 
 CREATE SEQUENCE dem_demandes_complements_files_pk_demandescomplementsfiles_seq START 1;
 
@@ -628,7 +626,7 @@ CREATE TABLE ${artifactIdUpper}.dem_demandes_complements_files (
 );
 
 
-ALTER TABLE ${artifactIdUpper}.dem_demandes_complements_files OWNER TO ${artifactIdUpper};
+
 
 CREATE SEQUENCE dem_demandes_courriers_pk_demandescourriers_seq START 1;
 
@@ -645,7 +643,7 @@ CREATE TABLE ${artifactIdUpper}.dem_demandes_courriers (
 );
 
 
-ALTER TABLE ${artifactIdUpper}.dem_demandes_courriers OWNER TO ${artifactIdUpper};
+
 
 CREATE SEQUENCE dem_demandes_data_pk_demandesdata_seq START 1;
 
@@ -657,7 +655,7 @@ CREATE TABLE ${artifactIdUpper}.dem_demandes_data (
 );
 
 
-ALTER TABLE ${artifactIdUpper}.dem_demandes_data OWNER TO ${artifactIdUpper};
+
 
 CREATE SEQUENCE dem_demandes_files_pk_demandesfiles_seq START 1;
 
@@ -670,7 +668,7 @@ CREATE TABLE ${artifactIdUpper}.dem_demandes_files (
 );
 
 
-ALTER TABLE ${artifactIdUpper}.dem_demandes_files OWNER TO ${artifactIdUpper};
+
 
 CREATE SEQUENCE dem_demandes_historique_pk_demandeshistorique_seq START 1;
 
@@ -685,7 +683,7 @@ CREATE TABLE ${artifactIdUpper}.dem_demandes_historique (
 );
 
 
-ALTER TABLE ${artifactIdUpper}.dem_demandes_historique OWNER TO ${artifactIdUpper};
+
 
 CREATE SEQUENCE dem_demandes_statuts_pk_demandesstatuts_seq START 1;
 
@@ -694,6 +692,7 @@ CREATE TABLE ${artifactIdUpper}.dem_demandes_statuts (
     agent_id character varying(128),
     code_motif character varying(128),
     commentaire character varying(8000),
+    texte_a_envoyer text,
     date timestamp without time zone NOT NULL,
     libelle character varying(64) NOT NULL,
     usager_id integer,
@@ -701,7 +700,7 @@ CREATE TABLE ${artifactIdUpper}.dem_demandes_statuts (
 );
 
 
-ALTER TABLE ${artifactIdUpper}.dem_demandes_statuts OWNER TO ${artifactIdUpper};
+
 
 CREATE TABLE ${artifactIdUpper}.dem_demarches (
     pk_demarcheid character varying(128) NOT NULL,
@@ -715,7 +714,7 @@ CREATE TABLE ${artifactIdUpper}.dem_demarches (
 );
 
 
-ALTER TABLE ${artifactIdUpper}.dem_demarches OWNER TO ${artifactIdUpper};
+
 
 CREATE SEQUENCE dem_motifs_pk_motifs_seq START 1;
 
@@ -727,11 +726,12 @@ CREATE TABLE ${artifactIdUpper}.dem_motifs (
     statut character varying(64) NOT NULL,
 	langue character varying(2) NOT NULL,
     date_archive timestamp without time zone,
-    commentaire_prerempli character varying(2048)
+    commentaire_prerempli character varying(2048),
+    texte_a_envoyer character varying(2048)
 );
 
 
-ALTER TABLE ${artifactIdUpper}.dem_motifs OWNER TO ${artifactIdUpper};
+
 
 CREATE SEQUENCE dem_periodes_ouverture_pk_periodesouverture_seq START 1;
 
@@ -743,7 +743,7 @@ CREATE TABLE ${artifactIdUpper}.dem_periodes_ouverture (
 );
 
 
-ALTER TABLE ${artifactIdUpper}.dem_periodes_ouverture OWNER TO ${artifactIdUpper};
+
 
 CREATE SEQUENCE dem_templates_pk_templates_seq START 1;
 
@@ -756,7 +756,7 @@ CREATE TABLE ${artifactIdUpper}.dem_templates (
 );
 
 
-ALTER TABLE ${artifactIdUpper}.dem_templates OWNER TO ${artifactIdUpper};
+
 
 CREATE SEQUENCE dem_usagers_courrier_pk_usagerscourrier_seq START 1000000001;
 
@@ -781,7 +781,7 @@ CREATE TABLE ${artifactIdUpper}.dem_usagers_courrier (
 );
 
 
-ALTER TABLE ${artifactIdUpper}.dem_usagers_courrier OWNER TO ${artifactIdUpper};
+
 
 SELECT pg_catalog.setval('${artifactIdUpper}.dem_access_pk_access_seq', 1, false);
 
@@ -884,32 +884,15 @@ ALTER TABLE ONLY ${artifactIdUpper}.dem_demandes_historique
 ALTER TABLE ONLY ${artifactIdUpper}.dem_demandes_complements_files
     ADD CONSTRAINT fkpoq6aeqt7qx1n4phb18693sv8 FOREIGN KEY (fk_demandescomplements) REFERENCES ${artifactIdUpper}.dem_demandes_complements(pk_demandescomplements);
 
-ALTER TABLE ${artifactIdUpper}.DEM_USAGERS_COURRIER ALTER COLUMN NOM DROP NOT NULL;
-
+-- #10315 - Permettre de générer l'identifiant de la demande à partir d'un code propre à chaque démarche
 ALTER TABLE ${artifactIdUpper}.DEM_DEMARCHES ADD COLUMN IDENTIFIANT_PREFIXE CHARACTER VARYING(128) NOT NULL;
 
+-- #10127 - [BO] Formulaire création usager courrier - modification champ obligatoire + ajout tooltip
+ALTER TABLE ${artifactIdUpper}.DEM_USAGERS_COURRIER ALTER COLUMN NOM DROP NOT NULL;
+-- #12285 - Garder une trace du Prénom, Nom et Email de l'usager qui a fait la demande
 ALTER TABLE ${artifactIdUpper}.DEM_DEMANDES ADD COLUMN USAGER_NOM CHARACTER VARYING(256);
 ALTER TABLE ${artifactIdUpper}.DEM_DEMANDES ADD COLUMN USAGER_PRENOM CHARACTER VARYING(256);
 ALTER TABLE ${artifactIdUpper}.DEM_DEMANDES ADD COLUMN USAGER_EMAIL CHARACTER VARYING(256);
-
-CREATE SEQUENCE ${artifactIdLower}.dem_jobs_seq START 1;
-
-
-CREATE TABLE ${artifactIdLower}.dem_jobs (
-    id integer DEFAULT nextval('${artifactIdLower}.dem_jobs_seq'),
-    JOB_NAME character varying(256) NOT NULL,
-    date_creation timestamp without time zone NOT NULL,
-    date_dermodif timestamp without time zone NOT NULL,
-    msg text NOT NULL,
-    statut character varying(256) NOT NULL
-);
-
-
-ALTER TABLE ONLY ${artifactIdLower}.dem_jobs
-    ADD CONSTRAINT dem_dem_jobs_pkey PRIMARY KEY (id);
-
-
-SELECT pg_catalog.setval('${artifactIdLower}.dem_jobs_seq', 1, false);
 
 CREATE SEQUENCE ${artifactIdLower}.dem_recherche_champ_config_seq START 1;
 CREATE SEQUENCE ${artifactIdLower}.dem_recherche_cat_config_seq START 1;
@@ -930,8 +913,6 @@ CREATE TABLE ${artifactIdLower}.dem_recherche_champ_config (
     fk_categorie integer
 );
 
-
-
 ALTER TABLE ONLY ${artifactIdLower}.dem_recherche_cat_config
     ADD CONSTRAINT dem_recherche_cat_config_pkey PRIMARY KEY (id);
 
@@ -944,9 +925,29 @@ ALTER TABLE ONLY ${artifactIdLower}.dem_recherche_champ_config
 SELECT pg_catalog.setval('${artifactIdLower}.dem_recherche_champ_config_seq', 1, false);
 SELECT pg_catalog.setval('${artifactIdLower}.dem_recherche_cat_config_seq', 1, false);
 
+CREATE SEQUENCE ${artifactIdLower}.dem_jobs_seq START 1;
+
+
+CREATE TABLE ${artifactIdLower}.dem_jobs (
+    id integer DEFAULT nextval('${artifactIdLower}.dem_jobs_seq'),
+    JOB_NAME character varying(256) NOT NULL,
+    date_creation timestamp without time zone NOT NULL,
+    date_dermodif timestamp without time zone NOT NULL,
+    msg text NOT NULL,
+    statut character varying(256) NOT NULL
+);
+
+
+ALTER TABLE ONLY ${artifactIdLower}.dem_jobs
+    ADD CONSTRAINT dem_dem_jobs_pkey PRIMARY KEY (id);
+
+SELECT pg_catalog.setval('${artifactIdLower}.dem_jobs_seq', 1, false);
+
+-- #12951 - Stocker en base le buildId et le recapType
 ALTER TABLE ${artifactIdUpper}.DEM_DEMANDES ADD COLUMN BUILD_ID CHARACTER VARYING(32);
 ALTER TABLE ${artifactIdUpper}.DEM_DEMANDES ADD COLUMN RECAP_TYPE CHARACTER VARYING(256);
 
+-- #12951 - Stocker en base la date de création d'un fichier d'une demande
 ALTER TABLE ${artifactIdUpper}.DEM_DEMANDES_FILES ADD COLUMN DATE timestamp without time zone;
 
 -- Fin scripts de "Structure"

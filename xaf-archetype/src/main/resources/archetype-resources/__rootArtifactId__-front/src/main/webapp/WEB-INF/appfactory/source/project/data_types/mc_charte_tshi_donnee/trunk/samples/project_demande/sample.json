@@ -4,7 +4,7 @@
       {
         "columns": [
           {
-            "condition": "(1 && (page.demande.contenu.donnee.derogation.presencedeleguespersonnel == 'YES'))",
+            "condition": "(1 && (page.demande.contenu.donnee.entreprise.estchantier == 'YES'))",
             "conditionForm": "",
             "fichierParameter": {
               "validation": {
@@ -17,12 +17,11 @@
             "type": "fichier"
           },
           {
-            "condition": "(1 && (page.demande.contenu.donnee.derogation.presencedeleguespersonnel == 'NO'))",
-            "conditionForm": "",
+            "condition": "(1 && (page.demande.contenu.donnee.entreprise.paysoriginedetachement == 'IT'))",
             "fichierParameter": {
               "validation": {
                 "maxsize": "5MB",
-                "pattern": ".doc,.docx,.rtf,.pdf,.jpg,.jpeg,.tif,.png",
+                "pattern": ".doc,.docx,.rtf,.pdf,.jpg,.jpeg,.tif,.png,.7z,.zip,.gz",
                 "required": true
               }
             },
@@ -30,41 +29,136 @@
             "type": "fichier"
           },
           {
+            "condition": "(1 && (page.demande.contenu.donnee.entreprise.paysoriginedetachement == 'IT'))",
             "fichierParameter": {
               "validation": {
                 "maxsize": "5MB",
-                "pattern": ".doc,.docx,.rtf,.pdf,.jpg,.jpeg,.tif,.png"
+                "pattern": ".doc,.docx,.rtf,.pdf,.jpg,.jpeg,.tif,.png,.7z,.zip,.gz"
               }
             },
             "nom": "fichiers3",
             "type": "fichier"
           },
           {
+            "condition": "(1 && (page.demande.contenu.donnee.entreprise.paysoriginedetachement == 'IT'))",
             "fichierParameter": {
               "validation": {
                 "maxsize": "5MB",
-                "pattern": ".doc,.docx,.rtf,.pdf,.jpg,.jpeg,.tif,.png"
+                "pattern": ".doc,.docx,.rtf,.pdf,.jpg,.jpeg,.tif,.png,.7z,.zip,.gz"
               }
             },
             "nom": "fichiers4",
             "type": "fichier"
           },
           {
+            "condition": "(1 && (page.demande.contenu.donnee.entreprise.paysoriginedetachement == 'IT'))",
             "fichierParameter": {
               "validation": {
                 "maxsize": "5MB",
-                "pattern": ".doc,.docx,.rtf,.pdf,.jpg,.jpeg,.tif,.png"
+                "pattern": ".doc,.docx,.rtf,.pdf,.jpg,.jpeg,.tif,.png,.7z,.zip,.gz"
               }
             },
             "nom": "fichiers5",
             "type": "fichier"
+          },
+          {
+            "condition": "(1 && (page.demande.contenu.donnee.entreprise.paysoriginedetachement == 'IT'))",
+            "fichierParameter": {
+              "validation": {
+                "maxsize": "5MB",
+                "pattern": ".doc,.docx,.rtf,.pdf,.jpg,.jpeg,.tif,.png,.7z,.zip,.gz"
+              }
+            },
+            "nom": "fichiers6",
+            "type": "fichier"
+          },
+          {
+            "condition": "(1 && (page.demande.contenu.donnee.entreprise.paysoriginedetachement == 'IT'))",
+            "fichierParameter": {
+              "validation": {
+                "maxsize": "5MB",
+                "pattern": ".doc,.docx,.rtf,.pdf,.jpg,.jpeg,.tif,.png,.7z,.zip,.gz"
+              }
+            },
+            "nom": "fichiers7",
+            "type": "fichier"
+          },
+          {
+            "condition": "(1 && (page.demande.contenu.donnee.entreprise.paysoriginedetachement == 'IT'))",
+            "fichierParameter": {
+              "validation": {
+                "maxsize": "5MB",
+                "pattern": ".doc,.docx,.rtf,.pdf,.jpg,.jpeg,.tif,.png,.7z,.zip,.gz"
+              }
+            },
+            "nom": "fichiers8",
+            "type": "fichier"
+          },
+          {
+            "condition": "(1 && (page.demande.contenu.donnee.entreprise.paysoriginedetachement == 'IT'))",
+            "fichierParameter": {
+              "validation": {
+                "maxsize": "5MB",
+                "pattern": ".doc,.docx,.rtf,.pdf,.jpg,.jpeg,.tif,.png,.7z,.zip,.gz"
+              }
+            },
+            "nom": "fichiers9",
+            "type": "fichier"
+          },
+          {
+            "condition": "(1 && (page.demande.contenu.donnee.entreprise.paysoriginedetachement == 'IT'))",
+            "fichierParameter": {
+              "validation": {
+                "maxsize": "5MB",
+                "pattern": ".doc,.docx,.rtf,.pdf,.jpg,.jpeg,.tif,.png,.7z,.zip,.gz"
+              }
+            },
+            "nom": "fichiers10",
+            "type": "fichier"
+          },
+          {
+            "condition": "(1 && (page.demande.contenu.donnee.entreprise.paysoriginedetachement == 'IT'))",
+            "fichierParameter": {
+              "validation": {
+                "maxsize": "5MB",
+                "pattern": ".doc,.docx,.rtf,.pdf,.jpg,.jpeg,.tif,.png,.7z,.zip,.gz"
+              }
+            },
+            "nom": "fichiers11",
+            "type": "fichier"
+          },
+          {
+            "condition": "(1 && (page.demande.contenu.donnee.entreprise.paysoriginedetachement == 'IT') && (page.demande.contenu.donnee.salaries.joindrefichier == 'JOINDRE'))",
+            "conditionRecap": "",
+            "fichierParameter": {
+              "validation": {
+                "maxsize": "5MB",
+                "pattern": ".doc,.docx,.rtf,.pdf,.xls,.xlsx",
+                "required": true
+              }
+            },
+            "nom": "fichiers12",
+            "type": "fichier"
+          },
+          {
+            "condition": "(1 && (page.demande.contenu.donnee.entreprise.paysoriginedetachement == 'FR') && (page.demande.contenu.donnee.salaries.joindrefichier == 'JOINDRE'))",
+            "conditionRecap": "(1 && (page.demande.contenu.donnee.entreprise.paysoriginedetachement == 'FR') && (page.demande.contenu.donnee.salaries.joindrefichier == 'JOINDRE'))",
+            "fichierParameter": {
+              "validation": {
+                "maxsize": "5MB",
+                "pattern": ".doc,.docx,.rtf,.pdf,.xls,.xlsx",
+                "required": true
+              }
+            },
+            "nom": "fichiers13",
+            "type": "fichier"
           }
         ],
         "condition": "",
-        "conditionRecap": "",
+        "conditionRecap": "page.demandeFichiersWithNoIndex || (page.demande.fichiers[0].id && (page.demande.contenu.donnee.entreprise.estchantier == 'YES')) || (page.demande.fichiers[1].id && (page.demande.contenu.donnee.entreprise.paysoriginedetachement == 'IT')) || (page.demande.fichiers[2].id && (page.demande.contenu.donnee.entreprise.paysoriginedetachement == 'IT')) || (page.demande.fichiers[3].id && (page.demande.contenu.donnee.entreprise.paysoriginedetachement == 'IT')) || (page.demande.fichiers[4].id && (page.demande.contenu.donnee.entreprise.paysoriginedetachement == 'IT')) || (page.demande.fichiers[5].id && (page.demande.contenu.donnee.entreprise.paysoriginedetachement == 'IT')) || (page.demande.fichiers[6].id && (page.demande.contenu.donnee.entreprise.paysoriginedetachement == 'IT')) || (page.demande.fichiers[7].id && (page.demande.contenu.donnee.entreprise.paysoriginedetachement == 'IT')) || (page.demande.fichiers[8].id && (page.demande.contenu.donnee.entreprise.paysoriginedetachement == 'IT')) || (page.demande.fichiers[9].id && (page.demande.contenu.donnee.entreprise.paysoriginedetachement == 'IT')) || (page.demande.fichiers[10].id && (page.demande.contenu.donnee.entreprise.paysoriginedetachement == 'IT')) || (page.demande.fichiers[11].id && (page.demande.contenu.donnee.entreprise.paysoriginedetachement == 'IT') && (page.demande.contenu.donnee.salaries.joindrefichier == 'JOINDRE')) || (page.demande.fichiers[12].id && (page.demande.contenu.donnee.entreprise.paysoriginedetachement == 'FR') && (page.demande.contenu.donnee.salaries.joindrefichier == 'JOINDRE'))",
         "fichiersParameter": {
           "data": "fichiers",
-          "nombre": 5,
+          "nombre": 13,
           "validation": {
             "maxsize": "5MB",
             "pattern": ".doc,.docx,.rtf,.pdf,.jpg,.jpeg,.tif,.png",
@@ -83,57 +177,153 @@
       {
         "columns": [
           {
-            "chaineParameter": {
-              "data": "contenu.donnee.entreprise.numerocar",
-              "size": 10,
+            "choixParameter": {
+              "choix": "paysOrigineDetachement",
+              "data": "contenu.donnee.entreprise.paysoriginedetachement",
+              "type": "radio",
               "validation": {
-                "pattern": "-?[0-9]+([.,][0-9]+)?",
                 "required": true
               }
             },
-            "nom": "donneeEntrepriseNumerocar",
+            "nom": "donneeEntreprisePaysoriginedetachement",
+            "type": "choix"
+          },
+          {
+            "conditionForm": "(1 && (page.demande.contenu.donnee.entreprise.datesdetachementsidentiques == 'YES'))",
+            "conditionRecap": "!(1 && (!page.demande.contenu.donnee.entreprise.datesdetachement.trim()))",
+            "nom": "donneeEntrepriseDatesdetachement",
+            "texteParameter": {
+              "cols": 55,
+              "data": "contenu.donnee.entreprise.datesdetachement",
+              "rows": 3
+            },
+            "type": "texte"
+          },
+          {
+            "choixParameter": {
+              "choix": "ouinon",
+              "data": "contenu.donnee.entreprise.estchantier",
+              "type": "radio",
+              "validation": {
+                "required": true
+              }
+            },
+            "nom": "donneeEntrepriseEstchantier",
+            "type": "choix"
+          },
+          {
+            "chaineParameter": {
+              "data": "contenu.donnee.entreprise.nomchantier",
+              "size": 55,
+              "validation": {
+                "maxlength": 100,
+                "required": true
+              }
+            },
+            "conditionForm": "(1 && (page.demande.contenu.donnee.entreprise.estchantier == 'YES'))",
+            "conditionRecap": "!(1 && (!page.demande.contenu.donnee.entreprise.nautorisationchantier.trim()))",
+            "inits": [
+              {
+                "condition": "(1 && (page.demande.contenu.donnee.entreprise.estchantier == 'NO'))",
+                "noCheck": true,
+                "type": "del"
+              }
+            ],
+            "nom": "donneeEntrepriseNomchantier",
             "type": "chaine"
           },
           {
             "chaineParameter": {
-              "data": "contenu.donnee.entreprise.raisonsociale",
+              "data": "contenu.donnee.entreprise.nomentreprise",
               "size": 55,
+              "validation": {
+                "maxlength": 100,
+                "required": true
+              }
+            },
+            "conditionForm": "(1 && (page.demande.contenu.donnee.entreprise.estchantier == 'NO'))",
+            "conditionRecap": "(1 && !(!page.demande.contenu.donnee.entreprise.nomentreprise.trim()))",
+            "inits": [
+              {
+                "condition": "(1 && (page.demande.contenu.donnee.entreprise.estchantier == 'YES'))",
+                "noCheck": true,
+                "type": "del"
+              }
+            ],
+            "nom": "donneeEntrepriseNomentreprise",
+            "type": "chaine"
+          },
+          {
+            "chaineParameter": {
+              "data": "contenu.donnee.entreprise.nautorisationchantier",
+              "size": 55,
+              "validation": {
+                "maxlength": 50,
+                "required": true
+              }
+            },
+            "conditionRecap": "(1 && !(!page.demande.contenu.donnee.entreprise.nautorisationchantier.trim()))",
+            "inits": [
+              {
+                "condition": "(1 && (page.demande.contenu.donnee.entreprise.estchantier == 'NO'))",
+                "noCheck": true,
+                "type": "del"
+              }
+            ],
+            "nom": "donneeEntrepriseNautorisationchantier",
+            "type": "chaine"
+          },
+          {
+            "conditionRecap": "(1 && !(!page.demande.contenu.donnee.entreprise.datedebutchantier))",
+            "dateParameter": {
+              "data": "contenu.donnee.entreprise.datedebutchantier",
+              "size": 25,
               "validation": {
                 "required": true
               }
             },
             "inits": [
               {
-                "ref": "page.usager@usager.raisonSociale",
-                "type": "ref"
+                "condition": "(1 && (page.demande.contenu.donnee.entreprise.estchantier == 'NO'))",
+                "noCheck": true,
+                "type": "del"
               }
             ],
-            "nom": "donneeEntrepriseRaisonsociale",
-            "type": "chaine"
+            "nom": "donneeEntrepriseDatedebutchantier",
+            "type": "date"
           },
           {
-            "chaineParameter": {
-              "data": "contenu.donnee.entreprise.nom",
-              "size": 55,
+            "conditionRecap": "(1 && !(!page.demande.contenu.donnee.entreprise.datefinchantier))",
+            "dateParameter": {
+              "data": "contenu.donnee.entreprise.datefinchantier",
+              "size": 25,
               "validation": {
                 "required": true
               }
             },
-            "nom": "donneeEntrepriseNom",
-            "type": "chaine"
+            "inits": [
+              {
+                "condition": "(1 && (page.demande.contenu.donnee.entreprise.estchantier == 'NO'))",
+                "noCheck": true,
+                "type": "del"
+              }
+            ],
+            "nom": "donneeEntrepriseDatefinchantier",
+            "type": "date"
           },
           {
             "adresseParameter": {
-              "codePostal": "contenu.donnee.entreprise.adresse.codePostal",
-              "ligne1": "contenu.donnee.entreprise.adresse.ligne1",
-              "ligne2": "contenu.donnee.entreprise.adresse.ligne2",
-              "ligne3": "contenu.donnee.entreprise.adresse.ligne3",
-              "pays": "contenu.donnee.entreprise.adresse.pays",
+              "codePostal": "contenu.donnee.entreprise.adressechantier.codePostal",
+              "ligne1": "contenu.donnee.entreprise.adressechantier.ligne1",
+              "ligne2": "contenu.donnee.entreprise.adressechantier.ligne2",
+              "ligne3": "contenu.donnee.entreprise.adressechantier.ligne3",
+              "pays": "contenu.donnee.entreprise.adressechantier.pays",
               "validation": {
                 "required": true
               },
-              "ville": "contenu.donnee.entreprise.adresse.ville"
+              "ville": "contenu.donnee.entreprise.adressechantier.ville"
             },
+            "conditionRecap": "(1 && !(!page.demande.contenu.donnee.entreprise.adressechantier.ligne1.trim() && !page.demande.contenu.donnee.entreprise.adressechantier.ligne2.trim() && !page.demande.contenu.donnee.entreprise.adressechantier.ligne3.trim()))",
             "inits": [
               {
                 "adresseValue": {
@@ -145,21 +335,49 @@
                   "ville": "Monaco"
                 },
                 "type": "value"
+              },
+              {
+                "condition": "(1 && (page.demande.contenu.donnee.entreprise.estchantier == 'NO'))",
+                "noCheck": true,
+                "type": "del"
               }
             ],
-            "nom": "donneeEntrepriseAdresse",
+            "nom": "donneeEntrepriseAdressechantier",
             "type": "adresse"
           },
           {
-            "chaineParameter": {
-              "data": "contenu.donnee.entreprise.telephone",
-              "size": 15,
+            "adresseParameter": {
+              "codePostal": "contenu.donnee.entreprise.adresseentreprise.codePostal",
+              "ligne1": "contenu.donnee.entreprise.adresseentreprise.ligne1",
+              "ligne2": "contenu.donnee.entreprise.adresseentreprise.ligne2",
+              "ligne3": "contenu.donnee.entreprise.adresseentreprise.ligne3",
+              "pays": "contenu.donnee.entreprise.adresseentreprise.pays",
               "validation": {
                 "required": true
-              }
+              },
+              "ville": "contenu.donnee.entreprise.adresseentreprise.ville"
             },
-            "nom": "donneeEntrepriseTelephone",
-            "type": "chaine"
+            "conditionRecap": "(1 && !(!page.demande.contenu.donnee.entreprise.adresseentreprise.ligne1.trim() && !page.demande.contenu.donnee.entreprise.adresseentreprise.ligne2.trim() && !page.demande.contenu.donnee.entreprise.adresseentreprise.ligne3.trim()))",
+            "inits": [
+              {
+                "adresseValue": {
+                  "codePostal": "98000",
+                  "ligne1": "",
+                  "ligne2": "",
+                  "ligne3": "",
+                  "pays": "MC",
+                  "ville": "Monaco"
+                },
+                "type": "value"
+              },
+              {
+                "condition": "(1 && (page.demande.contenu.donnee.entreprise.estchantier == 'YES'))",
+                "noCheck": true,
+                "type": "del"
+              }
+            ],
+            "nom": "donneeEntrepriseAdresseentreprise",
+            "type": "adresse"
           }
         ],
         "nom": "donneeEntreprise",
@@ -168,13 +386,179 @@
       {
         "columns": [
           {
+            "columns": [
+              {
+                "chaineParameter": {
+                  "data": "donneeSalariesTabsalariesitalieChampnom",
+                  "size": 55,
+                  "validation": {
+                    "maxlength": 50,
+                    "required": true
+                  }
+                },
+                "nom": "donneeSalariesTabsalariesitalieChampnom",
+                "type": "chaine"
+              },
+              {
+                "chaineParameter": {
+                  "data": "donneeSalariesTabsalariesitalieChampprenom",
+                  "size": 55,
+                  "validation": {
+                    "maxlength": 50,
+                    "required": true
+                  }
+                },
+                "nom": "donneeSalariesTabsalariesitalieChampprenom",
+                "type": "chaine"
+              },
+              {
+                "chaineParameter": {
+                  "data": "donneeSalariesTabsalariesitalieChampqualif",
+                  "size": 55,
+                  "validation": {
+                    "maxlength": 50,
+                    "required": true
+                  }
+                },
+                "nom": "donneeSalariesTabsalariesitalieChampqualif",
+                "type": "chaine"
+              },
+              {
+                "nom": "donneeSalariesTabsalariesitalieChampdebutdetach",
+                "texteParameter": {
+                  "cols": 53,
+                  "data": "donneeSalariesTabsalariesitalieChampdebutdetach",
+                  "rows": 4,
+                  "validation": {
+                    "maxlength": 1500,
+                    "required": true
+                  }
+                },
+                "type": "texte"
+              }
+            ],
+            "condition": "(1 && (page.demande.contenu.donnee.entreprise.paysoriginedetachement == 'IT') && (page.demande.contenu.donnee.salaries.joindrefichier == 'SAISIR'))",
+            "conditionRecap": "(1 && !(!page.demande.contenu.donnee.salaries.tabsalariesitalie.length) && (page.demande.contenu.donnee.salaries.joindrefichier == 'SAISIR') && (page.demande.contenu.donnee.entreprise.paysoriginedetachement == 'IT'))",
+            "nom": "donneeSalariesTabsalariesitalie",
+            "tableauParameter": {
+              "copy": false,
+              "create": true,
+              "data": "contenu.donnee.salaries.tabsalariesitalie",
+              "dataDisplay": "ui.tableauDonneeSalariesTabsalaries",
+              "delete": true,
+              "edit": true,
+              "pageEdition": "etape_salarie_it",
+              "validation": {
+                "requiredexpr": "!(1 && (!page.demande.contenu.donnee.salaries.tabsalariesitalie.length))"
+              }
+            },
+            "type": "tableau"
+          },
+          {
+            "columns": [
+              {
+                "chaineParameter": {
+                  "data": "donneeSalariesTabsalariesfranceChampnom",
+                  "size": 55,
+                  "validation": {
+                    "maxlength": 50,
+                    "required": true
+                  }
+                },
+                "nom": "donneeSalariesTabsalariesfranceChampnom",
+                "type": "chaine"
+              },
+              {
+                "chaineParameter": {
+                  "data": "donneeSalariesTabsalariesfranceChampprenom",
+                  "size": 55,
+                  "validation": {
+                    "maxlength": 50,
+                    "required": true
+                  }
+                },
+                "nom": "donneeSalariesTabsalariesfranceChampprenom",
+                "type": "chaine"
+              },
+              {
+                "chaineParameter": {
+                  "data": "donneeSalariesTabsalariesfranceChampnumsecu",
+                  "size": 55,
+                  "validation": {
+                    "maxlength": 50,
+                    "required": true
+                  }
+                },
+                "nom": "donneeSalariesTabsalariesfranceChampnumsecu",
+                "type": "chaine"
+              },
+              {
+                "chaineParameter": {
+                  "data": "donneeSalariesTabsalariesfranceChampqualif",
+                  "size": 55,
+                  "validation": {
+                    "maxlength": 50,
+                    "required": true
+                  }
+                },
+                "nom": "donneeSalariesTabsalariesfranceChampqualif",
+                "type": "chaine"
+              },
+              {
+                "nom": "donneeSalariesTabsalariesfranceChampdebutdetach",
+                "texteParameter": {
+                  "cols": 52,
+                  "data": "donneeSalariesTabsalariesfranceChampdebutdetach",
+                  "rows": 4,
+                  "validation": {
+                    "maxlength": 1500,
+                    "required": true
+                  }
+                },
+                "type": "texte"
+              }
+            ],
+            "condition": "(1 && (page.demande.contenu.donnee.entreprise.paysoriginedetachement == 'FR') && (page.demande.contenu.donnee.salaries.joindrefichier == 'SAISIR'))",
+            "conditionRecap": "(1 && !(!page.demande.contenu.donnee.salaries.tabsalariesfrance.length) && (page.demande.contenu.donnee.salaries.joindrefichier == 'SAISIR') && (page.demande.contenu.donnee.entreprise.paysoriginedetachement == 'FR'))",
+            "nom": "donneeSalariesTabsalariesfrance",
+            "tableauParameter": {
+              "copy": false,
+              "create": true,
+              "data": "contenu.donnee.salaries.tabsalariesfrance",
+              "dataDisplay": "ui.tableauDonneeSalariesTabsalariesfrance",
+              "delete": true,
+              "edit": true,
+              "pageEdition": "etape_salarie_fr",
+              "validation": {
+                "requiredexpr": "!(1 && (!page.demande.contenu.donnee.salaries.tabsalariesfrance.length))"
+              }
+            },
+            "type": "tableau"
+          },
+          {
             "choixParameter": {
-              "choix": "titre",
-              "data": "contenu.donnee.demandeur.titre",
-              "type": "select",
+              "choix": "saisirOuFichier",
+              "data": "contenu.donnee.salaries.joindrefichier",
+              "type": "radio",
               "validation": {
                 "required": true
               }
+            },
+            "conditionRecap": "",
+            "nom": "donneeSalariesJoindrefichier",
+            "type": "choix"
+          }
+        ],
+        "nom": "donneeSalaries",
+        "type": "objet"
+      },
+      {
+        "columns": [
+          {
+            "choixParameter": {
+              "choix": "titre",
+              "data": "contenu.donnee.demandeur.titre",
+              "type": "select"
             },
             "inits": [
               {
@@ -187,28 +571,8 @@
           },
           {
             "chaineParameter": {
-              "data": "contenu.donnee.demandeur.prenom",
-              "size": 55,
-              "validation": {
-                "required": true
-              }
-            },
-            "inits": [
-              {
-                "ref": "page.usager@usager.prenom",
-                "type": "ref"
-              }
-            ],
-            "nom": "donneeDemandeurPrenom",
-            "type": "chaine"
-          },
-          {
-            "chaineParameter": {
               "data": "contenu.donnee.demandeur.nom",
-              "size": 55,
-              "validation": {
-                "required": true
-              }
+              "size": 55
             },
             "inits": [
               {
@@ -221,11 +585,23 @@
           },
           {
             "chaineParameter": {
-              "data": "contenu.donnee.demandeur.mail",
-              "size": 55,
-              "validation": {
-                "required": true
+              "data": "contenu.donnee.demandeur.prenom",
+              "size": 55
+            },
+            "inits": [
+              {
+                "ref": "page.usager@usager.prenom",
+                "type": "ref"
               }
+            ],
+            "nom": "donneeDemandeurPrenom",
+            "type": "chaine"
+          },
+          {
+            "chaineParameter": {
+              "data": "contenu.donnee.demandeur.email",
+              "oneCol": true,
+              "size": 55
             },
             "inits": [
               {
@@ -233,7 +609,7 @@
                 "type": "ref"
               }
             ],
-            "nom": "donneeDemandeurMail",
+            "nom": "donneeDemandeurEmail",
             "type": "chaine"
           }
         ],
@@ -243,75 +619,79 @@
       {
         "columns": [
           {
-            "choixMultipleParameter": {
-              "choix": "joursFeries",
-              "data": "contenu.donnee.derogation.joursferies",
-              "validation": {
-                "required": true
-              }
-            },
-            "nom": "donneeDerogationJoursferies",
-            "type": "choixMultiple"
-          },
-          {
-            "nom": "donneeDerogationEmployeConcerne",
-            "texteParameter": {
-              "cols": 70,
-              "data": "contenu.donnee.derogation.employe.concerne",
-              "rows": 10,
-              "validation": {
-                "required": true
-              }
-            },
-            "type": "texte"
-          },
-          {
-            "nom": "donneeDerogationMotivationdemande",
-            "texteParameter": {
-              "cols": 75,
-              "data": "contenu.donnee.derogation.motivationdemande",
-              "rows": 10,
-              "validation": {
-                "required": true
-              }
-            },
-            "type": "texte"
-          },
-          {
-            "choixParameter": {
-              "choix": "ouinon",
-              "data": "contenu.donnee.derogation.presencedeleguespersonnel",
-              "type": "radio",
-              "validation": {
-                "required": true
-              }
-            },
-            "nom": "donneeDerogationPresencedeleguespersonnel",
-            "type": "choix"
-          },
-          {
             "chaineParameter": {
-              "data": "contenu.donnee.derogation.nombresalarie",
-              "size": 10,
+              "data": "contenu.donnee.entrepriseorigine.raisonsociale",
+              "size": 55,
               "validation": {
-                "pattern": "[0-9]+",
+                "maxlength": 100,
                 "required": true
               }
             },
-            "condition": "(1 && (page.demande.contenu.donnee.derogation.presencedeleguespersonnel == 'NO'))",
             "inits": [
               {
-                "condition": "(1 && (page.demande.contenu.donnee.derogation.presencedeleguespersonnel == 'YES'))",
-                "noCheck": true,
-                "type": "del"
+                "ref": "page.usager@usager.raisonSociale",
+                "type": "ref"
               }
             ],
-            "nom": "donneeDerogationNombresalarie",
+            "nom": "donneeEntrepriseorigineRaisonsociale",
             "type": "chaine"
+          },
+          {
+            "adresseParameter": {
+              "codePostal": "contenu.donnee.entrepriseorigine.adresse.codePostal",
+              "ligne1": "contenu.donnee.entrepriseorigine.adresse.ligne1",
+              "ligne2": "contenu.donnee.entrepriseorigine.adresse.ligne2",
+              "ligne3": "contenu.donnee.entrepriseorigine.adresse.ligne3",
+              "pays": "contenu.donnee.entrepriseorigine.adresse.pays",
+              "validation": {
+                "required": true
+              },
+              "ville": "contenu.donnee.entrepriseorigine.adresse.ville"
+            },
+            "inits": [
+              {
+                "adresseValue": {
+                  "codePostal": "",
+                  "ligne1": "",
+                  "ligne2": "",
+                  "ligne3": "",
+                  "pays": "IT",
+                  "ville": ""
+                },
+                "condition": "(1 && (page.demande.contenu.donnee.entreprise.paysoriginedetachement == 'IT'))",
+                "noCheck": false,
+                "type": "value"
+              },
+              {
+                "adresseValue": {
+                  "codePostal": "",
+                  "ligne1": "",
+                  "ligne2": "",
+                  "ligne3": "",
+                  "pays": "FR",
+                  "ville": ""
+                },
+                "condition": "(1 && (page.demande.contenu.donnee.entreprise.paysoriginedetachement == 'FR'))",
+                "noCheck": false,
+                "type": "value"
+              }
+            ],
+            "nom": "donneeEntrepriseorigineAdresse",
+            "type": "adresse"
           }
         ],
-        "nom": "donneeDerogation",
+        "nom": "donneeEntrepriseorigine",
         "type": "objet"
+      },
+      {
+        "chaineParameter": {
+          "data": "contenu.champvide",
+          "size": 55
+        },
+        "condition": "(1 && (page.demande.contenu.donnee.entreprise.estchantier == 'NO') && (page.demande.contenu.donnee.entreprise.paysoriginedetachement == 'FR'))",
+        "conditionRecap": "(1 && (false))",
+        "nom": "champvide",
+        "type": "chaine"
       }
     ],
     "type": "objet"

@@ -17,6 +17,8 @@ public class TraitementFormBean {
 
     private String commentaireUsager;
 
+    private String texteAEnvoyer;
+
     private String observations;
 
     private String commentaireInterne;
@@ -71,4 +73,11 @@ public class TraitementFormBean {
         this.activeTaskDefinitionKey = activeTaskDefinitionKey;
     }
 
+    public String getTexteAEnvoyer() {
+        return texteAEnvoyer;
+    }
+
+    public void setTexteAEnvoyer(String texteAEnvoyer) {
+        this.texteAEnvoyer = texteAEnvoyer;
+    }
 }

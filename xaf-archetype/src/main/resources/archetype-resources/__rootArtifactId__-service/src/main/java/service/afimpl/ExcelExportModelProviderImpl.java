@@ -3,12 +3,13 @@
 #set( $symbol_escape = '\' )
 package ${groupId}.service.afimpl;
 
-import mc.gouv.xaf.back.dto.StatutPublicOuInterneDTO;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.util.AfBackUtils;
-import mc.gouv.xaf.back.xls.ExcelExportModelProvider;
-import mc.gouv.dem.service.DemandesService;
-import mc.gouv.dem.shared.model.DemandeDTO;
+import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.back.service.excel.ExcelExportModelProvider;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
+import ${groupId}.service.${artifactIdCamelCase}DataService;
 import ${groupId}.shared.dto.DemandeExcelFlatDTO;
 import ${groupId}.shared.util.${artifactIdCamelCase}Utils;
 import org.apache.commons.lang.StringUtils;
@@ -38,6 +39,9 @@ public class ExcelExportModelProviderImpl implements ExcelExportModelProvider {
     @Autowired
     private ${artifactIdCamelCase}Utils ${artifactIdLower}Utils;
 
+    @Autowired
+    private ${artifactIdCamelCase}DataService ${artifactIdLower}DataService;
+
     @Override
     public Map<String, Object> getModel(String plainStartDate, String plainEndDate) {
 
@@ -54,6 +58,7 @@ public class ExcelExportModelProviderImpl implements ExcelExportModelProvider {
                     ${artifactIdCamelCase}Utils.getContenuDemande(demande));
 
             demandeFlatDTO.setEtatInterne(getEtatIntern(demande));
+            demandeFlatDTO.setInformationsDetachement(${artifactIdLower}DataService.getInformationsDetachement(demande.getPkDemandes()));
             demandesFlat.add(demandeFlatDTO);
         });
 

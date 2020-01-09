@@ -25,19 +25,28 @@ var columns = [
 		"keyword" : true,
 		render : function(data, type, demande) {
 			return '<span  class="label statusbox ' + APP.getStatusColorClass(demande.dernierStatut.code) + '">' + demande.dernierStatut.libelle + '</span>';
-		//return demande.dernierStatut.libelle;
 		}
 	},
 	{
-		"data" : "contenu.donnee.entreprise.raisonsociale",
+		"data" : "contenu.donnee.entrepriseorigine.raisonsociale",
 		"keyword" : true,
 		render : function(data, type, demande) {
-			return textRenderer(demande.contenu.donnee.entreprise.raisonsociale);
+			return textRenderer(demande.contenu.donnee.entrepriseorigine.raisonsociale);
 		}
 	},
 	{
-		"data" : "langue",
+		"data" : "contenu.donnee.entreprise.nomentreprise",
 		"keyword" : true,
+		render : function(data, type, demande) {
+			return textRenderer(demande.contenu.donnee.entreprise.nomentreprise);
+		}
+	},
+	{
+		"data" : "contenu.donnee.entreprise.nomchantier",
+		"keyword" : true,
+		render : function(data, type, demande) {
+			return textRenderer(demande.contenu.donnee.entreprise.nomchantier);
+		}
 	},
 	{
 		"data" : "canal.libelle",
@@ -57,7 +66,7 @@ var columns = [
 		"orderable" : false,
 		"keyword" : false,
 		render : function(data, type, demande) {
-			return '<a href="' + APP.getContextPath() + '/demandes/' + demande.pkDemandes + '"><span class="btn btn-action ripple-effect greyTooltip" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Visualiser"><i class="icon-action_editer"></i></a>';
+			return '<a id="btnOuvrirDemande' + demande.pkDemandes + '" href="' + APP.getContextPath() + '/demandes/' + demande.pkDemandes + '"><span class="btn btn-action ripple-effect greyTooltip" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Visualiser"><i class="icon-action_editer"></i></a>';
 		}
 	}
 ];

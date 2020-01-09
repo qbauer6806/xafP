@@ -3,406 +3,414 @@
 #set( $symbol_escape = '\' )
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org" class="no-js" lang="fr"
-	dir="ltr"
-	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+	  dir="ltr"
+	  xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
 
 <head>
-<meta charset="utf-8" />
-<meta http-equiv="x-ua-compatible" content="ie=edge" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta th:name="_csrf" th:content="${symbol_dollar}{_csrf.token}" />
-<meta th:name="_csrf_header" th:content="${symbol_dollar}{_csrf.headerName}" />
-<title th:text="${symbol_dollar}{AfBackUtils.getDemarcheNom()}"></title>
+	<meta charset="utf-8" />
+	<meta http-equiv="x-ua-compatible" content="ie=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta th:name="_csrf" th:content="${symbol_dollar}{_csrf.token}" />
+	<meta th:name="_csrf_header" th:content="${symbol_dollar}{_csrf.headerName}" />
+	<title th:text="${symbol_dollar}{AfBackUtils.getDemarcheNom()}"></title>
 
 
-<!-- Import FONTS -->
-<link th:href="@{/webjars/xcb-wlib/fonts/style.css}" rel="stylesheet" />
-<link rel="stylesheet" th:href="@{/webjars/xcb-wlib/fonts/ie7/ie7.css}" />
+	<!-- Import FONTS -->
+	<link th:href="@{/webjars/xcb-wlib/fonts/style.css}" rel="stylesheet" />
+	<link rel="stylesheet" th:href="@{/webjars/xcb-wlib/fonts/ie7/ie7.css}" />
 
-<link rel="stylesheet"
-	th:href="@{/css/font-style.css(${symbol_dollar}{applicationBuildTimestamp})}" />
+	<link rel="stylesheet"
+		  th:href="@{/css/font-style.css(${symbol_dollar}{applicationBuildTimestamp})}" />
 
-<!-- Import CSS -->
-<link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"
-	rel="stylesheet" type="text/css" />
-<link th:href="@{/webjars/xcb-wlib/css/template.css}" rel="stylesheet" />
-<link th:href="@{/webjars/xcb-wlib/css/sidebar.css}" rel="stylesheet" />
-<link th:href="@{/webjars/xcb-wlib/css/element.css}" rel="stylesheet" />
-<link th:href="@{/webjars/datatables/css/dataTables.bootstrap.css}"
-	rel="stylesheet" />
-<link
-	th:href="@{/webjars/bootstrap-datepicker/css/bootstrap-datepicker.css}"
-	rel="stylesheet" />
+	<!-- Import CSS -->
+	<link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"
+		  rel="stylesheet" type="text/css" />
+	<link th:href="@{/webjars/xcb-wlib/css/template.css}" rel="stylesheet" />
+	<link th:href="@{/webjars/xcb-wlib/css/sidebar.css}" rel="stylesheet" />
+	<link th:href="@{/webjars/xcb-wlib/css/element.css}" rel="stylesheet" />
+	<link th:href="@{/webjars/datatables/css/dataTables.bootstrap.css}"
+		  rel="stylesheet" />
+	<link
+			th:href="@{/webjars/bootstrap-datepicker/css/bootstrap-datepicker.css}"
+			rel="stylesheet" />
 
-<link rel="stylesheet"
-	th:href="@{/webjars/fancybox/jquery.fancybox.css}" />
+	<link rel="stylesheet"
+		  th:href="@{/webjars/fancybox/jquery.fancybox.css}" />
 
-<link rel="shortcut icon" type="image/x-icon"
-	th:href="@{/img/favicon.ico}" />
-<link th:href="@{/css/tsgen.css(${symbol_dollar}{applicationBuildTimestamp})}"
-	rel="stylesheet" />
-<link th:href="@{/css/tsdem.css(${symbol_dollar}{applicationBuildTimestamp})}"
-	rel="stylesheet" />
+	<link rel="shortcut icon" type="image/x-icon"
+		  th:href="@{/img/favicon.ico}" />
+	<link th:href="@{/css/tsgen.css(${symbol_dollar}{applicationBuildTimestamp})}"
+		  rel="stylesheet" />
+	<link th:href="@{/css/tsdem.css(${symbol_dollar}{applicationBuildTimestamp})}"
+		  rel="stylesheet" />
 
+	<style type="text/css">
+		.form-group {
+			margin-bottom: 0;
+		}
+	</style>
 </head>
 
 <body th:with="pageDemandesActive='active'">
 
-	<div th:replace="fragments/header :: header"></div>
+<div th:replace="fragments/header :: header"></div>
 
-	<div id="wrapper">
+<div id="wrapper">
 
-		<div th:replace="fragments/sidebar :: sidebar"></div>
-		<!-- Contenu -->
-		<div id="page-content-wrapper">
-			<div class="breadcrumbContent">
-				<ol class="breadcrumb">
-					<span class="breadcrumb-item active"> <a th:href="@{/}"
-						class="breadcrumb-link">Accueil</a>&nbsp;&gt;&nbsp; <a
-						th:href="@{/demandes}" class="breadcrumb-link">Demandes</a> &gt;
-						Demande n°<span th:text="${symbol_dollar}{demandeDTO.identifiant}" ></span> - <span
-						th:text="${symbol_dollar}{AfBackUtils.getDemandeur(contenuDemandeDTO)}"></span>
+	<div th:replace="fragments/sidebar :: sidebar"></div>
+	<!-- Contenu -->
+	<div id="page-content-wrapper">
+		<div class="breadcrumbContent">
+			<div class="breadcrumb">
+					<span class="breadcrumb-item active"> <a id="ariane0"
+						th:href="@{/}" class="breadcrumb-link">Accueil</a>&nbsp;&gt;&nbsp;
+						<a id="ariane1" th:href="@{/demandes}" class="breadcrumb-link">Demandes</a>
+						&gt; Demande n°<span th:text="${symbol_dollar}{demandeDTO.identifiant}"></span>
+						- <span th:text="${symbol_dollar}{AfBackUtils.getDemandeur(contenuDemandeDTO)}"></span>
 					</span>
-				</ol>
-				<div class="triangleTopright"></div>
-			</div>
+				</div>
+			<div class="triangleTopright"></div>
+		</div>
 
 
-			<div class="container-fluid">
+		<div class="container-fluid">
 
-				<div class="row">
-					<div class="col-xs-12">
-						<h1>
-							Demande n°<span th:text="${symbol_dollar}{demandeDTO.identifiant}"> - </span> <span
-								th:text="${symbol_dollar}{AfBackUtils.getDemandeur(contenuDemandeDTO)}" >&nbsp;&nbsp;</span>
-							<span
+			<div class="row">
+				<div class="col-xs-12">
+					<h1>
+						Demande n°<span th:text="${symbol_dollar}{demandeDTO.identifiant}"> - </span> <span
+							th:text="${symbol_dollar}{AfBackUtils.getDemandeur(contenuDemandeDTO)}" >&nbsp;&nbsp;</span>
+						<span
 								th:class="${symbol_dollar}{'label statusbox ' + AfBackUtils.getStatusColorClass(statutPublicOuInterneDTO)}"
 								th:text="${symbol_dollar}{statutPublicOuInterneDTO}" ></span>
-						</h1>
+					</h1>
+				</div>
+			</div>
+
+			<div th:replace="fragments/demandehistorique :: demandehistorique"></div>
+
+
+			<div class="row">
+				<div class="col-xs-6">
+
+					<ul class="nav nav-tabs" role="tablist">
+						<li class="active"><a href="${symbol_pound}tab1" aria-controls="tab1"
+											  role="tab" data-toggle="tab">DÉTAILS</a></li>
+						<li><a href="${symbol_pound}tab2" aria-controls="tab2" role="tab"
+							   data-toggle="tab">FICHIERS (
+							<span th:text="${symbol_dollar}{fileCount}" ></span> )
+						</a></li>
+						<li><a href="${symbol_pound}tab3" aria-controls="tab3" role="tab"
+							   data-toggle="tab">COMPLÉMENTS ( <span
+								th:if="${symbol_dollar}{demandeDTO.complements != null}"
+								th:text="${symbol_dollar}{demandeDTO.complements.length}" ></span><span
+								th:if="${symbol_dollar}{demandeDTO.complements == null}">0</span> )
+						</a></li>
+					</ul>
+					<!-- Tab panes -->
+					<div class="tab-content">
+						<div role="tabpanel" class="tab-pane active" id="tab1">
+							<form name="form1" novalidate="novalidate">
+								<div class="sectiondemande">
+									<h3>Informations de la demande</h3>
+									<dl>
+										<dt th:if="${symbol_dollar}{demandeDTO.canal.name()} == 'GUICHET_VIRTUEL'">
+											<span>Date de transmission</span>
+										</dt>
+										<dd th:if="${symbol_dollar}{demandeDTO.canal.name()} == 'GUICHET_VIRTUEL'">
+												<span
+														th:text="${symbol_dollar}{${symbol_pound}dates.format(demandeDTO.dateCreation,'dd/MM/yyyy')}" />
+										</dd>
+										<dt th:if="${symbol_dollar}{demandeDTO.canal.name()} != 'GUICHET_VIRTUEL'">
+											<span>Date de dépôt</span>
+										</dt>
+										<dd th:if="${symbol_dollar}{demandeDTO.canal.name()} != 'GUICHET_VIRTUEL'">
+												<span
+														th:text="${symbol_dollar}{${symbol_pound}dates.format(demandeDTO.courrierDateReception,'dd/MM/yyyy')}" />
+										</dd>
+										<dt>
+											<span>Etat de la demande</span>
+										</dt>
+										<dd>
+												<span
+														th:text="${symbol_dollar}{AfBackUtils.getStatusLibelleFromName(demandeDTO.dernierStatut.libelle)+', le '}+${symbol_dollar}{${symbol_pound}dates.format(demandeDTO.dernierStatut.date,'dd/MM/yyyy')}"></span>
+										</dd>
+										<dt>
+											<span>Langue</span>
+										</dt>
+										<dd>
+											<span th:text="${symbol_dollar}{demandeDTO.langue}"></span>
+										</dd>
+										<dt>
+											<span>Canal</span>
+										</dt>
+										<dd>
+											<span th:text="${symbol_dollar}{demandeDTO.canal}" ></span>
+										</dd>
+
+										<dt th:if="${symbol_dollar}{demandeDTO.creeParAgentId != null}">
+											<span>Créé par</span>
+										</dt>
+										<dd th:if="${symbol_dollar}{demandeDTO.creeParAgentId != null}">
+												<span
+														th:text="${symbol_dollar}{AfBackUtils.getUserNameFromID(demandeDTO.creeParAgentId)}" ></span>
+										</dd>
+										<dt th:if="${symbol_dollar}{isTerminee}">
+											<span>Motif</span>
+										</dt>
+										<dd
+												th:if="${symbol_dollar}{isTerminee} and ${symbol_dollar}{demandeDTO.dernierStatut.codeMotif} != null">
+												<span
+														th:text="${symbol_dollar}{MotifsCache.getMotif(demandeDTO.dernierStatut.codeMotif,'fr').libelle}" ></span>
+										</dd>
+										<dt th:if="${symbol_dollar}{isTerminee}">
+											<span>Commentaire</span>
+										</dt>
+										<dd th:if="${symbol_dollar}{isTerminee}">
+											<span th:text="${symbol_dollar}{demandeDTO.dernierStatut.commentaire}" class="display-commentaire"></span>
+										</dd>
+									</dl>
+								</div>
+								<div class="dynamictab" th:if="${symbol_dollar}{demandeDTO.buildId != null}">
+								</div>
+							</form>
+
+						</div>
+						<div th:replace="fragments/panelinfocompl :: panelinfocompl"></div>
+
+						<div
+								th:replace="fragments/panelfichiersjoints :: panelfichiersjoints"></div>
 					</div>
 				</div>
 
-				<div th:replace="fragments/demandehistorique :: demandehistorique"></div>
+				<div class="col-xs-6 mt-15">
 
+					<div class="row">
+						<div class="col-xs-12">
 
-				<div class="row">
-					<div class="col-xs-6">
-
-						<ul class="nav nav-tabs" role="tablist">
-							<li class="active"><a href="${symbol_pound}tab1" aria-controls="tab1"
-								role="tab" data-toggle="tab">DÉTAILS</a></li>
-							<li><a href="${symbol_pound}tab2" aria-controls="tab2" role="tab"
-								data-toggle="tab">FICHIERS (
-								<span th:text="${symbol_dollar}{fileCount}" ></span> )
-							</a></li>
-							<li><a href="${symbol_pound}tab3" aria-controls="tab3" role="tab"
-								data-toggle="tab">COMPLÉMENTS ( <span
-									th:if="${symbol_dollar}{demandeDTO.complements != null}"
-									th:text="${symbol_dollar}{demandeDTO.complements.length}" ></span><span
-									th:if="${symbol_dollar}{demandeDTO.complements == null}">0</span> )
-							</a></li>
-						</ul>
-						<!-- Tab panes -->
-						<div class="tab-content">
-							<div role="tabpanel" class="tab-pane active" id="tab1">
-								<form name="form1" novalidate="novalidate">
-									<div class="sectiondemande">
-										<h3>Informations de la demande</h3>
-										<dl>
-											<dt th:if="${symbol_dollar}{demandeDTO.canal.name()} == 'GUICHET_VIRTUEL'">
-												<span>Date de transmission</span>
-											</dt>
-											<dd th:if="${symbol_dollar}{demandeDTO.canal.name()} == 'GUICHET_VIRTUEL'">
-												<span
-													th:text="${symbol_dollar}{${symbol_pound}dates.format(demandeDTO.dateCreation,'dd/MM/yyyy')}" />
-											</dd>
-											<dt th:if="${symbol_dollar}{demandeDTO.canal.name()} != 'GUICHET_VIRTUEL'">
-												<span>Date de dépôt</span>
-											</dt>
-											<dd th:if="${symbol_dollar}{demandeDTO.canal.name()} != 'GUICHET_VIRTUEL'">
-												<span
-													th:text="${symbol_dollar}{${symbol_pound}dates.format(demandeDTO.courrierDateReception,'dd/MM/yyyy')}" />
-											</dd>
-											<dt>
-												<span>Etat de la demande</span>
-											</dt>
-											<dd>
-												<span
-													th:text="${symbol_dollar}{AfBackUtils.getStatusLibelleFromName(demandeDTO.dernierStatut.libelle)+', le '}+${symbol_dollar}{${symbol_pound}dates.format(demandeDTO.dernierStatut.date,'dd/MM/yyyy')}"></span>
-											</dd>
-											<dt>
-												<span>Langue</span>
-											</dt>
-											<dd>
-												<span th:text="${symbol_dollar}{demandeDTO.langue}"></span>
-											</dd>
-											<dt>
-												<span>Canal</span>
-											</dt>
-											<dd>
-												<span th:text="${symbol_dollar}{demandeDTO.canal}" ></span>
-											</dd>
-
-											<dt th:if="${symbol_dollar}{demandeDTO.creeParAgentId != null}">
-												<span>Créé par</span>
-											</dt>
-											<dd th:if="${symbol_dollar}{demandeDTO.creeParAgentId != null}">
-												<span
-													th:text="${symbol_dollar}{AfBackUtils.getUserNameFromID(demandeDTO.creeParAgentId)}" ></span>
-											</dd>
-											<dt th:if="${symbol_dollar}{isTerminee}">
-												<span>Motif</span>
-											</dt>
-											<dd
-												th:if="${symbol_dollar}{isTerminee} and ${symbol_dollar}{demandeDTO.dernierStatut.codeMotif} != null">
-												<span
-													th:text="${symbol_dollar}{MotifsCache.getMotif(demandeDTO.dernierStatut.codeMotif,'fr').libelle}" ></span>
-											</dd>
-											<dt th:if="${symbol_dollar}{isTerminee}">
-												<span>Commentaire</span>
-											</dt>
-											<dd th:if="${symbol_dollar}{isTerminee}">
-												<span th:text="${symbol_dollar}{demandeDTO.dernierStatut.commentaire}" class="display-commentaire"></span>
-											</dd>
-										</dl>
-									</div>
-									<div class="dynamictab" th:if="${symbol_dollar}{demandeDTO.buildId != null}">
-									</div>
-								</form>
-
-							</div>
-							<div th:replace="fragments/panelinfocompl :: panelinfocompl"></div>
-
-							<div
-								th:replace="fragments/panelfichiersjoints :: panelfichiersjoints"></div>
-						</div>
-					</div>
-
-					<div class="col-xs-6 mt-15">
-
-						<div class="row">
-							<div class="col-xs-12">
-
-								<div class="row"
-									th:if="${symbol_dollar}{statutPublicOuInterneDTO.getName()} == 'REFUSEE' or ${symbol_dollar}{statutPublicOuInterneDTO.getName()} == 'ACCORDEE' or ${symbol_dollar}{statutPublicOuInterneDTO.getName()} == 'ANNULEE'">
-									<div class="col-xs-12">
-										<div class="panel-group accordion" role="tablist"
-											aria-multiselectable="true">
-											<div class="panel panel-default">
-												<div class="panel-heading" role="tab" id="headingTwo">
-													<h4 class="panel-title">
-														<a role="button" data-toggle="collapse"
-															data-parent="${symbol_pound}accordion2" href="${symbol_pound}collapseTwo"
-															aria-expanded="true" aria-controls="collapseTwo"> <i
+							<div class="row"
+								 th:if="${symbol_dollar}{statutPublicOuInterneDTO.getName()} == 'REFUSEE' or ${symbol_dollar}{statutPublicOuInterneDTO.getName()} == 'VALIDEE' or ${symbol_dollar}{statutPublicOuInterneDTO.getName()} == 'ANNULEE'">
+								<div class="col-xs-12">
+									<div class="panel-group accordion" role="tablist"
+										 aria-multiselectable="true">
+										<div class="panel panel-default">
+											<div class="panel-heading" role="tab" id="headingTwo">
+												<h4 class="panel-title">
+													<a role="button" data-toggle="collapse"
+													   data-parent="${symbol_pound}accordion2" href="${symbol_pound}collapseTwo"
+													   aria-expanded="true" aria-controls="collapseTwo"> <i
 															class="pannelState icon-action_accordeon-ouvert"
 															th:classappend="${symbol_dollar}{hasRoleValidationOrTraitement} ? icon-action_accordeon-ouvert : icon-action_accordeon-ferme"></i>
-															DÉTAILS
-														</a>
-													</h4>
-												</div>
-												<div id="collapseTwo" class="panel-collapse collapse"
-													th:classappend = "${symbol_dollar}{hasRoleValidationOrTraitement} ? in : out"
-													role="tabpanel" aria-labelledby="headingTwo">
-													<div class="panel-body">
-														<div class="row">
-															<div class="col-xs-12">
-																<span class="titre">ETAT FINAL : </span>&nbsp;&nbsp;&nbsp;<span
-																	th:class="${symbol_dollar}{'label statusbox ' + AfBackUtils.getStatusColorClass(statutPublicOuInterneDTO)}"
-																	th:text="${symbol_dollar}{statutPublicOuInterneDTO}"></span>
-															</div>
+														DÉTAILS
+													</a>
+												</h4>
+											</div>
+											<div id="collapseTwo" class="panel-collapse collapse"
+												 th:classappend = "${symbol_dollar}{hasRoleValidationOrTraitement} ? in : out"
+												 role="tabpanel" aria-labelledby="headingTwo">
+												<div class="panel-body">
+													<div class="row">
+														<div class="col-xs-12">
+															<span class="titre">ETAT FINAL : </span>&nbsp;&nbsp;&nbsp;<span
+																th:class="${symbol_dollar}{'label statusbox ' + AfBackUtils.getStatusColorClass(statutPublicOuInterneDTO)}"
+																th:text="${symbol_dollar}{statutPublicOuInterneDTO}"></span>
 														</div>
-														<br />
-														<div class="row">
-															<div class="col-xs-12">
-																<span class="titre">MOTIF (si applicable)</span><br />
-																<span
+													</div>
+													<br />
+													<div class="row">
+														<div class="col-xs-12">
+															<span class="titre">MOTIF (si applicable)</span><br />
+															<span
 																	th:if="${symbol_dollar}{demandeDTO.dernierStatut.codeMotif != null}"
 																	th:text="${symbol_dollar}{MotifsCache.getMotif(demandeDTO.dernierStatut.codeMotif,'fr').libelle}"></span>
-																<span
+															<span
 																	th:if="${symbol_dollar}{demandeDTO.dernierStatut.codeMotif == null}"
 																	style="font-style: italic">Aucun</span>
-															</div>
 														</div>
-														<br />
-														<div class="row">
-															<div class="col-xs-12">
-																<span class="titre">COMMENTAIRE (si précisé)</span><br />
-																<span
+													</div>
+													<br />
+													<div class="row">
+														<div class="col-xs-12">
+															<span class="titre">COMMENTAIRE (si précisé)</span><br />
+															<span
 																	th:if="${symbol_dollar}{demandeDTO.dernierStatut.commentaire != null}"
 																	th:text="${symbol_dollar}{demandeDTO.dernierStatut.commentaire}"
 																	class="display-commentaire"></span>
-																<span
+															<span
 																	th:if="${symbol_dollar}{demandeDTO.dernierStatut.commentaire == null}"
 																	style="font-style: italic">Aucun</span>
-															</div>
 														</div>
-														<br />
-														<div class="row">
-															<div class="col-xs-6 text-left">
-
-																<form method="POST" enctype="multipart/form-data"
-																	th:action="@{/demandes/dupliquer}+'?'+${symbol_dollar}{_csrf.parameterName}+'='+${symbol_dollar}{_csrf.token}">
-
-																	<input type="hidden" name="pkDemande"
-																		th:value="${symbol_dollar}{demandeDTO.pkDemandes}" /> <input
-																		type="submit" id="dupliquer-submit"
-																		value="Dupliquer cette demande"
-																		class="btn btn-action-second ripple-effect"
-																		th:disabled="!${symbol_dollar}{${symbol_pound}authorization.expression('hasRole(''ROLE_TRAITEMENT'')')} or ${symbol_dollar}{accesDesactive}"
-																		th:title="${symbol_dollar}{accesDesactive ? 'Impossible de dupliquer la demande car l''usager associé s''est désinscrit' : ''}" />
-
-																</form>
-															</div>
-															<div class="col-xs-6 text-right">
-																<a th:href="@{/}" class="btn btn-action ripple-effect">retour
-																	à l'accueil</a>
-															</div>
-														</div>
-
 													</div>
+													<br />
+													<div class="row">
+														<div class="col-xs-6 text-left">
+
+															<form method="POST" enctype="multipart/form-data"
+																  th:action="@{/demandes/dupliquer}+'?'+${symbol_dollar}{_csrf.parameterName}+'='+${symbol_dollar}{_csrf.token}">
+
+																<input type="hidden" name="pkDemande"
+																	   th:value="${symbol_dollar}{demandeDTO.pkDemandes}" /> <input
+																	type="submit" id="dupliquer-submit"
+																	value="Dupliquer cette demande"
+																	class="btn btn-action-second ripple-effect"
+																	th:disabled="!${symbol_dollar}{${symbol_pound}authorization.expression('hasRole(''ROLE_TRAITEMENT'')')} or ${symbol_dollar}{accesDesactive}"
+																	th:title="${symbol_dollar}{accesDesactive ? 'Impossible de dupliquer la demande car l''usager associé s''est désinscrit' : ''}" />
+
+															</form>
+														</div>
+														<div class="col-xs-6 text-right">
+															<a th:href="@{/}" class="btn btn-action ripple-effect">retour
+																à l'accueil</a>
+														</div>
+													</div>
+
 												</div>
 											</div>
 										</div>
 									</div>
 								</div>
+							</div>
 
-								<div th:replace="fragments/sectiontraitement :: sectiontraitement"></div>
-								<div th:replace="fragments/sectionobservation${artifactIdLower} :: sectionobservation${artifactIdLower}"></div>
-								<div class="row mt-15"	th:if="${symbol_dollar}{isDiscussionPanelActive}">
-									<div th:replace="fragments/sectiondiscussion${artifactIdLower} :: sectiondiscussion${artifactIdLower}"></div>
-								</div>
-
+                            <div th:replace="fragments/sectiondetachement :: sectiondetachement"></div>
+                            <div th:replace="fragments/sectiontraitement :: sectiontraitement"></div>
+							<div th:replace="fragments/sectionobservation${artifactIdLower} :: sectionobservation${artifactIdLower}"></div>
+							<div class="row mt-15"	th:if="${symbol_dollar}{isDiscussionPanelActive}">
+								<div th:replace="fragments/sectiondiscussion${artifactIdLower} :: sectiondiscussion${artifactIdLower}"></div>
 							</div>
 
 						</div>
+
 					</div>
 				</div>
+			</div>
 
+		</div>
+	</div>
+
+	<!-- FIN CONTENU -->
+
+</div>
+
+<div th:replace="fragments/footer :: footer"></div>
+
+
+
+<div id="annulerDemandeConfirm" style="display: none">
+	<form method="POST" th:action="@{/demandes/annuler}"
+		  id="annulerDemandeForm">
+		<div class="row no-margin-row">
+			<div class="col-xs-12">
+				<h2>Confirmation de l'annulation</h2>
 			</div>
 		</div>
+		<div class="row no-margin-row">
+			<div class="col-xs-12">
+				<span class="titre">Motif :</span>
+				<select id="codeMotifAnnuleeChoisi" name="codeMotif"
+					class="form-control form-group">
+				</select>
+			</div>
+		</div>
+		<div class="row no-margin-row mt-15">
+			<div class="col-xs-12">
+				<span for="com-annulation">Commentaire :</span>
+				<textarea id="com-annulation" class="form-control" name="commentaire"></textarea>
+			</div>
+		</div>
+		<div class="row no-margin-row mt-15">
+			<div class="col-xs-12 text-right">
+				<input type="hidden" name="pkDemande" th:value="${symbol_dollar}{demandeDTO.pkDemandes}" />
+				<input type="submit" value="Confirmer" class="btn btn-action ripple-effect" />
+			</div>
+		</div>
+	</form>
+</div>
 
-		<!-- FIN CONTENU -->
 
-	</div>
+<div class="row">
+	<div id="preview-container" style="display: none">
+		<div class="container-fluid">
+			<div id="canvas-container" class="row fixed-height">
+				<div class="col-xs-12" id="preview-content"></div>
+			</div>
 
-	<div th:replace="fragments/footer :: footer"></div>
-
-
-
-	<div id="annulerDemandeConfirm" style="display: none">
-		<form method="POST" th:action="@{/demandes/annuler}"
-			id="annulerDemandeForm">
-			<div class="row">
-				<div class="col-xs-12">
-					<div class="row">
-						<div class="col-xs-12">
-							<span>Confirmation de l'annulation</span>
-						</div>
-					</div>
-					<div class="row">
-						<div class="col-xs-12">
-							Motif : <select id="codeMotifAnnuleeChoisi" name="codeMotif"></select>
-						</div>
-
-					</div>
-					<div class="row">
-						<div class="col-xs-12">
-							<label for="com-annulation">Commentaire :</label>
-							<textarea id="com-annulation" class="form-control"
-								name="commentaire"></textarea>
-							<input type="hidden" name="pkDemande"
-								th:value="${symbol_dollar}{demandeDTO.pkDemandes}" /> <input type="submit"
-								value="Confirmer" class="btn btn-action ripple-effect" />
-						</div>
-					</div>
+			<div class="row ">
+				<div class="col-xs-12 text-right">
+					<a href="" class="annuler-preview btn btn-action ripple-effect">Annuler</a>
+					<button class="valider-preview btn btn-action ripple-effect">Valider</button>
 				</div>
 			</div>
-		</form>
+		</div>
 	</div>
-
-
-<div class="row">
-    <div id="preview-container" style="display: none">
-        <div class="container-fluid">
-            <div class="row fixed-height">
-                <div class="col-xs-12" id="preview-content"></div>
-                <canvas id="pdf-canvas"></canvas>
-            </div>
-
-            <div class="row ">
-                <div class="col-xs-12 text-right">
-                    <a href="" class="annuler-preview btn btn-action ripple-effect">Annuler</a>
-                    <bouton class="valider-preview btn btn-action ripple-effect">Valider</bouton>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
 
 <div class="row">
-    <div id="preview-container-second" style="display: none">
-        <div class="container-fluid">
-            <div class="row fixed-height">
-                <div class="col-xs-12" id="preview-content-second"></div>
-                <canvas id="pdf-canvas-second"></canvas>
-            </div>
+	<div id="preview-container-second" style="display: none">
+		<div class="container-fluid">
+			<div id="canvas-container-second" class="row fixed-height">
+				<div class="col-xs-12" id="preview-content-second"></div>
+			</div>
 
-            <div class="row ">
-                <div class="col-xs-12 text-right">
-                    <a href="" class="annuler-preview btn btn-action ripple-effect">Annuler</a>
-                    <bouton class="valider-preview btn btn-action ripple-effect">Valider</bouton>
-                </div>
-            </div>
-        </div>
-    </div>
+			<div class="row ">
+				<div class="col-xs-12 text-right">
+					<a href="" class="annuler-preview btn btn-action ripple-effect">Annuler</a>
+					<button class="valider-preview btn btn-action ripple-effect">Valider</button>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 
 <div class="row">
-    <div id="pdf-generation-confirm" style="display: none">
-        <div class="container-fluid">
-            <div class="row fixed-height">
-                <div class="col-xs-12" id="preview-content">
-                    <p>
-                        Génération terminée. Le document généré est accessible depuis
-                        l'onglet <br> <b>"Fichiers"</b>
-                    </p>
-                </div>
-            </div>
-            <div class="row ">
-                <div class="col-xs-12 text-left">
-                    <a href="" class="annuler-preview btn btn-action ripple-effect">OK</a>
-                </div>
-            </div>
-        </div>
-    </div>
+	<div id="pdf-generation-confirm" style="display: none">
+		<div class="container-fluid">
+			<div class="row fixed-height">
+				<div class="col-xs-12" id="preview-content">
+					<p>
+						Génération terminée. Le document généré est accessible depuis
+						l'onglet <br> <b>"Fichiers"</b>
+					</p>
+				</div>
+			</div>
+			<div class="row ">
+				<div class="col-xs-12 text-left">
+					<a href="" class="annuler-preview btn btn-action ripple-effect">OK</a>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
+
+<script th:src="@{/js/preview.js}"></script>
 
 <script th:inline="javascript">
 
-    /*<![CDATA[*/
+	/*<![CDATA[*/
 
-    var motifs = JSON.parse(/*[[(${symbol_dollar}{motifs})]]*/
-    );
-    var motifsRefuserInit = JSON.parse(/*[[(${symbol_dollar}{motifsRefuserInit})]]*/
-    );
+	var motifs = JSON.parse(/*[[(${symbol_dollar}{motifs})]]*/
+	);
+	var motifsRefuserInit = JSON.parse(/*[[(${symbol_dollar}{motifsRefuserInit})]]*/
+	);
 
-    var motifsAnnulerInit = JSON.parse(/*[[(${symbol_dollar}{motifsAnnulerInit})]]*/
-    );
+	var motifsAnnulerInit = JSON.parse(/*[[(${symbol_dollar}{motifsAnnulerInit})]]*/
+	);
 
-    var utilisateurAffecte = /*[[(${symbol_dollar}{utilisateurAffecte})]]*/;
+	var utilisateurAffecte = /*[[(${symbol_dollar}{utilisateurAffecte})]]*/;
 
-    var utilisateurConnecte = /*[[(${symbol_dollar}{utilisateurConnecte})]]*/;
+	var utilisateurConnecte = /*[[(${symbol_dollar}{utilisateurConnecte})]]*/;
 
- 	// Valeur pour changer le blocage des champs 
-	var toggleValue = false; 
+	// Valeur pour changer le blocage des champs
+	var toggleValue = false;
 
-    // Gestion de la zone de texte des commentaires
-    // Gestion de la taille en fonction de l'entrée utilisateur
-    autosize(${symbol_dollar}("${symbol_pound}commentaireUsager"));
-    autosize(${symbol_dollar}("${symbol_pound}commentaireReponse"));
-    autosize(${symbol_dollar}("${symbol_pound}com-interne-input"));
-    autosize(${symbol_dollar}("${symbol_pound}observation-admin"));
-	 
+	// Gestion de la zone de texte des commentaires
+	// Gestion de la taille en fonction de l'entrée utilisateur
+	autosize(${symbol_dollar}("${symbol_pound}commentaireUsager"));
+	autosize(${symbol_dollar}("${symbol_pound}texteAEnvoyer"));
+	autosize(${symbol_dollar}("${symbol_pound}commentaireReponse"));
+	autosize(${symbol_dollar}("${symbol_pound}com-annulation"));
+	autosize(${symbol_dollar}("${symbol_pound}com-interne-input"));
+	autosize(${symbol_dollar}("${symbol_pound}observation-admin"));
+
 	// Gestion des erreurs générique
 	var checkLengthGeneric = function (commentaireId, maxlength) {
 		var val = ${symbol_dollar}(commentaireId).val();
@@ -413,668 +421,562 @@
 	var showTooltip = function(commentaireId, state) {
         var formGroupId = commentaireId + 'FormGroup';
         if(state) {
-        	${symbol_dollar}(formGroupId).addClass('error');
-        	${symbol_dollar}(commentaireId).tooltip("enable");
-        	${symbol_dollar}(commentaireId).tooltip("show");
+            ${symbol_dollar}(formGroupId).addClass('error');
+            ${symbol_dollar}(commentaireId).tooltip("enable");
+            ${symbol_dollar}(commentaireId).tooltip("show");
         } else {
-        	${symbol_dollar}(commentaireId).tooltip("hide");
-        	${symbol_dollar}(formGroupId).removeClass('error');
-        	${symbol_dollar}(commentaireId).tooltip("disable");
+            ${symbol_dollar}(commentaireId).tooltip("hide");
+            ${symbol_dollar}(formGroupId).removeClass('error');
+            ${symbol_dollar}(commentaireId).tooltip("disable");
         }
         return state;
     };
 
-    // Génération de la partie Détails de la demande si besoin
-    if (${symbol_dollar}(".dynamictab").length == 1) {
-        var demarcheId = window.location.pathname.split("/")[1];
-        var pkDemande = window.location.pathname.split("/")[3];
-        ${symbol_dollar}.get(`/${symbol_dollar}{demarcheId}/ws/recap/${symbol_dollar}{pkDemande}`, function(data, status){
-            ${symbol_dollar}(".dynamictab")[0].innerHTML = data;
-        });
-    }
+	${symbol_dollar}("${symbol_pound}codeMotifChoisi").prop('disabled',true);
+	${symbol_dollar}("${symbol_pound}commentaireUsager").tooltip({ disabled: true });
 
-    var addDataClicked = function(){
-        ${symbol_dollar}("input[type=submit]", ${symbol_dollar}(this).parents("form")).removeAttr("data-clicked");
-        ${symbol_dollar}(this).attr("data-clicked", "true");
-    };
+	// Correction des bugs où la tooltip apparaît au chargement de la page
+	${symbol_dollar}("${symbol_pound}commentaireUsager").tooltip("hide");
+	${symbol_dollar}("${symbol_pound}commentaireUsager").tooltip("disable");
+	${symbol_dollar}("${symbol_pound}commentaireReponse").tooltip("hide");
+	${symbol_dollar}("${symbol_pound}commentaireReponse").tooltip("disable");
+    ${symbol_dollar}("${symbol_pound}texteAEnvoyer").tooltip("hide");
+    ${symbol_dollar}("${symbol_pound}texteAEnvoyer").tooltip("disable");
+    ${symbol_dollar}("${symbol_pound}com-interne-input").tooltip("hide");
+	${symbol_dollar}("${symbol_pound}com-interne-input").tooltip("disable");
+	${symbol_dollar}("${symbol_pound}observation-admin").tooltip("hide");
+	${symbol_dollar}("${symbol_pound}observation-admin").tooltip("disable");
 
-    var changeBackgroundColorRadio = function(){
+	// Génération de la partie Détails de la demande si besoin
+	if (${symbol_dollar}(".dynamictab").length == 1) {
+		var demarcheId = window.location.pathname.split("/")[1];
+		var pkDemande = window.location.pathname.split("/")[3];
+		${symbol_dollar}.get(`/${symbol_dollar}{demarcheId}/ws/recap/${symbol_dollar}{pkDemande}`, function(data, status){
+			${symbol_dollar}(".dynamictab")[0].innerHTML = data;
+		});
+	}
 
-        //Gestion du background bleu pour le radio choisi
-        ${symbol_dollar}('${symbol_pound}form-validation input[type="radio"]').each(function() {
-            var _this = ${symbol_dollar}(this);
-            //Dans le cas ou on doit cliquer sur modifier pur modifier
-            _this.parent().toggleClass('disabled', _this.prop('disabled'));
 
-            //_this.parent().toggleClass('disabled', _this.is(':checked'));
-        });
+	var addDataClicked = function(){
+		${symbol_dollar}("input[type=submit]", ${symbol_dollar}(this).parents("form")).removeAttr("data-clicked");
+		${symbol_dollar}(this).attr("data-clicked", "true");
+	};
 
-    }
+	var changeBackgroundColorRadio = function(){
 
-    function scrollCommentairesToBottom(){
-        if (${symbol_dollar}("${symbol_pound}commentairesInternes").length > 0) {
-            ${symbol_dollar}("${symbol_pound}commentairesInternes").scrollTop(${symbol_dollar}("${symbol_pound}commentairesInternes")[0].scrollHeight);
-        }
-    }
+		//Gestion du background bleu pour le radio choisi
+		${symbol_dollar}('${symbol_pound}form-validation input[type="radio"]').each(function() {
+			var _this = ${symbol_dollar}(this);
+			//Dans le cas ou on doit cliquer sur modifier pur modifier
+			_this.parent().toggleClass('disabled', _this.prop('disabled'));
 
-    ${symbol_dollar}(document).ready(function() {
+			//_this.parent().toggleClass('disabled', _this.is(':checked'));
+		});
 
-        // Au départ, ACCORDEE est sélectionné, griser le code motif et le commentaire
-        ${symbol_dollar}("${symbol_pound}codeMotifChoisi").prop('disabled',true);
-        ${symbol_dollar}("${symbol_pound}commentaireUsager").prop('disabled',true);
+	}
 
-     	// Correction des bugs où la tooltip apparaît au chargement de la page
+
+	function scrollCommentairesToBottom(){
+		if (${symbol_dollar}("${symbol_pound}commentairesInternes").length > 0) {
+			${symbol_dollar}("${symbol_pound}commentairesInternes").scrollTop(${symbol_dollar}("${symbol_pound}commentairesInternes")[0].scrollHeight);
+		}
+	}
+
+	${symbol_dollar}(document).ready(function() {
+
+		// Au départ, VALIDEE est sélectionné, griser le code motif et le commentaire
+		${symbol_dollar}("${symbol_pound}codeMotifChoisi").prop('disabled',true);
+		${symbol_dollar}("${symbol_pound}commentaireUsager").prop('disabled',true);
 		${symbol_dollar}("${symbol_pound}commentaireUsager").tooltip("hide");
-		${symbol_dollar}("${symbol_pound}commentaireUsager").tooltip("disable");
-		${symbol_dollar}("${symbol_pound}commentaireReponse").tooltip("hide");
-		${symbol_dollar}("${symbol_pound}commentaireReponse").tooltip("disable");
+		${symbol_dollar}("${symbol_pound}texteAEnvoyer").prop('disabled',true);
 
-        // Prevent double form submission
-        // not(${symbol_pound}discussion-demande) car c'est la seule requête sans rechargement de la page
-        // et not(${symbol_pound}form-validation) car ce cas est traité dans un autre callback plus bas
-        ${symbol_dollar}("form:not(${symbol_pound}discussion-demande,${symbol_pound}form-validation)").submit(function (e) {
-            ${symbol_dollar}('form input[type=submit]').prop('disabled',true);
-            return true;
-        });
+		// Prevent double form submission
+		// not(${symbol_pound}discussion-demande) car c'est la seule requête sans rechargement de la page
+		// et not(${symbol_pound}form-validation) car ce cas est traité dans un autre callback plus bas
+		${symbol_dollar}("form:not(${symbol_pound}discussion-demande,${symbol_pound}form-validation)").submit(function (e) {
+			${symbol_dollar}('form input[type=submit]').prop('disabled',true);
+			return true;
+		});
 
-        var messagesSuccessList = /*[[${symbol_dollar}{successMessages}]]*/'default';
+		var messagesSuccessList = /*[[${symbol_dollar}{successMessages}]]*/'default';
 
-        if (messagesSuccessList !== 'undefined' && messagesSuccessList !== null) {
-            ${symbol_dollar}.each(messagesSuccessList, function(key, msg) {
-                ${symbol_dollar}.notify({
-                    message: msg
-                },{
-                    type: 'success'
-                });
-            });
-        }
+		if (messagesSuccessList !== 'undefined' && messagesSuccessList !== null) {
+			${symbol_dollar}.each(messagesSuccessList, function(key, msg) {
+				${symbol_dollar}.notify({
+					message: msg
+				},{
+					type: 'success'
+				});
+			});
+		}
 
-        var messagesErrorList = /*[[${symbol_dollar}{errorMessages}]]*/'default';
+		var messagesErrorList = /*[[${symbol_dollar}{errorMessages}]]*/'default';
 
-        if (messagesErrorList !== 'undefined' && messagesErrorList !== null) {
-            ${symbol_dollar}.each(messagesErrorList, function(key, msg) {
-                ${symbol_dollar}.notify({
-                    message: msg
-                },{
-                    type: 'danger'
-                });
-            });
-        }
+		if (messagesErrorList !== 'undefined' && messagesErrorList !== null) {
+			${symbol_dollar}.each(messagesErrorList, function(key, msg) {
+				${symbol_dollar}.notify({
+					message: msg
+				},{
+					type: 'danger'
+				});
+			});
+		}
 
-        changeBackgroundColorRadio();
-        scrollCommentairesToBottom();
+		changeBackgroundColorRadio();
+		scrollCommentairesToBottom();
 
-        ${symbol_dollar}('${symbol_pound}form-validation input[type="radio"]').click(function(e){
+		${symbol_dollar}('${symbol_pound}form-validation input[type="radio"]').click(function(e){
 
-            changeBackgroundColorRadio();
+			changeBackgroundColorRadio();
 
-        });
+		});
 
 
-        ${symbol_dollar}("${symbol_pound}dupliquer-submit").click(function(e){
-            if(!confirm("Vous êtes sur le point de dupliquer une demande. Vous ne pourrez pas la supprimer. Etes-vous sûr de vouloir réaliser cette action ?" )){
-                e.preventDefault();
-                return false;
-            }
-        });
+		${symbol_dollar}("${symbol_pound}dupliquer-submit").click(function(e){
+			if(!confirm("Vous êtes sur le point de dupliquer une demande. Vous ne pourrez pas la supprimer. Etes-vous sûr de vouloir réaliser cette action ?" )){
+				e.preventDefault();
+				return false;
+			}
+		});
 
 
-        ${symbol_dollar}("${symbol_pound}reprendre-button").click(function(e){
+		${symbol_dollar}("${symbol_pound}reprendre-button").click(function(e){
 
-            if(!confirm("La demande ne sera plus affectée à l’utilisateur "+utilisateurAffecte+", êtes-vous sûr de vouloir continuer ?" )){
-                e.preventDefault();
-                return false;
-            }
-        });
-
-
-        ${symbol_dollar}('${symbol_pound}discussion-demande').on('submit', function(e) {
-            e.preventDefault(); // J'empêche le comportement par défaut du navigateur, c-à-d de soumettre le formulaire
-
-            var ${symbol_dollar}this = ${symbol_dollar}(this); // L'objet jQuery du formulaire
-            var commentaire = ${symbol_dollar}('${symbol_pound}com-interne-input');
-
-            if(!commentaire.val()){
-                ${symbol_dollar}.notify({
-                    message: "Veuillez renseigner un commentaire."
-                },{
-                    type: 'danger'
-                });
-                // alert("Veuillez renseigner un commentaire.");
-                return false;
-            }
-            ${symbol_dollar}('${symbol_pound}envoyer-commentaire-button').addClass("loading");
-            // Envoi de la requête HTTP en mode asynchrone
-            ${symbol_dollar}.ajax({
-                dataType : "json",
-                url: ${symbol_dollar}this.attr('action'), // Le nom du fichier indiqué dans le formulaire
-                type: ${symbol_dollar}this.attr('method'), // La méthode indiquée dans le formulaire (get ou post)
-                data: ${symbol_dollar}this.serialize(), // Je sérialise les données (j'envoie toutes les valeurs présentes dans le formulaire)
-                success: function(json) { // Je récupère la réponse du fichier PHP
-                    //json retourné {"agentId":"19723","date":"2017-05-03T17:24:41+0200","commentaire":"salut 3"}
-                    //On récupère le commentaire sauvegardé pour pouvoir l'afficher.
+			if(!confirm("La demande ne sera plus affectée à l’utilisateur "+utilisateurAffecte+", êtes-vous sûr de vouloir continuer ?" )){
+				e.preventDefault();
+				return false;
+			}
+		});
 
 
-                    var contentMsg= '<div class="row"><div class="col-xs-12" style="background-color: ${symbol_pound}ffffff;line-height:1em"><div style="font-size:0.8em;font-weight:bold;color: rgb(94,97,100);">'+moment(json.date).format("DD/MM/YYYY HH:mm:ss")+'</div><div style="font-weight: bold;">'+utilisateurConnecte+'</div><div style="margin: 5px 0 8px 0 ;">'+xssEscape(json.commentaire)+'</div></div>'
+		${symbol_dollar}('${symbol_pound}discussion-demande').on('submit', function(e) {
+			e.preventDefault(); // J'empêche le comportement par défaut du navigateur, c-à-d de soumettre le formulaire
 
-                    ${symbol_dollar}("${symbol_pound}commentairesInternes").append(contentMsg)
+			var ${symbol_dollar}this = ${symbol_dollar}(this); // L'objet jQuery du formulaire
+			var commentaire = ${symbol_dollar}('${symbol_pound}com-interne-input');
 
-                    //Scroll en bas pour voir le nouveau commentaire
-                    scrollCommentairesToBottom();
-                    //Remise à 0 du commentaire
-                    commentaire.val("");
-                    ${symbol_dollar}('${symbol_pound}envoyer-commentaire-button').removeClass("loading");
-                },
-                error : function(json){
-                    ${symbol_dollar}.notify({
-                        message: "Un problème est survenu lors de la publication du commentaire."
-                    },{
-                        type: 'danger'
-                    });
-                    // alert("Un problème est survenu lors de la publication du commentaire.");
-                    ${symbol_dollar}('${symbol_pound}envoyer-commentaire-button').removeClass("loading");
-                }
-            });
-
-        });
-
-        ${symbol_dollar}("${symbol_pound}saveCalculeAide").click((e)=>{
-            if( ${symbol_dollar}("${symbol_pound}typeEmission").value == 'EMI4'){
-                ${symbol_dollar}("${symbol_pound}montantSimule").value = ${symbol_dollar}("${symbol_pound}montantSimuleMoins20").value;
-            }else {
-                ${symbol_dollar}("${symbol_pound}montantSimule").value = ${symbol_dollar}("${symbol_pound}montantSimulePlus20").value;
-            }
-        });
+			if(!commentaire.val()){
+				${symbol_dollar}.notify({
+					message: "Veuillez renseigner un commentaire."
+				},{
+					type: 'danger'
+				});
+				// alert("Veuillez renseigner un commentaire.");
+				return false;
+			}
+			${symbol_dollar}('${symbol_pound}envoyer-commentaire-button').addClass("loading");
+			// Envoi de la requête HTTP en mode asynchrone
+			${symbol_dollar}.ajax({
+				dataType : "json",
+				url: ${symbol_dollar}this.attr('action'), // Le nom du fichier indiqué dans le formulaire
+				type: ${symbol_dollar}this.attr('method'), // La méthode indiquée dans le formulaire (get ou post)
+				data: ${symbol_dollar}this.serialize(), // Je sérialise les données (j'envoie toutes les valeurs présentes dans le formulaire)
+				success: function(json) { // Je récupère la réponse du fichier PHP
+					//json retourné {"agentId":"19723","date":"2017-05-03T17:24:41+0200","commentaire":"salut 3"}
+					//On récupère le commentaire sauvegardé pour pouvoir l'afficher.
 
 
-        ${symbol_dollar}("form[id='form-validation']").submit(function (e) {
+					var contentMsg= '<div class="row"><div class="col-xs-12" style="background-color: ${symbol_pound}ffffff;line-height:1em"><div style="font-size:0.8em;font-weight:bold;color: rgb(94,97,100);">'+moment(json.date).format("DD/MM/YYYY HH:mm:ss")+'</div><div style="font-weight: bold;">'+utilisateurConnecte+'</div><div style="margin: 5px 0 8px 0 ;">'+xssEscape(json.commentaire)+'</div></div>'
 
-            //Vérification si un radio required a bien été coché
-            if(${symbol_dollar}("${symbol_pound}NoRadio").length == 0 && ${symbol_dollar}('${symbol_pound}form-validation input[type="radio"]').length > 0 && ${symbol_dollar}('${symbol_pound}form-validation input[type="radio"]:checked').length === 0){
-                ${symbol_dollar}.notify({
-                    message: "Veuillez cocher une décision concernant la demande."
-                },{
-                    type: 'danger'
-                });
-                // alert("Veuillez cocher une décision concernant la demande");
-                e.preventDefault();
-                return false;
-            }
-            else {
-                // Prevent double form submission
-                ${symbol_dollar}('form input[type=submit]').prop('disabled',true);
-            }
+					${symbol_dollar}("${symbol_pound}commentairesInternes").append(contentMsg)
 
-            // enable fields to send the info through submit
-            ${symbol_dollar}("${symbol_pound}codeMotifChoisi").prop('readonly',true);
-            ${symbol_dollar}("${symbol_pound}codeMotifChoisi").prop('disabled',false);
-            ${symbol_dollar}("${symbol_pound}commentaireUsager").prop('readonly',true);
-            ${symbol_dollar}("${symbol_pound}commentaireUsager").prop('disabled',false);
+					//Scroll en bas pour voir le nouveau commentaire
+					scrollCommentairesToBottom();
+					//Remise à 0 du commentaire
+					commentaire.val("");
+					${symbol_dollar}('${symbol_pound}envoyer-commentaire-button').removeClass("loading");
+				},
+				error : function(json){
+					${symbol_dollar}.notify({
+						message: "Un problème est survenu lors de la publication du commentaire."
+					},{
+						type: 'danger'
+					});
+					// alert("Un problème est survenu lors de la publication du commentaire.");
+					${symbol_dollar}('${symbol_pound}envoyer-commentaire-button').removeClass("loading");
+				}
+			});
 
-            //On est obligé de mettre un input hidden avec action=Poursuivre.... pour permettre d'envoyer la bonne action cliquée car une fois le bouton disablé
-            //action=XXX n'est pas envoyé puisque cela fait parti du bouton submit.
-            //e.preventDefault();
-            ${symbol_dollar}(this).find( "input[type=submit]" ).addClass("loading");
-            //on disable toutes les ancres et les buttons submit
-            var buttonClicked = ${symbol_dollar}("input[type=submit][data-clicked=true]")
-            var val = buttonClicked.val(); //Valeur de l'action
-            var name = buttonClicked.prop("name"); //action
-            ${symbol_dollar}('<input>').attr({
-                type: 'hidden',
-                name: name,
-                value : val
-            }).appendTo(${symbol_dollar}(this));
+		});
 
-        });
-
-        //On met un attribut sur le bouton cliqué pour le retrouver
-        ${symbol_dollar}("form input[type=submit]").click(addDataClicked);
-
-        //initialisation des motifs d'annulation
-        for (var i = 0 ; i < motifs.length;i++) {
-            var motif = motifs[i];
-            if (motif.statut === "ANNULEE" && motif.code !== "ANNULATION_DESINSCRIPTION") {
-                ${symbol_dollar}("${symbol_pound}codeMotifAnnuleeChoisi").append(${symbol_dollar}('<option></option>').attr("value", motif.code).text(motif.libelle));
-            }
-        }
-
-        // Condition disabled != 'disabled' car il faut empêcher l'action si le bouton est disabled
-        // pour cause de manque de droits
-        ${symbol_dollar}("input[id='annulerDemande'][disabled!='disabled']").click(function(e){
-            e.preventDefault();
-            ${symbol_dollar}.fancybox.open(${symbol_dollar}("${symbol_pound}annulerDemandeConfirm"));
-        });
+		${symbol_dollar}("${symbol_pound}saveCalculeAide").click((e)=>{
+			if( ${symbol_dollar}("${symbol_pound}typeEmission").value == 'EMI4'){
+				${symbol_dollar}("${symbol_pound}montantSimule").value = ${symbol_dollar}("${symbol_pound}montantSimuleMoins20").value;
+			}else {
+				${symbol_dollar}("${symbol_pound}montantSimule").value = ${symbol_dollar}("${symbol_pound}montantSimulePlus20").value;
+			}
+		});
 
 
-        ${symbol_dollar}('${symbol_pound}membresFoyer').DataTable({
-            "bAutoWidth": true,
-            "bInfo" : false,
-            "bFilter" : false,
-            "bPaginate" : false,
-            "bSort" : true,
-            "language": {
-                "emptyTable" : "Aucun fichier",
-            }
-        });
+		${symbol_dollar}("form[id='form-validation']").submit(function (e) {
 
-        ${symbol_dollar}('.datatablefichiers').dataTable( {
-            "bAutoWidth": true,
-            "bInfo" : false,
-            "bFilter" : false,
-            "bPaginate" : false,
-            "bSort" : true,
-            "iDisplayLength" : 15,
-            "language": {
-                "emptyTable" : "Aucun fichier",
-            }
-        });
+			//Vérification si un radio required a bien été coché
+			if(${symbol_dollar}("${symbol_pound}NoRadio").length == 0 && ${symbol_dollar}('${symbol_pound}form-validation input[type="radio"]').length > 0 && ${symbol_dollar}('${symbol_pound}form-validation input[type="radio"]:checked').length === 0){
+				${symbol_dollar}.notify({
+					message: "Veuillez cocher une décision concernant la demande."
+				},{
+					type: 'danger'
+				});
+				// alert("Veuillez cocher une décision concernant la demande");
+				e.preventDefault();
+				return false;
+			}
+			else {
+				// Prevent double form submission
+				${symbol_dollar}('form input[type=submit]').prop('disabled',true);
+			}
 
-        var updateCommentairePrerempli = function() {
-            var selectedMotifCode = ${symbol_dollar}("${symbol_pound}codeMotifChoisi option:selected").val();
-            for (var i = 0 ; i < motifs.length;i++) {
-                var motif = motifs[i];
-                if (motif.code === selectedMotifCode) {
-                    ${symbol_dollar}("${symbol_pound}commentaireUsager").val(motif.commentairePrerempli);
-                    checkCommentaireLength("${symbol_pound}commentaireUsager");
-                    autosize.update(${symbol_dollar}("${symbol_pound}commentaireUsager"));
-                }
-            }
-        }
+			// enable fields to send the info through submit
+			${symbol_dollar}("${symbol_pound}codeMotifChoisi").prop('readonly',true);
+			${symbol_dollar}("${symbol_pound}codeMotifChoisi").prop('disabled',false);
+			${symbol_dollar}("${symbol_pound}commentaireUsager").prop('readonly',true);
+			${symbol_dollar}("${symbol_pound}texteAEnvoyer").prop('readonly',true);
+			${symbol_dollar}("${symbol_pound}commentaireUsager").prop('disabled',false);
+			${symbol_dollar}("${symbol_pound}texteAEnvoyer").prop('disabled',false);
 
-        var updateListeMotifs = function(statutCible) {
-            ${symbol_dollar}("select[name='codeMotifChoisi']").prop('disabled', false);
-            for (var i = 0 ; i < motifs.length;i++) {
-                var motif = motifs[i];
-                if (motif.statut === statutCible) {
-                    ${symbol_dollar}("${symbol_pound}codeMotifChoisi").append(${symbol_dollar}('<option></option>').attr("value", motif.code).text(motif.libelle));
-                }
-            }
-            ${symbol_dollar}("${symbol_pound}commentaireUsager").prop('disabled', false);
-            updateCommentairePrerempli();
-        }
+			//On est obligé de mettre un input hidden avec action=Poursuivre.... pour permettre d'envoyer la bonne action cliquée car une fois le bouton disablé
+			//action=XXX n'est pas envoyé puisque cela fait parti du bouton submit.
+			//e.preventDefault();
+			${symbol_dollar}(this).find( "input[type=submit]" ).addClass("loading");
+			//on disable toutes les ancres et les buttons submit
+			var buttonClicked = ${symbol_dollar}("input[type=submit][data-clicked=true]")
+			var val = buttonClicked.val(); //Valeur de l'action
+			var name = buttonClicked.prop("name"); //action
+			${symbol_dollar}('<input>').attr({
+				type: 'hidden',
+				name: name,
+				value : val
+			}).appendTo(${symbol_dollar}(this));
 
-        ${symbol_dollar}("select[name='codeMotifChoisi']").change(function() {
-            updateCommentairePrerempli();
-        });
+		});
 
-        ${symbol_dollar}("input[name='statutChoisi']").click(function() {
-            ${symbol_dollar}("${symbol_pound}codeMotifChoisi").empty();
-            updateListeMotifs(${symbol_dollar}(this).val());
-            checkCommentaireLength('${symbol_pound}commentaireUsager');
-            autosize.update(${symbol_dollar}("${symbol_pound}commentaireUsager"));
-            ${symbol_dollar}("${symbol_pound}codeMotifChoisi").prop('disabled',false);
-            ${symbol_dollar}("${symbol_pound}commentaireUsager").prop('disabled',false);
-        });
+		//On met un attribut sur le bouton cliqué pour le retrouver
+		${symbol_dollar}("form input[type=submit]").click(addDataClicked);
 
-        // Quand on clique sur Modifier, enlever Refuser, et afficher Sauvegarder
-        ${symbol_dollar}("input[name='Modifier']").click(function() {
-            ${symbol_dollar}("input[id='modif']").prop('value',true);
-            ${symbol_dollar}(this).hide();
-            ${symbol_dollar}("input[value='Refuser']").hide();
-            ${symbol_dollar}("input[type='radio'].custom").removeAttr('disabled');
+		var updateCommentairesAnnulation = function () {
+			var codeMotifChosi = ${symbol_dollar}("${symbol_pound}codeMotifAnnuleeChoisi").val();
+			for (var i = 0 ; i < motifs.length;i++) {
+				var motif = motifs[i];
+				if (motif.code === codeMotifChosi) {
+					${symbol_dollar}('${symbol_pound}com-annulation').val(motif.commentairePrerempli);
+				}
+			}
+		};
 
-            ${symbol_dollar}("select[id='codeMotifChoisi']").removeAttr('disabled');
-            ${symbol_dollar}("textarea[id='commentaireUsager']").removeAttr('disabled');
-            ${symbol_dollar}("${symbol_pound}commentaireUsager").tooltip("disable");
-            changeBackgroundColorRadio();
-        });
+		//initialisation des motifs d'annulation
+		for (var i = 0 ; i < motifs.length;i++) {
+			var motif = motifs[i];
+			if (motif.statut === "ANNULEE" && motif.code !== "ANNULATION_DESINSCRIPTION") {
+				${symbol_dollar}("${symbol_pound}codeMotifAnnuleeChoisi").append(${symbol_dollar}('<option></option>').attr("value", motif.code).text(motif.libelle));
+			}
+		}
 
-        var canal = /*[[${symbol_dollar}{demandeDTO.canal.name()}]]*/;
+		updateCommentairesAnnulation();
 
-        // Lorsque l'on clique sur le bouton Valider
-        ${symbol_dollar}("${symbol_pound}valider-button").click(function(e){
+		${symbol_dollar}("${symbol_pound}codeMotifAnnuleeChoisi").click(function(e) {
+			e.preventDefault();
+			updateCommentairesAnnulation();
+		});
+
+		// Condition disabled != 'disabled' car il faut empêcher l'action si le bouton est disabled
+		// pour cause de manque de droits
+		${symbol_dollar}("input[id='annulerDemande'][disabled!='disabled']").click(function(e){
+			e.preventDefault();
+			${symbol_dollar}.fancybox.open(${symbol_dollar}("${symbol_pound}annulerDemandeConfirm"), {width: 500, height: 300, autoSize: false});
+		});
+
+
+		${symbol_dollar}('${symbol_pound}membresFoyer').DataTable({
+			"bAutoWidth": true,
+			"bInfo" : false,
+			"bFilter" : false,
+			"bPaginate" : false,
+			"bSort" : true,
+			"language": {
+				"emptyTable" : "Aucun fichier",
+			}
+		});
+
+		${symbol_dollar}('.datatablefichiers').dataTable( {
+			"bAutoWidth": true,
+			"bInfo" : false,
+			"bFilter" : false,
+			"bPaginate" : false,
+			"bSort" : true,
+			"iDisplayLength" : 15,
+			"language": {
+				"emptyTable" : "Aucun fichier",
+			}
+		});
+
+		var updateCommentairePrerempli = function() {
+			var selectedMotifCode = ${symbol_dollar}("${symbol_pound}codeMotifChoisi option:selected").val();
+			for (var i = 0 ; i < motifs.length;i++) {
+				var motif = motifs[i];
+				if (motif.code === selectedMotifCode) {
+					${symbol_dollar}("${symbol_pound}commentaireUsager").val(motif.commentairePrerempli);
+					${symbol_dollar}("${symbol_pound}texteAEnvoyer").val(motif.texteAEnvoyer);
+					autosize.update(${symbol_dollar}("${symbol_pound}commentaireUsager"));
+					autosize.update(${symbol_dollar}("${symbol_pound}texteAEnvoyer"));
+					checkTraitementFormValidity();
+				}
+			}
+		}
+
+		var updateListeMotifs = function(statutCible) {
+			${symbol_dollar}("select[name='codeMotifChoisi']").prop('disabled', false);
+			for (var i = 0 ; i < motifs.length;i++) {
+				var motif = motifs[i];
+				if (motif.statut === statutCible) {
+					${symbol_dollar}("${symbol_pound}codeMotifChoisi").append(${symbol_dollar}('<option></option>').attr("value", motif.code).text(motif.libelle));
+				}
+			}
+			${symbol_dollar}("${symbol_pound}commentaireUsager").prop('disabled', false);
+			${symbol_dollar}("${symbol_pound}texteAEnvoyer").prop('disabled', false);
+			updateCommentairePrerempli();
+		}
+
+		${symbol_dollar}("select[name='codeMotifChoisi']").change(function() {
+			updateCommentairePrerempli();
+		});
+
+		${symbol_dollar}("input[name='statutChoisi']").click(function() {
+			${symbol_dollar}("${symbol_pound}codeMotifChoisi").empty();
+			updateListeMotifs(${symbol_dollar}(this).val());
+			${symbol_dollar}("${symbol_pound}codeMotifChoisi").prop('disabled',false);
+			autosize.update(${symbol_dollar}("${symbol_pound}commentaireUsager"));
+			autosize.update(${symbol_dollar}("${symbol_pound}texteAEnvoyer"));
+            checkTraitementFormValidity();
+		});
+
+		// Quand on clique sur Modifier, enlever Refuser, et afficher Sauvegarder
+		${symbol_dollar}("input[name='Modifier']").click(function() {
+			${symbol_dollar}("input[id='modif']").prop('value',true);
+			${symbol_dollar}(this).hide();
+			${symbol_dollar}("input[value='Refuser']").hide();
+			${symbol_dollar}("input[type='radio'].custom").removeAttr('disabled');
+
+			${symbol_dollar}("select[id='codeMotifChoisi']").removeAttr('disabled');
+			${symbol_dollar}("textarea[id='commentaireUsager']").removeAttr('disabled');
+			${symbol_dollar}("${symbol_pound}commentaireUsager").tooltip("disable");
+			changeBackgroundColorRadio();
+		});
+
+		var canal = /*[[${symbol_dollar}{demandeDTO.canal.name()}]]*/;
+
+		// Lorsque l'on clique sur le bouton Valider
+		${symbol_dollar}("${symbol_pound}valider-button").click(function(e){
 			${symbol_dollar}("${symbol_pound}valider-button").prop('disabled', true);
 			e.preventDefault();
-            traiterFunction();
-            return false;
-        });
+			traiterFunction();
+			return false;
+		});
 
-        ${symbol_dollar}("${symbol_pound}traiter-button").click(function(e){
-            ${symbol_dollar}("${symbol_pound}traiter-button").prop('disabled', true);
-            e.preventDefault();
-            traiterFunction();
-            return false;
-        });
+		${symbol_dollar}("${symbol_pound}traiter-button").click(function(e){
+			${symbol_dollar}("${symbol_pound}traiter-button").prop('disabled', true);
+			e.preventDefault();
+			traiterFunction();
+			return false;
+		});
 
-        function traiterFunction() {
-            var statutChoisi = ${symbol_dollar}('input[name=statutChoisi]:checked').val();
-            console.log("statutPublicOuInterne: " + ${symbol_dollar}("input[name='statutPublicOuInterne']").val());
+		${symbol_dollar}(".annuler-preview").click(function (e) {
+			e.preventDefault();
+			${symbol_dollar}.fancybox.close();
+			return false;
+		});
 
-            // Aucun statut choisi
-            if(${symbol_dollar}("${symbol_pound}NoRadio").length == 0 && !statutChoisi){
-                ${symbol_dollar}.notify({
-                    message: "Veuillez choisir un statut de traitement."
-                },{
-                    type: 'danger'
+		function traiterFunction() {
+		    var form = retrieveForm();
+			console.log("statutPublicOuInterne: " + ${symbol_dollar}("input[name='statutPublicOuInterne']").val());
+			// Aucun statut choisi
+			if(${symbol_dollar}("${symbol_pound}NoRadio").length == 0 && !form.statutChoisi){
+				${symbol_dollar}.notify({
+					message: "Veuillez choisir un statut de traitement."
+				},{
+					type: 'danger'
+				});
+				//alert("Veuillez choisir un statut de traitement");
+				return;
+			}
+			executeTraitement(form);
+		}
+
+		function executeTraitement(form) {
+			toggleFields(true);
+			${symbol_dollar}("${symbol_pound}confirmer-button").addClass("loading");
+			var typeDemande = 'FICHIER';
+            if (canal !== 'GUICHET_VIRTUEL') {
+                typeDemande = 'COURRIER';
+            }
+			makePdfPreviewCall(form, typeDemande, pdfPreviewCallback);
+		}
+	});
+
+	var openPdfModal = function(containerId) {
+		${symbol_dollar}.fancybox.open({
+			src: containerId,
+			type: 'inline',
+			opts: {
+				afterClose: onClosePreview
+			}
+		});
+	};
+
+    var pdfPreviewCallback = function (data, form, typeDemande) {
+    	toggleValue = false;
+        PDFJS.getDocument({data: data}).then(function(pdf) {
+            // Supprimer tous les anciens canvas générés dans le dom
+            ${symbol_dollar}('.pdf-canvas').remove();
+            //Start with first page
+            pdf.getPage(1).then(createPdfCanvas.bind(null, 'canvas-container', 1, pdf.numPages, pdf))
+                .then(openPdfModal('${symbol_pound}preview-container'), function () {
+                    alert("Erreur lors de l'affichage du pdf");
                 });
-                //alert("Veuillez choisir un statut de traitement");
-                return;
-            }
 
-            var motifChoisiCode = null;
-            var motifChoisiText = null;
-            if (${symbol_dollar}("${symbol_pound}codeMotifChoisi")[0]) {
-                motifChoisiCode = ${symbol_dollar}("${symbol_pound}codeMotifChoisi")[0].value;
-            }
-            if (motifChoisiCode) {
-                motifChoisiText = ${symbol_dollar}("option[value='" + motifChoisiCode + "']")[0].textContent;
-            }
-
-            var commentaire = null;
-            if (${symbol_dollar}("${symbol_pound}commentaireUsager")) {
-                commentaire = encodeURIComponent(${symbol_dollar}("${symbol_pound}commentaireUsager").val());
-            }
-
-            executeTraitement(statutChoisi,motifChoisiCode,motifChoisiText,commentaire);
-        }
-
-        function executeTraitement(statutChoisi, motifChoisiCode, motifChoisiText, commentaire) {
-        	toggleFields(true);
-        	toggleValue = false;
-
-            ${symbol_dollar}("${symbol_pound}confirmer-button").addClass("loading");
-
-            var pkDemande = ${symbol_dollar}("input[name='pkDemande']")[0].value;
-
-            if (canal === 'GUICHET_VIRTUEL') {
-
-            	if (statutChoisi === 'EN_ATTENTE_COMPL') {
-					mailPreview(statutChoisi, motifChoisiCode, motifChoisiText, commentaire, pkDemande);
-				} else {
-					PDFJS.getDocument(APP.getContextPath() + '/ws/pdf/apercu?pkDemande=' + pkDemande + '&statut=' + statutChoisi + '&commentaire=' + commentaire + '&codeMotif=' + motifChoisiCode + '&pdfType=FICHIER').then(function (pdf) {
-						pdf.getPage(1).then(function (page) {
-							${symbol_dollar}(".valider-preview").prop('disabled', false);
-							var scale = 2;
-							var viewport = page.getViewport(scale);
-
-							var canvas = document.getElementById('pdf-canvas');
-							var context = canvas.getContext('2d');
-
-							canvas.height = viewport.height;
-							canvas.width = viewport.width;
-
-							var renderContext = {
-								canvasContext: context,
-								viewport: viewport
-							};
-							page.render(renderContext).then(function () {
-								${symbol_dollar}.fancybox.open({
-									src: '${symbol_pound}preview-container',
-									type: 'inline',
-									opts: {
-										afterClose: onClosePreview
-									}
-								});
-							}, function () {
-								alert("Erreur lors de l'affichage du pdf")
-							});
-							;
-
-							${symbol_dollar}(".annuler-preview").unbind();
-							${symbol_dollar}(".valider-preview").unbind();
-
-							${symbol_dollar}(".annuler-preview").click(function (e) {
-								e.preventDefault();
-								${symbol_dollar}.fancybox.close();
-								return false;
-							});
-
-							${symbol_dollar}(".valider-preview").click(function (e) {
-								${symbol_dollar}(".valider-preview").prop('disabled', true);
-								e.preventDefault();
-								toggleValue = true;
-								${symbol_dollar}.fancybox.close();
-								mailPreview(statutChoisi, motifChoisiCode, motifChoisiText, commentaire, pkDemande);
-
-								return false;
-							});
-
-							${symbol_dollar}("${symbol_pound}confirmer-button").removeClass("loading");
-						});
-					});
-				}
+            if ( typeDemande === 'COURRIER') {
+                bindValiderAndCloseButton();
             } else {
-                //COURRIER ET GUICHET_PHYSIQUE
-				if (statutChoisi === 'EN_ATTENTE_COMPL') {
-					courrierPreview(statutChoisi, motifChoisiCode, motifChoisiText, commentaire, pkDemande);
-				} else {
-					PDFJS.getDocument(APP.getContextPath() + '/ws/pdf/apercu?pkDemande=' + pkDemande + '&statut=' + statutChoisi + '&commentaire=' + commentaire + '&codeMotif=' + motifChoisiCode + '&pdfType=FICHIER').then(function (pdf) {
-						pdf.getPage(1).then(function (page) {
-							${symbol_dollar}(".valider-preview").prop('disabled', false);
-							var scale = 2;
-							var viewport = page.getViewport(scale);
-
-							var canvas = document.getElementById('pdf-canvas');
-							var context = canvas.getContext('2d');
-
-							canvas.height = viewport.height;
-							canvas.width = viewport.width;
-
-							var renderContext = {
-								canvasContext: context,
-								viewport: viewport
-							};
-							page.render(renderContext).then(function () {
-								${symbol_dollar}.fancybox.open({
-									src: '${symbol_pound}preview-container',
-									type: 'inline',
-									opts: {
-										afterClose: onClosePreview
-									}
-								});
-							}, function () {
-								alert("Erreur lors de l'affichage du pdf")
-							});
-							;
-
-							${symbol_dollar}(".annuler-preview").unbind();
-							${symbol_dollar}(".valider-preview").unbind();
-
-							${symbol_dollar}(".annuler-preview").click(function (e) {
-								e.preventDefault();
-								${symbol_dollar}.fancybox.close();
-								return false;
-							});
-
-							${symbol_dollar}(".valider-preview").click(function (e) {
-								${symbol_dollar}(".valider-preview").prop('disabled', true);
-								e.preventDefault();
-								toggleValue = true;
-								${symbol_dollar}.fancybox.close();
-								courrierPreview(statutChoisi, motifChoisiCode, motifChoisiText, commentaire, pkDemande);
-
-								return false;
-							});
-
-							${symbol_dollar}("${symbol_pound}confirmer-button").removeClass("loading");
-						});
-					});
-				}
-            }
-        }
-    });
-
-    var courrierPreview = function (statutChoisi, motifChoisiCode, motifChoisiText, commentaire) {
-    	toggleValue = false;
-        PDFJS.getDocument(APP.getContextPath() + '/ws/pdf/apercu?pkDemande=' + pkDemande + '&statut=' + statutChoisi + '&commentaire=' + commentaire + '&codeMotif=' + motifChoisiCode).then(function (pdf) {
-            pdf.getPage(1).then(function (page) {
-				${symbol_dollar}(".valider-preview").prop('disabled', false);
-				var scale = 2;
-                var viewport = page.getViewport(scale);
-
-                var canvas = document.getElementById('pdf-canvas-second');
-                var context = canvas.getContext('2d');
-
-                canvas.height = viewport.height;
-                canvas.width = viewport.width;
-
-                var renderContext = {
-                    canvasContext: context,
-                    viewport: viewport
-                };
-                page.render(renderContext).then(function () {
-                    ${symbol_dollar}.fancybox.open({
-						src: '${symbol_pound}preview-container-second',
-						type: 'inline',
-						opts: {
-							afterClose: onClosePreview
-						}
-					});
-                }, function () {
-                    alert("Erreur lors de l'affichage du pdf")
-                });
-
-                ${symbol_dollar}(".annuler-preview").unbind();
                 ${symbol_dollar}(".valider-preview").unbind();
-
-                ${symbol_dollar}(".annuler-preview").click(function (e) {
-                    e.preventDefault();
-                    ${symbol_dollar}.fancybox.close();
-                    return false;
-                });
-
                 ${symbol_dollar}(".valider-preview").click(function (e) {
-					${symbol_dollar}(".valider-preview").prop('disabled', true);
+                    ${symbol_dollar}(".valider-preview").prop('disabled', true);
                     e.preventDefault();
-                    toggleValue = true;
+                 	// Validation de la preview, donc vérouillage des options choisies
+                	toggleValue = true;
+                	// Appel à close, attention l'événement afterClose ne sera pas executé tout de suite
                     ${symbol_dollar}.fancybox.close();
-                    ${symbol_dollar}("${symbol_pound}confirmer-button").click();
-
+                    makePreviewCall(form, mailCallback);
                     return false;
                 });
+            }
 
-                ${symbol_dollar}("${symbol_pound}confirmer-button").removeClass("loading");
-            });
+            ${symbol_dollar}("${symbol_pound}confirmer-button").removeClass("loading");
         });
-    }
+    };
 
-    var mailPreview = function (statutChoisi, motifChoisiCode, motifChoisiText, commentaire, pkDemande) {
-    	toggleValue = false;
-		${symbol_dollar}(".valider-preview").prop('disabled', false);
-        var token = ${symbol_dollar}("meta[name='_csrf']").attr("content");
-        var header = ${symbol_dollar}("meta[name='_csrf_header']").attr("content");
+	var mailCallback = function (data) {
+		toggleValue = false;
+		openMailModal("${symbol_pound}preview-container-second", "${symbol_pound}pdf-canvas-second", "${symbol_pound}preview-content-second", data);
+		bindValiderAndCloseButton();
+	};
 
-        var body = {
-            action: statutChoisi,
-            codeMotifChoisi: motifChoisiCode,
+	var bindValiderAndCloseButton = function() {
+		${symbol_dollar}(".valider-preview").unbind();
+		${symbol_dollar}(".valider-preview").click(function (e) {
+			${symbol_dollar}(".valider-preview").prop('disabled', true);
+			e.preventDefault();
+			// Appel à close, attention l'événement afterClose ne sera pas executé tout de suite
+            ${symbol_dollar}.fancybox.close();
+			var form = retrieveForm();
+			${symbol_dollar}("${symbol_pound}commentaireUsager").val(form.commentaire);
+			${symbol_dollar}("${symbol_pound}texteAEnvoyer").val(form.texteAEnvoyer);
+			${symbol_dollar}("${symbol_pound}confirmer-button").click();
+			return false;
+		});
+
+		${symbol_dollar}("${symbol_pound}confirmer-button").removeClass("loading");
+	};
+
+	var onClosePreview = function () {
+		// Déverouillage des champs en cas d'annulation
+		toggleFields(toggleValue);
+	};
+
+	getFloat =(s)=>{
+		if(s == ""){
+			return 0;
+		}
+		return parseFloat(s.replace(',','.'));
+	}
+
+	getStr = (f)=>{
+		if(isNaN(f)){
+			return "0,0";
+		}
+
+		return f.toFixed(2).toString().replace('.',',');
+	}
+
+    var retrieveForm = function() {
+    	// Déverrouillage des champs avant récupération.
+    	toggleFields(false);
+    	
+        var statutChoisi = ${symbol_dollar}('input[name=statutChoisi]:checked').val();
+        var pkDemande = ${symbol_dollar}("input[name='pkDemande']")[0].value;
+        var motifChoisiCode = null;
+        var motifChoisiText = null;
+        if (${symbol_dollar}("${symbol_pound}codeMotifChoisi")[0]) {
+            motifChoisiCode = ${symbol_dollar}("${symbol_pound}codeMotifChoisi")[0].value;
+        }
+        if (motifChoisiCode) {
+            motifChoisiText = ${symbol_dollar}("option[value='" + motifChoisiCode + "']")[0].textContent;
+        }
+
+        var commentaire = null;
+        if (${symbol_dollar}("${symbol_pound}commentaireUsager")) {
+            commentaire = ${symbol_dollar}("${symbol_pound}commentaireUsager").val().replace(/${symbol_escape}t/g, '    ');
+        }
+
+        var texteAEnvoyer = null;
+        if (${symbol_dollar}("${symbol_pound}texteAEnvoyer")) {
+            texteAEnvoyer = ${symbol_dollar}("${symbol_pound}texteAEnvoyer").val().replace(/${symbol_escape}t/g, '    ');
+        }
+
+        // create form from fields
+        var form = {
+            statutChoisi: statutChoisi,
             pkDemande: pkDemande,
-            commentaire: commentaire
+            motifChoisiCode: motifChoisiCode,
+            motifChoisiText: motifChoisiText,
+            commentaire: commentaire,
+            texteAEnvoyer: texteAEnvoyer
         };
 
-        ${symbol_dollar}.ajax({
-            url: APP.getContextPath() + '/ws/mailpreview',
-            type: 'post',
-            contentType: 'application/json',
-            data: JSON.stringify(body),
-            dataType: "html",
-            beforeSend: function (xhr) {
-                xhr.setRequestHeader(header, token);
-            },
-            success: function (data) {
-				${symbol_dollar}(".valider-preview").prop('disabled', false);
-                ${symbol_dollar}("${symbol_pound}preview-content-second").html(data);
-                
-                ${symbol_dollar}.fancybox.open({
-					src: '${symbol_pound}preview-container-second',
-					type: 'inline',
-					opts: {
-						autoSize: false,
-                        width: "80%",
-                        height: "auto",
-						afterClose: onClosePreview
-					}
-				});
+        return form;
+    };
 
-                ${symbol_dollar}("${symbol_pound}pdf-canvas-second").remove();
-
-                ${symbol_dollar}(".annuler-preview").unbind();
-                ${symbol_dollar}(".valider-preview").unbind();
-
-                ${symbol_dollar}(".annuler-preview").click(function (e) {
-                    e.preventDefault();
-                    ${symbol_dollar}.fancybox.close();
-                    return false;
-                });
-
-                ${symbol_dollar}(".valider-preview").click(function (e) {
-					${symbol_dollar}(".valider-preview").prop('disabled', true);
-					e.preventDefault();
-					toggleValue = true;
-                    ${symbol_dollar}.fancybox.close();
-                    ${symbol_dollar}("${symbol_pound}confirmer-button").click();
-                    return false;
-                });
-
-                ${symbol_dollar}("${symbol_pound}confirmer-button").removeClass("loading");
-            }
-        });
-    }
-
-	onClosePreview = () => {
-		// Déverouillage des champs en cas d'annulation 
-		toggleFields(toggleValue); 
-	};
-
-    getFloat =(s)=>{
-        if(s == ""){
-            return 0;
-        }
-        return parseFloat(s.replace(',','.'));
-    }
-
-    getStr = (f)=>{
-        if(isNaN(f)){
-            return "0,0";
-        }
-
-        return f.toFixed(2).toString().replace('.',',');
-    }
-
-    var checkTraitementFormValidity = function() {
+	var checkTraitementFormValidity = function() {
 		var commentaireLengthInvalid = checkLengthGeneric("${symbol_pound}commentaireUsager", 1500);
-		var isEnAttendValidationHierarchique = /*[[(${symbol_dollar}{isEnAttendValidationHierarchique})]]*/;
-		var button = isEnAttendValidationHierarchique ? '${symbol_pound}valider-button' : "${symbol_pound}traiter-button";
-		${symbol_dollar}(button).prop('disabled', commentaireLengthInvalid);
+		${symbol_dollar}("${symbol_pound}traiter-button").prop('disabled', commentaireLengthInvalid);
 	};
- 
+
 	var checkInfoComplFormValidity = function() {
 		var commentaireReponseLengthInvalid = checkLengthGeneric('${symbol_pound}commentaireReponse', 1500);
 		${symbol_dollar}("${symbol_pound}envoyer-button").prop('disabled', commentaireReponseLengthInvalid);
 	};
-
-	// Gestion des erreurs pour la taille d'un ajout à la discussion 
+	
+	// Gestion des erreurs pour la taille d'un ajout à la discussion
 	var checkCommentaireDiscussionValidity = function () {
 		var commentaireDiscussionLengthInvalid = checkLengthGeneric('${symbol_pound}com-interne-input', 140);
 		${symbol_dollar}("${symbol_pound}envoyer-commentaire-button").prop('disabled', commentaireDiscussionLengthInvalid);
 	};
-
-	// Gestion des erreurs pour la taille de l'observation 
+	
+	// Gestion des erreurs pour la taille de l'observation
 	var checkObservationValidity = function () {
 		var observationLengthInvalid = checkLengthGeneric('${symbol_pound}observation-admin', 1500);
 		${symbol_dollar}("${symbol_pound}envoyer-observation-button").prop('disabled', observationLengthInvalid);
 	};
 
-	/**  
-	 * Active ou désactive les champs et les boutons. 
-	 */ 
-	var toggleFields = function (newValue) { 
-		// Sélection des actions 
-		var actions = /*[[${symbol_dollar}{actionsDisponibles}]]*/; 
-		for (var i = 0; i < actions.length; i++) { 
-			var action = actions[i]; 
-			$("${symbol_pound}" + action.statut).prop('disabled', newValue); 
-		} 
- 
-		// Champs de la demande 
-		${symbol_dollar}("${symbol_pound}codeMotifChoisi").prop('disabled', newValue); 
-		${symbol_dollar}("${symbol_pound}commentaireUsager").prop('disabled', newValue); 
-		${symbol_dollar}("${symbol_pound}texteAEnvoyer").prop('disabled', newValue); 
- 
-		// Boutons 
-		${symbol_dollar}("${symbol_pound}annulerDemande").prop('disabled', newValue); 
-		${symbol_dollar}("${symbol_pound}traiter-button").prop('disabled', newValue); 
-	} 
- 
+	/** 
+	 * Active ou désactive les champs et les boutons.
+	 */
+	var toggleFields = function (newValue) {
+		// Sélection des actions
+		var actions = /*[[${symbol_dollar}{actionsDisponibles}]]*/;
+		for (var i = 0; i < actions.length; i++) {
+			var action = actions[i];
+			${symbol_dollar}("${symbol_pound}" + action.statut).prop('disabled', newValue);
+		}
+
+		// Champs de la demande
+		${symbol_dollar}("${symbol_pound}codeMotifChoisi").prop('disabled', newValue);
+		${symbol_dollar}("${symbol_pound}commentaireUsager").prop('disabled', newValue);
+		${symbol_dollar}("${symbol_pound}texteAEnvoyer").prop('disabled', newValue);
+
+		// Boutons
+		${symbol_dollar}("${symbol_pound}annulerDemande").prop('disabled', newValue);
+		${symbol_dollar}("${symbol_pound}traiter-button").prop('disabled', newValue);
+	}
+
 	/*]]>*/
 </script>
 

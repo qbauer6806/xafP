@@ -6,8 +6,8 @@
 
 <body>
 
-	<div id="sectionobservation${artifactIdLower}" th:fragment="sectionobservation${artifactIdLower}"
-		th:remove="tag">
+	<div id="sectionobservation${artifactIdLower}"
+		th:fragment="sectionobservation${artifactIdLower}" th:remove="tag">
 		<div class="row mt-15">
 			<div class="col-xs-12">
 				<div class="panel-group accordion" role="tablist"
@@ -17,16 +17,17 @@
 							<h4 class="panel-title">
 								<a role="button" data-toggle="collapse"
 									data-parent="${symbol_pound}accordion4" href="${symbol_pound}collapse4"
-									aria-controls="collapse4" 
+									aria-controls="collapse4"
 									th:attr="aria-expanded=${symbol_dollar}{isObservationPanelActive}"
-									th:class="${symbol_dollar}{isObservationPanelActive}  ? '' : collapsed "> 
-									<i	class="pannelState" 
+									th:class="${symbol_dollar}{isObservationPanelActive}  ? '' : collapsed ">
+									<i class="pannelState"
 									th:classappend="${symbol_dollar}{isObservationPanelActive} ? icon-action_accordeon-ouvert : icon-action_accordeon-ferme"></i>
 									Informations réservées à l'administration
 								</a>
 							</h4>
 						</div>
-						<div id="collapse4" class="panel-collapse collapse" th:classappend="${symbol_dollar}{isObservationPanelActive} ? in:out"
+						<div id="collapse4" class="panel-collapse collapse"
+							th:classappend="${symbol_dollar}{isObservationPanelActive} ? in:out"
 							role="tabpanel" aria-labelledby="heading4">
 							<div class="panel-body">
 								<div class="row">
@@ -34,7 +35,8 @@
 										<form id="infos-demande" action="${symbol_pound}"
 											th:action="@{/demandes/infosAdministration}" method="post">
 											<div class="row">
-												<div id="observation-adminFormGroup" class="col-xs-12 form-group">
+												<div id="observation-adminFormGroup"
+													class="col-xs-12 form-group">
 													<label for="observation-admin">OBSERVATIONS</label>
 													<textarea class="form-control greyTooltip"
 														oninput="checkObservationValidity()" data-toggle="tooltip"
@@ -48,6 +50,7 @@
 												<div class="col-xs-12 text-right">
 													<input class="btn btn-action ripple-effect" type="submit"
 														name="action" value="Sauvegarder"
+														id="envoyer-observation-button"
 														th:disabled="!${symbol_dollar}{isObservationPanelActive}" />
 												</div>
 											</div>

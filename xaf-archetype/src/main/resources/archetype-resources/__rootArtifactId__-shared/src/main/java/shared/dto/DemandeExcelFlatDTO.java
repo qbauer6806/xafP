@@ -3,8 +3,8 @@
 #set( $symbol_escape = '\' )
 package ${groupId}.shared.dto;
 
-import mc.gouv.dem.shared.model.DemandeFlatDTO;
-import ${groupId}.shared.model.v1568884433537.ContenuProjectDemandeDTO;
+import ${groupId}.shared.model.v1573825612706.ContenuProjectDemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeFlatDTO;
 
 public class DemandeExcelFlatDTO {
 
@@ -18,6 +18,8 @@ public class DemandeExcelFlatDTO {
     private ContenuProjectDemandeDTO contenu;
 
     private String etatInterne;
+
+    private InformationsDetachementDTO informationsDetachement;
 
     public DemandeFlatDTO getGeneric() {
         return generic;
@@ -43,4 +45,11 @@ public class DemandeExcelFlatDTO {
         this.etatInterne = etatInterne;
     }
 
+    public InformationsDetachementDTO getInformationsDetachement() {
+        return informationsDetachement;
+    }
+
+    public void setInformationsDetachement(InformationsDetachementDTO informationsDetachement) {
+        this.informationsDetachement = informationsDetachement;
+    }
 }

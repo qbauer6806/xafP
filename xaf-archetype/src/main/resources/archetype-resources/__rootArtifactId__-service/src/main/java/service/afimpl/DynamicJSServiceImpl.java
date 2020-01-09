@@ -3,12 +3,11 @@
 #set( $symbol_escape = '\' )
 package ${groupId}.service.afimpl;
 
-import mc.gouv.xaf.back.dto.StatutPublicOuInterneDTO;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.DynamicJSService;
-import mc.gouv.dem.shared.model.DemandeCanalEnum;
-import ${groupId}.shared.dto.${artifactIdCamelCase}DemandeStatutEnum;
-import ${groupId}.shared.dto.${artifactIdCamelCase}StatutInterneEnum;
+import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
+import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
+import ${groupId}.shared.enums.${artifactIdCamelCase}DemandeStatutEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -29,19 +28,6 @@ public class DynamicJSServiceImpl implements DynamicJSService {
                 if (first) {
                     js += "${symbol_escape}nif ";
                     first = false;
-                } else {
-                    js += "${symbol_escape}nelse if ";
-                }
-                js += "${symbol_escape}n(${symbol_escape}"" + status.name() + "${symbol_escape}" === statutPublicOuInterne) {${symbol_escape}n";
-                StatutPublicOuInterneDTO statutPublicOuInterne = new StatutPublicOuInterneDTO();
-                statutPublicOuInterne.setName(status.name());
-                statutPublicOuInterne.setLibelle(status.libelle);
-                js += "return ${symbol_escape}"" + demarchesDataProvider.getStatusColorClass(statutPublicOuInterne) + "${symbol_escape}";${symbol_escape}n";
-                js += "}${symbol_escape}n";
-            }
-            for (${artifactIdCamelCase}StatutInterneEnum status : ${artifactIdCamelCase}StatutInterneEnum.values()) {
-                if (first) {
-                    js += "${symbol_escape}nif ";
                 } else {
                     js += "${symbol_escape}nelse if ";
                 }

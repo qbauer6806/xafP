@@ -3,7 +3,7 @@
 #set( $symbol_escape = '\' )
 package ${groupId}.shared.dto;
 
-import mc.gouv.xaf.back.dto.StatutPublicOuInterneDTO;
+import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
 
 /**
  * Représente le contenu d'une ligne d'historique de demande selon ${artifactIdCamelCase}

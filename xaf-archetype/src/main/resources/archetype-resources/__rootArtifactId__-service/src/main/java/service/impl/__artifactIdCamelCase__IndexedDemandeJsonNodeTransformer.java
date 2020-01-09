@@ -8,7 +8,8 @@ import com.fasterxml.jackson.databind.node.MissingNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
-import mc.gouv.xaf.back.service.transformer.IndexedDemandeJsonNodeTransformer;
+import mc.gouv.xaf.back.service.es.transformer.IndexedDemandeJsonNodeTransformer;
+
 import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Service;
 

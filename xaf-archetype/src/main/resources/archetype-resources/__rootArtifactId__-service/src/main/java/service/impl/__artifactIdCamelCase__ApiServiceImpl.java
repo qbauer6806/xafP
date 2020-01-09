@@ -3,43 +3,67 @@
 #set( $symbol_escape = '\' )
 package ${groupId}.service.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import mc.gouv.xaf.back.bpm.GouvBPM;
-import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
-import mc.gouv.xaf.back.bpm.activiti.exception.TaskAlreadyClaimedException;
-import mc.gouv.xaf.back.bpm.model.GouvBPMTask;
-import mc.gouv.xaf.back.bpm.model.GouvBPMUser;
-import mc.gouv.xaf.back.cache.UsagersCache;
-import mc.gouv.xaf.back.mail.EmailInfoDTO;
-import mc.gouv.xaf.back.mail.MailService;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.util.AfBackUtils;
-import mc.gouv.dem.service.*;
-import mc.gouv.dem.service.model.DemandeRechercheDTO;
-import mc.gouv.dem.shared.model.*;
-import ${groupId}.service.${artifactIdCamelCase}ApiService;
-import ${groupId}.service.HistoService;
-import ${groupId}.shared.dto.${artifactIdCamelCase}CodeMotifEnum;
-import ${groupId}.shared.dto.${artifactIdCamelCase}DemandeStatutEnum;
-import ${groupId}.shared.dto.${artifactIdCamelCase}TemplateEnum;
-import ${groupId}.shared.model.v1568884433537.ContenuProjectDemandeDTO;
-import ${groupId}.shared.util.${artifactIdCamelCase}Utils;
-import mc.gouv.logon.shared.User;
-import mc.gouv.servicerest.usager.model.UsagerBean;
-import mc.gouv.xapi.error.exception.client.BadRequestWebException;
-import mc.gouv.xapi.error.exception.client.NotFoundWebException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.jms.JMSException;
+import javax.transaction.Transactional;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.jms.JMSException;
-import javax.transaction.Transactional;
-import java.util.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+
+import mc.gouv.xaf.back.bpm.GouvBPM;
+import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
+import mc.gouv.xaf.back.bpm.activiti.exception.TaskAlreadyClaimedException;
+import mc.gouv.xaf.back.bpm.model.GouvBPMTask;
+import mc.gouv.xaf.back.bpm.model.GouvBPMUser;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.data.AccessService;
+import mc.gouv.xaf.back.service.data.DemandesComplementsService;
+import mc.gouv.xaf.back.service.data.DemandesHistoriqueService;
+import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.back.service.data.MotifsService;
+import mc.gouv.xaf.back.service.data.UsagersCourrierService;
+import mc.gouv.xaf.back.service.data.UsagersService;
+import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
+import mc.gouv.xaf.back.service.itg.mail.MailService;
+import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.shared.dto.AccessDTO;
+import mc.gouv.xaf.shared.dto.AccessInputDTO;
+import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
+import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
+import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeHistoriqueDTO;
+import mc.gouv.xaf.shared.dto.DemandeInputDTO;
+import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
+import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
+import mc.gouv.xaf.shared.dto.MotifDTO;
+import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
+import ${groupId}.service.${artifactIdCamelCase}ApiService;
+import ${groupId}.service.HistoService;
+import ${groupId}.shared.enums.${artifactIdCamelCase}CodeMotifEnum;
+import ${groupId}.shared.enums.${artifactIdCamelCase}DemandeStatutEnum;
+import ${groupId}.shared.enums.${artifactIdCamelCase}TemplateEnum;
+import ${groupId}.shared.model.v1573825612706.ContenuProjectDemandeDTO;
+import ${groupId}.shared.util.${artifactIdCamelCase}Utils;
+import mc.gouv.logon.shared.User;
+import mc.gouv.servicerest.usager.model.UsagerBean;
+import mc.gouv.xapi.error.exception.client.BadRequestWebException;
+import mc.gouv.xapi.error.exception.client.NotFoundWebException;
 
 @Component
 public class ${artifactIdCamelCase}ApiServiceImpl implements ${artifactIdCamelCase}ApiService {
+
 
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
@@ -300,11 +324,11 @@ public class ${artifactIdCamelCase}ApiServiceImpl implements ${artifactIdCamelCa
                 return null;
             }
 
-            String contenuNomStagiaire = contenu.getDonnee().getDemandeur().getNom();
-            LOGGER.info("Nom stagiaire : " + contenuNomStagiaire);
-            if (StringUtils.equalsIgnoreCase(contenuNomStagiaire, stringToCheck)) {
+            String contenuNomDemandeur = contenu.getDonnee().getEntrepriseorigine().getRaisonsociale();
+            LOGGER.info("Raison sociale origine : " + contenuNomDemandeur);
+            if (StringUtils.equalsIgnoreCase(contenuNomDemandeur, stringToCheck)) {
 
-                LOGGER.info("La demande trouvée correspond au nom de stagiaire fourni, effectuer l'association...");
+                LOGGER.info("La demande trouvée correspond au nom de la raison sociale fournie, effectuer l'association...");
 
                 demande = demandesService.associerDemandeCourrier(gouvPropertiesResolver.getDemarcheId(),
                         demande.getPkDemandes(), access.getPkAccess());
@@ -338,9 +362,9 @@ public class ${artifactIdCamelCase}ApiServiceImpl implements ${artifactIdCamelCa
                 return demande;
 
             } else {
-                LOGGER.info("La demande trouvée ne correspond pas au nom de stagiaire fourni, fin du traitement.");
+                LOGGER.info("La demande trouvée ne correspond pas au nom de la raison sociale fournie, fin du traitement.");
                 throw new BadRequestWebException(
-                        "La demande trouvée ne correspond pas au nom de stagiaire fourni, fin du traitement.");
+                        "La demande trouvée ne correspond pas au nom de la raison sociale fournie, fin du traitement.");
             }
         } else {
             LOGGER.info("Aucune demande trouvée");
@@ -381,7 +405,7 @@ public class ${artifactIdCamelCase}ApiServiceImpl implements ${artifactIdCamelCa
         List<DemandeDTO> demandes = demandesService.getDemandes(gouvPropertiesResolver.getDemarcheId(), usagerId);
 
         List<String> statutsFinaux = new ArrayList<String>();
-        statutsFinaux.add(${artifactIdCamelCase}DemandeStatutEnum.ACCORDEE.name());
+        statutsFinaux.add(${artifactIdCamelCase}DemandeStatutEnum.VALIDEE.name());
         statutsFinaux.add(${artifactIdCamelCase}DemandeStatutEnum.REFUSEE.name());
 
         List<Integer> demandesAPasserEnAnnulee = new ArrayList<Integer>();
@@ -444,8 +468,8 @@ public class ${artifactIdCamelCase}ApiServiceImpl implements ${artifactIdCamelCa
         }
 
         LOGGER.info("Appel à DEM afin d'effectuer la désinscription...");
-        usagersService.desinscriptionUsager(gouvPropertiesResolver.getDemarcheId(), usagerId, statutsFinaux, ${artifactIdCamelCase}DemandeStatutEnum.ANNULEE.name(),
-                ${artifactIdCamelCase}CodeMotifEnum.ANNULATION_DESINSCRIPTION.name());
+		usagersService.desinscriptionUsager(gouvPropertiesResolver.getDemarcheId(), usagerId, statutsFinaux,
+				${artifactIdCamelCase}DemandeStatutEnum.ANNULEE.name(), ${artifactIdCamelCase}CodeMotifEnum.ANNULATION_DESINSCRIPTION.name());
 
         LOGGER.info(
                 "Envoi d'un email aux agents ayant le rôle Utilisateur (donc droit Traitement), avec la liste des demandes qui passent à l'état Annulée suite à la désinscription...");
@@ -473,7 +497,7 @@ public class ${artifactIdCamelCase}ApiServiceImpl implements ${artifactIdCamelCa
         // emailInfo.addTo(afBackUtils.getDemarcheInfos().getEmailService(),
         // afBackUtils.getDemarcheInfos().getEmailServiceNom());
         emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, demandesImpacteesPk);
-        emailInfo.setLangue(langue);
+        emailInfo.setLangue("fr");
         Map<String, Object> model = new HashMap<String, Object>();
         model.put("usager", usager.getPrenom() + " " + usager.getNom());
         model.put("demandes", demandesImpacteesIdentifiants);
@@ -501,7 +525,7 @@ public class ${artifactIdCamelCase}ApiServiceImpl implements ${artifactIdCamelCa
         }
         emailInfo.addTo(usager.getEmail(), prenom + " " + nom);
         emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, demandesImpacteesPk);
-        emailInfo.setLangue("fr");
+        emailInfo.setLangue(langue);
         model = new HashMap<String, Object>();
         model.put("identifiant_usager", usager.getLogin());
         try {

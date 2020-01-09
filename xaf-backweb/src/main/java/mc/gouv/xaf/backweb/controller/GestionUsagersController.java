@@ -130,6 +130,7 @@ public class GestionUsagersController extends AbstractController {
 
         ModelAndView mav = new ModelAndView("gestion/usagers/gestionusagers");
         mav.addObject("usagers", usagers);
+        mav.addObject("usagerInput", usagerInput);
 
         LOGGER.info("======================= Fin /gestion/usagers/rechercher");
 

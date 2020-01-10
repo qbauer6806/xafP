@@ -288,9 +288,10 @@ public class GestionParametresController extends AbstractController {
                                     motif.setLibelle(motifsFormBean.getLibelleEn());
                                     motif.setCommentairePrerempli(motifsFormBean.getCommentairePrerempliEn());
                                     motif.setTexteAEnvoyer(motifsFormBean.getTexteAEnvoyerEn());
-                                    motif.setLangue("en");
-                                    motifsService.saveOrUpdateMotif(gouvPropertiesResolver.getDemarcheId(), motif);
                                 }
+                                // Si les champs ne sont pas renseigné, on insère les données FR
+                                motif.setLangue("en");
+                                motifsService.saveOrUpdateMotif(gouvPropertiesResolver.getDemarcheId(), motif);
 
                                 // MAJ du cache
                                 motifsCache.refresh();

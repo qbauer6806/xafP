@@ -950,6 +950,9 @@ ALTER TABLE ${artifactIdUpper}.DEM_DEMANDES ADD COLUMN RECAP_TYPE CHARACTER VARY
 -- #12951 - Stocker en base la date de création d'un fichier d'une demande
 ALTER TABLE ${artifactIdUpper}.DEM_DEMANDES_FILES ADD COLUMN DATE timestamp without time zone;
 
+-- #16457 - Supprimer la limite de caractère en base de données du champs texte du justificatif et/ou du courrier envoyé à l'usager.
+ALTER TABLE ${artifactIdLower}.act_hi_detail ALTER COLUMN text_ TYPE text;
+
 -- Fin scripts de "Structure"
 
 -- 5) Ajout des grant : Important ! Donner les droits d'utilisation au user applicatif et tous les priviliège au user admin.

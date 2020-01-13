@@ -42,6 +42,7 @@ import mc.gouv.xaf.back.exception.UsedCategoryException;
 import mc.gouv.xaf.back.service.es.IndexedDemandeService;
 import mc.gouv.xaf.back.service.es.RechercheAdminService;
 import mc.gouv.xaf.back.service.es.RechercheDynamicJSService;
+import mc.gouv.xaf.back.service.utils.HTMLEscapeUtils;
 
 @Service
 @Conditional(IndexationEnabledCondition.class)
@@ -77,7 +78,8 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
         for (EsProperty property : properties) {
             RechercheChampConfigBO champBo = champsMap.get(property.getName());
             if (champBo != null) {
-                property.setLabel(champBo.getLibelle());
+                String escapedLabel = HTMLEscapeUtils.escape(champBo.getLibelle());
+                property.setLabel(escapedLabel);
                 property.setCategoryId((champBo.getCategorie() != null) ? champBo.getCategorie().getId() : null);
                 property.setEnabled(champBo.isEnabled());
                 property.setEditable(champBo.isEditable());
@@ -252,7 +254,8 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
 
         if (categoriesBo != null) {
             for (RechercheCatConfigBO cat : categoriesBo) {
-                categories.add(new EsCategory(cat.getId(), cat.getLibelle(), cat.isEditable()));
+                String escapedLabel = HTMLEscapeUtils.escape(cat.getLibelle());
+                categories.add(new EsCategory(cat.getId(), escapedLabel, cat.isEditable()));
             }
         }
 

@@ -3,11 +3,11 @@
 #set( $symbol_escape = '\' )
 package mc.gouv.appfactory;
 
+import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 public class LoginContact extends HttpServlet {
 
@@ -35,7 +35,19 @@ public class LoginContact extends HttpServlet {
       url.append(":").append(serverPort);
     }
     url.append(contextPath);
-    url.append(pathInfo.substring(0, pathInfo.length() - 6));
+    String targetPage = pathInfo.substring(0, pathInfo.length() - 6);
+    if ("/help_en".equals(targetPage)) {
+      // cas particulier help_en remappé sur help?international=en
+      // voir ${symbol_pound}331
+      url.append("/help");
+      if (queryString != null) {
+        queryString = "international=en&" + queryString;
+      } else {
+        queryString = "international=en";
+      }
+    } else {
+      url.append(targetPage);
+    }
     url.append(PAGES_EXTENSION);
     if (queryString != null) {
       url.append("?").append(queryString);

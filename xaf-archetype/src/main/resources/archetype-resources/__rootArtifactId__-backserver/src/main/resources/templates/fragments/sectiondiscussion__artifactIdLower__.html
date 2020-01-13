@@ -5,8 +5,8 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <body>
-	<div id="sectiondiscussion${artifactIdLower}" th:fragment="sectiondiscussion${artifactIdLower}"
-		th:remove="tag">
+	<div id="sectiondiscussion${artifactIdLower}"
+		th:fragment="sectiondiscussion${artifactIdLower}" th:remove="tag">
 		<div class="col-xs-12">
 			<form id="discussion-demande" action="${symbol_pound}"
 				th:action="@{/demandes/commentaires}" method="post">
@@ -17,7 +17,7 @@
 							<h4 class="panel-title">
 								<a role="button" data-toggle="collapse"
 									data-parent="${symbol_pound}accordion5" href="${symbol_pound}collapse5"
-									 aria-controls="collapse5"
+									aria-controls="collapse5"
 									th:attr="aria-expanded=${symbol_dollar}{isDiscussionPanelActive}"
 									th:class="${symbol_dollar}{isDiscussionPanelActive}  ? '' : collapsed "> <i
 									class="pannelState icon-action_accordeon-ouvert"
@@ -26,7 +26,8 @@
 								</a>
 							</h4>
 						</div>
-						<div id="collapse5" class="panel-collapse collapse" th:classappend="${symbol_dollar}{isDiscussionPanelActive} ? in:out"
+						<div id="collapse5" class="panel-collapse collapse"
+							th:classappend="${symbol_dollar}{isDiscussionPanelActive} ? in:out"
 							role="tabpanel" aria-labelledby="heading5">
 							<div class="panel-body">
 								<div class="row">
@@ -57,9 +58,10 @@
 
 
 										<div class="row">
-											<div id="com-interne-inputFormGroup" class="col-xs-12 form-group">
+											<div id="com-interne-inputFormGroup"
+												class="col-xs-12 form-group">
 												<label for="com-interne-input">AJOUTER UN
-													COMMENTAIRE</label> 
+													COMMENTAIRE</label>
 												<textarea class="form-control greyTooltip"
 													oninput="checkCommentaireDiscussionValidity()"
 													data-toggle="tooltip" data-placement="bottom"

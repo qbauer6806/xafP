@@ -4,7 +4,13 @@
       "default": "nonInscritFr",
       "list": [
         {
-          "demotags": ["dataplus", "fr", "noncourrier", "noninscrit", "ok"],
+          "demotags": [
+            "dataplus",
+            "fr",
+            "noncourrier",
+            "noninscrit",
+            "ok"
+          ],
           "description": "Usager non inscrit (pays/nationalités en Français)",
           "name": "nonInscritFr",
           "properties": [
@@ -83,11 +89,25 @@
             {
               "key": "mc.gouv.appfactory.gen.front.joCcinUrl.en",
               "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.cgu.url.fr",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.cgu.url.en",
+              "value": ""
             }
           ]
         },
         {
-          "demotags": ["dataplus", "en", "noncourrier", "noninscrit", "ok"],
+          "demotags": [
+            "dataplus",
+            "en",
+            "noncourrier",
+            "noninscrit",
+            "ok"
+          ],
           "description": "Usager non inscrit (pays/nationalités en Anglais)",
           "name": "nonInscritEn",
           "properties": [
@@ -166,11 +186,25 @@
             {
               "key": "mc.gouv.appfactory.gen.front.joCcinUrl.en",
               "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.cgu.url.fr",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.cgu.url.en",
+              "value": ""
             }
           ]
         },
         {
-          "demotags": ["dataplus", "fr", "inscrit", "noncourrier", "ok"],
+          "demotags": [
+            "dataplus",
+            "fr",
+            "inscrit",
+            "noncourrier",
+            "ok"
+          ],
           "description": "Usager inscrit à la démarche (pays/nationalités en Français)",
           "name": "inscritFr",
           "properties": [
@@ -249,11 +283,25 @@
             {
               "key": "mc.gouv.appfactory.gen.front.joCcinUrl.en",
               "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.cgu.url.fr",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.cgu.url.en",
+              "value": ""
             }
           ]
         },
         {
-          "demotags": ["dataplus", "en", "inscrit", "noncourrier", "ok"],
+          "demotags": [
+            "dataplus",
+            "en",
+            "inscrit",
+            "noncourrier",
+            "ok"
+          ],
           "description": "Usager inscrit à la démarche (pays/nationalités en Anglais)",
           "name": "inscritEn",
           "properties": [
@@ -331,6 +379,14 @@
             },
             {
               "key": "mc.gouv.appfactory.gen.front.joCcinUrl.en",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.cgu.url.fr",
+              "value": ""
+            },
+            {
+              "key": "mc.gouv.appfactory.gen.front.cgu.url.en",
               "value": ""
             }
           ]

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<archetype-descriptor xsi:schemaLocation="https://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.1.0 http://maven.apache.org/xsd/archetype-descriptor-1.1.0.xsd" name="derjfer"
+<archetype-descriptor xsi:schemaLocation="https://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.1.0 http://maven.apache.org/xsd/archetype-descriptor-1.1.0.xsd" name="detsala"
     xmlns="https://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.1.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <requiredProperties>
@@ -16,7 +16,7 @@
       <defaultValue>derogation-repos-dominical</defaultValue>
     </requiredProperty>
     <requiredProperty key="tsFullName">
-      <defaultValue>Dérogation relative aux repos dominical</defaultValue>
+      <defaultValue>Détacher un salarié à Monaco pour une durée inférieure à 3 mois</defaultValue>
     </requiredProperty>
     <requiredProperty key="tsBackPort">
       <defaultValue>10900</defaultValue>
@@ -77,12 +77,6 @@
           <includes>
             <include>.classpath</include>
             <include>.project</include>
-          </includes>
-        </fileSet>
-        <fileSet encoding="UTF-8">
-          <directory></directory>
-          <includes>
-            <include>.gitignore</include>
           </includes>
         </fileSet>
       </fileSets>
@@ -148,6 +142,15 @@
           <includes>
             <include>**/*.gitkeep</include>
           </includes>
+          <excludes>
+            <exclude>.gitkeep</exclude>
+          </excludes>
+        </fileSet>
+        <fileSet encoding="UTF-8">
+          <directory>src/main/java</directory>
+          <includes>
+            <include>.gitkeep</include>
+          </includes>
         </fileSet>
         <fileSet filtered="true" encoding="UTF-8">
           <directory>src/main/resources</directory>
@@ -170,6 +173,7 @@
           <directory>src/main/webapp</directory>
           <includes>
             <include>**/*.jpg</include>
+            <include>**/*.xlsx</include>
             <include>**/*.css</include>
             <include>**/*.swf</include>
             <include>**/*.gif</include>
@@ -177,10 +181,10 @@
             <include>**/*.ttf</include>
             <include>**/*.png</include>
             <include>**/*.js</include>
+            <include>**/*.gitVersion/master</include>
             <include>**/*.eot</include>
             <include>**/*.swp</include>
             <include>**/*.woff</include>
-            <include>**/*.gitVersion</include>
             <include>**/*.gitkeep</include>
             <include>**/*.ico</include>
             <include>**/*.htc</include>

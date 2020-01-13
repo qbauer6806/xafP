@@ -46,26 +46,25 @@
 </head>
 <body th:with="pageConfigurationActive='active'">
 
-<div th:replace="fragments/header :: header"/>
+<div th:replace="fragments/header :: header"></div>
 
 <div id="wrapper">
 
-    <div th:replace="fragments/sidebar :: sidebar"/>
+    <div th:replace="fragments/sidebar :: sidebar"></div>
 
     <!-- DEBUT CONTENU -->
     <div id="page-content-wrapper">
 
-        <div class="breadcrumbContent">
-            <div class="breadcrumb">
-						<span> <a th:href="@{/}" class="breadcrumb-item">ACCUEIL</a>&nbsp;&gt;&nbsp;
-							<a th:href="@{/gestion/statistiques}" class="breadcrumb-item">STATISTIQUES</a>
-							&gt;
-						</span>
-            </div>
-            <div class="triangleTopright"></div>
-        </div>
+			<div class="breadcrumbContent">
+				<div class="breadcrumb">
+					<a id="ariane0" th:href="@{/}" class="breadcrumb-item">ACCUEIL</a>&nbsp;&gt;&nbsp;
+					<a id="ariane1" th:href="@{/gestion/statistiques}" class="breadcrumb-item">STATISTIQUES</a>
+					&gt;
+				</div>
+				<div class="triangleTopright"></div>
+			</div>
 
-        <div class="container-fluid">
+			<div class="container-fluid">
             <div class="text-center">
                 <h1>Statistiques</h1>
             </div>
@@ -102,7 +101,6 @@
         </div>
     </div>
 
-</div>
 </div>
 
 <div th:replace="fragments/footer :: footer"></div>

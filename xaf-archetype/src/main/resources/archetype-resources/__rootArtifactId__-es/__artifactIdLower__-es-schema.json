@@ -134,243 +134,223 @@
           "properties" : {
             "donnee" : {
               "properties" : {
-                "demandeur" : {
-                  "properties" : {
-                    "mail" : {
-                      "analyzer" : "default",
-                      "fields" : {
-                        "keyword" : {
-                          "ignore_above" : 256,
-                          "type" : "keyword"
-                        }
-                      },
-                      "search_analyzer" : "default_search",
-                      "type" : "text"
-                    },
-                    "nom" : {
-                      "analyzer" : "default",
-                      "fields" : {
-                        "keyword" : {
-                          "ignore_above" : 256,
-                          "type" : "keyword"
-                        }
-                      },
-                      "search_analyzer" : "default_search",
-                      "type" : "text"
-                    },
-                    "prenom" : {
-                      "analyzer" : "default",
-                      "fields" : {
-                        "keyword" : {
-                          "ignore_above" : 256,
-                          "type" : "keyword"
-                        }
-                      },
-                      "search_analyzer" : "default_search",
-                      "type" : "text"
-                    },
-                    "titre" : {
-                      "analyzer" : "default",
-                      "fields" : {
-                        "keyword" : {
-                          "ignore_above" : 256,
-                          "type" : "keyword"
-                        }
-                      },
-                      "search_analyzer" : "default_search",
-                      "type" : "text"
-                    }
-                  }
-                },
-                "derogation" : {
-                  "properties" : {
-                    "employe" : {
-                      "properties" : {
-                        "concerne" : {
-                          "analyzer" : "default",
-                          "fields" : {
-                            "keyword" : {
-                              "ignore_above" : 256,
-                              "type" : "keyword"
-                            }
-                          },
-                          "search_analyzer" : "default_search",
-                          "type" : "text"
-                        }
-                      }
-                    },
-                    "joursferies" : {
-                      "properties" : {
-                        "ascension" : {
-                          "analyzer" : "default",
-                          "fields" : {
-                            "keyword" : {
-                              "ignore_above" : 256,
-                              "type" : "keyword"
-                            }
-                          },
-                          "search_analyzer" : "default_search",
-                          "type" : "text"
-                        },
-                        "assomption" : {
-                          "analyzer" : "default",
-                          "fields" : {
-                            "keyword" : {
-                              "ignore_above" : 256,
-                              "type" : "keyword"
-                            }
-                          },
-                          "search_analyzer" : "default_search",
-                          "type" : "text"
-                        },
-                        "feteDieu" : {
-                          "analyzer" : "default",
-                          "fields" : {
-                            "keyword" : {
-                              "ignore_above" : 256,
-                              "type" : "keyword"
-                            }
-                          },
-                          "search_analyzer" : "default_search",
-                          "type" : "text"
-                        },
-                        "feteDuPrince" : {
-                          "analyzer" : "default",
-                          "fields" : {
-                            "keyword" : {
-                              "ignore_above" : 256,
-                              "type" : "keyword"
-                            }
-                          },
-                          "search_analyzer" : "default_search",
-                          "type" : "text"
-                        },
-                        "immaculeeConception" : {
-                          "analyzer" : "default",
-                          "fields" : {
-                            "keyword" : {
-                              "ignore_above" : 256,
-                              "type" : "keyword"
-                            }
-                          },
-                          "search_analyzer" : "default_search",
-                          "type" : "text"
-                        },
-                        "jourDeL_An" : {
-                          "analyzer" : "default",
-                          "fields" : {
-                            "keyword" : {
-                              "ignore_above" : 256,
-                              "type" : "keyword"
-                            }
-                          },
-                          "search_analyzer" : "default_search",
-                          "type" : "text"
-                        },
-                        "le1erMai" : {
-                          "analyzer" : "default",
-                          "fields" : {
-                            "keyword" : {
-                              "ignore_above" : 256,
-                              "type" : "keyword"
-                            }
-                          },
-                          "search_analyzer" : "default_search",
-                          "type" : "text"
-                        },
-                        "lundiDePaques" : {
-                          "analyzer" : "default",
-                          "fields" : {
-                            "keyword" : {
-                              "ignore_above" : 256,
-                              "type" : "keyword"
-                            }
-                          },
-                          "search_analyzer" : "default_search",
-                          "type" : "text"
-                        },
-                        "lundiDePentecote" : {
-                          "analyzer" : "default",
-                          "fields" : {
-                            "keyword" : {
-                              "ignore_above" : 256,
-                              "type" : "keyword"
-                            }
-                          },
-                          "search_analyzer" : "default_search",
-                          "type" : "text"
-                        },
-                        "noel" : {
-                          "analyzer" : "default",
-                          "fields" : {
-                            "keyword" : {
-                              "ignore_above" : 256,
-                              "type" : "keyword"
-                            }
-                          },
-                          "search_analyzer" : "default_search",
-                          "type" : "text"
-                        },
-                        "sainteDevote" : {
-                          "analyzer" : "default",
-                          "fields" : {
-                            "keyword" : {
-                              "ignore_above" : 256,
-                              "type" : "keyword"
-                            }
-                          },
-                          "search_analyzer" : "default_search",
-                          "type" : "text"
-                        },
-                        "toussaint" : {
-                          "analyzer" : "default",
-                          "fields" : {
-                            "keyword" : {
-                              "ignore_above" : 256,
-                              "type" : "keyword"
-                            }
-                          },
-                          "search_analyzer" : "default_search",
-                          "type" : "text"
-                        }
-                      }
-                    },
-                    "motivationdemande" : {
-                      "analyzer" : "default",
-                      "fields" : {
-                        "keyword" : {
-                          "ignore_above" : 256,
-                          "type" : "keyword"
-                        }
-                      },
-                      "search_analyzer" : "default_search",
-                      "type" : "text"
-                    },
-                    "nombresalarie" : {
-                      "analyzer" : "default",
-                      "fields" : {
-                        "keyword" : {
-                          "ignore_above" : 256,
-                          "type" : "keyword"
-                        }
-                      },
-                      "search_analyzer" : "default_search",
-                      "type" : "text"
-                    },
-                    "presencedeleguespersonnel" : {
-                      "analyzer" : "default",
-                      "fields" : {
-                        "keyword" : {
-                          "ignore_above" : 256,
-                          "type" : "keyword"
-                        }
-                      },
-                      "search_analyzer" : "default_search",
-                      "type" : "text"
-                    }
-                  }
-                },
                 "entreprise" : {
+                  "properties" : {
+                    "adressechantier" : {
+                      "properties" : {
+                        "codePostal" : {
+                          "analyzer" : "default",
+                          "fields" : {
+                            "keyword" : {
+                              "ignore_above" : 256,
+                              "type" : "keyword"
+                            }
+                          },
+                          "search_analyzer" : "default_search",
+                          "type" : "text"
+                        },
+                        "ligne1" : {
+                          "analyzer" : "default",
+                          "fields" : {
+                            "keyword" : {
+                              "ignore_above" : 256,
+                              "type" : "keyword"
+                            }
+                          },
+                          "search_analyzer" : "default_search",
+                          "type" : "text"
+                        },
+                        "ligne2" : {
+                          "analyzer" : "default",
+                          "fields" : {
+                            "keyword" : {
+                              "ignore_above" : 256,
+                              "type" : "keyword"
+                            }
+                          },
+                          "search_analyzer" : "default_search",
+                          "type" : "text"
+                        },
+                        "ligne3" : {
+                          "analyzer" : "default",
+                          "fields" : {
+                            "keyword" : {
+                              "ignore_above" : 256,
+                              "type" : "keyword"
+                            }
+                          },
+                          "search_analyzer" : "default_search",
+                          "type" : "text"
+                        },
+                        "pays" : {
+                          "analyzer" : "default",
+                          "fields" : {
+                            "keyword" : {
+                              "ignore_above" : 256,
+                              "type" : "keyword"
+                            }
+                          },
+                          "search_analyzer" : "default_search",
+                          "type" : "text"
+                        },
+                        "ville" : {
+                          "analyzer" : "default",
+                          "fields" : {
+                            "keyword" : {
+                              "ignore_above" : 256,
+                              "type" : "keyword"
+                            }
+                          },
+                          "search_analyzer" : "default_search",
+                          "type" : "text"
+                        }
+                      }
+                    },
+                    "adresseentreprise" : {
+                      "properties" : {
+                        "codePostal" : {
+                          "analyzer" : "default",
+                          "fields" : {
+                            "keyword" : {
+                              "ignore_above" : 256,
+                              "type" : "keyword"
+                            }
+                          },
+                          "search_analyzer" : "default_search",
+                          "type" : "text"
+                        },
+                        "ligne1" : {
+                          "analyzer" : "default",
+                          "fields" : {
+                            "keyword" : {
+                              "ignore_above" : 256,
+                              "type" : "keyword"
+                            }
+                          },
+                          "search_analyzer" : "default_search",
+                          "type" : "text"
+                        },
+                        "ligne2" : {
+                          "analyzer" : "default",
+                          "fields" : {
+                            "keyword" : {
+                              "ignore_above" : 256,
+                              "type" : "keyword"
+                            }
+                          },
+                          "search_analyzer" : "default_search",
+                          "type" : "text"
+                        },
+                        "ligne3" : {
+                          "analyzer" : "default",
+                          "fields" : {
+                            "keyword" : {
+                              "ignore_above" : 256,
+                              "type" : "keyword"
+                            }
+                          },
+                          "search_analyzer" : "default_search",
+                          "type" : "text"
+                        },
+                        "pays" : {
+                          "analyzer" : "default",
+                          "fields" : {
+                            "keyword" : {
+                              "ignore_above" : 256,
+                              "type" : "keyword"
+                            }
+                          },
+                          "search_analyzer" : "default_search",
+                          "type" : "text"
+                        },
+                        "ville" : {
+                          "analyzer" : "default",
+                          "fields" : {
+                            "keyword" : {
+                              "ignore_above" : 256,
+                              "type" : "keyword"
+                            }
+                          },
+                          "search_analyzer" : "default_search",
+                          "type" : "text"
+                        }
+                      }
+                    },
+                    "datedebutchantier" : {
+                      "type" : "date"
+                    },
+                    "datefinchantier" : {
+                      "type" : "date"
+                    },
+                    "datesdetachement" : {
+                      "analyzer" : "default",
+                      "fields" : {
+                        "keyword" : {
+                          "ignore_above" : 256,
+                          "type" : "keyword"
+                        }
+                      },
+                      "search_analyzer" : "default_search",
+                      "type" : "text"
+                    },
+                    "estchantier" : {
+                      "analyzer" : "default",
+                      "fields" : {
+                        "keyword" : {
+                          "ignore_above" : 256,
+                          "type" : "keyword"
+                        }
+                      },
+                      "search_analyzer" : "default_search",
+                      "type" : "text"
+                    },
+                    "nautorisationchantier" : {
+                      "analyzer" : "default",
+                      "fields" : {
+                        "keyword" : {
+                          "ignore_above" : 256,
+                          "type" : "keyword"
+                        }
+                      },
+                      "search_analyzer" : "default_search",
+                      "type" : "text"
+                    },
+                    "nomchantier" : {
+                      "analyzer" : "default",
+                      "fields" : {
+                        "keyword" : {
+                          "ignore_above" : 256,
+                          "type" : "keyword"
+                        }
+                      },
+                      "search_analyzer" : "default_search",
+                      "type" : "text"
+                    },
+                    "nomentreprise" : {
+                      "analyzer" : "default",
+                      "fields" : {
+                        "keyword" : {
+                          "ignore_above" : 256,
+                          "type" : "keyword"
+                        }
+                      },
+                      "search_analyzer" : "default_search",
+                      "type" : "text"
+                    },
+                    "paysoriginedetachement" : {
+                      "analyzer" : "default",
+                      "fields" : {
+                        "keyword" : {
+                          "ignore_above" : 256,
+                          "type" : "keyword"
+                        }
+                      },
+                      "search_analyzer" : "default_search",
+                      "type" : "text"
+                    }
+                  }
+                },
+                "entrepriseorigine" : {
                   "properties" : {
                     "adresse" : {
                       "properties" : {
@@ -442,40 +422,7 @@
                         }
                       }
                     },
-                    "nom" : {
-                      "analyzer" : "default",
-                      "fields" : {
-                        "keyword" : {
-                          "ignore_above" : 256,
-                          "type" : "keyword"
-                        }
-                      },
-                      "search_analyzer" : "default_search",
-                      "type" : "text"
-                    },
-                    "numerocar" : {
-                      "analyzer" : "default",
-                      "fields" : {
-                        "keyword" : {
-                          "ignore_above" : 256,
-                          "type" : "keyword"
-                        }
-                      },
-                      "search_analyzer" : "default_search",
-                      "type" : "text"
-                    },
                     "raisonsociale" : {
-                      "analyzer" : "default",
-                      "fields" : {
-                        "keyword" : {
-                          "ignore_above" : 256,
-                          "type" : "keyword"
-                        }
-                      },
-                      "search_analyzer" : "default_search",
-                      "type" : "text"
-                    },
-                    "telephone" : {
                       "analyzer" : "default",
                       "fields" : {
                         "keyword" : {

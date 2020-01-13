@@ -3,7 +3,7 @@
 #set( $symbol_escape = '\' )
 package ${groupId}.service.provider;
 
-import mc.gouv.dem.shared.model.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
 
 public interface PdfModelProvider {
 

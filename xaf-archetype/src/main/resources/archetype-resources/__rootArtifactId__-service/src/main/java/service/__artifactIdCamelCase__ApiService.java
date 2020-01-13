@@ -3,7 +3,7 @@
 #set( $symbol_escape = '\' )
 package ${groupId}.service;
 
-import mc.gouv.xaf.apiserver.AfApiController;
+import mc.gouv.xaf.back.controller.AfApiController;
 
 public interface ${artifactIdCamelCase}ApiService extends AfApiController {
 

@@ -5,7 +5,7 @@
   <parent>
     <groupId>mc.gouv.xaf</groupId>
     <artifactId>xaf</artifactId>
-		<version>7.1.0-SNAPSHOT</version>
+      <version>7.1.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>xaf-archetype</artifactId>
@@ -31,27 +31,6 @@
       </plugins>
     </pluginManagement>
   </build>
-
-  <description>Parent pom providing dependency and plugin management for applications
-		built with Maven</description>
-
-  <url>https://projects.spring.io/spring-boot/#/spring-boot-starter-parent/xboot/xboot-spring-starter-parent/derjfer</url>
-
-  <developers>
-    <developer>
-      <name>Pivotal</name>
-      <email>info@pivotal.io</email>
-      <organization>Pivotal Software, Inc.</organization>
-      <organizationUrl>http://www.spring.io</organizationUrl>
-    </developer>
-  </developers>
-
-  <licenses>
-    <license>
-      <name>Apache License, Version 2.0</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0</url>
-    </license>
-  </licenses>
 
   <distributionManagement>
     <repository>

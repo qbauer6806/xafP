@@ -3,7 +3,7 @@
 #set( $symbol_escape = '\' )
 package ${groupId}.shared.dto;
 
-import mc.gouv.dem.shared.model.DemandeHistoriqueDTO;
+import mc.gouv.xaf.shared.dto.DemandeHistoriqueDTO;
 
 /**
  * Représente une ligne d'historique de demande selon ${artifactIdCamelCase}

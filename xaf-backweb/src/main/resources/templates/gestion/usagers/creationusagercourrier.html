@@ -46,8 +46,8 @@
 
 			<div class="breadcrumbContent">
 				<div class="breadcrumb">
-					<a th:href="@{/}" class="breadcrumb-link">ACCUEIL</a>&nbsp;&gt;&nbsp;
-					<a th:href="@{/gestion/usagers}" class="breadcrumb-link">USAGERS</a>&gt;
+					<a id="ariane0" th:href="@{/}" class="breadcrumb-link">ACCUEIL</a>&nbsp;&gt;&nbsp;
+					<a id="ariane1" th:href="@{/gestion/usagers}" class="breadcrumb-link">USAGERS</a>&gt;
 					<span th:if="${updateUsagerId} == null">Création d'un usager
 						courrier</span> <span th:if="${updateUsagerId} != null">Visualisation
 						ou modification d'un usager courrier</span>
@@ -258,11 +258,13 @@
 							<div class="col-xs-12">
 								<div class="text-center">
 									<input type="hidden" name="updateUsagerId"
-										th:value="${updateUsagerId}" /> <a
+										th:value="${updateUsagerId}" /> 
+									<a id="btnRetourUsagers"
 										th:href="@{/gestion/usagers}"
-										class="btn btn-action-second ripple-effect"> Retour </a> <input
-										id="sauvegarder-button" type="button" name="action"
-										value="Sauvegarder" class="btn btn-action ripple-effect" /> <a
+										class="btn btn-action-second ripple-effect"> Retour </a> 
+									<input id="sauvegarder-button" type="button" name="action"
+										value="Sauvegarder" class="btn btn-action ripple-effect" /> 
+									<a id="btnAjouterDemande"
 										th:disabled="${#fields.hasErrors('*')}"
 										class="btn btn-action ripple-effect"
 										th:if="${updateUsagerId} != null"

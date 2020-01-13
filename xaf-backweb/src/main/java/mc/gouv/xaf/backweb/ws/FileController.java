@@ -1,5 +1,6 @@
 package mc.gouv.xaf.backweb.ws;
 
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -53,8 +54,11 @@ public class FileController {
 
         String file = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
         file = file.replace("/ws/file/get/", "");
+        
+        // Bugfix #16805: encodage des noms des fichiers avec caractères spéciaux
+        String filePathEncoded = URLEncoder.encode(file, "UTF-8"); 
 
-        fileService.getFile(file, gouvPropertiesResolver.getContainerId(), response);
+        fileService.getFile(filePathEncoded, gouvPropertiesResolver.getContainerId(), response);
 
         LOGGER.info("====================== getFile() terminé, retour au client...");
     }

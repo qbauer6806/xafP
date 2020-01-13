@@ -2,19 +2,44 @@
   "content": {
     "sections": [
       {
+        "isSousSection": false,
+        "nom": "emailContact",
+        "sousSections": [
+          {
+            "ref": "donneeDemandeur"
+          }
+        ]
+      },
+      {
         "isSousSection": true,
-        "ref": "donneeDemandeur"
+        "ref": "donneeEntrepriseorigine"
       },
       {
         "isSousSection": true,
         "ref": "donneeEntreprise"
       },
       {
-        "isSousSection": true,
-        "ref": "donneeDerogation"
+        "conditional": true,
+        "isSousSection": false,
+        "nom": "tableausalaries",
+        "sousSections": [
+          {
+            "ref": "donneeSalariesTabsalariesitalie"
+          },
+          {
+            "ref": "donneeSalariesTabsalariesfrance"
+          }
+        ]
       },
       {
-        "ref": "fichiers"
+        "conditional": true,
+        "isSousSection": false,
+        "nom": "fichiersJustif",
+        "sousSections": [
+          {
+            "ref": "fichiers"
+          }
+        ]
       }
     ],
     "typeDonnee": "projectDemande"

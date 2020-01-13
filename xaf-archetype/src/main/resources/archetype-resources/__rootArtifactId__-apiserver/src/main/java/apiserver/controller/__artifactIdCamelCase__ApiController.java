@@ -3,12 +3,11 @@
 #set( $symbol_escape = '\' )
 package ${groupId}.apiserver.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import mc.gouv.xaf.apiserver.AbstractAfApiController;
-import mc.gouv.dem.service.exception.DemarchesServiceException;
-import mc.gouv.dem.shared.model.*;
-import ${groupId}.service.${artifactIdCamelCase}ApiService;
-import mc.gouv.xapi.error.dto.ErrorsDTO;
+import java.util.List;
+
+import javax.jms.JMSException;
+import javax.servlet.http.HttpServletResponse;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,9 +16,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.jms.JMSException;
-import javax.servlet.http.HttpServletResponse;
-import java.util.List;
+import com.fasterxml.jackson.core.JsonProcessingException;
+
+import ${groupId}.service.${artifactIdCamelCase}ApiService;
+import mc.gouv.xaf.back.controller.AbstractAfApiController;
+import mc.gouv.xaf.back.exception.DemarchesServiceException;
+import mc.gouv.xaf.shared.dto.AccessDTO;
+import mc.gouv.xaf.shared.dto.AccessInputDTO;
+import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
+import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeInputDTO;
+import mc.gouv.xaf.shared.dto.MotifDTO;
+import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
+import mc.gouv.xapi.error.dto.ErrorsDTO;
 
 /**
  * 

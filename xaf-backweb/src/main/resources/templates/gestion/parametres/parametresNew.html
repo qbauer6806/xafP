@@ -50,10 +50,11 @@
 
 				<div class="breadcrumbContent">
 					<div class="breadcrumb">
-						<a th:href="@{/index}" class="breadcrumb-link">Accueil</a>&nbsp;&gt;&nbsp;<a
-							th:href="@{/gestion/parametres}" class="breadcrumb-link">PARAMÈTRES</a>
-						&gt; <span th:if="${motifsFormBean.motifPkFr != null}">Modification</span>
-						<span th:unless="${motifsFormBean.motifPkFr != null}">Création</span>
+						<a id="ariane0" th:href="@{/index}" class="breadcrumb-link">Accueil</a>&nbsp;&gt;&nbsp;<a
+							id="ariane1" th:href="@{/gestion/parametres}"
+							class="breadcrumb-link">PARAMÈTRES</a> &gt; <span
+							th:if="${motifsFormBean.motifPkFr != null}">Modification</span> <span
+							th:unless="${motifsFormBean.motifPkFr != null}">Création</span>
 					</div>
 					<div class="triangleTopright"></div>
 				</div>
@@ -203,29 +204,34 @@
 											class="align-center">
 											<div th:if="${motifsFormBean.isMotifActif()}"
 												class="col-xs-12 text-center">
-												<a class="btn btn-action-second ripple-effect"
+												<a id="btnRetourMotifs"
+													class="btn btn-action-second ripple-effect"
 													th:href="@{/gestion/parametres}">Annuler</a> <input
+													id="btnDesactiverMotif"
 													class="btn btn-action ripple-effect" type="submit"
 													value="Désactiver le motif" name="desactiveMotif" /> <input
-													type="submit" value="Mettre à jour le motif"
+													id="btnSauvegarderMotif" type="submit"
+													value="Mettre à jour le motif"
 													class="btn btn-action ripple-effect" />
 											</div>
 											<div th:unless="${motifsFormBean.isMotifActif()}"
 												class="col-xs-12 text-center">
-												<a class="btn btn-action-second ripple-effect"
+												<a id="btnRetourMotifs"
+													class="btn btn-action-second ripple-effect"
 													th:href="@{/gestion/parametres}">Annuler</a> <input
-													class="btn btn-action ripple-effect" type="submit"
-													value="Activer le motif" name="activeMotif" />
+													id="btnActiverMotif" class="btn btn-action ripple-effect"
+													type="submit" value="Activer le motif" name="activeMotif" />
 											</div>
 										</div>
 
 										<div th:unless="${motifsFormBean.motifPkFr != null}"
 											class="row">
 											<div class="col-xs-12 text-center">
-												<a class="btn btn-action-second ripple-effect"
+												<a id="btnRetourMotifs"
+													class="btn btn-action-second ripple-effect"
 													th:href="@{/gestion/parametres}">Annuler</a> <input
-													type="submit" name="action" value="Créer le motif"
-													class="btn btn-action ripple-effect" />
+													id="btnCreerMotif" type="submit" name="action"
+													value="Créer le motif" class="btn btn-action ripple-effect" />
 											</div>
 										</div>
 									</div>

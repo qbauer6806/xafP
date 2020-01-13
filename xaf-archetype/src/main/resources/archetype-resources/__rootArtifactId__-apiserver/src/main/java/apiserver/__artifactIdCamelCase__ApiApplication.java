@@ -19,9 +19,9 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
  *
  */
 @SpringBootApplication(exclude = { MongoAutoConfiguration.class, SecurityAutoConfiguration.class })
-@ComponentScan(basePackages = { "${groupId}", "mc.gouv.xaf.back", "mc.gouv.dem" })
-@EnableJpaRepositories(basePackages = { "mc.gouv.dem.data", "mc.gouv.xaf.data" })
-@EntityScan(basePackages = { "mc.gouv.dem.data", "mc.gouv.xaf.data" })
+@ComponentScan(basePackages = { "${groupId}", "mc.gouv.xaf.back" })
+@EnableJpaRepositories(basePackages = { "mc.gouv.xaf.back.data" })
+@EntityScan(basePackages = { "mc.gouv.xaf.back.data" })
 public class ${artifactIdCamelCase}ApiApplication {
 
     public static void main(String[] args) {

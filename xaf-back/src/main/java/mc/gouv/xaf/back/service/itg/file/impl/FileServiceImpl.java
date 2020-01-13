@@ -41,12 +41,11 @@ public class FileServiceImpl implements FileService {
     private GouvPropertiesResolver gouvPropertiesResolver;
 
     @Override
-    public void getFile(String filename, HttpServletResponse response) throws ClientProtocolException, IOException {
+    public void getFile(String filename, String containerId, HttpServletResponse response) throws ClientProtocolException, IOException {
 
         LOGGER.info("FileService.getFile(" + filename + ")");
 
         String accountId = gouvPropertiesResolver.getDemarcheId();
-        String containerId = gouvPropertiesResolver.getContainerId();
         
         // Remplacement des espaces par des "+"...
         filename = filename.replace(" ", "+");
@@ -56,7 +55,7 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public String saveFile(DemandeDTO demande, String filename, String contentType, InputStream inputStream,
+    public String saveFile(DemandeDTO demande, String filename, String containerId, String contentType, InputStream inputStream,
             OutputStream outputStream) throws Exception {
 
         LOGGER.info("FileService.saveFile(" + demande.getPkDemandes() + "," + filename + "," + contentType + ")");
@@ -69,7 +68,6 @@ public class FileServiceImpl implements FileService {
         LOGGER.info("Filename à donner à FILE : " + filename);
 
         String accountId = gouvPropertiesResolver.getDemarcheId();
-        String containerId = gouvPropertiesResolver.getContainerId();
         LOGGER.info("FileClient.saveFile(" + accountId + "," + containerId + "," + filename + ")");
         return afBackUtils.getFileClient().saveFile(accountId, containerId, inputStream, filename, contentType, customHeaders,
                 outputStream);
@@ -77,7 +75,7 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public String saveFile(DemandeDTO demande, MultipartFile file, HttpServletResponse response)
+    public String saveFile(DemandeDTO demande, String containerId, MultipartFile file, HttpServletResponse response)
             throws Exception {
 
         LOGGER.info("FileService.saveFile(" + demande.getPkDemandes() + "," + file.getOriginalFilename() + ")");
@@ -90,7 +88,6 @@ public class FileServiceImpl implements FileService {
         Map<String, String> customHeaders = createCustomHeaders(demande);
 
         String accountId = gouvPropertiesResolver.getDemarcheId();
-        String containerId = gouvPropertiesResolver.getContainerId();
         LOGGER.info("FileClient.saveFile(" + accountId + "," + containerId + "," + filename + ")");
         
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

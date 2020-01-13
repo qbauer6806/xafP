@@ -54,7 +54,7 @@ public class FileController {
         String file = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
         file = file.replace("/ws/file/get/", "");
 
-        fileService.getFile(file, response);
+        fileService.getFile(file, gouvPropertiesResolver.getContainerId(), response);
 
         LOGGER.info("====================== getFile() terminé, retour au client...");
     }
@@ -83,7 +83,7 @@ public class FileController {
                 LOGGER.info("Part à traiter : " + file.getOriginalFilename());
 
                 LOGGER.info("Appel au FileService...");
-                String filename = fileService.saveFile(demande, file, response);
+                String filename = fileService.saveFile(demande, gouvPropertiesResolver.getContainerId(), file, response);
 
                 fileNames.put(file.getOriginalFilename(), filename);
             }

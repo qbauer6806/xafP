@@ -20,10 +20,10 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
  */
 public interface FileService {
 
-    public void getFile(String filename, HttpServletResponse response) throws ClientProtocolException, IOException;
+    public void getFile(String filename, String container, HttpServletResponse response) throws ClientProtocolException, IOException;
     
-    public String saveFile(DemandeDTO demande, String filename, String contentType, InputStream inputStream, OutputStream outputStream) throws Exception;
+    public String saveFile(DemandeDTO demande, String filename, String container, String contentType, InputStream inputStream, OutputStream outputStream) throws Exception;
     
-    public String saveFile(DemandeDTO demande, MultipartFile file, HttpServletResponse response) throws Exception;
+    public String saveFile(DemandeDTO demande, String container, MultipartFile file, HttpServletResponse response) throws Exception;
     
 }

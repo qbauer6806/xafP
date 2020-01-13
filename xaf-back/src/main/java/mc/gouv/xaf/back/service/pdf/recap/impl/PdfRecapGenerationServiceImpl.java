@@ -68,7 +68,7 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
 
         LOGGER.info("Stockage du PDF généré dans FILE...");
         ByteArrayOutputStream output = new ByteArrayOutputStream();
-        String url = fileService.saveFile(demande, fileName, "application/pdf", new FileInputStream(tempFile), output);
+        String url = fileService.saveFile(demande, fileName, gouvPropertiesResolver.getContainerId(), "application/pdf", new FileInputStream(tempFile), output);
         output.close();
 
         LOGGER.info("Ajout de la référence à ce fichier interne dans DEM...");

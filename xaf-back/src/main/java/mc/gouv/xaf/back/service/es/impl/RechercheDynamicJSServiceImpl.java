@@ -13,6 +13,7 @@ import mc.gouv.xaf.back.data.entity.RechercheChampConfigBO;
 import mc.gouv.xaf.back.service.es.IndexedDemandeService;
 import mc.gouv.xaf.back.service.es.RechercheAdminService;
 import mc.gouv.xaf.back.service.es.RechercheDynamicJSService;
+import mc.gouv.xaf.back.service.utils.HTMLEscapeUtils;
 
 @Service
 @Conditional(IndexationEnabledCondition.class)
@@ -51,9 +52,13 @@ public class RechercheDynamicJSServiceImpl implements RechercheDynamicJSService 
         if (champs != null) {
             for (RechercheChampConfigBO champBo : champs) {
                 if (champBo != null && champBo.isEnabled() && champBo.getLibelle() != null) {
-                    String category = champBo.getCategorie() != null ? champBo.getCategorie().getLibelle() : "Autres";
-                    dynamicJsSB.append("\n").append(MessageFormat.format(RECHERCHE_LIBELLE_JS_TEMPLATE,
-                            champBo.getCle(), champBo.getLibelle(), category));
+                    String category = champBo.getCategorie() != null
+                            ? HTMLEscapeUtils.escape(champBo.getCategorie().getLibelle())
+                            : "Autres";
+                    String escapedLibelle = HTMLEscapeUtils.escape(champBo.getLibelle());
+                    String jsLine = MessageFormat.format(RECHERCHE_LIBELLE_JS_TEMPLATE, champBo.getCle(),
+                            escapedLibelle, category);
+                    dynamicJsSB.append("\n").append(jsLine);
                 }
             }
         }

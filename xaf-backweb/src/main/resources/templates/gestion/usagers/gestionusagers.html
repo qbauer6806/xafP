@@ -297,12 +297,10 @@
 
 	            $('#autocomplete').val('');
 
-	    		var nomPrenomRaisonSociale = nomPrenom;
-	    		if (typeof raisonSociale !== 'undefined') {
-	    			nomPrenomRaisonSociale = nomPrenomRaisonSociale + '<br/>(' + raisonSociale + ')';
+	           	$("#transfertNomPrenom").text(nomPrenom);
+	           	if (typeof raisonSociale !== 'undefined') {
+	           		$("#transfertRaisonSociale").text('(' + raisonSociale + ')');
 	    		}
-	    		
-	           	$("#transfertNomPrenomRaisonSociale").html(nomPrenomRaisonSociale);
 	    		$("#transfertAdresse").text(adresse);
 	    		$("#transfertCodePostal").text(codePostal);
 	    		$("#transfertVille").text(ville);

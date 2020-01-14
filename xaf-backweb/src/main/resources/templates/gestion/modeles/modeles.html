@@ -96,8 +96,8 @@
 										<div class="row">
 											<div class="col-xs-12 col-md-12">
 												<a id="voirModele" class="btn btn-action ripple-effect" th:href="@{/gestion/modeles/get/}+${courrier.name}"><span class="icon-action_voir"></span>&nbsp;&nbsp;Voir le modèle</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-												<a id="choisirModele" class="btn btn-action ripple-effect"><input class="multiple-file-input" id="fileInput" type="file" name="fileToUpload">&nbsp;&nbsp;Test</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-												<input type="submit" value="Valider le nouveau modèle" class="btn btn-action ripple-effect" id="envoyer-button" />
+												<a id="choisirModele" class="btn btn-action ripple-effect"><input class="multiple-file-input" id="fileInput" type="file" name="fileToUpload" th:data="${courrier.name}">&nbsp;&nbsp;Test</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+												<input type="submit" value="Valider le nouveau modèle" class="btn btn-action ripple-effect" id="envoyer-button" th:data="${courrier.name}" disabled="disabled"/>
 												<input type="hidden" name="filename" th:value="${courrier.name}" />
 												<input type="hidden" name="typeModele" value="COURRIER" />
 											</div>
@@ -120,8 +120,8 @@
 										<div class="row">
 											<div class="col-xs-12 col-md-12">
 												<a id="voirModele" class="btn btn-action ripple-effect" th:href="@{/gestion/modeles/get/}+${justificatif.name}"><span class="icon-action_voir"></span>&nbsp;&nbsp;Voir le modèle</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-												<a id="choisirModele" class="btn btn-action ripple-effect"><input class="multiple-file-input" id="fileInput" type="file" name="fileToUpload">&nbsp;&nbsp;Test</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-												<input type="submit" value="Valider le nouveau modèle" class="btn btn-action ripple-effect" id="envoyer-button" />
+												<a id="choisirModele" class="btn btn-action ripple-effect"><input class="multiple-file-input" id="fileInput" type="file" name="fileToUpload" th:data="${justificatif.name}">&nbsp;&nbsp;Test</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+												<input type="submit" value="Valider le nouveau modèle" class="btn btn-action ripple-effect" id="envoyer-button" th:data="${justificatif.name}" disabled="disabled"/>
 												<input type="hidden" name="filename" th:value="${justificatif.name}" />
 												<input type="hidden" name="typeModele" value="JUSTIFICATIF" />
 											</div>
@@ -143,8 +143,8 @@
 									<div class="row">
 										<div class="col-xs-12 col-md-12">
 											<a id="voirModele" class="btn btn-action ripple-effect" th:href="@{/gestion/modeles/get/}+${exportExcel.name}"><span class="icon-action_voir"></span>&nbsp;&nbsp;Voir le modèle</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-											<a id="choisirModele" class="btn btn-action ripple-effect"><input class="multiple-file-input" id="fileInput" type="file" name="fileToUpload">&nbsp;&nbsp;Test</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-											<input type="submit" value="Valider le nouveau modèle" class="btn btn-action ripple-effect" id="envoyer-button" />
+											<a id="choisirModele" class="btn btn-action ripple-effect"><input class="multiple-file-input" id="fileInput" type="file" name="fileToUpload" th:data="${exportExcel.name}">&nbsp;&nbsp;Test</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+											<input type="submit" value="Valider le nouveau modèle" class="btn btn-action ripple-effect" id="envoyer-button" th:data="${exportExcel.name}" disabled="disabled"/>
 											<input type="hidden" name="filename" th:value="${exportExcel.name}" />
 											<input type="hidden" name="typeModele" value="EXPORT_EXCEL" />
 										</div>
@@ -201,6 +201,12 @@
 						});
 					});
 				}
+				
+				$('.multiple-file-input').change(function() {
+					var data = this.getAttribute('data');
+					var button = $("input[data='" + data + "'][type='submit']");
+					button.prop('disabled', !button.attr('disabled'));
+				  });
 				
 			});
 			

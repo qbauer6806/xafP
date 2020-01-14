@@ -284,7 +284,7 @@ public class GestionParametresController extends AbstractController {
                                 motifsService.saveOrUpdateMotif(gouvPropertiesResolver.getDemarcheId(), motif);
 
                                 // Donnees specifiques et insert (anglais)
-                                if (!StringUtils.isEmpty(motifsFormBean.getLibelleEn())) {
+                                if (StringUtils.isNotBlank(motifsFormBean.getLibelleEn())) {
                                     motif.setLibelle(motifsFormBean.getLibelleEn());
                                     motif.setCommentairePrerempli(motifsFormBean.getCommentairePrerempliEn());
                                     motif.setTexteAEnvoyer(motifsFormBean.getTexteAEnvoyerEn());
@@ -337,26 +337,32 @@ public class GestionParametresController extends AbstractController {
      * Mise à jour d'un motif
      */
     private void miseAjourMotif(MotifsFormBean motifsFormBean) throws Exception {
+        MotifDTO motif = new MotifDTO();
+
         if (motifsFormBean.getMotifPkFr() != null) {
-            MotifDTO motifFr = motifsService.getMotif(gouvPropertiesResolver.getDemarcheId(),
-                    motifsFormBean.getMotifPkFr());
-            motifFr.setCode(motifsFormBean.getCode());
-            motifFr.setStatut(motifsFormBean.getStatutEnum());
-            motifFr.setLibelle(motifsFormBean.getLibelleFr());
-            motifFr.setCommentairePrerempli(motifsFormBean.getCommentairePrerempliFr());
-            motifFr.setTexteAEnvoyer(motifsFormBean.getTexteAEnvoyerFr());
-            motifsService.saveOrUpdateMotif(gouvPropertiesResolver.getDemarcheId(), motifFr);
+            motif = motifsService.getMotif(gouvPropertiesResolver.getDemarcheId(), motifsFormBean.getMotifPkFr());
+            motif.setCode(motifsFormBean.getCode());
+            motif.setStatut(motifsFormBean.getStatutEnum());
+            motif.setLibelle(motifsFormBean.getLibelleFr());
+            motif.setCommentairePrerempli(motifsFormBean.getCommentairePrerempliFr());
+            motif.setTexteAEnvoyer(motifsFormBean.getTexteAEnvoyerFr());
+            motifsService.saveOrUpdateMotif(gouvPropertiesResolver.getDemarcheId(), motif);
         }
 
         if (motifsFormBean.getMotifPkEn() != null) {
-            MotifDTO motifEn = motifsService.getMotif(gouvPropertiesResolver.getDemarcheId(),
-                    motifsFormBean.getMotifPkEn());
-            motifEn.setCode(motifsFormBean.getCode());
-            motifEn.setStatut(motifsFormBean.getStatutEnum());
-            motifEn.setLibelle(motifsFormBean.getLibelleEn());
-            motifEn.setCommentairePrerempli(motifsFormBean.getCommentairePrerempliEn());
-            motifEn.setTexteAEnvoyer(motifsFormBean.getTexteAEnvoyerEn());
-            motifsService.saveOrUpdateMotif(gouvPropertiesResolver.getDemarcheId(), motifEn);
+            motif = motifsService.getMotif(gouvPropertiesResolver.getDemarcheId(), motifsFormBean.getMotifPkEn());
+            motif.setCode(motifsFormBean.getCode());
+            motif.setStatut(motifsFormBean.getStatutEnum());
+            if (StringUtils.isNotBlank(motifsFormBean.getLibelleEn())) {
+                motif.setLibelle(motifsFormBean.getLibelleEn());
+                motif.setCommentairePrerempli(motifsFormBean.getCommentairePrerempliEn());
+                motif.setTexteAEnvoyer(motifsFormBean.getTexteAEnvoyerEn());
+            } else {
+                motif.setLibelle(motifsFormBean.getLibelleFr());
+                motif.setCommentairePrerempli(motifsFormBean.getCommentairePrerempliFr());
+                motif.setTexteAEnvoyer(motifsFormBean.getTexteAEnvoyerFr());
+            }
+            motifsService.saveOrUpdateMotif(gouvPropertiesResolver.getDemarcheId(), motif);
         }
     }
 

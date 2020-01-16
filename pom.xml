@@ -1,18 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>mc.gouv.xboot</groupId>
 		<artifactId>xboot-spring-starter-parent</artifactId>
-		<version>3.1.0</version>
+		<version>3.2.0-SNAPSHOT</version>
 	</parent>
 
 	<properties>
 		<servicerest_client.version>2.2.15</servicerest_client.version>
-		<tika.version>1.18</tika.version>
-		<!-- Librairie pour générer le fichier récap. d'une demande (sous license 
-			LGPL). -->
-		<jackson.version>2.9.10</jackson.version>
+		<tika.version>1.22</tika.version>
 	</properties>
 
 	<groupId>mc.gouv.xaf</groupId>
@@ -39,6 +38,7 @@
 
 	<dependencyManagement>
 		<dependencies>
+			<!-- CVE-2019-12415 -->
 			<dependency>
 				<groupId>org.apache.tika</groupId>
 				<artifactId>tika-app</artifactId>
@@ -48,31 +48,67 @@
 						<groupId>org.apache.cxf</groupId>
 						<artifactId>cxf-rt-rs-client</artifactId>
 					</exclusion>
+					<exclusion>
+						<groupId>xerces</groupId>
+						<artifactId>xercesImpl</artifactId>
+					</exclusion>
 				</exclusions>
 			</dependency>
 
+			<dependency>
+				<groupId>org.apache.tika</groupId>
+				<artifactId>tika-parsers</artifactId>
+				<version>${tika.version}</version>
+				<exclusions>
+					<exclusion>
+						<groupId>org.apache.cxf</groupId>
+						<artifactId>cxf-rt-rs-client</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>org.apache.poi</groupId>
+						<artifactId>poi-ooxml</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>org.apache.poi</groupId>
+						<artifactId>poi</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.tika</groupId>
+				<artifactId>tika-langdetect</artifactId>
+				<version>${tika.version}</version>
+				<exclusions>
+					<exclusion>
+						<groupId>org.apache.cxf</groupId>
+						<artifactId>cxf-rt-rs-client</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>xerces</groupId>
+						<artifactId>xercesImpl</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+
+			<!-- CVE-2019-12402 -->
 			<dependency>
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-compress</artifactId>
 				<version>1.19</version>
 			</dependency>
 
+			<!-- CWE-300 -->
 			<dependency>
-				<groupId>com.fasterxml.jackson.core</groupId>
-				<artifactId>jackson-databind</artifactId>
-				<version>${jackson.version}</version>
+				<groupId>org.jgroups</groupId>
+				<artifactId>jgroups</artifactId>
+				<version>4.1.1.Final</version>
 			</dependency>
 
+			<!-- CVE-2018-10237 -->
 			<dependency>
-				<groupId>com.fasterxml.jackson.jaxrs</groupId>
-				<artifactId>jackson-jaxrs-json-provider</artifactId>
-				<version>${jackson.version}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>com.fasterxml.jackson.core</groupId>
-				<artifactId>jackson-annotations</artifactId>
-				<version>${jackson.version}</version>
+				<groupId>com.google.guava</groupId>
+				<artifactId>guava</artifactId>
+				<version>25.1-jre</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

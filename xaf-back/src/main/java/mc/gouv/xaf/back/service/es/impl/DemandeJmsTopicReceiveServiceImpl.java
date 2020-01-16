@@ -15,6 +15,8 @@ import mc.gouv.xaf.back.service.es.DemandeJmsTopicReceiveService;
 import mc.gouv.xaf.back.service.es.IndexedDemandeService;
 import mc.gouv.xaf.back.service.utils.Constants;
 
+import java.io.IOException;
+
 @Service
 @Conditional(CreateTopicCondition.class)
 @Transactional(rollbackFor = Exception.class)
@@ -29,7 +31,7 @@ public class DemandeJmsTopicReceiveServiceImpl implements DemandeJmsTopicReceive
     @JmsListener(subscription = "${mc.gouv.${application.name}.jms.topic.subscription.key}", destination = "${mc.gouv.${application.name}.jms.topic}", containerFactory = "jmsListenerContainerFactory")
     @Transactional
     @Override
-    public synchronized void receive(@Payload DemandeEsJmsDto demandeEsDTO, @Header(Constants.ACTION) String action) {
+    public synchronized void receive(@Payload DemandeEsJmsDto demandeEsDTO, @Header(Constants.ACTION) String action) throws IOException {
 
         if (demandeEsDTO != null) {
             if (action.equals(JMSActionEnum.SAVE.name())) {

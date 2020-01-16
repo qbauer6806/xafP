@@ -83,7 +83,7 @@ public interface IndexedDemandeService extends DemandesService {
      * @param demandeFileEsDTOs Liste des DTOs de la piece jointe
      * @return Liste des DTOs de la piece jointe
      */
-    List<DemandeFileEsDTO> indexFiles(List<DemandeFileEsDTO> demandeFileEsDTOs) throws IOException;
+    List<DemandeFileEsDTO> indexFiles(List<DemandeFileEsDTO> demandeFileEsDTOs);
 
     /**
      * Méthode permettant d'indexer les pieces jointe d'une demande

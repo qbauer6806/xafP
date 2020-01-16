@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,12 +113,12 @@ public class GestionModelesController {
         
         List<String> messages = new ArrayList<>();
 
-        // Finalement, pas de message d'erreur si le fichier soumis ne porte pas le même nom que celui que l'on souhaite remplacer
-//        if (!fileToUpload.getOriginalFilename().equals(filename)) {
-//    		messages.add("Le nom du fichier que vous avez soumis diffère de celui que vous souhaitez mettre à jour.");
-//    		redirectAttributes.addFlashAttribute("errorMessages", messages);
-//    		return mav;
-//        }
+        // L'extension doit être la même
+        if (!FilenameUtils.getExtension(fileToUpload.getOriginalFilename()).equals(FilenameUtils.getExtension(filename))) {
+    		messages.add("L'extension du fichier que vous avez soumis diffère de celle du fichier que vous souhaitez mettre à jour.");
+    		redirectAttributes.addFlashAttribute("errorMessages", messages);
+    		return mav;
+        }
         
         // Utile seulement si l'utilisateur enable le bouton avec un F12...
         if (StringUtils.isBlank(fileToUpload.getOriginalFilename())) {

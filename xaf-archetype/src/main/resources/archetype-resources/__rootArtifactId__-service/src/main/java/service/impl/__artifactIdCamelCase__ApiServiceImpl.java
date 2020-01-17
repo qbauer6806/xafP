@@ -34,7 +34,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.jms.JMSException;
 import javax.transaction.Transactional;
 import java.util.*;
 
@@ -114,7 +113,7 @@ public class ${artifactIdCamelCase}ApiServiceImpl implements ${artifactIdCamelCa
     @Override
     @Transactional
     public DemandeDTO creerDemande(DemandeInputDTO demande, Integer usagerId)
-            throws JsonProcessingException, JMSException {
+            throws JsonProcessingException {
 
         DemandeDTO demandeDto = null;
         LOGGER.info("Appel à DEM...");

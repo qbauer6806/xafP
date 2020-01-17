@@ -2,7 +2,6 @@ package mc.gouv.xaf.back.controller;
 
 import java.util.List;
 
-import javax.jms.JMSException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -50,6 +49,6 @@ public interface AfApiController {
 
     public List<MotifDTO> getMotifs();
 
-    DemandeDTO creerDemande(DemandeInputDTO demande, Integer usagerId) throws JsonProcessingException, JMSException;
+    DemandeDTO creerDemande(DemandeInputDTO demande, Integer usagerId) throws JsonProcessingException;
 
 }

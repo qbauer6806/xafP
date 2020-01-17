@@ -22,14 +22,14 @@ public class EsConfigGouv {
     @Inject
     private GouvPropertiesResolver gouvPropertiesResolver;
 
-    private static final String CLUSTER_NAME_PROPERTY = "cluster.name";
-
     @SuppressWarnings("resource")
     @Bean
     public RestHighLevelClient client() {
         // Migration Transport -> RestHighLevel https://www.elastic.co/guide/en/elasticsearch/client/java-rest/7.5/_changing_the_client_8217_s_initialization_code.html
         return new RestHighLevelClient(
-                RestClient.builder(new HttpHost(gouvPropertiesResolver.getEsHost(), gouvPropertiesResolver.getEsPort(), "http")));
+                RestClient.builder(
+                        new HttpHost(gouvPropertiesResolver.getEsHost(), gouvPropertiesResolver.getEsPort(), "http"),
+                        new HttpHost(gouvPropertiesResolver.getEsHost(), gouvPropertiesResolver.getEsPort(), "http")));
     }
 
     @Bean

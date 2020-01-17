@@ -17,7 +17,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.jms.JMSException;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
@@ -173,8 +172,7 @@ public class DemandesServiceImpl implements DemandesService {
     /**
      * {@inheritDoc}
      * @throws Exception 
-     * 
-     * @throws JMSException
+     *
      * @throws TikaException
      */
     @Override
@@ -247,9 +245,7 @@ public class DemandesServiceImpl implements DemandesService {
     /**
      * {@inheritDoc}
      * @throws Exception 
-     * 
-     * @throws JMSException
-     * @throws TikaException
+     *
      */
     @Override
     public DemandeDTO saveOrUpdateDemande(DemandeDTO demande, boolean partialUpdate, String premierStatut)
@@ -496,8 +492,7 @@ public class DemandesServiceImpl implements DemandesService {
 
     /**
      * {@inheritDoc}
-     * 
-     * @throws JMSException
+     *
      * @throws SAXException
      * @throws IOException
      */
@@ -577,12 +572,11 @@ public class DemandesServiceImpl implements DemandesService {
 
     /**
      * {@inheritDoc}
-     * 
-     * @throws JMSException
+     *
      * @throws JsonProcessingException
      */
     @Override
-    public void deleteDemande(String demarcheId, Integer demandeId) throws JsonProcessingException, JMSException {
+    public void deleteDemande(String demarcheId, Integer demandeId) throws JsonProcessingException {
 
         LOGGER.info("Récupération en base de la demande...");
 

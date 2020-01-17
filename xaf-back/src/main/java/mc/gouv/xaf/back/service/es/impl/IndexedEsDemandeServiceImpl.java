@@ -19,7 +19,6 @@ import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.AccessService;
 import mc.gouv.xaf.back.service.data.impl.DemandesServiceImpl;
-import mc.gouv.xaf.back.service.es.DemandeJmsTopicSendService;
 import mc.gouv.xaf.back.service.es.IndexedDemandeService;
 import mc.gouv.xaf.back.service.es.transformer.DemandeEsTransformer;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
@@ -84,7 +83,6 @@ import org.xml.sax.SAXException;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import javax.jms.JMSException;
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import java.io.IOException;
@@ -113,9 +111,6 @@ import static org.elasticsearch.join.query.JoinQueryBuilders.hasChildQuery;
 public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements IndexedDemandeService {
 
     @Inject
-    DemandeJmsTopicSendService demandeJmsService;
-
-    @Inject
     private DemandeEsRepository demandeEsRepository;
 
     @Inject
@@ -129,6 +124,9 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     @Value("${application.name}")
     private String indexAlias;
+
+    @Autowired
+    IndexedDemandeService demandesService;
 
     //Balise à insérer au début des mots recherchés dans le résultat de la recherche
     private String highlightPretags;
@@ -606,21 +604,17 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         return 0l;
     }
 
-    /**
-     * @see mc.gouv.xaf.back.service.es.IndexedDemandeService#indexDemande(mc.gouv.xaf.back.shared.dto.DemandeDTO)
-     */
     @Override
-    public void indexDemande(DemandeDTO demandeDTO) throws IOException, SAXException, TikaException, JMSException {
+    public void indexDemande(DemandeDTO demandeDTO) throws IOException, SAXException, TikaException {
 
         Boolean activeAccess = accessService.isAccessActive(demandeDTO.getFkAccess());
         DemandeEsDTO demandeEsDTO = demandeEsTransformer.toEs(demandeDTO, activeAccess);
-        demandeJmsService.send(new DemandeEsJmsDto(demandeEsDTO, null), JMSActionEnum.SAVE);
-
+        demandeEsRepository.save(demandeEsDTO);
     }
 
     @Override
     public void sendToTopic(DemandeDTO demandeDTO, boolean indexFiles)
-            throws IOException, SAXException, TikaException, JMSException {
+            throws IOException {
 
         if (demandeDTO != null) {
 
@@ -634,17 +628,19 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                 files.addAll(files);
             }
 
-            demandeJmsService.send(new DemandeEsJmsDto(demandeEsDTO, files), JMSActionEnum.SAVE);
+            if (demandeEsDTO != null) {
+                demandeEsRepository.save(demandeEsDTO);
+            }
+            if (files != null) {
+                demandesService.indexFiles(files);
+            }
         }
 
     }
 
-    /**
-     * @see mc.gouv.xaf.back.service.es.IndexedDemandeService#sendToTopic(mc.gouv.xaf.back.shared.dto.DemandeFileDTO, java.lang.String, java.lang.String)
-     */
     @Override
     public void sendToTopic(DemandeFileDTO demandeFileDTO, String demarcheId, String demandeId)
-            throws IOException, SAXException, TikaException, JMSException {
+            throws IOException {
 
         if (demandeFileDTO != null) {
 
@@ -654,17 +650,14 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             List<DemandeFileEsDTO> demFileEsDtoList = new ArrayList<>();
             demFileEsDtoList.add(demandeFileEsDTO);
 
-            demandeJmsService.send(new DemandeEsJmsDto(null, demFileEsDtoList), JMSActionEnum.SAVE);
+            demandesService.indexFiles(demFileEsDtoList);
         }
 
     }
 
-    /**
-     * @see mc.gouv.xaf.back.service.es.IndexedDemandeService#sendToTopic(mc.gouv.xaf.back.shared.dto.DemandeFileDTO, java.lang.String, java.lang.String)
-     */
     @Override
     public void sendToTopic(DemandeFileDTO[] demandeFileDTOList, String demarcheId, String demandeId)
-            throws IOException, SAXException, TikaException, JMSException {
+            throws IOException {
 
         if (demandeFileDTOList != null) {
 
@@ -673,7 +666,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                 demFileEsDtoList.add(getFileEsContent(demarcheId, demandeId, getDemandeFileType(file), file));
             }
 
-            demandeJmsService.send(new DemandeEsJmsDto(null, demFileEsDtoList), JMSActionEnum.SAVE);
+            demandesService.indexFiles(demFileEsDtoList);
         }
 
     }
@@ -684,12 +677,11 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      * @see mc.gouv.xaf.back.service.es.IndexedDemandeService#indexDemande(java.lang.String, java.lang.Integer)
      */
     @Override
-    public void indexDemande(String demarcheId, Integer demandeId)
-            throws IOException, SAXException, TikaException, JMSException {
+    public void indexDemande(String demarcheId, Integer demandeId) {
 
         DemandeBO demandeBo = getDemandeBo(demarcheId, demandeId);
         DemandeEsDTO demandeEsDTO = demandeEsTransformer.bo2Dto(demandeBo, null);
-        demandeJmsService.send(new DemandeEsJmsDto(demandeEsDTO, null), JMSActionEnum.SAVE);
+        demandeEsRepository.save(demandeEsDTO);
 
     }
 
@@ -1072,9 +1064,6 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         return simpleQueryStringBuilder;
     }
 
-    /**
-     * @see mc.gouv.xaf.back.service.es.IndexedDemandeService#getIndexedDemandes(mc.gouv.xaf.back.shared.dto.DemandeRechercheDTO, org.springframework.data.domain.Pageable, java.lang.String[])
-     */
     @Override
     public Page<DemandeEsRechercheDTO> getIndexedDemandes(DemandeRechercheDTO demandeRecherche, Pageable pageable,
             String[] fields) {
@@ -1559,19 +1548,13 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     }
 
-    /**
-     * Méthode permettant de sauvgarder une demande et de l'indexer
-     * @throws Exception 
-     * 
-     * @see mc.gouv.xaf.back.service.data.impl.DemandesServiceImpl#saveDemande(mc.gouv.xaf.back.shared.dto.DemandeDTO, java.lang.String)
-     */
     @Override
     public DemandeDTO saveDemande(DemandeDTO demande, String premierStatut) throws Exception {
 
         DemandeDTO demandeDto = super.saveDemande(demande, premierStatut);
         try {
             sendToTopic(demandeDto, true);
-        } catch (TikaException | JMSException e) {
+        } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
             throw new AfIndexingException(e.getMessage(), e);
         }
@@ -1580,8 +1563,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     /**
      * Méhode permettant de mettre à jour une demande et de la réindexer
-     * 
-     * @see mc.gouv.xaf.back.service.data.impl.DemandesServiceImpl#updateDemande(mc.gouv.xaf.back.shared.dto.DemandeDTO, boolean)
+     *
      */
     @Override
     public DemandeDTO updateDemande(DemandeDTO demande, boolean partialUpdate) throws IOException, SAXException {
@@ -1589,7 +1571,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         DemandeDTO dto = super.updateDemande(demande, partialUpdate);
         try {
             indexDemande(dto);
-        } catch (TikaException | JMSException e) {
+        } catch (TikaException e) {
             LOGGER.error(e.getMessage(), e);
             throw new AfIndexingException(e.getMessage(), e);
         }
@@ -1601,14 +1583,11 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      * @see mc.gouv.xaf.back.service.data.impl.DemandesServiceImpl#deleteDemande(java.lang.String, java.lang.Integer)
      */
     @Override
-    public void deleteDemande(String demarcheId, Integer demandeId) throws JsonProcessingException, JMSException {
+    public void deleteDemande(String demarcheId, Integer demandeId) throws JsonProcessingException {
 
         super.deleteDemande(demarcheId, demandeId);
         Optional<DemandeBO> demandeBoOp = demandesRepository.findById(demandeId);
-        if (demandeBoOp.isPresent()) {
-            demandeJmsService.send(new DemandeEsJmsDto(new DemandeEsDTO(demandeBoOp.get().getIdentifiant()), null),
-                    JMSActionEnum.DELETE);
-        }
+        demandeBoOp.ifPresent(demandeBO -> demandeEsRepository.deleteById(demandeBO.getIdentifiant()));
     }
 
     /**

@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.List;
 
-import javax.jms.JMSException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -65,7 +64,7 @@ public abstract class AbstractAfApiController implements AfApiController {
     @RequestMapping(value = "/demandes", method = RequestMethod.POST)
     public DemandeDTO creerDemandeRequest(@Valid @RequestBody DemandeInputDTO demande,
             @RequestParam(value = "usagerId", required = true) Integer usagerId, HttpServletRequest request)
-            throws JsonProcessingException, JMSException {
+            throws JsonProcessingException {
         LOGGER.info("AbstractAfApiController.creerDemande(" + demande + "," + usagerId + ")");
 
         return creerDemande(demande, usagerId);

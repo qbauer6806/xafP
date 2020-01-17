@@ -3,8 +3,6 @@ package mc.gouv.xaf.back.service.es;
 import java.io.IOException;
 import java.util.List;
 
-import javax.jms.JMSException;
-
 import org.apache.tika.exception.TikaException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -38,9 +36,8 @@ public interface IndexedDemandeService extends DemandesService {
      * @throws IOException
      * @throws SAXException
      * @throws TikaException
-     * @throws JMSException
      */
-    void indexDemande(DemandeDTO demandeDTO) throws IOException, SAXException, TikaException, JMSException;
+    void indexDemande(DemandeDTO demandeDTO) throws IOException, SAXException, TikaException;
 
     /**
      * Méthode permettant de récupérer les facets
@@ -72,10 +69,9 @@ public interface IndexedDemandeService extends DemandesService {
      * @throws IOException Exception I/O
      * @throws SAXException Exception SAX
      * @throws TikaException Exception du parsing de la piece jointe
-     * @throws JMSException Exception lors de l'envoi de la demande au topic
      */
     void indexDemande(String demarcheId, Integer demandeId)
-            throws IOException, SAXException, TikaException, JMSException;
+            throws IOException, SAXException, TikaException;
 
     /**
      * Méthode permettant d'indexer les pieces jointes
@@ -110,10 +106,9 @@ public interface IndexedDemandeService extends DemandesService {
      * @throws IOException Exception I/O
      * @throws SAXException Exception SAX
      * @throws TikaException Exception du parsing de la piece jointe
-     * @throws JMSException Exception lors de l'envoi de la demande au topic
      */
     void sendToTopic(DemandeDTO demandeDTO, boolean indexFiles)
-            throws IOException, SAXException, TikaException, JMSException;
+            throws IOException, SAXException, TikaException;
 
     /**
      * Méthode permettant d'envoyer un fichier au topic afin d'être indexer
@@ -125,10 +120,9 @@ public interface IndexedDemandeService extends DemandesService {
      * @throws IOException Exception I/O
      * @throws SAXException Exception SAX
      * @throws TikaException Exception du parsing de la piece jointe
-     * @throws JMSException Exception lors de l'envoi de la demande au topic
      */
     void sendToTopic(DemandeFileDTO demandeFileDTO, String demarcheId, String demandeId)
-            throws IOException, SAXException, TikaException, JMSException;
+            throws IOException, SAXException, TikaException;
 
     /**
      * Méthode permettant d'envoyer un fichier au topic afin d'être indexer
@@ -140,10 +134,9 @@ public interface IndexedDemandeService extends DemandesService {
      * @throws IOException Exception I/O
      * @throws SAXException Exception SAX
      * @throws TikaException Exception du parsing de la piece jointe
-     * @throws JMSException Exception lors de l'envoi de la demande au topic
      */
     void sendToTopic(DemandeFileDTO[] demandeFileDTOList, String demarcheId, String demandeId)
-            throws IOException, SAXException, TikaException, JMSException;
+            throws IOException, SAXException, TikaException;
 
     /**
      * 

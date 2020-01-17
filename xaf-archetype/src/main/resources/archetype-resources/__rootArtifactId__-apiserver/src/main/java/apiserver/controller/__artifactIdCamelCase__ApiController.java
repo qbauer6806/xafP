@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.jms.JMSException;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
@@ -44,7 +43,7 @@ public class ${artifactIdCamelCase}ApiController extends AbstractAfApiController
 
     @Override
     public DemandeDTO creerDemande(DemandeInputDTO demande, Integer usagerId)
-            throws JsonProcessingException, JMSException {
+            throws JsonProcessingException {
         return ${artifactIdLower}ApiService.creerDemande(demande, usagerId);
     }
 

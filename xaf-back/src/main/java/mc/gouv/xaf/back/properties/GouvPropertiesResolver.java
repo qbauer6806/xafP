@@ -49,39 +49,11 @@ public interface GouvPropertiesResolver {
 
     String getSearchHighlightPostTags();
 
-    Integer getJmsPort();
-
-    String getJmsDataDir();
-
-    String getJmsRedeliveryDelay();
-
-    String getJmsRedeliveryMultiplier();
-
-    String getJmsRedeliveryMaxAttemps();
-
-    String getJmsDlq();
-
-    String getJmsTopic();
-
-    String getJmsHost();
-
-    String getJmsSenderUser();
-
-    String getJmsSenderPassword();
-
-    String getJmsConsumerUser();
-
-    String getJmsConsumerPassword();
-
-    String getEsClusterName();
-
     String getEsHost();
 
     Integer getEsPort();
 
     String getEsNodeName();
-
-    String getSubscriptionKey();
 
     Integer getEsReindexBulkSize();
 

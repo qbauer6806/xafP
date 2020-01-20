@@ -5,6 +5,7 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -260,8 +261,8 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
 
     @GouvIndexationProperty
     @Override
-    public String getEsHost() {
-        return Static.getValue("mc.gouv" + applicationPrefix + ".elasticsearch.host");
+    public String getEsClusterHosts() {
+        return Static.getValue("mc.gouv" + applicationPrefix + ".elasticsearch.clusterHosts");
     }
 
     @GouvIndexationProperty
@@ -274,12 +275,6 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
         }
 
         return null;
-    }
-
-    @GouvIndexationProperty
-    @Override
-    public String getEsNodeName() {
-        return Static.getValue("mc.gouv" + applicationPrefix + ".elasticsearch.nodename");
     }
 
     @GouvIndexationProperty

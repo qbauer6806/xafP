@@ -49,11 +49,9 @@ public interface GouvPropertiesResolver {
 
     String getSearchHighlightPostTags();
 
-    String getEsHost();
+    String getEsClusterHosts();
 
     Integer getEsPort();
-
-    String getEsNodeName();
 
     Integer getEsReindexBulkSize();
 

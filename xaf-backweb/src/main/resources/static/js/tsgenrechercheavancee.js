@@ -22,8 +22,8 @@ $(document).ready(function() {
 					var fragmentCategory = default_category
 					if (recherche_libelles.get(fragment)) {
 						var fragmentLabels = recherche_libelles.get(fragment)
-						fragmentLabel = fragmentLabels.libelle.replace(/'/g,"&apos;")
-						fragmentCategory = fragmentLabels.categorie.replace(/'/g,"&apos;")
+						fragmentLabel = escapeHtml(escapeHtml(fragmentLabels.libelle))
+						fragmentCategory = escapeHtml(escapeHtml(fragmentLabels.categorie))
 
 					}
 

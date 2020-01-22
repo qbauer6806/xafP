@@ -238,7 +238,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
             for (int j = 0; j < champs.size(); j++) {
                 JSONObject champ = (JSONObject) champs.get(j);
                 String type = (String) champ.get("type");
-                if (type.equals("adresse")) {
+                if (type.equals("adresse") || type.equals("adresseMc")) {
                     html.append(getSecondLevelHTML(demande.getContenu(), champ, demande.getBuildId(), isPdfRecap));
                 } else {
                     String value = getSecondLevelHTML(demande.getContenu(), champ, demande.getBuildId(), isPdfRecap);
@@ -293,6 +293,13 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
                     return null;
                 }
                 return paysCache.get(node0.asText(), "fr").getNationalite();
+            } 
+            if (mapping.equals("pays")) {
+                JsonNode node0 = getNode(node, champ, "path");
+                if (node0 == null || node0 instanceof NullNode) {
+                    return null;
+                }
+                return paysCache.get(node0.asText(), "fr").getLibelleCourt();
             } else {
                 String path = champ.get("path").toString().replace("contenu.", "/").replace(".", "/");
                 if (path.charAt(0) != '/') {
@@ -376,7 +383,24 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
                 ret += "<dt><span>Pays</span></dt><dd><span>" + paysCache.get(pays, "fr").getNom() + "</span></dd>";
             }
             return ret;
-        } else if (type.equals("iban")) {
+	    } else if (type.equals("adresseMc")) {
+	        String ligne1 = escape(getNode(node, champ, "ligne1").textValue(), isPdfRecap);
+	        String ligne2 = escape(getNode(node, champ, "ligne2").textValue(), isPdfRecap);
+	        String ligne3 = escape(getNode(node, champ, "ligne3").textValue(), isPdfRecap);
+	        String ret = "";
+	        if (StringUtils.isNotEmpty(ligne1)) {
+	            ret = "<dt><span>Adresse</span></dt><dd><span>" + ligne1 + "</span>";
+	            if (StringUtils.isNotBlank(ligne2)) {
+	                ret += "<br/><span>" + ligne2 + "</span>";
+	            }
+	            if (StringUtils.isNotBlank(ligne3)) {
+	                ret += "<br/><span>" + ligne3 + "</span>";
+	            }
+	            ret += "</dd>";
+	        }
+	        return ret;
+	    }
+        else if (type.equals("iban")) {
             String titulaire = escape(getNode(node, champ, "titulaire").textValue(), isPdfRecap);
             String bic = escape(getNode(node, champ, "bic").textValue(), isPdfRecap);
             String iban = escape(getNode(node, champ, "iban").textValue(), isPdfRecap);

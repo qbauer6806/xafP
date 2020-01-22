@@ -99,7 +99,8 @@ public class GenerateSearchConfigFiles {
         CHAINE("chaine"),
         CHOIX("choix"),
         DATE("date"),
-        ADRESSE("adresse");
+        ADRESSE("adresse"),
+        ADRESSE_MC("adresseMc");
 
         private String type;
 
@@ -207,7 +208,7 @@ public class GenerateSearchConfigFiles {
             if (champs != null) {
                 for (LinkedHashMap<String, Object> champ : champs) {
 
-                    if (champ.get(RECAP_CHAMP_TYPE).toString().equals(RecapChampType.ADRESSE.getType())) {
+                    if (champ.get(RECAP_CHAMP_TYPE).toString().equals(RecapChampType.ADRESSE.getType()) || champ.get(RECAP_CHAMP_TYPE).toString().equals(RecapChampType.ADRESSE_MC.getType())) {
                         fillAdressesQueries(champsQueries, champ, (String) section.get("titre"), schema);
                     } else {
                         champsQueries.add(MessageFormat.format(INSERT_CHAMP_REQUEST_TEMPLATE, schema, TRUE,
@@ -273,12 +274,14 @@ public class GenerateSearchConfigFiles {
         champsQueries.add(MessageFormat.format(INSERT_CHAMP_REQUEST_TEMPLATE, schema, TRUE,
                 getEscapedColumnValue(champ.get(RECAP_CHAMP_ADRESSE_LIGNE3)), "Adresse ligne 3", getEscapedColumnValue(category),
                 FALSE));
-        champsQueries.add(MessageFormat.format(INSERT_CHAMP_REQUEST_TEMPLATE, schema, TRUE,
-                getEscapedColumnValue(champ.get(RECAP_CHAMP_ADRESSE_CP)), "Code postal", getEscapedColumnValue(category), FALSE));
-        champsQueries.add(MessageFormat.format(INSERT_CHAMP_REQUEST_TEMPLATE, schema, TRUE,
-                getEscapedColumnValue(champ.get(RECAP_CHAMP_ADRESSE_VILLE)), "Ville", getEscapedColumnValue(category), FALSE));
-        champsQueries.add(MessageFormat.format(INSERT_CHAMP_REQUEST_TEMPLATE, schema, TRUE,
-                getEscapedColumnValue(champ.get(RECAP_CHAMP_ADRESSE_PAYS)), "Pays", getEscapedColumnValue(category), FALSE));
+        if (champ.get(RECAP_CHAMP_TYPE).toString().equals(RecapChampType.ADRESSE.getType())) {
+	        champsQueries.add(MessageFormat.format(INSERT_CHAMP_REQUEST_TEMPLATE, schema, TRUE,
+	                getEscapedColumnValue(champ.get(RECAP_CHAMP_ADRESSE_CP)), "Code postal", getEscapedColumnValue(category), FALSE));
+	        champsQueries.add(MessageFormat.format(INSERT_CHAMP_REQUEST_TEMPLATE, schema, TRUE,
+	                getEscapedColumnValue(champ.get(RECAP_CHAMP_ADRESSE_VILLE)), "Ville", getEscapedColumnValue(category), FALSE));
+	        champsQueries.add(MessageFormat.format(INSERT_CHAMP_REQUEST_TEMPLATE, schema, TRUE,
+	                getEscapedColumnValue(champ.get(RECAP_CHAMP_ADRESSE_PAYS)), "Pays", getEscapedColumnValue(category), FALSE));
+        }
     }
 
     /**
@@ -305,7 +308,7 @@ public class GenerateSearchConfigFiles {
                     if (champ != null) {
 
                         String champType = champ.get(RECAP_CHAMP_TYPE).toString();
-                        if (champType.equals(RecapChampType.ADRESSE.getType())) {
+                        if (champType.equals(RecapChampType.ADRESSE.getType()) || champType.equals(RecapChampType.ADRESSE_MC.getType())) {
 
                             buildJsonProperty(getPropertiesAsArray(champ, RECAP_CHAMP_ADRESSE_LIGNE1), champType,
                                     contenu, mapper, RECAP_CHAMP_ADRESSE_LIGNE1);
@@ -313,13 +316,17 @@ public class GenerateSearchConfigFiles {
                                     contenu, mapper, RECAP_CHAMP_ADRESSE_LIGNE2);
                             buildJsonProperty(getPropertiesAsArray(champ, RECAP_CHAMP_ADRESSE_LIGNE3), champType,
                                     contenu, mapper, RECAP_CHAMP_ADRESSE_LIGNE3);
-                            buildJsonProperty(getPropertiesAsArray(champ, RECAP_CHAMP_ADRESSE_CP), champType, contenu,
-                                    mapper, RECAP_CHAMP_ADRESSE_CP);
-                            buildJsonProperty(getPropertiesAsArray(champ, RECAP_CHAMP_ADRESSE_VILLE), champType,
-                                    contenu, mapper, RECAP_CHAMP_ADRESSE_VILLE);
-                            buildJsonProperty(getPropertiesAsArray(champ, RECAP_CHAMP_ADRESSE_PAYS), champType, contenu,
-                                    mapper, RECAP_CHAMP_ADRESSE_PAYS);
-                        } else {
+                            
+                            if (champType.equals(RecapChampType.ADRESSE.getType())) {
+	                            buildJsonProperty(getPropertiesAsArray(champ, RECAP_CHAMP_ADRESSE_CP), champType, contenu,
+	                                    mapper, RECAP_CHAMP_ADRESSE_CP);
+	                            buildJsonProperty(getPropertiesAsArray(champ, RECAP_CHAMP_ADRESSE_VILLE), champType,
+	                                    contenu, mapper, RECAP_CHAMP_ADRESSE_VILLE);
+	                            buildJsonProperty(getPropertiesAsArray(champ, RECAP_CHAMP_ADRESSE_PAYS), champType, contenu,
+	                                    mapper, RECAP_CHAMP_ADRESSE_PAYS);
+                            }
+                        }
+                        else {
                             if (champType.equals("choixMultiple")) {
                                 List<LinkedHashMap<String, Object>> mappingValues = (List<LinkedHashMap<String, Object>>) champ.get("mappingValues");
                                 for (LinkedHashMap<String, Object> choix : mappingValues) {
@@ -438,6 +445,8 @@ public class GenerateSearchConfigFiles {
             case CHOIX:
                 return EsType.TEXT.getType();
             case ADRESSE:
+                return EsType.TEXT.getType();
+            case ADRESSE_MC:
                 return EsType.TEXT.getType();
             case DATE:
                 return EsType.DATE.getType();

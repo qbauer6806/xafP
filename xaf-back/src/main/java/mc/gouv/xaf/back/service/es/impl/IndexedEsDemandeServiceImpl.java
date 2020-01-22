@@ -1,57 +1,66 @@
 package mc.gouv.xaf.back.service.es.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import mc.gouv.file.apiclient.FileClient;
-import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
-import mc.gouv.xaf.back.data.dao.DemandesRepository;
-import mc.gouv.xaf.back.data.dao.RechercheChampConfigRepository;
-import mc.gouv.xaf.back.data.entity.DemandeBO;
-import mc.gouv.xaf.back.data.entity.DemandesComplementsBO;
-import mc.gouv.xaf.back.data.entity.DemandesFilesBO;
-import mc.gouv.xaf.back.data.entity.RechercheChampConfigBO;
-import mc.gouv.xaf.back.data.es.dao.DemandeEsRepository;
-import mc.gouv.xaf.back.data.es.model.*;
-import mc.gouv.xaf.back.data.transformer.DemandesComplementsFilesTransformer;
-import mc.gouv.xaf.back.data.transformer.DemandesFilesTransformer;
-import mc.gouv.xaf.back.exception.AfIndexingException;
-import mc.gouv.xaf.back.exception.FileConnectionException;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.DemarchesDataProvider;
-import mc.gouv.xaf.back.service.data.AccessService;
-import mc.gouv.xaf.back.service.data.impl.DemandesServiceImpl;
-import mc.gouv.xaf.back.service.es.DemandeJmsTopicSendService;
-import mc.gouv.xaf.back.service.es.IndexedDemandeService;
-import mc.gouv.xaf.back.service.es.transformer.DemandeEsTransformer;
-import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import mc.gouv.xaf.back.service.utils.DemarchesUtils;
-import mc.gouv.xaf.back.service.utils.ESQueryUtils;
-import mc.gouv.xaf.back.service.utils.FileUtils;
-import mc.gouv.xaf.shared.dto.*;
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.elasticsearch.index.query.QueryBuilders.existsQuery;
+import static org.elasticsearch.index.query.QueryBuilders.rangeQuery;
+import static org.elasticsearch.index.query.QueryBuilders.simpleQueryStringQuery;
+import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
+import static org.elasticsearch.join.query.JoinQueryBuilders.hasChildQuery;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.ConnectException;
+import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.jms.JMSException;
+import javax.persistence.EntityManager;
+import javax.transaction.Transactional;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.search.join.ScoreMode;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.exception.ZeroByteFileException;
+import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
+import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
 import org.elasticsearch.action.bulk.BulkItemResponse;
-import org.elasticsearch.action.bulk.BulkRequest;
+import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
-import org.elasticsearch.action.index.IndexRequest;
+import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.Requests;
-import org.elasticsearch.client.indices.GetIndexRequest;
-import org.elasticsearch.client.indices.GetIndexResponse;
-import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.common.document.DocumentField;
 import org.elasticsearch.common.text.Text;
-import org.elasticsearch.index.query.*;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.ExistsQueryBuilder;
+import org.elasticsearch.index.query.InnerHitBuilder;
+import org.elasticsearch.index.query.Operator;
+import org.elasticsearch.index.query.RangeQueryBuilder;
+import org.elasticsearch.index.query.SimpleQueryStringBuilder;
+import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.join.query.HasChildQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.bucket.filter.Filters;
 import org.elasticsearch.search.aggregations.bucket.filter.FiltersAggregator.KeyedFilter;
-import org.elasticsearch.search.aggregations.bucket.filter.ParsedFilters;
+import org.elasticsearch.search.aggregations.bucket.filter.InternalFilters;
+import org.elasticsearch.search.aggregations.bucket.filter.InternalFilters.InternalBucket;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.glassfish.jersey.internal.guava.Lists;
@@ -66,7 +75,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.ElasticsearchException;
 import org.springframework.data.elasticsearch.core.DefaultResultMapper;
-import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
+import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.data.elasticsearch.core.ResultsMapper;
 import org.springframework.data.elasticsearch.core.SearchResultMapper;
 import org.springframework.data.elasticsearch.core.aggregation.AggregatedPage;
@@ -82,23 +91,49 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.xml.sax.SAXException;
 
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import javax.jms.JMSException;
-import javax.persistence.EntityManager;
-import javax.transaction.Transactional;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.ConnectException;
-import java.net.URLEncoder;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.stream.Collectors;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
-import static org.elasticsearch.client.RequestOptions.DEFAULT;
-import static org.elasticsearch.index.query.QueryBuilders.*;
-import static org.elasticsearch.join.query.JoinQueryBuilders.hasChildQuery;
+import mc.gouv.file.apiclient.FileClient;
+import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
+import mc.gouv.xaf.back.data.dao.DemandesRepository;
+import mc.gouv.xaf.back.data.dao.RechercheChampConfigRepository;
+import mc.gouv.xaf.back.data.entity.DemandeBO;
+import mc.gouv.xaf.back.data.entity.DemandesComplementsBO;
+import mc.gouv.xaf.back.data.entity.DemandesFilesBO;
+import mc.gouv.xaf.back.data.entity.RechercheChampConfigBO;
+import mc.gouv.xaf.back.data.es.dao.DemandeEsRepository;
+import mc.gouv.xaf.back.data.es.model.AgentEsDTO;
+import mc.gouv.xaf.back.data.es.model.CanalEsDto;
+import mc.gouv.xaf.back.data.es.model.DemandeAccessEsDTO;
+import mc.gouv.xaf.back.data.es.model.DemandeEsDTO;
+import mc.gouv.xaf.back.data.es.model.DemandeEsJmsDto;
+import mc.gouv.xaf.back.data.es.model.DemandeEsRechercheDTO;
+import mc.gouv.xaf.back.data.es.model.DemandeFileEsDTO;
+import mc.gouv.xaf.back.data.es.model.DemandeStatutEsDTO;
+import mc.gouv.xaf.back.data.es.model.DemandesFacet;
+import mc.gouv.xaf.back.data.es.model.DemandesFacets;
+import mc.gouv.xaf.back.data.es.model.EsProperty;
+import mc.gouv.xaf.back.data.transformer.DemandesComplementsFilesTransformer;
+import mc.gouv.xaf.back.data.transformer.DemandesFilesTransformer;
+import mc.gouv.xaf.back.exception.AfIndexingException;
+import mc.gouv.xaf.back.exception.FileConnectionException;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.DemarchesDataProvider;
+import mc.gouv.xaf.back.service.data.AccessService;
+import mc.gouv.xaf.back.service.data.impl.DemandesServiceImpl;
+import mc.gouv.xaf.back.service.es.DemandeJmsTopicSendService;
+import mc.gouv.xaf.back.service.es.IndexedDemandeService;
+import mc.gouv.xaf.back.service.es.transformer.DemandeEsTransformer;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.back.service.utils.DemarchesUtils;
+import mc.gouv.xaf.back.service.utils.ESQueryUtils;
+import mc.gouv.xaf.back.service.utils.FileUtils;
+import mc.gouv.xaf.shared.dto.DataRechercheDTO;
+import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
+import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeFileDTO;
+import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 
 /**
  * Service permettant de faire de la recherche full-text sur les demandes en utilisant le moteur elasticsearch
@@ -139,7 +174,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     private DemandesRepository demandesRepository;
 
     @Inject
-    private ElasticsearchRestTemplate elasticsearchTemplate;
+    private ElasticsearchTemplate elasticsearchTemplate;
 
     @Inject
     private GouvPropertiesResolver gouvPropertiesResolver;
@@ -246,16 +281,17 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         Assert.notNull(type, "No type defined for putMapping()");
         Map mappings = null;
         try {
-            GetIndexRequest request = new GetIndexRequest(indexAlias);
-            GetIndexResponse response = elasticsearchTemplate.getClient().indices().get(request, DEFAULT);
-            String[] indicesNames = response.getIndices();
+
+            String[] indicesNames = elasticsearchTemplate.getClient().admin().indices()
+                    .getIndex(new GetIndexRequest().indices(indexAlias)).actionGet().getIndices();
 
             if (indicesNames == null || indicesNames.length == 0) {
                 throw new AfIndexingException("Problem retrieving index name");
             }
 
-            MappingMetaData indexMappings = response.getMappings().get(indicesNames[0]);
-            mappings = indexMappings.getSourceAsMap();
+            mappings = elasticsearchTemplate.getClient().admin().indices()
+                    .getMappings(new GetMappingsRequest().indices(aliasName).types(type)).actionGet().getMappings()
+                    .get(indicesNames[0]).get(type).getSourceAsMap();
 
         } catch (Exception e) {
             throw new ElasticsearchException("Error while getting mapping for indexName : " + aliasName + " type : "
@@ -832,7 +868,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      * @return Liste des fichiers indexées
      */
     @Override
-    public List<DemandeFileEsDTO> indexFiles(List<DemandeFileEsDTO> demandeFileEsDTOs) throws IOException {
+    public List<DemandeFileEsDTO> indexFiles(List<DemandeFileEsDTO> demandeFileEsDTOs) {
 
         List<IndexQuery> indexList = new ArrayList<>();
 
@@ -854,12 +890,12 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         return demandeFileEsDTOs;
     }
 
-    public void bulkIndex(List<IndexQuery> queries) throws IOException {
-        BulkRequest bulkRequest = new BulkRequest();
+    public void bulkIndex(List<IndexQuery> queries) {
+        BulkRequestBuilder bulkRequest = elasticsearchTemplate.getClient().prepareBulk();
         for (IndexQuery query : queries) {
             bulkRequest.add(prepareIndex(query));
         }
-        checkForBulkUpdateFailure(elasticsearchTemplate.getClient().bulk(bulkRequest, RequestOptions.DEFAULT));
+        checkForBulkUpdateFailure(bulkRequest.execute().actionGet());
     }
 
     private void checkForBulkUpdateFailure(BulkResponse bulkResponse) {
@@ -876,24 +912,25 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         }
     }
 
-    private IndexRequest prepareIndex(IndexQuery query) {
+    private IndexRequestBuilder prepareIndex(IndexQuery query) {
         try {
 
-            IndexRequest indexRequest = null;
+            IndexRequestBuilder indexRequestBuilder = null;
 
             if (query.getObject() != null) {
                 // If we have a query id and a document id, do not ask ES to generate one.
-                indexRequest = new IndexRequest(indexAlias).type(DemandeEsDTO.INDEX_TYPE).id(query.getId());
-                indexRequest.source(resultsMapper.getEntityMapper().mapToString(query.getObject()),
+                indexRequestBuilder = elasticsearchTemplate.getClient().prepareIndex(indexAlias,
+                        DemandeEsDTO.INDEX_TYPE, query.getId());
+                indexRequestBuilder.setSource(resultsMapper.getEntityMapper().mapToString(query.getObject()),
                         Requests.INDEX_CONTENT_TYPE);
             } else {
                 throw new ElasticsearchException(
                         "object or source is null, failed to index the document [id: " + query.getId() + "]");
             }
 
-            indexRequest.routing(query.getParentId());
+            indexRequestBuilder.setRouting(query.getParentId());
 
-            return indexRequest;
+            return indexRequestBuilder;
         } catch (IOException e) {
             throw new ElasticsearchException("failed to index the document [id: " + query.getId() + "]", e);
         }
@@ -926,8 +963,8 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                 }
 
                 for (Aggregation agg : response.getAggregations().asList()) {
-                    ParsedFilters filters = (ParsedFilters) agg;
-                    for (Filters.Bucket bucket : filters.getBuckets()) {
+                    InternalFilters filters = (InternalFilters) agg;
+                    for (InternalBucket bucket : filters.getBuckets()) {
                         if (bucket.getDocCount() > 0) {
                             facets.add(new DemandesFacet(bucket.getKeyAsString(), bucket.getDocCount()));
                         }

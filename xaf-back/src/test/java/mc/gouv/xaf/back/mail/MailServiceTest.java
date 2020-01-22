@@ -70,7 +70,7 @@ public class MailServiceTest {
      */
     private String[] getEmailPreview(String lang) throws Exception {
 
-        Entry<String, String> templateCodes = mailTemplateModelProvider.getMailTemplateCodesForAction("action");
+        Entry<String, String> templateCodes = mailTemplateModelProvider.getMailTemplateCodesForAction("action", null);
         String bodyTemplateCode = templateCodes.getValue();
         String subjectTemplateCode = templateCodes.getKey();
 

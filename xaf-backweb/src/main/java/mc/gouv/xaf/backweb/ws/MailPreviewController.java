@@ -53,7 +53,7 @@ public class MailPreviewController extends AbstractController {
 
 	private ModelAndView buildMailPreview(String action, String codeMotifChoisi, Integer pkDemande, String commentaire)
 			throws Exception {
-		Entry<String, String> templateCodes = mailTemplateModelProvider.getMailTemplateCodesForAction(action);
+		Entry<String, String> templateCodes = mailTemplateModelProvider.getMailTemplateCodesForAction(action, pkDemande);
 		String bodyTemplateCode = templateCodes.getKey();
 		String subjectTemplateCode = templateCodes.getValue();
 

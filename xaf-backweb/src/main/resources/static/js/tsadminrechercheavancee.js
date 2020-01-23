@@ -543,11 +543,12 @@ $("#addCategoryButton").click(function() {
 	$("#libelleCatInput").val('');
 	$("#catErrorMessage").css("visibility", "hidden").css("display", "none");
 
-	$.fancybox.open($("#addCategoryPanel"), {
-		autoSize : false,
-		width : "40%",
-		height : "auto"
-
+	$.fancybox.open({
+		src: '#addCategoryPanel',
+		type: 'inline',
+		btnTpl: {
+			smallBtn: '<button id="btnFermerPopinIdentifiant" data-fancybox-close="" class="fancybox-close-small" title="Fermer"></button>'
+		}
 	});
 });
 

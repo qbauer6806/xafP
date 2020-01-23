@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import mc.gouv.logon.shared.User;
 import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
 import mc.gouv.xaf.back.data.es.model.DemandeEsRechercheDTO;
 import mc.gouv.xaf.back.data.es.model.DemandesFacet;
@@ -28,12 +29,11 @@ import mc.gouv.xaf.back.data.es.model.DemandesFacets;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.es.IndexedDemandeService;
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
+import mc.gouv.xaf.backweb.controller.AbstractController;
+import mc.gouv.xaf.backweb.dto.AfBackDemandeEsDTO;
 import mc.gouv.xaf.shared.dto.DataRechercheDTO;
 import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
-import mc.gouv.xaf.backweb.controller.AbstractController;
-import mc.gouv.xaf.backweb.dto.AfBackDemandeEsDTO;
-import mc.gouv.logon.shared.User;
 import mc.gouv.xboot.config.web.annotation.GouvRestController;
 
 @GouvRestController
@@ -126,7 +126,6 @@ public class RechercheIndexedDemandesController extends AbstractController {
 
     }
 
-    @SuppressWarnings("deprecation")
     private Page<AfBackDemandeEsDTO> processCustomData(Page<DemandeEsRechercheDTO> demandes) {
 
         if (demandes == null || !demandes.hasContent()) {

@@ -34,27 +34,24 @@
 
 <body th:with="pageParametresActive='active'">
 
-	<div th:replace="fragments/header :: header" />
+	<div th:replace="fragments/header :: header"></div>
 
 	<div id="wrapper">
 	
-		<div th:replace="fragments/sidebar :: sidebar" />
+		<div th:replace="fragments/sidebar :: sidebar"></div>
 		
 		<!-- DEBUT CONTENU -->
 		<div id="page-content-wrapper">
-   		
-   		
+
 			<div class="breadcrumbContent">
 				<div class="breadcrumb">
-					<span> <a th:href="@{/}"
-						class="breadcrumb-item active">Accueil</a>&nbsp;&gt;&nbsp; <a
-						th:href="@{/gestion/parametres}" class="breadcrumb-item active">Paramètres</a>
-						&gt;
-					</span>
+					<a id="ariane0" th:href="@{/}" class="breadcrumb-item active">Accueil</a>&nbsp;&gt;&nbsp;
+					<a id="ariane1" th:href="@{/gestion/parametres}"
+						class="breadcrumb-item active">Paramètres</a> &gt;
 				</div>
 				<div class="triangleTopright"></div>
 			</div>
-			
+
 			<div class="container-fluid">
 
                	<div class="row">
@@ -62,16 +59,16 @@
 						<h1>Motifs des démarches</h1>
 					</div>
               	</div>
-	            
-	            <div class="row" align="right">
+
+				<div class="row" align="right">
 					<div class="col-xs-12">
-						<a th:href="@{/gestion/parametres/newInit}"
+						<a id="btnCreerMotif" th:href="@{/gestion/parametres/newInit}"
 							class="btn btn-action ripple-effect"><i
 							class="icon-action_plus"></i><span>Créer un motif</span></a>
 					</div>
 				</div>
-               	
-               	<div class="row">
+
+				<div class="row">
 						<div class="col-xs-12">
 							<div class="tableContent">
 								<div class="tableTitle">
@@ -120,7 +117,7 @@
     </div>
 
 
-<div th:replace="fragments/footer :: footer" />
+	<div th:replace="fragments/footer :: footer"></div>
 
 	<script type="text/javascript" th:inline="javascript">
 

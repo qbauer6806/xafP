@@ -3,10 +3,10 @@
 #set( $symbol_escape = '\' )
 package ${groupId}.backserver.util;
 
-import mc.gouv.xaf.back.dto.StatutPublicOuInterneDTO;
-import mc.gouv.xaf.back.util.AfBackUtils;
-import mc.gouv.dem.shared.model.DemandeDTO;
-import ${groupId}.shared.dto.${artifactIdCamelCase}DemandeStatutEnum;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
+import ${groupId}.shared.enums.${artifactIdCamelCase}DemandeStatutEnum;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -109,7 +109,7 @@ public class StateManagerUtil {
         if ((hasRole(TRAITEMENT_ROLE) || hasRole(VALIDATION_ROLE) || hasRole(LECTURE_ROLE)) &&
                 !(${artifactIdCamelCase}DemandeStatutEnum.ANNULEE.name().equals(statut.getName())
                         || ${artifactIdCamelCase}DemandeStatutEnum.REFUSEE.name().equals(statut.getName())
-                        || ${artifactIdCamelCase}DemandeStatutEnum.ACCORDEE.name().equals(statut.getName())
+                        || ${artifactIdCamelCase}DemandeStatutEnum.VALIDEE.name().equals(statut.getName())
                         || ${artifactIdCamelCase}DemandeStatutEnum.EN_ATTENTE_TRAIT.name().equals(statut.getName()))) {
             return true;
         }
@@ -133,4 +133,8 @@ public class StateManagerUtil {
 
     }
 
+    public static boolean isInformationsDetachementPanelActive(final StatutPublicOuInterneDTO statut) {
+
+        return  hasRole(TRAITEMENT_ROLE) && !${artifactIdCamelCase}DemandeStatutEnum.EN_ATTENTE_TRAIT.name().equals(statut.getName());
+    }
 }

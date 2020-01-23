@@ -41,7 +41,7 @@
 		<dependency>
 			<groupId>mc.gouv.file</groupId>
 			<artifactId>file-apiclient</artifactId>
-			<version>1.2.1</version>
+			<version>1.3.0-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -318,5 +318,6 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
+
 </project>
 

@@ -74,7 +74,7 @@
         <dependency>
             <groupId>org.webjars</groupId>
             <artifactId>fancybox</artifactId>
-            <version>2.1.5</version>
+            <version>3.2.5</version>
         </dependency>
         <dependency>
             <groupId>org.webjars</groupId>

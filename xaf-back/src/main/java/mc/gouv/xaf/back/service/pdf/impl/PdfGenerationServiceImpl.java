@@ -14,7 +14,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
 import fr.opensagres.poi.xwpf.converter.pdf.PdfOptions;
@@ -70,6 +69,9 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 
 	@Autowired(required = false)
 	private IndexedDemandeService indexedDemandeService;
+	
+	@Autowired
+	private AfBackUtils afBackUtils;
 
 	@Override
 	public void generateAndStorePdf(DemandeDTO demande, PdfTypeEnum pdfType, String meta) throws Exception {
@@ -82,7 +84,7 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 
 		LOGGER.info("Stockage du PDF généré dans FILE...");
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
-		String url = fileService.saveFile(demande, fileName, "application/pdf", new FileInputStream(tempFile), output);
+		String url = fileService.saveFile(demande, fileName, gouvPropertiesResolver.getContainerId(), "application/pdf", new FileInputStream(tempFile), output);
 		output.close();
 
 		if (pdfType == PdfTypeEnum.FICHIER) {
@@ -164,8 +166,10 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 		byte[] bytes = null;
 
 		try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
-			LOGGER.info("Chargement du template " + dto.getTemplateFilename() + "...");
-			InputStream in = new ClassPathResource("/pdf/" + dto.getTemplateFilename()).getInputStream();
+			LOGGER.info("Chargement du template " + dto.getTemplateFilename() + " via appel à FILE...");
+			// #16180 Ancienne façon : aller chercher dans src/main/resources... maintenant on cherche dans FILE
+			//InputStream in = new ClassPathResource("/pdf/" + dto.getTemplateFilename()).getInputStream();
+			InputStream in = afBackUtils.getFileClient().getFile(gouvPropertiesResolver.getDemarcheId(), "MODELES", dto.getTemplateFilename());
 			IXDocReport report = XDocReportRegistry.getRegistry().loadReport(in, TemplateEngineKind.Velocity);
 
 			LOGGER.info("Création du contexte avec le modèle fourni par la démarche...");

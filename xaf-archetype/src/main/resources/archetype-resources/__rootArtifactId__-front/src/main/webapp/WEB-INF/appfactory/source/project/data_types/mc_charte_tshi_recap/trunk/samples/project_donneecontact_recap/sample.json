@@ -1,0 +1,18 @@
+{
+  "content": {
+    "sections": [
+      {
+        "isSousSection": false,
+        "nom": "infoDemandeur",
+        "sousSections": [
+          {
+            "ref": "donneeDemandeur"
+          }
+        ]
+      }
+    ],
+    "typeDonnee": "projectDemande"
+  },
+  "description": "Recap des infos de contact",
+  "name": "projectDonneecontactRecap"
+}

@@ -1,8 +1,8 @@
 {
-  "name": "associer",
   "componentInstances": [
     {
       "name": "mcCharteTshiPageAssocier"
     }
-  ]
+  ],
+  "name": "associer"
 }

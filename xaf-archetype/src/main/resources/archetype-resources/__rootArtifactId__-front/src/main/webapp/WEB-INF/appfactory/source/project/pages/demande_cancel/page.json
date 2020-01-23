@@ -1,8 +1,8 @@
 {
+  "name": "demande_cancel",
   "componentInstances": [
     {
       "name": "mcCharteTshiPageDemandeCancel"
     }
-  ],
-  "name": "demande_cancel"
+  ]
 }

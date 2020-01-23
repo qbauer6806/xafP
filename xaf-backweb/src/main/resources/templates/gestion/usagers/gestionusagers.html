@@ -39,17 +39,16 @@
 
 		<div th:replace="fragments/sidebar :: sidebar"></div>
 
-
 		<!-- DEBUT CONTENU -->
 		<div id="page-content-wrapper">
 
 			<div class="breadcrumbContent">
-				<ol class="breadcrumb">
-					<span class="breadcrumb-item active"><a th:href="@{/}"
-						class="breadcrumb-item">ACCUEIL</a>&nbsp;&gt;&nbsp;<a
-						th:href="@{/gestion/usagers}" class="breadcrumb-item">USAGERS</a>
+				<div class="breadcrumb">
+					<span class="breadcrumb-item active"><a id="ariane0"
+						th:href="@{/}" class="breadcrumb-item">ACCUEIL</a>&nbsp;&gt;&nbsp;<a
+						id="ariane1" th:href="@{/gestion/usagers}" class="breadcrumb-item">USAGERS</a>
 						&gt;</span>
-				</ol>
+				</div>
 				<div class="triangleTopright"></div>
 			</div>
 
@@ -67,10 +66,6 @@
 				class="container-fluid">
 
 				<div class="row">
-					<div class="col-xs-12"></div>
-				</div>
-
-				<div class="row">
 					<div class="col-xs-12">
 						<h1>Tous les usagers courrier</h1>
 					</div>
@@ -78,38 +73,34 @@
 
 				<div class="row" align="right">
 					<div class="col-xs-12">
-						<a th:href="@{/gestion/usagers/creer}"
+						<a id="btnAjouterUsager" th:href="@{/gestion/usagers/creer}"
 							class="btn btn-action ripple-effect"><i
 							class="icon-action_plus"></i><span>AJOUTER UN USAGER</span></a>
 					</div>
 				</div>
 
-
 				<div class="row">
 					<div class="col-xs-12">
 						<span class="titre">Recherche</span>
 						<div class="panel panel-simple">
-							<div class="form-group">
-								<form action="#" th:action="@{/gestion/usagers/rechercher}"
-									method="post">
-									<label for="inputSearch">Par nom d'usager - Par raison
-										sociale - Par adresse</label>
-									<div class="row">
-										<div class="col-xs-11">
-											<input type="text" th:value="${usagerInput}"
-												name="usagerInput" class="form-control" id="inputSearch"
-												title=""></input>
-										</div>
-										<div class="col-xs-1 nopadding">
-											<button type="submit" class="btn btn-action ripple-effect"
-												name="action" value="Rechercher" id="rechercherButton2">
-												<i class="icon-action_chercher"></i>
-											</button>
-										</div>
-
+							<form action="#" th:action="@{/gestion/usagers/rechercher}"
+								method="post" id="searchForm">
+								<div id="txtRechercheUsagersFormGroup" class="row form-group">
+									<label style="padding-left: 15px;" for="txtRechercheUsagers">Par
+										nom d'usager - Par raison sociale - Par adresse</label>
+									<div class="col-xs-11">
+										<input type="text" th:value="${usagerInput}"
+											name="usagerInput" class="form-control" id="txtRechercheUsagers"
+											maxlength="160"></input>
 									</div>
-								</form>
-							</div>
+									<div class="col-xs-1 nopadding">
+										<button type="submit" class="btn btn-action ripple-effect"
+											name="action" value="Rechercher" id="btnRechercherUsagers">
+											<i class="icon-action_chercher"></i>
+										</button>
+									</div>
+								</div>
+							</form>
 						</div>
 					</div>
 				</div>
@@ -132,17 +123,19 @@
 								</thead>
 								<tbody>
 
-									<tr th:each="usager :  ${usagers}">
+									<tr th:each="usager, usagerStat :  ${usagers}">
 										<td><span th:text="${usager.nomRaisonSociale}"></span></td>
 										<td><span th:text="${usager.adresse}"></span></td>
 										<td><span th:text="${usager.nbDemandes}"></span></td>
 										<td class="text-right"><a
+											th:id="'btnModifUsager' + ${usagerStat.index}"
 											th:href="@{/gestion/usagers/}+${usager.usagerId}"> <span
 												class="btn btn-action ripple-effect greyTooltip"
 												data-toggle="tooltip" data-placement="bottom"
 												data-original-title="Visualiser/Modifier" title=""> <i
 													class="icon-action_editer"></i></span>
-										</a> &nbsp;&nbsp; <a href="#"
+										</a> &nbsp;&nbsp; <a th:id="'btnTransfert' + ${usagerStat.index}"
+											href="#"
 											th:attr="data-usagerid=${usager.usagerId},data-raisonsociale=${usager.raisonSociale},data-nomprenom=${usager.nomPrenom},data-ville=${usager.ville},data-codepostal=${usager.codePostal},data-adresse=${usager.adresse},data-urltransfert=@{/gestion/usagers/transferer/}"
 											class="transferer"> <span
 												class="btn btn-action ripple-effect greyTooltip"
@@ -150,7 +143,8 @@
 												data-original-title="Transférer des demandes" title="">
 													<i class="icon-action_transferer_demande"></i>
 											</span>
-										</a> &nbsp;&nbsp; <a href="#"
+										</a> &nbsp;&nbsp; <a
+											th:id="'btnSupprimerUsager' + ${usagerStat.index}" href="#"
 											th:attr="data-usagerid=${usager.usagerId},data-raisonsociale=${usager.raisonSociale},data-nomprenom=${usager.nomPrenom},data-ville=${usager.ville},data-codepostal=${usager.codePostal},data-adresse=${usager.adresse},data-nbdemandes=${usager.nbDemandes},data-urltransfert=@{/gestion/usagers/transferer/}"
 											class="supprimer"> <span
 												class="btn btn-action ripple-effect greyTooltip"
@@ -179,13 +173,13 @@
 
 	<!-- Template Suppression -->
 
-	<div th:replace="fragments/supprimerusager :: supprimerusager" />
+	<div th:replace="fragments/supprimerusager :: supprimerusager"></div>
 
 
 	<!-- Template selection transfert -->
-	<div
-		th:replace="fragments/selectionusagertransfert :: selectionusagertransfert" />
+	<div th:replace="fragments/selectionusagertransfert :: selectionusagertransfert"></div>
 
+	<script type="text/javascript" th:src="@{/js/tsgenutils.js}"></script>
 
 	<script th:inline="javascript">
 	/*<![CDATA[*/
@@ -194,12 +188,15 @@
 		var urlTransfert = /*[[@{/gestion/usagers/transferer/}]]*/;
 	
 		$(document).ready(function() {
+			// Cacher le tooltip au chargement de la page
+			$("#txtRechercheUsagers").tooltip("hide");
+			$("#txtRechercheUsagers").tooltip("disable");
 
 			$('#rechercherButton1').click(function(e){
 				e.preventDefault();
-				$('#rechercherButton2').click();
+				$('#btnRechercherUsagers').click();
 			});
-			
+
             $(".supprimer-annuler").click(function(e){
                 e.preventDefault();
             	$.fancybox.close();
@@ -233,10 +230,15 @@
 
  	    		urlTransfert = urlTransfertSuppression;
 
-	            $.fancybox.open($("#supprimer-box"), {
-	            	   afterShow :function(){},
-	            	   minWidth : 600
-	           	});
+	            $.fancybox.open({
+	        		src: '#supprimer-box',
+	        		type: 'inline',
+	        		opts: {
+	        			autoSize: false,
+	        			minWidth : 600,
+	        			height: "auto"
+	        		}
+	        	});
 
 	    		$(".usagerId").val(usagerId);
 
@@ -280,19 +282,25 @@
  	    		var codePostal = $(this).data("codepostal");
  	    		var ville = $(this).data("ville");
  
-	            $.fancybox.open($("#transferer-box"), {
-	            	   afterShow :function(){},
-	            	   minWidth : 1000
-	           	});
+ 	    		$.fancybox.open({
+	        		src: '#transferer-box',
+	        		type: 'inline',
+	        		opts: {
+	        			autoSize: false,
+	        			minWidth : 1000,
+	        			height: "auto",
+	        			afterClose: function () {
+	        				$('.autocomplete-suggestions').hide();
+	        			}
+	        		}
+	        	});
 
 	            $('#autocomplete').val('');
 
-	    		var nomPrenomRaisonSociale = nomPrenom;
-	    		if (typeof raisonSociale !== 'undefined') {
-	    			nomPrenomRaisonSociale = nomPrenomRaisonSociale + '<br/>(' + raisonSociale + ')';
+	           	$("#transfertNomPrenom").text(nomPrenom);
+	           	if (typeof raisonSociale !== 'undefined') {
+	           		$("#transfertRaisonSociale").text('(' + raisonSociale + ')');
 	    		}
-	    		
-	           	$("#transfertNomPrenomRaisonSociale").html(nomPrenomRaisonSociale);
 	    		$("#transfertAdresse").text(adresse);
 	    		$("#transfertCodePostal").text(codePostal);
 	    		$("#transfertVille").text(ville);

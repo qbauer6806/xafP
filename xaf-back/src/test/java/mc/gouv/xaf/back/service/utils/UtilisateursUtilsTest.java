@@ -10,13 +10,12 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
-import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
-import mc.gouv.xaf.back.service.utils.UtilisateursUtils;
 import mc.gouv.logon.apiclient.RestException;
 import mc.gouv.logon.shared.User;
 import mc.gouv.logon.shared.User.Civilite;
+import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UtilisateursUtilsTest {

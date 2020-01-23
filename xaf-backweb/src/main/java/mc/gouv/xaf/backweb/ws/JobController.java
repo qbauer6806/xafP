@@ -4,6 +4,7 @@ import javax.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.annotation.Secured;
@@ -11,12 +12,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
 import mc.gouv.xaf.back.service.data.DemandeJobService;
 import mc.gouv.xaf.shared.dto.DemandeJobDTO;
 import mc.gouv.xaf.shared.dto.JobNamesEnum;
 import mc.gouv.xboot.config.web.annotation.GouvRestController;
 
 @GouvRestController
+@Conditional(IndexationEnabledCondition.class)
 @Secured("ROLE_CONFIGURATION")
 @RequestMapping("/ws/admin/job")
 public class JobController {

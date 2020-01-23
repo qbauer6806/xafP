@@ -27,15 +27,60 @@
       "name": "chaine",
       "url": "chaine",
       "meta": "chaine"
+    },
+    {
+      "name": "chaine",
+      "url": "chaine",
+      "meta": "chaine"
+    },
+    {
+      "name": "chaine",
+      "url": "chaine",
+      "meta": "chaine"
+    },
+    {
+      "name": "chaine",
+      "url": "chaine",
+      "meta": "chaine"
+    },
+    {
+      "name": "chaine",
+      "url": "chaine",
+      "meta": "chaine"
+    },
+    {
+      "name": "chaine",
+      "url": "chaine",
+      "meta": "chaine"
+    },
+    {
+      "name": "chaine",
+      "url": "chaine",
+      "meta": "chaine"
+    },
+    {
+      "name": "chaine",
+      "url": "chaine",
+      "meta": "chaine"
+    },
+    {
+      "name": "chaine",
+      "url": "chaine",
+      "meta": "chaine"
     }
   ],
   "contenu": {
     "donnee": {
       "entreprise": {
-        "numerocar": "chaine",
-        "raisonsociale": "chaine",
-        "nom": "chaine",
-        "adresse": {
+        "paysoriginedetachement": "mapping paysOrigineDetachement: FR|IT",
+        "datesdetachement": "texte",
+        "estchantier": "mapping ouinon: YES|NO",
+        "nomchantier": "chaine",
+        "nomentreprise": "chaine",
+        "nautorisationchantier": "chaine",
+        "datedebutchantier": "date",
+        "datefinchantier": "date",
+        "adressechantier": {
           "ligne1": "chaine",
           "ligne2": "chaine",
           "ligne3": "chaine",
@@ -43,37 +88,56 @@
           "ville": "chaine",
           "pays": "mapping pays"
         },
-        "telephone": "chaine"
+        "adresseentreprise": {
+          "ligne1": "chaine",
+          "ligne2": "chaine",
+          "ligne3": "chaine",
+          "codePostal": "chaine",
+          "ville": "chaine",
+          "pays": "mapping pays"
+        }
+      },
+      "salaries": {
+        "tabsalariesitalie": [
+          {
+            "donneeSalariesTabsalariesitalieChampnom": "chaine",
+            "donneeSalariesTabsalariesitalieChampprenom": "chaine",
+            "donneeSalariesTabsalariesitalieChampqualif": "chaine",
+            "donneeSalariesTabsalariesitalieChampdebutdetach": "texte"
+          },
+          "..."
+        ],
+        "tabsalariesfrance": [
+          {
+            "donneeSalariesTabsalariesfranceChampnom": "chaine",
+            "donneeSalariesTabsalariesfranceChampprenom": "chaine",
+            "donneeSalariesTabsalariesfranceChampnumsecu": "chaine",
+            "donneeSalariesTabsalariesfranceChampqualif": "chaine",
+            "donneeSalariesTabsalariesfranceChampdebutdetach": "texte"
+          },
+          "..."
+        ],
+        "joindrefichier": "mapping saisirOuFichier: SAISIR|JOINDRE"
       },
       "demandeur": {
         "titre": "mapping titre: 0|1|2",
-        "prenom": "chaine",
         "nom": "chaine",
-        "mail": "chaine"
+        "prenom": "chaine",
+        "email": "chaine"
       },
-      "derogation": {
-        "joursferies": {
-          "jourDeL_An": "booléen: true|false",
-          "sainteDevote": "booléen: true|false",
-          "lundiDePaques": "booléen: true|false",
-          "le1erMai": "booléen: true|false",
-          "ascension": "booléen: true|false",
-          "lundiDePentecote": "booléen: true|false",
-          "feteDieu": "booléen: true|false",
-          "assomption": "booléen: true|false",
-          "toussaint": "booléen: true|false",
-          "feteDuPrince": "booléen: true|false",
-          "immaculeeConception": "booléen: true|false",
-          "noel": "booléen: true|false"
-        },
-        "employe": {
-          "concerne": "texte"
-        },
-        "motivationdemande": "texte",
-        "presencedeleguespersonnel": "mapping ouinon: YES|NO",
-        "nombresalarie": "chaine"
+      "entrepriseorigine": {
+        "raisonsociale": "chaine",
+        "adresse": {
+          "ligne1": "chaine",
+          "ligne2": "chaine",
+          "ligne3": "chaine",
+          "codePostal": "chaine",
+          "ville": "chaine",
+          "pays": "mapping pays"
+        }
       }
-    }
+    },
+    "champvide": "chaine"
   }
 }
 ```

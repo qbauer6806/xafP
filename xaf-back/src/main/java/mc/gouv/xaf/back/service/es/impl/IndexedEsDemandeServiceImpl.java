@@ -5,13 +5,11 @@ import mc.gouv.file.apiclient.FileClient;
 import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.dao.RechercheChampConfigRepository;
-import mc.gouv.xaf.back.data.entity.DemandeBO;
-import mc.gouv.xaf.back.data.entity.DemandesComplementsBO;
-import mc.gouv.xaf.back.data.entity.DemandesFilesBO;
-import mc.gouv.xaf.back.data.entity.RechercheChampConfigBO;
+import mc.gouv.xaf.back.data.entity.*;
 import mc.gouv.xaf.back.data.es.dao.DemandeEsRepository;
 import mc.gouv.xaf.back.data.es.model.*;
 import mc.gouv.xaf.back.data.transformer.DemandesComplementsFilesTransformer;
+import mc.gouv.xaf.back.data.transformer.DemandesCourriersTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesFilesTransformer;
 import mc.gouv.xaf.back.exception.AfIndexingException;
 import mc.gouv.xaf.back.exception.FileConnectionException;
@@ -21,6 +19,7 @@ import mc.gouv.xaf.back.service.data.AccessService;
 import mc.gouv.xaf.back.service.data.impl.DemandesServiceImpl;
 import mc.gouv.xaf.back.service.es.IndexedDemandeService;
 import mc.gouv.xaf.back.service.es.transformer.DemandeEsTransformer;
+import mc.gouv.xaf.back.service.pdf.PdfTypeEnum;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
 import mc.gouv.xaf.back.service.utils.ESQueryUtils;
@@ -170,6 +169,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     public static final String ES_MAPPING_TYPE_KEY = "type";
     public static final String FILE_COMPLEMENT_HIGHLIGHT_AND_FACET_PREFIX = "complement.";
     public static final String INTERNAL_FILE_HIGHLIGHT_AND_FACET_PREFIX = "fichierinterne.";
+    public static final String COURRIER_FILE_HIGHLIGHT_AND_FACET_PREFIX = "courrier.";
     public static final String FILE_PROPERTIES_PREFIX = "fichiers.";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IndexedEsDemandeServiceImpl.class);
@@ -469,7 +469,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     }
 
     /**
-     * Méthode permettant de récupérer la liste des pieces jointes et des complements au format elasticsearch
+     * Méthode permettant de récupérer la liste des pieces jointes, des complements et courriers au format elasticsearch
      * 
      * @param files
      *            Liste des fichiers à remplir
@@ -480,7 +480,9 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     private void fillFilesList(List<DemandeFileEsDTO> files, DemandeBO demande) throws IOException {
 
         List<DemandeFileDTO> demFiles = DemandesFilesTransformer
-                .bo2Dto(new ArrayList<DemandesFilesBO>(demande.getFiles()));
+                .bo2Dto(new ArrayList<>(demande.getFiles()));
+
+        demFiles.addAll(recupererCourriersDemandeFromBO(demande.getCourriers()));
 
         Set<DemandesComplementsBO> demComplements = demande.getDemandesComplements();
 
@@ -495,12 +497,12 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             }
         }
 
-        fillPjsAndFichiersInternes(demFiles, files, demande.getFkAccess().getDemarcheId(), demande.getIdentifiant());
+        fillPjsAndFichiersInternesAndCourriers(demFiles, files, demande.getFkAccess().getDemarcheId(), demande.getIdentifiant());
 
     }
 
     /**
-     * Méthode permettant de récupérer la liste des pieces jointes et des complements au format elasticsearch
+     * Méthode permettant de récupérer la liste des pieces jointes, des complements et courriers au format elasticsearch
      * 
      * @param files
      *            Liste des fichiers à remplir
@@ -530,8 +532,43 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             fichiers.addAll(Arrays.asList(demande.getFichiers()));
         }
 
-        fillPjsAndFichiersInternes(fichiers, files, demande.getDemarcheId(), demande.getIdentifiant());
+        if (demande.getCourriers() != null) {
+            fichiers.addAll(recupererCourriersDemandeFromDTO(Arrays.asList(demande.getCourriers())));
+        }
 
+        fillPjsAndFichiersInternesAndCourriers(fichiers, files, demande.getDemarcheId(), demande.getIdentifiant());
+
+    }
+
+    /**
+     * Méthode permettant transformer des DemandeCourrierDTO en DemandeFileDTO
+     * @param courriers courriers d'une demande
+     * @return list des fichiers à ajouter
+     */
+    private List<DemandeFileDTO> recupererCourriersDemandeFromBO(Set<DemandesCourriersBO> courriers) {
+        return recupererCourriersDemandeFromDTO(DemandesCourriersTransformer
+                .bo2Dto(new ArrayList<>(courriers)));
+    }
+
+    /**
+     * Méthode permettant transformer des DemandeCourrierDTO en DemandeFileDTO
+     * @param courriers courriers d'une demande
+     * @return list des fichiers à ajouter
+     */
+    private List<DemandeFileDTO> recupererCourriersDemandeFromDTO(List<DemandeCourrierDTO> courriers) {
+        List<DemandeFileDTO> fichiers = new ArrayList<>();
+        // Conversion DemandeCourrierBO en DemandeFileDTO pour faciliter l'indexation
+        if (courriers != null) {
+            for(DemandeCourrierDTO courrier: courriers) {
+                DemandeFileDTO file = new DemandeFileDTO();
+                file.setMeta(courrier.getMeta());
+                file.setName(courrier.getName());
+                file.setUrl(courrier.getUrl());
+                file.setDate(courrier.getDateCreation());
+                fichiers.add(file);
+            }
+        }
+        return fichiers;
     }
 
     /**
@@ -543,7 +580,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      * @param demIdentifiant Identifiant de la demande
      * @throws IOException Exception Input/Output
      */
-    private void fillPjsAndFichiersInternes(List<DemandeFileDTO> demFiles, List<DemandeFileEsDTO> files,
+    private void fillPjsAndFichiersInternesAndCourriers(List<DemandeFileDTO> demFiles, List<DemandeFileEsDTO> files,
             String demarcheId, String demIdentifiant) throws IOException {
         if (demFiles != null) {
             for (DemandeFileDTO file : demFiles) {
@@ -562,9 +599,10 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     private DemandeFileEsDTO.TYPE getDemandeFileType(DemandeFileDTO file) {
         DemandeFileEsDTO.TYPE fileType;
         if (FileUtils.isFileCreatedByFront(file.getMeta())) {
-        	fileType = DemandeFileEsDTO.TYPE.PIECE_JOINTE;
-        }
-        else {
+            fileType = DemandeFileEsDTO.TYPE.PIECE_JOINTE;
+        } if (FileUtils.isFileCreatedByBack(file.getMeta()) && file.getMeta().contains(PdfTypeEnum.COURRIER.name())) {
+            fileType = DemandeFileEsDTO.TYPE.COURRIER;
+        } else {
         	fileType = DemandeFileEsDTO.TYPE.FICHIER_INTERNE;
         }
         return fileType;
@@ -1035,6 +1073,19 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                             INTERNAL_FILE_HIGHLIGHT_AND_FACET_PREFIX + property.getName(),
                             internalFilesHasChildQueryBuilder);
 
+                    //Ajout du filtre pour les courriers
+                    TermQueryBuilder courriersTqb = termQuery(DemandeFileEsDTO.TYPE_FIELD,
+                            DemandeFileEsDTO.TYPE.COURRIER.name());
+
+                    BoolQueryBuilder courriersBqb = boolQuery().must(sqsb).must(internalFilestqb);
+
+                    HasChildQueryBuilder courriersHasChildQueryBuilder = hasChildQuery(
+                            DemandeFileEsDTO.INDEX_FILES_JOIN_DOC, internalFilesbqb, ScoreMode.Avg);
+
+                    queryStringQueryBuilders[index] = new KeyedFilter(
+                            COURRIER_FILE_HIGHLIGHT_AND_FACET_PREFIX + property.getName(),
+                            internalFilesHasChildQueryBuilder);
+
                 } else {
                     queryStringQueryBuilders[index] = new KeyedFilter(property.getName(),
                             getSimpleQueryStringBuilder(text, fields));
@@ -1101,7 +1152,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
                             Map<String, HighlightField> highlightFields = searchHit.getHighlightFields();
                             Map<String, String> demEsHighlightFields = new HashMap<>();
-                            updateHighLightedField(highlightFields, demEsHighlightFields, false, false);
+                            updateHighLightedField(highlightFields, demEsHighlightFields, false, false, false);
 
                             Map<String, SearchHits> innerHits = searchHit.getInnerHits();
 
@@ -1113,19 +1164,12 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                                         DocumentField typeField = searchInnerHit.field(DemandeFileEsDTO.TYPE_FIELD);
                                         String type = typeField.getValue();
 
-                                        boolean isInternalFile = false;
-                                        boolean isComplement = false;
-
-                                        if (type.equals(DemandeFileEsDTO.TYPE.FICHIER_INTERNE.name())) {
-                                            isInternalFile = true;
-                                            isComplement = false;
-                                        } else if (type.equals(DemandeFileEsDTO.TYPE.COMPLEMENT.name())) {
-                                            isInternalFile = false;
-                                            isComplement = true;
-                                        }
+                                        boolean isInternalFile = type.equals(DemandeFileEsDTO.TYPE.FICHIER_INTERNE.name());
+                                        boolean isComplement = type.equals(DemandeFileEsDTO.TYPE.COMPLEMENT.name());
+                                        boolean isCourrier = type.equals(DemandeFileEsDTO.TYPE.COURRIER.name());
 
                                         updateHighLightedField(searchInnerHit.getHighlightFields(),
-                                                demEsHighlightFields, isInternalFile, isComplement);
+                                                demEsHighlightFields, isInternalFile, isComplement, isCourrier);
                                     }
                                 }
                             }
@@ -1164,7 +1208,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      *            Boolean pour indiquer si on recherche dans les champs d'un fichier de type complement
      */
     private void updateHighLightedField(Map<String, HighlightField> highlightFields,
-            Map<String, String> demEsHighlightFields, boolean isInternalFile, boolean isComplement) {
+            Map<String, String> demEsHighlightFields, boolean isInternalFile, boolean isComplement, boolean isCourrier) {
         for (Entry<String, HighlightField> entry : highlightFields.entrySet()) {
             Text[] fragments = entry.getValue().fragments();
             if (fragments != null && fragments.length > 0) {
@@ -1185,6 +1229,8 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
                 if (isComplement) {
                     fragmentField = fragmentField.insert(0, FILE_COMPLEMENT_HIGHLIGHT_AND_FACET_PREFIX);
+                } else if (isCourrier) {
+                    fragmentField = fragmentField.insert(0, COURRIER_FILE_HIGHLIGHT_AND_FACET_PREFIX);
                 } else if (isInternalFile) {
                     fragmentField = fragmentField.insert(0, INTERNAL_FILE_HIGHLIGHT_AND_FACET_PREFIX);
                 }
@@ -1375,6 +1421,10 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                 } else if (searchField.startsWith(INTERNAL_FILE_HIGHLIGHT_AND_FACET_PREFIX)) {
                     replacedSearchField = searchField.replaceFirst(INTERNAL_FILE_HIGHLIGHT_AND_FACET_PREFIX, "");
                     tqb = termQuery(DemandeFileEsDTO.TYPE_FIELD, DemandeFileEsDTO.TYPE.FICHIER_INTERNE.name());
+                    boolQueryBuilder.must(hasChildQuery(DemandeFileEsDTO.INDEX_FILES_JOIN_DOC, tqb, ScoreMode.Avg));
+                } else if (searchField.startsWith(COURRIER_FILE_HIGHLIGHT_AND_FACET_PREFIX)) {
+                    replacedSearchField = searchField.replaceFirst(COURRIER_FILE_HIGHLIGHT_AND_FACET_PREFIX, "");
+                    tqb = termQuery(DemandeFileEsDTO.TYPE_FIELD, DemandeFileEsDTO.TYPE.COURRIER.name());
                     boolQueryBuilder.must(hasChildQuery(DemandeFileEsDTO.INDEX_FILES_JOIN_DOC, tqb, ScoreMode.Avg));
                 }
                 replacedSearchFields.add(replacedSearchField);

@@ -21,7 +21,7 @@ import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.itg.mail.MailTemplateModelProvider;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.backweb.controller.AbstractController;
-import mc.gouv.xaf.backweb.formbean.MailPreviewFormBean;
+import mc.gouv.xaf.backweb.formbean.PreviewFormBean;
 
 /**
  * 
@@ -53,7 +53,7 @@ public class MailPreviewController extends AbstractController {
 
 	private ModelAndView buildMailPreview(String action, String codeMotifChoisi, Integer pkDemande, String commentaire)
 			throws Exception {
-		Entry<String, String> templateCodes = mailTemplateModelProvider.getMailTemplateCodesForAction(action);
+		Entry<String, String> templateCodes = mailTemplateModelProvider.getMailTemplateCodesForAction(action, pkDemande);
 		String bodyTemplateCode = templateCodes.getKey();
 		String subjectTemplateCode = templateCodes.getValue();
 
@@ -76,7 +76,7 @@ public class MailPreviewController extends AbstractController {
 	}
 
 	@RequestMapping(method = RequestMethod.POST, consumes = "application/json")
-	public ModelAndView mailpreview(@Valid @RequestBody MailPreviewFormBean mailPreviewFormBean) throws Exception {
+	public ModelAndView mailpreview(@Valid @RequestBody PreviewFormBean mailPreviewFormBean) throws Exception {
 
 		String action = mailPreviewFormBean.getAction();
 		String codeMotifChoisi = mailPreviewFormBean.getCodeMotifChoisi();

@@ -22,8 +22,8 @@ $(document).ready(function() {
 					var fragmentCategory = default_category
 					if (recherche_libelles.get(fragment)) {
 						var fragmentLabels = recherche_libelles.get(fragment)
-						fragmentLabel = escapeHtml(escapeHtml(fragmentLabels.libelle))
-						fragmentCategory = escapeHtml(escapeHtml(fragmentLabels.categorie))
+						fragmentLabel = escapeHtml(fragmentLabels.libelle)
+						fragmentCategory = escapeHtml(fragmentLabels.categorie)
 
 					}
 
@@ -146,7 +146,7 @@ $(document).ready(function() {
 						libelle = recherche_libelles.get(facetName).libelle
 					}
 					
-					categoryId = categoryId.replace(/'/g,"").replace(/\(|\)/g, "");
+					categoryId = categoryId.replace(/('|;|&|\/|\(|\))/g,"");
 
 					if (!categories[categoryId]) {
 						var newfacetCategoryDiv = $("#facetCategory").clone();

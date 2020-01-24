@@ -78,6 +78,29 @@ public class DemandesDataServiceImpl implements DemandesDataService {
 
 		return DemandesDataTransformer.bo2Dto(demandesDatasBo);
 	}
+	
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<DemandeDataDTO> getDemandeDatasByKeyAndValue(String key, String value) {
+        LOGGER.info("Récupération en base des IDs des demandes...");
+        List<DemandesDataBO> demandesDatasBo = demandesDataRepository.findByKeyAndValue(key, value);
+        LOGGER.info("Transformation bo -> dto ...");
+        return DemandesDataTransformer.bo2Dto(demandesDatasBo);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<DemandeDataDTO> getDemandeDatasByKeyAndValueAndfkDemandes(String key, String value,
+            List<DemandeBO> demandeIds) {
+        LOGGER.info("Récupération en base des IDs des demandes...");
+        List<DemandesDataBO> demandesDatasBo = demandesDataRepository.findByKeyAndValueAndFkDemandesIn(key, value, demandeIds);
+        LOGGER.info("Transformation bo -> dto ...");
+        return DemandesDataTransformer.bo2Dto(demandesDatasBo);
+    }
 
 	/**
 	 * {@inheritDoc}
@@ -150,6 +173,18 @@ public class DemandesDataServiceImpl implements DemandesDataService {
 		LOGGER.info("Transformation bo -> dto ...");
 
 		return DemandesDataTransformer.bo2Dto(demandesDataBo);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public DemandeDataDTO updateDemandeData(DemandeDataDTO dataDTO) {
+	    DemandesDataBO dataBO = DemandesDataTransformer.dto2Bo(dataDTO);
+	    DemandeBO demande = new DemandeBO();
+	    demande.setPkDemandes(dataDTO.getDemandeId());
+	    dataBO.setFkDemandes(demande);
+	    dataBO = demandesDataRepository.save(dataBO);
+	    return DemandesDataTransformer.bo2Dto(dataBO);
 	}
 
 	/**

@@ -1,0 +1,217 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	class="no-js sidebar-left-collapsed" lang="fr" dir="ltr">
+
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="x-ua-compatible" content="ie=edge" />
+<meta name="viewport"
+	content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+<meta name="description" content="" />
+<meta name="author" content="" />
+<meta th:name="_csrf" th:content="${_csrf.token}" />
+<meta th:name="_csrf_header" th:content="${_csrf.headerName}" />
+
+
+
+
+
+<title th:text="${titre}"></title>
+
+<!-- Import FONTS -->
+<link th:href="@{/webjars/xcb-wlib/fonts/style.css}" rel="stylesheet" />
+<!--[if lt IE 8]><!-->
+<link rel="stylesheet" th:href="@{/webjars/xcb-wlib/fonts/ie7/ie7.css}" />
+
+<!-- Import CSS -->
+<link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"
+	rel="stylesheet" type="text/css" />
+<link th:href="@{/webjars/xcb-wlib/css/template.css}" rel="stylesheet" />
+<link th:href="@{/webjars/xcb-wlib/css/sidebar.css}" rel="stylesheet" />
+<link th:href="@{/webjars/xcb-wlib/css/element.css}" rel="stylesheet" />
+<link th:href="@{/webjars/datatables/css/dataTables.bootstrap.css}"
+	rel="stylesheet" />
+<link rel="stylesheet"
+	th:href="@{/webjars/fancybox/jquery.fancybox.css}" />
+<link rel="shortcut icon" type="image/x-icon"
+	th:href="@{/img/favicon.ico}" />
+<link th:href="@{/css/tsgen.css(${applicationBuildTimestamp})}"
+	rel="stylesheet" />
+<link th:href="@{/css/tsdem.css(${applicationBuildTimestamp})}"
+	rel="stylesheet" />
+
+
+</head>
+
+<body th:with="pageConfigurationActive='active'">
+
+	<div th:replace="fragments/header :: header" />
+
+	<div id="wrapper">
+
+		<div th:replace="fragments/sidebar :: sidebar" />
+
+		<!-- DEBUT CONTENU -->
+		<div id="page-content-wrapper">
+
+
+			<div class="breadcrumbContent">
+				<div class="breadcrumb">
+					<span> <a th:href="@{/}" class="breadcrumb-item active">Accueil</a>&nbsp;&gt;&nbsp;
+						<a th:href="@{/gestion/modeles}"
+						class="breadcrumb-item active">MODÈLES</a> &gt;
+					</span>
+				</div>
+				<div class="triangleTopright"></div>
+			</div>
+
+			<div class="container-fluid">
+				<h2 class="col-xs-12 col-md-12">Administration des modèles</h2>
+
+
+					<ul class="nav nav-tabs" role="tablist">
+						<li class="active"><a href="#tab1" aria-controls="tab1"
+											  role="tab" data-toggle="tab">COURRIERS</a></li>
+						<li><a href="#tab2" aria-controls="tab2" role="tab"
+							   data-toggle="tab">JUSTIFICATIFS
+						</a></li>
+						<li><a href="#tab3" aria-controls="tab3" role="tab"
+							   data-toggle="tab">EXPORT EXCEL
+						</a></li>
+					</ul>
+					<!-- Tab panes -->
+					<div class="tab-content">
+						<div role="tabpanel" class="tab-pane active" id="tab1">
+							<div th:each="courrier : ${courriers}">
+								<form name="form1" method="POST" enctype="multipart/form-data" th:action="@{/gestion/modeles/valider}+'?'+${_csrf.parameterName}+'='+${_csrf.token}">
+									<div class="sectiondemande">
+										<h2>Modèle <span th:text="${courrier.name}"></span></h2>
+										<div class="row">
+											<div class="col-xs-12 col-md-12">
+												<span>Dernière modification : </span><span th:text="${#dates.format(courrier.dateCreation,'dd/MM/yyyy HH:mm:ss')}"></span>
+											</div>
+										</div>
+										<br/>
+										<div class="row">
+											<div class="col-xs-12 col-md-12">
+												<a id="voirModele" class="btn btn-action ripple-effect" th:href="@{/gestion/modeles/get/}+${courrier.name}"><span class="icon-action_voir"></span>&nbsp;&nbsp;Voir le modèle</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+												<a id="choisirModele" class="btn btn-action ripple-effect"><input class="multiple-file-input" id="fileInput" type="file" name="fileToUpload" th:data="${courrier.name}">&nbsp;&nbsp;Test</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+												<input type="submit" value="Valider le nouveau modèle" class="btn btn-action ripple-effect" id="envoyer-button" th:data="${courrier.name}" disabled="disabled"/>
+												<input type="hidden" name="filename" th:value="${courrier.name}" />
+												<input type="hidden" name="typeModele" value="COURRIER" />
+											</div>
+										</div>
+									</div>
+								</form>
+							</div>
+						</div>
+						<div role="tabpanel" class="tab-pane" id="tab2">
+							<div th:each="justificatif : ${justificatifs}">
+								<form name="form1" method="POST" enctype="multipart/form-data" th:action="@{/gestion/modeles/valider}+'?'+${_csrf.parameterName}+'='+${_csrf.token}">
+									<div class="sectiondemande">
+										<h2>Modèle <span th:text="${justificatif.name}"></span></h2>
+										<div class="row">
+											<div class="col-xs-12 col-md-12">
+												<span>Dernière modification : </span><span th:text="${#dates.format(justificatif.dateCreation,'dd/MM/yyyy HH:mm:ss')}"></span>
+											</div>
+										</div>
+										<br/>
+										<div class="row">
+											<div class="col-xs-12 col-md-12">
+												<a id="voirModele" class="btn btn-action ripple-effect" th:href="@{/gestion/modeles/get/}+${justificatif.name}"><span class="icon-action_voir"></span>&nbsp;&nbsp;Voir le modèle</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+												<a id="choisirModele" class="btn btn-action ripple-effect"><input class="multiple-file-input" id="fileInput" type="file" name="fileToUpload" th:data="${justificatif.name}">&nbsp;&nbsp;Test</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+												<input type="submit" value="Valider le nouveau modèle" class="btn btn-action ripple-effect" id="envoyer-button" th:data="${justificatif.name}" disabled="disabled"/>
+												<input type="hidden" name="filename" th:value="${justificatif.name}" />
+												<input type="hidden" name="typeModele" value="JUSTIFICATIF" />
+											</div>
+										</div>
+									</div>
+								</form>
+							</div>
+						</div>
+						<div role="tabpanel" class="tab-pane" id="tab3">
+							<form name="form1" method="POST" enctype="multipart/form-data" th:action="@{/gestion/modeles/valider}+'?'+${_csrf.parameterName}+'='+${_csrf.token}">
+								<div class="sectiondemande">
+									<h2>Modèle <span th:text="${exportExcel.name}"></span></h2>
+									<div class="row">
+										<div class="col-xs-12 col-md-12">
+											<span>Dernière modification : </span><span th:text="${#dates.format(exportExcel.dateCreation,'dd/MM/yyyy HH:mm:ss')}"></span>
+										</div>
+									</div>
+									<br/>
+									<div class="row">
+										<div class="col-xs-12 col-md-12">
+											<a id="voirModele" class="btn btn-action ripple-effect" th:href="@{/gestion/modeles/get/}+${exportExcel.name}"><span class="icon-action_voir"></span>&nbsp;&nbsp;Voir le modèle</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+											<a id="choisirModele" class="btn btn-action ripple-effect"><input class="multiple-file-input" id="fileInput" type="file" name="fileToUpload" th:data="${exportExcel.name}">&nbsp;&nbsp;Test</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+											<input type="submit" value="Valider le nouveau modèle" class="btn btn-action ripple-effect" id="envoyer-button" th:data="${exportExcel.name}" disabled="disabled"/>
+											<input type="hidden" name="filename" th:value="${exportExcel.name}" />
+											<input type="hidden" name="typeModele" value="EXPORT_EXCEL" />
+										</div>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				
+
+			</div>
+
+			<input type="hidden" href="javascript:void(0);" data-type="success"
+				data-delay="5000" data-message="" id="successMessage"
+				class="notification" /> <input type="hidden"
+				href="javascript:void(0);" data-type="danger" data-delay="0"
+				data-message="" id="errorMessage" class="notification" />
+
+
+			<!-- FIN CONTENU -->
+		</div>
+
+
+
+		<div th:replace="fragments/footer :: footer" />
+		<script th:src="@{/js/tsadminjobs.js(${applicationBuildTimestamp})}"></script>
+		
+		<script th:inline="javascript">
+		
+			/*<![CDATA[*/
+
+			$(document).ready(function() {
+
+				var messagesSuccessList = /*[[${successMessages}]]*/'default';
+		
+				if (messagesSuccessList !== 'undefined' && messagesSuccessList !== null) {
+					$.each(messagesSuccessList, function(key, msg) {
+						$.notify({
+							message: msg
+						},{
+							type: 'success'
+						});
+					});
+				}
+		
+				var messagesErrorList = /*[[${errorMessages}]]*/'default';
+		
+				if (messagesErrorList !== 'undefined' && messagesErrorList !== null) {
+					$.each(messagesErrorList, function(key, msg) {
+						$.notify({
+							message: msg
+						},{
+							type: 'danger'
+						});
+					});
+				}
+				
+				$('.multiple-file-input').change(function() {
+					var data = this.getAttribute('data');
+					var button = $("input[data='" + data + "'][type='submit']");
+					button.prop('disabled', !button.attr('disabled'));
+				  });
+				
+			});
+			
+			/*]]>*/
+		</script>
+
+</body>
+</html>

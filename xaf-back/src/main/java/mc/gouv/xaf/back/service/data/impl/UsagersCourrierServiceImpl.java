@@ -49,22 +49,22 @@ public class UsagersCourrierServiceImpl implements UsagersCourrierService {
 
     @Autowired
     private UsagersCourrierRepository usagersCourrierRepository;
-    
+
     @Autowired
     private DemandesRepository demandesRepository;
 
     @Autowired
     private AccessService accessService;
-    
+
     @Autowired
     private AccessRepository accessRepository;
-    
+
     @Autowired
     private DemandesService demandesService;
 
     @Autowired
     private EntityManager em;
-    
+
     @Autowired
     private DemarchesService demarchesService;
 
@@ -76,17 +76,19 @@ public class UsagersCourrierServiceImpl implements UsagersCourrierService {
 
         LOGGER.info("Récupération en base de l'usager courrier...");
 
-        UsagersCourrierBO usagersCourrierBO = usagersCourrierRepository.findByDemarcheIdAndPkUsagersCourrier(demarcheId, pkUsagersCourrier);
+        UsagersCourrierBO usagersCourrierBO = usagersCourrierRepository.findByDemarcheIdAndPkUsagersCourrier(demarcheId,
+                pkUsagersCourrier);
 
         if (usagersCourrierBO == null) {
             return null;
         }
-        
+
         LOGGER.info("Transformation bo -> dto ...");
         UsagerCourrierDTO usagerCourrierDto = UsagerCourrierTransformer.bo2Dto(usagersCourrierBO);
-        
+
         LOGGER.info("Récupération du nombre de demandes effectuées par cet usager courrier...");
-        Integer nbDemandes = demandesRepository.getNbDemandesForUsager(usagersCourrierBO.getDemarcheId(), usagersCourrierBO.getPkUsagersCourrier());
+        Integer nbDemandes = demandesRepository.getNbDemandesForUsager(usagersCourrierBO.getDemarcheId(),
+                usagersCourrierBO.getPkUsagersCourrier());
         usagerCourrierDto.setNbDemandes(nbDemandes);
 
         return usagerCourrierDto;
@@ -114,14 +116,20 @@ public class UsagersCourrierServiceImpl implements UsagersCourrierService {
             List<Predicate> predicats = new ArrayList<Predicate>();
             String[] mots = query.split(" ");
             for (String mot : mots) {
-                Predicate nom = builder.like(builder.lower(root.<String> get("nom")), "%" + mot.toLowerCase() + "%");
-                Predicate prenom = builder.like(builder.lower(root.<String> get("prenom")),
-                        "%" + mot.toLowerCase() + "%");
-                Predicate raisonSociale = builder.like(builder.lower(root.<String> get("raisonSociale")),
-                        "%" + mot.toLowerCase() + "%");
+                String pattern = "%" + mot.toLowerCase() + "%";
+                Predicate nom = builder.like(builder.lower(root.<String> get("nom")), pattern);
+                Predicate prenom = builder.like(builder.lower(root.<String> get("prenom")), pattern);
+                Predicate raisonSociale = builder.like(builder.lower(root.<String> get("raisonSociale")), pattern);
+                Predicate adresse1 = builder.like(builder.lower(root.<String> get("adresse1")), pattern);
+                Predicate adresse2 = builder.like(builder.lower(root.<String> get("adresse2")), pattern);
+                Predicate adresseComplement = builder.like(builder.lower(root.<String> get("adresseComplement")),
+                        pattern);
                 predicats.add(nom);
                 predicats.add(prenom);
                 predicats.add(raisonSociale);
+                predicats.add(adresse1);
+                predicats.add(adresse2);
+                predicats.add(adresseComplement);
             }
             cquery.where(builder.and(isDemarche));
             cquery.where(builder.or(predicats.toArray(new Predicate[predicats.size()])));
@@ -130,13 +138,14 @@ public class UsagersCourrierServiceImpl implements UsagersCourrierService {
 
         LOGGER.info("Transformation bo -> dto ...");
         List<UsagerCourrierDTO> usagersCourrier = UsagerCourrierTransformer.bo2Dto(usagersCourrierBos);
-        
+
         LOGGER.info("Récupération du nombre de demandes effectuées par les usagers courrier...");
         for (UsagerCourrierDTO uc : usagersCourrier) {
-            Integer nbDemandes = demandesRepository.getNbDemandesForUsager(uc.getDemarcheId(), uc.getPkUsagersCourrier());
+            Integer nbDemandes = demandesRepository.getNbDemandesForUsager(uc.getDemarcheId(),
+                    uc.getPkUsagersCourrier());
             uc.setNbDemandes(nbDemandes);
         }
-        
+
         return usagersCourrier;
     }
 
@@ -164,7 +173,7 @@ public class UsagersCourrierServiceImpl implements UsagersCourrierService {
 
         // Vérification préalable de l'existence de la démarche indiquée
         demarchesService.getCheckDemarche(demarcheId);
-        
+
         usagerCourrier.setDemarcheId(demarcheId);
 
         LOGGER.info("Transformation dto -> bo");
@@ -187,7 +196,9 @@ public class UsagersCourrierServiceImpl implements UsagersCourrierService {
 
         LOGGER.info("Création de l'access pour l'usager Courrier");
         if (usagerCourrier.getAccessContenu() == null || usagerCourrier.getAccessContenu() instanceof NullNode) {
-            throw new DemarchesServiceException("Erreur : lors de la création d'un usager courrier, le champ accessContenu doit être rempli", HttpStatus.BAD_REQUEST);
+            throw new DemarchesServiceException(
+                    "Erreur : lors de la création d'un usager courrier, le champ accessContenu doit être rempli",
+                    HttpStatus.BAD_REQUEST);
         }
         accessDTO.setContenu(usagerCourrier.getAccessContenu());
         accessDTO.setDemarcheId(demarcheId);
@@ -208,7 +219,8 @@ public class UsagersCourrierServiceImpl implements UsagersCourrierService {
 
         LOGGER.info("Récupération en base de l'usager courrier...");
 
-        UsagersCourrierBO usagerCourrierBo = usagersCourrierRepository.findByDemarcheIdAndPkUsagersCourrier(demarcheId, usagerCourrier.getPkUsagersCourrier());
+        UsagersCourrierBO usagerCourrierBo = usagersCourrierRepository.findByDemarcheIdAndPkUsagersCourrier(demarcheId,
+                usagerCourrier.getPkUsagersCourrier());
 
         if (usagerCourrierBo == null) {
             throw new DemarchesServiceException("Usager courrier introuvable", HttpStatus.NOT_FOUND);
@@ -250,7 +262,8 @@ public class UsagersCourrierServiceImpl implements UsagersCourrierService {
 
         LOGGER.info("Récupération en base de l'usager courrier...");
 
-        UsagersCourrierBO usagerCourrierBo = usagersCourrierRepository.findByDemarcheIdAndPkUsagersCourrier(demarcheId, pkUsagersCourrier);
+        UsagersCourrierBO usagerCourrierBo = usagersCourrierRepository.findByDemarcheIdAndPkUsagersCourrier(demarcheId,
+                pkUsagersCourrier);
 
         if (usagerCourrierBo == null) {
             throw new DemarchesServiceException("Usager courrier introuvable", HttpStatus.NOT_FOUND);
@@ -267,33 +280,36 @@ public class UsagersCourrierServiceImpl implements UsagersCourrierService {
     @Override
     public void transferer(String demarcheId, Integer usagerCourrierSourceId, Integer usagerCourrierCibleId,
             List<Integer> demandeIds) {
-        
+
         LOGGER.info("Récupération de l'accès cible...");
 
         AccessBO accesCible = accessService.getAccessBO(demarcheId, usagerCourrierCibleId);
-        
+
         if (accesCible == null) {
-            throw new DemarchesServiceException("L'accès correspondant à l'usager courrier cible " + usagerCourrierCibleId +
-                    " n'existe pas.", HttpStatus.NOT_FOUND);
+            throw new DemarchesServiceException(
+                    "L'accès correspondant à l'usager courrier cible " + usagerCourrierCibleId + " n'existe pas.",
+                    HttpStatus.NOT_FOUND);
         }
-        
+
         for (Integer demandeId : demandeIds) {
-            
-            LOGGER.info("Transfert de la demande " + demandeId + " de l'usager courrier source " + usagerCourrierSourceId +
-                    " vers l'usager courrier cible " + usagerCourrierCibleId + "...");
-            
+
+            LOGGER.info("Transfert de la demande " + demandeId + " de l'usager courrier source "
+                    + usagerCourrierSourceId + " vers l'usager courrier cible " + usagerCourrierCibleId + "...");
+
             DemandeBO demande = demandesService.getCheckDemarcheDemandeBO(demarcheId, demandeId, true);
             AccessBO accesSource = demande.getFkAccess();
             if (!accesSource.getUsagerId().equals(usagerCourrierSourceId)) {
-                throw new DemarchesServiceException("La demande " + demande.getPkDemandes() + " ne correspond pas à l'usager courrier source spécifié "
-                        + usagerCourrierSourceId, HttpStatus.BAD_REQUEST);
+                throw new DemarchesServiceException(
+                        "La demande " + demande.getPkDemandes()
+                                + " ne correspond pas à l'usager courrier source spécifié " + usagerCourrierSourceId,
+                        HttpStatus.BAD_REQUEST);
             }
             accesSource.getDemandes().remove(demande);
             accessRepository.save(accesSource);
             demande.setFkAccess(accesCible);
             demandesRepository.save(demande);
         }
-        
+
     }
 
 }

@@ -54,17 +54,16 @@
         <!-- DEBUT CONTENU -->
         <div id="page-content-wrapper">
 
-            <div class="breadcrumbContent">
-                <div class="breadcrumb">
-						<span> <a th:href="@{/}" class="breadcrumb-item">ACCUEIL</a>&nbsp;&gt;&nbsp;
-							<a th:href="@{/gestion/indicateurs}" class="breadcrumb-item">INDICATEURS</a>
-							&gt;
-						</span>
-                </div>
-                <div class="triangleTopright"></div>
-            </div>
+				<div class="breadcrumbContent">
+					<div class="breadcrumb">
+						<a id="ariane0" th:href="@{/}" class="breadcrumb-item">ACCUEIL</a>&nbsp;&gt;&nbsp;
+						<a id="ariane1" th:href="@{/gestion/indicateurs}"
+							class="breadcrumb-item">INDICATEURS</a> &gt;
+					</div>
+					<div class="triangleTopright"></div>
+				</div>
 
-            <div class="container-fluid">
+				<div class="container-fluid">
                 <div class="text-center">
                     <h1>Export Excel des demandes</h1>
                 </div>

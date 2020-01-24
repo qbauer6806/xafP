@@ -253,7 +253,9 @@ public class AfBackUtils {
 
     public MailClient getMailClient() {
         if (mailClient == null) {
-            mailClient = new MailClient(gouvPropertiesResolver.getMailUrl(), gouvPropertiesResolver.getMailJwt());
+            String mailUrl = gouvPropertiesResolver.getMailUrl();
+            String mailJwt = gouvPropertiesResolver.getMailJwt();
+            mailClient = new MailClient(mailUrl, mailJwt);
         }
         return mailClient;
     }

@@ -3,6 +3,7 @@ package mc.gouv.xaf.back.service.data;
 import java.util.List;
 import java.util.Map;
 
+import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.shared.dto.DemandeDataDTO;
 
 /**
@@ -28,6 +29,24 @@ public interface DemandesDataService {
     public List<DemandeDataDTO> getDemandeDatas(String demarcheId, Integer demandeId);
 
     /**
+     * Permet de récupérer les data des demandes associées au couple key / value 
+     * @param key
+     * @param value
+     * @return Les données de demande associées
+     */
+    public List<DemandeDataDTO> getDemandeDatasByKeyAndValue(String key, String value);
+
+    /**
+     * Permet de récupérer les data associées au couple key / value parmis la liste donnée
+     * @param key
+     * @param value
+     * @param demandes
+     * @return
+     */
+    public List<DemandeDataDTO> getDemandeDatasByKeyAndValueAndfkDemandes(String key, String value,
+            List<DemandeBO> demandes);
+
+    /**
      * Permet de sauvegarder ou mettre à jour une donnée de demande en base
      * @param demandeData
      * @return La donnée de demande sauvegardée ou mise à jour
@@ -35,6 +54,13 @@ public interface DemandesDataService {
      */
     public DemandeDataDTO saveOrUpdateDemandeData(String demarcheId, Integer demandeId, String key, String value)
             throws Exception;
+    
+    /**
+     * Permet de mettre à jour en base une donnée de demande
+     * @param dataDTO
+     * @return la donnée mise à jour
+     */
+    public DemandeDataDTO updateDemandeData(DemandeDataDTO dataDTO);
 
     /**
      * Permet de supprimer une donnée de demande à partir du DemandeID et de sa clé

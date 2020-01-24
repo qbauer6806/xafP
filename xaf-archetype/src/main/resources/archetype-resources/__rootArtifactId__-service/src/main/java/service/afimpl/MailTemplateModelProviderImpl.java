@@ -3,21 +3,11 @@
 #set( $symbol_escape = '\' )
 package ${groupId}.service.afimpl;
 
-import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
-import mc.gouv.xaf.back.cache.MotifsCache;
-import mc.gouv.xaf.back.cache.UsagersCache;
-import mc.gouv.xaf.back.mail.MailTemplateModelProvider;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.util.AfBackUtils;
-import mc.gouv.dem.shared.model.DemandeDTO;
-import mc.gouv.dem.shared.model.MotifDTO;
-import ${groupId}.shared.dto.${artifactIdCamelCase}DemandeStatutEnum;
-import ${groupId}.shared.dto.${artifactIdCamelCase}TemplateEnum;
-import ${groupId}.shared.exception.${artifactIdCamelCase}Exception;
-import ${groupId}.shared.model.v1568884433537.ContenuProjectDemandeDTO;
-import ${groupId}.shared.util.${artifactIdCamelCase}Utils;
-import mc.gouv.logon.apiclient.RestException;
-import mc.gouv.servicerest.usager.model.UsagerBean;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,10 +16,21 @@ import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.AbstractMap.SimpleEntry;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
+import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.itg.mail.MailTemplateModelProvider;
+import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
+import mc.gouv.xaf.back.service.motifs.MotifsCache;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.MotifDTO;
+import ${groupId}.shared.enums.${artifactIdCamelCase}DemandeStatutEnum;
+import ${groupId}.shared.enums.${artifactIdCamelCase}TemplateEnum;
+import ${groupId}.shared.exception.${artifactIdCamelCase}Exception;
+import ${groupId}.shared.model.v1573825612706.ContenuProjectDemandeDTO;
+import ${groupId}.shared.util.${artifactIdCamelCase}Utils;
+import mc.gouv.logon.apiclient.RestException;
+import mc.gouv.servicerest.usager.model.UsagerBean;
 
 /**
  * 
@@ -78,7 +79,7 @@ public class MailTemplateModelProviderImpl implements MailTemplateModelProvider 
         model.put("identifiant", demande.getIdentifiant());
 
         if (!StringUtils.isBlank(codeMotif) && !"null".equals(codeMotif)) {
-            MotifDTO motif = motifsCache.getMotif(codeMotif, "fr");
+            MotifDTO motif = motifsCache.getMotif(codeMotif, demande.getLangue());
             if (motif == null) {
                 throw new ${artifactIdCamelCase}Exception(
                         "Impossible de trouver le motif pour le code : " + codeMotif + " et la langue : " + demande.getLangue());
@@ -117,13 +118,13 @@ public class MailTemplateModelProviderImpl implements MailTemplateModelProvider 
     }
 
     @Override
-    public Entry<String, String> getMailTemplateCodesForAction(String action) {
+    public Entry<String, String> getMailTemplateCodesForAction(String action, Integer pkDemande) {
         String bodyTemplateCode = null;
         String subjectTemplateCode = null;
         
-        if (action.equals(${artifactIdCamelCase}DemandeStatutEnum.ACCORDEE.name())) {
-            bodyTemplateCode = ${artifactIdCamelCase}TemplateEnum.MAIL_ACTION_ACCORDEE_CORPS.name();
-            subjectTemplateCode = ${artifactIdCamelCase}TemplateEnum.MAIL_ACTION_ACCORDEE_OBJET.name();
+        if (action.equals(${artifactIdCamelCase}DemandeStatutEnum.VALIDEE.name())) {
+            bodyTemplateCode = ${artifactIdCamelCase}TemplateEnum.MAIL_ACTION_VALIDEE_CORPS.name();
+            subjectTemplateCode = ${artifactIdCamelCase}TemplateEnum.MAIL_ACTION_VALIDEE_OBJET.name();
         } else if (action.equals(${artifactIdCamelCase}DemandeStatutEnum.REFUSEE.name())) {
             bodyTemplateCode = ${artifactIdCamelCase}TemplateEnum.MAIL_ACTION_REFUSER_CORPS.name();
             subjectTemplateCode = ${artifactIdCamelCase}TemplateEnum.MAIL_ACTION_REFUSER_OBJET.name();

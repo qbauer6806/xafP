@@ -45,12 +45,12 @@
 		<div id="page-content-wrapper">
 
 			<div class="breadcrumbContent">
-				<ol class="breadcrumb">
-					<span class="breadcrumb-item active"><a th:href="@{/}"
-						class="breadcrumb-item">Accueil</a>&nbsp;&gt;&nbsp;<a
-						th:href="@{/gestion/utilisateurs}" class="breadcrumb-item">Utilisateurs</a>
-						&gt;</span>
-				</ol>
+				<div class="breadcrumb">
+					<span class="breadcrumb-item active"><a id="ariane0"
+						th:href="@{/}" class="breadcrumb-item">Accueil</a>&nbsp;&gt;&nbsp;<a
+						id="ariane1" th:href="@{/gestion/utilisateurs}"
+						class="breadcrumb-item">Utilisateurs</a> &gt;</span>
+				</div>
 				<div class="triangleTopright"></div>
 			</div>
 
@@ -80,7 +80,6 @@
 										<th>Etat</th>
 										<th>Rôle</th>
 										<th>Matricule</th>
-										<th>Opid</th>
 										<th>Nom</th>
 										<th>Service</th>
 									</tr>
@@ -90,7 +89,6 @@
 										<td th:text="${obj.getEtat()}"></td>
 										<td th:text="${obj.getRolesByAppli(demarcheId)}"></td>
 										<td th:text="${obj.getMatricule()}"></td>
-										<td th:text="${obj.getOpid()}"></td>
 										<td th:text="${obj.getNom()}"></td>
 										<td th:text="${obj.getService()}"></td>
 									</tr>

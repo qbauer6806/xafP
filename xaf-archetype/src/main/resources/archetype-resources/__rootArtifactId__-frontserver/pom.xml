@@ -54,7 +54,7 @@
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <manifestEntries>
-                                        <Main-Class>mc.gouv.${tscode}.frontserver.App</Main-Class>
+                                        <Main-Class>mc.gouv.${artifactId}.frontserver.App</Main-Class>
                                         <Class-Path>resources/</Class-Path>
                                     </manifestEntries>
                                 </transformer>
@@ -92,8 +92,9 @@
     </build>
 
     <scm>
-        <connection>scm:svn:http://linuxic/jsrc/super-pom-java7/tags/${tscode}-0.0.1/${tscode}-frontserver</connection>
-        <developerConnection>scm:svn:http://linuxic/jsrc/super-pom-java7/tags/${tscode}-0.0.1/${tscode}-frontserver</developerConnection>
-        <url>http://linuxic/jsrc/super-pom-java7/tags/${tscode}-0.0.1/${tscode}-frontserver</url>
-    </scm>
+        <connection>scm:svn:http://linuxic/jsrc/super-pom-java7/tags/${artifactId}-0.0.1/${artifactId}-frontserver</connection>
+        <developerConnection>scm:svn:http://linuxic/jsrc/super-pom-java7/tags/${artifactId}-0.0.1/${artifactId}-frontserver</developerConnection>
+        <url>http://linuxic/jsrc/super-pom-java7/tags/${artifactId}-0.0.1/${artifactId}-frontserver</url>
+      <tag>HEAD</tag>
+  </scm>
 </project>

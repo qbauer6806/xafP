@@ -9,7 +9,7 @@
             "action": "mcCharteTshiDebutEtape",
             "parameter": {
               "valueJson": {
-                "nomParcours": "${artifactIdLower}",
+                "nomParcours": "p1",
                 "nomParcoursAlternatif": "std",
                 "numeroEtape": 1,
                 "typeDonnee": "projectDemande"
@@ -21,7 +21,8 @@
             "action": "mcCharteTshiSauvegarderEtape",
             "parameter": {
               "valueJson": {
-                "redirection": "etape_derogation"
+                "noValidateTables": false,
+                "redirection": "etape_entreprise_accueil"
               },
               "valueType": "json"
             }
@@ -37,7 +38,7 @@
               "name": "mcCharteTshiDemandeRecap",
               "parameterValue": {
                 "valueJson": {
-                  "typeRecap": "infoDemandeUsager"
+                  "typeRecap": "projectDonneecontactRecap"
                 },
                 "valueType": "json"
               }
@@ -46,19 +47,20 @@
               "name": "mcCharteTshiFormSection",
               "parameterValue": {
                 "valueJson": {
-                  "introHtmlId": "ts.page.entreprise.InformationGenerale.introHTML",
-                  "titreId": "ts.page.entreprise.InformationsGenerale.title"
+                  "introHtmlId": "",
+                  "titreId": "ts.page.entreprise.entrepriseorigine.titre"
                 },
                 "valueType": "json"
               },
               "zones": [
                 {
+                  "$$hashKey": "object:29897",
                   "componentInstances": [
                     {
                       "name": "mcCharteTshiChamp",
                       "parameterValue": {
                         "valueJson": {
-                          "donneeRef": "page.demande@projectDemande.donneeEntrepriseNumerocar"
+                          "donneeRef": "page.demande@projectDemande.donneeEntreprisePaysoriginedetachement"
                         },
                         "valueType": "json"
                       }
@@ -67,7 +69,7 @@
                       "name": "mcCharteTshiChamp",
                       "parameterValue": {
                         "valueJson": {
-                          "donneeRef": "page.demande@projectDemande.donneeEntrepriseNom"
+                          "donneeRef": "page.demande@projectDemande.donneeEntrepriseorigineRaisonsociale"
                         },
                         "valueType": "json"
                       }
@@ -76,25 +78,7 @@
                       "name": "mcCharteTshiChamp",
                       "parameterValue": {
                         "valueJson": {
-                          "donneeRef": "page.demande@projectDemande.donneeEntrepriseRaisonsociale"
-                        },
-                        "valueType": "json"
-                      }
-                    },
-                    {
-                      "name": "mcCharteTshiChamp",
-                      "parameterValue": {
-                        "valueJson": {
-                          "donneeRef": "page.demande@projectDemande.donneeEntrepriseAdresse"
-                        },
-                        "valueType": "json"
-                      }
-                    },
-                    {
-                      "name": "mcCharteTshiChamp",
-                      "parameterValue": {
-                        "valueJson": {
-                          "donneeRef": "page.demande@projectDemande.donneeEntrepriseTelephone"
+                          "donneeRef": "page.demande@projectDemande.donneeEntrepriseorigineAdresse"
                         },
                         "valueType": "json"
                       }

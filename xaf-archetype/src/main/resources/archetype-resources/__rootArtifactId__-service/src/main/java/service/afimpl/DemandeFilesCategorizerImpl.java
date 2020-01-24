@@ -3,12 +3,13 @@
 #set( $symbol_escape = '\' )
 package ${groupId}.service.afimpl;
 
-import mc.gouv.xaf.back.dto.FileCategoryDTO;
 import mc.gouv.xaf.back.service.DemandeFilesCategorizer;
-import mc.gouv.dem.shared.model.DemandeComplementsDTO;
-import mc.gouv.dem.shared.model.DemandeComplementsFileDTO;
-import mc.gouv.dem.shared.model.DemandeDTO;
-import mc.gouv.dem.shared.model.DemandeFileDTO;
+import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
+import mc.gouv.xaf.shared.dto.DemandeComplementsFileDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeFileDTO;
+import mc.gouv.xaf.shared.dto.FileCategoryDTO;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 

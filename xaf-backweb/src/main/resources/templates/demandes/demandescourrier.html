@@ -50,10 +50,9 @@
 
 			<div class="breadcrumbContent">
 				<div class="breadcrumb">
-					<span> <a th:href="@{/}" class="breadcrumb-item active">ACCUEIL</a>&nbsp;&gt;&nbsp;
-						<a th:href="@{/demandes}" class="breadcrumb-item active">DEMANDES</a>
-						&gt; Nouvelle demande
-					</span>
+					<a id="ariane0" th:href="@{/}" class="breadcrumb-item active">ACCUEIL</a>&nbsp;&gt;&nbsp;
+					<a id="ariane1" th:href="@{/demandes}" class="breadcrumb-item active">DEMANDES</a>
+					&gt; Nouvelle demande
 				</div>
 				<div class="triangleTopright"></div>
 			</div>
@@ -77,7 +76,7 @@
 							</div>
 
 							<div align="right">
-								<a th:href="@{/gestion/usagers/creer}"
+								<a id="btnCreerUsager" th:href="@{/gestion/usagers/creer}"
 									class="btn btn-action ripple-effect"> <span
 									class="icon-action_plus"></span>&nbsp;&nbsp;Créer un usager
 									courrier

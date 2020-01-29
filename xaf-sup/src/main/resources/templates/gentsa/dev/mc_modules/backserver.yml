@@ -15,4 +15,3 @@ xmx: ${xmx}
 tags:
     - ${tscode}backapi
 java_extra_opts: -Dspring.profiles.active=gouv -Dfile.encoding=UTF-8 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/var/tmp/heap-dump/${tscode}-backserver/
-

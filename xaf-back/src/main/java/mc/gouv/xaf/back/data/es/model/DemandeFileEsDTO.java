@@ -14,7 +14,8 @@ public class DemandeFileEsDTO {
     public enum TYPE {
         PIECE_JOINTE,
         FICHIER_INTERNE,
-        COMPLEMENT
+        COMPLEMENT,
+        COURRIER
     }
 
     private Fichiers fichiers;

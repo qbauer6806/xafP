@@ -749,6 +749,10 @@
 											file="${global.generated.inventory.source.path}/host_vars/gentsa-frnt2-1.yml"
 											tofile="${global.generated.inventory.target.path}/host_vars/gentsa-frnt2-1.yml"
 											verbose="true" />
+										<move
+											file="${global.generated.inventory.source.path}/host_vars/linux-zabbix-proxyd1.yml"
+											tofile="${global.generated.inventory.target.path}/host_vars/linux-zabbix-proxyd1.yml"
+											verbose="true" />
 
 										<echo>Supression du repertoire
 											[${global.generated.source.dir}]

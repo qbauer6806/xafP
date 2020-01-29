@@ -1,34 +1,54 @@
-Ce projet de generer les scripts de RUN (ansible, propeerties etc...) qui seront utilises par Jenkins pendant le processus de deploiement d'un teleservice
-Comment �a marche ?
+Génération fichiers .yml et .properties pour le déploiement des téléservices
+-
 
-0. Un dossier 'template' est fourni pour chaque environnement DEV, REC et PROD
-Les exemples sont stockes dans <b>"\src\main\resources\templates\${tscode}-dev"</b> et <b>"\src\main\resources\templates\${tscode}-rec"</b>
-L'idee est de partir de ces fichiers, pour generer un ensemble de fichiers de la meme arboressence en rempla�ant partout ou nous avons ${var} par sa valeur qui sera definie dans un fichier "properties".
+Ce projet de générer les scripts de RUN (ansible, properties etc...) qui seront utilises par Jenkins pendant le processus de deploiement d'un teleservice
 
-Les template sont differents selon les environnements DEV, REC et PROD. 
+### Comment ça marche ? #
 
-1. Pour faciliter le travail, un dossier "nom-de-l'environnement" est cree est contient le template de fichier pour cet environnement. Par exemple, pour le DEV, les fichiers sont stocke dans  
-"src\main\resources\templates\dev", pour la REC, "src\main\resources\templates\rec" et pour la PROD, "src\main\resources\templates\prod"
+1. Un dossier `templates` est fourni pour chaque environnement DEV, REC et PROD. Par environnement, les templates sont différents. En effet, nous pouvons avoir besoin de certaines informations en PROD mais pas en REC et en DEV. Par exemple, le monitoring n'est pas géré par les mêmes serveurs zabbix en DEV, REC et PROD. 
+L'idée est de partir de ces fichiers, pour générer un ensemble de fichiers de la même arborescence en remplaçant partout ou nous avons ${variable} par sa valeur qui sera définie dans un fichier `properties`.
+Le fichier `properties` sera donne en argument à la commande `maven` qui lance le processus de génération.
 
 
-2. Pour chaque teleservice, il faut definir un certain nombre de variables pour completer le fichier des templates. Il sont stocke dans "src\main\resources\vars\${tscode}\${env}.properties". 
-Par exemple pour ${tscode}=derjfer, ${env}=dev, le fichier "src\main\resources\vars\derjfer\dev.properties" contiendra les varaibles a� utiliser pour generer les scripts pour l'environnement de DEV.
+2. Un dossier "nom-de-l'environnement" est créé est contient le template de fichier pour cet environnement.
+* DEV : `src/main/resources/templates/${codePlateforme}/dev`, 
+* REC : `src/main/resources/templates/${codePlateforme}/rec`
+* PROD : `src/main/resources/templates/${codePlateforme}/prod`
 
-3. Commande a� lancer : 
-<pre><code>mvn clean package -DskipTests -Dtscode=-${tscode} -Pgenerate-${env} -Dvars-path="${Le chemin se trouve le fochier properties contenant les config du teleservice}"</code></pre>
 
-Par exemple, si on veut generer les scripts de DEV pour le teleservice "derjfer", il faut lancer la commande suivante :
-<pre><code>mvn clean package -DskipTests -Dtscode=derjfer -Pgenerate-dev -Dvars-path='C:\Users\adiallo.ext\Documents\docs\ts\DERJFER\run-vars\dev.properties'</code></pre>
+3. Pour chaque téléservice, il faut définir un certain nombre de variables pour compléter le fichier des templates. Il sont stocke dans `src/main/resources/template/${codePlateforme}/vars/samples/${codeEnv}.properties`.
 
-Pour la REC <pre><code>mvn package -Dtscode=derjfer -Pgenerate-rec -Dvars-path='C:\Users\adiallo.ext\Documents\docs\ts\DERJFER\run-vars\rec.properties'</code></pre> et 
-pour la PROD <pre><code>mvn clean package -DskipTests -Dtscode=derjfer -Pgenerate-prod -Dvars-path='C:\Users\adiallo.ext\Documents\docs\ts\DERJFER\run-vars\prod.properties'</code></pre>
+4. Commande à lancer : 
+>mvn clean package -DskipTests -Dtscode=-${tscode} -P${codePlateforme}-${codeEnv} -Dvars-path="${Le chemin se trouve le fichier properties contenant les config du téléservice}
+
+Par exemple, si on veut générer les scripts de DEV pour le téléservice "derjfer", il faut lancer la commande suivante :
+>mvn clean package -DskipTests -Dtscode=derjfer -Pgents-dev -Dvars-path='C:/Users/adiallo.ext/Documents/docs/ts/DERJFER/run-vars/dev.properties'
+
+Pour la REC 
+>mvn package -Dtscode=derjfer -Pgents-rec -Dvars-path='C:/Users/adiallo.ext/Documents/docs/ts/DERJFER/run-vars/rec.properties' 
+
+et pour la PROD 
+>mvn clean package -DskipTests -Dtscode=derjfer -Pgents-prod -Dvars-path='C:/Users/adiallo.ext/Documents/docs/ts/DERJFER/run-vars/prod.properties
 
 Template des fichiers properties :
 
-DEV : <pre>src\main\resources\vars\samples\derjfer\dev.properties</pre>
-REC : <pre>src\main\resources\vars\samples\derjfer\rec.properties</pre>
+* DEV : src/main/resources/templates/${codePlateforme}/vars/samples/dev.properties
+* REC : src/main/resources/templates/${codePlateforme}/vars/samples/rec.properties
+* PROD : src/main/resources/templates/${codePlateforme}/vars/samples/prod.properties
  
  Les 3 parametres sont obligatoires 
  
-4. - Si cette commande s'execute avec succe, nous aurons a� la fin un dossier "target\generated-run\${tscode}-${env}" comme par exemple "target\generated-run\derjfer-dev". 
- Avec dedans, l'ensembles des fichiers ".yml", "properties" etc... contenant les bonnes valeurs selon l'environnement.
+5. Si cette commande s’exécute avec succès, un dossier sera créé dans `target/generated-run/${numEnv}-${codeEnv}/${tscode}` contenant l'ensemble des fichiers classés dans les répertoires attendus par les scripts Ansible appelés par Jenkins lors du déploiement des composants.
+
+### Annexes #
+
+${tscode} : exemple, dertrav
+
+${codePlateforme} : `gents` (plateforme dédiée), `gentsa` (plateforme mutualisée en HA)
+
+|   Variables      | DEV           |     REC         |   PROD     |
+|------------------| ------------- | -------------   | ---------  |
+|${codeEnv}        | dev           |rec              | prod       |
+|${numEnv}         | 1             |3                | 0          |
+
+

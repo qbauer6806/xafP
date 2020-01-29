@@ -45,7 +45,7 @@
 
 	<profiles>
 		<profile>
-			<id>generate-dev</id>
+			<id>gents-dev</id>
 			<!-- <activation> <file> <exists>src/main/resources/vars/${tscode}/dev.properties</exists> 
 				</file> </activation> -->
 			<properties>
@@ -82,7 +82,7 @@
 							<encoding>UTF-8</encoding>
 							<resources>
 								<resource>
-									<directory>src/main/resources/templates/${env}</directory>
+									<directory>src/main/resources/templates/gents/${env}</directory>
 									<filtering>true</filtering>
 									<includes>
 										<include>**/*.yml</include>
@@ -120,7 +120,7 @@
 									<outputDirectory>${basedir}/target/generated-run/${tscode}/${env}</outputDirectory>
 									<resources>
 										<resource>
-											<directory>src/main/resources/templates/${env}</directory>
+											<directory>src/main/resources/templates/gents/${env}</directory>
 											<filtering>true</filtering>
 										</resource>
 									</resources>
@@ -202,7 +202,7 @@
 		</profile>
 
 		<profile>
-			<id>generate-rec</id>
+			<id>gents-rec</id>
 			<!-- <activation> <file> <exists>src/main/resources/vars/${tscode}/rec.properties</exists> 
 				</file> </activation> -->
 			<properties>
@@ -245,7 +245,7 @@
 							<encoding>UTF-8</encoding>
 							<resources>
 								<resource>
-									<directory>src/main/resources/templates/rec</directory>
+									<directory>src/main/resources/templates/gents/rec</directory>
 									<filtering>true</filtering>
 									<includes>
 										<include>**/*.yml</include>
@@ -279,7 +279,7 @@
 									<outputDirectory>${basedir}/target/generated-run/${tscode}/${env}</outputDirectory>
 									<resources>
 										<resource>
-											<directory>src/main/resources/templates/${env}</directory>
+											<directory>src/main/resources/templates/gents/${env}</directory>
 											<filtering>true</filtering>
 										</resource>
 									</resources>
@@ -398,7 +398,7 @@
 		</profile>
 
 		<profile>
-			<id>generate-prod</id>
+			<id>gents-prod</id>
 			<!-- <activation> <file> <exists>src/main/resources/vars/${tscode}/prod.properties</exists>
 				</file> </activation> -->
 			<properties>
@@ -441,7 +441,7 @@
 							<encoding>UTF-8</encoding>
 							<resources>
 								<resource>
-									<directory>src/main/resources/templates/prod</directory>
+									<directory>src/main/resources/templates/gents/prod</directory>
 									<filtering>true</filtering>
 									<includes>
 										<include>**/*.yml</include>
@@ -475,7 +475,7 @@
 									<outputDirectory>${basedir}/target/generated-run/${tscode}/${env}</outputDirectory>
 									<resources>
 										<resource>
-											<directory>src/main/resources/templates/${env}</directory>
+											<directory>src/main/resources/templates/gents/${env}</directory>
 											<filtering>true</filtering>
 										</resource>
 									</resources>

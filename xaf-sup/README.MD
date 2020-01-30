@@ -46,9 +46,8 @@ ${tscode} : exemple, dertrav
 
 ${codePlateforme} : `gents` (plateforme dédiée), `gentsa` (plateforme mutualisée en HA)
 
-|   Variables      | DEV           |     REC         |   PROD     |
-|------------------| ------------- | -------------   | ---------  |
-|${codeEnv}        | dev           |rec              | prod       |
-|${numEnv}         | 1             |3                | 0          |
-
+|   Variables      | DEV           |     REC      |   PROD     |
+|------------------|---------------|--------------|------------|
+|${codeEnv}        | dev           |rec           | prod       |
+|${numEnv}         | 1             |3             | 0          |
 

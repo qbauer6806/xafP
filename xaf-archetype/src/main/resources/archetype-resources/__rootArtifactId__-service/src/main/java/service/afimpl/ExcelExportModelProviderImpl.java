@@ -58,7 +58,6 @@ public class ExcelExportModelProviderImpl implements ExcelExportModelProvider {
                     ${artifactIdCamelCase}Utils.getContenuDemande(demande));
 
             demandeFlatDTO.setEtatInterne(getEtatIntern(demande));
-            demandeFlatDTO.setInformationsDetachement(${artifactIdLower}DataService.getInformationsDetachement(demande.getPkDemandes()));
             demandesFlat.add(demandeFlatDTO);
         });
 

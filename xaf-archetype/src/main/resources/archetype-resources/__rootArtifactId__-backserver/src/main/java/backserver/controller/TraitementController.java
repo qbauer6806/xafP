@@ -14,7 +14,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
-import javax.validation.Valid;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -23,7 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -38,7 +36,6 @@ import org.xml.sax.SAXException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import ${groupId}.backserver.formbean.InformationsDetachementFormBean;
 import ${groupId}.backserver.formbean.TraitementFormBean;
 import ${groupId}.backserver.util.StateManagerUtil;
 import ${groupId}.backserver.util.TraitementUtil;
@@ -46,7 +43,6 @@ import ${groupId}.service.${artifactIdCamelCase}ApiService;
 import ${groupId}.service.${artifactIdCamelCase}DataService;
 import ${groupId}.service.HistoService;
 import ${groupId}.shared.dto.${artifactIdCamelCase}DemandeHistoriqueDTO;
-import ${groupId}.shared.dto.InformationsDetachementDTO;
 import ${groupId}.shared.enums.${artifactIdCamelCase}DemandeStatutEnum;
 import ${groupId}.shared.model.v1573825612706.ContenuProjectDemandeDTO;
 import ${groupId}.shared.model.v1573825612706.OuinonEnum;
@@ -260,18 +256,6 @@ public class TraitementController extends AbstractController {
 
 		mav.addObject("motifsInit", motifsInit);
 
-		/** Section Informations detachement **/
-
-		InformationsDetachementDTO informationsDetachementDTO = getCalculeAideDTO(demandeId);
-		mav.addObject(TraitementUtil.mapInformationDetachementDTO2FormBean(informationsDetachementDTO));
-
-		mav.addObject("isInformationsDetachementPanelActive",
-				StateManagerUtil.isInformationsDetachementPanelActive(statutPublicOuInterne));
-
-		mav.addObject("isInformationsDetachementAccardeonIsOpen",
-				StateManagerUtil.isInformationsDetachementPanelActive(statutPublicOuInterne));
-
-
 		/** Section control de visibilité **/
 
 		mav.addObject("isEnAttentTraitemant",
@@ -397,21 +381,6 @@ public class TraitementController extends AbstractController {
 
 	private InformationsDetachementDTO getCalculeAideDTO(Integer demandeID) {
 		return ${artifactIdLower}DataService.getInformationsDetachement(demandeID);
-	}
-
-	@Secured("ROLE_TRAITEMENT")
-	@RequestMapping(value = "/informationsdetachement", method = RequestMethod.POST)
-	@Transactional
-	public ModelAndView informationDetachement(@Valid @ModelAttribute("informationsDetachementFormBean") InformationsDetachementFormBean informationsDetachementFormBean,
-								   @RequestParam(required = true) Integer pkDemande, final RedirectAttributes redirectAttributes,
-								   BindingResult bindingResult) throws Exception {
-
-		if (bindingResult.hasErrors()) {
-			throw new Exception(bindingResult.getAllErrors().get(0).getDefaultMessage());
-		}
-		${artifactIdLower}DataService.saveInformationsDetachementDTO(TraitementUtil.mapInformationDetachementFormToDTO(informationsDetachementFormBean), pkDemande);
-
-		return returnSuccessMessage(pkDemande, I18N_SAUVEGARDE_SUCCESS_CODE_MESSAGE, redirectAttributes);
 	}
 
 	/**

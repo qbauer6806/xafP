@@ -768,6 +768,166 @@
 			</build>
 		</profile>
 
+		<profile>
+			<id>gentsa-rec</id>
+			<!-- <activation> <file> <exists>src/main/resources/vars/${tscode}/dev.properties</exists> 
+				</file> </activation> -->
+			<properties>
+				<env>rec</env>
+				<env.id>3</env.id>
+
+				<global.mc.modules.dir.name>mc_modules</global.mc.modules.dir.name>
+				<global.inventory.dir.name>inventory</global.inventory.dir.name>
+				<global.properties.dir.name>properties</global.properties.dir.name>
+				<global.host.vars.dir.name>host_vars</global.host.vars.dir.name>
+
+				<global.generated.source.dir>${basedir}/target/generated-run/${tscode}/${env}</global.generated.source.dir>
+				<global.generated.target.dir>${basedir}/target/generated-run/${env.id}-${env}/${tscode}</global.generated.target.dir>
+
+				<global.generated.mc.modules.source.path>${global.generated.source.dir}/${global.mc.modules.dir.name}</global.generated.mc.modules.source.path>
+				<global.generated.mc.modules.target.path>${global.generated.target.dir}/${global.mc.modules.dir.name}</global.generated.mc.modules.target.path>
+
+				<global.generated.inventory.source.path>${global.generated.source.dir}/${global.inventory.dir.name}</global.generated.inventory.source.path>
+				<global.generated.inventory.target.path>${global.generated.target.dir}/${global.inventory.dir.name}</global.generated.inventory.target.path>
+
+				<global.generated.properties.source.path>${global.generated.source.dir}/${global.properties.dir.name}</global.generated.properties.source.path>
+				<global.generated.properties.target.path>${global.generated.target.dir}/${global.properties.dir.name}</global.generated.properties.target.path>
+			</properties>
+			<build>
+				<filters>
+					<!-- <filter>src/main/resources/vars/${tscode}/dev.properties</filter> -->
+					<filter>${vars-path}</filter>
+				</filters>
+				<plugins>
+					<plugin>
+						<artifactId>maven-resources-plugin</artifactId>
+						<version>3.1.0</version>
+
+						<configuration>
+							<encoding>UTF-8</encoding>
+							<resources>
+								<resource>
+									<directory>src/main/resources/templates/gentsa/${env}</directory>
+									<filtering>true</filtering>
+									<includes>
+										<include>**/*.yml</include>
+										<include>**/*.properties</include>
+										<include>**/*modules</include>
+									</includes>
+									<excludes>
+										<exclude>**/*.MD</exclude>
+									</excludes>
+								</resource>
+							</resources>
+						</configuration>
+
+						<executions>
+							<execution>
+								<id>copy-resources</id>
+								<!-- here the phase you need -->
+								<phase>validate</phase>
+								<goals>
+									<goal>copy-resources</goal>
+								</goals>
+								<configuration>
+									<outputDirectory>${basedir}/target/generated-run/${tscode}/${env}</outputDirectory>
+									<resources>
+										<resource>
+											<directory>src/main/resources/templates/gentsa/${env}</directory>
+											<filtering>true</filtering>
+										</resource>
+									</resources>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>1.8</version>
+						<executions>
+							<execution>
+								<phase>package</phase>
+								<goals>
+									<goal>run</goal>
+								</goals>
+								<configuration>
+
+									<target
+										name="Renomage des fichiers pour le Teleservice [${tscode}] pour l'envrionnement [${env}]">
+										<echo>Renommage du fichier [README.MD]</echo>
+										<!--
+										<move file="${global.generated.source.dir}/README.MD"
+											tofile="${global.generated.target.dir}/README.MD"
+											verbose="true" />
+ 										-->
+
+										<echo>Renommage des fichiers de [mc_modules]</echo>
+										<move
+											file="${global.generated.mc.modules.source.path}/apiserver.yml"
+											tofile="${global.generated.mc.modules.target.path}/${tscode}-apiserver.yml"
+											verbose="true" />
+										<move
+											file="${global.generated.mc.modules.source.path}/backserver.yml"
+											tofile="${global.generated.mc.modules.target.path}/${tscode}-backserver.yml"
+											verbose="true" />
+										<move
+											file="${global.generated.mc.modules.source.path}/frontserver.yml"
+											tofile="${global.generated.mc.modules.target.path}/${tscode}-frontserver.yml"
+											verbose="true" />
+
+										<echo>Renommage des fichiers de [properties]</echo>
+										<move
+											file="${global.generated.properties.source.path}/apiserver.properties"
+											tofile="${global.generated.properties.target.path}/${tscode}-apiserver.properties"
+											verbose="true" />
+										<move
+											file="${global.generated.properties.source.path}/backserver.properties"
+											tofile="${global.generated.properties.target.path}/${tscode}-backserver.properties"
+											verbose="true" />
+										<move
+											file="${global.generated.properties.source.path}/frontserver.properties"
+											tofile="${global.generated.properties.target.path}/${tscode}-frontserver.properties"
+											verbose="true" />
+										<move
+											file="${global.generated.properties.source.path}/shared-backapi.properties"
+											tofile="${global.generated.properties.target.path}/shared-${tscode}backapi.properties"
+											verbose="true" />
+
+										<echo>Renommage des fichiers de [inventory]</echo>
+										<move
+											file="${global.generated.inventory.source.path}/modules"
+											tofile="${global.generated.inventory.target.path}/${tscode}-modules"
+											verbose="true" />
+
+
+										<echo>Renommage des fichiers de [host_vars]</echo>
+										<move
+											file="${global.generated.inventory.source.path}/host_vars/gentsa-frnt1-3.yml"
+											tofile="${global.generated.inventory.target.path}/host_vars/gentsa-frnt1-3.yml"
+											verbose="true" />
+										<move
+											file="${global.generated.inventory.source.path}/host_vars/gentsa-frnt2-3.yml"
+											tofile="${global.generated.inventory.target.path}/host_vars/gentsa-frnt2-3.yml"
+											verbose="true" />
+										<move
+											file="${global.generated.inventory.source.path}/host_vars/linux-zabbix-proxyd1.yml"
+											tofile="${global.generated.inventory.target.path}/host_vars/linux-zabbix-proxyd1.yml"
+											verbose="true" />
+
+										<echo>Supression du repertoire
+											[${global.generated.source.dir}]
+										</echo>
+										<!-- <delete dir="${global.generated.source.dir}"/> -->
+									</target>
+
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
 		
 	</profiles>
 

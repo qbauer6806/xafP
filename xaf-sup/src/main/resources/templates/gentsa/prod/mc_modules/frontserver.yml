@@ -1,0 +1,15 @@
+---
+appli: ${tscode}
+type: frontserver
+name: ${tscode}-frontserver
+maven:
+    group_id: mc.gouv.${tscode}
+    artifact_id: ${tscode}-frontserver
+context: /${tscontexte}
+url: https://front.monaco-gouvernement.mc/${tscontexte}
+http_port: 20${tsport}0
+jmx_port: 20${tsport}1
+rmi_port: 20${tsport}2
+xms: ${xmsfrnt}
+xmx: ${xmxfrnt}
+java_extra_opts: -Dspring.profiles.active=gouv -Dfile.encoding=UTF-8

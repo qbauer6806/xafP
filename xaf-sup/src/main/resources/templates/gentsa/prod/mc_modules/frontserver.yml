@@ -6,7 +6,7 @@ maven:
     group_id: mc.gouv.${tscode}
     artifact_id: ${tscode}-frontserver
 context: /${tscontexte}
-url: https://front.monaco-gouvernement.mc/${tscontexte}
+url: https://teleservice.gouv.mc/${tscontexte}
 http_port: 20${tsport}0
 jmx_port: 20${tsport}1
 rmi_port: 20${tsport}2

@@ -9,6 +9,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import mc.gouv.xaf.back.service.DynamicJSService;
 import mc.gouv.xboot.config.web.annotation.GouvRestController;
 
+/**
+ * Contrôleur permettant de retourner le fichier dynamicjs.js généré
+ * 
+ * @author qdeme
+ *
+ */
 @GouvRestController
 @RequestMapping("/dynamicjs")
 public class DynamicJSController {

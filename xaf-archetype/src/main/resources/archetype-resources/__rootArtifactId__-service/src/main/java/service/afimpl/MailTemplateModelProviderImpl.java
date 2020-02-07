@@ -118,7 +118,7 @@ public class MailTemplateModelProviderImpl implements MailTemplateModelProvider 
     }
 
     @Override
-    public Entry<String, String> getMailTemplateCodesForAction(String action) {
+    public Entry<String, String> getMailTemplateCodesForAction(String action, Integer pkDemande) {
         String bodyTemplateCode = null;
         String subjectTemplateCode = null;
         

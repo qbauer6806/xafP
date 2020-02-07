@@ -15,7 +15,7 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
 public class MailTemplateModelProviderImplTest implements MailTemplateModelProvider {
 
     @Override
-    public Entry<String, String> getMailTemplateCodesForAction(String action) {
+    public Entry<String, String> getMailTemplateCodesForAction(String action, Integer pkDemande) {
 
         String bodyTemplateCode = MailTemplateMock.accepteContentFRCode;
         String subjectTemplateCode = MailTemplateMock.acceptSubjectFRCode;

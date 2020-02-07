@@ -14,7 +14,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
-import javax.validation.Valid;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -23,7 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -38,7 +36,6 @@ import org.xml.sax.SAXException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import ${groupId}.backserver.formbean.InformationsDetachementFormBean;
 import ${groupId}.backserver.formbean.TraitementFormBean;
 import ${groupId}.backserver.util.StateManagerUtil;
 import ${groupId}.backserver.util.TraitementUtil;
@@ -46,7 +43,6 @@ import ${groupId}.service.${artifactIdCamelCase}ApiService;
 import ${groupId}.service.${artifactIdCamelCase}DataService;
 import ${groupId}.service.HistoService;
 import ${groupId}.shared.dto.${artifactIdCamelCase}DemandeHistoriqueDTO;
-import ${groupId}.shared.dto.InformationsDetachementDTO;
 import ${groupId}.shared.enums.${artifactIdCamelCase}DemandeStatutEnum;
 import ${groupId}.shared.model.v1573825612706.ContenuProjectDemandeDTO;
 import ${groupId}.shared.model.v1573825612706.OuinonEnum;
@@ -154,16 +150,12 @@ public class TraitementController extends AbstractController {
 			@RequestParam(name = "origin", required = false) String origin, final RedirectAttributes redirectAttributes)
 			throws Exception {
 
-		LOGGER.info(new StringBuilder().append("======================= Appel de la page /traitement (")
-				.append(demandeId).append(")").toString());
-
-		LOGGER.info("DemandeID = " + demandeId);
-
+		LOGGER.info("======================= Appel de la page /traitement (DemandeID = {})", demandeId);
 		LOGGER.info("Appel à DEM pour récupération de la demande...");
 
 		DemandeDTO demande = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), demandeId);
 
-		LOGGER.info("Contenu = " + demande.getContenu().toString());
+		LOGGER.info("Contenu = {}", demande.getContenu().toString());
 
 		StatutPublicOuInterneDTO statutPublicOuInterne = afBackUtils.getStatutPublicOuInterne(demande);
 
@@ -263,18 +255,6 @@ public class TraitementController extends AbstractController {
 		mav.addObject(contenuDemande);
 
 		mav.addObject("motifsInit", motifsInit);
-
-		/** Section Informations detachement **/
-
-		InformationsDetachementDTO informationsDetachementDTO = getCalculeAideDTO(demandeId);
-		mav.addObject(TraitementUtil.mapInformationDetachementDTO2FormBean(informationsDetachementDTO));
-
-		mav.addObject("isInformationsDetachementPanelActive",
-				StateManagerUtil.isInformationsDetachementPanelActive(statutPublicOuInterne));
-
-		mav.addObject("isInformationsDetachementAccardeonIsOpen",
-				StateManagerUtil.isInformationsDetachementPanelActive(statutPublicOuInterne));
-
 
 		/** Section control de visibilité **/
 
@@ -403,21 +383,6 @@ public class TraitementController extends AbstractController {
 		return ${artifactIdLower}DataService.getInformationsDetachement(demandeID);
 	}
 
-	@Secured("ROLE_TRAITEMENT")
-	@RequestMapping(value = "/informationsdetachement", method = RequestMethod.POST)
-	@Transactional
-	public ModelAndView informationDetachement(@Valid @ModelAttribute("informationsDetachementFormBean") InformationsDetachementFormBean informationsDetachementFormBean,
-								   @RequestParam(required = true) Integer pkDemande, final RedirectAttributes redirectAttributes,
-								   BindingResult bindingResult) throws Exception {
-
-		if (bindingResult.hasErrors()) {
-			throw new Exception(bindingResult.getAllErrors().get(0).getDefaultMessage());
-		}
-		${artifactIdLower}DataService.saveInformationsDetachementDTO(TraitementUtil.mapInformationDetachementFormToDTO(informationsDetachementFormBean), pkDemande);
-
-		return returnSuccessMessage(pkDemande, I18N_SAUVEGARDE_SUCCESS_CODE_MESSAGE, redirectAttributes);
-	}
-
 	/**
 	 * Vérifie que la soumission de la tache demandée est bien toujours la bonne
 	 * dans le BPM
@@ -442,8 +407,7 @@ public class TraitementController extends AbstractController {
 			@RequestParam(required = true) String activeTaskDefinitionKey, final RedirectAttributes redirectAttributes)
 			throws Exception {
 
-		LOGGER.info(new StringBuilder().append("======================= Appel de la page /traitement/prendreEnCharge (")
-				.append(pkDemande).append(")").toString());
+		LOGGER.info("======================= Appel de la page /traitement/prendreEnCharge ({})", pkDemande);
 
 		List<GouvBPMTask> activeTasks = gouvBPM.getActiveTasksForDemande(pkDemande);
 		if (activeTasks == null || (activeTasks != null && activeTasks.isEmpty())) {
@@ -498,8 +462,7 @@ public class TraitementController extends AbstractController {
 			@RequestParam(required = true) String commentaire, @RequestParam(required = true) String codeMotif,
 			final RedirectAttributes redirectAttributes) throws Exception {
 
-		LOGGER.info(new StringBuilder().append("======================= Appel de la page /traitement/Annuler (")
-				.append(pkDemande).append(")").toString());
+	    LOGGER.info("======================= Appel de la page /traitement/Annuler ({})", pkDemande);
 
 		GouvBPMUser agent = new GouvBPMUser();
 		agent.setId(AfBackUtils.getAuthenticatedAgentId());
@@ -529,10 +492,7 @@ public class TraitementController extends AbstractController {
 	@Transactional
 	public ModelAndView reprendreEnCharge(@RequestParam(required = true) Integer pkDemande) throws Exception {
 
-		LOGGER.info(
-				new StringBuilder().append("======================= Appel de la page /traitement/reprendreEnCharge (")
-						.append(pkDemande).append(")").toString());
-
+		LOGGER.info("======================= Appel de la page /traitement/reprendreEnCharge ({})", pkDemande);
 		LOGGER.info("Affecter la demande à l'agent connecté (appel à DEM)...");
 
 		reprendreEnCharge(pkDemande, AfBackUtils.getAuthenticatedAgentId());
@@ -597,9 +557,7 @@ public class TraitementController extends AbstractController {
 			@RequestParam(required = true) Integer pkDemande, final RedirectAttributes redirectAttributes)
 			throws Exception {
 
-		LOGGER.info(new StringBuilder()
-				.append("======================= Appel de la page /traitement/traiter action=Traiter (")
-				.append(pkDemande).append(")").toString());
+	    LOGGER.info("======================= Appel de la page /traitement/traiter action=Traiter ({})", pkDemande);
 
 		${artifactIdCamelCase}DemandeStatutEnum targetState = ${artifactIdCamelCase}DemandeStatutEnum.valueOf(traitementFormBean.getStatutChoisi());
 
@@ -743,9 +701,7 @@ public class TraitementController extends AbstractController {
 		try {
 			gouvBPM.claimTask(task, user);
 		} catch (TaskAlreadyClaimedException e1) {
-			LOGGER.error(new StringBuilder().append("Tâche ").append(task.getId()).append(" (")
-					.append(task.getTaskDefinitionKey()).append(") déjà claimed !").toString());
-
+		    LOGGER.error("La tâche {} ({}) est déjà attribuée !", task.getId(), task.getTaskDefinitionKey());
 			return returnErrorMessage(pkDemande, I18N_TRAITEMENT_CONCURRENT_PRIS_EN_CHARGE_ERROR_CODE_MESSAGE,
 					redirectAttributes);
 		}
@@ -767,14 +723,11 @@ public class TraitementController extends AbstractController {
 			@RequestParam(required = true) Integer pkDemande, final RedirectAttributes redirectAttributes)
 			throws IOException, SAXException {
 
-		LOGGER.info(new StringBuilder()
-				.append("======================= Appel de la page /traitement/traiter action=Sauvegarder (")
-				.append(pkDemande).append(")").toString());
-
-		LOGGER.info("Action choisie : " + traitementFormBean.getStatutChoisi());
-		LOGGER.info("Code motif choisi : " + traitementFormBean.getCodeMotifChoisi());
-		LOGGER.info("Commentaire usager : " + traitementFormBean.getCommentaireUsager());
-		LOGGER.info("Tetxe à envoyer à l'usager : " + traitementFormBean.getTexteAEnvoyer());
+	    LOGGER.info("======================= Appel de la page /traitement/traiter action=Sauvegarder ({})", pkDemande);
+        LOGGER.info("Action choisie : {}", traitementFormBean.getStatutChoisi());
+        LOGGER.info("Code motif choisi : {}", traitementFormBean.getCodeMotifChoisi());
+        LOGGER.info("Commentaire usager : {}", traitementFormBean.getCommentaireUsager());
+        LOGGER.info("Tetxe à envoyer à l'usager : {}", traitementFormBean.getTexteAEnvoyer());
 
 		LOGGER.info(
 				"Stockage dans le process du statut cible, du code motif choisi, ainsi que du commentaire usager...");
@@ -794,8 +747,7 @@ public class TraitementController extends AbstractController {
 		String agentId = AfBackUtils.getAuthenticatedAgentId();
 		String assignee = (String) variables.get(GouvBPMProcessVariableTypeEnum.MC_ASSIGNEE.name());
 		if (!agentId.equals(assignee)) {
-			LOGGER.info(new StringBuilder().append("Reprendre en charge la demande, passage de l'agent ")
-					.append(assignee).append(" à l'agent ").append(agentId).toString());
+		    LOGGER.info("Reprendre en charge la demande, passage de l'agent {} à l'agent {}.", assignee, agentId);
 			reprendreEnCharge(pkDemande, agentId);
 		}
 
@@ -811,14 +763,11 @@ public class TraitementController extends AbstractController {
 			@RequestParam(required = true) Integer pkDemande, final RedirectAttributes redirectAttributes)
 			throws Exception {
 
-		LOGGER.info(new StringBuilder()
-				.append("======================= Appel de la page /traitement/finaliser action=Finaliser (")
-				.append(pkDemande).append(")").toString());
-
-		LOGGER.info("Statut choisi : " + traitementFormBean.getStatutChoisi());
-		LOGGER.info("Code motif choisi : " + traitementFormBean.getCodeMotifChoisi());
-		LOGGER.info("Commentaire usager : " + traitementFormBean.getCommentaireUsager());
-		LOGGER.info("Texte à envoyer à l'usager : " + traitementFormBean.getTexteAEnvoyer());
+	    LOGGER.info("======================= Appel de la page /traitement/finaliser action=Finaliser ({})", pkDemande);
+        LOGGER.info("Statut choisi : {}", traitementFormBean.getStatutChoisi());
+        LOGGER.info("Code motif choisi : {}", traitementFormBean.getCodeMotifChoisi());
+        LOGGER.info("Commentaire usager : {}", traitementFormBean.getCommentaireUsager());
+        LOGGER.info("Texte à envoyer à l'usager : {}", traitementFormBean.getTexteAEnvoyer());
 
 		// Gestion pour voir si la tache courante est bien Validation Hiérarchique
 		List<GouvBPMTask> activeTasks = gouvBPM.getActiveTasksForDemande(pkDemande);
@@ -883,9 +832,7 @@ public class TraitementController extends AbstractController {
 			@RequestParam(required = true) Integer pkDemande, final RedirectAttributes redirectAttributes)
 			throws IOException, SAXException {
 
-		LOGGER.info(
-				new StringBuilder().append("======================= Appel de la page /traitement/infosAdministration (")
-						.append(pkDemande).append(")").toString());
+	    LOGGER.info("======================= Appel de la page /traitement/infosAdministration ({})", pkDemande);
 
 		LOGGER.info("Appel à DEM pour stockage des observations...");
 		DemandeDTO demUpd = new DemandeDTO();
@@ -909,14 +856,12 @@ public class TraitementController extends AbstractController {
 			@ModelAttribute("traitementFormBean") TraitementFormBean traitementFormBean,
 			@RequestParam(required = true) Integer pkDemande) throws Exception {
 
-		LOGGER.info(new StringBuilder()
-				.append("======================= Appel de la page /traitement/commentaires action=Ajouter (")
-				.append(pkDemande).append(")").toString());
+	    LOGGER.info("======================= Appel de la page /traitement/commentaires action=Ajouter ({})", pkDemande);
 
 		String commString = traitementFormBean.getCommentaireInterne();
 		CommentaireInterneDTO commInterne = new CommentaireInterneDTO();
 		if (!StringUtils.isBlank(commString)) {
-			LOGGER.info("Commentaire : " + commString);
+			LOGGER.info("Commentaire : {}", commString);
 			commInterne.setAgentId(AfBackUtils.getAuthenticatedAgentId());
 			commInterne.setDate(new Date());
 			commInterne.setCommentaire(commString);
@@ -940,8 +885,7 @@ public class TraitementController extends AbstractController {
 			final RedirectAttributes redirectAttributes) throws Exception {
 
 		LOGGER.info("Appel de la page /traitement/repondreDIC");
-
-		LOGGER.info("commentaireReponse = " + commentaireReponse);
+		LOGGER.info("commentaireReponse = {}", commentaireReponse);
 
 		// Gestion pour voir si la tache courante est bien depotICTask
 		GouvBPMTask activeTask = gouvBPM.getActiveTasksForDemande(pkDemande).get(0);
@@ -982,8 +926,7 @@ public class TraitementController extends AbstractController {
 	@Transactional
 	public ModelAndView dupliquer(@RequestParam(required = true) Integer pkDemande) throws Exception {
 
-		LOGGER.info(new StringBuilder().append("======================= Appel de la page /traitement/dupliquer (")
-				.append(pkDemande).append(")").toString());
+	    LOGGER.info("======================= Appel de la page /traitement/dupliquer ({})", pkDemande);
 
 		LOGGER.info("Appel à DEM pour dupliquer la demande... {}", pkDemande);
 		DemandeDTO demandeDupliquee = null;
@@ -999,9 +942,8 @@ public class TraitementController extends AbstractController {
 					demandeDupliquee.getPkDemandes(), ${artifactIdCamelCase}DemandeStatutEnum.EN_ATTENTE_TRAIT.name(),
 					demandeDupliquee.getAgentAffecteId(), null, null, "DUPLICATION", "DUPLICATION");
 
-			LOGGER.info(
-					new StringBuilder().append("Création d'une instance de process dans le BPM pour cette demande (")
-							.append(demandeDupliquee.getPkDemandes()).append(")...").toString());
+			LOGGER.info("Création d'une instance de process dans le BPM pour cette demande ({})...",
+                    demandeDupliquee.getPkDemandes());
 			GouvBPMUser user = new GouvBPMUser();
 			user.setId(demandeDupliquee.getUsagerId().toString());
 

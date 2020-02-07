@@ -14,7 +14,7 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
  */
 public interface MailTemplateModelProvider {
     
-    public Entry<String, String> getMailTemplateCodesForAction(String action);
+    public Entry<String, String> getMailTemplateCodesForAction(String action, Integer pkDemande);
     
     public Map<String,Object> getModel(String subjectTemplateCode, String bodyTemplateCode, DemandeDTO demande, Map<String, Object> bpmVariables, String codeMotif, String commentaire);
 

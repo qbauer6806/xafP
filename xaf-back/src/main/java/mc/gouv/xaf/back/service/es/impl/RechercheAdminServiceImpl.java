@@ -90,6 +90,9 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
                     complementsFichiersPropertiesMap.get(
                             IndexedEsDemandeServiceImpl.INTERNAL_FILE_HIGHLIGHT_AND_FACET_PREFIX + champBo.getCle())
                             .setEnabled(champBo.isEnabled());
+                    complementsFichiersPropertiesMap.get(
+                            IndexedEsDemandeServiceImpl.COURRIER_FILE_HIGHLIGHT_AND_FACET_PREFIX + champBo.getCle())
+                            .setEnabled(champBo.isEnabled());
                 }
             } else {
                 property.setEditable(true);
@@ -111,9 +114,13 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
                 EsProperty internalFileProperty = new EsProperty(
                         IndexedEsDemandeServiceImpl.INTERNAL_FILE_HIGHLIGHT_AND_FACET_PREFIX + property.getName(),
                         property.getType(), property.getFields());
+                EsProperty courrierProperty = new EsProperty(
+                        IndexedEsDemandeServiceImpl.COURRIER_FILE_HIGHLIGHT_AND_FACET_PREFIX + property.getName(),
+                        property.getType(), property.getFields());
 
                 complementsAndInternalFilesProperties.add(complementProperty);
                 complementsAndInternalFilesProperties.add(internalFileProperty);
+                complementsAndInternalFilesProperties.add(courrierProperty);
                 complementsFilesAndInternalFilesPropertiesMap.put(complementProperty.getName(), complementProperty);
                 complementsFilesAndInternalFilesPropertiesMap.put(internalFileProperty.getName(), internalFileProperty);
             }

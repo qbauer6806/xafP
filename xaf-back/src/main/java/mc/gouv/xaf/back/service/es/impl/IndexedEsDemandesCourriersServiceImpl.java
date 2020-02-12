@@ -42,6 +42,6 @@ public class IndexedEsDemandesCourriersServiceImpl extends DemandesCourriersServ
     private void indexCourrier(String demarcheId, Integer pkDemande) throws Exception {
         DemandeDTO demandeDTO = indexedDemandeService.getDemande(demarcheId, pkDemande);
 
-        indexedDemandeService.sendToTopic(demandeDTO, false);
+        indexedDemandeService.sendToTopic(demandeDTO, true);
     }
 }

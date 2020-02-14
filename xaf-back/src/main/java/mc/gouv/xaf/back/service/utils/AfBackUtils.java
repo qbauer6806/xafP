@@ -344,6 +344,7 @@ public class AfBackUtils {
         flat.setUsagerNom(demande.getUsagerNom());
         flat.setUsagerPrenom(demande.getUsagerPrenom());
         flat.setUsagerEmail(demande.getUsagerEmail());
+        flat.setBuildId(demande.getBuildId());
 
         String codeDernierMotif = demande.getDernierStatut().getCodeMotif();
         String motif = codeDernierMotif;

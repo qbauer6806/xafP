@@ -19,8 +19,6 @@ public interface DemandesCourriersService {
 
     public List<DemandeCourrierDTO> getCourriers(String demarcheId, Integer pkDemande);
 
-    public DemandeCourrierDTO printCourrier(String demarcheId, Integer pkDemande, Integer pkCourrier) throws Exception;
-
     public List<DemandeCourrierDTO> getCourriersPourDemarche(String demarcheId);
 
     public DemandeCourrierDTO updateCourrier(String demarcheId, Integer pkDemande, DemandeCourrierDTO courrierDto)

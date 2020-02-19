@@ -1,40 +1,34 @@
 package mc.gouv.xaf.back.service.es.impl;
 
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
-import static org.elasticsearch.index.query.QueryBuilders.existsQuery;
-import static org.elasticsearch.index.query.QueryBuilders.rangeQuery;
-import static org.elasticsearch.index.query.QueryBuilders.simpleQueryStringQuery;
-import static org.elasticsearch.index.query.QueryBuilders.termQuery;
-import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
-import static org.elasticsearch.join.query.JoinQueryBuilders.hasChildQuery;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.ConnectException;
-import java.net.URLEncoder;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import javax.jms.JMSException;
-import javax.persistence.EntityManager;
-import javax.transaction.Transactional;
-
-import mc.gouv.xaf.back.data.entity.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import mc.gouv.file.apiclient.FileClient;
+import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
+import mc.gouv.xaf.back.data.dao.DemandesRepository;
+import mc.gouv.xaf.back.data.dao.RechercheChampConfigRepository;
+import mc.gouv.xaf.back.data.entity.DemandeBO;
+import mc.gouv.xaf.back.data.entity.DemandesComplementsBO;
+import mc.gouv.xaf.back.data.entity.DemandesCourriersBO;
+import mc.gouv.xaf.back.data.entity.RechercheChampConfigBO;
+import mc.gouv.xaf.back.data.es.dao.DemandeEsRepository;
+import mc.gouv.xaf.back.data.es.model.*;
+import mc.gouv.xaf.back.data.transformer.DemandesComplementsFilesTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesCourriersTransformer;
+import mc.gouv.xaf.back.data.transformer.DemandesFilesTransformer;
+import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
+import mc.gouv.xaf.back.exception.AfIndexingException;
+import mc.gouv.xaf.back.exception.FileConnectionException;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.DemarchesDataProvider;
+import mc.gouv.xaf.back.service.data.AccessService;
+import mc.gouv.xaf.back.service.data.impl.DemandesServiceImpl;
+import mc.gouv.xaf.back.service.es.DemandeJmsTopicSendService;
+import mc.gouv.xaf.back.service.es.IndexedDemandeService;
+import mc.gouv.xaf.back.service.es.transformer.DemandeEsTransformer;
 import mc.gouv.xaf.back.service.pdf.PdfTypeEnum;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.back.service.utils.DemarchesUtils;
+import mc.gouv.xaf.back.service.utils.ESQueryUtils;
+import mc.gouv.xaf.back.service.utils.FileUtils;
 import mc.gouv.xaf.shared.dto.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.search.join.ScoreMode;
@@ -50,13 +44,7 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Requests;
 import org.elasticsearch.common.document.DocumentField;
 import org.elasticsearch.common.text.Text;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.ExistsQueryBuilder;
-import org.elasticsearch.index.query.InnerHitBuilder;
-import org.elasticsearch.index.query.Operator;
-import org.elasticsearch.index.query.RangeQueryBuilder;
-import org.elasticsearch.index.query.SimpleQueryStringBuilder;
-import org.elasticsearch.index.query.TermQueryBuilder;
+import org.elasticsearch.index.query.*;
 import org.elasticsearch.join.query.HasChildQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
@@ -95,43 +83,26 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.xml.sax.SAXException;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.jms.JMSException;
+import javax.persistence.EntityManager;
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.ConnectException;
+import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
-import mc.gouv.file.apiclient.FileClient;
-import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
-import mc.gouv.xaf.back.data.dao.DemandesRepository;
-import mc.gouv.xaf.back.data.dao.RechercheChampConfigRepository;
-import mc.gouv.xaf.back.data.es.dao.DemandeEsRepository;
-import mc.gouv.xaf.back.data.es.model.AgentEsDTO;
-import mc.gouv.xaf.back.data.es.model.CanalEsDto;
-import mc.gouv.xaf.back.data.es.model.DemandeAccessEsDTO;
-import mc.gouv.xaf.back.data.es.model.DemandeEsDTO;
-import mc.gouv.xaf.back.data.es.model.DemandeEsJmsDto;
-import mc.gouv.xaf.back.data.es.model.DemandeEsRechercheDTO;
-import mc.gouv.xaf.back.data.es.model.DemandeFileEsDTO;
-import mc.gouv.xaf.back.data.es.model.DemandeStatutEsDTO;
-import mc.gouv.xaf.back.data.es.model.DemandesFacet;
-import mc.gouv.xaf.back.data.es.model.DemandesFacets;
-import mc.gouv.xaf.back.data.es.model.EsProperty;
-import mc.gouv.xaf.back.data.transformer.DemandesComplementsFilesTransformer;
-import mc.gouv.xaf.back.data.transformer.DemandesFilesTransformer;
-import mc.gouv.xaf.back.exception.AfIndexingException;
-import mc.gouv.xaf.back.exception.FileConnectionException;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.DemarchesDataProvider;
-import mc.gouv.xaf.back.service.data.AccessService;
-import mc.gouv.xaf.back.service.data.impl.DemandesServiceImpl;
-import mc.gouv.xaf.back.service.es.DemandeJmsTopicSendService;
-import mc.gouv.xaf.back.service.es.IndexedDemandeService;
-import mc.gouv.xaf.back.service.es.transformer.DemandeEsTransformer;
-import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import mc.gouv.xaf.back.service.utils.DemarchesUtils;
-import mc.gouv.xaf.back.service.utils.ESQueryUtils;
-import mc.gouv.xaf.back.service.utils.FileUtils;
+import static org.elasticsearch.index.query.QueryBuilders.*;
+import static org.elasticsearch.join.query.JoinQueryBuilders.hasChildQuery;
 
 /**
  * Service permettant de faire de la recherche full-text sur les demandes en utilisant le moteur elasticsearch
- * 
+ *
  * @author asouabni.ext
  *
  */
@@ -188,10 +159,10 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     private List<EsProperty> demandesProperties = new ArrayList<>();
     private List<EsProperty> filesProperties = new ArrayList<>();
     List<EsProperty> allProperties = new ArrayList<>();
-    //Map contenant les champs et le boost (si on veut augmenter le score de la recherche par rapport à un champ) 
+    //Map contenant les champs et le boost (si on veut augmenter le score de la recherche par rapport à un champ)
     //sur lesquels on va faire la recherche du type demandes de l'index <application.name>-index
     private Map<String, Float> demandesPropertiesWithBoost = new HashMap<>();
-    //Map contenant les champs et le boost (si on veut augmenter le score de la recherche par rapport à un champ) 
+    //Map contenant les champs et le boost (si on veut augmenter le score de la recherche par rapport à un champ)
     //sur lesquels on va faire la recherche du type fichiers de l'index <application.name>-index
     private Map<String, Float> filesPropertiesWithBoost = new HashMap<>();
 
@@ -269,7 +240,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     /**
      * Récupération des du mapping à partir d'un alias
-     * 
+     *
      * @param aliasName Nom de l'alias
      * @param type Type de l'index
      * @return Mapping Elasticsearch
@@ -325,7 +296,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     /**
      * Méthode permettant d'initialiser une map des propriétés sur lesquelles on va faire la recherche avec le boost correspondant
-     * 
+     *
      * @param properties Liste des propriétés
      * @param propertiesWithBoost Map avec le boost à initialiser
      */
@@ -337,7 +308,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     /**
      * Méthode permettant de parser le mapping elasticsearch pour avoir la liste des champs, leurs types et leurs sous fields
-     * 
+     *
      * @param properties Liste des propriétés à remplir
      * @param mapping Mapping récupéré à partir de l'API elasticsearch
      * @param fieldsToExclude Les champs qu'on veut pas récupérer
@@ -379,7 +350,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     /**
      * Méthode permettant de parser une propriété à partir de son nom
-     * 
+     *
      * @param map Map des propriétés
      * @param propertyName Nom de la propriété
      * @param properties Liste des propriétés à remplir
@@ -434,7 +405,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     /**
      * Methode permettant de récupérer la liste des propriétés elasticsearch
-     * 
+     *
      * @return liste des propriétés elasticsearch
      */
     @Override
@@ -450,7 +421,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     /**
      * Méthode permettant l'indexation des fichiers des demandes
-     * 
+     *
      * @param demandes
      *            Liste des demandes dont on va indexer les fichiers
      * @throws IOException
@@ -470,7 +441,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     /**
      * Méthode permettant l'indexation des fichiers d'une demande
-     * 
+     *
      * @param demande
      *            Liste des demandes dont on va indexer les fichiers
      * @throws IOException
@@ -489,7 +460,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     /**
      * Méthode permettant l'indexation des fichiers d'une demande
-     * 
+     *
      * @param demande
      *            Demande dont on va indexer les fichiers
      * @throws IOException
@@ -506,7 +477,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     /**
      * Méthode permettant de récupérer la liste des pieces jointes, des complements et courriers au format elasticsearch
-     * 
+     *
      * @param files
      *            Liste des fichiers à remplir
      * @param demande
@@ -518,28 +489,32 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         List<DemandeFileDTO> demFiles = DemandesFilesTransformer
                 .bo2Dto(new ArrayList<>(demande.getFiles()));
 
-        demFiles.addAll(recupererCourriersDemandeFromBO(demande.getCourriers()));
-
         Set<DemandesComplementsBO> demComplements = demande.getDemandesComplements();
+        DemandeDTO demandeDTO = DemandesTransformer.bo2Dto(demande);
 
         if (demComplements != null) {
             for (DemandesComplementsBO demComplement : demComplements) {
                 List<DemandeFileDTO> cfiles = DemandesComplementsFilesTransformer
                         .toDemandeFileDTO(demComplement.getFiles());
                 if (cfiles != null && !cfiles.isEmpty()) {
-                    files.addAll(getFileEsContent(demande.getFkAccess().getDemarcheId(), demande.getIdentifiant(),
-                            DemandeFileEsDTO.TYPE.COMPLEMENT, cfiles));
+                    files.addAll(getFileEsContent(demandeDTO, DemandeFileEsDTO.TYPE.COMPLEMENT, cfiles));
                 }
             }
         }
 
-        fillPjsAndFichiersInternesAndCourriers(demFiles, files, demande.getFkAccess().getDemarcheId(), demande.getIdentifiant());
+        fillPjsAndFichiersInternes(demFiles, files, demandeDTO);
 
+        // Récupération des courriers
+        Set<DemandesCourriersBO> courrierBOs = demande.getCourriers();
+        if (courrierBOs != null) {
+            List<DemandeCourrierDTO> courriers = DemandesCourriersTransformer.bo2Dto(Lists.newArrayList(courrierBOs));
+            fillCourriers(courriers, files, demandeDTO);
+        }
     }
 
     /**
      * Méthode permettant de récupérer la liste des pieces jointes, des complements et courriers au format elasticsearch
-     * 
+     *
      * @param files
      *            Liste des fichiers à remplir
      * @param demande
@@ -556,8 +531,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                     List<DemandeFileDTO> cfiles = DemandesComplementsFilesTransformer
                             .toDemandeFileDTO(Arrays.asList(demComplement.getReponse().getFichiers()));
                     if (cfiles != null && !cfiles.isEmpty()) {
-                        files.addAll(getFileEsContent(demande.getDemarcheId(), demande.getIdentifiant(),
-                                DemandeFileEsDTO.TYPE.COMPLEMENT, cfiles));
+                        files.addAll(getFileEsContent(demande, DemandeFileEsDTO.TYPE.COMPLEMENT, cfiles));
                     }
                 }
             }
@@ -568,12 +542,10 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             fichiers.addAll(Arrays.asList(demande.getFichiers()));
         }
 
-        if (demande.getCourriers() != null) {
-            fichiers.addAll(recupererCourriersDemandeFromDTO(Arrays.asList(demande.getCourriers())));
+        fillPjsAndFichiersInternes(fichiers, files, demande);
+        if(demande.getCourriers() != null) {
+            fillCourriers(Arrays.asList(demande.getCourriers()), files, demande);
         }
-
-        fillPjsAndFichiersInternesAndCourriers(fichiers, files, demande.getDemarcheId(), demande.getIdentifiant());
-
     }
 
     /**
@@ -609,27 +581,44 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     /**
      * Méthode permettant de remplir la liste des pieces jointes et des fichiers internes àindexer dans elaticsearch
-     * 
+     *
      * @param demFiles Liste des fichiers de la demande extraits de la base de données
      * @param files Liste des fichiers à indexer dans elasticsearch
-     * @param demarcheId Identifiant de la démarche
-     * @param demIdentifiant Identifiant de la demande
+     * @param demandeDTO dto de la demande
      * @throws IOException Exception Input/Output
      */
-    private void fillPjsAndFichiersInternesAndCourriers(List<DemandeFileDTO> demFiles, List<DemandeFileEsDTO> files,
-            String demarcheId, String demIdentifiant) throws IOException {
+    private void fillPjsAndFichiersInternes(List<DemandeFileDTO> demFiles, List<DemandeFileEsDTO> files,
+                                            DemandeDTO demandeDTO) throws IOException {
         if (demFiles != null) {
             for (DemandeFileDTO file : demFiles) {
-                files.add(getFileEsContent(demarcheId, demIdentifiant, getDemandeFileType(file), file));
+                files.add(getFileEsContent(demandeDTO, getDemandeFileType(file), file));
             }
         }
     }
 
     /**
+     * Méthode permettant de remplir la liste courriers à indexer dans elaticsearch
+     *
+     * @param courriers Liste des courriers de la demande extraits de la base de données
+     * @param files Liste des fichiers à indexer dans elasticsearch
+     * @param demandeDTO dto de la demande
+     * @throws IOException Exception Input/Output
+     */
+    private void fillCourriers(List<DemandeCourrierDTO> courriers, List<DemandeFileEsDTO> files,
+                                                        DemandeDTO demandeDTO) throws IOException {
+        if (courriers != null) {
+            for (DemandeCourrierDTO courrier : courriers) {
+                files.add(getFileEsContent(demandeDTO, DemandeFileEsDTO.TYPE.COURRIER, courrier));
+            }
+        }
+    }
+
+
+    /**
      * Méthode permettant de récupérer le type du fichier associé à la demande en se basant sur ses metas
-     * 
+     *
      * @param file fichier dont on doit vérifier le type
-     * 
+     *
      * @return Type du fichier
      */
     private DemandeFileEsDTO.TYPE getDemandeFileType(DemandeFileDTO file) {
@@ -715,14 +704,12 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      * @see mc.gouv.xaf.back.service.es.IndexedDemandeService#sendToTopic(mc.gouv.xaf.back.shared.dto.DemandeFileDTO, java.lang.String, java.lang.String)
      */
     @Override
-    public void sendToTopic(DemandeFileDTO demandeFileDTO, String demarcheId, String demandeId)
+    public void sendToTopic(DemandeFileDTO demandeFileDTO, DemandeDTO demandeDTO)
             throws IOException, SAXException, TikaException, JMSException {
 
         if (demandeFileDTO != null) {
 
-            DemandeFileEsDTO demandeFileEsDTO = getFileEsContent(demarcheId, demandeId,
-                    getDemandeFileType(demandeFileDTO), demandeFileDTO);
-
+            DemandeFileEsDTO demandeFileEsDTO = getFileEsContent(demandeDTO, getDemandeFileType(demandeFileDTO), demandeFileDTO);
             List<DemandeFileEsDTO> demFileEsDtoList = new ArrayList<>();
             demFileEsDtoList.add(demandeFileEsDTO);
 
@@ -735,14 +722,14 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      * @see mc.gouv.xaf.back.service.es.IndexedDemandeService#sendToTopic(mc.gouv.xaf.back.shared.dto.DemandeFileDTO, java.lang.String, java.lang.String)
      */
     @Override
-    public void sendToTopic(DemandeFileDTO[] demandeFileDTOList, String demarcheId, String demandeId)
+    public void sendToTopic(DemandeFileDTO[] demandeFileDTOList, DemandeDTO demandeDTO)
             throws IOException, SAXException, TikaException, JMSException {
 
         if (demandeFileDTOList != null) {
 
             List<DemandeFileEsDTO> demFileEsDtoList = new ArrayList<>();
             for (DemandeFileDTO file : demandeFileDTOList) {
-                demFileEsDtoList.add(getFileEsContent(demarcheId, demandeId, getDemandeFileType(file), file));
+                demFileEsDtoList.add(getFileEsContent(demandeDTO, getDemandeFileType(file), file));
             }
 
             demandeJmsService.send(new DemandeEsJmsDto(null, demFileEsDtoList), JMSActionEnum.SAVE);
@@ -752,7 +739,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     /**
      * Méthode permettant de récupérer une demande de la base et de l'indexer
-     * 
+     *
      * @see mc.gouv.xaf.back.service.es.IndexedDemandeService#indexDemande(java.lang.String, java.lang.Integer)
      */
     @Override
@@ -769,11 +756,9 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      * Méthode permettant de récupérer une liste de DTO avec le contenu des fichier sous forme de chaine de caractéres
      * <br/>
      * les contenus des fichiers sont récupérés depuis le web service file
-     * 
-     * @param demarcheId
-     *            Identifinat de la demarche
-     * @param demIdentifiant
-     *            Identifiant de la demande
+     *
+     * @param demandeDTO
+     *            dto de la demande que nous voulons traiter
      * @param type
      *            Type du fichier
      * @param demandeFileDTOs
@@ -781,7 +766,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      * @return Liste des DTOs des fichiers indexés
      * @throws IOException
      */
-    public List<DemandeFileEsDTO> getFileEsContent(String demarcheId, String demIdentifiant, DemandeFileEsDTO.TYPE type,
+    public List<DemandeFileEsDTO> getFileEsContent(DemandeDTO demandeDTO, DemandeFileEsDTO.TYPE type,
             List<DemandeFileDTO> demandeFileDTOs) throws IOException {
 
         List<DemandeFileEsDTO> filesList = new ArrayList<>();
@@ -789,7 +774,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         if (demandeFileDTOs != null) {
 
             for (DemandeFileDTO demandeFileDTO : demandeFileDTOs) {
-                filesList.add(getFileEsContent(demarcheId, demIdentifiant, type, demandeFileDTO));
+                filesList.add(getFileEsContent(demandeDTO, type, demandeFileDTO));
             }
         }
         return filesList;
@@ -798,17 +783,15 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     /**
      * Méthode permettant de récupérer un DTO avec le contenu du fichier sous forme de chaine de caractéres <br/>
      * le contenu du fichier est récupéré depuis le web service file
-     * 
-     * @param demarcheId
-     *            Identifiant de la démarche
-     * @param demIdentifiant
-     *            Identifiant de la demande
+     *
+     * @param demande
+     *            DTO de la demande ratachée au fichier
      * @param fichier
      *            DTO du fichier à indexé
      * @return Fichier indexé
      * @throws IOException
      */
-    private DemandeFileEsDTO getFileEsContent(String demarcheId, String demIdentifiant, DemandeFileEsDTO.TYPE type,
+    private DemandeFileEsDTO getFileEsContent(DemandeDTO demande, DemandeFileEsDTO.TYPE type,
             DemandeFileDTO fichier) throws IOException {
 
         if (fichier != null) {
@@ -816,18 +799,17 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             InputStream is;
             String fileUrl = "";
             try {
-
                 String finalFilename = fichier.getUrl();
                 String[] split = fichier.getUrl().split("/");
                 String isolatedFileName = split[split.length - 1];
                 finalFilename = finalFilename.replace(isolatedFileName, URLEncoder.encode(isolatedFileName, "UTF-8"));
-                fileUrl = demarcheId + "/" + gouvPropertiesResolver.getContainerId() + "/" + finalFilename;
+                fileUrl = demande.getDemarcheId() + "/" + gouvPropertiesResolver.getContainerId() + "/" + finalFilename;
                 LOGGER.info("Le fichier à indexer est le {}", fileUrl);
                 is = fileClient.getFile(fileUrl);
             } catch (ConnectException e) {
                 throw new FileConnectionException("Could not connect to file", e);
             }
-            DemandeFileEsDTO demandeFileEsDTO = new DemandeFileEsDTO(demIdentifiant);
+            DemandeFileEsDTO demandeFileEsDTO = new DemandeFileEsDTO(demande.getIdentifiant());
             demandeFileEsDTO.getFichiers().setMeta(fichier.getMeta());
             demandeFileEsDTO.getFichiers().setName(fichier.getName());
             demandeFileEsDTO.getFichiers().setUrl(fichier.getUrl());
@@ -853,8 +835,68 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     }
 
     /**
+     * Méthode permettant de récupérer un DTO avec le contenu du fichier sous forme de chaine de caractéres <br/>
+     * le contenu du fichier est récupéré depuis le web service file
+     *
+     * @param demande
+     *            DTO de la demande ratachée au fichier
+     * @param fichier
+     *            DTO du fichier à indexé
+     * @return Fichier indexé
+     * @throws IOException
+     */
+    private DemandeFileEsDTO getFileEsContent(DemandeDTO demande, DemandeFileEsDTO.TYPE type,
+                                              DemandeCourrierDTO fichier) throws IOException {
+
+        if (fichier != null) {
+            FileClient fileClient = new FileClient(gouvPropertiesResolver.getFileUrl(), gouvPropertiesResolver.getFileJwt());
+            InputStream is;
+            String fileUrl = "";
+            try {
+                String finalFilename = fichier.getUrl();
+                String[] split = fichier.getUrl().split("/");
+                String isolatedFileName = split[split.length - 1];
+                finalFilename = finalFilename.replace(isolatedFileName, URLEncoder.encode(isolatedFileName, "UTF-8"));
+                fileUrl = demande.getDemarcheId() + "/" + gouvPropertiesResolver.getContainerId() + "/" + finalFilename;
+                LOGGER.info("Le fichier à indexer est le {}", fileUrl);
+                is = fileClient.getFile(fileUrl);
+            } catch (ConnectException e) {
+                throw new FileConnectionException("Could not connect to file", e);
+            }
+            DemandeFileEsDTO demandeFileEsDTO = new DemandeFileEsDTO(demande.getIdentifiant());
+            demandeFileEsDTO.getFichiers().setMeta(fichier.getMeta());
+            demandeFileEsDTO.getFichiers().setName(fichier.getName());
+            demandeFileEsDTO.getFichiers().setUrl(fichier.getUrl());
+            demandeFileEsDTO.getFichiers().setType(type.name());
+
+            demandeFileEsDTO.getFichiers().setIdentifiant(fichier.getIdentifiant());
+            demandeFileEsDTO.getFichiers().setPkDemandeFile(fichier.getPkCourrier());
+            demandeFileEsDTO.getFichiers().setDateCreation(fichier.getDateCreation());
+            demandeFileEsDTO.getFichiers().setPkDemande(demande.getPkDemandes());
+            demandeFileEsDTO.getFichiers().setStatut(fichier.getFkStatut().getLibelle());
+
+            if (is != null) {
+                String fileText = "";
+                try {
+                    fileText = FileUtils.parseToPlainText(is);
+                    demandeFileEsDTO.getFichiers().setContent(fileText);
+                    demandeFileEsDTO.getFichiers().setLanguage(FileUtils.detectLanguage(fileText));
+
+                } catch (ZeroByteFileException e) {
+                    LOGGER.info("Le fichier : {} est vide (a une taille de 0 byte)", fileUrl);
+                } catch (Exception e) {
+                    LOGGER.error(e.getMessage(), e);
+                }
+            }
+            return demandeFileEsDTO;
+        }
+        return null;
+
+    }
+
+    /**
      * Méthode permettant d'indexer les demandes
-     * 
+     *
      * @param demandeEsDTOs
      *            Page des demandes à indexer
      * @return La page des demandes indexées
@@ -879,7 +921,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     /**
      * Méthode permettant d'indexer un fichier
-     * 
+     *
      * @param demandeFileEsDTO
      *            Fichier à indexer
      * @return Fichier indexé
@@ -898,7 +940,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     /**
      * Méthode permettant d'indexer une liste de fichiers
-     * 
+     *
      * @param demandeFileEsDTOs
      *            Liste des fichiers à indexer
      * @return Liste des fichiers indexées
@@ -1018,7 +1060,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     /**
      * Méthode permettant de récupérer la requete qui construit les facets
-     * 
+     *
      * @param demandeRecherche
      *            Paramètres de la recherche
      * @return Query builder avec la requete de récupération des facets
@@ -1047,7 +1089,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     /**
      * Méthode permettant de mettre à jour les filtres de la requete qui permet de recupérer les facets
-     * 
+     *
      * @param queryStringQueryBuilders
      *            Tableau des filtres
      * @param index
@@ -1143,7 +1185,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     /**
      * Méthode permettant de construire le SimpleQueryStringBuilder  permettant de faire la requete de recherche sur tous les champs en paramètres
-     * 
+     *
      * @param text Texte de la recherche
      * @param fields Les fields sur lesquels on va faire la recherche
      * @return Le SimpleQueryStringBuilder permettant de faire la requete de recherche sur tous les champs en paramètres
@@ -1236,11 +1278,86 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     }
 
+    @Override
+    public Page<DemandeFileEsRechercheDTO> getIndexedCourriers(DemandeCourrierRechercheDTO demandeRecherche, Pageable pageable,
+                                                               String[] fields) {
+
+        demandeRecherche.setTexte(ESQueryUtils.getFormatedQuery(demandeRecherche.getTexte(),
+                afBackUtils.getDemarcheInfos().getIdentifiantPrefixe()));
+        initMappingProperties(false);
+
+        NativeSearchQueryBuilder nativeSearchQueryBuilder = new NativeSearchQueryBuilder().withIndices(indexAlias)
+                .withQuery(getQueryBuilderForCourrier(demandeRecherche)).withPageable(pageable);
+
+        nativeSearchQueryBuilder = highlightQuery(demandeRecherche, nativeSearchQueryBuilder);
+        if (fields != null && fields.length > 0) {
+            SourceFilter sourceFilter = new FetchSourceFilter(fields, null);
+            nativeSearchQueryBuilder.withSourceFilter(sourceFilter);
+        }
+
+        return elasticsearchTemplate.queryForPage(nativeSearchQueryBuilder.build(), DemandeFileEsRechercheDTO.class,
+                new SearchResultMapper() {
+
+                    @SuppressWarnings("unchecked")
+                    @Override
+                    public <T> AggregatedPage<T> mapResults(SearchResponse response, Class<T> clazz,
+                                                            Pageable pageable) {
+                        List<DemandeFileEsRechercheDTO> demandesEsList = new ArrayList<>();
+                        if (response.getHits().getHits().length <= 0) {
+                            return new AggregatedPageImpl<>(new ArrayList<>());
+                        }
+
+                        for (SearchHit searchHit : response.getHits()) {
+
+                            DefaultResultMapper resultMapper = new DefaultResultMapper();
+                            DemandeFileEsRechercheDTO fichierJoinEsRechercheDTO = resultMapper
+                                    .mapEntity(searchHit.getSourceAsString(), DemandeFileEsRechercheDTO.class);
+
+                            Map<String, HighlightField> highlightFields = searchHit.getHighlightFields();
+                            Map<String, String> demEsHighlightFields = new HashMap<>();
+                            updateHighLightedField(highlightFields, demEsHighlightFields, false, false, false);
+
+                            Map<String, SearchHits> innerHits = searchHit.getInnerHits();
+
+                            if (innerHits != null) {
+                                for (Map.Entry<String, SearchHits> searchHitsEntry : innerHits.entrySet()) {
+                                    SearchHit[] searchHitsArray = searchHitsEntry.getValue().getHits();
+                                    for (SearchHit searchInnerHit : searchHitsArray) {
+
+                                        DocumentField typeField = searchInnerHit.field(DemandeFileEsDTO.TYPE_FIELD);
+                                        String type = typeField.getValue();
+
+                                        boolean isCourrier = type.equals(DemandeFileEsDTO.TYPE.COURRIER.name());
+
+                                        updateHighLightedField(searchInnerHit.getHighlightFields(),
+                                                demEsHighlightFields, false, false, isCourrier);
+                                    }
+                                }
+                            }
+
+                            fichierJoinEsRechercheDTO.setHighlightedField(demEsHighlightFields);
+                            demandesEsList.add(fichierJoinEsRechercheDTO);
+
+                        }
+
+                        return new AggregatedPageImpl<>((List<T>) demandesEsList, pageable,
+                                response.getHits().getTotalHits());
+                    }
+
+                    @Override
+                    public <T> T mapSearchHit(SearchHit searchHit, Class<T> type) {
+                        return null;
+                    }
+
+                });
+
+    }
+
     /**
      * Méthode permettant de construire la map ayant comme clé le champ ou la recherche à été faite et comme valeur les
      * fragments contenant le résultat de recherche.<br/>
      * Les mots clés de la recherche sont entourés par des balises qui les mettent en évidence
-     * 
+     *
      * @param highlightFields
      *            Map des conetant les fragments surlignés récupérée de la recherche elasticsearch
      * @param demEsHighlightFields
@@ -1288,7 +1405,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     /**
      * Méthode permettant d'initialiser la requete highlight qui identifie les termes recherchés dans le document
      * elasticsearch
-     * 
+     *
      * @param demandeRecherche
      *            Paramètres de la recherche
      * @param nativeSearchQueryBuilder
@@ -1326,7 +1443,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     /**
      * Méthode permettant de mettre à jour le field à highlighter
-     * 
+     *
      * @param field Field à highlighter
      * @param searchText Recherche à faire
      * @return Field mis à jour
@@ -1338,7 +1455,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     /**
      * Méthode permettant de récupérer les fields sur lesquels on va faire la recherche à partir d'une propriété
-     * 
+     *
      * @param propertyName
      *            Nom de la propriétés
      * @param properties
@@ -1365,8 +1482,38 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     }
 
     /**
+     * Méthode permettant la construction de la requete elasticserach de récupération des courriers
+     *
+     * @param demandeRecherche
+     *            Paramètres de la recherche
+     * @return Requete elasticsearch pour récupérer les demandes
+     */
+    private BoolQueryBuilder getQueryBuilderForCourrier(DemandeCourrierRechercheDTO demandeRecherche) {
+
+        BoolQueryBuilder boolQueryBuilder = boolQuery();
+        TermQueryBuilder tqb = termQuery(DemandeFileEsDTO.TYPE_FIELD, DemandeFileEsDTO.TYPE.COURRIER.name());
+        boolQueryBuilder.must(tqb);
+
+        if (!StringUtils.isBlank(demandeRecherche.getTexte())) {
+            SimpleQueryStringBuilder filesQueryStringQueryBuilder = getSimpleQueryStringBuilder(
+                    demandeRecherche.getTexte(), null);
+
+            boolQueryBuilder = getQueryWhereForCourriers(filesQueryStringQueryBuilder,
+                    demandeRecherche, demandeRecherche.getSearchFields());
+        }
+
+        if (demandeRecherche.getImprime()){
+            boolQueryBuilder.must(QueryBuilders.existsQuery(DemandeFileEsDTO.IDENTIFIANT_FIELD));
+        } else {
+            boolQueryBuilder.mustNot(QueryBuilders.existsQuery(DemandeFileEsDTO.IDENTIFIANT_FIELD));
+        }
+
+        return getUiFilterQuery(boolQueryBuilder, demandeRecherche);
+    }
+
+    /**
      * Méthode permettant la construction de la requete elasticserach de récupération des demandes
-     * 
+     *
      * @param demandeRecherche
      *            Paramètres de la recherche
      * @return Requete elasticsearch pour récupérer les demandes
@@ -1401,7 +1548,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     /**
      * Méthode permattant la construction de la requete de recupération des demandes lorsque on n'a pas cliqué sur aucune
      * facet
-     * 
+     *
      * @param demandeQueryStringQueryBuilder
      *            Requete sur les attributs de la demande
      * @param filesQueryStringQueryBuilder
@@ -1430,9 +1577,43 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                 .should(hasChildQueryBuilder);
     }
 
+    private BoolQueryBuilder getQueryWhereForCourriers(SimpleQueryStringBuilder filesQueryStringQueryBuilder, DemandeCourrierRechercheDTO recherche, String[] searchFields) {
+        BoolQueryBuilder boolQueryBuilder = boolQuery();
+
+        TermQueryBuilder tqb = termQuery(DemandeFileEsDTO.TYPE_FIELD, DemandeFileEsDTO.TYPE.COURRIER.name());
+        boolQueryBuilder.must(tqb);
+
+        // Supression du suffixe par type de fichier
+        List<String> replacedSearchFields = new ArrayList<>();
+        for (String searchField : searchFields) {
+            replacedSearchFields.add(searchField.replaceFirst(COURRIER_FILE_HIGHLIGHT_AND_FACET_PREFIX, ""));
+        }
+        List<String> searchFilesFields = getSearchFields(replacedSearchFields.toArray(new String[0]), filesProperties);
+
+        if (!searchFilesFields.isEmpty()) {
+
+            Map<String, Float> filesFields = new HashMap<>();
+            HighlightBuilder hb = new HighlightBuilder();
+            for (String f : searchFilesFields) {
+                filesFields.put(f, 1f);
+                HighlightBuilder.Field field = new HighlightBuilder.Field(f).preTags(highlightPretags)
+                        .postTags(highlightPosttags)
+                        .highlightQuery(getSimpleQueryStringBuilder(recherche.getTexte(), filesPropertiesWithBoost));
+                hb = hb.field(field);
+
+            }
+            filesQueryStringQueryBuilder = filesQueryStringQueryBuilder.fields(filesFields);
+            BoolQueryBuilder bqb = boolQuery().must(filesQueryStringQueryBuilder).must(tqb);
+            boolQueryBuilder = boolQueryBuilder.must(bqb);
+
+        }
+
+        return boolQueryBuilder;
+    }
+
     /**
      * Méthode permattant la construction de la requete de recupération des demandes lorsque on a cliqué sur une facet
-     * 
+     *
      * @param demandeQueryStringQueryBuilder
      *            Requete sur les attributs de la demande
      * @param filesQueryStringQueryBuilder
@@ -1520,7 +1701,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     /**
      * Méthode permettant la construction de la requete elasticsearch à partir des filtres de la recherche avancée
-     * 
+     *
      * @param boolQueryBuilder
      *            Requete globale qui combine les requetes sur les demandes, sur les fichiers et sur les filtres
      *            définis dans l'interface graphique
@@ -1696,12 +1877,12 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     /**
      * Méthode permettant de cloner une demande et d'indexer la nouvelle demande
-     * 
+     *
      * @param demarcheId Identifiant de la démarche
      * @param pkDemande Identifiant de la demande
-     * 
+     *
      * @return retourne de DTO de la demande
-     * 
+     *
      * @see mc.gouv.xaf.back.service.data.impl.DemandesServiceImpl#cloneDemande(java.lang.String, java.lang.Integer)
      */
     @Override
@@ -1721,7 +1902,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     /**
      * Méthode permettant de formatter une date au format 'dd/MM/yyyy'
-     * 
+     *
      * @param date La date à formatter
      * @return la date formattée
      */

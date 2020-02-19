@@ -1,9 +1,9 @@
 package mc.gouv.xaf.backweb.controller;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.lang3.StringUtils;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.DemarchesDataProvider;
+import mc.gouv.xaf.back.service.data.DemandesCourriersService;
+import mc.gouv.xaf.shared.dto.DemandeCourrierDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,9 +14,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.data.DemandesCourriersService;
-import mc.gouv.xaf.shared.dto.DemandeCourrierDTO;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Controller pour la page /gestioncourrier
@@ -36,30 +35,19 @@ public class GestionCourrierController extends AbstractController {
     @Autowired
     private DemandesCourriersService demandesCourrierService;
 
+    @Autowired
+    private DemarchesDataProvider demarchesDataProvider;
+
     @Secured({"ROLE_TRAITEMENT","ROLE_SAISIE"})
     @RequestMapping(method = RequestMethod.GET)
     public ModelAndView form() {
 
         LOGGER.info("======================= Appel de la page /gestion/courriers");
 
-        List<DemandeCourrierDTO> courriers = demandesCourrierService.getCourriersPourDemarche(gouvPropertiesResolver.getDemarcheId());
-
-        List<DemandeCourrierDTO> courriersEnAttente = new ArrayList<DemandeCourrierDTO>();
-        List<DemandeCourrierDTO> courriersImprimes = new ArrayList<DemandeCourrierDTO>();
-
-        for (DemandeCourrierDTO courrier : courriers) {
-            if (courrier.getDatePrinted() != null) {
-                courriersImprimes.add(courrier);
-            } else {
-                courriersEnAttente.add(courrier);
-            }
-        }
+        ModelAndView mav = new ModelAndView("gestion/courriers/gestioncourrier");
+        mav.addObject("statuts", demarchesDataProvider.getStatusMap());
 
         LOGGER.info("======================= Fin /gestion/courriers");
-
-        ModelAndView mav = new ModelAndView("gestion/courriers/gestioncourrier");
-        mav.addObject("courriersEnAttente", courriersEnAttente);
-        mav.addObject("courriersImprimes", courriersImprimes);
         return mav;
     }
 
@@ -72,17 +60,13 @@ public class GestionCourrierController extends AbstractController {
         LOGGER.info("======================= Appel de la page /gestion/courriers/print (" + demandeId + "," + courrierId
                 + ")");
 
-        if (!StringUtils.isBlank(refCourrier)) {
-            LOGGER.info("Appels à DEM pour mettre à jour la référence courrier...");
-            DemandeCourrierDTO courrier = demandesCourrierService.getCourrier(gouvPropertiesResolver.getDemarcheId(), demandeId, courrierId);
-            
-            courrier.setIdentifiant(refCourrier);
-            
-            demandesCourrierService.updateCourrier(gouvPropertiesResolver.getDemarcheId(), demandeId, courrier);
-        }
+        LOGGER.info("Appels à DEM pour mettre à jour la référence courrier...");
+        DemandeCourrierDTO courrier = demandesCourrierService.getCourrier(gouvPropertiesResolver.getDemarcheId(), demandeId, courrierId);
 
-        LOGGER.info("Appel à DEM pour marquer le courrier comme imprimé...");
-        demandesCourrierService.printCourrier(gouvPropertiesResolver.getDemarcheId(), demandeId, courrierId);
+        courrier.setIdentifiant(refCourrier);
+        courrier.setDatePrinted(new Date());
+
+        demandesCourrierService.updateCourrier(gouvPropertiesResolver.getDemarcheId(), demandeId, courrier);
 
         ModelAndView mav = new ModelAndView("redirect:");
 

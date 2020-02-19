@@ -139,37 +139,6 @@ public class DemandesCourriersServiceImpl implements DemandesCourriersService {
 
     /**
      * {@inheritDoc}
-     * @throws Exception 
-     */
-    @Override
-    public DemandeCourrierDTO printCourrier(String demarcheId, Integer pkDemande, Integer pkCourrier) throws Exception {
-
-        LOGGER.info("Récupération de la demande associée...");
-
-        DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(demarcheId, pkDemande, true);
-
-        if (demandeBo == null) {
-            throw new DemarchesServiceException("Demande associée introuvable", HttpStatus.NOT_FOUND);
-        }
-
-        Optional<DemandesCourriersBO> courrierBoOp = demandesCourriersRepository.findById(pkCourrier);
-
-        if (!courrierBoOp.isPresent()) {
-            throw new DemarchesServiceException("Courrier introuvable", HttpStatus.NOT_FOUND);
-        }
-
-        // Définir la date d'impression du courrier à la date courante
-        courrierBoOp.get().setDatePrinted(new Date());
-
-        courrierBoOp = Optional.of(demandesCourriersRepository.save(courrierBoOp.get()));
-
-        LOGGER.info("Transformation bo -> dto ...");
-        return DemandesCourriersTransformer.bo2Dto(courrierBoOp.get());
-
-    }
-
-    /**
-     * {@inheritDoc}
      */
     @Override
     public List<DemandeCourrierDTO> getCourriersPourDemarche(String demarcheId) {
@@ -215,6 +184,7 @@ public class DemandesCourriersServiceImpl implements DemandesCourriersService {
         courrierBo.setUrl(courrierDto.getUrl());
         courrierBo.setMeta(courrierDto.getMeta());
         courrierBo.setIdentifiant(courrierDto.getIdentifiant());
+        courrierBo.setDatePrinted(courrierDto.getDatePrinted());
         courrierBo = demandesCourriersRepository.save(courrierBo);
 
         DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(demarcheId, pkDemande, true);

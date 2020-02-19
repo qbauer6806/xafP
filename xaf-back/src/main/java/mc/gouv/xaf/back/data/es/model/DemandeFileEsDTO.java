@@ -5,11 +5,14 @@ import javax.validation.constraints.NotNull;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 
+import java.util.Date;
+
 @Document(indexName = "#{propertiesResolver.indexAlias}", type = DemandeEsDTO.INDEX_TYPE, createIndex = false)
 public class DemandeFileEsDTO {
 
     public static final String INDEX_FILES_JOIN_DOC = "fichiers";
     public static final String TYPE_FIELD = "fichiers.type";
+    public static final String IDENTIFIANT_FIELD = "fichiers.identifiant";
 
     public enum TYPE {
         PIECE_JOINTE,
@@ -52,6 +55,7 @@ public class DemandeFileEsDTO {
         @NotNull
         protected String name;
 
+        // Id unique, différent de la pkDemandeFile (généré à partir de l'url et nom) et utilisé par ES
         @Id
         protected String id;
 
@@ -61,6 +65,11 @@ public class DemandeFileEsDTO {
         private String content;
         private String language;
         private String type;
+        private String statut;
+        private Date dateCreation;
+        private Integer pkDemande;
+        private Integer pkDemandeFile;
+        private String identifiant; // Identifiant courrier (ref_interne sur la page gestioncourrier)
 
         public String getName() {
             return name;
@@ -118,6 +127,45 @@ public class DemandeFileEsDTO {
             this.type = type;
         }
 
+        public String getStatut() {
+            return statut;
+        }
+
+        public void setStatut(String statut) {
+            this.statut = statut;
+        }
+
+        public Date getDateCreation() {
+            return dateCreation;
+        }
+
+        public void setDateCreation(Date dateCreation) {
+            this.dateCreation = dateCreation;
+        }
+
+        public Integer getPkDemande() {
+            return pkDemande;
+        }
+
+        public void setPkDemande(Integer pkDemande) {
+            this.pkDemande = pkDemande;
+        }
+
+        public Integer getPkDemandeFile() {
+            return pkDemandeFile;
+        }
+
+        public void setPkDemandeFile(Integer pkDemandeFile) {
+            this.pkDemandeFile = pkDemandeFile;
+        }
+
+        public String getIdentifiant() {
+            return identifiant;
+        }
+
+        public void setIdentifiant(String identifiant) {
+            this.identifiant = identifiant;
+        }
     }
 
 }

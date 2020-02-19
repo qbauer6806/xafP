@@ -110,8 +110,7 @@
 											aria-expanded="true" aria-controls="grilleCourriersEnAttente"> <i
 											class="pannelState icon-action_accordeon-ouvert"></i>
 											COURRIERS EN ATTENTE D'IMPRESSION <span id="numberEnAttente"
-											class="badge info numberEnAttente"
-											th:text="${#lists.size(courriersEnAttente)}"></span>
+											class="badge info numberEnAttente"></span>
 										</a>
 									</h4>
 								</div>
@@ -128,38 +127,6 @@
 													<th>ACTIONS</th>
 												</tr>
 											</thead>
-											<tbody>
-												<tr th:each="courrier, courrierStat : ${courriersEnAttente}">
-													<td th:text="${courrier.name}"></td>
-													<td
-														th:text="${#dates.format(courrier.dateCreation,'dd/MM/yyyy')}"></td>
-													<td
-														th:text="${AfBackUtils.getStatusLibelleFromName(courrier.fkStatut.libelle)}"></td>
-													<td><a
-														th:id="'btnOuvrirDemande' + ${courrierStat.index}"
-														th:href="@{'/demandes/'+${courrier.demandeId}}"> <span
-															th:text="${courrier.demandeIdentifiant}"></span>
-													</a></td>
-													<td><a
-														th:id="'btnTelechargerCourrier' + ${courrierStat.index}"
-														th:href="@{/ws/file/get/}+${courrier.url}"> <span
-															class="btn btn-action ripple-effect greyTooltip"
-															data-toggle="tooltip" data-placement="bottom"
-															data-original-title="Télécharger" title=""> <i
-																class="icon-action_pdf"></i></span>
-													</a>&nbsp;&nbsp; <a
-														th:id="'btnValiderImpression' + ${courrierStat.index}"
-														href="#"
-														th:attr="data-courrierid=${courrier.pkCourrier},data-demandeid=${courrier.demandeId}"
-														class="print"> <span
-															class="btn btn-action ripple-effect greyTooltip"
-															data-toggle="tooltip" data-placement="bottom"
-															data-original-title="Valider l'impression" title="">
-																<i class="icon-action_expedie_ok"></i>
-														</span>
-													</a></td>
-												</tr>
-											</tbody>
 										</table>
 									</div>
 								</div>
@@ -181,8 +148,7 @@
 											aria-expanded="true" aria-controls="grilleCourriersImprimes"> <i
 											class="pannelState icon-action_accordeon-ouvert"></i>
 											COURRIERS IMPRIMÉS <span id="numberImprimes"
-											class="badge info"
-											th:text="${#lists.size(courriersImprimes)}"></span>
+											class="badge info"></span>
 										</a>
 									</h4>
 								</div>
@@ -200,29 +166,6 @@
 													<th>ACTIONS</th>
 												</tr>
 											</thead>
-											<tbody>
-												<tr th:each="courrier, courrierStat : ${courriersImprimes}">
-													<td th:text="${courrier.name}"></td>
-													<td
-														th:text="${#dates.format(courrier.dateCreation,'dd/MM/yyyy')}"></td>
-													<td
-														th:text="${AfBackUtils.getStatusLibelleFromName(courrier.fkStatut.libelle)}"></td>
-													<td><a
-														th:id="'btnOuvrirDemande' + ${courrierStat.index}"
-														th:href="@{'/demandes/'+${courrier.demandeId}}"> <span
-															title="Télécharger"
-															th:text="${courrier.demandeIdentifiant}"></span>
-													</a></td>
-													<td th:text="${courrier.identifiant}"></td>
-													<td><a
-														th:id="'btnTelechargerCourrier' + ${courrierStat.index}"
-														th:href="@{/ws/file/get/}+${courrier.url}"><span
-															class="btn btn-action ripple-effect greyTooltip"
-															data-toggle="tooltip" data-placement="bottom"
-															data-original-title="Télécharger" title=""> <i
-																class="icon-action_pdf"></i></span></a></td>
-												</tr>
-											</tbody>
 										</table>
 									</div>
 								</div>
@@ -269,65 +212,178 @@
 
     $(document).ready(function() {
 
-        // Prevent double form submission
+		var statuts = /*[[${statuts}]]*/[];
+		var columnsTableAttente = [
+			{
+				"data" : "fichiers.name",
+				"keyword" : true,
+				render : function(data, type, element) {
+					return element.fichiers.name;
+				}
+			},
+			{
+				"data" : "fichiers.dateCreation",
+				"keyword" : false,
+				render : function(data, type, element) {
+					// On ne format pas en STRING la demande si l'accès à la donnée se fait pendant un SORT ou un TYPE
+					if (type === "sort" || type === "type") {
+						return data;
+					}
+					return moment(element.fichiers.dateCreation).format("DD/MM/YYYY");
+				}
+			},
+			{
+				"data" : "fichiers.statut",
+				"keyword" : true,
+				render : function(data, type, element) {
+					return statuts[element.fichiers.statut];
+				}
+			},
+			{
+				"data" : "fichiers.pkDemande",
+				"keyword" : true,
+				render : function(data, type, element) {
+					return "<a href='" + APP.getContextPath() + "/demandes/" + element.fichiers.pkDemande + "'><span class='identifiant-demande'>" + element.demandeJoinField.parent + "</span></a>";
+				}
+			},
+			{
+				"orderable" : false,
+				"keyword" : false,
+				render : function(data, type, element , meta) {
+					return '<a id="btnTelechargerCourrier' + meta.row + '" href="' + APP.getContextPath() + '/ws/file/get/' + element.fichiers.url + '" >' +
+							'<span class="btn btn-action ripple-effect greyTooltip" data-toggle="tooltip" data-placement="bottom" data-original-title="Télécharger" title=""> ' +
+							'<i class="icon-action_pdf"></i></span></a>' +
+							'' +
+							'<a id="btnValiderImpression' + meta.row + '" href="#" data-courrierid="' + element.fichiers.pkDemandeFile + '" data-demandeid="' + element.fichiers.pkDemande + '" class="print"> ' +
+							'<span class="btn btn-action ripple-effect greyTooltip" data-toggle="tooltip" data-placement="bottom" data-original-title="Valider l\'impression" title="">' +
+							'<i class="icon-action_expedie_ok"></i></span></a>';
+				}
+			}
+		];
+		var columnsTableImprimes = [
+			{
+				"data" : "fichiers.name",
+				"keyword" : true,
+				render : function(data, type, element) {
+					return element.fichiers.name;
+				}
+			},
+			{
+				"data" : "fichiers.dateCreation",
+				"keyword" : false,
+				render : function(data, type, element) {
+					// On ne format pas en STRING la demande si l'accès à la donnée se fait pendant un SORT ou un TYPE
+					if (type === "sort" || type === "type") {
+						return data;
+					}
+					return moment(element.fichiers.dateCreation).format("DD/MM/YYYY");
+				}
+			},
+			{
+				"data" : "fichiers.statut",
+				"keyword" : true,
+				render : function(data, type, element) {
+					return statuts[element.fichiers.statut];
+				}
+			},
+			{
+				"data" : "fichiers.pkDemande",
+				"keyword" : true,
+				render : function(data, type, element) {
+					return "<a href='" + APP.getContextPath() + "/demandes/" + element.fichiers.pkDemande + "'><span class='identifiant-demande'>" + element.demandeJoinField.parent + "</span></a>";
+				}
+			},
+			{
+				"data" : "fichiers.identifiant",
+				"keyword" : true,
+				render : function(data, type, element) {
+					return element.fichiers.identifiant;
+				}
+			},
+			{
+				"orderable" : false,
+				"keyword" : false,
+				render : function(data, type, element , meta) {
+					return '<a id="btnTelechargerCourrier' + meta.row + '" href="' + APP.getContextPath() + '/ws/file/get/' + element.fichiers.url + '" >' +
+							'<span class="btn btn-action ripple-effect greyTooltip" data-toggle="tooltip" data-placement="bottom" data-original-title="Télécharger" title=""> ' +
+							'<i class="icon-action_pdf"></i></span></a>';
+				}
+			}
+		];
+		var buildSearchDatafunction = function(params, imprime) {
+
+			params.texte = encodeURIComponent($("#txtRechercheCourriers").val());
+
+			//Suppression de toutes les valeurs renvoyées par datatable
+			params.columns = null;
+			params.search = null;
+
+			//conversion des params pour Pageable Spring MVC
+			params.size = params.length;
+			params.page = params.start / params.length;
+
+			params.imprime = imprime;
+
+			//sort=identifiant,desc
+			params.sort = columnsTableAttente[params.order[0].column].data + "," + params.order[0].dir;
+			console.log("params", params);
+		};
+
+		// Prevent double form submission
         $("form").submit(function (e) {
             $('form input[type=submit]').prop('disabled',true);
             return true;
         });
 
-        $(".print").click(function(e) {
-            e.preventDefault();
+		var rebindClicks = function () {
+			$(".print").click(function(e) {
+				e.preventDefault();
 
-            var courrierId = $(this).data("courrierid");
-            var demandeId = $(this).data("demandeid");
+				var courrierId = $(this).data("courrierid");
+				var demandeId = $(this).data("demandeid");
 
-            $.fancybox.open({
-        		src: '#print-box',
-        		type: 'inline',
-        		btnTpl: {
-        			smallBtn: '<button id="btnFermerPopinIdentifiant" data-fancybox-close="" class="fancybox-close-small" title="Fermer"></button>'
-        		}
-        	});
+				$.fancybox.open({
+					src: '#print-box',
+					type: 'inline',
+					btnTpl: {
+						smallBtn: '<button id="btnFermerPopinIdentifiant" data-fancybox-close="" class="fancybox-close-small" title="Fermer"></button>'
+					}
+				});
 
-            $("#demandeId").val(demandeId);
-            $("#courrierId").val(courrierId);
+				$("#demandeId").val(demandeId);
+				$("#courrierId").val(courrierId);
 
-            return false;
+				return false;
 
-        });
+			});
+		};
 
-
-        var tableImprimes = $('#courriersImprimes').DataTable({
-            paging: true,
-            select: false,
-            bInfo: false,
-            lengthChange : false,
-            order : [ [ 1, "desc" ] ],
-            columnDefs: [
-                {"orderable": false, "targets": 3}
-            ],
-            language: frenchTranslation,
-            lengthMenu: [ 5, 10, 25, 50, 100 ]
-        });
-
-        $('#btnRechercherCourriers').click(function(e) {
+		$('#btnRechercherCourriers').click(function(e) {
             e.preventDefault();
             filterTable($("#txtRechercheCourriers").val());
         });
 
-        var tableAttente = $('#courriersEnAttente').DataTable({
-            paging: true,
-            select: false,
-            bInfo: false,
-            lengthChange : false,
-            order : [ [ 1, "desc" ] ],
-            columnDefs: [
-                {"orderable": false, "targets": 3}
-            ],
-            language: frenchTranslation,
-            lengthMenu: [ 5, 10, 25, 50, 100 ]
-        });
+		var buildSearchDatafunctionEnAttente = function(params) {
+			buildSearchDatafunction(params, false);
+		};
 
+		var buildSearchDatafunctionImprimes = function(params) {
+			buildSearchDatafunction(params, true);
+		};
+
+		// Courriers en attente
+		var configurationDataTableCourrierAttente = APP.getConfigurationDataTableCourriers(columnsTableAttente, false);
+		configurationDataTableCourrierAttente.ajax.data = buildSearchDatafunctionEnAttente;
+		$('#courriersEnAttente').DataTable(configurationDataTableCourrierAttente);
+
+		// Courriers a imprimer
+		var configurationDataTableCourrierImprimes = APP.getConfigurationDataTableCourriers(columnsTableImprimes, true);
+		configurationDataTableCourrierImprimes.ajax.data = buildSearchDatafunctionImprimes;
+		$('#courriersImprimes').DataTable(configurationDataTableCourrierImprimes);
+
+		$('#courriersEnAttente').on( 'draw.dt', function () {
+			rebindClicks();
+		});
 
         $('.dataTables_filter').hide();
 
@@ -348,27 +404,8 @@
 	            }
             }
 
-            var textEncoded = encodeURIComponent(text);
-            var url = APP.getContextPath()+"/ws/demandes/pageable?texte="+textEncoded+"&searchFields=courrier.fichiers.name&searchFields=identifiant" +
-                "&searchFields=courrierDateReception&searchFields=dernierStatut.libelle&searchFields=courrier.fichiers.content";
-            $.ajax({
-                url : url,
-                method : "GET",
-                traditional : true
-            }).done(function(demandes) {
-                var filter = null;
-                if(demandes.content.length > 0) {
-                    demandes.content.forEach(function(demande){
-                        filter = (filter) ? filter + '|' + demande.identifiant : demande.identifiant;
-                    });
-                }
-                tableAttente.column(3).search(filter, true, false).draw();
-                var numberEnAttente = tableAttente.$('tr', {"filter":"applied"}).length;
-                $("#numberEnAttente").text(numberEnAttente);
-                tableImprimes.column(3).search(filter, true, false).draw();
-                var numberImprimes = tableImprimes.$('tr', {"filter":"applied"}).length;
-                $("#numberImprimes").text(numberImprimes);
-            });
+			$('#courriersEnAttente').DataTable().ajax.reload(null, false);
+			$('#courriersImprimes').DataTable().ajax.reload(null, false);
         }
     });
 

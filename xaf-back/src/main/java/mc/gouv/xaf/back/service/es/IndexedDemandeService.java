@@ -5,17 +5,14 @@ import java.util.List;
 
 import javax.jms.JMSException;
 
+import mc.gouv.xaf.back.data.es.model.*;
+import mc.gouv.xaf.shared.dto.DemandeCourrierRechercheDTO;
 import org.apache.tika.exception.TikaException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.xml.sax.SAXException;
 
 import mc.gouv.xaf.back.data.entity.DemandeBO;
-import mc.gouv.xaf.back.data.es.model.DemandeEsDTO;
-import mc.gouv.xaf.back.data.es.model.DemandeEsRechercheDTO;
-import mc.gouv.xaf.back.data.es.model.DemandeFileEsDTO;
-import mc.gouv.xaf.back.data.es.model.DemandesFacets;
-import mc.gouv.xaf.back.data.es.model.EsProperty;
 import mc.gouv.xaf.back.exception.FileConnectionException;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
@@ -119,30 +116,28 @@ public interface IndexedDemandeService extends DemandesService {
      * Méthode permettant d'envoyer un fichier au topic afin d'être indexer
      * 
      * @param demandeFileDTO DTO du fichier à indexer
-     * @param demarcheId Identifiant de la démarche
-     * @param demandeId Identifiant de la demande
+     * @param demandeDTO DTO de la demande à traiter
      * 
      * @throws IOException Exception I/O
      * @throws SAXException Exception SAX
      * @throws TikaException Exception du parsing de la piece jointe
      * @throws JMSException Exception lors de l'envoi de la demande au topic
      */
-    void sendToTopic(DemandeFileDTO demandeFileDTO, String demarcheId, String demandeId)
+    void sendToTopic(DemandeFileDTO demandeFileDTO, DemandeDTO demandeDTO)
             throws IOException, SAXException, TikaException, JMSException;
 
     /**
      * Méthode permettant d'envoyer un fichier au topic afin d'être indexer
      * 
      * @param demandeFileDTOList DTOs des fichier à indexer
-     * @param demarcheId Identifiant de la démarche
-     * @param demandeId Identifiant de la demande
+     * @param demandeDTO DTO de la demande à traiter
      * 
      * @throws IOException Exception I/O
      * @throws SAXException Exception SAX
      * @throws TikaException Exception du parsing de la piece jointe
      * @throws JMSException Exception lors de l'envoi de la demande au topic
      */
-    void sendToTopic(DemandeFileDTO[] demandeFileDTOList, String demarcheId, String demandeId)
+    void sendToTopic(DemandeFileDTO[] demandeFileDTOList, DemandeDTO demandeDTO)
             throws IOException, SAXException, TikaException, JMSException;
 
     /**
@@ -164,6 +159,17 @@ public interface IndexedDemandeService extends DemandesService {
      */
     Page<DemandeEsRechercheDTO> getIndexedDemandes(DemandeRechercheDTO demandeRecherche, Pageable pageable,
             String[] fields);
+
+    /**
+     * Méthode permettant de rechercher des demandes à partir des critères en input (recherche paginée)
+     *
+     * @param demandeRecherche Critères de recherche
+     * @param pageable Page de la recherche
+     * @param fields fields de la demande à récupérer
+     * @return Résultat de la recherche
+     */
+    Page<DemandeFileEsRechercheDTO> getIndexedCourriers(DemandeCourrierRechercheDTO demandeRecherche, Pageable pageable,
+                                                        String[] fields);
 
     /**
      * Methode permettant de récupérer la liste des propriétés du moteur de recherche

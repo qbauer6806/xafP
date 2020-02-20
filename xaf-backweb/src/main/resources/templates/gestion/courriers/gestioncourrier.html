@@ -241,7 +241,7 @@
 			},
 			{
 				"data" : "fichiers.pkDemande",
-				"keyword" : true,
+				"keyword" : false,
 				render : function(data, type, element) {
 					return "<a href='" + APP.getContextPath() + "/demandes/" + element.fichiers.pkDemande + "'><span class='identifiant-demande'>" + element.demandeJoinField.parent + "</span></a>";
 				}
@@ -288,7 +288,7 @@
 			},
 			{
 				"data" : "fichiers.pkDemande",
-				"keyword" : true,
+				"keyword" : false,
 				render : function(data, type, element) {
 					return "<a href='" + APP.getContextPath() + "/demandes/" + element.fichiers.pkDemande + "'><span class='identifiant-demande'>" + element.demandeJoinField.parent + "</span></a>";
 				}
@@ -324,8 +324,13 @@
 
 			params.imprime = imprime;
 
+			var keyword = '';
+			var col = columnsTableAttente[params.order[0].column];
+			if(col.keyword) {
+				keyword = '.keyword'
+			}
 			//sort=identifiant,desc
-			params.sort = columnsTableAttente[params.order[0].column].data + "," + params.order[0].dir;
+			params.sort = columnsTableAttente[params.order[0].column].data + keyword + "," + params.order[0].dir;
 			console.log("params", params);
 		};
 

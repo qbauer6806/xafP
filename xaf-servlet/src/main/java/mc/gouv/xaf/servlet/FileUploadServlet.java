@@ -1,5 +1,6 @@
 package mc.gouv.xaf.servlet;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -22,18 +23,21 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.InputStreamBody;
+import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import mc.gouv.xaf.shared.dto.AccessDTO;
+import mc.gouv.vscan.shared.dto.ScanDTO;
+import mc.gouv.vscan.shared.dto.ScanRequestDTO;
 import mc.gouv.xaf.servlet.dto.FileUploadResponseDTO;
 import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
 import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils.ServiceTarget;
+import mc.gouv.xaf.shared.dto.AccessDTO;
 
 @MultipartConfig
 public class FileUploadServlet extends AbstractAfServlet {
@@ -66,6 +70,49 @@ public class FileUploadServlet extends AbstractAfServlet {
                     "Erreur: nom du fichier manquant");
             return;
         }
+        
+        // Appel à VSCAN afin d'effectuer le scan antivirus
+        // Constitution de la requête
+        LOGGER.info("Appel à VSCAN...");
+        
+        ObjectMapper mapper = new ObjectMapper();
+        String urlVscan = AfServletGouvPropertiesResolver.getVscanUrl();
+        LOGGER.info("URL = " + urlVscan);
+        HttpClient clientVscan = HttpClientBuilder.create().build();
+        Part part0 = request.getParts().iterator().next();
+        MultipartEntityBuilder builderVscan = MultipartEntityBuilder.create();
+        builderVscan.addPart("file", new InputStreamBody(part0.getInputStream(), part0.getContentType(), part0.getSubmittedFileName()));
+        
+        // Pour tester avec un fichier vérolé (EICAR)
+        //builderVscan.addPart("file", new InputStreamBody(new ByteArrayInputStream("X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*".getBytes()), "blason.jpg"));
+        
+        ScanRequestDTO scanRequest = new ScanRequestDTO();
+        scanRequest.setCodeAppli(getServletContext().getInitParameter(AppFactoryServletUtils.DEMARCHEID_KEY));
+        scanRequest.setFilename(filename);
+        scanRequest.setEnduserIpAddress(request.getRemoteAddr());
+        scanRequest.setEnduserAppModule(getServletContext().getInitParameter(AppFactoryServletUtils.DEMARCHEID_KEY).toLowerCase() + "-frontserver");
+        scanRequest.setEnduserDenomination("Usager " + usagerInfosDTO.getId() + " (" + usagerInfosDTO.getLogin() + ")");
+        
+        String scanRequestStr = mapper.writeValueAsString(scanRequest);
+        builderVscan.addPart("scanRequest", new StringBody(scanRequestStr));
+        HttpEntity multipartVscan = builderVscan.build();
+        HttpPost postRequestVscan = new HttpPost(urlVscan.toString());
+        postRequestVscan.setEntity(multipartVscan);
+        postRequestVscan.addHeader("Authorization", "Bearer " + AfServletGouvPropertiesResolver.getVscanJwt());
+        HttpResponse postResponseVscan = clientVscan.execute(postRequestVscan);
+        String vscanResp = IOUtils.toString(postResponseVscan.getEntity().getContent());
+        LOGGER.info("VSCAN Response : " + postResponseVscan.getStatusLine() + "(" + vscanResp + ")");
+        
+        ScanDTO scanDto = mapper.readValue(vscanResp, ScanDTO.class);
+        
+        if (!scanDto.isResult()) {
+        	LOGGER.info("VSCAN a détecté le fichier comme vérolé, fin du traitement, pas d'upload dans FILE");
+            response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_BAD_REQUEST,
+                    "Erreur: le fichier soumis semble corrompu");
+            return;
+        }
+        
+        LOGGER.info("VSCAN n'a pas considéré le fichier soumis comme vérolé");
 
         try {
 
@@ -142,7 +189,7 @@ public class FileUploadServlet extends AbstractAfServlet {
                 // Si tout s'est bien passé, alors on forme une réponse différente que celle qui nous est retournée par
                 // FILE
                 response.setContentType("application/json");
-                ObjectMapper mapper = new ObjectMapper();
+                mapper = new ObjectMapper();
                 // Répondre accessId/uuid/nomDuFichier
                 FileUploadResponseDTO responseObj = new FileUploadResponseDTO(accessId + "/" + uuid + "/" + filename);
                 String responseStr = mapper.writeValueAsString(responseObj);

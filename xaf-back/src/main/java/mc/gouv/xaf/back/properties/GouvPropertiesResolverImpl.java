@@ -261,6 +261,18 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
 
     @GouvIndexationProperty
     @Override
+    public String getEsUser() {
+        return Static.getValue("mc.gouv" + applicationPrefix + ".elasticsearch.user");
+    }
+
+    @GouvIndexationProperty
+    @Override
+    public String getEsPassword() {
+        return Static.getValue("mc.gouv" + applicationPrefix + ".elasticsearch.password");
+    }
+
+    @GouvIndexationProperty
+    @Override
     public String getEsClusterHosts() {
         return Static.getValue("mc.gouv" + applicationPrefix + ".elasticsearch.clusterHosts");
     }

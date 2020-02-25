@@ -49,6 +49,10 @@ public interface GouvPropertiesResolver {
 
     String getSearchHighlightPostTags();
 
+    String getEsUser();
+
+    String getEsPassword();
+
     String getEsClusterHosts();
 
     Integer getEsPort();

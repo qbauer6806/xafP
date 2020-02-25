@@ -2,7 +2,12 @@ package mc.gouv.xaf.back.config.es;
 
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import org.apache.http.HttpHost;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
+import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
@@ -28,13 +33,25 @@ public class EsConfigGouv {
     @SuppressWarnings("resource")
     @Bean
     public RestHighLevelClient client() {
+
+        // Authentification elastisearch
+        final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+        String user = gouvPropertiesResolver.getEsUser();
+        String password = gouvPropertiesResolver.getEsPassword();
+        credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(user, password));
+
         String[] clusterHosts = gouvPropertiesResolver.getEsClusterHosts().split(GOUV_PROPERTIES_CHAR_SPLITTER);
         List<HttpHost> hosts = new ArrayList<>();
         for (String clusterHost : clusterHosts) {
             hosts.add(new HttpHost(clusterHost, gouvPropertiesResolver.getEsPort(), "http"));
         }
+
+        RestClientBuilder builder = RestClient.builder(hosts.toArray(new HttpHost[0]))
+                .setHttpClientConfigCallback(httpClientBuilder ->
+                        httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider));
+
         // Migration Transport -> RestHighLevel https://www.elastic.co/guide/en/elasticsearch/client/java-rest/7.5/_changing_the_client_8217_s_initialization_code.html
-        return new RestHighLevelClient(RestClient.builder(hosts.toArray(new HttpHost[0])));
+        return new RestHighLevelClient(builder);
     }
 
     @Bean

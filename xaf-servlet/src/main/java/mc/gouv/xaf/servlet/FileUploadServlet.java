@@ -1,6 +1,5 @@
 package mc.gouv.xaf.servlet;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLEncoder;

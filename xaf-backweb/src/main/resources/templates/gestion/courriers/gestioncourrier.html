@@ -312,7 +312,7 @@
 		];
 		var buildSearchDatafunction = function(params, imprime) {
 
-			params.texte = encodeURIComponent($("#txtRechercheCourriers").val());
+			params.texte = $("#txtRechercheCourriers").val();
 
 			//Suppression de toutes les valeurs renvoyées par datatable
 			params.columns = null;

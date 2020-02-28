@@ -15,28 +15,19 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-import mc.gouv.file.shared.dto.FileDTO;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.PeriodesOuvertureService;
-import mc.gouv.xaf.back.service.itg.file.FileService;
-import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.PeriodeOuvertureDTO;
 
 @Controller
 @RequestMapping("/gestion/periodesouverture")
-@Secured("ROLE_CONFIGURATION")
+@Secured("ROLE_PARAMETRAGE")
 public class GestionPeriodesOuvertureController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GestionModelesController.class);
     
     @Autowired
-    private AfBackUtils afBackUtils;
-    
-    @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
-    
-    @Autowired
-    private FileService fileService;
     
     @Autowired
     private PeriodesOuvertureService periodesOuvertureService;
@@ -56,7 +47,6 @@ public class GestionPeriodesOuvertureController {
         return mav;
     }
     
-    @Secured("ROLE_TRAITEMENT")
     @RequestMapping(value = "/ajouter", method = RequestMethod.POST)
     @Transactional
     public ModelAndView ajouter(@RequestParam(required = true) Date periodeStartDate, @RequestParam(required = true) Date periodeEndDate)
@@ -77,7 +67,6 @@ public class GestionPeriodesOuvertureController {
         
     }
     
-    @Secured("ROLE_TRAITEMENT")
     @RequestMapping(value = "/modifier", method = RequestMethod.POST)
     @Transactional
     public ModelAndView modifier(@RequestParam(required = true) Date periodeStartDate0, @RequestParam(required = true) Date periodeEndDate0, @RequestParam(required = true) Integer pkPeriodesOuverture)
@@ -99,7 +88,6 @@ public class GestionPeriodesOuvertureController {
         
     }
     
-    @Secured("ROLE_TRAITEMENT")
     @RequestMapping(value = "/supprimer", method = RequestMethod.POST)
     @Transactional
     public ModelAndView supprimer(@RequestParam(required = true) Integer pkPeriodesOuverture0)

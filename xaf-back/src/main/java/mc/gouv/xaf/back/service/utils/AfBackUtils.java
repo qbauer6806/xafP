@@ -442,5 +442,13 @@ public class AfBackUtils {
     public boolean getDemarcheCanGenerateCourriers() {
         return demarchesDataProvider.getDemarcheCanGenerateCourriers();
     }
+    
+    /**
+     * Permet de savoir si la démarche prend en charge les périodes d'ouverture
+     * @return
+     */
+    public boolean getDemarcheCanHandlePeriodesOuverture() {
+    	return demarchesDataProvider.getDemarcheCanHandlePeriodesOuverture();
+    }
 
 }

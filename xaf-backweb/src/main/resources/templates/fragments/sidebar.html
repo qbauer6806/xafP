@@ -139,6 +139,10 @@
 					   		th:href="@{/gestion/modeles}">
 						   <div class="whiteBullet"></div> Modèles
 					   </a></li>
+					   <li th:if="${AfBackUtils.getDemarcheCanHandlePeriodesOuverture()}"><a id="menuGestionPeriodesOuverture"
+					   		th:href="@{/gestion/periodesouverture}">
+						   <div class="whiteBullet"></div> Périodes d'ouverture
+					   </a></li>
 					</ul>
 				</li>
 

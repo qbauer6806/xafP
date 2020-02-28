@@ -4,9 +4,12 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
@@ -28,10 +31,9 @@ public class PeriodesOuvertureBO {
     @Column(name = "PK_PERIODESOUVERTURE", nullable = false)
     private Integer pkPeriodesOuverture;
 
-    @Column(name = "FK_DEMARCHEID", length = 128, nullable = false)
-    @NotBlank
-    @Size(min = 1, max = 128)
-    private String demarcheId;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "FK_DEMARCHEID", nullable = false)
+    private DemarchesBO demarche;
 
     @Column(name = "DATE_DEBUT", nullable = false)
     private Date dateDebut;
@@ -45,14 +47,6 @@ public class PeriodesOuvertureBO {
 
     public void setPkPeriodesOuverture(Integer pkPeriodesOuverture) {
         this.pkPeriodesOuverture = pkPeriodesOuverture;
-    }
-
-    public String getDemarcheId() {
-        return demarcheId;
-    }
-
-    public void setDemarcheId(String demarcheId) {
-        this.demarcheId = demarcheId;
     }
 
     public Date getDateDebut() {
@@ -70,5 +64,13 @@ public class PeriodesOuvertureBO {
     public void setDateFin(Date dateFin) {
         this.dateFin = dateFin;
     }
+
+	public DemarchesBO getDemarche() {
+		return demarche;
+	}
+
+	public void setDemarche(DemarchesBO demarche) {
+		this.demarche = demarche;
+	}
 
 }

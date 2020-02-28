@@ -33,6 +33,7 @@ import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeInputDTO;
 import mc.gouv.xaf.shared.dto.MotifDTO;
+import mc.gouv.xaf.shared.dto.PeriodeOuvertureDTO;
 import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 import mc.gouv.xapi.error.dto.ErrorsDTO;
 import mc.gouv.xapi.error.exception.WebException;
@@ -172,6 +173,12 @@ public abstract class AbstractAfApiController implements AfApiController {
             return "Indexing is disabled, please enable it";
         }
 
+    }
+    
+    @RequestMapping(value = "/periodesouverture", method = RequestMethod.GET)
+    public List<PeriodeOuvertureDTO> getPeriodesOuvertureRequest() {
+        LOGGER.info("AbstractAfApiController.getPeriodesOuverture()");
+        return getPeriodesOuverture();
     }
 
     @ExceptionHandler(WebException.class)

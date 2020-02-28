@@ -1,8 +1,13 @@
 package mc.gouv.xaf.back.data.entity;
 
+import java.util.Set;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
@@ -64,6 +69,9 @@ public class DemarchesBO {
     @NotBlank
     @Size(min = 1, max = 128)
     private String identifiantPrefixe;
+    
+    @OneToMany(mappedBy = "demarche", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<PeriodesOuvertureBO> periodesOuverture;
 
 	public String getPkDemarches() {
         return pkDemarches;
@@ -136,5 +144,13 @@ public class DemarchesBO {
     public void setIdentifiantPrefixe(String identifiantPrefixe) {
         this.identifiantPrefixe = identifiantPrefixe;
     }
+
+	public Set<PeriodesOuvertureBO> getPeriodesOuverture() {
+		return periodesOuverture;
+	}
+
+	public void setPeriodesOuverture(Set<PeriodesOuvertureBO> periodesOuverture) {
+		this.periodesOuverture = periodesOuverture;
+	}
 
 }

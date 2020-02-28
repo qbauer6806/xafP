@@ -3,6 +3,11 @@ package mc.gouv.xaf.back.data.transformer;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+
 import mc.gouv.xaf.back.data.entity.PeriodesOuvertureBO;
 import mc.gouv.xaf.shared.dto.PeriodeOuvertureDTO;
 
@@ -20,7 +25,7 @@ public class PeriodeOuvertureTransformer {
         PeriodeOuvertureDTO dto = new PeriodeOuvertureDTO();
         dto.setDateDebut(bo.getDateDebut());
         dto.setDateFin(bo.getDateFin());
-        dto.setDemarcheId(bo.getDemarcheId());
+        dto.setDemarcheId(bo.getDemarche().getPkDemarches());
         dto.setPkPeriodesOuverture(bo.getPkPeriodesOuverture());
         return dto;
     }
@@ -29,7 +34,6 @@ public class PeriodeOuvertureTransformer {
         PeriodesOuvertureBO bo = new PeriodesOuvertureBO();
         bo.setDateDebut(dto.getDateDebut());
         bo.setDateFin(dto.getDateFin());
-        bo.setDemarcheId(dto.getDemarcheId());
         bo.setPkPeriodesOuverture(dto.getPkPeriodesOuverture());
         return bo;
     }

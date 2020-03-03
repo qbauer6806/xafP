@@ -4,6 +4,7 @@ import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.DemandesCourriersService;
 import mc.gouv.xaf.shared.dto.DemandeCourrierDTO;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,7 +64,7 @@ public class GestionCourrierController extends AbstractController {
         LOGGER.info("Appels à DEM pour mettre à jour la référence courrier...");
         DemandeCourrierDTO courrier = demandesCourrierService.getCourrier(gouvPropertiesResolver.getDemarcheId(), demandeId, courrierId);
 
-        courrier.setIdentifiant(refCourrier);
+        courrier.setIdentifiant(StringEscapeUtils.escapeHtml4(refCourrier));
         courrier.setDatePrinted(new Date());
 
         demandesCourrierService.updateCourrier(gouvPropertiesResolver.getDemarcheId(), demandeId, courrier);

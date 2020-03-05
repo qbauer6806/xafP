@@ -58,7 +58,7 @@ public class HistoServiceImpl implements HistoService {
 		}
 		if (agentId != null) {
 			try {
-				agentName = afBackUtils.getUserNameFromID(agentId);
+				agentName = utilisateursUtils.getUserNameFromID(agentId);
 			} catch (RestException e) {
 				LOGGER.error("Impossible de récupérer le nom de l'agentId = " + agentId, e);
 			}
@@ -133,7 +133,7 @@ public class HistoServiceImpl implements HistoService {
 
 		String agentName = null;
 		try {
-			agentName = afBackUtils.getUserNameFromID(agentId);
+			agentName = utilisateursUtils.getUserNameFromID(agentId);
 		} catch (RestException e) {
 			LOGGER.error("Impossible de récupérer le nom de l'agentId = " + agentId, e);
 		}
@@ -151,7 +151,7 @@ public class HistoServiceImpl implements HistoService {
 		contenu.setHtml(html);
 		contenu.setTexte(texte);
 		try {
-			contenu.setUtilisateurNom(afBackUtils.getUserNameFromID(agentId));
+			contenu.setUtilisateurNom(utilisateursUtils.getUserNameFromID(agentId));
 		} catch (RestException e) {
 			LOGGER.error("Erreur", e);
 		}
@@ -176,7 +176,7 @@ public class HistoServiceImpl implements HistoService {
 		// L'agent prévaut
 		if (agentId != null) {
 			try {
-				agentName = afBackUtils.getUserNameFromID(agentId);
+				agentName = utilisateursUtils.getUserNameFromID(agentId);
 				html = "<span class='histo-user'>Utilisateur " + agentName
 						+ "</span><span class='histo-separator'></span>Création de la demande";
 				texte = "Création de la demande par l'utilisateur " + agentName;
@@ -221,7 +221,7 @@ public class HistoServiceImpl implements HistoService {
 		}
 		if (agentId != null) {
 			try {
-				agentName = afBackUtils.getUserNameFromID(agentId);
+				agentName = utilisateursUtils.getUserNameFromID(agentId);
 			} catch (RestException e) {
 				LOGGER.error("Impossible de récupérer le nom de l'agentId = " + agentId, e);
 			}
@@ -258,7 +258,7 @@ public class HistoServiceImpl implements HistoService {
 		}
 		if (agentId != null) {
 			try {
-				contenu.setUtilisateurNom(afBackUtils.getUserNameFromID(agentId));
+				contenu.setUtilisateurNom(utilisateursUtils.getUserNameFromID(agentId));
 			} catch (RestException e) {
 				LOGGER.error("Erreur", e);
 			}
@@ -327,7 +327,7 @@ public class HistoServiceImpl implements HistoService {
 
 		String agentName = null;
 		try {
-			agentName = afBackUtils.getUserNameFromID(agentId);
+			agentName = utilisateursUtils.getUserNameFromID(agentId);
 		} catch (RestException e) {
 			LOGGER.error("Impossible de récupérer le nom de l'agentId = " + agentId, e);
 		}
@@ -346,7 +346,7 @@ public class HistoServiceImpl implements HistoService {
 		contenu.setHtml(html);
 		contenu.setTexte(texte);
 		try {
-			contenu.setUtilisateurNom(afBackUtils.getUserNameFromID(agentId));
+			contenu.setUtilisateurNom(utilisateursUtils.getUserNameFromID(agentId));
 		} catch (RestException e) {
 			LOGGER.error("Erreur", e);
 		}

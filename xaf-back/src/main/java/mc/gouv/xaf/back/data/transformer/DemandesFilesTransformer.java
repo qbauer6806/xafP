@@ -18,6 +18,7 @@ public class DemandesFilesTransformer {
 
     public static DemandeFileDTO bo2Dto(DemandesFilesBO bo) {
         DemandeFileDTO dto = new DemandeFileDTO();
+        dto.setPkDemandesFiles(bo.getPkDemandesFiles());
         dto.setName(bo.getName());
         dto.setUrl(bo.getUrl());
         dto.setMeta(bo.getMeta());
@@ -33,6 +34,7 @@ public class DemandesFilesTransformer {
      */
     public static DemandesFilesBO dto2Bo(DemandeFileDTO dto) {
         DemandesFilesBO bo = new DemandesFilesBO();
+        bo.setPkDemandesFiles(dto.getPkDemandesFiles());
         bo.setName(dto.getName());
         bo.setUrl(dto.getUrl());
         bo.setMeta(dto.getMeta());

@@ -60,8 +60,10 @@ public class FileUtils {
      * @throws IOException
      */
     public static String detectLanguage(String text) throws IOException {
+        // On prend les 20k premiers caractères pour éviter des fichiers trop grands
+        String textToAnalyze = text.substring(0, 20000);
         LanguageDetector detector = new OptimaizeLangDetector().loadModels();
-        LanguageResult result = detector.detect(text);
+        LanguageResult result = detector.detect(textToAnalyze);
         return result.getLanguage();
     }
 	

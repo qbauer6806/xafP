@@ -54,7 +54,7 @@ public class GestionModelesController {
     private FileService fileService;
 
     @RequestMapping(method = RequestMethod.GET)
-    public ModelAndView form() throws Exception {
+    public ModelAndView form(@RequestParam(name = "typeModele", required = false) String typeModele) throws Exception {
 
         LOGGER.info("Appel de la page gestion/modeles. Méthode form");
         ModelAndView mav = new ModelAndView("gestion/modeles/modeles");
@@ -82,6 +82,8 @@ public class GestionModelesController {
         mav.addObject("courriers", courriers);
         mav.addObject("justificatifs", justificatifs);
         mav.addObject("exportExcel", exportExcel);
+        // #17024 : Pour recharger la page sur le même onglet
+        mav.addObject("typeModele", typeModele);
 
         LOGGER.info("======================= Fin /gestion/modeles. Méthode form");
 
@@ -109,7 +111,7 @@ public class GestionModelesController {
 
         LOGGER.info("Appel de /gestion/modeles/valider");
         
-        ModelAndView mav = new ModelAndView("redirect:/gestion/modeles");
+        ModelAndView mav = new ModelAndView("redirect:/gestion/modeles?typeModele=" + typeModele);
         
         List<String> messages = new ArrayList<>();
 

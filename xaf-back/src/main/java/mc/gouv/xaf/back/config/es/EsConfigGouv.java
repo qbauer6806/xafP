@@ -38,7 +38,12 @@ public class EsConfigGouv {
     @SuppressWarnings("resource")
     @Bean
     public RestHighLevelClient client() {
-        String[] clusterHosts = gouvPropertiesResolver.getEsClusterHosts().split(GOUV_PROPERTIES_CHAR_SPLITTER);
+        String clusterHostsProperty = gouvPropertiesResolver.getEsClusterHosts();
+        String[] clusterHosts = new String[0];
+        if (StringUtils.isNotBlank(clusterHostsProperty))  {
+            clusterHosts = gouvPropertiesResolver.getEsClusterHosts().split(GOUV_PROPERTIES_CHAR_SPLITTER);
+        }
+
         List<HttpHost> hosts = new ArrayList<>();
         for (String clusterHost : clusterHosts) {
             hosts.add(new HttpHost(clusterHost, gouvPropertiesResolver.getEsPort(), "http"));

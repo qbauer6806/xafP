@@ -71,18 +71,19 @@
 
 
 					<ul class="nav nav-tabs" role="tablist">
-						<li class="active"><a href="#tab1" aria-controls="tab1"
+						<li th:classappend="${typeModele} == 'COURRIER' or ${typeModele} == null ? 'active' : ''"><a href="#tab1" aria-controls="tab1"
 											  role="tab" data-toggle="tab">COURRIERS</a></li>
-						<li><a href="#tab2" aria-controls="tab2" role="tab"
+						<li th:classappend="${typeModele} == 'JUSTIFICATIF' ? 'active' : ''"><a href="#tab2" aria-controls="tab2" role="tab"
 							   data-toggle="tab">JUSTIFICATIFS
 						</a></li>
-						<li><a href="#tab3" aria-controls="tab3" role="tab"
+						<li th:classappend="${typeModele} == 'EXPORT_EXCEL' ? 'active' : ''"><a href="#tab3" aria-controls="tab3" role="tab"
 							   data-toggle="tab">EXPORT EXCEL
 						</a></li>
 					</ul>
 					<!-- Tab panes -->
 					<div class="tab-content">
-						<div role="tabpanel" class="tab-pane active" id="tab1">
+						<div role="tabpanel" class="tab-pane" id="tab1"
+						th:classappend="${typeModele} == 'COURRIER' or ${typeModele} == null ? 'active' : ''">
 							<div th:each="courrier : ${courriers}">
 								<form name="form1" method="POST" enctype="multipart/form-data" th:action="@{/gestion/modeles/valider}+'?'+${_csrf.parameterName}+'='+${_csrf.token}">
 									<div class="sectiondemande">
@@ -106,7 +107,8 @@
 								</form>
 							</div>
 						</div>
-						<div role="tabpanel" class="tab-pane" id="tab2">
+						<div role="tabpanel" class="tab-pane" id="tab2"
+						th:classappend="${typeModele} == 'JUSTIFICATIF' ? 'active' : ''">
 							<div th:each="justificatif : ${justificatifs}">
 								<form name="form1" method="POST" enctype="multipart/form-data" th:action="@{/gestion/modeles/valider}+'?'+${_csrf.parameterName}+'='+${_csrf.token}">
 									<div class="sectiondemande">
@@ -130,7 +132,8 @@
 								</form>
 							</div>
 						</div>
-						<div role="tabpanel" class="tab-pane" id="tab3">
+						<div role="tabpanel" class="tab-pane" id="tab3"
+						th:classappend="${typeModele} == 'EXPORT_EXCEL' ? 'active' : ''">
 							<form name="form1" method="POST" enctype="multipart/form-data" th:action="@{/gestion/modeles/valider}+'?'+${_csrf.parameterName}+'='+${_csrf.token}">
 								<div class="sectiondemande">
 									<h2>Modèle <span th:text="${exportExcel.name}"></span></h2>

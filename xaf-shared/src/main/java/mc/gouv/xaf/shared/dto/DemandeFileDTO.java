@@ -12,6 +12,8 @@ import javax.validation.constraints.NotNull;
  */
 public class DemandeFileDTO {
 
+    protected Integer pkDemandesFiles;
+
     @NotNull
     protected String name;
 
@@ -21,6 +23,16 @@ public class DemandeFileDTO {
     protected String meta;
     
     protected Date date;
+
+    protected String identifiant;
+
+    public Integer getPkDemandesFiles() {
+        return pkDemandesFiles;
+    }
+
+    public void setPkDemandesFiles(Integer pkDemandesFiles) {
+        this.pkDemandesFiles = pkDemandesFiles;
+    }
 
     public String getName() {
         return name;
@@ -54,4 +66,11 @@ public class DemandeFileDTO {
 		this.date = date;
 	}
 
+    public String getIdentifiant() {
+        return identifiant;
+    }
+
+    public void setIdentifiant(String identifiant) {
+        this.identifiant = identifiant;
+    }
 }

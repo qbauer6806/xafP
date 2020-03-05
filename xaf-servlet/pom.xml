@@ -131,7 +131,7 @@
 			<artifactId>xaf-apiclient</artifactId>
 			<version>8.0.0-SNAPSHOT</version>
 		</dependency>
-		
+
         <dependency>
             <groupId>mc.gouv.vscan</groupId>
             <artifactId>vscan-shared</artifactId>

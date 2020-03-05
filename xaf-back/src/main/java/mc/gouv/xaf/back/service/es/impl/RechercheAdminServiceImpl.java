@@ -123,6 +123,7 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
                 complementsAndInternalFilesProperties.add(courrierProperty);
                 complementsFilesAndInternalFilesPropertiesMap.put(complementProperty.getName(), complementProperty);
                 complementsFilesAndInternalFilesPropertiesMap.put(internalFileProperty.getName(), internalFileProperty);
+                complementsFilesAndInternalFilesPropertiesMap.put(courrierProperty.getName(), courrierProperty);
             }
         }
 

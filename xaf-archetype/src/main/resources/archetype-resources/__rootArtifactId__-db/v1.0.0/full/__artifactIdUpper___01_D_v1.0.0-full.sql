@@ -5,7 +5,11 @@
 
 -- /!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\ ATTENTION REMPLACER L'ADRESSE DU SERVICE PAR UNE ADRESSE DE TEST, SI ENVIRONNEMENT != PROD /!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\
 -- Penser également à mettre email_from = email_service afin d'éviter que le secrétariat de la DAN (contact@gouv.mc) ne reçoive des e-mails de delivery failure
+-- DEV + REC (à commenter lors de la MEP)
 INSERT INTO ${artifactIdUpper}.DEM_DEMARCHES VALUES ('${artifactIdUpper}','${tsFullName}','recettedae10@gouv.mc','Service de l''Emploi','noreply@gouv.mc','No-Reply','contact@gouv.mc','Contact Téléservices Principauté de Monaco','${tsIdentifiantDemande}');
+
+-- PROD (à décommenter lors de la MEP)
+--INSERT INTO ${artifactIdUpper}.DEM_DEMARCHES VALUES ('${artifactIdUpper}','${tsFullName}','recettedae10@gouv.mc','Service de l''Emploi','noreply@gouv.mc','No-Reply','contact@gouv.mc','Contact Téléservices Principauté de Monaco','${tsIdentifiantDemande}');
 
 -- MOTIFS - FR
 ------------------------------------------

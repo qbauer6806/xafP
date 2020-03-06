@@ -820,7 +820,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                 try {
                     fileText = FileUtils.parseToPlainText(is);
                     demandeFileEsDTO.getFichiers().setContent(fileText);
-                    demandeFileEsDTO.getFichiers().setLanguage(FileUtils.detectLanguage(fileText));
+                    demandeFileEsDTO.getFichiers().setLanguage(demande.getLangue());
 
                 } catch (ZeroByteFileException e) {
                     LOGGER.info("Le fichier : {} est vide (a une taille de 0 byte)", fileUrl);
@@ -880,7 +880,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                 try {
                     fileText = FileUtils.parseToPlainText(is);
                     demandeFileEsDTO.getFichiers().setContent(fileText);
-                    demandeFileEsDTO.getFichiers().setLanguage(FileUtils.detectLanguage(fileText));
+                    demandeFileEsDTO.getFichiers().setLanguage(demande.getLangue());
 
                 } catch (ZeroByteFileException e) {
                     LOGGER.info("Le fichier : {} est vide (a une taille de 0 byte)", fileUrl);

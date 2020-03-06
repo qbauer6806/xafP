@@ -31,17 +31,46 @@ APP.buildDefaultDatafunction = function (params){
     params.sort = columns[params.order[0].column].data + keyword+","+params.order[0].dir;
 }
 
+APP.getConfigurationDataTableCourriers = function(columns, imprimes) {
 
+	return {
+		"processing": true,
+		serverSide : true,
+		"ajax": {
+
+			//Pour ne pas envoyer canal[]=XXX non géré par Spring mvc
+			"traditional": true,
+			"url": APP.getContextPath()+"/ws/courriers/pageable",
+			"dataSrc": function(json) {
+
+				json['recordsTotal'] = json['totalElements'];
+				json['recordsFiltered'] = json['totalElements'];
+
+				//json['data'] = json['content'];
+				if(imprimes) {
+					$("#numberImprimes").html(json.totalElements);
+				} else {
+					$("#numberEnAttente").html(json.totalElements);
+				}
+				return json.content;
+			}
+		},
+
+		"columns": columns,
+		autoWidth: false,
+		filter : false,
+		language: frenchTranslation,
+		iDisplayLength : 5,
+		lengthChange : false,
+		order: [ [ 1, "desc" ] ]
+	};
+}
 
 APP.getConfigurationDataTable = function(columns) {
-	
-	
-	
-	
 	var configurationDataTable = {
 		serverSide : true,
 		"ajax": {
-    		
+
     		//Pour ne pas envoyer canal[]=XXX non géré par Spring mvc
     		"traditional": true,
 		    "url": APP.getContextPath()+"/ws/demandes/pageable",

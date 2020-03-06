@@ -19,8 +19,6 @@ public class DemandeExcelFlatDTO {
 
     private String etatInterne;
 
-    private InformationsDetachementDTO informationsDetachement;
-
     public DemandeFlatDTO getGeneric() {
         return generic;
     }
@@ -45,11 +43,4 @@ public class DemandeExcelFlatDTO {
         this.etatInterne = etatInterne;
     }
 
-    public InformationsDetachementDTO getInformationsDetachement() {
-        return informationsDetachement;
-    }
-
-    public void setInformationsDetachement(InformationsDetachementDTO informationsDetachement) {
-        this.informationsDetachement = informationsDetachement;
-    }
 }

@@ -1,5 +1,7 @@
 package mc.gouv.xaf.back.service.es.impl;
 
+import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Primary;
@@ -25,15 +27,16 @@ public class IndexedEsDemandeFilesServiceImpl extends DemandeFilesServiceImpl {
     public void saveFiles(DemandeFileDTO[] demandeFiles, DemandeBO demandeBo) throws Exception {
 
         super.saveFiles(demandeFiles, demandeBo);
-        indexedDemandeService.sendToTopic(demandeFiles, demandeBo.getFkAccess().getDemarcheId(),
-                demandeBo.getIdentifiant());
+        DemandeDTO demandeDto = DemandesTransformer.bo2Dto(demandeBo);
+        indexedDemandeService.sendToTopic(demandeFiles, demandeDto);
     }
 
     @Override
     public void saveFile(DemandeFileDTO demandeFile, String demarcheId, Integer pkDemande) throws Exception {
         super.saveFile(demandeFile, demarcheId, pkDemande);
         DemandeBO demandeBo = indexedDemandeService.getDemandeBo(demarcheId, pkDemande);
-        indexedDemandeService.sendToTopic(demandeFile, demarcheId, demandeBo.getIdentifiant());
+        DemandeDTO demandeDto = DemandesTransformer.bo2Dto(demandeBo);
+        indexedDemandeService.sendToTopic(demandeFile, demandeDto);
 
     }
 

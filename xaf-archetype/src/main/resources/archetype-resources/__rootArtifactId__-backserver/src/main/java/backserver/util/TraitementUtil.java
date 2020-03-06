@@ -3,8 +3,6 @@
 #set( $symbol_escape = '\' )
 package ${groupId}.backserver.util;
 
-import ${groupId}.backserver.formbean.InformationsDetachementFormBean;
-import ${groupId}.shared.dto.InformationsDetachementDTO;
 import ${groupId}.shared.enums.${artifactIdCamelCase}CodeMotifEnum;
 
 import java.util.List;
@@ -12,27 +10,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class TraitementUtil {
-
-    public static InformationsDetachementDTO mapInformationDetachementFormToDTO(InformationsDetachementFormBean form) {
-
-        InformationsDetachementDTO dto = new InformationsDetachementDTO();
-        dto.setNombreSalariesDetaches(form.getNombreSalariesDetaches());
-        dto.setNombreSalariesNonDetaches(form.getNombreSalariesNonDetaches());
-        return dto;
-    }
-
-    public static InformationsDetachementFormBean mapInformationDetachementDTO2FormBean(InformationsDetachementDTO dto) {
-
-        InformationsDetachementFormBean form = new InformationsDetachementFormBean();
-
-        if (dto != null) {
-            form.setNombreSalariesDetaches(dto.getNombreSalariesDetaches());
-            form.setNombreSalariesNonDetaches(dto.getNombreSalariesNonDetaches());
-        }
-
-        return form;
-    }
-
 
     public static List<String> getMotifsAAfficher(boolean isChantier, boolean isFrance) {
         List<String> codeMotifs = Stream.of(${artifactIdCamelCase}CodeMotifEnum.values()).map(Enum::name).collect(Collectors.toList());

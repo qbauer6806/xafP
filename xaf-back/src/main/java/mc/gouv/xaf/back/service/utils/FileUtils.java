@@ -5,9 +5,6 @@ import java.io.InputStream;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.tika.exception.TikaException;
-import org.apache.tika.langdetect.OptimaizeLangDetector;
-import org.apache.tika.language.detect.LanguageDetector;
-import org.apache.tika.language.detect.LanguageResult;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AutoDetectParser;
 import org.apache.tika.sax.BodyContentHandler;
@@ -49,22 +46,6 @@ public class FileUtils {
         Metadata metadata = new Metadata();
         parser.parse(stream, handler, metadata);
         return handler.toString();
-    }
-
-    /**
-     * Méthode pemrmettant de détecter la langue à partir d'une chaine de caractéres
-     * 
-     * @param text
-     *            Texte dont on veut detecter la langue
-     * @return Langue detectée
-     * @throws IOException
-     */
-    public static String detectLanguage(String text) throws IOException {
-        // On prend les 20k premiers caractères pour éviter des fichiers trop grands
-        String textToAnalyze = text.substring(0, 20000);
-        LanguageDetector detector = new OptimaizeLangDetector().loadModels();
-        LanguageResult result = detector.detect(textToAnalyze);
-        return result.getLanguage();
     }
 	
     // Norme sur les métadonnées des fichiers

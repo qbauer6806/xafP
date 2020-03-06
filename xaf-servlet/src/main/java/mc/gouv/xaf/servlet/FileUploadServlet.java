@@ -88,9 +88,9 @@ public class FileUploadServlet extends AbstractAfServlet {
         ScanRequestDTO scanRequest = new ScanRequestDTO();
         scanRequest.setCodeAppli(getServletContext().getInitParameter(AppFactoryServletUtils.DEMARCHEID_KEY));
         scanRequest.setFilename(filename);
-        scanRequest.setEnduserIpAddress(request.getRemoteAddr());
+        //scanRequest.setEnduserIpAddress(request.getRemoteAddr());
         scanRequest.setEnduserAppModule(getServletContext().getInitParameter(AppFactoryServletUtils.DEMARCHEID_KEY).toLowerCase() + "-frontserver");
-        scanRequest.setEnduserDenomination("Usager " + usagerInfosDTO.getId() + " (" + usagerInfosDTO.getLogin() + ")");
+        //scanRequest.setEnduserDenomination("Usager " + usagerInfosDTO.getId() + " (" + usagerInfosDTO.getLogin() + ")");
         
         String scanRequestStr = mapper.writeValueAsString(scanRequest);
         builderVscan.addPart("scanRequest", new StringBody(scanRequestStr));

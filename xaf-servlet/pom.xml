@@ -11,6 +11,10 @@
 		<version>1.44.20</version>
 		<relativePath />
 	</parent>
+	
+	<properties>
+		<vscan.version>1.0.0-rc1</vscan.version>
+	</properties>
 
 	<build>
 		<finalName>AppFactoryServlet</finalName>
@@ -135,7 +139,7 @@
         <dependency>
             <groupId>mc.gouv.vscan</groupId>
             <artifactId>vscan-shared</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>${vscan.version}</version>
         </dependency>
 	</dependencies>
 </project>

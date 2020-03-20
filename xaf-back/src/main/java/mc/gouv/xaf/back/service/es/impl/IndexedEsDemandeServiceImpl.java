@@ -701,7 +701,8 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                 demandesService.indexFiles(files);
             }
         }
-
+        
+        LOGGER.info("Fin de l'indexation des fichiers");
     }
 
     @Override
@@ -714,9 +715,11 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             List<DemandeFileEsDTO> demFileEsDtoList = new ArrayList<>();
             demFileEsDtoList.add(demandeFileEsDTO);
 
+            LOGGER.info("Appel de la méthode indexFiles");
             demandesService.indexFiles(demFileEsDtoList);
         }
 
+        LOGGER.info("Fin de l'indexation des fichiers");
     }
 
     @Override
@@ -730,9 +733,11 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                 demFileEsDtoList.add(getFileEsContent(demandeDTO, getDemandeFileType(file), file));
             }
 
+            LOGGER.info("Appel de la méthode indexFiles");
             demandesService.indexFiles(demFileEsDtoList);
         }
 
+        LOGGER.info("Fin de l'indexation des fichiers");
     }
 
     /**
@@ -825,6 +830,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                     LOGGER.error(e.getMessage(), e);
                 }
             }
+            LOGGER.info("Parsing du fichier terminé");
             return demandeFileEsDTO;
         }
         return null;
@@ -885,6 +891,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                     LOGGER.error(e.getMessage(), e);
                 }
             }
+            LOGGER.info("Parsing du fichier terminé");
             return demandeFileEsDTO;
         }
         return null;

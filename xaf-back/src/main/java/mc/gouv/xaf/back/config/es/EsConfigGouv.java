@@ -35,12 +35,11 @@ public class EsConfigGouv {
 
     private final String GOUV_PROPERTIES_CHAR_SPLITTER = ",";
 
-    @SuppressWarnings("resource")
     @Bean
     public RestHighLevelClient client() {
         String clusterHostsProperty = gouvPropertiesResolver.getEsClusterHosts();
         String[] clusterHosts = new String[0];
-        if (StringUtils.isNotBlank(clusterHostsProperty))  {
+        if (StringUtils.isNotBlank(clusterHostsProperty)) {
             clusterHosts = gouvPropertiesResolver.getEsClusterHosts().split(GOUV_PROPERTIES_CHAR_SPLITTER);
         }
 
@@ -49,7 +48,11 @@ public class EsConfigGouv {
             hosts.add(new HttpHost(clusterHost, gouvPropertiesResolver.getEsPort(), "http"));
         }
 
-        RestClientBuilder builder = RestClient.builder(hosts.toArray(new HttpHost[0]));
+        Integer connectTimeout = gouvPropertiesResolver.getEsConnectTimeout();
+        Integer socketTimeout = gouvPropertiesResolver.getEsSocketTimeout();
+        RestClientBuilder builder = RestClient.builder(hosts.toArray(new HttpHost[0]))
+                .setRequestConfigCallback(requestConfigBuilder -> requestConfigBuilder.setConnectTimeout(connectTimeout)
+                        .setSocketTimeout(socketTimeout));
 
         // Authentification elastisearch
         String user = gouvPropertiesResolver.getEsUser();
@@ -59,10 +62,12 @@ public class EsConfigGouv {
             LOGGER.info("Configuration d'elasticsearch avec Basic Auth");
             final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
             credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(user, password));
-            builder.setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider));
+            builder.setHttpClientConfigCallback(
+                    httpClientBuilder -> httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider));
         }
 
-        return new RestHighLevelClient(builder);
+        RestHighLevelClient client = new RestHighLevelClient(builder);
+        return client;
     }
 
     @Bean

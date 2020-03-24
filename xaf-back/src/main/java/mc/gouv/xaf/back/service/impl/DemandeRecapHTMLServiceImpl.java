@@ -402,7 +402,9 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
                 String ville = escape(getNode(node, champ, "ville").textValue(), isPdfRecap);
                 ret += "<dt><span>Ville</span></dt><dd><span>" + codePostal + " " + ville + "</span></dd>";
                 String pays = getNode(node, champ, "pays").textValue();
-                ret += "<dt><span>Pays</span></dt><dd><span>" + paysCache.get(pays, "fr").getNom() + "</span></dd>";
+                if (StringUtils.isNotBlank(pays)) {
+                    ret += "<dt><span>Pays</span></dt><dd><span>" + paysCache.get(pays, "fr").getNom() + "</span></dd>";
+                }
             }
             return ret;
         } else if (type.equals("adresseMc")) {

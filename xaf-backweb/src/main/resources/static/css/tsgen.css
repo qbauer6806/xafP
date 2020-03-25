@@ -247,6 +247,7 @@ label[data-toggle]{
 
 .display-commentaire {
 	white-space: pre-wrap;
+	word-break: normal;
 }
 
 dl {

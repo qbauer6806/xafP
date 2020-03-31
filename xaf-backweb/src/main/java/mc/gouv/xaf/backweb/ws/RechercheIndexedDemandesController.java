@@ -136,8 +136,10 @@ public class RechercheIndexedDemandesController extends AbstractController {
             AfBackDemandeEsDTO newDem = new AfBackDemandeEsDTO(demande);
             if (demande.getAgent() != null && demande.getAgent().getMatricule() != null) {
                 User user = utilisateursCache.get(demande.getAgent().getMatricule());
-                newDem.setAgentAffectePrenom(user.getPrenom());
-                newDem.setAgentAffecteNom(user.getNomAffichage());
+                if (user != null) {
+	                newDem.setAgentAffectePrenom(user.getPrenom());
+	                newDem.setAgentAffecteNom(user.getNomAffichage());
+                }
             }
             newDemandes.add(newDem);
         }

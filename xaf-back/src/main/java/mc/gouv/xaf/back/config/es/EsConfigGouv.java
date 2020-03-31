@@ -1,6 +1,5 @@
 package mc.gouv.xaf.back.config.es;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -71,12 +70,17 @@ public class EsConfigGouv {
 					httpClientBuilder -> httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider));
 		}
 
+		/*
 		try (RestHighLevelClient client = new RestHighLevelClient(builder)) {			
 			return client;
 		} catch (IOException e) {
 			LOGGER.error(e.getMessage());
 		}
 		return null;
+		*/
+		
+		RestHighLevelClient client = new RestHighLevelClient(builder);
+		return client;
 	}
 
 	/**

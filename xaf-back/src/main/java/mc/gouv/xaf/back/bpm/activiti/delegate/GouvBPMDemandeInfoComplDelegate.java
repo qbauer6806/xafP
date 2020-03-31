@@ -2,6 +2,7 @@ package mc.gouv.xaf.back.bpm.activiti.delegate;
 
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.delegate.JavaDelegate;
+import org.activiti.engine.impl.el.Expression;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +38,10 @@ public class GouvBPMDemandeInfoComplDelegate implements JavaDelegate {
 
     @Autowired(required = false)
     private IndexedDemandeService indexedDemandeService;
+    
+    private Expression codeMotif;
+    
+    private Expression commentaireUsager;
 
     @Override
     public void execute(DelegateExecution execution) throws Exception {
@@ -49,19 +54,36 @@ public class GouvBPMDemandeInfoComplDelegate implements JavaDelegate {
 
         LOGGER.info("Demande : " + demandeId);
 
-        // Récupération du commentaire usager et du code motif si besoin plus tars dans le traitement
-        String commentaireUsager = (String) execution.getVariables()
-                .get(GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name());
-        String codeMotif = (String) execution.getVariables().get(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name());
+        
+		String codeMotifStr = null;
+        if (codeMotif != null && codeMotif.getValue(execution) != null) {
+            codeMotifStr = ((String) codeMotif.getValue(execution)).trim();
+        }
+		String commentaireUsagerStr = null;
+        if (commentaireUsager != null && commentaireUsager.getValue(execution) != null) {
+        	commentaireUsagerStr = ((String) commentaireUsager.getValue(execution)).trim();
+        }
+        
+        // Récupération du commentaire usager et du code motif si besoin plus tard dans le traitement
+        
+        // Si le commentaire usager n'a pas été indiqué dans le BPMN, alors le récupérer des process variables
+        if (StringUtils.isBlank(commentaireUsagerStr)) {
+        	commentaireUsagerStr = (String) execution.getVariables().get(GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name());
+        }
+        
+        // Si le code motif n'a pas été indiqué dans le BPMN, alors le récupérer des process variables
+        if (StringUtils.isBlank(codeMotifStr)) {
+        	codeMotifStr = (String) execution.getVariables().get(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name());
+        }
 
-        LOGGER.info("Commentaire usager : " + commentaireUsager);
-        LOGGER.info("Code motif : " + codeMotif);
+        LOGGER.info("Commentaire usager : " + commentaireUsagerStr);
+        LOGGER.info("Code motif : " + codeMotifStr);
 
         DemandeComplementsQuestionDTO questionDto = new DemandeComplementsQuestionDTO();
         questionDto.setAgentId(AfBackUtils.getAuthenticatedAgentId());
-        questionDto.setCodeMotif(codeMotif);
-        if (!StringUtils.isBlank(commentaireUsager)) {
-            questionDto.setTexte(commentaireUsager);
+        questionDto.setCodeMotif(codeMotifStr);
+        if (!StringUtils.isBlank(commentaireUsagerStr)) {
+            questionDto.setTexte(commentaireUsagerStr);
         } else {
             // Texte vide si commentaireUsager null
             questionDto.setTexte("");

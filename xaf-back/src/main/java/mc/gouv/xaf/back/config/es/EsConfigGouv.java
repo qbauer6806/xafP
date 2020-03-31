@@ -68,17 +68,7 @@ public class EsConfigGouv {
 			credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(user, password));
 			builder.setHttpClientConfigCallback(
 					httpClientBuilder -> httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider));
-		}
-
-		/*
-		try (RestHighLevelClient client = new RestHighLevelClient(builder)) {			
-			return client;
-		} catch (IOException e) {
-			LOGGER.error(e.getMessage());
-		}
-		return null;
-		*/
-		
+		}		
 		RestHighLevelClient client = new RestHighLevelClient(builder);
 		return client;
 	}

@@ -2,7 +2,6 @@ package mc.gouv.xaf.backweb.ws;
 
 import java.util.Map;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
@@ -57,11 +56,6 @@ public class DemandeExportController extends AbstractController {
             response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
             response.setHeader("Content-disposition", "attachment; filename=" +
                     demarchesService.getDemarche(demarcheId).getIdentifiantPrefixe() + "_Donnees_Stat_" + AfBackUtils.generateFileDateAndTimeSuffix() + ".xlsx");
-
-            // Création du cookie pour notifier du téléchargement terminé (2 minutes max age)
-            Cookie telechargementCookie = new Cookie("exportEnCours", "1");
-            telechargementCookie.setMaxAge(60 * 2);
-            response.addCookie(telechargementCookie);
             
             LOGGER.info("Constitution du modèle pour la génération Excel...");
             Map<String, Object> model = excelExportModelProvider.getModel(creationStartDate, creationEndDate);

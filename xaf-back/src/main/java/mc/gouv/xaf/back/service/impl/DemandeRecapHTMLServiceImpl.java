@@ -343,25 +343,29 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
             Date date = new Date(OffsetDateTime.parse(node0.asText()).toInstant().toEpochMilli());
             return dateFormat.format(date);
         } else if (type.equals("choixMultiple")) {
-            ObjectNode list = (ObjectNode) getNode(node, champ, "path");
-            Iterator<Map.Entry<String, JsonNode>> it = list.fields();
-            String ret = "";
-            String mapping = champ.get("mapping").toString();
-            while (it.hasNext()) {
-                Map.Entry<String, JsonNode> entry = it.next();
-                if (((BooleanNode) entry.getValue()).asBoolean()) {
-                    mapping = mapping.substring(0, 1).toUpperCase() + mapping.substring(1);
-                    Class<?> klass = Class.forName("mc.gouv." + gouvPropertiesResolver.getDemarcheId().toLowerCase()
-                            + ".shared.model.v" + buildId + "." + mapping + "Enum");
-                    Object[] parameters = { entry.getKey().toUpperCase(), true };
-                    Object value = klass.getMethod("forValue", String.class, boolean.class).invoke(klass, parameters);
-                    if (!ret.equals("")) {
-                        ret += ", ";
-                    }
-                    ret += value.toString();
-                }
-            }
-            return ret;
+        	JsonNode n = getNode(node, champ, "path");
+        	if (n instanceof ObjectNode) {
+	            ObjectNode list = (ObjectNode) n;
+	            Iterator<Map.Entry<String, JsonNode>> it = list.fields();
+	            String ret = "";
+	            String mapping = champ.get("mapping").toString();
+	            while (it.hasNext()) {
+	                Map.Entry<String, JsonNode> entry = it.next();
+	                if (((BooleanNode) entry.getValue()).asBoolean()) {
+	                    mapping = mapping.substring(0, 1).toUpperCase() + mapping.substring(1);
+	                    Class<?> klass = Class.forName("mc.gouv." + gouvPropertiesResolver.getDemarcheId().toLowerCase()
+	                            + ".shared.model.v" + buildId + "." + mapping + "Enum");
+	                    Object[] parameters = { entry.getKey().toUpperCase(), true };
+	                    Object value = klass.getMethod("forValue", String.class, boolean.class).invoke(klass, parameters);
+	                    if (!ret.equals("")) {
+	                        ret += ", ";
+	                    }
+	                    ret += value.toString();
+	                }
+	            }
+	            return ret;
+        	}
+        	return "";
         } else if (type.equals("adresse")) {
             String ligne1 = escape(getNode(node, champ, "ligne1").textValue(), isPdfRecap);
             String ligne2 = escape(getNode(node, champ, "ligne2").textValue(), isPdfRecap);

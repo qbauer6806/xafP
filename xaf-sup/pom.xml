@@ -546,10 +546,12 @@
 											file="${global.generated.inventory.group_vars.source.path}/all.yml"
 											tofile="${global.generated.inventory.group_vars.target.path}/all.yml"
 											verbose="true" />
+										<!-- 
 										<move
 											file="${global.generated.inventory.group_vars.source.path}/as-server.yml"
 											tofile="${global.generated.inventory.group_vars.target.path}/as-server.yml"
 											verbose="true" />
+										-->
 										<move
 											file="${global.generated.inventory.group_vars.source.path}/as.yml"
 											tofile="${global.generated.inventory.group_vars.target.path}/as.yml"

@@ -231,9 +231,9 @@
 
 														<div class="row">
 															<div class="col-xs-12 text-center">
-																<a id="rechercherButton2"
+																<button id="rechercherButton2"
 																	class="btn btn-action ripple-effect">Appliquer le
-																	filtre</a>
+																	filtre</button>
 															</div>
 														</div>
 
@@ -330,7 +330,8 @@
 			var rechercheParams = $("#rechercheForm").serializeArray();
 
 			$.each(rechercheParams, function(i, o) {
-				var n = o.name, v = o.value;
+				var n = o.name;
+				var v = o.value;
 
 				if (v !== '') {
 
@@ -382,75 +383,87 @@
 		self.buildSearchDatafunction = buildSearchDatafunction
 		self.facets = {}
 
-		$(document).ready(
-				function() {
-					// Cacher le tooltip au chargement de la page
-					$("#txtRechercheDemande").tooltip("hide");
-					$("#txtRechercheDemande").tooltip("disable");
+		$(document).ready(function() {
+			// Cacher le tooltip au chargement de la page
+			$("#txtRechercheDemande").tooltip("hide");
+			$("#txtRechercheDemande").tooltip("disable");
 
-					// Sélection d'une date dans un calendrier
-					$('#creationStartDate, #creationEndDate').datepicker({
-						format : "dd/mm/yyyy",
-						weekStart : 1,
-						language : "fr",
-						todayHighlight : true
-					});
+			// Sélection d'une date dans un calendrier
+			$('#creationStartDate, #creationEndDate').datepicker({
+				format : "dd/mm/yyyy",
+				weekStart : 1,
+				language : "fr",
+				todayHighlight : true
+			});
 
-					$('.input-group-addon').click(function() {
-						var $input = $(this).closest('div').find(':input');
-						$input.focus();
-					});
+			$('.input-group-addon').click(function() {
+				var $input = $(this).closest('div').find(':input');
+				$input.focus();
+			});
 
-					$('#btnRechercherDemande').click(function(e) {
-						e.preventDefault();
-						$('#rechercherButton2').click();
-					});
+			$('#btnRechercherDemande').click(function(e) {
+				e.preventDefault();
+				$('#rechercherButton2').click();
+			});
 
-					$('#rechercheButton1, #rechercherButton2').click(
-							function(e) {
-								APP.selectedField = null;
-								$('#datatable-demandes').DataTable().ajax
-										.reload(null, true);
-								APP.buildFacets();
-							});
+			$('#rechercherButton2').click(function(e) {
+				// Désactiver champs de recherche pendant la requête
+				rechercheEnCours(true);
 
-					if ($("#txtRechercheDemande").val() !== '') {
-						APP.buildFacets();
-					}
+				APP.selectedField = null
+				$('#datatable-demandes').DataTable().ajax.reload(rechercheTerminee, true);
+				APP.buildFacets();
+			});
+	
+	
+			if ($("#txtRechercheDemande").val() !== '') {
+				APP.buildFacets();
+			}
 
-					configurationDataTable.ajax.data = buildSearchDatafunction;
+			configurationDataTable.ajax.data = buildSearchDatafunction;
+	
+			if (typeof searchDefaultSort !== 'undefined') {
+				configurationDataTable.order = searchDefaultSort;
+			}
+			var table = $('#datatable-demandes').DataTable(configurationDataTable);
+	
+			$('#tousModeTr').click(function(e) {
+				e.preventDefault();
+				$("input[name='canal']").prop('checked', true);
+			});
 
-					if (typeof searchDefaultSort !== 'undefined') {
-						configurationDataTable.order = searchDefaultSort;
-					}
-					var table = $('#datatable-demandes').DataTable(
-							configurationDataTable);
+			$('#aucunModeTr').click(function(e) {
+				e.preventDefault();
+				$("input[name='canal']").prop('checked', false);
+			});
 
-					$('#tousModeTr').click(function(e) {
-						e.preventDefault();
-						$("input[name='canal']").prop('checked', true);
-					});
+			$('#tousEtat').click(function(e) {
+				e.preventDefault();
+				$("input[name='statut']").prop('checked', true);
+			});
 
-					$('#aucunModeTr').click(function(e) {
-						e.preventDefault();
-						$("input[name='canal']").prop('checked', false);
-					});
-
-					$('#tousEtat').click(function(e) {
-						e.preventDefault();
-						$("input[name='statut']").prop('checked', true);
-					});
-
-					$('#aucunEtat').click(function(e) {
-						e.preventDefault();
-						$("input[name='statut']").prop('checked', false);
-					});
-
-				});
+			$('#aucunEtat').click(function(e) {
+				e.preventDefault();
+				$("input[name='statut']").prop('checked', false);
+			});
+		});
 
 		$("body").tooltip({
 			selector : '[data-toggle=tooltip]'
 		}).tooltip();
+
+		function rechercheTerminee() {
+			rechercheEnCours(false);
+		}
+
+		function rechercheEnCours(desactiverChamps) {
+			if(desactiverChamps) {
+				$('#btnRechercherDemande, #rechercherButton2').addClass("loading");
+			} else {
+				$('#btnRechercherDemande, #rechercherButton2').removeClass("loading");
+			}
+			$('#btnRechercherDemande, #rechercherButton2').prop('disabled',desactiverChamps);
+		}
 
 		function escapeHtml(unsafe) {
 			return unsafe

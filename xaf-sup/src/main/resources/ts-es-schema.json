@@ -636,8 +636,47 @@
 							"type": "keyword",
 							"store": true
 						},
+						"statut" : {
+							"type": "text",
+							"analyzer": "default",
+							"search_analyzer": "keyword_lowercase",
+							"fields": {
+								"keyword": {
+									"type": "keyword",
+									"ignore_above": 256
+								}
+							}
+						},
+						"dateCreation" : {
+							"type" : "date"
+						},
+						"pkDemande" : {
+							"type" : "text"
+						},
+						"pkDemandeFile" : {
+							"type" : "text"
+						},
+						"identifiant" : {
+							"type": "text",
+							"analyzer": "default",
+							"search_analyzer": "keyword_lowercase",
+							"fields": {
+								"keyword": {
+									"type": "keyword",
+									"ignore_above": 256
+								}
+							}
+						},
 						"demandeId": {
-							"type": "keyword"
+							"type": "text",
+							"analyzer": "default",
+							"search_analyzer": "keyword_lowercase",
+							"fields": {
+								"keyword": {
+									"type": "keyword",
+									"ignore_above": 256
+								}
+							}
 						}
 					}
 				},

@@ -59,8 +59,12 @@ public interface GouvPropertiesResolver {
 
     Integer getEsReindexBulkSize();
 
+    Integer getEsConnectTimeout();
+
+    Integer getEsSocketTimeout();
+
     boolean getNovalidate();
 
-	String getGouvSharedLogonUrl();
+    String getGouvSharedLogonUrl();
 
 }

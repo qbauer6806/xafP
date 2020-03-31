@@ -2,12 +2,12 @@ package mc.gouv.xaf.back.service.utils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.tika.Tika;
 import org.apache.tika.exception.TikaException;
-import org.apache.tika.metadata.Metadata;
-import org.apache.tika.parser.AutoDetectParser;
-import org.apache.tika.sax.BodyContentHandler;
+import org.apache.tika.io.IOUtils;
 import org.springframework.stereotype.Component;
 import org.xml.sax.SAXException;
 
@@ -20,12 +20,12 @@ import org.xml.sax.SAXException;
  */
 @Component
 public class FileUtils {
-	
-	public static final String META_BACK = "BACK_";
-	
-	public static final String META_FRONT = "FRONT_";
-	
-	public static final String META_BACK_FRONT = "BACK_FRONT_";
+
+    public static final String META_BACK = "BACK_";
+
+    public static final String META_FRONT = "FRONT_";
+
+    public static final String META_BACK_FRONT = "BACK_FRONT_";
 
     private FileUtils() {
     }
@@ -41,24 +41,29 @@ public class FileUtils {
      * @throws TikaException
      */
     public static final String parseToPlainText(InputStream stream) throws IOException, SAXException, TikaException {
-        AutoDetectParser parser = new AutoDetectParser();
-        BodyContentHandler handler = new BodyContentHandler(-1);
-        Metadata metadata = new Metadata();
-        parser.parse(stream, handler, metadata);
-        return handler.toString();
+        Tika tika = new Tika();
+        Reader fulltext = null;
+        String contentStr = null;
+        try {
+            fulltext = tika.parse(stream);
+            contentStr = IOUtils.toString(fulltext);
+        } finally {
+            fulltext.close();
+        }
+        return contentStr;
     }
-	
+
     // Norme sur les métadonnées des fichiers
     public static boolean isFileCreatedByFront(String meta) {
-    	return (StringUtils.isBlank(meta) || meta.startsWith(META_FRONT));
+        return (StringUtils.isBlank(meta) || meta.startsWith(META_FRONT));
     }
-    
+
     public static boolean isFileCreatedByBack(String meta) {
-    	return (!StringUtils.isBlank(meta) && !meta.startsWith(META_FRONT));
+        return (!StringUtils.isBlank(meta) && !meta.startsWith(META_FRONT));
     }
-    
+
     public static boolean isFileCreatedByBackVisibleByFront(String meta) {
-    	return (!StringUtils.isBlank(meta) && meta.startsWith(META_BACK_FRONT));
+        return (!StringUtils.isBlank(meta) && meta.startsWith(META_BACK_FRONT));
     }
     // FIN Norme sur les métadonnées des fichiers
 

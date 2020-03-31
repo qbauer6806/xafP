@@ -5,7 +5,6 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -225,7 +224,7 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     public String getGouvSharedEnvColor() {
         return Static.getValue(GOUV_SHARED_ENV_COLOR);
     }
-    
+
     private static final String GOUV_SHARED_LOGON_URL = "mc.gouv.shared.backserver.logon.url";
 
     @Override
@@ -302,6 +301,30 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     }
 
     @Override
+    public Integer getEsConnectTimeout() {
+        String connectTimeout = Static.getValue("mc.gouv" + applicationPrefix + ".elasticsearch.connectTimeout");
+
+        if (StringUtils.isNotBlank(connectTimeout)) {
+            return Integer.parseInt(connectTimeout);
+        }
+
+        // Valeur par défaut de 30 secondes
+        return 30000;
+    }
+
+    @Override
+    public Integer getEsSocketTimeout() {
+        String socketTimeout = Static.getValue("mc.gouv" + applicationPrefix + ".elasticsearch.socketTimeout");
+
+        if (StringUtils.isNotBlank(socketTimeout)) {
+            return Integer.parseInt(socketTimeout);
+        }
+
+        // Valeur par défaut de 30 secondes
+        return 30000;
+    }
+
+    @Override
     public boolean getNovalidate() {
         String value = Static.getValue("mc.gouv" + applicationPrefix + ".novalidate");
         if (value == null) {
@@ -309,4 +332,5 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
         }
         return Boolean.parseBoolean(value);
     }
+
 }

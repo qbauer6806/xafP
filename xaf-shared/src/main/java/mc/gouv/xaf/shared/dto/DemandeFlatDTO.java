@@ -23,7 +23,7 @@ public class DemandeFlatDTO {
     
     private String usagerEmail;
 
-    private Date dateCreation;
+    private String dateCreation;
 
     private String langue;
 
@@ -39,7 +39,7 @@ public class DemandeFlatDTO {
 
     private String identifiant;
 
-    private Date courrierDateReception;
+    private String courrierDateReception;
 
     private String courrierRefInterne;
 
@@ -61,11 +61,11 @@ public class DemandeFlatDTO {
         this.usagerId = usagerId;
     }
     
-    public Date getDateCreation() {
+    public String getDateCreation() {
         return dateCreation;
     }
 
-    public void setDateCreation(Date dateCreation) {
+    public void setDateCreation(String dateCreation) {
         this.dateCreation = dateCreation;
     }
     
@@ -117,11 +117,11 @@ public class DemandeFlatDTO {
         this.identifiant = identifiant;
     }
     
-    public Date getCourrierDateReception() {
+    public String getCourrierDateReception() {
         return courrierDateReception;
     }
 
-    public void setCourrierDateReception(Date courrierDateReception) {
+    public void setCourrierDateReception(String courrierDateReception) {
         this.courrierDateReception = courrierDateReception;
     }
 

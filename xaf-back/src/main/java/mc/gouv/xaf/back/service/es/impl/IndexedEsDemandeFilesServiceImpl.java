@@ -1,7 +1,5 @@
 package mc.gouv.xaf.back.service.es.impl;
 
-import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Primary;
@@ -10,8 +8,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
+import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
 import mc.gouv.xaf.back.service.data.impl.DemandeFilesServiceImpl;
 import mc.gouv.xaf.back.service.es.IndexedDemandeService;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 
 @Service
@@ -22,14 +22,6 @@ public class IndexedEsDemandeFilesServiceImpl extends DemandeFilesServiceImpl {
 
     @Autowired
     private IndexedDemandeService indexedDemandeService;
-
-    @Override
-    public void saveFiles(DemandeFileDTO[] demandeFiles, DemandeBO demandeBo) throws Exception {
-
-        super.saveFiles(demandeFiles, demandeBo);
-        DemandeDTO demandeDto = DemandesTransformer.bo2Dto(demandeBo);
-        indexedDemandeService.sendToTopic(demandeFiles, demandeDto);
-    }
 
     @Override
     public void saveFile(DemandeFileDTO demandeFile, String demarcheId, Integer pkDemande) throws Exception {

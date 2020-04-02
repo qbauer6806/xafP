@@ -59,8 +59,10 @@ public class DemandeExportController extends AbstractController {
                     demarchesService.getDemarche(demarcheId).getIdentifiantPrefixe() + "_Donnees_Stat_" + AfBackUtils.generateFileDateAndTimeSuffix() + ".xlsx");
 
             // Création du cookie pour notifier du téléchargement terminé (2 minutes max age)
-            Cookie telechargementCookie = new Cookie("exportEnCours", "1");
+            Cookie telechargementCookie = new Cookie("exportEnCours", "0");
             telechargementCookie.setMaxAge(60 * 2);
+            telechargementCookie.setSecure(false);
+            telechargementCookie.setPath("/");
             response.addCookie(telechargementCookie);
             
             LOGGER.info("Constitution du modèle pour la génération Excel...");

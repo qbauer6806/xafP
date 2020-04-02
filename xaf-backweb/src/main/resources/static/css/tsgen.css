@@ -290,7 +290,6 @@ dd span {
 .sectionic {
 	padding: 5px;
 	padding-top: 15px;
-	margin-bottom: 10px;
 	margin-top: 0px;
 }
 
@@ -370,4 +369,9 @@ dd span {
 .no-margin-row {
 	margin-left: 0;
 	margin-right: 0;
+}
+
+/* #18771: Ajout d'une propriété pour casser les mots trop long */
+.table>tbody>tr>td {
+    word-break: break-word;
 }

@@ -18,11 +18,7 @@ import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.motifs.MotifTemplateService;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.xaf.shared.dto.DemandeDataDTO;
-import mc.gouv.xaf.shared.dto.DemandeFlatDTO;
-import mc.gouv.xaf.shared.dto.DemarcheDTO;
-import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
+import mc.gouv.xaf.shared.dto.*;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -317,33 +313,35 @@ public class AfBackUtils {
 
     /**
      * Permet de générer un DemandeFlatDTO à partir d'un DemandeDTO
-     * 
+     *
      * @param demande
      * @return
      */
-    public DemandeFlatDTO getDemandeFlatDTO(DemandeDTO demande) {
+    public DemandeFlatDTO demandeDTOToDemandeFlatDTO(DemandeDTO demande) {
         DemandeFlatDTO flat = new DemandeFlatDTO();
         flat.setAgentAffecteId(demande.getAgentAffecteId());
-        if (!StringUtils.isBlank(demande.getAgentAffecteId())) {
-            try {
-                flat.setAgentAffecteNom(getUserNameFromID(demande.getAgentAffecteId()));
-            } catch (RestException e) {
-                LOGGER.error("Erreur lors de la récupération du nom de l'agent affecté à la demande", e);
+        String nomAgent = "";
+        try {
+            if (!StringUtils.isBlank(demande.getAgentAffecteId())) {
+                nomAgent = getUserNameFromID(demande.getAgentAffecteId());
             }
+        } catch (RestException e) {
+            LOGGER.error("Erreur lors de la récupération du nom de l'agent affecté à la demande", e);
         }
+        flat.setAgentAffecteNom(getSafeString(nomAgent));
         flat.setCanal(demande.getCanal().libelle);
-        flat.setCourrierDateReception(demande.getCourrierDateReception());
-        flat.setCourrierRefInterne(demande.getCourrierRefInterne());
-        flat.setDateCreation(demande.getDateCreation());
+        flat.setCourrierDateReception(convertDateToSring(demande.getCourrierDateReception()));
+        flat.setCourrierRefInterne(getSafeString(demande.getCourrierRefInterne()));
+        flat.setDateCreation(convertDateToSring(demande.getDateCreation()));
         flat.setDernierStatut(demarchesDataProvider.getStatusLibelle(demande.getDernierStatut().getLibelle()));
-        flat.setIdentifiant(demande.getIdentifiant());
-        flat.setLangue(demande.getLangue());
-        flat.setObservations(demande.getObservations());
+        flat.setIdentifiant(getSafeString(demande.getIdentifiant()));
+        flat.setLangue(getSafeString(demande.getLangue()));
+        flat.setObservations(getSafeString(demande.getObservations()));
         flat.setPkDemandes(demande.getPkDemandes());
         flat.setUsagerId(demande.getUsagerId());
-        flat.setUsagerNom(demande.getUsagerNom());
-        flat.setUsagerPrenom(demande.getUsagerPrenom());
-        flat.setUsagerEmail(demande.getUsagerEmail());
+        flat.setUsagerNom(getSafeString(demande.getUsagerNom()));
+        flat.setUsagerPrenom(getSafeString(demande.getUsagerPrenom()));
+        flat.setUsagerEmail(getSafeString(demande.getUsagerEmail()));
         flat.setBuildId(demande.getBuildId());
 
         String codeDernierMotif = demande.getDernierStatut().getCodeMotif();
@@ -433,7 +431,18 @@ public class AfBackUtils {
         return destinataires;
     }
 
-	/**
+    public static String convertDateToSring(final Date date) {
+        if (date == null) {
+            return "";
+        }
+        return new SimpleDateFormat("dd/MM/yyyy").format(date);
+    }
+
+    public static String getSafeString(final String value) {
+        return StringUtils.isBlank(value) ? "" : value;
+    }
+
+    /**
 	 * Permet de récupérer le flag indiquant que la démarche peut générer des
 	 * courriers
 	 *
@@ -442,7 +451,7 @@ public class AfBackUtils {
     public boolean getDemarcheCanGenerateCourriers() {
         return demarchesDataProvider.getDemarcheCanGenerateCourriers();
     }
-    
+
     /**
      * Permet de savoir si la démarche prend en charge les périodes d'ouverture
      * @return

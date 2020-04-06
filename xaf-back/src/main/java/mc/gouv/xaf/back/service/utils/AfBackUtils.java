@@ -343,18 +343,6 @@ public class AfBackUtils {
         flat.setUsagerPrenom(getSafeString(demande.getUsagerPrenom()));
         flat.setUsagerEmail(getSafeString(demande.getUsagerEmail()));
         flat.setBuildId(demande.getBuildId());
-
-        String codeDernierMotif = demande.getDernierStatut().getCodeMotif();
-        String motif = codeDernierMotif;
-
-        try {
-            if (codeDernierMotif != null) {
-                motif = motifTemplateService.getMotif(demande, codeDernierMotif, "fr").getLibelle();
-            }
-        } catch (Exception e) {
-            LOGGER.error("Erreur lors de la récupération du motif", e);
-        }
-        flat.setMotif(motif);
         return flat;
     }
 

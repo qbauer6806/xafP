@@ -1,7 +1,5 @@
 package mc.gouv.xaf.shared.dto;
 
-import java.util.Date;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**

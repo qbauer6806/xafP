@@ -1,8 +1,11 @@
 package mc.gouv.xaf.back.service.utils;
 
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -13,12 +16,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import javax.annotation.PostConstruct;
-
-import mc.gouv.xaf.back.service.data.DemarchesService;
-import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
-import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
-import mc.gouv.xaf.back.service.motifs.MotifTemplateService;
-import mc.gouv.xaf.shared.dto.*;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -36,8 +33,6 @@ import com.fasterxml.uuid.EthernetAddress;
 import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.impl.TimeBasedGenerator;
 
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.file.apiclient.FileClient;
 import mc.gouv.logon.apiclient.RestException;
 import mc.gouv.logon.shared.Droit;
@@ -45,6 +40,17 @@ import mc.gouv.logon.shared.Role;
 import mc.gouv.logon.shared.User;
 import mc.gouv.mail.apiclient.client.MailClient;
 import mc.gouv.servicerest.usager.model.UsagerBean;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.DemarchesDataProvider;
+import mc.gouv.xaf.back.service.data.DemarchesService;
+import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
+import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
+import mc.gouv.xaf.back.service.motifs.MotifTemplateService;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeDataDTO;
+import mc.gouv.xaf.shared.dto.DemandeFlatDTO;
+import mc.gouv.xaf.shared.dto.DemarcheDTO;
+import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
 
 /**
  * Classe utilitaire pour le projet xaf-back
@@ -91,9 +97,9 @@ public class AfBackUtils {
 
     @Autowired
     private UsagersCache usagersCache;
-    
+
     @Autowired
-	private UtilisateursCache utilisateursCache;
+    private UtilisateursCache utilisateursCache;
 
     @Autowired
     private DemarchesService demarchesService;
@@ -103,10 +109,10 @@ public class AfBackUtils {
 
     @Autowired
     private MessageSource messageSource;
-    
+
     @Autowired
     private UtilisateursUtils utilisateursUtils;
-
+    
     @Autowired
     private MotifTemplateService motifTemplateService;
 
@@ -178,9 +184,9 @@ public class AfBackUtils {
 
         return null;
     }
-    
+
     public String getLogonUrl() {
-    	return gouvPropertiesResolver.getGouvSharedLogonUrl();
+        return gouvPropertiesResolver.getGouvSharedLogonUrl();
     }
 
     /**
@@ -330,9 +336,9 @@ public class AfBackUtils {
         }
         flat.setAgentAffecteNom(getSafeString(nomAgent));
         flat.setCanal(demande.getCanal().libelle);
-        flat.setCourrierDateReception(convertDateToSring(demande.getCourrierDateReception()));
+        flat.setCourrierDateReception(convertDateToString(demande.getCourrierDateReception()));
         flat.setCourrierRefInterne(getSafeString(demande.getCourrierRefInterne()));
-        flat.setDateCreation(convertDateToSring(demande.getDateCreation()));
+        flat.setDateCreation(convertDateToString(demande.getDateCreation()));
         flat.setDernierStatut(demarchesDataProvider.getStatusLibelle(demande.getDernierStatut().getLibelle()));
         flat.setIdentifiant(getSafeString(demande.getIdentifiant()));
         flat.setLangue(getSafeString(demande.getLangue()));
@@ -419,23 +425,61 @@ public class AfBackUtils {
         return destinataires;
     }
 
-    public static String convertDateToSring(final Date date) {
+    public static String convertDateToString(final Date date) {
         if (date == null) {
             return "";
         }
         return new SimpleDateFormat("dd/MM/yyyy").format(date);
     }
 
+    public static String changeDateStringFormat(final String dateString) {
+        if (StringUtils.isBlank(dateString)) {
+            return " ";
+        }
+        return LocalDateTime.parse(dateString, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+                .format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+    }
+
     public static String getSafeString(final String value) {
         return StringUtils.isBlank(value) ? "" : value;
     }
 
+    public static BigDecimal convertStringToBigDecimal(String decimalStr) {
+        final String regexDecimal = "[0-9]*\\,?[0-9]*";
+        final String regexInteger = "[0-9]*";
+
+        if (StringUtils.isBlank(decimalStr)) {
+            return null;
+        }
+
+        if (decimalStr.matches(regexInteger) || decimalStr.matches(regexDecimal)) {
+            return new BigDecimal(decimalStr.replace(",", "."));
+        }
+
+        return null;
+    }
+    
+    public String getDernierCodeMotif(DemandeDTO demande) {
+        String codeDernierMotif = demande.getDernierStatut().getCodeMotif();
+        String motif = codeDernierMotif;
+
+        try {
+            if (codeDernierMotif != null) {
+                motif = motifTemplateService.getMotif(demande, codeDernierMotif, "fr").getLibelle();
+            }
+        } catch (Exception e) {
+            LOGGER.error("Erreur lors de la récupération du motif", e);
+        }
+        
+        return motif;
+    }
+
     /**
-	 * Permet de récupérer le flag indiquant que la démarche peut générer des
-	 * courriers
-	 *
-	 * @return
-	 */
+     * Permet de récupérer le flag indiquant que la démarche peut générer des
+     * courriers
+     *
+     * @return
+     */
     public boolean getDemarcheCanGenerateCourriers() {
         return demarchesDataProvider.getDemarcheCanGenerateCourriers();
     }
@@ -445,7 +489,7 @@ public class AfBackUtils {
      * @return
      */
     public boolean getDemarcheCanHandlePeriodesOuverture() {
-    	return demarchesDataProvider.getDemarcheCanHandlePeriodesOuverture();
+        return demarchesDataProvider.getDemarcheCanHandlePeriodesOuverture();
     }
 
 }

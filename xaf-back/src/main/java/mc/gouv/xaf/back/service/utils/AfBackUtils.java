@@ -45,6 +45,7 @@ import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
+import mc.gouv.xaf.back.service.motifs.MotifTemplateService;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeDataDTO;
 import mc.gouv.xaf.shared.dto.DemandeFlatDTO;
@@ -111,6 +112,9 @@ public class AfBackUtils {
 
     @Autowired
     private UtilisateursUtils utilisateursUtils;
+    
+    @Autowired
+    private MotifTemplateService motifTemplateService;
 
     public static final short GENDER_MR_INDEX = 0;
     public static final short GENDER_MME_INDEX = 1;
@@ -453,6 +457,21 @@ public class AfBackUtils {
         }
 
         return null;
+    }
+    
+    public String getDernierCodeMotif(DemandeDTO demande) {
+        String codeDernierMotif = demande.getDernierStatut().getCodeMotif();
+        String motif = codeDernierMotif;
+
+        try {
+            if (codeDernierMotif != null) {
+                motif = motifTemplateService.getMotif(demande, codeDernierMotif, "fr").getLibelle();
+            }
+        } catch (Exception e) {
+            LOGGER.error("Erreur lors de la récupération du motif", e);
+        }
+        
+        return motif;
     }
 
     /**

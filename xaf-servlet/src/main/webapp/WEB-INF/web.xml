@@ -116,6 +116,15 @@
     </servlet-mapping>
     
     <servlet>
+        <servlet-name>CustomRequestServlet</servlet-name>
+        <servlet-class>mc.gouv.xaf.servlet.CustomRequestServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CustomRequestServlet</servlet-name>
+        <url-pattern>/customRequest/*</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
         <servlet-name>RedirectToBackOfficeServlet</servlet-name>
         <servlet-class>mc.gouv.xaf.servlet.RedirectToBackOfficeServlet</servlet-class>
     </servlet>

@@ -13,6 +13,8 @@ import org.hibernate.TransactionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -179,6 +181,34 @@ public abstract class AbstractAfApiController implements AfApiController {
     public List<PeriodeOuvertureDTO> getPeriodesOuvertureRequest() {
         LOGGER.info("AbstractAfApiController.getPeriodesOuverture()");
         return getPeriodesOuverture();
+    }
+    
+    @SuppressWarnings("rawtypes")
+	@RequestMapping(value = "/customRequest/**", method = RequestMethod.GET)
+    public ResponseEntity getCustomRequestRequest(HttpServletRequest request) {
+        LOGGER.info("AbstractAfApiController.getCustomRequest()");
+        return getCustomRequest(request);
+    }
+    
+    @SuppressWarnings("rawtypes")
+	@RequestMapping(value = "/customRequest/**", method = RequestMethod.POST)
+    public ResponseEntity postCustomRequestRequest(HttpServletRequest request) {
+        LOGGER.info("AbstractAfApiController.postCustomRequest()");
+        return postCustomRequest(request);
+    }
+
+    @SuppressWarnings("rawtypes")
+	@RequestMapping(value = "/customRequest/**", method = RequestMethod.PUT)
+    public ResponseEntity putCustomRequestRequest(HttpServletRequest request) {
+        LOGGER.info("AbstractAfApiController.putCustomRequest()");
+        return putCustomRequest(request);
+    }
+    
+    @SuppressWarnings("rawtypes")
+	@RequestMapping(value = "/customRequest/**", method = RequestMethod.DELETE)
+    public ResponseEntity deleteCustomRequestRequest(HttpServletRequest request) {
+        LOGGER.info("AbstractAfApiController.deleteCustomRequest()");
+        return deleteCustomRequest(request);
     }
 
     @ExceptionHandler(WebException.class)

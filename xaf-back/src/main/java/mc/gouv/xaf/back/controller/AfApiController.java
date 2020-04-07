@@ -2,6 +2,9 @@ package mc.gouv.xaf.back.controller;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.http.ResponseEntity;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -53,5 +56,17 @@ public interface AfApiController {
     public DemandeDTO creerDemande(DemandeInputDTO demande, Integer usagerId) throws JsonProcessingException;
     
     public List<PeriodeOuvertureDTO> getPeriodesOuverture();
+    
+    @SuppressWarnings("rawtypes")
+	public ResponseEntity getCustomRequest(HttpServletRequest request);
+    
+    @SuppressWarnings("rawtypes")
+	public ResponseEntity postCustomRequest(HttpServletRequest request);
+    
+    @SuppressWarnings("rawtypes")
+	public ResponseEntity putCustomRequest(HttpServletRequest request);
+    
+    @SuppressWarnings("rawtypes")
+	public ResponseEntity deleteCustomRequest(HttpServletRequest request);
 
 }

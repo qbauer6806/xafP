@@ -32,7 +32,7 @@ import java.io.IOException;
  * 
  */
 @Controller
-@Secured({ "ROLE_TRAITEMENT", "ROLE_VALIDATION", "ROLE_SAISIE" })
+@Secured({ "ROLE_TRAITEMENT", "ROLE_VALIDATION", "ROLE_VERIFICATION" })
 @RequestMapping("/ws/pdf")
 public class ApercuPdfController extends AbstractController {
 

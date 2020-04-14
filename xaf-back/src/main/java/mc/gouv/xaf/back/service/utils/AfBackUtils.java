@@ -314,81 +314,35 @@ public class AfBackUtils {
     /**
      * Permet de générer un DemandeFlatDTO à partir d'un DemandeDTO
      *
-     * @deprecated utiliser demandeDTOToDemandeFlatDTO(demande) pour améliorer les perf. Si besoin d'ajouter des motifs le faire
-     * directement dans l'export Excel Model Provider
-     *
-     * @param demande
-     * @return
-     */
-    @Deprecated
-    public DemandeFlatDTO getDemandeFlatDTO(DemandeDTO demande) {
-        DemandeFlatDTO flat = new DemandeFlatDTO();
-        flat.setAgentAffecteId(demande.getAgentAffecteId());
-        if (!StringUtils.isBlank(demande.getAgentAffecteId())) {
-            try {
-                flat.setAgentAffecteNom(getUserNameFromID(demande.getAgentAffecteId()));
-            } catch (RestException e) {
-                LOGGER.error("Erreur lors de la récupération du nom de l'agent affecté à la demande", e);
-            }
-        }
-        flat.setCanal(demande.getCanal().libelle);
-        flat.setCourrierDateReception(demande.getCourrierDateReception());
-        flat.setCourrierRefInterne(demande.getCourrierRefInterne());
-        flat.setDateCreation(demande.getDateCreation());
-        flat.setDernierStatut(demarchesDataProvider.getStatusLibelle(demande.getDernierStatut().getLibelle()));
-        flat.setIdentifiant(demande.getIdentifiant());
-        flat.setLangue(demande.getLangue());
-        flat.setObservations(demande.getObservations());
-        flat.setPkDemandes(demande.getPkDemandes());
-        flat.setUsagerId(demande.getUsagerId());
-        flat.setUsagerNom(demande.getUsagerNom());
-        flat.setUsagerPrenom(demande.getUsagerPrenom());
-        flat.setUsagerEmail(demande.getUsagerEmail());
-        flat.setBuildId(demande.getBuildId());
-
-        String codeDernierMotif = demande.getDernierStatut().getCodeMotif();
-        String motif = codeDernierMotif;
-
-        try {
-            if (codeDernierMotif != null) {
-                motif = motifTemplateService.getMotif(demande, codeDernierMotif, "fr").getLibelle();
-            }
-        } catch (Exception e) {
-            LOGGER.error("Erreur lors de la récupération du motif", e);
-        }
-        flat.setMotif(motif);
-        return flat;
-    }
-
-    /**
-     * Permet de générer un DemandeFlatDTO à partir d'un DemandeDTO
-     *
      * @param demande
      * @return
      */
     public DemandeFlatDTO demandeDTOToDemandeFlatDTO(DemandeDTO demande) {
         DemandeFlatDTO flat = new DemandeFlatDTO();
         flat.setAgentAffecteId(demande.getAgentAffecteId());
-        if (!StringUtils.isBlank(demande.getAgentAffecteId())) {
-            try {
-                flat.setAgentAffecteNom(getUserNameFromID(demande.getAgentAffecteId()));
-            } catch (RestException e) {
-                LOGGER.error("Erreur lors de la récupération du nom de l'agent affecté à la demande", e);
+        String nomAgent = "";
+        try {
+            if (!StringUtils.isBlank(demande.getAgentAffecteId())) {
+                nomAgent = getUserNameFromID(demande.getAgentAffecteId());
             }
+        } catch (RestException e) {
+            LOGGER.error("Erreur lors de la récupération du nom de l'agent affecté à la demande", e);
         }
+        flat.setAgentAffecteNom(getSafeString(nomAgent));
         flat.setCanal(demande.getCanal().libelle);
-        flat.setCourrierDateReception(demande.getCourrierDateReception());
-        flat.setCourrierRefInterne(demande.getCourrierRefInterne());
-        flat.setDateCreation(demande.getDateCreation());
+        flat.setCourrierDateReception(convertDateToSring(demande.getCourrierDateReception()));
+        flat.setCourrierRefInterne(getSafeString(demande.getCourrierRefInterne()));
+        flat.setDateCreation(convertDateToSring(demande.getDateCreation()));
         flat.setDernierStatut(demarchesDataProvider.getStatusLibelle(demande.getDernierStatut().getLibelle()));
-        flat.setIdentifiant(demande.getIdentifiant());
-        flat.setLangue(demande.getLangue());
-        flat.setObservations(demande.getObservations());
+        flat.setIdentifiant(getSafeString(demande.getIdentifiant()));
+        flat.setLangue(getSafeString(demande.getLangue()));
+        flat.setObservations(getSafeString(demande.getObservations()));
         flat.setPkDemandes(demande.getPkDemandes());
         flat.setUsagerId(demande.getUsagerId());
-        flat.setUsagerNom(demande.getUsagerNom());
-        flat.setUsagerPrenom(demande.getUsagerPrenom());
-        flat.setUsagerEmail(demande.getUsagerEmail());
+        flat.setUsagerNom(getSafeString(demande.getUsagerNom()));
+        flat.setUsagerPrenom(getSafeString(demande.getUsagerPrenom()));
+        flat.setUsagerEmail(getSafeString(demande.getUsagerEmail()));
+        flat.setBuildId(demande.getBuildId());
         return flat;
     }
 
@@ -465,7 +419,18 @@ public class AfBackUtils {
         return destinataires;
     }
 
-	/**
+    public static String convertDateToSring(final Date date) {
+        if (date == null) {
+            return "";
+        }
+        return new SimpleDateFormat("dd/MM/yyyy").format(date);
+    }
+
+    public static String getSafeString(final String value) {
+        return StringUtils.isBlank(value) ? "" : value;
+    }
+
+    /**
 	 * Permet de récupérer le flag indiquant que la démarche peut générer des
 	 * courriers
 	 *
@@ -474,7 +439,7 @@ public class AfBackUtils {
     public boolean getDemarcheCanGenerateCourriers() {
         return demarchesDataProvider.getDemarcheCanGenerateCourriers();
     }
-    
+
     /**
      * Permet de savoir si la démarche prend en charge les périodes d'ouverture
      * @return

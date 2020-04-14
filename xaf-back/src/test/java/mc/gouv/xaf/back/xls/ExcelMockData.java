@@ -12,7 +12,7 @@ public class ExcelMockData {
 	public static final String USAGER_PRENOM = "Martin";
 	public static final String USAGER_NOM = "Gautier";
 	public static final String USAGER_EMAIL = "test@email.net";
-	public static final Date DATE_CREATION = getDate(1, 3, 2019);
+	public static final String DATE_CREATION = "01/03/2019";
 	public static final String LANGUE = "fr";
 	public static final String CANAL = DemandeCanalEnum.GUICHET_VIRTUEL.libelle;
 	public static final String OBSERVATIONS = "Test de observation";
@@ -20,7 +20,7 @@ public class ExcelMockData {
 	public static final String AGENT_AFFECT_NAME = "Jaques Mora";
 	public static final String DERNIER_STATUT = "EN_ATTENTE_COMPL";
 	public static final String IDENTIFIANT = "ECS-20190305-GGK3";
-	public static final Date COURRIER_DATE_RECEPTION = getDate(12, 3, 2019);
+	public static final String COURRIER_DATE_RECEPTION = "15/05/2019";
 	public static final String COURRIER_REF_INTERNE = "Ref-Test-1234";
 	public static final Date COURRIER_DATE_DERNIER_MODIFICATION = getDate(15, 3, 2019);
 	public static final String USAGER_TITRE = "Mr";

@@ -459,11 +459,11 @@
 
 		function rechercheEnCours(desactiverChamps) {
 			if(desactiverChamps) {
-				$('#rechercherButton1, #rechercherButton2').addClass("loading");
+				$('#btnRechercherDemande, #rechercherButton2').addClass("loading");
 			} else {
-				$('#rechercherButton1, #rechercherButton2').removeClass("loading");
+				$('#btnRechercherDemande, #rechercherButton2').removeClass("loading");
 			}
-			$('#rechercherButton1, #rechercherButton2').prop('disabled',desactiverChamps);
+			$('#btnRechercherDemande, #rechercherButton2').prop('disabled',desactiverChamps);
 		}
 
 		function escapeHtml(unsafe) {

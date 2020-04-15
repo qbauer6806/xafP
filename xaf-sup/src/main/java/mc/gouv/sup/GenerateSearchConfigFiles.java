@@ -1,6 +1,7 @@
 package mc.gouv.sup;
 
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -26,9 +27,9 @@ import com.fasterxml.jackson.databind.node.MissingNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
- * 
+ *
  * Classe permettant de générer le fichier sql des requetes de la configuration des champs et des catégories
- * 
+ *
  * @author asouabni.ext
  *
  */
@@ -40,9 +41,9 @@ public class GenerateSearchConfigFiles {
     private static final String INSERT_CHAMP_REQUEST_TEMPLATE = "INSERT INTO {0}.dem_recherche_champ_config (enabled, cle, libelle, fk_categorie, editable) VALUES (''{1}'', ''{2}'', ''{3}'', (select id from {0}.dem_recherche_cat_config where libelle = ''{4}''), ''{5}'');";
     private static final String INSERT_CATEGORY_REQUEST_TEMPLATE = "INSERT INTO {0}.dem_recherche_cat_config (libelle, editable) VALUES (''{1}'', ''{2}'');";
     private static final String SECTION_TO_PARSE = "projectDemandeRecap";
-    private static final String DEST_SQL_FILE_PATH = "./target/configration-recherche{0}.sql";
-    private static final String DEST_ES_MAPPINGS_FILE_PATH = "./target/{0}-es-schema.json";
-    private static final String DEFAULT_SQL_CONF_FILE_PATH = "./src/main/resources/default-config.sql";
+    private static final String DEST_SQL_FILE_PATH = "configration-recherche{0}.sql";
+    private static final String DEST_ES_MAPPINGS_FILE_PATH = "{0}-es-schema.json";
+    private static final String DEFAULT_SQL_CONF_FILE_PATH = "src/main/resources/default-config.sql";
     private static final String ES_TEMPLATE_FILE_PATH = "./src/main/resources/ts-es-schema.json";
     private static final String ES_TEMPLATE_CHANGE_ME_CONTENU_TAG = "//CHANGE_ME_CONTENU";
     private static final String ES_TEMPLATE_CHANGE_ME_DATA_TAG = "//CHANGE_ME_DATA";
@@ -57,11 +58,14 @@ public class GenerateSearchConfigFiles {
     private static final String RECAP_CHAMP_ADRESSE_CP = "codePostal";
     private static final String RECAP_CHAMP_ADRESSE_VILLE = "ville";
     private static final String RECAP_CHAMP_ADRESSE_PAYS = "pays";
+    private static final String RECAP_CHAMP_IBAN_TITULAIRE = "titulaire";
+    private static final String RECAP_CHAMP_IBAN_BIC = "bic";
+    private static final String RECAP_CHAMP_IBAN_IBAN = "iban";
     private static final String RECAP_CHAMP_PATH = "path";
     private static final String LOG_SEPARATOR = "-------------------------------------------------------------------------------------------------------------";
 
-    private static final Path destSqlFilePath = Paths.get(
-            MessageFormat.format(DEST_SQL_FILE_PATH, new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date())));
+    private static final String destSqlFileName = MessageFormat.format(
+            DEST_SQL_FILE_PATH, new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date()));
     private static Map<String, String> datas = new HashMap<>();
 
     enum EsType {
@@ -100,7 +104,8 @@ public class GenerateSearchConfigFiles {
         CHOIX("choix"),
         DATE("date"),
         ADRESSE("adresse"),
-        ADRESSE_MC("adresseMc");
+        ADRESSE_MC("adresseMc"),
+        IBAN("iban");
 
         private String type;
 
@@ -151,7 +156,7 @@ public class GenerateSearchConfigFiles {
     }
 
     /**
-     * 
+     *
      * Méthode permettant de générer les fichiers de configuration de la recherche avancée
      * @param path Chemin du fichier récapitulatif à parser
      * @param schema Schéma de la base de données
@@ -186,7 +191,7 @@ public class GenerateSearchConfigFiles {
 
     /**
      * Méthode permettant de générer le fichier sql contenant les requetes insert de la configuration des champs et des catégories à partir du front
-     * 
+     *
      * @param sectionsList Liste des sections
      * @param schema Schéma de la base de données
      * @throws IOException Exception Input/Output
@@ -210,6 +215,8 @@ public class GenerateSearchConfigFiles {
 
                     if (champ.get(RECAP_CHAMP_TYPE).toString().equals(RecapChampType.ADRESSE.getType()) || champ.get(RECAP_CHAMP_TYPE).toString().equals(RecapChampType.ADRESSE_MC.getType())) {
                         fillAdressesQueries(champsQueries, champ, (String) section.get("titre"), schema);
+                    } else if (champ.get(RECAP_CHAMP_TYPE).toString().equals(RecapChampType.IBAN.getType())) {
+                        fillIbanQueries(champsQueries, champ, (String) section.get("titre"), schema);
                     } else {
                         champsQueries.add(MessageFormat.format(INSERT_CHAMP_REQUEST_TEMPLATE, schema, TRUE,
                                 getEscapedColumnValue(champ.get(RECAP_CHAMP_PATH)), getEscapedColumnValue(champ.get("label")),
@@ -220,27 +227,34 @@ public class GenerateSearchConfigFiles {
             }
 
         }
+
+        String destSqlFilePathStr = GenerateSearchConfigFiles.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+        destSqlFilePathStr = destSqlFilePathStr.substring(1, destSqlFilePathStr.length() - 8) + destSqlFileName;
+        LOGGER.info("Fichier SQL : {}", destSqlFilePathStr);
+        Path destSqlFilePath = Paths.get(destSqlFilePathStr);
+
         Files.write(destSqlFilePath,
                 Arrays.asList("--Requête générées depuis la moulinette à partir des données du front"),
                 StandardOpenOption.CREATE);
         Files.write(destSqlFilePath, categoriesQueries, StandardOpenOption.APPEND);
         Files.write(destSqlFilePath, champsQueries, StandardOpenOption.APPEND);
 
-        byte[] encodedDefaultScript = Files.readAllBytes(Paths.get(DEFAULT_SQL_CONF_FILE_PATH));
+        LOGGER.info("Lecture du fichier SQL par défaut : {}", DEFAULT_SQL_CONF_FILE_PATH);
+        Path defaultSQLConfFilePath = Paths.get(DEFAULT_SQL_CONF_FILE_PATH);
+        byte[] encodedDefaultScript = Files.readAllBytes(defaultSQLConfFilePath);
         String defaultScript = new String(encodedDefaultScript);
         defaultScript = MessageFormat.format(defaultScript, schema);
         Files.write(destSqlFilePath, Arrays.asList("--Configuration par défaut"), StandardOpenOption.APPEND);
         Files.write(destSqlFilePath, Arrays.asList(defaultScript), StandardOpenOption.APPEND);
 
         LOGGER.info(LOG_SEPARATOR);
-        LOGGER.info("Script Sql généré avec succès dans " + destSqlFilePath.toFile().getAbsolutePath());
+        LOGGER.info("Script Sql généré avec succès.");
         LOGGER.info(LOG_SEPARATOR);
-
     }
 
     /**
      * Méthode permettant de récupérer la valeur à inserer dans la colonne avec le bon formatage
-     * 
+     *
      * @param jsonValue Valeur récupérée depuis le fichier json à parser
      * @return Valeur à inserer dans la requete insert
      */
@@ -285,8 +299,32 @@ public class GenerateSearchConfigFiles {
     }
 
     /**
+     * Méthode permettant de générer les requête du type de champ iban
+     * @param champsQueries List à remplir
+     * @param champ Champ récupéré du fichier à parser
+     * @param category Catégorie du champ (section)
+     * @param schema Schema de la base de données
+     */
+    private static void fillIbanQueries(List<String> champsQueries, LinkedHashMap<String, Object> champ,
+                                        String category, String schema) {
+        if (champsQueries == null) {
+            champsQueries = new ArrayList<>();
+        }
+
+        champsQueries.add(MessageFormat.format(INSERT_CHAMP_REQUEST_TEMPLATE, schema, TRUE,
+                getEscapedColumnValue(champ.get(RECAP_CHAMP_IBAN_TITULAIRE)), "Titulaire", getEscapedColumnValue(category),
+                FALSE));
+        champsQueries.add(MessageFormat.format(INSERT_CHAMP_REQUEST_TEMPLATE, schema, TRUE,
+                getEscapedColumnValue(champ.get(RECAP_CHAMP_IBAN_BIC)), "BIC", getEscapedColumnValue(category),
+                FALSE));
+        champsQueries.add(MessageFormat.format(INSERT_CHAMP_REQUEST_TEMPLATE, schema, TRUE,
+                getEscapedColumnValue(champ.get(RECAP_CHAMP_IBAN_IBAN)), "IBAN", getEscapedColumnValue(category),
+                FALSE));
+    }
+
+    /**
      * Méthode permettant de génrer le fichier de mappings d'elasticsearch
-     * 
+     *
      * @param sectionsList Liste des sections
      * @param appName Nom de l'application
      * @throws IOException Exception Input/Output
@@ -298,7 +336,12 @@ public class GenerateSearchConfigFiles {
         LOGGER.info("Début de la génération du mapping elasticsearch...");
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode contenu = mapper.createObjectNode();
-        Path destEsMappingsFilePath = Paths.get(MessageFormat.format(DEST_ES_MAPPINGS_FILE_PATH, appName));
+
+        String destEsMappingsFilePathStr = GenerateSearchConfigFiles.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+        String destESMappingsFileName = MessageFormat.format(DEST_ES_MAPPINGS_FILE_PATH, appName);
+        destEsMappingsFilePathStr = destEsMappingsFilePathStr.substring(1, destEsMappingsFilePathStr.length() - 8) + destESMappingsFileName;
+        LOGGER.info("Fichier Mappings ES : {}", destEsMappingsFilePathStr);
+        Path destEsMappingsFilePath = Paths.get(destEsMappingsFilePathStr);
 
         for (LinkedHashMap<String, Object> section : sectionsList) {
 
@@ -308,6 +351,8 @@ public class GenerateSearchConfigFiles {
                     if (champ != null) {
 
                         String champType = champ.get(RECAP_CHAMP_TYPE).toString();
+
+                        // Mapping pour les adresses
                         if (champType.equals(RecapChampType.ADRESSE.getType()) || champType.equals(RecapChampType.ADRESSE_MC.getType())) {
 
                             buildJsonProperty(getPropertiesAsArray(champ, RECAP_CHAMP_ADRESSE_LIGNE1), champType,
@@ -316,7 +361,7 @@ public class GenerateSearchConfigFiles {
                                     contenu, mapper, RECAP_CHAMP_ADRESSE_LIGNE2);
                             buildJsonProperty(getPropertiesAsArray(champ, RECAP_CHAMP_ADRESSE_LIGNE3), champType,
                                     contenu, mapper, RECAP_CHAMP_ADRESSE_LIGNE3);
-                            
+
                             if (champType.equals(RecapChampType.ADRESSE.getType())) {
 	                            buildJsonProperty(getPropertiesAsArray(champ, RECAP_CHAMP_ADRESSE_CP), champType, contenu,
 	                                    mapper, RECAP_CHAMP_ADRESSE_CP);
@@ -326,6 +371,18 @@ public class GenerateSearchConfigFiles {
 	                                    mapper, RECAP_CHAMP_ADRESSE_PAYS);
                             }
                         }
+
+                        // Mapping pour un iban
+                        else if (champType.equals(RecapChampType.IBAN.getType())) {
+                            buildJsonProperty(getPropertiesAsArray(champ, RECAP_CHAMP_IBAN_TITULAIRE), champType, contenu,
+                                    mapper, RECAP_CHAMP_IBAN_TITULAIRE);
+                            buildJsonProperty(getPropertiesAsArray(champ, RECAP_CHAMP_IBAN_BIC), champType,
+                                    contenu, mapper, RECAP_CHAMP_IBAN_BIC);
+                            buildJsonProperty(getPropertiesAsArray(champ, RECAP_CHAMP_IBAN_IBAN), champType, contenu,
+                                    mapper, RECAP_CHAMP_IBAN_IBAN);
+                        }
+
+                        // Mapping des champs par défaut
                         else {
                             if (champType.equals("choixMultiple")) {
                                 List<LinkedHashMap<String, Object>> mappingValues = (List<LinkedHashMap<String, Object>>) champ.get("mappingValues");
@@ -367,9 +424,9 @@ public class GenerateSearchConfigFiles {
         jsonTemplate = mapper.writerWithDefaultPrettyPrinter()
                 .writeValueAsString(mapper.readValue(jsonTemplate.getBytes(), Object.class));
         Files.write(destEsMappingsFilePath, Arrays.asList(jsonTemplate), StandardOpenOption.CREATE);
+
         LOGGER.info(LOG_SEPARATOR);
-        LOGGER.info(
-                "Mappings elasticsearch généré avec succès dans " + destEsMappingsFilePath.toFile().getAbsolutePath());
+        LOGGER.info("Mappings elasticsearch généré avec succès");
         LOGGER.info(LOG_SEPARATOR);
 
     }
@@ -388,7 +445,7 @@ public class GenerateSearchConfigFiles {
 
     /**
      * Méthode permettant de générer le json d'un propriété elasticsearch
-     * 
+     *
      * @param champProperties propriétés du champ du fichier récapitulatif du front
      * @param champType Type u champ du fichier récapitulatif du front
      * @param contenu Noeud json à alimenter avec le contenu de la propriété
@@ -441,12 +498,10 @@ public class GenerateSearchConfigFiles {
         }
         switch (RecapChampType.getFromType(type)) {
             case CHAINE:
-                return EsType.TEXT.getType();
             case CHOIX:
-                return EsType.TEXT.getType();
             case ADRESSE:
-                return EsType.TEXT.getType();
             case ADRESSE_MC:
+            case IBAN:
                 return EsType.TEXT.getType();
             case DATE:
                 return EsType.DATE.getType();

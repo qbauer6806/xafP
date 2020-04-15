@@ -4,6 +4,7 @@ public enum TypeModeleEnum {
 	
 	COURRIER,
 	JUSTIFICATIF,
-	EXPORT_EXCEL
+	EXPORT_EXCEL,
+	AUTRES
 
 }

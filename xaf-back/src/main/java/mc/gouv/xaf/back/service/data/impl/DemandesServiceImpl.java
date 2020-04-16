@@ -365,13 +365,38 @@ public class DemandesServiceImpl implements DemandesService {
 
         List<DemandeBO> demandes;
         if (startDate != null && endDate != null) {
-            demandes = demandesRepository.findAllByDemarcheIdAndDateCreationBetween(demarcheId, startDate, endDate);
+            demandes = demandesRepository.findAllByDateCreationBetween(startDate, endDate);
         } else if (startDate != null) {
-            demandes = demandesRepository.findAllByDemarcheIdAndDateCreationFrom(demarcheId, startDate);
+            demandes = demandesRepository.findAllByDateCreationFrom(startDate);
         } else if (endDate != null) {
-            demandes = demandesRepository.findAllByDemarcheIdAndDateCreationUntil(demarcheId, endDate);
+            demandes = demandesRepository.findAllByDateCreationUntil(endDate);
         } else {
-            demandes = getAllDemarchesBoById(demarcheId);
+            demandes = demandesRepository.findAll();
+        }
+
+        LOGGER.info("Transformation bo -> dto ...");
+
+        return DemandesTransformer.bo2Dto(demandes);
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<DemandeDTO> getAllDemandesFilteredByDateAndStatut(String demarcheId, Date startDate, Date endDate, String statut) {
+
+        LOGGER.info("Récupération en base des demandes filtrées par date et par statut...");
+
+        List<DemandeBO> demandes;
+        if (startDate != null && endDate != null) {
+            demandes = demandesRepository.findAllByDateCreationBetweenAndDernierStatut(startDate, endDate, statut);
+        } else if (startDate != null) {
+            demandes = demandesRepository.findAllByDateCreationFromAndDernierStatut(startDate, statut);
+        } else if (endDate != null) {
+            demandes = demandesRepository.findAllByDateCreationUntilAndDernierStatut(endDate, statut);
+        } else {
+            demandes = demandesRepository.findAllByDernierStatut_Libelle(statut);
         }
 
         LOGGER.info("Transformation bo -> dto ...");

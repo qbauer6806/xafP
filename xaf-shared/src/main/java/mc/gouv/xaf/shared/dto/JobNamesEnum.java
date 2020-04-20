@@ -2,7 +2,9 @@ package mc.gouv.xaf.shared.dto;
 
 public enum JobNamesEnum {
 
-    REINDEXATION("Réindexation des demandes");
+    REINDEXATION("Réindexation Globale"),
+    REINDEXATION_DEMANDES("Réindexation des demandes"),
+    REINDEXATION_FICHIERS("Réindexation des fichiers");
 
     private String libelle;
 

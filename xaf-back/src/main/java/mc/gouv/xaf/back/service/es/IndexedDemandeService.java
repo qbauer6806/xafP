@@ -70,19 +70,6 @@ public interface IndexedDemandeService extends DemandesService {
     Long reindexDemandes() throws IOException;
 
     /**
-     * Méthode permettant de faire la réindexation des fichiers dans elasticsearch
-     *
-     * @return nombre de demandes reindexées
-     *
-     * @throws IOException Exception I/O
-     * @throws TikaException Exception du parsing de la piece jointe
-     * @throws SAXException Exception SAX
-     * @throws FileConnectionException Exception lors de la connextion à File afn de récupérer la piece jointe à indexer
-     */
-    Long reindexFichiers() throws IOException;
-
-
-    /**
      * Méthode permettant de récupérer une demande de la base et de l'indexer
      * 
      * @param demarcheId Identifiant de la demarche

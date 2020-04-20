@@ -85,10 +85,6 @@ public class DemandeJobServiceImpl implements DemandeJobService {
                 Long demCount = indexedDemandeService.reindexDemandes();
                 msg = demCount + " demandes ont été reindéxées";
             }
-            if (job.getJobName().equals(JobNamesEnum.REINDEXATION_FICHIERS)) {
-                Long demCount = indexedDemandeService.reindexFichiers();
-                msg = "Tous les fichiers des " + demCount + " demandes ont été reindéxés";
-            }
 
             context.getBean(DemandeJobServiceImpl.class).logSuccess(job.getId(), msg);
 

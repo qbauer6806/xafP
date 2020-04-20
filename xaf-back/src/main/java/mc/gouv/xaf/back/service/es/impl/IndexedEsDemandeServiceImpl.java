@@ -665,7 +665,9 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         if (demandeEsRepository != null) {
             long demCount = demandesRepository.count();
             LOGGER.info("Nombre de demandes à réindexer : {}", demCount);
-            demandeEsRepository.deleteAll();
+            Page<DemandeBO> demandes = demandesRepository.findAll(PageRequest.of(0, (int) demCount));
+            List<DemandeEsDTO> demandesEs = demandeEsTransformer.toEs(demandes).toList();
+            demandeEsRepository.deleteAll(demandesEs);
             final int size = gouvPropertiesResolver.getEsReindexBulkSize();
             LOGGER.info("Bulk size : {}", size);
             int additionalPage = (demCount % size > 0)? 1 : 0;
@@ -676,27 +678,6 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             return demCount;
         }
         LOGGER.info("Fin de la réindexation des demandes");
-        return 0l;
-    }
-
-    @Override
-    public Long reindexFichiers() throws IOException {
-
-        LOGGER.info("Début de la réindexation des FICHIERS");
-        if (demandeEsRepository != null) {
-            long demCount = demandesRepository.count();
-            LOGGER.info("Nombre de demandes à réindexer : {}", demCount);
-            demandeEsRepository.deleteAll();
-            final int size = gouvPropertiesResolver.getEsReindexBulkSize();
-            LOGGER.info("Bulk size : {}", size);
-            int additionalPage = (demCount % size > 0)? 1 : 0;
-
-            indexBulkDeFichiers(demCount, size, additionalPage);
-
-            LOGGER.info("Fin de la réindexation des fichiers");
-            return demCount;
-        }
-        LOGGER.info("Fin de la réindexation des fichiers");
         return 0l;
     }
 

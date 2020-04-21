@@ -1722,7 +1722,20 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                     .mustNot(termsQuery(statutKey, demarchesDataProvider.getStatusMap().keySet()))
                     .must(existsQuery(statutKey));
         } else if (demandeRecherche.getStatuts() != null) {
-            boolQueryBuilder = boolQueryBuilder.must(termsQuery(statutKey, demandeRecherche.getStatuts()));
+        	if (StringUtils.isNotBlank(demandeRecherche.getStatutPublicOuInterne())) {
+        		
+        		TermsQueryBuilder statutsQ = QueryBuilders.termsQuery(statutKey, demandeRecherche.getStatuts());
+        		MatchQueryBuilder statutPublicOuInterneQ = QueryBuilders.matchQuery("statutPublicOuInterne", demandeRecherche.getStatutPublicOuInterne());
+        		BoolQueryBuilder shouldQ = QueryBuilders.boolQuery().should(statutsQ).should(statutPublicOuInterneQ);
+        		boolQueryBuilder = boolQueryBuilder.must(shouldQ);
+        	}
+        	else {
+        		boolQueryBuilder = boolQueryBuilder.must(termsQuery(statutKey, demandeRecherche.getStatuts()));
+        	}
+        } else if (demandeRecherche.getStatuts() == null) {
+        	if (StringUtils.isNotBlank(demandeRecherche.getStatutPublicOuInterne())) {
+        		boolQueryBuilder = boolQueryBuilder.must(matchQuery("statutPublicOuInterne", demandeRecherche.getStatutPublicOuInterne()));
+        	}
         }
 
         String canauxKey = DemandeEsDTO.CANAL_FIELD_NAME + "." + CanalEsDto.CANAL_CODE_FIELD_NAME + ES_KEYWORD;
@@ -1745,6 +1758,12 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                     .must(termQuery(DemandeEsDTO.AGENT_FIELD_NAME + "." + AgentEsDTO.MATRICULE_FIELD_NAME + ES_KEYWORD,
                             demandeRecherche.getAgentAffecteId()));
         }
+        
+//        if (!StringUtils.isBlank(demandeRecherche.getStatutPublicOuInterne())) {
+//            boolQueryBuilder = boolQueryBuilder
+//                    .should(matchQuery("statutPublicOuInterne",
+//                    		demandeRecherche.getStatutPublicOuInterne()));
+//        }
 
         RangeQueryBuilder rangeQueryBuilder = rangeQuery(DemandeEsDTO.DATE_CREATION_FIELD_NAME).format(DATE_PATTERN);
 

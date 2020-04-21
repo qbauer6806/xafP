@@ -140,6 +140,8 @@ public class DemandeEsTransformer {
         demandeEsDTO.setContenu(transformContenu(contenu));
         demandeEsDTO.setCourrierDateReception(demande.getCourrierDateReception());
         demandeEsDTO.setCourrierRefInterne(demande.getCourrierRefInterne());
+        
+        demandeEsDTO.setStatutPublicOuInterne(demarchesDataProvider.getStatutPublicOuInterne(demande.getPkDemandes(), demande.getDernierStatut().getLibelle()).getName());
 
         Set<DemandeCourrierDTO> courriers = DemandesCourriersTransformer.bo2Dto(demande.getCourriers());
 
@@ -209,6 +211,8 @@ public class DemandeEsTransformer {
         demandeEsDTO.setContenu(transformContenu(demandeDTO.getContenu()));
         demandeEsDTO.setCourrierDateReception(demandeDTO.getCourrierDateReception());
         demandeEsDTO.setCourrierRefInterne(demandeDTO.getCourrierRefInterne());
+        
+        demandeEsDTO.setStatutPublicOuInterne(demarchesDataProvider.getStatutPublicOuInterne(demandeDTO.getPkDemandes(), demandeDTO.getDernierStatut().getLibelle()).getName());
 
         if (demandeDTO.getCourriers() != null && demandeDTO.getCourriers().length > 0) {
             List<String> nomsCourriers = Arrays.stream(demandeDTO.getCourriers()).map(DemandeCourrierDTO::getName)
@@ -365,6 +369,8 @@ public class DemandeEsTransformer {
         dto.setIdentifiant(bo.getIdentifiant());
         dto.setCourrierDateReception(bo.getCourrierDateReception());
         dto.setCourrierRefInterne(bo.getCourrierRefInterne());
+        
+        dto.setStatutPublicOuInterne(demarchesDataProvider.getStatutPublicOuInterne(bo.getPkDemandes(), bo.getDernierStatut().getLibelle()).getName());
 
         // Mapper les données de demande
         if (addDataField && bo.getData() != null && !bo.getData().isEmpty()) {

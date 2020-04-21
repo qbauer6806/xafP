@@ -30,6 +30,7 @@ public class DemandeEsDTO extends AbstractDemandeDTO {
     private AgentEsDTO agent;
     private DemandeStatutEsDTO[] statuts;
     private DemandeStatutEsDTO dernierStatut;
+	private String statutPublicOuInterne;
     private JsonNode data;
     private String agentAffecteNomAffichage;
     private List<String> nomsCourriers;
@@ -134,5 +135,13 @@ public class DemandeEsDTO extends AbstractDemandeDTO {
     public void setDemandeJoinField(DemandeJoinFieldEsDTO demandeJoinField) {
         this.demandeJoinField = demandeJoinField;
     }
+    
+    public String getStatutPublicOuInterne() {
+		return statutPublicOuInterne;
+	}
+
+	public void setStatutPublicOuInterne(String statutPublicOuInterne) {
+		this.statutPublicOuInterne = statutPublicOuInterne;
+	}
 
 }

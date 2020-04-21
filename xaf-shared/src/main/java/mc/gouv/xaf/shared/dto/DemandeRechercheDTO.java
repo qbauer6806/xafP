@@ -37,6 +37,8 @@ public class DemandeRechercheDTO {
     private boolean aucunCanal;
 
     private boolean aucunStatut;
+    
+    private String statutPublicOuInterne;
 
     public DemandeRechercheDTO() {
         super();
@@ -162,7 +164,15 @@ public class DemandeRechercheDTO {
         this.aucunStatut = aucunStatut;
     }
 
-    @Override
+    public String getStatutPublicOuInterne() {
+		return statutPublicOuInterne;
+	}
+
+	public void setStatutPublicOuInterne(String statutPublicOuInterne) {
+		this.statutPublicOuInterne = statutPublicOuInterne;
+	}
+
+	@Override
     public String toString() {
         return "DemandeRechercheDTO [demarcheId=" + demarcheId + ", texte=" + texte + ", statuts=" + statuts
                 + ", canaux=" + canaux + ", agentAffecteId=" + agentAffecteId + ", usagerId=" + usagerId

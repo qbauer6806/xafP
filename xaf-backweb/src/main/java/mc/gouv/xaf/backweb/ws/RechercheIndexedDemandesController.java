@@ -63,7 +63,8 @@ public class RechercheIndexedDemandesController extends AbstractController {
                                                 @RequestParam(value = "searchFields", required = false) String[] searchFields,
                                                 @RequestParam(value = "data", required = false) DataRechercheDTO data,
                                                 @RequestParam(value = "aucunCanal", required = false) boolean aucunCanal,
-                                                @RequestParam(value = "aucunStatut", required = false) boolean aucunStatut, Pageable pageable) {
+                                                @RequestParam(value = "aucunStatut", required = false) boolean aucunStatut,
+                                                @RequestParam(value = "statutPublicOuInterne", required = false) String statutPublicOuInterne, Pageable pageable) {
 
         LOGGER.info("======================= Appel de /ws/demandes/pageable (statuts=" + statuts + ",canaux=" + canaux
                 + ",agentId=" + agentId + ",creationStartDate=" + creationStartDate + ",creationEndDate="
@@ -82,7 +83,7 @@ public class RechercheIndexedDemandesController extends AbstractController {
         demandeRecherche.setIdentifiant(null);
         demandeRecherche.setAucunStatut(aucunStatut);
         demandeRecherche.setAucunCanal(aucunCanal);
-
+        demandeRecherche.setStatutPublicOuInterne(statutPublicOuInterne);
         demandeRecherche.setSearchFields(searchFields);
 
         if (pageable.getSort() != null && !pageable.getSort().isUnsorted()) {

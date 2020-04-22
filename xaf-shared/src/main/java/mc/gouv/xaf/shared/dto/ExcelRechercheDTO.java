@@ -1,7 +1,5 @@
 package mc.gouv.xaf.shared.dto;
 
-import java.util.Date;
-
 /**
  * DTO Interne permettant de regrouper les critères de recherche pour un export excel
  */
@@ -10,6 +8,10 @@ public class ExcelRechercheDTO {
     private String creationStartDate;
 
     private String creationEndDate;
+
+    private String dateAcceptationStartDate;
+
+    private String dateAcceptationEndDate;
 
     private String statut;
 
@@ -35,5 +37,21 @@ public class ExcelRechercheDTO {
 
     public void setStatut(String statut) {
         this.statut = statut;
+    }
+
+    public String getDateAcceptationStartDate() {
+        return dateAcceptationStartDate;
+    }
+
+    public void setDateAcceptationStartDate(String dateAcceptationStartDate) {
+        this.dateAcceptationStartDate = dateAcceptationStartDate;
+    }
+
+    public String getDateAcceptationEndDate() {
+        return dateAcceptationEndDate;
+    }
+
+    public void setDateAcceptationEndDate(String dateAcceptationEndDate) {
+        this.dateAcceptationEndDate = dateAcceptationEndDate;
     }
 }

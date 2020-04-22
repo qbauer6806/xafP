@@ -2,6 +2,7 @@ package mc.gouv.xaf.back.service.utils;
 
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -446,6 +447,24 @@ public class AfBackUtils {
      */
     public boolean getDemarcheCanHandlePeriodesOuverture() {
     	return demarchesDataProvider.getDemarcheCanHandlePeriodesOuverture();
+    }
+
+    public static Date convertStartDate(String startDate) throws ParseException {
+        return new SimpleDateFormat("dd/MM/yyyy").parse(startDate);
+    }
+
+    public static Date convertEndDate(String plainEndDate) throws ParseException {
+        Date endDate = new SimpleDateFormat("dd/MM/yyyy").parse(plainEndDate);
+
+        // Last moment of days
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(endDate);
+        cal.set(Calendar.HOUR_OF_DAY, cal.getMaximum(Calendar.HOUR_OF_DAY));
+        cal.set(Calendar.MINUTE, cal.getMaximum(Calendar.MINUTE));
+        cal.set(Calendar.SECOND, cal.getMaximum(Calendar.SECOND));
+        endDate = cal.getTime();
+
+        return endDate;
     }
 
 }

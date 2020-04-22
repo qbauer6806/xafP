@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,6 +22,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -402,6 +404,59 @@ public class DemandesServiceImpl implements DemandesService {
         LOGGER.info("Transformation bo -> dto ...");
 
         return DemandesTransformer.bo2Dto(demandes);
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<DemandeDTO> getAllDemandesFilteredByDateAcceptationAndStatut(String demarcheId, Date startDate, Date endDate, String statut) {
+
+        LOGGER.info("Récupération en base des demandes filtrées par date et par statut...");
+
+        final String DATE_ACCEPTATION = "dateValidationDemande";
+
+        List<DemandeBO> demandes = demandesRepository.findAllByDernierStatut_Libelle(statut);
+
+        // Dans le cas où on ne séléctionne pas de dates on retourne toute la list
+        if (startDate == null && endDate == null) {
+            return DemandesTransformer.bo2Dto(demandes);
+        }
+
+        List<DemandeBO> demandesFiltres = new ArrayList<>();
+
+        for (DemandeBO demande : demandes) {
+            if (demande.getData() != null) {
+                // Recherche de l'attribut dateAcceptation
+                for (DemandesDataBO dataBO : demande.getData()) {
+                    // Récupération de la date d'acceptation
+                    if (DATE_ACCEPTATION.equals(dataBO.getKey())) {
+                        boolean ajouterDemande = false;
+                        try {
+                            Date dateAComparer = AfBackUtils.convertStartDate(dataBO.getValue());
+                            if (startDate != null && endDate != null) {
+                                ajouterDemande = startDate.before(dateAComparer) && endDate.after(dateAComparer);
+                            } else if (startDate != null) {
+                                ajouterDemande = startDate.before(dateAComparer);
+                            } else {
+                                ajouterDemande = endDate.after(dateAComparer);
+                            }
+                        } catch (ParseException e) {
+                            LOGGER.error("Problème lors de la conversion de la date d'accepation", e);
+                        }
+
+                        if (ajouterDemande) {
+                            demandesFiltres.add(demande);
+                        }
+                    }
+                }
+            }
+        }
+
+        LOGGER.info("Transformation bo -> dto ...");
+
+        return DemandesTransformer.bo2Dto(demandesFiltres);
 
     }
 

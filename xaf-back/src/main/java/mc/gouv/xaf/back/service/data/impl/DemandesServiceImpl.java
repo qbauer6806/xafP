@@ -25,6 +25,7 @@ import javax.persistence.criteria.*;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -435,6 +436,8 @@ public class DemandesServiceImpl implements DemandesService {
                         boolean ajouterDemande = false;
                         try {
                             Date dateAComparer = AfBackUtils.convertStartDate(dataBO.getValue());
+                            // Ajouter une heure pour éviter l'exclusion sur la date de départ
+                            dateAComparer = DateUtils.addHours(dateAComparer, 1);
                             if (startDate != null && endDate != null) {
                                 ajouterDemande = startDate.before(dateAComparer) && endDate.after(dateAComparer);
                             } else if (startDate != null) {

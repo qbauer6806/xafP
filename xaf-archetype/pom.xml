@@ -5,7 +5,7 @@
   <parent>
     <groupId>mc.gouv.xaf</groupId>
     <artifactId>xaf</artifactId>
-      <version>8.0.3-SNAPSHOT</version>
+      <version>8.0.3</version>
   </parent>
 
   <artifactId>xaf-archetype</artifactId>

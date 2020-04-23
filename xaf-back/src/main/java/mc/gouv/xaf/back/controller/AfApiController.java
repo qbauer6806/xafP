@@ -4,19 +4,10 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import mc.gouv.xaf.shared.dto.*;
 import org.springframework.http.ResponseEntity;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-
-import mc.gouv.xaf.shared.dto.AccessDTO;
-import mc.gouv.xaf.shared.dto.AccessInputDTO;
-import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
-import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.xaf.shared.dto.DemandeInputDTO;
-import mc.gouv.xaf.shared.dto.MotifDTO;
-import mc.gouv.xaf.shared.dto.PeriodeOuvertureDTO;
-import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 
 /**
  * 
@@ -68,5 +59,7 @@ public interface AfApiController {
     
     @SuppressWarnings("rawtypes")
 	public ResponseEntity deleteCustomRequest(HttpServletRequest request);
+
+    List<PropertiesDTO> getFrontProperties();
 
 }

@@ -1,30 +1,19 @@
 package mc.gouv.xaf.apiclient;
 
-import java.util.List;
+import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import mc.gouv.xaf.shared.dto.*;
+import mc.gouv.xboot.apiclient.authentication.impl.BasicAuthorizationHeaderProvider;
+import mc.gouv.xboot.apiclient.authentication.impl.JwtAuthorizationHeaderProvider;
+import mc.gouv.xboot.apiclient.client.ApiClient;
+import mc.gouv.xboot.apiclient.exception.ExceptionManager;
+import org.glassfish.jersey.media.multipart.internal.MultiPartWriter;
 
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
-import org.glassfish.jersey.media.multipart.internal.MultiPartWriter;
-
-import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
-
-import mc.gouv.xaf.shared.dto.AccessDTO;
-import mc.gouv.xaf.shared.dto.AccessInputDTO;
-import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
-import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.xaf.shared.dto.DemandeInputDTO;
-import mc.gouv.xaf.shared.dto.MotifDTO;
-import mc.gouv.xaf.shared.dto.PeriodeOuvertureDTO;
-import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
-import mc.gouv.xboot.apiclient.authentication.impl.BasicAuthorizationHeaderProvider;
-import mc.gouv.xboot.apiclient.authentication.impl.JwtAuthorizationHeaderProvider;
-import mc.gouv.xboot.apiclient.client.ApiClient;
-import mc.gouv.xboot.apiclient.exception.ExceptionManager;
+import java.util.List;
 
 /**
  * 
@@ -198,6 +187,16 @@ public class AfApiClient extends ApiClient {
         ExceptionManager.checkExceptionResponse(res);
 
         return res.readEntity(new GenericType<List<PeriodeOuvertureDTO>>() {
+        });
+    }
+
+    public List<PropertiesDTO> getFrontProperties() {
+        Response res = getTarget().path("/properties").request(MediaType.APPLICATION_JSON)
+                .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue()).get();
+
+        ExceptionManager.checkExceptionResponse(res);
+
+        return res.readEntity(new GenericType<List<PropertiesDTO>>() {
         });
     }
 

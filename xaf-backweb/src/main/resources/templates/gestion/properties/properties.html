@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      class="no-js sidebar-left-collapsed" lang="fr" dir="ltr">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="x-ua-compatible" content="ie=edge"/>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <meta name="description" content=""/>
+    <meta name="author" content=""/>
+    <meta th:name="_csrf" th:content="${_csrf.token}"/>
+    <meta th:name="_csrf_header" th:content="${_csrf.headerName}"/>
+
+    <title th:text="${titre}"></title>
+
+    <!-- Import FONTS -->
+    <link th:href="@{/webjars/xcb-wlib/fonts/style.css}" rel="stylesheet"/>
+    <!--[if lt IE 8]><!-->
+    <link rel="stylesheet" th:href="@{/webjars/xcb-wlib/fonts/ie7/ie7.css}"/>
+
+    <!-- Import CSS -->
+    <link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"
+          rel="stylesheet" type="text/css"/>
+    <link th:href="@{/webjars/xcb-wlib/css/template.css}" rel="stylesheet"/>
+    <link th:href="@{/webjars/xcb-wlib/css/sidebar.css}" rel="stylesheet"/>
+    <link th:href="@{/webjars/xcb-wlib/css/element.css}" rel="stylesheet"/>
+    <link th:href="@{/webjars/datatables/css/dataTables.bootstrap.css}"
+          rel="stylesheet"/>
+    <link rel="stylesheet"
+          th:href="@{/webjars/fancybox/jquery.fancybox.css}"/>
+    <link rel="shortcut icon" type="image/x-icon"
+          th:href="@{/img/favicon.ico}"/>
+    <link th:href="@{/css/tsgen.css(${applicationBuildTimestamp})}"
+          rel="stylesheet"/>
+    <link th:href="@{/css/tsdem.css(${applicationBuildTimestamp})}"
+          rel="stylesheet"/>
+</head>
+<body th:with="pageConfigurationActive='active'">
+
+<div th:replace="fragments/header :: header"></div>
+
+<div id="wrapper">
+
+    <div th:replace="fragments/sidebar :: sidebar"></div>
+
+    <!-- DEBUT CONTENU -->
+    <div id="page-content-wrapper">
+
+        <div class="breadcrumbContent">
+            <div class="breadcrumb">
+                <a id="ariane0" th:href="@{/}" class="breadcrumb-item active">Accueil</a>&nbsp;&gt;&nbsp;
+                <a id="ariane1" th:href="@{/gestion/properties}" class="breadcrumb-item active">PROPRIÉTÉS</a>
+            </div>
+            <div class="triangleTopright"></div>
+        </div>
+
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-xs-12 col-sm-8">
+                    <h1>Administration des propriétés</h1>
+                </div>
+                <div class="col-xs-12 col-sm-4" align="right">
+                    <button id="boutonAjouter" class="btn btn-action ripple-effect">
+                        <i class="icon-action_plus"></i><span>ajouter une propriété</span>
+                    </button>
+                </div>
+                <div class="col-xs-12 tableContent">
+                    <div class="tableTitle">Liste des propriétés</div>
+                    <table id="datatable-properties" class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>Type</th>
+                            <th>Clé</th>
+                            <th>Valeur</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="property : ${properties}">
+                            <td th:text="${property.type}"></td>
+                            <td th:text="${property.key}"></td>
+                            <td th:text="${property.value}"></td>
+                            <td>
+                                <button class="btn btn-action ripple-effect greyTooltip boutonModifier"
+                                        data-toggle="tooltip" data-placement="bottom"
+                                        data-original-title="Modifier la propriété"
+                                        th:attr="data-pkproperties=${property.pkProperties},data-type=${property.type},data-key=${property.key},data-value=${property.value}">
+                                    <i class="icon-action_modifier"></i>
+                                </button>
+                                <button class="btn btn-action ripple-effect greyTooltip boutonSupprimer"
+                                        data-toggle="tooltip" data-placement="bottom"
+                                        data-original-title="Supprimer la propriété"
+                                        th:attr="data-pkproperties=${property.pkProperties}">
+                                    <i class="icon-action_supprimer"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <!-- FIN CONTENU -->
+
+    <!-- EDITION MODAL -->
+    <div id="editionModal" style="display: none">
+        <form method="POST" id="editionPropertiesForm" th:action="@{/gestion/properties/edit}"
+              th:object="${propertiesFormBean}">
+            <!-- input cachée pour insérer la pk de la properties à modifier -->
+            <input type="hidden" id="pkProperties" name="pkProperties" th:field="*{pkProperties}"/>
+            <div class="row no-margin-row" style="width: 400px;">
+                <div class="col-xs-12 text-center">
+                    <h2 id="addTitle">Ajout d'une propriété</h2>
+                    <h2 id="editTitle">Modification d'une propriété</h2>
+                </div>
+                <div class="col-xs-12"
+                     th:class="${#fields.hasErrors('type')} ? 'form-group error' : 'form-group'">
+                    <label for="propertiesType">Type<span class="required"></span></label>
+                    <select id="propertiesType" type="text" name="type" class="form-control" th:field="*{type}">
+                        <option th:value="null">
+                            Veuillez sélectionner une valeur...
+                        </option>
+                        <option th:value="FRONT">Propriété Front</option>
+                        <option th:value="BACK">Propriété Back</option>
+                    </select>
+                </div>
+                <div class="col-xs-12"
+                     th:class="${#fields.hasErrors('key')} ? 'form-group error' : 'form-group'">
+                    <label for="propertiesKey">Clé<span class="required"></span></label>
+                    <input id="propertiesKey" type="text" name="key" maxlength="256" class="form-control"
+                           th:field="*{key}"/>
+                </div>
+                <div class="col-xs-12"
+                     th:class="${#fields.hasErrors('value')} ? 'form-group error' : 'form-group'">
+                    <label for="propertiesValue">Valeur<span class="required"></span></label>
+                    <input id="propertiesValue" type="text" name="value" maxlength="10000" class="form-control"
+                           th:field="*{value}"/>
+                </div>
+                <div class="col-xs-12 text-center">
+                    <button id="annulerEditBouton" class="btn btn-action-second ripple-effect annulerBouton"
+                            type="button" name="annuler"
+                            value="annuler">
+                        annuler
+                    </button>
+                    <button id="addBtn" class="btn btn-action ripple-effect" type="submit" name="action"
+                            value="ajouter">
+                        ajouter
+                    </button>
+                    <button id="editBtn" class="btn btn-action ripple-effect" type="submit" name="action"
+                            value="modifier">
+                        modifier
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <!-- FIN EDITION MODAL -->
+
+    <!-- SUPRESSION MODAL -->
+    <div id="supressionModal" style="display: none">
+        <form method="POST" id="suppressionPropertiesForm" th:action="@{/gestion/properties/supprimer}">
+            <!-- input cachée pour insérer la pk de la properties à modifier -->
+            <input type="hidden" id="pkPropertiesSuppr" name="pkProperties"/>
+            <div class="row no-margin-row text-center" style="width: 400px;">
+                <div class="col-xs-12">
+                    <h2>Suppression d'une propriété</h2>
+                </div>
+                <div class="col-xs-12">
+                    <span>Êtes-vous sûr(e) de vouloir supprimer cette propriété ?</span>
+                </div>
+                <div class="col-xs-12 margin-top">
+                    <button id="annulerSupprBouton" class="btn btn-action-second ripple-effect annulerBouton"
+                            type="button" name="annuler"
+                            value="annuler">
+                        annuler
+                    </button>
+                    <button id="supprBtn" class="btn btn-action ripple-effect" type="submit">
+                        supprimer
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <!-- FIN SUPPRESSION MODAL -->
+
+</div>
+
+<div th:replace="fragments/footer :: footer"></div>
+
+<script th:inline="javascript">
+
+    /*<![CDATA[*/
+    $(document).ready(function () {
+
+        var messagesSuccessList = /*[[${successMessages}]]*/'default';
+        if (messagesSuccessList !== 'undefined' && messagesSuccessList !== null) {
+            $.each(messagesSuccessList, function (key, msg) {
+                $.notify({
+                    message: msg
+                }, {
+                    type: 'success'
+                });
+            });
+        }
+
+        var messagesErrorList = /*[[${errorMessages}]]*/'default';
+        if (messagesErrorList !== 'undefined' && messagesErrorList !== null) {
+            $.each(messagesErrorList, function (key, msg) {
+                $.notify({
+                    message: msg
+                }, {
+                    type: 'danger'
+                });
+            });
+        }
+
+        $("#boutonAjouter").click(function (e) {
+            e.preventDefault();
+
+            $('#pkProperties').val(null);
+            $('#propertiesType').val('');
+            $('#propertiesKey').val('');
+            $('#propertiesValue').val('');
+
+            $('#addTitle').show();
+            $('#editTitle').hide();
+            $('#addBtn').show();
+            $('#editBtn').hide();
+
+            $.fancybox.open({
+                src: '#editionModal',
+                type: 'inline'
+            });
+            return true;
+        });
+
+        $(".boutonModifier").click(function (e) {
+            e.preventDefault();
+
+            $('#addTitle').hide();
+            $('#editTitle').show();
+            $('#addBtn').hide();
+            $('#editBtn').show();
+
+            $('#pkProperties').val($(this).data('pkproperties'));
+            $('#propertiesType').val($(this).data('type'));
+            $('#propertiesKey').val($(this).data('key'));
+            $('#propertiesValue').val($(this).data('value'));
+
+            $.fancybox.open({
+                src: '#editionModal',
+                type: 'inline'
+            });
+            return true;
+        });
+
+        $('.boutonSupprimer').click(function (e) {
+            e.preventDefault();
+            var pk = $(this).data('pkproperties');
+            console.log(pk);
+            $('#pkPropertiesSuppr').val(pk);
+            $.fancybox.open({
+                src: '#supressionModal',
+                type: 'inline',
+                iframe: {
+                    css: {
+                        width: '300px'
+                    }
+                }
+            });
+            return true;
+        })
+
+        $('.annulerBouton').click(function (e) {
+            e.preventDefault();
+            $.fancybox.close();
+            return true;
+        });
+
+    });
+    /*]]>*/
+</script>
+
+</body>
+</html>

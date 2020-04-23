@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import mc.gouv.xaf.shared.dto.*;
 import org.apache.tika.exception.TikaException;
 import org.hibernate.TransactionException;
 import org.slf4j.Logger;
@@ -28,15 +29,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.es.impl.IndexedEsDemandeServiceImpl;
-import mc.gouv.xaf.shared.dto.AccessDTO;
-import mc.gouv.xaf.shared.dto.AccessInputDTO;
-import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
-import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.xaf.shared.dto.DemandeInputDTO;
-import mc.gouv.xaf.shared.dto.MotifDTO;
-import mc.gouv.xaf.shared.dto.PeriodeOuvertureDTO;
-import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 import mc.gouv.xapi.error.dto.ErrorsDTO;
 import mc.gouv.xapi.error.exception.WebException;
 
@@ -181,6 +173,12 @@ public abstract class AbstractAfApiController implements AfApiController {
     public List<PeriodeOuvertureDTO> getPeriodesOuvertureRequest() {
         LOGGER.info("AbstractAfApiController.getPeriodesOuverture()");
         return getPeriodesOuverture();
+    }
+
+    @RequestMapping(value = "/properties", method = RequestMethod.GET)
+    public List<PropertiesDTO> getFrontPropertiesRequest() {
+        LOGGER.info("AbstractAfApiController.getFrontPropertiesRequest()");
+        return getFrontProperties();
     }
     
     @SuppressWarnings("rawtypes")

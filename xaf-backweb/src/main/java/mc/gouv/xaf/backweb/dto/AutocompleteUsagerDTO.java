@@ -1,9 +1,7 @@
 package mc.gouv.xaf.backweb.dto;
 
 /**
- * 
  * @author qdeme
- *
  */
 public class AutocompleteUsagerDTO implements Comparable<AutocompleteUsagerDTO> {
 
@@ -30,6 +28,16 @@ public class AutocompleteUsagerDTO implements Comparable<AutocompleteUsagerDTO> 
     @Override
     public int compareTo(AutocompleteUsagerDTO o) {
         return this.getValue().compareTo(o.getValue());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return this == o;
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
     }
 
 }

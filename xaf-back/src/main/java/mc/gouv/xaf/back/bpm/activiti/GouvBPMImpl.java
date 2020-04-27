@@ -35,11 +35,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * 
  * Composant exposant le BPM interne d'AppFactory
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Component
 @Transactional(rollbackFor = Exception.class)
@@ -62,15 +60,15 @@ public class GouvBPMImpl implements GouvBPM {
 
     @Autowired
     private FormService formService;
-    
+
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
-    
+
     @Autowired(required = false)
     private IndexedDemandeService indexedDemandeService;
 
     public void startProcessInstanceByKeyOrMessage(String processDefinitionKey, String messageName, GouvBPMUser user,
-            Integer demandeId, String codeAppli, Map<String, Object> businessVariables) {
+                                                   Integer demandeId, String codeAppli, Map<String, Object> businessVariables) {
         LOGGER.info("startProcessInstance() Démarrage d'une instance du process \"{}\" assignée à l'utilisateur \"{}\" et concernant la demande \"{}\"",
                 processDefinitionKey, user, demandeId);
 
@@ -104,7 +102,7 @@ public class GouvBPMImpl implements GouvBPM {
 
     @Override
     public void startProcessInstance(String processDefinitionKey, GouvBPMUser user, Integer demandeId, String codeAppli,
-            Map<String, Object> businessVariables) {
+                                     Map<String, Object> businessVariables) {
 
         startProcessInstanceByKeyOrMessage(processDefinitionKey, null, user, demandeId, codeAppli, businessVariables);
 
@@ -112,7 +110,7 @@ public class GouvBPMImpl implements GouvBPM {
 
     @Override
     public void startProcessInstanceByMessage(String messageName, GouvBPMUser user, Integer demandeId, String codeAppli,
-            Map<String, Object> businessVariables) {
+                                              Map<String, Object> businessVariables) {
 
         startProcessInstanceByKeyOrMessage(null, messageName, user, demandeId, codeAppli, businessVariables);
 
@@ -139,7 +137,7 @@ public class GouvBPMImpl implements GouvBPM {
             LOGGER.error(NULL_PI);
         }
     }
-    
+
     @Override
     public void setProcessBusinessVariable(Integer demandeId, String key, Object value) {
         LOGGER.debug("setProcessBusinessVariable({}, {}, {})", demandeId, key, value);
@@ -192,7 +190,7 @@ public class GouvBPMImpl implements GouvBPM {
     }
 
     @Override
-    @Transactional(noRollbackFor = { ActivitiTaskAlreadyClaimedException.class, TaskAlreadyClaimedException.class })
+    @Transactional(noRollbackFor = {ActivitiTaskAlreadyClaimedException.class, TaskAlreadyClaimedException.class})
     public void claimTask(GouvBPMTask task, GouvBPMUser user) throws TaskAlreadyClaimedException {
         LOGGER.info("claimTask({}, {})", task, user);
 
@@ -202,7 +200,7 @@ public class GouvBPMImpl implements GouvBPM {
         }
 
         if (task.getAssignee() != null && !task.getAssignee().equals(user.getId())) {
-        	throw new TaskAlreadyClaimedException("Tâche déjà claimed par un autre user");
+            throw new TaskAlreadyClaimedException("Tâche déjà claimed par un autre user");
         }
 
         try {
@@ -214,11 +212,11 @@ public class GouvBPMImpl implements GouvBPM {
     }
 
     @Override
-    public void completeTask(GouvBPMTask task, Integer demandeId) throws Exception {
+    public void completeTask(GouvBPMTask task, Integer demandeId) throws IOException, TikaException, SAXException {
         LOGGER.info("completeTask({})", task);
 
         taskService.complete(task.getId());
-        
+
         // Réindexation pour prendre en compte le nouveau statutPublicOuInterne
         reindex(demandeId);
     }
@@ -238,7 +236,7 @@ public class GouvBPMImpl implements GouvBPM {
 
     @Override
     public List<GouvBPMTask> getTasksForDemandeWhereUserIsCandidate(GouvBPMUser user, String codeAppli,
-            Integer demandeId) {
+                                                                    Integer demandeId) {
         LOGGER.info("getTasksWhereUserIsCandidate({}, {})", user, codeAppli);
 
         // On transfère le code appli au GouvBPMGroupManager par le biais d'un critère de recherche sur les processVariables
@@ -282,7 +280,7 @@ public class GouvBPMImpl implements GouvBPM {
 
     @Override
     public List<Integer> getDemandesIdsByCodeAppliAndTacheCouranteAndCandidateUser(String codeAppli, GouvBPMTask task,
-            GouvBPMUser user) {
+                                                                                   GouvBPMUser user) {
         LOGGER.info("getDemandesIdsByCodeAppliAndTacheCourante({}, {})", codeAppli, task.getTaskDefinitionKey());
         List<Integer> demandeIds = new ArrayList<>();
         List<Task> tasks = taskService.createTaskQuery()
@@ -405,7 +403,7 @@ public class GouvBPMImpl implements GouvBPM {
     }
 
     @Override
-    public void submitTaskFormData(GouvBPMTask task, Map<String, String> properties, Integer demandeId) throws Exception {
+    public void submitTaskFormData(GouvBPMTask task, Map<String, String> properties, Integer demandeId) throws IOException, TikaException, SAXException {
         // Pour éviter les NPE dans Activiti et éviter d'avoir à déclarer de nouveaux HashMaps
         // si on ne veut rien transmettre dans le formulaire
         Map<String, String> propertiesSafe = (properties == null) ? new HashMap<>() : properties;

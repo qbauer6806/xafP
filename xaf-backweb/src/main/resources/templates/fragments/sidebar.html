@@ -93,7 +93,8 @@
 						<div class="menuContent">Utilisateurs</div>
 				</a></li>
 
-
+				<!-- Ajout d'un fragment permettant de rajouter des elements custom dans la sidebar -->
+				<div th:replace="~{fragments/customsidebarelements :: customsidebarelements} ?: _"></div>
 
 				<li th:class="${pageParametresActive} ? 'active' : ''"
 					sec:authorize="hasRole('ROLE_PARAMETRAGE')"><a

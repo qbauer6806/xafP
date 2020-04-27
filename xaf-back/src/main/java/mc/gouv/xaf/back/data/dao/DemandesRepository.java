@@ -43,31 +43,57 @@ public interface DemandesRepository extends CrudRepository<DemandeBO, Integer> {
 
     Page<DemandeBO> findAll(Pageable pageRequest);
 
+    List<DemandeBO> findAll();
+
+    List<DemandeBO> findAllByDernierStatut_Libelle(String dernierStatut);
+
     /**
      * Permet de récupérer les demandes créées entre deux dates
-     * @param demarcheId
      * @param startDate
      * @param endDate
      * @return
      */
-    @Query("select d from DemandeBO d inner join d.fkAccess fa where fa.demarcheId = :demarcheId and d.dateCreation between :startDate and :endDate")
-    List<DemandeBO> findAllByDemarcheIdAndDateCreationBetween(String demarcheId, Date startDate, Date endDate);
+    @Query("select d from DemandeBO d where d.dateCreation between :startDate and :endDate")
+    List<DemandeBO> findAllByDateCreationBetween(Date startDate, Date endDate);
 
     /**
      * Permet de récupérer les demandes créées à partir d'une date donnée
-     * @param demarcheId
      * @param startDate
      * @return
      */
-    @Query("select d from DemandeBO d inner join d.fkAccess fa where fa.demarcheId = :demarcheId and d.dateCreation >= :startDate")
-    List<DemandeBO> findAllByDemarcheIdAndDateCreationFrom(String demarcheId, Date startDate);
+    @Query("select d from DemandeBO d where d.dateCreation >= :startDate")
+    List<DemandeBO> findAllByDateCreationFrom(Date startDate);
 
     /**
      * Permet de récupérer les demandes créées à jusqu'à une date donnée
-     * @param demarcheId
      * @param endDate
      * @return
      */
-    @Query("select d from DemandeBO d inner join d.fkAccess fa where fa.demarcheId = :demarcheId and d.dateCreation <= :endDate")
-    List<DemandeBO> findAllByDemarcheIdAndDateCreationUntil(String demarcheId, Date endDate);
+    @Query("select d from DemandeBO d where d.dateCreation <= :endDate")
+    List<DemandeBO> findAllByDateCreationUntil(Date endDate);
+
+    /**
+     * Permet de récupérer les demandes créées entre deux dates
+     * @param startDate
+     * @param endDate
+     * @return
+     */
+    @Query("select d from DemandeBO d inner join d.dernierStatut ds where d.dateCreation between :startDate and :endDate and ds.libelle = :dernierStatut")
+    List<DemandeBO> findAllByDateCreationBetweenAndDernierStatut(Date startDate, Date endDate, String dernierStatut);
+
+    /**
+     * Permet de récupérer les demandes créées à partir d'une date donnée
+     * @param startDate
+     * @return
+     */
+    @Query("select d from DemandeBO d inner join d.dernierStatut ds where d.dateCreation >= :startDate and ds.libelle = :dernierStatut")
+    List<DemandeBO> findAllByDateCreationFromAndDernierStatut(Date startDate, String dernierStatut);
+
+    /**
+     * Permet de récupérer les demandes créées à jusqu'à une date donnée
+     * @param endDate
+     * @return
+     */
+    @Query("select d from DemandeBO d inner join d.dernierStatut ds where d.dateCreation <= :endDate and ds.libelle = :dernierStatut")
+    List<DemandeBO> findAllByDateCreationUntilAndDernierStatut(Date endDate, String dernierStatut);
 }

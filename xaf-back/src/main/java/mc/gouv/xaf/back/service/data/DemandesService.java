@@ -183,6 +183,27 @@ public interface DemandesService {
      */
     List<DemandeDTO> getAllDemandesFilteredByDate(String demarcheId, Date startDate, Date endDate);
 
+    /**
+     * Retoures les demandes qui ont été créées entre la date de départ et d'arrivée filtrées par statut
+     * @param demarcheId
+     * @param startDate
+     * @param endDate
+     * @param statut libellé du statut
+     * @return
+     */
+    List<DemandeDTO> getAllDemandesFilteredByDateAndStatut(String demarcheId, Date startDate, Date endDate, String statut);
+
+    /**
+     * Retoures les demandes qui ont été créées entre la date de départ et d'arrivée filtrées par statut
+     * @param demarcheId
+     * @param startDate
+     * @param endDate
+     * @param statut libellé du statut
+     * @return
+     */
+    List<DemandeDTO> getAllDemandesFilteredByDateAcceptationAndStatut(String demarcheId, Date startDate, Date endDate, String statut);
+
+
 	/**
 	 * Retourne une demande en ayant préalablement filtré les fichiers pour ne remonter que ceux à destination du FRONT
 	 * 

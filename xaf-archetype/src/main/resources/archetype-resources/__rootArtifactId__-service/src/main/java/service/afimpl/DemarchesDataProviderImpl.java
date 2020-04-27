@@ -9,10 +9,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.GenericStatusDTO;
@@ -29,9 +27,6 @@ import ${groupId}.shared.model.v1573825612706.ContenuProjectDemandeDTO;
  */
 @Component
 public class DemarchesDataProviderImpl implements DemarchesDataProvider {
-
-	@Autowired
-	private GouvBPM gouvBPM;
 
 	@Override
 	public String getStatusLibelle(String status) {
@@ -77,7 +72,7 @@ public class DemarchesDataProviderImpl implements DemarchesDataProvider {
 	public List<GenericStatusDTO> getCandidateStatusesForMotifs() {
 		List<GenericStatusDTO> listEnumtoTrue = new ArrayList<GenericStatusDTO>();
 		for (${artifactIdCamelCase}DemandeStatutEnum obj : ${artifactIdCamelCase}DemandeStatutEnum.values()) {
-			if (obj.containsMotifs == true) {
+			if (obj.containsMotifs) {
 				GenericStatusDTO st = new GenericStatusDTO();
 				st.setName(obj.name());
 				st.setLibelle(obj.libelle);
@@ -144,5 +139,10 @@ public class DemarchesDataProviderImpl implements DemarchesDataProvider {
 	@Override
 	public boolean getDemarcheCanGenerateCourriers() {
 		return true;
+	}
+
+	@Override
+	public boolean getDemarcheCanHandlePeriodesOuverture() {
+		return false;
 	}
 }

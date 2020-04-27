@@ -198,7 +198,6 @@ public class TraitementController extends AbstractController {
 		traitementFormBean.setObservations(demande.getObservations());
 
 		// Chargement de l'historique de la demande
-		// demandeId);
 		List<DemandeHistoriqueDTO> histosDem = demandesHistoriqueService
 				.getHistorique(gouvPropertiesResolver.getDemarcheId(), demande.getPkDemandes());
 
@@ -377,10 +376,6 @@ public class TraitementController extends AbstractController {
 		LOGGER.info("======================= Fin /traitement");
 
 		return mav;
-	}
-
-	private InformationsDetachementDTO getCalculeAideDTO(Integer demandeID) {
-		return ${artifactIdLower}DataService.getInformationsDetachement(demandeID);
 	}
 
 	/**
@@ -604,10 +599,10 @@ public class TraitementController extends AbstractController {
 			@RequestParam(required = true) Integer pkDemande, final RedirectAttributes redirectAttributes,
 			String action) throws Exception {
 
-		LOGGER.info("Statut choisi : " + traitementFormBean.getStatutChoisi());
-		LOGGER.info("Code motif choisi : " + traitementFormBean.getCodeMotifChoisi());
-		LOGGER.info("Commentaire usager : " + traitementFormBean.getCommentaireUsager());
-		LOGGER.info("Texte à envoyer à l'usager : " + traitementFormBean.getTexteAEnvoyer());
+		LOGGER.info("Statut choisi : {}", traitementFormBean.getStatutChoisi());
+		LOGGER.info("Code motif choisi : {}", traitementFormBean.getCodeMotifChoisi());
+		LOGGER.info("Commentaire usager : {}", traitementFormBean.getCommentaireUsager());
+		LOGGER.info("Texte à envoyer à l'usager : {}", traitementFormBean.getTexteAEnvoyer());
 
 		if (!StringUtils.startsWith(traitementFormBean.getStatutChoisi(), ${artifactIdCamelCase}DemandeStatutEnum.VALIDEE.name())
 				&& StringUtils.isBlank(traitementFormBean.getCodeMotifChoisi())) {
@@ -935,7 +930,7 @@ public class TraitementController extends AbstractController {
 		try {
 			demandeDupliquee = demandesService.cloneDemande(demarcheId, pkDemande);
 
-			LOGGER.info("Nouvelle demande : " + demandeDupliquee.getPkDemandes());
+			LOGGER.info("Nouvelle demande : {}", demandeDupliquee.getPkDemandes());
 
 			LOGGER.info("Appel à DEM pour créer un nouveau statut ${symbol_escape}"En attente de traitement${symbol_escape}"");
 			demandesStatutsService.updateStatut(gouvPropertiesResolver.getDemarcheId(),
@@ -968,9 +963,8 @@ public class TraitementController extends AbstractController {
 			LOGGER.error("Erreur lors de la duplication d'une demande {}", demandeDupliquee, e);
 
 			if (demandeDupliquee != null && demandeDupliquee.getPkDemandes() != null) {
-				LOGGER.error(
-						"Suppression de la demande dans DEM id:{} identifiant:{}" + demandeDupliquee.getPkDemandes(),
-						demandeDupliquee.getIdentifiant());
+                LOGGER.error("Suppression de la demande dans DEM id:{} identifiant:{}",
+                        demandeDupliquee.getPkDemandes(), demandeDupliquee.getIdentifiant());
 				demandesService.deleteDemande(gouvPropertiesResolver.getDemarcheId(), demandeDupliquee.getPkDemandes());
 			}
 

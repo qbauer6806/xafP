@@ -8,6 +8,8 @@ import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.excel.ExcelExportModelProvider;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeFlatDTO;
+import mc.gouv.xaf.shared.dto.ExcelRechercheDTO;
 import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
 import ${groupId}.service.${artifactIdCamelCase}DataService;
 import ${groupId}.shared.dto.DemandeExcelFlatDTO;
@@ -43,20 +45,21 @@ public class ExcelExportModelProviderImpl implements ExcelExportModelProvider {
     private ${artifactIdCamelCase}DataService ${artifactIdLower}DataService;
 
     @Override
-    public Map<String, Object> getModel(String plainStartDate, String plainEndDate) {
+    public Map<String, Object> getModel(ExcelRechercheDTO excelRecherche) {
 
         LOGGER.info("ExcelExportModelProviderImpl.getModel()");
 
         Map<String, Object> model = new HashMap<>();
         List<Object> demandesFlat = new ArrayList<>();
 
-        List<DemandeDTO> listAll = retrieveDemandesFilteredByDate(plainStartDate, plainEndDate);
+        List<DemandeDTO> listAll = retrieveDemandesFilteredByDate(excelRecherche.getCreationStartDate(), excelRecherche.getCreationEndDate());
         LOGGER.info("Récupération de la liste des demandes filtrées par date...");
 
         listAll.forEach(demande -> {
-            DemandeExcelFlatDTO demandeFlatDTO = new DemandeExcelFlatDTO(afBackUtils.getDemandeFlatDTO(demande),
+            DemandeFlatDTO generic = afBackUtils.demandeDTOToDemandeFlatDTO(demande);
+            generic.setMotif(afBackUtils.getDernierCodeMotif(demande));
+            DemandeExcelFlatDTO demandeFlatDTO = new DemandeExcelFlatDTO(generic,
                     ${artifactIdCamelCase}Utils.getContenuDemande(demande));
-
             demandeFlatDTO.setEtatInterne(getEtatIntern(demande));
             demandesFlat.add(demandeFlatDTO);
         });

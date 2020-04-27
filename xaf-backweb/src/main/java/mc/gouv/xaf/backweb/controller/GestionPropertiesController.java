@@ -22,7 +22,7 @@ import java.util.List;
 
 @Controller
 @RequestMapping("/gestion/properties")
-@Secured("ROLE_PARAMETRAGE")
+@Secured("ROLE_CONFIGURATION")
 public class GestionPropertiesController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GestionPropertiesController.class);

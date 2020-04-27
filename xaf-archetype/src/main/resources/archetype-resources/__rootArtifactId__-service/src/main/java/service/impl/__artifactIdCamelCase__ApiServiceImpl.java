@@ -9,12 +9,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 
+import mc.gouv.xaf.back.service.data.*;
+import mc.gouv.xaf.shared.dto.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -25,29 +29,10 @@ import mc.gouv.xaf.back.bpm.activiti.exception.TaskAlreadyClaimedException;
 import mc.gouv.xaf.back.bpm.model.GouvBPMTask;
 import mc.gouv.xaf.back.bpm.model.GouvBPMUser;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.data.AccessService;
-import mc.gouv.xaf.back.service.data.DemandesComplementsService;
-import mc.gouv.xaf.back.service.data.DemandesHistoriqueService;
-import mc.gouv.xaf.back.service.data.DemandesService;
-import mc.gouv.xaf.back.service.data.MotifsService;
-import mc.gouv.xaf.back.service.data.UsagersCourrierService;
-import mc.gouv.xaf.back.service.data.UsagersService;
 import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import mc.gouv.xaf.shared.dto.AccessDTO;
-import mc.gouv.xaf.shared.dto.AccessInputDTO;
-import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
-import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
-import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.xaf.shared.dto.DemandeHistoriqueDTO;
-import mc.gouv.xaf.shared.dto.DemandeInputDTO;
-import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
-import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
-import mc.gouv.xaf.shared.dto.MotifDTO;
-import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 import ${groupId}.service.${artifactIdCamelCase}ApiService;
 import ${groupId}.service.HistoService;
 import ${groupId}.shared.enums.${artifactIdCamelCase}CodeMotifEnum;
@@ -59,14 +44,6 @@ import mc.gouv.logon.shared.User;
 import mc.gouv.servicerest.usager.model.UsagerBean;
 import mc.gouv.xapi.error.exception.client.BadRequestWebException;
 import mc.gouv.xapi.error.exception.client.NotFoundWebException;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import javax.transaction.Transactional;
-import java.util.*;
 
 @Component
 public class ${artifactIdCamelCase}ApiServiceImpl implements ${artifactIdCamelCase}ApiService {
@@ -112,6 +89,12 @@ public class ${artifactIdCamelCase}ApiServiceImpl implements ${artifactIdCamelCa
 
     @Autowired
     private MotifsService motifsService;
+
+    @Autowired
+    private PeriodesOuvertureService periodesOuvertureService;
+
+    @Autowired
+    private PropertiesService propertiesService;
 
     @Override
     @Transactional
@@ -218,7 +201,7 @@ public class ${artifactIdCamelCase}ApiServiceImpl implements ${artifactIdCamelCa
             LOGGER.error("Erreur lors de la création d'une demande {}", demandeDto, e);
 
             if (demandeDto != null && demandeDto.getPkDemandes() != null) {
-                LOGGER.error("Suppression de la demande dans DEM id:{} identifiant:{}" + demandeDto.getPkDemandes(),
+                LOGGER.error("Suppression de la demande dans DEM id:{} identifiant:{}", demandeDto.getPkDemandes(),
                         demandeDto.getIdentifiant());
                 demandesService.deleteDemande(gouvPropertiesResolver.getDemarcheId(), demandeDto.getPkDemandes());
             }
@@ -227,6 +210,37 @@ public class ${artifactIdCamelCase}ApiServiceImpl implements ${artifactIdCamelCa
             throw new RuntimeException("Erreur lors de la création d'une demande", e);
         }
         return demandeDto;
+    }
+
+    @Override
+    public List<PeriodeOuvertureDTO> getPeriodesOuverture() {
+        return periodesOuvertureService.getPeriodesOuverture(gouvPropertiesResolver.getDemarcheId());
+    }
+
+    @Override
+    public ResponseEntity getCustomRequest(HttpServletRequest request) {
+        return null;
+    }
+
+    @Override
+    public ResponseEntity postCustomRequest(HttpServletRequest request) {
+        return null;
+    }
+
+    @Override
+    public ResponseEntity putCustomRequest(HttpServletRequest request) {
+        return null;
+    }
+
+    @Override
+    public ResponseEntity deleteCustomRequest(HttpServletRequest request) {
+        return null;
+    }
+
+    @Override
+    public List<PropertiesDTO> getFrontProperties() {
+        String demarcheId = gouvPropertiesResolver.getDemarcheId();
+        return propertiesService.getPropertiesByType(PropertiesTypeEnum.FRONT);
     }
 
     @Override

@@ -953,6 +953,20 @@ ALTER TABLE ${artifactIdUpper}.DEM_DEMANDES_FILES ADD COLUMN DATE timestamp with
 -- #16457 - Supprimer la limite de caractère en base de données du champs texte du justificatif et/ou du courrier envoyé à l'usager.
 ALTER TABLE ${artifactIdLower}.act_hi_detail ALTER COLUMN text_ TYPE text;
 
+-- #18993 - Ajouter une table de configuration de propriétés spécifiques à la démarche.
+CREATE SEQUENCE ${artifactIdLower}.dem_properties_seq START 1;
+
+CREATE TABLE ${artifactIdLower}.dem_properties (
+    pk_properties INTEGER DEFAULT nextval('detsala.dem_properties_seq'),
+    fk_demarcheid CHARACTER VARYING(128) NOT NULL,
+    type CHARACTER VARYING(256) NOT NULL,
+    key CHARACTER VARYING(256) NOT NULL,
+    value CHARACTER VARYING(10000)
+);
+
+ALTER TABLE ONLY ${artifactIdLower}.dem_properties
+    ADD CONSTRAINT dem_properties_pkey PRIMARY KEY (pk_properties);
+
 -- Fin scripts de "Structure"
 
 -- 5) Ajout des grant : Important ! Donner les droits d'utilisation au user applicatif et tous les priviliège au user admin.

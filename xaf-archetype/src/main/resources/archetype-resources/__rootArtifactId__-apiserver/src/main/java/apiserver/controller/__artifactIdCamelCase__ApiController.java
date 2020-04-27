@@ -5,11 +5,14 @@ package ${groupId}.apiserver.controller;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import mc.gouv.xaf.shared.dto.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -20,14 +23,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import ${groupId}.service.${artifactIdCamelCase}ApiService;
 import mc.gouv.xaf.back.controller.AbstractAfApiController;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
-import mc.gouv.xaf.shared.dto.AccessDTO;
-import mc.gouv.xaf.shared.dto.AccessInputDTO;
-import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
-import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.xaf.shared.dto.DemandeInputDTO;
-import mc.gouv.xaf.shared.dto.MotifDTO;
-import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 import mc.gouv.xapi.error.dto.ErrorsDTO;
 
 /**
@@ -58,8 +53,38 @@ public class ${artifactIdCamelCase}ApiController extends AbstractAfApiController
     }
 
     @Override
+    public List<PeriodeOuvertureDTO> getPeriodesOuverture() {
+        return ${artifactIdLower}ApiService.getPeriodesOuverture();
+    }
+
+    @Override
+    public ResponseEntity getCustomRequest(HttpServletRequest request) {
+        return null;
+    }
+
+    @Override
+    public ResponseEntity postCustomRequest(HttpServletRequest request) {
+        return null;
+    }
+
+    @Override
+    public ResponseEntity putCustomRequest(HttpServletRequest request) {
+        return null;
+    }
+
+    @Override
+    public ResponseEntity deleteCustomRequest(HttpServletRequest request) {
+        return null;
+    }
+
+    @Override
+    public List<PropertiesDTO> getFrontProperties() {
+        return ${artifactIdLower}ApiService.getFrontProperties();
+    }
+
+    @Override
     public DemandeComplementsDTO repondreDemandeComplements(Integer demandeId, Integer icId,
-                                                            DemandeComplementsReponseDTO reponse) throws Exception {
+        DemandeComplementsReponseDTO reponse) throws Exception {
         return ${artifactIdLower}ApiService.repondreDemandeComplements(demandeId, icId, reponse);
     }
 

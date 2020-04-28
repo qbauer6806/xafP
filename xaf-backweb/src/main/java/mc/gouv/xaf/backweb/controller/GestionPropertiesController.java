@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -60,28 +61,16 @@ public class GestionPropertiesController {
     public ModelAndView ajouter(@Valid @ModelAttribute("propertiesFormBean") PropertiesFormBean propertiesFormBean,
                                 BindingResult result, final RedirectAttributes redirectAttributes) {
         String value = propertiesFormBean.getValue();
-        String key = propertiesFormBean.getKey();
+        String key = propertiesFormBean.getKey().toUpperCase();
         String type = propertiesFormBean.getType();
 
         LOGGER.info("======================= Appel de la page /gestion/properties/ajouter ({}, {}, {})", type, key, value);
 
-        ModelAndView mav = new ModelAndView(REDIRECT);
-        if (result.hasErrors()) {
-            List<String> errors = new ArrayList<>();
-            errors.add(AfBackUtils.MESSAGE_ERREURS_FORMULAIRE);
-            redirectAttributes.addFlashAttribute("errorMessages", errors);
-//            mav.addObject("action", "ajouter");
-//            mav.addObject("propertiesFormBean", propertiesFormBean);
-        } else {
-            PropertiesDTO properties = new PropertiesDTO();
-            properties.setValue(value);
-            properties.setKey(key);
-            properties.setType(PropertiesTypeEnum.valueOf(type));
-            propertiesService.saveOrUpdateProperties(properties);
-            List<String> messages = new ArrayList<>();
-            messages.add(AJOUTER_SUCCES);
-            redirectAttributes.addFlashAttribute(SUCCESS_MESSAGES, messages);
-        }
+        PropertiesDTO properties = new PropertiesDTO();
+        properties.setValue(value);
+        properties.setKey(key);
+        properties.setType(PropertiesTypeEnum.valueOf(type));
+        ModelAndView mav = saveOrUpdateProperties(properties, true, result, redirectAttributes);
 
         LOGGER.info("======================= Fin /gestion/properties/ajouter");
         return mav;
@@ -94,10 +83,29 @@ public class GestionPropertiesController {
 
         Integer pkProperties = propertiesFormBean.getPkProperties();
         String value = propertiesFormBean.getValue();
-        String key = propertiesFormBean.getKey();
+        String key = propertiesFormBean.getKey().toUpperCase();
         String type = propertiesFormBean.getType();
 
         LOGGER.info("======================= Appel de la page /gestion/properties/modifier ({}, {}, {}, {})", pkProperties, type, key, value);
+
+        PropertiesDTO properties = new PropertiesDTO();
+        properties.setValue(value);
+        properties.setKey(key);
+        properties.setType(PropertiesTypeEnum.valueOf(type));
+        properties.setPkProperties(pkProperties);
+        ModelAndView mav = saveOrUpdateProperties(properties, false, result, redirectAttributes);
+
+        LOGGER.info("======================= Fin /gestion/properties/modifier");
+        return mav;
+    }
+
+    private ModelAndView saveOrUpdateProperties(PropertiesDTO dto, boolean isCreate, BindingResult result, final RedirectAttributes redirectAttributes) {
+        boolean isValid = propertiesService.checkProperty(dto, isCreate);
+        if (!isValid) {
+            FieldError fe = new FieldError("propertiesFormBean", "key",
+                    "La clé est déjà existante dans la base de données");
+            result.addError(fe);
+        }
 
         ModelAndView mav = new ModelAndView(REDIRECT);
         if (result.hasErrors()) {
@@ -107,18 +115,13 @@ public class GestionPropertiesController {
 //            mav.addObject("action", "modifier");
 //            mav.addObject("propertiesFormBean", propertiesFormBean);
         } else {
-            PropertiesDTO properties = new PropertiesDTO();
-            properties.setValue(value);
-            properties.setKey(key);
-            properties.setType(PropertiesTypeEnum.valueOf(type));
-            properties.setPkProperties(pkProperties);
-            propertiesService.saveOrUpdateProperties(properties);
+            propertiesService.saveOrUpdateProperties(dto);
             List<String> messages = new ArrayList<>();
-            messages.add(MODIFIER_SUCCES);
+            String success = isCreate ? AJOUTER_SUCCES : MODIFIER_SUCCES;
+            messages.add(success);
             redirectAttributes.addFlashAttribute(SUCCESS_MESSAGES, messages);
         }
 
-        LOGGER.info("======================= Fin /gestion/properties/modifier");
         return mav;
     }
 

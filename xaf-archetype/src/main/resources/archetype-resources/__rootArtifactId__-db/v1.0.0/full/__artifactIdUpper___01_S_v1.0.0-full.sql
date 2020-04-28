@@ -961,7 +961,8 @@ CREATE TABLE ${artifactIdLower}.dem_properties (
     fk_demarcheid CHARACTER VARYING(128) NOT NULL,
     type CHARACTER VARYING(256) NOT NULL,
     key CHARACTER VARYING(256) NOT NULL,
-    value CHARACTER VARYING(10000)
+    value CHARACTER VARYING(10000),
+    UNIQUE(key)
 );
 
 ALTER TABLE ONLY ${artifactIdLower}.dem_properties

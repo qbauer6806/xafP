@@ -25,13 +25,6 @@ public class PropertiesServlet extends AbstractAfServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         LOGGER.info("====================== /properties doGet()");
 
-        UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(request);
-        if (usagerInfosDTO == null) {
-            AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
-                    "Utilisateur non autorisé");
-            return;
-        }
-
         LOGGER.info("Appel de la démarche afin de récupérer les propriétés FRONT ...");
         List<PropertiesDTO> properties = getAfApiClient().getFrontProperties();
 

@@ -126,4 +126,29 @@ public class PropertiesServiceImpl implements PropertiesService {
         LOGGER.info("Suppression de la propriété ...");
         propertiesRepository.delete(propertiesBoOpt.get());
     }
+
+    /**
+     * Vérification de la clé de la propriété pour garantir l'unicité
+     *
+     * @param toCheck  La propriété à vérifier
+     * @param isCreate Flag indiquant si l'action est une création
+     * @return un boolean contenant le résultat
+     */
+    public boolean checkProperty(PropertiesDTO toCheck, boolean isCreate) {
+        boolean result = true;
+        String key = toCheck.getKey();
+        LOGGER.info("Vérification de l'unicité de la clé {} ...", key);
+
+        String demarcheId = gouvPropertiesResolver.getDemarcheId();
+        Optional<PropertiesBO> propertiesBoOptional = propertiesRepository.findByDemarchePkDemarchesAndKey(demarcheId, key);
+        if (propertiesBoOptional.isPresent()) {
+            PropertiesBO propertiesBO = propertiesBoOptional.get();
+            result = !isCreate && toCheck.getPkProperties().equals(propertiesBO.getPkProperties());
+        }
+
+        String message = result ? "La propriété n'est pas présente" : "La propriété est présente";
+        LOGGER.info(message);
+
+        return result;
+    }
 }

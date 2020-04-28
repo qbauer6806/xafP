@@ -41,4 +41,13 @@ public interface PropertiesService {
      * @param propertiesId L'id de la propriété à supprimer
      */
     void deleteProperties(Integer propertiesId);
+
+    /**
+     * Vérification de la clé de la propriété pour garantir l'unicité
+     *
+     * @param toCheck  La propriété à vérifier
+     * @param isCreate Flag indiquant si l'action est une création
+     * @return un boolean contenant le résultat
+     */
+    boolean checkProperty(PropertiesDTO toCheck, boolean isCreate);
 }

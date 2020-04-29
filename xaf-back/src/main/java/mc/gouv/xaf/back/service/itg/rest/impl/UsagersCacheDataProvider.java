@@ -74,16 +74,20 @@ public class UsagersCacheDataProvider implements GouvCacheDataProvider<Integer, 
 
             } else {
             	
-            	// Paginer par pages de 500
-            	LOGGER.info("Pagination : appel par pages de 500... " + usagersInternetIds.size() + " usagers à récupérer");
+            	// Paginer par pages de (500 par défaut)
+            	Integer pageSize = gouvPropertiesResolver.getUsagersPageSize();
+            	LOGGER.info("Pagination : appel par pages de " + pageSize + "... " + usagersInternetIds.size() + " usagers à récupérer");
             	List<List<Integer>> pages = new ArrayList<List<Integer>>();
             	pages.add(new ArrayList<Integer>());
             	int pageCounter = 0;
             	for (Integer usager : usagersInternetIds) {
-            		if (pages.get(pageCounter).size() == 1) {
+            		LOGGER.info("usager=" + usager + ", pageCounter=" + pageCounter + ", pages.get(pageCounter).size()=" + pages.get(pageCounter).size() + ", pageSize=" + pageSize);
+            		if (pages.get(pageCounter).size() == pageSize) {
+            			LOGGER.info("new page");
             			pages.add(new ArrayList<Integer>());
             			pageCounter++;
             		}
+            		
             		pages.get(pageCounter).add(usager);
             	}
             	

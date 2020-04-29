@@ -81,9 +81,7 @@ public class UsagersCacheDataProvider implements GouvCacheDataProvider<Integer, 
             	pages.add(new ArrayList<Integer>());
             	int pageCounter = 0;
             	for (Integer usager : usagersInternetIds) {
-            		LOGGER.info("usager=" + usager + ", pageCounter=" + pageCounter + ", pages.get(pageCounter).size()=" + pages.get(pageCounter).size() + ", pageSize=" + pageSize);
             		if (pages.get(pageCounter).size() == pageSize) {
-            			LOGGER.info("new page");
             			pages.add(new ArrayList<Integer>());
             			pageCounter++;
             		}

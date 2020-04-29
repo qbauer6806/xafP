@@ -66,5 +66,7 @@ public interface GouvPropertiesResolver {
     boolean getNovalidate();
 
     String getGouvSharedLogonUrl();
+    
+    Integer getUsagersPageSize();
 
 }

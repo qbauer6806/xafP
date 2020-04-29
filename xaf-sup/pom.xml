@@ -87,8 +87,8 @@
 									<includes>
 										<include>**/*.yml</include>
 										<include>**/*.properties</include>
-
 										<include>**/*modules</include>
+										<include>**/*.html</include>
 									</includes>
 									<excludes>
 										<exclude>**/*.MD</exclude>
@@ -245,12 +245,14 @@
 							<encoding>UTF-8</encoding>
 							<resources>
 								<resource>
-									<directory>src/main/resources/templates/gents/rec</directory>
+									<directory>src/main/resources/templates/gents/${env}</directory>
+									<directory>src/main/resources/templates/redmine/rec</directory>
 									<filtering>true</filtering>
 									<includes>
 										<include>**/*.yml</include>
 										<include>**/*.properties</include>
 										<include>**/*</include>
+										<include>**/*.html</include>
 									</includes>
 									<excludes>
 										<exclude>**/*.MD</exclude>
@@ -396,7 +398,6 @@
 				</plugins>
 			</build>
 		</profile>
-
 		<profile>
 			<id>gents-prod</id>
 			<!-- <activation> <file> <exists>src/main/resources/vars/${tscode}/prod.properties</exists>
@@ -447,6 +448,7 @@
 										<include>**/*.yml</include>
 										<include>**/*.properties</include>
 										<include>**/*</include>
+										<include>**/*.html</include>
 									</includes>
 									<excludes>
 										<exclude>**/*.MD</exclude>
@@ -546,10 +548,12 @@
 											file="${global.generated.inventory.group_vars.source.path}/all.yml"
 											tofile="${global.generated.inventory.group_vars.target.path}/all.yml"
 											verbose="true" />
+										<!--
 										<move
 											file="${global.generated.inventory.group_vars.source.path}/as-server.yml"
 											tofile="${global.generated.inventory.group_vars.target.path}/as-server.yml"
 											verbose="true" />
+										-->
 										<move
 											file="${global.generated.inventory.group_vars.source.path}/as.yml"
 											tofile="${global.generated.inventory.group_vars.target.path}/as.yml"
@@ -1070,6 +1074,71 @@
 					</plugin>
 				</plugins>
 			</build>
-		</profile>		
+		</profile>
+		
+		<!-- Profile pour générer les contenus des tickets Redmine -->
+		<profile>
+			<id>redmine</id>
+			<!-- <activation> <file> <exists>src/main/resources/vars/${tscode}/rec.properties</exists> 
+				</file> </activation> -->
+			<properties>
+				<env>rec</env>
+				<env.id>3</env.id>
+			</properties>
+			<build>
+				<filters>
+					<filter>${vars-path}</filter>
+				</filters>
+				<plugins>
+					<plugin>
+						<artifactId>maven-resources-plugin</artifactId>
+						<version>3.1.0</version>
+
+						<configuration>
+							<encoding>UTF-8</encoding>
+							<resources>
+								<resource>
+									<directory>src/main/resources/templates/redmine/${env}</directory>
+									<filtering>true</filtering>
+									<includes>
+										<include>**/*.html</include>
+										<include>**/*.txt</include>
+									</includes>
+								</resource>
+								<resource>
+									<directory>src/main/resources/templates/${env}/generic</directory>
+									<filtering>false</filtering>
+								</resource>
+								<resource>
+									<directory>src/test/resources</directory>
+									<filtering>false</filtering>
+								</resource>
+							</resources>
+						</configuration>
+
+						<executions>
+							<execution>
+								<id>copy-resources</id>
+								<!-- here the phase you need -->
+								<phase>validate</phase>
+								<goals>
+									<goal>copy-resources</goal>
+								</goals>
+								<configuration>
+									<outputDirectory>${basedir}/target/generated-redmine/${tscode}/${env}</outputDirectory>
+									<resources>
+										<resource>
+											<directory>src/main/resources/templates/redmine/${env}</directory>
+											<filtering>true</filtering>
+										</resource>
+									</resources>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		
 	</profiles>
 </project>

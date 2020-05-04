@@ -63,10 +63,9 @@ public class UsagersCacheDataProvider implements GouvCacheDataProvider<Integer, 
 
             }
         }
-        LOGGER.info("Récupération des usagers INTERNET: {}", usagersInternetIds);
-        LOGGER.info("Récupération des usagers COURRIER: {}", usagersCourriersIds);
         //Si des usagers se sont désinscrits, il m'en sortira moins que le nombre d'ids donnés en paramètre
         if (!usagersInternetIds.isEmpty()) {
+        	LOGGER.info("Récupération des usagers INTERNET: {}", usagersInternetIds);
             if (usagersInternetIds.size() == 1) {
                 UsagerBean usagerBean = referentielUsagersClient.getUsager(usagersInternetIds.get(0));
                 if (usagerBean != null) {
@@ -74,14 +73,41 @@ public class UsagersCacheDataProvider implements GouvCacheDataProvider<Integer, 
                 }
 
             } else {
-                usagers = referentielUsagersClient.getUsagers(usagersInternetIds);
-                //usagers peut être null
-                if (usagers == null) {
-                    usagers = new ArrayList<UsagerBean>();
-                }
+            	
+            	// Paginer par pages de (500 par défaut)
+            	Integer pageSize = gouvPropertiesResolver.getUsagersPageSize();
+            	LOGGER.info("Pagination : appel par pages de " + pageSize + "... " + usagersInternetIds.size() + " usagers à récupérer");
+            	List<List<Integer>> pages = new ArrayList<List<Integer>>();
+            	pages.add(new ArrayList<Integer>());
+            	int pageCounter = 0;
+            	for (Integer usager : usagersInternetIds) {
+            		if (pages.get(pageCounter).size() == pageSize) {
+            			pages.add(new ArrayList<Integer>());
+            			pageCounter++;
+            		}
+            		
+            		pages.get(pageCounter).add(usager);
+            	}
+            	
+            	LOGGER.info("Résultat de la pagination : " + pages.size() + " pages");
+            	
+            	usagers = new ArrayList<UsagerBean>();
+            	int nb = 0;
+            	for (List<Integer> page : pages) {
+            		nb++;
+            		List<UsagerBean> usagersTmp = new ArrayList<UsagerBean>();
+            		LOGGER.info("Appel pour la page " + nb + " : " + page);
+            		usagersTmp = referentielUsagersClient.getUsagers(page);
+            		if (usagersTmp != null) {
+            			usagers.addAll(usagersTmp);
+            		}
+            	}
+            	
+            	LOGGER.info("Fin appel paginé : " + usagers.size() + " usagers récupérés");
             }
         }
 
+        LOGGER.info("Récupération des usagers COURRIER: {}", usagersCourriersIds);
         List<UsagerBean> usagersCourriers = new ArrayList<UsagerBean>();
         //Voir pour faire la fonction qui prend une liste d'ids
         for (Integer usagerCourrierId : usagersCourriersIds) {

@@ -333,4 +333,16 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
         return Boolean.parseBoolean(value);
     }
 
+	@Override
+	public Integer getUsagersPageSize() {
+        String pageSize = Static.getValue("mc.gouv.demarches.external.usagers.pagesize");
+
+        if (StringUtils.isNotBlank(pageSize)) {
+            return Integer.parseInt(pageSize);
+        }
+
+        // Valeur par défaut de 500 usagers par page
+        return 500;
+	}
+
 }

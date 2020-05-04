@@ -36,12 +36,18 @@ public class GestionPropertiesController {
     @Autowired
     private PropertiesService propertiesService;
 
+    @Autowired
+    private AfBackUtils afBackUtils;
+
     @GetMapping
     public ModelAndView form(@ModelAttribute("propertiesFormBean") PropertiesFormBean propertiesFormBean,
                              final RedirectAttributes redirectAttributes) {
         LOGGER.info("Appel de la page /gestion/properties. Méthode form");
         ModelAndView mav = new ModelAndView("gestion/properties/properties");
-        List<PropertiesDTO> properties = propertiesService.getProperties();
+        List<PropertiesDTO> properties = new ArrayList<>();
+        if (afBackUtils.getDemarcheCanHandleProperties()) {
+            properties = propertiesService.getProperties();
+        }
         mav.addObject("properties", properties);
 
 //        if (propertiesFormBean != null) {

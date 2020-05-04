@@ -144,7 +144,7 @@
 					   		th:href="@{/gestion/periodesouverture}">
 						   <div class="whiteBullet"></div> Périodes d'ouverture
 					   </a></li>
-						<li>
+						<li th:if="${AfBackUtils.getDemarcheCanHandleProperties()}">
 							<a id="menuGestionProperties" th:href="@{/gestion/properties}">
 								<div class="whiteBullet"></div>
 								Propriétés

@@ -59,12 +59,13 @@
                 <div class="col-xs-12 col-sm-8">
                     <h1>Administration des propriétés</h1>
                 </div>
-                <div class="col-xs-12 col-sm-4" align="right">
+                <div th:if="${AfBackUtils.getDemarcheCanHandleProperties()}" class="col-xs-12 col-sm-4" align="right">
                     <button id="boutonAjouter" class="btn btn-action ripple-effect">
                         <i class="icon-action_plus"></i><span>ajouter une propriété</span>
                     </button>
                 </div>
-                <div class="col-xs-12 tableContent">
+
+                <div th:if="${AfBackUtils.getDemarcheCanHandleProperties()}" class="col-xs-12 tableContent">
                     <div class="tableTitle">Liste des propriétés</div>
                     <table id="datatable-properties" class="table table-striped">
                         <thead>
@@ -97,6 +98,10 @@
                         </tr>
                         </tbody>
                     </table>
+                </div>
+
+                <div th:unless="${AfBackUtils.getDemarcheCanHandleProperties()}" class="col-xs-12">
+                    Cette page n'est pas accessible.
                 </div>
             </div>
         </div>

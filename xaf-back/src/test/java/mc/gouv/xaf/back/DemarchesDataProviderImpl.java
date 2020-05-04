@@ -83,4 +83,10 @@ public class DemarchesDataProviderImpl implements DemarchesDataProvider {
 		// TODO Auto-generated method stub
 		return false;
 	}
+
+    @Override
+    public boolean getDemarcheCanHandleProperties() {
+        // TODO Auto-generated method stub
+        return false;
+    }
 }

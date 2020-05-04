@@ -479,6 +479,14 @@ public class AfBackUtils {
         return demarchesDataProvider.getDemarcheCanHandlePeriodesOuverture();
     }
 
+    /**
+     * Permet de savoir si la démarche prend en charge des propriétés
+     * @return
+     */
+    public boolean getDemarcheCanHandleProperties() {
+        return demarchesDataProvider.getDemarcheCanHandleProperties();
+    }
+
     public static Date convertStartDate(String startDate) throws ParseException {
         return new SimpleDateFormat("dd/MM/yyyy").parse(startDate);
     }

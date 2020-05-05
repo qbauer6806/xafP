@@ -3,6 +3,7 @@ package mc.gouv.xaf.backweb.controller;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.backweb.formbean.PropertiesFormBean;
+import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.PropertiesTypeEnum;
 import org.slf4j.Logger;
@@ -28,7 +29,6 @@ public class GestionPropertiesController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GestionPropertiesController.class);
     private static final String REDIRECT = "redirect:/gestion/properties";
-    private static final String SUCCESS_MESSAGES = "successMessages";
     private static final String AJOUTER_SUCCES = "La propriété a été ajoutée.";
     private static final String MODIFIER_SUCCES = "La propriété a été modifiée.";
     private static final String SUPPRIMER_SUCCES = "La propriété a été supprimée.";
@@ -125,7 +125,7 @@ public class GestionPropertiesController {
             List<String> messages = new ArrayList<>();
             String success = isCreate ? AJOUTER_SUCCES : MODIFIER_SUCCES;
             messages.add(success);
-            redirectAttributes.addFlashAttribute(SUCCESS_MESSAGES, messages);
+            redirectAttributes.addFlashAttribute(SharedMessages.SUCCESS_MESSAGES, messages);
         }
 
         return mav;
@@ -140,7 +140,7 @@ public class GestionPropertiesController {
         ModelAndView mav = new ModelAndView(REDIRECT);
         List<String> messages = new ArrayList<>();
         messages.add(SUPPRIMER_SUCCES);
-        redirectAttributes.addFlashAttribute(SUCCESS_MESSAGES, messages);
+        redirectAttributes.addFlashAttribute(SharedMessages.SUCCESS_MESSAGES, messages);
         LOGGER.info("======================= Fin /gestion/periodesouverture/supprimer");
         return mav;
     }

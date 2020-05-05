@@ -1,404 +1,426 @@
-
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
-	class="no-js sidebar-left-collapsed" lang="fr" dir="ltr">
+      class="no-js sidebar-left-collapsed" lang="fr" dir="ltr">
 
 <head>
-<meta charset="utf-8" />
-<meta http-equiv="x-ua-compatible" content="ie=edge" />
-<meta name="viewport"
-	content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-<meta name="description" content="" />
-<meta name="author" content="" />
-<meta th:name="_csrf" th:content="${_csrf.token}" />
-<meta th:name="_csrf_header" th:content="${_csrf.headerName}" />
+    <meta charset="utf-8"/>
+    <meta http-equiv="x-ua-compatible" content="ie=edge"/>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <meta name="description" content=""/>
+    <meta name="author" content=""/>
+    <meta th:name="_csrf" th:content="${_csrf.token}"/>
+    <meta th:name="_csrf_header" th:content="${_csrf.headerName}"/>
 
 
+    <title th:text="${titre}"></title>
 
+    <!-- Import FONTS -->
+    <link th:href="@{/webjars/xcb-wlib/fonts/style.css}" rel="stylesheet"/>
+    <!--[if lt IE 8]><!-->
+    <link rel="stylesheet" th:href="@{/webjars/xcb-wlib/fonts/ie7/ie7.css}"/>
 
-
-<title th:text="${titre}"></title>
-
-<!-- Import FONTS -->
-<link th:href="@{/webjars/xcb-wlib/fonts/style.css}" rel="stylesheet" />
-<!--[if lt IE 8]><!-->
-<link rel="stylesheet" th:href="@{/webjars/xcb-wlib/fonts/ie7/ie7.css}" />
-
-<!-- Import CSS -->
-<link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"
-	rel="stylesheet" type="text/css" />
-<link th:href="@{/webjars/xcb-wlib/css/template.css}" rel="stylesheet" />
-<link th:href="@{/webjars/xcb-wlib/css/sidebar.css}" rel="stylesheet" />
-<link th:href="@{/webjars/xcb-wlib/css/element.css}" rel="stylesheet" />
-<link th:href="@{/webjars/datatables/css/dataTables.bootstrap.css}"
-	rel="stylesheet" />
-<link rel="stylesheet"
-	th:href="@{/webjars/fancybox/jquery.fancybox.css}" />
-<link rel="shortcut icon" type="image/x-icon"
-	th:href="@{/img/favicon.ico}" />
-<link th:href="@{/css/tsgen.css(${applicationBuildTimestamp})}"
-	rel="stylesheet" />
-<link th:href="@{/css/tsdem.css(${applicationBuildTimestamp})}"
-	rel="stylesheet" />
+    <!-- Import CSS -->
+    <link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"
+          rel="stylesheet" type="text/css"/>
+    <link th:href="@{/webjars/xcb-wlib/css/template.css}" rel="stylesheet"/>
+    <link th:href="@{/webjars/xcb-wlib/css/sidebar.css}" rel="stylesheet"/>
+    <link th:href="@{/webjars/xcb-wlib/css/element.css}" rel="stylesheet"/>
+    <link th:href="@{/webjars/datatables/css/dataTables.bootstrap.css}"
+          rel="stylesheet"/>
+    <link rel="stylesheet"
+          th:href="@{/webjars/fancybox/jquery.fancybox.css}"/>
+    <link rel="shortcut icon" type="image/x-icon"
+          th:href="@{/img/favicon.ico}"/>
+    <link th:href="@{/css/tsgen.css(${applicationBuildTimestamp})}"
+          rel="stylesheet"/>
+    <link th:href="@{/css/tsdem.css(${applicationBuildTimestamp})}"
+          rel="stylesheet"/>
 
 
 </head>
 
 <body th:with="pageConfigurationActive='active'">
 
-	<div th:replace="fragments/header :: header" />
+<div th:replace="fragments/header :: header"></div>
 
-	<div id="wrapper">
+<div id="wrapper">
 
-		<div th:replace="fragments/sidebar :: sidebar" />
+    <div th:replace="fragments/sidebar :: sidebar"></div>
 
-		<!-- DEBUT CONTENU -->
-		<div id="page-content-wrapper">
+    <!-- DEBUT CONTENU -->
+    <div id="page-content-wrapper">
 
+        <div class="breadcrumbContent">
+            <div class="breadcrumb">
+                <a id="ariane0" th:href="@{/}" class="breadcrumb-item active">Accueil</a>&nbsp;&gt;&nbsp;
+                <a id="ariane1" th:href="@{/gestion/periodesouverture}" class="breadcrumb-item active">PÉRIODES
+                    D'OUVERTURE</a>
+            </div>
+            <div class="triangleTopright"></div>
+        </div>
 
-			<div class="breadcrumbContent">
-				<div class="breadcrumb">
-					<span> <a th:href="@{/}" class="breadcrumb-item active">Accueil</a>&nbsp;&gt;&nbsp;
-						<a th:href="@{/gestion/periodesouverture}"
-						class="breadcrumb-item active">PÉRIODES D'OUVERTURE</a> &gt;
-					</span>
-				</div>
-				<div class="triangleTopright"></div>
-			</div>
+        <div class="container-fluid">
 
-			<div class="container-fluid">
-				<h2 class="col-xs-12 col-md-12">Administration des périodes
-					d'ouverture</h2>
+            <div class="row">
+                <h2 class="col-xs-12">Administration des périodes d'ouverture</h2>
 
-				<div class="row col-xs-12 col-md-12">
+                <div th:if="${AfBackUtils.getDemarcheCanHandlePeriodesOuverture()}">
+                    <div class="col-xs-12" th:if="${#lists.isEmpty(periodes)}">
+                        Si aucune période d’ouverture n’est définie, la création d’une demande est possible sans limite
+                        de
+                        temps.
+                    </div>
 
-					<div class="col-xs-12 col-md-12">
+                    <div class="col-xs-12 text-right">
+                        <button id="boutonSupprTous" class="btn btn-action ripple-effect">
+                            <i class="icon-action_supprimer"></i><span>Supprimer toutes les périodes d'ouverture</span>
+                        </button>
+                        <button id="boutonAjouter" class="btn btn-action ripple-effect">
+                            <i class="icon-action_plus"></i><span>Ajouter une période d'ouverture</span>
+                        </button>
+                    </div>
 
-						<div class="text-right col-md-12" style="padding-left: 0px">
-							<input type="submit" value="Ajouter une période d'ouverture"
-								id="boutonAjouter" class="btn btn-action ripple-effect ">
-						</div>
-					</div>
+                    <div class="col-xs-12">
+                        <div class="tableContent">
+                            <div class="tableTitle">
+                                Liste des périodes d'ouverture <span class="badge" id="jobsSize"></span>
+                            </div>
+                            <table id="datatable-periodes" class="table table-striped" style="width: 100%">
+                                <thead>
+                                <tr>
+                                    <th>Date début</th>
+                                    <th>Date fin</th>
+                                    <th>Action</th>
+                                </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                </div>
 
-					<div class="col-xs-12 col-md-12">
-						<div class="tableContent">
-							<div class="tableTitle">
-								Liste des périodes d'ouverture <span class="badge" id="jobsSize"></span>
-							</div>
-							<table id="datatable-periodes" class="table table-striped ">
-								<thead>
-									<tr>
-										<th class="col-md-2">Date début</th>
-										<th class="col-md-2">Date fin</th>
-										<th class="col-md-2">Action</th>
-									</tr>
-								</thead>
-								<tbody>
-									<tr th:each="periode :  ${periodes}">
-										<td><span th:text="${#dates.format(periode.dateDebut, 'dd-MM-yyyy')}"></span></td>
-										<td><span th:text="${#dates.format(periode.dateFin, 'dd-MM-yyyy')}"></span></td>
-										<td>
-										<a
-											th:id="boutonModifier" href="#"
-											th:attr="data-pkperiodesouverture=${periode.pkPeriodesOuverture},data-datedebut=${#dates.format(periode.dateDebut,'dd/MM/yyyy')},data-datefin=${#dates.format(periode.dateFin,'dd/MM/yyyy')}"
-											class="boutonModifier"> <span
-												class="btn btn-action ripple-effect greyTooltip"
-												data-toggle="tooltip" data-placement="bottom"
-												data-original-title="Modifier la période" title=""> <i
-													class="icon-action_modifier"></i></span>
-										</a>
-										<a
-											th:id="boutonSupprimer" href="#"
-											th:attr="data-pkperiodesouverture=${periode.pkPeriodesOuverture}"
-											class="boutonSupprimer"> <span
-												class="btn btn-action ripple-effect greyTooltip"
-												data-toggle="tooltip" data-placement="bottom"
-												data-original-title="Supprimer la période" title=""> <i
-													class="icon-action_supprimer"></i></span>
-										</a>
-										</td>
-									</tr>
-								</tbody>
-							</table>
-						</div>
+                <div th:unless="${AfBackUtils.getDemarcheCanHandlePeriodesOuverture()}">
+                    Cette page n'est pas accessible.
+                </div>
 
+            </div>
+        </div>
 
-					</div>
-				</div>
+        <!-- FIN CONTENU -->
+    </div>
 
+    <!-- EDITION MODAL -->
+    <div id="editionModal" style="display: none">
+        <form method="POST" id="editionPeriodesForm" th:action="@{/gestion/periodesouverture/edit}">
+            <!-- input cachée pour insérer la pk de la properties à modifier -->
+            <input type="hidden" id="pkPeriodesOuverture" name="pkPeriodesOuverture"/>
+            <div class="row no-margin-row" style="width: 400px;">
+                <div class="col-xs-12 text-center">
+                    <h2 id="saveTitle">SAVE_TITLE</h2>
+                </div>
+                <div id="formWarning" class="col-xs-12 text-center form-group"></div>
+                <div class="col-xs-12 col-md-6 form-group">
+                    <label for="periodeStartDate">Date de début<span class="required"></span></label>
+                    <div class="input-group date">
+                        <input type="text" id="periodeStartDate"
+                               name="periodeStartDate" placeholder="__/__/____"
+                               class="form-control"/> <span class="input-group-addon"
+                                                            style="width: 6%"><i
+                            class="icon-action_calendrier"></i></span>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-md-6 form-group">
+                    <label for="periodeEndDate">Date de fin<span class="required"></span></label>
+                    <div class="input-group date">
+                        <input type="text" id="periodeEndDate" name="periodeEndDate"
+                               placeholder="__/__/____" class="form-control"/> <span
+                            class="input-group-addon" style="width: 6%"><i
+                            class="icon-action_calendrier"></i></span>
+                    </div>
+                </div>
+                <div id="formError" class="col-xs-12 text-center form-group error"></div>
+                <div class="col-xs-12 text-center">
+                    <button id="annulerEditBouton" class="btn btn-action-second ripple-effect annulerBouton"
+                            type="button" name="annuler"
+                            value="annuler">
+                        annuler
+                    </button>
+                    <!-- La valeur de l'action et le texte du bouton sont modifiées à l'ouverture de la popup -->
+                    <button id="saveBtn" class="btn btn-action ripple-effect" type="submit" name="action"
+                            value="save">
+                        SAVE_BTN
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <!-- FIN EDITION MODAL -->
 
-			</div>
+    <!-- SUPRESSION MODAL -->
+    <div id="supressionModal" style="display: none">
+        <form method="POST" id="suppressionForm" th:action="@{/gestion/periodesouverture/supprimer}">
+            <!-- input cachée pour insérer la pk de la properties à modifier -->
+            <input type="hidden" id="pkPropertiesSuppr" name="pkPeriodesOuverture"/>
+            <div class="row no-margin-row text-center" style="width: 400px;">
+                <div class="col-xs-12">
+                    <h2>Supprimer une période d'ouverture</h2>
+                </div>
+                <div class="col-xs-12">
+                    <span id="suppressionMessage">SUPPRESSION_MESSAGE</span>
+                </div>
+                <div class="col-xs-12 margin-top">
+                    <button id="annulerSupprBouton" class="btn btn-action-second ripple-effect annulerBouton"
+                            type="button" name="annuler"
+                            value="annuler">
+                        annuler
+                    </button>
+                    <button id="supprBtn" class="btn btn-action ripple-effect" type="submit">
+                        supprimer
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <!-- FIN SUPPRESSION MODAL -->
 
-			<input type="hidden" href="javascript:void(0);" data-type="success"
-				data-delay="5000" data-message="" id="successMessage"
-				class="notification" /> <input type="hidden"
-				href="javascript:void(0);" data-type="danger" data-delay="0"
-				data-message="" id="errorMessage" class="notification" />
+    <!-- SUPPRIMER TOUS MODAL -->
+    <div id="supressionTousModal" style="display: none">
+        <form method="POST" id="suppressionTousForm" th:action="@{/gestion/periodesouverture/supprimertous}">
+            <div class="row no-margin-row text-center" style="width: 400px;">
+                <div class="col-xs-12">
+                    <h2>Supprimer toutes les périodes d'ouverture</h2>
+                </div>
+                <div class="col-xs-12 form-group">
+                    <span>
+                        Attention, la suppression de toutes les périodes d’ouverture entrainera une ouverture sans limite de temps du dépôt des demandes.
+                        <br/>
+                        Êtes-vous sûr(e) de vouloir les supprimer ?
+                    </span>
+                </div>
+                <div class="col-xs-12 margin-top">
+                    <button id="annulerSupprTousBouton" class="btn btn-action-second ripple-effect annulerBouton"
+                            type="button" name="annuler"
+                            value="annuler">
+                        annuler
+                    </button>
+                    <button id="supprTousBtn" class="btn btn-action ripple-effect" type="submit">
+                        supprimer toutes
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <!-- FIN SUPPRESSION TOUS MODAL -->
 
+</div>
 
-			<!-- FIN CONTENU -->
-		</div>
+<div th:replace="fragments/footer :: footer"></div>
 
+<script th:inline="javascript">
 
+    var columnsPeriodes = [
+        {
+            data: "dateDebut",
+            keyword: false,
+            render: function (data, type, periode) {
+                // On ne format pas en STRING la date si l'accès à la donnée se fait pendant un SORT ou un TYPE
+                if (type === "sort" || type === "type") {
+                    return data;
+                }
+                return moment(periode.dateDebut).format("DD/MM/YYYY");
+            }
+        },
+        {
+            data: "dateFin",
+            keyword: false,
+            render: function (data, type, periode) {
+                // On ne format pas en STRING la date si l'accès à la donnée se fait pendant un SORT ou un TYPE
+                if (type === "sort" || type === "type") {
+                    return data;
+                }
+                return moment(periode.dateFin).format("DD/MM/YYYY");
+            }
+        },
+        {
+            orderable: false,
+            keyword: false,
+            render: function (data, type, periode) {
+                var momentStart = moment(periode.dateDebut);
+                var momentEnd = moment(periode.dateFin);
+                return '<a th:id="boutonModifier" href="#" class="boutonModifier"' +
+                    'data-pkperiodesouverture="' + periode.pkPeriodesOuverture + '" data-datedebut="' + periode.dateDebut + '" data-datefin="' + periode.dateFin + '">' +
+                    '<span class="btn btn-action ripple-effect greyTooltip" data-toggle="tooltip" data-placement="bottom"  data-original-title="Modifier la période" title="">' +
+                    '<i class="icon-action_modifier"></i></span>' +
+                    '</a>' +
+                    '<a th:id="boutonSupprimer" href="#" class="boutonSupprimer"' +
+                    'data-pkperiodesouverture="' + periode.pkPeriodesOuverture + '" data-datedebut="' + periode.dateDebut + '" data-datefin="' + periode.dateFin + '">' +
+                    '<span class="btn btn-action ripple-effect greyTooltip" data-toggle="tooltip" data-placement="bottom" data-original-title="Supprimer la période" title="">' +
+                    '<i class="icon-action_supprimer"></i></span>' +
+                    '</a>';
+            }
+        }
+    ];
 
-		<div th:replace="fragments/footer :: footer" />
+    /*<![CDATA[*/
 
-		<div class="modal fade" id="ajouter-box" tabindex="-1" role="dialog"
-			aria-labelledby="myModalLabel1">
-			<div class="modal-dialog large" role="document">
-				<div class="modal-content">
-					<div class="modal-header">
-						<button type="button" data-dismiss="modal" aria-label="Close"
-							class="btn btn-action close">
-							<i class="icon-action_case_fermeture"></i>
-						</button>
-					</div>
-					<div class="modal-body">
-						<!-- <div id="ajouter-box" style="display: none"> -->
-						<div class="container-fluid">
-							<div class="row">
-								<div class="col-xs-12">
-									<span style="color: rgb(94, 97, 100); font-size: 16pt">Ajouter
-										une période d'ouverture</span>
-								</div>
-							</div>
-							<br />
-							<form action="#"
-								th:action="@{/gestion/periodesouverture/ajouter}" method="post">
-								<div class="row">
-									<div class="col-md-3 form-group">
-										<label for="periodeStartDate">Date de début<span class="required"></span></label>
-										<div class="input-group date">
-											<input type="text" id="periodeStartDate"
-												name="periodeStartDate" placeholder="__/__/____"
-												class="form-control" /> <span class="input-group-addon"
-												style="width: 6%"><i class="icon-action_calendrier"></i></span>
-										</div>
-									</div>
-									<div class="col-md-3 form-group">
-										<label for="periodeEndDate">Date de fin<span class="required"></span></label>
-										<div class="input-group date">
-											<input type="text" id="periodeEndDate" name="periodeEndDate"
-												placeholder="__/__/____" class="form-control" /> <span
-												class="input-group-addon" style="width: 6%"><i
-												class="icon-action_calendrier"></i></span>
-										</div>
-									</div>
-								</div>
-								<div class="row">
-									<div class="col-xs-12 text-center margin-top">
-										<a href="#"
-											class="btn btn-action-second ripple-effect transferer-annuler"
-											style="margin-right: 10px">Annuler</a> <input class="btn btn-action ripple-effect"
-											id="confirmer-button" type="submit" name="action"
-											value="Valider"/>
-									</div>
-								</div>
-							</form>
-							<br />
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-		
-		
-		<div class="modal fade" id="modifier-box" tabindex="-1" role="dialog"
-			aria-labelledby="myModalLabel1">
-			<div class="modal-dialog large" role="document">
-				<div class="modal-content">
-					<div class="modal-header">
-						<button type="button" data-dismiss="modal" aria-label="Close"
-							class="btn btn-action close">
-							<i class="icon-action_case_fermeture"></i>
-						</button>
-					</div>
-					<div class="modal-body">
-						<!-- <div id="ajouter-box" style="display: none"> -->
-						<div class="container-fluid">
-							<div class="row">
-								<div class="col-xs-12">
-									<span style="color: rgb(94, 97, 100); font-size: 16pt">Modifier
-										une période d'ouverture</span>
-								</div>
-							</div>
-							<br />
-							<form action="#"
-								th:action="@{/gestion/periodesouverture/modifier}" method="post">
-								<div class="row">
-									<div class="col-md-3 form-group">
-										<label for="periodeStartDate0">Date de début<span class="required"></span></label>
-										<div class="input-group date">
-											<input type="text" id="periodeStartDate0"
-												name="periodeStartDate0" placeholder="__/__/____"
-												class="form-control" /> <span class="input-group-addon"
-												style="width: 6%"><i class="icon-action_calendrier"></i></span>
-										</div>
-									</div>
-									<div class="col-md-3 form-group">
-										<label for="periodeEndDate0">Date de fin<span class="required"></span></label>
-										<div class="input-group date">
-											<input type="text" id="periodeEndDate0" name="periodeEndDate0"
-												placeholder="__/__/____" class="form-control" /> <span
-												class="input-group-addon" style="width: 6%"><i
-												class="icon-action_calendrier"></i></span>
-										</div>
-									</div>
-								</div>
-								<div class="row">
-									<div class="col-xs-12 text-center margin-top">
-										<a href="#"
-											class="btn btn-action-second ripple-effect transferer-annuler"
-											style="margin-right: 10px">Annuler</a> <input class="btn btn-action ripple-effect"
-											id="confirmer-button0" type="submit" name="action"
-											value="Valider"/>
-									</div>
-								</div>
-								<input type="hidden" id="pkPeriodesOuverture" name="pkPeriodesOuverture"/>
-							</form>
-							<br />
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-		
-		
-		<div class="modal fade" id="supprimer-box" tabindex="-1" role="dialog"
-			aria-labelledby="myModalLabel1">
-			<div class="modal-dialog large" role="document">
-				<div class="modal-content">
-					<div class="modal-header">
-						<button type="button" data-dismiss="modal" aria-label="Close"
-							class="btn btn-action close">
-							<i class="icon-action_case_fermeture"></i>
-						</button>
-					</div>
-					<div class="modal-body">
-						<!-- <div id="ajouter-box" style="display: none"> -->
-						<div class="container-fluid">
-							<div class="row">
-								<div class="col-xs-12">
-									<span style="color: rgb(94, 97, 100); font-size: 16pt">Supprimer
-										une période d'ouverture</span>
-								</div>
-							</div>
-							<br />
-							<form action="#"
-								th:action="@{/gestion/periodesouverture/supprimer}" method="post">
-								<div class="row">
-									<div class="col-xs-12">
-										<span>Êtes-vous sûr(e) de vouloir supprimer cette période d'ouverture ?</span>
-									</div>
-								</div>
-								<div class="row">
-									<div class="col-xs-12 text-center margin-top">
-										<br/>
-										<a href="#"
-											class="btn btn-action-second ripple-effect transferer-annuler"
-											style="margin-right: 10px">Annuler</a> <input class="btn btn-action ripple-effect"
-											id="confirmer-button1" type="submit" name="action"
-											value="Valider"/>
-									</div>
-								</div>
-								<input type="hidden" id="pkPeriodesOuverture0" name="pkPeriodesOuverture0"/>
-							</form>
-							<br />
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-	
+    $(document).ready(function () {
 
+        var periodes = /*[[${periodes}]]*/'default';
 
-	<script th:inline="javascript">
-		
-			/*<![CDATA[*/
-			
-			var datatablePersonnes = $('#datatable-periodes').DataTable({
-                paging: true,
-                searching: false,
-                select: false,
-                bInfo: false,
-                order: [ [ 1, "asc" ] ], 
-                language: frenchTranslation,
-                lengthMenu: [ 5, 10, 25, 50, 100 ]  
+        var datatablePersonnes = $('#datatable-periodes').DataTable({
+            paging: true,
+            searching: false,
+            select: false,
+            bInfo: false,
+            data: periodes,
+            columns: columnsPeriodes,
+            order: [ [ 1, "asc" ] ],
+            language: frenchTranslation,
+            lengthMenu: [5, 10, 25, 50, 100]
+        });
+
+        $('#periodeStartDate, #periodeEndDate').datepicker({
+            format: "dd/mm/yyyy",
+            weekStart: 1,
+            language: "fr",
+            todayHighlight: true
+        });
+
+        var messagesSuccessList = /*[[${successMessages}]]*/'default';
+        console.log(messagesSuccessList);
+        if (messagesSuccessList !== 'undefined' && messagesSuccessList !== null) {
+            $.each(messagesSuccessList, function (key, msg) {
+                $.notify({
+                    message: msg
+                }, {
+                    type: 'success'
+                });
+            });
+        }
+
+        var messagesErrorList = /*[[${errorMessages}]]*/'default';
+        if (messagesErrorList !== 'undefined' && messagesErrorList !== null) {
+            $.each(messagesErrorList, function (key, msg) {
+                $.notify({
+                    message: msg
+                }, {
+                    type: 'danger'
+                });
+            });
+        }
+
+        $("#boutonAjouter").click(function (e) {
+            e.preventDefault();
+
+            $('#pkPeriodesOuverture').val(null);
+            $('#periodeStartDate').val('');
+            $('#periodeEndDate').val('');
+
+            $('#formError').html('');
+            $('#formWarning').html('');
+            $('#saveTitle').html('Ajout d\'une période d\'ouverture');
+            $('#saveBtn').val('ajouter');
+            $('#saveBtn').html('ajouter');
+
+            $.fancybox.open({
+                src: '#editionModal',
+                type: 'inline'
             });
 
-			$(document).ready(function() {
+            return true;
+        });
 
-				$('#periodeStartDate, #periodeEndDate').datepicker({
-					format : "dd/mm/yyyy",
-					weekStart : 1,
-					language : "fr",
-					todayHighlight : true
-				});
+        $("#boutonSupprTous").click(function (e) {
+            e.preventDefault();
+            $.fancybox.open({
+                src: '#supressionTousModal',
+                type: 'inline'
+            });
+            return true;
+        });
 
-				var messagesSuccessList = /*[[${successMessages}]]*/'default';
-		
-				if (messagesSuccessList !== 'undefined' && messagesSuccessList !== null) {
-					$.each(messagesSuccessList, function(key, msg) {
-						$.notify({
-							message: msg
-						},{
-							type: 'success'
-						});
-					});
-				}
-		
-				var messagesErrorList = /*[[${errorMessages}]]*/'default';
-		
-				if (messagesErrorList !== 'undefined' && messagesErrorList !== null) {
-					$.each(messagesErrorList, function(key, msg) {
-						$.notify({
-							message: msg
-						},{
-							type: 'danger'
-						});
-					});
-				}
-				
-	 	    	$("#boutonAjouter").click(function(e) {
-		    		e.preventDefault();
-		        	
-		        	$('#ajouter-box').modal('show');
+        $(".boutonModifier").click(function (e) {
+            e.preventDefault();
 
-		 			return true;
-	 	    	});
-	 	    	
-	 	    	$(".boutonModifier").click(function(e) {
-		    		e.preventDefault();
+            var pkPeriodesOuverture = $(this).data("pkperiodesouverture");
+            var dateDebut = $(this).data("datedebut");
+            var dateFin = $(this).data("datefin");
 
-	 	    		var pkPeriodesOuverture = $(this).data("pkperiodesouverture");
-	 	    		var dateDebut = $(this).data("datedebut");
-	 	    		var dateFin = $(this).data("datefin");
-	 
-	 	    		$('#modifier-box').modal('show');
+            $('#formError').html('');
+            $('#formWarning').html('');
+            $('#saveTitle').html('Modifier une période d\'ouverture');
+            $('#saveBtn').val('modifier');
+            $('#saveBtn').html('modifier');
 
-	 	    		$('#periodeStartDate0').val(dateDebut);
-	 	    		$('#periodeEndDate0').val(dateFin);
-	 	    		$('#pkPeriodesOuverture').val(pkPeriodesOuverture);
+            var startMoment = moment(dateDebut);
+            var endMoment = moment(dateFin);
+            if (moment().isBetween(startMoment, endMoment)) {
+                $('#formWarning').html("Attention, cette période d’ouverture est en cours.<br/>Êtes-vous sûr(e) de vouloir la modifier ?");
+            }
 
-		 			return true;
-	 	    	});
-	 	    	
-	 	    	$(".boutonSupprimer").click(function(e) {
-		    		e.preventDefault();
+            $('#periodeStartDate').val(startMoment.format('DD/MM/YYYY'));
+            $('#periodeEndDate').val(endMoment.format('DD/MM/YYYY'));
+            $('#pkPeriodesOuverture').val(pkPeriodesOuverture);
 
-	 	    		var pkPeriodesOuverture = $(this).data("pkperiodesouverture");
-	 
-	 	    		$('#supprimer-box').modal('show');
+            $.fancybox.open({
+                src: '#editionModal',
+                type: 'inline'
+            });
 
-	 	    		$('#pkPeriodesOuverture0').val(pkPeriodesOuverture);
+            return true;
+        });
 
-		 			return true;
-	 	    	});
-				
-			});
-			
-			/*]]>*/
-		</script>
+        $('.boutonSupprimer').click(function (e) {
+            e.preventDefault();
+            var pk = $(this).data('pkperiodesouverture');
+            var dateDebut = moment($(this).data("datedebut"));
+            var dateFin = moment($(this).data("datefin"));
+            $('#pkPropertiesSuppr').val(pk);
+
+            var message = "Êtes-vous sûr(e) de vouloir supprimer cette période d’ouverture ?";
+            if (periodes.length === 1) {
+                message = "Attention, la suppression de cette période entrainera une ouverture sans limite de temps du dépôt des demandes dans le téléservice.<br/>Êtes-vous sûr(e) de vouloir la supprimer ?";
+            } else if (moment().isBetween(dateDebut, dateFin)) {
+                message = "Attention, cette période d’ouverture est en cours. La suppression entrainera une fermeture du dépôt des demandes dans le téléservice.<br/>Êtes-vous sûr(e) de vouloir la supprimer ?";
+            }
+            $('#suppressionMessage').html(message);
+
+            $.fancybox.open({
+                src: '#supressionModal',
+                type: 'inline'
+            });
+            return true;
+        });
+
+        $('.annulerBouton').click(function (e) {
+            e.preventDefault();
+            $.fancybox.close();
+            return true;
+        });
+
+        $('#saveBtn').click(function (e) {
+            var startDate = $('#periodeStartDate').val();
+            var endDate = $('#periodeEndDate').val();
+
+            if (startDate !== '' && endDate !== '') {
+                var startMoment = moment(startDate, 'DD/MM/YYYY');
+                var endMoment = moment(endDate, 'DD/MM/YYYY');
+                if (startMoment.isBefore(endMoment)) {
+                    $('#formError').html('');
+                    return true;
+                }
+                $('#formError').html('La date de fin doit être postérieure à la date de début.');
+            } else {
+                $('#formError').html('Les dates doivent être renseignées.');
+            }
+
+            e.preventDefault();
+            return false;
+        });
+
+    });
+
+    /*]]>*/
+</script>
 </body>
 </html>

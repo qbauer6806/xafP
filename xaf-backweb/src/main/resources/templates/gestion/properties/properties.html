@@ -259,7 +259,6 @@
         $('.boutonSupprimer').click(function (e) {
             e.preventDefault();
             var pk = $(this).data('pkproperties');
-            console.log(pk);
             $('#pkPropertiesSuppr').val(pk);
             $.fancybox.open({
                 src: '#supressionModal',
@@ -271,7 +270,7 @@
                 }
             });
             return true;
-        })
+        });
 
         $('.annulerBouton').click(function (e) {
             e.preventDefault();

@@ -36,7 +36,7 @@
           rel="stylesheet"/>
     <link th:href="@{/css/tsdem.css(${applicationBuildTimestamp})}"
           rel="stylesheet"/>
-
+    <link th:href="@{/webjars/bootstrap-datepicker/css/bootstrap-datepicker.css}" rel="stylesheet"/>
 
 </head>
 
@@ -245,8 +245,6 @@
             orderable: false,
             keyword: false,
             render: function (data, type, periode) {
-                var momentStart = moment(periode.dateDebut);
-                var momentEnd = moment(periode.dateFin);
                 return '<a th:id="boutonModifier" href="#" class="boutonModifier"' +
                     'data-pkperiodesouverture="' + periode.pkPeriodesOuverture + '" data-datedebut="' + periode.dateDebut + '" data-datefin="' + periode.dateFin + '">' +
                     '<span class="btn btn-action ripple-effect greyTooltip" data-toggle="tooltip" data-placement="bottom"  data-original-title="Modifier la période" title="">' +
@@ -324,18 +322,12 @@
 
             $.fancybox.open({
                 src: '#editionModal',
-                type: 'inline'
+                type: 'inline',
+                opts: {
+                    afterClose: onCloseEdition
+                }
             });
 
-            return true;
-        });
-
-        $("#boutonSupprTous").click(function (e) {
-            e.preventDefault();
-            $.fancybox.open({
-                src: '#supressionTousModal',
-                type: 'inline'
-            });
             return true;
         });
 
@@ -364,7 +356,10 @@
 
             $.fancybox.open({
                 src: '#editionModal',
-                type: 'inline'
+                type: 'inline',
+                opts: {
+                    afterClose: onCloseEdition
+                }
             });
 
             return true;
@@ -387,6 +382,15 @@
 
             $.fancybox.open({
                 src: '#supressionModal',
+                type: 'inline'
+            });
+            return true;
+        });
+
+        $("#boutonSupprTous").click(function (e) {
+            e.preventDefault();
+            $.fancybox.open({
+                src: '#supressionTousModal',
                 type: 'inline'
             });
             return true;
@@ -419,6 +423,13 @@
         });
 
     });
+
+    var onCloseEdition = function () {
+        var datepicker = $('.datepicker');
+        if (datepicker.length !== 0) {
+            datepicker[0].style.display = 'none';
+        }
+    };
 
     /*]]>*/
 </script>

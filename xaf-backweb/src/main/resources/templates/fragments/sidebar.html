@@ -97,17 +97,34 @@
 				<div th:replace="~{fragments/customsidebarelements :: customsidebarelements} ?: _"></div>
 
 				<li th:class="${pageParametresActive} ? 'active' : ''"
-					sec:authorize="hasRole('ROLE_PARAMETRAGE')"><a
-					id="menuParametres" th:href="@{/gestion/parametres}">
+					sec:authorize="hasRole('ROLE_PARAMETRAGE')">
+					<a id="menuParametres">
 						<div class="contentTooltip">
 							<span class="greyTooltip" data-toggle="tooltip"
-								data-placement="right" title="" data-original-title="Paramètres"></span>
+								  data-placement="right" title="" data-original-title="Paramètres"></span>
 						</div>
 						<div class="iconContent">
 							<i class="icon icon-menu_parametres"></i>
 						</div>
 						<div class="menuContent">Paramètres</div>
-				</a></li>
+						<span class="icon-action_suivant"></span>
+					</a>
+					<ul class="" style="left: 40px; display: none;">
+						<li>
+							<a id="menuMotifs"
+							   th:href="@{/gestion/parametres}">
+								<div class="whiteBullet"></div>
+								Motifs
+							</a>
+						</li>
+						<li th:if="${AfBackUtils.getDemarcheCanHandlePeriodesOuverture()}">
+							<a id="menuGestionPeriodesOuverture" th:href="@{/gestion/periodesouverture}">
+								<div class="whiteBullet"></div>
+								Périodes d'ouverture
+							</a>
+						</li>
+					</ul>
+				</li>
 
 				<li th:class="${pageConfigurationActive} ? 'active' : ''"
 					sec:authorize="hasRole('ROLE_CONFIGURATION')"><a
@@ -139,10 +156,6 @@
 					   <li><a id="menuGestionModeles"
 					   		th:href="@{/gestion/modeles}">
 						   <div class="whiteBullet"></div> Modèles
-					   </a></li>
-					   <li th:if="${AfBackUtils.getDemarcheCanHandlePeriodesOuverture()}"><a id="menuGestionPeriodesOuverture"
-					   		th:href="@{/gestion/periodesouverture}">
-						   <div class="whiteBullet"></div> Périodes d'ouverture
 					   </a></li>
 						<li th:if="${AfBackUtils.getDemarcheCanHandleProperties()}">
 							<a id="menuGestionProperties" th:href="@{/gestion/properties}">

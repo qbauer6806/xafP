@@ -40,7 +40,7 @@
 
 </head>
 
-<body th:with="pageConfigurationActive='active'">
+<body th:with="pageParametresActive='active'">
 
 <div th:replace="fragments/header :: header"></div>
 
@@ -63,7 +63,7 @@
         <div class="container-fluid">
 
             <div class="row">
-                <h2 class="col-xs-12">Administration des périodes d'ouverture</h2>
+                <h2 class="col-xs-12">Gestion des périodes d'ouverture</h2>
 
                 <div th:if="${AfBackUtils.getDemarcheCanHandlePeriodesOuverture()}">
                     <div class="col-xs-12" th:if="${#lists.isEmpty(periodes)}">

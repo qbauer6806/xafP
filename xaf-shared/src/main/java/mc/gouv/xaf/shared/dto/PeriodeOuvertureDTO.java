@@ -1,21 +1,22 @@
 package mc.gouv.xaf.shared.dto;
 
-import java.time.LocalDate;
+import java.util.Date;
 
 /**
  * Représente une période d'ouverture d'une démarche
- *
+ * 
  * @author qdeme
+ *
  */
 public class PeriodeOuvertureDTO {
 
     private Integer pkPeriodesOuverture;
 
     private String demarcheId;
-
-    private LocalDate dateDebut;
-
-    private LocalDate dateFin;
+    
+    private Date dateDebut;
+    
+    private Date dateFin;
 
     public Integer getPkPeriodesOuverture() {
         return pkPeriodesOuverture;
@@ -33,20 +34,20 @@ public class PeriodeOuvertureDTO {
         this.demarcheId = demarcheId;
     }
 
-    public LocalDate getDateDebut() {
+    public Date getDateDebut() {
         return dateDebut;
     }
 
-    public void setDateDebut(LocalDate dateDebut) {
+    public void setDateDebut(Date dateDebut) {
         this.dateDebut = dateDebut;
     }
 
-    public LocalDate getDateFin() {
+    public Date getDateFin() {
         return dateFin;
     }
 
-    public void setDateFin(LocalDate dateFin) {
+    public void setDateFin(Date dateFin) {
         this.dateFin = dateFin;
     }
-
+    
 }

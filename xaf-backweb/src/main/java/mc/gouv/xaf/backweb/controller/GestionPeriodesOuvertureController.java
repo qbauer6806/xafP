@@ -17,13 +17,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.transaction.Transactional;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import static java.time.format.DateTimeFormatter.ofPattern;
 
 @Controller
 @RequestMapping("/gestion/periodesouverture")
@@ -35,7 +31,6 @@ public class GestionPeriodesOuvertureController {
     private static final String MODIFIER_SUCCES = "La période d'ouverture a été modifiée.";
     private static final String SUPPRIMER_SUCCES = "La période d'ouverture a été supprimée.";
     private static final String SUPPRIMER_TOUS_SUCCES = "Toutes les périodes d'ouverture ont été supprimées.";
-    private static final DateTimeFormatter DATE_TIME_FORMATTER = ofPattern("dd/MM/uuuu");
 
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
@@ -51,23 +46,22 @@ public class GestionPeriodesOuvertureController {
 
     @GetMapping
     public ModelAndView form(final RedirectAttributes redirectAttributes) {
-        LOGGER.info("Appel de la page gestion/periodesouverture. Méthode form");
+        LOGGER.info("Appel de la page gestion/modeles. Méthode form");
         ModelAndView mav = new ModelAndView("gestion/periodesouverture/periodesouverture");
         List<PeriodeOuvertureDTO> periodes = periodesOuvertureService.getPeriodesOuverture(gouvPropertiesResolver.getDemarcheId());
         mav.addObject("periodes", periodes);
-        LOGGER.info("======================= Fin /gestion/periodesouverture. Méthode form");
+        LOGGER.info("======================= Fin /gestion/modeles. Méthode form");
         return mav;
     }
 
     @PostMapping(value = "/edit", params = "action=ajouter")
     @Transactional
-    public ModelAndView ajouter(@RequestParam String periodeStartDate, @RequestParam String periodeEndDate,
-                                final RedirectAttributes redirectAttributes) {
+    public ModelAndView ajouter(@RequestParam Date periodeStartDate, @RequestParam Date periodeEndDate, final RedirectAttributes redirectAttributes) {
 
         LOGGER.info("======================= Appel de la page /gestion/periodesouverture/ajouter ({}, {})", periodeStartDate, periodeEndDate);
         PeriodeOuvertureDTO periode = new PeriodeOuvertureDTO();
-        periode.setDateDebut(LocalDate.parse(periodeStartDate, DATE_TIME_FORMATTER));
-        periode.setDateFin(LocalDate.parse(periodeEndDate, DATE_TIME_FORMATTER));
+        periode.setDateDebut(periodeStartDate);
+        periode.setDateFin(periodeEndDate);
         periode.setDemarcheId(gouvPropertiesResolver.getDemarcheId());
         periodesOuvertureService.saveOrUpdatePeriodeOuverture(gouvPropertiesResolver.getDemarcheId(), periode);
 
@@ -83,13 +77,13 @@ public class GestionPeriodesOuvertureController {
 
     @PostMapping(value = "/edit", params = "action=modifier")
     @Transactional
-    public ModelAndView modifier(@RequestParam String periodeStartDate, @RequestParam String periodeEndDate, @RequestParam Integer pkPeriodesOuverture,
+    public ModelAndView modifier(@RequestParam Date periodeStartDate, @RequestParam Date periodeEndDate, @RequestParam Integer pkPeriodesOuverture,
                                  final RedirectAttributes redirectAttributes) {
 
         LOGGER.info("======================= Appel de la page /gestion/periodesouverture/modifier ({}, {}, {})", periodeStartDate, periodeEndDate, pkPeriodesOuverture);
         PeriodeOuvertureDTO periode = new PeriodeOuvertureDTO();
-        periode.setDateDebut(LocalDate.parse(periodeStartDate, DATE_TIME_FORMATTER));
-        periode.setDateFin(LocalDate.parse(periodeEndDate, DATE_TIME_FORMATTER));
+        periode.setDateDebut(periodeStartDate);
+        periode.setDateFin(periodeEndDate);
         periode.setDemarcheId(gouvPropertiesResolver.getDemarcheId());
         periode.setPkPeriodesOuverture(pkPeriodesOuverture);
         periodesOuvertureService.saveOrUpdatePeriodeOuverture(gouvPropertiesResolver.getDemarcheId(), periode);

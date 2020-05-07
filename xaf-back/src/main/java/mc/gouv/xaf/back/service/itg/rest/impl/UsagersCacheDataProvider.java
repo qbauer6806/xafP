@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
+import mc.gouv.xaf.back.service.utils.UsagersUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -115,7 +116,7 @@ public class UsagersCacheDataProvider implements GouvCacheDataProvider<Integer, 
 //                        usagerCourrierId);
             UsagerCourrierDTO uc = usagersCourrierService.getUsagerCourrier(gouvPropertiesResolver.getDemarcheId(), usagerCourrierId);
             if (uc != null) {
-                UsagerBean ub = convertUsagerCourrierDTOToUsagerBean(uc);
+                UsagerBean ub = UsagersUtils.convertUsagerCourrierDTOToUsagerBean(uc);
                 usagersCourriers.add(ub);
             }
 
@@ -137,40 +138,13 @@ public class UsagersCacheDataProvider implements GouvCacheDataProvider<Integer, 
     public UsagerBean get(Integer key) {
         if (isUsagerCourrier(key)) {
             UsagerCourrierDTO uc = usagersCourrierService.getUsagerCourrier(gouvPropertiesResolver.getDemarcheId(), key);
-            UsagerBean ub = convertUsagerCourrierDTOToUsagerBean(uc);
+            UsagerBean ub = UsagersUtils.convertUsagerCourrierDTOToUsagerBean(uc);
             return ub;
         }
         else {
             UsagerBean usagerBean = referentielUsagersClient.getUsager(key);
             return usagerBean;
         }
-    }
-    
-    private UsagerBean convertUsagerCourrierDTOToUsagerBean(UsagerCourrierDTO uc) {
-        if (uc == null) {
-            return null;
-        }
-        UsagerBean ub = new UsagerBean();
-        ub.setAdresse1(uc.getAdresse1());
-        ub.setAdresse2(uc.getAdresse2());
-        ub.setCodePostal(uc.getCodePostal());
-        ub.setComplementAdresse(uc.getAdresseComplement());
-        ub.setDateCreation(uc.getDateCreation());
-        ub.setEmail(uc.getEmail());
-        ub.setId(uc.getPkUsagersCourrier());
-        ub.setLogin(uc.getLogin());
-        ub.setNom(uc.getNom());
-        ub.setPrenom(uc.getPrenom());
-        ub.setNomPays(uc.getPays());
-        ub.setRaisonSociale(uc.getRaisonSociale());
-
-        if (uc.getTitre() != null) {
-            ub.setTitre(uc.getTitre().shortValue());
-        }
-
-        ub.setVille(uc.getVille());
-
-        return ub;
     }
     
     public static boolean isUsagerCourrier(Integer usagerId) {

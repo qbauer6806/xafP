@@ -1,26 +1,12 @@
 package mc.gouv.xaf.back.data.entity;
 
-import java.util.Date;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.validation.constraints.Size;
-
-import org.hibernate.validator.constraints.NotBlank;
+import javax.persistence.*;
+import java.time.LocalDate;
 
 /**
- * 
  * Classe BO de la table DEM.PERIODES_OUVERTURE
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Entity
 @Table(name = "DEM_PERIODES_OUVERTURE")
@@ -36,10 +22,10 @@ public class PeriodesOuvertureBO {
     private DemarchesBO demarche;
 
     @Column(name = "DATE_DEBUT", nullable = false)
-    private Date dateDebut;
+    private LocalDate dateDebut;
 
-    @Column(name = "DATE_FIN", nullable = true)
-    private Date dateFin;
+    @Column(name = "DATE_FIN", nullable = false)
+    private LocalDate dateFin;
 
     public Integer getPkPeriodesOuverture() {
         return pkPeriodesOuverture;
@@ -49,28 +35,28 @@ public class PeriodesOuvertureBO {
         this.pkPeriodesOuverture = pkPeriodesOuverture;
     }
 
-    public Date getDateDebut() {
+    public LocalDate getDateDebut() {
         return dateDebut;
     }
 
-    public void setDateDebut(Date dateDebut) {
+    public void setDateDebut(LocalDate dateDebut) {
         this.dateDebut = dateDebut;
     }
 
-    public Date getDateFin() {
+    public LocalDate getDateFin() {
         return dateFin;
     }
 
-    public void setDateFin(Date dateFin) {
+    public void setDateFin(LocalDate dateFin) {
         this.dateFin = dateFin;
     }
 
-	public DemarchesBO getDemarche() {
-		return demarche;
-	}
+    public DemarchesBO getDemarche() {
+        return demarche;
+    }
 
-	public void setDemarche(DemarchesBO demarche) {
-		this.demarche = demarche;
-	}
+    public void setDemarche(DemarchesBO demarche) {
+        this.demarche = demarche;
+    }
 
 }

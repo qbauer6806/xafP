@@ -375,3 +375,13 @@ dd span {
 .table>tbody>tr>td {
     word-break: break-word;
 }
+
+/* overrides bootstrap datetimepicker */
+.bootstrap-datetimepicker-widget table td span:hover {
+	background: transparent !important;
+}
+
+.bootstrap-datetimepicker-widget .btn {
+	background: transparent !important;
+	opacity: 1 !important;
+}

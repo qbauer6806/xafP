@@ -20,6 +20,13 @@
             <groupId>mc.gouv.xboot</groupId>
             <artifactId>xboot-spring-starter-web</artifactId>
         </dependency>
+
+        <!-- Web JS and CSS dependencies -->
+        <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>Eonasdan-bootstrap-datetimepicker</artifactId>
+            <version>4.17.47</version>
+        </dependency>
     </dependencies>
 
 </project>

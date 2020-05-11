@@ -37,6 +37,7 @@
     <link th:href="@{/css/tsdem.css(${applicationBuildTimestamp})}"
           rel="stylesheet"/>
     <link th:href="@{/webjars/bootstrap-datepicker/css/bootstrap-datepicker.css}" rel="stylesheet"/>
+    <link th:href="@{/webjars/Eonasdan-bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.css}" rel="stylesheet"/>
 
 </head>
 
@@ -110,11 +111,11 @@
     </div>
 
     <!-- EDITION MODAL -->
-    <div id="editionModal" style="display: none">
+    <div id="editionModal" style="display: none;overflow: unset">
         <form method="POST" id="editionPeriodesForm" th:action="@{/gestion/periodesouverture/edit}">
             <!-- input cachée pour insérer la pk de la properties à modifier -->
             <input type="hidden" id="pkPeriodesOuverture" name="pkPeriodesOuverture"/>
-            <div class="row no-margin-row" style="width: 400px;">
+            <div class="row no-margin-row" style="width: 500px;">
                 <div class="col-xs-12 text-center">
                     <h2 id="saveTitle">SAVE_TITLE</h2>
                 </div>
@@ -122,20 +123,17 @@
                 <div class="col-xs-12 col-md-6 form-group">
                     <label for="periodeStartDate">Date de début<span class="required"></span></label>
                     <div class="input-group date">
-                        <input type="text" id="periodeStartDate"
-                               name="periodeStartDate" placeholder="__/__/____"
-                               class="form-control"/> <span class="input-group-addon"
-                                                            style="width: 6%"><i
-                            class="icon-action_calendrier"></i></span>
+                        <input type="text" id="periodeStartDate" name="periodeStartDate" placeholder="__/__/____ __:__"
+                               class="form-control"/>
+                        <span class="input-group-addon" style="width: 6%"><i class="icon-action_calendrier"></i></span>
                     </div>
                 </div>
                 <div class="col-xs-12 col-md-6 form-group">
                     <label for="periodeEndDate">Date de fin<span class="required"></span></label>
                     <div class="input-group date">
-                        <input type="text" id="periodeEndDate" name="periodeEndDate"
-                               placeholder="__/__/____" class="form-control"/> <span
-                            class="input-group-addon" style="width: 6%"><i
-                            class="icon-action_calendrier"></i></span>
+                        <input type="text" id="periodeEndDate" name="periodeEndDate" placeholder="__/__/____ __:__"
+                               class="form-control"/>
+                        <span class="input-group-addon" style="width: 6%"><i class="icon-action_calendrier"></i></span>
                     </div>
                 </div>
                 <div id="formError" class="col-xs-12 text-center form-group error"></div>
@@ -217,6 +215,7 @@
 <div th:replace="fragments/footer :: footer"></div>
 
 <script th:inline="javascript">
+    var momentFormat = 'DD/MM/YYYY HH:mm';
 
     var columnsPeriodes = [
         {
@@ -227,7 +226,7 @@
                 if (type === "sort" || type === "type") {
                     return data;
                 }
-                return moment(periode.dateDebut).format("DD/MM/YYYY");
+                return moment(periode.dateDebut).format(momentFormat);
             }
         },
         {
@@ -238,7 +237,7 @@
                 if (type === "sort" || type === "type") {
                     return data;
                 }
-                return moment(periode.dateFin).format("DD/MM/YYYY");
+                return moment(periode.dateFin).format(momentFormat);
             }
         },
         {
@@ -277,11 +276,14 @@
             lengthMenu: [5, 10, 25, 50, 100]
         });
 
-        $('#periodeStartDate, #periodeEndDate').datepicker({
-            format: "dd/mm/yyyy",
-            weekStart: 1,
-            language: "fr",
-            todayHighlight: true
+        $('#periodeStartDate, #periodeEndDate').datetimepicker({
+            format: momentFormat,
+            locale: 'fr',
+            widgetPositioning: {
+                horizontal: 'auto',
+                vertical: 'top'
+            },
+            debug:true
         });
 
         var messagesSuccessList = /*[[${successMessages}]]*/'default';
@@ -350,8 +352,8 @@
                 $('#formWarning').html("Attention, cette période d’ouverture est en cours.<br/>Êtes-vous sûr(e) de vouloir la modifier ?");
             }
 
-            $('#periodeStartDate').val(startMoment.format('DD/MM/YYYY'));
-            $('#periodeEndDate').val(endMoment.format('DD/MM/YYYY'));
+            $('#periodeStartDate').val(startMoment.format(momentFormat));
+            $('#periodeEndDate').val(endMoment.format(momentFormat));
             $('#pkPeriodesOuverture').val(pkPeriodesOuverture);
 
             $.fancybox.open({
@@ -407,8 +409,8 @@
             var endDate = $('#periodeEndDate').val();
 
             if (startDate !== '' && endDate !== '') {
-                var startMoment = moment(startDate, 'DD/MM/YYYY');
-                var endMoment = moment(endDate, 'DD/MM/YYYY');
+                var startMoment = moment(startDate, momentFormat);
+                var endMoment = moment(endDate, momentFormat);
                 if (startMoment.isBefore(endMoment)) {
                     $('#formError').html('');
                     return true;

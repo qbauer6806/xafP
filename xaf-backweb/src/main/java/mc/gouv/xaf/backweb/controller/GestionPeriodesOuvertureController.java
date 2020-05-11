@@ -40,17 +40,17 @@ public class GestionPeriodesOuvertureController {
 
     @InitBinder
     protected void initBinder(WebDataBinder binder) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm");
         binder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, false));
     }
 
     @GetMapping
     public ModelAndView form(final RedirectAttributes redirectAttributes) {
-        LOGGER.info("Appel de la page gestion/modeles. Méthode form");
+        LOGGER.info("Appel de la page gestion/periodesouverture. Méthode form");
         ModelAndView mav = new ModelAndView("gestion/periodesouverture/periodesouverture");
         List<PeriodeOuvertureDTO> periodes = periodesOuvertureService.getPeriodesOuverture(gouvPropertiesResolver.getDemarcheId());
         mav.addObject("periodes", periodes);
-        LOGGER.info("======================= Fin /gestion/modeles. Méthode form");
+        LOGGER.info("======================= Fin /gestion/periodesouverture. Méthode form");
         return mav;
     }
 

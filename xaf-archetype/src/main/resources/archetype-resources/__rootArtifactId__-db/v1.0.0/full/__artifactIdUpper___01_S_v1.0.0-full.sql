@@ -738,7 +738,7 @@ CREATE SEQUENCE dem_periodes_ouverture_pk_periodesouverture_seq START 1;
 CREATE TABLE ${artifactIdUpper}.dem_periodes_ouverture (
     pk_periodesouverture integer DEFAULT nextval('dem_periodes_ouverture_pk_periodesouverture_seq'),
     date_debut timestamp without time zone NOT NULL,
-    date_fin timestamp without time zone,
+    date_fin timestamp without time zone NOT NULL,
     fk_demarcheid character varying(128) NOT NULL
 );
 

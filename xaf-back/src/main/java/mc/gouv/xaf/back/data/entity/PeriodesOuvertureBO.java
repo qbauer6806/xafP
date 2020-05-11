@@ -1,26 +1,12 @@
 package mc.gouv.xaf.back.data.entity;
 
+import javax.persistence.*;
 import java.util.Date;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.validation.constraints.Size;
-
-import org.hibernate.validator.constraints.NotBlank;
-
 /**
- * 
  * Classe BO de la table DEM.PERIODES_OUVERTURE
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Entity
 @Table(name = "DEM_PERIODES_OUVERTURE")
@@ -38,7 +24,7 @@ public class PeriodesOuvertureBO {
     @Column(name = "DATE_DEBUT", nullable = false)
     private Date dateDebut;
 
-    @Column(name = "DATE_FIN", nullable = true)
+    @Column(name = "DATE_FIN", nullable = false)
     private Date dateFin;
 
     public Integer getPkPeriodesOuverture() {
@@ -65,12 +51,12 @@ public class PeriodesOuvertureBO {
         this.dateFin = dateFin;
     }
 
-	public DemarchesBO getDemarche() {
-		return demarche;
-	}
+    public DemarchesBO getDemarche() {
+        return demarche;
+    }
 
-	public void setDemarche(DemarchesBO demarche) {
-		this.demarche = demarche;
-	}
+    public void setDemarche(DemarchesBO demarche) {
+        this.demarche = demarche;
+    }
 
 }

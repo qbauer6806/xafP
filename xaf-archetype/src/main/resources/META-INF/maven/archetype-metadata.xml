@@ -4,7 +4,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <requiredProperties>
     <requiredProperty key="xafVersion">
-      <defaultValue>8.1.0-rc2-SNAPSHOT</defaultValue>
+      <defaultValue>8.1.0-SNAPSHOT</defaultValue>
     </requiredProperty>
     <requiredProperty key="artifactIdUpper">
       <defaultValue>CVTCVLC</defaultValue>

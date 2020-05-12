@@ -68,9 +68,7 @@
 
                 <div th:if="${AfBackUtils.getDemarcheCanHandlePeriodesOuverture()}">
                     <div class="col-xs-12" th:if="${#lists.isEmpty(periodes)}">
-                        Si aucune période d’ouverture n’est définie, la création d’une demande est possible sans limite
-                        de
-                        temps.
+                        Par défaut, si aucune période d’ouverture n’est définie alors les usagers peuvent déposer des nouvelles demandes dans le téléservice sans limite de temps.
                     </div>
 
                     <div class="col-xs-12 text-right">
@@ -90,8 +88,8 @@
                             <table id="datatable-periodes" class="table table-striped" style="width: 100%">
                                 <thead>
                                 <tr>
-                                    <th>Date début</th>
-                                    <th>Date fin</th>
+                                    <th>Date de début</th>
+                                    <th>Date de fin</th>
                                     <th>Action</th>
                                 </tr>
                                 </thead>
@@ -190,9 +188,9 @@
                 </div>
                 <div class="col-xs-12 form-group">
                     <span>
-                        Attention, la suppression de toutes les périodes d’ouverture entrainera une ouverture sans limite de temps du dépôt des demandes.
+                        Attention, vous êtes sur le point de supprimer toutes les périodes d’ouverture. Si aucune période d’ouverture n’est définie alors les usagers peuvent déposer des nouvelles demandes dans le téléservice sans limite de temps.
                         <br/>
-                        Êtes-vous sûr(e) de vouloir les supprimer ?
+                        Êtes-vous sûr(e) de vouloir continuer ?
                     </span>
                 </div>
                 <div class="col-xs-12 margin-top">
@@ -202,7 +200,7 @@
                         annuler
                     </button>
                     <button id="supprTousBtn" class="btn btn-action ripple-effect" type="submit">
-                        supprimer toutes
+                        supprimer
                     </button>
                 </div>
             </div>
@@ -376,9 +374,9 @@
 
             var message = "Êtes-vous sûr(e) de vouloir supprimer cette période d’ouverture ?";
             if (periodes.length === 1) {
-                message = "Attention, la suppression de cette période entrainera une ouverture sans limite de temps du dépôt des demandes dans le téléservice.<br/>Êtes-vous sûr(e) de vouloir la supprimer ?";
+                message = "Attention, si vous supprimez cette période d’ouverture, les usagers pourront déposer des nouvelles demandes dans le téléservice sans limite de temps.<br/>Êtes-vous sûr(e) de vouloir continuer ?";
             } else if (moment().isBetween(dateDebut, dateFin)) {
-                message = "Attention, cette période d’ouverture est en cours. La suppression entrainera une fermeture du dépôt des demandes dans le téléservice.<br/>Êtes-vous sûr(e) de vouloir la supprimer ?";
+                message = "Attention, cette période d’ouverture est en cours. Si vous supprimez cette période d’ouverture les usagers ne pourront plus déposer de nouvelle demande dans le téléservice.<br/>Êtes-vous sûr(e) de vouloir continuer ?";
             }
             $('#suppressionMessage').html(message);
 

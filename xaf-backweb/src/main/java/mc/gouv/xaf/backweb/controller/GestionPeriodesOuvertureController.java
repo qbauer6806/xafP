@@ -2,6 +2,7 @@ package mc.gouv.xaf.backweb.controller;
 
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.PeriodesOuvertureService;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.PeriodeOuvertureDTO;
 import org.slf4j.Logger;
@@ -40,8 +41,7 @@ public class GestionPeriodesOuvertureController {
 
     @InitBinder
     protected void initBinder(WebDataBinder binder) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm");
-        binder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, false));
+        binder.registerCustomEditor(Date.class, new CustomDateEditor(AfBackUtils.SDF_JJ_MM_AAAA_HH_MM, false));
     }
 
     @GetMapping

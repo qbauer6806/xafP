@@ -64,6 +64,7 @@ public class AfBackUtils {
 
     public static String DEFAULT_FRENCH_DATE_FORMAT = "dd/MM/yyyy";
 
+    // French date format with 24 hours
     public static String DEFAULT_FRENCH_DATE_HOURS_FORMAT = "dd/MM/yyyy HH:mm";
 
     public static DateFormat SDF_JJ_MM_AAAA = new SimpleDateFormat(DEFAULT_FRENCH_DATE_FORMAT);

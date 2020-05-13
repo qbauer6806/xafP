@@ -37,7 +37,8 @@
     <link th:href="@{/css/tsdem.css(${applicationBuildTimestamp})}"
           rel="stylesheet"/>
     <link th:href="@{/webjars/bootstrap-datepicker/css/bootstrap-datepicker.css}" rel="stylesheet"/>
-    <link th:href="@{/webjars/Eonasdan-bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.css}" rel="stylesheet"/>
+    <link th:href="@{/webjars/Eonasdan-bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.css}"
+          rel="stylesheet"/>
 
 </head>
 
@@ -68,7 +69,8 @@
 
                 <div th:if="${AfBackUtils.getDemarcheCanHandlePeriodesOuverture()}">
                     <div class="col-xs-12" th:if="${#lists.isEmpty(periodes)}">
-                        Par défaut, si aucune période d’ouverture n’est définie alors les usagers peuvent déposer des nouvelles demandes dans le téléservice sans limite de temps.
+                        Par défaut, si aucune période d’ouverture n’est définie alors les usagers peuvent déposer des
+                        nouvelles demandes dans le téléservice sans limite de temps.
                     </div>
 
                     <div class="col-xs-12 text-right">
@@ -119,19 +121,17 @@
                 </div>
                 <div id="formWarning" class="col-xs-12 text-center form-group"></div>
                 <div class="col-xs-12 col-md-6 form-group">
-                    <label for="periodeStartDate">Date de début<span class="required"></span></label>
-                    <div class="input-group date">
-                        <input type="text" id="periodeStartDate" name="periodeStartDate" placeholder="__/__/____ __:__"
-                               class="form-control"/>
-                        <span class="input-group-addon" style="width: 6%"><i class="icon-action_calendrier"></i></span>
+                    <label for="periodeStartDatePicker">Date de début<span class="required"></span></label>
+                    <div class="input-group date" id="periodeStartDatePicker">
+                        <input type="text" id="periodeStartDate" name="periodeStartDate" class="form-control"/>
+                        <span class="input-group-addon"><i class="icon-action_calendrier"></i></span>
                     </div>
                 </div>
                 <div class="col-xs-12 col-md-6 form-group">
-                    <label for="periodeEndDate">Date de fin<span class="required"></span></label>
-                    <div class="input-group date">
-                        <input type="text" id="periodeEndDate" name="periodeEndDate" placeholder="__/__/____ __:__"
-                               class="form-control"/>
-                        <span class="input-group-addon" style="width: 6%"><i class="icon-action_calendrier"></i></span>
+                    <label for="periodeEndDatePicker">Date de fin<span class="required"></span></label>
+                    <div class="input-group date" id="periodeEndDatePicker">
+                        <input type="text" id="periodeEndDate" name="periodeEndDate" class="form-control"/>
+                        <span class="input-group-addon"><i class="icon-action_calendrier"></i></span>
                     </div>
                 </div>
                 <div id="formError" class="col-xs-12 text-center form-group error"></div>
@@ -269,23 +269,26 @@
             bInfo: false,
             data: periodes,
             columns: columnsPeriodes,
-            order: [ [ 1, "asc" ] ],
+            order: [
+                [1, "asc"]
+            ],
             language: frenchTranslation,
             lengthMenu: [5, 10, 25, 50, 100]
         });
 
-        $('#periodeStartDate, #periodeEndDate').datetimepicker({
+        $('#periodeStartDatePicker, #periodeEndDatePicker').datetimepicker({
             format: momentFormat,
             locale: 'fr',
             widgetPositioning: {
                 horizontal: 'auto',
                 vertical: 'top'
-            },
-            debug:true
+            }
+            // ,debug: true // Permet de laisser ouvert le datepicker pour modifier le CSS
+        }).on('dp.show', function () {
+            $('.bootstrap-datetimepicker-widget a.btn').removeClass('btn');
         });
 
         var messagesSuccessList = /*[[${successMessages}]]*/'default';
-        console.log(messagesSuccessList);
         if (messagesSuccessList !== 'undefined' && messagesSuccessList !== null) {
             $.each(messagesSuccessList, function (key, msg) {
                 $.notify({
@@ -310,9 +313,11 @@
         $("#boutonAjouter").click(function (e) {
             e.preventDefault();
 
+            var date = moment();
+            date.set({hour: 0, minute: 0, second: 0, millisecond: 0});
             $('#pkPeriodesOuverture').val(null);
-            $('#periodeStartDate').val('');
-            $('#periodeEndDate').val('');
+            $('#periodeStartDate').val(date.format(momentFormat));
+            $('#periodeEndDate').val(date.format(momentFormat));
 
             $('#formError').html('');
             $('#formWarning').html('');
@@ -322,10 +327,7 @@
 
             $.fancybox.open({
                 src: '#editionModal',
-                type: 'inline',
-                opts: {
-                    afterClose: onCloseEdition
-                }
+                type: 'inline'
             });
 
             return true;
@@ -356,10 +358,7 @@
 
             $.fancybox.open({
                 src: '#editionModal',
-                type: 'inline',
-                opts: {
-                    afterClose: onCloseEdition
-                }
+                type: 'inline'
             });
 
             return true;
@@ -423,13 +422,6 @@
         });
 
     });
-
-    var onCloseEdition = function () {
-        var datepicker = $('.datepicker');
-        if (datepicker.length !== 0) {
-            datepicker[0].style.display = 'none';
-        }
-    };
 
     /*]]>*/
 </script>

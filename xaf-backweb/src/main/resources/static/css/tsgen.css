@@ -380,8 +380,3 @@ dd span {
 .bootstrap-datetimepicker-widget table td span:hover {
 	background: transparent !important;
 }
-
-.bootstrap-datetimepicker-widget .btn {
-	background: transparent !important;
-	opacity: 1 !important;
-}

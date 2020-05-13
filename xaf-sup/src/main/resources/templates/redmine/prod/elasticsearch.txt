@@ -1,0 +1,14 @@
+# Depuis le server du back ou api
+
+curl -H "Content-Type: application/json" -XPUT "http://${tscode}-eose1-0-mgmt:9200/${tscode}-index" -d @${tscode}-es-schema.json
+
+
+#Il faudra refaire la commande sous la forme :
+
+
+curl -H "Content-Type: application/json" -XPUT "http://${tscode}-eose1-0-mgmt:9200/${tscode}-index" -d '[[Contenu.Du.Fichier-Minifié ${tscode}-es-schema.json]]'
+
+
+#Créer l'alias  via l'appel du webservice
+
+curl -H "Content-Type: application/json" -XPOST "http://${tscode}-eose1-0-mgmt:9200/_aliases" -d '{"actions" : [{ "add" : { "index" : "${tscode}-index", "alias" : "${tscode}" } }]}'

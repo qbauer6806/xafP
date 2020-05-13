@@ -166,4 +166,13 @@
         <url-pattern>/erreur</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>PropertiesServlet</servlet-name>
+        <servlet-class>mc.gouv.xaf.servlet.PropertiesServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>PropertiesServlet</servlet-name>
+        <url-pattern>/properties</url-pattern>
+    </servlet-mapping>
+
 </web-app>

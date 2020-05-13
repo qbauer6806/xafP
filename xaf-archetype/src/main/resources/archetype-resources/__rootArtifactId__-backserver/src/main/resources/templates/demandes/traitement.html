@@ -176,10 +176,11 @@
 							</form>
 
 						</div>
+
+						<div th:replace="fragments/panelfichiersjoints :: panelfichiersjoints"></div>
+
 						<div th:replace="fragments/panelinfocompl :: panelinfocompl"></div>
 
-						<div
-								th:replace="fragments/panelfichiersjoints :: panelfichiersjoints"></div>
 					</div>
 				</div>
 
@@ -597,15 +598,6 @@
 			});
 
 		});
-
-		${symbol_dollar}("${symbol_pound}saveCalculeAide").click((e)=>{
-			if( ${symbol_dollar}("${symbol_pound}typeEmission").value == 'EMI4'){
-				${symbol_dollar}("${symbol_pound}montantSimule").value = ${symbol_dollar}("${symbol_pound}montantSimuleMoins20").value;
-			}else {
-				${symbol_dollar}("${symbol_pound}montantSimule").value = ${symbol_dollar}("${symbol_pound}montantSimulePlus20").value;
-			}
-		});
-
 
 		${symbol_dollar}("form[id='form-validation']").submit(function (e) {
 

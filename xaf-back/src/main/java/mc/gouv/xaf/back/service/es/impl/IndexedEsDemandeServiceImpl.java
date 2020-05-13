@@ -637,37 +637,72 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     }
 
     @Override
-    public Long reindex() throws IOException, SAXException, TikaException {
+    public Long reindex() throws IOException {
 
-        LOGGER.info("Début de la réindexation");
+        LOGGER.info("Début de la réindexation GLOBALE");
         if (demandeEsRepository != null) {
             long demCount = demandesRepository.count();
             LOGGER.info("Nombre de demandes à réindexer : {}", demCount);
             demandeEsRepository.deleteAll();
             final int size = gouvPropertiesResolver.getEsReindexBulkSize();
             LOGGER.info("Bulk size : {}", size);
-            int additionalPage = 0;
-            if (demCount % size > 0) {
-                additionalPage = 1;
-            }
-            for (int i = 0; i < demCount / size + additionalPage; i++) {
+            int additionalPage = (demCount % size > 0)? 1 : 0;
 
-                Page<DemandeBO> demandes = demandesRepository.findAll(PageRequest.of(i, size));
-                Page<DemandeEsDTO> demandesEs = demandeEsTransformer.toEs(demandes);
-
-                if (!demandesEs.getContent().isEmpty()) {
-
-                    indexDemandes(demandesEs);
-                    indexFiles(demandes);
-
-                }
-            }
+            indexBulkDeDemandes(demCount, size, additionalPage);
+            indexBulkDeFichiers(demCount, size, additionalPage);
 
             LOGGER.info("Fin de la réindexation");
             return demCount;
         }
         LOGGER.info("Fin de la réindexation");
         return 0l;
+    }
+
+    @Override
+    public Long reindexDemandes() throws IOException {
+
+        LOGGER.info("Début de la réindexation des DEMANDES");
+        if (demandeEsRepository != null) {
+            long demCount = demandesRepository.count();
+            LOGGER.info("Nombre de demandes à réindexer : {}", demCount);
+            Page<DemandeBO> demandes = demandesRepository.findAll(PageRequest.of(0, (int) demCount));
+            List<DemandeEsDTO> demandesEs = demandeEsTransformer.toEs(demandes).toList();
+            demandeEsRepository.deleteAll(demandesEs);
+            final int size = gouvPropertiesResolver.getEsReindexBulkSize();
+            LOGGER.info("Bulk size : {}", size);
+            int additionalPage = (demCount % size > 0)? 1 : 0;
+            indexBulkDeDemandes(demCount, size, additionalPage);
+            elasticsearchTemplate.refresh(DemandeEsDTO.class);
+
+            LOGGER.info("Fin de la réindexation des demandes");
+            return demCount;
+        }
+        LOGGER.info("Fin de la réindexation des demandes");
+        return 0l;
+    }
+
+    private void indexBulkDeDemandes(long demCount, int size, int additionalPage) throws IOException {
+        for (int i = 0; i < demCount / size + additionalPage; i++) {
+
+            Page<DemandeBO> demandes = demandesRepository.findAll(PageRequest.of(i, size));
+            Page<DemandeEsDTO> demandesEs = demandeEsTransformer.toEs(demandes);
+
+            if (!demandesEs.getContent().isEmpty()) {
+                indexDemandes(demandesEs);
+            }
+        }
+    }
+
+    private void indexBulkDeFichiers(long demCount, int size, int additionalPage) throws IOException {
+        for (int i = 0; i < demCount / size + additionalPage; i++) {
+
+            Page<DemandeBO> demandes = demandesRepository.findAll(PageRequest.of(i, size));
+
+            if (!demandes.getContent().isEmpty()) {
+                indexFiles(demandes);
+            }
+            elasticsearchTemplate.refresh(DemandeEsDTO.class);
+        }
     }
 
     @Override
@@ -918,7 +953,6 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             }
 
             elasticsearchTemplate.bulkIndex(indexList);
-            elasticsearchTemplate.refresh(DemandeEsDTO.class);
         }
         return demandeEsDTOs;
     }

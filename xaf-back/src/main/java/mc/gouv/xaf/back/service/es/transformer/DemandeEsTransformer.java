@@ -373,7 +373,7 @@ public class DemandeEsTransformer {
         dto.setStatutPublicOuInterne(demarchesDataProvider.getStatutPublicOuInterne(bo.getPkDemandes(), bo.getDernierStatut().getLibelle()).getName());
 
         // Mapper les données de demande
-        if (addDataField && bo.getData() != null && !bo.getData().isEmpty()) {
+        if (addDataField) {
 
             ObjectMapper mapper = new ObjectMapper();
             JsonNode data = mapper.createObjectNode();

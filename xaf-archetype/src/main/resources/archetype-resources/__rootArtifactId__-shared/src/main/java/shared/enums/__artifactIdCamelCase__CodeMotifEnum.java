@@ -26,7 +26,7 @@ public enum ${artifactIdCamelCase}CodeMotifEnum {
     DEMANDE_SUP_3_MOIS_IT_HC("DEMANDE_SUP_3_MOIS_IT_HC"),
     NATIONALITE_IT_REQUISE("NATIONALITE_IT_REQUISE"),
     DEMANDE_DOUBLE("DEMANDE_DOUBLE"),
-    ${tsIdentifiantDemande}_NON_AUTORISE("${tsIdentifiantDemande}_NON_AUTORISE"),
+    DET_NON_AUTORISE("DET_NON_AUTORISE"),
     REFUSEE_AUTRE("REFUSEE_AUTRE");
 
     public String value;

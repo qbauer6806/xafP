@@ -1,21 +1,17 @@
 package mc.gouv.xaf.back.bpm.activiti;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
-import org.activiti.engine.ActivitiObjectNotFoundException;
-import org.activiti.engine.ActivitiTaskAlreadyClaimedException;
-import org.activiti.engine.FormService;
-import org.activiti.engine.ProcessEngine;
-import org.activiti.engine.ProcessEngineConfiguration;
-import org.activiti.engine.RuntimeService;
-import org.activiti.engine.TaskService;
+import mc.gouv.xaf.back.bpm.GouvBPM;
+import mc.gouv.xaf.back.bpm.GouvBPMException;
+import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
+import mc.gouv.xaf.back.bpm.activiti.exception.TaskAlreadyClaimedException;
+import mc.gouv.xaf.back.bpm.model.*;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.es.IndexedDemandeService;
+import org.activiti.engine.*;
 import org.activiti.engine.form.FormProperty;
 import org.activiti.engine.impl.ProcessEngineImpl;
 import org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl;
 import org.activiti.engine.impl.context.Context;
-import org.activiti.engine.impl.interceptor.Command;
-import org.activiti.engine.impl.interceptor.CommandContext;
 import org.activiti.engine.impl.interceptor.CommandExecutor;
 import org.activiti.engine.impl.persistence.entity.ExecutionEntity;
 import org.activiti.engine.impl.persistence.entity.TaskEntity;
@@ -25,36 +21,30 @@ import org.activiti.engine.runtime.Execution;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.tika.exception.TikaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.xml.sax.SAXException;
 
-import mc.gouv.xaf.back.bpm.GouvBPM;
-import mc.gouv.xaf.back.bpm.GouvBPMException;
-import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
-import mc.gouv.xaf.back.bpm.activiti.exception.TaskAlreadyClaimedException;
-import mc.gouv.xaf.back.bpm.model.CommentaireInterneDTO;
-import mc.gouv.xaf.back.bpm.model.GouvBPMGroup;
-import mc.gouv.xaf.back.bpm.model.GouvBPMStatutAction;
-import mc.gouv.xaf.back.bpm.model.GouvBPMTask;
-import mc.gouv.xaf.back.bpm.model.GouvBPMUser;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.es.IndexedDemandeService;
+import java.io.IOException;
+import java.security.InvalidParameterException;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
- * 
  * Composant exposant le BPM interne d'AppFactory
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Component
 @Transactional(rollbackFor = Exception.class)
 public class GouvBPMImpl implements GouvBPM {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMImpl.class);
+    private static final String NULL_PI = "ProcessInstance null !";
 
     @Autowired
     private RuntimeService runtimeService;
@@ -70,20 +60,20 @@ public class GouvBPMImpl implements GouvBPM {
 
     @Autowired
     private FormService formService;
-    
+
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
-    
+
     @Autowired(required = false)
     private IndexedDemandeService indexedDemandeService;
 
     public void startProcessInstanceByKeyOrMessage(String processDefinitionKey, String messageName, GouvBPMUser user,
-            Integer demandeId, String codeAppli, Map<String, Object> businessVariables) {
-        LOGGER.info("startProcessInstance() Démarrage d'une instance du process \"" + processDefinitionKey
-                + "\" assignée à l'utilisateur \"" + user + "\" et concernant la demande \"" + demandeId + "\"");
+                                                   Integer demandeId, String codeAppli, Map<String, Object> businessVariables) {
+        LOGGER.info("startProcessInstance() Démarrage d'une instance du process \"{}\" assignée à l'utilisateur \"{}\" et concernant la demande \"{}\"",
+                processDefinitionKey, user, demandeId);
 
         // Création des variables du process
-        Map<String, Object> variables = new HashMap<String, Object>();
+        Map<String, Object> variables = new HashMap<>();
         // Variables techniques
         variables.put(GouvBPMProcessVariableTypeEnum.MC_USERID.name(), user.getId());
         variables.put(GouvBPMProcessVariableTypeEnum.MC_CODEAPPLI.name(), codeAppli);
@@ -93,7 +83,7 @@ public class GouvBPMImpl implements GouvBPM {
             variables.putAll(businessVariables);
         }
 
-        ProcessInstance process = null;
+        ProcessInstance process;
         try {
             // On utilise le demandeId pour la "businessKey"
             if (!StringUtils.isBlank(processDefinitionKey)) {
@@ -102,25 +92,17 @@ public class GouvBPMImpl implements GouvBPM {
             } else {
                 process = runtimeService.startProcessInstanceByMessage(messageName, demandeId.toString(), variables);
             }
-            LOGGER.info("Instance démarrée : " + process.getDeploymentId() + " , " + process.getActivityId() + " , "
-                    + process.getId() + " , " + process.getDescription() + " , " + process.getProcessInstanceId());
+            LOGGER.info("Instance démarrée : {}, {}, {}, {}, {}", process.getDeploymentId(), process.getActivityId(),
+                    process.getId(), process.getDescription(), process.getProcessInstanceId());
         } catch (ActivitiObjectNotFoundException e) {
             throw new GouvBPMException("Erreur lors du démarrage de l'instance de process", e);
         }
 
     }
 
-    public void deleteProcessInstance(String processDefinitionKey, Integer demandeId) {
-        //runtimeService.createExecutionQuery().
-        ProcessInstance processInstance = getActiveProcessInstanceForDemandeId(demandeId);
-
-        runtimeService.deleteProcessInstance(processInstance.getId(),
-                "Suppression système pour cause d'erreur lors de la création");
-    }
-
     @Override
     public void startProcessInstance(String processDefinitionKey, GouvBPMUser user, Integer demandeId, String codeAppli,
-            Map<String, Object> businessVariables) {
+                                     Map<String, Object> businessVariables) {
 
         startProcessInstanceByKeyOrMessage(processDefinitionKey, null, user, demandeId, codeAppli, businessVariables);
 
@@ -128,7 +110,7 @@ public class GouvBPMImpl implements GouvBPM {
 
     @Override
     public void startProcessInstanceByMessage(String messageName, GouvBPMUser user, Integer demandeId, String codeAppli,
-            Map<String, Object> businessVariables) {
+                                              Map<String, Object> businessVariables) {
 
         startProcessInstanceByKeyOrMessage(null, messageName, user, demandeId, codeAppli, businessVariables);
 
@@ -136,10 +118,10 @@ public class GouvBPMImpl implements GouvBPM {
 
     @Override
     public Map<String, Object> getProcessBusinessVariables(Integer demandeId) {
-        LOGGER.debug("getProcessBusinessVariables(" + demandeId + ")");
+        LOGGER.debug("getProcessBusinessVariables({})", demandeId);
         ProcessInstance processInstance = getActiveProcessInstanceForDemandeId(demandeId);
         if (processInstance == null) {
-            LOGGER.error("ProcessInstance null !");
+            LOGGER.error(NULL_PI);
             return null;
         }
         return runtimeService.getVariables(processInstance.getId());
@@ -147,47 +129,47 @@ public class GouvBPMImpl implements GouvBPM {
 
     @Override
     public void setProcessBusinessVariables(Integer demandeId, Map<String, Object> businessVariables) {
-        LOGGER.debug("setProcessBusinessVariables(" + demandeId + ")");
+        LOGGER.debug("setProcessBusinessVariables({})", demandeId);
         ProcessInstance processInstance = getActiveProcessInstanceForDemandeId(demandeId);
         if (processInstance != null) {
             runtimeService.setVariables(processInstance.getId(), businessVariables);
         } else {
-            LOGGER.error("ProcessInstance null !");
+            LOGGER.error(NULL_PI);
         }
     }
-    
+
     @Override
     public void setProcessBusinessVariable(Integer demandeId, String key, Object value) {
-        LOGGER.debug("setProcessBusinessVariable(" + demandeId + "," + key + "," + value + ")");
+        LOGGER.debug("setProcessBusinessVariable({}, {}, {})", demandeId, key, value);
         ProcessInstance processInstance = getActiveProcessInstanceForDemandeId(demandeId);
         if (processInstance != null) {
             runtimeService.setVariable(processInstance.getId(), key, value);
         } else {
-            LOGGER.error("ProcessInstance null !");
+            LOGGER.error(NULL_PI);
         }
     }
 
     @Override
     public void removeProcessBusinessVariables(Integer demandeId, String businessVariable) {
-        LOGGER.debug("removeProcessBusinessVariables(" + demandeId + ")");
+        LOGGER.debug("removeProcessBusinessVariables({})", demandeId);
         ProcessInstance processInstance = getActiveProcessInstanceForDemandeId(demandeId);
         if (processInstance != null) {
             runtimeService.removeVariable(processInstance.getId(), businessVariable);
         } else {
-            LOGGER.error("ProcessInstance null !");
+            LOGGER.error(NULL_PI);
         }
     }
 
     @Override
     public List<GouvBPMTask> getTasksAssignedToUser(GouvBPMUser user) {
-        LOGGER.debug("getTasksAssignedToUser(" + user + ")");
+        LOGGER.debug("getTasksAssignedToUser({})", user);
         List<Task> tasks = taskService.createTaskQuery().taskAssignee(user.getId()).active().list();
         return GouvBPMTransformer.toGouvModelTasks(tasks);
     }
 
     @Override
     public List<GouvBPMTask> getActiveTasksForDemande(Integer demandeId) {
-        LOGGER.debug("getActiveTasksForDemande(" + demandeId + ")");
+        LOGGER.debug("getActiveTasksForDemande({})", demandeId);
 
         List<Task> tasks = taskService.createTaskQuery().processInstanceBusinessKey(demandeId.toString()).active()
                 .list();
@@ -196,7 +178,7 @@ public class GouvBPMImpl implements GouvBPM {
 
     @Override
     public List<String> getNumberActiveDemandesInState(String state) {
-        LOGGER.debug("getNumberActiveDemandesInState(" + state + ")");
+        LOGGER.debug("getNumberActiveDemandesInState({})", state);
         List<Task> tasks = taskService.createTaskQuery().taskDefinitionKey(state).active().list();
         Set<String> tasksProcessIds = tasks.stream().map(Task::getProcessInstanceId).collect(Collectors.toSet());
         List<String> instancesIds = new ArrayList<>();
@@ -208,12 +190,17 @@ public class GouvBPMImpl implements GouvBPM {
     }
 
     @Override
-    @Transactional(noRollbackFor = { ActivitiTaskAlreadyClaimedException.class, TaskAlreadyClaimedException.class })
+    @Transactional(noRollbackFor = {ActivitiTaskAlreadyClaimedException.class, TaskAlreadyClaimedException.class})
     public void claimTask(GouvBPMTask task, GouvBPMUser user) throws TaskAlreadyClaimedException {
-        LOGGER.info("claimTask(" + task + "," + user + ")");
+        LOGGER.info("claimTask({}, {})", task, user);
 
-        if (task != null && task.getAssignee() != null && user != null && !task.getAssignee().equals(user.getId())) {
-        	throw new TaskAlreadyClaimedException("Tâche déjà claimed par un autre user");
+        if (null == task || null == user) {
+            LOGGER.error("La tâche ou le user est null.");
+            throw new InvalidParameterException();
+        }
+
+        if (task.getAssignee() != null && !task.getAssignee().equals(user.getId())) {
+            throw new TaskAlreadyClaimedException("Tâche déjà claimed par un autre user");
         }
 
         try {
@@ -225,18 +212,18 @@ public class GouvBPMImpl implements GouvBPM {
     }
 
     @Override
-    public void completeTask(GouvBPMTask task, Integer demandeId) throws Exception {
-        LOGGER.info("completeTask(" + task + ")");
+    public void completeTask(GouvBPMTask task, Integer demandeId) throws IOException, TikaException, SAXException {
+        LOGGER.info("completeTask({})", task);
 
         taskService.complete(task.getId());
-        
+
         // Réindexation pour prendre en compte le nouveau statutPublicOuInterne
         reindex(demandeId);
     }
 
     @Override
     public List<GouvBPMTask> getTasksWhereUserIsCandidate(GouvBPMUser user, String codeAppli) {
-        LOGGER.info("getTasksWhereUserIsCandidate(" + user + "," + codeAppli + ")");
+        LOGGER.info("getTasksWhereUserIsCandidate({}, {})", user, codeAppli);
 
         // On transfère le code appli au GouvBPMGroupManager par le biais d'un critère de recherche sur les processVariables
         // Seul moyen de transférer cela au GouvBPMGroupManager, qui a besoin du code appli
@@ -249,12 +236,8 @@ public class GouvBPMImpl implements GouvBPM {
 
     @Override
     public List<GouvBPMTask> getTasksForDemandeWhereUserIsCandidate(GouvBPMUser user, String codeAppli,
-            Integer demandeId) {
-        LOGGER.info("getTasksWhereUserIsCandidate(" + user + "," + codeAppli + ")");
-
-        // À la fin c'est logonProxy.getUserByMatricule() du GouvBPMGroupManager qui est utilisé, donc inutile
-        // de vérifier l'utilisateur avant puisque c'est fait après pour trouver ses groupes
-        // checkUser(user);
+                                                                    Integer demandeId) {
+        LOGGER.info("getTasksWhereUserIsCandidate({}, {})", user, codeAppli);
 
         // On transfère le code appli au GouvBPMGroupManager par le biais d'un critère de recherche sur les processVariables
         // Seul moyen de transférer cela au GouvBPMGroupManager, qui a besoin du code appli
@@ -267,7 +250,7 @@ public class GouvBPMImpl implements GouvBPM {
 
     @Override
     public List<GouvBPMTask> getTasksWhereGroupIsCandidate(GouvBPMGroup group, String codeAppli) {
-        LOGGER.info("getTasksWhereGroupIsCandidate(" + group + "," + codeAppli + ")");
+        LOGGER.info("getTasksWhereGroupIsCandidate({}, {})", group, codeAppli);
         List<Task> tasks = taskService.createTaskQuery()
                 .processVariableValueEquals(GouvBPMProcessVariableTypeEnum.MC_CODEAPPLI.name(), codeAppli)
                 .taskCandidateGroup(group.getId()).list();
@@ -275,15 +258,15 @@ public class GouvBPMImpl implements GouvBPM {
     }
 
     private ProcessInstance getActiveProcessInstanceForDemandeId(Integer demandeId) {
-        LOGGER.info("getActiveProcessInstanceForDemandeId(" + demandeId + ")");
+        LOGGER.info("getActiveProcessInstanceForDemandeId({})", demandeId);
         return runtimeService.createProcessInstanceQuery().processInstanceBusinessKey(demandeId.toString()).active()
                 .singleResult();
     }
 
     @Override
     public List<Integer> getDemandesIdsByCodeAppliAndTacheCourante(String codeAppli, GouvBPMTask task) {
-        LOGGER.info("getDemandesIdsByCodeAppliAndTacheCourante(" + codeAppli + "," + task.getTaskDefinitionKey() + ")");
-        List<Integer> demandeIds = new ArrayList<Integer>();
+        LOGGER.info("getDemandesIdsByCodeAppliAndTacheCourante({}, {})", codeAppli, task.getTaskDefinitionKey());
+        List<Integer> demandeIds = new ArrayList<>();
         List<Task> tasks = taskService.createTaskQuery()
                 .processVariableValueEquals(GouvBPMProcessVariableTypeEnum.MC_CODEAPPLI.name(), codeAppli)
                 .taskDefinitionKeyLike(task.getTaskDefinitionKey()).active().list();
@@ -297,9 +280,9 @@ public class GouvBPMImpl implements GouvBPM {
 
     @Override
     public List<Integer> getDemandesIdsByCodeAppliAndTacheCouranteAndCandidateUser(String codeAppli, GouvBPMTask task,
-            GouvBPMUser user) {
-        LOGGER.info("getDemandesIdsByCodeAppliAndTacheCourante(" + codeAppli + "," + task.getTaskDefinitionKey() + ")");
-        List<Integer> demandeIds = new ArrayList<Integer>();
+                                                                                   GouvBPMUser user) {
+        LOGGER.info("getDemandesIdsByCodeAppliAndTacheCourante({}, {})", codeAppli, task.getTaskDefinitionKey());
+        List<Integer> demandeIds = new ArrayList<>();
         List<Task> tasks = taskService.createTaskQuery()
                 .processVariableValueEquals(GouvBPMProcessVariableTypeEnum.MC_CODEAPPLI.name(), codeAppli)
                 .taskDefinitionKey(task.getTaskDefinitionKey()).taskCandidateUser(user.getId()).active().list();
@@ -320,89 +303,81 @@ public class GouvBPMImpl implements GouvBPM {
     @Override
     public void jump(Integer demandeId, final GouvBPMTask taskFrom, final GouvBPMTask taskTo) {
 
-        LOGGER.info("jump(" + taskFrom.getTaskDefinitionKey() + "," + taskTo.getTaskDefinitionKey() + ")");
+        LOGGER.info("jump({}, {})", taskFrom.getTaskDefinitionKey(), taskTo.getTaskDefinitionKey());
 
         final ProcessInstance process = getActiveProcessInstanceForDemandeId(demandeId);
 
-        LOGGER.info("Création de la nouvelle tâche (" + taskTo + ")...");
+        LOGGER.info("Création de la nouvelle tâche ({})...", taskTo);
 
         ProcessInstance pi = runtimeService.createProcessInstanceQuery()
                 .processInstanceBusinessKey(demandeId.toString()).singleResult();
         Context.setProcessEngineConfiguration((ProcessEngineConfigurationImpl) processEngineConfiguration);
         ProcessDefinitionImpl pdd = ((ExecutionEntity) pi).getProcessDefinition();
-        ActivityImpl activity = pdd.findActivity(taskTo.getTaskDefinitionKey());
 
-        final ProcessInstance processInstanceFinal = process;
-        final ActivityImpl activityFinal = activity;
+        final ActivityImpl activityFinal = pdd.findActivity(taskTo.getTaskDefinitionKey());
 
         CommandExecutor commandExecutor = ((ProcessEngineImpl) processEngine).getProcessEngineConfiguration()
                 .getCommandExecutor();
-        commandExecutor.execute(new Command<Void>() {
-
-            public Void execute(CommandContext commandContext) {
-                ExecutionEntity ee = commandContext.getExecutionEntityManager()
-                        .findExecutionById(processInstanceFinal.getId());
-                ee.executeActivity(activityFinal);
-                return null;
-            }
+        commandExecutor.execute(commandContext -> {
+            ExecutionEntity ee = commandContext.getExecutionEntityManager()
+                    .findExecutionById(process.getId());
+            ee.executeActivity(activityFinal);
+            return null;
         });
 
-        LOGGER.info("Suppression de l'ancienne tâche (" + taskFrom + ")...");
+        LOGGER.info("Suppression de l'ancienne tâche ({})...", taskFrom);
 
         Task previousTask = processEngineConfiguration.getTaskService().createTaskQuery()
                 .taskDefinitionKey(taskFrom.getTaskDefinitionKey()).singleResult();
         final TaskEntity te = (TaskEntity) previousTask;
 
         commandExecutor = ((ProcessEngineImpl) processEngine).getProcessEngineConfiguration().getCommandExecutor();
-        commandExecutor.execute(new Command<Void>() {
-
-            public Void execute(CommandContext commandContext) {
-                commandContext.getTaskEntityManager().deleteTask(te, "jump requested", true);
-                return null;
-            }
+        commandExecutor.execute(commandContext -> {
+            commandContext.getTaskEntityManager().deleteTask(te, "jump requested", true);
+            return null;
         });
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public List<CommentaireInterneDTO> getCommentairesInternes(Integer demandeId) {
-        LOGGER.debug("getCommentairesInternes(" + demandeId + ")");
+        LOGGER.debug("getCommentairesInternes({})", demandeId);
+        List<CommentaireInterneDTO> commInternes = new ArrayList<>();
         ProcessInstance processInstance = getActiveProcessInstanceForDemandeId(demandeId);
         if (processInstance != null) {
-            List<CommentaireInterneDTO> commInternes = (List<CommentaireInterneDTO>) runtimeService
+            commInternes = (List<CommentaireInterneDTO>) runtimeService
                     .getVariable(processInstance.getId(), GouvBPMProcessVariableTypeEnum.MC_COMMINTERNES.name());
             if (commInternes == null) {
-                commInternes = new ArrayList<CommentaireInterneDTO>();
+                commInternes = new ArrayList<>();
             }
-            return commInternes;
         } else {
-            LOGGER.error("ProcessInstance null !");
+            LOGGER.error(NULL_PI);
         }
-        return null;
+        return commInternes;
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public void putCommentaireInterne(Integer demandeId, CommentaireInterneDTO commentaire) {
-        LOGGER.debug("putCommentaireInterne(" + demandeId + "," + commentaire + ")");
+        LOGGER.debug("putCommentaireInterne({}, {})", demandeId, commentaire);
         ProcessInstance processInstance = getActiveProcessInstanceForDemandeId(demandeId);
         if (processInstance != null) {
             List<CommentaireInterneDTO> commInternes = (List<CommentaireInterneDTO>) runtimeService
                     .getVariable(processInstance.getId(), GouvBPMProcessVariableTypeEnum.MC_COMMINTERNES.name());
             if (commInternes == null) {
-                commInternes = new ArrayList<CommentaireInterneDTO>();
+                commInternes = new ArrayList<>();
             }
             commInternes.add(commentaire);
             runtimeService.setVariable(processInstance.getId(), GouvBPMProcessVariableTypeEnum.MC_COMMINTERNES.name(),
                     commInternes);
         } else {
-            LOGGER.error("ProcessInstance null !");
+            LOGGER.error(NULL_PI);
         }
     }
 
     @Override
     public void setAssignee(Integer demandeId, String assignee) {
-        LOGGER.debug("setAssignee(" + demandeId + "," + assignee + ")");
+        LOGGER.debug("setAssignee({}, {})", demandeId, assignee);
         ProcessInstance processInstance = getActiveProcessInstanceForDemandeId(demandeId);
         if (processInstance != null) {
             runtimeService.setVariable(processInstance.getId(), GouvBPMProcessVariableTypeEnum.MC_ASSIGNEE.name(),
@@ -423,34 +398,32 @@ public class GouvBPMImpl implements GouvBPM {
             }
 
         } else {
-            LOGGER.error("ProcessInstance null !");
+            LOGGER.error(NULL_PI);
         }
     }
 
     @Override
-    public void submitTaskFormData(GouvBPMTask task, Map<String, String> properties, Integer demandeId) throws Exception {
+    public void submitTaskFormData(GouvBPMTask task, Map<String, String> properties, Integer demandeId) throws IOException, TikaException, SAXException {
         // Pour éviter les NPE dans Activiti et éviter d'avoir à déclarer de nouveaux HashMaps
         // si on ne veut rien transmettre dans le formulaire
-        if (properties == null) {
-            properties = new HashMap<String, String>();
-        }
-        formService.submitTaskFormData(task.getId(), properties);
+        Map<String, String> propertiesSafe = (properties == null) ? new HashMap<>() : properties;
+        formService.submitTaskFormData(task.getId(), propertiesSafe);
         // Réindexation pour prendre en compte le nouveau statutPublicOuInterne
         reindex(demandeId);
     }
-    
-    private void reindex(Integer demandeId) throws Exception {
+
+    private void reindex(Integer demandeId) throws IOException, TikaException, SAXException {
         // Réindexation pour prendre en compte le nouveau statutPublicOuInterne
         if (indexedDemandeService != null) {
             indexedDemandeService.indexDemande(gouvPropertiesResolver.getDemarcheId(), demandeId);
         }
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "java:S2864"})
     @Override
     public List<GouvBPMStatutAction> getTaskStatutActions(GouvBPMTask task) {
 
-        List<GouvBPMStatutAction> statutActions = new ArrayList<GouvBPMStatutAction>();
+        List<GouvBPMStatutAction> statutActions = new ArrayList<>();
         List<FormProperty> formProps = formService.getTaskFormData(task.getId()).getFormProperties();
 
         // Isoler le FormProperty correspondant à MC_TARGETSTATE
@@ -474,14 +447,13 @@ public class GouvBPMImpl implements GouvBPM {
                 .processInstanceBusinessKey(demandeId.toString(), true)
                 .messageEventSubscriptionName("annulationMessage").list();
 
-        Map<String, Object> variables = new HashMap<String, Object>();
+        Map<String, Object> variables = new HashMap<>();
         variables.put(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name(), codeMotif);
         variables.put(GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name(), commentaire);
         variables.put(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE.name(), statutAnnulation);
         if (usager != null) {
             variables.put(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_USAGER.name(), usager.getId());
-        }
-        else if (agent != null) {
+        } else if (agent != null) {
             variables.put(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_AGENT.name(), agent.getId());
         }
 
@@ -494,10 +466,8 @@ public class GouvBPMImpl implements GouvBPM {
             throw new GouvBPMException("Aucune execution pour annuler la demande : " + demandeId);
         }
 
-        if (executions != null) {
-            for (Execution ex : executions) {
-                runtimeService.messageEventReceived("annulationMessage", ex.getId(), variables);
-            }
+        for (Execution ex : executions) {
+            runtimeService.messageEventReceived("annulationMessage", ex.getId(), variables);
         }
     }
 

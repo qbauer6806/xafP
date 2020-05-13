@@ -3,20 +3,23 @@
     xmlns="https://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.1.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <requiredProperties>
+    <requiredProperty key="xafVersion">
+      <defaultValue>8.1.0-SNAPSHOT</defaultValue>
+    </requiredProperty>
     <requiredProperty key="artifactIdUpper">
-      <defaultValue>DERRDOM</defaultValue>
+      <defaultValue>CVTCVLC</defaultValue>
     </requiredProperty>
     <requiredProperty key="artifactIdCamelCase">
-      <defaultValue>Derrdom</defaultValue>
+      <defaultValue>Cvtcvlc</defaultValue>
     </requiredProperty>
     <requiredProperty key="artifactIdLower">
-      <defaultValue>derrdom</defaultValue>
+      <defaultValue>cvtcvlc</defaultValue>
     </requiredProperty>
     <requiredProperty key="tsFrontUrl">
-      <defaultValue>derogation-repos-dominical</defaultValue>
+      <defaultValue>declaration-course-vtc-vlc</defaultValue>
     </requiredProperty>
     <requiredProperty key="tsFullName">
-      <defaultValue>Détacher un salarié à Monaco pour une durée inférieure à 3 mois</defaultValue>
+      <defaultValue>Déclaration préalable de course  pour les VTC et VLC étrangers</defaultValue>
     </requiredProperty>
     <requiredProperty key="tsBackPort">
       <defaultValue>10900</defaultValue>
@@ -28,7 +31,7 @@
       <defaultValue>30900</defaultValue>
     </requiredProperty>
     <requiredProperty key="tsIdentifiantDemande">
-      <defaultValue>DRD</defaultValue>
+      <defaultValue>CVTC</defaultValue>
     </requiredProperty>
   </requiredProperties>
   <fileSets>

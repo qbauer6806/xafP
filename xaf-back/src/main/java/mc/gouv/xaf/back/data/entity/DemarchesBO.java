@@ -1,17 +1,10 @@
 package mc.gouv.xaf.back.data.entity;
 
-import java.util.Set;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.validation.constraints.Size;
-
 import org.hibernate.validator.constraints.NotBlank;
+
+import javax.persistence.*;
+import javax.validation.constraints.Size;
+import java.util.Set;
 
 /**
  * 
@@ -72,6 +65,9 @@ public class DemarchesBO {
     
     @OneToMany(mappedBy = "demarche", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<PeriodesOuvertureBO> periodesOuverture;
+
+    @OneToMany(mappedBy = "demarche", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<PropertiesBO> properties;
 
 	public String getPkDemarches() {
         return pkDemarches;
@@ -152,5 +148,13 @@ public class DemarchesBO {
 	public void setPeriodesOuverture(Set<PeriodesOuvertureBO> periodesOuverture) {
 		this.periodesOuverture = periodesOuverture;
 	}
+
+    public Set<PropertiesBO> getProperties() {
+        return properties;
+    }
+
+    public void setProperties(Set<PropertiesBO> properties) {
+        this.properties = properties;
+    }
 
 }

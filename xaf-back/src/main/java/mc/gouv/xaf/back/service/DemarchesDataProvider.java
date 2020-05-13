@@ -1,43 +1,43 @@
 package mc.gouv.xaf.back.service;
 
-import java.util.List;
-import java.util.Map;
-
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.GenericStatusDTO;
 import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
 
+import java.util.List;
+import java.util.Map;
+
 /**
- * 
  * Service implémenté par la démarche permettant de fournir à xaf-back des informations propres à chaque démarche.
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 public interface DemarchesDataProvider {
 
-    public String getStatusLibelle(String status);
+    String getStatusLibelle(String status);
 
-    public String getStatusColorClass(StatutPublicOuInterneDTO statutPublicOuInterne);
+    String getStatusColorClass(StatutPublicOuInterneDTO statutPublicOuInterne);
 
-    public String getDemandeur(Object contenuDemandeDTO);
+    String getDemandeur(Object contenuDemandeDTO);
 
-    public List<GenericStatusDTO> getCandidateStatusesForMotifs();
+    List<GenericStatusDTO> getCandidateStatusesForMotifs();
 
-    public StatutPublicOuInterneDTO getStatutPublicOuInterne(DemandeDTO demandeDto);
+    StatutPublicOuInterneDTO getStatutPublicOuInterne(DemandeDTO demandeDto);
 
-    public Map<String, String> getStatusMap();
+    Map<String, String> getStatusMap();
 
-    public Map<String, String> getPrivateStatusMap();
+    Map<String, String> getPrivateStatusMap();
 
-    public String getVersion();
+    String getVersion();
 
-    public StatutPublicOuInterneDTO getStatutPublicOuInterne(Integer pkDemande, String statutLibelle);
+    StatutPublicOuInterneDTO getStatutPublicOuInterne(Integer pkDemande, String statutLibelle);
 
-	public Map<String, String> getLanguesDisponibles();
-	
-	public boolean getDemarcheCanGenerateCourriers();
-	
-	public boolean getDemarcheCanHandlePeriodesOuverture();
+    Map<String, String> getLanguesDisponibles();
+
+    boolean getDemarcheCanGenerateCourriers();
+
+    boolean getDemarcheCanHandlePeriodesOuverture();
+
+    boolean getDemarcheCanHandleProperties();
 
 }

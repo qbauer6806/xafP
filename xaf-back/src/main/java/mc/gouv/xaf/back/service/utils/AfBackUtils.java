@@ -1,38 +1,8 @@
 package mc.gouv.xaf.back.service.utils;
 
-import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
-import java.util.UUID;
-
-import javax.annotation.PostConstruct;
-
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.http.MediaType;
-import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
-
 import com.fasterxml.uuid.EthernetAddress;
 import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.impl.TimeBasedGenerator;
-
 import mc.gouv.file.apiclient.FileClient;
 import mc.gouv.logon.apiclient.RestException;
 import mc.gouv.logon.shared.Droit;
@@ -46,11 +16,28 @@ import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.motifs.MotifTemplateService;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.xaf.shared.dto.DemandeDataDTO;
-import mc.gouv.xaf.shared.dto.DemandeFlatDTO;
-import mc.gouv.xaf.shared.dto.DemarcheDTO;
-import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
+import mc.gouv.xaf.shared.dto.*;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
+
+import javax.annotation.PostConstruct;
+import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 /**
  * Classe utilitaire pour le projet xaf-back
@@ -75,7 +62,14 @@ public class AfBackUtils {
 
     private static String envColor;
 
-    public static DateFormat sdf_JJ_MM_AAAA = new SimpleDateFormat("dd/MM/yyyy");
+    public static String DEFAULT_FRENCH_DATE_FORMAT = "dd/MM/yyyy";
+
+    // French date format with 24 hours
+    public static String DEFAULT_FRENCH_DATE_HOURS_FORMAT = "dd/MM/yyyy HH:mm";
+
+    public static DateFormat SDF_JJ_MM_AAAA = new SimpleDateFormat(DEFAULT_FRENCH_DATE_FORMAT);
+
+    public static DateFormat SDF_JJ_MM_AAAA_HH_MM = new SimpleDateFormat(DEFAULT_FRENCH_DATE_HOURS_FORMAT);
 
     public static DateFormat FILE_DATE_SUFFIX = new SimpleDateFormat("HHmmssSSS");
 
@@ -400,9 +394,9 @@ public class AfBackUtils {
      * @return
      */
     public Set<User> getAgentsWithRoles(String[] rolesList) {
-        Set<User> destinataires = new HashSet<User>();
+        Set<User> destinataires = new HashSet<>();
         String codeAppli = gouvPropertiesResolver.getDemarcheId();
-        List<User> agents = new ArrayList<User>(utilisateursCache.getAll().values());
+        List<User> agents = new ArrayList<>(utilisateursCache.getAll().values());
         for (User agent : agents) {
             boolean toAdd = false;
             Set<Role> agentRoles = agent.getRoles();
@@ -429,7 +423,7 @@ public class AfBackUtils {
         if (date == null) {
             return "";
         }
-        return new SimpleDateFormat("dd/MM/yyyy").format(date);
+        return SDF_JJ_MM_AAAA.format(date);
     }
 
     public static String changeDateStringFormat(final String dateString) {
@@ -437,7 +431,7 @@ public class AfBackUtils {
             return " ";
         }
         return LocalDateTime.parse(dateString, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-                .format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+                .format(DateTimeFormatter.ofPattern(DEFAULT_FRENCH_DATE_FORMAT));
     }
 
     public static String getSafeString(final String value) {
@@ -490,6 +484,32 @@ public class AfBackUtils {
      */
     public boolean getDemarcheCanHandlePeriodesOuverture() {
         return demarchesDataProvider.getDemarcheCanHandlePeriodesOuverture();
+    }
+
+    /**
+     * Permet de savoir si la démarche prend en charge des propriétés
+     * @return
+     */
+    public boolean getDemarcheCanHandleProperties() {
+        return demarchesDataProvider.getDemarcheCanHandleProperties();
+    }
+
+    public static Date convertStartDate(String startDate) throws ParseException {
+        return SDF_JJ_MM_AAAA.parse(startDate);
+    }
+
+    public static Date convertEndDate(String plainEndDate) throws ParseException {
+        Date endDate = SDF_JJ_MM_AAAA.parse(plainEndDate);
+
+        // Last moment of days
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(endDate);
+        cal.set(Calendar.HOUR_OF_DAY, cal.getMaximum(Calendar.HOUR_OF_DAY));
+        cal.set(Calendar.MINUTE, cal.getMaximum(Calendar.MINUTE));
+        cal.set(Calendar.SECOND, cal.getMaximum(Calendar.SECOND));
+        endDate = cal.getTime();
+
+        return endDate;
     }
 
 }

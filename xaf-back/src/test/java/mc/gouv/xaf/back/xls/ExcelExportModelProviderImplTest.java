@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.ExcelRechercheDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
@@ -21,7 +23,7 @@ public class ExcelExportModelProviderImplTest implements ExcelExportModelProvide
 	    private AfBackUtils afBackUtils;
 	 
 	@Override
-	public Map<String, Object> getModel(String plainStartDate, String plainEndDate) {
+	public Map<String, Object> getModel(ExcelRechercheDTO excelRechercheDTO) {
 		
         Map<String, Object> model = new HashMap<String, Object>();
         List<Object> demandesFlat = new ArrayList<Object>();

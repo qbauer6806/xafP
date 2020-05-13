@@ -59,4 +59,14 @@ public class EsCategory implements Comparable<EsCategory> {
         return this.label.compareTo(o.getLabel());
     }
 
+    @Override
+    public boolean equals(Object o) {
+        return this == o;
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
 }

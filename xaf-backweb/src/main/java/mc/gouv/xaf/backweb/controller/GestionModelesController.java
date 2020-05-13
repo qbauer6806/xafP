@@ -64,6 +64,7 @@ public class GestionModelesController {
         List<FileDTO> courriers = new ArrayList<FileDTO>();
         List<FileDTO> justificatifs = new ArrayList<FileDTO>();
         FileDTO exportExcel = null;
+        List<FileDTO> autres = new ArrayList<FileDTO>();
         for (FileDTO file : files) {
         	if (metaContainsTypeModele(file.getMeta(), TypeModeleEnum.COURRIER.name())) {
         		courriers.add(file);
@@ -73,15 +74,19 @@ public class GestionModelesController {
         	}
         	else if (metaContainsTypeModele(file.getMeta(), TypeModeleEnum.EXPORT_EXCEL.name())) {
         		exportExcel = file;
-        	}
+        	} else if (metaContainsTypeModele(file.getMeta(), TypeModeleEnum.AUTRES.name())) {
+                autres.add(file);
+            }
         }
         
-        Collections.sort(courriers, new FileComparator());
-        Collections.sort(justificatifs, new FileComparator());
-        
+        courriers.sort(new FileComparator());
+        justificatifs.sort(new FileComparator());
+        autres.sort(new FileComparator());
+
         mav.addObject("courriers", courriers);
         mav.addObject("justificatifs", justificatifs);
         mav.addObject("exportExcel", exportExcel);
+        mav.addObject("autres", autres);
         // #17024 : Pour recharger la page sur le même onglet
         mav.addObject("typeModele", typeModele);
 

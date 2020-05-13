@@ -4,18 +4,17 @@ import java.util.Date;
 
 /**
  * Représente une période d'ouverture d'une démarche
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 public class PeriodeOuvertureDTO {
 
     private Integer pkPeriodesOuverture;
 
     private String demarcheId;
-    
+
     private Date dateDebut;
-    
+
     private Date dateFin;
 
     public Integer getPkPeriodesOuverture() {
@@ -49,5 +48,5 @@ public class PeriodeOuvertureDTO {
     public void setDateFin(Date dateFin) {
         this.dateFin = dateFin;
     }
-    
+
 }

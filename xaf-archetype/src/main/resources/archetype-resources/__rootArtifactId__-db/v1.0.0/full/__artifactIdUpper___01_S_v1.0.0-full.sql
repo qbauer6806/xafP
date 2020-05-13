@@ -738,7 +738,7 @@ CREATE SEQUENCE dem_periodes_ouverture_pk_periodesouverture_seq START 1;
 CREATE TABLE ${artifactIdUpper}.dem_periodes_ouverture (
     pk_periodesouverture integer DEFAULT nextval('dem_periodes_ouverture_pk_periodesouverture_seq'),
     date_debut timestamp without time zone NOT NULL,
-    date_fin timestamp without time zone,
+    date_fin timestamp without time zone NOT NULL,
     fk_demarcheid character varying(128) NOT NULL
 );
 
@@ -952,6 +952,21 @@ ALTER TABLE ${artifactIdUpper}.DEM_DEMANDES_FILES ADD COLUMN DATE timestamp with
 
 -- #16457 - Supprimer la limite de caractère en base de données du champs texte du justificatif et/ou du courrier envoyé à l'usager.
 ALTER TABLE ${artifactIdLower}.act_hi_detail ALTER COLUMN text_ TYPE text;
+
+-- #18993 - Ajouter une table de configuration de propriétés spécifiques à la démarche.
+CREATE SEQUENCE ${artifactIdLower}.dem_properties_seq START 1;
+
+CREATE TABLE ${artifactIdLower}.dem_properties (
+    pk_properties INTEGER DEFAULT nextval('detsala.dem_properties_seq'),
+    fk_demarcheid CHARACTER VARYING(128) NOT NULL,
+    type CHARACTER VARYING(256) NOT NULL,
+    key CHARACTER VARYING(256) NOT NULL,
+    value CHARACTER VARYING(10000),
+    UNIQUE(key)
+);
+
+ALTER TABLE ONLY ${artifactIdLower}.dem_properties
+    ADD CONSTRAINT dem_properties_pkey PRIMARY KEY (pk_properties);
 
 -- Fin scripts de "Structure"
 

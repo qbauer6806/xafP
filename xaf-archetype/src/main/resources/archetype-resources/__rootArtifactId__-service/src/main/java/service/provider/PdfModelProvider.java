@@ -7,5 +7,5 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
 
 public interface PdfModelProvider {
 
-    public String xmlModelGenerator(DemandeDTO demandeDTO) throws Exception;
+    String xmlModelGenerator(DemandeDTO demandeDTO) throws Exception;
 }

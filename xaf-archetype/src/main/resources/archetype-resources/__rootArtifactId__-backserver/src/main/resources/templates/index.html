@@ -81,15 +81,15 @@
 							<div class="panel-heading" role="tab" id="headingOne">
 								<h4 class="panel-title">
 									<a role="button" data-toggle="collapse"
-									   href="${symbol_pound}collapseOne"
-									   aria-expanded="true" aria-controls="collapseOne"> <span
+									   href="${symbol_pound}grilleNouvellesDemandes"
+									   aria-expanded="true" aria-controls="grilleNouvellesDemandes"> <span
 											class="pannelState icon-action_accordeon-ouvert"></span>
 										Nouvelles demandes à prendre en charge <span
 												class="badge badgeState info" id="nouvellesDemandesCounter">0</span>
 									</a>
 								</h4>
 							</div>
-							<div id="collapseOne" class="panel-collapse collapse in"
+							<div id="grilleNouvellesDemandes" class="panel-collapse collapse in"
 								 role="tabpanel" aria-labelledby="headingOne">
 								<div class="panel-body">
 									<table id="nouvellesDemandes" class="table table-striped"
@@ -122,15 +122,15 @@
 						<div class="panel panel-default">
 							<div class="panel-heading" role="tab" id="headingTwo">
 								<h4 class="panel-title">
-									<a role="button" data-toggle="collapse" href="${symbol_pound}collapseTwo" aria-expanded="true"
-									   aria-controls="collapseTwo"> <span
+									<a role="button" data-toggle="collapse" href="${symbol_pound}grilleATraiter" aria-expanded="true"
+									   aria-controls="grilleATraiter"> <span
 											class="pannelState icon-action_accordeon-ouvert"></span> À
 										traiter <span class="badge badgeState info"
 													  id="demandesATraiterCounter">0</span>
 									</a>
 								</h4>
 							</div>
-							<div id="collapseTwo" class="panel-collapse collapse in"
+							<div id="grilleATraiter" class="panel-collapse collapse in"
 								 role="tabpanel" aria-labelledby="headingTwo">
 								<div class="panel-body">
 									<table id="demandesATraiter" class="table table-striped"
@@ -169,15 +169,15 @@
 						<div class="panel panel-default">
 							<div class="panel-heading" role="tab" id="headingFour">
 								<h4 class="panel-title">
-									<a role="button" data-toggle="collapse" href="${symbol_pound}collapseFour"
-									   aria-expanded="true" aria-controls="collapseFour"> <span
+									<a role="button" data-toggle="collapse" href="${symbol_pound}grilleEnAttenteInfoComp"
+									   aria-expanded="true" aria-controls="grilleEnAttenteInfoComp"> <span
 											class="pannelState icon-action_accordeon-ouvert"></span>
 										Demandes en attente d'informations complémentaires <span
 												class="badge badgeState info" id="demandesAttenteICCounter">0</span>
 									</a>
 								</h4>
 							</div>
-							<div id="collapseFour" class="panel-collapse collapse in"
+							<div id="grilleEnAttenteInfoComp" class="panel-collapse collapse in"
 								 role="tabpanel" aria-labelledby="headingFour">
 								<div class="panel-body">
 									<table id="demandesAttenteIC" class="table table-striped"
@@ -211,45 +211,26 @@
 <div th:replace="fragments/footer :: footer"></div>
 
 <script>
-	${symbol_dollar}(document)
-			.ready(
-					function() {
-						${symbol_dollar}(
-								'${symbol_pound}nouvellesDemandes,${symbol_pound}demandesATraiter,${symbol_pound}demandesAttenteIC')
-								.each(
-										function(index, value) {
-											//Affichage de 10 éléments
-											var id = this.id;
-											configurationDataTable.iDisplayLength = 5;
-											configurationDataTable.pageLength = 5;
-											configurationDataTable.lengthChange = false;
-											configurationDataTable.bInfo = false;
-											//tri par date de la demande par défaut
-											configurationDataTable.order = [ [
-												1, "desc" ] ]
-											configurationDataTable.ajax.url = ${symbol_dollar}(
-													this).data("href");
-											configurationDataTable.ajax.data = APP.buildDefaultDatafunction;
-											var dt = ${symbol_dollar}(this).DataTable(
-													configurationDataTable);
-
-											dt
-													.on(
-															'xhr.dt',
-															function(
-																	e,
-																	settings,
-																	json,
-																	xhr) {
-																${symbol_dollar}(
-																		"${symbol_pound}"
-																		+ id
-																		+ "Counter")
-																		.text(
-																				json.totalElements);
-															});
-										});
-					});
+	${symbol_dollar}(document).ready(function() {
+		${symbol_dollar}(
+				'${symbol_pound}nouvellesDemandes,${symbol_pound}demandesATraiter,${symbol_pound}demandesAttenteIC'
+		).each(function(index, value) {
+			//Affichage de 10 éléments
+			var id = this.id;
+			configurationDataTable.iDisplayLength = 5;
+			configurationDataTable.pageLength = 5;
+			configurationDataTable.lengthChange = false;
+			configurationDataTable.bInfo = false;
+			//tri par date de la demande par défaut
+			configurationDataTable.order = [ [ 1, "desc" ] ]
+			configurationDataTable.ajax.url = ${symbol_dollar}(this).data("href");
+			configurationDataTable.ajax.data = APP.buildDefaultDatafunction;
+			var dt = ${symbol_dollar}(this).DataTable(configurationDataTable);
+			dt.on('xhr.dt', function(e, settings, json, xhr) {
+				${symbol_dollar}("${symbol_pound}" + id + "Counter").text(json.totalElements);
+			});
+		});
+	});
 
 	// Empêcher d'ajouter une demande si on n'a pas les droits
 	${symbol_dollar}("${symbol_pound}ajouterDemande").click(function() {

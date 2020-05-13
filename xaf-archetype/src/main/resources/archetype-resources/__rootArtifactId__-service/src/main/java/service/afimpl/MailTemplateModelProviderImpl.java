@@ -12,7 +12,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +21,7 @@ import mc.gouv.xaf.back.service.itg.mail.MailTemplateModelProvider;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.motifs.MotifsCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.back.service.utils.UtilisateursUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.MotifDTO;
 import ${groupId}.shared.enums.${artifactIdCamelCase}DemandeStatutEnum;
@@ -45,16 +45,16 @@ public class MailTemplateModelProviderImpl implements MailTemplateModelProvider 
 
     @Autowired
     private MotifsCache motifsCache;
-    
-    @Autowired
-    private MessageSource messageSource;
-    
+
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
     
     @Autowired
     private UsagersCache usagersCache;
     
+    @Autowired
+    private UtilisateursUtils utilisateursUtils;
+
     @Autowired
     AfBackUtils afBackUtils;
 
@@ -104,7 +104,7 @@ public class MailTemplateModelProviderImpl implements MailTemplateModelProvider 
             String agentId = (String) bpmVariables.get(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_AGENT.name());
             String agentName;
             try {
-                agentName = afBackUtils.getUserNameFromID(agentId);
+                agentName = utilisateursUtils.getUserNameFromID(agentId);
             } catch (RestException e) {
                 agentName = "<error>";
                 LOGGER.error("Erreur lors de la récupération du nom de l'agent ayant pour matricule " + agentId, e);

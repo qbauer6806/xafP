@@ -57,6 +57,8 @@ public class UsagerInfosDTO implements Serializable {
     protected String paysCode;
 
     protected boolean isUsagerCourrier = false;
+    
+    protected Integer accessId;
 
     public String getTitreLabel() {
         if (titre == null) {
@@ -240,5 +242,13 @@ public class UsagerInfosDTO implements Serializable {
     public void setUsagerCourrier(boolean isUsagerCourrier) {
         this.isUsagerCourrier = isUsagerCourrier;
     }
+
+	public Integer getAccessId() {
+		return accessId;
+	}
+
+	public void setAccessId(Integer accessId) {
+		this.accessId = accessId;
+	}
 
 }

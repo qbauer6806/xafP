@@ -56,6 +56,13 @@ public class FileDownloadServlet extends AbstractAfServlet {
                     "Erreur: nom du fichier manquant");
             return;
         }
+        
+        String accessIdStr = pathInfo.split("/")[1];
+        if (usagerInfosDTO.getAccessId() == null || !usagerInfosDTO.getAccessId().equals(Integer.parseInt(accessIdStr))) {
+            response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_FORBIDDEN,
+                    "Erreur: accès à ce fichier non autorisé");
+            return;
+        }
 
         try {
 

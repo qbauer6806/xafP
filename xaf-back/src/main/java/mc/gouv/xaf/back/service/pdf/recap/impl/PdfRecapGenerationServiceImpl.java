@@ -68,8 +68,16 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
 
         LOGGER.info("Stockage du PDF généré dans FILE...");
         ByteArrayOutputStream output = new ByteArrayOutputStream();
-        String url = fileService.saveFile(demande, fileName, gouvPropertiesResolver.getContainerId(), "application/pdf", new FileInputStream(tempFile), output);
+        FileInputStream fis = new FileInputStream(tempFile);
+        String url = fileService.saveFile(demande, fileName, gouvPropertiesResolver.getContainerId(), "application/pdf", fis, output);
         output.close();
+        fis.close();
+        
+		// Supprimer le fichier temporaire car il n'est plus utile
+		LOGGER.info("Suppression du fichier temporaire...");
+		if (!tempFile.delete()) {
+			LOGGER.warn("La suppression du fichier temporaire a échoué");
+		}
 
         LOGGER.info("Ajout de la référence à ce fichier interne dans DEM...");
         DemandeFileDTO file = new DemandeFileDTO();

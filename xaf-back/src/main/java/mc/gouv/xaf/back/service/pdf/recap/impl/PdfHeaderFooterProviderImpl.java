@@ -43,17 +43,21 @@ public class PdfHeaderFooterProviderImpl implements PdfHeaderFooterProvider {
         URL path = this.getClass().getResource(imgPath);
         LOGGER.info("Chargement de l'image à l'adresse: {} ...", path);
         File file = null;
-        try {
-            BufferedImage img = ImageIO.read(path);
-            file = File.createTempFile(tempName, ".jpg");
-            ImageIO.write(img, "jpg", file);
-        } catch (IOException e) {
-            LOGGER.error("Problème lors de la récuppération de l'image...", e);
-        }
-        if (null != file) {
-            LOGGER.info("Fichier temporaire: {} ...", file.getPath());
+        if (null != path) {
+            try {
+                BufferedImage img = ImageIO.read(path);
+                file = File.createTempFile(tempName, ".jpg");
+                ImageIO.write(img, "jpg", file);
+            } catch (IOException e) {
+                LOGGER.error("Problème lors de la récuppération de l'image...", e);
+            }
+            if (null != file) {
+                LOGGER.info("Fichier temporaire: {} ...", file.getPath());
+            } else {
+                LOGGER.info("Aucune image chargée à l'adresse: {} ...", path);
+            }
         } else {
-            LOGGER.info("Aucune image chargée à l'adresse: {} ...", path);
+            LOGGER.error("Le chemin vers le fichier n'existe pas.");
         }
         return file;
     }

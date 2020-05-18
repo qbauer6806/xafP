@@ -1,24 +1,8 @@
 package mc.gouv.xaf.back.service.pdf.recap.impl;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.net.URL;
-import java.util.Date;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import com.openhtmltopdf.slf4j.Slf4jLogger;
 import com.openhtmltopdf.util.XRLog;
-
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemandeRecapHTMLService;
 import mc.gouv.xaf.back.service.data.DemandesFilesService;
@@ -31,6 +15,13 @@ import mc.gouv.xaf.back.service.utils.FileUtils;
 import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.io.*;
+import java.util.Date;
 
 @Component
 public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService {
@@ -72,12 +63,12 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
         String url = fileService.saveFile(demande, fileName, gouvPropertiesResolver.getContainerId(), "application/pdf", fis, output);
         output.close();
         fis.close();
-        
-		// Supprimer le fichier temporaire car il n'est plus utile
-		LOGGER.info("Suppression du fichier temporaire...");
-		if (!tempFile.delete()) {
-			LOGGER.warn("La suppression du fichier temporaire a échoué");
-		}
+
+        // Supprimer le fichier temporaire car il n'est plus utile
+        LOGGER.info("Suppression du fichier temporaire...");
+        if (!tempFile.delete()) {
+            LOGGER.warn("La suppression du fichier temporaire a échoué");
+        }
 
         LOGGER.info("Ajout de la référence à ce fichier interne dans DEM...");
         DemandeFileDTO file = new DemandeFileDTO();
@@ -103,23 +94,14 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
 
         LOGGER.info("Conversion du code HTML en PDF...");
         File pdfDest = createTempFile("Demande_" + demande.getIdentifiant() + "_");
-        
-        LOGGER.info("Open HTML To PDF setup du logger");        
+
+        LOGGER.info("Open HTML To PDF setup du logger");
         XRLog.setLoggingEnabled(true);
         XRLog.setLoggerImpl(new Slf4jLogger());
-        
-        try {
-            URL path = this.getClass().getResource("/pdfrecap/fonts/SourceSansPro-Light.ttf");
-            LOGGER.info("Chargement de la font à l'adresse: {}", path);
-//            File font = new File(path.getFile());
-            
-            OutputStream os = new FileOutputStream(pdfDest);
+
+        try (OutputStream os = new FileOutputStream(pdfDest)) {
             PdfRendererBuilder builder = new PdfRendererBuilder();
             builder.useFastMode();
-            
-            // Ligne pour ajouter une font (erreur sur le serveur, impossible de charger le fichier)
-            // builder.useFont(font, "SourceSansPro");
-            
             builder.withFile(htmlSource);
             builder.toStream(os);
             builder.run();
@@ -181,15 +163,19 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
             LOGGER.info("Fin de l'écriture du CSS...");
 
             writer.println("<div id=\"pageHeader\">");
-            writer.print("<img src=\"");
-            writer.print(header.toURI().getPath());
-            writer.println("\" alt=\"HEADER\"></img>");
+            if (null != header) {
+                writer.print("<img src=\"");
+                writer.print(header.toURI().getPath());
+                writer.println("\" alt=\"HEADER\"></img>");
+            }
             writer.println("</div>");
 
             writer.println("<div id=\"pageFooter\">");
-            writer.print("<img src=\"");
-            writer.print(footer.toURI().getPath());
-            writer.println("\" alt=\"FOOTER\"></img>");
+            if (null != footer) {
+                writer.print("<img src=\"");
+                writer.print(footer.toURI().getPath());
+                writer.println("\" alt=\"FOOTER\"></img>");
+            }
             writer.println("</div>");
 
             LOGGER.info("Fin du header et footer...");

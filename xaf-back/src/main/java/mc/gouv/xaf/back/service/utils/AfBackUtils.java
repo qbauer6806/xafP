@@ -426,12 +426,27 @@ public class AfBackUtils {
         return SDF_JJ_MM_AAAA.format(date);
     }
 
+    public static String convertDateTimeToString(final Date date) {
+        if (date == null) {
+            return "";
+        }
+        return SDF_JJ_MM_AAAA_HH_MM.format(date);
+    }
+
     public static String changeDateStringFormat(final String dateString) {
         if (StringUtils.isBlank(dateString)) {
             return " ";
         }
         return LocalDateTime.parse(dateString, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
                 .format(DateTimeFormatter.ofPattern(DEFAULT_FRENCH_DATE_FORMAT));
+    }
+
+    public static String changeDateTimeStringFormat(final String dateString) {
+        if (StringUtils.isBlank(dateString)) {
+            return " ";
+        }
+        return LocalDateTime.parse(dateString, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+                .format(DateTimeFormatter.ofPattern(DEFAULT_FRENCH_DATE_HOURS_FORMAT));
     }
 
     public static String getSafeString(final String value) {

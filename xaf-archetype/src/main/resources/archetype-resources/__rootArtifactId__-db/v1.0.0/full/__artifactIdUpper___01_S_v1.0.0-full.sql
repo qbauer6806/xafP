@@ -4,7 +4,7 @@
 -- 1) Important pour ne pas avoir des caractères mal encodés à l'affichage.
 set client_encoding = 'utf8';
 -- 2) Création du schéma
-drop schema ${artifactIdUpper} cascade;
+drop schema if exists ${artifactIdUpper} cascade;
 create schema ${artifactIdUpper};
 -- 3) Paramètrage du schéma
 set search_path = ${artifactIdUpper}, pg_catalog;
@@ -957,7 +957,7 @@ ALTER TABLE ${artifactIdLower}.act_hi_detail ALTER COLUMN text_ TYPE text;
 CREATE SEQUENCE ${artifactIdLower}.dem_properties_seq START 1;
 
 CREATE TABLE ${artifactIdLower}.dem_properties (
-    pk_properties INTEGER DEFAULT nextval('detsala.dem_properties_seq'),
+    pk_properties INTEGER DEFAULT nextval('${artifactIdLower}.dem_properties_seq'),
     fk_demarcheid CHARACTER VARYING(128) NOT NULL,
     type CHARACTER VARYING(256) NOT NULL,
     key CHARACTER VARYING(256) NOT NULL,
@@ -968,10 +968,10 @@ CREATE TABLE ${artifactIdLower}.dem_properties (
 ALTER TABLE ONLY ${artifactIdLower}.dem_properties
     ADD CONSTRAINT dem_properties_pkey PRIMARY KEY (pk_properties);
 
--- Fin scripts de "Structure"
-
 -- 5) Ajout des grant : Important ! Donner les droits d'utilisation au user applicatif et tous les priviliège au user admin.
 grant usage on schema ${artifactIdUpper} to ${artifactIdUpper};
 grant all on schema ${artifactIdUpper} to ${artifactIdUpper}_admin;
 grant all privileges on all tables in schema ${artifactIdUpper} to ${artifactIdUpper};
 grant all privileges on all sequences in schema ${artifactIdUpper} to ${artifactIdUpper};
+
+-- Fin scripts de "Structure"

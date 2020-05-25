@@ -48,7 +48,6 @@ import mc.gouv.xapi.error.exception.client.NotFoundWebException;
 @Component
 public class ${artifactIdCamelCase}ApiServiceImpl implements ${artifactIdCamelCase}ApiService {
 
-
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
 
@@ -101,8 +100,8 @@ public class ${artifactIdCamelCase}ApiServiceImpl implements ${artifactIdCamelCa
     public void annulerDemande(Integer demandeId, Integer usagerId) {
 
         LOGGER.info("Annulation de la demande ...");
-        LOGGER.info("demandeId : " + demandeId);
-        LOGGER.info("usagerId : " + usagerId);
+        LOGGER.info("demandeId : {}", demandeId);
+        LOGGER.info("usagerId : {}", usagerId);
 
         GouvBPMUser usager = new GouvBPMUser();
         usager.setId(usagerId.toString());
@@ -177,8 +176,7 @@ public class ${artifactIdCamelCase}ApiServiceImpl implements ${artifactIdCamelCa
                 }
             }
 
-            LOGGER.info("Création d'une instance de process dans le BPM pour cette demande ("
-                    + demandeDto.getPkDemandes() + ")...");
+            LOGGER.info("Création d'une instance de process dans le BPM pour cette demande ({})...", demandeDto.getPkDemandes());
             GouvBPMUser user = new GouvBPMUser();
             user.setId(usagerId.toString());
 
@@ -186,7 +184,7 @@ public class ${artifactIdCamelCase}ApiServiceImpl implements ${artifactIdCamelCa
 
             // Définition des process variables
             ContenuProjectDemandeDTO contenuDemande = ${artifactIdCamelCase}Utils.getContenuDemande(demandeDto);
-            Map<String, Object> variables = new HashMap<String, Object>();
+            Map<String, Object> variables = new HashMap<>();
 
             variables.put(GouvBPMProcessVariableTypeEnum.MC_CONTENU_DEMANDE.name(), contenuDemande);
             variables.put(GouvBPMProcessVariableTypeEnum.MC_DEMANDE_CANAL.name(), canal);
@@ -319,7 +317,7 @@ public class ${artifactIdCamelCase}ApiServiceImpl implements ${artifactIdCamelCa
 
         LOGGER.info("Appel à DEM pour récupération de la demande concernée...");
 
-        List<DemandeCanalEnum> canaux = new ArrayList<DemandeCanalEnum>();
+        List<DemandeCanalEnum> canaux = new ArrayList<>();
         canaux.add(DemandeCanalEnum.COURRIER);
         canaux.add(DemandeCanalEnum.GUICHET_PHYSIQUE);
         DemandeRechercheDTO demandeRecherche = new DemandeRechercheDTO();
@@ -336,7 +334,7 @@ public class ${artifactIdCamelCase}ApiServiceImpl implements ${artifactIdCamelCa
             }
             demande = demandes.get(0);
 
-            LOGGER.info("Demande trouvée : " + demande);
+            LOGGER.info("Demande trouvée : {}", demande);
 
             ContenuProjectDemandeDTO contenu = ${artifactIdCamelCase}Utils.getContenuDemande(demande);
 
@@ -346,7 +344,7 @@ public class ${artifactIdCamelCase}ApiServiceImpl implements ${artifactIdCamelCa
             }
 
             String contenuNomDemandeur = contenu.getDonnee().getEntrepriseorigine().getRaisonsociale();
-            LOGGER.info("Raison sociale origine : " + contenuNomDemandeur);
+            LOGGER.info("Raison sociale origine : {}", contenuNomDemandeur);
             if (StringUtils.equalsIgnoreCase(contenuNomDemandeur, stringToCheck)) {
 
                 LOGGER.info("La demande trouvée correspond au nom de la raison sociale fournie, effectuer l'association...");
@@ -363,7 +361,7 @@ public class ${artifactIdCamelCase}ApiServiceImpl implements ${artifactIdCamelCa
                 gouvBPM.setProcessBusinessVariable(demande.getPkDemandes(),
                         GouvBPMProcessVariableTypeEnum.MC_USAGERID.name(), usagerId);
 
-                LOGGER.info("Association terminée. Demande : " + demande);
+                LOGGER.info("Association terminée. Demande : {}", demande);
 
                 LOGGER.info("Ajout d'une ligne dans l'historique de la demande...");
 
@@ -425,12 +423,12 @@ public class ${artifactIdCamelCase}ApiServiceImpl implements ${artifactIdCamelCa
         LOGGER.info("Appel à DEM pour récupérer la liste des demandes effectuées par l'usager...");
         List<DemandeDTO> demandes = demandesService.getDemandes(gouvPropertiesResolver.getDemarcheId(), usagerId);
 
-        List<String> statutsFinaux = new ArrayList<String>();
+        List<String> statutsFinaux = new ArrayList<>();
         statutsFinaux.add(${artifactIdCamelCase}DemandeStatutEnum.VALIDEE.name());
         statutsFinaux.add(${artifactIdCamelCase}DemandeStatutEnum.REFUSEE.name());
 
-        List<Integer> demandesAPasserEnAnnulee = new ArrayList<Integer>();
-        List<DemandeDTO> demandesAPasserEnAnnuleeDTO = new ArrayList<DemandeDTO>();
+        List<Integer> demandesAPasserEnAnnulee = new ArrayList<>();
+        List<DemandeDTO> demandesAPasserEnAnnuleeDTO = new ArrayList<>();
 
         String demandesImpacteesIdentifiants = "";
         String demandesImpacteesPk = "";

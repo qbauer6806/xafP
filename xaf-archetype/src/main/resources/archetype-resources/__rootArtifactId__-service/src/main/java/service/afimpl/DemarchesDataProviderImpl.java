@@ -106,7 +106,7 @@ public class DemarchesDataProviderImpl implements DemarchesDataProvider {
 
 	@Override
 	public Map<String, String> getStatusMap() {
-		Map<String, String> statusMap = new LinkedHashMap<String, String>();
+		Map<String, String> statusMap = new LinkedHashMap<>();
 		statusMap.put(${artifactIdCamelCase}DemandeStatutEnum.EN_ATTENTE_TRAIT.name(),
 				${artifactIdCamelCase}DemandeStatutEnum.EN_ATTENTE_TRAIT.libelle);
 		statusMap.put(${artifactIdCamelCase}DemandeStatutEnum.EN_COURS_TRAIT.name(), ${artifactIdCamelCase}DemandeStatutEnum.EN_COURS_TRAIT.libelle);

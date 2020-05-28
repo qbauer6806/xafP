@@ -3,9 +3,8 @@ package mc.gouv.xaf.back.bpm;
 /**
  * Rassemble les valeurs possibles pour les variables génériques
  * des process du gouvernement
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 public enum GouvBPMProcessVariableTypeEnum {
 
@@ -26,5 +25,7 @@ public enum GouvBPMProcessVariableTypeEnum {
     MC_CONTENU_DEMANDE,
     MC_ASSIGNEE,
     MC_EXPIRED,
-    MC_ANNULATION_ORIGINATOR_USAGER
+    MC_ANNULATION_ORIGINATOR_USAGER,
+    MC_DATE_TERMINEE
+
 }

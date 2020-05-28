@@ -73,13 +73,22 @@ public class ApercuPdfController extends AbstractController {
         File file = pdfGenerationService.generatePdfPreview(demande, statut, codeMotif, demande.getLangue(),
                 commentaire, texteAEnvoyer, pdfType);
 
+        FileInputStream fis;
         try {
             LOGGER.info("Écriture du PDF dans l'OutputStream...");
+            fis = new FileInputStream(file);
             IOUtils.copy(new FileInputStream(file), response.getOutputStream());
+            fis.close();
         } catch (IOException e) {
             LOGGER.error("Erreur lors de l'écriture du PDF dans l'OutputStream", e);
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
+        
+		// Supprimer le fichier temporaire car il n'est plus utile
+		LOGGER.info("Suppression du fichier temporaire...");
+		if (!file.delete()) {
+			LOGGER.warn("La suppression du fichier temporaire a échoué");
+		}
 
         LOGGER.info("======================= Fin /pdf/apercu");
     }

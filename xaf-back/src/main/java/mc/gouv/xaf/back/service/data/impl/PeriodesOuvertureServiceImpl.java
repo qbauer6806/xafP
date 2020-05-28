@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,6 +44,40 @@ public class PeriodesOuvertureServiceImpl implements PeriodesOuvertureService {
 
         LOGGER.info("Transformation bo -> dto ...");
 
+        return PeriodeOuvertureTransformer.bo2Dto(periodesOuvertureBos);
+    }
+
+    @Override
+    public PeriodeOuvertureDTO getDernierePeriodeOuvertureTerminee(String demarcheId) {
+        Date date = new Date();
+        LOGGER.info("Récupération en base des périodes d'ouvertures avant le {} ...", date);
+        List<PeriodesOuvertureBO> periodesOuvertureBOS = periodesOuvertureRepository.findAllWithDateFinBeforeDate(date, demarcheId);
+        PeriodeOuvertureDTO dto = null;
+        if (!periodesOuvertureBOS.isEmpty()) {
+            PeriodesOuvertureBO bo = periodesOuvertureBOS.get(0);
+            LOGGER.info("Transformation bo -> dto ...");
+            dto = PeriodeOuvertureTransformer.bo2Dto(bo);
+        } else {
+            LOGGER.info("Aucune période n'a été trouvée.");
+        }
+        return dto;
+    }
+
+    @Override
+    public List<PeriodeOuvertureDTO> getPeriodesOuvertureFutures(String demarcheId) {
+        Date date = new Date();
+        LOGGER.info("Récupération en base des périodes d'ouverture commençant après le {} ...", date);
+        List<PeriodesOuvertureBO> periodesOuvertureBos = periodesOuvertureRepository.findAllWithDateDebutAfterDate(date, demarcheId);
+        LOGGER.info("Transformation bo -> dto ...");
+        return PeriodeOuvertureTransformer.bo2Dto(periodesOuvertureBos);
+    }
+
+    @Override
+    public List<PeriodeOuvertureDTO> getPeriodesOuvertureEnCours(String demarcheId) {
+        Date date = new Date();
+        LOGGER.info("Récupération en base des périodes d'ouverture en cours ...");
+        List<PeriodesOuvertureBO> periodesOuvertureBos = periodesOuvertureRepository.findAllWithDateDebutAndDateFinBetweenDate(date, demarcheId);
+        LOGGER.info("Transformation bo -> dto ...");
         return PeriodeOuvertureTransformer.bo2Dto(periodesOuvertureBos);
     }
 

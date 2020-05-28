@@ -70,9 +70,9 @@ public class MailTemplateModelProviderImpl implements MailTemplateModelProvider 
         	usager.setEmail(demande.getUsagerEmail());
         }
 
-        LOGGER.info("Construction du modèle pour le template (demandeId=" + demande.getPkDemandes() + ") ...");
+        LOGGER.info("Construction du modèle pour le template (demandeId={}) ...", demande.getPkDemandes());
 
-        Map<String, Object> model = new HashMap<String, Object>();
+        Map<String, Object> model = new HashMap<>();
         
         ContenuProjectDemandeDTO contenuDemande = ${artifactIdCamelCase}Utils.getContenuDemande(demande);
         
@@ -107,12 +107,12 @@ public class MailTemplateModelProviderImpl implements MailTemplateModelProvider 
                 agentName = utilisateursUtils.getUserNameFromID(agentId);
             } catch (RestException e) {
                 agentName = "<error>";
-                LOGGER.error("Erreur lors de la récupération du nom de l'agent ayant pour matricule " + agentId, e);
+                LOGGER.error("Erreur lors de la récupération du nom de l'agent ayant pour matricule {}", agentId, e);
             }
             model.put("utilisateur", agentName);
         }
 
-        LOGGER.info("Modèle généré : " + model);
+        LOGGER.info("Modèle généré : {}", model);
 
         return model;
     }
@@ -133,7 +133,7 @@ public class MailTemplateModelProviderImpl implements MailTemplateModelProvider 
             subjectTemplateCode = ${artifactIdCamelCase}TemplateEnum.MAIL_ACTION_DEMANDEIC_OBJET.name();
         }
         
-        return new SimpleEntry<String, String>(bodyTemplateCode, subjectTemplateCode);
+        return new SimpleEntry<>(bodyTemplateCode, subjectTemplateCode);
     }
 
 }

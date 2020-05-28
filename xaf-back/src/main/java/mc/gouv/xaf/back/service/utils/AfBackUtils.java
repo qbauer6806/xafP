@@ -62,7 +62,14 @@ public class AfBackUtils {
 
     private static String envColor;
 
-    public static DateFormat sdf_JJ_MM_AAAA = new SimpleDateFormat("dd/MM/yyyy");
+    public static String DEFAULT_FRENCH_DATE_FORMAT = "dd/MM/yyyy";
+
+    // French date format with 24 hours
+    public static String DEFAULT_FRENCH_DATE_HOURS_FORMAT = "dd/MM/yyyy HH:mm";
+
+    public static DateFormat SDF_JJ_MM_AAAA = new SimpleDateFormat(DEFAULT_FRENCH_DATE_FORMAT);
+
+    public static DateFormat SDF_JJ_MM_AAAA_HH_MM = new SimpleDateFormat(DEFAULT_FRENCH_DATE_HOURS_FORMAT);
 
     public static DateFormat FILE_DATE_SUFFIX = new SimpleDateFormat("HHmmssSSS");
 
@@ -387,9 +394,9 @@ public class AfBackUtils {
      * @return
      */
     public Set<User> getAgentsWithRoles(String[] rolesList) {
-        Set<User> destinataires = new HashSet<User>();
+        Set<User> destinataires = new HashSet<>();
         String codeAppli = gouvPropertiesResolver.getDemarcheId();
-        List<User> agents = new ArrayList<User>(utilisateursCache.getAll().values());
+        List<User> agents = new ArrayList<>(utilisateursCache.getAll().values());
         for (User agent : agents) {
             boolean toAdd = false;
             Set<Role> agentRoles = agent.getRoles();
@@ -416,7 +423,14 @@ public class AfBackUtils {
         if (date == null) {
             return "";
         }
-        return new SimpleDateFormat("dd/MM/yyyy").format(date);
+        return SDF_JJ_MM_AAAA.format(date);
+    }
+
+    public static String convertDateTimeToString(final Date date) {
+        if (date == null) {
+            return "";
+        }
+        return SDF_JJ_MM_AAAA_HH_MM.format(date);
     }
 
     public static String changeDateStringFormat(final String dateString) {
@@ -424,7 +438,15 @@ public class AfBackUtils {
             return " ";
         }
         return LocalDateTime.parse(dateString, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-                .format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+                .format(DateTimeFormatter.ofPattern(DEFAULT_FRENCH_DATE_FORMAT));
+    }
+
+    public static String changeDateTimeStringFormat(final String dateString) {
+        if (StringUtils.isBlank(dateString)) {
+            return " ";
+        }
+        return LocalDateTime.parse(dateString, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+                .format(DateTimeFormatter.ofPattern(DEFAULT_FRENCH_DATE_HOURS_FORMAT));
     }
 
     public static String getSafeString(final String value) {
@@ -488,11 +510,11 @@ public class AfBackUtils {
     }
 
     public static Date convertStartDate(String startDate) throws ParseException {
-        return new SimpleDateFormat("dd/MM/yyyy").parse(startDate);
+        return SDF_JJ_MM_AAAA.parse(startDate);
     }
 
     public static Date convertEndDate(String plainEndDate) throws ParseException {
-        Date endDate = new SimpleDateFormat("dd/MM/yyyy").parse(plainEndDate);
+        Date endDate = SDF_JJ_MM_AAAA.parse(plainEndDate);
 
         // Last moment of days
         Calendar cal = Calendar.getInstance();

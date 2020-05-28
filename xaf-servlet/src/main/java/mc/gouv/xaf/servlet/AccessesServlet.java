@@ -7,6 +7,7 @@ import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
@@ -15,10 +16,10 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import mc.gouv.xaf.shared.dto.AccessDTO;
-import mc.gouv.xaf.shared.dto.AccessInputDTO;
 import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
+import mc.gouv.xaf.shared.dto.AccessDTO;
+import mc.gouv.xaf.shared.dto.AccessInputDTO;
 import mc.gouv.xapi.error.exception.client.UnauthorizedWebException;
 
 /**
@@ -109,6 +110,11 @@ public class AccessesServlet extends AbstractAfServlet {
             LOGGER.info("Appel à la démarche pour récupérer l'accès...");
 
             AccessDTO access = getAfApiClient().getAccess(usagerId);
+            
+            LOGGER.info("Incorporer l'AccessID dans la session pour protéger les appels à FILE... accessId=" + access.getPkAccess());
+            HttpSession session = request.getSession();
+            usagerInfosDTO.setAccessId(access.getPkAccess());
+            session.setAttribute("login", usagerInfosDTO);
 
             LOGGER.info("Inclure la réponse dans le HttpServletResponse...");
 

@@ -17,6 +17,21 @@ public interface PeriodesOuvertureService {
     List<PeriodeOuvertureDTO> getPeriodesOuverture(String demarcheId);
 
     /**
+     * Permet de récupérer la dernière période d'ouverture terminée
+     */
+    PeriodeOuvertureDTO getDernierePeriodeOuvertureTerminee(String demarcheId);
+
+    /**
+     * Permet de récupérer toutes les périodes d'ouverture dans le futur
+     */
+    List<PeriodeOuvertureDTO> getPeriodesOuvertureFutures(String demarcheId);
+
+    /**
+     * Permet de récupérer toutes les périodes d'ouverture en cours
+     */
+    List<PeriodeOuvertureDTO> getPeriodesOuvertureEnCours(String demarcheId);
+
+    /**
      * Permet de sauvegarder ou mettre à jour un motif en base
      */
     PeriodeOuvertureDTO saveOrUpdatePeriodeOuverture(String demarcheId, PeriodeOuvertureDTO periodeOuverture);
@@ -28,7 +43,6 @@ public interface PeriodesOuvertureService {
 
     /**
      * Permet de supprimer toutes les périodes d'ouverture liées à une démarche
-     * @param demarcheId l'id de la démarche
      */
     void deleteAllPeriodeOuverture(String demarcheId);
 

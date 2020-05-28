@@ -12,9 +12,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import ${groupId}.shared.model.v1573825612706.ProjectDemandeDataDonneeSalariesDTO;
-import ${groupId}.shared.model.v1573825612706.ProjectDemandeFieldDonneeSalariesTabsalariesfranceDTO;
-import ${groupId}.shared.model.v1573825612706.ProjectDemandeFieldDonneeSalariesTabsalariesitalieDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -109,36 +106,6 @@ public class ${artifactIdCamelCase}Utils {
         }
         return null;
     }
-
-    public static String getSalariesADetacher(ContenuProjectDemandeDTO contenuDemande) {
-        StringBuilder salariesADetacher = new StringBuilder();
-        ProjectDemandeDataDonneeSalariesDTO salaries = contenuDemande.getDonnee().getSalaries();
-
-        if (salaries != null) {
-            ProjectDemandeFieldDonneeSalariesTabsalariesfranceDTO[] salariesFR = salaries.getTabsalariesfrance();
-            ProjectDemandeFieldDonneeSalariesTabsalariesitalieDTO[] salariesIT = salaries.getTabsalariesitalie();
-
-            if (salariesFR != null && salariesFR.length > 0) {
-                for (ProjectDemandeFieldDonneeSalariesTabsalariesfranceDTO salarie : salariesFR) {
-                    salariesADetacher.append("${symbol_escape}n    - ")
-                            .append(salarie.getDonneeSalariesTabsalariesfranceChampnom())
-                            .append(" ").append(salarie.getDonneeSalariesTabsalariesfranceChampprenom())
-                            .append(" ").append(salarie.getDonneeSalariesTabsalariesfranceChampdebutdetach());
-                }
-            } else if (salariesIT != null && salariesIT.length > 0) {
-                for (ProjectDemandeFieldDonneeSalariesTabsalariesitalieDTO salarie : salariesIT) {
-                    salariesADetacher.append("${symbol_escape}n    - ")
-                            .append(salarie.getDonneeSalariesTabsalariesitalieChampnom())
-                            .append(" ").append(salarie.getDonneeSalariesTabsalariesitalieChampprenom())
-                            .append(" ").append(salarie.getDonneeSalariesTabsalariesitalieChampdebutdetach());
-                }
-            } else {
-                salariesADetacher.append("${symbol_escape}n    - [INCLURE ICI LA LISTE DES SALARIES]");
-            }
-        }
-        return salariesADetacher.toString();
-    }
-
 
     public static BigDecimal convertStringToBigDecimal(String decimalStr) {
         // BigDecimal decimalValue = new BigDecimal(0.00);

@@ -396,4 +396,30 @@ INSERT INTO ${artifactIdLower}.dem_recherche_champ_config (enabled, cle, libelle
 INSERT INTO ${artifactIdLower}.dem_recherche_champ_config (enabled, cle, libelle, fk_categorie, editable) VALUES ('true', 'fichierinterne.fichiers.content', 'Contenu', (select id from ${artifactIdLower}.dem_recherche_cat_config where libelle = 'Fichiers internes'), 'true');
 INSERT INTO ${artifactIdLower}.dem_recherche_champ_config (enabled, cle, libelle, fk_categorie, editable) VALUES ('true', 'fichierinterne.fichiers.name', 'Nom du fichier', (select id from ${artifactIdLower}.dem_recherche_cat_config where libelle = 'Fichiers internes'), 'true');
 
+-- Liste des properties FRONT
+
+-- Changer les valeurs des liens du serveur login en fonction de l'environnement
+INSERT INTO ${artifactIdLower}.DEM_PROPERTIES (fk_demarcheid, type, key, value) VALUES ('${artifactIdUpper}', 'FRONT', 'mc.gouv.appfactory.front.login.keepalive.url', 'https://front-dev.monaco-gouvernement.mc/login/javax.faces.resource/img/keepalive/ping.gif.xhtml');
+INSERT INTO ${artifactIdLower}.DEM_PROPERTIES (fk_demarcheid, type, key, value) VALUES ('${artifactIdUpper}', 'FRONT', 'mc.gouv.appfactory.front.login.url', 'https://front-dev.monaco-gouvernement.mc/login/public/login.xhtml');
+INSERT INTO ${artifactIdLower}.DEM_PROPERTIES (fk_demarcheid, type, key, value) VALUES ('${artifactIdUpper}', 'FRONT', 'mc.gouv.appfactory.front.login.profil.url', 'https://front-dev.monaco-gouvernement.mc/login/user.xhtml');
+INSERT INTO ${artifactIdLower}.DEM_PROPERTIES (fk_demarcheid, type, key, value) VALUES ('${artifactIdUpper}', 'FRONT', 'mc.gouv.appfactory.${artifactIdLower}.front.login.contact.url', 'https://front-dev.monaco-gouvernement.mc/login/public/contact_email.xhtml');
+
+INSERT INTO ${artifactIdLower}.DEM_PROPERTIES (fk_demarcheid, type, key, value) VALUES ('${artifactIdUpper}', 'FRONT', 'mc.gouv.appfactory.${artifactIdLower}.front.copyright.years', '2020');
+INSERT INTO ${artifactIdLower}.DEM_PROPERTIES (fk_demarcheid, type, key, value) VALUES ('${artifactIdUpper}', 'FRONT', 'mc.gouv.piwik.external.piwikUrl', '');
+INSERT INTO ${artifactIdLower}.DEM_PROPERTIES (fk_demarcheid, type, key, value) VALUES ('${artifactIdUpper}', 'FRONT', 'mc.gouv.piwik.external.${artifactIdLower}.piwikSiteId', '78');
+INSERT INTO ${artifactIdLower}.DEM_PROPERTIES (fk_demarcheid, type, key, value) VALUES ('${artifactIdUpper}', 'FRONT', 'mc.gouv.appfactory.${artifactIdLower}.front.quitterTsUrl.fr', 'https://service-public-particuliers.gouv.mc/');
+INSERT INTO ${artifactIdLower}.DEM_PROPERTIES (fk_demarcheid, type, key, value) VALUES ('${artifactIdUpper}', 'FRONT', 'mc.gouv.appfactory.${artifactIdLower}.front.quitterTsUrl.en', 'https://en.service-public-particuliers.gouv.mc/');
+INSERT INTO ${artifactIdLower}.DEM_PROPERTIES (fk_demarcheid, type, key, value) VALUES ('${artifactIdUpper}', 'FRONT', 'mc.gouv.appfactory.${artifactIdLower}.front.ficheDemarcheUrl.fr', 'https://service-public-particuliers.gouv.mc/${tsFrontUrl}');
+INSERT INTO ${artifactIdLower}.DEM_PROPERTIES (fk_demarcheid, type, key, value) VALUES ('${artifactIdUpper}', 'FRONT', 'mc.gouv.appfactory.${artifactIdLower}.front.ficheDemarcheUrl.en', 'https://en.service-public-particuliers.gouv.mc/${tsFrontUrl}');
+INSERT INTO ${artifactIdLower}.DEM_PROPERTIES (fk_demarcheid, type, key, value) VALUES ('${artifactIdUpper}', 'FRONT', 'mc.gouv.appfactory.${artifactIdLower}.front.sondageUrl.fr', 'https://service-public-particuliers.gouv.mc/Enquetes/???Votre-avis');
+INSERT INTO ${artifactIdLower}.DEM_PROPERTIES (fk_demarcheid, type, key, value) VALUES ('${artifactIdUpper}', 'FRONT', 'mc.gouv.appfactory.${artifactIdLower}.front.sondageUrl.en', 'https://en.service-public-particuliers.gouv.mc/Enquetes/???Votre-avis');
+INSERT INTO ${artifactIdLower}.DEM_PROPERTIES (fk_demarcheid, type, key, value) VALUES ('${artifactIdUpper}', 'FRONT', 'mc.gouv.appfactory.${artifactIdLower}.front.sondageAbandonUrl.fr', 'https://service-public-particuliers.gouv.mc/Enquetes/???Votre-avis-apres-abandon');
+INSERT INTO ${artifactIdLower}.DEM_PROPERTIES (fk_demarcheid, type, key, value) VALUES ('${artifactIdUpper}', 'FRONT', 'mc.gouv.appfactory.${artifactIdLower}.front.sondageAbandonUrl.en', 'https://en.service-public-particuliers.gouv.mc/Enquetes/???Votre-avis-apres-abandon');
+INSERT INTO ${artifactIdLower}.DEM_PROPERTIES (fk_demarcheid, type, key, value) VALUES ('${artifactIdUpper}', 'FRONT', 'mc.gouv.appfactory.${artifactIdLower}.front.joDemarcheUrl.fr', '');
+INSERT INTO ${artifactIdLower}.DEM_PROPERTIES (fk_demarcheid, type, key, value) VALUES ('${artifactIdUpper}', 'FRONT', 'mc.gouv.appfactory.${artifactIdLower}.front.joDemarcheUrl.en', '');
+INSERT INTO ${artifactIdLower}.DEM_PROPERTIES (fk_demarcheid, type, key, value) VALUES ('${artifactIdUpper}', 'FRONT', 'mc.gouv.appfactory.${artifactIdLower}.front.joCcinUrl.fr', '');
+INSERT INTO ${artifactIdLower}.DEM_PROPERTIES (fk_demarcheid, type, key, value) VALUES ('${artifactIdUpper}', 'FRONT', 'mc.gouv.appfactory.${artifactIdLower}.front.joCcinUrl.en', '');
+INSERT INTO ${artifactIdLower}.DEM_PROPERTIES (fk_demarcheid, type, key, value) VALUES ('${artifactIdUpper}', 'FRONT', 'mc.gouv.appfactory.${artifactIdLower}.front.cgu.url.fr', 'https://journaldemonaco.gouv.mc/fr/suiteUrl');
+INSERT INTO ${artifactIdLower}.DEM_PROPERTIES (fk_demarcheid, type, key, value) VALUES ('${artifactIdUpper}', 'FRONT', 'mc.gouv.appfactory.${artifactIdLower}.front.cgu.url.en', 'https://journaldemonaco.gouv.mc/en/suiteUrl');
+
 -- Fin scripts "Data"

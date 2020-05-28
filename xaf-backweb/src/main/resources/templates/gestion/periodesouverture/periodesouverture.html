@@ -36,7 +36,9 @@
           rel="stylesheet"/>
     <link th:href="@{/css/tsdem.css(${applicationBuildTimestamp})}"
           rel="stylesheet"/>
-
+    <link th:href="@{/webjars/bootstrap-datepicker/css/bootstrap-datepicker.css}" rel="stylesheet"/>
+    <link th:href="@{/webjars/Eonasdan-bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.css}"
+          rel="stylesheet"/>
 
 </head>
 
@@ -66,10 +68,9 @@
                 <h2 class="col-xs-12">Gestion des périodes d'ouverture</h2>
 
                 <div th:if="${AfBackUtils.getDemarcheCanHandlePeriodesOuverture()}">
-                    <div class="col-xs-12" th:if="${#lists.isEmpty(periodes)}">
-                        Si aucune période d’ouverture n’est définie, la création d’une demande est possible sans limite
-                        de
-                        temps.
+                    <div class="col-xs-12">
+                        Par défaut, si aucune période d’ouverture n’est définie alors les usagers peuvent déposer des
+                        nouvelles demandes dans le téléservice sans limite de temps.
                     </div>
 
                     <div class="col-xs-12 text-right">
@@ -89,8 +90,8 @@
                             <table id="datatable-periodes" class="table table-striped" style="width: 100%">
                                 <thead>
                                 <tr>
-                                    <th>Date début</th>
-                                    <th>Date fin</th>
+                                    <th>Date de début</th>
+                                    <th>Date de fin</th>
                                     <th>Action</th>
                                 </tr>
                                 </thead>
@@ -110,32 +111,27 @@
     </div>
 
     <!-- EDITION MODAL -->
-    <div id="editionModal" style="display: none">
+    <div id="editionModal" style="display: none;overflow: unset">
         <form method="POST" id="editionPeriodesForm" th:action="@{/gestion/periodesouverture/edit}">
             <!-- input cachée pour insérer la pk de la properties à modifier -->
             <input type="hidden" id="pkPeriodesOuverture" name="pkPeriodesOuverture"/>
-            <div class="row no-margin-row" style="width: 400px;">
+            <div class="row no-margin-row" style="width: 500px;">
                 <div class="col-xs-12 text-center">
                     <h2 id="saveTitle">SAVE_TITLE</h2>
                 </div>
                 <div id="formWarning" class="col-xs-12 text-center form-group"></div>
                 <div class="col-xs-12 col-md-6 form-group">
-                    <label for="periodeStartDate">Date de début<span class="required"></span></label>
-                    <div class="input-group date">
-                        <input type="text" id="periodeStartDate"
-                               name="periodeStartDate" placeholder="__/__/____"
-                               class="form-control"/> <span class="input-group-addon"
-                                                            style="width: 6%"><i
-                            class="icon-action_calendrier"></i></span>
+                    <label for="periodeStartDatePicker">Date de début<span class="required"></span></label>
+                    <div class="input-group date" id="periodeStartDatePicker">
+                        <input type="text" id="periodeStartDate" name="periodeStartDate" class="form-control"/>
+                        <span class="input-group-addon"><i class="icon-action_calendrier"></i></span>
                     </div>
                 </div>
                 <div class="col-xs-12 col-md-6 form-group">
-                    <label for="periodeEndDate">Date de fin<span class="required"></span></label>
-                    <div class="input-group date">
-                        <input type="text" id="periodeEndDate" name="periodeEndDate"
-                               placeholder="__/__/____" class="form-control"/> <span
-                            class="input-group-addon" style="width: 6%"><i
-                            class="icon-action_calendrier"></i></span>
+                    <label for="periodeEndDatePicker">Date de fin<span class="required"></span></label>
+                    <div class="input-group date" id="periodeEndDatePicker">
+                        <input type="text" id="periodeEndDate" name="periodeEndDate" class="form-control"/>
+                        <span class="input-group-addon"><i class="icon-action_calendrier"></i></span>
                     </div>
                 </div>
                 <div id="formError" class="col-xs-12 text-center form-group error"></div>
@@ -192,9 +188,9 @@
                 </div>
                 <div class="col-xs-12 form-group">
                     <span>
-                        Attention, la suppression de toutes les périodes d’ouverture entrainera une ouverture sans limite de temps du dépôt des demandes.
+                        Attention, vous êtes sur le point de supprimer toutes les périodes d’ouverture. Si aucune période d’ouverture n’est définie alors les usagers peuvent déposer des nouvelles demandes dans le téléservice sans limite de temps.
                         <br/>
-                        Êtes-vous sûr(e) de vouloir les supprimer ?
+                        Êtes-vous sûr(e) de vouloir continuer ?
                     </span>
                 </div>
                 <div class="col-xs-12 margin-top">
@@ -204,7 +200,7 @@
                         annuler
                     </button>
                     <button id="supprTousBtn" class="btn btn-action ripple-effect" type="submit">
-                        supprimer toutes
+                        supprimer
                     </button>
                 </div>
             </div>
@@ -217,6 +213,9 @@
 <div th:replace="fragments/footer :: footer"></div>
 
 <script th:inline="javascript">
+    var momentFormat = 'DD/MM/YYYY HH:mm';
+    var isCreate = false;
+    var savedStartMoment = null;
 
     var columnsPeriodes = [
         {
@@ -227,7 +226,7 @@
                 if (type === "sort" || type === "type") {
                     return data;
                 }
-                return moment(periode.dateDebut).format("DD/MM/YYYY");
+                return moment(periode.dateDebut).format(momentFormat);
             }
         },
         {
@@ -238,25 +237,21 @@
                 if (type === "sort" || type === "type") {
                     return data;
                 }
-                return moment(periode.dateFin).format("DD/MM/YYYY");
+                return moment(periode.dateFin).format(momentFormat);
             }
         },
         {
             orderable: false,
             keyword: false,
             render: function (data, type, periode) {
-                var momentStart = moment(periode.dateDebut);
-                var momentEnd = moment(periode.dateFin);
-                return '<a th:id="boutonModifier" href="#" class="boutonModifier"' +
-                    'data-pkperiodesouverture="' + periode.pkPeriodesOuverture + '" data-datedebut="' + periode.dateDebut + '" data-datefin="' + periode.dateFin + '">' +
-                    '<span class="btn btn-action ripple-effect greyTooltip" data-toggle="tooltip" data-placement="bottom"  data-original-title="Modifier la période" title="">' +
-                    '<i class="icon-action_modifier"></i></span>' +
-                    '</a>' +
-                    '<a th:id="boutonSupprimer" href="#" class="boutonSupprimer"' +
-                    'data-pkperiodesouverture="' + periode.pkPeriodesOuverture + '" data-datedebut="' + periode.dateDebut + '" data-datefin="' + periode.dateFin + '">' +
-                    '<span class="btn btn-action ripple-effect greyTooltip" data-toggle="tooltip" data-placement="bottom" data-original-title="Supprimer la période" title="">' +
-                    '<i class="icon-action_supprimer"></i></span>' +
-                    '</a>';
+                return '<button class="boutonModifier btn btn-action ripple-effect greyTooltip" style="margin-right: 8px" ' +
+                    'data-pkperiodesouverture="' + periode.pkPeriodesOuverture + '" data-datedebut="' + periode.dateDebut + '" data-datefin="' + periode.dateFin + '"' +
+                    'data-toggle="tooltip" data-placement="bottom"  data-original-title="Modifier la période">' +
+                    '<i class="icon-action_modifier"></i></button>' +
+                    '<button class="boutonSupprimer btn btn-action ripple-effect greyTooltip"' +
+                    'data-pkperiodesouverture="' + periode.pkPeriodesOuverture + '" data-datedebut="' + periode.dateDebut + '" data-datefin="' + periode.dateFin + '"' +
+                    'data-toggle="tooltip" data-placement="bottom" data-original-title="Supprimer la période">' +
+                    '<i class="icon-action_supprimer"></i></button>';
             }
         }
     ];
@@ -274,20 +269,26 @@
             bInfo: false,
             data: periodes,
             columns: columnsPeriodes,
-            order: [ [ 1, "asc" ] ],
+            order: [
+                [1, "asc"]
+            ],
             language: frenchTranslation,
             lengthMenu: [5, 10, 25, 50, 100]
         });
 
-        $('#periodeStartDate, #periodeEndDate').datepicker({
-            format: "dd/mm/yyyy",
-            weekStart: 1,
-            language: "fr",
-            todayHighlight: true
+        $('#periodeStartDatePicker, #periodeEndDatePicker').datetimepicker({
+            format: momentFormat,
+            locale: 'fr',
+            widgetPositioning: {
+                horizontal: 'auto',
+                vertical: 'top'
+            }
+            // ,debug: true // Permet de laisser ouvert le datepicker pour modifier le CSS
+        }).on('dp.show', function () {
+            $('.bootstrap-datetimepicker-widget a.btn').removeClass('btn');
         });
 
         var messagesSuccessList = /*[[${successMessages}]]*/'default';
-        console.log(messagesSuccessList);
         if (messagesSuccessList !== 'undefined' && messagesSuccessList !== null) {
             $.each(messagesSuccessList, function (key, msg) {
                 $.notify({
@@ -311,10 +312,13 @@
 
         $("#boutonAjouter").click(function (e) {
             e.preventDefault();
+            isCreate = true;
 
+            var date = moment();
+            date.set({hour: 0, minute: 0, second: 0, millisecond: 0});
             $('#pkPeriodesOuverture').val(null);
-            $('#periodeStartDate').val('');
-            $('#periodeEndDate').val('');
+            $('#periodeStartDate').val(date.format(momentFormat));
+            $('#periodeEndDate').val(date.format(momentFormat));
 
             $('#formError').html('');
             $('#formWarning').html('');
@@ -330,17 +334,9 @@
             return true;
         });
 
-        $("#boutonSupprTous").click(function (e) {
-            e.preventDefault();
-            $.fancybox.open({
-                src: '#supressionTousModal',
-                type: 'inline'
-            });
-            return true;
-        });
-
         $(".boutonModifier").click(function (e) {
             e.preventDefault();
+            isCreate = false;
 
             var pkPeriodesOuverture = $(this).data("pkperiodesouverture");
             var dateDebut = $(this).data("datedebut");
@@ -352,14 +348,14 @@
             $('#saveBtn').val('modifier');
             $('#saveBtn').html('modifier');
 
-            var startMoment = moment(dateDebut);
+            savedStartMoment = moment(dateDebut);
             var endMoment = moment(dateFin);
-            if (moment().isBetween(startMoment, endMoment)) {
+            if (moment().isBetween(savedStartMoment, endMoment)) {
                 $('#formWarning').html("Attention, cette période d’ouverture est en cours.<br/>Êtes-vous sûr(e) de vouloir la modifier ?");
             }
 
-            $('#periodeStartDate').val(startMoment.format('DD/MM/YYYY'));
-            $('#periodeEndDate').val(endMoment.format('DD/MM/YYYY'));
+            $('#periodeStartDate').val(savedStartMoment.format(momentFormat));
+            $('#periodeEndDate').val(endMoment.format(momentFormat));
             $('#pkPeriodesOuverture').val(pkPeriodesOuverture);
 
             $.fancybox.open({
@@ -379,14 +375,23 @@
 
             var message = "Êtes-vous sûr(e) de vouloir supprimer cette période d’ouverture ?";
             if (periodes.length === 1) {
-                message = "Attention, la suppression de cette période entrainera une ouverture sans limite de temps du dépôt des demandes dans le téléservice.<br/>Êtes-vous sûr(e) de vouloir la supprimer ?";
+                message = "Attention, si vous supprimez cette période d’ouverture, les usagers pourront déposer des nouvelles demandes dans le téléservice sans limite de temps.<br/>Êtes-vous sûr(e) de vouloir continuer ?";
             } else if (moment().isBetween(dateDebut, dateFin)) {
-                message = "Attention, cette période d’ouverture est en cours. La suppression entrainera une fermeture du dépôt des demandes dans le téléservice.<br/>Êtes-vous sûr(e) de vouloir la supprimer ?";
+                message = "Attention, cette période d’ouverture est en cours. Si vous supprimez cette période d’ouverture les usagers ne pourront plus déposer de nouvelle demande dans le téléservice.<br/>Êtes-vous sûr(e) de vouloir continuer ?";
             }
             $('#suppressionMessage').html(message);
 
             $.fancybox.open({
                 src: '#supressionModal',
+                type: 'inline'
+            });
+            return true;
+        });
+
+        $("#boutonSupprTous").click(function (e) {
+            e.preventDefault();
+            $.fancybox.open({
+                src: '#supressionTousModal',
                 type: 'inline'
             });
             return true;
@@ -403,13 +408,22 @@
             var endDate = $('#periodeEndDate').val();
 
             if (startDate !== '' && endDate !== '') {
-                var startMoment = moment(startDate, 'DD/MM/YYYY');
-                var endMoment = moment(endDate, 'DD/MM/YYYY');
-                if (startMoment.isBefore(endMoment)) {
+                var startMoment = moment(startDate, momentFormat);
+                var endMoment = moment(endDate, momentFormat);
+                var today = moment();
+                today.set({hour: 0, minute: 0, second: 0, millisecond: 0});
+
+                // On vérifie en cas de création ou de modification de la date de début,
+                // Si la périodes est après la date d'aujourd'hui
+                if ((isCreate || !startMoment.isSame(savedStartMoment)) && today.isAfter(startMoment)) {
+                    $('#formError').html('La date de début de la période doit être égale ou postérieure à la date d\'aujourd\'hui.');
+                } else if (!startMoment.isBefore(endMoment)) {
+                    $('#formError').html('La date de fin doit être postérieure à la date de début.');
+                } else {
                     $('#formError').html('');
                     return true;
                 }
-                $('#formError').html('La date de fin doit être postérieure à la date de début.');
+
             } else {
                 $('#formError').html('Les dates doivent être renseignées.');
             }

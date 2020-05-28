@@ -89,7 +89,8 @@ public class SessionsServlet extends HttpServlet {
         if (session != null) {
             // Récupération de l'objet attaché à la session
             UsagerInfosDTO usagerInfosDTO = (UsagerInfosDTO) session.getAttribute("login");
-            LOGGER.info("usagerInfosDTO : " + usagerInfosDTO + ", userId=" + usagerInfosDTO.getId());
+            Integer accessId = usagerInfosDTO.getAccessId();
+            LOGGER.info("usagerInfosDTO : " + usagerInfosDTO + ", userId=" + usagerInfosDTO.getId() + ", accessId=" + accessId);
             
             String serviceUrl = AfServletGouvPropertiesResolver.getLoginServiceRestUrl() + "/" + String.valueOf(usagerInfosDTO.getId());
             LOGGER.info("Calling " + serviceUrl + "...");
@@ -114,6 +115,8 @@ public class SessionsServlet extends HttpServlet {
                     if (uinfos != null) {
                         // Stockage de cet objet d'infos d'usager dans la session HTTP
                         session = request.getSession();
+                        LOGGER.info("Réincorporer l'accessId dans la session pour protéger les appels à FILE...");
+                        uinfos.setAccessId(accessId);
                         session.setAttribute("login", uinfos);
                         //https://docs.angularjs.org/api/ng/service/$http#cross-site-request-forgery-xsrf-protection
                         session.setAttribute(AppFactoryServletUtils.XSRF_SESSION_ATTRIBUTE, AppFactoryServletUtils.createXsrfToken(session));

@@ -177,7 +177,7 @@ public class AfServletGouvPropertiesResolver {
         return Static.getValue(FRONTOFFICE_COPYRIGHT_YEARS);
     }
 
-    public static final String FRONTOFFICE_PIWIK_SITE_ID = "mc.gouv.piwik.external" + applicationPrefix + ".piwikSiteId";
+    public static final String FRONTOFFICE_PIWIK_SITE_ID = "mc.gouv.piwik.external." + applicationName + ".piwikSiteId";
 
     public static String getFrontofficePiwikSiteId() {
         return Static.getValue(FRONTOFFICE_PIWIK_SITE_ID);

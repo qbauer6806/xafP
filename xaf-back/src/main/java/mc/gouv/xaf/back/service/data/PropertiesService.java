@@ -46,6 +46,21 @@ public interface PropertiesService {
     List<PropertiesDTO> getAdminsFonctionnelsProperties();
     
     /**
+     * Ajoute ou mets à jour une Properties
+     *
+     * @param toSave La propriété à sauvegarder
+     * @return la Properties sauvée
+     */
+    PropertiesDTO saveOrUpdateProperties(PropertiesDTO toSave);
+
+    /**
+     * Supprime une Properties
+     *
+     * @param propertiesId L'id de la propriété à supprimer
+     */
+    void deleteProperties(Integer propertiesId);
+    
+    /**
      * Récupérer une Property par sa clé
      * @param demarcheId
      * @param key

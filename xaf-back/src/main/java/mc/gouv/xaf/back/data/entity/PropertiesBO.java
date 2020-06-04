@@ -32,8 +32,12 @@ public class PropertiesBO {
     @Size(min = 1, max = 256)
     private String key;
 
-    @Column(name = "VALUE", length = 10000)
-    @Size(max = 10000)
+    @Column(name = "DESCRIPTIF", length = 256)
+    @NotEmpty
+    @Size(min = 1, max = 256)
+    private String descriptif;
+
+    @Column(name = "VALUE", columnDefinition = "TEXT")
     private String value;
 
     public Integer getPkProperties() {
@@ -68,6 +72,14 @@ public class PropertiesBO {
         this.key = key;
     }
 
+    public String getDescriptif() {
+        return descriptif;
+    }
+
+    public void setDescriptif(String descriptif) {
+        this.descriptif = descriptif;
+    }
+
     public String getValue() {
         return value;
     }
@@ -75,5 +87,4 @@ public class PropertiesBO {
     public void setValue(String value) {
         this.value = value;
     }
-
 }

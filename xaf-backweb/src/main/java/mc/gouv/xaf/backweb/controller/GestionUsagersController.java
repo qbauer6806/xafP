@@ -6,6 +6,7 @@ import java.util.Locale;
 
 import javax.validation.Valid;
 
+import mc.gouv.servicerest.usager.model.UsagerBean;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,9 +71,6 @@ public class GestionUsagersController extends AbstractController {
 
     @Autowired
     private AfBackUtils afBackUtils;
-
-    @Autowired
-    private UsagersUtils usagersUtils;
 
     @Autowired
     private MessageSource messageSource;
@@ -179,7 +177,7 @@ public class GestionUsagersController extends AbstractController {
         usagerCourrier.setRaisonSociale(usagerCourrierFormBean.getRaisonSociale());
         usagerCourrier.setTelephone(usagerCourrierFormBean.getTelephone());
         usagerCourrier.setVille(usagerCourrierFormBean.getVille());
-        usagerCourrier.setTitre(usagersUtils.abbreviationToTitre(usagerCourrierFormBean.getTitre()));
+        usagerCourrier.setTitre(UsagersUtils.abbreviationToTitre(usagerCourrierFormBean.getTitre()));
         usagerCourrier.setPays(usagerCourrierFormBean.getPaysChoisi());
 
         if (StringUtils.isBlank(usagerCourrierFormBean.getNom())
@@ -218,8 +216,6 @@ public class GestionUsagersController extends AbstractController {
             usagerCourrier = usagersCourrierService.saveUsagerCourrier(gouvPropertiesResolver.getDemarcheId(),
                     usagerCourrier);
 
-            usagersCache.refresh();
-
             // Ajout du message de succès
             List<String> messages = new ArrayList<String>();
             messages.add(
@@ -232,14 +228,16 @@ public class GestionUsagersController extends AbstractController {
             usagerCourrier = usagersCourrierService.updateUsagerCourrier(gouvPropertiesResolver.getDemarcheId(),
                     usagerCourrier);
 
-            usagersCache.refresh();
-
             // Ajout du message de succès
             List<String> messages = new ArrayList<String>();
             messages.add(messageSource.getMessage(I18N_MODIFICATION_USAGER_COURRIER_SUCCESS_CODE_MESSAGE, null,
                     Locale.FRENCH));
             redirectAttributes.addFlashAttribute("successMessages", messages);
         }
+
+        // Update du cache
+        UsagerBean usagerCourrierBean = UsagersUtils.convertUsagerCourrierDTOToUsagerBean(usagerCourrier);
+        usagersCache.add(usagerCourrierBean.getId(), usagerCourrierBean);
 
         LOGGER.info("======================= Fin /gestion/usagers/creer (POST)");
 
@@ -268,7 +266,7 @@ public class GestionUsagersController extends AbstractController {
         usagerCourrierFormBean.setPrenom(usager.getPrenom());
         usagerCourrierFormBean.setRaisonSociale(usager.getRaisonSociale());
         usagerCourrierFormBean.setTelephone(usager.getTelephone());
-        usagerCourrierFormBean.setTitre(usagersUtils.titreToAbbreviation(usager.getTitre()));
+        usagerCourrierFormBean.setTitre(UsagersUtils.titreToAbbreviation(usager.getTitre()));
         usagerCourrierFormBean.setVille(usager.getVille());
 
         LOGGER.info("======================= Fin /gestion/usagers");

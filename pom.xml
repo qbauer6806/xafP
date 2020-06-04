@@ -10,6 +10,7 @@
 	<properties>
 		<servicerest_client.version>2.2.15</servicerest_client.version>
 		<tika.version>1.22</tika.version>
+		<xcb-wlib.version>1.2.0</xcb-wlib.version>
 	</properties>
 
 	<groupId>mc.gouv.xaf</groupId>

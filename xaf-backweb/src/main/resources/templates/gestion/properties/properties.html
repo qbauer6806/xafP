@@ -56,13 +56,8 @@
 
         <div class="container-fluid">
             <div class="row">
-                <div class="col-xs-12 col-sm-8">
+                <div class="col-xs-12">
                     <h1>Administration des propriétés</h1>
-                </div>
-                <div th:if="${AfBackUtils.getDemarcheCanHandleProperties()}" class="col-xs-12 col-sm-4" align="right">
-                    <button id="boutonAjouter" class="btn btn-action ripple-effect">
-                        <i class="icon-action_plus"></i><span>ajouter une propriété</span>
-                    </button>
                 </div>
 
                 <div th:if="${AfBackUtils.getDemarcheCanHandleProperties()}" class="col-xs-12 tableContent">
@@ -72,6 +67,7 @@
                         <tr>
                             <th>Type</th>
                             <th>Clé</th>
+                            <th>Descriptif</th>
                             <th>Valeur</th>
                             <th>Action</th>
                         </tr>
@@ -80,19 +76,14 @@
                         <tr th:each="property : ${properties}">
                             <td th:text="${property.type}"></td>
                             <td th:text="${property.key}"></td>
+                            <td th:text="${property.descriptif}"></td>
                             <td th:text="${property.value}"></td>
                             <td>
                                 <button class="btn btn-action ripple-effect greyTooltip boutonModifier"
                                         data-toggle="tooltip" data-placement="bottom"
                                         data-original-title="Modifier la propriété"
-                                        th:attr="data-pkproperties=${property.pkProperties},data-type=${property.type},data-key=${property.key},data-value=${property.value}">
+                                        th:attr="data-pkproperties=${property.pkProperties},data-type=${property.type},data-key=${property.key},data-descriptif=${property.descriptif},data-value=${property.value}">
                                     <i class="icon-action_modifier"></i>
-                                </button>
-                                <button class="btn btn-action ripple-effect greyTooltip boutonSupprimer"
-                                        data-toggle="tooltip" data-placement="bottom"
-                                        data-original-title="Supprimer la propriété"
-                                        th:attr="data-pkproperties=${property.pkProperties}">
-                                    <i class="icon-action_supprimer"></i>
                                 </button>
                             </td>
                         </tr>
@@ -111,81 +102,40 @@
 
     <!-- EDITION MODAL -->
     <div id="editionModal" style="display: none">
-        <form method="POST" id="editionPropertiesForm" th:action="@{/gestion/properties/edit}"
-              th:object="${propertiesFormBean}">
+        <form method="POST" id="editionPropertiesForm" th:action="@{/gestion/properties/edit}">
             <!-- input cachée pour insérer la pk de la properties à modifier -->
-            <input type="hidden" id="pkProperties" name="pkProperties" th:field="*{pkProperties}"/>
+            <input type="hidden" id="pkProperties" name="pkProperties"/>
             <div class="row no-margin-row" style="width: 400px;">
                 <div class="col-xs-12 text-center">
-                    <h2 id="saveTitle">save</h2>
+                    <h2>Modification d'une propriété</h2>
                 </div>
-                <div class="col-xs-12"
-                     th:class="${#fields.hasErrors('type')} ? 'form-group error' : 'form-group'">
-                    <label for="propertiesType">Type<span class="required"></span></label>
-                    <select id="propertiesType" required type="text" name="type" class="form-control"
-                            th:field="*{type}">
-                        <option th:value="null">
-                            Veuillez sélectionner une valeur...
-                        </option>
-                        <option th:value="FRONT">Propriété Front</option>
-                        <option th:value="BACK">Propriété Back</option>
-                    </select>
+                <div class="col-xs-12">
+                    <strong>Type :</strong>&nbsp;<span id="propertiesType"></span>
                 </div>
-                <div class="col-xs-12"
-                     th:class="${#fields.hasErrors('key')} ? 'form-group error' : 'form-group'">
-                    <label for="propertiesKey">Clé<span class="required"></span></label>
-                    <input id="propertiesKey" required type="text" name="key" maxlength="256" class="form-control"
-                           th:field="*{key}"/>
+                <div class="col-xs-12 mt-15">
+                    <strong>Clé :</strong>&nbsp;<span id="propertiesKey"></span>
                 </div>
-                <div class="col-xs-12"
-                     th:class="${#fields.hasErrors('value')} ? 'form-group error' : 'form-group'">
+                <div class="col-xs-12 mt-15">
+                    <strong>Descriptif :</strong>&nbsp;<span id="propertiesDescriptif"></span>
+                </div>
+                <div class="col-xs-12 mt-15 form-group">
                     <label for="propertiesValue">Valeur<span class="required"></span></label>
-                    <input id="propertiesValue" required type="text" name="value" maxlength="10000" class="form-control"
-                           th:field="*{value}"/>
+                    <textarea id="propertiesValue" required name="value" class="form-control"
+                              style="overflow: auto; max-height: 500px"></textarea>
                 </div>
                 <div class="col-xs-12 text-center">
                     <button id="annulerEditBouton" class="btn btn-action-second ripple-effect annulerBouton"
-                            type="button" name="annuler"
-                            value="annuler">
+                            type="button" name="annuler" value="annuler">
                         annuler
                     </button>
-                    <!-- La valeur de l'action et le texte du bouton sont modifiées à l'ouverture de la popup -->
-                    <button id="saveBtn" class="btn btn-action ripple-effect" type="submit" name="action"
-                            value="save">
-                        save
+                    <button id="saveBtn" class="btn btn-action ripple-effect" type="submit">
+                        modifier
                     </button>
                 </div>
             </div>
         </form>
     </div>
     <!-- FIN EDITION MODAL -->
-
-    <!-- SUPRESSION MODAL -->
-    <div id="supressionModal" style="display: none">
-        <form method="POST" id="suppressionPropertiesForm" th:action="@{/gestion/properties/supprimer}">
-            <!-- input cachée pour insérer la pk de la properties à modifier -->
-            <input type="hidden" id="pkPropertiesSuppr" name="pkProperties"/>
-            <div class="row no-margin-row text-center" style="width: 400px;">
-                <div class="col-xs-12">
-                    <h2>Suppression d'une propriété</h2>
-                </div>
-                <div class="col-xs-12">
-                    <span>Êtes-vous sûr(e) de vouloir supprimer cette propriété ?</span>
-                </div>
-                <div class="col-xs-12 margin-top">
-                    <button id="annulerSupprBouton" class="btn btn-action-second ripple-effect annulerBouton"
-                            type="button" name="annuler"
-                            value="annuler">
-                        annuler
-                    </button>
-                    <button id="supprBtn" class="btn btn-action ripple-effect" type="submit">
-                        supprimer
-                    </button>
-                </div>
-            </div>
-        </form>
-    </div>
-    <!-- FIN SUPPRESSION MODAL -->
 
 </div>
 
@@ -195,6 +145,7 @@
 
     /*<![CDATA[*/
     $(document).ready(function () {
+        autosize($("#propertiesValue"));
 
         var messagesSuccessList = /*[[${successMessages}]]*/'default';
         if (messagesSuccessList !== 'undefined' && messagesSuccessList !== null) {
@@ -218,57 +169,21 @@
             });
         }
 
-        $("#boutonAjouter").click(function (e) {
-            e.preventDefault();
-
-            $('#pkProperties').val(null);
-            $('#propertiesType').val('');
-            $('#propertiesKey').val('');
-            $('#propertiesValue').val('');
-
-            $('#saveTitle').html('Ajout d\'une propriété');
-            $('#saveBtn').val('ajouter');
-            $('#saveBtn').html('ajouter');
-
-            $.fancybox.open({
-                src: '#editionModal',
-                type: 'inline'
-            });
-            return true;
-        });
-
         $(".boutonModifier").click(function (e) {
             e.preventDefault();
 
-            $('#saveTitle').html('Modification d\'une propriété');
-            $('#saveBtn').val('modifier');
-            $('#saveBtn').html('modifier');
-
             $('#pkProperties').val($(this).data('pkproperties'));
-            $('#propertiesType').val($(this).data('type'));
-            $('#propertiesKey').val($(this).data('key'));
+            $('#propertiesType').text($(this).data('type'));
+            $('#propertiesKey').text($(this).data('key'));
+            $('#propertiesDescriptif').text($(this).data('descriptif'));
             $('#propertiesValue').val($(this).data('value'));
 
             $.fancybox.open({
                 src: '#editionModal',
                 type: 'inline'
             });
-            return true;
-        });
 
-        $('.boutonSupprimer').click(function (e) {
-            e.preventDefault();
-            var pk = $(this).data('pkproperties');
-            $('#pkPropertiesSuppr').val(pk);
-            $.fancybox.open({
-                src: '#supressionModal',
-                type: 'inline',
-                iframe: {
-                    css: {
-                        width: '300px'
-                    }
-                }
-            });
+            autosize.update($('#propertiesValue'));
             return true;
         });
 

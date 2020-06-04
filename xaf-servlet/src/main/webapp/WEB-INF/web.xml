@@ -175,4 +175,13 @@
         <url-pattern>/properties</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>DateServlet</servlet-name>
+        <servlet-class>mc.gouv.xaf.servlet.DateServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>DateServlet</servlet-name>
+        <url-pattern>/date</url-pattern>
+    </servlet-mapping>
+
 </web-app>

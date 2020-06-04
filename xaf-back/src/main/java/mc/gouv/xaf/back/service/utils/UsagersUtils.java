@@ -1,6 +1,7 @@
 package mc.gouv.xaf.back.service.utils;
 
-import org.springframework.stereotype.Component;
+import mc.gouv.servicerest.usager.model.UsagerBean;
+import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 
 /**
  * Classe utilitaire pour la gestion des usagers. 
@@ -14,7 +15,6 @@ import org.springframework.stereotype.Component;
  * @author mboutelier.ext
  *
  */
-@Component
 public class UsagersUtils {
 
     /**
@@ -23,7 +23,7 @@ public class UsagersUtils {
      * @param titre
      * @return
      */
-    public String titreToAbbreviation(Integer titre) {
+    public static String titreToAbbreviation(Integer titre) {
         String abbr = null;
 
         if (titre != null) {
@@ -51,19 +51,19 @@ public class UsagersUtils {
      * @param abbr
      * @return
      */
-    public Integer abbreviationToTitre(String abbr) {
+    public static Integer abbreviationToTitre(String abbr) {
         Integer titre = null;
 
         if (abbr != null) {
             switch (abbr) {
                 case "Mr":
-                    titre = Integer.valueOf(AfBackUtils.GENDER_MR_INDEX);
+                    titre = (int) AfBackUtils.GENDER_MR_INDEX;
                     break;
                 case "Mme":
-                    titre = Integer.valueOf(AfBackUtils.GENDER_MME_INDEX);
+                    titre = (int) AfBackUtils.GENDER_MME_INDEX;
                     break;
                 case "Mlle":
-                    titre = Integer.valueOf(AfBackUtils.GENDER_MLLE_INDEX);
+                    titre = (int) AfBackUtils.GENDER_MLLE_INDEX;
                     break;
                 default:
                     break;
@@ -71,6 +71,33 @@ public class UsagersUtils {
         }
 
         return titre;
+    }
+
+    public static UsagerBean convertUsagerCourrierDTOToUsagerBean(UsagerCourrierDTO uc) {
+        if (uc == null) {
+            return null;
+        }
+        UsagerBean ub = new UsagerBean();
+        ub.setAdresse1(uc.getAdresse1());
+        ub.setAdresse2(uc.getAdresse2());
+        ub.setCodePostal(uc.getCodePostal());
+        ub.setComplementAdresse(uc.getAdresseComplement());
+        ub.setDateCreation(uc.getDateCreation());
+        ub.setEmail(uc.getEmail());
+        ub.setId(uc.getPkUsagersCourrier());
+        ub.setLogin(uc.getLogin());
+        ub.setNom(uc.getNom());
+        ub.setPrenom(uc.getPrenom());
+        ub.setNomPays(uc.getPays());
+        ub.setRaisonSociale(uc.getRaisonSociale());
+
+        if (uc.getTitre() != null) {
+            ub.setTitre(uc.getTitre().shortValue());
+        }
+
+        ub.setVille(uc.getVille());
+
+        return ub;
     }
 
 }

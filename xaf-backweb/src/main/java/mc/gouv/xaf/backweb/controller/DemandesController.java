@@ -1,11 +1,9 @@
 package mc.gouv.xaf.backweb.controller;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
+import mc.gouv.logon.shared.User;
+import mc.gouv.xaf.back.service.DemarchesDataProvider;
+import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
+import mc.gouv.xaf.backweb.dto.AgentAffichageDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,12 +13,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-import mc.gouv.xaf.back.service.DemarchesDataProvider;
-import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
-import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
-import mc.gouv.xaf.backweb.dto.AgentAffichageDTO;
-import mc.gouv.logon.shared.User;
-import mc.gouv.servicerest.usager.model.UsagerBean;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * Controller pour la page /demandes
@@ -31,9 +27,6 @@ import mc.gouv.servicerest.usager.model.UsagerBean;
 @Controller
 @RequestMapping("/demandes")
 public class DemandesController extends AbstractController {
-
-    @Autowired
-    private UsagersCache usagersCache;
 
     @Autowired
     private UtilisateursCache utilisateursCache;
@@ -61,14 +54,11 @@ public class DemandesController extends AbstractController {
             agentsAffichage.add(getAgentAffichageFromUser(u));
         }
 
-        Collection<UsagerBean> usagers = usagersCache.getAll().values();
-
         LOGGER.info("======================= Fin /demandes");
 
         ModelAndView mav = new ModelAndView("demandes/demandes");
         mav.addObject("agentsInit", agentsAffichage);
         mav.addObject("statuts", demarchesDataProvider.getStatusMap());
-        mav.addObject("usagersInit", usagers);
         mav.addObject("texte", texte);
         return mav;
     }

@@ -6,5 +6,13 @@ package mc.gouv.xaf.shared.dto;
  * @author mboutelier.ext
  */
 public enum PropertiesTypeEnum {
-    FRONT, BACK, BACK_APPLI
+    FRONT,
+    FRONT_AF,
+    FRONT_GEST,
+    BACK,
+    BACK_AF,
+    BACK_GEST,
+    BACK_APPLI,
+    BACKFRONT_AF,
+    BACKFRONT_GEST
 }

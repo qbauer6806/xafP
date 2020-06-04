@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      class="no-js sidebar-left-collapsed" lang="fr" dir="ltr">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="x-ua-compatible" content="ie=edge"/>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <meta name="description" content=""/>
+    <meta name="author" content=""/>
+    <meta th:name="_csrf" th:content="${_csrf.token}"/>
+    <meta th:name="_csrf_header" th:content="${_csrf.headerName}"/>
+
+    <title th:text="${titre}"></title>
+
+    <!-- Import FONTS -->
+    <link th:href="@{/webjars/xcb-wlib/fonts/style.css}" rel="stylesheet"/>
+    <!--[if lt IE 8]><!-->
+    <link rel="stylesheet" th:href="@{/webjars/xcb-wlib/fonts/ie7/ie7.css}"/>
+
+    <!-- Import CSS -->
+    <link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"
+          rel="stylesheet" type="text/css"/>
+    <link th:href="@{/webjars/xcb-wlib/css/template.css}" rel="stylesheet"/>
+    <link th:href="@{/webjars/xcb-wlib/css/sidebar.css}" rel="stylesheet"/>
+    <link th:href="@{/webjars/xcb-wlib/css/element.css}" rel="stylesheet"/>
+    <link th:href="@{/webjars/datatables/css/dataTables.bootstrap.css}"
+          rel="stylesheet"/>
+    <link rel="stylesheet"
+          th:href="@{/webjars/fancybox/jquery.fancybox.css}"/>
+    <link rel="shortcut icon" type="image/x-icon"
+          th:href="@{/img/favicon.ico}"/>
+    <link th:href="@{/css/tsgen.css(${applicationBuildTimestamp})}"
+          rel="stylesheet"/>
+    <link th:href="@{/css/tsdem.css(${applicationBuildTimestamp})}"
+          rel="stylesheet"/>
+</head>
+<body th:with="pageConfigurationActive='active'">
+
+<div th:replace="fragments/header :: header"></div>
+
+<div id="wrapper">
+
+    <div th:replace="fragments/sidebar :: sidebar"></div>
+
+    <!-- DEBUT CONTENU -->
+    <div id="page-content-wrapper">
+
+        <div class="breadcrumbContent">
+            <div class="breadcrumb">
+                <a id="ariane0" th:href="@{/}" class="breadcrumb-item active">Accueil</a>&nbsp;&gt;&nbsp;
+                <a id="ariane1" th:href="@{/denjs/gestion/agents}" class="breadcrumb-item active">GESTION DES AGENTS</a>
+            </div>
+            <div class="triangleTopright"></div>
+        </div>
+
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-xs-12 col-sm-8">
+                    <h1>Gestion des agents</h1>
+                </div>
+                <div class="col-xs-12 col-sm-8">
+                    <span>Modifier l'établissement dans lequel l'agent intervient</span>
+                </div>
+
+                <div th:if="${AfBackUtils.getDemarcheCanHandleProperties()}" class="col-xs-12 tableContent">
+                    <div class="tableTitle">Agents</div>
+                    <table id="datatable-properties" class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>Agent</th>
+                            <th>Établissement</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="agent : ${agents}">
+                            <td th:text="${agent.agentNom}"></td>
+                            <td th:text="${agent.etablissementNom}"></td>
+                            <td>
+                                <button class="btn btn-action ripple-effect greyTooltip boutonModifier"
+                                        data-toggle="tooltip" data-placement="bottom"
+                                        data-original-title="Modifier l'affectation"
+                                        th:attr="data-agentmatricule=${agent.agentMatricule},data-etablissementcode=${agent.etablissementCode},data-etablissementnom=${agent.etablissementNom}">
+                                    <i class="icon-action_modifier"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div th:unless="${AfBackUtils.getDemarcheCanHandleProperties()}" class="col-xs-12">
+                    Cette page n'est pas accessible.
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <!-- FIN CONTENU -->
+
+    <!-- EDITION MODAL -->
+    <div id="editionModal" style="display: none">
+        <form method="POST" id="editionPropertiesForm" th:action="@{/denjs/gestion/agents/edit}"
+              th:object="${denjsGestionAgentsFormBean}">
+            <!-- input cachée pour insérer la pk de la properties à modifier -->
+            <input type="hidden" id="agentMatricule" name="agentMatricule" th:field="*{agentMatricule}"/>
+            <div class="row no-margin-row" style="width: 500px;">
+                <div class="col-xs-12 text-center">
+                    <h2 id="saveTitle">Modifier l'établissement affecté à un agent</h2>
+                </div>
+                <div class="col-xs-12">
+                    <select id="etablissementCode" required type="text" name="type" class="form-control"
+                            th:field="*{etablissementCode}">
+                        <option th:value="aucun">
+                            Sélectionner un établissement
+                        </option>
+                        <option th:each="etablissement : ${etablissements}" th:value="${etablissement.code}" th:text="${etablissement.nom}">
+                        </option>
+                    </select>
+                </div>
+                <div class="col-xs-12 text-center"><br/></div>
+                <div class="col-xs-12 text-center">
+                    <button id="annulerEditBouton" class="btn btn-action-second ripple-effect annulerBouton"
+                            type="button" name="annuler"
+                            value="annuler">
+                        annuler
+                    </button>
+                    <button id="saveBtn" class="btn btn-action ripple-effect" type="submit" name="action"
+                            value="valider">
+                        valider
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <!-- FIN EDITION MODAL -->
+
+</div>
+
+<div th:replace="fragments/footer :: footer"></div>
+
+<script th:inline="javascript">
+
+    /*<![CDATA[*/
+    $(document).ready(function () {
+
+        var messagesSuccessList = /*[[${successMessages}]]*/'default';
+        if (messagesSuccessList !== 'undefined' && messagesSuccessList !== null) {
+            $.each(messagesSuccessList, function (key, msg) {
+                $.notify({
+                    message: msg
+                }, {
+                    type: 'success'
+                });
+            });
+        }
+
+        var messagesErrorList = /*[[${errorMessages}]]*/'default';
+        if (messagesErrorList !== 'undefined' && messagesErrorList !== null) {
+            $.each(messagesErrorList, function (key, msg) {
+                $.notify({
+                    message: msg
+                }, {
+                    type: 'danger'
+                });
+            });
+        }
+
+        $(".boutonModifier").click(function (e) {
+            e.preventDefault();
+
+            $('#agentMatricule').val($(this).data('agentmatricule'));
+
+            $.fancybox.open({
+                src: '#editionModal',
+                type: 'inline'
+            });
+            return true;
+        });
+
+        $('.annulerBouton').click(function (e) {
+            e.preventDefault();
+            $.fancybox.close();
+            return true;
+        });
+
+    });
+    /*]]>*/
+</script>
+
+</body>
+</html>

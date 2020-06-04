@@ -151,4 +151,14 @@ public class PropertiesServiceImpl implements PropertiesService {
 
         return result;
     }
+
+	@Override
+	public PropertiesDTO getProperty(String demarcheId, String key) {
+        Optional<PropertiesBO> propertiesBoOptional = propertiesRepository.findByDemarchePkDemarchesAndKey(demarcheId, key);
+        if (propertiesBoOptional.isPresent()) {
+            PropertiesBO propertiesBO = propertiesBoOptional.get();
+            return PropertiesTransformer.bo2Dto(propertiesBO);
+        }
+        return null;
+	}
 }

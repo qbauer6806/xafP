@@ -50,4 +50,12 @@ public interface PropertiesService {
      * @return un boolean contenant le résultat
      */
     boolean checkProperty(PropertiesDTO toCheck, boolean isCreate);
+    
+    /**
+     * Récupérer une Property par sa clé
+     * @param demarcheId
+     * @param key
+     * @return
+     */
+    PropertiesDTO getProperty(String demarcheId, String key);
 }

@@ -23,6 +23,7 @@ public class PropertiesTransformer {
         dto.setDemarcheId(bo.getDemarche().getPkDemarches());
         dto.setType(PropertiesTypeEnum.valueOf(bo.getType()));
         dto.setKey(bo.getKey());
+        dto.setDescriptif(bo.getDescriptif());
         dto.setValue(bo.getValue());
         return dto;
     }
@@ -32,6 +33,7 @@ public class PropertiesTransformer {
         bo.setPkProperties(dto.getPkProperties());
         bo.setType(dto.getType().name());
         bo.setKey(dto.getKey());
+        bo.setDescriptif(dto.getDescriptif());
         bo.setValue(dto.getValue());
         return bo;
     }

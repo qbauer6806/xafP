@@ -1,5 +1,12 @@
 package mc.gouv.xaf.servlet.properties;
 
+import mc.gouv.Static;
+import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
+import mc.gouv.xaf.shared.dto.PropertiesDTO;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
@@ -9,13 +16,6 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import mc.gouv.Static;
-import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
 
 public class AfServletGouvPropertiesResolver {
 
@@ -27,7 +27,7 @@ public class AfServletGouvPropertiesResolver {
     private static String applicationName = "";
     /*
      * .hab
-     * Sert à gérer s'il n'y a pas de fichier config.properties alors 
+     * Sert à gérer s'il n'y a pas de fichier config.properties alors
      * nous prenons en compte les properties sans prefix ex : mc.gouv.appfactory.url et non pas mc.gouv.appfactory.hab.url
      */
     private static String applicationPrefix = "";
@@ -66,7 +66,7 @@ public class AfServletGouvPropertiesResolver {
     public static String getLoginRestUrl() {
         return Static.getValue(LOGIN_REST_URL);
     }
-    
+
     public static final String LOGIN_SERVICEREST_URL = "mc.gouv.appfactory.external.login.servicerest.url";
 
     public static String getLoginServiceRestUrl() {
@@ -85,9 +85,25 @@ public class AfServletGouvPropertiesResolver {
         return Static.getValue(FILE_URL);
     }
 
-    /**
-     * Properties propres à la démarche
-     */
+    public static final String LOGIN_KEEP_ALIVE = "mc.gouv.appfactory.front.login.keepalive.url";
+
+    public static String getLoginKeepAlive() {
+        return Static.getValue(LOGIN_KEEP_ALIVE);
+    }
+
+    public static final String LOGIN_URL = "mc.gouv.appfactory.front.login.url";
+
+    public static String getLoginUrl() {
+        return Static.getValue(LOGIN_URL);
+    }
+
+    public static final String LOGIN_PROFIL_URL = "mc.gouv.appfactory.front.login.profil.url";
+
+    public static String getLoginProfilUrl() {
+        return Static.getValue(LOGIN_PROFIL_URL);
+    }
+
+    /* Properties propres à la démarche */
 
     public static final String API_URL = "mc.gouv.appfactory" + applicationPrefix + ".api.url";
 
@@ -124,19 +140,19 @@ public class AfServletGouvPropertiesResolver {
     public static String getApiJwt() {
         return Static.getValue(API_JWT);
     }
-    
+
     public static final String TGFAPI_URL = "mc.gouv.appfactory.tgfapi.url";
 
     public static String getTgfApiUrl() {
         return Static.getValue(TGFAPI_URL);
     }
-    
+
     public static final String TGFAPI_JWT = "mc.gouv.appfactory.tgfapi.jwt";
 
     public static String getTgfApiJwt() {
         return Static.getValue(TGFAPI_JWT);
     }
-    
+
     public static final String VSCAN_URL = "mc.gouv.appfactory.external.vscan.url";
 
     public static String getVscanUrl() {
@@ -148,10 +164,28 @@ public class AfServletGouvPropertiesResolver {
     public static String getVscanJwt() {
         return Static.getValue(VSCAN_JWT);
     }
-    
+
+    public static final String FRONTOFFICE_CONTACT_URL = "mc.gouv.appfactory" + applicationPrefix + ".front.login.contact.url";
+
+    public static String getFrontofficeContactUrl() {
+        return Static.getValue(FRONTOFFICE_CONTACT_URL);
+    }
+
+    public static final String FRONTOFFICE_COPYRIGHT_YEARS = "mc.gouv.appfactory" + applicationPrefix + ".front.copyright.years";
+
+    public static String getFrontofficeCopyrightYears() {
+        return Static.getValue(FRONTOFFICE_COPYRIGHT_YEARS);
+    }
+
+    public static final String FRONTOFFICE_PIWIK_SITE_ID = "mc.gouv.piwik.external" + applicationPrefix + ".piwikSiteId";
+
+    public static String getFrontofficePiwikSiteId() {
+        return Static.getValue(FRONTOFFICE_PIWIK_SITE_ID);
+    }
+
     static {
         //Vérification que chaque propriété a bien été configurée
-        List<String> propertiesNotFound = new ArrayList<String>();
+        List<String> propertiesNotFound = new ArrayList<>();
         try {
             Method m = Static.class.getDeclaredMethod("getValue", String.class);
 
@@ -188,4 +222,14 @@ public class AfServletGouvPropertiesResolver {
         }
     }
 
+    public static List<PropertiesDTO> getFrontProperties() {
+        List<PropertiesDTO> propertiesDTOS = new ArrayList<>();
+        propertiesDTOS.add(new PropertiesDTO(LOGIN_KEEP_ALIVE, getLoginKeepAlive()));
+        propertiesDTOS.add(new PropertiesDTO(LOGIN_URL, getLoginUrl()));
+        propertiesDTOS.add(new PropertiesDTO(LOGIN_PROFIL_URL, getLoginProfilUrl()));
+        propertiesDTOS.add(new PropertiesDTO(FRONTOFFICE_CONTACT_URL, getFrontofficeContactUrl()));
+        propertiesDTOS.add(new PropertiesDTO(FRONTOFFICE_COPYRIGHT_YEARS, getFrontofficeCopyrightYears()));
+        propertiesDTOS.add(new PropertiesDTO(FRONTOFFICE_PIWIK_SITE_ID, getFrontofficePiwikSiteId()));
+        return propertiesDTOS;
+    }
 }

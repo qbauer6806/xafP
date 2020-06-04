@@ -28,26 +28,27 @@ public interface PropertiesService {
     List<PropertiesDTO> getPropertiesByType(PropertiesTypeEnum type);
 
     /**
-     * Ajoute ou mets à jour une Properties
+     * Récupère les Properties d'une démarche liées à une liste de types
      *
-     * @param toSave La propriété à sauvegarder
-     * @return la Properties sauvée
+     * @param types La liste de types à filtrer
+     * @return une List de Properties
      */
-    PropertiesDTO saveOrUpdateProperties(PropertiesDTO toSave);
+    List<PropertiesDTO> getPropertiesByTypeList(List<PropertiesTypeEnum> types);
 
     /**
-     * Supprime une Properties
-     *
-     * @param propertiesId L'id de la propriété à supprimer
+     * Récupère la liste des propriétés FRONT
      */
-    void deleteProperties(Integer propertiesId);
+    List<PropertiesDTO> getFrontProperties();
 
     /**
-     * Vérification de la clé de la propriété pour garantir l'unicité
-     *
-     * @param toCheck  La propriété à vérifier
-     * @param isCreate Flag indiquant si l'action est une création
-     * @return un boolean contenant le résultat
+     * Récupère la liste des propriétés Admins Fonctionnels
      */
-    boolean checkProperty(PropertiesDTO toCheck, boolean isCreate);
+    List<PropertiesDTO> getAdminsFonctionnelsProperties();
+
+    /**
+     * Ajoute ou mets à jour la valeur d'une Properties
+     *
+     * @return le dto de la propriété sauvée
+     */
+    PropertiesDTO updatePropertyValue(Integer pkProperties, String value);
 }

@@ -2,6 +2,7 @@ package mc.gouv.xaf.shared.dto;
 
 /**
  * Modélise une donnée d'un properties
+ *
  * @author mboutelier.ext
  */
 public class PropertiesDTO {
@@ -14,7 +15,17 @@ public class PropertiesDTO {
 
     private String key;
 
+    private String descriptif;
+
     private String value;
+
+    public PropertiesDTO() {
+    }
+
+    public PropertiesDTO(String key, String value) {
+        this.key = key;
+        this.value = value;
+    }
 
     public Integer getPkProperties() {
         return pkProperties;
@@ -48,6 +59,14 @@ public class PropertiesDTO {
         this.key = key;
     }
 
+    public String getDescriptif() {
+        return descriptif;
+    }
+
+    public void setDescriptif(String descriptif) {
+        this.descriptif = descriptif;
+    }
+
     public String getValue() {
         return value;
     }
@@ -55,4 +74,5 @@ public class PropertiesDTO {
     public void setValue(String value) {
         this.value = value;
     }
+
 }

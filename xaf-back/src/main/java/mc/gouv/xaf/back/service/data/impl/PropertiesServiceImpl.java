@@ -1,8 +1,7 @@
 package mc.gouv.xaf.back.service.data.impl;
 
-import mc.gouv.xaf.back.data.dao.DemarchesRepository;
+import mc.gouv.Static;
 import mc.gouv.xaf.back.data.dao.PropertiesRepository;
-import mc.gouv.xaf.back.data.entity.DemarchesBO;
 import mc.gouv.xaf.back.data.entity.PropertiesBO;
 import mc.gouv.xaf.back.data.transformer.PropertiesTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
@@ -18,6 +17,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,8 +33,10 @@ public class PropertiesServiceImpl implements PropertiesService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PropertiesServiceImpl.class);
 
-    @Autowired
-    private DemarchesRepository demarchesRepository;
+    private static final PropertiesTypeEnum[] FRONT_PROPERTIES = {PropertiesTypeEnum.FRONT_AF,
+            PropertiesTypeEnum.FRONT_GEST, PropertiesTypeEnum.BACKFRONT_AF, PropertiesTypeEnum.BACKFRONT_GEST};
+    private static final PropertiesTypeEnum[] AF_PROPERTIES = {PropertiesTypeEnum.FRONT_AF,
+            PropertiesTypeEnum.BACKFRONT_AF, PropertiesTypeEnum.BACK_AF};
 
     @Autowired
     private PropertiesRepository propertiesRepository;
@@ -71,84 +74,59 @@ public class PropertiesServiceImpl implements PropertiesService {
     }
 
     /**
-     * Ajoute ou mets à jour une Properties
+     * Récupère les Properties d'une démarche liées à une liste de types
      *
-     * @param toSave La propriété à sauvegarder
-     * @return la Properties sauvée
+     * @param types La liste de types à filtrer
+     * @return une List de Properties
      */
     @Override
-    public PropertiesDTO saveOrUpdateProperties(PropertiesDTO toSave) {
-        PropertiesDTO saved;
-        String demarcheId = gouvPropertiesResolver.getDemarcheId();
-
-        // Vérification préalable de l'existence de la démarche
-        Optional<DemarchesBO> demarcheBo = demarchesRepository.findById(demarcheId);
-        if (!demarcheBo.isPresent()) {
-            throw new DemarchesServiceException("La démarche spécifiée est introuvable", HttpStatus.NOT_FOUND);
-        }
-
-        if (toSave.getPkProperties() == null) {
-            LOGGER.info("Création d'une nouvelle propriété ...");
-            LOGGER.info(SharedMessages.TRANSFORMATION_DTO_BO);
-            PropertiesBO bo = PropertiesTransformer.dto2Bo(toSave);
-            bo.setDemarche(demarcheBo.get());
-            bo = propertiesRepository.save(bo);
-            LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
-            saved = PropertiesTransformer.bo2Dto(bo);
+    public List<PropertiesDTO> getPropertiesByTypeList(List<PropertiesTypeEnum> types) {
+        List<PropertiesDTO> result = new ArrayList<>();
+        if (types.isEmpty()) {
+            LOGGER.info("La liste des types est vide !");
         } else {
-            LOGGER.info("Mise à jour d'une propriété");
-            Optional<PropertiesBO> propertiesBoOpt = propertiesRepository.findById(toSave.getPkProperties());
-            if (!propertiesBoOpt.isPresent()) {
-                throw new DemarchesServiceException("La propriété spécifiée est introuvable", HttpStatus.NOT_FOUND);
-            }
-            PropertiesBO bo = propertiesBoOpt.get();
-            bo.setValue(toSave.getValue());
-            bo.setKey(toSave.getKey());
-            bo.setType(toSave.getType().name());
-            bo = propertiesRepository.save(bo);
+            List<String> typeStr = new ArrayList<>(types.size());
+            types.forEach(type -> typeStr.add(type.name()));
+            LOGGER.info("Récupération en base des propriétés ...");
+            String demarcheId = gouvPropertiesResolver.getDemarcheId();
+            List<PropertiesBO> bos = propertiesRepository.findAllInListOfTypes(demarcheId, typeStr);
             LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
-            saved = PropertiesTransformer.bo2Dto(bo);
+            result = PropertiesTransformer.bo2Dto(bos);
         }
-        return saved;
+        return result;
+    }
+
+    @Override
+    public List<PropertiesDTO> getFrontProperties() {
+        List<PropertiesTypeEnum> types = Arrays.asList(FRONT_PROPERTIES);
+        List<PropertiesDTO> propertiesDTOS = getPropertiesByTypeList(types);
+        // On ajoute la propriété ici, car elle n'est pas disponible dans la PropertiesServlet
+        propertiesDTOS.add(new PropertiesDTO("mc.gouv.piwik.external.piwikUrl", Static.getValue("mc.gouv.piwik.external.piwikUrl")));
+        return propertiesDTOS;
+    }
+
+    @Override
+    public List<PropertiesDTO> getAdminsFonctionnelsProperties() {
+        List<PropertiesTypeEnum> types = Arrays.asList(AF_PROPERTIES);
+        return getPropertiesByTypeList(types);
     }
 
     /**
-     * Supprime une Properties
+     * Ajoute ou mets à jour la valeur d'une Properties
      *
-     * @param propertiesId L'id de la propriété à supprimer
+     * @return le dto de la propriété sauvée
      */
     @Override
-    public void deleteProperties(Integer propertiesId) {
-        Optional<PropertiesBO> propertiesBoOpt = propertiesRepository.findById(propertiesId);
+    public PropertiesDTO updatePropertyValue(Integer pkProperties, String value) {
+        LOGGER.info("Vérification de l'existance de la propriété {} ...", pkProperties);
+        Optional<PropertiesBO> propertiesBoOpt = propertiesRepository.findById(pkProperties);
         if (!propertiesBoOpt.isPresent()) {
             throw new DemarchesServiceException("La propriété spécifiée est introuvable", HttpStatus.NOT_FOUND);
         }
-        LOGGER.info("Suppression de la propriété ...");
-        propertiesRepository.delete(propertiesBoOpt.get());
-    }
-
-    /**
-     * Vérification de la clé de la propriété pour garantir l'unicité
-     *
-     * @param toCheck  La propriété à vérifier
-     * @param isCreate Flag indiquant si l'action est une création
-     * @return un boolean contenant le résultat
-     */
-    public boolean checkProperty(PropertiesDTO toCheck, boolean isCreate) {
-        boolean result = true;
-        String key = toCheck.getKey();
-        LOGGER.info("Vérification de l'unicité de la clé {} ...", key);
-
-        String demarcheId = gouvPropertiesResolver.getDemarcheId();
-        Optional<PropertiesBO> propertiesBoOptional = propertiesRepository.findByDemarchePkDemarchesAndKey(demarcheId, key);
-        if (propertiesBoOptional.isPresent()) {
-            PropertiesBO propertiesBO = propertiesBoOptional.get();
-            result = !isCreate && toCheck.getPkProperties().equals(propertiesBO.getPkProperties());
-        }
-
-        String message = result ? "La propriété n'est pas présente" : "La propriété est présente";
-        LOGGER.info(message);
-
-        return result;
+        PropertiesBO bo = propertiesBoOpt.get();
+        bo.setValue(value);
+        bo = propertiesRepository.save(bo);
+        LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
+        return PropertiesTransformer.bo2Dto(bo);
     }
 }

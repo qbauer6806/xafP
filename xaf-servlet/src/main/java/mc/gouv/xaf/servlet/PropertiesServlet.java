@@ -3,6 +3,7 @@ package mc.gouv.xaf.servlet;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
+import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
@@ -27,6 +28,9 @@ public class PropertiesServlet extends AbstractAfServlet {
 
         LOGGER.info("Appel de la démarche afin de récupérer les propriétés FRONT ...");
         List<PropertiesDTO> properties = getAfApiClient().getFrontProperties();
+
+        LOGGER.info("Ajout des properties du fichier frontserver.properties...");
+        properties.addAll(AfServletGouvPropertiesResolver.getFrontProperties());
 
         response.setStatus(HttpStatus.SC_OK);
         ObjectMapper mapper = new ObjectMapper();

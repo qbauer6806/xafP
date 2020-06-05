@@ -526,5 +526,13 @@ public class AfBackUtils {
 
         return endDate;
     }
+    
+    /**
+     * Permet de savoir si la démarche prend en charge la gestion des agents (DENJS)
+     * @return
+     */
+    public boolean getDemarcheCanHandleDenjsGestionAgents() {
+    	return demarchesDataProvider.getDemarcheCanHandleDenjsGestionAgents();
+    }
 
 }

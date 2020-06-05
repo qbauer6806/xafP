@@ -40,4 +40,6 @@ public interface DemarchesDataProvider {
 
     boolean getDemarcheCanHandleProperties();
 
+	boolean getDemarcheCanHandleDenjsGestionAgents();
+
 }

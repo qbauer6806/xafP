@@ -33,8 +33,7 @@ public class PropertiesBO {
     private String key;
 
     @Column(name = "DESCRIPTIF", length = 256)
-    @NotEmpty
-    @Size(min = 1, max = 256)
+    @Size(min = 0, max = 256)
     private String descriptif;
 
     @Column(name = "VALUE", columnDefinition = "TEXT")

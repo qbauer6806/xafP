@@ -3,8 +3,8 @@ package mc.gouv.xaf.servlet;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.Enumeration;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 
+import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
@@ -43,6 +44,8 @@ public class FileUploadServlet extends AbstractAfServlet {
 
     private static final long serialVersionUID = 484237515919955392L;
 
+    private static final String EXTENSIONS_WHITELIST = "EXTENSIONS_WHITELIST";
+
     private static Logger LOGGER = LoggerFactory.getLogger(FileUploadServlet.class);
 
     @SuppressWarnings("deprecation")
@@ -67,6 +70,15 @@ public class FileUploadServlet extends AbstractAfServlet {
         if (StringUtils.isBlank(filename)) {
             response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_BAD_REQUEST,
                     "Erreur: nom du fichier manquant");
+            return;
+        }
+
+        // ---  Vérification de la conformité du fichier
+        // Vérification du type du fichier
+        if (!estExtensionDansWhitelist(filename)) {
+            LOGGER.info("Le type de fichier ne correspond pas aux types whitelistés ({}), pas d'upload dans FILE", getExtensionsWhitelist());
+            response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_BAD_REQUEST,
+                    "Erreur: le type/extension du fichier soumis n'est pas valide");
             return;
         }
         
@@ -207,4 +219,24 @@ public class FileUploadServlet extends AbstractAfServlet {
         LOGGER.info("====================== Fin /fileupload doPost()");
     }
 
+    private boolean estExtensionDansWhitelist (String filename) {
+        String[] filenameSplit = filename.split("\\.");
+        String fileExtension = filenameSplit[filenameSplit.length-1];
+        return getExtensionsWhitelist().contains(fileExtension);
+    }
+
+
+    private List<String> getExtensionsWhitelist() {
+        List<PropertiesDTO> properties = getAfApiClient().getFrontProperties();
+        List<String> extensions = new ArrayList<>();
+        PropertiesDTO extensionsProperty = properties.stream().filter(prop -> prop.getKey().equals(EXTENSIONS_WHITELIST)).collect(Collectors.toList()).get(0);
+
+        if(extensionsProperty != null) {
+            String propertyString = extensionsProperty.getValue().replace("*.","").replace(" ","");
+            String[] types = propertyString.split(",");
+            Collections.addAll(extensions, types);
+        }
+
+        return extensions;
+    }
 }

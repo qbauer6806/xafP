@@ -5,11 +5,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLEncoder;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import javax.servlet.http.HttpServletResponse;
 
+import mc.gouv.xaf.back.exception.FileUploadException;
+import mc.gouv.xaf.back.service.data.PropertiesService;
+import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import org.apache.http.client.ClientProtocolException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,11 +36,16 @@ public class FileServiceImpl implements FileService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileServiceImpl.class);
 
+    private static final String EXTENSIONS_WHITELIST = "EXTENSIONS_WHITELIST";
+
     @Autowired
     private AfBackUtils afBackUtils;
 
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
+
+    @Autowired
+    private PropertiesService propertiesService;
 
     @Override
     public void getFile(String filename, String containerId, HttpServletResponse response) throws ClientProtocolException, IOException {
@@ -80,6 +87,12 @@ public class FileServiceImpl implements FileService {
 
         LOGGER.info("FileService.saveFile(" + demande.getPkDemandes() + "," + file.getOriginalFilename() + ")");
 
+        // Vérification de l'extension du fichier
+        if (file.getOriginalFilename() != null && !estExtensionDansWhitelist(file.getOriginalFilename())) {
+            LOGGER.info("Le type de fichier ne correspond pas aux types whitelistés ({}), pas d'upload dans FILE", getExtensionsWhitelist());
+            throw new FileUploadException("Erreur: le type du fichier soumis n'est pas valide");
+        }
+
         String filename = "/" + demande.getFkAccess() + "/" + AfBackUtils.generateUUID() + "/"
                 + URLEncoder.encode(file.getOriginalFilename(), "UTF-8");
 
@@ -94,6 +107,26 @@ public class FileServiceImpl implements FileService {
         
         return afBackUtils.getFileClient().saveFile(accountId, containerId, file.getInputStream(), filename, file.getContentType(), customHeaders, outputStream);
 
+    }
+
+    private boolean estExtensionDansWhitelist (String filename) {
+        String[] filenameSplit = filename.split("\\.");
+        String fileExtension = filenameSplit[filenameSplit.length-1];
+        return getExtensionsWhitelist().contains(fileExtension);
+    }
+
+
+    private List<String> getExtensionsWhitelist() {
+        PropertiesDTO extensionsProperty = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), EXTENSIONS_WHITELIST);
+        List<String> extensions = new ArrayList<>();
+
+        if(extensionsProperty != null) {
+            String propertyString = extensionsProperty.getValue().replace("*.","").replace(" ","");
+            String[] types = propertyString.split(",");
+            Collections.addAll(extensions, types);
+        }
+
+        return extensions;
     }
 
     private Map<String, String> createCustomHeaders(DemandeDTO demande) {

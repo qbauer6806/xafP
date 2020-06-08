@@ -1,15 +1,15 @@
 package mc.gouv.xaf.back.service.impl;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.lang.reflect.InvocationTargetException;
-import java.text.SimpleDateFormat;
-import java.time.OffsetDateTime;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.Map;
-
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.*;
+import mc.gouv.logon.apiclient.RestException;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.DemandeRecapHTMLService;
+import mc.gouv.xaf.back.service.itg.rest.PaysCache;
+import mc.gouv.xaf.back.service.motifs.MotifsCache;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.back.service.utils.UtilisateursUtils;
+import mc.gouv.xaf.shared.dto.*;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONArray;
@@ -23,26 +23,16 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.HtmlUtils;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.BooleanNode;
-import com.fasterxml.jackson.databind.node.MissingNode;
-import com.fasterxml.jackson.databind.node.NullNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
-
-import mc.gouv.logon.apiclient.RestException;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.DemandeRecapHTMLService;
-import mc.gouv.xaf.back.service.itg.rest.PaysCache;
-import mc.gouv.xaf.back.service.motifs.MotifsCache;
-import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import mc.gouv.xaf.back.service.utils.UtilisateursUtils;
-import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
-import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
-import mc.gouv.xaf.shared.dto.DemandeComplementsQuestionDTO;
-import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Service permettant de générer une page HTML contenant le récapitulatif d'une
@@ -50,15 +40,11 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
  *
  * @author qdeme
  * @author mboutelier.ext
- *
  */
 @Component
 public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandeRecapHTMLServiceImpl.class);
-
-    private static SimpleDateFormat dateHeureFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-    private static SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 
     @Autowired
     private PaysCache paysCache;
@@ -90,14 +76,14 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
         htmlBuilder.append(isVirtuel ? "transmission" : "dépôt");
         htmlBuilder.append("</span></dt><dd><span>");
         Date dateCreation = isVirtuel ? demande.getDateCreation() : demande.getCourrierDateReception();
-        htmlBuilder.append(dateHeureFormat.format(dateCreation));
+        htmlBuilder.append(AfBackUtils.SDF_JJ_MM_AAAA_HH_MM.format(dateCreation));
         htmlBuilder.append("</span></dd>");
 
         // Etat de la demande
         htmlBuilder.append("<dt><span>Etat de la demande</span></dt><dd><span>");
         htmlBuilder.append(afBackUtils.getStatusLibelleFromName(demande.getDernierStatut().getLibelle()));
         htmlBuilder.append(" le ");
-        htmlBuilder.append(dateHeureFormat.format(demande.getDernierStatut().getDate()));
+        htmlBuilder.append(AfBackUtils.SDF_JJ_MM_AAAA_HH_MM.format(demande.getDernierStatut().getDate()));
         htmlBuilder.append("</span></dd>");
 
         // Langue
@@ -119,7 +105,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
         for (DemandeComplementsDTO complement : demande.getComplements()) {
             DemandeComplementsQuestionDTO question = complement.getQuestion();
             DemandeComplementsReponseDTO reponse = complement.getReponse();
-            String date = dateHeureFormat.format(question.getDate());
+            String date = AfBackUtils.SDF_JJ_MM_AAAA_HH_MM.format(question.getDate());
 
             htmlBuilder.append("<h3>Compléments du ");
             htmlBuilder.append(date);
@@ -155,7 +141,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
                 Date reponseDate = reponse.getDate();
                 htmlBuilder.append("<dl><dt><span>Date</span></dt><dd><span>");
                 if (null != reponseDate) {
-                    htmlBuilder.append(dateHeureFormat.format(reponseDate));
+                    htmlBuilder.append(AfBackUtils.SDF_JJ_MM_AAAA_HH_MM.format(reponseDate));
                 }
                 htmlBuilder.append("</span></dd>");
 
@@ -178,7 +164,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
         InputStream inputStream = new ClassPathResource("/recaps/recaps_" + demande.getBuildId() + ".json")
                 .getInputStream();
         JSONParser jsonParser = new JSONParser();
-        JSONArray jsonArray = (JSONArray) jsonParser.parse(new InputStreamReader(inputStream, "UTF-8"));
+        JSONArray jsonArray = (JSONArray) jsonParser.parse(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
 
         LOGGER.info("Construction du recap HTML...");
         StringBuilder html = new StringBuilder();
@@ -203,7 +189,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
     }
 
     private void generateSectionHTML(StringBuilder html, JSONObject section, String sectionType, DemandeDTO demande,
-            boolean isPdfRecap) throws ClassNotFoundException, IllegalAccessException, IllegalArgumentException,
+                                     boolean isPdfRecap) throws ClassNotFoundException, IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, NoSuchMethodException, SecurityException {
 
         String firstLevel = getFirstLevelHTML(demande, sectionType, section, isPdfRecap);
@@ -218,7 +204,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
     }
 
     private void generateSectionAndSousSection(StringBuilder html, JSONObject section, String sectionType,
-            DemandeDTO demande, boolean isPdfRecap) throws ClassNotFoundException, IllegalAccessException,
+                                               DemandeDTO demande, boolean isPdfRecap) throws ClassNotFoundException, IllegalAccessException,
             IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
 
         JSONArray sousSections = (JSONArray) section.get("sousSections");
@@ -336,12 +322,12 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
                 if (pathNode instanceof ObjectNode) {
                     pathNode = node.at(path + "/valeur");
                     if (pathNode instanceof MissingNode || pathNode instanceof NullNode
-                            || (pathNode instanceof TextNode && ((TextNode) pathNode).textValue().equals("AUTRE"))) {
+                            || (pathNode instanceof TextNode && pathNode.textValue().equals("AUTRE"))) {
                         JsonNode node0 = node.at(path + "/valeurExtra");
                         if (node0 == null || node0 instanceof NullNode) {
                             return null;
                         }
-                        return escape(((TextNode) node0).textValue(), isPdfRecap);
+                        return escape(node0.textValue(), isPdfRecap);
                     }
                 }
 
@@ -362,32 +348,37 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
             if (node0 == null || node0 instanceof NullNode || StringUtils.isBlank(node0.asText())) {
                 return null;
             }
-            Date date = new Date(OffsetDateTime.parse(node0.asText()).toInstant().toEpochMilli());
-            return dateFormat.format(date);
+            LocalDateTime dateTime = LocalDateTime.parse(node0.asText(), DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+            // Si la date a un format d'affichage
+            String format = (String) champ.get("displayJavaFormat");
+            if (StringUtils.isBlank(format)) {
+                format = AfBackUtils.DEFAULT_FRENCH_DATE_FORMAT;
+            }
+            return dateTime.format(DateTimeFormatter.ofPattern(format));
         } else if (type.equals("choixMultiple")) {
-        	JsonNode n = getNode(node, champ, "path");
-        	if (n instanceof ObjectNode) {
-	            ObjectNode list = (ObjectNode) n;
-	            Iterator<Map.Entry<String, JsonNode>> it = list.fields();
-	            String ret = "";
-	            String mapping = champ.get("mapping").toString();
-	            while (it.hasNext()) {
-	                Map.Entry<String, JsonNode> entry = it.next();
-	                if (((BooleanNode) entry.getValue()).asBoolean()) {
-	                    mapping = mapping.substring(0, 1).toUpperCase() + mapping.substring(1);
-	                    Class<?> klass = Class.forName("mc.gouv." + gouvPropertiesResolver.getDemarcheId().toLowerCase()
-	                            + ".shared.model.v" + buildId + "." + mapping + "Enum");
-	                    Object[] parameters = { entry.getKey().toUpperCase(), true };
-	                    Object value = klass.getMethod("forValue", String.class, boolean.class).invoke(klass, parameters);
-	                    if (!ret.equals("")) {
-	                        ret += ", ";
-	                    }
-	                    ret += value.toString();
-	                }
-	            }
-	            return ret;
-        	}
-        	return "";
+            JsonNode n = getNode(node, champ, "path");
+            if (n instanceof ObjectNode) {
+                ObjectNode list = (ObjectNode) n;
+                Iterator<Map.Entry<String, JsonNode>> it = list.fields();
+                String ret = "";
+                String mapping = champ.get("mapping").toString();
+                while (it.hasNext()) {
+                    Map.Entry<String, JsonNode> entry = it.next();
+                    if (entry.getValue().asBoolean()) {
+                        mapping = mapping.substring(0, 1).toUpperCase() + mapping.substring(1);
+                        Class<?> klass = Class.forName("mc.gouv." + gouvPropertiesResolver.getDemarcheId().toLowerCase()
+                                + ".shared.model.v" + buildId + "." + mapping + "Enum");
+                        Object[] parameters = {entry.getKey().toUpperCase(), true};
+                        Object value = klass.getMethod("forValue", String.class, boolean.class).invoke(klass, parameters);
+                        if (!ret.equals("")) {
+                            ret += ", ";
+                        }
+                        ret += value.toString();
+                    }
+                }
+                return ret;
+            }
+            return "";
         } else if (type.equals("adresse")) {
             String ligne1 = escape(getNode(node, champ, "ligne1").textValue(), isPdfRecap);
             String ligne2 = escape(getNode(node, champ, "ligne2").textValue(), isPdfRecap);

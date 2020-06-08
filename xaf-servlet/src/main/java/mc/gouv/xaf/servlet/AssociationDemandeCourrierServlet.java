@@ -1,8 +1,5 @@
 package mc.gouv.xaf.servlet;
 
-import java.io.IOException;
-
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -28,14 +25,13 @@ public class AssociationDemandeCourrierServlet extends AbstractAfServlet {
     private static Logger LOGGER = LoggerFactory.getLogger(AssociationDemandeCourrierServlet.class);
 
     @Override
-    public void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws IOException, ServletException {
+    public void doPost(HttpServletRequest request, HttpServletResponse response) {
 
         LOGGER.info("====================== /associerDemandeCourrier doPost()");
 
         UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(request);
         if (usagerInfosDTO == null) {
-            response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
+            AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
                     "Utilisateur non autorisé");
             return;
         }
@@ -44,12 +40,12 @@ public class AssociationDemandeCourrierServlet extends AbstractAfServlet {
         String nomProprio = request.getParameter("nomProprio");
 
         if (StringUtils.isBlank(identifiant)) {
-            response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_BAD_REQUEST,
+            AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_BAD_REQUEST,
                     "Identifiant de la demande non spécifié");
             return;
         }
         if (StringUtils.isBlank(nomProprio)) {
-            response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_BAD_REQUEST,
+            AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_BAD_REQUEST,
                     "Nom du propriétaire non spécifié");
             return;
         }

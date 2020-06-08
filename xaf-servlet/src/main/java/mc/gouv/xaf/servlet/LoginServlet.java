@@ -1,9 +1,7 @@
 package mc.gouv.xaf.servlet;
 
-import java.io.IOException;
 import java.util.StringTokenizer;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -37,7 +35,7 @@ public class LoginServlet extends AbstractAfServlet {
     private static Logger LOGGER = LoggerFactory.getLogger(LoginServlet.class);
 
     @Override
-    public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    public void doPost(HttpServletRequest request, HttpServletResponse response) {
 
         LOGGER.info("====================== /login doPost()");
 
@@ -85,7 +83,7 @@ public class LoginServlet extends AbstractAfServlet {
                     }
                 }
             } catch (Exception e) {
-                response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_INTERNAL_SERVER_ERROR,
+                AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_INTERNAL_SERVER_ERROR,
                         "Erreur interne: ", e);
             }
         } else {
@@ -165,8 +163,7 @@ public class LoginServlet extends AbstractAfServlet {
     }
 
     @Override
-    public void doDelete(HttpServletRequest request, HttpServletResponse response)
-            throws IOException, ServletException {
+    public void doDelete(HttpServletRequest request, HttpServletResponse response) {
 
         LOGGER.info("====================== /login doDelete()");
 
@@ -205,7 +202,7 @@ public class LoginServlet extends AbstractAfServlet {
                     }
                 }
             } catch (Exception e) {
-                response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_INTERNAL_SERVER_ERROR,
+                AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_INTERNAL_SERVER_ERROR,
                         "Erreur interne: ", e);
             }
         } else {

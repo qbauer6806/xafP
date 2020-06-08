@@ -1,12 +1,10 @@
 package mc.gouv.xaf.servlet;
 
-import java.io.IOException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -50,7 +48,7 @@ public class FileUploadServlet extends AbstractAfServlet {
 
     @SuppressWarnings("deprecation")
     @Override
-    public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    public void doPost(HttpServletRequest request, HttpServletResponse response) {
         LOGGER.info("====================== /fileupload doPost()");
 
         UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(request);
@@ -84,6 +82,8 @@ public class FileUploadServlet extends AbstractAfServlet {
         
         // Appel à VSCAN afin d'effectuer le scan antivirus
         // Constitution de la requête
+        try {
+
         LOGGER.info("Appel à VSCAN...");
         
         ObjectMapper mapper = new ObjectMapper();
@@ -125,7 +125,7 @@ public class FileUploadServlet extends AbstractAfServlet {
         
         LOGGER.info("VSCAN n'a pas considéré le fichier soumis comme vérolé");
 
-        try {
+
 
             // Génération de l'UUID
             UUID uuid = AppFactoryServletUtils.generateUUID();

@@ -1,8 +1,5 @@
 package mc.gouv.xaf.servlet;
 
-import java.io.IOException;
-
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -28,14 +25,13 @@ public class AnnulationServlet extends AbstractAfServlet {
     private static Logger LOGGER = LoggerFactory.getLogger(AnnulationServlet.class);
 
     @Override
-    public void doDelete(HttpServletRequest request, HttpServletResponse response)
-            throws IOException, ServletException {
+    public void doDelete(HttpServletRequest request, HttpServletResponse response) {
 
         LOGGER.info("====================== /annulation doDelete()");
 
         UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(request);
         if (usagerInfosDTO == null) {
-            response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
+            AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
                     "Utilisateur non autorisé");
             return;
         }
@@ -48,7 +44,7 @@ public class AnnulationServlet extends AbstractAfServlet {
         }
 
         if (demandeId == null) {
-            response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_BAD_REQUEST,
+            AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_BAD_REQUEST,
                     "DemandeID non spécifié");
             return;
         }

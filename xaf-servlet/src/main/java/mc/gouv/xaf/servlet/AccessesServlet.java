@@ -4,11 +4,11 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import mc.gouv.xaf.servlet.enums.HttpMethod;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
@@ -34,13 +34,6 @@ public class AccessesServlet extends AbstractAfServlet {
     private static final long serialVersionUID = 520893456441444275L;
 
     private static Logger LOGGER = LoggerFactory.getLogger(AccessesServlet.class);
-
-    private enum HttpMethod {
-        PUT,
-        POST,
-        GET,
-        DELETE;
-    }
 
     /**
      * D'un point de vue de l'implémentation et de la transmission au WS Demarche, les méthodes PUT et POST sont quasi
@@ -149,29 +142,43 @@ public class AccessesServlet extends AbstractAfServlet {
     }
 
     @Override
-    public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    public void doPost(HttpServletRequest request, HttpServletResponse response) {
         LOGGER.info("====================== /accesses doPost()");
 
-        response = doHttpMethod(request, response, HttpMethod.POST);
+        try {
+            doHttpMethod(request, response, HttpMethod.POST);
+        } catch (IOException e) {
+            LOGGER.error("AccessesServlet - Une erreur est survenue lors de l'appel à la méthode POST", e);
+            response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+        }
 
         LOGGER.info("====================== Fin /accesses doPost()");
     }
 
     @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    public void doGet(HttpServletRequest request, HttpServletResponse response) {
         LOGGER.info("====================== /accesses doGet()");
 
-        response = doHttpMethod(request, response, HttpMethod.GET);
+        try {
+            doHttpMethod(request, response, HttpMethod.GET);
+        } catch (IOException e) {
+            LOGGER.error("AccessesServlet - Une erreur est survenue lors de l'appel à la méthode GET", e);
+            response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+        }
 
         LOGGER.info("====================== Fin /accesses doGet()");
     }
 
     @Override
-    public void doDelete(HttpServletRequest request, HttpServletResponse response)
-            throws IOException, ServletException {
+    public void doDelete(HttpServletRequest request, HttpServletResponse response) {
         LOGGER.info("====================== /accesses doDelete()");
 
-        response = doHttpMethod(request, response, HttpMethod.DELETE);
+        try {
+            doHttpMethod(request, response, HttpMethod.DELETE);
+        } catch (IOException e) {
+            LOGGER.error("AccessesServlet - Une erreur est survenue lors de l'appel à la méthode DELETE", e);
+            response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+        }
 
         LOGGER.info("====================== Fin /accesses doDelete()");
     }

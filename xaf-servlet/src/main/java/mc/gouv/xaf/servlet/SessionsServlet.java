@@ -1,9 +1,7 @@
 package mc.gouv.xaf.servlet;
 
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -37,7 +35,7 @@ public class SessionsServlet extends HttpServlet {
     private static Logger LOGGER = LoggerFactory.getLogger(SessionsServlet.class);
 
     @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    public void doGet(HttpServletRequest request, HttpServletResponse response) {
 
         LOGGER.info("====================== /sessions doGet()");
 
@@ -65,11 +63,16 @@ public class SessionsServlet extends HttpServlet {
             LOGGER.info("usagerInfosDTO : " + usagerInfosDTO);
             // Retour au client
             response.setContentType("application/json");
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-            mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX"));
-            mapper.writeValue(response.getOutputStream(), usagerInfosDTO);
-            response.getOutputStream().flush();
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+                mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX"));
+                mapper.writeValue(response.getOutputStream(), usagerInfosDTO);
+                response.getOutputStream().flush();
+            } catch (Exception e) {
+                LOGGER.error("SessionsServlet - Une erreur est survenue lors de l'appel à la méthode GET", e);
+                response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+            }
         } else {
             // Pas de session trouvée
             LOGGER.info("Aucune session trouvée");
@@ -80,7 +83,7 @@ public class SessionsServlet extends HttpServlet {
     }
     
     @Override
-    public void doPut(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    public void doPut(HttpServletRequest request, HttpServletResponse response) {
         LOGGER.info("====================== /sessions doPut()");
 
         // On tente de récupérer une session existante sans en créer une
@@ -123,7 +126,7 @@ public class SessionsServlet extends HttpServlet {
                     }
                 }
             } catch (Exception e) {
-                response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_INTERNAL_SERVER_ERROR,
+                AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_INTERNAL_SERVER_ERROR,
                         "Erreur interne: ", e);
             }
             

@@ -2,6 +2,7 @@ package mc.gouv.xaf.servlet;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import mc.gouv.xaf.servlet.dto.DateDTO;
+import mc.gouv.xaf.servlet.enums.HttpMethod;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
@@ -18,16 +19,28 @@ public class DateServlet extends AbstractAfServlet {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DateServlet.class);
 
-    @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        LOGGER.info("====================== /date doGet()");
-
+    public HttpServletResponse doHttpMethod(HttpServletRequest request, HttpServletResponse response,
+                                            HttpMethod httpMethod) throws IOException {
         response.setStatus(HttpStatus.SC_OK);
         ObjectMapper mapper = new ObjectMapper();
         String repJson = mapper.writeValueAsString(new DateDTO());
 
         response.setContentType("application/json");
         IOUtils.copy(new ByteArrayInputStream(repJson.getBytes()), response.getOutputStream());
+
+        return response;
+    }
+
+    @Override
+    public void doGet(HttpServletRequest request, HttpServletResponse response) {
+        LOGGER.info("====================== /date doGet()");
+
+        try {
+            doHttpMethod(request, response, HttpMethod.GET);
+        } catch (Exception e) {
+            LOGGER.error("DateServlet - Une erreur est survenue lors de l'appel à la méthode GET", e);
+            response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+        }
 
         LOGGER.info("====================== Fin /date doGet()");
     }

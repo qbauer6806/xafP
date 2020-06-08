@@ -10,6 +10,7 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,11 +69,17 @@ public class AppFactoryServletUtils {
      *             Exception Input/Output
      */
     public static HttpServletResponse logAndSendError(Logger logger, HttpServletResponse response, int httpStatus,
-            String errMsg, Exception e) throws IOException {
+            String errMsg, Exception e) {
         logger.error(errMsg, e);
         response.setStatus(httpStatus);
         response.setContentType("application/json");
-        response.getOutputStream().write(("{ \"errors\" : [ { \"libelle\" : \"" + errMsg + "\" } ] }").getBytes());
+        try {
+            response.getOutputStream().write(("{ \"errors\" : [ { \"libelle\" : \"" + errMsg + "\" } ] }").getBytes());
+        } catch (IOException ee) {
+            LOGGER.error("AppFactoryServletUtils - Impossible d'écrire dans l'output steam de la réponse", ee);
+            response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+        }
+
         return response;
     }
 
@@ -92,11 +99,16 @@ public class AppFactoryServletUtils {
      *             Exception Input/Output
      */
     public static HttpServletResponse logAndSendError(Logger logger, HttpServletResponse response, int httpStatus,
-            String errMsg) throws IOException {
+            String errMsg) {
         logger.error(errMsg);
         response.setStatus(httpStatus);
         response.setContentType("application/json");
-        response.getOutputStream().write(("{ \"errors\" : [ { \"libelle\" : \"" + errMsg + "\" } ] }").getBytes());
+        try {
+            response.getOutputStream().write(("{ \"errors\" : [ { \"libelle\" : \"" + errMsg + "\" } ] }").getBytes());
+        } catch (IOException e) {
+            LOGGER.error("AppFactoryServletUtils - Impossible d'écrire dans l'output steam de la réponse", e);
+            response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+        }
         return response;
     }
 

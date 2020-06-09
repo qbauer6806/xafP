@@ -318,6 +318,7 @@
             date.set({hour: 0, minute: 0, second: 0, millisecond: 0});
             $('#pkPeriodesOuverture').val(null);
             $('#periodeStartDate').val(date.format(momentFormat));
+            date.set({hour: 23, minute: 59, second: 0, millisecond: 0});
             $('#periodeEndDate').val(date.format(momentFormat));
 
             $('#formError').html('');

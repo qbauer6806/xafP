@@ -174,7 +174,7 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 		byte[] bytes = null;
 
 		try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
-			LOGGER.info("Chargement du template " + dto.getTemplateFilename() + " via appel à FILE...");
+			LOGGER.info("Chargement du template {} via appel à FILE...", dto.getTemplateFilename());
 			// #16180 Ancienne façon : aller chercher dans src/main/resources... maintenant on cherche dans FILE
 			//InputStream in = new ClassPathResource("/pdf/" + dto.getTemplateFilename()).getInputStream();
 			InputStream in = afBackUtils.getFileClient().getFile(gouvPropertiesResolver.getDemarcheId(), "MODELES", dto.getTemplateFilename());
@@ -198,6 +198,7 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 			LOGGER.info("Génération du fichier PDF avec les template et modèle fournis...");
 			report.convert(context, options, bos);
 			bytes = bos.toByteArray();
+			in.close();
 		}
 
 		return bytes;

@@ -9,10 +9,24 @@ import java.util.*;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import mc.gouv.vscan.shared.dto.ScanDTO;
+import mc.gouv.vscan.shared.dto.ScanRequestDTO;
 import mc.gouv.xaf.back.exception.FileUploadException;
+import mc.gouv.xaf.back.exception.VScanException;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
+import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.InputStreamBody;
+import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,6 +107,15 @@ public class FileServiceImpl implements FileService {
             throw new FileUploadException("Erreur: le type du fichier soumis n'est pas valide");
         }
 
+        // Appel à VSCAN pour vérifier la virulance du fichier
+        ScanDTO scanDTO = verificationVSCAN(file);
+        if (!scanDTO.isResult()) {
+            LOGGER.info("VSCAN a détecté le fichier comme vérolé, fin du traitement, pas d'upload dans FILE");
+            throw new VScanException("Erreur: le fichier soumis semble corrompu");
+        }
+
+        LOGGER.info("VSCAN n'a pas considéré le fichier soumis comme vérolé");
+
         String filename = "/" + demande.getFkAccess() + "/" + AfBackUtils.generateUUID() + "/"
                 + URLEncoder.encode(file.getOriginalFilename(), "UTF-8");
 
@@ -134,7 +157,37 @@ public class FileServiceImpl implements FileService {
         customHeaders.put(AfBackUtils.FILE_METADATA_DEMANDEID, demande.getPkDemandes().toString());
         customHeaders.put(AfBackUtils.FILE_METADATA_DEMANDESTATUT, demande.getDernierStatut().getLibelle());
         return customHeaders;
+    }
 
+    public ScanDTO verificationVSCAN(MultipartFile file) throws IOException {
+        LOGGER.info("Appel à VSCAN...");
+
+        ObjectMapper mapper = new ObjectMapper();
+        String urlVscan = gouvPropertiesResolver.getVScanUrl();
+        LOGGER.info("URL = " + urlVscan);
+        HttpClient clientVscan = HttpClientBuilder.create().build();
+        MultipartEntityBuilder builderVscan = MultipartEntityBuilder.create();
+        builderVscan.addPart("file", new InputStreamBody(file.getInputStream(), ContentType.create(file.getContentType()), file.getName()));
+
+        // Pour tester avec un fichier vérolé (EICAR)
+        //builderVscan.addPart("file", new InputStreamBody(new ByteArrayInputStream("X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*".getBytes()), "blason.jpg"));
+
+        ScanRequestDTO scanRequest = new ScanRequestDTO();
+        scanRequest.setCodeAppli(gouvPropertiesResolver.getDemarcheId());
+        scanRequest.setFilename(file.getName());
+        scanRequest.setEnduserAppModule(file.getName().toLowerCase() + "-frontserver");
+
+        String scanRequestStr = mapper.writeValueAsString(scanRequest);
+        builderVscan.addPart("scanRequest", new StringBody(scanRequestStr));
+        HttpEntity multipartVscan = builderVscan.build();
+        HttpPost postRequestVscan = new HttpPost(urlVscan.toString());
+        postRequestVscan.setEntity(multipartVscan);
+        postRequestVscan.addHeader("Authorization", "Bearer " + gouvPropertiesResolver.getVscanJwt());
+        HttpResponse postResponseVscan = clientVscan.execute(postRequestVscan);
+        String vscanResp = IOUtils.toString(postResponseVscan.getEntity().getContent());
+        LOGGER.info("VSCAN Response : " + postResponseVscan.getStatusLine() + "(" + vscanResp + ")");
+
+        return mapper.readValue(vscanResp, ScanDTO.class);
     }
 
 }

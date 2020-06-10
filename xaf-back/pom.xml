@@ -18,6 +18,7 @@
 		<pdfbox.version>2.0.15</pdfbox.version>
 		<xdocreport.version>2.0.2</xdocreport.version>
 		<poi.version>4.1.0</poi.version>
+		<vscan.version>1.0.0</vscan.version>
 	</properties>
 
 	<dependencies>
@@ -48,6 +49,12 @@
 			<groupId>mc.gouv.mail</groupId>
 			<artifactId>mail-apiclient</artifactId>
 			<version>1.3.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>mc.gouv.vscan</groupId>
+			<artifactId>vscan-shared</artifactId>
+			<version>${vscan.version}</version>
 		</dependency>
 
 		<dependency>

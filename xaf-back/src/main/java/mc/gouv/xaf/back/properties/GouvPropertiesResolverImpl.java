@@ -155,6 +155,13 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
         return Static.getValue(FILE_URL);
     }
 
+    public static final String VSCAN_URL = "mc.gouv.appfactory.external.vscan.url";
+
+    @Override
+    public String getVScanUrl() {
+        return Static.getValue(VSCAN_URL);
+    }
+
     private static final String USAGERS_REST_URL = "mc.gouv.demarches.external.usagers.url";
 
     @Override
@@ -170,6 +177,11 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     }
 
     private static final String MAIL_URL = "mc.gouv.af.back.mail.url";
+
+    @Override
+    public String getVscanJwt() {
+        return Static.getValue("mc.gouv" + applicationPrefix + ".backserver.vscan.jwt");
+    }
 
     @Override
     public String getMailUrl() {

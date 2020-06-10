@@ -39,17 +39,19 @@ public class RedirectToBackOfficeServlet extends AbstractAfServlet {
             return;
         }
 
-        String idDemande = request.getParameter("id");
         //redirection par default sur l'accueil car le lien abandon a été cliqué
         String urlDemande = AfServletGouvPropertiesResolver.getBackOfficeUrl();
-        if (StringUtils.isNotBlank(idDemande)) {
-            //dans le cas de la fin de la création
-            urlDemande = AfServletGouvPropertiesResolver.getBackOfficeDemandeUrl();
-            urlDemande = StringUtils.replace(urlDemande, TOKEN_ID_DEMANDE, idDemande);
-
-        }
 
         try {
+            //dans le cas de la fin de la création
+            String idDemandeStr = request.getParameter("id");
+
+            if(StringUtils.isNotBlank(idDemandeStr)) {
+                int idDemande = Integer.parseInt(idDemandeStr);
+                urlDemande = AfServletGouvPropertiesResolver.getBackOfficeDemandeUrl();
+                urlDemande = StringUtils.replace(urlDemande, TOKEN_ID_DEMANDE, idDemande + "");
+            }
+
             response.sendRedirect(urlDemande);
         } catch (Exception e) {
             LOGGER.error("PropertiesServlet - Une erreur est survenue lors de l'appel à la méthode GET", e);

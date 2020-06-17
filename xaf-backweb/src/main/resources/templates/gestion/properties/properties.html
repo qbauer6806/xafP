@@ -180,17 +180,14 @@
     $(document).ready(function () {
         var properties = /*[[${properties}]]*/'default';
         var test = $('#datatable-properties').DataTable({
-            paging: true,
+            paging: false,
             searching: false,
             select: false,
             bInfo: false,
-            pageLength: 5,
             columns: columnsProperties,
             data: properties,
-            language: frenchTranslation,
-            lengthMenu: [5, 10, 25, 50, 100]
+            language: frenchTranslation
         });
-        console.log(test);
 
         autosize($("#propertiesValue"));
 

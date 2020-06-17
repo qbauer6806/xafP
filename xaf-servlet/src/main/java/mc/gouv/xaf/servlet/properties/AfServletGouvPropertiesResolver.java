@@ -165,6 +165,18 @@ public class AfServletGouvPropertiesResolver {
         return Static.getValue(VSCAN_JWT);
     }
 
+    public static final String MAX_UPLOAD_PAR_INTERVALLE = "mc.gouv" + applicationPrefix + ".frontserver.maxUploadParIntervalle";
+
+    public static String getMaxUploadParIntervalle() {
+        return Static.getValue(MAX_UPLOAD_PAR_INTERVALLE);
+    }
+
+    public static final String TEMPS_INTERVALLE_UPLOAD = "mc.gouv" + applicationPrefix + ".frontserver.tempsIntervalleUpload";
+
+    public static String getTempsIntervalleUpload() {
+        return Static.getValue(TEMPS_INTERVALLE_UPLOAD);
+    }
+
     public static final String FRONTOFFICE_CONTACT_URL = "mc.gouv.appfactory" + applicationPrefix + ".front.login.contact.url";
 
     public static String getFrontofficeContactUrl() {

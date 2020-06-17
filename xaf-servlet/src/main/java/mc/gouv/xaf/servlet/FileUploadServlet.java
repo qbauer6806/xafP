@@ -1,15 +1,15 @@
 package mc.gouv.xaf.servlet;
 
-import java.net.URL;
-import java.net.URLEncoder;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import javax.servlet.annotation.MultipartConfig;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.Part;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import mc.gouv.vscan.shared.dto.ScanDTO;
+import mc.gouv.vscan.shared.dto.ScanRequestDTO;
+import mc.gouv.xaf.servlet.dto.FileUploadCompteurDTO;
+import mc.gouv.xaf.servlet.dto.FileUploadResponseDTO;
+import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
+import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
+import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
+import mc.gouv.xaf.servlet.util.AppFactoryServletUtils.ServiceTarget;
+import mc.gouv.xaf.shared.dto.AccessDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -26,25 +26,32 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import mc.gouv.vscan.shared.dto.ScanDTO;
-import mc.gouv.vscan.shared.dto.ScanRequestDTO;
-import mc.gouv.xaf.servlet.dto.FileUploadResponseDTO;
-import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
-import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
-import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
-import mc.gouv.xaf.servlet.util.AppFactoryServletUtils.ServiceTarget;
-import mc.gouv.xaf.shared.dto.AccessDTO;
+import javax.servlet.annotation.MultipartConfig;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.Part;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @MultipartConfig
 public class FileUploadServlet extends AbstractAfServlet {
 
     private static final long serialVersionUID = 484237515919955392L;
+    private static Logger LOGGER = LoggerFactory.getLogger(FileUploadServlet.class);
 
     private static final String EXTENSIONS_WHITELIST = "EXTENSIONS_WHITELIST";
+    private static final String MAX_TAILLE_FICHIER = "MAX_TAILLE_FICHIER";
 
-    private static Logger LOGGER = LoggerFactory.getLogger(FileUploadServlet.class);
+    // Enregistre l'historique d'upload par session
+    private final static Map<HttpSession, FileUploadCompteurDTO> usagersFileUploadCompteurs = new HashMap<>();
+
+    // Compteur permettant de trigger un refresh des sessions et supprimer celles qui ne sont plus utilisées
+    private static int compteurCleanSessions;
 
     @SuppressWarnings("deprecation")
     @Override
@@ -58,6 +65,26 @@ public class FileUploadServlet extends AbstractAfServlet {
             return;
         }
 
+        // Vérification du nombre de fichier uploadés sur la demande
+        LOGGER.info("Vérification du nombre de fichiers déjà uploadés...");
+        HttpSession session = request.getSession();
+        FileUploadCompteurDTO compteurUpload = usagersFileUploadCompteurs.get(session);
+        if (compteurUpload != null) {
+            Duration duration = Duration.between(compteurUpload.getDatePremierUpload(), LocalDateTime.now());
+            int tempsParIntervalle = Integer.parseInt(AfServletGouvPropertiesResolver.getTempsIntervalleUpload());
+            int maxUploadParIntervalle = Integer.parseInt(AfServletGouvPropertiesResolver.getMaxUploadParIntervalle());
+
+            if (compteurUpload.getCompteur() > maxUploadParIntervalle && duration.toMillis() < tempsParIntervalle) {
+                LOGGER.info("La limite de nombre de fichiers uploadés a été atteinte");
+                AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_METHOD_NOT_ALLOWED,
+                        "Erreur: La limite de nombre de fichiers uploadés a été atteinte");
+                return;
+            } else if (duration.toMillis() > tempsParIntervalle) {
+                // Supprimer le compteur en cas de dépassement
+                usagersFileUploadCompteurs.remove(session);
+            }
+        }
+
         // Récupération du nom du fichier à envoyer
         String pathInfo = request.getPathInfo();
         String filename = null;
@@ -66,66 +93,77 @@ public class FileUploadServlet extends AbstractAfServlet {
         }
 
         if (StringUtils.isBlank(filename)) {
-            response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_BAD_REQUEST,
+            AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_BAD_REQUEST,
                     "Erreur: nom du fichier manquant");
             return;
         }
 
         // ---  Vérification de la conformité du fichier
         // Vérification du type du fichier
+        LOGGER.info("Vérification du type...");
         if (!estExtensionDansWhitelist(filename)) {
             LOGGER.info("Le type de fichier ne correspond pas aux types whitelistés ({}), pas d'upload dans FILE", getExtensionsWhitelist());
-            response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_BAD_REQUEST,
+            AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_FORBIDDEN,
                     "Erreur: le type/extension du fichier soumis n'est pas valide");
             return;
         }
-        
-        // Appel à VSCAN afin d'effectuer le scan antivirus
-        // Constitution de la requête
+
         try {
+            ObjectMapper mapper = new ObjectMapper();
 
-        LOGGER.info("Appel à VSCAN...");
-        
-        ObjectMapper mapper = new ObjectMapper();
-        String urlVscan = AfServletGouvPropertiesResolver.getVscanUrl();
-        LOGGER.info("URL = " + urlVscan);
-        HttpClient clientVscan = HttpClientBuilder.create().build();
-        Part part0 = request.getParts().iterator().next();
-        MultipartEntityBuilder builderVscan = MultipartEntityBuilder.create();
-        builderVscan.addPart("file", new InputStreamBody(part0.getInputStream(), part0.getContentType(), part0.getSubmittedFileName()));
-        
-        // Pour tester avec un fichier vérolé (EICAR)
-        //builderVscan.addPart("file", new InputStreamBody(new ByteArrayInputStream("X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*".getBytes()), "blason.jpg"));
-        
-        ScanRequestDTO scanRequest = new ScanRequestDTO();
-        scanRequest.setCodeAppli(getServletContext().getInitParameter(AppFactoryServletUtils.DEMARCHEID_KEY));
-        scanRequest.setFilename(filename);
-        //scanRequest.setEnduserIpAddress(request.getRemoteAddr());
-        scanRequest.setEnduserAppModule(getServletContext().getInitParameter(AppFactoryServletUtils.DEMARCHEID_KEY).toLowerCase() + "-frontserver");
-        //scanRequest.setEnduserDenomination("Usager " + usagerInfosDTO.getId() + " (" + usagerInfosDTO.getLogin() + ")");
-        
-        String scanRequestStr = mapper.writeValueAsString(scanRequest);
-        builderVscan.addPart("scanRequest", new StringBody(scanRequestStr));
-        HttpEntity multipartVscan = builderVscan.build();
-        HttpPost postRequestVscan = new HttpPost(urlVscan.toString());
-        postRequestVscan.setEntity(multipartVscan);
-        postRequestVscan.addHeader("Authorization", "Bearer " + AfServletGouvPropertiesResolver.getVscanJwt());
-        HttpResponse postResponseVscan = clientVscan.execute(postRequestVscan);
-        String vscanResp = IOUtils.toString(postResponseVscan.getEntity().getContent());
-        LOGGER.info("VSCAN Response : " + postResponseVscan.getStatusLine() + "(" + vscanResp + ")");
-        
-        ScanDTO scanDto = mapper.readValue(vscanResp, ScanDTO.class);
-        
-        if (!scanDto.isResult()) {
-        	LOGGER.info("VSCAN a détecté le fichier comme vérolé, fin du traitement, pas d'upload dans FILE");
-            response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_BAD_REQUEST,
-                    "Erreur: le fichier soumis semble corrompu");
-            return;
-        }
-        
-        LOGGER.info("VSCAN n'a pas considéré le fichier soumis comme vérolé");
+            LOGGER.info("Vérification de la taille...");
+            // Vérification de la taille du fichier
+            Part part0 = request.getParts().iterator().next();
+            int tailleMaxFichier = Integer.parseInt(getPropriete(MAX_TAILLE_FICHIER).getValue());
+            // transformation B en MB
+            int tailleMaxFichierMB = tailleMaxFichier * 1000000;
+            if (part0.getSize() > tailleMaxFichierMB) {
+                LOGGER.info("La taille du fichier depasse la taille max definie dans les propriétés ({})", tailleMaxFichier);
+                AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_FORBIDDEN,
+                        "Erreur: la taille du fichier depasse la taille max definie dans les propriétés");
+                return;
+            }
 
+            // Appel à VSCAN afin d'effectuer le scan antivirus
+            // Constitution de la requête
+            LOGGER.info("Appel à VSCAN...");
 
+            String urlVscan = AfServletGouvPropertiesResolver.getVscanUrl();
+            LOGGER.info("URL = " + urlVscan);
+            HttpClient clientVscan = HttpClientBuilder.create().build();
+            MultipartEntityBuilder builderVscan = MultipartEntityBuilder.create();
+            builderVscan.addPart("file", new InputStreamBody(part0.getInputStream(), part0.getContentType(), part0.getSubmittedFileName()));
+
+            // Pour tester avec un fichier vérolé (EICAR)
+            //builderVscan.addPart("file", new InputStreamBody(new ByteArrayInputStream("X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*".getBytes()), "blason.jpg"));
+
+            ScanRequestDTO scanRequest = new ScanRequestDTO();
+            scanRequest.setCodeAppli(getServletContext().getInitParameter(AppFactoryServletUtils.DEMARCHEID_KEY));
+            scanRequest.setFilename(filename);
+            //scanRequest.setEnduserIpAddress(request.getRemoteAddr());
+            scanRequest.setEnduserAppModule(getServletContext().getInitParameter(AppFactoryServletUtils.DEMARCHEID_KEY).toLowerCase() + "-frontserver");
+            //scanRequest.setEnduserDenomination("Usager " + usagerInfosDTO.getId() + " (" + usagerInfosDTO.getLogin() + ")");
+
+            String scanRequestStr = mapper.writeValueAsString(scanRequest);
+            builderVscan.addPart("scanRequest", new StringBody(scanRequestStr));
+            HttpEntity multipartVscan = builderVscan.build();
+            HttpPost postRequestVscan = new HttpPost(urlVscan.toString());
+            postRequestVscan.setEntity(multipartVscan);
+            postRequestVscan.addHeader("Authorization", "Bearer " + AfServletGouvPropertiesResolver.getVscanJwt());
+            HttpResponse postResponseVscan = clientVscan.execute(postRequestVscan);
+            String vscanResp = IOUtils.toString(postResponseVscan.getEntity().getContent());
+            LOGGER.info("VSCAN Response : " + postResponseVscan.getStatusLine() + "(" + vscanResp + ")");
+
+            ScanDTO scanDto = mapper.readValue(vscanResp, ScanDTO.class);
+
+            if (!scanDto.isResult()) {
+                LOGGER.info("VSCAN a détecté le fichier comme vérolé, fin du traitement, pas d'upload dans FILE");
+                response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_BAD_REQUEST,
+                        "Erreur: le fichier soumis semble corrompu");
+                return;
+            }
+
+            LOGGER.info("VSCAN n'a pas considéré le fichier soumis comme vérolé");
 
             // Génération de l'UUID
             UUID uuid = AppFactoryServletUtils.generateUUID();
@@ -216,6 +254,14 @@ public class FileUploadServlet extends AbstractAfServlet {
                     "Erreur interne: ", e);
         }
 
+        // Supression des sessions inutilisées chaque 10 requêtes d'upload
+        if (compteurCleanSessions > 50) {
+            reinitialierSessionsInutilisees();
+        }
+
+        // Ajout dans l'historique par session
+        ajouterCompteurUpload(session);
+
         LOGGER.info("====================== Fin /fileupload doPost()");
     }
 
@@ -227,9 +273,8 @@ public class FileUploadServlet extends AbstractAfServlet {
 
 
     private List<String> getExtensionsWhitelist() {
-        List<PropertiesDTO> properties = getAfApiClient().getFrontProperties();
         List<String> extensions = new ArrayList<>();
-        PropertiesDTO extensionsProperty = properties.stream().filter(prop -> prop.getKey().equals(EXTENSIONS_WHITELIST)).collect(Collectors.toList()).get(0);
+        PropertiesDTO extensionsProperty = getPropriete(EXTENSIONS_WHITELIST);
 
         if(extensionsProperty != null) {
             String propertyString = extensionsProperty.getValue().replace("*.","").replace(" ","");
@@ -238,5 +283,39 @@ public class FileUploadServlet extends AbstractAfServlet {
         }
 
         return extensions;
+    }
+
+    private PropertiesDTO getPropriete(String propriete) {
+        List<PropertiesDTO> properties = getAfApiClient().getFrontProperties();
+         return properties.stream().filter(prop -> prop.getKey().equals(propriete)).collect(Collectors.toList()).get(0);
+    }
+
+    private synchronized static void ajouterCompteurUpload(HttpSession session) {
+        FileUploadCompteurDTO compteurUpload = usagersFileUploadCompteurs.get(session);
+        if (compteurUpload == null) {
+            compteurUpload = new FileUploadCompteurDTO();
+            compteurUpload.setCompteur(0);
+            compteurUpload.setDatePremierUpload(LocalDateTime.now());
+        }
+        // Ajouter au compteur qu'un nouveau fichier a été uploadé
+        compteurUpload.setCompteur(compteurUpload.getCompteur() + 1);
+        usagersFileUploadCompteurs.put(session, compteurUpload);
+        compteurCleanSessions++;
+    }
+
+    /**
+     * Methode qui parcours toutes les sessions stockées et supprime les entrées qui ne servent plus. ex:
+     *      Une session dont la date du premier upload > x secondes
+     */
+    private synchronized static void reinitialierSessionsInutilisees() {
+        for (Map.Entry<HttpSession, FileUploadCompteurDTO> entry : usagersFileUploadCompteurs.entrySet()) {
+            LocalDateTime datePremierUpload = entry.getValue().getDatePremierUpload();
+            Duration duration = Duration.between(datePremierUpload, LocalDateTime.now());
+            int tempsParIntervalle = Integer.parseInt(AfServletGouvPropertiesResolver.getTempsIntervalleUpload());
+            if (duration.toMillis() > tempsParIntervalle) {
+                usagersFileUploadCompteurs.remove(entry.getKey());
+            }
+        }
+        compteurCleanSessions = 0;
     }
 }

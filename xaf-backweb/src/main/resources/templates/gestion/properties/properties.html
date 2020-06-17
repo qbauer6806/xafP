@@ -62,9 +62,10 @@
 
                 <div th:if="${AfBackUtils.getDemarcheCanHandleProperties()}" class="col-xs-12 tableContent">
                     <div class="tableTitle">Liste des propriétés</div>
-                    <table id="datatable-properties" class="table table-striped">
+                    <table id="datatable-properties" class="table table-striped" style="width: 100%">
                         <thead>
                         <tr>
+                            <th>ID</th>
                             <th>Type</th>
                             <th>Clé</th>
                             <th>Descriptif</th>
@@ -72,22 +73,6 @@
                             <th>Action</th>
                         </tr>
                         </thead>
-                        <tbody>
-                        <tr th:each="property : ${properties}">
-                            <td th:text="${property.type}"></td>
-                            <td th:text="${property.key}"></td>
-                            <td th:text="${property.descriptif}"></td>
-                            <td th:text="${property.value}"></td>
-                            <td>
-                                <button class="btn btn-action ripple-effect greyTooltip boutonModifier"
-                                        data-toggle="tooltip" data-placement="bottom"
-                                        data-original-title="Modifier la propriété"
-                                        th:attr="data-pkproperties=${property.pkProperties},data-type=${property.type},data-key=${property.key},data-descriptif=${property.descriptif},data-value=${property.value}">
-                                    <i class="icon-action_modifier"></i>
-                                </button>
-                            </td>
-                        </tr>
-                        </tbody>
                     </table>
                 </div>
 
@@ -143,8 +128,70 @@
 
 <script th:inline="javascript">
 
+    var columnsProperties = [
+        {
+            data: "pkProperties",
+            keyword: false,
+            visible: false,
+            render: function (data, type, property) {
+                return property.pkProperties;
+            }
+        },
+        {
+            data: "type",
+            keyword: false,
+            render: function (data, type, property) {
+                return property.type;
+            }
+        },
+        {
+            data: "key",
+            keyword: false,
+            render: function (data, type, property) {
+                return property.key;
+            }
+        },
+        {
+            data: "descriptif",
+            keyword: false,
+            render: function (data, type, property) {
+                return property.descriptif;
+            }
+        },
+        {
+            data: "value",
+            keyword: false,
+            render: function (data, type, property) {
+                return property.value;
+            }
+        },
+        {
+            orderable: false,
+            keyword: false,
+            render: function (data, type, property) {
+                return '<button class="btn btn-action ripple-effect greyTooltip boutonModifier" data-toggle="tooltip"'
+                    + ' data-placement="bottom" data-original-title="Modifier la propriété" data-pkproperties="' + property.pkProperties
+                    + '" data-type="' + property.type + '" data-key="' + property.key + '" data-descriptif="' + property.descriptif
+                    + '" data-value="' + property.value + '"><i class="icon-action_modifier"></i></button>';
+            }
+        }];
+
     /*<![CDATA[*/
     $(document).ready(function () {
+        var properties = /*[[${properties}]]*/'default';
+        var test = $('#datatable-properties').DataTable({
+            paging: true,
+            searching: false,
+            select: false,
+            bInfo: false,
+            pageLength: 5,
+            columns: columnsProperties,
+            data: properties,
+            language: frenchTranslation,
+            lengthMenu: [5, 10, 25, 50, 100]
+        });
+        console.log(test);
+
         autosize($("#propertiesValue"));
 
         var messagesSuccessList = /*[[${successMessages}]]*/'default';

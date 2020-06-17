@@ -74,7 +74,7 @@ public class FileUploadServlet extends AbstractAfServlet {
             int tempsParIntervalle = Integer.parseInt(AfServletGouvPropertiesResolver.getTempsIntervalleUpload());
             int maxUploadParIntervalle = Integer.parseInt(AfServletGouvPropertiesResolver.getMaxUploadParIntervalle());
 
-            if (compteurUpload.getCompteur() > maxUploadParIntervalle && duration.toMillis() < tempsParIntervalle) {
+            if (compteurUpload.getCompteur() >= maxUploadParIntervalle && duration.toMillis() < tempsParIntervalle) {
                 LOGGER.info("La limite de nombre de fichiers uploadés a été atteinte");
                 AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_METHOD_NOT_ALLOWED,
                         "Erreur: La limite de nombre de fichiers uploadés a été atteinte");

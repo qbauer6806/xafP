@@ -318,6 +318,7 @@
             date.set({hour: 0, minute: 0, second: 0, millisecond: 0});
             $('#pkPeriodesOuverture').val(null);
             $('#periodeStartDate').val(date.format(momentFormat));
+            date.set({hour: 23, minute: 59, second: 0, millisecond: 0});
             $('#periodeEndDate').val(date.format(momentFormat));
 
             $('#formError').html('');
@@ -377,7 +378,7 @@
             if (periodes.length === 1) {
                 message = "Attention, si vous supprimez cette période d’ouverture, les usagers pourront déposer des nouvelles demandes dans le téléservice sans limite de temps.<br/>Êtes-vous sûr(e) de vouloir continuer ?";
             } else if (moment().isBetween(dateDebut, dateFin)) {
-                message = "Attention, cette période d’ouverture est en cours. Si vous supprimez cette période d’ouverture les usagers ne pourront plus déposer de nouvelle demande dans le téléservice.<br/>Êtes-vous sûr(e) de vouloir continuer ?";
+                message = "Attention, cette période d’ouverture est en cours. Si vous supprimez cette période d’ouverture les usagers ne pourront plus déposer des nouvelles demandes dans le téléservice.<br/>Êtes-vous sûr(e) de vouloir continuer ?";
             }
             $('#suppressionMessage').html(message);
 

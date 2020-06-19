@@ -24,7 +24,7 @@ import java.util.List;
 
 @Controller
 @RequestMapping("/gestion/periodesouverture")
-@Secured("ROLE_PARAMETRAGE")
+@Secured({"ROLE_PARAMETRAGE", "ROLE_CONFIGURATION"})
 public class GestionPeriodesOuvertureController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GestionPeriodesOuvertureController.class);

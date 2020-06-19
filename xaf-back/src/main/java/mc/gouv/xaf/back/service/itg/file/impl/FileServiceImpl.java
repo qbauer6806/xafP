@@ -51,6 +51,7 @@ public class FileServiceImpl implements FileService {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileServiceImpl.class);
 
     private static final String EXTENSIONS_WHITELIST = "EXTENSIONS_WHITELIST";
+    private static final String VSCAN_ACTIVATION = "VSCAN_ACTIVATION";
 
     @Autowired
     private AfBackUtils afBackUtils;
@@ -82,7 +83,8 @@ public class FileServiceImpl implements FileService {
         LOGGER.info("FileService.saveFile(" + demande.getPkDemandes() + "," + filename + "," + contentType + ")");
 
         // Définition de la meta pour le demande ID
-        Map<String, String> customHeaders = createCustomHeaders(demande);
+        // On part du principe que le fichier a été généré côté back et n'est pas malicieux
+        Map<String, String> customHeaders = createCustomHeaders(demande, true);
 
         filename = demande.getFkAccess() + "/" + AfBackUtils.generateUUID() + "/" + filename;
 
@@ -108,20 +110,25 @@ public class FileServiceImpl implements FileService {
         }
 
         // Appel à VSCAN pour vérifier la virulance du fichier
-        ScanDTO scanDTO = verificationVSCAN(file);
-        if (!scanDTO.isResult()) {
-            LOGGER.info("VSCAN a détecté le fichier comme vérolé, fin du traitement, pas d'upload dans FILE");
-            throw new VScanException("Erreur: le fichier soumis semble corrompu");
-        }
+        PropertiesDTO vscanActivationProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), VSCAN_ACTIVATION);
+        boolean vscanActivation = Boolean.parseBoolean(vscanActivationProp.getValue());
 
-        LOGGER.info("VSCAN n'a pas considéré le fichier soumis comme vérolé");
+        LOGGER.info("Activation de VSCAN: " + vscanActivation);
+        if (vscanActivation) {
+            ScanDTO scanDTO = verificationVSCAN(file);
+            if (!scanDTO.isResult()) {
+                LOGGER.info("VSCAN a détecté le fichier comme vérolé, fin du traitement, pas d'upload dans FILE");
+                throw new VScanException("Erreur: le fichier soumis semble corrompu");
+            }
+            LOGGER.info("VSCAN n'a pas considéré le fichier soumis comme vérolé");
+        }
 
         String filename = "/" + demande.getFkAccess() + "/" + AfBackUtils.generateUUID() + "/"
                 + URLEncoder.encode(file.getOriginalFilename(), "UTF-8");
 
         LOGGER.info("Filename à donner à FILE : " + filename);
 
-        Map<String, String> customHeaders = createCustomHeaders(demande);
+        Map<String, String> customHeaders = createCustomHeaders(demande, vscanActivation);
 
         String accountId = gouvPropertiesResolver.getDemarcheId();
         LOGGER.info("FileClient.saveFile(" + accountId + "," + containerId + "," + filename + ")");
@@ -152,10 +159,11 @@ public class FileServiceImpl implements FileService {
         return extensions;
     }
 
-    private Map<String, String> createCustomHeaders(DemandeDTO demande) {
+    private Map<String, String> createCustomHeaders(DemandeDTO demande, boolean scanExecute) {
         Map<String, String> customHeaders = new HashMap<String, String>();
         customHeaders.put(AfBackUtils.FILE_METADATA_DEMANDEID, demande.getPkDemandes().toString());
         customHeaders.put(AfBackUtils.FILE_METADATA_DEMANDESTATUT, demande.getDernierStatut().getLibelle());
+        customHeaders.put(AfBackUtils.FILE_METADATA_SCANEXECUTE, scanExecute + "");
         return customHeaders;
     }
 

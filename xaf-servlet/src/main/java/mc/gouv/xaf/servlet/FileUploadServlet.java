@@ -46,6 +46,7 @@ public class FileUploadServlet extends AbstractAfServlet {
 
     private static final String EXTENSIONS_WHITELIST = "EXTENSIONS_WHITELIST";
     private static final String MAX_TAILLE_FICHIER = "MAX_TAILLE_FICHIER";
+    private static final String VSCAN_ACTIVATION = "VSCAN_ACTIVATION";
 
     // Enregistre l'historique d'upload par session
     private final static Map<HttpSession, FileUploadCompteurDTO> usagersFileUploadCompteurs = new HashMap<>();
@@ -126,44 +127,49 @@ public class FileUploadServlet extends AbstractAfServlet {
 
             // Appel à VSCAN afin d'effectuer le scan antivirus
             // Constitution de la requête
-            LOGGER.info("Appel à VSCAN...");
+            boolean activationVscan = Boolean.parseBoolean(getPropriete(VSCAN_ACTIVATION).getValue());
+            LOGGER.info("Activation de VSCAN: " + activationVscan);
 
-            String urlVscan = AfServletGouvPropertiesResolver.getVscanUrl();
-            LOGGER.info("URL = " + urlVscan);
-            HttpClient clientVscan = HttpClientBuilder.create().build();
-            MultipartEntityBuilder builderVscan = MultipartEntityBuilder.create();
-            builderVscan.addPart("file", new InputStreamBody(part0.getInputStream(), part0.getContentType(), part0.getSubmittedFileName()));
+            if (activationVscan) {
+                LOGGER.info("Appel à VSCAN...");
 
-            // Pour tester avec un fichier vérolé (EICAR)
-            //builderVscan.addPart("file", new InputStreamBody(new ByteArrayInputStream("X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*".getBytes()), "blason.jpg"));
+                String urlVscan = AfServletGouvPropertiesResolver.getVscanUrl();
+                LOGGER.info("URL = " + urlVscan);
+                HttpClient clientVscan = HttpClientBuilder.create().build();
+                MultipartEntityBuilder builderVscan = MultipartEntityBuilder.create();
+                builderVscan.addPart("file", new InputStreamBody(part0.getInputStream(), part0.getContentType(), part0.getSubmittedFileName()));
 
-            ScanRequestDTO scanRequest = new ScanRequestDTO();
-            scanRequest.setCodeAppli(getServletContext().getInitParameter(AppFactoryServletUtils.DEMARCHEID_KEY));
-            scanRequest.setFilename(filename);
-            //scanRequest.setEnduserIpAddress(request.getRemoteAddr());
-            scanRequest.setEnduserAppModule(getServletContext().getInitParameter(AppFactoryServletUtils.DEMARCHEID_KEY).toLowerCase() + "-frontserver");
-            //scanRequest.setEnduserDenomination("Usager " + usagerInfosDTO.getId() + " (" + usagerInfosDTO.getLogin() + ")");
+                // Pour tester avec un fichier vérolé (EICAR)
+                //builderVscan.addPart("file", new InputStreamBody(new ByteArrayInputStream("X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*".getBytes()), "blason.jpg"));
 
-            String scanRequestStr = mapper.writeValueAsString(scanRequest);
-            builderVscan.addPart("scanRequest", new StringBody(scanRequestStr));
-            HttpEntity multipartVscan = builderVscan.build();
-            HttpPost postRequestVscan = new HttpPost(urlVscan.toString());
-            postRequestVscan.setEntity(multipartVscan);
-            postRequestVscan.addHeader("Authorization", "Bearer " + AfServletGouvPropertiesResolver.getVscanJwt());
-            HttpResponse postResponseVscan = clientVscan.execute(postRequestVscan);
-            String vscanResp = IOUtils.toString(postResponseVscan.getEntity().getContent());
-            LOGGER.info("VSCAN Response : " + postResponseVscan.getStatusLine() + "(" + vscanResp + ")");
+                ScanRequestDTO scanRequest = new ScanRequestDTO();
+                scanRequest.setCodeAppli(getServletContext().getInitParameter(AppFactoryServletUtils.DEMARCHEID_KEY));
+                scanRequest.setFilename(filename);
+                //scanRequest.setEnduserIpAddress(request.getRemoteAddr());
+                scanRequest.setEnduserAppModule(getServletContext().getInitParameter(AppFactoryServletUtils.DEMARCHEID_KEY).toLowerCase() + "-frontserver");
+                //scanRequest.setEnduserDenomination("Usager " + usagerInfosDTO.getId() + " (" + usagerInfosDTO.getLogin() + ")");
 
-            ScanDTO scanDto = mapper.readValue(vscanResp, ScanDTO.class);
+                String scanRequestStr = mapper.writeValueAsString(scanRequest);
+                builderVscan.addPart("scanRequest", new StringBody(scanRequestStr));
+                HttpEntity multipartVscan = builderVscan.build();
+                HttpPost postRequestVscan = new HttpPost(urlVscan.toString());
+                postRequestVscan.setEntity(multipartVscan);
+                postRequestVscan.addHeader("Authorization", "Bearer " + AfServletGouvPropertiesResolver.getVscanJwt());
+                HttpResponse postResponseVscan = clientVscan.execute(postRequestVscan);
+                String vscanResp = IOUtils.toString(postResponseVscan.getEntity().getContent());
+                LOGGER.info("VSCAN Response : " + postResponseVscan.getStatusLine() + "(" + vscanResp + ")");
 
-            if (!scanDto.isResult()) {
-                LOGGER.info("VSCAN a détecté le fichier comme vérolé, fin du traitement, pas d'upload dans FILE");
-                response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_BAD_REQUEST,
-                        "Erreur: le fichier soumis semble corrompu");
-                return;
+                ScanDTO scanDto = mapper.readValue(vscanResp, ScanDTO.class);
+
+                if (!scanDto.isResult()) {
+                    LOGGER.info("VSCAN a détecté le fichier comme vérolé, fin du traitement, pas d'upload dans FILE");
+                    response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_BAD_REQUEST,
+                            "Erreur: le fichier soumis semble corrompu");
+                    return;
+                }
+
+                LOGGER.info("VSCAN n'a pas considéré le fichier soumis comme vérolé");
             }
-
-            LOGGER.info("VSCAN n'a pas considéré le fichier soumis comme vérolé");
 
             // Génération de l'UUID
             UUID uuid = AppFactoryServletUtils.generateUUID();
@@ -221,7 +227,10 @@ public class FileUploadServlet extends AbstractAfServlet {
             if (demandeId != null) {
                 postRequest.setHeader(AppFactoryServletUtils.FILE_METADATA_DEMANDEID, demandeId);
             }
-            
+
+            // Rajouter l'information si le fichier a été scanné par VSCAN ou pas
+            postRequest.setHeader(AppFactoryServletUtils.FILE_METADATA_SCANEXECUTE, activationVscan + "");
+
             postRequest.setHeader(HttpHeaders.AUTHORIZATION, AppFactoryServletUtils.getAuthHeader(ServiceTarget.FILE));
 
             LOGGER.info("Appel du WS FILE");

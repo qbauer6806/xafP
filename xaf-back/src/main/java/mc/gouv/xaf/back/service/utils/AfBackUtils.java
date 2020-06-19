@@ -56,6 +56,8 @@ public class AfBackUtils {
 
     public static final String FILE_METADATA_DEMANDESTATUT = "X-MC-DEMANDESTATUT";
 
+    public static final String FILE_METADATA_SCANEXECUTE = "X-MC-SCANEXECUTE";
+
     private static RestTemplate restTemplate;
 
     private static String envName;

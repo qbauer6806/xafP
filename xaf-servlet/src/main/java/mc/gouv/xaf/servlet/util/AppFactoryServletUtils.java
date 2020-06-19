@@ -41,6 +41,8 @@ public class AppFactoryServletUtils {
 
     public static final String FILE_METADATA_DEMANDESTATUT = "X-MC-DEMANDESTATUT";
 
+    public static final String FILE_METADATA_SCANEXECUTE = "X-MC-SCANEXECUTE";
+
     public static final String CAPTCHA_TOKEN_REGEXP = "^recaptcha_([0-9.]+)_(.*)_(.*)$";
 
     public static final String XSRF_COOKIE = "XSRF-TOKEN";

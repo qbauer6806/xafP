@@ -237,6 +237,10 @@
             return true;
         });
 
+        $('#editionPropertiesForm').submit(function () {
+            $('#saveBtn').prop('disabled', true);
+        });
+
     });
     /*]]>*/
 </script>

@@ -97,7 +97,7 @@
 				<div th:replace="~{fragments/customsidebarelements :: customsidebarelements} ?: _"></div>
 
 				<li th:class="${pageParametresActive} ? 'active' : ''"
-					sec:authorize="hasRole('ROLE_PARAMETRAGE')">
+					sec:authorize="hasRole('ROLE_PARAMETRAGE') || hasRole('ROLE_CONFIGURATION')">
 					<a id="menuParametres">
 						<div class="contentTooltip">
 							<span class="greyTooltip" data-toggle="tooltip"
@@ -110,7 +110,7 @@
 						<span class="icon-action_suivant"></span>
 					</a>
 					<ul class="" style="left: 40px; display: none;">
-						<li>
+						<li sec:authorize="hasRole('ROLE_PARAMETRAGE')">
 							<a id="menuMotifs"
 							   th:href="@{/gestion/parametres}">
 								<div class="whiteBullet"></div>

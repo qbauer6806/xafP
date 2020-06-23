@@ -142,10 +142,11 @@
                         annuler
                     </button>
                     <!-- La valeur de l'action et le texte du bouton sont modifiées à l'ouverture de la popup -->
-                    <button id="saveBtn" class="btn btn-action ripple-effect" type="submit" name="action"
-                            value="save">
+                    <button id="saveBtn" class="btn btn-action ripple-effect" type="button">
                         SAVE_BTN
                     </button>
+                    <!-- Input pour submit le formulaire -->
+                    <input id="formSubmit" type="submit" name="action" value="save" style="display: none"/>
                 </div>
             </div>
         </form>
@@ -324,7 +325,7 @@
             $('#formError').html('');
             $('#formWarning').html('');
             $('#saveTitle').html('Ajout d\'une période d\'ouverture');
-            $('#saveBtn').val('ajouter');
+            $('#formSubmit').val('ajouter');
             $('#saveBtn').html('ajouter');
 
             $.fancybox.open({
@@ -346,7 +347,7 @@
             $('#formError').html('');
             $('#formWarning').html('');
             $('#saveTitle').html('Modifier une période d\'ouverture');
-            $('#saveBtn').val('modifier');
+            $('#formSubmit').val('modifier');
             $('#saveBtn').html('modifier');
 
             savedStartMoment = moment(dateDebut);
@@ -422,6 +423,8 @@
                     $('#formError').html('La date de fin doit être postérieure à la date de début.');
                 } else {
                     $('#formError').html('');
+                    $('#formSubmit').click();
+                    $('#saveBtn').prop('disabled', true);
                     return true;
                 }
 
@@ -431,6 +434,14 @@
 
             e.preventDefault();
             return false;
+        });
+
+        $('#suppressionTousForm').submit(function () {
+            $('#supprTousBtn').prop('disabled', true);
+        });
+
+        $('#suppressionForm').submit(function () {
+            $('#supprBtn').prop('disabled', true);
         });
 
     });

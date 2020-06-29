@@ -64,6 +64,9 @@ public class AfBackUtils {
 
     public static String DEFAULT_FRENCH_DATE_FORMAT = "dd/MM/yyyy";
 
+    // 24 hours time format
+    public static String DEFAULT_FRENCH_TIME_FORMAT = "HH:mm";
+
     // French date format with 24 hours
     public static String DEFAULT_FRENCH_DATE_HOURS_FORMAT = "dd/MM/yyyy HH:mm";
 
@@ -439,6 +442,14 @@ public class AfBackUtils {
         }
         return LocalDateTime.parse(dateString, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
                 .format(DateTimeFormatter.ofPattern(DEFAULT_FRENCH_DATE_FORMAT));
+    }
+
+    public static String changeTimeStringFormat(final String dateString) {
+        if (StringUtils.isBlank(dateString)) {
+            return " ";
+        }
+        return LocalDateTime.parse(dateString, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+                .format(DateTimeFormatter.ofPattern(DEFAULT_FRENCH_TIME_FORMAT));
     }
 
     public static String changeDateTimeStringFormat(final String dateString) {

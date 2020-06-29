@@ -1,15 +1,21 @@
 package mc.gouv.xaf.back.service.es.impl;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import javax.ws.rs.BadRequestException;
-
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
+import mc.gouv.xaf.back.data.dao.RechercheCatConfigRepository;
+import mc.gouv.xaf.back.data.dao.RechercheChampConfigRepository;
+import mc.gouv.xaf.back.data.entity.RechercheCatConfigBO;
+import mc.gouv.xaf.back.data.entity.RechercheChampConfigBO;
+import mc.gouv.xaf.back.data.es.model.*;
+import mc.gouv.xaf.back.exception.CategoryAlreadyExist;
+import mc.gouv.xaf.back.exception.UsedCategoryException;
+import mc.gouv.xaf.back.service.es.IndexedDemandeService;
+import mc.gouv.xaf.back.service.es.RechercheAdminService;
+import mc.gouv.xaf.back.service.es.RechercheDynamicJSService;
+import mc.gouv.xaf.back.service.utils.HTMLEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,31 +24,9 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
-import mc.gouv.xaf.back.data.dao.RechercheCatConfigRepository;
-import mc.gouv.xaf.back.data.dao.RechercheChampConfigRepository;
-import mc.gouv.xaf.back.data.entity.RechercheCatConfigBO;
-import mc.gouv.xaf.back.data.entity.RechercheChampConfigBO;
-import mc.gouv.xaf.back.data.es.model.ConfigCategoriesDTO;
-import mc.gouv.xaf.back.data.es.model.ConfigPropertiesDTO;
-import mc.gouv.xaf.back.data.es.model.ConfigPropertyDTO;
-import mc.gouv.xaf.back.data.es.model.DemandeEsDTO;
-import mc.gouv.xaf.back.data.es.model.EsCategory;
-import mc.gouv.xaf.back.data.es.model.EsProperty;
-import mc.gouv.xaf.back.data.es.model.ExportImportCategoryDTO;
-import mc.gouv.xaf.back.data.es.model.ExportImportConfigDTO;
-import mc.gouv.xaf.back.data.es.model.ExportImportConfigPropertyDTO;
-import mc.gouv.xaf.back.exception.CategoryAlreadyExist;
-import mc.gouv.xaf.back.exception.UsedCategoryException;
-import mc.gouv.xaf.back.service.es.IndexedDemandeService;
-import mc.gouv.xaf.back.service.es.RechercheAdminService;
-import mc.gouv.xaf.back.service.es.RechercheDynamicJSService;
-import mc.gouv.xaf.back.service.utils.HTMLEscapeUtils;
+import javax.ws.rs.BadRequestException;
+import java.io.IOException;
+import java.util.*;
 
 @Service
 @Conditional(IndexationEnabledCondition.class)
@@ -139,9 +123,12 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
     public void updateProperties(ConfigPropertiesDTO properties) {
         LOGGER.info("Début de la maj des propriétés");
         if (properties != null && properties.getProperties() != null) {
+
+            // Enregistrement des propriétés et catégories
             for (ConfigPropertyDTO property : properties.getProperties()) {
                 updateProperty(property);
             }
+
             indexedDemandeService.loadProperties();
             rechercheDynamicJSService.createJsFile();
         }
@@ -154,16 +141,16 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
         LOGGER.info("Début de la maj de la propriété {}", property.getName());
         RechercheChampConfigBO champBo = rechercheChampConfigRepository.findByCle(property.getName());
 
+        // Vérification de l'existance de la propriété
         if (champBo == null) {
-            LOGGER.info("La propriété n'existe pas");
+            LOGGER.info("La propriété n'existe pas, création de la propriété\nClé: {}", property.getName());
             champBo = new RechercheChampConfigBO();
-            LOGGER.info("Création de la propriété\nClé: {}", property.getName());
             champBo.setCle(property.getName());
-
             champBo.setEditable(true);
         }
-        if (property.getCategoryId() != null) {
 
+        // Association de la catégorie
+        if (property.getCategoryId() != null) {
             Optional<RechercheCatConfigBO> catBoOp = rechercheCatConfigRepository.findById(property.getCategoryId());
             if (catBoOp.isPresent()) {
                 champBo.setCategorie(catBoOp.get());
@@ -172,11 +159,11 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
             LOGGER.info("La propriété n'est pas associée à une catégorie");
         }
 
+        // Sauvegarde de la propriété
         LOGGER.info("Enabled : {}", property.isEnabled());
         champBo.setEnabled(property.isEnabled());
         LOGGER.info("Libelle : {}", property.getLabel());
         champBo.setLibelle(property.getLabel());
-
         rechercheChampConfigRepository.save(champBo);
 
         LOGGER.info("Fin de la maj de la propriété {}", property.getName());

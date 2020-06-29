@@ -1,26 +1,5 @@
 package mc.gouv.xaf.backweb.ws;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Conditional;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Order;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.format.annotation.DateTimeFormat.ISO;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-
 import mc.gouv.logon.shared.User;
 import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
 import mc.gouv.xaf.back.data.es.model.DemandeEsRechercheDTO;
@@ -35,6 +14,22 @@ import mc.gouv.xaf.shared.dto.DataRechercheDTO;
 import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 import mc.gouv.xboot.config.web.annotation.GouvRestController;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Conditional;
+import org.springframework.data.domain.*;
+import org.springframework.data.domain.Sort.Order;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.format.annotation.DateTimeFormat.ISO;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 @GouvRestController
 @RequestMapping("/ws/demandes")
@@ -52,7 +47,7 @@ public class RechercheIndexedDemandesController extends AbstractController {
     @Autowired
     private UtilisateursCache utilisateursCache;
 
-    @RequestMapping(value = "/pageable", method = RequestMethod.GET)
+    @GetMapping(value = "/pageable")
     public Page<AfBackDemandeEsDTO> getDemandes(@RequestParam(value = "usagerId", required = false) Integer usagerId,
                                                 @RequestParam(value = "statut", required = false) List<String> statuts,
                                                 @RequestParam(value = "canal", required = false) List<DemandeCanalEnum> canaux,
@@ -66,9 +61,9 @@ public class RechercheIndexedDemandesController extends AbstractController {
                                                 @RequestParam(value = "aucunStatut", required = false) boolean aucunStatut,
                                                 @RequestParam(value = "statutPublicOuInterne", required = false) String statutPublicOuInterne, Pageable pageable) {
 
-        LOGGER.info("======================= Appel de /ws/demandes/pageable (statuts=" + statuts + ",canaux=" + canaux
-                + ",agentId=" + agentId + ",creationStartDate=" + creationStartDate + ",creationEndDate="
-                + creationEndDate + ",texte=" + texte + ",data=" + data);
+        LOGGER.info(
+                "======================= Appel de /ws/demandes/pageable (userId=\"{}\", statuts=\"{}\", canaux=\"{}\", agentId=\"{}\", creationStartDate=\"{}\", creationEndDate=\"{}\", texte=\"{}\", data=\"{}\")",
+                usagerId, statuts, canaux, agentId, creationStartDate, creationEndDate, texte, data);
 
         DemandeRechercheDTO demandeRecherche = new DemandeRechercheDTO();
         demandeRecherche.setDemarcheId(gouvPropertiesResolver.getDemarcheId());
@@ -86,11 +81,11 @@ public class RechercheIndexedDemandesController extends AbstractController {
         demandeRecherche.setStatutPublicOuInterne(statutPublicOuInterne);
         demandeRecherche.setSearchFields(searchFields);
 
-        if (pageable.getSort() != null && !pageable.getSort().isUnsorted()) {
+        if (!pageable.getSort().isUnsorted()) {
             Order order = pageable.getSort().iterator().next();
             if (order != null) {
                 return processCustomData(
-                        demandesService.getIndexedDemandes(demandeRecherche, pageable, new String[] {}));
+                        demandesService.getIndexedDemandes(demandeRecherche, pageable, new String[]{}));
             }
         }
 
@@ -105,26 +100,31 @@ public class RechercheIndexedDemandesController extends AbstractController {
 
         LOGGER.info("======================= Fin appel de /ws/demandes/pageable");
 
-        return processCustomData(demandesService.getIndexedDemandes(demandeRecherche, newPageable, new String[] {}));
+        return processCustomData(demandesService.getIndexedDemandes(demandeRecherche, newPageable, new String[]{}));
     }
 
-    @RequestMapping(value = "/facets", method = RequestMethod.GET)
+    @GetMapping(value = "/facets")
     public List<DemandesFacet> getDemandesFacets(@RequestParam(value = "usagerId", required = false) Integer usagerId,
-            @RequestParam(value = "statut", required = false) List<String> statuts,
-            @RequestParam(value = "canal", required = false) List<DemandeCanalEnum> canaux,
-            @RequestParam(value = "agentId", required = false) String agentId,
-            @RequestParam(value = "creationStartDate", required = false) @DateTimeFormat(iso = ISO.DATE) Date creationStartDate,
-            @RequestParam(value = "creationEndDate", required = false) @DateTimeFormat(iso = ISO.DATE) Date creationEndDate,
-            @RequestParam(value = "texte", required = false) String texte,
-            @RequestParam(value = "data", required = false) DataRechercheDTO data) {
+                                                 @RequestParam(value = "statut", required = false) List<String> statuts,
+                                                 @RequestParam(value = "canal", required = false) List<DemandeCanalEnum> canaux,
+                                                 @RequestParam(value = "agentId", required = false) String agentId,
+                                                 @RequestParam(value = "creationStartDate", required = false) @DateTimeFormat(iso = ISO.DATE) Date creationStartDate,
+                                                 @RequestParam(value = "creationEndDate", required = false) @DateTimeFormat(iso = ISO.DATE) Date creationEndDate,
+                                                 @RequestParam(value = "texte", required = false) String texte,
+                                                 @RequestParam(value = "data", required = false) DataRechercheDTO data) {
+
+        LOGGER.info(
+                "======================= Appel de /ws/demandes/facets (userId=\"{}\", statuts=\"{}\", canaux=\"{}\", agentId=\"{}\", creationStartDate=\"{}\", creationEndDate=\"{}\", texte=\"{}\", data=\"{}\")",
+                usagerId, statuts, canaux, agentId, creationStartDate, creationEndDate, texte, data);
 
         DemandeRechercheDTO demandeRecherche = new DemandeRechercheDTO(gouvPropertiesResolver.getDemarcheId(), texte,
                 statuts, canaux, agentId, usagerId, creationStartDate, creationEndDate, data, null);
 
         DemandesFacets demandesFacets = demandesService.getDemandesFacets(demandeRecherche);
 
-        return demandesFacets.getFacets();
+        LOGGER.info("======================= Fin appel de /ws/demandes/facets");
 
+        return demandesFacets.getFacets();
     }
 
     private Page<AfBackDemandeEsDTO> processCustomData(Page<DemandeEsRechercheDTO> demandes) {
@@ -132,14 +132,14 @@ public class RechercheIndexedDemandesController extends AbstractController {
         if (demandes == null || !demandes.hasContent()) {
             return Page.empty();
         }
-        List<AfBackDemandeEsDTO> newDemandes = new ArrayList<AfBackDemandeEsDTO>();
+        List<AfBackDemandeEsDTO> newDemandes = new ArrayList<>();
         for (DemandeEsRechercheDTO demande : demandes) {
             AfBackDemandeEsDTO newDem = new AfBackDemandeEsDTO(demande);
             if (demande.getAgent() != null && demande.getAgent().getMatricule() != null) {
                 User user = utilisateursCache.get(demande.getAgent().getMatricule());
                 if (user != null) {
-	                newDem.setAgentAffectePrenom(user.getPrenom());
-	                newDem.setAgentAffecteNom(user.getNomAffichage());
+                    newDem.setAgentAffectePrenom(user.getPrenom());
+                    newDem.setAgentAffecteNom(user.getNomAffichage());
                 }
             }
             newDemandes.add(newDem);

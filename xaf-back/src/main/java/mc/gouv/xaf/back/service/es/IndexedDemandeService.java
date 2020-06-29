@@ -1,35 +1,32 @@
 package mc.gouv.xaf.back.service.es;
 
-import java.io.IOException;
-import java.util.List;
-
+import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.es.model.*;
+import mc.gouv.xaf.back.exception.FileConnectionException;
+import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.shared.dto.DemandeCourrierRechercheDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeFileDTO;
+import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 import org.apache.tika.exception.TikaException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.xml.sax.SAXException;
 
-import mc.gouv.xaf.back.data.entity.DemandeBO;
-import mc.gouv.xaf.back.exception.FileConnectionException;
-import mc.gouv.xaf.back.service.data.DemandesService;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.xaf.shared.dto.DemandeFileDTO;
-import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
+import java.io.IOException;
+import java.util.List;
 
 /**
  * Interface définissant le contrat du service d'indexation
- * 
- * @author asouabni.ext
  *
+ * @author asouabni.ext
  */
 public interface IndexedDemandeService extends DemandesService {
 
     /**
      * Méthode permettant d'indexer une demande
-     * 
+     *
      * @param demandeDTO La demande à indexer
-     * 
      * @throws IOException
      * @throws SAXException
      * @throws TikaException
@@ -38,21 +35,19 @@ public interface IndexedDemandeService extends DemandesService {
 
     /**
      * Méthode permettant de récupérer les facets
-     * 
-     * @param demandeRecherche
-     *            Paramètres de la recherche
+     *
+     * @param demandeRecherche Paramètres de la recherche
      * @return Facets récupérés
      */
     DemandesFacets getDemandesFacets(DemandeRechercheDTO demandeRecherche);
 
     /**
      * Méthode permettant de faire la réindexation Globale (Demandes + Fichiers) dans elasticsearch
-     * 
+     *
      * @return nombre de demandes reindexées
-     * 
-     * @throws IOException Exception I/O
-     * @throws TikaException Exception du parsing de la piece jointe
-     * @throws SAXException Exception SAX
+     * @throws IOException             Exception I/O
+     * @throws TikaException           Exception du parsing de la piece jointe
+     * @throws SAXException            Exception SAX
      * @throws FileConnectionException Exception lors de la connextion à File afn de récupérer la piece jointe à indexer
      */
     Long reindex() throws IOException;
@@ -61,22 +56,20 @@ public interface IndexedDemandeService extends DemandesService {
      * Méthode permettant de faire la réindexation des demandes dans elasticsearch
      *
      * @return nombre de demandes reindexées
-     *
-     * @throws IOException Exception I/O
-     * @throws TikaException Exception du parsing de la piece jointe
-     * @throws SAXException Exception SAX
+     * @throws IOException             Exception I/O
+     * @throws TikaException           Exception du parsing de la piece jointe
+     * @throws SAXException            Exception SAX
      * @throws FileConnectionException Exception lors de la connextion à File afn de récupérer la piece jointe à indexer
      */
     Long reindexDemandes() throws IOException;
 
     /**
      * Méthode permettant de récupérer une demande de la base et de l'indexer
-     * 
+     *
      * @param demarcheId Identifiant de la demarche
-     * @param demandeId Identifiant de la demande
-     * 
-     * @throws IOException Exception I/O
-     * @throws SAXException Exception SAX
+     * @param demandeId  Identifiant de la demande
+     * @throws IOException   Exception I/O
+     * @throws SAXException  Exception SAX
      * @throws TikaException Exception du parsing de la piece jointe
      */
     void indexDemande(String demarcheId, Integer demandeId)
@@ -84,7 +77,7 @@ public interface IndexedDemandeService extends DemandesService {
 
     /**
      * Méthode permettant d'indexer les pieces jointes
-     * 
+     *
      * @param demandeFileEsDTOs Liste des DTOs de la piece jointe
      * @return Liste des DTOs de la piece jointe
      */
@@ -92,7 +85,7 @@ public interface IndexedDemandeService extends DemandesService {
 
     /**
      * Méthode permettant d'indexer les pieces jointe d'une demande
-     * 
+     *
      * @param demande Entite Demande dont on doit indexer les pieces jointes
      * @throws IOException Exception I/O
      */
@@ -100,7 +93,7 @@ public interface IndexedDemandeService extends DemandesService {
 
     /**
      * Méthode permettant d'indexer les pieces jointe d'une demande
-     * 
+     *
      * @param demande DTO demande dont on doit indexer les pieces jointes
      * @throws IOException Exception I/O
      */
@@ -108,12 +101,11 @@ public interface IndexedDemandeService extends DemandesService {
 
     /**
      * Méthode permettant d'envoyer une demande au topic afin d'être indexer
-     *  
+     *
      * @param demandeDTO DTO de la demande
      * @param indexFiles Boolean pour indiquer si on doit indexer les fichiers associés à la demande
-     * 
-     * @throws IOException Exception I/O
-     * @throws SAXException Exception SAX
+     * @throws IOException   Exception I/O
+     * @throws SAXException  Exception SAX
      * @throws TikaException Exception du parsing de la piece jointe
      */
     void sendToTopic(DemandeDTO demandeDTO, boolean indexFiles)
@@ -121,12 +113,11 @@ public interface IndexedDemandeService extends DemandesService {
 
     /**
      * Méthode permettant d'envoyer un fichier au topic afin d'être indexer
-     * 
+     *
      * @param demandeFileDTO DTO du fichier à indexer
-     * @param demandeDTO DTO de la demande à traiter
-     * 
-     * @throws IOException Exception I/O
-     * @throws SAXException Exception SAX
+     * @param demandeDTO     DTO de la demande à traiter
+     * @throws IOException   Exception I/O
+     * @throws SAXException  Exception SAX
      * @throws TikaException Exception du parsing de la piece jointe
      */
     void sendToTopic(DemandeFileDTO demandeFileDTO, DemandeDTO demandeDTO)
@@ -134,21 +125,19 @@ public interface IndexedDemandeService extends DemandesService {
 
     /**
      * Méthode permettant d'envoyer un fichier au topic afin d'être indexer
-     * 
+     *
      * @param demandeFileDTOList DTOs des fichier à indexer
-     * @param demandeDTO DTO de la demande à traiter
-     * 
-     * @throws IOException Exception I/O
-     * @throws SAXException Exception SAX
+     * @param demandeDTO         DTO de la demande à traiter
+     * @throws IOException   Exception I/O
+     * @throws SAXException  Exception SAX
      * @throws TikaException Exception du parsing de la piece jointe
      */
     void sendToTopic(DemandeFileDTO[] demandeFileDTOList, DemandeDTO demandeDTO)
             throws IOException, SAXException, TikaException;
 
     /**
-     * 
      * Méthode permettant de rechercher des demandes à partir des critères en input
-     * 
+     *
      * @param demandeRecherche Critères de recherche
      * @return Résultat de la recherche
      */
@@ -156,21 +145,21 @@ public interface IndexedDemandeService extends DemandesService {
 
     /**
      * Méthode permettant de rechercher des demandes à partir des critères en input (recherche paginée)
-     * 
+     *
      * @param demandeRecherche Critères de recherche
-     * @param pageable Page de la recherche
-     * @param fields fields de la demande à récupérer
+     * @param pageable         Page de la recherche
+     * @param fields           fields de la demande à récupérer
      * @return Résultat de la recherche
      */
     Page<DemandeEsRechercheDTO> getIndexedDemandes(DemandeRechercheDTO demandeRecherche, Pageable pageable,
-            String[] fields);
+                                                   String[] fields);
 
     /**
      * Méthode permettant de rechercher des demandes à partir des critères en input (recherche paginée)
      *
      * @param demandeRecherche Critères de recherche
-     * @param pageable Page de la recherche
-     * @param fields fields de la demande à récupérer
+     * @param pageable         Page de la recherche
+     * @param fields           fields de la demande à récupérer
      * @return Résultat de la recherche
      */
     Page<DemandeFileEsRechercheDTO> getIndexedCourriers(DemandeCourrierRechercheDTO demandeRecherche, Pageable pageable,
@@ -178,22 +167,22 @@ public interface IndexedDemandeService extends DemandesService {
 
     /**
      * Methode permettant de récupérer la liste des propriétés du moteur de recherche
-     * @param reload Recharger le schème elasticsearch  
+     *
+     * @param reload Recharger le schème elasticsearch
      * @return Liste des propriétés elasticsearch
      */
     List<EsProperty> getProperties(boolean reload);
 
     /**
      * Méthode permettant d'initialiser le schèma du moteur de recherche
-     * 
+     *
      * @param reload Recharger le schéma elasticsearch
-     * 
      */
     void initMappingProperties(boolean reload);
 
     /**
-     * Méthode permettant de charger les propriétés à exclure de la recherche avancée et du mapping elasticsearch 
-     * 
+     * <p>Charge les propriétés de la recharche avancée.</p>
+     * <p>Désactive les propriétés à exclure du mappin elascticsearch.</p>
      */
     void loadProperties();
 

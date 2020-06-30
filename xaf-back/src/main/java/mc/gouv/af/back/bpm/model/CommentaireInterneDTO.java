@@ -4,7 +4,8 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * Classe représentant un commentaire interne entre intervenants du back-office
+ * <p>Classe représentant un commentaire interne entre intervenants du back-office</p>
+ * <p>Important: les deux classes CommentaireInterneDTO doivent rester présente. Le BPMN a besoin des deux classes pour déserialisé les objets.</p>
  *
  * @author qdeme
  */

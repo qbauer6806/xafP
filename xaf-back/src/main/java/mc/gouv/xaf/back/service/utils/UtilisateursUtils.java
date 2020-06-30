@@ -39,15 +39,17 @@ public class UtilisateursUtils {
 	 * <br>
 	 * Retourne {@code null} si le maticule donné n'est pas trouvé dans logon.
 	 * 
-	 * @param userId
-	 * @return
+	 * @param matricule
+	 * @return Une String contenant le prénom et le nom d'un utilisateur.
 	 * @throws RestException
 	 */
 	public String getUserNameFromID(String matricule) throws RestException {
 		LOGGER.debug("getUserNameFromID() : Appel à Logon afin de récupérer l'utilisateur {}...", matricule);
-		User user = utilisateursCache.get(matricule);
-		if (user != null) {
-			return user.getPrenom() + " " + user.getNomAffichage();
+		if (StringUtils.isNotBlank(matricule)) {
+			User user = utilisateursCache.get(matricule);
+			if (user != null) {
+				return user.getPrenom() + " " + user.getNomAffichage();
+			}
 		}
 		return null;
 	}

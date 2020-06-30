@@ -25,8 +25,19 @@ public interface RechercheAdminService {
 
     EsCategory updateCategory(EsCategory category);
 
+    /**
+     * <p>Enregistre les changements apportés à la page administration de la reecherche avancée.</p>
+     * <p>Met à jour les propriétés de la recherche avancée.</p>
+     * @param properties objet contenant la liste des propriétés éditées
+     */
     void updateProperties(ConfigPropertiesDTO properties);
 
+    /**
+     * <p>Sauvegarde en base de données de la propriété en paramètre.</p>
+     * <p>Créé une nouvelle propriété si celle-ci n'est pas trouvée.</p>
+     * <p>Associe une catégorie à la propriété si précisée.</p>
+     * @param property la propriété à sauvegarder
+     */
     void updateProperty(ConfigPropertyDTO property);
 
     void deleteCategory(Integer id);

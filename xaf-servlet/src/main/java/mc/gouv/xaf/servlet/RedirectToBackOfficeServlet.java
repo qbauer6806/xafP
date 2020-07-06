@@ -54,8 +54,8 @@ public class RedirectToBackOfficeServlet extends AbstractAfServlet {
 
             response.sendRedirect(urlDemande);
         } catch (Exception e) {
-            LOGGER.error("PropertiesServlet - Une erreur est survenue lors de l'appel à la méthode GET", e);
-            response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+            AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_BAD_REQUEST,
+                    "RedirectToBackOfficeServlet - Une erreur est survenue lors de l'appel à la méthode GET");
         }
 
         LOGGER.info("Redirection vers : " + urlDemande);

@@ -54,5 +54,12 @@ public interface DenjsAffectationService {
 	 * @return
 	 */
 	public String getEtablissementNomFromCode(String code, List<DenjsEtablissementDTO> etabs);
+
+	/**
+	 * Récupère l'affectation d'un agent à un établissement
+	 * @param matricule
+	 * @return
+	 */
+	public DenjsAffectationAgentDTO getAffectationAgent(String matricule);
 	
 }

@@ -37,7 +37,7 @@ import mc.gouv.xaf.shared.SharedMessages;
  */
 @Controller
 @RequestMapping("/denjs/gestion/agents")
-@Secured("ROLE_CONFIGURATION")
+@Secured("ROLE_PARAMETRAGE")
 public class DenjsGestionAgentsController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DenjsGestionAgentsController.class);

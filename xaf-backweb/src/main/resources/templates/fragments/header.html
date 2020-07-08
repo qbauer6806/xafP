@@ -22,7 +22,7 @@
 								<div class="iconBackground">
 									<i class="icon icon-menu_profil"></i>
 								</div>
-								<span sec:authorize="isAuthenticated()">
+                                <span th:if="${#authentication.isAuthenticated()}">
 									<span sec:authentication="principal.nom" th:remove="tag"></span>
 								</span>
 							</li>

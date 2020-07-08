@@ -147,7 +147,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
             htmlBuilder.append("<dt><span>Agent</span></dt><dd><span>");
             htmlBuilder.append(escape(utilisateursUtils.getUserNameFromID(question.getAgentId()), true));
             htmlBuilder.append("</span></dd></dl></div>");
-            
+
             if (null != reponse) {
                 htmlBuilder.append("<div class=\"rep-usager\">");
                 htmlBuilder.append("<span>Réponse de l'usager</span>");
@@ -205,34 +205,52 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
     private void generateSectionHTML(StringBuilder html, JSONObject section, String sectionType, DemandeDTO demande,
             boolean isPdfRecap) throws ClassNotFoundException, IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, NoSuchMethodException, SecurityException {
-        html.append("<div class=\"sectiondemande\"><h3>").append(section.get("titre")).append("</h3><dl>");
-        getFirstLevelHTML(html, demande, sectionType, section, isPdfRecap);
-        if (sectionType.equals("adresse")) {
-            html.append("<dt><span>Adresse</span></dt>");
-        }
-        html.append("</dl></div>");
-    }
 
-    private void generateSectionAndSousSection(StringBuilder html, JSONObject section, String sectionType,
-            DemandeDTO demande, boolean isPdfRecap) throws ClassNotFoundException, IllegalAccessException,
-            IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
-        JSONArray sousSections = (JSONArray) section.get("sousSections");
-        if (sousSections.toArray().length > 0) {
+        String firstLevel = getFirstLevelHTML(demande, sectionType, section, isPdfRecap);
+        if (StringUtils.isNotBlank(firstLevel)) {
             html.append("<div class=\"sectiondemande\"><h3>").append(section.get("titre")).append("</h3><dl>");
-            getFirstLevelHTML(html, demande, sectionType, section, isPdfRecap);
-            for (Object sousSection : sousSections.toArray()) {
-                String sousSectionType = (String) ((JSONObject) sousSection).get("type");
-                String introHtml = (String) ((JSONObject) sousSection).get("introHtml");
-                html.append(introHtml != null ? introHtml : "");
-                getFirstLevelHTML(html, demande, sousSectionType, (JSONObject) sousSection, isPdfRecap);
+            html.append(firstLevel);
+            if (sectionType.equals("adresse")) {
+                html.append("<dt><span>Adresse</span></dt>");
             }
             html.append("</dl></div>");
         }
     }
 
-    private void getFirstLevelHTML(StringBuilder html, DemandeDTO demande, String sectionType, JSONObject section,
-            boolean isPdfRecap) throws ClassNotFoundException, IllegalAccessException, IllegalArgumentException,
-            InvocationTargetException, NoSuchMethodException, SecurityException {
+    private void generateSectionAndSousSection(StringBuilder html, JSONObject section, String sectionType,
+            DemandeDTO demande, boolean isPdfRecap) throws ClassNotFoundException, IllegalAccessException,
+            IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
+
+        JSONArray sousSections = (JSONArray) section.get("sousSections");
+        if (sousSections.toArray().length > 0) {
+            StringBuilder sousSectionBuilder = new StringBuilder();
+            sousSectionBuilder.append(getFirstLevelHTML(demande, sectionType, section, isPdfRecap));
+            for (Object sousSection : sousSections.toArray()) {
+                String sousSectionType = (String) ((JSONObject) sousSection).get("type");
+                String introHtml = (String) ((JSONObject) sousSection).get("introHtml");
+                sousSectionBuilder.append(StringUtils.isNotBlank(introHtml) ? introHtml : "");
+                String firstLevel = getFirstLevelHTML(demande, sousSectionType, (JSONObject) sousSection, isPdfRecap);
+                if (StringUtils.isNotBlank(firstLevel)) {
+                    sousSectionBuilder.append(firstLevel);
+                }
+            }
+            String generatedHtml = sousSectionBuilder.toString();
+            if (StringUtils.isNotBlank(generatedHtml)) {
+                html.append("<div class=\"sectiondemande\"><h3>").append(section.get("titre")).append("</h3><dl>");
+                html.append(generatedHtml);
+                html.append("</dl></div>");
+            }
+        }
+    }
+
+    private String getFirstLevelHTML(DemandeDTO demande, String sectionType, JSONObject section, boolean isPdfRecap)
+            throws ClassNotFoundException, IllegalAccessException, IllegalArgumentException, InvocationTargetException,
+            NoSuchMethodException, SecurityException {
+
+        // On créé un nouveau SB de façon à ne pas générer la section si aucune donnée n'est renseignée.
+        StringBuilder html = new StringBuilder();
+
+        // Génération du code pour un champs HTML (titre / valeur)
         if (sectionType.equals("champs")) {
             JSONArray champs = (JSONArray) section.get("champs");
             for (int j = 0; j < champs.size(); j++) {
@@ -248,6 +266,8 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
                     }
                 }
             }
+
+            // Génération du code pour un tableau
         } else if (sectionType.equals("tableau")) {
             ArrayNode valeurs = (ArrayNode) getNode(demande.getContenu(), section, "path");
             if (valeurs.size() > 0) {
@@ -273,6 +293,8 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
                 html.append("</tbody></table>");
             }
         }
+
+        return html.toString();
     }
 
     private String getSecondLevelHTML(JsonNode node, JSONObject champ, String buildId, boolean isPdfRecap)
@@ -293,7 +315,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
                     return null;
                 }
                 return paysCache.get(node0.asText(), "fr").getNationalite();
-            } 
+            }
             if (mapping.equals("pays")) {
                 JsonNode node0 = getNode(node, champ, "path");
                 if (node0 == null || node0 instanceof NullNode) {
@@ -380,27 +402,28 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
                 String ville = escape(getNode(node, champ, "ville").textValue(), isPdfRecap);
                 ret += "<dt><span>Ville</span></dt><dd><span>" + codePostal + " " + ville + "</span></dd>";
                 String pays = getNode(node, champ, "pays").textValue();
-                ret += "<dt><span>Pays</span></dt><dd><span>" + paysCache.get(pays, "fr").getNom() + "</span></dd>";
+                if (StringUtils.isNotBlank(pays)) {
+                    ret += "<dt><span>Pays</span></dt><dd><span>" + paysCache.get(pays, "fr").getNom() + "</span></dd>";
+                }
             }
             return ret;
-	    } else if (type.equals("adresseMc")) {
-	        String ligne1 = escape(getNode(node, champ, "ligne1").textValue(), isPdfRecap);
-	        String ligne2 = escape(getNode(node, champ, "ligne2").textValue(), isPdfRecap);
-	        String ligne3 = escape(getNode(node, champ, "ligne3").textValue(), isPdfRecap);
-	        String ret = "";
-	        if (StringUtils.isNotEmpty(ligne1)) {
-	            ret = "<dt><span>Adresse</span></dt><dd><span>" + ligne1 + "</span>";
-	            if (StringUtils.isNotBlank(ligne2)) {
-	                ret += "<br/><span>" + ligne2 + "</span>";
-	            }
-	            if (StringUtils.isNotBlank(ligne3)) {
-	                ret += "<br/><span>" + ligne3 + "</span>";
-	            }
-	            ret += "</dd>";
-	        }
-	        return ret;
-	    }
-        else if (type.equals("iban")) {
+        } else if (type.equals("adresseMc")) {
+            String ligne1 = escape(getNode(node, champ, "ligne1").textValue(), isPdfRecap);
+            String ligne2 = escape(getNode(node, champ, "ligne2").textValue(), isPdfRecap);
+            String ligne3 = escape(getNode(node, champ, "ligne3").textValue(), isPdfRecap);
+            String ret = "";
+            if (StringUtils.isNotEmpty(ligne1)) {
+                ret = "<dt><span>Adresse</span></dt><dd><span>" + ligne1 + "</span>";
+                if (StringUtils.isNotBlank(ligne2)) {
+                    ret += "<br/><span>" + ligne2 + "</span>";
+                }
+                if (StringUtils.isNotBlank(ligne3)) {
+                    ret += "<br/><span>" + ligne3 + "</span>";
+                }
+                ret += "</dd>";
+            }
+            return ret;
+        } else if (type.equals("iban")) {
             String titulaire = escape(getNode(node, champ, "titulaire").textValue(), isPdfRecap);
             String bic = escape(getNode(node, champ, "bic").textValue(), isPdfRecap);
             String iban = escape(getNode(node, champ, "iban").textValue(), isPdfRecap);

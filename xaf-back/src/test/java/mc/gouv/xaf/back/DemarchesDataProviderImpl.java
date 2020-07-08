@@ -77,4 +77,10 @@ public class DemarchesDataProviderImpl implements DemarchesDataProvider {
         // TODO Auto-generated method stub
         return false;
     }
+
+	@Override
+	public boolean getDemarcheCanHandlePeriodesOuverture() {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

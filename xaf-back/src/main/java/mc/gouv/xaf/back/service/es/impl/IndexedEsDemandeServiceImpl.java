@@ -21,7 +21,6 @@ import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.AccessService;
 import mc.gouv.xaf.back.service.data.impl.DemandesServiceImpl;
-import mc.gouv.xaf.back.service.es.DemandeJmsTopicSendService;
 import mc.gouv.xaf.back.service.es.IndexedDemandeService;
 import mc.gouv.xaf.back.service.es.transformer.DemandeEsTransformer;
 import mc.gouv.xaf.back.service.pdf.PdfTypeEnum;
@@ -34,14 +33,16 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.search.join.ScoreMode;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.exception.ZeroByteFileException;
-import org.elasticsearch.action.admin.indices.get.GetIndexRequest;
-import org.elasticsearch.action.admin.indices.mapping.get.GetMappingsRequest;
 import org.elasticsearch.action.bulk.BulkItemResponse;
-import org.elasticsearch.action.bulk.BulkRequestBuilder;
+import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
-import org.elasticsearch.action.index.IndexRequestBuilder;
+import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.Requests;
+import org.elasticsearch.client.indices.GetIndexRequest;
+import org.elasticsearch.client.indices.GetIndexResponse;
+import org.elasticsearch.cluster.metadata.MappingMetaData;
 import org.elasticsearch.common.document.DocumentField;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.index.query.*;
@@ -50,9 +51,9 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.bucket.filter.Filters;
 import org.elasticsearch.search.aggregations.bucket.filter.FiltersAggregator.KeyedFilter;
-import org.elasticsearch.search.aggregations.bucket.filter.InternalFilters;
-import org.elasticsearch.search.aggregations.bucket.filter.InternalFilters.InternalBucket;
+import org.elasticsearch.search.aggregations.bucket.filter.ParsedFilters;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.glassfish.jersey.internal.guava.Lists;
@@ -67,7 +68,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.ElasticsearchException;
 import org.springframework.data.elasticsearch.core.DefaultResultMapper;
-import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
+import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.ResultsMapper;
 import org.springframework.data.elasticsearch.core.SearchResultMapper;
 import org.springframework.data.elasticsearch.core.aggregation.AggregatedPage;
@@ -85,7 +86,6 @@ import org.xml.sax.SAXException;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import javax.jms.JMSException;
 import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import java.io.IOException;
@@ -97,6 +97,7 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
+import static org.elasticsearch.client.RequestOptions.DEFAULT;
 import static org.elasticsearch.index.query.QueryBuilders.*;
 import static org.elasticsearch.join.query.JoinQueryBuilders.hasChildQuery;
 
@@ -111,9 +112,6 @@ import static org.elasticsearch.join.query.JoinQueryBuilders.hasChildQuery;
 @Conditional(IndexationEnabledCondition.class)
 @Transactional(rollbackOn = Exception.class)
 public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements IndexedDemandeService {
-
-    @Inject
-    DemandeJmsTopicSendService demandeJmsService;
 
     @Inject
     private DemandeEsRepository demandeEsRepository;
@@ -142,7 +140,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     private DemandesRepository demandesRepository;
 
     @Inject
-    private ElasticsearchTemplate elasticsearchTemplate;
+    private ElasticsearchRestTemplate elasticsearchTemplate;
 
     @Inject
     private GouvPropertiesResolver gouvPropertiesResolver;
@@ -250,17 +248,16 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         Assert.notNull(type, "No type defined for putMapping()");
         Map mappings = null;
         try {
-
-            String[] indicesNames = elasticsearchTemplate.getClient().admin().indices()
-                    .getIndex(new GetIndexRequest().indices(indexAlias)).actionGet().getIndices();
+            GetIndexRequest request = new GetIndexRequest(indexAlias);
+            GetIndexResponse response = elasticsearchTemplate.getClient().indices().get(request, DEFAULT);
+            String[] indicesNames = response.getIndices();
 
             if (indicesNames == null || indicesNames.length == 0) {
                 throw new AfIndexingException("Problem retrieving index name");
             }
 
-            mappings = elasticsearchTemplate.getClient().admin().indices()
-                    .getMappings(new GetMappingsRequest().indices(aliasName).types(type)).actionGet().getMappings()
-                    .get(indicesNames[0]).get(type).getSourceAsMap();
+            MappingMetaData indexMappings = response.getMappings().get(indicesNames[0]);
+            mappings = indexMappings.getSourceAsMap();
 
         } catch (Exception e) {
             throw new ElasticsearchException("Error while getting mapping for indexName : " + aliasName + " type : "
@@ -489,6 +486,8 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         List<DemandeFileDTO> demFiles = DemandesFilesTransformer
                 .bo2Dto(new ArrayList<>(demande.getFiles()));
 
+        demFiles.addAll(recupererCourriersDemandeFromBO(demande.getCourriers()));
+
         Set<DemandesComplementsBO> demComplements = demande.getDemandesComplements();
         DemandeDTO demandeDTO = DemandesTransformer.bo2Dto(demande);
 
@@ -502,7 +501,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             }
         }
 
-        fillPjsAndFichiersInternes(demFiles, files, demandeDTO);
+        fillPjsAndFichiersInternesAndCourriers(demFiles, files, demandeDTO);
 
         // Récupération des courriers
         Set<DemandesCourriersBO> courrierBOs = demande.getCourriers();
@@ -542,7 +541,11 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             fichiers.addAll(Arrays.asList(demande.getFichiers()));
         }
 
-        fillPjsAndFichiersInternes(fichiers, files, demande);
+        if (demande.getCourriers() != null) {
+            fichiers.addAll(recupererCourriersDemandeFromDTO(Arrays.asList(demande.getCourriers())));
+        }
+
+        fillPjsAndFichiersInternesAndCourriers(fichiers, files, demande);
         if(demande.getCourriers() != null) {
             fillCourriers(Arrays.asList(demande.getCourriers()), files, demande);
         }
@@ -567,7 +570,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         List<DemandeFileDTO> fichiers = new ArrayList<>();
         // Conversion DemandeCourrierBO en DemandeFileDTO pour faciliter l'indexation
         if (courriers != null) {
-            for(DemandeCourrierDTO courrier: courriers) {
+            for (DemandeCourrierDTO courrier : courriers) {
                 DemandeFileDTO file = new DemandeFileDTO();
                 file.setMeta(courrier.getMeta());
                 file.setName(courrier.getName());
@@ -587,7 +590,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      * @param demandeDTO dto de la demande
      * @throws IOException Exception Input/Output
      */
-    private void fillPjsAndFichiersInternes(List<DemandeFileDTO> demFiles, List<DemandeFileEsDTO> files,
+    private void fillPjsAndFichiersInternesAndCourriers(List<DemandeFileDTO> demFiles, List<DemandeFileEsDTO> files,
                                             DemandeDTO demandeDTO) throws IOException {
         if (demFiles != null) {
             for (DemandeFileDTO file : demFiles) {
@@ -667,21 +670,17 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         return 0l;
     }
 
-    /**
-     * @see mc.gouv.xaf.back.service.es.IndexedDemandeService#indexDemande(mc.gouv.xaf.back.shared.dto.DemandeDTO)
-     */
     @Override
-    public void indexDemande(DemandeDTO demandeDTO) throws IOException, SAXException, TikaException, JMSException {
+    public void indexDemande(DemandeDTO demandeDTO) throws IOException, SAXException, TikaException {
 
         Boolean activeAccess = accessService.isAccessActive(demandeDTO.getFkAccess());
         DemandeEsDTO demandeEsDTO = demandeEsTransformer.toEs(demandeDTO, activeAccess);
-        demandeJmsService.send(new DemandeEsJmsDto(demandeEsDTO, null), JMSActionEnum.SAVE);
-
+        demandeEsRepository.save(demandeEsDTO);
     }
 
     @Override
     public void sendToTopic(DemandeDTO demandeDTO, boolean indexFiles)
-            throws IOException, SAXException, TikaException, JMSException {
+            throws IOException {
 
         if (demandeDTO != null) {
 
@@ -695,17 +694,20 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                 files.addAll(files);
             }
 
-            demandeJmsService.send(new DemandeEsJmsDto(demandeEsDTO, files), JMSActionEnum.SAVE);
+            if (demandeEsDTO != null) {
+                demandeEsRepository.save(demandeEsDTO);
+            }
+            if (files != null) {
+                demandesService.indexFiles(files);
+            }
         }
-
+        
+        LOGGER.info("Fin de l'indexation des fichiers");
     }
 
-    /**
-     * @see mc.gouv.xaf.back.service.es.IndexedDemandeService#sendToTopic(mc.gouv.xaf.back.shared.dto.DemandeFileDTO, java.lang.String, java.lang.String)
-     */
     @Override
     public void sendToTopic(DemandeFileDTO demandeFileDTO, DemandeDTO demandeDTO)
-            throws IOException, SAXException, TikaException, JMSException {
+            throws IOException {
 
         if (demandeFileDTO != null) {
 
@@ -713,17 +715,16 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             List<DemandeFileEsDTO> demFileEsDtoList = new ArrayList<>();
             demFileEsDtoList.add(demandeFileEsDTO);
 
-            demandeJmsService.send(new DemandeEsJmsDto(null, demFileEsDtoList), JMSActionEnum.SAVE);
+            LOGGER.info("Appel de la méthode indexFiles");
+            demandesService.indexFiles(demFileEsDtoList);
         }
 
+        LOGGER.info("Fin de l'indexation des fichiers");
     }
 
-    /**
-     * @see mc.gouv.xaf.back.service.es.IndexedDemandeService#sendToTopic(mc.gouv.xaf.back.shared.dto.DemandeFileDTO, java.lang.String, java.lang.String)
-     */
     @Override
     public void sendToTopic(DemandeFileDTO[] demandeFileDTOList, DemandeDTO demandeDTO)
-            throws IOException, SAXException, TikaException, JMSException {
+            throws IOException {
 
         if (demandeFileDTOList != null) {
 
@@ -732,9 +733,11 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                 demFileEsDtoList.add(getFileEsContent(demandeDTO, getDemandeFileType(file), file));
             }
 
-            demandeJmsService.send(new DemandeEsJmsDto(null, demFileEsDtoList), JMSActionEnum.SAVE);
+            LOGGER.info("Appel de la méthode indexFiles");
+            demandesService.indexFiles(demFileEsDtoList);
         }
 
+        LOGGER.info("Fin de l'indexation des fichiers");
     }
 
     /**
@@ -743,12 +746,11 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      * @see mc.gouv.xaf.back.service.es.IndexedDemandeService#indexDemande(java.lang.String, java.lang.Integer)
      */
     @Override
-    public void indexDemande(String demarcheId, Integer demandeId)
-            throws IOException, SAXException, TikaException, JMSException {
+    public void indexDemande(String demarcheId, Integer demandeId) {
 
         DemandeBO demandeBo = getDemandeBo(demarcheId, demandeId);
         DemandeEsDTO demandeEsDTO = demandeEsTransformer.bo2Dto(demandeBo, null);
-        demandeJmsService.send(new DemandeEsJmsDto(demandeEsDTO, null), JMSActionEnum.SAVE);
+        demandeEsRepository.save(demandeEsDTO);
 
     }
 
@@ -828,6 +830,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                     LOGGER.error(e.getMessage(), e);
                 }
             }
+            LOGGER.info("Parsing du fichier terminé");
             return demandeFileEsDTO;
         }
         return null;
@@ -888,6 +891,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                     LOGGER.error(e.getMessage(), e);
                 }
             }
+            LOGGER.info("Parsing du fichier terminé");
             return demandeFileEsDTO;
         }
         return null;
@@ -946,7 +950,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      * @return Liste des fichiers indexées
      */
     @Override
-    public List<DemandeFileEsDTO> indexFiles(List<DemandeFileEsDTO> demandeFileEsDTOs) {
+    public List<DemandeFileEsDTO> indexFiles(List<DemandeFileEsDTO> demandeFileEsDTOs) throws IOException {
 
         List<IndexQuery> indexList = new ArrayList<>();
 
@@ -968,12 +972,12 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         return demandeFileEsDTOs;
     }
 
-    public void bulkIndex(List<IndexQuery> queries) {
-        BulkRequestBuilder bulkRequest = elasticsearchTemplate.getClient().prepareBulk();
+    public void bulkIndex(List<IndexQuery> queries) throws IOException {
+        BulkRequest bulkRequest = new BulkRequest();
         for (IndexQuery query : queries) {
             bulkRequest.add(prepareIndex(query));
         }
-        checkForBulkUpdateFailure(bulkRequest.execute().actionGet());
+        checkForBulkUpdateFailure(elasticsearchTemplate.getClient().bulk(bulkRequest, RequestOptions.DEFAULT));
     }
 
     private void checkForBulkUpdateFailure(BulkResponse bulkResponse) {
@@ -990,25 +994,24 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         }
     }
 
-    private IndexRequestBuilder prepareIndex(IndexQuery query) {
+    private IndexRequest prepareIndex(IndexQuery query) {
         try {
 
-            IndexRequestBuilder indexRequestBuilder = null;
+            IndexRequest indexRequest = null;
 
             if (query.getObject() != null) {
                 // If we have a query id and a document id, do not ask ES to generate one.
-                indexRequestBuilder = elasticsearchTemplate.getClient().prepareIndex(indexAlias,
-                        DemandeEsDTO.INDEX_TYPE, query.getId());
-                indexRequestBuilder.setSource(resultsMapper.getEntityMapper().mapToString(query.getObject()),
+                indexRequest = new IndexRequest(indexAlias).type(DemandeEsDTO.INDEX_TYPE).id(query.getId());
+                indexRequest.source(resultsMapper.getEntityMapper().mapToString(query.getObject()),
                         Requests.INDEX_CONTENT_TYPE);
             } else {
                 throw new ElasticsearchException(
                         "object or source is null, failed to index the document [id: " + query.getId() + "]");
             }
 
-            indexRequestBuilder.setRouting(query.getParentId());
+            indexRequest.routing(query.getParentId());
 
-            return indexRequestBuilder;
+            return indexRequest;
         } catch (IOException e) {
             throw new ElasticsearchException("failed to index the document [id: " + query.getId() + "]", e);
         }
@@ -1041,8 +1044,8 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                 }
 
                 for (Aggregation agg : response.getAggregations().asList()) {
-                    InternalFilters filters = (InternalFilters) agg;
-                    for (InternalBucket bucket : filters.getBuckets()) {
+                    ParsedFilters filters = (ParsedFilters) agg;
+                    for (Filters.Bucket bucket : filters.getBuckets()) {
                         if (bucket.getDocCount() > 0) {
                             facets.add(new DemandesFacet(bucket.getKeyAsString(), bucket.getDocCount()));
                         }
@@ -1200,9 +1203,6 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         return simpleQueryStringBuilder;
     }
 
-    /**
-     * @see mc.gouv.xaf.back.service.es.IndexedDemandeService#getIndexedDemandes(mc.gouv.xaf.back.shared.dto.DemandeRechercheDTO, org.springframework.data.domain.Pageable, java.lang.String[])
-     */
     @Override
     public Page<DemandeEsRechercheDTO> getIndexedDemandes(DemandeRechercheDTO demandeRecherche, Pageable pageable,
             String[] fields) {
@@ -1252,10 +1252,12 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                                         DocumentField typeField = searchInnerHit.field(DemandeFileEsDTO.TYPE_FIELD);
                                         String type = typeField.getValue();
 
+                                        boolean isInternalFile = type.equals(DemandeFileEsDTO.TYPE.FICHIER_INTERNE.name());
+                                        boolean isComplement = type.equals(DemandeFileEsDTO.TYPE.COMPLEMENT.name());
                                         boolean isCourrier = type.equals(DemandeFileEsDTO.TYPE.COURRIER.name());
 
                                         updateHighLightedField(searchInnerHit.getHighlightFields(),
-                                                demEsHighlightFields, false, false, isCourrier);
+                                                demEsHighlightFields, isInternalFile, isComplement, isCourrier);
                                     }
                                 }
                             }
@@ -1823,19 +1825,13 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     }
 
-    /**
-     * Méthode permettant de sauvgarder une demande et de l'indexer
-     * @throws Exception
-     *
-     * @see mc.gouv.xaf.back.service.data.impl.DemandesServiceImpl#saveDemande(mc.gouv.xaf.back.shared.dto.DemandeDTO, java.lang.String)
-     */
     @Override
     public DemandeDTO saveDemande(DemandeDTO demande, String premierStatut) throws Exception {
 
         DemandeDTO demandeDto = super.saveDemande(demande, premierStatut);
         try {
             sendToTopic(demandeDto, true);
-        } catch (TikaException | JMSException e) {
+        } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
             throw new AfIndexingException(e.getMessage(), e);
         }
@@ -1845,7 +1841,6 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     /**
      * Méhode permettant de mettre à jour une demande et de la réindexer
      *
-     * @see mc.gouv.xaf.back.service.data.impl.DemandesServiceImpl#updateDemande(mc.gouv.xaf.back.shared.dto.DemandeDTO, boolean)
      */
     @Override
     public DemandeDTO updateDemande(DemandeDTO demande, boolean partialUpdate) throws IOException, SAXException {
@@ -1853,7 +1848,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         DemandeDTO dto = super.updateDemande(demande, partialUpdate);
         try {
             indexDemande(dto);
-        } catch (TikaException | JMSException e) {
+        } catch (TikaException e) {
             LOGGER.error(e.getMessage(), e);
             throw new AfIndexingException(e.getMessage(), e);
         }
@@ -1865,14 +1860,11 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      * @see mc.gouv.xaf.back.service.data.impl.DemandesServiceImpl#deleteDemande(java.lang.String, java.lang.Integer)
      */
     @Override
-    public void deleteDemande(String demarcheId, Integer demandeId) throws JsonProcessingException, JMSException {
+    public void deleteDemande(String demarcheId, Integer demandeId) throws JsonProcessingException {
 
         super.deleteDemande(demarcheId, demandeId);
         Optional<DemandeBO> demandeBoOp = demandesRepository.findById(demandeId);
-        if (demandeBoOp.isPresent()) {
-            demandeJmsService.send(new DemandeEsJmsDto(new DemandeEsDTO(demandeBoOp.get().getIdentifiant()), null),
-                    JMSActionEnum.DELETE);
-        }
+        demandeBoOp.ifPresent(demandeBO -> demandeEsRepository.deleteById(demandeBO.getIdentifiant()));
     }
 
     /**

@@ -19,6 +19,7 @@ import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeInputDTO;
 import mc.gouv.xaf.shared.dto.MotifDTO;
+import mc.gouv.xaf.shared.dto.PeriodeOuvertureDTO;
 import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 import mc.gouv.xboot.apiclient.authentication.impl.BasicAuthorizationHeaderProvider;
 import mc.gouv.xboot.apiclient.authentication.impl.JwtAuthorizationHeaderProvider;
@@ -187,6 +188,16 @@ public class AfApiClient extends ApiClient {
         ExceptionManager.checkExceptionResponse(res);
 
         return res.readEntity(new GenericType<List<MotifDTO>>() {
+        });
+    }
+    
+    public List<PeriodeOuvertureDTO> getPeriodesOuverture() {
+        Response res = getTarget().path("/periodesouverture").request(MediaType.APPLICATION_JSON)
+                .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue()).get();
+
+        ExceptionManager.checkExceptionResponse(res);
+
+        return res.readEntity(new GenericType<List<PeriodeOuvertureDTO>>() {
         });
     }
 

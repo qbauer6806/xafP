@@ -44,6 +44,8 @@ public class DemandeFlatDTO {
     private String courrierRefInterne;
 
     private String motif;
+    
+    private String buildId;
 
     public Integer getPkDemandes() {
         return pkDemandes;
@@ -172,4 +174,12 @@ public class DemandeFlatDTO {
     public void setMotif(String motif) {
         this.motif = motif;
     }
+
+	public String getBuildId() {
+		return buildId;
+	}
+
+	public void setBuildId(String buildId) {
+		this.buildId = buildId;
+	}
 }

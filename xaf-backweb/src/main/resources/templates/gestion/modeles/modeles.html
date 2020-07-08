@@ -46,11 +46,11 @@
 
 <body th:with="pageConfigurationActive='active'">
 
-	<div th:replace="fragments/header :: header" />
+	<div th:replace="fragments/header :: header"></div>
 
 	<div id="wrapper">
 
-		<div th:replace="fragments/sidebar :: sidebar" />
+		<div th:replace="fragments/sidebar :: sidebar"></div>
 
 		<!-- DEBUT CONTENU -->
 		<div id="page-content-wrapper">
@@ -169,52 +169,52 @@
 
 			<!-- FIN CONTENU -->
 		</div>
+	</div>
 
+	<div th:replace="fragments/footer :: footer" /></div>
 
+	<script th:src="@{/js/tsadminjobs.js(${applicationBuildTimestamp})}"></script>
+	
+	<script th:inline="javascript">
+	
+		/*<![CDATA[*/
 
-		<div th:replace="fragments/footer :: footer" />
-		<script th:src="@{/js/tsadminjobs.js(${applicationBuildTimestamp})}"></script>
-		
-		<script th:inline="javascript">
-		
-			/*<![CDATA[*/
+		$(document).ready(function() {
 
-			$(document).ready(function() {
-
-				var messagesSuccessList = /*[[${successMessages}]]*/'default';
-		
-				if (messagesSuccessList !== 'undefined' && messagesSuccessList !== null) {
-					$.each(messagesSuccessList, function(key, msg) {
-						$.notify({
-							message: msg
-						},{
-							type: 'success'
-						});
+			var messagesSuccessList = /*[[${successMessages}]]*/'default';
+	
+			if (messagesSuccessList !== 'undefined' && messagesSuccessList !== null) {
+				$.each(messagesSuccessList, function(key, msg) {
+					$.notify({
+						message: msg
+					},{
+						type: 'success'
 					});
-				}
-		
-				var messagesErrorList = /*[[${errorMessages}]]*/'default';
-		
-				if (messagesErrorList !== 'undefined' && messagesErrorList !== null) {
-					$.each(messagesErrorList, function(key, msg) {
-						$.notify({
-							message: msg
-						},{
-							type: 'danger'
-						});
+				});
+			}
+	
+			var messagesErrorList = /*[[${errorMessages}]]*/'default';
+	
+			if (messagesErrorList !== 'undefined' && messagesErrorList !== null) {
+				$.each(messagesErrorList, function(key, msg) {
+					$.notify({
+						message: msg
+					},{
+						type: 'danger'
 					});
-				}
-				
-				$('.multiple-file-input').change(function() {
-					var data = this.getAttribute('data');
-					var button = $("input[data='" + data + "'][type='submit']");
-					button.prop('disabled', !button.attr('disabled'));
-				  });
-				
-			});
+				});
+			}
 			
-			/*]]>*/
-		</script>
+			$('.multiple-file-input').change(function() {
+				var data = this.getAttribute('data');
+				var button = $("input[data='" + data + "'][type='submit']");
+				button.prop('disabled', !button.attr('disabled'));
+			  });
+			
+		});
+		
+		/*]]>*/
+	</script>
 
 </body>
 </html>

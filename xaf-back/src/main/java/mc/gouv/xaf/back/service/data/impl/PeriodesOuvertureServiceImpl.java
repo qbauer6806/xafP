@@ -1,0 +1,121 @@
+package mc.gouv.xaf.back.service.data.impl;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import mc.gouv.xaf.back.data.dao.DemarchesRepository;
+import mc.gouv.xaf.back.data.dao.PeriodesOuvertureRepository;
+import mc.gouv.xaf.back.data.entity.DemarchesBO;
+import mc.gouv.xaf.back.data.entity.PeriodesOuvertureBO;
+import mc.gouv.xaf.back.data.transformer.PeriodeOuvertureTransformer;
+import mc.gouv.xaf.back.exception.DemarchesServiceException;
+import mc.gouv.xaf.back.service.data.PeriodesOuvertureService;
+import mc.gouv.xaf.shared.dto.PeriodeOuvertureDTO;
+
+/**
+ * 
+ * Service permettant la manipulation des périodes d'ouverture
+ * 
+ * @author qdeme
+ *
+ */
+@Component
+@Transactional(rollbackFor = Exception.class)
+public class PeriodesOuvertureServiceImpl implements PeriodesOuvertureService {
+	
+    private static final Logger LOGGER = LoggerFactory.getLogger(PeriodesOuvertureServiceImpl.class);
+
+    @Autowired
+    private PeriodesOuvertureRepository periodesOuvertureRepository;
+
+    @Autowired
+    private DemarchesRepository demarchesRepository;
+
+	@Override
+	public List<PeriodeOuvertureDTO> getPeriodesOuverture(String demarcheId) {
+        LOGGER.info("Récupération en base des périodes d'ouverture...");
+
+        List<PeriodesOuvertureBO> periodesOuvertureBos = periodesOuvertureRepository.findByDemarchePkDemarches(demarcheId);
+
+        LOGGER.info("Transformation bo -> dto ...");
+
+        return PeriodeOuvertureTransformer.bo2Dto(periodesOuvertureBos);
+	}
+
+	@Override
+	public PeriodeOuvertureDTO saveOrUpdatePeriodeOuverture(String demarcheId, PeriodeOuvertureDTO periodeOuverture) {
+        // Vérification préalable de l'existence de la démarche indiquée
+        Optional<DemarchesBO> demarcheBo = demarchesRepository.findById(demarcheId);
+        if (!demarcheBo.isPresent()) {
+            throw new DemarchesServiceException("La démarche spécifiée est introuvable", HttpStatus.NOT_FOUND);
+        }
+        
+        // Création
+        if (periodeOuverture.getPkPeriodesOuverture() == null) {
+            LOGGER.info("Création d'une période d'ouverture");
+            LOGGER.info("Transformation dto -> bo");
+
+            PeriodesOuvertureBO bo = PeriodeOuvertureTransformer.dto2Bo(periodeOuverture);
+            bo.setDemarche(demarcheBo.get());
+
+            bo = periodesOuvertureRepository.save(bo);
+            
+            DemarchesBO demBo = demarcheBo.get();
+            demBo.getPeriodesOuverture().add(bo);
+            
+            demarchesRepository.save(demBo);
+            
+            LOGGER.info("Transformation bo -> dto ...");
+            
+            return PeriodeOuvertureTransformer.bo2Dto(bo);
+        }
+        // Mise à jour
+        else {
+        	LOGGER.info("Mise à jour de la période d'ouverture");
+        	
+        	Optional<PeriodesOuvertureBO> periodeOuvertureBoOpt = periodesOuvertureRepository.findById(periodeOuverture.getPkPeriodesOuverture());
+        	if (!periodeOuvertureBoOpt.isPresent()) {
+        		throw new DemarchesServiceException("La période d'ouverture spécifiée est introuvable", HttpStatus.NOT_FOUND);
+        	}
+        	
+        	PeriodesOuvertureBO periodeOuvertureBo = periodeOuvertureBoOpt.get();
+        	
+        	periodeOuvertureBo.setDateDebut(periodeOuverture.getDateDebut());
+        	periodeOuvertureBo.setDateFin(periodeOuverture.getDateFin());
+        	
+        	periodeOuvertureBo = periodesOuvertureRepository.save(periodeOuvertureBo);
+        	
+        	LOGGER.info("Transformation bo -> dto ...");
+        	
+        	return PeriodeOuvertureTransformer.bo2Dto(periodeOuvertureBo);
+        	
+        }
+	}
+
+	@Override
+	public void deletePeriodeOuverture(String demarcheId, Integer pkPeriodeOuverture) {
+        // Vérification préalable de l'existence de la démarche indiquée
+        Optional<DemarchesBO> demarcheBo = demarchesRepository.findById(demarcheId);
+        if (!demarcheBo.isPresent()) {
+            throw new DemarchesServiceException("La démarche spécifiée est introuvable", HttpStatus.NOT_FOUND);
+        }
+        
+    	Optional<PeriodesOuvertureBO> periodeOuvertureBoOpt = periodesOuvertureRepository.findById(pkPeriodeOuverture);
+    	if (!periodeOuvertureBoOpt.isPresent()) {
+    		throw new DemarchesServiceException("La période d'ouverture spécifiée est introuvable", HttpStatus.NOT_FOUND);
+    	}
+    	
+    	LOGGER.info("Suppression de la période d'ouverture...");
+    	
+    	periodesOuvertureRepository.delete(periodeOuvertureBoOpt.get());
+        
+	}
+
+}

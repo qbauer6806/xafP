@@ -1,0 +1,57 @@
+---
+tcp_checks:
+  - name: ${tscode}-backserver1-http
+    host: gentsa-back1-3.monaco-gouvernement.mc
+    port: 10${tsport}0
+  - name: ${tscode}-backserver2-http
+    host: gentsa-back2-3.monaco-gouvernement.mc
+    port: 10${tsport}0
+  - name: ${tscode}-backserver1-jmx
+    host: gentsa-back1-3.monaco-gouvernement.mc
+    port: 10${tsport}1
+  - name: ${tscode}-backserver2-jmx
+    host: gentsa-back2-3.monaco-gouvernement.mc
+    port: 10${tsport}1
+  - name: ${tscode}-backserver1-rmi
+    host: gentsa-back1-3.monaco-gouvernement.mc
+    port: 10${tsport}2
+  - name: ${tscode}-backserver2-rmi
+    host: gentsa-back2-3.monaco-gouvernement.mc
+    port: 10${tsport}2
+  - name: ${tscode}-apiserver1-http
+    host: gentsa-apis1-3.monaco-gouvernement.mc
+    port: 30${tsport}0
+  - name: ${tscode}-apiserver2-http
+    host: gentsa-apis2-3.monaco-gouvernement.mc
+    port: 30${tsport}0
+  - name: ${tscode}-apiserver1-jmx
+    host: gentsa-apis1-3.monaco-gouvernement.mc
+    port: 30${tsport}1
+  - name: ${tscode}-apiserver2-jmx
+    host: gentsa-apis2-3.monaco-gouvernement.mc
+    port: 30${tsport}1
+  - name: ${tscode}-apiserver1-rmi
+    host: gentsa-apis1-3.monaco-gouvernement.mc
+    port: 30${tsport}2
+  - name: ${tscode}-apiserver2-rmi
+    host: gentsa-apis2-3.monaco-gouvernement.mc
+    port: 30${tsport}2
+  - name: ${tscode}-frontserver1-http
+    host: gentsa-frnt1-3.monaco-gouvernement.mc
+    port: 20${tsport}0
+  - name: ${tscode}-frontserver2-http
+    host: gentsa-frnt2-3.monaco-gouvernement.mc
+    port: 20${tsport}0
+  - name: ${tscode}-frontserver1-jmx
+    host: gentsa-frnt1-3.monaco-gouvernement.mc
+    port: 20${tsport}1
+  - name: ${tscode}-frontserver2-jmx
+    host: gentsa-frnt2-3.monaco-gouvernement.mc
+    port: 20${tsport}1
+  - name: ${tscode}-frontserver1-rmi
+    host: gentsa-frnt1-3.monaco-gouvernement.mc
+    port: 20${tsport}2
+  - name: ${tscode}-frontserver2-rmi
+    host: gentsa-frnt2-3.monaco-gouvernement.mc
+    port: 20${tsport}2
+ 

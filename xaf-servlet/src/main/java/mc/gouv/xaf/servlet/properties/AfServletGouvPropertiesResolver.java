@@ -136,7 +136,19 @@ public class AfServletGouvPropertiesResolver {
     public static String getTgfApiJwt() {
         return Static.getValue(TGFAPI_JWT);
     }
+    
+    public static final String VSCAN_URL = "mc.gouv.appfactory.external.vscan.url";
 
+    public static String getVscanUrl() {
+        return Static.getValue(VSCAN_URL);
+    }
+
+    public static final String VSCAN_JWT = "mc.gouv" + applicationPrefix + ".frontserver.vscan.jwt";
+
+    public static String getVscanJwt() {
+        return Static.getValue(VSCAN_JWT);
+    }
+    
     static {
         //Vérification que chaque propriété a bien été configurée
         List<String> propertiesNotFound = new ArrayList<String>();

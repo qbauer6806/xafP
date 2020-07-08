@@ -344,6 +344,7 @@ public class AfBackUtils {
         flat.setUsagerNom(demande.getUsagerNom());
         flat.setUsagerPrenom(demande.getUsagerPrenom());
         flat.setUsagerEmail(demande.getUsagerEmail());
+        flat.setBuildId(demande.getBuildId());
 
         String codeDernierMotif = demande.getDernierStatut().getCodeMotif();
         String motif = codeDernierMotif;
@@ -440,6 +441,14 @@ public class AfBackUtils {
 	 */
     public boolean getDemarcheCanGenerateCourriers() {
         return demarchesDataProvider.getDemarcheCanGenerateCourriers();
+    }
+    
+    /**
+     * Permet de savoir si la démarche prend en charge les périodes d'ouverture
+     * @return
+     */
+    public boolean getDemarcheCanHandlePeriodesOuverture() {
+    	return demarchesDataProvider.getDemarcheCanHandlePeriodesOuverture();
     }
 
 }

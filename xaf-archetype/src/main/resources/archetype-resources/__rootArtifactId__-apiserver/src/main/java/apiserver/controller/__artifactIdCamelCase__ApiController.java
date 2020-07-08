@@ -5,7 +5,6 @@ package ${groupId}.apiserver.controller;
 
 import java.util.List;
 
-import javax.jms.JMSException;
 import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
@@ -54,7 +53,7 @@ public class ${artifactIdCamelCase}ApiController extends AbstractAfApiController
 
     @Override
     public DemandeDTO creerDemande(DemandeInputDTO demande, Integer usagerId)
-            throws JsonProcessingException, JMSException {
+            throws JsonProcessingException {
         return ${artifactIdLower}ApiService.creerDemande(demande, usagerId);
     }
 

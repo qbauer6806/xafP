@@ -103,7 +103,7 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
         try {
             URL path = this.getClass().getResource("/pdfrecap/fonts/SourceSansPro-Light.ttf");
             LOGGER.info("Chargement de la font à l'adresse: {}", path);
-            File font = new File(path.getFile());
+//            File font = new File(path.getFile());
             
             OutputStream os = new FileOutputStream(pdfDest);
             PdfRendererBuilder builder = new PdfRendererBuilder();

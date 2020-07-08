@@ -37,5 +37,7 @@ public interface DemarchesDataProvider {
 	public Map<String, String> getLanguesDisponibles();
 	
 	public boolean getDemarcheCanGenerateCourriers();
+	
+	public boolean getDemarcheCanHandlePeriodesOuverture();
 
 }

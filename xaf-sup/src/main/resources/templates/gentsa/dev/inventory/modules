@@ -1,0 +1,8 @@
+[${tscode}-backserver:children]
+backserver-cluster-1
+
+[${tscode}-apiserver:children]
+apiserver-cluster-1
+
+[${tscode}-frontserver:children]
+frontserver-cluster-1

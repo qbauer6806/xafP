@@ -1,0 +1,8 @@
+---
+tcp_checks:
+  - name: zabbix-agent
+    host: ${tscode}-appl1-3
+    port: 10050
+  - name: zabbix-agent
+    host: ${tscode}-frnt1-3
+    port: 10050

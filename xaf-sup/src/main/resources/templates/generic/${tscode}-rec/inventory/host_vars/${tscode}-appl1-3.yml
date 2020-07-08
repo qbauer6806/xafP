@@ -1,4 +1,0 @@
----
-ansible_host: ${tscode}-appl1-3-mgmt
-zabbix_host_name: ${TSAPPLZABBIX}
-mc_fs_installed: false

@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.jms.JMSException;
 import javax.transaction.Transactional;
 
 import org.apache.commons.lang3.StringUtils;
@@ -60,6 +59,14 @@ import mc.gouv.logon.shared.User;
 import mc.gouv.servicerest.usager.model.UsagerBean;
 import mc.gouv.xapi.error.exception.client.BadRequestWebException;
 import mc.gouv.xapi.error.exception.client.NotFoundWebException;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import javax.transaction.Transactional;
+import java.util.*;
 
 @Component
 public class ${artifactIdCamelCase}ApiServiceImpl implements ${artifactIdCamelCase}ApiService {
@@ -138,7 +145,7 @@ public class ${artifactIdCamelCase}ApiServiceImpl implements ${artifactIdCamelCa
     @Override
     @Transactional
     public DemandeDTO creerDemande(DemandeInputDTO demande, Integer usagerId)
-            throws JsonProcessingException, JMSException {
+            throws JsonProcessingException {
 
         DemandeDTO demandeDto = null;
         LOGGER.info("Appel à DEM...");

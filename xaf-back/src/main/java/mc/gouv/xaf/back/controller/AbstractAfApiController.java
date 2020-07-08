@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.List;
 
-import javax.jms.JMSException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -34,6 +33,7 @@ import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeInputDTO;
 import mc.gouv.xaf.shared.dto.MotifDTO;
+import mc.gouv.xaf.shared.dto.PeriodeOuvertureDTO;
 import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 import mc.gouv.xapi.error.dto.ErrorsDTO;
 import mc.gouv.xapi.error.exception.WebException;
@@ -65,7 +65,7 @@ public abstract class AbstractAfApiController implements AfApiController {
     @RequestMapping(value = "/demandes", method = RequestMethod.POST)
     public DemandeDTO creerDemandeRequest(@Valid @RequestBody DemandeInputDTO demande,
             @RequestParam(value = "usagerId", required = true) Integer usagerId, HttpServletRequest request)
-            throws JsonProcessingException, JMSException {
+            throws JsonProcessingException {
         LOGGER.info("AbstractAfApiController.creerDemande(" + demande + "," + usagerId + ")");
 
         return creerDemande(demande, usagerId);
@@ -173,6 +173,12 @@ public abstract class AbstractAfApiController implements AfApiController {
             return "Indexing is disabled, please enable it";
         }
 
+    }
+    
+    @RequestMapping(value = "/periodesouverture", method = RequestMethod.GET)
+    public List<PeriodeOuvertureDTO> getPeriodesOuvertureRequest() {
+        LOGGER.info("AbstractAfApiController.getPeriodesOuverture()");
+        return getPeriodesOuverture();
     }
 
     @ExceptionHandler(WebException.class)

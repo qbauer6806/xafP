@@ -224,7 +224,7 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     public String getGouvSharedEnvColor() {
         return Static.getValue(GOUV_SHARED_ENV_COLOR);
     }
-    
+
     private static final String GOUV_SHARED_LOGON_URL = "mc.gouv.shared.backserver.logon.url";
 
     @Override
@@ -260,100 +260,20 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
 
     @GouvIndexationProperty
     @Override
-    public Integer getJmsPort() {
-
-        String port = Static.getValue("mc.gouv" + applicationPrefix + ".jms.port");
-
-        if (port != null) {
-            return Integer.parseInt(port);
-        }
-
-        return null;
-
+    public String getEsUser() {
+        return Static.getValue("mc.gouv" + applicationPrefix + ".elasticsearch.user");
     }
 
     @GouvIndexationProperty
     @Override
-    public String getJmsDataDir() {
-        return Static.getValue("mc.gouv" + applicationPrefix + ".jms.data.dir");
+    public String getEsPassword() {
+        return Static.getValue("mc.gouv" + applicationPrefix + ".elasticsearch.password");
     }
 
     @GouvIndexationProperty
     @Override
-    public String getJmsRedeliveryDelay() {
-        return Static.getValue("mc.gouv" + applicationPrefix + ".jms.redelivery.delay");
-    }
-
-    @GouvIndexationProperty
-    @Override
-    public String getJmsRedeliveryMultiplier() {
-        return Static.getValue("mc.gouv" + applicationPrefix + ".jms.redelivery.multiplier");
-    }
-
-    @GouvIndexationProperty
-    @Override
-    public String getJmsRedeliveryMaxAttemps() {
-        return Static.getValue("mc.gouv" + applicationPrefix + ".jms.redelivery.maxAttemps");
-    }
-
-    @GouvIndexationProperty
-    @Override
-    public String getJmsDlq() {
-        return Static.getValue("mc.gouv" + applicationPrefix + ".jms.dlq");
-    }
-
-    @GouvIndexationProperty
-    @Override
-    public String getJmsTopic() {
-        return Static.getValue("mc.gouv" + applicationPrefix + ".jms.topic");
-    }
-
-    @GouvIndexationProperty
-    @Override
-    public String getJmsHost() {
-        return Static.getValue("mc.gouv" + applicationPrefix + ".jms.host");
-    }
-
-    @GouvIndexationProperty
-    @Override
-    public String getJmsSenderUser() {
-        return Static.getValue("mc.gouv" + applicationPrefix + ".jms.topic.sender.user");
-    }
-
-    @GouvIndexationProperty
-    @Override
-    public String getJmsSenderPassword() {
-        return Static.getValue("mc.gouv" + applicationPrefix + ".jms.topic.sender.password");
-    }
-
-    @GouvIndexationProperty
-    @Override
-    public String getJmsConsumerUser() {
-        return Static.getValue("mc.gouv" + applicationPrefix + ".jms.topic.consumer.user");
-    }
-
-    @GouvIndexationProperty
-    @Override
-    public String getJmsConsumerPassword() {
-        return Static.getValue("mc.gouv" + applicationPrefix + ".jms.topic.consumer.password");
-    }
-
-    @GouvIndexationProperty
-    @Override
-    public String getSubscriptionKey() {
-        return Static.getValue("mc.gouv" + applicationPrefix + ".jms.topic.subscription.key");
-    }
-
-    @GouvIndexationProperty
-    @Override
-    public String getEsClusterName() {
-        return Static.getValue("mc.gouv" + applicationPrefix + ".elasticsearch.clustername");
-    }
-
-    @GouvIndexationProperty
-    @Override
-    public String getEsHost() {
-        return Static.getValue("mc.gouv" + applicationPrefix + ".elasticsearch.host");
+    public String getEsClusterHosts() {
+        return Static.getValue("mc.gouv" + applicationPrefix + ".elasticsearch.clusterHosts");
     }
 
     @GouvIndexationProperty
@@ -370,12 +290,6 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
 
     @GouvIndexationProperty
     @Override
-    public String getEsNodeName() {
-        return Static.getValue("mc.gouv" + applicationPrefix + ".elasticsearch.nodename");
-    }
-
-    @GouvIndexationProperty
-    @Override
     public Integer getEsReindexBulkSize() {
         String esReindexBulkSize = Static.getValue("mc.gouv" + applicationPrefix + ".elasticsearch.reindex.bulksize");
 
@@ -387,6 +301,30 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     }
 
     @Override
+    public Integer getEsConnectTimeout() {
+        String connectTimeout = Static.getValue("mc.gouv" + applicationPrefix + ".elasticsearch.connectTimeout");
+
+        if (StringUtils.isNotBlank(connectTimeout)) {
+            return Integer.parseInt(connectTimeout);
+        }
+
+        // Valeur par défaut de 30 secondes
+        return 30000;
+    }
+
+    @Override
+    public Integer getEsSocketTimeout() {
+        String socketTimeout = Static.getValue("mc.gouv" + applicationPrefix + ".elasticsearch.socketTimeout");
+
+        if (StringUtils.isNotBlank(socketTimeout)) {
+            return Integer.parseInt(socketTimeout);
+        }
+
+        // Valeur par défaut de 30 secondes
+        return 30000;
+    }
+
+    @Override
     public boolean getNovalidate() {
         String value = Static.getValue("mc.gouv" + applicationPrefix + ".novalidate");
         if (value == null) {
@@ -394,4 +332,5 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
         }
         return Boolean.parseBoolean(value);
     }
+
 }

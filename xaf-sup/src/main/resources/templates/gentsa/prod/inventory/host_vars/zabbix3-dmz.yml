@@ -1,0 +1,21 @@
+---
+tcp_checks:
+  - name: ${tscode}-frontserver1-http
+    host: gentsa-frnt1-0.monaco-gouvernement.mc
+    port: 20${tsport}0
+  - name: ${tscode}-frontserver2-http
+    host: gentsa-frnt2-0.monaco-gouvernement.mc
+    port: 20${tsport}0
+  - name: ${tscode}-frontserver1-jmx
+    host: gentsa-frnt1-0.monaco-gouvernement.mc
+    port: 20${tsport}1
+  - name: ${tscode}-frontserver2-jmx
+    host: gentsa-frnt2-0.monaco-gouvernement.mc
+    port: 20${tsport}1
+  - name: ${tscode}-frontserver1-rmi
+    host: gentsa-frnt1-0.monaco-gouvernement.mc
+    port: 20${tsport}2
+  - name: ${tscode}-frontserver2-rmi
+    host: gentsa-frnt2-0.monaco-gouvernement.mc
+    port: 20${tsport}2
+ 

@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
-import javax.jms.JMSException;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.xml.sax.SAXException;
@@ -108,7 +106,6 @@ public interface DemandesService {
      * @param partial
      *            true si il faut effectuer une mise à jour partielle
      * @return La demande modifiée
-     * @throws JMSException
      * @throws TikaException
      * @throws SAXException
      * @throws IOException
@@ -119,10 +116,9 @@ public interface DemandesService {
      * Permet de supprimer une demande à partir du DemarcheID et de l'UsagerID
      * 
      * @param demande
-     * @throws JMSException
      * @throws JsonProcessingException
      */
-    public void deleteDemande(String demarcheId, Integer demandeId) throws JsonProcessingException, JMSException;
+    public void deleteDemande(String demarcheId, Integer demandeId) throws JsonProcessingException;
 
     /**
      * Permet de sauvegarder ou mettre à jour une demande en base

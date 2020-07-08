@@ -247,6 +247,7 @@ label[data-toggle]{
 
 .display-commentaire {
 	white-space: pre-wrap;
+	word-break: normal;
 }
 
 dl {
@@ -271,6 +272,7 @@ dd {
 	padding : 0;
 	margin: 0;
 	font-weight: normal !important;
+	word-wrap: break-word;
 }
 
 dd span {

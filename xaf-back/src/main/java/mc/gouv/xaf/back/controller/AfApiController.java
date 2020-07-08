@@ -2,7 +2,6 @@ package mc.gouv.xaf.back.controller;
 
 import java.util.List;
 
-import javax.jms.JMSException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -13,6 +12,7 @@ import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeInputDTO;
 import mc.gouv.xaf.shared.dto.MotifDTO;
+import mc.gouv.xaf.shared.dto.PeriodeOuvertureDTO;
 import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 
 /**
@@ -50,6 +50,8 @@ public interface AfApiController {
 
     public List<MotifDTO> getMotifs();
 
-    DemandeDTO creerDemande(DemandeInputDTO demande, Integer usagerId) throws JsonProcessingException, JMSException;
+    public DemandeDTO creerDemande(DemandeInputDTO demande, Integer usagerId) throws JsonProcessingException;
+    
+    public List<PeriodeOuvertureDTO> getPeriodesOuverture();
 
 }

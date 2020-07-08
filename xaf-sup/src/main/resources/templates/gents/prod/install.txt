@@ -1,0 +1,14 @@
+# FILE
+curl -H "Content-Type: application/json" -H "Authorization: ${TSFILEJWT}" --request POST --data '{"basedir" : "/www/data/file/${TSCODE}"}' http://linuxas-1:30490/file/api/v1/file/${TSCODE}
+curl -H "Content-Type: application/json" -H "Authorization: ${TSFILEJWT}" --request POST  http://linuxas-1:30490/file/api/v1/file/${TSCODE}/ROOT
+curl -H "Content-Type: application/json" -H "Authorization: ${TSFILEJWT}" --request GET linuxas-1:30490/file/api/v1/file/RANDOM/ROOT/test.pdf
+
+# MAIL
+curl -H "Content-Type: application/json" -H "Authorization: ${TSMAILJWT}" --request POST --data '{"to":[{"address":"adiallo.ext@gouv.mc","name":"Adresse 1"}],"from":{"address":"adresse0@gouv.mc" ,"name":"Adresse 0"},"subject":"Test04","text":"Test envoi mail","html":"<html><body><p>Test envoi mail (HTML)</p></body></html>"}' http://linuxas-1:30480/mail/api/v1/mail
+
+# ElasticSearch
+curl -H "Content-Type: application/json" -XPUT "http://${tscode}-eose1-0-mgmt:9200/${tscode}-index" -d @${tscode}-es-schema.json
+curl -H "Content-Type: application/json" -XPOST "http://${tscode}-eose1-0-mgmt:9200/_aliases" -d '{"actions" : [{ "add" : { "index" : "${tscode}-index", "alias" : "${tscode}" } }]}'
+
+# API
+curl -H "Content-Type: application/json" -H "Authorization: ${TSAPIJWT}" --request GET https://${tscode}-api.monaco-gouvernement.mc/${tscode}/api/v1/motifs

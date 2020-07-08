@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<body>
+
+	<div id="selectionusagertransfert"
+		th:fragment="selectionusagertransfert">
+		<div id="transferer-box" style="display: none">
+			<div class="container-fluid">
+				<div class="row">
+					<div class="col-xs-12">
+						<span style="color: rgb(94, 97, 100); font-size: 16pt">Transfert
+							de demande(s)</span>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-xs-12">
+						<span id="transfertNomPrenom"
+							style="font-weight: bold;"></span>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-xs-12">
+						<span id="transfertRaisonSociale"
+							style="font-weight: bold;"></span>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-xs-12">
+						<span id="transfertAdresse" style="font-weight: bold;"></span>&nbsp;-&nbsp;<span
+							id="transfertCodePostal" style="font-weight: bold;"></span>&nbsp;
+						<span id="transfertVille" style="font-weight: bold;"></span>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-xs-12">
+						<span style="color: rgb(94, 97, 100);">Rechercher un usager
+							pour transférer les demandes :</span><br /> <input type="text"
+							id="autocomplete" name="texte" class="form-control" />
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-xs-12 text-center margin-top">
+						<a href="#"
+							class="btn btn-action-second ripple-effect transferer-annuler"
+							style="margin-right: 10px">Annuler</a> <a id="lientransfert"
+							href="#" class="btn btn-action ripple-effect margin-left">Valider</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+</body>
+</html>

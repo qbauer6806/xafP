@@ -1,0 +1,20 @@
+---
+appli: ${tscode}
+type: apiserver
+name: ${tscode}-apiserver
+maven:
+    group_id: mc.gouv.${tscode}
+    artifact_id: ${tscode}-apiserver
+context: /${tscode}
+url: https://${tscode}-api.monaco-gouvernement.mc/${tscode}
+http_port: 30790
+jmx_port: 30791
+rmi_port: 30792
+mq_port: 30796
+xms: 512m
+xmx: 512m
+tags:
+    - ${tscode}backapi
+java_extra_opts: -Dspring.profiles.active=gouv -Dfile.encoding=UTF-8
+
+

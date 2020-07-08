@@ -1,0 +1,15 @@
+---
+appli: ${tscode}
+type: frontserver
+name: ${tscode}-frontserver
+maven:
+    group_id: mc.gouv.${tscode}
+    artifact_id: ${tscode}-frontserver
+context: /${TSCONTEXTE}
+url: https://teleservice.gouv.mc/${TSCONTEXTE}
+http_port: 20790
+jmx_port: 20791
+rmi_port: 20792
+xms: 256m
+xmx: 256m
+java_extra_opts: -Dspring.profiles.active=gouv -Dfile.encoding=UTF-8

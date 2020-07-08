@@ -1,0 +1,293 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" class="no-js" lang="fr"
+	dir="ltr">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="x-ua-compatible" content="ie=edge" />
+<meta name="viewport"
+	content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+<title th:text="${AfBackUtils.getDemarcheNom()}"></title>
+
+<!-- Import FONTS -->
+<link th:href="@{/webjars/xcb-wlib/fonts/style.css}" rel="stylesheet" />
+<link rel="stylesheet" th:href="@{/webjars/xcb-wlib/fonts/ie7/ie7.css}" />
+
+<!-- Import CSS -->
+<link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"
+	rel="stylesheet" type="text/css" />
+<link th:href="@{/webjars/xcb-wlib/css/template.css}" rel="stylesheet" />
+<link th:href="@{/webjars/xcb-wlib/css/sidebar.css}" rel="stylesheet" />
+<link th:href="@{/webjars/xcb-wlib/css/element.css}" rel="stylesheet" />
+<link th:href="@{/webjars/datatables/css/dataTables.bootstrap.css}"
+	rel="stylesheet" />
+<link
+	th:href="@{/webjars/bootstrap-datepicker/css/bootstrap-datepicker.css}"
+	rel="stylesheet" />
+<link rel="stylesheet"
+	th:href="@{/webjars/fancybox/jquery.fancybox.css}" />
+
+<link rel="shortcut icon" type="image/x-icon"
+	th:href="@{/img/favicon.ico}" />
+<link th:href="@{/css/tsgen.css(${applicationBuildTimestamp})}"
+	rel="stylesheet" />
+<link th:href="@{/css/tsdem.css(${applicationBuildTimestamp})}"
+	rel="stylesheet" />
+
+</head>
+<body th:with="pageUsagersActive='active'">
+
+
+	<div th:replace="fragments/header :: header"></div>
+
+	<div id="wrapper">
+
+		<div th:replace="fragments/sidebar :: sidebar"></div>
+
+
+		<!-- DEBUT CONTENU -->
+		<div id="page-content-wrapper">
+
+			<div class="breadcrumbContent">
+				<div class="breadcrumb">
+					<a id="ariane0" th:href="@{/}" class="breadcrumb-link">ACCUEIL</a>&nbsp;&gt;&nbsp;<a
+						id="ariane1" th:href="@{/gestion/usagers}" class="breadcrumb-link">USAGERS</a>
+					&gt; Transfert demande(s) - <span
+						th:text="${AfBackUtils.getUsagerNameFromID(usagerSourceId)}"></span>
+					vers <span
+						th:text="${AfBackUtils.getUsagerNameFromID(usagerCibleId)}"></span>
+					<span th:if="${transfererSupprimer}"> (pour suppression)</span>
+				</div>
+				<div class="triangleTopright"></div>
+			</div>
+
+			<div class="container-fluid">
+
+				<div class="col-xs-12" th:each="error : ${error}">
+
+					<div class="alert alert-danger" data-closable="">
+
+						<p th:text="${message}"></p>
+
+						<button class="close" aria-label="Dismiss alert"
+							type="btn btn-action ripple-effect" data-close="">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+				</div>
+				<div class="col-xs-12" th:each="message : ${message}">
+
+					<div class="aler aler-success" data-closable="">
+
+						<p th:text="${message}"></p>
+
+						<button class="close" aria-label="Dismiss alert"
+							type="btn btn-action ripple-effect" data-close="">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+				</div>
+
+
+				<div class="row">
+					<div class="col-xs-12">
+						<a href="#" id="rechercherAutreUsager"
+							class="btn btn-action ripple-effect">Rechercher un autre
+							usager</a>
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-xs-12">
+						<h2>Demandes de l'usager</h2>
+					</div>
+				</div>
+				<form id="form-transfert" action="#"
+					th:action="@{/gestion/usagers/transferer}"
+					th:object="${transfertDemandesFormBean}" method="post">
+					<div class="row">
+						<div class="col-xs-12">
+							<div class="tableContent">
+								<div class="tableTitle">
+									Résultats <span class="badge"></span>
+								</div>
+
+								<table id="datatable-usagers" class="table table-striped">
+									<thead>
+										<tr>
+											<th><input th:if="!${transfererSupprimer}"
+												type="checkbox" name="select_all" value="1" id="select-all" />
+												<input th:if="${transfererSupprimer}" checked="checked"
+												disabled="disabled" type="checkbox" name="select_all"
+												value="1" id="select-all" /></th>
+											<th>Identifiant</th>
+											<th>Date demande</th>
+											<th>État de la demande</th>
+											<th>Mode de réception</th>
+											<th>Langue</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr th:each="demande, stat : ${demandes}">
+											<td><input th:checked="${transfererSupprimer}"
+												th:disabled="${transfererSupprimer}" type="checkbox"
+												th:value="${demande.pkDemandes}" name="checkedDemandes" />
+												<input th:if="${transfererSupprimer}" type="hidden"
+												th:value="${demande.pkDemandes}" name="checkedDemandes" /></td>
+											<td><a style="padding: 0;"
+												th:href="@{/demandes/}+${demande.pkDemandes}"><span
+													class="identifiant-demande"
+													th:text="${demande.identifiant}"></span></a></td>
+											<td
+												th:text="${#dates.format(demande.dateCreation,'dd/MM/yyyy')}" />
+											<td><span
+												th:class="${'label statusbox ' + AfBackUtils.getStatusColorClass(AfBackUtils.getStatutPublicOuInterne(demande))}"
+												th:text="${AfBackUtils.getStatutPublicOuInterne(demande)}"></span></td>
+											<td th:text="${demande.canal}" />
+											<td th:text="${demande.langue}" />
+										</tr>
+									</tbody>
+								</table>
+
+							</div>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col-xs-12 text-center">
+							<input type="hidden" name="transfererSupprimer"
+								th:value="${transfererSupprimer}" /> <input type="hidden"
+								name="usagerSourceId" th:value="${usagerSourceId}" /> <input
+								type="hidden" name="usagerCibleId" th:value="${usagerCibleId}" />
+							<a th:href="@{/gestion/usagers}"
+								class="btn btn-action-second ripple-effect">Annuler</a> <input
+								id="validerButton" type="submit" name="action"
+								class="btn btn-action ripple-effect"
+								th:disabled="!${transfererSupprimer}" value="Valider" />
+						</div>
+					</div>
+				</form>
+
+			</div>
+		</div>
+
+		<!-- FIN CONTENU -->
+
+	</div>
+	<div th:replace="fragments/footer :: footer"></div>
+
+	<div
+		th:replace="fragments/selectionusagertransfert :: selectionusagertransfert"></div>
+
+	<script th:inline="javascript">
+	/*<![CDATA[*/
+	
+		var nom = [[${usagerSourceDTO.nom}]];
+		var prenom = [[${usagerSourceDTO.prenom}]];
+		var raisonSociale = [[${usagerSourceDTO.raisonSociale}]];
+		var adresse = [[${usagerSourceDTO.adresse1}]];
+		var codePostal = [[${usagerSourceDTO.codePostal}]];
+		var ville = [[${usagerSourceDTO.ville}]];
+		var usagerSourceId = [[${usagerSourceDTO.pkUsagersCourrier}]];
+		
+		var urlTransfert = [[${transfererSupprimer} ? @{/gestion/usagers/transferersupprimer/} : @{/gestion/usagers/transferer/}]];
+	
+		$(document).ready(function() {
+
+			function enableValider() {
+	    		if ($("[name=checkedDemandes]:checked").length > 0) {
+	    			$("#validerButton").prop('disabled', false);
+		    	}
+	    		else {
+	    			$("#validerButton").prop('disabled', true);
+		    	}
+			}
+
+	    	var table = $('#demandes').DataTable({
+	            "bAutoWidth": false,
+	            "bInfo" : true,
+	            "bFilter" : false,
+	            "iDisplayLength" : 25,
+	            
+	            "language": {
+	            	"processing" : '<span style="width:100%;display: inline-block"><img src="'+APP.getContextPath()+'/img/ajax-loader.gif"></img></span>',
+	                "emptyTable" : "Aucune demande trouvée",
+	                "infoEmpty": "Aucune demande ne correspond à la recherche",
+	                "paginate" : {
+		                "previous" : "Precedent",
+		                "next" : "Suivant"
+		            },
+		            "lengthMenu" : "Afficher _MENU_ demandes",
+		            "info": "_MAX_ demande(s) correspondant(s) à la recherche"
+	            },
+	           
+	            "columnDefs": [ {
+	            	"targets": 0,
+	            	"orderable": false
+	            	} ],
+	            "order": [ [ 2, 'asc' ] ]
+            	
+	    	});
+
+	    	// Prise en charge de la checkbox de la colonne : tout (dé)sélectionner
+	    	$('#select-all').on('click', function(){
+    		   var rows = table.rows({ 'search': 'applied' }).nodes();
+    		   $('input[name="checkedDemandes"]').prop('checked',this.checked);
+    		   enableValider();
+	    	});
+
+	    	// Gérer le fait qu'on puisse valider que si au moins une demande a été cochée
+	    	$("[name=checkedDemandes]").on('click', function(){
+	    		enableValider();
+	    	});
+
+	    	$("#rechercherAutreUsager").click(function(e) {
+	    		e.preventDefault();
+
+	    		$.fancybox.open({
+	        		src: '#transferer-box',
+	        		type: 'inline',
+	        		opts: {
+	        			autoSize: false,
+	        			minWidth : 1000,
+	        			height: "auto",
+	        		}
+	        	});
+
+	            $('#autocomplete').val('');
+
+	    		var nomPrenomRaisonSociale = nom + ' ' + prenom;
+	    		if (typeof raisonSociale !== 'undefined' && raisonSociale != '') {
+	    			nomPrenomRaisonSociale = nomPrenomRaisonSociale + '<br/>(' + raisonSociale + ')';
+	    		}
+	    		
+	           	$("#transfertNomPrenomRaisonSociale").html(nomPrenomRaisonSociale);
+	    		$("#transfertAdresse").text(adresse);
+	    		$("#transfertCodePostal").text(codePostal);
+	    		$("#transfertVille").text(ville);
+
+	 			$('#autocomplete').autocomplete({
+	 				serviceUrl: APP.getContextPath()+'/ws/usagersCourrierAutocomplete/usagersFullText',
+	 				params: { 'usagerSourceId' : usagerSourceId },
+	 			    onSelect: function (suggestion) {
+	 			    	var usagerCibleId = suggestion.data;
+	 			    	$("#lientransfert").attr("href", urlTransfert + usagerSourceId + '/' + usagerCibleId);
+	 			    }
+	 			});
+
+	    		return true;
+	    	});
+
+            $(".transferer-annuler").click(function(e){
+                e.preventDefault();
+            	$.fancybox.close();
+            	return false;
+             });
+
+	    } );
+		/*]]>*/
+	</script>
+
+	<div th:replace="fragments/message :: message"></div>
+
+</body>
+</html>

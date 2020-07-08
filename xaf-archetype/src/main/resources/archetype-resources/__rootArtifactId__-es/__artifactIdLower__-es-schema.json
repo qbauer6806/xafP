@@ -1,0 +1,912 @@
+{
+  "mappings" : {
+    "demandes" : {
+      "properties" : {
+        "access" : {
+          "properties" : {
+            "active" : {
+              "type" : "boolean"
+            },
+            "demarcheId" : {
+              "analyzer" : "ngram",
+              "fields" : {
+                "keyword" : {
+                  "ignore_above" : 256,
+                  "type" : "keyword"
+                }
+              },
+              "search_analyzer" : "keyword_lowercase",
+              "type" : "text"
+            },
+            "fkAccess" : {
+              "type" : "text"
+            },
+            "usagerId" : {
+              "type" : "text"
+            }
+          }
+        },
+        "agent" : {
+          "properties" : {
+            "mail" : {
+              "fields" : {
+                "keyword" : {
+                  "ignore_above" : 256,
+                  "type" : "keyword"
+                }
+              },
+              "type" : "text"
+            },
+            "matricule" : {
+              "fields" : {
+                "keyword" : {
+                  "ignore_above" : 256,
+                  "type" : "keyword"
+                }
+              },
+              "type" : "text"
+            },
+            "nom" : {
+              "fields" : {
+                "keyword" : {
+                  "ignore_above" : 256,
+                  "type" : "keyword"
+                }
+              },
+              "type" : "text"
+            },
+            "nomNaissance" : {
+              "fields" : {
+                "keyword" : {
+                  "ignore_above" : 256,
+                  "type" : "keyword"
+                }
+              },
+              "type" : "text"
+            },
+            "nomUsage" : {
+              "fields" : {
+                "keyword" : {
+                  "ignore_above" : 256,
+                  "type" : "keyword"
+                }
+              },
+              "type" : "text"
+            },
+            "prenom" : {
+              "fields" : {
+                "keyword" : {
+                  "ignore_above" : 256,
+                  "type" : "keyword"
+                }
+              },
+              "type" : "text"
+            }
+          }
+        },
+        "agentAffecteId" : {
+          "analyzer" : "default",
+          "fields" : {
+            "keyword" : {
+              "ignore_above" : 256,
+              "type" : "keyword"
+            }
+          },
+          "search_analyzer" : "default_search",
+          "type" : "text"
+        },
+        "agentAffecteNomAffichage" : {
+          "analyzer" : "default",
+          "fields" : {
+            "keyword" : {
+              "ignore_above" : 256,
+              "type" : "keyword"
+            }
+          },
+          "search_analyzer" : "default_search",
+          "type" : "text"
+        },
+        "canal" : {
+          "properties" : {
+            "code" : {
+              "analyzer" : "ngram",
+              "fields" : {
+                "keyword" : {
+                  "ignore_above" : 256,
+                  "type" : "keyword"
+                }
+              },
+              "search_analyzer" : "keyword_lowercase",
+              "type" : "text"
+            },
+            "libelle" : {
+              "fields" : {
+                "keyword" : {
+                  "ignore_above" : 256,
+                  "type" : "keyword"
+                }
+              },
+              "type" : "text"
+            }
+          }
+        },
+        "contenu" : {
+          "properties" : {
+            "donnee" : {
+              "properties" : {
+                "entreprise" : {
+                  "properties" : {
+                    "adressechantier" : {
+                      "properties" : {
+                        "codePostal" : {
+                          "analyzer" : "default",
+                          "fields" : {
+                            "keyword" : {
+                              "ignore_above" : 256,
+                              "type" : "keyword"
+                            }
+                          },
+                          "search_analyzer" : "default_search",
+                          "type" : "text"
+                        },
+                        "ligne1" : {
+                          "analyzer" : "default",
+                          "fields" : {
+                            "keyword" : {
+                              "ignore_above" : 256,
+                              "type" : "keyword"
+                            }
+                          },
+                          "search_analyzer" : "default_search",
+                          "type" : "text"
+                        },
+                        "ligne2" : {
+                          "analyzer" : "default",
+                          "fields" : {
+                            "keyword" : {
+                              "ignore_above" : 256,
+                              "type" : "keyword"
+                            }
+                          },
+                          "search_analyzer" : "default_search",
+                          "type" : "text"
+                        },
+                        "ligne3" : {
+                          "analyzer" : "default",
+                          "fields" : {
+                            "keyword" : {
+                              "ignore_above" : 256,
+                              "type" : "keyword"
+                            }
+                          },
+                          "search_analyzer" : "default_search",
+                          "type" : "text"
+                        },
+                        "pays" : {
+                          "analyzer" : "default",
+                          "fields" : {
+                            "keyword" : {
+                              "ignore_above" : 256,
+                              "type" : "keyword"
+                            }
+                          },
+                          "search_analyzer" : "default_search",
+                          "type" : "text"
+                        },
+                        "ville" : {
+                          "analyzer" : "default",
+                          "fields" : {
+                            "keyword" : {
+                              "ignore_above" : 256,
+                              "type" : "keyword"
+                            }
+                          },
+                          "search_analyzer" : "default_search",
+                          "type" : "text"
+                        }
+                      }
+                    },
+                    "adresseentreprise" : {
+                      "properties" : {
+                        "codePostal" : {
+                          "analyzer" : "default",
+                          "fields" : {
+                            "keyword" : {
+                              "ignore_above" : 256,
+                              "type" : "keyword"
+                            }
+                          },
+                          "search_analyzer" : "default_search",
+                          "type" : "text"
+                        },
+                        "ligne1" : {
+                          "analyzer" : "default",
+                          "fields" : {
+                            "keyword" : {
+                              "ignore_above" : 256,
+                              "type" : "keyword"
+                            }
+                          },
+                          "search_analyzer" : "default_search",
+                          "type" : "text"
+                        },
+                        "ligne2" : {
+                          "analyzer" : "default",
+                          "fields" : {
+                            "keyword" : {
+                              "ignore_above" : 256,
+                              "type" : "keyword"
+                            }
+                          },
+                          "search_analyzer" : "default_search",
+                          "type" : "text"
+                        },
+                        "ligne3" : {
+                          "analyzer" : "default",
+                          "fields" : {
+                            "keyword" : {
+                              "ignore_above" : 256,
+                              "type" : "keyword"
+                            }
+                          },
+                          "search_analyzer" : "default_search",
+                          "type" : "text"
+                        },
+                        "pays" : {
+                          "analyzer" : "default",
+                          "fields" : {
+                            "keyword" : {
+                              "ignore_above" : 256,
+                              "type" : "keyword"
+                            }
+                          },
+                          "search_analyzer" : "default_search",
+                          "type" : "text"
+                        },
+                        "ville" : {
+                          "analyzer" : "default",
+                          "fields" : {
+                            "keyword" : {
+                              "ignore_above" : 256,
+                              "type" : "keyword"
+                            }
+                          },
+                          "search_analyzer" : "default_search",
+                          "type" : "text"
+                        }
+                      }
+                    },
+                    "datedebutchantier" : {
+                      "type" : "date"
+                    },
+                    "datefinchantier" : {
+                      "type" : "date"
+                    },
+                    "datesdetachement" : {
+                      "analyzer" : "default",
+                      "fields" : {
+                        "keyword" : {
+                          "ignore_above" : 256,
+                          "type" : "keyword"
+                        }
+                      },
+                      "search_analyzer" : "default_search",
+                      "type" : "text"
+                    },
+                    "estchantier" : {
+                      "analyzer" : "default",
+                      "fields" : {
+                        "keyword" : {
+                          "ignore_above" : 256,
+                          "type" : "keyword"
+                        }
+                      },
+                      "search_analyzer" : "default_search",
+                      "type" : "text"
+                    },
+                    "nautorisationchantier" : {
+                      "analyzer" : "default",
+                      "fields" : {
+                        "keyword" : {
+                          "ignore_above" : 256,
+                          "type" : "keyword"
+                        }
+                      },
+                      "search_analyzer" : "default_search",
+                      "type" : "text"
+                    },
+                    "nomchantier" : {
+                      "analyzer" : "default",
+                      "fields" : {
+                        "keyword" : {
+                          "ignore_above" : 256,
+                          "type" : "keyword"
+                        }
+                      },
+                      "search_analyzer" : "default_search",
+                      "type" : "text"
+                    },
+                    "nomentreprise" : {
+                      "analyzer" : "default",
+                      "fields" : {
+                        "keyword" : {
+                          "ignore_above" : 256,
+                          "type" : "keyword"
+                        }
+                      },
+                      "search_analyzer" : "default_search",
+                      "type" : "text"
+                    },
+                    "paysoriginedetachement" : {
+                      "analyzer" : "default",
+                      "fields" : {
+                        "keyword" : {
+                          "ignore_above" : 256,
+                          "type" : "keyword"
+                        }
+                      },
+                      "search_analyzer" : "default_search",
+                      "type" : "text"
+                    }
+                  }
+                },
+                "entrepriseorigine" : {
+                  "properties" : {
+                    "adresse" : {
+                      "properties" : {
+                        "codePostal" : {
+                          "analyzer" : "default",
+                          "fields" : {
+                            "keyword" : {
+                              "ignore_above" : 256,
+                              "type" : "keyword"
+                            }
+                          },
+                          "search_analyzer" : "default_search",
+                          "type" : "text"
+                        },
+                        "ligne1" : {
+                          "analyzer" : "default",
+                          "fields" : {
+                            "keyword" : {
+                              "ignore_above" : 256,
+                              "type" : "keyword"
+                            }
+                          },
+                          "search_analyzer" : "default_search",
+                          "type" : "text"
+                        },
+                        "ligne2" : {
+                          "analyzer" : "default",
+                          "fields" : {
+                            "keyword" : {
+                              "ignore_above" : 256,
+                              "type" : "keyword"
+                            }
+                          },
+                          "search_analyzer" : "default_search",
+                          "type" : "text"
+                        },
+                        "ligne3" : {
+                          "analyzer" : "default",
+                          "fields" : {
+                            "keyword" : {
+                              "ignore_above" : 256,
+                              "type" : "keyword"
+                            }
+                          },
+                          "search_analyzer" : "default_search",
+                          "type" : "text"
+                        },
+                        "pays" : {
+                          "analyzer" : "default",
+                          "fields" : {
+                            "keyword" : {
+                              "ignore_above" : 256,
+                              "type" : "keyword"
+                            }
+                          },
+                          "search_analyzer" : "default_search",
+                          "type" : "text"
+                        },
+                        "ville" : {
+                          "analyzer" : "default",
+                          "fields" : {
+                            "keyword" : {
+                              "ignore_above" : 256,
+                              "type" : "keyword"
+                            }
+                          },
+                          "search_analyzer" : "default_search",
+                          "type" : "text"
+                        }
+                      }
+                    },
+                    "raisonsociale" : {
+                      "analyzer" : "default",
+                      "fields" : {
+                        "keyword" : {
+                          "ignore_above" : 256,
+                          "type" : "keyword"
+                        }
+                      },
+                      "search_analyzer" : "default_search",
+                      "type" : "text"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "courrierDateReception" : {
+          "type" : "date"
+        },
+        "courrierRefInterne" : {
+          "analyzer" : "default",
+          "fields" : {
+            "keyword" : {
+              "ignore_above" : 256,
+              "type" : "keyword"
+            }
+          },
+          "search_analyzer" : "default_search",
+          "type" : "text"
+        },
+        "creeParAgentId" : {
+          "type" : "keyword"
+        },
+        "dateCreation" : {
+          "type" : "date"
+        },
+        "dateDerModif" : {
+          "type" : "date"
+        },
+        "demandeJoinField" : {
+          "relations" : {
+            "demandes" : "fichiers"
+          },
+          "type" : "join"
+        },
+        "dernierStatut" : {
+          "properties" : {
+            "code" : {
+              "fields" : {
+                "keyword" : {
+                  "ignore_above" : 256,
+                  "type" : "keyword"
+                }
+              },
+              "type" : "text"
+            },
+            "codeMotif" : {
+              "fields" : {
+                "keyword" : {
+                  "ignore_above" : 256,
+                  "type" : "keyword"
+                }
+              },
+              "type" : "text"
+            },
+            "commentaire" : {
+              "fields" : {
+                "keyword" : {
+                  "ignore_above" : 256,
+                  "type" : "keyword"
+                }
+              },
+              "type" : "text"
+            },
+            "libelle" : {
+              "fields" : {
+                "keyword" : {
+                  "ignore_above" : 256,
+                  "type" : "keyword"
+                }
+              },
+              "type" : "text"
+            },
+            "libelleMotif" : {
+              "fields" : {
+                "keyword" : {
+                  "ignore_above" : 256,
+                  "type" : "keyword"
+                }
+              },
+              "type" : "text"
+            }
+          }
+        },
+        "fichiers" : {
+          "properties" : {
+            "content" : {
+              "analyzer" : "ngram",
+              "fields" : {
+                "de" : {
+                  "analyzer" : "german",
+                  "search_analyzer" : "german",
+                  "term_vector" : "with_positions_offsets",
+                  "type" : "text"
+                },
+                "en" : {
+                  "analyzer" : "english",
+                  "search_analyzer" : "english",
+                  "term_vector" : "with_positions_offsets",
+                  "type" : "text"
+                },
+                "es" : {
+                  "analyzer" : "spanish",
+                  "search_analyzer" : "spanish",
+                  "term_vector" : "with_positions_offsets",
+                  "type" : "text"
+                },
+                "fr" : {
+                  "analyzer" : "french",
+                  "search_analyzer" : "french",
+                  "term_vector" : "with_positions_offsets",
+                  "type" : "text"
+                },
+                "it" : {
+                  "analyzer" : "italian",
+                  "search_analyzer" : "italian",
+                  "term_vector" : "with_positions_offsets",
+                  "type" : "text"
+                }
+              },
+              "search_analyzer" : "keyword_lowercase",
+              "term_vector" : "with_positions_offsets",
+              "type" : "text"
+            },
+            "demandeId" : {
+              "type" : "keyword"
+            },
+            "id" : {
+              "type" : "keyword"
+            },
+            "language" : {
+              "analyzer" : "default",
+              "fields" : {
+                "keyword" : {
+                  "ignore_above" : 256,
+                  "type" : "keyword"
+                }
+              },
+              "search_analyzer" : "keyword_lowercase",
+              "type" : "text"
+            },
+            "name" : {
+              "fields" : {
+                "keyword" : {
+                  "ignore_above" : 256,
+                  "type" : "keyword"
+                }
+              },
+              "type" : "text"
+            },
+            "type" : {
+              "store" : true,
+              "type" : "keyword"
+            },
+            "url" : {
+              "analyzer" : "default",
+              "fields" : {
+                "keyword" : {
+                  "ignore_above" : 256,
+                  "type" : "keyword"
+                }
+              },
+              "search_analyzer" : "keyword_lowercase",
+              "type" : "text"
+            }
+          }
+        },
+        "identifiant" : {
+          "analyzer" : "identifiant_ngram_index",
+          "fields" : {
+            "keyword" : {
+              "ignore_above" : 256,
+              "type" : "keyword"
+            }
+          },
+          "search_analyzer" : "identifiant_ngram_search",
+          "type" : "text"
+        },
+        "langue" : {
+          "analyzer" : "default",
+          "fields" : {
+            "keyword" : {
+              "ignore_above" : 256,
+              "type" : "keyword"
+            }
+          },
+          "search_analyzer" : "keyword_lowercase",
+          "type" : "text"
+        },
+        "nomsCourriers" : {
+          "analyzer" : "default",
+          "fields" : {
+            "keyword" : {
+              "ignore_above" : 256,
+              "type" : "keyword"
+            }
+          },
+          "search_analyzer" : "default_search",
+          "type" : "text"
+        },
+        "observations" : {
+          "analyzer" : "ngram",
+          "fields" : {
+            "keyword" : {
+              "ignore_above" : 256,
+              "type" : "keyword"
+            }
+          },
+          "search_analyzer" : "keyword_lowercase",
+          "type" : "text"
+        },
+        "pkDemandes" : {
+          "type" : "text"
+        },
+        "statuts" : {
+          "properties" : {
+            "code" : {
+              "fields" : {
+                "keyword" : {
+                  "ignore_above" : 256,
+                  "type" : "keyword"
+                }
+              },
+              "type" : "text"
+            },
+            "codeMotif" : {
+              "fields" : {
+                "keyword" : {
+                  "ignore_above" : 256,
+                  "type" : "keyword"
+                }
+              },
+              "type" : "text"
+            },
+            "commentaire" : {
+              "fields" : {
+                "keyword" : {
+                  "ignore_above" : 256,
+                  "type" : "keyword"
+                }
+              },
+              "type" : "text"
+            },
+            "libelle" : {
+              "fields" : {
+                "keyword" : {
+                  "ignore_above" : 256,
+                  "type" : "keyword"
+                }
+              },
+              "type" : "text"
+            },
+            "libelleMotif" : {
+              "fields" : {
+                "keyword" : {
+                  "ignore_above" : 256,
+                  "type" : "keyword"
+                }
+              },
+              "type" : "text"
+            }
+          }
+        },
+        "usager" : {
+          "properties" : {
+            "adresse1" : {
+              "fields" : {
+                "keyword" : {
+                  "ignore_above" : 256,
+                  "type" : "keyword"
+                }
+              },
+              "type" : "text"
+            },
+            "adresse2" : {
+              "fields" : {
+                "keyword" : {
+                  "ignore_above" : 256,
+                  "type" : "keyword"
+                }
+              },
+              "type" : "text"
+            },
+            "codePostal" : {
+              "fields" : {
+                "keyword" : {
+                  "ignore_above" : 256,
+                  "type" : "keyword"
+                }
+              },
+              "type" : "text"
+            },
+            "complementAdresse" : {
+              "fields" : {
+                "keyword" : {
+                  "ignore_above" : 256,
+                  "type" : "keyword"
+                }
+              },
+              "type" : "text"
+            },
+            "dateActivation" : {
+              "type" : "date"
+            },
+            "dateCreation" : {
+              "type" : "date"
+            },
+            "dateDerConnexion" : {
+              "type" : "date"
+            },
+            "email" : {
+              "fields" : {
+                "keyword" : {
+                  "ignore_above" : 256,
+                  "type" : "keyword"
+                }
+              },
+              "type" : "text"
+            },
+            "etat" : {
+              "fields" : {
+                "keyword" : {
+                  "ignore_above" : 256,
+                  "type" : "keyword"
+                }
+              },
+              "type" : "text"
+            },
+            "id" : {
+              "fields" : {
+                "keyword" : {
+                  "ignore_above" : 256,
+                  "type" : "keyword"
+                }
+              },
+              "type" : "text"
+            },
+            "login" : {
+              "fields" : {
+                "keyword" : {
+                  "ignore_above" : 256,
+                  "type" : "keyword"
+                }
+              },
+              "type" : "text"
+            },
+            "nom" : {
+              "fields" : {
+                "keyword" : {
+                  "ignore_above" : 256,
+                  "type" : "keyword"
+                }
+              },
+              "type" : "text"
+            },
+            "nomPays" : {
+              "fields" : {
+                "keyword" : {
+                  "ignore_above" : 256,
+                  "type" : "keyword"
+                }
+              },
+              "type" : "text"
+            },
+            "paysId" : {
+              "fields" : {
+                "keyword" : {
+                  "ignore_above" : 256,
+                  "type" : "keyword"
+                }
+              },
+              "type" : "text"
+            },
+            "prenom" : {
+              "fields" : {
+                "keyword" : {
+                  "ignore_above" : 256,
+                  "type" : "keyword"
+                }
+              },
+              "type" : "text"
+            },
+            "raisonSociale" : {
+              "fields" : {
+                "keyword" : {
+                  "ignore_above" : 256,
+                  "type" : "keyword"
+                }
+              },
+              "type" : "text"
+            },
+            "titre" : {
+              "fields" : {
+                "keyword" : {
+                  "ignore_above" : 256,
+                  "type" : "keyword"
+                }
+              },
+              "type" : "text"
+            },
+            "ville" : {
+              "fields" : {
+                "keyword" : {
+                  "ignore_above" : 256,
+                  "type" : "keyword"
+                }
+              },
+              "type" : "text"
+            }
+          }
+        }
+      }
+    }
+  },
+  "settings" : {
+    "analysis" : {
+      "analyzer" : {
+        "default" : {
+          "filter" : [ "french_elision", "lowercase", "french_stop", "french_keywords", "french_stemmer", "ngram_filter" ],
+          "tokenizer" : "standard"
+        },
+        "default_search" : {
+          "filter" : [ "french_elision", "lowercase", "french_stop", "french_keywords", "french_stemmer" ],
+          "tokenizer" : "standard"
+        },
+        "identifiant_ngram_index" : {
+          "char_filter" : [ "identifiant_char_filter" ],
+          "filter" : [ "lowercase", "ngram_filter" ],
+          "tokenizer" : "standard"
+        },
+        "identifiant_ngram_search" : {
+          "char_filter" : [ "identifiant_char_filter" ],
+          "filter" : [ "lowercase" ],
+          "tokenizer" : "keyword"
+        },
+        "keyword_lowercase" : {
+          "filter" : [ "lowercase", "asciifolding" ],
+          "tokenizer" : "keyword"
+        },
+        "ngram" : {
+          "filter" : [ "lowercase", "asciifolding", "ngram_filter" ],
+          "tokenizer" : "standard"
+        }
+      },
+      "char_filter" : {
+        "identifiant_char_filter" : {
+          "mappings" : [ "- => _" ],
+          "type" : "mapping"
+        }
+      },
+      "filter" : {
+        "french_elision" : {
+          "articles" : [ "l", "m", "t", "qu", "n", "s", "j", "d", "c", "jusqu", "quoiqu", "lorsqu", "puisqu" ],
+          "articles_case" : true,
+          "type" : "elision"
+        },
+        "french_keywords" : {
+          "keywords" : [ "Exemple" ],
+          "type" : "keyword_marker"
+        },
+        "french_stemmer" : {
+          "language" : "french",
+          "type" : "stemmer"
+        },
+        "french_stop" : {
+          "stopwords" : "_french_",
+          "type" : "stop"
+        },
+        "ngram_filter" : {
+          "max_gram" : 25,
+          "min_gram" : 1,
+          "type" : "ngram"
+        }
+      }
+    }
+  }
+}

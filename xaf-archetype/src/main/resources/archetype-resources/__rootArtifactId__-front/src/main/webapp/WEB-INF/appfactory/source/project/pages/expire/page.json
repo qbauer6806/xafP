@@ -1,0 +1,8 @@
+{
+  "name": "expire",
+  "componentInstances": [
+    {
+      "name": "mcCharteTshiPageExpire"
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+---
+ansible_host: ${tscode}-appl1-0-mgmt
+zabbix_host_name: 10.0.123.11
+mc_fs_installed: false

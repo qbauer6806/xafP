@@ -1,3 +1,0 @@
----
-ansible_host: ${tscode}-frnt1-3-mgmt
-zabbix_host_name: ${TSFRNTZABBIX}

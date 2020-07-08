@@ -1,0 +1,26 @@
+---
+ansible_host: ${tscode}-frnt1-3-mgmt
+zabbix_host_name: ${TSFRNTZABBIX}
+
+tcp_checks:
+  - name: login-frontserver
+    host: as-front-1-rec.monaco-gouvernement.mc
+    port: 20120
+  - name: rest-apiserver
+    host: as-api-1-rec.monaco-gouvernement.mc
+    port: 20110
+  - name: ${tscode}-apiserver
+    host: ${tscode}-api-rec.monaco-gouvernement.mc
+    port: 443
+  - name: file-apiserver
+    host: as-api-1-rec.monaco-gouvernement.mc
+    port: 30490
+  - name: nexus
+    host: linuxic.monaco-gouvernement.mc
+    port: 80
+  - name: zabbix-server
+    host: zabbix1
+    port: 10051
+  - name: zabbix-proxy
+    host: linux-zabbix-proxyr1
+    port: 10051

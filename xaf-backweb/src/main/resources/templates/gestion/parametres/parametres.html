@@ -1,0 +1,149 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" class="no-js sidebar-left-collapsed" lang="fr"
+    dir="ltr">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title th:text="${titre}"></title>
+    
+    <!-- Import FONTS -->
+    <link th:href="@{/webjars/xcb-wlib/fonts/style.css}" rel="stylesheet" />
+    <!--[if lt IE 8]><!-->
+    <link rel="stylesheet" th:href="@{/webjars/xcb-wlib/fonts/ie7/ie7.css}" />
+    
+    <!-- Import CSS -->
+    <link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}" rel="stylesheet" type="text/css" />
+    <link th:href="@{/webjars/xcb-wlib/css/template.css}" rel="stylesheet" />
+    <link th:href="@{/webjars/xcb-wlib/css/sidebar.css}" rel="stylesheet" />
+    <link th:href="@{/webjars/xcb-wlib/css/element.css}" rel="stylesheet" />
+    <link th:href="@{/webjars/datatables/css/dataTables.bootstrap.css}" rel="stylesheet" />
+    
+    <link rel="shortcut icon" type="image/x-icon" th:href="@{/img/favicon.ico}" />
+	<link th:href="@{/css/tsgen.css(${applicationBuildTimestamp})}"
+		rel="stylesheet" />
+	<link th:href="@{/css/tsdem.css(${applicationBuildTimestamp})}"
+		rel="stylesheet" />
+
+</head>
+
+<body th:with="pageParametresActive='active'">
+
+	<div th:replace="fragments/header :: header"></div>
+
+	<div id="wrapper">
+	
+		<div th:replace="fragments/sidebar :: sidebar"></div>
+		
+		<!-- DEBUT CONTENU -->
+		<div id="page-content-wrapper">
+
+			<div class="breadcrumbContent">
+				<div class="breadcrumb">
+					<a id="ariane0" th:href="@{/}" class="breadcrumb-item active">Accueil</a>&nbsp;&gt;&nbsp;
+					<a id="ariane1" th:href="@{/gestion/parametres}"
+						class="breadcrumb-item active">Paramètres</a> &gt;
+				</div>
+				<div class="triangleTopright"></div>
+			</div>
+
+			<div class="container-fluid">
+
+               	<div class="row">
+               		<div class="col-xs-12">
+						<h1>Motifs des démarches</h1>
+					</div>
+              	</div>
+
+				<div class="row" align="right">
+					<div class="col-xs-12">
+						<a id="btnCreerMotif" th:href="@{/gestion/parametres/newInit}"
+							class="btn btn-action ripple-effect"><i
+							class="icon-action_plus"></i><span>Créer un motif</span></a>
+					</div>
+				</div>
+
+				<div class="row">
+						<div class="col-xs-12">
+							<div class="tableContent">
+								<div class="tableTitle">
+									Démarches <span class="badge" th:text="${#lists.size(motifs)}"></span>
+									
+								</div>
+								<table id="datatable_parametres"
+									class="table table-striped table-bordered table-hover">
+									<thead>
+										<tr>
+											<th>Statut</th>
+											<th>Libellé Français</th>
+											<th>Libellé Anglais</th>
+											<th>Commentaire prérempli Français</th>
+											<th>Commentaire prérempli Anglais</th>
+											<th>Code</th>
+											<th>Date Archive</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr th:each="obj : ${motifs}">
+											<td ><a th:href="@{/gestion/parametres/updateInit(code=${obj.code})}" th:text="${AfBackUtils.getStatusLibelleFromName(obj.getStatut())}"></a></td>
+							                
+							                <td th:text="${obj.getLibelleFr()}"></td>
+							                <td th:text="${obj.getLibelleEn()}"></td>
+							               	
+							               	 <td th:text="${obj.getCommentairePrerempliFr()}"></td>
+							               	<td th:text="${obj.getCommentairePrerempliEn()}"></td>
+							               
+							                <td th:text="${obj.getCode()}"></td>
+							                
+							                <td th:if="${obj.getDateArchive()}" th:text="${#dates.format(obj.getDateArchive(),'dd/MM/yyyy')}"></td> 
+							                <td th:unless="${obj.getDateArchive()}"></td>		
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+
+					</div>
+			</div>
+
+   		</div>
+   		
+   		<!-- FIN CONTENU -->
+    </div>
+
+
+	<div th:replace="fragments/footer :: footer"></div>
+
+	<script type="text/javascript" th:inline="javascript">
+
+	$(document).ready(
+			function() {
+
+				var datatablePersonnes = $('#datatable_parametres')
+						.DataTable({
+							binfo : false,
+							paging : true,
+							searching : false,
+							select : false,
+							"iDisplayLength" : 10,
+							order : [ [ 1, "asc" ] ],
+
+							columnDefs : [ {
+								targets : [ 0 ],
+								orderData : [ 1, 3 ]
+							}, {
+								targets : 3,
+								orderable : false
+							} ],
+							language : frenchTranslation,
+						});
+
+			});
+	</script>
+</body>
+</html>

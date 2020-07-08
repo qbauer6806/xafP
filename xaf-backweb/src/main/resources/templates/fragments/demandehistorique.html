@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<body>
+
+	<div id="demandehistorique" th:fragment="demandehistorique"
+		th:remove="tag">
+		<div class="row">
+			<div class="col-xs-12">
+				<div class="panel-group accordion" role="tablist"
+					aria-multiselectable="true">
+					<div class="panel panel-default">
+						<div class="panel-heading" role="tab" id="headingOne">
+							<h4 class="panel-title">
+								<a role="button" data-toggle="collapse" data-parent="#accordion"
+									href="#collapseOne" aria-expanded="true"
+									aria-controls="collapseOne"> <i
+									class="pannelState icon-action_accordeon-ouvert"></i>
+									HISTORIQUE DE LA DEMANDE
+								</a>
+							</h4>
+						</div>
+						<div id="collapseOne" class="panel-collapse collapse in"
+							role="tabpanel" aria-labelledby="headingOne">
+							<div class="panel-body">
+								<span th:each="histo : ${histos}"> <span
+									style="vertical-align: middle;"
+									th:class="${'label statusbox ' + AfBackUtils.getStatusColorClass(histo.contenu.statutPublicOuInterne)}">&nbsp;</span>
+									<span style="font-weight: bold"
+									th:text="'&nbsp;' + ${#dates.format(histo.demHistorique.date,'dd/MM/yyyy - HH:mm')} + '&nbsp;'" />
+									<span th:utext="${histo.contenu.html}" />&nbsp;
+								</span>
+
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

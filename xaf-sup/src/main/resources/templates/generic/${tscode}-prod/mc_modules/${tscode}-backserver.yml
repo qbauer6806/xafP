@@ -1,0 +1,18 @@
+---
+appli: ${tscode}
+type: backserver
+name: ${tscode}-backserver
+maven:
+    group_id: mc.gouv.${tscode}
+    artifact_id: ${tscode}-backserver
+context: /${tscode}
+url: https://${tscode}-back.monaco-gouvernement.mc/${tscode}
+http_port: 10790
+jmx_port: 10791
+rmi_port: 10792
+xms: 512m
+xmx: 512m
+tags:
+    - ${tscode}backapi
+java_extra_opts: -Dspring.profiles.active=gouv -Dfile.encoding=UTF-8
+

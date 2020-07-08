@@ -1,0 +1,276 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	class="no-js sidebar-left-collapsed" lang="fr" dir="ltr">
+
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="x-ua-compatible" content="ie=edge" />
+<meta name="viewport"
+	content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+<meta name="description" content="" />
+<meta name="author" content="" />
+<title th:text="${titre}"></title>
+
+<!-- Import FONTS -->
+<link th:href="@{/webjars/xcb-wlib/fonts/style.css}" rel="stylesheet" />
+<!--[if lt IE 8]><!-->
+<link rel="stylesheet" th:href="@{/webjars/xcb-wlib/fonts/ie7/ie7.css}" />
+
+<!-- Import CSS -->
+<link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"
+	rel="stylesheet" type="text/css" />
+<link th:href="@{/webjars/xcb-wlib/css/template.css}" rel="stylesheet" />
+<link th:href="@{/webjars/xcb-wlib/css/sidebar.css}" rel="stylesheet" />
+<link th:href="@{/webjars/xcb-wlib/css/element.css}" rel="stylesheet" />
+<link th:href="@{/webjars/datatables/css/dataTables.bootstrap.css}"
+	rel="stylesheet" />
+
+<link rel="shortcut icon" type="image/x-icon"
+	th:href="@{/img/favicon.ico}" />
+<link th:href="@{/css/tsgen.css(${applicationBuildTimestamp})}"
+	rel="stylesheet" />
+<link th:href="@{/css/tsdem.css(${applicationBuildTimestamp})}"
+	rel="stylesheet" />
+
+</head>
+
+<body th:with="pageParametresActive='active'">
+
+	<div>
+
+		<div th:replace="fragments/header :: header"></div>
+
+		<div id="wrapper">
+
+			<div th:replace="fragments/sidebar :: sidebar"></div>
+
+			<!-- DEBUT CONTENU -->
+			<div id="page-content-wrapper">
+
+				<div class="breadcrumbContent">
+					<div class="breadcrumb">
+						<a id="ariane0" th:href="@{/index}" class="breadcrumb-link">Accueil</a>&nbsp;&gt;&nbsp;<a
+							id="ariane1" th:href="@{/gestion/parametres}"
+							class="breadcrumb-link">PARAMÈTRES</a> &gt; <span
+							th:if="${motifsFormBean.motifPkFr != null}">Modification</span> <span
+							th:unless="${motifsFormBean.motifPkFr != null}">Création</span>
+					</div>
+					<div class="triangleTopright"></div>
+				</div>
+
+				<div class="container-fluid">
+					<div class="row">
+
+						<form class="form-horizontal"
+							th:action="@{/gestion/parametres/newCreate}" method="POST"
+							th:object="${motifsFormBean}">
+
+							<div class="col-xs-12">
+								<h1 class="titre" th:if="${motifsFormBean.motifPkFr != null}">Formulaire
+									de modification du motif</h1>
+								<h1 class="titre"
+									th:unless="${motifsFormBean.motifPkFr != null}">Formulaire
+									de création du motif</h1>
+
+								<div class="panel panel-simple">
+									<input th:if="${motifsFormBean.motifPkFr != null}"
+										type="hidden" name="codeVisible" th:value="*{code}" /> <input
+										type="hidden" name="hashCode" th:value="*{hashCode}" /> <input
+										type="hidden" name="motifPkEn" th:value="*{motifPkEn}" /> <input
+										type="hidden" name="motifPkFr" th:value="*{motifPkFr}" />
+
+									<div class="row container-fluid">
+										<div
+											th:class="${#fields.hasErrors('code') || motifsFormBean.isErrGlobale} ? 'form-group error' : 'form-group'">
+											<div class="col-xs-3">
+												<label for="code">Code<span class="required"></span>
+													:
+												</label>
+											</div>
+											<div class="col-xs-9">
+												<input type="text" id="code" name="code" th:field="*{code}"
+													th:disabled="${motifsFormBean.motifPkFr != null}"
+													class="form-control" th:errorclass="errorTooltip"
+													th:attr="data-title=${#fields.hasErrors('code')} ? ${#fields.errors('code')} :''" />
+											</div>
+										</div>
+									</div>
+
+									<div class="row">
+										<div class="col-xs-3">
+											<label>Désactivé le :</label>
+										</div>
+										<div class="col-xs-9">
+											<input type="text" class="form-control" id="dateArchive"
+												th:value="${motifsFormBean.dateArchive}" name="dateArchive"
+												disabled="disabled" />
+										</div>
+									</div>
+									<br />
+									<div class="row container-fluid">
+										<div
+											th:class="${#fields.hasErrors('statut') || motifsFormBean.isErrGlobale} ? 'form-group error' : 'form-group'">
+											<div class="col-xs-3">
+												<label for="statut">Statut<span class="required"></span>
+													:
+												</label>
+											</div>
+											<div class="col-xs-9">
+												<select class="form-control"
+													th:disabled="${!motifsFormBean.isMotifActif()}"
+													th:field="*{statutEnum}" id="statutEnum" name="statutEnum"
+													th:errorclass="errorTooltip">
+													<option th:each="statut : ${statuts}"
+														th:value="${statut.name}" th:text="${statut.libelle}" />
+												</select>
+											</div>
+										</div>
+									</div>
+
+									<div class="row container-fluid">
+										<div
+											th:class="${#fields.hasErrors('libelleFr') || motifsFormBean.isErrGlobale} ? 'form-group error' : 'form-group'">
+											<div class="col-xs-3">
+												<label for="libelleFr">Libellé Français<span
+													class="required"></span> :
+												</label>
+											</div>
+											<div class="col-xs-9">
+												<input type="text" id="libelleFr" name="libelleFr"
+													th:field="*{libelleFr}"
+													th:disabled="${!motifsFormBean.isMotifActif()}"
+													class="form-control" th:errorclass="errorTooltip"
+													th:attr="data-title=${#fields.hasErrors('libelleFr')} ? ${#fields.errors('libelleFr')} :''" />
+											</div>
+										</div>
+									</div>
+
+									<div class="row container-fluid">
+										<div
+											th:class="${#fields.hasErrors('libelleEn') || motifsFormBean.isErrGlobale} ? 'form-group error' : 'form-group'">
+											<div class="col-xs-3">
+												<label for="libelleEn">Libellé Anglais :</label>
+											</div>
+											<div class="col-xs-9">
+												<input type="text" id="libelleEn" name="libelleEn"
+													th:field="*{libelleEn}"
+													th:disabled="${!motifsFormBean.isMotifActif()}"
+													class="form-control" th:errorclass="errorTooltip"
+													th:attr="data-title=${#fields.hasErrors('libelleEn')} ? ${#fields.errors('libelleEn')} :''" />
+											</div>
+										</div>
+									</div>
+
+									<div class="row container-fluid">
+										<div
+											th:class="${#fields.hasErrors('commentairePrerempliFr') || motifsFormBean.isErrGlobale} ? 'form-group error' : 'form-group'">
+											<div class="col-xs-3">
+												<label for="commentairePrerempliFr">Commentaire
+													prérempli Français :</label>
+											</div>
+											<div class="col-xs-9" th:required="true">
+												<input class="form-control" type="text"
+													id="commentairePrerempliFr" name="commentairePrerempliFr"
+													th:field="*{commentairePrerempliFr}"
+													th:errorclass="errorTooltip"
+													th:attr="data-title=${#fields.hasErrors('commentairePrerempliFr')} ? ${#fields.errors('commentairePrerempliFr')} :''"
+													th:disabled="${not motifsFormBean.isMotifActif()}" />
+											</div>
+										</div>
+									</div>
+
+									<div class="row container-fluid">
+										<div
+											th:class="${#fields.hasErrors('commentairePrerempliEn') || motifsFormBean.isErrGlobale} ? 'form-group error' : 'form-group'">
+											<div class="col-xs-3">
+												<label for="commentairePrerempliEn">Commentaire
+													prérempli Anglais :</label>
+											</div>
+											<div class="col-xs-9">
+												<input class="form-control" type="text"
+													id="commentairePrerempliEn" name="commentairePrerempliEn"
+													th:field="*{commentairePrerempliEn}"
+													th:errorclass="errorTooltip"
+													th:attr="data-title=${#fields.hasErrors('commentairePrerempliEn')} ? ${#fields.errors('commentairePrerempliEn')} :''"
+													th:disabled="${not motifsFormBean.isMotifActif()}" />
+											</div>
+										</div>
+									</div>
+
+									<br />
+									<div class="row text-center">
+										<div th:if="${motifsFormBean.motifPkFr != null}"
+											class="align-center">
+											<div th:if="${motifsFormBean.isMotifActif()}"
+												class="col-xs-12 text-center">
+												<a id="btnRetourMotifs"
+													class="btn btn-action-second ripple-effect"
+													th:href="@{/gestion/parametres}">Annuler</a> <input
+													id="btnDesactiverMotif"
+													class="btn btn-action ripple-effect" type="submit"
+													value="Désactiver le motif" name="desactiveMotif" /> <input
+													id="btnSauvegarderMotif" type="submit"
+													value="Mettre à jour le motif"
+													class="btn btn-action ripple-effect" />
+											</div>
+											<div th:unless="${motifsFormBean.isMotifActif()}"
+												class="col-xs-12 text-center">
+												<a id="btnRetourMotifs"
+													class="btn btn-action-second ripple-effect"
+													th:href="@{/gestion/parametres}">Annuler</a> <input
+													id="btnActiverMotif" class="btn btn-action ripple-effect"
+													type="submit" value="Activer le motif" name="activeMotif" />
+											</div>
+										</div>
+
+										<div th:unless="${motifsFormBean.motifPkFr != null}"
+											class="row">
+											<div class="col-xs-12 text-center">
+												<a id="btnRetourMotifs"
+													class="btn btn-action-second ripple-effect"
+													th:href="@{/gestion/parametres}">Annuler</a> <input
+													id="btnCreerMotif" type="submit" name="action"
+													value="Créer le motif" class="btn btn-action ripple-effect" />
+											</div>
+										</div>
+									</div>
+
+								</div>
+							</div>
+
+						</form>
+					</div>
+				</div>
+				<div class="container-fluid">
+					<small>Les champs obligatoires sont suivis par *</small>
+				</div>
+			</div>
+		</div>
+
+	</div>
+
+	<div th:replace="fragments/footer :: footer"></div>
+
+	<div th:replace="fragments/message :: message"></div>
+
+	<script>
+		$(document).ready(function() {
+
+			//Initialisaiton des tooltips pour les erreurs
+			$(".errorTooltip").each(function() {
+
+				var $this = $(this);
+				var title = $this.data("title");
+				//New title sans les crochets car les erreurs et un toString d'un tableau d'erreur messages
+				var newTitle = title.substring(1, title.length - 1);
+				$this.tooltip({
+					placement : "bottom",
+					title : newTitle
+				});
+
+			});
+		});
+	</script>
+</body>
+</html>

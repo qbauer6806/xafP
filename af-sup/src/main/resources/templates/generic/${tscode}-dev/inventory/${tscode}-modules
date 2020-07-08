@@ -1,9 +1,0 @@
-[${tscode}-backserver:children]
-as-backserver
-
-[${tscode}-frontserver:children]
-as-frontserver
-
-[${tscode}-apiserver:children]
-as-apiserver
-

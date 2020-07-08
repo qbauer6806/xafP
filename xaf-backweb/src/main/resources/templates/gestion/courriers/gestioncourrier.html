@@ -1,0 +1,421 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" class="no-js" lang="en"
+	dir="ltr"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="x-ua-compatible" content="ie=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title th:text="${AfBackUtils.getDemarcheNom()}"></title>
+<link rel="shortcut icon" th:href="@{/img/favicon.ico}" />
+<!-- Import FONTS -->
+<link th:href="@{/webjars/xcb-wlib/fonts/style.css}" rel="stylesheet" />
+<link rel="stylesheet" th:href="@{/webjars/xcb-wlib/fonts/ie7/ie7.css}" />
+
+<!-- Import CSS -->
+<link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"
+	rel="stylesheet" type="text/css" />
+<link th:href="@{/webjars/xcb-wlib/css/template.css}" rel="stylesheet" />
+<link th:href="@{/webjars/xcb-wlib/css/sidebar.css}" rel="stylesheet" />
+<link th:href="@{/webjars/xcb-wlib/css/element.css}" rel="stylesheet" />
+<link th:href="@{/webjars/datatables/css/dataTables.bootstrap.css}"
+	rel="stylesheet" />
+<link
+	th:href="@{/webjars/bootstrap-datepicker/css/bootstrap-datepicker.css}"
+	rel="stylesheet" />
+<link rel="stylesheet"
+	th:href="@{/webjars/fancybox/jquery.fancybox.css}" />
+
+<link rel="shortcut icon" type="image/x-icon"
+	th:href="@{/img/favicon.ico}" />
+<link th:href="@{/css/tsgen.css(${applicationBuildTimestamp})}"
+	rel="stylesheet" />
+<link th:href="@{/css/tsdem.css(${applicationBuildTimestamp})}"
+	rel="stylesheet" />
+</head>
+
+<body th:with="pageCourriersActive='active'">
+
+	<div th:replace="fragments/header :: header"></div>
+
+	<div id="wrapper">
+
+		<div th:replace="fragments/sidebar :: sidebar"></div>
+
+		<!-- DEBUT CONTENU -->
+		<div id="page-content-wrapper">
+			<div class="breadcrumbContent">
+				<div class="breadcrumb">
+					<span class="breadcrumb-item active"> <a id="ariane0"
+						th:href="@{/}" class="breadcrumb-link">ACCUEIL</a>&nbsp;&gt;&nbsp;
+						<a id="ariane1" th:href="@{/gestion/courriers}"
+						class="breadcrumb-link">COURRIERS</a> &gt;
+					</span>
+				</div>
+				<div class="triangleTopright"></div>
+			</div>
+
+			<div class="container-fluid">
+
+				<div class="row">
+					<div class="col-xs-12">
+						<h1>Gestion du courrier</h1>
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-xs-12">
+						<div id="rechercheForm">
+							<div class="row">
+								<div class="col-xs-12">
+									<div class="panel panel-simple">
+										<h4 class="titre">Recherche</h4>
+										<div class="form-group">
+											<label for="txtRechercheCourriers">Saisissez un terme ou une
+												expression de recherche</label>
+											<div class="row">
+												<div class="col-xs-8">
+													<input type="text" th:value="${texte}" name="texte"
+														class="form-control" id="txtRechercheCourriers" title="" />
+												</div>
+												<div class="col-xs-4 nopadding">
+													<span class="btn btn-action ripple-effect"
+														id="btnRechercherCourriers"> <i
+														class="icon-action_chercher"></i>
+													</span> <span class="btn btn-action ripple-effect greyTooltip"
+														data-placement="right" data-html="true"
+														data-original-title="<p style='text-align: left;'>Recherche d'une expression exacte:<br/> &quot;pierre étudiant&quot;<br/>Recherche intégrant un second terme:<br/>pierre +étudiant<br/>Recherche excluant un terme:<br/>pierre -étudiant</p>"
+														data-toggle="tooltip"> <i class="icon-menu_aide"></i>
+													</span>
+												</div>
+											</div>
+
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-xs-12">
+						<div class="panel-group accordion" id="accordion" role="tablist"
+							aria-multiselectable="true">
+							<div class="panel panel-default">
+								<div class="panel-heading" role="tab" id="headingOne">
+									<h4 class="panel-title">
+										<a role="button" data-toggle="collapse"
+											data-parent="#accordion" href="#grilleCourriersEnAttente"
+											aria-expanded="true" aria-controls="grilleCourriersEnAttente"> <i
+											class="pannelState icon-action_accordeon-ouvert"></i>
+											COURRIERS EN ATTENTE D'IMPRESSION <span id="numberEnAttente"
+											class="badge info numberEnAttente"></span>
+										</a>
+									</h4>
+								</div>
+								<div id="grilleCourriersEnAttente" class="panel-collapse collapse in"
+									role="tabpanel" aria-labelledby="headingOne">
+									<div class="panel-body">
+										<table id="courriersEnAttente" class="table table-striped">
+											<thead>
+												<tr>
+													<th>IDENTIFIANT</th>
+													<th>DATE GENERATION</th>
+													<th>TYPE</th>
+													<th>IDENTIFIANT DEMANDE</th>
+													<th>ACTIONS</th>
+												</tr>
+											</thead>
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+
+				<div class="row">
+					<div class="col-xs-12">
+						<div class="panel-group accordion" role="tablist"
+							aria-multiselectable="true">
+							<div class="panel panel-default">
+								<div class="panel-heading" role="tab" id="headingTwo">
+									<h4 class="panel-title">
+										<a role="button" data-toggle="collapse"
+											data-parent="#accordion" href="#grilleCourriersImprimes"
+											aria-expanded="true" aria-controls="grilleCourriersImprimes"> <i
+											class="pannelState icon-action_accordeon-ouvert"></i>
+											COURRIERS IMPRIMÉS <span id="numberImprimes"
+											class="badge info"></span>
+										</a>
+									</h4>
+								</div>
+								<div id="grilleCourriersImprimes" class="panel-collapse collapse in"
+									role="tabpanel" aria-labelledby="headingTwo">
+									<div class="panel panel-body">
+										<table id="courriersImprimes" class="table table-striped">
+											<thead>
+												<tr>
+													<th>IDENTIFIANT</th>
+													<th>DATE GENERATION</th>
+													<th>TYPE</th>
+													<th>IDENTIFIANT DEMANDE</th>
+													<th>REFERENCE INTERNE</th>
+													<th>ACTIONS</th>
+												</tr>
+											</thead>
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</div>
+
+		</div>
+		<!-- FIN CONTENU -->
+
+	</div>
+
+	<div th:replace="fragments/footer :: footer"></div>
+
+
+	<div class="row">
+		<div id="print-box" style="display: none" class="container-fluid">
+			<div id="print-content">
+				<form id="form-print" action="#"
+					th:action="@{/gestion/courriers/print}" method="post">
+					<input type="hidden" id="demandeId" name="demandeId" /> <input
+						type="hidden" id="courrierId" name="courrierId" /> <span>Identifiant
+						de courrier :</span><br />
+					<textarea id="txtIdentifiantCourrier" name="refCourrier"
+						maxlength="128"></textarea>
+					<div class="row-mt-5">
+						<input id="btnValiderIdentifiantCourrier" type="submit" name="action"
+							value="Continuer" class="btn btn-action ripple-effect"
+							style="margin-top: 20px;" />
+					</div>
+				</form>
+			</div>
+
+		</div>
+	</div>
+
+
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+
+    $(document).ready(function() {
+
+		var statuts = /*[[${statuts}]]*/[];
+		var columnsTableAttente = [
+			{
+				"data" : "fichiers.name",
+				"keyword" : true,
+				render : function(data, type, element) {
+					return element.fichiers.name;
+				}
+			},
+			{
+				"data" : "fichiers.dateCreation",
+				"keyword" : false,
+				render : function(data, type, element) {
+					// On ne format pas en STRING la demande si l'accès à la donnée se fait pendant un SORT ou un TYPE
+					if (type === "sort" || type === "type") {
+						return data;
+					}
+					return moment(element.fichiers.dateCreation).format("DD/MM/YYYY");
+				}
+			},
+			{
+				"data" : "fichiers.statut",
+				"keyword" : true,
+				render : function(data, type, element) {
+					return statuts[element.fichiers.statut];
+				}
+			},
+			{
+				"data" : "fichiers.pkDemande",
+				"keyword" : false,
+				render : function(data, type, element) {
+					return "<a href='" + APP.getContextPath() + "/demandes/" + element.fichiers.pkDemande + "'><span class='identifiant-demande'>" + element.demandeJoinField.parent + "</span></a>";
+				}
+			},
+			{
+				"orderable" : false,
+				"keyword" : false,
+				render : function(data, type, element , meta) {
+					return '<a id="btnTelechargerCourrier' + meta.row + '" href="' + APP.getContextPath() + '/ws/file/get/' + element.fichiers.url + '" >' +
+							'<span class="btn btn-action ripple-effect greyTooltip" data-toggle="tooltip" data-placement="bottom" data-original-title="Télécharger" title=""> ' +
+							'<i class="icon-action_pdf"></i></span></a>' +
+							'' +
+							'<a id="btnValiderImpression' + meta.row + '" href="#" data-courrierid="' + element.fichiers.pkDemandeFile + '" data-demandeid="' + element.fichiers.pkDemande + '" class="print"> ' +
+							'<span class="btn btn-action ripple-effect greyTooltip" data-toggle="tooltip" data-placement="bottom" data-original-title="Valider l\'impression" title="">' +
+							'<i class="icon-action_expedie_ok"></i></span></a>';
+				}
+			}
+		];
+		var columnsTableImprimes = [
+			{
+				"data" : "fichiers.name",
+				"keyword" : true,
+				render : function(data, type, element) {
+					return element.fichiers.name;
+				}
+			},
+			{
+				"data" : "fichiers.dateCreation",
+				"keyword" : false,
+				render : function(data, type, element) {
+					// On ne format pas en STRING la demande si l'accès à la donnée se fait pendant un SORT ou un TYPE
+					if (type === "sort" || type === "type") {
+						return data;
+					}
+					return moment(element.fichiers.dateCreation).format("DD/MM/YYYY");
+				}
+			},
+			{
+				"data" : "fichiers.statut",
+				"keyword" : true,
+				render : function(data, type, element) {
+					return statuts[element.fichiers.statut];
+				}
+			},
+			{
+				"data" : "fichiers.pkDemande",
+				"keyword" : false,
+				render : function(data, type, element) {
+					return "<a href='" + APP.getContextPath() + "/demandes/" + element.fichiers.pkDemande + "'><span class='identifiant-demande'>" + element.demandeJoinField.parent + "</span></a>";
+				}
+			},
+			{
+				"data" : "fichiers.identifiant",
+				"keyword" : true,
+				render : function(data, type, element) {
+					return element.fichiers.identifiant;
+				}
+			},
+			{
+				"orderable" : false,
+				"keyword" : false,
+				render : function(data, type, element , meta) {
+					return '<a id="btnTelechargerCourrier' + meta.row + '" href="' + APP.getContextPath() + '/ws/file/get/' + element.fichiers.url + '" >' +
+							'<span class="btn btn-action ripple-effect greyTooltip" data-toggle="tooltip" data-placement="bottom" data-original-title="Télécharger" title=""> ' +
+							'<i class="icon-action_pdf"></i></span></a>';
+				}
+			}
+		];
+		var buildSearchDatafunction = function(params, imprime) {
+
+			params.texte = $("#txtRechercheCourriers").val();
+
+			//Suppression de toutes les valeurs renvoyées par datatable
+			params.columns = null;
+			params.search = null;
+
+			//conversion des params pour Pageable Spring MVC
+			params.size = params.length;
+			params.page = params.start / params.length;
+
+			params.imprime = imprime;
+
+			var keyword = '';
+			var col = columnsTableAttente[params.order[0].column];
+			if(col.keyword) {
+				keyword = '.keyword'
+			}
+			//sort=identifiant,desc
+			params.sort = columnsTableAttente[params.order[0].column].data + keyword + "," + params.order[0].dir;
+			console.log("params", params);
+		};
+
+		// Prevent double form submission
+        $("form").submit(function (e) {
+            $('form input[type=submit]').prop('disabled',true);
+            return true;
+        });
+
+		var rebindClicks = function () {
+			$(".print").click(function(e) {
+				e.preventDefault();
+
+				var courrierId = $(this).data("courrierid");
+				var demandeId = $(this).data("demandeid");
+
+				$.fancybox.open({
+					src: '#print-box',
+					type: 'inline',
+					btnTpl: {
+						smallBtn: '<button id="btnFermerPopinIdentifiant" data-fancybox-close="" class="fancybox-close-small" title="Fermer"></button>'
+					}
+				});
+
+				$("#demandeId").val(demandeId);
+				$("#courrierId").val(courrierId);
+
+				return false;
+
+			});
+		};
+
+		$('#btnRechercherCourriers').click(function(e) {
+            e.preventDefault();
+            filterTable($("#txtRechercheCourriers").val());
+        });
+
+		var buildSearchDatafunctionEnAttente = function(params) {
+			buildSearchDatafunction(params, false);
+		};
+
+		var buildSearchDatafunctionImprimes = function(params) {
+			buildSearchDatafunction(params, true);
+		};
+
+		// Courriers en attente
+		var configurationDataTableCourrierAttente = APP.getConfigurationDataTableCourriers(columnsTableAttente, false);
+		configurationDataTableCourrierAttente.ajax.data = buildSearchDatafunctionEnAttente;
+		$('#courriersEnAttente').DataTable(configurationDataTableCourrierAttente);
+
+		// Courriers a imprimer
+		var configurationDataTableCourrierImprimes = APP.getConfigurationDataTableCourriers(columnsTableImprimes, true);
+		configurationDataTableCourrierImprimes.ajax.data = buildSearchDatafunctionImprimes;
+		$('#courriersImprimes').DataTable(configurationDataTableCourrierImprimes);
+
+		$('#courriersEnAttente').on( 'draw.dt', function () {
+			rebindClicks();
+		});
+
+        $('.dataTables_filter').hide();
+
+        $("#txtRechercheCourriers").on('keypress',function(e) {
+            if(e.which == 13) {
+                e.preventDefault();
+                filterTable($("#txtRechercheCourriers").val());
+            }
+        });
+
+        var filterTable = function(text) {
+            // check if user entered a date with format dd/mm/yyyy and convert it to elastic search mapped format
+            var regexDate = /^(0?[1-9]|[12][0-9]|3[01])\/(0?[1-9]|1[012])\/\d{4}$/;
+            if (text.match(regexDate)) {
+	            var dateFormatted = moment(text, 'DD/MM/YYYY').format('YYYY-MM-DD');
+	            if (dateFormatted && dateFormatted !== 'Invalid date') {
+	                text = dateFormatted;
+	            }
+            }
+
+			$('#courriersEnAttente').DataTable().ajax.reload(null, true);
+			$('#courriersImprimes').DataTable().ajax.reload(null, true);
+        }
+    });
+
+    /*]]>*/
+</script>
+
+</body>
+</html>

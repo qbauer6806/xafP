@@ -1,0 +1,8 @@
+{
+  "name": "accesTeleservice",
+  "componentInstances": [
+    {
+      "name": "mcCharteTshiPageAcces"
+    }
+  ]
+}

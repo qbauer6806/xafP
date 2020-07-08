@@ -1,0 +1,14 @@
+---
+ansible_port: 60155
+ansible_host: 190.1.251.157
+
+tcp_checks:
+  - name: zabbix-agent
+    host: ${tscode}-frnt1-0
+    port: 10050
+  - name: ${tscode}-frontserver-jmx
+    host: ${tscode}-frnt1-0
+    port: 20${TSPORT}1
+  - name: ${tscode}-frontserver-rmi
+    host: ${tscode}-frnt1-0
+    port: 20${TSPORT}2

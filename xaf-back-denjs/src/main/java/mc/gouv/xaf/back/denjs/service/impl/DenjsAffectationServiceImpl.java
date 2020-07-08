@@ -51,6 +51,19 @@ public class DenjsAffectationServiceImpl implements DenjsAffectationService {
 	private DemandesDataService demandesDataService;
 	
 	@Override
+	public DenjsAffectationAgentDTO getAffectationAgent(String matricule) {
+		List<DenjsAffectationAgentDTO> liste = getAffectationsAgents();
+		for (DenjsAffectationAgentDTO aff : liste) {
+			if (matricule != null && aff.getAgentMatricule() != null) {
+				if (matricule.equals(aff.getAgentMatricule())) {
+					return aff;
+				}
+			}
+		}
+		return null;
+	}
+	
+	@Override
 	public List<DenjsAffectationAgentDTO> getAffectationsAgents() {
 		LOGGER.info("DenjsAffectationServiceImpl.getAffectationsAgents()");
 		

@@ -367,7 +367,7 @@ public class DemandeEsTransformer {
         dto.setCourrierRefInterne(bo.getCourrierRefInterne());
 
         // Mapper les données de demande
-        if (addDataField && bo.getData() != null && !bo.getData().isEmpty()) {
+        if (addDataField) {
 
             ObjectMapper mapper = new ObjectMapper();
             JsonNode data = mapper.createObjectNode();

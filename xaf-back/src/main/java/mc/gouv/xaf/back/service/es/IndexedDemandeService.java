@@ -46,7 +46,7 @@ public interface IndexedDemandeService extends DemandesService {
     DemandesFacets getDemandesFacets(DemandeRechercheDTO demandeRecherche);
 
     /**
-     * Méthode permettant de faire la réindexation des demandes dans elasticsearch
+     * Méthode permettant de faire la réindexation Globale (Demandes + Fichiers) dans elasticsearch
      * 
      * @return nombre de demandes reindexées
      * 
@@ -55,7 +55,19 @@ public interface IndexedDemandeService extends DemandesService {
      * @throws SAXException Exception SAX
      * @throws FileConnectionException Exception lors de la connextion à File afn de récupérer la piece jointe à indexer
      */
-    Long reindex() throws IOException, SAXException, TikaException;
+    Long reindex() throws IOException;
+
+    /**
+     * Méthode permettant de faire la réindexation des demandes dans elasticsearch
+     *
+     * @return nombre de demandes reindexées
+     *
+     * @throws IOException Exception I/O
+     * @throws TikaException Exception du parsing de la piece jointe
+     * @throws SAXException Exception SAX
+     * @throws FileConnectionException Exception lors de la connextion à File afn de récupérer la piece jointe à indexer
+     */
+    Long reindexDemandes() throws IOException;
 
     /**
      * Méthode permettant de récupérer une demande de la base et de l'indexer

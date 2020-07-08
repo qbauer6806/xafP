@@ -2,6 +2,7 @@ package mc.gouv.xaf.backweb.ws;
 
 import java.util.Map;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
@@ -10,6 +11,7 @@ import mc.gouv.xaf.back.service.excel.ExcelExportModelProvider;
 import mc.gouv.xaf.back.service.excel.ExcelExportService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 
+import mc.gouv.xaf.shared.dto.ExcelRechercheDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,9 +58,20 @@ public class DemandeExportController extends AbstractController {
             response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
             response.setHeader("Content-disposition", "attachment; filename=" +
                     demarchesService.getDemarche(demarcheId).getIdentifiantPrefixe() + "_Donnees_Stat_" + AfBackUtils.generateFileDateAndTimeSuffix() + ".xlsx");
+
+            // Création du cookie pour notifier du téléchargement terminé (2 minutes max age)
+            Cookie telechargementCookie = new Cookie("exportEnCours", "0");
+            telechargementCookie.setMaxAge(60 * 2);
+            telechargementCookie.setSecure(false);
+            telechargementCookie.setPath("/");
+            response.addCookie(telechargementCookie);
+
+            ExcelRechercheDTO excelRechercheDTO = new ExcelRechercheDTO();
+            excelRechercheDTO.setCreationStartDate(creationStartDate);
+            excelRechercheDTO.setCreationEndDate(creationEndDate);
             
             LOGGER.info("Constitution du modèle pour la génération Excel...");
-            Map<String, Object> model = excelExportModelProvider.getModel(creationStartDate, creationEndDate);
+            Map<String, Object> model = excelExportModelProvider.getModel(excelRechercheDTO);
             
             LOGGER.info("Appel export Excel...");
             excelExportService.exportExcel("demandes.xlsx", model, response.getOutputStream());

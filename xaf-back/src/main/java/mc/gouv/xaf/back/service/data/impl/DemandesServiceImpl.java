@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,8 +22,10 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -365,18 +368,98 @@ public class DemandesServiceImpl implements DemandesService {
 
         List<DemandeBO> demandes;
         if (startDate != null && endDate != null) {
-            demandes = demandesRepository.findAllByDemarcheIdAndDateCreationBetween(demarcheId, startDate, endDate);
+            demandes = demandesRepository.findAllByDateCreationBetween(startDate, endDate);
         } else if (startDate != null) {
-            demandes = demandesRepository.findAllByDemarcheIdAndDateCreationFrom(demarcheId, startDate);
+            demandes = demandesRepository.findAllByDateCreationFrom(startDate);
         } else if (endDate != null) {
-            demandes = demandesRepository.findAllByDemarcheIdAndDateCreationUntil(demarcheId, endDate);
+            demandes = demandesRepository.findAllByDateCreationUntil(endDate);
         } else {
-            demandes = getAllDemarchesBoById(demarcheId);
+            demandes = demandesRepository.findAll();
         }
 
         LOGGER.info("Transformation bo -> dto ...");
 
         return DemandesTransformer.bo2Dto(demandes);
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<DemandeDTO> getAllDemandesFilteredByDateAndStatut(String demarcheId, Date startDate, Date endDate, String statut) {
+
+        LOGGER.info("Récupération en base des demandes filtrées par date et par statut...");
+
+        List<DemandeBO> demandes;
+        if (startDate != null && endDate != null) {
+            demandes = demandesRepository.findAllByDateCreationBetweenAndDernierStatut(startDate, endDate, statut);
+        } else if (startDate != null) {
+            demandes = demandesRepository.findAllByDateCreationFromAndDernierStatut(startDate, statut);
+        } else if (endDate != null) {
+            demandes = demandesRepository.findAllByDateCreationUntilAndDernierStatut(endDate, statut);
+        } else {
+            demandes = demandesRepository.findAllByDernierStatut_Libelle(statut);
+        }
+
+        LOGGER.info("Transformation bo -> dto ...");
+
+        return DemandesTransformer.bo2Dto(demandes);
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<DemandeDTO> getAllDemandesFilteredByDateAcceptationAndStatut(String demarcheId, Date startDate, Date endDate, String statut) {
+
+        LOGGER.info("Récupération en base des demandes filtrées par date et par statut...");
+
+        final String DATE_ACCEPTATION = "dateValidationDemande";
+
+        List<DemandeBO> demandes = demandesRepository.findAllByDernierStatut_Libelle(statut);
+
+        // Dans le cas où on ne séléctionne pas de dates on retourne toute la list
+        if (startDate == null && endDate == null) {
+            return DemandesTransformer.bo2Dto(demandes);
+        }
+
+        List<DemandeBO> demandesFiltres = new ArrayList<>();
+
+        for (DemandeBO demande : demandes) {
+            if (demande.getData() != null) {
+                // Recherche de l'attribut dateAcceptation
+                for (DemandesDataBO dataBO : demande.getData()) {
+                    // Récupération de la date d'acceptation
+                    if (DATE_ACCEPTATION.equals(dataBO.getKey())) {
+                        boolean ajouterDemande = false;
+                        try {
+                            Date dateAComparer = AfBackUtils.convertStartDate(dataBO.getValue());
+                            // Ajouter une heure pour éviter l'exclusion sur la date de départ
+                            dateAComparer = DateUtils.addHours(dateAComparer, 1);
+                            if (startDate != null && endDate != null) {
+                                ajouterDemande = startDate.before(dateAComparer) && endDate.after(dateAComparer);
+                            } else if (startDate != null) {
+                                ajouterDemande = startDate.before(dateAComparer);
+                            } else {
+                                ajouterDemande = endDate.after(dateAComparer);
+                            }
+                        } catch (ParseException e) {
+                            LOGGER.error("Problème lors de la conversion de la date d'accepation", e);
+                        }
+
+                        if (ajouterDemande) {
+                            demandesFiltres.add(demande);
+                        }
+                    }
+                }
+            }
+        }
+
+        LOGGER.info("Transformation bo -> dto ...");
+
+        return DemandesTransformer.bo2Dto(demandesFiltres);
 
     }
 

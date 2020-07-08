@@ -67,22 +67,15 @@ public class VerificationIbanServlet extends AbstractAfServlet {
             else {
 	            ObjectMapper mapper = new ObjectMapper();
 	            TgfApiIbanResponseDTO responsePojo = mapper.readValue(responseContent, TgfApiIbanResponseDTO.class);
-	            List<TgfApiIbanResponseErreurDTO> newErreurList = new ArrayList<TgfApiIbanResponseErreurDTO>();
-	            for (TgfApiIbanResponseErreurDTO erreur : responsePojo.getErreurs()) {
-	            	if (!"mc.gouv.tgf.api.iban.iban.codePaysIbanBicNonCorrespondant".equals(erreur.getCode())) {
-	            		newErreurList.add(erreur);
-	            	}
-	            }
 	            
-	            // Si après suppression de l'erreur codePaysIbanBicNonCorrespondant, il ne reste plus d'erreurs, alors remettre un statut 200
-	            if (newErreurList.size() == 0) {
+	            if (responsePojo.getErreurs().length == 0) {
 	            	LOGGER.info("Final response OK");
 	            	response.setStatus(HttpStatus.SC_OK);
 	            	IOUtils.write("", response.getOutputStream());
 	            }
 	            else {
 	            	LOGGER.info("Final response NOK, with error list");
-		            responsePojo.setErreurs(newErreurList.toArray(new TgfApiIbanResponseErreurDTO[newErreurList.size()]));
+		            responsePojo.setErreurs(responsePojo.getErreurs());
 		            String newResponse = mapper.writeValueAsString(responsePojo);
 		            
 		            IOUtils.copy(new ByteArrayInputStream(newResponse.getBytes()), response.getOutputStream());	

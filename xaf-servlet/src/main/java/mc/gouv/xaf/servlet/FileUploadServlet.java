@@ -115,7 +115,14 @@ public class FileUploadServlet extends AbstractAfServlet {
             LOGGER.info("Vérification de la taille...");
             // Vérification de la taille du fichier
             Part part0 = request.getParts().iterator().next();
-            int tailleMaxFichier = Integer.parseInt(getPropriete(MAX_TAILLE_FICHIER).getValue());
+            PropertiesDTO propMaxTailleFichiers = getPropriete(MAX_TAILLE_FICHIER);
+            PropertiesDTO propActivationVscan = getPropriete(VSCAN_ACTIVATION);
+            if (propMaxTailleFichiers == null || propActivationVscan == null) {
+                AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_INTERNAL_SERVER_ERROR,
+                        "Une propriété obligatoire semble ne pas être définie");
+                return;
+            }
+            int tailleMaxFichier = Integer.parseInt(propMaxTailleFichiers.getValue());
             // transformation B en MB
             int tailleMaxFichierMB = tailleMaxFichier * 1000000;
             if (part0.getSize() > tailleMaxFichierMB) {
@@ -127,7 +134,7 @@ public class FileUploadServlet extends AbstractAfServlet {
 
             // Appel à VSCAN afin d'effectuer le scan antivirus
             // Constitution de la requête
-            boolean activationVscan = Boolean.parseBoolean(getPropriete(VSCAN_ACTIVATION).getValue());
+            boolean activationVscan = Boolean.parseBoolean(propActivationVscan.getValue());
             LOGGER.info("Activation de VSCAN: " + activationVscan);
 
             if (activationVscan) {
@@ -296,7 +303,8 @@ public class FileUploadServlet extends AbstractAfServlet {
 
     private PropertiesDTO getPropriete(String propriete) {
         List<PropertiesDTO> properties = getAfApiClient().getFrontProperties();
-         return properties.stream().filter(prop -> prop.getKey().equals(propriete)).collect(Collectors.toList()).get(0);
+        List<PropertiesDTO> propFiltrees = properties.stream().filter(prop -> prop.getKey().equals(propriete)).collect(Collectors.toList());
+        return (propFiltrees.size() > 0) ? propFiltrees.get(0) : null;
     }
 
     private synchronized static void ajouterCompteurUpload(HttpSession session) {

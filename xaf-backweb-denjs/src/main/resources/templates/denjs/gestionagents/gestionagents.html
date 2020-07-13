@@ -126,7 +126,11 @@
                             value="annuler">
                         annuler
                     </button>
-                    <button id="saveBtn" class="btn btn-action ripple-effect" type="submit" name="action"
+                    <button id="saveBtn0" class="btn btn-action ripple-effect" name="action"
+                            value="valider">
+                        valider
+                    </button>
+                    <button id="saveBtn" class="btn btn-action ripple-effect" style="display: none" type="submit" name="action"
                             value="valider">
                         valider
                     </button>
@@ -183,6 +187,15 @@
             e.preventDefault();
             $.fancybox.close();
             return true;
+        });
+        
+        $("#saveBtn0").click(function(e){
+            $("#saveBtn0").prop('disabled', true);
+            e.preventDefault();
+        	$.fancybox.close();
+        	//$('#editionPropertiesForm').submit();
+        	$("#saveBtn").click();
+        	return false;
         });
 
     });

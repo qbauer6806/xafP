@@ -123,7 +123,7 @@
 								Périodes d'ouverture
 							</a>
 						</li>
-						<li th:if="${AfBackUtils.getDemarcheCanHandleDenjsGestionAgents()}">
+						<li th:if="${AfBackUtils.getDemarcheCanHandleDenjsGestionAgents()}" sec:authorize="hasRole('ROLE_PARAMETRAGE')">
 							<a id="menuGestionAgents" th:href="@{/denjs/gestion/agents}">
 								<div class="whiteBullet"></div>
 								Gestion des agents

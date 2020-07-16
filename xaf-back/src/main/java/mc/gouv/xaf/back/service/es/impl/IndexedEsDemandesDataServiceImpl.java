@@ -50,6 +50,6 @@ public class IndexedEsDemandesDataServiceImpl extends DemandesDataServiceImpl {
 
     private void indexDemandeData(String demarcheId, Integer demandeId) throws Exception {
         DemandeDTO demandeDTO = indexedDemandeService.getDemande(demarcheId, demandeId);
-        indexedDemandeService.sendToTopic(demandeDTO, false);
+        indexedDemandeService.indexElement(demandeDTO, false);
     }
 }

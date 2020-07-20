@@ -50,6 +50,6 @@ public class IndexedEsDemandesStatutsServiceImpl extends DemandesStatutsServiceI
 
     private void indexDemandeStatus(DemandeDTO demandeDTO) throws Exception {
         LOGGER.info("Indexation de Statuts de la demande " + demandeDTO.getPkDemandes());
-        indexedDemandeService.sendToTopic(demandeDTO, false);
+        indexedDemandeService.indexElement(demandeDTO, false);
     }
 }

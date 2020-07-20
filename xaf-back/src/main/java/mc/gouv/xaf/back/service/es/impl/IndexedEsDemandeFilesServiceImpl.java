@@ -28,7 +28,7 @@ public class IndexedEsDemandeFilesServiceImpl extends DemandeFilesServiceImpl {
         super.saveFile(demandeFile, demarcheId, pkDemande);
         DemandeBO demandeBo = indexedDemandeService.getDemandeBo(demarcheId, pkDemande);
         DemandeDTO demandeDto = DemandesTransformer.bo2Dto(demandeBo);
-        indexedDemandeService.sendToTopic(demandeFile, demandeDto);
+        indexedDemandeService.indexElement(demandeFile, demandeDto);
 
     }
 

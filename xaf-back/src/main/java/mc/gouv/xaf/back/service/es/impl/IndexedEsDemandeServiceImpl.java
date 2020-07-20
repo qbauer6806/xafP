@@ -687,7 +687,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     }
 
     @Override
-    public void sendToTopic(DemandeDTO demandeDTO, boolean indexFiles)
+    public void indexElement(DemandeDTO demandeDTO, boolean indexFiles)
             throws IOException {
 
         if (demandeDTO != null) {
@@ -714,7 +714,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     }
 
     @Override
-    public void sendToTopic(DemandeFileDTO demandeFileDTO, DemandeDTO demandeDTO)
+    public void indexElement(DemandeFileDTO demandeFileDTO, DemandeDTO demandeDTO)
             throws IOException {
 
         if (demandeFileDTO != null) {
@@ -731,7 +731,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     }
 
     @Override
-    public void sendToTopic(DemandeFileDTO[] demandeFileDTOList, DemandeDTO demandeDTO)
+    public void indexElement(DemandeFileDTO[] demandeFileDTOList, DemandeDTO demandeDTO)
             throws IOException {
 
         if (demandeFileDTOList != null) {
@@ -1865,7 +1865,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
         DemandeDTO demandeDto = super.saveDemande(demande, premierStatut);
         try {
-            sendToTopic(demandeDto, true);
+            indexElement(demandeDto, true);
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
             throw new AfIndexingException(e.getMessage(), e);
@@ -1916,7 +1916,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         DemandeDTO demandeDTO = super.cloneDemande(demarcheId, pkDemande);
 
         try {
-            sendToTopic(demandeDTO, true);
+            indexElement(demandeDTO, true);
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
             throw new AfIndexingException(e.getMessage(), e);

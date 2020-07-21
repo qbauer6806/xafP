@@ -46,6 +46,15 @@ public interface PropertiesService {
     List<PropertiesDTO> getAdminsFonctionnelsProperties();
 
     /**
+     * Récupérer une Property par sa clé
+     *
+     * @param demarcheId l'id de la démarche
+     * @param key la clé de la propriété à récupérer
+     * @return le PropertiesDTO correspondant
+     */
+    PropertiesDTO getProperty(String demarcheId, String key);
+
+    /**
      * Ajoute ou mets à jour la valeur d'une Properties
      *
      * @return le dto de la propriété sauvée

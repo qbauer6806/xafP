@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import mc.gouv.Static;
 import mc.gouv.logon.apiclient.LogonApiClient;
 import mc.gouv.logon.shared.User;
 import mc.gouv.xaf.back.denjs.dto.DenjsAffectationAgentDTO;
@@ -61,8 +62,8 @@ public class DenjsGestionAgentsController {
         List<User> list = null;
 
         try {
-        	String toRemove = "http://linuxdev1/logon/rest";
-            LogonApiClient logonApiClient = new LogonApiClient(toRemove);
+        	//String toRemove = "http://linuxdev1/logon/rest";
+            LogonApiClient logonApiClient = new LogonApiClient(Static.getValue(LogonApiClient.DEFAULT_GOUV_PROPERTY_URL));
             list = logonApiClient.getRessUser().getListUserByCodeAppli(gouvPropertiesResolver.getDemarcheId());
             
             List<DenjsAgentEtablissementDTO> agents = new ArrayList<DenjsAgentEtablissementDTO>();

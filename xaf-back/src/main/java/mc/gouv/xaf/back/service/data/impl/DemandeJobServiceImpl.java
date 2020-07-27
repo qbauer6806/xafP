@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 
+import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -39,6 +40,9 @@ public class DemandeJobServiceImpl implements DemandeJobService {
 
     @Inject
     private ApplicationContext context;
+
+    @Inject
+    private DemandesStatutsService demandesStatutsService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandeJobServiceImpl.class);
 
@@ -84,6 +88,9 @@ public class DemandeJobServiceImpl implements DemandeJobService {
             if (job.getJobName().equals(JobNamesEnum.REINDEXATION_DEMANDES)) {
                 Long demCount = indexedDemandeService.reindexDemandes();
                 msg = demCount + " demandes ont été reindéxées";
+            }
+            if (job.getJobName().equals(JobNamesEnum.RAFRAICHISSEMENT_STATUS)) {
+                msg = demandesStatutsService.refreshStatuts();
             }
 
             context.getBean(DemandeJobServiceImpl.class).logSuccess(job.getId(), msg);

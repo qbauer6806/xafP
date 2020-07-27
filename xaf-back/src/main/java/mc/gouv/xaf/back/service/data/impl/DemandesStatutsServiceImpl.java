@@ -139,4 +139,13 @@ public class DemandesStatutsServiceImpl implements DemandesStatutsService {
         return DemandesStatutsTransformer.bo2Dto(new ArrayList<DemandesStatutsBO>(demandeBo.getStatuts()));
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String refreshStatuts() {
+        // Le comportement par défaut ne rafraichit aucune demande
+        return "Aucun statut n'est à rafraîchir.";
+    }
+
 }

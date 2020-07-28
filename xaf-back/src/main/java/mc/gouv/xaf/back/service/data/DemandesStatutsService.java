@@ -60,12 +60,4 @@ public interface DemandesStatutsService {
      */
     List<DemandeStatutDTO> getStatuts(String demarcheId, Integer demandeId);
 
-    /**
-     * Job Permettant de rafraichir le statut des demandes
-     * (à implémenter si besoin dans la démarche cf. CVTCVLC)
-     *
-     * @return Un message indiquant le succès ou l'échec de l'update.
-     */
-    String refreshStatuts();
-
 }

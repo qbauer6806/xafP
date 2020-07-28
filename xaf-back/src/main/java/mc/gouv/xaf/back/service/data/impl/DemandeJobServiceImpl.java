@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 
+import mc.gouv.xaf.back.service.data.DemandesStatutsRefreshService;
 import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +43,7 @@ public class DemandeJobServiceImpl implements DemandeJobService {
     private ApplicationContext context;
 
     @Inject
-    private DemandesStatutsService demandesStatutsService;
+    private DemandesStatutsRefreshService demandesStatutsRefreshService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandeJobServiceImpl.class);
 
@@ -90,7 +91,7 @@ public class DemandeJobServiceImpl implements DemandeJobService {
                 msg = demCount + " demandes ont été reindéxées";
             }
             if (job.getJobName().equals(JobNamesEnum.RAFRAICHISSEMENT_STATUS)) {
-                msg = demandesStatutsService.refreshStatuts();
+                msg = demandesStatutsRefreshService.refreshStatuts();
             }
 
             context.getBean(DemandeJobServiceImpl.class).logSuccess(job.getId(), msg);

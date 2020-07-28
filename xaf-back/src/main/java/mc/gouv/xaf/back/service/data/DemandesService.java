@@ -203,6 +203,12 @@ public interface DemandesService {
      */
     List<DemandeDTO> getAllDemandesFilteredByDateAcceptationAndStatut(String demarcheId, Date startDate, Date endDate, String statut);
 
+    /**
+     * Récupère les demandes qui ont pour dernier statut celui en paramètre
+     * @param statut le statut à filtrer
+     * @return une liste de demandes ayant le même statut.
+     */
+    List<DemandeDTO> getAllDemandesFilteredByStatut(String statut);
 
 	/**
 	 * Retourne une demande en ayant préalablement filtré les fichiers pour ne remonter que ceux à destination du FRONT

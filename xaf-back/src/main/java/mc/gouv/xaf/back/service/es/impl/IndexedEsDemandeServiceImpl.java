@@ -1873,7 +1873,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
         try {
             sendToTopic(demandeDto, true);
-        } catch (IOException e) {
+        } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
             EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("méthode saveDemande()", demandeDto, e);
             applicationEventPublisher.publishEvent(esErrorEventDTO);
@@ -1892,7 +1892,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
         try {
             indexDemande(demandeDTO);
-        } catch (TikaException e) {
+        } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
             EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("méthode updateDemande()", demandeDTO, e);
             applicationEventPublisher.publishEvent(esErrorEventDTO);

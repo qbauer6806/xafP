@@ -10,6 +10,7 @@ import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,7 +65,7 @@ public class EsTransactionErrorsHandler {
         PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE);
 
         if (propertiesDTO.getValue() != null) {
-            String[] adresses = propertiesDTO.getValue().split(",");
+            String[] adresses = propertiesDTO.getValue().trim().split(",");
             // Composition du mail
             Map<String, Object> model = new HashMap<>();
             model.put("errorEvent", errorEventDTO);
@@ -87,22 +88,34 @@ public class EsTransactionErrorsHandler {
         return emailInfo;
     }
 
-    public static EsErrorEventDTO createErrorEvent(String contexte, DemandeDTO demandeDTO) {
+    public static EsErrorEventDTO createErrorEvent(String contexte, DemandeDTO demandeDTO, Exception e) {
         EsErrorEventDTO errorEventDTO = new EsErrorEventDTO();
         errorEventDTO.setContexte(contexte);
         errorEventDTO.setDateTransaction(LocalDateTime.now());
         errorEventDTO.setDemandeId(demandeDTO.getPkDemandes());
         errorEventDTO.setDemarcheId(demandeDTO.getDemarcheId());
         errorEventDTO.setIdentifiantDemande(demandeDTO.getIdentifiant());
+        errorEventDTO.setException(convertExceptionToHtmlString(e));
         return errorEventDTO;
     }
 
-    public static EsErrorEventDTO createErrorEvent(String contexte, String demarcheId, Integer demandeId) {
+    public static EsErrorEventDTO createErrorEvent(String contexte, String demarcheId, Integer demandeId, Exception e) {
         EsErrorEventDTO errorEventDTO = new EsErrorEventDTO();
         errorEventDTO.setContexte(contexte);
         errorEventDTO.setDateTransaction(LocalDateTime.now());
         errorEventDTO.setDemandeId(demandeId);
         errorEventDTO.setDemarcheId(demarcheId);
+        errorEventDTO.setException(convertExceptionToHtmlString(e));
         return errorEventDTO;
+    }
+
+    private static String convertExceptionToHtmlString(Exception e) {
+        // Truncate à 3000 caractères car les mails doivent avoir < 3900 chars
+        String strException = ExceptionUtils.getStackTrace(e);
+        strException = strException.replace("\n", "<br/>").replace("\t", "&nbsp;&nbsp;");
+        if (strException.length() > 3000) {
+            strException = "...<br/>" + strException.substring(strException.length() - 3000);
+        }
+        return strException;
     }
 }

@@ -1870,13 +1870,13 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     public DemandeDTO saveDemande(DemandeDTO demande, String premierStatut) throws Exception {
 
         DemandeDTO demandeDto = super.saveDemande(demande, premierStatut);
-        EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("méthode saveDemande()", demandeDto);
-        applicationEventPublisher.publishEvent(esErrorEventDTO);
 
         try {
             sendToTopic(demandeDto, true);
         } catch (IOException e) {
             LOGGER.error(e.getMessage(), e);
+            EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("méthode saveDemande()", demandeDto, e);
+            applicationEventPublisher.publishEvent(esErrorEventDTO);
             throw new AfIndexingException(e.getMessage(), e);
         }
         return demandeDto;
@@ -1889,13 +1889,13 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     public DemandeDTO updateDemande(DemandeDTO demande, boolean partialUpdate) throws IOException, SAXException {
 
         DemandeDTO demandeDTO = super.updateDemande(demande, partialUpdate);
-        EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("méthode updateDemande()", demandeDTO);
-        applicationEventPublisher.publishEvent(esErrorEventDTO);
 
         try {
             indexDemande(demandeDTO);
         } catch (TikaException e) {
             LOGGER.error(e.getMessage(), e);
+            EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("méthode updateDemande()", demandeDTO, e);
+            applicationEventPublisher.publishEvent(esErrorEventDTO);
             throw new AfIndexingException(e.getMessage(), e);
         }
         return demandeDTO;
@@ -1910,11 +1910,16 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     public void deleteDemande(String demarcheId, Integer demandeId) throws JsonProcessingException {
 
         super.deleteDemande(demarcheId, demandeId);
-        EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("méthode deleteDemande()", demarcheId, demandeId);
-        applicationEventPublisher.publishEvent(esErrorEventDTO);
 
-        Optional<DemandeBO> demandeBoOp = demandesRepository.findById(demandeId);
-        demandeBoOp.ifPresent(demandeBO -> demandeEsRepository.deleteById(demandeBO.getIdentifiant()));
+        try {
+            Optional<DemandeBO> demandeBoOp = demandesRepository.findById(demandeId);
+            demandeBoOp.ifPresent(demandeBO -> demandeEsRepository.deleteById(demandeBO.getIdentifiant()));
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage(), e);
+            EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("méthode updateDemande()", demarcheId, demandeId, e);
+            applicationEventPublisher.publishEvent(esErrorEventDTO);
+            throw new AfIndexingException(e.getMessage(), e);
+        }
     }
 
     /**
@@ -1927,15 +1932,14 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      */
     @Override
     public DemandeDTO cloneDemande(String demarcheId, Integer pkDemande) {
-
         DemandeDTO demandeDTO = super.cloneDemande(demarcheId, pkDemande);
-        EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("méthode cloneDemande()", demandeDTO);
-        applicationEventPublisher.publishEvent(esErrorEventDTO);
 
         try {
             sendToTopic(demandeDTO, true);
         } catch (Exception e) {
             LOGGER.error(e.getMessage(), e);
+            EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("méthode cloneDemande()", demandeDTO, e);
+            applicationEventPublisher.publishEvent(esErrorEventDTO);
             throw new AfIndexingException(e.getMessage(), e);
         }
 

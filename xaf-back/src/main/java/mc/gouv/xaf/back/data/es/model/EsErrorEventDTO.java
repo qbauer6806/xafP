@@ -14,6 +14,8 @@ public class EsErrorEventDTO {
 
     private String contexte;
 
+    private String exception;
+
     public String getIdentifiantDemande() {
         return identifiantDemande;
     }
@@ -52,5 +54,13 @@ public class EsErrorEventDTO {
 
     public void setContexte(String contexte) {
         this.contexte = contexte;
+    }
+
+    public String getException() {
+        return exception;
+    }
+
+    public void setException(String exception) {
+        this.exception = exception;
     }
 }

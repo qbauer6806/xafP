@@ -22,6 +22,7 @@ import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.AccessService;
 import mc.gouv.xaf.back.service.data.impl.DemandesServiceImpl;
 import mc.gouv.xaf.back.service.es.IndexedDemandeService;
+import mc.gouv.xaf.back.service.es.handlers.EsTransactionErrorsHandler;
 import mc.gouv.xaf.back.service.es.transformer.DemandeEsTransformer;
 import mc.gouv.xaf.back.service.pdf.PdfTypeEnum;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
@@ -61,6 +62,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Page;
@@ -121,6 +123,10 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     public static final String COURRIER_FILE_HIGHLIGHT_AND_FACET_PREFIX = "courrier.";
     public static final String FILE_PROPERTIES_PREFIX = "fichiers.";
     private static final Logger LOGGER = LoggerFactory.getLogger(IndexedEsDemandeServiceImpl.class);
+
+    @Autowired
+    private ApplicationEventPublisher applicationEventPublisher;
+
     @Autowired
     IndexedDemandeService demandesService;
     @Inject
@@ -1864,6 +1870,9 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     public DemandeDTO saveDemande(DemandeDTO demande, String premierStatut) throws Exception {
 
         DemandeDTO demandeDto = super.saveDemande(demande, premierStatut);
+        EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("méthode saveDemande()", demandeDto);
+        applicationEventPublisher.publishEvent(esErrorEventDTO);
+
         try {
             sendToTopic(demandeDto, true);
         } catch (IOException e) {
@@ -1879,14 +1888,17 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     @Override
     public DemandeDTO updateDemande(DemandeDTO demande, boolean partialUpdate) throws IOException, SAXException {
 
-        DemandeDTO dto = super.updateDemande(demande, partialUpdate);
+        DemandeDTO demandeDTO = super.updateDemande(demande, partialUpdate);
+        EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("méthode updateDemande()", demandeDTO);
+        applicationEventPublisher.publishEvent(esErrorEventDTO);
+
         try {
-            indexDemande(dto);
+            indexDemande(demandeDTO);
         } catch (TikaException e) {
             LOGGER.error(e.getMessage(), e);
             throw new AfIndexingException(e.getMessage(), e);
         }
-        return dto;
+        return demandeDTO;
     }
 
     /**
@@ -1898,6 +1910,9 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     public void deleteDemande(String demarcheId, Integer demandeId) throws JsonProcessingException {
 
         super.deleteDemande(demarcheId, demandeId);
+        EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("méthode deleteDemande()", demarcheId, demandeId);
+        applicationEventPublisher.publishEvent(esErrorEventDTO);
+
         Optional<DemandeBO> demandeBoOp = demandesRepository.findById(demandeId);
         demandeBoOp.ifPresent(demandeBO -> demandeEsRepository.deleteById(demandeBO.getIdentifiant()));
     }
@@ -1914,6 +1929,8 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     public DemandeDTO cloneDemande(String demarcheId, Integer pkDemande) {
 
         DemandeDTO demandeDTO = super.cloneDemande(demarcheId, pkDemande);
+        EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("méthode cloneDemande()", demandeDTO);
+        applicationEventPublisher.publishEvent(esErrorEventDTO);
 
         try {
             sendToTopic(demandeDTO, true);

@@ -31,7 +31,6 @@
 		<module>xaf-back</module>
 		<module>xaf-apiclient</module>
 		<module>xaf-backweb</module>
-		<module>xaf-archetype</module>
         <module>xaf-shared</module>
 		<module>xaf-back-denjs</module>
 		<module>xaf-backweb-denjs</module>

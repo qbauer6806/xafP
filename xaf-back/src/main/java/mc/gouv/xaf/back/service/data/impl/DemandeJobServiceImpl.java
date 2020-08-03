@@ -1,6 +1,7 @@
 package mc.gouv.xaf.back.service.data.impl;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 import javax.inject.Inject;
@@ -84,6 +85,28 @@ public class DemandeJobServiceImpl implements DemandeJobService {
             if (job.getJobName().equals(JobNamesEnum.REINDEXATION_DEMANDES)) {
                 Long demCount = indexedDemandeService.reindexDemandes();
                 msg = demCount + " demandes ont été reindéxées";
+            }
+            if (job.getJobName().equals(JobNamesEnum.REINDEXATION_DEMANDES_DESYNCHRO)) {
+                List<String> demandes = indexedDemandeService.reindexDemandesDesynchro();
+                if (demandes.size() > 0) {
+                    msg = "Les demandes " + demandes + " ont été synchronisées (supprimées d'ES et/ou reindéxées)";
+                } else {
+                    msg = "Aucune demande n'a été synchronisée";
+                }
+            }
+            if (job.getJobName().equals(JobNamesEnum.GET_DEMANDES_DESYNCHRONISEES)) {
+                // [0] Demandes présentes dans ES mais pas en BDD
+                // [1] Demandes présentes en BDD mais pas dans ES
+                List<List<String>> ret = indexedDemandeService.getDemandesDesynchro();
+                if (ret != null && ret.get(0).size() > 0) {
+                    msg = "Les demandes " + ret.get(0) + " sont présentes dans ES mais pas en BDD<br/>";
+                }
+                if (ret != null && ret.get(1).size() > 0) {
+                    msg += "Les demandes " + ret.get(1) + " sont présentes en BDD mais pas dans ES";
+                }
+                if (ret == null || ret.get(0).isEmpty() && ret.get(1).isEmpty()) {
+                    msg = "Aucune demande désynchronisée";
+                }
             }
 
             context.getBean(DemandeJobServiceImpl.class).logSuccess(job.getId(), msg);

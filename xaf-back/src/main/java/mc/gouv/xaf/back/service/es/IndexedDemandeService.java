@@ -64,6 +64,20 @@ public interface IndexedDemandeService extends DemandesService {
     Long reindexDemandes() throws IOException;
 
     /**
+     * Méthode d'afficher les demandes désynchonisées entre BDD et ES
+     *
+     * @return message à afficher à l'utilisateur
+     */
+    List<List<String>> getDemandesDesynchro();
+
+    /**
+     * Méthode permettant de faire la réindexation des demandes désynchonisées entre BDD et ES
+     *
+     * @return message à afficher à l'utilisateur
+     */
+    List<String> reindexDemandesDesynchro() throws Exception;
+
+    /**
      * Méthode permettant de récupérer une demande de la base et de l'indexer
      *
      * @param demarcheId Identifiant de la demarche

@@ -29,6 +29,7 @@ import mc.gouv.xaf.back.service.utils.DemarchesUtils;
 import mc.gouv.xaf.back.service.utils.ESQueryUtils;
 import mc.gouv.xaf.back.service.utils.FileUtils;
 import mc.gouv.xaf.shared.dto.*;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.search.join.ScoreMode;
 import org.apache.tika.exception.TikaException;
@@ -652,6 +653,54 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         }
         LOGGER.info("Fin de la réindexation des demandes");
         return 0l;
+    }
+
+    public List<List<String>> getDemandesDesynchro() {
+        long demCount = demandesRepository.count();
+        List<DemandeBO> demandesBdd = demandesRepository.findAll(PageRequest.of(0, (int) demCount)).toList();
+        List<String> identifiantsDemandesBdd = demandesBdd.stream().map(DemandeBO::getIdentifiant).collect(Collectors.toList());
+
+        List<DemandeEsDTO> demandesEs = new ArrayList<>();
+        demandeEsRepository.findAll().forEach(demandesEs::add);
+        List<String> identifiantsDemandesEs = demandesEs.stream().filter(d -> d.getPkDemandes() != null).map(DemandeEsDTO::getIdentifiant).collect(Collectors.toList());
+
+        // [0] Demandes présentes dans ES mais pas en BDD
+        // [1] Demandes présentes en BDD mais pas dans ES
+        List<List<String>> ret = new ArrayList<>();
+        List<String> bddMaisPasES = new ArrayList(CollectionUtils.subtract(identifiantsDemandesBdd, identifiantsDemandesEs));
+        List<String> esMaisPasBDD = new ArrayList(CollectionUtils.subtract(identifiantsDemandesEs,identifiantsDemandesBdd));
+
+        ret.add(esMaisPasBDD);
+        ret.add(bddMaisPasES);
+        return ret;
+    }
+
+    public List<String> reindexDemandesDesynchro() throws Exception {
+        List<String> demandesSync = new ArrayList<>();
+
+        // [0] Demandes présentes dans ES mais pas en BDD
+        // [1] Demandes présentes en BDD mais pas dans ES
+        List<List<String>> demandesDesynchro = getDemandesDesynchro();
+
+        // Récupération des demandes
+        long demCount = demandesRepository.count();
+        List<DemandeBO> demandesBdd = demandesRepository.findAll(PageRequest.of(0, (int) demCount)).toList();
+
+        // Supression des demandes dans ES
+        for (String idDemande : demandesDesynchro.get(0)) {
+            demandeEsRepository.deleteById(idDemande);
+            demandesSync.add(idDemande);
+        }
+
+        // Indexation des demandes en BDD mais pas ES
+        List<DemandeBO> demandesBoASynchro = demandesBdd.stream().filter(d -> demandesDesynchro.get(1).contains(d.getIdentifiant())).collect(Collectors.toList());
+        for(DemandeBO demandeBO : demandesBoASynchro) {
+            DemandeDTO demandeDTO = DemandesTransformer.bo2Dto(demandeBO);
+            indexDemande(demandeDTO);
+            demandesSync.add(demandeDTO.getIdentifiant());
+        }
+
+        return demandesSync;
     }
 
     private void indexBulkDeDemandes(long demCount, int size, int additionalPage) throws IOException {

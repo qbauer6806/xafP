@@ -1,14 +1,14 @@
 package mc.gouv.xaf.shared.dto;
 
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import java.util.List;
 
 /**
  * Dupliquer de org.springframework.data.domain.Page pour ne pas avoir de dépendance avec Spring dans le client
- * @author fgaujous
  *
  * @param <T>
+ * @author fgaujous
  */
 public class Page<T> {
 
@@ -32,75 +32,91 @@ public class Page<T> {
     private Object sort;
 
     /**
-     * Returns the number of the current {@link Slice}. Is always non-negative.
-     * 
-     * @return the number of the current {@link Slice}.
-     */
-    public int getNumber() {
-        return this.number;
-    }
-
-    /**
-     * Returns the size of the {@link Slice}.
-     * 
-     * @return the size of the {@link Slice}.
-     */
-    public int getSize() {
-        return this.size;
-    }
-
-    /**
-     * Returns the number of elements currently on this {@link Slice}.
-     * 
-     * @return the number of elements currently on this {@link Slice}.
-     */
-    public int getNumberOfElements() {
-        return this.numberOfElements;
-    }
-
-    /**
-     * Returns the page content as {@link List}.
-     * 
-     * @return
-     */
-    public List<T> getContent() {
-        return content;
-    }
-
-    /**
-     * Returns the number of total pages.
-     * 
-     * @return the number of total pages
-     */
-    public int getTotalPages() {
-        return this.totalPages;
-    }
-
-    /**
-     * Returns the total amount of elements.
-     * 
      * @return the total amount of elements
      */
     public long getTotalElements() {
         return totalElements;
     }
 
+    public void setTotalElements(long totalElements) {
+        this.totalElements = totalElements;
+    }
+
     /**
-     * Returns whether the current {@link Slice} is the first one.
-     * 
-     * @return
+     * @return the number of the current {@link org.springframework.data.domain.Slice}.
+     */
+    public int getNumber() {
+        return this.number;
+    }
+
+    public void setNumber(int number) {
+        this.number = number;
+    }
+
+    /**
+     * @return the size of the {@link org.springframework.data.domain.Slice}.
+     */
+    public int getSize() {
+        return this.size;
+    }
+
+    public void setSize(int size) {
+        this.size = size;
+    }
+
+    /**
+     * @return the number of elements currently on this {@link org.springframework.data.domain.Slice}.
+     */
+    public int getNumberOfElements() {
+        return this.numberOfElements;
+    }
+
+    public void setNumberOfElements(int numberOfElements) {
+        this.numberOfElements = numberOfElements;
+    }
+
+    /**
+     * @return the page content as {@link List}.
+     */
+    public List<T> getContent() {
+        return content;
+    }
+
+    public void setContent(List<T> content) {
+        this.content = content;
+    }
+
+    /**
+     * @return the number of total pages
+     */
+    public int getTotalPages() {
+        return this.totalPages;
+    }
+
+    public void setTotalPages(int totalPages) {
+        this.totalPages = totalPages;
+    }
+
+    /**
+     * @return whether the current {@link org.springframework.data.domain.Slice} is the first one.
      */
     public boolean isFirst() {
         return first;
     }
 
+    public void setFirst(boolean first) {
+        this.first = first;
+    }
+
     /**
-     * Returns whether the current {@link Slice} is the last one.
-     * 
-     * @return
+     * @return whether the current {@link org.springframework.data.domain.Slice} is the last one.
      */
     public boolean isLast() {
         return last;
+    }
+
+    public void setLast(boolean last) {
+        this.last = last;
     }
 
     public Object getSort() {

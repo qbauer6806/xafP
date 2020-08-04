@@ -1,64 +1,62 @@
 package mc.gouv.xaf.back.controller;
 
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
 import mc.gouv.xaf.shared.dto.*;
 import org.springframework.http.ResponseEntity;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
- * 
  * Interface spécifiant les méthodes devant être implémentées en tant que Web Services dans les démarches BACK.
- * 
+ *
  * @author qdeme
  * @author fgaujous
- *
  */
 public interface AfApiController {
 
-    public void annulerDemande(Integer demandeId, Integer usagerId);
+    void annulerDemande(Integer demandeId, Integer usagerId);
 
-    public DemandeComplementsDTO repondreDemandeComplements(Integer demandeId, Integer icId,
-            DemandeComplementsReponseDTO reponse) throws Exception;
+    DemandeComplementsDTO repondreDemandeComplements(Integer demandeId, Integer icId,
+                                                     DemandeComplementsReponseDTO reponse) throws Exception;
 
-    public DemandeDTO getDemande(Integer usagerId, Integer demandeId);
+    DemandeDTO getDemande(Integer usagerId, Integer demandeId);
 
-    public List<DemandeDTO> getDemandes(Integer usagerId);
+    List<DemandeDTO> getDemandes(Integer usagerId);
 
-    public List<DemandeComplementsDTO> getDemandeComplements(Integer demandeId);
+    Page<DemandeDTO> getDemandesPageable(Integer usagerID, PageParamDTO paramDTO);
 
-    public DemandeComplementsDTO getDemandeComplements(Integer demandeId, Integer icId);
+    List<DemandeComplementsDTO> getDemandeComplements(Integer demandeId);
 
-    public DemandeDTO associerDemandeCourrier(String identifiantDemande, String stringToCheck, Integer usagerId);
+    DemandeComplementsDTO getDemandeComplements(Integer demandeId, Integer icId);
 
-    public void desinscriptionUsager(Integer usagerId, String langue);
+    DemandeDTO associerDemandeCourrier(String identifiantDemande, String stringToCheck, Integer usagerId);
 
-    public AccessDTO createOrUpdateAccess(Integer usagerId, AccessInputDTO dto);
+    void desinscriptionUsager(Integer usagerId, String langue);
 
-    public AccessDTO getAccess(Integer usagerId);
+    AccessDTO createOrUpdateAccess(Integer usagerId, AccessInputDTO dto);
 
-    public UsagerCourrierDTO getUsagerCourrier(Integer usagerCourrierId);
+    AccessDTO getAccess(Integer usagerId);
 
-    public List<MotifDTO> getMotifs();
+    UsagerCourrierDTO getUsagerCourrier(Integer usagerCourrierId);
 
-    public DemandeDTO creerDemande(DemandeInputDTO demande, Integer usagerId) throws JsonProcessingException;
-    
-    public List<PeriodeOuvertureDTO> getPeriodesOuverture();
-    
+    List<MotifDTO> getMotifs();
+
+    DemandeDTO creerDemande(DemandeInputDTO demande, Integer usagerId) throws JsonProcessingException;
+
+    List<PeriodeOuvertureDTO> getPeriodesOuverture();
+
     @SuppressWarnings("rawtypes")
-	public ResponseEntity getCustomRequest(HttpServletRequest request);
-    
+    ResponseEntity getCustomRequest(HttpServletRequest request);
+
     @SuppressWarnings("rawtypes")
-	public ResponseEntity postCustomRequest(HttpServletRequest request);
-    
+    ResponseEntity postCustomRequest(HttpServletRequest request);
+
     @SuppressWarnings("rawtypes")
-	public ResponseEntity putCustomRequest(HttpServletRequest request);
-    
+    ResponseEntity putCustomRequest(HttpServletRequest request);
+
     @SuppressWarnings("rawtypes")
-	public ResponseEntity deleteCustomRequest(HttpServletRequest request);
+    ResponseEntity deleteCustomRequest(HttpServletRequest request);
 
     List<PropertiesDTO> getFrontProperties();
 

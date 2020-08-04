@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import mc.gouv.xaf.back.data.entity.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,12 +12,6 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import mc.gouv.xaf.back.data.entity.DemandeBO;
-import mc.gouv.xaf.back.data.entity.DemandesComplementsBO;
-import mc.gouv.xaf.back.data.entity.DemandesCourriersBO;
-import mc.gouv.xaf.back.data.entity.DemandesDataBO;
-import mc.gouv.xaf.back.data.entity.DemandesFilesBO;
-import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
 import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
 import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
@@ -25,6 +20,7 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeDataDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
+import org.springframework.data.domain.Page;
 
 /**
  * 
@@ -221,6 +217,20 @@ public class DemandesTransformer {
             LOGGER.error("Erreur lors de la conversion JSON", e);
         }
         return bo;
+    }
+
+    public static mc.gouv.xaf.shared.dto.Page<DemandeDTO> boPage2DtoPage(Page<DemandeBO> bos) {
+        mc.gouv.xaf.shared.dto.Page<DemandeDTO> page = new mc.gouv.xaf.shared.dto.Page<>();
+        page.setTotalElements(bos.getTotalElements());
+        page.setNumber(bos.getNumber());
+        page.setSize(bos.getSize());
+        page.setNumberOfElements(bos.getNumberOfElements());
+        page.setContent(bo2Dto(bos.getContent()));
+        page.setTotalPages(bos.getTotalPages());
+        page.setFirst(bos.isFirst());
+        page.setLast(bos.isLast());
+        page.setSort(bos.getSort());
+        return page;
     }
 
 }

@@ -35,6 +35,15 @@
     </servlet-mapping>
 
     <servlet>
+        <servlet-name>DemandesPageableServlet</servlet-name>
+        <servlet-class>mc.gouv.xaf.servlet.DemandesPageableServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>DemandesPageableServlet</servlet-name>
+        <url-pattern>/demandespage/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
         <servlet-name>LoginServlet</servlet-name>
         <servlet-class>mc.gouv.xaf.servlet.LoginServlet</servlet-class>
     </servlet>

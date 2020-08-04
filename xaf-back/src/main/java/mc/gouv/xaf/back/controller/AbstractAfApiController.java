@@ -1,42 +1,32 @@
 package mc.gouv.xaf.back.controller;
 
-import java.io.IOException;
-import java.text.MessageFormat;
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.back.service.es.impl.IndexedEsDemandeServiceImpl;
 import mc.gouv.xaf.shared.dto.*;
+import mc.gouv.xapi.error.dto.ErrorsDTO;
+import mc.gouv.xapi.error.exception.WebException;
 import org.apache.tika.exception.TikaException;
 import org.hibernate.TransactionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.xml.sax.SAXException;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
-import mc.gouv.xaf.back.service.data.DemandesService;
-import mc.gouv.xaf.back.service.es.impl.IndexedEsDemandeServiceImpl;
-import mc.gouv.xapi.error.dto.ErrorsDTO;
-import mc.gouv.xapi.error.exception.WebException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+import java.io.IOException;
+import java.text.MessageFormat;
+import java.util.List;
 
 /**
- * 
+ *
  * Interface reprenant les méthodes devant être implémentées dans les Web Services BACK, mais en y ajoutant les mappings
  * REST de Spring
- * 
+ *
  * @author qdeme
  * @author fgaujous
  *
@@ -86,6 +76,15 @@ public abstract class AbstractAfApiController implements AfApiController {
             @RequestParam(value = "usagerId", required = true) Integer usagerId) {
         LOGGER.info("AbstractAfApiController.getDemandes(" + usagerId + ")");
         return getDemandes(usagerId);
+    }
+
+    @GetMapping(value = "/demandespage")
+    public @ResponseBody
+    Page<DemandeDTO> getDemandesPageableRequest(@RequestParam(value = "usagerId") Integer usagerId, @RequestParam int page,
+                                                @RequestParam int size, @RequestParam String sort, @RequestParam String direction,
+                                                @RequestParam String status, @RequestParam String lang) {
+        LOGGER.info("AbstractAfApiController.getDemandesPageable({})", usagerId);
+        return getDemandesPageable(usagerId, new PageParamDTO(page, size, sort, direction, status, lang));
     }
 
     @RequestMapping(value = "/demandes/{demandeId}/complements", method = RequestMethod.GET)
@@ -168,7 +167,7 @@ public abstract class AbstractAfApiController implements AfApiController {
         }
 
     }
-    
+
     @RequestMapping(value = "/periodesouverture", method = RequestMethod.GET)
     public List<PeriodeOuvertureDTO> getPeriodesOuvertureRequest() {
         LOGGER.info("AbstractAfApiController.getPeriodesOuverture()");
@@ -180,14 +179,14 @@ public abstract class AbstractAfApiController implements AfApiController {
         LOGGER.info("AbstractAfApiController.getFrontPropertiesRequest()");
         return getFrontProperties();
     }
-    
+
     @SuppressWarnings("rawtypes")
 	@RequestMapping(value = "/customRequest/**", method = RequestMethod.GET)
     public ResponseEntity getCustomRequestRequest(HttpServletRequest request) {
         LOGGER.info("AbstractAfApiController.getCustomRequest()");
         return getCustomRequest(request);
     }
-    
+
     @SuppressWarnings("rawtypes")
 	@RequestMapping(value = "/customRequest/**", method = RequestMethod.POST)
     public ResponseEntity postCustomRequestRequest(HttpServletRequest request) {
@@ -201,7 +200,7 @@ public abstract class AbstractAfApiController implements AfApiController {
         LOGGER.info("AbstractAfApiController.putCustomRequest()");
         return putCustomRequest(request);
     }
-    
+
     @SuppressWarnings("rawtypes")
 	@RequestMapping(value = "/customRequest/**", method = RequestMethod.DELETE)
     public ResponseEntity deleteCustomRequestRequest(HttpServletRequest request) {

@@ -1,30 +1,29 @@
 package mc.gouv.xaf.shared.dto;
 
-import java.util.Arrays;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import java.util.Arrays;
 
 /**
  * Modélise une demande
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DemandeDTO extends AbstractDemandeDTO {
 
+    protected DemandeCanalEnum canal;
+    protected String creeParAgentId;
+    protected DemandeCourrierDTO[] courriers;
     private Integer fkAccess;
     private Integer usagerId;
     private String demarcheId;
-    protected DemandeCanalEnum canal;
     private DemandeFileDTO[] fichiers;
     private String identifiant;
     private DemandeStatutDTO[] statuts;
     private DemandeStatutDTO dernierStatut;
     private DemandeDataDTO[] data;
     private DemandeComplementsDTO[] complements;
-    protected String creeParAgentId;
-    protected DemandeCourrierDTO[] courriers;
     private String usagerNom;
     private String usagerPrenom;
     private String usagerEmail;
@@ -126,7 +125,7 @@ public class DemandeDTO extends AbstractDemandeDTO {
     public void setCourriers(DemandeCourrierDTO[] courriers) {
         this.courriers = courriers;
     }
-    
+
     public String getUsagerNom() {
         return usagerNom;
     }
@@ -134,15 +133,15 @@ public class DemandeDTO extends AbstractDemandeDTO {
     public void setUsagerNom(String usagerNom) {
         this.usagerNom = usagerNom;
     }
-    
+
     public String getUsagerPrenom() {
         return usagerPrenom;
     }
-    
+
     public void setUsagerPrenom(String usagerPrenom) {
         this.usagerPrenom = usagerPrenom;
     }
-    
+
     public String getUsagerEmail() {
         return usagerEmail;
     }
@@ -152,22 +151,22 @@ public class DemandeDTO extends AbstractDemandeDTO {
     }
 
     public String getBuildId() {
-		return buildId;
-	}
+        return buildId;
+    }
 
-	public void setBuildId(String buildId) {
-		this.buildId = buildId;
-	}
+    public void setBuildId(String buildId) {
+        this.buildId = buildId;
+    }
 
-	public String getRecapType() {
-		return recapType;
-	}
+    public String getRecapType() {
+        return recapType;
+    }
 
-	public void setRecapType(String recapType) {
-		this.recapType = recapType;
-	}
+    public void setRecapType(String recapType) {
+        this.recapType = recapType;
+    }
 
-	@Override
+    @Override
     public String toString() {
         return "DemandeDTO [pkDemandes=" + pkDemandes + ", dateCreation=" + dateCreation + ", dateDerModif="
                 + dateDerModif + ", contenu=" + contenu + ", demarcheId=" + demarcheId + ", usagerId=" + usagerId

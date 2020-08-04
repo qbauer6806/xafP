@@ -59,13 +59,14 @@ public interface PropertiesService {
      * @param propertiesId L'id de la propriété à supprimer
      */
     void deleteProperties(Integer propertiesId);
-    
+
     /**
      * Récupérer une Property par sa clé
-     * @param demarcheId
-     * @param key
-     * @return
-     */
+     *
+     * @param demarcheId l'id de la démarche
+     * @param key la clé de la propriété à récupérer
+     * @return le PropertiesDTO correspondant
+     */    
     PropertiesDTO getProperty(String demarcheId, String key);
 
 	/**

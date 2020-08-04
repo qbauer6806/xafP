@@ -175,6 +175,23 @@ public class PropertiesServiceImpl implements PropertiesService {
     }
 
     /**
+     * Récupérer une Property par sa clé
+     *
+     * @param demarcheId l'id de la démarche
+     * @param key la clé de la propriété à récupérer
+     * @return le PropertiesDTO correspondant
+     */
+    @Override
+    public PropertiesDTO getProperty(String demarcheId, String key) {
+        Optional<PropertiesBO> propertiesBoOptional = propertiesRepository.findByDemarchePkDemarchesAndKey(demarcheId, key);
+        if (propertiesBoOptional.isPresent()) {
+            PropertiesBO propertiesBO = propertiesBoOptional.get();
+            return PropertiesTransformer.bo2Dto(propertiesBO);
+        }
+        return null;
+    }
+
+    /**
      * Ajoute ou mets à jour la valeur d'une Properties
      *
      * @return le dto de la propriété sauvée

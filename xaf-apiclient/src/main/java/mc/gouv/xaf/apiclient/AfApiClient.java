@@ -16,23 +16,18 @@ import javax.ws.rs.core.Response;
 import java.util.List;
 
 /**
- * 
  * Classe cliente permettant d'appeler les WS des démarches
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 public class AfApiClient extends ApiClient {
 
     /**
      * Crée une instance du client avec sécurisation Basic Auth
-     * 
-     * @param serviceUrl
-     *            URL du WS à appeler
-     * @param user
-     *            User à utiliser pour l'authentification
-     * @param password
-     *            Mot de passe à utiliser pour l'authentification
+     *
+     * @param serviceUrl URL du WS à appeler
+     * @param user       User à utiliser pour l'authentification
+     * @param password   Mot de passe à utiliser pour l'authentification
      */
     public AfApiClient(String serviceUrl, String user, String password) {
         super(serviceUrl, new BasicAuthorizationHeaderProvider(user, password),
@@ -41,11 +36,9 @@ public class AfApiClient extends ApiClient {
 
     /**
      * Crée une instance du client avec sécurisation JWT
-     * 
-     * @param serviceUrl
-     *            URL du WS à appeler
-     * @param jwtToken
-     *            JWT à utiliser pour l'authentification
+     *
+     * @param serviceUrl URL du WS à appeler
+     * @param jwtToken   JWT à utiliser pour l'authentification
      */
     public AfApiClient(String serviceUrl, String jwtToken) {
         super(serviceUrl, new JwtAuthorizationHeaderProvider(jwtToken),
@@ -72,7 +65,7 @@ public class AfApiClient extends ApiClient {
     }
 
     public DemandeComplementsDTO repondreDemandeComplements(Integer demandeId, Integer icId,
-            DemandeComplementsReponseDTO reponse) {
+                                                            DemandeComplementsReponseDTO reponse) {
         Response res = getTarget().path("demandes/" + demandeId + "/complements/" + icId)
                 .request(MediaType.APPLICATION_JSON)
                 .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue())
@@ -100,6 +93,16 @@ public class AfApiClient extends ApiClient {
         ExceptionManager.checkExceptionResponse(res);
 
         return res.readEntity(new GenericType<List<DemandeDTO>>() {
+        });
+    }
+
+    public Page<DemandeDTO> getDemandesPageable(Integer usagerId, PageParamDTO paramDTO) {
+        Response res = getTarget().path("demandespage").queryParam("usagerId", usagerId).queryParam("page", paramDTO.getPage())
+                .queryParam("size", paramDTO.getSize()).queryParam("sort", paramDTO.getSort()).queryParam("direction", paramDTO.getDirection())
+                .queryParam("status", paramDTO.getStatus()).queryParam("lang", paramDTO.getLang())
+                .request(MediaType.APPLICATION_JSON).header("Authorization", getAuthorizationHeaderProvider().getHeaderValue()).get();
+        ExceptionManager.checkExceptionResponse(res);
+        return res.readEntity(new GenericType<Page<DemandeDTO>>() {
         });
     }
 
@@ -135,9 +138,9 @@ public class AfApiClient extends ApiClient {
     }
 
     public void desinscriptionUsager(Integer usagerId, String langue) {
-		Response res = getTarget().path("/accesses/" + usagerId).queryParam("langue", langue)
-				.request(MediaType.APPLICATION_JSON)
-				.header("Authorization", getAuthorizationHeaderProvider().getHeaderValue()).delete();
+        Response res = getTarget().path("/accesses/" + usagerId).queryParam("langue", langue)
+                .request(MediaType.APPLICATION_JSON)
+                .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue()).delete();
 
         ExceptionManager.checkExceptionResponse(res);
     }
@@ -179,7 +182,7 @@ public class AfApiClient extends ApiClient {
         return res.readEntity(new GenericType<List<MotifDTO>>() {
         });
     }
-    
+
     public List<PeriodeOuvertureDTO> getPeriodesOuverture() {
         Response res = getTarget().path("/periodesouverture").request(MediaType.APPLICATION_JSON)
                 .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue()).get();

@@ -6,6 +6,8 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 
+import mc.gouv.xaf.back.service.data.DemandesStatutsRefreshService;
+import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -40,6 +42,9 @@ public class DemandeJobServiceImpl implements DemandeJobService {
 
     @Inject
     private ApplicationContext context;
+
+    @Inject
+    private DemandesStatutsRefreshService demandesStatutsRefreshService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandeJobServiceImpl.class);
 
@@ -107,6 +112,9 @@ public class DemandeJobServiceImpl implements DemandeJobService {
                 if (ret == null || ret.get(0).isEmpty() && ret.get(1).isEmpty()) {
                     msg = "Aucune demande désynchronisée";
                 }
+            }
+            if (job.getJobName().equals(JobNamesEnum.RAFRAICHISSEMENT_STATUS)) {
+                msg = demandesStatutsRefreshService.refreshStatuts();
             }
 
             context.getBean(DemandeJobServiceImpl.class).logSuccess(job.getId(), msg);

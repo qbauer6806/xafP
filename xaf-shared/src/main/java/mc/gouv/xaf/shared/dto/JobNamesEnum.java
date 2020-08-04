@@ -5,7 +5,8 @@ public enum JobNamesEnum {
     GET_DEMANDES_DESYNCHRONISEES("Afficher demandes désynchronisées"),
     REINDEXATION_DEMANDES_DESYNCHRO("Réindexation des demandes désynchronisées"),
     REINDEXATION("Réindexation Globale"),
-    REINDEXATION_DEMANDES("Réindexation des demandes");
+    REINDEXATION_DEMANDES("Réindexation des demandes"),
+    RAFRAICHISSEMENT_STATUS("Rafraîchissement du statut des demandes");
 
     private String libelle;
 

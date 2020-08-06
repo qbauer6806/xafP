@@ -337,12 +337,15 @@
 			params.imprime = imprime;
 
 			var keyword = '';
-			var col = columnsTableAttente[params.order[0].column];
+			var col = (imprime)? columnsTableImprimes[params.order[0].column] : columnsTableAttente[params.order[0].column];
 			if(col.keyword) {
 				keyword = '.keyword'
 			}
 			//sort=identifiant,desc
 			params.sort = columnsTableAttente[params.order[0].column].data + keyword + "," + params.order[0].dir;
+			if(imprime) {
+				params.sort = columnsTableImprimes[params.order[0].column].data + keyword + "," + params.order[0].dir;
+			}
 			console.log("params", params);
 		};
 

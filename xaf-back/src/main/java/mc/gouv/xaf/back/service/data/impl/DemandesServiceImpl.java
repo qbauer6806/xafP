@@ -68,7 +68,7 @@ import mc.gouv.xaf.back.service.utils.DemarchesUtils;
 
 /**
  * Service permettant la manipulation des demandes.
- * 
+ *
  * @author qdeme
  *
  */
@@ -95,9 +95,6 @@ public class DemandesServiceImpl implements DemandesService {
 
     @Autowired
     private DemandesDataRepository demandesDataRepository;
-
-    @Autowired
-    private DemandesCourriersRepository demandesCourriersRepository;
 
     @Autowired
     private DemandesComplementsRepository demandesComplementsRepository;
@@ -136,7 +133,7 @@ public class DemandesServiceImpl implements DemandesService {
     /**
      * Permet de générer l'ID public d'une demande demarcheId-yyyyMMdd-randomAlphaNumerique(4) Exemple :
      * HAB-20161014-n6kd
-     * 
+     *
      * @param demarcheId
      * @return
      */
@@ -158,7 +155,7 @@ public class DemandesServiceImpl implements DemandesService {
 
     /**
      * {@inheritDoc}
-     * @throws Exception 
+     * @throws Exception
      */
     @Override
     public DemandeDTO saveDemande(DemandeDTO demande, String premierStatut) throws Exception {
@@ -229,7 +226,7 @@ public class DemandesServiceImpl implements DemandesService {
 
     /**
      * {@inheritDoc}
-     * @throws Exception 
+     * @throws Exception
      *
      */
     @Override
@@ -270,7 +267,7 @@ public class DemandesServiceImpl implements DemandesService {
 
         return DemandesTransformer.bo2Dto(new ArrayList<DemandeBO>(accessBo.getDemandes()));
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -308,7 +305,7 @@ public class DemandesServiceImpl implements DemandesService {
         return DemandesTransformer.bo2Dto(demandes);
 
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -525,7 +522,7 @@ public class DemandesServiceImpl implements DemandesService {
 
         return DemandesTransformer.bo2Dto(demandeBo);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -543,8 +540,9 @@ public class DemandesServiceImpl implements DemandesService {
 
     @Override
     public DemandeDTO getDemande(String demarcheId, Integer pkDemandes) {
-
-        return DemandesTransformer.bo2Dto(getDemandeBo(demarcheId, pkDemandes));
+        DemandeBO demandeBo = getDemandeBo(demarcheId, pkDemandes);
+        LOGGER.info("Transformation bo -> dto ...");
+        return DemandesTransformer.bo2Dto(demandeBo);
     }
 
     @Override
@@ -559,8 +557,6 @@ public class DemandesServiceImpl implements DemandesService {
         if (demandeBo != null && !demandeBo.getFkAccess().isActive() && DemarchesUtils.isFrontUser()) {
             throw new DemarchesServiceException("Demande introuvable", HttpStatus.NOT_FOUND);
         }
-
-        LOGGER.info("Transformation bo -> dto ...");
 
         return demandeBo;
     }

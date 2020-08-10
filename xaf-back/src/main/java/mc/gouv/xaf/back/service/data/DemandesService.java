@@ -61,7 +61,8 @@ public interface DemandesService {
     /**
      * Permet de récupérer la demande correspondant aux DemarcheID et UsagerID
      *
-     * @param demande
+     * @param demarcheId
+     * @param pkDemandes
      * @return La demande demandée
      */
     DemandeDTO getDemande(String demarcheId, Integer pkDemandes);

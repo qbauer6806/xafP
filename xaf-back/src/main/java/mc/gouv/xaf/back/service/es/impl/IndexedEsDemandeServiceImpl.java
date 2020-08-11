@@ -124,18 +124,28 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     public static final String COURRIER_FILE_HIGHLIGHT_AND_FACET_PREFIX = "courrier.";
     public static final String FILE_PROPERTIES_PREFIX = "fichiers.";
     private static final Logger LOGGER = LoggerFactory.getLogger(IndexedEsDemandeServiceImpl.class);
-
-    @Autowired
-    private ApplicationEventPublisher applicationEventPublisher;
-
+    private final List<EsProperty> demandesProperties = new ArrayList<>();
+    private final List<EsProperty> filesProperties = new ArrayList<>();
+    //Map contenant les champs et le boost (si on veut augmenter le score de la recherche par rapport à un champ)
+    //sur lesquels on va faire la recherche du type demandes de l'index <application.name>-index
+    private final Map<String, Float> demandesPropertiesWithBoost = new HashMap<>();
+    //Map contenant les champs et le boost (si on veut augmenter le score de la recherche par rapport à un champ)
+    //sur lesquels on va faire la recherche du type fichiers de l'index <application.name>-index
+    private final Map<String, Float> filesPropertiesWithBoost = new HashMap<>();
+    private final Map<String, String> propertiesFields = new HashMap<>();
+    //Liste des champs à exclure de la recherche des demandes
+    private final List<String> demandesFieldsToExclude = new ArrayList<>();
+    //Liste des champs à exclure de la recherche dans les fichiers associés aux demandes
+    private final List<String> fichiersFieldsToExclude = new ArrayList<>();
     @Autowired
     IndexedDemandeService demandesService;
     @Inject
     RechercheChampConfigRepository rechercheChampConfigRepository;
-
     @Inject
     DemarchesDataProvider demarchesDataProvider;
     List<EsProperty> allProperties = new ArrayList<>();
+    @Autowired
+    private ApplicationEventPublisher applicationEventPublisher;
     @Inject
     private DemandeEsRepository demandeEsRepository;
     @Inject
@@ -156,21 +166,6 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     private ElasticsearchRestTemplate elasticsearchTemplate;
     @Inject
     private GouvPropertiesResolver gouvPropertiesResolver;
-    private final List<EsProperty> demandesProperties = new ArrayList<>();
-    private final List<EsProperty> filesProperties = new ArrayList<>();
-    //Map contenant les champs et le boost (si on veut augmenter le score de la recherche par rapport à un champ)
-    //sur lesquels on va faire la recherche du type demandes de l'index <application.name>-index
-    private final Map<String, Float> demandesPropertiesWithBoost = new HashMap<>();
-    //Map contenant les champs et le boost (si on veut augmenter le score de la recherche par rapport à un champ)
-    //sur lesquels on va faire la recherche du type fichiers de l'index <application.name>-index
-    private final Map<String, Float> filesPropertiesWithBoost = new HashMap<>();
-    private final Map<String, String> propertiesFields = new HashMap<>();
-    //Liste des champs à exclure de la recherche des demandes
-    private final List<String> demandesFieldsToExclude = new ArrayList<>();
-
-    //Liste des champs à exclure de la recherche dans les fichiers associés aux demandes
-    private final List<String> fichiersFieldsToExclude = new ArrayList<>();
-
     private ResultsMapper resultsMapper;
 
     @PostConstruct
@@ -635,7 +630,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             return demCount;
         }
         LOGGER.info("Fin de la réindexation");
-        return 0l;
+        return 0L;
     }
 
     @Override
@@ -658,7 +653,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             return demCount;
         }
         LOGGER.info("Fin de la réindexation des demandes");
-        return 0l;
+        return 0L;
     }
 
     public List<List<String>> getDemandesDesynchro() {
@@ -734,16 +729,14 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     }
 
     @Override
-    public void indexDemande(DemandeDTO demandeDTO) throws IOException, SAXException, TikaException {
-
+    public void indexDemande(DemandeDTO demandeDTO) {
         Boolean activeAccess = accessService.isAccessActive(demandeDTO.getFkAccess());
         DemandeEsDTO demandeEsDTO = demandeEsTransformer.toEs(demandeDTO, activeAccess);
         demandeEsRepository.save(demandeEsDTO);
     }
 
     @Override
-    public void indexElement(DemandeDTO demandeDTO, boolean indexFiles)
-            throws IOException {
+    public void indexElement(DemandeDTO demandeDTO, boolean indexFiles) throws IOException {
 
         if (demandeDTO != null) {
 
@@ -1917,14 +1910,12 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     @Override
     public DemandeDTO saveDemande(DemandeDTO demande, String premierStatut) throws Exception {
-
         DemandeDTO demandeDto = super.saveDemande(demande, premierStatut);
-
         try {
             indexElement(demandeDto, true);
         } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
-            EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("méthode saveDemande()", demandeDto, e);
+            LOGGER.error("Erreur d'indexation lors de la sauvegarde de la demande.");
+            EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("IndexedEsDemandeServiceImpl - méthode saveDemande()", demandeDto, e);
             applicationEventPublisher.publishEvent(esErrorEventDTO);
             throw new AfIndexingException(e.getMessage(), e);
         }
@@ -1936,14 +1927,12 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      */
     @Override
     public DemandeDTO updateDemande(DemandeDTO demande, boolean partialUpdate) throws IOException, SAXException {
-
         DemandeDTO demandeDTO = super.updateDemande(demande, partialUpdate);
-
         try {
             indexDemande(demandeDTO);
         } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
-            EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("méthode updateDemande()", demandeDTO, e);
+            LOGGER.error("Erreur d'indexation lors de l'update de la demande.");
+            EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("IndexedEsDemandeServiceImpl - méthode updateDemande()", demandeDTO, e);
             applicationEventPublisher.publishEvent(esErrorEventDTO);
             throw new AfIndexingException(e.getMessage(), e);
         }
@@ -1957,15 +1946,13 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      */
     @Override
     public void deleteDemande(String demarcheId, Integer demandeId) throws JsonProcessingException {
-
         super.deleteDemande(demarcheId, demandeId);
-
         try {
             Optional<DemandeBO> demandeBoOp = demandesRepository.findById(demandeId);
             demandeBoOp.ifPresent(demandeBO -> demandeEsRepository.deleteById(demandeBO.getIdentifiant()));
         } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
-            EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("méthode updateDemande()", demarcheId, demandeId, e);
+            LOGGER.error("Erreur d'indexation lors de la suppression de la demande.");
+            EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("IndexedEsDemandeServiceImpl - méthode deleteDemande()", demarcheId, demandeId, e);
             applicationEventPublisher.publishEvent(esErrorEventDTO);
             throw new AfIndexingException(e.getMessage(), e);
         }
@@ -1982,16 +1969,14 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     @Override
     public DemandeDTO cloneDemande(String demarcheId, Integer pkDemande) {
         DemandeDTO demandeDTO = super.cloneDemande(demarcheId, pkDemande);
-
         try {
             indexElement(demandeDTO, true);
         } catch (Exception e) {
-            LOGGER.error(e.getMessage(), e);
-            EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("méthode cloneDemande()", demandeDTO, e);
+            LOGGER.error("Erreur d'indexation lors du clone de la demande.");
+            EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("IndexedEsDemandeServiceImpl - méthode cloneDemande()", demandeDTO, e);
             applicationEventPublisher.publishEvent(esErrorEventDTO);
             throw new AfIndexingException(e.getMessage(), e);
         }
-
         return demandeDTO;
     }
 

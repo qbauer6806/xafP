@@ -1,17 +1,23 @@
 package mc.gouv.xaf.back.service.es.impl;
 
-import javax.inject.Inject;
-
+import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
+import mc.gouv.xaf.back.data.es.model.EsErrorEventDTO;
+import mc.gouv.xaf.back.exception.AfIndexingException;
+import mc.gouv.xaf.back.service.data.impl.DemandesCourriersServiceImpl;
+import mc.gouv.xaf.back.service.es.IndexedDemandeService;
+import mc.gouv.xaf.back.service.es.handlers.EsTransactionErrorsHandler;
+import mc.gouv.xaf.shared.dto.DemandeCourrierDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
-import mc.gouv.xaf.back.service.data.impl.DemandesCourriersServiceImpl;
-import mc.gouv.xaf.back.service.es.IndexedDemandeService;
-import mc.gouv.xaf.shared.dto.DemandeCourrierDTO;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
+import javax.inject.Inject;
 
 @Service
 @Primary
@@ -19,8 +25,13 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
 @Transactional(rollbackFor = Exception.class)
 public class IndexedEsDemandesCourriersServiceImpl extends DemandesCourriersServiceImpl {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(IndexedEsDemandesCourriersServiceImpl.class);
+
     @Inject
     IndexedDemandeService indexedDemandeService;
+
+    @Autowired
+    private ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     public DemandeCourrierDTO saveCourrier(String demarcheId, Integer pkDemande, DemandeCourrierDTO courrierDto)
@@ -39,9 +50,16 @@ public class IndexedEsDemandesCourriersServiceImpl extends DemandesCourriersServ
         return demandeCourrierDTO;
     }
 
-    private void indexCourrier(String demarcheId, Integer pkDemande) throws Exception {
+    private void indexCourrier(String demarcheId, Integer pkDemande) {
         DemandeDTO demandeDTO = indexedDemandeService.getDemande(demarcheId, pkDemande);
-
-        indexedDemandeService.indexElement(demandeDTO, true);
+        // Indexation
+        try {
+            indexedDemandeService.indexElement(demandeDTO, true);
+        } catch (Exception e) {
+            LOGGER.error("Erreur lors de l'indexation du courrier.");
+            EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("IndexedEsDemandesCourriersServiceImpl - méthode indexCourrier()", demandeDTO, e);
+            applicationEventPublisher.publishEvent(esErrorEventDTO);
+            throw new AfIndexingException(e.getMessage(), e);
+        }
     }
 }

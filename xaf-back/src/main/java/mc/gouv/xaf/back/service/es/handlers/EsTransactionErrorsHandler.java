@@ -37,8 +37,9 @@ import java.util.Map;
 public class EsTransactionErrorsHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EsTransactionErrorsHandler.class);
-
     private static final String XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE = "XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE";
+    private static final String MAIL_TEMPLATE_ES_ROLLBACK_OBJET = "MAIL_TEMPLATE_ES_ROLLBACK_OBJET";
+    private static final String MAIL_TEMPLATE_ES_ROLLBACK_CORPS = "MAIL_TEMPLATE_ES_ROLLBACK_CORPS";
 
     @Autowired
     PropertiesService propertiesService;
@@ -54,39 +55,6 @@ public class EsTransactionErrorsHandler {
 
     @Autowired
     private AfBackUtils afBackUtils;
-
-    private final static String MAIL_TEMPLATE_ES_ROLLBACK_OBJET = "MAIL_TEMPLATE_ES_ROLLBACK_OBJET";
-    private final static String MAIL_TEMPLATE_ES_ROLLBACK_CORPS = "MAIL_TEMPLATE_ES_ROLLBACK_CORPS";
-
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_ROLLBACK)
-    public void handleEsRollbackEvent(EsErrorEventDTO errorEventDTO) throws Exception {
-        LOGGER.error("Erreur ES - Rollback de la BDD ");
-        LOGGER.error("Récupération des adresses mails de contact");
-        PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE);
-
-        if (propertiesDTO.getValue() != null) {
-            String[] adresses = propertiesDTO.getValue().trim().split(",");
-            // Composition du mail
-            Map<String, Object> model = new HashMap<>();
-            model.put("errorEvent", errorEventDTO);
-            EmailInfoDTO emailInfoDTO = createMailRollbackES(errorEventDTO);
-            for (String adresseMail : adresses) {
-                emailInfoDTO.addTo(adresseMail, "Support Technique");
-            }
-            mailService.sendMail(emailInfoDTO, model);
-        }
-    }
-
-    private EmailInfoDTO createMailRollbackES(EsErrorEventDTO errorEventDTO) {
-        EmailInfoDTO emailInfo = new EmailInfoDTO();
-        emailInfo.setBodyTemplateCode(MAIL_TEMPLATE_ES_ROLLBACK_CORPS);
-        emailInfo.setSubjectTemplateCode(MAIL_TEMPLATE_ES_ROLLBACK_OBJET);
-        emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(), afBackUtils.getDemarcheInfos().getEmailFromNom());
-        emailInfo.setReplyto(afBackUtils.getDemarcheInfos().getEmailReplyto(), afBackUtils.getDemarcheInfos().getEmailReplytoNom());
-        emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, errorEventDTO.getIdentifiantDemande());
-        emailInfo.setLangue("fr");
-        return emailInfo;
-    }
 
     public static EsErrorEventDTO createErrorEvent(String contexte, DemandeDTO demandeDTO, Exception e) {
         EsErrorEventDTO errorEventDTO = new EsErrorEventDTO();
@@ -117,5 +85,35 @@ public class EsTransactionErrorsHandler {
             strException = "...<br/>" + strException.substring(strException.length() - 3000);
         }
         return strException;
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_ROLLBACK)
+    public void handleEsRollbackEvent(EsErrorEventDTO errorEventDTO) throws Exception {
+        LOGGER.error("Erreur ES - Rollback de la BDD ");
+        LOGGER.error("Récupération des adresses mails de contact");
+        PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE);
+
+        if (propertiesDTO.getValue() != null) {
+            String[] adresses = propertiesDTO.getValue().trim().split(",");
+            // Composition du mail
+            Map<String, Object> model = new HashMap<>();
+            model.put("errorEvent", errorEventDTO);
+            EmailInfoDTO emailInfoDTO = createMailRollbackES(errorEventDTO);
+            for (String adresseMail : adresses) {
+                emailInfoDTO.addTo(adresseMail, "Support Technique");
+            }
+            mailService.sendMail(emailInfoDTO, model);
+        }
+    }
+
+    private EmailInfoDTO createMailRollbackES(EsErrorEventDTO errorEventDTO) {
+        EmailInfoDTO emailInfo = new EmailInfoDTO();
+        emailInfo.setBodyTemplateCode(MAIL_TEMPLATE_ES_ROLLBACK_CORPS);
+        emailInfo.setSubjectTemplateCode(MAIL_TEMPLATE_ES_ROLLBACK_OBJET);
+        emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(), afBackUtils.getDemarcheInfos().getEmailFromNom());
+        emailInfo.setReplyto(afBackUtils.getDemarcheInfos().getEmailReplyto(), afBackUtils.getDemarcheInfos().getEmailReplytoNom());
+        emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, errorEventDTO.getIdentifiantDemande());
+        emailInfo.setLangue("fr");
+        return emailInfo;
     }
 }

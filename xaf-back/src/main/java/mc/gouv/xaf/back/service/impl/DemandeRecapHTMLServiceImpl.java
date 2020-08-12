@@ -411,6 +411,9 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
     private String escape(String str, boolean isPdfRecap) {
         String result = "";
         if (null != str) {
+            if (str.contains("\u001C")) {
+                str = StringUtils.replace(str, "\u001C", " ");
+            }
             result = isPdfRecap ? HtmlUtils.htmlEscapeDecimal(str) : StringEscapeUtils.escapeHtml4(str);
         }
         return result;

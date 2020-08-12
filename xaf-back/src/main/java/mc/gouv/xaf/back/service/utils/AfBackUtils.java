@@ -17,7 +17,7 @@ import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.motifs.MotifTemplateService;
 import mc.gouv.xaf.shared.dto.*;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +41,7 @@ import java.util.*;
 
 /**
  * Classe utilitaire pour le projet xaf-back
- * 
+ *
  * @author qdeme
  *
  */
@@ -111,7 +111,7 @@ public class AfBackUtils {
 
     @Autowired
     private UtilisateursUtils utilisateursUtils;
-    
+
     @Autowired
     private MotifTemplateService motifTemplateService;
 
@@ -190,7 +190,7 @@ public class AfBackUtils {
 
     /**
      * Retourne le nom d'un usager à partir de son ID
-     * 
+     *
      * @param usagerId
      * @return
      */
@@ -213,7 +213,7 @@ public class AfBackUtils {
      * Retourne le nom d'un utilisateur à partir de son matricule
      * <br>
      * deprecated : Utiliser la méthode de {@link UtilisateursUtils}
-     * 
+     *
      * @param userId
      * @return
      * @throws RestException
@@ -226,7 +226,7 @@ public class AfBackUtils {
     /**
      * Génère un UUID version 1 (time+location based UUID) TODO copié de
      * afservlet, supprimer dans l'un des deux
-     * 
+     *
      * @return
      */
     public static UUID generateUUID() {
@@ -270,7 +270,7 @@ public class AfBackUtils {
 
     /**
      * Retourne une version "cachée" des informations de la démarche
-     * 
+     *
      * @return
      */
     public DemarcheDTO getDemarcheInfos() {
@@ -282,7 +282,7 @@ public class AfBackUtils {
 
     /**
      * Retourne le nom complet de la démarche
-     * 
+     *
      * @return
      */
     public String getDemarcheNom() {
@@ -291,7 +291,7 @@ public class AfBackUtils {
 
     /**
      * Permet de récupérer une donnée d'une demande
-     * 
+     *
      */
     public static String getDemandeData(DemandeDTO demande, String key) {
         if (demande.getData() != null) {
@@ -394,7 +394,7 @@ public class AfBackUtils {
 
     /**
      * Permet de retourner la liste des agents ayant un certain rôle
-     * 
+     *
      * @param
      * @return
      */
@@ -480,7 +480,7 @@ public class AfBackUtils {
 
         return null;
     }
-    
+
     public String getDernierCodeMotif(DemandeDTO demande) {
         String codeDernierMotif = demande.getDernierStatut().getCodeMotif();
         String motif = codeDernierMotif;
@@ -492,7 +492,7 @@ public class AfBackUtils {
         } catch (Exception e) {
             LOGGER.error("Erreur lors de la récupération du motif", e);
         }
-        
+
         return motif;
     }
 
@@ -548,4 +548,17 @@ public class AfBackUtils {
     	return demarchesDataProvider.getDemarcheCanHandleDenjsGestionAgents();
     }
 
+    public static String escapeChars(String str) {
+        String result = " ";
+        if (StringUtils.isNotBlank(str)) {
+            if (str.contains("&#28;")) {
+                str = StringUtils.replace(str, "&#28;", " ");
+            }
+            if (str.contains("\u001C")) {
+                str = StringUtils.replace(str, "\u001C", " ");
+            }
+            result = str;
+        }
+        return result;
+    }
 }

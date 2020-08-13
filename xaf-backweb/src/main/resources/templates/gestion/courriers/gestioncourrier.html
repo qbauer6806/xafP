@@ -253,6 +253,7 @@
 			},
 			{
 				"data" : "fichiers.pkDemande",
+				"orderable" : false,
 				"keyword" : false,
 				render : function(data, type, element) {
 					return "<a href='" + APP.getContextPath() + "/demandes/" + element.fichiers.pkDemande + "'><span class='identifiant-demande'>" + element.demandeJoinField.parent + "</span></a>";
@@ -300,6 +301,7 @@
 			},
 			{
 				"data" : "fichiers.pkDemande",
+				"orderable" : false,
 				"keyword" : false,
 				render : function(data, type, element) {
 					return "<a href='" + APP.getContextPath() + "/demandes/" + element.fichiers.pkDemande + "'><span class='identifiant-demande'>" + element.demandeJoinField.parent + "</span></a>";
@@ -307,6 +309,7 @@
 			},
 			{
 				"data" : "fichiers.identifiant",
+				"orderable" : false,
 				"keyword" : true,
 				render : function(data, type, element) {
 					return element.fichiers.identifiant;

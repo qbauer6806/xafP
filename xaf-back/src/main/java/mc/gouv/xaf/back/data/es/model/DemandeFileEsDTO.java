@@ -55,7 +55,9 @@ public class DemandeFileEsDTO {
         @NotNull
         protected String name;
 
-        // Id unique, différent de la pkDemandeFile (généré à partir de l'url et nom) et utilisé par ES
+        /**
+         * Id unique, différent de la pkDemandeFile (généré à partir de l'url et nom) et utilisé par ES
+         */
         @Id
         protected String id;
 
@@ -69,7 +71,16 @@ public class DemandeFileEsDTO {
         private Date dateCreation;
         private Integer pkDemande;
         private Integer pkDemandeFile;
-        private String identifiant; // Identifiant courrier (ref_interne sur la page gestioncourrier)
+
+        /**
+         * Identifiant courrier (ref_interne sur la page gestioncourrier)
+         */
+        private String identifiant;
+
+        /**
+         * Identifiant de la demande
+         */
+        private String identifiantDemande;
 
         public String getName() {
             return name;
@@ -165,6 +176,14 @@ public class DemandeFileEsDTO {
 
         public void setIdentifiant(String identifiant) {
             this.identifiant = identifiant;
+        }
+
+        public String getIdentifiantDemande() {
+            return identifiantDemande;
+        }
+
+        public void setIdentifiantDemande(String identifiantDemande) {
+            this.identifiantDemande = identifiantDemande;
         }
     }
 

@@ -651,10 +651,10 @@
 							"type" : "date"
 						},
 						"pkDemande" : {
-							"type" : "text"
+							"type" : "long"
 						},
 						"pkDemandeFile" : {
-							"type" : "text"
+							"type" : "long"
 						},
 						"identifiant" : {
 							"type": "text",
@@ -668,6 +668,17 @@
 							}
 						},
 						"demandeId": {
+							"type": "text",
+							"analyzer": "default",
+							"search_analyzer": "keyword_lowercase",
+							"fields": {
+								"keyword": {
+									"type": "keyword",
+									"ignore_above": 256
+								}
+							}
+						},
+						"identifiantDemande": {
 							"type": "text",
 							"analyzer": "default",
 							"search_analyzer": "keyword_lowercase",

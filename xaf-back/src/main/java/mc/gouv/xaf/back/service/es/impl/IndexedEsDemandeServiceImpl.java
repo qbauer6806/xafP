@@ -818,6 +818,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             demandeFileEsDTO.getFichiers().setName(fichier.getName());
             demandeFileEsDTO.getFichiers().setUrl(fichier.getUrl());
             demandeFileEsDTO.getFichiers().setType(type.name());
+            demandeFileEsDTO.getFichiers().setIdentifiantDemande(demande.getIdentifiant());
 
             if (is != null) {
                 String fileText = "";
@@ -871,7 +872,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             demandeFileEsDTO.getFichiers().setName(fichier.getName());
             demandeFileEsDTO.getFichiers().setUrl(fichier.getUrl());
             demandeFileEsDTO.getFichiers().setType(type.name());
-
+            demandeFileEsDTO.getFichiers().setIdentifiantDemande(demande.getIdentifiant());
             demandeFileEsDTO.getFichiers().setIdentifiant(fichier.getIdentifiant());
             demandeFileEsDTO.getFichiers().setPkDemandeFile(fichier.getPkCourrier());
             demandeFileEsDTO.getFichiers().setDateCreation(fichier.getDateCreation());

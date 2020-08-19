@@ -1412,11 +1412,11 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                     fragmentFieldBuilder = new StringBuilder(propertiesFields.get(fragmentFieldBuilder.toString()));
                 }
                 if (isComplement) {
-                    fragmentFieldBuilder = fragmentFieldBuilder.insert(0, FILE_COMPLEMENT_HIGHLIGHT_AND_FACET_PREFIX);
+                    fragmentFieldBuilder.insert(0, FILE_COMPLEMENT_HIGHLIGHT_AND_FACET_PREFIX);
                 } else if (isCourrier) {
-                    fragmentFieldBuilder = fragmentFieldBuilder.insert(0, COURRIER_FILE_HIGHLIGHT_AND_FACET_PREFIX);
+                    fragmentFieldBuilder.insert(0, COURRIER_FILE_HIGHLIGHT_AND_FACET_PREFIX);
                 } else if (isInternalFile) {
-                    fragmentFieldBuilder = fragmentFieldBuilder.insert(0, INTERNAL_FILE_HIGHLIGHT_AND_FACET_PREFIX);
+                    fragmentFieldBuilder.insert(0, INTERNAL_FILE_HIGHLIGHT_AND_FACET_PREFIX);
                 }
                 String fragmentField = fragmentFieldBuilder.toString();
                 if (fichiersFieldsToExclude.contains(fragmentField)) {
@@ -1425,13 +1425,13 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                 }
 
                 final String fragmentEdge = "...";
-                final StringBuilder fragmentSeparation = new StringBuilder(fragmentEdge + "<br/>" + fragmentEdge);
+                final String fragmentSeparation = fragmentEdge + "<br/>" + fragmentEdge;
 
                 String fragmentsAsString = Arrays.stream(fragments).map(Objects::toString)
-                        .collect(Collectors.joining(fragmentSeparation.toString()));
+                        .collect(Collectors.joining(fragmentSeparation));
                 StringBuilder fragmentsSB = new StringBuilder(fragmentsAsString);
                 if (fragments.length > 1) {
-                    fragmentsSB = fragmentsSB.insert(0, fragmentEdge).append(fragmentEdge);
+                    fragmentsSB.insert(0, fragmentEdge).append(fragmentEdge);
                 }
 
                 demEsHighlightFields.put(fragmentField, fragmentsSB.toString().replace("'", "&quot;")
@@ -1692,7 +1692,6 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         }
 
         if (!searchFilesFields.isEmpty()) {
-
             Map<String, Float> filesFields = new HashMap<>();
             HighlightBuilder hb = new HighlightBuilder();
             for (String f : searchFilesFields) {
@@ -1701,7 +1700,6 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                         .postTags(highlightPosttags)
                         .highlightQuery(getSimpleQueryStringBuilder(rechercheText, filesPropertiesWithBoost));
                 hb = hb.field(field);
-
             }
             InnerHitBuilder ihb = new InnerHitBuilder().setHighlightBuilder(hb)
                     .setStoredFieldNames(Arrays.asList(DemandeFileEsDTO.TYPE_FIELD));

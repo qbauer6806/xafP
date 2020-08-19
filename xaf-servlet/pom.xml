@@ -150,4 +150,8 @@
             <version>${vscan.version}</version>
         </dependency>
 	</dependencies>
+
+  <scm>
+    <tag>xaf-8.1.4</tag>
+  </scm>
 </project>

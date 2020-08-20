@@ -4,7 +4,6 @@ import com.fasterxml.uuid.EthernetAddress;
 import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.impl.TimeBasedGenerator;
 import mc.gouv.file.apiclient.FileClient;
-import mc.gouv.logon.apiclient.RestException;
 import mc.gouv.logon.shared.Droit;
 import mc.gouv.logon.shared.Role;
 import mc.gouv.logon.shared.User;
@@ -208,20 +207,6 @@ public class AfBackUtils {
     }
 
     /**
-     * Retourne le nom d'un utilisateur à partir de son matricule
-     * <br>
-     * deprecated : Utiliser la méthode de {@link UtilisateursUtils}
-     *
-     * @param userId
-     * @return
-     * @throws RestException
-     */
-    @Deprecated
-    public String getUserNameFromID(String matricule) throws RestException {
-        return utilisateursUtils.getUserNameFromID(matricule);
-    }
-
-    /**
      * Génère un UUID version 1 (time+location based UUID) TODO copié de
      * afservlet, supprimer dans l'un des deux
      *
@@ -323,14 +308,7 @@ public class AfBackUtils {
     public DemandeFlatDTO demandeDTOToDemandeFlatDTO(DemandeDTO demande) {
         DemandeFlatDTO flat = new DemandeFlatDTO();
         flat.setAgentAffecteId(demande.getAgentAffecteId());
-        String nomAgent = "";
-        try {
-            if (!StringUtils.isBlank(demande.getAgentAffecteId())) {
-                nomAgent = getUserNameFromID(demande.getAgentAffecteId());
-            }
-        } catch (RestException e) {
-            LOGGER.error("Erreur lors de la récupération du nom de l'agent affecté à la demande", e);
-        }
+        String nomAgent = utilisateursUtils.getUserNameFromID(demande.getAgentAffecteId());
         flat.setAgentAffecteNom(getSafeString(nomAgent));
         flat.setCanal(demande.getCanal().libelle);
         flat.setCourrierDateReception(convertDateToString(demande.getCourrierDateReception()));
@@ -546,6 +524,9 @@ public class AfBackUtils {
             }
             if (str.contains("\u001C")) {
                 str = StringUtils.replace(str, "\u001C", " ");
+            }
+            if (str.contains("\u001A")) {
+                str = StringUtils.replace(str, "\u001A", " ");
             }
             result = str;
         }

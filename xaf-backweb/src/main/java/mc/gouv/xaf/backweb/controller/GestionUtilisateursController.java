@@ -35,16 +35,16 @@ public class GestionUtilisateursController extends AbstractController {
     public ModelAndView formUser(Model model) {
 
         LOGGER.info("Appel de la page /gestion/utilisateurs. Méthode formUser");
-        List<User> list;
+        List<User> list = new ArrayList<>();
 
         try {
             LogonApiClient logonApiClient = new LogonApiClient(Static.getValue(LogonApiClient.DEFAULT_GOUV_PROPERTY_URL));
             list = logonApiClient.getRessUser().getListUserByCodeAppli(gouvPropertiesResolver.getDemarcheId());
-            model.addAttribute("userList", list != null ? list : new ArrayList<>());
         } catch (Exception e) {
             LOGGER.error("Exception rencontrée dans formUser. Msg : {}", e.getMessage(), e);
         }
 
+        model.addAttribute("userList", list != null ? list : new ArrayList<>());
         ModelAndView mav = new ModelAndView("gestion/utilisateurs/utilisateurs");
 
         LOGGER.info("======================= Fin /gestion/utilisateurs. Méthode formUser");

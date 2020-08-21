@@ -532,4 +532,17 @@ public class AfBackUtils {
         }
         return result;
     }
+
+    /**
+     * Retourne le nom d'un utilisateur à partir de son matricule
+     * <br>
+     * deprecated : Utiliser la méthode de {@link UtilisateursUtils}
+     * <br>
+     * Attention cette méthode est appelée dans les pages HTML avec thymeleaf, bien vérifier les appels lors d'une suppression
+     */
+    @Deprecated
+    public String getUserNameFromID(String matricule) {
+        return utilisateursUtils.getUserNameFromID(matricule);
+    }
+
 }

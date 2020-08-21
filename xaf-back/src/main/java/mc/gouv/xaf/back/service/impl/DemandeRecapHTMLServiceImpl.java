@@ -78,7 +78,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
         htmlBuilder.append("</span></dd>");
 
         // Etat de la demande
-        htmlBuilder.append("<dt><span>Etat de la demande</span></dt><dd><span>");
+        htmlBuilder.append("<dt><span>État de la demande</span></dt><dd><span>");
         htmlBuilder.append(afBackUtils.getStatusLibelleFromName(demande.getDernierStatut().getLibelle()));
         htmlBuilder.append(" le ");
         htmlBuilder.append(AfBackUtils.SDF_JJ_MM_AAAA_HH_MM.format(demande.getDernierStatut().getDate()));
@@ -411,9 +411,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
     private String escape(String str, boolean isPdfRecap) {
         String result = "";
         if (null != str) {
-            if (str.contains("\u001C")) {
-                str = StringUtils.replace(str, "\u001C", " ");
-            }
+            str = AfBackUtils.escapeChars(str);
             result = isPdfRecap ? HtmlUtils.htmlEscapeDecimal(str) : StringEscapeUtils.escapeHtml4(str);
         }
         return result;

@@ -1,7 +1,6 @@
 package mc.gouv.sup;
 
 import java.io.IOException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -44,9 +43,18 @@ public class GenerateSearchConfigFiles {
     private static final String DEST_SQL_FILE_PATH = "configration-recherche{0}.sql";
     private static final String DEST_ES_MAPPINGS_FILE_PATH = "{0}-es-schema.json";
     private static final String DEFAULT_SQL_CONF_FILE_PATH = "src/main/resources/default-config.sql";
+
+    /**
+     * Fichier de configuartion par défaut des mappings ES
+     */
     private static final String ES_TEMPLATE_FILE_PATH = "./src/main/resources/ts-es-schema.json";
+
+    /**
+     * TAG indiquant où insérer le mapping du contenu de la demande
+     */
     private static final String ES_TEMPLATE_CHANGE_ME_CONTENU_TAG = "//CHANGE_ME_CONTENU";
     private static final String ES_TEMPLATE_CHANGE_ME_DATA_TAG = "//CHANGE_ME_DATA";
+
     private static final String FALSE = "false";
     private static final String TRUE = "true";
     private static final String PROPERTIES_ES_NODE_NAME = "properties";
@@ -64,7 +72,7 @@ public class GenerateSearchConfigFiles {
     private static final String RECAP_CHAMP_PATH = "path";
     private static final String LOG_SEPARATOR = "-------------------------------------------------------------------------------------------------------------";
 
-    private static final String destSqlFileName = MessageFormat.format(
+    private static final String DEST_SQL_FILE_NAME = MessageFormat.format(
             DEST_SQL_FILE_PATH, new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date()));
     private static Map<String, String> datas = new HashMap<>();
 
@@ -229,7 +237,7 @@ public class GenerateSearchConfigFiles {
         }
 
         String destSqlFilePathStr = GenerateSearchConfigFiles.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-        destSqlFilePathStr = destSqlFilePathStr.substring(1, destSqlFilePathStr.length() - 8) + destSqlFileName;
+        destSqlFilePathStr = destSqlFilePathStr.substring(1, destSqlFilePathStr.length() - 8) + DEST_SQL_FILE_NAME;
         LOGGER.info("Fichier SQL : {}", destSqlFilePathStr);
         Path destSqlFilePath = Paths.get(destSqlFilePathStr);
 
@@ -263,7 +271,7 @@ public class GenerateSearchConfigFiles {
             return ((String) jsonValue).replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t")
                     .replace("\b", "\\b").replace("\f", "\\f").replace("'", "''");
         }
-        return (String) jsonValue;
+        return null;
     }
 
     /**
@@ -418,7 +426,7 @@ public class GenerateSearchConfigFiles {
         if (!datas.isEmpty()) {
             jsonTemplate = getJsonFromTemplate(jsonTemplate, data, ES_TEMPLATE_CHANGE_ME_DATA_TAG);
         } else {
-            jsonTemplate = jsonTemplate.replaceAll(ES_TEMPLATE_CHANGE_ME_DATA_TAG, "");
+            jsonTemplate = jsonTemplate.replace(ES_TEMPLATE_CHANGE_ME_DATA_TAG, "");
         }
         mapper.configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
         jsonTemplate = mapper.writerWithDefaultPrettyPrinter()

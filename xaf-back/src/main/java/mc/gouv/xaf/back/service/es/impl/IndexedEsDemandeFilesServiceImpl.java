@@ -40,7 +40,7 @@ public class IndexedEsDemandeFilesServiceImpl extends DemandeFilesServiceImpl {
         DemandeDTO demandeDto = DemandesTransformer.bo2Dto(demandeBo);
         // Indexation
         try {
-            indexedDemandeService.sendToTopic(demandeFile, demandeDto);
+            indexedDemandeService.indexElement(demandeFile, demandeDto);
         } catch (Exception e) {
             LOGGER.error("Erreur lors de l'indexation du fichier.");
             EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("IndexedEsDemandeFilesServiceImpl - méthode saveFile()", demandeDto, e);

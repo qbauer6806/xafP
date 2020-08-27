@@ -68,7 +68,7 @@ public class IndexedDemandesComplementsServiceImpl extends DemandesComplementsSe
 
         // Indexation
         try {
-            indexedDemandeService.sendToTopic(demandeDTO, true);
+            indexedDemandeService.indexElement(demandeDTO, true);
         } catch (Exception e) {
             LOGGER.error("Erreur lors de l'indexation du complément de la demande.");
             EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("IndexedDemandesComplementsServiceImpl - méthode repondreDemandeComplements()", demandeDTO, e);

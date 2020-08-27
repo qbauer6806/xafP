@@ -55,6 +55,8 @@ public class AfBackUtils {
 
     public static final String FILE_METADATA_DEMANDESTATUT = "X-MC-DEMANDESTATUT";
 
+    public static final String FILE_METADATA_SCANEXECUTE = "X-MC-SCANEXECUTE";
+
     private static RestTemplate restTemplate;
 
     private static String envName;
@@ -513,6 +515,14 @@ public class AfBackUtils {
         endDate = cal.getTime();
 
         return endDate;
+    }
+    
+    /**
+     * Permet de savoir si la démarche prend en charge la gestion des agents (DENJS)
+     * @return
+     */
+    public boolean getDemarcheCanHandleDenjsGestionAgents() {
+    	return demarchesDataProvider.getDemarcheCanHandleDenjsGestionAgents();
     }
 
     public static String escapeChars(String str) {

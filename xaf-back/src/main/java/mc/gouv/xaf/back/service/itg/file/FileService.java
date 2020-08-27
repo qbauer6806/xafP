@@ -6,6 +6,7 @@ import java.io.OutputStream;
 
 import javax.servlet.http.HttpServletResponse;
 
+import mc.gouv.vscan.shared.dto.ScanDTO;
 import org.apache.http.client.ClientProtocolException;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,7 +24,8 @@ public interface FileService {
     public void getFile(String filename, String container, HttpServletResponse response) throws ClientProtocolException, IOException;
     
     public String saveFile(DemandeDTO demande, String filename, String container, String contentType, InputStream inputStream, OutputStream outputStream) throws Exception;
-    
+
     public String saveFile(DemandeDTO demande, String container, MultipartFile file, HttpServletResponse response) throws Exception;
-    
+
+    ScanDTO verificationVSCAN(MultipartFile file) throws IOException;
 }

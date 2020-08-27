@@ -296,14 +296,14 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
             String mapping = champ.get("mapping").toString();
             if (StringUtils.equals(mapping, "nationalites")) {
                 JsonNode node0 = getNode(node, champ, "path");
-                if (node0 == null || node0 instanceof NullNode) {
+                if (node0 == null || node0 instanceof NullNode || StringUtils.isBlank(node0.asText())) {
                     return null;
                 }
                 return paysCache.get(node0.asText(), "fr").getNationalite();
             }
             if (StringUtils.equals(mapping, "pays")) {
                 JsonNode node0 = getNode(node, champ, "path");
-                if (node0 == null || node0 instanceof NullNode) {
+                if (node0 == null || node0 instanceof NullNode || StringUtils.isBlank(node0.asText())) {
                     return null;
                 }
                 return paysCache.get(node0.asText(), "fr").getLibelleCourt();

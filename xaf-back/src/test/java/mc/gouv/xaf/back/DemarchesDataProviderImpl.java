@@ -89,4 +89,10 @@ public class DemarchesDataProviderImpl implements DemarchesDataProvider {
         // TODO Auto-generated method stub
         return false;
     }
+
+	@Override
+	public boolean getDemarcheCanHandleDenjsGestionAgents() {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

@@ -54,7 +54,7 @@ public class IndexedEsDemandesCourriersServiceImpl extends DemandesCourriersServ
         DemandeDTO demandeDTO = indexedDemandeService.getDemande(demarcheId, pkDemande);
         // Indexation
         try {
-            indexedDemandeService.sendToTopic(demandeDTO, true);
+            indexedDemandeService.indexElement(demandeDTO, true);
         } catch (Exception e) {
             LOGGER.error("Erreur lors de l'indexation du courrier.");
             EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("IndexedEsDemandesCourriersServiceImpl - méthode indexCourrier()", demandeDTO, e);

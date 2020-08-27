@@ -1,11 +1,9 @@
 package mc.gouv.xaf.servlet;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -39,12 +37,12 @@ public class VerificationIbanServlet extends AbstractAfServlet {
 
  
     @Override
-    public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    public void doPost(HttpServletRequest request, HttpServletResponse response) {
         LOGGER.info("====================== /verification-iban doPost()");
         
         UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(request);
         if (usagerInfosDTO == null) {
-            response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
+            AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
                     "Utilisateur non autorisé");
             return;
         }
@@ -52,8 +50,9 @@ public class VerificationIbanServlet extends AbstractAfServlet {
         Request serviceRequest = Request.Post(AfServletGouvPropertiesResolver.getTgfApiUrl());
         serviceRequest.setHeader("Content-Type", "application/json; charset=utf-8");
         serviceRequest.setHeader("Authorization", "Bearer " + AfServletGouvPropertiesResolver.getTgfApiJwt());
-        serviceRequest.bodyStream(request.getInputStream());
+
         try {
+            serviceRequest.bodyStream(request.getInputStream());
             HttpResponse serviceResponse = serviceRequest.execute().returnResponse();
             int statusCode = serviceResponse.getStatusLine().getStatusCode();
             response.setStatus(statusCode);

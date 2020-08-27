@@ -1,8 +1,5 @@
 package mc.gouv.xaf.servlet;
 
-import java.io.IOException;
-
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -26,33 +23,40 @@ public class RedirectToBackOfficeServlet extends AbstractAfServlet {
     private static final String TOKEN_ID_DEMANDE = "<id>";
 
     @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    public void doGet(HttpServletRequest request, HttpServletResponse response) {
         LOGGER.info("====================== /redirect-to-backoffice doGet()");
 
         UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(request);
         if (usagerInfosDTO == null) {
-            response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
+            AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
                     "Utilisateur non autorisé");
             return;
         }
 
         if (!usagerInfosDTO.isUsagerCourrier()) {
-            response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
+            AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
                     "Utilisateur non autorisé car non usager courrier");
             return;
         }
 
-        String idDemande = request.getParameter("id");
         //redirection par default sur l'accueil car le lien abandon a été cliqué
         String urlDemande = AfServletGouvPropertiesResolver.getBackOfficeUrl();
-        if (StringUtils.isNotBlank(idDemande)) {
+
+        try {
             //dans le cas de la fin de la création
-            urlDemande = AfServletGouvPropertiesResolver.getBackOfficeDemandeUrl();
-            urlDemande = StringUtils.replace(urlDemande, TOKEN_ID_DEMANDE, idDemande);
+            String idDemandeStr = request.getParameter("id");
 
+            if(StringUtils.isNotBlank(idDemandeStr)) {
+                int idDemande = Integer.parseInt(idDemandeStr);
+                urlDemande = AfServletGouvPropertiesResolver.getBackOfficeDemandeUrl();
+                urlDemande = StringUtils.replace(urlDemande, TOKEN_ID_DEMANDE, idDemande + "");
+            }
+
+            response.sendRedirect(urlDemande);
+        } catch (Exception e) {
+            AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_BAD_REQUEST,
+                    "RedirectToBackOfficeServlet - Une erreur est survenue lors de l'appel à la méthode GET");
         }
-
-        response.sendRedirect(urlDemande);
 
         LOGGER.info("Redirection vers : " + urlDemande);
         LOGGER.info("====================== Fin /redirect-to-backoffice doGet()");

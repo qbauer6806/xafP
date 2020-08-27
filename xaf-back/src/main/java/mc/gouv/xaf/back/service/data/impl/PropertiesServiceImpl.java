@@ -1,7 +1,21 @@
 package mc.gouv.xaf.back.service.data.impl;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
 import mc.gouv.Static;
+import mc.gouv.xaf.back.data.dao.DemarchesRepository;
 import mc.gouv.xaf.back.data.dao.PropertiesRepository;
+import mc.gouv.xaf.back.data.entity.DemarchesBO;
 import mc.gouv.xaf.back.data.entity.PropertiesBO;
 import mc.gouv.xaf.back.data.transformer.PropertiesTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
@@ -10,17 +24,6 @@ import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.PropertiesTypeEnum;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
 
 /**
  * Service permettant la manipulation des Properties d'une démarche
@@ -38,6 +41,9 @@ public class PropertiesServiceImpl implements PropertiesService {
     private static final PropertiesTypeEnum[] AF_PROPERTIES = {PropertiesTypeEnum.FRONT_AF,
             PropertiesTypeEnum.BACKFRONT_AF, PropertiesTypeEnum.BACK_AF};
 
+    @Autowired
+    private DemarchesRepository demarchesRepository;
+    
     @Autowired
     private PropertiesRepository propertiesRepository;
 
@@ -110,6 +116,63 @@ public class PropertiesServiceImpl implements PropertiesService {
         List<PropertiesTypeEnum> types = Arrays.asList(AF_PROPERTIES);
         return getPropertiesByTypeList(types);
     }
+    
+    /**
+     * Ajoute ou mets à jour une Properties
+     *
+     * @param toSave La propriété à sauvegarder
+     * @return la Properties sauvée
+     */
+    @Override
+    public PropertiesDTO saveOrUpdateProperties(PropertiesDTO toSave) {
+        PropertiesDTO saved;
+        String demarcheId = gouvPropertiesResolver.getDemarcheId();
+
+        // Vérification préalable de l'existence de la démarche
+        Optional<DemarchesBO> demarcheBo = demarchesRepository.findById(demarcheId);
+        if (!demarcheBo.isPresent()) {
+            throw new DemarchesServiceException("La démarche spécifiée est introuvable", HttpStatus.NOT_FOUND);
+        }
+
+        if (toSave.getPkProperties() == null) {
+            LOGGER.info("Création d'une nouvelle propriété ...");
+            LOGGER.info(SharedMessages.TRANSFORMATION_DTO_BO);
+            PropertiesBO bo = PropertiesTransformer.dto2Bo(toSave);
+            bo.setDemarche(demarcheBo.get());
+            bo = propertiesRepository.save(bo);
+            LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
+            saved = PropertiesTransformer.bo2Dto(bo);
+        } else {
+            LOGGER.info("Mise à jour d'une propriété");
+            Optional<PropertiesBO> propertiesBoOpt = propertiesRepository.findById(toSave.getPkProperties());
+            if (!propertiesBoOpt.isPresent()) {
+                throw new DemarchesServiceException("La propriété spécifiée est introuvable", HttpStatus.NOT_FOUND);
+            }
+            PropertiesBO bo = propertiesBoOpt.get();
+            bo.setValue(toSave.getValue());
+            bo.setKey(toSave.getKey());
+            bo.setType(toSave.getType().name());
+            bo = propertiesRepository.save(bo);
+            LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
+            saved = PropertiesTransformer.bo2Dto(bo);
+        }
+        return saved;
+    }
+
+    /**
+     * Supprime une Properties
+     *
+     * @param propertiesId L'id de la propriété à supprimer
+     */
+    @Override
+    public void deleteProperties(Integer propertiesId) {
+        Optional<PropertiesBO> propertiesBoOpt = propertiesRepository.findById(propertiesId);
+        if (!propertiesBoOpt.isPresent()) {
+            throw new DemarchesServiceException("La propriété spécifiée est introuvable", HttpStatus.NOT_FOUND);
+        }
+        LOGGER.info("Suppression de la propriété ...");
+        propertiesRepository.delete(propertiesBoOpt.get());
+    }
 
     /**
      * Récupérer une Property par sa clé
@@ -146,4 +209,5 @@ public class PropertiesServiceImpl implements PropertiesService {
         LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
         return PropertiesTransformer.bo2Dto(bo);
     }
+
 }

@@ -9,6 +9,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import mc.gouv.xaf.servlet.enums.HttpMethod;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.Header;
@@ -32,15 +33,13 @@ public class FileDownloadServlet extends AbstractAfServlet {
 
     private static Logger LOGGER = LoggerFactory.getLogger(FileDownloadServlet.class);
 
-    @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        LOGGER.info("====================== /filedownload doGet()");
+    public HttpServletResponse doHttpMethod(HttpServletRequest request, HttpServletResponse response,
+                                            HttpMethod httpMethod) throws IOException {
 
         UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(request);
         if (usagerInfosDTO == null) {
-            response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
+            return AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
                     "Utilisateur non autorisé");
-            return;
         }
 
         // Récupération du nom du fichier à récupérer
@@ -52,61 +51,66 @@ public class FileDownloadServlet extends AbstractAfServlet {
         }
 
         if (StringUtils.isBlank(filename)) {
-            response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_BAD_REQUEST,
+            return AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_BAD_REQUEST,
                     "Erreur: nom du fichier manquant");
-            return;
         }
-        
+
         String accessIdStr = pathInfo.split("/")[1];
         if (usagerInfosDTO.getAccessId() == null || !usagerInfosDTO.getAccessId().equals(Integer.parseInt(accessIdStr))) {
-            response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_FORBIDDEN,
+            return AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_FORBIDDEN,
                     "Erreur: accès à ce fichier non autorisé");
-            return;
         }
 
-        try {
+        String accountId = getServletContext().getInitParameter(AppFactoryServletUtils.DEMARCHEID_KEY);
+        String containerId = getServletContext().getInitParameter(AppFactoryServletUtils.CONTAINER_KEY);
 
-            String accountId = getServletContext().getInitParameter(AppFactoryServletUtils.DEMARCHEID_KEY);
-            String containerId = getServletContext().getInitParameter(AppFactoryServletUtils.CONTAINER_KEY);
+        LOGGER.debug("accountId = {}, containerId = {}", accountId, containerId);
 
-            LOGGER.debug("accountId = {}, containerId = {}", accountId, containerId);
+        // Constitution du chemin virtuel du fichier
+        // /appfactory/demarcheId/accessId/UUID/nomDuFichier
+        String virtualPath = "/" + accountId + "/" + containerId + "/" + filename;
+        LOGGER.info("Chemin virtuel : {}", virtualPath);
 
-            // Constitution du chemin virtuel du fichier
-            // /appfactory/demarcheId/accessId/UUID/nomDuFichier
-            String virtualPath = "/" + accountId + "/" + containerId + "/" + filename;
-            LOGGER.info("Chemin virtuel : {}", virtualPath);
+        // Constitution de l'URL d'appel
+        URL url = new URL(AfServletGouvPropertiesResolver.getFileUrl() + virtualPath);
+        LOGGER.info("URL d'appel : {}", url);
 
-            // Constitution de l'URL d'appel
-            URL url = new URL(AfServletGouvPropertiesResolver.getFileUrl() + virtualPath);
-            LOGGER.info("URL d'appel : {}", url);
+        // Constitution de la requête
+        HttpClient client = HttpClientBuilder.create().build();
+        HttpGet getRequest = new HttpGet(url.toString());
 
-            // Constitution de la requête
-            HttpClient client = HttpClientBuilder.create().build();
-            HttpGet getRequest = new HttpGet(url.toString());
-            
-            getRequest.setHeader(HttpHeaders.AUTHORIZATION, AppFactoryServletUtils.getAuthHeader(ServiceTarget.FILE));
+        getRequest.setHeader(HttpHeaders.AUTHORIZATION, AppFactoryServletUtils.getAuthHeader(ServiceTarget.FILE));
 
-            LOGGER.info("Appel du WS FILE");
-            HttpResponse getResponse = client.execute(getRequest);
+        LOGGER.info("Appel du WS FILE");
+        HttpResponse getResponse = client.execute(getRequest);
 
-            LOGGER.info("Constitution de la réponse pour retour au client");
-            response.setStatus(getResponse.getStatusLine().getStatusCode());
-            response.setContentType(getResponse.getEntity().getContentType().getValue());
-            // Ajout de la métadonnée indiquant le demandeId lié
-            for (Header header : getResponse.getAllHeaders()) {
-                if (header.getName().startsWith(AppFactoryServletUtils.FILE_METADATA_DEMANDEID)) {
-                    response.addHeader(header.getName(), header.getValue());
-                } else if (header.getName().equals("Content-Disposition")) {
-                    response.addHeader(header.getName(), URLDecoder.decode(header.getValue(), "UTF-8"));
-                }
+        LOGGER.info("Constitution de la réponse pour retour au client");
+        response.setStatus(getResponse.getStatusLine().getStatusCode());
+        response.setContentType(getResponse.getEntity().getContentType().getValue());
+        // Ajout de la métadonnée indiquant le demandeId lié
+        for (Header header : getResponse.getAllHeaders()) {
+            if (header.getName().startsWith(AppFactoryServletUtils.FILE_METADATA_DEMANDEID)) {
+                response.addHeader(header.getName(), header.getValue());
+            } else if (header.getName().equals("Content-Disposition")) {
+                response.addHeader(header.getName(), URLDecoder.decode(header.getValue(), "UTF-8"));
             }
+        }
 
-            // Et en dernier on copie le stream... Car si on met les headers après, ils sont tous ignorés !
-            IOUtils.copy(getResponse.getEntity().getContent(), response.getOutputStream());
+        // Et en dernier on copie le stream... Car si on met les headers après, ils sont tous ignorés !
+        IOUtils.copy(getResponse.getEntity().getContent(), response.getOutputStream());
 
+        return response;
+    }
+
+    @Override
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+        LOGGER.info("====================== /filedownload doGet()");
+
+        try {
+            doHttpMethod(request, response, HttpMethod.GET);
         } catch (Exception e) {
-            response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_INTERNAL_SERVER_ERROR,
-                    "Erreur interne: ", e);
+            LOGGER.error("FileDownloadServlet - Une erreur est survenue lors de l'appel à la méthode GET", e);
+            response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
         }
 
         LOGGER.info("====================== Fin /filedownload doGet()");

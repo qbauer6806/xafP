@@ -57,7 +57,7 @@ public class IndexedEsDemandesStatutsServiceImpl extends DemandesStatutsServiceI
     private void indexDemandeStatus(DemandeDTO demandeDTO) {
         LOGGER.info("Indexation de Statuts de la demande {}", demandeDTO.getPkDemandes());
         try {
-            indexedDemandeService.sendToTopic(demandeDTO, false);
+            indexedDemandeService.indexElement(demandeDTO, false);
         } catch (Exception e) {
             EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("IndexedEsDemandesStatutsServiceImpl - méthode indexDemandeStatus()", demandeDTO, e);
             applicationEventPublisher.publishEvent(esErrorEventDTO);

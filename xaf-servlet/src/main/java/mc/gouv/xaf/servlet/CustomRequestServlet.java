@@ -3,10 +3,10 @@ package mc.gouv.xaf.servlet;
 import java.io.IOException;
 import java.util.Enumeration;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import mc.gouv.xaf.servlet.enums.HttpMethod;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
@@ -32,15 +32,8 @@ public class CustomRequestServlet extends AbstractAfServlet {
 
     private static Logger LOGGER = LoggerFactory.getLogger(CustomRequestServlet.class);
 
-    private enum HttpMethod {
-        PUT,
-        POST,
-        GET,
-        DELETE;
-    }
-
     public HttpServletResponse doHttpMethod(HttpServletRequest request, HttpServletResponse response,
-            HttpMethod httpMethod) throws UnsupportedOperationException, IOException {
+            HttpMethod httpMethod) throws IOException {
 
         UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(request);
         if (usagerInfosDTO == null) {
@@ -112,37 +105,57 @@ public class CustomRequestServlet extends AbstractAfServlet {
     }
 
     @Override
-    public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    public void doPost(HttpServletRequest request, HttpServletResponse response) {
         LOGGER.info("====================== /customRequest doPost()");
 
-        response = doHttpMethod(request, response, HttpMethod.POST);
+        try {
+            doHttpMethod(request, response, HttpMethod.POST);
+        } catch (Exception e) {
+            LOGGER.error("CustomRequestServlet - Une erreur est survenue lors de l'appel à la méthode POST", e);
+            response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+        }
 
         LOGGER.info("====================== Fin /customRequest doPost()");
     }
 
     @Override
-    public void doPut(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    public void doPut(HttpServletRequest request, HttpServletResponse response) {
         LOGGER.info("====================== /customRequest doPut()");
 
-        response = doHttpMethod(request, response, HttpMethod.PUT);
+        try {
+            doHttpMethod(request, response, HttpMethod.PUT);
+        } catch (Exception e) {
+            LOGGER.error("CustomRequestServlet - Une erreur est survenue lors de l'appel à la méthode PUT", e);
+            response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+        }
 
         LOGGER.info("====================== Fin /customRequest doPut()");
     }
 
     @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    public void doGet(HttpServletRequest request, HttpServletResponse response) {
         LOGGER.info("====================== /customRequest doGet()");
 
-        response = doHttpMethod(request, response, HttpMethod.GET);
+        try {
+            doHttpMethod(request, response, HttpMethod.GET);
+        } catch (Exception e) {
+            LOGGER.error("CustomRequestServlet - Une erreur est survenue lors de l'appel à la méthode GET", e);
+            response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+        }
 
         LOGGER.info("====================== Fin /customRequest doGet()");
     }
     
     @Override
-    public void doDelete(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    public void doDelete(HttpServletRequest request, HttpServletResponse response) {
         LOGGER.info("====================== /demandes doDelete()");
 
-        response = doHttpMethod(request, response, HttpMethod.DELETE);
+        try {
+            doHttpMethod(request, response, HttpMethod.DELETE);
+        } catch (Exception e) {
+            LOGGER.error("CustomRequestServlet - Une erreur est survenue lors de l'appel à la méthode DELETE", e);
+            response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+        }
 
         LOGGER.info("====================== Fin /demandes doDelete()");
     }

@@ -64,6 +64,20 @@ public interface IndexedDemandeService extends DemandesService {
     Long reindexDemandes() throws IOException;
 
     /**
+     * Méthode d'afficher les demandes désynchonisées entre BDD et ES
+     *
+     * @return message à afficher à l'utilisateur
+     */
+    List<List<String>> getDemandesDesynchro();
+
+    /**
+     * Méthode permettant de faire la réindexation des demandes désynchonisées entre BDD et ES
+     *
+     * @return message à afficher à l'utilisateur
+     */
+    List<String> reindexDemandesDesynchro() throws Exception;
+
+    /**
      * Méthode permettant de récupérer une demande de la base et de l'indexer
      *
      * @param demarcheId Identifiant de la demarche
@@ -100,7 +114,7 @@ public interface IndexedDemandeService extends DemandesService {
     void indexFiles(DemandeDTO demande) throws IOException;
 
     /**
-     * Méthode permettant d'envoyer une demande au topic afin d'être indexer
+     * Méthode permettant d'envoyer une à ES afin d'être indexer
      *
      * @param demandeDTO DTO de la demande
      * @param indexFiles Boolean pour indiquer si on doit indexer les fichiers associés à la demande
@@ -108,11 +122,11 @@ public interface IndexedDemandeService extends DemandesService {
      * @throws SAXException  Exception SAX
      * @throws TikaException Exception du parsing de la piece jointe
      */
-    void sendToTopic(DemandeDTO demandeDTO, boolean indexFiles)
+    void indexElement(DemandeDTO demandeDTO, boolean indexFiles)
             throws IOException, SAXException, TikaException;
 
     /**
-     * Méthode permettant d'envoyer un fichier au topic afin d'être indexer
+     * Méthode permettant d'envoyer un fichier à ES afin d'être indexer
      *
      * @param demandeFileDTO DTO du fichier à indexer
      * @param demandeDTO     DTO de la demande à traiter
@@ -120,7 +134,7 @@ public interface IndexedDemandeService extends DemandesService {
      * @throws SAXException  Exception SAX
      * @throws TikaException Exception du parsing de la piece jointe
      */
-    void sendToTopic(DemandeFileDTO demandeFileDTO, DemandeDTO demandeDTO)
+    void indexElement(DemandeFileDTO demandeFileDTO, DemandeDTO demandeDTO)
             throws IOException, SAXException, TikaException;
 
     /**
@@ -132,7 +146,7 @@ public interface IndexedDemandeService extends DemandesService {
      * @throws SAXException  Exception SAX
      * @throws TikaException Exception du parsing de la piece jointe
      */
-    void sendToTopic(DemandeFileDTO[] demandeFileDTOList, DemandeDTO demandeDTO)
+    void indexElement(DemandeFileDTO[] demandeFileDTOList, DemandeDTO demandeDTO)
             throws IOException, SAXException, TikaException;
 
     /**

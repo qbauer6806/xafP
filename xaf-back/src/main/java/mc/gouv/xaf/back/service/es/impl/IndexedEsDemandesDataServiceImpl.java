@@ -58,7 +58,7 @@ public class IndexedEsDemandesDataServiceImpl extends DemandesDataServiceImpl {
         DemandeDTO demandeDTO = indexedDemandeService.getDemande(demarcheId, demandeId);
         // Indexation
         try {
-            indexedDemandeService.sendToTopic(demandeDTO, false);
+            indexedDemandeService.indexElement(demandeDTO, false);
         } catch (Exception e) {
             LOGGER.error("Erreur lors de l'indexation des données de la demande.");
             EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("IndexedEsDemandesDataServiceImpl - méthode indexDemandeData()", demandeDTO, e);

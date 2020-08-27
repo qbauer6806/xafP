@@ -56,11 +56,11 @@ public class GouvBPMDemandeInfoComplDelegate implements JavaDelegate {
 
         
 		String codeMotifStr = null;
-        if (codeMotif != null && codeMotif.getValue(execution) != null) {
+        if (codeMotif != null && StringUtils.isNotBlank((String) codeMotif.getValue(execution))) {
             codeMotifStr = ((String) codeMotif.getValue(execution)).trim();
         }
 		String commentaireUsagerStr = null;
-        if (commentaireUsager != null && commentaireUsager.getValue(execution) != null) {
+        if (commentaireUsager != null && StringUtils.isNotBlank((String) commentaireUsager.getValue(execution))) {
         	commentaireUsagerStr = ((String) commentaireUsager.getValue(execution)).trim();
         }
         

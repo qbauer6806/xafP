@@ -5,10 +5,10 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.List;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import mc.gouv.xaf.servlet.enums.HttpMethod;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
@@ -37,13 +37,6 @@ public class DemandesServlet extends AbstractAfServlet {
     private static final long serialVersionUID = -7898768899143027088L;
 
     private static Logger LOGGER = LoggerFactory.getLogger(DemandesServlet.class);
-
-    private enum HttpMethod {
-        PUT,
-        POST,
-        GET,
-        DELETE;
-    }
 
     public HttpServletResponse doHttpMethod(HttpServletRequest request, HttpServletResponse response,
             HttpMethod httpMethod) throws UnsupportedOperationException, IOException {
@@ -168,28 +161,43 @@ public class DemandesServlet extends AbstractAfServlet {
     }
 
     @Override
-    public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    public void doPost(HttpServletRequest request, HttpServletResponse response) {
         LOGGER.info("====================== /demandes doPost()");
 
-        response = doHttpMethod(request, response, HttpMethod.POST);
+        try {
+            doHttpMethod(request, response, HttpMethod.POST);
+        } catch (IOException e) {
+            LOGGER.error("DemandesServlet - Une erreur est survenue lors de l'appel à la méthode POST", e);
+            response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+        }
 
         LOGGER.info("====================== Fin /demandes doPost()");
     }
 
     @Override
-    public void doPut(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    public void doPut(HttpServletRequest request, HttpServletResponse response) {
         LOGGER.info("====================== /demandes doPut()");
 
-        response = doHttpMethod(request, response, HttpMethod.PUT);
+        try {
+            doHttpMethod(request, response, HttpMethod.PUT);
+        } catch (IOException e) {
+            LOGGER.error("DemandesServlet - Une erreur est survenue lors de l'appel à la méthode PUT", e);
+            response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+        }
 
         LOGGER.info("====================== Fin /demandes doPut()");
     }
 
     @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    public void doGet(HttpServletRequest request, HttpServletResponse response) {
         LOGGER.info("====================== /demandes doGet()");
 
-        response = doHttpMethod(request, response, HttpMethod.GET);
+        try {
+            doHttpMethod(request, response, HttpMethod.GET);
+        } catch (Exception e) {
+            LOGGER.error("DemandesServlet - Une erreur est survenue lors de l'appel à la méthode GET", e);
+            response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+        }
 
         LOGGER.info("====================== Fin /demandes doGet()");
     }

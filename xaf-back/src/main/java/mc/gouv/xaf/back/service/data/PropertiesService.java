@@ -44,6 +44,21 @@ public interface PropertiesService {
      * Récupère la liste des propriétés Admins Fonctionnels
      */
     List<PropertiesDTO> getAdminsFonctionnelsProperties();
+    
+    /**
+     * Ajoute ou mets à jour une Properties
+     *
+     * @param toSave La propriété à sauvegarder
+     * @return la Properties sauvée
+     */
+    PropertiesDTO saveOrUpdateProperties(PropertiesDTO toSave);
+
+    /**
+     * Supprime une Properties
+     *
+     * @param propertiesId L'id de la propriété à supprimer
+     */
+    void deleteProperties(Integer propertiesId);
 
     /**
      * Récupérer une Property par sa clé
@@ -51,13 +66,14 @@ public interface PropertiesService {
      * @param demarcheId l'id de la démarche
      * @param key la clé de la propriété à récupérer
      * @return le PropertiesDTO correspondant
-     */
+     */    
     PropertiesDTO getProperty(String demarcheId, String key);
 
-    /**
-     * Ajoute ou mets à jour la valeur d'une Properties
-     *
-     * @return le dto de la propriété sauvée
-     */
+	/**
+	 * Ajoute ou mets à jour la valeur d'une Properties
+	 *
+	 * @return le dto de la propriété sauvée
+	 */
     PropertiesDTO updatePropertyValue(Integer pkProperties, String value);
+
 }

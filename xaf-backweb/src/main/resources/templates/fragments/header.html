@@ -21,10 +21,12 @@
 							<li>
 								<div class="iconBackground">
 									<i class="icon icon-menu_profil"></i>
-								</div> <span><span sec:authentication="principal.nom"
-									th:remove="tag"></span></span>
+								</div>
+                                <span th:if="${#authentication.isAuthenticated()}">
+									<span sec:authentication="principal.nom" th:remove="tag"></span>
+								</span>
 							</li>
-							<li><a th:href="${AfBackUtils.getLogonUrl()}+'/logout.jsp'"> <span>Se déconnecter</span>
+							<li><a th:href="@{/logout}"> <span>Se déconnecter</span>
 									<div class="iconBackground">
 										<i class="icon icon-menu_deconnexion"></i>
 									</div>

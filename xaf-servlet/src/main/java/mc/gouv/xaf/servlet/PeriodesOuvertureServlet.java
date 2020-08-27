@@ -1,10 +1,8 @@
 package mc.gouv.xaf.servlet;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.util.List;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -33,12 +31,12 @@ public class PeriodesOuvertureServlet extends AbstractAfServlet {
     private static Logger LOGGER = LoggerFactory.getLogger(PeriodesOuvertureServlet.class);
 
     @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    public void doGet(HttpServletRequest request, HttpServletResponse response) {
         LOGGER.info("====================== /periodesouverture doGet()");
 
         UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(request);
         if (usagerInfosDTO == null) {
-            response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
+            AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
                     "Utilisateur non autorisé");
             return;
         }
@@ -48,10 +46,14 @@ public class PeriodesOuvertureServlet extends AbstractAfServlet {
         
         response.setStatus(HttpStatus.SC_OK);
         ObjectMapper mapper = new ObjectMapper();
-        String repJson = mapper.writeValueAsString(periodes);
-        
-        response.setContentType("application/json");
-        IOUtils.copy(new ByteArrayInputStream(repJson.getBytes()), response.getOutputStream());
+        try {
+            String repJson = mapper.writeValueAsString(periodes);
+            response.setContentType("application/json");
+            IOUtils.copy(new ByteArrayInputStream(repJson.getBytes()), response.getOutputStream());
+        } catch (Exception e) {
+            LOGGER.error("PeriodesOuvertureServlet - Une erreur est survenue lors de l'appel à la méthode GET", e);
+            response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+        }
 
         LOGGER.info("====================== Fin /periodesouverture doGet()");
     }

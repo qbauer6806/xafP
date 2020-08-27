@@ -1,7 +1,11 @@
 package mc.gouv.xaf.back.service.utils;
 
 import mc.gouv.servicerest.usager.model.UsagerBean;
+import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * Classe utilitaire pour la gestion des usagers. 
@@ -13,9 +17,12 @@ import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
  * ajoutées par les agents pour les courriers.
  * 
  * @author mboutelier.ext
- *
  */
+@Component
 public class UsagersUtils {
+
+    @Autowired
+    private UsagersCache usagersCache;
 
     /**
      * Change le titre en paramètre en son abbréviation.

@@ -188,22 +188,21 @@ public class AfBackUtils {
     /**
      * Retourne le nom d'un usager à partir de son ID
      *
-     * @param usagerId
-     * @return
+     * @param usagerId une String contenant l'id de l'usager
+     * @return une Sring composer de son prénom et son nom
      */
     public String getUsagerNameFromID(Integer usagerId) {
         UsagerBean u = usagersCache.get(usagerId);
-        if (u == null) {
-            return null;
+        StringBuilder builder = new StringBuilder();
+        if (null != u) {
+            if (StringUtils.isNotBlank(u.getPrenom())) {
+                builder.append(AfBackUtils.escapeChars(u.getPrenom())).append(' ');
+            }
+            if (StringUtils.isNotBlank(u.getNom())) {
+                builder.append(AfBackUtils.escapeChars(u.getNom()));
+            }
         }
-        String prenomNom = StringUtils.EMPTY;
-        if (u.getPrenom() != null) {
-            prenomNom += u.getPrenom();
-        }
-        if (u.getNom() != null) {
-            prenomNom += " " + u.getNom();
-        }
-        return prenomNom;
+        return builder.toString();
     }
 
     /**

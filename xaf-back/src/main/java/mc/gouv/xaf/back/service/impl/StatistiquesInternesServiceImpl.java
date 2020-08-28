@@ -1,7 +1,7 @@
 package mc.gouv.xaf.back.service.impl;
 
 import mc.gouv.xaf.back.bpm.GouvBPM;
-import mc.gouv.xaf.back.data.dao.DemandesStatistiquesRepository;
+import mc.gouv.xaf.back.data.dao.DemandesStatistiquesInternesRepository;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.StatistiquesInternesService;
@@ -21,7 +21,7 @@ public class StatistiquesInternesServiceImpl implements StatistiquesInternesServ
     private static final Logger LOGGER = LoggerFactory.getLogger(StatistiquesInternesServiceImpl.class);
 
     @Autowired
-    private DemandesStatistiquesRepository demandesStatRepository;
+    private DemandesStatistiquesInternesRepository demandesStatInternesRepository;
 
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
@@ -108,7 +108,7 @@ public class StatistiquesInternesServiceImpl implements StatistiquesInternesServ
 
         LOGGER.info("Récupération du nombre de demarches par démarche id...");
 
-        return demandesStatRepository.countByFkAccessDemarcheIdAndCanalAndDernierStatutLibelle(demarcheId, canal, status);
+        return demandesStatInternesRepository.countByFkAccessDemarcheIdAndCanalAndDernierStatutLibelle(demarcheId, canal, status);
     }
 
     @Override
@@ -116,6 +116,6 @@ public class StatistiquesInternesServiceImpl implements StatistiquesInternesServ
 
         LOGGER.info("Récupération du nombre de demarches dans la liste ids...");
 
-        return demandesStatRepository.countByPkDemandesInAndCanal(ids, canal);
+        return demandesStatInternesRepository.countByPkDemandesInAndCanal(ids, canal);
     }
 }

@@ -1,12 +1,14 @@
 package mc.gouv.xaf.back.service.impl;
 
 import mc.gouv.xaf.back.bpm.GouvBPM;
+import mc.gouv.xaf.back.data.dao.DemandesStatistiquesRepository;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
-import mc.gouv.xaf.back.service.StatistiquesService;
-import mc.gouv.xaf.back.service.data.DemandesStatistiquesService;
+import mc.gouv.xaf.back.service.StatistiquesInternesService;
 import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -14,16 +16,18 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
-public class StatistiquesServiceImpl implements StatistiquesService {
+public class StatistiquesInternesServiceImpl implements StatistiquesInternesService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(StatistiquesInternesServiceImpl.class);
+
+    @Autowired
+    private DemandesStatistiquesRepository demandesStatRepository;
 
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
 
     @Autowired
     private DemarchesDataProvider demarchesDataProvider;
-
-    @Autowired
-    private DemandesStatistiquesService demandesStatistiquesService;
 
     @Autowired
     private GouvBPM gouvBPM;
@@ -53,7 +57,7 @@ public class StatistiquesServiceImpl implements StatistiquesService {
                 Long count;
                 // If a public status retrieve it from db, else from bpm
                 if (!privateStatusMap.containsKey(status)) {
-                    count = demandesStatistiquesService.getNumberDemandesFilteredByStatusAndCanal(demarcheId, canal.name(), status);
+                    count = getNumberDemandesFilteredByStatusAndCanal(demarcheId, canal.name(), status);
                     totalByCanal += count;
                 }
                 else {
@@ -61,7 +65,7 @@ public class StatistiquesServiceImpl implements StatistiquesService {
 
                     // Convert String id list to Integer id list
                     List<Integer> taskIntIds = tasksIds.stream().map(Integer::parseInt).collect(Collectors.toList());
-                    count = demandesStatistiquesService.getNumberDemandesFilteredByStatusAndCanalWithIds(taskIntIds, canal.name());
+                    count = getNumberDemandesFilteredByStatusAndCanalWithIds(taskIntIds, canal.name());
                 }
                 nbByStatus.put(status, count);
             }
@@ -97,5 +101,21 @@ public class StatistiquesServiceImpl implements StatistiquesService {
             totalByStatus.put(status, totalByCanal);
         }
         map.put(TOTAL, totalByStatus);
+    }
+
+    @Override
+    public Long getNumberDemandesFilteredByStatusAndCanal(String demarcheId, String canal, String status) {
+
+        LOGGER.info("Récupération du nombre de demarches par démarche id...");
+
+        return demandesStatRepository.countByFkAccessDemarcheIdAndCanalAndDernierStatutLibelle(demarcheId, canal, status);
+    }
+
+    @Override
+    public Long getNumberDemandesFilteredByStatusAndCanalWithIds(List<Integer> ids, String canal) {
+
+        LOGGER.info("Récupération du nombre de demarches dans la liste ids...");
+
+        return demandesStatRepository.countByPkDemandesInAndCanal(ids, canal);
     }
 }

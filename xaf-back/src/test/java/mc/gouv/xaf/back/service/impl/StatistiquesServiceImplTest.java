@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.util.HashMap;
 import java.util.Map;
 
+import mc.gouv.xaf.back.service.StatistiquesInternesService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,8 +15,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.DemarchesDataProvider;
-import mc.gouv.xaf.back.service.data.DemandesStatistiquesService;
+import mc.gouv.xaf.back.service.DemarchesDataProvider;;
 import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -36,10 +36,10 @@ public class StatistiquesServiceImplTest {
     private final static String DEMARCHE_ID = "DEM";
 
     @InjectMocks
-    private StatistiquesServiceImpl statistiquesService;
+    private StatistiquesInternesServiceImpl statistiquesService;
 
     @Mock
-    private DemandesStatistiquesService demandesStatistiquesService;
+    private StatistiquesInternesService demandesStatistiquesService;
 
     @Mock
     private DemarchesDataProvider demarchesDataProvider;

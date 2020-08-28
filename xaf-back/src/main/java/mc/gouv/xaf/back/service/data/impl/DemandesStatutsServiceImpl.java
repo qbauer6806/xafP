@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 
+import mc.gouv.xaf.back.service.data.StatistiquesService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +47,9 @@ public class DemandesStatutsServiceImpl implements DemandesStatutsService {
     @Autowired
     private DemandesService demandesService;
 
+    @Autowired
+    private StatistiquesService statistiquesService;
+
     /**
      * {@inheritDoc}
      */
@@ -65,7 +69,11 @@ public class DemandesStatutsServiceImpl implements DemandesStatutsService {
         }
 
         demandeBo = updateStatut(demandeBo, statut, agentId, usagerId, codeMotif, commentaire, texteAEnvoyer);
-        return DemandesTransformer.bo2Dto(demandeBo);
+
+        DemandeDTO demandeDTO = DemandesTransformer.bo2Dto(demandeBo);
+        statistiquesService.saveStatistique(demandeDTO);
+
+        return demandeDTO;
     }
 
     /**
@@ -97,6 +105,9 @@ public class DemandesStatutsServiceImpl implements DemandesStatutsService {
         demande.getStatuts().add(statutBo);
         demande.setDernierStatut(statutBo);
         demande = demandesRepository.save(demande);
+
+        DemandeDTO demandeDTO = DemandesTransformer.bo2Dto(demande);
+        statistiquesService.saveStatistique(demandeDTO);
 
         return demande;
     }

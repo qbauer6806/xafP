@@ -70,10 +70,7 @@ public class DemandesStatutsServiceImpl implements DemandesStatutsService {
 
         demandeBo = updateStatut(demandeBo, statut, agentId, usagerId, codeMotif, commentaire, texteAEnvoyer);
 
-        DemandeDTO demandeDTO = DemandesTransformer.bo2Dto(demandeBo);
-        statistiquesService.saveStatistique(demandeDTO);
-
-        return demandeDTO;
+        return DemandesTransformer.bo2Dto(demandeBo);
     }
 
     /**

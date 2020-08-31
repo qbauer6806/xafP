@@ -4,8 +4,10 @@ import mc.gouv.xaf.back.data.dao.StatistiquesRepository;
 import mc.gouv.xaf.back.data.entity.StatistiqueBO;
 import mc.gouv.xaf.back.data.transformer.StatistiqueTransformer;
 import mc.gouv.xaf.back.service.data.StatistiquesService;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.StatistiqueDTO;
+import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +29,9 @@ public class StatistiquesServiceImpl implements StatistiquesService {
 
     @Autowired
     private StatistiquesRepository statRepository;
+
+    @Autowired
+    private AfBackUtils afBackUtils;
 
     /**
      * {@inheritDoc}
@@ -60,7 +65,11 @@ public class StatistiquesServiceImpl implements StatistiquesService {
         statistiqueDTO.setDemandeId(demandeDTO.getPkDemandes());
         statistiqueDTO.setDemarcheId(demandeDTO.getDemarcheId());
         statistiqueDTO.setStatutPublicLibelle(demandeDTO.getDernierStatut().getLibelle());
-        statistiqueDTO.setCanal(demandeDTO.getCanal().libelle);
+        StatutPublicOuInterneDTO statutPublicOuInterneDTO = afBackUtils.getStatutPublicOuInterne(demandeDTO);
+        if(!statutPublicOuInterneDTO.getName().equals(demandeDTO.getDernierStatut().getLibelle())) {
+            statistiqueDTO.setStatutInterneLibelle(statutPublicOuInterneDTO.getLibelle());
+        }
+        statistiqueDTO.setCanal(demandeDTO.getCanal().name());
         statistiqueDTO.setDate(new Date());
         return saveStatistique(statistiqueDTO);
     }

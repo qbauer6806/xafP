@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>mc.gouv.xaf</groupId>
 		<artifactId>xaf</artifactId>
-		<version>8.2.1-rc1</version>
+		<version>8.2.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>xaf-sup</artifactId>
 
@@ -141,8 +141,7 @@
 									<target name="Renomage des fichiers pour le Teleservice [${tscode}] pour l'envrionnement [${env}]">
 										<echo>Renommage du fichier [README.MD]</echo>
 										<!--
-										<move file="${global.generated.source.dir}/README.MD" tofile="${global.generated.target.dir}/README.MD"
-											verbose="true" />
+										<move file="${global.generated.source.dir}/README.MD" tofile="${global.generated.target.dir}/README.MD" verbose="true" />
  										-->
 
 										<echo>Renommage des fichiers de [mc_modules]</echo>
@@ -275,8 +274,7 @@
 									<target name="Renomage des fichiers pour le Teleservice [${tscode}] pour l'envrionnement [${env}]">
 										<echo>Renommage du fichier [README.MD]</echo>
 										<!--
-										<move file="${global.generated.source.dir}/README.MD" tofile="${global.generated.target.dir}/README.MD"
-											verbose="true" />
+										<move file="${global.generated.source.dir}/README.MD" tofile="${global.generated.target.dir}/README.MD" verbose="true" />
 										-->
 
 										<echo>Renommage des fichiers de [mc_modules]</echo>
@@ -419,8 +417,7 @@
 									<target name="Renomage des fichiers pour le Teleservice [${tscode}] pour l'envrionnement [${env}]">
 										<echo>Renommage du fichier [README.MD]</echo>
 										<!--
-										<move file="${global.generated.source.dir}/README.MD" tofile="${global.generated.target.dir}/README.MD"
-											verbose="true" />
+										<move file="${global.generated.source.dir}/README.MD" tofile="${global.generated.target.dir}/README.MD" verbose="true" />
 										-->
 										<echo>Renommage des fichiers de [mc_modules]</echo>
 										<move file="${global.generated.mc.modules.source.path}/apiserver.yml" tofile="${global.generated.mc.modules.target.path}/${tscode}-apiserver.yml" verbose="true" />
@@ -438,8 +435,7 @@
 									 	<move file="${global.generated.inventory.source.path}/tscode" tofile="${global.generated.inventory.target.path}/${tscode}" verbose="true" />
 										<move file="${global.generated.inventory.group_vars.source.path}/all.yml" tofile="${global.generated.inventory.group_vars.target.path}/all.yml" verbose="true" />
 										<!--
-										<move file="${global.generated.inventory.group_vars.source.path}/as-server.yml"
-											tofile="${global.generated.inventory.group_vars.target.path}/as-server.yml"
+										<move file="${global.generated.inventory.group_vars.source.path}/as-server.yml" tofile="${global.generated.inventory.group_vars.target.path}/as-server.yml"
 											verbose="true" />
 										-->
 										<move file="${global.generated.inventory.group_vars.source.path}/as.yml" tofile="${global.generated.inventory.group_vars.target.path}/as.yml" verbose="true" />
@@ -552,8 +548,7 @@
 									<target name="Renomage des fichiers pour le Teleservice [${tscode}] pour l'envrionnement [${env}]">
 										<echo>Renommage du fichier [README.MD]</echo>
 										<!--
-										<move file="${global.generated.source.dir}/README.MD" tofile="${global.generated.target.dir}/README.MD"
-											verbose="true" />
+										<move file="${global.generated.source.dir}/README.MD" tofile="${global.generated.target.dir}/README.MD" verbose="true" />
  										-->
 										<echo>Renommage des fichiers de [mc_modules]</echo>
 										<move file="${global.generated.mc.modules.source.path}/apiserver.yml" tofile="${global.generated.mc.modules.target.path}/${tscode}-apiserver.yml" verbose="true" />
@@ -675,8 +670,7 @@
 									<target name="Renomage des fichiers pour le Teleservice [${tscode}] pour l'envrionnement [${env}]">
 										<echo>Renommage du fichier [README.MD]</echo>
 										<!--
-										<move file="${global.generated.source.dir}/README.MD" tofile="${global.generated.target.dir}/README.MD"
-											verbose="true" />
+										<move file="${global.generated.source.dir}/README.MD" tofile="${global.generated.target.dir}/README.MD" verbose="true" />
  										-->
 										<echo>Renommage des fichiers de [mc_modules]</echo>
 										<move file="${global.generated.mc.modules.source.path}/apiserver.yml" tofile="${global.generated.mc.modules.target.path}/${tscode}-apiserver.yml" verbose="true" />
@@ -799,8 +793,7 @@
 									<target name="Renomage des fichiers pour le Teleservice [${tscode}] pour l'envrionnement [${env}]">
 										<echo>Renommage du fichier [README.MD]</echo>
 										<!--
-										<move file="${global.generated.source.dir}/README.MD" tofile="${global.generated.target.dir}/README.MD"
-											verbose="true" />
+										<move file="${global.generated.source.dir}/README.MD" tofile="${global.generated.target.dir}/README.MD" verbose="true" />
  										-->
 
 										<echo>Renommage des fichiers de [mc_modules]</echo>

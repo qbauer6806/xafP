@@ -22,8 +22,7 @@ public class StatistiqueTransformer {
         dto.setDate(bo.getDate());
         dto.setDemandeId(bo.getDemandeId());
         dto.setDemarcheId(bo.getDemarcheId());
-        dto.setStatutInterneLibelle(bo.getStatutInterneLibelle());
-        dto.setStatutPublicLibelle(bo.getStatutPublicLibelle());
+        dto.setStatutPublic(bo.getStatutPublic());
         return dto;
     }
     
@@ -37,8 +36,7 @@ public class StatistiqueTransformer {
         bo.setDate(dto.getDate());
         bo.setDemandeId(dto.getDemandeId());
         bo.setDemarcheId(dto.getDemarcheId());
-        bo.setStatutInterneLibelle(dto.getStatutInterneLibelle());
-        bo.setStatutPublicLibelle(dto.getStatutPublicLibelle());
+        bo.setStatutPublic(dto.getStatutPublic());
 
         return bo;
     }

@@ -23,13 +23,9 @@ public class StatistiqueBO {
     @Column(name = "DEMANDE_ID", nullable = false)
     private Integer demandeId;
 
-    @Column(name = "STATUT_PUBLIC_LIBELLE", length = 64, nullable = false)
+    @Column(name = "STATUT_PUBLIC", length = 64, nullable = false)
     @Size(min = 1, max = 64)
-    private String statutPublicLibelle;
-
-    @Column(name = "STATUT_INTERNE_LIBELLE", length = 64)
-    @Size(min = 1, max = 64)
-    private String statutInterneLibelle;
+    private String statutPublic;
 
     @Column(name = "CANAL", length = 30, nullable = false)
     @Size(min = 0, max = 30)
@@ -58,20 +54,12 @@ public class StatistiqueBO {
         this.demandeId = demandeId;
     }
 
-    public String getStatutPublicLibelle() {
-        return statutPublicLibelle;
+    public String getStatutPublic() {
+        return statutPublic;
     }
 
-    public void setStatutPublicLibelle(String statutPublicLibelle) {
-        this.statutPublicLibelle = statutPublicLibelle;
-    }
-
-    public String getStatutInterneLibelle() {
-        return statutInterneLibelle;
-    }
-
-    public void setStatutInterneLibelle(String statutInterneLibelle) {
-        this.statutInterneLibelle = statutInterneLibelle;
+    public void setStatutPublic(String statutPublic) {
+        this.statutPublic = statutPublic;
     }
 
     public String getCanal() {

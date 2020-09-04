@@ -14,9 +14,7 @@ public class StatistiqueDTO {
 
     private Integer demandeId;
 
-    private String statutPublicLibelle;
-
-    private String statutInterneLibelle;
+    private String statutPublic;
 
     private String canal;
 
@@ -40,20 +38,12 @@ public class StatistiqueDTO {
         this.demandeId = demandeId;
     }
 
-    public String getStatutPublicLibelle() {
-        return statutPublicLibelle;
+    public String getStatutPublic() {
+        return statutPublic;
     }
 
-    public void setStatutPublicLibelle(String statutPublicLibelle) {
-        this.statutPublicLibelle = statutPublicLibelle;
-    }
-
-    public String getStatutInterneLibelle() {
-        return statutInterneLibelle;
-    }
-
-    public void setStatutInterneLibelle(String statutInterneLibelle) {
-        this.statutInterneLibelle = statutInterneLibelle;
+    public void setStatutPublic(String statutPublicLibelle) {
+        this.statutPublic = statutPublicLibelle;
     }
 
     public String getCanal() {

@@ -16,7 +16,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.DemarchesDataProvider;;
+import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
 
 @RunWith(MockitoJUnitRunner.class)

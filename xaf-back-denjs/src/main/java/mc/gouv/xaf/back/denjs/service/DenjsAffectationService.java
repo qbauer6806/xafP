@@ -48,12 +48,12 @@ public interface DenjsAffectationService {
 	public String getAffectationDemandeEtablissement(Integer pkDemande);
 
 	/**
-	 * Récupérer le nom d'un établissement à partir de son code
+	 * Récupérer un établissement à partir de son code
 	 * @param code
 	 * @param etabs
 	 * @return
 	 */
-	public String getEtablissementNomFromCode(String code, List<DenjsEtablissementDTO> etabs);
+	public DenjsEtablissementDTO getEtablissementFromCode(String code, List<DenjsEtablissementDTO> etabs);
 
 	/**
 	 * Récupère l'affectation d'un agent à un établissement

@@ -179,10 +179,10 @@ public class DenjsAffectationServiceImpl implements DenjsAffectationService {
 	}
 	
 	@Override
-    public String getEtablissementNomFromCode(String code, List<DenjsEtablissementDTO> etabs) {
+    public DenjsEtablissementDTO getEtablissementFromCode(String code, List<DenjsEtablissementDTO> etabs) {
     	for (DenjsEtablissementDTO etab : etabs) {
     		if (etab.getCode().equals(code)) {
-    			return etab.getNom();
+    			return etab;
     		}
     	}
     	return null;

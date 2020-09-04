@@ -74,7 +74,8 @@ public class DenjsGestionAgentsController {
             	for (DenjsAffectationAgentDTO aff : affectations) {
             		if (aff.getAgentMatricule().equals(user.getMatricule())) {
             			agent.setEtablissementCode(aff.getEtablissementCode());
-            			agent.setEtablissementNom(denjsAffectationService.getEtablissementNomFromCode(aff.getEtablissementCode(), etablissements));
+            			DenjsEtablissementDTO etablissement = denjsAffectationService.getEtablissementFromCode(aff.getEtablissementCode(), etablissements);
+            			agent.setEtablissementNom(etablissement.getNom());
             		}
             	}
             	agents.add(agent);

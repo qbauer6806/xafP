@@ -188,4 +188,14 @@ public class DenjsAffectationServiceImpl implements DenjsAffectationService {
     	return null;
     }
 
+	@Override
+	public void desaffecterDemandeEtablissement(Integer pkDemande) {
+		LOGGER.info("DenjsAffectationServiceImpl.desaffecterDemandeEtablissement(" + pkDemande + ")");
+		try {
+			demandesDataService.deleteDemandeData(gouvPropertiesResolver.getDemarcheId(), pkDemande, DEMANDE_AFFECTATION_ETABLISSEMENT_KEY);
+		} catch (Exception e) {
+			LOGGER.error("Erreur pendant la suppression en base de l'affectation d'une demande à un établissement", e);
+		}
+	}
+
 }

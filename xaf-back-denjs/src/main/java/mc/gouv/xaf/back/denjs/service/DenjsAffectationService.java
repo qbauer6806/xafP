@@ -41,6 +41,12 @@ public interface DenjsAffectationService {
 	public void affecterDemandeEtablissement(Integer pkDemande, String etablissementCode);
 	
 	/**
+	 * Désaffecter une demande d'un établissement
+	 * @param pkDemande pkDemande de la demande à désaffecter
+	 */
+	public void desaffecterDemandeEtablissement(Integer pkDemande);
+	
+	/**
 	 * Récupérer l'établissement auquel est affecté une demande
 	 * @param pkDemande
 	 * @return

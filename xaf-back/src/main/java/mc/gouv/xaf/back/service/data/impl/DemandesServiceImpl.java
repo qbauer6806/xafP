@@ -678,6 +678,9 @@ public class DemandesServiceImpl implements DemandesService {
         for (DemandesHistoriqueBO histo : histos) {
             demandesHistoriqueRepository.delete(histo);
         }
+        
+        // Suppression des statistiques de la demande (pas géré non plus)
+        statistiquesService.deleteStatistiques(demarcheId, demandeId);
 
         demandesRepository.delete(demandeBo);
     }

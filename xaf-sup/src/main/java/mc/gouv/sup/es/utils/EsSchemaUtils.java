@@ -74,7 +74,7 @@ public class EsSchemaUtils {
         ObjectNode contenu = objectMapper.createObjectNode();
 
         // Appel à la recherche résursive
-        depthFirstSearchESMapping(root, "NC", contenu, objectMapper, schema);
+        depthFirstSearchESMapping(getProjectDemandeRecap(root), "NC", contenu, objectMapper, schema);
 
         ObjectNode data = objectMapper.createObjectNode();
 
@@ -214,4 +214,14 @@ public class EsSchemaUtils {
         return node == null || node instanceof MissingNode;
     }
 
+
+    public static JsonNode getProjectDemandeRecap(JsonNode root) {
+        for (Iterator<JsonNode> it = root.elements(); it.hasNext(); ) {
+            JsonNode node = it.next();
+            if(node.get("name") != null && node.get("name").textValue().equals("projectDemandeRecap")) {
+                return node;
+            }
+        }
+        return root;
+    }
 }

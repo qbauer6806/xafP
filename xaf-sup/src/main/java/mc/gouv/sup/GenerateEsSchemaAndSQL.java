@@ -2,11 +2,6 @@ package mc.gouv.sup;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.node.MissingNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import mc.gouv.sup.es.enums.EsType;
-import mc.gouv.sup.es.enums.RecapChampType;
 import mc.gouv.sup.es.utils.EsSchemaUtils;
 import mc.gouv.sup.sql.utils.SQLScriptsUtils;
 import org.slf4j.Logger;
@@ -19,8 +14,12 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.Map.Entry;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
+import static mc.gouv.sup.es.utils.EsSchemaUtils.getProjectDemandeRecap;
 
 /**
  *
@@ -72,7 +71,7 @@ public class GenerateEsSchemaAndSQL {
 
         // Lancement des générations
         StringBuilder sqlBuilder = new StringBuilder();
-        SQLScriptsUtils.generateSQLScripts(root, "NC", schema, sqlBuilder);
+        SQLScriptsUtils.generateSQLScripts(getProjectDemandeRecap(root), "NC", schema, sqlBuilder);
         String jsonEsSchema = EsSchemaUtils.generateEsMappings(path, schema, datas);
 
         // Ecriture dans les dossiers

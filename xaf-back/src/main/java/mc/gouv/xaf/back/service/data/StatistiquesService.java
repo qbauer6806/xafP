@@ -26,4 +26,11 @@ public interface StatistiquesService {
      */
     StatistiqueDTO saveStatistique(DemandeDTO demandeDTO);
 
+	/**
+	 * Supprimer les statistiques liées à une demande
+	 * @param demarcheId
+	 * @param pkDemande
+	 */
+	void deleteStatistiques(String demarcheId, Integer pkDemande);
+
 }

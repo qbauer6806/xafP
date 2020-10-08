@@ -44,10 +44,11 @@ public class StatistiquesServiceImpl implements StatistiquesService {
         if (!statistiquesBO.isEmpty()) {
             StatistiqueBO derniereStat = statistiquesBO.get(statistiquesBO.size()-1);
 
-            // Mise à jour de la stat en bdd
-            derniereStat.setStatutPublic(stat.getStatutPublic());
-            derniereStat.setDate(stat.getDate());
-            return StatistiqueTransformer.bo2Dto(statRepository.save(derniereStat));
+            // On ne crée pas de nouvelle information si le dernier statut est le même l'actuel
+            if (derniereStat.getStatutPublic().equals(stat.getStatutPublic())) {
+                LOGGER.info("Une stat a déjà été trouvée avec le même statut - On ne crée pas de nouvelle statistique");
+                return StatistiqueTransformer.bo2Dto(derniereStat);
+            }
         }
 
         StatistiqueBO bo = StatistiqueTransformer.dto2Bo(stat);
@@ -63,7 +64,7 @@ public class StatistiquesServiceImpl implements StatistiquesService {
         statistiqueDTO.setDemarcheId(demandeDTO.getDemarcheId());
         statistiqueDTO.setStatutPublic(demandeDTO.getDernierStatut().getLibelle());
         statistiqueDTO.setCanal(demandeDTO.getCanal().name());
-        statistiqueDTO.setDate(new Date());
+        statistiqueDTO.setDate(demandeDTO.getDernierStatut().getDate());
         return saveStatistique(statistiqueDTO);
     }
 

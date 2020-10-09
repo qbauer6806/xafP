@@ -668,6 +668,13 @@ public class DemandesServiceImpl implements DemandesService {
         if (demandeBo == null) {
             throw new DemarchesServiceException("Demande introuvable", HttpStatus.NOT_FOUND);
         }
+        
+        StatistiqueDTO stat = new StatistiqueDTO();
+        stat.setCanal(demandeBo.getCanal());
+        stat.setDate(new Date());
+        stat.setDemandeId(demandeId);
+        stat.setDemarcheId(demarcheId);
+        stat.setStatutPublic(AfBackUtils.STATUT_PUBLIC_SUPPRIMEE);
 
         AccessBO access = demandeBo.getFkAccess();
         access.getDemandes().remove(demandeBo);
@@ -679,8 +686,8 @@ public class DemandesServiceImpl implements DemandesService {
             demandesHistoriqueRepository.delete(histo);
         }
         
-        // Suppression des statistiques de la demande (pas géré non plus)
-        statistiquesService.deleteStatistiques(demarcheId, demandeId);
+        LOGGER.info("Ajout d'une ligne de statistique pour la suppression de la demande...");
+        statistiquesService.saveStatistique(stat);
 
         demandesRepository.delete(demandeBo);
     }

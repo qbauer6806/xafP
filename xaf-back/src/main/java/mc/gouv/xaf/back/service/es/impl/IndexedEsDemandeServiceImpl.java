@@ -1945,10 +1945,10 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      */
     @Override
     public void deleteDemande(String demarcheId, Integer demandeId) throws JsonProcessingException {
-        super.deleteDemande(demarcheId, demandeId);
         try {
             Optional<DemandeBO> demandeBoOp = demandesRepository.findById(demandeId);
             demandeBoOp.ifPresent(demandeBO -> demandeEsRepository.deleteById(demandeBO.getIdentifiant()));
+            super.deleteDemande(demarcheId, demandeId);
         } catch (Exception e) {
             LOGGER.error("Erreur d'indexation lors de la suppression de la demande.");
             EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("IndexedEsDemandeServiceImpl - méthode deleteDemande()", demarcheId, demandeId, e);

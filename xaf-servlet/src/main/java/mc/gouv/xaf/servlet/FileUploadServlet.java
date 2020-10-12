@@ -268,7 +268,7 @@ public class FileUploadServlet extends AbstractAfServlet {
         }
 
         // Supression des sessions inutilisées chaque 10 requêtes d'upload
-        if (compteurCleanSessions > 1) {
+        if (compteurCleanSessions > 50) {
             reinitialierSessionsInutilisees();
         }
 

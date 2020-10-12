@@ -81,6 +81,10 @@ public class FileUploadServlet extends AbstractAfServlet {
                         "Erreur: La limite de nombre de fichiers uploadés a été atteinte");
                 return;
             }
+            else if (duration.toMillis() > tempsParIntervalle) {
+                // Supprimer le compteur en cas de dépassement
+                usagersFileUploadCompteurs.remove(session);
+            }
         }
 
         // Récupération du nom du fichier à envoyer

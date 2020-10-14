@@ -146,8 +146,8 @@
 												th:attr="data-title=${#fields.hasErrors('langue')} ? ${#fields.errors('langue')} :''">
 												<option th:value="null">Veuillez sélectionner une
 													valeur...</option>
-												<option th:value="fr">Français</option>
-												<option th:value="en">Anglais</option>
+												<option th:each="langue : ${langues}"
+													th:value="${langue.key}" th:text="${langue.value}"></option>
 											</select>
 										</div>
 									</div>

@@ -79,10 +79,7 @@ import org.springframework.data.elasticsearch.core.aggregation.impl.AggregatedPa
 import org.springframework.data.elasticsearch.core.convert.ElasticsearchConverter;
 import org.springframework.data.elasticsearch.core.convert.MappingElasticsearchConverter;
 import org.springframework.data.elasticsearch.core.mapping.SimpleElasticsearchMappingContext;
-import org.springframework.data.elasticsearch.core.query.FetchSourceFilter;
-import org.springframework.data.elasticsearch.core.query.IndexQuery;
-import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
-import org.springframework.data.elasticsearch.core.query.SourceFilter;
+import org.springframework.data.elasticsearch.core.query.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.xml.sax.SAXException;
@@ -661,8 +658,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         List<DemandeBO> demandesBdd = demandesRepository.findAll(PageRequest.of(0, (int) demCount)).toList();
         List<String> identifiantsDemandesBdd = demandesBdd.stream().map(DemandeBO::getIdentifiant).collect(Collectors.toList());
 
-        List<DemandeEsDTO> demandesEs = new ArrayList<>();
-        demandeEsRepository.findAll().forEach(demandesEs::add);
+        List<DemandeEsDTO> demandesEs = this.findAllDemandesLazy();
         List<String> identifiantsDemandesEs = demandesEs.stream().filter(d -> d.getPkDemandes() != null).map(DemandeEsDTO::getIdentifiant).collect(Collectors.toList());
 
         // [0] Demandes présentes dans ES mais pas en BDD
@@ -1996,4 +1992,19 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         return SDF.format(cal.getTime());
     }
 
+
+    /**
+     * Récupère uniquement l'identifiant et la pkDemandes de tous les documents de l'index ES
+     * @return List des demandes en Lazy
+     */
+    private List<DemandeEsDTO> findAllDemandesLazy() {
+        String[] includes = new String[]{"identifiant", "pkDemandes"};
+        SearchQuery searchQuery = new NativeSearchQueryBuilder()
+                .withQuery(matchAllQuery())
+                .withSourceFilter(new FetchSourceFilter(includes, null))
+                .withPageable(PageRequest.of(0, (int) demandeEsRepository.count()))
+                .build();
+
+        return elasticsearchTemplate.queryForList(searchQuery, DemandeEsDTO.class);
+    }
 }

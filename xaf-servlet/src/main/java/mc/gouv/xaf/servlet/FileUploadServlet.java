@@ -80,7 +80,8 @@ public class FileUploadServlet extends AbstractAfServlet {
                 AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_METHOD_NOT_ALLOWED,
                         "Erreur: La limite de nombre de fichiers uploadés a été atteinte");
                 return;
-            } else if (duration.toMillis() > tempsParIntervalle) {
+            }
+            else if (duration.toMillis() > tempsParIntervalle) {
                 // Supprimer le compteur en cas de dépassement
                 usagersFileUploadCompteurs.remove(session);
             }
@@ -325,12 +326,13 @@ public class FileUploadServlet extends AbstractAfServlet {
      *      Une session dont la date du premier upload > x secondes
      */
     private synchronized static void reinitialierSessionsInutilisees() {
-        for (Map.Entry<HttpSession, FileUploadCompteurDTO> entry : usagersFileUploadCompteurs.entrySet()) {
+        for(Iterator<Map.Entry<HttpSession, FileUploadCompteurDTO>> it = usagersFileUploadCompteurs.entrySet().iterator(); it.hasNext(); ) {
+            Map.Entry<HttpSession, FileUploadCompteurDTO> entry = it.next();
             LocalDateTime datePremierUpload = entry.getValue().getDatePremierUpload();
             Duration duration = Duration.between(datePremierUpload, LocalDateTime.now());
             int tempsParIntervalle = Integer.parseInt(AfServletGouvPropertiesResolver.getTempsIntervalleUpload());
             if (duration.toMillis() > tempsParIntervalle) {
-                usagersFileUploadCompteurs.remove(entry.getKey());
+                it.remove();
             }
         }
         compteurCleanSessions = 0;

@@ -1812,7 +1812,10 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                     .must(termQuery(DemandeEsDTO.ACCESS_FIELD_NAME + "." + DemandeAccessEsDTO.ACTIVE_FIELD_NAME, true));
         }
 
-        if (!StringUtils.isBlank(demandeRecherche.getAgentAffecteId())) {
+        if (demandeRecherche.isAucunResponsable()) {
+            boolQueryBuilder = boolQueryBuilder
+                    .mustNot(existsQuery(DemandeEsDTO.AGENT_FIELD_NAME + "." + AgentEsDTO.MATRICULE_FIELD_NAME + ES_KEYWORD));
+        } else if (!StringUtils.isBlank(demandeRecherche.getAgentAffecteId())) {
             boolQueryBuilder = boolQueryBuilder
                     .must(termQuery(DemandeEsDTO.AGENT_FIELD_NAME + "." + AgentEsDTO.MATRICULE_FIELD_NAME + ES_KEYWORD,
                             demandeRecherche.getAgentAffecteId()));

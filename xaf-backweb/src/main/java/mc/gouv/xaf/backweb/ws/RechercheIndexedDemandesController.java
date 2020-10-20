@@ -58,6 +58,7 @@ public class RechercheIndexedDemandesController extends AbstractController {
                                                 @RequestParam(value = "searchFields", required = false) String[] searchFields,
                                                 @RequestParam(value = "data", required = false) DataRechercheDTO data,
                                                 @RequestParam(value = "aucunCanal", required = false) boolean aucunCanal,
+                                                @RequestParam(value = "aucunResponsable", required = false) boolean aucunResponsable,
                                                 @RequestParam(value = "aucunStatut", required = false) boolean aucunStatut,
                                                 @RequestParam(value = "statutPublicOuInterne", required = false) String statutPublicOuInterne, Pageable pageable) {
 
@@ -78,6 +79,7 @@ public class RechercheIndexedDemandesController extends AbstractController {
         demandeRecherche.setIdentifiant(null);
         demandeRecherche.setAucunStatut(aucunStatut);
         demandeRecherche.setAucunCanal(aucunCanal);
+        demandeRecherche.setAucunResponsable(aucunResponsable);
         demandeRecherche.setStatutPublicOuInterne(statutPublicOuInterne);
         demandeRecherche.setSearchFields(searchFields);
 

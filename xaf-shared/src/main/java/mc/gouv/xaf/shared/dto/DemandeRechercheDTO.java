@@ -37,7 +37,9 @@ public class DemandeRechercheDTO {
     private boolean aucunCanal;
 
     private boolean aucunStatut;
-    
+
+    private boolean aucunResponsable;
+
     private String statutPublicOuInterne;
 
     public DemandeRechercheDTO() {
@@ -172,7 +174,15 @@ public class DemandeRechercheDTO {
 		this.statutPublicOuInterne = statutPublicOuInterne;
 	}
 
-	@Override
+    public boolean isAucunResponsable() {
+        return aucunResponsable;
+    }
+
+    public void setAucunResponsable(boolean aucunResponsable) {
+        this.aucunResponsable = aucunResponsable;
+    }
+
+    @Override
     public String toString() {
         return "DemandeRechercheDTO [demarcheId=" + demarcheId + ", texte=" + texte + ", statuts=" + statuts
                 + ", canaux=" + canaux + ", agentAffecteId=" + agentAffecteId + ", usagerId=" + usagerId

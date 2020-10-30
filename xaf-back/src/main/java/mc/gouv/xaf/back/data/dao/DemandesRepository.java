@@ -43,6 +43,8 @@ public interface DemandesRepository extends CrudRepository<DemandeBO, Integer> {
 
     List<DemandeBO> findAll();
 
+    List<DemandeBO> findAllByIdentifiantIn(List<String> identifiants);
+
     List<DemandeBO> findAllByDernierStatut_Libelle(String dernierStatut);
 
     /**

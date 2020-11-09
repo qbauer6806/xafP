@@ -14,9 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Service permettant la manipulation des fichiers joints aux demandes.
@@ -83,4 +82,20 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
         LOGGER.info("Fin saveFile()");
     }
 
+    @Override
+    public void updateTypedocs(Map<String, String> changes) {
+        LOGGER.info("updateTypedocs({})", changes);
+        if (!changes.isEmpty()) {
+            List<Integer> keys = changes.keySet().stream()
+                    .map(Integer::parseInt)
+                    .collect(Collectors.toList());
+            Iterable<DemandesFilesBO> files = demandesFilesRepository.findAllById(keys);
+            files.forEach(file -> {
+                String typedoc = changes.get("" + file.getPkDemandesFiles());
+                file.setTypedoc(typedoc);
+            });
+            demandesFilesRepository.saveAll(files);
+        }
+        LOGGER.info("Fin updateTypedocs()");
+    }
 }

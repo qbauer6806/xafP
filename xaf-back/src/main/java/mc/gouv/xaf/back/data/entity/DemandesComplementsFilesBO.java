@@ -14,11 +14,9 @@ import javax.validation.constraints.Size;
 import org.hibernate.validator.constraints.NotBlank;
 
 /**
- * 
  * Classe BO de la table DEM.DEMANDES_COMPLEMENTS_FILES
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Entity
 @Table(name = "DEM_DEMANDES_COMPLEMENTS_FILES")
@@ -46,6 +44,9 @@ public class DemandesComplementsFilesBO {
     @Column(name = "meta", length = 512, nullable = true)
     @Size(min = 0, max = 512)
     private String meta;
+
+    @Column(name = "TYPEDOC", length = 128)
+    private String typedoc;
 
     public Integer getPkDemandesComplementsFiles() {
         return pkDemandesComplementsFiles;
@@ -86,5 +87,12 @@ public class DemandesComplementsFilesBO {
     public void setMeta(String meta) {
         this.meta = meta;
     }
-    
+
+    public String getTypedoc() {
+        return typedoc;
+    }
+
+    public void setTypedoc(String typedoc) {
+        this.typedoc = typedoc;
+    }
 }

@@ -337,21 +337,31 @@ dd span {
 }
 
 .file-name-col {
-	width: 75%;
-	padding-right: 0 !important;
-	overflow: hidden;
-    text-overflow: ellipsis;
+	width: 85%;
+}
+
+.file-name-col-small {
+	width: 50%;
+}
+
+.typedoc-col {
+	width: 35%;
 }
 
 .date-col {
-	width: 15%;
-}
-
-.action-col {
 	width: 10%;
 }
 
-.file-name-col, .date-col, .action-col {
+.action-col {
+	width: 5%;
+}
+
+.file-name-col, .file-name-col-small {
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.file-name-col, .file-name-col-small, .typedoc-col, .date-col, .action-col {
 	padding-right: 0 !important;
 }
 

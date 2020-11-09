@@ -4,11 +4,12 @@ import javax.validation.constraints.NotNull;
 
 /**
  * Modélise un fichier d'une demande d'informations complémentaires
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 public class DemandeComplementsFileDTO {
+
+    private Integer pkDemandesComplementsFiles;
 
     @NotNull
     private String name;
@@ -17,6 +18,16 @@ public class DemandeComplementsFileDTO {
     private String url;
 
     private String meta;
+
+    private String typedoc;
+
+    public Integer getPkDemandesComplementsFiles() {
+        return pkDemandesComplementsFiles;
+    }
+
+    public void setPkDemandesComplementsFiles(Integer pkDemandesComplementsFiles) {
+        this.pkDemandesComplementsFiles = pkDemandesComplementsFiles;
+    }
 
     public String getName() {
         return name;
@@ -42,4 +53,11 @@ public class DemandeComplementsFileDTO {
         this.meta = meta;
     }
 
+    public String getTypedoc() {
+        return typedoc;
+    }
+
+    public void setTypedoc(String typedoc) {
+        this.typedoc = typedoc;
+    }
 }

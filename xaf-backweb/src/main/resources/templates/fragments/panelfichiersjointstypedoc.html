@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<body>
+
+<div id="panelfichiersjointstypedoc" th:fragment="panelfichiersjointstypedoc" th:remove="tag">
+    <div class="tab-pane" id="tab2" role="tabpanel">
+        <form action="#" method="post" th:action="@{/demandes/typageDocuments}">
+            <div th:each="cat : ${categories}">
+                <h3 th:text="${cat.name}"></h3>
+                <table class="table table-striped datatablefichiers fixed-layout"
+                       id="datatable-fichiers">
+                    <thead>
+                    <tr>
+                        <th th:class="${cat.typedoc} ? 'file-name-col-small' : 'file-name-col'">Nom du fichier</th>
+                        <th class="date-col">Date</th>
+                        <th class="typedoc-col" th:if="${cat.typedoc}">Type</th>
+                        <th class="action-col">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="file : ${cat.files}">
+                        <td th:class="${cat.typedoc} ? 'file-name-col-small' : 'file-name-col'"
+                            th:text="${file.name}"></td>
+                        <td class="date-col" th:text="${#dates.format(file.date, 'dd/MM/yyyy HH:mm')}"></td>
+                        <td class="typedoc-col" th:if="${cat.typedoc}">
+                            <select th:id="${file.compFile} ? comp + ${file.pkDemandesComplementsFiles} : file + ${file.pkDemandesFiles}"
+                                    th:value="${file.typedoc}" class="form-control" onchange="updateTypedocJSON(this)">
+                                <option th:value="null">Sélectionnez un type</option>
+                                <option th:each="typedoc : ${typedocList}" th:text="${typedoc.value}"
+                                        th:value="${typedoc.key}"></option>
+                            </select>
+                        </td>
+                        <td class="action-col">
+                            <a th:href="@{/ws/file/get}+${file.url}">
+                            <span class="btn btn-action ripple-effect greyTooltip" data-original-title="Télécharger"
+                                  data-placement="bottom" data-toggle="tooltip" title="">
+                                <i class="icon-action_pdf"></i>
+                            </span>
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                <div th:if="${cat.name} == 'Fichiers complémentaires'">
+                    <input id="typedoc-files" th:field="${typedocFormBean.files}" type="hidden"/>
+                    <input id="typedoc-complements" th:field="${typedocFormBean.complements}" type="hidden"/>
+                    <input type="hidden" name="pkDemande" th:value="${demandeDTO.pkDemandes}"/>
+                    <input class="btn btn-action ripple-effect" id="typedoc-button" type="button"
+                           th:disabled="!${#authorization.expression('hasRole(''ROLE_TRAITEMENT'')')}"
+                           value="Enregistrer les types de fichiers">
+                    <input type="submit" id="confirmer-typedoc-button" style="display: none"/>
+                </div>
+                <br/>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

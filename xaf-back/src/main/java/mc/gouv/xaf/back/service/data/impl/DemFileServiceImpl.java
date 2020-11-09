@@ -68,11 +68,10 @@ public class DemFileServiceImpl implements DemFileService {
                 
                 restTemplate = new RestTemplate();
                 
-                List<HttpMessageConverter<?>> list = new ArrayList<HttpMessageConverter<?>>();
+                List<HttpMessageConverter<?>> list = new ArrayList<>();
                 MappingJackson2HttpMessageConverter conv = new MappingJackson2HttpMessageConverter();
-                List<MediaType> mediaTypes = new ArrayList<MediaType>();
-                mediaTypes
-                        .add(new MediaType("application", "json", StandardCharsets.UTF_8));
+                List<MediaType> mediaTypes = new ArrayList<>();
+                mediaTypes.add(new MediaType("application", "json", StandardCharsets.UTF_8));
                 mediaTypes.add(new MediaType("text", "html", StandardCharsets.UTF_8));
                 conv.setSupportedMediaTypes(mediaTypes);
                 list.add(conv);

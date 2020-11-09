@@ -139,7 +139,7 @@ public class DemarchesUtils {
      * @return
      */
     public static DemandeFileDTO[] filterFiles(DemandeFileDTO[] files) {
-    	List<DemandeFileDTO> newFiles = new ArrayList<DemandeFileDTO>();
+    	List<DemandeFileDTO> newFiles = new ArrayList<>();
     	for (DemandeFileDTO file : files) {
     		if (StringUtils.isBlank(file.getMeta()) || file.getMeta().startsWith(FRONT_FILE_PREFIX) || file.getMeta().startsWith(BACK_FRONT_FILE_PREFIX)) {
     			newFiles.add(file);

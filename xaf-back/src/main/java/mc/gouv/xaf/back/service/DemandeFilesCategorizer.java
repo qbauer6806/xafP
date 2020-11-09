@@ -13,6 +13,6 @@ import mc.gouv.xaf.shared.dto.FileCategoryDTO;
  */
 public interface DemandeFilesCategorizer {
 
-	public List<FileCategoryDTO> getCategoriesAndFiles(DemandeDTO demande);
+	List<FileCategoryDTO> getCategoriesAndFiles(DemandeDTO demande);
 	
 }

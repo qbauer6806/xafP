@@ -33,7 +33,6 @@ public class DemandeFileEsDTO {
     }
 
     public DemandeFileEsDTO(String parent) {
-
         fichiers = new Fichiers();
         setDemandeJoinField(new DemandeJoinFieldEsDTO(INDEX_FILES_JOIN_DOC, parent));
     }
@@ -71,6 +70,7 @@ public class DemandeFileEsDTO {
         private Date dateCreation;
         private Integer pkDemande;
         private Integer pkDemandeFile;
+        private String typedoc;
 
         /**
          * Identifiant courrier (ref_interne sur la page gestioncourrier)
@@ -184,6 +184,14 @@ public class DemandeFileEsDTO {
 
         public void setIdentifiantDemande(String identifiantDemande) {
             this.identifiantDemande = identifiantDemande;
+        }
+
+        public String getTypedoc() {
+            return typedoc;
+        }
+
+        public void setTypedoc(String typedoc) {
+            this.typedoc = typedoc;
         }
     }
 

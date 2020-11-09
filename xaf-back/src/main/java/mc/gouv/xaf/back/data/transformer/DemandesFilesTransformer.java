@@ -23,6 +23,7 @@ public class DemandesFilesTransformer {
         dto.setUrl(bo.getUrl());
         dto.setMeta(bo.getMeta());
         dto.setDate(bo.getDate());
+        dto.setTypedoc(bo.getTypedoc());
         return dto;
     }
 
@@ -39,6 +40,7 @@ public class DemandesFilesTransformer {
         bo.setUrl(dto.getUrl());
         bo.setMeta(dto.getMeta());
         bo.setDate(dto.getDate());
+        bo.setTypedoc(dto.getTypedoc());
         return bo;
     }
 

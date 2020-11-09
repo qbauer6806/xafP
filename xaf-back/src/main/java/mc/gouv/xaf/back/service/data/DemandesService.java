@@ -166,6 +166,8 @@ public interface DemandesService {
      */
     boolean isAccesDesactive(String demarcheId, Integer pkDemande);
 
+    DemandeDTO changerAffectationDemande(String demarcheId, int pkDemande, String agentAffecteId);
+
     DemandeBO getDemandeBo(String demarcheId, Integer pkDemandes);
 
     /**

@@ -33,7 +33,6 @@ import mc.gouv.xaf.shared.dto.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.search.join.ScoreMode;
-import org.apache.tika.exception.TikaException;
 import org.apache.tika.exception.ZeroByteFileException;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequest;
@@ -2010,4 +2009,18 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
         return elasticsearchTemplate.queryForList(searchQuery, DemandeEsDTO.class);
     }
+
+    public DemandeDTO changerAffectationDemande(String demarcheId, int pkDemande, String agentAffecteId) {
+        DemandeDTO demandeDTO = super.changerAffectationDemande(demarcheId, pkDemande, agentAffecteId);
+        try {
+            indexDemande(demandeDTO);
+        } catch (Exception e) {
+            LOGGER.error("Erreur d'indexation lors de l'update de la demande.");
+            EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("IndexedEsDemandeServiceImpl - méthode changerAffectationDemande()", demandeDTO, e);
+            applicationEventPublisher.publishEvent(esErrorEventDTO);
+            throw new AfIndexingException(e.getMessage(), e);
+        }
+        return demandeDTO;
+    }
+
 }

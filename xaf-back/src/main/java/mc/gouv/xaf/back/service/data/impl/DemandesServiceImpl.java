@@ -1210,4 +1210,40 @@ public class DemandesServiceImpl implements DemandesService {
 
     }
 
+    /**
+     * Change l'affectation de la demande sans trigger un full update dans le cas où on veut SUPPRIMER l'affectation
+     * (car lors d'un partialUpdate on vérifie si le champs est null avant de mettre à jour le champs en question)
+     *  @param demarcheId
+     * @param pkDemandes
+     * @param agentAffecteId
+     * @return
+     */
+    public DemandeDTO changerAffectationDemande(String demarcheId, int pkDemandes, String agentAffecteId) {
+        LOGGER.info("Récupération en base de la demande...");
+
+        Optional<DemandeBO> demandeBoOp = demandesRepository.findById(pkDemandes);
+
+        // Gérer les accès désactivés
+        if (demandeBoOp.isPresent() && !demandeBoOp.get().getFkAccess().isActive() && DemarchesUtils.isFrontUser()) {
+            demandeBoOp = Optional.empty();
+        }
+
+        if (!demandeBoOp.isPresent()) {
+            throw new DemarchesServiceException("Demande introuvable", HttpStatus.NOT_FOUND);
+        }
+
+        DemandeBO demandeBo = demandeBoOp.get();
+
+        demandeBo.setAgentAffecteId(agentAffecteId);
+
+        demandesRepository.save(demandeBo);
+
+        DemandeDTO demandeDTO = DemandesTransformer.bo2Dto(demandeBo);
+        statistiquesService.saveStatistique(demandeDTO);
+
+        LOGGER.info("Fin changement affectation...");
+
+        return demandeDTO;
+    }
+
 }

@@ -30,6 +30,13 @@ public interface DemandesService {
     DemandeDTO saveDemande(DemandeDTO demande, String premierStatut) throws Exception;
 
     /**
+     * Permet de récupérer les demandes correspondant au DemarcheID et qui matchent les identifiants
+     * @param identifiants
+     * @return
+     */
+    List<DemandeDTO> getDemandesByIdentifiants(List<String> identifiants);
+
+    /**
      * Permet de récupérer les demandes correspondant au DemarcheID
      *
      * @param demarcheId

@@ -294,6 +294,22 @@ public class DemandesServiceImpl implements DemandesService {
      * {@inheritDoc}
      */
     @Override
+    public List<DemandeDTO> getDemandesByIdentifiants(List<String> identifiants) {
+
+        LOGGER.info("Récupération en base des demandes...");
+
+        List<DemandeBO> demandes = demandesRepository.findAllByIdentifiantIn(identifiants);
+
+        LOGGER.info("Transformation bo -> dto ...");
+
+        return DemandesTransformer.bo2Dto(demandes);
+
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public List<DemandeDTO> getDemandes(String demarcheId) {
 
         LOGGER.info("Récupération en base des demandes...");

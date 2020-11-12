@@ -73,7 +73,4 @@ public interface GouvPropertiesResolver {
 
     Integer getUsagersPageSize();
 
-    String getResidJwt();
-
-    String getResidUrl();
 }

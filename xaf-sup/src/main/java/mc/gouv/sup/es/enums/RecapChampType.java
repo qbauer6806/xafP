@@ -7,6 +7,7 @@ public enum RecapChampType {
     DATE("date"),
     ADRESSE("adresse"),
     ADRESSE_MC("adresseMc"),
+    TABLEAU("tableau"),
     IBAN("iban");
 
     private String type;

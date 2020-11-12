@@ -5,8 +5,10 @@ import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandesFilesBO;
 import mc.gouv.xaf.back.data.transformer.DemandesFilesTransformer;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesFilesService;
 import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.net.MalformedURLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -36,6 +39,12 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
 
     @Autowired
     private DemandesService demandesService;
+
+    @Autowired
+    private FileService fileService;
+
+    @Autowired
+    private GouvPropertiesResolver gouvPropertiesResolver;
 
     @Override
     public void saveFiles(DemandeFileDTO[] demandeFiles, DemandeBO demandeBo) throws Exception {
@@ -86,6 +95,7 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
     public void updateTypedocs(Map<String, String> changes) {
         LOGGER.info("updateTypedocs({})", changes);
         if (!changes.isEmpty()) {
+            String demarcheId = gouvPropertiesResolver.getDemarcheId();
             List<Integer> keys = changes.keySet().stream()
                     .map(Integer::parseInt)
                     .collect(Collectors.toList());
@@ -93,6 +103,11 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
             files.forEach(file -> {
                 String typedoc = changes.get("" + file.getPkDemandesFiles());
                 file.setTypedoc(typedoc);
+                try {
+                    fileService.updateFileMetadata(file.getUrl(), demarcheId, FileService.FILE_METADATA_TYPEDOC, typedoc);
+                } catch (MalformedURLException e) {
+                    LOGGER.error("Impossible d'affecter la métadonnée typedoc au fichier {} à l'url {}", file.getName(), file.getUrl(), e);
+                }
             });
             demandesFilesRepository.saveAll(files);
         }

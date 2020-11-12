@@ -24,6 +24,7 @@ import javax.persistence.criteria.*;
 
 import mc.gouv.xaf.back.data.entity.*;
 import mc.gouv.xaf.back.service.data.*;
+import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.FileUtils;
 import mc.gouv.xaf.shared.dto.*;
@@ -104,7 +105,7 @@ public class DemandesServiceImpl implements DemandesService {
     private DemarchesService demarchesService;
 
     @Autowired
-    private DemFileService demFileService;
+    private FileService fileService;
 
     @Autowired
     private DemandesFilesService demandesFilesService;
@@ -214,7 +215,7 @@ public class DemandesServiceImpl implements DemandesService {
         // Lier les fichiers de la demande au DemandeID, dans FILE
         if (demande.getFichiers() != null) {
             LOGGER.info("Lier ces fichiers au DemandeID dans FILE...");
-            demFileService.updateFilesMetadataWithDemandeId(demande.getFichiers(),
+            fileService.updateFilesMetadataWithDemandeId(demande.getFichiers(),
                     demandeBo.getFkAccess().getDemarcheId(), demandeBo.getPkDemandes());
         }
 

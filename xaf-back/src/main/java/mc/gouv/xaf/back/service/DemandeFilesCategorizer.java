@@ -14,5 +14,7 @@ import mc.gouv.xaf.shared.dto.FileCategoryDTO;
 public interface DemandeFilesCategorizer {
 
 	List<FileCategoryDTO> getCategoriesAndFiles(DemandeDTO demande);
-	
+
+	int getTypedocNullNbr();
+
 }

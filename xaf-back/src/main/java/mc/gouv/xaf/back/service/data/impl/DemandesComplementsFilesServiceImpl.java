@@ -3,13 +3,16 @@ package mc.gouv.xaf.back.service.data.impl;
 import mc.gouv.xaf.back.data.dao.DemandesComplementsFilesRepository;
 import mc.gouv.xaf.back.data.entity.DemandesComplementsFilesBO;
 import mc.gouv.xaf.back.data.entity.DemandesFilesBO;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesComplementsFilesService;
+import mc.gouv.xaf.back.service.itg.file.FileService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -28,10 +31,17 @@ public class DemandesComplementsFilesServiceImpl implements DemandesComplementsF
 	@Autowired
 	private DemandesComplementsFilesRepository demandesComplementsFilesRepository;
 
+	@Autowired
+	private FileService fileService;
+
+	@Autowired
+	private GouvPropertiesResolver gouvPropertiesResolver;
+
 	@Override
 	public void updateTypedocs(Map<String, String> changes) {
 		LOGGER.info("updateTypedocs({})", changes);
 		if (!changes.isEmpty()) {
+			String demarcheId = gouvPropertiesResolver.getDemarcheId();
 			List<Integer> keys = changes.keySet().stream()
 					.map(Integer::parseInt)
 					.collect(Collectors.toList());
@@ -39,6 +49,11 @@ public class DemandesComplementsFilesServiceImpl implements DemandesComplementsF
 			files.forEach(file -> {
 				String typedoc = changes.get("" + file.getPkDemandesComplementsFiles());
 				file.setTypedoc(typedoc);
+				try {
+					fileService.updateFileMetadata(file.getUrl(), demarcheId, FileService.FILE_METADATA_TYPEDOC, typedoc);
+				} catch (MalformedURLException e) {
+					LOGGER.error("Impossible d'affecter la métadonnée typedoc au fichier {} à l'url {}", file.getName(), file.getUrl(), e);
+				}
 			});
 			demandesComplementsFilesRepository.saveAll(files);
 		}

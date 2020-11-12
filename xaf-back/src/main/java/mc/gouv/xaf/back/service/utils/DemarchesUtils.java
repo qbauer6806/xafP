@@ -34,7 +34,6 @@ public class DemarchesUtils {
     @Value("${application.name}")
     private String applicationName;
 
-    public static final String FILE_METADATA_DEMANDEID = "X-MC-DEMANDEID";
     public static final String METADATA_HTTPMETHODOVERRIDE = "X-HTTP-Method-Override";
     public static final int USAGERID_OFFSET = 1000000000;
     public static final String FRONT_FILE_PREFIX = "FRONT_";

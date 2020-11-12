@@ -13,13 +13,10 @@ public class TypedocDTO {
 
 	private boolean enabled;
 
-	private boolean resident;
-
-	public TypedocDTO(String key, String value, boolean enabled, boolean resident) {
+	public TypedocDTO(String key, String value, boolean enabled) {
 		this.key = key;
 		this.value = value;
 		this.enabled = enabled;
-		this.resident = resident;
 	}
 
 	public String getKey() {
@@ -46,11 +43,4 @@ public class TypedocDTO {
 		this.enabled = enabled;
 	}
 
-	public boolean isResident() {
-		return resident;
-	}
-
-	public void setResident(boolean resident) {
-		this.resident = resident;
-	}
 }

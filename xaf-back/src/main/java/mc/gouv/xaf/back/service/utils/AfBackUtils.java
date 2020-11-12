@@ -51,12 +51,6 @@ public class AfBackUtils {
 
     public static final String MAIL_METADATA_DEMANDEID = "MC_DEMANDEID";
 
-    public static final String FILE_METADATA_DEMANDEID = "X-MC-DEMANDEID";
-
-    public static final String FILE_METADATA_DEMANDESTATUT = "X-MC-DEMANDESTATUT";
-
-    public static final String FILE_METADATA_SCANEXECUTE = "X-MC-SCANEXECUTE";
-    
     public static final String STATUT_PUBLIC_SUPPRIMEE = "SUPPRIMEE";
 
     private static RestTemplate restTemplate;

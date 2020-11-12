@@ -357,4 +357,14 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
         return 500;
 	}
 
+    @Override
+    public String getResidJwt() {
+        return Static.getValue("mc.gouv" + applicationPrefix + ".backapi.itg.resid.jwt");
+    }
+
+    @Override
+    public String getResidUrl() {
+        return Static.getValue("mc.gouv" + applicationPrefix + ".backapi.itg.resid.url");
+    }
+
 }

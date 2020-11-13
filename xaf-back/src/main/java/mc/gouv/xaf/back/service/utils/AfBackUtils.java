@@ -562,12 +562,7 @@ public class AfBackUtils {
 	public static Map<String, String> getListFromDemProperty(String demPropertyValue) {
     	ObjectMapper mapper = new ObjectMapper();
     	try {
-			@SuppressWarnings("rawtypes")
-			List<HashMap> list = mapper.readValue(demPropertyValue, List.class);
-			Map<String, String> map = new HashMap<String, String>();
-			for (HashMap h : list) {
-				map.put((String)h.get("key"), (String)h.get("value"));
-			}
+			Map<String, String> map = mapper.readValue(demPropertyValue, Map.class);
 			return map;
 		} catch (JsonProcessingException e) {
 			LOGGER.error("Erreur lors de AfBackUtils.getListFromDemProperty()", e);

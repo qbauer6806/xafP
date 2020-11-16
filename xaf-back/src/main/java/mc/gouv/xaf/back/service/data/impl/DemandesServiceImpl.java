@@ -768,16 +768,17 @@ public class DemandesServiceImpl implements DemandesService {
             for (DemandesFilesBO fileBo : filesBo) {
                 fileBo.setPkDemandesFiles(null);
                 fileBo.setFkDemandes(newDemandeBo);
+                fileBo.setTypedoc(null);
                 demandesFilesRepository.save(fileBo);
             }
-            newDemandeBo.setFiles(new HashSet<DemandesFilesBO>(filesBo));
+            newDemandeBo.setFiles(new HashSet<>(filesBo));
         }
 
         // Demandes d'informations complémentaires des demandes
         if (demandeBo.getDemandesComplements() != null) {
             LOGGER.info("Etape demandes d'informations complémentaires");
             List<DemandeComplementsDTO> dcsDto = DemandesComplementsTransformer
-                    .bo2Dto(new ArrayList<DemandesComplementsBO>(demandeBo.getDemandesComplements()));
+                    .bo2Dto(new ArrayList<>(demandeBo.getDemandesComplements()));
             List<DemandesComplementsBO> dcsBo = DemandesComplementsTransformer.dto2Bo(dcsDto);
             for (DemandesComplementsBO dcBo : dcsBo) {
                 dcBo.setPkDemandesComplements(null);
@@ -790,31 +791,31 @@ public class DemandesServiceImpl implements DemandesService {
                 if (dcBoFiles != null) {
                     LOGGER.info("Etape pièces jointes des demandes d'informations complémentaires");
                     List<DemandeComplementsFileDTO> dcfilesDto = DemandesComplementsFilesTransformer
-                            .bo2Dto(new ArrayList<DemandesComplementsFilesBO>(dcBoFiles));
+                            .bo2Dto(new ArrayList<>(dcBoFiles));
                     List<DemandesComplementsFilesBO> dcfilesBo = DemandesComplementsFilesTransformer.dto2Bo(dcfilesDto);
                     for (DemandesComplementsFilesBO dcfileBo : dcfilesBo) {
                         dcfileBo.setPkDemandesComplementsFiles(null);
                         dcfileBo.setFkDemandesComplements(dcBo);
                         demandesComplementsFilesRepository.save(dcfileBo);
                     }
-                    dcBo.setFiles(new HashSet<DemandesComplementsFilesBO>(dcfilesBo));
+                    dcBo.setFiles(new HashSet<>(dcfilesBo));
                     demandesComplementsRepository.save(dcBo);
                 }
             }
-            newDemandeBo.setDemandesComplements(new HashSet<DemandesComplementsBO>(dcsBo));
+            newDemandeBo.setDemandesComplements(new HashSet<>(dcsBo));
         }
 
         // Statuts des demandes
         // Cette map sert pour l'étape de l'historique de la demande.
         // Elle permet de mapper l'ancien pkStatut des statuts, avec leurs nouveaux statutsBo correspondants
-        Map<Integer, DemandesStatutsBO> statusMap = new HashMap<Integer, DemandesStatutsBO>();
+        Map<Integer, DemandesStatutsBO> statusMap = new HashMap<>();
         // Cette variable sert à stocker le futur dernier statut
         DemandesStatutsBO dernierStatutBo = null;
         if (demandeBo.getStatuts() != null) {
             LOGGER.info("Etape statuts des demandes");
             List<DemandeStatutDTO> statutsDto = DemandesStatutsTransformer
-                    .bo2Dto(new ArrayList<DemandesStatutsBO>(demandeBo.getStatuts()));
-            List<DemandesStatutsBO> statutsBo = new ArrayList<DemandesStatutsBO>();
+                    .bo2Dto(new ArrayList<>(demandeBo.getStatuts()));
+            List<DemandesStatutsBO> statutsBo = new ArrayList<>();
             for (DemandeStatutDTO statutDto : statutsDto) {
                 DemandesStatutsBO statutBo = DemandesStatutsTransformer.dto2Bo(statutDto);
                 statutBo.setPkDemandesStatuts(null);
@@ -827,7 +828,7 @@ public class DemandesServiceImpl implements DemandesService {
                     dernierStatutBo = statutBo;
                 }
             }
-            newDemandeBo.setStatuts(new HashSet<DemandesStatutsBO>(statutsBo));
+            newDemandeBo.setStatuts(new HashSet<>(statutsBo));
         }
 
         // "Dernier statut" d'une demande

@@ -10,6 +10,7 @@ import mc.gouv.xaf.back.service.data.DemandesFilesService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.net.MalformedURLException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 /**
@@ -92,8 +94,9 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
     }
 
     @Override
-    public void updateTypedocs(Map<String, String> changes) {
+    public boolean updateTypedocs(Map<String, String> changes) {
         LOGGER.info("updateTypedocs({})", changes);
+        AtomicBoolean success = new AtomicBoolean(true);
         if (!changes.isEmpty()) {
             String demarcheId = gouvPropertiesResolver.getDemarcheId();
             List<Integer> keys = changes.keySet().stream()
@@ -102,15 +105,20 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
             Iterable<DemandesFilesBO> files = demandesFilesRepository.findAllById(keys);
             files.forEach(file -> {
                 String typedoc = changes.get("" + file.getPkDemandesFiles());
-                file.setTypedoc(typedoc);
-                try {
-                    fileService.updateFileMetadata(file.getUrl(), demarcheId, FileService.FILE_METADATA_TYPEDOC, typedoc);
-                } catch (MalformedURLException e) {
-                    LOGGER.error("Impossible d'affecter la métadonnée typedoc au fichier {} à l'url {}", file.getName(), file.getUrl(), e);
+                if (StringUtils.isNotBlank(typedoc)) {
+                    file.setTypedoc(typedoc);
+                    try {
+                        fileService.updateFileMetadata(file.getUrl(), demarcheId, FileService.FILE_METADATA_TYPEDOC, typedoc);
+                    } catch (MalformedURLException e) {
+                        LOGGER.error("Impossible d'affecter la métadonnée typedoc au fichier {} à l'url {}", file.getName(), file.getUrl(), e);
+                    }
+                } else if (success.get()){
+                    success.set(false);
                 }
             });
             demandesFilesRepository.saveAll(files);
         }
         LOGGER.info("Fin updateTypedocs()");
+        return success.get();
     }
 }

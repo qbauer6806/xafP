@@ -2,10 +2,10 @@ package mc.gouv.xaf.back.service.data.impl;
 
 import mc.gouv.xaf.back.data.dao.DemandesComplementsFilesRepository;
 import mc.gouv.xaf.back.data.entity.DemandesComplementsFilesBO;
-import mc.gouv.xaf.back.data.entity.DemandesFilesBO;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesComplementsFilesService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 /**
@@ -38,8 +39,9 @@ public class DemandesComplementsFilesServiceImpl implements DemandesComplementsF
 	private GouvPropertiesResolver gouvPropertiesResolver;
 
 	@Override
-	public void updateTypedocs(Map<String, String> changes) {
+	public boolean updateTypedocs(Map<String, String> changes) {
 		LOGGER.info("updateTypedocs({})", changes);
+		AtomicBoolean success = new AtomicBoolean(true);
 		if (!changes.isEmpty()) {
 			String demarcheId = gouvPropertiesResolver.getDemarcheId();
 			List<Integer> keys = changes.keySet().stream()
@@ -48,15 +50,20 @@ public class DemandesComplementsFilesServiceImpl implements DemandesComplementsF
 			Iterable<DemandesComplementsFilesBO> files = demandesComplementsFilesRepository.findAllById(keys);
 			files.forEach(file -> {
 				String typedoc = changes.get("" + file.getPkDemandesComplementsFiles());
-				file.setTypedoc(typedoc);
-				try {
-					fileService.updateFileMetadata(file.getUrl(), demarcheId, FileService.FILE_METADATA_TYPEDOC, typedoc);
-				} catch (MalformedURLException e) {
-					LOGGER.error("Impossible d'affecter la métadonnée typedoc au fichier {} à l'url {}", file.getName(), file.getUrl(), e);
+				if (StringUtils.isNotBlank(typedoc)) {
+					file.setTypedoc(typedoc);
+					try {
+						fileService.updateFileMetadata(file.getUrl(), demarcheId, FileService.FILE_METADATA_TYPEDOC, typedoc);
+					} catch (MalformedURLException e) {
+						LOGGER.error("Impossible d'affecter la métadonnée typedoc au fichier {} à l'url {}", file.getName(), file.getUrl(), e);
+					}
+				} else if (success.get()){
+					success.set(false);
 				}
 			});
 			demandesComplementsFilesRepository.saveAll(files);
 		}
 		LOGGER.info("Fin updateTypedocs()");
+		return success.get();
 	}
 }

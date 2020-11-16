@@ -16,6 +16,6 @@ public interface DemandesFilesService {
 
 	void saveFile(DemandeFileDTO demandeFile, String demarcheId, Integer pkDemande) throws Exception;
 
-	void updateTypedocs(Map<String, String> changes);
+	boolean updateTypedocs(Map<String, String> changes);
 
 }

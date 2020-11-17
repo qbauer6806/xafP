@@ -41,6 +41,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Service d'appel à FILE pour les démarches
@@ -54,6 +55,9 @@ public class FileServiceImpl implements FileService {
 
 	private static final String EXTENSIONS_WHITELIST = "EXTENSIONS_WHITELIST";
 	private static final String VSCAN_ACTIVATION = "VSCAN_ACTIVATION";
+	private static final String MC_METADATA_PREFIX = "X-MC-";
+	private static final String AUTHORIZATION_KEY = "Authorization";
+	private static final String AUTHORIZATION_PREFIX = "Bearer ";
 
 	private RestTemplate restTemplate;
 
@@ -189,7 +193,7 @@ public class FileServiceImpl implements FileService {
 		HttpEntity multipartVscan = builderVscan.build();
 		HttpPost postRequestVscan = new HttpPost(urlVscan);
 		postRequestVscan.setEntity(multipartVscan);
-		postRequestVscan.addHeader("Authorization", "Bearer " + gouvPropertiesResolver.getVscanJwt());
+		postRequestVscan.addHeader(AUTHORIZATION_KEY, AUTHORIZATION_PREFIX + gouvPropertiesResolver.getVscanJwt());
 		HttpResponse postResponseVscan = clientVscan.execute(postRequestVscan);
 		String vscanResp = IOUtils.toString(postResponseVscan.getEntity().getContent());
 		LOGGER.info("VSCAN Response : {} ({})", postResponseVscan.getStatusLine(), vscanResp);
@@ -240,10 +244,38 @@ public class FileServiceImpl implements FileService {
 		return url;
 	}
 
-	private void updateFileMetadataGeneric(String fileUrl, String metadata, String value) {
-		// On met dans le header la métadonnée qui contient le demandeId
+	private Map<String, String> getFileMetadata(String fileUrl) {
 		HttpHeaders headers = new HttpHeaders();
-		headers.add(metadata, value);
+		headers.add(AUTHORIZATION_KEY, AUTHORIZATION_PREFIX + gouvPropertiesResolver.getFileJwt());
+		org.springframework.http.HttpEntity<Object> requestEntity = new org.springframework.http.HttpEntity<>(null, headers);
+		ResponseEntity<Object> response = restTemplate.exchange(fileUrl, HttpMethod.HEAD, requestEntity, Object.class);
+		HttpStatus httpStatus = response.getStatusCode();
+		if (httpStatus != HttpStatus.OK) {
+			throw new DemarchesServiceException("La requête HEAD a retourné le httpStatus " + httpStatus,
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		return response.getHeaders().toSingleValueMap().entrySet().stream()
+				// On ne retourne que les métadata du fichier
+				.filter(entry -> entry.getKey().startsWith(MC_METADATA_PREFIX))
+				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+	}
+
+	private void updateFileMetadataGeneric(String fileUrl, String metadata, String value) {
+		// Appel du getFile pour avoir les anciennes metadonnées
+		Map<String, String> oldMetadatas = getFileMetadata(fileUrl);
+
+		// Création du header avec les anciennes metadonnées
+		HttpHeaders headers = new HttpHeaders();
+		if (!oldMetadatas.isEmpty()) {
+			oldMetadatas.forEach(headers::add);
+		}
+
+		// On met (ou remplace) dans le header la métadonnée qui contient la nouvelle metadonnée
+		if (headers.containsKey(metadata)) {
+			headers.set(metadata, value);
+		} else {
+			headers.add(metadata, value);
+		}
 
 		// Hack nécessaire parce que la méthode PATCH n'est pas forcément prise en compte par les couches sous
 		// Spring (JDK 1.7)
@@ -252,7 +284,7 @@ public class FileServiceImpl implements FileService {
 		headers.add(DemarchesUtils.METADATA_HTTPMETHODOVERRIDE, "PATCH");
 
 		// Ajout de l'authentification JWT
-		headers.add("Authorization", "Bearer " + gouvPropertiesResolver.getFileJwt());
+		headers.add(AUTHORIZATION_KEY, AUTHORIZATION_PREFIX + gouvPropertiesResolver.getFileJwt());
 
 		// Pas de corps, mais des headers en guise de métadonnées
 		org.springframework.http.HttpEntity<Object> requestEntity = new org.springframework.http.HttpEntity<>(null, headers);

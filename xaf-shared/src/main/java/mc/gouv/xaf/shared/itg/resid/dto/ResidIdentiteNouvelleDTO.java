@@ -1,0 +1,192 @@
+package mc.gouv.xaf.shared.itg.resid.dto;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import mc.gouv.xaf.shared.itg.resid.enums.*;
+
+import java.io.Serializable;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class ResidIdentiteNouvelleDTO implements Serializable {
+
+    private static final long serialVersionUID = -1741044093302861889L;
+
+    private ResidCiviliteEnum civilite;
+
+    private String nom;
+
+    private String nomUsage;
+
+    private String prenom;
+
+    private String dateNaissance;
+
+    private String heureNaissance;
+
+    private String villeNaissance;
+
+    private String paysNaissance;
+
+    private ResidSexeEnum sexe;
+
+    private ResidSituationFamilialeEnum situationFamiliale;
+
+    private String situationDate;
+
+    private Integer nombreEnfants;
+
+    private Integer nombreEnfantsFoyer;
+
+    private String filiation;
+
+    private String telephone;
+
+    private String email;
+
+    private ResidCanalCommunicationEnum canalCommunication;
+
+    private ResidLanguePrefereeEnum languePreferee;
+
+    public ResidCiviliteEnum getCivilite() {
+        return civilite;
+    }
+
+    public void setCivilite(ResidCiviliteEnum civilite) {
+        this.civilite = civilite;
+    }
+
+    public String getNom() {
+        return nom;
+    }
+
+    public void setNom(String nom) {
+        this.nom = nom;
+    }
+
+    public String getNomUsage() {
+        return nomUsage;
+    }
+
+    public void setNomUsage(String nomUsage) {
+        this.nomUsage = nomUsage;
+    }
+
+    public String getPrenom() {
+        return prenom;
+    }
+
+    public void setPrenom(String prenom) {
+        this.prenom = prenom;
+    }
+
+    public String getDateNaissance() {
+        return dateNaissance;
+    }
+
+    public void setDateNaissance(String dateNaissance) {
+        this.dateNaissance = dateNaissance;
+    }
+
+    public String getHeureNaissance() {
+        return heureNaissance;
+    }
+
+    public void setHeureNaissance(String heureNaissance) {
+        this.heureNaissance = heureNaissance;
+    }
+
+    public String getVilleNaissance() {
+        return villeNaissance;
+    }
+
+    public void setVilleNaissance(String villeNaissance) {
+        this.villeNaissance = villeNaissance;
+    }
+
+    public String getPaysNaissance() {
+        return paysNaissance;
+    }
+
+    public void setPaysNaissance(String paysNaissance) {
+        this.paysNaissance = paysNaissance;
+    }
+
+    public ResidSexeEnum getSexe() {
+        return sexe;
+    }
+
+    public void setSexe(ResidSexeEnum sexe) {
+        this.sexe = sexe;
+    }
+
+    public ResidSituationFamilialeEnum getSituationFamiliale() {
+        return situationFamiliale;
+    }
+
+    public void setSituationFamiliale(ResidSituationFamilialeEnum situationFamiliale) {
+        this.situationFamiliale = situationFamiliale;
+    }
+
+    public String getSituationDate() {
+        return situationDate;
+    }
+
+    public void setSituationDate(String situationDate) {
+        this.situationDate = situationDate;
+    }
+
+    public Integer getNombreEnfants() {
+        return nombreEnfants;
+    }
+
+    public void setNombreEnfants(Integer nombreEnfants) {
+        this.nombreEnfants = nombreEnfants;
+    }
+
+    public Integer getNombreEnfantsFoyer() {
+        return nombreEnfantsFoyer;
+    }
+
+    public void setNombreEnfantsFoyer(Integer nombreEnfantsFoyer) {
+        this.nombreEnfantsFoyer = nombreEnfantsFoyer;
+    }
+
+    public String getFiliation() {
+        return filiation;
+    }
+
+    public void setFiliation(String filiation) {
+        this.filiation = filiation;
+    }
+
+    public String getTelephone() {
+        return telephone;
+    }
+
+    public void setTelephone(String telephone) {
+        this.telephone = telephone;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public ResidCanalCommunicationEnum getCanalCommunication() {
+        return canalCommunication;
+    }
+
+    public void setCanalCommunication(ResidCanalCommunicationEnum canalCommunication) {
+        this.canalCommunication = canalCommunication;
+    }
+
+    public ResidLanguePrefereeEnum getLanguePreferee() {
+        return languePreferee;
+    }
+
+    public void setLanguePreferee(ResidLanguePrefereeEnum languePreferee) {
+        this.languePreferee = languePreferee;
+    }
+}

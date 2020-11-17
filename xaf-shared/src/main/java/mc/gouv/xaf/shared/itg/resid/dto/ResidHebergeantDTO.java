@@ -1,0 +1,95 @@
+package mc.gouv.xaf.shared.itg.resid.dto;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import mc.gouv.xaf.shared.itg.resid.enums.ResidCiviliteEnum;
+import mc.gouv.xaf.shared.itg.resid.enums.ResidQualiteEnum;
+import mc.gouv.xaf.shared.itg.resid.enums.ResidRelationEnum;
+import mc.gouv.xaf.shared.itg.resid.enums.ResidSexeEnum;
+
+import java.io.Serializable;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class ResidHebergeantDTO implements Serializable {
+
+    private static final long serialVersionUID = -2474143139113858294L;
+
+    private ResidCiviliteEnum hebergeantCivilite;
+
+    private String hebergeantNomRaisonSociale;
+
+    private String hebergeantNomUsage;
+
+    private String hebergeantPrenom;
+
+    private ResidSexeEnum hebergeantSexe;
+
+    private String hebergantNationaliteCode;
+
+    private ResidQualiteEnum hebegeantQualite;
+
+    private ResidRelationEnum hebergeantRelation;
+
+    public String getHebergeantNomRaisonSociale() {
+        return hebergeantNomRaisonSociale;
+    }
+
+    public void setHebergeantNomRaisonSociale(String hebergeantNomRaisonSociale) {
+        this.hebergeantNomRaisonSociale = hebergeantNomRaisonSociale;
+    }
+
+    public ResidCiviliteEnum getHebergeantCivilite() {
+        return hebergeantCivilite;
+    }
+
+    public void setHebergeantCivilite(ResidCiviliteEnum hebergeantCivilite) {
+        this.hebergeantCivilite = hebergeantCivilite;
+    }
+
+    public String getHebergeantNomUsage() {
+        return hebergeantNomUsage;
+    }
+
+    public void setHebergeantNomUsage(String hebergeantNomUsage) {
+        this.hebergeantNomUsage = hebergeantNomUsage;
+    }
+
+    public String getHebergeantPrenom() {
+        return hebergeantPrenom;
+    }
+
+    public void setHebergeantPrenom(String hebergeantPrenom) {
+        this.hebergeantPrenom = hebergeantPrenom;
+    }
+
+    public ResidSexeEnum getHebergeantSexe() {
+        return hebergeantSexe;
+    }
+
+    public void setHebergeantSexe(ResidSexeEnum hebergeantSexe) {
+        this.hebergeantSexe = hebergeantSexe;
+    }
+
+    public String getHebergantNationaliteCode() {
+        return hebergantNationaliteCode;
+    }
+
+    public void setHebergantNationaliteCode(String hebergantNationaliteCode) {
+        this.hebergantNationaliteCode = hebergantNationaliteCode;
+    }
+
+    public ResidQualiteEnum getHebegeantQualite() {
+        return hebegeantQualite;
+    }
+
+    public void setHebegeantQualite(ResidQualiteEnum hebegeantQualite) {
+        this.hebegeantQualite = hebegeantQualite;
+    }
+
+    public ResidRelationEnum getHebergeantRelation() {
+        return hebergeantRelation;
+    }
+
+    public void setHebergeantRelation(ResidRelationEnum hebergeantRelation) {
+        this.hebergeantRelation = hebergeantRelation;
+    }
+}

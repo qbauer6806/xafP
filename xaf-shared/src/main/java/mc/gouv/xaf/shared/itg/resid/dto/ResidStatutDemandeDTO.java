@@ -14,7 +14,7 @@ public class ResidStatutDemandeDTO implements Serializable {
 
     private String idTs;
 
-    private String etat;
+    private ResidEtatEnum etat;
     
     private int httpStatus;
 	private String message;
@@ -39,11 +39,11 @@ public class ResidStatutDemandeDTO implements Serializable {
         this.idTs = idTs;
     }
 
-    public String getEtat() {
+    public ResidEtatEnum getEtat() {
         return etat;
     }
 
-    public void setEtat(String etat) {
+    public void setEtat(ResidEtatEnum etat) {
         this.etat = etat;
     }
     

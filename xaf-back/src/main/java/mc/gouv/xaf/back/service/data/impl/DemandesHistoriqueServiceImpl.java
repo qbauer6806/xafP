@@ -50,10 +50,6 @@ public class DemandesHistoriqueServiceImpl implements DemandesHistoriqueService 
 
     @Override
     public DemandeHistoriqueDTO saveHistorique(String demarcheId, Integer demandeId, DemandeHistoriqueDTO demandeHistoriqueDto) {
-        if ((StringUtils.isBlank(demandeHistoriqueDto.getAgentId()) && demandeHistoriqueDto.getUsagerId() == null) ||
-                (!StringUtils.isBlank(demandeHistoriqueDto.getAgentId()) && demandeHistoriqueDto.getUsagerId() != null)) {
-            throw new DemarchesServiceException("Soit agentId ou usagerId doit être renseigné", HttpStatus.BAD_REQUEST);
-        }
         return saveHistoriqueActionAuto(demarcheId, demandeId, demandeHistoriqueDto);
     }
 

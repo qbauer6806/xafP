@@ -1248,4 +1248,14 @@ public class DemandesServiceImpl implements DemandesService {
         return demandeDTO;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+	@Override
+	public DemandeDTO getDemande(String identifiant) {
+		LOGGER.info("Récupération en base de la demande...");
+		DemandeBO demandeBo = demandesRepository.findByIdentifiant(identifiant);
+		return DemandesTransformer.bo2Dto(demandeBo);
+	}
+
 }

@@ -152,6 +152,15 @@ public interface DemandesService {
     DemandeDTO cloneDemande(String demarcheId, Integer pkDemande);
 
     DemandeDTO getDemande(String demarcheId, Integer pkDemande, Integer usagerId);
+    
+    /**
+     * Permet de retrouver une demande à partir de son identifiant
+     * 
+     * @param demarcheId : l'id de la demarche du TS qui appel cette méthode
+     * @param identifiant : {@link DemandeDTO#getIdentifiant()} de la demande
+     * @return la {@link DemandeDTO} recherchée
+     */
+    DemandeDTO getDemande(String identifiant);
 
     List<DemandeDTO> getDemandes(DemandeRechercheDTO demandeRecherche);
 

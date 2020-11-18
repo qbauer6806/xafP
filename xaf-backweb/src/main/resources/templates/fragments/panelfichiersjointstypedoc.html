@@ -48,8 +48,8 @@
                     <input id="typedoc-files" th:field="${typedocFormBean.files}" type="hidden"/>
                     <input id="typedoc-complements" th:field="${typedocFormBean.complements}" type="hidden"/>
                     <input name="pkDemande" th:value="${demandeDTO.pkDemandes}" type="hidden"/>
-                    <input class="btn btn-action ripple-effect" id="typedoc-button" th:disabled="!${canSaveTypedoc}"
-                           type="button" value="Enregistrer les types de fichiers" style="float: right;">
+                    <input class="btn btn-action ripple-effect" id="typedoc-button" type="button"
+                           value="Enregistrer les types de fichiers" style="float: right;">
                     <input id="confirmer-typedoc-button" style="display: none" type="submit"/>
                 </div>
                 <br/>

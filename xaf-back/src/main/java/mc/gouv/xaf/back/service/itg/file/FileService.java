@@ -39,7 +39,7 @@ public interface FileService {
 	 * @param demarcheId, le nom de la démarche
 	 * @param demandeId,  la métadata à appliquer aux fichiers
 	 */
-	void updateFilesMetadataWithDemandeId(DemandeFileDTO[] fichiers, String demarcheId, Integer demandeId) throws MalformedURLException;
+	void updateFilesMetadataWithDemandeId(DemandeFileDTO[] fichiers, String demarcheId, Integer demandeId) throws Exception;
 
 	/**
 	 * Appelle le WS FILE PATCH sur l'url du fichier afin d'y mettre à jour la métadonnée du fichier.
@@ -49,5 +49,5 @@ public interface FileService {
 	 * @param metaKey,    la clé de la métadonnée
 	 * @param metaValue,  la valeur de la métadonnée
 	 */
-	void updateFileMetadata(String fichierURL, String demarcheId, String metaKey, String metaValue) throws MalformedURLException;
+	void updateFileMetadata(String fichierURL, String demarcheId, String metaKey, String metaValue) throws Exception;
 }

@@ -17,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.net.MalformedURLException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
@@ -31,94 +30,94 @@ import java.util.stream.Collectors;
 @Transactional(rollbackFor = Exception.class)
 public class DemandeFilesServiceImpl implements DemandesFilesService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DemandeFilesServiceImpl.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(DemandeFilesServiceImpl.class);
 
-    @Autowired
-    private DemandesRepository demandesRepository;
+	@Autowired
+	private DemandesRepository demandesRepository;
 
-    @Autowired
-    private DemandesFilesRepository demandesFilesRepository;
+	@Autowired
+	private DemandesFilesRepository demandesFilesRepository;
 
-    @Autowired
-    private DemandesService demandesService;
+	@Autowired
+	private DemandesService demandesService;
 
-    @Autowired
-    private FileService fileService;
+	@Autowired
+	private FileService fileService;
 
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
+	@Autowired
+	private GouvPropertiesResolver gouvPropertiesResolver;
 
-    @Override
-    public void saveFiles(DemandeFileDTO[] demandeFiles, DemandeBO demandeBo) throws Exception {
+	@Override
+	public void saveFiles(DemandeFileDTO[] demandeFiles, DemandeBO demandeBo) throws Exception {
 
-        LOGGER.info("saveFiles({}, {})", demandeFiles, demandeBo);
+		LOGGER.info("saveFiles({}, {})", demandeFiles, demandeBo);
 
-        if (demandeFiles != null && demandeFiles.length > 0) {
-            demandeBo.setFiles(
-                    new HashSet<>(DemandesFilesTransformer.dto2Bo(Arrays.asList(demandeFiles))));
-            for (DemandesFilesBO bo : demandeBo.getFiles()) {
-                bo.setFkDemandes(demandeBo);
-            }
+		if (demandeFiles != null && demandeFiles.length > 0) {
+			demandeBo.setFiles(
+					new HashSet<>(DemandesFilesTransformer.dto2Bo(Arrays.asList(demandeFiles))));
+			for (DemandesFilesBO bo : demandeBo.getFiles()) {
+				bo.setFkDemandes(demandeBo);
+			}
 
-            demandesFilesRepository.saveAll(demandeBo.getFiles());
+			demandesFilesRepository.saveAll(demandeBo.getFiles());
 
-            demandesRepository.save(demandeBo);
-        }
+			demandesRepository.save(demandeBo);
+		}
 
-        LOGGER.info("Fin saveFiles()");
-    }
+		LOGGER.info("Fin saveFiles()");
+	}
 
-    @Override
-    public void saveFile(DemandeFileDTO demandeFile, String demarcheId, Integer pkDemande) throws Exception {
+	@Override
+	public void saveFile(DemandeFileDTO demandeFile, String demarcheId, Integer pkDemande) throws Exception {
 
-        LOGGER.info("saveFile({}, {}, {})", demandeFile, demarcheId, pkDemande);
+		LOGGER.info("saveFile({}, {}, {})", demandeFile, demarcheId, pkDemande);
 
-        DemandeBO demandeBo = demandesService.getDemandeBo(demarcheId, pkDemande);
+		DemandeBO demandeBo = demandesService.getDemandeBo(demarcheId, pkDemande);
 
-        DemandesFilesBO demandeFileBo = DemandesFilesTransformer.dto2Bo(demandeFile);
-        demandeFileBo.setFkDemandes(demandeBo);
+		DemandesFilesBO demandeFileBo = DemandesFilesTransformer.dto2Bo(demandeFile);
+		demandeFileBo.setFkDemandes(demandeBo);
 
-        demandeFileBo = demandesFilesRepository.save(demandeFileBo);
+		demandeFileBo = demandesFilesRepository.save(demandeFileBo);
 
-        Set<DemandesFilesBO> demandeFiles = demandeBo.getFiles();
-        if (null == demandeFiles) {
-            demandeFiles = new HashSet<>();
-        }
-        demandeFiles.add(demandeFileBo);
+		Set<DemandesFilesBO> demandeFiles = demandeBo.getFiles();
+		if (null == demandeFiles) {
+			demandeFiles = new HashSet<>();
+		}
+		demandeFiles.add(demandeFileBo);
 
-        demandeBo.setFiles(demandeFiles);
+		demandeBo.setFiles(demandeFiles);
 
-        demandesRepository.save(demandeBo);
+		demandesRepository.save(demandeBo);
 
-        LOGGER.info("Fin saveFile()");
-    }
+		LOGGER.info("Fin saveFile()");
+	}
 
-    @Override
-    public boolean updateTypedocs(Map<String, String> changes) {
-        LOGGER.info("updateTypedocs({})", changes);
-        AtomicBoolean success = new AtomicBoolean(true);
-        if (!changes.isEmpty()) {
-            String demarcheId = gouvPropertiesResolver.getDemarcheId();
-            List<Integer> keys = changes.keySet().stream()
-                    .map(Integer::parseInt)
-                    .collect(Collectors.toList());
-            Iterable<DemandesFilesBO> files = demandesFilesRepository.findAllById(keys);
-            files.forEach(file -> {
-                String typedoc = changes.get("" + file.getPkDemandesFiles());
-                if (StringUtils.isNotBlank(typedoc)) {
-                    file.setTypedoc(typedoc);
-                    try {
-                        fileService.updateFileMetadata(file.getUrl(), demarcheId, FileService.FILE_METADATA_TYPEDOC, typedoc);
-                    } catch (MalformedURLException e) {
-                        LOGGER.error("Impossible d'affecter la métadonnée typedoc au fichier {} à l'url {}", file.getName(), file.getUrl(), e);
-                    }
-                } else if (success.get()){
-                    success.set(false);
-                }
-            });
-            demandesFilesRepository.saveAll(files);
-        }
-        LOGGER.info("Fin updateTypedocs()");
-        return success.get();
-    }
+	@Override
+	public boolean updateTypedocs(Map<String, String> changes) {
+		LOGGER.info("updateTypedocs({})", changes);
+		AtomicBoolean success = new AtomicBoolean(true);
+		if (!changes.isEmpty()) {
+			String demarcheId = gouvPropertiesResolver.getDemarcheId();
+			List<Integer> keys = changes.keySet().stream()
+					.map(Integer::parseInt)
+					.collect(Collectors.toList());
+			Iterable<DemandesFilesBO> files = demandesFilesRepository.findAllById(keys);
+			files.forEach(file -> {
+				String typedoc = changes.get("" + file.getPkDemandesFiles());
+				if (StringUtils.isNotBlank(typedoc)) {
+					file.setTypedoc(typedoc);
+					try {
+						fileService.updateFileMetadata(file.getUrl(), demarcheId, FileService.FILE_METADATA_TYPEDOC, typedoc);
+					} catch (Exception e) {
+						LOGGER.error("Impossible d'affecter la métadonnée typedoc au fichier {} à l'url {}", file.getName(), file.getUrl(), e);
+					}
+				} else if (success.get()) {
+					success.set(false);
+				}
+			});
+			demandesFilesRepository.saveAll(files);
+		}
+		LOGGER.info("Fin updateTypedocs()");
+		return success.get();
+	}
 }

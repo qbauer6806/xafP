@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -54,10 +53,10 @@ public class DemandesComplementsFilesServiceImpl implements DemandesComplementsF
 					file.setTypedoc(typedoc);
 					try {
 						fileService.updateFileMetadata(file.getUrl(), demarcheId, FileService.FILE_METADATA_TYPEDOC, typedoc);
-					} catch (MalformedURLException e) {
+					} catch (Exception e) {
 						LOGGER.error("Impossible d'affecter la métadonnée typedoc au fichier {} à l'url {}", file.getName(), file.getUrl(), e);
 					}
-				} else if (success.get()){
+				} else if (success.get()) {
 					success.set(false);
 				}
 			});

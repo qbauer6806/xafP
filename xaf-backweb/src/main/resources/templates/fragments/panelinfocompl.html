@@ -5,7 +5,7 @@
 
 	<div id="panelinfocompl" th:fragment="panelinfocompl" th:remove="tag">
 
-		<div role="tabpanel" class="tab-pane" id="tab3">
+		<div role="tabpanel" class="tab-pane" id="tab3" th:classappend="${demandeTab} == 'complements' ? 'active' : ''">
 			<div th:each="complement, iter : ${demandeDTO.complements}">
 				<div class="panel-group accordion" aria-multiselectable="true">
 					<div class="panel panel-default">

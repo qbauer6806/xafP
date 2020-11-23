@@ -141,7 +141,7 @@ public class FileServiceImpl implements FileService {
 
     private boolean estExtensionDansWhitelist (String filename) {
         String[] filenameSplit = filename.split("\\.");
-        String fileExtension = filenameSplit[filenameSplit.length-1];
+        String fileExtension = filenameSplit[filenameSplit.length-1].toLowerCase();
         return getExtensionsWhitelist().contains(fileExtension);
     }
 

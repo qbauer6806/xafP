@@ -12,7 +12,8 @@ public enum ResidSituationFamilialeEnum {
     COH("COH"),
 
     // A utiliser pour le conjoint
-    EPO("EPO");
+    EPO("EPO"),
+    EXE("EXE");
 
     public String value;
 

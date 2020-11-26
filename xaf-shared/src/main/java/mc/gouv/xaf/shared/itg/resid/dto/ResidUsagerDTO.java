@@ -32,6 +32,8 @@ public class ResidUsagerDTO implements Serializable {
 
     private ResidConjointDTO conjoint;
 
+    private String situationDate;
+
     public ResidTypeUsagerEnum getUsagerType() {
         return usagerType;
     }
@@ -118,5 +120,13 @@ public class ResidUsagerDTO implements Serializable {
 
     public void setConjoint(ResidConjointDTO conjoint) {
         this.conjoint = conjoint;
+    }
+
+    public String getSituationDate() {
+        return situationDate;
+    }
+
+    public void setSituationDate(String situationDate) {
+        this.situationDate = situationDate;
     }
 }

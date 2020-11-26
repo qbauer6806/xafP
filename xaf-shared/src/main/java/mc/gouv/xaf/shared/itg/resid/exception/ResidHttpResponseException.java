@@ -34,4 +34,13 @@ public class ResidHttpResponseException extends IOException {
     public void setErrors(List<Error> errors) {
         this.errors = errors;
     }
+
+    @Override
+    public String toString() {
+        return "ResidHttpResponseException{" +
+                "httpStatus=" + httpStatus +
+                ", message='" + message + '\'' +
+                ", errors=" + errors +
+                '}';
+    }
 }

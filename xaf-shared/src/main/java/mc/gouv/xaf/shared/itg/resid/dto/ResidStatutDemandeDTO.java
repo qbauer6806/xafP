@@ -70,4 +70,12 @@ public class ResidStatutDemandeDTO implements Serializable {
 	public void setErrors(List<Error> errors) {
 		this.errors = errors;
 	}
+
+	@Override
+	public String toString() {
+		return "ResidStatutDemandeDTO{" +
+				"idTs='" + idTs + '\'' +
+				", etat=" + etat +
+				'}';
+	}
 }

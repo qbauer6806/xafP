@@ -39,4 +39,13 @@ public class ResidHttpResponseDTO implements Serializable {
     public void setErrors(List<Error> errors) {
         this.errors = errors;
     }
+
+    @Override
+    public String toString() {
+        return "ResidHttpResponseDTO{" +
+                "httpStatus=" + httpStatus +
+                ", message='" + message + '\'' +
+                ", errors=" + errors +
+                '}';
+    }
 }

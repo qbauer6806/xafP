@@ -32,9 +32,9 @@ public class ResidIdentiteNouvelleDTO implements Serializable {
 
     private String situationDate;
 
-    private Integer nombreEnfants;
+    private int nombreEnfants;
 
-    private Integer nombreEnfantsFoyer;
+    private int nombreEnfantsFoyer;
 
     private String filiation;
 
@@ -134,19 +134,19 @@ public class ResidIdentiteNouvelleDTO implements Serializable {
         this.situationDate = situationDate;
     }
 
-    public Integer getNombreEnfants() {
+    public int getNombreEnfants() {
         return nombreEnfants;
     }
 
-    public void setNombreEnfants(Integer nombreEnfants) {
+    public void setNombreEnfants(int nombreEnfants) {
         this.nombreEnfants = nombreEnfants;
     }
 
-    public Integer getNombreEnfantsFoyer() {
+    public int getNombreEnfantsFoyer() {
         return nombreEnfantsFoyer;
     }
 
-    public void setNombreEnfantsFoyer(Integer nombreEnfantsFoyer) {
+    public void setNombreEnfantsFoyer(int nombreEnfantsFoyer) {
         this.nombreEnfantsFoyer = nombreEnfantsFoyer;
     }
 

@@ -13,19 +13,19 @@ public class ResidLogementDTO implements Serializable {
 
     private ResidQualiteEnum occupantQualite;
 
-    private Integer nombrePieces;
+    private int nombrePieces;
 
     private Integer surface;
 
-    private Integer loyer;
+    private int loyer;
 
     private ResidLoyerPeriodiciteEnum loyerPeriodicite;
 
     private String dateDerniereQuittance;
 
-    private Integer nombreStationnements;
+    private int nombreStationnements;
 
-    private Integer nombreOccupants;
+    private int nombreOccupants;
 
     public ResidQualiteEnum getOccupantQualite() {
         return occupantQualite;
@@ -41,14 +41,6 @@ public class ResidLogementDTO implements Serializable {
 
     public void setSurface(Integer surface) {
         this.surface = surface;
-    }
-
-    public Integer getLoyer() {
-        return loyer;
-    }
-
-    public void setLoyer(Integer loyer) {
-        this.loyer = loyer;
     }
 
     public ResidLoyerPeriodiciteEnum getLoyerPeriodicite() {
@@ -67,27 +59,35 @@ public class ResidLogementDTO implements Serializable {
         this.dateDerniereQuittance = dateDerniereQuittance;
     }
 
-    public Integer getNombreStationnements() {
-        return nombreStationnements;
-    }
-
-    public void setNombreStationnements(Integer nombreStationnements) {
-        this.nombreStationnements = nombreStationnements;
-    }
-
-    public Integer getNombreOccupants() {
-        return nombreOccupants;
-    }
-
-    public void setNombreOccupants(Integer nombreOccupants) {
-        this.nombreOccupants = nombreOccupants;
-    }
-
-    public Integer getNombrePieces() {
+    public int getNombrePieces() {
         return nombrePieces;
     }
 
-    public void setNombrePieces(Integer nombrePieces) {
+    public void setNombrePieces(int nombrePieces) {
         this.nombrePieces = nombrePieces;
+    }
+
+    public int getLoyer() {
+        return loyer;
+    }
+
+    public void setLoyer(int loyer) {
+        this.loyer = loyer;
+    }
+
+    public int getNombreStationnements() {
+        return nombreStationnements;
+    }
+
+    public void setNombreStationnements(int nombreStationnements) {
+        this.nombreStationnements = nombreStationnements;
+    }
+
+    public int getNombreOccupants() {
+        return nombreOccupants;
+    }
+
+    public void setNombreOccupants(int nombreOccupants) {
+        this.nombreOccupants = nombreOccupants;
     }
 }

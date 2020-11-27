@@ -12,7 +12,7 @@ public class ResidStatutDemandeDTO implements Serializable {
 
     private static final long serialVersionUID = 1737364601317166129L;
 
-    private String idTs;
+    private String idTS;
 
     private ResidEtatEnum etat;
     
@@ -31,12 +31,12 @@ public class ResidStatutDemandeDTO implements Serializable {
 		this.timestamp = timestamp;
 	}
 
-	public String getIdTs() {
-        return idTs;
+	public String getIdTS() {
+        return idTS;
     }
 
-    public void setIdTs(String idTs) {
-        this.idTs = idTs;
+    public void setIdTS(String idTS) {
+        this.idTS = idTS;
     }
 
     public ResidEtatEnum getEtat() {
@@ -74,7 +74,7 @@ public class ResidStatutDemandeDTO implements Serializable {
 	@Override
 	public String toString() {
 		return "ResidStatutDemandeDTO{" +
-				"idTs='" + idTs + '\'' +
+				"idTS='" + idTS + '\'' +
 				", etat=" + etat +
 				'}';
 	}

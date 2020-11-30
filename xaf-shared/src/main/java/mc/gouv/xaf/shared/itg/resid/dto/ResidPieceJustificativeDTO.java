@@ -20,7 +20,7 @@ public class ResidPieceJustificativeDTO implements Serializable {
 
     private String dateFinValidite;
 
-    private String contenuBinaire;
+    private byte[] contenuBinaire;
 
     public ResidPieceJustificativeTypeEnum getType() {
         return type;
@@ -62,11 +62,11 @@ public class ResidPieceJustificativeDTO implements Serializable {
         this.dateFinValidite = dateFinValidite;
     }
 
-    public String getContenuBinaire() {
+    public byte[] getContenuBinaire() {
         return contenuBinaire;
     }
 
-    public void setContenuBinaire(String contenuBinaire) {
+    public void setContenuBinaire(byte[] contenuBinaire) {
         this.contenuBinaire = contenuBinaire;
     }
 }

@@ -16,10 +16,6 @@ public class ResidUsagerDTO implements Serializable {
 
     private ResidIdentiteNouvelleDTO identite;
 
-    private ResidNationaliteDTO nationalitePrincipale;
-
-    private ResidNationaliteDTO nationaliteAutre;
-
     private ResidAdresseDTO adresseMonaco;
 
     private ResidAdresseDTO adresseProvenance;
@@ -56,22 +52,6 @@ public class ResidUsagerDTO implements Serializable {
 
     public void setIdentite(ResidIdentiteNouvelleDTO identite) {
         this.identite = identite;
-    }
-
-    public ResidNationaliteDTO getNationalitePrincipale() {
-        return nationalitePrincipale;
-    }
-
-    public void setNationalitePrincipale(ResidNationaliteDTO nationalitePrincipale) {
-        this.nationalitePrincipale = nationalitePrincipale;
-    }
-
-    public ResidNationaliteDTO getNationaliteAutre() {
-        return nationaliteAutre;
-    }
-
-    public void setNationaliteAutre(ResidNationaliteDTO nationaliteAutre) {
-        this.nationaliteAutre = nationaliteAutre;
     }
 
     public ResidAdresseDTO getAdresseMonaco() {

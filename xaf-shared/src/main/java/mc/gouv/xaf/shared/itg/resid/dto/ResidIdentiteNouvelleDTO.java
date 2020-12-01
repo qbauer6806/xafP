@@ -30,6 +30,10 @@ public class ResidIdentiteNouvelleDTO implements Serializable {
 
     private ResidSituationFamilialeEnum situationFamiliale;
 
+    private ResidNationaliteDTO nationalitePrincipale;
+
+    private ResidNationaliteDTO nationaliteAutre;
+
     private String situationDate;
 
     private int nombreEnfants;
@@ -188,5 +192,21 @@ public class ResidIdentiteNouvelleDTO implements Serializable {
 
     public void setLanguePreferee(ResidLanguePrefereeEnum languePreferee) {
         this.languePreferee = languePreferee;
+    }
+
+    public ResidNationaliteDTO getNationalitePrincipale() {
+        return nationalitePrincipale;
+    }
+
+    public void setNationalitePrincipale(ResidNationaliteDTO nationalitePrincipale) {
+        this.nationalitePrincipale = nationalitePrincipale;
+    }
+
+    public ResidNationaliteDTO getNationaliteAutre() {
+        return nationaliteAutre;
+    }
+
+    public void setNationaliteAutre(ResidNationaliteDTO nationaliteAutre) {
+        this.nationaliteAutre = nationaliteAutre;
     }
 }

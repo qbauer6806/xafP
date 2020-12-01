@@ -1,10 +1,9 @@
 package mc.gouv.xaf.shared.itg.resid.enums;
 
 public enum ResidTypeUsagerEnum {
-    // TODO Resid Supprimer UsagerExistantAllOf
+
     UsagerNouveau("UsagerNouveau"),
-    UsagerExistant ("UsagerExistant"),
-    UsagerExistantAllOf ("UsagerExistantAllOf");
+    UsagerExistant ("UsagerExistant");
 
     public String value;
 

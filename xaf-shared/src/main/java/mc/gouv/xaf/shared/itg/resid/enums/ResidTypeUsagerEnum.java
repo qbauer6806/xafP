@@ -3,7 +3,7 @@ package mc.gouv.xaf.shared.itg.resid.enums;
 public enum ResidTypeUsagerEnum {
 
     UsagerNouveau("UsagerNouveau"),
-    UsagerExistant ("UsagerExistant ");
+    UsagerExistant ("UsagerExistant");
 
     public String value;
 

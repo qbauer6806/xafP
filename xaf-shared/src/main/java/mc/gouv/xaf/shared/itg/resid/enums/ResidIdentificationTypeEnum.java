@@ -3,7 +3,7 @@ package mc.gouv.xaf.shared.itg.resid.enums;
 public enum ResidIdentificationTypeEnum {
 
     NumeroResident("NumeroResident"),
-    NumeroCarte  ("NumeroCarte  ");
+    NumeroCarte  ("NumeroCarte");
 
     public String value;
 

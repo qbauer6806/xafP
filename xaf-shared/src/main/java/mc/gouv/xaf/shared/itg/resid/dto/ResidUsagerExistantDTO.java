@@ -6,7 +6,7 @@ import mc.gouv.xaf.shared.itg.resid.enums.ResidTypeUsagerEnum;
 import java.io.Serializable;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ResidUsagerDTO implements Serializable {
+public class ResidUsagerExistantDTO implements Serializable {
 
     private static final long serialVersionUID = 759419710680261692L;
 

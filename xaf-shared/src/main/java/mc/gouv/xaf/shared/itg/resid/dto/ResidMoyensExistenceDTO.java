@@ -20,6 +20,8 @@ public class ResidMoyensExistenceDTO implements Serializable {
 
     private String revenuTypeJustificatif;
 
+    private String employeurRaisonSociale;
+
     public ResidSituationEnum getSituationPrincipale() {
         return situationPrincipale;
     }
@@ -58,5 +60,13 @@ public class ResidMoyensExistenceDTO implements Serializable {
 
     public void setRevenuTypeJustificatif(String revenuTypeJustificatif) {
         this.revenuTypeJustificatif = revenuTypeJustificatif;
+    }
+
+    public String getEmployeurRaisonSociale() {
+        return employeurRaisonSociale;
+    }
+
+    public void setEmployeurRaisonSociale(String employeurRaisonSociale) {
+        this.employeurRaisonSociale = employeurRaisonSociale;
     }
 }

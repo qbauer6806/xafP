@@ -5,21 +5,21 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ResidDemandeRenouvellementCarteCompleteDTO extends ResidDemandeCompleteDTO implements Serializable {
+public class ResidDemandeDuplicataCarteCompleteDTO extends ResidDemandeCompleteDTO implements Serializable {
 
-    private static final long serialVersionUID = -200073602129896052L;
+    private static final long serialVersionUID = 783129793599746559L;
 
-    private ResidDemandeRenouvellementCarteDTO demande;
+    private ResidDemandeDuplicataCarteDTO demande;
 
     private ResidUtilisateurDTO utilisateur;
 
     private ResidUsagerDTO usager;
 
-    public ResidDemandeRenouvellementCarteDTO getDemande() {
+    public ResidDemandeDuplicataCarteDTO getDemande() {
         return demande;
     }
 
-    public void setDemande(ResidDemandeRenouvellementCarteDTO demande) {
+    public void setDemande(ResidDemandeDuplicataCarteDTO demande) {
         this.demande = demande;
     }
 

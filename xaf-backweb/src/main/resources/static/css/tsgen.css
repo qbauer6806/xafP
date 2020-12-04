@@ -369,3 +369,9 @@ dd span {
 .bootstrap-datetimepicker-widget table td span:hover {
 	background: transparent !important;
 }
+
+/* #22728 : Commentaire de justification de traitement */
+.justif-traitement-view {
+	max-height: 200px;
+	overflow: auto;
+}

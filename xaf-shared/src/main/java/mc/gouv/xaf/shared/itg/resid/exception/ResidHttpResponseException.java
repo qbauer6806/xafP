@@ -1,5 +1,7 @@
 package mc.gouv.xaf.shared.itg.resid.exception;
 
+import mc.gouv.xaf.shared.itg.resid.dto.ResidErrorDTO;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -9,7 +11,7 @@ public class ResidHttpResponseException extends IOException {
 
     private String message;
 
-    private List<Error> errors;
+    private List<ResidErrorDTO> errors;
 
     public int getHttpStatus() {
         return httpStatus;
@@ -27,11 +29,11 @@ public class ResidHttpResponseException extends IOException {
         this.message = message;
     }
 
-    public List<Error> getErrors() {
+    public List<ResidErrorDTO> getErrors() {
         return errors;
     }
 
-    public void setErrors(List<Error> errors) {
+    public void setErrors(List<ResidErrorDTO> errors) {
         this.errors = errors;
     }
 

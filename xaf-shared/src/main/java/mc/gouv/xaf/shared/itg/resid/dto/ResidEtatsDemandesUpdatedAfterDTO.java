@@ -1,45 +1,21 @@
 package mc.gouv.xaf.shared.itg.resid.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.io.Serializable;
 import java.util.List;
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ResidEtatsDemandesUpdatedAfterDTO implements Serializable {
 
-	private static final long serialVersionUID = -2562015127165905351L;
+	private static final long serialVersionUID = -4873508865715945892L;
+
 	private List<ResidStatutDemandeDTO> etatsDemandes;
+
 	private String lastUpdateHorodatage;
+
 	private Boolean moreUpdates;
-	private int httpStatus;
-    private String message;
-    private List<Error> errors;
 
-    public int getHttpStatus() {
-        return httpStatus;
-    }
-
-    public void setHttpStatus(int httpStatus) {
-        this.httpStatus = httpStatus;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public List<Error> getErrors() {
-        return errors;
-    }
-
-    public void setErrors(List<Error> errors) {
-        this.errors = errors;
-    }
-	
 	public List<ResidStatutDemandeDTO> getEtatsDemandes() {
 		return etatsDemandes;
 	}

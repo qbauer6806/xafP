@@ -98,4 +98,4 @@ INSERT INTO {0}.dem_recherche_champ_config (enabled, cle, libelle, fk_categorie,
 INSERT INTO {0}.dem_recherche_champ_config (enabled, cle, libelle, fk_categorie, editable) VALUES (''true'', ''nomsCourriers'', ''Nom'', (select id from {0}.dem_recherche_cat_config where libelle = ''Courrier''), ''true'');
 INSERT INTO {0}.dem_recherche_champ_config (enabled, cle, libelle, fk_categorie, editable) VALUES (''true'', ''fichierinterne.fichiers.content'', ''Contenu'', (select id from {0}.dem_recherche_cat_config where libelle = ''Fichiers internes''), ''true'');
 INSERT INTO {0}.dem_recherche_champ_config (enabled, cle, libelle, fk_categorie, editable) VALUES (''true'', ''fichierinterne.fichiers.name'', ''Nom du fichier'', (select id from {0}.dem_recherche_cat_config where libelle = ''Fichiers internes''), ''true'');
-
+INSERT INTO {0}.dem_recherche_champ_config (enabled, cle, libelle, fk_categorie, editable) VALUES (''true'', ''justificatifsTraitement'', ''Justificatifs de traitement'', (select id from {0}.dem_recherche_cat_config where libelle = ''Historique des statuts''), ''true'');

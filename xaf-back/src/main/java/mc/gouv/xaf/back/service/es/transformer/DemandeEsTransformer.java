@@ -1,14 +1,23 @@
 package mc.gouv.xaf.back.service.es.transformer;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import mc.gouv.logon.shared.User;
+import mc.gouv.servicerest.usager.model.UsagerBean;
+import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
+import mc.gouv.xaf.back.data.entity.*;
+import mc.gouv.xaf.back.data.es.model.*;
+import mc.gouv.xaf.back.data.transformer.DemandesCourriersTransformer;
+import mc.gouv.xaf.back.data.transformer.DemandesStatutsTransformer;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.DemarchesDataProvider;
+import mc.gouv.xaf.back.service.data.DemandesHistoriqueService;
+import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
+import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
+import mc.gouv.xaf.back.service.motifs.MotifsCache;
+import mc.gouv.xaf.back.service.utils.DemarchesUtils;
+import mc.gouv.xaf.shared.dto.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,36 +28,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
-import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
-import mc.gouv.xaf.back.data.entity.AccessBO;
-import mc.gouv.xaf.back.data.entity.DemandeBO;
-import mc.gouv.xaf.back.data.entity.DemandesCourriersBO;
-import mc.gouv.xaf.back.data.entity.DemandesDataBO;
-import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
-import mc.gouv.xaf.back.data.es.model.CanalEsDto;
-import mc.gouv.xaf.back.data.es.model.DemandeAccessEsDTO;
-import mc.gouv.xaf.back.data.es.model.DemandeEsDTO;
-import mc.gouv.xaf.back.data.es.model.DemandeJoinFieldEsDTO;
-import mc.gouv.xaf.back.data.es.model.DemandeStatutEsDTO;
-import mc.gouv.xaf.back.data.transformer.DemandesCourriersTransformer;
-import mc.gouv.xaf.back.data.transformer.DemandesStatutsTransformer;
-import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
-import mc.gouv.xaf.back.service.DemarchesDataProvider;
-import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
-import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
-import mc.gouv.xaf.back.service.motifs.MotifsCache;
-import mc.gouv.xaf.back.service.utils.DemarchesUtils;
-import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
-import mc.gouv.xaf.shared.dto.DemandeCourrierDTO;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.xaf.shared.dto.DemandeDataDTO;
-import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
-import mc.gouv.logon.shared.User;
-import mc.gouv.servicerest.usager.model.UsagerBean;
+import javax.inject.Inject;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Conditional(IndexationEnabledCondition.class)
@@ -59,7 +45,7 @@ public class DemandeEsTransformer {
     private static final String FIELD_DEM_COMPL = "demandesComplements";
     private static final String FIELD_DATA = "data";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DemandesTransformer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DemandeEsTransformer.class);
 
     @Inject
     @Lazy
@@ -82,6 +68,12 @@ public class DemandeEsTransformer {
 
     @Inject
     DemarchesDataProvider demarchesDataProvider;
+
+    @Inject
+    private DemandesHistoriqueService demandesHistoriqueService;
+
+    @Inject
+    private GouvPropertiesResolver gouvPropertiesResolver;
 
     private DemandeEsTransformer() {
     }
@@ -247,6 +239,11 @@ public class DemandeEsTransformer {
             demandeEsDTO.setAgentAffecteNomAffichage(getAgentAffecteNomAffichage(user));
         }
 
+        // Justificatifs de traitment dans l'historique de la demande
+        List<String> justifs = getJustificatifsTraitement(gouvPropertiesResolver.getDemarcheId(),
+                demandeDTO.getPkDemandes());
+        demandeEsDTO.setJustificatifsTraitement(justifs);
+
         return demandeEsDTO;
     }
 
@@ -391,6 +388,11 @@ public class DemandeEsTransformer {
         } catch (IOException e) {
             LOGGER.error("Erreur lors de la conversion JSON", e);
         }
+
+        // Justificatifs de traitment dans l'historique de la demande
+        List<String> justifs = getJustificatifsTraitement(gouvPropertiesResolver.getDemarcheId(), bo.getPkDemandes());
+        dto.setJustificatifsTraitement(justifs);
+
         return dto;
     }
 
@@ -428,6 +430,18 @@ public class DemandeEsTransformer {
         }
 
         return jsonNode;
+    }
+
+    /**
+     * Méthode qui récupère la liste des justificatifs de traitement
+     */
+    private List<String> getJustificatifsTraitement(String demarcheId, Integer demandeId) {
+        List<String> justifs = new ArrayList<>();
+        List<DemandeHistoriqueDTO> histosDem = demandesHistoriqueService.getHistorique(demarcheId, demandeId);
+        if (histosDem != null && !histosDem.isEmpty()) {
+            justifs = histosDem.stream().map(DemandeHistoriqueDTO::getJustificatifTraitement).collect(Collectors.toList());
+        }
+        return justifs;
     }
 
 }

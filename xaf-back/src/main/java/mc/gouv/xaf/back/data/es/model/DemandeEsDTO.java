@@ -35,6 +35,7 @@ public class DemandeEsDTO extends AbstractDemandeDTO {
     private String agentAffecteNomAffichage;
     private List<String> nomsCourriers;
     private DemandeJoinFieldEsDTO demandeJoinField;
+    private List<String> justificatifsTraitement;
 
     @Id
     protected String identifiant;
@@ -144,4 +145,11 @@ public class DemandeEsDTO extends AbstractDemandeDTO {
 		this.statutPublicOuInterne = statutPublicOuInterne;
 	}
 
+    public List<String> getJustificatifsTraitement() {
+        return justificatifsTraitement;
+    }
+
+    public void setJustificatifsTraitement(List<String> justificatifsTraitement) {
+        this.justificatifsTraitement = justificatifsTraitement;
+    }
 }

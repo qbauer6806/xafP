@@ -3,6 +3,10 @@ package mc.gouv.xaf.back.service.data.impl;
 import java.util.Date;
 import java.util.List;
 
+import mc.gouv.xaf.back.service.es.impl.IndexedEsDemandeServiceImpl;
+import mc.gouv.xaf.shared.SharedMessages;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +37,9 @@ public class DemandesHistoriqueServiceImpl implements DemandesHistoriqueService 
 
     @Autowired
     private DemandesService demandesService;
+
+    @Autowired
+    private IndexedEsDemandeServiceImpl indexedEsDemandeService;
 
     @Override
     public List<DemandeHistoriqueDTO> getHistorique(String demarcheId, Integer demandeId) {
@@ -67,6 +74,24 @@ public class DemandesHistoriqueServiceImpl implements DemandesHistoriqueService 
 
         LOGGER.info("Transformation bo -> dto ...");
         return DemandesHistoriqueTransformer.bo2Dto(demandeHistoriqueBo);
+    }
+
+    @Override
+    public DemandeHistoriqueDTO saveAndIndexHistorique(DemandeHistoriqueDTO histo, String demarcheId, Integer demandeId) {
+        DemandeHistoriqueDTO saved = null;
+        if (histo != null) {
+            LOGGER.info(SharedMessages.APPEL_SAVE_HISTORIQUE);
+            try {
+                saved = saveHistorique(demarcheId, demandeId, histo);
+            } catch (Exception e) {
+                LOGGER.error(SharedMessages.ERREUR_HISTORIQUE, histo, e);
+            }
+            if (StringUtils.isNotBlank(histo.getJustificatifTraitement())) {
+                DemandeDTO demande = demandesService.getDemande(demarcheId, demandeId);
+                indexedEsDemandeService.indexDemande(demande);
+            }
+        }
+        return saved;
     }
 
 }

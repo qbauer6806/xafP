@@ -1,6 +1,7 @@
 package mc.gouv.xaf.shared.itg.resid.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import mc.gouv.xaf.shared.itg.resid.enums.ResidCiviliteEnum;
 import mc.gouv.xaf.shared.itg.resid.enums.ResidQualiteEnum;
 import mc.gouv.xaf.shared.itg.resid.enums.ResidRelationEnum;
@@ -8,6 +9,7 @@ import mc.gouv.xaf.shared.itg.resid.enums.ResidSexeEnum;
 
 import java.io.Serializable;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ResidHebergeantDTO implements Serializable {
 

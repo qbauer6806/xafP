@@ -1,10 +1,12 @@
 package mc.gouv.xaf.shared.itg.resid.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import mc.gouv.xaf.shared.itg.resid.enums.ResidTypeUsagerEnum;
 
 import java.io.Serializable;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ResidUsagerExistantDTO implements Serializable {
 

@@ -5,8 +5,10 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import mc.gouv.xaf.shared.itg.resid.enums.ResidEtatEnum;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ResidStatutDemandeDTO implements Serializable {
 

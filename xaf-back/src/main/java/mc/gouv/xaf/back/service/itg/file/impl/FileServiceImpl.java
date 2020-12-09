@@ -82,6 +82,23 @@ public class FileServiceImpl implements FileService {
 	}
 
 	@Override
+	public InputStream getFile(String filename, String containerId) throws IOException {
+		LOGGER.info("FileService.getFile({})", filename);
+		String accountId = gouvPropertiesResolver.getDemarcheId();
+		InputStream is = afBackUtils.getFileClient().getFile(accountId, containerId, filename);
+		LOGGER.info("FileClient.getFile({}, {}, {})", accountId, containerId, filename);
+		return is;
+	}
+
+	@Override
+	public InputStream getFile(String url) throws IOException {
+		LOGGER.info("FileService.getFile({})", url);
+		InputStream is = afBackUtils.getFileClient().getFile(url);
+		LOGGER.info("FileClient.getFile({})", url);
+		return is;
+	}
+
+	@Override
 	public String saveFile(DemandeDTO demande, String filename, String containerId, String contentType, InputStream inputStream,
 						   OutputStream outputStream) throws Exception {
 

@@ -1,20 +1,17 @@
-package mc.gouv.xaf.shared.itg.resid.dto;
+package mc.gouv.xaf.shared.itg.resid.exception;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import mc.gouv.xaf.shared.itg.resid.dto.ResidErrorDTO;
 
-import java.io.Serializable;
+import java.io.IOException;
 import java.util.List;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class ResidHttpResponseDTO implements Serializable {
-
-    private static final long serialVersionUID = 3891403896379854592L;
+public class ResidHttpResponseException extends IOException {
 
     private int httpStatus;
 
     private String message;
 
-    private List<Error> errors;
+    private List<ResidErrorDTO> errors;
 
     public int getHttpStatus() {
         return httpStatus;
@@ -32,17 +29,17 @@ public class ResidHttpResponseDTO implements Serializable {
         this.message = message;
     }
 
-    public List<Error> getErrors() {
+    public List<ResidErrorDTO> getErrors() {
         return errors;
     }
 
-    public void setErrors(List<Error> errors) {
+    public void setErrors(List<ResidErrorDTO> errors) {
         this.errors = errors;
     }
 
     @Override
     public String toString() {
-        return "ResidHttpResponseDTO{" +
+        return "ResidHttpResponseException{" +
                 "httpStatus=" + httpStatus +
                 ", message='" + message + '\'' +
                 ", errors=" + errors +

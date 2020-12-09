@@ -25,6 +25,10 @@ public interface FileService {
 
 	void getFile(String filename, String container, HttpServletResponse response) throws IOException;
 
+	InputStream getFile(String filename, String containerId) throws IOException;
+
+	InputStream getFile(String url) throws IOException;
+
 	String saveFile(DemandeDTO demande, String filename, String container, String contentType, InputStream inputStream, OutputStream outputStream) throws Exception;
 
 	String saveFile(DemandeDTO demande, String container, MultipartFile file, HttpServletResponse response) throws Exception;

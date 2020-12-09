@@ -6,7 +6,7 @@ import mc.gouv.xaf.shared.itg.resid.enums.*;
 import java.io.Serializable;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ResidIdentiteNouvelleDTO implements Serializable {
+public class ResidIdentiteDTO implements Serializable {
 
     private static final long serialVersionUID = -1741044093302861889L;
 
@@ -30,11 +30,15 @@ public class ResidIdentiteNouvelleDTO implements Serializable {
 
     private ResidSituationFamilialeEnum situationFamiliale;
 
+    private ResidNationaliteDTO nationalitePrincipale;
+
+    private ResidNationaliteDTO nationaliteAutre;
+
     private String situationDate;
 
-    private Integer nombreEnfants;
+    private int nombreEnfants;
 
-    private Integer nombreEnfantsFoyer;
+    private int nombreEnfantsFoyer;
 
     private String filiation;
 
@@ -134,19 +138,19 @@ public class ResidIdentiteNouvelleDTO implements Serializable {
         this.situationDate = situationDate;
     }
 
-    public Integer getNombreEnfants() {
+    public int getNombreEnfants() {
         return nombreEnfants;
     }
 
-    public void setNombreEnfants(Integer nombreEnfants) {
+    public void setNombreEnfants(int nombreEnfants) {
         this.nombreEnfants = nombreEnfants;
     }
 
-    public Integer getNombreEnfantsFoyer() {
+    public int getNombreEnfantsFoyer() {
         return nombreEnfantsFoyer;
     }
 
-    public void setNombreEnfantsFoyer(Integer nombreEnfantsFoyer) {
+    public void setNombreEnfantsFoyer(int nombreEnfantsFoyer) {
         this.nombreEnfantsFoyer = nombreEnfantsFoyer;
     }
 
@@ -188,5 +192,21 @@ public class ResidIdentiteNouvelleDTO implements Serializable {
 
     public void setLanguePreferee(ResidLanguePrefereeEnum languePreferee) {
         this.languePreferee = languePreferee;
+    }
+
+    public ResidNationaliteDTO getNationalitePrincipale() {
+        return nationalitePrincipale;
+    }
+
+    public void setNationalitePrincipale(ResidNationaliteDTO nationalitePrincipale) {
+        this.nationalitePrincipale = nationalitePrincipale;
+    }
+
+    public ResidNationaliteDTO getNationaliteAutre() {
+        return nationaliteAutre;
+    }
+
+    public void setNationaliteAutre(ResidNationaliteDTO nationaliteAutre) {
+        this.nationaliteAutre = nationaliteAutre;
     }
 }

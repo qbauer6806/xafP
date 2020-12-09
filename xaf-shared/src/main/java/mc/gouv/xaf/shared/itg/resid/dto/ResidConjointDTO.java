@@ -2,7 +2,7 @@ package mc.gouv.xaf.shared.itg.resid.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import mc.gouv.xaf.shared.itg.resid.enums.ResidCiviliteEnum;
-import mc.gouv.xaf.shared.itg.resid.enums.ResidSituationFamilialeEnum;
+import mc.gouv.xaf.shared.itg.resid.enums.ResidNatureLienEnum;
 
 import java.io.Serializable;
 
@@ -21,7 +21,7 @@ public class ResidConjointDTO implements Serializable {
 
     private String conjointNationaliteCode;
 
-    private ResidSituationFamilialeEnum conjointRelation;
+    private ResidNatureLienEnum conjointRelation;
 
     private boolean conjointFoyer;
 
@@ -65,11 +65,11 @@ public class ResidConjointDTO implements Serializable {
         this.conjointNationaliteCode = conjointNationaliteCode;
     }
 
-    public ResidSituationFamilialeEnum getConjointRelation() {
+    public ResidNatureLienEnum getConjointRelation() {
         return conjointRelation;
     }
 
-    public void setConjointRelation(ResidSituationFamilialeEnum conjointRelation) {
+    public void setConjointRelation(ResidNatureLienEnum conjointRelation) {
         this.conjointRelation = conjointRelation;
     }
 

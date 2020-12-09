@@ -12,13 +12,9 @@ public class ResidStatutDemandeDTO implements Serializable {
 
     private static final long serialVersionUID = 1737364601317166129L;
 
-    private String idTs;
+    private String idTS;
 
     private ResidEtatEnum etat;
-    
-    private int httpStatus;
-	private String message;
-    private List<Error> errors;
     
     // TODO Resid à supprimer car le timestamp sera connu de resid, mais pour le moment j'ai besoin d'un élément de comparaison
     private String timestamp;
@@ -31,12 +27,12 @@ public class ResidStatutDemandeDTO implements Serializable {
 		this.timestamp = timestamp;
 	}
 
-	public String getIdTs() {
-        return idTs;
+	public String getIdTS() {
+        return idTS;
     }
 
-    public void setIdTs(String idTs) {
-        this.idTs = idTs;
+    public void setIdTS(String idTS) {
+        this.idTS = idTS;
     }
 
     public ResidEtatEnum getEtat() {
@@ -46,28 +42,12 @@ public class ResidStatutDemandeDTO implements Serializable {
     public void setEtat(ResidEtatEnum etat) {
         this.etat = etat;
     }
-    
-    public int getHttpStatus() {
-		return httpStatus;
-	}
 
-	public void setHttpStatus(int httpStatus) {
-		this.httpStatus = httpStatus;
-	}
-
-	public String getMessage() {
-		return message;
-	}
-
-	public void setMessage(String message) {
-		this.message = message;
-	}
-
-	public List<Error> getErrors() {
-		return errors;
-	}
-
-	public void setErrors(List<Error> errors) {
-		this.errors = errors;
+	@Override
+	public String toString() {
+		return "ResidStatutDemandeDTO{" +
+				"idTS='" + idTS + '\'' +
+				", etat=" + etat +
+				'}';
 	}
 }

@@ -9,10 +9,7 @@ public enum ResidSituationFamilialeEnum {
     SEP("SEP"),
     VEU("VEU"),
     PAR("PAR"),
-    COH("COH"),
-
-    // A utiliser pour le conjoint
-    EPO("EPO");
+    COH("COH");
 
     public String value;
 

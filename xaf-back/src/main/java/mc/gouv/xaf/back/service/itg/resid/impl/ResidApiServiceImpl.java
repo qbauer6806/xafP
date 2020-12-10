@@ -7,6 +7,7 @@ import mc.gouv.xaf.back.service.itg.resid.ResidApiService;
 import mc.gouv.xaf.back.service.itg.resid.ResidErrorResponseErrorHandler;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.itg.resid.dto.*;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.content.InputStreamBody;
 import org.apache.http.entity.mime.content.StringBody;
@@ -166,13 +167,24 @@ public class ResidApiServiceImpl implements ResidApiService {
 	private <T> MultiValueMap<String, Object> createMultiparts(T residObject, List<DemandeFileDTO> files) throws Exception {
 		MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
 
+		LOGGER.info("Création de la requête multipart");
+
 		ObjectMapper mapper = new ObjectMapper();
 		parts.add("demande", new StringBody(mapper.writeValueAsString(residObject), ContentType.DEFAULT_TEXT));
 
+		LOGGER.debug("Ajout des fichiers");
+
 		for(DemandeFileDTO demandeFileDTO : files) {
+			// This nested HttpEntiy is important to create the correct
+			// Content-Disposition entry with metadata "name" and "filename"
 			InputStream isf = fileService.getFile(URLEncoder.encode(demandeFileDTO.getUrl(), "UTF-8"), gouvPropertiesResolver.getContainerId());
-			ContentType contentType = ContentType.create(Files.probeContentType(Paths.get(demandeFileDTO.getUrl())));
-			parts.add("files", new InputStreamBody(isf, contentType, demandeFileDTO.getName()));
+
+			MultiValueMap<String, String> fileMap = new LinkedMultiValueMap<>();
+			ContentDisposition contentDisposition = ContentDisposition.builder("form-data").name("file").filename(demandeFileDTO.getName()).build();
+			fileMap.add(HttpHeaders.CONTENT_DISPOSITION, contentDisposition.toString());
+			HttpEntity<byte[]> fileEntity = new HttpEntity<>(IOUtils.toByteArray(isf), fileMap);
+
+			parts.add("files", fileEntity);
 		}
 
 		return parts;

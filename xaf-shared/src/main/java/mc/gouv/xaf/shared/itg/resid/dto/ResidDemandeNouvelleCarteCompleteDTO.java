@@ -7,7 +7,7 @@ import java.io.Serializable;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ResidCarteResidentDTO implements Serializable {
+public class ResidDemandeNouvelleCarteCompleteDTO implements Serializable {
 
     private static final long serialVersionUID = 922373730003391477L;
 

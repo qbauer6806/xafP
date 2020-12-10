@@ -16,7 +16,8 @@ public enum ResidRelationEnum {
     PET("PET"),
     BFI("BFI"),
     BFR("BFR"),
-    EPO("EPO");
+    EPO("EPO"),
+    XPO("XPO");
 
     public String value;
 

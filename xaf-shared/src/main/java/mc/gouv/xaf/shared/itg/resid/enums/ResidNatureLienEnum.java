@@ -4,7 +4,7 @@ public enum ResidNatureLienEnum {
 
     CON("CON"),
     EPO("EPO"),
-    EXE("EXE");
+    XPO("XPO");
 
     public String value;
 

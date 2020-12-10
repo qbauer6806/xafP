@@ -7,7 +7,9 @@ public enum ResidSituationEnum {
     CHOMEUR("CHOMEUR"),
     RETRAITE("RETRAITE"),
     AU_FOYER("AU_FOYER"),
-    AUTRE("AUTRE");
+    SANS_PROFESSION("SANS_PROFESSION"),
+    INVALIDITE_HANDICAP_MALADIE("INVALIDITE_HANDICAP_MALADIE"),
+    RENTIER("RENTIER");
 
     public String value;
 

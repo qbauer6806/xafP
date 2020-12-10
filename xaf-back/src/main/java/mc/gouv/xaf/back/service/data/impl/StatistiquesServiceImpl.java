@@ -29,9 +29,6 @@ public class StatistiquesServiceImpl implements StatistiquesService {
     @Autowired
     private StatistiquesRepository statRepository;
 
-    @Autowired
-    private AfBackUtils afBackUtils;
-
     /**
      * {@inheritDoc}
      */

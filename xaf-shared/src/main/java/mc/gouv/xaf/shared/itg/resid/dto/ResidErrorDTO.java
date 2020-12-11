@@ -50,4 +50,14 @@ public class ResidErrorDTO implements Serializable {
     public void setClef(String clef) {
         this.clef = clef;
     }
+
+    @Override
+    public String toString() {
+        return "ResidErrorDTO{" +
+                "code='" + code + '\'' +
+                ", libelle='" + libelle + '\'' +
+                ", nom='" + nom + '\'' +
+                ", clef='" + clef + '\'' +
+                '}';
+    }
 }

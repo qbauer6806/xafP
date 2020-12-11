@@ -192,7 +192,7 @@ public class ResidApiServiceImpl implements ResidApiService {
 
 	private HttpHeaders getResidMultipartRequestHeaders(String jwt) {
 		HttpHeaders headers = new HttpHeaders();
-		headers.add("Content-Type", "application/json");
+		headers.add("Content-Type", "multipart/form-data");
 		headers.add("Accept", "*/*");
 		headers.add("Authorization", "Bearer " + jwt);
 		return headers;

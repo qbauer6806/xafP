@@ -11,12 +11,16 @@ import mc.gouv.xaf.back.data.transformer.DemandesComplementsFilesTransformer;
 import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
+import mc.gouv.xaf.shared.itg.resid.dto.ResidPieceJustificativeDTO;
+import mc.gouv.xaf.shared.itg.resid.enums.ResidPieceJustificativeTypeEnum;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tika.Tika;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.io.IOUtils;
 import org.springframework.stereotype.Component;
 import org.xml.sax.SAXException;
+
+import static mc.gouv.xaf.shared.itg.resid.enums.ResidPieceJustificativeTypeEnum.NON_APPLICABLE;
 
 /**
  * 
@@ -60,7 +64,7 @@ public class FileUtils {
         return contentStr;
     }
 
-    public static final List<DemandeFileDTO> getAllFileDemande(DemandeDTO demandeDTO) {
+    public static List<DemandeFileDTO> getAllFileDemande(DemandeDTO demandeDTO) {
         List<DemandeFileDTO> files = new ArrayList<>();
         // Fichiers de la demande
         if(demandeDTO.getFichiers() != null) {
@@ -73,6 +77,17 @@ public class FileUtils {
                 if (compl.getReponse() != null && compl.getReponse().getFichiers() != null) {
                     files.addAll(DemandesComplementsFilesTransformer.toDemandeFileDTO(Arrays.asList(compl.getReponse().getFichiers())));
                 }
+            }
+        }
+        return files;
+    }
+
+    public static List<DemandeFileDTO> getAllFilesAEnvoyerResid(DemandeDTO demandeDTO) {
+        List<DemandeFileDTO> files = new ArrayList<>();
+        for (DemandeFileDTO fileDTO : getAllFileDemande(demandeDTO)) {
+            // Check si non applicable côté TS
+            if (!NON_APPLICABLE.name().equals(fileDTO.getTypedoc()) && fileDTO.getTypedoc() != null) {
+                files.add(fileDTO);
             }
         }
         return files;

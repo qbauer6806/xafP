@@ -171,7 +171,7 @@ public class ResidApiServiceImpl implements ResidApiService {
 		HttpEntity<T> residObjectJSONEntity = new HttpEntity<>(residObject, requestHeadersJSON);
 		parts.add("demande", residObjectJSONEntity);
 
-		LOGGER.debug("Ajout des fichiers");
+		LOGGER.info("Ajout des fichiers");
 
 		for(DemandeFileDTO demandeFileDTO : files) {
 			InputStream isf = fileService.getFile(URLEncoder.encode(demandeFileDTO.getUrl(), "UTF-8"), gouvPropertiesResolver.getContainerId());
@@ -188,6 +188,8 @@ public class ResidApiServiceImpl implements ResidApiService {
 			HttpEntity<ByteArrayResource> attachmentPart = new HttpEntity<>(fileAsResource, requestHeadersAttachment);
 			parts.add("files", attachmentPart);
 		}
+
+        LOGGER.debug("Multiparts\n{}", parts);
 
 		return parts;
 	}

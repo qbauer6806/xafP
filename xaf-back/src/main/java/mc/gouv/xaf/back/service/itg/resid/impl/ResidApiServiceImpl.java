@@ -8,9 +8,6 @@ import mc.gouv.xaf.back.service.itg.resid.ResidErrorResponseErrorHandler;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.itg.resid.dto.*;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.content.InputStreamBody;
-import org.apache.http.entity.mime.content.StringBody;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,8 +25,6 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
 
 @Component
@@ -170,7 +165,7 @@ public class ResidApiServiceImpl implements ResidApiService {
 		LOGGER.info("Création de la requête multipart");
 
 		ObjectMapper mapper = new ObjectMapper();
-		parts.add("demande", new StringBody(mapper.writeValueAsString(residObject), ContentType.DEFAULT_TEXT));
+		parts.add("demande", mapper.writeValueAsString(residObject));
 
 		LOGGER.debug("Ajout des fichiers");
 

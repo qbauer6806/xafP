@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.*;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.stereotype.Component;
@@ -23,6 +24,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -164,22 +166,27 @@ public class ResidApiServiceImpl implements ResidApiService {
 
 		LOGGER.info("Création de la requête multipart");
 
-		ObjectMapper mapper = new ObjectMapper();
-		parts.add("demande", mapper.writeValueAsString(residObject));
+		HttpHeaders requestHeadersJSON = new HttpHeaders();
+		requestHeadersJSON.setContentType(MediaType.APPLICATION_JSON);
+		HttpEntity<T> residObjectJSONEntity = new HttpEntity<>(residObject, requestHeadersJSON);
+		parts.add("demande", residObjectJSONEntity);
 
 		LOGGER.debug("Ajout des fichiers");
 
 		for(DemandeFileDTO demandeFileDTO : files) {
-			// This nested HttpEntiy is important to create the correct
-			// Content-Disposition entry with metadata "name" and "filename"
 			InputStream isf = fileService.getFile(URLEncoder.encode(demandeFileDTO.getUrl(), "UTF-8"), gouvPropertiesResolver.getContainerId());
 
-			MultiValueMap<String, String> fileMap = new LinkedMultiValueMap<>();
-			ContentDisposition contentDisposition = ContentDisposition.builder("form-data").name("file").filename(demandeFileDTO.getName()).build();
-			fileMap.add(HttpHeaders.CONTENT_DISPOSITION, contentDisposition.toString());
-			HttpEntity<byte[]> fileEntity = new HttpEntity<>(IOUtils.toByteArray(isf), fileMap);
-
-			parts.add("files", fileEntity);
+			HttpHeaders requestHeadersAttachment = new HttpHeaders();
+			String contentType = URLConnection.guessContentTypeFromName(demandeFileDTO.getName());
+			//requestHeadersAttachment.setContentType(MediaType.parseMediaType(contentType));
+			ByteArrayResource fileAsResource = new ByteArrayResource(IOUtils.toByteArray(isf)){
+				@Override
+				public String getFilename(){
+					return demandeFileDTO.getName();
+				}
+			};
+			HttpEntity<ByteArrayResource> attachmentPart = new HttpEntity<>(fileAsResource, requestHeadersAttachment);
+			parts.add("files", attachmentPart);
 		}
 
 		return parts;

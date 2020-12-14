@@ -5,6 +5,7 @@ import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.itg.resid.ResidApiService;
 import mc.gouv.xaf.back.service.itg.resid.ResidErrorResponseErrorHandler;
+import mc.gouv.xaf.back.service.utils.FileUtils;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.itg.resid.dto.*;
 import org.apache.commons.io.IOUtils;
@@ -24,10 +25,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.InputStream;
 import java.net.URI;
-import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
+import java.util.Map;
 
 @Component
 public class ResidApiServiceImpl implements ResidApiService {
@@ -51,7 +51,7 @@ public class ResidApiServiceImpl implements ResidApiService {
 
 
 	@Override
-	public ResidHttpResponseDTO submitNouvelleCarteResid(ResidDemandeNouvelleCarteCompleteDTO nouvelleCarte, List<DemandeFileDTO> files, String url, String jwt) throws Exception {
+	public ResidHttpResponseDTO submitNouvelleCarteResid(ResidDemandeNouvelleCarteCompleteDTO nouvelleCarte, Map<Integer, DemandeFileDTO> files, String url, String jwt) throws Exception {
 
 		LOGGER.info("Appel à l'API RESID pour la création d'une carte");
 
@@ -68,7 +68,7 @@ public class ResidApiServiceImpl implements ResidApiService {
 	}
 
 	@Override
-	public ResidHttpResponseDTO submitRenouvellementCarteResid(ResidDemandeRenouvellementCarteCompleteDTO renouvellement, List<DemandeFileDTO> files, String url, String jwt) throws Exception {
+	public ResidHttpResponseDTO submitRenouvellementCarteResid(ResidDemandeRenouvellementCarteCompleteDTO renouvellement, Map<Integer, DemandeFileDTO> files, String url, String jwt) throws Exception {
 
 		LOGGER.info("Appel à l'API RESID pour le renouvellement d'une carte");
 
@@ -85,7 +85,7 @@ public class ResidApiServiceImpl implements ResidApiService {
 	}
 
 	@Override
-	public ResidHttpResponseDTO submitDuplicataCarteResid(ResidDemandeDuplicataCarteCompleteDTO duplicataCarte, List<DemandeFileDTO> files, String url, String jwt) throws Exception {
+	public ResidHttpResponseDTO submitDuplicataCarteResid(ResidDemandeDuplicataCarteCompleteDTO duplicataCarte, Map<Integer, DemandeFileDTO> files, String url, String jwt) throws Exception {
 
 		LOGGER.info("Appel à l'API RESID pour le duplicata d'une carte");
 
@@ -102,7 +102,7 @@ public class ResidApiServiceImpl implements ResidApiService {
 	}
 
 	@Override
-	public ResidHttpResponseDTO submitChangementSituationResid(ResidDemandeChangementSituationCompleteDTO changementsituation, List<DemandeFileDTO> files, String url, String jwt) throws Exception {
+	public ResidHttpResponseDTO submitChangementSituationResid(ResidDemandeChangementSituationCompleteDTO changementsituation, Map<Integer, DemandeFileDTO> files, String url, String jwt) throws Exception {
 
 		LOGGER.info("Appel à l'API RESID pour le changement de situation");
 
@@ -119,7 +119,7 @@ public class ResidApiServiceImpl implements ResidApiService {
 	}
 
 	@Override
-	public ResidHttpResponseDTO submitCertificatResid(ResidDemandeCertificatResidenceCompleteDTO certificatResidence, List<DemandeFileDTO> files, String url, String jwt) throws Exception {
+	public ResidHttpResponseDTO submitCertificatResid(ResidDemandeCertificatResidenceCompleteDTO certificatResidence, Map<Integer, DemandeFileDTO> files, String url, String jwt) throws Exception {
 
 		LOGGER.info("Appel à l'API RESID pour le certificat de residence");
 
@@ -135,7 +135,7 @@ public class ResidApiServiceImpl implements ResidApiService {
 		return responseEntity.getBody();
 	}
 
-	public <T, Y> ResponseEntity<Y> submitDemandeResident(T residObject, ParameterizedTypeReference<Y> type, List<DemandeFileDTO> files, String residUrl, final String entryPoint, String jwt) throws Exception {
+	public <T, Y> ResponseEntity<Y> submitDemandeResident(T residObject, ParameterizedTypeReference<Y> type, Map<Integer, DemandeFileDTO> files, String residUrl, final String entryPoint, String jwt) throws Exception {
 
 		MultiValueMap<String, Object> parts = createMultiparts(residObject, files);
 		HttpHeaders headers = getResidMultipartRequestHeaders(jwt);
@@ -161,7 +161,7 @@ public class ResidApiServiceImpl implements ResidApiService {
         return responseEntity;
     }
 
-	private <T> MultiValueMap<String, Object> createMultiparts(T residObject, List<DemandeFileDTO> files) throws Exception {
+	private <T> MultiValueMap<String, Object> createMultiparts(T residObject, Map<Integer, DemandeFileDTO> files) throws Exception {
 		MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
 
 		LOGGER.info("Création de la requête multipart");
@@ -173,16 +173,18 @@ public class ResidApiServiceImpl implements ResidApiService {
 
 		LOGGER.info("Ajout des fichiers");
 
-		for(DemandeFileDTO demandeFileDTO : files) {
-			InputStream isf = fileService.getFile(URLEncoder.encode(demandeFileDTO.getUrl(), "UTF-8"), gouvPropertiesResolver.getContainerId());
+		for(Map.Entry<Integer, DemandeFileDTO> entry : files.entrySet()) {
+			InputStream isf = fileService.getFile(URLEncoder.encode(entry.getValue().getUrl(), "UTF-8"), gouvPropertiesResolver.getContainerId());
 
 			HttpHeaders requestHeadersAttachment = new HttpHeaders();
-			String contentType = URLConnection.guessContentTypeFromName(demandeFileDTO.getName());
+			//String contentType = URLConnection.guessContentTypeFromName(entry.getValue().getName());
 			//requestHeadersAttachment.setContentType(MediaType.parseMediaType(contentType));
 			ByteArrayResource fileAsResource = new ByteArrayResource(IOUtils.toByteArray(isf)){
 				@Override
 				public String getFilename(){
-					return demandeFileDTO.getName();
+				    // Format index-filename pour éviter les doublons de noms
+                    // ex. 1-Toto.txt
+					return FileUtils.formatFilenameResid(entry.getValue().getName(), entry.getKey());
 				}
 			};
 			HttpEntity<ByteArrayResource> attachmentPart = new HttpEntity<>(fileAsResource, requestHeadersAttachment);

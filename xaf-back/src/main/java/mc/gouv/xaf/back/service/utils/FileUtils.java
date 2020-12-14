@@ -3,9 +3,7 @@ package mc.gouv.xaf.back.service.utils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import mc.gouv.xaf.back.data.transformer.DemandesComplementsFilesTransformer;
 import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
@@ -82,15 +80,21 @@ public class FileUtils {
         return files;
     }
 
-    public static List<DemandeFileDTO> getAllFilesAEnvoyerResid(DemandeDTO demandeDTO) {
-        List<DemandeFileDTO> files = new ArrayList<>();
-        for (DemandeFileDTO fileDTO : getAllFileDemande(demandeDTO)) {
+    public static Map<Integer, DemandeFileDTO> getAllFilesAEnvoyerResid(DemandeDTO demandeDTO) {
+        Map<Integer, DemandeFileDTO> filesResid = new HashMap<>();
+        List<DemandeFileDTO> files = getAllFileDemande(demandeDTO);
+        for (int i=0; i<files.size(); i++ ) {
+            DemandeFileDTO fileDTO = files.get(i);
             // Check si non applicable côté TS
             if (!NON_APPLICABLE.name().equals(fileDTO.getTypedoc()) && fileDTO.getTypedoc() != null) {
-                files.add(fileDTO);
+                filesResid.put(i, fileDTO);
             }
         }
-        return files;
+        return filesResid;
+    }
+
+    public static String formatFilenameResid(String filename, Integer index) {
+        return index + "-" + filename;
     }
 
     // Norme sur les métadonnées des fichiers

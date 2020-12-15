@@ -37,6 +37,14 @@ public class ResidHttpResponseException extends IOException {
         this.errors = errors;
     }
 
+    public String toStringMessage() {
+        String erreurs = "";
+        for (ResidErrorDTO erreur : this.errors) {
+            erreurs +=  "  - " + erreur.getClef() + " / " + erreur.getNom() + " / " + erreur.getLibelle() + "<br>";
+        }
+        return "Erreur " + httpStatus + " - " + message +" :<br>" + erreurs;
+    }
+
     @Override
     public String toString() {
         return "ResidHttpResponseException{" +

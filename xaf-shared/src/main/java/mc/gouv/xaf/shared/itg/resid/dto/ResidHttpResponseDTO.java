@@ -16,7 +16,7 @@ public class ResidHttpResponseDTO implements Serializable {
 
     private String message;
 
-    private List<Error> errors;
+    private List<ResidErrorDTO> errors;
 
     public int getHttpStatus() {
         return httpStatus;
@@ -34,12 +34,20 @@ public class ResidHttpResponseDTO implements Serializable {
         this.message = message;
     }
 
-    public List<Error> getErrors() {
+    public List<ResidErrorDTO> getErrors() {
         return errors;
     }
 
-    public void setErrors(List<Error> errors) {
+    public void setErrors(List<ResidErrorDTO> errors) {
         this.errors = errors;
+    }
+
+    public String toStringMessage() {
+        String erreurs = "";
+        for (ResidErrorDTO erreur : this.errors) {
+            erreurs +=  "  - " + erreur.getClef() + " / " + erreur.getNom() + " / " + erreur.getLibelle() + "<br>";
+        }
+        return "Erreur " + httpStatus + " - " + message +" :<br>" + erreurs;
     }
 
     @Override

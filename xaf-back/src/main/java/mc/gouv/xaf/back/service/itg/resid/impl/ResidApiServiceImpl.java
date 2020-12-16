@@ -27,6 +27,8 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -39,6 +41,7 @@ public class ResidApiServiceImpl implements ResidApiService {
 	public static final String RESID_DUPLICATA_CARTE_PATH = "/demandes/duplicataCarte";
 	public static final String RESID_CHANGEMENT_SITUATION_PATH = "/demandes/changementSituation";
 	public static final String RESID_CERTIFICAT_RESIDENCE_PATH = "/demandes/certificatResidence";
+	public static final String RESID_ETATS_DEMANDES_BY_ID_PATH = "/demandes/etatsDemandesById";
 
 	@Autowired
 	private GouvPropertiesResolver gouvPropertiesResolver;
@@ -210,5 +213,54 @@ public class ResidApiServiceImpl implements ResidApiService {
 		headers.add("Accept", "*/*");
 		headers.add("Authorization", "Bearer " + jwt);
 		return headers;
+	}
+
+	@Override
+	public ResidStatutDemandeDTO getEtatDemande(ResidIdTSDTO idDemande, String url, String jwt) throws Exception {
+		LOGGER.info("Récupération du statut RESID de {}", idDemande);
+
+		ResidStatutDemandeDTO statut = null;
+		List<ResidStatutDemandeDTO> retList = getEtatMultipleDemandes(Collections.singletonList(idDemande), url, jwt);
+
+		// On récupère uniquement le premier élément (on s'attend à ce qu'il y en ai maximum un)
+		if (retList != null && retList.size() > 0) {
+			statut = retList.get(0);
+		}
+		return statut;
+	}
+
+	@Override
+	public List<ResidStatutDemandeDTO> getEtatMultipleDemandes(List<ResidIdTSDTO> idsDemandes, String url, String jwt) throws Exception {
+		LOGGER.info("Récupération des statuts RESID de {}", idsDemandes);
+
+		// Construction du rest template
+		RestTemplate rest = restTemplateBuilder.errorHandler(new ResidErrorResponseErrorHandler()).build();
+		rest.getMessageConverters().add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
+
+		// Headers et URL
+		HttpHeaders headers = getResidRequestHeaders(jwt);
+		String requestUrl = url + RESID_ETATS_DEMANDES_BY_ID_PATH;
+		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(requestUrl);
+
+		// Construction de la requête
+		ObjectMapper mapper = new ObjectMapper();
+		HttpEntity<String> requestEntity = new HttpEntity<>(mapper.writeValueAsString(idsDemandes), headers);
+		URI uri = builder.build().encode().toUri();
+
+		// Logs DEBUG
+		LOGGER.debug("-- Appel RESID Get état d'une demande");
+		LOGGER.debug("URL: {} {}", HttpMethod.POST, uri.toString());
+		LOGGER.debug("Headers: {}", headers);
+		LOGGER.debug("Body: {}", mapper.writerWithDefaultPrettyPrinter().writeValueAsString(idsDemandes));
+
+		// Appel et réponse
+		ResponseEntity<List<ResidStatutDemandeDTO>> responseEntity = rest.exchange(uri, HttpMethod.POST, requestEntity,
+				new ParameterizedTypeReference<List<ResidStatutDemandeDTO>>(){});
+
+		LOGGER.debug("Réponse de l'API {}", responseEntity.getBody());
+
+		LOGGER.info("Fin de l'appel vers RESID pour la récupération du statut RESID de {}", idsDemandes);
+
+		return responseEntity.getBody();
 	}
 }

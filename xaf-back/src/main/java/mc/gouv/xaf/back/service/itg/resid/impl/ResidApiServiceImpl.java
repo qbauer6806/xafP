@@ -216,7 +216,7 @@ public class ResidApiServiceImpl implements ResidApiService {
 		return headers;
 	}
 
-	private HttpHeaders getResidRequestHeaders(String jwt) {
+	protected HttpHeaders getResidRequestHeaders(String jwt) {
 		HttpHeaders headers = new HttpHeaders();
 		headers.add("Content-Type", "application/json");
 		headers.add("Accept", "*/*");

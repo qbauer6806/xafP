@@ -1,10 +1,12 @@
 package mc.gouv.xaf.shared.itg.resid.exception;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import mc.gouv.xaf.shared.itg.resid.dto.ResidErrorDTO;
 
 import java.io.IOException;
 import java.util.List;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ResidHttpResponseException extends IOException {
 
     private int httpStatus;

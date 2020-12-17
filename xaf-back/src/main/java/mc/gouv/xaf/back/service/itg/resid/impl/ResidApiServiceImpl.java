@@ -42,8 +42,9 @@ public class ResidApiServiceImpl implements ResidApiService {
 	public static final String RESID_CHANGEMENT_SITUATION_PATH = "/demandes/changementSituation";
 	public static final String RESID_CERTIFICAT_RESIDENCE_PATH = "/demandes/certificatResidence";
 	public static final String RESID_ETATS_DEMANDES_BY_ID_PATH = "/demandes/etatsDemandesById";
+    public static final String RESID_ETATS_DEMANDES_PATH = "/demandes/etatsDemandesUpdatedAfter";
 
-	@Autowired
+    @Autowired
 	private GouvPropertiesResolver gouvPropertiesResolver;
 
 	@Autowired
@@ -263,4 +264,40 @@ public class ResidApiServiceImpl implements ResidApiService {
 
 		return responseEntity.getBody();
 	}
+
+    @Override
+    public ResidEtatsDemandesUpdatedAfterDTO getEtatsDemandesUpdated(String updatedAfter, String url, String jwt) {
+
+        // Construction du rest template
+        RestTemplate rest = restTemplateBuilder.errorHandler(new ResidErrorResponseErrorHandler()).build();
+        rest.getMessageConverters().add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
+
+        // Headers et URL
+        HttpHeaders headers = getResidRequestHeaders(jwt);
+        String requestUrl = url + RESID_ETATS_DEMANDES_PATH;
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(requestUrl);
+        try {
+            builder.queryParam("updatedAfter", URLEncoder.encode(updatedAfter, "UTF-8"));
+        } catch (Exception e) {
+            LOGGER.error("Problème dans l'encodage de la date à envoyer à RESID");
+        }
+
+        // Construction de la requête
+        HttpEntity<String> requestEntity = new HttpEntity<>(headers);
+        URI uri = builder.build(true).encode().toUri();
+
+        // Logs DEBUG
+        LOGGER.debug("-- Appel RESID Get all demandes updated after");
+        LOGGER.debug("URL: {} {}", HttpMethod.GET, uri.toString());
+        LOGGER.debug("Headers: {}", headers);
+
+        // Appel et réponse API
+        ResponseEntity<ResidEtatsDemandesUpdatedAfterDTO> responseEntity = rest.exchange(uri, HttpMethod.GET, requestEntity, ResidEtatsDemandesUpdatedAfterDTO.class);
+        LOGGER.debug("Réponse de l'API {}", responseEntity.getBody());
+
+
+        LOGGER.info("Fin appel à l'API RESID pour la récupération des demandes updatées");
+
+        return responseEntity.getBody();
+    }
 }

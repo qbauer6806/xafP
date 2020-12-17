@@ -21,4 +21,6 @@ public interface ResidApiService {
     ResidStatutDemandeDTO getEtatDemande(ResidIdTSDTO idDemande, String url, String jwt) throws Exception;
 
     List<ResidStatutDemandeDTO> getEtatMultipleDemandes(List<ResidIdTSDTO> idsDemandes, String url, String jwt) throws Exception;
+
+    ResidEtatsDemandesUpdatedAfterDTO getEtatsDemandesUpdated(String updatedAfter, String url, String jwt);
 }

@@ -2,11 +2,13 @@ package mc.gouv.xaf.back.service.itg.resid.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.itg.resid.ResidApiService;
 import mc.gouv.xaf.back.service.itg.resid.ResidErrorResponseErrorHandler;
 import mc.gouv.xaf.back.service.utils.FileUtils;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
+import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.itg.resid.dto.*;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -36,6 +38,7 @@ public class ResidApiServiceImpl implements ResidApiService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ResidApiServiceImpl.class);
 
+	// Entrypoints
 	public static final String RESID_NOUVELLE_CARTE_PATH = "/demandes/nouvelleCarte";
 	public static final String RESID_RENOUVELLEMENT_CARTE_PATH = "/demandes/renouvellementCarte";
 	public static final String RESID_DUPLICATA_CARTE_PATH = "/demandes/duplicataCarte";
@@ -44,8 +47,13 @@ public class ResidApiServiceImpl implements ResidApiService {
 	public static final String RESID_ETATS_DEMANDES_BY_ID_PATH = "/demandes/etatsDemandesById";
     public static final String RESID_ETATS_DEMANDES_PATH = "/demandes/etatsDemandesUpdatedAfter";
 
+    public static final String LAST_SUCCESSFUL_SYNCHRO_KEY = "LAST_SUCCESSFUL_SYNCHRO_KEY";
+
     @Autowired
 	private GouvPropertiesResolver gouvPropertiesResolver;
+
+    @Autowired
+	private PropertiesService propertiesService;
 
 	@Autowired
 	private FileService fileService;
@@ -300,4 +308,10 @@ public class ResidApiServiceImpl implements ResidApiService {
 
         return responseEntity.getBody();
     }
+
+	protected void setLastSuccessfulSynchroProperty(String lastSuccessfulSynchroTime) {
+		PropertiesDTO lastSynchroProperty = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), LAST_SUCCESSFUL_SYNCHRO_KEY);
+		lastSynchroProperty.setValue(lastSuccessfulSynchroTime);
+		propertiesService.saveOrUpdateProperties(lastSynchroProperty);
+	}
 }

@@ -41,4 +41,13 @@ public class ResidEtatsDemandesUpdatedAfterDTO implements Serializable {
 	public void setMoreUpdates(Boolean moreUpdates) {
 		this.moreUpdates = moreUpdates;
 	}
+
+	@Override
+	public String toString() {
+		return "ResidEtatsDemandesUpdatedAfterDTO{" +
+				"etatsDemandes=" + etatsDemandes +
+				", lastUpdateHorodatage='" + lastUpdateHorodatage + '\'' +
+				", moreUpdates=" + moreUpdates +
+				'}';
+	}
 }

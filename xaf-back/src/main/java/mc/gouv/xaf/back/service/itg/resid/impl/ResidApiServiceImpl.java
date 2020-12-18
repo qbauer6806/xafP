@@ -47,7 +47,7 @@ public class ResidApiServiceImpl implements ResidApiService {
 	public static final String RESID_ETATS_DEMANDES_BY_ID_PATH = "/demandes/etatsDemandesById";
     public static final String RESID_ETATS_DEMANDES_PATH = "/demandes/etatsDemandesUpdatedAfter";
 
-    public static final String LAST_SUCCESSFUL_SYNCHRO_KEY = "LAST_SUCCESSFUL_SYNCHRO_KEY";
+    public static final String LAST_SUCCESSFUL_SYNCHRO_KEY = "LAST_SUCCESSFUL_SYNCHRO";
 
     @Autowired
 	private GouvPropertiesResolver gouvPropertiesResolver;

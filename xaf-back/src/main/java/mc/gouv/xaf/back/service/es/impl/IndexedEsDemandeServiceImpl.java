@@ -724,7 +724,14 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     public void indexDemande(DemandeDTO demandeDTO) {
         Boolean activeAccess = accessService.isAccessActive(demandeDTO.getFkAccess());
         DemandeEsDTO demandeEsDTO = demandeEsTransformer.toEs(demandeDTO, activeAccess);
-        demandeEsRepository.save(demandeEsDTO);
+        try {
+        	demandeEsRepository.save(demandeEsDTO);
+		} catch (Exception e) {
+	        LOGGER.error("Erreur d'indexation lors du clone de la demande.");
+	        EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("IndexedEsDemandeServiceImpl - méthode cloneDemande()", demandeDTO, e);
+	        applicationEventPublisher.publishEvent(esErrorEventDTO);
+	        throw new AfIndexingException(e.getMessage(), e);
+	    }
     }
 
     @Override
@@ -794,10 +801,17 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      */
     @Override
     public void indexDemande(String demarcheId, Integer demandeId) {
-
         DemandeBO demandeBo = getDemandeBo(demarcheId, demandeId);
+        DemandeDTO demandeDto = DemandesTransformer.bo2Dto(demandeBo);
         DemandeEsDTO demandeEsDTO = demandeEsTransformer.bo2Dto(demandeBo, null);
-        demandeEsRepository.save(demandeEsDTO);
+    	try {
+    		demandeEsRepository.save(demandeEsDTO);
+    	} catch (Exception e) {
+	        LOGGER.error("Erreur d'indexation lors du clone de la demande.");
+	        EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("IndexedEsDemandeServiceImpl - méthode indexDemande()", demandeDto, e);
+	        applicationEventPublisher.publishEvent(esErrorEventDTO);
+	        throw new AfIndexingException(e.getMessage(), e);
+	    }
 
     }
 

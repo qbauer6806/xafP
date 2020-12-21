@@ -14,6 +14,7 @@
             <groupId>mc.gouv.xaf</groupId>
             <artifactId>xaf-backweb</artifactId>
             <version>8.4.0-SNAPSHOT</version>
+
         </dependency>
         
         <dependency>

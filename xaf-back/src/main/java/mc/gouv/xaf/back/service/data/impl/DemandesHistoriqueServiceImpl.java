@@ -1,23 +1,21 @@
 package mc.gouv.xaf.back.service.data.impl;
 
+import java.util.Date;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
 import mc.gouv.xaf.back.data.dao.DemandesHistoriqueRepository;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandesHistoriqueBO;
 import mc.gouv.xaf.back.data.transformer.DemandesHistoriqueTransformer;
-import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.service.data.DemandesHistoriqueService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.shared.dto.DemandeHistoriqueDTO;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Date;
-import java.util.List;
 
 /**
  * Service permettant la manipulation de l'historique des demandes.

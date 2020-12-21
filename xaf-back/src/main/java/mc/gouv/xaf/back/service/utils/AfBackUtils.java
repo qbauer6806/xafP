@@ -1,5 +1,7 @@
 package mc.gouv.xaf.back.service.utils;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.uuid.EthernetAddress;
 import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.impl.TimeBasedGenerator;
@@ -548,6 +550,18 @@ public class AfBackUtils {
     @Deprecated
     public String getUserNameFromID(String matricule) {
         return utilisateursUtils.getUserNameFromID(matricule);
+    }
+    
+    @SuppressWarnings("unchecked")
+	public static Map<String, String> getListFromDemProperty(String demPropertyValue) {
+    	ObjectMapper mapper = new ObjectMapper();
+    	try {
+			Map<String, String> map = mapper.readValue(demPropertyValue, Map.class);
+			return map;
+		} catch (JsonProcessingException e) {
+			LOGGER.error("Erreur lors de AfBackUtils.getListFromDemProperty()", e);
+		}
+    	return null;
     }
 
 }

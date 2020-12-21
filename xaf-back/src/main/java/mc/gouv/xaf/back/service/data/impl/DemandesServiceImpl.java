@@ -221,7 +221,6 @@ public class DemandesServiceImpl implements DemandesService {
         LOGGER.info("Transformation bo -> dto ...");
 
         DemandeDTO demandeDTO = DemandesTransformer.bo2Dto(demandeBo);
-        statistiquesService.saveStatistique(demandeDTO);
 
         return demandeDTO;
     }
@@ -242,8 +241,6 @@ public class DemandesServiceImpl implements DemandesService {
             // UsagerID et DemarcheID fournis, il faut donc créer une nouvelle demande
             demandeDTO = saveDemande(demande, premierStatut);
         }
-
-        statistiquesService.saveStatistique(demandeDTO);
 
         return demandeDTO;
     }
@@ -658,8 +655,6 @@ public class DemandesServiceImpl implements DemandesService {
 
         DemandeDTO dto = DemandesTransformer.bo2Dto(demandeBo);
         dto.setUpdated(true);
-
-        statistiquesService.saveStatistique(dto);
 
         return dto;
     }

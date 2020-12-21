@@ -34,7 +34,6 @@
         <module>xaf-shared</module>
 		<module>xaf-back-denjs</module>
 		<module>xaf-backweb-denjs</module>
-		<module>xaf-sup</module>
     </modules>
 
 	<dependencyManagement>

@@ -5,6 +5,8 @@ import static org.junit.Assert.assertEquals;
 import java.util.HashMap;
 import java.util.Map;
 
+import mc.gouv.xaf.back.data.dao.DemandesStatistiquesInternesRepository;
+import mc.gouv.xaf.back.service.StatistiquesInternesService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,7 +17,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
-import mc.gouv.xaf.back.service.data.DemandesStatistiquesService;
 import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -36,10 +37,10 @@ public class StatistiquesServiceImplTest {
     private final static String DEMARCHE_ID = "DEM";
 
     @InjectMocks
-    private StatistiquesServiceImpl statistiquesService;
+    private StatistiquesInternesServiceImpl statistiquesService;
 
     @Mock
-    private DemandesStatistiquesService demandesStatistiquesService;
+    private DemandesStatistiquesInternesRepository demandesStatistiquesInternesRepository;
 
     @Mock
     private DemarchesDataProvider demarchesDataProvider;
@@ -50,13 +51,13 @@ public class StatistiquesServiceImplTest {
     @Before
     public void setUp() {
 
-        Mockito.when(demandesStatistiquesService.getNumberDemandesFilteredByStatusAndCanal(DEMARCHE_ID,
+        Mockito.when(demandesStatistiquesInternesRepository.countByFkAccessDemarcheIdAndCanalAndDernierStatutLibelle(DEMARCHE_ID,
                 DemandeCanalEnum.GUICHET_VIRTUEL.name(), EN_ATTENTE_TRAITENUM)).thenReturn(COUNT_ATTENTE_TRAITEMENT);
-        Mockito.when(demandesStatistiquesService.getNumberDemandesFilteredByStatusAndCanal(DEMARCHE_ID,
+        Mockito.when(demandesStatistiquesInternesRepository.countByFkAccessDemarcheIdAndCanalAndDernierStatutLibelle(DEMARCHE_ID,
                 DemandeCanalEnum.GUICHET_VIRTUEL.name(), EN_COURS_TRAIT_ENUM)).thenReturn(COUNT_TRAITEMENT);
-        Mockito.when(demandesStatistiquesService.getNumberDemandesFilteredByStatusAndCanal(DEMARCHE_ID,
+        Mockito.when(demandesStatistiquesInternesRepository.countByFkAccessDemarcheIdAndCanalAndDernierStatutLibelle(DEMARCHE_ID,
                 DemandeCanalEnum.GUICHET_PHYSIQUE.name(), EN_COURS_TRAIT_ENUM)).thenReturn(COUNT_TRAITEMENT);
-        Mockito.when(demandesStatistiquesService.getNumberDemandesFilteredByStatusAndCanal(DEMARCHE_ID,
+        Mockito.when(demandesStatistiquesInternesRepository.countByFkAccessDemarcheIdAndCanalAndDernierStatutLibelle(DEMARCHE_ID,
                 DemandeCanalEnum.COURRIER.name(), EN_ATTENTE_COMPL_ENUM)).thenReturn(COUNT_ATTENTE_INFOS);
 
         Map<String, String> statusMap = new HashMap<>();

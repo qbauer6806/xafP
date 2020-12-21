@@ -132,7 +132,7 @@
                                             <thead>
                                             <tr>
                                                 <th>IDENTIFIANT</th>
-												<th>DATE GÉNÉRATION</th>
+                                                <th>DATE GÉNÉRATION</th>
                                                 <th>TYPE</th>
                                                 <th>IDENTIFIANT DEMANDE</th>
                                                 <th>ACTIONS</th>
@@ -170,10 +170,10 @@
                                             <thead>
                                             <tr>
                                                 <th>IDENTIFIANT</th>
-													<th>DATE GÉNÉRATION</th>
+                                                <th>DATE GÉNÉRATION</th>
                                                 <th>TYPE</th>
                                                 <th>IDENTIFIANT DEMANDE</th>
-													<th>RÉFÉRENCE INTERNE</th>
+                                                <th>RÉFÉRENCE INTERNE</th>
                                                 <th>ACTIONS</th>
                                             </tr>
                                             </thead>
@@ -252,6 +252,7 @@
             },
             {
                 "data": "fichiers.identifiantDemande",
+                "orderable" : false,
                 "keyword": false,
                 render: function (data, type, element) {
                     return "<a href='" + APP.getContextPath() + "/demandes/" + element.fichiers.pkDemande + "'><span class='identifiant-demande'>" + element.fichiers.identifiantDemande + "</span></a>";
@@ -299,6 +300,7 @@
             },
             {
                 "data": "fichiers.identifiantDemande",
+                "orderable" : false,
                 "keyword": false,
                 render: function (data, type, element) {
                     return "<a href='" + APP.getContextPath() + "/demandes/" + element.fichiers.pkDemande + "'><span class='identifiant-demande'>" + element.fichiers.identifiantDemande + "</span></a>";
@@ -306,6 +308,7 @@
             },
             {
                 "data": "fichiers.identifiant",
+                "orderable" : false,
                 "keyword": true,
                 render: function (data, type, element) {
                     return element.fichiers.identifiant;

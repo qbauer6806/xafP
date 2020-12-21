@@ -6,7 +6,7 @@ import mc.gouv.xaf.back.data.entity.DemandeBO;
 
 import java.util.List;
 
-public interface DemandesStatistiquesRepository extends CrudRepository<DemandeBO, Integer> {
+public interface DemandesStatistiquesInternesRepository extends CrudRepository<DemandeBO, Integer> {
 
     Long countByFkAccessDemarcheIdAndCanalAndDernierStatutLibelle(String demarcheId, String canal, String status);
 

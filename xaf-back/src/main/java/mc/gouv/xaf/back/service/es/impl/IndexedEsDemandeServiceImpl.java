@@ -728,7 +728,14 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     public void indexDemande(DemandeDTO demandeDTO) {
         Boolean activeAccess = accessService.isAccessActive(demandeDTO.getFkAccess());
         DemandeEsDTO demandeEsDTO = demandeEsTransformer.toEs(demandeDTO, activeAccess);
-        demandeEsRepository.save(demandeEsDTO);
+        try {
+        	demandeEsRepository.save(demandeEsDTO);
+		} catch (Exception e) {
+	        LOGGER.error("Erreur d'indexation lors du clone de la demande.");
+	        EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("IndexedEsDemandeServiceImpl - méthode cloneDemande()", demandeDTO, e);
+	        applicationEventPublisher.publishEvent(esErrorEventDTO);
+	        throw new AfIndexingException(e.getMessage(), e);
+	    }
     }
 
     @Override
@@ -799,10 +806,17 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      */
     @Override
     public void indexDemande(String demarcheId, Integer demandeId) {
-
         DemandeBO demandeBo = getDemandeBo(demarcheId, demandeId);
+        DemandeDTO demandeDto = DemandesTransformer.bo2Dto(demandeBo);
         DemandeEsDTO demandeEsDTO = demandeEsTransformer.bo2Dto(demandeBo, null);
-        demandeEsRepository.save(demandeEsDTO);
+    	try {
+    		demandeEsRepository.save(demandeEsDTO);
+    	} catch (Exception e) {
+	        LOGGER.error("Erreur d'indexation lors du clone de la demande.");
+	        EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("IndexedEsDemandeServiceImpl - méthode indexDemande()", demandeDto, e);
+	        applicationEventPublisher.publishEvent(esErrorEventDTO);
+	        throw new AfIndexingException(e.getMessage(), e);
+	    }
 
     }
 
@@ -1812,7 +1826,10 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                     .must(termQuery(DemandeEsDTO.ACCESS_FIELD_NAME + "." + DemandeAccessEsDTO.ACTIVE_FIELD_NAME, true));
         }
 
-        if (!StringUtils.isBlank(demandeRecherche.getAgentAffecteId())) {
+        if (demandeRecherche.isAucunResponsable()) {
+            boolQueryBuilder = boolQueryBuilder
+                    .mustNot(existsQuery(DemandeEsDTO.AGENT_FIELD_NAME + "." + AgentEsDTO.MATRICULE_FIELD_NAME + ES_KEYWORD));
+        } else if (!StringUtils.isBlank(demandeRecherche.getAgentAffecteId())) {
             boolQueryBuilder = boolQueryBuilder
                     .must(termQuery(DemandeEsDTO.AGENT_FIELD_NAME + "." + AgentEsDTO.MATRICULE_FIELD_NAME + ES_KEYWORD,
                             demandeRecherche.getAgentAffecteId()));
@@ -1941,10 +1958,10 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      */
     @Override
     public void deleteDemande(String demarcheId, Integer demandeId) throws JsonProcessingException {
-        super.deleteDemande(demarcheId, demandeId);
         try {
             Optional<DemandeBO> demandeBoOp = demandesRepository.findById(demandeId);
             demandeBoOp.ifPresent(demandeBO -> demandeEsRepository.deleteById(demandeBO.getIdentifiant()));
+            super.deleteDemande(demarcheId, demandeId);
         } catch (Exception e) {
             LOGGER.error("Erreur d'indexation lors de la suppression de la demande.");
             EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("IndexedEsDemandeServiceImpl - méthode deleteDemande()", demarcheId, demandeId, e);

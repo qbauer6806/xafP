@@ -179,13 +179,23 @@ public class DenjsAffectationServiceImpl implements DenjsAffectationService {
 	}
 	
 	@Override
-    public String getEtablissementNomFromCode(String code, List<DenjsEtablissementDTO> etabs) {
+    public DenjsEtablissementDTO getEtablissementFromCode(String code, List<DenjsEtablissementDTO> etabs) {
     	for (DenjsEtablissementDTO etab : etabs) {
     		if (etab.getCode().equals(code)) {
-    			return etab.getNom();
+    			return etab;
     		}
     	}
     	return null;
     }
+
+	@Override
+	public void desaffecterDemandeEtablissement(Integer pkDemande) {
+		LOGGER.info("DenjsAffectationServiceImpl.desaffecterDemandeEtablissement(" + pkDemande + ")");
+		try {
+			demandesDataService.deleteDemandeData(gouvPropertiesResolver.getDemarcheId(), pkDemande, DEMANDE_AFFECTATION_ETABLISSEMENT_KEY);
+		} catch (Exception e) {
+			LOGGER.error("Erreur pendant la suppression en base de l'affectation d'une demande à un établissement", e);
+		}
+	}
 
 }

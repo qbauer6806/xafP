@@ -25,18 +25,16 @@ public class DemandesComplementsTransformer {
     private DemandesComplementsTransformer() {
     }
 
-    public static DemandeComplementsDTO bo2Dto(DemandesComplementsBO bo, Boolean... checkFrontUserTest) {
+    public static DemandeComplementsDTO bo2Dto(DemandesComplementsBO bo) {
         if (bo == null) {
             return null;
         }
 
-        Boolean checkFrontUser = checkFrontUserTest == null || checkFrontUserTest.length == 0
-                || checkFrontUserTest[0] == null ? true : checkFrontUserTest[0];
         DemandeComplementsDTO dto = new DemandeComplementsDTO();
         if (bo.getAgentId() != null || bo.getDateCreation() != null || bo.getQuestion() != null) {
             DemandeComplementsQuestionDTO question = new DemandeComplementsQuestionDTO();
             // Cacher l'agentId au Front Office
-            if (!DemarchesUtils.isFrontUser() || checkFrontUser) {
+            if (!DemarchesUtils.isFrontUser()) {
                 question.setAgentId(bo.getAgentId());
             }
             question.setDate(bo.getDateCreation());
@@ -48,7 +46,7 @@ public class DemandesComplementsTransformer {
                 || (bo.getFiles() != null && !bo.getFiles().isEmpty()) || bo.getReponse() != null) {
             DemandeComplementsReponseDTO reponse = new DemandeComplementsReponseDTO();
             // Cacher l'agentId au Front Office
-            if (!DemarchesUtils.isFrontUser() || checkFrontUser) {
+            if (!DemarchesUtils.isFrontUser()) {
                 reponse.setAgentId(bo.getReponseAgentId());
             }
             reponse.setUsagerId(bo.getReponseUsagerId());
@@ -96,18 +94,18 @@ public class DemandesComplementsTransformer {
         return bo;
     }
 
-    public static List<DemandeComplementsDTO> bo2Dto(List<DemandesComplementsBO> bos, Boolean... checkFrontUserTest) {
+    public static List<DemandeComplementsDTO> bo2Dto(List<DemandesComplementsBO> bos) {
         ArrayList<DemandeComplementsDTO> dtos = new ArrayList<DemandeComplementsDTO>();
         for (DemandesComplementsBO bo : bos) {
-            dtos.add(bo2Dto(bo, checkFrontUserTest));
+            dtos.add(bo2Dto(bo));
         }
         return dtos;
     }
 
-    public static Set<DemandeComplementsDTO> bo2Dto(Set<DemandesComplementsBO> bos, Boolean... checkFrontUserTest) {
+    public static Set<DemandeComplementsDTO> bo2Dto(Set<DemandesComplementsBO> bos) {
         Set<DemandeComplementsDTO> dtos = new HashSet<>();
         for (DemandesComplementsBO bo : bos) {
-            dtos.add(bo2Dto(bo, checkFrontUserTest));
+            dtos.add(bo2Dto(bo));
         }
         return dtos;
     }

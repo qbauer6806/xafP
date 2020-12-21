@@ -41,6 +41,12 @@ public interface DenjsAffectationService {
 	public void affecterDemandeEtablissement(Integer pkDemande, String etablissementCode);
 	
 	/**
+	 * Désaffecter une demande d'un établissement
+	 * @param pkDemande pkDemande de la demande à désaffecter
+	 */
+	public void desaffecterDemandeEtablissement(Integer pkDemande);
+	
+	/**
 	 * Récupérer l'établissement auquel est affecté une demande
 	 * @param pkDemande
 	 * @return
@@ -48,12 +54,12 @@ public interface DenjsAffectationService {
 	public String getAffectationDemandeEtablissement(Integer pkDemande);
 
 	/**
-	 * Récupérer le nom d'un établissement à partir de son code
+	 * Récupérer un établissement à partir de son code
 	 * @param code
 	 * @param etabs
 	 * @return
 	 */
-	public String getEtablissementNomFromCode(String code, List<DenjsEtablissementDTO> etabs);
+	public DenjsEtablissementDTO getEtablissementFromCode(String code, List<DenjsEtablissementDTO> etabs);
 
 	/**
 	 * Récupère l'affectation d'un agent à un établissement

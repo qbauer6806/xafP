@@ -23,6 +23,7 @@ import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 
 import mc.gouv.xaf.back.data.entity.*;
+import mc.gouv.xaf.back.service.data.*;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.FileUtils;
 import mc.gouv.xaf.shared.dto.*;
@@ -46,7 +47,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import mc.gouv.xaf.back.data.dao.AccessRepository;
 import mc.gouv.xaf.back.data.dao.DemandesComplementsFilesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesComplementsRepository;
-import mc.gouv.xaf.back.data.dao.DemandesCourriersRepository;
 import mc.gouv.xaf.back.data.dao.DemandesDataRepository;
 import mc.gouv.xaf.back.data.dao.DemandesFilesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesHistoriqueRepository;
@@ -59,11 +59,6 @@ import mc.gouv.xaf.back.data.transformer.DemandesFilesTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesStatutsTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
-import mc.gouv.xaf.back.service.data.DemFileService;
-import mc.gouv.xaf.back.service.data.DemandesFilesService;
-import mc.gouv.xaf.back.service.data.DemandesService;
-import mc.gouv.xaf.back.service.data.DemandesStatutsService;
-import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
 
 /**
@@ -113,6 +108,9 @@ public class DemandesServiceImpl implements DemandesService {
 
     @Autowired
     private DemandesFilesService demandesFilesService;
+
+    @Autowired
+    private StatistiquesService statistiquesService;
 
     private DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
 
@@ -221,7 +219,10 @@ public class DemandesServiceImpl implements DemandesService {
         }
 
         LOGGER.info("Transformation bo -> dto ...");
-        return DemandesTransformer.bo2Dto(demandeBo);
+
+        DemandeDTO demandeDTO = DemandesTransformer.bo2Dto(demandeBo);
+
+        return demandeDTO;
     }
 
     /**
@@ -232,15 +233,16 @@ public class DemandesServiceImpl implements DemandesService {
     @Override
     public DemandeDTO saveOrUpdateDemande(DemandeDTO demande, boolean partialUpdate, String premierStatut)
             throws Exception {
-
+        DemandeDTO demandeDTO;
         if (demande.getPkDemandes() != null) {
             // ID de la demande fourni, il faut donc mettre à jour une demande
-            return updateDemande(demande, partialUpdate);
+            demandeDTO = updateDemande(demande, partialUpdate);
         } else {
             // UsagerID et DemarcheID fournis, il faut donc créer une nouvelle demande
-            return saveDemande(demande, premierStatut);
+            demandeDTO = saveDemande(demande, premierStatut);
         }
 
+        return demandeDTO;
     }
 
     /**
@@ -283,6 +285,22 @@ public class DemandesServiceImpl implements DemandesService {
         }
 
         return demandes;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<DemandeDTO> getDemandesByIdentifiants(List<String> identifiants) {
+
+        LOGGER.info("Récupération en base des demandes...");
+
+        List<DemandeBO> demandes = demandesRepository.findAllByIdentifiantIn(identifiants);
+
+        LOGGER.info("Transformation bo -> dto ...");
+
+        return DemandesTransformer.bo2Dto(demandes);
+
     }
 
     /**
@@ -661,6 +679,13 @@ public class DemandesServiceImpl implements DemandesService {
         if (demandeBo == null) {
             throw new DemarchesServiceException("Demande introuvable", HttpStatus.NOT_FOUND);
         }
+        
+        StatistiqueDTO stat = new StatistiqueDTO();
+        stat.setCanal(demandeBo.getCanal());
+        stat.setDate(new Date());
+        stat.setDemandeId(demandeId);
+        stat.setDemarcheId(demarcheId);
+        stat.setStatutPublic(AfBackUtils.STATUT_PUBLIC_SUPPRIMEE);
 
         AccessBO access = demandeBo.getFkAccess();
         access.getDemandes().remove(demandeBo);
@@ -671,6 +696,9 @@ public class DemandesServiceImpl implements DemandesService {
         for (DemandesHistoriqueBO histo : histos) {
             demandesHistoriqueRepository.delete(histo);
         }
+        
+        LOGGER.info("Ajout d'une ligne de statistique pour la suppression de la demande...");
+        statistiquesService.saveStatistique(stat);
 
         demandesRepository.delete(demandeBo);
     }

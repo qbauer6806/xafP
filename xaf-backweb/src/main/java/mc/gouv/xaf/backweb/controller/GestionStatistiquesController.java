@@ -1,7 +1,7 @@
 package mc.gouv.xaf.backweb.controller;
 
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
-import mc.gouv.xaf.back.service.StatistiquesService;
+import mc.gouv.xaf.back.service.StatistiquesInternesService;
 import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
 
 import org.slf4j.Logger;
@@ -26,7 +26,7 @@ public class GestionStatistiquesController {
     private DemarchesDataProvider demarchesDataProvider;
 
     @Autowired
-    private StatistiquesService statistiquesService;
+    private StatistiquesInternesService statistiquesService;
 
     @RequestMapping(method = RequestMethod.GET)
     public ModelAndView form() throws Exception {

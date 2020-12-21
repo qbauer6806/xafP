@@ -11,6 +11,8 @@ public class DenjsEtablissementDTO {
 	private String code;
 	
 	private String nom;
+	
+	private String nomPhrase;
 
 	public String getCode() {
 		return code;
@@ -26,6 +28,14 @@ public class DenjsEtablissementDTO {
 
 	public void setNom(String nom) {
 		this.nom = nom;
+	}
+
+	public String getNomPhrase() {
+		return nomPhrase;
+	}
+
+	public void setNomPhrase(String nomPhrase) {
+		this.nomPhrase = nomPhrase;
 	}
 
 }

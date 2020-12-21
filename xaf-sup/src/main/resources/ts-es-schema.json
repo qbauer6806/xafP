@@ -288,6 +288,9 @@
 						}
 					}
 				},
+		        "statutPublicOuInterne" : {
+		          "type" : "keyword"
+		        },
 				"langue": {
 					"type": "text",
 					"analyzer": "default",

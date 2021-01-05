@@ -9,7 +9,7 @@ public enum ResidMotifInstallationEnum {
     REFUGIE("REFUGIE"),
     SECURITE("SECURITE"),
     SANS_MOTIVATION_PRINCIPALE("SANS_MOTIVATION_PRINCIPALE"),
-    A_DETERMINER("A_DETERMINER");
+    A_DETERMINER ("A_DETERMINER ");
 
     public String value;
 

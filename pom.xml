@@ -22,8 +22,8 @@
 		<url>https://git.monaco-gouvernement.mc/libs/xaf.git</url>
 		<connection>scm:git:git@git.monaco-gouvernement.mc:libs/xaf.git</connection>
 		<developerConnection>scm:git:git@git.monaco-gouvernement.mc:libs/xaf.git</developerConnection>
-		<tag>xaf-8.1.4</tag>
-	</scm>
+	  <tag>HEAD</tag>
+  </scm>
 
 
 	<modules>
@@ -34,7 +34,6 @@
         <module>xaf-shared</module>
 		<module>xaf-back-denjs</module>
 		<module>xaf-backweb-denjs</module>
-		<module>xaf-sup</module>
     </modules>
 
 	<dependencyManagement>

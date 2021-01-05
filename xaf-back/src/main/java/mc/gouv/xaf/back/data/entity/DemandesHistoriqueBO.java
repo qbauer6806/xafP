@@ -49,6 +49,9 @@ public class DemandesHistoriqueBO {
     @Column(name = "USAGER_ID", nullable = true)
     private Integer usagerId;
 
+    @Column(name = "JUSTIFICATIF_TRAITEMENT", length = 8000)
+    private String justificatifTraitement;
+
     @Column(name = "CONTENU", length = 10000, nullable = false)
     @NotBlank
     @Size(min = 1, max = 10000)
@@ -100,6 +103,14 @@ public class DemandesHistoriqueBO {
 
     public void setUsagerId(Integer usagerId) {
         this.usagerId = usagerId;
+    }
+
+    public String getJustificatifTraitement() {
+        return justificatifTraitement;
+    }
+
+    public void setJustificatifTraitement(String justificatifTraitement) {
+        this.justificatifTraitement = justificatifTraitement;
     }
 
     public String getContenu() {

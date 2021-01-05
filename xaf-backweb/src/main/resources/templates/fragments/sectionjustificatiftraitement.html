@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div id="sectionjustificatiftraitement" th:fragment="sectionjustificatiftraitement"
+     th:if="!${justificatifTraitementList.isEmpty()}" th:remove="tag">
+
+    <hr/>
+
+    <h3>Justification du traitement de la demande</h3>
+
+    <div class="justif-traitement-view">
+        <div th:each="justificatifTraitement : ${justificatifTraitementList}">
+            <p><strong th:utext="${justificatifTraitement.historique}"></strong></p>
+            <p th:text="${justificatifTraitement.justification}"></p>
+        </div>
+    </div>
+
+    <hr/>
+
+</div>
+</body>
+</html>

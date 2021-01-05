@@ -28,6 +28,8 @@ public class DemandeHistoriqueDTO {
 
     private Integer usagerId;
 
+    private String justificatifTraitement;
+
     @NotNull
     private JsonNode contenu;
 
@@ -79,6 +81,14 @@ public class DemandeHistoriqueDTO {
         this.usagerId = usagerId;
     }
 
+    public String getJustificatifTraitement() {
+        return justificatifTraitement;
+    }
+
+    public void setJustificatifTraitement(String justificatifTraitement) {
+        this.justificatifTraitement = justificatifTraitement;
+    }
+
     public JsonNode getContenu() {
         return contenu;
     }
@@ -91,7 +101,7 @@ public class DemandeHistoriqueDTO {
     public String toString() {
         return "DemandeHistoriqueDTO [pkDemandeHistorique=" + pkDemandeHistorique + ", fkDemandes=" + fkDemandes
                 + ", date=" + date + ", fkStatut=" + fkStatut + ", agentId=" + agentId + ", usagerId=" + usagerId
-                + ", contenu=" + contenu + "]";
+                + ", justificatifTraitement=" + justificatifTraitement + ", contenu=" + contenu + "]";
     }
 
 }

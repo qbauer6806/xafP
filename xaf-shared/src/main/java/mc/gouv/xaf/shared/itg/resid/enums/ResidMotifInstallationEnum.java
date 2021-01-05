@@ -7,9 +7,7 @@ public enum ResidMotifInstallationEnum {
     FISCAL("FISCAL"),
     PROFESSIONNEL("PROFESSIONNEL"),
     REFUGIE("REFUGIE"),
-    SECURITE("SECURITE"),
-    SANS_MOTIVATION_PRINCIPALE("SANS_MOTIVATION_PRINCIPALE"),
-    A_DETERMINER ("A_DETERMINER ");
+    SECURITE("SECURITE");
 
     public String value;
 

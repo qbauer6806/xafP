@@ -44,8 +44,6 @@ public class ResidIdentiteDTO implements Serializable {
 
     private String filiation;
 
-    private String prefixeTelephonique;
-
     private String telephone;
 
     private String email;
@@ -212,13 +210,5 @@ public class ResidIdentiteDTO implements Serializable {
 
     public void setNationaliteAutre(ResidNationaliteDTO nationaliteAutre) {
         this.nationaliteAutre = nationaliteAutre;
-    }
-
-    public String getPrefixeTelephonique() {
-        return prefixeTelephonique;
-    }
-
-    public void setPrefixeTelephonique(String prefixeTelephonique) {
-        this.prefixeTelephonique = prefixeTelephonique;
     }
 }

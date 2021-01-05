@@ -3,8 +3,7 @@ package mc.gouv.xaf.shared.itg.resid.enums;
 public enum ResidSexeEnum {
 
     HOM("HOM"),
-    FEM("FEM"),
-    AUT("AUT");
+    FEM("FEM");
 
     public String value;
 

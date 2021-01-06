@@ -94,7 +94,11 @@ public class FileUtils {
     }
 
     public static String formatFilenameResid(String filename, Integer index) {
-        return index + "-" + filename;
+        return removeSpecialChars(index + "_" + filename);
+    }
+
+    public static String removeSpecialChars(String filename) {
+        return filename.replaceAll("[^a-zA-Z0-9_]", "_");
     }
 
     // Norme sur les métadonnées des fichiers

@@ -189,8 +189,6 @@ public class ResidApiServiceImpl implements ResidApiService {
 			InputStream isf = fileService.getFile(URLEncoder.encode(entry.getValue().getUrl(), "UTF-8"), gouvPropertiesResolver.getContainerId());
 
 			HttpHeaders requestHeadersAttachment = new HttpHeaders();
-			//String contentType = URLConnection.guessContentTypeFromName(entry.getValue().getName());
-			//requestHeadersAttachment.setContentType(MediaType.parseMediaType(contentType));
 			ByteArrayResource fileAsResource = new ByteArrayResource(IOUtils.toByteArray(isf)){
 				@Override
 				public String getFilename(){

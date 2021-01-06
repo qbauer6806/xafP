@@ -263,14 +263,19 @@ public class FileServiceImpl implements FileService {
 	}
 
 	private Map<String, String> getFileMetadata(String fileUrl) throws IOException {
-		HttpClient client = HttpClientBuilder.create().build();
-		HttpHead headRequest = new HttpHead(fileUrl);
-		headRequest.setHeader(org.apache.http.HttpHeaders.AUTHORIZATION, AUTHORIZATION_PREFIX + gouvPropertiesResolver.getFileJwt());
-		HttpResponse response = client.execute(headRequest);
-		return Arrays.stream(response.getAllHeaders())
+		HttpHeaders headers = new HttpHeaders();
+		headers.add(org.apache.http.HttpHeaders.AUTHORIZATION, AUTHORIZATION_PREFIX + gouvPropertiesResolver.getFileJwt());
+		org.springframework.http.HttpEntity<Object> requestEntity = new org.springframework.http.HttpEntity<>(null, headers);
+		ResponseEntity<Object> response = restTemplate.exchange(fileUrl, HttpMethod.HEAD, requestEntity, Object.class);
+		HttpStatus httpStatus = response.getStatusCode();
+		if (httpStatus != HttpStatus.OK) {
+			throw new DemarchesServiceException("La requête HEAD a retourné le httpStatus " + httpStatus,
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		return response.getHeaders().toSingleValueMap().entrySet().stream()
 				// On ne retourne que les métadata du fichier
-				.filter(header -> header.getName().startsWith(MC_METADATA_PREFIX))
-				.collect(Collectors.toMap(Header::getName, Header::getValue));
+				.filter(entry -> entry.getKey().startsWith(MC_METADATA_PREFIX))
+				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 	}
 
 	private void updateFileMetadataGeneric(String fileUrl, String metadata, String value) throws IOException {

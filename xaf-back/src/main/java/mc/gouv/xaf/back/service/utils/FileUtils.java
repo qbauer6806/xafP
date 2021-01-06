@@ -98,7 +98,7 @@ public class FileUtils {
     }
 
     public static String removeSpecialChars(String filename) {
-        return filename.replaceAll("[^a-zA-Z0-9_]", "_");
+        return filename.replaceAll("[^a-zA-Z0-9_.]", "_");
     }
 
     // Norme sur les métadonnées des fichiers

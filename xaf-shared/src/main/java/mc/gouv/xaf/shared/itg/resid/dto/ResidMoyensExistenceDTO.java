@@ -24,6 +24,10 @@ public class ResidMoyensExistenceDTO implements Serializable {
 
     private String employeurRaisonSociale;
 
+    private String employeurVille;
+
+    private String employeurPays;
+
     public ResidSituationEnum getSituationPrincipale() {
         return situationPrincipale;
     }
@@ -70,5 +74,21 @@ public class ResidMoyensExistenceDTO implements Serializable {
 
     public void setEmployeurRaisonSociale(String employeurRaisonSociale) {
         this.employeurRaisonSociale = employeurRaisonSociale;
+    }
+
+    public String getEmployeurVille() {
+        return employeurVille;
+    }
+
+    public void setEmployeurVille(String employeurVille) {
+        this.employeurVille = employeurVille;
+    }
+
+    public String getEmployeurPays() {
+        return employeurPays;
+    }
+
+    public void setEmployeurPays(String employeurPays) {
+        this.employeurPays = employeurPays;
     }
 }

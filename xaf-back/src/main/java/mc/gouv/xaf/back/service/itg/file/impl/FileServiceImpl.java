@@ -85,6 +85,8 @@ public class FileServiceImpl implements FileService {
 	public InputStream getFile(String filename, String containerId) throws IOException {
 		LOGGER.info("FileService.getFile({})", filename);
 		String accountId = gouvPropertiesResolver.getDemarcheId();
+		// Remplacement des espaces par des "+"...
+		filename = filename.replace(" ", "+");
 		InputStream is = afBackUtils.getFileClient().getFile(accountId, containerId, filename);
 		LOGGER.info("FileClient.getFile({}, {}, {})", accountId, containerId, filename);
 		return is;

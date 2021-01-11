@@ -233,7 +233,9 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
             for (Object sousSection : sousSections.toArray()) {
                 String sousSectionType = (String) ((JSONObject) sousSection).get("type");
                 String introHtml = (String) ((JSONObject) sousSection).get("introHtml");
-                sousSectionBuilder.append(StringUtils.isNotBlank(introHtml) ? introHtml : "");
+                // span display:grid afin d'éviter que le <pre> reçu du fichier récap, ne fasse s'élargir toute la partie
+                // gauche de la page (si texte à afficher trop long, malgré l'ascenseur horizontal) !
+                sousSectionBuilder.append(StringUtils.isNotBlank(introHtml) ? "<span style='display:grid'>"+introHtml+"</span>" : "");
                 String firstLevel = getFirstLevelHTML(demande, sousSectionType, (JSONObject) sousSection, isPdfRecap, pojo);
                 if (StringUtils.isNotBlank(firstLevel)) {
                     sousSectionBuilder.append(firstLevel);

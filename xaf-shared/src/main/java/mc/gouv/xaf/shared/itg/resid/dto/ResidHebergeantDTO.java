@@ -19,12 +19,15 @@ public class ResidHebergeantDTO implements Serializable {
 
     private String hebergeantNomRaisonSociale;
 
+    @JsonInclude()
     private String hebergeantNomUsage;
 
+    @JsonInclude()
     private String hebergeantPrenom;
 
     private ResidSexeEnum hebergeantSexe;
 
+    @JsonInclude()
     private String hebergantNationaliteCode;
 
     private ResidQualiteEnum hebegeantQualite;

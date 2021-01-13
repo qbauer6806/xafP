@@ -11,22 +11,28 @@ public class ResidAdresseDTO implements Serializable {
 
     private static final long serialVersionUID = -4767579539536301033L;
 
+    @JsonInclude()
     private String careOf;
 
+    @JsonInclude()
     private String adresse1;
 
     private String adresse2;
 
+    @JsonInclude()
     private String adresse3;
 
     private String adresse4;
 
     private String paysCode;
 
+    @JsonInclude()
     private String bloc;
 
+    @JsonInclude()
     private String etage;
 
+    @JsonInclude()
     private String appartement;
 
     public String getCareOf() {

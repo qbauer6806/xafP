@@ -17,6 +17,7 @@ public class ResidLogementDTO implements Serializable {
 
     private int nombrePieces;
 
+    @JsonInclude()
     private Integer surface;
 
     private int loyer;

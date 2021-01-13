@@ -24,13 +24,13 @@ public class ResidUsagerExistantDTO implements Serializable {
 
     private ResidLogementDTO logement;
 
+    @JsonInclude()
     private ResidHebergeantDTO hebergeant;
 
     private ResidMoyensExistenceDTO moyensExistence;
 
+    @JsonInclude()
     private ResidConjointDTO conjoint;
-
-    private String situationDate;
 
     public ResidTypeUsagerEnum getUsagerType() {
         return usagerType;
@@ -102,13 +102,5 @@ public class ResidUsagerExistantDTO implements Serializable {
 
     public void setConjoint(ResidConjointDTO conjoint) {
         this.conjoint = conjoint;
-    }
-
-    public String getSituationDate() {
-        return situationDate;
-    }
-
-    public void setSituationDate(String situationDate) {
-        this.situationDate = situationDate;
     }
 }

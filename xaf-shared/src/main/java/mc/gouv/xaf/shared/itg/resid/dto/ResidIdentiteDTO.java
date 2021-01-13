@@ -6,7 +6,6 @@ import mc.gouv.xaf.shared.itg.resid.enums.*;
 
 import java.io.Serializable;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ResidIdentiteDTO implements Serializable {
 
@@ -34,6 +33,7 @@ public class ResidIdentiteDTO implements Serializable {
 
     private ResidNationaliteDTO nationalitePrincipale;
 
+    @JsonInclude()
     private ResidNationaliteDTO nationaliteAutre;
 
     private String situationDate;
@@ -42,14 +42,17 @@ public class ResidIdentiteDTO implements Serializable {
 
     private int nombreEnfantsFoyer;
 
+    @JsonInclude()
     private String filiation;
 
     private String telephone;
 
+    @JsonInclude()
     private String email;
 
     private ResidCanalCommunicationEnum canalCommunication;
 
+    @JsonInclude()
     private ResidLanguePrefereeEnum languePreferee;
 
     public ResidCiviliteEnum getCivilite() {

@@ -6,12 +6,12 @@ import mc.gouv.xaf.shared.itg.resid.enums.ResidSituationEnum;
 
 import java.io.Serializable;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ResidMoyensExistenceDTO implements Serializable {
 
     private static final long serialVersionUID = -5756654094218754527L;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private ResidSituationEnum situationPrincipale;
 
     private String banqueDate;

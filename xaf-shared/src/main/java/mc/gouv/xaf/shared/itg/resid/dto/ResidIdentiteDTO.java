@@ -6,6 +6,7 @@ import mc.gouv.xaf.shared.itg.resid.enums.*;
 
 import java.io.Serializable;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ResidIdentiteDTO implements Serializable {
 

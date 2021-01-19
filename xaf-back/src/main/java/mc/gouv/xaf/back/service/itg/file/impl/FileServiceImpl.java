@@ -6,6 +6,7 @@ import mc.gouv.vscan.shared.dto.ScanRequestDTO;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.exception.FileUploadException;
 import mc.gouv.xaf.back.exception.VScanException;
+import mc.gouv.xaf.back.exception.enums.FileUploadErrorEnum;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
@@ -57,6 +58,7 @@ public class FileServiceImpl implements FileService {
 
 	private static final String EXTENSIONS_WHITELIST = "EXTENSIONS_WHITELIST";
 	private static final String VSCAN_ACTIVATION = "VSCAN_ACTIVATION";
+	private static final String MAX_TAILLE_FICHIER = "MAX_TAILLE_FICHIER";
 	private static final String MC_METADATA_PREFIX = "X-MC-";
 	private static final String AUTHORIZATION_PREFIX = "Bearer ";
 
@@ -129,7 +131,18 @@ public class FileServiceImpl implements FileService {
 		// Vérification de l'extension du fichier
 		if (file.getOriginalFilename() != null && !estExtensionDansWhitelist(file.getOriginalFilename())) {
 			LOGGER.info("Le type de fichier ne correspond pas aux types whitelistés ({}), pas d'upload dans FILE", getExtensionsWhitelist());
-			throw new FileUploadException("Erreur: le type du fichier soumis n'est pas valide");
+			throw new FileUploadException("Erreur: le type du fichier soumis n'est pas valide", FileUploadErrorEnum.EXTENSION_ERROR);
+		}
+
+		// Vérification de la taille maximum du fichier
+		PropertiesDTO tailleMaxFichiersProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), MAX_TAILLE_FICHIER);
+		int tailleMaxFichiers = Integer.parseInt(tailleMaxFichiersProp.getValue());
+
+		// transformation B en MB
+		int tailleMaxFichierMB = tailleMaxFichiers * 1000000;
+		if (file.getSize() > tailleMaxFichierMB) {
+			LOGGER.info("La taille du fichier depasse la taille max definie dans les propriétés ({})", tailleMaxFichiers);
+			throw new FileUploadException("Erreur: la taille du fichier transféré dépasse la limite autorisée", FileUploadErrorEnum.TAILLE_MAX_ERROR);
 		}
 
 		// Appel à VSCAN pour vérifier la virulance du fichier

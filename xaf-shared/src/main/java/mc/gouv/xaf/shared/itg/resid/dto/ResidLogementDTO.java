@@ -24,6 +24,7 @@ public class ResidLogementDTO implements Serializable {
 
     private ResidLoyerPeriodiciteEnum loyerPeriodicite;
 
+    @JsonInclude()
     private String dateDerniereQuittance;
 
     private int nombreStationnements;

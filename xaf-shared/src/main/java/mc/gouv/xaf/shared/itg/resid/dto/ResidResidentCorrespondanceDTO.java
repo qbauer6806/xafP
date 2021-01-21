@@ -23,7 +23,9 @@ public class ResidResidentCorrespondanceDTO implements Serializable {
 
     private String villeNaissance;
 
-    private String paysNaissance;
+    private String paysNaissanceCode;
+
+    private String paysNaissanceLibelle;
 
     private ResidAdresseDTO adresse;
 
@@ -75,12 +77,20 @@ public class ResidResidentCorrespondanceDTO implements Serializable {
         this.villeNaissance = villeNaissance;
     }
 
-    public String getPaysNaissance() {
-        return paysNaissance;
+    public String getPaysNaissanceCode() {
+        return paysNaissanceCode;
     }
 
-    public void setPaysNaissance(String paysNaissance) {
-        this.paysNaissance = paysNaissance;
+    public void setPaysNaissanceCode(String paysNaissanceCode) {
+        this.paysNaissanceCode = paysNaissanceCode;
+    }
+
+    public String getPaysNaissanceLibelle() {
+        return paysNaissanceLibelle;
+    }
+
+    public void setPaysNaissanceLibelle(String paysNaissanceLibelle) {
+        this.paysNaissanceLibelle = paysNaissanceLibelle;
     }
 
     public ResidAdresseDTO getAdresse() {

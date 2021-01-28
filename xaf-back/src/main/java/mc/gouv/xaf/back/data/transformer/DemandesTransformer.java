@@ -129,13 +129,16 @@ public class DemandesTransformer {
         }
         // Mapper les courriers
         if (addCourriersField && bo.getCourriers() != null && bo.getCourriers().size() > 0) {
-            // Ne remonter les courriers que pour le back
-            if (!DemarchesUtils.isFrontUser()) {
-                // Back Office : tout remonter
-                dto.setCourriers(
-                        DemandesCourriersTransformer.bo2Dto(new ArrayList<DemandesCourriersBO>(bo.getCourriers()))
-                                .toArray(new DemandeCourrierDTO[bo.getCourriers().size()]));
-            }
+        	// Ticket https://redmine.monaco-gouvernement.mc/issues/25476
+        	// Avant le fix de ce ticket, on ne remontait pas les courriers à l'user FRONT
+        	// Donc lors de la création d'une demande courrier par l'API, les courriers ne sont pas indexés !
+        	// Cela marchait jusque là car on générait les tokens FO -> API de la mauvaise manière, avec rôle USER
+        	// au lieu de FRONT. Mais maintenant qu'on a user FRONT ça ne marche plus.
+        	// Décision prise de remonter les courriers dans les deux cas : FO (API) et BO
+        	// Car cela ne pose aucun problème de sécurité
+            dto.setCourriers(
+                    DemandesCourriersTransformer.bo2Dto(new ArrayList<DemandesCourriersBO>(bo.getCourriers()))
+                            .toArray(new DemandeCourrierDTO[bo.getCourriers().size()]));
         }
         dto.setAgentAffecteId(bo.getAgentAffecteId());
         dto.setIdentifiant(bo.getIdentifiant());

@@ -152,6 +152,6 @@
 	</dependencies>
 
   <scm>
-    <tag>xaf-8.1.4</tag>
+    <tag>HEAD</tag>
   </scm>
 </project>

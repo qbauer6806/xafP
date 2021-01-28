@@ -569,5 +569,9 @@ public class AfBackUtils {
 		}
     	return null;
     }
+    
+    public static String convertTelIndicateur(String indicateur) {
+        return StringUtils.replace(indicateur, "t", "+");
+    }
 
 }

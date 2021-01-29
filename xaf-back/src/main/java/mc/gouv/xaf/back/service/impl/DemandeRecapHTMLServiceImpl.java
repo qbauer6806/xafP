@@ -443,6 +443,17 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
             String bic = escape(getNode(node, champ, "bic").textValue(), isPdfRecap);
             String iban = escape(getNode(node, champ, "iban").textValue(), isPdfRecap);
             return iban + " (Titulaire: " + titulaire + ", BIC: " + bic + ")";
+        } else if (StringUtils.equals(type, "telephone")) {
+            String indicatif = getNode(node, champ, "indicatif").textValue();
+            String numero = escape(getNode(node, champ, "numero").textValue(), isPdfRecap);
+            StringBuilder indicteurBuilder = new StringBuilder();
+            if (StringUtils.isNotBlank(indicatif)) {
+                indicteurBuilder.append("(").append(AfBackUtils.convertTelIndicateur(indicatif)).append(") ");
+            }
+            if (StringUtils.isNotBlank(numero)) {
+                indicteurBuilder.append(numero);
+            }
+            return indicteurBuilder.toString();
         } else {
             return type;
         }

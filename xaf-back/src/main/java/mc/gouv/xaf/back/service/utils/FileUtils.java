@@ -98,7 +98,12 @@ public class FileUtils {
     }
 
     public static String removeSpecialChars(String filename) {
-        return filename.replaceAll("[^a-zA-Z0-9_.]", "_");
+        String[] filenameExtensionSplit = filename.split("\\.");
+        String extension = filenameExtensionSplit[filenameExtensionSplit.length-1];
+        // On supprime l'exension du split
+        String[] filenameSplit = Arrays.copyOf(filenameExtensionSplit, filenameExtensionSplit.length-1);
+        String filenameConcat = String.join("", filenameSplit);
+        return filenameConcat.replaceAll("[^a-zA-Z0-9_]", "_") + "." + extension;
     }
 
     // Norme sur les métadonnées des fichiers

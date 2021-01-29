@@ -440,9 +440,16 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
             String iban = escape(getNode(node, champ, "iban").textValue(), isPdfRecap);
             return iban + " (Titulaire: " + titulaire + ", BIC: " + bic + ")";
         } else if (StringUtils.equals(type, "telephone")) {
-            String indicatif = AfBackUtils.convertTelIndicateur(getNode(node, champ, "indicatif").textValue());
+            String indicatif = getNode(node, champ, "indicatif").textValue();
             String numero = escape(getNode(node, champ, "numero").textValue(), isPdfRecap);
-            return "(" + indicatif + ") " + numero;
+            StringBuilder indicteurBuilder = new StringBuilder();
+            if (StringUtils.isNotBlank(indicatif)) {
+                indicteurBuilder.append("(").append(AfBackUtils.convertTelIndicateur(indicatif)).append(") ");
+            }
+            if (StringUtils.isNotBlank(numero)) {
+                indicteurBuilder.append(numero);
+            }
+            return indicteurBuilder.toString();
         } else {
             return type;
         }

@@ -38,6 +38,7 @@ public enum EsType {
             case CHOIX:
             case ADRESSE:
             case ADRESSE_MC:
+            case TELEPHONE:
             case IBAN:
                 return EsType.TEXT.getType();
             case DATE:

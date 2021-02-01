@@ -44,6 +44,8 @@ public class EsSchemaUtils {
 
     private static final String PROPERTIES_ES_NODE_NAME = "properties";
     private static final String ES_PROPERTY_TYPE = "type";
+    private static final String INDICATIF = "indicatif";
+    private static final String NUMERO = "numero";
     private static final String RECAP_CHAMP_ADRESSE_LIGNE1 = "ligne1";
     private static final String RECAP_CHAMP_ADRESSE_LIGNE2 = "ligne2";
     private static final String RECAP_CHAMP_ADRESSE_LIGNE3 = "ligne3";
@@ -122,13 +124,30 @@ public class EsSchemaUtils {
             return;
         }
 
-        if ("adresse".equals(type)) {
+        if (RecapChampType.TABLEAU.getType().equals(type)) {
+            String pathTableau = getEscapedColumnValue(node.get("path").textValue());
+            for(JsonNode column : node.get("columns")) {
+                // TODO quick fix pour le bon fonctionnement, mais adresse à prendre en compte
+                if (column.get("type") != null && !"adresse".equals(column.get("type").textValue())) {
+                    buildJsonProperty((pathTableau + "." + column.get(RECAP_CHAMP_PATH).textValue()).split("\\."), RecapChampType.TABLEAU.getType(), contenu, mapper);
+                }
+            }
+            return;
+        }
+
+        if (RecapChampType.ADRESSE.getType().equals(type)) {
             buildJsonProperty(getPropertiesAsArray(node, RECAP_CHAMP_ADRESSE_LIGNE1), type, contenu, mapper);
             buildJsonProperty(getPropertiesAsArray(node, RECAP_CHAMP_ADRESSE_LIGNE2), type, contenu, mapper);
             buildJsonProperty(getPropertiesAsArray(node, RECAP_CHAMP_ADRESSE_LIGNE3), type, contenu, mapper);
             buildJsonProperty(getPropertiesAsArray(node, RECAP_CHAMP_ADRESSE_CP), type, contenu, mapper);
             buildJsonProperty(getPropertiesAsArray(node, RECAP_CHAMP_ADRESSE_VILLE), type, contenu, mapper);
             buildJsonProperty(getPropertiesAsArray(node, RECAP_CHAMP_ADRESSE_PAYS), type, contenu, mapper);
+            return;
+        }
+
+        if (RecapChampType.TELEPHONE.getType().equals(type)) {
+            buildJsonProperty(getPropertiesAsArray(node, INDICATIF), type, contenu, mapper);
+            buildJsonProperty(getPropertiesAsArray(node, NUMERO), type, contenu, mapper);
             return;
         }
 

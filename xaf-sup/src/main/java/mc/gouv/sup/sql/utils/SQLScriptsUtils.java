@@ -31,6 +31,8 @@ public class SQLScriptsUtils {
     private static final String RECAP_CHAMP_IBAN_IBAN = "iban";
     private static final String RECAP_CHAMP_PATH = "path";
     private static final String RECAP_CHAMP_CAMELKEY = "camelKey";
+    private static final String RECAP_CHAMP_NUMERO = "numero";
+    private static final String RECAP_CHAMP_INDICATIF = "indicatif";
 
     public static void generateSQLScripts(JsonNode node, String sectionTitle, String schema, StringBuilder sqlBuilder) {
         if (node.get("titre") != null) {
@@ -56,6 +58,12 @@ public class SQLScriptsUtils {
                             pathTableau + "." + getEscapedColumnValue(column.get(RECAP_CHAMP_PATH).textValue()), getEscapedColumnValue(column.get("label").textValue()), sectionTitle, FALSE)).append("\n");
                 }
             }
+            return;
+        }
+
+        if (node.get("type") != null && "telephone".equals(node.get("type").textValue())) {
+            sqlBuilder.append(MessageFormat.format(INSERT_CHAMP_REQUEST_TEMPLATE, schema, TRUE, getEscapedColumnValue(node.get(RECAP_CHAMP_NUMERO).textValue()), getEscapedColumnValue(node.get("label").textValue()) , sectionTitle, FALSE)).append("\n");
+            sqlBuilder.append(MessageFormat.format(INSERT_CHAMP_REQUEST_TEMPLATE, schema, TRUE, getEscapedColumnValue(node.get(RECAP_CHAMP_INDICATIF).textValue()), "Indicatif téléphone du demandeur" , sectionTitle, FALSE)).append("\n");
             return;
         }
 

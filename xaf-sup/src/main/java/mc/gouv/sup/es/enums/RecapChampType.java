@@ -8,6 +8,7 @@ public enum RecapChampType {
     ADRESSE("adresse"),
     ADRESSE_MC("adresseMc"),
     TABLEAU("tableau"),
+    TELEPHONE("telephone"),
     IBAN("iban");
 
     private String type;

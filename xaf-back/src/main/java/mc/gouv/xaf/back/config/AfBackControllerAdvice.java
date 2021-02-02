@@ -23,4 +23,9 @@ public class AfBackControllerAdvice {
 
         return gouvPropertiesResolver.getHelpUrl();
     }
+    
+    @ModelAttribute(name = "contactSupportUrl")
+    public String getContactSupportUrl() {
+	return gouvPropertiesResolver.getContactSupportUrl();
+    }
 }

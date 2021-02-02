@@ -4,6 +4,7 @@ var complementsJSON = {}
 updateTypedocJSON = (event) => {
     const idEvent = event.id;
     const isComp = idEvent.includes("comp");
+    $("#typedoc-button").attr("disabled", false);
     if (isComp) {
         const pkDemandesFiles = idEvent.replace("comp", "");
         complementsJSON[pkDemandesFiles] = event.value;

@@ -14,14 +14,6 @@ public class ResidMoyensExistenceDTO implements Serializable {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private ResidSituationEnum situationPrincipale;
 
-    private String banqueDate;
-
-    private String revenuDateJustificatif;
-
-    private String revenuPeriodicite;
-
-    private String revenuTypeJustificatif;
-
     private String employeurRaisonSociale;
 
     private String employeurVille;
@@ -34,38 +26,6 @@ public class ResidMoyensExistenceDTO implements Serializable {
 
     public void setSituationPrincipale(ResidSituationEnum situationPrincipale) {
         this.situationPrincipale = situationPrincipale;
-    }
-
-    public String getBanqueDate() {
-        return banqueDate;
-    }
-
-    public void setBanqueDate(String banqueDate) {
-        this.banqueDate = banqueDate;
-    }
-
-    public String getRevenuDateJustificatif() {
-        return revenuDateJustificatif;
-    }
-
-    public void setRevenuDateJustificatif(String revenuDateJustificatif) {
-        this.revenuDateJustificatif = revenuDateJustificatif;
-    }
-
-    public String getRevenuPeriodicite() {
-        return revenuPeriodicite;
-    }
-
-    public void setRevenuPeriodicite(String revenuPeriodicite) {
-        this.revenuPeriodicite = revenuPeriodicite;
-    }
-
-    public String getRevenuTypeJustificatif() {
-        return revenuTypeJustificatif;
-    }
-
-    public void setRevenuTypeJustificatif(String revenuTypeJustificatif) {
-        this.revenuTypeJustificatif = revenuTypeJustificatif;
     }
 
     public String getEmployeurRaisonSociale() {

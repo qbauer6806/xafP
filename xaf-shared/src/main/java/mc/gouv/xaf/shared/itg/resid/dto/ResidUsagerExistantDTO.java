@@ -16,7 +16,7 @@ public class ResidUsagerExistantDTO implements Serializable {
 
     private ResidResidentDTO identification;
 
-    private ResidIdentiteDTO identite;
+    private ResidIdentiteExistanteDTO identite;
 
     private ResidAdresseDTO adresseMonaco;
 
@@ -48,11 +48,11 @@ public class ResidUsagerExistantDTO implements Serializable {
         this.identification = identification;
     }
 
-    public ResidIdentiteDTO getIdentite() {
+    public ResidIdentiteExistanteDTO getIdentite() {
         return identite;
     }
 
-    public void setIdentite(ResidIdentiteDTO identite) {
+    public void setIdentite(ResidIdentiteExistanteDTO identite) {
         this.identite = identite;
     }
 

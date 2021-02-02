@@ -15,7 +15,7 @@ public class ResidDemandeDuplicataCarteCompleteDTO extends ResidDemandeCompleteD
 
     private ResidUtilisateurDTO utilisateur;
 
-    private ResidUsagerDTO usager;
+    private ResidUsagerExistantDTO usager;
 
     public ResidDemandeDuplicataCarteDTO getDemande() {
         return demande;
@@ -33,11 +33,11 @@ public class ResidDemandeDuplicataCarteCompleteDTO extends ResidDemandeCompleteD
         this.utilisateur = utilisateur;
     }
 
-    public ResidUsagerDTO getUsager() {
+    public ResidUsagerExistantDTO getUsager() {
         return usager;
     }
 
-    public void setUsager(ResidUsagerDTO usager) {
+    public void setUsager(ResidUsagerExistantDTO usager) {
         this.usager = usager;
     }
 }

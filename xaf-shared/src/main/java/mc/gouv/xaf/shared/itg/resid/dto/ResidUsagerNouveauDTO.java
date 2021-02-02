@@ -8,7 +8,7 @@ import java.io.Serializable;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ResidUsagerDTO implements Serializable {
+public class ResidUsagerNouveauDTO implements Serializable {
 
     private static final long serialVersionUID = 759419710680261692L;
 
@@ -16,7 +16,7 @@ public class ResidUsagerDTO implements Serializable {
 
     private ResidResidentDTO identification;
 
-    private ResidIdentiteDTO identite;
+    private ResidIdentiteNouvelleDTO identite;
 
     private ResidAdresseDTO adresseMonaco;
 
@@ -48,11 +48,11 @@ public class ResidUsagerDTO implements Serializable {
         this.identification = identification;
     }
 
-    public ResidIdentiteDTO getIdentite() {
+    public ResidIdentiteNouvelleDTO getIdentite() {
         return identite;
     }
 
-    public void setIdentite(ResidIdentiteDTO identite) {
+    public void setIdentite(ResidIdentiteNouvelleDTO identite) {
         this.identite = identite;
     }
 

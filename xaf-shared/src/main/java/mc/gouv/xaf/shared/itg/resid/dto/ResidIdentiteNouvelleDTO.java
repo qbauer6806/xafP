@@ -8,7 +8,7 @@ import java.io.Serializable;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ResidIdentiteDTO implements Serializable {
+public class ResidIdentiteNouvelleDTO implements Serializable {
 
     private static final long serialVersionUID = -1741044093302861889L;
 

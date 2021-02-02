@@ -15,7 +15,7 @@ public class ResidDemandeNouvelleCarteCompleteDTO implements Serializable {
 
     private ResidUtilisateurDTO utilisateur;
 
-    private ResidUsagerDTO usager;
+    private ResidUsagerNouveauDTO usager;
 
     public ResidDemandeNouvelleCarteDTO getDemande() {
         return demande;
@@ -33,11 +33,11 @@ public class ResidDemandeNouvelleCarteCompleteDTO implements Serializable {
         this.utilisateur = utilisateur;
     }
 
-    public ResidUsagerDTO getUsager() {
+    public ResidUsagerNouveauDTO getUsager() {
         return usager;
     }
 
-    public void setUsager(ResidUsagerDTO usager) {
+    public void setUsager(ResidUsagerNouveauDTO usager) {
         this.usager = usager;
     }
 }

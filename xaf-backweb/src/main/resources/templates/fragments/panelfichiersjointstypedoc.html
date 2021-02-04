@@ -4,7 +4,7 @@
 <body>
 
 <div id="panelfichiersjointstypedoc" th:fragment="panelfichiersjointstypedoc" th:remove="tag">
-    <div class="tab-pane" id="tab2" role="tabpanel" th:classappend="${demandeTab} == 'fichiers' ? 'active' : ''">
+    <div class="tab-pane" id="tab2" role="tabpanel">
         <form action="#" method="post" th:action="@{/demandes/typageDocuments}">
             <div th:each="cat : ${categories}">
                 <h3 th:text="${cat.name}"></h3>

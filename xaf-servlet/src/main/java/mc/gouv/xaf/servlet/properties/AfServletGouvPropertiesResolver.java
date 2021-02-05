@@ -195,6 +195,12 @@ public class AfServletGouvPropertiesResolver {
         return Static.getValue(FRONTOFFICE_PIWIK_SITE_ID);
     }
 
+    public static final String FRONTOFFICE_PIWIK_URL = "mc.gouv.piwik.external.piwikUrl";
+
+    public static String getFrontofficePiwikURL() {
+        return Static.getValue(FRONTOFFICE_PIWIK_URL);
+    }
+
     static {
         //Vérification que chaque propriété a bien été configurée
         List<String> propertiesNotFound = new ArrayList<>();
@@ -242,6 +248,7 @@ public class AfServletGouvPropertiesResolver {
         propertiesDTOS.add(new PropertiesDTO(FRONTOFFICE_CONTACT_URL, getFrontofficeContactUrl()));
         propertiesDTOS.add(new PropertiesDTO(FRONTOFFICE_COPYRIGHT_YEARS, getFrontofficeCopyrightYears()));
         propertiesDTOS.add(new PropertiesDTO(FRONTOFFICE_PIWIK_SITE_ID, getFrontofficePiwikSiteId()));
+        propertiesDTOS.add(new PropertiesDTO(FRONTOFFICE_PIWIK_URL, getFrontofficePiwikURL()));
         return propertiesDTOS;
     }
 }

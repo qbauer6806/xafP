@@ -16,6 +16,7 @@ public class ResidIdentiteNouvelleDTO implements Serializable {
 
     private String nom;
 
+    @JsonInclude()
     private String nomUsage;
 
     private String prenom;

@@ -127,12 +127,6 @@ public class DemandeEsTransformer {
         canal.setLibelle(DemandeCanalEnum.valueOf(demande.getCanal()).libelle);
         demandeEsDTO.setCanal(canal);
 
-        if (StringUtils.equals(DemandeCanalEnum.GUICHET_VIRTUEL.name(), canal.getCode())) {
-            demandeEsDTO.setDateDemande(demande.getDateCreation());
-        } else {
-            demandeEsDTO.setDateDemande(demande.getCourrierDateReception());
-        }
-
         ObjectMapper mapper = new ObjectMapper();
         JsonNode contenu = mapper.readTree(demande.getContenu());
         demandeEsDTO.setContenu(transformContenu(contenu));
@@ -176,6 +170,7 @@ public class DemandeEsTransformer {
         }
 
         return demandeEsDTO;
+
     }
 
     public DemandeEsDTO toEs(DemandeDTO demandeDTO, Boolean activeAccess) {
@@ -198,16 +193,11 @@ public class DemandeEsTransformer {
             User user = utilisateursCache.get(demandeDTO.getAgentAffecteId());
             demandeEsDTO.setAgent(AgentEsTransformer.bo2Dto(user));
         }
-
-        demandeEsDTO.setDateDemande(demandeDTO.getDateCreation());
         CanalEsDto canal = new CanalEsDto();
         if (demandeDTO.getCanal() != null) {
             canal.setCode(demandeDTO.getCanal().name());
             canal.setLibelle(demandeDTO.getCanal().libelle);
             demandeEsDTO.setCanal(canal);
-            if (!StringUtils.equals(DemandeCanalEnum.GUICHET_VIRTUEL.name(), canal.getCode())) {
-                demandeEsDTO.setDateDemande(demandeDTO.getCourrierDateReception());
-            }
         }
 
         demandeEsDTO.setContenu(transformContenu(demandeDTO.getContenu()));
@@ -314,18 +304,12 @@ public class DemandeEsTransformer {
         dto.setDateCreation(bo.getDateCreation());
         dto.setDateDerModif(bo.getDateDerModif());
         dto.setLangue(bo.getLangue());
-
-        dto.setDateDemande(bo.getDateCreation());
         CanalEsDto canal = new CanalEsDto();
         if (bo.getCanal() != null) {
             canal.setCode(DemandeCanalEnum.valueOf(bo.getCanal()).name());
             canal.setLibelle(DemandeCanalEnum.valueOf(bo.getCanal()).libelle);
             dto.setCanal(canal);
-            if (!StringUtils.equals(DemandeCanalEnum.GUICHET_VIRTUEL.name(), canal.getCode())) {
-                dto.setDateDemande(bo.getCourrierDateReception());
-            }
         }
-
         dto.setObservations(bo.getObservations());
         dto.setPkDemandes(bo.getPkDemandes());
         dto.setAgentAffecteId(bo.getAgentAffecteId());

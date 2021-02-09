@@ -25,7 +25,6 @@ public class AfBackDemandeEsDTO extends DemandeEsRechercheDTO {
         setData(demande.getData());
         setDateCreation(demande.getDateCreation());
         setDateDerModif(demande.getDateDerModif());
-        setDateDemande(demande.getDateDemande());
         setAccess(demande.getAccess());
         setDernierStatut(demande.getDernierStatut());
         setIdentifiant(demande.getIdentifiant());
@@ -45,7 +44,6 @@ public class AfBackDemandeEsDTO extends DemandeEsRechercheDTO {
         setData(demande.getData());
         setDateCreation(demande.getDateCreation());
         setDateDerModif(demande.getDateDerModif());
-        setDateDemande(demande.getDateDemande());
         setAccess(demande.getAccess());
         setDernierStatut(demande.getDernierStatut());
         setIdentifiant(demande.getIdentifiant());

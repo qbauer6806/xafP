@@ -1843,7 +1843,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 //                    		demandeRecherche.getStatutPublicOuInterne()));
 //        }
 
-        RangeQueryBuilder rangeQueryBuilder = rangeQuery(DemandeEsDTO.DATE_DEMANDE_FIELD_NAME).format(DATE_PATTERN);
+        RangeQueryBuilder rangeQueryBuilder = rangeQuery(DemandeEsDTO.DATE_CREATION_FIELD_NAME).format(DATE_PATTERN);
 
         if (demandeRecherche.getCreationStartDate() != null) {
 

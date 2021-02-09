@@ -229,9 +229,6 @@
 				"dateDerModif": {
 					"type": "date"
 				},
-				"dateDemande": {
-					"type": "date"
-				},
 				"dernierStatut": {
 					"properties": {
 						"code": {

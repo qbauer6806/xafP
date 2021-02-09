@@ -53,7 +53,7 @@ var jobsColumns = [
 			}
 		} ];
 
-var configurationDataTableJobs = {
+var configurationDataTable = {
 	serverSide : true,
 	"ajax" : {
 
@@ -92,7 +92,7 @@ var configurationDataTableJobs = {
 
 }
 
-var tableJobs = $('#datatable-jobs').DataTable(configurationDataTableJobs);
+var tableJobs = $('#datatable-jobs').DataTable(configurationDataTable);
 
 $("#executeJobButton").click(function() {
 

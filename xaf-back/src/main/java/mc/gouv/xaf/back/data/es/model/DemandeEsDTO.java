@@ -1,9 +1,7 @@
 package mc.gouv.xaf.back.data.es.model;
 
-import java.util.Date;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 
@@ -38,9 +36,6 @@ public class DemandeEsDTO extends AbstractDemandeDTO {
     private List<String> nomsCourriers;
     private DemandeJoinFieldEsDTO demandeJoinField;
     private List<String> justificatifsTraitement;
-
-    @JsonFormat(locale = "fr", shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", timezone = "GMT+1")
-    private Date dateDemande;
 
     @Id
     protected String identifiant;
@@ -156,13 +151,5 @@ public class DemandeEsDTO extends AbstractDemandeDTO {
 
     public void setJustificatifsTraitement(List<String> justificatifsTraitement) {
         this.justificatifsTraitement = justificatifsTraitement;
-    }
-
-    public Date getDateDemande() {
-        return dateDemande;
-    }
-
-    public void setDateDemande(Date dateDemande) {
-        this.dateDemande = dateDemande;
     }
 }

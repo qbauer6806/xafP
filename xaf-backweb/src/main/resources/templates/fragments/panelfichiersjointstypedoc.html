@@ -45,15 +45,15 @@
                     </tbody>
                 </table>
                 <div th:if="${cat.name} == 'Fichiers de la demande initiale' and ${editionTypedocActive} and ${cat.files.size() > 0}">
-                    <input id="typedoc-files" th:field="${typedocFormBean.files}" type="hidden"/>
                     <input class="btn btn-action ripple-effect" id="typedoc-files-button" type="button"
                     value="Enregistrer les types de fichiers de la demande initiale" style="float: right;" disabled="disabled">
                 </div>
                 <div th:if="${cat.name} == 'Fichiers complémentaires de l\'usager' and ${editionTypedocActive} and ${cat.files.size() > 0}">
-                    <input id="typedoc-complements" th:field="${typedocFormBean.complements}" type="hidden"/>
                     <input class="btn btn-action ripple-effect" id="typedoc-complements-button" type="button"
                     value="Enregistrer les types de fichiers complémentaires" style="float: right;" disabled="disabled">
                 </div>
+                <input id="typedoc-files" th:field="${typedocFormBean.files}" type="hidden"/>
+                <input id="typedoc-complements" th:field="${typedocFormBean.complements}" type="hidden"/>
                 <input name="pkDemande" th:value="${demandeDTO.pkDemandes}" type="hidden"/>
                 <input id="confirmer-typedoc-button" style="display: none" type="submit"/>
                 <br/>

@@ -34,7 +34,6 @@ public class ResidIdentiteExistanteDTO implements Serializable {
 
     private ResidNationaliteDTO nationalitePrincipale;
 
-    @JsonInclude()
     private ResidNationaliteDTO nationaliteAutre;
 
     private String situationDate;

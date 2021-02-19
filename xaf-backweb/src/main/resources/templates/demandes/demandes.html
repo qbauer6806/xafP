@@ -215,7 +215,7 @@
 																	</div>
 																</div>
 																<div class="form-group" style="margin-left: 2em">
-																	<label for="creationEndDate">AVANT LE</label>
+																	<label for="creationEndDate">Avant le</label>
 																	<div class="input-group date" style="margin-left: 1em">
 																		<input type="text" id="creationEndDate"
 																			name="creationEndDate" placeholder="__/__/____"
@@ -420,12 +420,10 @@
 					}
 
 					configurationDataTable.ajax.data = buildSearchDatafunction;
-
 					if (typeof searchDefaultSort !== 'undefined') {
 						configurationDataTable.order = searchDefaultSort;
 					}
-					var table = $('#datatable-demandes').DataTable(
-							configurationDataTable);
+					var table = $('#datatable-demandes').DataTable(configurationDataTable);
 
 					$('#tousModeTr').click(function(e) {
 						e.preventDefault();

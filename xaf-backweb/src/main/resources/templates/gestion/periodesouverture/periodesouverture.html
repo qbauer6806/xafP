@@ -85,7 +85,8 @@
                     <div class="col-xs-12">
                         <div class="tableContent">
                             <div class="tableTitle">
-                                Liste des périodes d'ouverture <span class="badge" id="jobsSize"></span>
+                                Liste des périodes d'ouverture
+                                <span class="badge" id="jobsSize">0</span>
                             </div>
                             <table id="datatable-periodes" class="table table-striped" style="width: 100%">
                                 <thead>
@@ -115,6 +116,8 @@
         <form method="POST" id="editionPeriodesForm" th:action="@{/gestion/periodesouverture/edit}">
             <!-- input cachée pour insérer la pk de la properties à modifier -->
             <input type="hidden" id="pkPeriodesOuverture" name="pkPeriodesOuverture"/>
+            <!-- input cachée pour insérer le nombre d'éléments par page -->
+            <input type="hidden" id="pageLengthNumber" name="pageLengthNumber"/>
             <div class="row no-margin-row" style="width: 500px;">
                 <div class="col-xs-12 text-center">
                     <h2 id="saveTitle">SAVE_TITLE</h2>
@@ -262,8 +265,10 @@
     $(document).ready(function () {
 
         var periodes = /*[[${periodes}]]*/'default';
+        var pageLength = /*[[${pageLength}]]*/5;
+        $('#jobsSize').text(periodes.length);
 
-        var datatablePersonnes = $('#datatable-periodes').DataTable({
+        $('#datatable-periodes').DataTable({
             paging: true,
             searching: false,
             select: false,
@@ -274,6 +279,7 @@
                 [1, "asc"]
             ],
             language: frenchTranslation,
+            pageLength: pageLength,
             lengthMenu: [5, 10, 25, 50, 100]
         });
 
@@ -422,6 +428,10 @@
                 } else if (!startMoment.isBefore(endMoment)) {
                     $('#formError').html('La date de fin doit être postérieure à la date de début.');
                 } else {
+                    var pageLength = $("select[name='datatable-periodes_length'] option:selected").val();
+                    if (pageLength) {
+                        $('#pageLengthNumber').val(pageLength);
+                    }
                     $('#formError').html('');
                     $('#formSubmit').click();
                     $('#saveBtn').prop('disabled', true);

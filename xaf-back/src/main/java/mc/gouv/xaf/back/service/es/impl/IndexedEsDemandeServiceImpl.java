@@ -1078,7 +1078,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
         demandeRecherche.setTexte(ESQueryUtils.getFormatedQuery(demandeRecherche.getTexte(),
                 afBackUtils.getDemarcheInfos().getIdentifiantPrefixe()));
-        initMappingProperties(false);
+        initMappingProperties(true);
 
         if (!StringUtils.isBlank(demandeRecherche.getTexte())) {
 
@@ -1297,7 +1297,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
         demandeRecherche.setTexte(ESQueryUtils.getFormatedQuery(demandeRecherche.getTexte(),
                 afBackUtils.getDemarcheInfos().getIdentifiantPrefixe()));
-        initMappingProperties(false);
+        initMappingProperties(true);
 
         NativeSearchQueryBuilder nativeSearchQueryBuilder = new NativeSearchQueryBuilder().withIndices(indexAlias)
                 .withQuery(getQueryBuilder(demandeRecherche)).withPageable(pageable);

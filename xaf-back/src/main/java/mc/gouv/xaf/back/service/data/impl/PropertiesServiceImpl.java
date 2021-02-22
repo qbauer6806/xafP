@@ -12,7 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import mc.gouv.Static;
 import mc.gouv.xaf.back.data.dao.DemarchesRepository;
 import mc.gouv.xaf.back.data.dao.PropertiesRepository;
 import mc.gouv.xaf.back.data.entity.DemarchesBO;
@@ -105,10 +104,7 @@ public class PropertiesServiceImpl implements PropertiesService {
     @Override
     public List<PropertiesDTO> getFrontProperties() {
         List<PropertiesTypeEnum> types = Arrays.asList(FRONT_PROPERTIES);
-        List<PropertiesDTO> propertiesDTOS = getPropertiesByTypeList(types);
-        // On ajoute la propriété ici, car elle n'est pas disponible dans la PropertiesServlet
-        propertiesDTOS.add(new PropertiesDTO("mc.gouv.piwik.external.piwikUrl", Static.getValue("mc.gouv.piwik.external.piwikUrl")));
-        return propertiesDTOS;
+        return getPropertiesByTypeList(types);
     }
 
     @Override

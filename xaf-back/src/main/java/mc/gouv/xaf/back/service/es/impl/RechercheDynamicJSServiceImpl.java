@@ -37,9 +37,7 @@ public class RechercheDynamicJSServiceImpl implements RechercheDynamicJSService 
     @Override
     public String getResponse() {
 
-        if (dynamicJs == null || dynamicJs.isEmpty()) {
-            createJsFile();
-        }
+        createJsFile();
 
         return dynamicJs;
     }

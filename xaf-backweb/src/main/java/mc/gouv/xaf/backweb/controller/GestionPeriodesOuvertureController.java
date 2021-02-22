@@ -47,8 +47,6 @@ public class GestionPeriodesOuvertureController {
     public ModelAndView form(@RequestParam(name = "pageLength", required = false) Integer pageLength, final RedirectAttributes redirectAttributes) {
         LOGGER.info("Appel de la page gestion/periodesouverture. Méthode form");
         ModelAndView mav = new ModelAndView("gestion/periodesouverture/periodesouverture");
-        List<PeriodeOuvertureDTO> periodes = periodesOuvertureService.getPeriodesOuverture(gouvPropertiesResolver.getDemarcheId());
-        mav.addObject("periodes", periodes);
         if (null != pageLength) {
             mav.addObject("pageLength", pageLength);
         }
@@ -117,7 +115,7 @@ public class GestionPeriodesOuvertureController {
         periode.setPkPeriodesOuverture(pkPeriodesOuverture);
         periodesOuvertureService.deletePeriodeOuverture(gouvPropertiesResolver.getDemarcheId(), pkPeriodesOuverture);
 
-        ModelAndView mav = new ModelAndView("redirect:");
+        ModelAndView mav = new ModelAndView("redirect:/gestion/periodesouverture?pageLength=" + pageLengthNumber);
         List<String> messages = new ArrayList<>();
         messages.add(SUPPRIMER_SUCCES);
         redirectAttributes.addFlashAttribute(SharedMessages.SUCCESS_MESSAGES, messages);

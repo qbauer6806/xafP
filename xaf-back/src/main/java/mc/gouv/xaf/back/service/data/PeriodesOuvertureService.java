@@ -1,6 +1,8 @@
 package mc.gouv.xaf.back.service.data;
 
 import mc.gouv.xaf.shared.dto.PeriodeOuvertureDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -12,9 +14,14 @@ import java.util.List;
 public interface PeriodesOuvertureService {
 
     /**
-     * Permet de récupérer les motifs correspondant à un DemarcheID
+     * Permet de récupérer les périodes correspondant à un DemarcheID
      */
     List<PeriodeOuvertureDTO> getPeriodesOuverture(String demarcheId);
+
+    /**
+     * Permet de récupérer les périodes correspondant à un DemarcheID en mode paginé
+     */
+    Page<PeriodeOuvertureDTO> getPeriodesOuverturePageable(String demarcheId, Pageable pageable);
 
     /**
      * Permet de récupérer la dernière période d'ouverture terminée

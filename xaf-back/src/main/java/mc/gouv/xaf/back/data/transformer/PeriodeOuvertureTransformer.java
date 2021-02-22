@@ -1,26 +1,19 @@
 package mc.gouv.xaf.back.data.transformer;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-
 import mc.gouv.xaf.back.data.entity.PeriodesOuvertureBO;
 import mc.gouv.xaf.shared.dto.PeriodeOuvertureDTO;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * 
  * @author qdeme
- *
  */
 public class PeriodeOuvertureTransformer {
 
     private PeriodeOuvertureTransformer() {
     }
-    
+
     public static PeriodeOuvertureDTO bo2Dto(PeriodesOuvertureBO bo) {
         PeriodeOuvertureDTO dto = new PeriodeOuvertureDTO();
         dto.setDateDebut(bo.getDateDebut());
@@ -29,7 +22,7 @@ public class PeriodeOuvertureTransformer {
         dto.setPkPeriodesOuverture(bo.getPkPeriodesOuverture());
         return dto;
     }
-    
+
     public static PeriodesOuvertureBO dto2Bo(PeriodeOuvertureDTO dto) {
         PeriodesOuvertureBO bo = new PeriodesOuvertureBO();
         bo.setDateDebut(dto.getDateDebut());
@@ -37,21 +30,21 @@ public class PeriodeOuvertureTransformer {
         bo.setPkPeriodesOuverture(dto.getPkPeriodesOuverture());
         return bo;
     }
-    
+
     public static List<PeriodeOuvertureDTO> bo2Dto(List<PeriodesOuvertureBO> bos) {
-        ArrayList<PeriodeOuvertureDTO> dtos = new ArrayList<PeriodeOuvertureDTO>();
+        ArrayList<PeriodeOuvertureDTO> dtos = new ArrayList<>();
         for (PeriodesOuvertureBO bo : bos) {
             dtos.add(bo2Dto(bo));
         }
         return dtos;
     }
-    
+
     public static List<PeriodesOuvertureBO> dto2Bo(List<PeriodeOuvertureDTO> dtos) {
-        ArrayList<PeriodesOuvertureBO> bos = new ArrayList<PeriodesOuvertureBO>();
+        ArrayList<PeriodesOuvertureBO> bos = new ArrayList<>();
         for (PeriodeOuvertureDTO dto : dtos) {
             bos.add(dto2Bo(dto));
         }
         return bos;
     }
-    
+
 }

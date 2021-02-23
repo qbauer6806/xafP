@@ -39,6 +39,9 @@ public class GouvSchedulerServiceImpl implements GouvSchedulerService {
     }
 
     public void startScheduledJob(JobDetail jobDetail, Trigger trigger) throws SchedulerException {
-        scheduler.scheduleJob(jobDetail, trigger);
+        if (scheduler.getJobDetail(jobDetail.getKey()) == null) {
+            scheduler.scheduleJob(jobDetail, trigger);
+            scheduler.start();
+        }
     }
 }

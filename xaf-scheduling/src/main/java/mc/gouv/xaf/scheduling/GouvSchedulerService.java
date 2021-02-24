@@ -16,5 +16,7 @@ public interface GouvSchedulerService {
 
     Trigger buildJobTrigger(JobDetail jobDetail, String name, String cronExpression);
 
-    void startScheduledJob(JobDetail jobDetail, Trigger trigger) throws SchedulerException;
+    void startOrUpdateScheduledJob(JobDetail jobDetail, Trigger trigger) throws SchedulerException;
+
+    void deleteExistingJob(String jobKey) throws SchedulerException;
 }

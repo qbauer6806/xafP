@@ -2,6 +2,7 @@ package mc.gouv.xaf.back.service.itg.resid;
 
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.itg.resid.dto.*;
+import mc.gouv.xaf.shared.itg.resid.exception.ResidHttpResponseException;
 
 import java.util.List;
 import java.util.Map;
@@ -22,5 +23,5 @@ public interface ResidApiService {
 
     List<ResidStatutDemandeDTO> getEtatMultipleDemandes(List<ResidIdTSDTO> idsDemandes, String url, String jwt) throws Exception;
 
-    ResidEtatsDemandesUpdatedAfterDTO getEtatsDemandesUpdated(String updatedAfter, String url, String jwt);
+    ResidEtatsDemandesUpdatedAfterDTO getEtatsDemandesUpdated(String updatedAfter, String url, String jwt) throws ResidHttpResponseException;
 }

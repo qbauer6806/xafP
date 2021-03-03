@@ -32,6 +32,8 @@ public class ResidUsagerNouveauDTO implements Serializable {
 
     private String situationDate;
 
+    private ResidMembreFoyerDTO membresFoyer;
+
     public ResidTypeUsagerEnum getUsagerType() {
         return usagerType;
     }
@@ -110,5 +112,13 @@ public class ResidUsagerNouveauDTO implements Serializable {
 
     public void setSituationDate(String situationDate) {
         this.situationDate = situationDate;
+    }
+
+    public ResidMembreFoyerDTO getMembresFoyer() {
+        return membresFoyer;
+    }
+
+    public void setMembresFoyer(ResidMembreFoyerDTO membresFoyer) {
+        this.membresFoyer = membresFoyer;
     }
 }

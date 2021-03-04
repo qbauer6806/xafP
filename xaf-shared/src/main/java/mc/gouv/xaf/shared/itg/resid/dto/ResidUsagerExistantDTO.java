@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import mc.gouv.xaf.shared.itg.resid.enums.ResidTypeUsagerEnum;
 
 import java.io.Serializable;
+import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -33,7 +34,7 @@ public class ResidUsagerExistantDTO implements Serializable {
     private ResidConjointDTO conjoint;
 
     @JsonInclude()
-    private ResidMembreFoyerDTO membresFoyer;
+    private List<ResidMembreFoyerDTO> membresFoyer;
 
     public ResidTypeUsagerEnum getUsagerType() {
         return usagerType;
@@ -107,11 +108,11 @@ public class ResidUsagerExistantDTO implements Serializable {
         this.conjoint = conjoint;
     }
 
-    public ResidMembreFoyerDTO getMembresFoyer() {
+    public List<ResidMembreFoyerDTO> getMembresFoyer() {
         return membresFoyer;
     }
 
-    public void setMembresFoyer(ResidMembreFoyerDTO membresFoyer) {
+    public void setMembresFoyer(List<ResidMembreFoyerDTO> membresFoyer) {
         this.membresFoyer = membresFoyer;
     }
 }

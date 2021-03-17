@@ -38,7 +38,7 @@ import mc.gouv.xaf.backweb.formbean.MotifsFormBean;
  * 
  */
 @Controller
-@Secured("ROLE_PARAMETRAGE")
+@Secured({"ROLE_PARAMETRAGE", "ROLE_CONFIGURATION"})
 @RequestMapping("/gestion/parametres")
 public class GestionParametresController extends AbstractController {
 

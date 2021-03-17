@@ -52,7 +52,7 @@ public class DemandesCourrierController extends AbstractController {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DemandesCourrierController.class);
 
-	@Secured({"ROLE_TRAITEMENT","ROLE_SAISIE"})
+	@Secured("ROLE_SAISIE")
 	@RequestMapping(method = RequestMethod.GET)
 	public ModelAndView form(@ModelAttribute("usagerCourrierFormBean") UsagerCourrierFormBean usagerCourrierFormBean)
 			throws JsonProcessingException {

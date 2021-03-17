@@ -23,7 +23,7 @@ import java.util.List;
  * @author tverdoyan
  */
 @Controller
-@Secured("ROLE_PARAMETRAGE")
+@Secured({"ROLE_PARAMETRAGE","ROLE_CONFIGURATION"})
 @RequestMapping("/gestion/utilisateurs")
 public class GestionUtilisateursController extends AbstractController {
 

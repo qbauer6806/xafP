@@ -296,7 +296,8 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
                     html.append("<tr>");
                     for (Object column : columns.toArray()) {
                         String value = getSecondLevelHTML(valeur, (JSONObject) column, pojo, isPdfRecap);
-                        html.append("<td>").append(value).append("</td>");
+                        String result = StringUtils.isNoneBlank(value) ? value : "";
+                        html.append("<td>").append(result).append("</td>");
                     }
                     html.append("</tr>");
                 }

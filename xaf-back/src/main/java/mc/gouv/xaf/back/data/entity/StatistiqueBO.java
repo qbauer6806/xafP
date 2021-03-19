@@ -38,6 +38,10 @@ public class StatistiqueBO {
     @Size(min = 1, max = 128)
     private String demarcheId;
 
+    @Column(name = "IDENTIFIANT_DEMANDE", length = 30)
+    @Size(min = 1, max = 30)
+    private String identifiantDemande;
+
     public Integer getPkStatistiques() {
         return pkStatistiques;
     }
@@ -84,5 +88,13 @@ public class StatistiqueBO {
 
     public void setDemarcheId(String demarcheId) {
         this.demarcheId = demarcheId;
+    }
+
+    public String getIdentifiantDemande() {
+        return identifiantDemande;
+    }
+
+    public void setIdentifiantDemande(String identifiantDemande) {
+        this.identifiantDemande = identifiantDemande;
     }
 }

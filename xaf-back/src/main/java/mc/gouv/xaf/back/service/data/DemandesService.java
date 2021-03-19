@@ -54,6 +54,15 @@ public interface DemandesService {
     List<DemandeDTO> getDemandes(String demarcheId, Integer usagerId);
 
     /**
+     * Permet de récupérer les demandes correspondant aux DemarcheID et UsagerID avec un accès inactif
+     *
+     * @param demarcheId
+     * @param usagerId
+     * @return
+     */
+    List<DemandeDTO> getDemandes(String demarcheId, Integer usagerId, boolean active);
+
+    /**
      * Méthode permettant de récupérer les demandes
      *
      * @param demandeRecherche Paramètres de la recherche

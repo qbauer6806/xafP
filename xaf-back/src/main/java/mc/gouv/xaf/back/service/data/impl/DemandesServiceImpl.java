@@ -722,6 +722,7 @@ public class DemandesServiceImpl implements DemandesService {
         stat.setDate(new Date());
         stat.setDemandeId(demandeId);
         stat.setDemarcheId(demarcheId);
+        stat.setIdentifiantDemande(demandeBo.getIdentifiant());
         stat.setStatutPublic(AfBackUtils.STATUT_PUBLIC_SUPPRIMEE);
 
         AccessBO access = demandeBo.getFkAccess();

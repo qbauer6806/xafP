@@ -714,7 +714,7 @@ public class DemandesServiceImpl implements DemandesService {
         DemandeBO demandeBo = getCheckDemarcheDemandeBO(demarcheId, demandeId, false);
 
         // Gérer les accès désactivés
-        if (demandeBo != null && !demandeBo.getFkAccess().isActive() && DemarchesUtils.isFrontUser()) {
+        if (demandeBo != null && DemarchesUtils.isFrontUser()) {
             demandeBo = null;
         }
 

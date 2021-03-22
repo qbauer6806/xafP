@@ -713,11 +713,6 @@ public class DemandesServiceImpl implements DemandesService {
 
         DemandeBO demandeBo = getCheckDemarcheDemandeBO(demarcheId, demandeId, false);
 
-        // Gérer les accès désactivés
-        if (demandeBo != null) {
-            demandeBo = null;
-        }
-
         if (demandeBo == null) {
             throw new DemarchesServiceException("Demande introuvable", HttpStatus.NOT_FOUND);
         }

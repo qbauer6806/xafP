@@ -574,4 +574,16 @@ public class AfBackUtils {
         return StringUtils.replace(indicateur, "t", "+");
     }
 
+    public static Double parseDoubleSafe(String texte) {
+        Double parsed = 0.0;
+        if (StringUtils.isNotEmpty(texte)) {
+            String safe = StringUtils.replace(texte, ",", ".", -1);
+            try {
+                parsed = Double.parseDouble(safe);
+            } catch (NumberFormatException e) {
+                LOGGER.error("Impossible de parser ce nombre en double : {}", e.getMessage());
+            }
+        }
+        return parsed;
+    }
 }

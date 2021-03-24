@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import mc.gouv.servicerest.pays.model.PaysBean;
 import mc.gouv.xaf.back.service.es.transformer.IndexedDemandeJsonNodeTransformer;
 import mc.gouv.xaf.back.service.itg.rest.PaysCache;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,13 +65,7 @@ public abstract class DefaultIndexedDemandeJsonNodeTransformer implements Indexe
     protected void parseToFloat(JsonNode node, String key, String newKey) {
         Double parsed = 0.0;
         if (canUpdate(node.path(key))) {
-            String texte = node.path(key).textValue();
-            if (StringUtils.isNotBlank(texte)) {
-                String safe = texte.contains(",") ? texte.replace(",", ".") : texte;
-                parsed = Double.parseDouble(safe);
-            } else {
-                LOGGER.error("Impossible de parser en double {}", key);
-            }
+            parsed = AfBackUtils.parseDoubleSafe(node.path(key).textValue());
         }
         ((ObjectNode) node).put(newKey, parsed);
     }

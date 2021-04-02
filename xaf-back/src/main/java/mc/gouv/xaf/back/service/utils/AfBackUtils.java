@@ -33,9 +33,7 @@ import org.springframework.web.client.RestTemplate;
 import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.text.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -585,5 +583,10 @@ public class AfBackUtils {
             }
         }
         return parsed;
+    }
+
+    public static String formatDoubleToCurrency(Double number) {
+        NumberFormat formatter = NumberFormat.getCurrencyInstance(Locale.FRANCE);
+        return formatter.format(number);
     }
 }

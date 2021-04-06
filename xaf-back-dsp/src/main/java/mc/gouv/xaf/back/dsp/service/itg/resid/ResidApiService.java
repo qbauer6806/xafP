@@ -11,7 +11,6 @@ import mc.gouv.xaf.back.dsp.dto.ResidHttpResponseDTO;
 import mc.gouv.xaf.back.dsp.dto.ResidIdTSDTO;
 import mc.gouv.xaf.back.dsp.dto.ResidStatutDemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
-import mc.gouv.xaf.back.dto.*;
 
 import java.util.List;
 import java.util.Map;

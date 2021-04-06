@@ -19,7 +19,6 @@ import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.utils.FileUtils;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
-import mc.gouv.xaf.back.dto.*;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

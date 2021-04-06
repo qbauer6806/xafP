@@ -2,7 +2,7 @@ package mc.gouv.xaf.back.dsp.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import mc.gouv.xaf.back.enums.*;
+import mc.gouv.xaf.back.dsp.enums.*;
 
 import java.io.Serializable;
 

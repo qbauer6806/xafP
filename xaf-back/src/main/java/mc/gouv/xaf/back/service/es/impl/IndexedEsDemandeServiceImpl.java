@@ -176,7 +176,18 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     @Override
     public void loadProperties() {
-        LOGGER.info("Chargement des propriétés de la recherche avancée et désactivation de celles à exclure du mappings elasticserach");
+    	reloadProperties();
+        try {
+            initMappingProperties(true);
+        } catch (Exception e) {
+            LOGGER.error(
+                    "Erreur lors de l'initialisation du mapping elasticsarch: Vérifiez que elasticsearch est bien démarré");
+            LOGGER.error(e.getMessage());
+        }
+    }
+    
+    private void reloadProperties() {
+    	LOGGER.info("Chargement des propriétés de la recherche avancée et désactivation de celles à exclure du mappings elasticserach");
         List<RechercheChampConfigBO> propertiesToExclude = rechercheChampConfigRepository.findByEnabled(false);
         demandesFieldsToExclude.clear();
         fichiersFieldsToExclude.clear();
@@ -192,14 +203,6 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                     demandesFieldsToExclude.add(champConfigBo.getCle());
                 }
             }
-        }
-
-        try {
-            initMappingProperties(true);
-        } catch (Exception e) {
-            LOGGER.error(
-                    "Erreur lors de l'initialisation du mapping elasticsarch: Vérifiez que elasticsearch est bien démarré");
-            LOGGER.error(e.getMessage());
         }
     }
 
@@ -254,6 +257,10 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
         if (reload) {
             clearProperties();
+            // refs ##28082 - [BO] Problème résultat affichage d'une recherche avancée > Catégorie Autres
+            // On reload les properties sinon dans une archi genTSA la map demandesFieldsToExclude et demandeFilesToExclude ne sont pas alignées sur les deux 
+            // A moins de restart le BO (qui lui va call le loadProperty pour les deux noeuds)
+            reloadProperties();
         }
 
         if (demandesProperties.isEmpty() || reload) {

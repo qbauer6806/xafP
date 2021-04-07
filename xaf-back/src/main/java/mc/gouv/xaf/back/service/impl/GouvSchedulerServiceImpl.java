@@ -1,10 +1,20 @@
-package mc.gouv.xaf.scheduling;
+package mc.gouv.xaf.back.service.impl;
 
-import org.quartz.*;
+import org.quartz.CronScheduleBuilder;
+import org.quartz.Job;
+import org.quartz.JobBuilder;
+import org.quartz.JobDetail;
+import org.quartz.JobKey;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+import org.quartz.Trigger;
+import org.quartz.TriggerBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import mc.gouv.xaf.back.service.GouvSchedulerService;
 
 @Component
 public class GouvSchedulerServiceImpl implements GouvSchedulerService {
@@ -38,10 +48,26 @@ public class GouvSchedulerServiceImpl implements GouvSchedulerService {
                 .build();
     }
 
-    public void startScheduledJob(JobDetail jobDetail, Trigger trigger) throws SchedulerException {
+    /**
+     * Création ou modification d'un job existant
+     * @param jobDetail Job à executer
+     * @param trigger Trigger pour le job
+     * @throws SchedulerException
+     */
+    public void startOrUpdateScheduledJob(JobDetail jobDetail, Trigger trigger) throws SchedulerException {
         if (scheduler.getJobDetail(jobDetail.getKey()) == null) {
             scheduler.scheduleJob(jobDetail, trigger);
             scheduler.start();
+        } else {
+            scheduler.rescheduleJob(trigger.getKey(), trigger);
         }
+    }
+
+    /**
+     * Delete d'un job existant
+     * @param jobKey Clé du job à supprimer
+     */
+    public void deleteExistingJob(String jobKey) throws SchedulerException {
+        scheduler.deleteJob(new JobKey(jobKey));
     }
 }

@@ -6,10 +6,9 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 
-import mc.gouv.xaf.back.service.data.DemandesStatutsRefreshService;
-import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.data.domain.Page;
@@ -23,8 +22,12 @@ import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
 import mc.gouv.xaf.back.data.dao.DemandeJobRepository;
 import mc.gouv.xaf.back.data.entity.DemandeJobBO;
 import mc.gouv.xaf.back.data.transformer.DemandeJobTransformer;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.KafkaOutboxTraitementJob;
 import mc.gouv.xaf.back.service.data.DemandeJobService;
+import mc.gouv.xaf.back.service.data.DemandesStatutsRefreshService;
 import mc.gouv.xaf.back.service.es.IndexedDemandeService;
+import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaDLTConsumer;
 import mc.gouv.xaf.shared.dto.DemandeJobDTO;
 import mc.gouv.xaf.shared.dto.JobNamesEnum;
 import mc.gouv.xaf.shared.dto.JobStatutsEnum;
@@ -45,6 +48,12 @@ public class DemandeJobServiceImpl implements DemandeJobService {
 
     @Inject
     private DemandesStatutsRefreshService demandesStatutsRefreshService;
+    
+    @Autowired
+    private GouvPropertiesResolver gouvPropertiesResolver;
+    
+    @Autowired
+    private KafkaOutboxTraitementJob kafkaOutboxTraitementJob;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandeJobServiceImpl.class);
 
@@ -115,6 +124,18 @@ public class DemandeJobServiceImpl implements DemandeJobService {
             }
             if (job.getJobName().equals(JobNamesEnum.RAFRAICHISSEMENT_STATUS)) {
                 msg = demandesStatutsRefreshService.refreshStatuts();
+            }
+            if (job.getJobName().equals(JobNamesEnum.TRAITEMENT_DEAD_LETTER_TOPIC_GU_KAFKA)) {
+            	if (gouvPropertiesResolver.isBackserver()) {
+            		// Pas d'@Inject ni d'@Autowired car l'API doit pouvoir démarrer sans ça
+            		msg = context.getBean(GUKafkaDLTConsumer.class).traiterDLT();
+            	}
+            	else {
+            		throw new Exception("Ce job doit être lancé par le backserver");
+            	}
+            }
+            if (job.getJobName().equals(JobNamesEnum.TRAITEMENT_OUTBOX_KAFKA)) {
+            	msg = kafkaOutboxTraitementJob.execute();
             }
 
             context.getBean(DemandeJobServiceImpl.class).logSuccess(job.getId(), msg);

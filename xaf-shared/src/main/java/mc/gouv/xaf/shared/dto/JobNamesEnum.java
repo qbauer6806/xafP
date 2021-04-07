@@ -6,7 +6,9 @@ public enum JobNamesEnum {
     REINDEXATION_DEMANDES_DESYNCHRO("Réindexation des demandes désynchronisées"),
     REINDEXATION("Réindexation Globale"),
     REINDEXATION_DEMANDES("Réindexation des demandes"),
-    RAFRAICHISSEMENT_STATUS("Rafraîchissement du statut des demandes");
+    RAFRAICHISSEMENT_STATUS("Rafraîchissement du statut des demandes"),
+    TRAITEMENT_DEAD_LETTER_TOPIC_GU_KAFKA("Traitement du Dead Letter Topic du Guichet Unique sur Kafka"),
+    TRAITEMENT_OUTBOX_KAFKA("Traitement de l'Outbox Kafka");
 
     private String libelle;
 

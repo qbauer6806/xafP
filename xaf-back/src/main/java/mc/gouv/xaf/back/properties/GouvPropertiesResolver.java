@@ -73,4 +73,10 @@ public interface GouvPropertiesResolver {
 
     Integer getUsagersPageSize();
 
+	boolean isApiserver();
+
+	boolean isBackserver();
+
+	String getGUKafkaBootstrapServersConfig();
+
 }

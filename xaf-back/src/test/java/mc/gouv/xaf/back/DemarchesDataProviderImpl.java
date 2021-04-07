@@ -95,4 +95,10 @@ public class DemarchesDataProviderImpl implements DemarchesDataProvider {
 		// TODO Auto-generated method stub
 		return false;
 	}
+
+	@Override
+	public String[] getGUKafkaSupportedVersions() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

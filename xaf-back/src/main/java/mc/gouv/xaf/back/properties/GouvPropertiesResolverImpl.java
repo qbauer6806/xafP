@@ -40,6 +40,9 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
      */
     @Value("${application.name}")
     private String applicationName;
+    
+    @Value("${application.module}")
+    private String applicationModule;
 
     /**
      * Uppercase de application.name
@@ -357,4 +360,19 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
         return 500;
 	}
 
+	@Override
+	public boolean isApiserver() {
+		return "apiserver".equals(applicationModule);
+	}
+	
+	@Override
+	public boolean isBackserver() {
+		return "backserver".equals(applicationModule);
+	}
+	
+    @Override
+    public String getGUKafkaBootstrapServersConfig() {
+        return Static.getValue("mc.gouv.af.back.external.gichuni.kafka.bootstrapserversconfig");
+    }
+    
 }

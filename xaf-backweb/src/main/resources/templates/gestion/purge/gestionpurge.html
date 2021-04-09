@@ -11,7 +11,7 @@
     <meta th:name="_csrf" th:content="${_csrf.token}"/>
     <meta th:name="_csrf_header" th:content="${_csrf.headerName}"/>
 
-    <title th:text="${titre}"></title>
+    <title th:text="${AfBackUtils.getDemarcheNom()}"></title>
 
     <!-- Import FONTS -->
     <link th:href="@{/webjars/xcb-wlib/fonts/style.css}" rel="stylesheet"/>
@@ -49,7 +49,7 @@
         <div class="breadcrumbContent">
             <div class="breadcrumb">
                 <a id="ariane0" th:href="@{/}" class="breadcrumb-item active">Accueil</a>&nbsp;&gt;&nbsp;
-                <a id="ariane1" th:href="@{/gestion/purge}" class="breadcrumb-item active">HISTORIQUE SUPPRESSION</a>
+                <a id="ariane1" th:href="@{/gestion/purge}" class="breadcrumb-item active">HISTORIQUE DES SUPPRESSIONS</a>
             </div>
             <div class="triangleTopright"></div>
         </div>
@@ -57,11 +57,12 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-xs-12">
-                    <h1>Historique de suppressions des demandes</h1>
+                    <h1>Historique de suppression des demandes</h1>
                 </div>
 
                 <div class="col-xs-12 tableContent">
-                    <div class="tableTitle">Historique</div>
+                    <div class="tableTitle">Historique <span
+                            class="badge badgeState" id="demandesPurgeesCounter">0</span></div>
                     <table id="datatable-purge" class="table table-striped" style="width: 100%">
                         <thead>
                             <tr>
@@ -123,6 +124,7 @@
     /*<![CDATA[*/
     $(document).ready(function () {
         var demandesPurgees = /*[[${demandesPurgees}]]*/'default';
+        $("#demandesPurgeesCounter").text(demandesPurgees.length);
         $('#datatable-purge').DataTable({
             paging: true,
             pageLength: 50,

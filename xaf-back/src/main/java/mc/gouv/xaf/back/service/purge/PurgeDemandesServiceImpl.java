@@ -147,7 +147,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 			StatistiqueBO statDernierStatut = statRepository.findFirstByDemandeIdAndStatutPublicNotOrderByDateDesc(stat.getDemandeId(),
 					AfBackUtils.STATUT_PUBLIC_SUPPRIMEE);
 			purgeDemandeDTO.setDateStatutFinal(statDernierStatut.getDate());
-			String statutFinal = demarchesDataProvider.getStatusMap().get(stat.getStatutPublic());
+			String statutFinal = demarchesDataProvider.getStatusMap().get(statDernierStatut.getStatutPublic());
 			purgeDemandeDTO.setStatutFinal(statutFinal);
 			demandesPurgees.add(purgeDemandeDTO);
 		}

@@ -1,11 +1,10 @@
 package mc.gouv.xaf.backweb.controller;
 
-import mc.gouv.xaf.back.service.data.PurgeService;
+import mc.gouv.xaf.back.service.purge.PurgeDemandesService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,11 +31,12 @@ public class GestionPurgeController extends AbstractController {
 
     @Autowired
     private MessageSource messageSource;
+
     @Autowired
-    private PurgeService purgeService;
+    private PurgeDemandesService purgeService;
 
     @RequestMapping(method = RequestMethod.GET)
-    public ModelAndView form(Pageable pageable) {
+    public ModelAndView form() {
 
         LOGGER.info("======================= Appel de la page /gestion/purge");
 
@@ -48,19 +48,4 @@ public class GestionPurgeController extends AbstractController {
 
         return mav;
     }
-
-    private ModelAndView returnErrorMessage(String messageCode, final RedirectAttributes redirectAttributes) {
-        List<String> messages = new ArrayList<>();
-        messages.add(messageSource.getMessage(messageCode, null, Locale.FRENCH));
-        redirectAttributes.addAttribute("errorMessages", messages);
-        return new ModelAndView("redirect:index");
-    }
-
-    private ModelAndView returnSuccessMessage(String messageCode, final RedirectAttributes redirectAttributes) {
-        List<String> messages = new ArrayList<>();
-        messages.add(messageSource.getMessage(messageCode, null, Locale.FRENCH));
-        redirectAttributes.addFlashAttribute("successMessages", messages);
-        return new ModelAndView("redirect:index");
-    }
-
 }

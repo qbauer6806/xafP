@@ -1,12 +1,17 @@
 package mc.gouv.xaf.back.service.purge;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import mc.gouv.xaf.back.data.dao.StatistiquesRepository;
+import mc.gouv.xaf.back.data.entity.StatistiqueBO;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.PurgeDemandeDTO;
+import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,10 +19,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -26,6 +30,8 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(PurgeDemandesServiceImpl.class);
 
+	private final Integer OFFSET_MOIS_DATE_PURGE = 1;
+
 	@Autowired
 	private DemandesService demandesService;
 
@@ -33,10 +39,16 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 	private GouvPropertiesResolver gouvPropertiesResolver;
 
 	@Autowired
+	private DemarchesDataProvider demarchesDataProvider;
+
+	@Autowired
 	private MailService mailService;
 
 	@Autowired
 	private AfBackUtils afBackUtils;
+
+	@Autowired
+	private StatistiquesRepository statRepository;
 
 	public void purgerDemandesDansStatuts(List<String> statuts, int jours) throws JsonProcessingException {
 		String demarcheId = gouvPropertiesResolver.getDemarcheId();
@@ -116,5 +128,30 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 		emailInfo.setLangue(langue);
 
 		return emailInfo;
+	}
+
+	public List<PurgeDemandeDTO> getDemandesPurgees() {
+		LOGGER.info("Récupération des demandes purgées à moins {} mois", OFFSET_MOIS_DATE_PURGE);
+		Date dateDebutOffset = Date.from(LocalDateTime.now().minusMonths(OFFSET_MOIS_DATE_PURGE).atZone(ZoneId.systemDefault()).toInstant());
+		List<StatistiqueBO> statsDemandesPurgees = statRepository.findByStatutPublicAndDateBetween(AfBackUtils.STATUT_PUBLIC_SUPPRIMEE,
+				dateDebutOffset , new Date());
+		statsDemandesPurgees.sort(Comparator.comparing(StatistiqueBO::getDate));
+
+		List<PurgeDemandeDTO> demandesPurgees = new ArrayList<>();
+		for(StatistiqueBO stat : statsDemandesPurgees) {
+			PurgeDemandeDTO purgeDemandeDTO = new PurgeDemandeDTO();
+			String statutFinal = demarchesDataProvider.getStatusMap().get(stat.getStatutPublic());
+			purgeDemandeDTO.setStatutFinal(statutFinal);
+			purgeDemandeDTO.setIdentifiantDemande(stat.getIdentifiantDemande());
+			purgeDemandeDTO.setDateSuppression(stat.getDate());
+
+			// Recherche du dernier statut non supprimé pour la stat en question
+			StatistiqueBO statDernierStatut = statRepository.findFirstByDemandeIdAndStatutPublicNotOrderByDateDesc(stat.getDemandeId(),
+					AfBackUtils.STATUT_PUBLIC_SUPPRIMEE);
+			purgeDemandeDTO.setDateStatutFinal(statDernierStatut.getDate());
+			demandesPurgees.add(purgeDemandeDTO);
+		}
+
+		return demandesPurgees;
 	}
 }

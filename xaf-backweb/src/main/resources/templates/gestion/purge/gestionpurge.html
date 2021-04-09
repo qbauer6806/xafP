@@ -66,6 +66,7 @@
                         <thead>
                             <tr>
                                 <th>Identifiant</th>
+                                <th>Statut final</th>
                                 <th>Date du statut final</th>
                                 <th>Date de suppression</th>
                             </tr>
@@ -93,6 +94,13 @@
             keyword: false,
             render: function (data, type, demandePurgee) {
                 return demandePurgee.identifiantDemande;
+            }
+        },
+        {
+            data: "statutFinal",
+            keyword: false,
+            render: function (data, type, demandePurgee) {
+                return demandePurgee.statutFinal;
             }
         },
         {

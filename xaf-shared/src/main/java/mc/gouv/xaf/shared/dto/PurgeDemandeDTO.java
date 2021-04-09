@@ -6,6 +6,8 @@ public class PurgeDemandeDTO {
 
     private String identifiantDemande;
 
+    private String statutFinal;
+
     private Date dateStatutFinal;
 
     private Date dateSuppression;
@@ -16,6 +18,14 @@ public class PurgeDemandeDTO {
 
     public void setIdentifiantDemande(String identifiantDemande) {
         this.identifiantDemande = identifiantDemande;
+    }
+
+    public String getStatutFinal() {
+        return statutFinal;
+    }
+
+    public void setStatutFinal(String statutFinal) {
+        this.statutFinal = statutFinal;
     }
 
     public Date getDateStatutFinal() {

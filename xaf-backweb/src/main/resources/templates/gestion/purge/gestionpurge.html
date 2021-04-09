@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      class="no-js sidebar-left-collapsed" lang="fr" dir="ltr">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="x-ua-compatible" content="ie=edge"/>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <meta name="description" content=""/>
+    <meta name="author" content=""/>
+    <meta th:name="_csrf" th:content="${_csrf.token}"/>
+    <meta th:name="_csrf_header" th:content="${_csrf.headerName}"/>
+
+    <title th:text="${titre}"></title>
+
+    <!-- Import FONTS -->
+    <link th:href="@{/webjars/xcb-wlib/fonts/style.css}" rel="stylesheet"/>
+    <!--[if lt IE 8]><!-->
+    <link rel="stylesheet" th:href="@{/webjars/xcb-wlib/fonts/ie7/ie7.css}"/>
+
+    <!-- Import CSS -->
+    <link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"
+          rel="stylesheet" type="text/css"/>
+    <link th:href="@{/webjars/xcb-wlib/css/template.css}" rel="stylesheet"/>
+    <link th:href="@{/webjars/xcb-wlib/css/sidebar.css}" rel="stylesheet"/>
+    <link th:href="@{/webjars/xcb-wlib/css/element.css}" rel="stylesheet"/>
+    <link th:href="@{/webjars/datatables/css/dataTables.bootstrap.css}"
+          rel="stylesheet"/>
+    <link rel="stylesheet"
+          th:href="@{/webjars/fancybox/jquery.fancybox.css}"/>
+    <link rel="shortcut icon" type="image/x-icon"
+          th:href="@{/img/favicon.ico}"/>
+    <link th:href="@{/css/tsgen.css(${applicationBuildTimestamp})}"
+          rel="stylesheet"/>
+    <link th:href="@{/css/tsdem.css(${applicationBuildTimestamp})}"
+          rel="stylesheet"/>
+</head>
+<body th:with="pagePurgeActive='active'">
+
+<div th:replace="fragments/header :: header"></div>
+
+<div id="wrapper">
+
+    <div th:replace="fragments/sidebar :: sidebar"></div>
+
+    <!-- DEBUT CONTENU -->
+    <div id="page-content-wrapper">
+
+        <div class="breadcrumbContent">
+            <div class="breadcrumb">
+                <a id="ariane0" th:href="@{/}" class="breadcrumb-item active">Accueil</a>&nbsp;&gt;&nbsp;
+                <a id="ariane1" th:href="@{/gestion/purge}" class="breadcrumb-item active">HISTORIQUE SUPPRESSION</a>
+            </div>
+            <div class="triangleTopright"></div>
+        </div>
+
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-xs-12">
+                    <h1>Historique de suppressions des demandes</h1>
+                </div>
+
+                <div class="col-xs-12 tableContent">
+                    <div class="tableTitle">Historique</div>
+                    <table id="datatable-purge" class="table table-striped" style="width: 100%">
+                        <thead>
+                            <tr>
+                                <th>Identifiant</th>
+                                <th>Date du statut final</th>
+                                <th>Date de suppression</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <!-- FIN CONTENU -->
+
+</div>
+
+<div th:replace="fragments/footer :: footer"></div>
+<script th:src="@{/js/datetime-moment.js(${applicationBuildTimestamp})}"></script>
+
+<script th:inline="javascript">
+
+    $.fn.dataTable.moment('DD/MM/YYYY HH:mm:ss');
+
+    var columnsProperties = [
+        {
+            data: "identifiantDemande",
+            keyword: false,
+            render: function (data, type, demandePurgee) {
+                return demandePurgee.identifiantDemande;
+            }
+        },
+        {
+            data: "dateStatutFinal",
+            keyword: false,
+            render: function (data, type, demandePurgee) {
+                return '<span data-sort="DD/MM/YYYY HH:mm:ss">' + moment(demandePurgee.dateStatutFinal)
+                    .format("DD/MM/YYYY HH:mm:ss") + '</span>';
+            }
+        },
+        {
+            data: "dateSuppression",
+            keyword: false,
+            render: function (data, type, demandePurgee) {
+                return '<span data-sort="DD/MM/YYYY HH:mm:ss">' + moment(demandePurgee.dateSuppression)
+                    .format("DD/MM/YYYY HH:mm:ss") + '</span>';
+            }
+        }];
+
+    /*<![CDATA[*/
+    $(document).ready(function () {
+        var demandesPurgees = /*[[${demandesPurgees}]]*/'default';
+        $('#datatable-purge').DataTable({
+            paging: true,
+            pageLength: 50,
+            searching: false,
+            select: false,
+            bInfo: false,
+            order: [ [ 2, "desc" ] ],
+            columns: columnsProperties,
+            data: demandesPurgees,
+            language: frenchTranslation
+        });
+
+        autosize($("#propertiesValue"));
+
+        var messagesSuccessList = /*[[${successMessages}]]*/'default';
+        if (messagesSuccessList !== 'undefined' && messagesSuccessList !== null) {
+            $.each(messagesSuccessList, function (key, msg) {
+                $.notify({
+                    message: msg
+                }, {
+                    type: 'success'
+                });
+            });
+        }
+
+        var messagesErrorList = /*[[${errorMessages}]]*/'default';
+        if (messagesErrorList !== 'undefined' && messagesErrorList !== null) {
+            $.each(messagesErrorList, function (key, msg) {
+                $.notify({
+                    message: msg
+                }, {
+                    type: 'danger'
+                });
+            });
+        }
+    });
+    /*]]>*/
+</script>
+
+</body>
+</html>

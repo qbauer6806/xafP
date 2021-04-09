@@ -93,6 +93,21 @@
 						<div class="menuContent">Utilisateurs</div>
 				</a></li>
 
+				<!-- Lien simple -->
+				<li th:class="${pagePurgeActive} ? 'active' : ''"
+					sec:authorize="hasRole('ROLE_PARAMETRAGE')"><a
+						id="menuPurge" th:href="@{/gestion/purge}">
+					<div class="contentTooltip">
+							<span class="greyTooltip" data-toggle="tooltip"
+								  data-placement="right" title=""
+								  data-original-title="Historique suppression"></span>
+					</div>
+					<div class="iconContent">
+						<i class="icon icon-action_supprimer"></i>
+					</div>
+					<div class="menuContent">Historique suppressions</div>
+				</a></li>
+
 				<!-- Ajout d'un fragment permettant de rajouter des elements custom dans la sidebar -->
 				<div th:replace="~{fragments/customsidebarelements :: customsidebarelements} ?: _"></div>
 

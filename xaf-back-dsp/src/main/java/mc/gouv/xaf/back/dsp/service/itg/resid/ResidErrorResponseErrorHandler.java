@@ -29,7 +29,9 @@ public class ResidErrorResponseErrorHandler implements ResponseErrorHandler {
     public void handleError(ClientHttpResponse httpResponse) throws IOException {
         if (httpResponse.getStatusCode().series() == HttpStatus.Series.SERVER_ERROR || httpResponse.getStatusCode().series() == HttpStatus.Series.CLIENT_ERROR) {
             LOGGER.error("Erreur lors de l'appel à RESID - Erreur {}", httpResponse.getStatusCode());
-            throw new ObjectMapper().readValue(httpResponse.getBody(), ResidHttpResponseException.class);
+            ResidHttpResponseException ex = new ObjectMapper().readValue(httpResponse.getBody(), ResidHttpResponseException.class);
+            ex.setHttpStatus(httpResponse.getStatusCode().value());
+            throw ex;
         }
     }
 }

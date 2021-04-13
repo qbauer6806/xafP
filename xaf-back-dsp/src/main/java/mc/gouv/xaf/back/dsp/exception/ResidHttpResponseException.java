@@ -15,6 +15,13 @@ public class ResidHttpResponseException extends IOException {
 
     private List<ResidErrorDTO> errors;
 
+    public ResidHttpResponseException() {
+    }
+
+    public ResidHttpResponseException(String message) {
+        super(message);
+    }
+
     public int getHttpStatus() {
         return httpStatus;
     }

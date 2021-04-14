@@ -22,7 +22,7 @@
 				</a></li>
 
 				<!-- Lien simple -->
-				<li th:class="${pageDemandesActive} ? 'active' : ''"><a
+				<li th:class="${pageDemandesActive} ? 'active' : ''" sec:authorize="hasRole('ROLE_LECTURE')"><a
 					id="menuDemandes" th:href="@{/demandes}">
 						<div class="contentTooltip">
 							<span class="greyTooltip" data-toggle="tooltip"

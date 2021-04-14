@@ -33,9 +33,7 @@ import org.springframework.web.client.RestTemplate;
 import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.text.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -568,4 +566,21 @@ public class AfBackUtils {
         return StringUtils.replace(indicateur, "t", "+");
     }
 
+    public static Double parseDoubleSafe(String texte) {
+        Double parsed = 0.0;
+        if (StringUtils.isNotEmpty(texte)) {
+            String safe = StringUtils.replace(texte, ",", ".", -1);
+            try {
+                parsed = Double.parseDouble(safe);
+            } catch (NumberFormatException e) {
+                LOGGER.error("Impossible de parser ce nombre en double : {}", e.getMessage());
+            }
+        }
+        return parsed;
+    }
+
+    public static String formatDoubleToCurrency(Double number) {
+        NumberFormat formatter = NumberFormat.getCurrencyInstance(Locale.FRANCE);
+        return formatter.format(number);
+    }
 }

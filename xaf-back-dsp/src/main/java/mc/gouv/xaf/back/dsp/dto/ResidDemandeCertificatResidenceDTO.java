@@ -2,6 +2,7 @@ package mc.gouv.xaf.back.dsp.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import mc.gouv.xaf.back.dsp.enums.ResidEntiteDemandantCDREnum;
 
 import java.io.Serializable;
 
@@ -15,7 +16,7 @@ public class ResidDemandeCertificatResidenceDTO implements Serializable {
 
     private String idTS;
 
-    private String motif;
+    private ResidEntiteDemandantCDREnum entiteDemandantCDR;
 
     public ResidDemandeBaseDTO getDemandeBase() {
         return demandeBase;
@@ -33,11 +34,11 @@ public class ResidDemandeCertificatResidenceDTO implements Serializable {
         this.idTS = idTS;
     }
 
-    public String getMotif() {
-        return motif;
+    public ResidEntiteDemandantCDREnum getEntiteDemandantCDR() {
+        return entiteDemandantCDR;
     }
 
-    public void setMotif(String motif) {
-        this.motif = motif;
+    public void setEntiteDemandantCDR(ResidEntiteDemandantCDREnum entiteDemandantCDR) {
+        this.entiteDemandantCDR = entiteDemandantCDR;
     }
 }

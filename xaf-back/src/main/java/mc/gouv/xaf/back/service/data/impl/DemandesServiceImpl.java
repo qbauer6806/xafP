@@ -281,11 +281,22 @@ public class DemandesServiceImpl implements DemandesService {
      */
     @Override
     public List<DemandeDTO> getDemandes(String demarcheId, Integer usagerId) {
+        return getDemandesUsager(demarcheId, usagerId, true);
+    }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<DemandeDTO> getDemandes(String demarcheId, Integer usagerId, boolean active) {
+        return getDemandesUsager(demarcheId, usagerId, active);
+    }
+
+    private List<DemandeDTO> getDemandesUsager(String demarcheId, Integer usagerId, boolean active) {
         LOGGER.info("Récupération en base des demandes...");
 
         AccessBO accessBo = null;
-        List<AccessBO> accessBos = accessRepository.getByDemarcheIdAndUsagerIdAndActive(demarcheId, usagerId, true);
+        List<AccessBO> accessBos = accessRepository.getByDemarcheIdAndUsagerIdAndActive(demarcheId, usagerId, active);
         if (accessBos != null && !accessBos.isEmpty()) {
             accessBo = accessBos.get(0);
         } else {
@@ -702,11 +713,6 @@ public class DemandesServiceImpl implements DemandesService {
 
         DemandeBO demandeBo = getCheckDemarcheDemandeBO(demarcheId, demandeId, false);
 
-        // Gérer les accès désactivés
-        if (demandeBo != null && !demandeBo.getFkAccess().isActive() && DemarchesUtils.isFrontUser()) {
-            demandeBo = null;
-        }
-
         if (demandeBo == null) {
             throw new DemarchesServiceException("Demande introuvable", HttpStatus.NOT_FOUND);
         }
@@ -716,6 +722,7 @@ public class DemandesServiceImpl implements DemandesService {
         stat.setDate(new Date());
         stat.setDemandeId(demandeId);
         stat.setDemarcheId(demarcheId);
+        stat.setIdentifiantDemande(demandeBo.getIdentifiant());
         stat.setStatutPublic(AfBackUtils.STATUT_PUBLIC_SUPPRIMEE);
 
         AccessBO access = demandeBo.getFkAccess();

@@ -22,6 +22,8 @@ public class StatistiqueDTO {
 
     private String demarcheId;
 
+    private String identifiantDemande;
+
     public Integer getPkStatistiques() {
         return pkStatistiques;
     }
@@ -68,5 +70,13 @@ public class StatistiqueDTO {
 
     public void setDemarcheId(String demarcheId) {
         this.demarcheId = demarcheId;
+    }
+
+    public String getIdentifiantDemande() {
+        return identifiantDemande;
+    }
+
+    public void setIdentifiantDemande(String identifiantDemande) {
+        this.identifiantDemande = identifiantDemande;
     }
 }

@@ -185,7 +185,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             LOGGER.error(e.getMessage());
         }
     }
-    
+
     private void reloadProperties() {
     	LOGGER.info("Chargement des propriétés de la recherche avancée et désactivation de celles à exclure du mappings elasticserach");
         List<RechercheChampConfigBO> propertiesToExclude = rechercheChampConfigRepository.findByEnabled(false);

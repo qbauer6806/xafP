@@ -38,10 +38,26 @@ public class GouvSchedulerServiceImpl implements GouvSchedulerService {
                 .build();
     }
 
-    public void startScheduledJob(JobDetail jobDetail, Trigger trigger) throws SchedulerException {
+    /**
+     * Création ou modification d'un job existant
+     * @param jobDetail Job à executer
+     * @param trigger Trigger pour le job
+     * @throws SchedulerException
+     */
+    public void startOrUpdateScheduledJob(JobDetail jobDetail, Trigger trigger) throws SchedulerException {
         if (scheduler.getJobDetail(jobDetail.getKey()) == null) {
             scheduler.scheduleJob(jobDetail, trigger);
             scheduler.start();
+        } else {
+            scheduler.rescheduleJob(trigger.getKey(), trigger);
         }
+    }
+
+    /**
+     * Delete d'un job existant
+     * @param jobKey Clé du job à supprimer
+     */
+    public void deleteExistingJob(String jobKey) throws SchedulerException {
+        scheduler.deleteJob(new JobKey(jobKey));
     }
 }

@@ -33,6 +33,7 @@
 		<module>xaf-backweb</module>
         <module>xaf-shared</module>
 		<module>xaf-back-denjs</module>
+		<module>xaf-back-dsp</module>
 		<module>xaf-backweb-denjs</module>
 		<module>xaf-scheduling</module>
     </modules>

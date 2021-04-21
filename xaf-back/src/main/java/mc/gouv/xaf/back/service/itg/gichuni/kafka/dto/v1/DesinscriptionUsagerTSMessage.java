@@ -16,7 +16,7 @@ public class DesinscriptionUsagerTSMessage extends GUKafkaMessage {
 	private String usagerId;
 	
 	public DesinscriptionUsagerTSMessage() {
-		super("desinscription-usager-ts");
+		super("suppression-acces-ts");
 	}
 	
 	public DesinscriptionUsagerTSMessage(String usagerId) {

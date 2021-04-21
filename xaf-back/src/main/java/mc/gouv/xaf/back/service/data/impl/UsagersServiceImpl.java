@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.service.data.AccessService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.DemandesStatutsService;
@@ -35,6 +36,9 @@ public class UsagersServiceImpl implements UsagersService {
 
     @Autowired
     private DemandesStatutsService demandesStatutsService;
+    
+    @Autowired
+    private DemandesRepository demandesRepository;
 
     @Override
     public void desinscriptionUsager(String demarcheId, Integer usagerId,
@@ -71,6 +75,12 @@ public class UsagersServiceImpl implements UsagersService {
         LOGGER.info("Suppression de l'accès...");
         accessService.deleteAccess(demarcheId, usagerId);
 
+    }
+    
+    @Override
+    public Integer getNbDemandesUsager(String demarcheId, Integer usagerId) {
+    	return demandesRepository.getNbDemandesForUsager(demarcheId,
+    			usagerId);
     }
 
 }

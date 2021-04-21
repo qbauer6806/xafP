@@ -25,6 +25,7 @@ import mc.gouv.xaf.shared.dto.PropertiesDTO;
 public class GUKafkaUtils {
 	
 	public static final String XAF_GU_KAFKA_DLT_CONSUMER_JOB_TIMEOUT = "XAF_GU_KAFKA_DLT_CONSUMER_JOB_TIMEOUT";
+	public static final String GU_TO_TS_TOPIC = "ts-to-gu";
 	
 	@Autowired
 	private PropertiesService propertiesService;

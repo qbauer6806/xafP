@@ -32,7 +32,13 @@ public interface AfApiController {
 
     DemandeDTO associerDemandeCourrier(String identifiantDemande, String stringToCheck, Integer usagerId);
 
-    void desinscriptionUsager(Integer usagerId, String langue);
+    /**
+     * 
+     * @param usagerId
+     * @param langue
+     * @param fromGU true si la désinscription du TS est demandée à cause d'une désinscription depuis le Guichet Unique
+     */
+    void desinscriptionUsager(Integer usagerId, String langue, boolean fromGU);
 
     AccessDTO createOrUpdateAccess(Integer usagerId, AccessInputDTO dto);
 

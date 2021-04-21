@@ -34,7 +34,10 @@ public class GUKafkaProducerListener implements ProducerListener<String, String>
 	@Override
 	public void onSuccess(ProducerRecord<String, String> producerRecord, RecordMetadata recordMetadata) {
 		Integer pkKafkaOutbox = getPkKafkaOutboxFromProducerRecord(producerRecord);
-		if (pkKafkaOutbox == null) {
+		if (producerRecord.topic().endsWith(".DLT")) {
+			LOGGER.info("Message envoyé avec succès sur le DLT " + producerRecord.topic() + " (key=" + producerRecord.key() + ", partition=" + producerRecord.partition() + ")");
+		}
+		else if (pkKafkaOutbox == null) {
 			LOGGER.error("Message envoyé avec succès mais pkKafkaOutbox null ! Situation anormale, impossible de supprimer le message de l'outbox");
 		}
 		else {

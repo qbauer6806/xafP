@@ -36,7 +36,7 @@ public interface DemandesRepository extends CrudRepository<DemandeBO, Integer> {
      * @param usagerId
      * @return
      */
-    @Query("select count(d) from DemandeBO d inner join d.fkAccess fa where fa.usagerId = :usagerId and fa.demarcheId= :demarcheId")
+    @Query("select count(d) from DemandeBO d inner join d.fkAccess fa where fa.usagerId = :usagerId and fa.demarcheId= :demarcheId and fa.active = true")
     Integer getNbDemandesForUsager(@Param("demarcheId") String demarcheId, @Param("usagerId") Integer usagerId);
 
     Page<DemandeBO> findAll(Pageable pageRequest);

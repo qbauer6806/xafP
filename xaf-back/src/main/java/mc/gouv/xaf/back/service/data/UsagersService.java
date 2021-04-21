@@ -21,5 +21,7 @@ public interface UsagersService {
 	 */
     public void desinscriptionUsager(String demarcheId, Integer usagerId,
             List<String> statutsFinaux, String statutAnnulation, String codeMotif);
+
+	public Integer getNbDemandesUsager(String demarcheId, Integer usagerId);
     
 }

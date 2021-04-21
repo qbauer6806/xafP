@@ -2,6 +2,7 @@ package mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
@@ -17,12 +18,14 @@ public class CreationDemandeMessage extends GUKafkaMessage {
 	
 	private String demarcheId;
 	
+	// En String afin d'anticiper le fait que le GU puisse avoir des ID non numériques
 	private String usagerId;
 	
 	private Integer demandeId;
 	
 	private String identifiant;
 	
+	@JsonFormat(locale = "fr", shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
 	private Date dateCreation;
 	
 	private Integer nbDemandesUsager;

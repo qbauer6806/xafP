@@ -17,8 +17,18 @@ public class ResidHttpResponseDTO implements Serializable {
     private String message;
 
     private List<ResidErrorDTO> errors;
+    
+    private List<ResidWarningDTO> warnings;
 
-    public int getHttpStatus() {
+    public List<ResidWarningDTO> getWarnings() {
+		return warnings;
+	}
+
+	public void setWarnings(List<ResidWarningDTO> warnings) {
+		this.warnings = warnings;
+	}
+
+	public int getHttpStatus() {
         return httpStatus;
     }
 

@@ -884,6 +884,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             demandeFileEsDTO.getFichiers().setName(fichier.getName());
             demandeFileEsDTO.getFichiers().setUrl(fichier.getUrl());
             demandeFileEsDTO.getFichiers().setType(type.name());
+            demandeFileEsDTO.getFichiers().setPkDemande(demande.getPkDemandes());
             demandeFileEsDTO.getFichiers().setIdentifiantDemande(demande.getIdentifiant());
 
             if (is != null) {
@@ -1021,7 +1022,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         if (demandeFileEsDTOs != null) {
             for (DemandeFileEsDTO demFile : demandeFileEsDTOs) {
                 IndexQuery index = new IndexQuery();
-                index.setId(demFile.getFichiers().getId());
+                index.setId(demFile.getFichiers().getPkDemande() + "-" + demFile.getFichiers().getId());
                 index.setObject(demFile);
                 index.setParentId(demFile.getDemandeJoinField().getParent());
                 indexList.add(index);

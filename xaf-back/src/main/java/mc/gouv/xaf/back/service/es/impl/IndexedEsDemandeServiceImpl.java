@@ -944,6 +944,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             demandeFileEsDTO.getFichiers().setDateCreation(fichier.getDateCreation());
             demandeFileEsDTO.getFichiers().setPkDemande(demande.getPkDemandes());
             demandeFileEsDTO.getFichiers().setStatut(fichier.getFkStatut().getLibelle());
+            demandeFileEsDTO.getFichiers().setDatePrinted(fichier.getDatePrinted());
 
             if (is != null) {
                 String fileText = "";
@@ -1602,9 +1603,9 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         }
 
         if (demandeRecherche.getImprime()) {
-            boolQueryBuilder.must(QueryBuilders.existsQuery(DemandeFileEsDTO.IDENTIFIANT_FIELD));
+            boolQueryBuilder.must(QueryBuilders.existsQuery(DemandeFileEsDTO.DATE_PRINTED_FIELD));
         } else {
-            boolQueryBuilder.mustNot(QueryBuilders.existsQuery(DemandeFileEsDTO.IDENTIFIANT_FIELD));
+            boolQueryBuilder.mustNot(QueryBuilders.existsQuery(DemandeFileEsDTO.DATE_PRINTED_FIELD));
         }
 
         return getUiFilterQuery(boolQueryBuilder, demandeRecherche);

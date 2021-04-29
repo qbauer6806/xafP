@@ -13,6 +13,7 @@ public class DemandeFileEsDTO {
     public static final String INDEX_FILES_JOIN_DOC = "fichiers";
     public static final String TYPE_FIELD = "fichiers.type";
     public static final String IDENTIFIANT_FIELD = "fichiers.identifiant";
+    public static final String DATE_PRINTED_FIELD = "fichiers.datePrinted";
 
     public enum TYPE {
         PIECE_JOINTE,
@@ -71,6 +72,7 @@ public class DemandeFileEsDTO {
         private Date dateCreation;
         private Integer pkDemande;
         private Integer pkDemandeFile;
+        private Date datePrinted;
 
         /**
          * Identifiant courrier (ref_interne sur la page gestioncourrier)
@@ -185,6 +187,14 @@ public class DemandeFileEsDTO {
         public void setIdentifiantDemande(String identifiantDemande) {
             this.identifiantDemande = identifiantDemande;
         }
+
+		public Date getDatePrinted() {
+			return datePrinted;
+		}
+
+		public void setDatePrinted(Date datePrinted) {
+			this.datePrinted = datePrinted;
+		}
     }
 
 }

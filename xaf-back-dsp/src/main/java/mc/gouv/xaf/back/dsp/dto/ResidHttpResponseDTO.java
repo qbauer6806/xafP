@@ -66,6 +66,7 @@ public class ResidHttpResponseDTO implements Serializable {
                 "httpStatus=" + httpStatus +
                 ", message='" + message + '\'' +
                 ", errors=" + errors +
+                ", warnings=" + warnings +
                 '}';
     }
 }

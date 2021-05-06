@@ -879,6 +879,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             demandeFileEsDTO.getFichiers().setName(fichier.getName());
             demandeFileEsDTO.getFichiers().setUrl(fichier.getUrl());
             demandeFileEsDTO.getFichiers().setType(type.name());
+            demandeFileEsDTO.getFichiers().setPkDemande(demande.getPkDemandes());
             demandeFileEsDTO.getFichiers().setIdentifiantDemande(demande.getIdentifiant());
             demandeFileEsDTO.getFichiers().setTypedoc(fichier.getTypedoc());
 
@@ -940,6 +941,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             demandeFileEsDTO.getFichiers().setDateCreation(fichier.getDateCreation());
             demandeFileEsDTO.getFichiers().setPkDemande(demande.getPkDemandes());
             demandeFileEsDTO.getFichiers().setStatut(fichier.getFkStatut().getLibelle());
+            demandeFileEsDTO.getFichiers().setDatePrinted(fichier.getDatePrinted());
 
             if (is != null) {
                 String fileText = "";
@@ -1013,7 +1015,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         if (demandeFileEsDTOs != null) {
             for (DemandeFileEsDTO demFile : demandeFileEsDTOs) {
                 IndexQuery index = new IndexQuery();
-                index.setId(demFile.getFichiers().getId());
+                index.setId(demFile.getFichiers().getPkDemande() + "-" + demFile.getFichiers().getId());
                 index.setObject(demFile);
                 index.setParentId(demFile.getDemandeJoinField().getParent());
                 indexList.add(index);
@@ -1595,9 +1597,9 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         }
 
         if (demandeRecherche.getImprime()) {
-            boolQueryBuilder.must(QueryBuilders.existsQuery(DemandeFileEsDTO.IDENTIFIANT_FIELD));
+            boolQueryBuilder.must(QueryBuilders.existsQuery(DemandeFileEsDTO.DATE_PRINTED_FIELD));
         } else {
-            boolQueryBuilder.mustNot(QueryBuilders.existsQuery(DemandeFileEsDTO.IDENTIFIANT_FIELD));
+            boolQueryBuilder.mustNot(QueryBuilders.existsQuery(DemandeFileEsDTO.DATE_PRINTED_FIELD));
         }
 
         return getUiFilterQuery(boolQueryBuilder, demandeRecherche);

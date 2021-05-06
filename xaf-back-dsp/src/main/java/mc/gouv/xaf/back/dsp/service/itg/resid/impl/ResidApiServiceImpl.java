@@ -20,6 +20,7 @@ import mc.gouv.xaf.back.service.utils.FileUtils;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import org.apache.commons.io.IOUtils;
+import org.eclipse.jetty.client.ResponseNotifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,9 +100,17 @@ public class ResidApiServiceImpl implements ResidApiService {
 		if (HttpStatus.CREATED.equals(responseEntity.getStatusCode())) {
 			ResidHttpResponseDTO residHttpResponseDTO = new ResidHttpResponseDTO();
 			residHttpResponseDTO.setHttpStatus(201);
+			if (null != responseEntity.getBody()) {
+				if (null != responseEntity.getBody().getMessage()) {
+					residHttpResponseDTO.setMessage(responseEntity.getBody().getMessage());
+				}
+				if (null != responseEntity.getBody().getWarnings()
+						&& !responseEntity.getBody().getWarnings().isEmpty()) {
+					residHttpResponseDTO.setWarnings(responseEntity.getBody().getWarnings());
+				} 
+			}
 			return residHttpResponseDTO;
 		}
-
 		return responseEntity.getBody();
 	}
 
@@ -116,6 +125,15 @@ public class ResidApiServiceImpl implements ResidApiService {
 		if (HttpStatus.CREATED.equals(responseEntity.getStatusCode())) {
 			ResidHttpResponseDTO residHttpResponseDTO = new ResidHttpResponseDTO();
 			residHttpResponseDTO.setHttpStatus(201);
+			if (null != responseEntity.getBody()) {
+				if (null != responseEntity.getBody().getMessage()) {
+					residHttpResponseDTO.setMessage(responseEntity.getBody().getMessage());
+				}
+				if (null != responseEntity.getBody().getWarnings()
+						&& !responseEntity.getBody().getWarnings().isEmpty()) {
+					residHttpResponseDTO.setWarnings(responseEntity.getBody().getWarnings());
+				} 
+			}
 			return residHttpResponseDTO;
 		}
 
@@ -133,6 +151,15 @@ public class ResidApiServiceImpl implements ResidApiService {
 		if (HttpStatus.CREATED.equals(responseEntity.getStatusCode())) {
 			ResidHttpResponseDTO residHttpResponseDTO = new ResidHttpResponseDTO();
 			residHttpResponseDTO.setHttpStatus(201);
+			if (null != responseEntity.getBody()) {
+				if (null != responseEntity.getBody().getMessage()) {
+					residHttpResponseDTO.setMessage(responseEntity.getBody().getMessage());
+				}
+				if (null != responseEntity.getBody().getWarnings()
+						&& !responseEntity.getBody().getWarnings().isEmpty()) {
+					residHttpResponseDTO.setWarnings(responseEntity.getBody().getWarnings());
+				} 
+			}
 			return residHttpResponseDTO;
 		}
 
@@ -150,6 +177,15 @@ public class ResidApiServiceImpl implements ResidApiService {
 		if (HttpStatus.CREATED.equals(responseEntity.getStatusCode())) {
 			ResidHttpResponseDTO residHttpResponseDTO = new ResidHttpResponseDTO();
 			residHttpResponseDTO.setHttpStatus(201);
+			if (null != responseEntity.getBody()) {
+				if (null != responseEntity.getBody().getMessage()) {
+					residHttpResponseDTO.setMessage(responseEntity.getBody().getMessage());
+				}
+				if (null != responseEntity.getBody().getWarnings()
+						&& !responseEntity.getBody().getWarnings().isEmpty()) {
+					residHttpResponseDTO.setWarnings(responseEntity.getBody().getWarnings());
+				} 
+			}
 			return residHttpResponseDTO;
 		}
 

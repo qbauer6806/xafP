@@ -18,7 +18,7 @@ import mc.gouv.xaf.back.service.itg.gichuni.kafka.utils.GUKafkaUtils;
 
 /**
  * 
- * Consumer de messages Kafka provenant du Guichet Unique (topic gu-to-ts-{codeAppli})
+ * Consumer de messages Kafka provenant du Guichet Unique (topic gichuni-to-ts-{codeAppli})
  * 
  * @author qdeme
  *
@@ -37,7 +37,7 @@ public class GUKafkaConsumer {
 	
 	private static ObjectMapper mapper = new ObjectMapper();
 
-	@KafkaListener(id = "gu-to-ts-consumer", topics = "gu-to-ts-${application.name}", groupId = "${application.name}")
+	@KafkaListener(id = "gichuni-to-ts-consumer", topics = "gichuni-to-ts-${application.name}", groupId = "${application.name}")
 	public void listen(ConsumerRecord<String, Object> consumerRecord) {
 
 		LOGGER.info("Message reçu de Kafka (GU) (" + consumerRecord.topic() + "," + consumerRecord.partition() + "," + consumerRecord.offset()
@@ -57,7 +57,7 @@ public class GUKafkaConsumer {
 
 		
 	    // Dispatcher le message dans la démarche au bon endroit
-	    if ("desinscription-usager-gu".equals(genericMessage.getType())) {
+	    if ("desinscription-usager-gichuni".equals(genericMessage.getType())) {
 	    	if ("v1".equals(genericMessage.getVersion())) {
 				try {
 					mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.DesinscriptionUsagerGUMessage message =

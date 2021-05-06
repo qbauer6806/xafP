@@ -9,13 +9,14 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
  * 
  * Sens : TS -> GU (topic ts-to-gichuni)
  * 
- * Un usager vient de créer une demande sur un TS, le TS envoie un message au GU afin de le notifier de cette création, en lui rappelant ses nombres totaux de demandes sur ce TS (évitant donc au GU de gérer des compteurs à incrémenter).
+ * L'implémentation de la fonctionnalité de purge des demandes entraîne la suppression de certaines demandes du téléservice.
+ * Le cas échéant, le TS envoie au GU le message suivant.
  * 
  * @author qdeme
  *
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class CreationDemandeMessage extends GUKafkaMessage {
+public class SuppressionDemandeMessage extends GUKafkaMessage {
 	
 	private String demarcheId;
 	
@@ -27,25 +28,22 @@ public class CreationDemandeMessage extends GUKafkaMessage {
 	private String identifiant;
 	
 	@JsonFormat(locale = "fr", shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
-	private Date dateCreation;
-	
-	private String statutSimplifie;
+	private Date dateSuppression;
 
 	private RecapDemandesDTO recapDemandes;
 	
-	public CreationDemandeMessage() {
-		super("creation-demande");
+	public SuppressionDemandeMessage() {
+		super("suppression-demande");
 	}
 	
-	public CreationDemandeMessage(String demarcheId, String usagerId, Integer demandeId,
-			String identifiant, Date dateCreation, String statutSimplifie, RecapDemandesDTO recapDemandes) {
+	public SuppressionDemandeMessage(String demarcheId, String usagerId, Integer demandeId,
+			String identifiant, Date dateSuppression, RecapDemandesDTO recapDemandes) {
 		this();
 		this.demarcheId = demarcheId;
 		this.usagerId = usagerId;
 		this.demandeId = demandeId;
 		this.identifiant = identifiant;
-		this.dateCreation = dateCreation;
-		this.statutSimplifie = statutSimplifie;
+		this.dateSuppression = dateSuppression;
 		this.recapDemandes = recapDemandes;
 	}
 
@@ -81,20 +79,12 @@ public class CreationDemandeMessage extends GUKafkaMessage {
 		this.identifiant = identifiant;
 	}
 
-	public Date getDateCreation() {
-		return dateCreation;
+	public Date getDateSuppression() {
+		return dateSuppression;
 	}
 
-	public void setDateCreation(Date dateCreation) {
-		this.dateCreation = dateCreation;
-	}
-
-	public String getStatutSimplifie() {
-		return statutSimplifie;
-	}
-
-	public void setStatutSimplifie(String statutSimplifie) {
-		this.statutSimplifie = statutSimplifie;
+	public void setDateSuppression(Date dateSuppression) {
+		this.dateSuppression = dateSuppression;
 	}
 
 	public RecapDemandesDTO getRecapDemandes() {

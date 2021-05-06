@@ -2,6 +2,9 @@ package mc.gouv.xaf.back.service.itg.gichuni.kafka;
 
 import java.util.Date;
 
+import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.RecapDemandesDTO;
+import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.StatutSimplifieEnum;
+
 /**
  * 
  * Service permettant la production de messages pour le Guichet Unique via Kafka
@@ -15,8 +18,14 @@ import java.util.Date;
  */
 public interface GUKafkaProducer {
 
-	void sendCreationDemandeMessage(Integer usagerId, Integer demandeId, String identifiant, Date dateCreation, Integer nbDemandesUsager);
+	void sendCreationDemandeMessage(Integer usagerId, Integer demandeId, String identifiant, Date dateCreation, RecapDemandesDTO recapDemandes);
 
 	void sendDesinscriptionUsagerTSMessage(Integer usagerId);
+
+	void sendChangementStatutDemandeMessage(Integer usagerId, Integer demandeId, String identifiant, StatutSimplifieEnum statutSimplifie,
+			Date dateStatutSimplifie, RecapDemandesDTO recapDemandes);
+
+	void sendSuppressionDemandeMessage(Integer usagerId, Integer demandeId, String identifiant, Date dateSuppression,
+			RecapDemandesDTO recapDemandes);
 
 }

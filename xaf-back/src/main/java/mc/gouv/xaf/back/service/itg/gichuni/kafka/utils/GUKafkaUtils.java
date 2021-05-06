@@ -1,6 +1,7 @@
 package mc.gouv.xaf.back.service.itg.gichuni.kafka.utils;
 
 import java.util.Arrays;
+import java.util.List;
 
 import javax.annotation.PostConstruct;
 
@@ -12,6 +13,9 @@ import mc.gouv.xaf.back.properties.DemPropertyNotFoundException;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.PropertiesService;
+import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.RecapDemandesDTO;
+import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.StatutSimplifieEnum;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 
 /**
@@ -25,7 +29,7 @@ import mc.gouv.xaf.shared.dto.PropertiesDTO;
 public class GUKafkaUtils {
 	
 	public static final String XAF_GU_KAFKA_DLT_CONSUMER_JOB_TIMEOUT = "XAF_GU_KAFKA_DLT_CONSUMER_JOB_TIMEOUT";
-	public static final String GU_TO_TS_TOPIC = "ts-to-gu";
+	public static final String GU_TO_TS_TOPIC = "ts-to-gichuni";
 	
 	@Autowired
 	private PropertiesService propertiesService;
@@ -53,6 +57,30 @@ public class GUKafkaUtils {
 	
 	public Integer getDltConsumerJobTimeout() {
 		return dltConsumerJobTimeout;
+	}
+	
+	public RecapDemandesDTO getRecapDemandes(List<DemandeDTO> demandes) {
+		RecapDemandesDTO recap = new RecapDemandesDTO();
+		Integer enCours = 0;
+		Integer enAttenteUsager = 0;
+		Integer terminees = 0;
+		for (DemandeDTO demande : demandes) {
+			StatutSimplifieEnum statutSimplifie = demarchesDataProvider.getStatutSimplifieFromStatutPublic(demande.getDernierStatut().getLibelle());
+			if (StatutSimplifieEnum.EN_COURS.equals(statutSimplifie)) {
+				enCours++;
+			}
+			else if (StatutSimplifieEnum.EN_ATTENTE_USAGER.equals(statutSimplifie)) {
+				enAttenteUsager++;
+			}
+			else if (StatutSimplifieEnum.TERMINEE.equals(statutSimplifie)) {
+				terminees++;
+			}
+		}
+		recap.setTotal(enCours+enAttenteUsager+terminees);
+		recap.setEnCours(enCours);
+		recap.setEnAttenteUsager(enAttenteUsager);
+		recap.setTerminees(terminees);
+		return recap;
 	}
 
 }

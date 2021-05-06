@@ -7,15 +7,27 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
  * 
+ * Changement de statut simplifié d'une demande
+ *
  * Sens : TS -> GU (topic ts-to-gichuni)
- * 
- * Un usager vient de créer une demande sur un TS, le TS envoie un message au GU afin de le notifier de cette création, en lui rappelant ses nombres totaux de demandes sur ce TS (évitant donc au GU de gérer des compteurs à incrémenter).
+ *
+ * Dans les TS, à chaque demande correspond un statut public (montré à l'usager), et parfois aussi un statut interne (visible uniquement des agents).
+ * Dans tous les cas, le statut public est une notion propre au TS, et le GU ne peut pas les comprendre.
+ * D'où l'idée de communiquer un statut simplifié au GU, parmi 3 possibilités :
+ *
+ *  - En cours ("EN_COURS")
+ *  - En attente d'une action de l'usager ("EN_ATTENTE_USAGER"), exemple demande en attente d'informations complémentaires, en attente de paiement, etc.
+ *  - Terminée ("TERMINEE")
+ *
+ * Charge aux TS de convertir son statut en statut simplifié afin de le communiquer au GU.
+ *
+ * Pour cela, à chaque fois que le statut simplifié d'une demande change, un message est envoyé du TS au GU.
  * 
  * @author qdeme
  *
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class CreationDemandeMessage extends GUKafkaMessage {
+public class ChangementStatutDemandeMessage extends GUKafkaMessage {
 	
 	private String demarcheId;
 	
@@ -26,25 +38,25 @@ public class CreationDemandeMessage extends GUKafkaMessage {
 	
 	private String identifiant;
 	
-	@JsonFormat(locale = "fr", shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
-	private Date dateCreation;
-	
 	private String statutSimplifie;
+	
+	@JsonFormat(locale = "fr", shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
+	private Date dateStatutSimplifie;
 
 	private RecapDemandesDTO recapDemandes;
 	
-	public CreationDemandeMessage() {
-		super("creation-demande");
+	public ChangementStatutDemandeMessage() {
+		super("changement-statut-demande");
 	}
 	
-	public CreationDemandeMessage(String demarcheId, String usagerId, Integer demandeId,
-			String identifiant, Date dateCreation, String statutSimplifie, RecapDemandesDTO recapDemandes) {
+	public ChangementStatutDemandeMessage(String demarcheId, String usagerId, Integer demandeId,
+			String identifiant, Date dateStatutSimplifie, String statutSimplifie, RecapDemandesDTO recapDemandes) {
 		this();
 		this.demarcheId = demarcheId;
 		this.usagerId = usagerId;
 		this.demandeId = demandeId;
 		this.identifiant = identifiant;
-		this.dateCreation = dateCreation;
+		this.dateStatutSimplifie = dateStatutSimplifie;
 		this.statutSimplifie = statutSimplifie;
 		this.recapDemandes = recapDemandes;
 	}
@@ -81,12 +93,12 @@ public class CreationDemandeMessage extends GUKafkaMessage {
 		this.identifiant = identifiant;
 	}
 
-	public Date getDateCreation() {
-		return dateCreation;
+	public Date getDateStatutSimplifie() {
+		return dateStatutSimplifie;
 	}
 
-	public void setDateCreation(Date dateCreation) {
-		this.dateCreation = dateCreation;
+	public void setDateStatutSimplifie(Date dateStatutSimplifie) {
+		this.dateStatutSimplifie = dateStatutSimplifie;
 	}
 
 	public String getStatutSimplifie() {

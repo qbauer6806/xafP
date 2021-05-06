@@ -14,6 +14,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.scheduling.annotation.EnableAsync;
 
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.impl.GUKafkaProducerListener;
 
 /**
@@ -30,13 +31,16 @@ public class GUKafkaProducerConfig {
 	
 	@Autowired
 	private GUKafkaProducerListener guKafkaProducerListener;
+	
+	@Autowired
+	private GouvPropertiesResolver gouvPropertiesResolver;
 
     @Bean
     public ProducerFactory<String, String> producerFactory() {
         Map<String, Object> configProps = new HashMap<>();
         configProps.put(
           ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, 
-          "localhost:9092");
+          gouvPropertiesResolver.getGUKafkaBootstrapServersConfig());
         configProps.put(
           ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, 
           StringSerializer.class);

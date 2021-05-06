@@ -24,8 +24,8 @@ import mc.gouv.xaf.back.service.itg.gichuni.kafka.utils.GUKafkaUtils;
 
 /**
  * 
- * Ce Consumer consomme les messages de la DLT du topic gu-to-ts-{codeAppli} afin de les y remettre.
- * L'API pourra donc à nouveau les consommer sur gu-to-ts-{codeAppli}.
+ * Ce Consumer consomme les messages de la DLT du topic gichuni-to-ts-{codeAppli} afin de les y remettre.
+ * L'API pourra donc à nouveau les consommer sur gichuni-to-ts-{codeAppli}.
  * Le KafkaListener de ce Consumer n'est actif que sur demande via un Job lancé depuis le BO.
  * L'API n'a pas accès à ce code.
  * 
@@ -57,7 +57,7 @@ public class GUKafkaDLTConsumer {
 	private GUKafkaUtils guKafkaUtils;
 	
 	/**
-	 * KafkaListener du DLT du topic gu-to-ts-{codeAppli} (gu-to-ts-${codeAppli}.DLT)
+	 * KafkaListener du DLT du topic gichuni-to-ts-{codeAppli} (gichuni-to-ts-${codeAppli}.DLT)
 	 * Jamais actif sauf sur activation via Job depuis la page des Jobs du BO.
 	 * Il sert à copier les messages sur le topic initial afin que l'API les traite une nouvelle fois.
 	 * Les messages sont acknowledged sur le DLT.
@@ -66,7 +66,7 @@ public class GUKafkaDLTConsumer {
 	 * @param header
 	 * @param consumer
 	 */
-	@KafkaListener(id = "gu-to-ts-consumer-dlt", topics = "gu-to-ts-${application.name}.DLT", groupId = "${application.name}", autoStartup = "false")
+	@KafkaListener(id = "gichuni-to-ts-consumer-dlt", topics = "gichuni-to-ts-${application.name}.DLT", groupId = "${application.name}", autoStartup = "false")
 	public void dltListen(ConsumerRecord<String, Object> consumerRecord,
 			@Headers Map<String, String> header, Consumer<?, ?> consumer) {
 		
@@ -83,7 +83,7 @@ public class GUKafkaDLTConsumer {
 		
 		LOGGER.info("Current offset : " + consumerRecord.offset() + ", initialLogEndOffset : " + initialEndOffsetsPerPartition.get(consumerRecord.partition()));
 		
-		String topicInitial = "gu-to-ts-" + gouvPropertiesResolver.getDemarcheId().toLowerCase();
+		String topicInitial = "gichuni-to-ts-" + gouvPropertiesResolver.getDemarcheId().toLowerCase();
 		LOGGER.info("Remise du message sur le topic initial (" + topicInitial + "), sur la même partition (" + consumerRecord.partition() + ") et avec la même clé (" + consumerRecord.key() + ")...");
 		kafkaTemplate.send(topicInitial, consumerRecord.partition(), consumerRecord.key(), consumerRecord.value().toString());
 		
@@ -95,8 +95,8 @@ public class GUKafkaDLTConsumer {
 		
 		// Ne pas processer plus de messages que ceux présents initialement dans le topic au moment du lancement du Job
 		if (hasEverythingBeenRead()) {
-			LOGGER.info("logEndOffset atteint sur toutes les partitions, arrêt du du KafkaListener gu-to-ts-consumer-dlt...");
-			kafkaListenerEndpointRegistry.getListenerContainer("gu-to-ts-consumer-dlt").stop();
+			LOGGER.info("logEndOffset atteint sur toutes les partitions, arrêt du du KafkaListener gichuni-to-ts-consumer-dlt...");
+			kafkaListenerEndpointRegistry.getListenerContainer("gichuni-to-ts-consumer-dlt").stop();
 			
 			jobOn = false;
 		}
@@ -131,7 +131,7 @@ public class GUKafkaDLTConsumer {
 	public String traiterDLT() {
 		LOGGER.info("================ GHKafkaDLTConsumer.traiterDLT()");
 		
-		LOGGER.info("Démarrage du KafkaListener gu-to-ts-consumer-dlt puis attente jusqu'à fin de la redirection des messages...");
+		LOGGER.info("Démarrage du KafkaListener gichuni-to-ts-consumer-dlt puis attente jusqu'à fin de la redirection des messages...");
 		
 		Integer timeout = guKafkaUtils.getDltConsumerJobTimeout();
 		
@@ -142,7 +142,7 @@ public class GUKafkaDLTConsumer {
 			currentOffsetsPerPartition = new HashMap<Integer,Integer>();
 			nbMessagesTraitesParPartition = new HashMap<Integer,Integer>();
 			jobOn = true;
-			kafkaListenerEndpointRegistry.getListenerContainer("gu-to-ts-consumer-dlt").start();
+			kafkaListenerEndpointRegistry.getListenerContainer("gichuni-to-ts-consumer-dlt").start();
 			
 			Integer nbSleep = 0;
 			while (jobOn) {
@@ -161,7 +161,7 @@ public class GUKafkaDLTConsumer {
 		}
 		
 		LOGGER.info("jobOn = false, le Job est terminé, renvoi d'un message textuel pour DemandeJobServiceImpl...");
-		String topicInitial = "gu-to-ts-" + gouvPropertiesResolver.getDemarcheId().toLowerCase();
+		String topicInitial = "gichuni-to-ts-" + gouvPropertiesResolver.getDemarcheId().toLowerCase();
 		
 		Integer nbMessagesTraites = 0;
 		String partitionDetails = "";

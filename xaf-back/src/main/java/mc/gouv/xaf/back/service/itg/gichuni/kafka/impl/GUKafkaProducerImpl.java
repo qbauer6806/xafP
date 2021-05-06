@@ -13,9 +13,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.KafkaOutboxService;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
+import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.ChangementStatutDemandeMessage;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.CreationDemandeMessage;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.DesinscriptionUsagerTSMessage;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.GUKafkaMessage;
+import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.RecapDemandesDTO;
+import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.StatutSimplifieEnum;
+import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.SuppressionDemandeMessage;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.utils.GUKafkaUtils;
 import mc.gouv.xaf.shared.dto.KafkaOutboxDTO;
 
@@ -41,23 +45,33 @@ public class GUKafkaProducerImpl implements GUKafkaProducer {
 	private static ObjectMapper mapper = new ObjectMapper();
 	
 	@Override
-	public void sendCreationDemandeMessage(Integer usagerId, Integer demandeId, String identifiant, Date dateCreation, Integer nbDemandesUsager) {
+	public void sendCreationDemandeMessage(Integer usagerId, Integer demandeId, String identifiant, Date dateCreation, RecapDemandesDTO recapDemandes) {
 		LOGGER.info("sendCreationDemandeMessage - Placement du message à envoyer au Guichet Unique dans l'Outbox Kafka...");
-		CreationDemandeMessage cdm = new CreationDemandeMessage();
-		cdm.setDemarcheId(gouvPropertiesResolver.getDemarcheId());
-		cdm.setUsagerId(usagerId.toString());
-		cdm.setDemandeId(demandeId);
-		cdm.setIdentifiant(identifiant);
-		cdm.setDateCreation(dateCreation);
-		cdm.setNbDemandesUsager(nbDemandesUsager);
+		CreationDemandeMessage cdm = new CreationDemandeMessage(gouvPropertiesResolver.getDemarcheId(), usagerId.toString(), demandeId, identifiant,
+				dateCreation, StatutSimplifieEnum.EN_COURS.name(), recapDemandes);
+		sendToOutbox(cdm, cdm.getUsagerId(), GUKafkaUtils.GU_TO_TS_TOPIC);
+	}
+	
+	@Override
+	public void sendChangementStatutDemandeMessage(Integer usagerId, Integer demandeId, String identifiant, StatutSimplifieEnum statutSimplifie, Date dateStatutSimplifie, RecapDemandesDTO recapDemandes) {
+		LOGGER.info("sendCreationDemandeMessage - Placement du message à envoyer au Guichet Unique dans l'Outbox Kafka...");
+		ChangementStatutDemandeMessage cdm = new ChangementStatutDemandeMessage(gouvPropertiesResolver.getDemarcheId(), usagerId.toString(), demandeId, identifiant,
+				dateStatutSimplifie, statutSimplifie.name(), recapDemandes);
+		sendToOutbox(cdm, cdm.getUsagerId(), GUKafkaUtils.GU_TO_TS_TOPIC);
+	}
+	
+	@Override
+	public void sendSuppressionDemandeMessage(Integer usagerId, Integer demandeId, String identifiant, Date dateSuppression, RecapDemandesDTO recapDemandes) {
+		LOGGER.info("sendCreationDemandeMessage - Placement du message à envoyer au Guichet Unique dans l'Outbox Kafka...");
+		SuppressionDemandeMessage cdm = new SuppressionDemandeMessage(gouvPropertiesResolver.getDemarcheId(), usagerId.toString(), demandeId, identifiant,
+				dateSuppression, recapDemandes);
 		sendToOutbox(cdm, cdm.getUsagerId(), GUKafkaUtils.GU_TO_TS_TOPIC);
 	}
 	
 	@Override
 	public void sendDesinscriptionUsagerTSMessage(Integer usagerId) {
 		LOGGER.info("sendDesinscriptionUsagerTSMessage - Placement du message à envoyer au Guichet Unique dans l'Outbox Kafka...");
-		DesinscriptionUsagerTSMessage dutsm = new DesinscriptionUsagerTSMessage();
-		dutsm.setUsagerId(usagerId.toString());
+		DesinscriptionUsagerTSMessage dutsm = new DesinscriptionUsagerTSMessage(gouvPropertiesResolver.getDemarcheId(), usagerId.toString());
 		sendToOutbox(dutsm, dutsm.getUsagerId(), GUKafkaUtils.GU_TO_TS_TOPIC);
 	}
 	

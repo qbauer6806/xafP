@@ -6,10 +6,12 @@ import mc.gouv.xaf.back.data.entity.StatistiqueBO;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.PurgeDemandeDTO;
 import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
 import org.apache.commons.lang3.StringUtils;
@@ -32,6 +34,8 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 
 	private final Integer OFFSET_MOIS_DATE_PURGE = 1;
 
+	private static final String DELAI_ENVOI_MAIL_PURGE = "DELAI_ENVOI_MAIL_PURGE";
+
 	@Autowired
 	private DemandesService demandesService;
 
@@ -48,11 +52,15 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 	private AfBackUtils afBackUtils;
 
 	@Autowired
+    private PropertiesService propertiesService;
+
+	@Autowired
 	private StatistiquesRepository statRepository;
 
 	public void purgerDemandesDansStatuts(List<String> statuts, int jours) throws JsonProcessingException {
 		String demarcheId = gouvPropertiesResolver.getDemarcheId();
 		String demandesAPurger = "";
+		PropertiesDTO delaiEnvoiEmailProp = propertiesService.getProperty(demarcheId, DELAI_ENVOI_MAIL_PURGE);
 
 		LOGGER.info("Début de la purge des demandes ...");
 
@@ -64,10 +72,10 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 				// Suppression de la demande
 				demandesService.deleteDemande(demarcheId, demandeDTO.getPkDemandes());
 
-			} else if(statuts.contains(demandeDTO.getDernierStatut().getLibelle()) && diff == 15) {
+			} else if(statuts.contains(demandeDTO.getDernierStatut().getLibelle()) && diff == Long.parseLong(delaiEnvoiEmailProp.getValue())) {
 				// L'envois des emails se fait 15 jours avant la supression effective de la demande
 				// Envois des emails aux usagers
-				envoisMailUsagerPurge(demandeDTO.getIdentifiant(), demandeDTO);
+				envoisMailUsagerPurge(demandeDTO.getIdentifiant(), demandeDTO, delaiEnvoiEmailProp.getValue());
 
 				// Ajout à la liste des demandes à envoyer
 				demandesAPurger += "- " + demandeDTO.getIdentifiant() + " - " + demandeDTO.getDernierStatut().getLibelle() + "<br/>";
@@ -77,13 +85,13 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 		LOGGER.info("Envois du mail au service");
 		// Envois mail agent pour suppression
 		if (StringUtils.isNotEmpty(demandesAPurger)) {
-			envoisMailAgentPurge(demandesAPurger);
+			envoisMailAgentPurge(demandesAPurger, delaiEnvoiEmailProp.getValue());
 		}
 
 		LOGGER.info("Fin purge des demandes ...");
 	}
 
-    private void envoisMailUsagerPurge(String identifiant, DemandeDTO demandeDTO) {
+    private void envoisMailUsagerPurge(String identifiant, DemandeDTO demandeDTO, String delai) {
 		final String subjectTemplateCode = "MAIL_PURGE_DEMANDES_POUR_USAGER_OBJET";
 		final String bodyTemplateCode = "MAIL_PURGE_DEMANDES_POUR_USAGER_CORPS";
 
@@ -91,6 +99,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 		emailInfoDTO.addTo(demandeDTO.getUsagerEmail(), demandeDTO.getUsagerPrenom() + " " + demandeDTO.getUsagerNom());
 		Map<String,Object> model = new HashMap<>();
         model.put("identifiant", identifiant);
+        model.put("delai", delai);
 
         try {
 			mailService.sendMail(emailInfoDTO, model);
@@ -99,7 +108,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 		}
 	}
 
-	private void envoisMailAgentPurge(String demandesAPurger) {
+	private void envoisMailAgentPurge(String demandesAPurger, String delai) {
 		final String subjectTemplateCode = "MAIL_PURGE_DEMANDES_POUR_AGENT_OBJET";
 		final String bodyTemplateCode = "MAIL_PURGE_DEMANDES_POUR_AGENT_CORPS";
 
@@ -108,6 +117,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 				.getEmailServiceNom());
 		Map<String,Object> model = new HashMap<>();
 		model.put("demandes", demandesAPurger);
+		model.put("delai", delai);
 
 		try {
 			mailService.sendMail(emailInfoDTO, model);

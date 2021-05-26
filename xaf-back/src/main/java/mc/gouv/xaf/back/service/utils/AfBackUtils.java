@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.uuid.EthernetAddress;
 import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.impl.TimeBasedGenerator;
+import com.google.gson.Gson;
 import mc.gouv.file.apiclient.FileClient;
 import mc.gouv.logon.shared.Droit;
 import mc.gouv.logon.shared.Role;
@@ -560,6 +561,11 @@ public class AfBackUtils {
 			LOGGER.error("Erreur lors de AfBackUtils.getListFromDemProperty()", e);
 		}
     	return null;
+    }
+
+    public static PropertiesListEntityDTO[] parserPropertiesListJson(String json) {
+        Gson gson = new Gson();
+        return gson.fromJson(json, PropertiesListEntityDTO[].class);
     }
     
     public static String convertTelIndicateur(String indicateur) {

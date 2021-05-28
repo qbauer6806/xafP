@@ -72,7 +72,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 				// Suppression de la demande
 				demandesService.deleteDemande(demarcheId, demandeDTO.getPkDemandes());
 
-			} else if(statuts.contains(demandeDTO.getDernierStatut().getLibelle()) && diff == Long.parseLong(delaiEnvoiEmailProp.getValue())) {
+			} else if(statuts.contains(demandeDTO.getDernierStatut().getLibelle()) && diff == jours - Long.parseLong(delaiEnvoiEmailProp.getValue())) {
 				// L'envois des emails se fait 15 jours avant la supression effective de la demande
 				// Envois des emails aux usagers
 				envoisMailUsagerPurge(demandeDTO.getIdentifiant(), demandeDTO, delaiEnvoiEmailProp.getValue());

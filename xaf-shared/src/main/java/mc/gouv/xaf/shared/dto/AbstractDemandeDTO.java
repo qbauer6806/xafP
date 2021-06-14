@@ -16,6 +16,7 @@ public class AbstractDemandeDTO {
     public static final String DEMARCHE_ID_FIELD_NAME = "demarcheId";
     public static final String USAGER_ID_FIELD_NAME = "usagerId";
     public static final String DATE_CREATION_FIELD_NAME = "dateCreation";
+    public static final String DATE_DEMANDE_FIELD_NAME = "dateDemande";
     public static final String PK_DEMANDE_FIELD_NAME = "pkDemandes";
 
     @JsonFormat(locale = "fr", shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", timezone = "GMT+1")

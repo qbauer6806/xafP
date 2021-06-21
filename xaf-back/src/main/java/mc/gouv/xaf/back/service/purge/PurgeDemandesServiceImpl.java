@@ -156,10 +156,12 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 			// Recherche du dernier statut non supprimé pour la stat en question
 			StatistiqueBO statDernierStatut = statRepository.findFirstByDemandeIdAndStatutPublicNotOrderByDateDesc(stat.getDemandeId(),
 					AfBackUtils.STATUT_PUBLIC_SUPPRIMEE);
-			purgeDemandeDTO.setDateStatutFinal(statDernierStatut.getDate());
-			String statutFinal = demarchesDataProvider.getStatusMap().get(statDernierStatut.getStatutPublic());
-			purgeDemandeDTO.setStatutFinal(statutFinal);
-			demandesPurgees.add(purgeDemandeDTO);
+			if (null != statDernierStatut) {
+				purgeDemandeDTO.setDateStatutFinal(statDernierStatut.getDate());
+				String statutFinal = demarchesDataProvider.getStatusMap().get(statDernierStatut.getStatutPublic());
+				purgeDemandeDTO.setStatutFinal(statutFinal);
+				demandesPurgees.add(purgeDemandeDTO);
+			}
 		}
 
 		return demandesPurgees;

@@ -60,6 +60,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 	public void purgerDemandesDansStatuts(List<String> statuts, int jours) throws JsonProcessingException {
 		String demarcheId = gouvPropertiesResolver.getDemarcheId();
 		String demandesAPurger = "";
+		int demandesSuppr = 0;
 		PropertiesDTO delaiEnvoiEmailProp = propertiesService.getProperty(demarcheId, DELAI_ENVOI_MAIL_PURGE);
 
 		LOGGER.info("Début de la purge des demandes ...");
@@ -71,6 +72,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 			if (statuts.contains(demandeDTO.getDernierStatut().getLibelle()) && diff >= jours) {
 				// Suppression de la demande
 				demandesService.deleteDemande(demarcheId, demandeDTO.getPkDemandes());
+				demandesSuppr++;
 
 			} else if(statuts.contains(demandeDTO.getDernierStatut().getLibelle()) && diff == jours - Long.parseLong(delaiEnvoiEmailProp.getValue())) {
 				// L'envois des emails se fait 15 jours avant la supression effective de la demande
@@ -82,13 +84,15 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 			}
         }
 
-		LOGGER.info("Envois du mail au service");
 		// Envois mail agent pour suppression
 		if (StringUtils.isNotEmpty(demandesAPurger)) {
+			LOGGER.info("Envois du mail au service...");
 			envoisMailAgentPurge(demandesAPurger, delaiEnvoiEmailProp.getValue());
+		} else {
+			LOGGER.info("Aucune demande à purger...");
 		}
 
-		LOGGER.info("Fin purge des demandes ...");
+		LOGGER.info("Fin purge des demandes, {} demande(s) supprimée(s)...", demandesSuppr);
 	}
 
     private void envoisMailUsagerPurge(String identifiant, DemandeDTO demandeDTO, String delai) {
@@ -146,6 +150,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 		List<StatistiqueBO> statsDemandesPurgees = statRepository.findByStatutPublicAndDateBetween(AfBackUtils.STATUT_PUBLIC_SUPPRIMEE,
 				dateDebutOffset , new Date());
 		statsDemandesPurgees.sort(Comparator.comparing(StatistiqueBO::getDate));
+		LOGGER.info("{} ligne(s) de statistiques de demandes purgées...", statsDemandesPurgees.size());
 
 		List<PurgeDemandeDTO> demandesPurgees = new ArrayList<>();
 		for(StatistiqueBO stat : statsDemandesPurgees) {
@@ -160,8 +165,9 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 				purgeDemandeDTO.setDateStatutFinal(statDernierStatut.getDate());
 				String statutFinal = demarchesDataProvider.getStatusMap().get(statDernierStatut.getStatutPublic());
 				purgeDemandeDTO.setStatutFinal(statutFinal);
-				demandesPurgees.add(purgeDemandeDTO);
 			}
+
+			demandesPurgees.add(purgeDemandeDTO);
 		}
 
 		return demandesPurgees;

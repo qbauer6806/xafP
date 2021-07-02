@@ -225,11 +225,16 @@
             $('#propertiesKey').text($(this).data('key'));
             $('#propertiesDescriptif').text($(this).data('descriptif'));
             $('#propertiesValue').val($(this).data('value'));
-
-            $.fancybox.open({
-                src: '#editionModal',
-                type: 'inline'
-            });
+            
+            if($(this).data('key').startsWith("LISTE_")) {
+            	// Redirection vers IHM d'édition du json
+            	document.location.href = "configjson?key="+$(this).data('key');
+            } else {
+	            $.fancybox.open({
+	                src: '#editionModal',
+	                type: 'inline'
+	            });
+            }
 
             autosize.update($('#propertiesValue'));
             return true;

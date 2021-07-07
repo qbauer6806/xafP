@@ -241,13 +241,13 @@
 	        	});
 
 	    		$(".usagerId").val(usagerId);
-
-	    		var nomPrenomRaisonSociale = nomPrenom;
+		  		    		
+	    		$("#nomPrenom").text(nomPrenom);
 	    		if (typeof raisonSociale !== 'undefined') {
-	    			nomPrenomRaisonSociale = nomPrenomRaisonSociale + '<br/>(' + raisonSociale + ')';
+	    			$("#raisonSociale").text('(' + raisonSociale + ')');
 	    		}
 	    		
-	    		$("#nomPrenomRaisonSociale").html(nomPrenomRaisonSociale);
+	    		
 	    		$("#adresse").text(adresse);
 	    		$("#codePostal").text(codePostal);
 	    		$("#ville").text(ville);

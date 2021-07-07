@@ -709,8 +709,7 @@ public class DemandesServiceImpl implements DemandesService {
     @Override
     public void deleteDemande(String demarcheId, Integer demandeId) throws JsonProcessingException {
 
-        LOGGER.info("Récupération en base de la demande...");
-
+        LOGGER.info("Suppression de la demande {} de la demarche {}...", demandeId, demarcheId);
         DemandeBO demandeBo = getCheckDemarcheDemandeBO(demarcheId, demandeId, false);
 
         if (demandeBo == null) {
@@ -730,6 +729,7 @@ public class DemandesServiceImpl implements DemandesService {
         accessRepository.save(access);
 
         // Suppression de l'historique de la demande (pas géré par cascade, donc le faire ici)
+        LOGGER.info("Suppression de l'historique de la demande...");
         List<DemandesHistoriqueBO> histos = demandesHistoriqueRepository.findByFkDemandesPkDemandes(demandeId);
         for (DemandesHistoriqueBO histo : histos) {
             demandesHistoriqueRepository.delete(histo);
@@ -738,6 +738,7 @@ public class DemandesServiceImpl implements DemandesService {
         LOGGER.info("Ajout d'une ligne de statistique pour la suppression de la demande...");
         statistiquesService.saveStatistique(stat);
 
+        LOGGER.info("Appel du répo pour la suppression...");
         demandesRepository.delete(demandeBo);
     }
 

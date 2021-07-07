@@ -146,7 +146,7 @@ $(document).ready(function() {
 						libelle = recherche_libelles.get(facetName).libelle
 					}
 					
-					categoryId = categoryId.replace(/('|;|&|\/|\(|\))/g,"");
+					categoryId = categoryId.replace(/('|;|&|\/|\(|\)|=)/g,"");
 
 					if (!categories[categoryId]) {
 						var newfacetCategoryDiv = $("#facetCategory").clone();

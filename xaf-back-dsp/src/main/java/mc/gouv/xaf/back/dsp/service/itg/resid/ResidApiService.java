@@ -1,15 +1,7 @@
 package mc.gouv.xaf.back.dsp.service.itg.resid;
 
+import mc.gouv.xaf.back.dsp.dto.*;
 import mc.gouv.xaf.back.dsp.exception.ResidHttpResponseException;
-import mc.gouv.xaf.back.dsp.dto.ResidDemandeCertificatResidenceCompleteDTO;
-import mc.gouv.xaf.back.dsp.dto.ResidDemandeChangementSituationCompleteDTO;
-import mc.gouv.xaf.back.dsp.dto.ResidDemandeDuplicataCarteCompleteDTO;
-import mc.gouv.xaf.back.dsp.dto.ResidDemandeNouvelleCarteCompleteDTO;
-import mc.gouv.xaf.back.dsp.dto.ResidDemandeRenouvellementCarteCompleteDTO;
-import mc.gouv.xaf.back.dsp.dto.ResidEtatsDemandesUpdatedAfterDTO;
-import mc.gouv.xaf.back.dsp.dto.ResidHttpResponseDTO;
-import mc.gouv.xaf.back.dsp.dto.ResidIdTSDTO;
-import mc.gouv.xaf.back.dsp.dto.ResidStatutDemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 
 import java.util.List;
@@ -32,4 +24,6 @@ public interface ResidApiService {
     List<ResidStatutDemandeDTO> getEtatMultipleDemandes(List<ResidIdTSDTO> idsDemandes, String url, String jwt) throws Exception;
 
     ResidEtatsDemandesUpdatedAfterDTO getEtatsDemandesUpdated(String updatedAfter, String url, String jwt) throws ResidHttpResponseException;
+
+    List<ResidResidentCorrespondanceDTO> getListResidCorrespondance(String numeroCarte, String url, String jwt);
 }

@@ -138,7 +138,7 @@
 						<div role="tabpanel" class="tab-pane" id="tab3"
 						th:classappend="${typeModele} == 'EXPORT_EXCEL' ? 'active' : ''">
 							<form name="form1" method="POST" enctype="multipart/form-data" th:action="@{/gestion/modeles/valider}+'?'+${_csrf.parameterName}+'='+${_csrf.token}">
-								<div class="sectiondemande">
+								<div class="sectiondemande" th:if="${exportExcel}">
 									<h2>Modèle <span th:text="${exportExcel.name}"></span></h2>
 									<div class="row">
 										<div class="col-xs-12 col-md-12">
@@ -199,7 +199,7 @@
 		</div>
 	</div>
 
-	<div th:replace="fragments/footer :: footer" /></div>
+	<div th:replace="fragments/footer :: footer"></div>
 
 	<script th:src="@{/js/tsadminjobs.js(${applicationBuildTimestamp})}"></script>
 

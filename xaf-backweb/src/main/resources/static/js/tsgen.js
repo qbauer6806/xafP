@@ -62,37 +62,43 @@ APP.getConfigurationDataTableCourriers = function(columns, imprimes) {
 		language: frenchTranslation,
 		iDisplayLength : 5,
 		lengthChange : false,
-		order: [ [ 1, "desc" ] ]
+		order: [ [ 1, "desc" ] ],
+		// bugfix #29868 - afficher les tooltips dans les datatable
+		drawCallback: function (settings) {
+			$('[data-toggle="tooltip"]').tooltip();
+		}
 	};
 }
 
 APP.getConfigurationDataTable = function(columns) {
-	var configurationDataTable = {
-		serverSide : true,
+	return {
+		serverSide: true,
 		"ajax": {
 
-    		//Pour ne pas envoyer canal[]=XXX non géré par Spring mvc
-    		"traditional": true,
-		    "url": APP.getContextPath()+"/ws/demandes/pageable",
-		    "dataSrc": function(json) {
-		      
-		    	json['recordsTotal'] = json['totalElements'];
-		        json['recordsFiltered'] = json['totalElements'];
-		        
-		        //json['data'] = json['content'];
-		        $("#demandesSize").html(json.totalElements)
-		        return json.content;
-		     }
-		  },
-		  
-		  "columns": columns,
-		  autoWidth: false,
-	      filter : false,
-		  language: frenchTranslation,
-		  iDisplayLength : 10
-		            
-	}
-	return configurationDataTable;
+			//Pour ne pas envoyer canal[]=XXX non géré par Spring mvc
+			"traditional": true,
+			"url": APP.getContextPath() + "/ws/demandes/pageable",
+			"dataSrc": function (json) {
+
+				json['recordsTotal'] = json['totalElements'];
+				json['recordsFiltered'] = json['totalElements'];
+
+				//json['data'] = json['content'];
+				$("#demandesSize").html(json.totalElements)
+				return json.content;
+			}
+		},
+
+		"columns": columns,
+		autoWidth: false,
+		filter: false,
+		language: frenchTranslation,
+		iDisplayLength: 10,
+		// bugfix #29868 - afficher les tooltips dans les datatable
+		drawCallback: function (settings) {
+			$('[data-toggle="tooltip"]').tooltip();
+		}
+	};
 }
 
 $(document).ready(function() {

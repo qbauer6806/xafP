@@ -10,9 +10,9 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,13 +65,14 @@ public class GestionConfigJsonController {
 	@RequestMapping(path = "/properties", method = RequestMethod.GET)
 	public List<PropertiesListEntityDTO> getJsonProperties(@RequestParam(name = "key", required = true) String key) throws Exception {
 
+		List<PropertiesListEntityDTO> jsonObjectsToDisplay = new ArrayList<PropertiesListEntityDTO>();
 		PropertiesDTO property = propertiesService.getProperty(afBackUtils.getDemarcheInfos().getPkDemarches(), key);
 		LOGGER.info("Appel de la page gestion/configjson. Méthode form");
 		// Récupération du json représentant le fichier
 		ObjectMapper mapper = new ObjectMapper();
-		String value = property.getValue();
-		List<PropertiesListEntityDTO> jsonObjectsToDisplay = Arrays
-				.asList(mapper.readValue(value, PropertiesListEntityDTO[].class));
+		if (!StringUtils.isEmpty(property.getValue())) {
+			jsonObjectsToDisplay = Arrays.asList(mapper.readValue(property.getValue(), PropertiesListEntityDTO[].class));
+		}
 		// Set de la liste utile dans le model and view
 		LOGGER.info("======================= Fin /gestion/properties. Méthode form");
 		return jsonObjectsToDisplay;
@@ -165,22 +166,23 @@ public class GestionConfigJsonController {
 	}
 	
 	@RequestMapping(path = "/addlibelle", method = RequestMethod.POST)
-	public ModelAndView addLibelle(@RequestParam(name = "label", required = true) String label,@RequestParam(name = "key", required = true) String key, final RedirectAttributes redirectAttributes) throws IOException {
+	public ModelAndView addLibelle(@RequestParam(name = "label", required = true) String label, @RequestParam(name = "cle", required = true) String cle, @RequestParam(name = "key", required = true) String key, final RedirectAttributes redirectAttributes) throws IOException {
 		LOGGER.info("Appel du webservice /gestion/configjson/addlibelle");
 		PropertiesDTO propertyToUpdate = propertiesService.getProperty(afBackUtils.getDemarcheInfos().getPkDemarches(), key);
-		
+		List<PropertiesListEntityDTO> values = new ArrayList<PropertiesListEntityDTO>();
 		// Je recupère la value existante
-		String value = propertyToUpdate.getValue();
 		ObjectMapper mapper = new ObjectMapper();
-		List<PropertiesListEntityDTO> values = new ArrayList<PropertiesListEntityDTO>(Arrays
-				.asList(mapper.readValue(value, PropertiesListEntityDTO[].class)));
+		if (!StringUtils.isEmpty(propertyToUpdate.getValue())) {
+			values = new ArrayList<PropertiesListEntityDTO>(
+					Arrays.asList(mapper.readValue(propertyToUpdate.getValue(), PropertiesListEntityDTO[].class)));
+		}
 		
 		// Je rajoute la nouvelle value
 		PropertiesListEntityDTO valueToAdd = new PropertiesListEntityDTO();
 		valueToAdd.setLabel(label);
 		valueToAdd.setEditable(true);
 		valueToAdd.setEnabled(true);
-		valueToAdd.setId("test");
+		valueToAdd.setId(cle);
 		values.add(valueToAdd);
 		
 		ByteArrayOutputStream out = new ByteArrayOutputStream();

@@ -367,6 +367,7 @@
 								result.clear();
 								$.fancybox.close();
 								$('#propertiesSetupTable').DataTable().ajax.reload(null, true);
+								checkSavePropertiesButton();
 							},
 							error : function(e) {
 								$("#errorMessage")
@@ -493,39 +494,44 @@
     
     $("#addLibelleConfirmButton").click(
     		function() {
-    			$.ajax({
-    				url : APP.getContextPath() + "/gestion/configjson/addlibelle?label="
-    						+ $("#libelleInput").val()+"&key="+key,
-    				method : "POST",
-    				traditional : true,
-    				contentType : "application/json",
-    				beforeSend : function(xhr) {
-    					xhr.setRequestHeader(header, token);
-    				},
-    				success : function(data) {
+    			if ($("#libelleInput").val() === '') {
+    				$("#errorMessage").data("message",
+    						"Veuillez spécifier une valeur de libellé").click();
+    			} else {
+    				$.ajax({
+    					url : APP.getContextPath() + "/gestion/configjson/addlibelle?label="
+    							+ $("#libelleInput").val()+"&key="+key+"&cle="+ $("#libelleInput").val().replaceAll(' ', '_'),
+    					method : "POST",
+    					traditional : true,
+    					contentType : "application/json",
+    					beforeSend : function(xhr) {
+    						xhr.setRequestHeader(header, token);
+    					},
+    					success : function(data) {
 
-    					$("#successMessage").data("message",
-    							"Le libellé a été enregistrée avec succès")
-    							.click();
-    					$("#libelleInput").val('');
-    					$("#libelleErrorMessage").css("visibility", "hidden").css(
+    						$("#successMessage").data("message",
+    								"Le libellé a été enregistrée avec succès")
+    								.click();
+    						$("#libelleInput").val('');
+    						$("#libelleErrorMessage").css("visibility", "hidden").css(
     							"display", "none");
-    					$('#propertiesSetupTable').DataTable().ajax.reload(null, true);
-    					$.fancybox.close();
-    				},
-    				error : function(xhr) {
-    					var error = jQuery.parseJSON(xhr.responseText);
+    						$('#propertiesSetupTable').DataTable().ajax.reload(null, true);
+    						$.fancybox.close();
+    					},
+    					error : function(xhr) {
+    						var error = jQuery.parseJSON(xhr.responseText);
 
-    					$("#libelleErrorMessage").text(
-    							"Un problème est survenu lors de l'enregistrement de la catégorie: "
-    									+ error.message);
-    					$("#libelleErrorMessage").css("visibility", "visible").css(
+    						$("#libelleErrorMessage").text(
+    								"Un problème est survenu lors de l'enregistrement de la catégorie: "
+    										+ error.message);
+    						$("#libelleErrorMessage").css("visibility", "visible").css(
     							"display", "block");
-    					$.fancybox.update();
+    						$.fancybox.update();
 
-    					console.log("failed to submit : " + error);
-    				}
-    			});
+    						console.log("failed to submit : " + error);
+    					}
+    				});
+    			}
     		});
 	
 	// BUGFIX (9 juillet 2019): La colonne pour la date est la 2 au lieu de 1

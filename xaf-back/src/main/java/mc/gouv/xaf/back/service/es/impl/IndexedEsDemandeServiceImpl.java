@@ -1,7 +1,6 @@
 package mc.gouv.xaf.back.service.es.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import mc.gouv.file.apiclient.FileClient;
 import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.dao.RechercheChampConfigRepository;
@@ -16,7 +15,6 @@ import mc.gouv.xaf.back.data.transformer.DemandesCourriersTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesFilesTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
 import mc.gouv.xaf.back.exception.AfIndexingException;
-import mc.gouv.xaf.back.exception.FileConnectionException;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.AccessService;
@@ -24,6 +22,7 @@ import mc.gouv.xaf.back.service.data.impl.DemandesServiceImpl;
 import mc.gouv.xaf.back.service.es.IndexedDemandeService;
 import mc.gouv.xaf.back.service.es.handlers.EsTransactionErrorsHandler;
 import mc.gouv.xaf.back.service.es.transformer.DemandeEsTransformer;
+import mc.gouv.xaf.back.service.es.transformer.DemandeFileEsTransformer;
 import mc.gouv.xaf.back.service.pdf.PdfTypeEnum;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
@@ -33,7 +32,6 @@ import mc.gouv.xaf.shared.dto.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.search.join.ScoreMode;
-import org.apache.tika.exception.ZeroByteFileException;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
@@ -87,9 +85,6 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.ConnectException;
-import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Map.Entry;
@@ -164,6 +159,9 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     private GouvPropertiesResolver gouvPropertiesResolver;
     private ResultsMapper resultsMapper;
 
+    @Autowired
+    private DemandeFileEsTransformer demandeFileEsTransformer;
+
     @PostConstruct
     public void init() {
         ElasticsearchConverter elasticsearchConverter = new MappingElasticsearchConverter(
@@ -176,7 +174,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     @Override
     public void loadProperties() {
-    	reloadProperties();
+        reloadProperties();
         try {
             initMappingProperties(true);
         } catch (Exception e) {
@@ -187,7 +185,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     }
 
     private void reloadProperties() {
-    	LOGGER.info("Chargement des propriétés de la recherche avancée et désactivation de celles à exclure du mappings elasticserach");
+        LOGGER.info("Chargement des propriétés de la recherche avancée et désactivation de celles à exclure du mappings elasticserach");
         List<RechercheChampConfigBO> propertiesToExclude = rechercheChampConfigRepository.findByEnabled(false);
         demandesFieldsToExclude.clear();
         fichiersFieldsToExclude.clear();
@@ -472,7 +470,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             for (DemandesComplementsBO demComplement : demComplements) {
                 List<DemandeFileDTO> cfiles = DemandesComplementsFilesTransformer.toDemandeFileDTO(demComplement.getFiles());
                 if (!cfiles.isEmpty()) {
-                    files.addAll(getFileEsContent(demandeDTO, DemandeFileEsDTO.TYPE.COMPLEMENT, cfiles));
+                    files.addAll(demandeFileEsTransformer.getListFileEsContent(demandeDTO, DemandeFileEsDTO.TYPE.COMPLEMENT, cfiles));
                 }
             }
         }
@@ -504,7 +502,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                     List<DemandeFileDTO> cfiles = DemandesComplementsFilesTransformer
                             .toDemandeFileDTO(Arrays.asList(demComplement.getReponse().getFichiers()));
                     if (!cfiles.isEmpty()) {
-                        files.addAll(getFileEsContent(demande, DemandeFileEsDTO.TYPE.COMPLEMENT, cfiles));
+                        files.addAll(demandeFileEsTransformer.getListFileEsContent(demande, DemandeFileEsDTO.TYPE.COMPLEMENT, cfiles));
                     }
                 }
             }
@@ -569,7 +567,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                                                         DemandeDTO demandeDTO) throws IOException {
         if (demFiles != null) {
             for (DemandeFileDTO file : demFiles) {
-                files.add(getFileEsContent(demandeDTO, getDemandeFileType(file), file));
+                files.add(demandeFileEsTransformer.getFileEsContent(demandeDTO, getDemandeFileType(file), file));
             }
         }
     }
@@ -586,7 +584,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                                DemandeDTO demandeDTO) throws IOException {
         if (courriers != null) {
             for (DemandeCourrierDTO courrier : courriers) {
-                files.add(getFileEsContent(demandeDTO, DemandeFileEsDTO.TYPE.COURRIER, courrier));
+                files.add(demandeFileEsTransformer.getFileEsContent(demandeDTO, DemandeFileEsDTO.TYPE.COURRIER, courrier));
             }
         }
     }
@@ -668,7 +666,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         // [1] Demandes présentes en BDD mais pas dans ES
         List<List<String>> ret = new ArrayList<>();
         List<String> bddMaisPasES = new ArrayList(CollectionUtils.subtract(identifiantsDemandesBdd, identifiantsDemandesEs));
-        List<String> esMaisPasBDD = new ArrayList(CollectionUtils.subtract(identifiantsDemandesEs,identifiantsDemandesBdd));
+        List<String> esMaisPasBDD = new ArrayList(CollectionUtils.subtract(identifiantsDemandesEs, identifiantsDemandesBdd));
 
         ret.add(esMaisPasBDD);
         ret.add(bddMaisPasES);
@@ -694,7 +692,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
         // Indexation des demandes en BDD mais pas ES
         List<DemandeBO> demandesBoASynchro = demandesBdd.stream().filter(d -> demandesDesynchro.get(1).contains(d.getIdentifiant())).collect(Collectors.toList());
-        for(DemandeBO demandeBO : demandesBoASynchro) {
+        for (DemandeBO demandeBO : demandesBoASynchro) {
             DemandeDTO demandeDTO = DemandesTransformer.bo2Dto(demandeBO);
             indexDemande(demandeDTO);
             demandesSync.add(demandeDTO.getIdentifiant());
@@ -732,13 +730,13 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         Boolean activeAccess = accessService.isAccessActive(demandeDTO.getFkAccess());
         DemandeEsDTO demandeEsDTO = demandeEsTransformer.toEs(demandeDTO, activeAccess);
         try {
-        	demandeEsRepository.save(demandeEsDTO);
-		} catch (Exception e) {
-	        LOGGER.error("Erreur d'indexation lors du clone de la demande.");
-	        EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("IndexedEsDemandeServiceImpl - méthode cloneDemande()", demandeDTO, e);
-	        applicationEventPublisher.publishEvent(esErrorEventDTO);
-	        throw new AfIndexingException(e.getMessage(), e);
-	    }
+            demandeEsRepository.save(demandeEsDTO);
+        } catch (Exception e) {
+            LOGGER.error("Erreur d'indexation lors du clone de la demande.");
+            EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("IndexedEsDemandeServiceImpl - méthode cloneDemande()", demandeDTO, e);
+            applicationEventPublisher.publishEvent(esErrorEventDTO);
+            throw new AfIndexingException(e.getMessage(), e);
+        }
     }
 
     @Override
@@ -772,7 +770,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
         if (demandeFileDTO != null) {
 
-            DemandeFileEsDTO demandeFileEsDTO = getFileEsContent(demandeDTO, getDemandeFileType(demandeFileDTO), demandeFileDTO);
+            DemandeFileEsDTO demandeFileEsDTO = demandeFileEsTransformer.getFileEsContent(demandeDTO, getDemandeFileType(demandeFileDTO), demandeFileDTO);
             List<DemandeFileEsDTO> demFileEsDtoList = new ArrayList<>();
             demFileEsDtoList.add(demandeFileEsDTO);
 
@@ -791,7 +789,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
             List<DemandeFileEsDTO> demFileEsDtoList = new ArrayList<>();
             for (DemandeFileDTO file : demandeFileDTOList) {
-                demFileEsDtoList.add(getFileEsContent(demandeDTO, getDemandeFileType(file), file));
+                demFileEsDtoList.add(demandeFileEsTransformer.getFileEsContent(demandeDTO, getDemandeFileType(file), file));
             }
 
             LOGGER.info("Appel de la méthode indexFiles");
@@ -811,155 +809,14 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         DemandeBO demandeBo = getDemandeBo(demarcheId, demandeId);
         DemandeDTO demandeDto = DemandesTransformer.bo2Dto(demandeBo);
         DemandeEsDTO demandeEsDTO = demandeEsTransformer.bo2Dto(demandeBo, null);
-    	try {
-    		demandeEsRepository.save(demandeEsDTO);
-    	} catch (Exception e) {
-	        LOGGER.error("Erreur d'indexation lors du clone de la demande.");
-	        EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("IndexedEsDemandeServiceImpl - méthode indexDemande()", demandeDto, e);
-	        applicationEventPublisher.publishEvent(esErrorEventDTO);
-	        throw new AfIndexingException(e.getMessage(), e);
-	    }
-
-    }
-
-    /**
-     * Méthode permettant de récupérer une liste de DTO avec le contenu des fichier sous forme de chaine de caractéres
-     * <br/>
-     * les contenus des fichiers sont récupérés depuis le web service file
-     *
-     * @param demandeDTO      dto de la demande que nous voulons traiter
-     * @param type            Type du fichier
-     * @param demandeFileDTOs Liste des DTOs de fichiers à indexer
-     * @return Liste des DTOs des fichiers indexés
-     * @throws IOException
-     */
-    public List<DemandeFileEsDTO> getFileEsContent(DemandeDTO demandeDTO, DemandeFileEsDTO.TYPE type,
-                                                   List<DemandeFileDTO> demandeFileDTOs) throws IOException {
-
-        List<DemandeFileEsDTO> filesList = new ArrayList<>();
-
-        if (demandeFileDTOs != null) {
-
-            for (DemandeFileDTO demandeFileDTO : demandeFileDTOs) {
-                filesList.add(getFileEsContent(demandeDTO, type, demandeFileDTO));
-            }
+        try {
+            demandeEsRepository.save(demandeEsDTO);
+        } catch (Exception e) {
+            LOGGER.error("Erreur d'indexation lors du clone de la demande.");
+            EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("IndexedEsDemandeServiceImpl - méthode indexDemande()", demandeDto, e);
+            applicationEventPublisher.publishEvent(esErrorEventDTO);
+            throw new AfIndexingException(e.getMessage(), e);
         }
-        return filesList;
-    }
-
-    /**
-     * Méthode permettant de récupérer un DTO avec le contenu du fichier sous forme de chaine de caractéres <br/>
-     * le contenu du fichier est récupéré depuis le web service file
-     *
-     * @param demande DTO de la demande ratachée au fichier
-     * @param fichier DTO du fichier à indexé
-     * @return Fichier indexé
-     * @throws IOException
-     */
-    private DemandeFileEsDTO getFileEsContent(DemandeDTO demande, DemandeFileEsDTO.TYPE type,
-                                              DemandeFileDTO fichier) throws IOException {
-
-        if (fichier != null) {
-            FileClient fileClient = new FileClient(gouvPropertiesResolver.getFileUrl(), gouvPropertiesResolver.getFileJwt());
-            InputStream is;
-            String fileUrl = "";
-            try {
-                String finalFilename = fichier.getUrl();
-                String[] split = fichier.getUrl().split("/");
-                String isolatedFileName = split[split.length - 1];
-                finalFilename = finalFilename.replace(isolatedFileName, URLEncoder.encode(isolatedFileName, "UTF-8"));
-                fileUrl = demande.getDemarcheId() + "/" + gouvPropertiesResolver.getContainerId() + "/" + finalFilename;
-                LOGGER.info("Le fichier à indexer est le {}", fileUrl);
-                is = fileClient.getFile(fileUrl);
-            } catch (ConnectException e) {
-                throw new FileConnectionException("Could not connect to file", e);
-            }
-            DemandeFileEsDTO demandeFileEsDTO = new DemandeFileEsDTO(demande.getIdentifiant());
-            demandeFileEsDTO.getFichiers().setMeta(fichier.getMeta());
-            demandeFileEsDTO.getFichiers().setName(fichier.getName());
-            demandeFileEsDTO.getFichiers().setUrl(fichier.getUrl());
-            demandeFileEsDTO.getFichiers().setType(type.name());
-            demandeFileEsDTO.getFichiers().setPkDemande(demande.getPkDemandes());
-            demandeFileEsDTO.getFichiers().setIdentifiantDemande(demande.getIdentifiant());
-            demandeFileEsDTO.getFichiers().setTypedoc(fichier.getTypedoc());
-
-            if (is != null) {
-                String fileText = "";
-                try {
-                    fileText = FileUtils.parseToPlainText(is);
-                    demandeFileEsDTO.getFichiers().setContent(fileText);
-                    demandeFileEsDTO.getFichiers().setLanguage(demande.getLangue());
-
-                } catch (ZeroByteFileException e) {
-                    LOGGER.info("Le fichier : {} est vide (a une taille de 0 byte)", fileUrl);
-                } catch (Exception e) {
-                    LOGGER.error(e.getMessage(), e);
-                }
-            }
-            LOGGER.info("Parsing du fichier terminé");
-            return demandeFileEsDTO;
-        }
-        return null;
-
-    }
-
-    /**
-     * Méthode permettant de récupérer un DTO avec le contenu du fichier sous forme de chaine de caractéres <br/>
-     * le contenu du fichier est récupéré depuis le web service file
-     *
-     * @param demande DTO de la demande ratachée au fichier
-     * @param fichier DTO du fichier à indexé
-     * @return Fichier indexé
-     * @throws IOException
-     */
-    private DemandeFileEsDTO getFileEsContent(DemandeDTO demande, DemandeFileEsDTO.TYPE type,
-                                              DemandeCourrierDTO fichier) throws IOException {
-
-        if (fichier != null) {
-            FileClient fileClient = new FileClient(gouvPropertiesResolver.getFileUrl(), gouvPropertiesResolver.getFileJwt());
-            InputStream is;
-            String fileUrl = "";
-            try {
-                String finalFilename = fichier.getUrl();
-                String[] split = fichier.getUrl().split("/");
-                String isolatedFileName = split[split.length - 1];
-                finalFilename = finalFilename.replace(isolatedFileName, URLEncoder.encode(isolatedFileName, "UTF-8"));
-                fileUrl = demande.getDemarcheId() + "/" + gouvPropertiesResolver.getContainerId() + "/" + finalFilename;
-                LOGGER.info("Le fichier à indexer est le {}", fileUrl);
-                is = fileClient.getFile(fileUrl);
-            } catch (ConnectException e) {
-                throw new FileConnectionException("Could not connect to file", e);
-            }
-            DemandeFileEsDTO demandeFileEsDTO = new DemandeFileEsDTO(demande.getIdentifiant());
-            demandeFileEsDTO.getFichiers().setMeta(fichier.getMeta());
-            demandeFileEsDTO.getFichiers().setName(fichier.getName());
-            demandeFileEsDTO.getFichiers().setUrl(fichier.getUrl());
-            demandeFileEsDTO.getFichiers().setType(type.name());
-            demandeFileEsDTO.getFichiers().setIdentifiantDemande(demande.getIdentifiant());
-            demandeFileEsDTO.getFichiers().setIdentifiant(fichier.getIdentifiant());
-            demandeFileEsDTO.getFichiers().setPkDemandeFile(fichier.getPkCourrier());
-            demandeFileEsDTO.getFichiers().setDateCreation(fichier.getDateCreation());
-            demandeFileEsDTO.getFichiers().setPkDemande(demande.getPkDemandes());
-            demandeFileEsDTO.getFichiers().setStatut(fichier.getFkStatut().getLibelle());
-            demandeFileEsDTO.getFichiers().setDatePrinted(fichier.getDatePrinted());
-
-            if (is != null) {
-                String fileText = "";
-                try {
-                    fileText = FileUtils.parseToPlainText(is);
-                    demandeFileEsDTO.getFichiers().setContent(fileText);
-                    demandeFileEsDTO.getFichiers().setLanguage(demande.getLangue());
-
-                } catch (ZeroByteFileException e) {
-                    LOGGER.info("Le fichier : {} est vide (a une taille de 0 byte)", fileUrl);
-                } catch (Exception e) {
-                    LOGGER.error(e.getMessage(), e);
-                }
-            }
-            LOGGER.info("Parsing du fichier terminé");
-            return demandeFileEsDTO;
-        }
-        return null;
 
     }
 
@@ -2014,6 +1871,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     /**
      * Récupère uniquement l'identifiant et la pkDemandes de tous les documents de l'index ES
+     *
      * @return List des demandes en Lazy
      */
     private List<DemandeEsDTO> findAllDemandesLazy() {

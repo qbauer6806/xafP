@@ -1,6 +1,8 @@
 package mc.gouv.xaf.back.service.purge;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+
+import mc.gouv.servicerest.usager.model.UsagerBean;
 import mc.gouv.xaf.back.data.dao.StatistiquesRepository;
 import mc.gouv.xaf.back.data.entity.StatistiqueBO;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
@@ -9,6 +11,7 @@ import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
+import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
@@ -56,10 +59,14 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 
 	@Autowired
 	private StatistiquesRepository statRepository;
+	
+    @Autowired
+    private UsagersCache usagerCache;
 
 	public void purgerDemandesDansStatuts(List<String> statuts, int jours) throws JsonProcessingException {
 		String demarcheId = gouvPropertiesResolver.getDemarcheId();
 		String demandesAPurger = "";
+		int demandesSuppr = 0;
 		PropertiesDTO delaiEnvoiEmailProp = propertiesService.getProperty(demarcheId, DELAI_ENVOI_MAIL_PURGE);
 
 		LOGGER.info("Début de la purge des demandes ...");
@@ -71,6 +78,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 			if (statuts.contains(demandeDTO.getDernierStatut().getLibelle()) && diff >= jours) {
 				// Suppression de la demande
 				demandesService.deleteDemande(demarcheId, demandeDTO.getPkDemandes());
+				demandesSuppr++;
 
 			} else if(statuts.contains(demandeDTO.getDernierStatut().getLibelle()) && diff == jours - Long.parseLong(delaiEnvoiEmailProp.getValue())) {
 				// L'envois des emails se fait 15 jours avant la supression effective de la demande
@@ -82,13 +90,15 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 			}
         }
 
-		LOGGER.info("Envois du mail au service");
 		// Envois mail agent pour suppression
 		if (StringUtils.isNotEmpty(demandesAPurger)) {
+			LOGGER.info("Envois du mail au service...");
 			envoisMailAgentPurge(demandesAPurger, delaiEnvoiEmailProp.getValue());
+		} else {
+			LOGGER.info("Aucune demande à purger...");
 		}
 
-		LOGGER.info("Fin purge des demandes ...");
+		LOGGER.info("Fin purge des demandes, {} demande(s) supprimée(s)...", demandesSuppr);
 	}
 
     private void envoisMailUsagerPurge(String identifiant, DemandeDTO demandeDTO, String delai) {
@@ -96,7 +106,27 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 		final String bodyTemplateCode = "MAIL_PURGE_DEMANDES_POUR_USAGER_CORPS";
 
 		EmailInfoDTO emailInfoDTO = creationMailPurge(bodyTemplateCode, subjectTemplateCode, demandeDTO.getLangue());
-		emailInfoDTO.addTo(demandeDTO.getUsagerEmail(), demandeDTO.getUsagerPrenom() + " " + demandeDTO.getUsagerNom());
+		
+        UsagerBean usager = usagerCache.get(demandeDTO.getUsagerId(), true);
+        if (usager == null) {
+            usager = new UsagerBean();
+            usager.setNom(demandeDTO.getUsagerNom());
+            usager.setPrenom(demandeDTO.getUsagerPrenom());
+            usager.setEmail(demandeDTO.getUsagerEmail());
+        }
+        
+        String prenom = StringUtils.EMPTY;
+        String nom = StringUtils.EMPTY;
+
+        if (StringUtils.isNotBlank(usager.getPrenom())) {
+            prenom = usager.getPrenom();
+        }
+
+        if (StringUtils.isNotBlank(usager.getNom())) {
+            nom = usager.getNom();
+        }
+		
+		emailInfoDTO.addTo(usager.getEmail(), prenom + " " + nom);
 		Map<String,Object> model = new HashMap<>();
         model.put("identifiant", identifiant);
         model.put("delai", delai);
@@ -146,6 +176,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 		List<StatistiqueBO> statsDemandesPurgees = statRepository.findByStatutPublicAndDateBetween(AfBackUtils.STATUT_PUBLIC_SUPPRIMEE,
 				dateDebutOffset , new Date());
 		statsDemandesPurgees.sort(Comparator.comparing(StatistiqueBO::getDate));
+		LOGGER.info("{} ligne(s) de statistiques de demandes purgées...", statsDemandesPurgees.size());
 
 		List<PurgeDemandeDTO> demandesPurgees = new ArrayList<>();
 		for(StatistiqueBO stat : statsDemandesPurgees) {
@@ -156,9 +187,12 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 			// Recherche du dernier statut non supprimé pour la stat en question
 			StatistiqueBO statDernierStatut = statRepository.findFirstByDemandeIdAndStatutPublicNotOrderByDateDesc(stat.getDemandeId(),
 					AfBackUtils.STATUT_PUBLIC_SUPPRIMEE);
-			purgeDemandeDTO.setDateStatutFinal(statDernierStatut.getDate());
-			String statutFinal = demarchesDataProvider.getStatusMap().get(statDernierStatut.getStatutPublic());
-			purgeDemandeDTO.setStatutFinal(statutFinal);
+			if (null != statDernierStatut) {
+				purgeDemandeDTO.setDateStatutFinal(statDernierStatut.getDate());
+				String statutFinal = demarchesDataProvider.getStatusMap().get(statDernierStatut.getStatutPublic());
+				purgeDemandeDTO.setStatutFinal(statutFinal);
+			}
+
 			demandesPurgees.add(purgeDemandeDTO);
 		}
 

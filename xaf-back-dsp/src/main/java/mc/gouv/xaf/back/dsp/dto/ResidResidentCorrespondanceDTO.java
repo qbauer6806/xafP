@@ -100,4 +100,19 @@ public class ResidResidentCorrespondanceDTO implements Serializable {
     public void setAdresse(ResidAdresseDTO adresse) {
         this.adresse = adresse;
     }
+
+    @Override
+    public String toString() {
+        return "ResidResidentCorrespondanceDTO{" +
+                "numeroUsager='" + numeroUsager + '\'' +
+                ", nom='" + nom + '\'' +
+                ", nomUsage='" + nomUsage + '\'' +
+                ", prenom='" + prenom + '\'' +
+                ", dateNaissance='" + dateNaissance + '\'' +
+                ", villeNaissance='" + villeNaissance + '\'' +
+                ", paysNaissanceCode='" + paysNaissanceCode + '\'' +
+                ", paysNaissanceLibelle='" + paysNaissanceLibelle + '\'' +
+                ", adresse=" + adresse +
+                '}';
+    }
 }

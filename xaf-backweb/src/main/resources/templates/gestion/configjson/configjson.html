@@ -173,12 +173,13 @@
 	</div>
 
 	<div th:replace="fragments/footer :: footer"></div>
-	<script
-		th:src="@{/js/tsconfigjson.js(${applicationBuildTimestamp})}"></script>
 	<script th:inline="javascript">
 	/*<![CDATA[*/
     var key = /*[[${key}]]*/[];
     /*]]>*/
+    var token = $("meta[name='_csrf']").attr("content");
+	var header = $("meta[name='_csrf_header']").attr("content");
+
     
     /* Create an array with the values of all the input boxes in a column */
 	$.fn.dataTable.ext.order['dom-text'] = function(settings, col) {

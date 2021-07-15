@@ -1,18 +1,10 @@
 package mc.gouv.xaf.back.dsp.service.itg.resid.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import mc.gouv.xaf.back.dsp.dto.*;
 import mc.gouv.xaf.back.dsp.exception.ResidHttpResponseException;
 import mc.gouv.xaf.back.dsp.service.itg.resid.ResidApiService;
 import mc.gouv.xaf.back.dsp.service.itg.resid.ResidErrorResponseErrorHandler;
-import mc.gouv.xaf.back.dsp.dto.ResidDemandeCertificatResidenceCompleteDTO;
-import mc.gouv.xaf.back.dsp.dto.ResidDemandeChangementSituationCompleteDTO;
-import mc.gouv.xaf.back.dsp.dto.ResidDemandeDuplicataCarteCompleteDTO;
-import mc.gouv.xaf.back.dsp.dto.ResidDemandeNouvelleCarteCompleteDTO;
-import mc.gouv.xaf.back.dsp.dto.ResidDemandeRenouvellementCarteCompleteDTO;
-import mc.gouv.xaf.back.dsp.dto.ResidEtatsDemandesUpdatedAfterDTO;
-import mc.gouv.xaf.back.dsp.dto.ResidHttpResponseDTO;
-import mc.gouv.xaf.back.dsp.dto.ResidIdTSDTO;
-import mc.gouv.xaf.back.dsp.dto.ResidStatutDemandeDTO;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
@@ -32,6 +24,7 @@ import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -56,6 +49,7 @@ public class ResidApiServiceImpl implements ResidApiService {
 	public static final String RESID_CERTIFICAT_RESIDENCE_PATH = "/demandes/certificatResidence";
 	public static final String RESID_ETATS_DEMANDES_BY_ID_PATH = "/demandes/etatsDemandesById";
     public static final String RESID_ETATS_DEMANDES_PATH = "/demandes/etatsDemandesUpdatedAfter";
+    public static final String RESID_USAGERS_PATH = "/usagers/";
 
     public static final String LAST_SUCCESSFUL_SYNCHRO_KEY = "LAST_SUCCESSFUL_SYNCHRO";
 
@@ -356,5 +350,36 @@ public class ResidApiServiceImpl implements ResidApiService {
 		PropertiesDTO lastSynchroProperty = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), LAST_SUCCESSFUL_SYNCHRO_KEY);
 		lastSynchroProperty.setValue(lastSuccessfulSynchroTime);
 		propertiesService.saveOrUpdateProperties(lastSynchroProperty);
+	}
+
+	@Override
+	public List<ResidResidentCorrespondanceDTO> getListResidCorrespondance(String numeroCarte, String url, String jwt) throws RestClientException {
+
+		LOGGER.info("Appel à l'API RESID pour demander les usagers correspondants");
+
+		RestTemplate rest = new RestTemplate();
+		rest.getMessageConverters().add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
+		HttpHeaders headers = getResidRequestHeaders(jwt);
+
+		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url + RESID_USAGERS_PATH)
+				.queryParam("numeroCarte", numeroCarte);
+
+		URI uri = builder.build().encode().toUri();
+
+		HttpEntity<String> requestEntity = new HttpEntity<>(headers);
+		LOGGER.debug("-- Appel RESID Get liste usagers correspondance");
+		LOGGER.debug("URL: {} {}", HttpMethod.GET, uri.toString());
+		LOGGER.debug("Headers: {}", headers);
+
+		ResponseEntity<List<ResidResidentCorrespondanceDTO>> responseEntity = rest.exchange(uri,
+				HttpMethod.GET, requestEntity, new ParameterizedTypeReference<List<ResidResidentCorrespondanceDTO>>(){});
+
+		LOGGER.info("Fin appel RESID");
+
+		if (!HttpStatus.OK.equals(responseEntity.getStatusCode())) {
+			return null;
+		}
+
+		return responseEntity.getBody();
 	}
 }

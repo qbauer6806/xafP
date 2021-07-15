@@ -34,7 +34,6 @@ public class DemandeFileEsDTO {
     }
 
     public DemandeFileEsDTO(String parent) {
-
         fichiers = new Fichiers();
         setDemandeJoinField(new DemandeJoinFieldEsDTO(INDEX_FILES_JOIN_DOC, parent));
     }
@@ -72,6 +71,7 @@ public class DemandeFileEsDTO {
         private Date dateCreation;
         private Integer pkDemande;
         private Integer pkDemandeFile;
+        private String typedoc;
         private Date datePrinted;
 
         /**
@@ -195,6 +195,14 @@ public class DemandeFileEsDTO {
 		public void setDatePrinted(Date datePrinted) {
 			this.datePrinted = datePrinted;
 		}
+
+        public String getTypedoc() {
+            return typedoc;
+        }
+
+        public void setTypedoc(String typedoc) {
+            this.typedoc = typedoc;
+        }
     }
 
 }

@@ -20,20 +20,24 @@ import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
-import javax.persistence.criteria.*;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.From;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
 
-import mc.gouv.xaf.back.data.entity.*;
-import mc.gouv.xaf.back.service.data.*;
-import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import mc.gouv.xaf.back.service.utils.FileUtils;
-import mc.gouv.xaf.shared.dto.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.*;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.http.HttpStatus;
@@ -52,6 +56,14 @@ import mc.gouv.xaf.back.data.dao.DemandesFilesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesHistoriqueRepository;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesStatutsRepository;
+import mc.gouv.xaf.back.data.entity.AccessBO;
+import mc.gouv.xaf.back.data.entity.DemandeBO;
+import mc.gouv.xaf.back.data.entity.DemandesComplementsBO;
+import mc.gouv.xaf.back.data.entity.DemandesComplementsFilesBO;
+import mc.gouv.xaf.back.data.entity.DemandesDataBO;
+import mc.gouv.xaf.back.data.entity.DemandesFilesBO;
+import mc.gouv.xaf.back.data.entity.DemandesHistoriqueBO;
+import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
 import mc.gouv.xaf.back.data.transformer.DemandesComplementsFilesTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesComplementsTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesDataTransformer;
@@ -59,7 +71,26 @@ import mc.gouv.xaf.back.data.transformer.DemandesFilesTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesStatutsTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
+import mc.gouv.xaf.back.service.data.DemandesFilesService;
+import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.back.service.data.DemandesStatutsService;
+import mc.gouv.xaf.back.service.data.DemarchesService;
+import mc.gouv.xaf.back.service.data.StatistiquesService;
+import mc.gouv.xaf.back.service.itg.file.FileService;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
+import mc.gouv.xaf.back.service.utils.FileUtils;
+import mc.gouv.xaf.shared.dto.DataRechercheDTO;
+import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
+import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
+import mc.gouv.xaf.shared.dto.DemandeComplementsFileDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeDataDTO;
+import mc.gouv.xaf.shared.dto.DemandeFileDTO;
+import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
+import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
+import mc.gouv.xaf.shared.dto.PageParamDTO;
+import mc.gouv.xaf.shared.dto.StatistiqueDTO;
 
 /**
  * Service permettant la manipulation des demandes.
@@ -104,11 +135,11 @@ public class DemandesServiceImpl implements DemandesService {
     private DemarchesService demarchesService;
 
     @Autowired
-    private DemFileService demFileService;
+    private FileService fileService;
 
     @Autowired
     private DemandesFilesService demandesFilesService;
-
+    
     @Autowired
     private StatistiquesService statistiquesService;
 
@@ -214,7 +245,7 @@ public class DemandesServiceImpl implements DemandesService {
         // Lier les fichiers de la demande au DemandeID, dans FILE
         if (demande.getFichiers() != null) {
             LOGGER.info("Lier ces fichiers au DemandeID dans FILE...");
-            demFileService.updateFilesMetadataWithDemandeId(demande.getFichiers(),
+            fileService.updateFilesMetadataWithDemandeId(demande.getFichiers(),
                     demandeBo.getFkAccess().getDemarcheId(), demandeBo.getPkDemandes());
         }
 
@@ -250,11 +281,22 @@ public class DemandesServiceImpl implements DemandesService {
      */
     @Override
     public List<DemandeDTO> getDemandes(String demarcheId, Integer usagerId) {
+        return getDemandesUsager(demarcheId, usagerId, true);
+    }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<DemandeDTO> getDemandes(String demarcheId, Integer usagerId, boolean active) {
+        return getDemandesUsager(demarcheId, usagerId, active);
+    }
+
+    private List<DemandeDTO> getDemandesUsager(String demarcheId, Integer usagerId, boolean active) {
         LOGGER.info("Récupération en base des demandes...");
 
         AccessBO accessBo = null;
-        List<AccessBO> accessBos = accessRepository.getByDemarcheIdAndUsagerIdAndActive(demarcheId, usagerId, true);
+        List<AccessBO> accessBos = accessRepository.getByDemarcheIdAndUsagerIdAndActive(demarcheId, usagerId, active);
         if (accessBos != null && !accessBos.isEmpty()) {
             accessBo = accessBos.get(0);
         } else {
@@ -671,11 +713,6 @@ public class DemandesServiceImpl implements DemandesService {
 
         DemandeBO demandeBo = getCheckDemarcheDemandeBO(demarcheId, demandeId, false);
 
-        // Gérer les accès désactivés
-        if (demandeBo != null && !demandeBo.getFkAccess().isActive() && DemarchesUtils.isFrontUser()) {
-            demandeBo = null;
-        }
-
         if (demandeBo == null) {
             throw new DemarchesServiceException("Demande introuvable", HttpStatus.NOT_FOUND);
         }
@@ -685,6 +722,7 @@ public class DemandesServiceImpl implements DemandesService {
         stat.setDate(new Date());
         stat.setDemandeId(demandeId);
         stat.setDemarcheId(demarcheId);
+        stat.setIdentifiantDemande(demandeBo.getIdentifiant());
         stat.setStatutPublic(AfBackUtils.STATUT_PUBLIC_SUPPRIMEE);
 
         AccessBO access = demandeBo.getFkAccess();
@@ -762,16 +800,17 @@ public class DemandesServiceImpl implements DemandesService {
             for (DemandesFilesBO fileBo : filesBo) {
                 fileBo.setPkDemandesFiles(null);
                 fileBo.setFkDemandes(newDemandeBo);
+                fileBo.setTypedoc(null);
                 demandesFilesRepository.save(fileBo);
             }
-            newDemandeBo.setFiles(new HashSet<DemandesFilesBO>(filesBo));
+            newDemandeBo.setFiles(new HashSet<>(filesBo));
         }
 
         // Demandes d'informations complémentaires des demandes
         if (demandeBo.getDemandesComplements() != null) {
             LOGGER.info("Etape demandes d'informations complémentaires");
             List<DemandeComplementsDTO> dcsDto = DemandesComplementsTransformer
-                    .bo2Dto(new ArrayList<DemandesComplementsBO>(demandeBo.getDemandesComplements()));
+                    .bo2Dto(new ArrayList<>(demandeBo.getDemandesComplements()));
             List<DemandesComplementsBO> dcsBo = DemandesComplementsTransformer.dto2Bo(dcsDto);
             for (DemandesComplementsBO dcBo : dcsBo) {
                 dcBo.setPkDemandesComplements(null);
@@ -784,31 +823,32 @@ public class DemandesServiceImpl implements DemandesService {
                 if (dcBoFiles != null) {
                     LOGGER.info("Etape pièces jointes des demandes d'informations complémentaires");
                     List<DemandeComplementsFileDTO> dcfilesDto = DemandesComplementsFilesTransformer
-                            .bo2Dto(new ArrayList<DemandesComplementsFilesBO>(dcBoFiles));
+                            .bo2Dto(new ArrayList<>(dcBoFiles));
                     List<DemandesComplementsFilesBO> dcfilesBo = DemandesComplementsFilesTransformer.dto2Bo(dcfilesDto);
                     for (DemandesComplementsFilesBO dcfileBo : dcfilesBo) {
                         dcfileBo.setPkDemandesComplementsFiles(null);
                         dcfileBo.setFkDemandesComplements(dcBo);
+                        dcfileBo.setTypedoc(null);
                         demandesComplementsFilesRepository.save(dcfileBo);
                     }
-                    dcBo.setFiles(new HashSet<DemandesComplementsFilesBO>(dcfilesBo));
+                    dcBo.setFiles(new HashSet<>(dcfilesBo));
                     demandesComplementsRepository.save(dcBo);
                 }
             }
-            newDemandeBo.setDemandesComplements(new HashSet<DemandesComplementsBO>(dcsBo));
+            newDemandeBo.setDemandesComplements(new HashSet<>(dcsBo));
         }
 
         // Statuts des demandes
         // Cette map sert pour l'étape de l'historique de la demande.
         // Elle permet de mapper l'ancien pkStatut des statuts, avec leurs nouveaux statutsBo correspondants
-        Map<Integer, DemandesStatutsBO> statusMap = new HashMap<Integer, DemandesStatutsBO>();
+        Map<Integer, DemandesStatutsBO> statusMap = new HashMap<>();
         // Cette variable sert à stocker le futur dernier statut
         DemandesStatutsBO dernierStatutBo = null;
         if (demandeBo.getStatuts() != null) {
             LOGGER.info("Etape statuts des demandes");
             List<DemandeStatutDTO> statutsDto = DemandesStatutsTransformer
-                    .bo2Dto(new ArrayList<DemandesStatutsBO>(demandeBo.getStatuts()));
-            List<DemandesStatutsBO> statutsBo = new ArrayList<DemandesStatutsBO>();
+                    .bo2Dto(new ArrayList<>(demandeBo.getStatuts()));
+            List<DemandesStatutsBO> statutsBo = new ArrayList<>();
             for (DemandeStatutDTO statutDto : statutsDto) {
                 DemandesStatutsBO statutBo = DemandesStatutsTransformer.dto2Bo(statutDto);
                 statutBo.setPkDemandesStatuts(null);
@@ -821,7 +861,7 @@ public class DemandesServiceImpl implements DemandesService {
                     dernierStatutBo = statutBo;
                 }
             }
-            newDemandeBo.setStatuts(new HashSet<DemandesStatutsBO>(statutsBo));
+            newDemandeBo.setStatuts(new HashSet<>(statutsBo));
         }
 
         // "Dernier statut" d'une demande
@@ -1204,5 +1244,50 @@ public class DemandesServiceImpl implements DemandesService {
         return !demandeBo.getFkAccess().isActive();
 
     }
+
+    /**
+     * Change l'affectation de la demande sans trigger un full update dans le cas où on veut SUPPRIMER l'affectation
+     * (car lors d'un partialUpdate on vérifie si le champs est null avant de mettre à jour le champs en question)
+     *  @param demarcheId
+     * @param pkDemandes
+     * @param agentAffecteId
+     * @return
+     */
+    public DemandeDTO changerAffectationDemande(String demarcheId, int pkDemandes, String agentAffecteId) {
+        LOGGER.info("Récupération en base de la demande...");
+
+        Optional<DemandeBO> demandeBoOp = demandesRepository.findById(pkDemandes);
+
+        // Gérer les accès désactivés
+        if (demandeBoOp.isPresent() && !demandeBoOp.get().getFkAccess().isActive() && DemarchesUtils.isFrontUser()) {
+            demandeBoOp = Optional.empty();
+        }
+
+        if (!demandeBoOp.isPresent()) {
+            throw new DemarchesServiceException("Demande introuvable", HttpStatus.NOT_FOUND);
+        }
+
+        DemandeBO demandeBo = demandeBoOp.get();
+
+        demandeBo.setAgentAffecteId(agentAffecteId);
+
+        demandesRepository.save(demandeBo);
+
+        DemandeDTO demandeDTO = DemandesTransformer.bo2Dto(demandeBo);
+
+        LOGGER.info("Fin changement affectation...");
+
+        return demandeDTO;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+	@Override
+	public DemandeDTO getDemande(String identifiant) {
+		LOGGER.info("Récupération en base de la demande...");
+		DemandeBO demandeBo = demandesRepository.findByIdentifiant(identifiant);
+		return DemandesTransformer.bo2Dto(demandeBo);
+	}
 
 }

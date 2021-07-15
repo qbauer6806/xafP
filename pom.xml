@@ -15,7 +15,7 @@
 
 	<groupId>mc.gouv.xaf</groupId>
 	<artifactId>xaf</artifactId>
-	<version>8.3.5-SNAPSHOT</version>
+	<version>8.4.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<scm>
@@ -33,7 +33,9 @@
 		<module>xaf-backweb</module>
         <module>xaf-shared</module>
 		<module>xaf-back-denjs</module>
+		<module>xaf-back-dsp</module>
 		<module>xaf-backweb-denjs</module>
+		<module>xaf-scheduling</module>
     </modules>
 
 	<dependencyManagement>

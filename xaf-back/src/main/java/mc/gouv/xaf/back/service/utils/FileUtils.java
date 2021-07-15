@@ -3,7 +3,12 @@ package mc.gouv.xaf.back.service.utils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.util.*;
 
+import mc.gouv.xaf.back.data.transformer.DemandesComplementsFilesTransformer;
+import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tika.Tika;
 import org.apache.tika.exception.TikaException;
@@ -27,9 +32,6 @@ public class FileUtils {
 
     public static final String META_BACK_FRONT = "BACK_FRONT_";
 
-    private FileUtils() {
-    }
-
     /**
      * Méthode permettant de lire le contenu d'un fichier
      * 
@@ -51,6 +53,37 @@ public class FileUtils {
             fulltext.close();
         }
         return contentStr;
+    }
+
+    public static List<DemandeFileDTO> getAllFileDemande(DemandeDTO demandeDTO) {
+        List<DemandeFileDTO> files = new ArrayList<>();
+        // Fichiers de la demande
+        if(demandeDTO.getFichiers() != null) {
+            files.addAll(Arrays.asList(demandeDTO.getFichiers()));
+        }
+
+        // Fichiers des infos compl
+        if (demandeDTO.getComplements() != null) {
+            for (DemandeComplementsDTO compl : demandeDTO.getComplements()) {
+                if (compl.getReponse() != null && compl.getReponse().getFichiers() != null) {
+                    files.addAll(DemandesComplementsFilesTransformer.toDemandeFileDTO(Arrays.asList(compl.getReponse().getFichiers())));
+                }
+            }
+        }
+        return files;
+    }
+
+    public static String formatFilenameResid(String filename, Integer index) {
+        return removeSpecialChars(index + "_" + filename);
+    }
+
+    public static String removeSpecialChars(String filename) {
+        String[] filenameExtensionSplit = filename.split("\\.");
+        String extension = filenameExtensionSplit[filenameExtensionSplit.length-1];
+        // On supprime l'exension du split
+        String[] filenameSplit = Arrays.copyOf(filenameExtensionSplit, filenameExtensionSplit.length-1);
+        String filenameConcat = String.join("", filenameSplit);
+        return filenameConcat.replaceAll("[^a-zA-Z0-9_]", "_") + "." + extension;
     }
 
     // Norme sur les métadonnées des fichiers

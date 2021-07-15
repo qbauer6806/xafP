@@ -216,7 +216,11 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
             html.append("<div class=\"sectiondemande\"><h3>").append(section.get("titre")).append("</h3><dl>");
             html.append(firstLevel);
             if (StringUtils.equals(sectionType, "adresse")) {
-                html.append("<dt><span>Adresse</span></dt>");
+                if(section.get("label") != null) {
+                    html.append("<dt><span>").append(section.get("label")).append("</span></dt>");
+                } else {
+                    html.append("<dt><span>Adresse</span></dt>");
+                }
             }
             html.append("</dl></div>");
         }
@@ -478,7 +482,11 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
         String ligne3 = escape(getNode(node, champ, "ligne3").textValue(), isPdfRecap);
         String ret = "";
         if (StringUtils.isNotEmpty(ligne1)) {
-            ret = "<dt><span>Adresse</span></dt><dd><span>" + ligne1 + "</span>";
+            if (champ.get("label") != null) {
+                ret = "<dt><span>" + champ.get("label") + "</span></dt><dd><span>" + ligne1 + "</span>";
+            } else {
+                ret = "<dt><span>Adresse</span></dt><dd><span>" + ligne1 + "</span>";
+            }
             if (StringUtils.isNotBlank(ligne2)) {
                 ret += "<br/><span>" + ligne2 + "</span>";
             }

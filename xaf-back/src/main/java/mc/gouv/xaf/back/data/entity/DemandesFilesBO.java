@@ -52,6 +52,9 @@ public class DemandesFilesBO {
     @Column(name = "DATE", nullable = true)
     private Date date;
 
+    @Column(name = "TYPEDOC", length = 128)
+    private String typedoc;
+
     public Integer getPkDemandesFiles() {
         return pkDemandesFiles;
     }
@@ -100,4 +103,11 @@ public class DemandesFilesBO {
 		this.date = date;
 	}
 
+    public String getTypedoc() {
+        return typedoc;
+    }
+
+    public void setTypedoc(String typedoc) {
+        this.typedoc = typedoc;
+    }
 }

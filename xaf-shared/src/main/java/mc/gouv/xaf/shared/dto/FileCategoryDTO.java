@@ -5,8 +5,10 @@ import java.util.List;
 public class FileCategoryDTO {
 
 	private String name;
-	
+
 	private List<DemandeFileDTO> files;
+
+	private boolean typedoc;
 
 	public String getName() {
 		return name;
@@ -23,5 +25,12 @@ public class FileCategoryDTO {
 	public void setFiles(List<DemandeFileDTO> files) {
 		this.files = files;
 	}
-	
+
+	public boolean isTypedoc() {
+		return typedoc;
+	}
+
+	public void setTypedoc(boolean typedoc) {
+		this.typedoc = typedoc;
+	}
 }

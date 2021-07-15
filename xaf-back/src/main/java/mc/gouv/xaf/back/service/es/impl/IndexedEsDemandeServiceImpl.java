@@ -33,7 +33,6 @@ import mc.gouv.xaf.shared.dto.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.search.join.ScoreMode;
-import org.apache.tika.exception.TikaException;
 import org.apache.tika.exception.ZeroByteFileException;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequest;
@@ -462,8 +461,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      */
     private void fillFilesList(List<DemandeFileEsDTO> files, DemandeBO demande) throws IOException {
 
-        List<DemandeFileDTO> demFiles = DemandesFilesTransformer
-                .bo2Dto(new ArrayList<>(demande.getFiles()));
+        List<DemandeFileDTO> demFiles = DemandesFilesTransformer.bo2Dto(new ArrayList<>(demande.getFiles()));
 
         demFiles.addAll(recupererCourriersDemandeFromBO(demande.getCourriers()));
 
@@ -472,9 +470,8 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
         if (demComplements != null) {
             for (DemandesComplementsBO demComplement : demComplements) {
-                List<DemandeFileDTO> cfiles = DemandesComplementsFilesTransformer
-                        .toDemandeFileDTO(demComplement.getFiles());
-                if (cfiles != null && !cfiles.isEmpty()) {
+                List<DemandeFileDTO> cfiles = DemandesComplementsFilesTransformer.toDemandeFileDTO(demComplement.getFiles());
+                if (!cfiles.isEmpty()) {
                     files.addAll(getFileEsContent(demandeDTO, DemandeFileEsDTO.TYPE.COMPLEMENT, cfiles));
                 }
             }
@@ -506,7 +503,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                 if (demComplement.getReponse() != null && demComplement.getReponse().getFichiers() != null) {
                     List<DemandeFileDTO> cfiles = DemandesComplementsFilesTransformer
                             .toDemandeFileDTO(Arrays.asList(demComplement.getReponse().getFichiers()));
-                    if (cfiles != null && !cfiles.isEmpty()) {
+                    if (!cfiles.isEmpty()) {
                         files.addAll(getFileEsContent(demande, DemandeFileEsDTO.TYPE.COMPLEMENT, cfiles));
                     }
                 }
@@ -535,8 +532,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      * @return list des fichiers à ajouter
      */
     private List<DemandeFileDTO> recupererCourriersDemandeFromBO(Set<DemandesCourriersBO> courriers) {
-        return recupererCourriersDemandeFromDTO(DemandesCourriersTransformer
-                .bo2Dto(new ArrayList<>(courriers)));
+        return recupererCourriersDemandeFromDTO(DemandesCourriersTransformer.bo2Dto(new ArrayList<>(courriers)));
     }
 
     /**
@@ -772,8 +768,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     }
 
     @Override
-    public void indexElement(DemandeFileDTO demandeFileDTO, DemandeDTO demandeDTO)
-            throws IOException {
+    public void indexElement(DemandeFileDTO demandeFileDTO, DemandeDTO demandeDTO) throws IOException {
 
         if (demandeFileDTO != null) {
 
@@ -886,6 +881,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             demandeFileEsDTO.getFichiers().setType(type.name());
             demandeFileEsDTO.getFichiers().setPkDemande(demande.getPkDemandes());
             demandeFileEsDTO.getFichiers().setIdentifiantDemande(demande.getIdentifiant());
+            demandeFileEsDTO.getFichiers().setTypedoc(fichier.getTypedoc());
 
             if (is != null) {
                 String fileText = "";
@@ -974,7 +970,6 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      * @return La page des demandes indexées
      */
     private Page<DemandeEsDTO> indexDemandes(Page<DemandeEsDTO> demandeEsDTOs) {
-
         if (demandeEsDTOs != null) {
             List<IndexQuery> indexList = new ArrayList<>();
             for (DemandeEsDTO dem : demandeEsDTOs) {
@@ -982,9 +977,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                 index.setId(dem.getIdentifiant());
                 index.setObject(dem);
                 indexList.add(index);
-
             }
-
             elasticsearchTemplate.bulkIndex(indexList);
         }
         return demandeEsDTOs;
@@ -2033,4 +2026,18 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
         return elasticsearchTemplate.queryForList(searchQuery, DemandeEsDTO.class);
     }
+
+    public DemandeDTO changerAffectationDemande(String demarcheId, int pkDemande, String agentAffecteId) {
+        DemandeDTO demandeDTO = super.changerAffectationDemande(demarcheId, pkDemande, agentAffecteId);
+        try {
+            indexDemande(demandeDTO);
+        } catch (Exception e) {
+            LOGGER.error("Erreur d'indexation lors de l'update de la demande.");
+            EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("IndexedEsDemandeServiceImpl - méthode changerAffectationDemande()", demandeDTO, e);
+            applicationEventPublisher.publishEvent(esErrorEventDTO);
+            throw new AfIndexingException(e.getMessage(), e);
+        }
+        return demandeDTO;
+    }
+
 }

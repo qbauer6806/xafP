@@ -34,7 +34,6 @@ public class DemarchesUtils {
     @Value("${application.name}")
     private String applicationName;
 
-    public static final String FILE_METADATA_DEMANDEID = "X-MC-DEMANDEID";
     public static final String METADATA_HTTPMETHODOVERRIDE = "X-HTTP-Method-Override";
     public static final int USAGERID_OFFSET = 1000000000;
     public static final String FRONT_FILE_PREFIX = "FRONT_";
@@ -139,7 +138,7 @@ public class DemarchesUtils {
      * @return
      */
     public static DemandeFileDTO[] filterFiles(DemandeFileDTO[] files) {
-    	List<DemandeFileDTO> newFiles = new ArrayList<DemandeFileDTO>();
+    	List<DemandeFileDTO> newFiles = new ArrayList<>();
     	for (DemandeFileDTO file : files) {
     		if (StringUtils.isBlank(file.getMeta()) || file.getMeta().startsWith(FRONT_FILE_PREFIX) || file.getMeta().startsWith(BACK_FRONT_FILE_PREFIX)) {
     			newFiles.add(file);

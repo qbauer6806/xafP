@@ -54,6 +54,15 @@ public interface DemandesService {
     List<DemandeDTO> getDemandes(String demarcheId, Integer usagerId);
 
     /**
+     * Permet de récupérer les demandes correspondant aux DemarcheID et UsagerID avec un accès inactif
+     *
+     * @param demarcheId
+     * @param usagerId
+     * @return
+     */
+    List<DemandeDTO> getDemandes(String demarcheId, Integer usagerId, boolean active);
+
+    /**
      * Méthode permettant de récupérer les demandes
      *
      * @param demandeRecherche Paramètres de la recherche
@@ -152,6 +161,15 @@ public interface DemandesService {
     DemandeDTO cloneDemande(String demarcheId, Integer pkDemande);
 
     DemandeDTO getDemande(String demarcheId, Integer pkDemande, Integer usagerId);
+    
+    /**
+     * Permet de retrouver une demande à partir de son identifiant
+     * 
+     * @param demarcheId : l'id de la demarche du TS qui appel cette méthode
+     * @param identifiant : {@link DemandeDTO#getIdentifiant()} de la demande
+     * @return la {@link DemandeDTO} recherchée
+     */
+    DemandeDTO getDemande(String identifiant);
 
     List<DemandeDTO> getDemandes(DemandeRechercheDTO demandeRecherche);
 
@@ -165,6 +183,8 @@ public interface DemandesService {
      * @return
      */
     boolean isAccesDesactive(String demarcheId, Integer pkDemande);
+
+    DemandeDTO changerAffectationDemande(String demarcheId, int pkDemande, String agentAffecteId);
 
     DemandeBO getDemandeBo(String demarcheId, Integer pkDemandes);
 

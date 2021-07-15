@@ -35,6 +35,7 @@ public enum EsType {
         }
         switch (RecapChampType.getFromType(type)) {
             case CHAINE:
+            case TABLEAU:
             case CHOIX:
             case ADRESSE:
             case ADRESSE_MC:

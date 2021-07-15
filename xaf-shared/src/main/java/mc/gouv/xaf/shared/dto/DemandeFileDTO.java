@@ -1,62 +1,66 @@
 package mc.gouv.xaf.shared.dto;
 
-import java.util.Date;
-
 import javax.validation.constraints.NotNull;
+import java.util.Date;
 
 /**
  * Modélise un fichier lié à une demande
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 public class DemandeFileDTO {
 
-    protected Integer pkDemandesFiles;
+	protected Integer pkDemandesFiles;
+	@NotNull
+	protected String name;
+	@NotNull
+	protected String url;
+	protected String meta;
+	protected Date date;
+	protected String identifiant;
+	protected String typedoc;
+	private Integer pkDemandesComplementsFiles;
+	private boolean compFile;
 
-    @NotNull
-    protected String name;
+	public Integer getPkDemandesFiles() {
+		return pkDemandesFiles;
+	}
 
-    @NotNull
-    protected String url;
+	public void setPkDemandesFiles(Integer pkDemandesFiles) {
+		this.pkDemandesFiles = pkDemandesFiles;
+	}
 
-    protected String meta;
-    
-    protected Date date;
+	public Integer getPkDemandesComplementsFiles() {
+		return pkDemandesComplementsFiles;
+	}
 
-    protected String identifiant;
+	public void setPkDemandesComplementsFiles(Integer pkDemandesComplementsFiles) {
+		this.pkDemandesComplementsFiles = pkDemandesComplementsFiles;
+	}
 
-    public Integer getPkDemandesFiles() {
-        return pkDemandesFiles;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public void setPkDemandesFiles(Integer pkDemandesFiles) {
-        this.pkDemandesFiles = pkDemandesFiles;
-    }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    public String getName() {
-        return name;
-    }
+	public String getUrl() {
+		return url;
+	}
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	public void setUrl(String url) {
+		this.url = url;
+	}
 
-    public String getUrl() {
-        return url;
-    }
+	public String getMeta() {
+		return meta;
+	}
 
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public String getMeta() {
-        return meta;
-    }
-
-    public void setMeta(String meta) {
-        this.meta = meta;
-    }
+	public void setMeta(String meta) {
+		this.meta = meta;
+	}
 
 	public Date getDate() {
 		return date;
@@ -66,11 +70,27 @@ public class DemandeFileDTO {
 		this.date = date;
 	}
 
-    public String getIdentifiant() {
-        return identifiant;
-    }
+	public String getIdentifiant() {
+		return identifiant;
+	}
 
-    public void setIdentifiant(String identifiant) {
-        this.identifiant = identifiant;
-    }
+	public void setIdentifiant(String identifiant) {
+		this.identifiant = identifiant;
+	}
+
+	public String getTypedoc() {
+		return typedoc;
+	}
+
+	public void setTypedoc(String typedoc) {
+		this.typedoc = typedoc;
+	}
+
+	public boolean isCompFile() {
+		return compFile;
+	}
+
+	public void setCompFile(boolean compFile) {
+		this.compFile = compFile;
+	}
 }

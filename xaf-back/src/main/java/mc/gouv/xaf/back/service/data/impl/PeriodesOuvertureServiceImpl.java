@@ -11,6 +11,8 @@ import mc.gouv.xaf.shared.dto.PeriodeOuvertureDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,6 +47,17 @@ public class PeriodesOuvertureServiceImpl implements PeriodesOuvertureService {
         LOGGER.info("Transformation bo -> dto ...");
 
         return PeriodeOuvertureTransformer.bo2Dto(periodesOuvertureBos);
+    }
+
+    @Override
+    public Page<PeriodeOuvertureDTO> getPeriodesOuverturePageable(String demarcheId, Pageable pageable) {
+        LOGGER.info("Récupération en base des périodes d'ouverture...");
+
+        Page<PeriodesOuvertureBO> periodesOuvertureBos = periodesOuvertureRepository.findByDemarchePkDemarches(demarcheId, pageable);
+
+        LOGGER.info("Transformation bo -> dto ...");
+
+        return periodesOuvertureBos.map(PeriodeOuvertureTransformer::bo2Dto);
     }
 
     @Override

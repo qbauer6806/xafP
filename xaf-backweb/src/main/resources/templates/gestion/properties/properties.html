@@ -61,7 +61,10 @@
                 </div>
 
                 <div th:if="${AfBackUtils.getDemarcheCanHandleProperties()}" class="col-xs-12 tableContent">
-                    <div class="tableTitle">Liste des propriétés</div>
+                    <div class="tableTitle">
+                        Liste des propriétés
+                        <span class="badge" id="propertiesTableCounter">0</span>
+                    </div>
                     <table id="datatable-properties" class="table table-striped" style="width: 100%">
                         <thead>
                         <tr>
@@ -179,7 +182,7 @@
     /*<![CDATA[*/
     $(document).ready(function () {
         var properties = /*[[${properties}]]*/'default';
-        var test = $('#datatable-properties').DataTable({
+        $('#datatable-properties').DataTable({
             paging: false,
             searching: false,
             select: false,
@@ -188,6 +191,7 @@
             data: properties,
             language: frenchTranslation
         });
+        $("#propertiesTableCounter").text(properties.length);
 
         autosize($("#propertiesValue"));
 

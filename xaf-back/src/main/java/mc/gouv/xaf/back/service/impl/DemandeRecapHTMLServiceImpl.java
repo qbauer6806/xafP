@@ -1,16 +1,16 @@
 package mc.gouv.xaf.back.service.impl;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.lang.reflect.InvocationTargetException;
-import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.Map;
-
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.*;
+import mc.gouv.logon.apiclient.RestException;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.DemandeRecapHTMLService;
+import mc.gouv.xaf.back.service.data.PropertiesService;
+import mc.gouv.xaf.back.service.itg.rest.PaysCache;
+import mc.gouv.xaf.back.service.motifs.MotifsCache;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.back.service.utils.UtilisateursUtils;
+import mc.gouv.xaf.shared.dto.*;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONArray;
@@ -24,27 +24,14 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.HtmlUtils;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.MissingNode;
-import com.fasterxml.jackson.databind.node.NullNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
-
-import mc.gouv.logon.apiclient.RestException;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.DemandeRecapHTMLService;
-import mc.gouv.xaf.back.service.data.PropertiesService;
-import mc.gouv.xaf.back.service.itg.rest.PaysCache;
-import mc.gouv.xaf.back.service.motifs.MotifsCache;
-import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import mc.gouv.xaf.back.service.utils.UtilisateursUtils;
-import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
-import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
-import mc.gouv.xaf.shared.dto.DemandeComplementsQuestionDTO;
-import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.xaf.shared.dto.PropertiesDTO;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 /**
  * Service permettant de générer une page HTML contenant le récapitulatif d'une
@@ -296,7 +283,8 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
                     html.append("<tr>");
                     for (Object column : columns.toArray()) {
                         String value = getSecondLevelHTML(valeur, (JSONObject) column, pojo, isPdfRecap);
-                        html.append("<td>").append(value).append("</td>");
+                        String result = StringUtils.isNoneBlank(value) ? value : "";
+                        html.append("<td>").append(result).append("</td>");
                     }
                     html.append("</tr>");
                 }
@@ -344,15 +332,17 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
             	String key = mapping.substring(11, mapping.length()) + "_FR";
             	PropertiesDTO prop = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), key);
             	if (prop != null) {
-            		Map<String, String> map = AfBackUtils.getListFromDemProperty(prop.getValue());
-	            	if (map != null) {
-	            		return map.get(pathNode.asText());
-	            	} else {
-	            		LOGGER.warn("Impossible de transformer la valeur de la dem_property (key=" + key + ") en map");
-	            		return "ERREUR";
-	            	}
-            	} else {
-            		LOGGER.warn("Impossible de récupérer la dem_property requise par le fichier récap (key=" + key + ")");
+                    PropertiesListEntityDTO[] entreprises = AfBackUtils.parserPropertiesListJson(prop.getValue());
+                    if (null == entreprises || entreprises.length == 0) {
+                        LOGGER.warn("Impossible de transformer la valeur de la dem_property (key={}) en map", key);
+                        return "ERREUR";
+                    }
+                    Optional<PropertiesListEntityDTO> matchingObject = Arrays.stream(entreprises).
+                            filter(e -> e.getId().equals(pathNode.asText())).
+                            findFirst();
+                    return matchingObject.map(PropertiesListEntityDTO::getLabel).orElse(null);
+                } else {
+            		LOGGER.warn("Impossible de récupérer la dem_property requise par le fichier récap (key={})", key);
             		return "ERREUR";
             	}
             } else {

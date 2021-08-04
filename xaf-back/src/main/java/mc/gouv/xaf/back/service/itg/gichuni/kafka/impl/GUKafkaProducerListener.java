@@ -1,5 +1,6 @@
 package mc.gouv.xaf.back.service.itg.gichuni.kafka.impl;
 
+import java.util.Date;
 import java.util.Iterator;
 
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -59,6 +60,9 @@ public class GUKafkaProducerListener implements ProducerListener<String, String>
 			KafkaOutboxDTO dto = kafkaOutboxService.getOutboxElement(pkKafkaOutbox);
 			dto.setStatut(KafkaOutboxSchedulingConfig.KAFKA_OUTBOX_STATUT_ECHEC);
 			dto.setNbFailedAttempts(dto.getNbFailedAttempts()+1);
+			if (dto.getDateLastAttempt() == null) {
+				dto.setDateLastAttempt(new Date());
+			}
 			kafkaOutboxService.updateOutboxElement(dto);
 		}
 	}

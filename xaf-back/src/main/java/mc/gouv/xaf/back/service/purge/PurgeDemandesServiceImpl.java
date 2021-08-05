@@ -1,22 +1,15 @@
 package mc.gouv.xaf.back.service.purge;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
-import mc.gouv.servicerest.usager.model.UsagerBean;
-import mc.gouv.xaf.back.data.dao.StatistiquesRepository;
-import mc.gouv.xaf.back.data.entity.StatistiqueBO;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.DemarchesDataProvider;
-import mc.gouv.xaf.back.service.data.DemandesService;
-import mc.gouv.xaf.back.service.data.PropertiesService;
-import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
-import mc.gouv.xaf.back.service.itg.mail.MailService;
-import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
-import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.xaf.shared.dto.PropertiesDTO;
-import mc.gouv.xaf.shared.dto.PurgeDemandeDTO;
-import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,10 +17,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
+import mc.gouv.servicerest.usager.model.UsagerBean;
+import mc.gouv.xaf.back.data.dao.StatistiquesRepository;
+import mc.gouv.xaf.back.data.entity.StatistiqueBO;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.DemarchesDataProvider;
+import mc.gouv.xaf.back.service.data.DemandesCourriersService;
+import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.back.service.data.PropertiesService;
+import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
+import mc.gouv.xaf.back.service.itg.mail.MailService;
+import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.PropertiesDTO;
+import mc.gouv.xaf.shared.dto.PurgeDemandeDTO;
 
 @Service
 @EnableScheduling
@@ -41,6 +46,9 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 
 	@Autowired
 	private DemandesService demandesService;
+	
+	@Autowired
+	private DemandesCourriersService demandesCourriersService;
 
 	@Autowired
 	private GouvPropertiesResolver gouvPropertiesResolver;
@@ -63,7 +71,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
     @Autowired
     private UsagersCache usagerCache;
 
-	public void purgerDemandesDansStatuts(List<String> statuts, int jours) throws JsonProcessingException {
+	public void purgerDemandesDansStatuts(List<String> statuts, int jours) throws Exception {
 		String demarcheId = gouvPropertiesResolver.getDemarcheId();
 		String demandesAPurger = "";
 		int demandesSuppr = 0;
@@ -76,8 +84,13 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 			long diff = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
 
 			if (statuts.contains(demandeDTO.getDernierStatut().getLibelle()) && diff >= jours) {
-				// Suppression de la demande
-				demandesService.deleteDemande(demarcheId, demandeDTO.getPkDemandes());
+				// Si la demande est une demande courrier ou gichet on supprime d'abord les courriers associés à cette demande
+				if(!demandeDTO.getCanal().equals(DemandeCanalEnum.GUICHET_VIRTUEL)) {
+					// Suppression des courriers de la demande
+					demandesCourriersService.deleteCourriers(demarcheId, demandeDTO.getPkDemandes());
+				}
+				// Ensuite on supprime la demande elle même
+				demandesService.deleteDemandeInGivenStatus(demarcheId, demandeDTO.getPkDemandes(), statuts, jours);
 				demandesSuppr++;
 
 			} else if(statuts.contains(demandeDTO.getDernierStatut().getLibelle()) && diff == jours - Long.parseLong(delaiEnvoiEmailProp.getValue())) {

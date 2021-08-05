@@ -20,6 +20,14 @@ public interface DemandesCourriersService {
     public List<DemandeCourrierDTO> getCourriers(String demarcheId, Integer pkDemande);
 
     public List<DemandeCourrierDTO> getCourriersPourDemarche(String demarcheId);
+    
+    /**
+     * Supprime tous les courriers de la demande donnée en paramètre (dans le BO est dans file)
+     * 
+     * @param demarcheId : ID de la démarche concernée
+     * @param pkDemande : ID de la demande dont il faut supprimer les courriers 
+     */
+    public void deleteCourriers(String demarcheId, Integer pkDemande) throws Exception;
 
     public DemandeCourrierDTO updateCourrier(String demarcheId, Integer pkDemande, DemandeCourrierDTO courrierDto)
             throws Exception;

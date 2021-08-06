@@ -2,13 +2,9 @@ package mc.gouv.xaf.back.data.transformer;
 
 import mc.gouv.xaf.back.data.entity.StatistiqueBO;
 import mc.gouv.xaf.shared.dto.StatistiqueDTO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class StatistiqueTransformer {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(StatistiqueTransformer.class);
-    
     private StatistiqueTransformer() {
     }
     

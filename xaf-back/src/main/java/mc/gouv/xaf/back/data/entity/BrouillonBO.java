@@ -1,0 +1,116 @@
+package mc.gouv.xaf.back.data.entity;
+
+import java.util.Date;
+import java.util.Set;
+
+import javax.persistence.*;
+import javax.validation.constraints.Size;
+
+import org.hibernate.validator.constraints.NotBlank;
+
+/**
+ * 
+ * Classe BO de la table DEM.BROUILLONS
+ * 
+ * @author qdeme
+ *
+ */
+@Entity
+@Table(name = "DEM_BROUILLONS")
+public class BrouillonBO {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "PK_BROUILLONS", nullable = false)
+    private Integer pkBrouillons;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "FK_ACCESS")
+    private AccessBO fkAccess;
+
+    @Column(name = "DATE_CREATION", nullable = false)
+    private Date dateCreation;
+
+    @Column(name = "DATE_DERMODIF", nullable = false)
+    private Date dateDerModif;
+
+    @Column(name = "CONTENU", columnDefinition = "TEXT", nullable = false)
+    @NotBlank
+    private String contenu;
+    
+    @OneToMany(mappedBy = "fkBrouillons", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<BrouillonsFilesBO> files;
+    
+    @Column(name = "BUILD_ID", length = 32, nullable = true)
+    @Size(min = 0, max = 32)
+    private String buildId;
+    
+    @Column(name = "RECAP_TYPE", length = 256, nullable = true)
+    @Size(min = 0, max = 256)
+    private String recapType;
+
+	public Integer getPkBrouillons() {
+		return pkBrouillons;
+	}
+
+	public void setPkBrouillons(Integer pkBrouillons) {
+		this.pkBrouillons = pkBrouillons;
+	}
+
+	public AccessBO getFkAccess() {
+		return fkAccess;
+	}
+
+	public void setFkAccess(AccessBO fkAccess) {
+		this.fkAccess = fkAccess;
+	}
+
+	public Date getDateCreation() {
+		return dateCreation;
+	}
+
+	public void setDateCreation(Date dateCreation) {
+		this.dateCreation = dateCreation;
+	}
+
+	public Date getDateDerModif() {
+		return dateDerModif;
+	}
+
+	public void setDateDerModif(Date dateDerModif) {
+		this.dateDerModif = dateDerModif;
+	}
+
+	public String getContenu() {
+		return contenu;
+	}
+
+	public void setContenu(String contenu) {
+		this.contenu = contenu;
+	}
+
+	public Set<BrouillonsFilesBO> getFiles() {
+		return files;
+	}
+
+	public void setFiles(Set<BrouillonsFilesBO> files) {
+		this.files = files;
+	}
+
+	public String getBuildId() {
+		return buildId;
+	}
+
+	public void setBuildId(String buildId) {
+		this.buildId = buildId;
+	}
+
+	public String getRecapType() {
+		return recapType;
+	}
+
+	public void setRecapType(String recapType) {
+		this.recapType = recapType;
+	}
+
+}

@@ -56,6 +56,9 @@ public class AccessBO {
 
     @OneToMany(mappedBy = "fkAccess", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<DemandeBO> demandes;
+    
+    @OneToMany(mappedBy = "fkAccess", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<BrouillonBO> brouillons;
 
     public Integer getPkAccess() {
         return pkAccess;
@@ -113,7 +116,15 @@ public class AccessBO {
         this.demandes = demandes;
     }
 
-    public boolean isActive() {
+    public Set<BrouillonBO> getBrouillons() {
+		return brouillons;
+	}
+
+	public void setBrouillons(Set<BrouillonBO> brouillons) {
+		this.brouillons = brouillons;
+	}
+
+	public boolean isActive() {
         return active;
     }
 

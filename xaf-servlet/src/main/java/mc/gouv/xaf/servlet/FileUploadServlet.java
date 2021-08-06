@@ -38,6 +38,13 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * 
+ * Servlet servant à uploader un fichier dans FILE.
+ * 
+ * @author qdeme
+ *
+ */
 @MultipartConfig
 public class FileUploadServlet extends AbstractAfServlet {
 

@@ -65,5 +65,17 @@ public interface AfApiController {
     ResponseEntity deleteCustomRequest(HttpServletRequest request);
 
     List<PropertiesDTO> getFrontProperties();
+    
+    BrouillonDTO creerBrouillon(BrouillonDTO brouillon, Integer usagerId);
+    
+    BrouillonDTO updateBrouillon(BrouillonDTO brouillon);
+    
+    List<BrouillonDTO> getBrouillons(Integer usagerId);
+    
+    Page<BrouillonDTO> getBrouillonsPageable(Integer usagerId, PageParamDTO paramDTO);
+    
+    BrouillonDTO getBrouillon(Integer pkBrouillons);
+    
+    void deleteBrouillon(Integer pkBrouillons) throws JsonProcessingException;
 
 }

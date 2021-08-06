@@ -192,5 +192,23 @@
         <servlet-name>DateServlet</servlet-name>
         <url-pattern>/date</url-pattern>
     </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>BrouillonsServlet</servlet-name>
+        <servlet-class>mc.gouv.xaf.servlet.BrouillonsServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>BrouillonsServlet</servlet-name>
+        <url-pattern>/brouillons/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>BrouillonsPageableServlet</servlet-name>
+        <servlet-class>mc.gouv.xaf.servlet.BrouillonsPageableServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>BrouillonsPageableServlet</servlet-name>
+        <url-pattern>/brouillonspage/*</url-pattern>
+    </servlet-mapping>
 
 </web-app>

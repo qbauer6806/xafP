@@ -1,24 +1,15 @@
 package mc.gouv.xaf.shared.dto;
 
-import java.util.Objects;
-
 /**
  * Contient le nom et le libellé d'un statut public (DEM) ou interne (démarche)
  *
  * @author qdeme
  */
 public class StatutPublicOuInterneDTO {
-
+    
     private String name;
 
     private String libelle;
-
-    public StatutPublicOuInterneDTO() {}
-
-    public StatutPublicOuInterneDTO(String name, String libelle) {
-        this.name = name;
-        this.libelle = libelle;
-    }
 
     public String getName() {
         return name;
@@ -41,20 +32,4 @@ public class StatutPublicOuInterneDTO {
         return libelle;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (o == null) {
-            return false;
-        }
-        if (o.getClass() != this.getClass()) {
-            return false;
-        }
-        final StatutPublicOuInterneDTO other = (StatutPublicOuInterneDTO) o;
-        return Objects.equals(name, other.name) && Objects.equals(libelle, other.libelle);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(name, libelle);
-    }
 }

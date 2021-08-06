@@ -42,6 +42,7 @@ public class BrouillonsTransformer {
         dto.setDateCreation(bo.getDateCreation());
         dto.setDateDerModif(bo.getDateDerModif());
         dto.setPkBrouillons(bo.getPkBrouillons());
+        dto.setUsagerId(bo.getFkAccess().getUsagerId());
         // Mapper les fichiers
         if (bo.getFiles() != null && bo.getFiles().size() > 0) {
             dto.setFichiers(BrouillonsFilesTransformer.bo2Dto(new ArrayList<BrouillonsFilesBO>(bo.getFiles()))

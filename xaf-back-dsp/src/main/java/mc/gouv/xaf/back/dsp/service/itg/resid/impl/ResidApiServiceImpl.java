@@ -225,7 +225,8 @@ public class ResidApiServiceImpl implements ResidApiService {
 		LOGGER.info("Ajout des fichiers");
 
 		for(Map.Entry<Integer, DemandeFileDTO> entry : files.entrySet()) {
-			InputStream isf = fileService.getFile(entry.getValue().getUrl(), gouvPropertiesResolver.getContainerId());
+			String filePathEncoded = URLEncoder.encode(entry.getValue().getUrl(), "UTF-8");
+			InputStream isf = fileService.getFile(filePathEncoded, gouvPropertiesResolver.getContainerId());
 
 			HttpHeaders requestHeadersAttachment = new HttpHeaders();
 			ByteArrayResource fileAsResource = new ByteArrayResource(IOUtils.toByteArray(isf)){

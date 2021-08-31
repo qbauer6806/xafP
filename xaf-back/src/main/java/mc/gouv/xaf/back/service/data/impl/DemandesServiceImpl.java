@@ -49,7 +49,7 @@ import org.xml.sax.SAXException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import ch.qos.logback.core.status.Status;
+import fr.opensagres.xdocreport.template.velocity.internal.Foreach;
 import mc.gouv.xaf.back.data.dao.AccessRepository;
 import mc.gouv.xaf.back.data.dao.DemandesComplementsFilesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesComplementsRepository;
@@ -58,6 +58,7 @@ import mc.gouv.xaf.back.data.dao.DemandesFilesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesHistoriqueRepository;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesStatutsRepository;
+import mc.gouv.xaf.back.data.dao.StatistiquesRepository;
 import mc.gouv.xaf.back.data.entity.AccessBO;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandesComplementsBO;
@@ -66,6 +67,7 @@ import mc.gouv.xaf.back.data.entity.DemandesDataBO;
 import mc.gouv.xaf.back.data.entity.DemandesFilesBO;
 import mc.gouv.xaf.back.data.entity.DemandesHistoriqueBO;
 import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
+import mc.gouv.xaf.back.data.entity.StatistiqueBO;
 import mc.gouv.xaf.back.data.transformer.DemandesComplementsFilesTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesComplementsTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesDataTransformer;
@@ -144,12 +146,17 @@ public class DemandesServiceImpl implements DemandesService {
 
 	@Autowired
 	private StatistiquesService statistiquesService;
+	
+	@Autowired
+	private StatistiquesRepository statistiquesRepository;
 
 	private DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
 
 	private SecureRandom random = new SecureRandom();
 
 	public static final String DATE_PATTERN = "dd/MM/yyyy";
+	
+	public static final String SUPPRIMEE_STATUT = "SUPPRIMEE";
 
 	@Autowired
 	private EntityManager em;
@@ -552,7 +559,7 @@ public class DemandesServiceImpl implements DemandesService {
 		}
 
 		if (!demandeBoOp.isPresent() || !demandeBoOp.get().getFkAccess().getDemarcheId().equals(demarcheId)) {
-			throw new DemarchesServiceException("Demande introuvable", HttpStatus.NOT_FOUND);
+			throw new DemarchesServiceException("Demande introuvable ou supprimée", HttpStatus.NOT_FOUND);
 		}
 
 		return demandeBoOp.get();
@@ -839,8 +846,7 @@ public class DemandesServiceImpl implements DemandesService {
 				DemandeDTO concernedDemandeDTO = DemandesTransformer.bo2Dto(concernedDemandeBO);
 				long diffInMillies = Math.abs(new Date().getTime() - concernedDemandeDTO.getDernierStatut().getDate().getTime());
 				long diff = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
-				//if(!statuts.contains(concernedDemandeDTO.getDernierStatut().getLibelle()) || diff < jours) {
-				if (!statuts.contains(concernedDemandeDTO.getDernierStatut().getLibelle())) {
+				if(!statuts.contains(concernedDemandeDTO.getDernierStatut().getLibelle()) || diff < jours) {
 					return false;
 				}
 			}

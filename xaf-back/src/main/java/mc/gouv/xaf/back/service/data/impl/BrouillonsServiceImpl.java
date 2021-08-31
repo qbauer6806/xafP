@@ -212,7 +212,16 @@ public class BrouillonsServiceImpl implements BrouillonsService {
             brouillonsFilesRepository.delete(bo);
         }
         brouillonBo.getFiles().clear();
-        // Mise à jour des pièces jointes
+        
+        // Mise à jour des dates des pièces jointes
+        if (brouillon.getFichiers() != null) {
+            for (BrouillonFileDTO file : brouillon.getFichiers()) {
+            	if (file.getDate() == null) {
+            		file.setDate(new Date());
+            	}
+            }
+        }
+        
         if (brouillon.getFichiers() != null && brouillon.getFichiers().length > 0) {
             // Ajouter la nouvelle image
             brouillonBo.setFiles(new HashSet<BrouillonsFilesBO>(

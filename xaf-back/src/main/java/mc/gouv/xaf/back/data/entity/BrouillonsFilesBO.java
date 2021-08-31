@@ -45,6 +45,10 @@ public class BrouillonsFilesBO {
     @Size(min = 1, max = 1024)
     private String url;
     
+    @Column(name = "meta", length = 512, nullable = true)
+    @Size(min = 0, max = 512)
+    private String meta;
+    
     @Column(name = "DATE", nullable = true)
     private Date date;
 
@@ -78,6 +82,14 @@ public class BrouillonsFilesBO {
 
 	public void setUrl(String url) {
 		this.url = url;
+	}
+
+	public String getMeta() {
+		return meta;
+	}
+
+	public void setMeta(String meta) {
+		this.meta = meta;
 	}
 
 	public Date getDate() {

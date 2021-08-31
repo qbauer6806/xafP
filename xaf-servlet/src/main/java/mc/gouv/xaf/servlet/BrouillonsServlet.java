@@ -84,13 +84,14 @@ public class BrouillonsServlet extends AbstractAfServlet {
             BrouillonDTO brouillonDto = null;
             if (HttpMethod.POST.equals(httpMethod)) {
             	brouillonDto = afApiClient.creerBrouillon(brouillonInput, usagerId);
+            	response.setStatus(HttpStatus.SC_CREATED);
             }
             else {
             	brouillonDto = afApiClient.updateBrouillon(brouillonInput, Integer.parseInt(brouillonId));
+            	response.setStatus(HttpStatus.SC_OK);
             }
 
             // TODO : gestion des erreurs
-            response.setStatus(HttpStatus.SC_CREATED);
             repJson = mapper.writeValueAsString(brouillonDto);
             IOUtils.copy(new ByteArrayInputStream(repJson.getBytes()), response.getOutputStream());
 
@@ -169,7 +170,7 @@ public class BrouillonsServlet extends AbstractAfServlet {
         try {
             doHttpMethod(request, response, HttpMethod.DELETE);
         } catch (Exception e) {
-            LOGGER.error("BrouillonsServlet - Une erreur est survenue lors de l'appel à la méthode GET", e);
+            LOGGER.error("BrouillonsServlet - Une erreur est survenue lors de l'appel à la méthode DELETE", e);
             response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
         }
 

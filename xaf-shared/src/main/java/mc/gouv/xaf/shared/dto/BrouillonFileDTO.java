@@ -18,6 +18,8 @@ public class BrouillonFileDTO {
 	@NotNull
 	protected String url;
 	
+	protected String meta;
+	
 	protected Date date;
 
 	public Integer getPkBrouillonsFiles() {
@@ -42,6 +44,14 @@ public class BrouillonFileDTO {
 
 	public void setUrl(String url) {
 		this.url = url;
+	}
+
+	public String getMeta() {
+		return meta;
+	}
+
+	public void setMeta(String meta) {
+		this.meta = meta;
 	}
 
 	public Date getDate() {

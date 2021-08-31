@@ -21,6 +21,7 @@ public class BrouillonsFilesTransformer {
         dto.setPkBrouillonsFiles(bo.getPkBrouillonsFiles());
         dto.setName(bo.getName());
         dto.setUrl(bo.getUrl());
+        dto.setMeta(bo.getMeta());
         dto.setDate(bo.getDate());
         return dto;
     }
@@ -36,6 +37,7 @@ public class BrouillonsFilesTransformer {
         bo.setPkBrouillonsFiles(dto.getPkBrouillonsFiles());
         bo.setName(dto.getName());
         bo.setUrl(dto.getUrl());
+        bo.setMeta(dto.getMeta());
         bo.setDate(dto.getDate());
         return bo;
     }

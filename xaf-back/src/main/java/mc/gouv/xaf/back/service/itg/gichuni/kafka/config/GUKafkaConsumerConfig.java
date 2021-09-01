@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
@@ -22,6 +23,8 @@ import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer2;
 import org.springframework.util.backoff.BackOff;
 import org.springframework.util.backoff.FixedBackOff;
 
+import mc.gouv.xaf.back.config.ApiserverCondition;
+import mc.gouv.xaf.back.config.KafkaEnabledCondition;
 import mc.gouv.xaf.back.properties.DemPropertyNotFoundException;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.PropertiesService;
@@ -36,6 +39,7 @@ import mc.gouv.xaf.shared.dto.PropertiesDTO;
  */
 @EnableKafka
 @Configuration
+@Conditional(KafkaEnabledCondition.class)
 public class GUKafkaConsumerConfig {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(GUKafkaConsumerConfig.class);

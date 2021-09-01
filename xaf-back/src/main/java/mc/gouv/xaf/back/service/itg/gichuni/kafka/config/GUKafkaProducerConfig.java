@@ -7,6 +7,7 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
@@ -14,6 +15,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
 import org.springframework.scheduling.annotation.EnableAsync;
 
+import mc.gouv.xaf.back.config.KafkaEnabledCondition;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.impl.GUKafkaProducerListener;
 
@@ -27,6 +29,7 @@ import mc.gouv.xaf.back.service.itg.gichuni.kafka.impl.GUKafkaProducerListener;
 @EnableKafka
 @EnableAsync
 @Configuration
+@Conditional(KafkaEnabledCondition.class)
 public class GUKafkaProducerConfig {
 	
 	@Autowired

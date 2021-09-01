@@ -12,6 +12,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import mc.gouv.xaf.back.config.ApiserverCondition;
+import mc.gouv.xaf.back.config.KafkaEnabledCondition;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.GUGenericKafkaMessage;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.exception.GUKafkaException;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.utils.GUKafkaUtils;
@@ -24,7 +25,7 @@ import mc.gouv.xaf.back.service.itg.gichuni.kafka.utils.GUKafkaUtils;
  *
  */
 @Service
-@Conditional(ApiserverCondition.class)
+@Conditional({ ApiserverCondition.class, KafkaEnabledCondition.class })
 public class GUKafkaConsumer {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(GUKafkaConsumer.class);

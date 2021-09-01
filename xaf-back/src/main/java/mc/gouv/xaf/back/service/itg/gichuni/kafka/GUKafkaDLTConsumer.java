@@ -19,6 +19,7 @@ import org.springframework.messaging.handler.annotation.Headers;
 import org.springframework.stereotype.Service;
 
 import mc.gouv.xaf.back.config.BackserverCondition;
+import mc.gouv.xaf.back.config.KafkaEnabledCondition;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.utils.GUKafkaUtils;
 
@@ -33,7 +34,7 @@ import mc.gouv.xaf.back.service.itg.gichuni.kafka.utils.GUKafkaUtils;
  *
  */
 @Service
-@Conditional(BackserverCondition.class)
+@Conditional({ BackserverCondition.class, KafkaEnabledCondition.class })
 public class GUKafkaDLTConsumer {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(GUKafkaDLTConsumer.class);

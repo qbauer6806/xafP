@@ -11,8 +11,10 @@ import org.quartz.JobExecutionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.kafka.core.KafkaTemplate;
 
+import mc.gouv.xaf.back.config.KafkaEnabledCondition;
 import mc.gouv.xaf.back.config.KafkaOutboxSchedulingConfig;
 import mc.gouv.xaf.back.service.data.KafkaOutboxService;
 import mc.gouv.xaf.shared.dto.KafkaOutboxDTO;
@@ -25,6 +27,7 @@ import mc.gouv.xaf.shared.dto.KafkaOutboxDTO;
  *
  */
 @DisallowConcurrentExecution
+@Conditional(KafkaEnabledCondition.class)
 public class KafkaOutboxSchedulingJobImpl implements Job {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KafkaOutboxSchedulingJobImpl.class);

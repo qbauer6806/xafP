@@ -5,11 +5,13 @@ import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import mc.gouv.xaf.back.config.KafkaEnabledCondition;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.KafkaOutboxService;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
@@ -31,6 +33,7 @@ import mc.gouv.xaf.shared.dto.KafkaOutboxDTO;
  *
  */
 @Service
+@Conditional(KafkaEnabledCondition.class)
 public class GUKafkaProducerImpl implements GUKafkaProducer {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(GUKafkaProducer.class);
@@ -46,6 +49,7 @@ public class GUKafkaProducerImpl implements GUKafkaProducer {
 	
 	@Override
 	public void sendCreationDemandeMessage(Integer usagerId, Integer demandeId, String identifiant, Date dateCreation, RecapDemandesDTO recapDemandes) {
+		
 		LOGGER.info("sendCreationDemandeMessage - Placement du message à envoyer au Guichet Unique dans l'Outbox Kafka...");
 		CreationDemandeMessage cdm = new CreationDemandeMessage(gouvPropertiesResolver.getDemarcheId(), usagerId.toString(), demandeId, identifiant,
 				dateCreation, StatutSimplifieEnum.EN_COURS.name(), recapDemandes);

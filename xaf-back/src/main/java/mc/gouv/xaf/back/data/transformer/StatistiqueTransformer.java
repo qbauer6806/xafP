@@ -19,6 +19,7 @@ public class StatistiqueTransformer {
         dto.setDemandeId(bo.getDemandeId());
         dto.setDemarcheId(bo.getDemarcheId());
         dto.setStatutPublic(bo.getStatutPublic());
+        dto.setIdentifiantDemande(bo.getIdentifiantDemande());
         return dto;
     }
     
@@ -33,6 +34,7 @@ public class StatistiqueTransformer {
         bo.setDemandeId(dto.getDemandeId());
         bo.setDemarcheId(dto.getDemarcheId());
         bo.setStatutPublic(dto.getStatutPublic());
+        bo.setIdentifiantDemande(dto.getIdentifiantDemande());
 
         return bo;
     }

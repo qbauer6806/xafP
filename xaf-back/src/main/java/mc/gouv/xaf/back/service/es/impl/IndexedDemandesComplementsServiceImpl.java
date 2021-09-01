@@ -1,15 +1,15 @@
 package mc.gouv.xaf.back.service.es.impl;
 
 import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
+import mc.gouv.xaf.back.data.es.model.DemandeFileEsDTO;
 import mc.gouv.xaf.back.data.es.model.EsErrorEventDTO;
+import mc.gouv.xaf.back.data.transformer.DemandesComplementsFilesTransformer;
 import mc.gouv.xaf.back.exception.AfIndexingException;
 import mc.gouv.xaf.back.service.data.impl.DemandesComplementsServiceImpl;
 import mc.gouv.xaf.back.service.es.IndexedDemandeService;
 import mc.gouv.xaf.back.service.es.handlers.EsTransactionErrorsHandler;
-import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
-import mc.gouv.xaf.shared.dto.DemandeComplementsQuestionDTO;
-import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.back.service.es.transformer.DemandeFileEsTransformer;
+import mc.gouv.xaf.shared.dto.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +20,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @Service
 @Primary
@@ -34,6 +37,9 @@ public class IndexedDemandesComplementsServiceImpl extends DemandesComplementsSe
 
     @Autowired
     private ApplicationEventPublisher applicationEventPublisher;
+
+    @Autowired
+    private DemandeFileEsTransformer demandeFileEsTransformer;
 
     @Override
     @Transactional
@@ -68,7 +74,16 @@ public class IndexedDemandesComplementsServiceImpl extends DemandesComplementsSe
 
         // Indexation
         try {
-            indexedDemandeService.indexElement(demandeDTO, true);
+            List<DemandeFileEsDTO> files = new ArrayList<>();
+            DemandeComplementsFileDTO[] fichiers = demandeComplementsDTO.getReponse().getFichiers();
+            if (fichiers != null) {
+                List<DemandeFileDTO> cfiles = DemandesComplementsFilesTransformer.toDemandeFileDTO(Arrays.asList(fichiers));
+                if (!cfiles.isEmpty()) {
+                    files.addAll(demandeFileEsTransformer.getListFileEsContent(demandeDTO, DemandeFileEsDTO.TYPE.COMPLEMENT, cfiles));
+                    indexedDemandeService.indexFiles(files);
+                }
+            }
+            indexedDemandeService.indexElement(demandeDTO, false);
         } catch (Exception e) {
             LOGGER.error("Erreur lors de l'indexation du complément de la demande.");
             EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("IndexedDemandesComplementsServiceImpl - méthode repondreDemandeComplements()", demandeDTO, e);

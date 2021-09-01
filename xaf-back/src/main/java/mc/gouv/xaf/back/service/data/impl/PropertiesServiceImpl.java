@@ -1,16 +1,25 @@
 package mc.gouv.xaf.back.service.data.impl;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import mc.gouv.xaf.back.data.dao.DemarchesRepository;
 import mc.gouv.xaf.back.data.dao.PropertiesRepository;
@@ -22,6 +31,7 @@ import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
+import mc.gouv.xaf.shared.dto.PropertiesListEntityDTO;
 import mc.gouv.xaf.shared.dto.PropertiesTypeEnum;
 
 /**
@@ -104,10 +114,41 @@ public class PropertiesServiceImpl implements PropertiesService {
     @Override
     public List<PropertiesDTO> getFrontProperties() {
         List<PropertiesTypeEnum> types = Arrays.asList(FRONT_PROPERTIES);
-        return getPropertiesByTypeList(types);
+        List<PropertiesDTO> propertiesByTypeList = getPropertiesByTypeList(types);
+        //#28502 - [DEV] Gestion de l'édition des "properties" format JSON
+        // Je tri la value de toutes les propriétées prefixées par LISTE_
+        for (PropertiesDTO propertiesDTO : propertiesByTypeList) {
+			if (propertiesDTO.getKey().startsWith("LISTE_")) {
+				sortValueOfGivenProperty(propertiesDTO);
+			}
+		}
+		return propertiesByTypeList;
     }
 
-    @Override
+    private void sortValueOfGivenProperty(PropertiesDTO propertiesDTO) {
+    	List<PropertiesListEntityDTO> jsonObjectsToDisplay = new ArrayList<PropertiesListEntityDTO>();
+    	// Récupération du json représentant le fichier
+    	ObjectMapper mapper = new ObjectMapper();
+    	if (!StringUtils.isEmpty(propertiesDTO.getValue())) {
+			try {
+				jsonObjectsToDisplay = Arrays.asList(mapper.readValue(propertiesDTO.getValue(), PropertiesListEntityDTO[].class));
+				Collections.sort(jsonObjectsToDisplay, new Comparator<PropertiesListEntityDTO>() {
+		    		  @Override
+		    		  public int compare(PropertiesListEntityDTO p1, PropertiesListEntityDTO p2) {
+		    		    return p1.getLabel().compareTo(p2.getLabel());
+		    		  }
+		    	});
+				ByteArrayOutputStream out = new ByteArrayOutputStream();
+		    	mapper.writeValue(out, jsonObjectsToDisplay);
+				final byte[] valueToAdd = out.toByteArray();
+				propertiesDTO.setValue(new String(valueToAdd));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	@Override
     public List<PropertiesDTO> getAdminsFonctionnelsProperties() {
         List<PropertiesTypeEnum> types = Arrays.asList(AF_PROPERTIES);
         return getPropertiesByTypeList(types);

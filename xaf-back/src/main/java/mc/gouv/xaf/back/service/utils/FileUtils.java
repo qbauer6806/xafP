@@ -9,16 +9,12 @@ import mc.gouv.xaf.back.data.transformer.DemandesComplementsFilesTransformer;
 import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
-import mc.gouv.xaf.shared.itg.resid.dto.ResidPieceJustificativeDTO;
-import mc.gouv.xaf.shared.itg.resid.enums.ResidPieceJustificativeTypeEnum;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tika.Tika;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.io.IOUtils;
 import org.springframework.stereotype.Component;
 import org.xml.sax.SAXException;
-
-import static mc.gouv.xaf.shared.itg.resid.enums.ResidPieceJustificativeTypeEnum.NON_APPLICABLE;
 
 /**
  * 
@@ -35,9 +31,6 @@ public class FileUtils {
     public static final String META_FRONT = "FRONT_";
 
     public static final String META_BACK_FRONT = "BACK_FRONT_";
-
-    private FileUtils() {
-    }
 
     /**
      * Méthode permettant de lire le contenu d'un fichier
@@ -78,19 +71,6 @@ public class FileUtils {
             }
         }
         return files;
-    }
-
-    public static Map<Integer, DemandeFileDTO> getAllFilesAEnvoyerResid(DemandeDTO demandeDTO) {
-        Map<Integer, DemandeFileDTO> filesResid = new HashMap<>();
-        List<DemandeFileDTO> files = getAllFileDemande(demandeDTO);
-        for (int i=0; i<files.size(); i++ ) {
-            DemandeFileDTO fileDTO = files.get(i);
-            // Check si non applicable côté TS
-            if (!NON_APPLICABLE.name().equals(fileDTO.getTypedoc()) && fileDTO.getTypedoc() != null) {
-                filesResid.put(i, fileDTO);
-            }
-        }
-        return filesResid;
     }
 
     public static String formatFilenameResid(String filename, Integer index) {

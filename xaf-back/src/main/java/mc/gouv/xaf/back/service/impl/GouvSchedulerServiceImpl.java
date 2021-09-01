@@ -70,4 +70,6 @@ public class GouvSchedulerServiceImpl implements GouvSchedulerService {
     public void deleteExistingJob(String jobKey) throws SchedulerException {
         scheduler.deleteJob(new JobKey(jobKey));
     }
+
 }
+

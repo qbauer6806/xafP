@@ -1,6 +1,49 @@
 package mc.gouv.xaf.back.service.itg.file.impl;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.InputStreamBody;
+import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import mc.gouv.vscan.shared.dto.ScanDTO;
 import mc.gouv.vscan.shared.dto.ScanRequestDTO;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
@@ -15,36 +58,6 @@ import mc.gouv.xaf.back.service.utils.DemarchesUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
-import org.apache.commons.io.IOUtils;
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpHead;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.entity.mime.content.InputStreamBody;
-import org.apache.http.entity.mime.content.StringBody;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.*;
-import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.multipart.MultipartFile;
-
-import javax.servlet.http.HttpServletResponse;
-import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Service d'appel à FILE pour les démarches
@@ -121,7 +134,7 @@ public class FileServiceImpl implements FileService {
 		return afBackUtils.getFileClient().saveFile(accountId, containerId, inputStream, filename, contentType, customHeaders,
 				outputStream);
 	}
-
+	
 	@Override
 	public String saveFile(DemandeDTO demande, String containerId, MultipartFile file, HttpServletResponse response)
 			throws Exception {
@@ -356,6 +369,23 @@ public class FileServiceImpl implements FileService {
 		initRestTemplate();
 		URL url = getFileURL(fichierURL, demarcheId);
 		updateFileMetadataGeneric(url.toString(), metaKey, metaValue);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void deleteFile(String containerId, String fileName) {
+		String accountId = gouvPropertiesResolver.getDemarcheId();
+		LOGGER.info("Début suppression du fichier : {} sur la démarche :", fileName, accountId);
+		try {
+			afBackUtils.getFileClient().deleteFile(accountId, containerId, fileName);
+		} catch (Exception e) {
+			LOGGER.error("Erreur lors de la suppression du fichier : {}", fileName);
+			LOGGER.error(e.getMessage());
+		}
+		LOGGER.info("Fin suppression du fichier : {}", fileName);
+		
 	}
 
 }

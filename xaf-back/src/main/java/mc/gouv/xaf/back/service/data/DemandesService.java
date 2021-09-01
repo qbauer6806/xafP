@@ -54,6 +54,15 @@ public interface DemandesService {
     List<DemandeDTO> getDemandes(String demarcheId, Integer usagerId);
 
     /**
+     * Permet de récupérer les demandes correspondant aux DemarcheID et UsagerID avec un accès inactif
+     *
+     * @param demarcheId
+     * @param usagerId
+     * @return
+     */
+    List<DemandeDTO> getDemandes(String demarcheId, Integer usagerId, boolean active);
+
+    /**
      * Méthode permettant de récupérer les demandes
      *
      * @param demandeRecherche Paramètres de la recherche
@@ -123,6 +132,9 @@ public interface DemandesService {
      * @throws JsonProcessingException
      */
     void deleteDemande(String demarcheId, Integer demandeId) throws JsonProcessingException;
+    
+    
+    void deleteDemandeInGivenStatus(String demarcheId, Integer demandeId, List<String> statuts, int jours) throws JsonProcessingException;
 
     /**
      * Permet de sauvegarder ou mettre à jour une demande en base

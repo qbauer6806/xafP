@@ -1,0 +1,544 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	class="no-js sidebar-left-collapsed" lang="fr" dir="ltr">
+
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="x-ua-compatible" content="ie=edge" />
+<meta name="viewport"
+	content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+<meta name="description" content="" />
+<meta name="author" content="" />
+<meta th:name="_csrf" th:content="${_csrf.token}" />
+<meta th:name="_csrf_header" th:content="${_csrf.headerName}" />
+
+
+
+
+
+<title th:text="${titre}"></title>
+
+<!-- Import FONTS -->
+<link th:href="@{/webjars/xcb-wlib/fonts/style.css}" rel="stylesheet" />
+<!--[if lt IE 8]><!-->
+<link rel="stylesheet" th:href="@{/webjars/xcb-wlib/fonts/ie7/ie7.css}" />
+
+<!-- Import CSS -->
+<link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"
+	rel="stylesheet" type="text/css" />
+<link th:href="@{/webjars/xcb-wlib/css/template.css}" rel="stylesheet" />
+<link th:href="@{/webjars/xcb-wlib/css/sidebar.css}" rel="stylesheet" />
+<link th:href="@{/webjars/xcb-wlib/css/element.css}" rel="stylesheet" />
+<link th:href="@{/webjars/datatables/css/dataTables.bootstrap.css}"
+	rel="stylesheet" />
+<link rel="stylesheet"
+	th:href="@{/webjars/fancybox/jquery.fancybox.css}" />
+<link rel="shortcut icon" type="image/x-icon"
+	th:href="@{/img/favicon.ico}" />
+<link th:href="@{/css/tsgen.css(${applicationBuildTimestamp})}"
+	rel="stylesheet" />
+<link th:href="@{/css/tsdem.css(${applicationBuildTimestamp})}"
+	rel="stylesheet" />
+
+
+</head>
+
+<body th:with="pageConfigurationActive='active'">
+
+	<div th:replace="fragments/header :: header"></div>
+
+	<div id="wrapper">
+
+		<div th:replace="fragments/sidebar :: sidebar"></div>
+
+		<!-- DEBUT CONTENU -->
+		<div id="page-content-wrapper">
+
+			<div class="breadcrumbContent">
+				<div class="breadcrumb">
+					<a id="ariane0" th:href="@{/}" class="breadcrumb-item active">Accueil</a>&nbsp;&gt;&nbsp;
+					<a id="ariane1" th:href="@{/gestion/configjson}"
+						class="breadcrumb-item active">Configuration de la liste déroulante </a> &gt;
+				</div>
+				<div class="triangleTopright"></div>
+			</div>
+
+			<div class="container-fluid">
+			
+				<div class="text-left col-md-3" style="padding-left: 0px">
+					<input type="submit" value="Ajouter un libellé"
+						id="addLibelleButton" class="btn btn-action ripple-effect ">
+				</div>
+				
+				<div class="text-right col-md-13">
+					<a th:href="@{/gestion/configjson/export(key=${key})}" id="exportConfigButton"
+						style="float: right; margin-left: 10px"
+						class="btn btn-action ripple-effect pull-right"><i
+						class="icon-action_telecharger"></i> <span>Exporter</span></a> <input
+						type="submit" value="Valider l'import"
+						style="float: right; margin-left: 10px"
+						id="submitImportConfigButtonButton"
+						class="btn btn-action ripple-effect pull-right" /> <input
+						type="file" value="Importer" style="margin-left: 10px"
+						id="importConfigButtonButton" accept=".json"
+						class="btn btn-action ripple-effect pull-right" />
+				</div>
+				
+				<div class="row">
+					<div class="col-xs-12">
+
+						<div class="tableContent">
+							<div class="tableTitle">
+								Configuration de la liste déroulante <span
+									class="badge" id="propertiesSize"></span>
+							</div>
+							<table id="propertiesSetupTable"
+								class="table table-striped ">
+								<thead>
+									<tr>
+										<th class="col-md-3">Clé</th>
+										<th class="col-md-5">Libellé</th>
+										<th class="col-md-1">Actif</th>
+									</tr>
+								</thead>
+							</table>
+						</div>
+
+						<div class="col-xs-12 text-right">
+							<input type="submit" value="Enregistrer"
+								id="savePropertiesButton" class="btn btn-action ripple-effect"
+								disabled>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div id="saveConfigJsonConfirmPanel" style="display: none">
+				<div class="container-fluid">
+					<div class="row">
+						<div class="col-xs-12" id="savePropertiesConfirmationMsg"
+							style="padding: 20px">Êtes-vous sûr de vouloir mettre à
+							jour ces libellés ?</div>
+					</div>
+
+					<div class="row ">
+						<div class=" text-right">
+							<a class="annuler-preview btn btn-action ripple-effect"
+								id="cancelSavePropertiesButton">Annuler</a> <a
+								class="valider-preview btn btn-action ripple-effect"
+								id="saveConfigJsonConfirmButton">Valider</a>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div id="addLibellePanel" style="display: none">
+						<form>
+							<div class="container-fluid">
+								<div class="row">
+									<h1>Ajouter un libellé</h1>
+								</div>
+								<div class="row">
+									<div class="form-group" id="addLibelleMsgDiv">
+										<p id="libelleErrorMessage" class="bg-danger"
+											style="padding: 15px; visibility: hidden; display: none;"></p>
+									</div>
+									<div class="form-group">
+										<label for=libelleInput>Libellé</label> <input
+											class="form-control" id="libelleInput">
+									</div>
+								</div>
+								<div class="row ">
+									<div class="text-right">
+										<input class="annuler-preview btn btn-action ripple-effect"
+											id="cancelAddLibelleConfirmButton" value="Annuler" /> <input
+											class="valider-preview btn btn-action ripple-effect"
+											id="addLibelleConfirmButton" value="Valider" />
+									</div>
+								</div>
+
+							</div>
+						</form>
+					</div>
+
+			<input type="hidden" href="javascript:void(0);" data-type="success"
+				data-delay="5000" data-message="" id="successMessage"
+				class="notification" /> <input type="hidden"
+				href="javascript:void(0);" data-type="danger" data-delay="0"
+				data-message="" id="errorMessage" class="notification" />
+
+
+			<!-- FIN CONTENU -->
+		</div>
+
+	</div>
+
+	<div th:replace="fragments/footer :: footer"></div>
+	<script th:inline="javascript">
+	/*<![CDATA[*/
+    var key = /*[[${key}]]*/[];
+    /*]]>*/
+    var token = $("meta[name='_csrf']").attr("content");
+	var header = $("meta[name='_csrf_header']").attr("content");
+
+    
+    /* Create an array with the values of all the input boxes in a column */
+	$.fn.dataTable.ext.order['dom-text'] = function(settings, col) {
+		return this.api().column(col, {
+			order : 'index'
+		}).nodes().map(function(td, i) {
+			return $('input', td).val();
+		});
+	}
+
+	/* Create an array with the values of all the checkboxes in a column */
+	$.fn.dataTable.ext.order['dom-checkbox'] = function(settings, col) {
+		return this.api().column(col, {
+			order : 'index'
+		}).nodes().map(function(td, i) {
+			return $('input', td).prop('checked') ? '1' : '0';
+		});
+	}
+	
+    var propertiesTable = {
+    	serverSide : false,
+    	"ajax" : {
+
+    		// Pour ne pas envoyer canal[]=XXX non géré par Spring mvc
+    		"traditional" : true,
+    		"url" : APP.getContextPath() + "/gestion/configjson/properties?key="+key,
+    		"dataSrc" : function(json) {
+
+    			json['recordsTotal'] = json['length'];
+    			json['recordsFiltered'] = json['length'];
+
+    			// json['data'] = json['content'];
+    			$("#propertiesSize").html(json.length)
+    			return json;
+    		}
+    	},
+	    "columns" : [
+	            { 
+	            	data : "id", 
+	            },
+	            { 
+	            	data : "label",
+	            	"orderDataType" : "dom-text",
+	    			type : 'string',
+	    			render : function(label, editable, data, type) {
+						var disabled = '';
+						if (!editable) {
+							disabled = 'disabled';
+						}
+						var id = data.id.replace(/\./g, '') + "Label";
+						return '<div class="col-xs-10 col-md-10"><input type="text" value="'
+								+ label
+								+ '" name="'
+								+ label
+								+ '" class="form-control" id="'
+								+ id
+								+ '" title="" ' + disabled + '/></div>';
+					}
+	            
+	            },
+	            { 
+	            	data : "enabled", 
+	            	"orderDataType" : "dom-checkbox",
+	            	render : function(enabled,data,type) {
+	    				var id = type.id.replace(/\./g, '') + "Check";
+	    				var checked = '';
+	    				var chkedLabel = '';
+	    				if (enabled) {
+	    					checked = 'checked';
+	    					chekedLabel = 'Actif';
+	    				} else {
+	    					chekedLabel = 'Inactif';
+	    				}
+
+	    				var disabled = '';
+
+	    				return '<div class="form-group">  <div class="checkbox-custom checkbox-default">  <input type="checkbox" '
+	    							+ checked
+	    							+ ' id="'
+	    							+ id
+	    							+ '" name="'
+	    							+ enabled
+	    							+ '" '
+	    							+ disabled
+	    							+ '><label for="'
+	    							+ id
+	    							+ '" id="'
+	    							+ id
+	    							+ 'CheckLabel"  >'
+	    							+ chekedLabel + '</label>' + '</div> </div>';
+
+	    				}
+	            }
+    		],
+		"scrollY" : "700px",
+		"scrollCollapse" : true,
+		"paging" : true,
+		autoWidth : false,
+		filter : true,
+		colReorder : true,
+		language : frenchTranslation,
+		lengthChange : false
+	}
+    var tableProperties = $('#propertiesSetupTable').DataTable(propertiesTable);
+    function equals(val1, val2) {
+    	if ((val1 == null && val2 == "") || (val1 == "" && val2 == null))
+    		return true;
+    	else
+    		return val1 == val2;
+    }
+
+    $("#propertiesSetupTable").on(
+    		'change',
+    		"input[type='checkbox']",
+    		function(e) {
+
+    			if (this.labels[0].innerText === "Actif") {
+    				this.labels[0].innerText = "Inactif";
+    			} else {
+    				this.labels[0].innerText = "Actif";
+    			}
+
+    	checkPropertiesToUpdate(this);
+    	checkSavePropertiesButton();
+
+    });
+    
+    $("#propertiesSetupTable").on('keyup', "input", function(e) {
+
+    	checkPropertiesToUpdate(this);
+    	checkSavePropertiesButton();
+    	
+    });
+    
+    $("#savePropertiesButton").click(function() {
+    	$.fancybox.open($("#saveConfigJsonConfirmPanel"), {
+    		autoSize : false,
+    		width : "30%",
+    		height : "auto"
+    	});
+
+    });
+    
+    $("#cancelSavePropertiesButton, #cancelAddLibelleConfirmButton").click(function() {
+		$.fancybox.close();
+	});
+    
+    $("#saveConfigJsonConfirmButton")
+	.click(
+			function() {
+
+				var changedPropertiesArray = [];
+
+				result.forEach(function(value, key, map){
+					changedPropertiesArray
+									.push({
+										"id":key,
+										"label":value.value,
+										"editable": true,
+										"enabled": value.enabled
+									});
+				});
+				var myKey = key;
+				var myResult = JSON.stringify(changedPropertiesArray);
+
+				$
+						.ajax({
+							url : APP.getContextPath()
+									+ "/gestion/configjson/edit?key="+myKey,
+							method : "POST",
+							traditional : true,
+							contentType : "application/json; charset=UTF-8",
+							data : JSON.stringify({
+								value : changedPropertiesArray
+							}),
+							beforeSend : function(xhr) {
+								xhr.setRequestHeader(header, token);
+							},
+							success : function(data) {
+
+								$("#successMessage")
+								.data("message",
+										"La configuration a été enregistrée avec succès")
+								.click();
+								console.log("Success" + data);
+								result.clear();
+								$.fancybox.close();
+								$('#propertiesSetupTable').DataTable().ajax.reload(null, true);
+								checkSavePropertiesButton();
+							},
+							error : function(e) {
+								$("#errorMessage")
+										.data("message",
+												"Un problème est survenu lors de l'enregistrement de la configuration")
+										.click();
+								console.log("failed to submit : " + e);
+							}
+						});
+
+			});
+    
+    var result = new Map();
+
+    function checkSavePropertiesButton() {
+    	if (typeof result !== 'undefined'
+    			&& result.size > 0) {
+    		$("#savePropertiesButton").removeAttr("disabled");
+    	} else {
+    		$("#savePropertiesButton").attr("disabled", true);
+    	}
+    }
+    
+    var messagesSuccessList = /*[[${successMessages}]]*/'default';
+
+	if (messagesSuccessList !== 'undefined' && messagesSuccessList !== null) {
+		$.each(messagesSuccessList, function(key, msg) {
+			$.notify({
+				message: msg
+			},{
+				type: 'success'
+			});
+		});
+	}
+
+	var messagesErrorList = /*[[${errorMessages}]]*/'default';
+
+	if (messagesErrorList !== 'undefined' && messagesErrorList !== null) {
+		$.each(messagesErrorList, function(key, msg) {
+			$.notify({
+				message: msg
+			},{
+				type: 'danger'
+			});
+		});
+	}
+    
+    function checkPropertiesToUpdate(that) {
+    	var rowData = tableProperties.row($(that).parents('tr')).data();
+
+    	var id = rowData.id;
+    	
+    	// Je recupère l'id de la propriete à modifier dans le json
+    	var propLabel = tableProperties.$('#' + id + 'Label');
+    	var enabled = tableProperties.$('#' + id + 'Check').is(":checked");
+    	var newValue = propLabel[0].value;
+		var currentValue = result.get(id);
+
+    	if ((!equals(propLabel, rowData.label)
+    					|| !equals(catId, rowData.categoryId) || enabled !== rowData.enabled)) {
+    		const newProperty = {value: newValue, enabled: enabled, editable: true};
+    		result.set(id, newProperty);
+    		$(that).parents("tr").addClass("updated-value");
+    	}
+    	if (equals(newValue, rowData.label)
+    			&& enabled == rowData.enabled) {
+    		result.delete(id);
+    		$(that).parents("tr").removeClass("updated-value");
+    	}
+    }
+    $("#submitImportConfigButtonButton").click(
+    		function() {
+
+    			if ($("#importConfigButtonButton").val() === '') {
+    				$("#errorMessage").data("message",
+    						"Le fichier à importer est obligatoire").click();
+    			} else {
+    				var filedata = $('#importConfigButtonButton').prop('files')[0];
+    				var formdata = new FormData();
+    				formdata.append('file', filedata);
+    				$.ajax({
+    					url : APP.getContextPath() + '/gestion/configjson/import?key='+key, // point
+    					// to
+    					// server-side
+    					// PHP
+    					// script
+    					cache : false,
+    					contentType : false,
+    					processData : false,
+    					beforeSend : function(xhr) {
+    						xhr.setRequestHeader(header, token);
+    					},
+    					data : formdata,
+    					type : 'post',
+    					success : function(message) {
+    						$("#successMessage").data("message", "La configuration a été importée avec succès").click();
+    						$("#importConfigButtonButton").val('');
+    						$('#propertiesSetupTable').DataTable().ajax.reload(null, true);
+    					},
+    					error : function(xhr) {
+    						var error = jQuery.parseJSON(xhr.responseText);
+    						$("#errorMessage").data(
+    								"message",
+    								"Un problème est survenu lors de l'import de la configuration: "
+    										+ error.message).click();
+    					}
+    				});
+    			}
+    		});
+    
+    $("#addLibelleButton").click(function() {
+
+    	$("#libelleCatInput").val('');
+    	$("#libelleErrorMessage").css("visibility", "hidden").css("display", "none");
+
+    	$.fancybox.open({
+    		src: '#addLibellePanel',
+    		type: 'inline',
+    		btnTpl: {
+    			smallBtn: '<button id="btnFermerPopinIdentifiant" data-fancybox-close="" class="fancybox-close-small" title="Fermer"></button>'
+    		}
+    	});
+    });
+    
+    $("#addLibelleConfirmButton").click(
+    		function() {
+    			if ($("#libelleInput").val() === '') {
+    				$("#errorMessage").data("message",
+    						"Veuillez spécifier une valeur de libellé").click();
+    			} else {
+    				$.ajax({
+    					url : APP.getContextPath() + "/gestion/configjson/addlibelle?label="
+    							+ $("#libelleInput").val()+"&key="+key+"&cle="+ $("#libelleInput").val().replaceAll(' ', '_'),
+    					method : "POST",
+    					traditional : true,
+    					contentType : "application/json",
+    					beforeSend : function(xhr) {
+    						xhr.setRequestHeader(header, token);
+    					},
+    					success : function(data) {
+
+    						$("#successMessage").data("message",
+    								"Le libellé a été enregistrée avec succès")
+    								.click();
+    						$("#libelleInput").val('');
+    						$("#libelleErrorMessage").css("visibility", "hidden").css(
+    							"display", "none");
+    						$('#propertiesSetupTable').DataTable().ajax.reload(null, true);
+    						$.fancybox.close();
+    					},
+    					error : function(xhr) {
+    						var error = jQuery.parseJSON(xhr.responseText);
+
+    						$("#libelleErrorMessage").text(
+    								"Un problème est survenu lors de l'enregistrement de la catégorie: "
+    										+ error.message);
+    						$("#libelleErrorMessage").css("visibility", "visible").css(
+    							"display", "block");
+    						$.fancybox.update();
+
+    						console.log("failed to submit : " + error);
+    					}
+    				});
+    			}
+    		});
+	
+	// BUGFIX (9 juillet 2019): La colonne pour la date est la 2 au lieu de 1
+		var searchDefaultSort = [ [ 2, "desc" ] ];
+	
+		
+	</script>
+</body>
+</html>

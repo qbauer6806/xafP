@@ -22,8 +22,8 @@
 				</a></li>
 
 				<!-- Lien simple -->
-				<li th:class="${pageDemandesActive} ? 'active' : ''"
-				sec:authorize="hasRole('ROLE_LECTURE')"><a
+				<li th:class="${pageDemandesActive} ? 'active' : ''" sec:authorize="hasRole('ROLE_LECTURE')"><a
+
 					id="menuDemandes" th:href="@{/demandes}">
 						<div class="contentTooltip">
 							<span class="greyTooltip" data-toggle="tooltip"
@@ -92,6 +92,21 @@
 							<i class="icon icon-menu_utilisateurs"></i>
 						</div>
 						<div class="menuContent">Utilisateurs</div>
+				</a></li>
+
+				<!-- Lien simple -->
+				<li th:class="${pagePurgeActive} ? 'active' : ''"
+					sec:authorize="hasRole('ROLE_PARAMETRAGE')"><a
+						id="menuPurge" th:href="@{/gestion/purge}">
+					<div class="contentTooltip">
+							<span class="greyTooltip" data-toggle="tooltip"
+								  data-placement="right" title=""
+								  data-original-title="Historique suppression"></span>
+					</div>
+					<div class="iconContent">
+						<i class="icon icon-action_supprimer"></i>
+					</div>
+					<div class="menuContent">Historique des suppressions</div>
 				</a></li>
 
 				<!-- Ajout d'un fragment permettant de rajouter des elements custom dans la sidebar -->

@@ -1,15 +1,16 @@
 package mc.gouv.xaf.back.service.itg.file;
 
-import mc.gouv.vscan.shared.dto.ScanDTO;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.xaf.shared.dto.DemandeFileDTO;
-import org.springframework.web.multipart.MultipartFile;
-
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.MalformedURLException;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.web.multipart.MultipartFile;
+
+import mc.gouv.vscan.shared.dto.ScanDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 
 /**
  * Service d'appel à FILE pour les démarches
@@ -32,6 +33,13 @@ public interface FileService {
 	String saveFile(DemandeDTO demande, String filename, String container, String contentType, InputStream inputStream, OutputStream outputStream) throws Exception;
 
 	String saveFile(DemandeDTO demande, String container, MultipartFile file, HttpServletResponse response) throws Exception;
+	
+	/**
+	 *  Appelle le WS FILE DELETE pour supprimer un fichier dans file 
+	 *  @param containerId, l'id du container du fichier à supprimer
+	 *  @param fileName, le nom du fichier à supprimer
+	 */
+	void deleteFile(String containerId, String fileName);
 
 	ScanDTO verificationVSCAN(MultipartFile file) throws IOException;
 
@@ -54,4 +62,5 @@ public interface FileService {
 	 * @param metaValue,  la valeur de la métadonnée
 	 */
 	void updateFileMetadata(String fichierURL, String demarcheId, String metaKey, String metaValue) throws Exception;
+	
 }

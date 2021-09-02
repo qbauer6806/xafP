@@ -375,4 +375,8 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
         return Static.getValue("mc.gouv.af.back.external.gichuni.kafka.bootstrapserversconfig");
     }
     
+    @Override
+    public String getApplicationName() {
+        return applicationName;
+    }
 }

@@ -1947,7 +1947,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     
     
     private void deleteGivenFieldFromEs(String fieldName, String fieldValue) throws Exception{
-    	DeleteByQueryRequest request = new DeleteByQueryRequest("insenco");
+        DeleteByQueryRequest request = new DeleteByQueryRequest(gouvPropertiesResolver.getApplicationName());
     	request.setQuery(new TermQueryBuilder(fieldName, fieldValue));
 		request.setRefresh(true);
 		elasticsearchTemplate.getClient().deleteByQuery(request, RequestOptions.DEFAULT);

@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.index.reindex.DeleteByQueryRequest;
@@ -42,6 +43,9 @@ public class IndexedEsDemandesCourriersServiceImpl extends DemandesCourriersServ
     
     @Inject
     private ElasticsearchRestTemplate elasticsearchTemplate;
+
+    @Autowired
+    private GouvPropertiesResolver gouvPropertiesResolver;
 
     @Override
     public DemandeCourrierDTO saveCourrier(String demarcheId, Integer pkDemande, DemandeCourrierDTO courrierDto)
@@ -92,7 +96,7 @@ public class IndexedEsDemandesCourriersServiceImpl extends DemandesCourriersServ
     				String currentCourrierEsId = demandeIdStr + "-"+identifiantCourrierStr;
     				LOGGER.info("Début suppression du courrier : {} dans ElasticSearch", currentCourrierEsId);
     				// Puis on requete ES pour supprimer tous les index matchant avec l'ID calculé plus haut
-    				DeleteByQueryRequest request = new DeleteByQueryRequest("insenco");
+    				DeleteByQueryRequest request = new DeleteByQueryRequest(gouvPropertiesResolver.getApplicationName());
 					request.setQuery(new TermQueryBuilder("_id", currentCourrierEsId));
 					request.setRefresh(true);
 					elasticsearchTemplate.getClient().deleteByQuery(request, RequestOptions.DEFAULT);

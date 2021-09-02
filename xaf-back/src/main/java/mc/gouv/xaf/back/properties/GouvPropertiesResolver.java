@@ -79,4 +79,6 @@ public interface GouvPropertiesResolver {
 
 	String getGUKafkaBootstrapServersConfig();
 
+    String getApplicationName();
+
 }

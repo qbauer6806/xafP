@@ -49,7 +49,6 @@ import org.xml.sax.SAXException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import fr.opensagres.xdocreport.template.velocity.internal.Foreach;
 import mc.gouv.xaf.back.data.dao.AccessRepository;
 import mc.gouv.xaf.back.data.dao.DemandesComplementsFilesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesComplementsRepository;
@@ -58,7 +57,6 @@ import mc.gouv.xaf.back.data.dao.DemandesFilesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesHistoriqueRepository;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesStatutsRepository;
-import mc.gouv.xaf.back.data.dao.StatistiquesRepository;
 import mc.gouv.xaf.back.data.entity.AccessBO;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandesComplementsBO;
@@ -67,7 +65,6 @@ import mc.gouv.xaf.back.data.entity.DemandesDataBO;
 import mc.gouv.xaf.back.data.entity.DemandesFilesBO;
 import mc.gouv.xaf.back.data.entity.DemandesHistoriqueBO;
 import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
-import mc.gouv.xaf.back.data.entity.StatistiqueBO;
 import mc.gouv.xaf.back.data.transformer.DemandesComplementsFilesTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesComplementsTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesDataTransformer;
@@ -75,12 +72,16 @@ import mc.gouv.xaf.back.data.transformer.DemandesFilesTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesStatutsTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesFilesService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.data.StatistiquesService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
+import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
+import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.RecapDemandesDTO;
+import mc.gouv.xaf.back.service.itg.gichuni.kafka.utils.GUKafkaUtils;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
 import mc.gouv.xaf.back.service.utils.FileUtils;
@@ -147,8 +148,11 @@ public class DemandesServiceImpl implements DemandesService {
 	@Autowired
 	private StatistiquesService statistiquesService;
 	
-	@Autowired
-	private StatistiquesRepository statistiquesRepository;
+    @Autowired
+    private GUKafkaProducer guKafkaProducer;
+    
+    @Autowired
+    private GUKafkaUtils guKafkaUtils;
 
 	private DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
 
@@ -774,9 +778,18 @@ public class DemandesServiceImpl implements DemandesService {
 
 		LOGGER.info("Ajout d'une ligne de statistique pour la suppression de la demande...");
 		statistiquesService.saveStatistique(stat);
+		
+		String identifiant = demandeBo.getIdentifiant();
+		Date dateCreation = demandeBo.getDateCreation();
 
 		LOGGER.info("Appel du répo pour la suppression...");
 		demandesRepository.delete(demandeBo);
+		
+		LOGGER.info("Envoi d'un message dans Kafka pour notifier le Guichet Unique de la suppression de la demande...");
+        List<DemandeDTO> demandes = getDemandes(demarcheId, access.getUsagerId());
+        RecapDemandesDTO recapDemandes = guKafkaUtils.getRecapDemandes(demandes);
+        guKafkaProducer.sendSuppressionDemandeMessage(access.getUsagerId(), demandeId, identifiant, dateCreation, recapDemandes);
+        
 	}
 	
 	/**

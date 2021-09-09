@@ -9,6 +9,7 @@ import mc.gouv.xaf.back.data.transformer.DemandesComplementsFilesTransformer;
 import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
+import mc.gouv.xaf.shared.dto.FileCategoryDTO;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tika.Tika;
 import org.apache.tika.exception.TikaException;
@@ -31,6 +32,12 @@ public class FileUtils {
     public static final String META_FRONT = "FRONT_";
 
     public static final String META_BACK_FRONT = "BACK_FRONT_";
+
+    // Categories fichiers pour DemandeFilesCategorizer
+    public static final String CAT_INITIALE = "Fichiers de la demande initiale";
+    public static final String CAT_COMPLEMENTS = "Fichiers complémentaires de l'usager";
+    public static final String CAT_ADMINISTRATION = "Fichiers remis par l'Administration";
+    public static final String CAT_INTERNES = "Fichiers internes";
 
     /**
      * Méthode permettant de lire le contenu d'un fichier
@@ -100,4 +107,17 @@ public class FileUtils {
     }
     // FIN Norme sur les métadonnées des fichiers
 
+    public static int getNbFileNonTypes(List<FileCategoryDTO> filesAvecCategorie) {
+        int nbSansCategorie = 0;
+        for(FileCategoryDTO categoryDTO : filesAvecCategorie) {
+            if (FileUtils.CAT_INITIALE.equals(categoryDTO.getName()) || FileUtils.CAT_COMPLEMENTS.equals(categoryDTO.getName())) {
+                for (DemandeFileDTO file : categoryDTO.getFiles()) {
+                    if (file.getTypedoc() == null) {
+                        nbSansCategorie++;
+                    }
+                }
+            }
+        }
+        return nbSansCategorie;
+    }
 }

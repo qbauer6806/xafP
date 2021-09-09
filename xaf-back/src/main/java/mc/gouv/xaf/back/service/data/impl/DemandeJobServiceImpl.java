@@ -28,6 +28,9 @@ import mc.gouv.xaf.back.service.data.DemandeJobService;
 import mc.gouv.xaf.back.service.data.DemandesStatutsRefreshService;
 import mc.gouv.xaf.back.service.es.IndexedDemandeService;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaDLTConsumer;
+import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
+import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.UsagerDemandesRecapDTO;
+import mc.gouv.xaf.back.service.itg.gichuni.kafka.utils.GUKafkaUtils;
 import mc.gouv.xaf.shared.dto.DemandeJobDTO;
 import mc.gouv.xaf.shared.dto.JobNamesEnum;
 import mc.gouv.xaf.shared.dto.JobStatutsEnum;
@@ -54,6 +57,12 @@ public class DemandeJobServiceImpl implements DemandeJobService {
     
     @Autowired
     private KafkaOutboxTraitementJob kafkaOutboxTraitementJob;
+    
+    @Autowired
+    private GUKafkaUtils guKafkaUtils;
+    
+    @Autowired
+    private GUKafkaProducer guKafkaProducer;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandeJobServiceImpl.class);
 
@@ -136,6 +145,11 @@ public class DemandeJobServiceImpl implements DemandeJobService {
             }
             if (job.getJobName().equals(JobNamesEnum.TRAITEMENT_OUTBOX_KAFKA)) {
             	msg = kafkaOutboxTraitementJob.execute();
+            }
+            if (job.getJobName().equals(JobNamesEnum.SYNCHRONISATION_GLOBALE_GU)) {
+        	    List<UsagerDemandesRecapDTO> usagerDemandesRecaps = guKafkaUtils.getUsagerDemandesRecapList();
+        	    guKafkaProducer.sendSynchronisationDemandesMessage(usagerDemandesRecaps);
+        	    msg = "Message envoyé";
             }
 
             context.getBean(DemandeJobServiceImpl.class).logSuccess(job.getId(), msg);

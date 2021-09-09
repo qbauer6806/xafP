@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
  * 
- * Bloc "recapDemandes" de certain messages envoyés au Guichet Unique
+ * Bloc "recapDemandes" du message SynchronisationDemandesMessage envoyé au Guichet Unique
  * 
  * @author qdeme
  *

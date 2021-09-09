@@ -1,6 +1,7 @@
 package mc.gouv.xaf.back.service.itg.gichuni.kafka.impl;
 
 import java.util.Date;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +12,7 @@ import mc.gouv.xaf.back.config.KafkaDisabledCondition;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.RecapDemandesDTO;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.StatutSimplifieEnum;
+import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.UsagerDemandesRecapDTO;
 
 /**
  * 
@@ -32,17 +34,22 @@ public class GUKafkaProducerDisabledImpl implements GUKafkaProducer {
 	
 	@Override
 	public void sendChangementStatutDemandeMessage(Integer usagerId, Integer demandeId, String identifiant, StatutSimplifieEnum statutSimplifie, Date dateStatutSimplifie, RecapDemandesDTO recapDemandes) {
-		LOGGER.info("sendCreationDemandeMessage - KafkaEnabled = false, aucun message à envoyer dans Kafka");
+		LOGGER.info("sendChangementStatutDemandeMessage - KafkaEnabled = false, aucun message à envoyer dans Kafka");
 	}
 	
 	@Override
 	public void sendSuppressionDemandeMessage(Integer usagerId, Integer demandeId, String identifiant, Date dateSuppression, RecapDemandesDTO recapDemandes) {
-		LOGGER.info("sendCreationDemandeMessage - KafkaEnabled = false, aucun message à envoyer dans Kafka");
+		LOGGER.info("sendSuppressionDemandeMessage - KafkaEnabled = false, aucun message à envoyer dans Kafka");
 	}
 	
 	@Override
 	public void sendDesinscriptionUsagerTSMessage(Integer usagerId) {
-		LOGGER.info("sendCreationDemandeMessage - KafkaEnabled = false, aucun message à envoyer dans Kafka");
+		LOGGER.info("sendDesinscriptionUsagerTSMessage - KafkaEnabled = false, aucun message à envoyer dans Kafka");
+	}
+
+	@Override
+	public void sendSynchronisationDemandesMessage(List<UsagerDemandesRecapDTO> usagerDemandesRecap) {
+		LOGGER.info("sendSynchronisationDemandesMessage - KafkaEnabled = false, aucun message à envoyer dans Kafka");
 	}
 	
 }

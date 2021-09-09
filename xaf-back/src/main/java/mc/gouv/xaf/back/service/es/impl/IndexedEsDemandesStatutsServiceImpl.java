@@ -46,7 +46,7 @@ public class IndexedEsDemandesStatutsServiceImpl extends DemandesStatutsServiceI
         try {
             demandeDTO = super.updateStatut(demarcheId, demandeId, statut, agentId, usagerId, codeMotif, commentaire, texteAEnvoyer);
         } catch (Exception ex) {
-            LOGGER.error("Erreur lors de la mise à jour du statut {}", ex.getMessage());
+            LOGGER.error("Erreur lors de la mise à jour du statut", ex);
         }
         if (null != demandeDTO) {
             indexDemandeStatus(demandeDTO);

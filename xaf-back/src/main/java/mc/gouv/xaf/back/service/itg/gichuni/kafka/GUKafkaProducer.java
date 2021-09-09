@@ -1,9 +1,11 @@
 package mc.gouv.xaf.back.service.itg.gichuni.kafka;
 
 import java.util.Date;
+import java.util.List;
 
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.RecapDemandesDTO;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.StatutSimplifieEnum;
+import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.UsagerDemandesRecapDTO;
 
 /**
  * 
@@ -27,5 +29,7 @@ public interface GUKafkaProducer {
 
 	void sendSuppressionDemandeMessage(Integer usagerId, Integer demandeId, String identifiant, Date dateSuppression,
 			RecapDemandesDTO recapDemandes);
+
+	void sendSynchronisationDemandesMessage(List<UsagerDemandesRecapDTO> usagerDemandesRecap);
 
 }

@@ -7,6 +7,7 @@ import java.util.List;
 
 import mc.gouv.xaf.back.service.data.StatistiquesService;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
+import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.DemandeRecapDTO;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.RecapDemandesDTO;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.StatutSimplifieEnum;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.utils.GUKafkaUtils;
@@ -144,8 +145,8 @@ public class DemandesStatutsServiceImpl implements DemandesStatutsService {
 	        }
 	        else {
 	        	LOGGER.info("Le statut simplifié a changé, envoi d'un message au Guichet Unique via Kafka...");
-	            List<DemandeDTO> demandes = demandesService.getDemandes(gouvPropertiesResolver.getDemarcheId(), demande.getFkAccess().getUsagerId());
-	            RecapDemandesDTO recapDemandes = guKafkaUtils.getRecapDemandes(demandes);
+	        	List<DemandeRecapDTO> demandeRecaps = guKafkaUtils.getDemandeRecapsFromUsagerId(demande.getFkAccess().getUsagerId());
+	        	RecapDemandesDTO recapDemandes = guKafkaUtils.getRecapDemandes(demandeRecaps);
 	    		guKafkaProducer.sendChangementStatutDemandeMessage(demande.getFkAccess().getUsagerId(), demande.getPkDemandes(), demande.getIdentifiant(),
 	    				statutSimplifieNouveau, statutBo.getDate(), recapDemandes);
 	        }

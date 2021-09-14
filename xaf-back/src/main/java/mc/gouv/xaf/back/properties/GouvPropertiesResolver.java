@@ -81,4 +81,14 @@ public interface GouvPropertiesResolver {
 
     String getApplicationName();
 
+	boolean getGUKafkaSSLEnabled();
+
+	String getGUKafkaSSLTrustStoreLocation();
+
+	String getGUKafkaSSLTrustStorePassword();
+
+	String getGUKafkaSSLKeyStoreLocation();
+
+	String getGUKafkaSSLKeyStorePassword();
+
 }

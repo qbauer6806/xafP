@@ -379,4 +379,33 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     public String getApplicationName() {
         return applicationName;
     }
+    
+    @Override
+    public boolean getGUKafkaSSLEnabled() {
+        String value = Static.getValue("mc.gouv.af.back.external.gichuni.kafka.ssl.enabled");
+        if (value == null) {
+            return false;
+        }
+        return Boolean.parseBoolean(value);
+    }
+    
+    @Override
+    public String getGUKafkaSSLTrustStoreLocation() {
+        return Static.getValue("mc.gouv.af.back.external.gichuni.kafka.ssl.truststore.location");
+    }
+    
+    @Override
+    public String getGUKafkaSSLTrustStorePassword() {
+        return Static.getValue("mc.gouv.af.back.external.gichuni.kafka.ssl.truststore.password");
+    }
+    
+    @Override
+    public String getGUKafkaSSLKeyStoreLocation() {
+        return Static.getValue("mc.gouv.af.back.external.gichuni.kafka.ssl.keystore.location");
+    }
+    
+    @Override
+    public String getGUKafkaSSLKeyStorePassword() {
+        return Static.getValue("mc.gouv.af.back.external.gichuni.kafka.ssl.truststore.password");
+    }
 }

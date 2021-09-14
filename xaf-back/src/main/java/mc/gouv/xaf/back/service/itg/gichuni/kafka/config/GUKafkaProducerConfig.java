@@ -7,6 +7,8 @@ import java.util.Map;
 
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
@@ -33,6 +35,8 @@ import mc.gouv.xaf.back.service.itg.gichuni.kafka.impl.GUKafkaProducerListener;
 @Configuration
 @Conditional(KafkaEnabledCondition.class)
 public class GUKafkaProducerConfig {
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(GUKafkaProducerConfig.class);
 	
 	@Autowired
 	private GUKafkaProducerListener guKafkaProducerListener;
@@ -65,18 +69,20 @@ public class GUKafkaProducerConfig {
 				e.printStackTrace();
 			}
         	
+        	LOGGER.info("hostname=" + hostname);
+        	
         	configProps.put("security.protocol", "SSL");
         	
         	configProps.put("ssl.truststore.location", gouvPropertiesResolver.getGUKafkaSSLTrustStoreLocation());
         	
         	Map<String,String> map = getHostnamePasswordMap(gouvPropertiesResolver.getGUKafkaSSLTrustStorePassword());
-        	System.out.println("map1=" + map);
-        	System.out.println("mdp1=" + map.get(hostname));
+        	LOGGER.info("map1=" + map);
+        	LOGGER.info("mdp1=" + map.get(hostname));
         	configProps.put("ssl.truststore.password", map.get(hostname));
 
         	map = getHostnamePasswordMap(gouvPropertiesResolver.getGUKafkaSSLKeyStorePassword());
-        	System.out.println("map2=" + map);
-        	System.out.println("mdp2=" + map.get(hostname));
+        	LOGGER.info("map2=" + map);
+        	LOGGER.info("mdp2=" + map.get(hostname));
         	configProps.put("ssl.key.password", map.get(hostname));
         	configProps.put("ssl.keystore.password", map.get(hostname));
         	configProps.put("ssl.keystore.location", gouvPropertiesResolver.getGUKafkaSSLKeyStoreLocation());

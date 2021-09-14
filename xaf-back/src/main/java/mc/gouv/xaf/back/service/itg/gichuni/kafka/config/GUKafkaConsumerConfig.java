@@ -90,18 +90,20 @@ public class GUKafkaConsumerConfig {
 				e.printStackTrace();
 			}
         	
+        	LOGGER.info("hostname=" + hostname);
+        	
         	props.put("security.protocol", "SSL");
         	
         	props.put("ssl.truststore.location", gouvPropertiesResolver.getGUKafkaSSLTrustStoreLocation());
         	
         	Map<String,String> map = getHostnamePasswordMap(gouvPropertiesResolver.getGUKafkaSSLTrustStorePassword());
-        	System.out.println("map1=" + map);
-        	System.out.println("mdp1=" + map.get(hostname));
+        	LOGGER.info("map1=" + map);
+        	LOGGER.info("mdp1=" + map.get(hostname));
         	props.put("ssl.truststore.password", map.get(hostname));
 
         	map = getHostnamePasswordMap(gouvPropertiesResolver.getGUKafkaSSLKeyStorePassword());
-        	System.out.println("map2=" + map);
-        	System.out.println("mdp2=" + map.get(hostname));
+        	LOGGER.info("map2=" + map);
+        	LOGGER.info("mdp2=" + map.get(hostname));
         	props.put("ssl.key.password", map.get(hostname));
         	props.put("ssl.keystore.password", map.get(hostname));
         	props.put("ssl.keystore.location", gouvPropertiesResolver.getGUKafkaSSLKeyStoreLocation());

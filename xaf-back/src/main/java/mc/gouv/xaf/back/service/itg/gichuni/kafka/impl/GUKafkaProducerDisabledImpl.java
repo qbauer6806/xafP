@@ -51,5 +51,10 @@ public class GUKafkaProducerDisabledImpl implements GUKafkaProducer {
 	public void sendSynchronisationDemandesMessage(List<UsagerDemandesRecapDTO> usagerDemandesRecap) {
 		LOGGER.info("sendSynchronisationDemandesMessage - KafkaEnabled = false, aucun message à envoyer dans Kafka");
 	}
+
+	@Override
+	public void sendCreationAccesTSMessage(Integer usagerId) {
+		LOGGER.info("sendCreationAccesTSMessage - KafkaEnabled = false, aucun message à envoyer dans Kafka");
+	}
 	
 }

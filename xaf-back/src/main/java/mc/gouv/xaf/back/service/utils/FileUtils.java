@@ -81,7 +81,13 @@ public class FileUtils {
     }
 
     public static String formatFilenameResid(String filename, Integer index) {
-        return removeSpecialChars(index + "_" + filename);
+        String nomFichier = removeSpecialChars(index + "_" + filename);
+        // Tronquer si plus de 150 chars dans la requête. Attention à l'extension !
+        if (nomFichier.length() > 150) {
+            String extension = nomFichier.substring(nomFichier.lastIndexOf('.'));
+            nomFichier = nomFichier.substring(0, 150-extension.length()) + extension;
+        }
+        return nomFichier;
     }
 
     public static String removeSpecialChars(String filename) {

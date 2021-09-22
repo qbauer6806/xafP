@@ -17,6 +17,7 @@ import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.KafkaOutboxService;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.ChangementStatutDemandeMessage;
+import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.CreationAccesTSMessage;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.CreationDemandeMessage;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.DesinscriptionUsagerTSMessage;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.GUKafkaMessage;
@@ -122,6 +123,13 @@ public class GUKafkaProducerImpl implements GUKafkaProducer {
 		} catch (JsonProcessingException e) {
 			LOGGER.error("Erreur lors du mapper.writeValueAsString()", e);
 		}
+	}
+
+	@Override
+	public void sendCreationAccesTSMessage(Integer usagerId) {
+		LOGGER.info("sendCreationAccesTSMessage - Placement du message à envoyer au Guichet Unique dans l'Outbox Kafka...");
+		CreationAccesTSMessage catsm = new CreationAccesTSMessage(gouvPropertiesResolver.getDemarcheId(), usagerId.toString());
+		sendToOutbox(catsm, catsm.getUsagerId(), GUKafkaUtils.GU_TO_TS_TOPIC);
 	}
 	
 }

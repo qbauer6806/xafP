@@ -27,6 +27,7 @@ import mc.gouv.xaf.back.data.entity.UsagersCourrierBO;
 import mc.gouv.xaf.back.data.transformer.AccessTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.service.data.AccessService;
+import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
 import mc.gouv.xaf.shared.dto.AccessDTO;
 
@@ -53,6 +54,9 @@ public class AccessServiceImpl implements AccessService {
 
     @Autowired
     private EntityManager em;
+    
+    @Autowired
+    private GUKafkaProducer guKafkaProducer;
 
     /**
      * {@inheritDoc}
@@ -121,6 +125,9 @@ public class AccessServiceImpl implements AccessService {
         bo = accessRepository.save(bo);
 
         LOGGER.info("Transformation bo -> dto ...");
+        
+        LOGGER.info("Envoi d'un message au GU via Kafka...");
+        guKafkaProducer.sendCreationAccesTSMessage(usagerId);
 
         return AccessTransformer.bo2Dto(bo);
     }

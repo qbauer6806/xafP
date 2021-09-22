@@ -31,5 +31,7 @@ public interface GUKafkaProducer {
 			RecapDemandesDTO recapDemandes);
 
 	void sendSynchronisationDemandesMessage(List<UsagerDemandesRecapDTO> usagerDemandesRecap);
+	
+	void sendCreationAccesTSMessage(Integer usagerId);
 
 }

@@ -72,7 +72,6 @@ import mc.gouv.xaf.back.data.transformer.DemandesFilesTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesStatutsTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesFilesService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.DemandesStatutsService;
@@ -756,6 +755,27 @@ public class DemandesServiceImpl implements DemandesService {
 				}
 			}
 		}
+		
+		LOGGER.info("Suppression des fichiers complémentaires de la demande {} de la demarche {}...", demandeId, demarcheId);
+		// Suppression des fichiers complémentaires de la demande s'il y'en a 
+		List<DemandeComplementsDTO> complementsToDelete = Arrays.asList(demandeDTO.getComplements());
+		if (null != complementsToDelete && !complementsToDelete.isEmpty()) {
+			for (DemandeComplementsDTO demandeComplementsDTO : complementsToDelete) {
+				Optional<DemandesComplementsBO> demandeComplementBO = demandesComplementsRepository
+						.findById(demandeComplementsDTO.getPkDemandeComplements());
+				Set<DemandesComplementsFilesBO> files = demandeComplementBO.get().getFiles();
+				if (null != files && !files.isEmpty()) {
+					for (DemandesComplementsFilesBO currentFileToDelete : files) {
+						List<DemandesComplementsFilesBO> existingFiles = demandesComplementsFilesRepository
+								.findAllByUrl(currentFileToDelete.getUrl());
+						if (null != existingFiles && !existingFiles.isEmpty()
+								&& existingFiles.size() == 1) {
+							fileService.deleteFile("ROOT", currentFileToDelete.getUrl());
+						}
+					}
+				}
+			}
+		}
 
 		StatistiqueDTO stat = new StatistiqueDTO();
 		stat.setCanal(demandeBo.getCanal());
@@ -825,6 +845,25 @@ public class DemandesServiceImpl implements DemandesService {
 				}
 			}
 		}
+		
+		LOGGER.info("Suppression des fichiers complémentaires de la demande {} de la demarche {}...", demandeId, demarcheId);
+		// Suppression des fichiers complémentaires de la demande s'il y'en a 
+		List<DemandeComplementsDTO> complementsToDelete = Arrays.asList(demandeDTO.getComplements());
+		if (null != complementsToDelete && !complementsToDelete.isEmpty()) {
+			for (DemandeComplementsDTO demandeComplementsDTO : complementsToDelete) {
+				Optional<DemandesComplementsBO> demandeComplementBO = demandesComplementsRepository
+						.findById(demandeComplementsDTO.getPkDemandeComplements());
+				Set<DemandesComplementsFilesBO> files = demandeComplementBO.get().getFiles();
+				if (null != files && !files.isEmpty()) {
+					for (DemandesComplementsFilesBO currentFileToDelete : files) {
+						List<DemandesComplementsFilesBO> existingFiles = demandesComplementsFilesRepository.findAllByUrl(currentFileToDelete.getUrl());
+						if(null != existingFiles && !existingFiles.isEmpty() && isComplementsFileDeletable(existingFiles, statuts, jours)) {
+							fileService.deleteFile("ROOT", currentFileToDelete.getUrl());
+						}
+					}
+				}
+			}
+		}
 
 		StatistiqueDTO stat = new StatistiqueDTO();
 		stat.setCanal(demandeBo.getCanal());
@@ -858,12 +897,29 @@ public class DemandesServiceImpl implements DemandesService {
 			for (DemandesFilesBO demandesFilesBO : existingFiles) {
 				DemandeBO concernedDemandeBO = demandesFilesBO.getFkDemandes();
 				DemandeDTO concernedDemandeDTO = DemandesTransformer.bo2Dto(concernedDemandeBO);
-				long diffInMillies = Math.abs(new Date().getTime() - concernedDemandeDTO.getDernierStatut().getDate().getTime());
-				long diff = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
-				if(!statuts.contains(concernedDemandeDTO.getDernierStatut().getLibelle()) || diff < jours) {
-					return false;
-				}
+				return isDemandeUsingFile(statuts, jours, concernedDemandeDTO);
 			}
+		}
+		return true;
+	}
+	
+	private boolean isComplementsFileDeletable(List<DemandesComplementsFilesBO> existingFiles, List<String> statuts, int jours) {
+		if (existingFiles.size() > 1) { 
+			for (DemandesComplementsFilesBO demandesFilesBO : existingFiles) {
+				DemandeBO concernedDemandeBO = demandesFilesBO.getFkDemandesComplements().getFkDemandes();
+				DemandeDTO concernedDemandeDTO = DemandesTransformer.bo2Dto(concernedDemandeBO);
+				return isDemandeUsingFile(statuts, jours, concernedDemandeDTO);
+			}
+		}
+		return true;
+	}
+	
+	private boolean isDemandeUsingFile(List<String> statuts, int jours, DemandeDTO concernedDemandeDTO) {
+		long diffInMillies = Math.abs(new Date().getTime() - concernedDemandeDTO.getDernierStatut().getDate().getTime());
+		long diff = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
+		if(!statuts.contains(concernedDemandeDTO.getDernierStatut().getLibelle()) || diff < jours) {
+			LOGGER.info("Les fichiers complémentaires n'ont pas été supprimés car la demande {} les utilise", concernedDemandeDTO.getPkDemandes());
+			return false;
 		}
 		return true;
 	}

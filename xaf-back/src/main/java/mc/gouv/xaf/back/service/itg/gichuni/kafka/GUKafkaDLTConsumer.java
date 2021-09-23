@@ -130,7 +130,7 @@ public class GUKafkaDLTConsumer {
 	}
 	
 	public String traiterDLT() {
-		LOGGER.info("================ GHKafkaDLTConsumer.traiterDLT()");
+		LOGGER.info("================ GUKafkaDLTConsumer.traiterDLT()");
 		
 		LOGGER.info("Démarrage du KafkaListener gichuni-to-ts-consumer-dlt puis attente jusqu'à fin de la redirection des messages...");
 		
@@ -157,7 +157,7 @@ public class GUKafkaDLTConsumer {
 			}
 		
 		} catch (Exception e) {
-			LOGGER.error("Erreur lors de l'exécution du Job GHKafkaDLTConsumer.traiterDLT()", e);
+			LOGGER.error("Erreur lors de l'exécution du Job GUKafkaDLTConsumer.traiterDLT()", e);
 			msg = e.getMessage();
 		}
 		
@@ -186,7 +186,7 @@ public class GUKafkaDLTConsumer {
 		else {
 			msg = nbMessagesTraites + " messages du Dead Letter Topic ont été remis sur le topic initial " + topicInitial + " " + partitionDetails + ".";
 		}
-		LOGGER.info("================ Fin GHKafkaDLTConsumer.traiterDLT()");
+		LOGGER.info("================ Fin GUKafkaDLTConsumer.traiterDLT()");
 		
 		return msg;
 	}

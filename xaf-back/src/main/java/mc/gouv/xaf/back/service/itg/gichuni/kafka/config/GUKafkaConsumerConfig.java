@@ -25,7 +25,6 @@ import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer2;
 import org.springframework.util.backoff.BackOff;
 import org.springframework.util.backoff.FixedBackOff;
 
-import mc.gouv.xaf.back.config.ApiserverCondition;
 import mc.gouv.xaf.back.config.KafkaEnabledCondition;
 import mc.gouv.xaf.back.properties.DemPropertyNotFoundException;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;

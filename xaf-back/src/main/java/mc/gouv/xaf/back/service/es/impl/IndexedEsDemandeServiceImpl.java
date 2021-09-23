@@ -1895,7 +1895,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 				// C'est ce qu'on détermine ici
 				String demandeIdStr = Integer.toString(demandeId);
 				String identifiantFile = currentFileToDelete.getUrl().replace("/", "-");
-				String currentFileEsId = demandeIdStr + "-" + identifiantFile;
+				String currentFileEsId = demandeIdStr + "-" + identifiantFile.replace(" ", "+");
 				// Puis on requete ES pour supprimer tous les index matchant avec l'ID calculé plus haut
 				LOGGER.info("Début suppression du fichier : {} dans ElasticSearch", currentFileEsId);
 				deleteGivenFieldFromEs("_id", currentFileEsId);

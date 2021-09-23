@@ -742,25 +742,23 @@ public class DemandesServiceImpl implements DemandesService {
 		// Suppression des fichiers liés à la demande au moment de la supression de
 		// cette dernière
 		DemandeDTO demandeDTO = DemandesTransformer.bo2Dto(demandeBo);
-		List<DemandeFileDTO> filesToDelete = Arrays.asList(demandeDTO.getFichiers());
-		if (null != filesToDelete && !filesToDelete.isEmpty()) {
-			for (DemandeFileDTO currentFileToDelete : filesToDelete) {
+		if (null != demandeDTO.getFichiers() && !Arrays.asList(demandeDTO.getFichiers()).isEmpty()) {
+			for (DemandeFileDTO currentFileToDelete : demandeDTO.getFichiers()) {
 				// On ne supprime le fichier dans file que lorsqu'il n'est plus utilisé par la
 				// demande ou ses enfants (ie les demandes dupliquées qui découlent de cette
 				// demande)
 				List<DemandesFilesBO> existingFiles = demandesFilesRepository
 						.findAllByUrl(currentFileToDelete.getUrl());
 				if(null != existingFiles && !existingFiles.isEmpty() && existingFiles.size() == 1) {
-					fileService.deleteFile("ROOT", currentFileToDelete.getUrl());
+					fileService.deleteFile("ROOT", currentFileToDelete.getUrl().replace(" ", "+"));
 				}
 			}
 		}
 		
 		LOGGER.info("Suppression des fichiers complémentaires de la demande {} de la demarche {}...", demandeId, demarcheId);
 		// Suppression des fichiers complémentaires de la demande s'il y'en a 
-		List<DemandeComplementsDTO> complementsToDelete = Arrays.asList(demandeDTO.getComplements());
-		if (null != complementsToDelete && !complementsToDelete.isEmpty()) {
-			for (DemandeComplementsDTO demandeComplementsDTO : complementsToDelete) {
+		if (null != demandeDTO.getComplements() && !Arrays.asList(demandeDTO.getComplements()).isEmpty()) {
+			for (DemandeComplementsDTO demandeComplementsDTO : demandeDTO.getComplements()) {
 				Optional<DemandesComplementsBO> demandeComplementBO = demandesComplementsRepository
 						.findById(demandeComplementsDTO.getPkDemandeComplements());
 				Set<DemandesComplementsFilesBO> files = demandeComplementBO.get().getFiles();
@@ -768,9 +766,8 @@ public class DemandesServiceImpl implements DemandesService {
 					for (DemandesComplementsFilesBO currentFileToDelete : files) {
 						List<DemandesComplementsFilesBO> existingFiles = demandesComplementsFilesRepository
 								.findAllByUrl(currentFileToDelete.getUrl());
-						if (null != existingFiles && !existingFiles.isEmpty()
-								&& existingFiles.size() == 1) {
-							fileService.deleteFile("ROOT", currentFileToDelete.getUrl());
+						if (null != existingFiles && !existingFiles.isEmpty() && existingFiles.size() == 1) {
+							fileService.deleteFile("ROOT", currentFileToDelete.getUrl().replace(" ", "+"));
 						}
 					}
 				}
@@ -832,33 +829,33 @@ public class DemandesServiceImpl implements DemandesService {
 		// Suppression des fichiers liés à la demande au moment de la supression de
 		// cette dernière
 		DemandeDTO demandeDTO = DemandesTransformer.bo2Dto(demandeBo);
-		List<DemandeFileDTO> filesToDelete = Arrays.asList(demandeDTO.getFichiers());
-		if (null != filesToDelete && !filesToDelete.isEmpty()) {
-			for (DemandeFileDTO currentFileToDelete : filesToDelete) {
+		if (null != demandeDTO.getFichiers() && !Arrays.asList(demandeDTO.getFichiers()).isEmpty()) {
+			for (DemandeFileDTO currentFileToDelete : demandeDTO.getFichiers()) {
 				// On ne supprime le fichier dans file que lorsqu'il n'est plus utilisé par la
 				// demande ou ses enfants (ie les demandes dupliquées qui découlent de cette
 				// demande)
 				List<DemandesFilesBO> existingFiles = demandesFilesRepository
 						.findAllByUrl(currentFileToDelete.getUrl());
 				if(null != existingFiles && !existingFiles.isEmpty() && isFileDeletable(existingFiles, statuts, jours)) {
-					fileService.deleteFile("ROOT", currentFileToDelete.getUrl());
+					fileService.deleteFile("ROOT", currentFileToDelete.getUrl().replace(" ", "+"));
 				}
 			}
 		}
 		
 		LOGGER.info("Suppression des fichiers complémentaires de la demande {} de la demarche {}...", demandeId, demarcheId);
 		// Suppression des fichiers complémentaires de la demande s'il y'en a 
-		List<DemandeComplementsDTO> complementsToDelete = Arrays.asList(demandeDTO.getComplements());
-		if (null != complementsToDelete && !complementsToDelete.isEmpty()) {
-			for (DemandeComplementsDTO demandeComplementsDTO : complementsToDelete) {
+		if (null != demandeDTO.getComplements() && !Arrays.asList(demandeDTO.getComplements()).isEmpty()) {
+			for (DemandeComplementsDTO demandeComplementsDTO : demandeDTO.getComplements()) {
 				Optional<DemandesComplementsBO> demandeComplementBO = demandesComplementsRepository
 						.findById(demandeComplementsDTO.getPkDemandeComplements());
 				Set<DemandesComplementsFilesBO> files = demandeComplementBO.get().getFiles();
 				if (null != files && !files.isEmpty()) {
 					for (DemandesComplementsFilesBO currentFileToDelete : files) {
-						List<DemandesComplementsFilesBO> existingFiles = demandesComplementsFilesRepository.findAllByUrl(currentFileToDelete.getUrl());
-						if(null != existingFiles && !existingFiles.isEmpty() && isComplementsFileDeletable(existingFiles, statuts, jours)) {
-							fileService.deleteFile("ROOT", currentFileToDelete.getUrl());
+						List<DemandesComplementsFilesBO> existingFiles = demandesComplementsFilesRepository
+								.findAllByUrl(currentFileToDelete.getUrl());
+						if (null != existingFiles && !existingFiles.isEmpty()
+								&& isComplementsFileDeletable(existingFiles, statuts, jours)) {
+							fileService.deleteFile("ROOT", currentFileToDelete.getUrl().replace(" ", "+"));
 						}
 					}
 				}

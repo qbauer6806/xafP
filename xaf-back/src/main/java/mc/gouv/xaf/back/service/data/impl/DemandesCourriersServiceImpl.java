@@ -203,7 +203,7 @@ public class DemandesCourriersServiceImpl implements DemandesCourriersService {
 			for (DemandeCourrierDTO currentCourriersToDelete : courriersToDelete) {
 				// On extrait le fileName de l'url puis on la supprime de file
 				String fileName = currentCourriersToDelete.getUrl();
-				fileService.deleteFile("ROOT", fileName);
+				fileService.deleteFile("ROOT", fileName.replace(" ", "+"));
 				// Ensuite on supprime le courriers de la DB
 				DemandesCourriersBO courrierBo = getCourrierBo(demarcheId, pkDemande, currentCourriersToDelete.getPkCourrier());
 				if (courrierBo == null) {

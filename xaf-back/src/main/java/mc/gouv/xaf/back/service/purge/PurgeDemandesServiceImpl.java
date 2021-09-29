@@ -151,7 +151,8 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 		}
 	}
 
-	private void envoisMailAgentPurge(String demandesAPurger, String delai) {
+    @Override
+	public void envoisMailAgentPurge(String demandesAPurger, String delai) {
 		final String subjectTemplateCode = "MAIL_PURGE_DEMANDES_POUR_AGENT_OBJET";
 		final String bodyTemplateCode = "MAIL_PURGE_DEMANDES_POUR_AGENT_CORPS";
 
@@ -169,7 +170,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 		}
 	}
 
-	private EmailInfoDTO creationMailPurge(String bodyTemplateCode, String subjectTemplateCode, String langue) {
+	protected EmailInfoDTO creationMailPurge(String bodyTemplateCode, String subjectTemplateCode, String langue) {
 
 		EmailInfoDTO emailInfo = new EmailInfoDTO();
 		emailInfo.setBodyTemplateCode(bodyTemplateCode);

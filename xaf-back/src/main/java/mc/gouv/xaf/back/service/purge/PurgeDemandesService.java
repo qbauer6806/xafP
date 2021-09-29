@@ -13,4 +13,13 @@ public interface PurgeDemandesService {
 	 * @return statistiques
 	 */
 	List<PurgeDemandeDTO> getDemandesPurgees();
+	
+	
+	/**
+	 * Spécifie la méthode d'envoi des emails aux agents
+	 * @param demandesAPurger
+	 * @param delai
+	 */
+	void envoisMailAgentPurge(String demandesAPurger, String delai);
+	
 }

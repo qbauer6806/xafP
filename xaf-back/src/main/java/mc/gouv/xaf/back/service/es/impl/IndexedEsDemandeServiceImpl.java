@@ -1887,19 +1887,23 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 	}
 
 	private void deleteEsFilesIndex(Integer demandeId, DemandeDTO demandeDTO) throws Exception {
-		List<DemandeFileDTO> filesToDelete = Arrays.asList(demandeDTO.getFichiers());
-		// On supprime les index des fichiers de la demande dans ES
-		if (null != filesToDelete && !filesToDelete.isEmpty()) {
-			for (DemandeFileDTO currentFileToDelete : filesToDelete) {
-				// Ici le format de l'ID d'un courrier dans ES est {pkDemande}-{courrierUrl (avec "/" remplacé par des "-")}
-				// C'est ce qu'on détermine ici
-				String demandeIdStr = Integer.toString(demandeId);
-				String identifiantFile = currentFileToDelete.getUrl().replace("/", "-");
-				String currentFileEsId = demandeIdStr + "-" + identifiantFile.replace(" ", "+");
-				// Puis on requete ES pour supprimer tous les index matchant avec l'ID calculé plus haut
-				LOGGER.info("Début suppression du fichier : {} dans ElasticSearch", currentFileEsId);
-				deleteGivenFieldFromEs("_id", currentFileEsId);
-				LOGGER.info("Fin suppression du fichier : {} dans ElasticSearch", currentFileEsId);
+		if (null != demandeDTO.getFichiers()) {
+			List<DemandeFileDTO> filesToDelete = Arrays.asList(demandeDTO.getFichiers());
+			// On supprime les index des fichiers de la demande dans ES
+			if (null != filesToDelete && !filesToDelete.isEmpty()) {
+				for (DemandeFileDTO currentFileToDelete : filesToDelete) {
+					// Ici le format de l'ID d'un courrier dans ES est {pkDemande}-{courrierUrl
+					// (avec "/" remplacé par des "-")}
+					// C'est ce qu'on détermine ici
+					String demandeIdStr = Integer.toString(demandeId);
+					String identifiantFile = currentFileToDelete.getUrl().replace("/", "-");
+					String currentFileEsId = demandeIdStr + "-" + identifiantFile.replace(" ", "+");
+					// Puis on requete ES pour supprimer tous les index matchant avec l'ID calculé
+					// plus haut
+					LOGGER.info("Début suppression du fichier : {} dans ElasticSearch", currentFileEsId);
+					deleteGivenFieldFromEs("_id", currentFileEsId);
+					LOGGER.info("Fin suppression du fichier : {} dans ElasticSearch", currentFileEsId);
+				}
 			}
 		}
 	}

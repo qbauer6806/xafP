@@ -1,7 +1,5 @@
 package mc.gouv.xaf.back.service.itg.gichuni.kafka.config;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -58,47 +56,17 @@ public class GUKafkaProducerConfig {
           StringSerializer.class);
         
         boolean sslEnabled = gouvPropertiesResolver.getGUKafkaSSLEnabled();
-        if (sslEnabled) {
-        	
-        	String hostname = "";
-        	try {
-				InetAddress ip = InetAddress.getLocalHost();
-				hostname = ip.getHostName();	
-			} catch (UnknownHostException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-        	
-        	LOGGER.info("hostname=" + hostname);
-        	
+        if (sslEnabled) {        	
         	configProps.put("security.protocol", "SSL");
         	
         	configProps.put("ssl.truststore.location", gouvPropertiesResolver.getGUKafkaSSLTrustStoreLocation());
-        	
-        	Map<String,String> map = getHostnamePasswordMap(gouvPropertiesResolver.getGUKafkaSSLTrustStorePassword());
-        	LOGGER.info("map1=" + map);
-        	LOGGER.info("mdp1=" + map.get(hostname));
-        	configProps.put("ssl.truststore.password", map.get(hostname));
-
-        	map = getHostnamePasswordMap(gouvPropertiesResolver.getGUKafkaSSLKeyStorePassword());
-        	LOGGER.info("map2=" + map);
-        	LOGGER.info("mdp2=" + map.get(hostname));
-        	configProps.put("ssl.key.password", map.get(hostname));
-        	configProps.put("ssl.keystore.password", map.get(hostname));
+        	configProps.put("ssl.truststore.password", gouvPropertiesResolver.getGUKafkaSSLTrustStorePassword());
+        	configProps.put("ssl.key.password", gouvPropertiesResolver.getGUKafkaSSLKeyStorePassword());
+        	configProps.put("ssl.keystore.password", gouvPropertiesResolver.getGUKafkaSSLKeyStorePassword());
         	configProps.put("ssl.keystore.location", gouvPropertiesResolver.getGUKafkaSSLKeyStoreLocation());
         }
         
         return new DefaultKafkaProducerFactory<>(configProps);
-    }
-    
-    private Map<String,String> getHostnamePasswordMap(String prop) {
-    	Map<String,String> map = new HashMap<String,String>();
-    	String[] hosts = prop.split(",");
-    	for (String host : hosts) {
-    		String[] tokens = host.split("!");
-    		map.put(tokens[0], tokens[1]);
-    	}
-    	return map;
     }
 
     @Bean

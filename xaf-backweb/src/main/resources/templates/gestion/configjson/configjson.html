@@ -163,7 +163,7 @@
 			<input type="hidden" href="javascript:void(0);" data-type="success"
 				data-delay="5000" data-message="" id="successMessage"
 				class="notification" /> <input type="hidden"
-				href="javascript:void(0);" data-type="danger" data-delay="0"
+				href="javascript:void(0);" data-type="danger" data-delay="5000"
 				data-message="" id="errorMessage" class="notification" />
 
 
@@ -511,7 +511,7 @@
     					success : function(data) {
 
     						$("#successMessage").data("message",
-    								"Le libellé a été enregistrée avec succès")
+    								"Le libellé a été ajouté avec succès")
     								.click();
     						$("#libelleInput").val('');
     						$("#libelleErrorMessage").css("visibility", "hidden").css(

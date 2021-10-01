@@ -1,7 +1,5 @@
 package mc.gouv.xaf.back.service.itg.gichuni.kafka.config;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -60,68 +58,38 @@ public class GUKafkaConsumerConfig {
     @Bean
     public ConsumerFactory<String, String> consumerFactory() {
     	System.out.println("consumerFactory()");
-        Map<String, Object> props = new HashMap<>();
-        props.put(
+        Map<String, Object> configProps = new HashMap<>();
+        configProps.put(
           ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, 
           gouvPropertiesResolver.getGUKafkaBootstrapServersConfig());
         
         // GroupID : le code appli (DemarcheID)
-        props.put(
+        configProps.put(
           ConsumerConfig.GROUP_ID_CONFIG, 
           gouvPropertiesResolver.getDemarcheId());
-        props.put(
+        configProps.put(
           ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, 
           StringDeserializer.class);
-        props.put(
+        configProps.put(
           ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, 
           StringDeserializer.class);
         //return new DefaultKafkaConsumerFactory<>(props);
         
         boolean sslEnabled = gouvPropertiesResolver.getGUKafkaSSLEnabled();
-        if (sslEnabled) {
+        if (sslEnabled) {        	
+        	configProps.put("security.protocol", "SSL");
         	
-        	String hostname = "";
-        	try {
-				InetAddress ip = InetAddress.getLocalHost();
-				hostname = ip.getHostName();	
-			} catch (UnknownHostException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-        	
-        	LOGGER.info("hostname=" + hostname);
-        	
-        	props.put("security.protocol", "SSL");
-        	
-        	props.put("ssl.truststore.location", gouvPropertiesResolver.getGUKafkaSSLTrustStoreLocation());
-        	
-        	Map<String,String> map = getHostnamePasswordMap(gouvPropertiesResolver.getGUKafkaSSLTrustStorePassword());
-        	LOGGER.info("map1=" + map);
-        	LOGGER.info("mdp1=" + map.get(hostname));
-        	props.put("ssl.truststore.password", map.get(hostname));
-
-        	map = getHostnamePasswordMap(gouvPropertiesResolver.getGUKafkaSSLKeyStorePassword());
-        	LOGGER.info("map2=" + map);
-        	LOGGER.info("mdp2=" + map.get(hostname));
-        	props.put("ssl.key.password", map.get(hostname));
-        	props.put("ssl.keystore.password", map.get(hostname));
-        	props.put("ssl.keystore.location", gouvPropertiesResolver.getGUKafkaSSLKeyStoreLocation());
+        	configProps.put("ssl.truststore.location", gouvPropertiesResolver.getGUKafkaSSLTrustStoreLocation());
+        	configProps.put("ssl.truststore.password", gouvPropertiesResolver.getGUKafkaSSLTrustStorePassword());
+        	configProps.put("ssl.key.password", gouvPropertiesResolver.getGUKafkaSSLKeyStorePassword());
+        	configProps.put("ssl.keystore.password", gouvPropertiesResolver.getGUKafkaSSLKeyStorePassword());
+        	configProps.put("ssl.keystore.location", gouvPropertiesResolver.getGUKafkaSSLKeyStoreLocation());
         }
         
-        return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(),
+        return new DefaultKafkaConsumerFactory<>(configProps, new StringDeserializer(),
                 new ErrorHandlingDeserializer2<>(new StringDeserializer()));
     }
-    
-    private Map<String,String> getHostnamePasswordMap(String prop) {
-    	Map<String,String> map = new HashMap<String,String>();
-    	String[] hosts = prop.split(",");
-    	for (String host : hosts) {
-    		String[] tokens = host.split("!");
-    		map.put(tokens[0], tokens[1]);
-    	}
-    	return map;
-    }
-    
+
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, String> 
       kafkaListenerContainerFactory() throws DemPropertyNotFoundException {

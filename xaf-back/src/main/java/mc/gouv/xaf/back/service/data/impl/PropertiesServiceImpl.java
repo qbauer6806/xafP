@@ -135,6 +135,10 @@ public class PropertiesServiceImpl implements PropertiesService {
 				Collections.sort(jsonObjectsToDisplay, new Comparator<PropertiesListEntityDTO>() {
 		    		  @Override
 		    		  public int compare(PropertiesListEntityDTO p1, PropertiesListEntityDTO p2) {
+		    			  // On veut laisser le libelle Autre en 1ere position dans la liste
+		    			  if (p1.getLabel().equals("AUTRE") || p2.getLabel().equals("AUTRE")) {
+		    				  return 1;
+		    			  } 
 		    		    return p1.getLabel().compareTo(p2.getLabel());
 		    		  }
 		    	});

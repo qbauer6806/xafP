@@ -137,9 +137,10 @@ public class PropertiesServiceImpl implements PropertiesService {
 		    		  public int compare(PropertiesListEntityDTO p1, PropertiesListEntityDTO p2) {
 		    			  // On veut laisser le libelle Autre en 1ere position dans la liste
 		    			  if (p1.getLabel().equals("AUTRE") || p2.getLabel().equals("AUTRE")) {
+		    				  // je retourne 1 si AUTRE commme ça il reste au début de la liste
 		    				  return 1;
 		    			  } 
-		    		    return p1.getLabel().compareTo(p2.getLabel());
+		    		    return p1.getLabel().toUpperCase().compareTo(p2.getLabel().toUpperCase());
 		    		  }
 		    	});
 				ByteArrayOutputStream out = new ByteArrayOutputStream();

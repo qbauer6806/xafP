@@ -104,12 +104,23 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
                     if (StringUtils.isNotBlank(indexingPropStr) && indexingPropStr.equals(true)) {
                         indexingEnabled = true;
                     }
+                    
+                    // Est-ce que le SSL est activé ?
+                    boolean sslEnabled = getGUKafkaSSLEnabled();
 
                     // On ignore la présence de la property si la méthode possède @GouvIndexationProperty mais que l'appli a indexationEnabled=false
-                    if (!(method.getDeclaredAnnotation(GouvIndexationProperty.class) instanceof GouvIndexationProperty)
+                    boolean pasIgnorerIndexing = !(method.getDeclaredAnnotation(GouvIndexationProperty.class) instanceof GouvIndexationProperty)
                             || (method.getDeclaredAnnotation(
                                     GouvIndexationProperty.class) instanceof GouvIndexationProperty
-                                    && indexingEnabled)) {
+                                    && indexingEnabled);
+                    
+                    // On ignore la présence de la property si la méthode possède @GouvSSLProperty mais que l'appli a
+                	// mc.gouv.af.back.external.gichuni.kafka.ssl.enabled=false
+                    boolean pasIgnorerSSL = !(method.getDeclaredAnnotation(GouvSSLProperty.class) instanceof GouvSSLProperty)
+                            || (method.getDeclaredAnnotation(
+                            		GouvSSLProperty.class) instanceof GouvSSLProperty
+                                    && sslEnabled);
+                    if (pasIgnorerIndexing && pasIgnorerSSL) {
                         Object value = method.invoke(this);
                         if (value instanceof String) {
                             if (StringUtils.isBlank((String) value)) {
@@ -397,21 +408,25 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
         return Boolean.parseBoolean(value);
     }
     
+    @GouvSSLProperty
     @Override
     public String getGUKafkaSSLTrustStoreLocation() {
         return getValueForHostname(Static.getValue("mc.gouv.af.back.external.gichuni.kafka.ssl.truststore.location"));
     }
     
+    @GouvSSLProperty
     @Override
     public String getGUKafkaSSLTrustStorePassword() {
         return getValueForHostname(Static.getValue("mc.gouv.af.back.external.gichuni.kafka.ssl.truststore.password"));
     }
     
+    @GouvSSLProperty
     @Override
     public String getGUKafkaSSLKeyStoreLocation() {
         return getValueForHostname(Static.getValue("mc.gouv.af.back.external.gichuni.kafka.ssl.keystore.location"));
     }
     
+    @GouvSSLProperty
     @Override
     public String getGUKafkaSSLKeyStorePassword() {
         return getValueForHostname(Static.getValue("mc.gouv.af.back.external.gichuni.kafka.ssl.keystore.password"));

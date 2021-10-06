@@ -445,7 +445,10 @@
     			if ($("#importConfigButtonButton").val() === '') {
     				$("#errorMessage").data("message",
     						"Le fichier à importer est obligatoire").click();
-    			} else {
+    			} if (!$("#importConfigButtonButton").val().endsWith('.json')) {
+    				$("#errorMessage").data("message",
+					"Un problème est survenu lors de l'import de la configuration: Le fichier ne respecte pas la structure des fichiers à importer").click();
+				} else {
     				var filedata = $('#importConfigButtonButton').prop('files')[0];
     				var formdata = new FormData();
     				formdata.append('file', filedata);

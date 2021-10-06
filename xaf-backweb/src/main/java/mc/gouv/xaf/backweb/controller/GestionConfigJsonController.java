@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.List;
 
 import javax.transaction.Transactional;
+import javax.ws.rs.BadRequestException;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -29,6 +30,8 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import mc.gouv.xaf.back.service.data.PropertiesService;
@@ -70,9 +73,14 @@ public class GestionConfigJsonController {
 		LOGGER.info("Appel de la page gestion/configjson. Méthode form");
 		// Récupération du json représentant le fichier
 		ObjectMapper mapper = new ObjectMapper();
-		if (!StringUtils.isEmpty(property.getValue())) {
-			jsonObjectsToDisplay = Arrays.asList(mapper.readValue(property.getValue(), PropertiesListEntityDTO[].class));
-		}
+		try {
+			if (!StringUtils.isEmpty(property.getValue())) {
+				jsonObjectsToDisplay = Arrays.asList(mapper.readValue(property.getValue(), PropertiesListEntityDTO[].class));
+			}
+        } catch (JsonParseException | JsonMappingException e) {
+            throw new BadRequestException("Le fichier ne respecte pas la structure des fichiers à importer");
+        }
+		
 		// Set de la liste utile dans le model and view
 		LOGGER.info("======================= Fin /gestion/properties. Méthode form");
 		return jsonObjectsToDisplay;
@@ -155,6 +163,15 @@ public class GestionConfigJsonController {
 		LOGGER.info("Appel du webservice /gestion/configjson/import");
 		PropertiesDTO property = propertiesService.getProperty(afBackUtils.getDemarcheInfos().getPkDemarches(), key);
 		property.setValue(new String(file.getBytes()));
+		// Vérification du fichier donné
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			if (!StringUtils.isEmpty(property.getValue())) {
+				mapper.readValue(property.getValue(), PropertiesListEntityDTO[].class);
+			}
+        } catch (JsonParseException | JsonMappingException e) {
+            throw new BadRequestException("Le fichier ne respecte pas la structure des fichiers à importer");
+        }
 		propertiesService.saveOrUpdateProperties(property);
 		List<String> messages = new ArrayList<>();
 		messages.add(IMPORT_SUCCESS);

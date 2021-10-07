@@ -120,7 +120,12 @@
 							style="padding: 20px">Êtes-vous sûr de vouloir mettre à
 							jour ces libellés ?</div>
 					</div>
-
+					<div class="col-xs-12">
+                    	<span class="label statusbox en-cours-traitement"><b>ATTENTION</b></span>
+                	</div>
+                	<div class="col-xs-12">
+                    	<span style="color: #EC661C">La modification des libellés impacte également les anciennes demandes.</span>
+                	</div>
 					<div class="row ">
 						<div class=" text-right">
 							<a class="annuler-preview btn btn-action ripple-effect"
@@ -445,7 +450,10 @@
     			if ($("#importConfigButtonButton").val() === '') {
     				$("#errorMessage").data("message",
     						"Le fichier à importer est obligatoire").click();
-    			} else {
+    			} if (!$("#importConfigButtonButton").val().endsWith('.json')) {
+    				$("#errorMessage").data("message",
+					"Un problème est survenu lors de l'import de la configuration: Le fichier ne respecte pas la structure des fichiers à importer").click();
+				} else {
     				var filedata = $('#importConfigButtonButton').prop('files')[0];
     				var formdata = new FormData();
     				formdata.append('file', filedata);

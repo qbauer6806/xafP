@@ -924,35 +924,40 @@ public class DemandesServiceImpl implements DemandesService {
 	}
 
 	private boolean isFileDeletable(List<DemandesFilesBO> existingFiles, List<String> statuts, int jours) {
-		if (existingFiles.size() > 1) { 
+		boolean isFileDeletable = false;
+		if (existingFiles.size() < 1) { 
 			for (DemandesFilesBO demandesFilesBO : existingFiles) {
 				DemandeBO concernedDemandeBO = demandesFilesBO.getFkDemandes();
 				DemandeDTO concernedDemandeDTO = DemandesTransformer.bo2Dto(concernedDemandeBO);
-				return isDemandeUsingFile(statuts, jours, concernedDemandeDTO);
+				isFileDeletable = !isDemandeUsingFile(statuts, jours, concernedDemandeDTO);
+				LOGGER.info("Le fichier {} n'a pas été supprimé car la demande {} l'utilise", demandesFilesBO.getName() , concernedDemandeDTO.getPkDemandes());
 			}
 		}
-		return true;
+		LOGGER.info("Le fichier {} n'a pas été supprimé car il est référencé dans une autre demande", existingFiles.get(0).getName());
+		return isFileDeletable;
 	}
 	
 	private boolean isComplementsFileDeletable(List<DemandesComplementsFilesBO> existingFiles, List<String> statuts, int jours) {
-		if (existingFiles.size() > 1) { 
+		boolean isComplementFileDeletable = false;
+		if (existingFiles.size() < 1) { 
 			for (DemandesComplementsFilesBO demandesFilesBO : existingFiles) {
 				DemandeBO concernedDemandeBO = demandesFilesBO.getFkDemandesComplements().getFkDemandes();
 				DemandeDTO concernedDemandeDTO = DemandesTransformer.bo2Dto(concernedDemandeBO);
-				return isDemandeUsingFile(statuts, jours, concernedDemandeDTO);
+				isComplementFileDeletable = !isDemandeUsingFile(statuts, jours, concernedDemandeDTO);
+				LOGGER.info("Le fichier {} n'a pas été supprimé car la demande {} l'utilise", demandesFilesBO.getName() , concernedDemandeDTO.getPkDemandes());
 			}
 		}
-		return true;
+		LOGGER.info("Le fichier {} n'a pas été supprimé car il est référencé dans une autre demande", existingFiles.get(0).getName());
+		return isComplementFileDeletable;
 	}
 	
 	private boolean isDemandeUsingFile(List<String> statuts, int jours, DemandeDTO concernedDemandeDTO) {
 		long diffInMillies = Math.abs(new Date().getTime() - concernedDemandeDTO.getDernierStatut().getDate().getTime());
 		long diff = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
 		if(!statuts.contains(concernedDemandeDTO.getDernierStatut().getLibelle()) || diff < jours) {
-			LOGGER.info("Les fichiers complémentaires n'ont pas été supprimés car la demande {} les utilise", concernedDemandeDTO.getPkDemandes());
-			return false;
+			return true;
 		}
-		return true;
+		return false;
 	}
 
 	@Override

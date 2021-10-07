@@ -1,7 +1,9 @@
 package mc.gouv.xaf.back.service.data.impl;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.net.URLEncoder;
 import java.security.SecureRandom;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -750,7 +752,12 @@ public class DemandesServiceImpl implements DemandesService {
 				List<DemandesFilesBO> existingFiles = demandesFilesRepository
 						.findAllByUrl(currentFileToDelete.getUrl());
 				if(null != existingFiles && !existingFiles.isEmpty() && existingFiles.size() == 1) {
-					fileService.deleteFile("ROOT", currentFileToDelete.getUrl().replace(" ", "+"));
+					try {
+						String url = URLEncoder.encode(currentFileToDelete.getUrl(), "UTF-8");
+						fileService.deleteFile("ROOT", url);
+					} catch (UnsupportedEncodingException e) {
+						LOGGER.error("Problème lors de l'encoding des urls des fichiers initiaux", e);
+					}
 				}
 			}
 		}
@@ -767,7 +774,18 @@ public class DemandesServiceImpl implements DemandesService {
 						List<DemandesComplementsFilesBO> existingFiles = demandesComplementsFilesRepository
 								.findAllByUrl(currentFileToDelete.getUrl());
 						if (null != existingFiles && !existingFiles.isEmpty() && existingFiles.size() == 1) {
-							fileService.deleteFile("ROOT", currentFileToDelete.getUrl().replace(" ", "+"));
+							// Hard fix: Les fichiers complémentaires ajoutés via le BO sont stockés en BDD avec un url encodé,
+							// à l'inverse ceux depuis le FO le sont pas. Il faut une façon de différencier les deux: on check si le nom de fichier
+							// existe dans l'url décodé.
+							String url = currentFileToDelete.getUrl();
+							if (url.contains(currentFileToDelete.getName())) {
+								try {
+									url = URLEncoder.encode(url, "UTF-8");
+								} catch (UnsupportedEncodingException e) {
+									LOGGER.error("Problème lors de l'encoding des urls des fichiers complémentaires", e);
+								}
+							}
+							fileService.deleteFile("ROOT", url);
 						}
 					}
 				}
@@ -837,7 +855,12 @@ public class DemandesServiceImpl implements DemandesService {
 				List<DemandesFilesBO> existingFiles = demandesFilesRepository
 						.findAllByUrl(currentFileToDelete.getUrl());
 				if(null != existingFiles && !existingFiles.isEmpty() && isFileDeletable(existingFiles, statuts, jours)) {
-					fileService.deleteFile("ROOT", currentFileToDelete.getUrl().replace(" ", "+"));
+					try {
+						String url = URLEncoder.encode(currentFileToDelete.getUrl(), "UTF-8");
+						fileService.deleteFile("ROOT", url);
+					} catch (UnsupportedEncodingException e) {
+						LOGGER.error("Problème lors de l'encoding des urls des fichiers initiaux", e);
+					}
 				}
 			}
 		}
@@ -855,7 +878,18 @@ public class DemandesServiceImpl implements DemandesService {
 								.findAllByUrl(currentFileToDelete.getUrl());
 						if (null != existingFiles && !existingFiles.isEmpty()
 								&& isComplementsFileDeletable(existingFiles, statuts, jours)) {
-							fileService.deleteFile("ROOT", currentFileToDelete.getUrl().replace(" ", "+"));
+							// Hard fix: Les fichiers complémentaires ajoutés via le BO sont stockés en BDD avec un url encodé,
+							// à l'inverse ceux depuis le FO le sont pas. Il faut une façon de différencier les deux: on check si le nom de fichier
+							// existe dans l'url décodé.
+							String url = currentFileToDelete.getUrl();
+							if (url.contains(currentFileToDelete.getName())) {
+								try {
+									url = URLEncoder.encode(url, "UTF-8");
+								} catch (UnsupportedEncodingException e) {
+									LOGGER.error("Problème lors de l'encoding des urls des fichiers complémentaires", e);
+								}
+							}
+							fileService.deleteFile("ROOT", url);
 						}
 					}
 				}

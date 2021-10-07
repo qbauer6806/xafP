@@ -891,7 +891,7 @@ public class DemandesServiceImpl implements DemandesService {
 
 	private boolean isFileDeletable(List<DemandesFilesBO> existingFiles, List<String> statuts, int jours) {
 		boolean isFileDeletable = false;
-		if (existingFiles.size() < 1) { 
+		if (existingFiles.size() <= 1) { 
 			for (DemandesFilesBO demandesFilesBO : existingFiles) {
 				DemandeBO concernedDemandeBO = demandesFilesBO.getFkDemandes();
 				DemandeDTO concernedDemandeDTO = DemandesTransformer.bo2Dto(concernedDemandeBO);
@@ -905,7 +905,7 @@ public class DemandesServiceImpl implements DemandesService {
 	
 	private boolean isComplementsFileDeletable(List<DemandesComplementsFilesBO> existingFiles, List<String> statuts, int jours) {
 		boolean isComplementFileDeletable = false;
-		if (existingFiles.size() < 1) { 
+		if (existingFiles.size() <= 1) { 
 			for (DemandesComplementsFilesBO demandesFilesBO : existingFiles) {
 				DemandeBO concernedDemandeBO = demandesFilesBO.getFkDemandesComplements().getFkDemandes();
 				DemandeDTO concernedDemandeDTO = DemandesTransformer.bo2Dto(concernedDemandeBO);

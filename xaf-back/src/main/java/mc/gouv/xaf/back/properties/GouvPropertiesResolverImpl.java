@@ -4,12 +4,8 @@ import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
@@ -22,10 +18,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import mc.gouv.Static;
 
@@ -411,48 +403,25 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     @GouvSSLProperty
     @Override
     public String getGUKafkaSSLTrustStoreLocation() {
-        return getValueForHostname(Static.getValue("mc.gouv.af.back.external.gichuni.kafka.ssl.truststore.location"));
+        return Static.getValue("mc.gouv.af.back.external.gichuni.kafka.ssl.truststore.location");
     }
     
     @GouvSSLProperty
     @Override
     public String getGUKafkaSSLTrustStorePassword() {
-        return getValueForHostname(Static.getValue("mc.gouv.af.back.external.gichuni.kafka.ssl.truststore.password"));
+        return Static.getValue("mc.gouv.af.back.external.gichuni.kafka.ssl.truststore.password");
     }
     
     @GouvSSLProperty
     @Override
     public String getGUKafkaSSLKeyStoreLocation() {
-        return getValueForHostname(Static.getValue("mc.gouv.af.back.external.gichuni.kafka.ssl.keystore.location"));
+        return Static.getValue("mc.gouv.af.back.external.gichuni.kafka.ssl.keystore.location");
     }
     
     @GouvSSLProperty
     @Override
     public String getGUKafkaSSLKeyStorePassword() {
-        return getValueForHostname(Static.getValue("mc.gouv.af.back.external.gichuni.kafka.ssl.keystore.password"));
+        return Static.getValue("mc.gouv.af.back.external.gichuni.kafka.ssl.keystore.password");
     }
-    
-    private String getValueForHostname(String json) {
-    	String hostname = "";
-    	try {
-			InetAddress ip = InetAddress.getLocalHost();
-			hostname = ip.getHostName();
-			
-			return getMapFromJSON(json).get(hostname);
-		} catch (UnknownHostException e) {
-			LOGGER.error("Erreur lors de la récupération du Hostname", e);
-			return null;
-		}
-    }
-    
-    private Map<String,String> getMapFromJSON(String json) {
-    	TypeReference<HashMap<String, String>> typeRef = new TypeReference<HashMap<String, String>>() {};
-    	ObjectMapper mapper = new ObjectMapper();
-    	try {
-			return mapper.readValue(json, typeRef);
-		} catch (JsonProcessingException e) {
-			LOGGER.error("Erreur lors de la transformation d'un json issu des properties, en Map", e);
-			return null;
-		}
-    }
+
 }

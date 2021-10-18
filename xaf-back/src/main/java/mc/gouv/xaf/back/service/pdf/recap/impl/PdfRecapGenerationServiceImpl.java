@@ -139,8 +139,7 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
                     : "Aucune demande d'informations complémentaires.";
 
             LOGGER.info("Génération du code HTML de la récap...");
-            // refs #33280 - [BO] Traitement de la demande - Erreur 500 suite à tentative de génération du récap pour une demande ayant ''&" dans le nom de l'entreprise partenaire
-            String htmlRecap = demandeRecapHTMLService.getHTMLDemandeContenuRecap(demande, true).replaceAll("&[^(#38)(amp)(AMP)]", "&#38; ");
+            String htmlRecap = demandeRecapHTMLService.getHTMLDemandeContenuRecap(demande, true);
 
             LOGGER.info("Création d'un fichier temporaire pour stocker le HTML...");
             htmlSource = File.createTempFile("tmpRecapHtml", ".html");

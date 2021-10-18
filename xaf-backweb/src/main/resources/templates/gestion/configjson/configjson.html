@@ -509,12 +509,13 @@
     			} else {
     				$.ajax({
     					url : APP.getContextPath() + "/gestion/configjson/addlibelle?label="
-    							+ $("#libelleInput").val()+"&key="+key+"&cle="+ $("#libelleInput").val().replaceAll(' ', '_'),
+    							+ encodeURIComponent($("#libelleInput").val())+"&key="+key+"&cle="+ encodeURIComponent($("#libelleInput").val().replaceAll(' ', '_')),
     					method : "POST",
     					traditional : true,
     					contentType : "application/json",
     					beforeSend : function(xhr) {
     						xhr.setRequestHeader(header, token);
+    						
     					},
     					success : function(data) {
 

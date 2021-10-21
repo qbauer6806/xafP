@@ -4,6 +4,8 @@ import org.springframework.context.annotation.Condition;
 import org.springframework.context.annotation.ConditionContext;
 import org.springframework.core.type.AnnotatedTypeMetadata;
 
+import mc.gouv.Static;
+
 /**
  * Condition permettant d'activer ou de désactiver les interactions avec Kafka
  * 
@@ -17,8 +19,11 @@ public class KafkaEnabledCondition implements Condition {
     @Override
     public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
     	String appName = context.getEnvironment().getProperty(APPLICATION_NAME_PROPERTY);
-    	String kafkaEnabledProp = context.getEnvironment().getProperty("mc.gouv." + appName + ".kafka.enabled");
-    	return "true".equals(kafkaEnabledProp);
+        String value = Static.getValue("mc.gouv." + appName + ".backapi.kafka.enabled");
+        if (value == null) {
+            return false;
+        }
+        return Boolean.parseBoolean(value);
     }
 
 }

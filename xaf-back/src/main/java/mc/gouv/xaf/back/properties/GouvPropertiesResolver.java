@@ -91,4 +91,6 @@ public interface GouvPropertiesResolver {
 
 	String getGUKafkaSSLKeyStorePassword();
 
+	boolean getKafkaEnabled();
+
 }

@@ -423,5 +423,14 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     public String getGUKafkaSSLKeyStorePassword() {
         return Static.getValue("mc.gouv.af.back.external.gichuni.kafka.ssl.keystore.password");
     }
+    
+    @Override
+    public boolean getKafkaEnabled() {
+        String value = Static.getValue("mc.gouv" + applicationPrefix + ".backapi.kafka.enabled");
+        if (value == null) {
+            return false;
+        }
+        return Boolean.parseBoolean(value);
+    }
 
 }

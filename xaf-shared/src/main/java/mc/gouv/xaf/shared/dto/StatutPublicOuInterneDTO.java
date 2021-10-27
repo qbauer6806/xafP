@@ -2,14 +2,13 @@ package mc.gouv.xaf.shared.dto;
 
 /**
  * Contient le nom et le libellé d'un statut public (DEM) ou interne (démarche)
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 public class StatutPublicOuInterneDTO {
     
     private String name;
-    
+
     private String libelle;
 
     public String getName() {
@@ -32,5 +31,5 @@ public class StatutPublicOuInterneDTO {
     public String toString() {
         return libelle;
     }
-    
+
 }

@@ -27,7 +27,7 @@ import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
 /**
  * Servlet mettant à disposition le service /demandes avec les méthodes PUT, POST, GET, DELETE.
  * Cette servlet récupère le DemarcheID ainsi que l'UsagerID (depuis la session) et appelle les WS
- * correspontants dans le back-end générique.
+ * correspondants dans le back-end générique.
  * 
  * @author qdeme
  *

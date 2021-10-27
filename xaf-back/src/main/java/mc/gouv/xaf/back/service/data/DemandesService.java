@@ -132,6 +132,9 @@ public interface DemandesService {
      * @throws JsonProcessingException
      */
     void deleteDemande(String demarcheId, Integer demandeId) throws JsonProcessingException;
+    
+    
+    void deleteDemandeInGivenStatus(String demarcheId, Integer demandeId, List<String> statuts, int jours) throws JsonProcessingException;
 
     /**
      * Permet de sauvegarder ou mettre à jour une demande en base

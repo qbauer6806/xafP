@@ -1,26 +1,48 @@
 package mc.gouv.xaf.back.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import mc.gouv.xaf.back.service.data.DemandesService;
-import mc.gouv.xaf.back.service.es.impl.IndexedEsDemandeServiceImpl;
-import mc.gouv.xaf.shared.dto.*;
-import mc.gouv.xapi.error.dto.ErrorsDTO;
-import mc.gouv.xapi.error.exception.WebException;
+import java.io.IOException;
+import java.text.MessageFormat;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+
 import org.apache.tika.exception.TikaException;
 import org.hibernate.TransactionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.xml.sax.SAXException;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-import java.io.IOException;
-import java.text.MessageFormat;
-import java.util.List;
+import com.fasterxml.jackson.core.JsonProcessingException;
+
+import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.back.service.es.impl.IndexedEsDemandeServiceImpl;
+import mc.gouv.xaf.shared.dto.AccessDTO;
+import mc.gouv.xaf.shared.dto.AccessInputDTO;
+import mc.gouv.xaf.shared.dto.BrouillonDTO;
+import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
+import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeInputDTO;
+import mc.gouv.xaf.shared.dto.MotifDTO;
+import mc.gouv.xaf.shared.dto.Page;
+import mc.gouv.xaf.shared.dto.PageParamDTO;
+import mc.gouv.xaf.shared.dto.PeriodeOuvertureDTO;
+import mc.gouv.xaf.shared.dto.PropertiesDTO;
+import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
+import mc.gouv.xapi.error.dto.ErrorsDTO;
+import mc.gouv.xapi.error.exception.WebException;
 
 /**
  *
@@ -115,7 +137,7 @@ public abstract class AbstractAfApiController implements AfApiController {
 	public void desinscriptionUsagerRequest(@PathVariable(value = "usagerId") Integer usagerId,
                                             @RequestParam(value = "langue", required = true) String langue) {
         LOGGER.info("AbstractAfApiController.desinscriptionUsagerRequest({}, {})", usagerId, langue);
-		desinscriptionUsager(usagerId, langue);
+		desinscriptionUsager(usagerId, langue, false);
 	}
 
     @RequestMapping(value = "/accesses/{usagerId}", method = RequestMethod.POST)
@@ -206,6 +228,52 @@ public abstract class AbstractAfApiController implements AfApiController {
     public ResponseEntity deleteCustomRequestRequest(HttpServletRequest request) {
         LOGGER.info("AbstractAfApiController.deleteCustomRequest()");
         return deleteCustomRequest(request);
+    }
+    
+    @RequestMapping(value = "/brouillons", method = RequestMethod.POST)
+    public BrouillonDTO creerBrouillonRequest(@Valid @RequestBody BrouillonDTO brouillon,
+    		@RequestParam(value = "usagerId", required = true) Integer usagerId) {
+        LOGGER.info("AbstractAfApiController.creerBrouillonRequest(" + brouillon + "," + usagerId + ")");
+
+        return creerBrouillon(brouillon, usagerId);
+    }
+    
+    @RequestMapping(value = "/brouillons/{brouillonId}", method = RequestMethod.PUT)
+    public BrouillonDTO updateBrouillonRequest(@Valid @RequestBody BrouillonDTO brouillon,
+    		@PathVariable(value = "brouillonId") Integer brouillonId) {
+        LOGGER.info("AbstractAfApiController.updateBrouillonRequest(" + brouillon + "," + brouillonId + ")");
+
+        brouillon.setPkBrouillons(brouillonId);
+        return updateBrouillon(brouillon);
+    }
+    
+    @RequestMapping(value = "/brouillons", method = RequestMethod.GET)
+    public @ResponseBody List<BrouillonDTO> getBrouillonsRequest(@RequestParam(value = "usagerId", required = true) Integer usagerId) {
+        LOGGER.info("AbstractAfApiController.getBrouillonsRequest(" + usagerId + ")");
+
+        return getBrouillons(usagerId);
+    }
+    
+    @RequestMapping(value = "/brouillons/{brouillonId}", method = RequestMethod.GET)
+    public @ResponseBody BrouillonDTO getBrouillonRequest(@PathVariable(value = "brouillonId") Integer brouillonId) {
+        LOGGER.info("AbstractAfApiController.getBrouillonRequest(" + brouillonId + ")");
+
+        return getBrouillon(brouillonId);
+    }
+    
+    @RequestMapping(value = "/brouillons/{brouillonId}", method = RequestMethod.DELETE)
+    public void deleteBrouillonRequest(@PathVariable(value = "brouillonId") Integer brouillonId) throws JsonProcessingException {
+        LOGGER.info("AbstractAfApiController.deleteBrouillonRequest(" + brouillonId + ")");
+
+        deleteBrouillon(brouillonId);
+    }
+    
+    @GetMapping(value = "/brouillonspage")
+    public @ResponseBody
+    Page<BrouillonDTO> getBrouillonsPageableRequest(@RequestParam(value = "usagerId") Integer usagerId, @RequestParam int page,
+                                                @RequestParam int size, @RequestParam String sort, @RequestParam String direction) {
+        LOGGER.info("AbstractAfApiController.getBrouillonsPageable({})", usagerId);
+        return getBrouillonsPageable(usagerId, new PageParamDTO(page, size, sort, direction, null, null));
     }
 
     @ExceptionHandler(WebException.class)

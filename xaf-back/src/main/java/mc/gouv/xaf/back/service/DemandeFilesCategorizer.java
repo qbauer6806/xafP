@@ -15,6 +15,4 @@ public interface DemandeFilesCategorizer {
 
 	List<FileCategoryDTO> getCategoriesAndFiles(DemandeDTO demande);
 
-	int getTypedocNullNbr();
-
 }

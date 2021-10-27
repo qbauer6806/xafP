@@ -32,7 +32,13 @@ public interface AfApiController {
 
     DemandeDTO associerDemandeCourrier(String identifiantDemande, String stringToCheck, Integer usagerId);
 
-    void desinscriptionUsager(Integer usagerId, String langue);
+    /**
+     * 
+     * @param usagerId
+     * @param langue
+     * @param fromGU true si la désinscription du TS est demandée à cause d'une désinscription depuis le Guichet Unique
+     */
+    void desinscriptionUsager(Integer usagerId, String langue, boolean fromGU);
 
     AccessDTO createOrUpdateAccess(Integer usagerId, AccessInputDTO dto);
 
@@ -59,5 +65,17 @@ public interface AfApiController {
     ResponseEntity deleteCustomRequest(HttpServletRequest request);
 
     List<PropertiesDTO> getFrontProperties();
+    
+    BrouillonDTO creerBrouillon(BrouillonDTO brouillon, Integer usagerId);
+    
+    BrouillonDTO updateBrouillon(BrouillonDTO brouillon);
+    
+    List<BrouillonDTO> getBrouillons(Integer usagerId);
+    
+    Page<BrouillonDTO> getBrouillonsPageable(Integer usagerId, PageParamDTO paramDTO);
+    
+    BrouillonDTO getBrouillon(Integer pkBrouillons);
+    
+    void deleteBrouillon(Integer pkBrouillons) throws JsonProcessingException;
 
 }

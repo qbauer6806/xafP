@@ -35,6 +35,8 @@ public class DemandeInputDTO {
     private String buildId;
     
     private String recapType;
+    
+    private Integer brouillonId;
 
     public JsonNode getContenu() {
         return contenu;
@@ -130,6 +132,14 @@ public class DemandeInputDTO {
 
 	public void setRecapType(String recapType) {
 		this.recapType = recapType;
+	}
+
+	public Integer getBrouillonId() {
+		return brouillonId;
+	}
+
+	public void setBrouillonId(Integer brouillonId) {
+		this.brouillonId = brouillonId;
 	}
 
 }

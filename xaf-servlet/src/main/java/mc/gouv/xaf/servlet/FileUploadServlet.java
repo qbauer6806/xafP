@@ -38,6 +38,13 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * 
+ * Servlet servant à uploader un fichier dans FILE.
+ * 
+ * @author qdeme
+ *
+ */
 @MultipartConfig
 public class FileUploadServlet extends AbstractAfServlet {
 
@@ -102,7 +109,7 @@ public class FileUploadServlet extends AbstractAfServlet {
 
         // ---  Vérification de la conformité du fichier
         // Vérification du type du fichier
-        LOGGER.info("Vérification du type...");
+        LOGGER.info("Vérification du type pour le fichier {} ...", filename);
         if (!estExtensionDansWhitelist(filename)) {
             LOGGER.info("Le type de fichier ne correspond pas aux types whitelistés ({}), pas d'upload dans FILE", getExtensionsWhitelist());
             AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_FORBIDDEN,

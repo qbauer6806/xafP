@@ -1,14 +1,16 @@
 package mc.gouv.xaf.back.data.dao;
 
-import mc.gouv.xaf.back.data.entity.DemandeBO;
+import java.util.Date;
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
-import java.util.Date;
-import java.util.List;
+import mc.gouv.xaf.back.data.entity.DemandeBO;
+import mc.gouv.xaf.shared.dto.DemandeRecapProjection;
 
 /**
  * @author qdeme
@@ -36,7 +38,7 @@ public interface DemandesRepository extends CrudRepository<DemandeBO, Integer> {
      * @param usagerId
      * @return
      */
-    @Query("select count(d) from DemandeBO d inner join d.fkAccess fa where fa.usagerId = :usagerId and fa.demarcheId= :demarcheId")
+    @Query("select count(d) from DemandeBO d inner join d.fkAccess fa where fa.usagerId = :usagerId and fa.demarcheId= :demarcheId and fa.active = true")
     Integer getNbDemandesForUsager(@Param("demarcheId") String demarcheId, @Param("usagerId") Integer usagerId);
 
     Page<DemandeBO> findAll(Pageable pageRequest);
@@ -111,4 +113,7 @@ public interface DemandesRepository extends CrudRepository<DemandeBO, Integer> {
     Page<DemandeBO> findByDemarcheIdAndIdAndUsagerIdAndStatuts(@Param("demarcheId") String demarcheId, @Param("usagerId") Integer usagerId,
                                                                @Param("status") String[] status, @Param("langue") String langue,
                                                                Pageable pageRequest);
+    
+    @Query("select d.pkDemandes as pkDemandes,d.identifiant as identifiant,d.dateCreation as dateCreation,s.libelle as dernierStatut from DemandeBO d inner join d.fkAccess fa inner join d.dernierStatut s where fa.usagerId = :usagerId and fa.demarcheId= :demarcheId and fa.active = true and s.fkDemandes = d.pkDemandes")
+    List<DemandeRecapProjection> findByUsagerIdForDemandeRecapDTO(@Param("demarcheId") String demarcheId, @Param("usagerId") Integer usagerId);
 }

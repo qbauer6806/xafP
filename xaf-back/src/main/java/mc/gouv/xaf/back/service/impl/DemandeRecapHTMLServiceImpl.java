@@ -340,7 +340,13 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
                     Optional<PropertiesListEntityDTO> matchingObject = Arrays.stream(entreprises).
                             filter(e -> e.getId().equals(pathNode.asText())).
                             findFirst();
-                    return matchingObject.map(PropertiesListEntityDTO::getLabel).orElse(null);
+                    String result = matchingObject.map(PropertiesListEntityDTO::getLabel).orElse(null);
+                    if (null != result) {
+                    	// refs #33280 - [BO] Traitement de la demande - Erreur 500 suite à tentative de génération du récap pour une demande ayant ''&" dans le nom de l'entreprise partenaire
+                    	return result.replaceAll("&", "&#38;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+                    } else {
+                		return null;
+                    }
                 } else {
             		LOGGER.warn("Impossible de récupérer la dem_property requise par le fichier récap (key={})", key);
             		return "ERREUR";

@@ -40,6 +40,9 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
      */
     @Value("${application.name}")
     private String applicationName;
+    
+    @Value("${application.module}")
+    private String applicationModule;
 
     /**
      * Uppercase de application.name
@@ -93,12 +96,23 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
                     if (StringUtils.isNotBlank(indexingPropStr) && indexingPropStr.equals(true)) {
                         indexingEnabled = true;
                     }
+                    
+                    // Est-ce que le SSL est activé ?
+                    boolean sslEnabled = getGUKafkaSSLEnabled();
 
                     // On ignore la présence de la property si la méthode possède @GouvIndexationProperty mais que l'appli a indexationEnabled=false
-                    if (!(method.getDeclaredAnnotation(GouvIndexationProperty.class) instanceof GouvIndexationProperty)
+                    boolean pasIgnorerIndexing = !(method.getDeclaredAnnotation(GouvIndexationProperty.class) instanceof GouvIndexationProperty)
                             || (method.getDeclaredAnnotation(
                                     GouvIndexationProperty.class) instanceof GouvIndexationProperty
-                                    && indexingEnabled)) {
+                                    && indexingEnabled);
+                    
+                    // On ignore la présence de la property si la méthode possède @GouvSSLProperty mais que l'appli a
+                	// mc.gouv.af.back.external.gichuni.kafka.ssl.enabled=false
+                    boolean pasIgnorerSSL = !(method.getDeclaredAnnotation(GouvSSLProperty.class) instanceof GouvSSLProperty)
+                            || (method.getDeclaredAnnotation(
+                            		GouvSSLProperty.class) instanceof GouvSSLProperty
+                                    && sslEnabled);
+                    if (pasIgnorerIndexing && pasIgnorerSSL) {
                         Object value = method.invoke(this);
                         if (value instanceof String) {
                             if (StringUtils.isBlank((String) value)) {
@@ -356,5 +370,67 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
         // Valeur par défaut de 500 usagers par page
         return 500;
 	}
+
+	@Override
+	public boolean isApiserver() {
+		return "apiserver".equals(applicationModule);
+	}
+	
+	@Override
+	public boolean isBackserver() {
+		return "backserver".equals(applicationModule);
+	}
+	
+    @Override
+    public String getGUKafkaBootstrapServersConfig() {
+        return Static.getValue("mc.gouv.af.back.external.gichuni.kafka.bootstrapserversconfig");
+    }
+    
+    @Override
+    public String getApplicationName() {
+        return applicationName;
+    }
+    
+    @Override
+    public boolean getGUKafkaSSLEnabled() {
+        String value = Static.getValue("mc.gouv.af.back.external.gichuni.kafka.ssl.enabled");
+        if (value == null) {
+            return false;
+        }
+        return Boolean.parseBoolean(value);
+    }
+    
+    @GouvSSLProperty
+    @Override
+    public String getGUKafkaSSLTrustStoreLocation() {
+        return Static.getValue("mc.gouv.af.back.external.gichuni.kafka.ssl.truststore.location");
+    }
+    
+    @GouvSSLProperty
+    @Override
+    public String getGUKafkaSSLTrustStorePassword() {
+        return Static.getValue("mc.gouv.af.back.external.gichuni.kafka.ssl.truststore.password");
+    }
+    
+    @GouvSSLProperty
+    @Override
+    public String getGUKafkaSSLKeyStoreLocation() {
+        return Static.getValue("mc.gouv.af.back.external.gichuni.kafka.ssl.keystore.location");
+    }
+    
+    @GouvSSLProperty
+    @Override
+    public String getGUKafkaSSLKeyStorePassword() {
+        return Static.getValue("mc.gouv.af.back.external.gichuni.kafka.ssl.keystore.password");
+    }
+    
+    @Override
+    public boolean getKafkaEnabled() {
+        String value = Static.getValue("mc.gouv" + applicationPrefix + ".backapi.kafka.enabled");
+        if (value == null) {
+            return false;
+        }
+        return Boolean.parseBoolean(value);
+    }
 
 }

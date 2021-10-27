@@ -1,19 +1,34 @@
 package mc.gouv.xaf.apiclient;
 
-import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
-import mc.gouv.xaf.shared.dto.*;
-import mc.gouv.xboot.apiclient.authentication.impl.BasicAuthorizationHeaderProvider;
-import mc.gouv.xboot.apiclient.authentication.impl.JwtAuthorizationHeaderProvider;
-import mc.gouv.xboot.apiclient.client.ApiClient;
-import mc.gouv.xboot.apiclient.exception.ExceptionManager;
-import org.glassfish.jersey.media.multipart.internal.MultiPartWriter;
+import java.util.List;
 
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.List;
+
+import org.glassfish.jersey.media.multipart.internal.MultiPartWriter;
+
+import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+
+import mc.gouv.xaf.shared.dto.AccessDTO;
+import mc.gouv.xaf.shared.dto.AccessInputDTO;
+import mc.gouv.xaf.shared.dto.BrouillonDTO;
+import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
+import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeInputDTO;
+import mc.gouv.xaf.shared.dto.MotifDTO;
+import mc.gouv.xaf.shared.dto.Page;
+import mc.gouv.xaf.shared.dto.PageParamDTO;
+import mc.gouv.xaf.shared.dto.PeriodeOuvertureDTO;
+import mc.gouv.xaf.shared.dto.PropertiesDTO;
+import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
+import mc.gouv.xboot.apiclient.authentication.impl.BasicAuthorizationHeaderProvider;
+import mc.gouv.xboot.apiclient.authentication.impl.JwtAuthorizationHeaderProvider;
+import mc.gouv.xboot.apiclient.client.ApiClient;
+import mc.gouv.xboot.apiclient.exception.ExceptionManager;
 
 /**
  * Classe cliente permettant d'appeler les WS des démarches
@@ -200,6 +215,63 @@ public class AfApiClient extends ApiClient {
         ExceptionManager.checkExceptionResponse(res);
 
         return res.readEntity(new GenericType<List<PropertiesDTO>>() {
+        });
+    }
+    
+    public BrouillonDTO creerBrouillon(BrouillonDTO brouillon, Integer usagerId) {
+        Response res = getTarget().path("brouillons").queryParam("usagerId", usagerId).request(MediaType.APPLICATION_JSON)
+                .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue())
+                .post(Entity.entity(brouillon, MediaType.APPLICATION_JSON));
+
+        ExceptionManager.checkExceptionResponse(res);
+
+        return res.readEntity(BrouillonDTO.class);
+    }
+    
+    public BrouillonDTO updateBrouillon(BrouillonDTO brouillon, Integer brouillonId) {
+        Response res = getTarget().path("brouillons/" + brouillonId).request(MediaType.APPLICATION_JSON)
+                .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue())
+                .put(Entity.entity(brouillon, MediaType.APPLICATION_JSON));
+
+        ExceptionManager.checkExceptionResponse(res);
+
+        return res.readEntity(BrouillonDTO.class);
+    }
+    
+    public List<BrouillonDTO> getBrouillons(Integer usagerId) {
+        Response res = getTarget().path("brouillons").queryParam("usagerId", usagerId).request(MediaType.APPLICATION_JSON)
+                .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue()).get();
+
+        ExceptionManager.checkExceptionResponse(res);
+
+        return res.readEntity(new GenericType<List<BrouillonDTO>>() {
+        });
+    }
+    
+    public BrouillonDTO getBrouillon(Integer brouillonId) {
+        Response res = getTarget().path("/brouillons/" + brouillonId)
+                .request(MediaType.APPLICATION_JSON)
+                .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue()).get();
+
+        ExceptionManager.checkExceptionResponse(res);
+
+        return res.readEntity(BrouillonDTO.class);
+    }
+    
+    public void deleteBrouillon(Integer brouillonId) {
+        Response res = getTarget().path("/brouillons/" + brouillonId)
+                .request(MediaType.APPLICATION_JSON)
+                .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue()).delete();
+
+        ExceptionManager.checkExceptionResponse(res);
+    }
+    
+    public Page<BrouillonDTO> getBrouillonsPageable(Integer usagerId, PageParamDTO paramDTO) {
+        Response res = getTarget().path("brouillonspage").queryParam("usagerId", usagerId).queryParam("page", paramDTO.getPage())
+                .queryParam("size", paramDTO.getSize()).queryParam("sort", paramDTO.getSort()).queryParam("direction", paramDTO.getDirection())
+                .request(MediaType.APPLICATION_JSON).header("Authorization", getAuthorizationHeaderProvider().getHeaderValue()).get();
+        ExceptionManager.checkExceptionResponse(res);
+        return res.readEntity(new GenericType<Page<BrouillonDTO>>() {
         });
     }
 

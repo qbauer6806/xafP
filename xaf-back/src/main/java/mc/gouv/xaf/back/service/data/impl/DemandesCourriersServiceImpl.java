@@ -25,6 +25,7 @@ import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.service.data.DemandesCourriersService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.DemarchesService;
+import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.shared.dto.DemandeCourrierDTO;
 
 /**
@@ -50,6 +51,9 @@ public class DemandesCourriersServiceImpl implements DemandesCourriersService {
 
     @Autowired
     private DemarchesService demarchesService;
+    
+    @Autowired 
+    private FileService fileService;
 
     /**
      * {@inheritDoc}
@@ -191,4 +195,22 @@ public class DemandesCourriersServiceImpl implements DemandesCourriersService {
 
     }
 
+	@Override
+	public void deleteCourriers(String demarcheId, Integer pkDemande) {
+		LOGGER.info("Suppression de la demande courrier {} de la demarche {}...", pkDemande, demarcheId);
+		List<DemandeCourrierDTO> courriersToDelete = getCourriers(demarcheId, pkDemande);
+		if(null != courriersToDelete && !courriersToDelete.isEmpty()) {
+			for (DemandeCourrierDTO currentCourriersToDelete : courriersToDelete) {
+				// On extrait le fileName de l'url puis on la supprime de file
+				String fileName = currentCourriersToDelete.getUrl();
+				fileService.deleteFile("ROOT", fileName.replace(" ", "+"));
+				// Ensuite on supprime le courriers de la DB
+				DemandesCourriersBO courrierBo = getCourrierBo(demarcheId, pkDemande, currentCourriersToDelete.getPkCourrier());
+				if (courrierBo == null) {
+		            throw new DemarchesServiceException("Courrier introuvable", HttpStatus.NOT_FOUND);
+		        }
+				demandesCourriersRepository.delete(courrierBo);
+			}
+		}
+	}
 }

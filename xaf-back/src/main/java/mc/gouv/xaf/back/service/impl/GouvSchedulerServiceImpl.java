@@ -1,10 +1,20 @@
-package mc.gouv.xaf.scheduling;
+package mc.gouv.xaf.back.service.impl;
 
-import org.quartz.*;
+import org.quartz.CronScheduleBuilder;
+import org.quartz.Job;
+import org.quartz.JobBuilder;
+import org.quartz.JobDetail;
+import org.quartz.JobKey;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+import org.quartz.Trigger;
+import org.quartz.TriggerBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import mc.gouv.xaf.back.service.GouvSchedulerService;
 
 @Component
 public class GouvSchedulerServiceImpl implements GouvSchedulerService {
@@ -60,4 +70,6 @@ public class GouvSchedulerServiceImpl implements GouvSchedulerService {
     public void deleteExistingJob(String jobKey) throws SchedulerException {
         scheduler.deleteJob(new JobKey(jobKey));
     }
+
 }
+

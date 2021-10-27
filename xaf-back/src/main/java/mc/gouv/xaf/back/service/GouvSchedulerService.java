@@ -1,10 +1,9 @@
-package mc.gouv.xaf.scheduling;
+package mc.gouv.xaf.back.service;
 
-import org.quartz.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.quartz.Job;
+import org.quartz.JobDetail;
+import org.quartz.SchedulerException;
+import org.quartz.Trigger;
 
 /**
  * Service permettant une gestion des jobs Quartz

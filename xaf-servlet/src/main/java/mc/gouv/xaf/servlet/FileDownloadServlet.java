@@ -27,6 +27,13 @@ import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils.ServiceTarget;
 
+/**
+ * 
+ * Servlet servant à télécharger un fichier de FILE.
+ * 
+ * @author qdeme
+ *
+ */
 public class FileDownloadServlet extends AbstractAfServlet {
 
     private static final long serialVersionUID = -2464829773835748491L;

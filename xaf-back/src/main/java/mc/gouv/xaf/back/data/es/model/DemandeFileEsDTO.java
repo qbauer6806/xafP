@@ -24,8 +24,19 @@ public class DemandeFileEsDTO {
 
     private Fichiers fichiers;
     private DemandeJoinFieldEsDTO demandeJoinField;
+    
+    @Id
+    protected String identifiant;
 
-    public DemandeJoinFieldEsDTO getDemandeJoinField() {
+    public String getIdentifiant() {
+		return identifiant;
+	}
+
+	public void setIdentifiant(String identifiant) {
+		this.identifiant = identifiant;
+	}
+
+	public DemandeJoinFieldEsDTO getDemandeJoinField() {
         return demandeJoinField;
     }
 

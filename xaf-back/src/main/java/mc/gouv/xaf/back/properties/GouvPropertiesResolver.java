@@ -73,4 +73,24 @@ public interface GouvPropertiesResolver {
 
     Integer getUsagersPageSize();
 
+	boolean isApiserver();
+
+	boolean isBackserver();
+
+	String getGUKafkaBootstrapServersConfig();
+
+    String getApplicationName();
+
+	boolean getGUKafkaSSLEnabled();
+
+	String getGUKafkaSSLTrustStoreLocation();
+
+	String getGUKafkaSSLTrustStorePassword();
+
+	String getGUKafkaSSLKeyStoreLocation();
+
+	String getGUKafkaSSLKeyStorePassword();
+
+	boolean getKafkaEnabled();
+
 }

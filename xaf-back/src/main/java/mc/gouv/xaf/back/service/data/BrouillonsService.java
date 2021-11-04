@@ -26,8 +26,10 @@ public interface BrouillonsService {
 
 	BrouillonDTO updateBrouillon(BrouillonDTO brouillon) throws IOException, SAXException;
 
-	void deleteBrouillon(String demarcheId, Integer pkBrouillons) throws JsonProcessingException;
+	void deleteBrouillon(String demarcheId, Integer pkBrouillons);
 
 	Page<BrouillonDTO> getBrouillonsPageable(String demarcheId, Integer usagerId, PageParamDTO paramDTO);
+
+	void deleteBrouillons(String demarcheId, Integer usagerId);
 
 }

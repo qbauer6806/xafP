@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.service.data.AccessService;
+import mc.gouv.xaf.back.service.data.BrouillonsService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import mc.gouv.xaf.back.service.data.UsagersService;
@@ -39,6 +40,9 @@ public class UsagersServiceImpl implements UsagersService {
     
     @Autowired
     private DemandesRepository demandesRepository;
+    
+    @Autowired
+    private BrouillonsService brouillonsService;
 
     @Override
     public void desinscriptionUsager(String demarcheId, Integer usagerId,
@@ -71,6 +75,9 @@ public class UsagersServiceImpl implements UsagersService {
                         null, usagerId, codeMotif, null, null);
             }
         }
+        
+        LOGGER.info("Suppression des brouillons...");
+        brouillonsService.deleteBrouillons(demarcheId, usagerId);
 
         LOGGER.info("Suppression de l'accès...");
         accessService.deleteAccess(demarcheId, usagerId);

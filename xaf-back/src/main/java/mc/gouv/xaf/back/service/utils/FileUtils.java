@@ -5,7 +5,9 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.util.*;
 
+import mc.gouv.xaf.back.data.es.model.DemandeFileEsDTO;
 import mc.gouv.xaf.back.data.transformer.DemandesComplementsFilesTransformer;
+import mc.gouv.xaf.back.service.pdf.PdfTypeEnum;
 import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
@@ -126,4 +128,23 @@ public class FileUtils {
         }
         return nbSansCategorie;
     }
+    /**
+     * Méthode permettant de récupérer le type du fichier associé à la demande en se basant sur ses metas
+     *
+     * @param file fichier dont on doit vérifier le type
+     * @return Type du fichier
+     */
+    public static DemandeFileEsDTO.TYPE getDemandeFileType(DemandeFileDTO file) {
+        DemandeFileEsDTO.TYPE fileType;
+        if (FileUtils.isFileCreatedByFront(file.getMeta())) {
+            fileType = DemandeFileEsDTO.TYPE.PIECE_JOINTE;
+        }
+        if (FileUtils.isFileCreatedByBack(file.getMeta()) && file.getMeta().contains(PdfTypeEnum.COURRIER.name())) {
+            fileType = DemandeFileEsDTO.TYPE.COURRIER;
+        } else {
+            fileType = DemandeFileEsDTO.TYPE.FICHIER_INTERNE;
+        }
+        return fileType;
+    }
+
 }

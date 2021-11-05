@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>mc.gouv.xaf</groupId>
 		<artifactId>xaf</artifactId>
-		<version>9.0.1-SNAPSHOT</version>
+		<version>9.0.1-rc1</version>
 	</parent>
 	<artifactId>xaf-sup</artifactId>
 

@@ -92,12 +92,8 @@ public interface IndexedDemandeService extends DemandesService {
      *
      * @param demandeDTO DTO de la demande
      * @param indexFiles Boolean pour indiquer si on doit indexer les fichiers associés à la demande
-     * @throws IOException   Exception I/O
-     * @throws SAXException  Exception SAX
-     * @throws TikaException Exception du parsing de la piece jointe
      */
-    void indexElement(DemandeDTO demandeDTO, boolean indexFiles)
-            throws IOException, SAXException, TikaException;
+    void indexElement(DemandeDTO demandeDTO, boolean indexFiles);
 
     /**
      * Méthode permettant de rechercher des demandes à partir des critères en input

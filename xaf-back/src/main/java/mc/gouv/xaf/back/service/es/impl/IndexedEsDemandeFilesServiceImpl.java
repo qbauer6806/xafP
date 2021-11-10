@@ -145,15 +145,29 @@ public class IndexedEsDemandeFilesServiceImpl extends DemandeFilesServiceImpl im
      */
     @Async
     @Override
-    public void indexFilesAsynchrone(DemandeDTO demandeDTO) throws IOException {
+    public void indexFilesAsynchrone(DemandeDTO demandeDTO) {
         List<DemandeFileEsDTO> files = new ArrayList<>();
-        fillFilesList(files, demandeDTO);
+        try {
+            fillFilesList(files, demandeDTO);
+        } catch (IOException e) {
+            LOGGER.error("Indexation des fichiers Asynchrone - Problème lors du parsing des fichiers", e);
+            EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("IndexedEsDemandeFilesServiceImpl - méthode indexFilesAsynchrone() - parsing des fichiers", demandeDTO, e);
+            applicationEventPublisher.publishEvent(esErrorEventDTO);
+            throw new AfIndexingException(e.getMessage(), e);
+        }
         //files.addAll(files);
         if (files.isEmpty()) {
             LOGGER.info("Aucun fichiers à indexer");
         } else {
             LOGGER.info("Il y a {} fichier(s) à indexer.", files.size());
-            indexFiles(files);
+            try {
+                indexFiles(files);
+            } catch (IOException e) {
+                LOGGER.error("Indexation des fichiers Asynchrone - Problème lors de l'indexation des fichiers", e);
+                EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("IndexedEsDemandeFilesServiceImpl - méthode indexFilesAsynchrone() - indexation des fichiers", demandeDTO, e);
+                applicationEventPublisher.publishEvent(esErrorEventDTO);
+                throw new AfIndexingException(e.getMessage(), e);
+            }
         }
         LOGGER.info("Fin de l'indexation des fichiers");
     }

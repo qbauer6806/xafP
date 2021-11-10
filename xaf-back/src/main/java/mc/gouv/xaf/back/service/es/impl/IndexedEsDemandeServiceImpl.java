@@ -507,7 +507,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     }
 
     @Override
-    public void indexElement(DemandeDTO demandeDTO, boolean indexFiles) throws IOException {
+    public void indexElement(DemandeDTO demandeDTO, boolean indexFiles) {
         if (demandeDTO != null) {
             Boolean activeAccess = accessService.isAccessActive(demandeDTO.getFkAccess());
             DemandeEsDTO demandeEsDTO = demandeEsTransformer.toEs(demandeDTO, activeAccess);

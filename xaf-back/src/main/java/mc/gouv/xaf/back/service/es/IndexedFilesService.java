@@ -40,7 +40,7 @@ public interface IndexedFilesService {
     /**
      * Permet d'indexer les fichiers d'une demande de manière asynchrone
      */
-    void indexFilesAsynchrone(DemandeDTO demandeDTO) throws IOException;
+    void indexFilesAsynchrone(DemandeDTO demandeDTO);
 
     /**
      * Méthode permettant d'indexer les pieces jointe d'une demande

@@ -64,6 +64,7 @@ public class GUKafkaProducerConfig {
         	configProps.put("ssl.key.password", gouvPropertiesResolver.getGUKafkaSSLKeyStorePassword());
         	configProps.put("ssl.keystore.password", gouvPropertiesResolver.getGUKafkaSSLKeyStorePassword());
         	configProps.put("ssl.keystore.location", gouvPropertiesResolver.getGUKafkaSSLKeyStoreLocation());
+        	configProps.put("ssl.endpoint.identification.algorithm", "");
         }
         
         return new DefaultKafkaProducerFactory<>(configProps);

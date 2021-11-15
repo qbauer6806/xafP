@@ -247,7 +247,7 @@ public class BrouillonsServiceImpl implements BrouillonsService {
      * @throws JsonProcessingException
      */
     @Override
-    public void deleteBrouillon(String demarcheId, Integer pkBrouillons) throws JsonProcessingException {
+    public void deleteBrouillon(String demarcheId, Integer pkBrouillons) {
 
         LOGGER.info("Récupération en base du brouillon...");
 
@@ -263,6 +263,21 @@ public class BrouillonsServiceImpl implements BrouillonsService {
 
         brouillonsRepository.delete(brouillonBo);
     }
+    
+    /**
+     * {@inheritDoc}
+     *
+     * @throws JsonProcessingException
+     */
+    @Override
+    public void deleteBrouillons(String demarcheId, Integer usagerId) {
+
+        LOGGER.info("Récupération en base des brouillons...");
+
+        List<BrouillonBO> brouillons = brouillonsRepository.findByDemarcheIdAndUsagerId(demarcheId, usagerId);
+
+        brouillonsRepository.deleteAll(brouillons);
+    }
 
     @Override
     public mc.gouv.xaf.shared.dto.Page<BrouillonDTO> getBrouillonsPageable(String demarcheId, Integer usagerId, PageParamDTO paramDTO) {
@@ -270,7 +285,7 @@ public class BrouillonsServiceImpl implements BrouillonsService {
         String sortColumn = "statut".equalsIgnoreCase(paramDTO.getSort()) ? "t.valeur" :  paramDTO.getSort();
         Sort sort = "DESC".equals(paramDTO.getDirection()) ? Sort.by(sortColumn).descending() : Sort.by(sortColumn);
         Pageable pageable = PageRequest.of(paramDTO.getPage(), paramDTO.getSize(), sort);
-        Page<BrouillonBO> bos = brouillonsRepository.findByDemarcheIdAndIdAndUsagerId(demarcheId, usagerId, pageable);
+        Page<BrouillonBO> bos = brouillonsRepository.findByDemarcheIdAndIdAndUsagerIdAndActive(demarcheId, usagerId, true, pageable);
         return BrouillonsTransformer.boPage2DtoPage(bos);
     }
 

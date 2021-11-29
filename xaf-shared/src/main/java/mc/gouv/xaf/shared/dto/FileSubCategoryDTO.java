@@ -2,13 +2,11 @@ package mc.gouv.xaf.shared.dto;
 
 import java.util.List;
 
-public class FileCategoryDTO {
+public class FileSubCategoryDTO {
 
 	private String name;
 
 	private List<DemandeFileDTO> files;
-	
-	private List<FileSubCategoryDTO> subCategories;
 
 	private boolean typedoc;
 
@@ -34,13 +32,5 @@ public class FileCategoryDTO {
 
 	public void setTypedoc(boolean typedoc) {
 		this.typedoc = typedoc;
-	}
-
-	public List<FileSubCategoryDTO> getSubCategories() {
-		return subCategories;
-	}
-
-	public void setSubCategories(List<FileSubCategoryDTO> subCategories) {
-		this.subCategories = subCategories;
 	}
 }

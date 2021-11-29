@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<body>
+
+<div id="panelfichiersjointstypedoctable" th:fragment="panelfichiersjointstypedoctable" th:remove="tag">
+	<table class="table table-striped datatablefichiers fixed-layout"
+	       id="datatable-fichiers">
+	    <thead>
+	    <tr>
+	        <th th:class="${cat.typedoc} ? 'file-name-col-small' : 'file-name-col'">Nom du fichier</th>
+	        <th class="date-col">Date</th>
+	        <th class="typedoc-col nosort" th:if="${cat.typedoc}">Type</th>
+	        <th class="action-col nosort">Action</th>
+	    </tr>
+	    </thead>
+	    <tbody>
+	    <tr th:each="file : ${cat.files}">
+	        <td th:class="${cat.typedoc} ? 'file-name-col-small' : 'file-name-col'"
+	            th:text="${file.name}"></td>
+	        <td class="date-col" th:text="${#dates.format(file.date, 'dd/MM/yyyy HH:mm')}"></td>
+	        <td class="typedoc-col" th:if="${cat.typedoc}">
+	            <select class="form-control" onchange="updateTypedocJSON(this)"
+	                    th:disabled="!${editionTypedocActive}"
+	                    th:id="${file.compFile} ? comp + ${file.pkDemandesComplementsFiles} : file + ${file.pkDemandesFiles}">
+	                <option th:value="null">Sélectionnez un type</option>
+	                <option th:each="typedoc : ${typedocList}"
+	                        th:selected="${file.typedoc} == ${typedoc.key}"
+	                        th:text="${typedoc.value}" th:value="${typedoc.key}"></option>
+	            </select>
+	        </td>
+	        <td class="action-col">
+	            <a th:href="@{/ws/file/get}+${file.url}">
+	            <span class="btn btn-action ripple-effect greyTooltip" data-original-title="Télécharger"
+	                  data-placement="bottom" data-toggle="tooltip" title="">
+	                <i class="icon-action_pdf"></i>
+	            </span>
+	            </a>
+	        </td>
+	    </tr>
+	    </tbody>
+	</table>
+</div>
+</body>
+</html>

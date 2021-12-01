@@ -18,6 +18,7 @@ import com.fasterxml.uuid.EthernetAddress;
 import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.impl.TimeBasedGenerator;
 
+import mc.gouv.xaf.apiclient.AfApiClient;
 import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
 import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
 
@@ -187,6 +188,11 @@ public class AppFactoryServletUtils {
         String xsrfToken = session.getId() + Calendar.getInstance().getTime();
         String xsrfTokenHash = DigestUtils.sha256Hex(xsrfToken);
         return xsrfTokenHash;
+    }
+    
+    public static AfApiClient getAfApiClient() {
+        return new AfApiClient(AfServletGouvPropertiesResolver.getApiUrl(),
+                AfServletGouvPropertiesResolver.getApiJwt());
     }
 
 }

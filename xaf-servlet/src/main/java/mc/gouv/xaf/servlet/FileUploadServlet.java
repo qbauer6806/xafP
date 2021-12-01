@@ -133,22 +133,29 @@ public class FileUploadServlet extends AbstractAfServlet {
             LOGGER.info("Vérification de la taille...");
             // Vérification de la taille du fichier
             Part part0 = request.getParts().iterator().next();
+            LOGGER.info("DBG1");
             PropertiesDTO propMaxTailleFichiers = AppFactoryServletFrontPropertiesCache.getFrontProperty(MAX_TAILLE_FICHIER);
+            LOGGER.info("DBG2");
             PropertiesDTO propActivationVscan = AppFactoryServletFrontPropertiesCache.getFrontProperty(VSCAN_ACTIVATION);
+            LOGGER.info("DBG3");
             if (propMaxTailleFichiers == null || propActivationVscan == null) {
                 AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_INTERNAL_SERVER_ERROR,
                         "Une propriété obligatoire semble ne pas être définie");
                 return;
             }
+            LOGGER.info("DBG4");
             int tailleMaxFichier = Integer.parseInt(propMaxTailleFichiers.getValue());
+            LOGGER.info("DBG5");
             // transformation B en MB
             int tailleMaxFichierMB = tailleMaxFichier * 1000000;
+            LOGGER.info("DBG6");
             if (part0.getSize() > tailleMaxFichierMB) {
                 LOGGER.info("La taille du fichier depasse la taille max definie dans les propriétés ({})", tailleMaxFichier);
                 AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_FORBIDDEN,
                         "Erreur: la taille du fichier depasse la taille max definie dans les propriétés");
                 return;
             }
+            LOGGER.info("DBG7");
 
             // Appel à VSCAN afin d'effectuer le scan antivirus
             // Constitution de la requête

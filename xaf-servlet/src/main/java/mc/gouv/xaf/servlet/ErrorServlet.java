@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -69,7 +70,7 @@ public class ErrorServlet extends AbstractAfServlet {
 		        for (JsonElement elem : array) {
 		        	JsonObject obj = elem.getAsJsonObject();
 		        	JsonElement stack = obj.get("stack");
-		        	if (stack != null) {
+		        	if (stack != null && !(stack instanceof JsonNull)) {
 		        		LOGGER.error(stack.getAsString());
 		        	}
 		        }

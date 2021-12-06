@@ -3,12 +3,22 @@ package mc.gouv.xaf.shared.dto;
 import java.util.List;
 
 public class FileSubCategoryDTO {
+	
+	private String key;
 
 	private String name;
 
 	private List<DemandeFileDTO> files;
 
 	private boolean typedoc;
+
+	public String getKey() {
+		return key;
+	}
+
+	public void setKey(String key) {
+		this.key = key;
+	}
 
 	public String getName() {
 		return name;

@@ -1,5 +1,6 @@
 package mc.gouv.xaf.back.service.data.impl;
 
+import java.util.Date;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -118,7 +119,12 @@ public class TemplatesServiceImpl implements TemplatesService {
         LOGGER.info("Transformation dto -> bo");
         
         TemplateBO bo = TemplatesTransformer.dto2Bo(template);
-        
+
+        // La date de création correspond à la date de dernière modification
+        if (bo.getDateModif() == null) {
+            bo.setDateModif(new Date());
+        }
+
         bo = templatesRepository.save(bo);
         
         LOGGER.info("Transformation bo -> dto ...");
@@ -146,7 +152,14 @@ public class TemplatesServiceImpl implements TemplatesService {
         templateBo.setLangue(template.getLangue());
         templateBo.setCode(template.getCode());
         templateBo.setContenu(template.getContenu());
-        
+
+        // Modification implicite de la date
+        if (template.getDateModif() == null) {
+            templateBo.setDateModif(new Date());
+        } else {
+            templateBo.setDateModif(template.getDateModif());
+        }
+
         templateBo = templatesRepository.save(templateBo);
         
         LOGGER.info("Transformation bo -> dto ...");

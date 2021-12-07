@@ -11,6 +11,8 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotBlank;
 
+import java.util.Date;
+
 /**
  * 
  * Classe BO de la table DEM.TEMPLATE
@@ -48,6 +50,9 @@ public class TemplateBO {
     @Column(name = "LANGUE", length = 2, nullable = true)
     @Size(min = 0, max = 2)
     private String langue;
+
+    @Column(name = "DATE_MODIF", nullable = false)
+    private Date dateModif;
 
     public Integer getPkTemplates() {
         return pkTemplates;
@@ -89,4 +94,11 @@ public class TemplateBO {
         this.langue = langue;
     }
 
+    public Date getDateModif() {
+        return dateModif;
+    }
+
+    public void setDateModif(Date dateModif) {
+        this.dateModif = dateModif;
+    }
 }

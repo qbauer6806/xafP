@@ -23,7 +23,7 @@ import java.util.List;
  * 
  */
 @Controller
-@Secured({"ROLE_PARAMETRAGE", "ROLE_CONFIGURATION"})
+@Secured({"ROLE_CONFIGURATION"})
 @RequestMapping("/gestion/template")
 public class GestionTemplateController extends AbstractController {
 
@@ -48,8 +48,7 @@ public class GestionTemplateController extends AbstractController {
         LOGGER.info("Appel de la page /gestion/template. Méthode getTemplates");
         ModelAndView mav = new ModelAndView("gestion/template/template");
 
-        // S'il n'y a qu'une langue on ne récupère que les templates FR
-        boolean frOnly = demarchesDataProvider.getLanguesDisponibles().size() == 1;
+        boolean frOnly = isFrenchOnly();
 
         mav.addObject(TS_CODE_VAR, gouvPropertiesResolver.getDemarcheId());
         mav.addObject("frOnly", frOnly);
@@ -71,10 +70,7 @@ public class GestionTemplateController extends AbstractController {
         ModelAndView mav = new ModelAndView("gestion/template/templateupdate");
 
         mav.addObject(TS_CODE_VAR, gouvPropertiesResolver.getDemarcheId());
-
-        // S'il n'y a qu'une langue on ne récupère que les templates FR
-        boolean frOnly = demarchesDataProvider.getLanguesDisponibles().size() == 1;
-        mav.addObject("frOnly", frOnly);
+        mav.addObject("frOnly", isFrenchOnly());
 
         gestionTemplateService.retrieveTemplateForm(templateFormBean);
 
@@ -92,6 +88,7 @@ public class GestionTemplateController extends AbstractController {
         mav.addObject(TS_CODE_VAR, gouvPropertiesResolver.getDemarcheId());
 
         gestionTemplateService.saveTemplateForm(templateFormBean);
+        mav.addObject("frOnly", isFrenchOnly());
 
         // Récupération à nouveau du template pour vérifier que tout est ok
         gestionTemplateService.retrieveTemplateForm(templateFormBean);
@@ -99,5 +96,10 @@ public class GestionTemplateController extends AbstractController {
         LOGGER.info("======================= Fin /gestion/template/update. Méthode traiterUpdate");
 
         return mav;
+    }
+
+    private boolean isFrenchOnly() {
+        // S'il n'y a qu'une langue on ne récupère que les templates FR
+        return demarchesDataProvider.getLanguesDisponibles().size() == 1;
     }
 }

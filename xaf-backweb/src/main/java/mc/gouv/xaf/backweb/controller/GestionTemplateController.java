@@ -40,7 +40,7 @@ public class GestionTemplateController extends AbstractController {
     private TemplatesService templatesService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GestionTemplateController.class);
-    private static final String TS_NAME_VAR = "tsName";
+    private static final String TS_CODE_VAR = "tsCode";
 
     @GetMapping
     public ModelAndView getTemplates() {
@@ -51,7 +51,7 @@ public class GestionTemplateController extends AbstractController {
         // S'il n'y a qu'une langue on ne récupère que les templates FR
         boolean frOnly = demarchesDataProvider.getLanguesDisponibles().size() == 1;
 
-        mav.addObject(TS_NAME_VAR, gouvPropertiesResolver.getDemarcheId());
+        mav.addObject(TS_CODE_VAR, gouvPropertiesResolver.getDemarcheId());
         mav.addObject("frOnly", frOnly);
 
         List<TemplateDTO> templateList = frOnly ? templatesService.getTemplates(gouvPropertiesResolver.getDemarcheId(), "fr") :
@@ -70,7 +70,7 @@ public class GestionTemplateController extends AbstractController {
         LOGGER.info("Appel de la page /gestion/template/update. Méthode formUpdateInit");
         ModelAndView mav = new ModelAndView("gestion/template/templateupdate");
 
-        mav.addObject(TS_NAME_VAR, gouvPropertiesResolver.getDemarcheId());
+        mav.addObject(TS_CODE_VAR, gouvPropertiesResolver.getDemarcheId());
 
         // S'il n'y a qu'une langue on ne récupère que les templates FR
         boolean frOnly = demarchesDataProvider.getLanguesDisponibles().size() == 1;
@@ -89,7 +89,7 @@ public class GestionTemplateController extends AbstractController {
         LOGGER.info("Appel de la page /gestion/template/update. Méthode traiterUpdate");
         ModelAndView mav = new ModelAndView("gestion/template/templateupdate");
 
-        mav.addObject(TS_NAME_VAR, gouvPropertiesResolver.getDemarcheId());
+        mav.addObject(TS_CODE_VAR, gouvPropertiesResolver.getDemarcheId());
 
         gestionTemplateService.saveTemplateForm(templateFormBean);
 

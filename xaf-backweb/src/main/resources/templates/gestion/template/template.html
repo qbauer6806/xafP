@@ -285,13 +285,13 @@
 		document.body.removeChild(element);
 	}
 
-	var exportSQLGlobal = function(templateList, tsName) {
+	var exportSQLGlobal = function(templateList, tsCode) {
 		var sqlFinal = "";
 		templateList.forEach(function(template) {
-			sqlFinal += "delete from " + tsName + ".DEM_TEMPLATES where code = '" + template.code + "_OBJET' and langue = '" + template.langue + "';\r\n";
-			sqlFinal += "delete from " + tsName + ".DEM_TEMPLATES where code = '" + template.code + "_CORPS' and langue = '" + template.langue + "';\r\n";
-			sqlFinal += "insert into " + tsName + ".DEM_TEMPLATES values (default, '"+ tsName +"', '" + template.code + "_OBJET', '" + template.objet.replaceAll("\'", "\\'") + "', '" + template.langue + "');\r\n";
-			sqlFinal += "insert into " + tsName + ".DEM_TEMPLATES values (default, '"+ tsName +"', '" + template.code + "_CORPS', '" + template.corps.replaceAll("\'", "\\'") + "', '" + template.langue + "');\r\n\r\n";
+			sqlFinal += "delete from " + tsCode + ".DEM_TEMPLATES where code = '" + template.code + "_OBJET' and langue = '" + template.langue + "';\r\n";
+			sqlFinal += "delete from " + tsCode + ".DEM_TEMPLATES where code = '" + template.code + "_CORPS' and langue = '" + template.langue + "';\r\n";
+			sqlFinal += "insert into " + tsCode + ".DEM_TEMPLATES values (default, '"+ tsCode +"', '" + template.code + "_OBJET', '" + template.objet.replaceAll("\'", "\\'") + "', '" + template.langue + "');\r\n";
+			sqlFinal += "insert into " + tsCode + ".DEM_TEMPLATES values (default, '"+ tsCode +"', '" + template.code + "_CORPS', '" + template.corps.replaceAll("\'", "\\'") + "', '" + template.langue + "');\r\n\r\n";
 		});
 		return sqlFinal;
 	};
@@ -300,6 +300,7 @@
 	$(document).ready(function () {
 		var urlModif = /*[[@{/gestion/template/update}]]*/[];
 		var templateList = /*[[${templateList}]]*/[];
+		var tsCode = /*[[(${tsCode})]]*/;
 
 		// Ici nous transformons la liste des DTO des templates en une liste compréhensible par les gestionnaires
 		// On regroupera donc les templates objet + corps
@@ -382,7 +383,7 @@
 		});
 
 		$("#exportSqlBouton").click(function() {
-			var sqlGenere = exportSQLGlobal(templateListRegrouped, "INSBTHO");
+			var sqlGenere = exportSQLGlobal(templateListRegrouped, tsCode);
 			download("exportSQL-global.sql", sqlGenere);
 		});
 

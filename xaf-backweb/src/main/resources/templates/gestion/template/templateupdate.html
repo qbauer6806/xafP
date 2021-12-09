@@ -212,7 +212,7 @@
 			/*<![CDATA[*/
 
 			var templateFormBean = /*[[(${templateFormBean})]]*/;
-			var tsName = /*[[(${tsName})]]*/;
+			var tsCode = /*[[(${tsCode})]]*/;
 
 			if (!!$("#formTemplate").html()) {
 				var toolbarOptions = [
@@ -255,7 +255,7 @@
 			});
 
 			$("#exportSqlBouton").click(function() {
-				var sqlGenere = exportSQLTemplate(tsName, templateFormBean.code, templateFormBean.objet, templateFormBean.corps, templateFormBean.langue);
+				var sqlGenere = exportSQLTemplate(tsCode, templateFormBean.code, templateFormBean.objet, templateFormBean.corps, templateFormBean.langue);
 				download("exportSQL-" + templateFormBean.code + ".sql", sqlGenere);
 			});
 

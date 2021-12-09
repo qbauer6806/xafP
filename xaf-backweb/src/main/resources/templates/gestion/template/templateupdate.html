@@ -85,16 +85,18 @@
 						</div>
 
 						<div class="col-xs-6 text-right">
-							<span style="color:#0F607C; font-weight: bold">ANGLAIS&nbsp;&nbsp;&nbsp;</span>
-							<div class="toggle" style="display:inline-block; transform: translateY(35%);">
-								<label class="switch">
-									<input class="switch-input" id="switchLangue" type="checkbox" checked="" name="langue" value="LANGUE" />
-									<input type="hidden" checked="" />
-									<span class="slider"></span>
-								</label>
+							<span th:if="${!frOnly}">
+								<span style="color:#0F607C; font-weight: bold">ANGLAIS&nbsp;&nbsp;&nbsp;</span>
+								<div class="toggle" style="display:inline-block; transform: translateY(35%);">
+									<label class="switch">
+										<input class="switch-input" id="switchLangue" type="checkbox" checked="" name="langue" value="LANGUE" />
+										<input type="hidden" checked="" />
+										<span class="slider"></span>
+									</label>
 
-							</div>
-							<span style="color:#0F607C; font-weight: bold">&nbsp;&nbsp;&nbsp;FRANCAIS</span>
+								</div>
+								<span style="color:#0F607C; font-weight: bold">&nbsp;&nbsp;&nbsp;FRANCAIS</span>
+							</span>
 
 							<button class="btn btn-action ripple-effect exportSqlBouton" id="exportSqlBouton"
 									name="exportSql" type="button"
@@ -215,7 +217,7 @@
 			if (!!$("#formTemplate").html()) {
 				var toolbarOptions = [
 					['bold', 'italic', 'underline', 'strike'],        // toggled buttons
-					['blockquote', 'code-block'],
+					['link', 'blockquote', 'code-block'],
 
 					[{ 'header': 1 }, { 'header': 2 }],               // custom button values
 					[{ 'list': 'ordered'}, { 'list': 'bullet' }],

@@ -95,6 +95,21 @@ public class TemplatesServiceImpl implements TemplatesService {
      * {@inheritDoc}
      */
     @Override
+    public List<TemplateDTO> getTemplates(String demarcheId, String langue) {
+
+        LOGGER.info("Récupération en base des templates...");
+
+        List<TemplateBO> templateBos = templatesRepository.findByDemarcheIdAndLangue(demarcheId, langue);
+
+        LOGGER.info("Transformation bo -> dto ...");
+
+        return TemplatesTransformer.bo2Dto(templateBos);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public TemplateDTO saveOrUpdateTemplate(String demarcheId, TemplateDTO template) {
         
         if (template.getPkTemplates() != null) {

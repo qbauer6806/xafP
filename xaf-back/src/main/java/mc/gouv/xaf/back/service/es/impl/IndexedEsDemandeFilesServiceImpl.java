@@ -16,6 +16,7 @@ import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.impl.DemandeFilesServiceImpl;
 import mc.gouv.xaf.back.service.es.IndexedFilesService;
 import mc.gouv.xaf.back.service.es.handlers.EsTransactionErrorsHandler;
+import mc.gouv.xaf.back.service.es.transformer.DemandeCourrierFilesTransformer;
 import mc.gouv.xaf.back.service.es.transformer.DemandeFileEsTransformer;
 import mc.gouv.xaf.back.service.utils.FileUtils;
 import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
@@ -304,7 +305,7 @@ public class IndexedEsDemandeFilesServiceImpl extends DemandeFilesServiceImpl im
 
         List<DemandeFileDTO> demFiles = DemandesFilesTransformer.bo2Dto(new ArrayList<>(demande.getFiles()));
 
-        demFiles.addAll(recupererCourriersDemandeFromBO(demande.getCourriers()));
+        demFiles.addAll(DemandeCourrierFilesTransformer.recupererCourriersDemandeFromBO(demande.getCourriers()));
 
         Set<DemandesComplementsBO> demComplements = demande.getDemandesComplements();
         DemandeDTO demandeDTO = DemandesTransformer.bo2Dto(demande);
@@ -358,45 +359,13 @@ public class IndexedEsDemandeFilesServiceImpl extends DemandeFilesServiceImpl im
         }
 
         if (demande.getCourriers() != null) {
-            fichiers.addAll(recupererCourriersDemandeFromDTO(Arrays.asList(demande.getCourriers())));
+            fichiers.addAll(DemandeCourrierFilesTransformer.recupererCourriersDemandeFromDTO(Arrays.asList(demande.getCourriers())));
         }
 
         fillPjsAndFichiersInternesAndCourriers(fichiers, files, demande);
         if (demande.getCourriers() != null) {
             fillCourriers(Arrays.asList(demande.getCourriers()), files, demande);
         }
-    }
-
-    /**
-     * Méthode permettant transformer des DemandeCourrierDTO en DemandeFileDTO
-     *
-     * @param courriers courriers d'une demande
-     * @return list des fichiers à ajouter
-     */
-    private List<DemandeFileDTO> recupererCourriersDemandeFromBO(Set<DemandesCourriersBO> courriers) {
-        return recupererCourriersDemandeFromDTO(DemandesCourriersTransformer.bo2Dto(new ArrayList<>(courriers)));
-    }
-
-    /**
-     * Méthode permettant transformer des DemandeCourrierDTO en DemandeFileDTO
-     *
-     * @param courriers courriers d'une demande
-     * @return list des fichiers à ajouter
-     */
-    private List<DemandeFileDTO> recupererCourriersDemandeFromDTO(List<DemandeCourrierDTO> courriers) {
-        List<DemandeFileDTO> fichiers = new ArrayList<>();
-        // Conversion DemandeCourrierBO en DemandeFileDTO pour faciliter l'indexation
-        if (courriers != null) {
-            for (DemandeCourrierDTO courrier : courriers) {
-                DemandeFileDTO file = new DemandeFileDTO();
-                file.setMeta(courrier.getMeta());
-                file.setName(courrier.getName());
-                file.setUrl(courrier.getUrl());
-                file.setDate(courrier.getDateCreation());
-                fichiers.add(file);
-            }
-        }
-        return fichiers;
     }
 
     /**

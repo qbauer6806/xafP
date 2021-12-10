@@ -267,9 +267,9 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 
             // Génération du code pour un tableau
         } else if (StringUtils.equals(sectionType, "tableau")) {
-            ArrayNode valeurs = (ArrayNode) getNode(demande.getContenu(), section, "path");
-            if (valeurs.size() > 0) {
-                html.append("<table id=\"datatable-demandes\" class=\"table table-striped\">");
+            ArrayNode valeurs = (ArrayNode) getNode(demande.getContenu(), section, "path");            if (valeurs.size() > 0) {
+                String classPdfRecap = isPdfRecap?"pdf-recap":"";
+                html.append("<dd style=\"width: 100%\"><table id=\"datatable-demandes\" class=\"table table-striped ").append(classPdfRecap).append("\">");
                 JSONArray columns = (JSONArray) section.get("columns");
                 html.append("<thead><tr>");
                 for (Object column : columns.toArray()) {
@@ -288,7 +288,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
                     }
                     html.append("</tr>");
                 }
-                html.append("</tbody></table>");
+                html.append("</tbody></table></dd>");
             }
         }
 

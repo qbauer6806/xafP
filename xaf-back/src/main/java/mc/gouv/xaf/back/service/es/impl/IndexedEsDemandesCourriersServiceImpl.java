@@ -1,10 +1,11 @@
 package mc.gouv.xaf.back.service.es.impl;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.inject.Inject;
 
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.index.query.TermQueryBuilder;
 import org.elasticsearch.index.reindex.DeleteByQueryRequest;
@@ -19,13 +20,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
+import mc.gouv.xaf.back.data.es.model.DemandeFileEsDTO;
 import mc.gouv.xaf.back.data.es.model.EsErrorEventDTO;
 import mc.gouv.xaf.back.exception.AfIndexingException;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.impl.DemandesCourriersServiceImpl;
 import mc.gouv.xaf.back.service.es.IndexedDemandeService;
+import mc.gouv.xaf.back.service.es.IndexedFilesService;
 import mc.gouv.xaf.back.service.es.handlers.EsTransactionErrorsHandler;
+import mc.gouv.xaf.back.service.es.transformer.DemandeCourrierFilesTransformer;
+import mc.gouv.xaf.back.service.es.transformer.DemandeFileEsTransformer;
 import mc.gouv.xaf.shared.dto.DemandeCourrierDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 
 @Service
 @Primary
@@ -46,6 +53,12 @@ public class IndexedEsDemandesCourriersServiceImpl extends DemandesCourriersServ
 
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
+    
+    @Autowired
+    private DemandeFileEsTransformer demandeFileEsTransformer;
+    
+    @Autowired
+    private IndexedFilesService indexedFilesService;
 
     @Override
     public DemandeCourrierDTO saveCourrier(String demarcheId, Integer pkDemande, DemandeCourrierDTO courrierDto)
@@ -68,7 +81,15 @@ public class IndexedEsDemandesCourriersServiceImpl extends DemandesCourriersServ
         DemandeDTO demandeDTO = indexedDemandeService.getDemande(demarcheId, pkDemande);
         // Indexation
         try {
-            indexedDemandeService.indexElement(demandeDTO, true);
+        	List<DemandeFileDTO> courriers = DemandeCourrierFilesTransformer.recupererCourriersDemandeFromDTO(Arrays.asList(demandeDTO.getCourriers()));
+        	List<DemandeFileEsDTO> files = new ArrayList<>();
+            if (!courriers.isEmpty()) {
+                for (DemandeCourrierDTO courrier : demandeDTO.getCourriers()) {
+                    files.add(demandeFileEsTransformer.getFileEsContent(demandeDTO, DemandeFileEsDTO.TYPE.COURRIER, courrier));
+                }
+                indexedFilesService.indexFiles(files);
+            }
+            indexedDemandeService.indexElement(demandeDTO, false);
         } catch (Exception e) {
             LOGGER.error("Erreur lors de l'indexation du courrier.");
             EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("IndexedEsDemandesCourriersServiceImpl - méthode indexCourrier()", demandeDTO, e);

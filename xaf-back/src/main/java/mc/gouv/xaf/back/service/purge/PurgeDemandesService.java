@@ -1,5 +1,6 @@
 package mc.gouv.xaf.back.service.purge;
 
+import java.util.Date;
 import java.util.List;
 
 import mc.gouv.xaf.shared.dto.PurgeDemandeDTO;
@@ -21,5 +22,10 @@ public interface PurgeDemandesService {
 	 * @param delai
 	 */
 	void envoisMailAgentPurge(String demandesAPurger, String delai);
+
+	/**
+	 * Récupère la dernière execution du job de purge
+	 */
+	Date getDateDerniereExecution();
 	
 }

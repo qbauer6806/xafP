@@ -1,14 +1,6 @@
 package mc.gouv.xaf.back.service.impl;
 
-import org.quartz.CronScheduleBuilder;
-import org.quartz.Job;
-import org.quartz.JobBuilder;
-import org.quartz.JobDetail;
-import org.quartz.JobKey;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
-import org.quartz.Trigger;
-import org.quartz.TriggerBuilder;
+import org.quartz.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +22,7 @@ public class GouvSchedulerServiceImpl implements GouvSchedulerService {
      * @param name Nom du job
      */
     public JobDetail buildJobDetail(Class<? extends Job> clazz, String name) {
-        LOGGER.info("Création d'un nouveau job " + name);
+        LOGGER.info("Création d'un nouveau job {}", name);
         return JobBuilder.newJob(clazz).withIdentity(name).storeDurably().build();
     }
 
@@ -41,7 +33,7 @@ public class GouvSchedulerServiceImpl implements GouvSchedulerService {
      * @param cronExpression Expression au format CRON
      */
     public Trigger buildJobTrigger(JobDetail jobDetail, String name, String cronExpression) {
-        LOGGER.info("Création d'un nouveau trigger " + name + " avec l'expression " + cronExpression);
+        LOGGER.info("Création d'un nouveau trigger {} avec l'expression {}", name,  cronExpression);
         return TriggerBuilder.newTrigger().forJob(jobDetail)
                 .withIdentity(name)
                 .withSchedule(CronScheduleBuilder.cronSchedule(cronExpression))
@@ -61,6 +53,16 @@ public class GouvSchedulerServiceImpl implements GouvSchedulerService {
         } else {
             scheduler.rescheduleJob(trigger.getKey(), trigger);
         }
+    }
+
+    /**
+     * Récupération d'un trigger existant
+     * @param trigger Trigger à récupérer
+     * @throws SchedulerException
+     */
+    public Trigger getTrigger(String trigger) throws SchedulerException {
+        TriggerKey triggerKey = new TriggerKey(trigger);
+        return scheduler.getTrigger(triggerKey);
     }
 
     /**

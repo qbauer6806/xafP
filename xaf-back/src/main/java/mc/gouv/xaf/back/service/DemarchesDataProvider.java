@@ -47,4 +47,6 @@ public interface DemarchesDataProvider {
 
 	StatutSimplifieEnum getStatutSimplifieFromStatutPublic(String statutPublic);
 
+	List<String> getStatutsAPurger();
+
 }

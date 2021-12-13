@@ -17,5 +17,7 @@ public interface GouvSchedulerService {
 
     void startOrUpdateScheduledJob(JobDetail jobDetail, Trigger trigger) throws SchedulerException;
 
+    Trigger getTrigger(String trigger) throws SchedulerException;
+
     void deleteExistingJob(String jobKey) throws SchedulerException;
 }

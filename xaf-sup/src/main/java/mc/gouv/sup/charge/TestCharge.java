@@ -38,6 +38,15 @@ import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.DemandeInputDTO;
 import mc.gouv.xapi.error.exception.server.InternalErrorWebException;
 
+/**
+ * 
+ * Classe permettant d'effectuer un test de charge sur l'API d'un téléservice
+ * Exemple d'exécution du jar xaf-sup pour cette classe :
+ * 		java -cp xaf-sup-9.1.0-SNAPSHOT.jar mc.gouv.sup.charge.TestCharge -c C:\qdeme\testcharge.conf -nd 1 -r -i 200-500 -nf 2-5
+ * 
+ * @author qdeme
+ *
+ */
 public class TestCharge {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(TestCharge.class);

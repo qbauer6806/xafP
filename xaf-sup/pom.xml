@@ -1,4 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>mc.gouv.xaf</groupId>
@@ -8,6 +10,16 @@
 	<artifactId>xaf-sup</artifactId>
 
 	<dependencies>
+		<dependency>
+			<groupId>mc.gouv.xaf</groupId>
+			<artifactId>xaf-apiclient</artifactId>
+			<version>9.1.0-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-cli</groupId>
+			<artifactId>commons-cli</artifactId>
+			<version>1.5.0</version>
+		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
@@ -35,6 +47,37 @@
 						<delimiter>@</delimiter>
 					</delimiters>
 					<useDefaultDelimiters>true</useDefaultDelimiters>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-dependencies</id>
+						<phase>package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/lib</outputDirectory>
+							<overWriteReleases>false</overWriteReleases>
+							<overWriteSnapshots>false</overWriteSnapshots>
+							<overWriteIfNewer>true</overWriteIfNewer>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifest>
+							<addClasspath>true</addClasspath>
+							<classpathPrefix>lib/</classpathPrefix>
+						</manifest>
+					</archive>
 				</configuration>
 			</plugin>
 		</plugins>
@@ -138,25 +181,49 @@
 								</goals>
 								<configuration>
 
-									<target name="Renomage des fichiers pour le Teleservice [${tscode}] pour l'envrionnement [${env}]">
+									<target
+										name="Renomage des fichiers pour le Teleservice [${tscode}] pour l'envrionnement [${env}]">
 										<echo>Renommage du fichier [README.MD]</echo>
-										<!--
-										<move file="${global.generated.source.dir}/README.MD" tofile="${global.generated.target.dir}/README.MD" verbose="true" />
- 										-->
+										<!-- <move file="${global.generated.source.dir}/README.MD" tofile="${global.generated.target.dir}/README.MD" 
+											verbose="true" /> -->
 
 										<echo>Renommage des fichiers de [mc_modules]</echo>
-										<move file="${global.generated.mc.modules.source.path}/apiserver.yml" tofile="${global.generated.mc.modules.target.path}/${tscode}-apiserver.yml" verbose="true" />
-										<move file="${global.generated.mc.modules.source.path}/backserver.yml" tofile="${global.generated.mc.modules.target.path}/${tscode}-backserver.yml" verbose="true" />
-										<move file="${global.generated.mc.modules.source.path}/frontserver.yml" tofile="${global.generated.mc.modules.target.path}/${tscode}-frontserver.yml" verbose="true" />
+										<move
+											file="${global.generated.mc.modules.source.path}/apiserver.yml"
+											tofile="${global.generated.mc.modules.target.path}/${tscode}-apiserver.yml"
+											verbose="true" />
+										<move
+											file="${global.generated.mc.modules.source.path}/backserver.yml"
+											tofile="${global.generated.mc.modules.target.path}/${tscode}-backserver.yml"
+											verbose="true" />
+										<move
+											file="${global.generated.mc.modules.source.path}/frontserver.yml"
+											tofile="${global.generated.mc.modules.target.path}/${tscode}-frontserver.yml"
+											verbose="true" />
 
 										<echo>Renommage des fichiers de [properties]</echo>
-										<move file="${global.generated.properties.source.path}/apiserver.properties" tofile="${global.generated.properties.target.path}/${tscode}-apiserver.properties" verbose="true" />
-										<move file="${global.generated.properties.source.path}/backserver.properties" tofile="${global.generated.properties.target.path}/${tscode}-backserver.properties" verbose="true" />
-										<move file="${global.generated.properties.source.path}/frontserver.properties" tofile="${global.generated.properties.target.path}/${tscode}-frontserver.properties" verbose="true" />
-										<move file="${global.generated.properties.source.path}/shared-backapi.properties" tofile="${global.generated.properties.target.path}/shared-${tscode}backapi.properties" verbose="true" />
+										<move
+											file="${global.generated.properties.source.path}/apiserver.properties"
+											tofile="${global.generated.properties.target.path}/${tscode}-apiserver.properties"
+											verbose="true" />
+										<move
+											file="${global.generated.properties.source.path}/backserver.properties"
+											tofile="${global.generated.properties.target.path}/${tscode}-backserver.properties"
+											verbose="true" />
+										<move
+											file="${global.generated.properties.source.path}/frontserver.properties"
+											tofile="${global.generated.properties.target.path}/${tscode}-frontserver.properties"
+											verbose="true" />
+										<move
+											file="${global.generated.properties.source.path}/shared-backapi.properties"
+											tofile="${global.generated.properties.target.path}/shared-${tscode}backapi.properties"
+											verbose="true" />
 
 										<echo>Renommage des fichiers de [inventory]</echo>
-										<move file="${global.generated.inventory.source.path}/modules" tofile="${global.generated.inventory.target.path}/${tscode}-modules" verbose="true" />
+										<move
+											file="${global.generated.inventory.source.path}/modules"
+											tofile="${global.generated.inventory.target.path}/${tscode}-modules"
+											verbose="true" />
 
 										<echo>Supression du repertoire
 											[${global.generated.source.dir}]
@@ -271,37 +338,88 @@
 									<goal>run</goal>
 								</goals>
 								<configuration>
-									<target name="Renomage des fichiers pour le Teleservice [${tscode}] pour l'envrionnement [${env}]">
+									<target
+										name="Renomage des fichiers pour le Teleservice [${tscode}] pour l'envrionnement [${env}]">
 										<echo>Renommage du fichier [README.MD]</echo>
-										<!--
-										<move file="${global.generated.source.dir}/README.MD" tofile="${global.generated.target.dir}/README.MD" verbose="true" />
-										-->
+										<!-- <move file="${global.generated.source.dir}/README.MD" tofile="${global.generated.target.dir}/README.MD" 
+											verbose="true" /> -->
 
 										<echo>Renommage des fichiers de [mc_modules]</echo>
-										<move file="${global.generated.mc.modules.source.path}/apiserver.yml" tofile="${global.generated.mc.modules.target.path}/${tscode}-apiserver.yml" verbose="true" />
-										<move file="${global.generated.mc.modules.source.path}/backserver.yml" tofile="${global.generated.mc.modules.target.path}/${tscode}-backserver.yml" verbose="true" />
-										<move file="${global.generated.mc.modules.source.path}/frontserver.yml" tofile="${global.generated.mc.modules.target.path}/${tscode}-frontserver.yml" verbose="true" />
+										<move
+											file="${global.generated.mc.modules.source.path}/apiserver.yml"
+											tofile="${global.generated.mc.modules.target.path}/${tscode}-apiserver.yml"
+											verbose="true" />
+										<move
+											file="${global.generated.mc.modules.source.path}/backserver.yml"
+											tofile="${global.generated.mc.modules.target.path}/${tscode}-backserver.yml"
+											verbose="true" />
+										<move
+											file="${global.generated.mc.modules.source.path}/frontserver.yml"
+											tofile="${global.generated.mc.modules.target.path}/${tscode}-frontserver.yml"
+											verbose="true" />
 
 										<echo>Renommage des fichiers de [properties]</echo>
-										<move file="${global.generated.properties.source.path}/apiserver.properties" tofile="${global.generated.properties.target.path}/${tscode}-apiserver.properties" verbose="true" />
-										<move file="${global.generated.properties.source.path}/backserver.properties" tofile="${global.generated.properties.target.path}/${tscode}-backserver.properties" verbose="true" />
-										<move file="${global.generated.properties.source.path}/frontserver.properties" tofile="${global.generated.properties.target.path}/${tscode}-frontserver.properties" verbose="true" />
-										<move file="${global.generated.properties.source.path}/shared-backapi.properties" tofile="${global.generated.properties.target.path}/shared-${tscode}backapi.properties" verbose="true" />
+										<move
+											file="${global.generated.properties.source.path}/apiserver.properties"
+											tofile="${global.generated.properties.target.path}/${tscode}-apiserver.properties"
+											verbose="true" />
+										<move
+											file="${global.generated.properties.source.path}/backserver.properties"
+											tofile="${global.generated.properties.target.path}/${tscode}-backserver.properties"
+											verbose="true" />
+										<move
+											file="${global.generated.properties.source.path}/frontserver.properties"
+											tofile="${global.generated.properties.target.path}/${tscode}-frontserver.properties"
+											verbose="true" />
+										<move
+											file="${global.generated.properties.source.path}/shared-backapi.properties"
+											tofile="${global.generated.properties.target.path}/shared-${tscode}backapi.properties"
+											verbose="true" />
 
 										<echo>Renommage des fichiers de [inventory]</echo>
-										<move file="${global.generated.inventory.source.path}/modules" tofile="${global.generated.inventory.target.path}/${tscode}-modules" verbose="true" />
-										<move file="${global.generated.inventory.source.path}/tscode" tofile="${global.generated.inventory.target.path}/${tscode}" verbose="true" />
+										<move
+											file="${global.generated.inventory.source.path}/modules"
+											tofile="${global.generated.inventory.target.path}/${tscode}-modules"
+											verbose="true" />
+										<move
+											file="${global.generated.inventory.source.path}/tscode"
+											tofile="${global.generated.inventory.target.path}/${tscode}"
+											verbose="true" />
 
-										<move file="${global.generated.inventory.group_vars.source.path}/all.yml" tofile="${global.generated.inventory.group_vars.target.path}/all.yml" verbose="true" />
-										<move file="${global.generated.inventory.group_vars.source.path}/as-server.yml" tofile="${global.generated.inventory.group_vars.target.path}/as-server.yml" verbose="true" />
-										<move file="${global.generated.inventory.group_vars.source.path}/as.yml" tofile="${global.generated.inventory.group_vars.target.path}/as.yml" verbose="true" />
+										<move
+											file="${global.generated.inventory.group_vars.source.path}/all.yml"
+											tofile="${global.generated.inventory.group_vars.target.path}/all.yml"
+											verbose="true" />
+										<move
+											file="${global.generated.inventory.group_vars.source.path}/as-server.yml"
+											tofile="${global.generated.inventory.group_vars.target.path}/as-server.yml"
+											verbose="true" />
+										<move
+											file="${global.generated.inventory.group_vars.source.path}/as.yml"
+											tofile="${global.generated.inventory.group_vars.target.path}/as.yml"
+											verbose="true" />
 
-										<move file="${global.generated.inventory.host_vars.source.path}/appl1-${env.id}.yml" tofile="${global.generated.inventory.host_vars.target.path}/${tscode}-appl1-${env.id}.yml" verbose="true" />
-										<move file="${global.generated.inventory.host_vars.source.path}/eose1-${env.id}.yml" tofile="${global.generated.inventory.host_vars.target.path}/${tscode}-eose1-${env.id}.yml" verbose="true" />
-										<move file="${global.generated.inventory.host_vars.source.path}/frnt1-${env.id}.yml" tofile="${global.generated.inventory.host_vars.target.path}/${tscode}-frnt1-${env.id}.yml" verbose="true" />
+										<move
+											file="${global.generated.inventory.host_vars.source.path}/appl1-${env.id}.yml"
+											tofile="${global.generated.inventory.host_vars.target.path}/${tscode}-appl1-${env.id}.yml"
+											verbose="true" />
+										<move
+											file="${global.generated.inventory.host_vars.source.path}/eose1-${env.id}.yml"
+											tofile="${global.generated.inventory.host_vars.target.path}/${tscode}-eose1-${env.id}.yml"
+											verbose="true" />
+										<move
+											file="${global.generated.inventory.host_vars.source.path}/frnt1-${env.id}.yml"
+											tofile="${global.generated.inventory.host_vars.target.path}/${tscode}-frnt1-${env.id}.yml"
+											verbose="true" />
 
-										<move file="${global.generated.inventory.host_vars.source.path}/linux-zabbix-proxyr1.yml" tofile="${global.generated.inventory.host_vars.target.path}/linux-zabbix-proxyr1.yml" verbose="true" />
-										<move file="${global.generated.inventory.host_vars.source.path}/zabbix3.yml" tofile="${global.generated.inventory.host_vars.target.path}/zabbix3.yml" verbose="true" />
+										<move
+											file="${global.generated.inventory.host_vars.source.path}/linux-zabbix-proxyr1.yml"
+											tofile="${global.generated.inventory.host_vars.target.path}/linux-zabbix-proxyr1.yml"
+											verbose="true" />
+										<move
+											file="${global.generated.inventory.host_vars.source.path}/zabbix3.yml"
+											tofile="${global.generated.inventory.host_vars.target.path}/zabbix3.yml"
+											verbose="true" />
 
 										<echo>Supression du repertoire
 											[${global.generated.source.dir}]
@@ -318,7 +436,7 @@
 		</profile>
 		<profile>
 			<id>gents-prod</id>
-			<!-- <activation> <file> <exists>src/main/resources/vars/${tscode}/prod.properties</exists>
+			<!-- <activation> <file> <exists>src/main/resources/vars/${tscode}/prod.properties</exists> 
 				</file> </activation> -->
 			<properties>
 				<env>prod</env>
@@ -414,36 +532,84 @@
 									<goal>run</goal>
 								</goals>
 								<configuration>
-									<target name="Renomage des fichiers pour le Teleservice [${tscode}] pour l'envrionnement [${env}]">
+									<target
+										name="Renomage des fichiers pour le Teleservice [${tscode}] pour l'envrionnement [${env}]">
 										<echo>Renommage du fichier [README.MD]</echo>
-										<!--
-										<move file="${global.generated.source.dir}/README.MD" tofile="${global.generated.target.dir}/README.MD" verbose="true" />
-										-->
+										<!-- <move file="${global.generated.source.dir}/README.MD" tofile="${global.generated.target.dir}/README.MD" 
+											verbose="true" /> -->
 										<echo>Renommage des fichiers de [mc_modules]</echo>
-										<move file="${global.generated.mc.modules.source.path}/apiserver.yml" tofile="${global.generated.mc.modules.target.path}/${tscode}-apiserver.yml" verbose="true" />
-										<move file="${global.generated.mc.modules.source.path}/backserver.yml" tofile="${global.generated.mc.modules.target.path}/${tscode}-backserver.yml" verbose="true" />
-										<move file="${global.generated.mc.modules.source.path}/frontserver.yml" tofile="${global.generated.mc.modules.target.path}/${tscode}-frontserver.yml" verbose="true" />
+										<move
+											file="${global.generated.mc.modules.source.path}/apiserver.yml"
+											tofile="${global.generated.mc.modules.target.path}/${tscode}-apiserver.yml"
+											verbose="true" />
+										<move
+											file="${global.generated.mc.modules.source.path}/backserver.yml"
+											tofile="${global.generated.mc.modules.target.path}/${tscode}-backserver.yml"
+											verbose="true" />
+										<move
+											file="${global.generated.mc.modules.source.path}/frontserver.yml"
+											tofile="${global.generated.mc.modules.target.path}/${tscode}-frontserver.yml"
+											verbose="true" />
 
 										<echo>Renommage des fichiers de [properties]</echo>
-										<move file="${global.generated.properties.source.path}/apiserver.properties" tofile="${global.generated.properties.target.path}/${tscode}-apiserver.properties" verbose="true" />
-										<move file="${global.generated.properties.source.path}/backserver.properties" tofile="${global.generated.properties.target.path}/${tscode}-backserver.properties" verbose="true" />
-										<move file="${global.generated.properties.source.path}/frontserver.properties" tofile="${global.generated.properties.target.path}/${tscode}-frontserver.properties" verbose="true" />
-										<move file="${global.generated.properties.source.path}/shared-backapi.properties" tofile="${global.generated.properties.target.path}/shared-${tscode}backapi.properties" verbose="true" />
+										<move
+											file="${global.generated.properties.source.path}/apiserver.properties"
+											tofile="${global.generated.properties.target.path}/${tscode}-apiserver.properties"
+											verbose="true" />
+										<move
+											file="${global.generated.properties.source.path}/backserver.properties"
+											tofile="${global.generated.properties.target.path}/${tscode}-backserver.properties"
+											verbose="true" />
+										<move
+											file="${global.generated.properties.source.path}/frontserver.properties"
+											tofile="${global.generated.properties.target.path}/${tscode}-frontserver.properties"
+											verbose="true" />
+										<move
+											file="${global.generated.properties.source.path}/shared-backapi.properties"
+											tofile="${global.generated.properties.target.path}/shared-${tscode}backapi.properties"
+											verbose="true" />
 
 										<echo>Renommage des fichiers de [inventory]</echo>
-										<move file="${global.generated.inventory.source.path}/modules" tofile="${global.generated.inventory.target.path}/${tscode}-modules" verbose="true" />
-									 	<move file="${global.generated.inventory.source.path}/tscode" tofile="${global.generated.inventory.target.path}/${tscode}" verbose="true" />
-										<move file="${global.generated.inventory.group_vars.source.path}/all.yml" tofile="${global.generated.inventory.group_vars.target.path}/all.yml" verbose="true" />
-										<!--
-										<move file="${global.generated.inventory.group_vars.source.path}/as-server.yml" tofile="${global.generated.inventory.group_vars.target.path}/as-server.yml" verbose="true" />
-										-->
-										<move file="${global.generated.inventory.group_vars.source.path}/as.yml" tofile="${global.generated.inventory.group_vars.target.path}/as.yml" verbose="true" />
+										<move
+											file="${global.generated.inventory.source.path}/modules"
+											tofile="${global.generated.inventory.target.path}/${tscode}-modules"
+											verbose="true" />
+										<move
+											file="${global.generated.inventory.source.path}/tscode"
+											tofile="${global.generated.inventory.target.path}/${tscode}"
+											verbose="true" />
+										<move
+											file="${global.generated.inventory.group_vars.source.path}/all.yml"
+											tofile="${global.generated.inventory.group_vars.target.path}/all.yml"
+											verbose="true" />
+										<!-- <move file="${global.generated.inventory.group_vars.source.path}/as-server.yml" 
+											tofile="${global.generated.inventory.group_vars.target.path}/as-server.yml" 
+											verbose="true" /> -->
+										<move
+											file="${global.generated.inventory.group_vars.source.path}/as.yml"
+											tofile="${global.generated.inventory.group_vars.target.path}/as.yml"
+											verbose="true" />
 
-										<move file="${global.generated.inventory.host_vars.source.path}/appl1-${env.id}.yml" tofile="${global.generated.inventory.host_vars.target.path}/${tscode}-appl1-${env.id}.yml" verbose="true" />
-										<move file="${global.generated.inventory.host_vars.source.path}/eose1-${env.id}.yml" tofile="${global.generated.inventory.host_vars.target.path}/${tscode}-eose1-${env.id}.yml" verbose="true" />
-										<move file="${global.generated.inventory.host_vars.source.path}/frnt1-${env.id}.yml" tofile="${global.generated.inventory.host_vars.target.path}/${tscode}-frnt1-${env.id}.yml" verbose="true" />
-										<move file="${global.generated.inventory.host_vars.source.path}/zabbix3.yml" tofile="${global.generated.inventory.host_vars.target.path}/zabbix3.yml" verbose="true" />
-										<move file="${global.generated.inventory.host_vars.source.path}/zabbix3-dmz.yml" tofile="${global.generated.inventory.host_vars.target.path}/zabbix3-dmz.yml" verbose="true" />
+										<move
+											file="${global.generated.inventory.host_vars.source.path}/appl1-${env.id}.yml"
+											tofile="${global.generated.inventory.host_vars.target.path}/${tscode}-appl1-${env.id}.yml"
+											verbose="true" />
+										<move
+											file="${global.generated.inventory.host_vars.source.path}/eose1-${env.id}.yml"
+											tofile="${global.generated.inventory.host_vars.target.path}/${tscode}-eose1-${env.id}.yml"
+											verbose="true" />
+										<move
+											file="${global.generated.inventory.host_vars.source.path}/frnt1-${env.id}.yml"
+											tofile="${global.generated.inventory.host_vars.target.path}/${tscode}-frnt1-${env.id}.yml"
+											verbose="true" />
+										<move
+											file="${global.generated.inventory.host_vars.source.path}/zabbix3.yml"
+											tofile="${global.generated.inventory.host_vars.target.path}/zabbix3.yml"
+											verbose="true" />
+										<move
+											file="${global.generated.inventory.host_vars.source.path}/zabbix3-dmz.yml"
+											tofile="${global.generated.inventory.host_vars.target.path}/zabbix3-dmz.yml"
+											verbose="true" />
 
 										<echo>Supression du repertoire
 											[${global.generated.source.dir}]
@@ -458,7 +624,7 @@
 				</plugins>
 			</build>
 		</profile>
-		
+
 		<profile>
 			<id>gentsa-dev</id>
 			<!-- <activation> <file> <exists>src/main/resources/vars/${tscode}/dev.properties</exists> 
@@ -544,29 +710,62 @@
 								</goals>
 								<configuration>
 
-									<target name="Renomage des fichiers pour le Teleservice [${tscode}] pour l'envrionnement [${env}]">
+									<target
+										name="Renomage des fichiers pour le Teleservice [${tscode}] pour l'envrionnement [${env}]">
 										<echo>Renommage du fichier [README.MD]</echo>
-										<!--
-										<move file="${global.generated.source.dir}/README.MD" tofile="${global.generated.target.dir}/README.MD" verbose="true" />
- 										-->
+										<!-- <move file="${global.generated.source.dir}/README.MD" tofile="${global.generated.target.dir}/README.MD" 
+											verbose="true" /> -->
 										<echo>Renommage des fichiers de [mc_modules]</echo>
-										<move file="${global.generated.mc.modules.source.path}/apiserver.yml" tofile="${global.generated.mc.modules.target.path}/${tscode}-apiserver.yml" verbose="true" />
-										<move file="${global.generated.mc.modules.source.path}/backserver.yml" tofile="${global.generated.mc.modules.target.path}/${tscode}-backserver.yml" verbose="true" />
-										<move file="${global.generated.mc.modules.source.path}/frontserver.yml" tofile="${global.generated.mc.modules.target.path}/${tscode}-frontserver.yml" verbose="true" />
+										<move
+											file="${global.generated.mc.modules.source.path}/apiserver.yml"
+											tofile="${global.generated.mc.modules.target.path}/${tscode}-apiserver.yml"
+											verbose="true" />
+										<move
+											file="${global.generated.mc.modules.source.path}/backserver.yml"
+											tofile="${global.generated.mc.modules.target.path}/${tscode}-backserver.yml"
+											verbose="true" />
+										<move
+											file="${global.generated.mc.modules.source.path}/frontserver.yml"
+											tofile="${global.generated.mc.modules.target.path}/${tscode}-frontserver.yml"
+											verbose="true" />
 
 										<echo>Renommage des fichiers de [properties]</echo>
-										<move file="${global.generated.properties.source.path}/apiserver.properties" tofile="${global.generated.properties.target.path}/${tscode}-apiserver.properties" verbose="true" />
-										<move file="${global.generated.properties.source.path}/backserver.properties" tofile="${global.generated.properties.target.path}/${tscode}-backserver.properties" verbose="true" />
-										<move file="${global.generated.properties.source.path}/frontserver.properties" tofile="${global.generated.properties.target.path}/${tscode}-frontserver.properties" verbose="true" />
-										<move file="${global.generated.properties.source.path}/shared-backapi.properties" tofile="${global.generated.properties.target.path}/shared-${tscode}backapi.properties" verbose="true" />
+										<move
+											file="${global.generated.properties.source.path}/apiserver.properties"
+											tofile="${global.generated.properties.target.path}/${tscode}-apiserver.properties"
+											verbose="true" />
+										<move
+											file="${global.generated.properties.source.path}/backserver.properties"
+											tofile="${global.generated.properties.target.path}/${tscode}-backserver.properties"
+											verbose="true" />
+										<move
+											file="${global.generated.properties.source.path}/frontserver.properties"
+											tofile="${global.generated.properties.target.path}/${tscode}-frontserver.properties"
+											verbose="true" />
+										<move
+											file="${global.generated.properties.source.path}/shared-backapi.properties"
+											tofile="${global.generated.properties.target.path}/shared-${tscode}backapi.properties"
+											verbose="true" />
 
 										<echo>Renommage des fichiers de [inventory]</echo>
-										<move file="${global.generated.inventory.source.path}/modules" tofile="${global.generated.inventory.target.path}/${tscode}-modules" verbose="true" />
+										<move
+											file="${global.generated.inventory.source.path}/modules"
+											tofile="${global.generated.inventory.target.path}/${tscode}-modules"
+											verbose="true" />
 
 										<echo>Renommage des fichiers de [host_vars]</echo>
-										<move file="${global.generated.inventory.source.path}/host_vars/gentsa-frnt1-${env.id}.yml" tofile="${global.generated.inventory.target.path}/host_vars/gentsa-frnt1-${env.id}.yml" verbose="true" />
-										<move file="${global.generated.inventory.source.path}/host_vars/gentsa-frnt2-${env.id}.yml" tofile="${global.generated.inventory.target.path}/host_vars/gentsa-frnt2-${env.id}.yml" verbose="true" />
-										<move file="${global.generated.inventory.source.path}/host_vars/linux-zabbix-proxyd1.yml" tofile="${global.generated.inventory.target.path}/host_vars/linux-zabbix-proxyd1.yml" verbose="true" />
+										<move
+											file="${global.generated.inventory.source.path}/host_vars/gentsa-frnt1-${env.id}.yml"
+											tofile="${global.generated.inventory.target.path}/host_vars/gentsa-frnt1-${env.id}.yml"
+											verbose="true" />
+										<move
+											file="${global.generated.inventory.source.path}/host_vars/gentsa-frnt2-${env.id}.yml"
+											tofile="${global.generated.inventory.target.path}/host_vars/gentsa-frnt2-${env.id}.yml"
+											verbose="true" />
+										<move
+											file="${global.generated.inventory.source.path}/host_vars/linux-zabbix-proxyd1.yml"
+											tofile="${global.generated.inventory.target.path}/host_vars/linux-zabbix-proxyd1.yml"
+											verbose="true" />
 
 										<echo>Supression du repertoire
 											[${global.generated.source.dir}]
@@ -666,30 +865,63 @@
 								</goals>
 								<configuration>
 
-									<target name="Renomage des fichiers pour le Teleservice [${tscode}] pour l'envrionnement [${env}]">
+									<target
+										name="Renomage des fichiers pour le Teleservice [${tscode}] pour l'envrionnement [${env}]">
 										<echo>Renommage du fichier [README.MD]</echo>
-										<!--
-										<move file="${global.generated.source.dir}/README.MD" tofile="${global.generated.target.dir}/README.MD" verbose="true" />
- 										-->
+										<!-- <move file="${global.generated.source.dir}/README.MD" tofile="${global.generated.target.dir}/README.MD" 
+											verbose="true" /> -->
 										<echo>Renommage des fichiers de [mc_modules]</echo>
-										<move file="${global.generated.mc.modules.source.path}/apiserver.yml" tofile="${global.generated.mc.modules.target.path}/${tscode}-apiserver.yml" verbose="true" />
-										<move file="${global.generated.mc.modules.source.path}/backserver.yml" tofile="${global.generated.mc.modules.target.path}/${tscode}-backserver.yml" verbose="true" />
-										<move file="${global.generated.mc.modules.source.path}/frontserver.yml" tofile="${global.generated.mc.modules.target.path}/${tscode}-frontserver.yml" verbose="true" />
+										<move
+											file="${global.generated.mc.modules.source.path}/apiserver.yml"
+											tofile="${global.generated.mc.modules.target.path}/${tscode}-apiserver.yml"
+											verbose="true" />
+										<move
+											file="${global.generated.mc.modules.source.path}/backserver.yml"
+											tofile="${global.generated.mc.modules.target.path}/${tscode}-backserver.yml"
+											verbose="true" />
+										<move
+											file="${global.generated.mc.modules.source.path}/frontserver.yml"
+											tofile="${global.generated.mc.modules.target.path}/${tscode}-frontserver.yml"
+											verbose="true" />
 
 										<echo>Renommage des fichiers de [properties]</echo>
-										<move file="${global.generated.properties.source.path}/apiserver.properties" tofile="${global.generated.properties.target.path}/${tscode}-apiserver.properties" verbose="true" />
-										<move file="${global.generated.properties.source.path}/backserver.properties" tofile="${global.generated.properties.target.path}/${tscode}-backserver.properties" verbose="true" />
-										<move file="${global.generated.properties.source.path}/frontserver.properties" tofile="${global.generated.properties.target.path}/${tscode}-frontserver.properties" verbose="true" />
-										<move file="${global.generated.properties.source.path}/shared-backapi.properties" tofile="${global.generated.properties.target.path}/shared-${tscode}backapi.properties" verbose="true" />
+										<move
+											file="${global.generated.properties.source.path}/apiserver.properties"
+											tofile="${global.generated.properties.target.path}/${tscode}-apiserver.properties"
+											verbose="true" />
+										<move
+											file="${global.generated.properties.source.path}/backserver.properties"
+											tofile="${global.generated.properties.target.path}/${tscode}-backserver.properties"
+											verbose="true" />
+										<move
+											file="${global.generated.properties.source.path}/frontserver.properties"
+											tofile="${global.generated.properties.target.path}/${tscode}-frontserver.properties"
+											verbose="true" />
+										<move
+											file="${global.generated.properties.source.path}/shared-backapi.properties"
+											tofile="${global.generated.properties.target.path}/shared-${tscode}backapi.properties"
+											verbose="true" />
 
 										<echo>Renommage des fichiers de [inventory]</echo>
-										<move file="${global.generated.inventory.source.path}/modules" tofile="${global.generated.inventory.target.path}/${tscode}-modules" verbose="true" />
+										<move
+											file="${global.generated.inventory.source.path}/modules"
+											tofile="${global.generated.inventory.target.path}/${tscode}-modules"
+											verbose="true" />
 
 
 										<echo>Renommage des fichiers de [host_vars]</echo>
-										<move file="${global.generated.inventory.source.path}/host_vars/gentsa-frnt1-${env.id}.yml" tofile="${global.generated.inventory.target.path}/host_vars/gentsa-frnt1-${env.id}.yml" verbose="true" />
-										<move file="${global.generated.inventory.source.path}/host_vars/gentsa-frnt2-${env.id}.yml" tofile="${global.generated.inventory.target.path}/host_vars/gentsa-frnt2-${env.id}.yml" verbose="true" />
-										<move file="${global.generated.inventory.source.path}/host_vars/linux-zabbix-proxyd1.yml" tofile="${global.generated.inventory.target.path}/host_vars/linux-zabbix-proxyd1.yml" verbose="true" />
+										<move
+											file="${global.generated.inventory.source.path}/host_vars/gentsa-frnt1-${env.id}.yml"
+											tofile="${global.generated.inventory.target.path}/host_vars/gentsa-frnt1-${env.id}.yml"
+											verbose="true" />
+										<move
+											file="${global.generated.inventory.source.path}/host_vars/gentsa-frnt2-${env.id}.yml"
+											tofile="${global.generated.inventory.target.path}/host_vars/gentsa-frnt2-${env.id}.yml"
+											verbose="true" />
+										<move
+											file="${global.generated.inventory.source.path}/host_vars/linux-zabbix-proxyd1.yml"
+											tofile="${global.generated.inventory.target.path}/host_vars/linux-zabbix-proxyd1.yml"
+											verbose="true" />
 
 										<echo>Supression du repertoire
 											[${global.generated.source.dir}]
@@ -703,7 +935,7 @@
 					</plugin>
 				</plugins>
 			</build>
-		</profile>	
+		</profile>
 		<profile>
 			<id>gentsa-prod</id>
 			<!-- <activation> <file> <exists>src/main/resources/vars/${tscode}/dev.properties</exists> 
@@ -789,32 +1021,68 @@
 								</goals>
 								<configuration>
 
-									<target name="Renomage des fichiers pour le Teleservice [${tscode}] pour l'envrionnement [${env}]">
+									<target
+										name="Renomage des fichiers pour le Teleservice [${tscode}] pour l'envrionnement [${env}]">
 										<echo>Renommage du fichier [README.MD]</echo>
-										<!--
-										<move file="${global.generated.source.dir}/README.MD" tofile="${global.generated.target.dir}/README.MD" verbose="true" />
- 										-->
+										<!-- <move file="${global.generated.source.dir}/README.MD" tofile="${global.generated.target.dir}/README.MD" 
+											verbose="true" /> -->
 
 										<echo>Renommage des fichiers de [mc_modules]</echo>
-										<move file="${global.generated.mc.modules.source.path}/apiserver.yml" tofile="${global.generated.mc.modules.target.path}/${tscode}-apiserver.yml" verbose="true" />
-										<move file="${global.generated.mc.modules.source.path}/backserver.yml" tofile="${global.generated.mc.modules.target.path}/${tscode}-backserver.yml" verbose="true" />
-										<move file="${global.generated.mc.modules.source.path}/frontserver.yml" tofile="${global.generated.mc.modules.target.path}/${tscode}-frontserver.yml" verbose="true" />
+										<move
+											file="${global.generated.mc.modules.source.path}/apiserver.yml"
+											tofile="${global.generated.mc.modules.target.path}/${tscode}-apiserver.yml"
+											verbose="true" />
+										<move
+											file="${global.generated.mc.modules.source.path}/backserver.yml"
+											tofile="${global.generated.mc.modules.target.path}/${tscode}-backserver.yml"
+											verbose="true" />
+										<move
+											file="${global.generated.mc.modules.source.path}/frontserver.yml"
+											tofile="${global.generated.mc.modules.target.path}/${tscode}-frontserver.yml"
+											verbose="true" />
 
 										<echo>Renommage des fichiers de [properties]</echo>
-										<move file="${global.generated.properties.source.path}/apiserver.properties" tofile="${global.generated.properties.target.path}/${tscode}-apiserver.properties" verbose="true" />
-										<move file="${global.generated.properties.source.path}/backserver.properties" tofile="${global.generated.properties.target.path}/${tscode}-backserver.properties" verbose="true" />
-										<move file="${global.generated.properties.source.path}/frontserver.properties" tofile="${global.generated.properties.target.path}/${tscode}-frontserver.properties" verbose="true" />
-										<move file="${global.generated.properties.source.path}/shared-backapi.properties" tofile="${global.generated.properties.target.path}/shared-${tscode}backapi.properties" verbose="true" />
+										<move
+											file="${global.generated.properties.source.path}/apiserver.properties"
+											tofile="${global.generated.properties.target.path}/${tscode}-apiserver.properties"
+											verbose="true" />
+										<move
+											file="${global.generated.properties.source.path}/backserver.properties"
+											tofile="${global.generated.properties.target.path}/${tscode}-backserver.properties"
+											verbose="true" />
+										<move
+											file="${global.generated.properties.source.path}/frontserver.properties"
+											tofile="${global.generated.properties.target.path}/${tscode}-frontserver.properties"
+											verbose="true" />
+										<move
+											file="${global.generated.properties.source.path}/shared-backapi.properties"
+											tofile="${global.generated.properties.target.path}/shared-${tscode}backapi.properties"
+											verbose="true" />
 
 										<echo>Renommage des fichiers de [inventory]</echo>
-										<move file="${global.generated.inventory.source.path}/modules" tofile="${global.generated.inventory.target.path}/${tscode}-modules" verbose="true" />
+										<move
+											file="${global.generated.inventory.source.path}/modules"
+											tofile="${global.generated.inventory.target.path}/${tscode}-modules"
+											verbose="true" />
 
 
 										<echo>Renommage des fichiers de [host_vars]</echo>
-										<move file="${global.generated.inventory.source.path}/host_vars/gentsa-frnt1-${env.id}.yml" tofile="${global.generated.inventory.target.path}/host_vars/gentsa-frnt1-${env.id}.yml" verbose="true" />
-										<move file="${global.generated.inventory.source.path}/host_vars/gentsa-frnt2-${env.id}.yml" tofile="${global.generated.inventory.target.path}/host_vars/gentsa-frnt2-${env.id}.yml" verbose="true" />
-										<move file="${global.generated.inventory.source.path}/host_vars/zabbix3.yml" tofile="${global.generated.inventory.target.path}/host_vars/zabbix3.yml" verbose="true" />
-										<move file="${global.generated.inventory.source.path}/host_vars/zabbix3-dmz.yml" tofile="${global.generated.inventory.target.path}/host_vars/zabbix3-dmz.yml" verbose="true" />
+										<move
+											file="${global.generated.inventory.source.path}/host_vars/gentsa-frnt1-${env.id}.yml"
+											tofile="${global.generated.inventory.target.path}/host_vars/gentsa-frnt1-${env.id}.yml"
+											verbose="true" />
+										<move
+											file="${global.generated.inventory.source.path}/host_vars/gentsa-frnt2-${env.id}.yml"
+											tofile="${global.generated.inventory.target.path}/host_vars/gentsa-frnt2-${env.id}.yml"
+											verbose="true" />
+										<move
+											file="${global.generated.inventory.source.path}/host_vars/zabbix3.yml"
+											tofile="${global.generated.inventory.target.path}/host_vars/zabbix3.yml"
+											verbose="true" />
+										<move
+											file="${global.generated.inventory.source.path}/host_vars/zabbix3-dmz.yml"
+											tofile="${global.generated.inventory.target.path}/host_vars/zabbix3-dmz.yml"
+											verbose="true" />
 
 										<echo>Supression du repertoire
 											[${global.generated.source.dir}]
@@ -829,7 +1097,7 @@
 				</plugins>
 			</build>
 		</profile>
-		
+
 		<!-- Profile pour générer les contenus des tickets Redmine -->
 		<profile>
 			<id>redmine</id>
@@ -893,6 +1161,6 @@
 				</plugins>
 			</build>
 		</profile>
-		
+
 	</profiles>
 </project>

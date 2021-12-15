@@ -4,6 +4,7 @@ import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.TemplatesService;
 import mc.gouv.xaf.back.service.templates.GestionTemplateService;
+import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.TemplateDTO;
 import mc.gouv.xaf.shared.formbean.TemplateFormBean;
 import org.slf4j.Logger;
@@ -13,6 +14,7 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
@@ -41,6 +43,9 @@ public class GestionTemplateController extends AbstractController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GestionTemplateController.class);
     private static final String TS_CODE_VAR = "tsCode";
+
+    // Messages
+    private static final String MESSAGE_SUCCESS_MODIFICATION = "Le template mail a été modifié avec succès";
 
     @GetMapping
     public ModelAndView getTemplates() {
@@ -92,6 +97,8 @@ public class GestionTemplateController extends AbstractController {
 
         // Récupération à nouveau du template pour vérifier que tout est ok
         gestionTemplateService.retrieveTemplateForm(templateFormBean);
+
+        mav.addObject(SharedMessages.SUCCESS_MESSAGES, MESSAGE_SUCCESS_MODIFICATION);
 
         LOGGER.info("======================= Fin /gestion/template/update. Méthode traiterUpdate");
 

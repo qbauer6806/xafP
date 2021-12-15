@@ -264,6 +264,22 @@
 				window.location.href = APP.getContextPath() + '/gestion/template/update?code='+ templateFormBean.code + '&langue=' + langue;
 			});
 
+			var successMessage = /*[[${successMessages}]]*/'';
+			if (successMessage) {
+				$.notify({message: successMessage}, {type: 'success'});
+			}
+
+			var messagesErrorList = /*[[${errorMessages}]]*/'default';
+			if (messagesErrorList !== 'undefined' && messagesErrorList !== null) {
+				$.each(messagesErrorList, function (key, msg) {
+					$.notify({
+						message: msg
+					}, {
+						type: 'danger'
+					});
+				});
+			}
+
 			/*]]>*/
 
 		});

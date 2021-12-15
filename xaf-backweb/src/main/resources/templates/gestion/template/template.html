@@ -345,28 +345,6 @@
 			var sqlGenere = exportSQLGlobal(templateListRegrouped, tsCode);
 			download("exportSQL-global.sql", sqlGenere);
 		});
-
-		var messagesSuccessList = /*[[${successMessages}]]*/'default';
-		if (messagesSuccessList !== 'undefined' && messagesSuccessList !== null) {
-			$.each(messagesSuccessList, function (key, msg) {
-				$.notify({
-					message: msg
-				}, {
-					type: 'success'
-				});
-			});
-		}
-
-		var messagesErrorList = /*[[${errorMessages}]]*/'default';
-		if (messagesErrorList !== 'undefined' && messagesErrorList !== null) {
-			$.each(messagesErrorList, function (key, msg) {
-				$.notify({
-					message: msg
-				}, {
-					type: 'danger'
-				});
-			});
-		}
 	});
 	/*]]>*/
 </script>

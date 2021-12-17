@@ -57,6 +57,8 @@ public class TestCharge {
 	
 	private static List<DemandeFileDTO> fichiers = new ArrayList<DemandeFileDTO>();
 	
+	private static Map<String, DemandeFileDTO> fichiersDejaUtilisesPourDoublons = new HashMap<String, DemandeFileDTO>();
+	
 	private static ObjectMapper mapper = new ObjectMapper();
 	
 	private static AfApiClient apiClient;
@@ -91,6 +93,10 @@ public class TestCharge {
         Option optionRandom = new Option("r", "random", false, "random (aléatoire) (implique -i i1-i2 (ms))");
         optionRandom.setRequired(false);
         options.addOption(optionRandom);
+        
+        Option optionSansDoublons = new Option("s", "sansdoublons", false, "sans doublons de fichiers (implique un jeu de données d'au moins nd*nf(n2) fichiers)");
+        optionSansDoublons.setRequired(false);
+        options.addOption(optionSansDoublons);
 
         CommandLineParser parser = new DefaultParser();
         HelpFormatter formatter = new HelpFormatter();
@@ -134,15 +140,31 @@ public class TestCharge {
         	intervalle = Integer.parseInt(intervalleStr);
         }
         
+        boolean sansDoublons = cmd.hasOption("sansdoublons");
         String nombrefichiers = cmd.getOptionValue("nombrefichiers");
         
+        String messageSansDoublons = "";
         String messageFichiers = null;
+        
+        
+        if (sansDoublons && !"0".equals(nombrefichiers)) {
+        	String spl[] = nombrefichiers.split("-");
+        	if (Integer.parseInt(spl[1])*nombre > fichiers.size()) {
+	        	LOGGER.error("Erreur, le produit du nombre de demandes par le nombre maximal de fichiers par demandes dépasse le nombre de fichiers dans le jeu de données !");
+	        	System.exit(1);
+        	}
+        }
+        
+        if (sansDoublons) {
+        	messageSansDoublons = ", sans doublons";
+        }
+        
         if ("0".equals(nombrefichiers)) {
         	messageFichiers = "Les demandes n'auront pas de fichiers joints.";
         }
         else {
         	String spl[] = nombrefichiers.split("-");
-        	messageFichiers = "Chaque demande comportera entre " + spl[0] + " et " + spl[1] + " fichiers joints.";
+        	messageFichiers = "Chaque demande comportera entre " + spl[0] + " et " + spl[1] + " fichiers joints" + messageSansDoublons + ".";
         }
         if (!random) {
         	LOGGER.info("Créer {} demandes, création toutes les {} ms. {}", nombre, intervalle, messageFichiers);
@@ -169,7 +191,7 @@ public class TestCharge {
 			}
 			
 			ExecutorService executorService = Executors.newFixedThreadPool(10);
-			Future<?> future = executorService.submit(() -> creerDemande(nombrefichiers));
+			Future<?> future = executorService.submit(() -> creerDemande(nombrefichiers, sansDoublons));
 			futures.add(future);
 		}
 		LOGGER.info("======\n");
@@ -193,7 +215,7 @@ public class TestCharge {
 		
 	}
 	
-	private static void creerDemande(String nombrefichiers) {
+	private static void creerDemande(String nombrefichiers, boolean sansDoublons) {
 		
 		DemandeInputDTO input = new DemandeInputDTO();
 		input.setBuildId(conf.get(CONFIG_BUILDID));
@@ -206,9 +228,12 @@ public class TestCharge {
 			Integer n1 = Integer.parseInt(spl[0]);
 			Integer n2 = Integer.parseInt(spl[1]);
 			Integer nombredefinitif = ThreadLocalRandom.current().nextInt((n2 - n1) + 1) + n1;
-			List<DemandeFileDTO> tmpFichiers = new ArrayList<DemandeFileDTO>();
-			for (int i = 0; i < nombredefinitif; i++) {
-				tmpFichiers.add(getRandomFile());
+			List<DemandeFileDTO> tmpFichiers = null;
+			if (sansDoublons) {
+				tmpFichiers = getFichiersSansDoublons(nombredefinitif);
+			}
+			else {
+				tmpFichiers = getFichiersAvecDoublons(nombredefinitif);
 			}
 			input.setFichiers(tmpFichiers.stream().toArray(DemandeFileDTO[]::new));
 		}
@@ -226,6 +251,9 @@ public class TestCharge {
 		LOGGER.info("Création demande... (usagerid={}, canal={}, langue={}, fichiers={})", usagerId, input.getCanal().name(), input.getLangue(), input.getFichiers().length);
 		
 		try {
+//			for (DemandeFileDTO f : input.getFichiers()) {
+//				System.out.println(f.getUrl());
+//			}
 			DemandeDTO demande = apiClient.creerDemande(input, usagerId);
 			LOGGER.info("Demande créée : {}", demande.getPkDemandes());
 		}
@@ -237,6 +265,30 @@ public class TestCharge {
 				LOGGER.error("Erreur lors de la création de la demande", e);
 			}
 		}
+	}
+	
+	private static List<DemandeFileDTO> getFichiersAvecDoublons(Integer nombre) {
+		List<DemandeFileDTO> tmpFichiers = new ArrayList<DemandeFileDTO>();
+		for (int i = 0; i < nombre; i++) {
+			tmpFichiers.add(getRandomFile());
+		}
+		return tmpFichiers;
+	}
+	
+	private static synchronized List<DemandeFileDTO> getFichiersSansDoublons(Integer nombre) {
+		List<DemandeFileDTO> ret = new ArrayList<DemandeFileDTO>();
+		for (int i = 0; i < nombre; i++) {
+			boolean found = false;
+			while (!found) {
+				DemandeFileDTO randomFile = getRandomFile();
+				if (fichiersDejaUtilisesPourDoublons.get(randomFile.getUrl()) == null) {
+					fichiersDejaUtilisesPourDoublons.put(randomFile.getUrl(), randomFile);
+					ret.add(randomFile);
+					found = true;
+				}
+			}
+		}
+		return ret;
 	}
 	
 	private static DemandeFileDTO getRandomFile() {

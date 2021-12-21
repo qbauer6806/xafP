@@ -63,6 +63,8 @@ public class IndexedEsDemandeFilesServiceImpl extends DemandeFilesServiceImpl im
 
     private static final Logger LOGGER = LoggerFactory.getLogger(IndexedEsDemandeFilesServiceImpl.class);
 
+    private static final int MAX_BULK_SIZE = 10;
+
     @Value("${application.name}")
     private String indexAlias;
 
@@ -156,7 +158,7 @@ public class IndexedEsDemandeFilesServiceImpl extends DemandeFilesServiceImpl im
             applicationEventPublisher.publishEvent(esErrorEventDTO);
             throw new AfIndexingException(e.getMessage(), e);
         }
-        //files.addAll(files);
+
         if (files.isEmpty()) {
             LOGGER.info("Aucun fichiers à indexer");
         } else {
@@ -250,9 +252,21 @@ public class IndexedEsDemandeFilesServiceImpl extends DemandeFilesServiceImpl im
 
     private void bulkIndex(List<IndexQuery> queries) throws IOException {
         BulkRequest bulkRequest = new BulkRequest();
-        for (IndexQuery query : queries) {
-            bulkRequest.add(prepareIndex(query));
+
+        int nombreBulks = (queries.size() + MAX_BULK_SIZE - 1) / MAX_BULK_SIZE;
+        LOGGER.info("Début indexation pour {} fichiers en {} requêtes", queries.size(), nombreBulks);
+
+        for (int i = 0; i < queries.size(); i++) {
+            // Envois et Création d'une nouvelle bulk request si on arrive au max bulk size
+            if (i != 0 && i % MAX_BULK_SIZE == 0) {
+                LOGGER.info("Indexation du bulk {}/{}", i / MAX_BULK_SIZE , nombreBulks);
+                checkForBulkUpdateFailure(elasticsearchTemplate.getClient().bulk(bulkRequest, RequestOptions.DEFAULT));
+                bulkRequest = new BulkRequest();
+            }
+            bulkRequest.add(prepareIndex(queries.get(i)));
         }
+
+        LOGGER.info("Indexation du bulk {}/{}", nombreBulks, nombreBulks);
         checkForBulkUpdateFailure(elasticsearchTemplate.getClient().bulk(bulkRequest, RequestOptions.DEFAULT));
     }
 

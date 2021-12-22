@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>mc.gouv.xaf</groupId>
 		<artifactId>xaf</artifactId>
-		<version>9.1.0-rc5</version>
+		<version>9.1.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>xaf-sup</artifactId>
 
@@ -11,7 +11,7 @@
 		<dependency>
 			<groupId>mc.gouv.xaf</groupId>
 			<artifactId>xaf-apiclient</artifactId>
-			<version>9.1.0-rc5</version>
+			<version>9.1.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-cli</groupId>
@@ -485,8 +485,7 @@
 										<move file="${global.generated.inventory.source.path}/modules" tofile="${global.generated.inventory.target.path}/${tscode}-modules" verbose="true" />
 										<move file="${global.generated.inventory.source.path}/tscode" tofile="${global.generated.inventory.target.path}/${tscode}" verbose="true" />
 										<move file="${global.generated.inventory.group_vars.source.path}/all.yml" tofile="${global.generated.inventory.group_vars.target.path}/all.yml" verbose="true" />
-										<!-- <move file="${global.generated.inventory.group_vars.source.path}/as-server.yml" tofile="${global.generated.inventory.group_vars.target.path}/as-server.yml" 
-											verbose="true" /> -->
+										<!-- <move file="${global.generated.inventory.group_vars.source.path}/as-server.yml" tofile="${global.generated.inventory.group_vars.target.path}/as-server.yml" verbose="true" /> -->
 										<move file="${global.generated.inventory.group_vars.source.path}/as.yml" tofile="${global.generated.inventory.group_vars.target.path}/as.yml" verbose="true" />
 
 										<move file="${global.generated.inventory.host_vars.source.path}/appl1-${env.id}.yml" tofile="${global.generated.inventory.host_vars.target.path}/${tscode}-appl1-${env.id}.yml" verbose="true" />

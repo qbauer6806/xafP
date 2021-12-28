@@ -14,6 +14,7 @@ import mc.gouv.xaf.back.service.GouvSchedulerService;
 import mc.gouv.xaf.back.service.scheduling.PurgeDemandesSchedulingJob;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.SchedulerException;
+import org.quartz.Trigger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -180,7 +181,10 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 	public Date getDateDerniereExecution() {
 		Date date = null;
 		try {
-			date = gouvSchedulerService.getTrigger(PurgeDemandesSchedulingJob.TRIGGER_NAME).getPreviousFireTime();
+			Trigger trigger = gouvSchedulerService.getTrigger(PurgeDemandesSchedulingJob.TRIGGER_NAME);
+			if (trigger != null) {
+				date = trigger.getPreviousFireTime();
+			}
 		} catch (SchedulerException e) {
 			LOGGER.error("Aucun trigger pour le job de purge n'a été trouvé");
 		}

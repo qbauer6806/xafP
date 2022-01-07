@@ -56,7 +56,7 @@ public class EsConfigGouv {
 		Integer socketTimeout = gouvPropertiesResolver.getEsSocketTimeout();
 		RestClientBuilder builder = RestClient.builder(hosts.toArray(new HttpHost[hosts.size()]))
 				.setRequestConfigCallback(requestConfigBuilder -> requestConfigBuilder.setConnectTimeout(connectTimeout)
-						.setSocketTimeout(socketTimeout));
+						.setSocketTimeout(socketTimeout)).setMaxRetryTimeoutMillis(socketTimeout);
 		
 		// Authentification elastisearch
 		String user = gouvPropertiesResolver.getEsUser();

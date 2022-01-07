@@ -77,6 +77,9 @@ public class AfBackUtils {
     public static DateFormat FILE_DATE_AND_TIME_SUFFIX = new SimpleDateFormat("YYYYMMddHHmmssSS");
 
     public static final String MESSAGE_ERREURS_FORMULAIRE = "Le formulaire contient des erreurs.";
+    
+    // Préfix de la meta d'un fichier indiquant l'ID de la section correspondante
+    public static String META_FICHIER_SECTION_PREFIX = "SECTION_ID_";
 
     /**
      * Version en cache des infos de la démarche
@@ -588,5 +591,18 @@ public class AfBackUtils {
     public static String formatDoubleToCurrency(Double number) {
         NumberFormat formatter = NumberFormat.getCurrencyInstance(Locale.FRANCE);
         return formatter.format(number);
+    }
+    
+    public static String getSectionFromMetaFichier(String meta) {
+    	if (StringUtils.isBlank(meta)) {
+    		return null;
+    	}
+    	for (String token : meta.split(";")) {
+    		if (token.startsWith(META_FICHIER_SECTION_PREFIX)) {
+    			token = token.replace(META_FICHIER_SECTION_PREFIX, "");
+    			return token;
+    		}
+    	}
+    	return null;
     }
 }

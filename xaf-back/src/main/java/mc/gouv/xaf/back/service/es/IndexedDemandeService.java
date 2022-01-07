@@ -1,12 +1,10 @@
 package mc.gouv.xaf.back.service.es;
 
-import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.es.model.*;
 import mc.gouv.xaf.back.exception.FileConnectionException;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.shared.dto.DemandeCourrierRechercheDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 import org.apache.tika.exception.TikaException;
 import org.springframework.data.domain.Page;
@@ -90,64 +88,12 @@ public interface IndexedDemandeService extends DemandesService {
             throws IOException, SAXException, TikaException;
 
     /**
-     * Méthode permettant d'indexer les pieces jointes
-     *
-     * @param demandeFileEsDTOs Liste des DTOs de la piece jointe
-     * @return Liste des DTOs de la piece jointe
-     */
-    List<DemandeFileEsDTO> indexFiles(List<DemandeFileEsDTO> demandeFileEsDTOs) throws IOException;
-
-    /**
-     * Méthode permettant d'indexer les pieces jointe d'une demande
-     *
-     * @param demande Entite Demande dont on doit indexer les pieces jointes
-     * @throws IOException Exception I/O
-     */
-    void indexFiles(DemandeBO demande) throws IOException;
-
-    /**
-     * Méthode permettant d'indexer les pieces jointe d'une demande
-     *
-     * @param demande DTO demande dont on doit indexer les pieces jointes
-     * @throws IOException Exception I/O
-     */
-    void indexFiles(DemandeDTO demande) throws IOException;
-
-    /**
      * Méthode permettant d'envoyer une à ES afin d'être indexer
      *
      * @param demandeDTO DTO de la demande
      * @param indexFiles Boolean pour indiquer si on doit indexer les fichiers associés à la demande
-     * @throws IOException   Exception I/O
-     * @throws SAXException  Exception SAX
-     * @throws TikaException Exception du parsing de la piece jointe
      */
-    void indexElement(DemandeDTO demandeDTO, boolean indexFiles)
-            throws IOException, SAXException, TikaException;
-
-    /**
-     * Méthode permettant d'envoyer un fichier à ES afin d'être indexer
-     *
-     * @param demandeFileDTO DTO du fichier à indexer
-     * @param demandeDTO     DTO de la demande à traiter
-     * @throws IOException   Exception I/O
-     * @throws SAXException  Exception SAX
-     * @throws TikaException Exception du parsing de la piece jointe
-     */
-    void indexElement(DemandeFileDTO demandeFileDTO, DemandeDTO demandeDTO)
-            throws IOException, SAXException, TikaException;
-
-    /**
-     * Méthode permettant d'envoyer un fichier au topic afin d'être indexer
-     *
-     * @param demandeFileDTOList DTOs des fichier à indexer
-     * @param demandeDTO         DTO de la demande à traiter
-     * @throws IOException   Exception I/O
-     * @throws SAXException  Exception SAX
-     * @throws TikaException Exception du parsing de la piece jointe
-     */
-    void indexElement(DemandeFileDTO[] demandeFileDTOList, DemandeDTO demandeDTO)
-            throws IOException, SAXException, TikaException;
+    void indexElement(DemandeDTO demandeDTO, boolean indexFiles);
 
     /**
      * Méthode permettant de rechercher des demandes à partir des critères en input

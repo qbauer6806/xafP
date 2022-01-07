@@ -7,6 +7,7 @@ import mc.gouv.xaf.back.data.transformer.DemandesComplementsFilesTransformer;
 import mc.gouv.xaf.back.exception.AfIndexingException;
 import mc.gouv.xaf.back.service.data.impl.DemandesComplementsServiceImpl;
 import mc.gouv.xaf.back.service.es.IndexedDemandeService;
+import mc.gouv.xaf.back.service.es.IndexedFilesService;
 import mc.gouv.xaf.back.service.es.handlers.EsTransactionErrorsHandler;
 import mc.gouv.xaf.back.service.es.transformer.DemandeFileEsTransformer;
 import mc.gouv.xaf.shared.dto.*;
@@ -34,6 +35,9 @@ public class IndexedDemandesComplementsServiceImpl extends DemandesComplementsSe
 
     @Inject
     IndexedDemandeService indexedDemandeService;
+
+    @Autowired
+    private IndexedFilesService indexedFilesService;
 
     @Autowired
     private ApplicationEventPublisher applicationEventPublisher;
@@ -80,7 +84,7 @@ public class IndexedDemandesComplementsServiceImpl extends DemandesComplementsSe
                 List<DemandeFileDTO> cfiles = DemandesComplementsFilesTransformer.toDemandeFileDTO(Arrays.asList(fichiers));
                 if (!cfiles.isEmpty()) {
                     files.addAll(demandeFileEsTransformer.getListFileEsContent(demandeDTO, DemandeFileEsDTO.TYPE.COMPLEMENT, cfiles));
-                    indexedDemandeService.indexFiles(files);
+                    indexedFilesService.indexFiles(files);
                 }
             }
             indexedDemandeService.indexElement(demandeDTO, false);

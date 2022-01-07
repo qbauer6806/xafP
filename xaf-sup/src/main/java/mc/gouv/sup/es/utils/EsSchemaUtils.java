@@ -127,8 +127,16 @@ public class EsSchemaUtils {
         if (RecapChampType.TABLEAU.getType().equals(type)) {
             String pathTableau = getEscapedColumnValue(node.get("path").textValue());
             for(JsonNode column : node.get("columns")) {
-                // TODO quick fix pour le bon fonctionnement, mais adresse à prendre en compte
-                if (column.get("type") != null && !"adresse".equals(column.get("type").textValue())) {
+            	// Gérer les choixMultiples dans les tableaux (qdeme)
+            	if (column.get("type") != null && "choixMultiple".equals(column.get("type").textValue())) {
+                    String pathChoixMultiple = getEscapedColumnValue(node.get("path").textValue());
+                    for(JsonNode choixNode : column.get("mappingValues")) {
+                    	String columnPathChoixMultiple = getEscapedColumnValue(column.get("path").textValue());
+                        buildJsonProperty((pathChoixMultiple + "." + columnPathChoixMultiple + "." + choixNode.get(RECAP_CHAMP_CAMELKEY).textValue()).split("\\."), RecapChampType.CHOIX.getType(), contenu, mapper);
+                    }
+                }
+            	// TODO quick fix pour le bon fonctionnement, mais adresse à prendre en compte
+            	else if (column.get("type") != null && !"adresse".equals(column.get("type").textValue())) {
                     buildJsonProperty((pathTableau + "." + column.get(RECAP_CHAMP_PATH).textValue()).split("\\."), RecapChampType.TABLEAU.getType(), contenu, mapper);
                 }
             }

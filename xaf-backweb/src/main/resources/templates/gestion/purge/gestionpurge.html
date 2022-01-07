@@ -59,7 +59,17 @@
                 <div class="col-xs-12">
                     <h1>Historique de suppression des demandes</h1>
                 </div>
-
+            </div>
+            <div class="row">
+                <div class="col-xs-12">
+                    <span><b>Liste des statuts à purger :</b></span>
+                    <ul>
+                        <li th:each="statut : ${statutsAPurger}"><span th:text="${statutsMap.get(statut)}"></span></li>
+                    </ul>
+                    <span><b>Dernière exécution :</b></span> <span id="derniereExec"></span>
+                </div>
+            </div>
+            <div class="row">
                 <div class="col-xs-12 tableContent">
                     <div class="tableTitle">Historique <span
                             class="badge badgeState" id="demandesPurgeesCounter">0</span></div>
@@ -124,6 +134,11 @@
     /*<![CDATA[*/
     $(document).ready(function () {
         var demandesPurgees = /*[[${demandesPurgees}]]*/'default';
+        var derniereExec = /*[[${derniereExec}]]*/'';
+
+        if (derniereExec) {
+            $("#derniereExec").text(moment(derniereExec).format("DD/MM/YYYY HH:mm:ss"));
+        }
         $("#demandesPurgeesCounter").text(demandesPurgees.length);
         $('#datatable-purge').DataTable({
             paging: true,

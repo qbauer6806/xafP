@@ -34,6 +34,14 @@ public interface TemplatesService {
     public List<TemplateDTO> getTemplates(String demarcheId);
 
     /**
+     * Permet de récupérer les templates filtrés par langue correspondant à un DemarcheID
+     * @param demarcheId
+     * @param langue
+     * @return Les templates demandés
+     */
+    public List<TemplateDTO> getTemplates(String demarcheId, String langue);
+
+    /**
      * Permet de sauvegarder ou mettre à jour un template en base
      * @param template
      * @return Le template sauvegardé ou mis à jour

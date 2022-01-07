@@ -21,6 +21,8 @@ public class BrouillonFileDTO {
 	protected String meta;
 	
 	protected Date date;
+	
+	protected String typedoc;
 
 	public Integer getPkBrouillonsFiles() {
 		return pkBrouillonsFiles;
@@ -60,6 +62,14 @@ public class BrouillonFileDTO {
 
 	public void setDate(Date date) {
 		this.date = date;
+	}
+
+	public String getTypedoc() {
+		return typedoc;
+	}
+
+	public void setTypedoc(String typedoc) {
+		this.typedoc = typedoc;
 	}
 
 	@Override

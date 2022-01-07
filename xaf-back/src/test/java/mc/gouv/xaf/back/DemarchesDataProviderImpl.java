@@ -108,4 +108,9 @@ public class DemarchesDataProviderImpl implements DemarchesDataProvider {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+    @Override
+    public List<String> getStatutsAPurger() {
+        return null;
+    }
 }

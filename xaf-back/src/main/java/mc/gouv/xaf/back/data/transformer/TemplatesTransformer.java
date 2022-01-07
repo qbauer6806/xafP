@@ -20,6 +20,7 @@ public class TemplatesTransformer {
         dto.setDemarcheId(bo.getDemarcheId());
         dto.setLangue(bo.getLangue());
         dto.setPkTemplates(bo.getPkTemplates());
+        dto.setDateModif(bo.getDateModif());
         return dto;
     }
     
@@ -30,6 +31,7 @@ public class TemplatesTransformer {
         bo.setDemarcheId(dto.getDemarcheId());
         bo.setLangue(dto.getLangue());
         bo.setPkTemplates(dto.getPkTemplates());
+        bo.setDateModif(dto.getDateModif());
         return bo;
     }
     

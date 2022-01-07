@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -32,13 +31,8 @@ import javax.transaction.Transactional;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.search.join.ScoreMode;
-import org.elasticsearch.action.bulk.BulkItemResponse;
-import org.elasticsearch.action.bulk.BulkRequest;
-import org.elasticsearch.action.bulk.BulkResponse;
-import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.Requests;
 import org.elasticsearch.client.indices.GetIndexRequest;
 import org.elasticsearch.client.indices.GetIndexResponse;
 import org.elasticsearch.cluster.metadata.MappingMetaData;
@@ -66,8 +60,6 @@ import org.elasticsearch.search.aggregations.bucket.filter.ParsedFilters;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.glassfish.jersey.internal.guava.Lists;
-import org.quartz.JobExecutionContext;
-import org.quartz.impl.JobExecutionContextImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,13 +73,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.ElasticsearchException;
 import org.springframework.data.elasticsearch.core.DefaultResultMapper;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
-import org.springframework.data.elasticsearch.core.ResultsMapper;
 import org.springframework.data.elasticsearch.core.SearchResultMapper;
 import org.springframework.data.elasticsearch.core.aggregation.AggregatedPage;
 import org.springframework.data.elasticsearch.core.aggregation.impl.AggregatedPageImpl;
-import org.springframework.data.elasticsearch.core.convert.ElasticsearchConverter;
-import org.springframework.data.elasticsearch.core.convert.MappingElasticsearchConverter;
-import org.springframework.data.elasticsearch.core.mapping.SimpleElasticsearchMappingContext;
 import org.springframework.data.elasticsearch.core.query.FetchSourceFilter;
 import org.springframework.data.elasticsearch.core.query.IndexQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
@@ -100,13 +88,9 @@ import org.xml.sax.SAXException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
-import mc.gouv.xaf.back.data.dao.DemandesFilesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.dao.RechercheChampConfigRepository;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
-import mc.gouv.xaf.back.data.entity.DemandesComplementsBO;
-import mc.gouv.xaf.back.data.entity.DemandesCourriersBO;
-import mc.gouv.xaf.back.data.entity.DemandesFilesBO;
 import mc.gouv.xaf.back.data.entity.RechercheChampConfigBO;
 import mc.gouv.xaf.back.data.es.dao.DemandeEsRepository;
 import mc.gouv.xaf.back.data.es.model.AgentEsDTO;
@@ -121,9 +105,6 @@ import mc.gouv.xaf.back.data.es.model.DemandesFacet;
 import mc.gouv.xaf.back.data.es.model.DemandesFacets;
 import mc.gouv.xaf.back.data.es.model.EsErrorEventDTO;
 import mc.gouv.xaf.back.data.es.model.EsProperty;
-import mc.gouv.xaf.back.data.transformer.DemandesComplementsFilesTransformer;
-import mc.gouv.xaf.back.data.transformer.DemandesCourriersTransformer;
-import mc.gouv.xaf.back.data.transformer.DemandesFilesTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
 import mc.gouv.xaf.back.exception.AfIndexingException;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
@@ -131,18 +112,14 @@ import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.AccessService;
 import mc.gouv.xaf.back.service.data.impl.DemandesServiceImpl;
 import mc.gouv.xaf.back.service.es.IndexedDemandeService;
+import mc.gouv.xaf.back.service.es.IndexedFilesService;
 import mc.gouv.xaf.back.service.es.handlers.EsTransactionErrorsHandler;
 import mc.gouv.xaf.back.service.es.transformer.DemandeEsTransformer;
-import mc.gouv.xaf.back.service.es.transformer.DemandeFileEsTransformer;
-import mc.gouv.xaf.back.service.pdf.PdfTypeEnum;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
 import mc.gouv.xaf.back.service.utils.ESQueryUtils;
-import mc.gouv.xaf.back.service.utils.FileUtils;
 import mc.gouv.xaf.shared.dto.DataRechercheDTO;
 import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
-import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
-import mc.gouv.xaf.shared.dto.DemandeCourrierDTO;
 import mc.gouv.xaf.shared.dto.DemandeCourrierRechercheDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
@@ -208,21 +185,14 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     @Inject
     private DemandesRepository demandesRepository;
     @Inject
-    private DemandesFilesRepository demandesFilesRepository;
-    @Inject
     private ElasticsearchRestTemplate elasticsearchTemplate;
     @Inject
     private GouvPropertiesResolver gouvPropertiesResolver;
-    private ResultsMapper resultsMapper;
-
     @Autowired
-    private DemandeFileEsTransformer demandeFileEsTransformer;
+    private IndexedFilesService indexedFilesService;
 
     @PostConstruct
     public void init() {
-        ElasticsearchConverter elasticsearchConverter = new MappingElasticsearchConverter(
-                new SimpleElasticsearchMappingContext());
-        resultsMapper = new DefaultResultMapper(elasticsearchConverter.getMappingContext());
         highlightPretags = gouvPropertiesResolver.getSearchHighlightPreTags();
         highlightPosttags = gouvPropertiesResolver.getSearchHighlightPostTags();
         loadProperties();
@@ -453,218 +423,6 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         return allProperties;
     }
 
-    /**
-     * Méthode permettant l'indexation des fichiers des demandes
-     *
-     * @param demandes Liste des demandes dont on va indexer les fichiers
-     * @throws IOException
-     */
-    private void indexFiles(Page<DemandeBO> demandes) throws IOException {
-
-        if (demandes != null) {
-            List<DemandeFileEsDTO> files = new ArrayList<>();
-
-            for (DemandeBO demande : demandes) {
-                fillFilesList(files, demande);
-            }
-
-            indexFiles(files);
-        }
-    }
-
-    /**
-     * Méthode permettant l'indexation des fichiers d'une demande
-     *
-     * @param demande Liste des demandes dont on va indexer les fichiers
-     * @throws IOException
-     */
-    @Override
-    public void indexFiles(DemandeBO demande) throws IOException {
-
-        if (demande != null) {
-            List<DemandeFileEsDTO> files = new ArrayList<>();
-
-            fillFilesList(files, demande);
-
-            indexFiles(files);
-        }
-    }
-
-    /**
-     * Méthode permettant l'indexation des fichiers d'une demande
-     *
-     * @param demande Demande dont on va indexer les fichiers
-     * @throws IOException
-     */
-    @Override
-    public void indexFiles(DemandeDTO demande) throws IOException {
-
-        if (demande != null) {
-            List<DemandeFileEsDTO> files = new ArrayList<>();
-            fillFilesList(files, demande);
-            indexFiles(files);
-        }
-    }
-
-    /**
-     * Méthode permettant de récupérer la liste des pieces jointes, des complements et courriers au format elasticsearch
-     *
-     * @param files   Liste des fichiers à remplir
-     * @param demande Demande concernée
-     * @throws IOException
-     */
-    private void fillFilesList(List<DemandeFileEsDTO> files, DemandeBO demande) throws IOException {
-
-        List<DemandeFileDTO> demFiles = DemandesFilesTransformer.bo2Dto(new ArrayList<>(demande.getFiles()));
-
-        demFiles.addAll(recupererCourriersDemandeFromBO(demande.getCourriers()));
-
-        Set<DemandesComplementsBO> demComplements = demande.getDemandesComplements();
-        DemandeDTO demandeDTO = DemandesTransformer.bo2Dto(demande);
-
-        if (demComplements != null) {
-            for (DemandesComplementsBO demComplement : demComplements) {
-                List<DemandeFileDTO> cfiles = DemandesComplementsFilesTransformer.toDemandeFileDTO(demComplement.getFiles());
-                if (!cfiles.isEmpty()) {
-                    files.addAll(demandeFileEsTransformer.getListFileEsContent(demandeDTO, DemandeFileEsDTO.TYPE.COMPLEMENT, cfiles));
-                }
-            }
-        }
-
-        fillPjsAndFichiersInternesAndCourriers(demFiles, files, demandeDTO);
-
-        // Récupération des courriers
-        Set<DemandesCourriersBO> courrierBOs = demande.getCourriers();
-        if (courrierBOs != null) {
-            List<DemandeCourrierDTO> courriers = DemandesCourriersTransformer.bo2Dto(Lists.newArrayList(courrierBOs));
-            fillCourriers(courriers, files, demandeDTO);
-        }
-    }
-
-    /**
-     * Méthode permettant de récupérer la liste des pieces jointes, des complements et courriers au format elasticsearch
-     *
-     * @param files   Liste des fichiers à remplir
-     * @param demande Demande concernée
-     * @throws IOException
-     */
-    private void fillFilesList(List<DemandeFileEsDTO> files, DemandeDTO demande) throws IOException {
-
-        DemandeComplementsDTO[] demComplements = demande.getComplements();
-
-        if (demComplements != null) {
-            for (DemandeComplementsDTO demComplement : demComplements) {
-                if (demComplement.getReponse() != null && demComplement.getReponse().getFichiers() != null) {
-                    List<DemandeFileDTO> cfiles = DemandesComplementsFilesTransformer
-                            .toDemandeFileDTO(Arrays.asList(demComplement.getReponse().getFichiers()));
-                    if (!cfiles.isEmpty()) {
-                        files.addAll(demandeFileEsTransformer.getListFileEsContent(demande, DemandeFileEsDTO.TYPE.COMPLEMENT, cfiles));
-                    }
-                }
-            }
-        }
-
-        List<DemandeFileDTO> fichiers = new ArrayList<>();
-        if (demande.getFichiers() != null) {
-            fichiers.addAll(Arrays.asList(demande.getFichiers()));
-        }
-
-        if (demande.getCourriers() != null) {
-            fichiers.addAll(recupererCourriersDemandeFromDTO(Arrays.asList(demande.getCourriers())));
-        }
-
-        fillPjsAndFichiersInternesAndCourriers(fichiers, files, demande);
-        if (demande.getCourriers() != null) {
-            fillCourriers(Arrays.asList(demande.getCourriers()), files, demande);
-        }
-    }
-
-    /**
-     * Méthode permettant transformer des DemandeCourrierDTO en DemandeFileDTO
-     *
-     * @param courriers courriers d'une demande
-     * @return list des fichiers à ajouter
-     */
-    private List<DemandeFileDTO> recupererCourriersDemandeFromBO(Set<DemandesCourriersBO> courriers) {
-        return recupererCourriersDemandeFromDTO(DemandesCourriersTransformer.bo2Dto(new ArrayList<>(courriers)));
-    }
-
-    /**
-     * Méthode permettant transformer des DemandeCourrierDTO en DemandeFileDTO
-     *
-     * @param courriers courriers d'une demande
-     * @return list des fichiers à ajouter
-     */
-    private List<DemandeFileDTO> recupererCourriersDemandeFromDTO(List<DemandeCourrierDTO> courriers) {
-        List<DemandeFileDTO> fichiers = new ArrayList<>();
-        // Conversion DemandeCourrierBO en DemandeFileDTO pour faciliter l'indexation
-        if (courriers != null) {
-            for (DemandeCourrierDTO courrier : courriers) {
-                DemandeFileDTO file = new DemandeFileDTO();
-                file.setMeta(courrier.getMeta());
-                file.setName(courrier.getName());
-                file.setUrl(courrier.getUrl());
-                file.setDate(courrier.getDateCreation());
-                fichiers.add(file);
-            }
-        }
-        return fichiers;
-    }
-
-    /**
-     * Méthode permettant de remplir la liste des pieces jointes et des fichiers internes àindexer dans elaticsearch
-     *
-     * @param demFiles   Liste des fichiers de la demande extraits de la base de données
-     * @param files      Liste des fichiers à indexer dans elasticsearch
-     * @param demandeDTO dto de la demande
-     * @throws IOException Exception Input/Output
-     */
-    private void fillPjsAndFichiersInternesAndCourriers(List<DemandeFileDTO> demFiles, List<DemandeFileEsDTO> files,
-                                                        DemandeDTO demandeDTO) throws IOException {
-        if (demFiles != null) {
-            for (DemandeFileDTO file : demFiles) {
-                files.add(demandeFileEsTransformer.getFileEsContent(demandeDTO, getDemandeFileType(file), file));
-            }
-        }
-    }
-
-    /**
-     * Méthode permettant de remplir la liste courriers à indexer dans elaticsearch
-     *
-     * @param courriers  Liste des courriers de la demande extraits de la base de données
-     * @param files      Liste des fichiers à indexer dans elasticsearch
-     * @param demandeDTO dto de la demande
-     * @throws IOException Exception Input/Output
-     */
-    private void fillCourriers(List<DemandeCourrierDTO> courriers, List<DemandeFileEsDTO> files,
-                               DemandeDTO demandeDTO) throws IOException {
-        if (courriers != null) {
-            for (DemandeCourrierDTO courrier : courriers) {
-                files.add(demandeFileEsTransformer.getFileEsContent(demandeDTO, DemandeFileEsDTO.TYPE.COURRIER, courrier));
-            }
-        }
-    }
-
-
-    /**
-     * Méthode permettant de récupérer le type du fichier associé à la demande en se basant sur ses metas
-     *
-     * @param file fichier dont on doit vérifier le type
-     * @return Type du fichier
-     */
-    private DemandeFileEsDTO.TYPE getDemandeFileType(DemandeFileDTO file) {
-        DemandeFileEsDTO.TYPE fileType;
-        if (FileUtils.isFileCreatedByFront(file.getMeta())) {
-            fileType = DemandeFileEsDTO.TYPE.PIECE_JOINTE;
-        }
-        if (FileUtils.isFileCreatedByBack(file.getMeta()) && file.getMeta().contains(PdfTypeEnum.COURRIER.name())) {
-            fileType = DemandeFileEsDTO.TYPE.COURRIER;
-        } else {
-            fileType = DemandeFileEsDTO.TYPE.FICHIER_INTERNE;
-        }
-        return fileType;
-    }
-
     @Override
     public Long reindex() throws IOException {
 
@@ -771,11 +529,9 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     private void indexBulkDeFichiers(long demCount, int size, int additionalPage) throws IOException {
         for (int i = 0; i < demCount / size + additionalPage; i++) {
-
             Page<DemandeBO> demandes = demandesRepository.findAll(PageRequest.of(i, size));
-
             if (!demandes.getContent().isEmpty()) {
-                indexFiles(demandes);
+                indexedFilesService.indexFiles(demandes);
             }
             elasticsearchTemplate.refresh(DemandeEsDTO.class);
         }
@@ -796,63 +552,19 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     }
 
     @Override
-    public void indexElement(DemandeDTO demandeDTO, boolean indexFiles) throws IOException {
-
+    public void indexElement(DemandeDTO demandeDTO, boolean indexFiles) {
         if (demandeDTO != null) {
-
             Boolean activeAccess = accessService.isAccessActive(demandeDTO.getFkAccess());
             DemandeEsDTO demandeEsDTO = demandeEsTransformer.toEs(demandeDTO, activeAccess);
-
-            List<DemandeFileEsDTO> files = null;
-            if (indexFiles) {
-                files = new ArrayList<>();
-                fillFilesList(files, demandeDTO);
-                files.addAll(files);
-            }
-
             if (demandeEsDTO != null) {
                 demandeEsRepository.save(demandeEsDTO);
             }
-            if (files != null) {
-                demandesService.indexFiles(files);
+            if (indexFiles) {
+                LOGGER.info("Appel de l'indexation asynchrone des fichers.");
+                indexedFilesService.indexFilesAsynchrone(demandeDTO);
             }
         }
-
-        LOGGER.info("Fin de l'indexation des fichiers");
-    }
-
-    @Override
-    public void indexElement(DemandeFileDTO demandeFileDTO, DemandeDTO demandeDTO) throws IOException {
-
-        if (demandeFileDTO != null) {
-
-            DemandeFileEsDTO demandeFileEsDTO = demandeFileEsTransformer.getFileEsContent(demandeDTO, getDemandeFileType(demandeFileDTO), demandeFileDTO);
-            List<DemandeFileEsDTO> demFileEsDtoList = new ArrayList<>();
-            demFileEsDtoList.add(demandeFileEsDTO);
-
-            LOGGER.info("Appel de la méthode indexFiles");
-            demandesService.indexFiles(demFileEsDtoList);
-        }
-
-        LOGGER.info("Fin de l'indexation des fichiers");
-    }
-
-    @Override
-    public void indexElement(DemandeFileDTO[] demandeFileDTOList, DemandeDTO demandeDTO)
-            throws IOException {
-
-        if (demandeFileDTOList != null) {
-
-            List<DemandeFileEsDTO> demFileEsDtoList = new ArrayList<>();
-            for (DemandeFileDTO file : demandeFileDTOList) {
-                demFileEsDtoList.add(demandeFileEsTransformer.getFileEsContent(demandeDTO, getDemandeFileType(file), file));
-            }
-
-            LOGGER.info("Appel de la méthode indexFiles");
-            demandesService.indexFiles(demFileEsDtoList);
-        }
-
-        LOGGER.info("Fin de l'indexation des fichiers");
+        LOGGER.info("Fin de l'indexation de la demande.");
     }
 
     /**
@@ -912,80 +624,6 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             elasticsearchTemplate.index(index);
         }
         return demandeFileEsDTO;
-    }
-
-    /**
-     * Méthode permettant d'indexer une liste de fichiers
-     *
-     * @param demandeFileEsDTOs Liste des fichiers à indexer
-     * @return Liste des fichiers indexées
-     */
-    @Override
-    public List<DemandeFileEsDTO> indexFiles(List<DemandeFileEsDTO> demandeFileEsDTOs) throws IOException {
-
-        List<IndexQuery> indexList = new ArrayList<>();
-
-        if (demandeFileEsDTOs != null) {
-            for (DemandeFileEsDTO demFile : demandeFileEsDTOs) {
-                IndexQuery index = new IndexQuery();
-                index.setId(demFile.getFichiers().getPkDemande() + "-" + demFile.getFichiers().getId());
-                index.setObject(demFile);
-                index.setParentId(demFile.getDemandeJoinField().getParent());
-                indexList.add(index);
-            }
-
-            if (!indexList.isEmpty()) {
-                bulkIndex(indexList);
-                elasticsearchTemplate.refresh(DemandeFileEsDTO.class);
-            }
-
-        }
-        return demandeFileEsDTOs;
-    }
-
-    public void bulkIndex(List<IndexQuery> queries) throws IOException {
-        BulkRequest bulkRequest = new BulkRequest();
-        for (IndexQuery query : queries) {
-            bulkRequest.add(prepareIndex(query));
-        }
-        checkForBulkUpdateFailure(elasticsearchTemplate.getClient().bulk(bulkRequest, RequestOptions.DEFAULT));
-    }
-
-    private void checkForBulkUpdateFailure(BulkResponse bulkResponse) {
-        if (bulkResponse.hasFailures()) {
-            Map<String, String> failedDocuments = new HashMap<>();
-            for (BulkItemResponse item : bulkResponse.getItems()) {
-                if (item.isFailed())
-                    failedDocuments.put(item.getId(), item.getFailureMessage());
-            }
-            throw new ElasticsearchException(
-                    "Bulk indexing has failures. Use ElasticsearchException.getFailedDocuments() for detailed messages ["
-                            + failedDocuments + "]",
-                    failedDocuments);
-        }
-    }
-
-    private IndexRequest prepareIndex(IndexQuery query) {
-        try {
-
-            IndexRequest indexRequest = null;
-
-            if (query.getObject() != null) {
-                // If we have a query id and a document id, do not ask ES to generate one.
-                indexRequest = new IndexRequest(indexAlias).type(DemandeEsDTO.INDEX_TYPE).id(query.getId());
-                indexRequest.source(resultsMapper.getEntityMapper().mapToString(query.getObject()),
-                        Requests.INDEX_CONTENT_TYPE);
-            } else {
-                throw new ElasticsearchException(
-                        "object or source is null, failed to index the document [id: " + query.getId() + "]");
-            }
-
-            indexRequest.routing(query.getParentId());
-
-            return indexRequest;
-        } catch (IOException e) {
-            throw new ElasticsearchException("failed to index the document [id: " + query.getId() + "]", e);
-        }
     }
 
     @Override
@@ -1872,89 +1510,89 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      * @see mc.gouv.xaf.back.service.data.impl.DemandesServiceImpl#deleteDemande(java.lang.String, java.lang.Integer)
      */
     @Override
-	public void deleteDemande(String demarcheId, Integer demandeId) throws JsonProcessingException {
-    	LOGGER.info("Début de suppression des références des fichiers de la demande {} dans Elasticsearch...", demandeId);
-		try {
-			
-			deleteDemandeInGivenStatus(demarcheId, demandeId, new ArrayList<String>(), -1);
-		} catch (Exception e) {
-			LOGGER.error("Erreur d'indexation lors de la suppression de la demande.");
-			EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent(
-					"IndexedEsDemandeServiceImpl - méthode deleteDemande()", demarcheId, demandeId, e);
-			applicationEventPublisher.publishEvent(esErrorEventDTO);
-			throw new AfIndexingException(e.getMessage(), e);
-		}
-	}
+    public void deleteDemande(String demarcheId, Integer demandeId) throws JsonProcessingException {
+        LOGGER.info("Début de suppression des références des fichiers de la demande {} dans Elasticsearch...", demandeId);
+        try {
 
-	private void deleteEsFilesIndex(Integer demandeId, DemandeDTO demandeDTO) throws Exception {
-		if (null != demandeDTO.getFichiers()) {
-			List<DemandeFileDTO> filesToDelete = Arrays.asList(demandeDTO.getFichiers());
-			// On supprime les index des fichiers de la demande dans ES
-			if (null != filesToDelete && !filesToDelete.isEmpty()) {
-				for (DemandeFileDTO currentFileToDelete : filesToDelete) {
-					// Ici le format de l'ID d'un courrier dans ES est {pkDemande}-{courrierUrl
-					// (avec "/" remplacé par des "-")}
-					// C'est ce qu'on détermine ici
-					String demandeIdStr = Integer.toString(demandeId);
-					String identifiantFile = currentFileToDelete.getUrl().replace("/", "-");
-					String currentFileEsId = demandeIdStr + "-" + identifiantFile.replace(" ", "+");
-					// Puis on requete ES pour supprimer tous les index matchant avec l'ID calculé
-					// plus haut
-					LOGGER.info("Début suppression du fichier : {} dans ElasticSearch", currentFileEsId);
-					deleteGivenFieldFromEs("_id", currentFileEsId);
-					LOGGER.info("Fin suppression du fichier : {} dans ElasticSearch", currentFileEsId);
-				}
-			}
-		}
-	}
-    
+            deleteDemandeInGivenStatus(demarcheId, demandeId, new ArrayList<String>(), -1);
+        } catch (Exception e) {
+            LOGGER.error("Erreur d'indexation lors de la suppression de la demande.");
+            EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent(
+                    "IndexedEsDemandeServiceImpl - méthode deleteDemande()", demarcheId, demandeId, e);
+            applicationEventPublisher.publishEvent(esErrorEventDTO);
+            throw new AfIndexingException(e.getMessage(), e);
+        }
+    }
+
+    private void deleteEsFilesIndex(Integer demandeId, DemandeDTO demandeDTO) throws Exception {
+        if (null != demandeDTO.getFichiers()) {
+            List<DemandeFileDTO> filesToDelete = Arrays.asList(demandeDTO.getFichiers());
+            // On supprime les index des fichiers de la demande dans ES
+            if (null != filesToDelete && !filesToDelete.isEmpty()) {
+                for (DemandeFileDTO currentFileToDelete : filesToDelete) {
+                    // Ici le format de l'ID d'un courrier dans ES est {pkDemande}-{courrierUrl
+                    // (avec "/" remplacé par des "-")}
+                    // C'est ce qu'on détermine ici
+                    String demandeIdStr = Integer.toString(demandeId);
+                    String identifiantFile = currentFileToDelete.getUrl().replace("/", "-");
+                    String currentFileEsId = demandeIdStr + "-" + identifiantFile.replace(" ", "+");
+                    // Puis on requete ES pour supprimer tous les index matchant avec l'ID calculé
+                    // plus haut
+                    LOGGER.info("Début suppression du fichier : {} dans ElasticSearch", currentFileEsId);
+                    deleteGivenFieldFromEs("_id", currentFileEsId);
+                    LOGGER.info("Fin suppression du fichier : {} dans ElasticSearch", currentFileEsId);
+                }
+            }
+        }
+    }
+
     /**
      * Méthode permettant de supprimer une demande à purger avec une liste de status compatible à la supression (statuts finaux) et de la supprimer de l'index elasticsearch
      *
      * @see mc.gouv.xaf.back.service.data.impl.DemandesServiceImpl#deleteDemandeInGivenStatus(java.lang.String, java.lang.Integer)
      */
     @Override
-	public void deleteDemandeInGivenStatus(String demarcheId, Integer demandeId, List<String> statuts, int jours) throws JsonProcessingException {
-    	LOGGER.info("Début de suppression des références des fichiers de la demande {} dans Elasticsearch...", demandeId);
-		try {
-			DemandeBO demandeBo = getCheckDemarcheDemandeBO(demarcheId, demandeId, false);
-			DemandeDTO demandeDTO = DemandesTransformer.bo2Dto(demandeBo);
-			// On supprime l'index des fichiers de la demande dans ES
-			deleteEsFilesIndex(demandeId, demandeDTO);
-			// Puis on supprime l'index de la demande elle même dans ES
-			deleteGivenFieldFromEs("_id", demandeDTO.getIdentifiant());
-			/*
-			 * Cette méthode n'étant pas le point d'entrée du TraitementController de chaque TS il a fallut mettre en place une logique spécifique
-			 * 
-			 * Le traitement controller de chaque demande va appeler deleteDemande qui lui va appeler deleteDemandeInGivenStatus avec une liste de statuts vides et jours < 0
-			 * (deleteDemande est utilisé si erreur au moment de la création/duplication d'une demande)
-			 * Dans ce cas là, le deleteDemande va supprimer les fichiers rattachés à cette demande sans tests préalable. 
-			 * 
-			 * */
-			if(statuts.isEmpty() && jours < 0) {
-				super.deleteDemande(demarcheId, demandeId);
-			} else {
-				/* Lors de l'appel a ce super.deleteDemandeInGivenStatus, un test sera fait en amont pour juger si oui ou non les fichiers rattachés à cette demande sont supprimables
-				 * Les fichiers rattachés à une demande d'origine sont les mêmes (DANS FILE) que les fichiers des demandes dupliquées à partir de l'initiale.
-				 * Il faut donc veiller à ce que plus personne n'ait besoin de ces fichiers dans file avant de les supprimer
-				 */
-				super.deleteDemandeInGivenStatus(demarcheId, demandeId, statuts, jours);
-			}
-		} catch (Exception e) {
-			LOGGER.error("Erreur d'indexation lors de la suppression de la demande.");
-			EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent(
-					"IndexedEsDemandeServiceImpl - méthode deleteDemande()", demarcheId, demandeId, e);
-			applicationEventPublisher.publishEvent(esErrorEventDTO);
-			throw new AfIndexingException(e.getMessage(), e);
-		}
-	}
-    
-    
-    private void deleteGivenFieldFromEs(String fieldName, String fieldValue) throws Exception{
+    public void deleteDemandeInGivenStatus(String demarcheId, Integer demandeId, List<String> statuts, int jours) throws JsonProcessingException {
+        LOGGER.info("Début de suppression des références des fichiers de la demande {} dans Elasticsearch...", demandeId);
+        try {
+            DemandeBO demandeBo = getCheckDemarcheDemandeBO(demarcheId, demandeId, false);
+            DemandeDTO demandeDTO = DemandesTransformer.bo2Dto(demandeBo);
+            // On supprime l'index des fichiers de la demande dans ES
+            deleteEsFilesIndex(demandeId, demandeDTO);
+            // Puis on supprime l'index de la demande elle même dans ES
+            deleteGivenFieldFromEs("_id", demandeDTO.getIdentifiant());
+            /*
+             * Cette méthode n'étant pas le point d'entrée du TraitementController de chaque TS il a fallut mettre en place une logique spécifique
+             *
+             * Le traitement controller de chaque demande va appeler deleteDemande qui lui va appeler deleteDemandeInGivenStatus avec une liste de statuts vides et jours < 0
+             * (deleteDemande est utilisé si erreur au moment de la création/duplication d'une demande)
+             * Dans ce cas là, le deleteDemande va supprimer les fichiers rattachés à cette demande sans tests préalable.
+             *
+             * */
+            if (statuts.isEmpty() && jours < 0) {
+                super.deleteDemande(demarcheId, demandeId);
+            } else {
+                /* Lors de l'appel a ce super.deleteDemandeInGivenStatus, un test sera fait en amont pour juger si oui ou non les fichiers rattachés à cette demande sont supprimables
+                 * Les fichiers rattachés à une demande d'origine sont les mêmes (DANS FILE) que les fichiers des demandes dupliquées à partir de l'initiale.
+                 * Il faut donc veiller à ce que plus personne n'ait besoin de ces fichiers dans file avant de les supprimer
+                 */
+                super.deleteDemandeInGivenStatus(demarcheId, demandeId, statuts, jours);
+            }
+        } catch (Exception e) {
+            LOGGER.error("Erreur d'indexation lors de la suppression de la demande.");
+            EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent(
+                    "IndexedEsDemandeServiceImpl - méthode deleteDemande()", demarcheId, demandeId, e);
+            applicationEventPublisher.publishEvent(esErrorEventDTO);
+            throw new AfIndexingException(e.getMessage(), e);
+        }
+    }
+
+
+    private void deleteGivenFieldFromEs(String fieldName, String fieldValue) throws Exception {
         DeleteByQueryRequest request = new DeleteByQueryRequest(gouvPropertiesResolver.getApplicationName());
-    	request.setQuery(new TermQueryBuilder(fieldName, fieldValue));
-		request.setRefresh(true);
-		elasticsearchTemplate.getClient().deleteByQuery(request, RequestOptions.DEFAULT);
+        request.setQuery(new TermQueryBuilder(fieldName, fieldValue));
+        request.setRefresh(true);
+        elasticsearchTemplate.getClient().deleteByQuery(request, RequestOptions.DEFAULT);
     }
 
     /**

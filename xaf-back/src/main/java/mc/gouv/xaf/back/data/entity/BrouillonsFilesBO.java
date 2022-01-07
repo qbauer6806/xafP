@@ -51,6 +51,9 @@ public class BrouillonsFilesBO {
     
     @Column(name = "DATE", nullable = true)
     private Date date;
+    
+    @Column(name = "TYPEDOC", length = 128)
+    private String typedoc;
 
 	public Integer getPkBrouillonsFiles() {
 		return pkBrouillonsFiles;
@@ -98,6 +101,14 @@ public class BrouillonsFilesBO {
 
 	public void setDate(Date date) {
 		this.date = date;
+	}
+
+	public String getTypedoc() {
+		return typedoc;
+	}
+
+	public void setTypedoc(String typedoc) {
+		this.typedoc = typedoc;
 	}
 
 }

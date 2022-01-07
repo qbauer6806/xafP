@@ -1,16 +1,24 @@
 package mc.gouv.xaf.servlet;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import mc.gouv.vscan.shared.dto.ScanDTO;
-import mc.gouv.vscan.shared.dto.ScanRequestDTO;
-import mc.gouv.xaf.servlet.dto.FileUploadCompteurDTO;
-import mc.gouv.xaf.servlet.dto.FileUploadResponseDTO;
-import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
-import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
-import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
-import mc.gouv.xaf.servlet.util.AppFactoryServletUtils.ServiceTarget;
-import mc.gouv.xaf.shared.dto.AccessDTO;
-import mc.gouv.xaf.shared.dto.PropertiesDTO;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import javax.servlet.annotation.MultipartConfig;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.Part;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
@@ -26,17 +34,19 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.annotation.MultipartConfig;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.Part;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.stream.Collectors;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import mc.gouv.vscan.shared.dto.ScanDTO;
+import mc.gouv.vscan.shared.dto.ScanRequestDTO;
+import mc.gouv.xaf.servlet.dto.FileUploadCompteurDTO;
+import mc.gouv.xaf.servlet.dto.FileUploadResponseDTO;
+import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
+import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
+import mc.gouv.xaf.servlet.util.AppFactoryServletFrontPropertiesCache;
+import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
+import mc.gouv.xaf.servlet.util.AppFactoryServletUtils.ServiceTarget;
+import mc.gouv.xaf.shared.dto.AccessDTO;
+import mc.gouv.xaf.shared.dto.PropertiesDTO;
 
 /**
  * 
@@ -123,8 +133,8 @@ public class FileUploadServlet extends AbstractAfServlet {
             LOGGER.info("Vérification de la taille...");
             // Vérification de la taille du fichier
             Part part0 = request.getParts().iterator().next();
-            PropertiesDTO propMaxTailleFichiers = getPropriete(MAX_TAILLE_FICHIER);
-            PropertiesDTO propActivationVscan = getPropriete(VSCAN_ACTIVATION);
+            PropertiesDTO propMaxTailleFichiers = AppFactoryServletFrontPropertiesCache.getFrontProperty(MAX_TAILLE_FICHIER);
+            PropertiesDTO propActivationVscan = AppFactoryServletFrontPropertiesCache.getFrontProperty(VSCAN_ACTIVATION);
             if (propMaxTailleFichiers == null || propActivationVscan == null) {
                 AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_INTERNAL_SERVER_ERROR,
                         "Une propriété obligatoire semble ne pas être définie");
@@ -298,7 +308,7 @@ public class FileUploadServlet extends AbstractAfServlet {
 
     private List<String> getExtensionsWhitelist() {
         List<String> extensions = new ArrayList<>();
-        PropertiesDTO extensionsProperty = getPropriete(EXTENSIONS_WHITELIST);
+        PropertiesDTO extensionsProperty = AppFactoryServletFrontPropertiesCache.getFrontProperty(EXTENSIONS_WHITELIST);
 
         if(extensionsProperty != null) {
             String propertyString = extensionsProperty.getValue().replace("*.","").replace(" ","");
@@ -307,12 +317,6 @@ public class FileUploadServlet extends AbstractAfServlet {
         }
 
         return extensions;
-    }
-
-    private PropertiesDTO getPropriete(String propriete) {
-        List<PropertiesDTO> properties = getAfApiClient().getFrontProperties();
-        List<PropertiesDTO> propFiltrees = properties.stream().filter(prop -> prop.getKey().equals(propriete)).collect(Collectors.toList());
-        return (propFiltrees.size() > 0) ? propFiltrees.get(0) : null;
     }
 
     private synchronized static void ajouterCompteurUpload(HttpSession session) {

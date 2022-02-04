@@ -154,7 +154,7 @@ public class DemandesTransformer {
         ObjectMapper mapper = new ObjectMapper();
         try {
             dto.setContenu(mapper.readTree(bo.getContenu()));
-        } catch (IOException e) {
+        } catch (IOException e) {;
             LOGGER.error("Erreur lors de la conversion JSON", e);
         }
         dto.setUsagerId(bo.getFkAccess().getUsagerId());

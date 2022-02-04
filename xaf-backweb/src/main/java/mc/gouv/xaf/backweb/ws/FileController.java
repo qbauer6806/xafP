@@ -1,5 +1,7 @@
 package mc.gouv.xaf.backweb.ws;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
@@ -7,6 +9,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,6 +64,31 @@ public class FileController {
         fileService.getFile(filePathEncoded, gouvPropertiesResolver.getContainerId(), response);
 
         LOGGER.info("====================== getFile() terminé, retour au client...");
+    }
+    
+    @RequestMapping(value = "/get/apercu/**", method = RequestMethod.GET)
+    @ResponseStatus(HttpStatus.OK) // 200
+    public void getApercuFile(HttpServletRequest request, HttpServletResponse response) throws Exception {
+
+        LOGGER.info("====================== getFile()");
+
+        String file = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
+        file = file.replace("/ws/file/get/apercu", "");
+        
+        // Bugfix #16805: encodage des noms des fichiers avec caractères spéciaux
+        String filePathEncoded = URLEncoder.encode(file, "UTF-8"); 
+
+        InputStream inputFile = fileService.getFile(filePathEncoded, gouvPropertiesResolver.getContainerId());
+
+        try {
+            LOGGER.info("Écriture du fichier dans l'OutputStream...");
+            IOUtils.copy(inputFile, response.getOutputStream());
+        } catch (IOException e) {
+            LOGGER.error("Erreur lors de l'écriture du fichier dans l'OutputStream", e);
+            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+        }
+        
+        LOGGER.info("======================= Fin /file/apercu");
     }
 
     /**

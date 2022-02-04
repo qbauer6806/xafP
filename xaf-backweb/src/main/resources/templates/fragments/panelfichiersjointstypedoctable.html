@@ -31,15 +31,32 @@
 	        </td>
 	        <td class="action-col">
 	            <a th:href="@{/ws/file/get}+${file.url}">
-	            <span class="btn btn-action ripple-effect greyTooltip" data-original-title="Télécharger"
-	                  data-placement="bottom" data-toggle="tooltip" title="">
-	                <i class="icon-action_pdf"></i>
-	            </span>
+		            <span class="btn btn-action ripple-effect greyTooltip" data-original-title="Télécharger"
+		                  data-placement="bottom" data-toggle="tooltip" title="">
+		                <i class="icon-action_pdf"></i>
+		            </span>
 	            </a>
+	            <a th:href="@{/ws/file/get/apercu}+${file.url}">
+	            	<span class="btn btn-action ripple-effect greyTooltip" data-original-title="Prévisualisation"
+		                  data-placement="bottom" data-toggle="tooltip" title="">
+		                <i class="icon-action_pdf"></i>
+		            </span>
+		       </a>     
 	        </td>
 	    </tr>
 	    </tbody>
 	</table>
 </div>
+<script th:inline="javascript">
+	var openFileModal = function(containerId) {
+			$.fancybox.open({
+				src: containerId,
+				type: 'inline',
+				opts: {
+					afterClose: onClosePreview
+				}
+			});
+		};
+</script>
 </body>
 </html>

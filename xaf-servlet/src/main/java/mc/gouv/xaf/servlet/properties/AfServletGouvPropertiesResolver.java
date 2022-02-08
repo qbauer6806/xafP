@@ -17,6 +17,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+/**
+ * 
+ * Classe permettant de récupérer les propriétés externalisées dans les fichiers .properties du serveur
+ * 
+ * @author qdeme
+ * 
+ */
 public class AfServletGouvPropertiesResolver {
 
     private static Logger LOGGER = LoggerFactory.getLogger(AfServletGouvPropertiesResolver.class);
@@ -91,7 +98,7 @@ public class AfServletGouvPropertiesResolver {
         return Static.getValue(LOGIN_KEEP_ALIVE);
     }
 
-    public static final String LOGIN_URL = "mc.gouv.appfactory.front.login.url";
+    public static final String LOGIN_URL ="mc.gouv.appfactory" + applicationPrefix + ".front.login.url";
 
     public static String getLoginUrl() {
         return Static.getValue(LOGIN_URL);
@@ -199,6 +206,30 @@ public class AfServletGouvPropertiesResolver {
 
     public static String getFrontofficePiwikURL() {
         return Static.getValue(FRONTOFFICE_PIWIK_URL);
+    }
+    
+    public static final String GICHKEY_URL = "mc.gouv.appfactory.front.gichkey.url";
+
+    public static String getGichkeyUrl() {
+        return Static.getValue(GICHKEY_URL);
+    }
+    
+    public static final String GICHUNI_URL = "mc.gouv.appfactory.front.gichuni.url";
+
+    public static String getGichuniUrl() {
+        return Static.getValue(GICHUNI_URL);
+    }
+    
+    public static final String GICHKEY_CLIENT_ID = "mc.gouv.appfactory" + applicationPrefix + ".gichkey.client_id";
+
+    public static String getGichkeyClientId() {
+        return Static.getValue(GICHKEY_CLIENT_ID);
+    }
+    
+    public static final String GICHKEY_CLIENT_SECRET = "mc.gouv.appfactory" + applicationPrefix + ".gichkey.client_secret";
+
+    public static String getGichkeyClientSecret() {
+        return Static.getValue(GICHKEY_CLIENT_SECRET);
     }
 
     static {

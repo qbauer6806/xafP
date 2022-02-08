@@ -1,6 +1,7 @@
 package mc.gouv.xaf.back.properties;
 
 /**
+ * 
  * Composant permettant de récupérer des éléments de configuration propres au gouvernement. Proxy vers Static.getValue()
  * permettant via Spring de mocker les appels à Static.getValue().
  * 
@@ -20,8 +21,6 @@ public interface GouvPropertiesResolver {
     String getProcessDefinitionKey();
 
     String getDemarcheId();
-
-    String getUsagersRestUrl();
 
     String getPaysRestUrl();
 
@@ -92,5 +91,13 @@ public interface GouvPropertiesResolver {
 	String getGUKafkaSSLKeyStorePassword();
 
 	boolean getKafkaEnabled();
+
+	String getGichkeyUrl();
+
+	String getGichuniUrl();
+
+	String getGichkeyClientId();
+
+	String getGichkeyClientSecret();
 
 }

@@ -1,8 +1,6 @@
 package mc.gouv.xaf.servlet;
 
 import java.io.ByteArrayInputStream;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -18,12 +16,12 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import mc.gouv.xaf.servlet.dto.TgfApiIbanResponseDTO;
-import mc.gouv.xaf.servlet.dto.TgfApiIbanResponseErreurDTO;
 import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
 import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
 
 /**
+ * 
  * Servlet permettant l'appel à la méthode /verification-iban de l'API TGF
  * 
  * @author qdeme

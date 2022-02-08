@@ -1,5 +1,10 @@
 package mc.gouv.xaf.servlet.dto;
 
+/**
+ * 
+ * @author qdeme
+ * 
+ */
 public class FileUploadResponseDTO {
     
     private String fileId;

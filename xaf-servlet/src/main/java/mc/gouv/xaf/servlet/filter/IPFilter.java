@@ -14,6 +14,13 @@ import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * 
+ * Filtre permettant de bloquer la requête si les IP Remote et Local ne sont pas les mêmes
+ * 
+ * @author qdeme
+ * 
+ */
 public class IPFilter implements Filter {
 
     private static Logger LOGGER = LoggerFactory.getLogger(IPFilter.class);

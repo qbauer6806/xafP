@@ -4,20 +4,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-import mc.gouv.xaf.back.service.utils.UsagersUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
+import mc.gouv.servicerest.usager.model.UsagerBean;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.AccessService;
 import mc.gouv.xaf.back.service.data.UsagersCourrierService;
+import mc.gouv.xaf.back.service.itg.gichuni.api.GichuniApiClient;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
+import mc.gouv.xaf.back.service.utils.UsagersUtils;
 import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
-import mc.gouv.servicerest.usager.ReferentielUsagersClient;
-import mc.gouv.servicerest.usager.model.UsagerBean;
 import mc.gouv.xboot.caching.GouvCacheDataProvider;
 
 /**
@@ -34,7 +34,7 @@ public class UsagersCacheDataProvider implements GouvCacheDataProvider<Integer, 
     private static final Logger LOGGER = LoggerFactory.getLogger(UsagersCacheDataProvider.class);
 
     @Autowired
-    private ReferentielUsagersClient referentielUsagersClient;
+    private GichuniApiClient gichuniApiClient;
 
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
@@ -68,7 +68,7 @@ public class UsagersCacheDataProvider implements GouvCacheDataProvider<Integer, 
         if (!usagersInternetIds.isEmpty()) {
         	LOGGER.info("Récupération des usagers INTERNET: {}", usagersInternetIds);
             if (usagersInternetIds.size() == 1) {
-                UsagerBean usagerBean = referentielUsagersClient.getUsager(usagersInternetIds.get(0));
+                UsagerBean usagerBean = gichuniApiClient.getUsager(usagersInternetIds.get(0));
                 if (usagerBean != null) {
                     usagers.add(usagerBean);
                 }
@@ -98,7 +98,7 @@ public class UsagersCacheDataProvider implements GouvCacheDataProvider<Integer, 
             		nb++;
             		List<UsagerBean> usagersTmp = new ArrayList<UsagerBean>();
             		LOGGER.info("Appel pour la page " + nb + " : " + page);
-            		usagersTmp = referentielUsagersClient.getUsagers(page);
+            		usagersTmp = gichuniApiClient.getUsagers(page);
             		if (usagersTmp != null) {
             			usagers.addAll(usagersTmp);
             		}
@@ -142,7 +142,7 @@ public class UsagersCacheDataProvider implements GouvCacheDataProvider<Integer, 
             return ub;
         }
         else {
-            UsagerBean usagerBean = referentielUsagersClient.getUsager(key);
+            UsagerBean usagerBean = gichuniApiClient.getUsager(key);
             return usagerBean;
         }
     }

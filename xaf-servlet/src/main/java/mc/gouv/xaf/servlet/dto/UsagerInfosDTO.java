@@ -3,6 +3,7 @@ package mc.gouv.xaf.servlet.dto;
 import java.io.Serializable;
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
@@ -20,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * 
  * @author dinfo10
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class UsagerInfosDTO implements Serializable {
 
     private static final long serialVersionUID = -7219376931453637516L;
@@ -59,6 +61,10 @@ public class UsagerInfosDTO implements Serializable {
     protected boolean isUsagerCourrier = false;
     
     protected Integer accessId;
+    
+    protected KeycloakTokenInfo tokenInfo;
+    
+    protected MConnectUsagerInfosDTO mConnectUsagerInfo;
 
     public String getTitreLabel() {
         if (titre == null) {
@@ -249,6 +255,22 @@ public class UsagerInfosDTO implements Serializable {
 
 	public void setAccessId(Integer accessId) {
 		this.accessId = accessId;
+	}
+
+	public KeycloakTokenInfo getTokenInfo() {
+		return tokenInfo;
+	}
+
+	public void setTokenInfo(KeycloakTokenInfo tokenInfo) {
+		this.tokenInfo = tokenInfo;
+	}
+
+	public MConnectUsagerInfosDTO getmConnectUsagerInfo() {
+		return mConnectUsagerInfo;
+	}
+
+	public void setmConnectUsagerInfo(MConnectUsagerInfosDTO mConnectUsagerInfo) {
+		this.mConnectUsagerInfo = mConnectUsagerInfo;
 	}
 
 }

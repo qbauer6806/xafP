@@ -23,6 +23,7 @@ import mc.gouv.xaf.shared.dto.AccessInputDTO;
 import mc.gouv.xapi.error.exception.client.UnauthorizedWebException;
 
 /**
+ * 
  * Servlet mettant à disposition le service /accesses avec les méthodes PUT, POST, GET, DELETE. Cette servlet récupère
  * le DemarcheID ainsi que l'UsagerID (depuis la session) et appelle les WS correspontants dans le back-end générique.
  * 

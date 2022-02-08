@@ -12,6 +12,7 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 
 import mc.gouv.Static;
+import mc.gouv.logon.apiclient.LogonApiClient;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.itg.logon.impl.UtilisateursCacheImpl;
@@ -20,9 +21,14 @@ import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.itg.rest.impl.PaysCacheImpl;
 import mc.gouv.xaf.back.service.itg.rest.impl.UsagersCacheDataProvider;
 import mc.gouv.xaf.back.service.itg.rest.impl.UsagersCacheImpl;
-import mc.gouv.logon.apiclient.LogonApiClient;
-import mc.gouv.servicerest.usager.ReferentielUsagersClient;
 
+/**
+ * 
+ * Classe de configuration
+ * 
+ * @author qdeme
+ * 
+ */
 @Configuration
 @EnableCaching
 @Profile("gouv")
@@ -39,12 +45,6 @@ public class AfBackConfig {
 
     @Autowired
     private UsagersCacheDataProvider usagersCacheDataProvider;
-
-    @Bean
-    public ReferentielUsagersClient getReferentielUsagersClient() {
-
-        return new ReferentielUsagersClient(gouvPropertiesResolver.getUsagersRestUrl(), null, null);
-    }
 
     @Bean(name = "paysCacheImpl")
     public PaysCache getPaysCache() {

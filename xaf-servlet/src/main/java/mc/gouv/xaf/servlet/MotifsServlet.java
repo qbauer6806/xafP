@@ -18,6 +18,7 @@ import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
 
 /**
+ * 
  * Servlet mettant à disposition le service /motifs avec uniquement la méthode GET pour le front.
  * Cette servlet récupère le DemarcheID et appelle le WS dans le back-end générique.
  * 

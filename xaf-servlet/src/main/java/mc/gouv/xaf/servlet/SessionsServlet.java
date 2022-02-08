@@ -86,44 +86,44 @@ public class SessionsServlet extends HttpServlet {
 	public void doPut(HttpServletRequest request, HttpServletResponse response) {
 		LOGGER.info("====================== /sessions doPut()");
 
-//		// On tente de récupérer une session existante sans en créer une
-//		HttpSession session = request.getSession(false);
-//		LOGGER.info("SESSION : " + session);
-//		if (session != null) {
-//			// Récupération de l'objet attaché à la session
-//			UsagerInfosDTO usagerInfosDTO = (UsagerInfosDTO) session.getAttribute("login");
-//			Integer accessId = usagerInfosDTO.getAccessId();
-//			LOGGER.info("usagerInfosDTO : " + usagerInfosDTO + ", userId=" + usagerInfosDTO.getId() + ", accessId="
-//					+ accessId);
-//
-//			// On ne met pas à jour s'il s'agit d'un usager courrier
-//			if (!AppFactoryServletUtils.isUsagerCourrier(usagerInfosDTO.getId())) {
-//				usagerInfosDTO = GichkeyService.checkTokens(usagerInfosDTO, true);
-//
-//				if (usagerInfosDTO != null) {
-//	            	// Appel à GICHUNI pour obtenir des informations de profil complémentaires
-//					usagerInfosDTO = GichuniService.getGichuniApiProfileData(usagerInfosDTO);
-//					
-//					// Stockage de cet objet d'infos d'usager dans la session HTTP
-//					session = request.getSession();
-//	
-//					session.setAttribute("login", usagerInfosDTO);
-//					// https://docs.angularjs.org/api/ng/service/$http#cross-site-request-forgery-xsrf-protection
-//					session.setAttribute(AppFactoryServletUtils.XSRF_SESSION_ATTRIBUTE,
-//							AppFactoryServletUtils.createXsrfToken(session));
-//					
-//					LOGGER.info("====================== Fin /sessions doPut()");
-//					return;
-//				}
-//			}
-//			else {
-//				return;
-//			}
-//		}
-//
-//		// Pas de session trouvée
-//		LOGGER.info("Aucune session trouvée");
-//		response.setStatus(HttpStatus.SC_NOT_FOUND);
+		// On tente de récupérer une session existante sans en créer une
+		HttpSession session = request.getSession(false);
+		LOGGER.info("SESSION : " + session);
+		if (session != null) {
+			// Récupération de l'objet attaché à la session
+			UsagerInfosDTO usagerInfosDTO = (UsagerInfosDTO) session.getAttribute("login");
+			Integer accessId = usagerInfosDTO.getAccessId();
+			LOGGER.info("usagerInfosDTO : " + usagerInfosDTO + ", userId=" + usagerInfosDTO.getId() + ", accessId="
+					+ accessId);
+
+			// On ne met pas à jour s'il s'agit d'un usager courrier
+			if (!AppFactoryServletUtils.isUsagerCourrier(usagerInfosDTO.getId())) {
+				usagerInfosDTO = GichkeyService.checkTokens(usagerInfosDTO, true);
+
+				if (usagerInfosDTO != null) {
+	            	// Appel à GICHUNI pour obtenir des informations de profil complémentaires
+					usagerInfosDTO = GichuniService.getGichuniApiProfileData(usagerInfosDTO);
+					
+					// Stockage de cet objet d'infos d'usager dans la session HTTP
+					session = request.getSession();
+	
+					session.setAttribute("login", usagerInfosDTO);
+					// https://docs.angularjs.org/api/ng/service/$http#cross-site-request-forgery-xsrf-protection
+					session.setAttribute(AppFactoryServletUtils.XSRF_SESSION_ATTRIBUTE,
+							AppFactoryServletUtils.createXsrfToken(session));
+					
+					LOGGER.info("====================== Fin /sessions doPut()");
+					return;
+				}
+			}
+			else {
+				return;
+			}
+		}
+
+		// Pas de session trouvée
+		LOGGER.info("Aucune session trouvée");
+		response.setStatus(HttpStatus.SC_NOT_FOUND);
 
 		LOGGER.info("====================== Fin /sessions doPut()");
 	}

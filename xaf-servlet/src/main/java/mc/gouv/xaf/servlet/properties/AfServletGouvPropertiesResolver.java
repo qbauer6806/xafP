@@ -1,12 +1,5 @@
 package mc.gouv.xaf.servlet.properties;
 
-import mc.gouv.Static;
-import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
-import mc.gouv.xaf.shared.dto.PropertiesDTO;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
@@ -16,6 +9,14 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import mc.gouv.Static;
+import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
+import mc.gouv.xaf.shared.dto.PropertiesDTO;
 
 /**
  * 
@@ -66,18 +67,6 @@ public class AfServletGouvPropertiesResolver {
                     "Impossible de charger config.properties dans le classpath pour avoir la propriété application.name");
         }
 
-    }
-
-    public static final String LOGIN_REST_URL = "mc.gouv.appfactory.external.login.url";
-
-    public static String getLoginRestUrl() {
-        return Static.getValue(LOGIN_REST_URL);
-    }
-
-    public static final String LOGIN_SERVICEREST_URL = "mc.gouv.appfactory.external.login.servicerest.url";
-
-    public static String getLoginServiceRestUrl() {
-        return Static.getValue(LOGIN_SERVICEREST_URL);
     }
 
     public static final String PAYS_URL = "mc.gouv.appfactory.external.pays.url";

@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+	<!-- Magnific Popup core CSS file -->
+	<link rel="stylesheet" th:href="@{/webjars/Magnific-Popup/1.1.0/magnific-popup.css}" type="text/css">
 
+</head>
 <body>
 
 <div id="panelfichiersjointstypedoctable" th:fragment="panelfichiersjointstypedoctable" th:remove="tag">
@@ -36,27 +41,19 @@
 		                <i class="icon-action_pdf"></i>
 		            </span>
 	            </a>
-	            <a th:href="@{/ws/file/get/apercu}+${file.url}">
-	            	<span class="btn btn-action ripple-effect greyTooltip" data-original-title="PrÃ©visualisation"
-		                  data-placement="bottom" data-toggle="tooltip" title="">
-		                <i class="icon-action_pdf"></i>
-		            </span>
-		       </a>     
+	            <div class="parent-container">
+					<a th:href="@{/ws/file/get/apercu}+${file.url}" id="popup">
+						<span class="btn btn-action ripple-effect greyTooltip" data-original-title="Aperçu"
+			                  data-placement="bottom" data-toggle="tooltip" title="" id="previewButton">
+			                <i class="icon-action_voir"></i>
+			            </span>
+					</a>
+				</div>
 	        </td>
 	    </tr>
 	    </tbody>
 	</table>
 </div>
-<script th:inline="javascript">
-	var openFileModal = function(containerId) {
-			$.fancybox.open({
-				src: containerId,
-				type: 'inline',
-				opts: {
-					afterClose: onClosePreview
-				}
-			});
-		};
-</script>
 </body>
+
 </html>

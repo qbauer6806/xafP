@@ -25,7 +25,7 @@ public class GenerateGenericModel {
     private static final String TS_NAME = "cvtcvlc";
     private static final String PATH_WORKSPACE = "D:\\Workspace\\";
 
-    private static final String GENERIC_CLASS_PREFIX = TS_NAME.substring(0, 1).toUpperCase() + TS_NAME.substring(1)+"Generic";
+    private static final String GENERIC_CLASS_PREFIX = TS_NAME.substring(0, 1).toUpperCase() + TS_NAME.substring(1) + "Generic";
     private static final String PATH = PATH_WORKSPACE + TS_NAME + "\\" + TS_NAME + "-shared\\src\\main\\java\\mc\\gouv\\" + TS_NAME + "\\shared\\model";
     private static final String GENERIC_NAME = "generic";
     private static final String MODEL_PACKAGE = "mc.gouv." + TS_NAME + ".shared.model";
@@ -33,7 +33,7 @@ public class GenerateGenericModel {
     private static final String PATH_GENERIC = PATH + "/" + GENERIC_NAME;
     private static final String JAVA_EXTENSION = ".java";
     private static final String INDENT = "    ";
-    private static final String FIELD_REGEX = "private ([a-zA-Z]*) ([a-zA-Z]*);";
+    private static final String FIELD_REGEX = "private ([a-zA-Z0-9]*) ([a-zA-Z0-9]*);";
     private static final Pattern PATTERN = Pattern.compile(FIELD_REGEX);
     private static final PackageObject PACKAGE_GENERIC = new PackageObject(GENERIC_NAME);
     private static final File GENERIC_DIRECTORY = new File(PATH_GENERIC);
@@ -88,7 +88,7 @@ public class GenerateGenericModel {
 
         }
         writer.append("\n" + INDENT + "/* Constructors*/\n\n");
-
+        writer.append(INDENT + "public " + GENERIC_CLASS_PREFIX + classObject.getName() + "() {\n" + INDENT + "}\n\n");
         for (PackageObject packageObject : packageObjects) {
             writer.append(INDENT + "public " + GENERIC_CLASS_PREFIX + classObject.getName() + "(" + MODEL_PACKAGE + "." + packageObject.getName() + "." + classObject.getName() + " dto) {\n");
             for (Field field : classObject.getFields()) {
@@ -107,7 +107,7 @@ public class GenerateGenericModel {
             writer.append(INDENT + "}\n\n");
         }
 
-        writer.append( INDENT + "/* Getters and Setters*/\n\n");
+        writer.append(INDENT + "/* Getters and Setters*/\n\n");
         for (Field field : classObject.getFields()) {
             String fieldNameWithUpper = field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1);
             if (field.getType().contains("DTO") || field.getType().contains("Enum")) {

@@ -11,8 +11,8 @@ import java.util.Scanner;
 
 public class GenerateMapperTool {
     private static String WORKSPACE = "D:\\Workspace\\";
-    private static String TSCODE = "insenco";
-    private static String LAST_RECAPS = "v1631698370800";
+    private static String TSCODE = "cvtcvlc";
+    private static String LAST_RECAPS = "v1643727505304";
 
     private static String PATH = WORKSPACE + TSCODE + "\\" + TSCODE + "-shared\\src\\main\\java\\mc\\gouv\\" + TSCODE + "\\shared\\model\\" + LAST_RECAPS;
     private static String PATH_FILE = WORKSPACE + TSCODE + "\\" + TSCODE + "-service\\src\\main\\java\\mc\\gouv\\" + TSCODE + "\\service\\impl";
@@ -51,7 +51,7 @@ public class GenerateMapperTool {
                 "import mc.gouv.xaf.back.mapping.EnumMixIn;\n" +
                 "import mc.gouv.xaf.back.mapping.NationaliteMixIn;\n" +
                 "import mc.gouv.xaf.back.mapping.PaysMixIn;\n" +
-                "import mc.gouv.insenco.shared.model."+LAST_RECAPS+".*;\n" +
+                "import mc.gouv."+TSCODE+".shared.model."+LAST_RECAPS+".*;\n" +
                 "import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;\n" +
                 "import org.springframework.beans.factory.config.AutowireCapableBeanFactory;\n" +
                 "import org.springframework.context.annotation.Bean;\n" +

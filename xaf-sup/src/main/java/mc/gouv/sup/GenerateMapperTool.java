@@ -40,7 +40,7 @@ public class GenerateMapperTool {
 
             }
         }
-        File file = new File(PATH_FILE+"/"+ TSCODE.substring(0, 1).toUpperCase() + TSCODE.substring(1) + "IndexedDemandeJsonMapperConfig.java");
+        File file = new File(PATH_FILE + "/" + TSCODE.substring(0, 1).toUpperCase() + TSCODE.substring(1) + "IndexedDemandeJsonMapperConfig.java");
         BufferedWriter writer = new BufferedWriter(new FileWriter(file));
 
         writer.append("package mc.gouv." + TSCODE + ".service.impl;\n" +
@@ -51,7 +51,7 @@ public class GenerateMapperTool {
                 "import mc.gouv.xaf.back.mapping.EnumMixIn;\n" +
                 "import mc.gouv.xaf.back.mapping.NationaliteMixIn;\n" +
                 "import mc.gouv.xaf.back.mapping.PaysMixIn;\n" +
-                "import mc.gouv."+TSCODE+".shared.model."+LAST_RECAPS+".*;\n" +
+                "import mc.gouv." + TSCODE + ".shared.model." + LAST_RECAPS + ".*;\n" +
                 "import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;\n" +
                 "import org.springframework.beans.factory.config.AutowireCapableBeanFactory;\n" +
                 "import org.springframework.context.annotation.Bean;\n" +
@@ -71,10 +71,7 @@ public class GenerateMapperTool {
         writer.append("\n\n");
         writer.append("    @Bean\n" +
                 "    public ObjectMapper objectMapper(SpringHandlerInstantiator handlerInstantiator) {\n" +
-                "        ObjectMapper mapper = new ObjectMapper();\n" +
-                "\n" +
-                "        mapper.enable(SerializationFeature.WRITE_ENUMS_USING_TO_STRING);\n" +
-                "        mapper.enable(DeserializationFeature.READ_ENUMS_USING_TO_STRING);\n");
+                "        ObjectMapper mapper = new ObjectMapper();\n\n");
         for (String enumMixIn : enumMixIns) {
             writer.append(enumMixIn).append("\n");
         }

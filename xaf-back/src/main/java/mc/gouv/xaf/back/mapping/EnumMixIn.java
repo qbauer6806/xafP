@@ -6,5 +6,6 @@ public abstract class EnumMixIn {
     @JsonValue(false)
     abstract public String toValue();
 
+    @JsonValue
     abstract public String toString();
 }

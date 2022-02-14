@@ -22,7 +22,8 @@ public class GenerateGenericModel {
     /*
             Change TS_NAME and PATH_WORKSPACE
      */
-    private static final String TS_NAME = "cvtcvlc";
+    private static final String TS_NAME = "insenco";
+    
     private static final String PATH_WORKSPACE = "D:\\Workspace\\";
 
     private static final String GENERIC_CLASS_PREFIX = TS_NAME.substring(0, 1).toUpperCase() + TS_NAME.substring(1) + "Generic";
@@ -90,21 +91,27 @@ public class GenerateGenericModel {
         writer.append("\n" + INDENT + "/* Constructors*/\n\n");
         writer.append(INDENT + "public " + GENERIC_CLASS_PREFIX + classObject.getName() + "() {\n" + INDENT + "}\n\n");
         for (PackageObject packageObject : packageObjects) {
-            writer.append(INDENT + "public " + GENERIC_CLASS_PREFIX + classObject.getName() + "(" + MODEL_PACKAGE + "." + packageObject.getName() + "." + classObject.getName() + " dto) {\n");
-            for (Field field : classObject.getFields()) {
-                String fieldNameWithUpper = field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1);
-                if (field.getType().contains("DTO")) {
-                    writer.append(INDENT + INDENT + "this." + field.getName() + " = new " + GENERIC_CLASS_PREFIX + field.getType() + "(dto.get" + fieldNameWithUpper + "());\n");
-                } else if (field.getType().contains("Enum")) {
-                    writer.append(INDENT + INDENT + "if (dto.get" + fieldNameWithUpper + "() != null) {\n");
-                    writer.append(INDENT + INDENT + " this." + field.getName() + " = " + GENERIC_CLASS_PREFIX + field.getType() + ".forValue(dto.get" + fieldNameWithUpper + "().name());\n");
-                    writer.append(INDENT + INDENT + "}\n");
-                } else {
-                    writer.append(INDENT + INDENT + "this." + field.getName() + " = dto.get" + fieldNameWithUpper + "();\n");
-                }
 
+            for (ClassObject classObjectFromPackage : packageObject.getClassObjects()) {
+                if (classObject.getName().equals(classObjectFromPackage.getName())) {
+                    writer.append(INDENT + "public " + GENERIC_CLASS_PREFIX + classObject.getName() + "(" + MODEL_PACKAGE + "." + packageObject.getName() + "." + classObject.getName() + " dto) {\n");
+
+                    for (Field field : classObjectFromPackage.getFields()) {
+                        String fieldNameWithUpper = field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1);
+                        if (field.getType().contains("DTO")) {
+                            writer.append(INDENT + INDENT + "this." + field.getName() + " = new " + GENERIC_CLASS_PREFIX + field.getType() + "(dto.get" + fieldNameWithUpper + "());\n");
+                        } else if (field.getType().contains("Enum")) {
+                            writer.append(INDENT + INDENT + "if (dto.get" + fieldNameWithUpper + "() != null) {\n");
+                            writer.append(INDENT + INDENT + " this." + field.getName() + " = " + GENERIC_CLASS_PREFIX + field.getType() + ".forValue(dto.get" + fieldNameWithUpper + "().name());\n");
+                            writer.append(INDENT + INDENT + "}\n");
+                        } else {
+                            writer.append(INDENT + INDENT + "this." + field.getName() + " = dto.get" + fieldNameWithUpper + "();\n");
+                        }
+
+                    }
+                    writer.append(INDENT + "}\n\n");
+                }
             }
-            writer.append(INDENT + "}\n\n");
         }
 
         writer.append(INDENT + "/* Getters and Setters*/\n\n");

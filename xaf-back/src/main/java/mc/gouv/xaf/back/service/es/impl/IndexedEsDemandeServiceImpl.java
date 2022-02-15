@@ -35,7 +35,7 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.indices.GetIndexRequest;
 import org.elasticsearch.client.indices.GetIndexResponse;
-import org.elasticsearch.cluster.metadata.MappingMetaData;
+import org.elasticsearch.cluster.metadata.MappingMetadata;
 import org.elasticsearch.common.document.DocumentField;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.index.query.BoolQueryBuilder;
@@ -260,7 +260,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                 throw new AfIndexingException("Problem retrieving index name");
             }
 
-            MappingMetaData indexMappings = response.getMappings().get(indicesNames[0]);
+            MappingMetadata indexMappings = response.getMappings().get(indicesNames[0]);
             mappings = indexMappings.getSourceAsMap();
 
         } catch (Exception e) {
@@ -913,8 +913,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                             demandesEsList.add(demandeEsRechercheDTO);
                         }
 
-                        return new AggregatedPageImpl<>((List<T>) demandesEsList, pageable,
-                                response.getHits().getTotalHits());
+                        return new AggregatedPageImpl(demandesEsList, pageable, response.getHits().getTotalHits().value);
                     }
 
                     @Override
@@ -988,8 +987,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
                         }
 
-                        return new AggregatedPageImpl<>((List<T>) demandesEsList, pageable,
-                                response.getHits().getTotalHits());
+                        return new AggregatedPageImpl(demandesEsList, pageable, response.getHits().getTotalHits().value);
                     }
 
                     @Override

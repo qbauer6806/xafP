@@ -12,18 +12,23 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class GenerateGenericModel {
 
     /*
             Change TS_NAME and PATH_WORKSPACE
      */
-    private static final String TS_NAME = "insenco";
-    
+    private static final String TS_NAME = "vvtcvlc";
+    private static final long serialVersionUID = UUID.randomUUID().getMostSignificantBits();
+
     private static final String PATH_WORKSPACE = "D:\\Workspace\\";
 
     private static final String GENERIC_CLASS_PREFIX = TS_NAME.substring(0, 1).toUpperCase() + TS_NAME.substring(1) + "Generic";
@@ -34,10 +39,11 @@ public class GenerateGenericModel {
     private static final String PATH_GENERIC = PATH + "/" + GENERIC_NAME;
     private static final String JAVA_EXTENSION = ".java";
     private static final String INDENT = "    ";
-    private static final String FIELD_REGEX = "private ([a-zA-Z0-9]*) ([a-zA-Z0-9]*);";
+    private static final String FIELD_REGEX = "private ([a-zA-Z0-9]*\\[?\\]?) ([a-zA-Z0-9]*);";
     private static final Pattern PATTERN = Pattern.compile(FIELD_REGEX);
     private static final PackageObject PACKAGE_GENERIC = new PackageObject(GENERIC_NAME);
     private static final File GENERIC_DIRECTORY = new File(PATH_GENERIC);
+    private static final List<String> WARNINGS = new ArrayList<>();
 
     public static void main(String[] args) throws IOException {
         if (GENERIC_DIRECTORY.exists()) {
@@ -61,6 +67,8 @@ public class GenerateGenericModel {
         write(PACKAGE_GENERIC, packageObjects);
 
         System.out.println(PACKAGE_GENERIC);
+        System.out.println(" /!\\ WARNING /!\\");
+        WARNINGS.forEach(System.out::println);
     }
 
     private static void write(PackageObject packageGeneric, List<PackageObject> packageObjects) throws IOException {
@@ -70,16 +78,33 @@ public class GenerateGenericModel {
     }
 
     private static void writeClass(ClassObject classObject, List<PackageObject> packageObjects) throws IOException {
+        Set<String> fields = new HashSet<>();
+        Set<String> duplicateFields = new HashSet<>();
+        for (Field field : classObject.getFields()) {
+            if (!fields.add(field.getName())) {
+                duplicateFields.add(field.getName());
+            }
+        }
+        if (!duplicateFields.isEmpty()) {
+
+            WARNINGS.add("The class [" + classObject.getName() + "] contains some conflicts with fields : { " + duplicateFields.stream().collect(Collectors.joining(",")) + " }");
+        }
+
+
         File file = new File(PATH_GENERIC + "/" + GENERIC_CLASS_PREFIX + classObject.getName() + JAVA_EXTENSION);
         BufferedWriter writer = new BufferedWriter(new FileWriter(file));
         writer.append("package " + GENERIC_PACKAGE + "; \n\n");
-        writer.append("import java.io.Serializable;\n");
         writer.append("import com.fasterxml.jackson.annotation.JsonIgnoreProperties;\n\n");
+        writer.append("import java.io.Serializable;\n");
+        if (classObject.getFields().stream().map(Field::getType).anyMatch(s -> s.contains("[]"))) {
+            writer.append("import java.util.Arrays;\n");
+        }
 
-        writer.append("@JsonIgnoreProperties(ignoreUnknown = true)\n");
+        writer.append("\n@JsonIgnoreProperties(ignoreUnknown = true)\n");
         writer.append("public class " + GENERIC_CLASS_PREFIX + classObject.getName() + " implements Serializable {\n\n");
 
         writer.append(INDENT + "/* Members variables*/\n\n");
+        writer.append(INDENT + "private static final long serialVersionUID = " + serialVersionUID + "L;\n\n");
         for (Field field : classObject.getFields()) {
             if (field.getType().contains("DTO") || field.getType().contains("Enum")) {
                 writer.append(INDENT + "private " + GENERIC_CLASS_PREFIX + field.getType() + " " + field.getName() + ";\n");
@@ -99,7 +124,12 @@ public class GenerateGenericModel {
                     for (Field field : classObjectFromPackage.getFields()) {
                         String fieldNameWithUpper = field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1);
                         if (field.getType().contains("DTO")) {
-                            writer.append(INDENT + INDENT + "this." + field.getName() + " = new " + GENERIC_CLASS_PREFIX + field.getType() + "(dto.get" + fieldNameWithUpper + "());\n");
+                            if (field.getType().contains("[]")) {
+                                writer.append(INDENT + INDENT + "this." + field.getName() + " = Arrays.stream(dto.get" + fieldNameWithUpper + "()).map(" + GENERIC_CLASS_PREFIX + field.getType().replace("[]", "") + "::new).toArray(" + GENERIC_CLASS_PREFIX + field.getType() + "::new);\n");
+                            } else {
+                                writer.append(INDENT + INDENT + "this." + field.getName() + " = new " + GENERIC_CLASS_PREFIX + field.getType() + "(dto.get" + fieldNameWithUpper + "());\n");
+
+                            }
                         } else if (field.getType().contains("Enum")) {
                             writer.append(INDENT + INDENT + "if (dto.get" + fieldNameWithUpper + "() != null) {\n");
                             writer.append(INDENT + INDENT + " this." + field.getName() + " = " + GENERIC_CLASS_PREFIX + field.getType() + ".forValue(dto.get" + fieldNameWithUpper + "().name());\n");

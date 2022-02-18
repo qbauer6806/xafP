@@ -21,6 +21,9 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
+import org.springframework.data.elasticsearch.core.convert.ElasticsearchConverter;
+import org.springframework.data.elasticsearch.core.convert.MappingElasticsearchConverter;
+import org.springframework.data.elasticsearch.core.mapping.SimpleElasticsearchMappingContext;
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
@@ -38,8 +41,9 @@ public class EsConfigGouv {
 	private final String GOUV_PROPERTIES_CHAR_SPLITTER = ",";
 
 	/**
-	 * 
-	 * @return
+	 * Méthode permettant de configurer un High Lvel REST Elasticsearch client.
+	 *
+	 * @return RestHighLevelClient
 	 */
 	@Bean
 	public RestHighLevelClient client() {
@@ -55,8 +59,9 @@ public class EsConfigGouv {
 		Integer connectTimeout = gouvPropertiesResolver.getEsConnectTimeout();
 		Integer socketTimeout = gouvPropertiesResolver.getEsSocketTimeout();
 		RestClientBuilder builder = RestClient.builder(hosts.toArray(new HttpHost[hosts.size()]))
-				.setRequestConfigCallback(requestConfigBuilder -> requestConfigBuilder.setConnectTimeout(connectTimeout)
-						.setSocketTimeout(socketTimeout)).setMaxRetryTimeoutMillis(socketTimeout);
+				.setRequestConfigCallback(requestConfigBuilder -> requestConfigBuilder
+						.setConnectTimeout(connectTimeout)
+						.setSocketTimeout(socketTimeout));
 		
 		// Authentification elastisearch
 		String user = gouvPropertiesResolver.getEsUser();
@@ -69,18 +74,30 @@ public class EsConfigGouv {
 			builder.setHttpClientConfigCallback(
 					httpClientBuilder -> httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider));
 		}		
-		RestHighLevelClient client = new RestHighLevelClient(builder);
-		return client;
+		return new RestHighLevelClient(builder);
 	}
 
 	/**
-	 * 
-	 * @return
+	 * Méthode permettant de configurer un convertisseur elasticsearch pour remplacer le convertisseur Jackson.
+	 *
+	 * TODO? ajout d'annotations dans le DemandeEsDTO pour le décrire comme un document ES
+	 *
+	 * @return RestHighLevelClient
+	 */
+	@Bean
+	public ElasticsearchConverter elasticsearchConverter() {
+		return new MappingElasticsearchConverter(new SimpleElasticsearchMappingContext());
+	}
+
+	/**
+	 * Méthode permettant de configurer un template pour effectuer des actions sur le serveur elasticsearch.
+	 *
+	 * @return RestHighLevelClient
 	 */
 	@Bean
 	@Primary
 	public ElasticsearchRestTemplate elasticsearchTemplate() {
-		return new ElasticsearchRestTemplate(client());
+		return new ElasticsearchRestTemplate(client(), elasticsearchConverter());
 	}
 
 }

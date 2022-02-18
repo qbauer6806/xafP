@@ -13,16 +13,15 @@ import mc.gouv.xaf.shared.dto.AbstractDemandeDTO;
 
 /**
  * Modélise une demande
- * 
- *
  */
-@Document(indexName = "#{propertiesResolver.indexAlias}", type = DemandeEsDTO.INDEX_TYPE, createIndex = false)
+@Document(indexName = "#{propertiesResolver.indexAlias}", createIndex = false)
 public class DemandeEsDTO extends AbstractDemandeDTO {
-
-    public static final String INDEX_TYPE = "demandes";
 
     public static final String ACCESS_FIELD_NAME = "access";
     public static final String AGENT_FIELD_NAME = "agent";
+    /**
+     * @deprecated les jointures seront supprimées dans ES8
+     */
     public static final String JOIN_FIELD_NAME = "fichiers.demandeJoinField";
     public static final String DATA_FIELD_NAME = "data";
 
@@ -36,6 +35,9 @@ public class DemandeEsDTO extends AbstractDemandeDTO {
     private JsonNode data;
     private String agentAffecteNomAffichage;
     private List<String> nomsCourriers;
+    /**
+     * @deprecated les jointures seront supprimées dans ES8
+     */
     private DemandeJoinFieldEsDTO demandeJoinField;
     private List<String> justificatifsTraitement;
 
@@ -47,7 +49,7 @@ public class DemandeEsDTO extends AbstractDemandeDTO {
 
     public DemandeEsDTO() {
         super();
-        setDemandeJoinField(new DemandeJoinFieldEsDTO(INDEX_TYPE));
+        setDemandeJoinField(new DemandeJoinFieldEsDTO("demandes"));
     }
 
     public DemandeEsDTO(String identifiant) {
@@ -134,10 +136,16 @@ public class DemandeEsDTO extends AbstractDemandeDTO {
         this.nomsCourriers = nomsCourriers;
     }
 
+    /**
+     * @deprecated les jointures seront supprimées dans ES8
+     */
     public DemandeJoinFieldEsDTO getDemandeJoinField() {
         return demandeJoinField;
     }
 
+    /**
+     * @deprecated les jointures seront supprimées dans ES8
+     */
     public void setDemandeJoinField(DemandeJoinFieldEsDTO demandeJoinField) {
         this.demandeJoinField = demandeJoinField;
     }

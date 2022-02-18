@@ -4,7 +4,6 @@ import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandesComplementsBO;
 import mc.gouv.xaf.back.data.entity.DemandesCourriersBO;
-import mc.gouv.xaf.back.data.es.model.DemandeEsDTO;
 import mc.gouv.xaf.back.data.es.model.DemandeFileEsDTO;
 import mc.gouv.xaf.back.data.es.model.EsErrorEventDTO;
 import mc.gouv.xaf.back.data.transformer.DemandesComplementsFilesTransformer;
@@ -23,12 +22,11 @@ import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
 import mc.gouv.xaf.shared.dto.DemandeCourrierDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
+import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.Requests;
 import org.glassfish.jersey.internal.guava.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,19 +36,14 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Page;
-import org.springframework.data.elasticsearch.ElasticsearchException;
-import org.springframework.data.elasticsearch.core.DefaultResultMapper;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
-import org.springframework.data.elasticsearch.core.ResultsMapper;
 import org.springframework.data.elasticsearch.core.convert.ElasticsearchConverter;
-import org.springframework.data.elasticsearch.core.convert.MappingElasticsearchConverter;
-import org.springframework.data.elasticsearch.core.mapping.SimpleElasticsearchMappingContext;
+import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 import org.springframework.data.elasticsearch.core.query.IndexQuery;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.util.*;
@@ -68,8 +61,6 @@ public class IndexedEsDemandeFilesServiceImpl extends DemandeFilesServiceImpl im
     @Value("${application.name}")
     private String indexAlias;
 
-    private ResultsMapper resultsMapper;
-
     @Autowired
     private DemandesService demandesService;
 
@@ -82,12 +73,8 @@ public class IndexedEsDemandeFilesServiceImpl extends DemandeFilesServiceImpl im
     @Inject
     private ElasticsearchRestTemplate elasticsearchTemplate;
 
-    @PostConstruct
-    public void init() {
-        ElasticsearchConverter elasticsearchConverter = new MappingElasticsearchConverter(
-                new SimpleElasticsearchMappingContext());
-        resultsMapper = new DefaultResultMapper(elasticsearchConverter.getMappingContext());
-    }
+    @Inject
+    private ElasticsearchConverter elasticsearchConverter;
 
     @Override
     public void saveFile(DemandeFileDTO demandeFile, String demarcheId, Integer pkDemande) throws Exception {
@@ -243,54 +230,52 @@ public class IndexedEsDemandeFilesServiceImpl extends DemandeFilesServiceImpl im
 
             if (!indexList.isEmpty()) {
                 bulkIndex(indexList);
-                elasticsearchTemplate.refresh(DemandeFileEsDTO.class);
+                // TODO elasticsearchTemplate.refresh(DemandeFileEsDTO.class);
             }
 
         }
         return demandeFileEsDTOs;
     }
 
-    private void bulkIndex(List<IndexQuery> queries) throws IOException {
-        BulkRequest bulkRequest = new BulkRequest();
-
+    private void bulkIndex(List<IndexQuery> queries) {
+        //BulkRequest bulkRequest = new BulkRequest();
+        List<IndexQuery> bulkQueries = new ArrayList<>();
         int nombreBulks = (queries.size() + MAX_BULK_SIZE - 1) / MAX_BULK_SIZE;
         LOGGER.info("Début indexation pour {} fichiers en {} requêtes", queries.size(), nombreBulks);
 
         for (int i = 0; i < queries.size(); i++) {
             // Envois et Création d'une nouvelle bulk request si on arrive au max bulk size
             if (i != 0 && i % MAX_BULK_SIZE == 0) {
-                LOGGER.info("Indexation du bulk {}/{}", i / MAX_BULK_SIZE , nombreBulks);
-                checkForBulkUpdateFailure(elasticsearchTemplate.getClient().bulk(bulkRequest, RequestOptions.DEFAULT));
-                bulkRequest = new BulkRequest();
+                LOGGER.info("Indexation du bulk {}/{}", i / MAX_BULK_SIZE, nombreBulks);
+                // TODO checkForBulkUpdateFailure(elasticsearchTemplate.getClient().bulk(bulkRequest, RequestOptions.DEFAULT));
+                elasticsearchTemplate.bulkIndex(bulkQueries, IndexCoordinates.of(indexAlias));
+                bulkQueries.clear();
             }
-            bulkRequest.add(prepareIndex(queries.get(i)));
+            //bulkRequest.add(prepareIndex(queries.get(i)));
+            bulkQueries.add(queries.get(i));
         }
 
         LOGGER.info("Indexation du bulk {}/{}", nombreBulks, nombreBulks);
-        checkForBulkUpdateFailure(elasticsearchTemplate.getClient().bulk(bulkRequest, RequestOptions.DEFAULT));
+        // TODO checkForBulkUpdateFailure(elasticsearchTemplate.getClient().bulk(bulkRequest, RequestOptions.DEFAULT));
+        elasticsearchTemplate.bulkIndex(bulkQueries, IndexCoordinates.of(indexAlias));
     }
 
     private IndexRequest prepareIndex(IndexQuery query) {
-        try {
+        IndexRequest indexRequest;
 
-            IndexRequest indexRequest;
-
-            if (query.getObject() != null) {
-                // If we have a query id and a document id, do not ask ES to generate one.
-                indexRequest = new IndexRequest(indexAlias).type(DemandeEsDTO.INDEX_TYPE).id(query.getId());
-                indexRequest.source(resultsMapper.getEntityMapper().mapToString(query.getObject()),
-                        Requests.INDEX_CONTENT_TYPE);
-            } else {
-                throw new ElasticsearchException(
-                        "object or source is null, failed to index the document [id: " + query.getId() + "]");
-            }
-
-            indexRequest.routing(query.getParentId());
-
-            return indexRequest;
-        } catch (IOException e) {
-            throw new ElasticsearchException("failed to index the document [id: " + query.getId() + "]", e);
+        if (query.getObject() != null) {
+            // If we have a query id and a document id, do not ask ES to generate one.
+            indexRequest = new IndexRequest(indexAlias).id(query.getId());
+            indexRequest.source(elasticsearchConverter.mapObject(query.getObject()));
+            // TODO
+//                indexRequest.source(resultsMapper.getEntityMapper().mapToString(query.getObject()),
+//                        Requests.INDEX_CONTENT_TYPE);
+        } else {
+            throw new ElasticsearchException("object or source is null, failed to index the document [id: " + query.getId() + "]");
         }
+
+        indexRequest.routing(query.getParentId());
+        return indexRequest;
     }
 
     private void checkForBulkUpdateFailure(BulkResponse bulkResponse) {

@@ -7,9 +7,12 @@ import org.springframework.data.elasticsearch.annotations.Document;
 
 import java.util.Date;
 
-@Document(indexName = "#{propertiesResolver.indexAlias}", type = DemandeEsDTO.INDEX_TYPE, createIndex = false)
+@Document(indexName = "#{propertiesResolver.indexAlias}", createIndex = false)
 public class DemandeFileEsDTO {
 
+    /**
+     * @deprecated les jointures seront supprimées dans ES8
+     */
     public static final String INDEX_FILES_JOIN_DOC = "fichiers";
     public static final String TYPE_FIELD = "fichiers.type";
     public static final String IDENTIFIANT_FIELD = "fichiers.identifiant";
@@ -23,6 +26,9 @@ public class DemandeFileEsDTO {
     }
 
     private Fichiers fichiers;
+    /**
+     * @deprecated les jointures seront supprimées dans ES8
+     */
     private DemandeJoinFieldEsDTO demandeJoinField;
     
     @Id
@@ -40,10 +46,16 @@ public class DemandeFileEsDTO {
         return demandeJoinField;
     }
 
+    /**
+     * @deprecated les jointures seront supprimées dans ES8
+     */
     public void setDemandeJoinField(DemandeJoinFieldEsDTO demandeJoinField) {
         this.demandeJoinField = demandeJoinField;
     }
 
+    /**
+     * @deprecated les jointures seront supprimées dans ES8
+     */
     public DemandeFileEsDTO(String parent) {
         fichiers = new Fichiers();
         setDemandeJoinField(new DemandeJoinFieldEsDTO(INDEX_FILES_JOIN_DOC, parent));

@@ -120,7 +120,7 @@ public class IndexedEsDemandesCourriersServiceImpl extends DemandesCourriersServ
     				DeleteByQueryRequest request = new DeleteByQueryRequest(gouvPropertiesResolver.getApplicationName());
 					request.setQuery(new TermQueryBuilder("_id", currentCourrierEsId));
 					request.setRefresh(true);
-					elasticsearchTemplate.getClient().deleteByQuery(request, RequestOptions.DEFAULT);
+					// TODO elasticsearchTemplate.getClient().deleteByQuery(request, RequestOptions.DEFAULT);
 					LOGGER.info("Fin suppression du courrier : {} dans ElasticSearch", currentCourrierEsId);
     			}
     		}

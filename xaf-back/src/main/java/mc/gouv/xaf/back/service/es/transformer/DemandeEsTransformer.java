@@ -101,7 +101,7 @@ public class DemandeEsTransformer {
         }
 
         DemandeEsDTO demandeEsDTO = new DemandeEsDTO();
-        demandeEsDTO.setDemandeJoinField(new DemandeJoinFieldEsDTO(DemandeEsDTO.INDEX_TYPE));
+        demandeEsDTO.setDemandeJoinField(new DemandeJoinFieldEsDTO("demandes"));
         DemandeAccessEsDTO demandeAccessEsDto = new DemandeAccessEsDTO();
 
         AccessBO accessBO = demande.getFkAccess();

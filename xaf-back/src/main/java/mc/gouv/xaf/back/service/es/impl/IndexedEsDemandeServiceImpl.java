@@ -1,110 +1,13 @@
 package mc.gouv.xaf.back.service.es.impl;
 
-import static org.elasticsearch.client.RequestOptions.DEFAULT;
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
-import static org.elasticsearch.index.query.QueryBuilders.existsQuery;
-import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
-import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
-import static org.elasticsearch.index.query.QueryBuilders.rangeQuery;
-import static org.elasticsearch.index.query.QueryBuilders.simpleQueryStringQuery;
-import static org.elasticsearch.index.query.QueryBuilders.termQuery;
-import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
-import static org.elasticsearch.join.query.JoinQueryBuilders.hasChildQuery;
-
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.lucene.search.join.ScoreMode;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.indices.GetIndexRequest;
-import org.elasticsearch.client.indices.GetIndexResponse;
-import org.elasticsearch.cluster.metadata.MappingMetadata;
-import org.elasticsearch.common.document.DocumentField;
-import org.elasticsearch.common.text.Text;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.ExistsQueryBuilder;
-import org.elasticsearch.index.query.InnerHitBuilder;
-import org.elasticsearch.index.query.MatchQueryBuilder;
-import org.elasticsearch.index.query.Operator;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.RangeQueryBuilder;
-import org.elasticsearch.index.query.SimpleQueryStringBuilder;
-import org.elasticsearch.index.query.TermQueryBuilder;
-import org.elasticsearch.index.query.TermsQueryBuilder;
-import org.elasticsearch.index.reindex.DeleteByQueryRequest;
-import org.elasticsearch.join.query.HasChildQueryBuilder;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHits;
-import org.elasticsearch.search.aggregations.Aggregation;
-import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.bucket.filter.Filters;
-import org.elasticsearch.search.aggregations.bucket.filter.FiltersAggregator.KeyedFilter;
-import org.elasticsearch.search.aggregations.bucket.filter.ParsedFilters;
-import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
-import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
-import org.glassfish.jersey.internal.guava.Lists;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.annotation.Conditional;
-import org.springframework.context.annotation.Primary;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.elasticsearch.ElasticsearchException;
-import org.springframework.data.elasticsearch.core.DefaultResultMapper;
-import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
-import org.springframework.data.elasticsearch.core.SearchResultMapper;
-import org.springframework.data.elasticsearch.core.aggregation.AggregatedPage;
-import org.springframework.data.elasticsearch.core.aggregation.impl.AggregatedPageImpl;
-import org.springframework.data.elasticsearch.core.query.FetchSourceFilter;
-import org.springframework.data.elasticsearch.core.query.IndexQuery;
-import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
-import org.springframework.data.elasticsearch.core.query.SearchQuery;
-import org.springframework.data.elasticsearch.core.query.SourceFilter;
-import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
-import org.xml.sax.SAXException;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
-
 import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.dao.RechercheChampConfigRepository;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.RechercheChampConfigBO;
 import mc.gouv.xaf.back.data.es.dao.DemandeEsRepository;
-import mc.gouv.xaf.back.data.es.model.AgentEsDTO;
-import mc.gouv.xaf.back.data.es.model.CanalEsDto;
-import mc.gouv.xaf.back.data.es.model.DemandeAccessEsDTO;
-import mc.gouv.xaf.back.data.es.model.DemandeEsDTO;
-import mc.gouv.xaf.back.data.es.model.DemandeEsRechercheDTO;
-import mc.gouv.xaf.back.data.es.model.DemandeFileEsDTO;
-import mc.gouv.xaf.back.data.es.model.DemandeFileEsRechercheDTO;
-import mc.gouv.xaf.back.data.es.model.DemandeStatutEsDTO;
-import mc.gouv.xaf.back.data.es.model.DemandesFacet;
-import mc.gouv.xaf.back.data.es.model.DemandesFacets;
-import mc.gouv.xaf.back.data.es.model.EsErrorEventDTO;
-import mc.gouv.xaf.back.data.es.model.EsProperty;
+import mc.gouv.xaf.back.data.es.model.*;
 import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
 import mc.gouv.xaf.back.exception.AfIndexingException;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
@@ -118,12 +21,55 @@ import mc.gouv.xaf.back.service.es.transformer.DemandeEsTransformer;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
 import mc.gouv.xaf.back.service.utils.ESQueryUtils;
-import mc.gouv.xaf.shared.dto.DataRechercheDTO;
-import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
-import mc.gouv.xaf.shared.dto.DemandeCourrierRechercheDTO;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.xaf.shared.dto.DemandeFileDTO;
-import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
+import mc.gouv.xaf.shared.dto.*;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.lucene.search.join.ScoreMode;
+import org.elasticsearch.ElasticsearchException;
+import org.elasticsearch.client.RequestOptions;
+import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.client.indices.GetIndexRequest;
+import org.elasticsearch.client.indices.GetIndexResponse;
+import org.elasticsearch.cluster.metadata.MappingMetadata;
+import org.elasticsearch.common.text.Text;
+import org.elasticsearch.index.query.*;
+import org.elasticsearch.index.reindex.DeleteByQueryRequest;
+import org.elasticsearch.join.query.HasChildQueryBuilder;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.bucket.filter.FiltersAggregator.KeyedFilter;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.annotation.Conditional;
+import org.springframework.context.annotation.Primary;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
+import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
+import org.springframework.data.elasticsearch.core.query.FetchSourceFilter;
+import org.springframework.data.elasticsearch.core.query.IndexQuery;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
+import org.springframework.data.elasticsearch.core.query.SourceFilter;
+import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
+import org.xml.sax.SAXException;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
+
+import static org.elasticsearch.index.query.QueryBuilders.*;
+import static org.elasticsearch.join.query.JoinQueryBuilders.hasChildQuery;
 
 /**
  * Service permettant de faire de la recherche full-text sur les demandes en utilisant le moteur elasticsearch
@@ -190,6 +136,8 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     private GouvPropertiesResolver gouvPropertiesResolver;
     @Autowired
     private IndexedFilesService indexedFilesService;
+    @Inject
+    private RestHighLevelClient client;
 
     @PostConstruct
     public void init() {
@@ -244,28 +192,22 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      * Récupération des du mapping à partir d'un alias
      *
      * @param aliasName Nom de l'alias
-     * @param type      Type de l'index
      * @return Mapping Elasticsearch
      */
-    private Map getMapping(String aliasName, String type) {
+    private Map getMapping(String aliasName) {
         Assert.notNull(aliasName, "No index defined for putMapping()");
-        Assert.notNull(type, "No type defined for putMapping()");
-        Map mappings = null;
+        Map mappings;
         try {
-            GetIndexRequest request = new GetIndexRequest(indexAlias);
-            GetIndexResponse response = elasticsearchTemplate.getClient().indices().get(request, DEFAULT);
+            GetIndexRequest request = new GetIndexRequest(aliasName);
+            GetIndexResponse response = client.indices().get(request, RequestOptions.DEFAULT);
             String[] indicesNames = response.getIndices();
-
             if (indicesNames == null || indicesNames.length == 0) {
-                throw new AfIndexingException("Problem retrieving index name");
+                throw new AfIndexingException("Impossible de récupérer l'indice : " + aliasName);
             }
-
             MappingMetadata indexMappings = response.getMappings().get(indicesNames[0]);
             mappings = indexMappings.getSourceAsMap();
-
         } catch (Exception e) {
-            throw new ElasticsearchException("Error while getting mapping for indexName : " + aliasName + " type : "
-                    + type + " " + e.getMessage());
+            throw new ElasticsearchException("Error while getting mapping for indexName : " + aliasName + ", " + e.getMessage());
         }
         return mappings;
     }
@@ -277,7 +219,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     @Override
     public synchronized void initMappingProperties(boolean reload) {
 
-        Map<String, Map> mapping = getMapping(indexAlias, DemandeEsDTO.INDEX_TYPE);
+        Map<String, Map> mapping = getMapping(indexAlias);
 
         if (reload) {
             clearProperties();
@@ -414,9 +356,8 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      */
     @Override
     public List<EsProperty> getProperties(boolean reload) {
-
         if (allProperties.isEmpty() || reload) {
-            Map<String, Map> mapping = getMapping(indexAlias, DemandeEsDTO.INDEX_TYPE);
+            Map<String, Map> mapping = getMapping(indexAlias);
             initMappingProperties(allProperties, mapping, new ArrayList<>(), false);
             initMappingProperties(allProperties, mapping, new ArrayList<>(), true);
         }
@@ -459,7 +400,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             LOGGER.info("Bulk size : {}", size);
             int additionalPage = (demCount % size > 0) ? 1 : 0;
             indexBulkDeDemandes(demCount, size, additionalPage);
-            elasticsearchTemplate.refresh(DemandeEsDTO.class);
+            // TODO elasticsearchTemplate.refresh(DemandeEsDTO.class);
 
             LOGGER.info("Fin de la réindexation des demandes");
             return demCount;
@@ -533,7 +474,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             if (!demandes.getContent().isEmpty()) {
                 indexedFilesService.indexFiles(demandes);
             }
-            elasticsearchTemplate.refresh(DemandeEsDTO.class);
+            // TODO elasticsearchTemplate.refresh(DemandeEsDTO.class);
         }
     }
 
@@ -603,7 +544,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                 index.setObject(dem);
                 indexList.add(index);
             }
-            elasticsearchTemplate.bulkIndex(indexList);
+            elasticsearchTemplate.bulkIndex(indexList, IndexCoordinates.of(indexAlias));
         }
         return demandeEsDTOs;
     }
@@ -621,16 +562,18 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             index.setId(demandeFileEsDTO.getFichiers().getId());
             index.setObject(demandeFileEsDTO);
             index.setSource(demandeFileEsDTO.getDemandeJoinField().getParent());
-            elasticsearchTemplate.index(index);
+            elasticsearchTemplate.index(index, IndexCoordinates.of(indexAlias));
         }
         return demandeFileEsDTO;
     }
 
     @Override
+    // TODO https://www.elastic.co/guide/en/elasticsearch/client/java-rest/current/java-rest-high-search.html
     public List<DemandeEsDTO> getIndexedDemandes(DemandeRechercheDTO demandeRecherche) {
         demandeRecherche.setTexte(ESQueryUtils.getFormatedQuery(demandeRecherche.getTexte(),
                 afBackUtils.getDemarcheInfos().getIdentifiantPrefixe()));
-        return Lists.newArrayList(demandeEsRepository.search(getQueryBuilder(demandeRecherche)));
+        //return Lists.newArrayList(demandeEsRepository.search(getQueryBuilder(demandeRecherche)));
+        return new ArrayList<>();
     }
 
     @Override
@@ -642,28 +585,29 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
         if (!StringUtils.isBlank(demandeRecherche.getTexte())) {
 
-            NativeSearchQueryBuilder nativeSearchQueryBuilder = getFacetsAggregationQuery(demandeRecherche);
 
-            return elasticsearchTemplate.query(nativeSearchQueryBuilder.build(), (SearchResponse response) -> {
-
-                DemandesFacets facets = new DemandesFacets();
-
-                if (response.getAggregations().asList().isEmpty()) {
-                    return null;
-                }
-
-                for (Aggregation agg : response.getAggregations().asList()) {
-                    ParsedFilters filters = (ParsedFilters) agg;
-                    for (Filters.Bucket bucket : filters.getBuckets()) {
-                        if (bucket.getDocCount() > 0) {
-                            facets.add(new DemandesFacet(bucket.getKeyAsString(), bucket.getDocCount()));
-                        }
-
-                    }
-
-                }
-                return facets;
-            });
+// TODO réécriture de la recherche pour récupérer des facets, peut être avec SearchHits
+            //https://www.baeldung.com/spring-data-elasticsearch-queries
+//            return elasticsearchTemplate.query(nativeSearchQueryBuilder.build(), (SearchResponse response) -> {
+//
+//                DemandesFacets facets = new DemandesFacets();
+//
+//                if (response.getAggregations().asList().isEmpty()) {
+//                    return null;
+//                }
+//
+//                for (Aggregation agg : response.getAggregations().asList()) {
+//                    ParsedFilters filters = (ParsedFilters) agg;
+//                    for (Filters.Bucket bucket : filters.getBuckets()) {
+//                        if (bucket.getDocCount() > 0) {
+//                            facets.add(new DemandesFacet(bucket.getKeyAsString(), bucket.getDocCount()));
+//                        }
+//
+//                    }
+//
+//                }
+//                return facets;
+//            });
         }
 
         return new DemandesFacets();
@@ -678,7 +622,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      */
     private NativeSearchQueryBuilder getFacetsAggregationQuery(DemandeRechercheDTO demandeRecherche) {
 
-        NativeSearchQueryBuilder nativeSearchQueryBuilder = new NativeSearchQueryBuilder().withIndices(indexAlias)
+        NativeSearchQueryBuilder nativeSearchQueryBuilder = new NativeSearchQueryBuilder() // TODO .withIndices(indexAlias)
                 .withQuery(getQueryBuilder(demandeRecherche));
 
         List<KeyedFilter> queryStringQueryBuilders = new ArrayList<>();
@@ -690,6 +634,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             for (int i = 0; i < queryStringQueryBuilders.size(); i++) {
                 queryStringQueryBuildersArray[i] = queryStringQueryBuilders.get(i);
             }
+            // TODO @depecrated
             nativeSearchQueryBuilder = nativeSearchQueryBuilder
                     .addAggregation(AggregationBuilders.filters("facets", queryStringQueryBuildersArray));
         }
@@ -859,7 +804,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                 afBackUtils.getDemarcheInfos().getIdentifiantPrefixe()));
         initMappingProperties(true);
 
-        NativeSearchQueryBuilder nativeSearchQueryBuilder = new NativeSearchQueryBuilder().withIndices(indexAlias)
+        NativeSearchQueryBuilder nativeSearchQueryBuilder = new NativeSearchQueryBuilder() // TODO .withIndices(indexAlias)
                 .withQuery(getQueryBuilder(demandeRecherche)).withPageable(pageable);
 
         nativeSearchQueryBuilder = highlightQuery(demandeRecherche, nativeSearchQueryBuilder);
@@ -868,60 +813,63 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             nativeSearchQueryBuilder.withSourceFilter(sourceFilter);
         }
 
-        return elasticsearchTemplate.queryForPage(nativeSearchQueryBuilder.build(), DemandeEsRechercheDTO.class,
-                new SearchResultMapper() {
+        // TODO
+//        return elasticsearchTemplate.queryForPage(nativeSearchQueryBuilder.build(), DemandeEsRechercheDTO.class,
+//                new SearchResultMapper() {
+//
+//                    @SuppressWarnings("unchecked")
+//                    @Override
+//                    public <T> AggregatedPage<T> mapResults(SearchResponse response, Class<T> clazz, Pageable pageable) {
+//                        List<DemandeEsRechercheDTO> demandesEsList = new ArrayList<>();
+//                        if (response.getHits().getHits().length <= 0) {
+//                            return new AggregatedPageImpl<>(new ArrayList<>());
+//                        }
+//
+//                        for (SearchHit searchHit : response.getHits()) {
+//
+//                            DefaultResultMapper resultMapper = new DefaultResultMapper();
+//                            DemandeEsRechercheDTO demandeEsRechercheDTO = resultMapper
+//                                    .mapEntity(searchHit.getSourceAsString(), DemandeEsRechercheDTO.class);
+//
+//                            Map<String, HighlightField> highlightFields = searchHit.getHighlightFields();
+//                            Map<String, String> demEsHighlightFields = new HashMap<>();
+//                            updateHighLightedField(highlightFields, demEsHighlightFields, false, false, false);
+//
+//                            Map<String, SearchHits> innerHits = searchHit.getInnerHits();
+//
+//                            if (innerHits != null) {
+//                                for (Entry<String, SearchHits> searchHitsEntry : innerHits.entrySet()) {
+//                                    SearchHit[] searchHitsArray = searchHitsEntry.getValue().getHits();
+//                                    for (SearchHit searchInnerHit : searchHitsArray) {
+//
+//                                        DocumentField typeField = searchInnerHit.field(DemandeFileEsDTO.TYPE_FIELD);
+//                                        String type = typeField.getValue();
+//
+//                                        boolean isInternalFile = type.equals(DemandeFileEsDTO.TYPE.FICHIER_INTERNE.name());
+//                                        boolean isComplement = type.equals(DemandeFileEsDTO.TYPE.COMPLEMENT.name());
+//                                        boolean isCourrier = type.equals(DemandeFileEsDTO.TYPE.COURRIER.name());
+//
+//                                        updateHighLightedField(searchInnerHit.getHighlightFields(),
+//                                                demEsHighlightFields, isInternalFile, isComplement, isCourrier);
+//                                    }
+//                                }
+//                            }
+//
+//                            demandeEsRechercheDTO.setHighlightedField(demEsHighlightFields);
+//                            demandesEsList.add(demandeEsRechercheDTO);
+//                        }
+//
+//                        return new AggregatedPageImpl(demandesEsList, pageable, response.getHits().getTotalHits().value);
+//                    }
+//
+//                    @Override
+//                    public <T> T mapSearchHit(SearchHit searchHit, Class<T> type) {
+//                        return null;
+//                    }
+//
+//                });
 
-                    @SuppressWarnings("unchecked")
-                    @Override
-                    public <T> AggregatedPage<T> mapResults(SearchResponse response, Class<T> clazz, Pageable pageable) {
-                        List<DemandeEsRechercheDTO> demandesEsList = new ArrayList<>();
-                        if (response.getHits().getHits().length <= 0) {
-                            return new AggregatedPageImpl<>(new ArrayList<>());
-                        }
-
-                        for (SearchHit searchHit : response.getHits()) {
-
-                            DefaultResultMapper resultMapper = new DefaultResultMapper();
-                            DemandeEsRechercheDTO demandeEsRechercheDTO = resultMapper
-                                    .mapEntity(searchHit.getSourceAsString(), DemandeEsRechercheDTO.class);
-
-                            Map<String, HighlightField> highlightFields = searchHit.getHighlightFields();
-                            Map<String, String> demEsHighlightFields = new HashMap<>();
-                            updateHighLightedField(highlightFields, demEsHighlightFields, false, false, false);
-
-                            Map<String, SearchHits> innerHits = searchHit.getInnerHits();
-
-                            if (innerHits != null) {
-                                for (Entry<String, SearchHits> searchHitsEntry : innerHits.entrySet()) {
-                                    SearchHit[] searchHitsArray = searchHitsEntry.getValue().getHits();
-                                    for (SearchHit searchInnerHit : searchHitsArray) {
-
-                                        DocumentField typeField = searchInnerHit.field(DemandeFileEsDTO.TYPE_FIELD);
-                                        String type = typeField.getValue();
-
-                                        boolean isInternalFile = type.equals(DemandeFileEsDTO.TYPE.FICHIER_INTERNE.name());
-                                        boolean isComplement = type.equals(DemandeFileEsDTO.TYPE.COMPLEMENT.name());
-                                        boolean isCourrier = type.equals(DemandeFileEsDTO.TYPE.COURRIER.name());
-
-                                        updateHighLightedField(searchInnerHit.getHighlightFields(),
-                                                demEsHighlightFields, isInternalFile, isComplement, isCourrier);
-                                    }
-                                }
-                            }
-
-                            demandeEsRechercheDTO.setHighlightedField(demEsHighlightFields);
-                            demandesEsList.add(demandeEsRechercheDTO);
-                        }
-
-                        return new AggregatedPageImpl(demandesEsList, pageable, response.getHits().getTotalHits().value);
-                    }
-
-                    @Override
-                    public <T> T mapSearchHit(SearchHit searchHit, Class<T> type) {
-                        return null;
-                    }
-
-                });
+        return null;
 
     }
 
@@ -933,7 +881,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                 afBackUtils.getDemarcheInfos().getIdentifiantPrefixe()));
         initMappingProperties(false);
 
-        NativeSearchQueryBuilder nativeSearchQueryBuilder = new NativeSearchQueryBuilder().withIndices(indexAlias)
+        NativeSearchQueryBuilder nativeSearchQueryBuilder = new NativeSearchQueryBuilder() // TODO .withIndices(indexAlias)
                 .withQuery(getQueryBuilderForCourrier(demandeRecherche)).withPageable(pageable);
 
         nativeSearchQueryBuilder = highlightQuery(demandeRecherche, nativeSearchQueryBuilder);
@@ -942,60 +890,62 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             nativeSearchQueryBuilder.withSourceFilter(sourceFilter);
         }
 
-        return elasticsearchTemplate.queryForPage(nativeSearchQueryBuilder.build(), DemandeFileEsRechercheDTO.class,
-                new SearchResultMapper() {
+//        return elasticsearchTemplate.queryForPage(nativeSearchQueryBuilder.build(), DemandeFileEsRechercheDTO.class,
+//                new SearchResultMapper() {
+//
+//                    @SuppressWarnings("unchecked")
+//                    @Override
+//                    public <T> AggregatedPage<T> mapResults(SearchResponse response, Class<T> clazz,
+//                                                            Pageable pageable) {
+//                        List<DemandeFileEsRechercheDTO> demandesEsList = new ArrayList<>();
+//                        if (response.getHits().getHits().length <= 0) {
+//                            return new AggregatedPageImpl<>(new ArrayList<>());
+//                        }
+//
+//                        for (SearchHit searchHit : response.getHits()) {
+//
+//                            DefaultResultMapper resultMapper = new DefaultResultMapper();
+//                            DemandeFileEsRechercheDTO fichierJoinEsRechercheDTO = resultMapper
+//                                    .mapEntity(searchHit.getSourceAsString(), DemandeFileEsRechercheDTO.class);
+//
+//                            Map<String, HighlightField> highlightFields = searchHit.getHighlightFields();
+//                            Map<String, String> demEsHighlightFields = new HashMap<>();
+//                            updateHighLightedField(highlightFields, demEsHighlightFields, false, false, false);
+//
+//                            Map<String, SearchHits> innerHits = searchHit.getInnerHits();
+//
+//                            if (innerHits != null) {
+//                                for (Map.Entry<String, SearchHits> searchHitsEntry : innerHits.entrySet()) {
+//                                    SearchHit[] searchHitsArray = searchHitsEntry.getValue().getHits();
+//                                    for (SearchHit searchInnerHit : searchHitsArray) {
+//
+//                                        DocumentField typeField = searchInnerHit.field(DemandeFileEsDTO.TYPE_FIELD);
+//                                        String type = typeField.getValue();
+//
+//                                        boolean isCourrier = type.equals(DemandeFileEsDTO.TYPE.COURRIER.name());
+//
+//                                        updateHighLightedField(searchInnerHit.getHighlightFields(),
+//                                                demEsHighlightFields, false, false, isCourrier);
+//                                    }
+//                                }
+//                            }
+//
+//                            fichierJoinEsRechercheDTO.setHighlightedField(demEsHighlightFields);
+//                            demandesEsList.add(fichierJoinEsRechercheDTO);
+//
+//                        }
+//
+//                        return new AggregatedPageImpl(demandesEsList, pageable, response.getHits().getTotalHits().value);
+//                    }
+//
+//                    @Override
+//                    public <T> T mapSearchHit(SearchHit searchHit, Class<T> type) {
+//                        return null;
+//                    }
+//
+//                });
 
-                    @SuppressWarnings("unchecked")
-                    @Override
-                    public <T> AggregatedPage<T> mapResults(SearchResponse response, Class<T> clazz,
-                                                            Pageable pageable) {
-                        List<DemandeFileEsRechercheDTO> demandesEsList = new ArrayList<>();
-                        if (response.getHits().getHits().length <= 0) {
-                            return new AggregatedPageImpl<>(new ArrayList<>());
-                        }
-
-                        for (SearchHit searchHit : response.getHits()) {
-
-                            DefaultResultMapper resultMapper = new DefaultResultMapper();
-                            DemandeFileEsRechercheDTO fichierJoinEsRechercheDTO = resultMapper
-                                    .mapEntity(searchHit.getSourceAsString(), DemandeFileEsRechercheDTO.class);
-
-                            Map<String, HighlightField> highlightFields = searchHit.getHighlightFields();
-                            Map<String, String> demEsHighlightFields = new HashMap<>();
-                            updateHighLightedField(highlightFields, demEsHighlightFields, false, false, false);
-
-                            Map<String, SearchHits> innerHits = searchHit.getInnerHits();
-
-                            if (innerHits != null) {
-                                for (Map.Entry<String, SearchHits> searchHitsEntry : innerHits.entrySet()) {
-                                    SearchHit[] searchHitsArray = searchHitsEntry.getValue().getHits();
-                                    for (SearchHit searchInnerHit : searchHitsArray) {
-
-                                        DocumentField typeField = searchInnerHit.field(DemandeFileEsDTO.TYPE_FIELD);
-                                        String type = typeField.getValue();
-
-                                        boolean isCourrier = type.equals(DemandeFileEsDTO.TYPE.COURRIER.name());
-
-                                        updateHighLightedField(searchInnerHit.getHighlightFields(),
-                                                demEsHighlightFields, false, false, isCourrier);
-                                    }
-                                }
-                            }
-
-                            fichierJoinEsRechercheDTO.setHighlightedField(demEsHighlightFields);
-                            demandesEsList.add(fichierJoinEsRechercheDTO);
-
-                        }
-
-                        return new AggregatedPageImpl(demandesEsList, pageable, response.getHits().getTotalHits().value);
-                    }
-
-                    @Override
-                    public <T> T mapSearchHit(SearchHit searchHit, Class<T> type) {
-                        return null;
-                    }
-
-                });
+        return null;
 
     }
 
@@ -1590,7 +1540,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         DeleteByQueryRequest request = new DeleteByQueryRequest(gouvPropertiesResolver.getApplicationName());
         request.setQuery(new TermQueryBuilder(fieldName, fieldValue));
         request.setRefresh(true);
-        elasticsearchTemplate.getClient().deleteByQuery(request, RequestOptions.DEFAULT);
+        // TODO elasticsearchTemplate.getClient().deleteByQuery(request, RequestOptions.DEFAULT);
     }
 
     /**
@@ -1637,16 +1587,19 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      * Récupère uniquement l'identifiant et la pkDemandes de tous les documents de l'index ES
      *
      * @return List des demandes en Lazy
+     * <p>
+     * TODO
      */
     private List<DemandeEsDTO> findAllDemandesLazy() {
         String[] includes = new String[]{"identifiant", "pkDemandes"};
-        SearchQuery searchQuery = new NativeSearchQueryBuilder()
-                .withQuery(matchAllQuery())
-                .withSourceFilter(new FetchSourceFilter(includes, null))
-                .withPageable(PageRequest.of(0, (int) demandeEsRepository.count()))
-                .build();
-
-        return elasticsearchTemplate.queryForList(searchQuery, DemandeEsDTO.class);
+//        SearchQuery searchQuery = new NativeSearchQueryBuilder()
+//                .withQuery(matchAllQuery())
+//                .withSourceFilter(new FetchSourceFilter(includes, null))
+//                .withPageable(PageRequest.of(0, (int) demandeEsRepository.count()))
+//                .build();
+//
+//        return elasticsearchTemplate.queryForList(searchQuery, DemandeEsDTO.class);
+        return new ArrayList<>();
     }
 
     public DemandeDTO changerAffectationDemande(String demarcheId, int pkDemande, String agentAffecteId) {

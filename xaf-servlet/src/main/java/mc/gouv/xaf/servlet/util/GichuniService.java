@@ -37,7 +37,7 @@ public class GichuniService {
 	public static UsagerInfosDTO getGichuniApiProfileData(UsagerInfosDTO uinfos) {
 		URL url = null;
 		try {
-			url = new URL(AfServletGouvPropertiesResolver.getGichuniUrl() + "/profiles/" + uinfos.getId());
+			url = new URL(AfServletGouvPropertiesResolver.getGichuniUrl() + "/profiles/legacy-ids/" + uinfos.getId());
 		} catch (MalformedURLException e) {
 			LOGGER.error("Erreur lors de la constitution de l'URL d'appel à GICHUNI");
 		}

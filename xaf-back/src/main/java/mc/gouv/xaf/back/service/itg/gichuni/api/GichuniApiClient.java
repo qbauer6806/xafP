@@ -27,7 +27,7 @@ public class GichuniApiClient {
 	private OAuth2RestTemplate restTemplate;
 	
     public UsagerBean getUsager(Integer id) {
-    	UsagerBean[] usagers = restTemplate.getForObject(gouvPropertiesResolver.getGichuniUrl() + "/profiles/" + id,
+    	UsagerBean[] usagers = restTemplate.getForObject(gouvPropertiesResolver.getGichuniUrl() + "/profiles/legacy-ids/" + id,
 				UsagerBean[].class);
     	if (usagers == null || usagers.length == 0) {
     		return null;
@@ -47,7 +47,7 @@ public class GichuniApiClient {
 	        }
 	    }
 	    
-    	UsagerBean[] usagers = restTemplate.getForObject(gouvPropertiesResolver.getGichuniUrl() + "/profiles/" + listId,
+    	UsagerBean[] usagers = restTemplate.getForObject(gouvPropertiesResolver.getGichuniUrl() + "/profiles/legacy-ids/" + listId,
 				UsagerBean[].class);
     	return Arrays.asList(usagers);
     }

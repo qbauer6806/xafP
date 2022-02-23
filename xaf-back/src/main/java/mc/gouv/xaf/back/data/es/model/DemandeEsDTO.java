@@ -1,20 +1,18 @@
 package mc.gouv.xaf.back.data.es.model;
 
-import java.util.Date;
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.JsonNode;
+import mc.gouv.xaf.shared.dto.AbstractDemandeDTO;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
-import mc.gouv.xaf.shared.dto.AbstractDemandeDTO;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Modélise une demande
  */
-@Document(indexName = "#{propertiesResolver.indexAlias}", createIndex = false)
+@Document(indexName = "#{@environment.getProperty('application.name')}", createIndex = false)
 public class DemandeEsDTO extends AbstractDemandeDTO {
 
     public static final String ACCESS_FIELD_NAME = "access";
@@ -31,7 +29,7 @@ public class DemandeEsDTO extends AbstractDemandeDTO {
     private AgentEsDTO agent;
     private DemandeStatutEsDTO[] statuts;
     private DemandeStatutEsDTO dernierStatut;
-	private String statutPublicOuInterne;
+    private String statutPublicOuInterne;
     private JsonNode data;
     private String agentAffecteNomAffichage;
     private List<String> nomsCourriers;
@@ -149,14 +147,14 @@ public class DemandeEsDTO extends AbstractDemandeDTO {
     public void setDemandeJoinField(DemandeJoinFieldEsDTO demandeJoinField) {
         this.demandeJoinField = demandeJoinField;
     }
-    
-    public String getStatutPublicOuInterne() {
-		return statutPublicOuInterne;
-	}
 
-	public void setStatutPublicOuInterne(String statutPublicOuInterne) {
-		this.statutPublicOuInterne = statutPublicOuInterne;
-	}
+    public String getStatutPublicOuInterne() {
+        return statutPublicOuInterne;
+    }
+
+    public void setStatutPublicOuInterne(String statutPublicOuInterne) {
+        this.statutPublicOuInterne = statutPublicOuInterne;
+    }
 
     public List<String> getJustificatifsTraitement() {
         return justificatifsTraitement;

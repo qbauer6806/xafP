@@ -19,7 +19,7 @@ import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
 import org.springframework.kafka.listener.SeekToCurrentErrorHandler;
-import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer2;
+import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.util.backoff.BackOff;
 import org.springframework.util.backoff.FixedBackOff;
 
@@ -88,7 +88,7 @@ public class GUKafkaConsumerConfig {
         }
         
         return new DefaultKafkaConsumerFactory<>(configProps, new StringDeserializer(),
-                new ErrorHandlingDeserializer2<>(new StringDeserializer()));
+                new ErrorHandlingDeserializer<>(new StringDeserializer()));
     }
 
     @Bean

@@ -7,7 +7,7 @@ import org.springframework.data.elasticsearch.annotations.Document;
 
 import java.util.Date;
 
-@Document(indexName = "#{propertiesResolver.indexAlias}", createIndex = false)
+@Document(indexName = "#{@environment.getProperty('application.name')}", createIndex = false)
 public class DemandeFileEsDTO {
 
     /**

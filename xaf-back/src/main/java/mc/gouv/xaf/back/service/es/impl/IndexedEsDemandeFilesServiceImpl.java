@@ -238,7 +238,6 @@ public class IndexedEsDemandeFilesServiceImpl extends DemandeFilesServiceImpl im
     }
 
     private void bulkIndex(List<IndexQuery> queries) {
-        //BulkRequest bulkRequest = new BulkRequest();
         List<IndexQuery> bulkQueries = new ArrayList<>();
         int nombreBulks = (queries.size() + MAX_BULK_SIZE - 1) / MAX_BULK_SIZE;
         LOGGER.info("Début indexation pour {} fichiers en {} requêtes", queries.size(), nombreBulks);
@@ -252,7 +251,9 @@ public class IndexedEsDemandeFilesServiceImpl extends DemandeFilesServiceImpl im
                 bulkQueries.clear();
             }
             //bulkRequest.add(prepareIndex(queries.get(i)));
-            bulkQueries.add(queries.get(i));
+            IndexQuery query = queries.get(i);
+            query.setRouting(query.getParentId());
+            bulkQueries.add(query);
         }
 
         LOGGER.info("Indexation du bulk {}/{}", nombreBulks, nombreBulks);

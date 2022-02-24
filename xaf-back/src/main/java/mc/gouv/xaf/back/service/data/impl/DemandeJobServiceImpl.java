@@ -173,24 +173,29 @@ public class DemandeJobServiceImpl implements DemandeJobService {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void logErrors(Integer jobId, Exception e) {
+	public void logErrors(Integer jobId, Exception e) {
 
-        StringBuilder errorMsg = new StringBuilder(e.getMessage());
-        if (e.getCause() != null) {
-            errorMsg.append("\n").append(e.getCause().getMessage());
-        }
+		StringBuilder errorMsg;
+		if (e.getMessage() != null) {
+			errorMsg = new StringBuilder(e.getMessage());
+		} else {
+			errorMsg = new StringBuilder("Une erreur inattendue est survenue");
+		}
+		if (e.getCause() != null && e.getCause().getMessage() != null) {
+			errorMsg.append("\n").append(e.getCause().getMessage());
+		}
 
-        Optional<DemandeJobBO> jobOpt = demandeJobRepository.findById(jobId);
-        if (jobOpt.isPresent()) {
-            DemandeJobBO job = jobOpt.get();
-            LOGGER.error("Une erreur est survenue lors du lancement du job {} : {}", job.getJobName().getLibelle(),
-                    errorMsg);
-            job.setStatut(JobStatutsEnum.ERROR);
-            job.setMsg(errorMsg.toString());
-            job.setDateDernModif(new Date());
-            demandeJobRepository.save(job);
-        }
-    }
+		Optional<DemandeJobBO> jobOpt = demandeJobRepository.findById(jobId);
+		if (jobOpt.isPresent()) {
+			DemandeJobBO job = jobOpt.get();
+			LOGGER.error("Une erreur est survenue lors du lancement du job {} : {}", job.getJobName().getLibelle(),
+					errorMsg, e);
+			job.setStatut(JobStatutsEnum.ERROR);
+			job.setMsg(errorMsg.toString());
+			job.setDateDernModif(new Date());
+			demandeJobRepository.save(job);
+		}
+	}
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void logSuccess(Integer jobId, String msg) {

@@ -1,5 +1,7 @@
 package mc.gouv.xaf.backweb.ws;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
@@ -7,6 +9,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,7 +65,7 @@ public class FileController {
 
         LOGGER.info("====================== getFile() terminé, retour au client...");
     }
-
+    
     /**
      * Appelle FILE afin de sauvegarder différents fichiers contenus dans la request MultiPart
      * Retourne une Map correspondant aux fichiers (fileName, fileUrl)

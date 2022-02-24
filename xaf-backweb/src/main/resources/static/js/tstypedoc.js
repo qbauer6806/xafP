@@ -13,6 +13,9 @@ updateTypedocJSON = (event) => {
         const pkDemandesFiles = idEvent.replace("file", "");
         filesJSON[pkDemandesFiles] = event.value;
     }
+    var idToUpdateObj = document.getElementById(idEvent);
+	var selectedOptionText = idToUpdateObj.options[idToUpdateObj.selectedIndex].title
+	document.getElementById(idEvent).title=selectedOptionText;
 }
 
 $("#typedoc-files-button").click(function (e) {

@@ -4,6 +4,8 @@
 	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 	<!-- Magnific Popup core CSS file -->
 	<link rel="stylesheet" th:href="@{/webjars/Magnific-Popup/1.1.0/magnific-popup.css}" type="text/css">
+	<!-- Magnific Popup core JS file -->
+	<script src="magnific-popup/jquery.magnific-popup.js"></script>
 
 </head>
 <body>
@@ -50,6 +52,14 @@
 		                <i class="icon-action_pdf"></i>
 		            </span>
 	            </a>
+	            <div class="parent-container">
+					<a id="popup" th:value="@{/ws/file/get/apercu}+${file.url}">
+						<span class="btn btn-action ripple-effect greyTooltip" onclick="setCurrentPopup(this)" data-original-title="Prévisualisation"
+			                  data-placement="bottom" data-toggle="tooltip" title="" id="previewButton">
+			                <i class="icon-action_voir"></i>
+			            </span>
+					</a>
+				</div>
 	        </td>
 	    </tr>
 	    </tbody>

@@ -35,8 +35,11 @@ import org.elasticsearch.common.text.Text;
 import org.elasticsearch.index.query.*;
 import org.elasticsearch.index.reindex.DeleteByQueryRequest;
 import org.elasticsearch.join.query.HasChildQueryBuilder;
+import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.bucket.filter.Filters;
 import org.elasticsearch.search.aggregations.bucket.filter.FiltersAggregator.KeyedFilter;
+import org.elasticsearch.search.aggregations.bucket.filter.ParsedFilters;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.slf4j.Logger;
@@ -47,14 +50,16 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
+import org.springframework.data.elasticsearch.core.SearchHit;
+import org.springframework.data.elasticsearch.core.SearchHits;
+import org.springframework.data.elasticsearch.core.clients.elasticsearch7.ElasticsearchAggregations;
 import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
-import org.springframework.data.elasticsearch.core.query.FetchSourceFilter;
-import org.springframework.data.elasticsearch.core.query.IndexQuery;
-import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
-import org.springframework.data.elasticsearch.core.query.SourceFilter;
+import org.springframework.data.elasticsearch.core.query.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.xml.sax.SAXException;
@@ -132,6 +137,10 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     private DemandesRepository demandesRepository;
     @Inject
     private ElasticsearchRestTemplate elasticsearchTemplate;
+
+    @Inject
+    private ElasticsearchOperations elasticsearchOperations;
+
     @Inject
     private GouvPropertiesResolver gouvPropertiesResolver;
     @Autowired
@@ -290,7 +299,6 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             if (fieldsToExclude != null) {
                 properties.removeIf(p -> fieldsToExclude.contains(p.getName()));
             }
-
         }
     }
 
@@ -559,7 +567,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
         if (demandeFileEsDTO != null) {
             IndexQuery index = new IndexQuery();
-            index.setId(demandeFileEsDTO.getFichiers().getId());
+            index.setId(demandeFileEsDTO.getIdentifiant());
             index.setObject(demandeFileEsDTO);
             index.setSource(demandeFileEsDTO.getDemandeJoinField().getParent());
             elasticsearchTemplate.index(index, IndexCoordinates.of(indexAlias));
@@ -577,41 +585,34 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     }
 
     @Override
+    // TODO il manque les fichiers
     public DemandesFacets getDemandesFacets(DemandeRechercheDTO demandeRecherche) {
 
         demandeRecherche.setTexte(ESQueryUtils.getFormatedQuery(demandeRecherche.getTexte(),
                 afBackUtils.getDemarcheInfos().getIdentifiantPrefixe()));
         initMappingProperties(true);
+        DemandesFacets facets = new DemandesFacets();
 
         if (!StringUtils.isBlank(demandeRecherche.getTexte())) {
+            NativeSearchQueryBuilder builder = getFacetsAggregationQuery(demandeRecherche);
+            SearchHits<DemandeEsRechercheDTO> searchHits = elasticsearchOperations.search(builder.build(), DemandeEsRechercheDTO.class);
+            List<Aggregation> aggregations = ((ElasticsearchAggregations) searchHits.getAggregations()).aggregations().asList();
 
+            if (aggregations.isEmpty()) {
+                return null;
+            }
 
-// TODO réécriture de la recherche pour récupérer des facets, peut être avec SearchHits
-            //https://www.baeldung.com/spring-data-elasticsearch-queries
-//            return elasticsearchTemplate.query(nativeSearchQueryBuilder.build(), (SearchResponse response) -> {
-//
-//                DemandesFacets facets = new DemandesFacets();
-//
-//                if (response.getAggregations().asList().isEmpty()) {
-//                    return null;
-//                }
-//
-//                for (Aggregation agg : response.getAggregations().asList()) {
-//                    ParsedFilters filters = (ParsedFilters) agg;
-//                    for (Filters.Bucket bucket : filters.getBuckets()) {
-//                        if (bucket.getDocCount() > 0) {
-//                            facets.add(new DemandesFacet(bucket.getKeyAsString(), bucket.getDocCount()));
-//                        }
-//
-//                    }
-//
-//                }
-//                return facets;
-//            });
+            for (Aggregation agg : aggregations) {
+                ParsedFilters filters = (ParsedFilters) agg;
+                for (Filters.Bucket bucket : filters.getBuckets()) {
+                    if (bucket.getDocCount() > 0) {
+                        facets.add(new DemandesFacet(bucket.getKeyAsString(), bucket.getDocCount()));
+                    }
+                }
+            }
         }
 
-        return new DemandesFacets();
-
+        return facets;
     }
 
     /**
@@ -799,13 +800,13 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     @Override
     public Page<DemandeEsRechercheDTO> getIndexedDemandes(DemandeRechercheDTO demandeRecherche, Pageable pageable,
                                                           String[] fields) {
-
         demandeRecherche.setTexte(ESQueryUtils.getFormatedQuery(demandeRecherche.getTexte(),
                 afBackUtils.getDemarcheInfos().getIdentifiantPrefixe()));
         initMappingProperties(true);
 
-        NativeSearchQueryBuilder nativeSearchQueryBuilder = new NativeSearchQueryBuilder() // TODO .withIndices(indexAlias)
-                .withQuery(getQueryBuilder(demandeRecherche)).withPageable(pageable);
+        NativeSearchQueryBuilder nativeSearchQueryBuilder = new NativeSearchQueryBuilder()
+                .withQuery(getQueryBuilder(demandeRecherche))
+                .withPageable(pageable);
 
         nativeSearchQueryBuilder = highlightQuery(demandeRecherche, nativeSearchQueryBuilder);
         if (fields != null && fields.length > 0) {
@@ -813,64 +814,60 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             nativeSearchQueryBuilder.withSourceFilter(sourceFilter);
         }
 
-        // TODO
-//        return elasticsearchTemplate.queryForPage(nativeSearchQueryBuilder.build(), DemandeEsRechercheDTO.class,
-//                new SearchResultMapper() {
-//
-//                    @SuppressWarnings("unchecked")
-//                    @Override
-//                    public <T> AggregatedPage<T> mapResults(SearchResponse response, Class<T> clazz, Pageable pageable) {
-//                        List<DemandeEsRechercheDTO> demandesEsList = new ArrayList<>();
-//                        if (response.getHits().getHits().length <= 0) {
-//                            return new AggregatedPageImpl<>(new ArrayList<>());
-//                        }
-//
-//                        for (SearchHit searchHit : response.getHits()) {
-//
-//                            DefaultResultMapper resultMapper = new DefaultResultMapper();
-//                            DemandeEsRechercheDTO demandeEsRechercheDTO = resultMapper
-//                                    .mapEntity(searchHit.getSourceAsString(), DemandeEsRechercheDTO.class);
-//
-//                            Map<String, HighlightField> highlightFields = searchHit.getHighlightFields();
-//                            Map<String, String> demEsHighlightFields = new HashMap<>();
-//                            updateHighLightedField(highlightFields, demEsHighlightFields, false, false, false);
-//
-//                            Map<String, SearchHits> innerHits = searchHit.getInnerHits();
-//
-//                            if (innerHits != null) {
-//                                for (Entry<String, SearchHits> searchHitsEntry : innerHits.entrySet()) {
-//                                    SearchHit[] searchHitsArray = searchHitsEntry.getValue().getHits();
-//                                    for (SearchHit searchInnerHit : searchHitsArray) {
-//
-//                                        DocumentField typeField = searchInnerHit.field(DemandeFileEsDTO.TYPE_FIELD);
-//                                        String type = typeField.getValue();
-//
-//                                        boolean isInternalFile = type.equals(DemandeFileEsDTO.TYPE.FICHIER_INTERNE.name());
-//                                        boolean isComplement = type.equals(DemandeFileEsDTO.TYPE.COMPLEMENT.name());
-//                                        boolean isCourrier = type.equals(DemandeFileEsDTO.TYPE.COURRIER.name());
-//
-//                                        updateHighLightedField(searchInnerHit.getHighlightFields(),
-//                                                demEsHighlightFields, isInternalFile, isComplement, isCourrier);
-//                                    }
-//                                }
-//                            }
-//
-//                            demandeEsRechercheDTO.setHighlightedField(demEsHighlightFields);
-//                            demandesEsList.add(demandeEsRechercheDTO);
-//                        }
-//
-//                        return new AggregatedPageImpl(demandesEsList, pageable, response.getHits().getTotalHits().value);
-//                    }
-//
-//                    @Override
-//                    public <T> T mapSearchHit(SearchHit searchHit, Class<T> type) {
-//                        return null;
-//                    }
-//
-//                });
+        NativeSearchQuery query = nativeSearchQueryBuilder.build();
+        SearchHits<DemandeEsRechercheDTO> searchHits = elasticsearchOperations.search(query, DemandeEsRechercheDTO.class);
+        return aggregateResults(searchHits, pageable);
+    }
 
-        return null;
+    /**
+     * Transforme l'objet retourné par la recherche en Page
+     *
+     * @param searchHits, Objet contenant les résultats de recherche
+     * @param pageable,   Objet contenant les informations sur la page à retourner
+     * @return Page
+     */
+    private Page<DemandeEsRechercheDTO> aggregateResults(SearchHits<DemandeEsRechercheDTO> searchHits, Pageable pageable) {
+        if (searchHits.isEmpty()) {
+            return Page.empty(pageable);
+        }
 
+        List<DemandeEsRechercheDTO> demandesEsList = new ArrayList<>();
+        for (SearchHit<DemandeEsRechercheDTO> searchHit : searchHits) {
+            DemandeEsRechercheDTO demandeEsRechercheDTO = searchHit.getContent();
+
+            Map<String, List<String>> highlightFields = searchHit.getHighlightFields();
+            Map<String, String> demEsHighlightFields = new HashMap<>();
+            updateHighLightedFieldList(highlightFields, demEsHighlightFields, false, false, false);
+
+            Map<String, SearchHits<?>> innerHits = searchHit.getInnerHits();
+            aggregateInnerFields(innerHits, demEsHighlightFields);
+
+            demandeEsRechercheDTO.setHighlightedField(demEsHighlightFields);
+            demandesEsList.add(demandeEsRechercheDTO);
+        }
+
+        return new PageImpl<>(demandesEsList, pageable, searchHits.getTotalHits());
+    }
+
+    /**
+     * Méthode ajoutant les mots trouvées dans les fichiers lors de la recherche
+     *
+     * @param innerHits,            une Map contenant les mots trouvés dans les fichiers
+     * @param demEsHighlightFields, la map contenant tous les résultats de la recherche
+     */
+    private void aggregateInnerFields(Map<String, SearchHits<?>> innerHits, Map<String, String> demEsHighlightFields) {
+        for (Entry<String, SearchHits<?>> searchHitsEntry : innerHits.entrySet()) {
+            SearchHits<?> searchHitsArray = searchHitsEntry.getValue();
+            for (SearchHit<?> searchInnerHit : searchHitsArray) {
+                DemandeEsRechercheDTO content = (DemandeEsRechercheDTO) searchInnerHit.getContent();
+                String type = content.getFichierType();
+                boolean isInternalFile = type.equals(DemandeFileEsDTO.TYPE.FICHIER_INTERNE.name());
+                boolean isComplement = type.equals(DemandeFileEsDTO.TYPE.COMPLEMENT.name());
+                boolean isCourrier = type.equals(DemandeFileEsDTO.TYPE.COURRIER.name());
+                updateHighLightedFieldList(searchInnerHit.getHighlightFields(),
+                        demEsHighlightFields, isInternalFile, isComplement, isCourrier);
+            }
+        }
     }
 
     @Override
@@ -959,6 +956,58 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      *                             effectutée
      * @param isInternalFile       Boolean pour indiquer si on recherche dans les champs d'un fichier de type Fichier interne
      * @param isComplement         Boolean pour indiquer si on recherche dans les champs d'un fichier de type complement
+     */
+    private void updateHighLightedFieldList(Map<String, List<String>> highlightFields,
+                                            Map<String, String> demEsHighlightFields, boolean isInternalFile, boolean isComplement, boolean isCourrier) {
+        for (Entry<String, List<String>> entry : highlightFields.entrySet()) {
+            List<String> fragments = entry.getValue();
+            if (!fragments.isEmpty()) {
+                String champs = entry.getKey();
+
+                // Construction du nom du champs
+                StringBuilder fragmentFieldBuilder = new StringBuilder((propertiesFields.get(champs) != null) ? propertiesFields.get(champs) : champs);
+
+                // Ajout du préfixe
+                if (isComplement) {
+                    fragmentFieldBuilder.insert(0, FILE_COMPLEMENT_HIGHLIGHT_AND_FACET_PREFIX);
+                } else if (isCourrier) {
+                    fragmentFieldBuilder.insert(0, COURRIER_FILE_HIGHLIGHT_AND_FACET_PREFIX);
+                } else if (isInternalFile) {
+                    fragmentFieldBuilder.insert(0, INTERNAL_FILE_HIGHLIGHT_AND_FACET_PREFIX);
+                }
+
+                // Vérification du champs
+                String fragmentField = fragmentFieldBuilder.toString();
+                if (fichiersFieldsToExclude.contains(fragmentField)) {
+                    // On ne veut pas afficher ce champs, donc on continue la boucle for
+                    continue;
+                }
+
+                final String fragmentEdge = "...";
+                final String fragmentSeparation = fragmentEdge + "<br/>" + fragmentEdge;
+                String fragmentsAsString = fragments.stream().collect(Collectors.joining(fragmentSeparation));
+                StringBuilder fragmentsSB = new StringBuilder(fragmentsAsString);
+                if (fragments.size() > 1) {
+                    fragmentsSB.insert(0, fragmentEdge).append(fragmentEdge);
+                }
+
+                demEsHighlightFields.put(fragmentField, fragmentsSB.toString().replace("'", "&quot;")
+                        .replace("\"", "\\\"").replace(highlightPretags.replace("\"", "\\\""), highlightPretags));
+            }
+        }
+    }
+
+    /**
+     * Méthode permettant de construire la map ayant comme clé le champ ou la recherche à été faite et comme valeur les
+     * fragments contenant le résultat de recherche.<br/>
+     * Les mots clés de la recherche sont entourés par des balises qui les mettent en évidence
+     *
+     * @param highlightFields      Map des conetant les fragments surlignés récupérée de la recherche elasticsearch
+     * @param demEsHighlightFields Map Contenant les fragments avec les mots clés surlignés associés aux champs ou la recherche a été
+     *                             effectutée
+     * @param isInternalFile       Boolean pour indiquer si on recherche dans les champs d'un fichier de type Fichier interne
+     * @param isComplement         Boolean pour indiquer si on recherche dans les champs d'un fichier de type complement
+     * @deprecated changer HighLightField pour List
      */
     private void updateHighLightedField(Map<String, HighlightField> highlightFields,
                                         Map<String, String> demEsHighlightFields, boolean isInternalFile, boolean isComplement, boolean isCourrier) {
@@ -1130,7 +1179,6 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                 boolQueryBuilder = getQueryWhereFacetNotClicked(demandeQueryStringQueryBuilder,
                         filesQueryStringQueryBuilder, demandeRecherche.getTexte(), boolQueryBuilder);
             }
-
         }
 
         return getUiFilterQuery(boolQueryBuilder, demandeRecherche);

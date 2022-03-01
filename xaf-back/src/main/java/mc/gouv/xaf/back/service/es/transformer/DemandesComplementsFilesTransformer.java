@@ -18,9 +18,9 @@ public class DemandesComplementsFilesTransformer
 
     public static DemandeFileEsDTO toEs(DemandesComplementsFilesBO bo, String parent) {
         DemandeFileEsDTO dto = new DemandeFileEsDTO(parent);
-        dto.getFichiers().setName(bo.getName());
-        dto.getFichiers().setUrl(bo.getUrl());
-        dto.getFichiers().setMeta(bo.getMeta());
+        dto.setFichierName(bo.getName());
+        dto.setFichierUrl(bo.getUrl());
+        dto.setFichierMeta(bo.getMeta());
         return dto;
     }
 

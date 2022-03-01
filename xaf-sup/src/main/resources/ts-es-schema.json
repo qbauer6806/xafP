@@ -459,136 +459,101 @@
           }
         }
       },
-      "fichiers": {
-        "properties": {
-          "content": {
+      "fichierContent": {
+        "type": "text",
+        "analyzer": "ngram",
+        "search_analyzer": "keyword_lowercase",
+        "term_vector": "with_positions_offsets",
+        "fields": {
+          "de": {
             "type": "text",
-            "analyzer": "ngram",
-            "search_analyzer": "keyword_lowercase",
-            "term_vector": "with_positions_offsets",
-            "fields": {
-              "de": {
-                "type": "text",
-                "analyzer": "german",
-                "search_analyzer": "german",
-                "term_vector": "with_positions_offsets"
-              },
-              "en": {
-                "type": "text",
-                "analyzer": "english",
-                "search_analyzer": "english",
-                "term_vector": "with_positions_offsets"
-              },
-              "es": {
-                "type": "text",
-                "analyzer": "spanish",
-                "search_analyzer": "spanish",
-                "term_vector": "with_positions_offsets"
-              },
-              "fr": {
-                "type": "text",
-                "analyzer": "french",
-                "search_analyzer": "french",
-                "term_vector": "with_positions_offsets"
-              },
-              "it": {
-                "type": "text",
-                "analyzer": "italian",
-                "search_analyzer": "italian",
-                "term_vector": "with_positions_offsets"
-              }
-            }
+            "analyzer": "german",
+            "search_analyzer": "german",
+            "term_vector": "with_positions_offsets"
           },
-          "language": {
+          "en": {
             "type": "text",
-            "analyzer": "default",
-            "search_analyzer": "keyword_lowercase",
-            "fields": {
-              "keyword": {
-                "type": "keyword",
-                "ignore_above": 256
-              }
-            }
+            "analyzer": "english",
+            "search_analyzer": "english",
+            "term_vector": "with_positions_offsets"
           },
-          "name": {
+          "es": {
             "type": "text",
-            "fields": {
-              "keyword": {
-                "type": "keyword",
-                "ignore_above": 256
-              }
-            }
+            "analyzer": "spanish",
+            "search_analyzer": "spanish",
+            "term_vector": "with_positions_offsets"
           },
-          "url": {
+          "fr": {
             "type": "text",
-            "analyzer": "default",
-            "search_analyzer": "keyword_lowercase",
-            "fields": {
-              "keyword": {
-                "type": "keyword",
-                "ignore_above": 256
-              }
-            }
+            "analyzer": "french",
+            "search_analyzer": "french",
+            "term_vector": "with_positions_offsets"
           },
-          "id": {
-            "type": "keyword"
-          },
-          "type": {
+          "it": {
+            "type": "text",
+            "analyzer": "italian",
+            "search_analyzer": "italian",
+            "term_vector": "with_positions_offsets"
+          }
+        }
+      },
+      "fichierLanguage": {
+        "type": "text",
+        "analyzer": "default",
+        "search_analyzer": "keyword_lowercase",
+        "fields": {
+          "keyword": {
             "type": "keyword",
-            "store": true
-          },
-          "statut": {
-            "type": "text",
-            "analyzer": "default",
-            "search_analyzer": "keyword_lowercase",
-            "fields": {
-              "keyword": {
-                "type": "keyword",
-                "ignore_above": 256
-              }
-            }
-          },
-          "dateCreation": {
-            "type": "date"
-          },
-          "pkDemande": {
-            "type": "long"
-          },
-          "pkDemandeFile": {
-            "type": "long"
-          },
-          "identifiant": {
-            "type": "text",
-            "analyzer": "default",
-            "search_analyzer": "keyword_lowercase",
-            "fields": {
-              "keyword": {
-                "type": "keyword",
-                "ignore_above": 256
-              }
-            }
-          },
-          "demandeId": {
-            "type": "text",
-            "analyzer": "default",
-            "search_analyzer": "keyword_lowercase",
-            "fields": {
-              "keyword": {
-                "type": "keyword",
-                "ignore_above": 256
-              }
-            }
-          },
-          "identifiantDemande": {
-            "type": "text",
-            "analyzer": "default",
-            "search_analyzer": "keyword_lowercase",
-            "fields": {
-              "keyword": {
-                "type": "keyword",
-                "ignore_above": 256
-              }
-            }
+            "ignore_above": 256
+          }
+        }
+      },
+      "fichierName": {
+        "type": "text",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "fichierUrl": {
+        "type": "text",
+        "analyzer": "default",
+        "search_analyzer": "keyword_lowercase",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "fichierType": {
+        "type": "keyword",
+        "store": true
+      },
+      "fichierStatut": {
+        "type": "text",
+        "analyzer": "default",
+        "search_analyzer": "keyword_lowercase",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
+          }
+        }
+      },
+      "FichierPkDemandeFile": {
+        "type": "long"
+      },
+      "identifiantDemande": {
+        "type": "text",
+        "analyzer": "default",
+        "search_analyzer": "keyword_lowercase",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "ignore_above": 256
           }
         }
       }

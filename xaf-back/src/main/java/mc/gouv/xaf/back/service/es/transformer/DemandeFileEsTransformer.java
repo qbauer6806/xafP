@@ -68,15 +68,15 @@ public class DemandeFileEsTransformer {
                                              DemandeFileDTO fichier) throws IOException {
         if (fichier != null) {
             DemandeFileEsDTO demandeFileEsDTO = new DemandeFileEsDTO(demande.getIdentifiant());
-            demandeFileEsDTO.getFichiers().setMeta(fichier.getMeta());
-            demandeFileEsDTO.getFichiers().setName(fichier.getName());
-            demandeFileEsDTO.getFichiers().setUrl(fichier.getUrl());
-            demandeFileEsDTO.getFichiers().setType(type.name());
-            demandeFileEsDTO.getFichiers().setPkDemande(demande.getPkDemandes());
-            demandeFileEsDTO.getFichiers().setIdentifiantDemande(demande.getIdentifiant());
-            demandeFileEsDTO.getFichiers().setTypedoc(fichier.getTypedoc());
-            demandeFileEsDTO.getFichiers().setContent(getFileText(fichier.getUrl(), demande.getDemarcheId()));
-            demandeFileEsDTO.getFichiers().setLanguage(demande.getLangue());
+            demandeFileEsDTO.setFichierMeta(fichier.getMeta());
+            demandeFileEsDTO.setFichierName(fichier.getName());
+            demandeFileEsDTO.setFichierUrl(fichier.getUrl());
+            demandeFileEsDTO.setFichierType(type.name());
+            demandeFileEsDTO.setPkDemandes(demande.getPkDemandes());
+            demandeFileEsDTO.setIdentifiantDemande(demande.getIdentifiant());
+            demandeFileEsDTO.setFichierTypedoc(fichier.getTypedoc());
+            demandeFileEsDTO.setFichierContent(getFileText(fichier.getUrl(), demande.getDemarcheId()));
+            demandeFileEsDTO.setFichierLanguage(demande.getLangue());
             return demandeFileEsDTO;
         }
         return null;
@@ -95,19 +95,19 @@ public class DemandeFileEsTransformer {
                                           DemandeCourrierDTO fichier) throws IOException {
         if (fichier != null) {
             DemandeFileEsDTO demandeFileEsDTO = new DemandeFileEsDTO(demande.getIdentifiant());
-            demandeFileEsDTO.getFichiers().setMeta(fichier.getMeta());
-            demandeFileEsDTO.getFichiers().setName(fichier.getName());
-            demandeFileEsDTO.getFichiers().setUrl(fichier.getUrl());
-            demandeFileEsDTO.getFichiers().setType(type.name());
-            demandeFileEsDTO.getFichiers().setIdentifiantDemande(demande.getIdentifiant());
-            demandeFileEsDTO.getFichiers().setIdentifiant(fichier.getIdentifiant());
-            demandeFileEsDTO.getFichiers().setPkDemandeFile(fichier.getPkCourrier());
-            demandeFileEsDTO.getFichiers().setDateCreation(fichier.getDateCreation());
-            demandeFileEsDTO.getFichiers().setPkDemande(demande.getPkDemandes());
-            demandeFileEsDTO.getFichiers().setStatut(fichier.getFkStatut().getLibelle());
-            demandeFileEsDTO.getFichiers().setDatePrinted(fichier.getDatePrinted());
-            demandeFileEsDTO.getFichiers().setContent(getFileText(fichier.getUrl(), demande.getDemarcheId()));
-            demandeFileEsDTO.getFichiers().setLanguage(demande.getLangue());
+            demandeFileEsDTO.setFichierMeta(fichier.getMeta());
+            demandeFileEsDTO.setFichierName(fichier.getName());
+            demandeFileEsDTO.setFichierUrl(fichier.getUrl());
+            demandeFileEsDTO.setFichierType(type.name());
+            demandeFileEsDTO.setIdentifiantDemande(demande.getIdentifiant());
+            demandeFileEsDTO.setIdentifiant(fichier.getIdentifiant());
+            demandeFileEsDTO.setFichierPkDemandeFile(fichier.getPkCourrier());
+            demandeFileEsDTO.setDateCreation(fichier.getDateCreation());
+            demandeFileEsDTO.setPkDemandes(demande.getPkDemandes());
+            demandeFileEsDTO.setFichierStatut(fichier.getFkStatut().getLibelle());
+            demandeFileEsDTO.setFichierDatePrinted(fichier.getDatePrinted());
+            demandeFileEsDTO.setFichierContent(getFileText(fichier.getUrl(), demande.getDemarcheId()));
+            demandeFileEsDTO.setFichierLanguage(demande.getLangue());
             return demandeFileEsDTO;
         }
         return null;

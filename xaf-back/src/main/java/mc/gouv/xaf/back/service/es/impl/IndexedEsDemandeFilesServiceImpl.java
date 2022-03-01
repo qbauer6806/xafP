@@ -222,7 +222,7 @@ public class IndexedEsDemandeFilesServiceImpl extends DemandeFilesServiceImpl im
         if (demandeFileEsDTOs != null) {
             for (DemandeFileEsDTO demFile : demandeFileEsDTOs) {
                 IndexQuery index = new IndexQuery();
-                index.setId(demFile.getFichiers().getPkDemande() + "-" + demFile.getFichiers().getId());
+                index.setId(demFile.getPkDemandes() + "-" + demFile.getIdentifiant());
                 index.setObject(demFile);
                 index.setParentId(demFile.getDemandeJoinField().getParent());
                 indexList.add(index);

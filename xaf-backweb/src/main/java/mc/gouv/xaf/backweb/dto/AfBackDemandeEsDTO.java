@@ -22,7 +22,7 @@ public class AfBackDemandeEsDTO extends DemandeEsRechercheDTO {
         setCourrierDateReception(demande.getCourrierDateReception());
         setCourrierRefInterne(demande.getCourrierRefInterne());
         setNomsCourriers(demande.getNomsCourriers());
-        setData(demande.getData());
+        // TODO setData(demande.getData());
         setDateCreation(demande.getDateCreation());
         setDateDerModif(demande.getDateDerModif());
         setDateDemande(demande.getDateDemande());
@@ -32,7 +32,7 @@ public class AfBackDemandeEsDTO extends DemandeEsRechercheDTO {
         setLangue(demande.getLangue());
         setObservations(demande.getObservations());
         setPkDemandes(demande.getPkDemandes());
-        setStatuts(demande.getStatuts());
+        // TODO setStatuts(demande.getStatuts());
         setAgentAffecteNomAffichage(demande.getAgentAffecteNomAffichage());
     }
 
@@ -42,7 +42,7 @@ public class AfBackDemandeEsDTO extends DemandeEsRechercheDTO {
         setCourrierDateReception(demande.getCourrierDateReception());
         setCourrierRefInterne(demande.getCourrierRefInterne());
         setNomsCourriers(demande.getNomsCourriers());
-        setData(demande.getData());
+        // TODO setData(demande.getData());
         setDateCreation(demande.getDateCreation());
         setDateDerModif(demande.getDateDerModif());
         setDateDemande(demande.getDateDemande());
@@ -52,7 +52,7 @@ public class AfBackDemandeEsDTO extends DemandeEsRechercheDTO {
         setLangue(demande.getLangue());
         setObservations(demande.getObservations());
         setPkDemandes(demande.getPkDemandes());
-        setStatuts(demande.getStatuts());
+        // TODO setStatuts(demande.getStatuts());
         setHighlightedField(demande.getHighlightedField());
         setAgentAffecteNomAffichage(demande.getAgentAffecteNomAffichage());
     }

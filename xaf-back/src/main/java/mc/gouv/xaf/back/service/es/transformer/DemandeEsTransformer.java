@@ -135,7 +135,7 @@ public class DemandeEsTransformer {
 
         ObjectMapper mapper = new ObjectMapper();
         JsonNode contenu = mapper.readTree(demande.getContenu());
-        demandeEsDTO.setContenu(transformContenu(contenu));
+        demandeEsDTO.setContenu(transformContenu(contenu, demande.getBuildId()));
         demandeEsDTO.setCourrierDateReception(demande.getCourrierDateReception());
         demandeEsDTO.setCourrierRefInterne(demande.getCourrierRefInterne());
         
@@ -150,6 +150,7 @@ public class DemandeEsTransformer {
         }
         demandeEsDTO.setAgentAffecteId(demande.getAgentAffecteId());
 
+        /* // TODO
         JsonNode data = mapper.createObjectNode();
         if (demande.getData() != null) {
             for (DemandesDataBO demandesDataBO : demande.getData()) {
@@ -157,6 +158,7 @@ public class DemandeEsTransformer {
             }
         }
         demandeEsDTO.setData(transformData(data));
+        */
         demandeEsDTO.setDateCreation(demande.getDateCreation());
         demandeEsDTO.setDateDerModif(demande.getDateDerModif());
         demandeEsDTO.setDernierStatut(
@@ -168,7 +170,7 @@ public class DemandeEsTransformer {
         demandeEsDTO.setPkDemandes(demande.getPkDemandes());
         Set<DemandeStatutEsDTO> statuts = demandesStatutsEsTransformer.bo2Dto(demande.getStatuts(),
                 demande.getPkDemandes());
-        demandeEsDTO.setStatuts(statuts.toArray(new DemandeStatutEsDTO[statuts.size()]));
+        // TODO demandeEsDTO.setStatuts(statuts.toArray(new DemandeStatutEsDTO[statuts.size()]));
 
         if (demande.getAgentAffecteId() != null) {
             User user = utilisateursCache.get(demande.getAgentAffecteId());
@@ -210,7 +212,7 @@ public class DemandeEsTransformer {
             }
         }
 
-        demandeEsDTO.setContenu(transformContenu(demandeDTO.getContenu()));
+        demandeEsDTO.setContenu(transformContenu(demandeDTO.getContenu(), demandeDTO.getBuildId()));
         demandeEsDTO.setCourrierDateReception(demandeDTO.getCourrierDateReception());
         demandeEsDTO.setCourrierRefInterne(demandeDTO.getCourrierRefInterne());
         
@@ -224,6 +226,7 @@ public class DemandeEsTransformer {
 
         demandeEsDTO.setAgentAffecteId(demandeDTO.getAgentAffecteId());
 
+        /* TODO
         ObjectMapper mapper = new ObjectMapper();
         JsonNode data = mapper.createObjectNode();
         if (demandeDTO.getData() != null) {
@@ -232,6 +235,7 @@ public class DemandeEsTransformer {
             }
         }
         demandeEsDTO.setData(transformData(data));
+         */
         demandeEsDTO.setDateCreation(demandeDTO.getDateCreation());
         demandeEsDTO.setDateDerModif(demandeDTO.getDateDerModif());
         demandeEsDTO.setDernierStatut(
@@ -241,8 +245,8 @@ public class DemandeEsTransformer {
         demandeEsDTO.setLangue(demandeDTO.getLangue());
         demandeEsDTO.setObservations(demandeDTO.getObservations());
         demandeEsDTO.setPkDemandes(demandeDTO.getPkDemandes());
-        demandeEsDTO.setStatuts(demandesStatutsEsTransformer.toEs(demandeDTO.getStatuts(), demandeDTO.getPkDemandes()));
-        demandeEsDTO.setUpdated(demandeDTO.isUpdated());
+        // TODO demandeEsDTO.setStatuts(demandesStatutsEsTransformer.toEs(demandeDTO.getStatuts(), demandeDTO.getPkDemandes()));
+        // TODO demandeEsDTO.setUpdated(demandeDTO.isUpdated());
 
         if (demandeEsDTO.getAgentAffecteId() != null) {
             User user = utilisateursCache.get(demandeDTO.getAgentAffecteId());
@@ -252,7 +256,7 @@ public class DemandeEsTransformer {
         // Justificatifs de traitment dans l'historique de la demande
         List<String> justifs = getJustificatifsTraitement(gouvPropertiesResolver.getDemarcheId(),
                 demandeDTO.getPkDemandes());
-        demandeEsDTO.setJustificatifsTraitement(justifs);
+        // TODO demandeEsDTO.setJustificatifsTraitement(justifs);
 
         return demandeEsDTO;
     }
@@ -343,13 +347,12 @@ public class DemandeEsTransformer {
                 DemandeStatutDTO statutDto = DemandesStatutsTransformer.bo2Dto(statut);
                 // Cacher l'agentId au Front Office
                 statutDto.setAgentId(null);
-                dto.setStatuts(
-                        new DemandeStatutEsDTO[] { demandesStatutsEsTransformer.toEs(statutDto, bo.getPkDemandes()) });
+               // TODO dto.setStatuts(new DemandeStatutEsDTO[] { demandesStatutsEsTransformer.toEs(statutDto, bo.getPkDemandes()) });
             } else {
                 // Back Office : tout remonter
                 Set<DemandeStatutEsDTO> statuts = demandesStatutsEsTransformer.bo2Dto(bo.getStatuts(),
                         bo.getPkDemandes());
-                dto.setStatuts(statuts.toArray(new DemandeStatutEsDTO[statuts.size()]));
+               // TODO dto.setStatuts(statuts.toArray(new DemandeStatutEsDTO[statuts.size()]));
             }
         }
         // Mapper le "dernier statut"
@@ -385,9 +388,8 @@ public class DemandeEsTransformer {
         
         dto.setStatutPublicOuInterne(demarchesDataProvider.getStatutPublicOuInterne(bo.getPkDemandes(), bo.getDernierStatut().getLibelle()).getName());
 
-        // Mapper les données de demande
-        if (addDataField) {
-
+        // TOSO Mapper les données de demande
+       /* if (addDataField) {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode data = mapper.createObjectNode();
             if (bo.getData() != null) {
@@ -396,18 +398,18 @@ public class DemandeEsTransformer {
                 }
             }
             dto.setData(transformData(data));
-        }
+        }*/
 
         ObjectMapper mapper = new ObjectMapper();
         try {
-            dto.setContenu(transformContenu(mapper.readTree(bo.getContenu())));
+            dto.setContenu(transformContenu(mapper.readTree(bo.getContenu()), bo.getBuildId()));
         } catch (IOException e) {
             LOGGER.error("Erreur lors de la conversion JSON", e);
         }
 
         // Justificatifs de traitment dans l'historique de la demande
         List<String> justifs = getJustificatifsTraitement(gouvPropertiesResolver.getDemarcheId(), bo.getPkDemandes());
-        dto.setJustificatifsTraitement(justifs);
+       // TODO dto.setJustificatifsTraitement(justifs);
 
         return dto;
     }
@@ -430,15 +432,17 @@ public class DemandeEsTransformer {
         return null;
     }
 
-    private JsonNode transformContenu(JsonNode jsonNode) {
-
+    private GenericContenuEsDTO transformContenu(JsonNode node, String buildId) {
         if (indexedDemandeJsonNodeTransformer != null) {
-            return indexedDemandeJsonNodeTransformer.transform(jsonNode);
+            return indexedDemandeJsonNodeTransformer.buildGenericContenu(node, buildId);
         }
-
-        return jsonNode;
+        return null;
     }
 
+    /**
+     * TODO
+     * @deprecated ES n'a plus de mapper JSON
+     */
     private JsonNode transformData(JsonNode jsonNode) {
 
         if (indexedDemandeDataJsonNodeTransformer != null) {

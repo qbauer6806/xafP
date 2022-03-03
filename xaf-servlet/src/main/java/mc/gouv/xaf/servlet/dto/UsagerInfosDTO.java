@@ -64,7 +64,9 @@ public class UsagerInfosDTO implements Serializable {
     
     protected KeycloakTokenInfo tokenInfo;
     
-    protected MConnectUsagerInfosDTO mConnectUsagerInfo;
+    protected InfosCertifieesUsagerInfosDTO infosCertifiees;
+    
+    protected boolean mConnect = false;
 
     public String getTitreLabel() {
         if (titre == null) {
@@ -265,12 +267,20 @@ public class UsagerInfosDTO implements Serializable {
 		this.tokenInfo = tokenInfo;
 	}
 
-	public MConnectUsagerInfosDTO getmConnectUsagerInfo() {
-		return mConnectUsagerInfo;
+	public InfosCertifieesUsagerInfosDTO getInfosCertifiees() {
+		return infosCertifiees;
 	}
 
-	public void setmConnectUsagerInfo(MConnectUsagerInfosDTO mConnectUsagerInfo) {
-		this.mConnectUsagerInfo = mConnectUsagerInfo;
+	public void setInfosCertifiees(InfosCertifieesUsagerInfosDTO infosCertifiees) {
+		this.infosCertifiees = infosCertifiees;
+	}
+
+	public boolean ismConnect() {
+		return mConnect;
+	}
+
+	public void setmConnect(boolean mConnect) {
+		this.mConnect = mConnect;
 	}
 
 }

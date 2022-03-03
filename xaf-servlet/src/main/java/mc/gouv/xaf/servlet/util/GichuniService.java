@@ -68,8 +68,14 @@ public class GichuniService {
 			}
 			n = node.get("login");
 			if (n instanceof TextNode) {
-				String login = n.asText();
-				uinfos.setLogin(login);
+				// Mettre "" si usager MConnect
+				if (uinfos.ismConnect()) {
+					uinfos.setLogin("");
+				}
+				else {
+					String login = n.asText();
+					uinfos.setLogin(login);
+				}
 			}
 			JsonNode sh = (JsonNode)node.get("etat");
 			if (sh instanceof IntNode) {

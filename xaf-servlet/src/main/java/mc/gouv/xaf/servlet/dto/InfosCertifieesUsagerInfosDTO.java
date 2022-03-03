@@ -7,13 +7,13 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class MConnectUsagerInfosDTO {
+public class InfosCertifieesUsagerInfosDTO {
 
 	@JsonProperty("given_name")
-	private String givenName;
+	private String prenom;
 	
 	@JsonProperty("family_name")
-	private String familyName;
+	private String nom;
 	
 	@JsonProperty("birth_name")
 	private String birthName;
@@ -34,21 +34,24 @@ public class MConnectUsagerInfosDTO {
 	
 	@JsonProperty("birth_place_city")
 	private String birthPlaceCity;
+	
+	// Champ calculé par xaf-servlet à partir de "gender"
+	private Short titre;
 
-	public String getGivenName() {
-		return givenName;
+	public String getPrenom() {
+		return prenom;
 	}
 
-	public void setGivenName(String givenName) {
-		this.givenName = givenName;
+	public void setPrenom(String prenom) {
+		this.prenom = prenom;
 	}
 
-	public String getFamilyName() {
-		return familyName;
+	public String getNom() {
+		return nom;
 	}
 
-	public void setFamilyName(String familyName) {
-		this.familyName = familyName;
+	public void setNom(String nom) {
+		this.nom = nom;
 	}
 
 	public String getBirthName() {
@@ -64,6 +67,12 @@ public class MConnectUsagerInfosDTO {
 	}
 
 	public void setGender(String gender) {
+		if ("M".equals(gender)) {
+			titre = 0;
+		}
+		else if ("F".equals(gender)) {
+			titre = 1;
+		}
 		this.gender = gender;
 	}
 
@@ -107,9 +116,17 @@ public class MConnectUsagerInfosDTO {
 		this.birthPlaceCity = birthPlaceCity;
 	}
 
+	public Short getTitre() {
+		return titre;
+	}
+
+	public void setTitre(Short titre) {
+		this.titre = titre;
+	}
+
 	@Override
 	public String toString() {
-		return "MConnectUsagerInfosDTO [givenName=" + givenName + ", familyName=" + familyName + ", birthName="
+		return "MConnectUsagerInfosDTO [givenName=" + prenom + ", familyName=" + nom + ", birthName="
 				+ birthName + ", gender=" + gender + ", birthPlace=" + birthPlace + ", birthDatetime=" + birthDatetime
 				+ ", authority=" + authority + ", birthPlaceCountry=" + birthPlaceCountry + ", birthPlaceCity="
 				+ birthPlaceCity + "]";

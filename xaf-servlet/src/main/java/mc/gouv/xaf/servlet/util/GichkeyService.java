@@ -34,7 +34,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
 import mc.gouv.xaf.servlet.dto.KeycloakTokenInfo;
-import mc.gouv.xaf.servlet.dto.MConnectUsagerInfosDTO;
+import mc.gouv.xaf.servlet.dto.InfosCertifieesUsagerInfosDTO;
 import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
 import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
 
@@ -173,9 +173,12 @@ public class GichkeyService {
         JsonNode mconnect = node.get("mconnect-identity");
         if (mconnect != null && !(mconnect instanceof NullNode)) {
         	try {
-				MConnectUsagerInfosDTO mConnectUInfos = new ObjectMapper().treeToValue(mconnect, MConnectUsagerInfosDTO.class);
-				uinfos.setmConnectUsagerInfo(mConnectUInfos);
+				InfosCertifieesUsagerInfosDTO mConnectUInfos = new ObjectMapper().treeToValue(mconnect, InfosCertifieesUsagerInfosDTO.class);
+				uinfos.setInfosCertifiees(mConnectUInfos);
 				LOGGER.info("Informations MConnect disponibles : " + mConnectUInfos);
+				uinfos.setmConnect(true);
+				// Mettre login à "" si usager MConnect
+				uinfos.setLogin("");
 			} catch (JsonProcessingException e) {
 				LOGGER.error("Erreur lors du mConnectUInfos = new ObjectMapper().treeToValue()", e);
 			}

@@ -15,7 +15,6 @@ import mc.gouv.xaf.back.data.entity.BrouillonBO;
 import mc.gouv.xaf.back.data.entity.BrouillonsFilesBO;
 import mc.gouv.xaf.shared.dto.BrouillonDTO;
 import mc.gouv.xaf.shared.dto.BrouillonFileDTO;
-import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
 
 /**
  * 
@@ -56,6 +55,7 @@ public class BrouillonsTransformer {
         }
         dto.setBuildId(bo.getBuildId());
         dto.setRecapType(bo.getRecapType());
+        dto.setMeta(bo.getMeta());
         return dto;
     }
 
@@ -97,6 +97,7 @@ public class BrouillonsTransformer {
         } catch (JsonProcessingException e) {
             LOGGER.error("Erreur lors de la conversion JSON", e);
         }
+        bo.setMeta(dto.getMeta());
         return bo;
     }
 

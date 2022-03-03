@@ -36,6 +36,8 @@ public class BrouillonDTO {
     private String buildId;
     
     private String recapType;
+    
+    private String meta;
 
 	public Integer getPkBrouillons() {
 		return pkBrouillons;
@@ -115,6 +117,14 @@ public class BrouillonDTO {
 
 	public void setRecapType(String recapType) {
 		this.recapType = recapType;
+	}
+
+	public String getMeta() {
+		return meta;
+	}
+
+	public void setMeta(String meta) {
+		this.meta = meta;
 	}
 
 	@Override

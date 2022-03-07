@@ -35,6 +35,7 @@ public class DemandeEsDTO /* TODO extends AbstractDemandeDTO*/ {
     private Date courrierDateReception;
     private String courrierRefInterne;
     private String creeParAgentId;
+    private GenericDemandeDataEsDTO data;
     @JsonFormat(locale = "fr", shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", timezone = "GMT+1")
     private Date dateCreation;
     @JsonFormat(locale = "fr", shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", timezone = "GMT+1")
@@ -56,7 +57,6 @@ public class DemandeEsDTO /* TODO extends AbstractDemandeDTO*/ {
     private UsagerEsDTO usager;
 
     // TODO private DemandeStatutEsDTO[] statuts;
-    // TODO private JsonNode data;
     // TODO private List<String> justificatifsTraitement;
 
     // Fichiers
@@ -150,6 +150,14 @@ public class DemandeEsDTO /* TODO extends AbstractDemandeDTO*/ {
 
     public void setCreeParAgentId(String creeParAgentId) {
         this.creeParAgentId = creeParAgentId;
+    }
+
+    public GenericDemandeDataEsDTO getData() {
+        return data;
+    }
+
+    public void setData(GenericDemandeDataEsDTO data) {
+        this.data = data;
     }
 
     public Date getDateCreation() {

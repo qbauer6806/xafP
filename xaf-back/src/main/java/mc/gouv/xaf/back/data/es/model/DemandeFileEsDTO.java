@@ -1,6 +1,7 @@
 package mc.gouv.xaf.back.data.es.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 
@@ -55,6 +56,19 @@ public class DemandeFileEsDTO {
      * @deprecated les jointures seront supprimées dans ES8
      */
     public DemandeFileEsDTO(String parent) {
+        this.identifiantDemande = parent;
+        setDemandeJoinField(new DemandeJoinFieldEsDTO(INDEX_FILES_JOIN_DOC, parent));
+    }
+
+    /**
+     * @deprecated les jointures seront supprimées dans ES8
+     */
+    public DemandeFileEsDTO(String parent, String url) {
+        this.identifiantDemande = parent;
+        this.url = url;
+        if (StringUtils.isNotEmpty(url)) {
+            this.identifiant = url.replace('/', '-');
+        }
         setDemandeJoinField(new DemandeJoinFieldEsDTO(INDEX_FILES_JOIN_DOC, parent));
     }
 

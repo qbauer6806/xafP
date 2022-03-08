@@ -21,6 +21,7 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
+import org.springframework.data.elasticsearch.core.RefreshPolicy;
 import org.springframework.data.elasticsearch.core.convert.ElasticsearchConverter;
 import org.springframework.data.elasticsearch.core.convert.MappingElasticsearchConverter;
 import org.springframework.data.elasticsearch.core.mapping.SimpleElasticsearchMappingContext;
@@ -95,7 +96,9 @@ public class EsConfigGouv {
 	@Bean
 	@Primary
 	public ElasticsearchRestTemplate elasticsearchTemplate() {
-		return new ElasticsearchRestTemplate(client(), elasticsearchConverter());
+		ElasticsearchRestTemplate template = new ElasticsearchRestTemplate(client(), elasticsearchConverter());
+		template.setRefreshPolicy(RefreshPolicy.IMMEDIATE);
+		return template;
 	}
 
 }

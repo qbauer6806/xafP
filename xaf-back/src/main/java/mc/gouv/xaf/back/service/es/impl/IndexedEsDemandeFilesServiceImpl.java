@@ -1,14 +1,10 @@
 package mc.gouv.xaf.back.service.es.impl;
 
 import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
-import mc.gouv.xaf.back.data.entity.DemandeBO;
-import mc.gouv.xaf.back.data.entity.DemandesComplementsBO;
-import mc.gouv.xaf.back.data.entity.DemandesCourriersBO;
+import mc.gouv.xaf.back.data.entity.*;
 import mc.gouv.xaf.back.data.es.model.DemandeFileEsDTO;
 import mc.gouv.xaf.back.data.es.model.EsErrorEventDTO;
 import mc.gouv.xaf.back.data.transformer.DemandesComplementsFilesTransformer;
-import mc.gouv.xaf.back.data.transformer.DemandesCourriersTransformer;
-import mc.gouv.xaf.back.data.transformer.DemandesFilesTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
 import mc.gouv.xaf.back.exception.AfIndexingException;
 import mc.gouv.xaf.back.service.data.DemandesService;
@@ -26,7 +22,6 @@ import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
-import org.glassfish.jersey.internal.guava.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +30,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Page;
+import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.convert.ElasticsearchConverter;
 import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
@@ -63,7 +59,7 @@ public class IndexedEsDemandeFilesServiceImpl extends DemandeFilesServiceImpl im
     @Autowired
     private DemandesService demandesService;
 
-    @Autowired
+     @Autowired
     private ApplicationEventPublisher applicationEventPublisher;
 
     @Autowired
@@ -229,7 +225,6 @@ public class IndexedEsDemandeFilesServiceImpl extends DemandeFilesServiceImpl im
 
             if (!indexList.isEmpty()) {
                 bulkIndex(indexList);
-                // TODO elasticsearchTemplate.refresh(DemandeFileEsDTO.class);
             }
 
         }
@@ -298,31 +293,17 @@ public class IndexedEsDemandeFilesServiceImpl extends DemandeFilesServiceImpl im
      */
     @Override
     public void fillFilesList(List<DemandeFileEsDTO> files, DemandeBO demande) throws IOException {
+        // Fichier interne de la demande
+        Set<DemandesFilesBO> demFiles = demande.getFiles();
+        files.addAll(demandeFileEsTransformer.getListFileEsContentFromFichiers(demFiles));
 
-        List<DemandeFileDTO> demFiles = DemandesFilesTransformer.bo2Dto(new ArrayList<>(demande.getFiles()));
+        // Courriers de la demande
+        Set<DemandesCourriersBO> demCourriers = demande.getCourriers();
+        files.addAll(demandeFileEsTransformer.getListFileEsContentFromCourriers(demCourriers));
 
-        demFiles.addAll(DemandeCourrierFilesTransformer.recupererCourriersDemandeFromBO(demande.getCourriers()));
-
+        // FLes demandes complémentaires (il faut récupérer les fichiers dans chacune d'entres elles)
         Set<DemandesComplementsBO> demComplements = demande.getDemandesComplements();
-        DemandeDTO demandeDTO = DemandesTransformer.bo2Dto(demande);
-
-        if (demComplements != null) {
-            for (DemandesComplementsBO demComplement : demComplements) {
-                List<DemandeFileDTO> cfiles = DemandesComplementsFilesTransformer.toDemandeFileDTO(demComplement.getFiles());
-                if (!cfiles.isEmpty()) {
-                    files.addAll(demandeFileEsTransformer.getListFileEsContent(demandeDTO, DemandeFileEsDTO.TYPE.COMPLEMENT, cfiles));
-                }
-            }
-        }
-
-        fillPjsAndFichiersInternesAndCourriers(demFiles, files, demandeDTO);
-
-        // Récupération des courriers
-        Set<DemandesCourriersBO> courrierBOs = demande.getCourriers();
-        if (courrierBOs != null) {
-            List<DemandeCourrierDTO> courriers = DemandesCourriersTransformer.bo2Dto(Lists.newArrayList(courrierBOs));
-            fillCourriers(courriers, files, demandeDTO);
-        }
+        files.addAll(demandeFileEsTransformer.getListFileEsContentFromComplements(demComplements));
     }
 
     /**

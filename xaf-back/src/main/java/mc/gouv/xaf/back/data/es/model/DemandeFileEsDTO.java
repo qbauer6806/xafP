@@ -14,9 +14,9 @@ public class DemandeFileEsDTO {
      * @deprecated les jointures seront supprimées dans ES8
      */
     public static final String INDEX_FILES_JOIN_DOC = "fichiers";
-    public static final String TYPE_FIELD = "fichierType";
+    public static final String TYPE_FIELD = "typeFichier";
     public static final String IDENTIFIANT_FIELD = "identifiant";
-    public static final String DATE_PRINTED_FIELD = "fichierDatePrinted";
+    public static final String DATE_PRINTED_FIELD = "datePrinted";
     /**
      * Id unique, différent de la pkDemandeFile (généré à partir de l'url et nom) et utilisé par ES
      */
@@ -27,20 +27,21 @@ public class DemandeFileEsDTO {
      */
     private DemandeJoinFieldEsDTO demandeJoinField;
     @NotNull
-    private String fichierName;
+    private String name;
     @NotNull
-    private String fichierUrl;
-    private String fichierMeta;
-    private String fichierContent;
-    private String fichierLanguage;
-    private String fichierType;
-    private String fichierStatut;
+    private String url;
+    private String meta;
+    private String content;
+    private String language;
+    private String typeFichier;
+    private String statut;
     @JsonFormat(locale = "fr", shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", timezone = "GMT+1")
     private Date dateCreation;
     private Integer pkDemandes;
-    private Integer fichierPkDemandeFile;
-    private String fichierTypedoc;
-    private Date fichierDatePrinted;
+    private Integer pkDemandeFile;
+    private String typedoc;
+    @JsonFormat(locale = "fr", shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", timezone = "GMT+1")
+    private Date datePrinted;
     /**
      * TODO Identifiant courrier (ref_interne sur la page gestioncourrier)
      */
@@ -80,60 +81,60 @@ public class DemandeFileEsDTO {
         this.demandeJoinField = demandeJoinField;
     }
 
-    public String getFichierName() {
-        return fichierName;
+    public String getName() {
+        return name;
     }
 
-    public void setFichierName(String fichierName) {
-        this.fichierName = fichierName;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getFichierUrl() {
-        return fichierUrl;
+    public String getUrl() {
+        return url;
     }
 
-    public void setFichierUrl(String fichierUrl) {
-        this.fichierUrl = fichierUrl;
+    public void setUrl(String url) {
+        this.url = url;
     }
 
-    public String getFichierMeta() {
-        return fichierMeta;
+    public String getMeta() {
+        return meta;
     }
 
-    public void setFichierMeta(String fichierMeta) {
-        this.fichierMeta = fichierMeta;
+    public void setMeta(String meta) {
+        this.meta = meta;
     }
 
-    public String getFichierContent() {
-        return fichierContent;
+    public String getContent() {
+        return content;
     }
 
-    public void setFichierContent(String fichierContent) {
-        this.fichierContent = fichierContent;
+    public void setContent(String content) {
+        this.content = content;
     }
 
-    public String getFichierLanguage() {
-        return fichierLanguage;
+    public String getLanguage() {
+        return language;
     }
 
-    public void setFichierLanguage(String fichierLanguage) {
-        this.fichierLanguage = fichierLanguage;
+    public void setLanguage(String language) {
+        this.language = language;
     }
 
-    public String getFichierType() {
-        return fichierType;
+    public String getTypeFichier() {
+        return typeFichier;
     }
 
-    public void setFichierType(String fichierType) {
-        this.fichierType = fichierType;
+    public void setTypeFichier(String typeFichier) {
+        this.typeFichier = typeFichier;
     }
 
-    public String getFichierStatut() {
-        return fichierStatut;
+    public String getStatut() {
+        return statut;
     }
 
-    public void setFichierStatut(String fichierStatut) {
-        this.fichierStatut = fichierStatut;
+    public void setStatut(String statut) {
+        this.statut = statut;
     }
 
     public Date getDateCreation() {
@@ -152,28 +153,28 @@ public class DemandeFileEsDTO {
         this.pkDemandes = pkDemandes;
     }
 
-    public Integer getFichierPkDemandeFile() {
-        return fichierPkDemandeFile;
+    public Integer getPkDemandeFile() {
+        return pkDemandeFile;
     }
 
-    public void setFichierPkDemandeFile(Integer fichierPkDemandeFile) {
-        this.fichierPkDemandeFile = fichierPkDemandeFile;
+    public void setPkDemandeFile(Integer pkDemandeFile) {
+        this.pkDemandeFile = pkDemandeFile;
     }
 
-    public String getFichierTypedoc() {
-        return fichierTypedoc;
+    public String getTypedoc() {
+        return typedoc;
     }
 
-    public void setFichierTypedoc(String fichierTypedoc) {
-        this.fichierTypedoc = fichierTypedoc;
+    public void setTypedoc(String typedoc) {
+        this.typedoc = typedoc;
     }
 
-    public Date getFichierDatePrinted() {
-        return fichierDatePrinted;
+    public Date getDatePrinted() {
+        return datePrinted;
     }
 
-    public void setFichierDatePrinted(Date fichierDatePrinted) {
-        this.fichierDatePrinted = fichierDatePrinted;
+    public void setDatePrinted(Date datePrinted) {
+        this.datePrinted = datePrinted;
     }
 
     public String getIdentifiantFichier() {

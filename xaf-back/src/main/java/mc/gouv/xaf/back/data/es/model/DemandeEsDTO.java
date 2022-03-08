@@ -1,10 +1,10 @@
 package mc.gouv.xaf.back.data.es.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 
-import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.List;
 
@@ -12,7 +12,7 @@ import java.util.List;
  * Modélise une demande
  */
 @Document(indexName = "#{@environment.getProperty('application.name')}", createIndex = false)
-public class DemandeEsDTO /* TODO extends AbstractDemandeDTO*/ {
+public class DemandeEsDTO {
 
     public static final String DERNIER_STATUT_FIELD_NAME = "dernierStatut";
     public static final String CANAL_FIELD_NAME = "canal";
@@ -21,7 +21,7 @@ public class DemandeEsDTO /* TODO extends AbstractDemandeDTO*/ {
     /**
      * @deprecated les jointures seront supprimées dans ES8
      */
-    public static final String JOIN_FIELD_NAME = "fichiers.demandeJoinField";
+    public static final String JOIN_FIELD_NAME = "demandeJoinField";
     public static final String DATA_FIELD_NAME = "data";
     public static final String DATE_DEMANDE_FIELD_NAME = "dateDemande";
     public static final String IDENTIFIANT_FIELD_NAME = "identifiant";
@@ -55,21 +55,24 @@ public class DemandeEsDTO /* TODO extends AbstractDemandeDTO*/ {
     private Integer pkDemandes;
     private String statutPublicOuInterne;
     private UsagerEsDTO usager;
+    private DemandeStatutEsDTO[] statuts;
+    private List<String> justificatifsTraitement;
 
-    // TODO private DemandeStatutEsDTO[] statuts;
-    // TODO private List<String> justificatifsTraitement;
+    @JsonIgnore
+    protected boolean updated = false;
 
-    // Fichiers
-    private String fichierName;
-    private String fichierUrl;
-    private String fichierMeta;
-    private String fichierContent;
-    private String fichierLanguage;
-    private String fichierType;
-    private String fichierStatut;
-    private Integer fichierPkDemandeFile;
-    private String fichierTypedoc;
-    private Date fichierDatePrinted;
+    // Champs pour récupérer les fichiers dans un DemandeEsRechercheDTO
+    private String name;
+    private String url;
+    private String meta;
+    private String content;
+    private String language;
+    private String typeFichier;
+    private String statut;
+    private Integer pkDemandeFile;
+    private String typedoc;
+    @JsonFormat(locale = "fr", shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", timezone = "GMT+1")
+    private Date datePrinted;
 
     public DemandeEsDTO() {
         super();
@@ -262,83 +265,107 @@ public class DemandeEsDTO /* TODO extends AbstractDemandeDTO*/ {
         this.usager = usager;
     }
 
-    public String getFichierName() {
-        return fichierName;
+    public DemandeStatutEsDTO[] getStatuts() {
+        return statuts;
     }
 
-    public void setFichierName(String fichierName) {
-        this.fichierName = fichierName;
+    public void setStatuts(DemandeStatutEsDTO[] statuts) {
+        this.statuts = statuts;
     }
 
-    public String getFichierUrl() {
-        return fichierUrl;
+    public List<String> getJustificatifsTraitement() {
+        return justificatifsTraitement;
     }
 
-    public void setFichierUrl(String fichierUrl) {
-        this.fichierUrl = fichierUrl;
+    public void setJustificatifsTraitement(List<String> justificatifsTraitement) {
+        this.justificatifsTraitement = justificatifsTraitement;
     }
 
-    public String getFichierMeta() {
-        return fichierMeta;
+    public boolean isUpdated() {
+        return updated;
     }
 
-    public void setFichierMeta(String fichierMeta) {
-        this.fichierMeta = fichierMeta;
+    public void setUpdated(boolean updated) {
+        this.updated = updated;
     }
 
-    public String getFichierContent() {
-        return fichierContent;
+    public String getName() {
+        return name;
     }
 
-    public void setFichierContent(String fichierContent) {
-        this.fichierContent = fichierContent;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getFichierLanguage() {
-        return fichierLanguage;
+    public String getUrl() {
+        return url;
     }
 
-    public void setFichierLanguage(String fichierLanguage) {
-        this.fichierLanguage = fichierLanguage;
+    public void setUrl(String url) {
+        this.url = url;
     }
 
-    public String getFichierType() {
-        return fichierType;
+    public String getMeta() {
+        return meta;
     }
 
-    public void setFichierType(String fichierType) {
-        this.fichierType = fichierType;
+    public void setMeta(String meta) {
+        this.meta = meta;
     }
 
-    public String getFichierStatut() {
-        return fichierStatut;
+    public String getContent() {
+        return content;
     }
 
-    public void setFichierStatut(String fichierStatut) {
-        this.fichierStatut = fichierStatut;
+    public void setContent(String content) {
+        this.content = content;
     }
 
-    public Integer getFichierPkDemandeFile() {
-        return fichierPkDemandeFile;
+    public String getLanguage() {
+        return language;
     }
 
-    public void setFichierPkDemandeFile(Integer fichierPkDemandeFile) {
-        this.fichierPkDemandeFile = fichierPkDemandeFile;
+    public void setLanguage(String language) {
+        this.language = language;
     }
 
-    public String getFichierTypedoc() {
-        return fichierTypedoc;
+    public String getTypeFichier() {
+        return typeFichier;
     }
 
-    public void setFichierTypedoc(String fichierTypedoc) {
-        this.fichierTypedoc = fichierTypedoc;
+    public void setTypeFichier(String typeFichier) {
+        this.typeFichier = typeFichier;
     }
 
-    public Date getFichierDatePrinted() {
-        return fichierDatePrinted;
+    public String getStatut() {
+        return statut;
     }
 
-    public void setFichierDatePrinted(Date fichierDatePrinted) {
-        this.fichierDatePrinted = fichierDatePrinted;
+    public void setStatut(String statut) {
+        this.statut = statut;
+    }
+
+    public Integer getPkDemandeFile() {
+        return pkDemandeFile;
+    }
+
+    public void setPkDemandeFile(Integer pkDemandeFile) {
+        this.pkDemandeFile = pkDemandeFile;
+    }
+
+    public String getTypedoc() {
+        return typedoc;
+    }
+
+    public void setTypedoc(String typedoc) {
+        this.typedoc = typedoc;
+    }
+
+    public Date getDatePrinted() {
+        return datePrinted;
+    }
+
+    public void setDatePrinted(Date datePrinted) {
+        this.datePrinted = datePrinted;
     }
 }

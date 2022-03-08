@@ -163,7 +163,7 @@ public class DemandeEsTransformer {
         demandeEsDTO.setPkDemandes(demande.getPkDemandes());
         Set<DemandeStatutEsDTO> statuts = demandesStatutsEsTransformer.bo2Dto(demande.getStatuts(),
                 demande.getPkDemandes());
-        // TODO demandeEsDTO.setStatuts(statuts.toArray(new DemandeStatutEsDTO[statuts.size()]));
+        demandeEsDTO.setStatuts(statuts.toArray(new DemandeStatutEsDTO[statuts.size()]));
 
         if (demande.getAgentAffecteId() != null) {
             User user = utilisateursCache.get(demande.getAgentAffecteId());
@@ -231,8 +231,8 @@ public class DemandeEsTransformer {
         demandeEsDTO.setLangue(demandeDTO.getLangue());
         demandeEsDTO.setObservations(demandeDTO.getObservations());
         demandeEsDTO.setPkDemandes(demandeDTO.getPkDemandes());
-        // TODO demandeEsDTO.setStatuts(demandesStatutsEsTransformer.toEs(demandeDTO.getStatuts(), demandeDTO.getPkDemandes()));
-        // TODO demandeEsDTO.setUpdated(demandeDTO.isUpdated());
+        demandeEsDTO.setStatuts(demandesStatutsEsTransformer.toEs(demandeDTO.getStatuts(), demandeDTO.getPkDemandes()));
+        demandeEsDTO.setUpdated(demandeDTO.isUpdated());
 
         if (demandeEsDTO.getAgentAffecteId() != null) {
             User user = utilisateursCache.get(demandeDTO.getAgentAffecteId());
@@ -242,7 +242,7 @@ public class DemandeEsTransformer {
         // Justificatifs de traitment dans l'historique de la demande
         List<String> justifs = getJustificatifsTraitement(gouvPropertiesResolver.getDemarcheId(),
                 demandeDTO.getPkDemandes());
-        // TODO demandeEsDTO.setJustificatifsTraitement(justifs);
+        demandeEsDTO.setJustificatifsTraitement(justifs);
 
         return demandeEsDTO;
     }
@@ -333,12 +333,12 @@ public class DemandeEsTransformer {
                 DemandeStatutDTO statutDto = DemandesStatutsTransformer.bo2Dto(statut);
                 // Cacher l'agentId au Front Office
                 statutDto.setAgentId(null);
-                // TODO dto.setStatuts(new DemandeStatutEsDTO[] { demandesStatutsEsTransformer.toEs(statutDto, bo.getPkDemandes()) });
+                dto.setStatuts(new DemandeStatutEsDTO[] { demandesStatutsEsTransformer.toEs(statutDto, bo.getPkDemandes()) });
             } else {
                 // Back Office : tout remonter
                 Set<DemandeStatutEsDTO> statuts = demandesStatutsEsTransformer.bo2Dto(bo.getStatuts(),
                         bo.getPkDemandes());
-                // TODO dto.setStatuts(statuts.toArray(new DemandeStatutEsDTO[statuts.size()]));
+                dto.setStatuts(statuts.toArray(new DemandeStatutEsDTO[statuts.size()]));
             }
         }
         // Mapper le "dernier statut"
@@ -386,7 +386,7 @@ public class DemandeEsTransformer {
 
         // Justificatifs de traitment dans l'historique de la demande
         List<String> justifs = getJustificatifsTraitement(gouvPropertiesResolver.getDemarcheId(), bo.getPkDemandes());
-        // TODO dto.setJustificatifsTraitement(justifs);
+        dto.setJustificatifsTraitement(justifs);
 
         return dto;
     }
@@ -424,7 +424,7 @@ public class DemandeEsTransformer {
     }
 
     private GenericDemandeDataEsDTO transformDataDTO(DemandeDataDTO[] dataDTOS) {
-        if (indexedDemandeDataJsonNodeTransformer != null) {
+        if (dataDTOS != null && indexedDemandeDataJsonNodeTransformer != null) {
             return indexedDemandeDataJsonNodeTransformer.buildDemandeDataDTO(dataDTOS);
         }
         return null;

@@ -80,8 +80,6 @@ public class EsConfigGouv {
 	/**
 	 * Méthode permettant de configurer un convertisseur elasticsearch pour remplacer le convertisseur Jackson.
 	 *
-	 * TODO? ajout d'annotations dans le DemandeEsDTO pour le décrire comme un document ES
-	 *
 	 * @return RestHighLevelClient
 	 */
 	@Bean

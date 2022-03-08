@@ -160,8 +160,7 @@ var configurationDataTableFacets = {
 	iDisplayLength : 10
 }
 
-var tableProperties = $('#datatable-search-properties').DataTable(
-		configurationDataTableFacets);
+var tableProperties = $('#datatable-search-properties').DataTable(configurationDataTableFacets);
 
 function equals(val1, val2) {
 	if ((val1 == null && val2 == "") || (val1 == "" && val2 == null))
@@ -229,15 +228,11 @@ $("#datatable-search-properties").on(
 				this.labels[0].innerText = "Actif";
 			}
 
-			if (this.name.startsWith("fichiers.")) {
-				var idComplement = "complement" + this.name.replace(/\./g, '')
-						+ "Check";
-				$("#" + idComplement).removeAttr("disabled").click().attr(
-						"disabled", true);
-				var idFichierInterne = "fichierinterne"
-						+ this.name.replace(/\./g, '') + "Check";
-				$("#" + idFichierInterne).removeAttr("disabled").click().attr(
-						"disabled", true);
+			if (this.name.startsWith("fichier")) {
+				var idComplement = "complement" + this.name.replace(/\./g, '') + "Check";
+				$("#" + idComplement).removeAttr("disabled").click().attr("disabled", true);
+				var idFichierInterne = "fichierinterne" + this.name.replace(/\./g, '') + "Check";
+				$("#" + idFichierInterne).removeAttr("disabled").click().attr("disabled", true);
 			}
 
 			checkPropertiesToUpdate(this);
@@ -255,64 +250,42 @@ $("#savePropertiesButton").click(function() {
 
 });
 
-$("#savePropertiesConfirmButton")
-		.click(
-				function() {
+$("#savePropertiesConfirmButton").click(function() {
 
-					var properties = [];
+	var properties = [];
 
-					changedProperties
-							.forEach(function(p) {
+	changedProperties.forEach(function(p) {
 
-								var id = p.replace(/\./g, '');
-								properties
-										.push({
-											"name" : tableProperties
-													.$('#' + id)[0].innerText,
-											"label" : tableProperties.$('#'
-													+ id + 'Label')[0].value,
-											"categoryId" : tableProperties
-													.$('#' + id + 'Category')[0].value,
-											"enabled" : tableProperties.$(
-													'#' + id + 'Check').is(
-													":checked")
-										});
-							});
+		var id = p.replace(/\./g, '');
+		properties.push({
+			"name" : tableProperties.$('#' + id)[0].innerText,
+			"label" : tableProperties.$('#' + id + 'Label')[0].value,
+			"categoryId" : tableProperties.$('#' + id + 'Category')[0].value,
+			"enabled" : tableProperties.$('#' + id + 'Check').is(":checked")
+		});
+	});
 
-					$
-							.ajax({
-								url : APP.getContextPath()
-										+ "/ws/admin/updateproperties",
-								method : "POST",
-								traditional : true,
-								contentType : "application/json",
-								data : JSON.stringify({
-									properties : properties
-								}),
-								beforeSend : function(xhr) {
-									xhr.setRequestHeader(header, token);
-								},
-								success : function(data) {
-									$("#successMessage")
-											.data("message",
-													"La configuration a été enregistrée avec succès")
-											.click();
-									console.log("Success" + data);
-									changedProperties = [];
-									tableProperties.ajax.reload(null, true);
-									$.fancybox.close();
+	$.ajax({
+		url : APP.getContextPath() + "/ws/admin/updateproperties",
+		method : "POST",
+		traditional : true,
+		contentType : "application/json",
+		data : JSON.stringify({	properties : properties }),
+		beforeSend : function(xhr) { xhr.setRequestHeader(header, token); },
+		success : function(data) {
+			$("#successMessage").data("message", "La configuration a été enregistrée avec succès").click();
+			console.log("Success" + data);
+			changedProperties = [];
+			tableProperties.ajax.reload(null, true);
+			$.fancybox.close();
+		},
+		error : function(e) {
+			$("#errorMessage").data("message", "Un problème est survenu lors de l'enregistrement de la configuration").click();
+			console.log("failed to submit : " + e);
+		}
+	});
 
-								},
-								error : function(e) {
-									$("#errorMessage")
-											.data("message",
-													"Un problème est survenu lors de l'enregistrement de la configuration")
-											.click();
-									console.log("failed to submit : " + e);
-								}
-							});
-
-				});
+});
 
 var configurationDataTableCategories = {
 	serverSide : false,

@@ -459,7 +459,7 @@
           }
         }
       },
-      "fichierContent": {
+      "content": {
         "type": "text",
         "analyzer": "ngram",
         "search_analyzer": "keyword_lowercase",
@@ -497,7 +497,7 @@
           }
         }
       },
-      "fichierLanguage": {
+      "language": {
         "type": "text",
         "analyzer": "default",
         "search_analyzer": "keyword_lowercase",
@@ -508,7 +508,7 @@
           }
         }
       },
-      "fichierName": {
+      "name": {
         "type": "text",
         "fields": {
           "keyword": {
@@ -517,7 +517,7 @@
           }
         }
       },
-      "fichierUrl": {
+      "url": {
         "type": "text",
         "analyzer": "default",
         "search_analyzer": "keyword_lowercase",
@@ -528,11 +528,11 @@
           }
         }
       },
-      "fichierType": {
+      "typeFichier": {
         "type": "keyword",
         "store": true
       },
-      "fichierStatut": {
+      "statut": {
         "type": "text",
         "analyzer": "default",
         "search_analyzer": "keyword_lowercase",
@@ -543,7 +543,7 @@
           }
         }
       },
-      "FichierPkDemandeFile": {
+      "pkDemandeFile": {
         "type": "long"
       },
       "identifiantDemande": {

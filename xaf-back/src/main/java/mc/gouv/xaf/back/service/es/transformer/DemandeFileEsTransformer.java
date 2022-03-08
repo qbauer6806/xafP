@@ -68,15 +68,16 @@ public class DemandeFileEsTransformer {
                                              DemandeFileDTO fichier) throws IOException {
         if (fichier != null) {
             DemandeFileEsDTO demandeFileEsDTO = new DemandeFileEsDTO(demande.getIdentifiant());
-            demandeFileEsDTO.setFichierMeta(fichier.getMeta());
-            demandeFileEsDTO.setFichierName(fichier.getName());
-            demandeFileEsDTO.setFichierUrl(fichier.getUrl());
-            demandeFileEsDTO.setFichierType(type.name());
+
+            demandeFileEsDTO.setMeta(fichier.getMeta());
+            demandeFileEsDTO.setName(fichier.getName());
+            demandeFileEsDTO.setUrl(fichier.getUrl());
+            demandeFileEsDTO.setTypeFichier(type.name());
             demandeFileEsDTO.setPkDemandes(demande.getPkDemandes());
             demandeFileEsDTO.setIdentifiantDemande(demande.getIdentifiant());
-            demandeFileEsDTO.setFichierTypedoc(fichier.getTypedoc());
-            demandeFileEsDTO.setFichierContent(getFileText(fichier.getUrl(), demande.getDemarcheId()));
-            demandeFileEsDTO.setFichierLanguage(demande.getLangue());
+            demandeFileEsDTO.setTypedoc(fichier.getTypedoc());
+            demandeFileEsDTO.setContent(getFileText(fichier.getUrl(), demande.getDemarcheId()));
+            demandeFileEsDTO.setLanguage(demande.getLangue());
             return demandeFileEsDTO;
         }
         return null;
@@ -95,19 +96,19 @@ public class DemandeFileEsTransformer {
                                           DemandeCourrierDTO fichier) throws IOException {
         if (fichier != null) {
             DemandeFileEsDTO demandeFileEsDTO = new DemandeFileEsDTO(demande.getIdentifiant());
-            demandeFileEsDTO.setFichierMeta(fichier.getMeta());
-            demandeFileEsDTO.setFichierName(fichier.getName());
-            demandeFileEsDTO.setFichierUrl(fichier.getUrl());
-            demandeFileEsDTO.setFichierType(type.name());
+            demandeFileEsDTO.setMeta(fichier.getMeta());
+            demandeFileEsDTO.setName(fichier.getName());
+            demandeFileEsDTO.setUrl(fichier.getUrl());
+            demandeFileEsDTO.setTypeFichier(type.name());
             demandeFileEsDTO.setIdentifiantDemande(demande.getIdentifiant());
             demandeFileEsDTO.setIdentifiant(fichier.getIdentifiant());
-            demandeFileEsDTO.setFichierPkDemandeFile(fichier.getPkCourrier());
+            demandeFileEsDTO.setPkDemandeFile(fichier.getPkCourrier());
             demandeFileEsDTO.setDateCreation(fichier.getDateCreation());
             demandeFileEsDTO.setPkDemandes(demande.getPkDemandes());
-            demandeFileEsDTO.setFichierStatut(fichier.getFkStatut().getLibelle());
-            demandeFileEsDTO.setFichierDatePrinted(fichier.getDatePrinted());
-            demandeFileEsDTO.setFichierContent(getFileText(fichier.getUrl(), demande.getDemarcheId()));
-            demandeFileEsDTO.setFichierLanguage(demande.getLangue());
+            demandeFileEsDTO.setStatut(fichier.getFkStatut().getLibelle());
+            demandeFileEsDTO.setDatePrinted(fichier.getDatePrinted());
+            demandeFileEsDTO.setContent(getFileText(fichier.getUrl(), demande.getDemarcheId()));
+            demandeFileEsDTO.setLanguage(demande.getLangue());
             return demandeFileEsDTO;
         }
         return null;

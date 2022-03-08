@@ -48,11 +48,11 @@ public class RechercheIndexedCourriersController extends AbstractController {
     @Autowired
     private UtilisateursCache utilisateursCache;
 
-    private static final String FICHIER_NAME = "courrier.fichiers.name";
+    private static final String FICHIER_NAME = "fichierName";
     private static final String DEMANDE_IDENTIFIANT = "identifiant";
     private static final String COURRIER_DATE_RECEPTION = "courrierDateReception";
     private static final String DERNIER_STATUT_LIBELLE = "dernierStatut.libelle";
-    private static final String COURRIER_CONTENT = "courrier.fichiers.content";
+    private static final String COURRIER_CONTENT = "fichierContent";
 
     @RequestMapping(value = "/pageable", method = RequestMethod.GET)
     public Page<DemandeFileEsRechercheDTO> getDemandes(@RequestParam(value = "usagerId", required = false) Integer usagerId,

@@ -623,7 +623,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      */
     private NativeSearchQueryBuilder getFacetsAggregationQuery(DemandeRechercheDTO demandeRecherche) {
 
-        NativeSearchQueryBuilder nativeSearchQueryBuilder = new NativeSearchQueryBuilder() // TODO .withIndices(indexAlias)
+        NativeSearchQueryBuilder nativeSearchQueryBuilder = new NativeSearchQueryBuilder()
                 .withQuery(getQueryBuilder(demandeRecherche));
 
         List<KeyedFilter> queryStringQueryBuilders = new ArrayList<>();
@@ -860,7 +860,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             SearchHits<?> searchHitsArray = searchHitsEntry.getValue();
             for (SearchHit<?> searchInnerHit : searchHitsArray) {
                 DemandeEsRechercheDTO content = (DemandeEsRechercheDTO) searchInnerHit.getContent();
-                String type = content.getFichierType();
+                String type = content.getTypeFichier();
                 boolean isInternalFile = type.equals(DemandeFileEsDTO.TYPE.FICHIER_INTERNE.name());
                 boolean isComplement = type.equals(DemandeFileEsDTO.TYPE.COMPLEMENT.name());
                 boolean isCourrier = type.equals(DemandeFileEsDTO.TYPE.COURRIER.name());
@@ -871,6 +871,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     }
 
     @Override
+    // TODO Sortir cette méthode dans IndexedEsDemandeFilesServiceImpl, afin de regrouper les actions sur les fichiers
     public Page<DemandeFileEsRechercheDTO> getIndexedCourriers(DemandeCourrierRechercheDTO demandeRecherche, Pageable pageable,
                                                                String[] fields) {
 
@@ -878,8 +879,9 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                 afBackUtils.getDemarcheInfos().getIdentifiantPrefixe()));
         initMappingProperties(false);
 
-        NativeSearchQueryBuilder nativeSearchQueryBuilder = new NativeSearchQueryBuilder() // TODO .withIndices(indexAlias)
-                .withQuery(getQueryBuilderForCourrier(demandeRecherche)).withPageable(pageable);
+        NativeSearchQueryBuilder nativeSearchQueryBuilder = new NativeSearchQueryBuilder()
+                .withQuery(getQueryBuilderForCourrier(demandeRecherche))
+                .withPageable(pageable);
 
         nativeSearchQueryBuilder = highlightQuery(demandeRecherche, nativeSearchQueryBuilder);
         if (fields != null && fields.length > 0) {
@@ -887,66 +889,68 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             nativeSearchQueryBuilder.withSourceFilter(sourceFilter);
         }
 
-//        return elasticsearchTemplate.queryForPage(nativeSearchQueryBuilder.build(), DemandeFileEsRechercheDTO.class,
-//                new SearchResultMapper() {
-//
-//                    @SuppressWarnings("unchecked")
-//                    @Override
-//                    public <T> AggregatedPage<T> mapResults(SearchResponse response, Class<T> clazz,
-//                                                            Pageable pageable) {
-//                        List<DemandeFileEsRechercheDTO> demandesEsList = new ArrayList<>();
-//                        if (response.getHits().getHits().length <= 0) {
-//                            return new AggregatedPageImpl<>(new ArrayList<>());
-//                        }
-//
-//                        for (SearchHit searchHit : response.getHits()) {
-//
-//                            DefaultResultMapper resultMapper = new DefaultResultMapper();
-//                            DemandeFileEsRechercheDTO fichierJoinEsRechercheDTO = resultMapper
-//                                    .mapEntity(searchHit.getSourceAsString(), DemandeFileEsRechercheDTO.class);
-//
-//                            Map<String, HighlightField> highlightFields = searchHit.getHighlightFields();
-//                            Map<String, String> demEsHighlightFields = new HashMap<>();
-//                            updateHighLightedField(highlightFields, demEsHighlightFields, false, false, false);
-//
-//                            Map<String, SearchHits> innerHits = searchHit.getInnerHits();
-//
-//                            if (innerHits != null) {
-//                                for (Map.Entry<String, SearchHits> searchHitsEntry : innerHits.entrySet()) {
-//                                    SearchHit[] searchHitsArray = searchHitsEntry.getValue().getHits();
-//                                    for (SearchHit searchInnerHit : searchHitsArray) {
-//
-//                                        DocumentField typeField = searchInnerHit.field(DemandeFileEsDTO.TYPE_FIELD);
-//                                        String type = typeField.getValue();
-//
-//                                        boolean isCourrier = type.equals(DemandeFileEsDTO.TYPE.COURRIER.name());
-//
-//                                        updateHighLightedField(searchInnerHit.getHighlightFields(),
-//                                                demEsHighlightFields, false, false, isCourrier);
-//                                    }
-//                                }
-//                            }
-//
-//                            fichierJoinEsRechercheDTO.setHighlightedField(demEsHighlightFields);
-//                            demandesEsList.add(fichierJoinEsRechercheDTO);
-//
-//                        }
-//
-//                        return new AggregatedPageImpl(demandesEsList, pageable, response.getHits().getTotalHits().value);
-//                    }
-//
-//                    @Override
-//                    public <T> T mapSearchHit(SearchHit searchHit, Class<T> type) {
-//                        return null;
-//                    }
-//
-//                });
-
-        return null;
+        NativeSearchQuery query = nativeSearchQueryBuilder.build();
+        SearchHits<DemandeFileEsRechercheDTO> searchHits = elasticsearchOperations.search(query, DemandeFileEsRechercheDTO.class);
+        return aggregateResultsCourriers(searchHits, pageable);
 
     }
 
     /**
+     * Transforme l'objet retourné par la recherche courriers en Page
+     *
+     * // TODO Sortir cette méthode dans IndexedEsDemandeFilesServiceImpl, afin de regrouper les actions sur les fichiers
+     *
+     * @param searchHits, Objet contenant les résultats de recherche
+     * @param pageable,   Objet contenant les informations sur la page à retourner
+     * @return Page
+     */
+    private Page<DemandeFileEsRechercheDTO> aggregateResultsCourriers(SearchHits<DemandeFileEsRechercheDTO> searchHits, Pageable pageable) {
+        if (searchHits.isEmpty()) {
+            return Page.empty(pageable);
+        }
+
+        List<DemandeFileEsRechercheDTO> demandesEsList = new ArrayList<>();
+        for (SearchHit<DemandeFileEsRechercheDTO> searchHit : searchHits) {
+            DemandeFileEsRechercheDTO fichierJoinEsRechercheDTO = searchHit.getContent();
+
+            Map<String, List<String>> highlightFields = searchHit.getHighlightFields();
+            Map<String, String> demEsHighlightFields = new HashMap<>();
+            updateHighLightedFieldList(highlightFields, demEsHighlightFields, false, false, false);
+
+            Map<String, SearchHits<?>> innerHits = searchHit.getInnerHits();
+            aggregateInnerFieldsCourriers(innerHits, demEsHighlightFields);
+
+            fichierJoinEsRechercheDTO.setHighlightedField(demEsHighlightFields);
+            demandesEsList.add(fichierJoinEsRechercheDTO);
+        }
+
+        return new PageImpl<>(demandesEsList, pageable, searchHits.getTotalHits());
+    }
+
+    /**
+     * Méthode ajoutant les mots trouvées dans les fichiers lors de la recherche courriers
+     *
+     * // TODO Sortir cette méthode dans IndexedEsDemandeFilesServiceImpl, afin de regrouper les actions sur les fichiers
+     *
+     * @param innerHits,            une Map contenant les mots trouvés dans les fichiers
+     * @param demEsHighlightFields, la map contenant tous les résultats de la recherche
+     */
+    private void aggregateInnerFieldsCourriers(Map<String, SearchHits<?>> innerHits, Map<String, String> demEsHighlightFields) {
+        for (Entry<String, SearchHits<?>> searchHitsEntry : innerHits.entrySet()) {
+            SearchHits<?> searchHitsArray = searchHitsEntry.getValue();
+            for (SearchHit<?> searchInnerHit : searchHitsArray) {
+                DemandeEsRechercheDTO content = (DemandeEsRechercheDTO) searchInnerHit.getContent();
+                String type = content.getTypeFichier();
+                boolean isCourrier = type.equals(DemandeFileEsDTO.TYPE.COURRIER.name());
+                updateHighLightedFieldList(searchInnerHit.getHighlightFields(),
+                        demEsHighlightFields, false, false, isCourrier);
+            }
+        }
+    }
+
+    /**
+     * TODO préfixe ?
+     *
      * Méthode permettant de construire la map ayant comme clé le champ ou la recherche à été faite et comme valeur les
      * fragments contenant le résultat de recherche.<br/>
      * Les mots clés de la recherche sont entourés par des balises qui les mettent en évidence
@@ -1127,6 +1131,8 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     /**
      * Méthode permettant la construction de la requete elasticserach de récupération des courriers
      *
+     * // TODO Sortir cette méthode dans IndexedEsDemandeFilesServiceImpl, afin de regrouper les actions sur les fichiers
+     *
      * @param demandeRecherche Paramètres de la recherche
      * @return Requete elasticsearch pour récupérer les demandes
      */
@@ -1213,6 +1219,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                 .should(hasChildQueryBuilder);
     }
 
+    // TODO Sortir cette méthode dans IndexedEsDemandeFilesServiceImpl, afin de regrouper les actions sur les fichiers
     private BoolQueryBuilder getQueryWhereForCourriers(SimpleQueryStringBuilder filesQueryStringQueryBuilder, DemandeCourrierRechercheDTO recherche, String[] searchFields) {
         BoolQueryBuilder boolQueryBuilder = boolQuery();
 

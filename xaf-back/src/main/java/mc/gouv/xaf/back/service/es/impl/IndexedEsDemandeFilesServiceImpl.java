@@ -24,7 +24,6 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.bulk.BulkItemResponse;
-import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.glassfish.jersey.internal.guava.Lists;
@@ -268,9 +267,6 @@ public class IndexedEsDemandeFilesServiceImpl extends DemandeFilesServiceImpl im
             // If we have a query id and a document id, do not ask ES to generate one.
             indexRequest = new IndexRequest(indexAlias).id(query.getId());
             indexRequest.source(elasticsearchConverter.mapObject(query.getObject()));
-            // TODO
-//                indexRequest.source(resultsMapper.getEntityMapper().mapToString(query.getObject()),
-//                        Requests.INDEX_CONTENT_TYPE);
         } else {
             throw new ElasticsearchException("object or source is null, failed to index the document [id: " + query.getId() + "]");
         }

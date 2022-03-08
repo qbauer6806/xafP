@@ -220,28 +220,28 @@
         var statuts = /*[[${statuts}]]*/[];
         var columnsTableAttente = [
             {
-                "data": "fichierName",
+                "data": "name",
                 "keyword": true,
                 render: function (data, type, element) {
-                    return element.fichierName;
+                    return element.name;
                 }
             },
             {
-                "data": "fichierDateCreation",
+                "data": "dateCreation",
                 "keyword": false,
                 render: function (data, type, element) {
                     // On ne format pas en STRING la demande si l'accès à la donnée se fait pendant un SORT ou un TYPE
                     if (type === "sort" || type === "type") {
                         return data;
                     }
-                    return moment(element.fichierDateCreation).format("DD/MM/YYYY");
+                    return moment(element.dateCreation).format("DD/MM/YYYY");
                 }
             },
             {
-                "data": "fichierStatut",
+                "data": "statut",
                 "keyword": true,
                 render: function (data, type, element) {
-                    return statuts[element.fichierStatut];
+                    return statuts[element.statut];
                 }
             },
             {
@@ -256,11 +256,11 @@
                 "orderable": false,
                 "keyword": false,
                 render: function (data, type, element, meta) {
-                    return '<a id="btnTelechargerCourrier' + meta.row + '" href="' + APP.getContextPath() + '/ws/file/get/' + element.fichierUrl + '" >' +
+                    return '<a id="btnTelechargerCourrier' + meta.row + '" href="' + APP.getContextPath() + '/ws/file/get/' + element.url + '" >' +
                         '<span class="btn btn-action ripple-effect greyTooltip" data-html="true" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Télécharger"> ' +
                         '<i class="icon-action_pdf"></i></span></a>' +
 
-                        '<a id="btnValiderImpression' + meta.row + '" href="#" data-courrierid="' + element.fichierPkDemandeFile + '" data-demandeid="' + element.pkDemande + '" class="print"> ' +
+                        '<a id="btnValiderImpression' + meta.row + '" href="#" data-courrierid="' + element.pkDemandeFile + '" data-demandeid="' + element.pkDemande + '" class="print"> ' +
                         '<span class="btn btn-action ripple-effect greyTooltip" data-html="true" data-toggle="tooltip" data-placement="bottom" data-original-title="Valider l\'impression" title="">' +
                         '<i class="icon-action_expedie_ok"></i></span></a>';
                 }
@@ -268,28 +268,28 @@
         ];
         var columnsTableImprimes = [
             {
-                "data": "fichierName",
+                "data": "name",
                 "keyword": true,
                 render: function (data, type, element) {
-                    return element.fichierName;
+                    return element.name;
                 }
             },
             {
-                "data": "fichierDateCreation",
+                "data": "dateCreation",
                 "keyword": false,
                 render: function (data, type, element) {
                     // On ne format pas en STRING la demande si l'accès à la donnée se fait pendant un SORT ou un TYPE
                     if (type === "sort" || type === "type") {
                         return data;
                     }
-                    return moment(element.fichierDateCreation).format("DD/MM/YYYY");
+                    return moment(element.dateCreation).format("DD/MM/YYYY");
                 }
             },
             {
-                "data": "fichierStatut",
+                "data": "statut",
                 "keyword": true,
                 render: function (data, type, element) {
-                    return statuts[element.fichierStatut];
+                    return statuts[element.statut];
                 }
             },
             {
@@ -301,18 +301,18 @@
                 }
             },
             {
-                "data": "identifiant",
+                "data": "identifiantFichier",
                 "orderable": false,
                 "keyword": true,
                 render: function (data, type, element) {
-                    return element.identifiant;
+                    return element.identifiantFichier;
                 }
             },
             {
                 "orderable": false,
                 "keyword": false,
                 render: function (data, type, element, meta) {
-                    return '<a id="btnTelechargerCourrier' + meta.row + '" href="' + APP.getContextPath() + '/ws/file/get/' + element.fichierUrl + '" >' +
+                    return '<a id="btnTelechargerCourrier' + meta.row + '" href="' + APP.getContextPath() + '/ws/file/get/' + element.url + '" >' +
                         '<span class="btn btn-action ripple-effect greyTooltip" data-html="true" data-toggle="tooltip" data-placement="bottom" data-original-title="Télécharger" title=""> ' +
                         '<i class="icon-action_pdf"></i></span></a>';
                 }

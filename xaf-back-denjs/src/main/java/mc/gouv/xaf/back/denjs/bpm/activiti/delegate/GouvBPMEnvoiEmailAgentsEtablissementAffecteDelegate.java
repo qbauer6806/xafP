@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import mc.gouv.Static;
+import mc.gouv.logon.apiclient.LogonApiClient;
 import mc.gouv.logon.shared.User;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesService;
@@ -98,11 +100,22 @@ public class GouvBPMEnvoiEmailAgentsEtablissementAffecteDelegate implements Java
         LOGGER.info("Liste de matricules destinataires de l'e-mail : " + matriculesDestinataires);
         for (String matricule : matriculesDestinataires) {
         	User agent = utilisateursCache.get(matricule);
-        	if (StringUtils.isNotBlank(agent.getMail())) {
-        		emailInfo.addTo(agent.getMail(), agent.getNom());
+        	if (agent != null) {
+	        	if (StringUtils.isNotBlank(agent.getMail())) {
+	        		// Vérifier que l'agent a bien encore des droits sur cette appli
+	                if (StringUtils.isNotBlank(agent.getRolesByAppli(gouvPropertiesResolver.getDemarcheId()))) {
+	                	emailInfo.addTo(agent.getMail(), agent.getNom());
+	                }
+	                else {
+	                	LOGGER.warn("L'agent (" + matricule + "," + agent.getNom() + ") n'a pas de droits sur cette appli !");
+	                }
+	        	}
+	        	else {
+	        		LOGGER.warn("L'agent (" + matricule + "," + agent.getNom() + ") n'a pas d'e-mail renseigné !");
+	        	}
         	}
         	else {
-        		LOGGER.warn("L'agent (" + matricule + "," + agent.getNom() + ") n'a pas d'e-mail renseigné !");
+        		LOGGER.warn("Attention, l'agent de matricule " + matricule + " n'a pas pu être trouvé ! ");
         	}
         }
         

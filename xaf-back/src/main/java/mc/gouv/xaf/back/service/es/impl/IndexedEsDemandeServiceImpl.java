@@ -18,6 +18,7 @@ import mc.gouv.xaf.back.service.es.IndexedDemandeService;
 import mc.gouv.xaf.back.service.es.IndexedFilesService;
 import mc.gouv.xaf.back.service.es.handlers.EsTransactionErrorsHandler;
 import mc.gouv.xaf.back.service.es.transformer.DemandeEsTransformer;
+import mc.gouv.xaf.back.service.es.utils.EsUtils;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
 import mc.gouv.xaf.back.service.utils.ESQueryUtils;
@@ -89,7 +90,6 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     public static final String ES_KEYWORD = ".keyword";
     public static final SimpleDateFormat SDF = new SimpleDateFormat(DATE_PATTERN);
-    public static final String ES_MAPPING_PROPERTIES_KEY = "properties";
     public static final String ES_MAPPING_FIELDS_KEY = "fields";
     public static final String ES_MAPPING_TYPE_KEY = "type";
     public static final String FILE_COMPLEMENT_HIGHLIGHT_AND_FACET_PREFIX = "complement.";
@@ -157,7 +157,6 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     @Override
     public void loadProperties() {
-        reloadProperties();
         try {
             initMappingProperties(true);
         } catch (Exception e) {
@@ -167,7 +166,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         }
     }
 
-    private void reloadProperties() {
+    private void reloadPropertiesToExclude() {
         LOGGER.info("Chargement des propriétés de la recherche avancée et désactivation de celles à exclure du mappings elasticserach");
         List<RechercheChampConfigBO> propertiesToExclude = rechercheChampConfigRepository.findByEnabled(false);
         demandesFieldsToExclude.clear();
@@ -185,6 +184,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                 }
             }
         }
+        demandesFieldsToExclude.addAll(EsUtils.getMappingFichiersOnly());
     }
 
     /**
@@ -229,13 +229,14 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     public synchronized void initMappingProperties(boolean reload) {
 
         Map<String, Map> mapping = getMapping(indexAlias);
+        //Set<String> fileMapping =
 
         if (reload) {
             clearProperties();
             // refs ##28082 - [BO] Problème résultat affichage d'une recherche avancée > Catégorie Autres
             // On reload les properties sinon dans une archi genTSA la map demandesFieldsToExclude et demandeFilesToExclude ne sont pas alignées sur les deux 
             // A moins de restart le BO (qui lui va call le loadProperty pour les deux noeuds)
-            reloadProperties();
+            reloadPropertiesToExclude();
         }
 
         if (demandesProperties.isEmpty() || reload) {
@@ -244,7 +245,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         }
 
         if (filesProperties.isEmpty() || reload) {
-            initMappingProperties(filesProperties, mapping, null, true);
+            initMappingProperties(filesProperties, mapping, fichiersFieldsToExclude, true);
             initMappingPropertiesMap(filesProperties, filesPropertiesWithBoost);
         }
 
@@ -273,16 +274,16 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     @SuppressWarnings({"unchecked", "rawtypes"})
     private synchronized void initMappingProperties(List<EsProperty> properties, Map<String, Map> mapping,
                                                     List<String> fieldsToExclude, boolean isFilesDocs) {
+        Set<String> mappingFichiers = EsUtils.getMappingFichiers();
+
         if (elasticsearchTemplate != null && mapping != null) {
-
             for (Entry<String, Map> entry : mapping.entrySet()) {
-
-                if (entry.getKey().equals(ES_MAPPING_PROPERTIES_KEY)) {
+                if (entry.getKey().equals(EsUtils.ES_MAPPING_PROPERTIES_KEY)) {
                     Map<String, Map> map = entry.getValue();
                     for (Entry<String, Map> subMapentry : map.entrySet()) {
-                        if ((subMapentry.getKey().equals(DemandeFileEsDTO.INDEX_FILES_JOIN_DOC) && isFilesDocs)
-                                || (!isFilesDocs
-                                && !subMapentry.getKey().equals(DemandeFileEsDTO.INDEX_FILES_JOIN_DOC))) {
+                        String key = subMapentry.getKey();
+                        if (!fieldsToExclude.contains(key)
+                                && (!isFilesDocs || (isFilesDocs && mappingFichiers.contains(key)))) {
                             properties.add(new EsProperty(subMapentry.getKey()));
                             getPropertyName(subMapentry.getValue(), subMapentry.getKey(), properties);
                         }
@@ -293,11 +294,6 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                         mapping = mappingCheck;
                     }
                 }
-
-            }
-
-            if (fieldsToExclude != null) {
-                properties.removeIf(p -> fieldsToExclude.contains(p.getName()));
             }
         }
     }
@@ -316,7 +312,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             return;
         }
         for (Entry<String, Map> entry : map.entrySet()) {
-            if (entry.getKey().equals(ES_MAPPING_PROPERTIES_KEY)) {
+            if (entry.getKey().equals(EsUtils.ES_MAPPING_PROPERTIES_KEY)) {
                 Map<String, Map> submap = entry.getValue();
                 for (Entry<String, Map> subMapentry : submap.entrySet()) {
                     String newFiledName = propertyName + "." + subMapentry.getKey();
@@ -534,7 +530,6 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             applicationEventPublisher.publishEvent(esErrorEventDTO);
             throw new AfIndexingException(e.getMessage(), e);
         }
-
     }
 
     /**
@@ -663,13 +658,19 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                 }
                 SimpleQueryStringBuilder sqsb = getSimpleQueryStringBuilder(text, fields);
                 if (searchInChild) {
-                    // Ajout du filtre pour les piéces jointes
-                    addFileFilters(queryStringQueryBuilders, sqsb, property.getName(), DemandeFileEsDTO.TYPE.PIECE_JOINTE.name());
-                    // Ajout du filtre pour les complements de demandes
+                    // Ajout du filtre et de la child query pour les fichiers
+                    addFileFilters(queryStringQueryBuilders, sqsb, property.getName(), FILE_PROPERTIES_PREFIX);
+
+                    // Ajout du filtre et de la child query pour les piéces jointes
+                    addFileFilters(queryStringQueryBuilders, sqsb, FILE_PROPERTIES_PREFIX + property.getName(), DemandeFileEsDTO.TYPE.PIECE_JOINTE.name());
+
+                    // Ajout du filtre et de la child query pour les complements de demandes
                     addFileFilters(queryStringQueryBuilders, sqsb, FILE_COMPLEMENT_HIGHLIGHT_AND_FACET_PREFIX + property.getName(), DemandeFileEsDTO.TYPE.COMPLEMENT.name());
-                    // Ajout du filtre pour les fichiers internes
+
+                    // Ajout du filtre et de la child query pour les fichiers internes
                     addFileFilters(queryStringQueryBuilders, sqsb, INTERNAL_FILE_HIGHLIGHT_AND_FACET_PREFIX + property.getName(), DemandeFileEsDTO.TYPE.FICHIER_INTERNE.name());
-                    // Ajout du filtre pour les courriers
+
+                    // Ajout du filtre et de la child query pour les courriers
                     addFileFilters(queryStringQueryBuilders, sqsb, COURRIER_FILE_HIGHLIGHT_AND_FACET_PREFIX + property.getName(), DemandeFileEsDTO.TYPE.COURRIER.name());
                 } else {
                     queryStringQueryBuilders.add(new KeyedFilter(property.getName(), sqsb));
@@ -678,9 +679,14 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         }
     }
 
+    /**
+     * Méthode permettant d'ajouter les filtres à la query pour récuperer les fichiers
+     *
+     * @deprecated les jointures seront supprimées dans ES8
+     */
     private void addFileFilters(List<KeyedFilter> queryStringQueryBuilders, SimpleQueryStringBuilder sqsb, String propertyName, String propertyType) {
         if (!fichiersFieldsToExclude.contains(propertyName)) {
-            TermQueryBuilder termQueryBuilder = termQuery(DemandeFileEsDTO.TYPE_FIELD, propertyType);
+            TermQueryBuilder termQueryBuilder = termQuery(EsUtils.TYPE_FILE_FIELD, propertyType);
             BoolQueryBuilder boolQueryBuilder = boolQuery().must(sqsb).must(termQueryBuilder);
             HasChildQueryBuilder hasChildQueryBuilder = hasChildQuery(DemandeFileEsDTO.INDEX_FILES_JOIN_DOC, boolQueryBuilder, ScoreMode.Avg);
             queryStringQueryBuilders.add(new KeyedFilter(propertyName, hasChildQueryBuilder));
@@ -716,8 +722,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
                     //Ajout du filtre pour les piéces jointes
                     SimpleQueryStringBuilder sqsb = getSimpleQueryStringBuilder(text, fields);
-                    TermQueryBuilder pjtqb = termQuery(DemandeFileEsDTO.TYPE_FIELD,
-                            DemandeFileEsDTO.TYPE.PIECE_JOINTE.name());
+                    TermQueryBuilder pjtqb = termQuery(EsUtils.TYPE_FILE_FIELD, DemandeFileEsDTO.TYPE.PIECE_JOINTE.name());
                     BoolQueryBuilder pjbqb = boolQuery().must(sqsb).must(pjtqb);
                     HasChildQueryBuilder pjHasChildQueryBuilder = hasChildQuery(DemandeFileEsDTO.INDEX_FILES_JOIN_DOC,
                             pjbqb, ScoreMode.Avg);
@@ -727,8 +732,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                     index++;
 
                     //Ajout du filtre pour les complements de demandes
-                    TermQueryBuilder comptqb = termQuery(DemandeFileEsDTO.TYPE_FIELD,
-                            DemandeFileEsDTO.TYPE.COMPLEMENT.name());
+                    TermQueryBuilder comptqb = termQuery(EsUtils.TYPE_FILE_FIELD, DemandeFileEsDTO.TYPE.COMPLEMENT.name());
 
                     BoolQueryBuilder compbqb = boolQuery().must(sqsb).must(comptqb);
 
@@ -741,8 +745,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                     index++;
 
                     //Ajout du filtre pour les fichiers internes
-                    TermQueryBuilder internalFilestqb = termQuery(DemandeFileEsDTO.TYPE_FIELD,
-                            DemandeFileEsDTO.TYPE.FICHIER_INTERNE.name());
+                    TermQueryBuilder internalFilestqb = termQuery(EsUtils.TYPE_FILE_FIELD, DemandeFileEsDTO.TYPE.FICHIER_INTERNE.name());
 
                     BoolQueryBuilder internalFilesbqb = boolQuery().must(sqsb).must(internalFilestqb);
 
@@ -756,8 +759,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                     index++;
 
                     //Ajout du filtre pour les courriers
-                    TermQueryBuilder courriersTqb = termQuery(DemandeFileEsDTO.TYPE_FIELD,
-                            DemandeFileEsDTO.TYPE.COURRIER.name());
+                    TermQueryBuilder courriersTqb = termQuery(EsUtils.TYPE_FILE_FIELD, DemandeFileEsDTO.TYPE.COURRIER.name());
 
                     BoolQueryBuilder courriersBqb = boolQuery().must(sqsb).must(courriersTqb);
 
@@ -1139,7 +1141,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     private BoolQueryBuilder getQueryBuilderForCourrier(DemandeCourrierRechercheDTO demandeRecherche) {
 
         BoolQueryBuilder boolQueryBuilder = boolQuery();
-        TermQueryBuilder tqb = termQuery(DemandeFileEsDTO.TYPE_FIELD, DemandeFileEsDTO.TYPE.COURRIER.name());
+        TermQueryBuilder tqb = termQuery(EsUtils.TYPE_FILE_FIELD, DemandeFileEsDTO.TYPE.COURRIER.name());
         boolQueryBuilder.must(tqb);
 
         if (!StringUtils.isBlank(demandeRecherche.getTexte())) {
@@ -1151,9 +1153,9 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         }
 
         if (demandeRecherche.getImprime()) {
-            boolQueryBuilder.must(QueryBuilders.existsQuery(DemandeFileEsDTO.DATE_PRINTED_FIELD));
+            boolQueryBuilder.must(QueryBuilders.existsQuery(EsUtils.DATE_PRINTED_FILE_FIELD));
         } else {
-            boolQueryBuilder.mustNot(QueryBuilders.existsQuery(DemandeFileEsDTO.DATE_PRINTED_FIELD));
+            boolQueryBuilder.mustNot(QueryBuilders.existsQuery(EsUtils.DATE_PRINTED_FILE_FIELD));
         }
 
         return getUiFilterQuery(boolQueryBuilder, demandeRecherche);
@@ -1212,7 +1214,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                         .defaultOperator(Operator.OR).fields(filesPropertiesWithBoost).lenient(true));
         HighlightBuilder hb = new HighlightBuilder().field(field);
         InnerHitBuilder ihb = new InnerHitBuilder().setHighlightBuilder(hb)
-                .setStoredFieldNames(Arrays.asList(DemandeFileEsDTO.TYPE_FIELD));
+                .setStoredFieldNames(Arrays.asList(EsUtils.TYPE_FILE_FIELD));
         HasChildQueryBuilder hasChildQueryBuilder = hasChildQuery(DemandeFileEsDTO.INDEX_FILES_JOIN_DOC,
                 filesQueryStringQueryBuilder, ScoreMode.Avg).innerHit(ihb);
         return boolQueryBuilder.minimumShouldMatch(1).should(demandeQueryStringQueryBuilder)
@@ -1223,7 +1225,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     private BoolQueryBuilder getQueryWhereForCourriers(SimpleQueryStringBuilder filesQueryStringQueryBuilder, DemandeCourrierRechercheDTO recherche, String[] searchFields) {
         BoolQueryBuilder boolQueryBuilder = boolQuery();
 
-        TermQueryBuilder tqb = termQuery(DemandeFileEsDTO.TYPE_FIELD, DemandeFileEsDTO.TYPE.COURRIER.name());
+        TermQueryBuilder tqb = termQuery(EsUtils.TYPE_FILE_FIELD, DemandeFileEsDTO.TYPE.COURRIER.name());
         boolQueryBuilder.must(tqb);
 
         // Supression du suffixe par type de fichier
@@ -1276,18 +1278,18 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                 String replacedSearchField = searchField;
                 if (searchField.startsWith(FILE_COMPLEMENT_HIGHLIGHT_AND_FACET_PREFIX)) {
                     replacedSearchField = searchField.replaceFirst(FILE_COMPLEMENT_HIGHLIGHT_AND_FACET_PREFIX, "");
-                    tqb = termQuery(DemandeFileEsDTO.TYPE_FIELD, DemandeFileEsDTO.TYPE.COMPLEMENT.name());
+                    tqb = termQuery(EsUtils.TYPE_FILE_FIELD, DemandeFileEsDTO.TYPE.COMPLEMENT.name());
                     boolQueryBuilder.must(hasChildQuery(DemandeFileEsDTO.INDEX_FILES_JOIN_DOC, tqb, ScoreMode.Avg));
                 } else if (searchField.startsWith(FILE_PROPERTIES_PREFIX)) {
-                    tqb = termQuery(DemandeFileEsDTO.TYPE_FIELD, DemandeFileEsDTO.TYPE.PIECE_JOINTE.name());
+                    tqb = termQuery(EsUtils.TYPE_FILE_FIELD, DemandeFileEsDTO.TYPE.PIECE_JOINTE.name());
                     boolQueryBuilder.must(hasChildQuery(DemandeFileEsDTO.INDEX_FILES_JOIN_DOC, tqb, ScoreMode.Avg));
                 } else if (searchField.startsWith(INTERNAL_FILE_HIGHLIGHT_AND_FACET_PREFIX)) {
                     replacedSearchField = searchField.replaceFirst(INTERNAL_FILE_HIGHLIGHT_AND_FACET_PREFIX, "");
-                    tqb = termQuery(DemandeFileEsDTO.TYPE_FIELD, DemandeFileEsDTO.TYPE.FICHIER_INTERNE.name());
+                    tqb = termQuery(EsUtils.TYPE_FILE_FIELD, DemandeFileEsDTO.TYPE.FICHIER_INTERNE.name());
                     boolQueryBuilder.must(hasChildQuery(DemandeFileEsDTO.INDEX_FILES_JOIN_DOC, tqb, ScoreMode.Avg));
                 } else if (searchField.startsWith(COURRIER_FILE_HIGHLIGHT_AND_FACET_PREFIX)) {
                     replacedSearchField = searchField.replaceFirst(COURRIER_FILE_HIGHLIGHT_AND_FACET_PREFIX, "");
-                    tqb = termQuery(DemandeFileEsDTO.TYPE_FIELD, DemandeFileEsDTO.TYPE.COURRIER.name());
+                    tqb = termQuery(EsUtils.TYPE_FILE_FIELD, DemandeFileEsDTO.TYPE.COURRIER.name());
                     boolQueryBuilder.must(hasChildQuery(DemandeFileEsDTO.INDEX_FILES_JOIN_DOC, tqb, ScoreMode.Avg));
                 }
                 replacedSearchFields.add(replacedSearchField);
@@ -1317,7 +1319,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                 hb = hb.field(field);
             }
             InnerHitBuilder ihb = new InnerHitBuilder().setHighlightBuilder(hb)
-                    .setStoredFieldNames(Arrays.asList(DemandeFileEsDTO.TYPE_FIELD));
+                    .setStoredFieldNames(Arrays.asList(EsUtils.TYPE_FILE_FIELD));
             filesQueryStringQueryBuilder = filesQueryStringQueryBuilder.fields(filesFields);
             HasChildQueryBuilder hasChildQueryBuilder;
             if (tqb != null) {

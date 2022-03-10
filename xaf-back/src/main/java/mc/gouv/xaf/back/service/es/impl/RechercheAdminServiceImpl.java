@@ -15,6 +15,7 @@ import mc.gouv.xaf.back.exception.UsedCategoryException;
 import mc.gouv.xaf.back.service.es.IndexedDemandeService;
 import mc.gouv.xaf.back.service.es.RechercheAdminService;
 import mc.gouv.xaf.back.service.es.RechercheDynamicJSService;
+import mc.gouv.xaf.back.service.es.utils.EsUtils;
 import mc.gouv.xaf.back.service.utils.HTMLEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -54,7 +55,7 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
 
         Map<String, RechercheChampConfigBO> champsMap = getChampsMap();
         properties.removeIf(p -> p.getType().equals(EsProperty.BOOLEAN_TYPE)
-                || p.getName().startsWith(DemandeEsDTO.JOIN_FIELD_NAME));
+                || p.getName().startsWith(EsUtils.JOIN_FIELD));
         Map<String, EsProperty> complementsFichiersPropertiesMap = addComplementsFilesAndInternalFilesProperties(
                 properties);
         List<EsCategory> categories = getCategories();

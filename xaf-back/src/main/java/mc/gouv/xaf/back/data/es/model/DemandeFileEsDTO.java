@@ -15,9 +15,6 @@ public class DemandeFileEsDTO {
      * @deprecated les jointures seront supprimées dans ES8
      */
     public static final String INDEX_FILES_JOIN_DOC = "fichiers";
-    public static final String TYPE_FIELD = "typeFichier";
-    public static final String IDENTIFIANT_FIELD = "identifiant";
-    public static final String DATE_PRINTED_FIELD = "datePrinted";
     /**
      * Id unique, différent de la pkDemandeFile (généré à partir de l'url et nom) et utilisé par ES
      */
@@ -44,7 +41,7 @@ public class DemandeFileEsDTO {
     @JsonFormat(locale = "fr", shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", timezone = "GMT+1")
     private Date datePrinted;
     /**
-     * TODO Identifiant courrier (ref_interne sur la page gestioncourrier)
+     * Référence Interne, principalement utilisée lors de l'impression des courriers
      */
     private String identifiantFichier;
     /**

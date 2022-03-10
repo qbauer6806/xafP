@@ -2,6 +2,7 @@ package mc.gouv.xaf.back.service.es;
 
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.es.model.DemandeFileEsDTO;
+import mc.gouv.xaf.back.data.es.model.EsProperty;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import org.apache.tika.exception.TikaException;
@@ -10,6 +11,7 @@ import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 public interface IndexedFilesService {
 

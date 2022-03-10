@@ -18,10 +18,6 @@ public class DemandeEsDTO {
     public static final String CANAL_FIELD_NAME = "canal";
     public static final String ACCESS_FIELD_NAME = "access";
     public static final String AGENT_FIELD_NAME = "agent";
-    /**
-     * @deprecated les jointures seront supprimées dans ES8
-     */
-    public static final String JOIN_FIELD_NAME = "demandeJoinField";
     public static final String DATA_FIELD_NAME = "data";
     public static final String DATE_DEMANDE_FIELD_NAME = "dateDemande";
     public static final String IDENTIFIANT_FIELD_NAME = "identifiant";

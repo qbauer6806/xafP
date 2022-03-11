@@ -60,7 +60,7 @@ public class DemandeFileEsTransformer {
                 demandeFileEsDTO.setPkDemandes(fichier.getFkDemandes().getPkDemandes());
                 demandeFileEsDTO.setPkDemandeFile(fichier.getPkDemandesFiles());
                 demandeFileEsDTO.setTypedoc(fichier.getTypedoc());
-                demandeFileEsDTO.setContent(getFileText(fichier.getUrl(), identifiantDem));
+                demandeFileEsDTO.setContent(getFileText(fichier.getUrl()));
                 demandeFileEsDTO.setLanguage(fichier.getFkDemandes().getLangue());
                 demandeFileEsDTO.setDateCreation(fichier.getDate());
                 filesList.add(demandeFileEsDTO);
@@ -89,7 +89,7 @@ public class DemandeFileEsTransformer {
                 demandeFileEsDTO.setTypeFichier(DemandeFileEsDTO.TYPE.COURRIER.name());
                 demandeFileEsDTO.setPkDemandes(fichier.getFkDemandes().getPkDemandes());
                 demandeFileEsDTO.setPkDemandeFile(fichier.getPkDemandesCourriers());
-                demandeFileEsDTO.setContent(getFileText(fichier.getUrl(), identifiantDem));
+                demandeFileEsDTO.setContent(getFileText(fichier.getUrl()));
                 demandeFileEsDTO.setLanguage(fichier.getFkDemandes().getLangue());
                 demandeFileEsDTO.setDateCreation(fichier.getDateCreation());
                 demandeFileEsDTO.setDatePrinted(fichier.getDatePrinted());
@@ -128,7 +128,7 @@ public class DemandeFileEsTransformer {
                     demandeFileEsDTO.setPkDemandes(demComplement.getFkDemandes().getPkDemandes());
                     demandeFileEsDTO.setPkDemandeFile(fichier.getPkDemandesComplementsFiles());
                     demandeFileEsDTO.setTypedoc(fichier.getTypedoc());
-                    demandeFileEsDTO.setContent(getFileText(fichier.getUrl(), identifiantDem));
+                    demandeFileEsDTO.setContent(getFileText(fichier.getUrl()));
                     demandeFileEsDTO.setLanguage(langue);
                     demandeFileEsDTO.setDateCreation(date);
                     filesList.add(demandeFileEsDTO);
@@ -179,7 +179,7 @@ public class DemandeFileEsTransformer {
             demandeFileEsDTO.setPkDemandes(demande.getPkDemandes());
             demandeFileEsDTO.setPkDemandeFile(fichier.getPkDemandesFiles());
             demandeFileEsDTO.setTypedoc(fichier.getTypedoc());
-            demandeFileEsDTO.setContent(getFileText(fichier.getUrl(), demande.getDemarcheId()));
+            demandeFileEsDTO.setContent(getFileText(fichier.getUrl()));
             demandeFileEsDTO.setLanguage(demande.getLangue());
             demandeFileEsDTO.setDateCreation(fichier.getDate());
             return demandeFileEsDTO;
@@ -209,19 +209,22 @@ public class DemandeFileEsTransformer {
             demandeFileEsDTO.setPkDemandes(demande.getPkDemandes());
             demandeFileEsDTO.setStatut(fichier.getFkStatut().getLibelle());
             demandeFileEsDTO.setDatePrinted(fichier.getDatePrinted());
-            demandeFileEsDTO.setContent(getFileText(fichier.getUrl(), demande.getDemarcheId()));
+            demandeFileEsDTO.setContent(getFileText(fichier.getUrl()));
             demandeFileEsDTO.setLanguage(demande.getLangue());
             return demandeFileEsDTO;
         }
         return null;
     }
 
-    private String getFileURL(String url, String demarcheId) throws UnsupportedEncodingException {
+    private String getFileURL(String url) throws UnsupportedEncodingException {
+        if (url.startsWith("/")) {
+            url = url.substring(1);
+        }
         String finalFilename = url;
         String[] split = url.split("/");
         String isolatedFileName = split[split.length - 1];
         finalFilename = finalFilename.replace(isolatedFileName, URLEncoder.encode(isolatedFileName, "UTF-8"));
-        return demarcheId + "/" + gouvPropertiesResolver.getContainerId() + "/" + finalFilename;
+        return gouvPropertiesResolver.getDemarcheId() + "/" + gouvPropertiesResolver.getContainerId() + "/" + finalFilename;
     }
 
     private InputStream getFileInputStream(String fileUrl) throws IOException {
@@ -236,8 +239,8 @@ public class DemandeFileEsTransformer {
         return is;
     }
 
-    private String getFileText(String url, String demarcheId) throws IOException {
-        String fileUrl = getFileURL(url, demarcheId);
+    private String getFileText(String url) throws IOException {
+        String fileUrl = getFileURL(url);
         InputStream is = getFileInputStream(fileUrl);
         String fileText = "";
         if (is != null) {

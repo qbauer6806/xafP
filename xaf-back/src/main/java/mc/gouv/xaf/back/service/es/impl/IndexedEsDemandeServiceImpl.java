@@ -404,8 +404,6 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             LOGGER.info("Bulk size : {}", size);
             int additionalPage = (demCount % size > 0) ? 1 : 0;
             indexBulkDeDemandes(demCount, size, additionalPage);
-            // TODO elasticsearchTemplate.refresh(DemandeEsDTO.class);
-
             LOGGER.info("Fin de la réindexation des demandes");
             return demCount;
         }
@@ -478,7 +476,6 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             if (!demandes.getContent().isEmpty()) {
                 indexedFilesService.indexFiles(demandes);
             }
-            // TODO elasticsearchTemplate.refresh(DemandeEsDTO.class);
         }
     }
 

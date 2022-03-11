@@ -118,7 +118,7 @@ public class FileUtils {
     public static int getNbFileNonTypes(List<FileCategoryDTO> filesAvecCategorie) {
         int nbSansCategorie = 0;
         for(FileCategoryDTO categoryDTO : filesAvecCategorie) {
-            if (FileUtils.CAT_INITIALE.equals(categoryDTO.getName()) || FileUtils.CAT_COMPLEMENTS.equals(categoryDTO.getName())) {
+            if (categoryDTO.isTypedoc()) {
                 for (DemandeFileDTO file : categoryDTO.getFiles()) {
                     if (file.getTypedoc() == null) {
                         nbSansCategorie++;

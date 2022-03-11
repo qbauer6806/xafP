@@ -8,40 +8,41 @@
         <form action="#" method="post" th:action="@{/demandes/typageDocuments}">
             <div th:each="cat : ${categories}">
                 <h3 th:text="${cat.name}"></h3>
-                
-                <!-- Affichage des sous-sections éventuelles -->
-                <div th:if="${cat.subCategories.size() > 0}" role="tabpanel" class="tab-pane" th:id="'subcats'+${iter.index}" th:each="subcat,iter : ${cat.subCategories}">
-                	<div class="panel-group subcataccordion" aria-multiselectable="true">
-						<div class="panel panel-default">
-							<div class="panel-heading" role="tab"
-								th:id="'heading' + ${iter.index}">
-								<h4 class="panel-title">
-									<a role="button" data-toggle="collapse" class="collapsed" aria-expanded="false"
-										data-parent="#subcataccordion"
-										th:attr="aria-controls='subcat'+${iter.index}"
-										th:href="${'#subcat'+iter.index}"><i
-										class="pannelState icon-action_accordeon-ferme"></i><span
-										th:text="${subcat.name}"></span>
-									</a>
-								</h4>
-							</div>
-	
-							<div th:id="${'subcat'+iter.index}"
-								class="panel-body sectionic panel-collapse collapse"
-								role="tabpanel"
-								th:attr="aria-labelledby='heading' + ${iter.index}">
-								<!-- On appelle le tableau sous forme de fragment, en lui passant en paramètre la sous-catégorie -->
-								<div th:replace="fragments/panelfichiersjointstypedoctable :: panelfichiersjointstypedoctable(cat=${subcat})"></div>
+
+				<div th:if="${cat.subCategories == null}">
+					<div th:replace="fragments/panelfichiersjointstypedoctable :: panelfichiersjointstypedoctable"></div>
+				</div>
+				<div th:if="${cat.subCategories != null} and ${cat.subCategories.size() > 0}">
+					<!-- Affichage des sous-sections éventuelles -->
+					<div role="tabpanel" class="tab-pane" th:id="'subcats'+${iter.index}" th:each="subcat,iter : ${cat.subCategories}">
+						<div class="panel-group subcataccordion" aria-multiselectable="true">
+							<div class="panel panel-default">
+								<div class="panel-heading" role="tab"
+									 th:id="'heading' + ${iter.index}">
+									<h4 class="panel-title">
+										<a role="button" data-toggle="collapse" class="collapsed" aria-expanded="false"
+										   data-parent="#subcataccordion"
+										   th:attr="aria-controls='subcat'+${iter.index}"
+										   th:href="${'#subcat'+iter.index}"><i
+												class="pannelState icon-action_accordeon-ferme"></i><span
+												th:text="${subcat.name}"></span>
+										</a>
+									</h4>
+								</div>
+
+								<div th:id="${'subcat'+iter.index}"
+									 class="panel-body sectionic panel-collapse collapse"
+									 role="tabpanel"
+									 th:attr="aria-labelledby='heading' + ${iter.index}">
+									<!-- On appelle le tableau sous forme de fragment, en lui passant en paramètre la sous-catégorie -->
+									<div th:replace="fragments/panelfichiersjointstypedoctable :: panelfichiersjointstypedoctable(cat=${subcat})"></div>
+								</div>
 							</div>
 						</div>
 					</div>
-            	</div>
-            	
-            	<div th:if="${cat.subCategories == null}">
-            		<div th:replace="fragments/panelfichiersjointstypedoctable :: panelfichiersjointstypedoctable"></div>
-            	</div>
+				</div>
 
-                <div th:if="${cat.name} == 'Fichiers de la demande initiale' and ${editionTypedocActive} and (${cat.files.size() > 0} or ${cat.subCategories.size() > 0})">
+                <div th:if="${cat.name} == 'Fichiers de la demande initiale' and ${editionTypedocActive} and (${cat.files.size() > 0} or (${cat.subCategories != null} and ${cat.subCategories.size() > 0}))">
                     <input class="btn btn-action ripple-effect" id="typedoc-files-button" type="button"
                     value="Enregistrer les types de fichiers de la demande initiale" style="float: right;" disabled="disabled">
                 </div>

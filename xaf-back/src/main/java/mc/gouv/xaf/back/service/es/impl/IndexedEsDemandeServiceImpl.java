@@ -7,6 +7,7 @@ import mc.gouv.xaf.back.data.dao.RechercheChampConfigRepository;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.RechercheChampConfigBO;
 import mc.gouv.xaf.back.data.es.dao.DemandeEsRepository;
+import mc.gouv.xaf.back.data.es.dao.DemandesFilesEsRepository;
 import mc.gouv.xaf.back.data.es.model.*;
 import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
 import mc.gouv.xaf.back.exception.AfIndexingException;
@@ -34,7 +35,6 @@ import org.elasticsearch.client.indices.GetIndexResponse;
 import org.elasticsearch.cluster.metadata.MappingMetadata;
 import org.elasticsearch.common.text.Text;
 import org.elasticsearch.index.query.*;
-import org.elasticsearch.index.reindex.DeleteByQueryRequest;
 import org.elasticsearch.join.query.HasChildQueryBuilder;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -121,6 +121,8 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     private ApplicationEventPublisher applicationEventPublisher;
     @Inject
     private DemandeEsRepository demandeEsRepository;
+    @Inject
+    private DemandesFilesEsRepository demandesFilesEsRepository;
     @Inject
     private AccessService accessService;
     @Inject
@@ -229,7 +231,6 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     public synchronized void initMappingProperties(boolean reload) {
 
         Map<String, Map> mapping = getMapping(indexAlias);
-        //Set<String> fileMapping =
 
         if (reload) {
             clearProperties();
@@ -550,6 +551,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     }
 
     /**
+     * TODO
      * Méthode permettant d'indexer un fichier
      *
      * @param demandeFileEsDTO Fichier à indexer
@@ -577,7 +579,6 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     }
 
     @Override
-    // TODO il manque les fichiers
     public DemandesFacets getDemandesFacets(DemandeRechercheDTO demandeRecherche) {
 
         demandeRecherche.setTexte(ESQueryUtils.getFormatedQuery(demandeRecherche.getTexte(),
@@ -691,6 +692,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     }
 
     /**
+     * TODO
      * Méthode permettant de mettre à jour les filtres de la requete qui permet de recupérer les facets
      *
      * @param queryStringQueryBuilders Tableau des filtres
@@ -948,8 +950,6 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     }
 
     /**
-     * TODO préfixe ?
-     *
      * Méthode permettant de construire la map ayant comme clé le champ ou la recherche à été faite et comme valeur les
      * fragments contenant le résultat de recherche.<br/>
      * Les mots clés de la recherche sont entourés par des balises qui les mettent en évidence
@@ -1001,6 +1001,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     }
 
     /**
+     * TODO
      * Méthode permettant de construire la map ayant comme clé le champ ou la recherche à été faite et comme valeur les
      * fragments contenant le résultat de recherche.<br/>
      * Les mots clés de la recherche sont entourés par des balises qui les mettent en évidence
@@ -1390,6 +1391,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                             demandeRecherche.getAgentAffecteId()));
         }
 
+        // TODO
 //        if (!StringUtils.isBlank(demandeRecherche.getStatutPublicOuInterne())) {
 //            boolQueryBuilder = boolQueryBuilder
 //                    .should(matchQuery("statutPublicOuInterne",
@@ -1515,8 +1517,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     public void deleteDemande(String demarcheId, Integer demandeId) throws JsonProcessingException {
         LOGGER.info("Début de suppression des références des fichiers de la demande {} dans Elasticsearch...", demandeId);
         try {
-
-            deleteDemandeInGivenStatus(demarcheId, demandeId, new ArrayList<String>(), -1);
+            deleteDemandeInGivenStatus(demarcheId, demandeId, new ArrayList<>(), -1);
         } catch (Exception e) {
             LOGGER.error("Erreur d'indexation lors de la suppression de la demande.");
             EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent(
@@ -1526,32 +1527,32 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         }
     }
 
-    private void deleteEsFilesIndex(Integer demandeId, DemandeDTO demandeDTO) throws Exception {
+    private void deleteEsFilesIndex(Integer demandeId, DemandeDTO demandeDTO) {
         if (null != demandeDTO.getFichiers()) {
             List<DemandeFileDTO> filesToDelete = Arrays.asList(demandeDTO.getFichiers());
             // On supprime les index des fichiers de la demande dans ES
-            if (null != filesToDelete && !filesToDelete.isEmpty()) {
+            if (!filesToDelete.isEmpty()) {
+                List<String> idsToDelete = new ArrayList<>();
                 for (DemandeFileDTO currentFileToDelete : filesToDelete) {
-                    // Ici le format de l'ID d'un courrier dans ES est {pkDemande}-{courrierUrl
-                    // (avec "/" remplacé par des "-")}
-                    // C'est ce qu'on détermine ici
-                    String demandeIdStr = Integer.toString(demandeId);
+                    // L'identifiant ES est formé à partir de l'url du fichier
                     String identifiantFile = currentFileToDelete.getUrl().replace("/", "-");
-                    String currentFileEsId = demandeIdStr + "-" + identifiantFile.replace(" ", "+");
-                    // Puis on requete ES pour supprimer tous les index matchant avec l'ID calculé
-                    // plus haut
-                    LOGGER.info("Début suppression du fichier : {} dans ElasticSearch", currentFileEsId);
-                    deleteGivenFieldFromEs("_id", currentFileEsId);
-                    LOGGER.info("Fin suppression du fichier : {} dans ElasticSearch", currentFileEsId);
+                    // Ici le format de l'ID d'un courrier dans ES est {pkDemande}-{identifiant}
+                    String currentFileEsId = demandeId + "-" + identifiantFile;
+                    // On ajoute à la liste d'ids à supprimer
+                    idsToDelete.add(currentFileEsId);
                 }
+                // Puis on appel le repo pour supprimer les fichiers
+                LOGGER.info("Début suppression des fichiers : {} dans ElasticSearch", idsToDelete);
+                demandesFilesEsRepository.deleteAllById(idsToDelete);
+                LOGGER.info("Fin suppression des fichiers : {} dans ElasticSearch", idsToDelete);
             }
         }
     }
 
     /**
      * Méthode permettant de supprimer une demande à purger avec une liste de status compatible à la supression (statuts finaux) et de la supprimer de l'index elasticsearch
-     *
-     * @see mc.gouv.xaf.back.service.data.impl.DemandesServiceImpl#deleteDemandeInGivenStatus(java.lang.String, java.lang.Integer)
+     * 
+     * @see mc.gouv.xaf.back.service.data.impl.DemandesServiceImpl#deleteDemandeInGivenStatus(String, Integer, List, int)
      */
     @Override
     public void deleteDemandeInGivenStatus(String demarcheId, Integer demandeId, List<String> statuts, int jours) throws JsonProcessingException {
@@ -1562,15 +1563,14 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             // On supprime l'index des fichiers de la demande dans ES
             deleteEsFilesIndex(demandeId, demandeDTO);
             // Puis on supprime l'index de la demande elle même dans ES
-            deleteGivenFieldFromEs("_id", demandeDTO.getIdentifiant());
+            demandeEsRepository.deleteById(demandeBo.getIdentifiant());
             /*
              * Cette méthode n'étant pas le point d'entrée du TraitementController de chaque TS il a fallut mettre en place une logique spécifique
              *
              * Le traitement controller de chaque demande va appeler deleteDemande qui lui va appeler deleteDemandeInGivenStatus avec une liste de statuts vides et jours < 0
              * (deleteDemande est utilisé si erreur au moment de la création/duplication d'une demande)
              * Dans ce cas là, le deleteDemande va supprimer les fichiers rattachés à cette demande sans tests préalable.
-             *
-             * */
+             */
             if (statuts.isEmpty() && jours < 0) {
                 super.deleteDemande(demarcheId, demandeId);
             } else {
@@ -1587,14 +1587,6 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             applicationEventPublisher.publishEvent(esErrorEventDTO);
             throw new AfIndexingException(e.getMessage(), e);
         }
-    }
-
-
-    private void deleteGivenFieldFromEs(String fieldName, String fieldValue) throws Exception {
-        DeleteByQueryRequest request = new DeleteByQueryRequest(gouvPropertiesResolver.getApplicationName());
-        request.setQuery(new TermQueryBuilder(fieldName, fieldValue));
-        request.setRefresh(true);
-        // TODO elasticsearchTemplate.getClient().deleteByQuery(request, RequestOptions.DEFAULT);
     }
 
     /**

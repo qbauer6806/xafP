@@ -6,6 +6,8 @@ import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import mc.gouv.xaf.servlet.enums.UsagerTypeEnum;
+
 /**
  * <p>
  * Usager loggé géré par l'application de gestion des usagers (login).
@@ -67,6 +69,8 @@ public class UsagerInfosDTO implements Serializable {
     protected InfosCertifieesUsagerInfosDTO infosCertifiees;
     
     protected boolean mConnect = false;
+    
+    protected UsagerTypeEnum type = UsagerTypeEnum.INDIVIDUAL;
 
     public String getTitreLabel() {
         if (titre == null) {
@@ -281,6 +285,14 @@ public class UsagerInfosDTO implements Serializable {
 
 	public void setmConnect(boolean mConnect) {
 		this.mConnect = mConnect;
+	}
+
+	public UsagerTypeEnum getType() {
+		return type;
+	}
+
+	public void setType(UsagerTypeEnum type) {
+		this.type = type;
 	}
 
 }

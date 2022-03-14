@@ -1,9 +1,9 @@
 package mc.gouv.xaf.servlet.util;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Calendar;
@@ -19,7 +19,6 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.protocol.HTTP;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,9 +32,10 @@ import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
-import mc.gouv.xaf.servlet.dto.KeycloakTokenInfo;
 import mc.gouv.xaf.servlet.dto.InfosCertifieesUsagerInfosDTO;
+import mc.gouv.xaf.servlet.dto.KeycloakTokenInfo;
 import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
+import mc.gouv.xaf.servlet.enums.UsagerTypeEnum;
 import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
 
 /**
@@ -71,13 +71,9 @@ public class GichkeyService {
 		String redirectUri = requestUrl.replace("/login", "/acces_teleservice.html");
 		nvps.add(new BasicNameValuePair("redirect_uri", redirectUri));
 		nvps.add(new BasicNameValuePair("grant_type", "authorization_code"));
-		nvps.add(new BasicNameValuePair("scope", "openid mconnect"));
+		nvps.add(new BasicNameValuePair("scope", "openid mconnect monguichet"));
 
-		try {
-			postRequest.setEntity(new UrlEncodedFormEntity(nvps, HTTP.UTF_8));
-		} catch (UnsupportedEncodingException e) {
-			LOGGER.error("Erreur lors du postRequest.setEntity()", e);
-		}
+		postRequest.setEntity(new UrlEncodedFormEntity(nvps, StandardCharsets.UTF_8));
 
 		postRequest.setHeader("Connection", "keep-alive");
 		postRequest.setHeader("Accept-Encoding", "gzip, deflate, br");
@@ -150,22 +146,28 @@ public class GichkeyService {
 		TextNode givenNameNode = (TextNode)node.get("given_name");
 		TextNode emailNode = (TextNode)node.get("email");
 		IntNode usagerIdNode = (IntNode)node.get("usager_id");
+		TextNode typeNode = (TextNode)node.get("type");
 		String usagerNom = nameNode.asText();
 		String usagerPrenom = givenNameNode.asText();
 		String usagerEmail = emailNode.asText();
 		Integer usagerId = usagerIdNode.asInt();
+		String type = null;
+		if (typeNode != null) {
+			type = typeNode.asText();
+		}
 		
 		LOGGER.info("Usager : " + usagerPrenom + " " + usagerNom + " (" + usagerEmail + ")");
 		
 		UsagerInfosDTO uinfos = new UsagerInfosDTO();
         uinfos.setEmail(usagerEmail);
-        // uinfos.setEtat(), que mettre ?
         uinfos.setId(usagerId);
         uinfos.setLogin(StringUtils.defaultString(usagerPrenom + " " + usagerNom));
         uinfos.setNom(usagerNom);
         uinfos.setPrenom(usagerPrenom);
-        // TODO mapper "titre" sur "civility" de Keycloak
         uinfos.setUsagerCourrier(false);
+        if (type != null) {
+        	uinfos.setType(UsagerTypeEnum.valueOf(type.toUpperCase()));
+        }
         
         uinfos.setTokenInfo(tokenInfo);
         
@@ -205,11 +207,7 @@ public class GichkeyService {
 		nvps.add(new BasicNameValuePair("client_secret", AfServletGouvPropertiesResolver.getGichkeyClientSecret()));
 		nvps.add(new BasicNameValuePair("refresh_token", uinfos.getTokenInfo().getRefreshToken()));
 
-		try {
-			postRequest.setEntity(new UrlEncodedFormEntity(nvps, HTTP.UTF_8));
-		} catch (UnsupportedEncodingException e) {
-			LOGGER.error("Erreur lors du postRequest.setEntity()", e);
-		}
+		postRequest.setEntity(new UrlEncodedFormEntity(nvps, StandardCharsets.UTF_8));
 
 		postRequest.setHeader("Connection", "keep-alive");
 		postRequest.setHeader("Accept-Encoding", "gzip, deflate, br");
@@ -283,13 +281,9 @@ public class GichkeyService {
 		nvps.add(new BasicNameValuePair("client_id", AfServletGouvPropertiesResolver.getGichkeyClientId()));
 		nvps.add(new BasicNameValuePair("client_secret", AfServletGouvPropertiesResolver.getGichkeyClientSecret()));
 		nvps.add(new BasicNameValuePair("grant_type", "refresh_token"));
-		nvps.add(new BasicNameValuePair("scope", "openid mconnect"));
+		nvps.add(new BasicNameValuePair("scope", "openid mconnect monguichet"));
 
-		try {
-			postRequest.setEntity(new UrlEncodedFormEntity(nvps, HTTP.UTF_8));
-		} catch (UnsupportedEncodingException e) {
-			LOGGER.error("Erreur lors du postRequest.setEntity()", e);
-		}
+		postRequest.setEntity(new UrlEncodedFormEntity(nvps, StandardCharsets.UTF_8));
 
 		postRequest.setHeader("Connection", "keep-alive");
 		postRequest.setHeader("Accept-Encoding", "gzip, deflate, br");

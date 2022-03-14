@@ -55,9 +55,8 @@ public class GichuniService {
 		LOGGER.info("Appel à GICHUNI");
 		try {
 			HttpResponse getResponse = client.execute(getRequest);
-			LOGGER.info("resp : " + getResponse.getStatusLine().getStatusCode());
 			String resp = IOUtils.toString(getResponse.getEntity().getContent());
-			LOGGER.info("resp = " + resp);
+			LOGGER.info("Status : " + getResponse.getStatusLine().getStatusCode() + ", resp = " + resp);
 			
 			ArrayNode anode = new ObjectMapper().readValue(resp, ArrayNode.class);
 			ObjectNode node = (ObjectNode)anode.get(0);

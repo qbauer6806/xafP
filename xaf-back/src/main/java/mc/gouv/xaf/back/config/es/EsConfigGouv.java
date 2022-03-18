@@ -1,10 +1,6 @@
 package mc.gouv.xaf.back.config.es;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.inject.Inject;
-
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
@@ -18,87 +14,65 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
-import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
-import org.springframework.data.elasticsearch.core.RefreshPolicy;
-import org.springframework.data.elasticsearch.core.convert.ElasticsearchConverter;
-import org.springframework.data.elasticsearch.core.convert.MappingElasticsearchConverter;
-import org.springframework.data.elasticsearch.core.mapping.SimpleElasticsearchMappingContext;
+import org.springframework.data.elasticsearch.config.AbstractElasticsearchConfiguration;
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.List;
 
-@Configuration
+/**
+ * Classe de configuration pour ElasticSearch, à étendre dans les démarches pour configurer le configurateur ES afin de mapper les enums.
+ * <p>
+ * La configuration du template ES (pour faire toutes les actions) est faite dans {@link org.springframework.data.elasticsearch.config.ElasticsearchConfigurationSupport}
+ */
 @Conditional(IndexationEnabledCondition.class)
 @EnableElasticsearchRepositories(basePackages = "mc.gouv.xaf.back.data.es.dao")
-public class EsConfigGouv {
+public class EsConfigGouv extends AbstractElasticsearchConfiguration {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(EsConfigGouv.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(EsConfigGouv.class);
 
-	@Inject
-	private GouvPropertiesResolver gouvPropertiesResolver;
+    private static final String GOUV_PROPERTIES_CHAR_SPLITTER = ",";
 
-	private final String GOUV_PROPERTIES_CHAR_SPLITTER = ",";
+    @Inject
+    private GouvPropertiesResolver gouvPropertiesResolver;
 
-	/**
-	 * Méthode permettant de configurer un High Lvel REST Elasticsearch client.
-	 *
-	 * @return RestHighLevelClient
-	 */
-	@Bean
-	public RestHighLevelClient client() {
+    /**
+     * Méthode permettant de configurer un High Lvel REST Elasticsearch client.
+     *
+     * @return RestHighLevelClient
+     */
+    @Bean
+    @Override
+    public RestHighLevelClient elasticsearchClient() {
 
-		String[] clusterHosts = StringUtils.split(gouvPropertiesResolver.getEsClusterHosts(),
-				GOUV_PROPERTIES_CHAR_SPLITTER);
+        String[] clusterHosts = StringUtils.split(gouvPropertiesResolver.getEsClusterHosts(),
+                GOUV_PROPERTIES_CHAR_SPLITTER);
 
-		List<HttpHost> hosts = new ArrayList<>();
-		for (String clusterHost : clusterHosts) {
-			hosts.add(new HttpHost(clusterHost, gouvPropertiesResolver.getEsPort()));
-		}
+        List<HttpHost> hosts = new ArrayList<>();
+        for (String clusterHost : clusterHosts) {
+            hosts.add(new HttpHost(clusterHost, gouvPropertiesResolver.getEsPort()));
+        }
 
-		Integer connectTimeout = gouvPropertiesResolver.getEsConnectTimeout();
-		Integer socketTimeout = gouvPropertiesResolver.getEsSocketTimeout();
-		RestClientBuilder builder = RestClient.builder(hosts.toArray(new HttpHost[hosts.size()]))
-				.setRequestConfigCallback(requestConfigBuilder -> requestConfigBuilder
-						.setConnectTimeout(connectTimeout)
-						.setSocketTimeout(socketTimeout));
-		
-		// Authentification elastisearch
-		String user = gouvPropertiesResolver.getEsUser();
-		String password = gouvPropertiesResolver.getEsPassword();
+        Integer connectTimeout = gouvPropertiesResolver.getEsConnectTimeout();
+        Integer socketTimeout = gouvPropertiesResolver.getEsSocketTimeout();
+        RestClientBuilder builder = RestClient.builder(hosts.toArray(new HttpHost[hosts.size()]))
+                .setRequestConfigCallback(requestConfigBuilder -> requestConfigBuilder
+                        .setConnectTimeout(connectTimeout)
+                        .setSocketTimeout(socketTimeout));
 
-		if (StringUtils.isNotBlank(user) && StringUtils.isNotBlank(password)) {
-			LOGGER.info("Configuration d'elasticsearch avec Basic Auth");
-			final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-			credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(user, password));
-			builder.setHttpClientConfigCallback(
-					httpClientBuilder -> httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider));
-		}		
-		return new RestHighLevelClient(builder);
-	}
+        // Authentification elastisearch
+        String user = gouvPropertiesResolver.getEsUser();
+        String password = gouvPropertiesResolver.getEsPassword();
 
-	/**
-	 * Méthode permettant de configurer un convertisseur elasticsearch pour remplacer le convertisseur Jackson.
-	 *
-	 * @return RestHighLevelClient
-	 */
-	@Bean
-	public ElasticsearchConverter elasticsearchConverter() {
-		return new MappingElasticsearchConverter(new SimpleElasticsearchMappingContext());
-	}
-
-	/**
-	 * Méthode permettant de configurer un template pour effectuer des actions sur le serveur elasticsearch.
-	 *
-	 * @return RestHighLevelClient
-	 */
-	@Bean
-	@Primary
-	public ElasticsearchRestTemplate elasticsearchTemplate() {
-		ElasticsearchRestTemplate template = new ElasticsearchRestTemplate(client(), elasticsearchConverter());
-		template.setRefreshPolicy(RefreshPolicy.IMMEDIATE);
-		return template;
-	}
+        if (StringUtils.isNotBlank(user) && StringUtils.isNotBlank(password)) {
+            LOGGER.info("Configuration d'elasticsearch avec Basic Auth");
+            final CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
+            credentialsProvider.setCredentials(AuthScope.ANY, new UsernamePasswordCredentials(user, password));
+            builder.setHttpClientConfigCallback(
+                    httpClientBuilder -> httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider));
+        }
+        return new RestHighLevelClient(builder);
+    }
 
 }

@@ -55,7 +55,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
-import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.clients.elasticsearch7.ElasticsearchAggregations;
@@ -110,8 +109,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     private final List<String> demandesFieldsToExclude = new ArrayList<>();
     //Liste des champs à exclure de la recherche dans les fichiers associés aux demandes
     private final List<String> fichiersFieldsToExclude = new ArrayList<>();
-    @Autowired
-    IndexedDemandeService demandesService;
+
     @Inject
     RechercheChampConfigRepository rechercheChampConfigRepository;
     @Inject
@@ -138,11 +136,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     @Inject
     private DemandesRepository demandesRepository;
     @Inject
-    private ElasticsearchRestTemplate elasticsearchTemplate;
-
-    @Inject
-    private ElasticsearchOperations elasticsearchOperations;
-
+    private ElasticsearchOperations elasticsearchTemplate;
     @Inject
     private GouvPropertiesResolver gouvPropertiesResolver;
     @Autowired
@@ -415,16 +409,23 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     public List<List<String>> getDemandesDesynchro() {
         long demCount = demandesRepository.count();
         List<DemandeBO> demandesBdd = demandesRepository.findAll(PageRequest.of(0, (int) demCount)).toList();
-        List<String> identifiantsDemandesBdd = demandesBdd.stream().map(DemandeBO::getIdentifiant).collect(Collectors.toList());
+        List<String> identifiantsDemandesBdd = demandesBdd.stream()
+                .map(DemandeBO::getIdentifiant)
+                .collect(Collectors.toList());
 
+        // TODO Problème avec la requette ES qui retourne les fichiers et les demandes
+        String prefixe = afBackUtils.getDemarcheInfos().getIdentifiantPrefixe();
         List<DemandeEsDTO> demandesEs = this.findAllDemandesLazy();
-        List<String> identifiantsDemandesEs = demandesEs.stream().filter(d -> d.getPkDemandes() != null).map(DemandeEsDTO::getIdentifiant).collect(Collectors.toList());
+        List<String> identifiantsDemandesEs = demandesEs.stream()
+                .filter(d -> d.getPkDemandes() != null && StringUtils.startsWith(d.getIdentifiant(), prefixe))
+                .map(DemandeEsDTO::getIdentifiant)
+                .collect(Collectors.toList());
 
         // [0] Demandes présentes dans ES mais pas en BDD
         // [1] Demandes présentes en BDD mais pas dans ES
         List<List<String>> ret = new ArrayList<>();
-        List<String> bddMaisPasES = new ArrayList(CollectionUtils.subtract(identifiantsDemandesBdd, identifiantsDemandesEs));
-        List<String> esMaisPasBDD = new ArrayList(CollectionUtils.subtract(identifiantsDemandesEs, identifiantsDemandesBdd));
+        List<String> bddMaisPasES = new ArrayList<>(CollectionUtils.subtract(identifiantsDemandesBdd, identifiantsDemandesEs));
+        List<String> esMaisPasBDD = new ArrayList<>(CollectionUtils.subtract(identifiantsDemandesEs, identifiantsDemandesBdd));
 
         ret.add(esMaisPasBDD);
         ret.add(bddMaisPasES);
@@ -442,13 +443,13 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         long demCount = demandesRepository.count();
         List<DemandeBO> demandesBdd = demandesRepository.findAll(PageRequest.of(0, (int) demCount)).toList();
 
-        // Supression des demandes dans ES
+        // Supression des demandes dans ES qui ne sont pas en BDD
         for (String idDemande : demandesDesynchro.get(0)) {
             demandeEsRepository.deleteById(idDemande);
             demandesSync.add(idDemande);
         }
 
-        // Indexation des demandes en BDD mais pas ES
+        // Indexation des demandes en BDD qui ne sont pas dans ES
         List<DemandeBO> demandesBoASynchro = demandesBdd.stream().filter(d -> demandesDesynchro.get(1).contains(d.getIdentifiant())).collect(Collectors.toList());
         for (DemandeBO demandeBO : demandesBoASynchro) {
             DemandeDTO demandeDTO = DemandesTransformer.bo2Dto(demandeBO);
@@ -550,32 +551,15 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         return demandeEsDTOs;
     }
 
-    /**
-     * TODO
-     * Méthode permettant d'indexer un fichier
-     *
-     * @param demandeFileEsDTO Fichier à indexer
-     * @return Fichier indexé
-     */
-    private DemandeFileEsDTO indexFile(DemandeFileEsDTO demandeFileEsDTO) {
-
-        if (demandeFileEsDTO != null) {
-            IndexQuery index = new IndexQuery();
-            index.setId(demandeFileEsDTO.getIdentifiant());
-            index.setObject(demandeFileEsDTO);
-            index.setSource(demandeFileEsDTO.getDemandeJoinField().getParent());
-            elasticsearchTemplate.index(index, IndexCoordinates.of(indexAlias));
-        }
-        return demandeFileEsDTO;
-    }
-
     @Override
-    // TODO https://www.elastic.co/guide/en/elasticsearch/client/java-rest/current/java-rest-high-search.html
     public List<DemandeEsDTO> getIndexedDemandes(DemandeRechercheDTO demandeRecherche) {
         demandeRecherche.setTexte(ESQueryUtils.getFormatedQuery(demandeRecherche.getTexte(),
                 afBackUtils.getDemarcheInfos().getIdentifiantPrefixe()));
-        //return Lists.newArrayList(demandeEsRepository.search(getQueryBuilder(demandeRecherche)));
-        return new ArrayList<>();
+        NativeSearchQueryBuilder nativeSearchQueryBuilder = new NativeSearchQueryBuilder()
+                .withQuery(getQueryBuilder(demandeRecherche));
+        return elasticsearchTemplate.search(nativeSearchQueryBuilder.build(), DemandeEsDTO.class).stream()
+                .map(SearchHit::getContent)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -588,7 +572,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
         if (!StringUtils.isBlank(demandeRecherche.getTexte())) {
             NativeSearchQueryBuilder builder = getFacetsAggregationQuery(demandeRecherche);
-            SearchHits<DemandeEsRechercheDTO> searchHits = elasticsearchOperations.search(builder.build(), DemandeEsRechercheDTO.class);
+            SearchHits<DemandeEsRechercheDTO> searchHits = elasticsearchTemplate.search(builder.build(), DemandeEsRechercheDTO.class);
             List<Aggregation> aggregations = ((ElasticsearchAggregations) searchHits.getAggregations()).aggregations().asList();
 
             if (aggregations.isEmpty()) {
@@ -816,7 +800,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         }
 
         NativeSearchQuery query = nativeSearchQueryBuilder.build();
-        SearchHits<DemandeEsRechercheDTO> searchHits = elasticsearchOperations.search(query, DemandeEsRechercheDTO.class);
+        SearchHits<DemandeEsRechercheDTO> searchHits = elasticsearchTemplate.search(query, DemandeEsRechercheDTO.class);
         return aggregateResults(searchHits, pageable);
     }
 
@@ -891,14 +875,14 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         }
 
         NativeSearchQuery query = nativeSearchQueryBuilder.build();
-        SearchHits<DemandeFileEsRechercheDTO> searchHits = elasticsearchOperations.search(query, DemandeFileEsRechercheDTO.class);
+        SearchHits<DemandeFileEsRechercheDTO> searchHits = elasticsearchTemplate.search(query, DemandeFileEsRechercheDTO.class);
         return aggregateResultsCourriers(searchHits, pageable);
 
     }
 
     /**
      * Transforme l'objet retourné par la recherche courriers en Page
-     *
+     * <p>
      * // TODO Sortir cette méthode dans IndexedEsDemandeFilesServiceImpl, afin de regrouper les actions sur les fichiers
      *
      * @param searchHits, Objet contenant les résultats de recherche
@@ -930,7 +914,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     /**
      * Méthode ajoutant les mots trouvées dans les fichiers lors de la recherche courriers
-     *
+     * <p>
      * // TODO Sortir cette méthode dans IndexedEsDemandeFilesServiceImpl, afin de regrouper les actions sur les fichiers
      *
      * @param innerHits,            une Map contenant les mots trouvés dans les fichiers
@@ -1130,7 +1114,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     /**
      * Méthode permettant la construction de la requete elasticserach de récupération des courriers
-     *
+     * <p>
      * // TODO Sortir cette méthode dans IndexedEsDemandeFilesServiceImpl, afin de regrouper les actions sur les fichiers
      *
      * @param demandeRecherche Paramètres de la recherche
@@ -1551,7 +1535,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     /**
      * Méthode permettant de supprimer une demande à purger avec une liste de status compatible à la supression (statuts finaux) et de la supprimer de l'index elasticsearch
-     * 
+     *
      * @see mc.gouv.xaf.back.service.data.impl.DemandesServiceImpl#deleteDemandeInGivenStatus(String, Integer, List, int)
      */
     @Override
@@ -1634,18 +1618,19 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      *
      * @return List des demandes en Lazy
      * <p>
-     * TODO
+     * TODO Bug: depuis les changements avec la migration ES, les fichiers et les demandes remontent dans la même requette
      */
     private List<DemandeEsDTO> findAllDemandesLazy() {
         String[] includes = new String[]{"identifiant", "pkDemandes"};
-//        SearchQuery searchQuery = new NativeSearchQueryBuilder()
-//                .withQuery(matchAllQuery())
-//                .withSourceFilter(new FetchSourceFilter(includes, null))
-//                .withPageable(PageRequest.of(0, (int) demandeEsRepository.count()))
-//                .build();
-//
-//        return elasticsearchTemplate.queryForList(searchQuery, DemandeEsDTO.class);
-        return new ArrayList<>();
+        NativeSearchQuery searchQuery = new NativeSearchQueryBuilder()
+                .withQuery(matchAllQuery())
+                .withSourceFilter(new FetchSourceFilter(includes, null))
+                .withPageable(PageRequest.of(0, (int) demandeEsRepository.count()))
+                .build();
+        return elasticsearchTemplate.search(searchQuery, DemandeEsDTO.class)
+                .stream()
+                .map(SearchHit::getContent)
+                .collect(Collectors.toList());
     }
 
     public DemandeDTO changerAffectationDemande(String demarcheId, int pkDemande, String agentAffecteId) {

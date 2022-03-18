@@ -21,7 +21,6 @@ import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkResponse;
-import org.elasticsearch.action.index.IndexRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +29,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Page;
-import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
+import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.convert.ElasticsearchConverter;
 import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 import org.springframework.data.elasticsearch.core.query.IndexQuery;
@@ -65,10 +64,7 @@ public class IndexedEsDemandeFilesServiceImpl extends DemandeFilesServiceImpl im
     private DemandeFileEsTransformer demandeFileEsTransformer;
 
     @Inject
-    private ElasticsearchRestTemplate elasticsearchTemplate;
-
-    @Inject
-    private ElasticsearchConverter elasticsearchConverter;
+    private ElasticsearchOperations elasticsearchTemplate;
 
     @Override
     public void saveFile(DemandeFileDTO demandeFile, String demarcheId, Integer pkDemande) throws Exception {
@@ -88,6 +84,24 @@ public class IndexedEsDemandeFilesServiceImpl extends DemandeFilesServiceImpl im
             applicationEventPublisher.publishEvent(esErrorEventDTO);
             throw new AfIndexingException(e.getMessage(), e);
         }
+    }
+
+    /**
+     * Méthode permettant d'indexer un fichier
+     *
+     * @param demandeFileEsDTO Fichier à indexer
+     * @return Fichier indexé
+     */
+    private DemandeFileEsDTO indexFile(DemandeFileEsDTO demandeFileEsDTO) {
+
+        if (demandeFileEsDTO != null) {
+            IndexQuery index = new IndexQuery();
+            index.setId(demandeFileEsDTO.getIdentifiant());
+            index.setObject(demandeFileEsDTO);
+            index.setSource(demandeFileEsDTO.getDemandeJoinField().getParent());
+            elasticsearchTemplate.index(index, IndexCoordinates.of(indexAlias));
+        }
+        return demandeFileEsDTO;
     }
 
     @Override
@@ -243,7 +257,6 @@ public class IndexedEsDemandeFilesServiceImpl extends DemandeFilesServiceImpl im
                 elasticsearchTemplate.bulkIndex(bulkQueries, IndexCoordinates.of(indexAlias));
                 bulkQueries.clear();
             }
-            //bulkRequest.add(prepareIndex(queries.get(i)));
             IndexQuery query = queries.get(i);
             query.setRouting(query.getParentId());
             bulkQueries.add(query);
@@ -252,21 +265,6 @@ public class IndexedEsDemandeFilesServiceImpl extends DemandeFilesServiceImpl im
         LOGGER.info("Indexation du bulk {}/{}", nombreBulks, nombreBulks);
         // TODO checkForBulkUpdateFailure(elasticsearchTemplate.getClient().bulk(bulkRequest, RequestOptions.DEFAULT));
         elasticsearchTemplate.bulkIndex(bulkQueries, IndexCoordinates.of(indexAlias));
-    }
-
-    private IndexRequest prepareIndex(IndexQuery query) {
-        IndexRequest indexRequest;
-
-        if (query.getObject() != null) {
-            // If we have a query id and a document id, do not ask ES to generate one.
-            indexRequest = new IndexRequest(indexAlias).id(query.getId());
-            indexRequest.source(elasticsearchConverter.mapObject(query.getObject()));
-        } else {
-            throw new ElasticsearchException("object or source is null, failed to index the document [id: " + query.getId() + "]");
-        }
-
-        indexRequest.routing(query.getParentId());
-        return indexRequest;
     }
 
     private void checkForBulkUpdateFailure(BulkResponse bulkResponse) {

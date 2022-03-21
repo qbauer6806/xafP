@@ -87,16 +87,22 @@ public class AfServletGouvPropertiesResolver {
         return Static.getValue(LOGIN_KEEP_ALIVE);
     }
 
-    public static final String LOGIN_URL ="mc.gouv.appfactory" + applicationPrefix + ".front.login.url";
+    public static final String GICHKEY_REDIRECT_URL ="mc.gouv.appfactory" + applicationPrefix + ".gichkey.redirect.url";
 
-    public static String getLoginUrl() {
-        return Static.getValue(LOGIN_URL);
+    public static String getGichkeyRedirectUrl() {
+        return Static.getValue(GICHKEY_REDIRECT_URL);
     }
 
-    public static final String LOGIN_PROFIL_URL = "mc.gouv.appfactory.front.login.profil.url";
+    public static final String GICHUNI_PROFIL_INDIVIDUAL_URL = "mc.gouv.appfactory.gichuni.profil.individual.url";
 
-    public static String getLoginProfilUrl() {
-        return Static.getValue(LOGIN_PROFIL_URL);
+    public static String getGichuniProfilIndividualUrl() {
+        return Static.getValue(GICHUNI_PROFIL_INDIVIDUAL_URL);
+    }
+    
+    public static final String GICHUNI_PROFIL_COMPANY_URL = "mc.gouv.appfactory.gichuni.profil.company.url";
+
+    public static String getGichuniProfilCompanyUrl() {
+        return Static.getValue(GICHUNI_PROFIL_COMPANY_URL);
     }
 
     /* Properties propres à la démarche */
@@ -263,8 +269,9 @@ public class AfServletGouvPropertiesResolver {
     public static List<PropertiesDTO> getFrontProperties() {
         List<PropertiesDTO> propertiesDTOS = new ArrayList<>();
         propertiesDTOS.add(new PropertiesDTO(LOGIN_KEEP_ALIVE, getLoginKeepAlive()));
-        propertiesDTOS.add(new PropertiesDTO(LOGIN_URL, getLoginUrl()));
-        propertiesDTOS.add(new PropertiesDTO(LOGIN_PROFIL_URL, getLoginProfilUrl()));
+        propertiesDTOS.add(new PropertiesDTO(GICHKEY_REDIRECT_URL, getGichkeyRedirectUrl()));
+        propertiesDTOS.add(new PropertiesDTO(GICHUNI_PROFIL_INDIVIDUAL_URL, getGichuniProfilIndividualUrl()));
+        propertiesDTOS.add(new PropertiesDTO(GICHUNI_PROFIL_COMPANY_URL, getGichuniProfilCompanyUrl()));
         propertiesDTOS.add(new PropertiesDTO(FRONTOFFICE_CONTACT_URL, getFrontofficeContactUrl()));
         propertiesDTOS.add(new PropertiesDTO(FRONTOFFICE_COPYRIGHT_YEARS, getFrontofficeCopyrightYears()));
         propertiesDTOS.add(new PropertiesDTO(FRONTOFFICE_PIWIK_SITE_ID, getFrontofficePiwikSiteId()));

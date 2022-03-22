@@ -137,7 +137,7 @@ import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements IndexedDemandeService {
 
     public static final String ES_KEYWORD = ".keyword";
-    public static final SimpleDateFormat SDF = new SimpleDateFormat(DATE_PATTERN);
+    public final SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_PATTERN);
     public static final String ES_MAPPING_PROPERTIES_KEY = "properties";
     public static final String ES_MAPPING_FIELDS_KEY = "fields";
     public static final String ES_MAPPING_TYPE_KEY = "type";
@@ -909,7 +909,9 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                                 }
                             }
 
-                            demandeEsRechercheDTO.setHighlightedField(demEsHighlightFields);
+                            if (demandeEsRechercheDTO != null) {
+                            	demandeEsRechercheDTO.setHighlightedField(demEsHighlightFields);
+                            }
                             demandesEsList.add(demandeEsRechercheDTO);
                         }
 
@@ -983,7 +985,9 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                                 }
                             }
 
-                            fichierJoinEsRechercheDTO.setHighlightedField(demEsHighlightFields);
+                            if (fichierJoinEsRechercheDTO != null) {
+                            	fichierJoinEsRechercheDTO.setHighlightedField(demEsHighlightFields);
+                            }
                             demandesEsList.add(fichierJoinEsRechercheDTO);
 
                         }
@@ -1631,7 +1635,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.SECOND, 0);
 
-        return SDF.format(cal.getTime());
+        return dateFormat.format(cal.getTime());
     }
 
 

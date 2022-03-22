@@ -1,10 +1,5 @@
 package mc.gouv.sup;
 
-import mc.gouv.sup.model.ClassObject;
-import mc.gouv.sup.model.Field;
-import mc.gouv.sup.model.PackageObject;
-import org.apache.commons.io.FileUtils;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -21,7 +16,17 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import mc.gouv.sup.model.ClassObject;
+import mc.gouv.sup.model.Field;
+import mc.gouv.sup.model.PackageObject;
+
 public class GenerateGenericModel {
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(GenerateGenericModel.class);
 
     /*
             Change TS_NAME and PATH_WORKSPACE
@@ -66,8 +71,8 @@ public class GenerateGenericModel {
         }
         write(PACKAGE_GENERIC, packageObjects);
 
-        System.out.println(PACKAGE_GENERIC);
-        System.out.println(" /!\\ WARNING /!\\");
+        LOGGER.info(PACKAGE_GENERIC.toString());
+        LOGGER.info(" /!\\ WARNING /!\\");
         WARNINGS.forEach(System.out::println);
     }
 
@@ -92,80 +97,79 @@ public class GenerateGenericModel {
 
 
         File file = new File(PATH_GENERIC + "/" + GENERIC_CLASS_PREFIX + classObject.getName() + JAVA_EXTENSION);
-        BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-        writer.append("package " + GENERIC_PACKAGE + "; \n\n");
-        writer.append("import com.fasterxml.jackson.annotation.JsonIgnoreProperties;\n\n");
-        writer.append("import java.io.Serializable;\n");
-        if (classObject.getFields().stream().map(Field::getType).anyMatch(s -> s.contains("[]"))) {
-            writer.append("import java.util.Arrays;\n");
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+	        writer.append("package " + GENERIC_PACKAGE + "; \n\n");
+	        writer.append("import com.fasterxml.jackson.annotation.JsonIgnoreProperties;\n\n");
+	        writer.append("import java.io.Serializable;\n");
+	        if (classObject.getFields().stream().map(Field::getType).anyMatch(s -> s.contains("[]"))) {
+	            writer.append("import java.util.Arrays;\n");
+	        }
+	
+	        writer.append("\n@JsonIgnoreProperties(ignoreUnknown = true)\n");
+	        writer.append("public class " + GENERIC_CLASS_PREFIX + classObject.getName() + " implements Serializable {\n\n");
+	
+	        writer.append(INDENT + "/* Members variables*/\n\n");
+	        writer.append(INDENT + "private static final long serialVersionUID = " + serialVersionUID + "L;\n\n");
+	        for (Field field : classObject.getFields()) {
+	            if (field.getType().contains("DTO") || field.getType().contains("Enum")) {
+	                writer.append(INDENT + "private " + GENERIC_CLASS_PREFIX + field.getType() + " " + field.getName() + ";\n");
+	            } else {
+	                writer.append(INDENT + "private " + field.getType() + " " + field.getName() + ";\n");
+	            }
+	
+	        }
+	        writer.append("\n" + INDENT + "/* Constructors*/\n\n");
+	        writer.append(INDENT + "public " + GENERIC_CLASS_PREFIX + classObject.getName() + "() {\n" + INDENT + "}\n\n");
+	        for (PackageObject packageObject : packageObjects) {
+	
+	            for (ClassObject classObjectFromPackage : packageObject.getClassObjects()) {
+	                if (classObject.getName().equals(classObjectFromPackage.getName())) {
+	                    writer.append(INDENT + "public " + GENERIC_CLASS_PREFIX + classObject.getName() + "(" + MODEL_PACKAGE + "." + packageObject.getName() + "." + classObject.getName() + " dto) {\n");
+	
+	                    for (Field field : classObjectFromPackage.getFields()) {
+	                        String fieldNameWithUpper = field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1);
+	                        if (field.getType().contains("DTO")) {
+	                            if (field.getType().contains("[]")) {
+	                                writer.append(INDENT + INDENT + "this." + field.getName() + " = Arrays.stream(dto.get" + fieldNameWithUpper + "()).map(" + GENERIC_CLASS_PREFIX + field.getType().replace("[]", "") + "::new).toArray(" + GENERIC_CLASS_PREFIX + field.getType() + "::new);\n");
+	                            } else {
+	                                writer.append(INDENT + INDENT + "this." + field.getName() + " = new " + GENERIC_CLASS_PREFIX + field.getType() + "(dto.get" + fieldNameWithUpper + "());\n");
+	
+	                            }
+	                        } else if (field.getType().contains("Enum")) {
+	                            writer.append(INDENT + INDENT + "if (dto.get" + fieldNameWithUpper + "() != null) {\n");
+	                            writer.append(INDENT + INDENT + " this." + field.getName() + " = " + GENERIC_CLASS_PREFIX + field.getType() + ".forValue(dto.get" + fieldNameWithUpper + "().name());\n");
+	                            writer.append(INDENT + INDENT + "}\n");
+	                        } else {
+	                            writer.append(INDENT + INDENT + "this." + field.getName() + " = dto.get" + fieldNameWithUpper + "();\n");
+	                        }
+	
+	                    }
+	                    writer.append(INDENT + "}\n\n");
+	                }
+	            }
+	        }
+	
+	        writer.append(INDENT + "/* Getters and Setters*/\n\n");
+	        for (Field field : classObject.getFields()) {
+	            String fieldNameWithUpper = field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1);
+	            if (field.getType().contains("DTO") || field.getType().contains("Enum")) {
+	                writer.append(INDENT + "public " + GENERIC_CLASS_PREFIX + field.getType() + " get" + fieldNameWithUpper + "() {\n");
+	                writer.append(INDENT + INDENT + "return " + field.getName() + ";\n");
+	                writer.append(INDENT + "}\n\n");
+	                writer.append(INDENT + "public void set" + fieldNameWithUpper + "(" + GENERIC_CLASS_PREFIX + field.getType() + " value) {\n");
+	                writer.append(INDENT + INDENT + "this." + field.getName() + " = value;\n");
+	                writer.append(INDENT + "}\n\n");
+	            } else {
+	                writer.append(INDENT + "public " + field.getType() + " get" + fieldNameWithUpper + "() {\n");
+	                writer.append(INDENT + INDENT + "return " + field.getName() + ";\n");
+	                writer.append(INDENT + "}\n\n");
+	                writer.append(INDENT + "public void set" + fieldNameWithUpper + "(" + field.getType() + " value) {\n");
+	                writer.append(INDENT + INDENT + "this." + field.getName() + " = value;\n");
+	                writer.append(INDENT + "}\n\n");
+	            }
+	        }
+	        writer.append("}");
         }
-
-        writer.append("\n@JsonIgnoreProperties(ignoreUnknown = true)\n");
-        writer.append("public class " + GENERIC_CLASS_PREFIX + classObject.getName() + " implements Serializable {\n\n");
-
-        writer.append(INDENT + "/* Members variables*/\n\n");
-        writer.append(INDENT + "private static final long serialVersionUID = " + serialVersionUID + "L;\n\n");
-        for (Field field : classObject.getFields()) {
-            if (field.getType().contains("DTO") || field.getType().contains("Enum")) {
-                writer.append(INDENT + "private " + GENERIC_CLASS_PREFIX + field.getType() + " " + field.getName() + ";\n");
-            } else {
-                writer.append(INDENT + "private " + field.getType() + " " + field.getName() + ";\n");
-            }
-
-        }
-        writer.append("\n" + INDENT + "/* Constructors*/\n\n");
-        writer.append(INDENT + "public " + GENERIC_CLASS_PREFIX + classObject.getName() + "() {\n" + INDENT + "}\n\n");
-        for (PackageObject packageObject : packageObjects) {
-
-            for (ClassObject classObjectFromPackage : packageObject.getClassObjects()) {
-                if (classObject.getName().equals(classObjectFromPackage.getName())) {
-                    writer.append(INDENT + "public " + GENERIC_CLASS_PREFIX + classObject.getName() + "(" + MODEL_PACKAGE + "." + packageObject.getName() + "." + classObject.getName() + " dto) {\n");
-
-                    for (Field field : classObjectFromPackage.getFields()) {
-                        String fieldNameWithUpper = field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1);
-                        if (field.getType().contains("DTO")) {
-                            if (field.getType().contains("[]")) {
-                                writer.append(INDENT + INDENT + "this." + field.getName() + " = Arrays.stream(dto.get" + fieldNameWithUpper + "()).map(" + GENERIC_CLASS_PREFIX + field.getType().replace("[]", "") + "::new).toArray(" + GENERIC_CLASS_PREFIX + field.getType() + "::new);\n");
-                            } else {
-                                writer.append(INDENT + INDENT + "this." + field.getName() + " = new " + GENERIC_CLASS_PREFIX + field.getType() + "(dto.get" + fieldNameWithUpper + "());\n");
-
-                            }
-                        } else if (field.getType().contains("Enum")) {
-                            writer.append(INDENT + INDENT + "if (dto.get" + fieldNameWithUpper + "() != null) {\n");
-                            writer.append(INDENT + INDENT + " this." + field.getName() + " = " + GENERIC_CLASS_PREFIX + field.getType() + ".forValue(dto.get" + fieldNameWithUpper + "().name());\n");
-                            writer.append(INDENT + INDENT + "}\n");
-                        } else {
-                            writer.append(INDENT + INDENT + "this." + field.getName() + " = dto.get" + fieldNameWithUpper + "();\n");
-                        }
-
-                    }
-                    writer.append(INDENT + "}\n\n");
-                }
-            }
-        }
-
-        writer.append(INDENT + "/* Getters and Setters*/\n\n");
-        for (Field field : classObject.getFields()) {
-            String fieldNameWithUpper = field.getName().substring(0, 1).toUpperCase() + field.getName().substring(1);
-            if (field.getType().contains("DTO") || field.getType().contains("Enum")) {
-                writer.append(INDENT + "public " + GENERIC_CLASS_PREFIX + field.getType() + " get" + fieldNameWithUpper + "() {\n");
-                writer.append(INDENT + INDENT + "return " + field.getName() + ";\n");
-                writer.append(INDENT + "}\n\n");
-                writer.append(INDENT + "public void set" + fieldNameWithUpper + "(" + GENERIC_CLASS_PREFIX + field.getType() + " value) {\n");
-                writer.append(INDENT + INDENT + "this." + field.getName() + " = value;\n");
-                writer.append(INDENT + "}\n\n");
-            } else {
-                writer.append(INDENT + "public " + field.getType() + " get" + fieldNameWithUpper + "() {\n");
-                writer.append(INDENT + INDENT + "return " + field.getName() + ";\n");
-                writer.append(INDENT + "}\n\n");
-                writer.append(INDENT + "public void set" + fieldNameWithUpper + "(" + field.getType() + " value) {\n");
-                writer.append(INDENT + INDENT + "this." + field.getName() + " = value;\n");
-                writer.append(INDENT + "}\n\n");
-            }
-        }
-        writer.append("}");
-
-        writer.close();
     }
 
     private static void copyEnum(String enumName, String packageName) throws IOException {
@@ -174,8 +178,7 @@ public class GenerateGenericModel {
         BufferedWriter writer = new BufferedWriter(new FileWriter(file));
 
 
-        try {
-            Scanner scanner = new Scanner(fileToCopy);
+        try (Scanner scanner = new Scanner(fileToCopy)) {
             scanner.nextLine();
             writer.append("package " + GENERIC_PACKAGE + ";\n");
             while (scanner.hasNextLine()) {
@@ -184,7 +187,7 @@ public class GenerateGenericModel {
                 writer.write(line + "\n");
             }
         } catch (FileNotFoundException e) {
-            System.out.println("FAIL file not found");
+            LOGGER.info("FAIL file not found");
         }
 
 
@@ -212,9 +215,7 @@ public class GenerateGenericModel {
 
         ClassObject classObjecttoCreate = PACKAGE_GENERIC.getClassObjectOrCreateByName(classObject.getName());
 
-        try {
-            Scanner scanner = new Scanner(file);
-
+        try (Scanner scanner = new Scanner(file)) {
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
                 Matcher matcher = PATTERN.matcher(line);
@@ -224,7 +225,7 @@ public class GenerateGenericModel {
                 }
             }
         } catch (FileNotFoundException e) {
-            System.out.println("FAIL file not found");
+            LOGGER.info("FAIL file not found");
         }
     }
 

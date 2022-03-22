@@ -35,16 +35,13 @@ import mc.gouv.xaf.back.service.itg.rest.impl.UsagersCacheImpl;
 public class AfBackConfig {
 
     // 24h
-    private static final long PAYS_CACHE_DURATION = 24 * 60 * 60 * 1000;
+    private static final long PAYS_CACHE_DURATION = 24 * 60 * 60 * 1000L;
 
     // 6h
-    private static final long UTILISATEURS_CACHE_DURATION = 6 * 60 * 60 * 1000;
+    private static final long UTILISATEURS_CACHE_DURATION = 6 * 60 * 60 * 1000L;
 
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
-
-    @Autowired
-    private UsagersCacheDataProvider usagersCacheDataProvider;
 
     @Bean(name = "paysCacheImpl")
     public PaysCache getPaysCache() {
@@ -58,7 +55,7 @@ public class AfBackConfig {
     }
 
     @Bean(name = "usagersCacheImpl")
-    public UsagersCache getUsagersCache() {
+    public UsagersCache getUsagersCache(UsagersCacheDataProvider usagersCacheDataProvider) {
         return new UsagersCacheImpl(usagersCacheDataProvider, gouvPropertiesResolver.getUsagersCacheDuration());
     }
 

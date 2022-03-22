@@ -151,14 +151,14 @@ public class GUKafkaDLTConsumer {
 				nbSleep++;
 				
 				if (nbSleep >= timeout && initialEndOffsetsPerPartition == null) {
-					LOGGER.info("Déjà " + timeout + " secondes écoulées et initialEndOffsetsPerPartition non initialisé, il n'y a donc aucun message à traiter dans le DLT.");
+					LOGGER.info("Déjà {} secondes écoulées et initialEndOffsetsPerPartition non initialisé, il n'y a donc aucun message à traiter dans le DLT.", timeout);
 					jobOn = false;
 				}
 			}
 		
-		} catch (Exception e) {
+		} catch (InterruptedException e) {
 			LOGGER.error("Erreur lors de l'exécution du Job GUKafkaDLTConsumer.traiterDLT()", e);
-			msg = e.getMessage();
+			Thread.currentThread().interrupt();
 		}
 		
 		LOGGER.info("jobOn = false, le Job est terminé, renvoi d'un message textuel pour DemandeJobServiceImpl...");

@@ -188,6 +188,7 @@ public class TestCharge {
 				}
 			} catch (InterruptedException e) {
 				LOGGER.error("Erreur lors du Thread.sleep()", e);
+				Thread.currentThread().interrupt();
 			}
 			
 			ExecutorService executorService = Executors.newFixedThreadPool(10);

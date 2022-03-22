@@ -68,7 +68,7 @@ public class AccessesServlet extends AbstractAfServlet {
         // Récupération de l'ID de la démarche dans le Context-Param
         String demarcheId = getServletContext().getInitParameter(AppFactoryServletUtils.DEMARCHEID_KEY);
 
-        LOGGER.info("DemarcheID=" + demarcheId + ", UsagerID=" + usagerId);
+        LOGGER.info("DemarcheID={}, UsagerID={}", demarcheId, usagerId);
 
         String repJson = null;
 
@@ -105,7 +105,7 @@ public class AccessesServlet extends AbstractAfServlet {
 
             AccessDTO access = getAfApiClient().getAccess(usagerId);
             
-            LOGGER.info("Incorporer l'AccessID dans la session pour protéger les appels à FILE... accessId=" + access.getPkAccess());
+            LOGGER.info("Incorporer l'AccessID dans la session pour protéger les appels à FILE... accessId={}", access.getPkAccess());
             HttpSession session = request.getSession();
             usagerInfosDTO.setAccessId(access.getPkAccess());
             session.setAttribute("login", usagerInfosDTO);
@@ -136,7 +136,9 @@ public class AccessesServlet extends AbstractAfServlet {
 
         if (!HttpMethod.DELETE.equals(httpMethod)) {
             response.setContentType("application/json");
-            IOUtils.copy(new ByteArrayInputStream(repJson.getBytes()), response.getOutputStream());
+            if (repJson != null) {
+            	IOUtils.copy(new ByteArrayInputStream(repJson.getBytes()), response.getOutputStream());
+            }
         }
 
         return response;

@@ -22,9 +22,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.IntNode;
@@ -55,12 +53,16 @@ public class GichkeyService {
 		try {
 			url = new URL(AfServletGouvPropertiesResolver.getGichkeyUrl() + "/protocol/openid-connect/token");
 		} catch (MalformedURLException e) {
-			LOGGER.error("Erreur lors de la constitution de l'URL d'appel à GICHKEY");
+			LOGGER.error("Erreur lors de la constitution de l'URL d'appel à GICHKEY", e);
 		}
 		LOGGER.info("URL d'appel : {}", url);
 
 		// Constitution de la requête
 		HttpClient client = HttpClientBuilder.create().build();
+		if (url == null) {
+			LOGGER.error("GichkeyService : url null !");
+			return null;
+		}
 		HttpPost postRequest = new HttpPost(url.toString());
 		
 		List <NameValuePair> nvps = new ArrayList <NameValuePair>();
@@ -82,14 +84,14 @@ public class GichkeyService {
 		LOGGER.info("Appel à GICHKEY");
 		try {
 			HttpResponse postResponse = client.execute(postRequest);
-			LOGGER.info("resp : " + postResponse.getStatusLine().getStatusCode());
+			LOGGER.info("resp : {}", postResponse.getStatusLine().getStatusCode());
 			String resp = IOUtils.toString(postResponse.getEntity().getContent());
-			LOGGER.info("resp = " + resp);
+			LOGGER.info("resp = {}", resp);
 			
 			KeycloakTokenInfo tokenInfo = jsonToTokenInfo(resp);
 			
-			LOGGER.info("Access token: " + tokenInfo.getAccessToken());
-			LOGGER.info("Refresh token: " + tokenInfo.getRefreshToken());
+			LOGGER.info("Access token: {}", tokenInfo.getAccessToken());
+			LOGGER.info("Refresh token: {}", tokenInfo.getRefreshToken());
 			
 			return tokenInfo;
 		} catch (IOException e) {
@@ -98,7 +100,7 @@ public class GichkeyService {
 		}
 	}
 	
-	private static KeycloakTokenInfo jsonToTokenInfo(String resp) throws JsonParseException, JsonMappingException, IOException {
+	private static KeycloakTokenInfo jsonToTokenInfo(String resp) throws IOException {
 		KeycloakTokenInfo tokenInfo = new KeycloakTokenInfo();
 		ObjectNode node = new ObjectMapper().readValue(resp, ObjectNode.class);
 		TextNode n = (TextNode)node.get("access_token");
@@ -134,13 +136,17 @@ public class GichkeyService {
 
 		String payload = new String(decoder.decode(chunks[1]));
 		
-		LOGGER.info("payload="+payload);
+		LOGGER.info("payload={}", payload);
 		
 		ObjectNode node = null;
 		try {
 			node = new ObjectMapper().readValue(payload, ObjectNode.class);
 		} catch (IOException e) {
 			LOGGER.error("Erreur lors du new ObjectMapper().readValue()", e);
+		}
+		if (node == null) {
+			LOGGER.error("getUsagerInfosFromToken : node == null !");
+			return null;
 		}
 		TextNode nameNode = (TextNode)node.get("family_name");
 		TextNode givenNameNode = (TextNode)node.get("given_name");
@@ -156,7 +162,7 @@ public class GichkeyService {
 			type = typeNode.asText();
 		}
 		
-		LOGGER.info("Usager : " + usagerPrenom + " " + usagerNom + " (" + usagerEmail + ")");
+		LOGGER.info("Usager : {} {} ({})", usagerPrenom, usagerNom, usagerEmail);
 		
 		UsagerInfosDTO uinfos = new UsagerInfosDTO();
         uinfos.setEmail(usagerEmail);
@@ -177,7 +183,7 @@ public class GichkeyService {
         	try {
 				InfosCertifieesUsagerInfosDTO mConnectUInfos = new ObjectMapper().treeToValue(mconnect, InfosCertifieesUsagerInfosDTO.class);
 				uinfos.setInfosCertifiees(mConnectUInfos);
-				LOGGER.info("Informations MConnect disponibles : " + mConnectUInfos);
+				LOGGER.info("Informations MConnect disponibles : {}", mConnectUInfos);
 				uinfos.setmConnect(true);
 				// Mettre login à "" si usager MConnect
 				uinfos.setLogin("");
@@ -200,9 +206,13 @@ public class GichkeyService {
 
 		// Constitution de la requête
 		HttpClient client = HttpClientBuilder.create().build();
+		if (url == null) {
+			LOGGER.error("GichkeyService : url null !");
+			return null;
+		}
 		HttpPost postRequest = new HttpPost(url.toString());
 		
-		List <NameValuePair> nvps = new ArrayList <NameValuePair>();
+		List <NameValuePair> nvps = new ArrayList<>();
 		nvps.add(new BasicNameValuePair("client_id", AfServletGouvPropertiesResolver.getGichkeyClientId()));
 		nvps.add(new BasicNameValuePair("client_secret", AfServletGouvPropertiesResolver.getGichkeyClientSecret()));
 		nvps.add(new BasicNameValuePair("refresh_token", uinfos.getTokenInfo().getRefreshToken()));
@@ -216,9 +226,7 @@ public class GichkeyService {
 
 		LOGGER.info("Appel à GICHKEY");
 		try {
-			HttpResponse postResponse = client.execute(postRequest);
-			
-			return postResponse;
+			return client.execute(postRequest);
 		}
 		catch (IOException e) {
 			LOGGER.error("Erreur lors de l'appel à GICHKEY", e);
@@ -237,7 +245,7 @@ public class GichkeyService {
 		calendar.add(Calendar.SECOND, usagerInfosDTO.getTokenInfo().getExpiresIn() - 30);
 		Date expiration = calendar.getTime();
 		Date now = new Date();
-		LOGGER.info("Dernière obtention = " + derniereObtention + ", expiration = " + expiration, " date courante = " + now);
+		LOGGER.info("Dernière obtention = {}, expiration = {}, date courante = {}", derniereObtention, expiration, now);
 		if (now.after(expiration) || forceRefresh) {
 			LOGGER.info("Il faut rafraîchir les tokens");
 			
@@ -250,7 +258,9 @@ public class GichkeyService {
 			}
 			// On refresh les infos usagers extraites de l'accessToken
 			ret = getUsagerInfosFromToken(tokenInfo);
-			ret.setAccessId(accessId);
+			if (ret != null) {
+				ret.setAccessId(accessId);
+			}
 		}
 		else {
 			LOGGER.info("Pas besoin de rafraîchir les tokens");
@@ -272,11 +282,15 @@ public class GichkeyService {
 
 		// Constitution de la requête
 		HttpClient client = HttpClientBuilder.create().build();
+		if (url == null) {
+			LOGGER.error("GichkeyService : url null !");
+			return null;
+		}
 		HttpPost postRequest = new HttpPost(url.toString());
 		
-		LOGGER.info("refreshToken utilisé pour appel : " + tokenInfo.getRefreshToken());
+		LOGGER.info("refreshToken utilisé pour appel : {}", tokenInfo.getRefreshToken());
 		
-		List <NameValuePair> nvps = new ArrayList <NameValuePair>();
+		List <NameValuePair> nvps = new ArrayList<>();
 		nvps.add(new BasicNameValuePair("refresh_token", tokenInfo.getRefreshToken()));
 		nvps.add(new BasicNameValuePair("client_id", AfServletGouvPropertiesResolver.getGichkeyClientId()));
 		nvps.add(new BasicNameValuePair("client_secret", AfServletGouvPropertiesResolver.getGichkeyClientSecret()));
@@ -295,16 +309,16 @@ public class GichkeyService {
 			int statusCode = postResponse.getStatusLine().getStatusCode();
 			String resp = IOUtils.toString(postResponse.getEntity().getContent());
 			if (statusCode != 200) {
-				LOGGER.error("Erreur lors de l'appel à GICHKEY : " + resp);
+				LOGGER.error("Erreur lors de l'appel à GICHKEY : {}", resp);
 				return null;
 			}
-			LOGGER.info("Status code = " + statusCode + ", resp = " + resp);
+			LOGGER.info("Status code = {}, resp = {}", statusCode, resp);
 			
 			tokenInfo = jsonToTokenInfo(resp);
 			tokenInfo.setDateObtention(new Date());
 			
-			LOGGER.info("Nouvel accessToken=" + tokenInfo.getAccessToken());
-			LOGGER.info("Nouveau refreshToken=" + tokenInfo.getRefreshToken());
+			LOGGER.info("Nouvel accessToken={}", tokenInfo.getAccessToken());
+			LOGGER.info("Nouveau refreshToken={}", tokenInfo.getRefreshToken());
 			
 			LOGGER.info("==================== FIN KeycloakService.checkTokens()");
 			return tokenInfo;

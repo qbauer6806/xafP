@@ -9,7 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class GenerateMapperTool {
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(GenerateMapperTool.class);
+	
     private static String WORKSPACE = "D:\\Workspace\\";
     private static String TSCODE = "insenco";
     private static String LAST_RECAPS = "generic";
@@ -41,54 +47,54 @@ public class GenerateMapperTool {
             }
         }
         File file = new File(PATH_FILE + "/" + TSCODE.substring(0, 1).toUpperCase() + TSCODE.substring(1) + "IndexedDemandeJsonMapperConfig.java");
-        BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-
-        writer.append("package mc.gouv." + TSCODE + ".service.impl;\n" +
-                "\n" +
-                "import com.fasterxml.jackson.databind.ObjectMapper;\n" +
-                "import mc.gouv.xaf.back.mapping.EnumMixIn;\n" +
-                "import mc.gouv.xaf.back.mapping.NationaliteMixIn;\n" +
-                "import mc.gouv.xaf.back.mapping.PaysMixIn;\n" +
-                "import mc.gouv." + TSCODE + ".shared.model." + LAST_RECAPS + ".*;\n" +
-                "import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;\n" +
-                "import org.springframework.beans.factory.annotation.Autowired;\n" +
-                "import org.springframework.beans.factory.config.AutowireCapableBeanFactory;\n" +
-                "import org.springframework.context.annotation.Bean;\n" +
-                "import org.springframework.context.annotation.Conditional;\n" +
-                "import org.springframework.context.annotation.Configuration;\n" +
-                "import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;\n" +
-                "import org.springframework.http.converter.json.SpringHandlerInstantiator;\n" +
-                "\n" +
-                "@Configuration\n" +
-                "@Conditional(IndexationEnabledCondition.class)\n" +
-                "public class " + TSCODE.substring(0, 1).toUpperCase() + TSCODE.substring(1) + "IndexedDemandeJsonMapperConfig {\n" +
-                "\n" +
-                "    @Autowired\n" +
-                "    private Jackson2ObjectMapperBuilder jackson2ObjectMapperBuilder;\n\n" +
-                "    @Bean\n" +
-                "    public SpringHandlerInstantiator handlerInstantiator(AutowireCapableBeanFactory beanFactory) {\n" +
-                "        return new SpringHandlerInstantiator(beanFactory);\n" +
-                "    }");
-
-        writer.append("\n\n");
-        writer.append("    @Bean\n" +
-                "    public ObjectMapper objectMapper(SpringHandlerInstantiator handlerInstantiator) {\n" +
-                "        ObjectMapper mapper = jackson2ObjectMapperBuilder.build();\n\n");
-        for (String enumMixIn : enumMixIns) {
-            writer.append(enumMixIn).append("\n");
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+	
+	        writer.append("package mc.gouv." + TSCODE + ".service.impl;\n" +
+	                "\n" +
+	                "import com.fasterxml.jackson.databind.ObjectMapper;\n" +
+	                "import mc.gouv.xaf.back.mapping.EnumMixIn;\n" +
+	                "import mc.gouv.xaf.back.mapping.NationaliteMixIn;\n" +
+	                "import mc.gouv.xaf.back.mapping.PaysMixIn;\n" +
+	                "import mc.gouv." + TSCODE + ".shared.model." + LAST_RECAPS + ".*;\n" +
+	                "import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;\n" +
+	                "import org.springframework.beans.factory.annotation.Autowired;\n" +
+	                "import org.springframework.beans.factory.config.AutowireCapableBeanFactory;\n" +
+	                "import org.springframework.context.annotation.Bean;\n" +
+	                "import org.springframework.context.annotation.Conditional;\n" +
+	                "import org.springframework.context.annotation.Configuration;\n" +
+	                "import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;\n" +
+	                "import org.springframework.http.converter.json.SpringHandlerInstantiator;\n" +
+	                "\n" +
+	                "@Configuration\n" +
+	                "@Conditional(IndexationEnabledCondition.class)\n" +
+	                "public class " + TSCODE.substring(0, 1).toUpperCase() + TSCODE.substring(1) + "IndexedDemandeJsonMapperConfig {\n" +
+	                "\n" +
+	                "    @Autowired\n" +
+	                "    private Jackson2ObjectMapperBuilder jackson2ObjectMapperBuilder;\n\n" +
+	                "    @Bean\n" +
+	                "    public SpringHandlerInstantiator handlerInstantiator(AutowireCapableBeanFactory beanFactory) {\n" +
+	                "        return new SpringHandlerInstantiator(beanFactory);\n" +
+	                "    }");
+	
+	        writer.append("\n\n");
+	        writer.append("    @Bean\n" +
+	                "    public ObjectMapper objectMapper(SpringHandlerInstantiator handlerInstantiator) {\n" +
+	                "        ObjectMapper mapper = jackson2ObjectMapperBuilder.build();\n\n");
+	        for (String enumMixIn : enumMixIns) {
+	            writer.append(enumMixIn).append("\n");
+	        }
+	        writer.append("\n");
+	        if (!otherMixIns.isEmpty()) {
+	            writer.append("        mapper.setHandlerInstantiator(handlerInstantiator);\n");
+	        }
+	        for (String otherMixIn : otherMixIns) {
+	            writer.append(otherMixIn).append("\n");
+	        }
+	        writer.append("\n        return mapper;\n" +
+	                "    }\n " +
+	                "}");
+	        writer.append("\n\n");
         }
-        writer.append("\n");
-        if (!otherMixIns.isEmpty()) {
-            writer.append("        mapper.setHandlerInstantiator(handlerInstantiator);\n");
-        }
-        for (String otherMixIn : otherMixIns) {
-            writer.append(otherMixIn).append("\n");
-        }
-        writer.append("\n        return mapper;\n" +
-                "    }\n " +
-                "}");
-        writer.append("\n\n");
-        writer.close();
     }
 
     private static PaysNationaliteEnum checkClass(String filePath) {
@@ -97,9 +103,7 @@ public class GenerateMapperTool {
         boolean hasPays = false;
         boolean hasNationalite = false;
 
-        try {
-            Scanner scanner = new Scanner(file);
-
+        try (Scanner scanner = new Scanner(file)) {
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
                 if (line.contains("private String nationalite;")) {
@@ -109,7 +113,7 @@ public class GenerateMapperTool {
                 }
             }
         } catch (FileNotFoundException e) {
-            System.out.println("FAIL file not found");
+            LOGGER.info("FAIL file not found");
         }
         if (hasNationalite) {
             if (hasPays) {

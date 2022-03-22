@@ -75,7 +75,7 @@ public class DemandesComplementsServiceImpl implements DemandesComplementsServic
         // Empêcher la création d'une demande d'informations complémentaires s'il y en a déjà une d'ouverte
         boolean dejaUne = false;
         for (DemandesComplementsBO compl : demandeBO.getDemandesComplements()) {
-            if (compl.getStatut().equals(DemandeComplementsStatutEnum.EN_ATTENTE)) {
+            if (compl.getStatut().equals(DemandeComplementsStatutEnum.EN_ATTENTE.name())) {
                 dejaUne = true;
             }
         }

@@ -156,7 +156,9 @@ public class DemandesServlet extends AbstractAfServlet {
         }
 
         response.setContentType("application/json");
-        IOUtils.copy(new ByteArrayInputStream(repJson.getBytes()), response.getOutputStream());
+        if (repJson != null) {
+        	IOUtils.copy(new ByteArrayInputStream(repJson.getBytes()), response.getOutputStream());
+        }
 
         return response;
     }

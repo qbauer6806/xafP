@@ -143,66 +143,65 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
 
             LOGGER.info("Création d'un fichier temporaire pour stocker le HTML...");
             htmlSource = File.createTempFile("tmpRecapHtml", ".html");
-            PrintWriter writer = new PrintWriter(htmlSource);
-            writer.println("<!DOCTYPE html><html><head>");
-
-            LOGGER.info("Récupération de l'InputStream pour le fichier CSS pdfrecap/css/genpdf.css ...");
-            InputStream fis = this.getClass().getResourceAsStream("/pdfrecap/css/genpdf.css");
-            LOGGER.info("Largeur du fchier CSS à lire : {} bytes...", fis.available());
-            writer.println("<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>");
-            writer.println("<style>");
-
-            int content;
-            while ((content = fis.read()) != -1) {
-                // conversion en char avant écriture
-                writer.print((char) content);
+            try (PrintWriter writer = new PrintWriter(htmlSource)) {
+	            writer.println("<!DOCTYPE html><html><head>");
+	
+	            LOGGER.info("Récupération de l'InputStream pour le fichier CSS pdfrecap/css/genpdf.css ...");
+	            InputStream fis = this.getClass().getResourceAsStream("/pdfrecap/css/genpdf.css");
+	            LOGGER.info("Largeur du fchier CSS à lire : {} bytes...", fis.available());
+	            writer.println("<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>");
+	            writer.println("<style>");
+	
+	            int content;
+	            while ((content = fis.read()) != -1) {
+	                // conversion en char avant écriture
+	                writer.print((char) content);
+	            }
+	            fis.close();
+	
+	            writer.println("</style></head><body>");
+	            LOGGER.info("Fin de l'écriture du CSS...");
+	
+	            writer.println("<div id=\"pageHeader\">");
+	            if (null != header) {
+	                writer.print("<img src=\"");
+	                writer.print(header.toURI().getPath());
+	                writer.println("\" alt=\"HEADER\"></img>");
+	            }
+	            writer.println("</div>");
+	
+	            writer.println("<div id=\"pageFooter\">");
+	            if (null != footer) {
+	                writer.print("<img src=\"");
+	                writer.print(footer.toURI().getPath());
+	                writer.println("\" alt=\"FOOTER\"></img>");
+	            }
+	            writer.println("</div>");
+	
+	            LOGGER.info("Fin du header et footer...");
+	
+	            writer.println("<h1>Récapitulatif de la demande</h1>");
+	            writer.println("<h2>");
+	            writer.println(afBackUtils.getDemarcheNom());
+	            writer.println("</h2>");
+	
+	            writer.println("<table class=\"table-section sectiondemande\">");
+	            writer.println("<tr><th class=\"table-section\">La Demande</th></tr><tr><td>");
+	            writer.println(htmlDemande);
+	            writer.println("</td></tr></table>");
+	
+	            writer.println("<table class=\"table-section sectionic\">");
+	            writer.println("<tr><th class=\"table-section\">Informations Complémentaires</th></tr><tr><td>");
+	            writer.println(htmlComp);
+	            writer.println("</td></tr></table>");
+	
+	            writer.println("<table class=\"table-section sectionrecap\">");
+	            writer.println("<tr><th class=\"table-section\">Demande Initiale</th></tr><tr><td>");
+	            writer.println(htmlRecap);
+	            writer.println("</td></tr></table>");
+	
+	            writer.println("</body></html>");
             }
-            fis.close();
-
-            writer.println("</style></head><body>");
-            LOGGER.info("Fin de l'écriture du CSS...");
-
-            writer.println("<div id=\"pageHeader\">");
-            if (null != header) {
-                writer.print("<img src=\"");
-                writer.print(header.toURI().getPath());
-                writer.println("\" alt=\"HEADER\"></img>");
-            }
-            writer.println("</div>");
-
-            writer.println("<div id=\"pageFooter\">");
-            if (null != footer) {
-                writer.print("<img src=\"");
-                writer.print(footer.toURI().getPath());
-                writer.println("\" alt=\"FOOTER\"></img>");
-            }
-            writer.println("</div>");
-
-            LOGGER.info("Fin du header et footer...");
-
-            writer.println("<h1>Récapitulatif de la demande</h1>");
-            writer.println("<h2>");
-            writer.println(afBackUtils.getDemarcheNom());
-            writer.println("</h2>");
-
-            writer.println("<table class=\"table-section sectiondemande\">");
-            writer.println("<tr><th class=\"table-section\">La Demande</th></tr><tr><td>");
-            writer.println(htmlDemande);
-            writer.println("</td></tr></table>");
-
-            writer.println("<table class=\"table-section sectionic\">");
-            writer.println("<tr><th class=\"table-section\">Informations Complémentaires</th></tr><tr><td>");
-            writer.println(htmlComp);
-            writer.println("</td></tr></table>");
-
-            writer.println("<table class=\"table-section sectionrecap\">");
-            writer.println("<tr><th class=\"table-section\">Demande Initiale</th></tr><tr><td>");
-            writer.println(htmlRecap);
-            writer.println("</td></tr></table>");
-
-            writer.println("</body></html>");
-
-            writer.close();
 
         } catch (Exception e) {
             LOGGER.error("Erreur lors de la génération du code HTML", e);
@@ -213,7 +212,7 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
 
     private File createTempFile(String filename) {
         String tempDir = System.getProperty("java.io.tmpdir");
-        String fileName = filename + AfBackUtils.generateFileDateSuffix() + ".pdf";
+        String fileName = filename + afBackUtils.generateFileDateSuffix() + ".pdf";
         return new File(tempDir, fileName);
     }
 

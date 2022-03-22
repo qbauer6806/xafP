@@ -41,8 +41,8 @@ public class GUKafkaConsumer {
 	@KafkaListener(id = "gichuni-to-ts-consumer", topics = "gichuni-to-ts-${application.name}", groupId = "${application.name}")
 	public void listen(ConsumerRecord<String, Object> consumerRecord) {
 
-		LOGGER.info("Message reçu de Kafka (GU) (" + consumerRecord.topic() + "," + consumerRecord.partition() + "," + consumerRecord.offset()
-		+ "," + consumerRecord.key() + ") : " + consumerRecord.value());
+		LOGGER.info("Message reçu de Kafka (GU) ({},{},{},{}) : {}", consumerRecord.topic(), consumerRecord.partition(),
+				consumerRecord.offset(), consumerRecord.key(), consumerRecord.value());
 		
 		String messageStr = (String)consumerRecord.value();
 	    
@@ -58,6 +58,10 @@ public class GUKafkaConsumer {
 
 		
 	    // Dispatcher le message dans la démarche au bon endroit
+		if (genericMessage == null) {
+			LOGGER.warn("Attention, genericMessage null !");
+			return;
+		}
 	    if ("desinscription-usager-gichuni".equals(genericMessage.getType())) {
 	    	if ("v1".equals(genericMessage.getVersion())) {
 				try {

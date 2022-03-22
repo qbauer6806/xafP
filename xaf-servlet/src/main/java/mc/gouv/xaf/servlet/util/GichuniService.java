@@ -45,6 +45,10 @@ public class GichuniService {
 
 		// Constitution de la requête
 		HttpClient client = HttpClientBuilder.create().build();
+		if (url == null) {
+			LOGGER.error("GichkeyService : url null !");
+			return null;
+		}
 		HttpGet getRequest = new HttpGet(url.toString());
 
 		getRequest.setHeader("Connection", "keep-alive");
@@ -56,7 +60,7 @@ public class GichuniService {
 		try {
 			HttpResponse getResponse = client.execute(getRequest);
 			String resp = IOUtils.toString(getResponse.getEntity().getContent());
-			LOGGER.info("Status : " + getResponse.getStatusLine().getStatusCode() + ", resp = " + resp);
+			LOGGER.info("Status : {}, resp = {}", getResponse.getStatusLine().getStatusCode(), resp);
 			
 			ArrayNode anode = new ObjectMapper().readValue(resp, ArrayNode.class);
 			ObjectNode node = (ObjectNode)anode.get(0);
@@ -76,7 +80,7 @@ public class GichuniService {
 					uinfos.setLogin(login);
 				}
 			}
-			JsonNode sh = (JsonNode)node.get("etat");
+			JsonNode sh = node.get("etat");
 			if (sh instanceof IntNode) {
 				Short etat = ((IntNode)sh).shortValue();
 				uinfos.setEtat(etat);

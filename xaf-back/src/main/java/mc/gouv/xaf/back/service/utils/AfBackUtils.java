@@ -1,24 +1,25 @@
 package mc.gouv.xaf.back.service.utils;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.uuid.EthernetAddress;
-import com.fasterxml.uuid.Generators;
-import com.fasterxml.uuid.impl.TimeBasedGenerator;
-import com.google.gson.Gson;
-import mc.gouv.file.apiclient.FileClient;
-import mc.gouv.logon.shared.Droit;
-import mc.gouv.logon.shared.Role;
-import mc.gouv.logon.shared.User;
-import mc.gouv.mail.apiclient.client.MailClient;
-import mc.gouv.servicerest.usager.model.UsagerBean;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.DemarchesDataProvider;
-import mc.gouv.xaf.back.service.data.DemarchesService;
-import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
-import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
-import mc.gouv.xaf.back.service.motifs.MotifTemplateService;
-import mc.gouv.xaf.shared.dto.*;
+import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.text.DateFormat;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,13 +32,31 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import javax.annotation.PostConstruct;
-import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
-import java.text.*;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.uuid.EthernetAddress;
+import com.fasterxml.uuid.Generators;
+import com.fasterxml.uuid.impl.TimeBasedGenerator;
+import com.google.gson.Gson;
+
+import mc.gouv.file.apiclient.FileClient;
+import mc.gouv.logon.shared.Droit;
+import mc.gouv.logon.shared.Role;
+import mc.gouv.logon.shared.User;
+import mc.gouv.mail.apiclient.client.MailClient;
+import mc.gouv.servicerest.usager.model.UsagerBean;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.DemarchesDataProvider;
+import mc.gouv.xaf.back.service.data.DemarchesService;
+import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
+import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
+import mc.gouv.xaf.back.service.motifs.MotifTemplateService;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeDataDTO;
+import mc.gouv.xaf.shared.dto.DemandeFlatDTO;
+import mc.gouv.xaf.shared.dto.DemarcheDTO;
+import mc.gouv.xaf.shared.dto.PropertiesListEntityDTO;
+import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
 
 /**
  * Classe utilitaire pour le projet xaf-back
@@ -68,13 +87,13 @@ public class AfBackUtils {
     // French date format with 24 hours
     public static String DEFAULT_FRENCH_DATE_HOURS_FORMAT = "dd/MM/yyyy HH:mm";
 
-    public static DateFormat SDF_JJ_MM_AAAA = new SimpleDateFormat(DEFAULT_FRENCH_DATE_FORMAT);
+    public DateFormat SDF_JJ_MM_AAAA = new SimpleDateFormat(DEFAULT_FRENCH_DATE_FORMAT);
 
-    public static DateFormat SDF_JJ_MM_AAAA_HH_MM = new SimpleDateFormat(DEFAULT_FRENCH_DATE_HOURS_FORMAT);
+    public DateFormat SDF_JJ_MM_AAAA_HH_MM = new SimpleDateFormat(DEFAULT_FRENCH_DATE_HOURS_FORMAT);
 
-    public static DateFormat FILE_DATE_SUFFIX = new SimpleDateFormat("HHmmssSSS");
+    public DateFormat FILE_DATE_SUFFIX = new SimpleDateFormat("HHmmssSSS");
 
-    public static DateFormat FILE_DATE_AND_TIME_SUFFIX = new SimpleDateFormat("YYYYMMddHHmmssSS");
+    public DateFormat FILE_DATE_AND_TIME_SUFFIX = new SimpleDateFormat("yyyyMMddHHmmssSS");
 
     public static final String MESSAGE_ERREURS_FORMULAIRE = "Le formulaire contient des erreurs.";
     
@@ -224,7 +243,7 @@ public class AfBackUtils {
      * Génère un suffixe de fichier en fonction de la date de génération conformément au
      * pattern suivant: HHmmssSSS
      */
-    public static String generateFileDateSuffix() {
+    public String generateFileDateSuffix() {
         return FILE_DATE_SUFFIX.format(new Date());
     }
 
@@ -232,7 +251,7 @@ public class AfBackUtils {
      * Génère un suffixe de fichier en fonction de la date de génération conformément au
      * pattern suivant: YYYYMMDDHHmmssSS
      */
-    public static String generateFileDateAndTimeSuffix() {
+    public String generateFileDateAndTimeSuffix() {
         return FILE_DATE_AND_TIME_SUFFIX.format(new Date());
     }
 
@@ -401,14 +420,14 @@ public class AfBackUtils {
         return destinataires;
     }
 
-    public static String convertDateToString(final Date date) {
+    public String convertDateToString(final Date date) {
         if (date == null) {
             return "";
         }
         return SDF_JJ_MM_AAAA.format(date);
     }
 
-    public static String convertDateTimeToString(final Date date) {
+    public String convertDateTimeToString(final Date date) {
         if (date == null) {
             return "";
         }
@@ -499,11 +518,11 @@ public class AfBackUtils {
         return demarchesDataProvider.getDemarcheCanHandleProperties();
     }
 
-    public static Date convertStartDate(String startDate) throws ParseException {
+    public Date convertStartDate(String startDate) throws ParseException {
         return SDF_JJ_MM_AAAA.parse(startDate);
     }
 
-    public static Date convertEndDate(String plainEndDate) throws ParseException {
+    public Date convertEndDate(String plainEndDate) throws ParseException {
         Date endDate = SDF_JJ_MM_AAAA.parse(plainEndDate);
 
         // Last moment of days

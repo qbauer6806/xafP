@@ -155,6 +155,9 @@ public class DemandesServiceImpl implements DemandesService {
     
     @Autowired
     private GUKafkaUtils guKafkaUtils;
+    
+    @Autowired
+    private AfBackUtils afBackUtils;
 
 	private DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
 
@@ -498,7 +501,7 @@ public class DemandesServiceImpl implements DemandesService {
 					if (DATE_ACCEPTATION.equals(dataBO.getKey())) {
 						boolean ajouterDemande = false;
 						try {
-							Date dateAComparer = AfBackUtils.convertStartDate(dataBO.getValue());
+							Date dateAComparer = afBackUtils.convertStartDate(dataBO.getValue());
 							// Ajouter une heure pour éviter l'exclusion sur la date de départ
 							dateAComparer = DateUtils.addHours(dateAComparer, 1);
 							if (startDate != null && endDate != null) {
@@ -768,24 +771,26 @@ public class DemandesServiceImpl implements DemandesService {
 			for (DemandeComplementsDTO demandeComplementsDTO : demandeDTO.getComplements()) {
 				Optional<DemandesComplementsBO> demandeComplementBO = demandesComplementsRepository
 						.findById(demandeComplementsDTO.getPkDemandeComplements());
-				Set<DemandesComplementsFilesBO> files = demandeComplementBO.get().getFiles();
-				if (null != files && !files.isEmpty()) {
-					for (DemandesComplementsFilesBO currentFileToDelete : files) {
-						List<DemandesComplementsFilesBO> existingFiles = demandesComplementsFilesRepository
-								.findAllByUrl(currentFileToDelete.getUrl());
-						if (null != existingFiles && !existingFiles.isEmpty() && existingFiles.size() == 1) {
-							// Hard fix: Les fichiers complémentaires ajoutés via le BO sont stockés en BDD avec un url encodé,
-							// à l'inverse ceux depuis le FO le sont pas. Il faut une façon de différencier les deux: on check si le nom de fichier
-							// existe dans l'url décodé.
-							String url = currentFileToDelete.getUrl();
-							if (url.contains(currentFileToDelete.getName())) {
-								try {
-									url = URLEncoder.encode(url, "UTF-8");
-								} catch (UnsupportedEncodingException e) {
-									LOGGER.error("Problème lors de l'encoding des urls des fichiers complémentaires", e);
+				if (demandeComplementBO.isPresent()) {
+					Set<DemandesComplementsFilesBO> files = demandeComplementBO.get().getFiles();
+					if (null != files && !files.isEmpty()) {
+						for (DemandesComplementsFilesBO currentFileToDelete : files) {
+							List<DemandesComplementsFilesBO> existingFiles = demandesComplementsFilesRepository
+									.findAllByUrl(currentFileToDelete.getUrl());
+							if (null != existingFiles && !existingFiles.isEmpty() && existingFiles.size() == 1) {
+								// Hard fix: Les fichiers complémentaires ajoutés via le BO sont stockés en BDD avec un url encodé,
+								// à l'inverse ceux depuis le FO le sont pas. Il faut une façon de différencier les deux: on check si le nom de fichier
+								// existe dans l'url décodé.
+								String url = currentFileToDelete.getUrl();
+								if (url.contains(currentFileToDelete.getName())) {
+									try {
+										url = URLEncoder.encode(url, "UTF-8");
+									} catch (UnsupportedEncodingException e) {
+										LOGGER.error("Problème lors de l'encoding des urls des fichiers complémentaires", e);
+									}
 								}
+								fileService.deleteFile("ROOT", url);
 							}
-							fileService.deleteFile("ROOT", url);
 						}
 					}
 				}
@@ -871,25 +876,27 @@ public class DemandesServiceImpl implements DemandesService {
 			for (DemandeComplementsDTO demandeComplementsDTO : demandeDTO.getComplements()) {
 				Optional<DemandesComplementsBO> demandeComplementBO = demandesComplementsRepository
 						.findById(demandeComplementsDTO.getPkDemandeComplements());
-				Set<DemandesComplementsFilesBO> files = demandeComplementBO.get().getFiles();
-				if (null != files && !files.isEmpty()) {
-					for (DemandesComplementsFilesBO currentFileToDelete : files) {
-						List<DemandesComplementsFilesBO> existingFiles = demandesComplementsFilesRepository
-								.findAllByUrl(currentFileToDelete.getUrl());
-						if (null != existingFiles && !existingFiles.isEmpty()
-								&& isComplementsFileDeletable(existingFiles, statuts, jours)) {
-							// Hard fix: Les fichiers complémentaires ajoutés via le BO sont stockés en BDD avec un url encodé,
-							// à l'inverse ceux depuis le FO le sont pas. Il faut une façon de différencier les deux: on check si le nom de fichier
-							// existe dans l'url décodé.
-							String url = currentFileToDelete.getUrl();
-							if (url.contains(currentFileToDelete.getName())) {
-								try {
-									url = URLEncoder.encode(url, "UTF-8");
-								} catch (UnsupportedEncodingException e) {
-									LOGGER.error("Problème lors de l'encoding des urls des fichiers complémentaires", e);
+				if (demandeComplementBO.isPresent()) {
+					Set<DemandesComplementsFilesBO> files = demandeComplementBO.get().getFiles();
+					if (null != files && !files.isEmpty()) {
+						for (DemandesComplementsFilesBO currentFileToDelete : files) {
+							List<DemandesComplementsFilesBO> existingFiles = demandesComplementsFilesRepository
+									.findAllByUrl(currentFileToDelete.getUrl());
+							if (null != existingFiles && !existingFiles.isEmpty()
+									&& isComplementsFileDeletable(existingFiles, statuts, jours)) {
+								// Hard fix: Les fichiers complémentaires ajoutés via le BO sont stockés en BDD avec un url encodé,
+								// à l'inverse ceux depuis le FO le sont pas. Il faut une façon de différencier les deux: on check si le nom de fichier
+								// existe dans l'url décodé.
+								String url = currentFileToDelete.getUrl();
+								if (url.contains(currentFileToDelete.getName())) {
+									try {
+										url = URLEncoder.encode(url, "UTF-8");
+									} catch (UnsupportedEncodingException e) {
+										LOGGER.error("Problème lors de l'encoding des urls des fichiers complémentaires", e);
+									}
 								}
+								fileService.deleteFile("ROOT", url);
 							}
-							fileService.deleteFile("ROOT", url);
 						}
 					}
 				}

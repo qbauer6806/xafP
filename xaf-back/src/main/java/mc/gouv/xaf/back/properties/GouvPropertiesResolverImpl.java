@@ -144,7 +144,6 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
         if (!propertiesNotFound.isEmpty()) {
             throw new GouvPropertyNotFoundException(propertiesNotFound);
         }
-        //Map<String, String> properties = BeanUtils.describe(GouvPropertiesResolverImpl.class);
 
     }
 

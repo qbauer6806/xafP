@@ -93,13 +93,13 @@ public class AfServletGouvPropertiesResolver {
         return Static.getValue(GICHKEY_REDIRECT_URL);
     }
 
-    public static final String GICHUNI_PROFIL_INDIVIDUAL_URL = "mc.gouv.appfactory.gichuni.profil.individual.url";
+    public static final String GICHUNI_PROFIL_INDIVIDUAL_URL = "mc.gouv.appfactory.front.gichuni.profil.individual.url";
 
     public static String getGichuniProfilIndividualUrl() {
         return Static.getValue(GICHUNI_PROFIL_INDIVIDUAL_URL);
     }
     
-    public static final String GICHUNI_PROFIL_COMPANY_URL = "mc.gouv.appfactory.gichuni.profil.company.url";
+    public static final String GICHUNI_PROFIL_COMPANY_URL = "mc.gouv.appfactory.front.gichuni.profil.company.url";
 
     public static String getGichuniProfilCompanyUrl() {
         return Static.getValue(GICHUNI_PROFIL_COMPANY_URL);

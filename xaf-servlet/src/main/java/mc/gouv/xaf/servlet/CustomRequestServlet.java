@@ -80,6 +80,11 @@ public class CustomRequestServlet extends AbstractAfServlet {
         else if (HttpMethod.DELETE.equals(httpMethod)) {
         	serviceRequest = Request.Delete(serviceUrl);
         }
+        if (serviceRequest == null) {
+            response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+            LOGGER.error("Situation anormale : serviceRequest == null");
+            return response;
+        }
         serviceRequest.setHeader("Authorization", "Bearer " + AfServletGouvPropertiesResolver.getApiJwt());
         
         // Copier les headers

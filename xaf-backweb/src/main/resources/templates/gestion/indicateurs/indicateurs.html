@@ -13,7 +13,7 @@
     <title th:text="${AfBackUtils.getDemarcheNom()}"></title>
 
     <!-- Import FONTS -->
-    <link th:href="@{/webjars/xcb-wlib/fonts/style.css}" rel="stylesheet" />
+    <link th:href="@{/css/font-style.css(${applicationBuildTimestamp})}" rel="stylesheet" />
     <link rel="stylesheet" th:href="@{/webjars/xcb-wlib/fonts/ie7/ie7.css}" />
 
     <!-- Import CSS -->
@@ -40,7 +40,7 @@
 
 </head>
 
-<body th:with="pageIndicateursActive='active'">
+<body th:with="pageExportsActive='active'">
 
 <div th:replace="fragments/header :: header"></div>
 
@@ -57,15 +57,14 @@
             <div class="breadcrumbContent">
                 <div class="breadcrumb">
                     <a id="ariane0" th:href="@{/}" class="breadcrumb-item">ACCUEIL</a>&nbsp;&gt;&nbsp;
-                    <a id="ariane1" th:href="@{/gestion/indicateurs}"
-                       class="breadcrumb-item">INDICATEURS</a> &gt;
+                    <a id="ariane1" th:href="@{/gestion/indicateurs}" class="breadcrumb-item">EXPORTS ANONYMISÉ</a>&nbsp;&gt;&nbsp;
                 </div>
                 <div class="triangleTopright"></div>
             </div>
 
             <div class="container-fluid">
                 <div class="text-center">
-                    <h1>Export Excel des demandes</h1>
+                    <h1>Export Excel Anonymisé</h1>
                 </div>
                 <br />
                 <br />

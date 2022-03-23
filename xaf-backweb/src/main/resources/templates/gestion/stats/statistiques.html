@@ -14,7 +14,7 @@
     <title th:text="${titre}"></title>
 
     <!-- Import FONTS -->
-    <link th:href="@{/webjars/xcb-wlib/fonts/style.css}" rel="stylesheet"/>
+    <link th:href="@{/css/font-style.css(${applicationBuildTimestamp})}" rel="stylesheet"/>
     <!--[if lt IE 8]><!-->
     <link rel="stylesheet" th:href="@{/webjars/xcb-wlib/fonts/ie7/ie7.css}"/>
 
@@ -44,7 +44,7 @@
         }
     </style>
 </head>
-<body th:with="pageConfigurationActive='active'">
+<body th:with="pageStatistiquesActive='active'">
 
 <div th:replace="fragments/header :: header"></div>
 
@@ -68,9 +68,13 @@
             <div class="text-center">
                 <h1>Statistiques</h1>
             </div>
-            <br/>
-            <br/>
+
             <div class="row">
+                <div class="col-xs-12">
+                    Nombre de brouillons : <span th:text="${brouillonsNbr}"></span>
+                </div>
+
+
                 <div class="col-xs-12">
                     <div class="tableContent">
                         <div class="tableTitle">Démarches</div>

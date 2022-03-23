@@ -10,7 +10,7 @@
 <title th:text="${AfBackUtils.getDemarcheNom()}"></title>
 <link rel="shortcut icon" th:href="@{/img/favicon.ico}" />
 <!-- Import FONTS -->
-<link th:href="@{/webjars/xcb-wlib/fonts/style.css}" rel="stylesheet" />
+<link th:href="@{/css/font-style.css(${applicationBuildTimestamp})}" rel="stylesheet" />
 <link rel="stylesheet" th:href="@{/webjars/xcb-wlib/fonts/ie7/ie7.css}" />
 
 <!-- Import CSS -->
@@ -33,7 +33,7 @@
 	rel="stylesheet" />
 
 </head>
-<body th:with="pageUtilisateursActive='active'">
+<body th:with="pageParametresActive='active'">
 
 	<div th:replace="fragments/header :: header"></div>
 

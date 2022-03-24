@@ -50,7 +50,8 @@ public enum ResidPieceJustificativeTypeEnum {
     PERMIS_TRAVAIL("PERMIS_TRAVAIL"),
     STATUTS_SCI("STATUTS_SCI"),
     PENSION_RETRAITE("PENSION_RETRAITE"),
-    NON_APPLICABLE("NON_APPLICABLE");
+    NON_APPLICABLE("NON_APPLICABLE"),
+	AUTRE("AUTRE");
 
     public String value;
 

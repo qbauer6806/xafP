@@ -126,7 +126,7 @@ public class PropertiesServiceImpl implements PropertiesService {
     }
 
     private void sortValueOfGivenProperty(PropertiesDTO propertiesDTO) {
-    	List<PropertiesListEntityDTO> jsonObjectsToDisplay = new ArrayList<PropertiesListEntityDTO>();
+    	List<PropertiesListEntityDTO> jsonObjectsToDisplay;
     	// Récupération du json représentant le fichier
     	ObjectMapper mapper = new ObjectMapper();
     	if (!StringUtils.isEmpty(propertiesDTO.getValue())) {
@@ -148,7 +148,7 @@ public class PropertiesServiceImpl implements PropertiesService {
 				final byte[] valueToAdd = out.toByteArray();
 				propertiesDTO.setValue(new String(valueToAdd));
 			} catch (Exception e) {
-				e.printStackTrace();
+				LOGGER.error("Erreur dans sortValueOfGivenProperty", e);
 			}
 		}
 	}

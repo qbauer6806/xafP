@@ -32,7 +32,7 @@ public class SessionsServlet extends HttpServlet {
 
     private static final long serialVersionUID = -7833206552171322810L;
 
-    private static Logger LOGGER = LoggerFactory.getLogger(SessionsServlet.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SessionsServlet.class);
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) {
@@ -42,7 +42,7 @@ public class SessionsServlet extends HttpServlet {
         // On tente de récupérer une session existante sans en créer une
         HttpSession session = request.getSession(false);
 
-        LOGGER.info("SESSION : " + session);
+        LOGGER.info("SESSION : {}", session);
         if (session != null) {
 
             //https://docs.angularjs.org/api/ng/service/$http#cross-site-request-forgery-xsrf-protection
@@ -56,11 +56,12 @@ public class SessionsServlet extends HttpServlet {
             }
             Cookie xsrfCookie = new Cookie(AppFactoryServletUtils.XSRF_COOKIE,
                     session.getAttribute(AppFactoryServletUtils.XSRF_SESSION_ATTRIBUTE).toString());
+            xsrfCookie.setSecure(true);
             response.addCookie(xsrfCookie);
 
             // Récupération de l'objet attaché à la session
             UsagerInfosDTO usagerInfosDTO = (UsagerInfosDTO) session.getAttribute("login");
-            LOGGER.info("usagerInfosDTO : " + usagerInfosDTO);
+            LOGGER.info("usagerInfosDTO : {}", usagerInfosDTO);
             // Retour au client
             response.setContentType("application/json");
             try {
@@ -88,13 +89,12 @@ public class SessionsServlet extends HttpServlet {
 
 		// On tente de récupérer une session existante sans en créer une
 		HttpSession session = request.getSession(false);
-		LOGGER.info("SESSION : " + session);
+		LOGGER.info("SESSION : {}", session);
 		if (session != null) {
 			// Récupération de l'objet attaché à la session
 			UsagerInfosDTO usagerInfosDTO = (UsagerInfosDTO) session.getAttribute("login");
 			Integer accessId = usagerInfosDTO.getAccessId();
-			LOGGER.info("usagerInfosDTO : " + usagerInfosDTO + ", userId=" + usagerInfosDTO.getId() + ", accessId="
-					+ accessId);
+			LOGGER.info("usagerInfosDTO : {}, userId={}, accessId={}", usagerInfosDTO, usagerInfosDTO.getId(), accessId);
 
 			// On ne met pas à jour s'il s'agit d'un usager courrier
 			if (!AppFactoryServletUtils.isUsagerCourrier(usagerInfosDTO.getId())) {

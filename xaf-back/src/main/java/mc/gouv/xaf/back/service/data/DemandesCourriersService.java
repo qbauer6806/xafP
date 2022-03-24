@@ -12,8 +12,7 @@ import mc.gouv.xaf.shared.dto.DemandeCourrierDTO;
  */
 public interface DemandesCourriersService {
 
-    public DemandeCourrierDTO saveCourrier(String demarcheId, Integer pkDemande, DemandeCourrierDTO courrierDto)
-            throws Exception;
+    public DemandeCourrierDTO saveCourrier(String demarcheId, Integer pkDemande, DemandeCourrierDTO courrierDto);
 
     public DemandeCourrierDTO getCourrier(String demarcheId, Integer pkDemande, Integer pkCourrier);
 
@@ -27,9 +26,8 @@ public interface DemandesCourriersService {
      * @param demarcheId : ID de la démarche concernée
      * @param pkDemande : ID de la demande dont il faut supprimer les courriers 
      */
-    public void deleteCourriers(String demarcheId, Integer pkDemande) throws Exception;
+    public void deleteCourriers(String demarcheId, Integer pkDemande);
 
-    public DemandeCourrierDTO updateCourrier(String demarcheId, Integer pkDemande, DemandeCourrierDTO courrierDto)
-            throws Exception;
+    public DemandeCourrierDTO updateCourrier(String demarcheId, Integer pkDemande, DemandeCourrierDTO courrierDto);
 
 }

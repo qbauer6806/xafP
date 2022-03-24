@@ -487,7 +487,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         return ret;
     }
 
-    public List<String> reindexDemandesDesynchro() throws Exception {
+    public List<String> reindexDemandesDesynchro() {
         List<String> demandesSync = new ArrayList<>();
 
         // [0] Demandes présentes dans ES mais pas en BDD
@@ -1478,7 +1478,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     }
 
     @Override
-    public DemandeDTO saveDemande(DemandeDTO demande, String premierStatut) throws Exception {
+    public DemandeDTO saveDemande(DemandeDTO demande, String premierStatut) throws IOException {
         DemandeDTO demandeDto = super.saveDemande(demande, premierStatut);
         try {
             indexElement(demandeDto, true);

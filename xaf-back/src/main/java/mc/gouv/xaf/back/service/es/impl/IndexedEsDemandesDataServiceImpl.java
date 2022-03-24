@@ -34,22 +34,20 @@ public class IndexedEsDemandesDataServiceImpl extends DemandesDataServiceImpl {
     private ApplicationEventPublisher applicationEventPublisher;
 
     @Override
-    public DemandeDataDTO saveOrUpdateDemandeData(String demarcheId, Integer demandeId, String key, String value)
-            throws Exception {
+    public DemandeDataDTO saveOrUpdateDemandeData(String demarcheId, Integer demandeId, String key, String value) {
         DemandeDataDTO demandeDataDto = super.saveOrUpdateDemandeData(demarcheId, demandeId, key, value);
         indexDemandeData(demarcheId, demandeId);
         return demandeDataDto;
     }
 
     @Override
-    public void saveOrUpdateDemandeDatas(String demarcheId, Integer demandeId, Map<String, String> datas)
-            throws Exception {
+    public void saveOrUpdateDemandeDatas(String demarcheId, Integer demandeId, Map<String, String> datas) {
         super.saveOrUpdateDemandeDatas(demarcheId, demandeId, datas);
         indexDemandeData(demarcheId, demandeId);
     }
 
     @Override
-    public void deleteDemandeData(String demarcheId, Integer demandeId, String key) throws Exception {
+    public void deleteDemandeData(String demarcheId, Integer demandeId, String key) {
         super.deleteDemandeData(demarcheId, demandeId, key);
         indexDemandeData(demarcheId, demandeId);
     }

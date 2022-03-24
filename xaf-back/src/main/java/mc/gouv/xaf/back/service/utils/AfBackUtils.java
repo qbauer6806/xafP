@@ -1,6 +1,5 @@
 package mc.gouv.xaf.back.service.utils;
 
-import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.NumberFormat;
@@ -460,21 +459,6 @@ public class AfBackUtils {
 
     public static String getSafeString(final String value) {
         return StringUtils.isBlank(value) ? "" : value;
-    }
-
-    public static BigDecimal convertStringToBigDecimal(String decimalStr) {
-        final String regexDecimal = "[0-9]*\\,?[0-9]*";
-        final String regexInteger = "[0-9]*";
-
-        if (StringUtils.isBlank(decimalStr)) {
-            return null;
-        }
-
-        if (decimalStr.matches(regexInteger) || decimalStr.matches(regexDecimal)) {
-            return new BigDecimal(decimalStr.replace(",", "."));
-        }
-
-        return null;
     }
 
     public String getDernierCodeMotif(DemandeDTO demande) {

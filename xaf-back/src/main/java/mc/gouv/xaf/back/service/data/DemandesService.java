@@ -25,9 +25,10 @@ public interface DemandesService {
      *
      * @param demande
      * @return La demande sauvegardée
+     * @throws IOException 
      * @throws Exception
      */
-    DemandeDTO saveDemande(DemandeDTO demande, String premierStatut) throws Exception;
+    DemandeDTO saveDemande(DemandeDTO demande, String premierStatut) throws IOException;
 
     /**
      * Permet de récupérer les demandes correspondant au DemarcheID et qui matchent les identifiants
@@ -142,10 +143,11 @@ public interface DemandesService {
      * @param demande
      * @param partialUpdate true si il faut effectuer une mise à jour partielle
      * @return La demande sauvegardée ou mise à jour
+     * @throws SAXException 
+     * @throws IOException 
      * @throws Exception
      */
-    DemandeDTO saveOrUpdateDemande(DemandeDTO demande, boolean partialUpdate, String premierStatut)
-            throws Exception;
+    DemandeDTO saveOrUpdateDemande(DemandeDTO demande, boolean partialUpdate, String premierStatut) throws IOException, SAXException;
 
     /**
      * Permet de récupérer l'AccessID de l'Access lié à une demande

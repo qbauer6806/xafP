@@ -64,7 +64,7 @@ public class DemandeExportController extends AbstractController {
             // Création du cookie pour notifier du téléchargement terminé (2 minutes max age)
             Cookie telechargementCookie = new Cookie("exportEnCours", "0");
             telechargementCookie.setMaxAge(60 * 2);
-            telechargementCookie.setSecure(false);
+            telechargementCookie.setSecure(true);
             telechargementCookie.setPath("/");
             response.addCookie(telechargementCookie);
 

@@ -108,8 +108,7 @@ public class DemandesDataServiceImpl implements DemandesDataService {
 	 * @throws Exception
 	 */
 	@Override
-	public DemandeDataDTO saveOrUpdateDemandeData(String demarcheId, Integer demandeId, String key, String value)
-			throws Exception {
+	public DemandeDataDTO saveOrUpdateDemandeData(String demarcheId, Integer demandeId, String key, String value) {
 
 		// Jette une exception si la demande n'existe pas
 		DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(demarcheId, demandeId, true);
@@ -124,8 +123,7 @@ public class DemandesDataServiceImpl implements DemandesDataService {
 	// Cette méthode est créée pour ne pas bombarder elasticsearch si on met à jours
 	// plusieurs clès valeurs avec la méthode saveOrUpdateDemandeData
 	@Override
-	public void saveOrUpdateDemandeDatas(String demarcheId, Integer demandeId, Map<String, String> datas)
-			throws Exception {
+	public void saveOrUpdateDemandeDatas(String demarcheId, Integer demandeId, Map<String, String> datas) {
 
 		// Jette une exception si la demande n'existe pas
 		DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(demarcheId, demandeId, true);
@@ -193,7 +191,7 @@ public class DemandesDataServiceImpl implements DemandesDataService {
 	 * @throws Exception
 	 */
 	@Override
-	public void deleteDemandeData(String demarcheId, Integer demandeId, String key) throws Exception {
+	public void deleteDemandeData(String demarcheId, Integer demandeId, String key) {
 
 		// Jette une exception si la demande n'existe pas
 		demandesService.getCheckDemarcheDemandeBO(demarcheId, demandeId, true);

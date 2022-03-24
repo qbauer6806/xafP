@@ -1,20 +1,18 @@
 package mc.gouv.sup.charge;
 
-import java.awt.AWTException;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.ThreadLocalRandom;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -27,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -51,13 +48,13 @@ public class TestCharge {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(TestCharge.class);
 	
-	private static Map<String, String> conf = new HashMap<String, String>();
+	private static Map<String, String> conf = new HashMap<>();
 	
-	private static List<String> contenus = new ArrayList<String>();
+	private static List<String> contenus = new ArrayList<>();
 	
-	private static List<DemandeFileDTO> fichiers = new ArrayList<DemandeFileDTO>();
+	private static List<DemandeFileDTO> fichiers = new ArrayList<>();
 	
-	private static Map<String, DemandeFileDTO> fichiersDejaUtilisesPourDoublons = new HashMap<String, DemandeFileDTO>();
+	private static Map<String, DemandeFileDTO> fichiersDejaUtilisesPourDoublons = new HashMap<>();
 	
 	private static ObjectMapper mapper = new ObjectMapper();
 	
@@ -70,7 +67,7 @@ public class TestCharge {
 	private static final String CONFIG_BUILDID = "buildid";
 	private static final String CONFIG_USAGERIDS = "usagerids";
 
-	public static void main(String[] args) throws ParseException, AWTException, JsonMappingException, JsonProcessingException {
+	public static void main(String[] args) throws ParseException {
 		
         Options options = new Options();
 
@@ -148,7 +145,7 @@ public class TestCharge {
         
         
         if (sansDoublons && !"0".equals(nombrefichiers)) {
-        	String spl[] = nombrefichiers.split("-");
+        	String[] spl = nombrefichiers.split("-");
         	if (Integer.parseInt(spl[1])*nombre > fichiers.size()) {
 	        	LOGGER.error("Erreur, le produit du nombre de demandes par le nombre maximal de fichiers par demandes dépasse le nombre de fichiers dans le jeu de données !");
 	        	System.exit(1);
@@ -163,7 +160,7 @@ public class TestCharge {
         	messageFichiers = "Les demandes n'auront pas de fichiers joints.";
         }
         else {
-        	String spl[] = nombrefichiers.split("-");
+        	String[] spl = nombrefichiers.split("-");
         	messageFichiers = "Chaque demande comportera entre " + spl[0] + " et " + spl[1] + " fichiers joints" + messageSansDoublons + ".";
         }
         if (!random) {
@@ -175,14 +172,14 @@ public class TestCharge {
         LOGGER.info("======\n");
 		
         LOGGER.info("====== Lancement des threads...");
-		List<Future<?>> futures = new ArrayList<Future<?>>();
+		List<Future<?>> futures = new ArrayList<>();
 		for (int i = 0; i < nombre; i++) {
 			try {
 				if (!random) {
 					Thread.sleep(intervalle);
 				}
 				else {
-					Random r = new Random();
+					SecureRandom r = new SecureRandom();
 					Integer duration = r.nextInt((intervalle2 - intervalle1) + 1) + intervalle1;
 					Thread.sleep(duration);
 				}
@@ -225,10 +222,11 @@ public class TestCharge {
 		input.setRecapType("projectDemandeRecap");
 		
 		if (!"0".equals(nombrefichiers)) {
-			String spl[] = nombrefichiers.split("-");
+			String[] spl = nombrefichiers.split("-");
 			Integer n1 = Integer.parseInt(spl[0]);
 			Integer n2 = Integer.parseInt(spl[1]);
-			Integer nombredefinitif = ThreadLocalRandom.current().nextInt((n2 - n1) + 1) + n1;
+			SecureRandom r = new SecureRandom();
+			Integer nombredefinitif = r.nextInt((n2 - n1) + 1) + n1;
 			List<DemandeFileDTO> tmpFichiers = null;
 			if (sansDoublons) {
 				tmpFichiers = getFichiersSansDoublons(nombredefinitif);
@@ -252,9 +250,6 @@ public class TestCharge {
 		LOGGER.info("Création demande... (usagerid={}, canal={}, langue={}, fichiers={})", usagerId, input.getCanal().name(), input.getLangue(), input.getFichiers().length);
 		
 		try {
-//			for (DemandeFileDTO f : input.getFichiers()) {
-//				System.out.println(f.getUrl());
-//			}
 			DemandeDTO demande = apiClient.creerDemande(input, usagerId);
 			LOGGER.info("Demande créée : {}", demande.getPkDemandes());
 		}
@@ -269,7 +264,7 @@ public class TestCharge {
 	}
 	
 	private static List<DemandeFileDTO> getFichiersAvecDoublons(Integer nombre) {
-		List<DemandeFileDTO> tmpFichiers = new ArrayList<DemandeFileDTO>();
+		List<DemandeFileDTO> tmpFichiers = new ArrayList<>();
 		for (int i = 0; i < nombre; i++) {
 			tmpFichiers.add(getRandomFile());
 		}
@@ -277,7 +272,7 @@ public class TestCharge {
 	}
 	
 	private static synchronized List<DemandeFileDTO> getFichiersSansDoublons(Integer nombre) {
-		List<DemandeFileDTO> ret = new ArrayList<DemandeFileDTO>();
+		List<DemandeFileDTO> ret = new ArrayList<>();
 		for (int i = 0; i < nombre; i++) {
 			boolean found = false;
 			while (!found) {
@@ -293,19 +288,22 @@ public class TestCharge {
 	}
 	
 	private static DemandeFileDTO getRandomFile() {
-		int randomElementIndex = ThreadLocalRandom.current().nextInt(fichiers.size()) % fichiers.size();
+		SecureRandom r = new SecureRandom();
+		int randomElementIndex = r.nextInt(fichiers.size()) % fichiers.size();
 		return fichiers.get(randomElementIndex);
 	}
 	
 	private static String getRandomConfElement(String confElement) {
 		String value = conf.get(confElement);
 		String spl[] = value.split(",");
-		int randomElementIndex = ThreadLocalRandom.current().nextInt(spl.length) % spl.length;
+		SecureRandom r = new SecureRandom();
+		int randomElementIndex = r.nextInt(spl.length) % spl.length;
 		return spl[randomElementIndex];
 	}
 	
 	private static String getRandomContenu() {
-		int randomElementIndex = ThreadLocalRandom.current().nextInt(contenus.size()) % contenus.size();
+		SecureRandom r = new SecureRandom();
+		int randomElementIndex = r.nextInt(contenus.size()) % contenus.size();
 		return contenus.get(randomElementIndex);
 	}
 	

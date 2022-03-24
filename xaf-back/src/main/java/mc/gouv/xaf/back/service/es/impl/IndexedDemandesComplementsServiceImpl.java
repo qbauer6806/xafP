@@ -48,7 +48,7 @@ public class IndexedDemandesComplementsServiceImpl extends DemandesComplementsSe
     @Override
     @Transactional
     public DemandeComplementsDTO saveDemandeComplements(String demarcheId, Integer demandeId,
-                                                        DemandeComplementsQuestionDTO demandeComplements) throws Exception {
+                                                        DemandeComplementsQuestionDTO demandeComplements) {
         // Sauvegarde en BDD
         DemandeComplementsDTO demandeComplementsDTO = super.saveDemandeComplements(demarcheId, demandeId,
                 demandeComplements);
@@ -68,7 +68,7 @@ public class IndexedDemandesComplementsServiceImpl extends DemandesComplementsSe
 
     @Override
     public DemandeComplementsDTO repondreDemandeComplements(String demarcheId, Integer pkDemande,
-                                                            Integer pkDemandeComplements, DemandeComplementsReponseDTO demandeComplementsReponse) throws Exception {
+                                                            Integer pkDemandeComplements, DemandeComplementsReponseDTO demandeComplementsReponse) {
 
         DemandeComplementsDTO demandeComplementsDTO = super.repondreDemandeComplements(demarcheId, pkDemande,
                 pkDemandeComplements, demandeComplementsReponse);

@@ -203,11 +203,12 @@ public class DemandesServiceImpl implements DemandesService {
 
 	/**
 	 * {@inheritDoc}
+	 * @throws IOException 
 	 * 
 	 * @throws Exception
 	 */
 	@Override
-	public DemandeDTO saveDemande(DemandeDTO demande, String premierStatut) throws Exception {
+	public DemandeDTO saveDemande(DemandeDTO demande, String premierStatut) throws IOException {
 
 		if (demande.getCanal() == null) {
 			throw new DemarchesServiceException("Canal non spécifié", HttpStatus.BAD_REQUEST);
@@ -279,13 +280,14 @@ public class DemandesServiceImpl implements DemandesService {
 
 	/**
 	 * {@inheritDoc}
+	 * @throws SAXException 
+	 * @throws IOException 
 	 * 
 	 * @throws Exception
 	 *
 	 */
 	@Override
-	public DemandeDTO saveOrUpdateDemande(DemandeDTO demande, boolean partialUpdate, String premierStatut)
-			throws Exception {
+	public DemandeDTO saveOrUpdateDemande(DemandeDTO demande, boolean partialUpdate, String premierStatut) throws IOException, SAXException {
 		DemandeDTO demandeDTO;
 		if (demande.getPkDemandes() != null) {
 			// ID de la demande fourni, il faut donc mettre à jour une demande

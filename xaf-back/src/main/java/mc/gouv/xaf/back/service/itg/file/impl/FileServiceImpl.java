@@ -117,7 +117,7 @@ public class FileServiceImpl implements FileService {
 
 	@Override
 	public String saveFile(DemandeDTO demande, String filename, String containerId, String contentType, InputStream inputStream,
-						   OutputStream outputStream) throws Exception {
+						   OutputStream outputStream) {
 
 		LOGGER.info("FileService.saveFile({}, {}, {})", demande.getPkDemandes(), filename, contentType);
 
@@ -131,13 +131,17 @@ public class FileServiceImpl implements FileService {
 
 		String accountId = gouvPropertiesResolver.getDemarcheId();
 		LOGGER.info("FileClient.saveFile({}, {}, {})", accountId, containerId, filename);
-		return afBackUtils.getFileClient().saveFile(accountId, containerId, inputStream, filename, contentType, customHeaders,
-				outputStream);
+		try {
+			return afBackUtils.getFileClient().saveFile(accountId, containerId, inputStream, filename, contentType, customHeaders,
+					outputStream);
+		} catch (Exception e) {
+			LOGGER.error("Erreur dans FileServiceImpl.saveFile()", e);
+			throw new DemarchesServiceException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 	
 	@Override
-	public String saveFile(DemandeDTO demande, String containerId, MultipartFile file, HttpServletResponse response)
-			throws Exception {
+	public String saveFile(DemandeDTO demande, String containerId, MultipartFile file, HttpServletResponse response) throws IOException {
 
 		LOGGER.info("FileService.saveFile({}, {})", demande.getPkDemandes(), file.getOriginalFilename());
 
@@ -184,7 +188,12 @@ public class FileServiceImpl implements FileService {
 
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-		return afBackUtils.getFileClient().saveFile(accountId, containerId, file.getInputStream(), filename, file.getContentType(), customHeaders, outputStream);
+		try {
+			return afBackUtils.getFileClient().saveFile(accountId, containerId, file.getInputStream(), filename, file.getContentType(), customHeaders, outputStream);
+		} catch (Exception e) {
+			LOGGER.error("Erreur dans FileServiceImpl.saveFile()", e);
+			throw new DemarchesServiceException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 
 	}
 
@@ -351,10 +360,10 @@ public class FileServiceImpl implements FileService {
 
 	/**
 	 * {@inheritDoc}
+	 * @throws IOException 
 	 */
 	@Override
-	public void updateFilesMetadataWithDemandeId(DemandeFileDTO[] fichiers, String demarcheId, Integer demandeId)
-			throws Exception {
+	public void updateFilesMetadataWithDemandeId(DemandeFileDTO[] fichiers, String demarcheId, Integer demandeId) throws IOException {
 		LOGGER.info("Début updateFilesMetadataWithDemandeId()");
 		initRestTemplate();
 		for (DemandeFileDTO fichier : fichiers) {
@@ -366,9 +375,10 @@ public class FileServiceImpl implements FileService {
 
 	/**
 	 * {@inheritDoc}
+	 * @throws IOException 
 	 */
 	@Override
-	public void updateFileMetadata(String fichierURL, String demarcheId, String metaKey, String metaValue) throws Exception {
+	public void updateFileMetadata(String fichierURL, String demarcheId, String metaKey, String metaValue) throws IOException {
 		initRestTemplate();
 		URL url = getFileURL(fichierURL, demarcheId);
 		updateFileMetadataGeneric(url.toString(), metaKey, metaValue);

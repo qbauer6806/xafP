@@ -94,7 +94,7 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
                     String indexingPropStr = environment
                             .getProperty("mc.gouv" + applicationPrefix + ".indexing.enabled");
                     boolean indexingEnabled = false;
-                    if (StringUtils.isNotBlank(indexingPropStr) && indexingPropStr.equals(true)) {
+                    if (StringUtils.isNotBlank(indexingPropStr) && indexingPropStr.equals("true")) {
                         indexingEnabled = true;
                     }
                     

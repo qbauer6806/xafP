@@ -67,6 +67,7 @@ public class DemandeJobServiceImpl implements DemandeJobService {
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandeJobServiceImpl.class);
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void launch(JobNamesEnum jobName) {
 
         DemandeJobBO job = new DemandeJobBO();
@@ -77,7 +78,7 @@ public class DemandeJobServiceImpl implements DemandeJobService {
                 throw new IllegalArgumentException("Aucun job à lancer");
             }
 
-            LOGGER.info("Début du lancement du job {} : {}", jobName.getLibelle());
+            LOGGER.info("Début du lancement du job {}", jobName.getLibelle());
 
             logExecutionStart(job, jobName);
 
@@ -111,7 +112,7 @@ public class DemandeJobServiceImpl implements DemandeJobService {
             }
             if (job.getJobName().equals(JobNamesEnum.REINDEXATION_DEMANDES_DESYNCHRO)) {
                 List<String> demandes = indexedDemandeService.reindexDemandesDesynchro();
-                if (demandes.size() > 0) {
+                if (!demandes.isEmpty()) {
                     msg = "Les demandes " + demandes + " ont été synchronisées (supprimées d'ES et/ou reindéxées)";
                 } else {
                     msg = "Aucune demande n'a été synchronisée";
@@ -161,7 +162,7 @@ public class DemandeJobServiceImpl implements DemandeJobService {
         }
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional(propagation = Propagation.REQUIRED)
     public void logExecutionStart(DemandeJobBO job, JobNamesEnum jobName) {
         Date now = new Date();
         job.setDateCreation(now);

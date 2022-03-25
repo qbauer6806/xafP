@@ -48,5 +48,7 @@ public interface DemarchesDataProvider {
 	StatutSimplifieEnum getStatutSimplifieFromStatutPublic(String statutPublic);
 
 	List<String> getStatutsAPurger();
+	
+	boolean isValideTypedoc(String typedoc);
 
 }

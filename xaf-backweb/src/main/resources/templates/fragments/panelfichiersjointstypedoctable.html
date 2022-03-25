@@ -18,7 +18,8 @@
 	        <th th:class="${cat.typedoc} ? 'file-name-col-small' : 'file-name-col'">Nom du fichier</th>
 	        <th class="date-col">Date</th>
 	        <th class="typedoc-col nosort" th:if="${cat.typedoc}">Type</th>
-	        <th class="action-col nosort">Action</th>
+	        <th class="action-col nosort">Actions</th>
+	        <th class="action-col-2 nosort"></th>
 	    </tr>
 	    </thead>
 	    <tbody>
@@ -52,7 +53,9 @@
 		                <i class="icon-action_pdf"></i>
 		            </span>
 	            </a>
-	            <div class="parent-container">
+	        </td>
+	        <td class="action-col-2">
+	        	<div class="parent-container">
 					<a id="popup" th:value="@{/ws/file/get/apercu}+${file.url}">
 						<button class="btn btn-action ripple-effect greyTooltip" onclick="setCurrentPopup(this)" data-original-title="Prévisualiser"
 				                  data-placement="bottom" data-toggle="tooltip" title="" th:id="${file.compFile} ? previewButton + ${file.pkDemandesComplementsFiles} : previewButton + ${file.pkDemandesFiles}">
@@ -60,7 +63,7 @@
 			            </button>
 					</a>
 				</div>
-	        </td>
+			</td>
 	    </tr>
 	    </tbody>
 	</table>

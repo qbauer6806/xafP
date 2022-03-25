@@ -113,4 +113,10 @@ public class DemarchesDataProviderImpl implements DemarchesDataProvider {
     public List<String> getStatutsAPurger() {
         return null;
     }
+
+	@Override
+	public boolean isValideTypedoc(String typedoc) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

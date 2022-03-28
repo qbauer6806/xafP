@@ -15,7 +15,7 @@
                 <div class="dropdown col-xs-3 text-right" th:if="${cat.name == 'Fichiers de la demande initiale'}">
 	                <button class="btn btn-action dropdown-toggle" type="button" data-toggle="dropdown">Télécharger
 						<span class="caret"></span></button>
-						<div class="dropdown-menu" style="width: 86.8%; margin-left: 6.7%;" aria-labelledby="dropdownMenuButton">
+						<div class="dropdown-menu" style="width: 86.8%; margin-left: 6.7%; cursor: pointer" aria-labelledby="dropdownMenuButton">
     						<a class="dropdown-item" id="allDownloadButton">Tous les documents</a>
     						<a class="dropdown-item" th:classappend="!${isDocumentsValidesActif} ? disabled : enable" id="validesDownloadButton">Les documents valides</a>
   						</div>

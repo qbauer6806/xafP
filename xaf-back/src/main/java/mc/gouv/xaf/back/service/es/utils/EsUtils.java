@@ -1,8 +1,6 @@
 package mc.gouv.xaf.back.service.es.utils;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 public class EsUtils {
@@ -13,6 +11,7 @@ public class EsUtils {
     /**
      * @deprecated les jointures seront supprimées dans ES8
      */
+    @Deprecated
     public static final String JOIN_FIELD = "demandeJoinField";
     public static final String DATE_CREATION_FIELD = "dateCreation";
     public static final String PK_DEMANDE_FIELD = "pkDemandes";
@@ -30,6 +29,10 @@ public class EsUtils {
     public static final String DATE_PRINTED_FILE_FIELD = "datePrinted";
     public static final String DEMANDEID_FILE_FIELD = "identifiantDemande";
     public static final String REFINTERNE_FILE_FIELD = "identifiantFichier";
+
+    private EsUtils() {
+        throw new IllegalStateException("Utility class");
+    }
 
     public static Set<String> getMappingFichiers() {
         Set<String> mapping = new HashSet<>();

@@ -5,7 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import mc.gouv.logon.shared.User;
 import mc.gouv.servicerest.usager.model.UsagerBean;
 import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
-import mc.gouv.xaf.back.data.entity.*;
+import mc.gouv.xaf.back.data.entity.AccessBO;
+import mc.gouv.xaf.back.data.entity.DemandeBO;
+import mc.gouv.xaf.back.data.entity.DemandesDataBO;
+import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
 import mc.gouv.xaf.back.data.es.model.*;
 import mc.gouv.xaf.back.data.transformer.DemandesCourriersTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesStatutsTransformer;
@@ -14,7 +17,6 @@ import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.DemandesHistoriqueService;
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
-import mc.gouv.xaf.back.service.motifs.MotifsCache;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
 import mc.gouv.xaf.shared.dto.*;
 import org.apache.commons.lang3.StringUtils;
@@ -41,7 +43,6 @@ public class DemandeEsTransformer {
 
     private static final String FIELD_COURRIER = "courriers";
     private static final String FIELD_STATUS = "statuts";
-    private static final String FIELD_DEM_COMPL = "demandesComplements";
     private static final String FIELD_DATA = "data";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandeEsTransformer.class);
@@ -58,9 +59,6 @@ public class DemandeEsTransformer {
 
     @Autowired(required = false)
     IndexedDemandeDataJsonNodeTransformer indexedDemandeDataJsonNodeTransformer;
-
-    @Inject
-    MotifsCache motifsCache;
 
     @Inject
     DemandesStatutsEsTransformer demandesStatutsEsTransformer;
@@ -142,7 +140,7 @@ public class DemandeEsTransformer {
 
         Set<DemandeCourrierDTO> courriers = DemandesCourriersTransformer.bo2Dto(demande.getCourriers());
 
-        if (courriers != null && !courriers.isEmpty()) {
+        if (!courriers.isEmpty()) {
             List<String> nomsCourriers = courriers.stream().map(DemandeCourrierDTO::getName)
                     .collect(Collectors.toList());
             demandeEsDTO.setNomsCourriers(nomsCourriers);
@@ -260,19 +258,14 @@ public class DemandeEsTransformer {
 
         boolean addCourriersField = false;
         boolean addStatutsField = false;
-        boolean addDemandesComplementsField = false;
         boolean addDataField = false;
         if (fields != null) {
             for (String field : fields) {
                 if (StringUtils.equals(FIELD_COURRIER, field)) {
                     addCourriersField = true;
                 }
-
                 if (StringUtils.equals(FIELD_STATUS, field)) {
                     addStatutsField = true;
-                }
-                if (StringUtils.equals(FIELD_DEM_COMPL, field)) {
-                    addDemandesComplementsField = true;
                 }
                 if (StringUtils.equals(FIELD_DATA, field)) {
                     addDataField = true;
@@ -282,7 +275,6 @@ public class DemandeEsTransformer {
             // Dans le cas ou il n'y avait pas de fields on retourne l'objet complet
             addCourriersField = true;
             addStatutsField = true;
-            addDemandesComplementsField = true;
             addDataField = true;
         }
         DemandeEsDTO dto = new DemandeEsDTO();
@@ -351,21 +343,14 @@ public class DemandeEsTransformer {
             }
             dto.setDernierStatut(demandesStatutsEsTransformer.toEs(statutDto, bo.getPkDemandes()));
         }
-        // Mapper les courriers
-        if (addCourriersField && bo.getCourriers() != null && !bo.getCourriers().isEmpty()) {
-            // Ne remonter les courriers que pour le back
-            if (!DemarchesUtils.isFrontUser()) {
-                // Back Office : tout remonter
-
-                List<DemandeCourrierDTO> courriers = DemandesCourriersTransformer
-                        .bo2Dto(new ArrayList<DemandesCourriersBO>(bo.getCourriers()));
-
-                if (courriers != null && !courriers.isEmpty()) {
-                    List<String> nomsCourriers = courriers.stream().map(DemandeCourrierDTO::getName)
-                            .collect(Collectors.toList());
-                    dto.setNomsCourriers(nomsCourriers);
-                }
-
+        // Mapper les courriers (que pour le Back-Office)
+        if (addCourriersField && bo.getCourriers() != null && !bo.getCourriers().isEmpty()
+                && !DemarchesUtils.isFrontUser()) {
+            List<DemandeCourrierDTO> courriers = DemandesCourriersTransformer.bo2Dto(new ArrayList<>(bo.getCourriers()));
+            if (!courriers.isEmpty()) {
+                List<String> nomsCourriers = courriers.stream().map(DemandeCourrierDTO::getName)
+                        .collect(Collectors.toList());
+                dto.setNomsCourriers(nomsCourriers);
             }
         }
         dto.setIdentifiant(bo.getIdentifiant());
@@ -375,7 +360,9 @@ public class DemandeEsTransformer {
         dto.setStatutPublicOuInterne(demarchesDataProvider.getStatutPublicOuInterne(bo.getPkDemandes(), bo.getDernierStatut().getLibelle()).getName());
 
         // Mapping des demandes data
-        dto.setData(transformDataBO(bo.getData()));
+        if (addDataField) {
+            dto.setData(transformDataBO(bo.getData()));
+        }
 
         ObjectMapper mapper = new ObjectMapper();
         try {

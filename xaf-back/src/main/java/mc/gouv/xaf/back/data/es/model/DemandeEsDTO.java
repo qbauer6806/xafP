@@ -41,6 +41,7 @@ public class DemandeEsDTO {
     /**
      * @deprecated les jointures seront supprimées dans ES8
      */
+    @Deprecated
     private DemandeJoinFieldEsDTO demandeJoinField;
     private DemandeStatutEsDTO dernierStatut;
     @Id
@@ -186,6 +187,7 @@ public class DemandeEsDTO {
     /**
      * @deprecated les jointures seront supprimées dans ES8
      */
+    @Deprecated
     public DemandeJoinFieldEsDTO getDemandeJoinField() {
         return demandeJoinField;
     }
@@ -193,6 +195,7 @@ public class DemandeEsDTO {
     /**
      * @deprecated les jointures seront supprimées dans ES8
      */
+    @Deprecated
     public void setDemandeJoinField(DemandeJoinFieldEsDTO demandeJoinField) {
         this.demandeJoinField = demandeJoinField;
     }

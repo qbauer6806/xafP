@@ -12,17 +12,17 @@ import java.util.function.Supplier;
 
 public class EsNode extends Node {
 
-    private static final Supplier<String> supplier = new Supplier() {
+    private static final Supplier<String> supplier = new Supplier<String>() {
         @Value("${application.name}")
         private String indexAlias;
 
         @Override
-        public Object get() {
+        public String get() {
             return indexAlias;
         }
     };
 
-    EsNode(Settings preparedSettings, Collection<Class<? extends Plugin>> classpathPlugins) {
+    public EsNode(Settings preparedSettings, Collection<Class<? extends Plugin>> classpathPlugins) {
         super(InternalSettingsPreparer.prepareEnvironment(preparedSettings, Collections.emptyMap(), null, supplier), classpathPlugins, false);
     }
 

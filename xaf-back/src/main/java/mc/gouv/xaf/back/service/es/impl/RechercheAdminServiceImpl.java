@@ -1,6 +1,5 @@
 package mc.gouv.xaf.back.service.es.impl;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -245,77 +244,55 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
 
     @Override
     public List<EsCategory> getCategories() {
-
         LOGGER.info("Début de la récupération des catégories");
         Iterable<RechercheCatConfigBO> categoriesBo = rechercheCatConfigRepository.findAll();
         List<EsCategory> categories = new ArrayList<>();
-
-        if (categoriesBo != null) {
-            for (RechercheCatConfigBO cat : categoriesBo) {
-                String escapedLabel = HTMLEscapeUtils.escape(cat.getLibelle());
-                categories.add(new EsCategory(cat.getId(), escapedLabel, cat.isEditable()));
-            }
+        for (RechercheCatConfigBO cat : categoriesBo) {
+            String escapedLabel = HTMLEscapeUtils.escape(cat.getLibelle());
+            categories.add(new EsCategory(cat.getId(), escapedLabel, cat.isEditable()));
         }
-
         LOGGER.info("Fin de la récupération des catégories");
         return categories;
     }
 
     @Override
     public Map<String, RechercheChampConfigBO> getChampsMap() {
-
         Iterable<RechercheChampConfigBO> champs = rechercheChampConfigRepository.findAll();
-        if (champs != null) {
-            Map<String, RechercheChampConfigBO> champsMap = new HashMap<>();
-            for (RechercheChampConfigBO champ : champs) {
-                champsMap.put(champ.getCle(), champ);
-            }
-
-            return champsMap;
+        Map<String, RechercheChampConfigBO> champsMap = new HashMap<>();
+        for (RechercheChampConfigBO champ : champs) {
+            champsMap.put(champ.getCle(), champ);
         }
-        return new HashMap<>();
+        return champsMap;
     }
 
     @Override
-    public String exportConfig() throws JsonGenerationException, JsonMappingException, IOException {
+    public String exportConfig() throws IOException {
 
         LOGGER.info("Début de l'export de la configuration");
 
         ExportImportConfigDTO exportConfig = new ExportImportConfigDTO();
         Iterable<RechercheCatConfigBO> categoriesBo = rechercheCatConfigRepository.findAll();
-
-        if (categoriesBo != null) {
-
-            for (RechercheCatConfigBO catConfig : categoriesBo) {
-                exportConfig.getCategories()
-                        .add(new ExportImportCategoryDTO(catConfig.getLibelle(), catConfig.isEditable()));
-            }
+        for (RechercheCatConfigBO catConfig : categoriesBo) {
+            exportConfig.getCategories()
+                    .add(new ExportImportCategoryDTO(catConfig.getLibelle(), catConfig.isEditable()));
         }
 
         Iterable<RechercheChampConfigBO> champsBo = rechercheChampConfigRepository.findAll();
-
-        if (champsBo != null) {
-            for (RechercheChampConfigBO configConfig : champsBo) {
-
-                ExportImportConfigPropertyDTO exportConfigPropertyDTO = new ExportImportConfigPropertyDTO();
-                if (configConfig.getCategorie() != null) {
-                    exportConfigPropertyDTO.setCategoryName(configConfig.getCategorie().getLibelle());
-                }
-                exportConfigPropertyDTO.setEditable(configConfig.isEditable());
-                exportConfigPropertyDTO.setEnabled(configConfig.isEnabled());
-                exportConfigPropertyDTO.setLabel(configConfig.getLibelle());
-                exportConfigPropertyDTO.setName(configConfig.getCle());
-
-                exportConfig.getProperties().add(exportConfigPropertyDTO);
+        for (RechercheChampConfigBO configConfig : champsBo) {
+            ExportImportConfigPropertyDTO exportConfigPropertyDTO = new ExportImportConfigPropertyDTO();
+            if (configConfig.getCategorie() != null) {
+                exportConfigPropertyDTO.setCategoryName(configConfig.getCategorie().getLibelle());
             }
+            exportConfigPropertyDTO.setEditable(configConfig.isEditable());
+            exportConfigPropertyDTO.setEnabled(configConfig.isEnabled());
+            exportConfigPropertyDTO.setLabel(configConfig.getLibelle());
+            exportConfigPropertyDTO.setName(configConfig.getCle());
+            exportConfig.getProperties().add(exportConfigPropertyDTO);
         }
 
         ObjectMapper mapper = new ObjectMapper();
-
         String exportedConfig = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(exportConfig);
-
         LOGGER.info("Fin de l'export de la configuration, fichier exporté {}", exportedConfig);
-
         return exportedConfig;
     }
 

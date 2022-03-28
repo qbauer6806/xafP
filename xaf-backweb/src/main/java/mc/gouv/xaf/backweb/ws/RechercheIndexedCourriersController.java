@@ -5,7 +5,6 @@ import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
 import mc.gouv.xaf.back.data.es.model.DemandeFileEsRechercheDTO;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.es.IndexedDemandeService;
-import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.backweb.controller.AbstractController;
 import mc.gouv.xaf.shared.dto.DataRechercheDTO;
 import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
@@ -24,8 +23,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.DateTimeFormat.ISO;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.ArrayList;
@@ -45,16 +44,13 @@ public class RechercheIndexedCourriersController extends AbstractController {
     @Autowired
     private IndexedDemandeService demandesService;
 
-    @Autowired
-    private UtilisateursCache utilisateursCache;
-
     private static final String FICHIER_NAME = "fichierName";
     private static final String DEMANDE_IDENTIFIANT = "identifiant";
     private static final String COURRIER_DATE_RECEPTION = "courrierDateReception";
     private static final String DERNIER_STATUT_LIBELLE = "dernierStatut.libelle";
     private static final String COURRIER_CONTENT = "fichierContent";
 
-    @RequestMapping(value = "/pageable", method = RequestMethod.GET)
+    @GetMapping(value = "/pageable")
     public Page<DemandeFileEsRechercheDTO> getDemandes(@RequestParam(value = "usagerId", required = false) Integer usagerId,
                                                        @RequestParam(value = "statut", required = false) List<String> statuts,
                                                        @RequestParam(value = "canal", required = false) List<DemandeCanalEnum> canaux,
@@ -68,9 +64,9 @@ public class RechercheIndexedCourriersController extends AbstractController {
                                                        @RequestParam(value = "aucunCanal", required = false) boolean aucunCanal,
                                                        @RequestParam(value = "aucunStatut", required = false) boolean aucunStatut, Pageable pageable) {
 
-        LOGGER.info("======================= Appel de /ws/demandes/pageable (statuts=" + statuts + ",canaux=" + canaux
-                + ",agentId=" + agentId + ",creationStartDate=" + creationStartDate + ",creationEndDate="
-                + creationEndDate + ",texte=" + texte + ",data=" + data);
+        LOGGER.info(
+                "======================= Appel de /ws/courriers/pageable (userId=\"{}\", statuts=\"{}\", canaux=\"{}\", agentId=\"{}\", creationStartDate=\"{}\", creationEndDate=\"{}\", texte=\"{}\", data=\"{}\")",
+                usagerId, statuts, canaux, agentId, creationStartDate, creationEndDate, texte, data);
 
         DemandeCourrierRechercheDTO demandeRecherche = new DemandeCourrierRechercheDTO();
         demandeRecherche.setDemarcheId(gouvPropertiesResolver.getDemarcheId());
@@ -89,7 +85,7 @@ public class RechercheIndexedCourriersController extends AbstractController {
 
         populateSearchFields(demandeRecherche, searchFields);
 
-        if (pageable.getSort() != null && !pageable.getSort().isUnsorted()) {
+        if (!pageable.getSort().isUnsorted()) {
             Order order = pageable.getSort().iterator().next();
             if (order != null) {
                 return demandesService.getIndexedCourriers(demandeRecherche, pageable, new String[] {});

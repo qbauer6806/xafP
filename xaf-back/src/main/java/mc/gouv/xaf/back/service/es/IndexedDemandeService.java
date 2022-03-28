@@ -25,9 +25,9 @@ public interface IndexedDemandeService extends DemandesService {
      * Méthode permettant d'indexer une demande
      *
      * @param demandeDTO La demande à indexer
-     * @throws IOException
-     * @throws SAXException
-     * @throws TikaException
+     * @throws IOException             Exception I/O
+     * @throws TikaException           Exception du parsing de la piece jointe
+     * @throws SAXException            Exception SAX
      */
     void indexDemande(DemandeDTO demandeDTO) throws IOException, SAXException, TikaException;
 
@@ -44,8 +44,6 @@ public interface IndexedDemandeService extends DemandesService {
      *
      * @return nombre de demandes reindexées
      * @throws IOException             Exception I/O
-     * @throws TikaException           Exception du parsing de la piece jointe
-     * @throws SAXException            Exception SAX
      * @throws FileConnectionException Exception lors de la connextion à File afn de récupérer la piece jointe à indexer
      */
     Long reindex() throws IOException;
@@ -55,8 +53,6 @@ public interface IndexedDemandeService extends DemandesService {
      *
      * @return nombre de demandes reindexées
      * @throws IOException             Exception I/O
-     * @throws TikaException           Exception du parsing de la piece jointe
-     * @throws SAXException            Exception SAX
      * @throws FileConnectionException Exception lors de la connextion à File afn de récupérer la piece jointe à indexer
      */
     Long reindexDemandes() throws IOException;
@@ -73,7 +69,7 @@ public interface IndexedDemandeService extends DemandesService {
      *
      * @return message à afficher à l'utilisateur
      */
-    List<String> reindexDemandesDesynchro() throws Exception;
+    List<String> reindexDemandesDesynchro();
 
     /**
      * Méthode permettant de récupérer une demande de la base et de l'indexer
@@ -84,8 +80,7 @@ public interface IndexedDemandeService extends DemandesService {
      * @throws SAXException  Exception SAX
      * @throws TikaException Exception du parsing de la piece jointe
      */
-    void indexDemande(String demarcheId, Integer demandeId)
-            throws IOException, SAXException, TikaException;
+    void indexDemande(String demarcheId, Integer demandeId) throws IOException, SAXException, TikaException;
 
     /**
      * Méthode permettant d'envoyer une à ES afin d'être indexer

@@ -14,6 +14,7 @@ public class DemandeFileEsDTO {
     /**
      * @deprecated les jointures seront supprimées dans ES8
      */
+    @Deprecated
     public static final String INDEX_FILES_JOIN_DOC = "fichiers";
     /**
      * Id unique, différent de la pkDemandeFile (généré à partir de l'url et nom) et utilisé par ES
@@ -23,6 +24,7 @@ public class DemandeFileEsDTO {
     /**
      * @deprecated les jointures seront supprimées dans ES8
      */
+    @Deprecated
     private DemandeJoinFieldEsDTO demandeJoinField;
     @NotNull
     private String name;
@@ -50,7 +52,7 @@ public class DemandeFileEsDTO {
     private String identifiantDemande;
 
     /**
-     * @deprecated les jointures seront supprimées dans ES8
+     * TODO les jointures seront supprimées dans ES8
      */
     public DemandeFileEsDTO(String parent) {
         this.identifiantDemande = parent;
@@ -58,7 +60,7 @@ public class DemandeFileEsDTO {
     }
 
     /**
-     * @deprecated les jointures seront supprimées dans ES8
+     * TODO les jointures seront supprimées dans ES8
      */
     public DemandeFileEsDTO(String parent, String url) {
         this.identifiantDemande = parent;
@@ -81,6 +83,7 @@ public class DemandeFileEsDTO {
         this.identifiant = identifiant;
     }
 
+    @Deprecated
     public DemandeJoinFieldEsDTO getDemandeJoinField() {
         return demandeJoinField;
     }
@@ -88,6 +91,7 @@ public class DemandeFileEsDTO {
     /**
      * @deprecated les jointures seront supprimées dans ES8
      */
+    @Deprecated
     public void setDemandeJoinField(DemandeJoinFieldEsDTO demandeJoinField) {
         this.demandeJoinField = demandeJoinField;
     }

@@ -23,6 +23,7 @@ import mc.gouv.xaf.back.service.es.utils.EsUtils;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
 import mc.gouv.xaf.back.service.utils.ESQueryUtils;
+import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -33,7 +34,6 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.GetIndexRequest;
 import org.elasticsearch.client.indices.GetIndexResponse;
 import org.elasticsearch.cluster.metadata.MappingMetadata;
-import org.elasticsearch.common.text.Text;
 import org.elasticsearch.index.query.*;
 import org.elasticsearch.join.query.HasChildQueryBuilder;
 import org.elasticsearch.search.aggregations.Aggregation;
@@ -42,7 +42,6 @@ import org.elasticsearch.search.aggregations.bucket.filter.Filters;
 import org.elasticsearch.search.aggregations.bucket.filter.FiltersAggregator.KeyedFilter;
 import org.elasticsearch.search.aggregations.bucket.filter.ParsedFilters;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
-import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,7 +87,6 @@ import static org.elasticsearch.join.query.JoinQueryBuilders.hasChildQuery;
 public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements IndexedDemandeService {
 
     public static final String ES_KEYWORD = ".keyword";
-    public static final SimpleDateFormat SDF = new SimpleDateFormat(DATE_PATTERN);
     public static final String ES_MAPPING_FIELDS_KEY = "fields";
     public static final String ES_MAPPING_TYPE_KEY = "type";
     public static final String FILE_COMPLEMENT_HIGHLIGHT_AND_FACET_PREFIX = "complement.";
@@ -199,6 +197,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      * @param aliasName Nom de l'alias
      * @return Mapping Elasticsearch
      */
+    @SuppressWarnings({"rawtypes"})
     private Map getMapping(String aliasName) {
         Assert.notNull(aliasName, "No index defined for putMapping()");
         Map mappings;
@@ -269,26 +268,29 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     @SuppressWarnings({"unchecked", "rawtypes"})
     private synchronized void initMappingProperties(List<EsProperty> properties, Map<String, Map> mapping,
                                                     List<String> fieldsToExclude, boolean isFilesDocs) {
-        Set<String> mappingFichiers = EsUtils.getMappingFichiers();
-
         if (elasticsearchTemplate != null && mapping != null) {
             for (Entry<String, Map> entry : mapping.entrySet()) {
                 if (entry.getKey().equals(EsUtils.ES_MAPPING_PROPERTIES_KEY)) {
-                    Map<String, Map> map = entry.getValue();
-                    for (Entry<String, Map> subMapentry : map.entrySet()) {
-                        String key = subMapentry.getKey();
-                        if (!fieldsToExclude.contains(key)
-                                && (!isFilesDocs || (isFilesDocs && mappingFichiers.contains(key)))) {
-                            properties.add(new EsProperty(subMapentry.getKey()));
-                            getPropertyName(subMapentry.getValue(), subMapentry.getKey(), properties);
-                        }
-                    }
+                    fillProperties(properties, entry.getValue().entrySet(), fieldsToExclude, isFilesDocs);
                 } else {
                     Map<String, Map> mappingCheck = mapping.get(entry.getKey());
                     if (mappingCheck != null) {
                         mapping = mappingCheck;
                     }
                 }
+            }
+        }
+    }
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private void fillProperties(List<EsProperty> properties, Set<Map.Entry<String, Map>> entrySet,
+                                List<String> fieldsToExclude, boolean isFilesDocs) {
+        Set<String> mappingFichiers = EsUtils.getMappingFichiers();
+        for (Entry<String, Map> subMapentry : entrySet) {
+            String key = subMapentry.getKey();
+            if (!fieldsToExclude.contains(key) && (!isFilesDocs || mappingFichiers.contains(key))) {
+                properties.add(new EsProperty(subMapentry.getKey()));
+                getPropertyName(subMapentry.getValue(), subMapentry.getKey(), properties);
             }
         }
     }
@@ -308,44 +310,55 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         }
         for (Entry<String, Map> entry : map.entrySet()) {
             if (entry.getKey().equals(EsUtils.ES_MAPPING_PROPERTIES_KEY)) {
-                Map<String, Map> submap = entry.getValue();
-                for (Entry<String, Map> subMapentry : submap.entrySet()) {
-                    String newFiledName = propertyName + "." + subMapentry.getKey();
-                    Integer fieldIndex = properties.indexOf(new EsProperty(propertyName));
-                    if (fieldIndex < 0) {
-                        properties.add(new EsProperty(newFiledName));
-                    } else {
-                        properties.set(fieldIndex, new EsProperty(newFiledName));
-                    }
-                    getPropertyName(subMapentry.getValue(), newFiledName, properties);
-                }
+                getNameFromProperties(entry.getValue().entrySet(), propertyName, properties);
             } else if (entry.getKey().equals(ES_MAPPING_FIELDS_KEY)) {
-                Map<String, Map> submap = entry.getValue();
-                for (Entry<String, Map> subMapentry : submap.entrySet()) {
-
-                    Integer fieldIndex = properties.indexOf(new EsProperty(propertyName));
-                    if (fieldIndex >= 0) {
-                        properties.get(fieldIndex).addField(subMapentry.getKey());
-                        propertiesFields.put(propertyName + "." + subMapentry.getKey(), propertyName);
-                    }
-                }
-
+                getNameFromFields(entry.getValue().entrySet(), propertyName, properties);
             } else if (entry.getKey().equals(ES_MAPPING_TYPE_KEY)) {
-                String type = (String) ((Object) entry.getValue());
-                Integer fieldIndex = properties.indexOf(new EsProperty(propertyName));
-                if (fieldIndex >= 0) {
-                    //On exclut les champs de type boolean car il faussent la recherche
-                    if (!type.equals(EsProperty.BOOLEAN_TYPE)) {
-                        properties.get(fieldIndex).setType(type);
-                    } else {
-                        properties.remove(properties.get(fieldIndex));
-                    }
-                }
-
+                getNameFromTypes(entry, propertyName, properties);
             }
-
         }
+    }
 
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    private void getNameFromProperties(Set<Map.Entry<String, Map>> entrySet, String propertyName, List<EsProperty> properties) {
+        for (Entry<String, Map> subMapentry : entrySet) {
+            String newFiledName = propertyName + "." + subMapentry.getKey();
+            int fieldIndex = properties.indexOf(new EsProperty(propertyName));
+            if (fieldIndex < 0) {
+                properties.add(new EsProperty(newFiledName));
+            } else {
+                properties.set(fieldIndex, new EsProperty(newFiledName));
+            }
+            getPropertyName(subMapentry.getValue(), newFiledName, properties);
+        }
+    }
+
+    @SuppressWarnings({"rawtypes"})
+    private void getNameFromFields(Set<Map.Entry<String, Map>> entrySet, String propertyName, List<EsProperty> properties) {
+        for (Entry<String, Map> subMapentry : entrySet) {
+            int fieldIndex = properties.indexOf(new EsProperty(propertyName));
+            if (fieldIndex >= 0) {
+                properties.get(fieldIndex).addField(subMapentry.getKey());
+                propertiesFields.put(propertyName + "." + subMapentry.getKey(), propertyName);
+            }
+        }
+    }
+
+    @SuppressWarnings({"rawtypes"})
+    private void getNameFromTypes(Entry<String, Map> entry, String propertyName, List<EsProperty> properties) {
+        Map value = entry.getValue();
+        if (null != value) {
+            String type = (String) ((Object) value);
+            int fieldIndex = properties.indexOf(new EsProperty(propertyName));
+            if (fieldIndex >= 0) {
+                //On exclut les champs de type boolean car il faussent la recherche
+                if (!type.equals(EsProperty.BOOLEAN_TYPE)) {
+                    properties.get(fieldIndex).setType(type);
+                } else {
+                    properties.remove(properties.get(fieldIndex));
+                }
+            }
+        }
     }
 
     /**
@@ -353,6 +366,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      *
      * @return liste des propriétés elasticsearch
      */
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
     public List<EsProperty> getProperties(boolean reload) {
         if (allProperties.isEmpty() || reload) {
@@ -432,7 +446,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         return ret;
     }
 
-    public List<String> reindexDemandesDesynchro() throws Exception {
+    public List<String> reindexDemandesDesynchro() {
         List<String> demandesSync = new ArrayList<>();
 
         // [0] Demandes présentes dans ES mais pas en BDD
@@ -488,8 +502,8 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         try {
             demandeEsRepository.save(demandeEsDTO);
         } catch (Exception e) {
-            LOGGER.error("Erreur d'indexation lors du clone de la demande.");
-            EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("IndexedEsDemandeServiceImpl - méthode cloneDemande()", demandeDTO, e);
+            LOGGER.error(SharedMessages.ERREUR_INDEXATION);
+            EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("IndexedEsDemandeServiceImpl - méthode indexDemande()", demandeDTO, e);
             applicationEventPublisher.publishEvent(esErrorEventDTO);
             throw new AfIndexingException(e.getMessage(), e);
         }
@@ -524,7 +538,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         try {
             demandeEsRepository.save(demandeEsDTO);
         } catch (Exception e) {
-            LOGGER.error("Erreur d'indexation lors du clone de la demande.");
+            LOGGER.error(SharedMessages.ERREUR_INDEXATION);
             EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("IndexedEsDemandeServiceImpl - méthode indexDemande()", demandeDto, e);
             applicationEventPublisher.publishEvent(esErrorEventDTO);
             throw new AfIndexingException(e.getMessage(), e);
@@ -573,8 +587,13 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         if (!StringUtils.isBlank(demandeRecherche.getTexte())) {
             NativeSearchQueryBuilder builder = getFacetsAggregationQuery(demandeRecherche);
             SearchHits<DemandeEsRechercheDTO> searchHits = elasticsearchTemplate.search(builder.build(), DemandeEsRechercheDTO.class);
-            List<Aggregation> aggregations = ((ElasticsearchAggregations) searchHits.getAggregations()).aggregations().asList();
 
+            ElasticsearchAggregations elasticsearchAggregations = (ElasticsearchAggregations) searchHits.getAggregations();
+            if (elasticsearchAggregations == null) {
+                return null;
+            }
+
+            List<Aggregation> aggregations = elasticsearchAggregations.aggregations().asList();
             if (aggregations.isEmpty()) {
                 return null;
             }
@@ -666,6 +685,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      *
      * @deprecated les jointures seront supprimées dans ES8
      */
+    @Deprecated
     private void addFileFilters(List<KeyedFilter> queryStringQueryBuilders, SimpleQueryStringBuilder sqsb, String propertyName, String propertyType) {
         if (!fichiersFieldsToExclude.contains(propertyName)) {
             TermQueryBuilder termQueryBuilder = termQuery(EsUtils.TYPE_FILE_FIELD, propertyType);
@@ -676,7 +696,8 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     }
 
     /**
-     * TODO
+     * TODO pas utilisé ?
+     *
      * Méthode permettant de mettre à jour les filtres de la requete qui permet de recupérer les facets
      *
      * @param queryStringQueryBuilders Tableau des filtres
@@ -949,22 +970,9 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         for (Entry<String, List<String>> entry : highlightFields.entrySet()) {
             List<String> fragments = entry.getValue();
             if (!fragments.isEmpty()) {
-                String champs = entry.getKey();
-
-                // Construction du nom du champs
-                StringBuilder fragmentFieldBuilder = new StringBuilder((propertiesFields.get(champs) != null) ? propertiesFields.get(champs) : champs);
-
-                // Ajout du préfixe
-                if (isComplement) {
-                    fragmentFieldBuilder.insert(0, FILE_COMPLEMENT_HIGHLIGHT_AND_FACET_PREFIX);
-                } else if (isCourrier) {
-                    fragmentFieldBuilder.insert(0, COURRIER_FILE_HIGHLIGHT_AND_FACET_PREFIX);
-                } else if (isInternalFile) {
-                    fragmentFieldBuilder.insert(0, INTERNAL_FILE_HIGHLIGHT_AND_FACET_PREFIX);
-                }
+                String fragmentField = getFragmentField(entry.getKey(), isInternalFile, isComplement, isCourrier);
 
                 // Vérification du champs
-                String fragmentField = fragmentFieldBuilder.toString();
                 if (fichiersFieldsToExclude.contains(fragmentField)) {
                     // On ne veut pas afficher ce champs, donc on continue la boucle for
                     continue;
@@ -984,57 +992,20 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         }
     }
 
-    /**
-     * TODO
-     * Méthode permettant de construire la map ayant comme clé le champ ou la recherche à été faite et comme valeur les
-     * fragments contenant le résultat de recherche.<br/>
-     * Les mots clés de la recherche sont entourés par des balises qui les mettent en évidence
-     *
-     * @param highlightFields      Map des conetant les fragments surlignés récupérée de la recherche elasticsearch
-     * @param demEsHighlightFields Map Contenant les fragments avec les mots clés surlignés associés aux champs ou la recherche a été
-     *                             effectutée
-     * @param isInternalFile       Boolean pour indiquer si on recherche dans les champs d'un fichier de type Fichier interne
-     * @param isComplement         Boolean pour indiquer si on recherche dans les champs d'un fichier de type complement
-     * @deprecated changer HighLightField pour List
-     */
-    private void updateHighLightedField(Map<String, HighlightField> highlightFields,
-                                        Map<String, String> demEsHighlightFields, boolean isInternalFile, boolean isComplement, boolean isCourrier) {
-        for (Entry<String, HighlightField> entry : highlightFields.entrySet()) {
-            Text[] fragments = entry.getValue().fragments();
-            if (fragments != null && fragments.length > 0) {
+    private String getFragmentField(String champs, boolean isInternalFile, boolean isComplement, boolean isCourrier) {
+        // Construction du nom du champs
+        StringBuilder fragmentFieldBuilder = new StringBuilder((propertiesFields.get(champs) != null) ? propertiesFields.get(champs) : champs);
 
-                // Construction du nom du champs
-                StringBuilder fragmentFieldBuilder = new StringBuilder(entry.getKey());
-                if (propertiesFields.get(fragmentFieldBuilder.toString()) != null) {
-                    fragmentFieldBuilder = new StringBuilder(propertiesFields.get(fragmentFieldBuilder.toString()));
-                }
-                if (isComplement) {
-                    fragmentFieldBuilder.insert(0, FILE_COMPLEMENT_HIGHLIGHT_AND_FACET_PREFIX);
-                } else if (isCourrier) {
-                    fragmentFieldBuilder.insert(0, COURRIER_FILE_HIGHLIGHT_AND_FACET_PREFIX);
-                } else if (isInternalFile) {
-                    fragmentFieldBuilder.insert(0, INTERNAL_FILE_HIGHLIGHT_AND_FACET_PREFIX);
-                }
-                String fragmentField = fragmentFieldBuilder.toString();
-                if (fichiersFieldsToExclude.contains(fragmentField)) {
-                    // On ne veut pas afficher ce champs, donc on continue la boucle for
-                    continue;
-                }
-
-                final String fragmentEdge = "...";
-                final String fragmentSeparation = fragmentEdge + "<br/>" + fragmentEdge;
-
-                String fragmentsAsString = Arrays.stream(fragments).map(Objects::toString)
-                        .collect(Collectors.joining(fragmentSeparation));
-                StringBuilder fragmentsSB = new StringBuilder(fragmentsAsString);
-                if (fragments.length > 1) {
-                    fragmentsSB.insert(0, fragmentEdge).append(fragmentEdge);
-                }
-
-                demEsHighlightFields.put(fragmentField, fragmentsSB.toString().replace("'", "&quot;")
-                        .replace("\"", "\\\"").replace(highlightPretags.replace("\"", "\\\""), highlightPretags));
-            }
+        // Ajout du préfixe
+        if (isComplement) {
+            fragmentFieldBuilder.insert(0, FILE_COMPLEMENT_HIGHLIGHT_AND_FACET_PREFIX);
+        } else if (isCourrier) {
+            fragmentFieldBuilder.insert(0, COURRIER_FILE_HIGHLIGHT_AND_FACET_PREFIX);
+        } else if (isInternalFile) {
+            fragmentFieldBuilder.insert(0, INTERNAL_FILE_HIGHLIGHT_AND_FACET_PREFIX);
         }
+
+        return fragmentFieldBuilder.toString();
     }
 
     /**
@@ -1375,19 +1346,10 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                             demandeRecherche.getAgentAffecteId()));
         }
 
-        // TODO
-//        if (!StringUtils.isBlank(demandeRecherche.getStatutPublicOuInterne())) {
-//            boolQueryBuilder = boolQueryBuilder
-//                    .should(matchQuery("statutPublicOuInterne",
-//                    		demandeRecherche.getStatutPublicOuInterne()));
-//        }
-
         RangeQueryBuilder rangeQueryBuilder = rangeQuery(DemandeEsDTO.DATE_DEMANDE_FIELD_NAME).format(DATE_PATTERN);
 
         if (demandeRecherche.getCreationStartDate() != null) {
-
             rangeQueryBuilder = rangeQueryBuilder.gte(getFormatedDate(demandeRecherche.getCreationStartDate()));
-
         }
 
         if (demandeRecherche.getCreationEndDate() != null) {
@@ -1609,7 +1571,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.SECOND, 0);
 
-        return SDF.format(cal.getTime());
+        return new SimpleDateFormat(DATE_PATTERN).format(cal.getTime());
     }
 
 
@@ -1633,12 +1595,13 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                 .collect(Collectors.toList());
     }
 
+    @Override
     public DemandeDTO changerAffectationDemande(String demarcheId, int pkDemande, String agentAffecteId) {
         DemandeDTO demandeDTO = super.changerAffectationDemande(demarcheId, pkDemande, agentAffecteId);
         try {
             indexDemande(demandeDTO);
         } catch (Exception e) {
-            LOGGER.error("Erreur d'indexation lors de l'update de la demande.");
+            LOGGER.error(SharedMessages.ERREUR_INDEXATION);
             EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("IndexedEsDemandeServiceImpl - méthode changerAffectationDemande()", demandeDTO, e);
             applicationEventPublisher.publishEvent(esErrorEventDTO);
             throw new AfIndexingException(e.getMessage(), e);

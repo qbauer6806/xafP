@@ -5,11 +5,6 @@ import mc.gouv.xaf.back.data.es.model.GenericContenuEsDTO;
 
 public interface IndexedDemandeJsonNodeTransformer {
 
-    /**
-     * @deprecated ES n'utilise plus de transformateur JSON
-     */
-    JsonNode transform(JsonNode jsonNode);
-
     GenericContenuEsDTO buildGenericContenu(JsonNode node, String buildId);
 
 }

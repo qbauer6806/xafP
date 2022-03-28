@@ -4,10 +4,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-
 import mc.gouv.xaf.back.data.entity.RechercheChampConfigBO;
 import mc.gouv.xaf.back.data.es.model.ConfigCategoriesDTO;
 import mc.gouv.xaf.back.data.es.model.ConfigPropertiesDTO;
@@ -46,8 +42,8 @@ public interface RechercheAdminService {
 
     EsCategory addCategory(String label);
 
-    String exportConfig() throws JsonGenerationException, JsonMappingException, IOException;
+    String exportConfig() throws IOException;
 
-    void importConfig(byte[] file) throws JsonParseException, JsonMappingException, IOException;
+    void importConfig(byte[] file) throws IOException;
 
 }

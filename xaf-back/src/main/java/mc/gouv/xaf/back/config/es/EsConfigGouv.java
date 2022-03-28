@@ -10,6 +10,7 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -42,6 +43,7 @@ public class EsConfigGouv extends AbstractElasticsearchConfiguration {
      *
      * @return RestHighLevelClient
      */
+    @NotNull
     @Bean
     @Override
     public RestHighLevelClient elasticsearchClient() {

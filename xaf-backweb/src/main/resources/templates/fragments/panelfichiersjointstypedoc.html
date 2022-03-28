@@ -9,15 +9,16 @@
             <div th:each="cat : ${categories}">
             <div class="row">
                 <div class="col-xs-12">
-                <div class="col-xs-5">
+                <div class="col-xs-9">
                 	<h3 th:text="${cat.name}"></h3>
                 </div>
-                <div th:if="${cat.name == 'Fichiers de la demande initiale'}" class="col-xs-7 text-right">
-					<select id="fileToDownload" name="fileToDownload" class="btn btn-action ripple-effect">
-						<option value="defaultValue">Télécharger</option>
-						<option value="all">Tous les documents</option>
-						<option value="valides" th:disabled="!${isDocumentsValidesActif}">Les documents valides</option>
-					</select>
+                <div class="dropdown col-xs-3 text-right" th:if="${cat.name == 'Fichiers de la demande initiale'}">
+	                <button class="btn btn-action dropdown-toggle" type="button" data-toggle="dropdown">Télécharger
+						<span class="caret"></span></button>
+						<div class="dropdown-menu" style="width: 86.8%; margin-left: 6.7%;" aria-labelledby="dropdownMenuButton">
+    						<a class="dropdown-item" id="allDownloadButton">Tous les documents</a>
+    						<a class="dropdown-item" th:classappend="!${isDocumentsValidesActif} ? disabled : enable" id="validesDownloadButton">Les documents valides</a>
+  						</div>
 			     </div>
 			     </div>
 			     </div>

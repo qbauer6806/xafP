@@ -1,6 +1,6 @@
 package mc.gouv.xaf.back.service.itg.rest;
 
-import mc.gouv.servicerest.usager.model.UsagerBean;
+import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xboot.caching.GouvCache;
 
 /**
@@ -10,6 +10,6 @@ import mc.gouv.xboot.caching.GouvCache;
  * @author qdeme
  *
  */
-public interface UsagersCache extends GouvCache<Integer, UsagerBean> {
+public interface UsagersCache extends GouvCache<Integer, GichuniUsagerDTO> {
     
 }

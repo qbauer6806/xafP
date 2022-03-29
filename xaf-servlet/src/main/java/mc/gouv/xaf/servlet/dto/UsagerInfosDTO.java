@@ -1,30 +1,27 @@
 package mc.gouv.xaf.servlet.dto;
 
 import java.io.Serializable;
-import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import mc.gouv.xaf.servlet.enums.UsagerTypeEnum;
+import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 
 /**
- * <p>
- * Usager loggé géré par l'application de gestion des usagers (login).
- * </p>
- * <p>
- * Cet usager est partagé avec les autres téléservices via un service rest (voir
- * mc.gouv.servicerest.usager.model.UsagerBean).
- * </p>
- * <p>
- * Le nom historique du package mc.gouv.tp.crosscontext est conservé pour ne pas impacter le code existant (l'usager fut
- * un temps partagé entre les téléservices via un contexte partagé).
- * </p>
  * 
- * @author dinfo10
+ * Classe contenant les informations de l'usager dans xaf-servlet
+ * 	- Informations issues de GICHUNI (par héritage de xaf-shared)
+ *  - Informations pour la session de l'usager
+ *  	- Infos de Tokens GICHKEY
+ *  	- Infos certifiées / MConnect
+ *  	- accessId
+ *  	- ...
+ * 
+ * @author qdeme
  */
+
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class UsagerInfosDTO implements Serializable {
+public class UsagerInfosDTO extends GichuniUsagerDTO implements Serializable {
 
     private static final long serialVersionUID = -7219376931453637516L;
 
@@ -32,33 +29,6 @@ public class UsagerInfosDTO implements Serializable {
     public static final short GENDER_MR_INDEX = 0;
     public static final short GENDER_MME_INDEX = 1;
     public static final short GENDER_MLLE_INDEX = 2;
-
-    protected Integer id; // technical internal identifier
-    protected String login;
-    protected Short etat;
-    protected String email;
-    protected Date dateCreation;
-    protected Date dateActivation;
-    protected Date dateDerConnexion;
-    protected Short titre;
-    protected String prenom;
-    protected String nom;
-    protected String raisonSociale;
-    protected String adresse1;
-    protected String adresse2;
-    protected String complementAdresse;
-    protected String codePostal;
-    protected String ville;
-    // Le jour ou il y aura de l'internationalisation, il faudra retourner
-    // le code pays plutot que le pays et y associer le nom du pays dans un
-    // fichier de resources localisé.
-    // Mais pour l'instant on retourne directement le nom de pays tel qu'en BD
-    // pour simplifier les choses.
-    protected String nomPays;
-
-    protected String paysId;
-
-    protected String paysCode;
 
     protected boolean isUsagerCourrier = false;
     
@@ -69,14 +39,12 @@ public class UsagerInfosDTO implements Serializable {
     protected InfosCertifieesUsagerInfosDTO infosCertifiees;
     
     protected boolean mConnect = false;
-    
-    protected UsagerTypeEnum type = UsagerTypeEnum.INDIVIDUAL;
 
     public String getTitreLabel() {
-        if (titre == null) {
+        if (getTitre() == null) {
             return null;
         }
-        switch (titre) {
+        switch (getTitre()) {
             case GENDER_MR_INDEX:
                 return "Monsieur";
             case GENDER_MME_INDEX:
@@ -90,159 +58,7 @@ public class UsagerInfosDTO implements Serializable {
 
     @Override
     public String toString() {
-        return "UsagerReadOnlyBean [id=" + id + ", login=" + login + "]";
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getLogin() {
-        return login;
-    }
-
-    public void setLogin(String login) {
-        this.login = login;
-    }
-
-    public Short getEtat() {
-        return etat;
-    }
-
-    public void setEtat(Short etat) {
-        this.etat = etat;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public Date getDateCreation() {
-        return dateCreation;
-    }
-
-    public void setDateCreation(Date dateCreation) {
-        this.dateCreation = dateCreation;
-    }
-
-    public Date getDateActivation() {
-        return dateActivation;
-    }
-
-    public void setDateActivation(Date dateActivation) {
-        this.dateActivation = dateActivation;
-    }
-
-    public Date getDateDerConnexion() {
-        return dateDerConnexion;
-    }
-
-    public void setDateDerConnexion(Date dateDerConnexion) {
-        this.dateDerConnexion = dateDerConnexion;
-    }
-
-    public Short getTitre() {
-        return titre;
-    }
-
-    public void setTitre(Short titre) {
-        this.titre = titre;
-    }
-
-    public String getPrenom() {
-        return prenom;
-    }
-
-    public void setPrenom(String prenom) {
-        this.prenom = prenom;
-    }
-
-    public String getNom() {
-        return nom;
-    }
-
-    public void setNom(String nom) {
-        this.nom = nom;
-    }
-
-    public String getRaisonSociale() {
-        return raisonSociale;
-    }
-
-    public void setRaisonSociale(String raisonSociale) {
-        this.raisonSociale = raisonSociale;
-    }
-
-    public String getAdresse1() {
-        return adresse1;
-    }
-
-    public void setAdresse1(String adresse1) {
-        this.adresse1 = adresse1;
-    }
-
-    public String getAdresse2() {
-        return adresse2;
-    }
-
-    public void setAdresse2(String adresse2) {
-        this.adresse2 = adresse2;
-    }
-
-    public String getComplementAdresse() {
-        return complementAdresse;
-    }
-
-    public void setComplementAdresse(String complementAdresse) {
-        this.complementAdresse = complementAdresse;
-    }
-
-    public String getCodePostal() {
-        return codePostal;
-    }
-
-    public void setCodePostal(String codePostal) {
-        this.codePostal = codePostal;
-    }
-
-    public String getVille() {
-        return ville;
-    }
-
-    public void setVille(String ville) {
-        this.ville = ville;
-    }
-
-    public String getNomPays() {
-        return nomPays;
-    }
-
-    public void setNomPays(String nomPays) {
-        this.nomPays = nomPays;
-    }
-
-    public String getPaysId() {
-        return paysId;
-    }
-
-    public void setPaysId(String paysId) {
-        this.paysId = paysId;
-    }
-
-    public String getPaysCode() {
-        return paysCode;
-    }
-
-    public void setPaysCode(String paysCode) {
-        this.paysCode = paysCode;
+        return "UsagerReadOnlyBean [id=" + getId() + ", login=" + getLogin() + "]";
     }
 
     @JsonProperty("isUsagerCourrier")
@@ -285,14 +101,6 @@ public class UsagerInfosDTO implements Serializable {
 
 	public void setmConnect(boolean mConnect) {
 		this.mConnect = mConnect;
-	}
-
-	public UsagerTypeEnum getType() {
-		return type;
-	}
-
-	public void setType(UsagerTypeEnum type) {
-		this.type = type;
 	}
 
 }

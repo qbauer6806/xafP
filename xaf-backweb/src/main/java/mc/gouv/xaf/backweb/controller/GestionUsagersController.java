@@ -1,9 +1,33 @@
 package mc.gouv.xaf.backweb.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
+import javax.validation.Valid;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import mc.gouv.servicerest.pays.model.PaysBean;
-import mc.gouv.servicerest.usager.model.UsagerBean;
 import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
@@ -18,24 +42,8 @@ import mc.gouv.xaf.backweb.formbean.TransfertDemandesFormBean;
 import mc.gouv.xaf.backweb.formbean.UsagerCourrierFormBean;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.security.access.annotation.Secured;
-import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
 
 /**
  * Controller pour la page /gestionusagers
@@ -237,7 +245,7 @@ public class GestionUsagersController extends AbstractController {
         }
 
         // Update du cache
-        UsagerBean usagerCourrierBean = UsagersUtils.convertUsagerCourrierDTOToUsagerBean(usagerCourrier);
+        GichuniUsagerDTO usagerCourrierBean = UsagersUtils.convertUsagerCourrierDTOToGichuniUsagerDTO(usagerCourrier);
         usagersCache.add(usagerCourrierBean.getId(), usagerCourrierBean);
 
         LOGGER.info("======================= Fin /gestion/usagers/creer (POST)");

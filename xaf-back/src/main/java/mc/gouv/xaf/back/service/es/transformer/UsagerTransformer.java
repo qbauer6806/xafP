@@ -2,14 +2,14 @@ package mc.gouv.xaf.back.service.es.transformer;
 
 import mc.gouv.xaf.back.data.es.model.UsagerEsDTO;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import mc.gouv.servicerest.usager.model.UsagerBean;
+import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 
 public class UsagerTransformer {
 
     private UsagerTransformer() {
     }
 
-    public static UsagerEsDTO bo2Dto(UsagerBean bo) {
+    public static UsagerEsDTO bo2Dto(GichuniUsagerDTO bo) {
 
         if (bo == null) {
             return null;

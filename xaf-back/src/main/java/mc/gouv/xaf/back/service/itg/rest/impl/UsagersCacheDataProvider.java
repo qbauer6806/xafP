@@ -17,6 +17,7 @@ import mc.gouv.xaf.back.service.data.UsagersCourrierService;
 import mc.gouv.xaf.back.service.itg.gichuni.api.GichuniApiClient;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
 import mc.gouv.xaf.back.service.utils.UsagersUtils;
+import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 import mc.gouv.xboot.caching.GouvCacheDataProvider;
 
@@ -29,7 +30,7 @@ import mc.gouv.xboot.caching.GouvCacheDataProvider;
  */
 @Profile("gouv")
 @Component
-public class UsagersCacheDataProvider implements GouvCacheDataProvider<Integer, UsagerBean> {
+public class UsagersCacheDataProvider implements GouvCacheDataProvider<Integer, GichuniUsagerDTO> {
     
     private static final Logger LOGGER = LoggerFactory.getLogger(UsagersCacheDataProvider.class);
 
@@ -46,8 +47,8 @@ public class UsagersCacheDataProvider implements GouvCacheDataProvider<Integer, 
     private AccessService accessService;
     
     @Override
-    public ConcurrentHashMap<Integer, UsagerBean> getAll() {
-        List<UsagerBean> usagers = new ArrayList<UsagerBean>();
+    public ConcurrentHashMap<Integer, GichuniUsagerDTO> getAll() {
+        List<GichuniUsagerDTO> usagers = new ArrayList<GichuniUsagerDTO>();
 
         //Récupération de tous les ids des usagers
         //List<Integer> usagersIds = demClient.getUsagersIds(gouvPropertiesResolver.getDemarcheId());
@@ -68,7 +69,7 @@ public class UsagersCacheDataProvider implements GouvCacheDataProvider<Integer, 
         if (!usagersInternetIds.isEmpty()) {
         	LOGGER.info("Récupération des usagers INTERNET: {}", usagersInternetIds);
             if (usagersInternetIds.size() == 1) {
-                UsagerBean usagerBean = gichuniApiClient.getUsager(usagersInternetIds.get(0));
+                GichuniUsagerDTO usagerBean = gichuniApiClient.getUsager(usagersInternetIds.get(0));
                 if (usagerBean != null) {
                     usagers.add(usagerBean);
                 }
@@ -92,11 +93,11 @@ public class UsagersCacheDataProvider implements GouvCacheDataProvider<Integer, 
             	
             	LOGGER.info("Résultat de la pagination : " + pages.size() + " pages");
             	
-            	usagers = new ArrayList<UsagerBean>();
+            	usagers = new ArrayList<GichuniUsagerDTO>();
             	int nb = 0;
             	for (List<Integer> page : pages) {
             		nb++;
-            		List<UsagerBean> usagersTmp = new ArrayList<UsagerBean>();
+            		List<GichuniUsagerDTO> usagersTmp = new ArrayList<GichuniUsagerDTO>();
             		LOGGER.info("Appel pour la page " + nb + " : " + page);
             		usagersTmp = gichuniApiClient.getUsagers(page);
             		if (usagersTmp != null) {
@@ -109,14 +110,14 @@ public class UsagersCacheDataProvider implements GouvCacheDataProvider<Integer, 
         }
 
         LOGGER.info("Récupération des usagers COURRIER: {}", usagersCourriersIds);
-        List<UsagerBean> usagersCourriers = new ArrayList<UsagerBean>();
+        List<GichuniUsagerDTO> usagersCourriers = new ArrayList<GichuniUsagerDTO>();
         //Voir pour faire la fonction qui prend une liste d'ids
         for (Integer usagerCourrierId : usagersCourriersIds) {
 //                UsagerCourrierDTO uc = demClient.getUsagerCourrier(gouvPropertiesResolver.getDemarcheId(),
 //                        usagerCourrierId);
             UsagerCourrierDTO uc = usagersCourrierService.getUsagerCourrier(gouvPropertiesResolver.getDemarcheId(), usagerCourrierId);
             if (uc != null) {
-                UsagerBean ub = UsagersUtils.convertUsagerCourrierDTOToUsagerBean(uc);
+            	GichuniUsagerDTO ub = UsagersUtils.convertUsagerCourrierDTOToGichuniUsagerDTO(uc);
                 usagersCourriers.add(ub);
             }
 
@@ -127,22 +128,22 @@ public class UsagersCacheDataProvider implements GouvCacheDataProvider<Integer, 
         LOGGER.info(usagers.toString());
         
         // Transformation de la liste vers la ConcurrentHashMap
-        ConcurrentHashMap<Integer, UsagerBean> usagersMap = new ConcurrentHashMap<Integer, UsagerBean>();
-        for (UsagerBean usager : usagers) {
+        ConcurrentHashMap<Integer, GichuniUsagerDTO> usagersMap = new ConcurrentHashMap<Integer, GichuniUsagerDTO>();
+        for (GichuniUsagerDTO usager : usagers) {
             usagersMap.put(usager.getId(), usager);
         }
         return usagersMap;
     }
 
     @Override
-    public UsagerBean get(Integer key) {
+    public GichuniUsagerDTO get(Integer key) {
         if (isUsagerCourrier(key)) {
             UsagerCourrierDTO uc = usagersCourrierService.getUsagerCourrier(gouvPropertiesResolver.getDemarcheId(), key);
-            UsagerBean ub = UsagersUtils.convertUsagerCourrierDTOToUsagerBean(uc);
+            GichuniUsagerDTO ub = UsagersUtils.convertUsagerCourrierDTOToGichuniUsagerDTO(uc);
             return ub;
         }
         else {
-            UsagerBean usagerBean = gichuniApiClient.getUsager(key);
+        	GichuniUsagerDTO usagerBean = gichuniApiClient.getUsager(key);
             return usagerBean;
         }
     }

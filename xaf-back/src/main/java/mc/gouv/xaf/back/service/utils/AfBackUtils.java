@@ -43,7 +43,6 @@ import mc.gouv.logon.shared.Droit;
 import mc.gouv.logon.shared.Role;
 import mc.gouv.logon.shared.User;
 import mc.gouv.mail.apiclient.client.MailClient;
-import mc.gouv.servicerest.usager.model.UsagerBean;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.DemarchesService;
@@ -54,6 +53,7 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeDataDTO;
 import mc.gouv.xaf.shared.dto.DemandeFlatDTO;
 import mc.gouv.xaf.shared.dto.DemarcheDTO;
+import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.PropertiesListEntityDTO;
 import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
 
@@ -212,7 +212,7 @@ public class AfBackUtils {
      * @return une Sring composer de son prénom et son nom
      */
     public String getUsagerNameFromID(Integer usagerId) {
-        UsagerBean u = usagersCache.get(usagerId);
+    	GichuniUsagerDTO u = usagersCache.get(usagerId);
         StringBuilder builder = new StringBuilder();
         if (null != u) {
             if (StringUtils.isNotBlank(u.getPrenom())) {

@@ -20,7 +20,7 @@ import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
 import mc.gouv.xaf.backweb.dto.AutocompleteUsagerDTO;
 import mc.gouv.xaf.backweb.dto.AutocompleteUsagerListeDTO;
-import mc.gouv.servicerest.usager.model.UsagerBean;
+import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xboot.config.web.annotation.GouvRestController;
 
 /**
@@ -45,9 +45,9 @@ public class UsagersAutocompleteController {
 
         LOGGER.info("======================= Appel de /ws/usagersAutocomplete/usagers");
 
-        Collection<UsagerBean> usagers = usagersCache.getAll().values();
+        Collection<GichuniUsagerDTO> usagers = usagersCache.getAll().values();
         Set<AutocompleteUsagerDTO> liste = new TreeSet<AutocompleteUsagerDTO>();
-        for (UsagerBean usager : usagers) {
+        for (GichuniUsagerDTO usager : usagers) {
             AutocompleteUsagerDTO u = new AutocompleteUsagerDTO();
 
             // Nom + raison sociale si indiquée lors de la création

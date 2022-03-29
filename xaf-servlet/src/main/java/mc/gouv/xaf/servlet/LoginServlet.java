@@ -128,11 +128,7 @@ public class LoginServlet extends AbstractAfServlet {
                 uinfos.setAdresse2(usagerCourrier.getAdresse2());
                 uinfos.setCodePostal(usagerCourrier.getCodePostal());
                 uinfos.setComplementAdresse(usagerCourrier.getAdresseComplement());
-                // uinfos.setDateActivation(), que mettre ?
-                uinfos.setDateCreation(usagerCourrier.getDateCreation());
-                // uinfos.setDateDerConnexion(), que mettre ?
                 uinfos.setEmail(usagerCourrier.getEmail());
-                // uinfos.setEtat(), que mettre ?
                 uinfos.setId(usagerCourrier.getPkUsagersCourrier());
                 uinfos.setLogin(StringUtils.defaultString(usagerCourrier.getPrenom()) + " " + usagerCourrier.getNom()
                         + " (courrier)");

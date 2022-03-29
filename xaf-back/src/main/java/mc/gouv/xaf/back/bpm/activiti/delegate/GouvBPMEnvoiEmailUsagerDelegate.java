@@ -20,7 +20,7 @@ import mc.gouv.xaf.back.service.itg.mail.MailTemplateModelProvider;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.servicerest.usager.model.UsagerBean;
+import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 
 /**
  * 
@@ -70,9 +70,9 @@ public class GouvBPMEnvoiEmailUsagerDelegate implements JavaDelegate {
         Integer demandeId = Integer.parseInt(execution.getProcessBusinessKey());
         DemandeDTO demande = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), demandeId);
 
-        UsagerBean usager = usagerCache.get(usagerId, true);
+        GichuniUsagerDTO usager = usagerCache.get(usagerId, true);
         if (usager == null) {
-            usager = new UsagerBean();
+            usager = new GichuniUsagerDTO();
             usager.setNom(demande.getUsagerNom());
             usager.setPrenom(demande.getUsagerPrenom());
             usager.setEmail(demande.getUsagerEmail());

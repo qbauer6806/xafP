@@ -6,8 +6,8 @@ import java.util.Map;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-import mc.gouv.servicerest.usager.model.UsagerBean;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
+import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 
 @Component
 @Profile("test")
@@ -15,19 +15,19 @@ import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 public class UsagersCacheImplTest implements UsagersCache {
 
     @Override
-    public Map<Integer, UsagerBean> getAll() {
+    public Map<Integer, GichuniUsagerDTO> getAll() {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public UsagerBean get(Integer key) {
+    public GichuniUsagerDTO get(Integer key) {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public UsagerBean get(Integer key, boolean forceUpdate) {
+    public GichuniUsagerDTO get(Integer key, boolean forceUpdate) {
         // TODO Auto-generated method stub
         return null;
     }
@@ -39,13 +39,13 @@ public class UsagersCacheImplTest implements UsagersCache {
     }
 
     @Override
-    public void add(Integer key, UsagerBean value) {
+    public void add(Integer key, GichuniUsagerDTO value) {
         // TODO Auto-generated method stub
         
     }
 
     @Override
-    public Collection<UsagerBean> getValues() {
+    public Collection<GichuniUsagerDTO> getValues() {
         // TODO Auto-generated method stub
         return null;
     }

@@ -33,8 +33,8 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import mc.gouv.xaf.servlet.dto.InfosCertifieesUsagerInfosDTO;
 import mc.gouv.xaf.servlet.dto.KeycloakTokenInfo;
 import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
-import mc.gouv.xaf.servlet.enums.UsagerTypeEnum;
 import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
+import mc.gouv.xaf.shared.dto.UsagerTypeEnum;
 
 /**
  * 

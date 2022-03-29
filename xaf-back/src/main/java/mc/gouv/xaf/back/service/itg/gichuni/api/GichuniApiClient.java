@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.stereotype.Service;
 
-import mc.gouv.servicerest.usager.model.UsagerBean;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 
 /**
  * 
@@ -26,16 +26,16 @@ public class GichuniApiClient {
 	@Autowired
 	private OAuth2RestTemplate restTemplate;
 	
-    public UsagerBean getUsager(Integer id) {
-    	UsagerBean[] usagers = restTemplate.getForObject(gouvPropertiesResolver.getGichuniUrl() + "/profiles/legacy-ids/" + id,
-				UsagerBean[].class);
+    public GichuniUsagerDTO getUsager(Integer id) {
+    	GichuniUsagerDTO[] usagers = restTemplate.getForObject(gouvPropertiesResolver.getGichuniUrl() + "/profiles/profile-ids/" + id,
+    			GichuniUsagerDTO[].class);
     	if (usagers == null || usagers.length == 0) {
     		return null;
     	}
     	return usagers[0];
     }
     
-    public List<UsagerBean> getUsagers(List<Integer> ids) {
+    public List<GichuniUsagerDTO> getUsagers(List<Integer> ids) {
 	    // Concaténation des ids fournis pour le WS
 	    String listId = null;
 	    for (Integer id : ids) {
@@ -47,8 +47,9 @@ public class GichuniApiClient {
 	        }
 	    }
 	    
-    	UsagerBean[] usagers = restTemplate.getForObject(gouvPropertiesResolver.getGichuniUrl() + "/profiles/legacy-ids/" + listId,
-				UsagerBean[].class);
+    	GichuniUsagerDTO[] usagers = restTemplate.getForObject(gouvPropertiesResolver.getGichuniUrl() + "/profiles/profile-ids/" + listId,
+    			GichuniUsagerDTO[].class);
+    	
     	return Arrays.asList(usagers);
     }
 }

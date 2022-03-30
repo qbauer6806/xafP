@@ -74,7 +74,7 @@
 }
 .radiobuttons label .ico:before{
     font-family: 'icomoon-ts';
-    content: "\e910";
+    content: "\e932";
     font-size:1.5em;
     margin-right:5px;
 }
@@ -142,7 +142,7 @@ input[data-toggle]{
 
 input[data-toggle]:checked + label .ico:before{
     font-family: 'icomoon-ts';
-    content: "\e90e";
+    content: "\e933";
 }
 
 input[data-toggle]:checked + label,

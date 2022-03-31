@@ -53,6 +53,7 @@ public enum ResidPieceJustificativeTypeEnum {
     NON_APPLICABLE("NON_APPLICABLE"),
 	AUTRE("AUTRE");
 
+
     public String value;
 
     ResidPieceJustificativeTypeEnum(String value) {

@@ -82,6 +82,7 @@ public class FileUtilsResid extends FileUtils {
 						|| ResidPieceJustificativeTypeEnum.STATUTS_SCI.name().equals(fileDTO.getTypedoc())
 						|| ResidPieceJustificativeTypeEnum.PENSION_RETRAITE.name().equals(fileDTO.getTypedoc())
 						|| ResidPieceJustificativeTypeEnum.AUTRE.name().equals(fileDTO.getTypedoc())));
+
 	}
 
 }

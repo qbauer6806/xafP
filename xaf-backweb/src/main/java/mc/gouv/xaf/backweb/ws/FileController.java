@@ -29,6 +29,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -76,9 +77,9 @@ public class FileController {
 	
 	public static final int DEFAULT_BUFFER_SIZE = 8192;
 
-	@RequestMapping(value = "/get/**", method = RequestMethod.GET)
+	@GetMapping(value = "/get/**")
 	@ResponseStatus(HttpStatus.OK) // 200
-	public void getFile(HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public void getFile(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
 		LOGGER.info("====================== getFile()");
 
@@ -93,7 +94,7 @@ public class FileController {
 		LOGGER.info("====================== getFile() terminé, retour au client...");
 	}
 
-	@RequestMapping(value = "/get/files/{demandeId}", method = RequestMethod.GET)
+	@GetMapping(value = "/get/files/{demandeId}")
 	@ResponseBody
 	public ResponseEntity<Resource> getFiles(@PathVariable(value = "demandeId") String demandeId,
 			@RequestParam(required=false) String fileType, @RequestParam(required=false) String zipName) throws IOException {
@@ -177,19 +178,16 @@ public class FileController {
 
 	@RequestMapping(value = "/get/apercu/**", method = RequestMethod.GET)
 	@ResponseStatus(HttpStatus.OK) // 200
-	public void getApercuFile(HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public void getApercuFile(HttpServletRequest request, HttpServletResponse response) {
 
 		LOGGER.info("====================== getFile()");
 
 		String file = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
 		file = file.replace("/ws/file/get/apercu", "");
-
-		// Bugfix #16805: encodage des noms des fichiers avec caractères spéciaux
-		String filePathEncoded = URLEncoder.encode(file, "UTF-8");
-
-		InputStream inputFile = fileService.getFile(filePathEncoded, gouvPropertiesResolver.getContainerId());
-
 		try {
+			// Bugfix #16805: encodage des noms des fichiers avec caractères spéciaux
+			String filePathEncoded = URLEncoder.encode(file, "UTF-8");
+			InputStream inputFile = fileService.getFile(filePathEncoded, gouvPropertiesResolver.getContainerId());
 			LOGGER.info("Écriture du fichier dans l'OutputStream...");
 			IOUtils.copy(inputFile, response.getOutputStream());
 		} catch (IOException e) {
@@ -222,7 +220,7 @@ public class FileController {
 
 		for (MultipartFile file : files) {
 			if (!StringUtils.isBlank(file.getOriginalFilename())) {
-				LOGGER.info("Part à traiter : " + file.getOriginalFilename());
+				LOGGER.info(String.format("Part à traiter : %s" , file.getOriginalFilename()));
 
 				LOGGER.info("Appel au FileService...");
 				String filename = fileService.saveFile(demande, gouvPropertiesResolver.getContainerId(), file,

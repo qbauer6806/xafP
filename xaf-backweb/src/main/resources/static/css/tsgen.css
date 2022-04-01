@@ -385,3 +385,11 @@ dd span {
 	max-height: 200px;
 	overflow: auto;
 }
+
+.dropdown-menu-custom {
+	cursor: pointer;
+}
+.dropdown .dropdown-menu a.dropdown-item-custom {
+	min-height: 40px;
+    height: auto;
+}

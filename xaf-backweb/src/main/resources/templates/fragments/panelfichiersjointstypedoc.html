@@ -7,8 +7,21 @@
     <div class="tab-pane" id="tab2" role="tabpanel">
         <form action="#" method="post" th:action="@{/demandes/typageDocuments}">
             <div th:each="cat : ${categories}">
-                <h3 th:text="${cat.name}"></h3>
-                
+            <div class="row">
+            <div class="col-xs-12">
+                <div class="col-xs-9">
+                	<h3 th:text="${cat.name}"></h3>
+                </div>
+                <div class="dropdown col-xs-3 text-right" style="padding: 0" th:if="${cat.name == 'Fichiers de la demande initiale'}">
+	                <button class="btn btn-action dropdown-toggle" type="button" data-toggle="dropdown">Télécharger
+						<span class="icon-action_accordeon-ouvert"></span></button>
+						<div class="dropdown-menu dropdown-menu-custom" aria-labelledby="dropdownMenuButton">
+    						<a class="dropdown-item dropdown-item-custom" id="allDownloadButton">Tous les documents</a>
+    						<a class="dropdown-item dropdown-item-custom" th:classappend="!${isDocumentsValidesActif} ? disabled : enable" id="validesDownloadButton">Les documents valides</a>
+  						</div>
+			     </div>
+			     </div>
+			     </div>
                 <!-- Affichage des sous-sections éventuelles -->
                 <div th:if="${cat.subCategories.size() > 0}" role="tabpanel" class="tab-pane" th:id="'subcats'+${iter.index}" th:each="subcat,iter : ${cat.subCategories}">
                 	<div class="panel-group subcataccordion" aria-multiselectable="true">

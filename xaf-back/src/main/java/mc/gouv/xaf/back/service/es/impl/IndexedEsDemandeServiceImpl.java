@@ -346,17 +346,14 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     @SuppressWarnings({"rawtypes"})
     private void getNameFromTypes(Entry<String, Map> entry, String propertyName, List<EsProperty> properties) {
-        Map value = entry.getValue();
-        if (null != value) {
-            String type = (String) ((Object) value);
-            int fieldIndex = properties.indexOf(new EsProperty(propertyName));
-            if (fieldIndex >= 0) {
-                //On exclut les champs de type boolean car il faussent la recherche
-                if (!type.equals(EsProperty.BOOLEAN_TYPE)) {
-                    properties.get(fieldIndex).setType(type);
-                } else {
-                    properties.remove(properties.get(fieldIndex));
-                }
+        String type = (String) ((Object) entry.getValue());
+        int fieldIndex = properties.indexOf(new EsProperty(propertyName));
+        if (fieldIndex >= 0) {
+            // On exclut les champs de type boolean car il faussent la recherche
+            if (StringUtils.equals(type, EsProperty.BOOLEAN_TYPE)) {
+                properties.remove(properties.get(fieldIndex));
+            } else {
+                properties.get(fieldIndex).setType(type);
             }
         }
     }

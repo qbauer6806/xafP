@@ -1,11 +1,11 @@
 package mc.gouv.xaf.back.data.dao;
 
-import mc.gouv.xaf.back.data.entity.StatistiqueBO;
-import org.springframework.data.repository.CrudRepository;
-
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
+
+import org.springframework.data.repository.CrudRepository;
+
+import mc.gouv.xaf.back.data.entity.StatistiqueBO;
 
 public interface StatistiquesRepository extends CrudRepository<StatistiqueBO, Integer> {
 

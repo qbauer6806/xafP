@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+	<!-- Magnific Popup core CSS file -->
+	<link rel="stylesheet" th:href="@{/webjars/Magnific-Popup/1.1.0/magnific-popup.css}" type="text/css">
+	<!-- Magnific Popup core JS file -->
+	<script src="magnific-popup/jquery.magnific-popup.js"></script>
 
+</head>
 <body>
 
 <div id="panelfichiersjointstypedoctable" th:fragment="panelfichiersjointstypedoctable" th:remove="tag">
@@ -11,7 +18,8 @@
 	        <th th:class="${cat.typedoc} ? 'file-name-col-small' : 'file-name-col'">Nom du fichier</th>
 	        <th class="date-col">Date</th>
 	        <th class="typedoc-col nosort" th:if="${cat.typedoc}">Type</th>
-	        <th class="action-col nosort">Action</th>
+	        <th class="action-col nosort">Actions</th>
+	        <th class="action-col-2 nosort"></th>
 	    </tr>
 	    </thead>
 	    <tbody>
@@ -19,27 +27,47 @@
 	        <td th:class="${cat.typedoc} ? 'file-name-col-small' : 'file-name-col'"
 	            th:text="${file.name}"></td>
 	        <td class="date-col" th:text="${#dates.format(file.date, 'dd/MM/yyyy HH:mm')}"></td>
-	        <td class="typedoc-col" th:if="${cat.typedoc}">
-	            <select class="form-control" onchange="updateTypedocJSON(this)"
-	                    th:disabled="!${editionTypedocActive}"
-	                    th:id="${file.compFile} ? comp + ${file.pkDemandesComplementsFiles} : file + ${file.pkDemandesFiles}">
-	                <option th:value="null">Sélectionnez un type</option>
-	                <option th:each="typedoc : ${typedocList}"
-	                        th:selected="${file.typedoc} == ${typedoc.key}"
-	                        th:text="${typedoc.value}" th:value="${typedoc.key}"></option>
-	            </select>
-	        </td>
+		        <td class="typedoc-col" th:if="${cat.typedoc}">
+		            <select class="form-control" onchange="updateTypedocJSON(this)"
+		                    th:disabled="!${editionTypedocActive}" th:id="${file.compFile} ? comp + ${file.pkDemandesComplementsFiles} : file + ${file.pkDemandesFiles}">
+		                <option th:value="null" title="Sélectionnez un type">Sélectionnez un type</option>
+		                <option th:each="typedoc : ${typedocList}"
+		                        th:selected="${file.typedoc} == ${typedoc.key}"
+		                        th:text="${typedoc.value}" th:value="${typedoc.key}" th:title="${typedoc.value}" th:id="typedoc + ${file.pkDemandesFiles}">
+			                 
+		                </option>
+		                <script th:inline="javascript">
+			                	/*<![CDATA[*/
+			                		var idToUpdate = /*[[${file.compFile} ? comp + ${file.pkDemandesComplementsFiles} : file + ${file.pkDemandesFiles}]]*/
+			                		var idToUpdateObj = document.getElementById(idToUpdate);
+			                		var selectedOptionText = idToUpdateObj.options[idToUpdateObj.selectedIndex].title
+			                		document.getElementById(idToUpdate).title=selectedOptionText;
+			                	/*]]>*/
+			           </script>
+		            </select>
+		        </td>
 	        <td class="action-col">
 	            <a th:href="@{/ws/file/get}+${file.url}">
-	            <span class="btn btn-action ripple-effect greyTooltip" data-original-title="Télécharger"
-	                  data-placement="bottom" data-toggle="tooltip" title="">
-	                <i class="icon-action_pdf"></i>
-	            </span>
+		            <span class="btn btn-action ripple-effect greyTooltip" data-original-title="Télécharger"
+		                  data-placement="bottom" data-toggle="tooltip" title="">
+		                <i class="icon-action_pdf"></i>
+		            </span>
 	            </a>
 	        </td>
+	        <td class="action-col-2">
+	        	<div class="parent-container">
+					<a id="popup" th:value="@{/ws/file/get/apercu}+${file.url}">
+						<button class="btn btn-action ripple-effect greyTooltip" onclick="setCurrentPopup(this)" data-original-title="Prévisualiser"
+				                  data-placement="bottom" data-toggle="tooltip" title="" th:id="${file.compFile} ? previewButton + ${file.pkDemandesComplementsFiles} : previewButton + ${file.pkDemandesFiles}">
+				             <i class="icon-action_voir"></i>
+			            </button>
+					</a>
+				</div>
+			</td>
 	    </tr>
 	    </tbody>
 	</table>
 </div>
 </body>
+
 </html>

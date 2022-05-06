@@ -37,7 +37,7 @@ public class BrouillonDTO {
     
     private String recapType;
     
-    private String meta;
+    private JsonNode meta;
 
 	public Integer getPkBrouillons() {
 		return pkBrouillons;
@@ -119,11 +119,11 @@ public class BrouillonDTO {
 		this.recapType = recapType;
 	}
 
-	public String getMeta() {
+	public JsonNode getMeta() {
 		return meta;
 	}
 
-	public void setMeta(String meta) {
+	public void setMeta(JsonNode meta) {
 		this.meta = meta;
 	}
 

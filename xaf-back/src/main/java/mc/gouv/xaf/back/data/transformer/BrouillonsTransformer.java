@@ -50,12 +50,14 @@ public class BrouillonsTransformer {
         ObjectMapper mapper = new ObjectMapper();
         try {
             dto.setContenu(mapper.readTree(bo.getContenu()));
+            if (bo.getMeta() != null) {
+            	dto.setMeta(mapper.readTree(bo.getMeta()));
+            }
         } catch (IOException e) {
             LOGGER.error("Erreur lors de la conversion JSON", e);
         }
         dto.setBuildId(bo.getBuildId());
         dto.setRecapType(bo.getRecapType());
-        dto.setMeta(bo.getMeta());
         return dto;
     }
 
@@ -94,10 +96,12 @@ public class BrouillonsTransformer {
         ObjectMapper mapper = new ObjectMapper();
         try {
             bo.setContenu(mapper.writeValueAsString(dto.getContenu()));
+            if (dto.getMeta() != null) {
+            	bo.setMeta(mapper.writeValueAsString(dto.getMeta()));
+            }
         } catch (JsonProcessingException e) {
             LOGGER.error("Erreur lors de la conversion JSON", e);
         }
-        bo.setMeta(dto.getMeta());
         return bo;
     }
 

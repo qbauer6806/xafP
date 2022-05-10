@@ -347,7 +347,9 @@ public class AfBackUtils {
     }
 
     public static String getTitreStr(Short titre) {
-        if (titre == 0) {
+    	if (titre == null) {
+    		return "";
+    	} else if (titre == 0) {
             return "Monsieur";
         } else if (titre == 1) {
             return "Madame";

@@ -117,7 +117,7 @@ public class FileController {
 
 		InputStream is = new FileInputStream(tmp.getAbsolutePath()+"/tmp.zip"); // get your input stream here
 		Resource resource = new InputStreamResource(is);
-		tmp.delete();
+		java.nio.file.Files.delete(tmp.toPath());
 		return new ResponseEntity<>(resource, headers, HttpStatus.OK);
 	}
 
@@ -149,22 +149,22 @@ public class FileController {
 		byte[] buffer = new byte[1024];
 		// create the ZIP file
 		FileOutputStream fos = new FileOutputStream(tmp.getAbsolutePath()+"/tmp.zip");
-		ZipOutputStream zos = new ZipOutputStream(fos);
-		for (File currentFile : filesToZip) {
-			FileInputStream fis = new FileInputStream(currentFile);
-			// begin writing a new ZIP entry, positions the stream to the start of the entry
-			// data
-			zos.putNextEntry(new ZipEntry(currentFile.getName()));
-			// transfer bytes from the file to the ZIP file
-			int length;
-			while ((length = fis.read(buffer)) > 0) {
-				zos.write(buffer, 0, length);
+		try (ZipOutputStream zos = new ZipOutputStream(fos)) {
+			for (File currentFile : filesToZip) {
+				try (FileInputStream fis = new FileInputStream(currentFile)) {
+					// begin writing a new ZIP entry, positions the stream to the start of the entry
+					// data
+					zos.putNextEntry(new ZipEntry(currentFile.getName()));
+					// transfer bytes from the file to the ZIP file
+					int length;
+					while ((length = fis.read(buffer)) > 0) {
+						zos.write(buffer, 0, length);
+					}
+		
+					zos.closeEntry();
+				}
 			}
-
-			zos.closeEntry();
-			fis.close();
 		}
-		zos.close();
 	}
 
 	private void copyInputStreamToFile(InputStream inputStream, File file) throws IOException {

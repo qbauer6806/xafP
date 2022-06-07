@@ -395,3 +395,8 @@ dd span {
 	min-height: 40px;
     height: auto;
 }
+
+/* #40905 : Décalage du texte pour les éléments du menu */
+#sidebar-wrapper.open .menuContent {
+	margin-left: -3px;
+}

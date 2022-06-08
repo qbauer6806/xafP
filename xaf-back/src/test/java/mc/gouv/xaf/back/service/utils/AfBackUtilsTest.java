@@ -81,4 +81,22 @@ public class AfBackUtilsTest {
         assertEquals("1 000 000,00 €", formatted);
     }
 
+    @Test
+    public void formatDoubleToCurrencyENTest() {
+        String formatted = AfBackUtils.formatDoubleToCurrency(1000.5, "en");
+        assertEquals("€1,000.50", formatted);
+    }
+
+    @Test
+    public void formatDoubleToCurrencyZeroENTest() {
+        String formatted = AfBackUtils.formatDoubleToCurrency(0.0, "en");
+        assertEquals("€0.00", formatted);
+    }
+
+    @Test
+    public void formatDoubleToCurrencyMillionENTest() {
+        String formatted = AfBackUtils.formatDoubleToCurrency(1000000.0, "en");
+        assertEquals("€1,000,000.00", formatted);
+    }
+
 }

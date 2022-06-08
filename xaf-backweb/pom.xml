@@ -19,6 +19,21 @@
         <dependency>
             <groupId>mc.gouv.xboot</groupId>
             <artifactId>xboot-spring-starter-web</artifactId>
+            <exclusions>
+		        <!-- Exclude the Jetty-9 specific dependencies -->
+		        <exclusion>
+		            <groupId>org.eclipse.jetty.websocket</groupId>
+		            <artifactId>websocket-server</artifactId>
+		        </exclusion>
+		        <exclusion>
+		            <groupId>org.eclipse.jetty.websocket</groupId>
+		            <artifactId>javax-websocket-server-impl</artifactId>
+		        </exclusion>
+		        <exclusion>
+					<groupId>org.eclipse.jetty</groupId>
+					<artifactId>jetty-jndi</artifactId>
+				</exclusion>
+		    </exclusions>
         </dependency>
 
         <!-- Web JS and CSS dependencies -->

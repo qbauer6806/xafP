@@ -4,35 +4,27 @@ import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class InfosCertifieesUsagerInfosDTO {
 
-	@JsonProperty("given_name")
 	private String prenom;
 	
-	@JsonProperty("family_name")
 	private String nom;
 	
-	@JsonProperty("birth_name")
 	private String birthName;
 	
 	private String gender;
 	
-	@JsonProperty("birth_place")
 	private String birthPlace;
 	
-	@JsonProperty("birth_datetime")
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyyMMddHHmmss")
 	private Date birthDatetime;
 	
 	private String authority;
 	
-	@JsonProperty("birth_place_country")
 	private String birthPlaceCountry;
 	
-	@JsonProperty("birth_place_city")
 	private String birthPlaceCity;
 	
 	// Champ calculé par xaf-servlet à partir de "gender"

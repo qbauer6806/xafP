@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Calendar;
@@ -22,7 +24,6 @@ import org.apache.http.message.BasicNameValuePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.IntNode;
@@ -47,6 +48,8 @@ import mc.gouv.xaf.shared.dto.UsagerTypeEnum;
 public class GichkeyService {
 	
 	private static Logger LOGGER = LoggerFactory.getLogger(GichkeyService.class);
+	
+	private static SimpleDateFormat SDF = new SimpleDateFormat("yyyyMMddHHmmss");
 
 	public static KeycloakTokenInfo getTokenFromAuthCode(String code, String requestUrl) {
 		URL url = null;
@@ -181,14 +184,35 @@ public class GichkeyService {
         JsonNode mconnect = node.get("mconnect-identity");
         if (mconnect != null && !(mconnect instanceof NullNode)) {
         	try {
-				InfosCertifieesUsagerInfosDTO mConnectUInfos = new ObjectMapper().treeToValue(mconnect, InfosCertifieesUsagerInfosDTO.class);
+        		
+        		TextNode givenNameNode0 = (TextNode)mconnect.get("given_name");
+        		TextNode familyNameNode = (TextNode)mconnect.get("family_name");
+        		TextNode birthNameNode = (TextNode)mconnect.get("birth_name");
+        		TextNode genderNode = (TextNode)mconnect.get("gender");
+        		TextNode birthPlaceNode = (TextNode)mconnect.get("birth_place");
+        		TextNode birthDatetimeNode = (TextNode)mconnect.get("birth_datetime");
+        		TextNode authorityNode = (TextNode)mconnect.get("authority");
+        		TextNode birthPlaceCountryNode = (TextNode)mconnect.get("birth_place_country");
+        		TextNode birthPlaceCityNode = (TextNode)mconnect.get("birth_place_city");
+        		InfosCertifieesUsagerInfosDTO mConnectUInfos = new InfosCertifieesUsagerInfosDTO();
+        		mConnectUInfos.setPrenom(givenNameNode0.asText());
+        		mConnectUInfos.setNom(familyNameNode.asText());
+        		mConnectUInfos.setBirthName(birthNameNode.asText());
+        		mConnectUInfos.setGender(genderNode.asText());
+        		mConnectUInfos.setBirthPlace(birthPlaceNode.asText());
+        		mConnectUInfos.setBirthDatetime(SDF.parse(birthDatetimeNode.asText()));
+        		mConnectUInfos.setAuthority(authorityNode.asText());
+        		mConnectUInfos.setBirthPlaceCountry(birthPlaceCountryNode.asText());
+        		mConnectUInfos.setBirthPlaceCity(birthPlaceCityNode.asText());
+        		
+				//InfosCertifieesUsagerInfosDTO mConnectUInfos = new ObjectMapper().treeToValue(mconnect, InfosCertifieesUsagerInfosDTO.class);
 				uinfos.setInfosCertifiees(mConnectUInfos);
 				LOGGER.info("Informations MConnect disponibles : {}", mConnectUInfos);
 				uinfos.setmConnect(true);
 				// Mettre login à "" si usager MConnect
 				uinfos.setLogin("");
-			} catch (JsonProcessingException e) {
-				LOGGER.error("Erreur lors du mConnectUInfos = new ObjectMapper().treeToValue()", e);
+			} catch (ParseException e) {
+				LOGGER.error("Erreur lors du parsing des informations certifiées MConnect", e);
 			}
         }
         

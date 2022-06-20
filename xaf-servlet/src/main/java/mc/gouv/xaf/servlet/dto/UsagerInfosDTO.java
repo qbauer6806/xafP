@@ -36,8 +36,6 @@ public class UsagerInfosDTO extends GichuniUsagerDTO implements Serializable {
     
     protected KeycloakTokenInfo tokenInfo;
     
-    protected InfosCertifieesUsagerInfosDTO infosCertifiees;
-    
     protected boolean mConnect = false;
 
     public String getTitreLabel() {
@@ -85,14 +83,6 @@ public class UsagerInfosDTO extends GichuniUsagerDTO implements Serializable {
 
 	public void setTokenInfo(KeycloakTokenInfo tokenInfo) {
 		this.tokenInfo = tokenInfo;
-	}
-
-	public InfosCertifieesUsagerInfosDTO getInfosCertifiees() {
-		return infosCertifiees;
-	}
-
-	public void setInfosCertifiees(InfosCertifieesUsagerInfosDTO infosCertifiees) {
-		this.infosCertifiees = infosCertifiees;
 	}
 
 	public boolean ismConnect() {

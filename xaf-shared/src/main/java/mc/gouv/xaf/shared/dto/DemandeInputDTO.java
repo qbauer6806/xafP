@@ -37,6 +37,9 @@ public class DemandeInputDTO {
     private String recapType;
     
     private Integer brouillonId;
+    
+    // Données envoyées par l'API si l'usager s'est connecté via MConnect
+    private DonneesMConnectDTO donneesMConnect;
 
     public JsonNode getContenu() {
         return contenu;
@@ -140,6 +143,14 @@ public class DemandeInputDTO {
 
 	public void setBrouillonId(Integer brouillonId) {
 		this.brouillonId = brouillonId;
+	}
+
+	public DonneesMConnectDTO getDonneesMConnect() {
+		return donneesMConnect;
+	}
+
+	public void setDonneesMConnect(DonneesMConnectDTO donneesMConnect) {
+		this.donneesMConnect = donneesMConnect;
 	}
 
 }

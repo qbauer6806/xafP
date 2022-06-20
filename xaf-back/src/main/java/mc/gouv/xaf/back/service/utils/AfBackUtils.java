@@ -32,6 +32,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.uuid.EthernetAddress;
 import com.fasterxml.uuid.Generators;
@@ -610,4 +611,27 @@ public class AfBackUtils {
     	}
     	return null;
     }
+    
+    public static List<String> donneesCertifieesJsonToList(String json) {
+    	if (json != null) {
+	    	try {
+	    		ObjectMapper mapper = new ObjectMapper();
+				return mapper.readValue(json, new TypeReference<List<String>>(){});
+			} catch (JsonProcessingException e) {
+				LOGGER.error("Erreur dans donneesCertifieesJsonToList()", e);
+			}
+    	}
+    	return new ArrayList<String>();
+    }
+    
+    public static String donneesCertifieesListToJson(List<String> list) {
+    	ObjectMapper mapper = new ObjectMapper();
+    	try {
+			return mapper.writeValueAsString(list);
+		} catch (JsonProcessingException e) {
+			LOGGER.error("Erreur dans donneesCertifieesListToJson()", e);
+		}
+    	return null;
+    }
+    
 }

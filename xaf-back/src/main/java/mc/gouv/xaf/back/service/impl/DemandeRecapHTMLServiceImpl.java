@@ -260,7 +260,15 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
                     String value = getSecondLevelHTML(demande.getContenu(), champ, pojo, isPdfRecap);
                     if (!StringUtils.isBlank(value)) {
                         html.append("<dt><span>").append(champ.get("label")).append("</span></dt>");
-                        html.append("<dd><span>").append(value).append("</span></dd>");
+                        html.append("<dd><span>").append(value);
+                        
+                        // Mettre une icône s'il s'agit d'une donnée certifiée
+                        if (AfBackUtils.donneesCertifieesJsonToList(demande.getDonneesCertifiees()).contains(champ.get("path"))) {
+                        	html.append("</span> <span style=\"color: green\" class=\"icon-valide\" title=\"Donnée certifiée\"></span></dd>");
+                        }
+                        else {
+                        	html.append("</span></dd>");
+                        }
                     }
                 }
             }

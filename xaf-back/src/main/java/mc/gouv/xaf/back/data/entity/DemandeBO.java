@@ -111,6 +111,9 @@ public class DemandeBO {
     @Column(name = "RECAP_TYPE", length = 256, nullable = true)
     @Size(min = 0, max = 256)
     private String recapType;
+    
+    @Column(name = "DONNEES_CERTIFIEES", columnDefinition = "TEXT", nullable = true)
+    private String donneesCertifiees;
 
     public Integer getPkDemandes() {
         return pkDemandes;
@@ -302,6 +305,14 @@ public class DemandeBO {
 
 	public void setRecapType(String recapType) {
 		this.recapType = recapType;
+	}
+
+	public String getDonneesCertifiees() {
+		return donneesCertifiees;
+	}
+
+	public void setDonneesCertifiees(String donneesCertifiees) {
+		this.donneesCertifiees = donneesCertifiees;
 	}
 
 }

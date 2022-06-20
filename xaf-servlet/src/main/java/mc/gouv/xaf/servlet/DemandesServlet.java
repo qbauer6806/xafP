@@ -114,6 +114,7 @@ public class DemandesServlet extends AbstractAfServlet {
             } else {
                 LOGGER.info("Appel à la démarche pour créer la demande");
                 DemandeInputDTO demandeInput = mapper.readValue(buffer.toString(), DemandeInputDTO.class);
+                demandeInput.setDonneesMConnect(usagerInfosDTO.getDonneesExternes().getMconnect());
                 DemandeDTO demandeDto = afApiClient.creerDemande(demandeInput, usagerId);
 
                 // TODO : gestion des erreurs

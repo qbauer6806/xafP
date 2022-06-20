@@ -259,4 +259,6 @@ public interface DemandesService {
      */
     List<DemandeDTO> getDemandesFilterFiles(String demarcheId, Integer usagerId);
 
+	DemandeDTO insererDonneesExternes(DemandeDTO demande);
+
 }

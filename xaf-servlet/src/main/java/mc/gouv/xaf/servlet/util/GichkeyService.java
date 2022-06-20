@@ -31,10 +31,11 @@ import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
-import mc.gouv.xaf.servlet.dto.InfosCertifieesUsagerInfosDTO;
 import mc.gouv.xaf.servlet.dto.KeycloakTokenInfo;
 import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
 import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
+import mc.gouv.xaf.shared.dto.DonneesExternesDTO;
+import mc.gouv.xaf.shared.dto.DonneesMConnectDTO;
 import mc.gouv.xaf.shared.dto.UsagerTypeEnum;
 
 /**
@@ -194,9 +195,9 @@ public class GichkeyService {
         		TextNode authorityNode = (TextNode)mconnect.get("authority");
         		TextNode birthPlaceCountryNode = (TextNode)mconnect.get("birth_place_country");
         		TextNode birthPlaceCityNode = (TextNode)mconnect.get("birth_place_city");
-        		InfosCertifieesUsagerInfosDTO mConnectUInfos = new InfosCertifieesUsagerInfosDTO();
-        		mConnectUInfos.setPrenom(givenNameNode0.asText());
-        		mConnectUInfos.setNom(familyNameNode.asText());
+        		DonneesMConnectDTO mConnectUInfos = new DonneesMConnectDTO();
+        		mConnectUInfos.setGivenName(givenNameNode0.asText());
+        		mConnectUInfos.setFamilyName(familyNameNode.asText());
         		mConnectUInfos.setBirthName(birthNameNode.asText());
         		mConnectUInfos.setGender(genderNode.asText());
         		mConnectUInfos.setBirthPlace(birthPlaceNode.asText());
@@ -206,7 +207,9 @@ public class GichkeyService {
         		mConnectUInfos.setBirthPlaceCity(birthPlaceCityNode.asText());
         		
 				//InfosCertifieesUsagerInfosDTO mConnectUInfos = new ObjectMapper().treeToValue(mconnect, InfosCertifieesUsagerInfosDTO.class);
-				uinfos.setInfosCertifiees(mConnectUInfos);
+        		DonneesExternesDTO donneesExternes = new DonneesExternesDTO();
+        		donneesExternes.setMconnect(mConnectUInfos);
+				uinfos.setDonneesExternes(donneesExternes);
 				LOGGER.info("Informations MConnect disponibles : {}", mConnectUInfos);
 				uinfos.setmConnect(true);
 				// Mettre login à "" si usager MConnect

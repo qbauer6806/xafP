@@ -30,6 +30,8 @@ public class GichuniUsagerDTO {
     private String paysCode;
     private UsagerTypeEnum type;
     
+    protected DonneesExternesDTO donneesExternes;
+    
 	public Integer getId() {
 		return id;
 	}
@@ -131,6 +133,12 @@ public class GichuniUsagerDTO {
 	}
 	public void setType(UsagerTypeEnum type) {
 		this.type = type;
+	}
+	public DonneesExternesDTO getDonneesExternes() {
+		return donneesExternes;
+	}
+	public void setDonneesExternes(DonneesExternesDTO donneesExternes) {
+		this.donneesExternes = donneesExternes;
 	}
 
 }

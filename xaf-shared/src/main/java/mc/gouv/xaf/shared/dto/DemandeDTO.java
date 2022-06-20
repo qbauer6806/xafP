@@ -29,6 +29,8 @@ public class DemandeDTO extends AbstractDemandeDTO {
     private String usagerEmail;
     private String buildId;
     private String recapType;
+    private DonneesMConnectDTO donneesMConnect;
+    private String donneesCertifiees;
 
     public Integer getFkAccess() {
         return fkAccess;
@@ -165,8 +167,24 @@ public class DemandeDTO extends AbstractDemandeDTO {
     public void setRecapType(String recapType) {
         this.recapType = recapType;
     }
+    
+    public DonneesMConnectDTO getDonneesMConnect() {
+		return donneesMConnect;
+	}
 
-    @Override
+	public void setDonneesMConnect(DonneesMConnectDTO donneesMConnect) {
+		this.donneesMConnect = donneesMConnect;
+	}
+
+	public String getDonneesCertifiees() {
+		return donneesCertifiees;
+	}
+
+	public void setDonneesCertifiees(String donneesCertifiees) {
+		this.donneesCertifiees = donneesCertifiees;
+	}
+
+	@Override
     public String toString() {
         return "DemandeDTO [pkDemandes=" + pkDemandes + ", dateCreation=" + dateCreation + ", dateDerModif="
                 + dateDerModif + ", contenu=" + contenu + ", demarcheId=" + demarcheId + ", usagerId=" + usagerId
@@ -176,7 +194,8 @@ public class DemandeDTO extends AbstractDemandeDTO {
                 + ", identifiant=" + identifiant + ", data=" + Arrays.toString(data) + ", courrierDateReception="
                 + courrierDateReception + ", courrierRefInterne=" + courrierRefInterne + ", updated=" + updated + "]" +
                 ", usagerNom=" + usagerNom + ", usagerPrenom="
-                + usagerPrenom + ", usagerEmail=" + usagerEmail + ", buildId=" + buildId + ", recapType=" + recapType + "]";
+                + usagerPrenom + ", usagerEmail=" + usagerEmail + ", buildId=" + buildId + ", recapType=" + recapType + ", donneesMConnect=" +
+                donneesMConnect + ", donneesCertifiees=" + donneesCertifiees + "]";
     }
 
 }

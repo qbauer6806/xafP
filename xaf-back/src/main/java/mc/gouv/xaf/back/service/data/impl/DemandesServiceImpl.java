@@ -1562,11 +1562,10 @@ public class DemandesServiceImpl implements DemandesService {
 	                JSONObject projectDemandeRecap = (JSONObject) jsonArrayRecap.get(k);
 	                JSONObject donneesExternes = (JSONObject) projectDemandeRecap.get("donneesExternes");
             		for (Map.Entry<String, String> entry : (Set<Map.Entry<String, String>>) donneesExternes.entrySet()) {
-            			// TODO remplacer entry.getValue() par la donnée récupérée du bloc infos certifiées de l'API GICHUNI
             			String source = entry.getValue().split("\\.")[0];
             			String property = entry.getValue().replace("mconnect.", "");
             			
-            			if ("mconnect".contentEquals(source)) {
+            			if ("mconnect".contentEquals(source) && demande.getDonneesMConnect() != null) {
             				JsonNode contenuModifie = null;
             				
             				if ("givenName".equals(property)) {	

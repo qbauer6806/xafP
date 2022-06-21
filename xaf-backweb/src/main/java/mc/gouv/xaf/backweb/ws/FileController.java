@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -117,7 +118,7 @@ public class FileController {
 
 		InputStream is = new FileInputStream(tmp.getAbsolutePath()+"/tmp.zip"); // get your input stream here
 		Resource resource = new InputStreamResource(is);
-		java.nio.file.Files.delete(tmp.toPath());
+		tmp.delete();
 		return new ResponseEntity<>(resource, headers, HttpStatus.OK);
 	}
 

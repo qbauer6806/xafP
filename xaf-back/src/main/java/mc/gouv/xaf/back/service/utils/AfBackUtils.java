@@ -605,4 +605,18 @@ public class AfBackUtils {
     	}
     	return null;
     }
+    
+    /*
+     * Retourne le texte tronqué avec "(...)" à la fin (pour affichage)
+     */
+    public static String tronquerTextePourAffichage(String texte, Integer nbChars) {
+	    if (texte != null) {
+	    	String ret = texte.substring(0, (texte.length() > nbChars ? nbChars : texte.length()));
+	    	if (ret.length() > 3000) {
+	    		ret += " (...)";
+	    	}
+	    	return ret;
+	    }
+	    return null;
+    }
 }

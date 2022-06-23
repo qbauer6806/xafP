@@ -13,9 +13,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import mc.gouv.Static;
-import mc.gouv.logon.apiclient.LogonApiClient;
 import mc.gouv.logon.shared.User;
+import mc.gouv.xaf.back.denjs.dto.DenjsAffectationAgentDTO;
+import mc.gouv.xaf.back.denjs.service.DenjsAffectationService;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
@@ -23,8 +23,6 @@ import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.itg.mail.MailTemplateModelProvider;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import mc.gouv.xaf.back.denjs.dto.DenjsAffectationAgentDTO;
-import mc.gouv.xaf.back.denjs.service.DenjsAffectationService;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 
 /**
@@ -73,8 +71,8 @@ public class GouvBPMEnvoiEmailAgentsEtablissementAffecteDelegate implements Java
         String bodyTemplateCode = (String)emailBodyTemplateCode.getValue(execution);
         String subjectTemplateCode = (String)emailSubjectTemplateCode.getValue(execution);
         
-        LOGGER.info("bodyTemplateCode : " + bodyTemplateCode);
-        LOGGER.info("subjectTemplateCode : " + subjectTemplateCode);
+        LOGGER.info("bodyTemplateCode : {}", bodyTemplateCode);
+        LOGGER.info("subjectTemplateCode : {}", subjectTemplateCode);
         
         Integer demandeId = Integer.parseInt(execution.getProcessBusinessKey());
         
@@ -97,29 +95,15 @@ public class GouvBPMEnvoiEmailAgentsEtablissementAffecteDelegate implements Java
         emailInfo.setReplyto(afBackUtils.getDemarcheInfos().getEmailReplyto(), afBackUtils.getDemarcheInfos()
                 .getEmailReplytoNom());
         
-        LOGGER.info("Liste de matricules destinataires de l'e-mail : " + matriculesDestinataires);
+        LOGGER.info("Liste de matricules destinataires de l'e-mail : {}", matriculesDestinataires);
         for (String matricule : matriculesDestinataires) {
-        	User agent = utilisateursCache.get(matricule);
-        	if (agent != null) {
-	        	if (StringUtils.isNotBlank(agent.getMail())) {
-	        		// Vérifier que l'agent a bien encore des droits sur cette appli
-	                if (StringUtils.isNotBlank(agent.getRolesByAppli(gouvPropertiesResolver.getDemarcheId()))) {
-	                	emailInfo.addTo(agent.getMail(), agent.getNom());
-	                }
-	                else {
-	                	LOGGER.warn("L'agent (" + matricule + "," + agent.getNom() + ") n'a pas de droits sur cette appli !");
-	                }
-	        	}
-	        	else {
-	        		LOGGER.warn("L'agent (" + matricule + "," + agent.getNom() + ") n'a pas d'e-mail renseigné !");
-	        	}
-        	}
-        	else {
-        		LOGGER.warn("Attention, l'agent de matricule " + matricule + " n'a pas pu être trouvé ! ");
-        	}
+        	User agent = getAgentFromMatricule(matricule);
+	        if (agent != null) {
+	        	emailInfo.addTo(agent.getMail(), agent.getNom());
+	        }
         }
         
-        LOGGER.info("Liste des adresses destinataires de cet e-mail : " + emailInfo.getTo());
+        LOGGER.info("Liste des adresses destinataires de cet e-mail : {}", emailInfo.getTo());
         
         emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, execution.getProcessBusinessKey());
         emailInfo.setLangue("fr");
@@ -136,6 +120,24 @@ public class GouvBPMEnvoiEmailAgentsEtablissementAffecteDelegate implements Java
 		}
         
         LOGGER.info("==== xaf-denjs ENVOI EMAIL AGENT DE L'ETABLISSEMENT AFFECTÉ <fin>");
+    }
+    
+    private User getAgentFromMatricule(String matricule) {
+    	User agent = utilisateursCache.get(matricule);
+    	if (agent == null) {
+    		LOGGER.warn("Attention, l'agent de matricule {} n'a pas pu être trouvé ! ", matricule);
+    		return null;
+    	}
+        if (StringUtils.isBlank(agent.getMail())) {
+        	LOGGER.warn("L'agent ({},{}) n'a pas d'e-mail renseigné !", matricule, agent.getNom());
+        	return null;
+        }
+        // Vérifier que l'agent a bien encore des droits sur cette appli
+        if (StringUtils.isBlank(agent.getRolesByAppli(gouvPropertiesResolver.getDemarcheId()))) {
+        	LOGGER.warn("L'agent ({},{}) n'a pas de droits sur cette appli !", matricule, agent.getNom());
+        	return null;
+        }
+    	return agent;
     }
 
     public Expression getEmailBodyTemplateCode() {

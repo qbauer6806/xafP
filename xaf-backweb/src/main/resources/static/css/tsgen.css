@@ -32,7 +32,9 @@
 	margin-top: 15px;
 }
 
-
+.mt-50 {
+	margin-top: 50px;
+}
 
 
 /* Radio Button (source de RHEIGEL) */
@@ -73,8 +75,8 @@
     line-height:1.5em;
 }
 .radiobuttons label .ico:before{
-    font-family: 'icomoon-ts';
-    content: "\e910";
+    font-family: 'icomoon';
+    content: "\e932";
     font-size:1.5em;
     margin-right:5px;
 }
@@ -141,8 +143,8 @@ input[data-toggle]{
 }
 
 input[data-toggle]:checked + label .ico:before{
-    font-family: 'icomoon-ts';
-    content: "\e90e";
+    font-family: 'icomoon';
+    content: "\e933";
 }
 
 input[data-toggle]:checked + label,
@@ -384,4 +386,17 @@ dd span {
 .justif-traitement-view {
 	max-height: 200px;
 	overflow: auto;
+}
+
+.dropdown-menu-custom {
+	cursor: pointer;
+}
+.dropdown .dropdown-menu a.dropdown-item-custom {
+	min-height: 40px;
+    height: auto;
+}
+
+/* #40905 : Décalage du texte pour les éléments du menu */
+#sidebar-wrapper.open .menuContent {
+	margin-left: -3px;
 }

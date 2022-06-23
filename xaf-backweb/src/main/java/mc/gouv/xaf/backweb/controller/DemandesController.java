@@ -69,28 +69,21 @@ public class DemandesController extends AbstractController {
 
         @Override
         public int compare(User u1, User u2) {
-            String u1Nom = "";
-            if (u1.getNomAffichage() != null) {
-                u1Nom = u1.getNomAffichage();
-            } else {
-                u1Nom = u1.getNom();
+            String u1Prenom = "";
+            if (u1.getPrenom() != null) {
+                u1Prenom = u1.getPrenom();
             }
-            String u2Nom = "";
-            if (u2.getNomAffichage() != null) {
-                u2Nom = u2.getNomAffichage();
-            } else {
-                u2Nom = u2.getNom();
+            String u2Prenom = "";
+            if (u2.getPrenom() != null) {
+                u2Prenom = u2.getPrenom();
             }
-            return u1Nom.compareTo(u2Nom);
+            return u1Prenom.compareTo(u2Prenom);
         }
 
     }
 
     public String getDisplayNameFromUser(User u) {
         String displayName = "";
-        if (u.getCivilite() != null) {
-            displayName = u.getCivilite().getLibelle() + " ";
-        }
         if (u.getPrenom() != null) {
             displayName += u.getPrenom() + " ";
         }

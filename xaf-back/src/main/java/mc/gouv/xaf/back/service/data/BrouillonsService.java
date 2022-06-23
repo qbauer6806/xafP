@@ -32,4 +32,6 @@ public interface BrouillonsService {
 
 	void deleteBrouillons(String demarcheId, Integer usagerId);
 
+	long getNombreBrouillons();
+
 }

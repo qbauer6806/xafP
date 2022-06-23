@@ -20,7 +20,7 @@
 <title th:text="${titre}"></title>
 
 <!-- Import FONTS -->
-<link th:href="@{/webjars/xcb-wlib/fonts/style.css}" rel="stylesheet" />
+<link th:href="@{/css/font-style.css(${applicationBuildTimestamp})}" rel="stylesheet" />
 <!--[if lt IE 8]><!-->
 <link rel="stylesheet" th:href="@{/webjars/xcb-wlib/fonts/ie7/ie7.css}" />
 
@@ -66,7 +66,7 @@
 			</div>
 
 			<div class="container-fluid">
-				<h2 class="col-xs-12 col-md-12">Administration des Jobs</h2>
+				<h1 class="col-xs-12 col-md-12">Administration des Jobs</h1>
 				<div class="text-left">
 					<div class="col-xs-6 col-md-6" style="padding-left: 0px">
 						<select style="margin-left: 1em" name="jobsSelect"

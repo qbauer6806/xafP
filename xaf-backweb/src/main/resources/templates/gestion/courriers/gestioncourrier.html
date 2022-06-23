@@ -9,7 +9,7 @@
     <title th:text="${AfBackUtils.getDemarcheNom()}"></title>
     <link rel="shortcut icon" th:href="@{/img/favicon.ico}"/>
     <!-- Import FONTS -->
-    <link rel="stylesheet" th:href="@{/webjars/xcb-wlib/fonts/style.css}"/>
+    <link rel="stylesheet" th:href="@{/css/font-style.css(${applicationBuildTimestamp})}"/>
     <link rel="stylesheet" th:href="@{/webjars/xcb-wlib/fonts/ie7/ie7.css}"/>
 
     <!-- Import CSS -->
@@ -41,10 +41,9 @@
     <div id="page-content-wrapper">
         <div class="breadcrumbContent">
             <div class="breadcrumb">
-					<span class="breadcrumb-item active"> <a class="breadcrumb-link"
-                                                             id="ariane0" th:href="@{/}">ACCUEIL</a>&nbsp;&gt;&nbsp;
-						<a class="breadcrumb-link" id="ariane1"
-                           th:href="@{/gestion/courriers}">COURRIERS</a> &gt;
+					<span class="breadcrumb-item active">
+                        <a class="breadcrumb-link" id="ariane0" th:href="@{/}">ACCUEIL</a>&nbsp;&gt;&nbsp;
+						<a class="breadcrumb-link" id="ariane1" th:href="@{/gestion/courriers}">IMPRESSIONS</a>&nbsp;&gt;&nbsp;
 					</span>
             </div>
             <div class="triangleTopright"></div>
@@ -54,7 +53,7 @@
 
             <div class="row">
                 <div class="col-xs-12">
-                    <h1>Gestion du courrier</h1>
+                    <h1>Impression des courriers</h1>
                 </div>
             </div>
 
@@ -62,7 +61,7 @@
                  th:unless="${AfBackUtils.getDemarcheCanGenerateCourriers()}">
                 <div class="row">
                     <div class="col-xs-12">
-                        Pas de courriers pour cette démarche.
+                        Il n'y a pas de courriers pour cette démarche.
                     </div>
                 </div>
             </div>

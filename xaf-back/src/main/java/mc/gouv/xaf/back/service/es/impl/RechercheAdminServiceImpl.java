@@ -36,16 +36,16 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
     private static final Logger LOGGER = LoggerFactory.getLogger(RechercheAdminServiceImpl.class);
 
     @Autowired
-    RechercheChampConfigRepository rechercheChampConfigRepository;
+    private RechercheChampConfigRepository rechercheChampConfigRepository;
 
     @Autowired
-    RechercheCatConfigRepository rechercheCatConfigRepository;
+    private RechercheCatConfigRepository rechercheCatConfigRepository;
 
     @Autowired
-    IndexedDemandeService indexedDemandeService;
+    private IndexedDemandeService indexedDemandeService;
 
     @Autowired
-    RechercheDynamicJSService rechercheDynamicJSService;
+    private RechercheDynamicJSService rechercheDynamicJSService;
 
     @Override
     public List<EsProperty> getPropertiesWithLabels() {
@@ -53,8 +53,9 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
         List<EsProperty> properties = new ArrayList<>(indexedDemandeService.getProperties(false));
 
         Map<String, RechercheChampConfigBO> champsMap = getChampsMap();
-        properties.removeIf(p -> p.getType().equals(EsProperty.BOOLEAN_TYPE)
-                || p.getName().startsWith(EsUtils.JOIN_FIELD));
+        properties.removeIf(p -> p.getType() == null
+                || StringUtils.equals(p.getType(), EsProperty.BOOLEAN_TYPE)
+                || StringUtils.startsWith(p.getName(), EsUtils.JOIN_FIELD));
         Map<String, EsProperty> complementsFichiersPropertiesMap = addComplementsFilesAndInternalFilesProperties(
                 properties);
         List<EsCategory> categories = getCategories();
@@ -67,7 +68,7 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
                 property.setCategoryId((champBo.getCategorie() != null) ? champBo.getCategorie().getId() : null);
                 property.setEnabled(champBo.isEnabled());
                 property.setEditable(champBo.isEditable());
-                // TODO
+                // TODO impact de la suppression de la jointure des fichiers
                 if (property.getName().startsWith(IndexedEsDemandeServiceImpl.FILE_PROPERTIES_PREFIX)) {
                     complementsFichiersPropertiesMap.get(
                             IndexedEsDemandeServiceImpl.FILE_COMPLEMENT_HIGHLIGHT_AND_FACET_PREFIX + champBo.getCle())
@@ -92,7 +93,7 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
         Map<String, EsProperty> complementsFilesAndInternalFilesPropertiesMap = new HashMap<>();
         List<EsProperty> complementsAndInternalFilesProperties = new ArrayList<>();
         for (EsProperty property : properties) {
-            // TODO
+            // TODO impact de la suppression de la jointure des fichiers
             if (property.getName().startsWith(IndexedEsDemandeServiceImpl.FILE_PROPERTIES_PREFIX)) {
                 EsProperty complementProperty = new EsProperty(
                         IndexedEsDemandeServiceImpl.FILE_COMPLEMENT_HIGHLIGHT_AND_FACET_PREFIX + property.getName(),

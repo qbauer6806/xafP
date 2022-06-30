@@ -34,7 +34,7 @@ public class GenerateEsSchemaAndSQL {
     private static final Logger LOGGER = LoggerFactory.getLogger(GenerateEsSchemaAndSQL.class);
     private static final String DEST_SQL_FILE_PATH = "configration-recherche{0}.sql";
     private static final String DEST_ES_MAPPINGS_FILE_PATH = "{0}-es-schema.json";
-    private static final String DEFAULT_SQL_CONF_FILE_PATH = "src/main/resources/default-config.sql";
+    private static final String DEFAULT_SQL_CONF_FILE_PATH = "D:\\Workspace\\xaf\\xaf-sup\\src\\main\\resources\\default-config.sql";
     private static final String LOG_SEPARATOR = "-------------------------------------------------------------------------------------------------------------";
 
     private static final String DEST_SQL_FILE_NAME = MessageFormat.format(

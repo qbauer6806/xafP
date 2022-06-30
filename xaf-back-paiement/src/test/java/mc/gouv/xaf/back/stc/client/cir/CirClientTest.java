@@ -1,6 +1,7 @@
 package mc.gouv.xaf.back.stc.client.cir;
 
 
+import mc.gouv.xaf.back.stc.mock.GouvPropertiesResolverTestImpl;
 import mc.gouv.xaf.back.stc.mock.UsagersCacheTestImpl;
 import org.junit.Test;
 
@@ -9,7 +10,7 @@ import java.net.Proxy;
 
 public class CirClientTest {
 
-    CirClient cirClient = new CirClient(new UsagersCacheTestImpl(), Proxy.NO_PROXY, new CirPropertiesResolver());
+    CirClient cirClient = new CirClient(new UsagersCacheTestImpl(), Proxy.NO_PROXY, new CirPropertiesResolver(new GouvPropertiesResolverTestImpl()));
 
 
     @Test

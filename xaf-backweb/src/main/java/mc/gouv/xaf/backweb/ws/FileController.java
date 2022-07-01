@@ -85,8 +85,10 @@ public class FileController {
 
 		LOGGER.info("====================== getFile()");
 
-		String file = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
+		// Bugfix #41714 - Modification de la façon de récupération du chemin du fichier, suite à la migration Java 11, cet élément reste encodé
+		String file = request.getServletPath();
 		file = file.replace("/ws/file/get/", "");
+		LOGGER.info("Chemin du fichier récupérée dans la requête : {}", file);
 
 		// Bugfix #16805: encodage des noms des fichiers avec caractères spéciaux
 		String filePathEncoded = URLEncoder.encode(file, "UTF-8");

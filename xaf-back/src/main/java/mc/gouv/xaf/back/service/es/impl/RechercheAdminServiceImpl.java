@@ -50,16 +50,25 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
     @Override
     public List<EsProperty> getPropertiesWithLabels() {
 
+        // Récupération des propriétés à partir de l'index ES
         List<EsProperty> properties = new ArrayList<>(indexedDemandeService.getProperties(false));
 
+        // Récupération des champs associés aux propriéts dans la BDD
         Map<String, RechercheChampConfigBO> champsMap = getChampsMap();
+
+        // On enlève les propriétés techniques
         properties.removeIf(p -> p.getType() == null
                 || StringUtils.equals(p.getType(), EsProperty.BOOLEAN_TYPE)
                 || StringUtils.startsWith(p.getName(), EsUtils.JOIN_FIELD));
-        Map<String, EsProperty> complementsFichiersPropertiesMap = addComplementsFilesAndInternalFilesProperties(
-                properties);
+
+        // On ajoute les propriétés pour les fichiers
+        addComplementsFilesAndInternalFilesProperties(properties);
+
+        // On récupère les catégories pour classer les propriétés
         List<EsCategory> categories = getCategories();
         Collections.sort(categories);
+
+        // On ajoute les valeurs issues de la BDD dans les propriétés
         for (EsProperty property : properties) {
             RechercheChampConfigBO champBo = champsMap.get(property.getName());
             if (champBo != null) {
@@ -68,18 +77,6 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
                 property.setCategoryId((champBo.getCategorie() != null) ? champBo.getCategorie().getId() : null);
                 property.setEnabled(champBo.isEnabled());
                 property.setEditable(champBo.isEditable());
-                // TODO impact de la suppression de la jointure des fichiers
-                if (property.getName().startsWith(IndexedEsDemandeServiceImpl.FILE_PROPERTIES_PREFIX)) {
-                    complementsFichiersPropertiesMap.get(
-                            IndexedEsDemandeServiceImpl.FILE_COMPLEMENT_HIGHLIGHT_AND_FACET_PREFIX + champBo.getCle())
-                            .setEnabled(champBo.isEnabled());
-                    complementsFichiersPropertiesMap.get(
-                            IndexedEsDemandeServiceImpl.INTERNAL_FILE_HIGHLIGHT_AND_FACET_PREFIX + champBo.getCle())
-                            .setEnabled(champBo.isEnabled());
-                    complementsFichiersPropertiesMap.get(
-                            IndexedEsDemandeServiceImpl.COURRIER_FILE_HIGHLIGHT_AND_FACET_PREFIX + champBo.getCle())
-                            .setEnabled(champBo.isEnabled());
-                }
             } else {
                 property.setEditable(true);
             }
@@ -89,37 +86,25 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
         return properties;
     }
 
-    private Map<String, EsProperty> addComplementsFilesAndInternalFilesProperties(List<EsProperty> properties) {
-        Map<String, EsProperty> complementsFilesAndInternalFilesPropertiesMap = new HashMap<>();
-        List<EsProperty> complementsAndInternalFilesProperties = new ArrayList<>();
-        for (EsProperty property : properties) {
-            // TODO impact de la suppression de la jointure des fichiers
-            if (property.getName().startsWith(IndexedEsDemandeServiceImpl.FILE_PROPERTIES_PREFIX)) {
-                EsProperty complementProperty = new EsProperty(
-                        IndexedEsDemandeServiceImpl.FILE_COMPLEMENT_HIGHLIGHT_AND_FACET_PREFIX + property.getName(),
-                        property.getType(), property.getFields());
-                EsProperty internalFileProperty = new EsProperty(
-                        IndexedEsDemandeServiceImpl.INTERNAL_FILE_HIGHLIGHT_AND_FACET_PREFIX + property.getName(),
-                        property.getType(), property.getFields());
-                EsProperty courrierProperty = new EsProperty(
-                        IndexedEsDemandeServiceImpl.COURRIER_FILE_HIGHLIGHT_AND_FACET_PREFIX + property.getName(),
-                        property.getType(), property.getFields());
-
-                complementsAndInternalFilesProperties.add(complementProperty);
-                complementsAndInternalFilesProperties.add(internalFileProperty);
-                complementsAndInternalFilesProperties.add(courrierProperty);
-                complementsFilesAndInternalFilesPropertiesMap.put(complementProperty.getName(), complementProperty);
-                complementsFilesAndInternalFilesPropertiesMap.put(internalFileProperty.getName(), internalFileProperty);
-                complementsFilesAndInternalFilesPropertiesMap.put(courrierProperty.getName(), courrierProperty);
-            }
+    /**
+     * Ajoute les propriétés liées aux fichiers
+     */
+    private void addComplementsFilesAndInternalFilesProperties(List<EsProperty> properties) {
+        Set<String> mappingFichiers = EsUtils.getMappingFichiers();
+        for (String property : mappingFichiers) {
+            EsProperty complementProperty = new EsProperty(
+                    IndexedEsDemandeServiceImpl.FILE_COMPLEMENT_HIGHLIGHT_AND_FACET_PREFIX + property, null, null);
+            EsProperty internalFileProperty = new EsProperty(
+                    IndexedEsDemandeServiceImpl.INTERNAL_FILE_HIGHLIGHT_AND_FACET_PREFIX + property, null, null);
+            EsProperty courrierProperty = new EsProperty(
+                    IndexedEsDemandeServiceImpl.COURRIER_FILE_HIGHLIGHT_AND_FACET_PREFIX + property, null, null);
+            EsProperty fichiersProperty = new EsProperty(
+                    IndexedEsDemandeServiceImpl.FILE_PROPERTIES_PREFIX + property, null, null);
+            properties.add(complementProperty);
+            properties.add(internalFileProperty);
+            properties.add(courrierProperty);
+            properties.add(fichiersProperty);
         }
-
-        if (!complementsAndInternalFilesProperties.isEmpty()) {
-            properties.addAll(complementsAndInternalFilesProperties);
-        }
-
-        return complementsFilesAndInternalFilesPropertiesMap;
-
     }
 
     @Override

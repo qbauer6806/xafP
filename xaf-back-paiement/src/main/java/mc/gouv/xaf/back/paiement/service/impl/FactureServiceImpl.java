@@ -43,7 +43,7 @@ public class FactureServiceImpl implements FactureService {
 
         InputStream factureIS = factureClient.getFacture(reference);
         ByteArrayOutputStream output = new ByteArrayOutputStream();
-        String fileName = reference;
+        String fileName = reference+".pdf";
         String demarcheId = gouvPropertiesResolver.getDemarcheId();
         DemandeDTO demande = demandesService.getDemande(demarcheId, demandeId);
         String url = fileService.saveFile(demande, fileName, gouvPropertiesResolver.getContainerId(), "application/pdf", factureIS, output);

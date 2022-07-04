@@ -18,13 +18,6 @@ public class BillingDTO {
 
 
     public BillingDTO() {
-        this.firstName = "Ada";
-        this.lastName = "Lovelace";
-        this.addressLine1 = "101 Rue de Roisel";
-        this.mobilePhone = "+33-612345678";
-        this.city = "Y";
-        this.postalCode = "80190";
-        this.country = "FR";
     }
 
     public String getFirstName() {

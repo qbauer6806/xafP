@@ -1,6 +1,7 @@
 package mc.gouv.xaf.back.paiement.bpm.activiti.delegate;
 
 import mc.gouv.xaf.back.bpm.GouvBPM;
+import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
 import mc.gouv.xaf.back.paiement.service.FactureService;
 import mc.gouv.xaf.back.paiement.service.PaiementService;
@@ -43,7 +44,9 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
         Optional<MoyenPaiementBO> moyenPaiementBO = paiementService.getMoyenPaiement(demandeId);
         LOGGER.info("Recuperation moyenPaiementBO : {}", moyenPaiementBO);
         if (moyenPaiementBO.isPresent()) {
-            String reference = paiementService.capture(moyenPaiementBO.get(), demandeId);
+            Integer usagerId = (Integer) execution
+                    .getVariable(GouvBPMProcessVariableTypeEnum.MC_USAGERID.name());
+            String reference = paiementService.capture(moyenPaiementBO.get(), usagerId);
             LOGGER.info("Recuperation reference : {}", reference);
 
             factureService.saveFacture(reference, demandeId);

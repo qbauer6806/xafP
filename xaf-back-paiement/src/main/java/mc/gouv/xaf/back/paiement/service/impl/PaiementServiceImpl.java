@@ -21,7 +21,6 @@ import mc.gouv.xaf.back.paiement.data.entity.OperationTypeBO;
 import mc.gouv.xaf.back.paiement.service.MoneticoService;
 import mc.gouv.xaf.back.paiement.service.PaiementService;
 import mc.gouv.xaf.back.paiement.service.ReferenceFactoryService;
-import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
@@ -125,16 +124,22 @@ public class PaiementServiceImpl implements PaiementService {
         LOGGER.info("Created [ moyenPaiement {}] ", moyenPaiement);
         PaiementDTO paiementDTO = new PaiementDTO(langue);
         paiementDTO.setDate(moneticoService.dateFormat(new Date()));
+        GichuniUsagerDTO usager = usagersCache.get(usagerId);
+
+        BillingDTO billingDTO = new BillingDTO();
+        billingDTO.setAddressLine1(usager.getAdresse1());
+        billingDTO.setCity(usager.getVille());
+        billingDTO.setPostalCode(usager.getCodePostal());
+        billingDTO.setCountry(usager.getNomPays());
 
         ContexteCommandeDTO contexteCommandeDTO = new ContexteCommandeDTO();
-        contexteCommandeDTO.setBilling(new BillingDTO());
+        contexteCommandeDTO.setBilling(billingDTO);
 
         paiementDTO.setContexte_commande(moneticoService.contexteCommandeDTOtoBase64(contexteCommandeDTO));
         paiementDTO.setDate(moneticoService.dateFormat(new Date()));
         paiementDTO.setMontant(montant + "EUR");
         paiementDTO.setReference(moyenPaiement.getPkMoyenPaiement());
 
-        GichuniUsagerDTO usager = usagersCache.get(usagerId);
 
         paiementDTO.setMail(usager.getEmail());
         paiementDTO.setMode_affichage("iframe");
@@ -179,7 +184,7 @@ public class PaiementServiceImpl implements PaiementService {
     }
 
     @Override
-    public String capture(MoyenPaiementBO moyenPaiementBO, Integer demandeId) {
+    public String capture(MoyenPaiementBO moyenPaiementBO, Integer usagerId) {
         logStartMethod(LOGGER);
         LOGGER.info("Parameters [ moyenPaiementBO {}] ", moyenPaiementBO);
         PropertiesDTO montantProperty = propertiesService.getProperty("PERMC", "XAF_PAIEMENT_AMOUNT");
@@ -220,7 +225,7 @@ public class PaiementServiceImpl implements PaiementService {
         operation.setDateDerniereModification(now);
         operation = operationRepository.save(operation);
         LOGGER.info("Created [ operation {}] ", operation);
-        factureClient.createFacture(referenceFactoryService.createSimpleReferenceDigitsNumeric(6), " ", operation.getMontant(), operation.getPkOperation(), demandeId);
+        factureClient.createFacture(referenceFactoryService.createSimpleReferenceDigitsNumeric(6), " ", operation.getMontant(), operation.getPkOperation(), usagerId);
 
         return operation.getPkOperation();
     }

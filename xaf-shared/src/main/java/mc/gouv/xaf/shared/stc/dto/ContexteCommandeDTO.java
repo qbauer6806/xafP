@@ -6,7 +6,6 @@ public class ContexteCommandeDTO {
 
 
     public ContexteCommandeDTO() {
-        this.billing = new BillingDTO();
     }
 
     public BillingDTO getBilling() {

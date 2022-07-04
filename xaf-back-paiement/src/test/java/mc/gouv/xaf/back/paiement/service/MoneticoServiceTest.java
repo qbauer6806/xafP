@@ -21,7 +21,7 @@ public class MoneticoServiceTest {
     @Test
     public void contexteCommandeDTOtoBase64_Test() {
         String result = moneticoService.contexteCommandeDTOtoBase64(new ContexteCommandeDTO());
-        assertThat(result).isEqualTo("eyJiaWxsaW5nIjp7ImZpcnN0TmFtZSI6IkFkYSIsImxhc3ROYW1lIjoiTG92ZWxhY2UiLCJhZGRyZXNzTGluZTEiOiIxMDEgUnVlIGRlIFJvaXNlbCIsIm1vYmlsZVBob25lIjoiKzMzLTYxMjM0NTY3OCIsImNpdHkiOiJZIiwicG9zdGFsQ29kZSI6IjgwMTkwIiwiY291bnRyeSI6IkZSIn19");
+        assertThat(result).isEqualTo("e30=");
     }
 
     @Test

@@ -1,6 +1,7 @@
 package mc.gouv.xaf.shared.stc.dto;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import mc.gouv.xaf.shared.stc.config.MoneticoPaiementConfig;
 
@@ -8,6 +9,7 @@ import mc.gouv.xaf.shared.stc.config.MoneticoPaiementConfig;
  * Modélise une donnée de paiement pour l'interface Monetico
  * Pour plus d'informaations se reporter à la doc technique de Monetico
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PaiementDTO {
 
     /**

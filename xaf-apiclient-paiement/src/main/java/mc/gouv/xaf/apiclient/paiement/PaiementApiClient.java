@@ -20,9 +20,9 @@ public class PaiementApiClient extends AfApiClient {
         super(serviceUrl, jwtToken);
     }
 
-    public PaiementDTO getPaiement(String demandeIds, String langue, Integer usagerId) {
+    public PaiementDTO getPaiement(String demandesId, String langue, Integer usagerId) {
         Response res = getTarget().path("/paiement")
-                .queryParam("demandeIds", demandeIds)
+                .queryParam("demandesId", demandesId)
                 .queryParam(StcUtils.LANGUE_PARAM, langue)
                 .queryParam(StcUtils.USAGERID_PARAM, usagerId)
                 .request(MediaType.APPLICATION_JSON)

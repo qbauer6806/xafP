@@ -20,7 +20,7 @@ public class PaiementPropertiesResolverTestImpl implements PaiementPropertiesRes
 
     @Override
     public int getRegistre() {
-        return 7777;
+        return 0;
     }
 
     @Override

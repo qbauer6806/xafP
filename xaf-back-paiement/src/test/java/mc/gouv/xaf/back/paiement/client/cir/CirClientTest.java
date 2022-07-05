@@ -25,7 +25,7 @@ public class CirClientTest {
 
     @Test
     public void checkTest() {
-        String numFacture = "1124807";
+        String numFacture = "1125054";
         String resultat = cirClient.check(numFacture);
         System.out.println(resultat);
 
@@ -33,7 +33,8 @@ public class CirClientTest {
 
     @Test
     public void getFactureTest() {
-        String numFacture = "1124807";
+        String numFacture = "1125054";
         InputStream inputStream = cirClient.getFacture(numFacture);
+        System.out.println("a");
     }
 }

@@ -230,9 +230,7 @@ public class PaiementServiceImpl implements PaiementService {
         operation.setDateDerniereModification(now);
         operation = operationRepository.save(operation);
         LOGGER.info("Created [ operation {}] ", operation);
-        factureClient.createFacture(referenceFactoryService.createSimpleReferenceDigitsNumeric(6), " ", operation.getMontant(), operation.getPkOperation(), usagerId);
-
-        return operation.getPkOperation();
+        return factureClient.createFacture(referenceFactoryService.createSimpleReferenceDigitsNumeric(6), " ", operation.getMontant(), operation.getPkOperation(), usagerId);
     }
 
 

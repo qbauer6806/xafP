@@ -120,7 +120,8 @@ public class CirClient implements FactureClient {
 
     public InputStream getFacture(String numFacture) {
         logStartMethod(LOGGER);
-
+        LOGGER.info("Parameters [ numFacture {}] ", numFacture);
+        LOGGER.info("Properties [ registre {}] ", paiementPropertiesResolver.getRegistre());
         Response response = this.targetGet.queryParam("numFacture", "" + numFacture)
                 .queryParam("registre", "" + paiementPropertiesResolver.getRegistre())
                 .request("application/pdf")

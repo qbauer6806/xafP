@@ -15,6 +15,6 @@ public interface PaiementService {
 
     Optional<MoyenPaiementBO> getMoyenPaiement(Integer demandeId);
 
-    String capture(MoyenPaiementBO moyenPaiementBO, Integer usagerId) throws IOException;
+    String capture(MoyenPaiementBO moyenPaiementBO, Integer usagerId) throws Exception;
 
 }

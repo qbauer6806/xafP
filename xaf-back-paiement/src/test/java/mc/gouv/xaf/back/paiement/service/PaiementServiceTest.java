@@ -186,7 +186,7 @@ public class PaiementServiceTest {
     }
 
     @Test
-    public void captureOk() throws IOException {
+    public void captureOk() throws Exception {
         DemandeBO demandeBO = new DemandeBO();
         demandeBO.setContenu("contenu");
         demandeBO.setCanal("canal");

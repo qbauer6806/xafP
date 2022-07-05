@@ -5,6 +5,7 @@ import mc.gouv.xaf.back.paiement.client.PaiementClient;
 import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
 import mc.gouv.xaf.back.paiement.properties.PaiementPropertiesResolver;
 import mc.gouv.xaf.back.paiement.service.ReferenceFactoryService;
+import mc.gouv.xaf.shared.stc.utils.MoneticoPaiementHmac;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.HttpUrlConnectorProvider;
 import org.slf4j.Logger;
@@ -22,6 +23,7 @@ import java.net.HttpURLConnection;
 import java.net.Proxy;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.StringJoiner;
 
 import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
 
@@ -36,7 +38,8 @@ public class MoneticoClient implements PaiementClient {
 
     private final PaiementPropertiesResolver paiementPropertiesResolver;
 
-    private static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy:HH:mm:ss");
+    private static SimpleDateFormat simpleDateTimeFormat = new SimpleDateFormat("dd/MM/yyyy:HH:mm:ss");
+    private static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
 
     public MoneticoClient(Proxy proxy, PaiementPropertiesResolver paiementPropertiesResolver) {
 
@@ -56,23 +59,42 @@ public class MoneticoClient implements PaiementClient {
     }
 
     @Retryable(value = Exception.class, backoff = @Backoff(delay = 1000, multiplier = 2))
-    public String capture(MoyenPaiementBO paiement, double montant) {
+    public String capture(MoyenPaiementBO paiement, double montant) throws Exception {
         logStartMethod(LOGGER);
         LOGGER.info("Parameters [ MoyenPaiementBO {}] ", paiement);
         Date date = new Date(System.currentTimeMillis());
-        String dateTimeString = simpleDateFormat.format(date);
+        String dateString = simpleDateFormat.format(date);
+        String dateTimeString = simpleDateTimeFormat.format(date);
 
+
+        StringJoiner sData = new StringJoiner("*");
+        sData.add("TPE="+this.tpe);
+        sData.add("date="+dateTimeString);
+        sData.add("date_commande="+dateString);
+        sData.add("lgue=FR");
+        sData.add("montant=" + paiement.getMontantInitial() + paiementPropertiesResolver.getCurrency());
+        sData.add("montant_a_capturer=" + montant + paiementPropertiesResolver.getCurrency());
+        sData.add("montant_deja_capture=" + paiement.getMontantCapture() + paiementPropertiesResolver.getCurrency());
+        sData.add("montant_restant=" + (paiement.getMontantRestant()-montant) + paiementPropertiesResolver.getCurrency());
+        sData.add("reference=" + paiement.getPkMoyenPaiement());
+        sData.add("societe=" + this.companyCode);
+        sData.add("version=" + paiementPropertiesResolver.getVersion());
+
+        MoneticoPaiementHmac moneticoPaiementHmac = new MoneticoPaiementHmac();
 
         Response response = this.target.queryParam("TPE", this.tpe)
                 .queryParam("montant", paiement.getMontantInitial() + paiementPropertiesResolver.getCurrency())
                 .queryParam("montant_a_capturer", montant + paiementPropertiesResolver.getCurrency())
                 .queryParam("montant_deja_capture", paiement.getMontantCapture() + paiementPropertiesResolver.getCurrency())
-                .queryParam("montant_restant", paiement.getMontantRestant() + paiementPropertiesResolver.getCurrency())
+                .queryParam("montant_restant", (paiement.getMontantRestant()-montant) + paiementPropertiesResolver.getCurrency())
                 .queryParam("lgue", "FR")
-                .queryParam("reference", paiement.getPkMoyenPaiement()).queryParam("date", dateTimeString)
-                .queryParam("date_commande", dateTimeString)
+                .queryParam("reference", paiement.getPkMoyenPaiement())
+                .queryParam("date", dateTimeString)
+                .queryParam("date_commande", dateString)
                 .queryParam("societe", this.companyCode)
-                .queryParam("version", paiementPropertiesResolver.getVersion()).request(MediaType.APPLICATION_JSON).get();
+                .queryParam("version", paiementPropertiesResolver.getVersion())
+                .queryParam("MAC", moneticoPaiementHmac.computeHmac(sData.toString()))
+                .request(MediaType.APPLICATION_JSON).get();
 
         String responseString = response.readEntity(String.class);
         LOGGER.info("Return [ responseString {}] ", responseString);

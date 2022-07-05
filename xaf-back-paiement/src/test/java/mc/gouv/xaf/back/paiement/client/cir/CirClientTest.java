@@ -3,6 +3,7 @@ package mc.gouv.xaf.back.paiement.client.cir;
 
 import mc.gouv.xaf.back.paiement.mock.PaiementPropertiesResolverTestImpl;
 import mc.gouv.xaf.back.paiement.mock.UsagersCacheTestImpl;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.InputStream;
@@ -14,6 +15,7 @@ public class CirClientTest {
 
 
     @Test
+    @Ignore
     public void createFactureTest() {
         String numPermis = "292093";
         String numImmat = " ";
@@ -24,6 +26,7 @@ public class CirClientTest {
     }
 
     @Test
+    @Ignore
     public void checkTest() {
         String numFacture = "1125054";
         String resultat = cirClient.check(numFacture);
@@ -32,6 +35,7 @@ public class CirClientTest {
     }
 
     @Test
+    @Ignore
     public void getFactureTest() {
         String numFacture = "1125054";
         InputStream inputStream = cirClient.getFacture(numFacture);

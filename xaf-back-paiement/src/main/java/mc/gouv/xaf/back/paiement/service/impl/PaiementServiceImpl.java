@@ -189,7 +189,7 @@ public class PaiementServiceImpl implements PaiementService {
     }
 
     @Override
-    public String capture(MoyenPaiementBO moyenPaiementBO, Integer usagerId) {
+    public String capture(MoyenPaiementBO moyenPaiementBO, Integer usagerId) throws Exception {
         logStartMethod(LOGGER);
         LOGGER.info("Parameters [ moyenPaiementBO {}] ", moyenPaiementBO);
         PropertiesDTO montantProperty = propertiesService.getProperty("PERMC", "XAF_PAIEMENT_AMOUNT");

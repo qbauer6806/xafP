@@ -44,7 +44,6 @@ public class MoneticoClient implements PaiementClient {
 
         HttpUrlConnectorProvider cp = new HttpUrlConnectorProvider();
         config.connectorProvider(cp);
-        LOGGER.info("proxy.address() : "+proxy.address().toString());
         cp.connectionFactory(url -> (HttpURLConnection) url.openConnection(proxy));
         config.register(JacksonJsonProvider.class);
         Client client = ClientBuilder.newClient();

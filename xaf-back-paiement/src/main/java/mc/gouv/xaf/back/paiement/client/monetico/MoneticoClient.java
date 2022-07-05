@@ -19,7 +19,6 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.HttpURLConnection;
-import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -45,10 +44,9 @@ public class MoneticoClient implements PaiementClient {
 
         HttpUrlConnectorProvider cp = new HttpUrlConnectorProvider();
         config.connectorProvider(cp);
-        //todo fix proxy
-        cp.connectionFactory(url -> (HttpURLConnection) url.openConnection(new Proxy(Proxy.Type.HTTP, new InetSocketAddress("proxy-infra", 3129))));
+        cp.connectionFactory(url -> (HttpURLConnection) url.openConnection(proxy));
         config.register(JacksonJsonProvider.class);
-        Client client = ClientBuilder.newClient();
+        Client client = ClientBuilder.newClient(config);
 
         this.tpe = paiementPropertiesResolver.getTpe();
         this.companyCode = paiementPropertiesResolver.getCompanyCode();

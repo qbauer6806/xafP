@@ -135,7 +135,7 @@ public class PaiementServiceImpl implements PaiementService {
         billingDTO.setAddressLine1(usager.getAdresse1());
         billingDTO.setCity(usager.getVille());
         billingDTO.setPostalCode(usager.getCodePostal());
-        billingDTO.setCountry(usager.getNomPays());
+        billingDTO.setCountry("FR");
 
         ContexteCommandeDTO contexteCommandeDTO = new ContexteCommandeDTO();
         contexteCommandeDTO.setBilling(billingDTO);
@@ -221,7 +221,7 @@ public class PaiementServiceImpl implements PaiementService {
             }
         }
 
-        operation.setMontant(moyenPaiementBO.getMontantRestant());
+        operation.setMontant(prix);
         operation.setPkOperation(referenceFactoryService.createSimpleReferenceDigitsNumeric(7));
 
         operation.setOperationType(OperationTypeBO.DEBIT);

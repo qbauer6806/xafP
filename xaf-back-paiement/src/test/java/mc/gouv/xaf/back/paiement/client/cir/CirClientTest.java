@@ -15,10 +15,10 @@ public class CirClientTest {
 
     @Test
     public void createFactureTest() {
-        String numPermis = "777777";
-        String numImmat = "SZ77";
-        double montant = 78;
-        String codeTransaction = "78770";
+        String numPermis = "292093";
+        String numImmat = " ";
+        double montant = 0.0;
+        String codeTransaction = "1591658";
         String resultat = cirClient.createFacture(numPermis, numImmat, montant, codeTransaction, 1);
         System.out.println(resultat);
     }

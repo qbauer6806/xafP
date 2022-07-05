@@ -1,6 +1,5 @@
 package mc.gouv.xaf.back.paiement.service;
 
-import mc.gouv.permc.shared.enums.PermcDemandeStatutEnum;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesStatutsRepository;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
@@ -16,6 +15,7 @@ import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementStatutBO;
 import mc.gouv.xaf.back.paiement.data.entity.OperationBO;
 import mc.gouv.xaf.back.paiement.data.entity.OperationStatutBO;
 import mc.gouv.xaf.back.paiement.data.entity.OperationTypeBO;
+import mc.gouv.xaf.back.paiement.mock.DemandeStatutEnum;
 import mc.gouv.xaf.shared.stc.dto.PaiementDTO;
 import org.junit.Before;
 import org.junit.Test;
@@ -59,7 +59,7 @@ public class PaiementServiceTest {
     private OperationRepository operationRepository;
 
     @Before
-    public void cleanData(){
+    public void cleanData() {
         operationRepository.deleteAll();
         moyenPaiementRepository.deleteAll();
         commandeDemandeRepository.deleteAll();
@@ -104,7 +104,7 @@ public class PaiementServiceTest {
 
 
         DemandesStatutsBO dernierStatut = new DemandesStatutsBO();
-        dernierStatut.setLibelle(PermcDemandeStatutEnum.EN_ATTENTE_DE_PAIEMENT.name());
+        dernierStatut.setLibelle(DemandeStatutEnum.EN_ATTENTE_DE_PAIEMENT.name());
         dernierStatut.setDate(new Date());
         demandesStatutsRepository.save(dernierStatut);
         demandeBO.setDernierStatut(dernierStatut);
@@ -118,7 +118,7 @@ public class PaiementServiceTest {
         demandeBO2.setDateDerModif(new Date());
 
         DemandesStatutsBO dernierStatut2 = new DemandesStatutsBO();
-        dernierStatut2.setLibelle(PermcDemandeStatutEnum.EN_ATTENTE_DE_PAIEMENT.name());
+        dernierStatut2.setLibelle(DemandeStatutEnum.EN_ATTENTE_DE_PAIEMENT.name());
         dernierStatut2.setDate(new Date());
         demandesStatutsRepository.save(dernierStatut2);
         demandeBO2.setDernierStatut(dernierStatut2);
@@ -131,7 +131,7 @@ public class PaiementServiceTest {
         demandesRepository.findAll().stream()
                 .map(DemandeBO::getDernierStatut)
                 .map(DemandesStatutsBO::getLibelle)
-                .collect(Collectors.toList()).forEach(libelle -> assertThat(libelle).isEqualTo(PermcDemandeStatutEnum.EN_ATTENTE_DE_PAIEMENT.name()));
+                .collect(Collectors.toList()).forEach(libelle -> assertThat(libelle).isEqualTo(DemandeStatutEnum.EN_ATTENTE_DE_PAIEMENT.name()));
 
         String status = "paiement";
         paiementService.updateStatus(paiementDTO.getReference(), status);
@@ -141,7 +141,7 @@ public class PaiementServiceTest {
         MoyenPaiementBO moyenPaiementBO = optionalMoyenPaiementBO.get();
         assertThat(moyenPaiementBO.getMoyenPaiementStatut()).isEqualTo(MoyenPaiementStatutBO.VALIDE);
 
-        demandesRepository.findAll().stream().map(DemandeBO::getDernierStatut).map(DemandesStatutsBO::getLibelle).collect(Collectors.toList()).forEach(libelle -> assertThat(libelle).isEqualTo(PermcDemandeStatutEnum.EN_ATTENTE_TRAIT.name()));
+        demandesRepository.findAll().stream().map(DemandeBO::getDernierStatut).map(DemandesStatutsBO::getLibelle).collect(Collectors.toList()).forEach(libelle -> assertThat(libelle).isEqualTo(DemandeStatutEnum.EN_ATTENTE_TRAIT.name()));
     }
 
 

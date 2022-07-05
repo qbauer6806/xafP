@@ -1,6 +1,5 @@
 package mc.gouv.xaf.back.paiement.service.impl;
 
-import mc.gouv.permc.shared.enums.PermcDemandeStatutEnum;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesStatutsRepository;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
@@ -18,6 +17,7 @@ import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementStatutBO;
 import mc.gouv.xaf.back.paiement.data.entity.OperationBO;
 import mc.gouv.xaf.back.paiement.data.entity.OperationStatutBO;
 import mc.gouv.xaf.back.paiement.data.entity.OperationTypeBO;
+import mc.gouv.xaf.back.paiement.service.DemandeStatutService;
 import mc.gouv.xaf.back.paiement.service.MoneticoService;
 import mc.gouv.xaf.back.paiement.service.PaiementService;
 import mc.gouv.xaf.back.paiement.service.ReferenceFactoryService;
@@ -83,6 +83,9 @@ public class PaiementServiceImpl implements PaiementService {
     private PaiementClient paiementClient;
     @Autowired
     private FactureClient factureClient;
+
+    @Autowired
+    private DemandeStatutService demandeStatutService;
 
     @Override
     public PaiementDTO create(String demandesId, String langue, Integer usagerId) {
@@ -163,7 +166,7 @@ public class PaiementServiceImpl implements PaiementService {
             for (CommandeDemandeBO commandeDemandeBO : commandeDemandeBOList) {
                 DemandeBO demandeBO = commandeDemandeBO.getDemande();
                 DemandesStatutsBO dernierStatut = demandeBO.getDernierStatut();
-                dernierStatut.setLibelle(PermcDemandeStatutEnum.EN_ATTENTE_TRAIT.name());
+                dernierStatut.setLibelle(demandeStatutService.getEnAttenteDeTraitement());
                 demandesStatutsRepository.save(dernierStatut);
             }
 

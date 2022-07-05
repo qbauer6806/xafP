@@ -44,6 +44,7 @@ public class MoneticoClient implements PaiementClient {
 
         HttpUrlConnectorProvider cp = new HttpUrlConnectorProvider();
         config.connectorProvider(cp);
+        LOGGER.info("proxy.address() : "+proxy.address().toString());
         cp.connectionFactory(url -> (HttpURLConnection) url.openConnection(proxy));
         config.register(JacksonJsonProvider.class);
         Client client = ClientBuilder.newClient();
@@ -70,7 +71,8 @@ public class MoneticoClient implements PaiementClient {
                 .queryParam("montant_restant", paiement.getMontantRestant() + paiementPropertiesResolver.getCurrency())
                 .queryParam("lgue", "FR")
                 .queryParam("reference", paiement.getPkMoyenPaiement()).queryParam("date", dateTimeString)
-                .queryParam("date_commande", dateTimeString).queryParam("societe", this.companyCode)
+                .queryParam("date_commande", dateTimeString)
+                .queryParam("societe", this.companyCode)
                 .queryParam("version", paiementPropertiesResolver.getVersion()).request(MediaType.APPLICATION_JSON).get();
 
         String responseString = response.readEntity(String.class);

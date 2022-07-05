@@ -212,10 +212,10 @@ public class PaiementServiceTest {
         moyenPaiementRepository.save(moyenPaiementBO);
         String resutat = paiementService.capture(moyenPaiementBO, 1);
         OperationBO operationBo = operationRepository.findAll().iterator().next();
-        assertThat(operationBo.getMontant()).isEqualTo(-80.0);
+        assertThat(operationBo.getMontant()).isEqualTo(80.0);
         assertThat(operationBo.getOperationType()).isEqualTo(OperationTypeBO.DEBIT);
         assertThat(operationBo.getOperationStatut()).isEqualTo(OperationStatutBO.REFUSEE);
-        assertThat(resutat).isEqualTo(operationBo.getPkOperation());
+        assertThat(resutat).isEqualTo("facture001");
     }
 
 }

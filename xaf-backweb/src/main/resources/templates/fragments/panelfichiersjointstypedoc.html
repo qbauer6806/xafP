@@ -18,7 +18,10 @@
 						<div class="dropdown-menu dropdown-menu-custom" aria-labelledby="dropdownMenuButton">
     						<a class="dropdown-item dropdown-item-custom" id="allDownloadButton">Tous les documents</a>
     						<a class="dropdown-item dropdown-item-custom" th:classappend="!${isDocumentsValidesActif} ? disabled : enable" id="validesDownloadButton">Les documents valides</a>
+    						<a th:if="${isGenerationPdfActive}" class="dropdown-item dropdown-item-custom" id="allDownloadButtonPdf">Imprimer tous les documents</a>
+    						<a th:if="${isGenerationPdfActive}" class="dropdown-item dropdown-item-custom" th:classappend="!${isDocumentsValidesActif} ? disabled : enable" id="validesDownloadButtonPdf">Imprimer les documents valides</a>
   						</div>
+<!--   						<iframe id="pdf-frame"></iframe> -->
 			     </div>
 			     </div>
 			     </div>

@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -113,9 +114,11 @@ public class AfBackUtils {
     private FileClient fileClient = null;
 
     @Autowired
+    @Lazy
     private UsagersCache usagersCache;
 
     @Autowired
+    @Lazy
     private UtilisateursCache utilisateursCache;
 
     @Autowired

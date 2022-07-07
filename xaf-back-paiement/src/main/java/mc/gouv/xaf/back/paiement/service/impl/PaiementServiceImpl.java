@@ -196,9 +196,10 @@ public class PaiementServiceImpl implements PaiementService {
         double prix = Double.parseDouble(montantProperty.getValue());
 
         moyenPaiementBO.setMontantCapture(moyenPaiementBO.getMontantCapture() + prix);
-        moyenPaiementBO.setMontantRestant(moyenPaiementBO.getMontantRestant() - prix);
 
         String reponse = paiementClient.capture(moyenPaiementBO, prix);
+
+        moyenPaiementBO.setMontantRestant(moyenPaiementBO.getMontantRestant() - prix);
         moyenPaiementRepository.save(moyenPaiementBO);
 
         OperationBO operation = new OperationBO();

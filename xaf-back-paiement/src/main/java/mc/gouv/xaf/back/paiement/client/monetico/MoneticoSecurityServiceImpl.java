@@ -1,7 +1,7 @@
-package mc.gouv.xaf.back.paiement.service.impl;
+package mc.gouv.xaf.back.paiement.client.monetico;
 
 import com.google.gson.Gson;
-import mc.gouv.xaf.back.paiement.service.MoneticoService;
+import mc.gouv.xaf.back.paiement.client.SecurityService;
 import mc.gouv.xaf.shared.stc.dto.ContexteCommandeDTO;
 import mc.gouv.xaf.shared.stc.dto.PaiementDTO;
 import mc.gouv.xaf.shared.stc.utils.Base64;
@@ -18,8 +18,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
 
 @Component
-public class MoneticoServiceImpl implements MoneticoService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MoneticoServiceImpl.class);
+public class MoneticoSecurityServiceImpl implements SecurityService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MoneticoSecurityServiceImpl.class);
     private static final String MONETICO_DATE_FORMAT = "dd/MM/yyyy:HH:mm:ss";
 
     @Override //todo create a dateservice ?
@@ -49,7 +49,7 @@ public class MoneticoServiceImpl implements MoneticoService {
         logStartMethod(LOGGER);
         String sChaineMAC = String.join("*",
                 "TPE=" + paiementDTO.getTPE(),
-                "ThreeDSecureChallenge=" + paiementDTO.getThreeDSecureChallenge(),
+                // "ThreeDSecureChallenge=" + paiementDTO.getThreeDSecureChallenge(),
                 "contexte_commande=" + paiementDTO.getContexte_commande(),
                 "date=" + paiementDTO.getDate(),
                 "dateech1=" + paiementDTO.getDateech1(),
@@ -57,6 +57,7 @@ public class MoneticoServiceImpl implements MoneticoService {
                 "dateech3=" + paiementDTO.getDateech3(),
                 "dateech4=" + paiementDTO.getDateech4(),
                 "lgue=" + paiementDTO.getLgue(),
+                "mail=" + paiementDTO.getMail(),
                 "mode_affichage=" + paiementDTO.getMode_affichage(),
                 "montant=" + paiementDTO.getMontant(),
                 "montantech1=" + paiementDTO.getMontantech1(),
@@ -68,10 +69,13 @@ public class MoneticoServiceImpl implements MoneticoService {
                 "societe=" + paiementDTO.getSociete(),
                 "version=" + paiementDTO.getVersion()
         );
+        LOGGER.info("CHAINE POUR HMAC : " + sChaineMAC);
 
         MoneticoPaiementHmac hmac = new MoneticoPaiementHmac();
         try {
-            return hmac.computeHmac(sChaineMAC);
+            String hmacString = hmac.computeHmac(sChaineMAC);
+            LOGGER.info("HMAC : " + hmacString);
+            return hmacString;
         } catch (Exception e) {
             LOGGER.error("Impossible de créer la chaîne MAC", e);
         }

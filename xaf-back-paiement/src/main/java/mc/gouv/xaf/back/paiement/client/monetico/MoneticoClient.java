@@ -3,6 +3,9 @@ package mc.gouv.xaf.back.paiement.client.monetico;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import mc.gouv.xaf.back.paiement.client.PaiementClient;
 import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
+import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementStatutBO;
+import mc.gouv.xaf.back.paiement.data.entity.OperationBO;
+import mc.gouv.xaf.back.paiement.data.entity.OperationStatutBO;
 import mc.gouv.xaf.back.paiement.properties.PaiementPropertiesResolver;
 import mc.gouv.xaf.back.paiement.service.ReferenceFactoryService;
 import mc.gouv.xaf.shared.stc.utils.MoneticoPaiementHmac;
@@ -59,7 +62,7 @@ public class MoneticoClient implements PaiementClient {
     }
 
     @Retryable(value = Exception.class, backoff = @Backoff(delay = 1000, multiplier = 2))
-    public String capture(MoyenPaiementBO paiement, double montant) throws Exception {
+    public void capture(MoyenPaiementBO paiement, OperationBO operation) throws Exception {
         logStartMethod(LOGGER);
         LOGGER.info("Parameters [ MoyenPaiementBO {}] ", paiement);
         Date date = new Date(System.currentTimeMillis());
@@ -68,14 +71,14 @@ public class MoneticoClient implements PaiementClient {
 
 
         StringJoiner sData = new StringJoiner("*");
-        sData.add("TPE="+this.tpe);
-        sData.add("date="+dateTimeString);
-        sData.add("date_commande="+dateString);
+        sData.add("TPE=" + this.tpe);
+        sData.add("date=" + dateTimeString);
+        sData.add("date_commande=" + dateString);
         sData.add("lgue=FR");
         sData.add("montant=" + paiement.getMontantInitial() + paiementPropertiesResolver.getCurrency());
-        sData.add("montant_a_capturer=" + montant + paiementPropertiesResolver.getCurrency());
+        sData.add("montant_a_capturer=" + operation.getMontant() + paiementPropertiesResolver.getCurrency());
         sData.add("montant_deja_capture=" + paiement.getMontantCapture() + paiementPropertiesResolver.getCurrency());
-        sData.add("montant_restant=" + (paiement.getMontantRestant()-montant) + paiementPropertiesResolver.getCurrency());
+        sData.add("montant_restant=" + (paiement.getMontantRestant() - operation.getMontant()) + paiementPropertiesResolver.getCurrency());
         sData.add("reference=" + paiement.getPkMoyenPaiement());
         sData.add("societe=" + this.companyCode);
         sData.add("version=" + paiementPropertiesResolver.getVersion());
@@ -84,9 +87,9 @@ public class MoneticoClient implements PaiementClient {
 
         Response response = this.target.queryParam("TPE", this.tpe)
                 .queryParam("montant", paiement.getMontantInitial() + paiementPropertiesResolver.getCurrency())
-                .queryParam("montant_a_capturer", montant + paiementPropertiesResolver.getCurrency())
+                .queryParam("montant_a_capturer", operation.getMontant() + paiementPropertiesResolver.getCurrency())
                 .queryParam("montant_deja_capture", paiement.getMontantCapture() + paiementPropertiesResolver.getCurrency())
-                .queryParam("montant_restant", (paiement.getMontantRestant()-montant) + paiementPropertiesResolver.getCurrency())
+                .queryParam("montant_restant", (paiement.getMontantRestant() - operation.getMontant()) + paiementPropertiesResolver.getCurrency())
                 .queryParam("lgue", "FR")
                 .queryParam("reference", paiement.getPkMoyenPaiement())
                 .queryParam("date", dateTimeString)
@@ -97,8 +100,29 @@ public class MoneticoClient implements PaiementClient {
                 .request(MediaType.APPLICATION_JSON).get();
 
         String responseString = response.readEntity(String.class);
-        LOGGER.info("Return [ responseString {}] ", responseString);
-        return responseString;
+        LOGGER.info("Capture [ responseString {}] ", responseString);
+
+        for (String s : responseString.split("\n")) {
+            String[] keyValue = s.split("=");
+
+            switch (keyValue[0]) {
+                case "cdr": // cdr = code retour
+                    if ("1".equals(keyValue[1])) {
+                        operation.setOperationStatut(OperationStatutBO.ACCEPTEE);
+                    } else if ("0".equals(keyValue[1])) {
+                        operation.setOperationStatut(OperationStatutBO.REFUSEE);
+                        paiement.setMoyenPaiementStatut(MoyenPaiementStatutBO.INVALIDE);
+                    } else {
+                        operation.setOperationStatut(OperationStatutBO.ERREUR);
+                    }
+                    break;
+                case "aut": // aut = numero d'autorisation
+                    operation.setNumeroAuthorisation(Integer.parseInt(keyValue[1]));
+                    break;
+            }
+        }
+
+
     }
 
 }

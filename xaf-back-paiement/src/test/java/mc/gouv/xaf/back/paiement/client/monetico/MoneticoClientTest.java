@@ -1,6 +1,7 @@
 package mc.gouv.xaf.back.paiement.client.monetico;
 
 import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
+import mc.gouv.xaf.back.paiement.data.entity.OperationBO;
 import mc.gouv.xaf.back.paiement.mock.PaiementPropertiesResolverTestImpl;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -18,6 +19,8 @@ public class MoneticoClientTest {
         moyenPaiementBO.setMontantRestant(90.0);
         moyenPaiementBO.setMontantCapture(0.0);
         moyenPaiementBO.setPkMoyenPaiement("VViSk4JMstvd");
-        moneticoClient.capture(moyenPaiementBO, 90);
+        OperationBO operation = new OperationBO();
+        operation.setMontant(90.0);
+        moneticoClient.capture(moyenPaiementBO, operation);
     }
 }

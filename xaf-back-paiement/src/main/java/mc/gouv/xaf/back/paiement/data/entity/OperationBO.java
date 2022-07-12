@@ -29,6 +29,8 @@ public class OperationBO {
     private Double montant;
     private Integer numeroAuthorisation;
 
+    private String numeroFacture;
+
 
     public String getPkOperation() {
         return pkOperation;
@@ -84,6 +86,14 @@ public class OperationBO {
 
     public void setNumeroAuthorisation(Integer numeroAuthorisation) {
         this.numeroAuthorisation = numeroAuthorisation;
+    }
+
+    public String getNumeroFacture() {
+        return numeroFacture;
+    }
+
+    public void setNumeroFacture(String numeroFacture) {
+        this.numeroFacture = numeroFacture;
     }
 
     @Override

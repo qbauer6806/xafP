@@ -1,12 +1,12 @@
 package mc.gouv.xaf.back.paiement.service.impl;
 
+import mc.gouv.xaf.back.paiement.client.FactureClient;
+import mc.gouv.xaf.back.paiement.service.FactureService;
+import mc.gouv.xaf.back.paiement.service.ReferenceFactoryService;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesFilesService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
-import mc.gouv.xaf.back.paiement.client.FactureClient;
-import mc.gouv.xaf.back.paiement.service.FactureService;
-import mc.gouv.xaf.back.paiement.service.ReferenceFactoryService;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import org.slf4j.Logger;
@@ -43,7 +43,7 @@ public class FactureServiceImpl implements FactureService {
 
         InputStream factureIS = factureClient.getFacture(reference);
         ByteArrayOutputStream output = new ByteArrayOutputStream();
-        String fileName = reference+".pdf";
+        String fileName = reference + ".pdf";
         String demarcheId = gouvPropertiesResolver.getDemarcheId();
         DemandeDTO demande = demandesService.getDemande(demarcheId, demandeId);
         String url = fileService.saveFile(demande, fileName, gouvPropertiesResolver.getContainerId(), "application/pdf", factureIS, output);
@@ -58,7 +58,7 @@ public class FactureServiceImpl implements FactureService {
         file.setName(fileName);
         file.setUrl('/' + url);
         file.setDate(new Date());
-        file.setMeta(fileName);
+        file.setMeta("JUSTIFICATIF_DEMANDE");
         demandesFilesService.saveFile(file, gouvPropertiesResolver.getDemarcheId(), demande.getPkDemandes());
     }
 }

@@ -102,10 +102,10 @@ public class CirClient implements FactureClient {
         request.setCodeOperation(paiementPropertiesResolver.getCodeTarif());
         request.setCodeTransaction(codeTransaction);
 
-        // todo fill from conf ?
+        // todo fill from conf ? yes
         request.setCodeReglement("X");
-        request.setAutorisation("6");
-        request.setTransactionId("6");
+        request.setAutorisation("6"); // num aut paiement
+        request.setTransactionId("6"); //  ref pk operation
 
         cirRequests.add(request);
         Response response = this.targetCreate

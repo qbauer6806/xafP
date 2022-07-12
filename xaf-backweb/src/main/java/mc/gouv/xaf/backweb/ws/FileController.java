@@ -6,7 +6,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -230,7 +232,8 @@ public class FileController {
 				String filename = fileService.saveFile(demande, gouvPropertiesResolver.getContainerId(), file,
 						response);
 
-				fileNames.put(file.getOriginalFilename(), filename);
+				// #41757 - On décode de l'url du fichier pour qu'il soit affiché en clair dans le FO
+				fileNames.put(file.getOriginalFilename(), URLDecoder.decode(filename, StandardCharsets.UTF_8));
 			}
 		}
 

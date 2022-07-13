@@ -2,23 +2,71 @@ package mc.gouv.xaf.back.paiement.properties;
 
 public interface PaiementPropertiesResolver {
 
+    String getTpe();
+
+    String getPaiementClef();
+
+    String getCodeSiteStandard();
+
+    String getXafMoneticoCodeSiteIframe();
+
+    String getXafMoneticoTexteAller();
+
+    int getValiditeMaxMoyenPaiement();
+
     String getFactureUrl();
 
     String getFactureToken();
 
     int getRegistre();
 
-    String getCodeTarif();
+    int getPermisParDefaut();
 
-    String getTpe();
+    int getImmatParDefaut();
 
-    String getVersion();
+    String getVersionAller();
 
-    String getPaiementUrl();
+    String getVersionCapture();
+
+    String getAllerUrl();
+
+    String getRetourUrl();
+
+    String getMenuUrl();
+
+    String getCaptureUrl();
+
+    String getSuccesUrl();
+
+
+    String getEchecUrl();
 
     String getPaiementKey();
 
-    String getCompanyCode();
 
     String getCurrency();
+
+    String getAdresseParDefaut();
+
+    String getVilleParDefaut();
+
+    String getCodePostalParDefaut();
+
+    String getCodePaysParDefaut();
+
+
+    String getAdressesMailAdminMetier();
+
+    String getAdressesMailSupportTechniqueCir();
+
+    String getAdressesMailSupportTechniqueRio();
+
+
+    String getXafRetryInitialDelay();
+
+    String getXafRetryCount();
+
+    String getXafRetryMultiplier();
+
+    String getXafPaiementImmediatHeureDiffere();
 }

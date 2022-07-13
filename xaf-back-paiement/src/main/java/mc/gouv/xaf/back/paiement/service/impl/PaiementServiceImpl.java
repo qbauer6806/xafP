@@ -1,5 +1,6 @@
 package mc.gouv.xaf.back.paiement.service.impl;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesStatutsRepository;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
@@ -17,19 +18,21 @@ import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
 import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementStatutBO;
 import mc.gouv.xaf.back.paiement.data.entity.OperationBO;
 import mc.gouv.xaf.back.paiement.data.entity.OperationTypeBO;
+import mc.gouv.xaf.back.paiement.dto.BillingDTO;
+import mc.gouv.xaf.back.paiement.dto.ContexteCommandeDTO;
+import mc.gouv.xaf.back.paiement.dto.PaiementDTO;
+import mc.gouv.xaf.back.paiement.properties.PaiementPropertiesResolver;
 import mc.gouv.xaf.back.paiement.service.DemandeStatutService;
 import mc.gouv.xaf.back.paiement.service.PaiementService;
 import mc.gouv.xaf.back.paiement.service.ReferenceFactoryService;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.es.IndexedDemandeService;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
-import mc.gouv.xaf.shared.stc.config.MoneticoPaiementConfig;
-import mc.gouv.xaf.shared.stc.dto.BillingDTO;
-import mc.gouv.xaf.shared.stc.dto.ContexteCommandeDTO;
-import mc.gouv.xaf.shared.stc.dto.PaiementDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +42,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -92,17 +97,25 @@ public class PaiementServiceImpl implements PaiementService {
 
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
+    @Autowired
+    private DemandesService demandesService;
+
+    @Autowired
+    private PaiementPropertiesResolver paiementPropertiesResolver;
 
     @Override
-    public PaiementDTO create(String demandesId, String langue, Integer usagerId) {
+    public PaiementDTO create(String demandesId, String langue, Integer usagerId, boolean iframe) {
         logStartMethod(LOGGER);
         LOGGER.info("Parameters [ demandesId {}, langue {}, usagerId {} ] ", demandesId, langue, usagerId);
-
+        String codeSociete = iframe ? paiementPropertiesResolver.getXafMoneticoCodeSiteIframe() : paiementPropertiesResolver.getCodeSiteStandard();
         PropertiesDTO montantProperty = propertiesService.getProperty("PERMC", "XAF_PAIEMENT_AMOUNT");
         double prix = Double.parseDouble(montantProperty.getValue());
         List<Integer> demandesIdList = Stream.of(demandesId.split(",")).map(String::trim).map(Integer::parseInt).collect(Collectors.toList());
-        double montant = prix * demandesIdList.size();
-
+        double montant = 0;
+        for (Integer demandeId : demandesIdList) {
+            double montantdemande = getMontant(demandeId);
+            montant += montantdemande;
+        }
 
         LocalDateTime now = LocalDateTime.now();
 
@@ -131,6 +144,7 @@ public class PaiementServiceImpl implements PaiementService {
         moyenPaiement.setMontantRestant(montant);
         moyenPaiement.setMontantCapture(0);
         moyenPaiement.setMoyenPaiementStatut(MoyenPaiementStatutBO.EN_ATTENTE_DE_VALIDATION);
+        moyenPaiement.setCodeSociete(codeSociete);
 
         moyenPaiement = moyenPaiementRepository.save(moyenPaiement);
         LOGGER.info("Created [ moyenPaiement {}] ", moyenPaiement);
@@ -139,10 +153,12 @@ public class PaiementServiceImpl implements PaiementService {
         GichuniUsagerDTO usager = usagersCache.get(usagerId);
 
         BillingDTO billingDTO = new BillingDTO();
-        billingDTO.setAddressLine1(usager.getAdresse1());
-        billingDTO.setCity(usager.getVille());
-        billingDTO.setPostalCode(usager.getCodePostal());
-        billingDTO.setCountry(usager.getPaysCode());
+        billingDTO.setFirstName(usager.getPrenom());
+        billingDTO.setLastName(usager.getNom());
+        billingDTO.setAddressLine1(usager.getAdresse1() == null ? paiementPropertiesResolver.getAdresseParDefaut() : usager.getAdresse1());
+        billingDTO.setCity(usager.getVille() == null ? paiementPropertiesResolver.getVilleParDefaut() : usager.getVille());
+        billingDTO.setPostalCode(usager.getCodePostal() == null ? paiementPropertiesResolver.getCodePostalParDefaut() : usager.getCodePostal());
+        billingDTO.setCountry(usager.getPaysCode() == null ? paiementPropertiesResolver.getCodePaysParDefaut() : usager.getPaysCode());
 
         ContexteCommandeDTO contexteCommandeDTO = new ContexteCommandeDTO();
         contexteCommandeDTO.setBilling(billingDTO);
@@ -150,13 +166,22 @@ public class PaiementServiceImpl implements PaiementService {
         paiementDTO.setContexte_commande(securityService.contexteCommandeDTOtoBase64(contexteCommandeDTO));
         String date = securityService.dateFormat(new Date());
         paiementDTO.setDate(date);
-        paiementDTO.setMontant(montant + "EUR");
+        paiementDTO.setMontant(montant + paiementPropertiesResolver.getCurrency());
         paiementDTO.setReference(moyenPaiement.getPkMoyenPaiement());
 
 
         paiementDTO.setMail(usager.getEmail());
-        paiementDTO.setMode_affichage("iframe");
-        paiementDTO.setTexteLibre(MoneticoPaiementConfig.MONETICOPAIEMENT_COMPANYCODE + date);
+        if (iframe) {
+            paiementDTO.setMode_affichage("iframe");
+        }
+        paiementDTO.setSociete(codeSociete);
+        paiementDTO.setTPE(paiementPropertiesResolver.getTpe());
+
+        paiementDTO.setTexteLibre(paiementPropertiesResolver.getXafMoneticoTexteAller() + "+" + date);
+
+        paiementDTO.setUrlRetourErr(paiementPropertiesResolver.getEchecUrl());
+        paiementDTO.setUrlRetourOk(paiementPropertiesResolver.getSuccesUrl());
+        paiementDTO.setVersion(paiementPropertiesResolver.getVersionAller());
         paiementDTO.setMAC(securityService.getHmacString(paiementDTO));
 
         LOGGER.info("Return [ paiementDTO {}] ", paiementDTO);
@@ -202,18 +227,26 @@ public class PaiementServiceImpl implements PaiementService {
     }
 
     @Override
-    public String capture(MoyenPaiementBO moyenPaiementBO, Integer usagerId) throws Exception {
+    public String capture(MoyenPaiementBO moyenPaiementBO, DemandeDTO demandeDTO) throws Exception {
         logStartMethod(LOGGER);
         LOGGER.info("Parameters [ moyenPaiementBO {}] ", moyenPaiementBO);
         OperationBO operation = new OperationBO();
-        PropertiesDTO montantProperty = propertiesService.getProperty("PERMC", "XAF_PAIEMENT_AMOUNT");
-        double prix = Double.parseDouble(montantProperty.getValue());
+
+        JsonNode contenuDemande = demandeDTO.getContenu();
+
+        String numeroPermis = contenuDemande.get("titre").get("numeropermis").asText();
+        LOGGER.info("Permis n° : {}", numeroPermis);
+
+        HashMap<String, Double> objetMontants = getPaiements(demandeDTO);
+        double prix = getMontant(objetMontants);
         operation.setMontant(prix);
-        moyenPaiementBO.setMontantCapture(moyenPaiementBO.getMontantCapture() + prix);
+
 
         paiementClient.capture(moyenPaiementBO, operation);
 
+        moyenPaiementBO.setMontantCapture(moyenPaiementBO.getMontantCapture() + prix);
         moyenPaiementBO.setMontantRestant(moyenPaiementBO.getMontantRestant() - prix);
+
         moyenPaiementRepository.save(moyenPaiementBO);
 
         operation.setPkOperation(referenceFactoryService.createSimpleReferenceDigitsNumeric(7));
@@ -224,11 +257,40 @@ public class PaiementServiceImpl implements PaiementService {
         operation.setDateDerniereModification(now);
         operation.setDateDerniereModification(now);
         operation = operationRepository.save(operation);
-        String numFacture = factureClient.createFacture(referenceFactoryService.createSimpleReferenceDigitsNumeric(6), " ", operation.getMontant(), operation.getPkOperation(), usagerId);
+        String numFacture = factureClient.createFacture(numeroPermis, " ", operation.getMontant(), operation.getPkOperation(), demandeDTO.getUsagerId(), objetMontants);
         LOGGER.info("Created [ facture n°{}] ", numFacture);
         operation.setNumeroFacture(numFacture);
         LOGGER.info("Created [ operation {}] ", operation);
         return numFacture;
+    }
+
+    private double getMontant(Integer demandeId) {
+        DemandeDTO demandeDto = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(),
+                demandeId);
+        return getMontant(demandeDto);
+    }
+
+    private double getMontant(DemandeDTO demandeDto) {
+        return getPaiements(demandeDto).values().stream().reduce(0.0, Double::sum);
+    }
+
+    private double getMontant(HashMap<String, Double> objetMontants) {
+        return objetMontants.values().stream().reduce(0.0, Double::sum);
+    }
+
+    private HashMap<String, Double> getPaiements(DemandeDTO demandeDto) {
+        JsonNode contenuDemande = demandeDto.getContenu();
+
+        String numeroPermis = contenuDemande.get("titre").get("numeropermis").asText();
+        LOGGER.info("Permis n° : {}", numeroPermis);
+
+        HashMap<String, Double> objetMontants = new HashMap<>();
+        Iterator<JsonNode> paiements = contenuDemande.get("paiement").get("tableau").elements();
+        do {
+            JsonNode paiement = paiements.next();
+            objetMontants.put(paiement.get("objet").asText(), Double.parseDouble(paiement.get("montant").asText()));
+        } while (paiements.hasNext());
+        return objetMontants;
     }
 
 

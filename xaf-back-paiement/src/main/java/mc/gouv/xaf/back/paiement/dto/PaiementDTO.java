@@ -1,9 +1,8 @@
-package mc.gouv.xaf.shared.stc.dto;
+package mc.gouv.xaf.back.paiement.dto;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonSetter;
-import mc.gouv.xaf.shared.stc.config.MoneticoPaiementConfig;
 
 /**
  * Modélise une donnée de paiement pour l'interface Monetico
@@ -78,7 +77,7 @@ public class PaiementDTO {
     private String urlRetourErr;
 
 
-   // private String ThreeDSecureChallenge;
+    // private String ThreeDSecureChallenge;
 
     private String mode_affichage;
     private String nbrech = "";
@@ -93,11 +92,6 @@ public class PaiementDTO {
 
 
     public PaiementDTO() {
-        this.TPE = MoneticoPaiementConfig.MONETICOPAIEMENT_EPTNUMBER;
-        this.version = MoneticoPaiementConfig.MONETICOPAIEMENT_VERSION;
-        this.societe = MoneticoPaiementConfig.MONETICOPAIEMENT_COMPANYCODE;
-        this.urlRetourOk = MoneticoPaiementConfig.MONETICOPAIEMENT_URLOK;
-        this.urlRetourErr = MoneticoPaiementConfig.MONETICOPAIEMENT_URLKO;
     }
 
     public PaiementDTO(String lgue) {

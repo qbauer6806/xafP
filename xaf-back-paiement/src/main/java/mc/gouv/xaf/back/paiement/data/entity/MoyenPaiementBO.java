@@ -1,6 +1,13 @@
 package mc.gouv.xaf.back.paiement.data.entity;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
 import java.time.LocalDateTime;
 
 @Entity
@@ -13,6 +20,8 @@ public class MoyenPaiementBO {
     @OneToOne
     @JoinColumn(name = "FK_COMMANDE")
     private CommandeBO commande;
+
+    private String codeSociete;
 
 
     private LocalDateTime dateLimite;
@@ -101,6 +110,14 @@ public class MoyenPaiementBO {
 
     public void setDateDerniereModification(LocalDateTime dateDerniereModification) {
         this.dateDerniereModification = dateDerniereModification;
+    }
+
+    public String getCodeSociete() {
+        return codeSociete;
+    }
+
+    public void setCodeSociete(String codeSociete) {
+        this.codeSociete = codeSociete;
     }
 
     @Override

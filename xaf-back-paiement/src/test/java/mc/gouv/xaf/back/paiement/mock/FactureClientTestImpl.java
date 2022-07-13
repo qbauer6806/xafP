@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 
 @Primary
 @Component
@@ -16,7 +17,7 @@ public class FactureClientTestImpl implements FactureClient {
     }
 
     @Override
-    public String createFacture(String numPermis, String numImmat, double montant, String codeTransaction, Integer usagerId) {
+    public String createFacture(String numPermis, String numImmat, Double montant, String codeTransaction, Integer usagerId, HashMap<String, Double> objetMontants) {
         return "facture001";
     }
 

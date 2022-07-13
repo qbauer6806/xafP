@@ -24,7 +24,9 @@ import java.net.Proxy;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
 
@@ -62,12 +64,12 @@ public class CirClient implements FactureClient {
         this.paiementPropertiesResolver = paiementPropertiesResolver;
     }
 
+    @Override
     public String check(String numFacture) {
         logStartMethod(LOGGER);
         LOGGER.info("Parameters [ numFacture {}] ", numFacture);
         Response response = this.targetCheck.queryParam("numFacture", numFacture)
                 .queryParam("registre", paiementPropertiesResolver.getRegistre())
-                .queryParam("codeTarif", paiementPropertiesResolver.getCodeTarif())
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, BEARER_PREFIX + paiementPropertiesResolver.getFactureToken())
                 .get();
@@ -77,37 +79,42 @@ public class CirClient implements FactureClient {
         return responseString;
     }
 
-    public String createFacture(String numPermis, String numImmat, double montant, String codeTransaction, Integer usagerId) {
+
+
+    @Override
+    public String createFacture(String numPermis, String numImmat, Double montant, String codeTransaction, Integer usagerId, HashMap<String, Double> objetMontants) {
         logStartMethod(LOGGER);
-        LOGGER.info("Parameters [ numPermis {}, numImmat {}, montant {}, codeTransaction {}] ", numPermis, numImmat, montant, codeTransaction);
+        LOGGER.info("Parameters [ numPermis {}, numImmat {},  codeTransaction {}] ", numPermis, numImmat, codeTransaction);
 
         List<CirRequest> cirRequests = new ArrayList<>();
-        CirRequest request = new CirRequest();
-        request.setNumTpe(paiementPropertiesResolver.getTpe());
 
-        if (numPermis != null) {
+        for (Map.Entry<String, Double> entry : objetMontants.entrySet()) {
+            Double montantObjet = entry.getValue();
+
+            CirRequest request = new CirRequest();
+            request.setNumTpe(paiementPropertiesResolver.getTpe());
+
             request.setNumPermis(numPermis);
+            request.setNumImmat(numImmat);
+
+
+            request.setRegistre(paiementPropertiesResolver.getRegistre());
+            request.setDateOperation(new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
+            request.setMontant(montant);
+            request.setMontantOperation("" + montantObjet);
+            GichuniUsagerDTO usager = usagersCache.get(usagerId);
+            request.setNomPropr(usager.getNom());
+            request.setPrenomPropr(usager.getPrenom());
+            request.setEmail(usager.getEmail());
+            request.setCodeOperation(montantObjet == 80 ? "P1" : "P5");
+            request.setCodeTransaction(codeTransaction);
+            request.setCodeReglement("X");
+            request.setAutorisation("6"); // num aut paiement
+            request.setTransactionId("6"); //  ref pk operation
+
+            cirRequests.add(request);
         }
 
-        request.setNumImmat(" ");
-
-        request.setRegistre(paiementPropertiesResolver.getRegistre());
-        request.setDateOperation(new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
-        request.setMontant(montant);
-        request.setMontantOperation("" + montant);
-        GichuniUsagerDTO usager = usagersCache.get(usagerId);
-        request.setNomPropr(usager.getNom());
-        request.setPrenomPropr(usager.getPrenom());
-        request.setEmail(usager.getEmail());
-        request.setCodeOperation(paiementPropertiesResolver.getCodeTarif());
-        request.setCodeTransaction(codeTransaction);
-
-        // todo fill from conf ? yes
-        request.setCodeReglement("X");
-        request.setAutorisation("6"); // num aut paiement
-        request.setTransactionId("6"); //  ref pk operation
-
-        cirRequests.add(request);
         Response response = this.targetCreate
                 .request()
                 .header(HttpHeaders.AUTHORIZATION, BEARER_PREFIX + paiementPropertiesResolver.getFactureToken())
@@ -118,6 +125,7 @@ public class CirClient implements FactureClient {
         return responseString;
     }
 
+    @Override
     public InputStream getFacture(String numFacture) {
         logStartMethod(LOGGER);
         LOGGER.info("Parameters [ numFacture {}] ", numFacture);

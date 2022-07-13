@@ -2,10 +2,17 @@ package mc.gouv.xaf.back.paiement.mock;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
-import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.back.data.es.model.DemandeEsDTO;
+import mc.gouv.xaf.back.data.es.model.DemandeEsRechercheDTO;
+import mc.gouv.xaf.back.data.es.model.DemandeFileEsRechercheDTO;
+import mc.gouv.xaf.back.data.es.model.DemandesFacets;
+import mc.gouv.xaf.back.data.es.model.EsProperty;
+import mc.gouv.xaf.back.service.es.IndexedDemandeService;
+import mc.gouv.xaf.shared.dto.DemandeCourrierRechercheDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 import mc.gouv.xaf.shared.dto.PageParamDTO;
+import org.apache.tika.exception.TikaException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -16,7 +23,7 @@ import java.util.Date;
 import java.util.List;
 
 @Component
-public class DemandesServiceTestImpl implements DemandesService {
+public class IndexedDemandeServiceTestImpl implements IndexedDemandeService {
     @Override
     public DemandeDTO saveDemande(DemandeDTO demande, String premierStatut) throws IOException {
         return null;
@@ -175,5 +182,75 @@ public class DemandesServiceTestImpl implements DemandesService {
     @Override
     public DemandeDTO insererDonneesExternes(DemandeDTO demande) {
         return null;
+    }
+
+    @Override
+    public void indexDemande(DemandeDTO demandeDTO) throws IOException, SAXException, TikaException {
+
+    }
+
+    @Override
+    public DemandesFacets getDemandesFacets(DemandeRechercheDTO demandeRecherche) {
+        return null;
+    }
+
+    @Override
+    public Long reindex() throws IOException {
+        return null;
+    }
+
+    @Override
+    public Long reindexDemandes() throws IOException {
+        return null;
+    }
+
+    @Override
+    public List<List<String>> getDemandesDesynchro() {
+        return null;
+    }
+
+    @Override
+    public List<String> reindexDemandesDesynchro() {
+        return null;
+    }
+
+    @Override
+    public void indexDemande(String demarcheId, Integer demandeId) throws IOException, SAXException, TikaException {
+
+    }
+
+    @Override
+    public void indexElement(DemandeDTO demandeDTO, boolean indexFiles) {
+
+    }
+
+    @Override
+    public List<DemandeEsDTO> getIndexedDemandes(DemandeRechercheDTO demandeRecherche) {
+        return null;
+    }
+
+    @Override
+    public Page<DemandeEsRechercheDTO> getIndexedDemandes(DemandeRechercheDTO demandeRecherche, Pageable pageable, String[] fields) {
+        return null;
+    }
+
+    @Override
+    public Page<DemandeFileEsRechercheDTO> getIndexedCourriers(DemandeCourrierRechercheDTO demandeRecherche, Pageable pageable, String[] fields) {
+        return null;
+    }
+
+    @Override
+    public List<EsProperty> getProperties(boolean reload) {
+        return null;
+    }
+
+    @Override
+    public void initMappingProperties(boolean reload) {
+
+    }
+
+    @Override
+    public void loadProperties() {
+
     }
 }

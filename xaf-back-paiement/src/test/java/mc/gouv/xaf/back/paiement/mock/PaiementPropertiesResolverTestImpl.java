@@ -24,9 +24,55 @@ public class PaiementPropertiesResolverTestImpl implements PaiementPropertiesRes
     }
 
     @Override
-    public String getCodeTarif() {
-        return "P1";
+    public int getPermisParDefaut() {
+        return 0;
     }
+
+    @Override
+    public int getImmatParDefaut() {
+        return 0;
+    }
+
+    @Override
+    public String getVersionAller() {
+        return null;
+    }
+
+    @Override
+    public String getVersionCapture() {
+        return "3.0";
+    }
+
+    @Override
+    public String getAllerUrl() {
+        return null;
+    }
+
+    @Override
+    public String getRetourUrl() {
+        return null;
+    }
+
+    @Override
+    public String getMenuUrl() {
+        return null;
+    }
+
+    @Override
+    public String getCaptureUrl() {
+        return "url";
+    }
+
+    @Override
+    public String getSuccesUrl() {
+        return null;
+    }
+
+    @Override
+    public String getEchecUrl() {
+        return null;
+    }
+
 
     @Override
     public String getTpe() {
@@ -34,13 +80,28 @@ public class PaiementPropertiesResolverTestImpl implements PaiementPropertiesRes
     }
 
     @Override
-    public String getVersion() {
-        return "3.0";
+    public String getPaiementClef() {
+        return "0123456789012345678901234567890123456789";
     }
 
     @Override
-    public String getPaiementUrl() {
-        return "https://payment-api.e-i.com/test/capture_paiement.cgi";
+    public String getCodeSiteStandard() {
+        return null;
+    }
+
+    @Override
+    public String getXafMoneticoCodeSiteIframe() {
+        return null;
+    }
+
+    @Override
+    public String getXafMoneticoTexteAller() {
+        return null;
+    }
+
+    @Override
+    public int getValiditeMaxMoyenPaiement() {
+        return 0;
     }
 
     @Override
@@ -49,12 +110,62 @@ public class PaiementPropertiesResolverTestImpl implements PaiementPropertiesRes
     }
 
     @Override
-    public String getCompanyCode() {
-        return "PERMC";
+    public String getCurrency() {
+        return "EUR";
     }
 
     @Override
-    public String getCurrency() {
-        return "EUR";
+    public String getAdresseParDefaut() {
+        return null;
+    }
+
+    @Override
+    public String getVilleParDefaut() {
+        return null;
+    }
+
+    @Override
+    public String getCodePostalParDefaut() {
+        return null;
+    }
+
+    @Override
+    public String getCodePaysParDefaut() {
+        return null;
+    }
+
+    @Override
+    public String getAdressesMailAdminMetier() {
+        return null;
+    }
+
+    @Override
+    public String getAdressesMailSupportTechniqueCir() {
+        return null;
+    }
+
+    @Override
+    public String getAdressesMailSupportTechniqueRio() {
+        return null;
+    }
+
+    @Override
+    public String getXafRetryInitialDelay() {
+        return null;
+    }
+
+    @Override
+    public String getXafRetryCount() {
+        return null;
+    }
+
+    @Override
+    public String getXafRetryMultiplier() {
+        return null;
+    }
+
+    @Override
+    public String getXafPaiementImmediatHeureDiffere() {
+        return null;
     }
 }

@@ -2,12 +2,12 @@ package mc.gouv.xaf.back.paiement.client.monetico;
 
 import com.google.gson.Gson;
 import mc.gouv.xaf.back.paiement.client.SecurityService;
-import mc.gouv.xaf.shared.stc.dto.ContexteCommandeDTO;
-import mc.gouv.xaf.shared.stc.dto.PaiementDTO;
-import mc.gouv.xaf.shared.stc.utils.Base64;
-import mc.gouv.xaf.shared.stc.utils.MoneticoPaiementHmac;
+import mc.gouv.xaf.back.paiement.dto.ContexteCommandeDTO;
+import mc.gouv.xaf.back.paiement.dto.PaiementDTO;
+import mc.gouv.xaf.back.paiement.properties.PaiementPropertiesResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.text.SimpleDateFormat;
@@ -21,8 +21,12 @@ import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
 public class MoneticoSecurityServiceImpl implements SecurityService {
     private static final Logger LOGGER = LoggerFactory.getLogger(MoneticoSecurityServiceImpl.class);
     private static final String MONETICO_DATE_FORMAT = "dd/MM/yyyy:HH:mm:ss";
+    private static final char[] ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".toCharArray();
 
-    @Override //todo create a dateservice ?
+    @Autowired
+    public PaiementPropertiesResolver paiementPropertiesResolver;
+
+    @Override
     public String dateFormat(Date date) {
         logStartMethod(LOGGER);
         if (null == date) {
@@ -41,7 +45,7 @@ public class MoneticoSecurityServiceImpl implements SecurityService {
         String json = gson.toJson(contexte);
         byte[] ptext = json.getBytes(ISO_8859_1);
         String utf8ContexteCommande = new String(ptext, UTF_8);
-        return Base64.encode(utf8ContexteCommande.getBytes(UTF_8));
+        return encode(utf8ContexteCommande.getBytes(UTF_8));
     }
 
     @Override
@@ -71,7 +75,7 @@ public class MoneticoSecurityServiceImpl implements SecurityService {
         );
         LOGGER.info("CHAINE POUR HMAC : " + sChaineMAC);
 
-        MoneticoPaiementHmac hmac = new MoneticoPaiementHmac();
+        MoneticoPaiementHmac hmac = new MoneticoPaiementHmac(paiementPropertiesResolver.getPaiementClef());
         try {
             String hmacString = hmac.computeHmac(sChaineMAC);
             LOGGER.info("HMAC : " + hmacString);
@@ -81,5 +85,34 @@ public class MoneticoSecurityServiceImpl implements SecurityService {
         }
         return null;
     }
+
+    public static String encode(byte[] buf) {
+        if (null == buf) {
+            return null;
+        }
+
+        int size = buf.length;
+        char[] ar = new char[((size + 2) / 3) * 4];
+        int a = 0;
+        int i = 0;
+        while (i < size) {
+            byte b0 = buf[i++];
+            byte b1 = (i < size) ? buf[i++] : 0;
+            byte b2 = (i < size) ? buf[i++] : 0;
+
+            int mask = 0x3F;
+            ar[a++] = ALPHABET[(b0 >> 2) & mask];
+            ar[a++] = ALPHABET[((b0 << 4) | ((b1 & 0xFF) >> 4)) & mask];
+            ar[a++] = ALPHABET[((b1 << 2) | ((b2 & 0xFF) >> 6)) & mask];
+            ar[a++] = ALPHABET[b2 & mask];
+        }
+        int mod = size % 3;
+        if (mod == 1 || mod == 2) {
+            ar[--a] = '=';
+        }
+
+        return new String(ar);
+    }
+
 
 }

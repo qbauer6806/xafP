@@ -1,8 +1,8 @@
 package mc.gouv.xaf.back.paiement.service;
 
 import mc.gouv.xaf.back.paiement.client.SecurityService;
-import mc.gouv.xaf.shared.stc.dto.ContexteCommandeDTO;
-import mc.gouv.xaf.shared.stc.dto.PaiementDTO;
+import mc.gouv.xaf.back.paiement.dto.ContexteCommandeDTO;
+import mc.gouv.xaf.back.paiement.dto.PaiementDTO;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +28,6 @@ public class MoneticoServiceTest {
     @Test
     public void getHmacString_Test() {
         String result = securityService.getHmacString(new PaiementDTO());
-        assertThat(result).isEqualTo("e9d6de4413e1c05602cbe19b44aadeaae98961f7");
+        assertThat(result).isEqualTo("7ce6942a39abfc5e5c9e9d237bad5033e1bc35df");
     }
 }

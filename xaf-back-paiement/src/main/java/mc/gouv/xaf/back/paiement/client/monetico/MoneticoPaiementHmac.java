@@ -1,4 +1,4 @@
-package mc.gouv.xaf.shared.stc.utils;
+package mc.gouv.xaf.back.paiement.client.monetico;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -16,12 +16,11 @@ import javax.crypto.spec.SecretKeySpec;
  *****************************************************************************/
 public final class MoneticoPaiementHmac {
 
-    private static final String MONETICOPAIEMENT_KEY = "93F6C0FEFC7D13EB7AC59ECB23D942AEBAD22B91";
 
     private final String _sUsableKey;
 
-    public MoneticoPaiementHmac() {
-        this._sUsableKey = _getUsableKey();
+    public MoneticoPaiementHmac(String moneticoPaiementKey) {
+        this._sUsableKey = _getUsableKey(moneticoPaiementKey);
     }
 
     /**
@@ -75,9 +74,9 @@ public final class MoneticoPaiementHmac {
         return sb.toString();
     }
 
-    private String _getUsableKey() {
-        String hexStrKey = MONETICOPAIEMENT_KEY.substring(0, 38);
-        String hexFinal = "" + MONETICOPAIEMENT_KEY.substring(38, 40) + "00";
+    private String _getUsableKey(String moneticoPaiementKey) {
+        String hexStrKey = moneticoPaiementKey.substring(0, 38);
+        String hexFinal = "" + moneticoPaiementKey.substring(38, 40) + "00";
         int cca0 = hexFinal.charAt(0);
         if (cca0 > 70 && cca0 < 97)
             hexStrKey += (char) (cca0 - 23) + hexFinal.substring(1, 2);

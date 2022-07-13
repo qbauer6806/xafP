@@ -15,8 +15,9 @@ import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementStatutBO;
 import mc.gouv.xaf.back.paiement.data.entity.OperationBO;
 import mc.gouv.xaf.back.paiement.data.entity.OperationStatutBO;
 import mc.gouv.xaf.back.paiement.data.entity.OperationTypeBO;
+import mc.gouv.xaf.back.paiement.dto.PaiementDTO;
 import mc.gouv.xaf.back.paiement.mock.DemandeStatutEnum;
-import mc.gouv.xaf.shared.stc.dto.PaiementDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -86,7 +87,7 @@ public class PaiementServiceTest {
         demandeBO2 = demandesRepository.save(demandeBO2);
         String langue = "FR";
         String demandesId = "" + demandeBO.getPkDemandes() + "," + demandeBO2.getPkDemandes();
-        PaiementDTO paiementDTO = paiementService.create(demandesId, langue, 1);
+        PaiementDTO paiementDTO = paiementService.create(demandesId, langue, 1, true);
 
         assertThat(paiementDTO.getReference()).hasSize(12);
         assertThat(paiementDTO.getMontant()).isEqualTo("160.0EUR");
@@ -126,7 +127,7 @@ public class PaiementServiceTest {
         demandeBO2 = demandesRepository.save(demandeBO2);
         String langue = "FR";
         String demandesId = "" + demandeBO.getPkDemandes() + "," + demandeBO2.getPkDemandes();
-        PaiementDTO paiementDTO = paiementService.create(demandesId, langue, 1);
+        PaiementDTO paiementDTO = paiementService.create(demandesId, langue, 1, true);
 
         demandesRepository.findAll().stream()
                 .map(DemandeBO::getDernierStatut)
@@ -210,7 +211,9 @@ public class PaiementServiceTest {
         moyenPaiementBO.setDateLimite(LocalDateTime.MIN);
         moyenPaiementBO.setPkMoyenPaiement("maRef");
         moyenPaiementRepository.save(moyenPaiementBO);
-        String resutat = paiementService.capture(moyenPaiementBO, 1);
+        DemandeDTO demandeDTO = new DemandeDTO();
+
+        String resutat = paiementService.capture(moyenPaiementBO, demandeDTO);
         OperationBO operationBo = operationRepository.findAll().iterator().next();
         assertThat(operationBo.getMontant()).isEqualTo(80.0);
         assertThat(operationBo.getOperationType()).isEqualTo(OperationTypeBO.DEBIT);

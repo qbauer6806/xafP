@@ -8,7 +8,6 @@ import mc.gouv.xaf.back.paiement.data.entity.OperationBO;
 import mc.gouv.xaf.back.paiement.data.entity.OperationStatutBO;
 import mc.gouv.xaf.back.paiement.properties.PaiementPropertiesResolver;
 import mc.gouv.xaf.back.paiement.service.ReferenceFactoryService;
-import mc.gouv.xaf.shared.stc.utils.MoneticoPaiementHmac;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.HttpUrlConnectorProvider;
 import org.slf4j.Logger;
@@ -26,7 +25,6 @@ import java.net.HttpURLConnection;
 import java.net.Proxy;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.StringJoiner;
 
 import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
 
@@ -37,7 +35,6 @@ public class MoneticoClient implements PaiementClient {
 
     private final WebTarget target;
     private final String tpe;
-    private final String companyCode;
 
     private final PaiementPropertiesResolver paiementPropertiesResolver;
 
@@ -55,9 +52,8 @@ public class MoneticoClient implements PaiementClient {
         Client client = ClientBuilder.newClient(config);
 
         this.tpe = paiementPropertiesResolver.getTpe();
-        this.companyCode = paiementPropertiesResolver.getCompanyCode();
 
-        this.target = client.target(paiementPropertiesResolver.getPaiementUrl());
+        this.target = client.target(paiementPropertiesResolver.getCaptureUrl());
         this.paiementPropertiesResolver = paiementPropertiesResolver;
     }
 
@@ -69,22 +65,6 @@ public class MoneticoClient implements PaiementClient {
         String dateString = simpleDateFormat.format(date);
         String dateTimeString = simpleDateTimeFormat.format(date);
 
-
-        StringJoiner sData = new StringJoiner("*");
-        sData.add("TPE=" + this.tpe);
-        sData.add("date=" + dateTimeString);
-        sData.add("date_commande=" + dateString);
-        sData.add("lgue=FR");
-        sData.add("montant=" + paiement.getMontantInitial() + paiementPropertiesResolver.getCurrency());
-        sData.add("montant_a_capturer=" + operation.getMontant() + paiementPropertiesResolver.getCurrency());
-        sData.add("montant_deja_capture=" + paiement.getMontantCapture() + paiementPropertiesResolver.getCurrency());
-        sData.add("montant_restant=" + (paiement.getMontantRestant() - operation.getMontant()) + paiementPropertiesResolver.getCurrency());
-        sData.add("reference=" + paiement.getPkMoyenPaiement());
-        sData.add("societe=" + this.companyCode);
-        sData.add("version=" + paiementPropertiesResolver.getVersion());
-
-        MoneticoPaiementHmac moneticoPaiementHmac = new MoneticoPaiementHmac();
-
         Response response = this.target.queryParam("TPE", this.tpe)
                 .queryParam("montant", paiement.getMontantInitial() + paiementPropertiesResolver.getCurrency())
                 .queryParam("montant_a_capturer", operation.getMontant() + paiementPropertiesResolver.getCurrency())
@@ -94,9 +74,8 @@ public class MoneticoClient implements PaiementClient {
                 .queryParam("reference", paiement.getPkMoyenPaiement())
                 .queryParam("date", dateTimeString)
                 .queryParam("date_commande", dateString)
-                .queryParam("societe", this.companyCode)
-                .queryParam("version", paiementPropertiesResolver.getVersion())
-                .queryParam("MAC", moneticoPaiementHmac.computeHmac(sData.toString()))
+                .queryParam("societe", paiement.getCodeSociete())
+                .queryParam("version", paiementPropertiesResolver.getVersionCapture())
                 .request(MediaType.APPLICATION_JSON).get();
 
         String responseString = response.readEntity(String.class);

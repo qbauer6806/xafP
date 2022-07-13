@@ -3,12 +3,12 @@ package mc.gouv.xaf.servlet.monetico;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import mc.gouv.xaf.apiclient.paiement.PaiementApiClient;
+import mc.gouv.xaf.apiclient.paiement.PaiementConstant;
+import mc.gouv.xaf.apiclient.paiement.PaiementDTO;
 import mc.gouv.xaf.servlet.AbstractAfServlet;
 import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
 import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
-import mc.gouv.xaf.shared.stc.dto.PaiementDTO;
-import mc.gouv.xaf.shared.stc.utils.StcUtils;
 import org.apache.commons.compress.utils.IOUtils;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
@@ -26,7 +26,6 @@ import java.util.Map;
  * @author mboutelier.ext
  */
 public class PaiementServlet extends AbstractAfServlet {
-
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PaiementServlet.class);
     private static final long serialVersionUID = -8411918728807352534L;
@@ -51,15 +50,17 @@ public class PaiementServlet extends AbstractAfServlet {
         }
 
         LOGGER.info("Récupération des paramètres...");
-        String demandeIds = request.getParameter("demandesId");
+        String demandeIds = request.getParameter(PaiementConstant.DEMANDES_ID_PARAM);
 
-        String langue = request.getParameter(StcUtils.LANGUE_PARAM);
+        String langue = request.getParameter(PaiementConstant.LANGUE_PARAM);
+        boolean iframe = Boolean.parseBoolean(request.getParameter(PaiementConstant.IFRAME_PARAM));
+
 
         // Récupération de l'ID de l'usager
         Integer usagerId = usagerInfosDTO.getId();
 
         LOGGER.info("Récuppération des données de paiement pour la demande {}...", demandeIds);
-        PaiementDTO paiement = getStcApiClient().getPaiement(demandeIds, langue, usagerId);
+        PaiementDTO paiement = getStcApiClient().getPaiement(demandeIds, langue, usagerId, iframe);
 
         response.setStatus(HttpStatus.SC_OK);
         ObjectMapper mapper = new ObjectMapper();

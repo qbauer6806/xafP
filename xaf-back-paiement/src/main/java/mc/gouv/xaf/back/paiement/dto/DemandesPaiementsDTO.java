@@ -1,4 +1,4 @@
-package mc.gouv.xaf.shared.stc.dto;
+package mc.gouv.xaf.back.paiement.dto;
 
 import java.util.Date;
 

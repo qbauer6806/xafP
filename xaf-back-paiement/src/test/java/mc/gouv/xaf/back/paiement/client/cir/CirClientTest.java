@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import java.io.InputStream;
 import java.net.Proxy;
+import java.util.HashMap;
 
 public class CirClientTest {
 
@@ -19,9 +20,10 @@ public class CirClientTest {
     public void createFactureTest() {
         String numPermis = "292093";
         String numImmat = " ";
-        double montant = 0.0;
         String codeTransaction = "1591658";
-        String resultat = cirClient.createFacture(numPermis, numImmat, montant, codeTransaction, 1);
+        HashMap<String, Double> objetMontants = new HashMap<>();
+        objetMontants.put("a", 90.0);
+        String resultat = cirClient.createFacture(numPermis, numImmat, 90.0, codeTransaction, 1, objetMontants);
         System.out.println(resultat);
     }
 

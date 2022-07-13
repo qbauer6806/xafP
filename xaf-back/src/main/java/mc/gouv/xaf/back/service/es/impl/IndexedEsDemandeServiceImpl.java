@@ -1,32 +1,30 @@
 package mc.gouv.xaf.back.service.es.impl;
 
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
-import static org.elasticsearch.index.query.QueryBuilders.existsQuery;
-import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
-import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
-import static org.elasticsearch.index.query.QueryBuilders.rangeQuery;
-import static org.elasticsearch.index.query.QueryBuilders.simpleQueryStringQuery;
-import static org.elasticsearch.index.query.QueryBuilders.termQuery;
-import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
-import static org.elasticsearch.join.query.JoinQueryBuilders.hasChildQuery;
-
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
+import mc.gouv.xaf.back.data.dao.DemandesRepository;
+import mc.gouv.xaf.back.data.dao.RechercheChampConfigRepository;
+import mc.gouv.xaf.back.data.entity.DemandeBO;
+import mc.gouv.xaf.back.data.entity.RechercheChampConfigBO;
+import mc.gouv.xaf.back.data.es.dao.DemandeEsRepository;
+import mc.gouv.xaf.back.data.es.dao.DemandesFilesEsRepository;
+import mc.gouv.xaf.back.data.es.model.*;
+import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
+import mc.gouv.xaf.back.exception.AfIndexingException;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.DemarchesDataProvider;
+import mc.gouv.xaf.back.service.data.AccessService;
+import mc.gouv.xaf.back.service.data.impl.DemandesServiceImpl;
+import mc.gouv.xaf.back.service.es.IndexedDemandeService;
+import mc.gouv.xaf.back.service.es.IndexedFilesService;
+import mc.gouv.xaf.back.service.es.handlers.EsTransactionErrorsHandler;
+import mc.gouv.xaf.back.service.es.transformer.DemandeEsTransformer;
+import mc.gouv.xaf.back.service.es.utils.EsUtils;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.back.service.utils.DemarchesUtils;
+import mc.gouv.xaf.back.service.utils.ESQueryUtils;
+import mc.gouv.xaf.shared.SharedMessages;
+import mc.gouv.xaf.shared.dto.*;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.search.join.ScoreMode;
@@ -36,16 +34,7 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.GetIndexRequest;
 import org.elasticsearch.client.indices.GetIndexResponse;
 import org.elasticsearch.cluster.metadata.MappingMetadata;
-import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.ExistsQueryBuilder;
-import org.elasticsearch.index.query.InnerHitBuilder;
-import org.elasticsearch.index.query.MatchQueryBuilder;
-import org.elasticsearch.index.query.Operator;
-import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.index.query.RangeQueryBuilder;
-import org.elasticsearch.index.query.SimpleQueryStringBuilder;
-import org.elasticsearch.index.query.TermQueryBuilder;
-import org.elasticsearch.index.query.TermsQueryBuilder;
+import org.elasticsearch.index.query.*;
 import org.elasticsearch.join.query.HasChildQueryBuilder;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -69,57 +58,22 @@ import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
-import org.springframework.data.elasticsearch.core.query.FetchSourceFilter;
-import org.springframework.data.elasticsearch.core.query.IndexQuery;
-import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
-import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
-import org.springframework.data.elasticsearch.core.query.SourceFilter;
+import org.springframework.data.elasticsearch.core.query.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.xml.sax.SAXException;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
-import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
-import mc.gouv.xaf.back.data.dao.DemandesRepository;
-import mc.gouv.xaf.back.data.dao.RechercheChampConfigRepository;
-import mc.gouv.xaf.back.data.entity.DemandeBO;
-import mc.gouv.xaf.back.data.entity.RechercheChampConfigBO;
-import mc.gouv.xaf.back.data.es.dao.DemandeEsRepository;
-import mc.gouv.xaf.back.data.es.dao.DemandesFilesEsRepository;
-import mc.gouv.xaf.back.data.es.model.AgentEsDTO;
-import mc.gouv.xaf.back.data.es.model.CanalEsDto;
-import mc.gouv.xaf.back.data.es.model.DemandeAccessEsDTO;
-import mc.gouv.xaf.back.data.es.model.DemandeEsDTO;
-import mc.gouv.xaf.back.data.es.model.DemandeEsRechercheDTO;
-import mc.gouv.xaf.back.data.es.model.DemandeFileEsDTO;
-import mc.gouv.xaf.back.data.es.model.DemandeFileEsRechercheDTO;
-import mc.gouv.xaf.back.data.es.model.DemandeStatutEsDTO;
-import mc.gouv.xaf.back.data.es.model.DemandesFacet;
-import mc.gouv.xaf.back.data.es.model.DemandesFacets;
-import mc.gouv.xaf.back.data.es.model.EsErrorEventDTO;
-import mc.gouv.xaf.back.data.es.model.EsProperty;
-import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
-import mc.gouv.xaf.back.exception.AfIndexingException;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.DemarchesDataProvider;
-import mc.gouv.xaf.back.service.data.AccessService;
-import mc.gouv.xaf.back.service.data.impl.DemandesServiceImpl;
-import mc.gouv.xaf.back.service.es.IndexedDemandeService;
-import mc.gouv.xaf.back.service.es.IndexedFilesService;
-import mc.gouv.xaf.back.service.es.handlers.EsTransactionErrorsHandler;
-import mc.gouv.xaf.back.service.es.transformer.DemandeEsTransformer;
-import mc.gouv.xaf.back.service.es.utils.EsUtils;
-import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import mc.gouv.xaf.back.service.utils.DemarchesUtils;
-import mc.gouv.xaf.back.service.utils.ESQueryUtils;
-import mc.gouv.xaf.shared.SharedMessages;
-import mc.gouv.xaf.shared.dto.DataRechercheDTO;
-import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
-import mc.gouv.xaf.shared.dto.DemandeCourrierRechercheDTO;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.xaf.shared.dto.DemandeFileDTO;
-import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
+import static org.elasticsearch.index.query.QueryBuilders.*;
+import static org.elasticsearch.join.query.JoinQueryBuilders.hasChildQuery;
 
 /**
  * Service permettant de faire de la recherche full-text sur les demandes en utilisant le moteur elasticsearch
@@ -946,13 +900,12 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     /**
      * Transforme l'objet retourné par la recherche courriers en Page
-     * <p>
-     * // TODO Sortir cette méthode dans IndexedEsDemandeFilesServiceImpl, afin de regrouper les actions sur les fichiers
      *
      * @param searchHits, Objet contenant les résultats de recherche
      * @param pageable,   Objet contenant les informations sur la page à retourner
      * @return Page
      */
+    // TODO Sortir cette méthode dans IndexedEsDemandeFilesServiceImpl, afin de regrouper les actions sur les fichiers
     private Page<DemandeFileEsRechercheDTO> aggregateResultsCourriers(SearchHits<DemandeFileEsRechercheDTO> searchHits, Pageable pageable) {
         if (searchHits.isEmpty()) {
             return Page.empty(pageable);
@@ -978,12 +931,11 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     /**
      * Méthode ajoutant les mots trouvées dans les fichiers lors de la recherche courriers
-     * <p>
-     * // TODO Sortir cette méthode dans IndexedEsDemandeFilesServiceImpl, afin de regrouper les actions sur les fichiers
      *
      * @param innerHits,            une Map contenant les mots trouvés dans les fichiers
      * @param demEsHighlightFields, la map contenant tous les résultats de la recherche
      */
+    // TODO Sortir cette méthode dans IndexedEsDemandeFilesServiceImpl, afin de regrouper les actions sur les fichiers
     private void aggregateInnerFieldsCourriers(Map<String, SearchHits<?>> innerHits, Map<String, String> demEsHighlightFields) {
         for (Entry<String, SearchHits<?>> searchHitsEntry : innerHits.entrySet()) {
             SearchHits<?> searchHitsArray = searchHitsEntry.getValue();
@@ -1128,12 +1080,11 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     /**
      * Méthode permettant la construction de la requete elasticserach de récupération des courriers
-     * <p>
-     * // TODO Sortir cette méthode dans IndexedEsDemandeFilesServiceImpl, afin de regrouper les actions sur les fichiers
      *
      * @param demandeRecherche Paramètres de la recherche
      * @return Requete elasticsearch pour récupérer les demandes
      */
+    // TODO Sortir cette méthode dans IndexedEsDemandeFilesServiceImpl, afin de regrouper les actions sur les fichiers
     private BoolQueryBuilder getQueryBuilderForCourrier(DemandeCourrierRechercheDTO demandeRecherche) {
 
         BoolQueryBuilder boolQueryBuilder = boolQuery();
@@ -1217,22 +1168,28 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                 .should(hasChildQueryBuilder);
     }
 
+    /**
+     * Méthode permettant de construire une requête pour récupérer les courriers.
+     *
+     * @param filesQueryStringQueryBuilder Requete sur les attributs des fichiers
+     * @param recherche                    Texte de la barre de recherche
+     * @param searchFields                 Liste de paramètre sur lesquels faire la recherche
+     * @return Requête sur les courriers
+     */
     // TODO Sortir cette méthode dans IndexedEsDemandeFilesServiceImpl, afin de regrouper les actions sur les fichiers
     private BoolQueryBuilder getQueryWhereForCourriers(SimpleQueryStringBuilder filesQueryStringQueryBuilder, DemandeCourrierRechercheDTO recherche, String[] searchFields) {
         BoolQueryBuilder boolQueryBuilder = boolQuery();
-
         TermQueryBuilder tqb = termQuery(EsUtils.TYPE_FILE_FIELD, DemandeFileEsDTO.TYPE.COURRIER.name());
         boolQueryBuilder.must(tqb);
 
-        // Supression du suffixe par type de fichier
-        List<String> replacedSearchFields = new ArrayList<>();
-        for (String searchField : searchFields) {
-            replacedSearchFields.add(searchField.replaceFirst(COURRIER_FILE_HIGHLIGHT_AND_FACET_PREFIX, ""));
-        }
-        List<String> searchFilesFields = getSearchFields(replacedSearchFields.toArray(new String[0]), filesProperties);
+        // Construction des propriétés des courriers
+        // TODO Revoir les propriétés liées au courriers notamment sur le statut de la demande, et la date de réception du courrier
+        // #41972 - Quickfix : les courriers ont à la fois des propriétés contenus dans les demandes et les fichiers
+        List<EsProperty> properties = new ArrayList<>(demandesProperties);
+        properties.addAll(filesProperties);
+        List<String> searchFilesFields = getSearchFields(searchFields, properties);
 
         if (!searchFilesFields.isEmpty()) {
-
             Map<String, Float> filesFields = new HashMap<>();
             HighlightBuilder hb = new HighlightBuilder();
             for (String f : searchFilesFields) {
@@ -1241,12 +1198,10 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                         .postTags(highlightPosttags)
                         .highlightQuery(getSimpleQueryStringBuilder(recherche.getTexte(), filesPropertiesWithBoost));
                 hb = hb.field(field);
-
             }
             filesQueryStringQueryBuilder = filesQueryStringQueryBuilder.fields(filesFields);
             BoolQueryBuilder bqb = boolQuery().must(filesQueryStringQueryBuilder).must(tqb);
             boolQueryBuilder = boolQueryBuilder.must(bqb);
-
         }
 
         return boolQueryBuilder;

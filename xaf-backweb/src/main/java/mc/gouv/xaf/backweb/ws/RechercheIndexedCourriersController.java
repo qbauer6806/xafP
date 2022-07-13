@@ -5,6 +5,7 @@ import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
 import mc.gouv.xaf.back.data.es.model.DemandeFileEsRechercheDTO;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.es.IndexedDemandeService;
+import mc.gouv.xaf.back.service.es.utils.EsUtils;
 import mc.gouv.xaf.backweb.controller.AbstractController;
 import mc.gouv.xaf.shared.dto.DataRechercheDTO;
 import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
@@ -43,12 +44,6 @@ public class RechercheIndexedCourriersController extends AbstractController {
 
     @Autowired
     private IndexedDemandeService demandesService;
-
-    private static final String FICHIER_NAME = "fichierName";
-    private static final String DEMANDE_IDENTIFIANT = "identifiant";
-    private static final String COURRIER_DATE_RECEPTION = "courrierDateReception";
-    private static final String DERNIER_STATUT_LIBELLE = "dernierStatut.libelle";
-    private static final String COURRIER_CONTENT = "fichierContent";
 
     @GetMapping(value = "/pageable")
     public Page<DemandeFileEsRechercheDTO> getDemandes(@RequestParam(value = "usagerId", required = false) Integer usagerId,
@@ -110,16 +105,10 @@ public class RechercheIndexedCourriersController extends AbstractController {
      * Methode permettant de spécifier les nouveaux champs et ceux par default
      */
     private void populateSearchFields(DemandeRechercheDTO demandeRecherche, List<String> customSearchFields) {
-        List<String> searchFields = new ArrayList<>();
+        // Création d'une liste de champs par défault
+        List<String> searchFields = new ArrayList<>(EsUtils.getMappingForRechercheCourriers());
 
-        // par défault
-        searchFields.add(FICHIER_NAME);
-        searchFields.add(DEMANDE_IDENTIFIANT);
-        searchFields.add(COURRIER_DATE_RECEPTION);
-        searchFields.add(DERNIER_STATUT_LIBELLE);
-        searchFields.add(COURRIER_CONTENT);
-
-        // custom
+        // Ajout des champs customs
         if (!Collections.isEmpty(customSearchFields)) {
             searchFields.addAll(customSearchFields);
         }

@@ -30,6 +30,10 @@ public class EsUtils {
     public static final String DEMANDEID_FILE_FIELD = "identifiantDemande";
     public static final String REFINTERNE_FILE_FIELD = "identifiantFichier";
 
+    // Champs pour la recherche des courriers
+    private static final String COURRIER_DATE_RECEPTION_FIELD = "courrierDateReception";
+    private static final String DERNIER_STATUT_LIBELLE_FIELD = "dernierStatut.libelle";
+
     private EsUtils() {
         throw new IllegalStateException("Utility class");
     }
@@ -55,6 +59,28 @@ public class EsUtils {
         mapping.add(DATE_PRINTED_FILE_FIELD);
         mapping.add(DEMANDEID_FILE_FIELD);
         mapping.add(REFINTERNE_FILE_FIELD);
+        return mapping;
+    }
+
+    /**
+     * Pour la recherche de l'impression des courriers, on veut chercher sur les champs suivant :
+     * <ul>
+     *     <li>Le nom du fichier</li>
+     *     <li>L'identifiant de la demande associée</li>
+     *     <li>La date de réception du courrier</li>
+     *     <li>Le statut de la demande associée</li>
+     *     <li>Le contenu du fichier</li>
+     * </ul>
+     *
+     * @return un set des champs où faire la recherche pour les courriers
+     */
+    public static Set<String> getMappingForRechercheCourriers() {
+        Set<String> mapping = new HashSet<>();
+        mapping.add(NAME_FILE_FIELD);
+        mapping.add(DEMANDEID_FILE_FIELD);
+        mapping.add(COURRIER_DATE_RECEPTION_FIELD);
+        mapping.add(DERNIER_STATUT_LIBELLE_FIELD);
+        mapping.add(CONTENT_FILE_FIELD);
         return mapping;
     }
 }

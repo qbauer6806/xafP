@@ -280,6 +280,11 @@ public class BrouillonsServiceImpl implements BrouillonsService {
     }
 
     @Override
+    public long getNombreBrouillons() {
+        return brouillonsRepository.count();
+    }
+
+    @Override
     public mc.gouv.xaf.shared.dto.Page<BrouillonDTO> getBrouillonsPageable(String demarcheId, Integer usagerId, PageParamDTO paramDTO) {
     	// b.dateDerModif ?
         String sortColumn = "statut".equalsIgnoreCase(paramDTO.getSort()) ? "t.valeur" :  paramDTO.getSort();

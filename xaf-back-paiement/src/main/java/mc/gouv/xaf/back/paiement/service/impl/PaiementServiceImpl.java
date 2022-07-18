@@ -1,6 +1,11 @@
 package mc.gouv.xaf.back.paiement.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import mc.gouv.xaf.back.bpm.GouvBPM;
+import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
+import mc.gouv.xaf.back.bpm.activiti.exception.TaskAlreadyClaimedException;
+import mc.gouv.xaf.back.bpm.model.GouvBPMTask;
+import mc.gouv.xaf.back.bpm.model.GouvBPMUser;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesStatutsRepository;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
@@ -40,12 +45,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -84,24 +84,27 @@ public class PaiementServiceImpl implements PaiementService {
     @Autowired
     @Lazy
     private UsagersCache usagersCache;
-    @Autowired
-    private PaiementClient paiementClient;
-    @Autowired
-    private FactureClient factureClient;
 
     @Autowired
-    private DemandeStatutService demandeStatutService;
+    private PaiementClient paiementClient;
+
+    @Autowired
+    private FactureClient factureClient;
 
     @Autowired
     private IndexedDemandeService indexedDemandeService;
 
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
+
     @Autowired
     private DemandesService demandesService;
 
     @Autowired
     private PaiementPropertiesResolver paiementPropertiesResolver;
+
+    @Autowired
+    private GouvBPM gouvBPM;
 
     @Override
     public PaiementDTO create(String demandesId, String langue, Integer usagerId, boolean iframe) {
@@ -198,13 +201,23 @@ public class PaiementServiceImpl implements PaiementService {
             List<CommandeDemandeBO> commandeDemandeBOList = commandeDemandeRepository.findByCommande_PkCommande(moyenPaiement.getCommande().getPkCommande());
             for (CommandeDemandeBO commandeDemandeBO : commandeDemandeBOList) {
                 DemandeBO demandeBO = commandeDemandeBO.getDemande();
-                DemandesStatutsBO dernierStatut = demandeBO.getDernierStatut();
-                dernierStatut.setLibelle(demandeStatutService.getEnAttenteDeTraitement());
-                demandesStatutsRepository.save(dernierStatut);
+                Integer usagerId = demandeBO.getFkAccess().getUsagerId();
+                GouvBPMUser user = new GouvBPMUser();
+                user.setId(usagerId.toString());
+
+                LOGGER.info("Progression dans le BPM...");
+                Map<String, Object> variables = gouvBPM.getProcessBusinessVariables(demandeBO.getPkDemandes());
+                variables.put(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_USAGER.name(), usagerId.toString());
+                variables.put(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_AGENT.name(), null);
+                gouvBPM.setProcessBusinessVariables(demandeBO.getPkDemandes(), variables);
+
+                GouvBPMTask task = gouvBPM.getActiveTasksForDemande(demandeBO.getPkDemandes()).get(0);
                 try {
-                    indexedDemandeService.indexDemande(gouvPropertiesResolver.getDemarcheId(), demandeBO.getPkDemandes());
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
+                    gouvBPM.claimTask(task, user);
+                    gouvBPM.completeTask(task, demandeBO.getPkDemandes());
+                } catch (Exception e1) {
+                    LOGGER.error("Erreur lors du claim et de la complétion de la tache du paiement");
+                    throw new RuntimeException(e1);
                 }
             }
 

@@ -60,7 +60,7 @@ public class PaiementPropertiesResolverTestImpl implements PaiementPropertiesRes
 
     @Override
     public String getCaptureUrl() {
-        return "url";
+        return "https://payment-api.e-i.com/test/capture_paiement.cgi";
     }
 
     @Override

@@ -14,6 +14,11 @@ import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.purge.PurgeDemandesService;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 
+/**
+ * Job permettant d'appeler le service de purge des demandes.
+ * <br>
+ * Il est nécessaire de péciser la liste des statuts des demandes à purger.
+ */
 public class PurgeDemandesSchedulingJob implements Job {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PurgeDemandesSchedulingJob.class);

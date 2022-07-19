@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>xaf-servlet</artifactId>
 	<groupId>mc.gouv.xaf</groupId>
-	<version>11.0.0-rc1</version>
+	<version>11.0.0-SNAPSHOT</version>
 	<packaging>war</packaging>
 
 	<parent>
@@ -154,7 +154,7 @@
 		<dependency>
 			<groupId>mc.gouv.xaf</groupId>
 			<artifactId>xaf-apiclient</artifactId>
-			<version>11.0.0-rc1</version>
+			<version>11.0.0-SNAPSHOT</version>
 		</dependency>
 
         <dependency>
@@ -165,6 +165,6 @@
 	</dependencies>
 
   <scm>
-    <tag>xaf-11.0.0-rc1</tag>
+    <tag>HEAD</tag>
   </scm>
 </project>

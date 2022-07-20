@@ -103,6 +103,7 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
             PdfRendererBuilder builder = new PdfRendererBuilder();
             builder.useFastMode();
             builder.withFile(htmlSource);
+            LOGGER.info("HTML Source : " + htmlSource);
             builder.toStream(os);
             builder.run();
         } catch (Exception e) {

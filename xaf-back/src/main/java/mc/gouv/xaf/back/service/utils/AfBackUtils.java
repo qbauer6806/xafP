@@ -94,6 +94,8 @@ public class AfBackUtils {
     public DateFormat FILE_DATE_SUFFIX = new SimpleDateFormat("HHmmssSSS");
 
     public DateFormat FILE_DATE_AND_TIME_SUFFIX = new SimpleDateFormat("yyyyMMddHHmmssSS");
+    
+    public static DateFormat MCONNECT_DATE_AND_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
 
     public static final String MESSAGE_ERREURS_FORMULAIRE = "Le formulaire contient des erreurs.";
     
@@ -633,5 +635,15 @@ public class AfBackUtils {
 		}
     	return null;
     }
+    
+	public static String addDonneeCertifiee(String donneesCertifiees, String path) {
+		List<String> donneesCertifieesList = donneesCertifieesJsonToList(donneesCertifiees);
+		donneesCertifieesList.add(path);
+		return donneesCertifieesListToJson(donneesCertifieesList);
+	}
+	
+	public static String mConnectDateToString(Date date) {
+		return MCONNECT_DATE_AND_TIME_FORMAT.format(date);
+	}
     
 }

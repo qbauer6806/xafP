@@ -114,6 +114,11 @@ public class DemandeBO {
     
     @Column(name = "DONNEES_CERTIFIEES", columnDefinition = "TEXT", nullable = true)
     private String donneesCertifiees;
+    
+    // De type Integer et non DemandeBO (autrement dit : pas de foreign key en base)
+    // Ceci afin d'être tranquille le jour où cette demande source doit être purgée (supprimée)
+    @Column(name = "PK_DEMANDE_SOURCE", nullable = true)
+    private Integer pkDemandeSource;
 
     public Integer getPkDemandes() {
         return pkDemandes;
@@ -313,6 +318,14 @@ public class DemandeBO {
 
 	public void setDonneesCertifiees(String donneesCertifiees) {
 		this.donneesCertifiees = donneesCertifiees;
+	}
+
+	public Integer getPkDemandeSource() {
+		return pkDemandeSource;
+	}
+
+	public void setPkDemandeSource(Integer pkDemandeSource) {
+		this.pkDemandeSource = pkDemandeSource;
 	}
 
 }

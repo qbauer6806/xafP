@@ -31,6 +31,7 @@ public class DemandeDTO extends AbstractDemandeDTO {
     private String recapType;
     private DonneesMConnectDTO donneesMConnect;
     private String donneesCertifiees;
+    private Integer pkDemandeSource;
 
     public Integer getFkAccess() {
         return fkAccess;
@@ -182,6 +183,14 @@ public class DemandeDTO extends AbstractDemandeDTO {
 
 	public void setDonneesCertifiees(String donneesCertifiees) {
 		this.donneesCertifiees = donneesCertifiees;
+	}
+
+	public Integer getPkDemandeSource() {
+		return pkDemandeSource;
+	}
+
+	public void setPkDemandeSource(Integer pkDemandeSource) {
+		this.pkDemandeSource = pkDemandeSource;
 	}
 
 	@Override

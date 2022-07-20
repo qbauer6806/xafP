@@ -53,6 +53,8 @@ public class PaiementPropertiesResolverImpl implements PaiementPropertiesResolve
 
     private static final String XAF_PAIEMENT_IMMEDIAT_HEURE_DIFFERE = "XAF_PAIEMENT_IMMEDIAT_HEURE_DIFFERE";
 
+    private static final String XAF_MONETICO_3DSV2_SCENARIO = "XAF_MONETICO_3DSV2_SCENARIO";
+
     private static final String XAF_CIR_PERMIS = "XAF_CIR_PERMIS";
     private static final String XAF_CIR_REGISTRE = "XAF_CIR_REGISTRE";
     private static final String XAF_CIR_IMMAT = "XAF_CIR_IMMAT";
@@ -198,23 +200,28 @@ public class PaiementPropertiesResolverImpl implements PaiementPropertiesResolve
         return propertiesDTO.getValue();
     }
 
-    public String getXafRetryInitialDelay() {
+    public int getXafRetryInitialDelay() {
         PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_RETRY_INITIAL_DELAY);
-        return propertiesDTO.getValue();
+        return Integer.parseInt(propertiesDTO.getValue());
     }
 
-    public String getXafRetryCount() {
+    public int getXafRetryCount() {
         PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_RETRY_COUNT);
-        return propertiesDTO.getValue();
+        return Integer.parseInt(propertiesDTO.getValue());
     }
 
-    public String getXafRetryMultiplier() {
+    public int getXafRetryMultiplier() {
         PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_RETRY_MULTIPLIER);
-        return propertiesDTO.getValue();
+        return Integer.parseInt(propertiesDTO.getValue());
     }
 
     public String getXafPaiementImmediatHeureDiffere() {
         PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_PAIEMENT_IMMEDIAT_HEURE_DIFFERE);
+        return propertiesDTO.getValue();
+    }
+
+    public String getXafMonetico3dsv2Scenario() {
+        PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_MONETICO_3DSV2_SCENARIO);
         return propertiesDTO.getValue();
     }
 

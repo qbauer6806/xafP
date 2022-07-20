@@ -1,8 +1,8 @@
 package mc.gouv.xaf.back.paiement.bpm.activiti.delegate;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
+import mc.gouv.xaf.back.paiement.service.CaptureService;
 import mc.gouv.xaf.back.paiement.service.FactureService;
 import mc.gouv.xaf.back.paiement.service.PaiementService;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
@@ -15,8 +15,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Optional;
 
 @Component
@@ -28,6 +26,9 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
     private FactureService factureService;
     @Autowired
     private DemandesService demandesService;
+
+    @Autowired
+    private CaptureService captureService;
     @Autowired
     private GouvBPM gouvBPM;
     @Autowired
@@ -48,7 +49,7 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
         LOGGER.info("Recuperation moyenPaiementBO : {}", moyenPaiementBO);
         if (moyenPaiementBO.isPresent()) {
 
-            String reference = paiementService.capture(moyenPaiementBO.get(), demandeDto);
+            String reference = captureService.capture(moyenPaiementBO.get(), demandeDto);
             LOGGER.info("Recuperation reference : {}", reference);
 
             factureService.saveFacture(reference, demandeId);

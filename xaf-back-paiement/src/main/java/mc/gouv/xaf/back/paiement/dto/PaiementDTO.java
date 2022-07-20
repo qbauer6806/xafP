@@ -77,7 +77,7 @@ public class PaiementDTO {
     private String urlRetourErr;
 
 
-    // private String ThreeDSecureChallenge;
+    private String ThreeDSecureChallenge;
 
     private String mode_affichage;
     private String nbrech = "";
@@ -207,7 +207,7 @@ public class PaiementDTO {
         this.urlRetourErr = urlRetourErr;
     }
 
- /*   @JsonGetter("ThreeDSecureChallenge")
+    @JsonGetter("ThreeDSecureChallenge")
     public String getThreeDSecureChallenge() {
         return ThreeDSecureChallenge;
     }
@@ -215,9 +215,12 @@ public class PaiementDTO {
     @JsonSetter("ThreeDSecureChallenge")
     public void setThreeDSecureChallenge(String threeDSecureChallenge) {
         this.ThreeDSecureChallenge = threeDSecureChallenge;
-    }*/
+    }
 
     public String getMode_affichage() {
+        if (mode_affichage == null) {
+            return "";
+        }
         return mode_affichage;
     }
 

@@ -53,7 +53,7 @@ public class MoneticoSecurityServiceImpl implements SecurityService {
         logStartMethod(LOGGER);
         String sChaineMAC = String.join("*",
                 "TPE=" + paiementDTO.getTPE(),
-                // "ThreeDSecureChallenge=" + paiementDTO.getThreeDSecureChallenge(),
+                 "ThreeDSecureChallenge=" + paiementDTO.getThreeDSecureChallenge(),
                 "contexte_commande=" + paiementDTO.getContexte_commande(),
                 "date=" + paiementDTO.getDate(),
                 "dateech1=" + paiementDTO.getDateech1(),
@@ -62,7 +62,7 @@ public class MoneticoSecurityServiceImpl implements SecurityService {
                 "dateech4=" + paiementDTO.getDateech4(),
                 "lgue=" + paiementDTO.getLgue(),
                 "mail=" + paiementDTO.getMail(),
-                "mode_affichage=" + paiementDTO.getMode_affichage(),
+                "mode_affichage=" + paiementDTO.getMode_affichage() ,
                 "montant=" + paiementDTO.getMontant(),
                 "montantech1=" + paiementDTO.getMontantech1(),
                 "montantech2=" + paiementDTO.getMontantech2(),

@@ -60,7 +60,7 @@ public class PaiementPropertiesResolverTestImpl implements PaiementPropertiesRes
 
     @Override
     public String getCaptureUrl() {
-        return "url";
+        return "https://payment-api.e-i.com/test/capture_paiement.cgi";
     }
 
     @Override
@@ -150,22 +150,27 @@ public class PaiementPropertiesResolverTestImpl implements PaiementPropertiesRes
     }
 
     @Override
-    public String getXafRetryInitialDelay() {
-        return null;
+    public int getXafRetryInitialDelay() {
+        return 0;
     }
 
     @Override
-    public String getXafRetryCount() {
-        return null;
+    public int getXafRetryCount() {
+        return 0;
     }
 
     @Override
-    public String getXafRetryMultiplier() {
-        return null;
+    public int getXafRetryMultiplier() {
+        return 0;
     }
 
     @Override
     public String getXafPaiementImmediatHeureDiffere() {
         return null;
+    }
+
+    @Override
+    public String getXafMonetico3dsv2Scenario() {
+        return "null";
     }
 }

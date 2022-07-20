@@ -1,38 +1,32 @@
 package mc.gouv.xaf.back.paiement.service.impl;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesStatutsRepository;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
-import mc.gouv.xaf.back.paiement.client.FactureClient;
-import mc.gouv.xaf.back.paiement.client.PaiementClient;
 import mc.gouv.xaf.back.paiement.client.SecurityService;
 import mc.gouv.xaf.back.paiement.data.dao.CommandeDemandeRepository;
 import mc.gouv.xaf.back.paiement.data.dao.CommandeRepository;
 import mc.gouv.xaf.back.paiement.data.dao.MoyenPaiementRepository;
-import mc.gouv.xaf.back.paiement.data.dao.OperationRepository;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeBO;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeDemandeBO;
 import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
 import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementStatutBO;
-import mc.gouv.xaf.back.paiement.data.entity.OperationBO;
-import mc.gouv.xaf.back.paiement.data.entity.OperationTypeBO;
 import mc.gouv.xaf.back.paiement.dto.BillingDTO;
 import mc.gouv.xaf.back.paiement.dto.ContexteCommandeDTO;
 import mc.gouv.xaf.back.paiement.dto.PaiementDTO;
 import mc.gouv.xaf.back.paiement.properties.PaiementPropertiesResolver;
 import mc.gouv.xaf.back.paiement.service.DemandeStatutService;
+import mc.gouv.xaf.back.paiement.service.MontantService;
 import mc.gouv.xaf.back.paiement.service.PaiementService;
 import mc.gouv.xaf.back.paiement.service.ReferenceFactoryService;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.es.IndexedDemandeService;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
+import mc.gouv.xaf.shared.stc.MoyenPaiementDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,10 +34,10 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -67,9 +61,6 @@ public class PaiementServiceImpl implements PaiementService {
     private DemandesRepository demandesRepository;
 
     @Autowired
-    private OperationRepository operationRepository;
-
-    @Autowired
     private SecurityService securityService;
 
     @Autowired
@@ -84,10 +75,6 @@ public class PaiementServiceImpl implements PaiementService {
     @Autowired
     @Lazy
     private UsagersCache usagersCache;
-    @Autowired
-    private PaiementClient paiementClient;
-    @Autowired
-    private FactureClient factureClient;
 
     @Autowired
     private DemandeStatutService demandeStatutService;
@@ -97,11 +84,12 @@ public class PaiementServiceImpl implements PaiementService {
 
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
-    @Autowired
-    private DemandesService demandesService;
 
     @Autowired
     private PaiementPropertiesResolver paiementPropertiesResolver;
+
+    @Autowired
+    private MontantService montantService;
 
     @Override
     public PaiementDTO create(String demandesId, String langue, Integer usagerId, boolean iframe) {
@@ -113,7 +101,7 @@ public class PaiementServiceImpl implements PaiementService {
         List<Integer> demandesIdList = Stream.of(demandesId.split(",")).map(String::trim).map(Integer::parseInt).collect(Collectors.toList());
         double montant = 0;
         for (Integer demandeId : demandesIdList) {
-            double montantdemande = getMontant(demandeId);
+            double montantdemande = montantService.getMontant(demandeId);
             montant += montantdemande;
         }
 
@@ -166,6 +154,7 @@ public class PaiementServiceImpl implements PaiementService {
         paiementDTO.setContexte_commande(securityService.contexteCommandeDTOtoBase64(contexteCommandeDTO));
         String date = securityService.dateFormat(new Date());
         paiementDTO.setDate(date);
+        paiementDTO.setThreeDSecureChallenge(paiementPropertiesResolver.getXafMonetico3dsv2Scenario());
         paiementDTO.setMontant(montant + paiementPropertiesResolver.getCurrency());
         paiementDTO.setReference(moyenPaiement.getPkMoyenPaiement());
 
@@ -189,10 +178,11 @@ public class PaiementServiceImpl implements PaiementService {
     }
 
     @Override
-    public void updateStatus(String reference, String status) {
+    public void updateStatus(MoyenPaiementDTO moyenPaiementDTO) {
         logStartMethod(LOGGER);
-        LOGGER.info("Parameters [ reference {}, status {} ] ", reference, status);
-        MoyenPaiementBO moyenPaiement = moyenPaiementRepository.findById(reference).get();
+        LOGGER.info("Parameters [ moyenPaiementDTO {}] ", moyenPaiementDTO);
+        MoyenPaiementBO moyenPaiement = moyenPaiementRepository.findById(moyenPaiementDTO.getReference()).get();
+        String status = moyenPaiementDTO.getCodeRetour();
         if (status.equals("payetest") || status.equals("paiement")) {
             moyenPaiement.setMoyenPaiementStatut(MoyenPaiementStatutBO.VALIDE);
             List<CommandeDemandeBO> commandeDemandeBOList = commandeDemandeRepository.findByCommande_PkCommande(moyenPaiement.getCommande().getPkCommande());
@@ -212,6 +202,32 @@ public class PaiementServiceImpl implements PaiementService {
             moyenPaiement.setMoyenPaiementStatut(MoyenPaiementStatutBO.INVALIDE);
         }
 
+        moyenPaiement.setAuthentification(moyenPaiementDTO.getAuthentification());
+        moyenPaiement.setModepaiement(moyenPaiementDTO.getModepaiement());
+        moyenPaiement.setOriginetr(moyenPaiementDTO.getOriginetr());
+        moyenPaiement.setIpclient(moyenPaiementDTO.getIpclient());
+        moyenPaiement.setHpancb(moyenPaiementDTO.getHpancb());
+        moyenPaiement.setBincb(moyenPaiementDTO.getBincb());
+        moyenPaiement.setOriginecb(moyenPaiementDTO.getOriginecb());
+        moyenPaiement.setEcard(moyenPaiementDTO.getEcard());
+        moyenPaiement.setTypecompte(moyenPaiementDTO.getTypecompte());
+        moyenPaiement.setUsage(moyenPaiementDTO.getUsage());
+        moyenPaiement.setNumauto(moyenPaiementDTO.getNumauto());
+        moyenPaiement.setBrand(moyenPaiementDTO.getBrand());
+        moyenPaiement.setVld(moyenPaiementDTO.getVld());
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMyy");
+        YearMonth yeaMonthValidite = YearMonth.parse(moyenPaiementDTO.getVld(), formatter);
+        LocalDateTime dateValidite = LocalDateTime.of(yeaMonthValidite.getYear(), yeaMonthValidite.getMonth(), yeaMonthValidite.getMonth().length(yeaMonthValidite.isLeapYear()), 0, 0);
+
+        if (dateValidite.isBefore(moyenPaiement.getDateLimite())) {
+            LOGGER.info("Changement date limite moyen paiement [ dateValidite {}] ", dateValidite);
+            moyenPaiement.setDateLimite(dateValidite);
+        }
+
+
+        moyenPaiement.setCvx(moyenPaiementDTO.getCvx());
+
         moyenPaiementRepository.save(moyenPaiement);
         LOGGER.info("Created [ moyenPaiement {}] ", moyenPaiement);
     }
@@ -223,74 +239,10 @@ public class PaiementServiceImpl implements PaiementService {
         CommandeDemandeBO commandeDemandeBO = commandeDemandeRepository.findByDemande_PkDemandes(demandeId).get(0);
         LOGGER.info("Find [ commandeDemandeBO {}] ", commandeDemandeBO);
         List<MoyenPaiementBO> moyenPaiements = moyenPaiementRepository.findByCommande_PkCommande(commandeDemandeBO.getCommande().getPkCommande());
-        return moyenPaiements.stream().sorted(Comparator.comparing(MoyenPaiementBO::getDateLimite, Comparator.nullsLast(Comparator.reverseOrder()))).findFirst();
-    }
-
-    @Override
-    public String capture(MoyenPaiementBO moyenPaiementBO, DemandeDTO demandeDTO) throws Exception {
-        logStartMethod(LOGGER);
-        LOGGER.info("Parameters [ moyenPaiementBO {}] ", moyenPaiementBO);
-        OperationBO operation = new OperationBO();
-
-        JsonNode contenuDemande = demandeDTO.getContenu();
-
-        String numeroPermis = contenuDemande.get("titre").get("numeropermis").asText();
-        LOGGER.info("Permis n° : {}", numeroPermis);
-
-        HashMap<String, Double> objetMontants = getPaiements(demandeDTO);
-        double prix = getMontant(objetMontants);
-        operation.setMontant(prix);
-
-
-        paiementClient.capture(moyenPaiementBO, operation);
-
-        moyenPaiementBO.setMontantCapture(moyenPaiementBO.getMontantCapture() + prix);
-        moyenPaiementBO.setMontantRestant(moyenPaiementBO.getMontantRestant() - prix);
-
-        moyenPaiementRepository.save(moyenPaiementBO);
-
-        operation.setPkOperation(referenceFactoryService.createSimpleReferenceDigitsNumeric(7));
-
-        operation.setOperationType(OperationTypeBO.DEBIT);
-        LocalDateTime now = LocalDateTime.now();
-        operation.setDateCreation(now);
-        operation.setDateDerniereModification(now);
-        operation.setDateDerniereModification(now);
-        operation = operationRepository.save(operation);
-        String numFacture = factureClient.createFacture(numeroPermis, " ", operation.getMontant(), operation.getPkOperation(), demandeDTO.getUsagerId(), objetMontants);
-        LOGGER.info("Created [ facture n°{}] ", numFacture);
-        operation.setNumeroFacture(numFacture);
-        LOGGER.info("Created [ operation {}] ", operation);
-        return numFacture;
-    }
-
-    private double getMontant(Integer demandeId) {
-        DemandeDTO demandeDto = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(),
-                demandeId);
-        return getMontant(demandeDto);
-    }
-
-    private double getMontant(DemandeDTO demandeDto) {
-        return getPaiements(demandeDto).values().stream().reduce(0.0, Double::sum);
-    }
-
-    private double getMontant(HashMap<String, Double> objetMontants) {
-        return objetMontants.values().stream().reduce(0.0, Double::sum);
-    }
-
-    private HashMap<String, Double> getPaiements(DemandeDTO demandeDto) {
-        JsonNode contenuDemande = demandeDto.getContenu();
-
-        String numeroPermis = contenuDemande.get("titre").get("numeropermis").asText();
-        LOGGER.info("Permis n° : {}", numeroPermis);
-
-        HashMap<String, Double> objetMontants = new HashMap<>();
-        Iterator<JsonNode> paiements = contenuDemande.get("paiement").get("tableau").elements();
-        do {
-            JsonNode paiement = paiements.next();
-            objetMontants.put(paiement.get("objet").asText(), Double.parseDouble(paiement.get("montant").asText()));
-        } while (paiements.hasNext());
-        return objetMontants;
+        return moyenPaiements.stream()
+                .filter(moyenPaiementBO -> moyenPaiementBO.getDateLimite().isAfter(LocalDateTime.now()))
+                .filter(moyenPaiementBO -> MoyenPaiementStatutBO.VALIDE.equals(moyenPaiementBO.getMoyenPaiementStatut()))
+                .sorted(Comparator.comparing(MoyenPaiementBO::getDateLimite, Comparator.nullsLast(Comparator.reverseOrder()))).findFirst();
     }
 
 

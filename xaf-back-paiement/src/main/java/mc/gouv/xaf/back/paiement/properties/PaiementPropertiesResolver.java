@@ -62,11 +62,13 @@ public interface PaiementPropertiesResolver {
     String getAdressesMailSupportTechniqueRio();
 
 
-    String getXafRetryInitialDelay();
+    int getXafRetryInitialDelay();
 
-    String getXafRetryCount();
+    int getXafRetryCount();
 
-    String getXafRetryMultiplier();
+    int getXafRetryMultiplier();
 
     String getXafPaiementImmediatHeureDiffere();
+
+    String getXafMonetico3dsv2Scenario();
 }

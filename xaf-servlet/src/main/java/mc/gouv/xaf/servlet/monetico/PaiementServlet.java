@@ -9,6 +9,7 @@ import mc.gouv.xaf.servlet.AbstractAfServlet;
 import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
 import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
+import mc.gouv.xaf.shared.stc.MoyenPaiementDTO;
 import org.apache.commons.compress.utils.IOUtils;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
@@ -82,10 +83,10 @@ public class PaiementServlet extends AbstractAfServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response) {
         LOGGER.info("====================== /paiement doPost()");
         try {
-
+            LOGGER.info("request.getParameter " );
             String MAC = (request.getParameter("MAC") != null) ? request.getParameter("MAC") : "";
             String codeRetour = (request.getParameter("code-retour") != null) ? request.getParameter("code-retour") : "";
-
+            LOGGER.info("codeRetour : " + codeRetour);
 
             response.setHeader("Pragma", "no-cache");
             response.setHeader("Cache-Control", "no-cache");
@@ -101,9 +102,9 @@ public class PaiementServlet extends AbstractAfServlet {
                 for (Map.Entry<String, String[]> entry : request.getParameterMap().entrySet()) {
                     paiementNode.put(entry.getKey().toLowerCase(), entry.getValue()[0]);
                 }
-                MoneticoPaiement paiement = mapper.treeToValue(paiementNode, MoneticoPaiement.class);
-
-                getStcApiClient().updatePaiementStatus(paiement.getReference(), codeRetour);
+                MoyenPaiementDTO moyenPaiementDTO = mapper.treeToValue(paiementNode, MoyenPaiementDTO.class);
+                moyenPaiementDTO.setCodeRetour(codeRetour);
+                getStcApiClient().updatePaiementStatus(moyenPaiementDTO);
 
                 LOGGER.info("result = 0");
                 sResult = "0";
@@ -122,7 +123,7 @@ public class PaiementServlet extends AbstractAfServlet {
         } catch (Exception e) {
 
             LOGGER.error("Monetico Paiement failed.");
-            LOGGER.error(e.getMessage());
+            LOGGER.error(e.getMessage(), e);
         }
         LOGGER.info("====================== Fin /paiement doPost()\n");
     }

@@ -1,5 +1,7 @@
 package mc.gouv.xaf.back.paiement.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesStatutsRepository;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
@@ -12,12 +14,13 @@ import mc.gouv.xaf.back.paiement.data.entity.CommandeBO;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeDemandeBO;
 import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
 import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementStatutBO;
-import mc.gouv.xaf.back.paiement.data.entity.OperationBO;
-import mc.gouv.xaf.back.paiement.data.entity.OperationStatutBO;
-import mc.gouv.xaf.back.paiement.data.entity.OperationTypeBO;
+import mc.gouv.xaf.back.paiement.dto.ContenuTestDTO;
+import mc.gouv.xaf.back.paiement.dto.Paiement;
 import mc.gouv.xaf.back.paiement.dto.PaiementDTO;
+import mc.gouv.xaf.back.paiement.dto.Tableau;
+import mc.gouv.xaf.back.paiement.dto.Titre;
 import mc.gouv.xaf.back.paiement.mock.DemandeStatutEnum;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.stc.MoyenPaiementDTO;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -97,7 +100,17 @@ public class PaiementServiceTest {
     public void updateOk() throws IOException, SAXException {
 
         DemandeBO demandeBO = new DemandeBO();
-        demandeBO.setContenu("contenu");
+
+        ContenuTestDTO contenuTestDTO = new ContenuTestDTO();
+        Paiement paiement = new Paiement();
+        paiement.setTableau(new Tableau[]{new Tableau("objet", "80")});
+        contenuTestDTO.setPaiement(paiement);
+        contenuTestDTO.setTitre(new Titre("123456"));
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode contenu = mapper.valueToTree(contenuTestDTO);
+
+
+        demandeBO.setContenu(contenu.toString());
         demandeBO.setCanal("canal");
         demandeBO.setIdentifiant("monIdentifiant");
         demandeBO.setDateCreation(new Date());
@@ -135,7 +148,11 @@ public class PaiementServiceTest {
                 .collect(Collectors.toList()).forEach(libelle -> assertThat(libelle).isEqualTo(DemandeStatutEnum.EN_ATTENTE_DE_PAIEMENT.name()));
 
         String status = "paiement";
-        paiementService.updateStatus(paiementDTO.getReference(), status);
+        MoyenPaiementDTO moyenPaiementDTO = new MoyenPaiementDTO();
+        moyenPaiementDTO.setReference(paiementDTO.getReference());
+        moyenPaiementDTO.setCodeRetour(status);
+        moyenPaiementDTO.setVld("1223");
+        paiementService.updateStatus(moyenPaiementDTO);
 
         Optional<MoyenPaiementBO> optionalMoyenPaiementBO = moyenPaiementRepository.findById(paiementDTO.getReference());
         assertThat(optionalMoyenPaiementBO).isPresent();
@@ -169,12 +186,14 @@ public class PaiementServiceTest {
         MoyenPaiementBO moyenPaiementBO = new MoyenPaiementBO();
         moyenPaiementBO.setCommande(commandeBO);
         moyenPaiementBO.setMontantInitial(122);
+        moyenPaiementBO.setMoyenPaiementStatut(MoyenPaiementStatutBO.VALIDE);
         moyenPaiementBO.setDateLimite(LocalDateTime.MIN);
         moyenPaiementBO.setPkMoyenPaiement("maRef");
         moyenPaiementRepository.save(moyenPaiementBO);
         MoyenPaiementBO moyenPaiementBO2 = new MoyenPaiementBO();
         moyenPaiementBO2.setCommande(commandeBO);
         moyenPaiementBO2.setMontantInitial(155);
+        moyenPaiementBO2.setMoyenPaiementStatut(MoyenPaiementStatutBO.VALIDE);
         moyenPaiementBO2.setPkMoyenPaiement("maRef2");
         moyenPaiementBO2.setDateLimite(LocalDateTime.MAX);
         moyenPaiementRepository.save(moyenPaiementBO2);
@@ -184,41 +203,6 @@ public class PaiementServiceTest {
         MoyenPaiementBO moyenPaiement = optionalMoyenPaiementBO.get();
         assertThat(moyenPaiement.getMontantInitial()).isEqualTo(155);
         assertThat(moyenPaiement.getPkMoyenPaiement()).isEqualTo("maRef2");
-    }
-
-    @Test
-    public void captureOk() throws Exception {
-        DemandeBO demandeBO = new DemandeBO();
-        demandeBO.setContenu("contenu");
-        demandeBO.setCanal("canal");
-        demandeBO.setIdentifiant("monIdentifiant");
-        demandeBO.setDateCreation(new Date());
-        demandeBO.setDateDerModif(new Date());
-        demandeBO = demandesRepository.save(demandeBO);
-
-        CommandeBO commandeBO = new CommandeBO();
-        commandeBO.setMontant(100);
-        commandeBO.setDateCreation(LocalDateTime.now());
-        commandeRepository.save(commandeBO);
-
-        CommandeDemandeBO commandeDemandeBO = new CommandeDemandeBO();
-        commandeDemandeBO.setDemande(demandeBO);
-        commandeDemandeBO.setCommande(commandeBO);
-        commandeDemandeRepository.save(commandeDemandeBO);
-
-        MoyenPaiementBO moyenPaiementBO = new MoyenPaiementBO();
-        moyenPaiementBO.setCommande(commandeBO);
-        moyenPaiementBO.setDateLimite(LocalDateTime.MIN);
-        moyenPaiementBO.setPkMoyenPaiement("maRef");
-        moyenPaiementRepository.save(moyenPaiementBO);
-        DemandeDTO demandeDTO = new DemandeDTO();
-
-        String resutat = paiementService.capture(moyenPaiementBO, demandeDTO);
-        OperationBO operationBo = operationRepository.findAll().iterator().next();
-        assertThat(operationBo.getMontant()).isEqualTo(80.0);
-        assertThat(operationBo.getOperationType()).isEqualTo(OperationTypeBO.DEBIT);
-        assertThat(operationBo.getOperationStatut()).isEqualTo(OperationStatutBO.REFUSEE);
-        assertThat(resutat).isEqualTo("facture001");
     }
 
 }

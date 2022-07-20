@@ -1,12 +1,18 @@
 package mc.gouv.xaf.back.paiement.mock;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.es.model.DemandeEsDTO;
 import mc.gouv.xaf.back.data.es.model.DemandeEsRechercheDTO;
 import mc.gouv.xaf.back.data.es.model.DemandeFileEsRechercheDTO;
 import mc.gouv.xaf.back.data.es.model.DemandesFacets;
 import mc.gouv.xaf.back.data.es.model.EsProperty;
+import mc.gouv.xaf.back.paiement.dto.ContenuTestDTO;
+import mc.gouv.xaf.back.paiement.dto.Paiement;
+import mc.gouv.xaf.back.paiement.dto.Tableau;
+import mc.gouv.xaf.back.paiement.dto.Titre;
 import mc.gouv.xaf.back.service.es.IndexedDemandeService;
 import mc.gouv.xaf.shared.dto.DemandeCourrierRechercheDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
@@ -61,7 +67,16 @@ public class IndexedDemandeServiceTestImpl implements IndexedDemandeService {
 
     @Override
     public DemandeDTO getDemande(String demarcheId, Integer pkDemandes) {
-        return null;
+        DemandeDTO demandeDTO = new DemandeDTO();
+        ContenuTestDTO contenuTestDTO = new ContenuTestDTO();
+        Paiement paiement = new Paiement();
+        paiement.setTableau(new Tableau[]{new Tableau("objet", "80")});
+        contenuTestDTO.setPaiement(paiement);
+        contenuTestDTO.setTitre(new Titre("123456"));
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode contenu = mapper.valueToTree(contenuTestDTO);
+        demandeDTO.setContenu(contenu);
+        return demandeDTO;
     }
 
     @Override

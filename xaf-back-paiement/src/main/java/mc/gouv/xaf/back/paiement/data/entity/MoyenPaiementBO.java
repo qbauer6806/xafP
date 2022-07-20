@@ -23,7 +23,6 @@ public class MoyenPaiementBO {
 
     private String codeSociete;
 
-
     private LocalDateTime dateLimite;
 
     private double montantInitial;
@@ -39,6 +38,31 @@ public class MoyenPaiementBO {
     private MoyenPaiementStatutBO moyenPaiementStatut;
 
     private LocalDateTime dateDerniereModification;
+
+
+    public String cvx;
+    public String vld;
+    public String brand;
+    @Column(name = "num_auto")
+    public String numauto;
+    public String usage;
+    @Column(name = "type_compte")
+    public String typecompte;
+    public String ecard;
+    @Column(name = "origine_cb")
+    public String originecb;
+    @Column(name = "bin_cb")
+    public String bincb;
+    @Column(name = "hpan_cb")
+    public String hpancb;
+    @Column(name = "ip_client")
+    public String ipclient;
+    @Column(name = "origine_tr")
+    public String originetr;
+    @Column(name = "mode_paiement")
+    public String modepaiement;
+    public String authentification;
+
 
     public String getPkMoyenPaiement() {
         return pkMoyenPaiement;
@@ -120,18 +144,115 @@ public class MoyenPaiementBO {
         this.codeSociete = codeSociete;
     }
 
-    @Override
-    public String toString() {
-        return "MoyenPaiementBO{" +
-                "reference='" + pkMoyenPaiement + '\'' +
-                ", commande=" + commande +
-                ", dateLimite=" + dateLimite +
-                ", montantInitial=" + montantInitial +
-                ", montantCapture=" + montantCapture +
-                ", montantRestant=" + montantRestant +
-                ", moyenPaiementType=" + moyenPaiementType +
-                ", moyenPaiementStatut=" + moyenPaiementStatut +
-                ", dateDerniereModification=" + dateDerniereModification +
-                '}';
+    public String getCvx() {
+        return cvx;
+    }
+
+    public void setCvx(String cvx) {
+        this.cvx = cvx;
+    }
+
+    public String getVld() {
+        return vld;
+    }
+
+    public void setVld(String vld) {
+        this.vld = vld;
+    }
+
+    public String getBrand() {
+        return brand;
+    }
+
+    public void setBrand(String brand) {
+        this.brand = brand;
+    }
+
+    public String getNumauto() {
+        return numauto;
+    }
+
+    public void setNumauto(String numauto) {
+        this.numauto = numauto;
+    }
+
+    public String getUsage() {
+        return usage;
+    }
+
+    public void setUsage(String usage) {
+        this.usage = usage;
+    }
+
+    public String getTypecompte() {
+        return typecompte;
+    }
+
+    public void setTypecompte(String typecompte) {
+        this.typecompte = typecompte;
+    }
+
+    public String getEcard() {
+        return ecard;
+    }
+
+    public void setEcard(String ecard) {
+        this.ecard = ecard;
+    }
+
+    public String getOriginecb() {
+        return originecb;
+    }
+
+    public void setOriginecb(String originecb) {
+        this.originecb = originecb;
+    }
+
+    public String getBincb() {
+        return bincb;
+    }
+
+    public void setBincb(String bincb) {
+        this.bincb = bincb;
+    }
+
+    public String getHpancb() {
+        return hpancb;
+    }
+
+    public void setHpancb(String hpancb) {
+        this.hpancb = hpancb;
+    }
+
+    public String getIpclient() {
+        return ipclient;
+    }
+
+    public void setIpclient(String ipclient) {
+        this.ipclient = ipclient;
+    }
+
+    public String getOriginetr() {
+        return originetr;
+    }
+
+    public void setOriginetr(String originetr) {
+        this.originetr = originetr;
+    }
+
+    public String getModepaiement() {
+        return modepaiement;
+    }
+
+    public void setModepaiement(String modepaiement) {
+        this.modepaiement = modepaiement;
+    }
+
+    public String getAuthentification() {
+        return authentification;
+    }
+
+    public void setAuthentification(String authentification) {
+        this.authentification = authentification;
     }
 }

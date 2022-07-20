@@ -6,4 +6,5 @@ public class PaiementConstant {
     public static final String USAGERID_PARAM = "usagerId";
 
     public static final String IFRAME_PARAM = "iframe";
+
 }

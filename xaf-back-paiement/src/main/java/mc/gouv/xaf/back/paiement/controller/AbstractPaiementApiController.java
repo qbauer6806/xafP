@@ -2,9 +2,11 @@ package mc.gouv.xaf.back.paiement.controller;
 
 import mc.gouv.xaf.back.paiement.dto.PaiementDTO;
 import mc.gouv.xaf.back.paiement.service.PaiementService;
+import mc.gouv.xaf.shared.stc.MoyenPaiementDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 public abstract class AbstractPaiementApiController {
@@ -21,9 +23,9 @@ public abstract class AbstractPaiementApiController {
         return paiementService.create(demandesId, langue, usagerId, iframe);
     }
 
-    @GetMapping(value = "{reference}/status/{status}")
-    public void updatePaiement(@PathVariable String reference, @PathVariable String status) {
-        paiementService.updateStatus(reference, status);
+    @PostMapping
+    public void updatePaiement(@RequestBody MoyenPaiementDTO moyenPaiementDTO) {
+        paiementService.updateStatus(moyenPaiementDTO);
     }
 
 

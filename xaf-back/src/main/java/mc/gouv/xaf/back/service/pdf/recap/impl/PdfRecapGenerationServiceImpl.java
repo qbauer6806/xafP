@@ -1,8 +1,24 @@
 package mc.gouv.xaf.back.service.pdf.recap.impl;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.util.Date;
+
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import com.openhtmltopdf.slf4j.Slf4jLogger;
 import com.openhtmltopdf.util.XRLog;
+
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemandeRecapHTMLService;
 import mc.gouv.xaf.back.service.data.DemandesFilesService;
@@ -15,13 +31,6 @@ import mc.gouv.xaf.back.service.utils.FileUtils;
 import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import java.io.*;
-import java.util.Date;
 
 @Component
 public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService {
@@ -102,8 +111,11 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
         try (OutputStream os = new FileOutputStream(pdfDest)) {
             PdfRendererBuilder builder = new PdfRendererBuilder();
             builder.useFastMode();
+            try(FileInputStream inputStream = new FileInputStream(htmlSource)) {     
+                String contenu = IOUtils.toString(inputStream);
+                LOGGER.info("HTML Source : " + contenu);
+            }
             builder.withFile(htmlSource);
-            LOGGER.info("HTML Source : " + htmlSource);
             builder.toStream(os);
             builder.run();
         } catch (Exception e) {

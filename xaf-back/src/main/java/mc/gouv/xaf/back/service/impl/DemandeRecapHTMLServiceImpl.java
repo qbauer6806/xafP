@@ -280,7 +280,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 //                	tmp = "<span style='color: green; font-weight: bold'>" + tmp + "</span>";
 //                    html.append(tmp);
 //                } else {
-                String value = getSecondLevelHTML(demande.getContenu(), champ, pojo, isPdfRecap);
+                String value = getSecondLevelHTML(demande.getContenu(), champ, pojo, isPdfRecap, false);
                 if (!StringUtils.isBlank(value)) {
                 	DemandeDTO demandeSource = null;
                 	if (demande.getPkDemandeSource() != null) {
@@ -300,16 +300,8 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
                     // Donc on fait la différence sur la comparaison du résultat formatté en HTML :
                     String valueSource = null;
                     if (demandeSource != null) {
-                    	valueSource = getSecondLevelHTML(demandeSource.getContenu(), champ, pojo, isPdfRecap);
+                    	valueSource = getSecondLevelHTML(demandeSource.getContenu(), champ, pojo, isPdfRecap, false);
                     }
-                    
-                    // Si la value est un champ composé (comme l'adresse, alors ne pas entourer d'un span)
-                    String spanIfNeeded = "<span>";
-                    String endSpanIfNeeded = "</span>";
-                    //if ("adresse".equals(type) || "adresseMc".equals(type)) {
-                    	spanIfNeeded = "";
-                    	endSpanIfNeeded = "";
-                    //}
                     
                     if (demandeSource != null && value != null && valueSource != null && !value.equals(valueSource)) {
                     	if (StringUtils.isBlank(valueSource)) {
@@ -330,12 +322,12 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
                     }
                     else {
 						html.append("<dt><span>").append(champ.get("label")).append("</span></dt>");
-						html.append("<dd>" + spanIfNeeded).append(value);
+						html.append("<dd>").append(value);
 						if (isDonneeCertifiee) {
-							html.append(endSpanIfNeeded + " <span title=\"Donnée certifiée\"><img src=\"../img/icone_identite_numerique_valide.svg\"></img></span></dd>");
+							html.append(" <span title=\"Donnée certifiée\"><img src=\"../img/icone_identite_numerique_valide.svg\"></img></span></dd>");
 						}
 						else {
-							html.append(endSpanIfNeeded + "</dd>");
+							html.append("</dd>");
 						}
                     }
                 }
@@ -359,7 +351,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
                     JsonNode valeur = it.next();
                     html.append("<tr>");
                     for (Object column : columns.toArray()) {
-                        String value = getSecondLevelHTML(valeur, (JSONObject) column, pojo, isPdfRecap);
+                        String value = getSecondLevelHTML(valeur, (JSONObject) column, pojo, isPdfRecap, true);
                         String result = StringUtils.isNoneBlank(value) ? value : "";
                         html.append("<td>").append(result).append("</td>");
                     }
@@ -372,7 +364,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
         return html.toString();
     }
 
-    private String getSecondLevelHTML(JsonNode node, JSONObject champ, String pojo, boolean isPdfRecap)
+    private String getSecondLevelHTML(JsonNode node, JSONObject champ, String pojo, boolean isPdfRecap, boolean pourTableau)
             throws ClassNotFoundException, IllegalAccessException, IllegalArgumentException, InvocationTargetException,
             NoSuchMethodException, SecurityException {
         String type = (String) champ.get("type");
@@ -502,11 +494,19 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
             if (StringUtils.isNotEmpty(ret)) {
                 String codePostal = escape(getNode(node, champ, "codePostal").textValue(), isPdfRecap);
                 String ville = escape(getNode(node, champ, "ville").textValue(), isPdfRecap);
-                ret += "</dd><dt><span>Ville</span></dt><dd><span>" + codePostal + " " + ville + "</span>";
                 String pays = getNode(node, champ, "pays").textValue();
-                if (StringUtils.isNotBlank(pays)) {
-                    ret += "</dd><dt><span>Pays</span></dt><dd><span>" + paysCache.get(pays, "fr").getNom() + "</span>";
-                }
+            	if (!pourTableau) {
+	                ret += "</dd><dt><span>Ville</span></dt><dd><span>" + codePostal + " " + ville + "</span>";
+	                if (StringUtils.isNotBlank(pays)) {
+	                    ret += "</dd><dt><span>Pays</span></dt><dd><span>" + paysCache.get(pays, "fr").getNom() + "</span>";
+	                }
+            	}
+            	else {
+	                ret += "<br/><span>" + codePostal + " " + ville + "</span>";
+	                if (StringUtils.isNotBlank(pays)) {
+	                    ret += "<br/><span>" + paysCache.get(pays, "fr").getNom() + "</span>";
+	                }
+            	}
             }
             return ret;
         } else if (StringUtils.equals(type, "adresseMc")) {

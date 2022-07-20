@@ -71,4 +71,8 @@ public interface PaiementPropertiesResolver {
     String getXafPaiementImmediatHeureDiffere();
 
     String getXafMonetico3dsv2Scenario();
+
+    String getApiRioUrl();
+
+    String getApiRioJwt();
 }

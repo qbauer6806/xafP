@@ -173,4 +173,13 @@ public class PaiementPropertiesResolverTestImpl implements PaiementPropertiesRes
     public String getXafMonetico3dsv2Scenario() {
         return "null";
     }
+
+    public String getApiRioUrl() {
+        return null;
+    }
+
+    @Override
+    public String getApiRioJwt() {
+        return null;
+    }
 }

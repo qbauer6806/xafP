@@ -218,4 +218,12 @@ public class PaiementPropertiesResolverImpl implements PaiementPropertiesResolve
         return propertiesDTO.getValue();
     }
 
+    public String getApiRioUrl() {
+        return Static.getValue("mc.gouv" + gouvPropertiesResolver.getApplicationPrefix() + ".rio.url");
+    }
+
+    public String getApiRioJwt() {
+        return Static.getValue("mc.gouv" + gouvPropertiesResolver.getApplicationPrefix() + ".rio.jwt");
+    }
+
 }

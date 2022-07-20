@@ -69,4 +69,8 @@ public interface PaiementPropertiesResolver {
     String getXafRetryMultiplier();
 
     String getXafPaiementImmediatHeureDiffere();
+
+    String getApiRioUrl();
+
+    String getApiRioJwt();
 }

@@ -168,4 +168,14 @@ public class PaiementPropertiesResolverTestImpl implements PaiementPropertiesRes
     public String getXafPaiementImmediatHeureDiffere() {
         return null;
     }
+
+    @Override
+    public String getApiRioUrl() {
+        return null;
+    }
+
+    @Override
+    public String getApiRioJwt() {
+        return null;
+    }
 }

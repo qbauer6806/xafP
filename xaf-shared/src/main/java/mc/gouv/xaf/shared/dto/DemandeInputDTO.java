@@ -41,6 +41,9 @@ public class DemandeInputDTO {
     // Données envoyées par l'API si l'usager s'est connecté via MConnect
     private DonneesMConnectDTO donneesMConnect;
 
+    // En cas de renouvellement d'une demande
+    private Integer demandeSourceId;
+
     public JsonNode getContenu() {
         return contenu;
     }
@@ -153,4 +156,11 @@ public class DemandeInputDTO {
 		this.donneesMConnect = donneesMConnect;
 	}
 
+    public Integer getDemandeSourceId() {
+        return demandeSourceId;
+    }
+
+    public void setDemandeSourceId(Integer demandeSourceId) {
+        this.demandeSourceId = demandeSourceId;
+    }
 }

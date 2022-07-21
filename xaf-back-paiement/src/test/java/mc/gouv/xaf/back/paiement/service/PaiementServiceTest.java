@@ -2,8 +2,10 @@ package mc.gouv.xaf.back.paiement.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import mc.gouv.xaf.back.data.dao.AccessRepository;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesStatutsRepository;
+import mc.gouv.xaf.back.data.entity.AccessBO;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
 import mc.gouv.xaf.back.paiement.data.dao.CommandeDemandeRepository;
@@ -14,11 +16,7 @@ import mc.gouv.xaf.back.paiement.data.entity.CommandeBO;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeDemandeBO;
 import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
 import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementStatutBO;
-import mc.gouv.xaf.back.paiement.dto.ContenuTestDTO;
-import mc.gouv.xaf.back.paiement.dto.Paiement;
-import mc.gouv.xaf.back.paiement.dto.PaiementDTO;
-import mc.gouv.xaf.back.paiement.dto.Tableau;
-import mc.gouv.xaf.back.paiement.dto.Titre;
+import mc.gouv.xaf.back.paiement.dto.*;
 import mc.gouv.xaf.back.paiement.mock.DemandeStatutEnum;
 import mc.gouv.xaf.shared.stc.MoyenPaiementDTO;
 import org.junit.Before;
@@ -42,10 +40,10 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 public class PaiementServiceTest {
 
     @Autowired
-    private PaiementService paiementService;
+    private DemandesRepository demandesRepository;
 
     @Autowired
-    DemandesRepository demandesRepository;
+    private PaiementService paiementService;
 
     @Autowired
     private CommandeRepository commandeRepository;
@@ -61,6 +59,9 @@ public class PaiementServiceTest {
 
     @Autowired
     private OperationRepository operationRepository;
+
+    @Autowired
+    private AccessRepository accessRepository;
 
     @Before
     public void cleanData() {
@@ -109,13 +110,20 @@ public class PaiementServiceTest {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode contenu = mapper.valueToTree(contenuTestDTO);
 
+        AccessBO access = new AccessBO();
+        access.setDemarcheId("PERMC");
+        access.setContenu("{\"CGU\":true}");
+        access.setUsagerId(1);
+        access.setDateCreation(new Date());
+        access.setDateDerModif(new Date());
+        accessRepository.save(access);
 
         demandeBO.setContenu(contenu.toString());
         demandeBO.setCanal("canal");
         demandeBO.setIdentifiant("monIdentifiant");
         demandeBO.setDateCreation(new Date());
         demandeBO.setDateDerModif(new Date());
-
+        demandeBO.setFkAccess(access);
 
         DemandesStatutsBO dernierStatut = new DemandesStatutsBO();
         dernierStatut.setLibelle(DemandeStatutEnum.EN_ATTENTE_DE_PAIEMENT.name());
@@ -130,6 +138,7 @@ public class PaiementServiceTest {
         demandeBO2.setIdentifiant("monIdentifiant");
         demandeBO2.setDateCreation(new Date());
         demandeBO2.setDateDerModif(new Date());
+        demandeBO2.setFkAccess(access);
 
         DemandesStatutsBO dernierStatut2 = new DemandesStatutsBO();
         dernierStatut2.setLibelle(DemandeStatutEnum.EN_ATTENTE_DE_PAIEMENT.name());

@@ -310,10 +310,10 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 						html.append("<dt class='nouvelledonnee' style='color: red; font-weight: bold'>").append(champ.get("label")).append("</dt>");
 						html.append("<dd class='nouvelledonnee'>").append(value.replace("<span>", "<span class='nouvelledonnee'>").replace("<dt>","<dt class='nouvelledonnee' style='color: red; font-weight: bold'>").replace("<dd>","<dd class='nouvelledonnee'>"));
 						if (isDonneeCertifiee) {
-							html.append("</span> <span class=\"nouvelledonnee\" title=\"Donnée certifiée\"><img src=\"../img/icone_identite_numerique_valide.svg\"></img></span></dd>");
+							html.append(" <span class=\"nouvelledonnee\" title=\"Donnée certifiée\"><img src=\"../img/icone_identite_numerique_valide.svg\"></img></span></dd>");
 						}
 						else {
-							html.append("</span></dd>");
+							html.append("</dd>");
 						}
 						
 						html.append("<dt class='anciennedonnee' style='color: red; font-weight: bold' title='Donnée modifiée'>").append(champ.get("label")).append("</dt>");

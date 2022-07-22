@@ -170,7 +170,6 @@ public class FileController {
 			@Override
 	        public void close() throws IOException {
 	            super.close();
-	            Files.delete(result.toPath());
 	            org.apache.commons.io.FileUtils.deleteDirectory(tmp.toFile());
 	        }
 	    });
@@ -283,10 +282,10 @@ public class FileController {
 		return result;
 	}
 
-	private void createZipFile(List<File> filesToZip, File tmp, String fileName) throws FileNotFoundException, IOException {
+	private void createZipFile(List<File> filesToZip, File tmp, String fileName) throws IOException {
 		byte[] buffer = new byte[1024];
 		// creation du fichier ZIP
-		FileOutputStream fos = new FileOutputStream(tmp.getAbsolutePath()+fileName);
+		FileOutputStream fos = new FileOutputStream(tmp.getAbsolutePath()+"/"+fileName);
 		try (ZipOutputStream zos = new ZipOutputStream(fos)) {
 			for (File currentFile : filesToZip) {
 				try (FileInputStream fis = new FileInputStream(currentFile)) {

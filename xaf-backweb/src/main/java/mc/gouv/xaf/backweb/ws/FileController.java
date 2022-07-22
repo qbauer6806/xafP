@@ -122,6 +122,7 @@ public class FileController {
 		String fileName = zipName + ".zip";
 		// Création du dossier temporaire qui contiendra le zip final
 		Path tmp = Files.createTempDirectory("tmp");
+		tmp.toFile().deleteOnExit();
 		List<File> filesToZip = getFilesToInclude(fileType, fichiers, tmp.toFile());
 		createZipFile(filesToZip, tmp.toFile(), fileName);
 		
@@ -146,6 +147,7 @@ public class FileController {
 		String fileName = pdfName + ".pdf";
 		// Création du dossier temporaire qui contiendra le zip final
 		Path tmp = Files.createTempDirectory("tmp");
+		tmp.toFile().deleteOnExit();
 		List<File> filesToZip = getFilesToInclude(fileType, fichiers, tmp.toFile());
 		createPdfFromFiles(filesToZip, tmp.toFile(), fileName);
 		
@@ -162,7 +164,7 @@ public class FileController {
 	 * @throws FileNotFoundException
 	 */
 	private InputStreamResource setInputStream(String fileName, Path tmp) throws FileNotFoundException {
-		File result = new File(tmp.toAbsolutePath().toString()+fileName);
+		File result = new File(tmp.toAbsolutePath().toString(), fileName);
 		return new InputStreamResource(new FileInputStream(result) { 
 			// Ici on override le close classique afin de pouvoir supprimer les fichiers générés à la volée une fois la requête terminée (ie la réponse renvoyée)
 			@Override
@@ -244,7 +246,7 @@ public class FileController {
 					contentStream.restoreGraphicsState();
 				}
 			}
-			doc.save(dest.getAbsolutePath() + pdfName);
+			doc.save(dest.getAbsolutePath() +"/"+ pdfName);
 		}
 	}
 

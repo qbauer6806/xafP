@@ -1,9 +1,10 @@
 package mc.gouv.xaf.back.paiement.service.impl;
 
 import fr.opensagres.poi.xwpf.converter.pdf.PdfConverter;
-import mc.gouv.file.shared.dto.FileDTO;
 import mc.gouv.xaf.back.paiement.service.ConvertisseurTiffService;
-import org.apache.commons.io.IOUtils;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.itg.file.FileService;
+import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -15,6 +16,7 @@ import org.apache.pdfbox.tools.imageio.ImageIOUtil;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
@@ -24,7 +26,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
+import java.net.URLEncoder;
+import java.util.*;
 import java.util.List;
 
 @Service
@@ -35,58 +38,68 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
     private static final int WIDTH = 595;
     private static final int HEIGHT = 842;
 
-    public List<FileDTO> generateTiffs(List<FileDTO> files) throws IOException {
-        List<FileDTO> fileDTOS = new ArrayList<>();
-        for (FileDTO file : files) {
-            fileDTOS.add(generateTiff(file));
+    @Autowired
+    private FileService fileService;
+
+    @Autowired
+    private GouvPropertiesResolver gouvPropertiesResolver;
+
+    public Map<String, InputStream> generateTiffs(List<DemandeFileDTO> files) throws IOException {
+        Map<String, InputStream> fileMap = new HashMap<>();
+        for (DemandeFileDTO file : files) {
+            fileMap.putAll(generateTiffs(file));
         }
-        return fileDTOS;
+        return fileMap;
     }
 
-    public FileDTO generateTiff(FileDTO file) throws IOException {
+    public Map<String, InputStream> generateTiffs(DemandeFileDTO file) throws IOException {
 
-        // Créer une copie du fichier d'origine
-        InputStream is = IOUtils.toBufferedInputStream(file.getData());
+        // Récupération du fichier dans file
+        String filePathEncoded = URLEncoder.encode(file.getUrl(), "UTF-8");
+        InputStream is = fileService.getFile(filePathEncoded, gouvPropertiesResolver.getContainerId());
 
         // Récupération de l'extension et le nom du fichier
         int indexInit = file.getName().lastIndexOf("\\");
         String extension = file.getName().substring(file.getName().lastIndexOf("."));
         String filename = file.getName().substring(Math.max(indexInit, 0), file.getName().indexOf("."));
 
-        if (!extension.equalsIgnoreCase(".tif") && !extension.equalsIgnoreCase(".tiff")) {
+        List<InputStream> isList;
+        if (!extension.toLowerCase().contains(".tif")) {
             // Conversion des fichiers en pdf
-            is = convertFileToPdf(is, extension);
+            convertFileToPdf(is, extension);
 
             // Conversion de l'inputstream en tiff
-            is = generateTiffFromPDF(is, filename);
+            isList = generateTiffsFromPDF(is);
+        } else {
+            isList = Collections.singletonList(is);
         }
 
-        // Création d'un nouvel objet FileDTO
-        return createNewFileDTO(file, is, filename);
+        // Création des FileDTO
+        return createNewFileDTOs(file, isList, filename);
     }
 
     /**
      * Conversion d'un fichier docx, png, jpg ou jpeg en PDF
+     *
      * @param is
      * @param extension
-     * @return
      * @throws IOException
      */
-    private InputStream convertFileToPdf(InputStream is, String extension) throws IOException {
+    private void convertFileToPdf(InputStream is, String extension) throws IOException {
         switch (extension.toLowerCase()) {
             case ".docx":
-                is = generatePdfFromDocx(is);
+                generatePdfFromDocx(is);
                 break;
             case ".png":
             case ".jpg":
             case ".jpeg":
-                is = generatePdfFromImage(is);
+                generatePdfFromImage(is);
+                break;
+            case ".pdf":
                 break;
             default:
                 LOGGER.error("Convertisseur TIFF : Fichier non supporté {}", extension);
         }
-
-        return is;
     }
 
     private InputStream generatePdfFromDocx(InputStream is) throws IOException {
@@ -129,16 +142,18 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
         return new ByteArrayInputStream(out.toByteArray());
     }
 
-    private InputStream generateTiffFromPDF(InputStream is, String name) throws IOException {
+    private List<InputStream> generateTiffsFromPDF(InputStream is) throws IOException {
+        List<InputStream> imagesIS = new ArrayList<>();
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         PDDocument document = PDDocument.load(is);
         PDFRenderer pdfRenderer = new PDFRenderer(document);
         for (int page = 0; page < document.getNumberOfPages(); ++page) {
             BufferedImage bim = convertImageToTiff(pdfRenderer.renderImageWithDPI(page, 480, ImageType.GRAY));
             ImageIOUtil.writeImage(bim, "tiff", out, 480);
+            imagesIS.add(new ByteArrayInputStream(out.toByteArray()));
         }
         document.close();
-        return new ByteArrayInputStream(out.toByteArray());
+        return imagesIS;
     }
 
     public BufferedImage convertImageToTiff(BufferedImage inputImage) {
@@ -160,16 +175,15 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
         return myBWImage;
     }
 
-    private FileDTO createNewFileDTO(FileDTO file, InputStream is, String filename) {
-        FileDTO fileDTO = new FileDTO();
+    private Map<String, InputStream> createNewFileDTOs(DemandeFileDTO file, List<InputStream> isList, String filename) {
+        Map<String, InputStream> filesMap= new HashMap<>();
 
-        fileDTO.setData(is);
-        fileDTO.setAccount(file.getAccount());
-        fileDTO.setContainer(file.getContainer());
-        fileDTO.setMeta(file.getMeta());
-        fileDTO.setName(filename + ".tiff");
+        for (int i = 0; i < isList.size(); i++) {
+            InputStream is = isList.get(i);
+            filesMap.put(filename + ((i > 0) ? "-" + i : "") + ".tiff", is);
+        }
 
-        return fileDTO;
+        return filesMap;
     }
 
 }

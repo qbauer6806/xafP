@@ -1,10 +1,10 @@
-package mc.gouv.xaf.back.paiement.service.impl;
+package mc.gouv.xaf.back.paiement.client.rio;
 
 import mc.gouv.xaf.back.paiement.dto.itg.rio.DocumentDTO;
 import mc.gouv.xaf.back.paiement.dto.itg.rio.DocumentRequestDTO;
 import mc.gouv.xaf.back.paiement.dto.itg.rio.FileDocumentDTO;
 import mc.gouv.xaf.back.paiement.properties.PaiementPropertiesResolver;
-import mc.gouv.xaf.back.paiement.service.RioApiService;
+import mc.gouv.xaf.back.paiement.client.RioClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,9 +27,9 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 
 @Service
-public class RioApiServiceImpl implements RioApiService {
+public class RioClientImpl implements RioClient {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RioApiServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RioClientImpl.class);
 
     // Entrypoint
     private static String url;

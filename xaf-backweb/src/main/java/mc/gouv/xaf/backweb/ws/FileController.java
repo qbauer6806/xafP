@@ -60,7 +60,6 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xboot.config.web.annotation.GouvRestController;
 
-
 /**
  * 
  * Proxy permettant d'accéder au service FILE depuis la démarche
@@ -71,7 +70,6 @@ import mc.gouv.xboot.config.web.annotation.GouvRestController;
 @GouvRestController
 @RequestMapping("/ws/file")
 public class FileController {
-
 
 	private static final String UTF_8 = "UTF-8";
 
@@ -88,7 +86,7 @@ public class FileController {
 
 	@Autowired
 	private DemarchesDataProvider demarchesDataProvider;
-	
+
 	public static final int DEFAULT_BUFFER_SIZE = 8192;
 
 	@GetMapping(value = "/get/**")
@@ -111,13 +109,14 @@ public class FileController {
 	@GetMapping(value = "/get/files/{demandeId}")
 	@ResponseBody
 	public ResponseEntity<InputStreamResource> getFiles(@PathVariable(value = "demandeId") String demandeId,
-			@RequestParam(required=false) String fileType, @RequestParam(required=false) String zipName) throws IOException {
+			@RequestParam(required = false) String fileType, @RequestParam(required = false) String zipName)
+			throws IOException {
 
 		LOGGER.info("====================== getFiles()");
-		// Récupération des fichiers de la demande 
+		// Récupération des fichiers de la demande
 		DemandeDTO demande = demandesService.getDemande(demandeId);
 		List<DemandeFileDTO> fichiers = FileUtils.getAllFileDemande(demande);
-		if(null == zipName) {
+		if (null == zipName) {
 			zipName = demandeId;
 		}
 		String fileName = zipName + ".zip";
@@ -126,23 +125,24 @@ public class FileController {
 		tmp.toFile().deleteOnExit();
 		List<File> filesToZip = getFilesToInclude(fileType, fichiers, tmp.toFile());
 		createZipFile(filesToZip, tmp.toFile(), fileName);
-		
+
 		// Préparation de la requête
 		HttpHeaders headers = setHeaders(fileName);
 		InputStreamResource isr = setInputStream(fileName, tmp);
 		return new ResponseEntity<>(isr, headers, HttpStatus.OK);
 	}
-	
+
 	@GetMapping(value = "/get/pdf/files/{demandeId}")
 	@ResponseBody
 	public ResponseEntity<InputStreamResource> getFilesPdf(@PathVariable(value = "demandeId") String demandeId,
-			@RequestParam(required=false) String fileType, @RequestParam(required=false) String pdfName) throws IOException {
+			@RequestParam(required = false) String fileType, @RequestParam(required = false) String pdfName)
+			throws IOException {
 
 		LOGGER.info("====================== getAllFilesPdf()");
-		// Récupération des fichiers de la demande 
+		// Récupération des fichiers de la demande
 		DemandeDTO demande = demandesService.getDemande(demandeId);
 		List<DemandeFileDTO> fichiers = FileUtils.getAllFileDemande(demande);
-		if(null == pdfName) {
+		if (null == pdfName) {
 			pdfName = demandeId;
 		}
 		String fileName = pdfName + ".pdf";
@@ -150,30 +150,35 @@ public class FileController {
 		Path tmp = Files.createTempDirectory("tmp");
 		tmp.toFile().deleteOnExit();
 		List<File> filesToZip = getFilesToInclude(fileType, fichiers, tmp.toFile());
-		createPdfFromFiles(filesToZip, tmp.toFile(), fileName);
-		
+		constructPdf(tmp.toFile(), filesToZip, fileName);
+
 		HttpHeaders headers = setHeaders(fileName);
 		InputStreamResource isr = setInputStream(fileName, tmp);
 		return new ResponseEntity<>(isr, headers, HttpStatus.OK);
 	}
-	
+
 	/**
-	 * Méthode en charge de créer un InputStreamResource (et de redéfinir le comportement du close). Cet ISR sera le fichier PDF renvoyée en réponse à la requête
+	 * Méthode en charge de créer un InputStreamResource (et de redéfinir le
+	 * comportement du close). Cet ISR sera le fichier PDF renvoyée en réponse à la
+	 * requête
+	 * 
 	 * @param fileName : Nom du fichier retourné par la requête
-	 * @param tmp : Localisation du dossier temporaire qui sera supprimé une fois la requête terminée
+	 * @param tmp      : Localisation du dossier temporaire qui sera supprimé une
+	 *                 fois la requête terminée
 	 * @return : L'input stream resource utilisé dans la requête
 	 * @throws FileNotFoundException
 	 */
 	private InputStreamResource setInputStream(String fileName, Path tmp) throws FileNotFoundException {
 		File result = new File(tmp.toAbsolutePath().toString(), fileName);
-		return new InputStreamResource(new FileInputStream(result) { 
-			// Ici on override le close classique afin de pouvoir supprimer les fichiers générés à la volée une fois la requête terminée (ie la réponse renvoyée)
+		return new InputStreamResource(new FileInputStream(result) {
+			// Ici on override le close classique afin de pouvoir supprimer les fichiers
+			// générés à la volée une fois la requête terminée (ie la réponse renvoyée)
 			@Override
-	        public void close() throws IOException {
-	            super.close();
-	            org.apache.commons.io.FileUtils.deleteDirectory(tmp.toFile());
-	        }
-	    });
+			public void close() throws IOException {
+				super.close();
+				org.apache.commons.io.FileUtils.deleteDirectory(tmp.toFile());
+			}
+		});
 	}
 
 	private HttpHeaders setHeaders(String fileName) {
@@ -183,77 +188,65 @@ public class FileController {
 		headers.setContentDisposition(contentDisposition);
 		return headers;
 	}
-
-	/**
-	 * Méthode permettant de créer un PDF regroupant tous les fichiers passé en paramètre
-	 * @param files : Les fichiers à concaténer dans le PDF final
-	 * @param dest : Le dossier destination 
-	 * @param pdfName : Le nom du PDF généré
-	 */
-	private void createPdfFromFiles(List<File> files, File dest, String pdfName) {
-		List<BufferedImage> images = new ArrayList<>();
-		try {
+	
+	private void constructPdf(File dest, List<File> files, String pdfName) throws IOException {
+		try (PDDocument doc = new PDDocument()) {
 			for (File file : files) {
 				if (!file.getAbsolutePath().toLowerCase().endsWith(".pdf")) {
-					images.add(ImageIO.read(file));
-				}
-				// on traite le cas d'un PDF
-				else {
+					copyFileInDestination(ImageIO.read(file), doc);
+				} else {
 					try (PDDocument pdfDoc = PDDocument.load(file, MemoryUsageSetting.setupTempFileOnly())) {
 						PDFRenderer pdfRenderer = new PDFRenderer(pdfDoc);
 						for (int pageNumber = 0; pageNumber < pdfDoc.getNumberOfPages(); ++pageNumber) {
-							images.add(pdfRenderer.renderImageWithDPI(pageNumber, 300, ImageType.RGB));
+							copyFileInDestination(pdfRenderer.renderImageWithDPI(pageNumber, 300, ImageType.RGB), doc);
 						}
 					}
 				}
 			}
-			constructPdf(dest, images, pdfName);
+			doc.save(dest.getAbsolutePath() + "/" + pdfName);
+		}
+	}
+
+	private void copyFileInDestination(BufferedImage bufferedImage, PDDocument doc) {
+		int height = 830;
+		int width = 580;
+		PDPage page = new PDPage(PDRectangle.A4);
+		doc.addPage(page);
+		try {
+			PDImageXObject pdImageXObject = LosslessFactory.createFromImage(doc, bufferedImage);
+			try (PDPageContentStream contentStream = new PDPageContentStream(doc, page,
+					PDPageContentStream.AppendMode.APPEND, false, false)) {
+				float scale = 1;
+				int largeurImage = bufferedImage.getWidth();
+				int hauteurImage = bufferedImage.getHeight();
+				if (largeurImage > width) {
+					scale = (float) width / largeurImage;
+				}
+
+				if (hauteurImage > height) {
+					float tempscale = (float) height / hauteurImage;
+					if (tempscale < scale) {
+						scale = tempscale;
+					}
+				}
+				contentStream.saveGraphicsState();
+				// ici on check si l'image a besoin d'etre tournée à 90 degrès
+				if (largeurImage > hauteurImage) {
+					contentStream.transform(Matrix.getRotateInstance(Math.toRadians(90),
+							page.getCropBox().getWidth() + page.getCropBox().getLowerLeftX(), 0));
+				}
+				contentStream.drawImage(pdImageXObject, 12, 12, largeurImage * scale, hauteurImage * scale);
+				contentStream.restoreGraphicsState();
+			}
 		} catch (IOException | NullPointerException e) {
 			e.printStackTrace();
 		}
 	}
 
-
-	private void constructPdf(File dest, List<BufferedImage> images, String pdfName) throws IOException {
-		int height = 830;
-		int width = 580;
-		try (PDDocument doc = new PDDocument()) {
-			for (BufferedImage bufferedImage : images) {
-				PDPage page = new PDPage(PDRectangle.A4);
-				doc.addPage(page);
-				PDImageXObject pdImageXObject = LosslessFactory.createFromImage(doc, bufferedImage);
-				try (PDPageContentStream contentStream = new PDPageContentStream(doc, page,
-						PDPageContentStream.AppendMode.APPEND, false, false)) {
-					float scale = 1;
-					int largeurImage = bufferedImage.getWidth();
-					int hauteurImage = bufferedImage.getHeight();
-					if (largeurImage > width) {
-						scale = (float) width / largeurImage;
-					}
-
-					if (hauteurImage > height) {
-						float tempscale = (float) height / hauteurImage;
-						if (tempscale < scale) {
-							scale = tempscale;
-						}
-					}
-					contentStream.saveGraphicsState();
-					// ici on check si l'image a besoin d'etre tournée à 90 degrès
-					if (largeurImage > hauteurImage) {
-						contentStream.transform(Matrix.getRotateInstance(Math.toRadians(90), page.getCropBox().getWidth() + page.getCropBox().getLowerLeftX(), 0));
-					}
-					contentStream.drawImage(pdImageXObject, 12, 12, largeurImage * scale, hauteurImage * scale);
-					contentStream.restoreGraphicsState();
-				}
-			}
-			doc.save(dest.getAbsolutePath() +"/"+ pdfName);
-			images.clear();
-		}
-	}
-
-
 	/**
-	 * Méthode permettant de récupérer les fichiers à zipper en fonction du bouton cliqué
+	 * Méthode permettant de récupérer les fichiers à zipper en fonction du bouton
+	 * cliqué
+	 * 
 	 * @param fileType
 	 * @param fichiers
 	 * @param tmp
@@ -274,7 +267,8 @@ public class FileController {
 			String fileName = currentFile.getName();
 			int extensionIndex = fileName.lastIndexOf(".");
 			String extension = fileName.substring(extensionIndex + 1);
-			File fileToAdd = new File(tmp.getAbsolutePath(), fileName.replace("." + extension, "-" + count + "." + extension));
+			File fileToAdd = new File(tmp.getAbsolutePath(),
+					fileName.replace("." + extension, "-" + count + "." + extension));
 			InputStream is = fileService.getFile(gouvPropertiesResolver.getDemarcheId() + "/"
 					+ gouvPropertiesResolver.getContainerId() + "/" + filePathEncoded);
 			copyInputStreamToFile(is, fileToAdd);
@@ -287,7 +281,7 @@ public class FileController {
 	private void createZipFile(List<File> filesToZip, File tmp, String fileName) throws IOException {
 		byte[] buffer = new byte[1024];
 		// creation du fichier ZIP
-		FileOutputStream fos = new FileOutputStream(tmp.getAbsolutePath()+"/"+fileName);
+		FileOutputStream fos = new FileOutputStream(tmp.getAbsolutePath() + "/" + fileName);
 		try (ZipOutputStream zos = new ZipOutputStream(fos)) {
 			for (File currentFile : filesToZip) {
 				try (FileInputStream fis = new FileInputStream(currentFile)) {

@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.pdfbox.io.MemoryUsageSetting;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -198,7 +199,7 @@ public class FileController {
 				}
 				// on traite le cas d'un PDF
 				else {
-					try (PDDocument pdfDoc = PDDocument.load(file)) {
+					try (PDDocument pdfDoc = PDDocument.load(file, MemoryUsageSetting.setupTempFileOnly())) {
 						PDFRenderer pdfRenderer = new PDFRenderer(pdfDoc);
 						for (int pageNumber = 0; pageNumber < pdfDoc.getNumberOfPages(); ++pageNumber) {
 							images.add(pdfRenderer.renderImageWithDPI(pageNumber, 300, ImageType.RGB));
@@ -246,6 +247,7 @@ public class FileController {
 				}
 			}
 			doc.save(dest.getAbsolutePath() +"/"+ pdfName);
+			images.clear();
 		}
 	}
 

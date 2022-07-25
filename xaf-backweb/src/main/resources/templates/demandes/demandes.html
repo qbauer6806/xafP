@@ -299,6 +299,10 @@
 						</div>
 					</div>
 				</form>
+				
+				<div id="pagedropdown" style="margin-left: auto; margin-right: 0; margin-top: 10px" class="input-group">
+					<select name="pagelist" style="height: 32px" id="pagelist" class="form-control"></select>
+				</div>
 
 				<div class="row">
 					<div class="col-xs-12">
@@ -381,6 +385,16 @@
 		self.buildFacetsSerachData = buildFacetsSerachData
 		self.buildSearchDatafunction = buildSearchDatafunction
 		self.facets = {}
+		
+		// Action du sélecteur de pages
+		$('#pagelist').change(function(){
+			var start = $('#pagelist').find(':selected').data('start');
+			var length = $('#pagelist').find(':selected').data('length');
+			//load_data(start, length);
+			var page_number = parseInt($('#pagelist').val());
+			var test_table = $('#datatable-demandes').dataTable();
+			test_table.fnPageChange(page_number);
+		});
 
 		$(document).ready(
 				function() {
@@ -423,6 +437,32 @@
 					if (typeof searchDefaultSort !== 'undefined') {
 						configurationDataTable.order = searchDefaultSort;
 					}
+					
+					// Configuration du drawCallback de Datatables afin d'afficher un dropdown permettant de changer de page
+					function callback() {
+						$('[data-toggle="tooltip"]').tooltip();
+			          	 
+			            var page_info = table.page.info();
+			            console.log(page_info);
+			            $('#totalpages').text(page_info.pages);
+			            var html = '';
+			            var start = 0;
+			            var length = page_info.length;
+			            for(var count = 1; count <= page_info.pages; count++)
+			            {                  
+			                var page_number = count - 1;
+			                html += '<option value="'+page_number+'" data-start="'+start+'" data-length="'+length+'">'+count+'</option>';
+			                start = start + page_info.length;
+			            }
+			            $('#pagelist').html(html);
+			            $('#pagelist').val(page_info.page);
+					}
+					
+					configurationDataTable.drawCallback = callback;
+					configurationDataTable.dom = 'frt<"footer">ip';
+					configurationDataTable.fnInitComplete = function(){
+				           $('div.footer').html($('#pagedropdown'));
+			         }
 					var table = $('#datatable-demandes').DataTable(configurationDataTable);
 
 					$('#tousModeTr').click(function(e) {

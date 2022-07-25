@@ -1,9 +1,9 @@
-package mc.gouv.xaf.back.paiement.service;
+package mc.gouv.xaf.back.paiement.client;
 
 import mc.gouv.xaf.back.paiement.dto.itg.rio.DocumentDTO;
 import mc.gouv.xaf.back.paiement.dto.itg.rio.FileDocumentDTO;
 
-public interface RioApiService {
+public interface RioClient {
 
     DocumentDTO createDocument(String codeAppli, String lastModifier, String codeNotice, String refDocument);
 

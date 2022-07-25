@@ -194,7 +194,7 @@ public class FileController {
 		List<BufferedImage> images = new ArrayList<>();
 		try {
 			for (File file : files) {
-				if (!file.getAbsolutePath().endsWith(".pdf")) {
+				if (!file.getAbsolutePath().toLowerCase().endsWith(".pdf")) {
 					images.add(ImageIO.read(file));
 				}
 				// on traite le cas d'un PDF

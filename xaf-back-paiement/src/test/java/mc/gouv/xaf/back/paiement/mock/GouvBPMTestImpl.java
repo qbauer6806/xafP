@@ -2,21 +2,28 @@ package mc.gouv.xaf.back.paiement.mock;
 
 import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.bpm.activiti.exception.TaskAlreadyClaimedException;
-import mc.gouv.xaf.back.bpm.model.CommentaireInterneDTO;
-import mc.gouv.xaf.back.bpm.model.GouvBPMGroup;
-import mc.gouv.xaf.back.bpm.model.GouvBPMStatutAction;
-import mc.gouv.xaf.back.bpm.model.GouvBPMTask;
-import mc.gouv.xaf.back.bpm.model.GouvBPMUser;
+import mc.gouv.xaf.back.bpm.model.*;
+import mc.gouv.xaf.back.data.dao.DemandesRepository;
+import mc.gouv.xaf.back.data.dao.DemandesStatutsRepository;
+import mc.gouv.xaf.back.data.entity.DemandeBO;
+import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
 import org.apache.tika.exception.TikaException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class GouvBPMTestImpl implements GouvBPM {
+
+    @Autowired
+    private DemandesRepository demandesRepository;
+
+    @Autowired
+    private DemandesStatutsRepository demandesStatutsRepository;
+
     @Override
     public void startProcessInstance(String processDefinitionKey, GouvBPMUser user, Integer demandeId, String codeAppli, Map<String, Object> businessVariables) {
 
@@ -24,7 +31,7 @@ public class GouvBPMTestImpl implements GouvBPM {
 
     @Override
     public Map<String, Object> getProcessBusinessVariables(Integer demandeId) {
-        return null;
+        return new HashMap<>();
     }
 
     @Override
@@ -44,7 +51,16 @@ public class GouvBPMTestImpl implements GouvBPM {
 
     @Override
     public void completeTask(GouvBPMTask task, Integer demandeId) throws IOException, TikaException, SAXException {
-
+        Optional<DemandeBO> demandeOp = demandesRepository.findById(demandeId);
+        if (demandeOp.isPresent()) {
+            DemandeBO demande = demandeOp.get();
+            DemandesStatutsBO dernierStatut = new DemandesStatutsBO();
+            dernierStatut.setLibelle(DemandeStatutEnum.EN_ATTENTE_TRAIT.name());
+            dernierStatut.setDate(new Date());
+            demandesStatutsRepository.save(dernierStatut);
+            demande.setDernierStatut(dernierStatut);
+            demandesRepository.save(demande);
+        }
     }
 
     @Override
@@ -54,7 +70,9 @@ public class GouvBPMTestImpl implements GouvBPM {
 
     @Override
     public List<GouvBPMTask> getActiveTasksForDemande(Integer demandeId) {
-        return null;
+        List<GouvBPMTask> tasks = new ArrayList<>();
+        tasks.add(new GouvBPMTask());
+        return tasks;
     }
 
     @Override

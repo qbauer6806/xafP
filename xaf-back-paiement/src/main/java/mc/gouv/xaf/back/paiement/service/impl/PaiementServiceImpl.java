@@ -5,7 +5,6 @@ import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.xaf.back.bpm.model.GouvBPMTask;
 import mc.gouv.xaf.back.bpm.model.GouvBPMUser;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
-import mc.gouv.xaf.back.data.dao.DemandesStatutsRepository;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.paiement.client.SecurityService;
 import mc.gouv.xaf.back.paiement.data.dao.CommandeDemandeRepository;
@@ -18,10 +17,14 @@ import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementStatutBO;
 import mc.gouv.xaf.back.paiement.dto.BillingDTO;
 import mc.gouv.xaf.back.paiement.dto.ContexteCommandeDTO;
 import mc.gouv.xaf.back.paiement.dto.PaiementDTO;
+import mc.gouv.xaf.back.paiement.enums.PaiementDemandeDataKeysEnum;
+import mc.gouv.xaf.back.paiement.enums.PaiementStatutEnum;
 import mc.gouv.xaf.back.paiement.properties.PaiementPropertiesResolver;
 import mc.gouv.xaf.back.paiement.service.MontantService;
 import mc.gouv.xaf.back.paiement.service.PaiementService;
 import mc.gouv.xaf.back.paiement.service.ReferenceFactoryService;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.data.DemandesDataService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
@@ -44,7 +47,8 @@ import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
 
 @Service
 public class PaiementServiceImpl implements PaiementService {
-    private static Logger LOGGER = LoggerFactory.getLogger(ReferenceFactoryService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PaiementServiceImpl.class);
+
     @Autowired
     private CommandeRepository commandeRepository;
 
@@ -61,9 +65,6 @@ public class PaiementServiceImpl implements PaiementService {
     private SecurityService securityService;
 
     @Autowired
-    private DemandesStatutsRepository demandesStatutsRepository;
-
-    @Autowired
     private PropertiesService propertiesService;
 
     @Autowired
@@ -73,17 +74,22 @@ public class PaiementServiceImpl implements PaiementService {
     @Lazy
     private UsagersCache usagersCache;
 
-
     @Autowired
     private PaiementPropertiesResolver paiementPropertiesResolver;
 
     @Autowired
     private MontantService montantService;
+
     @Autowired
     private GouvBPM gouvBPM;
 
-    @Override
+    @Autowired
+    private DemandesDataService demandesDataService;
 
+    @Autowired
+    private GouvPropertiesResolver gouvPropertiesResolver;
+
+    @Override
     public PaiementDTO create(String demandesId, String langue, Integer usagerId, boolean iframe) {
         logStartMethod(LOGGER);
         LOGGER.info("Parameters [ demandesId {}, langue {}, usagerId {} ] ", demandesId, langue, usagerId);
@@ -175,31 +181,21 @@ public class PaiementServiceImpl implements PaiementService {
         LOGGER.info("Parameters [ moyenPaiementDTO {}] ", moyenPaiementDTO);
         MoyenPaiementBO moyenPaiement = moyenPaiementRepository.findById(moyenPaiementDTO.getReference()).get();
         String status = moyenPaiementDTO.getCodeRetour();
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMyy");
+        YearMonth yeaMonthValidite = YearMonth.parse(moyenPaiementDTO.getVld(), formatter);
+        LocalDateTime dateValidite = LocalDateTime.of(yeaMonthValidite.getYear(), yeaMonthValidite.getMonth(), yeaMonthValidite.getMonth().length(yeaMonthValidite.isLeapYear()), 0, 0);
+        if (dateValidite.isBefore(moyenPaiement.getDateLimite())) {
+            LOGGER.info("Changement date limite moyen paiement [ dateValidite {}] ", dateValidite);
+            moyenPaiement.setDateLimite(dateValidite);
+        } else {
+            dateValidite = moyenPaiement.getDateLimite();
+        }
+
         if (status.equals("payetest") || status.equals("paiement")) {
             moyenPaiement.setMoyenPaiementStatut(MoyenPaiementStatutBO.VALIDE);
             List<CommandeDemandeBO> commandeDemandeBOList = commandeDemandeRepository.findByCommande_PkCommande(moyenPaiement.getCommande().getPkCommande());
-            for (CommandeDemandeBO commandeDemandeBO : commandeDemandeBOList) {
-                DemandeBO demandeBO = commandeDemandeBO.getDemande();
-                Integer usagerId = demandeBO.getFkAccess().getUsagerId();
-                GouvBPMUser user = new GouvBPMUser();
-                user.setId(usagerId.toString());
-
-                LOGGER.info("Progression dans le BPM...");
-                Map<String, Object> variables = gouvBPM.getProcessBusinessVariables(demandeBO.getPkDemandes());
-                variables.put(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_USAGER.name(), usagerId.toString());
-                variables.put(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_AGENT.name(), null);
-                gouvBPM.setProcessBusinessVariables(demandeBO.getPkDemandes(), variables);
-
-                GouvBPMTask task = gouvBPM.getActiveTasksForDemande(demandeBO.getPkDemandes()).get(0);
-                try {
-                    gouvBPM.claimTask(task, user);
-                    gouvBPM.completeTask(task, demandeBO.getPkDemandes());
-                } catch (Exception e1) {
-                    LOGGER.error("Erreur lors du claim et de la complétion de la tache du paiement");
-                    throw new RuntimeException(e1);
-                }
-            }
-
+            updateDemandeData(commandeDemandeBOList, dateValidite);
         } else {
             moyenPaiement.setMoyenPaiementStatut(MoyenPaiementStatutBO.INVALIDE);
         }
@@ -217,17 +213,6 @@ public class PaiementServiceImpl implements PaiementService {
         moyenPaiement.setNumauto(moyenPaiementDTO.getNumauto());
         moyenPaiement.setBrand(moyenPaiementDTO.getBrand());
         moyenPaiement.setVld(moyenPaiementDTO.getVld());
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMyy");
-        YearMonth yeaMonthValidite = YearMonth.parse(moyenPaiementDTO.getVld(), formatter);
-        LocalDateTime dateValidite = LocalDateTime.of(yeaMonthValidite.getYear(), yeaMonthValidite.getMonth(), yeaMonthValidite.getMonth().length(yeaMonthValidite.isLeapYear()), 0, 0);
-
-        if (dateValidite.isBefore(moyenPaiement.getDateLimite())) {
-            LOGGER.info("Changement date limite moyen paiement [ dateValidite {}] ", dateValidite);
-            moyenPaiement.setDateLimite(dateValidite);
-        }
-
-
         moyenPaiement.setCvx(moyenPaiementDTO.getCvx());
 
         moyenPaiementRepository.save(moyenPaiement);
@@ -247,5 +232,37 @@ public class PaiementServiceImpl implements PaiementService {
                 .sorted(Comparator.comparing(MoyenPaiementBO::getDateLimite, Comparator.nullsLast(Comparator.reverseOrder()))).findFirst();
     }
 
+    private void updateDemandeData(List<CommandeDemandeBO> commandeDemandeBOList, LocalDateTime dateValidite) {
+        for (CommandeDemandeBO commandeDemandeBO : commandeDemandeBOList) {
+            DemandeBO demandeBO = commandeDemandeBO.getDemande();
+            Integer pkDemande = demandeBO.getPkDemandes();
+            Integer usagerId = demandeBO.getFkAccess().getUsagerId();
+            GouvBPMUser user = new GouvBPMUser();
+            user.setId(usagerId.toString());
 
+            LOGGER.info("Mise à jour des données de la demande...");
+            String demarcheId = gouvPropertiesResolver.getDemarcheId();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+            Map<String, String> datas = new HashMap<>();
+            datas.put(PaiementDemandeDataKeysEnum.DATE_PAIEMENT.name(), LocalDateTime.now().format(formatter));
+            datas.put(PaiementDemandeDataKeysEnum.DATE_EXPIRATION_EMPREINTE.name(), dateValidite.format(formatter));
+            datas.put(PaiementDemandeDataKeysEnum.STATUT_PAIEMENT.name(), PaiementStatutEnum.EMPREINTE_VALIDE.name());
+            demandesDataService.saveOrUpdateDemandeDatas(demarcheId, pkDemande, datas);
+
+            LOGGER.info("Progression dans le BPM...");
+            Map<String, Object> variables = gouvBPM.getProcessBusinessVariables(pkDemande);
+            variables.put(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_USAGER.name(), usagerId.toString());
+            variables.put(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_AGENT.name(), null);
+            gouvBPM.setProcessBusinessVariables(pkDemande, variables);
+
+            GouvBPMTask task = gouvBPM.getActiveTasksForDemande(pkDemande).get(0);
+            try {
+                gouvBPM.claimTask(task, user);
+                gouvBPM.completeTask(task, pkDemande);
+            } catch (Exception e1) {
+                LOGGER.error("Erreur lors du claim et de la complétion de la tache du paiement");
+                throw new RuntimeException(e1);
+            }
+        }
+    }
 }

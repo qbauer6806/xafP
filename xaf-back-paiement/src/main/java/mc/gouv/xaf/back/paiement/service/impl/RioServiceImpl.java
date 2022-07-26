@@ -22,31 +22,31 @@ public class RioServiceImpl implements RioService {
     private GouvPropertiesResolver propertiesResolver;
 
     @Override
-    public DocumentDTO createPermcDocument(String refDocument) {
+    public DocumentDTO createDocument(String refDocument) {
         return rioClient.createDocument(CODE_APPLI, propertiesResolver.getDemarcheId(), CODE_NOTICE, refDocument);
     }
 
     @Override
-    public DocumentDTO getPermcDocument(String refDocument) {
+    public DocumentDTO getDocument(String refDocument) {
         return rioClient.getDocument(CODE_APPLI, refDocument, CODE_NOTICE, propertiesResolver.getDemarcheId());
     }
 
     @Override
-    public DocumentDTO deletePermcDocument(String refDocument) {
+    public DocumentDTO deleteDocument(String refDocument) {
         return rioClient.deleteDocument(CODE_APPLI, refDocument, CODE_NOTICE, propertiesResolver.getDemarcheId());
     }
 
     @Override
-    public FileDocumentDTO createPermcFileDocument(String refDocument, String filename, byte[] file) {
+    public FileDocumentDTO createFileDocument(String refDocument, String filename, byte[] file) {
         // Récupération de la version du document actuelle pour modifier la dernière
-        DocumentDTO documentDTO = getPermcDocument(refDocument);
+        DocumentDTO documentDTO = getDocument(refDocument);
         Long keyDocument = documentDTO.getKeyDocument();
 
         return rioClient.createFileDocument(CODE_APPLI, refDocument, keyDocument, CODE_NOTICE, propertiesResolver.getDemarcheId(), filename, file);
     }
 
     @Override
-    public FileDocumentDTO getPermcFileDocument(String refDocument, Integer keyFile) {
+    public FileDocumentDTO getFileDocument(String refDocument, Integer keyFile) {
         return rioClient.getFileDocument(CODE_APPLI, refDocument, keyFile, CODE_NOTICE, propertiesResolver.getDemarcheId());
     }
 }

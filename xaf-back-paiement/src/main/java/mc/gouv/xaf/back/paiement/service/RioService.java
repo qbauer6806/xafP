@@ -5,13 +5,13 @@ import mc.gouv.xaf.back.paiement.dto.itg.rio.FileDocumentDTO;
 
 public interface RioService {
 
-    DocumentDTO createPermcDocument(String refDocument);
+    DocumentDTO createDocument(String refDocument);
 
-    DocumentDTO getPermcDocument(String refDocument);
+    DocumentDTO getDocument(String refDocument);
 
-    DocumentDTO deletePermcDocument(String refDocument);
+    DocumentDTO deleteDocument(String refDocument);
 
-    FileDocumentDTO createPermcFileDocument(String refDocument, String filename, byte[] file);
+    FileDocumentDTO createFileDocument(String refDocument, String filename, byte[] file);
 
-    FileDocumentDTO getPermcFileDocument(String refDocument, Integer keyFile);
+    FileDocumentDTO getFileDocument(String refDocument, Integer keyFile);
 }

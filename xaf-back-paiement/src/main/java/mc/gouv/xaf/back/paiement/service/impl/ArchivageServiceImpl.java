@@ -10,7 +10,9 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpServerErrorException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,7 +37,16 @@ public class ArchivageServiceImpl implements ArchivageService {
         List<FileDocumentDTO> fileDocumentList = new ArrayList<>();
 
         LOGGER.info("Vérification de l'existence du document");
-        DocumentDTO documentDTO = rioService.getPermcDocument(refPermis);
+
+        DocumentDTO documentDTO = new DocumentDTO();
+        try {
+            documentDTO = rioService.getDocument(refPermis);
+        } catch (HttpServerErrorException e) {
+            // Si le document n'existe pas, nous devons le créer
+            if (e.getStatusCode().equals(HttpStatus.INTERNAL_SERVER_ERROR)) {
+                documentDTO = rioService.createDocument(refPermis);
+            }
+        }
 
         for (DemandeFileDTO file : files) {
             try {
@@ -45,7 +56,7 @@ public class ArchivageServiceImpl implements ArchivageService {
                 for (Map.Entry<String, InputStream> fileTiff : filesTiff.entrySet()) {
                     LOGGER.info("Envoi du documents en GED pour {}", fileTiff.getKey());
                     FileDocumentDTO fileDocumentDTO = rioService
-                            .createPermcFileDocument(documentDTO.getRefDocument(), fileTiff.getKey(), IOUtils.toByteArray(fileTiff.getValue()));
+                            .createFileDocument(documentDTO.getRefDocument(), fileTiff.getKey(), IOUtils.toByteArray(fileTiff.getValue()));
                     fileDocumentList.add(fileDocumentDTO);
                 }
 

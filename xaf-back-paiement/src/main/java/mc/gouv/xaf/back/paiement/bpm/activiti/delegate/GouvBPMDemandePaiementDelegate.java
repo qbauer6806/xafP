@@ -63,6 +63,7 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
             gouvBPM.setProcessBusinessVariable(demandeId, MC_CAPTURE_RESULT, true);
 
         } catch (Exception e) {
+            LOGGER.error("Error Capture paiement", e);
             gouvBPM.setProcessBusinessVariable(demandeId, MC_CAPTURE_RESULT, false);
         }
 

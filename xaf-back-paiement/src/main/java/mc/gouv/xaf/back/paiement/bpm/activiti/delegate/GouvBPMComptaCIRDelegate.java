@@ -38,6 +38,7 @@ public class GouvBPMComptaCIRDelegate implements JavaDelegate {
             gouvBPM.setProcessBusinessVariable(demandeId, MC_COMPTA_RESULT, true);
             
         } catch (Exception e) {
+            LOGGER.error("Error compta CIR", e);
             gouvBPM.setProcessBusinessVariable(demandeId, MC_COMPTA_RESULT, false);
         }
 

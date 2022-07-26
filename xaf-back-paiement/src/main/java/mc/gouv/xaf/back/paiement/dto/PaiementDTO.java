@@ -59,7 +59,7 @@ public class PaiementDTO {
     /**
      * Zone de texte libre (3200 caractères)
      */
-    private String TexteLibre;
+    private String texteLibre;
 
     /**
      * Email du client réalisant la transaction
@@ -69,12 +69,12 @@ public class PaiementDTO {
     /**
      * URL par laquelle l’acheteur revient sur le site du commerçant suite à un paiement accepté
      */
-    private String UrlRetourOk;
+    private String urlRetourOk;
 
     /**
      * URL par laquelle l’acheteur revient sur le site du commerçant suite à un paiement échoué
      */
-    private String UrlRetourErr;
+    private String urlRetourErr;
 
 
     private String ThreeDSecureChallenge;
@@ -175,14 +175,12 @@ public class PaiementDTO {
         this.societe = societe;
     }
 
-    @JsonGetter("TexteLibre")
     public String getTexteLibre() {
-        return TexteLibre;
+        return texteLibre;
     }
 
-    @JsonSetter("TexteLibre")
     public void setTexteLibre(String texteLibre) {
-        this.TexteLibre = texteLibre;
+        this.texteLibre = texteLibre;
     }
 
     public String getMail() {
@@ -193,24 +191,20 @@ public class PaiementDTO {
         this.mail = mail;
     }
 
-    @JsonGetter("UrlRetourOk")
     public String getUrlRetourOk() {
-        return UrlRetourOk;
+        return urlRetourOk;
     }
 
-    @JsonSetter("UrlRetourOk")
     public void setUrlRetourOk(String urlRetourOk) {
-        this.UrlRetourOk = urlRetourOk;
+        this.urlRetourOk = urlRetourOk;
     }
 
-    @JsonGetter("UrlRetourErr")
     public String getUrlRetourErr() {
-        return UrlRetourErr;
+        return urlRetourErr;
     }
 
-    @JsonSetter("UrlRetourErr")
     public void setUrlRetourErr(String urlRetourErr) {
-        this.UrlRetourErr = urlRetourErr;
+        this.urlRetourErr = urlRetourErr;
     }
 
     @JsonGetter("ThreeDSecureChallenge")
@@ -318,10 +312,10 @@ public class PaiementDTO {
                 ", MAC='" + MAC + '\'' +
                 ", contexte_commande='" + contexte_commande + '\'' +
                 ", societe='" + societe + '\'' +
-                ", texteLibre='" + TexteLibre + '\'' +
+                ", texteLibre='" + texteLibre + '\'' +
                 ", mail='" + mail + '\'' +
-                ", urlRetourOk='" + UrlRetourOk + '\'' +
-                ", urlRetourErr='" + UrlRetourErr + '\'' +
+                ", urlRetourOk='" + urlRetourOk + '\'' +
+                ", urlRetourErr='" + urlRetourErr + '\'' +
                 //", ThreeDSecureChallenge='" + ThreeDSecureChallenge + '\'' +
                 ", mode_affichage='" + mode_affichage + '\'' +
                 ", nbrech='" + nbrech + '\'' +

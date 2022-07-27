@@ -13,7 +13,8 @@ public interface ArchivageService {
      *
      * @param refPermis Réference permis
      * @param files     Fichiers à archiver
+     * @param demandeId PK demande
      * @return Liste des fichiers archivés
      */
-    List<FileDocumentDTO> archivageDocuments(String refPermis, List<DemandeFileDTO> files);
+    List<FileDocumentDTO> archivageDocuments(String refPermis, List<DemandeFileDTO> files, int demandeId);
 }

@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpServerErrorException;
 
 import java.io.IOException;
@@ -19,11 +20,14 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class ArchivageServiceImpl implements ArchivageService {
 
     private static Logger LOGGER = LoggerFactory.getLogger(ArchivageServiceImpl.class);
+
+    public static final Map<Integer, Double> archivageProgress = new ConcurrentHashMap<>();
 
     @Autowired
     private RioService rioService;
@@ -31,13 +35,16 @@ public class ArchivageServiceImpl implements ArchivageService {
     @Autowired
     private ConvertisseurTiffService convertisseurTiffService;
 
-    public List<FileDocumentDTO> archivageDocuments(String refPermis, List<DemandeFileDTO> files) {
+    @Transactional
+    public List<FileDocumentDTO> archivageDocuments(String refPermis, List<DemandeFileDTO> files, int demandeId) {
 
         LOGGER.info("Début archivage des documents");
         List<FileDocumentDTO> fileDocumentList = new ArrayList<>();
+        double progresArchivage = 0;
+        double valeurStep = 1d / files.size();
+        archivageProgress.put(demandeId, progresArchivage);
 
         LOGGER.info("Vérification de l'existence du document");
-
         DocumentDTO documentDTO = new DocumentDTO();
         try {
             documentDTO = rioService.getDocument(refPermis);
@@ -61,9 +68,14 @@ public class ArchivageServiceImpl implements ArchivageService {
                 }
 
             } catch (IOException e) {
-                e.printStackTrace();
+                LOGGER.error("Erreur lors de l'archivage du document {}", file.getName(), e);
+            } finally {
+                progresArchivage += valeurStep;
+                archivageProgress.put(demandeId, progresArchivage);
             }
         }
+
+        archivageProgress.put(demandeId, 1d);
 
         LOGGER.info("Fin archivage des documents");
 

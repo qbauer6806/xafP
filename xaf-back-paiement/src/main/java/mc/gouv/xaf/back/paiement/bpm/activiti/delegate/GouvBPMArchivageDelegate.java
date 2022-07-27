@@ -66,7 +66,7 @@ public class GouvBPMArchivageDelegate implements JavaDelegate {
         }
 
 
-        archivageService.archivageDocuments(reference, fichiers);
+        archivageService.archivageDocuments(reference, fichiers, demandeId);
 
         LOGGER.info("==== xaf-back-stc Archivage <fin>");
     }

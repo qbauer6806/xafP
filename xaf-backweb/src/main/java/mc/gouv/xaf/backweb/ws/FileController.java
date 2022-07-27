@@ -136,7 +136,11 @@ public class FileController {
 			String fileName = currentFile.getName();
 			int extensionIndex = fileName.lastIndexOf(".");
 			String extension = fileName.substring(extensionIndex + 1);
-			File fileToAdd = new File(tmp.getAbsolutePath() + "/" + fileName.replace("." + extension, "-" + count + "." + extension));
+			String typeDoc = "";
+			if (StringUtils.isNotBlank(currentFile.getTypedoc())) {
+				typeDoc = currentFile.getTypedoc() + "_";
+			}
+			File fileToAdd = new File(tmp.getAbsolutePath() + "/" + typeDoc + fileName.replace("." + extension, "-" + count + "." + extension));
 			InputStream is = fileService.getFile(gouvPropertiesResolver.getDemarcheId() + "/"
 					+ gouvPropertiesResolver.getContainerId() + "/" + filePathEncoded);
 			copyInputStreamToFile(is, fileToAdd);

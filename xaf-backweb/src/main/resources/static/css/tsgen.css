@@ -393,3 +393,23 @@ dd span {
 	min-height: 40px;
     height: auto;
 }
+
+.anciennedonnee-titre {
+	color: red;
+	font-weight: bold;
+	display: none;
+}
+
+.nouvelledonnee-titre {
+	color: red;
+	font-weight: bold;
+}
+
+.anciennedonnee-contenu {
+	color: red;
+	display: none;
+}
+
+.nouvelledonnee-contenu {
+	color: red;
+}

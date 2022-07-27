@@ -307,8 +307,8 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
                     	if (StringUtils.isBlank(valueSource)) {
                     		valueSource = "(vide)";
                     	}
-						html.append("<dt class='nouvelledonnee' style='color: red; font-weight: bold'>").append(champ.get("label")).append("</dt>");
-						html.append("<dd class='nouvelledonnee'>").append(value.replace("<span>", "<span class='nouvelledonnee'>").replace("<dt>","<dt class='nouvelledonnee' style='color: red; font-weight: bold'>").replace("<dd>","<dd class='nouvelledonnee'>"));
+						html.append("<dt class='nouvelledonnee-titre'>").append(champ.get("label")).append("</dt>");
+						html.append("<dd class='nouvelledonnee-titre'>").append(value.replace("<span>", "<span class='nouvelledonnee-contenu'>").replace("<dt>","<dt class='nouvelledonnee-titre'>").replace("<dd>","<dd class='nouvelledonnee-contenu'>"));
 						if (isDonneeCertifiee) {
 							html.append(" <span class=\"nouvelledonnee\" title=\"Donnée certifiée\"><img src=\"../img/icone_identite_numerique_valide.svg\"></img></span></dd>");
 						}
@@ -316,8 +316,8 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 							html.append("</dd>");
 						}
 						
-						html.append("<dt class='anciennedonnee' style='color: red; font-weight: bold' title='Donnée modifiée'>").append(champ.get("label")).append("</dt>");
-						html.append("<dd class='anciennedonnee' title='Donnée modifiée'>").append(valueSource.replace("<span>", "<span class='anciennedonnee'>").replace("<dt>","<dt class='anciennedonnee' style='color: red; font-weight: bold' title='Donnée modifiée'>").replace("<dd>","<dd class='anciennedonnee' title='Donnée modifiée'>"));
+						html.append("<dt class='anciennedonnee-titre' title='Donnée modifiée'>").append(champ.get("label")).append("</dt>");
+						html.append("<dd class='anciennedonnee-titre' title='Donnée modifiée'>").append(valueSource.replace("<span>", "<span class='anciennedonnee-contenu'>").replace("<dt>","<dt class='anciennedonnee-titre' title='Donnée modifiée'>").replace("<dd>","<dd class='anciennedonnee-contenu' title='Donnée modifiée'>"));
 						html.append("</dd>");
                     }
                     else {

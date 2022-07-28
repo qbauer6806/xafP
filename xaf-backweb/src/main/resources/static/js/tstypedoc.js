@@ -66,7 +66,7 @@ var setCurrentPopup = function(previewButton) {
 			            //Start with first page
 			            pdf.getPage(1).then(
 			            	createPdfCanvas.bind(null, 'canvas-container-file-pdf', 1, pdf.numPages, pdf))
-			                	.then(openPdfModal('#preview-container-file-pdf', previewButton.id), function () {
+			                	.then(openPdfPrevisuModal('#preview-container-file-pdf', previewButton.id), function () {
 			                    	alert("Erreur lors de l'affichage du pdf");
 			                });
 		        		},
@@ -174,7 +174,7 @@ var setCurrentPopup = function(previewButton) {
 			document.getElementById(buttonId).classList.remove("loading");
 		};
 		
-		var openPdfModal = function(containerId, buttonId) {
+		var openPdfPrevisuModal = function(containerId, buttonId) {
 			$.fancybox.open({
 				src: containerId,
 				type: 'inline',

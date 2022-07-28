@@ -14,7 +14,7 @@
     <title th:text="${titre}"></title>
 
     <!-- Import FONTS -->
-    <link th:href="@{/webjars/xcb-wlib/fonts/style.css}" rel="stylesheet"/>
+    <link th:href="@{/css/font-style.css(${applicationBuildTimestamp})}" rel="stylesheet"/>
     <!--[if lt IE 8]><!-->
     <link rel="stylesheet" th:href="@{/webjars/xcb-wlib/fonts/ie7/ie7.css}"/>
 

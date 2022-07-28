@@ -1,10 +1,7 @@
 package mc.gouv.xaf.back.service.utils;
 
 import java.nio.charset.StandardCharsets;
-import java.text.DateFormat;
-import java.text.NumberFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.text.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -598,7 +595,15 @@ public class AfBackUtils {
     }
 
     public static String formatDoubleToCurrency(Double number) {
-        NumberFormat formatter = NumberFormat.getCurrencyInstance(Locale.FRANCE);
+        return formatDoubleToCurrency(number, "fr");
+    }
+
+    public static String formatDoubleToCurrency(Double number, String langue) {
+        Locale local = StringUtils.equals("fr", langue) ? Locale.FRANCE : Locale.US;
+        NumberFormat formatter = NumberFormat.getCurrencyInstance(local);
+        DecimalFormatSymbols decimalFormatSymbols = ((DecimalFormat) formatter).getDecimalFormatSymbols();
+        decimalFormatSymbols.setCurrencySymbol("€");
+        ((DecimalFormat) formatter).setDecimalFormatSymbols(decimalFormatSymbols);
         return formatter.format(number);
     }
     

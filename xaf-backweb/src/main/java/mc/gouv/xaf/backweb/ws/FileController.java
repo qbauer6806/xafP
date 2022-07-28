@@ -23,15 +23,14 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.pdfbox.io.MemoryUsageSetting;
+import org.apache.pdfbox.multipdf.PDFMergerUtility;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import org.apache.pdfbox.pdmodel.common.PDStream;
 import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
-import org.apache.pdfbox.rendering.ImageType;
-import org.apache.pdfbox.rendering.PDFRenderer;
 import org.apache.pdfbox.util.Matrix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -190,20 +189,19 @@ public class FileController {
 	}
 	
 	private void constructPdf(File dest, List<File> files, String pdfName) throws IOException {
+		PDFMergerUtility pdfMerger = new PDFMergerUtility();
+		pdfMerger.setDestinationFileName(dest.getAbsolutePath()+ "/" + pdfName);
 		try (PDDocument doc = new PDDocument()) {
 			for (File file : files) {
 				if (!file.getAbsolutePath().toLowerCase().endsWith(".pdf")) {
 					copyFileInDestination(ImageIO.read(file), doc);
 				} else {
-					try (PDDocument pdfDoc = PDDocument.load(file, MemoryUsageSetting.setupTempFileOnly())) {
-						PDFRenderer pdfRenderer = new PDFRenderer(pdfDoc);
-						for (int pageNumber = 0; pageNumber < pdfDoc.getNumberOfPages(); ++pageNumber) {
-							copyFileInDestination(pdfRenderer.renderImageWithDPI(pageNumber, 300, ImageType.RGB), doc);
-						}
-					}
+					pdfMerger.addSource(file);
 				}
 			}
-			doc.save(dest.getAbsolutePath() + "/" + pdfName);
+			doc.save(dest.getAbsolutePath() + "/JpegToPdfFile.pdf");
+			pdfMerger.addSource(new File(dest.getAbsolutePath() + "/JpegToPdfFile.pdf"));
+			pdfMerger.mergeDocuments(null);
 		}
 	}
 

@@ -15,16 +15,16 @@
 							</div>
 							<div class="dropdown col-xs-3 text-right" style="padding: 0"
 								th:if="${cat.name == 'Fichiers de la demande initiale'}">
-								<button class="btn btn-action dropdown-toggle" type="button"
+								<button th:if="(${isGenerationZipActive or isGenerationPdfActive})" class="btn btn-action dropdown-toggle" type="button"
 									data-toggle="dropdown">
 									Télécharger <span class="icon-action_accordeon-ouvert"></span>
 								</button>
 								<ul class="dropdown-menu-custom dropdown-menu multi-level"
 									role="menu" aria-labelledby="dropdownMenu">
-									<li class="dropdown-submenu dropdown-item"><a tabindex="-1" href="#">Tous
-											les documents</a>
+									<li class="dropdown-submenu dropdown-item"><a
+										tabindex="-1" href="#">Tous les documents</a>
 										<ul class="dropdown-menu">
-											<li><a class="dropdown-item dropdown-item-custom"
+											<li><a th:if="${isGenerationZipActive}" class="dropdown-item dropdown-item-custom"
 												id="allDownloadButton">Sous format zip</a></li>
 											<li><a th:if="${isGenerationPdfActive}"
 												class="dropdown-item dropdown-item-custom"
@@ -32,10 +32,10 @@
 										</ul></li>
 									<li
 										th:classappend="!${isDocumentsValidesActif} ? disabled : enable"
-										class="dropdown-submenu dropdown-item"><a tabindex="-1" href="#">Les
-											documents valides</a>
+										class="dropdown-submenu dropdown-item"><a tabindex="-1"
+										href="#">Les documents valides</a>
 										<ul class="dropdown-menu">
-											<li><a class="dropdown-item dropdown-item-custom"
+											<li><a th:if="${isGenerationZipActive}" class="dropdown-item dropdown-item-custom"
 												th:classappend="!${isDocumentsValidesActif} ? disabled : enable"
 												id="validesDownloadButton">Sous format ZIP</a></li>
 											<li><a th:if="${isGenerationPdfActive}"
@@ -107,10 +107,11 @@
 					type="submit" />
 			</form>
 		</div>
-		<h2><i id="loaderMessage" class="hide">Téléchargement en cours, veuillez patienter ...</i></h2>
-		<div class="tab-pane loader" id="tabLoader" role="tabpanel">
-		
-		</div>
+		<h2>
+			<i id="loaderMessage" class="hide">Téléchargement en cours,
+				veuillez patienter ...</i>
+		</h2>
+		<div class="tab-pane loader" id="tabLoader" role="tabpanel"></div>
 	</div>
 </body>
 </html>

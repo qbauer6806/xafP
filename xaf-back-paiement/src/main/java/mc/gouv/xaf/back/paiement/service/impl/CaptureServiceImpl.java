@@ -78,7 +78,7 @@ public class CaptureServiceImpl implements CaptureService {
 
             operation.setOperationType(OperationTypeBO.DEBIT);
 
-            Optional<String> optionalNumFacture = factureClient.createFacture(numeroPermis, " ", operation.getMontant(), operation.getPkOperation(), demandeDTO.getUsagerId(), objetMontants, demandeDTO);
+            Optional<String> optionalNumFacture = factureClient.createFacture(numeroPermis, " ", operation.getMontant(), operation.getPkOperation(), demandeDTO.getUsagerId(), objetMontants, demandeDTO, operation);
             if (optionalNumFacture.isPresent()) {
                 LOGGER.info("Created [ facture n°{}] ", optionalNumFacture.get());
                 operation.setNumeroFacture(optionalNumFacture.get());

@@ -132,7 +132,13 @@ public class MoneticoClient implements PaiementClient {
             //send mail + delete command_demande
 
             if (mailService != null) {
-                sendMail(demandeDTO, operation);
+                if (OperationStatutBO.ERREUR.equals(operationBO.getOperationStatut())) {
+                    sendMail(demandeDTO, operation, 4);
+                } else {
+                    operationBO.setOperationStatut(OperationStatutBO.ERREUR);
+                    sendMail(demandeDTO, operation, 3);
+                }
+
             }
 
             return false;
@@ -141,7 +147,7 @@ public class MoneticoClient implements PaiementClient {
         return true;
     }
 
-    private void sendMail(DemandeDTO demandeDTO, Operation<String> operation) {
+    private void sendMail(DemandeDTO demandeDTO, Operation<String> operation, int incident) {
         Date date = new Date(System.currentTimeMillis());
         String dateTimeString = simpleDateTimeFormat.format(date);
         String bodyTemplateCode = "MAIL_CAPTURE_ECHEC_CORPS";
@@ -169,6 +175,7 @@ public class MoneticoClient implements PaiementClient {
 
 
         Map<String, Object> model = new HashMap<>();
+        model.put("incident", incident);
         model.put("dateTimeString", dateTimeString);
         model.put("PkDemandes", demandeDTO.getPkDemandes());
         model.put("reponse", operation == null ? null : operation.getResult());

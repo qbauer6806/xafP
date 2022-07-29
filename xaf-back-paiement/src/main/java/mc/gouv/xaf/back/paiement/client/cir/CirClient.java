@@ -2,6 +2,7 @@ package mc.gouv.xaf.back.paiement.client.cir;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import mc.gouv.xaf.back.paiement.client.FactureClient;
+import mc.gouv.xaf.back.paiement.data.entity.OperationBO;
 import mc.gouv.xaf.back.paiement.properties.PaiementPropertiesResolver;
 import mc.gouv.xaf.back.paiement.retry.Operation;
 import mc.gouv.xaf.back.paiement.retry.OperationHelper;
@@ -110,7 +111,7 @@ public class CirClient implements FactureClient {
 
 
     @Override
-    public Optional<String> createFacture(String numPermis, String numImmat, Double montant, String codeTransaction, Integer usagerId, HashMap<String, Double> objetMontants, DemandeDTO demandeDTO) {
+    public Optional<String> createFacture(String numPermis, String numImmat, Double montant, String codeTransaction, Integer usagerId, HashMap<String, Double> objetMontants, DemandeDTO demandeDTO, OperationBO operationBO) {
         logStartMethod(LOGGER);
         LOGGER.info("Parameters [ numPermis {}, numImmat {},  codeTransaction {}] ", numPermis, numImmat, codeTransaction);
 
@@ -134,11 +135,15 @@ public class CirClient implements FactureClient {
             request.setNomPropr(usager.getNom());
             request.setPrenomPropr(usager.getPrenom());
             request.setEmail(usager.getEmail());
-            request.setCodeOperation(montantObjet == 80 ? "P1" : "P5");
+
+            PropertiesDTO montantProperty = propertiesService.getProperty("PERMC", "XAF_PAIEMENT_AMOUNT");
+            double prix = Double.parseDouble(montantProperty.getValue());
+
+            request.setCodeOperation(montantObjet == prix ? "P1" : "P5"); //voir avec alexis devrait être dans les properties
             request.setCodeTransaction(codeTransaction);
-            request.setCodeReglement("X");
-            request.setAutorisation("6"); // num aut paiement
-            request.setTransactionId("6"); //  ref pk operation
+            request.setCodeReglement("X"); // idem devrait être en properties meme si c'est fixe
+            request.setAutorisation(""+operationBO.getNumeroAuthorisation());
+            request.setTransactionId(operationBO.getPkOperation());
 
             cirRequests.add(request);
         }
@@ -169,8 +174,8 @@ public class CirClient implements FactureClient {
             LOGGER.info("return :" + operation.getResult());
             return operation.getResult();
         } catch (Exception e) {
-            sendMailTechnique(demandeDTO, operation);
-            sendMailFonctionnel(demandeDTO, operation);
+            sendMailTechnique(demandeDTO, operation,6);
+            sendMailFonctionnel(demandeDTO, operation,6);
         }
         return Optional.empty();
     }
@@ -209,14 +214,14 @@ public class CirClient implements FactureClient {
             operationHelper.executeWithRetry(operation);
             return operation.getResult();
         } catch (Exception e) {
-            sendMailTechnique(demandeDTO, operation);
-            sendMailFonctionnel(demandeDTO, operation);
+            sendMailTechnique(demandeDTO, operation,7);
+            sendMailFonctionnel(demandeDTO, operation,7);
         }
         return Optional.empty();
 
     }
 
-    private void sendMailTechnique(DemandeDTO demandeDTO, Operation<?> operation) {
+    private void sendMailTechnique(DemandeDTO demandeDTO, Operation<?> operation, int incident) {
         Date date = new Date(System.currentTimeMillis());
         String dateTimeString = simpleDateTimeFormat.format(date);
         String bodyTemplateCode = "MAIL_CIR_ECHEC_TECH_CORPS";
@@ -244,6 +249,7 @@ public class CirClient implements FactureClient {
 
 
         Map<String, Object> model = new HashMap<>();
+        model.put("incident", incident);
         model.put("dateTimeString", dateTimeString);
         model.put("PkDemandes", demandeDTO.getPkDemandes());
         model.put("reponse", operation.getResult());
@@ -254,7 +260,7 @@ public class CirClient implements FactureClient {
         }
     }
 
-    private void sendMailFonctionnel(DemandeDTO demandeDTO, Operation<?> operation) {
+    private void sendMailFonctionnel(DemandeDTO demandeDTO, Operation<?> operation, int incident) {
         Date date = new Date(System.currentTimeMillis());
         String dateTimeString = simpleDateTimeFormat.format(date);
         String bodyTemplateCode = "MAIL_CIR_ECHEC_FONC_CORPS";
@@ -282,6 +288,7 @@ public class CirClient implements FactureClient {
 
 
         Map<String, Object> model = new HashMap<>();
+        model.put("incident", incident);
         model.put("dateTimeString", dateTimeString);
         model.put("PkDemandes", demandeDTO.getPkDemandes());
         model.put("reponse", operation.getResult());

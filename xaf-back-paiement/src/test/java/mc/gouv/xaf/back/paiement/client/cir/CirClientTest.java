@@ -25,7 +25,7 @@ public class CirClientTest {
         String codeTransaction = "1591658";
         HashMap<String, Double> objetMontants = new HashMap<>();
         objetMontants.put("a", 90.0);
-        String resultat = cirClient.createFacture(numPermis, numImmat, 90.0, codeTransaction, 1, objetMontants, null).get();
+        String resultat = cirClient.createFacture(numPermis, numImmat, 90.0, codeTransaction, 1, objetMontants, null, null).get();
         System.out.println(resultat);
     }
 

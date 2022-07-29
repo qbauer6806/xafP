@@ -39,7 +39,7 @@ public class FactureServiceImpl implements FactureService {
     private FactureClient factureClient;
 
     @Override
-    public void saveFacture(String reference, Integer demandeId) throws IOException {
+    public void saveFacture(String reference, Integer demandeId) throws Exception {
         logStartMethod(LOGGER);
         String demarcheId = gouvPropertiesResolver.getDemarcheId();
         DemandeDTO demande = demandesService.getDemande(demarcheId, demandeId);

@@ -171,7 +171,7 @@ public class MoneticoClient implements PaiementClient {
         Map<String, Object> model = new HashMap<>();
         model.put("dateTimeString", dateTimeString);
         model.put("PkDemandes", demandeDTO.getPkDemandes());
-        model.put("reponse", operation.getResult());
+        model.put("reponse", operation == null ? null : operation.getResult());
         try {
             mailService.sendMail(emailInfo, model);
         } catch (Exception e) {

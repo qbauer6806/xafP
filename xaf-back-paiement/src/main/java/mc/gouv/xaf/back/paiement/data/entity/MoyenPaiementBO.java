@@ -52,6 +52,9 @@ public class MoyenPaiementBO {
     public String ecard;
     @Column(name = "origine_cb")
     public String originecb;
+
+    @Column(name = "cb_masquee")
+    public String cbmasquee;
     @Column(name = "bin_cb")
     public String bincb;
     @Column(name = "hpan_cb")
@@ -257,6 +260,14 @@ public class MoyenPaiementBO {
         this.authentification = authentification;
     }
 
+    public String getCbmasquee() {
+        return cbmasquee;
+    }
+
+    public void setCbmasquee(String cbmasquee) {
+        this.cbmasquee = cbmasquee;
+    }
+
     @Override
     public String toString() {
         return "MoyenPaiementBO{" +
@@ -270,6 +281,7 @@ public class MoyenPaiementBO {
                 ", moyenPaiementType=" + moyenPaiementType +
                 ", moyenPaiementStatut=" + moyenPaiementStatut +
                 ", dateDerniereModification=" + dateDerniereModification +
+                ", cbmasquee='" + cbmasquee + '\'' +
                 ", cvx='" + cvx + '\'' +
                 ", vld='" + vld + '\'' +
                 ", brand='" + brand + '\'' +
@@ -305,6 +317,7 @@ public class MoyenPaiementBO {
         csvString.add(usage);
         csvString.add(typecompte);
         csvString.add(ecard);
+        csvString.add(cbmasquee);
         csvString.add(originecb);
         csvString.add(bincb);
         csvString.add(hpancb);
@@ -332,6 +345,7 @@ public class MoyenPaiementBO {
         csvString.add("usage");
         csvString.add("typecompte");
         csvString.add("ecard");
+        csvString.add("cbmasquee");
         csvString.add("originecb");
         csvString.add("bincb");
         csvString.add("hpancb");

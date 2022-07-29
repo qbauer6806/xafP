@@ -205,6 +205,7 @@ public class PaiementServiceImpl implements PaiementService {
         moyenPaiement.setHpancb(moyenPaiementDTO.getHpancb());
         moyenPaiement.setBincb(moyenPaiementDTO.getBincb());
         moyenPaiement.setOriginecb(moyenPaiementDTO.getOriginecb());
+        moyenPaiement.setCbmasquee(moyenPaiementDTO.getCbmasquee());
         moyenPaiement.setEcard(moyenPaiementDTO.getEcard());
         moyenPaiement.setTypecompte(moyenPaiementDTO.getTypecompte());
         moyenPaiement.setUsage(moyenPaiementDTO.getUsage());

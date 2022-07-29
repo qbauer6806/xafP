@@ -20,7 +20,7 @@ public abstract class Operation<T> {
     }
 
     public Optional<T> getResult() {
-        return Optional.of(this.result);
+        return Optional.ofNullable(this.result);
     }
 
 

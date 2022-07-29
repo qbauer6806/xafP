@@ -19,6 +19,8 @@ public class MoyenPaiementDTO {
     public String typecompte;
     public String ecard;
     public String originecb;
+
+    public String cbmasquee;
     public String bincb;
     public String hpancb;
     public String ipclient;
@@ -204,9 +206,17 @@ public class MoyenPaiementDTO {
         isValid = valid;
     }
 
+    public String getCbmasquee() {
+        return cbmasquee;
+    }
+
+    public void setCbmasquee(String cbmasquee) {
+        this.cbmasquee = cbmasquee;
+    }
+
     @Override
     public String toString() {
-        return "MoneticoPaiement{" +
+        return "MoyenPaiementDTO{" +
                 "tpe='" + tpe + '\'' +
                 ", date='" + date + '\'' +
                 ", montant='" + montant + '\'' +
@@ -221,6 +231,7 @@ public class MoyenPaiementDTO {
                 ", typecompte='" + typecompte + '\'' +
                 ", ecard='" + ecard + '\'' +
                 ", originecb='" + originecb + '\'' +
+                ", cbmasquee='" + cbmasquee + '\'' +
                 ", bincb='" + bincb + '\'' +
                 ", hpancb='" + hpancb + '\'' +
                 ", ipclient='" + ipclient + '\'' +
@@ -228,6 +239,7 @@ public class MoyenPaiementDTO {
                 ", modepaiement='" + modepaiement + '\'' +
                 ", authentification='" + authentification + '\'' +
                 ", mac='" + mac + '\'' +
+                ", isValid=" + isValid +
                 '}';
     }
 }

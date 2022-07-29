@@ -22,13 +22,12 @@ import org.springframework.stereotype.Service;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.*;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URLEncoder;
 import java.util.*;
 import java.util.List;
+
+import static mc.gouv.xaf.back.paiement.utils.DitheringUtils.floydSteinbergDithering;
 
 @Service
 public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
@@ -102,6 +101,12 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
         }
     }
 
+    /**
+     * Génère des PDF à partir des docx
+     * @param is Fichier d'entrée DocX
+     * @return Fichier PDF converti
+     * @throws IOException
+     */
     private InputStream generatePdfFromDocx(InputStream is) throws IOException {
         XWPFDocument document = new XWPFDocument(is);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -109,6 +114,12 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
         return new ByteArrayInputStream(out.toByteArray());
     }
 
+    /**
+     * Génère un PDF à partir d'une image
+     * @param is Fichier image d'entrée
+     * @return Image convertie en PDF
+     * @throws IOException
+     */
     private InputStream generatePdfFromImage(InputStream is) throws IOException {
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -142,14 +153,28 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
         return new ByteArrayInputStream(out.toByteArray());
     }
 
+    /**
+     * Génère un/plusieurs fichier tiff à partir d'un PDF (éventuellement multipages)
+     * @param is Fichier PDF d'entée
+     * @return Liste de fichiers tiff
+     * @throws IOException
+     */
     private List<InputStream> generateTiffsFromPDF(InputStream is) throws IOException {
         List<InputStream> imagesIS = new ArrayList<>();
         ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+        // Chargement du document PDF
         PDDocument document = PDDocument.load(is);
         PDFRenderer pdfRenderer = new PDFRenderer(document);
+
+        // Parcours du PDF multipages
         for (int page = 0; page < document.getNumberOfPages(); ++page) {
-            BufferedImage bim = convertImageToTiff(pdfRenderer.renderImageWithDPI(page, 480, ImageType.GRAY));
-            ImageIOUtil.writeImage(bim, "tiff", out, 480);
+
+            // Conversion de l'image en tiff
+            BufferedImage bim = convertImageToTiff(pdfRenderer.renderImageWithDPI(page, 240));
+
+            // Sauvegarde de l'image sans perte (compression quality 1f) + comression CCITT T.4 (standard fax/scanner)
+            ImageIOUtil.writeImage(bim, "tiff", out,240, 1f, "CCITT T.4");
             imagesIS.add(new ByteArrayInputStream(out.toByteArray()));
         }
         document.close();
@@ -157,20 +182,21 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
     }
 
     public BufferedImage convertImageToTiff(BufferedImage inputImage) {
-        int width = inputImage.getWidth();
-        int height = inputImage.getHeight();
 
-        byte[] arr = {(byte) 0, (byte) 0x30, (byte) 0xB0, (byte) 0xff};
-        ColorModel colorModel = new IndexColorModel(2, 4, arr, arr, arr);
+        // Conversion en Noir et blanc en "dithering"
+        // Plus d'infos: https://en.wikipedia.org/wiki/Floyd%E2%80%93Steinberg_dithering
+        BufferedImage output = floydSteinbergDithering(inputImage);
 
-        WritableRaster raster = Raster.createPackedRaster(DataBuffer.TYPE_BYTE,
-                width, height, 1, 2, null);
+        // Conversion d'une image indexée sur 32 bits à 1 bit (noir et blanc)
+        // Chaque pixel ce n'est plus un hexadécimal, mais un bit 1 (blanc) ou 0 (noir)
+        BufferedImage myBWImage = new BufferedImage(
+                output.getWidth(),
+                output.getHeight(),
+                BufferedImage.TYPE_BYTE_BINARY);
 
-        BufferedImage myBWImage = new BufferedImage(colorModel, raster, false, null);
-
-        Graphics g = myBWImage.getGraphics();
-        g.drawImage(inputImage, 0, 0, null);
-        g.dispose();
+        Graphics2D graphic = myBWImage.createGraphics();
+        graphic.drawImage(output, 0, 0, Color.WHITE, null);
+        graphic.dispose();
 
         return myBWImage;
     }

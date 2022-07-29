@@ -28,6 +28,6 @@ public class MoneticoServiceTest {
     @Test
     public void getHmacString_Test() {
         String result = securityService.getHmacString(new PaiementDTO());
-        assertThat(result).isEqualTo("327ec4480abc3aeb7fe9c8db839379875d6c23f1");
+        assertThat(result).isEqualTo("0191c42b24bff809057e0b165f380cb2a5228fa1");
     }
 }

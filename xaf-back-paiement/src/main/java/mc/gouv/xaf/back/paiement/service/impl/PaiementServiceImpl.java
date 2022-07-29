@@ -10,10 +10,8 @@ import mc.gouv.xaf.back.paiement.client.SecurityService;
 import mc.gouv.xaf.back.paiement.data.dao.CommandeDemandeRepository;
 import mc.gouv.xaf.back.paiement.data.dao.CommandeRepository;
 import mc.gouv.xaf.back.paiement.data.dao.MoyenPaiementRepository;
-import mc.gouv.xaf.back.paiement.data.entity.CommandeBO;
-import mc.gouv.xaf.back.paiement.data.entity.CommandeDemandeBO;
-import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
-import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementStatutBO;
+import mc.gouv.xaf.back.paiement.data.dao.PaiementHistoriqueRepository;
+import mc.gouv.xaf.back.paiement.data.entity.*;
 import mc.gouv.xaf.back.paiement.dto.BillingDTO;
 import mc.gouv.xaf.back.paiement.dto.ContexteCommandeDTO;
 import mc.gouv.xaf.back.paiement.dto.PaiementDTO;
@@ -30,11 +28,13 @@ import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.stc.MoyenPaiementDTO;
+import net.bytebuddy.asm.Advice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
@@ -59,6 +59,9 @@ public class PaiementServiceImpl implements PaiementService {
 
     @Autowired
     private DemandesRepository demandesRepository;
+
+    @Autowired
+    private PaiementHistoriqueRepository paiementHistoriqueRepository;
 
     @Autowired
     private SecurityService securityService;
@@ -236,6 +239,7 @@ public class PaiementServiceImpl implements PaiementService {
     }
 
     private void updateDemandeData(List<CommandeDemandeBO> commandeDemandeBOList, LocalDateTime dateValidite) {
+        Timestamp date = Timestamp.valueOf(LocalDateTime.now());
         for (CommandeDemandeBO commandeDemandeBO : commandeDemandeBOList) {
             DemandeBO demandeBO = commandeDemandeBO.getDemande();
             Integer pkDemande = demandeBO.getPkDemandes();
@@ -251,6 +255,15 @@ public class PaiementServiceImpl implements PaiementService {
             datas.put(PaiementDemandeDataKeysEnum.DATE_EXPIRATION_EMPREINTE.name(), dateValidite.format(formatter));
             datas.put(PaiementDemandeDataKeysEnum.STATUT_PAIEMENT.name(), PaiementStatutEnum.EMPREINTE_VALIDE.name());
             demandesDataService.saveOrUpdateDemandeDatas(demarcheId, pkDemande, datas);
+
+            LOGGER.info("Ajout de l'historique de paiement...");
+            PaiementHistoriqueBO historique = new PaiementHistoriqueBO();
+            historique.setFkDemande(demandeBO);
+            historique.setContenu("Usager " + demandeBO.getUsagerPrenom() + " " + demandeBO.getUsagerNom() + " : Effectue une empreinte bancaire");
+            historique.setStatut(PaiementStatutEnum.EMPREINTE_VALIDE.name());
+            historique.setDate(date);
+            historique.setUsagerId(demandeBO.getFkAccess().getUsagerId());
+            paiementHistoriqueRepository.save(historique);
 
             LOGGER.info("Progression dans le BPM...");
             Map<String, Object> variables = gouvBPM.getProcessBusinessVariables(pkDemande);

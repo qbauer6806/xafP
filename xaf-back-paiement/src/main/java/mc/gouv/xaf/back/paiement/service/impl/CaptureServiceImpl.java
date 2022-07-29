@@ -1,6 +1,5 @@
 package mc.gouv.xaf.back.paiement.service.impl;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import mc.gouv.xaf.back.paiement.client.FactureClient;
 import mc.gouv.xaf.back.paiement.client.PaiementClient;
 import mc.gouv.xaf.back.paiement.data.dao.CommandeDemandeRepository;
@@ -9,10 +8,14 @@ import mc.gouv.xaf.back.paiement.data.dao.OperationRepository;
 import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
 import mc.gouv.xaf.back.paiement.data.entity.OperationBO;
 import mc.gouv.xaf.back.paiement.data.entity.OperationTypeBO;
+import mc.gouv.xaf.back.paiement.enums.PaiementDemandeDataKeysEnum;
 import mc.gouv.xaf.back.paiement.service.CaptureService;
 import mc.gouv.xaf.back.paiement.service.MontantService;
 import mc.gouv.xaf.back.paiement.service.ReferenceFactoryService;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.data.DemandesDataService;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeDataDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +48,11 @@ public class CaptureServiceImpl implements CaptureService {
     @Autowired
     private CommandeDemandeRepository commandeDemandeRepository;
 
+    @Autowired
+    private DemandesDataService demandesDataService;
+
+    @Autowired
+    private GouvPropertiesResolver gouvPropertiesResolver;
 
     @Override
     public OperationBO capture(MoyenPaiementBO moyenPaiementBO, DemandeDTO demandeDTO) throws Exception {
@@ -52,11 +60,8 @@ public class CaptureServiceImpl implements CaptureService {
         LOGGER.info("Parameters [ moyenPaiementBO {}] ", moyenPaiementBO);
         OperationBO operation = new OperationBO();
 
-        JsonNode contenuDemande = demandeDTO.getContenu();
-
-
-        //todo change permis
-        String numeroPermis = contenuDemande.get("titre").get("numeropermis").asText();
+        DemandeDataDTO data = demandesDataService.getDemandeData(gouvPropertiesResolver.getDemarcheId(), demandeDTO.getPkDemandes(), PaiementDemandeDataKeysEnum.NUMERO_PERMIS.name());
+        String numeroPermis = data.getValue();
         LOGGER.info("Permis n° : {}", numeroPermis);
 
         HashMap<String, Double> objetMontants = montantService.getPaiements(demandeDTO);

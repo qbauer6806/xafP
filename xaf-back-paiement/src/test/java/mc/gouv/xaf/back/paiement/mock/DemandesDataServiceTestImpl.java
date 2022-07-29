@@ -1,8 +1,10 @@
 package mc.gouv.xaf.back.paiement.mock;
 
 import mc.gouv.xaf.back.data.entity.DemandeBO;
+import mc.gouv.xaf.back.paiement.enums.PaiementDemandeDataKeysEnum;
 import mc.gouv.xaf.back.service.data.DemandesDataService;
 import mc.gouv.xaf.shared.dto.DemandeDataDTO;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -12,6 +14,11 @@ import java.util.Map;
 public class DemandesDataServiceTestImpl implements DemandesDataService {
     @Override
     public DemandeDataDTO getDemandeData(String demarcheId, Integer demandeId, String key) {
+        if (StringUtils.equals(key, PaiementDemandeDataKeysEnum.NUMERO_PERMIS.name())) {
+            DemandeDataDTO data = new DemandeDataDTO();
+            data.setValue("12345");
+            return data;
+        }
         return null;
     }
 

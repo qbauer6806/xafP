@@ -8,15 +8,10 @@ import mc.gouv.xaf.back.data.dao.DemandesStatutsRepository;
 import mc.gouv.xaf.back.data.entity.AccessBO;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
-import mc.gouv.xaf.back.paiement.data.dao.CommandeDemandeRepository;
-import mc.gouv.xaf.back.paiement.data.dao.CommandeRepository;
-import mc.gouv.xaf.back.paiement.data.dao.MoyenPaiementRepository;
-import mc.gouv.xaf.back.paiement.data.dao.OperationRepository;
-import mc.gouv.xaf.back.paiement.data.entity.CommandeBO;
-import mc.gouv.xaf.back.paiement.data.entity.CommandeDemandeBO;
-import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
-import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementStatutBO;
+import mc.gouv.xaf.back.paiement.data.dao.*;
+import mc.gouv.xaf.back.paiement.data.entity.*;
 import mc.gouv.xaf.back.paiement.dto.*;
+import mc.gouv.xaf.back.paiement.enums.PaiementStatutEnum;
 import mc.gouv.xaf.back.paiement.mock.DemandeStatutEnum;
 import mc.gouv.xaf.shared.stc.MoyenPaiementDTO;
 import org.junit.Before;
@@ -63,8 +58,12 @@ public class PaiementServiceTest {
     @Autowired
     private AccessRepository accessRepository;
 
+    @Autowired
+    private PaiementHistoriqueRepository paiementHistoriqueRepository;
+
     @Before
     public void cleanData() {
+        paiementHistoriqueRepository.deleteAll();
         operationRepository.deleteAll();
         moyenPaiementRepository.deleteAll();
         commandeDemandeRepository.deleteAll();
@@ -124,6 +123,8 @@ public class PaiementServiceTest {
         demandeBO.setDateCreation(new Date());
         demandeBO.setDateDerModif(new Date());
         demandeBO.setFkAccess(access);
+        demandeBO.setUsagerPrenom("Jon");
+        demandeBO.setUsagerNom("Doe");
 
         DemandesStatutsBO dernierStatut = new DemandesStatutsBO();
         dernierStatut.setLibelle(DemandeStatutEnum.EN_ATTENTE_DE_PAIEMENT.name());
@@ -139,6 +140,8 @@ public class PaiementServiceTest {
         demandeBO2.setDateCreation(new Date());
         demandeBO2.setDateDerModif(new Date());
         demandeBO2.setFkAccess(access);
+        demandeBO2.setUsagerPrenom("Jon");
+        demandeBO2.setUsagerNom("Doe");
 
         DemandesStatutsBO dernierStatut2 = new DemandesStatutsBO();
         dernierStatut2.setLibelle(DemandeStatutEnum.EN_ATTENTE_DE_PAIEMENT.name());
@@ -169,6 +172,10 @@ public class PaiementServiceTest {
         assertThat(moyenPaiementBO.getMoyenPaiementStatut()).isEqualTo(MoyenPaiementStatutBO.VALIDE);
 
         demandesRepository.findAll().stream().map(DemandeBO::getDernierStatut).map(DemandesStatutsBO::getLibelle).collect(Collectors.toList()).forEach(libelle -> assertThat(libelle).isEqualTo(DemandeStatutEnum.EN_ATTENTE_TRAIT.name()));
+        paiementHistoriqueRepository.findAll().forEach(histo -> {
+            assertThat(histo.getContenu()).isEqualTo("Usager Jon Doe : Effectue une empreinte bancaire");
+            assertThat(histo.getStatut()).isEqualTo(PaiementStatutEnum.EMPREINTE_VALIDE.name());
+        });
     }
 
 

@@ -115,7 +115,7 @@ public class PaiementServiceImpl implements PaiementService {
             CommandeDemandeBO commandeDemande = new CommandeDemandeBO();
             commandeDemande.setCommande(commande);
             DemandeBO demandeBO = demandesRepository.findById(demandeId).orElseThrow(RuntimeException::new);
-            listePkDemandes.add(""+demandeBO.getPkDemandes());
+            listePkDemandes.add(demandeBO.getIdentifiant());
             commandeDemande.setDemande(demandeBO);
             commandeDemande.setMontant(prix);
             commandeDemande = commandeDemandeRepository.save(commandeDemande);

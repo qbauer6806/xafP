@@ -4,9 +4,12 @@ import mc.gouv.xaf.back.paiement.dto.itg.rio.FileDocumentDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public interface ArchivageService {
 
+    Map<Integer, Double> archivageProgress = new ConcurrentHashMap<>();
 
     /**
      * Archive les documents en attribut

@@ -27,8 +27,6 @@ public class ArchivageServiceImpl implements ArchivageService {
 
     private static Logger LOGGER = LoggerFactory.getLogger(ArchivageServiceImpl.class);
 
-    public static final Map<Integer, Double> archivageProgress = new ConcurrentHashMap<>();
-
     @Autowired
     private RioService rioService;
 

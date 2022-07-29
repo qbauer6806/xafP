@@ -2,7 +2,10 @@ package mc.gouv.xaf.back.paiement.retry;
 
 import org.slf4j.Logger;
 
-public abstract class Operation {
+import java.util.Optional;
+
+public abstract class Operation<T> {
+    private T result;
 
     abstract public void execute() throws Exception;
 
@@ -10,6 +13,14 @@ public abstract class Operation {
 
     public void handleException(Exception exception) {
         getLogger().error(exception.getMessage(), exception);
+    }
+
+    public void setResult(T result) {
+        this.result = result;
+    }
+
+    public Optional<T> getResult() {
+        return Optional.of(this.result);
     }
 
 

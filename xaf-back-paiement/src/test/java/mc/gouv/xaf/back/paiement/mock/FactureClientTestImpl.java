@@ -1,12 +1,14 @@
 package mc.gouv.xaf.back.paiement.mock;
 
 import mc.gouv.xaf.back.paiement.client.FactureClient;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
+import java.util.Optional;
 
 @Primary
 @Component
@@ -17,17 +19,17 @@ public class FactureClientTestImpl implements FactureClient {
     }
 
     @Override
-    public String createFacture(String numPermis, String numImmat, Double montant, String codeTransaction, Integer usagerId, HashMap<String, Double> objetMontants) {
-        return "facture001";
+    public Optional<String> createFacture(String numPermis, String numImmat, Double montant, String codeTransaction, Integer usagerId, HashMap<String, Double> objetMontants, DemandeDTO demandeDTO) {
+        return Optional.of("facture001");
     }
 
     @Override
-    public InputStream getFacture(String numFacture) {
-        return new InputStream() {
+    public Optional<InputStream> getFacture(String numFacture, DemandeDTO demandeDTO) {
+        return Optional.of(new InputStream() {
             @Override
             public int read() throws IOException {
                 return 0;
             }
-        };
+        });
     }
 }

@@ -104,6 +104,7 @@ public class AfBackUtils {
     private DemarcheDTO demarche = null;
 
     @Autowired
+    @Lazy
     private GouvPropertiesResolver gouvPropertiesResolver;
 
     private MailClient mailClient = null;
@@ -119,18 +120,23 @@ public class AfBackUtils {
     private UtilisateursCache utilisateursCache;
 
     @Autowired
+    @Lazy
     private DemarchesService demarchesService;
 
     @Autowired
+    @Lazy
     private DemarchesDataProvider demarchesDataProvider;
 
     @Autowired
+    @Lazy
     private MessageSource messageSource;
 
     @Autowired
+    @Lazy
     private UtilisateursUtils utilisateursUtils;
 
     @Autowired
+    @Lazy
     private MotifTemplateService motifTemplateService;
 
     public static final short GENDER_MR_INDEX = 0;

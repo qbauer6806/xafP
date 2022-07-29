@@ -2,8 +2,11 @@ package mc.gouv.xaf.back.paiement.bpm.activiti.delegate;
 
 import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
+import mc.gouv.xaf.back.paiement.data.entity.OperationBO;
 import mc.gouv.xaf.back.paiement.service.CaptureService;
+import mc.gouv.xaf.back.paiement.service.FactureService;
 import mc.gouv.xaf.back.paiement.service.PaiementService;
+import mc.gouv.xaf.back.paiement.service.impl.TicketRecapitulatifServiceImpl;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
@@ -15,6 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
+
+import static mc.gouv.xaf.back.paiement.data.entity.OperationStatutBO.ACCEPTEE;
 
 @Component
 public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
@@ -39,15 +44,23 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
 
+    @Autowired
+    private TicketRecapitulatifServiceImpl ticketRecapitulatifService;
+
+
+
+
     @Override
     public void execute(DelegateExecution execution) throws Exception {
         LOGGER.info("==== xaf-back-stc CAPTURE PAIEMENT ...");
 
         Integer demandeId = Integer.parseInt(execution.getProcessBusinessKey());
+        OperationBO operation = null;
+        DemandeDTO demandeDto = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(),
+                demandeId);
 
         try {
-            DemandeDTO demandeDto = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(),
-                    demandeId);
+
 
             Optional<MoyenPaiementBO> moyenPaiementBO = paiementService.getMoyenPaiement(demandeId);
             LOGGER.info("Recuperation moyenPaiementBO : {}", moyenPaiementBO);
@@ -55,19 +68,22 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
             if (moyenPaiementBO.isPresent()) {
                 LOGGER.info("Début capture paiement pour la demande: {}", demandeDto.getPkDemandes());
 
-                String reference = captureService.capture(moyenPaiementBO.get(), demandeDto);
-                gouvBPM.setProcessBusinessVariable(demandeDto.getPkDemandes(), MC_CAPTURE_REFERENCE, reference);
+                MoyenPaiementBO moyenPaiement = moyenPaiementBO.get();
+                operation = captureService.capture(moyenPaiement, demandeDto);
+                LOGGER.info("Recuperation reference : {}", operation.getNumeroFacture());
+
+                ticketRecapitulatifService.send(operation, moyenPaiement, demandeId);
+                gouvBPM.setProcessBusinessVariable(demandeDto.getPkDemandes(), MC_CAPTURE_REFERENCE, operation.getNumeroFacture());
 
                 LOGGER.info("Fin capture paiement");
             }
-            gouvBPM.setProcessBusinessVariable(demandeId, MC_CAPTURE_RESULT, true);
 
         } catch (Exception e) {
             LOGGER.error("Error Capture paiement", e);
             gouvBPM.setProcessBusinessVariable(demandeId, MC_CAPTURE_RESULT, false);
+
         }
-
-
+        gouvBPM.setProcessBusinessVariable(demandeDto.getPkDemandes(), MC_CAPTURE_RESULT, operation != null && ACCEPTEE.equals(operation.getOperationStatut()));
         LOGGER.info("==== xaf-back-stc CAPTURE PAIEMENT <fin>");
     }
 

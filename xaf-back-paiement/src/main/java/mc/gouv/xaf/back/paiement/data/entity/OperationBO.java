@@ -7,6 +7,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import java.time.LocalDateTime;
+import java.util.StringJoiner;
 
 @Entity
 @Table(name = "PMNT_OPERATION")
@@ -99,13 +100,40 @@ public class OperationBO {
     @Override
     public String toString() {
         return "OperationBO{" +
-                "reference='" + pkOperation + '\'' +
+                "pkOperation='" + pkOperation + '\'' +
                 ", operationType=" + operationType +
                 ", operationStatut=" + operationStatut +
                 ", dateCreation=" + dateCreation +
                 ", dateDerniereModification=" + dateDerniereModification +
                 ", montant=" + montant +
                 ", numeroAuthorisation=" + numeroAuthorisation +
+                ", numeroFacture='" + numeroFacture + '\'' +
                 '}';
+    }
+
+    public String toCSV() {
+        StringJoiner csvString = new StringJoiner(";");
+        csvString.add(pkOperation);
+        csvString.add(operationType== null ? "null" :operationType.name());
+        csvString.add(operationStatut== null ? "null" :operationStatut.name());
+        csvString.add(dateCreation.toString());
+        csvString.add(dateDerniereModification.toString());
+        csvString.add("" + montant);
+        csvString.add("" + numeroAuthorisation);
+        csvString.add(numeroFacture);
+        return csvString.toString();
+    }
+
+    public static String headerCSV() {
+        StringJoiner csvString = new StringJoiner(";");
+        csvString.add("pkOperation");
+        csvString.add("operationType");
+        csvString.add("operationStatut");
+        csvString.add("dateCreation");
+        csvString.add("dateDerniereModification");
+        csvString.add("montant");
+        csvString.add("numeroAuthorisation");
+        csvString.add("numeroFacture");
+        return csvString.toString();
     }
 }

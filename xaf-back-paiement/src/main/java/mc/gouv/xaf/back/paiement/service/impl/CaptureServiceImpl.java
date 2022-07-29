@@ -3,6 +3,7 @@ package mc.gouv.xaf.back.paiement.service.impl;
 import com.fasterxml.jackson.databind.JsonNode;
 import mc.gouv.xaf.back.paiement.client.FactureClient;
 import mc.gouv.xaf.back.paiement.client.PaiementClient;
+import mc.gouv.xaf.back.paiement.data.dao.CommandeDemandeRepository;
 import mc.gouv.xaf.back.paiement.data.dao.MoyenPaiementRepository;
 import mc.gouv.xaf.back.paiement.data.dao.OperationRepository;
 import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
@@ -19,13 +20,13 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.Optional;
 
 import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
 
 @Component
 public class CaptureServiceImpl implements CaptureService {
     private static Logger LOGGER = LoggerFactory.getLogger(CaptureServiceImpl.class);
-
 
     @Autowired
     private OperationRepository operationRepository;
@@ -41,14 +42,20 @@ public class CaptureServiceImpl implements CaptureService {
     @Autowired
     private MontantService montantService;
 
+    @Autowired
+    private CommandeDemandeRepository commandeDemandeRepository;
+
+
     @Override
-    public String capture(MoyenPaiementBO moyenPaiementBO, DemandeDTO demandeDTO) throws Exception {
+    public OperationBO capture(MoyenPaiementBO moyenPaiementBO, DemandeDTO demandeDTO) throws Exception {
         logStartMethod(LOGGER);
         LOGGER.info("Parameters [ moyenPaiementBO {}] ", moyenPaiementBO);
         OperationBO operation = new OperationBO();
 
         JsonNode contenuDemande = demandeDTO.getContenu();
 
+
+        //todo change permis
         String numeroPermis = contenuDemande.get("titre").get("numeropermis").asText();
         LOGGER.info("Permis n° : {}", numeroPermis);
 
@@ -57,25 +64,33 @@ public class CaptureServiceImpl implements CaptureService {
         operation.setMontant(prix);
 
 
-        paiementClient.capture(moyenPaiementBO, operation);
+        if (paiementClient.capture(moyenPaiementBO, operation, demandeDTO)) {
+            moyenPaiementBO.setMontantCapture(moyenPaiementBO.getMontantCapture() + prix);
+            moyenPaiementBO.setMontantRestant(moyenPaiementBO.getMontantRestant() - prix);
 
-        moyenPaiementBO.setMontantCapture(moyenPaiementBO.getMontantCapture() + prix);
-        moyenPaiementBO.setMontantRestant(moyenPaiementBO.getMontantRestant() - prix);
+            operation.setPkOperation(referenceFactoryService.createSimpleReferenceDigitsNumeric(7));
+            LocalDateTime now = LocalDateTime.now();
+            operation.setDateCreation(now);
+            operation.setDateDerniereModification(now);
+            operation.setDateDerniereModification(now);
 
-        moyenPaiementRepository.save(moyenPaiementBO);
+            moyenPaiementRepository.save(moyenPaiementBO);
 
-        operation.setPkOperation(referenceFactoryService.createSimpleReferenceDigitsNumeric(7));
+            operation.setOperationType(OperationTypeBO.DEBIT);
 
-        operation.setOperationType(OperationTypeBO.DEBIT);
-        LocalDateTime now = LocalDateTime.now();
-        operation.setDateCreation(now);
-        operation.setDateDerniereModification(now);
-        operation.setDateDerniereModification(now);
-        operation = operationRepository.save(operation);
-        String numFacture = factureClient.createFacture(numeroPermis, " ", operation.getMontant(), operation.getPkOperation(), demandeDTO.getUsagerId(), objetMontants);
-        LOGGER.info("Created [ facture n°{}] ", numFacture);
-        operation.setNumeroFacture(numFacture);
-        LOGGER.info("Created [ operation {}] ", operation);
-        return numFacture;
+            Optional<String> optionalNumFacture = factureClient.createFacture(numeroPermis, " ", operation.getMontant(), operation.getPkOperation(), demandeDTO.getUsagerId(), objetMontants, demandeDTO);
+            if (optionalNumFacture.isPresent()) {
+                LOGGER.info("Created [ facture n°{}] ", optionalNumFacture.get());
+                operation.setNumeroFacture(optionalNumFacture.get());
+            }
+
+            LOGGER.info("Created [ operation {}] ", operation);
+            operation = operationRepository.save(operation);
+        } else {
+            commandeDemandeRepository.deleteAll(commandeDemandeRepository.findByDemande_PkDemandes(demandeDTO.getPkDemandes()));
+        }
+
+
+        return operation;
     }
 }

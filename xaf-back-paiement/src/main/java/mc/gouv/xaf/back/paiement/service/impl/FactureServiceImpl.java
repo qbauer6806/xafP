@@ -18,6 +18,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
+import java.util.Optional;
 
 import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
 
@@ -40,16 +41,22 @@ public class FactureServiceImpl implements FactureService {
     @Override
     public void saveFacture(String reference, Integer demandeId) throws IOException {
         logStartMethod(LOGGER);
-
-        InputStream factureIS = factureClient.getFacture(reference);
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
-        String fileName = reference + ".pdf";
         String demarcheId = gouvPropertiesResolver.getDemarcheId();
         DemandeDTO demande = demandesService.getDemande(demarcheId, demandeId);
-        String url = fileService.saveFile(demande, fileName, gouvPropertiesResolver.getContainerId(), "application/pdf", factureIS, output);
-        output.close();
-        factureIS.close();
-        saveFichier(fileName, url, demande);
+        Optional<InputStream> optionalFactureIS = factureClient.getFacture(reference,demande);
+        if (optionalFactureIS.isPresent()) {
+
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            String fileName = reference + ".pdf";
+
+
+            String url = fileService.saveFile(demande, fileName, gouvPropertiesResolver.getContainerId(), "application/pdf", optionalFactureIS.get(), output);
+            output.close();
+            optionalFactureIS.get().close();
+            saveFichier(fileName, url, demande);
+        }
+
+
     }
 
     private void saveFichier(String fileName, String url, DemandeDTO demande) {

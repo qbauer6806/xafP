@@ -99,12 +99,11 @@ public class CaptureServiceTest {
         JsonNode contenu = mapper.valueToTree(contenuTestDTO);
         demandeDTO.setContenu(contenu);
 
-        String resutat = captureService.capture(moyenPaiementBO, demandeDTO);
-        OperationBO operationBo = operationRepository.findAll().iterator().next();
-        assertThat(operationBo.getMontant()).isEqualTo(80.0);
-        assertThat(operationBo.getOperationType()).isEqualTo(OperationTypeBO.DEBIT);
-        assertThat(operationBo.getOperationStatut()).isEqualTo(OperationStatutBO.REFUSEE);
-        assertThat(resutat).isEqualTo("facture001");
+        OperationBO resutat = captureService.capture(moyenPaiementBO, demandeDTO);
+        assertThat(resutat.getMontant()).isEqualTo(80.0);
+        assertThat(resutat.getOperationType()).isEqualTo(OperationTypeBO.DEBIT);
+        assertThat(resutat.getOperationStatut()).isEqualTo(OperationStatutBO.ACCEPTEE);
+        assertThat(resutat.getNumeroFacture()).isEqualTo("facture001");
     }
 
 }

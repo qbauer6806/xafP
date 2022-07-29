@@ -9,6 +9,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import java.time.LocalDateTime;
+import java.util.StringJoiner;
 
 @Entity
 @Table(name = "PMNT_MOYEN_PAIEMENT")
@@ -255,4 +256,90 @@ public class MoyenPaiementBO {
     public void setAuthentification(String authentification) {
         this.authentification = authentification;
     }
+
+    @Override
+    public String toString() {
+        return "MoyenPaiementBO{" +
+                "pkMoyenPaiement='" + pkMoyenPaiement + '\'' +
+                ", commande=" + commande +
+                ", codeSociete='" + codeSociete + '\'' +
+                ", dateLimite=" + dateLimite +
+                ", montantInitial=" + montantInitial +
+                ", montantCapture=" + montantCapture +
+                ", montantRestant=" + montantRestant +
+                ", moyenPaiementType=" + moyenPaiementType +
+                ", moyenPaiementStatut=" + moyenPaiementStatut +
+                ", dateDerniereModification=" + dateDerniereModification +
+                ", cvx='" + cvx + '\'' +
+                ", vld='" + vld + '\'' +
+                ", brand='" + brand + '\'' +
+                ", numauto='" + numauto + '\'' +
+                ", usage='" + usage + '\'' +
+                ", typecompte='" + typecompte + '\'' +
+                ", ecard='" + ecard + '\'' +
+                ", originecb='" + originecb + '\'' +
+                ", bincb='" + bincb + '\'' +
+                ", hpancb='" + hpancb + '\'' +
+                ", ipclient='" + ipclient + '\'' +
+                ", originetr='" + originetr + '\'' +
+                ", modepaiement='" + modepaiement + '\'' +
+                ", authentification='" + authentification + '\'' +
+                '}';
+    }
+
+    public String toCSV() {
+        StringJoiner csvString = new StringJoiner(";");
+        csvString.add(pkMoyenPaiement);
+        csvString.add(codeSociete);
+        csvString.add(dateLimite.toString());
+        csvString.add("" + montantInitial);
+        csvString.add("" + montantCapture);
+        csvString.add("" + montantRestant);
+        csvString.add(moyenPaiementType == null ? "null" :moyenPaiementType.name());
+        csvString.add(moyenPaiementStatut== null ? "null" :moyenPaiementStatut.name());
+        csvString.add(dateDerniereModification.toString());
+        csvString.add(cvx);
+        csvString.add(vld);
+        csvString.add(brand);
+        csvString.add(numauto);
+        csvString.add(usage);
+        csvString.add(typecompte);
+        csvString.add(ecard);
+        csvString.add(originecb);
+        csvString.add(bincb);
+        csvString.add(hpancb);
+        csvString.add(ipclient);
+        csvString.add(originetr);
+        csvString.add(modepaiement);
+        csvString.add(authentification);
+        return csvString.toString();
+    }
+    public static String headerCSV() {
+        StringJoiner csvString = new StringJoiner(";");
+        csvString.add("pkMoyenPaiement");
+        csvString.add("codeSociete");
+        csvString.add("dateLimite");
+        csvString.add("montantInitial");
+        csvString.add("montantCapture");
+        csvString.add("montantRestant");
+        csvString.add("moyenPaiementType");
+        csvString.add("moyenPaiementStatut");
+        csvString.add("dateDerniereModification");
+        csvString.add("cvx");
+        csvString.add("vld");
+        csvString.add("brand");
+        csvString.add("numauto");
+        csvString.add("usage");
+        csvString.add("typecompte");
+        csvString.add("ecard");
+        csvString.add("originecb");
+        csvString.add("bincb");
+        csvString.add("hpancb");
+        csvString.add("ipclient");
+        csvString.add("originetr");
+        csvString.add("modepaiement");
+        csvString.add("authentification");
+        return csvString.toString();
+    }
+
 }

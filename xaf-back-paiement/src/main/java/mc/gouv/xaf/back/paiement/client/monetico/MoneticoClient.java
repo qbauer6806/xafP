@@ -7,13 +7,20 @@ import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementStatutBO;
 import mc.gouv.xaf.back.paiement.data.entity.OperationBO;
 import mc.gouv.xaf.back.paiement.data.entity.OperationStatutBO;
 import mc.gouv.xaf.back.paiement.properties.PaiementPropertiesResolver;
+import mc.gouv.xaf.back.paiement.retry.Operation;
+import mc.gouv.xaf.back.paiement.retry.OperationHelper;
 import mc.gouv.xaf.back.paiement.service.ReferenceFactoryService;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.data.PropertiesService;
+import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
+import mc.gouv.xaf.back.service.itg.mail.MailService;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.HttpUrlConnectorProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 
 import javax.ws.rs.client.Client;
@@ -25,6 +32,8 @@ import java.net.HttpURLConnection;
 import java.net.Proxy;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
 
@@ -38,10 +47,25 @@ public class MoneticoClient implements PaiementClient {
 
     private final PaiementPropertiesResolver paiementPropertiesResolver;
 
+    private final OperationHelper operationHelper;
+
+    private MailService mailService;
+    private AfBackUtils afBackUtils;
+    private PropertiesService propertiesService;
+    private GouvPropertiesResolver gouvPropertiesResolver;
+
+    private static String XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE = "XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE";
     private static SimpleDateFormat simpleDateTimeFormat = new SimpleDateFormat("dd/MM/yyyy:HH:mm:ss");
     private static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
 
-    public MoneticoClient(Proxy proxy, PaiementPropertiesResolver paiementPropertiesResolver) {
+
+    public MoneticoClient(Proxy proxy,
+                          PaiementPropertiesResolver paiementPropertiesResolver,
+                          OperationHelper operationHelper,
+                          MailService mailService,
+                          AfBackUtils afBackUtils,
+                          PropertiesService propertiesService,
+                          GouvPropertiesResolver gouvPropertiesResolver) {
 
         ClientConfig config = new ClientConfig();
 
@@ -55,32 +79,107 @@ public class MoneticoClient implements PaiementClient {
 
         this.target = client.target(paiementPropertiesResolver.getCaptureUrl());
         this.paiementPropertiesResolver = paiementPropertiesResolver;
+        this.operationHelper = operationHelper;
+        this.mailService = mailService;
+        this.afBackUtils = afBackUtils;
+        this.propertiesService = propertiesService;
+        this.gouvPropertiesResolver = gouvPropertiesResolver;
     }
 
-    @Retryable(value = Exception.class, backoff = @Backoff(delay = 1000, multiplier = 2))
-    public void capture(MoyenPaiementBO paiement, OperationBO operation) throws Exception {
+    public boolean capture(MoyenPaiementBO paiement, OperationBO operationBO, DemandeDTO demandeDTO) {
         logStartMethod(LOGGER);
         LOGGER.info("Parameters [ MoyenPaiementBO {}] ", paiement);
         Date date = new Date(System.currentTimeMillis());
         String dateString = simpleDateFormat.format(date);
         String dateTimeString = simpleDateTimeFormat.format(date);
+        Operation<String> operation = new Operation<String>() {
+            @Override
+            public void execute() throws Exception {
+                Response response = getTarget().queryParam("TPE", getTpe())
+                        .queryParam("montant", paiement.getMontantInitial() + paiementPropertiesResolver.getCurrency())
+                        .queryParam("montant_a_capturer", operationBO.getMontant() + paiementPropertiesResolver.getCurrency())
+                        .queryParam("montant_deja_capture", paiement.getMontantCapture() + paiementPropertiesResolver.getCurrency())
+                        .queryParam("montant_restant", (paiement.getMontantRestant() - operationBO.getMontant()) + paiementPropertiesResolver.getCurrency())
+                        .queryParam("lgue", "FR")
+                        .queryParam("reference", paiement.getPkMoyenPaiement())
+                        .queryParam("date", dateTimeString)
+                        .queryParam("date_commande", dateString)
+                        .queryParam("societe", paiement.getCodeSociete())
+                        .queryParam("version", paiementPropertiesResolver.getVersionCapture())
+                        .request(MediaType.APPLICATION_JSON).get();
 
-        Response response = this.target.queryParam("TPE", this.tpe)
-                .queryParam("montant", paiement.getMontantInitial() + paiementPropertiesResolver.getCurrency())
-                .queryParam("montant_a_capturer", operation.getMontant() + paiementPropertiesResolver.getCurrency())
-                .queryParam("montant_deja_capture", paiement.getMontantCapture() + paiementPropertiesResolver.getCurrency())
-                .queryParam("montant_restant", (paiement.getMontantRestant() - operation.getMontant()) + paiementPropertiesResolver.getCurrency())
-                .queryParam("lgue", "FR")
-                .queryParam("reference", paiement.getPkMoyenPaiement())
-                .queryParam("date", dateTimeString)
-                .queryParam("date_commande", dateString)
-                .queryParam("societe", paiement.getCodeSociete())
-                .queryParam("version", paiementPropertiesResolver.getVersionCapture())
-                .request(MediaType.APPLICATION_JSON).get();
+                String responseString = response.readEntity(String.class);
+                LOGGER.info("Capture [ responseString {}] ", responseString);
+                setResult(responseString);
+                extractResult(responseString, operationBO, paiement);
 
-        String responseString = response.readEntity(String.class);
-        LOGGER.info("Capture [ responseString {}] ", responseString);
+                if (!OperationStatutBO.ACCEPTEE.equals(operationBO.getOperationStatut())) {
+                    throw new RuntimeException("Operation non acceptee");
+                }
+            }
 
+            @Override
+            public Logger getLogger() {
+                return LOGGER;
+            }
+        };
+
+        try {
+            operationHelper.executeWithRetry(operation);
+        } catch (Exception exception) {
+            LOGGER.error("Impossible de faire la capture");
+            LOGGER.error(exception.getMessage(), exception);
+            //send mail + delete command_demande
+
+            if (mailService != null) {
+                sendMail(demandeDTO, operation);
+            }
+
+            return false;
+        }
+
+        return true;
+    }
+
+    private void sendMail(DemandeDTO demandeDTO, Operation<String> operation) {
+        Date date = new Date(System.currentTimeMillis());
+        String dateTimeString = simpleDateTimeFormat.format(date);
+        String bodyTemplateCode = "MAIL_CAPTURE_ECHEC_CORPS";
+        String subjectTemplateCode = "MAIL_CAPTURE_ECHEC_OBJET";
+
+        EmailInfoDTO emailInfo = new EmailInfoDTO();
+        emailInfo.setBodyTemplateCode(bodyTemplateCode);
+        emailInfo.setSubjectTemplateCode(subjectTemplateCode);
+        emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(), afBackUtils.getDemarcheInfos()
+                .getEmailFromNom());
+        emailInfo.setReplyto(afBackUtils.getDemarcheInfos().getEmailReplyto(), afBackUtils.getDemarcheInfos()
+                .getEmailReplytoNom());
+
+        PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE);
+
+        if (propertiesDTO.getValue() != null) {
+            String[] adresses = propertiesDTO.getValue().trim().split(",");
+
+            for (String adresseMail : adresses) {
+                emailInfo.addTo(adresseMail, "Support Technique");
+            }
+        }
+
+        emailInfo.setLangue("fr");
+
+
+        Map<String, Object> model = new HashMap<>();
+        model.put("dateTimeString", dateTimeString);
+        model.put("PkDemandes", demandeDTO.getPkDemandes());
+        model.put("reponse", operation.getResult());
+        try {
+            mailService.sendMail(emailInfo, model);
+        } catch (Exception e) {
+            LOGGER.error("Erreur lors de l'envoi de l'email", e);
+        }
+    }
+
+    private void extractResult(String responseString, OperationBO operation, MoyenPaiementBO paiement) {
         for (String s : responseString.split("\n")) {
             String[] keyValue = s.split("=");
 
@@ -100,8 +199,13 @@ public class MoneticoClient implements PaiementClient {
                     break;
             }
         }
-
-
     }
 
+    public WebTarget getTarget() {
+        return target;
+    }
+
+    public String getTpe() {
+        return tpe;
+    }
 }

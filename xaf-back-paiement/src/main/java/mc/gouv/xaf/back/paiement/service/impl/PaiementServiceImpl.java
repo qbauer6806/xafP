@@ -109,10 +109,14 @@ public class PaiementServiceImpl implements PaiementService {
         commande = commandeRepository.save(commande);
         LOGGER.info("Created [ commande {}] ", commande);
 
+        StringJoiner listePkDemandes = new StringJoiner(",");
+
         for (Integer demandeId : demandesIdList) {
             CommandeDemandeBO commandeDemande = new CommandeDemandeBO();
             commandeDemande.setCommande(commande);
-            commandeDemande.setDemande(demandesRepository.findById(demandeId).orElseThrow(RuntimeException::new));
+            DemandeBO demandeBO = demandesRepository.findById(demandeId).orElseThrow(RuntimeException::new);
+            listePkDemandes.add(""+demandeBO.getPkDemandes());
+            commandeDemande.setDemande(demandeBO);
             commandeDemande.setMontant(prix);
             commandeDemande = commandeDemandeRepository.save(commandeDemande);
             LOGGER.info("Created [ commandeDemande {}] ", commandeDemande);
@@ -162,7 +166,7 @@ public class PaiementServiceImpl implements PaiementService {
         paiementDTO.setSociete(codeSociete);
         paiementDTO.setTPE(paiementPropertiesResolver.getTpe());
 
-        paiementDTO.setTexteLibre(paiementPropertiesResolver.getXafMoneticoTexteAller() + "+" + date+" demandes ["+demandesId+"]");
+        paiementDTO.setTexteLibre(paiementPropertiesResolver.getXafMoneticoTexteAller() + "+" + date+" demandes ["+listePkDemandes+"]");
 
         paiementDTO.setUrlRetourErr(paiementPropertiesResolver.getEchecUrl());
         paiementDTO.setUrlRetourOk(paiementPropertiesResolver.getSuccesUrl());

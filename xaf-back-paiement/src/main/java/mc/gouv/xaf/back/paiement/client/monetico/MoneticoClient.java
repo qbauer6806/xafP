@@ -196,7 +196,6 @@ public class MoneticoClient implements PaiementClient {
                         operation.setOperationStatut(OperationStatutBO.ACCEPTEE);
                     } else if ("0".equals(keyValue[1])) {
                         operation.setOperationStatut(OperationStatutBO.REFUSEE);
-                        paiement.setMoyenPaiementStatut(MoyenPaiementStatutBO.INVALIDE);
                     } else {
                         operation.setOperationStatut(OperationStatutBO.ERREUR);
                     }

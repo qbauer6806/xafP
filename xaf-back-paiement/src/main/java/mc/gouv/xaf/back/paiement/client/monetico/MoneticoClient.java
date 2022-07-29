@@ -192,6 +192,7 @@ public class MoneticoClient implements PaiementClient {
 
             switch (keyValue[0]) {
                 case "cdr": // cdr = code retour
+                    operation.setCodeRetour(keyValue[1]);
                     if ("1".equals(keyValue[1])) {
                         operation.setOperationStatut(OperationStatutBO.ACCEPTEE);
                     } else if ("0".equals(keyValue[1])) {
@@ -202,6 +203,9 @@ public class MoneticoClient implements PaiementClient {
                     break;
                 case "aut": // aut = numero d'autorisation
                     operation.setNumeroAuthorisation(Integer.parseInt(keyValue[1]));
+                    break;
+               case "lib": // aut = numero d'autorisation
+                    operation.setLibelle(keyValue[1]);
                     break;
             }
         }

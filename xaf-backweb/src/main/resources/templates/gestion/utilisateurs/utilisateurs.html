@@ -10,7 +10,7 @@
 <title th:text="${AfBackUtils.getDemarcheNom()}"></title>
 <link rel="shortcut icon" th:href="@{/img/favicon.ico}" />
 <!-- Import FONTS -->
-<link th:href="@{/webjars/xcb-wlib/fonts/style.css}" rel="stylesheet" />
+<link th:href="@{/css/font-style.css(${applicationBuildTimestamp})}" rel="stylesheet" />
 <link rel="stylesheet" th:href="@{/webjars/xcb-wlib/fonts/ie7/ie7.css}" />
 
 <!-- Import CSS -->
@@ -33,7 +33,7 @@
 	rel="stylesheet" />
 
 </head>
-<body th:with="pageUtilisateursActive='active'">
+<body th:with="pageParametresActive='active'">
 
 	<div th:replace="fragments/header :: header"></div>
 
@@ -49,7 +49,7 @@
 					<span class="breadcrumb-item active"><a id="ariane0"
 						th:href="@{/}" class="breadcrumb-item">Accueil</a>&nbsp;&gt;&nbsp;<a
 						id="ariane1" th:href="@{/gestion/utilisateurs}"
-						class="breadcrumb-item">Utilisateurs</a> &gt;</span>
+						class="breadcrumb-item">Liste des accès</a> &gt;</span>
 				</div>
 				<div class="triangleTopright"></div>
 			</div>
@@ -59,7 +59,7 @@
 				<div class="row">
 					<div class="col-xs-12">
 						<h1>
-							Utilisateurs de l'application <span
+							Liste des accès de l'application <span
 								th:text="${AfBackUtils.getDemarcheInfos().pkDemarches}"></span>
 						</h1>
 					</div>

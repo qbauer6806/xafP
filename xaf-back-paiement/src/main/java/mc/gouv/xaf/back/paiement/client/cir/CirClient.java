@@ -19,7 +19,6 @@ import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.HttpUrlConnectorProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import javax.ws.rs.client.Client;
@@ -142,7 +141,7 @@ public class CirClient implements FactureClient {
             request.setCodeOperation(montantObjet == prix ? "P1" : "P5"); //voir avec alexis devrait être dans les properties
             request.setCodeTransaction(codeTransaction);
             request.setCodeReglement("X"); // idem devrait être en properties meme si c'est fixe
-            request.setAutorisation(""+operationBO.getNumeroAuthorisation());
+            request.setAutorisation("" + operationBO.getNumeroAuthorisation());
             request.setTransactionId(operationBO.getPkOperation());
 
             cirRequests.add(request);
@@ -174,14 +173,14 @@ public class CirClient implements FactureClient {
             LOGGER.info("return :" + operation.getResult());
             return operation.getResult();
         } catch (Exception e) {
-            sendMailTechnique(demandeDTO, operation,6);
-            sendMailFonctionnel(demandeDTO, operation,6);
+            sendMailTechnique(demandeDTO, operation, 6);
+            sendMailFonctionnel(demandeDTO, operation, 6);
         }
         return Optional.empty();
     }
 
     @Override
-    public Optional<InputStream> getFacture(String numFacture, DemandeDTO demandeDTO) {
+    public Optional<InputStream> getFacture(String numFacture, DemandeDTO demandeDTO) throws Exception {
         logStartMethod(LOGGER);
         LOGGER.info("Parameters [ numFacture {}] ", numFacture);
         LOGGER.info("Properties [ registre {}] ", paiementPropertiesResolver.getRegistre());
@@ -214,11 +213,10 @@ public class CirClient implements FactureClient {
             operationHelper.executeWithRetry(operation);
             return operation.getResult();
         } catch (Exception e) {
-            sendMailTechnique(demandeDTO, operation,7);
-            sendMailFonctionnel(demandeDTO, operation,7);
+            sendMailTechnique(demandeDTO, operation, 7);
+            sendMailFonctionnel(demandeDTO, operation, 7);
+            throw e;
         }
-        return Optional.empty();
-
     }
 
     private void sendMailTechnique(DemandeDTO demandeDTO, Operation<?> operation, int incident) {

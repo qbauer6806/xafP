@@ -31,7 +31,7 @@ public class OperationHelper {
                 operation.handleException(exception);
                 sleep(operation, delay);
                 delay *= multiplier;
-                if (count >= (3 - 1)) {
+                if (count >= (maxAttempts - 1)) {
                     throw exception;
                 }
             }

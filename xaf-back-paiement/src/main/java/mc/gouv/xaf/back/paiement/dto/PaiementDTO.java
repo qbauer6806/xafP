@@ -2,6 +2,7 @@ package mc.gouv.xaf.back.paiement.dto;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 /**
@@ -56,9 +57,7 @@ public class PaiementDTO {
      */
     private String societe;
 
-    /**
-     * Zone de texte libre (3200 caractères)
-     */
+    @JsonProperty("texte-libre")
     private String texteLibre;
 
     /**
@@ -69,11 +68,13 @@ public class PaiementDTO {
     /**
      * URL par laquelle l’acheteur revient sur le site du commerçant suite à un paiement accepté
      */
+    @JsonProperty("url_retour_ok")
     private String urlRetourOk;
 
     /**
      * URL par laquelle l’acheteur revient sur le site du commerçant suite à un paiement échoué
      */
+    @JsonProperty("url_retour_err")
     private String urlRetourErr;
 
 

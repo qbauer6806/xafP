@@ -71,6 +71,9 @@ public class MoneticoSecurityServiceImpl implements SecurityService {
                 "nbrech=" + paiementDTO.getNbrech(),
                 "reference=" + paiementDTO.getReference(),
                 "societe=" + paiementDTO.getSociete(),
+                "texte-libre=" + paiementDTO.getTexteLibre(),
+                "url_retour_err=" + paiementDTO.getUrlRetourErr(),
+                "url_retour_ok=" + paiementDTO.getUrlRetourOk(),
                 "version=" + paiementDTO.getVersion()
         );
         LOGGER.info("CHAINE POUR HMAC : " + sChaineMAC);

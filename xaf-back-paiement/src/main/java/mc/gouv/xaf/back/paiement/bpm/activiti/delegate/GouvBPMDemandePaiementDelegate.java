@@ -80,8 +80,6 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
 
         } catch (Exception e) {
             LOGGER.error("Error Capture paiement", e);
-            gouvBPM.setProcessBusinessVariable(demandeId, MC_CAPTURE_RESULT, false);
-
         }
         gouvBPM.setProcessBusinessVariable(demandeDto.getPkDemandes(), MC_CAPTURE_RESULT, operation != null && ACCEPTEE.equals(operation.getOperationStatut()));
         LOGGER.info("==== xaf-back-stc CAPTURE PAIEMENT <fin>");

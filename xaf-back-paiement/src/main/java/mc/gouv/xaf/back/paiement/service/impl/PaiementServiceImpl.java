@@ -162,7 +162,7 @@ public class PaiementServiceImpl implements PaiementService {
         paiementDTO.setSociete(codeSociete);
         paiementDTO.setTPE(paiementPropertiesResolver.getTpe());
 
-        paiementDTO.setTexteLibre(paiementPropertiesResolver.getXafMoneticoTexteAller() + "+" + date);
+        paiementDTO.setTexteLibre(paiementPropertiesResolver.getXafMoneticoTexteAller() + "+" + date+" demandes ["+demandesId+"]");
 
         paiementDTO.setUrlRetourErr(paiementPropertiesResolver.getEchecUrl());
         paiementDTO.setUrlRetourOk(paiementPropertiesResolver.getSuccesUrl());

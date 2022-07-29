@@ -40,7 +40,7 @@ public class CirClientTest {
 
     @Test
     @Ignore
-    public void getFactureTest() {
+    public void getFactureTest() throws Exception {
         String numFacture = "1125054";
         InputStream inputStream = cirClient.getFacture(numFacture, null).get();
         System.out.println("getFactureTest end");

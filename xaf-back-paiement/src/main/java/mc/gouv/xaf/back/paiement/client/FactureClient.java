@@ -13,5 +13,5 @@ public interface FactureClient {
 
     Optional<String> createFacture(String numPermis, String numImmat, Double montant, String codeTransaction, Integer usagerId, HashMap<String, Double> objetMontants, DemandeDTO demandeDTO, OperationBO operationBO);
 
-    Optional<InputStream> getFacture(String numFacture, DemandeDTO demandeDTO);
+    Optional<InputStream> getFacture(String numFacture, DemandeDTO demandeDTO) throws Exception;
 }

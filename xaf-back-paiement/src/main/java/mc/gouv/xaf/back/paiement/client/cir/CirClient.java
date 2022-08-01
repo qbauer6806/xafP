@@ -91,6 +91,10 @@ public class CirClient implements FactureClient {
         this.usagersCache = usagersCache;
         this.paiementPropertiesResolver = paiementPropertiesResolver;
         this.operationHelper = operationHelper;
+        this.mailService = mailService;
+        this.afBackUtils = afBackUtils;
+        this.propertiesService = propertiesService;
+        this.gouvPropertiesResolver = gouvPropertiesResolver;
     }
 
     @Override

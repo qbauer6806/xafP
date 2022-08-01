@@ -67,7 +67,7 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
         List<InputStream> isList;
         if (!extension.toLowerCase().contains(".tif")) {
             // Conversion des fichiers en pdf
-            convertFileToPdf(is, extension);
+            is = convertFileToPdf(is, extension);
 
             // Conversion de l'inputstream en tiff
             isList = generateTiffsFromPDF(is);
@@ -86,21 +86,17 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
      * @param extension
      * @throws IOException
      */
-    private void convertFileToPdf(InputStream is, String extension) throws IOException {
+    private InputStream convertFileToPdf(InputStream is, String extension) throws IOException {
         switch (extension.toLowerCase()) {
-            case ".docx":
-                generatePdfFromDocx(is);
-                break;
+            case ".docx": return generatePdfFromDocx(is);
             case ".png":
             case ".jpg":
-            case ".jpeg":
-                generatePdfFromImage(is);
-                break;
-            case ".pdf":
-                break;
+            case ".jpeg": return generatePdfFromImage(is);
+            case ".pdf": return is;
             default:
-                LOGGER.error("Convertisseur TIFF : Fichier non supporté {}", extension);
         }
+        LOGGER.error("Convertisseur TIFF : Fichier non supporté {}", extension);
+        throw new IOException();
     }
 
     /**
@@ -143,8 +139,8 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
                     scale = tempscale;
                 }
             }
-
             contentStream.drawImage(pdImageXObject, 0, 0, awtImage.getWidth() * scale, awtImage.getHeight() * scale);
+            contentStream.close();
             doc.save(out);
         } catch (Exception io) {
             LOGGER.error("Convertisseur TIFF : Erreur dans la conversion de PDF en image", io);
@@ -163,7 +159,6 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
      */
     private List<InputStream> generateTiffsFromPDF(InputStream is) throws IOException {
         List<InputStream> imagesIS = new ArrayList<>();
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
 
         // Chargement du document PDF
         PDDocument document = PDDocument.load(is);
@@ -171,6 +166,8 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
 
         // Parcours du PDF multipages
         for (int page = 0; page < document.getNumberOfPages(); ++page) {
+
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
 
             // Conversion de l'image en tiff
             BufferedImage bim = convertImageToTiff(pdfRenderer.renderImageWithDPI(page, 240));
@@ -204,7 +201,7 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
     }
 
     private Map<String, InputStream> createNewFileDTOs(DemandeFileDTO file, List<InputStream> isList, String filename) {
-        Map<String, InputStream> filesMap= new HashMap<>();
+        Map<String, InputStream> filesMap= new LinkedHashMap<>();
 
         for (int i = 0; i < isList.size(); i++) {
             InputStream is = isList.get(i);

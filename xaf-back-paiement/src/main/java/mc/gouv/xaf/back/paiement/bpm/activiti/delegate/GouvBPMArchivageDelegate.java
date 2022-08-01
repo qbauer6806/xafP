@@ -1,13 +1,12 @@
 package mc.gouv.xaf.back.paiement.bpm.activiti.delegate;
 
 import mc.gouv.xaf.back.bpm.GouvBPM;
+import mc.gouv.xaf.back.data.transformer.DemandesComplementsFilesTransformer;
 import mc.gouv.xaf.back.paiement.service.ArchivageService;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.xaf.shared.dto.DemandeFileDTO;
-import mc.gouv.xaf.shared.dto.PropertiesDTO;
+import mc.gouv.xaf.shared.dto.*;
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.delegate.JavaDelegate;
 import org.slf4j.Logger;
@@ -61,7 +60,19 @@ public class GouvBPMArchivageDelegate implements JavaDelegate {
             String reference = (String) gouvBPM.getProcessBusinessVariables(demandeId).get(MC_REFERENCE_PERMIS);
             String ordreFichiers = (String) gouvBPM.getProcessBusinessVariables(demandeId).get(MC_ORDRE_FICHIERS);
 
-            List<DemandeFileDTO> fichiers = Arrays.asList(demandeDto.getFichiers());
+            // Récupération des fichiers de la demande
+            List<DemandeFileDTO> fichiers = new ArrayList<>(Arrays.asList(demandeDto.getFichiers()));
+
+            // Récupération des fichiers complémentaires
+            if (demandeDto.getComplements() != null) {
+                for (DemandeComplementsDTO complements : demandeDto.getComplements()) {
+                    if (complements.getReponse() != null) {
+                        List<DemandeComplementsFileDTO> demandeFileDTOList = Arrays.asList(complements.getReponse().getFichiers());
+                        fichiers.addAll(DemandesComplementsFilesTransformer.toDemandeFileDTO(demandeFileDTOList));
+                    }
+                }
+            }
+
 
             // Gestion de l'ordre d'envoi
             // Si une variable d'ordre est définie, trier les fichiers

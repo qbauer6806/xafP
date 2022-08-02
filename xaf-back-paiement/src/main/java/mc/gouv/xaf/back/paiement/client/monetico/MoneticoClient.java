@@ -31,6 +31,7 @@ import javax.ws.rs.core.Response;
 import java.net.HttpURLConnection;
 import java.net.Proxy;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -89,9 +90,8 @@ public class MoneticoClient implements PaiementClient {
     public boolean capture(MoyenPaiementBO paiement, OperationBO operationBO, DemandeDTO demandeDTO) {
         logStartMethod(LOGGER);
         LOGGER.info("Parameters [ MoyenPaiementBO {}] ", paiement);
-        Date date = new Date(System.currentTimeMillis());
-        String dateString = simpleDateFormat.format(date);
-        String dateTimeString = simpleDateTimeFormat.format(date);
+        String dateString = simpleDateFormat.format(operationBO.getDateCreation());
+        String dateTimeString = simpleDateTimeFormat.format(operationBO.getDateCreation());
         Operation<String> operation = new Operation<String>() {
             @Override
             public void execute() throws Exception {

@@ -3,11 +3,14 @@ package mc.gouv.xaf.back.paiement.bpm.activiti.delegate;
 import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
 import mc.gouv.xaf.back.paiement.data.entity.OperationBO;
+import mc.gouv.xaf.back.paiement.enums.PaiementDemandeDataKeysEnum;
+import mc.gouv.xaf.back.paiement.enums.PaiementStatutEnum;
 import mc.gouv.xaf.back.paiement.service.CaptureService;
-import mc.gouv.xaf.back.paiement.service.FactureService;
+import mc.gouv.xaf.back.paiement.service.PaiementHistoriqueService;
 import mc.gouv.xaf.back.paiement.service.PaiementService;
 import mc.gouv.xaf.back.paiement.service.impl.TicketRecapitulatifServiceImpl;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.data.DemandesDataService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import org.activiti.engine.delegate.DelegateExecution;
@@ -24,11 +27,9 @@ import static mc.gouv.xaf.back.paiement.data.entity.OperationStatutBO.ACCEPTEE;
 @Component
 public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMDemandePaiementDelegate.class);
-
     public static final String MC_CAPTURE_RESULT = "MC_CAPTURE_RESULT";
     public static final String MC_CAPTURE_REFERENCE = "MC_CAPTURE_REFERENCE";
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMDemandePaiementDelegate.class);
     @Autowired
     private PaiementService paiementService;
 
@@ -47,21 +48,22 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
     @Autowired
     private TicketRecapitulatifServiceImpl ticketRecapitulatifService;
 
+    @Autowired
+    private DemandesDataService demandesDataService;
 
-
+    @Autowired
+    private PaiementHistoriqueService paiementHistoriqueService;
 
     @Override
     public void execute(DelegateExecution execution) throws Exception {
         LOGGER.info("==== xaf-back-stc CAPTURE PAIEMENT ...");
 
+        String demarcheId = gouvPropertiesResolver.getDemarcheId();
         Integer demandeId = Integer.parseInt(execution.getProcessBusinessKey());
         OperationBO operation = null;
-        DemandeDTO demandeDto = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(),
-                demandeId);
+        DemandeDTO demandeDto = demandesService.getDemande(demarcheId, demandeId);
 
         try {
-
-
             Optional<MoyenPaiementBO> moyenPaiementBO = paiementService.getMoyenPaiement(demandeId);
             LOGGER.info("Recuperation moyenPaiementBO : {}", moyenPaiementBO);
 
@@ -81,7 +83,18 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
         } catch (Exception e) {
             LOGGER.error("Error Capture paiement", e);
         }
-        gouvBPM.setProcessBusinessVariable(demandeDto.getPkDemandes(), MC_CAPTURE_RESULT, operation != null && ACCEPTEE.equals(operation.getOperationStatut()));
+
+        boolean resultatOperation = operation != null && ACCEPTEE.equals(operation.getOperationStatut());
+        gouvBPM.setProcessBusinessVariable(demandeDto.getPkDemandes(), MC_CAPTURE_RESULT, resultatOperation);
+
+        LOGGER.info("Mise à jour du statut du paiement et ajout de l'historique de paiement...");
+        if (!resultatOperation) {
+            demandesDataService.saveOrUpdateDemandeData(demarcheId, demandeId, PaiementDemandeDataKeysEnum.STATUT_PAIEMENT.name(), PaiementStatutEnum.DEBIT_ECHEC.name());
+            paiementHistoriqueService.ajouterHistoriqueDebitEchec(demandeDto);
+        } else {
+            demandesDataService.saveOrUpdateDemandeData(demarcheId, demandeId, PaiementDemandeDataKeysEnum.STATUT_PAIEMENT.name(), PaiementStatutEnum.DEBIT_REALISE.name());
+            paiementHistoriqueService.ajouterHistoriqueDebitOK(demandeDto);
+        }
         LOGGER.info("==== xaf-back-stc CAPTURE PAIEMENT <fin>");
     }
 

@@ -5,5 +5,6 @@ public enum PaiementDemandeDataKeysEnum {
     DATE_PAIEMENT,
     DATE_EXPIRATION_EMPREINTE,
     NUMERO_FACTURE,
-    NUMERO_PERMIS
+    NUMERO_PERMIS,
+    MOYEN_PAIEMENT
 }

@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-public class PaiementHistoriqueServiceImpl implements PaiementHistoriqueService {
+public abstract class DefaultPaiementHistoriqueServiceImpl implements PaiementHistoriqueService {
 
     @Autowired
     private PaiementHistoriqueRepository paiementHistoriqueRepository;
@@ -31,5 +31,11 @@ public class PaiementHistoriqueServiceImpl implements PaiementHistoriqueService 
             dto.setCouleur(demarchesDataProvider.getStatusColorClass(statut));
         });
         return dtos;
+    }
+
+    @Override
+    public void ajouterHistorique(PaiementHistoriqueDTO dto) {
+        PaiementHistoriqueBO bo = PaiementHistoriqueTransformer.dto2Bo(dto);
+        paiementHistoriqueRepository.save(bo);
     }
 }

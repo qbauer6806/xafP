@@ -200,7 +200,7 @@ public class PaiementServiceImpl implements PaiementService {
         if (status.equals("payetest") || status.equals("paiement")) {
             moyenPaiement.setMoyenPaiementStatut(MoyenPaiementStatutBO.VALIDE);
             List<CommandeDemandeBO> commandeDemandeBOList = commandeDemandeRepository.findByCommande_PkCommande(moyenPaiement.getCommande().getPkCommande());
-            updateDemandeData(commandeDemandeBOList, dateValidite);
+            updateDemandeData(commandeDemandeBOList, dateValidite, moyenPaiementDTO.getModepaiement());
         } else {
             moyenPaiement.setMoyenPaiementStatut(MoyenPaiementStatutBO.INVALIDE);
         }
@@ -238,7 +238,7 @@ public class PaiementServiceImpl implements PaiementService {
                 .sorted(Comparator.comparing(MoyenPaiementBO::getDateLimite, Comparator.nullsLast(Comparator.reverseOrder()))).findFirst();
     }
 
-    private void updateDemandeData(List<CommandeDemandeBO> commandeDemandeBOList, LocalDateTime dateValidite) {
+    private void updateDemandeData(List<CommandeDemandeBO> commandeDemandeBOList, LocalDateTime dateValidite, String moyenPaiement) {
         Timestamp date = Timestamp.valueOf(LocalDateTime.now());
         for (CommandeDemandeBO commandeDemandeBO : commandeDemandeBOList) {
             DemandeBO demandeBO = commandeDemandeBO.getDemande();
@@ -254,6 +254,7 @@ public class PaiementServiceImpl implements PaiementService {
             datas.put(PaiementDemandeDataKeysEnum.DATE_PAIEMENT.name(), LocalDateTime.now().format(formatter));
             datas.put(PaiementDemandeDataKeysEnum.DATE_EXPIRATION_EMPREINTE.name(), dateValidite.format(formatter));
             datas.put(PaiementDemandeDataKeysEnum.STATUT_PAIEMENT.name(), PaiementStatutEnum.EMPREINTE_VALIDE.name());
+            datas.put(PaiementDemandeDataKeysEnum.MOYEN_PAIEMENT.name(), moyenPaiement);
             demandesDataService.saveOrUpdateDemandeDatas(demarcheId, pkDemande, datas);
 
             LOGGER.info("Ajout de l'historique de paiement...");

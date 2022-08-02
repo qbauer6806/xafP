@@ -32,6 +32,7 @@ import java.net.HttpURLConnection;
 import java.net.Proxy;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -58,6 +59,8 @@ public class MoneticoClient implements PaiementClient {
     private static String XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE = "XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE";
     private static SimpleDateFormat simpleDateTimeFormat = new SimpleDateFormat("dd/MM/yyyy:HH:mm:ss");
     private static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
+    DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy:HH:mm:ss");
 
 
     public MoneticoClient(Proxy proxy,
@@ -90,8 +93,8 @@ public class MoneticoClient implements PaiementClient {
     public boolean capture(MoyenPaiementBO paiement, OperationBO operationBO, DemandeDTO demandeDTO) {
         logStartMethod(LOGGER);
         LOGGER.info("Parameters [ MoyenPaiementBO {}] ", paiement);
-        String dateString = simpleDateFormat.format(operationBO.getDateCreation());
-        String dateTimeString = simpleDateTimeFormat.format(operationBO.getDateCreation());
+        String dateString = paiement.getCommande().getDateCreation().format(dateFormatter);
+        String dateTimeString = paiement.getCommande().getDateCreation().format(dateTimeFormatter);
         Operation<String> operation = new Operation<String>() {
             @Override
             public void execute() throws Exception {

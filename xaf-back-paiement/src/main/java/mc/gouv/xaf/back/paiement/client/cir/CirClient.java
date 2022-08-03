@@ -33,12 +33,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.Proxy;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
 
@@ -235,8 +230,8 @@ public class CirClient implements FactureClient {
         Operation<PermisDTO> operation = new Operation<PermisDTO>() {
             @Override
             public void execute() throws Exception {
-                Response response = targetGet.resolveTemplate("numPermis", numPermis)
-                        .request("application/pdf")
+                Response response = targetGetPermis.resolveTemplate("numPermis", numPermis)
+                        .request()
                         .header(HttpHeaders.AUTHORIZATION, BEARER_PREFIX + paiementPropertiesResolver.getFactureToken())
                         .get();
 

@@ -2,7 +2,6 @@ package mc.gouv.xaf.back.paiement.service.impl;
 
 import mc.gouv.xaf.back.paiement.client.FactureClient;
 import mc.gouv.xaf.back.paiement.enums.PaiementDemandeDataKeysEnum;
-import mc.gouv.xaf.back.paiement.enums.PaiementStatutEnum;
 import mc.gouv.xaf.back.paiement.service.FactureService;
 import mc.gouv.xaf.back.paiement.service.ReferenceFactoryService;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
@@ -18,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 import java.util.Optional;
@@ -49,7 +47,7 @@ public class FactureServiceImpl implements FactureService {
         logStartMethod(LOGGER);
         String demarcheId = gouvPropertiesResolver.getDemarcheId();
         DemandeDTO demande = demandesService.getDemande(demarcheId, demandeId);
-        Optional<InputStream> optionalFactureIS = factureClient.getFacture(reference,demande);
+        Optional<InputStream> optionalFactureIS = factureClient.getFacture(reference, demande);
         if (optionalFactureIS.isPresent()) {
             ByteArrayOutputStream output = new ByteArrayOutputStream();
             String fileName = reference + ".pdf";

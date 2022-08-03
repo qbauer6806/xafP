@@ -158,7 +158,7 @@ public class CirClient implements FactureClient {
                         .header(HttpHeaders.AUTHORIZATION, BEARER_PREFIX + paiementPropertiesResolver.getFactureToken())
                         .post(Entity.entity(cirRequests, MediaType.APPLICATION_JSON));
 
-                if (response.getStatus() != Response.Status.OK.getStatusCode()) {
+                if (response.getStatus() != Response.Status.CREATED.getStatusCode()) {
                     throw new RuntimeException("CIR createFacture() failed");
                 }
                 setResult(response.readEntity(String.class));

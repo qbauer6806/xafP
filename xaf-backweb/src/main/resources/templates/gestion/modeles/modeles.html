@@ -20,7 +20,7 @@
 <title th:text="${titre}"></title>
 
 <!-- Import FONTS -->
-<link th:href="@{/webjars/xcb-wlib/fonts/style.css}" rel="stylesheet" />
+<link th:href="@{/css/font-style.css(${applicationBuildTimestamp})}" rel="stylesheet" />
 <!--[if lt IE 8]><!-->
 <link rel="stylesheet" th:href="@{/webjars/xcb-wlib/fonts/ie7/ie7.css}" />
 
@@ -60,14 +60,14 @@
 				<div class="breadcrumb">
 					<span> <a th:href="@{/}" class="breadcrumb-item active">Accueil</a>&nbsp;&gt;&nbsp;
 						<a th:href="@{/gestion/modeles}"
-						class="breadcrumb-item active">MODÈLES</a> &gt;
+						class="breadcrumb-item active">MODÈLES DE DOCUMENTS</a> &gt;
 					</span>
 				</div>
 				<div class="triangleTopright"></div>
 			</div>
 
 			<div class="container-fluid">
-				<h2 class="col-xs-12 col-md-12">Administration des modèles</h2>
+				<h1 class="col-xs-12 col-md-12">Administration des modèles</h1>
 
 
 					<ul class="nav nav-tabs" role="tablist">

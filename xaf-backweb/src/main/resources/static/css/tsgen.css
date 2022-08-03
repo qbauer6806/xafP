@@ -395,21 +395,21 @@ dd span {
 }
 
 .anciennedonnee-titre {
-	color: red;
+	background-color: #def1f5;
 	font-weight: bold;
 	display: none;
 }
 
 .nouvelledonnee-titre {
-	color: red;
+	background-color: #def1f5;
 	font-weight: bold;
 }
 
 .anciennedonnee-contenu {
-	color: red;
+	background-color: #def1f5;
 	display: none;
 }
 
 .nouvelledonnee-contenu {
-	color: red;
+	background-color: #def1f5;
 }

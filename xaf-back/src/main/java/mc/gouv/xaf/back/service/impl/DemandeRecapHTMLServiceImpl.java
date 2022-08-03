@@ -521,14 +521,14 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
             		if (StringUtils.isNotBlank(ville)) {
             			String idTag = "";
             			if (StringUtils.isNotBlank(idPrefix)) {
-            				idTag = "id=\"" + idPrefix + "-ville\" ";
+            				idTag = " id=\"" + idPrefix + "-ville\" ";
             			}
             			ret += "</dd><dt><span>Ville</span></dt><dd><span" + idTag + ">" + ville + "</span>";
             		}
 	                if (StringUtils.isNotBlank(pays)) {
             			String idTag = "";
             			if (StringUtils.isNotBlank(idPrefix)) {
-            				idTag = "id=\"" + idPrefix + "-pays\" ";
+            				idTag = " id=\"" + idPrefix + "-pays\" ";
             			}
 	                    ret += "</dd><dt><span>Pays</span></dt><dd><span" + idTag + ">" + paysCache.get(pays, "fr").getNom() + "</span>";
 	                }

@@ -3,6 +3,7 @@ package mc.gouv.xaf.back.paiement.client.cir;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import mc.gouv.xaf.back.paiement.client.FactureClient;
 import mc.gouv.xaf.back.paiement.data.entity.OperationBO;
+import mc.gouv.xaf.back.paiement.dto.itg.cir.PermisDTO;
 import mc.gouv.xaf.back.paiement.properties.PaiementPropertiesResolver;
 import mc.gouv.xaf.back.paiement.retry.Operation;
 import mc.gouv.xaf.back.paiement.retry.OperationHelper;
@@ -49,6 +50,7 @@ public class CirClient implements FactureClient {
     public static final String CHECK_ROUTE = "v1/ts/ecritures/paiement/check";
     public static final String PAIEMENT_ROUTE = "v1/ts/ecritures/paiement/";
     public static final String FACTURE_ROUTE = "v1/ts/ecritures/getfacture";
+    public static final String PERMIS_ROUTE = "v1/permis/{numPermis}";
     public static final String XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE = "XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE";
 
 
@@ -57,6 +59,7 @@ public class CirClient implements FactureClient {
     private final WebTarget targetCheck;
     private final WebTarget targetCreate;
     private final WebTarget targetGet;
+    private final WebTarget targetGetPermis;
 
     private final UsagersCache usagersCache;
 
@@ -88,6 +91,7 @@ public class CirClient implements FactureClient {
         this.targetCheck = client.target(serviceUrl + CHECK_ROUTE);
         this.targetCreate = client.target(serviceUrl + PAIEMENT_ROUTE);
         this.targetGet = client.target(serviceUrl + FACTURE_ROUTE);
+        this.targetGetPermis = client.target(serviceUrl + PERMIS_ROUTE);
         this.usagersCache = usagersCache;
         this.paiementPropertiesResolver = paiementPropertiesResolver;
         this.operationHelper = operationHelper;
@@ -221,6 +225,37 @@ public class CirClient implements FactureClient {
             sendMailFonctionnel(demandeDTO, operation, 7);
             throw e;
         }
+    }
+
+    @Override
+    public Optional<PermisDTO> getPermis(String numPermis) throws Exception {
+        logStartMethod(LOGGER);
+        LOGGER.info("Parameters [ getPermis {}] ", numPermis);
+
+        Operation<PermisDTO> operation = new Operation<PermisDTO>() {
+            @Override
+            public void execute() throws Exception {
+                Response response = targetGet.resolveTemplate("numPermis", numPermis)
+                        .request("application/pdf")
+                        .header(HttpHeaders.AUTHORIZATION, BEARER_PREFIX + paiementPropertiesResolver.getFactureToken())
+                        .get();
+
+                if (response.getStatus() != Response.Status.OK.getStatusCode()) {
+                    throw new RuntimeException("CIR getPermis() failed");
+                }
+                PermisDTO permisDTO = response.readEntity(PermisDTO.class);
+                setResult(permisDTO);
+
+            }
+
+            @Override
+            public Logger getLogger() {
+                return LOGGER;
+            }
+        };
+
+        operationHelper.executeWithRetry(operation);
+        return operation.getResult();
     }
 
     private void sendMailTechnique(DemandeDTO demandeDTO, Operation<?> operation, int incident) {

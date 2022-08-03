@@ -2,6 +2,7 @@ package mc.gouv.xaf.back.paiement.mock;
 
 import mc.gouv.xaf.back.paiement.client.FactureClient;
 import mc.gouv.xaf.back.paiement.data.entity.OperationBO;
+import mc.gouv.xaf.back.paiement.dto.itg.cir.PermisDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
@@ -32,5 +33,10 @@ public class FactureClientTestImpl implements FactureClient {
                 return 0;
             }
         });
+    }
+
+    @Override
+    public Optional<PermisDTO> getPermis(String numPermis) {
+        return Optional.of(new PermisDTO());
     }
 }

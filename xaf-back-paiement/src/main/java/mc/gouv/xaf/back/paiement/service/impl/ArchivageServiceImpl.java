@@ -20,7 +20,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class ArchivageServiceImpl implements ArchivageService {
@@ -34,10 +33,10 @@ public class ArchivageServiceImpl implements ArchivageService {
     private ConvertisseurTiffService convertisseurTiffService;
 
     @Transactional
-    public List<FileDocumentDTO> archivageDocuments(String refPermis, List<DemandeFileDTO> files, int demandeId) {
+    public List<DemandeFileDTO> archivageDocuments(String refPermis, List<DemandeFileDTO> files, int demandeId) {
 
         LOGGER.info("Début archivage des documents");
-        List<FileDocumentDTO> fileDocumentList = new ArrayList<>();
+        List<DemandeFileDTO> fileDocumentList = new ArrayList<>();
         double progresArchivage = 0;
         double valeurStep = 1d / files.size();
         archivageProgress.put(demandeId, progresArchivage);
@@ -62,8 +61,8 @@ public class ArchivageServiceImpl implements ArchivageService {
                     LOGGER.info("Envoi du documents en GED pour {}", fileTiff.getKey());
                     FileDocumentDTO fileDocumentDTO = rioService
                             .createFileDocument(documentDTO.getRefDocument(), fileTiff.getKey(), IOUtils.toByteArray(fileTiff.getValue()));
-                    fileDocumentList.add(fileDocumentDTO);
                 }
+                fileDocumentList.add(file);
 
             } catch (IOException e) {
                 LOGGER.error("Erreur lors de l'archivage du document {}", file.getName(), e);

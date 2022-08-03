@@ -2,8 +2,11 @@ package mc.gouv.xaf.back.paiement.bpm.activiti.delegate;
 
 import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.data.transformer.DemandesComplementsFilesTransformer;
+import mc.gouv.xaf.back.paiement.dto.itg.rio.FileDocumentDTO;
+import mc.gouv.xaf.back.paiement.enums.PaiementDemandeDataKeysEnum;
 import mc.gouv.xaf.back.paiement.service.ArchivageService;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.data.DemandesDataService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.shared.dto.*;
@@ -43,15 +46,18 @@ public class GouvBPMArchivageDelegate implements JavaDelegate {
     @Autowired
     private PropertiesService propertiesService;
 
+    @Autowired
+    private DemandesDataService demandesDataService;
+
     @Override
     public void execute(DelegateExecution execution) {
         LOGGER.info("==== xaf-back-stc Archivage ...");
 
 
         Integer demandeId = Integer.parseInt(execution.getProcessBusinessKey());
+        String demarcheId = gouvPropertiesResolver.getDemarcheId();
 
-        DemandeDTO demandeDto = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(),
-                demandeId);
+        DemandeDTO demandeDto = demandesService.getDemande(demarcheId, demandeId);
 
         PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_ARCHIVAGE_ACTIVATION);
 
@@ -87,7 +93,13 @@ public class GouvBPMArchivageDelegate implements JavaDelegate {
                 }
                 fichiers = fichiersTries;
             }
-            archivageService.archivageDocuments(reference, fichiers, demandeId);
+            List<DemandeFileDTO> fichiersArchives = archivageService.archivageDocuments(reference, fichiers, demandeId);
+
+            int differenceFichiersArchives = fichiers.size() - fichiersArchives.size();
+            if (differenceFichiersArchives > 0) {
+                // Sauvegarde du numéro de facture dans les données de la demande
+                demandesDataService.saveOrUpdateDemandeData(demarcheId, demandeId, PaiementDemandeDataKeysEnum.NOMBRE_FICHIERS_ERREUR_ARCHIVAGE.name(), differenceFichiersArchives + "");
+            }
         } else {
             LOGGER.info("Archivage désactivé");
             archivageService.archivageProgress.put(demandeId, 1d);

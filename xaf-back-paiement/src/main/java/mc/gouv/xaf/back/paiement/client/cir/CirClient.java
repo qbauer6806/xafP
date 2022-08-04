@@ -16,6 +16,8 @@ import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
+import org.apache.http.HttpException;
+import org.apache.http.client.HttpResponseException;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.HttpUrlConnectorProvider;
 import org.slf4j.Logger;
@@ -158,7 +160,7 @@ public class CirClient implements FactureClient {
                         .post(Entity.entity(cirRequests, MediaType.APPLICATION_JSON));
 
                 if (response.getStatus() != Response.Status.CREATED.getStatusCode()) {
-                    throw new RuntimeException("CIR createFacture() failed");
+                    throw new HttpResponseException(response.getStatus() , "CIR createFacture() failed");
                 }
                 setResult(response.readEntity(String.class));
             }
@@ -199,7 +201,7 @@ public class CirClient implements FactureClient {
                         .get();
 
                 if (response.getStatus() != Response.Status.OK.getStatusCode()) {
-                    throw new RuntimeException("CIR getFacture() failed");
+                    throw new HttpResponseException(response.getStatus(), "CIR getFacture() failed");
                 }
                 InputStream inputStream = response.readEntity(InputStream.class);
                 setResult(inputStream);
@@ -235,8 +237,9 @@ public class CirClient implements FactureClient {
                         .header(HttpHeaders.AUTHORIZATION, BEARER_PREFIX + paiementPropertiesResolver.getFactureToken())
                         .get();
 
+
                 if (response.getStatus() != Response.Status.OK.getStatusCode()) {
-                    throw new RuntimeException("CIR getPermis() failed");
+                    throw new HttpResponseException(response.getStatus(), "CIR getPermis() failed");
                 }
                 PermisDTO permisDTO = response.readEntity(PermisDTO.class);
                 setResult(permisDTO);

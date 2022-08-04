@@ -1,6 +1,7 @@
 package mc.gouv.xaf.back.paiement.retry;
 
 import mc.gouv.xaf.back.paiement.properties.PaiementPropertiesResolver;
+import org.apache.http.client.HttpResponseException;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.TimeUnit;
@@ -27,11 +28,11 @@ public class OperationHelper {
             try {
                 operation.execute();
                 return;
-            } catch (Exception exception) {
+            } catch (HttpResponseException exception) {
                 operation.handleException(exception);
                 sleep(operation, delay);
                 delay *= multiplier;
-                if (count >= (maxAttempts - 1)) {
+                if ((exception.getStatusCode() >= 400 && exception.getStatusCode() <= 499 ) || count >= (maxAttempts - 1)) {
                     throw exception;
                 }
             }

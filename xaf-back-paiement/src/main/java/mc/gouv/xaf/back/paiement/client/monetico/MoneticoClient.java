@@ -17,6 +17,7 @@ import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
+import org.apache.http.client.HttpResponseException;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.HttpUrlConnectorProvider;
 import org.slf4j.Logger;
@@ -117,7 +118,7 @@ public class MoneticoClient implements PaiementClient {
                 extractResult(responseString, operationBO, paiement);
 
                 if (!OperationStatutBO.ACCEPTEE.equals(operationBO.getOperationStatut())) {
-                    throw new RuntimeException("Operation non acceptee");
+                    throw new HttpResponseException(response.getStatus(), "Operation non acceptee");
                 }
             }
 

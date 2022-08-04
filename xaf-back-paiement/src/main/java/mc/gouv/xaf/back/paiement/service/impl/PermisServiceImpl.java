@@ -12,7 +12,7 @@ import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
 
 @Service
 public class PermisServiceImpl implements PermisService {
-    private static Logger LOGGER = LoggerFactory.getLogger(PermisServiceImpl.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(PermisServiceImpl.class);
 
     @Autowired
     private FactureClient factureClient;

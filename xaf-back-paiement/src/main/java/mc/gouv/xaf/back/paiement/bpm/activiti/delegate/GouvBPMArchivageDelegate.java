@@ -5,6 +5,7 @@ import mc.gouv.xaf.back.data.transformer.DemandesComplementsFilesTransformer;
 import mc.gouv.xaf.back.paiement.dto.itg.rio.FileDocumentDTO;
 import mc.gouv.xaf.back.paiement.enums.PaiementDemandeDataKeysEnum;
 import mc.gouv.xaf.back.paiement.service.ArchivageService;
+import mc.gouv.xaf.back.paiement.service.PaiementDemandeHistoriqueService;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesDataService;
 import mc.gouv.xaf.back.service.data.DemandesService;
@@ -48,6 +49,9 @@ public class GouvBPMArchivageDelegate implements JavaDelegate {
 
     @Autowired
     private DemandesDataService demandesDataService;
+
+    @Autowired
+    private PaiementDemandeHistoriqueService paiementDemandeHistoriqueService;
 
     @Override
     public void execute(DelegateExecution execution) {
@@ -99,6 +103,9 @@ public class GouvBPMArchivageDelegate implements JavaDelegate {
             if (differenceFichiersArchives > 0) {
                 // Sauvegarde du numéro de facture dans les données de la demande
                 demandesDataService.saveOrUpdateDemandeData(demarcheId, demandeId, PaiementDemandeDataKeysEnum.NOMBRE_FICHIERS_ERREUR_ARCHIVAGE.name(), differenceFichiersArchives + "");
+                paiementDemandeHistoriqueService.actionSysteme(demandeId, "ECHEC", "Archivage automatique des fichiers en échec");
+            } else {
+                paiementDemandeHistoriqueService.actionSysteme(demandeId, "SUCCES", "Ecriture comptable automatique réalisée avec succès");
             }
         } else {
             LOGGER.info("Archivage désactivé");

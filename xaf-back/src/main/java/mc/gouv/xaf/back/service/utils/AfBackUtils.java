@@ -2,6 +2,8 @@ package mc.gouv.xaf.back.service.utils;
 
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

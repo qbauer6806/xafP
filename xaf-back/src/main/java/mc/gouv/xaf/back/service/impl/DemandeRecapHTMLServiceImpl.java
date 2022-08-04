@@ -299,9 +299,19 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 //                  }
                     // Donc on fait la différence sur la comparaison du résultat formatté en HTML :
                     String valueSource = null;
+                    String pojoSource = null;
                     if (demandeSource != null) {
-                    	valueSource = getSecondLevelHTML(demandeSource.getContenu(), champ, pojo, isPdfRecap, false);
+                    	// Récupération du champ "pojo" du fichier Recap de ce buildId là
+						try {
+							pojoSource = getChampPojoFromRecap(demandeSource.getBuildId());
+						} catch (IOException | ParseException e) {
+							LOGGER.error("Impossible de récupérer le pojoSource", e);
+						}
                     }
+                    if (pojoSource != null) {
+                    	valueSource = getSecondLevelHTML(demandeSource.getContenu(), champ, pojoSource, isPdfRecap, false);
+                    }
+
                     
                     // Pour mettre l'ID HTML de la donnée, récupéré depuis le fichier Recap (pour les testeurs)
 					String idPrefix = (String)champ.get("idPrefix");
@@ -631,6 +641,22 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
             ret += "<br/><span " + idTag + ">" + ligne3 + "</span>";
         }
         return ret;
+    }
+    
+    private String getChampPojoFromRecap(String buildId) throws IOException, ParseException {
+        LOGGER.info("getChampPojoFromRecap : chargement du fichier recap...");
+        InputStream inputStream = new ClassPathResource("/recaps/recaps_" + buildId + ".json")
+                .getInputStream();
+        JSONParser jsonParser = new JSONParser();
+        JSONArray jsonArray = (JSONArray) jsonParser.parse(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+
+        for (int k = 0; k < jsonArray.size(); k++) {
+            if ("projectDemandeRecap".equals(((JSONObject) jsonArray.get(k)).get("name"))) {
+                JSONObject projectDemandeRecap = (JSONObject) jsonArray.get(k);
+                return StringUtils.remove((String) projectDemandeRecap.get("pojo"), CONTENU_DTO);
+            }
+        }
+        return null;
     }
 
 }

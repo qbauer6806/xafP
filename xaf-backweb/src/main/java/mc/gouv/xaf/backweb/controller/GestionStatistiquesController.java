@@ -18,7 +18,7 @@ import java.util.Map;
 
 @Controller
 @RequestMapping("/gestion/statistiques")
-@Secured("ROLE_CONFIGURATION")
+@Secured({"ROLE_CONFIGURATION","ROLE_PARAMETRAGE"})
 public class GestionStatistiquesController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GestionStatistiquesController.class);

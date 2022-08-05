@@ -64,7 +64,7 @@ public class ArchivageServiceImpl implements ArchivageService {
                 }
                 fileDocumentList.add(file);
 
-            } catch (IOException e) {
+            } catch (Exception e) {
                 LOGGER.error("Erreur lors de l'archivage du document {}", file.getName(), e);
             } finally {
                 progresArchivage += valeurStep;

@@ -7,13 +7,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class HistoriqueServiceTestImpl implements PaiementDemandeHistoriqueService {
     @Override
-    public void actionSysteme(Integer demandeId, String targetState, String action) {
-        
+    public DemandeHistoriqueDTO actionSysteme(Integer demandeId, String targetState, String action) {
+        return null;
     }
 
     @Override
-    public void paiementEnLigne(Integer demandeId, Integer usagerId) {
-
+    public DemandeHistoriqueDTO paiementEnLigne(Integer demandeId, Integer usagerId) {
+        return null;
     }
 
     @Override

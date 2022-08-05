@@ -12,6 +12,7 @@ import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.apache.pdfbox.tools.imageio.ImageIOUtil;
+import org.apache.poi.openxml4j.exceptions.NotOfficeXmlFileException;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -106,7 +107,13 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
      * @throws IOException
      */
     private InputStream generatePdfFromDocx(InputStream is) throws IOException {
-        XWPFDocument document = new XWPFDocument(is);
+        XWPFDocument document;
+        try {
+            document = new XWPFDocument(is);
+        } catch (NotOfficeXmlFileException e) {
+            LOGGER.error("Lecture du fichier DOCX impossible !");
+            throw new IOException("Lecture du fichier DOCX impossible !", e);
+        }
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         PdfConverter.getInstance().convert(document, out, null);
         return new ByteArrayInputStream(out.toByteArray());

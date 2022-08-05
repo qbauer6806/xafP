@@ -105,7 +105,7 @@ public class GouvBPMArchivageDelegate implements JavaDelegate {
                 demandesDataService.saveOrUpdateDemandeData(demarcheId, demandeId, PaiementDemandeDataKeysEnum.NOMBRE_FICHIERS_ERREUR_ARCHIVAGE.name(), differenceFichiersArchives + "");
                 paiementDemandeHistoriqueService.actionSysteme(demandeId, "ECHEC", "Archivage automatique des fichiers en échec");
             } else {
-                paiementDemandeHistoriqueService.actionSysteme(demandeId, "SUCCES", "Ecriture comptable automatique réalisée avec succès");
+                paiementDemandeHistoriqueService.actionSysteme(demandeId, "SUCCES", "Archivage automatique des fichiers réalisé avec succès");
             }
         } else {
             LOGGER.info("Archivage désactivé");

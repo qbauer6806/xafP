@@ -89,7 +89,7 @@
 				<!-- Fragment à modifier dans les démarches pour configurer les liens vers les exports -->
 				<div th:replace="~{fragments/exportssidebarelements :: exportssidebarelements}"></div>
 
-				<li th:class="${pageStatistiquesActive} ? 'active' : ''" sec:authorize="hasRole('ROLE_CONFIGURATION')">
+				<li th:class="${pageStatistiquesActive} ? 'active' : ''" sec:authorize="hasAnyRole('ROLE_CONFIGURATION','ROLE_PARAMETRAGE')">
 					<a id="menuStatistiques" th:href="@{/gestion/statistiques}">
 						<div class="contentTooltip">
 							<span class="greyTooltip" data-toggle="tooltip" data-placement="right" title="" data-original-title="Statistiques"></span>

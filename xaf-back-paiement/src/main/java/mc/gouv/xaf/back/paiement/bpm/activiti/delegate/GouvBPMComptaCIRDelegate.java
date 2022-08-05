@@ -18,7 +18,7 @@ public class GouvBPMComptaCIRDelegate implements JavaDelegate {
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMComptaCIRDelegate.class);
 
     public static final String MC_COMPTA_RESULT = "MC_COMPTA_RESULT";
-    public static final String MC_CAPTURE_REFERENCE = "MC_CAPTURE_REFERENCE";
+    public static final String MC_FACTURE_REFERENCE = "MC_FACTURE_REFERENCE";
 
     @Autowired
     private FactureService factureService;
@@ -36,7 +36,7 @@ public class GouvBPMComptaCIRDelegate implements JavaDelegate {
         Integer demandeId = Integer.parseInt(execution.getProcessBusinessKey());
 
         try {
-            String reference = (String) gouvBPM.getProcessBusinessVariables(demandeId).get(MC_CAPTURE_REFERENCE);
+            String reference = (String) gouvBPM.getProcessBusinessVariables(demandeId).get(MC_FACTURE_REFERENCE);
             factureService.saveFacture(reference, demandeId);
 
             gouvBPM.setProcessBusinessVariable(demandeId, MC_COMPTA_RESULT, true);

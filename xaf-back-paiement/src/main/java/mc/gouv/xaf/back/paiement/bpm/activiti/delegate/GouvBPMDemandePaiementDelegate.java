@@ -29,7 +29,7 @@ import static mc.gouv.xaf.back.paiement.data.entity.OperationStatutBO.ACCEPTEE;
 public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
 
     public static final String MC_CAPTURE_RESULT = "MC_CAPTURE_RESULT";
-    public static final String MC_CAPTURE_REFERENCE = "MC_CAPTURE_REFERENCE";
+    public static final String MC_FACTURE_REFERENCE = "MC_FACTURE_REFERENCE";
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMDemandePaiementDelegate.class);
     @Autowired
     private PaiementService paiementService;
@@ -79,7 +79,7 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
                 LOGGER.info("Recuperation reference : {}", operation.getNumeroFacture());
 
                 ticketRecapitulatifService.send(operation, moyenPaiement, demandeId);
-                gouvBPM.setProcessBusinessVariable(demandeDto.getPkDemandes(), MC_CAPTURE_REFERENCE, operation.getNumeroFacture());
+                gouvBPM.setProcessBusinessVariable(demandeDto.getPkDemandes(), MC_FACTURE_REFERENCE, operation.getNumeroFacture());
 
                 LOGGER.info("Fin capture paiement");
             }

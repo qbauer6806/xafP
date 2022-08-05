@@ -25,10 +25,10 @@ import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesDataService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
+import mc.gouv.xaf.shared.dto.DemandeDataDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.stc.MoyenPaiementDTO;
-import net.bytebuddy.asm.Advice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -216,7 +216,7 @@ public class PaiementServiceImpl implements PaiementService {
         if (status.equals("payetest") || status.equals("paiement")) {
             moyenPaiement.setMoyenPaiementStatut(MoyenPaiementStatutBO.VALIDE);
             List<CommandeDemandeBO> commandeDemandeBOList = commandeDemandeRepository.findByCommande_PkCommande(moyenPaiement.getCommande().getPkCommande());
-            updateDemandeData(commandeDemandeBOList, dateValidite, moyenPaiementDTO.getModepaiement());
+            updateDemandeData(commandeDemandeBOList, dateValidite, moyenPaiementDTO);
         } else {
             moyenPaiement.setMoyenPaiementStatut(MoyenPaiementStatutBO.INVALIDE);
         }
@@ -244,17 +244,11 @@ public class PaiementServiceImpl implements PaiementService {
     @Override
     public Optional<MoyenPaiementBO> getMoyenPaiement(Integer demandeId) {
         logStartMethod(LOGGER);
-        LOGGER.info("Parameters [ demandeId {}] ", demandeId);
-        CommandeDemandeBO commandeDemandeBO = commandeDemandeRepository.findByDemande_PkDemandes(demandeId).get(0);
-        LOGGER.info("Find [ commandeDemandeBO {}] ", commandeDemandeBO);
-        List<MoyenPaiementBO> moyenPaiements = moyenPaiementRepository.findByCommande_PkCommande(commandeDemandeBO.getCommande().getPkCommande());
-        return moyenPaiements.stream()
-                .filter(moyenPaiementBO -> moyenPaiementBO.getDateLimite().isAfter(LocalDateTime.now()))
-                .filter(moyenPaiementBO -> MoyenPaiementStatutBO.VALIDE.equals(moyenPaiementBO.getMoyenPaiementStatut()))
-                .sorted(Comparator.comparing(MoyenPaiementBO::getDateLimite, Comparator.nullsLast(Comparator.reverseOrder()))).findFirst();
+        DemandeDataDTO data = demandesDataService.getDemandeData(gouvPropertiesResolver.getDemarcheId(), demandeId, PaiementDemandeDataKeysEnum.MOYEN_PAIEMENT_REFERENCE.name());
+        return moyenPaiementRepository.findById(data.getValue());
     }
 
-    private void updateDemandeData(List<CommandeDemandeBO> commandeDemandeBOList, LocalDateTime dateValidite, String moyenPaiement) {
+    private void updateDemandeData(List<CommandeDemandeBO> commandeDemandeBOList, LocalDateTime dateValidite, MoyenPaiementDTO moyenPaiement) {
         Timestamp date = Timestamp.valueOf(LocalDateTime.now());
         for (CommandeDemandeBO commandeDemandeBO : commandeDemandeBOList) {
             DemandeBO demandeBO = commandeDemandeBO.getDemande();
@@ -270,7 +264,8 @@ public class PaiementServiceImpl implements PaiementService {
             datas.put(PaiementDemandeDataKeysEnum.DATE_PAIEMENT.name(), LocalDateTime.now().format(formatter));
             datas.put(PaiementDemandeDataKeysEnum.DATE_EXPIRATION_EMPREINTE.name(), dateValidite.format(formatter));
             datas.put(PaiementDemandeDataKeysEnum.STATUT_PAIEMENT.name(), PaiementStatutEnum.EMPREINTE_VALIDE.name());
-            datas.put(PaiementDemandeDataKeysEnum.MOYEN_PAIEMENT.name(), moyenPaiement);
+            datas.put(PaiementDemandeDataKeysEnum.MOYEN_PAIEMENT.name(), moyenPaiement.getModepaiement());
+            datas.put(PaiementDemandeDataKeysEnum.MOYEN_PAIEMENT_REFERENCE.name(), moyenPaiement.getReference());
             demandesDataService.saveOrUpdateDemandeDatas(demarcheId, pkDemande, datas);
 
             LOGGER.info("Ajout de l'historique de paiement...");

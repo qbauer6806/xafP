@@ -182,4 +182,14 @@ public class PaiementPropertiesResolverTestImpl implements PaiementPropertiesRes
     public String getApiRioJwt() {
         return null;
     }
+
+    @Override
+    public String getProxyUrl() {
+        return null;
+    }
+
+    @Override
+    public String getProxyPort() {
+        return null;
+    }
 }

@@ -233,4 +233,12 @@ public class PaiementPropertiesResolverImpl implements PaiementPropertiesResolve
         return Static.getValue("mc.gouv" + gouvPropertiesResolver.getApplicationPrefix() + ".rio.jwt");
     }
 
+    public String getProxyUrl() {
+        return Static.getValue("mc.gouv" + gouvPropertiesResolver.getApplicationPrefix() + ".proxyUrl");
+    }
+
+    public String getProxyPort() {
+        return Static.getValue("mc.gouv" + gouvPropertiesResolver.getApplicationPrefix() + ".proxyPort");
+    }
+
 }

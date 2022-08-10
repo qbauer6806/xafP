@@ -24,16 +24,6 @@ public class PaiementPropertiesResolverTestImpl implements PaiementPropertiesRes
     }
 
     @Override
-    public int getPermisParDefaut() {
-        return 0;
-    }
-
-    @Override
-    public int getImmatParDefaut() {
-        return 0;
-    }
-
-    @Override
     public String getVersionAller() {
         return null;
     }
@@ -41,21 +31,6 @@ public class PaiementPropertiesResolverTestImpl implements PaiementPropertiesRes
     @Override
     public String getVersionCapture() {
         return "3.0";
-    }
-
-    @Override
-    public String getAllerUrl() {
-        return null;
-    }
-
-    @Override
-    public String getRetourUrl() {
-        return null;
-    }
-
-    @Override
-    public String getMenuUrl() {
-        return null;
     }
 
     @Override
@@ -100,16 +75,6 @@ public class PaiementPropertiesResolverTestImpl implements PaiementPropertiesRes
     }
 
     @Override
-    public int getValiditeMaxMoyenPaiement() {
-        return 0;
-    }
-
-    @Override
-    public String getPaiementKey() {
-        return "key";
-    }
-
-    @Override
     public String getCurrency() {
         return "EUR";
     }
@@ -135,21 +100,6 @@ public class PaiementPropertiesResolverTestImpl implements PaiementPropertiesRes
     }
 
     @Override
-    public String getAdressesMailAdminMetier() {
-        return null;
-    }
-
-    @Override
-    public String getAdressesMailSupportTechniqueCir() {
-        return null;
-    }
-
-    @Override
-    public String getAdressesMailSupportTechniqueRio() {
-        return null;
-    }
-
-    @Override
     public int getXafRetryInitialDelay() {
         return 0;
     }
@@ -162,11 +112,6 @@ public class PaiementPropertiesResolverTestImpl implements PaiementPropertiesRes
     @Override
     public int getXafRetryMultiplier() {
         return 0;
-    }
-
-    @Override
-    public String getXafPaiementImmediatHeureDiffere() {
-        return null;
     }
 
     @Override

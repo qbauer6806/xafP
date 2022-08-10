@@ -12,27 +12,15 @@ public interface PaiementPropertiesResolver {
 
     String getXafMoneticoTexteAller();
 
-    int getValiditeMaxMoyenPaiement();
-
     String getFactureUrl();
 
     String getFactureToken();
 
     int getRegistre();
 
-    int getPermisParDefaut();
-
-    int getImmatParDefaut();
-
     String getVersionAller();
 
     String getVersionCapture();
-
-    String getAllerUrl();
-
-    String getRetourUrl();
-
-    String getMenuUrl();
 
     String getCaptureUrl();
 
@@ -40,9 +28,6 @@ public interface PaiementPropertiesResolver {
 
 
     String getEchecUrl();
-
-    String getPaiementKey();
-
 
     String getCurrency();
 
@@ -54,21 +39,11 @@ public interface PaiementPropertiesResolver {
 
     String getCodePaysParDefaut();
 
-
-    String getAdressesMailAdminMetier();
-
-    String getAdressesMailSupportTechniqueCir();
-
-    String getAdressesMailSupportTechniqueRio();
-
-
     int getXafRetryInitialDelay();
 
     int getXafRetryCount();
 
     int getXafRetryMultiplier();
-
-    String getXafPaiementImmediatHeureDiffere();
 
     String getXafMonetico3dsv2Scenario();
 

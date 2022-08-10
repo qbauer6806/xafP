@@ -3,14 +3,20 @@ package mc.gouv.xaf.back.paiement.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import mc.gouv.xaf.back.data.dao.AccessRepository;
+import mc.gouv.xaf.back.data.dao.DemandesDataRepository;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesStatutsRepository;
 import mc.gouv.xaf.back.data.entity.AccessBO;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
+import mc.gouv.xaf.back.data.entity.DemandesDataBO;
 import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
 import mc.gouv.xaf.back.paiement.data.dao.*;
-import mc.gouv.xaf.back.paiement.data.entity.*;
+import mc.gouv.xaf.back.paiement.data.entity.CommandeBO;
+import mc.gouv.xaf.back.paiement.data.entity.CommandeDemandeBO;
+import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
+import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementStatutBO;
 import mc.gouv.xaf.back.paiement.dto.*;
+import mc.gouv.xaf.back.paiement.enums.PaiementDemandeDataKeysEnum;
 import mc.gouv.xaf.back.paiement.enums.PaiementStatutEnum;
 import mc.gouv.xaf.back.paiement.mock.DemandeStatutEnum;
 import mc.gouv.xaf.shared.stc.MoyenPaiementDTO;
@@ -25,7 +31,9 @@ import org.xml.sax.SAXException;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -61,6 +69,9 @@ public class PaiementServiceTest {
     @Autowired
     private PaiementHistoriqueRepository paiementHistoriqueRepository;
 
+    @Autowired
+    private DemandesDataRepository demandesDataRepository;
+
     @Before
     public void cleanData() {
         paiementHistoriqueRepository.deleteAll();
@@ -69,24 +80,37 @@ public class PaiementServiceTest {
         commandeDemandeRepository.deleteAll();
         commandeRepository.deleteAll();
         demandesRepository.deleteAll();
+        demandesDataRepository.deleteAll();
     }
 
     @Test
     public void createOk() {
         DemandeBO demandeBO = new DemandeBO();
+        Set<DemandesDataBO> demandesDataBOS = new HashSet<>();
+        DemandesDataBO demandesDataBO = new DemandesDataBO();
+        demandesDataBO.setKey(PaiementDemandeDataKeysEnum.MOYEN_PAIEMENT_REFERENCE.name());
+        demandesDataBO.setValue("123456");
+        demandesDataBOS.add(demandesDataBO);
         demandeBO.setContenu("contenu");
         demandeBO.setCanal("canal");
         demandeBO.setIdentifiant("monIdentifiant");
         demandeBO.setDateCreation(new Date());
         demandeBO.setDateDerModif(new Date());
+        demandeBO.setData(demandesDataBOS);
         demandeBO = demandesRepository.save(demandeBO);
 
         DemandeBO demandeBO2 = new DemandeBO();
+        Set<DemandesDataBO> demandesDataBOS2 = new HashSet<>();
+        DemandesDataBO demandesDataBO2 = new DemandesDataBO();
+        demandesDataBO2.setKey(PaiementDemandeDataKeysEnum.MOYEN_PAIEMENT_REFERENCE.name());
+        demandesDataBO2.setValue("123456");
+        demandesDataBOS2.add(demandesDataBO2);
         demandeBO2.setContenu("contenu");
         demandeBO2.setCanal("canal");
         demandeBO2.setIdentifiant("monIdentifiant");
         demandeBO2.setDateCreation(new Date());
         demandeBO2.setDateDerModif(new Date());
+        demandeBO2.setData(demandesDataBOS2);
         demandeBO2 = demandesRepository.save(demandeBO2);
         String langue = "FR";
         String demandesId = "" + demandeBO.getPkDemandes() + "," + demandeBO2.getPkDemandes();
@@ -187,6 +211,12 @@ public class PaiementServiceTest {
         demandeBO.setIdentifiant("monIdentifiant");
         demandeBO.setDateCreation(new Date());
         demandeBO.setDateDerModif(new Date());
+        Set<DemandesDataBO> demandesDataBOS = new HashSet<>();
+        DemandesDataBO demandesDataBO = new DemandesDataBO();
+        demandesDataBO.setKey(PaiementDemandeDataKeysEnum.MOYEN_PAIEMENT_REFERENCE.name());
+        demandesDataBO.setValue("maRef");
+        demandesDataBOS.add(demandesDataBO);
+        demandeBO.setData(demandesDataBOS);
         demandeBO = demandesRepository.save(demandeBO);
 
         CommandeBO commandeBO = new CommandeBO();

@@ -503,7 +503,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
                         Class<?> klass = Class.forName(pojo + mapping + "Enum");
                         Object[] parameters = {entry.getKey().toUpperCase(), true};
                         Object value = klass.getMethod("forValue", String.class, boolean.class).invoke(klass, parameters);
-                        LOGGER.info("n={}, path={}, klass={}, parameters={}, value={}", n, champ.get("path"), klass, parameters, value);
+                        LOGGER.debug("n={}, path={}, klass={}, parameters={}, value={}", n, champ.get("path"), klass, parameters, value);
                         if (!ret.equals("")) {
                             ret += ", ";
                         }

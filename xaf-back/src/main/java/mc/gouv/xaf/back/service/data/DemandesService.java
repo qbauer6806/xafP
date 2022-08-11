@@ -259,6 +259,11 @@ public interface DemandesService {
      */
     List<DemandeDTO> getDemandesFilterFiles(String demarcheId, Integer usagerId);
 
-	//DemandeDTO insererDonneesExternes(DemandeDTO demande);
+    /**
+     * Retourne la liste de tous les buildId référencés en base dans la table DEM_DEMANDES
+     * 
+     * @return
+     */
+	List<String> getAllBuildIds();
 
 }

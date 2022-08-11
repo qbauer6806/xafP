@@ -1550,89 +1550,12 @@ public class DemandesServiceImpl implements DemandesService {
 		return DemandesTransformer.bo2Dto(demandeBo);
 	}
 	
-//	@SuppressWarnings("unchecked")
-//	@Override
-//	public DemandeDTO insererDonneesExternes(DemandeDTO demande) {
-//        LOGGER.info("Chargement du fichier recap...");
-//        JsonNode contenu = demande.getContenu().deepCopy();
-//        
-//        try {
-//	        InputStream inputStream = new ClassPathResource("/recaps/recaps_" + demande.getBuildId() + ".json")
-//				        .getInputStream();
-//	        JSONParser jsonParser = new JSONParser();
-//	        JSONArray jsonArrayRecap = (JSONArray) jsonParser.parse(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
-//	
-//	        for (int k = 0; k < jsonArrayRecap.size(); k++) {
-//	            if ("projectDemandeRecap".equals(((JSONObject) jsonArrayRecap.get(k)).get("name"))) {
-//	                JSONObject projectDemandeRecap = (JSONObject) jsonArrayRecap.get(k);
-//	                JSONObject donneesExternes = (JSONObject) projectDemandeRecap.get("donneesExternes");
-//            		for (Map.Entry<String, String> entry : (Set<Map.Entry<String, String>>) donneesExternes.entrySet()) {
-//            			String source = entry.getValue().split("\\.")[0];
-//            			String property = entry.getValue().replace("mconnect.", "");
-//            			
-//            			if ("mconnect".contentEquals(source) && demande.getDonneesMConnect() != null) {
-//            				JsonNode contenuModifie = null;
-//            				
-//            				if ("givenName".equals(property)) {	
-//            					contenuModifie = modifierContenuDemande(contenu, entry.getKey(), demande.getDonneesMConnect().getGivenName());
-//            				}
-//            				else if ("familyName".equals(property)) {
-//            					contenuModifie = modifierContenuDemande(contenu, entry.getKey(), demande.getDonneesMConnect().getFamilyName());
-//            				}
-//            				
-//        					if (contenuModifie != null) {
-//        						contenu = contenuModifie;
-//        						demande.setDonneesCertifiees(AfBackUtils.addDonneeCertifiee(demande.getDonneesCertifiees(), entry.getKey()));
-//        					}
-//            			}
-//            		}
-//	            }
-//	        }
-//        } catch (IOException | org.json.simple.parser.ParseException e) {
-//        	LOGGER.error("Erreur lors de DemandeServiceImpl.checkInfosCertifiees()", e);
-//        }
-//        
-//        if (!demande.getContenu().equals(contenu)) {
-//        	LOGGER.info("Le contenu de la demande a été modifié suite à la vérification des informations certifiées");
-//        	demande.setContenu(contenu);
-//        }
-//        else {
-//        	LOGGER.info("Le contenu de la demande n'a pas été modifié suite à la vérification des informations certifiées");
-//        }
-//        
-//        return demande;
-//	}
-	
-//	/**
-//	 * 
-//	 * @param contenu Le contenu de la demande, tel que stocké en base
-//	 * @param key Le chemin vers la donnée, exemple : "contenu.donnee.vous.prenom"
-//	 * @param value La valeur à mettre (exemple : pour changer le prénom)
-//	 * @return Le contenu mis à jour
-//	 */
-//	private JsonNode modifierContenuDemande(JsonNode contenu, String key, String value) {
-//		
-//		// Se rendre jusqu'au dernier parent
-//		String[] tokens = key.split("\\.");
-//		JsonNode currentNode = contenu;
-//		// On commence avec 1 afin de sauter le "contenu." du début de la clé, et on termine juste avant le dernier
-//		// pour s'arrêter au parent et modifier l'enfant
-//		for (int i = 1; i < tokens.length - 1; i++) {
-//			if (currentNode == null) {
-//				break;
-//			}
-//			currentNode = currentNode.get(tokens[i]);
-//		}
-//		
-//		// Modifier l'enfant
-//		if (currentNode != null && currentNode.has(tokens[tokens.length-1])) {
-//			((ObjectNode)currentNode).put(tokens[tokens.length-1], value);
-//			return contenu;
-//		}
-//		else {
-//			LOGGER.warn("La clé \"{}\" n'a pas pu être trouvée, échec du modifierContenuDemande()", key);
-//		}
-//		return null;
-//	}
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<String> getAllBuildIds() {
+		return demandesRepository.getAllBuildIds();
+	}
 
 }

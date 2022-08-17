@@ -15,6 +15,7 @@ import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import org.apache.http.client.HttpResponseException;
@@ -62,7 +63,7 @@ public class MoneticoClient implements PaiementClient {
     private static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
     DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy:HH:mm:ss");
-
+    private static String XAF_ACTIVATION_CAPTURE_PAIEMENT = "XAF_ACTIVATION_CAPTURE_PAIEMENT";
 
     public MoneticoClient(Proxy proxy,
                           PaiementPropertiesResolver paiementPropertiesResolver,
@@ -99,6 +100,14 @@ public class MoneticoClient implements PaiementClient {
         Operation<String> operation = new Operation<String>() {
             @Override
             public void execute() throws Exception {
+
+                // Permet de désactiver la capture en simulant une erreur d'opération.
+                PropertiesDTO captureActive = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_ACTIVATION_CAPTURE_PAIEMENT);
+                if (captureActive != null && !Boolean.parseBoolean(captureActive.getValue())) {
+                    // On met le statut 400 pour éviter de faire plusieurs tentatives
+                    throw new HttpResponseException(Response.Status.BAD_REQUEST.getStatusCode(), "Capture du paiement désactivé");
+                }
+
                 Response response = getTarget().queryParam("TPE", getTpe())
                         .queryParam("montant", paiement.getMontantInitial() + paiementPropertiesResolver.getCurrency())
                         .queryParam("montant_a_capturer", operationBO.getMontant() + paiementPropertiesResolver.getCurrency())

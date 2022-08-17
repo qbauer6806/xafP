@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -325,6 +326,12 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 							idTag2 = "</span>";
 						}
 					}
+					
+					String imgTag = "<img src=\"../img/icone_identite_numerique_valide.svg\"></img>";
+					if (isPdfRecap) {
+						URL url = getClass().getClassLoader().getResource("static/img/icone_identite_numerique_valide.svg");
+						imgTag = "<img src=\"" + url.toExternalForm() + "\"></img>";
+					}
                     
                     if (demandeSource != null && value != null && valueSource != null && !value.equals(valueSource)) {
                     	if (StringUtils.isBlank(valueSource)) {
@@ -333,7 +340,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 						html.append("<dt class='nouvelledonnee-titre'>").append(champ.get("label")).append("</dt>");
 						html.append("<dd class='nouvelledonnee-titre'>").append(idTag1 + value.replace("<span>", "<span class='nouvelledonnee-contenu'>").replace("<dt>","<dt class='nouvelledonnee-titre'>").replace("<dd>","<dd class='nouvelledonnee-contenu'>") + idTag2);
 						if (isDonneeCertifiee) {
-							html.append(" <span class=\"nouvelledonnee\" title=\"Donnée certifiée\"><img src=\"../img/icone_identite_numerique_valide.svg\"></img></span></dd>");
+							html.append(" <span class=\"nouvelledonnee\" title=\"Donnée certifiée\">" + imgTag + "</span></dd>");
 						}
 						else {
 							html.append("</dd>");
@@ -347,7 +354,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 						html.append("<dt><span>").append(champ.get("label")).append("</span></dt>");
 						html.append("<dd>").append(idTag1 + value + idTag2);
 						if (isDonneeCertifiee) {
-							html.append(" <span title=\"Donnée certifiée\"><img src=\"../img/icone_identite_numerique_valide.svg\"></img></span></dd>");
+							html.append(" <span title=\"Donnée certifiée\">" + imgTag + "</span></dd>");
 						}
 						else {
 							html.append("</dd>");

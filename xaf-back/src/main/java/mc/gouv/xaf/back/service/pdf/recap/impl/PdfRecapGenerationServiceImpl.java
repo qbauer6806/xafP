@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import com.openhtmltopdf.slf4j.Slf4jLogger;
+import com.openhtmltopdf.svgsupport.BatikSVGDrawer;
 import com.openhtmltopdf.util.XRLog;
 
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
@@ -111,6 +112,7 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
         try (OutputStream os = new FileOutputStream(pdfDest)) {
             PdfRendererBuilder builder = new PdfRendererBuilder();
             builder.useFastMode();
+            builder.useSVGDrawer(new BatikSVGDrawer());
             try(FileInputStream inputStream = new FileInputStream(htmlSource)) {     
                 String contenu = IOUtils.toString(inputStream);
                 LOGGER.info("HTML Source : " + contenu);

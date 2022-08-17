@@ -100,4 +100,8 @@ public interface GouvPropertiesResolver {
 
     String getApplicationPrefix();
 
+    String getProxyUrl();
+
+    String getProxyPort();
+
 }

@@ -445,4 +445,15 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     public String getApplicationPrefix() {
         return applicationPrefix;
     }
+
+    @Override
+    public String getProxyUrl() {
+        return Static.getValue("ADR-IP-PROXY");
+    }
+
+    @Override
+    public String getProxyPort() {
+        return Static.getValue("PORT-PROXY");
+    }
+
 }

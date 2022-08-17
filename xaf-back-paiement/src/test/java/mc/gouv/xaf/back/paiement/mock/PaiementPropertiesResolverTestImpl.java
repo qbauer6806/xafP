@@ -128,13 +128,4 @@ public class PaiementPropertiesResolverTestImpl implements PaiementPropertiesRes
         return null;
     }
 
-    @Override
-    public String getProxyUrl() {
-        return null;
-    }
-
-    @Override
-    public String getProxyPort() {
-        return null;
-    }
 }

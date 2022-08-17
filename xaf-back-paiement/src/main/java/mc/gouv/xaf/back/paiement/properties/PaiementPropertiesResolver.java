@@ -51,7 +51,4 @@ public interface PaiementPropertiesResolver {
 
     String getApiRioJwt();
 
-    String getProxyUrl();
-
-    String getProxyPort();
 }

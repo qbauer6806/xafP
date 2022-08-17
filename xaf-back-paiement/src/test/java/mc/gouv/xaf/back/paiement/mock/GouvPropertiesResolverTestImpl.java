@@ -234,4 +234,14 @@ public class GouvPropertiesResolverTestImpl implements GouvPropertiesResolver {
     public String getApplicationPrefix() {
         return null;
     }
+
+    @Override
+    public String getProxyUrl() {
+        return null;
+    }
+
+    @Override
+    public String getProxyPort() {
+        return null;
+    }
 }

@@ -462,7 +462,7 @@ dd span {
 }
 
 .anciennedonnee-titre {
-	background-color: #def1f5;
+	background-color: #eee;
 	font-weight: bold;
 	display: none;
 }
@@ -473,7 +473,7 @@ dd span {
 }
 
 .anciennedonnee-contenu {
-	background-color: #def1f5;
+	background-color: #eee;
 	display: none;
 }
 

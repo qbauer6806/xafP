@@ -145,7 +145,7 @@ public class PaiementServiceImpl implements PaiementService {
         MoyenPaiementBO moyenPaiement = new MoyenPaiementBO();
         moyenPaiement.setCommande(commande);
         moyenPaiement.setPkMoyenPaiement(referenceFactoryService.createSimpleReference12Digits());
-        moyenPaiement.setDateLimite(now.plusDays(30));
+        moyenPaiement.setDateLimite(now.plusDays(paiementPropertiesResolver.getValiditeMaxMoyenPaiement()));
         moyenPaiement.setDateDerniereModification(now);
         moyenPaiement.setMontantInitial(montant);
         moyenPaiement.setMontantRestant(montant);

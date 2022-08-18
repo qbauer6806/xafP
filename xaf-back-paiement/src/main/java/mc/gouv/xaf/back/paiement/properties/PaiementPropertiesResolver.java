@@ -2,6 +2,8 @@ package mc.gouv.xaf.back.paiement.properties;
 
 public interface PaiementPropertiesResolver {
 
+    int getValiditeMaxMoyenPaiement();
+
     String getTpe();
 
     String getPaiementClef();
@@ -26,7 +28,6 @@ public interface PaiementPropertiesResolver {
 
     String getSuccesUrl();
 
-
     String getEchecUrl();
 
     String getCurrency();
@@ -46,6 +47,8 @@ public interface PaiementPropertiesResolver {
     int getXafRetryMultiplier();
 
     String getXafMonetico3dsv2Scenario();
+
+    String getXafPaiementImmediatHeureDiffere();
 
     String getApiRioUrl();
 

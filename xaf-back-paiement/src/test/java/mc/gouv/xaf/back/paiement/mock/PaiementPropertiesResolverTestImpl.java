@@ -17,7 +17,6 @@ public class PaiementPropertiesResolverTestImpl implements PaiementPropertiesRes
         return "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJUUyIsImF1ZCI6IkNJUiIsImlhdCI6IjIwMjItMDMtMThUMTA6MTM6MDMrMDEwMCIsImp0aSI6IjIxNDdjY2VmLTYyM2EtNGJlZS1iMTAxLWIxZTlmZjBlYTcxYiIsImdvdXYiOnsic2hhcmVkIjp7InJvbGVzIjpbIlRTIl19fX0.yoS9szzDx00GXhavi6mgkyPCR26tSDiiU4khINBbTSE";
     }
 
-
     @Override
     public int getRegistre() {
         return 0;
@@ -48,6 +47,11 @@ public class PaiementPropertiesResolverTestImpl implements PaiementPropertiesRes
         return null;
     }
 
+
+    @Override
+    public int getValiditeMaxMoyenPaiement() {
+        return 30;
+    }
 
     @Override
     public String getTpe() {
@@ -117,6 +121,11 @@ public class PaiementPropertiesResolverTestImpl implements PaiementPropertiesRes
     @Override
     public String getXafMonetico3dsv2Scenario() {
         return "null";
+    }
+
+    @Override
+    public String getXafPaiementImmediatHeureDiffere() {
+        return null;
     }
 
     public String getApiRioUrl() {

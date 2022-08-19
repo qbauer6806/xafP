@@ -43,6 +43,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
+import static mc.gouv.xaf.back.service.utils.AfBackUtils.DTF_AAAA_MM_JJ;
 
 @Service
 public class PaiementServiceImpl implements PaiementService {
@@ -259,10 +260,9 @@ public class PaiementServiceImpl implements PaiementService {
 
             LOGGER.info("Mise à jour des données de la demande...");
             String demarcheId = gouvPropertiesResolver.getDemarcheId();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
             Map<String, String> datas = new HashMap<>();
-            datas.put(PaiementDemandeDataKeysEnum.DATE_PAIEMENT.name(), LocalDateTime.now().format(formatter));
-            datas.put(PaiementDemandeDataKeysEnum.DATE_EXPIRATION_EMPREINTE.name(), dateValidite.format(formatter));
+            datas.put(PaiementDemandeDataKeysEnum.DATE_PAIEMENT.name(), LocalDateTime.now().format(DTF_AAAA_MM_JJ));
+            datas.put(PaiementDemandeDataKeysEnum.DATE_EXPIRATION_EMPREINTE.name(), dateValidite.format(DTF_AAAA_MM_JJ));
             datas.put(PaiementDemandeDataKeysEnum.STATUT_PAIEMENT.name(), PaiementStatutEnum.EMPREINTE_VALIDE.name());
             datas.put(PaiementDemandeDataKeysEnum.MOYEN_PAIEMENT.name(), moyenPaiement.getModepaiement());
             datas.put(PaiementDemandeDataKeysEnum.MOYEN_PAIEMENT_REFERENCE.name(), moyenPaiement.getReference());

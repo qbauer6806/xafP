@@ -93,6 +93,8 @@ public class AfBackUtils {
 
     public static DateFormat FILE_DATE_AND_TIME_SUFFIX = new SimpleDateFormat("yyyyMMddHHmmssSS");
 
+    public static DateTimeFormatter DTF_AAAA_MM_JJ = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+
     public static final String MESSAGE_ERREURS_FORMULAIRE = "Le formulaire contient des erreurs.";
     
     // Préfix de la meta d'un fichier indiquant l'ID de la section correspondante

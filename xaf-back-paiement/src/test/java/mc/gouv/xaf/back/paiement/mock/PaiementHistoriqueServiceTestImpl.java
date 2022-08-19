@@ -33,4 +33,9 @@ public class PaiementHistoriqueServiceTestImpl implements PaiementHistoriqueServ
     public void ajouterHistoriqueDebitAbandonne(DemandeDTO demandeDTO) {
 
     }
+
+    @Override
+    public void ajouterHistoriqueEmpreinteExpiree(Integer pkDemandes) {
+
+    }
 }

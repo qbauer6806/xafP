@@ -14,8 +14,10 @@ import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesDataService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeDataDTO;
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.delegate.JavaDelegate;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,12 +68,14 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
         Integer demandeId = Integer.parseInt(execution.getProcessBusinessKey());
         OperationBO operation = null;
         DemandeDTO demandeDto = demandesService.getDemande(demarcheId, demandeId);
+        DemandeDataDTO statutPaiementData = demandesDataService.getDemandeData(demarcheId, demandeId, PaiementDemandeDataKeysEnum.STATUT_PAIEMENT.name());
 
         try {
             Optional<MoyenPaiementBO> moyenPaiementBO = paiementService.getMoyenPaiement(demandeId);
             LOGGER.info("Recuperation moyenPaiementBO : {}", moyenPaiementBO);
+            LOGGER.info("Statut de l'empreinte de paiement : {}", statutPaiementData.getValue());
 
-            if (moyenPaiementBO.isPresent()) {
+            if (moyenPaiementBO.isPresent() && StringUtils.equals(statutPaiementData.getValue(), PaiementStatutEnum.EMPREINTE_VALIDE.name())) {
                 LOGGER.info("Début capture paiement pour la demande: {}", demandeDto.getPkDemandes());
 
                 MoyenPaiementBO moyenPaiement = moyenPaiementBO.get();
@@ -92,8 +96,10 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
         boolean resultatOperation = operation != null && ACCEPTEE.equals(operation.getOperationStatut());
         gouvBPM.setProcessBusinessVariable(demandeDto.getPkDemandes(), MC_CAPTURE_RESULT, resultatOperation);
         if (!resultatOperation) {
-            demandesDataService.saveOrUpdateDemandeData(demarcheId, demandeId, PaiementDemandeDataKeysEnum.STATUT_PAIEMENT.name(), PaiementStatutEnum.DEBIT_ECHEC.name());
-            paiementHistoriqueService.ajouterHistoriqueDebitEchec(demandeDto);
+            if (StringUtils.equals(statutPaiementData.getValue(), PaiementStatutEnum.EMPREINTE_VALIDE.name())) {
+                demandesDataService.saveOrUpdateDemandeData(demarcheId, demandeId, PaiementDemandeDataKeysEnum.STATUT_PAIEMENT.name(), PaiementStatutEnum.DEBIT_ECHEC.name());
+                paiementHistoriqueService.ajouterHistoriqueDebitEchec(demandeDto);
+            }
             paiementDemandeHistoriqueService.actionSysteme(demandeId, "PAIEMENT_A_REGULARISER", "A envoyé une demande de paiement ");
         } else {
             demandesDataService.saveOrUpdateDemandeData(demarcheId, demandeId, PaiementDemandeDataKeysEnum.STATUT_PAIEMENT.name(), PaiementStatutEnum.DEBIT_REALISE.name());

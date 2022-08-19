@@ -105,13 +105,6 @@ public class MoneticoClient implements PaiementClient {
             @Override
             public void execute() throws Exception {
 
-                // Permet de désactiver la capture en simulant une erreur d'opération.
-                PropertiesDTO captureActive = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_ACTIVATION_CAPTURE_PAIEMENT);
-                if (captureActive != null && !Boolean.parseBoolean(captureActive.getValue())) {
-                    // On met le statut 400 pour éviter de faire plusieurs tentatives
-                    throw new HttpResponseException(Response.Status.BAD_REQUEST.getStatusCode(), "Capture du paiement désactivé");
-                }
-
                 LOGGER.info("URL: {}", paiementPropertiesResolver.getCaptureUrl());
                 String tpe = getTpe();
                 LOGGER.info("TPE: {}", tpe);
@@ -129,6 +122,13 @@ public class MoneticoClient implements PaiementClient {
                 LOGGER.info("societe: {}", paiement.getCodeSociete());
                 String version = paiementPropertiesResolver.getVersionCapture();
                 LOGGER.info("version {}", version);
+
+                // Permet de désactiver la capture en simulant une erreur d'opération.
+                PropertiesDTO captureActive = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_ACTIVATION_CAPTURE_PAIEMENT);
+                if (captureActive != null && !Boolean.parseBoolean(captureActive.getValue())) {
+                    // On met le statut 400 pour éviter de faire plusieurs tentatives
+                    throw new HttpResponseException(Response.Status.BAD_REQUEST.getStatusCode(), "Capture du paiement désactivé");
+                }
 
                 Response response = getTarget().queryParam("TPE", tpe)
                         .queryParam("montant", montant)

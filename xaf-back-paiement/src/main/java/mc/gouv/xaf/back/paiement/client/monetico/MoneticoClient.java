@@ -128,7 +128,7 @@ public class MoneticoClient implements PaiementClient {
                 LOGGER.info("date_commande: {}", dateString);
                 LOGGER.info("societe: {}", paiement.getCodeSociete());
                 String version = paiementPropertiesResolver.getVersionCapture();
-                LOGGER.info("version {}", version)
+                LOGGER.info("version {}", version);
 
                 Response response = getTarget().queryParam("TPE", tpe)
                         .queryParam("montant", montant)

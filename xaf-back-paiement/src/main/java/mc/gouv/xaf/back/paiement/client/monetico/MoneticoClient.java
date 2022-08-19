@@ -94,7 +94,11 @@ public class MoneticoClient implements PaiementClient {
 
     public boolean capture(MoyenPaiementBO paiement, OperationBO operationBO, DemandeDTO demandeDTO) {
         logStartMethod(LOGGER);
+
         LOGGER.info("Parameters [ MoyenPaiementBO {}] ", paiement);
+        LOGGER.info("Parameters [ OperationBO {}] ", operationBO);
+        LOGGER.info("Parameters [ DemandeDTO {}] ", demandeDTO);
+
         String dateString = paiement.getCommande().getDateCreation().format(dateFormatter);
         String dateTimeString = paiement.getCommande().getDateCreation().format(dateTimeFormatter);
         Operation<String> operation = new Operation<String>() {
@@ -108,17 +112,35 @@ public class MoneticoClient implements PaiementClient {
                     throw new HttpResponseException(Response.Status.BAD_REQUEST.getStatusCode(), "Capture du paiement désactivé");
                 }
 
-                Response response = getTarget().queryParam("TPE", getTpe())
-                        .queryParam("montant", paiement.getMontantInitial() + paiementPropertiesResolver.getCurrency())
-                        .queryParam("montant_a_capturer", operationBO.getMontant() + paiementPropertiesResolver.getCurrency())
-                        .queryParam("montant_deja_capture", paiement.getMontantCapture() + paiementPropertiesResolver.getCurrency())
-                        .queryParam("montant_restant", (paiement.getMontantRestant() - operationBO.getMontant()) + paiementPropertiesResolver.getCurrency())
+                LOGGER.info("URL: {}", paiementPropertiesResolver.getCaptureUrl());
+                String tpe = getTpe();
+                LOGGER.info("TPE: {}", tpe);
+                String montant = paiement.getMontantInitial() + paiementPropertiesResolver.getCurrency();
+                LOGGER.info("montant: {}", montant);
+                String montantACapturer = operationBO.getMontant() + paiementPropertiesResolver.getCurrency();
+                LOGGER.info("montant_a_capturer: {}", montantACapturer);
+                String montantDejaCapture = paiement.getMontantCapture() + paiementPropertiesResolver.getCurrency();
+                LOGGER.info("montant_deja_capture: {}", montantDejaCapture);
+                String montantRestant = (paiement.getMontantRestant() - operationBO.getMontant()) + paiementPropertiesResolver.getCurrency();
+                LOGGER.info("montant_restant: {}", montantRestant);
+                LOGGER.info("reference: {}", paiement.getPkMoyenPaiement());
+                LOGGER.info("date: {}", dateTimeString);
+                LOGGER.info("date_commande: {}", dateString);
+                LOGGER.info("societe: {}", paiement.getCodeSociete());
+                String version = paiementPropertiesResolver.getVersionCapture();
+                LOGGER.info("version {}", version)
+
+                Response response = getTarget().queryParam("TPE", tpe)
+                        .queryParam("montant", montant)
+                        .queryParam("montant_a_capturer", montantACapturer)
+                        .queryParam("montant_deja_capture", montantDejaCapture)
+                        .queryParam("montant_restant", montantRestant)
                         .queryParam("lgue", "FR")
                         .queryParam("reference", paiement.getPkMoyenPaiement())
                         .queryParam("date", dateTimeString)
                         .queryParam("date_commande", dateString)
                         .queryParam("societe", paiement.getCodeSociete())
-                        .queryParam("version", paiementPropertiesResolver.getVersionCapture())
+                        .queryParam("version", version)
                         .request(MediaType.APPLICATION_JSON).get();
 
                 String responseString = response.readEntity(String.class);
@@ -204,7 +226,7 @@ public class MoneticoClient implements PaiementClient {
             String[] keyValue = s.split("=");
 
             switch (keyValue[0]) {
-                case "cdr": // cdr = code retour
+                case "cdr": // cdr = Code retour indiquant le résultat de la capture
                     operation.setCodeRetour(keyValue[1]);
                     if ("1".equals(keyValue[1])) {
                         operation.setOperationStatut(OperationStatutBO.ACCEPTEE);
@@ -214,10 +236,10 @@ public class MoneticoClient implements PaiementClient {
                         operation.setOperationStatut(OperationStatutBO.ERREUR);
                     }
                     break;
-                case "aut": // aut = numero d'autorisation
+                case "aut": // aut = Numéro d’autorisation du paiement si celui-ci a été accepté
                     operation.setNumeroAuthorisation(Integer.parseInt(keyValue[1]));
                     break;
-               case "lib": // aut = numero d'autorisation
+               case "lib": // lib = Libellé détaillé précisant la nature du code retour
                     operation.setLibelle(keyValue[1]);
                     break;
             }

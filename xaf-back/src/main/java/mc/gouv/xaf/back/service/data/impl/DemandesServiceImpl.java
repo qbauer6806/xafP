@@ -582,6 +582,7 @@ public class DemandesServiceImpl implements DemandesService {
 		}
 
 		if (!demandeBoOp.isPresent() || !demandeBoOp.get().getFkAccess().getDemarcheId().equals(demarcheId)) {
+			LOGGER.error("Le demande ID: {}, pour la démarche {}, est introuvable.", demandeId, demarcheId);
 			throw new DemarchesServiceException("Demande introuvable ou supprimée", HttpStatus.NOT_FOUND);
 		}
 

@@ -3,7 +3,6 @@ package mc.gouv.xaf.back.paiement.client.monetico;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import mc.gouv.xaf.back.paiement.client.PaiementClient;
 import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
-import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementStatutBO;
 import mc.gouv.xaf.back.paiement.data.entity.OperationBO;
 import mc.gouv.xaf.back.paiement.data.entity.OperationStatutBO;
 import mc.gouv.xaf.back.paiement.properties.PaiementPropertiesResolver;
@@ -15,7 +14,6 @@ import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import org.apache.http.client.HttpResponseException;
@@ -33,7 +31,6 @@ import javax.ws.rs.core.Response;
 import java.net.HttpURLConnection;
 import java.net.Proxy;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.HashMap;
@@ -213,8 +210,8 @@ public class MoneticoClient implements PaiementClient {
         Map<String, Object> model = new HashMap<>();
         model.put("incident", incident);
         model.put("dateTimeString", dateTimeString);
-        model.put("PkDemandes", demandeDTO.getPkDemandes());
-        model.put("reponse", operation == null ? null : operation.getResult());
+        model.put("Pkdemandes", demandeDTO.getPkDemandes());
+        model.put("resultat", operation == null ? null : operation.getResult());
         try {
             mailService.sendMail(emailInfo, model);
         } catch (Exception e) {

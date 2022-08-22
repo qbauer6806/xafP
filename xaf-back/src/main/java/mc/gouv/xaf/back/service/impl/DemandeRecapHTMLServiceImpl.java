@@ -312,6 +312,10 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
                     if (pojoSource != null) {
                     	valueSource = getSecondLevelHTML(demandeSource.getContenu(), champ, pojoSource, isPdfRecap, false);
                     }
+                    
+                    if (valueSource == null) {
+                    	valueSource = "";
+                    }
 
                     
                     // Pour mettre l'ID HTML de la donnée, récupéré depuis le fichier Recap (pour les testeurs)

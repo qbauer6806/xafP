@@ -14,7 +14,7 @@ public interface PaiementHistoriqueService {
 
     void ajouterHistoriqueDebitOK(DemandeDTO demandeDTO);
 
-    void ajouterHistoriqueDebitAbandonne(DemandeDTO demandeDTO);
+    void ajouterHistoriqueDebitAbandonne(Integer pkDemandes);
 
     void ajouterHistoriqueEmpreinteExpiree(Integer pkDemandes);
 }

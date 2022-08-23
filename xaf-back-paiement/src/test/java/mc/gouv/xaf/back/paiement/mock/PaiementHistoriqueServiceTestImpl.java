@@ -30,7 +30,7 @@ public class PaiementHistoriqueServiceTestImpl implements PaiementHistoriqueServ
     }
 
     @Override
-    public void ajouterHistoriqueDebitAbandonne(DemandeDTO demandeDTO) {
+    public void ajouterHistoriqueDebitAbandonne(Integer pkDemandes) {
 
     }
 

@@ -185,37 +185,32 @@ public class MoneticoClient implements PaiementClient {
         String dateTimeString = simpleDateTimeFormat.format(date);
         String bodyTemplateCode = "MAIL_CAPTURE_ECHEC_CORPS";
         String subjectTemplateCode = "MAIL_CAPTURE_ECHEC_OBJET";
-
-        EmailInfoDTO emailInfo = new EmailInfoDTO();
-        emailInfo.setBodyTemplateCode(bodyTemplateCode);
-        emailInfo.setSubjectTemplateCode(subjectTemplateCode);
-        emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(), afBackUtils.getDemarcheInfos()
-                .getEmailFromNom());
-        emailInfo.setReplyto(afBackUtils.getDemarcheInfos().getEmailReplyto(), afBackUtils.getDemarcheInfos()
-                .getEmailReplytoNom());
-
         PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE);
 
         if (propertiesDTO.getValue() != null) {
-            String[] adresses = propertiesDTO.getValue().trim().split(",");
+            EmailInfoDTO emailInfo = new EmailInfoDTO();
+            emailInfo.setLangue("fr");
+            emailInfo.setBodyTemplateCode(bodyTemplateCode);
+            emailInfo.setSubjectTemplateCode(subjectTemplateCode);
+            emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(), afBackUtils.getDemarcheInfos().getEmailFromNom());
+            emailInfo.setReplyto(afBackUtils.getDemarcheInfos().getEmailReplyto(), afBackUtils.getDemarcheInfos().getEmailReplytoNom());
+            emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, demandeDTO.getIdentifiant());
 
+            String[] adresses = propertiesDTO.getValue().trim().split(",");
             for (String adresseMail : adresses) {
                 emailInfo.addTo(adresseMail, "Support Technique");
             }
-        }
 
-        emailInfo.setLangue("fr");
-
-
-        Map<String, Object> model = new HashMap<>();
-        model.put("incident", incident);
-        model.put("dateTimeString", dateTimeString);
-        model.put("Pkdemandes", demandeDTO.getPkDemandes());
-        model.put("resultat", operation == null ? null : operation.getResult());
-        try {
-            mailService.sendMail(emailInfo, model);
-        } catch (Exception e) {
-            LOGGER.error("Erreur lors de l'envoi de l'email", e);
+            Map<String, Object> model = new HashMap<>();
+            model.put("incident", incident);
+            model.put("dateTimeString", dateTimeString);
+            model.put("Pkdemandes", demandeDTO.getPkDemandes());
+            model.put("resultat", operation == null ? null : operation.getResult());
+            try {
+                mailService.sendMail(emailInfo, model);
+            } catch (Exception e) {
+                LOGGER.error("Erreur lors de l'envoi de l'email", e);
+            }
         }
     }
 

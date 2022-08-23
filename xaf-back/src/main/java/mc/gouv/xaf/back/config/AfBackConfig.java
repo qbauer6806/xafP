@@ -62,7 +62,7 @@ public class AfBackConfig {
     @Bean
     public CommonsMultipartResolver multipartResolver() {
         CommonsMultipartResolver resolver = new CommonsMultipartResolver();
-        resolver.setMaxUploadSize(8388608); // 8 MB
+        resolver.setMaxUploadSize(16777216); // 16 MB
         resolver.setDefaultEncoding("utf-8");
         return resolver;
     }

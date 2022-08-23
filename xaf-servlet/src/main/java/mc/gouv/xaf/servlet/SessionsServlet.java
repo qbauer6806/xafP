@@ -101,8 +101,6 @@ public class SessionsServlet extends HttpServlet {
 				usagerInfosDTO = GichkeyService.checkTokens(usagerInfosDTO, true);
 
 				if (usagerInfosDTO != null) {
-	            	// Appel à GICHUNI pour obtenir des informations de profil complémentaires
-					usagerInfosDTO = GichuniService.getGichuniApiProfileData(usagerInfosDTO);
 					
 					// Stockage de cet objet d'infos d'usager dans la session HTTP
 					session = request.getSession();

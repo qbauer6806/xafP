@@ -286,6 +286,9 @@ public class GichkeyService {
 			// On refresh les infos usagers extraites de l'accessToken
 			ret = getUsagerInfosFromToken(tokenInfo);
 			if (ret != null) {
+            	// Appel à GICHUNI pour obtenir des informations de profil complémentaires
+				ret = GichuniService.getGichuniApiProfileData(ret);
+				
 				ret.setAccessId(accessId);
 			}
 		}

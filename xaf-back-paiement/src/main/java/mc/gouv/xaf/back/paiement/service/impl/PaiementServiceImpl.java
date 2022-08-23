@@ -32,6 +32,7 @@ import mc.gouv.xaf.shared.stc.MoyenPaiementDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -249,48 +250,51 @@ public class PaiementServiceImpl implements PaiementService {
         return moyenPaiementRepository.findById(data.getValue());
     }
 
-    private void updateDemandeData(List<CommandeDemandeBO> commandeDemandeBOList, LocalDateTime dateValidite, MoyenPaiementDTO moyenPaiement) {
-        Timestamp date = Timestamp.valueOf(LocalDateTime.now());
-        for (CommandeDemandeBO commandeDemandeBO : commandeDemandeBOList) {
-            DemandeBO demandeBO = commandeDemandeBO.getDemande();
-            Integer pkDemande = demandeBO.getPkDemandes();
-            Integer usagerId = demandeBO.getFkAccess().getUsagerId();
-            GouvBPMUser user = new GouvBPMUser();
-            user.setId(usagerId.toString());
+    @Async
+    void updateDemandeData(List<CommandeDemandeBO> commandeDemandeBOList, LocalDateTime dateValidite, MoyenPaiementDTO moyenPaiement) {
+        new Thread(() -> {
+            Timestamp date = Timestamp.valueOf(LocalDateTime.now());
+            for (CommandeDemandeBO commandeDemandeBO : commandeDemandeBOList) {
+                DemandeBO demandeBO = commandeDemandeBO.getDemande();
+                Integer pkDemande = demandeBO.getPkDemandes();
+                Integer usagerId = demandeBO.getFkAccess().getUsagerId();
+                GouvBPMUser user = new GouvBPMUser();
+                user.setId(usagerId.toString());
 
-            LOGGER.info("Mise à jour des données de la demande...");
-            String demarcheId = gouvPropertiesResolver.getDemarcheId();
-            Map<String, String> datas = new HashMap<>();
-            datas.put(PaiementDemandeDataKeysEnum.DATE_PAIEMENT.name(), LocalDateTime.now().format(DTF_AAAA_MM_JJ));
-            datas.put(PaiementDemandeDataKeysEnum.DATE_EXPIRATION_EMPREINTE.name(), dateValidite.format(DTF_AAAA_MM_JJ));
-            datas.put(PaiementDemandeDataKeysEnum.STATUT_PAIEMENT.name(), PaiementStatutEnum.EMPREINTE_VALIDE.name());
-            datas.put(PaiementDemandeDataKeysEnum.MOYEN_PAIEMENT.name(), moyenPaiement.getModepaiement());
-            datas.put(PaiementDemandeDataKeysEnum.MOYEN_PAIEMENT_REFERENCE.name(), moyenPaiement.getReference());
-            demandesDataService.saveOrUpdateDemandeDatas(demarcheId, pkDemande, datas);
+                LOGGER.info("Mise à jour des données de la demande...");
+                String demarcheId = gouvPropertiesResolver.getDemarcheId();
+                Map<String, String> datas = new HashMap<>();
+                datas.put(PaiementDemandeDataKeysEnum.DATE_PAIEMENT.name(), LocalDateTime.now().format(DTF_AAAA_MM_JJ));
+                datas.put(PaiementDemandeDataKeysEnum.DATE_EXPIRATION_EMPREINTE.name(), dateValidite.format(DTF_AAAA_MM_JJ));
+                datas.put(PaiementDemandeDataKeysEnum.STATUT_PAIEMENT.name(), PaiementStatutEnum.EMPREINTE_VALIDE.name());
+                datas.put(PaiementDemandeDataKeysEnum.MOYEN_PAIEMENT.name(), moyenPaiement.getModepaiement());
+                datas.put(PaiementDemandeDataKeysEnum.MOYEN_PAIEMENT_REFERENCE.name(), moyenPaiement.getReference());
+                demandesDataService.saveOrUpdateDemandeDatas(demarcheId, pkDemande, datas);
 
-            LOGGER.info("Ajout de l'historique de paiement...");
-            PaiementHistoriqueBO historique = new PaiementHistoriqueBO();
-            historique.setFkDemande(demandeBO);
-            historique.setContenu("Usager " + demandeBO.getUsagerPrenom() + " " + demandeBO.getUsagerNom() + " : Effectue une empreinte bancaire");
-            historique.setStatut(PaiementStatutEnum.EMPREINTE_VALIDE.name());
-            historique.setDate(date);
-            historique.setUsagerId(demandeBO.getFkAccess().getUsagerId());
-            paiementHistoriqueRepository.save(historique);
+                LOGGER.info("Ajout de l'historique de paiement...");
+                PaiementHistoriqueBO historique = new PaiementHistoriqueBO();
+                historique.setFkDemande(demandeBO);
+                historique.setContenu("Usager " + demandeBO.getUsagerPrenom() + " " + demandeBO.getUsagerNom() + " : Effectue une empreinte bancaire");
+                historique.setStatut(PaiementStatutEnum.EMPREINTE_VALIDE.name());
+                historique.setDate(date);
+                historique.setUsagerId(demandeBO.getFkAccess().getUsagerId());
+                paiementHistoriqueRepository.save(historique);
 
-            LOGGER.info("Progression dans le BPM...");
-            Map<String, Object> variables = gouvBPM.getProcessBusinessVariables(pkDemande);
-            variables.put(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_USAGER.name(), usagerId.toString());
-            variables.put(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_AGENT.name(), null);
-            gouvBPM.setProcessBusinessVariables(pkDemande, variables);
+                LOGGER.info("Progression dans le BPM...");
+                Map<String, Object> variables = gouvBPM.getProcessBusinessVariables(pkDemande);
+                variables.put(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_USAGER.name(), usagerId.toString());
+                variables.put(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_AGENT.name(), null);
+                gouvBPM.setProcessBusinessVariables(pkDemande, variables);
 
-            GouvBPMTask task = gouvBPM.getActiveTasksForDemande(pkDemande).get(0);
-            try {
-                gouvBPM.claimTask(task, user);
-                gouvBPM.completeTask(task, pkDemande);
-            } catch (Exception e1) {
-                LOGGER.error("Erreur lors du claim et de la complétion de la tache du paiement");
-                throw new RuntimeException(e1);
+                GouvBPMTask task = gouvBPM.getActiveTasksForDemande(pkDemande).get(0);
+                try {
+                    gouvBPM.claimTask(task, user);
+                    gouvBPM.completeTask(task, pkDemande);
+                } catch (Exception e1) {
+                    LOGGER.error("Erreur lors du claim et de la complétion de la tache du paiement");
+                    throw new RuntimeException(e1);
+                }
             }
-        }
+        }).start();
     }
 }

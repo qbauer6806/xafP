@@ -204,7 +204,7 @@ public class DemandeDTO extends AbstractDemandeDTO {
                 + courrierDateReception + ", courrierRefInterne=" + courrierRefInterne + ", updated=" + updated + "]" +
                 ", usagerNom=" + usagerNom + ", usagerPrenom="
                 + usagerPrenom + ", usagerEmail=" + usagerEmail + ", buildId=" + buildId + ", recapType=" + recapType + ", donneesMConnect=" +
-                donneesMConnect + ", donneesCertifiees=" + donneesCertifiees + "]";
+                donneesMConnect + ", donneesCertifiees=" + donneesCertifiees + ", pkDemandeSource=" + pkDemandeSource + "]";
     }
 
 }

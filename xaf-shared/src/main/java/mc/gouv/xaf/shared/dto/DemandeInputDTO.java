@@ -1,5 +1,6 @@
 package mc.gouv.xaf.shared.dto;
 
+import java.util.Arrays;
 import java.util.Date;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -162,6 +163,16 @@ public class DemandeInputDTO {
 
 	public void setDemandeSourceId(Integer demandeSourceId) {
 		this.demandeSourceId = demandeSourceId;
+	}
+
+	@Override
+	public String toString() {
+		return "DemandeInputDTO [contenu=" + contenu + ", fichiers=" + Arrays.toString(fichiers) + ", langue=" + langue
+				+ ", canal=" + canal + ", observations=" + observations + ", agentAffecteId=" + agentAffecteId
+				+ ", courrierDateReception=" + courrierDateReception + ", courrierRefInterne=" + courrierRefInterne
+				+ ", creeParAgentId=" + creeParAgentId + ", novalidate=" + novalidate + ", buildId=" + buildId
+				+ ", recapType=" + recapType + ", brouillonId=" + brouillonId + ", donneesMConnect=" + donneesMConnect
+				+ ", demandeSourceId=" + demandeSourceId + "]";
 	}
 
 }

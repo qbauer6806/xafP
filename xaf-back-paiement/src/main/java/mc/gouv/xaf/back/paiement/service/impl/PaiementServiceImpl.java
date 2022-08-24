@@ -49,6 +49,7 @@ import static mc.gouv.xaf.back.service.utils.AfBackUtils.DTF_AAAA_MM_JJ;
 @Service
 public class PaiementServiceImpl implements PaiementService {
     private static final Logger LOGGER = LoggerFactory.getLogger(PaiementServiceImpl.class);
+    public static final String UPDATE_PAIEMENT_DATA_THREAD = "UPDATE_PAIEMENT_DATA_THREAD";
 
     @Autowired
     private CommandeRepository commandeRepository;
@@ -252,7 +253,7 @@ public class PaiementServiceImpl implements PaiementService {
 
     @Async
     void updateDemandeData(List<CommandeDemandeBO> commandeDemandeBOList, LocalDateTime dateValidite, MoyenPaiementDTO moyenPaiement) {
-        new Thread(() -> {
+        Thread t = new Thread(() -> {
             Timestamp date = Timestamp.valueOf(LocalDateTime.now());
             for (CommandeDemandeBO commandeDemandeBO : commandeDemandeBOList) {
                 DemandeBO demandeBO = commandeDemandeBO.getDemande();
@@ -295,6 +296,8 @@ public class PaiementServiceImpl implements PaiementService {
                     throw new RuntimeException(e1);
                 }
             }
-        }).start();
+        });
+        t.setName(UPDATE_PAIEMENT_DATA_THREAD);
+        t.start();
     }
 }

@@ -26,14 +26,13 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.xml.sax.SAXException;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -121,7 +120,7 @@ public class PaiementServiceTest {
     }
 
     @Test
-    public void updateOk() throws IOException, SAXException {
+    public void updateOk() throws InterruptedException {
 
         DemandeBO demandeBO = new DemandeBO();
 
@@ -189,6 +188,8 @@ public class PaiementServiceTest {
         moyenPaiementDTO.setCodeRetour(status);
         moyenPaiementDTO.setVld("1223");
         paiementService.updateStatus(moyenPaiementDTO);
+
+        TimeUnit.SECONDS.sleep(1);
 
         Optional<MoyenPaiementBO> optionalMoyenPaiementBO = moyenPaiementRepository.findById(paiementDTO.getReference());
         assertThat(optionalMoyenPaiementBO).isPresent();

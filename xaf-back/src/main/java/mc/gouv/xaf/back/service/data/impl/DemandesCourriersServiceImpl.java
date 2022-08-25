@@ -61,8 +61,7 @@ public class DemandesCourriersServiceImpl implements DemandesCourriersService {
      * @throws IOException 
      */
     @Override
-    public DemandeCourrierDTO saveCourrier(String demarcheId, Integer pkDemande, DemandeCourrierDTO courrierDto)
-            throws Exception {
+    public DemandeCourrierDTO saveCourrier(String demarcheId, Integer pkDemande, DemandeCourrierDTO courrierDto) {
 
         LOGGER.info("Récupération de la demande associée...");
 
@@ -173,8 +172,7 @@ public class DemandesCourriersServiceImpl implements DemandesCourriersService {
      * @throws Exception 
      */
     @Override
-    public DemandeCourrierDTO updateCourrier(String demarcheId, Integer pkDemande, DemandeCourrierDTO courrierDto)
-            throws Exception {
+    public DemandeCourrierDTO updateCourrier(String demarcheId, Integer pkDemande, DemandeCourrierDTO courrierDto) {
 
         DemandesCourriersBO courrierBo = getCourrierBo(demarcheId, pkDemande, courrierDto.getPkCourrier());
 

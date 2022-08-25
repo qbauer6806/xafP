@@ -6,14 +6,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.xaf.shared.dto.ExcelRechercheDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
 import mc.gouv.xaf.back.service.excel.ExcelExportModelProvider;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.shared.dto.ExcelRechercheDTO;
 
 @Profile("test")
 @Component

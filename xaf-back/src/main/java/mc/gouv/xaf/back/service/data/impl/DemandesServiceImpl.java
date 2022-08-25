@@ -36,6 +36,7 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -74,6 +75,7 @@ import mc.gouv.xaf.back.data.transformer.DemandesFilesTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesStatutsTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
+import mc.gouv.xaf.back.service.DemandePostprocessingService;
 import mc.gouv.xaf.back.service.data.DemandesFilesService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.DemandesStatutsService;
@@ -155,6 +157,12 @@ public class DemandesServiceImpl implements DemandesService {
     
     @Autowired
     private GUKafkaUtils guKafkaUtils;
+    
+    @Autowired
+    private AfBackUtils afBackUtils;
+    
+	@Autowired
+    private ApplicationContext appContext;
 
 	private DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
 
@@ -200,11 +208,12 @@ public class DemandesServiceImpl implements DemandesService {
 
 	/**
 	 * {@inheritDoc}
+	 * @throws IOException 
 	 * 
 	 * @throws Exception
 	 */
 	@Override
-	public DemandeDTO saveDemande(DemandeDTO demande, String premierStatut) throws Exception {
+	public DemandeDTO saveDemande(DemandeDTO demande, String premierStatut) throws IOException {
 
 		if (demande.getCanal() == null) {
 			throw new DemarchesServiceException("Canal non spécifié", HttpStatus.BAD_REQUEST);
@@ -223,6 +232,18 @@ public class DemandesServiceImpl implements DemandesService {
 
 		if (accessBo == null) {
 			throw new DemarchesServiceException("Accès correspondant introuvable", HttpStatus.NOT_FOUND);
+		}
+		
+		LOGGER.info("Postprocessing de la demande...");
+		try {
+			// Récupération du bean de postprocessing à la bonne version du modèle
+			DemandePostprocessingService dps = (DemandePostprocessingService)appContext.getBean("DemandePostprocessingServiceImplV" + demande.getBuildId());
+			
+			// Appel au postprocessing
+			demande = dps.postprocess(demande);
+		}
+		catch (Exception e) {
+			LOGGER.error("Une erreur est survenue lors du postprocessing de la demande", e);
 		}
 
 		LOGGER.info("Transformation dto -> bo ...");
@@ -276,13 +297,14 @@ public class DemandesServiceImpl implements DemandesService {
 
 	/**
 	 * {@inheritDoc}
+	 * @throws SAXException 
+	 * @throws IOException 
 	 * 
 	 * @throws Exception
 	 *
 	 */
 	@Override
-	public DemandeDTO saveOrUpdateDemande(DemandeDTO demande, boolean partialUpdate, String premierStatut)
-			throws Exception {
+	public DemandeDTO saveOrUpdateDemande(DemandeDTO demande, boolean partialUpdate, String premierStatut) throws IOException, SAXException {
 		DemandeDTO demandeDTO;
 		if (demande.getPkDemandes() != null) {
 			// ID de la demande fourni, il faut donc mettre à jour une demande
@@ -498,7 +520,7 @@ public class DemandesServiceImpl implements DemandesService {
 					if (DATE_ACCEPTATION.equals(dataBO.getKey())) {
 						boolean ajouterDemande = false;
 						try {
-							Date dateAComparer = AfBackUtils.convertStartDate(dataBO.getValue());
+							Date dateAComparer = afBackUtils.convertStartDate(dataBO.getValue());
 							// Ajouter une heure pour éviter l'exclusion sur la date de départ
 							dateAComparer = DateUtils.addHours(dateAComparer, 1);
 							if (startDate != null && endDate != null) {
@@ -768,24 +790,26 @@ public class DemandesServiceImpl implements DemandesService {
 			for (DemandeComplementsDTO demandeComplementsDTO : demandeDTO.getComplements()) {
 				Optional<DemandesComplementsBO> demandeComplementBO = demandesComplementsRepository
 						.findById(demandeComplementsDTO.getPkDemandeComplements());
-				Set<DemandesComplementsFilesBO> files = demandeComplementBO.get().getFiles();
-				if (null != files && !files.isEmpty()) {
-					for (DemandesComplementsFilesBO currentFileToDelete : files) {
-						List<DemandesComplementsFilesBO> existingFiles = demandesComplementsFilesRepository
-								.findAllByUrl(currentFileToDelete.getUrl());
-						if (null != existingFiles && !existingFiles.isEmpty() && existingFiles.size() == 1) {
-							// Hard fix: Les fichiers complémentaires ajoutés via le BO sont stockés en BDD avec un url encodé,
-							// à l'inverse ceux depuis le FO le sont pas. Il faut une façon de différencier les deux: on check si le nom de fichier
-							// existe dans l'url décodé.
-							String url = currentFileToDelete.getUrl();
-							if (url.contains(currentFileToDelete.getName())) {
-								try {
-									url = URLEncoder.encode(url, "UTF-8");
-								} catch (UnsupportedEncodingException e) {
-									LOGGER.error("Problème lors de l'encoding des urls des fichiers complémentaires", e);
+				if (demandeComplementBO.isPresent()) {
+					Set<DemandesComplementsFilesBO> files = demandeComplementBO.get().getFiles();
+					if (null != files && !files.isEmpty()) {
+						for (DemandesComplementsFilesBO currentFileToDelete : files) {
+							List<DemandesComplementsFilesBO> existingFiles = demandesComplementsFilesRepository
+									.findAllByUrl(currentFileToDelete.getUrl());
+							if (null != existingFiles && !existingFiles.isEmpty() && existingFiles.size() == 1) {
+								// Hard fix: Les fichiers complémentaires ajoutés via le BO sont stockés en BDD avec un url encodé,
+								// à l'inverse ceux depuis le FO le sont pas. Il faut une façon de différencier les deux: on check si le nom de fichier
+								// existe dans l'url décodé.
+								String url = currentFileToDelete.getUrl();
+								if (url.contains(currentFileToDelete.getName())) {
+									try {
+										url = URLEncoder.encode(url, "UTF-8");
+									} catch (UnsupportedEncodingException e) {
+										LOGGER.error("Problème lors de l'encoding des urls des fichiers complémentaires", e);
+									}
 								}
+								fileService.deleteFile("ROOT", url);
 							}
-							fileService.deleteFile("ROOT", url);
 						}
 					}
 				}
@@ -871,25 +895,27 @@ public class DemandesServiceImpl implements DemandesService {
 			for (DemandeComplementsDTO demandeComplementsDTO : demandeDTO.getComplements()) {
 				Optional<DemandesComplementsBO> demandeComplementBO = demandesComplementsRepository
 						.findById(demandeComplementsDTO.getPkDemandeComplements());
-				Set<DemandesComplementsFilesBO> files = demandeComplementBO.get().getFiles();
-				if (null != files && !files.isEmpty()) {
-					for (DemandesComplementsFilesBO currentFileToDelete : files) {
-						List<DemandesComplementsFilesBO> existingFiles = demandesComplementsFilesRepository
-								.findAllByUrl(currentFileToDelete.getUrl());
-						if (null != existingFiles && !existingFiles.isEmpty()
-								&& isComplementsFileDeletable(existingFiles, statuts, jours)) {
-							// Hard fix: Les fichiers complémentaires ajoutés via le BO sont stockés en BDD avec un url encodé,
-							// à l'inverse ceux depuis le FO le sont pas. Il faut une façon de différencier les deux: on check si le nom de fichier
-							// existe dans l'url décodé.
-							String url = currentFileToDelete.getUrl();
-							if (url.contains(currentFileToDelete.getName())) {
-								try {
-									url = URLEncoder.encode(url, "UTF-8");
-								} catch (UnsupportedEncodingException e) {
-									LOGGER.error("Problème lors de l'encoding des urls des fichiers complémentaires", e);
+				if (demandeComplementBO.isPresent()) {
+					Set<DemandesComplementsFilesBO> files = demandeComplementBO.get().getFiles();
+					if (null != files && !files.isEmpty()) {
+						for (DemandesComplementsFilesBO currentFileToDelete : files) {
+							List<DemandesComplementsFilesBO> existingFiles = demandesComplementsFilesRepository
+									.findAllByUrl(currentFileToDelete.getUrl());
+							if (null != existingFiles && !existingFiles.isEmpty()
+									&& isComplementsFileDeletable(existingFiles, statuts, jours)) {
+								// Hard fix: Les fichiers complémentaires ajoutés via le BO sont stockés en BDD avec un url encodé,
+								// à l'inverse ceux depuis le FO le sont pas. Il faut une façon de différencier les deux: on check si le nom de fichier
+								// existe dans l'url décodé.
+								String url = currentFileToDelete.getUrl();
+								if (url.contains(currentFileToDelete.getName())) {
+									try {
+										url = URLEncoder.encode(url, "UTF-8");
+									} catch (UnsupportedEncodingException e) {
+										LOGGER.error("Problème lors de l'encoding des urls des fichiers complémentaires", e);
+									}
 								}
+								fileService.deleteFile("ROOT", url);
 							}
-							fileService.deleteFile("ROOT", url);
 						}
 					}
 				}
@@ -1007,6 +1033,7 @@ public class DemandesServiceImpl implements DemandesService {
 		newDemandeBo.setUsagerPrenom(demandeBo.getUsagerPrenom());
 		newDemandeBo.setBuildId(demandeBo.getBuildId());
 		newDemandeBo.setRecapType(demandeBo.getRecapType());
+		newDemandeBo.setDonneesCertifiees(demandeBo.getDonneesCertifiees());
 		// #4840 Enlever l'affectation
 		newDemandeBo.setAgentAffecteId(null);
 		newDemandeBo = demandesRepository.save(newDemandeBo);
@@ -1521,6 +1548,14 @@ public class DemandesServiceImpl implements DemandesService {
 		LOGGER.info("Récupération en base de la demande...");
 		DemandeBO demandeBo = demandesRepository.findByIdentifiant(identifiant);
 		return DemandesTransformer.bo2Dto(demandeBo);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<String> getAllBuildIds() {
+		return demandesRepository.getAllBuildIds();
 	}
 
 }

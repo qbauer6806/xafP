@@ -12,9 +12,9 @@ import java.util.Map;
  */
 public interface DemandesFilesService {
 
-	void saveFiles(DemandeFileDTO[] demandeFiles, DemandeBO demandeBo) throws Exception;
+	void saveFiles(DemandeFileDTO[] demandeFiles, DemandeBO demandeBo);
 
-	void saveFile(DemandeFileDTO demandeFile, String demarcheId, Integer pkDemande) throws Exception;
+	void saveFile(DemandeFileDTO demandeFile, String demarcheId, Integer pkDemande);
 
 	boolean updateTypedocs(Map<String, String> changes);
 

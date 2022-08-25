@@ -12,6 +12,13 @@ import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
 import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
 
+/**
+ * 
+ * Servlet permettant de rediriger l'usager sur le Back-Office
+ * 
+ * @author qdeme
+ * 
+ */
 public class RedirectToBackOfficeServlet extends AbstractAfServlet {
 
     /**

@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import mc.gouv.Static;
 
 /**
+ * 
  * Composant permettant de récupérer des éléments de configuration propres au gouvernement. Proxy vers Static.getValue()
  * permettant via Spring de mocker les appels à Static.getValue().
  * 
@@ -93,7 +94,7 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
                     String indexingPropStr = environment
                             .getProperty("mc.gouv" + applicationPrefix + ".indexing.enabled");
                     boolean indexingEnabled = false;
-                    if (StringUtils.isNotBlank(indexingPropStr) && indexingPropStr.equals(true)) {
+                    if (StringUtils.isNotBlank(indexingPropStr) && indexingPropStr.equals("true")) {
                         indexingEnabled = true;
                     }
                     
@@ -143,7 +144,6 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
         if (!propertiesNotFound.isEmpty()) {
             throw new GouvPropertyNotFoundException(propertiesNotFound);
         }
-        //Map<String, String> properties = BeanUtils.describe(GouvPropertiesResolverImpl.class);
 
     }
 
@@ -174,13 +174,6 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     @Override
     public String getVScanUrl() {
         return Static.getValue(VSCAN_URL);
-    }
-
-    private static final String USAGERS_REST_URL = "mc.gouv.demarches.external.usagers.url";
-
-    @Override
-    public String getUsagersRestUrl() {
-        return Static.getValue(USAGERS_REST_URL);
     }
 
     private static final String PAYS_REST_URL = "mc.gouv.demarches.external.pays.url";
@@ -431,6 +424,26 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
             return false;
         }
         return Boolean.parseBoolean(value);
+    }
+    
+    @Override
+    public String getGichkeyUrl() {
+        return Static.getValue("mc.gouv.af.back.external.gichkey.url");
+    }
+    
+    @Override
+    public String getGichuniUrl() {
+        return Static.getValue("mc.gouv.af.back.external.gichuni.url");
+    }
+    
+    @Override
+    public String getGichkeyClientId() {
+        return Static.getValue("mc.gouv" + applicationPrefix + ".external.gichkey.client_id");
+    }
+    
+    @Override
+    public String getGichkeyClientSecret() {
+        return Static.getValue("mc.gouv" + applicationPrefix + ".external.gichkey.client_secret");
     }
 
 }

@@ -1,10 +1,13 @@
 @page {
 	margin-top: 80px;
 	margin-bottom: 80px;
-	@top-left {
+	margin-left: 0px;
+	margin-right: 0px;
+	size: letter landscape;
+	@top-center {
 		content: element( pageHeader);
 	}
-	@bottom-left {
+	@bottom-center {
 		content: element(pageFooter);
 	}
 }
@@ -14,12 +17,14 @@
 	width: 700px;
 	height: 60px;
 	padding-top: 20px;
+	margin-left: 185px;
 }
 
 #pageFooter {
 	position: running(pageFooter);
 	width: 700px;
 	height: 80px;
+	margin-left: 185px;
 }
 
 #pageHeader>img, #pageFooter>img {
@@ -53,7 +58,7 @@ th {
 }
 
 th.table-section {
-	font-size: 20px;
+	font-size: 1.1em;
 }
 
 td>:first-child, td>:first-child>h3 {
@@ -70,12 +75,16 @@ h1, h2 {
 }
 
 h1 {
-	font-size: 20px;
+	font-size: 18px;
 }
 
 h2 {
 	font-weight: normal;
-	font-size: 18px;
+	font-size: 16px;
+}
+
+h3 {
+	font-size: 1em;
 }
 
 dt {
@@ -91,13 +100,14 @@ dd {
 	float: left;
 	margin-left: 0;
 	width: 70%;
-	word-wrap: break-word;
+	font-size: 12px;
 }
 
 dl {
 	overflow: hidden;
 	padding: 0;
 	margin: 0;
+	font-size: 12px;
 }
 
 .dem-admin>dl, .rep-usager>dl, .sectionrecap dl {
@@ -132,4 +142,39 @@ dt span, dd span {
 	vertical-align: middle;
 	display: table-cell;
 	font-weight: bold;
+}
+
+table .pdf-recap th {
+	text-overflow:ellipsis;
+	overflow: hidden;
+}
+
+table .pdf-recap {
+	font-size: 12px;
+}
+
+dd .pdf-recap {
+	width: 100%;
+}
+
+.anciennedonnee {
+	display: none;
+}
+
+.nouvelledonnee {
+}
+
+
+.anciennedonnee-titre {
+	display: none;
+}
+
+.nouvelledonnee-titre {
+}
+
+.anciennedonnee-contenu {
+	display: none;
+}
+
+.nouvelledonnee-contenu {
 }

@@ -7,7 +7,6 @@ import java.util.List;
 
 import javax.validation.Valid;
 
-import mc.gouv.xaf.back.service.utils.UtilisateursUtils;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.http.client.utils.URIBuilder;
 import org.slf4j.Logger;
@@ -27,9 +26,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
+import mc.gouv.xaf.back.service.utils.UsagersUtils;
 import mc.gouv.xaf.backweb.formbean.DemandesCourrierFormBean;
 import mc.gouv.xaf.backweb.formbean.UsagerCourrierFormBean;
+import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
 
 /**
  * Controller pour les demandes courrier
@@ -48,7 +48,7 @@ public class DemandesCourrierController extends AbstractController {
 	private GouvPropertiesResolver gouvPropertiesResolver;
 
 	@Autowired
-	private UtilisateursUtils utilisateursUtils;
+	private UsagersUtils usagersUtils;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DemandesCourrierController.class);
 
@@ -147,7 +147,7 @@ public class DemandesCourrierController extends AbstractController {
 
 	private ModelAndView initForm(ModelAndView mav, Integer usagerId) {
 
-		mav.addObject("usager", utilisateursUtils.getUsagerCourrierFromId(usagerId));
+		mav.addObject("usager", usagersUtils.getUsagerCourrierFromId(usagerId));
 
 		ArrayList<DemandeCanalEnum> canaux = new ArrayList<DemandeCanalEnum>();
 		canaux.add(DemandeCanalEnum.COURRIER);

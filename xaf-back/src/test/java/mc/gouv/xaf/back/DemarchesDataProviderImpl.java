@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.StatutSimplifieEnum;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeExcelGenerationDTO;
 import mc.gouv.xaf.shared.dto.GenericStatusDTO;
 import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
 
@@ -118,5 +119,11 @@ public class DemarchesDataProviderImpl implements DemarchesDataProvider {
 	public boolean isValideTypedoc(String typedoc) {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	@Override
+	public DemandeExcelGenerationDTO getDemandeExcelGenerationDTO() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

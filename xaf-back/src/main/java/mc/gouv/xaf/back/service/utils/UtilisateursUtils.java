@@ -1,15 +1,14 @@
 package mc.gouv.xaf.back.service.utils;
 
-import mc.gouv.logon.shared.User;
-import mc.gouv.logon.shared.User.Civilite;
-import mc.gouv.servicerest.usager.model.UsagerBean;
-import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
-import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import mc.gouv.logon.shared.User;
+import mc.gouv.logon.shared.User.Civilite;
+import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 
 /**
  * Classe utilitaire pour la gestion des utilisateurs.
@@ -27,9 +26,6 @@ public class UtilisateursUtils {
 
     @Autowired
     private UtilisateursCache utilisateursCache;
-
-    @Autowired
-    private UsagersCache usagersCache;
 
     /**
      * Retourne le prénom et le nom d'un utilisateur à partir de son matricule.
@@ -68,20 +64,6 @@ public class UtilisateursUtils {
             }
         }
         return builder.toString();
-    }
-
-    public String getUsagerCourrierFromId(Integer usagerId) {
-        LOGGER.debug("getUsagerFromId() : Récupération de l'usager courrier {}...", usagerId);
-        UsagerBean usagerCourrier = usagersCache.get(usagerId);
-        String nomUsager = "";
-        if (usagerCourrier != null) {
-            if (!StringUtils.isEmpty(usagerCourrier.getNom())) {
-                nomUsager = StringUtils.defaultString(usagerCourrier.getPrenom()) + " " + usagerCourrier.getNom();
-            } else {
-                nomUsager = usagerCourrier.getRaisonSociale();
-            }
-        }
-        return StringUtils.trim(StringUtils.defaultString(nomUsager));
     }
 
 }

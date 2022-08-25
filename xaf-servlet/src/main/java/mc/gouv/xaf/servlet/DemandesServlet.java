@@ -25,6 +25,7 @@ import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
 
 /**
+ * 
  * Servlet mettant à disposition le service /demandes avec les méthodes PUT, POST, GET, DELETE.
  * Cette servlet récupère le DemarcheID ainsi que l'UsagerID (depuis la session) et appelle les WS
  * correspondants dans le back-end générique.
@@ -113,6 +114,11 @@ public class DemandesServlet extends AbstractAfServlet {
             } else {
                 LOGGER.info("Appel à la démarche pour créer la demande");
                 DemandeInputDTO demandeInput = mapper.readValue(buffer.toString(), DemandeInputDTO.class);
+                // Ajout des données externes MConnect si elles sont présentes (afin que l'API puisse les prendre en compte pour les places dans les bons endroits
+                // du contenu de la demande. Ceci afin d'éviter un potentiel "hack" de la part de l'usager sur le FO)
+                if (usagerInfosDTO != null && usagerInfosDTO.getDonneesExternes() != null && usagerInfosDTO.getDonneesExternes().getMconnect() != null) {
+                	demandeInput.setDonneesMConnect(usagerInfosDTO.getDonneesExternes().getMconnect());
+                }
                 DemandeDTO demandeDto = afApiClient.creerDemande(demandeInput, usagerId);
 
                 // TODO : gestion des erreurs
@@ -155,7 +161,9 @@ public class DemandesServlet extends AbstractAfServlet {
         }
 
         response.setContentType("application/json");
-        IOUtils.copy(new ByteArrayInputStream(repJson.getBytes()), response.getOutputStream());
+        if (repJson != null) {
+        	IOUtils.copy(new ByteArrayInputStream(repJson.getBytes()), response.getOutputStream());
+        }
 
         return response;
     }

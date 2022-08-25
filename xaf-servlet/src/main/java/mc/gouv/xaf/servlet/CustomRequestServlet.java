@@ -20,6 +20,7 @@ import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
 
 /**
+ * 
  * Servlet mettant à disposition le service /customRequest avec les méthodes PUT, POST, GET, DELETE.
  * Cette servlet permet d'appeler des fonctions API custom/spécifiques d'une démarche
  * 
@@ -78,6 +79,11 @@ public class CustomRequestServlet extends AbstractAfServlet {
         }
         else if (HttpMethod.DELETE.equals(httpMethod)) {
         	serviceRequest = Request.Delete(serviceUrl);
+        }
+        if (serviceRequest == null) {
+            response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+            LOGGER.error("Situation anormale : serviceRequest == null");
+            return response;
         }
         serviceRequest.setHeader("Authorization", "Bearer " + AfServletGouvPropertiesResolver.getApiJwt());
         

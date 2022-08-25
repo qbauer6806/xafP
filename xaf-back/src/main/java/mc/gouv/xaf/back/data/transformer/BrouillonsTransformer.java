@@ -15,7 +15,6 @@ import mc.gouv.xaf.back.data.entity.BrouillonBO;
 import mc.gouv.xaf.back.data.entity.BrouillonsFilesBO;
 import mc.gouv.xaf.shared.dto.BrouillonDTO;
 import mc.gouv.xaf.shared.dto.BrouillonFileDTO;
-import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
 
 /**
  * 
@@ -51,6 +50,9 @@ public class BrouillonsTransformer {
         ObjectMapper mapper = new ObjectMapper();
         try {
             dto.setContenu(mapper.readTree(bo.getContenu()));
+            if (bo.getMeta() != null) {
+            	dto.setMeta(mapper.readTree(bo.getMeta()));
+            }
         } catch (IOException e) {
             LOGGER.error("Erreur lors de la conversion JSON", e);
         }
@@ -94,6 +96,9 @@ public class BrouillonsTransformer {
         ObjectMapper mapper = new ObjectMapper();
         try {
             bo.setContenu(mapper.writeValueAsString(dto.getContenu()));
+            if (dto.getMeta() != null) {
+            	bo.setMeta(mapper.writeValueAsString(dto.getMeta()));
+            }
         } catch (JsonProcessingException e) {
             LOGGER.error("Erreur lors de la conversion JSON", e);
         }

@@ -48,6 +48,9 @@ public class BrouillonBO {
     @Column(name = "RECAP_TYPE", length = 256, nullable = true)
     @Size(min = 0, max = 256)
     private String recapType;
+    
+    @Column(name = "META", columnDefinition = "TEXT", nullable = true)
+    private String meta;
 
 	public Integer getPkBrouillons() {
 		return pkBrouillons;
@@ -111,6 +114,14 @@ public class BrouillonBO {
 
 	public void setRecapType(String recapType) {
 		this.recapType = recapType;
+	}
+
+	public String getMeta() {
+		return meta;
+	}
+
+	public void setMeta(String meta) {
+		this.meta = meta;
 	}
 
 }

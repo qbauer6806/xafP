@@ -1,24 +1,12 @@
 package mc.gouv.xaf.backweb.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import mc.gouv.servicerest.pays.model.PaysBean;
-import mc.gouv.servicerest.usager.model.UsagerBean;
-import mc.gouv.xaf.back.bpm.GouvBPM;
-import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.data.DemandesService;
-import mc.gouv.xaf.back.service.data.UsagersCourrierService;
-import mc.gouv.xaf.back.service.itg.rest.PaysCache;
-import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
-import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import mc.gouv.xaf.back.service.utils.UsagersUtils;
-import mc.gouv.xaf.backweb.dto.UsagerCourrierResultDTO;
-import mc.gouv.xaf.backweb.formbean.TransfertDemandesFormBean;
-import mc.gouv.xaf.backweb.formbean.UsagerCourrierFormBean;
-import mc.gouv.xaf.shared.SharedMessages;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+
+import javax.validation.Valid;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,14 +16,36 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import mc.gouv.servicerest.pays.model.PaysBean;
+import mc.gouv.xaf.back.bpm.GouvBPM;
+import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.back.service.data.UsagersCourrierService;
+import mc.gouv.xaf.back.service.itg.rest.PaysCache;
+import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.back.service.utils.PaysComparator;
+import mc.gouv.xaf.back.service.utils.UsagersUtils;
+import mc.gouv.xaf.backweb.dto.UsagerCourrierResultDTO;
+import mc.gouv.xaf.backweb.formbean.TransfertDemandesFormBean;
+import mc.gouv.xaf.backweb.formbean.UsagerCourrierFormBean;
+import mc.gouv.xaf.shared.SharedMessages;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
+import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 
 /**
  * Controller pour la page /gestionusagers
@@ -237,7 +247,7 @@ public class GestionUsagersController extends AbstractController {
         }
 
         // Update du cache
-        UsagerBean usagerCourrierBean = UsagersUtils.convertUsagerCourrierDTOToUsagerBean(usagerCourrier);
+        GichuniUsagerDTO usagerCourrierBean = UsagersUtils.convertUsagerCourrierDTOToGichuniUsagerDTO(usagerCourrier);
         usagersCache.add(usagerCourrierBean.getId(), usagerCourrierBean);
 
         LOGGER.info("======================= Fin /gestion/usagers/creer (POST)");
@@ -465,6 +475,7 @@ public class GestionUsagersController extends AbstractController {
         ArrayList<PaysBean> listePaysP1 = new ArrayList<>();
         ArrayList<PaysBean> listePaysP2 = new ArrayList<>();
         ArrayList<PaysBean> listePaysP3 = new ArrayList<>();
+        ArrayList<PaysBean> listePaysP4 = new ArrayList<>();
         for (PaysBean p : paysCache.getAll().values()) {
             if (p.getPriorite() == 1) {
                 listePaysP1.add(p);
@@ -472,11 +483,19 @@ public class GestionUsagersController extends AbstractController {
                 listePaysP2.add(p);
             } else if (p.getPriorite() == 3) {
                 listePaysP3.add(p);
+            } else if (p.getPriorite() == 4) {
+                listePaysP4.add(p);
             }
         }
+        PaysComparator paysComparator = new PaysComparator();
+        Collections.sort(listePaysP1, paysComparator);
+        Collections.sort(listePaysP2, paysComparator);
+        Collections.sort(listePaysP3, paysComparator);
+        Collections.sort(listePaysP4, paysComparator);
         mav.addObject("listePaysP1", listePaysP1);
         mav.addObject("listePaysP2", listePaysP2);
         mav.addObject("listePaysP3", listePaysP3);
+        mav.addObject("listePaysP4", listePaysP4);
         return mav;
     }
 

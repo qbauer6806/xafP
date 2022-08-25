@@ -73,7 +73,7 @@ public interface IndexedDemandeService extends DemandesService {
      *
      * @return message à afficher à l'utilisateur
      */
-    List<String> reindexDemandesDesynchro() throws Exception;
+    List<String> reindexDemandesDesynchro();
 
     /**
      * Méthode permettant de récupérer une demande de la base et de l'indexer

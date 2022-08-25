@@ -2,6 +2,7 @@ package mc.gouv.xaf.back.service;
 
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.StatutSimplifieEnum;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeExcelGenerationDTO;
 import mc.gouv.xaf.shared.dto.GenericStatusDTO;
 import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
 
@@ -50,5 +51,7 @@ public interface DemarchesDataProvider {
 	List<String> getStatutsAPurger();
 	
 	boolean isValideTypedoc(String typedoc);
+	
+	DemandeExcelGenerationDTO getDemandeExcelGenerationDTO();
 
 }

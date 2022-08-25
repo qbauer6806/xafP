@@ -20,7 +20,7 @@ import mc.gouv.xaf.back.service.itg.mail.MailTemplateModelProvider;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.servicerest.usager.model.UsagerBean;
+import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 
 /**
  * 
@@ -55,6 +55,8 @@ public class GouvBPMEnvoiEmailUsagerDelegate implements JavaDelegate {
     private Expression emailBodyTemplateCode;
 
     private Expression emailSubjectTemplateCode;
+    
+    private Expression copieCacheeAuService;
 
     @Override
     public void execute(DelegateExecution execution) throws Exception {
@@ -63,6 +65,10 @@ public class GouvBPMEnvoiEmailUsagerDelegate implements JavaDelegate {
 
         String bodyTemplateCode = (String) emailBodyTemplateCode.getValue(execution);
         String subjectTemplateCode = (String) emailSubjectTemplateCode.getValue(execution);
+        String copieCacheeAuServiceStr = null;
+        if (copieCacheeAuService != null) {
+        	copieCacheeAuServiceStr = (String) copieCacheeAuService.getValue(execution);
+        }
 
         Integer usagerId = (Integer) execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_USAGERID.name());
         String langue = (String) execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_DEMANDE_LANGUE.name());
@@ -70,9 +76,9 @@ public class GouvBPMEnvoiEmailUsagerDelegate implements JavaDelegate {
         Integer demandeId = Integer.parseInt(execution.getProcessBusinessKey());
         DemandeDTO demande = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), demandeId);
 
-        UsagerBean usager = usagerCache.get(usagerId, true);
+        GichuniUsagerDTO usager = usagerCache.get(usagerId, true);
         if (usager == null) {
-            usager = new UsagerBean();
+            usager = new GichuniUsagerDTO();
             usager.setNom(demande.getUsagerNom());
             usager.setPrenom(demande.getUsagerPrenom());
             usager.setEmail(demande.getUsagerEmail());
@@ -100,6 +106,11 @@ public class GouvBPMEnvoiEmailUsagerDelegate implements JavaDelegate {
         emailInfo.addTo(usager.getEmail(), prenom + " " + nom);
         emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, execution.getProcessBusinessKey());
         emailInfo.setLangue(langue);
+        
+        if (copieCacheeAuServiceStr != null && "true".equals(copieCacheeAuServiceStr)) {
+        	LOGGER.info("Paramètre \"copieCacheeAuService\" spécifié, placer le service en copie carbone invisible...");
+        	emailInfo.addBcc(afBackUtils.getDemarcheInfos().getEmailService(), afBackUtils.getDemarcheInfos().getEmailServiceNom());
+        }
 
         String codeMotif = (String) execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name());
         String commentaire = (String) execution

@@ -1,23 +1,14 @@
 package mc.gouv.xaf.back.service.es.transformer;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import mc.gouv.logon.shared.User;
-import mc.gouv.servicerest.usager.model.UsagerBean;
-import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
-import mc.gouv.xaf.back.data.entity.*;
-import mc.gouv.xaf.back.data.es.model.*;
-import mc.gouv.xaf.back.data.transformer.DemandesCourriersTransformer;
-import mc.gouv.xaf.back.data.transformer.DemandesStatutsTransformer;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.DemarchesDataProvider;
-import mc.gouv.xaf.back.service.data.DemandesHistoriqueService;
-import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
-import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
-import mc.gouv.xaf.back.service.motifs.MotifsCache;
-import mc.gouv.xaf.back.service.utils.DemarchesUtils;
-import mc.gouv.xaf.shared.dto.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.inject.Inject;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,13 +19,38 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
 
-import javax.inject.Inject;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import mc.gouv.logon.shared.User;
+import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
+import mc.gouv.xaf.back.data.entity.AccessBO;
+import mc.gouv.xaf.back.data.entity.DemandeBO;
+import mc.gouv.xaf.back.data.entity.DemandesCourriersBO;
+import mc.gouv.xaf.back.data.entity.DemandesDataBO;
+import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
+import mc.gouv.xaf.back.data.es.model.CanalEsDto;
+import mc.gouv.xaf.back.data.es.model.DemandeAccessEsDTO;
+import mc.gouv.xaf.back.data.es.model.DemandeEsDTO;
+import mc.gouv.xaf.back.data.es.model.DemandeJoinFieldEsDTO;
+import mc.gouv.xaf.back.data.es.model.DemandeStatutEsDTO;
+import mc.gouv.xaf.back.data.transformer.DemandesCourriersTransformer;
+import mc.gouv.xaf.back.data.transformer.DemandesStatutsTransformer;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.DemarchesDataProvider;
+import mc.gouv.xaf.back.service.data.DemandesHistoriqueService;
+import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
+import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
+import mc.gouv.xaf.back.service.motifs.MotifsCache;
+import mc.gouv.xaf.back.service.utils.DemarchesUtils;
+import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
+import mc.gouv.xaf.shared.dto.DemandeCourrierDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeDataDTO;
+import mc.gouv.xaf.shared.dto.DemandeHistoriqueDTO;
+import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
+import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 
 @Service
 @Conditional(IndexationEnabledCondition.class)
@@ -113,7 +129,7 @@ public class DemandeEsTransformer {
         demandeEsDTO.setAccess(demandeAccessEsDto);
 
         if (accessBO.getUsagerId() != null) {
-            UsagerBean usagerBean = usagersCache.get(accessBO.getUsagerId());
+        	GichuniUsagerDTO usagerBean = usagersCache.get(accessBO.getUsagerId());
             demandeEsDTO.setUsager(UsagerTransformer.bo2Dto(usagerBean));
         }
 
@@ -191,7 +207,7 @@ public class DemandeEsTransformer {
         demandeAccessEsDto.setActive(activeAccess);
         demandeEsDTO.setAccess(demandeAccessEsDto);
         if (demandeDTO.getUsagerId() != null) {
-            UsagerBean usagerBean = usagersCache.get(demandeDTO.getUsagerId());
+        	GichuniUsagerDTO usagerBean = usagersCache.get(demandeDTO.getUsagerId());
             demandeEsDTO.setUsager(UsagerTransformer.bo2Dto(usagerBean));
         }
         if (demandeDTO.getAgentAffecteId() != null) {
@@ -303,7 +319,7 @@ public class DemandeEsTransformer {
         acess.setUsagerId(bo.getFkAccess().getUsagerId());
         dto.setAccess(acess);
         if (acess.getUsagerId() != null) {
-            UsagerBean usagerBean = usagersCache.get(acess.getUsagerId());
+        	GichuniUsagerDTO usagerBean = usagersCache.get(acess.getUsagerId());
             dto.setUsager(UsagerTransformer.bo2Dto(usagerBean));
         }
 

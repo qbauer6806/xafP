@@ -39,6 +39,7 @@ public class DemandesStatutsEsTransformer {
         dto.setCodeMotif(bo.getCodeMotif());
         dto.setCommentaire(bo.getCommentaire());
         dto.setTexteAEnvoyer(bo.getTexteAEnvoyer());
+        dto.setDate(bo.getDate());
         MotifDTO motif = motifsCache.getMotif(bo.getCodeMotif(), "fr");
         dto.setLibelleMotif((motif != null) ? motif.getLibelle() : null);
         return dto;
@@ -58,6 +59,7 @@ public class DemandesStatutsEsTransformer {
         dto.setCodeMotif(demandeStatutDTO.getCodeMotif());
         dto.setCommentaire(demandeStatutDTO.getCommentaire());
         dto.setTexteAEnvoyer(demandeStatutDTO.getTexteAEnvoyer());
+        dto.setDate(demandeStatutDTO.getDate());
         MotifDTO motif = motifsCache.getMotif(demandeStatutDTO.getCodeMotif(), "fr");
         dto.setLibelleMotif((motif != null) ? motif.getLibelle() : null);
         return dto;

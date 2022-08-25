@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 import mc.gouv.xaf.back.bpm.GouvBPMException;
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
-import mc.gouv.servicerest.usager.model.UsagerBean;
+import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 
 /**
  * 
@@ -56,7 +56,7 @@ public class GouvBPMUserManager extends UserEntityManager {
 
         {
             // On teste si c'est un usager
-            UsagerBean usager = usagerCache.get(Integer.parseInt(userLogin));
+        	GichuniUsagerDTO usager = usagerCache.get(Integer.parseInt(userLogin));
 
             if (usager != null) {
                 // Ajout au groupe usager

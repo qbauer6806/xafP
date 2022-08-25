@@ -10,8 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import mc.gouv.xaf.back.service.GouvSchedulerService;
-import mc.gouv.xaf.back.service.scheduling.PurgeDemandesSchedulingJob;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
@@ -21,20 +19,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Service;
 
-import mc.gouv.servicerest.usager.model.UsagerBean;
 import mc.gouv.xaf.back.data.dao.StatistiquesRepository;
 import mc.gouv.xaf.back.data.entity.StatistiqueBO;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
+import mc.gouv.xaf.back.service.GouvSchedulerService;
 import mc.gouv.xaf.back.service.data.DemandesCourriersService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
+import mc.gouv.xaf.back.service.scheduling.PurgeDemandesSchedulingJob;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.PurgeDemandeDTO;
 
@@ -127,9 +127,9 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 
 		EmailInfoDTO emailInfoDTO = creationMailPurge(bodyTemplateCode, subjectTemplateCode, demandeDTO.getLangue());
 		
-        UsagerBean usager = usagerCache.get(demandeDTO.getUsagerId(), true);
+        GichuniUsagerDTO usager = usagerCache.get(demandeDTO.getUsagerId(), true);
         if (usager == null) {
-            usager = new UsagerBean();
+            usager = new GichuniUsagerDTO();
             usager.setNom(demandeDTO.getUsagerNom());
             usager.setPrenom(demandeDTO.getUsagerPrenom());
             usager.setEmail(demandeDTO.getUsagerEmail());

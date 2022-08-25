@@ -1,12 +1,5 @@
 package mc.gouv.xaf.servlet.properties;
 
-import mc.gouv.Static;
-import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
-import mc.gouv.xaf.shared.dto.PropertiesDTO;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
@@ -17,6 +10,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import mc.gouv.Static;
+import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
+import mc.gouv.xaf.shared.dto.PropertiesDTO;
+
+/**
+ * 
+ * Classe permettant de récupérer les propriétés externalisées dans les fichiers .properties du serveur
+ * 
+ * @author qdeme
+ * 
+ */
 public class AfServletGouvPropertiesResolver {
 
     private static Logger LOGGER = LoggerFactory.getLogger(AfServletGouvPropertiesResolver.class);
@@ -61,18 +69,6 @@ public class AfServletGouvPropertiesResolver {
 
     }
 
-    public static final String LOGIN_REST_URL = "mc.gouv.appfactory.external.login.url";
-
-    public static String getLoginRestUrl() {
-        return Static.getValue(LOGIN_REST_URL);
-    }
-
-    public static final String LOGIN_SERVICEREST_URL = "mc.gouv.appfactory.external.login.servicerest.url";
-
-    public static String getLoginServiceRestUrl() {
-        return Static.getValue(LOGIN_SERVICEREST_URL);
-    }
-
     public static final String PAYS_URL = "mc.gouv.appfactory.external.pays.url";
 
     public static String getPaysUrl() {
@@ -91,16 +87,22 @@ public class AfServletGouvPropertiesResolver {
         return Static.getValue(LOGIN_KEEP_ALIVE);
     }
 
-    public static final String LOGIN_URL = "mc.gouv.appfactory.front.login.url";
+    public static final String GICHKEY_REDIRECT_URL ="mc.gouv.appfactory" + applicationPrefix + ".gichkey.redirect.url";
 
-    public static String getLoginUrl() {
-        return Static.getValue(LOGIN_URL);
+    public static String getGichkeyRedirectUrl() {
+        return Static.getValue(GICHKEY_REDIRECT_URL);
     }
 
-    public static final String LOGIN_PROFIL_URL = "mc.gouv.appfactory.front.login.profil.url";
+    public static final String GICHUNI_PROFIL_INDIVIDUAL_URL = "mc.gouv.appfactory.front.gichuni.profil.individual.url";
 
-    public static String getLoginProfilUrl() {
-        return Static.getValue(LOGIN_PROFIL_URL);
+    public static String getGichuniProfilIndividualUrl() {
+        return Static.getValue(GICHUNI_PROFIL_INDIVIDUAL_URL);
+    }
+    
+    public static final String GICHUNI_PROFIL_COMPANY_URL = "mc.gouv.appfactory.front.gichuni.profil.company.url";
+
+    public static String getGichuniProfilCompanyUrl() {
+        return Static.getValue(GICHUNI_PROFIL_COMPANY_URL);
     }
 
     /* Properties propres à la démarche */
@@ -200,6 +202,30 @@ public class AfServletGouvPropertiesResolver {
     public static String getFrontofficePiwikURL() {
         return Static.getValue(FRONTOFFICE_PIWIK_URL);
     }
+    
+    public static final String GICHKEY_URL = "mc.gouv.appfactory.front.gichkey.url";
+
+    public static String getGichkeyUrl() {
+        return Static.getValue(GICHKEY_URL);
+    }
+    
+    public static final String GICHUNI_URL = "mc.gouv.appfactory.front.gichuni.url";
+
+    public static String getGichuniUrl() {
+        return Static.getValue(GICHUNI_URL);
+    }
+    
+    public static final String GICHKEY_CLIENT_ID = "mc.gouv.appfactory" + applicationPrefix + ".gichkey.client_id";
+
+    public static String getGichkeyClientId() {
+        return Static.getValue(GICHKEY_CLIENT_ID);
+    }
+    
+    public static final String GICHKEY_CLIENT_SECRET = "mc.gouv.appfactory" + applicationPrefix + ".gichkey.client_secret";
+
+    public static String getGichkeyClientSecret() {
+        return Static.getValue(GICHKEY_CLIENT_SECRET);
+    }
 
     static {
         //Vérification que chaque propriété a bien été configurée
@@ -243,8 +269,9 @@ public class AfServletGouvPropertiesResolver {
     public static List<PropertiesDTO> getFrontProperties() {
         List<PropertiesDTO> propertiesDTOS = new ArrayList<>();
         propertiesDTOS.add(new PropertiesDTO(LOGIN_KEEP_ALIVE, getLoginKeepAlive()));
-        propertiesDTOS.add(new PropertiesDTO(LOGIN_URL, getLoginUrl()));
-        propertiesDTOS.add(new PropertiesDTO(LOGIN_PROFIL_URL, getLoginProfilUrl()));
+        propertiesDTOS.add(new PropertiesDTO(GICHKEY_REDIRECT_URL, getGichkeyRedirectUrl()));
+        propertiesDTOS.add(new PropertiesDTO(GICHUNI_PROFIL_INDIVIDUAL_URL, getGichuniProfilIndividualUrl()));
+        propertiesDTOS.add(new PropertiesDTO(GICHUNI_PROFIL_COMPANY_URL, getGichuniProfilCompanyUrl()));
         propertiesDTOS.add(new PropertiesDTO(FRONTOFFICE_CONTACT_URL, getFrontofficeContactUrl()));
         propertiesDTOS.add(new PropertiesDTO(FRONTOFFICE_COPYRIGHT_YEARS, getFrontofficeCopyrightYears()));
         propertiesDTOS.add(new PropertiesDTO(FRONTOFFICE_PIWIK_SITE_ID, getFrontofficePiwikSiteId()));

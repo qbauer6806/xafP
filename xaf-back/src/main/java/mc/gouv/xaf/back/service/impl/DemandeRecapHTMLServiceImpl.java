@@ -1,16 +1,19 @@
 package mc.gouv.xaf.back.service.impl;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.*;
-import mc.gouv.logon.apiclient.RestException;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.DemandeRecapHTMLService;
-import mc.gouv.xaf.back.service.data.PropertiesService;
-import mc.gouv.xaf.back.service.itg.rest.PaysCache;
-import mc.gouv.xaf.back.service.motifs.MotifsCache;
-import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import mc.gouv.xaf.back.service.utils.UtilisateursUtils;
-import mc.gouv.xaf.shared.dto.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Optional;
+
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONArray;
@@ -24,14 +27,29 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.HtmlUtils;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.lang.reflect.InvocationTargetException;
-import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.MissingNode;
+import com.fasterxml.jackson.databind.node.NullNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
+
+import mc.gouv.logon.apiclient.RestException;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.DemandeRecapHTMLService;
+import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.back.service.data.PropertiesService;
+import mc.gouv.xaf.back.service.itg.rest.PaysCache;
+import mc.gouv.xaf.back.service.motifs.MotifsCache;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.back.service.utils.UtilisateursUtils;
+import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
+import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
+import mc.gouv.xaf.shared.dto.DemandeComplementsQuestionDTO;
+import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.PropertiesDTO;
+import mc.gouv.xaf.shared.dto.PropertiesListEntityDTO;
 
 /**
  * Service permettant de générer une page HTML contenant le récapitulatif d'une
@@ -64,6 +82,9 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
     
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
+    
+    @Autowired
+    private DemandesService demandesService;
 
     @Override
     public String getHTMLDemandeGeneric(DemandeDTO demande) {
@@ -80,14 +101,14 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
         htmlBuilder.append(isVirtuel ? "transmission" : "dépôt");
         htmlBuilder.append("</span></dt><dd><span>");
         Date dateCreation = isVirtuel ? demande.getDateCreation() : demande.getCourrierDateReception();
-        htmlBuilder.append(AfBackUtils.SDF_JJ_MM_AAAA_HH_MM.format(dateCreation));
+        htmlBuilder.append(afBackUtils.SDF_JJ_MM_AAAA_HH_MM.format(dateCreation));
         htmlBuilder.append("</span></dd>");
 
         // Etat de la demande
         htmlBuilder.append("<dt><span>État de la demande</span></dt><dd><span>");
         htmlBuilder.append(afBackUtils.getStatusLibelleFromName(demande.getDernierStatut().getLibelle()));
         htmlBuilder.append(" le ");
-        htmlBuilder.append(AfBackUtils.SDF_JJ_MM_AAAA_HH_MM.format(demande.getDernierStatut().getDate()));
+        htmlBuilder.append(afBackUtils.SDF_JJ_MM_AAAA_HH_MM.format(demande.getDernierStatut().getDate()));
         htmlBuilder.append("</span></dd>");
 
         // Langue
@@ -109,7 +130,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
         for (DemandeComplementsDTO complement : demande.getComplements()) {
             DemandeComplementsQuestionDTO question = complement.getQuestion();
             DemandeComplementsReponseDTO reponse = complement.getReponse();
-            String date = AfBackUtils.SDF_JJ_MM_AAAA_HH_MM.format(question.getDate());
+            String date = afBackUtils.SDF_JJ_MM_AAAA_HH_MM.format(question.getDate());
 
             htmlBuilder.append("<h3>Compléments du ");
             htmlBuilder.append(date);
@@ -145,7 +166,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
                 Date reponseDate = reponse.getDate();
                 htmlBuilder.append("<dl><dt><span>Date</span></dt><dd><span>");
                 if (null != reponseDate) {
-                    htmlBuilder.append(AfBackUtils.SDF_JJ_MM_AAAA_HH_MM.format(reponseDate));
+                    htmlBuilder.append(afBackUtils.SDF_JJ_MM_AAAA_HH_MM.format(reponseDate));
                 }
                 htmlBuilder.append("</span></dd>");
 
@@ -254,20 +275,102 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
             for (int j = 0; j < champs.size(); j++) {
                 JSONObject champ = (JSONObject) champs.get(j);
                 String type = (String) champ.get("type");
-                if (StringUtils.equals(type, "adresse") || StringUtils.equals(type, "adresseMc")) {
-                    html.append(getSecondLevelHTML(demande.getContenu(), champ, pojo, isPdfRecap));
-                } else {
-                    String value = getSecondLevelHTML(demande.getContenu(), champ, pojo, isPdfRecap);
-                    if (!StringUtils.isBlank(value)) {
-                        html.append("<dt><span>").append(champ.get("label")).append("</span></dt>");
-                        html.append("<dd><span>").append(value).append("</span></dd>");
+//                if (StringUtils.equals(type, "adresse") || StringUtils.equals(type, "adresseMc")) {
+//                	String tmp = getSecondLevelHTML(demande.getContenu(), champ, pojo, isPdfRecap);
+//                	System.out.println("TMP :: " + tmp);
+//                	tmp = "<span style='color: green; font-weight: bold'>" + tmp + "</span>";
+//                    html.append(tmp);
+//                } else {
+                String value = getSecondLevelHTML(demande.getContenu(), champ, pojo, isPdfRecap, false);
+                if (!StringUtils.isBlank(value)) {
+                	DemandeDTO demandeSource = null;
+                	if (demande.getPkDemandeSource() != null) {
+                		demandeSource = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), demande.getPkDemandeSource());
+                	}
+                    
+                    // Pour mettre une icône s'il s'agit d'une donnée certifiée
+                    boolean isDonneeCertifiee = AfBackUtils.donneesCertifieesJsonToList(demande.getDonneesCertifiees()).contains(champ.get("path"));
+                    
+                    // Mise en valeur des données modifiées par rapport à la demande source, si cette demande est issue d'un renouvellement
+                    // Pas possible de faire ce qui suit car c'est pas toujours "path" qu'il faut récupérer... ça peut être "indicatif", "bic", etc. Impossible à savoir à l'avance
+//                  JsonNode donneeCourante = getNode(demande.getContenu(), champ, "path");
+//                  JsonNode donneeSource = getNode(demandeSource.getContenu(), champ, "path");
+//                  if (champ != null && donneeCourante != null && donneeSource != null && donneeCourante.textValue() != null && donneeSource.textValue() != null && !donneeCourante.textValue().equals(donneeSource.textValue())) {
+//                      // Signaler la diff ici
+//                  }
+                    // Donc on fait la différence sur la comparaison du résultat formatté en HTML :
+                    String valueSource = null;
+                    String pojoSource = null;
+                    if (demandeSource != null) {
+                    	// Récupération du champ "pojo" du fichier Recap de ce buildId là
+						try {
+							pojoSource = getChampPojoFromRecap(demandeSource.getBuildId());
+						} catch (IOException | ParseException e) {
+							LOGGER.error("Impossible de récupérer le pojoSource", e);
+						}
+                    }
+                    if (pojoSource != null) {
+                    	valueSource = getSecondLevelHTML(demandeSource.getContenu(), champ, pojoSource, isPdfRecap, false);
+                    }
+                    
+                    if (valueSource == null) {
+                    	valueSource = "";
+                    }
+
+                    
+                    // Pour mettre l'ID HTML de la donnée, récupéré depuis le fichier Recap (pour les testeurs)
+					String idPrefix = (String)champ.get("idPrefix");
+					String idTag1 = "";
+					String idTag2 = "";
+					if (StringUtils.isNotBlank(idPrefix)) {
+						// Si ce qui est retourné de getSecondLevelHTML est un champ composé (en HTML), comme l'adresse, alors les spans sont déjà dedans
+						// et idTag aussi
+						if (!type.equals("adresse") && !type.equals("adresseMc")) {
+							idTag1 = "<span id=\"" + idPrefix + "\">";
+							idTag2 = "</span>";
+						}
+					}
+					
+					String imgTag = "<img src=\"../img/icone_identite_numerique_valide.svg\"></img>";
+					if (isPdfRecap) {
+						URL url = getClass().getClassLoader().getResource("static/img/icone_identite_numerique_valide.svg");
+						imgTag = "<img src=\"" + url.toExternalForm() + "\"></img>";
+					}
+                    
+                    if (demandeSource != null && value != null && valueSource != null && !value.equals(valueSource)) {
+                    	if (StringUtils.isBlank(valueSource)) {
+                    		valueSource = "(vide)";
+                    	}
+						html.append("<dt class='nouvelledonnee-titre'>").append(champ.get("label")).append("</dt>");
+						html.append("<dd class='nouvelledonnee-titre'>").append(idTag1 + value.replace("<span>", "<span class='nouvelledonnee-contenu'>").replace("<dt>","<dt class='nouvelledonnee-titre'>").replace("<dd>","<dd class='nouvelledonnee-contenu'>") + idTag2);
+						if (isDonneeCertifiee) {
+							html.append(" <span class=\"nouvelledonnee\" title=\"Donnée certifiée\">" + imgTag + "</span></dd>");
+						}
+						else {
+							html.append("</dd>");
+						}
+						
+						html.append("<dt class='anciennedonnee-titre' title='Donnée modifiée'>").append(champ.get("label")).append("</dt>");
+						html.append("<dd class='anciennedonnee-titre' title='Donnée modifiée'>").append(valueSource.replace("<span>", "<span class='anciennedonnee-contenu'>").replace("<dt>","<dt class='anciennedonnee-titre' title='Donnée modifiée'>").replace("<dd>","<dd class='anciennedonnee-contenu' title='Donnée modifiée'>"));
+						html.append("</dd>");
+                    }
+                    else {
+						html.append("<dt><span>").append(champ.get("label")).append("</span></dt>");
+						html.append("<dd>").append(idTag1 + value + idTag2);
+						if (isDonneeCertifiee) {
+							html.append(" <span title=\"Donnée certifiée\">" + imgTag + "</span></dd>");
+						}
+						else {
+							html.append("</dd>");
+						}
                     }
                 }
             }
 
             // Génération du code pour un tableau
         } else if (StringUtils.equals(sectionType, "tableau")) {
-            ArrayNode valeurs = (ArrayNode) getNode(demande.getContenu(), section, "path");            if (valeurs.size() > 0) {
+            ArrayNode valeurs = (ArrayNode) getNode(demande.getContenu(), section, "path");
+            if (valeurs.size() > 0) {
                 String classPdfRecap = isPdfRecap?"pdf-recap":"";
                 html.append("<dd style=\"width: 100%\"><table id=\"datatable-demandes\" class=\"table table-striped ").append(classPdfRecap).append("\">");
                 JSONArray columns = (JSONArray) section.get("columns");
@@ -282,7 +385,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
                     JsonNode valeur = it.next();
                     html.append("<tr>");
                     for (Object column : columns.toArray()) {
-                        String value = getSecondLevelHTML(valeur, (JSONObject) column, pojo, isPdfRecap);
+                        String value = getSecondLevelHTML(valeur, (JSONObject) column, pojo, isPdfRecap, true);
                         String result = StringUtils.isNoneBlank(value) ? value : "";
                         html.append("<td>").append(result).append("</td>");
                     }
@@ -295,7 +398,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
         return html.toString();
     }
 
-    private String getSecondLevelHTML(JsonNode node, JSONObject champ, String pojo, boolean isPdfRecap)
+    private String getSecondLevelHTML(JsonNode node, JSONObject champ, String pojo, boolean isPdfRecap, boolean pourTableau)
             throws ClassNotFoundException, IllegalAccessException, IllegalArgumentException, InvocationTargetException,
             NoSuchMethodException, SecurityException {
         String type = (String) champ.get("type");
@@ -411,6 +514,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
                         Class<?> klass = Class.forName(pojo + mapping + "Enum");
                         Object[] parameters = {entry.getKey().toUpperCase(), true};
                         Object value = klass.getMethod("forValue", String.class, boolean.class).invoke(klass, parameters);
+                        LOGGER.debug("n={}, path={}, klass={}, parameters={}, value={}", n, champ.get("path"), klass, parameters, value);
                         if (!ret.equals("")) {
                             ret += ", ";
                         }
@@ -425,11 +529,37 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
             if (StringUtils.isNotEmpty(ret)) {
                 String codePostal = escape(getNode(node, champ, "codePostal").textValue(), isPdfRecap);
                 String ville = escape(getNode(node, champ, "ville").textValue(), isPdfRecap);
-                ret += "<dt><span>Ville</span></dt><dd><span>" + codePostal + " " + ville + "</span></dd>";
                 String pays = getNode(node, champ, "pays").textValue();
-                if (StringUtils.isNotBlank(pays)) {
-                    ret += "<dt><span>Pays</span></dt><dd><span>" + paysCache.get(pays, "fr").getNom() + "</span></dd>";
-                }
+            	if (!pourTableau) {
+            		String idPrefix = (String)champ.get("idPrefix");
+            		if (StringUtils.isNotBlank(codePostal)) {
+            			String idTag = "";
+            			if (StringUtils.isNotBlank(idPrefix)) {
+            				idTag = " id=\"" + idPrefix + "-cp\" ";
+            			}
+            			ret += "</dd><dt><span>Code postal</span></dt><dd><span" + idTag + ">" + codePostal + "</span>";
+            		}
+            		if (StringUtils.isNotBlank(ville)) {
+            			String idTag = "";
+            			if (StringUtils.isNotBlank(idPrefix)) {
+            				idTag = " id=\"" + idPrefix + "-ville\" ";
+            			}
+            			ret += "</dd><dt><span>Ville</span></dt><dd><span" + idTag + ">" + ville + "</span>";
+            		}
+	                if (StringUtils.isNotBlank(pays)) {
+            			String idTag = "";
+            			if (StringUtils.isNotBlank(idPrefix)) {
+            				idTag = " id=\"" + idPrefix + "-pays\" ";
+            			}
+	                    ret += "</dd><dt><span>Pays</span></dt><dd><span" + idTag + ">" + paysCache.get(pays, "fr").getNom() + "</span>";
+	                }
+            	}
+            	else {
+	                ret += "<br/><span>" + codePostal + " " + ville + "</span>";
+	                if (StringUtils.isNotBlank(pays)) {
+	                    ret += "<br/><span>" + paysCache.get(pays, "fr").getNom() + "</span>";
+	                }
+            	}
             }
             return ret;
         } else if (StringUtils.equals(type, "adresseMc")) {
@@ -472,26 +602,73 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
         return result;
     }
 
+//    private String buildAdresseHTML(JsonNode node, JSONObject champ, boolean isPdfRecap) {
+//        String ligne1 = escape(getNode(node, champ, "ligne1").textValue(), isPdfRecap);
+//        String ligne2 = escape(getNode(node, champ, "ligne2").textValue(), isPdfRecap);
+//        String ligne3 = escape(getNode(node, champ, "ligne3").textValue(), isPdfRecap);
+//        String ret = "";
+//        if (StringUtils.isNotEmpty(ligne1)) {
+//            if (champ.get("label") != null) {
+//                ret = "<dd><span>" + ligne1 + "</span>";
+//            } else {
+//                ret = "<dt><span>Adresse</span></dt><dd><span>" + ligne1 + "</span>";
+//            }
+//            if (StringUtils.isNotBlank(ligne2)) {
+//                ret += "<br/><span>" + ligne2 + "</span>";
+//            }
+//            if (StringUtils.isNotBlank(ligne3)) {
+//                ret += "<br/><span>" + ligne3 + "</span>";
+//            }
+//            ret += "</dd>";
+//        }
+//        return ret;
+//    }
+    
     private String buildAdresseHTML(JsonNode node, JSONObject champ, boolean isPdfRecap) {
+    	String idPrefix = (String)champ.get("idPrefix");
         String ligne1 = escape(getNode(node, champ, "ligne1").textValue(), isPdfRecap);
         String ligne2 = escape(getNode(node, champ, "ligne2").textValue(), isPdfRecap);
         String ligne3 = escape(getNode(node, champ, "ligne3").textValue(), isPdfRecap);
         String ret = "";
         if (StringUtils.isNotEmpty(ligne1)) {
-            if (champ.get("label") != null) {
-                ret = "<dt><span>" + champ.get("label") + "</span></dt><dd><span>" + ligne1 + "</span>";
-            } else {
-                ret = "<dt><span>Adresse</span></dt><dd><span>" + ligne1 + "</span>";
-            }
-            if (StringUtils.isNotBlank(ligne2)) {
-                ret += "<br/><span>" + ligne2 + "</span>";
-            }
-            if (StringUtils.isNotBlank(ligne3)) {
-                ret += "<br/><span>" + ligne3 + "</span>";
-            }
-            ret += "</dd>";
+        	String idTag = "";
+        	if (StringUtils.isNotBlank(idPrefix)) {
+        		idTag = "id=\"" + idPrefix + "-ligne1\" ";
+        	}
+            ret = "<span " + idTag + ">" + ligne1 + "</span>";
+        }
+        if (StringUtils.isNotBlank(ligne2)) {
+        	String idTag = "";
+        	if (StringUtils.isNotBlank(idPrefix)) {
+        		idTag = "id=\"" + idPrefix + "-ligne2\" ";
+        	}
+            ret += "<br/><span " + idTag + ">" + ligne2 + "</span>";
+        }
+        if (StringUtils.isNotBlank(ligne3)) {
+        	String idTag = "";
+        	if (StringUtils.isNotBlank(idPrefix)) {
+        		idTag = "id=\"" + idPrefix + "-ligne3\" ";
+        	}
+            ret += "<br/><span " + idTag + ">" + ligne3 + "</span>";
         }
         return ret;
     }
+    
+    private String getChampPojoFromRecap(String buildId) throws IOException, ParseException {
+        LOGGER.info("getChampPojoFromRecap : chargement du fichier recap...");
+        InputStream inputStream = new ClassPathResource("/recaps/recaps_" + buildId + ".json")
+                .getInputStream();
+        JSONParser jsonParser = new JSONParser();
+        JSONArray jsonArray = (JSONArray) jsonParser.parse(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+
+        for (int k = 0; k < jsonArray.size(); k++) {
+            if ("projectDemandeRecap".equals(((JSONObject) jsonArray.get(k)).get("name"))) {
+                JSONObject projectDemandeRecap = (JSONObject) jsonArray.get(k);
+                return StringUtils.remove((String) projectDemandeRecap.get("pojo"), CONTENU_DTO);
+            }
+        }
+        return null;
+    }
 
 }
+

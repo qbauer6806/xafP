@@ -5,13 +5,6 @@ import java.util.Map;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.data.DemarchesService;
-import mc.gouv.xaf.back.service.excel.ExcelExportModelProvider;
-import mc.gouv.xaf.back.service.excel.ExcelExportService;
-import mc.gouv.xaf.back.service.utils.AfBackUtils;
-
-import mc.gouv.xaf.shared.dto.ExcelRechercheDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +12,15 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-
-import mc.gouv.xaf.backweb.controller.AbstractController;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.data.DemarchesService;
+import mc.gouv.xaf.back.service.excel.ExcelExportModelProvider;
+import mc.gouv.xaf.back.service.excel.ExcelExportService;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.backweb.controller.AbstractController;
+import mc.gouv.xaf.shared.dto.ExcelRechercheDTO;
 
 /**
  * Controller pour l'extraction des données des demandes (export excel)
@@ -45,6 +44,9 @@ public class DemandeExportController extends AbstractController {
 
     @Autowired
     private DemarchesService demarchesService;
+    
+    @Autowired
+    private AfBackUtils afBackUtils;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandeExportController.class);
 
@@ -57,12 +59,12 @@ public class DemandeExportController extends AbstractController {
             String demarcheId = gouvPropertiesResolver.getDemarcheId();
             response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
             response.setHeader("Content-disposition", "attachment; filename=" +
-                    demarchesService.getDemarche(demarcheId).getIdentifiantPrefixe() + "_Donnees_Stat_" + AfBackUtils.generateFileDateAndTimeSuffix() + ".xlsx");
+                    demarchesService.getDemarche(demarcheId).getIdentifiantPrefixe() + "_Donnees_Stat_" + afBackUtils.generateFileDateAndTimeSuffix() + ".xlsx");
 
             // Création du cookie pour notifier du téléchargement terminé (2 minutes max age)
             Cookie telechargementCookie = new Cookie("exportEnCours", "0");
             telechargementCookie.setMaxAge(60 * 2);
-            telechargementCookie.setSecure(false);
+            telechargementCookie.setSecure(true);
             telechargementCookie.setPath("/");
             response.addCookie(telechargementCookie);
 

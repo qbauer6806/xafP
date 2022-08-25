@@ -13,6 +13,7 @@ import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
 
 /**
+ * 
  * Servlet permettant d'associer une demande courrier à un usager téléservice.
  * 
  * @author qdeme

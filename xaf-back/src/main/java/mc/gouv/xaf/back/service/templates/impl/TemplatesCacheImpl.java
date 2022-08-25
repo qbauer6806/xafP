@@ -18,7 +18,7 @@ import mc.gouv.xboot.caching.GouvMemoryCache;
 public class TemplatesCacheImpl extends GouvMemoryCache<Integer, TemplateDTO> implements TemplatesCache {
 
     // 3 heures
-    private static final long CACHE_DURATION = 3*60*60*1000;
+    private static final long CACHE_DURATION = 3*60*60*1000L;
 
     public TemplatesCacheImpl(TemplatesCacheDataProvider gouvCacheDataProvider) {
         super(gouvCacheDataProvider, CACHE_DURATION);

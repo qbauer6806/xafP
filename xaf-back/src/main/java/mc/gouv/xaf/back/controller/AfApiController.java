@@ -2,9 +2,14 @@ package mc.gouv.xaf.back.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import mc.gouv.xaf.shared.dto.*;
+
+import org.apache.tika.exception.TikaException;
 import org.springframework.http.ResponseEntity;
+import org.xml.sax.SAXException;
 
 import javax.servlet.http.HttpServletRequest;
+
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -18,7 +23,7 @@ public interface AfApiController {
     void annulerDemande(Integer demandeId, Integer usagerId);
 
     DemandeComplementsDTO repondreDemandeComplements(Integer demandeId, Integer icId,
-                                                     DemandeComplementsReponseDTO reponse) throws Exception;
+                                                     DemandeComplementsReponseDTO reponse) throws IOException, TikaException, SAXException;
 
     DemandeDTO getDemande(Integer usagerId, Integer demandeId);
 

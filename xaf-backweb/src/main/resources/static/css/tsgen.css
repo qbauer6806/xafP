@@ -460,3 +460,23 @@ dd span {
 #sidebar-wrapper.open .menuContent {
 	margin-left: -3px;
 }
+
+.anciennedonnee-titre {
+	background-color: #eee;
+	font-weight: bold;
+	display: none;
+}
+
+.nouvelledonnee-titre {
+	background-color: #def1f5;
+	font-weight: bold;
+}
+
+.anciennedonnee-contenu {
+	background-color: #eee;
+	display: none;
+}
+
+.nouvelledonnee-contenu {
+	background-color: #def1f5;
+}

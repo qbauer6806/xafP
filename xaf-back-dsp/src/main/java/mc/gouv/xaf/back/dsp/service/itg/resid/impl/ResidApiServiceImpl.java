@@ -94,13 +94,14 @@ public class ResidApiServiceImpl implements ResidApiService {
 		if (HttpStatus.CREATED.equals(responseEntity.getStatusCode())) {
 			ResidHttpResponseDTO residHttpResponseDTO = new ResidHttpResponseDTO();
 			residHttpResponseDTO.setHttpStatus(201);
-			if (null != responseEntity.getBody()) {
-				if (null != responseEntity.getBody().getMessage()) {
-					residHttpResponseDTO.setMessage(responseEntity.getBody().getMessage());
+			ResidHttpResponseDTO body = responseEntity.getBody();
+			if (null != body) {
+				if (null != body.getMessage()) {
+					residHttpResponseDTO.setMessage(body.getMessage());
 				}
-				if (null != responseEntity.getBody().getWarnings()
-						&& !responseEntity.getBody().getWarnings().isEmpty()) {
-					residHttpResponseDTO.setWarnings(responseEntity.getBody().getWarnings());
+				if (null != body.getWarnings()
+						&& !body.getWarnings().isEmpty()) {
+					residHttpResponseDTO.setWarnings(body.getWarnings());
 				} 
 			}
 			return residHttpResponseDTO;
@@ -120,13 +121,16 @@ public class ResidApiServiceImpl implements ResidApiService {
 			ResidHttpResponseDTO residHttpResponseDTO = new ResidHttpResponseDTO();
 			residHttpResponseDTO.setHttpStatus(201);
 			if (null != responseEntity.getBody()) {
-				if (null != responseEntity.getBody().getMessage()) {
-					residHttpResponseDTO.setMessage(responseEntity.getBody().getMessage());
+				ResidHttpResponseDTO body = responseEntity.getBody();
+				if (null != body) {
+					if (null != body.getMessage()) {
+						residHttpResponseDTO.setMessage(body.getMessage());
+					}
+					if (null != body.getWarnings()
+							&& !body.getWarnings().isEmpty()) {
+						residHttpResponseDTO.setWarnings(body.getWarnings());
+					}
 				}
-				if (null != responseEntity.getBody().getWarnings()
-						&& !responseEntity.getBody().getWarnings().isEmpty()) {
-					residHttpResponseDTO.setWarnings(responseEntity.getBody().getWarnings());
-				} 
 			}
 			return residHttpResponseDTO;
 		}
@@ -145,13 +149,14 @@ public class ResidApiServiceImpl implements ResidApiService {
 		if (HttpStatus.CREATED.equals(responseEntity.getStatusCode())) {
 			ResidHttpResponseDTO residHttpResponseDTO = new ResidHttpResponseDTO();
 			residHttpResponseDTO.setHttpStatus(201);
-			if (null != responseEntity.getBody()) {
-				if (null != responseEntity.getBody().getMessage()) {
-					residHttpResponseDTO.setMessage(responseEntity.getBody().getMessage());
+			ResidHttpResponseDTO body = responseEntity.getBody();
+			if (null != body) {
+				if (null != body.getMessage()) {
+					residHttpResponseDTO.setMessage(body.getMessage());
 				}
-				if (null != responseEntity.getBody().getWarnings()
-						&& !responseEntity.getBody().getWarnings().isEmpty()) {
-					residHttpResponseDTO.setWarnings(responseEntity.getBody().getWarnings());
+				if (null != body.getWarnings()
+						&& !body.getWarnings().isEmpty()) {
+					residHttpResponseDTO.setWarnings(body.getWarnings());
 				} 
 			}
 			return residHttpResponseDTO;
@@ -171,13 +176,14 @@ public class ResidApiServiceImpl implements ResidApiService {
 		if (HttpStatus.CREATED.equals(responseEntity.getStatusCode())) {
 			ResidHttpResponseDTO residHttpResponseDTO = new ResidHttpResponseDTO();
 			residHttpResponseDTO.setHttpStatus(201);
-			if (null != responseEntity.getBody()) {
-				if (null != responseEntity.getBody().getMessage()) {
-					residHttpResponseDTO.setMessage(responseEntity.getBody().getMessage());
+			ResidHttpResponseDTO body = responseEntity.getBody();
+			if (null != body) {
+				if (null != body.getMessage()) {
+					residHttpResponseDTO.setMessage(body.getMessage());
 				}
-				if (null != responseEntity.getBody().getWarnings()
-						&& !responseEntity.getBody().getWarnings().isEmpty()) {
-					residHttpResponseDTO.setWarnings(responseEntity.getBody().getWarnings());
+				if (null != body.getWarnings()
+						&& !body.getWarnings().isEmpty()) {
+					residHttpResponseDTO.setWarnings(body.getWarnings());
 				} 
 			}
 			return residHttpResponseDTO;
@@ -270,7 +276,7 @@ public class ResidApiServiceImpl implements ResidApiService {
 		List<ResidStatutDemandeDTO> retList = getEtatMultipleDemandes(Collections.singletonList(idDemande), url, jwt);
 
 		// On récupère uniquement le premier élément (on s'attend à ce qu'il y en ai maximum un)
-		if (retList != null && retList.size() > 0) {
+		if (retList != null && !retList.isEmpty()) {
 			statut = retList.get(0);
 		}
 		return statut;
@@ -378,7 +384,7 @@ public class ResidApiServiceImpl implements ResidApiService {
 		LOGGER.info("Fin appel RESID");
 
 		if (!HttpStatus.OK.equals(responseEntity.getStatusCode())) {
-			return null;
+			return Collections.emptyList();
 		}
 
 		return responseEntity.getBody();

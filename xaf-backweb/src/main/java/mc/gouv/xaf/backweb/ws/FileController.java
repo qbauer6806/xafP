@@ -28,7 +28,6 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
-import org.apache.pdfbox.pdmodel.common.PDStream;
 import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.apache.pdfbox.util.Matrix;
@@ -265,8 +264,12 @@ public class FileController {
 			String fileName = currentFile.getName();
 			int extensionIndex = fileName.lastIndexOf(".");
 			String extension = fileName.substring(extensionIndex + 1);
-			File fileToAdd = new File(tmp.getAbsolutePath(),
-					fileName.replace("." + extension, "-" + count + "." + extension));
+			String typeDoc = "";
+			if (StringUtils.isNotBlank(currentFile.getTypedoc())) {
+				typeDoc = currentFile.getTypedoc() + "_";
+			}
+			File fileToAdd = new File(tmp.getAbsolutePath(), typeDoc
+					+ fileName.replace("." + extension, "-" + count + "." + extension));
 			InputStream is = fileService.getFile(gouvPropertiesResolver.getDemarcheId() + "/"
 					+ gouvPropertiesResolver.getContainerId() + "/" + filePathEncoded);
 			copyInputStreamToFile(is, fileToAdd);

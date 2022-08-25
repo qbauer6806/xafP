@@ -12,6 +12,7 @@ import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
 
 /**
+ * 
  * Servlet mettant à disposition le service /annulation avec la méthode POST, permettant
  * d'annuler une demande depuis le Front.
  * 

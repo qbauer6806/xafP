@@ -69,6 +69,8 @@ public class GichkeyService {
 		}
 		HttpPost postRequest = new HttpPost(url.toString());
 		
+		LOGGER.info("RequestURL : {}", requestUrl);
+		
 		List <NameValuePair> nvps = new ArrayList <NameValuePair>();
 		nvps.add(new BasicNameValuePair("code", code));
 		nvps.add(new BasicNameValuePair("client_id", AfServletGouvPropertiesResolver.getGichkeyClientId()));
@@ -84,6 +86,8 @@ public class GichkeyService {
 		postRequest.setHeader("Connection", "keep-alive");
 		postRequest.setHeader("Accept-Encoding", "gzip, deflate, br");
 		postRequest.setHeader("Accept", "*/*");
+		
+		LOGGER.info("Paramètres de la requête : {}", nvps);
 
 		LOGGER.info("Appel à GICHKEY");
 		try {

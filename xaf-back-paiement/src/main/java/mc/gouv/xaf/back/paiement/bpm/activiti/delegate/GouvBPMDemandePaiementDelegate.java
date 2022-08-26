@@ -6,11 +6,11 @@ import mc.gouv.xaf.back.paiement.data.entity.OperationBO;
 import mc.gouv.xaf.back.paiement.enums.PaiementDemandeDataKeysEnum;
 import mc.gouv.xaf.back.paiement.enums.PaiementStatutEnum;
 import mc.gouv.xaf.back.paiement.service.CaptureService;
-import mc.gouv.xaf.back.paiement.service.PaiementDemandeHistoriqueService;
 import mc.gouv.xaf.back.paiement.service.PaiementHistoriqueService;
 import mc.gouv.xaf.back.paiement.service.PaiementService;
 import mc.gouv.xaf.back.paiement.service.impl.TicketRecapitulatifServiceImpl;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.AfHistoService;
 import mc.gouv.xaf.back.service.data.DemandesDataService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
@@ -58,7 +58,7 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
     private PaiementHistoriqueService paiementHistoriqueService;
 
     @Autowired
-    private PaiementDemandeHistoriqueService paiementDemandeHistoriqueService;
+    private AfHistoService histoService;
 
     @Override
     public void execute(DelegateExecution execution) throws Exception {
@@ -100,11 +100,12 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
                 demandesDataService.saveOrUpdateDemandeData(demarcheId, demandeId, PaiementDemandeDataKeysEnum.STATUT_PAIEMENT.name(), PaiementStatutEnum.DEBIT_ECHEC.name());
                 paiementHistoriqueService.ajouterHistoriqueDebitEchec(demandeDto);
             }
-            paiementDemandeHistoriqueService.actionSysteme(demandeId, "PAIEMENT_A_REGULARISER", "A envoyé une demande de paiement ");
+            histoService.actionSysteme(demandeId, "ECHEC", "Débit en échec. Demande de paiement envoyée");
+            histoService.actionSysteme(demandeId, "PAIEMENT_A_REGULARISER", "A envoyé une demande de paiement");
         } else {
             demandesDataService.saveOrUpdateDemandeData(demarcheId, demandeId, PaiementDemandeDataKeysEnum.STATUT_PAIEMENT.name(), PaiementStatutEnum.DEBIT_REALISE.name());
             paiementHistoriqueService.ajouterHistoriqueDebitOK(demandeDto);
-            paiementDemandeHistoriqueService.paiementEnLigne(demandeId, demandeDto.getUsagerId());
+            histoService.actionSysteme(demandeId, "SUCCES", "Débit réalisé avec succès");
         }
         LOGGER.info("==== xaf-back-stc CAPTURE PAIEMENT <fin>");
     }

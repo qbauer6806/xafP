@@ -73,7 +73,9 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
             // Conversion de l'inputstream en tiff
             isList = generateTiffsFromPDF(is);
         } else {
-            isList = Collections.singletonList(is);
+            BufferedImage bim = convertImageToTiff(ImageIO.read(is));
+
+            isList = Collections.singletonList(writeImageCCITTT4(bim));
         }
 
         // Création des FileDTO
@@ -174,14 +176,10 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
         // Parcours du PDF multipages
         for (int page = 0; page < document.getNumberOfPages(); ++page) {
 
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
-
             // Conversion de l'image en tiff
             BufferedImage bim = convertImageToTiff(pdfRenderer.renderImageWithDPI(page, 240));
 
-            // Sauvegarde de l'image sans perte (compression quality 1f) + comression CCITT T.4 (standard fax/scanner)
-            ImageIOUtil.writeImage(bim, "tiff", out,240, 1f, "CCITT T.4");
-            imagesIS.add(new ByteArrayInputStream(out.toByteArray()));
+            imagesIS.add(writeImageCCITTT4(bim));
         }
         document.close();
         return imagesIS;
@@ -205,6 +203,14 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
         graphic.dispose();
 
         return myBWImage;
+    }
+
+    private InputStream writeImageCCITTT4(BufferedImage bim) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+        // Sauvegarde de l'image sans perte (compression quality 1f) + comression CCITT T.4 (standard fax/scanner)
+        ImageIOUtil.writeImage(bim, "tiff", out,240, 1f, "CCITT T.4");
+        return new ByteArrayInputStream(out.toByteArray());
     }
 
     private Map<String, InputStream> createNewFileDTOs(DemandeFileDTO file, List<InputStream> isList, String filename) {

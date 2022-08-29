@@ -31,6 +31,7 @@ import javax.ws.rs.core.Response;
 import java.net.HttpURLConnection;
 import java.net.Proxy;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.HashMap;
@@ -96,29 +97,20 @@ public class MoneticoClient implements PaiementClient {
         LOGGER.info("Parameters [ OperationBO {}] ", operationBO);
         LOGGER.info("Parameters [ DemandeDTO {}] ", demandeDTO);
 
-        String dateString = paiement.getCommande().getDateCreation().format(dateFormatter);
-        String dateTimeString = paiement.getCommande().getDateCreation().format(dateTimeFormatter);
+        String dateCommande = paiement.getCommande().getDateCreation().format(dateFormatter);
+        String dateCapture = LocalDateTime.now().format(dateTimeFormatter);
         Operation<String> operation = new Operation<String>() {
             @Override
             public void execute() throws Exception {
 
-                LOGGER.info("URL: {}", paiementPropertiesResolver.getCaptureUrl());
                 String tpe = getTpe();
-                LOGGER.info("TPE: {}", tpe);
                 String montant = paiement.getMontantInitial() + paiementPropertiesResolver.getCurrency();
-                LOGGER.info("montant: {}", montant);
                 String montantACapturer = operationBO.getMontant() + paiementPropertiesResolver.getCurrency();
-                LOGGER.info("montant_a_capturer: {}", montantACapturer);
                 String montantDejaCapture = paiement.getMontantCapture() + paiementPropertiesResolver.getCurrency();
-                LOGGER.info("montant_deja_capture: {}", montantDejaCapture);
                 String montantRestant = (paiement.getMontantRestant() - operationBO.getMontant()) + paiementPropertiesResolver.getCurrency();
-                LOGGER.info("montant_restant: {}", montantRestant);
-                LOGGER.info("reference: {}", paiement.getPkMoyenPaiement());
-                LOGGER.info("date: {}", dateTimeString);
-                LOGGER.info("date_commande: {}", dateString);
-                LOGGER.info("societe: {}", paiement.getCodeSociete());
                 String version = paiementPropertiesResolver.getVersionCapture();
-                LOGGER.info("version {}", version);
+                LOGGER.info("Paramètres Capture:\nURL: {}\nTPE: {}\nmontant: {}\nmontant_a_capturer: {}\nmontant_deja_capture: {}\nmontant_restant: {}\nreference: {}\ndate (date de la capture): {}\ndate_commande: {}\nsociete: {}\nversion {}",
+                        paiementPropertiesResolver.getCaptureUrl(), tpe, montant, montantACapturer, montantDejaCapture, montantRestant, paiement.getPkMoyenPaiement(), dateCapture, dateCommande, paiement.getCodeSociete(), version);
 
                 // Permet de désactiver la capture en simulant une erreur d'opération.
                 PropertiesDTO captureActive = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_ACTIVATION_CAPTURE_PAIEMENT);
@@ -135,8 +127,8 @@ public class MoneticoClient implements PaiementClient {
                         .queryParam("montant_restant", montantRestant)
                         .queryParam("lgue", "FR")
                         .queryParam("reference", paiement.getPkMoyenPaiement())
-                        .queryParam("date", dateTimeString)
-                        .queryParam("date_commande", dateString)
+                        .queryParam("date", dateCapture)
+                        .queryParam("date_commande", dateCommande)
                         .queryParam("societe", paiement.getCodeSociete())
                         .queryParam("version", version)
                         .request(MediaType.APPLICATION_JSON).get();

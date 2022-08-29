@@ -101,7 +101,6 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
                 paiementHistoriqueService.ajouterHistoriqueDebitEchec(demandeDto);
             }
             histoService.actionSysteme(demandeId, "ECHEC", "Débit en échec. Demande de paiement envoyée");
-            histoService.actionSysteme(demandeId, "PAIEMENT_A_REGULARISER", "A envoyé une demande de paiement");
         } else {
             demandesDataService.saveOrUpdateDemandeData(demarcheId, demandeId, PaiementDemandeDataKeysEnum.STATUT_PAIEMENT.name(), PaiementStatutEnum.DEBIT_REALISE.name());
             paiementHistoriqueService.ajouterHistoriqueDebitOK(demandeDto);

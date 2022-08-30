@@ -1,6 +1,7 @@
 package mc.gouv.xaf.back.service.relance;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
+import mc.gouv.xaf.back.service.relance.settings.RelanceDemandeSettings;
 import mc.gouv.xaf.back.service.utils.RelancesUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 
@@ -31,7 +33,7 @@ public class RelancesDemandesServiceImpl implements RelancesDemandesService {
 	private RelancesUtils relanceUtils;
 	
 	@Override
-	public void sendRelancesMail(Map<String, String> statutsARelancer) {
+	public void sendRelancesMail(List<RelanceDemandeSettings> statutsARelancer) {
 		// On recupère toutes les demandes du TS appelant qui feront l'objet d'une relance
 		Map<DemandeDTO, String> demandesANotifier = relanceUtils.getDemandesANotifier(statutsARelancer);
 		for (Map.Entry<DemandeDTO, String> entry : demandesANotifier.entrySet()) {

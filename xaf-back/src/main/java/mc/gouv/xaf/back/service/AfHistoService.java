@@ -19,4 +19,9 @@ public interface AfHistoService {
      */
     DemandeHistoriqueDTO actionSysteme(Integer demandeId, String targetState, String action);
 
+    /**
+     * Ajoute une ligne à l'historique d'une demande après une action réalisée par un usager FO.
+     */
+    DemandeHistoriqueDTO actionUsager(Integer demandeId, Integer usagerId, String targetState, String action);
+
 }

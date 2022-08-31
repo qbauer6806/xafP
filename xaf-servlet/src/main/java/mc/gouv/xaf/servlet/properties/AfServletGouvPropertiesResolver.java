@@ -87,10 +87,16 @@ public class AfServletGouvPropertiesResolver {
         return Static.getValue(LOGIN_KEEP_ALIVE);
     }
 
-    public static final String GICHKEY_REDIRECT_URL ="mc.gouv.appfactory" + applicationPrefix + ".gichkey.redirect.url";
+    public static final String GICHKEY_REDIRECT_URL = "mc.gouv.appfactory" + applicationPrefix + ".gichkey.redirect.url";
 
     public static String getGichkeyRedirectUrl() {
-        return Static.getValue(GICHKEY_REDIRECT_URL);
+        return Static.getValue(GICHKEY_REDIRECT_URL).replace("<redirect_uri>", getGichkeyKeycloakRedirectUri());
+    }
+    
+    public static final String GICHKEY_KEYCLOAK_REIRECT_URI = "mc.gouv.appfactory" + applicationPrefix + ".gichkey.keycloak.redirect.uri";
+
+    public static String getGichkeyKeycloakRedirectUri() {
+        return Static.getValue(GICHKEY_KEYCLOAK_REIRECT_URI);
     }
 
     public static final String GICHUNI_PROFIL_INDIVIDUAL_URL = "mc.gouv.appfactory.front.gichuni.profil.individual.url";

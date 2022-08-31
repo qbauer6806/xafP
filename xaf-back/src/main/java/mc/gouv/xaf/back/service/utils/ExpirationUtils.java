@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import mc.gouv.xaf.back.service.data.DemandesService;
-import mc.gouv.xaf.back.service.expiration.settings.ExpirationDemandeSettings;
+import mc.gouv.xaf.back.service.expiration.settings.ExpirationStatutDemandeConf;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 
 @Service
@@ -23,9 +23,9 @@ public class ExpirationUtils {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ExpirationUtils.class);
 
-	public Map<DemandeDTO, String> getDemandesAExpirer(List<ExpirationDemandeSettings> expirationDemandeSettings) {
+	public Map<DemandeDTO, String> getDemandesAExpirer(List<ExpirationStatutDemandeConf> expirationDemandeSettings) {
 		Map<DemandeDTO, String> result = new HashMap<>();
-		for (ExpirationDemandeSettings expirationDemandeSetting : expirationDemandeSettings) {
+		for (ExpirationStatutDemandeConf expirationDemandeSetting : expirationDemandeSettings) {
 			String currentStatut = expirationDemandeSetting.getStatutAExpirer();
 			// On va chercher toutes les demandes dans le status à expirer
 			if (null != demandesService.getAllDemandesFilteredByStatut(currentStatut)

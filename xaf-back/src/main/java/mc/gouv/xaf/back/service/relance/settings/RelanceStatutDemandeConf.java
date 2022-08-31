@@ -1,16 +1,27 @@
 package mc.gouv.xaf.back.service.relance.settings;
 
-import org.springframework.stereotype.Component;
+import java.io.Serializable;
 
-@Component
-public class RelanceDemandeSettings {
+/**
+ * 
+ * 
+ * Classe permettant de créer des conf de statut à expirer en spécifiant 
+ *  - Le statut à relancer
+ *  - Le délai avant la 1ere relance
+ *  - Le délai entre 2 relances
+ *  - Le prefix de la clef mail à utiliser (ie MAIL_EN_ATTENT_COMPL)
+ * @author XDECOOL.EXT
+ *
+ */
+public class RelanceStatutDemandeConf implements Serializable {
 
+	private static final long serialVersionUID = 6123329536305326942L;
 	private String statutARelancer;
 	private Integer delaiAvantPremiereRelance;
 	private Integer delaiEntreDeuxRelances;
 	private String clefMailPrefix;
 	
-	public RelanceDemandeSettings(String statutARelancer, Integer delaiAvantPremiereRelance, Integer delaiEntreDeuxRelances, String clefMailPrefix) {
+	public RelanceStatutDemandeConf(String statutARelancer, Integer delaiAvantPremiereRelance, Integer delaiEntreDeuxRelances, String clefMailPrefix) {
 		this.statutARelancer = statutARelancer;
 		this.delaiAvantPremiereRelance = delaiAvantPremiereRelance;
 		this.delaiEntreDeuxRelances = delaiEntreDeuxRelances;

@@ -18,7 +18,7 @@ import mc.gouv.xaf.back.service.data.DemandesDataService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
-import mc.gouv.xaf.back.service.relance.settings.RelanceDemandeSettings;
+import mc.gouv.xaf.back.service.relance.settings.RelanceStatutDemandeConf;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeDataDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
@@ -124,9 +124,9 @@ public class RelancesUtils {
 		return String.valueOf(days);
 	}
 
-	public Map<DemandeDTO, String> getDemandesANotifier(List<RelanceDemandeSettings> relanceDemandeSettings) {
+	public Map<DemandeDTO, String> getDemandesANotifier(List<RelanceStatutDemandeConf> relanceDemandeSettings) {
 		Map<DemandeDTO, String> result = new HashMap<>();
-		for (RelanceDemandeSettings relanceDemandeSetting : relanceDemandeSettings) {
+		for (RelanceStatutDemandeConf relanceDemandeSetting : relanceDemandeSettings) {
 			String currentStatut = relanceDemandeSetting.getStatutARelancer();
 			// On va chercher toutes les demandes dans le status à expirer
 			if (null != demandesService.getAllDemandesFilteredByStatut(currentStatut)

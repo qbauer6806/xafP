@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.relance.RelancesDemandesService;
-import mc.gouv.xaf.back.service.relance.settings.RelanceDemandeSettings;
+import mc.gouv.xaf.back.service.relance.settings.RelanceStatutDemandeConf;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 
 /**
@@ -45,12 +45,12 @@ public class RelancesDemandesSchedulingJob implements Job {
             PropertiesDTO activationRappel = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), ACTIVATION_RAPPEL);
             boolean active = Boolean.parseBoolean(activationRappel.getValue());
             if (active) {
-                List<RelanceDemandeSettings> statutsARelancer = new ArrayList<>();
+                List<RelanceStatutDemandeConf> statutsARelancer = new ArrayList<>();
 
                 // Récupération de la liste des statuts à purger dans le contexte du job detail
                 Object statutsJob = jobExecutionContext.getJobDetail().getJobDataMap().get("statutsARelancer");
                 if (statutsJob instanceof List) {
-                	statutsARelancer = (List<RelanceDemandeSettings>) statutsJob;
+                	statutsARelancer = (List<RelanceStatutDemandeConf>) statutsJob;
                 }
                 LOGGER.info("RAPPEL COURRIEL: Début du job de relance courriel des demandes pour la démarche {}", gouvPropertiesResolver.getDemarcheId());
                 relanceDemandesService.sendRelancesMail(statutsARelancer);

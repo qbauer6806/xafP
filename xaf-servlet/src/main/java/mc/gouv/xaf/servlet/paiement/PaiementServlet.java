@@ -1,4 +1,4 @@
-package mc.gouv.xaf.servlet.monetico;
+package mc.gouv.xaf.servlet.paiement;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;

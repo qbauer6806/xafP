@@ -11,4 +11,5 @@ public interface ExpirationDemandesService {
 	public Map<DemandeDTO, String> getDemandesAExpirer(List<ExpirationStatutDemandeConf> statusAExpirer);
 	public void expirerDemande(DemandeDTO demandeAExpirer, String mailKeyAEnvoyer);
 	public void envoiEmailUsagerExpiration(DemandeDTO demande, String mailKey);
+	public void envoiEmailAgentExpiration(DemandeDTO demande, String mailKey);
 }

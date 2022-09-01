@@ -136,7 +136,7 @@ public class GichkeyService {
 
 	public static UsagerInfosDTO getUsagerInfosFromToken(KeycloakTokenInfo tokenInfo) {
 		String[] chunks = tokenInfo.getAccessToken().split("\\.");
-		Base64.Decoder decoder = Base64.getDecoder();
+		Base64.Decoder decoder = Base64.getUrlDecoder();
 
 		String payload = new String(decoder.decode(chunks[1]));
 		

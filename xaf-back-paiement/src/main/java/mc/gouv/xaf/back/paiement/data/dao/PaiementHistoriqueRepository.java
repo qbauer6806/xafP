@@ -11,5 +11,6 @@ import java.util.List;
 public interface PaiementHistoriqueRepository extends CrudRepository<PaiementHistoriqueBO, Integer> {
 
     List<PaiementHistoriqueBO> findByFkDemandePkDemandesOrderByDateDesc(Integer pkDemandes);
+    PaiementHistoriqueBO findByFkDemandePkDemandesAndStatut(Integer pkDemandes, String statut);
 
 }

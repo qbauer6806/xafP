@@ -1,5 +1,14 @@
 package mc.gouv.xaf.back.paiement.service.impl;
 
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
@@ -11,14 +20,6 @@ import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Component;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @Component
 public class TicketRecapitulatifServiceImpl implements TicketRecapitulatifService {
@@ -48,8 +49,8 @@ public class TicketRecapitulatifServiceImpl implements TicketRecapitulatifServic
 
         GichuniUsagerDTO usager = usagersCache.get(usagerId, true);
 
-        String bodyTemplateCode = "MAIL_TICKET_RECAPITULATIF_CORPS";
-        String subjectTemplateCode = "MAIL_TICKET_RECAPITULATIF_OBJET";
+        String bodyTemplateCode = "MAIL_TICKET_RECAP_USAGER_CORPS";
+        String subjectTemplateCode = "MAIL_TICKET_RECAP_USAGER_OBJET";
 
         EmailInfoDTO emailInfo = new EmailInfoDTO();
         emailInfo.setBodyTemplateCode(bodyTemplateCode);
@@ -72,15 +73,16 @@ public class TicketRecapitulatifServiceImpl implements TicketRecapitulatifServic
 
     private Map<String, Object> getModel(OperationBO operation, MoyenPaiementBO moyenPaiement, GichuniUsagerDTO usager) {
         Map<String, Object> model = new HashMap<>();
-        model.put("demandeurTitre", usager.getPrenom() + " " + usager.getNom());
-        model.put("numero_TPE", paiementPropertiesResolver.getTpe());
-        model.put("PK_operation", operation.getPkOperation());
-        model.put("date", operation.getDateCreation());
+        model.put("titre", usager.getPrenom() + " " + usager.getNom());
+        model.put("numTPE", paiementPropertiesResolver.getTpe());
+        model.put("pkOperation", operation.getPkOperation());
+        model.put("dateTransaction", operation.getDateCreation().format(DateTimeFormatter.ofPattern(AfBackUtils.DEFAULT_FRENCH_DATE_FORMAT)));
         model.put("montant", operation.getMontant());
-        model.put("type_carte", moyenPaiement.getBrand());
-        model.put("type_transaction", moyenPaiement.getMoyenPaiementType());
-        model.put("cbmasquee", moyenPaiement.getBincb());
-        model.put("numero_autorisation", operation.getNumeroAuthorisation());
+        model.put("moyenPaiement", moyenPaiement.getModepaiement());
+        model.put("typeTransaction", moyenPaiement.getMoyenPaiementType());
+        model.put("numCarte", moyenPaiement.getCbmasquee());
+        model.put("numeroAutorisation", operation.getNumeroAuthorisation());
+        model.put("numeroTerminal", paiementPropertiesResolver.getTpe());
         return model;
     }
 

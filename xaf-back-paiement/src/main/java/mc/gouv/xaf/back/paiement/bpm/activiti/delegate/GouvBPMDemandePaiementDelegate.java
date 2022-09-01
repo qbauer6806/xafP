@@ -1,5 +1,22 @@
 package mc.gouv.xaf.back.paiement.bpm.activiti.delegate;
 
+import static mc.gouv.xaf.back.paiement.data.entity.OperationStatutBO.ACCEPTEE;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
+import org.activiti.engine.delegate.DelegateExecution;
+import org.activiti.engine.delegate.JavaDelegate;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
 import mc.gouv.xaf.back.paiement.data.entity.OperationBO;
@@ -13,20 +30,13 @@ import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.AfHistoService;
 import mc.gouv.xaf.back.service.data.DemandesDataService;
 import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
+import mc.gouv.xaf.back.service.itg.mail.MailService;
+import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeDataDTO;
-import org.activiti.engine.delegate.DelegateExecution;
-import org.activiti.engine.delegate.JavaDelegate;
-import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import java.util.Optional;
-
-import static mc.gouv.xaf.back.paiement.data.entity.OperationStatutBO.ACCEPTEE;
+import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 
 @Component
 public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
@@ -61,6 +71,15 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
 
     @Autowired
     private AfHistoService histoService;
+    
+    @Autowired
+    private MailService mailService;
+    
+    @Autowired
+    private AfBackUtils afBackUtils;
+    
+    @Autowired
+    private UsagersCache usagersCache;
 
     @Override
     public void execute(DelegateExecution execution) throws Exception {
@@ -103,7 +122,16 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
                 paiementHistoriqueService.ajouterHistoriqueDebitEchec(demandeDto);
                 // On ajoute un flag dans le BPMN pour savoir qu'un débit a déjà été émis
                 gouvBPM.setProcessBusinessVariable(demandeId, MC_IS_DEBIT_KO, true);
+                // #43127 Envoi du mail débit en echec (MAIL_NOTIFICATION_DEMANDE_ECHEC_DEBIT_USAGER_CORPS)
+                sendMail(demandeDto, "MAIL_NOTIFICATION_DEMANDE_ECHEC_DEBIT_USAGER");
+                
+            } else if (StringUtils.equals(statutPaiementData.getValue(), PaiementStatutEnum.EMPREINTE_EXPIREE.name())) {
+            	// #43127 Envoi du mail empreinte expirée (MAIL_NOTIFICATION_DEMANDE_EXPIRATION_EMPREINTE_USAGER_CORPS)
+            	paiementHistoriqueService.ajouterHistoriqueEmpreinteExpiree(demandeId);
+            	gouvBPM.setProcessBusinessVariable(demandeId, MC_IS_DEBIT_KO, true);
+            	sendMail(demandeDto, "MAIL_NOTIFICATION_DEMANDE_EXPIRATION_EMPREINTE_USAGER");
             }
+            
             histoService.actionSysteme(demandeId, "ECHEC", "Débit en échec. Demande de paiement envoyée");
         } else {
             demandesDataService.saveOrUpdateDemandeData(demarcheId, demandeId, PaiementDemandeDataKeysEnum.STATUT_PAIEMENT.name(), PaiementStatutEnum.DEBIT_REALISE.name());
@@ -117,5 +145,45 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
         }
         LOGGER.info("==== xaf-back-stc CAPTURE PAIEMENT <fin>");
     }
-
+    
+	private void sendMail(DemandeDTO demandeDTO, String mailKey) {
+		String bodyTemplateCode = mailKey + "_CORPS";
+		String subjectTemplateCode = mailKey + "_OBJET";
+		GichuniUsagerDTO usager = usagersCache.get(demandeDTO.getUsagerId(), true);
+		EmailInfoDTO emailInfo = new EmailInfoDTO();
+		emailInfo.setLangue("fr");
+		emailInfo.setBodyTemplateCode(bodyTemplateCode);
+		emailInfo.setSubjectTemplateCode(subjectTemplateCode);
+		emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(),
+				afBackUtils.getDemarcheInfos().getEmailFromNom());
+		emailInfo.addTo(demandeDTO.getUsagerEmail(), demandeDTO.getUsagerPrenom() + " " + demandeDTO.getUsagerNom());
+		emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, demandeDTO.getIdentifiant());
+		Map<String, Object> model = new HashMap<>();
+		String titre = "";
+		switch (usager.getTitre()) {
+		case 0:
+			titre = "Monsieur";
+			break;
+		case 1:
+			titre = "Madame";
+			break;
+		case 2:
+			titre = "Mademoiselle";
+			break;
+		default:
+			titre = "Madame, Monsieur";
+			break;
+		}
+		model.put("titre", titre);
+		model.put("urlFront", gouvPropertiesResolver.getFrontUrl());
+		model.put("identifiant", demandeDTO.getIdentifiant());
+		model.put("pkDemande", demandeDTO.getPkDemandes());
+		model.put("dateExpirationPaiement", LocalDate.now().plusDays(35)
+				.format(DateTimeFormatter.ofPattern(AfBackUtils.DEFAULT_FRENCH_DATE_FORMAT)));
+		try {
+			mailService.sendMail(emailInfo, model);
+		} catch (Exception e) {
+			LOGGER.error("Erreur lors de l'envoi de l'email", e);
+		}
+	}
 }

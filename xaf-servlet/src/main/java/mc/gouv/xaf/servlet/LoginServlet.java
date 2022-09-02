@@ -2,6 +2,7 @@ package mc.gouv.xaf.servlet;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.StringTokenizer;
 
 import javax.servlet.http.HttpServletRequest;
@@ -62,7 +63,20 @@ public class LoginServlet extends AbstractAfServlet {
 
             LOGGER.info("<Usager classique>");
             
-            KeycloakTokenInfo tokenInfo = GichkeyService.getTokenFromAuthCode(sessionId, request.getRequestURL().toString());
+            LOGGER.info("RemoteAddr : {}", request.getRemoteAddr());
+            Enumeration<String> headerNames = request.getHeaderNames();
+			if (headerNames != null) {
+				while (headerNames.hasMoreElements()) {
+					String header = headerNames.nextElement();
+					LOGGER.info("Header: {} = {}", header, request.getHeader(header));
+				}
+			}
+            LOGGER.info("Scheme : {}", request.getScheme());
+            LOGGER.info("ServerName : {}", request.getServerName());
+            LOGGER.info("ServerPort : {}", request.getServerPort());
+            LOGGER.info("isSecure : {}", request.isSecure());
+            
+            KeycloakTokenInfo tokenInfo = GichkeyService.getTokenFromAuthCode(sessionId);
             
             if (tokenInfo != null) {
             	UsagerInfosDTO uinfos = GichkeyService.getUsagerInfosFromToken(tokenInfo);

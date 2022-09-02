@@ -52,7 +52,7 @@ public class GichkeyService {
 	
 	private static SimpleDateFormat SDF = new SimpleDateFormat("yyyyMMddHHmmss");
 
-	public static KeycloakTokenInfo getTokenFromAuthCode(String code, String requestUrl) {
+	public static KeycloakTokenInfo getTokenFromAuthCode(String code) {
 		URL url = null;
 		try {
 			url = new URL(AfServletGouvPropertiesResolver.getGichkeyUrl() + "/protocol/openid-connect/token");
@@ -69,15 +69,11 @@ public class GichkeyService {
 		}
 		HttpPost postRequest = new HttpPost(url.toString());
 		
-		LOGGER.info("RequestURL : {}", requestUrl);
-		
 		List <NameValuePair> nvps = new ArrayList <NameValuePair>();
 		nvps.add(new BasicNameValuePair("code", code));
 		nvps.add(new BasicNameValuePair("client_id", AfServletGouvPropertiesResolver.getGichkeyClientId()));
 		nvps.add(new BasicNameValuePair("client_secret", AfServletGouvPropertiesResolver.getGichkeyClientSecret()));
-		// Exemple de request.getRequestURL() en local : http://localhost:21210/pocts/login
-		String redirectUri = requestUrl.replace("/login", "/acces_teleservice.html").replace("http://", "https://");
-		nvps.add(new BasicNameValuePair("redirect_uri", redirectUri));
+		nvps.add(new BasicNameValuePair("redirect_uri", AfServletGouvPropertiesResolver.getGichkeyKeycloakRedirectUri()));
 		nvps.add(new BasicNameValuePair("grant_type", "authorization_code"));
 		nvps.add(new BasicNameValuePair("scope", "openid mconnect monguichet"));
 
@@ -140,7 +136,7 @@ public class GichkeyService {
 
 	public static UsagerInfosDTO getUsagerInfosFromToken(KeycloakTokenInfo tokenInfo) {
 		String[] chunks = tokenInfo.getAccessToken().split("\\.");
-		Base64.Decoder decoder = Base64.getDecoder();
+		Base64.Decoder decoder = Base64.getUrlDecoder();
 
 		String payload = new String(decoder.decode(chunks[1]));
 		

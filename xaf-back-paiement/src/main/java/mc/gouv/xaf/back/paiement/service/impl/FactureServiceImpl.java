@@ -69,7 +69,7 @@ public class FactureServiceImpl implements FactureService {
         file.setName(fileName);
         file.setUrl('/' + url);
         file.setDate(new Date());
-        file.setMeta("JUSTIFICATIF_DEMANDE");
+        file.setMeta("BACK_FRONT_JUSTIFICATIF_DEMANDE");
         demandesFilesService.saveFile(file, gouvPropertiesResolver.getDemarcheId(), demande.getPkDemandes());
     }
 }

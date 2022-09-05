@@ -3,6 +3,7 @@ package mc.gouv.xaf.back.paiement.client.cir;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import mc.gouv.xaf.back.paiement.client.FactureClient;
 import mc.gouv.xaf.back.paiement.data.entity.OperationBO;
+import mc.gouv.xaf.back.paiement.dto.InformationFacturationDTO;
 import mc.gouv.xaf.back.paiement.dto.itg.cir.PermisDTO;
 import mc.gouv.xaf.back.paiement.properties.PaiementPropertiesResolver;
 import mc.gouv.xaf.back.paiement.retry.Operation;
@@ -11,12 +12,9 @@ import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
-import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
-import org.apache.http.HttpException;
 import org.apache.http.client.HttpResponseException;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.HttpUrlConnectorProvider;
@@ -42,7 +40,7 @@ import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
 @Component
 public class CirClient implements FactureClient {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(CirClient.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CirClient.class);
     public static final String BEARER_PREFIX = "Bearer ";
     public static final String CHECK_ROUTE = "v1/ts/ecritures/paiement/check";
     public static final String PAIEMENT_ROUTE = "v1/ts/ecritures/paiement/";
@@ -58,8 +56,6 @@ public class CirClient implements FactureClient {
     private final WebTarget targetGet;
     private final WebTarget targetGetPermis;
 
-    private final UsagersCache usagersCache;
-
     private final OperationHelper operationHelper;
 
     private final PaiementPropertiesResolver paiementPropertiesResolver;
@@ -69,7 +65,7 @@ public class CirClient implements FactureClient {
     private PropertiesService propertiesService;
     private GouvPropertiesResolver gouvPropertiesResolver;
 
-    public CirClient(UsagersCache usagersCache, Proxy proxy,
+    public CirClient(Proxy proxy,
                      PaiementPropertiesResolver paiementPropertiesResolver,
                      OperationHelper operationHelper,
                      MailService mailService,
@@ -89,7 +85,6 @@ public class CirClient implements FactureClient {
         this.targetCreate = client.target(serviceUrl + PAIEMENT_ROUTE);
         this.targetGet = client.target(serviceUrl + FACTURE_ROUTE);
         this.targetGetPermis = client.target(serviceUrl + PERMIS_ROUTE);
-        this.usagersCache = usagersCache;
         this.paiementPropertiesResolver = paiementPropertiesResolver;
         this.operationHelper = operationHelper;
         this.mailService = mailService;
@@ -109,13 +104,13 @@ public class CirClient implements FactureClient {
                 .get();
 
         String responseString = response.readEntity(String.class);
-        LOGGER.info("return :" + responseString);
+        LOGGER.info("return : {}", responseString);
         return responseString;
     }
 
 
     @Override
-    public Optional<String> createFacture(String numPermis, String numImmat, Double montant, String codeTransaction, Integer usagerId, HashMap<String, Double> objetMontants, DemandeDTO demandeDTO, OperationBO operationBO) {
+    public Optional<String> createFacture(String numPermis, String numImmat, Double montant, String codeTransaction, InformationFacturationDTO infoFacturation, HashMap<String, Double> objetMontants, DemandeDTO demandeDTO, OperationBO operationBO) {
         logStartMethod(LOGGER);
         LOGGER.info("Parameters [ numPermis {}, numImmat {},  codeTransaction {}] ", numPermis, numImmat, codeTransaction);
 
@@ -130,22 +125,20 @@ public class CirClient implements FactureClient {
             request.setNumPermis(numPermis);
             request.setNumImmat(numImmat);
 
-
             request.setRegistre(paiementPropertiesResolver.getRegistre());
             request.setDateOperation(new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
             request.setMontant(montant);
             request.setMontantOperation("" + montantObjet);
-            GichuniUsagerDTO usager = usagersCache.get(usagerId);
-            request.setNomPropr(usager.getNom());
-            request.setPrenomPropr(usager.getPrenom());
-            request.setEmail(usager.getEmail());
+            request.setNomPropr(infoFacturation.getNomTitulaire());
+            request.setPrenomPropr(infoFacturation.getPrenomTitulaire());
+            request.setEmail(infoFacturation.getEmailUsager());
 
-            PropertiesDTO montantProperty = propertiesService.getProperty("PERMC", "XAF_PAIEMENT_AMOUNT");
+            PropertiesDTO montantProperty = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "XAF_PAIEMENT_AMOUNT");
             double prix = Double.parseDouble(montantProperty.getValue());
 
-            request.setCodeOperation(montantObjet == prix ? "P1" : "P5"); //voir avec alexis devrait être dans les properties
+            request.setCodeOperation(montantObjet == prix ? "P1" : "P5"); // TODO voir avec alexis devrait être dans les properties
             request.setCodeTransaction(codeTransaction);
-            request.setCodeReglement("X"); // idem devrait être en properties meme si c'est fixe
+            request.setCodeReglement("X"); // TODO idem devrait être en properties meme si c'est fixe
             request.setAutorisation("" + operationBO.getNumeroAuthorisation());
             request.setTransactionId(operationBO.getPkOperation());
 
@@ -175,7 +168,7 @@ public class CirClient implements FactureClient {
 
             operationHelper.executeWithRetry(operation);
 
-            LOGGER.info("return :" + operation.getResult());
+            LOGGER.info("return : {}", operation.getResult());
             return operation.getResult();
         } catch (Exception e) {
             sendMailTechnique(demandeDTO, operation, 6);

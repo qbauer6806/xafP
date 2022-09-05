@@ -1,8 +1,8 @@
 package mc.gouv.xaf.back.paiement.client.cir;
 
 
+import mc.gouv.xaf.back.paiement.dto.InformationFacturationDTO;
 import mc.gouv.xaf.back.paiement.mock.PaiementPropertiesResolverTestImpl;
-import mc.gouv.xaf.back.paiement.mock.UsagersCacheTestImpl;
 import mc.gouv.xaf.back.paiement.retry.OperationHelper;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -13,7 +13,7 @@ import java.util.HashMap;
 
 public class CirClientTest {
 
-    CirClient cirClient = new CirClient(new UsagersCacheTestImpl(), Proxy.NO_PROXY, new PaiementPropertiesResolverTestImpl(),
+    CirClient cirClient = new CirClient(Proxy.NO_PROXY, new PaiementPropertiesResolverTestImpl(),
             new OperationHelper(new PaiementPropertiesResolverTestImpl()), null, null, null, null);
 
 
@@ -25,7 +25,11 @@ public class CirClientTest {
         String codeTransaction = "1591658";
         HashMap<String, Double> objetMontants = new HashMap<>();
         objetMontants.put("a", 90.0);
-        String resultat = cirClient.createFacture(numPermis, numImmat, 90.0, codeTransaction, 1, objetMontants, null, null).get();
+        InformationFacturationDTO infoFacturation = new InformationFacturationDTO();
+        infoFacturation.setNomTitulaire("Nom");
+        infoFacturation.setPrenomTitulaire("Prenom");
+        infoFacturation.setEmailUsager("mail");
+        String resultat = cirClient.createFacture(numPermis, numImmat, 90.0, codeTransaction, infoFacturation, objetMontants, null, null).get();
         System.out.println(resultat);
     }
 

@@ -116,4 +116,12 @@ public interface DemandesRepository extends CrudRepository<DemandeBO, Integer> {
     
     @Query("select d.pkDemandes as pkDemandes,d.identifiant as identifiant,d.dateCreation as dateCreation,s.libelle as dernierStatut from DemandeBO d inner join d.fkAccess fa inner join d.dernierStatut s where fa.usagerId = :usagerId and fa.demarcheId= :demarcheId and fa.active = true and s.fkDemandes = d.pkDemandes")
     List<DemandeRecapProjection> findByUsagerIdForDemandeRecapDTO(@Param("demarcheId") String demarcheId, @Param("usagerId") Integer usagerId);
+    
+    /**
+     * Permet de récupérer la liste des buildId référencés par les demandes en base
+     *
+     * @return
+     */
+    @Query("select distinct buildId from DemandeBO d")
+    List<String> getAllBuildIds();
 }

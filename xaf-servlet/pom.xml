@@ -158,6 +158,6 @@
 	</dependencies>
 
   <scm>
-    <tag>HEAD</tag>
+    <tag>xaf-10.0.2-SNAPSHOT</tag>
   </scm>
 </project>

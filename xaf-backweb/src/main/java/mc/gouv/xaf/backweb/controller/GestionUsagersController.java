@@ -1,6 +1,7 @@
 package mc.gouv.xaf.backweb.controller;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -36,6 +37,7 @@ import mc.gouv.xaf.back.service.data.UsagersCourrierService;
 import mc.gouv.xaf.back.service.itg.rest.PaysCache;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.back.service.utils.PaysComparator;
 import mc.gouv.xaf.back.service.utils.UsagersUtils;
 import mc.gouv.xaf.backweb.dto.UsagerCourrierResultDTO;
 import mc.gouv.xaf.backweb.formbean.TransfertDemandesFormBean;
@@ -473,6 +475,7 @@ public class GestionUsagersController extends AbstractController {
         ArrayList<PaysBean> listePaysP1 = new ArrayList<>();
         ArrayList<PaysBean> listePaysP2 = new ArrayList<>();
         ArrayList<PaysBean> listePaysP3 = new ArrayList<>();
+        ArrayList<PaysBean> listePaysP4 = new ArrayList<>();
         for (PaysBean p : paysCache.getAll().values()) {
             if (p.getPriorite() == 1) {
                 listePaysP1.add(p);
@@ -480,11 +483,19 @@ public class GestionUsagersController extends AbstractController {
                 listePaysP2.add(p);
             } else if (p.getPriorite() == 3) {
                 listePaysP3.add(p);
+            } else if (p.getPriorite() == 4) {
+                listePaysP4.add(p);
             }
         }
+        PaysComparator paysComparator = new PaysComparator();
+        Collections.sort(listePaysP1, paysComparator);
+        Collections.sort(listePaysP2, paysComparator);
+        Collections.sort(listePaysP3, paysComparator);
+        Collections.sort(listePaysP4, paysComparator);
         mav.addObject("listePaysP1", listePaysP1);
         mav.addObject("listePaysP2", listePaysP2);
         mav.addObject("listePaysP3", listePaysP3);
+        mav.addObject("listePaysP4", listePaysP4);
         return mav;
     }
 

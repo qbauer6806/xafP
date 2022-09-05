@@ -55,6 +55,8 @@ public class GouvBPMEnvoiEmailUsagerDelegate implements JavaDelegate {
     private Expression emailBodyTemplateCode;
 
     private Expression emailSubjectTemplateCode;
+    
+    private Expression copieCacheeAuService;
 
     @Override
     public void execute(DelegateExecution execution) throws Exception {
@@ -63,6 +65,10 @@ public class GouvBPMEnvoiEmailUsagerDelegate implements JavaDelegate {
 
         String bodyTemplateCode = (String) emailBodyTemplateCode.getValue(execution);
         String subjectTemplateCode = (String) emailSubjectTemplateCode.getValue(execution);
+        String copieCacheeAuServiceStr = null;
+        if (copieCacheeAuService != null) {
+        	copieCacheeAuServiceStr = (String) copieCacheeAuService.getValue(execution);
+        }
 
         Integer usagerId = (Integer) execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_USAGERID.name());
         String langue = (String) execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_DEMANDE_LANGUE.name());
@@ -100,6 +106,11 @@ public class GouvBPMEnvoiEmailUsagerDelegate implements JavaDelegate {
         emailInfo.addTo(usager.getEmail(), prenom + " " + nom);
         emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, execution.getProcessBusinessKey());
         emailInfo.setLangue(langue);
+        
+        if (copieCacheeAuServiceStr != null && "true".equals(copieCacheeAuServiceStr)) {
+        	LOGGER.info("Paramètre \"copieCacheeAuService\" spécifié, placer le service en copie carbone invisible...");
+        	emailInfo.addBcc(afBackUtils.getDemarcheInfos().getEmailService(), afBackUtils.getDemarcheInfos().getEmailServiceNom());
+        }
 
         String codeMotif = (String) execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name());
         String commentaire = (String) execution

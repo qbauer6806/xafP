@@ -31,6 +31,7 @@ public class DemandeDTO extends AbstractDemandeDTO {
     private String recapType;
     private DonneesMConnectDTO donneesMConnect;
     private String donneesCertifiees;
+    private Integer pkDemandeSource;
 
     public Integer getFkAccess() {
         return fkAccess;
@@ -184,6 +185,14 @@ public class DemandeDTO extends AbstractDemandeDTO {
 		this.donneesCertifiees = donneesCertifiees;
 	}
 
+	public Integer getPkDemandeSource() {
+		return pkDemandeSource;
+	}
+
+	public void setPkDemandeSource(Integer pkDemandeSource) {
+		this.pkDemandeSource = pkDemandeSource;
+	}
+
 	@Override
     public String toString() {
         return "DemandeDTO [pkDemandes=" + pkDemandes + ", dateCreation=" + dateCreation + ", dateDerModif="
@@ -195,7 +204,7 @@ public class DemandeDTO extends AbstractDemandeDTO {
                 + courrierDateReception + ", courrierRefInterne=" + courrierRefInterne + ", updated=" + updated + "]" +
                 ", usagerNom=" + usagerNom + ", usagerPrenom="
                 + usagerPrenom + ", usagerEmail=" + usagerEmail + ", buildId=" + buildId + ", recapType=" + recapType + ", donneesMConnect=" +
-                donneesMConnect + ", donneesCertifiees=" + donneesCertifiees + "]";
+                donneesMConnect + ", donneesCertifiees=" + donneesCertifiees + ", pkDemandeSource=" + pkDemandeSource + "]";
     }
 
 }

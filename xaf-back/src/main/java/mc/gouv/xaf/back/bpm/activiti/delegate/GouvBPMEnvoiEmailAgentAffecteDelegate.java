@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import mc.gouv.logon.shared.User;
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesService;
@@ -19,7 +20,6 @@ import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.itg.mail.MailTemplateModelProvider;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.logon.shared.User;
 
 /**
  * 
@@ -54,6 +54,8 @@ public class GouvBPMEnvoiEmailAgentAffecteDelegate implements JavaDelegate {
     private Expression emailBodyTemplateCode;
     
     private Expression emailSubjectTemplateCode;
+    
+    private Expression copieAuService;
 
     @Override
     public void execute(DelegateExecution execution) throws Exception {
@@ -62,6 +64,10 @@ public class GouvBPMEnvoiEmailAgentAffecteDelegate implements JavaDelegate {
         
         String bodyTemplateCode = (String)emailBodyTemplateCode.getValue(execution);
         String subjectTemplateCode = (String)emailSubjectTemplateCode.getValue(execution);
+        String copieAuServiceStr = null;
+        if (copieAuService != null) {
+        	copieAuServiceStr = (String) copieAuService.getValue(execution);
+        }
         
         LOGGER.info("bodyTemplateCode : " + bodyTemplateCode);
         LOGGER.info("subjectTemplateCode : " + subjectTemplateCode);
@@ -79,6 +85,11 @@ public class GouvBPMEnvoiEmailAgentAffecteDelegate implements JavaDelegate {
         User agent = utilisateursCache.get(agentId);
         LOGGER.info("Adresse / Nom de l'agent affecté à la demande : " + agent.getMail() + " / " + agent.getNom());
         emailInfo.addTo(agent.getMail(), agent.getNom());
+        
+        if (copieAuServiceStr != null && "true".equals(copieAuServiceStr)) {
+        	LOGGER.info("Paramètre \"copieAuService\" spécifié, placer le service en copie carbone...");
+        	emailInfo.addCc(afBackUtils.getDemarcheInfos().getEmailService(), afBackUtils.getDemarcheInfos().getEmailServiceNom());
+        }
         
         if (agent.getMail() != null) {
             emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, execution.getProcessBusinessKey());

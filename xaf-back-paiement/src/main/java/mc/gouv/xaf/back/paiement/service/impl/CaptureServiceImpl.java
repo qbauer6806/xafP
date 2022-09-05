@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
+import mc.gouv.xaf.back.paiement.service.PaiementsDataProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +35,7 @@ import mc.gouv.xaf.shared.dto.DemandeDataDTO;
 
 @Component
 public class CaptureServiceImpl implements CaptureService {
-    private static Logger LOGGER = LoggerFactory.getLogger(CaptureServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CaptureServiceImpl.class);
 
     @Autowired
     private OperationRepository operationRepository;
@@ -58,6 +59,9 @@ public class CaptureServiceImpl implements CaptureService {
 
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
+
+    @Autowired
+    private PaiementsDataProvider paiementsDataProvider;
     
     @Override
     public OperationBO capture(MoyenPaiementBO moyenPaiementBO, DemandeDTO demandeDTO) throws Exception {
@@ -88,7 +92,7 @@ public class CaptureServiceImpl implements CaptureService {
 
             operation.setOperationType(OperationTypeBO.DEBIT);
 
-            Optional<String> optionalNumFacture = factureClient.createFacture(numeroPermis, " ", operation.getMontant(), operation.getPkOperation(), demandeDTO.getUsagerId(), objetMontants, demandeDTO, operation);
+            Optional<String> optionalNumFacture = factureClient.createFacture(numeroPermis, " ", operation.getMontant(), operation.getPkOperation(), paiementsDataProvider.getInfosFacturation(demandeDTO), objetMontants, demandeDTO, operation);
             if (optionalNumFacture.isPresent()) {
                 LOGGER.info("Created [ facture n°{}] ", optionalNumFacture.get());
                 operation.setNumeroFacture(optionalNumFacture.get());

@@ -3,6 +3,7 @@ package mc.gouv.xaf.back.paiement.mock;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.StatutSimplifieEnum;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeExcelGenerationDTO;
 import mc.gouv.xaf.shared.dto.GenericStatusDTO;
 import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
 import org.springframework.stereotype.Component;
@@ -101,4 +102,10 @@ public class DemarchesDataProviderTestImpl implements DemarchesDataProvider {
     public boolean isValideTypedoc(String typedoc) {
         return false;
     }
+
+	@Override
+	public DemandeExcelGenerationDTO getDemandeExcelGenerationDTO() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

@@ -52,8 +52,7 @@ public interface DemandesDataService {
      * @return La donnée de demande sauvegardée ou mise à jour
      * @throws Exception 
      */
-    public DemandeDataDTO saveOrUpdateDemandeData(String demarcheId, Integer demandeId, String key, String value)
-            throws Exception;
+    public DemandeDataDTO saveOrUpdateDemandeData(String demarcheId, Integer demandeId, String key, String value);
     
     /**
      * Permet de mettre à jour en base une donnée de demande
@@ -67,7 +66,7 @@ public interface DemandesDataService {
      * @param demandeData
      * @throws Exception 
      */
-    public void deleteDemandeData(String demarcheId, Integer demandeId, String key) throws Exception;
+    public void deleteDemandeData(String demarcheId, Integer demandeId, String key);
 
     /**
      * Méthode permettant de sauvgarder plusieurs données de la demande en base
@@ -78,6 +77,6 @@ public interface DemandesDataService {
      * 
      * @throws Exception Problème de maj
      */
-    void saveOrUpdateDemandeDatas(String demarcheId, Integer demandeId, Map<String, String> datas) throws Exception;
+    void saveOrUpdateDemandeDatas(String demarcheId, Integer demandeId, Map<String, String> datas);
 
 }

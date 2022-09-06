@@ -153,7 +153,7 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 	private File generateToFile(DemandeDTO demande, PdfTemplateAndModelDTO dto) {
 
 		String tempDir = System.getProperty("java.io.tmpdir");
-		String fileName = dto.getFilename() + AfBackUtils.generateFileDateSuffix() + ".pdf";
+		String fileName = dto.getFilename() + afBackUtils.generateFileDateSuffix() + ".pdf";
 		File temp = new File(tempDir, fileName);
 
 		try {

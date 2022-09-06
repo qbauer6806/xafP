@@ -58,7 +58,7 @@ public class DemandesComplementsServiceImpl implements DemandesComplementsServic
     @Override
     @Transactional
     public DemandeComplementsDTO saveDemandeComplements(String demarcheId, Integer demandeId,
-            DemandeComplementsQuestionDTO demandeComplements) throws Exception {
+            DemandeComplementsQuestionDTO demandeComplements) {
 
         DemandeComplementsDTO demandeComplementsDto = new DemandeComplementsDTO();
         demandeComplementsDto.setDemandeId(demandeId);
@@ -75,7 +75,7 @@ public class DemandesComplementsServiceImpl implements DemandesComplementsServic
         // Empêcher la création d'une demande d'informations complémentaires s'il y en a déjà une d'ouverte
         boolean dejaUne = false;
         for (DemandesComplementsBO compl : demandeBO.getDemandesComplements()) {
-            if (compl.getStatut().equals(DemandeComplementsStatutEnum.EN_ATTENTE)) {
+            if (compl.getStatut().equals(DemandeComplementsStatutEnum.EN_ATTENTE.name())) {
                 dejaUne = true;
             }
         }
@@ -208,7 +208,7 @@ public class DemandesComplementsServiceImpl implements DemandesComplementsServic
 
     @Transactional
     public DemandeComplementsDTO repondreDemandeComplements(String demarcheId, Integer pkDemande,
-            Integer pkDemandeComplements, DemandeComplementsReponseDTO demandeComplementsReponse) throws Exception {
+            Integer pkDemandeComplements, DemandeComplementsReponseDTO demandeComplementsReponse) {
 
         // L'UsagerID OU l'AgentID doivent être remplis
         if ((demandeComplementsReponse.getUsagerId() == null)
@@ -353,7 +353,7 @@ public class DemandesComplementsServiceImpl implements DemandesComplementsServic
     @Override
     @Transactional
     public DemandeComplementsDTO saveOrUpdateDemandeComplements(String demarcheId, Integer pkDemande,
-            Integer pkDemandeComplements, DemandeComplementsQuestionDTO demandeComplements) throws Exception {
+            Integer pkDemandeComplements, DemandeComplementsQuestionDTO demandeComplements) {
 
         if (pkDemandeComplements != null) {
             // ID de la demande d'informations complémentaires fourni, il faut donc mettre à jour une demande

@@ -49,6 +49,8 @@ public class AppFactoryServletUtils {
     public static final String XSRF_COOKIE = "XSRF-TOKEN";
     public static final String XSRF_HEADER = "X-XSRF-TOKEN";
     public static final String XSRF_SESSION_ATTRIBUTE = "XSRF-TOKEN";
+    
+    public static final int USAGERID_OFFSET = 1000000000;
 
     public enum ServiceTarget {
         FILE
@@ -129,12 +131,14 @@ public class AppFactoryServletUtils {
 
     /**
      * Récupère l'utilisateur logué depuis la session
+     * Synchronized afin d'éviter de multiples récupérations de tokens Keycloak en même temps
+     * pour la même page, dans le cas où un rafraîchissement est nécessaire.
      * 
      * @param request
      *            Requete récupérée par la servlet
      * @return Utilisateur logué
      */
-    public static UsagerInfosDTO getLoggedUser(HttpServletRequest request) {
+    public static synchronized UsagerInfosDTO getLoggedUser(HttpServletRequest request) {
         // Récupère la session courante sans en créer une nouvelle
         HttpSession session = request.getSession(false);
         if (session == null) {
@@ -160,7 +164,24 @@ public class AppFactoryServletUtils {
             }
         }
 
-        return (UsagerInfosDTO) session.getAttribute("login");
+        
+        UsagerInfosDTO usagerInfosDTO = (UsagerInfosDTO) session.getAttribute("login");
+        if (usagerInfosDTO == null) {
+        	return null;
+        }
+        
+        // Si ce n'est pas un usager courrier
+        if (!isUsagerCourrier(usagerInfosDTO.getId())) {
+	        // Vérifier la validité des tokens
+	        usagerInfosDTO = GichkeyService.checkTokens(usagerInfosDTO, false);
+        }
+        session.setAttribute("login", usagerInfosDTO);
+        
+        return usagerInfosDTO;
+    }
+    
+    public static boolean isUsagerCourrier(Integer usagerId) {
+    	return usagerId > USAGERID_OFFSET;
     }
 
     /**

@@ -1,5 +1,7 @@
 package mc.gouv.xaf.backweb.controller;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.springframework.beans.propertyeditors.CustomDateEditor;
@@ -19,7 +21,8 @@ public abstract class AbstractController {
 
     @InitBinder
     public void initBinder(WebDataBinder binder) {
-        CustomDateEditor editor = new CustomDateEditor(AfBackUtils.SDF_JJ_MM_AAAA, true);
+    	DateFormat df = new SimpleDateFormat(AfBackUtils.DEFAULT_FRENCH_DATE_FORMAT);
+        CustomDateEditor editor = new CustomDateEditor(df, true);
         binder.registerCustomEditor(Date.class, editor);
     }
 

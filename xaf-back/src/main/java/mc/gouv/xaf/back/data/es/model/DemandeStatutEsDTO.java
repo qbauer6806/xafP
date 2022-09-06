@@ -1,5 +1,9 @@
 package mc.gouv.xaf.back.data.es.model;
 
+import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 public class DemandeStatutEsDTO {
 
     public static final String CODE_FIELD_NAME = "code";
@@ -10,8 +14,11 @@ public class DemandeStatutEsDTO {
     private String code;
     private String libelleMotif;
     private String codeMotif;
+    
+    @JsonFormat(locale = "fr", shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", timezone = "GMT+1")
+    protected Date date;
 
-    public String getLibelleMotif() {
+	public String getLibelleMotif() {
         return libelleMotif;
     }
 
@@ -58,5 +65,13 @@ public class DemandeStatutEsDTO {
     public void setCode(String code) {
         this.code = code;
     }
+    
+    public Date getDate() {
+		return date;
+	}
+
+	public void setDate(Date date) {
+		this.date = date;
+	}
 
 }

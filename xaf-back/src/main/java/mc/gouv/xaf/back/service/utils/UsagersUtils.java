@@ -1,11 +1,14 @@
 package mc.gouv.xaf.back.service.utils;
 
-import mc.gouv.servicerest.usager.model.UsagerBean;
-import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
-import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
+import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
+import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 
 /**
  * Classe utilitaire pour la gestion des usagers. 
@@ -20,9 +23,11 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class UsagersUtils {
-
-    @Autowired
-    private UsagersCache usagersCache;
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(UsagersUtils.class);
+	
+	@Autowired
+	private UsagersCache usagersCache;
 
     /**
      * Change le titre en paramètre en son abbréviation.
@@ -80,16 +85,15 @@ public class UsagersUtils {
         return titre;
     }
 
-    public static UsagerBean convertUsagerCourrierDTOToUsagerBean(UsagerCourrierDTO uc) {
+    public static GichuniUsagerDTO convertUsagerCourrierDTOToGichuniUsagerDTO(UsagerCourrierDTO uc) {
         if (uc == null) {
             return null;
         }
-        UsagerBean ub = new UsagerBean();
+        GichuniUsagerDTO ub = new GichuniUsagerDTO();
         ub.setAdresse1(uc.getAdresse1());
         ub.setAdresse2(uc.getAdresse2());
         ub.setCodePostal(uc.getCodePostal());
         ub.setComplementAdresse(uc.getAdresseComplement());
-        ub.setDateCreation(uc.getDateCreation());
         ub.setEmail(uc.getEmail());
         ub.setId(uc.getPkUsagersCourrier());
         ub.setLogin(uc.getLogin());
@@ -105,6 +109,20 @@ public class UsagersUtils {
         ub.setVille(uc.getVille());
 
         return ub;
+    }
+    
+    public String getUsagerCourrierFromId(Integer usagerId) {
+        LOGGER.debug("getUsagerFromId() : Récupération de l'usager courrier {}...", usagerId);
+        GichuniUsagerDTO usagerCourrier = usagersCache.get(usagerId);
+        String nomUsager = "";
+        if (usagerCourrier != null) {
+            if (!StringUtils.isEmpty(usagerCourrier.getNom())) {
+                nomUsager = StringUtils.defaultString(usagerCourrier.getPrenom()) + " " + usagerCourrier.getNom();
+            } else {
+                nomUsager = usagerCourrier.getRaisonSociale();
+            }
+        }
+        return StringUtils.trim(StringUtils.defaultString(nomUsager));
     }
 
 }

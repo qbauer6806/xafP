@@ -1,5 +1,6 @@
 package mc.gouv.xaf.shared.dto;
 
+import java.util.Arrays;
 import java.util.Date;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -37,8 +38,14 @@ public class DemandeInputDTO {
     private String recapType;
     
     private Integer brouillonId;
+    
+    // Données envoyées à l'API si l'usager s'est connecté via MConnect
+    private DonneesMConnectDTO donneesMConnect;
+    
+    // En cas de renouvellement d'une demande
+    private Integer demandeSourceId;
 
-    public JsonNode getContenu() {
+	public JsonNode getContenu() {
         return contenu;
     }
 
@@ -140,6 +147,32 @@ public class DemandeInputDTO {
 
 	public void setBrouillonId(Integer brouillonId) {
 		this.brouillonId = brouillonId;
+	}
+
+	public DonneesMConnectDTO getDonneesMConnect() {
+		return donneesMConnect;
+	}
+
+	public void setDonneesMConnect(DonneesMConnectDTO donneesMConnect) {
+		this.donneesMConnect = donneesMConnect;
+	}
+	
+    public Integer getDemandeSourceId() {
+		return demandeSourceId;
+	}
+
+	public void setDemandeSourceId(Integer demandeSourceId) {
+		this.demandeSourceId = demandeSourceId;
+	}
+
+	@Override
+	public String toString() {
+		return "DemandeInputDTO [contenu=" + contenu + ", fichiers=" + Arrays.toString(fichiers) + ", langue=" + langue
+				+ ", canal=" + canal + ", observations=" + observations + ", agentAffecteId=" + agentAffecteId
+				+ ", courrierDateReception=" + courrierDateReception + ", courrierRefInterne=" + courrierRefInterne
+				+ ", creeParAgentId=" + creeParAgentId + ", novalidate=" + novalidate + ", buildId=" + buildId
+				+ ", recapType=" + recapType + ", brouillonId=" + brouillonId + ", donneesMConnect=" + donneesMConnect
+				+ ", demandeSourceId=" + demandeSourceId + "]";
 	}
 
 }

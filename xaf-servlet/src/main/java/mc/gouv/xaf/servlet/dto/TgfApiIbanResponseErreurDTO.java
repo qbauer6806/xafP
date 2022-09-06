@@ -1,5 +1,12 @@
 package mc.gouv.xaf.servlet.dto;
 
+/**
+ * 
+ * Classe permettant de matérialiser une erreur en retour de l'API TGF pour les IBAN
+ * 
+ * @author qdeme
+ * 
+ */
 public class TgfApiIbanResponseErreurDTO {
 	
 	private String code;

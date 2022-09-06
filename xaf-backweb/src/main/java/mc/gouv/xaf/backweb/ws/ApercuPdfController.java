@@ -14,9 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesService;
@@ -45,12 +45,10 @@ public class ApercuPdfController extends AbstractController {
     @Autowired
     private PdfGenerationService pdfGenerationService;
 
-    private static final String COURRIER_TYPE = "COURRIER";
-
     private static final Logger LOGGER = LoggerFactory.getLogger(ApercuPdfController.class);
 
 
-    @RequestMapping(method = RequestMethod.POST, value = "/apercu", produces = MediaType.APPLICATION_PDF_VALUE)
+    @PostMapping(value = "/apercu", produces = MediaType.APPLICATION_PDF_VALUE)
     public void apercuPdf(HttpServletResponse response,
                           @Valid @RequestBody PdfPreviewFormBean pdfPreviewFormBean) {
 
@@ -63,8 +61,7 @@ public class ApercuPdfController extends AbstractController {
         String texteAEnvoyer = pdfPreviewFormBean.getTexteAEnvoyer();
         PdfTypeEnum pdfType = pdfPreviewFormBean.getPdfType();
 
-        DemandeDTO demande = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(),
-                Integer.valueOf(pkDemande));
+        DemandeDTO demande = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), pkDemande);
 
         response.setContentType("application/pdf");
         response.setHeader("Content-disposition", "attachment; filename=" + demande.getIdentifiant() + ".pdf");
@@ -73,12 +70,9 @@ public class ApercuPdfController extends AbstractController {
         File file = pdfGenerationService.generatePdfPreview(demande, statut, codeMotif, demande.getLangue(),
                 commentaire, texteAEnvoyer, pdfType);
 
-        FileInputStream fis;
-        try {
+        try (FileInputStream fis = new FileInputStream(file)) {
             LOGGER.info("Écriture du PDF dans l'OutputStream...");
-            fis = new FileInputStream(file);
-            IOUtils.copy(new FileInputStream(file), response.getOutputStream());
-            fis.close();
+            IOUtils.copy(fis, response.getOutputStream());
         } catch (IOException e) {
             LOGGER.error("Erreur lors de l'écriture du PDF dans l'OutputStream", e);
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());

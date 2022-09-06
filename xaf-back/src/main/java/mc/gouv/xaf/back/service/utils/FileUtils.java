@@ -59,7 +59,9 @@ public class FileUtils {
             fulltext = tika.parse(stream);
             contentStr = IOUtils.toString(fulltext);
         } finally {
-            fulltext.close();
+        	if (fulltext != null) {
+        		fulltext.close();
+        	}
         }
         return contentStr;
     }

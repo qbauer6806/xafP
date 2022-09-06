@@ -54,8 +54,7 @@ public class IndexedEsDemandesCourriersServiceImpl extends DemandesCourriersServ
     private DemandesFilesEsRepository demandesFilesEsRepository;
 
     @Override
-    public DemandeCourrierDTO saveCourrier(String demarcheId, Integer pkDemande, DemandeCourrierDTO courrierDto)
-            throws Exception {
+    public DemandeCourrierDTO saveCourrier(String demarcheId, Integer pkDemande, DemandeCourrierDTO courrierDto) {
 
         DemandeCourrierDTO demandeCourrierDTO = super.saveCourrier(demarcheId, pkDemande, courrierDto);
         indexCourrier(demarcheId, pkDemande);
@@ -63,8 +62,7 @@ public class IndexedEsDemandesCourriersServiceImpl extends DemandesCourriersServ
     }
 
     @Override
-    public DemandeCourrierDTO updateCourrier(String demarcheId, Integer pkDemande, DemandeCourrierDTO courrierDto)
-            throws Exception {
+    public DemandeCourrierDTO updateCourrier(String demarcheId, Integer pkDemande, DemandeCourrierDTO courrierDto) {
         DemandeCourrierDTO demandeCourrierDTO = super.updateCourrier(demarcheId, pkDemande, courrierDto);
         indexCourrier(demarcheId, pkDemande);
         return demandeCourrierDTO;

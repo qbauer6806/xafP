@@ -17,13 +17,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
-import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
-import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.logon.shared.Droit;
 import mc.gouv.logon.shared.Role;
 import mc.gouv.logon.shared.User;
-import mc.gouv.servicerest.usager.model.UsagerBean;
+import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
+import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
+import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
+import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 
 /**
  * 
@@ -84,7 +84,7 @@ public class GouvBPMGroupManager extends GroupEntityManager {
                 }
             } else {
                 // On teste si c'est un usager
-                UsagerBean usager = usagerCache.get(Integer.parseInt(userId));
+            	GichuniUsagerDTO usager = usagerCache.get(Integer.parseInt(userId));
 
                 if (usager != null) {
                     // Ajout au groupe usager

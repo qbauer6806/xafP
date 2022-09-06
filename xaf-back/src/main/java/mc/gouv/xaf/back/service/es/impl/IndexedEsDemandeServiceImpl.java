@@ -1,30 +1,32 @@
 package mc.gouv.xaf.back.service.es.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
-import mc.gouv.xaf.back.data.dao.DemandesRepository;
-import mc.gouv.xaf.back.data.dao.RechercheChampConfigRepository;
-import mc.gouv.xaf.back.data.entity.DemandeBO;
-import mc.gouv.xaf.back.data.entity.RechercheChampConfigBO;
-import mc.gouv.xaf.back.data.es.dao.DemandeEsRepository;
-import mc.gouv.xaf.back.data.es.dao.DemandesFilesEsRepository;
-import mc.gouv.xaf.back.data.es.model.*;
-import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
-import mc.gouv.xaf.back.exception.AfIndexingException;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.DemarchesDataProvider;
-import mc.gouv.xaf.back.service.data.AccessService;
-import mc.gouv.xaf.back.service.data.impl.DemandesServiceImpl;
-import mc.gouv.xaf.back.service.es.IndexedDemandeService;
-import mc.gouv.xaf.back.service.es.IndexedFilesService;
-import mc.gouv.xaf.back.service.es.handlers.EsTransactionErrorsHandler;
-import mc.gouv.xaf.back.service.es.transformer.DemandeEsTransformer;
-import mc.gouv.xaf.back.service.es.utils.EsUtils;
-import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import mc.gouv.xaf.back.service.utils.DemarchesUtils;
-import mc.gouv.xaf.back.service.utils.ESQueryUtils;
-import mc.gouv.xaf.shared.SharedMessages;
-import mc.gouv.xaf.shared.dto.*;
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.elasticsearch.index.query.QueryBuilders.existsQuery;
+import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
+import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
+import static org.elasticsearch.index.query.QueryBuilders.rangeQuery;
+import static org.elasticsearch.index.query.QueryBuilders.simpleQueryStringQuery;
+import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
+import static org.elasticsearch.join.query.JoinQueryBuilders.hasChildQuery;
+
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.search.join.ScoreMode;
@@ -34,7 +36,16 @@ import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.client.indices.GetIndexRequest;
 import org.elasticsearch.client.indices.GetIndexResponse;
 import org.elasticsearch.cluster.metadata.MappingMetadata;
-import org.elasticsearch.index.query.*;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.ExistsQueryBuilder;
+import org.elasticsearch.index.query.InnerHitBuilder;
+import org.elasticsearch.index.query.MatchQueryBuilder;
+import org.elasticsearch.index.query.Operator;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.RangeQueryBuilder;
+import org.elasticsearch.index.query.SimpleQueryStringBuilder;
+import org.elasticsearch.index.query.TermQueryBuilder;
+import org.elasticsearch.index.query.TermsQueryBuilder;
 import org.elasticsearch.join.query.HasChildQueryBuilder;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -58,22 +69,57 @@ import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.SearchHit;
 import org.springframework.data.elasticsearch.core.SearchHits;
 import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
-import org.springframework.data.elasticsearch.core.query.*;
+import org.springframework.data.elasticsearch.core.query.FetchSourceFilter;
+import org.springframework.data.elasticsearch.core.query.IndexQuery;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
+import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
+import org.springframework.data.elasticsearch.core.query.SourceFilter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.xml.sax.SAXException;
 
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.stream.Collectors;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
-import static org.elasticsearch.index.query.QueryBuilders.*;
-import static org.elasticsearch.join.query.JoinQueryBuilders.hasChildQuery;
+import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
+import mc.gouv.xaf.back.data.dao.DemandesRepository;
+import mc.gouv.xaf.back.data.dao.RechercheChampConfigRepository;
+import mc.gouv.xaf.back.data.entity.DemandeBO;
+import mc.gouv.xaf.back.data.entity.RechercheChampConfigBO;
+import mc.gouv.xaf.back.data.es.dao.DemandeEsRepository;
+import mc.gouv.xaf.back.data.es.dao.DemandesFilesEsRepository;
+import mc.gouv.xaf.back.data.es.model.AgentEsDTO;
+import mc.gouv.xaf.back.data.es.model.CanalEsDto;
+import mc.gouv.xaf.back.data.es.model.DemandeAccessEsDTO;
+import mc.gouv.xaf.back.data.es.model.DemandeEsDTO;
+import mc.gouv.xaf.back.data.es.model.DemandeEsRechercheDTO;
+import mc.gouv.xaf.back.data.es.model.DemandeFileEsDTO;
+import mc.gouv.xaf.back.data.es.model.DemandeFileEsRechercheDTO;
+import mc.gouv.xaf.back.data.es.model.DemandeStatutEsDTO;
+import mc.gouv.xaf.back.data.es.model.DemandesFacet;
+import mc.gouv.xaf.back.data.es.model.DemandesFacets;
+import mc.gouv.xaf.back.data.es.model.EsErrorEventDTO;
+import mc.gouv.xaf.back.data.es.model.EsProperty;
+import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
+import mc.gouv.xaf.back.exception.AfIndexingException;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.DemarchesDataProvider;
+import mc.gouv.xaf.back.service.data.AccessService;
+import mc.gouv.xaf.back.service.data.impl.DemandesServiceImpl;
+import mc.gouv.xaf.back.service.es.IndexedDemandeService;
+import mc.gouv.xaf.back.service.es.IndexedFilesService;
+import mc.gouv.xaf.back.service.es.handlers.EsTransactionErrorsHandler;
+import mc.gouv.xaf.back.service.es.transformer.DemandeEsTransformer;
+import mc.gouv.xaf.back.service.es.utils.EsUtils;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.back.service.utils.DemarchesUtils;
+import mc.gouv.xaf.back.service.utils.ESQueryUtils;
+import mc.gouv.xaf.shared.SharedMessages;
+import mc.gouv.xaf.shared.dto.DataRechercheDTO;
+import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
+import mc.gouv.xaf.shared.dto.DemandeCourrierRechercheDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeFileDTO;
+import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 
 /**
  * Service permettant de faire de la recherche full-text sur les demandes en utilisant le moteur elasticsearch
@@ -87,6 +133,8 @@ import static org.elasticsearch.join.query.JoinQueryBuilders.hasChildQuery;
 public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements IndexedDemandeService {
 
     public static final String ES_KEYWORD = ".keyword";
+    public final SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_PATTERN);
+    public static final String ES_MAPPING_PROPERTIES_KEY = "properties";
     public static final String ES_MAPPING_FIELDS_KEY = "fields";
     public static final String ES_MAPPING_TYPE_KEY = "type";
     public static final String FILE_COMPLEMENT_HIGHLIGHT_AND_FACET_PREFIX = "complement.";
@@ -837,15 +885,14 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         List<DemandeEsRechercheDTO> demandesEsList = new ArrayList<>();
         for (SearchHit<DemandeEsRechercheDTO> searchHit : searchHits) {
             DemandeEsRechercheDTO demandeEsRechercheDTO = searchHit.getContent();
-
             Map<String, List<String>> highlightFields = searchHit.getHighlightFields();
             Map<String, String> demEsHighlightFields = new HashMap<>();
             updateHighLightedFieldList(highlightFields, demEsHighlightFields, false, false, false);
-
             Map<String, SearchHits<?>> innerHits = searchHit.getInnerHits();
             aggregateInnerFields(innerHits, demEsHighlightFields);
-
-            demandeEsRechercheDTO.setHighlightedField(demEsHighlightFields);
+            if (demandeEsRechercheDTO != null) {
+            	demandeEsRechercheDTO.setHighlightedField(demEsHighlightFields);
+            }
             demandesEsList.add(demandeEsRechercheDTO);
         }
 
@@ -914,7 +961,6 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         List<DemandeFileEsRechercheDTO> demandesEsList = new ArrayList<>();
         for (SearchHit<DemandeFileEsRechercheDTO> searchHit : searchHits) {
             DemandeFileEsRechercheDTO fichierJoinEsRechercheDTO = searchHit.getContent();
-
             Map<String, List<String>> highlightFields = searchHit.getHighlightFields();
             Map<String, String> demEsHighlightFields = new HashMap<>();
             updateHighLightedFieldList(highlightFields, demEsHighlightFields, false, false, false);
@@ -922,7 +968,9 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             Map<String, SearchHits<?>> innerHits = searchHit.getInnerHits();
             aggregateInnerFieldsCourriers(innerHits, demEsHighlightFields);
 
-            fichierJoinEsRechercheDTO.setHighlightedField(demEsHighlightFields);
+            if (fichierJoinEsRechercheDTO != null) {
+            	fichierJoinEsRechercheDTO.setHighlightedField(demEsHighlightFields);
+            }
             demandesEsList.add(fichierJoinEsRechercheDTO);
         }
 
@@ -1422,7 +1470,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     }
 
     @Override
-    public DemandeDTO saveDemande(DemandeDTO demande, String premierStatut) throws Exception {
+    public DemandeDTO saveDemande(DemandeDTO demande, String premierStatut) throws IOException {
         DemandeDTO demandeDto = super.saveDemande(demande, premierStatut);
         try {
             indexElement(demandeDto, true);

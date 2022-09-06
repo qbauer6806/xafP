@@ -200,6 +200,9 @@ public class BrouillonsServiceImpl implements BrouillonsService {
         ObjectMapper mapper = new ObjectMapper();
         try {
             brouillonBo.setContenu(mapper.writeValueAsString(brouillon.getContenu()));
+            if (brouillon.getMeta() != null) {
+            	brouillonBo.setMeta(mapper.writeValueAsString(brouillon.getMeta()));
+            }
         } catch (JsonProcessingException e) {
             LOGGER.error("Problème lors de la conversion JSON", e);
         }

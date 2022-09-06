@@ -23,6 +23,7 @@ import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
 import mc.gouv.xaf.shared.dto.BrouillonDTO;
 
 /**
+ * 
  * Servlet mettant à disposition le service /brouillons avec les méthodes PUT, POST, GET, DELETE.
  * Cette servlet récupère le DemarcheID ainsi que l'UsagerID (depuis la session) et appelle les WS
  * correspondants dans le back-end générique.

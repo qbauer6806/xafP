@@ -20,6 +20,7 @@ import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
 
 /**
+ * 
  * Servlet permettant de faire apparaître dans les logs du frontserver, les erreurs survenant dans la console
  * du navigateur de l'usager.
  * 

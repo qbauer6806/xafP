@@ -23,7 +23,7 @@ public interface DemandesComplementsService {
      * @throws Exception 
      */
     public DemandeComplementsDTO saveDemandeComplements(String demarcheId, Integer demandeId,
-            DemandeComplementsQuestionDTO demandeComplements) throws Exception;
+            DemandeComplementsQuestionDTO demandeComplements);
 
     /**
      * Permet de récupérer les demandes d'informations complémentaires correspondant à une demande
@@ -74,7 +74,7 @@ public interface DemandesComplementsService {
      * @throws Exception 
      */
     public DemandeComplementsDTO saveOrUpdateDemandeComplements(String demarcheId, Integer pkDemande,
-            Integer pkDemandeComplements, DemandeComplementsQuestionDTO demandeComplements) throws Exception;
+            Integer pkDemandeComplements, DemandeComplementsQuestionDTO demandeComplements);
 
     /**
      * Permet de répondre à une demande d'informations complémentaires
@@ -85,6 +85,6 @@ public interface DemandesComplementsService {
      * @throws Exception 
      */
     public DemandeComplementsDTO repondreDemandeComplements(String demarcheId, Integer pkDemande,
-            Integer pkDemandeComplements, DemandeComplementsReponseDTO demandeComplementsReponse) throws Exception;
+            Integer pkDemandeComplements, DemandeComplementsReponseDTO demandeComplementsReponse);
 
 }

@@ -3,6 +3,8 @@ package mc.gouv.xaf.back.service.itg.file;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -30,9 +32,9 @@ public interface FileService {
 
 	InputStream getFile(String url) throws IOException;
 
-	String saveFile(DemandeDTO demande, String filename, String container, String contentType, InputStream inputStream, OutputStream outputStream) throws Exception;
+	String saveFile(DemandeDTO demande, String filename, String container, String contentType, InputStream inputStream, OutputStream outputStream);
 
-	String saveFile(DemandeDTO demande, String container, MultipartFile file, HttpServletResponse response) throws Exception;
+	String saveFile(DemandeDTO demande, String container, MultipartFile file, HttpServletResponse response) throws IOException;
 	
 	/**
 	 *  Appelle le WS FILE DELETE pour supprimer un fichier dans file 
@@ -50,8 +52,9 @@ public interface FileService {
 	 * @param fichiers,   liste de fichiers à mettre à jour
 	 * @param demarcheId, le nom de la démarche
 	 * @param demandeId,  la métadata à appliquer aux fichiers
+	 * @throws IOException 
 	 */
-	void updateFilesMetadataWithDemandeId(DemandeFileDTO[] fichiers, String demarcheId, Integer demandeId) throws Exception;
+	void updateFilesMetadataWithDemandeId(DemandeFileDTO[] fichiers, String demarcheId, Integer demandeId) throws IOException;
 
 	/**
 	 * Appelle le WS FILE PATCH sur l'url du fichier afin d'y mettre à jour la métadonnée du fichier.
@@ -60,7 +63,9 @@ public interface FileService {
 	 * @param demarcheId, le nom de la démarche
 	 * @param metaKey,    la clé de la métadonnée
 	 * @param metaValue,  la valeur de la métadonnée
+	 * @throws MalformedURLException 
+	 * @throws IOException 
 	 */
-	void updateFileMetadata(String fichierURL, String demarcheId, String metaKey, String metaValue) throws Exception;
+	void updateFileMetadata(String fichierURL, String demarcheId, String metaKey, String metaValue) throws IOException;
 	
 }

@@ -163,6 +163,8 @@ public class DemandesTransformer {
         dto.setUsagerEmail(bo.getUsagerEmail());
         dto.setBuildId(bo.getBuildId());
         dto.setRecapType(bo.getRecapType());
+        dto.setDonneesCertifiees(bo.getDonneesCertifiees());
+        dto.setPkDemandeSource(bo.getPkDemandeSource());
         return dto;
     }
 
@@ -213,6 +215,8 @@ public class DemandesTransformer {
         bo.setUsagerEmail(dto.getUsagerEmail());
         bo.setBuildId(dto.getBuildId());
         bo.setRecapType(dto.getRecapType());
+        bo.setDonneesCertifiees(dto.getDonneesCertifiees());
+        bo.setPkDemandeSource(dto.getPkDemandeSource());
         ObjectMapper mapper = new ObjectMapper();
         try {
             bo.setContenu(mapper.writeValueAsString(dto.getContenu()));

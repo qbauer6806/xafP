@@ -221,6 +221,9 @@
 										<option value="">----------------------------</option>
 										<option th:each="pays : ${listePaysP3}"
 											th:value="${pays.codeIso}" th:text="${pays.nom}" />
+										<option value="">----------------------------</option>
+										<option th:each="pays : ${listePaysP4}"
+											th:value="${pays.codeIso}" th:text="${pays.nom}" />
 									</select>
 								</div>
 							</div>

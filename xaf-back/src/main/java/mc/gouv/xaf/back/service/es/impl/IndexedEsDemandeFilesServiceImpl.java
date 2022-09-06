@@ -67,7 +67,7 @@ public class IndexedEsDemandeFilesServiceImpl extends DemandeFilesServiceImpl im
     private ElasticsearchOperations elasticsearchTemplate;
 
     @Override
-    public void saveFile(DemandeFileDTO demandeFile, String demarcheId, Integer pkDemande) throws Exception {
+    public void saveFile(DemandeFileDTO demandeFile, String demarcheId, Integer pkDemande) {
         super.saveFile(demandeFile, demarcheId, pkDemande);
         DemandeBO demandeBo = demandesService.getDemandeBo(demarcheId, pkDemande);
         DemandeDTO demandeDTO = DemandesTransformer.bo2Dto(demandeBo);

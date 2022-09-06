@@ -1,5 +1,6 @@
 package mc.gouv.xaf.back.service.itg.mail.impl;
 
+import java.io.IOException;
 import java.io.StringWriter;
 import java.util.List;
 import java.util.Map;
@@ -7,6 +8,9 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.context.Context;
+import org.apache.velocity.exception.MethodInvocationException;
+import org.apache.velocity.exception.ParseErrorException;
+import org.apache.velocity.exception.ResourceNotFoundException;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.log.NullLogChute;
 import org.apache.velocity.tools.ToolManager;
@@ -15,6 +19,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import mc.gouv.mail.apiclient.client.MailClient;
 import mc.gouv.mail.shared.dto.AddressBlockDTO;
@@ -49,13 +55,20 @@ public class MailServiceImpl implements MailService {
 
     /**
      * {@inheritDoc}
+     * @throws JsonProcessingException 
      */
     @Override
-    public void sendMail(EmailInfoDTO emailInfo, Map<String, Object> model) throws Exception {
+    public void sendMail(EmailInfoDTO emailInfo, Map<String, Object> model) throws JsonProcessingException {
 
-        LOGGER.info("MailServiceImpl.sendMail(" + emailInfo + "," + model + ")");
+        LOGGER.info("MailServiceImpl.sendMail({},{})", emailInfo, model);
 
-        String[] subjectAndBody = getSubjectAndBody(emailInfo.getSubjectTemplateCode(), emailInfo.getBodyTemplateCode(), emailInfo.getLangue(), model);
+        String[] subjectAndBody;
+		try {
+			subjectAndBody = getSubjectAndBody(emailInfo.getSubjectTemplateCode(), emailInfo.getBodyTemplateCode(), emailInfo.getLangue(), model);
+		} catch (Exception e) {
+			LOGGER.error("Erreur lors de la récupération du corps et du sujet de l'e-mail", e);
+			return;
+		}
 
         LOGGER.info("Transformation des informations d'email vers les structures pour MAIL...");
         List<AddressBlockDTO> to = EmailTransformer.toMailApiAddresses(emailInfo.getTo());
@@ -83,17 +96,21 @@ public class MailServiceImpl implements MailService {
 
     /**
      * {@inheritDoc}
+     * @throws IOException 
+     * @throws ResourceNotFoundException 
+     * @throws MethodInvocationException 
+     * @throws ParseErrorException 
      * 
      * @throws Exception
      */
     @Override
-    public String[] getMailPreview(String bodyTemplateCode, String subjectTemplateCode, String langue, Map<String, Object> model) throws Exception {
-        LOGGER.info("MailServiceImpl.getMailPreview(" + bodyTemplateCode + "," + subjectTemplateCode + ")");
+    public String[] getMailPreview(String bodyTemplateCode, String subjectTemplateCode, String langue, Map<String, Object> model) throws ParseErrorException, MethodInvocationException, ResourceNotFoundException, Exception {
+        LOGGER.info("MailServiceImpl.getMailPreview({},{})", bodyTemplateCode, subjectTemplateCode);
 
         return getSubjectAndBody(subjectTemplateCode, bodyTemplateCode, langue, model);
     }
     
-    private String[] getSubjectAndBody(String subjectTemplateCode, String bodyTemplateCode, String langue, Map<String, Object> model) throws Exception {
+    private String[] getSubjectAndBody(String subjectTemplateCode, String bodyTemplateCode, String langue, Map<String, Object> model) throws ParseErrorException, MethodInvocationException, ResourceNotFoundException, Exception {
         
         LOGGER.info("Récupération du template demandé pour le corps de l'email...");
         TemplateDTO templateBody = templatesCache.getTemplate(bodyTemplateCode, langue);

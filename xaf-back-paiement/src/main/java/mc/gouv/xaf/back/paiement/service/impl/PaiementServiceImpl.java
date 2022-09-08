@@ -236,6 +236,7 @@ public class PaiementServiceImpl implements PaiementService {
         return moyenPaiementRepository.findById(data.getValue());
     }
 
+    // TODO sauvegarder le statut du paiement de manière plus correct que dans les demandes data
     @Async
     void updateDemandeData(List<CommandeDemandeBO> commandeDemandeBOList, LocalDateTime dateValidite, MoyenPaiementDTO moyenPaiement) {
         Thread t = new Thread(() -> {

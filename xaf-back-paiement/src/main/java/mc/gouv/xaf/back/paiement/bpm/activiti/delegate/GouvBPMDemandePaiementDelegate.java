@@ -1,8 +1,10 @@
 package mc.gouv.xaf.back.paiement.bpm.activiti.delegate;
 
 import static mc.gouv.xaf.back.paiement.data.entity.OperationStatutBO.ACCEPTEE;
+import static mc.gouv.xaf.back.service.utils.AfBackUtils.DTF_AAAA_MM_JJ;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
@@ -134,7 +136,9 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
             
             histoService.actionSysteme(demandeId, "ECHEC", "Débit en échec. Demande de paiement envoyée");
         } else {
+            // TODO sauvegarder le statut du paiement de façon plus correct que dans les demandes data
             demandesDataService.saveOrUpdateDemandeData(demarcheId, demandeId, PaiementDemandeDataKeysEnum.STATUT_PAIEMENT.name(), PaiementStatutEnum.DEBIT_REALISE.name());
+            demandesDataService.saveOrUpdateDemandeData(demarcheId, demandeId, PaiementDemandeDataKeysEnum.DATE_PAIEMENT.name(), LocalDateTime.now().format(DTF_AAAA_MM_JJ));
             paiementHistoriqueService.ajouterHistoriqueDebitOK(demandeDto);
             // On récupère le flag pour l'historique
             if (BooleanUtils.isTrue((Boolean) gouvBPM.getProcessBusinessVariables(demandeId).get(MC_IS_DEBIT_KO))) {

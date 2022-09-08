@@ -96,25 +96,9 @@ public class PaiementServiceImpl implements PaiementService {
     @Override
     public PaiementDTO create(String demandesId, String langue, Integer usagerId, boolean iframe) {
         logStartMethod(LOGGER);
-
-
-        // TODO TO REMOVE THIS
-        // La langue est normalement récupérée du WYSI et permet d'initialiser l'iframe monetico en FR ou EN en fonction de la langue du formulaire FO.
-        // Cependant, pour des tests utilisateurs, on fait pointer la callback retour monetico comme suit:
-        // FR -> callback vers notre DEV
-        // EN -> callback vers la REC
-        // J'ai créé une propriété BO pour faire en sorte qu'en REC on puisse modifier le code langue sans que le formulaire FO soit en Anglais...
-        // Oui, c'est nul. Mais voilà quoi. jpp
-
-        PropertiesDTO codeLangue = propertiesService.getProperty("PERMC", "TEMP_CODE_LANGUE_MONETICO");
-
-        // TODO END TO REMOVE THIS
-
-
-
         LOGGER.info("Parameters [ demandesId {}, langue {}, usagerId {} ] ", demandesId, langue, usagerId);
         String codeSociete = iframe ? paiementPropertiesResolver.getXafMoneticoCodeSiteIframe() : paiementPropertiesResolver.getCodeSiteStandard();
-        PropertiesDTO montantProperty = propertiesService.getProperty("PERMC", "XAF_PAIEMENT_AMOUNT");
+        PropertiesDTO montantProperty = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "XAF_PAIEMENT_AMOUNT");
         double prix = Double.parseDouble(montantProperty.getValue());
         List<Integer> demandesIdList = Stream.of(demandesId.split(",")).map(String::trim).map(Integer::parseInt).collect(Collectors.toList());
         double montant = 0;
@@ -155,10 +139,11 @@ public class PaiementServiceImpl implements PaiementService {
         moyenPaiement.setMontantCapture(0);
         moyenPaiement.setMoyenPaiementStatut(MoyenPaiementStatutBO.EN_ATTENTE_DE_VALIDATION);
         moyenPaiement.setCodeSociete(codeSociete);
+        moyenPaiement.setLangue(langue);
 
         moyenPaiement = moyenPaiementRepository.save(moyenPaiement);
         LOGGER.info("Created [ moyenPaiement {}] ", moyenPaiement);
-        PaiementDTO paiementDTO = new PaiementDTO(codeLangue.getValue());
+        PaiementDTO paiementDTO = new PaiementDTO(langue);
         paiementDTO.setDate(securityService.dateFormat(new Date()));
         GichuniUsagerDTO usager = usagersCache.get(usagerId);
 

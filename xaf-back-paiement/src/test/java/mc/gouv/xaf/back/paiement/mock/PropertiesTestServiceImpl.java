@@ -48,8 +48,6 @@ public class PropertiesTestServiceImpl implements PropertiesService {
     public PropertiesDTO getProperty(String demarcheId, String key) {
         if ("PERMC".equals(demarcheId) && "XAF_PAIEMENT_AMOUNT".equals(key))
             return new PropertiesDTO("amount", "80");
-        if ("PERMC".equals(demarcheId) && "TEMP_CODE_LANGUE_MONETICO".equals(key))
-            return new PropertiesDTO("TEMP_CODE_LANGUE_MONETICO", "FR");
         return null;
     }
 

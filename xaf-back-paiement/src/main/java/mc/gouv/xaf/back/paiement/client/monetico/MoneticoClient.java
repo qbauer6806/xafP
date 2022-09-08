@@ -58,7 +58,6 @@ public class MoneticoClient implements PaiementClient {
 
     private static String XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE = "XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE";
     private static SimpleDateFormat simpleDateTimeFormat = new SimpleDateFormat("dd/MM/yyyy:HH:mm:ss");
-    private static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
     DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy:HH:mm:ss");
     private static String XAF_ACTIVATION_CAPTURE_PAIEMENT = "XAF_ACTIVATION_CAPTURE_PAIEMENT";
@@ -103,14 +102,13 @@ public class MoneticoClient implements PaiementClient {
             @Override
             public void execute() throws Exception {
 
-                String tpe = getTpe();
                 String montant = paiement.getMontantInitial() + paiementPropertiesResolver.getCurrency();
                 String montantACapturer = operationBO.getMontant() + paiementPropertiesResolver.getCurrency();
                 String montantDejaCapture = paiement.getMontantCapture() + paiementPropertiesResolver.getCurrency();
                 String montantRestant = (paiement.getMontantRestant() - operationBO.getMontant()) + paiementPropertiesResolver.getCurrency();
                 String version = paiementPropertiesResolver.getVersionCapture();
-                LOGGER.info("Paramètres Capture:\nURL: {}\nTPE: {}\nmontant: {}\nmontant_a_capturer: {}\nmontant_deja_capture: {}\nmontant_restant: {}\nreference: {}\ndate (date de la capture): {}\ndate_commande: {}\nsociete: {}\nversion {}",
-                        paiementPropertiesResolver.getCaptureUrl(), tpe, montant, montantACapturer, montantDejaCapture, montantRestant, paiement.getPkMoyenPaiement(), dateCapture, dateCommande, paiement.getCodeSociete(), version);
+                LOGGER.info("Paramètres Capture:\nURL: {}\nTPE: {}\nmontant: {}\nmontant_a_capturer: {}\nmontant_deja_capture: {}\nmontant_restant: {}\nlgue: {}\nreference: {}\ndate (date de la capture): {}\ndate_commande: {}\nsociete: {}\nversion {}",
+                        paiementPropertiesResolver.getCaptureUrl(), getTpe(), montant, montantACapturer, montantDejaCapture, montantRestant, paiement.getLangue(), paiement.getPkMoyenPaiement(), dateCapture, dateCommande, paiement.getCodeSociete(), version);
 
                 // Permet de désactiver la capture en simulant une erreur d'opération.
                 PropertiesDTO captureActive = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_ACTIVATION_CAPTURE_PAIEMENT);
@@ -120,12 +118,12 @@ public class MoneticoClient implements PaiementClient {
                     throw new HttpResponseException(Response.Status.BAD_REQUEST.getStatusCode(), "Capture du paiement désactivé");
                 }
 
-                Response response = getTarget().queryParam("TPE", tpe)
+                Response response = getTarget().queryParam("TPE", getTpe())
                         .queryParam("montant", montant)
                         .queryParam("montant_a_capturer", montantACapturer)
                         .queryParam("montant_deja_capture", montantDejaCapture)
                         .queryParam("montant_restant", montantRestant)
-                        .queryParam("lgue", "FR")
+                        .queryParam("lgue", paiement.getLangue())
                         .queryParam("reference", paiement.getPkMoyenPaiement())
                         .queryParam("date", dateCapture)
                         .queryParam("date_commande", dateCommande)

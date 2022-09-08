@@ -67,6 +67,9 @@ public class MoyenPaiementBO {
     public String modepaiement;
     public String authentification;
 
+    @Column(name = "langue")
+    public String langue;
+
 
     public String getPkMoyenPaiement() {
         return pkMoyenPaiement;
@@ -268,6 +271,14 @@ public class MoyenPaiementBO {
         this.cbmasquee = cbmasquee;
     }
 
+    public String getLangue() {
+        return langue;
+    }
+
+    public void setLangue(String langue) {
+        this.langue = langue;
+    }
+
     @Override
     public String toString() {
         return "MoyenPaiementBO{" +
@@ -296,6 +307,7 @@ public class MoyenPaiementBO {
                 ", originetr='" + originetr + '\'' +
                 ", modepaiement='" + modepaiement + '\'' +
                 ", authentification='" + authentification + '\'' +
+                ", langue='" + langue + '\'' +
                 '}';
     }
 
@@ -325,6 +337,7 @@ public class MoyenPaiementBO {
         csvString.add(originetr);
         csvString.add(modepaiement);
         csvString.add(authentification);
+        csvString.add(langue);
         return csvString.toString();
     }
     public static String headerCSV() {
@@ -353,6 +366,7 @@ public class MoyenPaiementBO {
         csvString.add("originetr");
         csvString.add("modepaiement");
         csvString.add("authentification");
+        csvString.add("langue");
         return csvString.toString();
     }
 

@@ -32,7 +32,7 @@ public class GouvPropertiesResolverTestImpl implements GouvPropertiesResolver {
 
     @Override
     public String getDemarcheId() {
-        return null;
+        return "PERMC";
     }
 
     @Override

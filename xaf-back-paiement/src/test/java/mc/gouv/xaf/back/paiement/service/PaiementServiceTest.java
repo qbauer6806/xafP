@@ -36,6 +36,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.fail;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -117,6 +118,15 @@ public class PaiementServiceTest {
 
         assertThat(paiementDTO.getReference()).hasSize(12);
         assertThat(paiementDTO.getMontant()).isEqualTo("160.0EUR");
+
+        Optional<MoyenPaiementBO> moyenPaiementOptional = moyenPaiementRepository.findById(paiementDTO.getReference());
+        if (moyenPaiementOptional.isPresent()) {
+            MoyenPaiementBO moyenPaiementBO = moyenPaiementOptional.get();
+            assertThat(moyenPaiementBO.getLangue()).isEqualTo("FR");
+        } else {
+            fail("Le moyen de paiement avec la référence " + paiementDTO.getReference() + " n'a pas été généré !");
+        }
+
     }
 
     @Test

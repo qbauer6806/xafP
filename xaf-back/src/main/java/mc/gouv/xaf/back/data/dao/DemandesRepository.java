@@ -49,6 +49,9 @@ public interface DemandesRepository extends CrudRepository<DemandeBO, Integer> {
 
     List<DemandeBO> findAllByDernierStatut_Libelle(String dernierStatut);
 
+
+    List<DemandeBO> findAllByDernierStatut_LibelleAndDernierStatutDateLessThan(String dernierStatut, Date date);
+
     /**
      * Permet de récupérer les demandes créées entre deux dates
      *

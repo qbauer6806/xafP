@@ -562,6 +562,16 @@ public class DemandesServiceImpl implements DemandesService {
 	 * {@inheritDoc}
 	 */
 	@Override
+	public List<DemandeDTO> getAllDemandesFilteredByStatutAndDateDernierStatut(String statut, Date date) {
+		List<DemandeBO> demandes = demandesRepository.findAllByDernierStatut_LibelleAndDernierStatutDateLessThan(statut, date);
+		LOGGER.info("Transformation bo -> dto ...");
+		return DemandesTransformer.bo2Dto(demandes);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public DemandeBO getCheckDemarcheDemandeBO(String demarcheId, DemandeDTO demande, boolean checkActive) {
 
 		LOGGER.info("Récupération en base de la demande...");

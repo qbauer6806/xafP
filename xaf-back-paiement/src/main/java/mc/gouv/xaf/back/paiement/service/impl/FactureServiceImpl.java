@@ -28,6 +28,9 @@ import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 @Service
 public class FactureServiceImpl implements FactureService {
     private static Logger LOGGER = LoggerFactory.getLogger(ReferenceFactoryService.class);
+
+    public static final String PREFIX_FACTURE = "Justificatif_Facture_";
+
     @Autowired
     private FileService fileService;
     @Autowired
@@ -52,7 +55,7 @@ public class FactureServiceImpl implements FactureService {
         Optional<InputStream> optionalFactureIS = factureClient.getFacture(reference, demande);
         if (optionalFactureIS.isPresent()) {
             ByteArrayOutputStream output = new ByteArrayOutputStream();
-            String fileName = "Justificatif_Facture_"+ demande.getIdentifiant() + "_" + AfBackUtils.generateFileDateSuffix() + ".pdf";
+            String fileName = PREFIX_FACTURE + demande.getIdentifiant() + "_" + AfBackUtils.generateFileDateSuffix() + ".pdf";
             String url = fileService.saveFile(demande, fileName, gouvPropertiesResolver.getContainerId(), "application/pdf", optionalFactureIS.get(), output);
             output.close();
             optionalFactureIS.get().close();

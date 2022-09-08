@@ -187,6 +187,11 @@ public class IndexedDemandeServiceTestImpl implements IndexedDemandeService {
     }
 
     @Override
+    public List<DemandeDTO> getAllDemandesFilteredByStatutAndDateDernierStatut(String statut, Date date) {
+        return null;
+    }
+
+    @Override
     public DemandeDTO getDemandeFilterFiles(String demarcheId, Integer pkDemande, Integer usagerId) {
         return null;
     }

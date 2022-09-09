@@ -114,7 +114,7 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
         }
 
         LOGGER.info("Mise à jour du statut du paiement et ajout de l'historique de paiement...");
-        boolean resultatOperation = true;
+        boolean resultatOperation = operation != null && ACCEPTEE.equals(operation.getOperationStatut());
         gouvBPM.setProcessBusinessVariable(demandeId, MC_CAPTURE_RESULT, resultatOperation);
         if (!resultatOperation) {
             if (StringUtils.equals(statutPaiementData.getValue(), PaiementStatutEnum.EMPREINTE_VALIDE.name())) {

@@ -129,7 +129,6 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
                 
             } else if (StringUtils.equals(statutPaiementData.getValue(), PaiementStatutEnum.EMPREINTE_EXPIREE.name())) {
             	// #43127 Envoi du mail empreinte expirée (MAIL_NOTIFICATION_DEMANDE_EXPIRATION_EMPREINTE_USAGER_CORPS)
-            	paiementHistoriqueService.ajouterHistoriqueEmpreinteExpiree(demandeId);
             	gouvBPM.setProcessBusinessVariable(demandeId, MC_IS_DEBIT_KO, true);
             	sendMail(demandeDto, "MAIL_NOTIFICATION_DEMANDE_EXPIRATION_EMPREINTE_USAGER");
             }

@@ -140,7 +140,7 @@ public class CirApiApiClient implements FactureApiClient {
             request.setCodeOperation(montantObjet == prix ? "P1" : "P5"); // TODO voir avec alexis devrait être dans les properties
             request.setCodeTransaction(codeTransaction);
             request.setCodeReglement("X"); // TODO idem devrait être en properties meme si c'est fixe
-            request.setAutorisation("" + operationBO.getNumeroAuthorisation());
+            request.setAutorisation("" + operationBO.getNumeroAutorisation());
             request.setTransactionId(operationBO.getPkOperation());
 
             cirRequestDTOS.add(request);

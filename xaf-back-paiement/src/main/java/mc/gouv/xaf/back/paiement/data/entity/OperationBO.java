@@ -28,7 +28,7 @@ public class OperationBO {
     private LocalDateTime dateDerniereModification;
 
     private Double montant;
-    private Integer numeroAuthorisation;
+    private Integer numeroAutorisation;
 
     private String numeroFacture;
 
@@ -100,12 +100,12 @@ public class OperationBO {
         this.montant = montant;
     }
 
-    public Integer getNumeroAuthorisation() {
-        return numeroAuthorisation;
+    public Integer getNumeroAutorisation() {
+        return numeroAutorisation;
     }
 
     public void setNumeroAutorisation(Integer numeroAuthorisation) {
-        this.numeroAuthorisation = numeroAuthorisation;
+        this.numeroAutorisation = numeroAuthorisation;
     }
 
     public String getNumeroFacture() {
@@ -125,7 +125,7 @@ public class OperationBO {
                 ", dateCreation=" + dateCreation +
                 ", dateDerniereModification=" + dateDerniereModification +
                 ", montant=" + montant +
-                ", numeroAuthorisation=" + numeroAuthorisation +
+                ", numeroAuthorisation=" + numeroAutorisation +
                 ", numeroFacture='" + numeroFacture + '\'' +
                 '}';
     }
@@ -138,7 +138,7 @@ public class OperationBO {
         csvString.add(dateCreation.toString());
         csvString.add(dateDerniereModification.toString());
         csvString.add("" + montant);
-        csvString.add("" + numeroAuthorisation);
+        csvString.add("" + numeroAutorisation);
         csvString.add(numeroFacture);
         return csvString.toString();
     }

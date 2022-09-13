@@ -4,7 +4,6 @@ import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Optional;
 
 import mc.gouv.xaf.back.paiement.service.PaiementsDataProvider;
@@ -13,18 +12,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import mc.gouv.xaf.back.paiement.client.FactureClient;
-import mc.gouv.xaf.back.paiement.client.PaiementClient;
+import mc.gouv.xaf.back.paiement.service.itg.FactureApiClient;
+import mc.gouv.xaf.back.paiement.service.itg.PaiementApiClient;
 import mc.gouv.xaf.back.paiement.data.dao.CommandeDemandeRepository;
 import mc.gouv.xaf.back.paiement.data.dao.MoyenPaiementRepository;
 import mc.gouv.xaf.back.paiement.data.dao.OperationRepository;
-import mc.gouv.xaf.back.paiement.data.dao.PaiementHistoriqueRepository;
 import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
 import mc.gouv.xaf.back.paiement.data.entity.OperationBO;
 import mc.gouv.xaf.back.paiement.data.entity.OperationTypeBO;
-import mc.gouv.xaf.back.paiement.data.entity.PaiementHistoriqueBO;
 import mc.gouv.xaf.back.paiement.enums.PaiementDemandeDataKeysEnum;
-import mc.gouv.xaf.back.paiement.enums.PaiementStatutEnum;
 import mc.gouv.xaf.back.paiement.service.CaptureService;
 import mc.gouv.xaf.back.paiement.service.MontantService;
 import mc.gouv.xaf.back.paiement.service.ReferenceFactoryService;
@@ -40,9 +36,9 @@ public class CaptureServiceImpl implements CaptureService {
     @Autowired
     private OperationRepository operationRepository;
     @Autowired
-    private PaiementClient paiementClient;
+    private PaiementApiClient paiementApiClient;
     @Autowired
-    private FactureClient factureClient;
+    private FactureApiClient factureApiClient;
     @Autowired
     private MoyenPaiementRepository moyenPaiementRepository;
     @Autowired
@@ -78,7 +74,7 @@ public class CaptureServiceImpl implements CaptureService {
         operation.setMontant(prix);
 
 
-        if (paiementClient.capture(moyenPaiementBO, operation, demandeDTO)) {
+        if (paiementApiClient.capture(moyenPaiementBO, operation, demandeDTO)) {
             moyenPaiementBO.setMontantCapture(moyenPaiementBO.getMontantCapture() + prix);
             moyenPaiementBO.setMontantRestant(moyenPaiementBO.getMontantRestant() - prix);
 
@@ -92,7 +88,7 @@ public class CaptureServiceImpl implements CaptureService {
 
             operation.setOperationType(OperationTypeBO.DEBIT);
 
-            Optional<String> optionalNumFacture = factureClient.createFacture(numeroPermis, " ", operation.getMontant(), operation.getPkOperation(), paiementsDataProvider.getInfosFacturation(demandeDTO), objetMontants, demandeDTO, operation);
+            Optional<String> optionalNumFacture = factureApiClient.createFacture(numeroPermis, " ", operation.getMontant(), operation.getPkOperation(), paiementsDataProvider.getInfosFacturation(demandeDTO), objetMontants, demandeDTO, operation);
             if (optionalNumFacture.isPresent()) {
                 LOGGER.info("Created [ facture n°{}] ", optionalNumFacture.get());
                 operation.setNumeroFacture(optionalNumFacture.get());

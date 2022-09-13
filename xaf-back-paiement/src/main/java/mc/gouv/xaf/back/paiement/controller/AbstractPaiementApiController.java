@@ -16,6 +16,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+/**
+ * Classe permettant de gérer un ou plusieurs PSP (Presataire de services de paiement)
+ */
 public abstract class AbstractPaiementApiController {
 
     @Autowired
@@ -27,6 +30,14 @@ public abstract class AbstractPaiementApiController {
     @Autowired
     private MoyenPaiementRepository moyenPaiementRepository;
 
+    /**
+     * Récupération d'un DTO permettant d'initialiser une page/iframe de paiement sur le FO
+     * @param demandesId demande à payer
+     * @param langue langue pour la page de paiement
+     * @param usagerId usager à l'origine de la requête
+     * @param iframe format iframe ou page
+     * @return DTO permettant d'initialiser le paiement
+     */
     @GetMapping
     public PaiementDTO getPaiement(@RequestParam String demandesId,
                                    @RequestParam String langue,
@@ -36,11 +47,19 @@ public abstract class AbstractPaiementApiController {
         return paiementService.create(demandesId, langue, usagerId, iframe);
     }
 
+    /**
+     * Mise à jour du status de paiement suite à une action utilisateur
+     * @param moyenPaiementDTO Représentation d'un retour de PSP
+     */
     @PostMapping
     public void updatePaiement(@RequestBody MoyenPaiementDTO moyenPaiementDTO) {
         paiementService.updateStatus(moyenPaiementDTO);
     }
 
+    /**
+     * Récupération des stats sur les opérations
+     * @param response réponse à renvoyer
+     */
     @GetMapping("stats/operation")
     public void getStatsOperation(HttpServletResponse response) {
         try {
@@ -62,6 +81,10 @@ public abstract class AbstractPaiementApiController {
 
     }
 
+    /**
+     * Récupération des stats sur les paiements
+     * @param response réponse à renvoyer
+     */
     @GetMapping("stats/moyen-paiement")
     public void getStatsMoyenPaiement(HttpServletResponse response) {
         try {

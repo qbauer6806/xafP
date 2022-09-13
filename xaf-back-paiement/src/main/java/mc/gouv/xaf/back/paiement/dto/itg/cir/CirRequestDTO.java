@@ -1,8 +1,8 @@
-package mc.gouv.xaf.back.paiement.client.cir;
+package mc.gouv.xaf.back.paiement.dto.itg.cir;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class CirRequest {
+public class CirRequestDTO {
 
     @JsonProperty("NumTpe")
     public String numTpe;

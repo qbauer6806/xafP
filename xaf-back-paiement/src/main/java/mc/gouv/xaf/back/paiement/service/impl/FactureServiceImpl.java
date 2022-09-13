@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import mc.gouv.xaf.back.paiement.client.FactureClient;
+import mc.gouv.xaf.back.paiement.service.itg.FactureApiClient;
 import mc.gouv.xaf.back.paiement.enums.PaiementDemandeDataKeysEnum;
 import mc.gouv.xaf.back.paiement.service.FactureService;
 import mc.gouv.xaf.back.paiement.service.ReferenceFactoryService;
@@ -42,7 +42,7 @@ public class FactureServiceImpl implements FactureService {
     private DemandesService demandesService;
 
     @Autowired
-    private FactureClient factureClient;
+    private FactureApiClient factureApiClient;
 
     @Autowired
     private DemandesDataService demandesDataService;
@@ -52,7 +52,7 @@ public class FactureServiceImpl implements FactureService {
         logStartMethod(LOGGER);
         String demarcheId = gouvPropertiesResolver.getDemarcheId();
         DemandeDTO demande = demandesService.getDemande(demarcheId, demandeId);
-        Optional<InputStream> optionalFactureIS = factureClient.getFacture(reference, demande);
+        Optional<InputStream> optionalFactureIS = factureApiClient.getFacture(reference, demande);
         if (optionalFactureIS.isPresent()) {
             ByteArrayOutputStream output = new ByteArrayOutputStream();
             String fileName = PREFIX_FACTURE + demande.getIdentifiant() + "_" + AfBackUtils.generateFileDateSuffix() + ".pdf";

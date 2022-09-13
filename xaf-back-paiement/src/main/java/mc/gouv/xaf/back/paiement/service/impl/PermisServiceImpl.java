@@ -1,6 +1,6 @@
 package mc.gouv.xaf.back.paiement.service.impl;
 
-import mc.gouv.xaf.back.paiement.client.FactureClient;
+import mc.gouv.xaf.back.paiement.service.itg.FactureApiClient;
 import mc.gouv.xaf.back.paiement.dto.itg.cir.PermisDTO;
 import mc.gouv.xaf.back.paiement.service.PermisService;
 import org.slf4j.Logger;
@@ -15,11 +15,11 @@ public class PermisServiceImpl implements PermisService {
     private final static Logger LOGGER = LoggerFactory.getLogger(PermisServiceImpl.class);
 
     @Autowired
-    private FactureClient factureClient;
+    private FactureApiClient factureApiClient;
 
     @Override
     public PermisDTO getPermis(String numPermis) throws Exception {
         logStartMethod(LOGGER);
-        return factureClient.getPermis(numPermis).get();
+        return factureApiClient.getPermis(numPermis).get();
     }
 }

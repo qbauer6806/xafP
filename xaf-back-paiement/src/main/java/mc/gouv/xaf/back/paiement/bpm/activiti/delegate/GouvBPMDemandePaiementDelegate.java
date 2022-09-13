@@ -85,7 +85,7 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
 
     @Override
     public void execute(DelegateExecution execution) throws Exception {
-        LOGGER.info("==== xaf-back-stc CAPTURE PAIEMENT ...");
+        LOGGER.info("==== xaf-back-paiement CAPTURE PAIEMENT ...");
 
         String demarcheId = gouvPropertiesResolver.getDemarcheId();
         Integer demandeId = Integer.parseInt(execution.getProcessBusinessKey());
@@ -105,7 +105,7 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
                 operation = captureService.capture(moyenPaiement, demandeDto);
                 LOGGER.info("Recuperation reference : {}", operation.getNumeroFacture());
 
-                ticketRecapitulatifService.send(operation, moyenPaiement, demandeId);
+                ticketRecapitulatifService.sendMail(operation, moyenPaiement, demandeId);
                 gouvBPM.setProcessBusinessVariable(demandeId, MC_FACTURE_REFERENCE, operation.getNumeroFacture());
 
                 LOGGER.info("Fin capture paiement");
@@ -146,7 +146,7 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
                 histoService.actionSysteme(demandeId, "SUCCES", "Débit réalisé avec succès");
             }
         }
-        LOGGER.info("==== xaf-back-stc CAPTURE PAIEMENT <fin>");
+        LOGGER.info("==== xaf-back-paiement CAPTURE PAIEMENT <fin>");
     }
     
 	private void sendMail(DemandeDTO demandeDTO, String mailKey) {

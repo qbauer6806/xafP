@@ -1,7 +1,7 @@
-package mc.gouv.xaf.back.paiement.client.monetico;
+package mc.gouv.xaf.back.paiement.service.itg.monetico;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
-import mc.gouv.xaf.back.paiement.client.PaiementClient;
+import mc.gouv.xaf.back.paiement.service.itg.PaiementApiClient;
 import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
 import mc.gouv.xaf.back.paiement.data.entity.OperationBO;
 import mc.gouv.xaf.back.paiement.data.entity.OperationStatutBO;
@@ -40,7 +40,7 @@ import java.util.Map;
 import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
 
 @Component
-public class MoneticoClient implements PaiementClient {
+public class MoneticoApiApiClient implements PaiementApiClient {
 
     private static Logger LOGGER = LoggerFactory.getLogger(ReferenceFactoryService.class);
 
@@ -62,13 +62,13 @@ public class MoneticoClient implements PaiementClient {
     DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy:HH:mm:ss");
     private static String XAF_ACTIVATION_CAPTURE_PAIEMENT = "XAF_ACTIVATION_CAPTURE_PAIEMENT";
 
-    public MoneticoClient(Proxy proxy,
-                          PaiementPropertiesResolver paiementPropertiesResolver,
-                          OperationHelper operationHelper,
-                          MailService mailService,
-                          AfBackUtils afBackUtils,
-                          PropertiesService propertiesService,
-                          GouvPropertiesResolver gouvPropertiesResolver) {
+    public MoneticoApiApiClient(Proxy proxy,
+                                PaiementPropertiesResolver paiementPropertiesResolver,
+                                OperationHelper operationHelper,
+                                MailService mailService,
+                                AfBackUtils afBackUtils,
+                                PropertiesService propertiesService,
+                                GouvPropertiesResolver gouvPropertiesResolver) {
 
         ClientConfig config = new ClientConfig();
 
@@ -220,7 +220,7 @@ public class MoneticoClient implements PaiementClient {
                     }
                     break;
                 case "aut": // aut = Numéro d’autorisation du paiement si celui-ci a été accepté
-                    operation.setNumeroAuthorisation(Integer.parseInt(keyValue[1]));
+                    operation.setNumeroAutorisation(Integer.parseInt(keyValue[1]));
                     break;
                case "lib": // lib = Libellé détaillé précisant la nature du code retour
                     operation.setLibelle(keyValue[1]);

@@ -6,21 +6,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.security.SecureRandom;
+
 import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
 
 @Service
 public class ReferenceFactoryService {
     private static Logger LOGGER = LoggerFactory.getLogger(ReferenceFactoryService.class);
+
     public String createSimpleReference12Digits() {
         logStartMethod(LOGGER);
-        final int SHORT_ID_LENGTH = 12;
-        return RandomStringUtils.randomAlphanumeric(SHORT_ID_LENGTH);
+        return RandomStringUtils.random(12, 0, 0, true, true, null, new SecureRandom());
     }
 
-    public String createSimpleReferenceDigitsNumeric(int number) {
+    public String createSimpleReferenceDigitsNumeric(final int number) {
         logStartMethod(LOGGER);
-        final int SHORT_ID_LENGTH = number;
-        return RandomStringUtils.randomNumeric(SHORT_ID_LENGTH);
+        return RandomStringUtils.random(number, 0, 0, false, true, null, new SecureRandom());
     }
 
 }

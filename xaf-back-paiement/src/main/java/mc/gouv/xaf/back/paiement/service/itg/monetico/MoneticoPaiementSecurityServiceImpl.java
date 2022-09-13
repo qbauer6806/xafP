@@ -1,7 +1,7 @@
-package mc.gouv.xaf.back.paiement.client.monetico;
+package mc.gouv.xaf.back.paiement.service.itg.monetico;
 
 import com.google.gson.Gson;
-import mc.gouv.xaf.back.paiement.client.SecurityService;
+import mc.gouv.xaf.back.paiement.service.itg.PaiementSecurityService;
 import mc.gouv.xaf.back.paiement.dto.ContexteCommandeDTO;
 import mc.gouv.xaf.back.paiement.dto.PaiementDTO;
 import mc.gouv.xaf.back.paiement.properties.PaiementPropertiesResolver;
@@ -18,8 +18,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
 
 @Component
-public class MoneticoSecurityServiceImpl implements SecurityService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(MoneticoSecurityServiceImpl.class);
+public class MoneticoPaiementSecurityServiceImpl implements PaiementSecurityService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MoneticoPaiementSecurityServiceImpl.class);
     private static final String MONETICO_DATE_FORMAT = "dd/MM/yyyy:HH:mm:ss";
     private static final char[] ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".toCharArray();
 

@@ -1,4 +1,4 @@
-package mc.gouv.xaf.back.paiement.client;
+package mc.gouv.xaf.back.paiement.service.itg;
 
 import mc.gouv.xaf.back.paiement.data.entity.OperationBO;
 import mc.gouv.xaf.back.paiement.dto.InformationFacturationDTO;
@@ -9,7 +9,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Optional;
 
-public interface FactureClient {
+public interface FactureApiClient {
 
     String check(String numFacture);
 

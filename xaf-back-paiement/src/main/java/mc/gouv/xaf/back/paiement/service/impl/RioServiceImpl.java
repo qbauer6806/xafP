@@ -1,8 +1,8 @@
 package mc.gouv.xaf.back.paiement.service.impl;
 
-import mc.gouv.xaf.back.paiement.client.RioClient;
-import mc.gouv.xaf.back.paiement.dto.itg.rio.DocumentDTO;
-import mc.gouv.xaf.back.paiement.dto.itg.rio.FileDocumentDTO;
+import mc.gouv.xaf.back.paiement.service.itg.ArchivageApiClient;
+import mc.gouv.xaf.back.paiement.dto.itg.rio.RioDocumentDTO;
+import mc.gouv.xaf.back.paiement.dto.itg.rio.RioFileDocumentDTO;
 import mc.gouv.xaf.back.paiement.service.RioService;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,37 +16,37 @@ public class RioServiceImpl implements RioService {
     private static final String CODE_NOTICE = "CIR_PERMIS";
 
     @Autowired
-    private RioClient rioClient;
+    private ArchivageApiClient archivageApiClient;
 
     @Autowired
     private GouvPropertiesResolver propertiesResolver;
 
     @Override
-    public DocumentDTO createDocument(String refDocument) {
-        return rioClient.createDocument(CODE_APPLI, propertiesResolver.getDemarcheId(), CODE_NOTICE, refDocument);
+    public RioDocumentDTO createDocument(String refDocument) {
+        return archivageApiClient.createDocument(CODE_APPLI, propertiesResolver.getDemarcheId(), CODE_NOTICE, refDocument);
     }
 
     @Override
-    public DocumentDTO getDocument(String refDocument) {
-        return rioClient.getDocument(CODE_APPLI, refDocument, CODE_NOTICE, propertiesResolver.getDemarcheId());
+    public RioDocumentDTO getDocument(String refDocument) {
+        return archivageApiClient.getDocument(CODE_APPLI, refDocument, CODE_NOTICE, propertiesResolver.getDemarcheId());
     }
 
     @Override
-    public DocumentDTO deleteDocument(String refDocument) {
-        return rioClient.deleteDocument(CODE_APPLI, refDocument, CODE_NOTICE, propertiesResolver.getDemarcheId());
+    public RioDocumentDTO deleteDocument(String refDocument) {
+        return archivageApiClient.deleteDocument(CODE_APPLI, refDocument, CODE_NOTICE, propertiesResolver.getDemarcheId());
     }
 
     @Override
-    public FileDocumentDTO createFileDocument(String refDocument, String filename, byte[] file) {
+    public RioFileDocumentDTO createFileDocument(String refDocument, String filename, byte[] file) {
         // Récupération de la version du document actuelle pour modifier la dernière
-        DocumentDTO documentDTO = getDocument(refDocument);
-        Long keyDocument = documentDTO.getKeyDocument();
+        RioDocumentDTO rioDocumentDTO = getDocument(refDocument);
+        Long keyDocument = rioDocumentDTO.getKeyDocument();
 
-        return rioClient.createFileDocument(CODE_APPLI, refDocument, keyDocument, CODE_NOTICE, propertiesResolver.getDemarcheId(), filename, file);
+        return archivageApiClient.createFileDocument(CODE_APPLI, refDocument, keyDocument, CODE_NOTICE, propertiesResolver.getDemarcheId(), filename, file);
     }
 
     @Override
-    public FileDocumentDTO getFileDocument(String refDocument, Integer keyFile) {
-        return rioClient.getFileDocument(CODE_APPLI, refDocument, keyFile, CODE_NOTICE, propertiesResolver.getDemarcheId());
+    public RioFileDocumentDTO getFileDocument(String refDocument, Integer keyFile) {
+        return archivageApiClient.getFileDocument(CODE_APPLI, refDocument, keyFile, CODE_NOTICE, propertiesResolver.getDemarcheId());
     }
 }

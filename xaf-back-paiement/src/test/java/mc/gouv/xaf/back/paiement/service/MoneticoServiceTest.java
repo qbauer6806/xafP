@@ -1,6 +1,6 @@
 package mc.gouv.xaf.back.paiement.service;
 
-import mc.gouv.xaf.back.paiement.client.SecurityService;
+import mc.gouv.xaf.back.paiement.service.itg.PaiementSecurityService;
 import mc.gouv.xaf.back.paiement.dto.ContexteCommandeDTO;
 import mc.gouv.xaf.back.paiement.dto.PaiementDTO;
 import org.junit.Test;
@@ -16,18 +16,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class MoneticoServiceTest {
 
     @Autowired
-    private SecurityService securityService;
+    private PaiementSecurityService paiementSecurityService;
 
 
     @Test
     public void contexteCommandeDTOtoBase64_Test() {
-        String result = securityService.contexteCommandeDTOtoBase64(new ContexteCommandeDTO());
+        String result = paiementSecurityService.contexteCommandeDTOtoBase64(new ContexteCommandeDTO());
         assertThat(result).isEqualTo("e30=");
     }
 
     @Test
     public void getHmacString_Test() {
-        String result = securityService.getHmacString(new PaiementDTO());
+        String result = paiementSecurityService.getHmacString(new PaiementDTO());
         assertThat(result).isEqualTo("0191c42b24bff809057e0b165f380cb2a5228fa1");
     }
 }

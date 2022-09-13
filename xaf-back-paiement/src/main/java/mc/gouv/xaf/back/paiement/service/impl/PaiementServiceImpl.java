@@ -6,7 +6,7 @@ import mc.gouv.xaf.back.bpm.model.GouvBPMTask;
 import mc.gouv.xaf.back.bpm.model.GouvBPMUser;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
-import mc.gouv.xaf.back.paiement.client.SecurityService;
+import mc.gouv.xaf.back.paiement.service.itg.PaiementSecurityService;
 import mc.gouv.xaf.back.paiement.data.dao.CommandeDemandeRepository;
 import mc.gouv.xaf.back.paiement.data.dao.CommandeRepository;
 import mc.gouv.xaf.back.paiement.data.dao.MoyenPaiementRepository;
@@ -67,7 +67,7 @@ public class PaiementServiceImpl implements PaiementService {
     private PaiementHistoriqueRepository paiementHistoriqueRepository;
 
     @Autowired
-    private SecurityService securityService;
+    private PaiementSecurityService paiementSecurityService;
 
     @Autowired
     private PropertiesService propertiesService;
@@ -144,7 +144,7 @@ public class PaiementServiceImpl implements PaiementService {
         moyenPaiement = moyenPaiementRepository.save(moyenPaiement);
         LOGGER.info("Created [ moyenPaiement {}] ", moyenPaiement);
         PaiementDTO paiementDTO = new PaiementDTO(langue);
-        paiementDTO.setDate(securityService.dateFormat(new Date()));
+        paiementDTO.setDate(paiementSecurityService.dateFormat(new Date()));
         GichuniUsagerDTO usager = usagersCache.get(usagerId);
 
         BillingDTO billingDTO = new BillingDTO();
@@ -158,8 +158,8 @@ public class PaiementServiceImpl implements PaiementService {
         ContexteCommandeDTO contexteCommandeDTO = new ContexteCommandeDTO();
         contexteCommandeDTO.setBilling(billingDTO);
 
-        paiementDTO.setContexte_commande(securityService.contexteCommandeDTOtoBase64(contexteCommandeDTO));
-        String date = securityService.dateFormat(new Date());
+        paiementDTO.setContexte_commande(paiementSecurityService.contexteCommandeDTOtoBase64(contexteCommandeDTO));
+        String date = paiementSecurityService.dateFormat(new Date());
         paiementDTO.setDate(date);
         paiementDTO.setThreeDSecureChallenge(paiementPropertiesResolver.getXafMonetico3dsv2Scenario());
         paiementDTO.setMontant(montant + paiementPropertiesResolver.getCurrency());
@@ -178,7 +178,7 @@ public class PaiementServiceImpl implements PaiementService {
         paiementDTO.setUrlRetourErr(paiementPropertiesResolver.getEchecUrl());
         paiementDTO.setUrlRetourOk(paiementPropertiesResolver.getSuccesUrl());
         paiementDTO.setVersion(paiementPropertiesResolver.getVersionAller());
-        paiementDTO.setMAC(securityService.getHmacString(paiementDTO));
+        paiementDTO.setMAC(paiementSecurityService.getHmacString(paiementDTO));
 
         LOGGER.info("Return [ paiementDTO {}] ", paiementDTO);
         return paiementDTO;

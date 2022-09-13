@@ -4,5 +4,7 @@ import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
 import mc.gouv.xaf.back.paiement.data.entity.OperationBO;
 
 public interface TicketRecapitulatifService {
-    void send(OperationBO operation, MoyenPaiementBO moyenPaiement, Integer demandeId);
+
+    void sendMail(OperationBO operation, MoyenPaiementBO moyenPaiement, Integer demandeId);
+
 }

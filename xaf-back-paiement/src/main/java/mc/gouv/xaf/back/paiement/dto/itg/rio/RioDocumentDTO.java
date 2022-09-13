@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class DocumentDTO {
+public class RioDocumentDTO {
 
     private String codeApplication;
     private String lastModifier;
@@ -17,7 +17,7 @@ public class DocumentDTO {
     private String modificationDate;
     private String eraser;
     private String removalDate;
-    private List<FileDocumentDTO> attachments;
+    private List<RioFileDocumentDTO> attachments;
 
     public String getCodeApplication() {
         return codeApplication;
@@ -99,11 +99,11 @@ public class DocumentDTO {
         this.removalDate = removalDate;
     }
 
-    public List<FileDocumentDTO> getAttachments() {
+    public List<RioFileDocumentDTO> getAttachments() {
         return attachments;
     }
 
-    public void setAttachments(List<FileDocumentDTO> attachments) {
+    public void setAttachments(List<RioFileDocumentDTO> attachments) {
         this.attachments = attachments;
     }
 }

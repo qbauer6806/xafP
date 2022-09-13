@@ -1,4 +1,4 @@
-package mc.gouv.xaf.back.paiement.client.monetico;
+package mc.gouv.xaf.back.paiement.service.itg.monetico;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;

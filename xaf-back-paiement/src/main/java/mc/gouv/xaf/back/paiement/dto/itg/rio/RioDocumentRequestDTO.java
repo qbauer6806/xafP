@@ -3,7 +3,7 @@ package mc.gouv.xaf.back.paiement.dto.itg.rio;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class DocumentRequestDTO {
+public class RioDocumentRequestDTO {
 
     private String codeApplication;
     private String lastModifier;

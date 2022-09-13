@@ -1,6 +1,6 @@
 package mc.gouv.xaf.back.paiement.mock;
 
-import mc.gouv.xaf.back.paiement.client.FactureClient;
+import mc.gouv.xaf.back.paiement.service.itg.FactureApiClient;
 import mc.gouv.xaf.back.paiement.data.entity.OperationBO;
 import mc.gouv.xaf.back.paiement.dto.InformationFacturationDTO;
 import mc.gouv.xaf.back.paiement.dto.itg.cir.PermisDTO;
@@ -15,7 +15,7 @@ import java.util.Optional;
 
 @Primary
 @Component
-public class FactureClientTestImpl implements FactureClient {
+public class FactureApiClientTestImpl implements FactureApiClient {
     @Override
     public String check(String numFacture) {
         return null;

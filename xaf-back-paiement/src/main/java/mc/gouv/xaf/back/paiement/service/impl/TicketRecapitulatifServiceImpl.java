@@ -42,7 +42,7 @@ public class TicketRecapitulatifServiceImpl implements TicketRecapitulatifServic
     private GouvBPM gouvBPM;
 
 
-    public void send(OperationBO operation, MoyenPaiementBO moyenPaiement, Integer demandeId) {
+    public void sendMail(OperationBO operation, MoyenPaiementBO moyenPaiement, Integer demandeId) {
 
         Map<String, Object> variables = gouvBPM.getProcessBusinessVariables(demandeId);
         Integer usagerId = (Integer) variables.get(GouvBPMProcessVariableTypeEnum.MC_USAGERID.name());

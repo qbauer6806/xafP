@@ -104,7 +104,7 @@ public class OperationBO {
         return numeroAuthorisation;
     }
 
-    public void setNumeroAuthorisation(Integer numeroAuthorisation) {
+    public void setNumeroAutorisation(Integer numeroAuthorisation) {
         this.numeroAuthorisation = numeroAuthorisation;
     }
 

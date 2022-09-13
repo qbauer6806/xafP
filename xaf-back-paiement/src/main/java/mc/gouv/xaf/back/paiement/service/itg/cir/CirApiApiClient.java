@@ -1,7 +1,8 @@
-package mc.gouv.xaf.back.paiement.client.cir;
+package mc.gouv.xaf.back.paiement.service.itg.cir;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
-import mc.gouv.xaf.back.paiement.client.FactureClient;
+import mc.gouv.xaf.back.paiement.dto.itg.cir.CirRequestDTO;
+import mc.gouv.xaf.back.paiement.service.itg.FactureApiClient;
 import mc.gouv.xaf.back.paiement.data.entity.OperationBO;
 import mc.gouv.xaf.back.paiement.dto.InformationFacturationDTO;
 import mc.gouv.xaf.back.paiement.dto.itg.cir.PermisDTO;
@@ -38,9 +39,9 @@ import java.util.*;
 import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
 
 @Component
-public class CirClient implements FactureClient {
+public class CirApiApiClient implements FactureApiClient {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CirClient.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CirApiApiClient.class);
     public static final String BEARER_PREFIX = "Bearer ";
     public static final String CHECK_ROUTE = "v1/ts/ecritures/paiement/check";
     public static final String PAIEMENT_ROUTE = "v1/ts/ecritures/paiement/";
@@ -65,13 +66,13 @@ public class CirClient implements FactureClient {
     private PropertiesService propertiesService;
     private GouvPropertiesResolver gouvPropertiesResolver;
 
-    public CirClient(Proxy proxy,
-                     PaiementPropertiesResolver paiementPropertiesResolver,
-                     OperationHelper operationHelper,
-                     MailService mailService,
-                     AfBackUtils afBackUtils,
-                     PropertiesService propertiesService,
-                     GouvPropertiesResolver gouvPropertiesResolver) {
+    public CirApiApiClient(Proxy proxy,
+                           PaiementPropertiesResolver paiementPropertiesResolver,
+                           OperationHelper operationHelper,
+                           MailService mailService,
+                           AfBackUtils afBackUtils,
+                           PropertiesService propertiesService,
+                           GouvPropertiesResolver gouvPropertiesResolver) {
         String serviceUrl = paiementPropertiesResolver.getFactureUrl();
         ClientConfig config = new ClientConfig();
 
@@ -114,12 +115,12 @@ public class CirClient implements FactureClient {
         logStartMethod(LOGGER);
         LOGGER.info("Parameters [ numPermis {}, numImmat {},  codeTransaction {}] ", numPermis, numImmat, codeTransaction);
 
-        List<CirRequest> cirRequests = new ArrayList<>();
+        List<CirRequestDTO> cirRequestDTOS = new ArrayList<>();
 
         for (Map.Entry<String, Double> entry : objetMontants.entrySet()) {
             Double montantObjet = entry.getValue();
 
-            CirRequest request = new CirRequest();
+            CirRequestDTO request = new CirRequestDTO();
             request.setNumTpe(paiementPropertiesResolver.getTpe());
 
             request.setNumPermis(numPermis);
@@ -142,7 +143,7 @@ public class CirClient implements FactureClient {
             request.setAutorisation("" + operationBO.getNumeroAuthorisation());
             request.setTransactionId(operationBO.getPkOperation());
 
-            cirRequests.add(request);
+            cirRequestDTOS.add(request);
         }
         Operation<String> operation = new Operation<String>() {
             @Override
@@ -150,7 +151,7 @@ public class CirClient implements FactureClient {
                 Response response = targetCreate
                         .request()
                         .header(HttpHeaders.AUTHORIZATION, BEARER_PREFIX + paiementPropertiesResolver.getFactureToken())
-                        .post(Entity.entity(cirRequests, MediaType.APPLICATION_JSON));
+                        .post(Entity.entity(cirRequestDTOS, MediaType.APPLICATION_JSON));
 
                 if (response.getStatus() != Response.Status.CREATED.getStatusCode()) {
                     throw new HttpResponseException(response.getStatus() , "CIR createFacture() failed");

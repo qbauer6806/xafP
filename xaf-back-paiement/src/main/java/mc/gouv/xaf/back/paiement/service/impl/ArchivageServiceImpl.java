@@ -1,7 +1,6 @@
 package mc.gouv.xaf.back.paiement.service.impl;
 
-import mc.gouv.xaf.back.paiement.dto.itg.rio.DocumentDTO;
-import mc.gouv.xaf.back.paiement.dto.itg.rio.FileDocumentDTO;
+import mc.gouv.xaf.back.paiement.dto.itg.rio.RioDocumentDTO;
 import mc.gouv.xaf.back.paiement.service.ArchivageService;
 import mc.gouv.xaf.back.paiement.service.ConvertisseurTiffService;
 import mc.gouv.xaf.back.paiement.service.RioService;
@@ -15,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpServerErrorException;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,13 +40,13 @@ public class ArchivageServiceImpl implements ArchivageService {
         archivageProgress.put(demandeId, progresArchivage);
 
         LOGGER.info("Vérification de l'existence du document");
-        DocumentDTO documentDTO = new DocumentDTO();
+        RioDocumentDTO rioDocumentDTO = new RioDocumentDTO();
         try {
-            documentDTO = rioService.getDocument(refPermis);
+            rioDocumentDTO = rioService.getDocument(refPermis);
         } catch (HttpServerErrorException e) {
             // Si le document n'existe pas, nous devons le créer
             if (e.getStatusCode().equals(HttpStatus.INTERNAL_SERVER_ERROR)) {
-                documentDTO = rioService.createDocument(refPermis);
+                rioDocumentDTO = rioService.createDocument(refPermis);
             }
         }
 
@@ -59,8 +57,7 @@ public class ArchivageServiceImpl implements ArchivageService {
 
                 for (Map.Entry<String, InputStream> fileTiff : filesTiff.entrySet()) {
                     LOGGER.info("Envoi du documents en GED pour {}", fileTiff.getKey());
-                    FileDocumentDTO fileDocumentDTO = rioService
-                            .createFileDocument(documentDTO.getRefDocument(), fileTiff.getKey(), IOUtils.toByteArray(fileTiff.getValue()));
+                    rioService.createFileDocument(rioDocumentDTO.getRefDocument(), fileTiff.getKey(), IOUtils.toByteArray(fileTiff.getValue()));
                 }
                 fileDocumentList.add(file);
 

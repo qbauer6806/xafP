@@ -1,10 +1,10 @@
-package mc.gouv.xaf.back.paiement.client.rio;
+package mc.gouv.xaf.back.paiement.service.itg.rio;
 
-import mc.gouv.xaf.back.paiement.dto.itg.rio.DocumentDTO;
-import mc.gouv.xaf.back.paiement.dto.itg.rio.DocumentRequestDTO;
-import mc.gouv.xaf.back.paiement.dto.itg.rio.FileDocumentDTO;
+import mc.gouv.xaf.back.paiement.dto.itg.rio.RioDocumentDTO;
+import mc.gouv.xaf.back.paiement.dto.itg.rio.RioDocumentRequestDTO;
+import mc.gouv.xaf.back.paiement.dto.itg.rio.RioFileDocumentDTO;
 import mc.gouv.xaf.back.paiement.properties.PaiementPropertiesResolver;
-import mc.gouv.xaf.back.paiement.client.RioClient;
+import mc.gouv.xaf.back.paiement.service.itg.ArchivageApiClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,9 +27,9 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 
 @Service
-public class RioClientImpl implements RioClient {
+public class ArchivageApiClientImpl implements ArchivageApiClient {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RioClientImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ArchivageApiClientImpl.class);
 
     // Entrypoint
     private static String url;
@@ -56,7 +56,7 @@ public class RioClientImpl implements RioClient {
     }
 
     @Override
-    public DocumentDTO createDocument(String codeAppli, String lastModifier, String codeNotice, String refDocument) {
+    public RioDocumentDTO createDocument(String codeAppli, String lastModifier, String codeNotice, String refDocument) {
 
         LOGGER.info("Création du document {}", refDocument);
 
@@ -65,18 +65,18 @@ public class RioClientImpl implements RioClient {
         RestTemplate rest = getRestTemplate();
 
         HttpHeaders headers = getRioRequestHeaders();
-        DocumentRequestDTO documentRqDTO = new DocumentRequestDTO();
+        RioDocumentRequestDTO documentRqDTO = new RioDocumentRequestDTO();
         documentRqDTO.setCodeApplication(codeAppli);
         documentRqDTO.setLastModifier(lastModifier);
         documentRqDTO.setCodeNotice(codeNotice);
-        HttpEntity<DocumentRequestDTO> requestEntity = new HttpEntity<>(documentRqDTO, headers);
+        HttpEntity<RioDocumentRequestDTO> requestEntity = new HttpEntity<>(documentRqDTO, headers);
 
         String requestUrl = url + String.format(RIO_CREATE_DOCUMENT, refDocument);
         URI uri = UriComponentsBuilder
                 .fromHttpUrl(requestUrl)
                 .build().encode().toUri();
 
-        ResponseEntity<DocumentDTO> responseEntity = rest.exchange(uri, HttpMethod.POST, requestEntity, DocumentDTO.class);
+        ResponseEntity<RioDocumentDTO> responseEntity = rest.exchange(uri, HttpMethod.POST, requestEntity, RioDocumentDTO.class);
 
         LOGGER.info("Fin création du document {}", refDocument);
 
@@ -84,7 +84,7 @@ public class RioClientImpl implements RioClient {
     }
 
     @Override
-    public DocumentDTO getDocument(String codeAppli, String refDocument, String codeNotice, String user) {
+    public RioDocumentDTO getDocument(String codeAppli, String refDocument, String codeNotice, String user) {
 
         LOGGER.info("Récupération du document {}", refDocument);
 
@@ -99,7 +99,7 @@ public class RioClientImpl implements RioClient {
                 .queryParam("user", user)
                 .build().encode().toUri();
 
-        ResponseEntity<DocumentDTO> responseEntity = rest.exchange(uri, HttpMethod.GET, requestEntity, DocumentDTO.class);
+        ResponseEntity<RioDocumentDTO> responseEntity = rest.exchange(uri, HttpMethod.GET, requestEntity, RioDocumentDTO.class);
 
         LOGGER.info("Fin récupération du document {}", refDocument);
 
@@ -107,7 +107,7 @@ public class RioClientImpl implements RioClient {
     }
 
     @Override
-    public DocumentDTO deleteDocument(String codeAppli, String refDocument, String codeNotice, String user) {
+    public RioDocumentDTO deleteDocument(String codeAppli, String refDocument, String codeNotice, String user) {
 
         LOGGER.info("Suppression du document {}", refDocument);
 
@@ -124,7 +124,7 @@ public class RioClientImpl implements RioClient {
                 .queryParam("user", user)
                 .build().encode().toUri();
 
-        ResponseEntity<DocumentDTO> responseEntity = rest.exchange(uri, HttpMethod.DELETE, requestEntity, DocumentDTO.class);
+        ResponseEntity<RioDocumentDTO> responseEntity = rest.exchange(uri, HttpMethod.DELETE, requestEntity, RioDocumentDTO.class);
 
         LOGGER.info("Fin suppression du document {}", refDocument);
 
@@ -132,7 +132,7 @@ public class RioClientImpl implements RioClient {
     }
 
     @Override
-    public FileDocumentDTO createFileDocument(String codeAppli, String refDocument, Long keyDocument, String codeNotice, String user, String filename, byte[] file) {
+    public RioFileDocumentDTO createFileDocument(String codeAppli, String refDocument, Long keyDocument, String codeNotice, String user, String filename, byte[] file) {
 
         LOGGER.info("Création du fichier (filename) {} pour le document {}", filename, refDocument);
 
@@ -152,7 +152,7 @@ public class RioClientImpl implements RioClient {
                 .queryParam("user", user)
                 .build().encode().toUri();
 
-        ResponseEntity<FileDocumentDTO> responseEntity = rest.exchange(uri, HttpMethod.POST, requestEntity, FileDocumentDTO.class);
+        ResponseEntity<RioFileDocumentDTO> responseEntity = rest.exchange(uri, HttpMethod.POST, requestEntity, RioFileDocumentDTO.class);
 
         LOGGER.info("Fin création du fichier (filename) {} pour le document {}", filename, refDocument);
 
@@ -160,7 +160,7 @@ public class RioClientImpl implements RioClient {
     }
 
     @Override
-    public FileDocumentDTO getFileDocument(String codeAppli, String refDocument, Integer keyFile, String codeNotice, String user) {
+    public RioFileDocumentDTO getFileDocument(String codeAppli, String refDocument, Integer keyFile, String codeNotice, String user) {
 
         LOGGER.info("Récupération du fichier (keyfile) {} pour le document {}", keyFile, refDocument);
 
@@ -177,7 +177,7 @@ public class RioClientImpl implements RioClient {
                 .queryParam("user", user)
                 .build().encode().toUri();
 
-        ResponseEntity<FileDocumentDTO> responseEntity = rest.exchange(uri, HttpMethod.GET, requestEntity, FileDocumentDTO.class);
+        ResponseEntity<RioFileDocumentDTO> responseEntity = rest.exchange(uri, HttpMethod.GET, requestEntity, RioFileDocumentDTO.class);
 
         LOGGER.info("Fin récupération du fichier (keyfile) {} pour le document {}", keyFile, refDocument);
 

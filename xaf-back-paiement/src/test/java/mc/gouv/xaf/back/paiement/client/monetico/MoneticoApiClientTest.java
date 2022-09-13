@@ -4,14 +4,14 @@ import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
 import mc.gouv.xaf.back.paiement.data.entity.OperationBO;
 import mc.gouv.xaf.back.paiement.mock.PaiementPropertiesResolverTestImpl;
 import mc.gouv.xaf.back.paiement.retry.OperationHelper;
-import mc.gouv.xaf.back.paiement.service.itg.monetico.MoneticoApiApiClient;
+import mc.gouv.xaf.back.paiement.service.itg.monetico.MoneticoApiClient;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import java.net.Proxy;
 
 public class MoneticoApiClientTest {
-    MoneticoApiApiClient moneticoApiClient = new MoneticoApiApiClient(Proxy.NO_PROXY,
+    MoneticoApiClient moneticoApiClient = new MoneticoApiClient(Proxy.NO_PROXY,
             new PaiementPropertiesResolverTestImpl(),
             new OperationHelper(new PaiementPropertiesResolverTestImpl()),
             null,

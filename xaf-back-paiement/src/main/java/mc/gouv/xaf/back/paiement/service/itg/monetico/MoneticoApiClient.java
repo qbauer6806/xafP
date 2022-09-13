@@ -40,9 +40,9 @@ import java.util.Map;
 import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
 
 @Component
-public class MoneticoApiApiClient implements PaiementApiClient {
+public class MoneticoApiClient implements PaiementApiClient {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(ReferenceFactoryService.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(MoneticoApiClient.class);
 
     private final WebTarget target;
     private final String tpe;
@@ -62,13 +62,13 @@ public class MoneticoApiApiClient implements PaiementApiClient {
     DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy:HH:mm:ss");
     private static String XAF_ACTIVATION_CAPTURE_PAIEMENT = "XAF_ACTIVATION_CAPTURE_PAIEMENT";
 
-    public MoneticoApiApiClient(Proxy proxy,
-                                PaiementPropertiesResolver paiementPropertiesResolver,
-                                OperationHelper operationHelper,
-                                MailService mailService,
-                                AfBackUtils afBackUtils,
-                                PropertiesService propertiesService,
-                                GouvPropertiesResolver gouvPropertiesResolver) {
+    public MoneticoApiClient(Proxy proxy,
+                             PaiementPropertiesResolver paiementPropertiesResolver,
+                             OperationHelper operationHelper,
+                             MailService mailService,
+                             AfBackUtils afBackUtils,
+                             PropertiesService propertiesService,
+                             GouvPropertiesResolver gouvPropertiesResolver) {
 
         ClientConfig config = new ClientConfig();
 

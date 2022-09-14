@@ -6,6 +6,7 @@ import mc.gouv.xaf.back.bpm.model.GouvBPMTask;
 import mc.gouv.xaf.back.bpm.model.GouvBPMUser;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
+import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.paiement.service.itg.PaiementSecurityService;
 import mc.gouv.xaf.back.paiement.data.dao.CommandeDemandeRepository;
 import mc.gouv.xaf.back.paiement.data.dao.CommandeRepository;
@@ -29,9 +30,11 @@ import mc.gouv.xaf.shared.dto.DemandeDataDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.stc.MoyenPaiementDTO;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -96,13 +99,19 @@ public class PaiementServiceImpl implements PaiementService {
     @Override
     public PaiementDTO create(String demandesId, String langue, Integer usagerId, boolean iframe) {
         logStartMethod(LOGGER);
+        String demarcheId = gouvPropertiesResolver.getDemarcheId();
         LOGGER.info("Parameters [ demandesId {}, langue {}, usagerId {} ] ", demandesId, langue, usagerId);
         String codeSociete = iframe ? paiementPropertiesResolver.getXafMoneticoCodeSiteIframe() : paiementPropertiesResolver.getCodeSiteStandard();
-        PropertiesDTO montantProperty = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "XAF_PAIEMENT_AMOUNT");
+        PropertiesDTO montantProperty = propertiesService.getProperty(demarcheId, "XAF_PAIEMENT_AMOUNT");
         double prix = Double.parseDouble(montantProperty.getValue());
         List<Integer> demandesIdList = Stream.of(demandesId.split(",")).map(String::trim).map(Integer::parseInt).collect(Collectors.toList());
         double montant = 0;
         for (Integer demandeId : demandesIdList) {
+            // TODO Changer le moyen de récupérer le statut d'un paiement
+            DemandeDataDTO data = demandesDataService.getDemandeData(demarcheId, demandeId, PaiementDemandeDataKeysEnum.STATUT_PAIEMENT.name());
+            if (data != null && StringUtils.equals(data.getValue(), PaiementStatutEnum.EMPREINTE_VALIDE.name())) {
+                throw new DemarchesServiceException("La demande " + demandeId + " a déjà une empreinte bancaire valide.", HttpStatus.CONFLICT);
+            }
             double montantdemande = montantService.getMontant(demandeId);
             montant += montantdemande;
         }

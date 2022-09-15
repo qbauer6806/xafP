@@ -1,14 +1,13 @@
 package mc.gouv.xaf.back.paiement.service.itg.monetico;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
-import mc.gouv.xaf.back.paiement.service.itg.PaiementApiClient;
-import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
-import mc.gouv.xaf.back.paiement.data.entity.OperationBO;
-import mc.gouv.xaf.back.paiement.data.entity.OperationStatutBO;
+import mc.gouv.xaf.back.paiement.data.enums.OperationStatutEnum;
+import mc.gouv.xaf.back.paiement.dto.MoyenPaiementDTO;
+import mc.gouv.xaf.back.paiement.dto.OperationDTO;
 import mc.gouv.xaf.back.paiement.properties.PaiementPropertiesResolver;
 import mc.gouv.xaf.back.paiement.retry.Operation;
 import mc.gouv.xaf.back.paiement.retry.OperationHelper;
-import mc.gouv.xaf.back.paiement.service.ReferenceFactoryService;
+import mc.gouv.xaf.back.paiement.service.itg.PaiementApiClient;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
@@ -89,11 +88,11 @@ public class MoneticoApiClient implements PaiementApiClient {
         this.gouvPropertiesResolver = gouvPropertiesResolver;
     }
 
-    public boolean capture(MoyenPaiementBO paiement, OperationBO operationBO, DemandeDTO demandeDTO) {
+    public boolean capture(MoyenPaiementDTO paiement, OperationDTO operationDTO, DemandeDTO demandeDTO) {
         logStartMethod(LOGGER);
 
         LOGGER.info("Parameters [ MoyenPaiementBO {}] ", paiement);
-        LOGGER.info("Parameters [ OperationBO {}] ", operationBO);
+        LOGGER.info("Parameters [ OperationBO {}] ", operationDTO);
         LOGGER.info("Parameters [ DemandeDTO {}] ", demandeDTO);
 
         String dateCommande = paiement.getCommande().getDateCreation().format(dateFormatter);
@@ -103,9 +102,9 @@ public class MoneticoApiClient implements PaiementApiClient {
             public void execute() throws Exception {
 
                 String montant = paiement.getMontantInitial() + paiementPropertiesResolver.getCurrency();
-                String montantACapturer = operationBO.getMontant() + paiementPropertiesResolver.getCurrency();
+                String montantACapturer = operationDTO.getMontant() + paiementPropertiesResolver.getCurrency();
                 String montantDejaCapture = paiement.getMontantCapture() + paiementPropertiesResolver.getCurrency();
-                String montantRestant = (paiement.getMontantRestant() - operationBO.getMontant()) + paiementPropertiesResolver.getCurrency();
+                String montantRestant = (paiement.getMontantRestant() - operationDTO.getMontant()) + paiementPropertiesResolver.getCurrency();
                 String version = paiementPropertiesResolver.getVersionCapture();
                 LOGGER.info("Paramètres Capture:\nURL: {}\nTPE: {}\nmontant: {}\nmontant_a_capturer: {}\nmontant_deja_capture: {}\nmontant_restant: {}\nlgue: {}\nreference: {}\ndate (date de la capture): {}\ndate_commande: {}\nsociete: {}\nversion {}",
                         paiementPropertiesResolver.getCaptureUrl(), getTpe(), montant, montantACapturer, montantDejaCapture, montantRestant, paiement.getLangue(), paiement.getPkMoyenPaiement(), dateCapture, dateCommande, paiement.getCodeSociete(), version);
@@ -134,9 +133,9 @@ public class MoneticoApiClient implements PaiementApiClient {
                 String responseString = response.readEntity(String.class);
                 LOGGER.info("Capture [ responseString {}] ", responseString);
                 setResult(responseString);
-                extractResult(responseString, operationBO, paiement);
+                extractResult(responseString, operationDTO);
 
-                if (!OperationStatutBO.ACCEPTEE.equals(operationBO.getOperationStatut())) {
+                if (!OperationStatutEnum.ACCEPTEE.equals(operationDTO.getOperationStatut())) {
                     throw new HttpResponseException(response.getStatus(), "Operation non acceptee");
                 }
             }
@@ -155,10 +154,10 @@ public class MoneticoApiClient implements PaiementApiClient {
             //send mail + delete command_demande
 
             if (mailService != null) {
-                if (OperationStatutBO.ERREUR.equals(operationBO.getOperationStatut())) {
+                if (OperationStatutEnum.ERREUR.name().equals(operationDTO.getOperationStatut())) {
                     sendMail(demandeDTO, operation, 4);
                 } else {
-                    operationBO.setOperationStatut(OperationStatutBO.ERREUR);
+                    operationDTO.setOperationStatut(OperationStatutEnum.ERREUR.name());
                     sendMail(demandeDTO, operation, 3);
                 }
 
@@ -204,7 +203,7 @@ public class MoneticoApiClient implements PaiementApiClient {
         }
     }
 
-    private void extractResult(String responseString, OperationBO operation, MoyenPaiementBO paiement) {
+    private void extractResult(String responseString, OperationDTO operation) {
         for (String s : responseString.split("\n")) {
             String[] keyValue = s.split("=");
 
@@ -212,17 +211,17 @@ public class MoneticoApiClient implements PaiementApiClient {
                 case "cdr": // cdr = Code retour indiquant le résultat de la capture
                     operation.setCodeRetour(keyValue[1]);
                     if ("1".equals(keyValue[1])) {
-                        operation.setOperationStatut(OperationStatutBO.ACCEPTEE);
+                        operation.setOperationStatut(OperationStatutEnum.ACCEPTEE.name());
                     } else if ("0".equals(keyValue[1])) {
-                        operation.setOperationStatut(OperationStatutBO.REFUSEE);
+                        operation.setOperationStatut(OperationStatutEnum.REFUSEE.name());
                     } else {
-                        operation.setOperationStatut(OperationStatutBO.ERREUR);
+                        operation.setOperationStatut(OperationStatutEnum.ERREUR.name());
                     }
                     break;
                 case "aut": // aut = Numéro d’autorisation du paiement si celui-ci a été accepté
                     operation.setNumeroAutorisation(Integer.parseInt(keyValue[1]));
                     break;
-               case "lib": // lib = Libellé détaillé précisant la nature du code retour
+                case "lib": // lib = Libellé détaillé précisant la nature du code retour
                     operation.setLibelle(keyValue[1]);
                     break;
             }

@@ -1,5 +1,8 @@
 package mc.gouv.xaf.back.paiement.data.entity;
 
+import mc.gouv.xaf.back.paiement.data.enums.MoyenPaiementStatutEnum;
+import mc.gouv.xaf.back.paiement.data.enums.MoyenPaiementTypeEnum;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -33,10 +36,10 @@ public class MoyenPaiementBO {
     private double montantRestant;
 
     @Enumerated(EnumType.STRING)
-    private MoyenPaiementTypeBO moyenPaiementType;
+    private MoyenPaiementTypeEnum moyenPaiementType;
 
     @Enumerated(EnumType.STRING)
-    private MoyenPaiementStatutBO moyenPaiementStatut;
+    private MoyenPaiementStatutEnum moyenPaiementStatut;
 
     private LocalDateTime dateDerniereModification;
 
@@ -119,19 +122,19 @@ public class MoyenPaiementBO {
         this.montantRestant = montantRestant;
     }
 
-    public MoyenPaiementTypeBO getMoyenPaiementType() {
+    public MoyenPaiementTypeEnum getMoyenPaiementType() {
         return moyenPaiementType;
     }
 
-    public void setMoyenPaiementType(MoyenPaiementTypeBO moyenPaiementType) {
+    public void setMoyenPaiementType(MoyenPaiementTypeEnum moyenPaiementType) {
         this.moyenPaiementType = moyenPaiementType;
     }
 
-    public MoyenPaiementStatutBO getMoyenPaiementStatut() {
+    public MoyenPaiementStatutEnum getMoyenPaiementStatut() {
         return moyenPaiementStatut;
     }
 
-    public void setMoyenPaiementStatut(MoyenPaiementStatutBO moyenPaiementStatut) {
+    public void setMoyenPaiementStatut(MoyenPaiementStatutEnum moyenPaiementStatut) {
         this.moyenPaiementStatut = moyenPaiementStatut;
     }
 
@@ -309,65 +312,6 @@ public class MoyenPaiementBO {
                 ", authentification='" + authentification + '\'' +
                 ", langue='" + langue + '\'' +
                 '}';
-    }
-
-    public String toCSV() {
-        StringJoiner csvString = new StringJoiner(";");
-        csvString.add(pkMoyenPaiement);
-        csvString.add(codeSociete);
-        csvString.add(dateLimite.toString());
-        csvString.add("" + montantInitial);
-        csvString.add("" + montantCapture);
-        csvString.add("" + montantRestant);
-        csvString.add(moyenPaiementType == null ? "null" :moyenPaiementType.name());
-        csvString.add(moyenPaiementStatut== null ? "null" :moyenPaiementStatut.name());
-        csvString.add(dateDerniereModification.toString());
-        csvString.add(cvx);
-        csvString.add(vld);
-        csvString.add(brand);
-        csvString.add(numauto);
-        csvString.add(usage);
-        csvString.add(typecompte);
-        csvString.add(ecard);
-        csvString.add(cbmasquee);
-        csvString.add(originecb);
-        csvString.add(bincb);
-        csvString.add(hpancb);
-        csvString.add(ipclient);
-        csvString.add(originetr);
-        csvString.add(modepaiement);
-        csvString.add(authentification);
-        csvString.add(langue);
-        return csvString.toString();
-    }
-    public static String headerCSV() {
-        StringJoiner csvString = new StringJoiner(";");
-        csvString.add("pkMoyenPaiement");
-        csvString.add("codeSociete");
-        csvString.add("dateLimite");
-        csvString.add("montantInitial");
-        csvString.add("montantCapture");
-        csvString.add("montantRestant");
-        csvString.add("moyenPaiementType");
-        csvString.add("moyenPaiementStatut");
-        csvString.add("dateDerniereModification");
-        csvString.add("cvx");
-        csvString.add("vld");
-        csvString.add("brand");
-        csvString.add("numauto");
-        csvString.add("usage");
-        csvString.add("typecompte");
-        csvString.add("ecard");
-        csvString.add("cbmasquee");
-        csvString.add("originecb");
-        csvString.add("bincb");
-        csvString.add("hpancb");
-        csvString.add("ipclient");
-        csvString.add("originetr");
-        csvString.add("modepaiement");
-        csvString.add("authentification");
-        csvString.add("langue");
-        return csvString.toString();
     }
 
 }

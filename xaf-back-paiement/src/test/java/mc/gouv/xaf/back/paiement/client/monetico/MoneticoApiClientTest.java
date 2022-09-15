@@ -1,7 +1,7 @@
 package mc.gouv.xaf.back.paiement.client.monetico;
 
-import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
-import mc.gouv.xaf.back.paiement.data.entity.OperationBO;
+import mc.gouv.xaf.back.paiement.dto.MoyenPaiementDTO;
+import mc.gouv.xaf.back.paiement.dto.OperationDTO;
 import mc.gouv.xaf.back.paiement.mock.PaiementPropertiesResolverTestImpl;
 import mc.gouv.xaf.back.paiement.retry.OperationHelper;
 import mc.gouv.xaf.back.paiement.service.itg.monetico.MoneticoApiClient;
@@ -24,13 +24,13 @@ public class MoneticoApiClientTest {
     @Test
     @Ignore
     public void testCapture() throws Exception {
-        MoyenPaiementBO moyenPaiementBO = new MoyenPaiementBO();
-        moyenPaiementBO.setMontantInitial(90.0);
-        moyenPaiementBO.setMontantRestant(90.0);
-        moyenPaiementBO.setMontantCapture(0.0);
-        moyenPaiementBO.setPkMoyenPaiement("XQXS2CeBYNrO");
-        OperationBO operation = new OperationBO();
+        MoyenPaiementDTO moyenPaiementDTO = new MoyenPaiementDTO();
+        moyenPaiementDTO.setMontantInitial(90.0);
+        moyenPaiementDTO.setMontantRestant(90.0);
+        moyenPaiementDTO.setMontantCapture(0.0);
+        moyenPaiementDTO.setPkMoyenPaiement("XQXS2CeBYNrO");
+        OperationDTO operation = new OperationDTO();
         operation.setMontant(90.0);
-        moneticoApiClient.capture(moyenPaiementBO, operation, null);
+        moneticoApiClient.capture(moyenPaiementDTO, operation, null);
     }
 }

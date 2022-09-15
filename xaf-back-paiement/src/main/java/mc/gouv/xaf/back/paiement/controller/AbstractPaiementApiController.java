@@ -1,12 +1,12 @@
 package mc.gouv.xaf.back.paiement.controller;
 
-import mc.gouv.xaf.back.paiement.data.dao.MoyenPaiementRepository;
-import mc.gouv.xaf.back.paiement.data.dao.OperationRepository;
-import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
-import mc.gouv.xaf.back.paiement.data.entity.OperationBO;
+import mc.gouv.xaf.back.paiement.data.transformer.MoyenPaiementTransformer;
+import mc.gouv.xaf.back.paiement.data.transformer.OperationTransformer;
+import mc.gouv.xaf.back.paiement.dto.MoyenPaiementDTO;
+import mc.gouv.xaf.back.paiement.dto.OperationDTO;
 import mc.gouv.xaf.back.paiement.dto.PaiementDTO;
-import mc.gouv.xaf.back.paiement.service.PaiementService;
-import mc.gouv.xaf.shared.stc.MoyenPaiementDTO;
+import mc.gouv.xaf.back.paiement.service.itg.MoneticoPaiementService;
+import mc.gouv.xaf.shared.dto.itg.monetico.MoneticoResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,13 +22,7 @@ import java.io.IOException;
 public abstract class AbstractPaiementApiController {
 
     @Autowired
-    private PaiementService paiementService;
-
-    @Autowired
-    private OperationRepository operationRepository;
-
-    @Autowired
-    private MoyenPaiementRepository moyenPaiementRepository;
+    private MoneticoPaiementService moneticoPaiementService;
 
     /**
      * Récupération d'un DTO permettant d'initialiser une page/iframe de paiement sur le FO
@@ -44,16 +38,16 @@ public abstract class AbstractPaiementApiController {
                                    @RequestParam Integer usagerId,
                                    @RequestParam boolean iframe) {
 
-        return paiementService.create(demandesId, langue, usagerId, iframe);
+        return moneticoPaiementService.create(demandesId, langue, usagerId, iframe);
     }
 
     /**
      * Mise à jour du status de paiement suite à une action utilisateur
-     * @param moyenPaiementDTO Représentation d'un retour de PSP
+     * @param moneticoResponseDTO Représentation d'un retour de PSP
      */
     @PostMapping
-    public void updatePaiement(@RequestBody MoyenPaiementDTO moyenPaiementDTO) {
-        paiementService.updateStatus(moyenPaiementDTO);
+    public void updatePaiement(@RequestBody MoneticoResponseDTO moneticoResponseDTO) {
+        moneticoPaiementService.updateStatus(moneticoResponseDTO);
     }
 
     /**
@@ -63,16 +57,16 @@ public abstract class AbstractPaiementApiController {
     @GetMapping("stats/operation")
     public void getStatsOperation(HttpServletResponse response) {
         try {
-            response.getWriter().println(OperationBO.headerCSV());
+            response.getWriter().println(OperationTransformer.headerCSV());
             response.setContentType("text/plain; charset=utf-8");
-            operationRepository.findAll().forEach(operationBO -> {
+
+           for(OperationDTO operationDTO : moneticoPaiementService.getAllOperations()) {
                 try {
-                    response.getWriter().println(operationBO.toCSV());
+                    response.getWriter().println(OperationTransformer.toCSV(operationDTO));
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-            });
-
+            }
 
             response.getWriter().close();
         } catch (IOException ex) {
@@ -88,15 +82,16 @@ public abstract class AbstractPaiementApiController {
     @GetMapping("stats/moyen-paiement")
     public void getStatsMoyenPaiement(HttpServletResponse response) {
         try {
-            response.getWriter().println(MoyenPaiementBO.headerCSV());
+            response.getWriter().println(MoyenPaiementTransformer.headerCSV());
             response.setContentType("text/plain; charset=utf-8");
-            moyenPaiementRepository.findAll().forEach(moyenPaiementBO -> {
+
+            for(MoyenPaiementDTO moyenPaiementDTO : moneticoPaiementService.getAllMoyensPaiement()) {
                 try {
-                    response.getWriter().println(moyenPaiementBO.toCSV());
+                    response.getWriter().println(MoyenPaiementTransformer.toCSV(moyenPaiementDTO));
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-            });
+            }
             response.getWriter().close();
         } catch (IOException ex) {
             throw new RuntimeException("IOError writing file to output stream");

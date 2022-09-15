@@ -4,12 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import mc.gouv.xaf.apiclient.paiement.PaiementApiClient;
 import mc.gouv.xaf.apiclient.paiement.PaiementConstant;
-import mc.gouv.xaf.apiclient.paiement.PaiementDTO;
+import mc.gouv.xaf.apiclient.paiement.monetico.dto.MoneticoDTO;
 import mc.gouv.xaf.servlet.AbstractAfServlet;
 import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
 import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
-import mc.gouv.xaf.shared.stc.MoyenPaiementDTO;
+import mc.gouv.xaf.shared.dto.itg.monetico.MoneticoResponseDTO;
 import org.apache.commons.compress.utils.IOUtils;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
@@ -61,7 +61,7 @@ public class PaiementServlet extends AbstractAfServlet {
         Integer usagerId = usagerInfosDTO.getId();
 
         LOGGER.info("Récupération des données de paiement pour la demande {}...", demandeIds);
-        PaiementDTO paiement = getStcApiClient().getPaiement(demandeIds, langue, usagerId, iframe);
+        MoneticoDTO paiement = getStcApiClient().getPaiement(demandeIds, langue, usagerId, iframe);
 
         response.setStatus(HttpStatus.SC_OK);
         ObjectMapper mapper = new ObjectMapper();
@@ -102,9 +102,9 @@ public class PaiementServlet extends AbstractAfServlet {
                 for (Map.Entry<String, String[]> entry : request.getParameterMap().entrySet()) {
                     paiementNode.put(entry.getKey().toLowerCase(), entry.getValue()[0]);
                 }
-                MoyenPaiementDTO moyenPaiementDTO = mapper.treeToValue(paiementNode, MoyenPaiementDTO.class);
-                moyenPaiementDTO.setCodeRetour(codeRetour);
-                getStcApiClient().updatePaiementStatus(moyenPaiementDTO);
+                MoneticoResponseDTO moneticoResponseDTO = mapper.treeToValue(paiementNode, MoneticoResponseDTO.class);
+                moneticoResponseDTO.setCodeRetour(codeRetour);
+                getStcApiClient().updatePaiementStatus(moneticoResponseDTO);
 
                 LOGGER.info("result = 0");
                 sResult = "0";

@@ -1,10 +1,10 @@
 package mc.gouv.xaf.back.paiement.service;
 
-import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
-import mc.gouv.xaf.back.paiement.data.entity.OperationBO;
+import mc.gouv.xaf.back.paiement.dto.MoyenPaiementDTO;
+import mc.gouv.xaf.back.paiement.dto.OperationDTO;
 
 public interface TicketRecapitulatifService {
 
-    void sendMail(OperationBO operation, MoyenPaiementBO moyenPaiement, Integer demandeId);
+    void sendMail(OperationDTO operation, MoyenPaiementDTO moyenPaiement, Integer demandeId);
 
 }

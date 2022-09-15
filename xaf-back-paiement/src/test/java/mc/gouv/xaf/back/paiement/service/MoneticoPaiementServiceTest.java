@@ -14,12 +14,13 @@ import mc.gouv.xaf.back.paiement.data.dao.*;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeBO;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeDemandeBO;
 import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
-import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementStatutBO;
+import mc.gouv.xaf.back.paiement.data.enums.MoyenPaiementStatutEnum;
 import mc.gouv.xaf.back.paiement.dto.*;
 import mc.gouv.xaf.back.paiement.enums.PaiementDemandeDataKeysEnum;
 import mc.gouv.xaf.back.paiement.enums.PaiementStatutEnum;
 import mc.gouv.xaf.back.paiement.mock.DemandeStatutEnum;
-import mc.gouv.xaf.shared.stc.MoyenPaiementDTO;
+import mc.gouv.xaf.back.paiement.service.itg.MoneticoPaiementService;
+import mc.gouv.xaf.shared.dto.itg.monetico.MoneticoResponseDTO;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,13 +41,13 @@ import static org.assertj.core.api.AssertionsForClassTypes.fail;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class PaiementServiceTest {
+public class MoneticoPaiementServiceTest {
 
     @Autowired
     private DemandesRepository demandesRepository;
 
     @Autowired
-    private PaiementService paiementService;
+    private MoneticoPaiementService moneticoPaiementService;
 
     @Autowired
     private CommandeRepository commandeRepository;
@@ -114,7 +115,7 @@ public class PaiementServiceTest {
         demandeBO2 = demandesRepository.save(demandeBO2);
         String langue = "FR";
         String demandesId = "" + demandeBO.getPkDemandes() + "," + demandeBO2.getPkDemandes();
-        PaiementDTO paiementDTO = paiementService.create(demandesId, langue, 1, true);
+        PaiementDTO paiementDTO = moneticoPaiementService.create(demandesId, langue, 1, true);
 
         assertThat(paiementDTO.getReference()).hasSize(12);
         assertThat(paiementDTO.getMontant()).isEqualTo("160.0EUR");
@@ -185,7 +186,7 @@ public class PaiementServiceTest {
         demandeBO2 = demandesRepository.save(demandeBO2);
         String langue = "FR";
         String demandesId = "" + demandeBO.getPkDemandes() + "," + demandeBO2.getPkDemandes();
-        PaiementDTO paiementDTO = paiementService.create(demandesId, langue, 1, true);
+        PaiementDTO paiementDTO = moneticoPaiementService.create(demandesId, langue, 1, true);
 
         demandesRepository.findAll().stream()
                 .map(DemandeBO::getDernierStatut)
@@ -193,18 +194,18 @@ public class PaiementServiceTest {
                 .collect(Collectors.toList()).forEach(libelle -> assertThat(libelle).isEqualTo(DemandeStatutEnum.EN_ATTENTE_DE_PAIEMENT.name()));
 
         String status = "paiement";
-        MoyenPaiementDTO moyenPaiementDTO = new MoyenPaiementDTO();
-        moyenPaiementDTO.setReference(paiementDTO.getReference());
-        moyenPaiementDTO.setCodeRetour(status);
-        moyenPaiementDTO.setVld("1223");
-        paiementService.updateStatus(moyenPaiementDTO);
+        MoneticoResponseDTO moneticoResponseDTO = new MoneticoResponseDTO();
+        moneticoResponseDTO.setReference(paiementDTO.getReference());
+        moneticoResponseDTO.setCodeRetour(status);
+        moneticoResponseDTO.setVld("1223");
+        moneticoPaiementService.updateStatus(moneticoResponseDTO);
 
         TimeUnit.SECONDS.sleep(1);
 
         Optional<MoyenPaiementBO> optionalMoyenPaiementBO = moyenPaiementRepository.findById(paiementDTO.getReference());
         assertThat(optionalMoyenPaiementBO).isPresent();
         MoyenPaiementBO moyenPaiementBO = optionalMoyenPaiementBO.get();
-        assertThat(moyenPaiementBO.getMoyenPaiementStatut()).isEqualTo(MoyenPaiementStatutBO.VALIDE);
+        assertThat(moyenPaiementBO.getMoyenPaiementStatut()).isEqualTo(MoyenPaiementStatutEnum.VALIDE);
 
         demandesRepository.findAll().stream().map(DemandeBO::getDernierStatut).map(DemandesStatutsBO::getLibelle).collect(Collectors.toList()).forEach(libelle -> assertThat(libelle).isEqualTo(DemandeStatutEnum.EN_ATTENTE_TRAIT.name()));
         paiementHistoriqueRepository.findAll().forEach(histo -> {
@@ -243,21 +244,20 @@ public class PaiementServiceTest {
         MoyenPaiementBO moyenPaiementBO = new MoyenPaiementBO();
         moyenPaiementBO.setCommande(commandeBO);
         moyenPaiementBO.setMontantInitial(122);
-        moyenPaiementBO.setMoyenPaiementStatut(MoyenPaiementStatutBO.VALIDE);
+        moyenPaiementBO.setMoyenPaiementStatut(MoyenPaiementStatutEnum.VALIDE);
         moyenPaiementBO.setDateLimite(LocalDateTime.MIN);
         moyenPaiementBO.setPkMoyenPaiement("maRef");
         moyenPaiementRepository.save(moyenPaiementBO);
         MoyenPaiementBO moyenPaiementBO2 = new MoyenPaiementBO();
         moyenPaiementBO2.setCommande(commandeBO);
         moyenPaiementBO2.setMontantInitial(155);
-        moyenPaiementBO2.setMoyenPaiementStatut(MoyenPaiementStatutBO.VALIDE);
+        moyenPaiementBO2.setMoyenPaiementStatut(MoyenPaiementStatutEnum.VALIDE);
         moyenPaiementBO2.setPkMoyenPaiement("maRef2");
         moyenPaiementBO2.setDateLimite(LocalDateTime.MAX);
         moyenPaiementRepository.save(moyenPaiementBO2);
 
 
-        Optional<MoyenPaiementBO> optionalMoyenPaiementBO = paiementService.getMoyenPaiement(demandeBO.getPkDemandes());
-        MoyenPaiementBO moyenPaiement = optionalMoyenPaiementBO.get();
+        MoyenPaiementDTO moyenPaiement = moneticoPaiementService.getMoyenPaiement(demandeBO.getPkDemandes());
         assertThat(moyenPaiement.getMontantInitial()).isEqualTo(155);
         assertThat(moyenPaiement.getPkMoyenPaiement()).isEqualTo("maRef2");
     }

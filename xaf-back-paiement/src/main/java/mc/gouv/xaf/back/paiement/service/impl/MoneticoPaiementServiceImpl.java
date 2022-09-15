@@ -6,21 +6,19 @@ import mc.gouv.xaf.back.bpm.model.GouvBPMTask;
 import mc.gouv.xaf.back.bpm.model.GouvBPMUser;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
-import mc.gouv.xaf.back.paiement.service.itg.PaiementSecurityService;
-import mc.gouv.xaf.back.paiement.data.dao.CommandeDemandeRepository;
-import mc.gouv.xaf.back.paiement.data.dao.CommandeRepository;
-import mc.gouv.xaf.back.paiement.data.dao.MoyenPaiementRepository;
-import mc.gouv.xaf.back.paiement.data.dao.PaiementHistoriqueRepository;
+import mc.gouv.xaf.back.paiement.data.dao.*;
 import mc.gouv.xaf.back.paiement.data.entity.*;
-import mc.gouv.xaf.back.paiement.dto.BillingDTO;
-import mc.gouv.xaf.back.paiement.dto.ContexteCommandeDTO;
-import mc.gouv.xaf.back.paiement.dto.PaiementDTO;
+import mc.gouv.xaf.back.paiement.data.enums.MoyenPaiementStatutEnum;
+import mc.gouv.xaf.back.paiement.data.transformer.MoyenPaiementTransformer;
+import mc.gouv.xaf.back.paiement.data.transformer.OperationTransformer;
+import mc.gouv.xaf.back.paiement.dto.*;
 import mc.gouv.xaf.back.paiement.enums.PaiementDemandeDataKeysEnum;
 import mc.gouv.xaf.back.paiement.enums.PaiementStatutEnum;
 import mc.gouv.xaf.back.paiement.properties.PaiementPropertiesResolver;
 import mc.gouv.xaf.back.paiement.service.MontantService;
-import mc.gouv.xaf.back.paiement.service.PaiementService;
 import mc.gouv.xaf.back.paiement.service.ReferenceFactoryService;
+import mc.gouv.xaf.back.paiement.service.itg.MoneticoPaiementService;
+import mc.gouv.xaf.back.paiement.service.itg.PaiementSecurityService;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesDataService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
@@ -28,7 +26,7 @@ import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.shared.dto.DemandeDataDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
-import mc.gouv.xaf.shared.stc.MoyenPaiementDTO;
+import mc.gouv.xaf.shared.dto.itg.monetico.MoneticoResponseDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,8 +45,8 @@ import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
 import static mc.gouv.xaf.back.service.utils.AfBackUtils.DTF_AAAA_MM_JJ;
 
 @Service
-public class PaiementServiceImpl implements PaiementService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PaiementServiceImpl.class);
+public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(MoneticoPaiementServiceImpl.class);
     public static final String UPDATE_PAIEMENT_DATA_THREAD = "UPDATE_PAIEMENT_DATA_THREAD";
 
     @Autowired
@@ -56,6 +54,9 @@ public class PaiementServiceImpl implements PaiementService {
 
     @Autowired
     private MoyenPaiementRepository moyenPaiementRepository;
+
+    @Autowired
+    private OperationRepository operationRepository;
 
     @Autowired
     private CommandeDemandeRepository commandeDemandeRepository;
@@ -137,7 +138,7 @@ public class PaiementServiceImpl implements PaiementService {
         moyenPaiement.setMontantInitial(montant);
         moyenPaiement.setMontantRestant(montant);
         moyenPaiement.setMontantCapture(0);
-        moyenPaiement.setMoyenPaiementStatut(MoyenPaiementStatutBO.EN_ATTENTE_DE_VALIDATION);
+        moyenPaiement.setMoyenPaiementStatut(MoyenPaiementStatutEnum.EN_ATTENTE_DE_VALIDATION);
         moyenPaiement.setCodeSociete(codeSociete);
         moyenPaiement.setLangue(langue);
 
@@ -173,7 +174,7 @@ public class PaiementServiceImpl implements PaiementService {
         paiementDTO.setSociete(codeSociete);
         paiementDTO.setTPE(paiementPropertiesResolver.getTpe());
 
-        paiementDTO.setTexteLibre(paiementPropertiesResolver.getXafMoneticoTexteAller() + " - " + date+" - demandes ["+listePkDemandes+"]");
+        paiementDTO.setTexteLibre(paiementPropertiesResolver.getXafMoneticoTexteAller() + " - " + date + " - demandes [" + listePkDemandes + "]");
 
         paiementDTO.setUrlRetourErr(paiementPropertiesResolver.getEchecUrl());
         paiementDTO.setUrlRetourOk(paiementPropertiesResolver.getSuccesUrl());
@@ -185,14 +186,14 @@ public class PaiementServiceImpl implements PaiementService {
     }
 
     @Override
-    public void updateStatus(MoyenPaiementDTO moyenPaiementDTO) {
+    public void updateStatus(MoneticoResponseDTO moneticoResponseDTO) {
         logStartMethod(LOGGER);
-        LOGGER.info("Parameters [ moyenPaiementDTO {}] ", moyenPaiementDTO);
-        MoyenPaiementBO moyenPaiement = moyenPaiementRepository.findById(moyenPaiementDTO.getReference()).get();
-        String status = moyenPaiementDTO.getCodeRetour();
+        LOGGER.info("Parameters [ moneticoResponseDTO {}] ", moneticoResponseDTO);
+        MoyenPaiementBO moyenPaiement = moyenPaiementRepository.findById(moneticoResponseDTO.getReference()).get();
+        String status = moneticoResponseDTO.getCodeRetour();
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMyy");
-        YearMonth yeaMonthValidite = YearMonth.parse(moyenPaiementDTO.getVld(), formatter);
+        YearMonth yeaMonthValidite = YearMonth.parse(moneticoResponseDTO.getVld(), formatter);
         LocalDateTime dateValidite = LocalDateTime.of(yeaMonthValidite.getYear(), yeaMonthValidite.getMonth(), yeaMonthValidite.getMonth().length(yeaMonthValidite.isLeapYear()), 0, 0);
         if (dateValidite.isBefore(moyenPaiement.getDateLimite())) {
             LOGGER.info("Changement date limite moyen paiement [ dateValidite {}] ", dateValidite);
@@ -202,43 +203,63 @@ public class PaiementServiceImpl implements PaiementService {
         }
 
         if (status.equals("payetest") || status.equals("paiement")) {
-            moyenPaiement.setMoyenPaiementStatut(MoyenPaiementStatutBO.VALIDE);
+            moyenPaiement.setMoyenPaiementStatut(MoyenPaiementStatutEnum.VALIDE);
             List<CommandeDemandeBO> commandeDemandeBOList = commandeDemandeRepository.findByCommande_PkCommande(moyenPaiement.getCommande().getPkCommande());
-            updateDemandeData(commandeDemandeBOList, dateValidite, moyenPaiementDTO);
+            updateDemandeData(commandeDemandeBOList, dateValidite, moneticoResponseDTO);
         } else {
-            moyenPaiement.setMoyenPaiementStatut(MoyenPaiementStatutBO.INVALIDE);
+            moyenPaiement.setMoyenPaiementStatut(MoyenPaiementStatutEnum.INVALIDE);
         }
 
-        moyenPaiement.setAuthentification(moyenPaiementDTO.getAuthentification());
-        moyenPaiement.setModepaiement(moyenPaiementDTO.getModepaiement());
-        moyenPaiement.setOriginetr(moyenPaiementDTO.getOriginetr());
-        moyenPaiement.setIpclient(moyenPaiementDTO.getIpclient());
-        moyenPaiement.setHpancb(moyenPaiementDTO.getHpancb());
-        moyenPaiement.setBincb(moyenPaiementDTO.getBincb());
-        moyenPaiement.setOriginecb(moyenPaiementDTO.getOriginecb());
-        moyenPaiement.setCbmasquee(moyenPaiementDTO.getCbmasquee());
-        moyenPaiement.setEcard(moyenPaiementDTO.getEcard());
-        moyenPaiement.setTypecompte(moyenPaiementDTO.getTypecompte());
-        moyenPaiement.setUsage(moyenPaiementDTO.getUsage());
-        moyenPaiement.setNumauto(moyenPaiementDTO.getNumauto());
-        moyenPaiement.setBrand(moyenPaiementDTO.getBrand());
-        moyenPaiement.setVld(moyenPaiementDTO.getVld());
-        moyenPaiement.setCvx(moyenPaiementDTO.getCvx());
+        moyenPaiement.setAuthentification(moneticoResponseDTO.getAuthentification());
+        moyenPaiement.setModepaiement(moneticoResponseDTO.getModepaiement());
+        moyenPaiement.setOriginetr(moneticoResponseDTO.getOriginetr());
+        moyenPaiement.setIpclient(moneticoResponseDTO.getIpclient());
+        moyenPaiement.setHpancb(moneticoResponseDTO.getHpancb());
+        moyenPaiement.setBincb(moneticoResponseDTO.getBincb());
+        moyenPaiement.setOriginecb(moneticoResponseDTO.getOriginecb());
+        moyenPaiement.setCbmasquee(moneticoResponseDTO.getCbmasquee());
+        moyenPaiement.setEcard(moneticoResponseDTO.getEcard());
+        moyenPaiement.setTypecompte(moneticoResponseDTO.getTypecompte());
+        moyenPaiement.setUsage(moneticoResponseDTO.getUsage());
+        moyenPaiement.setNumauto(moneticoResponseDTO.getNumauto());
+        moyenPaiement.setBrand(moneticoResponseDTO.getBrand());
+        moyenPaiement.setVld(moneticoResponseDTO.getVld());
+        moyenPaiement.setCvx(moneticoResponseDTO.getCvx());
 
         moyenPaiementRepository.save(moyenPaiement);
         LOGGER.info("Created [ moyenPaiement {}] ", moyenPaiement);
     }
 
     @Override
-    public Optional<MoyenPaiementBO> getMoyenPaiement(Integer demandeId) {
+    public MoyenPaiementDTO getMoyenPaiement(Integer demandeId) {
         logStartMethod(LOGGER);
         DemandeDataDTO data = demandesDataService.getDemandeData(gouvPropertiesResolver.getDemarcheId(), demandeId, PaiementDemandeDataKeysEnum.MOYEN_PAIEMENT_REFERENCE.name());
-        return moyenPaiementRepository.findById(data.getValue());
+
+        Optional<MoyenPaiementBO> moyenPaiementBOOpt = moyenPaiementRepository.findById(data.getValue());
+
+        MoyenPaiementDTO moyenPaiement = null;
+        if (moyenPaiementBOOpt.isPresent()) {
+            moyenPaiement = MoyenPaiementTransformer.bo2Dto(moyenPaiementBOOpt.get());
+        }
+
+        return moyenPaiement;
+    }
+
+    @Override
+    public List<MoyenPaiementDTO> getAllMoyensPaiement() {
+        List<MoyenPaiementBO> moyenPaiementBOS = moyenPaiementRepository.findAll();
+        return MoyenPaiementTransformer.bos2Dtos(moyenPaiementBOS);
+    }
+
+    @Override
+    public List<OperationDTO> getAllOperations() {
+        List<OperationBO> operationBos = operationRepository.findAll();
+        return OperationTransformer.bos2Dtos(operationBos);
     }
 
     // TODO sauvegarder le statut du paiement de manière plus correct que dans les demandes data
     @Async
-    void updateDemandeData(List<CommandeDemandeBO> commandeDemandeBOList, LocalDateTime dateValidite, MoyenPaiementDTO moyenPaiement) {
+    void updateDemandeData(List<CommandeDemandeBO> commandeDemandeBOList, LocalDateTime dateValidite, MoneticoResponseDTO moneticoResponseDTO) {
         Thread t = new Thread(() -> {
             Timestamp date = Timestamp.valueOf(LocalDateTime.now());
             for (CommandeDemandeBO commandeDemandeBO : commandeDemandeBOList) {
@@ -254,8 +275,8 @@ public class PaiementServiceImpl implements PaiementService {
                 datas.put(PaiementDemandeDataKeysEnum.DATE_PAIEMENT.name(), LocalDateTime.now().format(DTF_AAAA_MM_JJ));
                 datas.put(PaiementDemandeDataKeysEnum.DATE_EXPIRATION_EMPREINTE.name(), dateValidite.format(DTF_AAAA_MM_JJ));
                 datas.put(PaiementDemandeDataKeysEnum.STATUT_PAIEMENT.name(), PaiementStatutEnum.EMPREINTE_VALIDE.name());
-                datas.put(PaiementDemandeDataKeysEnum.MOYEN_PAIEMENT.name(), moyenPaiement.getModepaiement());
-                datas.put(PaiementDemandeDataKeysEnum.MOYEN_PAIEMENT_REFERENCE.name(), moyenPaiement.getReference());
+                datas.put(PaiementDemandeDataKeysEnum.MOYEN_PAIEMENT.name(), moneticoResponseDTO.getModepaiement());
+                datas.put(PaiementDemandeDataKeysEnum.MOYEN_PAIEMENT_REFERENCE.name(), moneticoResponseDTO.getReference());
                 demandesDataService.saveOrUpdateDemandeDatas(demarcheId, pkDemande, datas);
 
                 LOGGER.info("Ajout de l'historique de paiement...");

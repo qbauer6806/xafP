@@ -1,18 +1,9 @@
 package mc.gouv.xaf.back.paiement.service.impl;
 
-import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
-import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
-import mc.gouv.xaf.back.paiement.data.entity.OperationBO;
+import mc.gouv.xaf.back.paiement.dto.MoyenPaiementDTO;
+import mc.gouv.xaf.back.paiement.dto.OperationDTO;
 import mc.gouv.xaf.back.paiement.properties.PaiementPropertiesResolver;
 import mc.gouv.xaf.back.paiement.service.TicketRecapitulatifService;
 import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
@@ -20,6 +11,14 @@ import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 public class TicketRecapitulatifServiceImpl implements TicketRecapitulatifService {
@@ -42,7 +41,7 @@ public class TicketRecapitulatifServiceImpl implements TicketRecapitulatifServic
     private GouvBPM gouvBPM;
 
 
-    public void sendMail(OperationBO operation, MoyenPaiementBO moyenPaiement, Integer demandeId) {
+    public void sendMail(OperationDTO operation, MoyenPaiementDTO moyenPaiement, Integer demandeId) {
 
         Map<String, Object> variables = gouvBPM.getProcessBusinessVariables(demandeId);
         Integer usagerId = (Integer) variables.get(GouvBPMProcessVariableTypeEnum.MC_USAGERID.name());
@@ -63,15 +62,15 @@ public class TicketRecapitulatifServiceImpl implements TicketRecapitulatifServic
         emailInfo.setLangue("fr");
 
 
-        Map<String, Object> model = getModel(operation, moyenPaiement, usager);
         try {
+            Map<String, Object> model = getModel(operation, moyenPaiement, usager);
             mailService.sendMail(emailInfo, model);
         } catch (Exception e) {
             LOGGER.error("Erreur lors de l'envoi de l'email", e);
         }
     }
 
-    private Map<String, Object> getModel(OperationBO operation, MoyenPaiementBO moyenPaiement, GichuniUsagerDTO usager) {
+    private Map<String, Object> getModel(OperationDTO operation, MoyenPaiementDTO moyenPaiement, GichuniUsagerDTO usager) {
         Map<String, Object> model = new HashMap<>();
         model.put("titre", usager.getPrenom() + " " + usager.getNom());
         model.put("numTPE", paiementPropertiesResolver.getTpe());

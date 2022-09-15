@@ -1,16 +1,22 @@
-package mc.gouv.xaf.shared.stc;
+package mc.gouv.xaf.back.paiement.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import java.time.LocalDateTime;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class MoyenPaiementDTO {
 
-    public String tpe;
-    public String date;
-    public String montant;
-    public String reference;
-    public String texteLibre;
-    public String codeRetour;
+    private String pkMoyenPaiement;
+    private CommandeDTO commande;
+    private String codeSociete;
+    private LocalDateTime dateLimite;
+    private double montantInitial;
+    private double montantCapture;
+    private double montantRestant;
+    private String moyenPaiementType;
+    private String moyenPaiementStatut;
+    private LocalDateTime dateDerniereModification;
     public String cvx;
     public String vld;
     public String brand;
@@ -19,7 +25,6 @@ public class MoyenPaiementDTO {
     public String typecompte;
     public String ecard;
     public String originecb;
-
     public String cbmasquee;
     public String bincb;
     public String hpancb;
@@ -27,56 +32,7 @@ public class MoyenPaiementDTO {
     public String originetr;
     public String modepaiement;
     public String authentification;
-    public String mac;
-    public boolean isValid;
-
-    public String getTpe() {
-        return tpe;
-    }
-
-    public void setTpe(String tpe) {
-        this.tpe = tpe;
-    }
-
-    public String getDate() {
-        return date;
-    }
-
-    public void setDate(String date) {
-        this.date = date;
-    }
-
-    public String getMontant() {
-        return montant;
-    }
-
-    public void setMontant(String montant) {
-        this.montant = montant;
-    }
-
-    public String getReference() {
-        return reference;
-    }
-
-    public void setReference(String reference) {
-        this.reference = reference;
-    }
-
-    public String getTexteLibre() {
-        return texteLibre;
-    }
-
-    public void setTexteLibre(String texteLibre) {
-        this.texteLibre = texteLibre;
-    }
-
-    public String getCodeRetour() {
-        return codeRetour;
-    }
-
-    public void setCodeRetour(String codeRetour) {
-        this.codeRetour = codeRetour;
-    }
+    public String langue;
 
     public String getCvx() {
         return cvx;
@@ -190,22 +146,6 @@ public class MoyenPaiementDTO {
         this.authentification = authentification;
     }
 
-    public String getMac() {
-        return mac;
-    }
-
-    public void setMac(String mac) {
-        this.mac = mac;
-    }
-
-    public boolean isValid() {
-        return isValid;
-    }
-
-    public void setValid(boolean valid) {
-        isValid = valid;
-    }
-
     public String getCbmasquee() {
         return cbmasquee;
     }
@@ -214,15 +154,97 @@ public class MoyenPaiementDTO {
         this.cbmasquee = cbmasquee;
     }
 
+    public String getPkMoyenPaiement() {
+        return pkMoyenPaiement;
+    }
+
+    public void setPkMoyenPaiement(String pkMoyenPaiement) {
+        this.pkMoyenPaiement = pkMoyenPaiement;
+    }
+
+    public CommandeDTO getCommande() {
+        return commande;
+    }
+
+    public void setCommande(CommandeDTO commande) {
+        this.commande = commande;
+    }
+
+    public String getCodeSociete() {
+        return codeSociete;
+    }
+
+    public void setCodeSociete(String codeSociete) {
+        this.codeSociete = codeSociete;
+    }
+
+    public LocalDateTime getDateLimite() {
+        return dateLimite;
+    }
+
+    public void setDateLimite(LocalDateTime dateLimite) {
+        this.dateLimite = dateLimite;
+    }
+
+    public double getMontantInitial() {
+        return montantInitial;
+    }
+
+    public void setMontantInitial(double montantInitial) {
+        this.montantInitial = montantInitial;
+    }
+
+    public double getMontantCapture() {
+        return montantCapture;
+    }
+
+    public void setMontantCapture(double montantCapture) {
+        this.montantCapture = montantCapture;
+    }
+
+    public double getMontantRestant() {
+        return montantRestant;
+    }
+
+    public void setMontantRestant(double montantRestant) {
+        this.montantRestant = montantRestant;
+    }
+
+    public String getMoyenPaiementType() {
+        return moyenPaiementType;
+    }
+
+    public void setMoyenPaiementType(String moyenPaiementType) {
+        this.moyenPaiementType = moyenPaiementType;
+    }
+
+    public String getMoyenPaiementStatut() {
+        return moyenPaiementStatut;
+    }
+
+    public void setMoyenPaiementStatut(String moyenPaiementStatut) {
+        this.moyenPaiementStatut = moyenPaiementStatut;
+    }
+
+    public LocalDateTime getDateDerniereModification() {
+        return dateDerniereModification;
+    }
+
+    public void setDateDerniereModification(LocalDateTime dateDerniereModification) {
+        this.dateDerniereModification = dateDerniereModification;
+    }
+
+    public String getLangue() {
+        return langue;
+    }
+
+    public void setLangue(String langue) {
+        this.langue = langue;
+    }
+
     @Override
     public String toString() {
         return "MoyenPaiementDTO{" +
-                "tpe='" + tpe + '\'' +
-                ", date='" + date + '\'' +
-                ", montant='" + montant + '\'' +
-                ", reference='" + reference + '\'' +
-                ", texteLibre='" + texteLibre + '\'' +
-                ", codeRetour='" + codeRetour + '\'' +
                 ", cvx='" + cvx + '\'' +
                 ", vld='" + vld + '\'' +
                 ", brand='" + brand + '\'' +
@@ -238,8 +260,6 @@ public class MoyenPaiementDTO {
                 ", originetr='" + originetr + '\'' +
                 ", modepaiement='" + modepaiement + '\'' +
                 ", authentification='" + authentification + '\'' +
-                ", mac='" + mac + '\'' +
-                ", isValid=" + isValid +
                 '}';
     }
 }

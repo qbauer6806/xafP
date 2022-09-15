@@ -1,7 +1,8 @@
 package mc.gouv.xaf.apiclient.paiement;
 
 import mc.gouv.xaf.apiclient.AfApiClient;
-import mc.gouv.xaf.shared.stc.MoyenPaiementDTO;
+import mc.gouv.xaf.apiclient.paiement.monetico.dto.MoneticoDTO;
+import mc.gouv.xaf.shared.dto.itg.monetico.MoneticoResponseDTO;
 import mc.gouv.xboot.apiclient.exception.ExceptionManager;
 
 import javax.ws.rs.client.Entity;
@@ -20,7 +21,7 @@ public class PaiementApiClient extends AfApiClient {
         super(serviceUrl, jwtToken);
     }
 
-    public PaiementDTO getPaiement(String demandesId, String langue, Integer usagerId, boolean iframe) {
+    public MoneticoDTO getPaiement(String demandesId, String langue, Integer usagerId, boolean iframe) {
         Response res = getTarget().path("/paiement")
                 .queryParam("demandesId", demandesId)
                 .queryParam(PaiementConstant.LANGUE_PARAM, langue)
@@ -31,14 +32,14 @@ public class PaiementApiClient extends AfApiClient {
 
         ExceptionManager.checkExceptionResponse(res);
 
-        return res.readEntity(PaiementDTO.class);
+        return res.readEntity(MoneticoDTO.class);
     }
 
-    public void updatePaiementStatus(MoyenPaiementDTO moyenPaiementDTO) {
+    public void updatePaiementStatus(MoneticoResponseDTO moneticoResponseDTO) {
         Response res = getTarget().path("/paiement")
                 .request(MediaType.APPLICATION_JSON)
                 .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue())
-                .post(Entity.entity(moyenPaiementDTO, MediaType.APPLICATION_JSON));
+                .post(Entity.entity(moneticoResponseDTO, MediaType.APPLICATION_JSON));
 
         ExceptionManager.checkExceptionResponse(res);
     }

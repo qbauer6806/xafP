@@ -1,9 +1,9 @@
 package mc.gouv.xaf.back.paiement.mock;
 
+import mc.gouv.xaf.back.paiement.data.enums.OperationStatutEnum;
+import mc.gouv.xaf.back.paiement.dto.MoyenPaiementDTO;
+import mc.gouv.xaf.back.paiement.dto.OperationDTO;
 import mc.gouv.xaf.back.paiement.service.itg.PaiementApiClient;
-import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
-import mc.gouv.xaf.back.paiement.data.entity.OperationBO;
-import mc.gouv.xaf.back.paiement.data.entity.OperationStatutBO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
@@ -12,8 +12,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class PaiementApiClientTestImpl implements PaiementApiClient {
     @Override
-    public boolean capture(MoyenPaiementBO paiement, OperationBO operation, DemandeDTO demandeDTO) {
-        operation.setOperationStatut(OperationStatutBO.ACCEPTEE);
+    public boolean capture(MoyenPaiementDTO paiement, OperationDTO operation, DemandeDTO demandeDTO) {
+        operation.setOperationStatut(OperationStatutEnum.ACCEPTEE.name());
         return true;
     }
 }

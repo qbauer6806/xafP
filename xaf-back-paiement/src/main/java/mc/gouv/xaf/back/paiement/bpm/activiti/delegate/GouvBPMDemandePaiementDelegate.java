@@ -1,33 +1,14 @@
 package mc.gouv.xaf.back.paiement.bpm.activiti.delegate;
 
-import static mc.gouv.xaf.back.paiement.data.entity.OperationStatutBO.ACCEPTEE;
-import static mc.gouv.xaf.back.service.utils.AfBackUtils.DTF_AAAA_MM_JJ;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-
-import org.activiti.engine.delegate.DelegateExecution;
-import org.activiti.engine.delegate.JavaDelegate;
-import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import mc.gouv.xaf.back.bpm.GouvBPM;
-import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
-import mc.gouv.xaf.back.paiement.data.entity.OperationBO;
+import mc.gouv.xaf.back.paiement.dto.MoyenPaiementDTO;
+import mc.gouv.xaf.back.paiement.dto.OperationDTO;
 import mc.gouv.xaf.back.paiement.enums.PaiementDemandeDataKeysEnum;
 import mc.gouv.xaf.back.paiement.enums.PaiementStatutEnum;
 import mc.gouv.xaf.back.paiement.service.CaptureService;
 import mc.gouv.xaf.back.paiement.service.PaiementHistoriqueService;
-import mc.gouv.xaf.back.paiement.service.PaiementService;
 import mc.gouv.xaf.back.paiement.service.impl.TicketRecapitulatifServiceImpl;
+import mc.gouv.xaf.back.paiement.service.itg.MoneticoPaiementService;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.AfHistoService;
 import mc.gouv.xaf.back.service.data.DemandesDataService;
@@ -39,6 +20,23 @@ import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeDataDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
+import org.activiti.engine.delegate.DelegateExecution;
+import org.activiti.engine.delegate.JavaDelegate;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
+
+import static mc.gouv.xaf.back.paiement.data.enums.OperationStatutEnum.ACCEPTEE;
+import static mc.gouv.xaf.back.service.utils.AfBackUtils.DTF_AAAA_MM_JJ;
 
 @Component
 public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
@@ -48,7 +46,7 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
     public static final String MC_IS_DEBIT_KO = "MC_IS_DEBIT_KO";
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMDemandePaiementDelegate.class);
     @Autowired
-    private PaiementService paiementService;
+    private MoneticoPaiementService moneticoPaiementService;
 
     @Autowired
     private DemandesService demandesService;
@@ -89,19 +87,18 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
 
         String demarcheId = gouvPropertiesResolver.getDemarcheId();
         Integer demandeId = Integer.parseInt(execution.getProcessBusinessKey());
-        OperationBO operation = null;
+        OperationDTO operation = null;
         DemandeDTO demandeDto = demandesService.getDemande(demarcheId, demandeId);
         DemandeDataDTO statutPaiementData = demandesDataService.getDemandeData(demarcheId, demandeId, PaiementDemandeDataKeysEnum.STATUT_PAIEMENT.name());
 
         try {
-            Optional<MoyenPaiementBO> moyenPaiementBO = paiementService.getMoyenPaiement(demandeId);
-            LOGGER.info("Recuperation moyenPaiementBO : {}", moyenPaiementBO);
+            MoyenPaiementDTO moyenPaiement = moneticoPaiementService.getMoyenPaiement(demandeId);
+            LOGGER.info("Recuperation moyenPaiement : {}", moyenPaiement);
             LOGGER.info("Statut de l'empreinte de paiement : {}", statutPaiementData.getValue());
 
-            if (moyenPaiementBO.isPresent() && StringUtils.equals(statutPaiementData.getValue(), PaiementStatutEnum.EMPREINTE_VALIDE.name())) {
+            if (moyenPaiement != null && StringUtils.equals(statutPaiementData.getValue(), PaiementStatutEnum.EMPREINTE_VALIDE.name())) {
                 LOGGER.info("Début capture paiement pour la demande: {}", demandeId);
 
-                MoyenPaiementBO moyenPaiement = moyenPaiementBO.get();
                 operation = captureService.capture(moyenPaiement, demandeDto);
                 LOGGER.info("Recuperation reference : {}", operation.getNumeroFacture());
 

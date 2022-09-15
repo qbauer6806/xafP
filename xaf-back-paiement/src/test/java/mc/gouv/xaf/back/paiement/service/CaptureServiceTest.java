@@ -11,13 +11,10 @@ import mc.gouv.xaf.back.paiement.data.dao.OperationRepository;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeBO;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeDemandeBO;
 import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
-import mc.gouv.xaf.back.paiement.data.entity.OperationBO;
-import mc.gouv.xaf.back.paiement.data.entity.OperationStatutBO;
-import mc.gouv.xaf.back.paiement.data.entity.OperationTypeBO;
-import mc.gouv.xaf.back.paiement.dto.ContenuTestDTO;
-import mc.gouv.xaf.back.paiement.dto.Paiement;
-import mc.gouv.xaf.back.paiement.dto.Tableau;
-import mc.gouv.xaf.back.paiement.dto.Titre;
+import mc.gouv.xaf.back.paiement.data.enums.OperationStatutEnum;
+import mc.gouv.xaf.back.paiement.data.enums.OperationTypeEnum;
+import mc.gouv.xaf.back.paiement.data.transformer.MoyenPaiementTransformer;
+import mc.gouv.xaf.back.paiement.dto.*;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import org.junit.Before;
 import org.junit.Test;
@@ -99,10 +96,12 @@ public class CaptureServiceTest {
         JsonNode contenu = mapper.valueToTree(contenuTestDTO);
         demandeDTO.setContenu(contenu);
 
-        OperationBO resutat = captureService.capture(moyenPaiementBO, demandeDTO);
+        MoyenPaiementDTO moyenPaiementDTO = MoyenPaiementTransformer.bo2Dto(moyenPaiementBO);
+
+        OperationDTO resutat = captureService.capture(moyenPaiementDTO, demandeDTO);
         assertThat(resutat.getMontant()).isEqualTo(80.0);
-        assertThat(resutat.getOperationType()).isEqualTo(OperationTypeBO.DEBIT);
-        assertThat(resutat.getOperationStatut()).isEqualTo(OperationStatutBO.ACCEPTEE);
+        assertThat(resutat.getOperationType()).isEqualTo(OperationTypeEnum.DEBIT);
+        assertThat(resutat.getOperationStatut()).isEqualTo(OperationStatutEnum.ACCEPTEE);
         assertThat(resutat.getNumeroFacture()).isEqualTo("facture001");
     }
 

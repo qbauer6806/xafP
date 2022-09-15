@@ -1,4 +1,4 @@
-package mc.gouv.xaf.apiclient.paiement;
+package mc.gouv.xaf.apiclient.paiement.monetico.dto;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -7,10 +7,10 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 
 /**
  * Modélise une donnée de paiement pour l'interface Monetico
- * Pour plus d'informaations se reporter à la doc technique de Monetico
+ * Pour plus d'informations se reporter à la doc technique de Monetico
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class PaiementDTO {
+public class MoneticoDTO {
 
     /**
      * ex: "1234567"
@@ -95,7 +95,7 @@ public class PaiementDTO {
     private String montantech4 = "";
 
 
-    public PaiementDTO() {
+    public MoneticoDTO() {
     }
 
 

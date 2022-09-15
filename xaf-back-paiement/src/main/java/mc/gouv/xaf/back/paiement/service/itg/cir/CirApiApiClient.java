@@ -1,14 +1,14 @@
 package mc.gouv.xaf.back.paiement.service.itg.cir;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
-import mc.gouv.xaf.back.paiement.dto.itg.cir.CirRequestDTO;
-import mc.gouv.xaf.back.paiement.service.itg.FactureApiClient;
-import mc.gouv.xaf.back.paiement.data.entity.OperationBO;
 import mc.gouv.xaf.back.paiement.dto.InformationFacturationDTO;
+import mc.gouv.xaf.back.paiement.dto.OperationDTO;
+import mc.gouv.xaf.back.paiement.dto.itg.cir.CirRequestDTO;
 import mc.gouv.xaf.back.paiement.dto.itg.cir.PermisDTO;
 import mc.gouv.xaf.back.paiement.properties.PaiementPropertiesResolver;
 import mc.gouv.xaf.back.paiement.retry.Operation;
 import mc.gouv.xaf.back.paiement.retry.OperationHelper;
+import mc.gouv.xaf.back.paiement.service.itg.FactureApiClient;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
@@ -111,7 +111,7 @@ public class CirApiApiClient implements FactureApiClient {
 
 
     @Override
-    public Optional<String> createFacture(String numPermis, String numImmat, Double montant, String codeTransaction, InformationFacturationDTO infoFacturation, HashMap<String, Double> objetMontants, DemandeDTO demandeDTO, OperationBO operationBO) {
+    public Optional<String> createFacture(String numPermis, String numImmat, Double montant, String codeTransaction, InformationFacturationDTO infoFacturation, HashMap<String, Double> objetMontants, DemandeDTO demandeDTO, OperationDTO operationDto) {
         logStartMethod(LOGGER);
         LOGGER.info("Parameters [ numPermis {}, numImmat {},  codeTransaction {}] ", numPermis, numImmat, codeTransaction);
 
@@ -140,8 +140,8 @@ public class CirApiApiClient implements FactureApiClient {
             request.setCodeOperation(montantObjet == prix ? "P1" : "P5"); // TODO voir avec alexis devrait être dans les properties
             request.setCodeTransaction(codeTransaction);
             request.setCodeReglement("X"); // TODO idem devrait être en properties meme si c'est fixe
-            request.setAutorisation("" + operationBO.getNumeroAutorisation());
-            request.setTransactionId(operationBO.getPkOperation());
+            request.setAutorisation("" + operationDto.getNumeroAutorisation());
+            request.setTransactionId(operationDto.getPkOperation());
 
             cirRequestDTOS.add(request);
         }
@@ -154,7 +154,7 @@ public class CirApiApiClient implements FactureApiClient {
                         .post(Entity.entity(cirRequestDTOS, MediaType.APPLICATION_JSON));
 
                 if (response.getStatus() != Response.Status.CREATED.getStatusCode()) {
-                    throw new HttpResponseException(response.getStatus() , "CIR createFacture() failed");
+                    throw new HttpResponseException(response.getStatus(), "CIR createFacture() failed");
                 }
                 setResult(response.readEntity(String.class));
             }

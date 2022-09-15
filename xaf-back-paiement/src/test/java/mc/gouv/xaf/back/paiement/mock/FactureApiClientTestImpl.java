@@ -1,9 +1,9 @@
 package mc.gouv.xaf.back.paiement.mock;
 
-import mc.gouv.xaf.back.paiement.service.itg.FactureApiClient;
-import mc.gouv.xaf.back.paiement.data.entity.OperationBO;
 import mc.gouv.xaf.back.paiement.dto.InformationFacturationDTO;
+import mc.gouv.xaf.back.paiement.dto.OperationDTO;
 import mc.gouv.xaf.back.paiement.dto.itg.cir.PermisDTO;
+import mc.gouv.xaf.back.paiement.service.itg.FactureApiClient;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
@@ -22,7 +22,7 @@ public class FactureApiClientTestImpl implements FactureApiClient {
     }
 
     @Override
-    public Optional<String> createFacture(String numPermis, String numImmat, Double montant, String codeTransaction, InformationFacturationDTO infoFacturation, HashMap<String, Double> objetMontants, DemandeDTO demandeDTO, OperationBO operationBO) {
+    public Optional<String> createFacture(String numPermis, String numImmat, Double montant, String codeTransaction, InformationFacturationDTO infoFacturation, HashMap<String, Double> objetMontants, DemandeDTO demandeDTO, OperationDTO operationDTO) {
         return Optional.of("facture001");
     }
 

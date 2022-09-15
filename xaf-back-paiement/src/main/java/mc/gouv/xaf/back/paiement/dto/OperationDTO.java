@@ -1,30 +1,25 @@
-package mc.gouv.xaf.back.paiement.data.entity;
+package mc.gouv.xaf.back.paiement.dto;
 
-import mc.gouv.xaf.back.paiement.data.enums.OperationStatutEnum;
-import mc.gouv.xaf.back.paiement.data.enums.OperationTypeEnum;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.StringJoiner;
 
-@Entity
-@Table(name = "PMNT_OPERATION")
-public class OperationBO {
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class OperationDTO {
 
-    @Id
-    @Column(name = "PK_OPERATION", nullable = false)
     private String pkOperation;
 
-    @Enumerated(EnumType.STRING)
-    private OperationTypeEnum operationType;
+    private String operationType;
 
-    @Enumerated(EnumType.STRING)
-    private OperationStatutEnum operationStatut;
+    private String operationStatut;
 
     private LocalDateTime dateCreation;
 
     private LocalDateTime dateDerniereModification;
 
     private Double montant;
+
     private Integer numeroAutorisation;
 
     private String numeroFacture;
@@ -57,19 +52,19 @@ public class OperationBO {
         this.pkOperation = reference;
     }
 
-    public OperationTypeEnum getOperationType() {
+    public String getOperationType() {
         return operationType;
     }
 
-    public void setOperationType(OperationTypeEnum operationType) {
+    public void setOperationType(String operationType) {
         this.operationType = operationType;
     }
 
-    public OperationStatutEnum getOperationStatut() {
+    public String getOperationStatut() {
         return operationStatut;
     }
 
-    public void setOperationStatut(OperationStatutEnum operationStatut) {
+    public void setOperationStatut(String operationStatut) {
         this.operationStatut = operationStatut;
     }
 

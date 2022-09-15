@@ -1,6 +1,7 @@
 package mc.gouv.xaf.back.paiement.data.transformer;
 
 import mc.gouv.xaf.back.paiement.data.enums.MoyenPaiementTypeEnum;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +19,9 @@ public class MoyenPaiementTypeTransformer {
     }
 
     public static MoyenPaiementTypeEnum string2Bo(String str) {
+        if (StringUtils.isBlank(str)) {
+            return null;
+        }
         return MoyenPaiementTypeEnum.valueOf(str);
     }
 

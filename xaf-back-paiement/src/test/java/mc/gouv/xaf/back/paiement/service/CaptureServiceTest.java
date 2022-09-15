@@ -11,6 +11,8 @@ import mc.gouv.xaf.back.paiement.data.dao.OperationRepository;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeBO;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeDemandeBO;
 import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
+import mc.gouv.xaf.back.paiement.data.enums.MoyenPaiementStatutEnum;
+import mc.gouv.xaf.back.paiement.data.enums.MoyenPaiementTypeEnum;
 import mc.gouv.xaf.back.paiement.data.enums.OperationStatutEnum;
 import mc.gouv.xaf.back.paiement.data.enums.OperationTypeEnum;
 import mc.gouv.xaf.back.paiement.data.transformer.MoyenPaiementTransformer;
@@ -84,6 +86,8 @@ public class CaptureServiceTest {
         moyenPaiementBO.setCommande(commandeBO);
         moyenPaiementBO.setDateLimite(LocalDateTime.MIN);
         moyenPaiementBO.setPkMoyenPaiement("maRef");
+        moyenPaiementBO.setMoyenPaiementType(MoyenPaiementTypeEnum.DIFFERE);
+        moyenPaiementBO.setMoyenPaiementStatut(MoyenPaiementStatutEnum.VALIDE);
         moyenPaiementRepository.save(moyenPaiementBO);
 
         DemandeDTO demandeDTO = new DemandeDTO();
@@ -100,8 +104,8 @@ public class CaptureServiceTest {
 
         OperationDTO resutat = captureService.capture(moyenPaiementDTO, demandeDTO);
         assertThat(resutat.getMontant()).isEqualTo(80.0);
-        assertThat(resutat.getOperationType()).isEqualTo(OperationTypeEnum.DEBIT);
-        assertThat(resutat.getOperationStatut()).isEqualTo(OperationStatutEnum.ACCEPTEE);
+        assertThat(resutat.getOperationType()).isEqualTo(OperationTypeEnum.DEBIT.name());
+        assertThat(resutat.getOperationStatut()).isEqualTo(OperationStatutEnum.ACCEPTEE.name());
         assertThat(resutat.getNumeroFacture()).isEqualTo("facture001");
     }
 

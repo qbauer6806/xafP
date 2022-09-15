@@ -1,6 +1,7 @@
 package mc.gouv.xaf.back.paiement.data.transformer;
 
 import mc.gouv.xaf.back.paiement.data.enums.OperationStatutEnum;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,10 +15,13 @@ public class OperationStatutTransformer {
     }
 
     public static String bo2String(OperationStatutEnum bo) {
-        return bo.name();
+        return bo != null ? bo.name() : null;
     }
 
     public static OperationStatutEnum string2Bo(String str) {
+        if (StringUtils.isBlank(str)) {
+            return null;
+        }
         return OperationStatutEnum.valueOf(str);
     }
 

@@ -1,5 +1,6 @@
 package mc.gouv.xaf.back.paiement.controller;
 
+import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.paiement.data.transformer.MoyenPaiementTransformer;
 import mc.gouv.xaf.back.paiement.data.transformer.OperationTransformer;
 import mc.gouv.xaf.back.paiement.dto.MoyenPaiementDTO;
@@ -7,11 +8,9 @@ import mc.gouv.xaf.back.paiement.dto.OperationDTO;
 import mc.gouv.xaf.back.paiement.dto.PaiementDTO;
 import mc.gouv.xaf.back.paiement.service.itg.MoneticoPaiementService;
 import mc.gouv.xaf.shared.dto.itg.monetico.MoneticoResponseDTO;
+import mc.gouv.xapi.error.dto.ErrorsDTO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -97,6 +96,22 @@ public abstract class AbstractPaiementApiController {
             throw new RuntimeException("IOError writing file to output stream");
         }
 
+    }
+
+    /**
+     * Permet de traiter une exception
+     *
+     * @param dse  L'exception DemarchesServiceExceptionStatistiquesModelProviderImplTest
+     * @param resp Permet de définir nous-même le HttpStatus de la réponse
+     * @return Le JSON décrivant l'erreur pour le client
+     */
+    @ExceptionHandler(DemarchesServiceException.class)
+    public @ResponseBody ErrorsDTO handleDemarchesException(DemarchesServiceException dse, HttpServletResponse resp) {
+        ErrorsDTO errorsDTO = new ErrorsDTO();
+        errorsDTO.setHttpStatus(dse.getHttpStatus().value());
+        errorsDTO.setMessage(dse.getMessage());
+        resp.setStatus(dse.getHttpStatus().value());
+        return errorsDTO;
     }
 
 }

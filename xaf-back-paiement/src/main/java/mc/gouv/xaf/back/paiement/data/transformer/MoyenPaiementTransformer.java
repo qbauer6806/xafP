@@ -43,6 +43,7 @@ public class MoyenPaiementTransformer {
         dto.setModepaiement(bo.getModepaiement());
         dto.setAuthentification(bo.getAuthentification());
         dto.setLangue(bo.getLangue());
+        dto.setMac(bo.getMac());
         return dto;
     }
 
@@ -74,6 +75,7 @@ public class MoyenPaiementTransformer {
         bo.setModepaiement(dto.getModepaiement());
         bo.setAuthentification(dto.getAuthentification());
         bo.setLangue(dto.getLangue());
+        bo.setMac(dto.getMac());
         return bo;
     }
 
@@ -121,6 +123,7 @@ public class MoyenPaiementTransformer {
         csvString.add(moyenPaiementDTO.getModepaiement());
         csvString.add(moyenPaiementDTO.getAuthentification());
         csvString.add(moyenPaiementDTO.getLangue());
+        csvString.add(moyenPaiementDTO.getMac());
         return csvString.toString();
     }
 
@@ -151,6 +154,7 @@ public class MoyenPaiementTransformer {
         csvString.add("modepaiement");
         csvString.add("authentification");
         csvString.add("langue");
+        csvString.add("mac");
         return csvString.toString();
     }
 

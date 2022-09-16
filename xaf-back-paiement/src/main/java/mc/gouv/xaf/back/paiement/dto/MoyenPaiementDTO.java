@@ -33,6 +33,7 @@ public class MoyenPaiementDTO {
     public String modepaiement;
     public String authentification;
     public String langue;
+    private String mac;
 
     public String getCvx() {
         return cvx;
@@ -240,6 +241,14 @@ public class MoyenPaiementDTO {
 
     public void setLangue(String langue) {
         this.langue = langue;
+    }
+
+    public String getMac() {
+        return mac;
+    }
+
+    public void setMac(String mac) {
+        this.mac = mac;
     }
 
     @Override

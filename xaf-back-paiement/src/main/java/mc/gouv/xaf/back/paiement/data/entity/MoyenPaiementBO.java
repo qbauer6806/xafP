@@ -71,8 +71,10 @@ public class MoyenPaiementBO {
     public String authentification;
 
     @Column(name = "langue")
-    public String langue;
+    private String langue;
 
+    @Column(name = "mac")
+    private String mac;
 
     public String getPkMoyenPaiement() {
         return pkMoyenPaiement;
@@ -282,6 +284,14 @@ public class MoyenPaiementBO {
         this.langue = langue;
     }
 
+    public String getMac() {
+        return mac;
+    }
+
+    public void setMac(String mac) {
+        this.mac = mac;
+    }
+
     @Override
     public String toString() {
         return "MoyenPaiementBO{" +
@@ -311,6 +321,7 @@ public class MoyenPaiementBO {
                 ", modepaiement='" + modepaiement + '\'' +
                 ", authentification='" + authentification + '\'' +
                 ", langue='" + langue + '\'' +
+                ", mac='" + mac + '\'' +
                 '}';
     }
 

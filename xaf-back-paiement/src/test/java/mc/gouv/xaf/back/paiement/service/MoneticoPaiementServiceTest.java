@@ -10,6 +10,7 @@ import mc.gouv.xaf.back.data.entity.AccessBO;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandesDataBO;
 import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
+import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.paiement.data.dao.*;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeBO;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeDemandeBO;
@@ -26,6 +27,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.LocalDateTime;
@@ -198,7 +200,9 @@ public class MoneticoPaiementServiceTest {
         moneticoResponseDTO.setReference(paiementDTO.getReference());
         moneticoResponseDTO.setCodeRetour(status);
         moneticoResponseDTO.setVld("1223");
-        moneticoPaiementService.updateStatus(moneticoResponseDTO);
+        moneticoResponseDTO.setMac(paiementDTO.getMAC());
+        String result = moneticoPaiementService.updateStatus(moneticoResponseDTO);
+        assertThat(result).isEqualTo("0");
 
         TimeUnit.SECONDS.sleep(1);
 
@@ -214,6 +218,93 @@ public class MoneticoPaiementServiceTest {
         });
     }
 
+    @Test
+    public void updateKoRefarenceTest() {
+        String status = "paiement";
+        MoneticoResponseDTO moneticoResponseDTO = new MoneticoResponseDTO();
+        moneticoResponseDTO.setReference("AZERTYUIOPQS");
+        moneticoResponseDTO.setCodeRetour(status);
+        moneticoResponseDTO.setVld("1223");
+        try {
+            moneticoPaiementService.updateStatus(moneticoResponseDTO);
+            fail("updateStatus doit renvoyer une exception");
+        } catch (DemarchesServiceException e) {
+            assertThat(e.getMessage()).isEqualTo("Aucun paiement portant la référence AZERTYUIOPQS n'a été trouvé.");
+            assertThat(e.getHttpStatus()).isEqualTo(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @Test
+    public void updateKoMACTest() {
+        DemandeBO demandeBO = new DemandeBO();
+
+        ContenuTestDTO contenuTestDTO = new ContenuTestDTO();
+        Paiement paiement = new Paiement();
+        paiement.setTableau(new Tableau[]{new Tableau("objet", "80")});
+        contenuTestDTO.setPaiement(paiement);
+        contenuTestDTO.setTitre(new Titre("123456"));
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode contenu = mapper.valueToTree(contenuTestDTO);
+
+        AccessBO access = new AccessBO();
+        access.setDemarcheId("PERMC");
+        access.setContenu("{\"CGU\":true}");
+        access.setUsagerId(1);
+        access.setDateCreation(new Date());
+        access.setDateDerModif(new Date());
+        accessRepository.save(access);
+
+        demandeBO.setContenu(contenu.toString());
+        demandeBO.setCanal("canal");
+        demandeBO.setIdentifiant("monIdentifiant");
+        demandeBO.setDateCreation(new Date());
+        demandeBO.setDateDerModif(new Date());
+        demandeBO.setFkAccess(access);
+        demandeBO.setUsagerPrenom("Jon");
+        demandeBO.setUsagerNom("Doe");
+
+        DemandesStatutsBO dernierStatut = new DemandesStatutsBO();
+        dernierStatut.setLibelle(DemandeStatutEnum.EN_ATTENTE_DE_PAIEMENT.name());
+        dernierStatut.setDate(new Date());
+        demandesStatutsRepository.save(dernierStatut);
+        demandeBO.setDernierStatut(dernierStatut);
+        demandeBO = demandesRepository.save(demandeBO);
+
+        DemandeBO demandeBO2 = new DemandeBO();
+        demandeBO2.setContenu("contenu");
+        demandeBO2.setCanal("canal");
+        demandeBO2.setIdentifiant("monIdentifiant");
+        demandeBO2.setDateCreation(new Date());
+        demandeBO2.setDateDerModif(new Date());
+        demandeBO2.setFkAccess(access);
+        demandeBO2.setUsagerPrenom("Jon");
+        demandeBO2.setUsagerNom("Doe");
+
+        DemandesStatutsBO dernierStatut2 = new DemandesStatutsBO();
+        dernierStatut2.setLibelle(DemandeStatutEnum.EN_ATTENTE_DE_PAIEMENT.name());
+        dernierStatut2.setDate(new Date());
+        demandesStatutsRepository.save(dernierStatut2);
+        demandeBO2.setDernierStatut(dernierStatut2);
+
+        demandeBO2 = demandesRepository.save(demandeBO2);
+        String langue = "FR";
+        String demandesId = "" + demandeBO.getPkDemandes() + "," + demandeBO2.getPkDemandes();
+        PaiementDTO paiementDTO = moneticoPaiementService.create(demandesId, langue, 1, true);
+
+        demandesRepository.findAll().stream()
+                .map(DemandeBO::getDernierStatut)
+                .map(DemandesStatutsBO::getLibelle)
+                .collect(Collectors.toList()).forEach(libelle -> assertThat(libelle).isEqualTo(DemandeStatutEnum.EN_ATTENTE_DE_PAIEMENT.name()));
+
+        String status = "paiement";
+        MoneticoResponseDTO moneticoResponseDTO = new MoneticoResponseDTO();
+        moneticoResponseDTO.setReference(paiementDTO.getReference());
+        moneticoResponseDTO.setCodeRetour(status);
+        moneticoResponseDTO.setVld("1223");
+        moneticoResponseDTO.setMac("mauvais mac");
+        String result = moneticoPaiementService.updateStatus(moneticoResponseDTO);
+        assertThat(result).isEqualTo("1\n" + paiementDTO.getMAC());
+    }
 
     @Test
     public void getMoyenPaiementOk() {

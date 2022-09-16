@@ -50,8 +50,4 @@ public interface PaiementPropertiesResolver {
 
     String getXafPaiementImmediatHeureDiffere();
 
-    String getApiRioUrl();
-
-    String getApiRioJwt();
-
 }

@@ -1,7 +1,8 @@
-package mc.gouv.xaf.back.paiement.service;
+package mc.gouv.xaf.back.service.itg.rio;
 
-import mc.gouv.xaf.back.paiement.dto.itg.rio.RioDocumentDTO;
-import mc.gouv.xaf.back.paiement.dto.itg.rio.RioFileDocumentDTO;
+
+import mc.gouv.xaf.shared.dto.itg.rio.RioDocumentDTO;
+import mc.gouv.xaf.shared.dto.itg.rio.RioFileDocumentDTO;
 
 public interface RioService {
 

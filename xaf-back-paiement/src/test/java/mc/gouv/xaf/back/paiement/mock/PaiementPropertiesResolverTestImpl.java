@@ -128,13 +128,4 @@ public class PaiementPropertiesResolverTestImpl implements PaiementPropertiesRes
         return null;
     }
 
-    public String getApiRioUrl() {
-        return null;
-    }
-
-    @Override
-    public String getApiRioJwt() {
-        return null;
-    }
-
 }

@@ -104,4 +104,12 @@ public interface GouvPropertiesResolver {
 
     String getProxyPort();
 
+    String getApiRioUrl();
+
+    String getApiRioJwt();
+
+    String getApiRioCodeAppli();
+
+    String getApiRioCodeNotice();
+
 }

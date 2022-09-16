@@ -103,8 +103,6 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
         String demarcheId = gouvPropertiesResolver.getDemarcheId();
         LOGGER.info("Parameters [ demandesId {}, langue {}, usagerId {} ] ", demandesId, langue, usagerId);
         String codeSociete = iframe ? paiementPropertiesResolver.getXafMoneticoCodeSiteIframe() : paiementPropertiesResolver.getCodeSiteStandard();
-        PropertiesDTO montantProperty = propertiesService.getProperty(demarcheId, "XAF_PAIEMENT_AMOUNT");
-        double prix = Double.parseDouble(montantProperty.getValue());
         List<Integer> demandesIdList = Stream.of(demandesId.split(",")).map(String::trim).map(Integer::parseInt).collect(Collectors.toList());
         double montant = 0;
         for (Integer demandeId : demandesIdList) {
@@ -133,7 +131,7 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
             DemandeBO demandeBO = demandesRepository.findById(demandeId).orElseThrow(RuntimeException::new);
             listePkDemandes.add(demandeBO.getIdentifiant());
             commandeDemande.setDemande(demandeBO);
-            commandeDemande.setMontant(prix);
+            commandeDemande.setMontant(montantService.getMontant(demandeId));
             commandeDemande = commandeDemandeRepository.save(commandeDemande);
             LOGGER.info("Created [ commandeDemande {}] ", commandeDemande);
         }

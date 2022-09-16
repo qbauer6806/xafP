@@ -109,16 +109,6 @@ public class PaiementPropertiesResolverImpl implements PaiementPropertiesResolve
     }
 
     @Override
-    public String getApiRioUrl() {
-        return Static.getValue("mc.gouv" + gouvPropertiesResolver.getApplicationPrefix() + ".rio.url");
-    }
-
-    @Override
-    public String getApiRioJwt() {
-        return Static.getValue("mc.gouv" + gouvPropertiesResolver.getApplicationPrefix() + ".rio.jwt");
-    }
-
-    @Override
     public String getCurrency() {
         return Static.getValue("mc.gouv" + gouvPropertiesResolver.getApplicationPrefix() + ".monetico.currency");
     }

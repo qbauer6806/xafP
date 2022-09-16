@@ -244,4 +244,24 @@ public class GouvPropertiesResolverTestImpl implements GouvPropertiesResolver {
     public String getProxyPort() {
         return null;
     }
+
+    @Override
+    public String getApiRioUrl() {
+        return null;
+    }
+
+    @Override
+    public String getApiRioJwt() {
+        return null;
+    }
+
+    @Override
+    public String getApiRioCodeAppli() {
+        return null;
+    }
+
+    @Override
+    public String getApiRioCodeNotice() {
+        return null;
+    }
 }

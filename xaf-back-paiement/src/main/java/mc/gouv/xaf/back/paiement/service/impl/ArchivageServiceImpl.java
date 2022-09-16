@@ -1,9 +1,9 @@
 package mc.gouv.xaf.back.paiement.service.impl;
 
-import mc.gouv.xaf.back.paiement.dto.itg.rio.RioDocumentDTO;
+import mc.gouv.xaf.shared.dto.itg.rio.RioDocumentDTO;
 import mc.gouv.xaf.back.paiement.service.ArchivageService;
 import mc.gouv.xaf.back.paiement.service.ConvertisseurTiffService;
-import mc.gouv.xaf.back.paiement.service.RioService;
+import mc.gouv.xaf.back.service.itg.rio.RioService;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;

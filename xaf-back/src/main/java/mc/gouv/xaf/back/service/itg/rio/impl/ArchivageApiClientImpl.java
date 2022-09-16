@@ -1,10 +1,10 @@
-package mc.gouv.xaf.back.paiement.service.itg.rio;
+package mc.gouv.xaf.back.service.itg.rio.impl;
 
-import mc.gouv.xaf.back.paiement.dto.itg.rio.RioDocumentDTO;
-import mc.gouv.xaf.back.paiement.dto.itg.rio.RioDocumentRequestDTO;
-import mc.gouv.xaf.back.paiement.dto.itg.rio.RioFileDocumentDTO;
-import mc.gouv.xaf.back.paiement.properties.PaiementPropertiesResolver;
-import mc.gouv.xaf.back.paiement.service.itg.ArchivageApiClient;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.itg.rio.ArchivageApiClient;
+import mc.gouv.xaf.shared.dto.itg.rio.RioDocumentDTO;
+import mc.gouv.xaf.shared.dto.itg.rio.RioDocumentRequestDTO;
+import mc.gouv.xaf.shared.dto.itg.rio.RioFileDocumentDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +43,7 @@ public class ArchivageApiClientImpl implements ArchivageApiClient {
     public static final String RIO_GET_FILE_DOCUMENT = "/documents/%s/%s/notices/%s/files/%s";
 
     @Autowired
-    private PaiementPropertiesResolver paiementPropertiesResolver;
+    private GouvPropertiesResolver gouvPropertiesResolver;
 
     @Autowired
     private RestTemplateBuilder restTemplateBuilder;
@@ -51,16 +51,14 @@ public class ArchivageApiClientImpl implements ArchivageApiClient {
     @PostConstruct
     @SuppressWarnings("squid:S2696")
     private void setUp() {
-        url = paiementPropertiesResolver.getApiRioUrl();
-        jwt = paiementPropertiesResolver.getApiRioJwt();
+        url = gouvPropertiesResolver.getApiRioUrl();
+        jwt = gouvPropertiesResolver.getApiRioJwt();
     }
 
     @Override
     public RioDocumentDTO createDocument(String codeAppli, String lastModifier, String codeNotice, String refDocument) {
 
         LOGGER.info("Création du document {}", refDocument);
-
-        // TODO Méthode à tester lors de l'intégration
 
         RestTemplate rest = getRestTemplate();
 
@@ -110,8 +108,6 @@ public class ArchivageApiClientImpl implements ArchivageApiClient {
     public RioDocumentDTO deleteDocument(String codeAppli, String refDocument, String codeNotice, String user) {
 
         LOGGER.info("Suppression du document {}", refDocument);
-
-        // TODO Méthode à tester lors de l'intégration
 
         RestTemplate rest = getRestTemplate();
 
@@ -163,8 +159,6 @@ public class ArchivageApiClientImpl implements ArchivageApiClient {
     public RioFileDocumentDTO getFileDocument(String codeAppli, String refDocument, Integer keyFile, String codeNotice, String user) {
 
         LOGGER.info("Récupération du fichier (keyfile) {} pour le document {}", keyFile, refDocument);
-
-        // TODO Méthode à tester lors de l'intégration
 
         RestTemplate rest = getRestTemplate();
 

@@ -1,8 +1,14 @@
-package mc.gouv.xaf.back.paiement.service.itg;
+package mc.gouv.xaf.back.service.itg.rio;
 
-import mc.gouv.xaf.back.paiement.dto.itg.rio.RioDocumentDTO;
-import mc.gouv.xaf.back.paiement.dto.itg.rio.RioFileDocumentDTO;
 
+import mc.gouv.xaf.shared.dto.itg.rio.RioDocumentDTO;
+import mc.gouv.xaf.shared.dto.itg.rio.RioFileDocumentDTO;
+
+/**
+ * Api client permettant d'interragir avec la GED via l'API RIO
+ *
+ * @author mpavone.ext
+ */
 public interface ArchivageApiClient {
 
     RioDocumentDTO createDocument(String codeAppli, String lastModifier, String codeNotice, String refDocument);

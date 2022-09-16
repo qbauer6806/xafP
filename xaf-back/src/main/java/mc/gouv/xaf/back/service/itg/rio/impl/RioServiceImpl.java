@@ -1,10 +1,10 @@
-package mc.gouv.xaf.back.paiement.service.impl;
+package mc.gouv.xaf.back.service.itg.rio.impl;
 
-import mc.gouv.xaf.back.paiement.service.itg.ArchivageApiClient;
-import mc.gouv.xaf.back.paiement.dto.itg.rio.RioDocumentDTO;
-import mc.gouv.xaf.back.paiement.dto.itg.rio.RioFileDocumentDTO;
-import mc.gouv.xaf.back.paiement.service.RioService;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.itg.rio.ArchivageApiClient;
+import mc.gouv.xaf.back.service.itg.rio.RioService;
+import mc.gouv.xaf.shared.dto.itg.rio.RioDocumentDTO;
+import mc.gouv.xaf.shared.dto.itg.rio.RioFileDocumentDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

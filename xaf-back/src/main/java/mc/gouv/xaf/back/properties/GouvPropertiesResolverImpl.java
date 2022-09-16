@@ -97,6 +97,11 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
                     // Est-ce que le SSL est activé ?
                     boolean sslEnabled = getGUKafkaSSLEnabled();
 
+                    // Est ce que l'archivage est activé ?
+                    String archivagePropStr = environment
+                            .getProperty("mc.gouv" + applicationPrefix + ".archivage.enabled");
+                    boolean archivageEnabled = StringUtils.isNotBlank(archivagePropStr) && archivagePropStr.equals("true");
+
                     // On ignore la présence de la property si la méthode possède @GouvIndexationProperty mais que l'appli a indexationEnabled=false
                     boolean pasIgnorerIndexing = !(method.getDeclaredAnnotation(GouvIndexationProperty.class) instanceof GouvIndexationProperty)
                             || (method.getDeclaredAnnotation(
@@ -109,7 +114,15 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
                             || (method.getDeclaredAnnotation(
                             GouvSSLProperty.class) instanceof GouvSSLProperty
                             && sslEnabled);
-                    if (pasIgnorerIndexing && pasIgnorerSSL) {
+
+                    // On ignore la présence de la property si la méthode possède @GouvArchivageProperty mais que l'appli a
+                    // archivage.enabled=false ou pas présente
+                    boolean pasIgnorerArchivage = !(method.getDeclaredAnnotation(GouvArchivageProperty.class) instanceof GouvArchivageProperty)
+                            || (method.getDeclaredAnnotation(
+                            GouvArchivageProperty.class) instanceof GouvArchivageProperty
+                            && archivageEnabled);
+
+                    if (pasIgnorerIndexing && pasIgnorerSSL && pasIgnorerArchivage) {
                         Object value = method.invoke(this);
                         if (value instanceof String) {
                             if (StringUtils.isBlank((String) value)) {
@@ -456,4 +469,27 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
         return Static.getValue("PORT-PROXY");
     }
 
+    @GouvArchivageProperty
+    @Override
+    public String getApiRioUrl() {
+        return Static.getValue("mc.gouv" + applicationPrefix + ".rio.url");
+    }
+
+    @GouvArchivageProperty
+    @Override
+    public String getApiRioJwt() {
+        return Static.getValue("mc.gouv" + applicationPrefix + ".rio.jwt");
+    }
+
+    @GouvArchivageProperty
+    @Override
+    public String getApiRioCodeAppli() {
+        return Static.getValue("mc.gouv" + applicationPrefix + ".rio.codeAppli");
+    }
+
+    @GouvArchivageProperty
+    @Override
+    public String getApiRioCodeNotice() {
+        return Static.getValue("mc.gouv" + applicationPrefix + ".rio.codeNotice");
+    }
 }

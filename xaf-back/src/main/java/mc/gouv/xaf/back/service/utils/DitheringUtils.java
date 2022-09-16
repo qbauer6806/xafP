@@ -1,4 +1,4 @@
-package mc.gouv.xaf.back.paiement.utils;
+package mc.gouv.xaf.back.service.utils;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;

@@ -1,9 +1,10 @@
-package mc.gouv.xaf.back.paiement.service.impl;
+package mc.gouv.xaf.back.service.impl;
 
 import fr.opensagres.poi.xwpf.converter.pdf.PdfConverter;
-import mc.gouv.xaf.back.paiement.service.ConvertisseurTiffService;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.ConvertisseurTiffService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
+import mc.gouv.xaf.back.service.utils.DitheringUtils;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -30,7 +31,6 @@ import java.net.URLEncoder;
 import java.util.List;
 import java.util.*;
 
-import static mc.gouv.xaf.back.paiement.utils.DitheringUtils.floydSteinbergDithering;
 
 @Service
 public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
@@ -189,7 +189,7 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
 
         // Conversion en Noir et blanc en "dithering"
         // Plus d'infos: https://en.wikipedia.org/wiki/Floyd%E2%80%93Steinberg_dithering
-        BufferedImage output = floydSteinbergDithering(inputImage);
+        BufferedImage output = DitheringUtils.floydSteinbergDithering(inputImage);
 
         // Conversion d'une image indexée sur 32 bits à 1 bit (noir et blanc)
         // Chaque pixel ce n'est plus un hexadécimal, mais un bit 1 (blanc) ou 0 (noir)

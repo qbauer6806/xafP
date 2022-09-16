@@ -1,4 +1,4 @@
-package mc.gouv.xaf.back.paiement.service;
+package mc.gouv.xaf.back.service.itg.rio;
 
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 

@@ -1,14 +1,13 @@
-package mc.gouv.xaf.back.paiement.bpm.activiti.delegate;
+package mc.gouv.xaf.back.bpm.activiti.delegate;
 
 import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.data.transformer.DemandesComplementsFilesTransformer;
-import mc.gouv.xaf.back.paiement.enums.PaiementDemandeDataKeysEnum;
-import mc.gouv.xaf.back.paiement.service.ArchivageService;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.AfHistoService;
 import mc.gouv.xaf.back.service.data.DemandesDataService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
+import mc.gouv.xaf.back.service.itg.rio.ArchivageService;
 import mc.gouv.xaf.shared.dto.*;
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.delegate.JavaDelegate;
@@ -30,6 +29,7 @@ public class GouvBPMArchivageDelegate implements JavaDelegate {
 
     public static final String MC_REFERENCE_PERMIS = "MC_REFERENCE_PERMIS";
     public static final String MC_ORDRE_FICHIERS = "MC_ORDRE_FICHIERS";
+    public static final String NOMBRE_FICHIERS_ERREUR_ARCHIVAGE = "NOMBRE_FICHIERS_ERREUR_ARCHIVAGE";
 
     @Autowired
     private GouvBPM gouvBPM;
@@ -101,7 +101,7 @@ public class GouvBPMArchivageDelegate implements JavaDelegate {
             int differenceFichiersArchives = fichiers.size() - fichiersArchives.size();
             if (differenceFichiersArchives > 0) {
                 // Sauvegarde du numéro de facture dans les données de la demande
-                demandesDataService.saveOrUpdateDemandeData(demarcheId, demandeId, PaiementDemandeDataKeysEnum.NOMBRE_FICHIERS_ERREUR_ARCHIVAGE.name(), differenceFichiersArchives + "");
+                demandesDataService.saveOrUpdateDemandeData(demarcheId, demandeId, NOMBRE_FICHIERS_ERREUR_ARCHIVAGE, differenceFichiersArchives + "");
                 histoService.actionSysteme(demandeId, "ECHEC", "Archivage automatique des fichiers en échec");
             } else {
                 histoService.actionSysteme(demandeId, "SUCCES", "Archivage automatique des fichiers réalisé avec succès");

@@ -1,7 +1,7 @@
 package mc.gouv.xaf.back.service.itg.rio.impl;
 
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.itg.rio.ArchivageApiClient;
+import mc.gouv.xaf.back.service.itg.rio.RioApiClient;
 import mc.gouv.xaf.shared.dto.itg.rio.RioDocumentDTO;
 import mc.gouv.xaf.shared.dto.itg.rio.RioDocumentRequestDTO;
 import mc.gouv.xaf.shared.dto.itg.rio.RioFileDocumentDTO;
@@ -27,9 +27,9 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 
 @Service
-public class ArchivageApiClientImpl implements ArchivageApiClient {
+public class RioApiClientImpl implements RioApiClient {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ArchivageApiClientImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RioApiClientImpl.class);
 
     // Entrypoint
     private static String url;

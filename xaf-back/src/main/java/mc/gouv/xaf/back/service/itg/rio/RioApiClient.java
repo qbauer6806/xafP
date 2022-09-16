@@ -9,7 +9,7 @@ import mc.gouv.xaf.shared.dto.itg.rio.RioFileDocumentDTO;
  *
  * @author mpavone.ext
  */
-public interface ArchivageApiClient {
+public interface RioApiClient {
 
     RioDocumentDTO createDocument(String codeAppli, String lastModifier, String codeNotice, String refDocument);
 

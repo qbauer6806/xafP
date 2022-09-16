@@ -78,14 +78,28 @@ public class PaiementServlet extends AbstractAfServlet {
         LOGGER.info("====================== Fin /paiement doGet()\n");
     }
 
-
+    /**
+     * Interface Retour
+     */
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) {
         LOGGER.info("====================== /paiement doPost()");
         try {
-            LOGGER.info("request.getParameter " );
-            String MAC = (request.getParameter("MAC") != null) ? request.getParameter("MAC") : "";
-            String codeRetour = (request.getParameter("code-retour") != null) ? request.getParameter("code-retour") : "";
+            LOGGER.info("Vérification de la présence de la clé MAC..." );
+            if (request.getParameter("MAC") == null) {
+                AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_BAD_REQUEST,
+                        "Il manque le paramètre de clé MAC");
+                return;
+            }
+
+            LOGGER.info("Vérification de la présence du code-retour..." );
+            if (request.getParameter("code-retour") == null) {
+                AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_BAD_REQUEST,
+                        "Il manque le paramètre de code-retour");
+                return;
+            }
+
+            String codeRetour = request.getParameter("code-retour");
             LOGGER.info("codeRetour : {}", codeRetour);
 
             response.setHeader("Pragma", "no-cache");

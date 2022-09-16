@@ -11,7 +11,7 @@ public interface MoneticoPaiementService {
 
     PaiementDTO create(String demandesId, String langue, Integer usagerId, boolean iframe);
 
-    void updateStatus(MoneticoResponseDTO moneticoResponseDTO);
+    String updateStatus(MoneticoResponseDTO moneticoResponseDTO);
 
     MoyenPaiementDTO getMoyenPaiement(Integer demandeId);
 

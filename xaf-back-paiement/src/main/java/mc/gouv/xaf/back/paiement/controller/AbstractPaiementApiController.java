@@ -43,10 +43,11 @@ public abstract class AbstractPaiementApiController {
     /**
      * Mise à jour du status de paiement suite à une action utilisateur
      * @param moneticoResponseDTO Représentation d'un retour de PSP
+     * @return une chaine de caractère contenant le résultat de la vérification de la clé MAC
      */
     @PostMapping
-    public void updatePaiement(@RequestBody MoneticoResponseDTO moneticoResponseDTO) {
-        moneticoPaiementService.updateStatus(moneticoResponseDTO);
+    public String updatePaiement(@RequestBody MoneticoResponseDTO moneticoResponseDTO) {
+        return moneticoPaiementService.updateStatus(moneticoResponseDTO);
     }
 
     /**

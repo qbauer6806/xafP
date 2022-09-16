@@ -78,52 +78,49 @@ public class PaiementServlet extends AbstractAfServlet {
         LOGGER.info("====================== Fin /paiement doGet()\n");
     }
 
-
+    /**
+     * Interface Retour
+     */
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) {
         LOGGER.info("====================== /paiement doPost()");
         try {
-            LOGGER.info("request.getParameter " );
-            String MAC = (request.getParameter("MAC") != null) ? request.getParameter("MAC") : "";
-            String codeRetour = (request.getParameter("code-retour") != null) ? request.getParameter("code-retour") : "";
-            LOGGER.info("codeRetour : " + codeRetour);
+            LOGGER.info("Vérification de la présence de la clé MAC..." );
+            if (request.getParameter("MAC") == null) {
+                AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_BAD_REQUEST,
+                        "Il manque le paramètre de clé MAC");
+                return;
+            }
+
+            LOGGER.info("Vérification de la présence du code-retour..." );
+            if (request.getParameter("code-retour") == null) {
+                AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_BAD_REQUEST,
+                        "Il manque le paramètre de code-retour");
+                return;
+            }
+
+            String codeRetour = request.getParameter("code-retour");
+            LOGGER.info("codeRetour : {}", codeRetour);
 
             response.setHeader("Pragma", "no-cache");
             response.setHeader("Cache-Control", "no-cache");
             response.setContentType("text/plain");
             PrintWriter out = response.getWriter();
 
-            String sResult;
-            //todo replace by mac check
-            String sChaineMAC = null;//getStcApiClient().getHmac();
-            if (true /*sChaineMAC.equals(MAC)*/) {
-                ObjectMapper mapper = new ObjectMapper();
-                ObjectNode paiementNode = mapper.createObjectNode();
-                for (Map.Entry<String, String[]> entry : request.getParameterMap().entrySet()) {
-                    paiementNode.put(entry.getKey().toLowerCase(), entry.getValue()[0]);
-                }
-                MoneticoResponseDTO moneticoResponseDTO = mapper.treeToValue(paiementNode, MoneticoResponseDTO.class);
-                moneticoResponseDTO.setCodeRetour(codeRetour);
-                getStcApiClient().updatePaiementStatus(moneticoResponseDTO);
-
-                LOGGER.info("result = 0");
-                sResult = "0";
-            } else {
-
-                sResult = "1\n" + sChaineMAC;
+            ObjectMapper mapper = new ObjectMapper();
+            ObjectNode paiementNode = mapper.createObjectNode();
+            for (Map.Entry<String, String[]> entry : request.getParameterMap().entrySet()) {
+                paiementNode.put(entry.getKey().toLowerCase(), entry.getValue()[0]);
             }
-
-            /*-----------------------------------------------------------------------*
-             * Acknowledgment message
-             *-----------------------------------------------------------------------*/
-            LOGGER.info("sResult = " + sResult);
-            LOGGER.info("response = " + "version=2\ncdr=" + sResult);
+            MoneticoResponseDTO moneticoResponseDTO = mapper.treeToValue(paiementNode, MoneticoResponseDTO.class);
+            moneticoResponseDTO.setCodeRetour(codeRetour);
+            String sResult = getStcApiClient().updatePaiementStatus(moneticoResponseDTO);
+            LOGGER.info("sResult = {}", sResult);
+            LOGGER.info("response = version=2\ncdr={}", sResult);
             out.println("version=2\ncdr=" + sResult);
             out.close();
         } catch (Exception e) {
-
-            LOGGER.error("Monetico Paiement failed.");
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.error("La mise à jour du Paiement Monetico à échouée.", e);
         }
         LOGGER.info("====================== Fin /paiement doPost()\n");
     }

@@ -206,10 +206,11 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
         }
         MoyenPaiementBO moyenPaiementBO = moyenPaiementBOOptional.get();
 
-        LOGGER.info("Vérification de la clé HMAC");
-        if (!StringUtils.equals(moneticoResponseDTO.getMac(), moyenPaiementBO.getMac())) {
-            return CODE_RETOUR_KO + '\n' + moyenPaiementBO.getMac();
-        }
+        // TODO revoir l'implémentation de la vérification de la clé MAC selon la doc Monetico
+//        LOGGER.info("Vérification de la clé HMAC");
+//        if (!StringUtils.equals(moneticoResponseDTO.getMac(), moyenPaiementBO.getMac())) {
+//            return CODE_RETOUR_KO + '\n' + moyenPaiementBO.getMac();
+//        }
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMyy");
         YearMonth yeaMonthValidite = YearMonth.parse(moneticoResponseDTO.getVld(), formatter);

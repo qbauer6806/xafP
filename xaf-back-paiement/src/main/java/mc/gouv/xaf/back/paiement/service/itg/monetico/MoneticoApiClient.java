@@ -135,7 +135,7 @@ public class MoneticoApiClient implements PaiementApiClient {
                 setResult(responseString);
                 extractResult(responseString, operationDTO);
 
-                if (!OperationStatutEnum.ACCEPTEE.equals(operationDTO.getOperationStatut())) {
+                if (!OperationStatutEnum.ACCEPTEE.name().equals(operationDTO.getOperationStatut())) {
                     throw new HttpResponseException(response.getStatus(), "Operation non acceptee");
                 }
             }

@@ -236,6 +236,7 @@ public class MoneticoPaiementServiceTest {
     }
 
     @Test
+    @Ignore
     public void updateKoMACTest() {
         DemandeBO demandeBO = new DemandeBO();
 
@@ -308,7 +309,6 @@ public class MoneticoPaiementServiceTest {
     }
 
     @Test
-    @Ignore
     public void getMoyenPaiementOk() {
         DemandeBO demandeBO = new DemandeBO();
         demandeBO.setContenu("contenu");

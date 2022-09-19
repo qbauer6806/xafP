@@ -45,15 +45,15 @@ public class RelancesDemandesSchedulingJob implements Job {
             PropertiesDTO activationRappel = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), ACTIVATION_RAPPEL);
             boolean active = Boolean.parseBoolean(activationRappel.getValue());
             if (active) {
-                List<RelanceStatutDemandeConf> statutsARelancer = new ArrayList<>();
+                List<RelanceStatutDemandeConf> confRelances = new ArrayList<>();
 
                 // Récupération de la liste des statuts à purger dans le contexte du job detail
                 Object statutsJob = jobExecutionContext.getJobDetail().getJobDataMap().get("statutsARelancer");
                 if (statutsJob instanceof List) {
-                	statutsARelancer = (List<RelanceStatutDemandeConf>) statutsJob;
+                	confRelances = (List<RelanceStatutDemandeConf>) statutsJob;
                 }
                 LOGGER.info("RAPPEL COURRIEL: Début du job de relance courriel des demandes pour la démarche {}", gouvPropertiesResolver.getDemarcheId());
-                relanceDemandesService.sendRelancesMail(statutsARelancer);
+                relanceDemandesService.sendRelancesMail(confRelances);
             } else {
                 LOGGER.info("RAPPEL COURRIEL: La fonctionnalité de la rappel des courriels est désactivée, changez la propriété ACTIVATION_RAPPEL pour activer.");
             }

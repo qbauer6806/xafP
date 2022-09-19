@@ -129,9 +129,9 @@ public class RelancesUtils {
 		for (RelanceStatutDemandeConf relanceDemandeSetting : relanceDemandeSettings) {
 			String currentStatut = relanceDemandeSetting.getStatutARelancer();
 			// On va chercher toutes les demandes dans le status à expirer
-			if (null != demandesService.getAllDemandesFilteredByStatut(currentStatut)
-					&& !demandesService.getAllDemandesFilteredByStatut(currentStatut).isEmpty()) {
-				for (DemandeDTO demandeDTO : demandesService.getAllDemandesFilteredByStatut(currentStatut)) {
+			List<DemandeDTO> demandeDTOList = demandesService.getAllDemandesFilteredByStatut(currentStatut);
+			if (null != demandeDTOList && !demandeDTOList.isEmpty()) {
+				for (DemandeDTO demandeDTO : demandeDTOList) {
 					// On récupère la date a laquelle la demande est passée dans son statut à relancer
 					Date datePassageStatutARelancer = demandeDTO.getDernierStatut().getDate();
 					Integer nbJoursAvantRelance = relanceDemandeSetting.getDelaiAvantPremiereRelance();

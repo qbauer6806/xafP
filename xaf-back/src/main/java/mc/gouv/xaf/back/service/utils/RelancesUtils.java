@@ -125,20 +125,22 @@ public class RelancesUtils {
 	}
 
 	public Map<DemandeDTO, String> getDemandesANotifier(List<RelanceStatutDemandeConf> relanceDemandeSettings) {
+		String demarcheId = gouvPropertiesResolver.getDemarcheId();
 		Map<DemandeDTO, String> result = new HashMap<>();
 		for (RelanceStatutDemandeConf relanceDemandeSetting : relanceDemandeSettings) {
 			String currentStatut = relanceDemandeSetting.getStatutARelancer();
+			int nbJoursAvantRelance = Integer.parseInt(propertiesService.getProperty(demarcheId, relanceDemandeSetting.getCleDelaiAvantPremiereRelance()).getValue());
+			int delaiEntreDauxRelances = Integer.parseInt(propertiesService.getProperty(demarcheId, relanceDemandeSetting.getCleDelaiEntreDeuxRelances()).getValue());
 			// On va chercher toutes les demandes dans le status à expirer
 			List<DemandeDTO> demandeDTOList = demandesService.getAllDemandesFilteredByStatut(currentStatut);
 			if (null != demandeDTOList && !demandeDTOList.isEmpty()) {
 				for (DemandeDTO demandeDTO : demandeDTOList) {
 					// On récupère la date a laquelle la demande est passée dans son statut à relancer
 					Date datePassageStatutARelancer = demandeDTO.getDernierStatut().getDate();
-					Integer nbJoursAvantRelance = relanceDemandeSetting.getDelaiAvantPremiereRelance();
 					ZonedDateTime xDaysAgoForRelance = ZonedDateTime.now().plusDays(-nbJoursAvantRelance);
 					boolean olderThanXDaysForRelance = datePassageStatutARelancer.toInstant()
 							.isBefore(xDaysAgoForRelance.toInstant());
-					if (isEligiblePourUnMailDeRelance(demandeDTO, relanceDemandeSetting.getDelaiEntreDeuxRelances()) && olderThanXDaysForRelance) {
+					if (isEligiblePourUnMailDeRelance(demandeDTO, delaiEntreDauxRelances) && olderThanXDaysForRelance) {
 						// On associe ces demandes au code mail à envoyer si elle est sont éligibles à
 						// une relance
 						result.put(demandeDTO, relanceDemandeSetting.getClefMailPrefix());

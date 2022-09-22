@@ -6,7 +6,7 @@ import java.io.Serializable;
  * 
  * Classe permettant de créer des conf de statut à expirer en spécifiant 
  *  - Le statut à expirer
- *  - Le délai d'expiration
+ *  - La clé liée à la propriété du délai d'expiration
  *  - Le prefix de la clef mail à utiliser (ie MAIL_EN_ATTENT_COMPL)
  * @author XDECOOL.EXT
  *
@@ -15,12 +15,12 @@ public class ExpirationStatutDemandeConf implements Serializable {
 
 	private static final long serialVersionUID = 6972884327194347877L;
 	private String statutAExpirer;
-	private Integer delaiExpiration;
+	private String cleDelaiExpiration;
 	private String clefMailPrefix;
 	
-	public ExpirationStatutDemandeConf(String statutAExpirer, Integer delaiExpiration, String clefMailPrefix) {
+	public ExpirationStatutDemandeConf(String statutAExpirer, String cleDelaiExpiration, String clefMailPrefix) {
 		this.statutAExpirer = statutAExpirer;
-		this.delaiExpiration = delaiExpiration;
+		this.cleDelaiExpiration = cleDelaiExpiration;
 		this.clefMailPrefix = clefMailPrefix;
 	}
 
@@ -32,12 +32,12 @@ public class ExpirationStatutDemandeConf implements Serializable {
 		this.statutAExpirer = statutAExpirer;
 	}
 
-	public Integer getDelaiExpiration() {
-		return delaiExpiration;
+	public String getCleDelaiExpiration() {
+		return cleDelaiExpiration;
 	}
 
-	public void setDelaiExpiration(Integer delaiExpiration) {
-		this.delaiExpiration = delaiExpiration;
+	public void setCleDelaiExpiration(String cleDelaiExpiration) {
+		this.cleDelaiExpiration = cleDelaiExpiration;
 	}
 
 	public String getClefMailPrefix() {

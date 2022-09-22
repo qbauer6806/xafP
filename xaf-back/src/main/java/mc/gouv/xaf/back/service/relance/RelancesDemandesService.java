@@ -7,8 +7,8 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
 
 public interface RelancesDemandesService {
 
-	public void sendRelancesMail(List<RelanceStatutDemandeConf> statutsARelancer);
+	void sendRelancesMail(List<RelanceStatutDemandeConf> statutsARelancer);
 
-	public void envoiEmailUsagerRelance(DemandeDTO demande, String codeMailPrefix);
+	void envoiEmailUsagerRelance(DemandeDTO demande, String codeMailPrefix);
 
 }

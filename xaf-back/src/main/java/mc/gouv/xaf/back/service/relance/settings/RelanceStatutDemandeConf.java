@@ -3,60 +3,58 @@ package mc.gouv.xaf.back.service.relance.settings;
 import java.io.Serializable;
 
 /**
- * 
- * 
- * Classe permettant de créer des conf de statut à expirer en spécifiant 
- *  - Le statut à relancer
- *  - Le délai avant la 1ere relance
- *  - Le délai entre 2 relances
- *  - Le prefix de la clef mail à utiliser (ie MAIL_EN_ATTENT_COMPL)
- * @author XDECOOL.EXT
+ * Classe permettant de créer des conf de statut à expirer en spécifiant
+ * - Le statut à relancer
+ * - La clé de la propriété du délai avant la 1ere relance
+ * - La clé de la propriété du délai entre 2 relances
+ * - Le prefix de la clef mail à utiliser (ie MAIL_EN_ATTENT_COMPL)
  *
+ * @author XDECOOL.EXT
  */
 public class RelanceStatutDemandeConf implements Serializable {
 
-	private static final long serialVersionUID = 6123329536305326942L;
-	private String statutARelancer;
-	private Integer delaiAvantPremiereRelance;
-	private Integer delaiEntreDeuxRelances;
-	private String clefMailPrefix;
-	
-	public RelanceStatutDemandeConf(String statutARelancer, Integer delaiAvantPremiereRelance, Integer delaiEntreDeuxRelances, String clefMailPrefix) {
-		this.statutARelancer = statutARelancer;
-		this.delaiAvantPremiereRelance = delaiAvantPremiereRelance;
-		this.delaiEntreDeuxRelances = delaiEntreDeuxRelances;
-		this.clefMailPrefix = clefMailPrefix;
-	}
-	
-	public String getStatutARelancer() {
-		return statutARelancer;
-	}
+    private static final long serialVersionUID = 6123329536305326942L;
+    private String statutARelancer;
+    private String cleDelaiAvantPremiereRelance;
+    private String cleDelaiEntreDeuxRelances;
+    private String clefMailPrefix;
 
-	public void setStatutARelancer(String statutARelancer) {
-		this.statutARelancer = statutARelancer;
-	}
+    public RelanceStatutDemandeConf(String statutARelancer, String cleDelaiAvantPremiereRelance, String cleDelaiEntreDeuxRelances, String clefMailPrefix) {
+        this.statutARelancer = statutARelancer;
+        this.cleDelaiAvantPremiereRelance = cleDelaiAvantPremiereRelance;
+        this.cleDelaiEntreDeuxRelances = cleDelaiEntreDeuxRelances;
+        this.clefMailPrefix = clefMailPrefix;
+    }
 
-	public Integer getDelaiAvantPremiereRelance() {
-		return delaiAvantPremiereRelance;
-	}
+    public String getStatutARelancer() {
+        return statutARelancer;
+    }
 
-	public void setDelaiAvantPremiereRelance(Integer delaiAvantPremiereRelance) {
-		this.delaiAvantPremiereRelance = delaiAvantPremiereRelance;
-	}
+    public void setStatutARelancer(String statutARelancer) {
+        this.statutARelancer = statutARelancer;
+    }
 
-	public Integer getDelaiEntreDeuxRelances() {
-		return delaiEntreDeuxRelances;
-	}
+    public String getCleDelaiAvantPremiereRelance() {
+        return cleDelaiAvantPremiereRelance;
+    }
 
-	public void setDelaiEntreDeuxRelances(Integer delaiEntreDeuxRelances) {
-		this.delaiEntreDeuxRelances = delaiEntreDeuxRelances;
-	}
+    public void setCleDelaiAvantPremiereRelance(String cleDelaiAvantPremiereRelance) {
+        this.cleDelaiAvantPremiereRelance = cleDelaiAvantPremiereRelance;
+    }
 
-	public String getClefMailPrefix() {
-		return clefMailPrefix;
-	}
+    public String getCleDelaiEntreDeuxRelances() {
+        return cleDelaiEntreDeuxRelances;
+    }
 
-	public void setClefMailPrefix(String clefMailPrefix) {
-		this.clefMailPrefix = clefMailPrefix;
-	}
+    public void setCleDelaiEntreDeuxRelances(String cleDelaiEntreDeuxRelances) {
+        this.cleDelaiEntreDeuxRelances = cleDelaiEntreDeuxRelances;
+    }
+
+    public String getClefMailPrefix() {
+        return clefMailPrefix;
+    }
+
+    public void setClefMailPrefix(String clefMailPrefix) {
+        this.clefMailPrefix = clefMailPrefix;
+    }
 }

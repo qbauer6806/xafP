@@ -12,8 +12,6 @@ import mc.gouv.xaf.back.data.entity.DemandesDataBO;
 import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.paiement.data.dao.*;
-import mc.gouv.xaf.back.paiement.data.entity.CommandeBO;
-import mc.gouv.xaf.back.paiement.data.entity.CommandeDemandeBO;
 import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
 import mc.gouv.xaf.back.paiement.data.enums.MoyenPaiementStatutEnum;
 import mc.gouv.xaf.back.paiement.dto.*;
@@ -30,9 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -304,46 +300,6 @@ public class MoneticoPaiementServiceTest {
         moneticoResponseDTO.setMac("mauvais mac");
         String result = moneticoPaiementService.updateStatus(moneticoResponseDTO);
         assertThat(result).isEqualTo("1\n" + paiementDTO.getMAC());
-    }
-
-    @Test
-    @Transactional
-    public void getCommandeOk() {
-        DemandeBO demandeBO = new DemandeBO();
-        demandeBO.setContenu("contenu");
-        demandeBO.setCanal("canal");
-        demandeBO.setIdentifiant("monIdentifiant");
-        demandeBO.setDateCreation(new Date());
-        demandeBO.setDateDerModif(new Date());
-        Set<DemandesDataBO> demandesDataBOS = new HashSet<>();
-        DemandesDataBO demandesDataBO = new DemandesDataBO();
-        demandesDataBO.setKey(PaiementDemandeDataKeysEnum.MOYEN_PAIEMENT_REFERENCE.name());
-        demandesDataBO.setValue("maRef");
-        demandesDataBOS.add(demandesDataBO);
-        demandeBO.setData(demandesDataBOS);
-        demandeBO = demandesRepository.save(demandeBO);
-
-        MoyenPaiementBO moyenPaiementBO = new MoyenPaiementBO();
-        moyenPaiementBO.setMoyenPaiementStatut(MoyenPaiementStatutEnum.VALIDE);
-        moyenPaiementBO.setDateLimite(LocalDateTime.MIN);
-        moyenPaiementBO.setPkMoyensPaiements("maRef");
-
-        CommandeDemandeBO commandeDemandeBO = new CommandeDemandeBO();
-        commandeDemandeBO.setDemande(demandeBO);
-
-        CommandeBO commandeBO = new CommandeBO();
-        commandeBO.setMontantInitial(122);
-        commandeBO.setDateCreation(LocalDateTime.now());
-        commandeBO.setMoyenPaiement(moyenPaiementBO);
-        commandeBO.setCommandesDemandes(Collections.singletonList(commandeDemandeBO));
-        commandeDemandeBO.setCommande(commandeBO);
-        moyenPaiementBO.setCommande(commandeBO);
-        commandeBO = commandeRepository.save(commandeBO);
-
-
-        CommandeDTO commandeDTO = moneticoPaiementService.getCommande(demandeBO.getPkDemandes());
-        assertThat(commandeBO.getMontantInitial()).isEqualTo(122);
-        assertThat(commandeDTO.getMoyenPaiement().getPkMoyenPaiements()).isEqualTo("maRef");
     }
 
 }

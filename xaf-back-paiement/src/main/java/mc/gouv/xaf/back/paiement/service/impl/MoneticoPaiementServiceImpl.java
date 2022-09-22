@@ -10,7 +10,6 @@ import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.paiement.data.dao.*;
 import mc.gouv.xaf.back.paiement.data.entity.*;
 import mc.gouv.xaf.back.paiement.data.enums.MoyenPaiementStatutEnum;
-import mc.gouv.xaf.back.paiement.data.transformer.CommandeTransformer;
 import mc.gouv.xaf.back.paiement.data.transformer.CommandeOperationTransformer;
 import mc.gouv.xaf.back.paiement.dto.*;
 import mc.gouv.xaf.back.paiement.enums.PaiementDemandeDataKeysEnum;
@@ -256,20 +255,6 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
         moyenPaiementRepository.save(moyenPaiementBO);
         LOGGER.info("Created [ moyenPaiementBO {}] ", moyenPaiementBO);
         return CODE_RETOUR_OK;
-    }
-
-    @Override
-    public CommandeDTO getCommande(Integer demandeId) {
-        logStartMethod(LOGGER);
-        DemandeDataDTO data = demandesDataService.getDemandeData(gouvPropertiesResolver.getDemarcheId(), demandeId, PaiementDemandeDataKeysEnum.MOYEN_PAIEMENT_REFERENCE.name());
-        CommandeBO commandeBO = commandeRepository.findByMoyenPaiementPkMoyensPaiements(data.getValue());
-        return CommandeTransformer.bo2Dto(commandeBO);
-    }
-
-    @Override
-    public List<CommandeDTO> getAllCommandes() {
-        List<CommandeBO> commandes = commandeRepository.findAll();
-        return CommandeTransformer.bos2Dtos(commandes);
     }
 
     @Override

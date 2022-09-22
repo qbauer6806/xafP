@@ -11,6 +11,7 @@ import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.back.service.utils.UsagersUtils;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +25,7 @@ import java.util.Map;
 @Component
 public class TicketRecapitulatifServiceImpl implements TicketRecapitulatifService {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(TicketRecapitulatifServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TicketRecapitulatifServiceImpl.class);
 
     @Autowired
     private AfBackUtils afBackUtils;
@@ -73,13 +74,13 @@ public class TicketRecapitulatifServiceImpl implements TicketRecapitulatifServic
 
     private Map<String, Object> getModel(CommandeOperationDTO operation, MoyenPaiementDTO moyenPaiement, GichuniUsagerDTO usager) {
         Map<String, Object> model = new HashMap<>();
-        model.put("titre", usager.getPrenom() + " " + usager.getNom());
+        model.put("titre", UsagersUtils.titreShortToString(usager.getTitre()));
         model.put("numTPE", paiementPropertiesResolver.getTpe());
         model.put("pkOperation", operation.getPkOperations());
-        model.put("dateTransaction", operation.getDateCreation().format(DateTimeFormatter.ofPattern(AfBackUtils.DEFAULT_FRENCH_DATE_FORMAT)));
-        model.put("montant", operation.getMontant());
+        model.put("dateTransaction", operation.getDateCreation().format(DateTimeFormatter.ofPattern(AfBackUtils.DEFAULT_FRENCH_DATE_HOURS_FORMAT)));
+        model.put("montant", operation.getMontant() + " EUR");
         model.put("moyenPaiement", moyenPaiement.getModepaiement());
-        model.put("typeTransaction", moyenPaiement.getMoyenPaiementType());
+        model.put("typeTransaction", operation.getOperationType());
         model.put("numCarte", moyenPaiement.getCbmasquee());
         model.put("numeroAutorisation", operation.getNumeroAutorisation());
         model.put("numeroTerminal", paiementPropertiesResolver.getTpe());

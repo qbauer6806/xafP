@@ -4,6 +4,7 @@ import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.paiement.dto.CommandeDTO;
 import mc.gouv.xaf.back.paiement.dto.CommandeOperationDTO;
 import mc.gouv.xaf.back.paiement.dto.PaiementDTO;
+import mc.gouv.xaf.back.paiement.service.data.CommandesService;
 import mc.gouv.xaf.back.paiement.service.itg.MoneticoPaiementService;
 import mc.gouv.xaf.back.paiement.utils.PaiementExportUtils;
 import mc.gouv.xaf.shared.dto.itg.monetico.MoneticoResponseDTO;
@@ -21,6 +22,9 @@ public abstract class AbstractPaiementApiController {
 
     @Autowired
     private MoneticoPaiementService moneticoPaiementService;
+
+    @Autowired
+    private CommandesService commandesService;
 
     /**
      * Récupération d'un DTO permettant d'initialiser une page/iframe de paiement sur le FO
@@ -84,7 +88,7 @@ public abstract class AbstractPaiementApiController {
             response.getWriter().println(PaiementExportUtils.headerCommandeCSV());
             response.setContentType("text/plain; charset=utf-8");
 
-            for(CommandeDTO commandeDTO : moneticoPaiementService.getAllCommandes()) {
+            for(CommandeDTO commandeDTO : commandesService.getAllCommandes()) {
                 try {
                     response.getWriter().println(PaiementExportUtils.toCSV(commandeDTO));
                 } catch (IOException e) {

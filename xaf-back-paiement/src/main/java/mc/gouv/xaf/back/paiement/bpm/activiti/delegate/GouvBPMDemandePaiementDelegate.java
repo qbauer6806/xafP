@@ -7,8 +7,8 @@ import mc.gouv.xaf.back.paiement.enums.PaiementDemandeDataKeysEnum;
 import mc.gouv.xaf.back.paiement.enums.PaiementStatutEnum;
 import mc.gouv.xaf.back.paiement.service.CaptureService;
 import mc.gouv.xaf.back.paiement.service.PaiementHistoriqueService;
+import mc.gouv.xaf.back.paiement.service.data.CommandesService;
 import mc.gouv.xaf.back.paiement.service.impl.TicketRecapitulatifServiceImpl;
-import mc.gouv.xaf.back.paiement.service.itg.MoneticoPaiementService;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.AfHistoService;
 import mc.gouv.xaf.back.service.data.DemandesDataService;
@@ -17,6 +17,7 @@ import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.back.service.utils.UsagersUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeDataDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
@@ -45,8 +46,6 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
     public static final String MC_FACTURE_REFERENCE = "MC_FACTURE_REFERENCE";
     public static final String MC_IS_DEBIT_KO = "MC_IS_DEBIT_KO";
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMDemandePaiementDelegate.class);
-    @Autowired
-    private MoneticoPaiementService moneticoPaiementService;
 
     @Autowired
     private DemandesService demandesService;
@@ -81,6 +80,9 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
     @Autowired
     private UsagersCache usagersCache;
 
+    @Autowired
+    private CommandesService commandesService;
+
     @Override
     public void execute(DelegateExecution execution) throws Exception {
         LOGGER.info("==== xaf-back-paiement CAPTURE PAIEMENT ...");
@@ -92,7 +94,7 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
         DemandeDataDTO statutPaiementData = demandesDataService.getDemandeData(demarcheId, demandeId, PaiementDemandeDataKeysEnum.STATUT_PAIEMENT.name());
 
         try {
-            CommandeDTO commandeDTO = moneticoPaiementService.getCommande(demandeId);
+            CommandeDTO commandeDTO = commandesService.getDerniereCommande(demandeId);
             LOGGER.info("Recuperation commandeDTO : {}", commandeDTO);
             LOGGER.info("Statut de l'empreinte de paiement : {}", statutPaiementData.getValue());
 
@@ -159,22 +161,7 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
 		emailInfo.addTo(demandeDTO.getUsagerEmail(), demandeDTO.getUsagerPrenom() + " " + demandeDTO.getUsagerNom());
 		emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, demandeDTO.getIdentifiant());
 		Map<String, Object> model = new HashMap<>();
-		String titre = "";
-		switch (usager.getTitre()) {
-		case 0:
-			titre = "Monsieur";
-			break;
-		case 1:
-			titre = "Madame";
-			break;
-		case 2:
-			titre = "Mademoiselle";
-			break;
-		default:
-			titre = "Madame, Monsieur";
-			break;
-		}
-		model.put("titre", titre);
+		model.put("titre", UsagersUtils.titreShortToString(usager.getTitre()));
 		model.put("urlFront", gouvPropertiesResolver.getFrontUrl());
 		model.put("identifiant", demandeDTO.getIdentifiant());
 		model.put("pkDemande", demandeDTO.getPkDemandes());

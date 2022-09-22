@@ -1,12 +1,11 @@
 package mc.gouv.xaf.back.paiement.controller;
 
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
-import mc.gouv.xaf.back.paiement.data.transformer.MoyenPaiementTransformer;
-import mc.gouv.xaf.back.paiement.data.transformer.OperationTransformer;
-import mc.gouv.xaf.back.paiement.dto.MoyenPaiementDTO;
-import mc.gouv.xaf.back.paiement.dto.OperationDTO;
+import mc.gouv.xaf.back.paiement.dto.CommandeDTO;
+import mc.gouv.xaf.back.paiement.dto.CommandeOperationDTO;
 import mc.gouv.xaf.back.paiement.dto.PaiementDTO;
 import mc.gouv.xaf.back.paiement.service.itg.MoneticoPaiementService;
+import mc.gouv.xaf.back.paiement.utils.PaiementExportUtils;
 import mc.gouv.xaf.shared.dto.itg.monetico.MoneticoResponseDTO;
 import mc.gouv.xapi.error.dto.ErrorsDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,12 +56,12 @@ public abstract class AbstractPaiementApiController {
     @GetMapping("stats/operation")
     public void getStatsOperation(HttpServletResponse response) {
         try {
-            response.getWriter().println(OperationTransformer.headerCSV());
+            response.getWriter().println(PaiementExportUtils.headerOperationCSV());
             response.setContentType("text/plain; charset=utf-8");
 
-           for(OperationDTO operationDTO : moneticoPaiementService.getAllOperations()) {
+           for(CommandeOperationDTO commandeOperationDTO : moneticoPaiementService.getAllOperations()) {
                 try {
-                    response.getWriter().println(OperationTransformer.toCSV(operationDTO));
+                    response.getWriter().println(PaiementExportUtils.toCSV(commandeOperationDTO));
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -82,12 +81,12 @@ public abstract class AbstractPaiementApiController {
     @GetMapping("stats/moyen-paiement")
     public void getStatsMoyenPaiement(HttpServletResponse response) {
         try {
-            response.getWriter().println(MoyenPaiementTransformer.headerCSV());
+            response.getWriter().println(PaiementExportUtils.headerCommandeCSV());
             response.setContentType("text/plain; charset=utf-8");
 
-            for(MoyenPaiementDTO moyenPaiementDTO : moneticoPaiementService.getAllMoyensPaiement()) {
+            for(CommandeDTO commandeDTO : moneticoPaiementService.getAllCommandes()) {
                 try {
-                    response.getWriter().println(MoyenPaiementTransformer.toCSV(moyenPaiementDTO));
+                    response.getWriter().println(PaiementExportUtils.toCSV(commandeDTO));
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }

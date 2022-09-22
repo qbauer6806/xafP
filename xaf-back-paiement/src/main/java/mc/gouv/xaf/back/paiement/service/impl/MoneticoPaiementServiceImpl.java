@@ -10,8 +10,8 @@ import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.paiement.data.dao.*;
 import mc.gouv.xaf.back.paiement.data.entity.*;
 import mc.gouv.xaf.back.paiement.data.enums.MoyenPaiementStatutEnum;
-import mc.gouv.xaf.back.paiement.data.transformer.MoyenPaiementTransformer;
-import mc.gouv.xaf.back.paiement.data.transformer.OperationTransformer;
+import mc.gouv.xaf.back.paiement.data.transformer.CommandeTransformer;
+import mc.gouv.xaf.back.paiement.data.transformer.CommandeOperationTransformer;
 import mc.gouv.xaf.back.paiement.dto.*;
 import mc.gouv.xaf.back.paiement.enums.PaiementDemandeDataKeysEnum;
 import mc.gouv.xaf.back.paiement.enums.PaiementStatutEnum;
@@ -22,11 +22,9 @@ import mc.gouv.xaf.back.paiement.service.itg.MoneticoPaiementService;
 import mc.gouv.xaf.back.paiement.service.itg.PaiementSecurityService;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesDataService;
-import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.shared.dto.DemandeDataDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
-import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.itg.monetico.MoneticoResponseDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -61,7 +59,7 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
     private MoyenPaiementRepository moyenPaiementRepository;
 
     @Autowired
-    private OperationRepository operationRepository;
+    private CommandeOperationRepository commandeOperationRepository;
 
     @Autowired
     private CommandeDemandeRepository commandeDemandeRepository;
@@ -74,9 +72,6 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
 
     @Autowired
     private PaiementSecurityService paiementSecurityService;
-
-    @Autowired
-    private PropertiesService propertiesService;
 
     @Autowired
     private ReferenceFactoryService referenceFactoryService;
@@ -120,9 +115,14 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
         LocalDateTime now = LocalDateTime.now();
 
         CommandeBO commande = new CommandeBO();
+        MoyenPaiementBO moyenPaiement = new MoyenPaiementBO();
+        moyenPaiement.setPkMoyensPaiements(referenceFactoryService.createSimpleReference12Digits());
         commande.setDateCreation(now);
-        commande.setMontant(montant);
-        commande = commandeRepository.save(commande);
+        commande.setMontantInitial(montant);
+        commande.setMontantRestant(montant);
+        commande.setMontantDejaCapture(0);
+        commande.setMoyenPaiement(moyenPaiement);
+        commandeRepository.save(commande);
         LOGGER.info("Created [ commande {}] ", commande);
 
         StringJoiner listePkDemandes = new StringJoiner(",");
@@ -136,16 +136,22 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
             commandeDemande.setMontant(montantService.getMontant(demandeId));
             commandeDemande = commandeDemandeRepository.save(commandeDemande);
             LOGGER.info("Created [ commandeDemande {}] ", commandeDemande);
+
+            if (commande.getCommandesDemandes() != null) {
+                commande.getCommandesDemandes().add(commandeDemande);
+            } else {
+                List<CommandeDemandeBO> commandeDemandeBOList = new ArrayList<>();
+                commandeDemandeBOList.add(commandeDemande);
+                commande.setCommandesDemandes(commandeDemandeBOList);
+            }
         }
 
-        MoyenPaiementBO moyenPaiement = new MoyenPaiementBO();
+        commandeRepository.save(commande);
+        LOGGER.info("Updated [ commande {}] ", commande);
+
         moyenPaiement.setCommande(commande);
-        moyenPaiement.setPkMoyenPaiement(referenceFactoryService.createSimpleReference12Digits());
         moyenPaiement.setDateLimite(now.plusDays(paiementPropertiesResolver.getValiditeMaxMoyenPaiement()));
         moyenPaiement.setDateDerniereModification(now);
-        moyenPaiement.setMontantInitial(montant);
-        moyenPaiement.setMontantRestant(montant);
-        moyenPaiement.setMontantCapture(0);
         moyenPaiement.setMoyenPaiementStatut(MoyenPaiementStatutEnum.EN_ATTENTE_DE_VALIDATION);
         moyenPaiement.setCodeSociete(codeSociete);
         moyenPaiement.setLangue(langue);
@@ -170,7 +176,7 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
         paiementDTO.setDate(date);
         paiementDTO.setThreeDSecureChallenge(paiementPropertiesResolver.getXafMonetico3dsv2Scenario());
         paiementDTO.setMontant(montant + paiementPropertiesResolver.getCurrency());
-        paiementDTO.setReference(moyenPaiement.getPkMoyenPaiement());
+        paiementDTO.setReference(moyenPaiement.getPkMoyensPaiements());
         paiementDTO.setMail(usager.getEmail());
         if (iframe) {
             paiementDTO.setMode_affichage("iframe");
@@ -225,7 +231,7 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
         String status = moneticoResponseDTO.getCodeRetour();
         if (status.equals("payetest") || status.equals("paiement")) {
             moyenPaiementBO.setMoyenPaiementStatut(MoyenPaiementStatutEnum.VALIDE);
-            List<CommandeDemandeBO> commandeDemandeBOList = commandeDemandeRepository.findByCommande_PkCommande(moyenPaiementBO.getCommande().getPkCommande());
+            List<CommandeDemandeBO> commandeDemandeBOList = commandeDemandeRepository.findByCommande_PkCommandes(moyenPaiementBO.getCommande().getPkCommandes());
             Timestamp date = Timestamp.valueOf(LocalDateTime.now());
             for (CommandeDemandeBO commandeDemandeBO : commandeDemandeBOList) {
                 DemandeBO demandeBO = commandeDemandeBO.getDemande();
@@ -257,30 +263,23 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
     }
 
     @Override
-    public MoyenPaiementDTO getMoyenPaiement(Integer demandeId) {
+    public CommandeDTO getCommande(Integer demandeId) {
         logStartMethod(LOGGER);
         DemandeDataDTO data = demandesDataService.getDemandeData(gouvPropertiesResolver.getDemarcheId(), demandeId, PaiementDemandeDataKeysEnum.MOYEN_PAIEMENT_REFERENCE.name());
-
-        Optional<MoyenPaiementBO> moyenPaiementBOOpt = moyenPaiementRepository.findById(data.getValue());
-
-        MoyenPaiementDTO moyenPaiement = null;
-        if (moyenPaiementBOOpt.isPresent()) {
-            moyenPaiement = MoyenPaiementTransformer.bo2Dto(moyenPaiementBOOpt.get());
-        }
-
-        return moyenPaiement;
+        CommandeBO commandeBO = commandeRepository.findByMoyenPaiementPkMoyensPaiements(data.getValue());
+        return CommandeTransformer.bo2Dto(commandeBO);
     }
 
     @Override
-    public List<MoyenPaiementDTO> getAllMoyensPaiement() {
-        List<MoyenPaiementBO> moyenPaiementBOS = moyenPaiementRepository.findAll();
-        return MoyenPaiementTransformer.bos2Dtos(moyenPaiementBOS);
+    public List<CommandeDTO> getAllCommandes() {
+        List<CommandeBO> commandes = commandeRepository.findAll();
+        return CommandeTransformer.bos2Dtos(commandes);
     }
 
     @Override
-    public List<OperationDTO> getAllOperations() {
-        List<OperationBO> operationBos = operationRepository.findAll();
-        return OperationTransformer.bos2Dtos(operationBos);
+    public List<CommandeOperationDTO> getAllOperations() {
+        List<CommandeOperationBO> commandeOperationBos = commandeOperationRepository.findAll();
+        return CommandeOperationTransformer.bos2Dtos(commandeOperationBos);
     }
 
     // TODO sauvegarder le statut du paiement de manière plus correct que dans les demandes data
@@ -304,7 +303,7 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
 
             LOGGER.info("Ajout de l'historique de paiement...");
             PaiementHistoriqueBO historique = new PaiementHistoriqueBO();
-            historique.setFkDemande(demandeBO);
+            historique.setFkDemandes(demandeBO);
             historique.setContenu("Usager " + demandeBO.getUsagerPrenom() + " " + demandeBO.getUsagerNom() + " : Effectue une empreinte bancaire");
             historique.setStatut(PaiementStatutEnum.EMPREINTE_VALIDE.name());
             historique.setDate(datePaiement);

@@ -2,8 +2,9 @@ package mc.gouv.xaf.back.paiement.service.itg.monetico;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import mc.gouv.xaf.back.paiement.data.enums.OperationStatutEnum;
+import mc.gouv.xaf.back.paiement.dto.CommandeDTO;
 import mc.gouv.xaf.back.paiement.dto.MoyenPaiementDTO;
-import mc.gouv.xaf.back.paiement.dto.OperationDTO;
+import mc.gouv.xaf.back.paiement.dto.CommandeOperationDTO;
 import mc.gouv.xaf.back.paiement.properties.PaiementPropertiesResolver;
 import mc.gouv.xaf.back.paiement.retry.Operation;
 import mc.gouv.xaf.back.paiement.retry.OperationHelper;
@@ -88,26 +89,28 @@ public class MoneticoApiClient implements PaiementApiClient {
         this.gouvPropertiesResolver = gouvPropertiesResolver;
     }
 
-    public boolean capture(MoyenPaiementDTO paiement, OperationDTO operationDTO, DemandeDTO demandeDTO) {
+    public boolean capture(CommandeDTO commandeDTO, CommandeOperationDTO commandeOperationDTO, DemandeDTO demandeDTO) {
         logStartMethod(LOGGER);
 
-        LOGGER.info("Parameters [ MoyenPaiementBO {}] ", paiement);
-        LOGGER.info("Parameters [ OperationBO {}] ", operationDTO);
+        LOGGER.info("Parameters [ CommandeDTO {}] ", commandeDTO);
+        LOGGER.info("Parameters [ OperationBO {}] ", commandeOperationDTO);
         LOGGER.info("Parameters [ DemandeDTO {}] ", demandeDTO);
 
-        String dateCommande = paiement.getCommande().getDateCreation().format(dateFormatter);
+        String dateCommande = commandeDTO.getDateCreation().format(dateFormatter);
         String dateCapture = LocalDateTime.now().format(dateTimeFormatter);
         Operation<String> operation = new Operation<String>() {
             @Override
             public void execute() throws Exception {
 
-                String montant = paiement.getMontantInitial() + paiementPropertiesResolver.getCurrency();
-                String montantACapturer = operationDTO.getMontant() + paiementPropertiesResolver.getCurrency();
-                String montantDejaCapture = paiement.getMontantCapture() + paiementPropertiesResolver.getCurrency();
-                String montantRestant = (paiement.getMontantRestant() - operationDTO.getMontant()) + paiementPropertiesResolver.getCurrency();
+                String montant = commandeDTO.getMontantInitial() + paiementPropertiesResolver.getCurrency();
+                String montantACapturer = commandeOperationDTO.getMontant() + paiementPropertiesResolver.getCurrency();
+                String montantDejaCapture = commandeDTO.getMontantDejaCapture() + paiementPropertiesResolver.getCurrency();
+                String montantRestant = (commandeDTO.getMontantRestant() - commandeOperationDTO.getMontant()) + paiementPropertiesResolver.getCurrency();
                 String version = paiementPropertiesResolver.getVersionCapture();
+                MoyenPaiementDTO moyenPaiementDTO = commandeDTO.getMoyenPaiement();
                 LOGGER.info("Paramètres Capture:\nURL: {}\nTPE: {}\nmontant: {}\nmontant_a_capturer: {}\nmontant_deja_capture: {}\nmontant_restant: {}\nlgue: {}\nreference: {}\ndate (date de la capture): {}\ndate_commande: {}\nsociete: {}\nversion {}",
-                        paiementPropertiesResolver.getCaptureUrl(), getTpe(), montant, montantACapturer, montantDejaCapture, montantRestant, paiement.getLangue(), paiement.getPkMoyenPaiement(), dateCapture, dateCommande, paiement.getCodeSociete(), version);
+                        paiementPropertiesResolver.getCaptureUrl(), getTpe(), montant, montantACapturer, montantDejaCapture, montantRestant, moyenPaiementDTO.getLangue(),
+                        moyenPaiementDTO.getPkMoyenPaiements(), dateCapture, dateCommande, moyenPaiementDTO.getCodeSociete(), version);
 
                 // Permet de désactiver la capture en simulant une erreur d'opération.
                 PropertiesDTO captureActive = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_ACTIVATION_CAPTURE_PAIEMENT);
@@ -122,20 +125,20 @@ public class MoneticoApiClient implements PaiementApiClient {
                         .queryParam("montant_a_capturer", montantACapturer)
                         .queryParam("montant_deja_capture", montantDejaCapture)
                         .queryParam("montant_restant", montantRestant)
-                        .queryParam("lgue", paiement.getLangue())
-                        .queryParam("reference", paiement.getPkMoyenPaiement())
+                        .queryParam("lgue", moyenPaiementDTO.getLangue())
+                        .queryParam("reference", moyenPaiementDTO.getPkMoyenPaiements())
                         .queryParam("date", dateCapture)
                         .queryParam("date_commande", dateCommande)
-                        .queryParam("societe", paiement.getCodeSociete())
+                        .queryParam("societe", moyenPaiementDTO.getCodeSociete())
                         .queryParam("version", version)
                         .request(MediaType.APPLICATION_JSON).get();
 
                 String responseString = response.readEntity(String.class);
                 LOGGER.info("Capture [ responseString {}] ", responseString);
                 setResult(responseString);
-                extractResult(responseString, operationDTO);
+                extractResult(responseString, commandeOperationDTO);
 
-                if (!OperationStatutEnum.ACCEPTEE.name().equals(operationDTO.getOperationStatut())) {
+                if (!OperationStatutEnum.ACCEPTEE.name().equals(commandeOperationDTO.getOperationStatut())) {
                     throw new HttpResponseException(response.getStatus(), "Operation non acceptee");
                 }
             }
@@ -154,10 +157,10 @@ public class MoneticoApiClient implements PaiementApiClient {
             //send mail + delete command_demande
 
             if (mailService != null) {
-                if (OperationStatutEnum.ERREUR.name().equals(operationDTO.getOperationStatut())) {
+                if (OperationStatutEnum.ERREUR.name().equals(commandeOperationDTO.getOperationStatut())) {
                     sendMail(demandeDTO, operation, 4);
                 } else {
-                    operationDTO.setOperationStatut(OperationStatutEnum.ERREUR.name());
+                    commandeOperationDTO.setOperationStatut(OperationStatutEnum.ERREUR.name());
                     sendMail(demandeDTO, operation, 3);
                 }
 
@@ -203,7 +206,7 @@ public class MoneticoApiClient implements PaiementApiClient {
         }
     }
 
-    private void extractResult(String responseString, OperationDTO operation) {
+    private void extractResult(String responseString, CommandeOperationDTO operation) {
         for (String s : responseString.split("\n")) {
             String[] keyValue = s.split("=");
 

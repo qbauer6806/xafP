@@ -7,13 +7,9 @@ import java.time.LocalDateTime;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class MoyenPaiementDTO {
 
-    private String pkMoyenPaiement;
-    private CommandeDTO commande;
+    private String pkMoyenPaiements;
     private String codeSociete;
     private LocalDateTime dateLimite;
-    private double montantInitial;
-    private double montantCapture;
-    private double montantRestant;
     private String moyenPaiementType;
     private String moyenPaiementStatut;
     private LocalDateTime dateDerniereModification;
@@ -155,20 +151,12 @@ public class MoyenPaiementDTO {
         this.cbmasquee = cbmasquee;
     }
 
-    public String getPkMoyenPaiement() {
-        return pkMoyenPaiement;
+    public String getPkMoyenPaiements() {
+        return pkMoyenPaiements;
     }
 
-    public void setPkMoyenPaiement(String pkMoyenPaiement) {
-        this.pkMoyenPaiement = pkMoyenPaiement;
-    }
-
-    public CommandeDTO getCommande() {
-        return commande;
-    }
-
-    public void setCommande(CommandeDTO commande) {
-        this.commande = commande;
+    public void setPkMoyenPaiements(String pkMoyenPaiements) {
+        this.pkMoyenPaiements = pkMoyenPaiements;
     }
 
     public String getCodeSociete() {
@@ -185,30 +173,6 @@ public class MoyenPaiementDTO {
 
     public void setDateLimite(LocalDateTime dateLimite) {
         this.dateLimite = dateLimite;
-    }
-
-    public double getMontantInitial() {
-        return montantInitial;
-    }
-
-    public void setMontantInitial(double montantInitial) {
-        this.montantInitial = montantInitial;
-    }
-
-    public double getMontantCapture() {
-        return montantCapture;
-    }
-
-    public void setMontantCapture(double montantCapture) {
-        this.montantCapture = montantCapture;
-    }
-
-    public double getMontantRestant() {
-        return montantRestant;
-    }
-
-    public void setMontantRestant(double montantRestant) {
-        this.montantRestant = montantRestant;
     }
 
     public String getMoyenPaiementType() {

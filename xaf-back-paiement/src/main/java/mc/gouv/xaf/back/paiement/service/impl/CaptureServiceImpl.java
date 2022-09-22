@@ -1,15 +1,15 @@
 package mc.gouv.xaf.back.paiement.service.impl;
 
 import mc.gouv.xaf.back.paiement.data.dao.CommandeDemandeRepository;
-import mc.gouv.xaf.back.paiement.data.dao.MoyenPaiementRepository;
-import mc.gouv.xaf.back.paiement.data.dao.OperationRepository;
-import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
-import mc.gouv.xaf.back.paiement.data.entity.OperationBO;
+import mc.gouv.xaf.back.paiement.data.dao.CommandeRepository;
+import mc.gouv.xaf.back.paiement.data.dao.CommandeOperationRepository;
+import mc.gouv.xaf.back.paiement.data.entity.CommandeBO;
+import mc.gouv.xaf.back.paiement.data.entity.CommandeOperationBO;
 import mc.gouv.xaf.back.paiement.data.enums.OperationTypeEnum;
-import mc.gouv.xaf.back.paiement.data.transformer.MoyenPaiementTransformer;
-import mc.gouv.xaf.back.paiement.data.transformer.OperationTransformer;
-import mc.gouv.xaf.back.paiement.dto.MoyenPaiementDTO;
-import mc.gouv.xaf.back.paiement.dto.OperationDTO;
+import mc.gouv.xaf.back.paiement.data.transformer.CommandeTransformer;
+import mc.gouv.xaf.back.paiement.data.transformer.CommandeOperationTransformer;
+import mc.gouv.xaf.back.paiement.dto.CommandeDTO;
+import mc.gouv.xaf.back.paiement.dto.CommandeOperationDTO;
 import mc.gouv.xaf.back.paiement.enums.PaiementDemandeDataKeysEnum;
 import mc.gouv.xaf.back.paiement.service.CaptureService;
 import mc.gouv.xaf.back.paiement.service.MontantService;
@@ -27,8 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Optional;
+import java.util.*;
 
 import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
 
@@ -37,13 +36,13 @@ public class CaptureServiceImpl implements CaptureService {
     private static final Logger LOGGER = LoggerFactory.getLogger(CaptureServiceImpl.class);
 
     @Autowired
-    private OperationRepository operationRepository;
+    private CommandeOperationRepository commandeOperationRepository;
     @Autowired
     private PaiementApiClient paiementApiClient;
     @Autowired
     private FactureApiClient factureApiClient;
     @Autowired
-    private MoyenPaiementRepository moyenPaiementRepository;
+    private CommandeRepository commandeRepository;
     @Autowired
     private ReferenceFactoryService referenceFactoryService;
 
@@ -63,10 +62,10 @@ public class CaptureServiceImpl implements CaptureService {
     private PaiementsDataProvider paiementsDataProvider;
 
     @Override
-    public OperationDTO capture(MoyenPaiementDTO moyenPaiementDTO, DemandeDTO demandeDTO) throws Exception {
+    public CommandeOperationDTO capture(CommandeDTO commandeDTO, DemandeDTO demandeDTO) throws Exception {
         logStartMethod(LOGGER);
-        LOGGER.info("Parameters [ moyenPaiement {}] ", moyenPaiementDTO);
-        OperationDTO operation = new OperationDTO();
+        LOGGER.info("Parameters [ commandeDTO {}] ", commandeDTO);
+        CommandeOperationDTO operation = new CommandeOperationDTO();
 
         DemandeDataDTO data = demandesDataService.getDemandeData(gouvPropertiesResolver.getDemarcheId(), demandeDTO.getPkDemandes(), PaiementDemandeDataKeysEnum.NUMERO_PERMIS.name());
         String numeroPermis = data.getValue();
@@ -77,30 +76,38 @@ public class CaptureServiceImpl implements CaptureService {
         operation.setMontant(prix);
 
 
-        if (paiementApiClient.capture(moyenPaiementDTO, operation, demandeDTO)) {
-            moyenPaiementDTO.setMontantCapture(moyenPaiementDTO.getMontantCapture() + prix);
-            moyenPaiementDTO.setMontantRestant(moyenPaiementDTO.getMontantRestant() - prix);
+        if (paiementApiClient.capture(commandeDTO, operation, demandeDTO)) {
+            commandeDTO.setMontantDejaCapture(commandeDTO.getMontantDejaCapture() + prix);
+            commandeDTO.setMontantRestant(commandeDTO.getMontantRestant() - prix);
 
-            operation.setPkOperation(referenceFactoryService.createSimpleReferenceDigitsNumeric(7));
+            operation.setPkOperations(referenceFactoryService.createSimpleReferenceDigitsNumeric(7));
             LocalDateTime now = LocalDateTime.now();
             operation.setDateCreation(now);
             operation.setDateDerniereModification(now);
             operation.setDateDerniereModification(now);
 
-            MoyenPaiementBO moyenPaiementBO = MoyenPaiementTransformer.dto2Bo(moyenPaiementDTO);
-            moyenPaiementRepository.save(moyenPaiementBO);
-
             operation.setOperationType(OperationTypeEnum.DEBIT.name());
 
-            Optional<String> optionalNumFacture = factureApiClient.createFacture(numeroPermis, " ", operation.getMontant(), operation.getPkOperation(), paiementsDataProvider.getInfosFacturation(demandeDTO), objetMontants, demandeDTO, operation);
+            Optional<String> optionalNumFacture = factureApiClient.createFacture(numeroPermis, " ", operation.getMontant(), operation.getPkOperations(), paiementsDataProvider.getInfosFacturation(demandeDTO), objetMontants, demandeDTO, operation);
             if (optionalNumFacture.isPresent()) {
                 LOGGER.info("Created [ facture n°{}] ", optionalNumFacture.get());
                 operation.setNumeroFacture(optionalNumFacture.get());
             }
 
+            CommandeOperationBO commandeOperationBO = CommandeOperationTransformer.dto2Bo(operation);
+            CommandeBO commandeBO = CommandeTransformer.dto2Bo(commandeDTO);
+            if(commandeBO.getOperations() != null) {
+                commandeBO.getOperations().add(commandeOperationBO);
+            } else {
+                List<CommandeOperationBO> commandeOperationBOList = new ArrayList<>();
+                commandeOperationBOList.add(commandeOperationBO);
+                commandeBO.setOperations(commandeOperationBOList);
+            }
+            commandeBO = commandeRepository.save(commandeBO);
+
             LOGGER.info("Created [ operation {}] ", operation);
-            OperationBO operationBO = OperationTransformer.dto2Bo(operation);
-            operationRepository.save(operationBO);
+            commandeOperationBO.setCommande(commandeBO);
+            commandeOperationRepository.save(commandeOperationBO);
         } else {
             commandeDemandeRepository.deleteAll(commandeDemandeRepository.findByDemande_PkDemandes(demandeDTO.getPkDemandes()));
         }

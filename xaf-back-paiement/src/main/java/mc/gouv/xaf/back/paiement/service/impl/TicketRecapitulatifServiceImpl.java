@@ -2,8 +2,9 @@ package mc.gouv.xaf.back.paiement.service.impl;
 
 import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
+import mc.gouv.xaf.back.paiement.dto.CommandeDTO;
 import mc.gouv.xaf.back.paiement.dto.MoyenPaiementDTO;
-import mc.gouv.xaf.back.paiement.dto.OperationDTO;
+import mc.gouv.xaf.back.paiement.dto.CommandeOperationDTO;
 import mc.gouv.xaf.back.paiement.properties.PaiementPropertiesResolver;
 import mc.gouv.xaf.back.paiement.service.TicketRecapitulatifService;
 import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
@@ -40,8 +41,8 @@ public class TicketRecapitulatifServiceImpl implements TicketRecapitulatifServic
     @Autowired
     private GouvBPM gouvBPM;
 
-
-    public void sendMail(OperationDTO operation, MoyenPaiementDTO moyenPaiement, Integer demandeId) {
+    @Override
+    public void sendMail(CommandeOperationDTO operation, CommandeDTO commandeDTO, Integer demandeId) {
 
         Map<String, Object> variables = gouvBPM.getProcessBusinessVariables(demandeId);
         Integer usagerId = (Integer) variables.get(GouvBPMProcessVariableTypeEnum.MC_USAGERID.name());
@@ -63,18 +64,18 @@ public class TicketRecapitulatifServiceImpl implements TicketRecapitulatifServic
 
 
         try {
-            Map<String, Object> model = getModel(operation, moyenPaiement, usager);
+            Map<String, Object> model = getModel(operation, commandeDTO.getMoyenPaiement(), usager);
             mailService.sendMail(emailInfo, model);
         } catch (Exception e) {
             LOGGER.error("Erreur lors de l'envoi de l'email", e);
         }
     }
 
-    private Map<String, Object> getModel(OperationDTO operation, MoyenPaiementDTO moyenPaiement, GichuniUsagerDTO usager) {
+    private Map<String, Object> getModel(CommandeOperationDTO operation, MoyenPaiementDTO moyenPaiement, GichuniUsagerDTO usager) {
         Map<String, Object> model = new HashMap<>();
         model.put("titre", usager.getPrenom() + " " + usager.getNom());
         model.put("numTPE", paiementPropertiesResolver.getTpe());
-        model.put("pkOperation", operation.getPkOperation());
+        model.put("pkOperation", operation.getPkOperations());
         model.put("dateTransaction", operation.getDateCreation().format(DateTimeFormatter.ofPattern(AfBackUtils.DEFAULT_FRENCH_DATE_FORMAT)));
         model.put("montant", operation.getMontant());
         model.put("moyenPaiement", moyenPaiement.getModepaiement());

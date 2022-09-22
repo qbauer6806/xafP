@@ -8,5 +8,5 @@ import java.util.List;
 
 public interface MoyenPaiementRepository extends JpaRepository<MoyenPaiementBO, String> {
 
-    List<MoyenPaiementBO> findByCommande_PkCommande(Integer commandId);
+    List<MoyenPaiementBO> findByCommande_PkCommandes(Integer commandId);
 }

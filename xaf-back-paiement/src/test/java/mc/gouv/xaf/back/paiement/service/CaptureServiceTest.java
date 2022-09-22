@@ -7,7 +7,7 @@ import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.paiement.data.dao.CommandeDemandeRepository;
 import mc.gouv.xaf.back.paiement.data.dao.CommandeRepository;
 import mc.gouv.xaf.back.paiement.data.dao.MoyenPaiementRepository;
-import mc.gouv.xaf.back.paiement.data.dao.OperationRepository;
+import mc.gouv.xaf.back.paiement.data.dao.CommandeOperationRepository;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeBO;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeDemandeBO;
 import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
@@ -15,7 +15,7 @@ import mc.gouv.xaf.back.paiement.data.enums.MoyenPaiementStatutEnum;
 import mc.gouv.xaf.back.paiement.data.enums.MoyenPaiementTypeEnum;
 import mc.gouv.xaf.back.paiement.data.enums.OperationStatutEnum;
 import mc.gouv.xaf.back.paiement.data.enums.OperationTypeEnum;
-import mc.gouv.xaf.back.paiement.data.transformer.MoyenPaiementTransformer;
+import mc.gouv.xaf.back.paiement.data.transformer.CommandeTransformer;
 import mc.gouv.xaf.back.paiement.dto.*;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import org.junit.Before;
@@ -24,9 +24,12 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -50,11 +53,11 @@ public class CaptureServiceTest {
     private CommandeDemandeRepository commandeDemandeRepository;
 
     @Autowired
-    private OperationRepository operationRepository;
+    private CommandeOperationRepository commandeOperationRepository;
 
     @Before
     public void cleanData() {
-        operationRepository.deleteAll();
+        commandeOperationRepository.deleteAll();
         moyenPaiementRepository.deleteAll();
         commandeDemandeRepository.deleteAll();
         commandeRepository.deleteAll();
@@ -62,6 +65,7 @@ public class CaptureServiceTest {
     }
 
 
+    @Transactional
     @Test
     public void captureOk() throws Exception {
         DemandeBO demandeBO = new DemandeBO();
@@ -72,23 +76,27 @@ public class CaptureServiceTest {
         demandeBO.setDateDerModif(new Date());
         demandeBO = demandesRepository.save(demandeBO);
 
-        CommandeBO commandeBO = new CommandeBO();
-        commandeBO.setMontant(100);
-        commandeBO.setDateCreation(LocalDateTime.now());
-        commandeRepository.save(commandeBO);
-
         CommandeDemandeBO commandeDemandeBO = new CommandeDemandeBO();
         commandeDemandeBO.setDemande(demandeBO);
-        commandeDemandeBO.setCommande(commandeBO);
-        commandeDemandeRepository.save(commandeDemandeBO);
 
         MoyenPaiementBO moyenPaiementBO = new MoyenPaiementBO();
-        moyenPaiementBO.setCommande(commandeBO);
         moyenPaiementBO.setDateLimite(LocalDateTime.MIN);
-        moyenPaiementBO.setPkMoyenPaiement("maRef");
+        moyenPaiementBO.setPkMoyensPaiements("maRef");
         moyenPaiementBO.setMoyenPaiementType(MoyenPaiementTypeEnum.DIFFERE);
         moyenPaiementBO.setMoyenPaiementStatut(MoyenPaiementStatutEnum.VALIDE);
-        moyenPaiementRepository.save(moyenPaiementBO);
+        moyenPaiementBO = moyenPaiementRepository.save(moyenPaiementBO);
+
+        CommandeBO commandeBO = new CommandeBO();
+        commandeBO.setMontantInitial(100);
+        commandeBO.setMontantRestant(100);
+        commandeBO.setMontantDejaCapture(0);
+        commandeBO.setDateCreation(LocalDateTime.now());
+        commandeBO.setMoyenPaiement(moyenPaiementBO);
+        List<CommandeDemandeBO> commandeDemandeBOList = new ArrayList<>();
+        commandeDemandeBOList.add(commandeDemandeBO);
+        commandeBO.setCommandesDemandes(commandeDemandeBOList);
+        commandeBO.setOperations(new ArrayList<>());
+        commandeRepository.save(commandeBO);
 
         DemandeDTO demandeDTO = new DemandeDTO();
         ContenuTestDTO contenuTestDTO = new ContenuTestDTO();
@@ -100,9 +108,9 @@ public class CaptureServiceTest {
         JsonNode contenu = mapper.valueToTree(contenuTestDTO);
         demandeDTO.setContenu(contenu);
 
-        MoyenPaiementDTO moyenPaiementDTO = MoyenPaiementTransformer.bo2Dto(moyenPaiementBO);
+        CommandeDTO commandeDTO = CommandeTransformer.bo2Dto(commandeBO);
 
-        OperationDTO resutat = captureService.capture(moyenPaiementDTO, demandeDTO);
+        CommandeOperationDTO resutat = captureService.capture(commandeDTO, demandeDTO);
         assertThat(resutat.getMontant()).isEqualTo(80.0);
         assertThat(resutat.getOperationType()).isEqualTo(OperationTypeEnum.DEBIT.name());
         assertThat(resutat.getOperationStatut()).isEqualTo(OperationStatutEnum.ACCEPTEE.name());

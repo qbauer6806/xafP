@@ -22,8 +22,8 @@ public class PaiementHistoriqueBO {
     private Integer pkHistorique;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "FK_DEMANDE", nullable = false)
-    private DemandeBO fkDemande;
+    @JoinColumn(name = "FK_DEMANDES", nullable = false)
+    private DemandeBO fkDemandes;
 
     @Column(name = "DATE", nullable = false)
     private Timestamp date;
@@ -48,12 +48,12 @@ public class PaiementHistoriqueBO {
         this.pkHistorique = pkHistorique;
     }
 
-    public DemandeBO getFkDemande() {
-        return fkDemande;
+    public DemandeBO getFkDemandes() {
+        return fkDemandes;
     }
 
-    public void setFkDemande(DemandeBO fkDemande) {
-        this.fkDemande = fkDemande;
+    public void setFkDemandes(DemandeBO fkDemande) {
+        this.fkDemandes = fkDemande;
     }
 
     public Timestamp getDate() {

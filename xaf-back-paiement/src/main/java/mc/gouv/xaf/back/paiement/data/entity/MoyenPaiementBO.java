@@ -3,37 +3,23 @@ package mc.gouv.xaf.back.paiement.data.entity;
 import mc.gouv.xaf.back.paiement.data.enums.MoyenPaiementStatutEnum;
 import mc.gouv.xaf.back.paiement.data.enums.MoyenPaiementTypeEnum;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.StringJoiner;
 
 @Entity
-@Table(name = "PMNT_MOYEN_PAIEMENT")
+@Table(name = "PMNT_MOYENS_PAIEMENTS")
 public class MoyenPaiementBO {
     @Id
-    @Column(name = "PK_MOYEN_PAIEMENT", nullable = false)
-    private String pkMoyenPaiement;
+    @Column(name = "PK_MOYENS_PAIEMENTS", nullable = false)
+    private String pkMoyensPaiements;
 
-    @OneToOne
-    @JoinColumn(name = "FK_COMMANDE")
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "FK_COMMANDES")
     private CommandeBO commande;
 
     private String codeSociete;
 
     private LocalDateTime dateLimite;
-
-    private double montantInitial;
-
-    private double montantCapture;
-
-    private double montantRestant;
 
     @Enumerated(EnumType.STRING)
     private MoyenPaiementTypeEnum moyenPaiementType;
@@ -76,12 +62,12 @@ public class MoyenPaiementBO {
     @Column(name = "mac")
     private String mac;
 
-    public String getPkMoyenPaiement() {
-        return pkMoyenPaiement;
+    public String getPkMoyensPaiements() {
+        return pkMoyensPaiements;
     }
 
-    public void setPkMoyenPaiement(String reference) {
-        this.pkMoyenPaiement = reference;
+    public void setPkMoyensPaiements(String reference) {
+        this.pkMoyensPaiements = reference;
     }
 
     public CommandeBO getCommande() {
@@ -98,30 +84,6 @@ public class MoyenPaiementBO {
 
     public void setDateLimite(LocalDateTime dateLimite) {
         this.dateLimite = dateLimite;
-    }
-
-    public double getMontantInitial() {
-        return montantInitial;
-    }
-
-    public void setMontantInitial(double montantInitial) {
-        this.montantInitial = montantInitial;
-    }
-
-    public double getMontantCapture() {
-        return montantCapture;
-    }
-
-    public void setMontantCapture(double montantCapture) {
-        this.montantCapture = montantCapture;
-    }
-
-    public double getMontantRestant() {
-        return montantRestant;
-    }
-
-    public void setMontantRestant(double montantRestant) {
-        this.montantRestant = montantRestant;
     }
 
     public MoyenPaiementTypeEnum getMoyenPaiementType() {
@@ -295,13 +257,10 @@ public class MoyenPaiementBO {
     @Override
     public String toString() {
         return "MoyenPaiementBO{" +
-                "pkMoyenPaiement='" + pkMoyenPaiement + '\'' +
+                "pkMoyenPaiement='" + pkMoyensPaiements + '\'' +
                 ", commande=" + commande +
                 ", codeSociete='" + codeSociete + '\'' +
                 ", dateLimite=" + dateLimite +
-                ", montantInitial=" + montantInitial +
-                ", montantCapture=" + montantCapture +
-                ", montantRestant=" + montantRestant +
                 ", moyenPaiementType=" + moyenPaiementType +
                 ", moyenPaiementStatut=" + moyenPaiementStatut +
                 ", dateDerniereModification=" + dateDerniereModification +

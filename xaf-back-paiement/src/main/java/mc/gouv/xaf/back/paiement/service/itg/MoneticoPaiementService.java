@@ -1,7 +1,7 @@
 package mc.gouv.xaf.back.paiement.service.itg;
 
-import mc.gouv.xaf.back.paiement.dto.MoyenPaiementDTO;
-import mc.gouv.xaf.back.paiement.dto.OperationDTO;
+import mc.gouv.xaf.back.paiement.dto.CommandeDTO;
+import mc.gouv.xaf.back.paiement.dto.CommandeOperationDTO;
 import mc.gouv.xaf.back.paiement.dto.PaiementDTO;
 import mc.gouv.xaf.shared.dto.itg.monetico.MoneticoResponseDTO;
 
@@ -13,10 +13,10 @@ public interface MoneticoPaiementService {
 
     String updateStatus(MoneticoResponseDTO moneticoResponseDTO);
 
-    MoyenPaiementDTO getMoyenPaiement(Integer demandeId);
+    CommandeDTO getCommande(Integer demandeId);
 
-    List<MoyenPaiementDTO> getAllMoyensPaiement();
+    List<CommandeDTO> getAllCommandes();
 
-    List<OperationDTO> getAllOperations();
+    List<CommandeOperationDTO> getAllOperations();
 
 }

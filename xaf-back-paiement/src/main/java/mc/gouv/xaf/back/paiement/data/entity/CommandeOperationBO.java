@@ -1,18 +1,28 @@
-package mc.gouv.xaf.back.paiement.dto;
+package mc.gouv.xaf.back.paiement.data.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import mc.gouv.xaf.back.paiement.data.enums.OperationStatutEnum;
+import mc.gouv.xaf.back.paiement.data.enums.OperationTypeEnum;
 
+import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.StringJoiner;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class OperationDTO {
+@Entity
+@Table(name = "PMNT_COMMANDES_OPERATIONS")
+public class CommandeOperationBO {
 
-    private String pkOperation;
+    @Id
+    @Column(name = "PK_OPERATIONS", nullable = false)
+    private String pkOperations;
 
-    private String operationType;
+    @Enumerated(EnumType.STRING)
+    private OperationTypeEnum operationType;
 
-    private String operationStatut;
+    @Enumerated(EnumType.STRING)
+    private OperationStatutEnum operationStatut;
+
+    @ManyToOne
+    @JoinColumn(name = "FK_COMMANDES")
+    private CommandeBO commande;
 
     private LocalDateTime dateCreation;
 
@@ -44,27 +54,27 @@ public class OperationDTO {
         this.libelle = libelle;
     }
 
-    public String getPkOperation() {
-        return pkOperation;
+    public String getPkOperations() {
+        return pkOperations;
     }
 
-    public void setPkOperation(String reference) {
-        this.pkOperation = reference;
+    public void setPkOperations(String reference) {
+        this.pkOperations = reference;
     }
 
-    public String getOperationType() {
+    public OperationTypeEnum getOperationType() {
         return operationType;
     }
 
-    public void setOperationType(String operationType) {
+    public void setOperationType(OperationTypeEnum operationType) {
         this.operationType = operationType;
     }
 
-    public String getOperationStatut() {
+    public OperationStatutEnum getOperationStatut() {
         return operationStatut;
     }
 
-    public void setOperationStatut(String operationStatut) {
+    public void setOperationStatut(OperationStatutEnum operationStatut) {
         this.operationStatut = operationStatut;
     }
 
@@ -108,10 +118,18 @@ public class OperationDTO {
         this.numeroFacture = numeroFacture;
     }
 
+    public CommandeBO getCommande() {
+        return commande;
+    }
+
+    public void setCommande(CommandeBO commande) {
+        this.commande = commande;
+    }
+
     @Override
     public String toString() {
         return "OperationBO{" +
-                "pkOperation='" + pkOperation + '\'' +
+                "pkOperation='" + pkOperations + '\'' +
                 ", operationType=" + operationType +
                 ", operationStatut=" + operationStatut +
                 ", dateCreation=" + dateCreation +

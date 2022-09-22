@@ -30,12 +30,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -65,7 +63,7 @@ public class MoneticoPaiementServiceTest {
     private DemandesStatutsRepository demandesStatutsRepository;
 
     @Autowired
-    private OperationRepository operationRepository;
+    private CommandeOperationRepository commandeOperationRepository;
 
     @Autowired
     private AccessRepository accessRepository;
@@ -79,7 +77,7 @@ public class MoneticoPaiementServiceTest {
     @Before
     public void cleanData() {
         paiementHistoriqueRepository.deleteAll();
-        operationRepository.deleteAll();
+        commandeOperationRepository.deleteAll();
         moyenPaiementRepository.deleteAll();
         commandeDemandeRepository.deleteAll();
         commandeRepository.deleteAll();
@@ -309,7 +307,8 @@ public class MoneticoPaiementServiceTest {
     }
 
     @Test
-    public void getMoyenPaiementOk() {
+    @Transactional
+    public void getCommandeOk() {
         DemandeBO demandeBO = new DemandeBO();
         demandeBO.setContenu("contenu");
         demandeBO.setCanal("canal");
@@ -324,35 +323,27 @@ public class MoneticoPaiementServiceTest {
         demandeBO.setData(demandesDataBOS);
         demandeBO = demandesRepository.save(demandeBO);
 
-        CommandeBO commandeBO = new CommandeBO();
-        commandeBO.setMontant(100);
-        commandeBO.setDateCreation(LocalDateTime.now());
-        commandeRepository.save(commandeBO);
+        MoyenPaiementBO moyenPaiementBO = new MoyenPaiementBO();
+        moyenPaiementBO.setMoyenPaiementStatut(MoyenPaiementStatutEnum.VALIDE);
+        moyenPaiementBO.setDateLimite(LocalDateTime.MIN);
+        moyenPaiementBO.setPkMoyensPaiements("maRef");
 
         CommandeDemandeBO commandeDemandeBO = new CommandeDemandeBO();
         commandeDemandeBO.setDemande(demandeBO);
+
+        CommandeBO commandeBO = new CommandeBO();
+        commandeBO.setMontantInitial(122);
+        commandeBO.setDateCreation(LocalDateTime.now());
+        commandeBO.setMoyenPaiement(moyenPaiementBO);
+        commandeBO.setCommandesDemandes(Collections.singletonList(commandeDemandeBO));
         commandeDemandeBO.setCommande(commandeBO);
-        commandeDemandeRepository.save(commandeDemandeBO);
-
-        MoyenPaiementBO moyenPaiementBO = new MoyenPaiementBO();
         moyenPaiementBO.setCommande(commandeBO);
-        moyenPaiementBO.setMontantInitial(122);
-        moyenPaiementBO.setMoyenPaiementStatut(MoyenPaiementStatutEnum.VALIDE);
-        moyenPaiementBO.setDateLimite(LocalDateTime.MIN);
-        moyenPaiementBO.setPkMoyenPaiement("maRef");
-        moyenPaiementRepository.save(moyenPaiementBO);
-        MoyenPaiementBO moyenPaiementBO2 = new MoyenPaiementBO();
-        moyenPaiementBO2.setCommande(commandeBO);
-        moyenPaiementBO2.setMontantInitial(155);
-        moyenPaiementBO2.setMoyenPaiementStatut(MoyenPaiementStatutEnum.VALIDE);
-        moyenPaiementBO2.setPkMoyenPaiement("maRef2");
-        moyenPaiementBO2.setDateLimite(LocalDateTime.MAX);
-        moyenPaiementRepository.save(moyenPaiementBO2);
+        commandeBO = commandeRepository.save(commandeBO);
 
 
-        MoyenPaiementDTO moyenPaiement = moneticoPaiementService.getMoyenPaiement(demandeBO.getPkDemandes());
-        assertThat(moyenPaiement.getMontantInitial()).isEqualTo(155);
-        assertThat(moyenPaiement.getPkMoyenPaiement()).isEqualTo("maRef2");
+        CommandeDTO commandeDTO = moneticoPaiementService.getCommande(demandeBO.getPkDemandes());
+        assertThat(commandeBO.getMontantInitial()).isEqualTo(122);
+        assertThat(commandeDTO.getMoyenPaiement().getPkMoyenPaiements()).isEqualTo("maRef");
     }
 
 }

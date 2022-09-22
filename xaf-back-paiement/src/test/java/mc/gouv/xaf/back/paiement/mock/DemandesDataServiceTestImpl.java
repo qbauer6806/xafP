@@ -21,7 +21,7 @@ public class DemandesDataServiceTestImpl implements DemandesDataService {
         }
         if (StringUtils.equals(key, PaiementDemandeDataKeysEnum.MOYEN_PAIEMENT_REFERENCE.name())) {
             DemandeDataDTO data = new DemandeDataDTO();
-            data.setValue("maRef2");
+            data.setValue("maRef");
             return data;
         }
         return null;

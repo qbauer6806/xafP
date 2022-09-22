@@ -2,39 +2,33 @@ package mc.gouv.xaf.back.paiement.data.entity;
 
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
-@Table(name = "PMNT_COMMANDE_DEMANDE")
+@Table(name = "PMNT_COMMANDES_DEMANDES")
 public class CommandeDemandeBO {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "PK_COMMANDE_DEMANDE", nullable = false)
-    private Integer pkComandeDemande;
-    @OneToOne
-    @JoinColumn(name = "FK_COMMANDE", nullable = false)
+    @Column(name = "PK_COMMANDES_DEMANDES", nullable = false)
+    private Integer pkCommandesDemandes;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "FK_COMMANDES")
     private CommandeBO commande;
 
-    @OneToOne
-    @JoinColumn(name = "FK_DEMANDE", nullable = false)
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "FK_DEMANDES")
     private DemandeBO demande;
 
     private double montant;
 
-    public Integer getPkComandeDemande() {
-        return pkComandeDemande;
+    public Integer getPkCommandesDemandes() {
+        return pkCommandesDemandes;
     }
 
-    public void setPkComandeDemande(Integer pkComandeDemande) {
-        this.pkComandeDemande = pkComandeDemande;
+    public void setPkCommandesDemandes(Integer pkComandeDemande) {
+        this.pkCommandesDemandes = pkComandeDemande;
     }
 
     public CommandeBO getCommande() {
@@ -64,7 +58,7 @@ public class CommandeDemandeBO {
     @Override
     public String toString() {
         return "CommandeDemandeBO{" +
-                "pkComandeDemande=" + pkComandeDemande +
+                "pkComandeDemande=" + pkCommandesDemandes +
                 ", commande=" + commande +
                 ", demande=" + demande +
                 ", montant=" + montant +

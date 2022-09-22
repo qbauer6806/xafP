@@ -1,7 +1,7 @@
 package mc.gouv.xaf.back.paiement.mock;
 
 import mc.gouv.xaf.back.paiement.dto.InformationFacturationDTO;
-import mc.gouv.xaf.back.paiement.dto.OperationDTO;
+import mc.gouv.xaf.back.paiement.dto.CommandeOperationDTO;
 import mc.gouv.xaf.back.paiement.dto.itg.cir.PermisDTO;
 import mc.gouv.xaf.back.paiement.service.itg.FactureApiClient;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
@@ -22,7 +22,7 @@ public class FactureApiClientTestImpl implements FactureApiClient {
     }
 
     @Override
-    public Optional<String> createFacture(String numPermis, String numImmat, Double montant, String codeTransaction, InformationFacturationDTO infoFacturation, HashMap<String, Double> objetMontants, DemandeDTO demandeDTO, OperationDTO operationDTO) {
+    public Optional<String> createFacture(String numPermis, String numImmat, Double montant, String codeTransaction, InformationFacturationDTO infoFacturation, HashMap<String, Double> objetMontants, DemandeDTO demandeDTO, CommandeOperationDTO commandeOperationDTO) {
         return Optional.of("facture001");
     }
 

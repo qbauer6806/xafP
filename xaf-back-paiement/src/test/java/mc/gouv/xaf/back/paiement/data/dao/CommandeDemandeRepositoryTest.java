@@ -44,7 +44,9 @@ public class CommandeDemandeRepositoryTest {
         demandeBO = demandesRepository.save(demandeBO);
         commandeDemandeBO.setDemande(demandeBO);
         CommandeBO commandeBO = new CommandeBO();
-        commandeBO.setMontant(100);
+        commandeBO.setMontantInitial(100);
+        commandeBO.setMontantRestant(100);
+        commandeBO.setMontantDejaCapture(0);
         commandeBO.setDateCreation(LocalDateTime.now());
         commandeDemandeBO.setCommande(commandeBO);
         commandeRepository.save(commandeBO);

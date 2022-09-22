@@ -1,8 +1,8 @@
 package mc.gouv.xaf.back.paiement.bpm.activiti.delegate;
 
 import mc.gouv.xaf.back.bpm.GouvBPM;
-import mc.gouv.xaf.back.paiement.dto.MoyenPaiementDTO;
-import mc.gouv.xaf.back.paiement.dto.OperationDTO;
+import mc.gouv.xaf.back.paiement.dto.CommandeDTO;
+import mc.gouv.xaf.back.paiement.dto.CommandeOperationDTO;
 import mc.gouv.xaf.back.paiement.enums.PaiementDemandeDataKeysEnum;
 import mc.gouv.xaf.back.paiement.enums.PaiementStatutEnum;
 import mc.gouv.xaf.back.paiement.service.CaptureService;
@@ -87,22 +87,22 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
 
         String demarcheId = gouvPropertiesResolver.getDemarcheId();
         Integer demandeId = Integer.parseInt(execution.getProcessBusinessKey());
-        OperationDTO operation = null;
+        CommandeOperationDTO operation = null;
         DemandeDTO demandeDto = demandesService.getDemande(demarcheId, demandeId);
         DemandeDataDTO statutPaiementData = demandesDataService.getDemandeData(demarcheId, demandeId, PaiementDemandeDataKeysEnum.STATUT_PAIEMENT.name());
 
         try {
-            MoyenPaiementDTO moyenPaiement = moneticoPaiementService.getMoyenPaiement(demandeId);
-            LOGGER.info("Recuperation moyenPaiement : {}", moyenPaiement);
+            CommandeDTO commandeDTO = moneticoPaiementService.getCommande(demandeId);
+            LOGGER.info("Recuperation commandeDTO : {}", commandeDTO);
             LOGGER.info("Statut de l'empreinte de paiement : {}", statutPaiementData.getValue());
 
-            if (moyenPaiement != null && StringUtils.equals(statutPaiementData.getValue(), PaiementStatutEnum.EMPREINTE_VALIDE.name())) {
+            if (commandeDTO != null && StringUtils.equals(statutPaiementData.getValue(), PaiementStatutEnum.EMPREINTE_VALIDE.name())) {
                 LOGGER.info("Début capture paiement pour la demande: {}", demandeId);
 
-                operation = captureService.capture(moyenPaiement, demandeDto);
+                operation = captureService.capture(commandeDTO, demandeDto);
                 LOGGER.info("Recuperation reference : {}", operation.getNumeroFacture());
 
-                ticketRecapitulatifService.sendMail(operation, moyenPaiement, demandeId);
+                ticketRecapitulatifService.sendMail(operation, commandeDTO, demandeId);
                 gouvBPM.setProcessBusinessVariable(demandeId, MC_FACTURE_REFERENCE, operation.getNumeroFacture());
 
                 LOGGER.info("Fin capture paiement");

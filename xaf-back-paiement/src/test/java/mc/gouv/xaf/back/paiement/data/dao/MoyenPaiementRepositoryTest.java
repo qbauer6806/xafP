@@ -28,19 +28,18 @@ public class MoyenPaiementRepositoryTest {
     public void findByCommande_Id_test() {
 
         CommandeBO commandeBO = new CommandeBO();
-        commandeBO.setMontant(100);
         commandeBO.setDateCreation(LocalDateTime.now());
-         commandeBO =  commandeRepository.save(commandeBO);
+        commandeBO =  commandeRepository.save(commandeBO);
         MoyenPaiementBO moyenPaiementBO = new MoyenPaiementBO();
         moyenPaiementBO.setCommande(commandeBO);
-        moyenPaiementBO.setPkMoyenPaiement("maRef");
+        moyenPaiementBO.setPkMoyensPaiements("maRef1");
         moyenPaiementRepository.save(moyenPaiementBO);
         MoyenPaiementBO moyenPaiementBO2 = new MoyenPaiementBO();
         moyenPaiementBO2.setCommande(commandeBO);
-        moyenPaiementBO2.setPkMoyenPaiement("maRef2");
+        moyenPaiementBO2.setPkMoyensPaiements("maRef");
         moyenPaiementRepository.save(moyenPaiementBO2);
 
-        List<MoyenPaiementBO> moyenPaiements = moyenPaiementRepository.findByCommande_PkCommande(commandeBO.getPkCommande());
+        List<MoyenPaiementBO> moyenPaiements = moyenPaiementRepository.findByCommande_PkCommandes(commandeBO.getPkCommandes());
         assertThat(moyenPaiements).hasSize(2);
 
     }

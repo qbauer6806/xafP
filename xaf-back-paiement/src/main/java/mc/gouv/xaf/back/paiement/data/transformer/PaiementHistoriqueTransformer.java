@@ -22,7 +22,7 @@ public class PaiementHistoriqueTransformer {
         dto.setPkHistorique(bo.getPkHistorique());
         dto.setContenu(bo.getContenu());
         dto.setDate(bo.getDate().toLocalDateTime());
-        dto.setFkDemandes(bo.getFkDemande().getPkDemandes());
+        dto.setFkDemandes(bo.getFkDemandes().getPkDemandes());
         dto.setStatut(PaiementStatutEnum.valueOf(bo.getStatut()));
         dto.setUsagerId(bo.getUsagerId());
         return dto;
@@ -35,7 +35,7 @@ public class PaiementHistoriqueTransformer {
         bo.setDate(Timestamp.valueOf(dto.getDate()));
         DemandeBO demandeBO = new DemandeBO();
         demandeBO.setPkDemandes(dto.getFkDemandes());
-        bo.setFkDemande(demandeBO);
+        bo.setFkDemandes(demandeBO);
         bo.setStatut(dto.getStatut().name());
         bo.setUsagerId(dto.getUsagerId());
         return bo;

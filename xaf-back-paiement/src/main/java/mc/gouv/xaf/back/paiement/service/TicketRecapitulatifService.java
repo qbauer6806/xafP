@@ -1,10 +1,10 @@
 package mc.gouv.xaf.back.paiement.service;
 
-import mc.gouv.xaf.back.paiement.dto.MoyenPaiementDTO;
-import mc.gouv.xaf.back.paiement.dto.OperationDTO;
+import mc.gouv.xaf.back.paiement.dto.CommandeDTO;
+import mc.gouv.xaf.back.paiement.dto.CommandeOperationDTO;
 
 public interface TicketRecapitulatifService {
 
-    void sendMail(OperationDTO operation, MoyenPaiementDTO moyenPaiement, Integer demandeId);
+    void sendMail(CommandeOperationDTO operation, CommandeDTO commandeDTO, Integer demandeId);
 
 }

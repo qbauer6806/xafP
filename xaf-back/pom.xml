@@ -226,6 +226,13 @@
 			<groupId>com.openhtmltopdf</groupId>
 			<artifactId>openhtmltopdf-svg-support</artifactId>
 			<version>${openhtml.version}</version>
+			<!-- https://stackoverflow.com/questions/55571046/eclipse-is-confused-by-imports-accessible-from-more-than-one-module -->
+			<exclusions>
+	            <exclusion>
+	                <groupId>xml-apis</groupId>
+	                <artifactId>xml-apis</artifactId>
+	            </exclusion>
+	        </exclusions>
 		</dependency>
 		
 		<!-- https://stackoverflow.com/questions/7891250/batik-not-in-classpath-error-when-running-servlet -->

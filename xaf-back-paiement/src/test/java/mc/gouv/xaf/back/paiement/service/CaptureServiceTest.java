@@ -93,10 +93,11 @@ public class CaptureServiceTest {
         commandeBO.setDateCreation(LocalDateTime.now());
         commandeBO.setMoyenPaiement(moyenPaiementBO);
         List<CommandeDemandeBO> commandeDemandeBOList = new ArrayList<>();
+        commandeDemandeBO.setCommande(commandeBO);
         commandeDemandeBOList.add(commandeDemandeBO);
         commandeBO.setCommandesDemandes(commandeDemandeBOList);
         commandeBO.setOperations(new ArrayList<>());
-        commandeRepository.save(commandeBO);
+        commandeBO = commandeRepository.save(commandeBO);
 
         DemandeDTO demandeDTO = new DemandeDTO();
         ContenuTestDTO contenuTestDTO = new ContenuTestDTO();

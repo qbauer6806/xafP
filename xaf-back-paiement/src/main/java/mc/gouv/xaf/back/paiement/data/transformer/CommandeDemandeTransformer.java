@@ -17,6 +17,8 @@ public class CommandeDemandeTransformer {
     public static CommandeDemandeDTO bo2Dto(CommandeDemandeBO bo) {
         CommandeDemandeDTO dto = new CommandeDemandeDTO();
         dto.setPkCommandeDemandes(bo.getPkCommandesDemandes());
+        dto.setFkCommandes(bo.getCommande().getPkCommandes());
+        dto.setFkDemandes(bo.getDemande().getPkDemandes());
         dto.setMontant(bo.getMontant());
         return dto;
     }
@@ -36,7 +38,7 @@ public class CommandeDemandeTransformer {
         return dtos;
     }
 
-    public static List<CommandeDemandeBO> dtos2Bs(List<CommandeDemandeDTO> dtos) {
+    public static List<CommandeDemandeBO> dtos2Bos(List<CommandeDemandeDTO> dtos) {
         ArrayList<CommandeDemandeBO> bos = new ArrayList<>();
         for (CommandeDemandeDTO dto : dtos) {
             bos.add(dto2Bo(dto));

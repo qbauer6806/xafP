@@ -154,7 +154,6 @@ public class MoneticoApiClient implements PaiementApiClient {
         } catch (Exception exception) {
             LOGGER.error("Impossible de faire la capture");
             LOGGER.error(exception.getMessage(), exception);
-            //send mail + delete command_demande
 
             if (mailService != null) {
                 if (OperationStatutEnum.ERREUR.name().equals(commandeOperationDTO.getOperationStatut())) {

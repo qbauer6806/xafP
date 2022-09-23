@@ -36,11 +36,6 @@ public class CommandeTransformer {
         bo.setMontantInitial(dto.getMontantInitial());
         bo.setMontantDejaCapture(dto.getMontantDejaCapture());
         bo.setMontantRestant(dto.getMontantRestant());
-        bo.setMoyenPaiement(MoyenPaiementTransformer.dto2Bo(dto.getMoyenPaiement()));
-        bo.setCommandesDemandes(CommandeDemandeTransformer.dtos2Bs(dto.getCommandesDemandes()));
-        if (dto.getOperations() != null) {
-            bo.setOperations(CommandeOperationTransformer.dtos2Bos(dto.getOperations()));
-        }
         return bo;
     }
 
@@ -52,7 +47,7 @@ public class CommandeTransformer {
         return dtos;
     }
 
-    public static List<CommandeBO> dtos2Bs(List<CommandeDTO> dtos) {
+    public static List<CommandeBO> dtos2Bos(List<CommandeDTO> dtos) {
         ArrayList<CommandeBO> bos = new ArrayList<>();
         for (CommandeDTO dto : dtos) {
             bos.add(dto2Bo(dto));

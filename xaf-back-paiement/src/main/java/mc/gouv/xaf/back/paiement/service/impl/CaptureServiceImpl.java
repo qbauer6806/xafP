@@ -1,6 +1,5 @@
 package mc.gouv.xaf.back.paiement.service.impl;
 
-import mc.gouv.xaf.back.paiement.data.dao.CommandeDemandeRepository;
 import mc.gouv.xaf.back.paiement.data.dao.CommandeRepository;
 import mc.gouv.xaf.back.paiement.data.dao.CommandeOperationRepository;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeBO;
@@ -45,19 +44,12 @@ public class CaptureServiceImpl implements CaptureService {
     private CommandeRepository commandeRepository;
     @Autowired
     private ReferenceFactoryService referenceFactoryService;
-
     @Autowired
     private MontantService montantService;
-
-    @Autowired
-    private CommandeDemandeRepository commandeDemandeRepository;
-
     @Autowired
     private DemandesDataService demandesDataService;
-
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
-
     @Autowired
     private PaiementsDataProvider paiementsDataProvider;
 
@@ -108,10 +100,7 @@ public class CaptureServiceImpl implements CaptureService {
             LOGGER.info("Created [ operation {}] ", operation);
             commandeOperationBO.setCommande(commandeBO);
             commandeOperationRepository.save(commandeOperationBO);
-        } else {
-            commandeDemandeRepository.deleteAll(commandeDemandeRepository.findByDemande_PkDemandes(demandeDTO.getPkDemandes()));
         }
-
 
         return operation;
     }

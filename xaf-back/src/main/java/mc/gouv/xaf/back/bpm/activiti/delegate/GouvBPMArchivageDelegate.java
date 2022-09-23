@@ -81,6 +81,13 @@ public class GouvBPMArchivageDelegate implements JavaDelegate {
                     }
                 }
             }
+            
+            // refs #43237 - [BO] Qualification des documents : On remove les fichiers qui ne doivent pas partir à l'archivage
+            for (DemandeFileDTO currentFichier : new ArrayList<DemandeFileDTO>(fichiers)) {
+            	if(null != currentFichier.getTypedoc() && currentFichier.getTypedoc().equals("NON_APPLICABLE")) {
+            		fichiers.remove(currentFichier);
+            	}
+			}
 
 
             // Gestion de l'ordre d'envoi

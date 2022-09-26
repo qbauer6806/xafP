@@ -19,6 +19,7 @@ import mc.gouv.xaf.back.paiement.enums.PaiementDemandeDataKeysEnum;
 import mc.gouv.xaf.back.paiement.enums.PaiementStatutEnum;
 import mc.gouv.xaf.back.paiement.mock.DemandeStatutEnum;
 import mc.gouv.xaf.back.paiement.service.itg.MoneticoPaiementService;
+import mc.gouv.xaf.back.paiement.service.itg.PaiementSecurityService;
 import mc.gouv.xaf.shared.dto.itg.monetico.MoneticoResponseDTO;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -69,6 +70,9 @@ public class MoneticoPaiementServiceTest {
 
     @Autowired
     private DemandesDataRepository demandesDataRepository;
+
+    @Autowired
+    private PaiementSecurityService paiementSecurityService;
 
     @Before
     public void cleanData() {
@@ -230,7 +234,6 @@ public class MoneticoPaiementServiceTest {
     }
 
     @Test
-    @Ignore
     public void updateKoMACTest() {
         DemandeBO demandeBO = new DemandeBO();
 
@@ -297,9 +300,10 @@ public class MoneticoPaiementServiceTest {
         moneticoResponseDTO.setReference(paiementDTO.getReference());
         moneticoResponseDTO.setCodeRetour(status);
         moneticoResponseDTO.setVld("1223");
+        String mac = paiementSecurityService.getHmacStringInterfaceRetour(moneticoResponseDTO);
         moneticoResponseDTO.setMac("mauvais mac");
         String result = moneticoPaiementService.updateStatus(moneticoResponseDTO);
-        assertThat(result).isEqualTo("1\n" + paiementDTO.getMAC());
+        assertThat(result).isEqualTo("1\n" + mac);
     }
 
 }

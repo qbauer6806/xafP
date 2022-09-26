@@ -188,7 +188,7 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
         paiementDTO.setVersion(paiementPropertiesResolver.getVersionAller());
 
         // Création d'une clé MAC
-        String mac = paiementSecurityService.getHmacString(paiementDTO);
+        String mac = paiementSecurityService.getHmacStringInterfaceAller(paiementDTO);
         paiementDTO.setMAC(mac);
         moyenPaiement.setMac(mac);
         moyenPaiement = moyenPaiementRepository.save(moyenPaiement);
@@ -203,6 +203,12 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
         logStartMethod(LOGGER);
         LOGGER.info("Parameters [ moneticoResponseDTO {}] ", moneticoResponseDTO);
 
+        LOGGER.info("Vérification de la clé HMAC...");
+        String mac = paiementSecurityService.getHmacStringInterfaceRetour(moneticoResponseDTO);
+        if (!StringUtils.equals(moneticoResponseDTO.getMac(), mac)) {
+            return CODE_RETOUR_KO + '\n' + mac;
+        }
+
         String reference = moneticoResponseDTO.getReference();
         LOGGER.info("Récupération en BDD des informations de paiement avec la référence {}", reference);
         Optional<MoyenPaiementBO> moyenPaiementBOOptional = moyenPaiementRepository.findById(reference);
@@ -210,12 +216,6 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
             throw new DemarchesServiceException("Aucun paiement portant la référence " + reference + " n'a été trouvé.", HttpStatus.NOT_FOUND);
         }
         MoyenPaiementBO moyenPaiementBO = moyenPaiementBOOptional.get();
-
-        // TODO revoir l'implémentation de la vérification de la clé MAC selon la doc Monetico
-//        LOGGER.info("Vérification de la clé HMAC");
-//        if (!StringUtils.equals(moneticoResponseDTO.getMac(), moyenPaiementBO.getMac())) {
-//            return CODE_RETOUR_KO + '\n' + moyenPaiementBO.getMac();
-//        }
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMyy");
         YearMonth yeaMonthValidite = YearMonth.parse(moneticoResponseDTO.getVld(), formatter);

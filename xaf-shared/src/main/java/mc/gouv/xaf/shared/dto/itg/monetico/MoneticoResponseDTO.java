@@ -8,6 +8,7 @@ public class MoneticoResponseDTO {
     public String tpe;
     public String date;
     public String montant;
+    public String montantestime;
     public String reference;
     public String texteLibre;
     public String codeRetour;
@@ -18,13 +19,21 @@ public class MoneticoResponseDTO {
     public String usage;
     public String typecompte;
     public String ecard;
+    public String motifrefus;
+    public String motifrefusautorisation;
     public String originecb;
-
     public String cbmasquee;
     public String bincb;
     public String hpancb;
     public String ipclient;
     public String originetr;
+    public String montantech;
+    public String numeroDossier;
+    public String typefacture;
+    public String filtragecause;
+    public String filtragevaleur;
+    public String filtrageEtat;
+    public String cbenregistree;
     public String modepaiement;
     public String authentification;
     public String mac;
@@ -52,6 +61,14 @@ public class MoneticoResponseDTO {
 
     public void setMontant(String montant) {
         this.montant = montant;
+    }
+
+    public String getMontantestime() {
+        return montantestime;
+    }
+
+    public void setMontantestime(String montantestime) {
+        this.montantestime = montantestime;
     }
 
     public String getReference() {
@@ -134,12 +151,36 @@ public class MoneticoResponseDTO {
         this.ecard = ecard;
     }
 
+    public String getMotifrefus() {
+        return motifrefus;
+    }
+
+    public void setMotifrefus(String motifrefus) {
+        this.motifrefus = motifrefus;
+    }
+
+    public String getMotifrefusautorisation() {
+        return motifrefusautorisation;
+    }
+
+    public void setMotifrefusautorisation(String motifrefusautorisation) {
+        this.motifrefusautorisation = motifrefusautorisation;
+    }
+
     public String getOriginecb() {
         return originecb;
     }
 
     public void setOriginecb(String originecb) {
         this.originecb = originecb;
+    }
+
+    public String getCbmasquee() {
+        return cbmasquee;
+    }
+
+    public void setCbmasquee(String cbmasquee) {
+        this.cbmasquee = cbmasquee;
     }
 
     public String getBincb() {
@@ -174,6 +215,62 @@ public class MoneticoResponseDTO {
         this.originetr = originetr;
     }
 
+    public String getMontantech() {
+        return montantech;
+    }
+
+    public void setMontantech(String montantech) {
+        this.montantech = montantech;
+    }
+
+    public String getNumeroDossier() {
+        return numeroDossier;
+    }
+
+    public void setNumeroDossier(String numeroDossier) {
+        this.numeroDossier = numeroDossier;
+    }
+
+    public String getTypefacture() {
+        return typefacture;
+    }
+
+    public void setTypefacture(String typefacture) {
+        this.typefacture = typefacture;
+    }
+
+    public String getFiltragecause() {
+        return filtragecause;
+    }
+
+    public void setFiltragecause(String filtragecause) {
+        this.filtragecause = filtragecause;
+    }
+
+    public String getFiltragevaleur() {
+        return filtragevaleur;
+    }
+
+    public void setFiltragevaleur(String filtragevaleur) {
+        this.filtragevaleur = filtragevaleur;
+    }
+
+    public String getFiltrageEtat() {
+        return filtrageEtat;
+    }
+
+    public void setFiltrageEtat(String filtrageEtat) {
+        this.filtrageEtat = filtrageEtat;
+    }
+
+    public String getCbenregistree() {
+        return cbenregistree;
+    }
+
+    public void setCbenregistree(String cbenregistree) {
+        this.cbenregistree = cbenregistree;
+    }
+
     public String getModepaiement() {
         return modepaiement;
     }
@@ -206,20 +303,13 @@ public class MoneticoResponseDTO {
         isValid = valid;
     }
 
-    public String getCbmasquee() {
-        return cbmasquee;
-    }
-
-    public void setCbmasquee(String cbmasquee) {
-        this.cbmasquee = cbmasquee;
-    }
-
     @Override
     public String toString() {
-        return "MoyenPaiementDTO{" +
+        return "MoneticoResponseDTO{" +
                 "tpe='" + tpe + '\'' +
                 ", date='" + date + '\'' +
                 ", montant='" + montant + '\'' +
+                ", montantestime='" + montantestime + '\'' +
                 ", reference='" + reference + '\'' +
                 ", texteLibre='" + texteLibre + '\'' +
                 ", codeRetour='" + codeRetour + '\'' +
@@ -230,12 +320,21 @@ public class MoneticoResponseDTO {
                 ", usage='" + usage + '\'' +
                 ", typecompte='" + typecompte + '\'' +
                 ", ecard='" + ecard + '\'' +
+                ", motifrefus='" + motifrefus + '\'' +
+                ", motifrefusautorisation='" + motifrefusautorisation + '\'' +
                 ", originecb='" + originecb + '\'' +
                 ", cbmasquee='" + cbmasquee + '\'' +
                 ", bincb='" + bincb + '\'' +
                 ", hpancb='" + hpancb + '\'' +
                 ", ipclient='" + ipclient + '\'' +
                 ", originetr='" + originetr + '\'' +
+                ", montantech='" + montantech + '\'' +
+                ", numeroDossier='" + numeroDossier + '\'' +
+                ", typefacture='" + typefacture + '\'' +
+                ", filtragecause='" + filtragecause + '\'' +
+                ", filtragevaleur='" + filtragevaleur + '\'' +
+                ", filtrageEtat='" + filtrageEtat + '\'' +
+                ", cbenregistree='" + cbenregistree + '\'' +
                 ", modepaiement='" + modepaiement + '\'' +
                 ", authentification='" + authentification + '\'' +
                 ", mac='" + mac + '\'' +

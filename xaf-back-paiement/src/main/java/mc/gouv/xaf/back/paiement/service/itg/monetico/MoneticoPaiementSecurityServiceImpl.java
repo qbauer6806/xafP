@@ -1,10 +1,11 @@
 package mc.gouv.xaf.back.paiement.service.itg.monetico;
 
 import com.google.gson.Gson;
-import mc.gouv.xaf.back.paiement.service.itg.PaiementSecurityService;
 import mc.gouv.xaf.back.paiement.dto.ContexteCommandeDTO;
 import mc.gouv.xaf.back.paiement.dto.PaiementDTO;
 import mc.gouv.xaf.back.paiement.properties.PaiementPropertiesResolver;
+import mc.gouv.xaf.back.paiement.service.itg.PaiementSecurityService;
+import mc.gouv.xaf.shared.dto.itg.monetico.MoneticoResponseDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,69 +26,6 @@ public class MoneticoPaiementSecurityServiceImpl implements PaiementSecurityServ
 
     @Autowired
     public PaiementPropertiesResolver paiementPropertiesResolver;
-
-    @Override
-    public String dateFormat(Date date) {
-        logStartMethod(LOGGER);
-        if (null == date) {
-            return "";
-        }
-        return new SimpleDateFormat(MONETICO_DATE_FORMAT).format(date);
-    }
-
-    @Override
-    public String contexteCommandeDTOtoBase64(ContexteCommandeDTO contexte) {
-        logStartMethod(LOGGER);
-        if (null == contexte) {
-            return null;
-        }
-        Gson gson = new Gson();
-        String json = gson.toJson(contexte);
-        byte[] ptext = json.getBytes(ISO_8859_1);
-        String utf8ContexteCommande = new String(ptext, UTF_8);
-        return encode(utf8ContexteCommande.getBytes(UTF_8));
-    }
-
-    @Override
-    public String getHmacString(PaiementDTO paiementDTO) {
-        logStartMethod(LOGGER);
-        String sChaineMAC = String.join("*",
-                "TPE=" + paiementDTO.getTPE(),
-                 "ThreeDSecureChallenge=" + paiementDTO.getThreeDSecureChallenge(),
-                "contexte_commande=" + paiementDTO.getContexte_commande(),
-                "date=" + paiementDTO.getDate(),
-                "dateech1=" + paiementDTO.getDateech1(),
-                "dateech2=" + paiementDTO.getDateech2(),
-                "dateech3=" + paiementDTO.getDateech3(),
-                "dateech4=" + paiementDTO.getDateech4(),
-                "lgue=" + paiementDTO.getLgue(),
-                "mail=" + paiementDTO.getMail(),
-                "mode_affichage=" + paiementDTO.getMode_affichage() ,
-                "montant=" + paiementDTO.getMontant(),
-                "montantech1=" + paiementDTO.getMontantech1(),
-                "montantech2=" + paiementDTO.getMontantech2(),
-                "montantech3=" + paiementDTO.getMontantech3(),
-                "montantech4=" + paiementDTO.getMontantech4(),
-                "nbrech=" + paiementDTO.getNbrech(),
-                "reference=" + paiementDTO.getReference(),
-                "societe=" + paiementDTO.getSociete(),
-                "texte-libre=" + paiementDTO.getTexteLibre(),
-                "url_retour_err=" + paiementDTO.getUrlRetourErr(),
-                "url_retour_ok=" + paiementDTO.getUrlRetourOk(),
-                "version=" + paiementDTO.getVersion()
-        );
-        LOGGER.info("CHAINE POUR HMAC : " + sChaineMAC);
-
-        MoneticoPaiementHmac hmac = new MoneticoPaiementHmac(paiementPropertiesResolver.getPaiementClef());
-        try {
-            String hmacString = hmac.computeHmac(sChaineMAC);
-            LOGGER.info("HMAC : " + hmacString);
-            return hmacString;
-        } catch (Exception e) {
-            LOGGER.error("Impossible de créer la chaîne MAC", e);
-        }
-        return null;
-    }
 
     public static String encode(byte[] buf) {
         if (null == buf) {
@@ -115,6 +53,118 @@ public class MoneticoPaiementSecurityServiceImpl implements PaiementSecurityServ
         }
 
         return new String(ar);
+    }
+
+    @Override
+    public String dateFormat(Date date) {
+        logStartMethod(LOGGER);
+        if (null == date) {
+            return "";
+        }
+        return new SimpleDateFormat(MONETICO_DATE_FORMAT).format(date);
+    }
+
+    @Override
+    public String contexteCommandeDTOtoBase64(ContexteCommandeDTO contexte) {
+        logStartMethod(LOGGER);
+        if (null == contexte) {
+            return null;
+        }
+        Gson gson = new Gson();
+        String json = gson.toJson(contexte);
+        byte[] ptext = json.getBytes(ISO_8859_1);
+        String utf8ContexteCommande = new String(ptext, UTF_8);
+        return encode(utf8ContexteCommande.getBytes(UTF_8));
+    }
+
+    @Override
+    public String getHmacStringInterfaceAller(PaiementDTO paiementDTO) {
+        logStartMethod(LOGGER);
+        String sChaineMAC = String.join("*",
+                "TPE=" + paiementDTO.getTPE(),
+                "ThreeDSecureChallenge=" + paiementDTO.getThreeDSecureChallenge(),
+                "contexte_commande=" + paiementDTO.getContexte_commande(),
+                "date=" + paiementDTO.getDate(),
+                "dateech1=" + paiementDTO.getDateech1(),
+                "dateech2=" + paiementDTO.getDateech2(),
+                "dateech3=" + paiementDTO.getDateech3(),
+                "dateech4=" + paiementDTO.getDateech4(),
+                "lgue=" + paiementDTO.getLgue(),
+                "mail=" + paiementDTO.getMail(),
+                "mode_affichage=" + paiementDTO.getMode_affichage(),
+                "montant=" + paiementDTO.getMontant(),
+                "montantech1=" + paiementDTO.getMontantech1(),
+                "montantech2=" + paiementDTO.getMontantech2(),
+                "montantech3=" + paiementDTO.getMontantech3(),
+                "montantech4=" + paiementDTO.getMontantech4(),
+                "nbrech=" + paiementDTO.getNbrech(),
+                "reference=" + paiementDTO.getReference(),
+                "societe=" + paiementDTO.getSociete(),
+                "texte-libre=" + paiementDTO.getTexteLibre(),
+                "url_retour_err=" + paiementDTO.getUrlRetourErr(),
+                "url_retour_ok=" + paiementDTO.getUrlRetourOk(),
+                "version=" + paiementDTO.getVersion()
+        );
+        LOGGER.info("CHAINE POUR HMAC : {}", sChaineMAC);
+
+        MoneticoPaiementHmac hmac = new MoneticoPaiementHmac(paiementPropertiesResolver.getPaiementClef());
+        try {
+            String hmacString = hmac.computeHmac(sChaineMAC);
+            LOGGER.info("HMAC : {}", hmacString);
+            return hmacString;
+        } catch (Exception e) {
+            LOGGER.error("Impossible de créer la chaîne MAC pour l'interface ALLER", e);
+        }
+        return null;
+    }
+
+    @Override
+    public String getHmacStringInterfaceRetour(MoneticoResponseDTO moneticoResponseDTO) {
+        logStartMethod(LOGGER);
+        String sChaineMAC = String.join("*",
+                "TPE=" + moneticoResponseDTO.getTpe(),
+                "authentification=" + moneticoResponseDTO.getAuthentification(),
+                "bincb=" + moneticoResponseDTO.getBincb(),
+                "brand=" + moneticoResponseDTO.getBrand(),
+                "cbenregistree=" + moneticoResponseDTO.getCbenregistree(),
+                "cbmasquee=" + moneticoResponseDTO.getCbmasquee(),
+                "code-retour=" + moneticoResponseDTO.getCodeRetour(),
+                "cvx=" + moneticoResponseDTO.getCvx(),
+                "date=" + moneticoResponseDTO.getDate(),
+                "ecard=" + moneticoResponseDTO.getEcard(),
+                "filtragecause=" + moneticoResponseDTO.getFiltragecause(),
+                "filtragevaleur=" + moneticoResponseDTO.getFiltragevaleur(),
+                "filtrage_etat=" + moneticoResponseDTO.getFiltrageEtat(),
+                "hpancb=" + moneticoResponseDTO.getHpancb(),
+                "ipclient=" + moneticoResponseDTO.getIpclient(),
+                "modepaiement=" + moneticoResponseDTO.getModepaiement(),
+                "montant=" + moneticoResponseDTO.getMontant(),
+                "montantech=" + moneticoResponseDTO.getMontantech(),
+                "montantestime=" + moneticoResponseDTO.getMontantestime(),
+                "motifrefus=" + moneticoResponseDTO.getMotifrefus(),
+                "motifrefusautorisation=" + moneticoResponseDTO.getMotifrefusautorisation(),
+                "numauto=" + moneticoResponseDTO.getNumauto(),
+                "numero_dossier=" + moneticoResponseDTO.getNumeroDossier(),
+                "originecb=" + moneticoResponseDTO.getOriginecb(),
+                "originetr=" + moneticoResponseDTO.getOriginetr(),
+                "reference=" + moneticoResponseDTO.getReference(),
+                "texte-libre=" + moneticoResponseDTO.getTexteLibre(),
+                "typecompte=" + moneticoResponseDTO.getTypecompte(),
+                "typefacture=" + moneticoResponseDTO.getTypefacture(),
+                "usage=" + moneticoResponseDTO.getUsage(),
+                "vld=" + moneticoResponseDTO.getVld()
+        );
+        LOGGER.info("CHAINE POUR HMAC : {}", sChaineMAC);
+
+        MoneticoPaiementHmac hmac = new MoneticoPaiementHmac(paiementPropertiesResolver.getPaiementClef());
+        try {
+            String hmacString = hmac.computeHmac(sChaineMAC);
+            LOGGER.info("HMAC : {}", hmacString);
+            return hmacString;
+        } catch (Exception e) {
+            LOGGER.error("Impossible de créer la chaîne MAC pour l'interface RETOUR", e);
+        }
+        return null;
     }
 
 

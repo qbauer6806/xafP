@@ -19,6 +19,7 @@
 	        <th class="date-col">Date</th>
 	        <th class="typedoc-col nosort" th:if="${cat.typedoc}">Type</th>
 	        <th class="action-col nosort">Actions</th>
+	        <th class="action-col-2 nosort"></th>
 	    </tr>
 	    </thead>
 	    <tbody>
@@ -52,13 +53,20 @@
 		                <i class="icon-action_pdf"></i>
 		            </span>
 	            </a>
-				<a id="popup" th:value="@{/ws/file/get/apercu}+${file.url}">
-					<button class="btn btn-action ripple-effect greyTooltip" onclick="setCurrentPopup(this)" data-original-title="Prévisualiser"
-							data-placement="bottom" data-toggle="tooltip" title="" th:id="${file.compFile} ? previewButton + ${file.pkDemandesComplementsFiles} : previewButton + ${file.pkDemandesFiles}">
-						<i class="icon-action_voir"></i>
-					</button>
-				</a>
 	        </td>
+	            <td class="action-col-2">
+		           	 <div class="parent-container">
+						<a id="popup" th:value="@{/ws/file/get/apercu}+${file.url}">
+							<button type="button" class="btn btn-action ripple-effect greyTooltip" onclick="setCurrentPopup(this)"
+										data-placement="bottom" data-toggle="tooltip" title="" 
+										th:id="${file.compFile} ? previewButton + ${file.pkDemandesComplementsFiles} : previewButton + ${file.pkDemandesFiles}"
+										th:disabled="${#strings.endsWith(file.url,'.tif')} or ${#strings.endsWith(file.url,'.docx')}"
+										th:data-original-title="false ? 'Prévisualiser' : 'Test'">
+								<i class="icon-action_voir"></i>
+							</button>
+						</a>
+					</div>
+				</td>
 	    </tr>
 	    </tbody>
 	</table>

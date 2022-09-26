@@ -199,7 +199,7 @@ public class MoneticoPaiementServiceTest {
         moneticoResponseDTO.setReference(paiementDTO.getReference());
         moneticoResponseDTO.setCodeRetour(status);
         moneticoResponseDTO.setVld("1223");
-        moneticoResponseDTO.setMac(paiementDTO.getMAC());
+        moneticoResponseDTO.setMac(paiementSecurityService.getHmacStringInterfaceRetour(moneticoResponseDTO));
         String result = moneticoPaiementService.updateStatus(moneticoResponseDTO);
         assertThat(result).isEqualTo("0");
 
@@ -224,6 +224,7 @@ public class MoneticoPaiementServiceTest {
         moneticoResponseDTO.setReference("AZERTYUIOPQS");
         moneticoResponseDTO.setCodeRetour(status);
         moneticoResponseDTO.setVld("1223");
+        moneticoResponseDTO.setMac(paiementSecurityService.getHmacStringInterfaceRetour(moneticoResponseDTO));
         try {
             moneticoPaiementService.updateStatus(moneticoResponseDTO);
             fail("updateStatus doit renvoyer une exception");

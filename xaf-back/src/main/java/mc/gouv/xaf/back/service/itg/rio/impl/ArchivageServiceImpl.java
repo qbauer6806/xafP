@@ -58,6 +58,7 @@ public class ArchivageServiceImpl implements ArchivageService {
                 for (Map.Entry<String, InputStream> fileTiff : filesTiff.entrySet()) {
                     LOGGER.info("Envoi du documents en GED pour {}", fileTiff.getKey());
                     rioService.createFileDocument(rioDocumentDTO.getRefDocument(), fileTiff.getKey(), IOUtils.toByteArray(fileTiff.getValue()));
+                    fileTiff.getValue().close();
                 }
                 fileDocumentList.add(file);
 

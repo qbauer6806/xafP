@@ -62,44 +62,44 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
 
         // Récupération de l'extension et le nom du fichier
         int indexInit = file.getName().lastIndexOf("\\");
-        String extension = file.getName().substring(file.getName().lastIndexOf("."));
+        String extension = file.getName().substring(file.getName().lastIndexOf(".")).toLowerCase();
         String filename = file.getName().substring(Math.max(indexInit, 0), file.getName().indexOf("."));
 
-        List<InputStream> isList;
-        if (!extension.toLowerCase().contains(".tif")) {
-            // Conversion des fichiers en pdf
-            is = convertFileToPdf(is, extension);
-
-            // Conversion de l'inputstream en tiff
-            isList = generateTiffsFromPDF(is);
-        } else {
-            BufferedImage bim = convertImageToTiff(ImageIO.read(is));
-
-            isList = Collections.singletonList(writeImageCCITTT4(bim));
-        }
+        List<InputStream> isList = convertFileToTiff(is, extension);
 
         // Création des FileDTO
         return createNewFileDTOs(file, isList, filename);
     }
 
     /**
-     * Conversion d'un fichier docx, png, jpg ou jpeg en PDF
+     * Conversion d'un fichier docx, png, jpg ou jpeg en TIFF compressé
      *
      * @param is
      * @param extension
      * @throws IOException
      */
-    private InputStream convertFileToPdf(InputStream is, String extension) throws IOException {
-        switch (extension.toLowerCase()) {
-            case ".docx": return generatePdfFromDocx(is);
-            case ".png":
-            case ".jpg":
-            case ".jpeg": return generatePdfFromImage(is);
-            case ".pdf": return is;
-            default:
+    private List<InputStream> convertFileToTiff(InputStream is, String extension) throws IOException {
+
+        List<InputStream> isList = new ArrayList<>();
+
+        // Conversion des fichiers en pdf
+        if (extension.equals(".pdf") || extension.equals(".docx")) {
+
+            // conversion des docs en pdf
+            if (extension.equals(".docx")) {
+                is = generatePdfFromDocx(is);
+            }
+
+            // génération des tiffs depuis PDF
+            isList = generateTiffsFromPDF(is);
+
+        } else if (extension.equals(".png") || extension.equals(".jpg") || extension.equals(".jpeg")) {
+            // Si c'est une image, générer dictement un tiff sans passer par la case PDF
+            BufferedImage bim = generateTiffFromImage(ImageIO.read(is));
+            isList.add(writeImageCCITTT4(bim));
         }
-        LOGGER.error("Convertisseur TIFF : Fichier non supporté {}", extension);
-        throw new IOException();
+
+        return isList;
     }
 
     /**
@@ -116,48 +116,11 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
             LOGGER.error("Lecture du fichier DOCX impossible !");
             throw new IOException("Lecture du fichier DOCX impossible !", e);
         }
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        PdfConverter.getInstance().convert(document, out, null);
-        return new ByteArrayInputStream(out.toByteArray());
-    }
-
-    /**
-     * Génère un PDF à partir d'une image
-     * @param is Fichier image d'entrée
-     * @return Image convertie en PDF
-     * @throws IOException
-     */
-    private InputStream generatePdfFromImage(InputStream is) throws IOException {
-
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        PDDocument doc = new PDDocument();
-        PDPage page = new PDPage();
-        doc.addPage(page);
-
-        try (PDPageContentStream contentStream = new PDPageContentStream(doc, page, PDPageContentStream.AppendMode.APPEND, false)) {
-            BufferedImage awtImage = ImageIO.read(is);
-            PDImageXObject pdImageXObject = LosslessFactory.createFromImage(doc, awtImage);
-
-            float scale = 1;
-            if (awtImage.getWidth() > WIDTH) {
-                scale = (float) WIDTH / awtImage.getWidth();
-            }
-            if (awtImage.getHeight() > HEIGHT) {
-                float tempscale = (float) HEIGHT / awtImage.getHeight();
-                if (tempscale < scale) {
-                    scale = tempscale;
-                }
-            }
-            contentStream.drawImage(pdImageXObject, 0, 0, awtImage.getWidth() * scale, awtImage.getHeight() * scale);
-            contentStream.close();
-            doc.save(out);
-        } catch (Exception io) {
-            LOGGER.error("Convertisseur TIFF : Erreur dans la conversion de PDF en image", io);
-        } finally {
-            doc.close();
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            PdfConverter.getInstance().convert(document, out, null);
+            document.close();
+            return new ByteArrayInputStream(out.toByteArray());
         }
-
-        return new ByteArrayInputStream(out.toByteArray());
     }
 
     /**
@@ -177,7 +140,7 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
         for (int page = 0; page < document.getNumberOfPages(); ++page) {
 
             // Conversion de l'image en tiff
-            BufferedImage bim = convertImageToTiff(pdfRenderer.renderImageWithDPI(page, 240));
+            BufferedImage bim = generateTiffFromImage(pdfRenderer.renderImageWithDPI(page, 240));
 
             imagesIS.add(writeImageCCITTT4(bim));
         }
@@ -185,7 +148,7 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
         return imagesIS;
     }
 
-    public BufferedImage convertImageToTiff(BufferedImage inputImage) {
+    public BufferedImage generateTiffFromImage(BufferedImage inputImage) {
 
         // Conversion en Noir et blanc en "dithering"
         // Plus d'infos: https://en.wikipedia.org/wiki/Floyd%E2%80%93Steinberg_dithering
@@ -206,11 +169,11 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
     }
 
     private InputStream writeImageCCITTT4(BufferedImage bim) throws IOException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-
-        // Sauvegarde de l'image sans perte (compression quality 1f) + comression CCITT T.4 (standard fax/scanner)
-        ImageIOUtil.writeImage(bim, "tiff", out,240, 1f, "CCITT T.4");
-        return new ByteArrayInputStream(out.toByteArray());
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            // Sauvegarde de l'image sans perte (compression quality 1f) + comression CCITT T.4 (standard fax/scanner)
+            ImageIOUtil.writeImage(bim, "tiff", out, 240, 1f, "CCITT T.4");
+            return new ByteArrayInputStream(out.toByteArray());
+        }
     }
 
     private Map<String, InputStream> createNewFileDTOs(DemandeFileDTO file, List<InputStream> isList, String filename) {

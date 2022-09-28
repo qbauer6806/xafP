@@ -32,6 +32,10 @@ public interface PaiementPropertiesResolver {
 
     String getCurrency();
 
+    String getNomParDefaut();
+
+    String getPrenomParDefaut();
+
     String getAdresseParDefaut();
 
     String getVilleParDefaut();

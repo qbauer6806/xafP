@@ -160,8 +160,8 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
         GichuniUsagerDTO usager = usagersCache.get(usagerId);
 
         BillingDTO billingDTO = new BillingDTO();
-        billingDTO.setFirstName(usager.getPrenom());
-        billingDTO.setLastName(usager.getNom());
+        billingDTO.setFirstName(usager.getPrenom() == null ? paiementPropertiesResolver.getPrenomParDefaut() : usager.getPrenom());
+        billingDTO.setLastName(usager.getNom() == null ? paiementPropertiesResolver.getNomParDefaut() : usager.getNom());
         billingDTO.setAddressLine1(usager.getAdresse1() == null ? paiementPropertiesResolver.getAdresseParDefaut() : usager.getAdresse1());
         billingDTO.setCity(usager.getVille() == null ? paiementPropertiesResolver.getVilleParDefaut() : usager.getVille());
         billingDTO.setPostalCode(usager.getCodePostal() == null ? paiementPropertiesResolver.getCodePostalParDefaut() : usager.getCodePostal());

@@ -84,6 +84,16 @@ public class PaiementPropertiesResolverTestImpl implements PaiementPropertiesRes
     }
 
     @Override
+    public String getNomParDefaut() {
+        return null;
+    }
+
+    @Override
+    public String getPrenomParDefaut() {
+        return null;
+    }
+
+    @Override
     public String getAdresseParDefaut() {
         return null;
     }

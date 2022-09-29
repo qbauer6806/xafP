@@ -182,7 +182,7 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
         }
         paiementDTO.setSociete(codeSociete);
         paiementDTO.setTPE(paiementPropertiesResolver.getTpe());
-        paiementDTO.setTexteLibre(paiementPropertiesResolver.getXafMoneticoTexteAller() + " - " + date + " - demandes [" + listePkDemandes + "]");
+        paiementDTO.setTexteLibre(paiementPropertiesResolver.getXafMoneticoTexteAller() + date + " - demandes [" + listePkDemandes + "]");
         paiementDTO.setUrlRetourErr(paiementPropertiesResolver.getEchecUrl());
         paiementDTO.setUrlRetourOk(paiementPropertiesResolver.getSuccesUrl());
         paiementDTO.setVersion(paiementPropertiesResolver.getVersionAller());

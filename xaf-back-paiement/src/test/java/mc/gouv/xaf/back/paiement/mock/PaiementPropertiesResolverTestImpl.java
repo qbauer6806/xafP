@@ -138,4 +138,24 @@ public class PaiementPropertiesResolverTestImpl implements PaiementPropertiesRes
         return null;
     }
 
+    @Override
+    public String getCodePaiement() {
+        return null;
+    }
+
+    @Override
+    public String getCodeEchange() {
+        return null;
+    }
+
+    @Override
+    public double getTarifEchange() {
+        return 0;
+    }
+
+    @Override
+    public String getCodePermisInternational() {
+        return null;
+    }
+
 }

@@ -117,29 +117,31 @@ public class CirApiApiClient implements FactureApiClient {
 
         List<CirRequestDTO> cirRequestDTOS = new ArrayList<>();
 
+        // Récupération des propriétés
+        double prix = paiementPropertiesResolver.getTarifEchange();
+        String tpe = paiementPropertiesResolver.getTpe();
+        int registre = paiementPropertiesResolver.getRegistre();
+        String codePaiement = paiementPropertiesResolver.getCodePaiement();
+        String codeEchange = paiementPropertiesResolver.getCodeEchange();
+        String codePermisInternational = paiementPropertiesResolver.getCodePermisInternational();
+
         for (Map.Entry<String, Double> entry : objetMontants.entrySet()) {
             Double montantObjet = entry.getValue();
 
             CirRequestDTO request = new CirRequestDTO();
-            request.setNumTpe(paiementPropertiesResolver.getTpe());
-
+            request.setNumTpe(tpe);
             request.setNumPermis(numPermis);
             request.setNumImmat(numImmat);
-
-            request.setRegistre(paiementPropertiesResolver.getRegistre());
+            request.setRegistre(registre);
             request.setDateOperation(new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
             request.setMontant(montant);
             request.setMontantOperation("" + montantObjet);
             request.setNomPropr(infoFacturation.getNomTitulaire());
             request.setPrenomPropr(infoFacturation.getPrenomTitulaire());
             request.setEmail(infoFacturation.getEmailUsager());
-
-            PropertiesDTO montantProperty = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "XAF_PAIEMENT_AMOUNT");
-            double prix = Double.parseDouble(montantProperty.getValue());
-
-            request.setCodeOperation(montantObjet == prix ? "P1" : "P5"); // TODO voir avec alexis devrait être dans les properties
+            request.setCodeOperation(montantObjet == prix ? codeEchange : codePermisInternational);
             request.setCodeTransaction(codeTransaction);
-            request.setCodeReglement("X"); // TODO idem devrait être en properties meme si c'est fixe
+            request.setCodeReglement(codePaiement);
             request.setAutorisation("" + commandeOperationDto.getNumeroAutorisation());
             request.setTransactionId(commandeOperationDto.getPkOperations());
 

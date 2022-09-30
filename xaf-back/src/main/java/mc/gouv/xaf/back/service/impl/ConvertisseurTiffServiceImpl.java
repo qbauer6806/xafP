@@ -93,7 +93,7 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
             // génération des tiffs depuis PDF
             isList = generateTiffsFromPDF(is);
 
-        } else if (extension.equals(".png") || extension.equals(".jpg") || extension.equals(".jpeg")) {
+        } else if (extension.equals(".png") || extension.equals(".jpg") || extension.equals(".jpeg") || extension.equals(".tif")) {
             // Si c'est une image, générer dictement un tiff sans passer par la case PDF
             BufferedImage bim = generateTiffFromImage(ImageIO.read(is));
             isList.add(writeImageCCITTT4(bim));

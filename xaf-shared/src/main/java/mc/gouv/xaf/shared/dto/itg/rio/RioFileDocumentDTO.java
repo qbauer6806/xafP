@@ -50,4 +50,15 @@ public class RioFileDocumentDTO {
     public void setDescription(String description) {
         this.description = description;
     }
+    
+    @Override
+    public String toString() {
+        return "RioFileDocumentDTO{" +
+                "keyFile='"+keyFile+ '\'' +
+                ", filename='" + filename + '\'' +
+                ", rank='" + rank + '\'' +
+                ", fileSize='" + fileSize + '\'' +
+                ", description='" + description + '\'' +
+                '}';
+    }
 }

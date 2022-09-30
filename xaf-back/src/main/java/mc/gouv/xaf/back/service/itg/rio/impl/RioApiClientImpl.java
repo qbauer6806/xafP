@@ -130,7 +130,7 @@ public class RioApiClientImpl implements RioApiClient {
     @Override
     public RioFileDocumentDTO createFileDocument(String codeAppli, String refDocument, Long keyDocument, String codeNotice, String user, String filename, byte[] file) {
 
-        LOGGER.info("Création du fichier (filename) {} pour le document {}", filename, refDocument);
+        LOGGER.info("-------- Création du fichier (filename) {} pour le document {}", filename, refDocument);
 
         MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
         parts.add("filename", filename);
@@ -143,14 +143,20 @@ public class RioApiClientImpl implements RioApiClient {
         rest.getMessageConverters().add(new StringHttpMessageConverter(StandardCharsets.UTF_8));
 
         String requestUrl = url + String.format(RIO_CREATE_FILE_DOCUMENT, codeAppli, refDocument, keyDocument, codeNotice);
+        LOGGER.info("Appel à RIO : {}", requestUrl);
         URI uri = UriComponentsBuilder
                 .fromHttpUrl(requestUrl)
                 .queryParam("user", user)
                 .build().encode().toUri();
-
+        
         ResponseEntity<RioFileDocumentDTO> responseEntity = rest.exchange(uri, HttpMethod.POST, requestEntity, RioFileDocumentDTO.class);
+        
+        LOGGER.info("Statut de la réponse de RIO : {}", responseEntity.getStatusCode());
+        if(null != responseEntity.getBody()) {
+        	LOGGER.info("Contenu de la réponse de RIO : {}", responseEntity.getBody().toString());
+        }
 
-        LOGGER.info("Fin création du fichier (filename) {} pour le document {}", filename, refDocument);
+        LOGGER.info("-------- Fin création du fichier (filename) {} pour le document {}", filename, refDocument);
 
         return responseEntity.getBody();
     }

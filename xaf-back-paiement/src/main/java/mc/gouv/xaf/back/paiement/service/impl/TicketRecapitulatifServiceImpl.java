@@ -11,7 +11,6 @@ import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import mc.gouv.xaf.back.service.utils.UsagersUtils;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,25 +64,24 @@ public class TicketRecapitulatifServiceImpl implements TicketRecapitulatifServic
 
 
         try {
-            Map<String, Object> model = getModel(operation, commandeDTO.getMoyenPaiement(), usager);
+            Map<String, Object> model = getModel(operation, commandeDTO.getMoyenPaiement());
             mailService.sendMail(emailInfo, model);
         } catch (Exception e) {
             LOGGER.error("Erreur lors de l'envoi de l'email", e);
         }
     }
 
-    private Map<String, Object> getModel(CommandeOperationDTO operation, MoyenPaiementDTO moyenPaiement, GichuniUsagerDTO usager) {
+    private Map<String, Object> getModel(CommandeOperationDTO operation, MoyenPaiementDTO moyenPaiement) {
         Map<String, Object> model = new HashMap<>();
-        model.put("titre", UsagersUtils.titreShortToString(usager.getTitre()));
         model.put("numTPE", paiementPropertiesResolver.getTpe());
         model.put("pkOperation", operation.getPkOperations());
-        model.put("dateTransaction", operation.getDateCreation().format(DateTimeFormatter.ofPattern(AfBackUtils.DEFAULT_FRENCH_DATE_HOURS_FORMAT)));
+        model.put("reference", moyenPaiement.getPkMoyenPaiements());
+        model.put("dateTransaction", operation.getDateCreation().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
         model.put("montant", operation.getMontant() + " EUR");
         model.put("moyenPaiement", moyenPaiement.getModepaiement());
         model.put("typeTransaction", operation.getOperationType());
         model.put("numCarte", moyenPaiement.getCbmasquee());
         model.put("numeroAutorisation", operation.getNumeroAutorisation());
-        model.put("numeroTerminal", paiementPropertiesResolver.getTpe());
         return model;
     }
 

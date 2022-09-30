@@ -27,7 +27,7 @@ public class RelancesDemandesSchedulingJob implements Job {
     public static final String JOB_NAME = "RelancesDemandesSchedulingJob";
     public static final String TRIGGER_NAME = "RelancesDemandesSchedulingTrigger";
 
-    private static final String ACTIVATION_RAPPEL = "ACTIVATION_RAPPEL";
+    private static final String XAF_RAPPEL_ACTIVATION = "XAF_RAPPEL_ACTIVATION";
 
     @Autowired
     private RelancesDemandesService relanceDemandesService;
@@ -41,8 +41,9 @@ public class RelancesDemandesSchedulingJob implements Job {
     @Override
     @SuppressWarnings("unchecked")
     public void execute(JobExecutionContext jobExecutionContext) {
+        String demarcheId = gouvPropertiesResolver.getDemarcheId();
         try {
-            PropertiesDTO activationRappel = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), ACTIVATION_RAPPEL);
+            PropertiesDTO activationRappel = propertiesService.getProperty(demarcheId, XAF_RAPPEL_ACTIVATION);
             boolean active = Boolean.parseBoolean(activationRappel.getValue());
             if (active) {
                 List<RelanceStatutDemandeConf> confRelances = new ArrayList<>();
@@ -52,10 +53,10 @@ public class RelancesDemandesSchedulingJob implements Job {
                 if (statutsJob instanceof List) {
                 	confRelances = (List<RelanceStatutDemandeConf>) statutsJob;
                 }
-                LOGGER.info("RAPPEL COURRIEL: Début du job de relance courriel des demandes pour la démarche {}", gouvPropertiesResolver.getDemarcheId());
+                LOGGER.info("RAPPEL COURRIEL: Début du job de relance courriel des demandes pour la démarche {}", demarcheId);
                 relanceDemandesService.sendRelancesMail(confRelances);
             } else {
-                LOGGER.info("RAPPEL COURRIEL: La fonctionnalité de la rappel des courriels est désactivée, changez la propriété ACTIVATION_RAPPEL pour activer.");
+                LOGGER.info("RAPPEL COURRIEL: La fonctionnalité de la rappel des courriels est désactivée, changez la propriété XAF_RAPPEL_ACTIVATION pour activer.");
             }
         } catch (Exception e) {
             LOGGER.error("Erreur lors du rappel des demandes", e);

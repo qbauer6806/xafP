@@ -84,6 +84,16 @@ public class PaiementPropertiesResolverTestImpl implements PaiementPropertiesRes
     }
 
     @Override
+    public String getNomParDefaut() {
+        return null;
+    }
+
+    @Override
+    public String getPrenomParDefaut() {
+        return null;
+    }
+
+    @Override
     public String getAdresseParDefaut() {
         return null;
     }
@@ -125,6 +135,26 @@ public class PaiementPropertiesResolverTestImpl implements PaiementPropertiesRes
 
     @Override
     public String getXafPaiementImmediatHeureDiffere() {
+        return null;
+    }
+
+    @Override
+    public String getCodePaiement() {
+        return null;
+    }
+
+    @Override
+    public String getCodeEchange() {
+        return null;
+    }
+
+    @Override
+    public double getTarifEchange() {
+        return 0;
+    }
+
+    @Override
+    public String getCodePermisInternational() {
         return null;
     }
 

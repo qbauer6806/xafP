@@ -26,7 +26,7 @@ import mc.gouv.xaf.shared.dto.PropertiesDTO;
 @Service
 public class RelancesUtils {
 
-	public static final String NB_JOURS_AVANT_EXPIRATION_KEY = "NB_JOURS_AVANT_EXPIRATION";
+	public static final String NB_JOURS_AVANT_EXPIRATION_KEY = "NB_JOURS_AVANT_EXPIRATION_PAIEMENT";
 
 	private static final String DEMANDE_IC_DEJA_RELANCEE_KEY_PREFIX = "DEMANDE_IC_DEJA_RELANCEE_";
 

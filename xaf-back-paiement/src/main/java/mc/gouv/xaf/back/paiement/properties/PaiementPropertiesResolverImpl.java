@@ -20,16 +20,25 @@ public class PaiementPropertiesResolverImpl implements PaiementPropertiesResolve
 
     private static final String XAF_MONETICO_TEXTE_ALLER = "XAF_MONETICO_TEXTE_ALLER";
 
+    private static final String XAF_MONETICO_CONTEXTE_COMMANDE_NAME = "XAF_MONETICO_CONTEXTE_COMMANDE_NAME";
+    private static final String XAF_MONETICO_CONTEXTE_COMMANDE_FIRSTNAME = "XAF_MONETICO_CONTEXTE_COMMANDE_FIRSTNAME";
     private static final String XAF_MONETICO_CONTEXTE_COMMANDE_ADRESSE = "XAF_MONETICO_CONTEXTE_COMMANDE_ADRESSE";
     private static final String XAF_MONETICO_CONTEXTE_COMMANDE_VILLE = "XAF_MONETICO_CONTEXTE_COMMANDE_VILLE";
     private static final String XAF_MONETICO_CONTEXTE_COMMANDE_CODE_POSTAL = "XAF_MONETICO_CONTEXTE_COMMANDE_CODE_POSTAL";
     private static final String XAF_MONETICO_CONTEXTE_COMMANDE_PAYS = "XAF_MONETICO_CONTEXTE_COMMANDE_PAYS";
+    private static final String XAF_MONETICO_3DSV2_SCENARIO = "XAF_MONETICO_3DSV2_SCENARIO";
+
+    private static final String XAF_CODE_PAIEMENT = "XAF_CODE_PAIEMENT";
+    private static final String XAF_CODE_ECHANGE = "XAF_CODE_ECHANGE";
+    private static final String XAF_TARIF_ECHANGE = "XAF_PAIEMENT_AMOUNT"; // TODO à changer après màj wysiwyg
+    private static final String XAF_CODE_P_INTER = "XAF_CODE_P_INTER";
 
     private static final String XAF_RETRY_INITIAL_DELAY = "XAF_RETRY_INITIAL_DELAY";
     private static final String XAF_RETRY_COUNT = "XAF_RETRY_COUNT";
     private static final String XAF_RETRY_MULTIPLIER = "XAF_RETRY_MULTIPLIER";
 
     private static final String XAF_PAIEMENT_IMMEDIAT_HEURE_DIFFERE = "XAF_PAIEMENT_IMMEDIAT_HEURE_DIFFERE";
+    private static final String PAIEMENT_IMMEDIAT_HEURE_DIFFERE_DEFAULT = "23:58:00";
 
 
     @Override
@@ -57,6 +66,18 @@ public class PaiementPropertiesResolverImpl implements PaiementPropertiesResolve
     @Override
     public int getRegistre() {
         return Integer.parseInt(Static.getValue("mc.gouv" + gouvPropertiesResolver.getApplicationPrefix() + ".cir.registre"));
+    }
+
+    @Override
+    public String getNomParDefaut() {
+        PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_MONETICO_CONTEXTE_COMMANDE_NAME);
+        return propertiesDTO.getValue();
+    }
+
+    @Override
+    public String getPrenomParDefaut() {
+        PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_MONETICO_CONTEXTE_COMMANDE_FIRSTNAME);
+        return propertiesDTO.getValue();
     }
 
     @Override
@@ -102,10 +123,15 @@ public class PaiementPropertiesResolverImpl implements PaiementPropertiesResolve
         return Integer.parseInt(propertiesDTO.getValue());
     }
 
+    /**
+     * <p>Permet de récupérer la valeur de la propriété XAF_PAIEMENT_IMMEDIAT_HEURE_DIFFERE</p>
+     * <p>Si cette propriété n'est pas ajoutée dans la BDD, on utilise une valeur par défault</p>
+     * @return une chaine contenant l'heure d'arrêt du paiement immédiat
+     */
     @Override
     public String getXafPaiementImmediatHeureDiffere() {
         PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_PAIEMENT_IMMEDIAT_HEURE_DIFFERE);
-        return propertiesDTO.getValue();
+        return (propertiesDTO != null) ? propertiesDTO.getValue() : PAIEMENT_IMMEDIAT_HEURE_DIFFERE_DEFAULT;
     }
 
     @Override
@@ -160,7 +186,33 @@ public class PaiementPropertiesResolverImpl implements PaiementPropertiesResolve
 
     @Override
     public String getXafMonetico3dsv2Scenario() {
-        return Static.getValue("mc.gouv" + gouvPropertiesResolver.getApplicationPrefix() + ".monetico.3dvs2Scenario");
+        PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_MONETICO_3DSV2_SCENARIO);
+        return propertiesDTO.getValue();
+    }
+
+    @Override
+    public String getCodePaiement() {
+        PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_CODE_PAIEMENT);
+        return propertiesDTO.getValue();
+    }
+
+    @Override
+    public String getCodeEchange() {
+        PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_CODE_ECHANGE);
+        return propertiesDTO.getValue();
+    }
+
+    @Override
+    // TODO prendre en compte les changements de tarifs
+    public double getTarifEchange() {
+        PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_TARIF_ECHANGE);
+        return propertiesDTO != null ? Double.parseDouble(propertiesDTO.getValue()) : null;
+    }
+
+    @Override
+    public String getCodePermisInternational() {
+        PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_CODE_P_INTER);
+        return propertiesDTO.getValue();
     }
 
 }

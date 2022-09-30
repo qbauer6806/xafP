@@ -25,7 +25,7 @@ public class GouvBPMArchivageDelegate implements JavaDelegate {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMArchivageDelegate.class);
 
-    private static final String XAF_ARCHIVAGE_ACTIVATION = "XAF_ARCHIVAGE_ACTIVATION";
+    private static final String XAF_ARCHIVAGE_BATCH_ACTIVATION = "XAF_ARCHIVAGE_BATCH_ACTIVATION";
 
     public static final String MC_REFERENCE_PERMIS = "MC_REFERENCE_PERMIS";
     public static final String MC_ORDRE_FICHIERS = "MC_ORDRE_FICHIERS";
@@ -56,13 +56,12 @@ public class GouvBPMArchivageDelegate implements JavaDelegate {
     public void execute(DelegateExecution execution) {
         LOGGER.info("==== xaf-back-stc Archivage ...");
 
-
         Integer demandeId = Integer.parseInt(execution.getProcessBusinessKey());
         String demarcheId = gouvPropertiesResolver.getDemarcheId();
 
         DemandeDTO demandeDto = demandesService.getDemande(demarcheId, demandeId);
 
-        PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_ARCHIVAGE_ACTIVATION);
+        PropertiesDTO propertiesDTO = propertiesService.getProperty(demarcheId, XAF_ARCHIVAGE_BATCH_ACTIVATION);
 
         if (propertiesDTO != null && Boolean.parseBoolean(propertiesDTO.getValue())) {
 

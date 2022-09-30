@@ -32,6 +32,10 @@ public interface PaiementPropertiesResolver {
 
     String getCurrency();
 
+    String getNomParDefaut();
+
+    String getPrenomParDefaut();
+
     String getAdresseParDefaut();
 
     String getVilleParDefaut();
@@ -49,5 +53,13 @@ public interface PaiementPropertiesResolver {
     String getXafMonetico3dsv2Scenario();
 
     String getXafPaiementImmediatHeureDiffere();
+
+    String getCodePaiement();
+
+    String getCodeEchange();
+
+    double getTarifEchange();
+
+    String getCodePermisInternational();
 
 }

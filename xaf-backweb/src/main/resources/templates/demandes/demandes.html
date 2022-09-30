@@ -231,9 +231,9 @@
 
 														<div class="row">
 															<div class="col-xs-12 text-center">
-																<button id="rechercherButton2"
+																<a id="rechercherButton2" href="#demandesTable"
 																	class="btn btn-action ripple-effect">Appliquer le
-																	filtre</button>
+																	filtre</a>
 															</div>
 														</div>
 
@@ -306,7 +306,7 @@
 
 				<div class="row">
 					<div class="col-xs-12">
-						<div th:insert="demandes/demandetable"></div>
+						<div id="demandesTable" th:insert="demandes/demandetable"></div>
 					</div>
 				</div>
 

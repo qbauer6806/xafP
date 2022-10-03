@@ -3,7 +3,7 @@ package mc.gouv.xaf.back.paiement.service.itg;
 import mc.gouv.xaf.back.paiement.dto.ContexteCommandeDTO;
 import mc.gouv.xaf.back.paiement.dto.PaiementDTO;
 import mc.gouv.xaf.shared.dto.itg.monetico.MoneticoResponseDTO;
-import org.junit.Assert;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +11,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest

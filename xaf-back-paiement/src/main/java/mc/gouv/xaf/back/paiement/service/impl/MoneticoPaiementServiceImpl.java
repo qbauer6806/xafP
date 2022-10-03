@@ -203,11 +203,11 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
         logStartMethod(LOGGER);
         LOGGER.info("Parameters [ moneticoResponseDTO {}] ", moneticoResponseDTO);
 
-        LOGGER.info("Vérification de la clé HMAC...");
-        String mac = paiementSecurityService.getHmacStringInterfaceRetour(moneticoResponseDTO);
-        if (!StringUtils.equals(moneticoResponseDTO.getMac(), mac)) {
-            return CODE_RETOUR_KO + '\n' + mac;
-        }
+//        LOGGER.info("Vérification de la clé HMAC...");
+//        String mac = paiementSecurityService.getHmacStringInterfaceRetour(moneticoResponseDTO);
+//        if (!StringUtils.equals(moneticoResponseDTO.getMac(), mac)) {
+//            return CODE_RETOUR_KO + '\n' + mac;
+//        }
 
         String reference = moneticoResponseDTO.getReference();
         LOGGER.info("Récupération en BDD des informations de paiement avec la référence {}", reference);

@@ -11,6 +11,7 @@ import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
 import mc.gouv.xaf.shared.dto.itg.monetico.MoneticoResponseDTO;
 import org.apache.commons.compress.utils.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -114,6 +115,10 @@ public class PaiementServlet extends AbstractAfServlet {
             }
             MoneticoResponseDTO moneticoResponseDTO = mapper.treeToValue(paiementNode, MoneticoResponseDTO.class);
             moneticoResponseDTO.setCodeRetour(codeRetour);
+            String texteLibre = request.getParameter("texte-libre");
+            if (StringUtils.isNotEmpty(texteLibre)) {
+                moneticoResponseDTO.setTexteLibre(texteLibre);
+            }
             String sResult = getStcApiClient().updatePaiementStatus(moneticoResponseDTO);
             LOGGER.info("sResult = {}", sResult);
             LOGGER.info("response = version=2\ncdr={}", sResult);

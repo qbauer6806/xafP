@@ -126,31 +126,21 @@ public class MoneticoPaiementSecurityServiceImpl implements PaiementSecurityServ
                 "authentification=" + moneticoResponseDTO.getAuthentification(),
                 "bincb=" + moneticoResponseDTO.getBincb(),
                 "brand=" + moneticoResponseDTO.getBrand(),
-                "cbenregistree=" + moneticoResponseDTO.getCbenregistree(),
                 "cbmasquee=" + moneticoResponseDTO.getCbmasquee(),
                 "code-retour=" + moneticoResponseDTO.getCodeRetour(),
                 "cvx=" + moneticoResponseDTO.getCvx(),
                 "date=" + moneticoResponseDTO.getDate(),
                 "ecard=" + moneticoResponseDTO.getEcard(),
-                "filtragecause=" + moneticoResponseDTO.getFiltragecause(),
-                "filtragevaleur=" + moneticoResponseDTO.getFiltragevaleur(),
-                "filtrage_etat=" + moneticoResponseDTO.getFiltrageEtat(),
                 "hpancb=" + moneticoResponseDTO.getHpancb(),
                 "ipclient=" + moneticoResponseDTO.getIpclient(),
                 "modepaiement=" + moneticoResponseDTO.getModepaiement(),
                 "montant=" + moneticoResponseDTO.getMontant(),
-                "montantech=" + moneticoResponseDTO.getMontantech(),
-                "montantestime=" + moneticoResponseDTO.getMontantestime(),
                 "motifrefus=" + moneticoResponseDTO.getMotifrefus(),
-                "motifrefusautorisation=" + moneticoResponseDTO.getMotifrefusautorisation(),
-                "numauto=" + moneticoResponseDTO.getNumauto(),
-                "numero_dossier=" + moneticoResponseDTO.getNumeroDossier(),
                 "originecb=" + moneticoResponseDTO.getOriginecb(),
                 "originetr=" + moneticoResponseDTO.getOriginetr(),
                 "reference=" + moneticoResponseDTO.getReference(),
                 "texte-libre=" + moneticoResponseDTO.getTexteLibre(),
                 "typecompte=" + moneticoResponseDTO.getTypecompte(),
-                "typefacture=" + moneticoResponseDTO.getTypefacture(),
                 "usage=" + moneticoResponseDTO.getUsage(),
                 "vld=" + moneticoResponseDTO.getVld()
         );
@@ -166,6 +156,5 @@ public class MoneticoPaiementSecurityServiceImpl implements PaiementSecurityServ
         }
         return null;
     }
-
 
 }

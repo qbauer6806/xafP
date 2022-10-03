@@ -60,7 +60,7 @@ public class PaiementPropertiesResolverTestImpl implements PaiementPropertiesRes
 
     @Override
     public String getPaiementClef() {
-        return "0123456789012345678901234567890123456789";
+        return "93F6C0FEFC7D13EB7AC59ECB23D942AEBAD22B91";
     }
 
     @Override

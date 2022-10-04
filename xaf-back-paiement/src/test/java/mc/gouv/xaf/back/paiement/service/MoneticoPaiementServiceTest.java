@@ -235,7 +235,6 @@ public class MoneticoPaiementServiceTest {
     }
 
     @Test
-    @Ignore
     public void updateKoMACTest() {
         DemandeBO demandeBO = new DemandeBO();
 

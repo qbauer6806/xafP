@@ -1,12 +1,27 @@
 package mc.gouv.xaf.back.paiement.service.impl;
 
-import mc.gouv.xaf.back.paiement.data.dao.CommandeRepository;
+import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import mc.gouv.xaf.back.paiement.data.dao.CommandeOperationRepository;
+import mc.gouv.xaf.back.paiement.data.dao.CommandeRepository;
+import mc.gouv.xaf.back.paiement.data.dao.MoyenPaiementRepository;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeBO;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeOperationBO;
+import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
 import mc.gouv.xaf.back.paiement.data.enums.OperationTypeEnum;
-import mc.gouv.xaf.back.paiement.data.transformer.CommandeTransformer;
 import mc.gouv.xaf.back.paiement.data.transformer.CommandeOperationTransformer;
+import mc.gouv.xaf.back.paiement.data.transformer.CommandeTransformer;
 import mc.gouv.xaf.back.paiement.dto.CommandeDTO;
 import mc.gouv.xaf.back.paiement.dto.CommandeOperationDTO;
 import mc.gouv.xaf.back.paiement.enums.PaiementDemandeDataKeysEnum;
@@ -20,15 +35,6 @@ import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesDataService;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeDataDTO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import java.time.LocalDateTime;
-import java.util.*;
-
-import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
 
 @Component
 public class CaptureServiceImpl implements CaptureService {
@@ -52,6 +58,8 @@ public class CaptureServiceImpl implements CaptureService {
     private GouvPropertiesResolver gouvPropertiesResolver;
     @Autowired
     private PaiementsDataProvider paiementsDataProvider;
+    @Autowired
+    private MoyenPaiementRepository moyenPaiementRepository;
 
     @Override
     public CommandeOperationDTO capture(CommandeDTO commandeDTO, DemandeDTO demandeDTO) throws Exception {
@@ -80,7 +88,8 @@ public class CaptureServiceImpl implements CaptureService {
 
             operation.setOperationType(OperationTypeEnum.DEBIT.name());
 
-            Optional<String> optionalNumFacture = factureApiClient.createFacture(numeroPermis, " ", operation.getMontant(), operation.getPkOperations(), paiementsDataProvider.getInfosFacturation(demandeDTO), objetMontants, demandeDTO, operation);
+            MoyenPaiementBO paiement = moyenPaiementRepository.findByCommande_PkCommandes(commandeDTO.getPkCommandes());
+            Optional<String> optionalNumFacture = factureApiClient.createFacture(numeroPermis, "0", operation.getMontant(), paiement.getPkMoyensPaiements(), paiementsDataProvider.getInfosFacturation(demandeDTO), objetMontants, demandeDTO, operation);
             if (optionalNumFacture.isPresent()) {
                 LOGGER.info("Created [ facture n°{}] ", optionalNumFacture.get());
                 operation.setNumeroFacture(optionalNumFacture.get());

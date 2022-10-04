@@ -1,17 +1,17 @@
 package mc.gouv.xaf.back.paiement.data.dao;
 
-import mc.gouv.xaf.back.paiement.data.entity.CommandeBO;
-import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.time.LocalDateTime;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import mc.gouv.xaf.back.paiement.data.entity.CommandeBO;
+import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
@@ -34,13 +34,9 @@ public class MoyenPaiementRepositoryTest {
         moyenPaiementBO.setCommande(commandeBO);
         moyenPaiementBO.setPkMoyensPaiements("maRef1");
         moyenPaiementRepository.save(moyenPaiementBO);
-        MoyenPaiementBO moyenPaiementBO2 = new MoyenPaiementBO();
-        moyenPaiementBO2.setCommande(commandeBO);
-        moyenPaiementBO2.setPkMoyensPaiements("maRef");
-        moyenPaiementRepository.save(moyenPaiementBO2);
 
-        List<MoyenPaiementBO> moyenPaiements = moyenPaiementRepository.findByCommande_PkCommandes(commandeBO.getPkCommandes());
-        assertThat(moyenPaiements).hasSize(2);
+        MoyenPaiementBO moyenPaiement = moyenPaiementRepository.findByCommande_PkCommandes(commandeBO.getPkCommandes());
+        assertThat(moyenPaiement.getCommande().equals(commandeBO));
 
     }
 

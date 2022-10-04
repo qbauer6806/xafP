@@ -1,8 +1,40 @@
 package mc.gouv.xaf.back.paiement.service.itg.cir;
 
+import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
+
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.Proxy;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.HttpResponseException;
+import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.client.HttpUrlConnectorProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
-import mc.gouv.xaf.back.paiement.dto.InformationFacturationDTO;
+
 import mc.gouv.xaf.back.paiement.dto.CommandeOperationDTO;
+import mc.gouv.xaf.back.paiement.dto.InformationFacturationDTO;
 import mc.gouv.xaf.back.paiement.dto.itg.cir.CirRequestDTO;
 import mc.gouv.xaf.back.paiement.dto.itg.cir.PermisDTO;
 import mc.gouv.xaf.back.paiement.properties.PaiementPropertiesResolver;
@@ -16,27 +48,6 @@ import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
-import org.apache.http.client.HttpResponseException;
-import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.client.HttpUrlConnectorProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.Proxy;
-import java.text.SimpleDateFormat;
-import java.util.*;
-
-import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
 
 @Component
 public class CirApiApiClient implements FactureApiClient {
@@ -133,11 +144,17 @@ public class CirApiApiClient implements FactureApiClient {
             request.setNumPermis(numPermis);
             request.setNumImmat(numImmat);
             request.setRegistre(registre);
-            request.setDateOperation(new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
+			try {
+				Date currentDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm").parse(commandeOperationDto.getDateCreation().toString());
+				request.setDateOperation(new SimpleDateFormat("yyyy-MM-dd").format(currentDate));
+			} catch (ParseException e) {
+				LOGGER.info("Erreur lors du parsing de la date de creation de l'opération : {}", commandeOperationDto.getPkOperations());
+			}
             request.setMontant(montant);
             request.setMontantOperation("" + montantObjet);
-            request.setNomPropr(infoFacturation.getNomTitulaire());
-            request.setPrenomPropr(infoFacturation.getPrenomTitulaire());
+            request.setNomPropr(StringUtils.stripAccents(infoFacturation.getNomTitulaire().toUpperCase()));
+            // si plusieurs prenom sur mconnect, prendre le 1er (xavier,guillaume prendre xavier) + enlever les accents
+            request.setPrenomPropr(StringUtils.stripAccents(infoFacturation.getPrenomTitulaire().toUpperCase().split(",")[0]));
             request.setEmail(infoFacturation.getEmailUsager());
             request.setCodeOperation(montantObjet == prix ? codeEchange : codePermisInternational);
             request.setCodeTransaction(codeTransaction);

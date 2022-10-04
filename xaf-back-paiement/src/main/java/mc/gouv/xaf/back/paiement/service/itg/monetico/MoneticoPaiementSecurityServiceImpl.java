@@ -121,29 +121,7 @@ public class MoneticoPaiementSecurityServiceImpl implements PaiementSecurityServ
     @Override
     public String getHmacStringInterfaceRetour(MoneticoResponseDTO moneticoResponseDTO) {
         logStartMethod(LOGGER);
-        String sChaineMAC = String.join("*",
-                "TPE=" + moneticoResponseDTO.getTpe(),
-                "authentification=" + moneticoResponseDTO.getAuthentification(),
-                "bincb=" + moneticoResponseDTO.getBincb(),
-                "brand=" + moneticoResponseDTO.getBrand(),
-                "cbmasquee=" + moneticoResponseDTO.getCbmasquee(),
-                "code-retour=" + moneticoResponseDTO.getCodeRetour(),
-                "cvx=" + moneticoResponseDTO.getCvx(),
-                "date=" + moneticoResponseDTO.getDate(),
-                "ecard=" + moneticoResponseDTO.getEcard(),
-                "hpancb=" + moneticoResponseDTO.getHpancb(),
-                "ipclient=" + moneticoResponseDTO.getIpclient(),
-                "modepaiement=" + moneticoResponseDTO.getModepaiement(),
-                "montant=" + moneticoResponseDTO.getMontant(),
-                "motifrefus=" + moneticoResponseDTO.getMotifrefus(),
-                "originecb=" + moneticoResponseDTO.getOriginecb(),
-                "originetr=" + moneticoResponseDTO.getOriginetr(),
-                "reference=" + moneticoResponseDTO.getReference(),
-                "texte-libre=" + moneticoResponseDTO.getTexteLibre(),
-                "typecompte=" + moneticoResponseDTO.getTypecompte(),
-                "usage=" + moneticoResponseDTO.getUsage(),
-                "vld=" + moneticoResponseDTO.getVld()
-        );
+        String sChaineMAC = moneticoResponseDTO.toStringHmac();
         LOGGER.info("CHAINE POUR HMAC : {}", sChaineMAC);
 
         MoneticoPaiementHmac hmac = new MoneticoPaiementHmac(paiementPropertiesResolver.getPaiementClef());

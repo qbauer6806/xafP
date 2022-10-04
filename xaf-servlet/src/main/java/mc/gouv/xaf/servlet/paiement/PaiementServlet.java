@@ -112,6 +112,7 @@ public class PaiementServlet extends AbstractAfServlet {
             ObjectNode paiementNode = mapper.createObjectNode();
             for (Map.Entry<String, String[]> entry : request.getParameterMap().entrySet()) {
                 paiementNode.put(entry.getKey().toLowerCase(), entry.getValue()[0]);
+                LOGGER.info("{}={}",entry.getKey().toLowerCase(), entry.getValue()[0]);
             }
             MoneticoResponseDTO moneticoResponseDTO = mapper.treeToValue(paiementNode, MoneticoResponseDTO.class);
             moneticoResponseDTO.setCodeRetour(codeRetour);

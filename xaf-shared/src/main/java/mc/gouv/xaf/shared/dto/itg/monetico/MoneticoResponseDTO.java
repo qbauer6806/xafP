@@ -241,4 +241,30 @@ public class MoneticoResponseDTO {
                 ", mac='" + mac + '\'' +
                 '}';
     }
+
+    public String toStringHmac() {
+        return String.join("*",
+                "TPE=" + this.getTpe(),
+                "authentification=" + this.getAuthentification(),
+                "bincb=" + this.getBincb(),
+                "brand=" + this.getBrand(),
+                "cbmasquee=" + this.getCbmasquee(),
+                "code-retour=" + this.getCodeRetour(),
+                "cvx=" + this.getCvx(),
+                "date=" + this.getDate(),
+                "ecard=" + this.getEcard(),
+                "hpancb=" + this.getHpancb(),
+                "ipclient=" + this.getIpclient(),
+                "modepaiement=" + this.getModepaiement(),
+                "montant=" + this.getMontant(),
+                "motifrefus=" + this.getMotifrefus(),
+                "originecb=" + this.getOriginecb(),
+                "originetr=" + this.getOriginetr(),
+                "reference=" + this.getReference(),
+                "texte-libre=" + this.getTexteLibre(),
+                "typecompte=" + this.getTypecompte(),
+                "usage=" + this.getUsage(),
+                "vld=" + this.getVld()
+        );
+    }
 }

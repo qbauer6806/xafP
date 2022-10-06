@@ -10,5 +10,6 @@ import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
  *
  */
 public interface DemandesStatutsRepository extends CrudRepository<DemandesStatutsBO, Integer> {
+	DemandesStatutsBO findByFkDemandesPkDemandesAndLibelle(Integer fkDemandes, String libelle);
 
 }

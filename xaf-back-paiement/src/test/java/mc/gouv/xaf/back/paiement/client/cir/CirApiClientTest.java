@@ -9,13 +9,14 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.net.Proxy;
 import java.util.HashMap;
 
 public class CirApiClientTest {
 
     CirApiApiClient cirApiClient = new CirApiApiClient(Proxy.NO_PROXY, new PaiementPropertiesResolverTestImpl(),
-            new OperationHelper(new PaiementPropertiesResolverTestImpl()), null, null, null, null);
+            new OperationHelper(new PaiementPropertiesResolverTestImpl()), null, null, null, null, null);
 
 
     @Test
@@ -24,8 +25,8 @@ public class CirApiClientTest {
         String numPermis = "292093";
         String numImmat = " ";
         String codeTransaction = "1591658";
-        HashMap<String, Double> objetMontants = new HashMap<>();
-        objetMontants.put("a", 90.0);
+        HashMap<String, BigDecimal> objetMontants = new HashMap<>();
+        objetMontants.put("a", BigDecimal.valueOf(90.0));
         InformationFacturationDTO infoFacturation = new InformationFacturationDTO();
         infoFacturation.setNomTitulaire("Nom");
         infoFacturation.setPrenomTitulaire("Prenom");

@@ -20,6 +20,7 @@ import mc.gouv.xaf.back.paiement.enums.PaiementStatutEnum;
 import mc.gouv.xaf.back.paiement.mock.DemandeStatutEnum;
 import mc.gouv.xaf.back.paiement.service.itg.MoneticoPaiementService;
 import mc.gouv.xaf.back.paiement.service.itg.PaiementSecurityService;
+import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
 import mc.gouv.xaf.shared.dto.itg.monetico.MoneticoResponseDTO;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -83,18 +84,29 @@ public class MoneticoPaiementServiceTest {
         commandeRepository.deleteAll();
         demandesRepository.deleteAll();
         demandesDataRepository.deleteAll();
+        accessRepository.deleteAll();
     }
 
     @Test
     public void createOk() {
+        AccessBO accessBO = new AccessBO();
+        accessBO.setActive(true);
+        accessBO.setContenu("{\"CGU\":true}");
+        accessBO.setDateCreation(new Date());
+        accessBO.setDateDerModif(new Date());
+        accessBO.setDemarcheId("PERMC");
+        accessBO.setUsagerId(3421);
+        accessRepository.save(accessBO);
+
         DemandeBO demandeBO = new DemandeBO();
+        demandeBO.setFkAccess(accessBO);
         Set<DemandesDataBO> demandesDataBOS = new HashSet<>();
         DemandesDataBO demandesDataBO = new DemandesDataBO();
         demandesDataBO.setKey(PaiementDemandeDataKeysEnum.MOYEN_PAIEMENT_REFERENCE.name());
         demandesDataBO.setValue("123456");
         demandesDataBOS.add(demandesDataBO);
-        demandeBO.setContenu("contenu");
-        demandeBO.setCanal("canal");
+        demandeBO.setContenu("{\"donnee\":{\"demandeur\":{\"titre\":\"0\",\"nom\":\"Test\",\"prenom\":\"Test\",\"email\":\"test.ext@gouv.mc\"}},\"contact\":{\"telephone\":{\"indicatif\":\"t377\",\"numero\":\"98981234\"}},\"titulaire\":{\"adresse\":{\"ligne1\":\"1\",\"ligne2\":\"\",\"ligne3\":\"\",\"codePostal\":\"98000\",\"ville\":\"Monaco\",\"pays\":\"MC\"},\"cartemonegasque\":{\"expiration\":\"2022-09-22T00:00:00+02:00\",\"numero\":\"12345\"},\"cartesejour\":{\"numero\":null,\"categorie\":null,\"delivrance\":null,\"expiration\":null},\"pioupasseport\":\"PI\",\"datenaissance\":\"2022-09-22T00:00:00+02:00\",\"declarantouinon\":\"NO\",\"titre\":\"0\",\"prenom\":\"Test\",\"nom\":\"Test\",\"monegasque\":\"MC\",\"mandatairerlsociete\":null,\"representantlegal\":null,\"nomusage\":null,\"passeportnumero\":null,\"dateexpiration\":null},\"titre\":{\"categorie\":{\"b\":true},\"validitepermis\":\"2022-09-22T00:00:00+02:00\",\"numeropermis\":\"12345\",\"paysdelivrance\":\"FR\",\"permisinternational\":\"OUI\",\"langue\":null},\"declaration3\":\"DECLARATION_3\",\"declarations2\":\"DECLARATION2\",\"declarations1\":null,\"titreautrecateg\":null}");
+        demandeBO.setCanal(DemandeCanalEnum.GUICHET_VIRTUEL.name());
         demandeBO.setIdentifiant("monIdentifiant");
         demandeBO.setDateCreation(new Date());
         demandeBO.setDateDerModif(new Date());
@@ -102,13 +114,14 @@ public class MoneticoPaiementServiceTest {
         demandeBO = demandesRepository.save(demandeBO);
 
         DemandeBO demandeBO2 = new DemandeBO();
+        demandeBO2.setFkAccess(accessBO);
         Set<DemandesDataBO> demandesDataBOS2 = new HashSet<>();
         DemandesDataBO demandesDataBO2 = new DemandesDataBO();
         demandesDataBO2.setKey(PaiementDemandeDataKeysEnum.MOYEN_PAIEMENT_REFERENCE.name());
         demandesDataBO2.setValue("123456");
         demandesDataBOS2.add(demandesDataBO2);
-        demandeBO2.setContenu("contenu");
-        demandeBO2.setCanal("canal");
+        demandeBO2.setContenu("{\"donnee\":{\"demandeur\":{\"titre\":\"0\",\"nom\":\"Test\",\"prenom\":\"Test\",\"email\":\"test.ext@gouv.mc\"}},\"contact\":{\"telephone\":{\"indicatif\":\"t377\",\"numero\":\"98981234\"}},\"titulaire\":{\"adresse\":{\"ligne1\":\"1\",\"ligne2\":\"\",\"ligne3\":\"\",\"codePostal\":\"98000\",\"ville\":\"Monaco\",\"pays\":\"MC\"},\"cartemonegasque\":{\"expiration\":\"2022-09-22T00:00:00+02:00\",\"numero\":\"12345\"},\"cartesejour\":{\"numero\":null,\"categorie\":null,\"delivrance\":null,\"expiration\":null},\"pioupasseport\":\"PI\",\"datenaissance\":\"2022-09-22T00:00:00+02:00\",\"declarantouinon\":\"NO\",\"titre\":\"0\",\"prenom\":\"Test\",\"nom\":\"Test\",\"monegasque\":\"MC\",\"mandatairerlsociete\":null,\"representantlegal\":null,\"nomusage\":null,\"passeportnumero\":null,\"dateexpiration\":null},\"titre\":{\"categorie\":{\"b\":true},\"validitepermis\":\"2022-09-22T00:00:00+02:00\",\"numeropermis\":\"12345\",\"paysdelivrance\":\"FR\",\"permisinternational\":\"OUI\",\"langue\":null},\"declaration3\":\"DECLARATION_3\",\"declarations2\":\"DECLARATION2\",\"declarations1\":null,\"titreautrecateg\":null}");
+        demandeBO2.setCanal(DemandeCanalEnum.GUICHET_VIRTUEL.name());
         demandeBO2.setIdentifiant("monIdentifiant");
         demandeBO2.setDateCreation(new Date());
         demandeBO2.setDateDerModif(new Date());
@@ -119,7 +132,7 @@ public class MoneticoPaiementServiceTest {
         PaiementDTO paiementDTO = moneticoPaiementService.create(demandesId, langue, 1, true);
 
         assertThat(paiementDTO.getReference()).hasSize(12);
-        assertThat(paiementDTO.getMontant()).isEqualTo("160.0EUR");
+        assertThat(paiementDTO.getMontant()).isEqualTo("160EUR");
 
         Optional<MoyenPaiementBO> moyenPaiementOptional = moyenPaiementRepository.findById(paiementDTO.getReference());
         if (moyenPaiementOptional.isPresent()) {
@@ -153,7 +166,7 @@ public class MoneticoPaiementServiceTest {
         accessRepository.save(access);
 
         demandeBO.setContenu(contenu.toString());
-        demandeBO.setCanal("canal");
+        demandeBO.setCanal(DemandeCanalEnum.GUICHET_VIRTUEL.name());
         demandeBO.setIdentifiant("monIdentifiant");
         demandeBO.setDateCreation(new Date());
         demandeBO.setDateDerModif(new Date());
@@ -169,8 +182,8 @@ public class MoneticoPaiementServiceTest {
         demandeBO = demandesRepository.save(demandeBO);
 
         DemandeBO demandeBO2 = new DemandeBO();
-        demandeBO2.setContenu("contenu");
-        demandeBO2.setCanal("canal");
+        demandeBO2.setContenu("{\"donnee\":{\"demandeur\":{\"titre\":\"0\",\"nom\":\"Test\",\"prenom\":\"Test\",\"email\":\"test.ext@gouv.mc\"}},\"contact\":{\"telephone\":{\"indicatif\":\"t377\",\"numero\":\"98981234\"}},\"titulaire\":{\"adresse\":{\"ligne1\":\"1\",\"ligne2\":\"\",\"ligne3\":\"\",\"codePostal\":\"98000\",\"ville\":\"Monaco\",\"pays\":\"MC\"},\"cartemonegasque\":{\"expiration\":\"2022-09-22T00:00:00+02:00\",\"numero\":\"12345\"},\"cartesejour\":{\"numero\":null,\"categorie\":null,\"delivrance\":null,\"expiration\":null},\"pioupasseport\":\"PI\",\"datenaissance\":\"2022-09-22T00:00:00+02:00\",\"declarantouinon\":\"NO\",\"titre\":\"0\",\"prenom\":\"Test\",\"nom\":\"Test\",\"monegasque\":\"MC\",\"mandatairerlsociete\":null,\"representantlegal\":null,\"nomusage\":null,\"passeportnumero\":null,\"dateexpiration\":null},\"titre\":{\"categorie\":{\"b\":true},\"validitepermis\":\"2022-09-22T00:00:00+02:00\",\"numeropermis\":\"12345\",\"paysdelivrance\":\"FR\",\"permisinternational\":\"OUI\",\"langue\":null},\"paiement\":{\"tableau\":[{\"objet\":\"PERMIS\",\"montant\":80.0},{\"objet\":\"PERMIS_INTERNATIONAL\",\"montant\":30.0}],\"total\":\"110,00 €\"},\"declaration3\":\"DECLARATION_3\",\"declarations2\":\"DECLARATION2\",\"declarations1\":null,\"titreautrecateg\":null}");
+        demandeBO2.setCanal(DemandeCanalEnum.GUICHET_VIRTUEL.name());
         demandeBO2.setIdentifiant("monIdentifiant");
         demandeBO2.setDateCreation(new Date());
         demandeBO2.setDateDerModif(new Date());
@@ -255,7 +268,7 @@ public class MoneticoPaiementServiceTest {
         accessRepository.save(access);
 
         demandeBO.setContenu(contenu.toString());
-        demandeBO.setCanal("canal");
+        demandeBO.setCanal(DemandeCanalEnum.GUICHET_VIRTUEL.name());
         demandeBO.setIdentifiant("monIdentifiant");
         demandeBO.setDateCreation(new Date());
         demandeBO.setDateDerModif(new Date());
@@ -271,8 +284,8 @@ public class MoneticoPaiementServiceTest {
         demandeBO = demandesRepository.save(demandeBO);
 
         DemandeBO demandeBO2 = new DemandeBO();
-        demandeBO2.setContenu("contenu");
-        demandeBO2.setCanal("canal");
+        demandeBO2.setContenu("{\"donnee\":{\"demandeur\":{\"titre\":\"0\",\"nom\":\"Test\",\"prenom\":\"Test\",\"email\":\"test.ext@gouv.mc\"}},\"contact\":{\"telephone\":{\"indicatif\":\"t377\",\"numero\":\"98981234\"}},\"titulaire\":{\"adresse\":{\"ligne1\":\"1\",\"ligne2\":\"\",\"ligne3\":\"\",\"codePostal\":\"98000\",\"ville\":\"Monaco\",\"pays\":\"MC\"},\"cartemonegasque\":{\"expiration\":\"2022-09-22T00:00:00+02:00\",\"numero\":\"12345\"},\"cartesejour\":{\"numero\":null,\"categorie\":null,\"delivrance\":null,\"expiration\":null},\"pioupasseport\":\"PI\",\"datenaissance\":\"2022-09-22T00:00:00+02:00\",\"declarantouinon\":\"NO\",\"titre\":\"0\",\"prenom\":\"Test\",\"nom\":\"Test\",\"monegasque\":\"MC\",\"mandatairerlsociete\":null,\"representantlegal\":null,\"nomusage\":null,\"passeportnumero\":null,\"dateexpiration\":null},\"titre\":{\"categorie\":{\"b\":true},\"validitepermis\":\"2022-09-22T00:00:00+02:00\",\"numeropermis\":\"12345\",\"paysdelivrance\":\"FR\",\"permisinternational\":\"OUI\",\"langue\":null},\"paiement\":{\"tableau\":[{\"objet\":\"PERMIS\",\"montant\":80.0},{\"objet\":\"PERMIS_INTERNATIONAL\",\"montant\":30.0}],\"total\":\"110,00 €\"},\"declaration3\":\"DECLARATION_3\",\"declarations2\":\"DECLARATION2\",\"declarations1\":null,\"titreautrecateg\":null}");
+        demandeBO2.setCanal(DemandeCanalEnum.GUICHET_VIRTUEL.name());
         demandeBO2.setIdentifiant("monIdentifiant");
         demandeBO2.setDateCreation(new Date());
         demandeBO2.setDateDerModif(new Date());

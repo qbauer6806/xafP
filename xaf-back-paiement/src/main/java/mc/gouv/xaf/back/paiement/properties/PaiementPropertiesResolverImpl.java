@@ -29,10 +29,6 @@ public class PaiementPropertiesResolverImpl implements PaiementPropertiesResolve
     private static final String XAF_MONETICO_3DSV2_SCENARIO = "XAF_MONETICO_3DSV2_SCENARIO";
 
     private static final String XAF_CODE_PAIEMENT = "XAF_CODE_PAIEMENT";
-    private static final String XAF_CODE_ECHANGE = "XAF_CODE_ECHANGE";
-    private static final String XAF_TARIF_ECHANGE = "XAF_TARIF_ECHANGE";
-    private static final String XAF_CODE_P_INTER = "XAF_CODE_P_INTER";
-
     private static final String XAF_RETRY_INITIAL_DELAY = "XAF_RETRY_INITIAL_DELAY";
     private static final String XAF_RETRY_COUNT = "XAF_RETRY_COUNT";
     private static final String XAF_RETRY_MULTIPLIER = "XAF_RETRY_MULTIPLIER";
@@ -193,25 +189,6 @@ public class PaiementPropertiesResolverImpl implements PaiementPropertiesResolve
     @Override
     public String getCodePaiement() {
         PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_CODE_PAIEMENT);
-        return propertiesDTO.getValue();
-    }
-
-    @Override
-    public String getCodeEchange() {
-        PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_CODE_ECHANGE);
-        return propertiesDTO.getValue();
-    }
-
-    @Override
-    // TODO prendre en compte les changements de tarifs
-    public double getTarifEchange() {
-        PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_TARIF_ECHANGE);
-        return propertiesDTO != null ? Double.parseDouble(propertiesDTO.getValue()) : null;
-    }
-
-    @Override
-    public String getCodePermisInternational() {
-        PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_CODE_P_INTER);
         return propertiesDTO.getValue();
     }
 

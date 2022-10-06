@@ -69,7 +69,7 @@ public class CaptureServiceTest {
     @Test
     public void captureOk() throws Exception {
         DemandeBO demandeBO = new DemandeBO();
-        demandeBO.setContenu("contenu");
+        demandeBO.setContenu("{\"donnee\":{\"demandeur\":{\"titre\":\"0\",\"nom\":\"Test\",\"prenom\":\"Test\",\"email\":\"test.ext@gouv.mc\"}},\"contact\":{\"telephone\":{\"indicatif\":\"t377\",\"numero\":\"98981234\"}},\"titulaire\":{\"adresse\":{\"ligne1\":\"1\",\"ligne2\":\"\",\"ligne3\":\"\",\"codePostal\":\"98000\",\"ville\":\"Monaco\",\"pays\":\"MC\"},\"cartemonegasque\":{\"expiration\":\"2022-09-22T00:00:00+02:00\",\"numero\":\"12345\"},\"cartesejour\":{\"numero\":null,\"categorie\":null,\"delivrance\":null,\"expiration\":null},\"pioupasseport\":\"PI\",\"datenaissance\":\"2022-09-22T00:00:00+02:00\",\"declarantouinon\":\"NO\",\"titre\":\"0\",\"prenom\":\"Test\",\"nom\":\"Test\",\"monegasque\":\"MC\",\"mandatairerlsociete\":null,\"representantlegal\":null,\"nomusage\":null,\"passeportnumero\":null,\"dateexpiration\":null},\"titre\":{\"categorie\":{\"b\":true},\"validitepermis\":\"2022-09-22T00:00:00+02:00\",\"numeropermis\":\"12345\",\"paysdelivrance\":\"FR\",\"permisinternational\":\"OUI\",\"langue\":null},\"paiement\":{\"tableau\":[{\"objet\":\"PERMIS\",\"montant\":80.0},{\"objet\":\"PERMIS_INTERNATIONAL\",\"montant\":30.0}],\"total\":\"110,00 €\"},\"declaration3\":\"DECLARATION_3\",\"declarations2\":\"DECLARATION2\",\"declarations1\":null,\"titreautrecateg\":null}");
         demandeBO.setCanal("canal");
         demandeBO.setIdentifiant("monIdentifiant");
         demandeBO.setDateCreation(new Date());
@@ -80,10 +80,7 @@ public class CaptureServiceTest {
         commandeDemandeBO.setDemande(demandeBO);
 
         MoyenPaiementBO moyenPaiementBO = new MoyenPaiementBO();
-        moyenPaiementBO.setDateLimite(LocalDateTime.MIN);
         moyenPaiementBO.setPkMoyensPaiements("maRef");
-        moyenPaiementBO.setMoyenPaiementType(MoyenPaiementTypeEnum.DIFFERE);
-        moyenPaiementBO.setMoyenPaiementStatut(MoyenPaiementStatutEnum.VALIDE);
         moyenPaiementBO = moyenPaiementRepository.save(moyenPaiementBO);
 
         CommandeBO commandeBO = new CommandeBO();
@@ -98,6 +95,12 @@ public class CaptureServiceTest {
         commandeBO.setCommandesDemandes(commandeDemandeBOList);
         commandeBO.setOperations(new ArrayList<>());
         commandeBO = commandeRepository.save(commandeBO);
+
+        moyenPaiementBO.setDateLimite(LocalDateTime.MIN);
+        moyenPaiementBO.setMoyenPaiementType(MoyenPaiementTypeEnum.DIFFERE);
+        moyenPaiementBO.setMoyenPaiementStatut(MoyenPaiementStatutEnum.VALIDE);
+        moyenPaiementBO.setCommande(commandeBO);
+        moyenPaiementRepository.save(moyenPaiementBO);
 
         DemandeDTO demandeDTO = new DemandeDTO();
         ContenuTestDTO contenuTestDTO = new ContenuTestDTO();

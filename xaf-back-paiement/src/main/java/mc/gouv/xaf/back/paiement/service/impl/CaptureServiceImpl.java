@@ -2,6 +2,7 @@ package mc.gouv.xaf.back.paiement.service.impl;
 
 import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -71,8 +72,8 @@ public class CaptureServiceImpl implements CaptureService {
         String numeroPermis = data.getValue();
         LOGGER.info("Permis n° : {}", numeroPermis);
 
-        HashMap<String, Double> objetMontants = montantService.getPaiements(demandeDTO);
-        double prix = montantService.getMontant(objetMontants);
+        HashMap<String, BigDecimal> objetMontants = montantService.getPaiements(demandeDTO);
+        double prix = montantService.getMontant(objetMontants).doubleValue();
         operation.setMontant(prix);
 
 

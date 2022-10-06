@@ -3,6 +3,7 @@ package mc.gouv.xaf.back.paiement.service.itg.cir;
 import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
 
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.Proxy;
 import java.text.ParseException;
@@ -23,6 +24,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import mc.gouv.xaf.back.paiement.service.MontantService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.HttpResponseException;
 import org.glassfish.jersey.client.ClientConfig;
@@ -76,6 +78,7 @@ public class CirApiApiClient implements FactureApiClient {
     private AfBackUtils afBackUtils;
     private PropertiesService propertiesService;
     private GouvPropertiesResolver gouvPropertiesResolver;
+    private MontantService montantService;
 
     public CirApiApiClient(Proxy proxy,
                            PaiementPropertiesResolver paiementPropertiesResolver,
@@ -83,7 +86,8 @@ public class CirApiApiClient implements FactureApiClient {
                            MailService mailService,
                            AfBackUtils afBackUtils,
                            PropertiesService propertiesService,
-                           GouvPropertiesResolver gouvPropertiesResolver) {
+                           GouvPropertiesResolver gouvPropertiesResolver,
+                           MontantService montantService) {
         String serviceUrl = paiementPropertiesResolver.getFactureUrl();
         ClientConfig config = new ClientConfig();
 
@@ -103,6 +107,7 @@ public class CirApiApiClient implements FactureApiClient {
         this.afBackUtils = afBackUtils;
         this.propertiesService = propertiesService;
         this.gouvPropertiesResolver = gouvPropertiesResolver;
+        this.montantService = montantService;
     }
 
     @Override
@@ -122,22 +127,20 @@ public class CirApiApiClient implements FactureApiClient {
 
 
     @Override
-    public Optional<String> createFacture(String numPermis, String numImmat, Double montant, String codeTransaction, InformationFacturationDTO infoFacturation, HashMap<String, Double> objetMontants, DemandeDTO demandeDTO, CommandeOperationDTO commandeOperationDto) {
+    public Optional<String> createFacture(String numPermis, String numImmat, Double montant, String codeTransaction, InformationFacturationDTO infoFacturation, HashMap<String, BigDecimal> objetMontants, DemandeDTO demandeDTO, CommandeOperationDTO commandeOperationDto) {
         logStartMethod(LOGGER);
         LOGGER.info("Parameters [ numPermis {}, numImmat {},  codeTransaction {}] ", numPermis, numImmat, codeTransaction);
 
         List<CirRequestDTO> cirRequestDTOS = new ArrayList<>();
 
         // Récupération des propriétés
-        double prix = paiementPropertiesResolver.getTarifEchange();
         String tpe = paiementPropertiesResolver.getTpe();
         int registre = paiementPropertiesResolver.getRegistre();
         String codePaiement = paiementPropertiesResolver.getCodePaiement();
-        String codeEchange = paiementPropertiesResolver.getCodeEchange();
-        String codePermisInternational = paiementPropertiesResolver.getCodePermisInternational();
 
-        for (Map.Entry<String, Double> entry : objetMontants.entrySet()) {
-            Double montantObjet = entry.getValue();
+        for (Map.Entry<String, BigDecimal> entry : objetMontants.entrySet()) {
+            double montantObjet = entry.getValue().doubleValue();
+            String montantKey = entry.getKey();
 
             CirRequestDTO request = new CirRequestDTO();
             request.setNumTpe(tpe);
@@ -156,7 +159,7 @@ public class CirApiApiClient implements FactureApiClient {
             // si plusieurs prenom sur mconnect, prendre le 1er (xavier,guillaume prendre xavier) + enlever les accents
             request.setPrenomPropr(StringUtils.stripAccents(infoFacturation.getPrenomTitulaire().toUpperCase().split(",")[0]));
             request.setEmail(infoFacturation.getEmailUsager());
-            request.setCodeOperation(montantObjet == prix ? codeEchange : codePermisInternational);
+            request.setCodeOperation(montantService.getCodeFacturation(montantKey));
             request.setCodeTransaction(codeTransaction);
             request.setCodeReglement(codePaiement);
             request.setAutorisation("" + commandeOperationDto.getNumeroAutorisation());

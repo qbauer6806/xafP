@@ -30,7 +30,7 @@ public class PaiementPropertiesResolverImpl implements PaiementPropertiesResolve
 
     private static final String XAF_CODE_PAIEMENT = "XAF_CODE_PAIEMENT";
     private static final String XAF_CODE_ECHANGE = "XAF_CODE_ECHANGE";
-    private static final String XAF_TARIF_ECHANGE = "XAF_PAIEMENT_AMOUNT"; // TODO à changer après màj wysiwyg
+    private static final String XAF_TARIF_ECHANGE = "XAF_TARIF_ECHANGE";
     private static final String XAF_CODE_P_INTER = "XAF_CODE_P_INTER";
 
     private static final String XAF_RETRY_INITIAL_DELAY = "XAF_RETRY_INITIAL_DELAY";

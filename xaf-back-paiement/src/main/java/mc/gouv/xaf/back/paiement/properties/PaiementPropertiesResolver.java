@@ -56,10 +56,4 @@ public interface PaiementPropertiesResolver {
 
     String getCodePaiement();
 
-    String getCodeEchange();
-
-    double getTarifEchange();
-
-    String getCodePermisInternational();
-
 }

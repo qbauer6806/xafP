@@ -6,6 +6,7 @@ import mc.gouv.xaf.back.paiement.dto.itg.cir.PermisDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Optional;
 
@@ -13,7 +14,7 @@ public interface FactureApiClient {
 
     String check(String numFacture);
 
-    Optional<String> createFacture(String numPermis, String numImmat, Double montant, String codeTransaction, InformationFacturationDTO infoFacturation, HashMap<String, Double> objetMontants, DemandeDTO demandeDTO, CommandeOperationDTO operationdto);
+    Optional<String> createFacture(String numPermis, String numImmat, Double montant, String codeTransaction, InformationFacturationDTO infoFacturation, HashMap<String, BigDecimal> objetMontants, DemandeDTO demandeDTO, CommandeOperationDTO operationdto);
 
     Optional<InputStream> getFacture(String numFacture, DemandeDTO demandeDTO) throws Exception;
 

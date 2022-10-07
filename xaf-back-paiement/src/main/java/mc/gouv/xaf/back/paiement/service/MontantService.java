@@ -2,14 +2,20 @@ package mc.gouv.xaf.back.paiement.service;
 
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.Map;
 
 public interface MontantService {
-    double getMontant(Integer demandeId);
 
-    double getMontant(DemandeDTO demandeDto);
+    BigDecimal getMontant(Integer demandeId);
 
-    double getMontant(HashMap<String, Double> objetMontants);
+    BigDecimal getMontant(DemandeDTO demandeDto);
 
-    HashMap<String, Double> getPaiements(DemandeDTO demandeDto);
+    BigDecimal getMontant(Map<String, BigDecimal> objetMontants);
+
+    HashMap<String, BigDecimal> getPaiements(DemandeDTO demandeDto);
+
+    String getCodeFacturation(String montantKey);
+
 }

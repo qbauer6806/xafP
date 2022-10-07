@@ -6,6 +6,7 @@ import mc.gouv.xaf.back.bpm.model.GouvBPMTask;
 import mc.gouv.xaf.back.bpm.model.GouvBPMUser;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
+import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.paiement.data.dao.*;
 import mc.gouv.xaf.back.paiement.data.entity.*;
@@ -33,6 +34,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
@@ -100,15 +102,28 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
         LOGGER.info("Parameters [ demandesId {}, langue {}, usagerId {} ] ", demandesId, langue, usagerId);
         String codeSociete = iframe ? paiementPropertiesResolver.getXafMoneticoCodeSiteIframe() : paiementPropertiesResolver.getCodeSiteStandard();
         List<Integer> demandesIdList = Stream.of(demandesId.split(",")).map(String::trim).map(Integer::parseInt).collect(Collectors.toList());
-        double montant = 0;
+        HashMap<Integer, BigDecimal> montants = new HashMap<>();
+        HashMap<Integer, DemandeBO> demandes = new HashMap<>();
+        StringJoiner listePkDemandes = new StringJoiner(",");
+        BigDecimal montant = BigDecimal.ZERO;
         for (Integer demandeId : demandesIdList) {
+            Optional<DemandeBO> demandeBOOptional = demandesRepository.findById(demandeId);
+            if (!demandeBOOptional.isPresent()) {
+                throw new DemarchesServiceException("La demande " + demandeId + " est introuvable.", HttpStatus.NOT_FOUND);
+            }
+            DemandeBO demandeBO = demandeBOOptional.get();
+            demandes.put(demandeId, demandeBO);
+            listePkDemandes.add(demandeBO.getIdentifiant());
+
             // TODO Changer le moyen de récupérer le statut d'un paiement
             DemandeDataDTO data = demandesDataService.getDemandeData(demarcheId, demandeId, PaiementDemandeDataKeysEnum.STATUT_PAIEMENT.name());
             if (data != null && StringUtils.equals(data.getValue(), PaiementStatutEnum.EMPREINTE_VALIDE.name())) {
                 throw new DemarchesServiceException("La demande " + demandeId + " a déjà une empreinte bancaire valide.", HttpStatus.CONFLICT);
             }
-            double montantdemande = montantService.getMontant(demandeId);
-            montant += montantdemande;
+
+            BigDecimal montantdemande = montantService.getMontant(DemandesTransformer.bo2Dto(demandeBO, new String[]{}));
+            montants.put(demandeId, montantdemande);
+            montant = montant.add(montantdemande);
         }
 
         LocalDateTime now = LocalDateTime.now();
@@ -117,22 +132,18 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
         MoyenPaiementBO moyenPaiement = new MoyenPaiementBO();
         moyenPaiement.setPkMoyensPaiements(referenceFactoryService.createSimpleReference12Digits());
         commande.setDateCreation(now);
-        commande.setMontantInitial(montant);
-        commande.setMontantRestant(montant);
+        commande.setMontantInitial(montant.doubleValue());
+        commande.setMontantRestant(montant.doubleValue());
         commande.setMontantDejaCapture(0);
         commande.setMoyenPaiement(moyenPaiement);
         commandeRepository.save(commande);
         LOGGER.info("Created [ commande {}] ", commande);
 
-        StringJoiner listePkDemandes = new StringJoiner(",");
-
         for (Integer demandeId : demandesIdList) {
             CommandeDemandeBO commandeDemande = new CommandeDemandeBO();
             commandeDemande.setCommande(commande);
-            DemandeBO demandeBO = demandesRepository.findById(demandeId).orElseThrow(RuntimeException::new);
-            listePkDemandes.add(demandeBO.getIdentifiant());
-            commandeDemande.setDemande(demandeBO);
-            commandeDemande.setMontant(montantService.getMontant(demandeId));
+            commandeDemande.setDemande(demandes.get(demandeId));
+            commandeDemande.setMontant(montants.get(demandeId).doubleValue());
             commandeDemande = commandeDemandeRepository.save(commandeDemande);
             LOGGER.info("Created [ commandeDemande {}] ", commandeDemande);
 

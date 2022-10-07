@@ -1,6 +1,5 @@
 package mc.gouv.xaf.back.paiement;
 
-import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import org.activiti.spring.boot.SecurityAutoConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

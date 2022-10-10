@@ -8,6 +8,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public interface ArchivageService {
 
+    // Faute de temps pour investiguer comment mieux faire, on utilise une variable statique.
+    // Trouver une solution pour sauvegarder en BDD et commiter la transaction hibernate sur des process en parrallèle
     Map<Integer, Double> archivageProgress = new ConcurrentHashMap<>();
 
     /**

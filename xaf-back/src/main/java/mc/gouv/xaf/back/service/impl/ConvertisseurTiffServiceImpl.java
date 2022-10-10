@@ -37,9 +37,6 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ConvertisseurTiffServiceImpl.class);
 
-    private static final int WIDTH = 595;
-    private static final int HEIGHT = 842;
-
     @Autowired
     private FileService fileService;
 

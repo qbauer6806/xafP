@@ -1,7 +1,9 @@
 package mc.gouv.xaf.back.service.itg.rio.impl;
 
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.rio.RioApiClient;
+import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.itg.rio.RioDocumentDTO;
 import mc.gouv.xaf.shared.dto.itg.rio.RioDocumentRequestDTO;
 import mc.gouv.xaf.shared.dto.itg.rio.RioFileDocumentDTO;
@@ -48,10 +50,21 @@ public class RioApiClientImpl implements RioApiClient {
     @Autowired
     private RestTemplateBuilder restTemplateBuilder;
 
+    @Autowired
+    private PropertiesService propertiesService;
+
     @PostConstruct
     @SuppressWarnings("squid:S2696")
     private void setUp() {
-        url = gouvPropertiesResolver.getApiRioUrl();
+        // Je simule que l'url est non valide pour générer des erreurs sur les appels à RIO
+        // TODO To remove after testing
+        PropertiesDTO errorProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "TEMP_FAIL_RIO");
+        if (errorProp != null && "true".equals(errorProp.getValue()) ) {
+            String rioUrl = gouvPropertiesResolver.getApiRioUrl();
+            url = "nonvalide" + rioUrl;
+        } else {
+            url = gouvPropertiesResolver.getApiRioUrl();
+        }
         jwt = gouvPropertiesResolver.getApiRioJwt();
     }
 

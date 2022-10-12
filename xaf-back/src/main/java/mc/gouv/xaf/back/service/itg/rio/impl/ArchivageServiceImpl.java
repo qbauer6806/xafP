@@ -59,11 +59,6 @@ public class ArchivageServiceImpl implements ArchivageService {
         LOGGER.info("Vérification de l'existence du document");
         RioDocumentDTO rioDocumentDTO = new RioDocumentDTO();
         try{
-            // TODO To remove after testing
-            PropertiesDTO errorProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "TEMP_FAIL_RIO");
-            if (errorProp != null && "true".equals(errorProp.getValue()) ) {
-                throw new Exception();
-            }
             try {
                 rioDocumentDTO = rioService.getDocument(refPermis);
             } catch (HttpServerErrorException e) {

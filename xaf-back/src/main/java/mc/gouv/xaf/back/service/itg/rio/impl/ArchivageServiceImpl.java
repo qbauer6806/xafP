@@ -31,8 +31,6 @@ public class ArchivageServiceImpl implements ArchivageService {
 
     private static Logger LOGGER = LoggerFactory.getLogger(ArchivageServiceImpl.class);
 
-    private SimpleDateFormat simpleDateTimeFormat = new SimpleDateFormat("dd/MM/yyyy:HH:mm:ss");
-
     @Autowired
     private PropertiesService propertiesService;
 
@@ -41,9 +39,6 @@ public class ArchivageServiceImpl implements ArchivageService {
 
     @Autowired
     private MailService mailService;
-
-    @Autowired
-    private AfBackUtils afBackUtils;
 
     @Autowired
     private ConvertisseurTiffService convertisseurTiffService;
@@ -130,58 +125,17 @@ public class ArchivageServiceImpl implements ArchivageService {
     private void sendMailProblemeConvertisseur(int demandeId) {
         String subjectTemplateCode = "MAIL_ECHEC_CONVERTISSEUR_OBJET";
         String bodyTemplateCode = "MAIL_ECHEC_CONVERTISSEUR_CORPS";
-        List<String> list = getMailingLists(MailSupportEnum.XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE.name(),
+        List<String> list = mailService.getMailingLists(MailSupportEnum.XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE.name(),
                 MailSupportEnum.XAF_ADRESSES_MAIL_ADMIN_METIER.name());
-        sendMailArchivage(subjectTemplateCode, bodyTemplateCode, demandeId, 8, list);
+        mailService.sendMailSupport(subjectTemplateCode, bodyTemplateCode, list, demandeId, 8, null);
     }
 
     private void sendMailProblemeRIO(int demandeId) {
         String subjectTemplateCode = "MAIL_RIO_ECHEC_ARCHIVAGE_OBJET";
         String bodyTemplateCode = "MAIL_RIO_ECHEC_ARCHIVAGE_CORPS";
-        List<String> list = getMailingLists(MailSupportEnum.XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE.name(),
+        List<String> list = mailService.getMailingLists(MailSupportEnum.XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE.name(),
                 MailSupportEnum.XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE_RIO.name(),
                 MailSupportEnum.XAF_ADRESSES_MAIL_ADMIN_METIER.name());
-        sendMailArchivage(subjectTemplateCode, bodyTemplateCode, demandeId, 9, list);
-    }
-
-    private void sendMailArchivage(String subjectTemplateCode, String bodyTemplateCode, int demandeId, int incident, List<String> mailingLists) {
-        Date date = new Date(System.currentTimeMillis());
-        String dateTimeString = simpleDateTimeFormat.format(date);
-
-        EmailInfoDTO emailInfo = new EmailInfoDTO();
-        emailInfo.setLangue("fr");
-        emailInfo.setBodyTemplateCode(bodyTemplateCode);
-        emailInfo.setSubjectTemplateCode(subjectTemplateCode);
-        emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(), afBackUtils.getDemarcheInfos().getEmailFromNom());
-        emailInfo.setReplyto(afBackUtils.getDemarcheInfos().getEmailReplyto(), afBackUtils.getDemarcheInfos().getEmailReplytoNom());
-        emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, demandeId + "");
-
-        for(String mailingList : mailingLists) {
-            String[] adresses = mailingList.trim().split(",");
-            for (String adresseMail : adresses) {
-                emailInfo.addTo(adresseMail, "Support Technique");
-            }
-        }
-
-        Map<String, Object> model = new HashMap<>();
-        model.put("incident", incident);
-        model.put("dateTimeString", dateTimeString);
-        model.put("Pkdemandes", demandeId);
-        try {
-            mailService.sendMail(emailInfo, model);
-        } catch (Exception e) {
-            LOGGER.error("Erreur lors de l'envoi de l'email", e);
-        }
-    }
-
-    private List<String> getMailingLists(String... mailingListProps) {
-        List<String> list = new ArrayList<>();
-        for(String mailProp : mailingListProps) {
-            PropertiesDTO mailProperty = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), mailProp);
-            if (mailProperty != null && StringUtils.isNotBlank(mailProperty.getValue())) {
-                list.add(mailProperty.getValue());
-            }
-        }
-        return list;
+        mailService.sendMailSupport(subjectTemplateCode, bodyTemplateCode, list, demandeId, 9, null);
     }
 }

@@ -25,8 +25,6 @@ import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
 public class PermisServiceImpl implements PermisService {
     private final static Logger LOGGER = LoggerFactory.getLogger(PermisServiceImpl.class);
 
-    private SimpleDateFormat simpleDateTimeFormat = new SimpleDateFormat("dd/MM/yyyy:HH:mm:ss");
-
     @Autowired
     private FactureApiClient factureApiClient;
 
@@ -35,9 +33,6 @@ public class PermisServiceImpl implements PermisService {
 
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
-
-    @Autowired
-    private AfBackUtils afBackUtils;
 
     @Autowired
     private MailService mailService;
@@ -66,49 +61,8 @@ public class PermisServiceImpl implements PermisService {
     private void sendMailProblemeCir(int demandeId) {
         String subjectTemplateCode = "MAIL_ECHEC_CIR_TABLE_PERMIS_OBJET";
         String bodyTemplateCode = "MAIL_ECHEC_CIR_TABLE_PERMIS_CORPS";
-        List<String> list = getMailingLists(MailSupportEnum.XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE.name(),
+        List<String> list = mailService.getMailingLists(MailSupportEnum.XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE.name(),
                 MailSupportEnum.XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE_CIR.name());
-        sendMail(subjectTemplateCode, bodyTemplateCode, demandeId, 5, list);
-    }
-
-    private void sendMail(String subjectTemplateCode, String bodyTemplateCode, int demandeId, int incident, List<String> mailingLists) {
-        Date date = new Date(System.currentTimeMillis());
-        String dateTimeString = simpleDateTimeFormat.format(date);
-
-        EmailInfoDTO emailInfo = new EmailInfoDTO();
-        emailInfo.setLangue("fr");
-        emailInfo.setBodyTemplateCode(bodyTemplateCode);
-        emailInfo.setSubjectTemplateCode(subjectTemplateCode);
-        emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(), afBackUtils.getDemarcheInfos().getEmailFromNom());
-        emailInfo.setReplyto(afBackUtils.getDemarcheInfos().getEmailReplyto(), afBackUtils.getDemarcheInfos().getEmailReplytoNom());
-        emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, demandeId + "");
-
-        for(String mailingList : mailingLists) {
-            String[] adresses = mailingList.trim().split(",");
-            for (String adresseMail : adresses) {
-                emailInfo.addTo(adresseMail, "Support Technique");
-            }
-        }
-
-        Map<String, Object> model = new HashMap<>();
-        model.put("incident", incident);
-        model.put("dateTimeString", dateTimeString);
-        model.put("Pkdemandes", demandeId);
-        try {
-            mailService.sendMail(emailInfo, model);
-        } catch (Exception e) {
-            LOGGER.error("Erreur lors de l'envoi de l'email", e);
-        }
-    }
-
-    private List<String> getMailingLists(String... mailingListProps) {
-        List<String> list = new ArrayList<>();
-        for(String mailProp : mailingListProps) {
-            PropertiesDTO mailProperty = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), mailProp);
-            if (mailProperty != null && StringUtils.isNotBlank(mailProperty.getValue())) {
-                list.add(mailProperty.getValue());
-            }
-        }
-        return list;
+        mailService.sendMailSupport(subjectTemplateCode, bodyTemplateCode, list, demandeId, 5, null);
     }
 }

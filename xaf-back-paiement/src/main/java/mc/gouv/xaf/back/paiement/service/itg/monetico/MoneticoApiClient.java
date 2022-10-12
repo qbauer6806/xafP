@@ -113,9 +113,9 @@ public class MoneticoApiClient implements PaiementApiClient {
                         moyenPaiementDTO.getPkMoyenPaiements(), dateCapture, dateCommande, moyenPaiementDTO.getCodeSociete(), version);
 
                 // Permet de désactiver la capture en simulant une erreur d'opération.
-                PropertiesDTO captureActive = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_ACTIVATION_CAPTURE_PAIEMENT);
-                LOGGER.info("capture_active: {}", captureActive != null ? captureActive.getValue() : "true");
-                if (captureActive != null && !Boolean.parseBoolean(captureActive.getValue())) {
+                // TODO To remove after testing
+                PropertiesDTO errorProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "TEMP_FAIL_CAPTURE_PAIEMENT");
+                if (errorProp != null && "true".equals(errorProp.getValue()) ) {
                     // On met le statut 400 pour éviter de faire plusieurs tentatives
                     throw new HttpResponseException(Response.Status.BAD_REQUEST.getStatusCode(), "Capture du paiement désactivé");
                 }

@@ -1,6 +1,7 @@
 package mc.gouv.xaf.back.service.itg.mail;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.velocity.exception.MethodInvocationException;
@@ -52,5 +53,24 @@ public interface MailService {
 	 * @return
 	 */
 	public String formatCommentaire(String commentaire);
+
+
+	/**
+	 * Envois un mail typé support
+	 * @param subjectTemplateCode objet tu mail
+	 * @param bodyTemplateCode corps du mail
+	 * @param mailingLists liste de emails à envoyer
+	 * @param demandeId demande id
+	 * @param incident numéro incident (peut être nul)
+	 * @param modelAdd model éventuel à rajouter (peut être nul)
+	 */
+	void sendMailSupport(String subjectTemplateCode, String bodyTemplateCode, List<String> mailingLists, int demandeId, int incident, Map<String, Object> modelAdd);
+
+	/**
+	 * Permet de récupérer une liste d'emails à partir d'une ou plusieurs propriétés (liste de mails)
+	 * @param mailingListProps Clés des propriétés
+	 * @return Liste concaténée de mails à partir de propriétés
+	 */
+	List<String> getMailingLists(String... mailingListProps);
 
 }

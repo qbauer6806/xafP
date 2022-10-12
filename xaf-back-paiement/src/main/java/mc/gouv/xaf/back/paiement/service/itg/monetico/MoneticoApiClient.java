@@ -111,9 +111,9 @@ public class MoneticoApiClient implements PaiementApiClient {
                         paiementPropertiesResolver.getCaptureUrl(), getTpe(), montant, montantACapturer, montantDejaCapture, montantRestant, moyenPaiementDTO.getLangue(),
                         moyenPaiementDTO.getPkMoyenPaiements(), dateCapture, dateCommande, moyenPaiementDTO.getCodeSociete(), version);
 
-                // Permet de désactiver la capture en simulant une erreur d'opération.
+                // Permet de désactiver la capture en simulant monetico injoignable
                 // TODO To remove after testing
-                PropertiesDTO errorProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "TEMP_FAIL_CAPTURE_PAIEMENT");
+                PropertiesDTO errorProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "TEMP_FAIL_CAPTURE_PAIEMENT_MONETICO_INJOIGNABLE");
                 if (errorProp != null && "true".equals(errorProp.getValue()) ) {
                     // On met le statut 400 pour éviter de faire plusieurs tentatives
                     throw new HttpResponseException(Response.Status.BAD_REQUEST.getStatusCode(), "Capture du paiement désactivé");
@@ -137,7 +137,11 @@ public class MoneticoApiClient implements PaiementApiClient {
                 setResult(responseString);
                 extractResult(responseString, commandeOperationDTO);
 
-                if (!OperationStatutEnum.ACCEPTEE.name().equals(commandeOperationDTO.getOperationStatut())) {
+
+                // Permet de désactiver la capture en simulant un code retour -1
+                // TODO To remove after testing
+                PropertiesDTO errorProp2 = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "TEMP_FAIL_CAPTURE_PAIEMENT_MONETICO_CODE_RETOUR");
+                if (!OperationStatutEnum.ACCEPTEE.name().equals(commandeOperationDTO.getOperationStatut()) || (errorProp2 != null && "true".equals(errorProp2.getValue()))) {
                     throw new HttpResponseException(response.getStatus(), "Operation non acceptee");
                 }
             }

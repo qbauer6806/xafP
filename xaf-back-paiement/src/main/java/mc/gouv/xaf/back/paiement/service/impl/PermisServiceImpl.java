@@ -43,12 +43,6 @@ public class PermisServiceImpl implements PermisService {
 
         PermisDTO permisDTO;
         try {
-            // TODO To remove after testing
-            PropertiesDTO errorProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "TEMP_FAIL_CIR_TABLE_PERMIS");
-            if (errorProp != null && "true".equals(errorProp.getValue()) ) {
-                throw new Exception();
-            }
-
             permisDTO = factureApiClient.getPermis(numPermis).get();
         } catch (Exception e) {
             sendMailProblemeCir(pkDemande);

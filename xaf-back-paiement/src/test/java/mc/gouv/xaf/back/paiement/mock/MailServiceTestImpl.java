@@ -8,6 +8,7 @@ import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -26,4 +27,16 @@ public class MailServiceTestImpl implements MailService {
     public String formatCommentaire(String commentaire) {
         return null;
     }
+
+    @Override
+    public void sendMailSupport(String subjectTemplateCode, String bodyTemplateCode, List<String> mailingLists, int demandeId, int incident, Map<String, Object> modelAdd) {
+
+    }
+
+    @Override
+    public List<String> getMailingLists(String... mailingListProps) {
+        return null;
+    }
+
+
 }

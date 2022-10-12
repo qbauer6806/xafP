@@ -60,7 +60,6 @@ public class MoneticoApiClient implements PaiementApiClient {
     private static SimpleDateFormat simpleDateTimeFormat = new SimpleDateFormat("dd/MM/yyyy:HH:mm:ss");
     DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy:HH:mm:ss");
-    private static String XAF_ACTIVATION_CAPTURE_PAIEMENT = "XAF_ACTIVATION_CAPTURE_PAIEMENT";
 
     public MoneticoApiClient(Proxy proxy,
                              PaiementPropertiesResolver paiementPropertiesResolver,

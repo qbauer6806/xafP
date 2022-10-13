@@ -1,6 +1,7 @@
 package mc.gouv.xaf.back.paiement.service.itg.cir;
 
 import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
+import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logEndMethod;
 
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -217,6 +218,7 @@ public class CirApiApiClient implements FactureApiClient {
                 }
                 InputStream inputStream = response.readEntity(InputStream.class);
                 setResult(inputStream);
+                logEndMethod(getLogger());
 
             }
 
@@ -228,6 +230,7 @@ public class CirApiApiClient implements FactureApiClient {
 
         try {
             operationHelper.executeWithRetry(operation);
+            logEndMethod(LOGGER);
             return operation.getResult();
         } catch (Exception e) {
             sendMailTechnique(demandeDTO, operation, 7);
@@ -256,9 +259,8 @@ public class CirApiApiClient implements FactureApiClient {
                 }
                 PermisDTO permisDTO = response.readEntity(PermisDTO.class);
                 setResult(permisDTO);
-
+                logEndMethod(getLogger());
             }
-
             @Override
             public Logger getLogger() {
                 return LOGGER;
@@ -266,6 +268,7 @@ public class CirApiApiClient implements FactureApiClient {
         };
 
         operationHelper.executeWithRetry(operation);
+        logEndMethod(LOGGER);
         return operation.getResult();
     }
 

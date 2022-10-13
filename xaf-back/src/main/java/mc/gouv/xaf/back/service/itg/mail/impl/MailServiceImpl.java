@@ -196,7 +196,9 @@ public class MailServiceImpl implements MailService {
         model.put("incident", incident);
         model.put("dateTimeString", dateTimeString);
         model.put("Pkdemandes", demandeId);
-        model.putAll(modelAdd);
+        if(modelAdd != null) {
+            model.putAll(modelAdd);
+        }
         try {
             sendMail(emailInfo, model);
         } catch (Exception e) {

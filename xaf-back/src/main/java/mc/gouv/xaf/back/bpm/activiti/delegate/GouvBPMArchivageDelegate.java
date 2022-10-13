@@ -102,7 +102,7 @@ public class GouvBPMArchivageDelegate implements JavaDelegate {
                 }
                 fichiers = fichiersTries;
             }
-            List<DemandeFileDTO> fichiersArchives = archivageService.archivageDocuments(reference, fichiers, demandeId);
+            List<DemandeFileDTO> fichiersArchives = archivageService.archivageDocuments(reference, fichiers, demandeDto);
 
             int differenceFichiersArchives = fichiers.size() - fichiersArchives.size();
             if (differenceFichiersArchives > 0) {

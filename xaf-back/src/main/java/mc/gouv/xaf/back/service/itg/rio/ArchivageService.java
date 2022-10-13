@@ -1,5 +1,6 @@
 package mc.gouv.xaf.back.service.itg.rio;
 
+import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 
 import java.util.List;
@@ -20,5 +21,5 @@ public interface ArchivageService {
      * @param demandeId PK demande
      * @return Liste des fichiers archivés
      */
-    List<DemandeFileDTO> archivageDocuments(String refPermis, List<DemandeFileDTO> files, int demandeId);
+    List<DemandeFileDTO> archivageDocuments(String refPermis, List<DemandeFileDTO> files, DemandeDTO demandeDTO);
 }

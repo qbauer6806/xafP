@@ -56,15 +56,7 @@ public class RioApiClientImpl implements RioApiClient {
     @PostConstruct
     @SuppressWarnings("squid:S2696")
     private void setUp() {
-        // Je simule que l'url est non valide pour générer des erreurs sur les appels à RIO
-        // TODO To remove after testing
-        PropertiesDTO errorProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "TEMP_FAIL_RIO");
-        if (errorProp != null && "true".equals(errorProp.getValue()) ) {
-            String rioUrl = gouvPropertiesResolver.getApiRioUrl();
-            url = "nonvalide" + rioUrl;
-        } else {
-            url = gouvPropertiesResolver.getApiRioUrl();
-        }
+        url = gouvPropertiesResolver.getApiRioUrl();
         jwt = gouvPropertiesResolver.getApiRioJwt();
     }
 
@@ -214,6 +206,14 @@ public class RioApiClientImpl implements RioApiClient {
     }
 
     private RestTemplate getRestTemplate() {
+        // Je simule que l'url est non valide pour générer des erreurs sur les appels à RIO
+        // TODO To remove after testing
+        String url = this.url;
+        PropertiesDTO errorProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "TEMP_FAIL_RIO");
+        if (errorProp != null && "true".equals(errorProp.getValue()) ) {
+            throw new RuntimeException();
+        }
+
         RestTemplate rest = restTemplateBuilder.build();
         rest.getMessageConverters().add(new StringHttpMessageConverter(StandardCharsets.UTF_8));
         rest.getMessageConverters().add(new MappingJackson2HttpMessageConverter());

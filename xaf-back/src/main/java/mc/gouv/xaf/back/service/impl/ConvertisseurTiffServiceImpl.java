@@ -3,9 +3,11 @@ package mc.gouv.xaf.back.service.impl;
 import fr.opensagres.poi.xwpf.converter.pdf.PdfConverter;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.ConvertisseurTiffService;
+import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.utils.DitheringUtils;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
+import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -43,6 +45,9 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
 
+    @Autowired
+    private PropertiesService propertiesService;
+
     public Map<String, InputStream> generateTiffs(List<DemandeFileDTO> files) throws IOException {
         Map<String, InputStream> fileMap = new HashMap<>();
         for (DemandeFileDTO file : files) {
@@ -52,6 +57,12 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
     }
 
     public Map<String, InputStream> generateTiffs(DemandeFileDTO file) throws IOException {
+
+        // TODO To remove after testing
+        PropertiesDTO errorProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "TEMP_FAIL_CONVERTISSEUR");
+        if (errorProp != null && "true".equals(errorProp.getValue()) ) {
+            throw new IOException();
+        }
 
         // Récupération du fichier dans file
         String filePathEncoded = URLEncoder.encode(file.getUrl(), "UTF-8");

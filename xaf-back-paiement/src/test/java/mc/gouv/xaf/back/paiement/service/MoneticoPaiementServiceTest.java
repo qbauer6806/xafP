@@ -2,6 +2,7 @@ package mc.gouv.xaf.back.paiement.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.lang.Assert;
 import mc.gouv.xaf.back.data.dao.AccessRepository;
 import mc.gouv.xaf.back.data.dao.DemandesDataRepository;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
@@ -12,6 +13,9 @@ import mc.gouv.xaf.back.data.entity.DemandesDataBO;
 import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.paiement.data.dao.*;
+import mc.gouv.xaf.back.paiement.data.entity.CommandeBO;
+import mc.gouv.xaf.back.paiement.data.entity.CommandeDemandeArticleBO;
+import mc.gouv.xaf.back.paiement.data.entity.CommandeDemandeBO;
 import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
 import mc.gouv.xaf.back.paiement.data.enums.MoyenPaiementStatutEnum;
 import mc.gouv.xaf.back.paiement.dto.*;
@@ -22,8 +26,8 @@ import mc.gouv.xaf.back.paiement.service.itg.MoneticoPaiementService;
 import mc.gouv.xaf.back.paiement.service.itg.PaiementSecurityService;
 import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
 import mc.gouv.xaf.shared.dto.itg.monetico.MoneticoResponseDTO;
+import org.hibernate.Hibernate;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +35,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.transaction.Transactional;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -58,6 +63,9 @@ public class MoneticoPaiementServiceTest {
     private CommandeDemandeRepository commandeDemandeRepository;
 
     @Autowired
+    private CommandeDemandeArticleRepository commandeDemandeArticleRepository;
+
+    @Autowired
     private DemandesStatutsRepository demandesStatutsRepository;
 
     @Autowired
@@ -80,6 +88,7 @@ public class MoneticoPaiementServiceTest {
         paiementHistoriqueRepository.deleteAll();
         commandeOperationRepository.deleteAll();
         moyenPaiementRepository.deleteAll();
+        commandeDemandeArticleRepository.deleteAll();
         commandeDemandeRepository.deleteAll();
         commandeRepository.deleteAll();
         demandesRepository.deleteAll();
@@ -88,6 +97,7 @@ public class MoneticoPaiementServiceTest {
     }
 
     @Test
+    @Transactional
     public void createOk() {
         AccessBO accessBO = new AccessBO();
         accessBO.setActive(true);
@@ -132,7 +142,7 @@ public class MoneticoPaiementServiceTest {
         PaiementDTO paiementDTO = moneticoPaiementService.create(demandesId, langue, 1, true);
 
         assertThat(paiementDTO.getReference()).hasSize(12);
-        assertThat(paiementDTO.getMontant()).isEqualTo("160EUR");
+        assertThat(paiementDTO.getMontant()).isEqualTo("160.0EUR");
 
         Optional<MoyenPaiementBO> moyenPaiementOptional = moyenPaiementRepository.findById(paiementDTO.getReference());
         if (moyenPaiementOptional.isPresent()) {
@@ -142,6 +152,17 @@ public class MoneticoPaiementServiceTest {
             fail("Le moyen de paiement avec la référence " + paiementDTO.getReference() + " n'a pas été généré !");
         }
 
+        List<CommandeBO> commandeBOS = commandeRepository.findAll();
+        Assert.notEmpty(commandeBOS);
+        CommandeBO commandeBO = commandeBOS.get(0);
+        Hibernate.initialize(commandeBO.getCommandesDemandes());
+        List<CommandeDemandeBO> commandeDemandeBOS = commandeBO.getCommandesDemandes();
+        Assert.notEmpty(commandeDemandeBOS);
+        for (CommandeDemandeBO cdBO : commandeDemandeBOS) {
+            Hibernate.initialize(cdBO.getCommandesDemandesArticles());
+            List<CommandeDemandeArticleBO> articleBOS = cdBO.getCommandesDemandesArticles();
+            Assert.notEmpty(articleBOS);
+        }
     }
 
     @Test

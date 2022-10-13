@@ -1,6 +1,6 @@
 package mc.gouv.xaf.back.paiement.client.cir;
 
-
+import mc.gouv.xaf.back.paiement.dto.CommandeDemandeArticleDTO;
 import mc.gouv.xaf.back.paiement.dto.InformationFacturationDTO;
 import mc.gouv.xaf.back.paiement.mock.PaiementPropertiesResolverTestImpl;
 import mc.gouv.xaf.back.paiement.retry.OperationHelper;
@@ -9,14 +9,14 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.InputStream;
-import java.math.BigDecimal;
 import java.net.Proxy;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CirApiClientTest {
 
     CirApiApiClient cirApiClient = new CirApiApiClient(Proxy.NO_PROXY, new PaiementPropertiesResolverTestImpl(),
-            new OperationHelper(new PaiementPropertiesResolverTestImpl()), null, null, null, null, null);
+            new OperationHelper(new PaiementPropertiesResolverTestImpl()), null, null, null, null);
 
 
     @Test
@@ -25,13 +25,16 @@ public class CirApiClientTest {
         String numPermis = "292093";
         String numImmat = " ";
         String codeTransaction = "1591658";
-        HashMap<String, BigDecimal> objetMontants = new HashMap<>();
-        objetMontants.put("a", BigDecimal.valueOf(90.0));
+        CommandeDemandeArticleDTO articleDTO = new CommandeDemandeArticleDTO();
+        articleDTO.setCodeTarif("a");
+        articleDTO.setMontant(90.0);
+        List<CommandeDemandeArticleDTO> articles = new ArrayList<>();
+        articles.add(articleDTO);
         InformationFacturationDTO infoFacturation = new InformationFacturationDTO();
         infoFacturation.setNomTitulaire("Nom");
         infoFacturation.setPrenomTitulaire("Prenom");
         infoFacturation.setEmailUsager("mail");
-        String resultat = cirApiClient.createFacture(numPermis, numImmat, 90.0, codeTransaction, infoFacturation, objetMontants, null, null).get();
+        String resultat = cirApiClient.createFacture(numPermis, numImmat, 90.0, codeTransaction, infoFacturation, articles, null, null).get();
         System.out.println(resultat);
     }
 

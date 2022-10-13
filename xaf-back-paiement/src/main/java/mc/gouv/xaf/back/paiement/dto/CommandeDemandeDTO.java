@@ -2,6 +2,8 @@ package mc.gouv.xaf.back.paiement.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.util.List;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CommandeDemandeDTO {
 
@@ -12,6 +14,8 @@ public class CommandeDemandeDTO {
     private Integer fkDemandes;
 
     private Double montant;
+
+    private List<CommandeDemandeArticleDTO> commandeDemandeArticles;
 
     public Integer getPkCommandeDemandes() {
         return pkCommandeDemandes;
@@ -43,5 +47,13 @@ public class CommandeDemandeDTO {
 
     public void setMontant(Double montant) {
         this.montant = montant;
+    }
+
+    public List<CommandeDemandeArticleDTO> getCommandeDemandeArticles() {
+        return commandeDemandeArticles;
+    }
+
+    public void setCommandeDemandeArticles(List<CommandeDemandeArticleDTO> commandeDemandeArticles) {
+        this.commandeDemandeArticles = commandeDemandeArticles;
     }
 }

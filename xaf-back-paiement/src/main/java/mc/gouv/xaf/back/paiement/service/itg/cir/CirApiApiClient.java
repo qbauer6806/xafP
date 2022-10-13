@@ -3,12 +3,10 @@ package mc.gouv.xaf.back.paiement.service.itg.cir;
 import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
 
 import java.io.InputStream;
-import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.Proxy;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -24,8 +22,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import mc.gouv.xaf.back.paiement.service.MontantService;
-import org.apache.commons.lang3.StringUtils;
+import mc.gouv.xaf.back.paiement.dto.CommandeDemandeArticleDTO;
 import org.apache.http.client.HttpResponseException;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.HttpUrlConnectorProvider;
@@ -78,7 +75,6 @@ public class CirApiApiClient implements FactureApiClient {
     private AfBackUtils afBackUtils;
     private PropertiesService propertiesService;
     private GouvPropertiesResolver gouvPropertiesResolver;
-    private MontantService montantService;
 
     public CirApiApiClient(Proxy proxy,
                            PaiementPropertiesResolver paiementPropertiesResolver,
@@ -86,8 +82,7 @@ public class CirApiApiClient implements FactureApiClient {
                            MailService mailService,
                            AfBackUtils afBackUtils,
                            PropertiesService propertiesService,
-                           GouvPropertiesResolver gouvPropertiesResolver,
-                           MontantService montantService) {
+                           GouvPropertiesResolver gouvPropertiesResolver) {
         String serviceUrl = paiementPropertiesResolver.getFactureUrl();
         ClientConfig config = new ClientConfig();
 
@@ -107,7 +102,6 @@ public class CirApiApiClient implements FactureApiClient {
         this.afBackUtils = afBackUtils;
         this.propertiesService = propertiesService;
         this.gouvPropertiesResolver = gouvPropertiesResolver;
-        this.montantService = montantService;
     }
 
     @Override
@@ -127,7 +121,7 @@ public class CirApiApiClient implements FactureApiClient {
 
 
     @Override
-    public Optional<String> createFacture(String numPermis, String numImmat, Double montant, String codeTransaction, InformationFacturationDTO infoFacturation, HashMap<String, BigDecimal> objetMontants, DemandeDTO demandeDTO, CommandeOperationDTO commandeOperationDto) {
+    public Optional<String> createFacture(String numPermis, String numImmat, double montant, String codeTransaction, InformationFacturationDTO infoFacturation, List<CommandeDemandeArticleDTO> articles, DemandeDTO demandeDTO, CommandeOperationDTO commandeOperationDto) {
         logStartMethod(LOGGER);
         LOGGER.info("Parameters [ numPermis {}, numImmat {},  codeTransaction {}] ", numPermis, numImmat, codeTransaction);
 
@@ -138,10 +132,7 @@ public class CirApiApiClient implements FactureApiClient {
         int registre = paiementPropertiesResolver.getRegistre();
         String codePaiement = paiementPropertiesResolver.getCodePaiement();
 
-        for (Map.Entry<String, BigDecimal> entry : objetMontants.entrySet()) {
-            double montantObjet = entry.getValue().doubleValue();
-            String montantKey = entry.getKey();
-
+        for (CommandeDemandeArticleDTO article : articles) {
             CirRequestDTO request = new CirRequestDTO();
             request.setNumTpe(tpe);
             request.setNumPermis(numPermis);
@@ -154,19 +145,18 @@ public class CirApiApiClient implements FactureApiClient {
 				LOGGER.info("Erreur lors du parsing de la date de creation de l'opération : {}", commandeOperationDto.getPkOperations());
 			}
             request.setMontant(montant);
-            request.setMontantOperation("" + montantObjet);
-            request.setNomPropr(StringUtils.stripAccents(infoFacturation.getNomTitulaire().toUpperCase()));
-            // si plusieurs prenom sur mconnect, prendre le 1er (xavier,guillaume prendre xavier) + enlever les accents
-            request.setPrenomPropr(StringUtils.stripAccents(infoFacturation.getPrenomTitulaire().toUpperCase().split(",")[0]));
+            request.setMontantOperation("" + article.getMontant());
+            request.setNomPropr(infoFacturation.getNomTitulaire());
+            request.setPrenomPropr(infoFacturation.getPrenomTitulaire());
             request.setEmail(infoFacturation.getEmailUsager());
-            request.setCodeOperation(montantService.getCodeFacturation(montantKey));
+            request.setCodeOperation(article.getCodeTarif());
             request.setCodeTransaction(codeTransaction);
             request.setCodeReglement(codePaiement);
             request.setAutorisation("" + commandeOperationDto.getNumeroAutorisation());
             request.setTransactionId(commandeOperationDto.getPkOperations());
-
             cirRequestDTOS.add(request);
         }
+
         Operation<String> operation = new Operation<String>() {
             @Override
             public void execute() throws Exception {

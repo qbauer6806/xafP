@@ -4,11 +4,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
-import mc.gouv.xaf.back.paiement.data.dao.CommandeDemandeRepository;
-import mc.gouv.xaf.back.paiement.data.dao.CommandeRepository;
-import mc.gouv.xaf.back.paiement.data.dao.MoyenPaiementRepository;
-import mc.gouv.xaf.back.paiement.data.dao.CommandeOperationRepository;
+import mc.gouv.xaf.back.paiement.data.dao.*;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeBO;
+import mc.gouv.xaf.back.paiement.data.entity.CommandeDemandeArticleBO;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeDemandeBO;
 import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
 import mc.gouv.xaf.back.paiement.data.enums.MoyenPaiementStatutEnum;
@@ -21,6 +19,8 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -36,6 +36,8 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class CaptureServiceTest {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CaptureServiceTest.class);
 
     @Autowired
     private CaptureService captureService;
@@ -53,12 +55,16 @@ public class CaptureServiceTest {
     private CommandeDemandeRepository commandeDemandeRepository;
 
     @Autowired
+    private CommandeDemandeArticleRepository commandeDemandeArticleRepository;
+
+    @Autowired
     private CommandeOperationRepository commandeOperationRepository;
 
     @Before
     public void cleanData() {
         commandeOperationRepository.deleteAll();
         moyenPaiementRepository.deleteAll();
+        commandeDemandeArticleRepository.deleteAll();
         commandeDemandeRepository.deleteAll();
         commandeRepository.deleteAll();
         demandesRepository.deleteAll();
@@ -75,13 +81,10 @@ public class CaptureServiceTest {
         demandeBO.setDateCreation(new Date());
         demandeBO.setDateDerModif(new Date());
         demandeBO = demandesRepository.save(demandeBO);
-
-        CommandeDemandeBO commandeDemandeBO = new CommandeDemandeBO();
-        commandeDemandeBO.setDemande(demandeBO);
+        LOGGER.info("Created [ demandeBO {}] ", demandeBO);
 
         MoyenPaiementBO moyenPaiementBO = new MoyenPaiementBO();
         moyenPaiementBO.setPkMoyensPaiements("maRef");
-        moyenPaiementBO = moyenPaiementRepository.save(moyenPaiementBO);
 
         CommandeBO commandeBO = new CommandeBO();
         commandeBO.setMontantInitial(100);
@@ -89,20 +92,44 @@ public class CaptureServiceTest {
         commandeBO.setMontantDejaCapture(0);
         commandeBO.setDateCreation(LocalDateTime.now());
         commandeBO.setMoyenPaiement(moyenPaiementBO);
-        List<CommandeDemandeBO> commandeDemandeBOList = new ArrayList<>();
+        commandeBO.setCommandesDemandes(new ArrayList<>());
+        commandeBO = commandeRepository.save(commandeBO);
+        LOGGER.info("Created [ commandeBO {}] ", commandeBO);
+
+        CommandeDemandeBO commandeDemandeBO = new CommandeDemandeBO();
+        commandeDemandeBO.setDemande(demandeBO);
         commandeDemandeBO.setCommande(commandeBO);
-        commandeDemandeBOList.add(commandeDemandeBO);
-        commandeBO.setCommandesDemandes(commandeDemandeBOList);
+        commandeDemandeBO.setMontant(80.0);
+        commandeDemandeBO.setCommandesDemandesArticles(new ArrayList<>());
+        commandeDemandeBO = commandeDemandeRepository.save(commandeDemandeBO);
+        LOGGER.info("Created [ commandeDemandeBO {}] ", commandeDemandeBO);
+
+        List<CommandeDemandeArticleBO> articles = new ArrayList<>();
+        CommandeDemandeArticleBO articleBO = new CommandeDemandeArticleBO();
+        articleBO.setCodeTarif("P1");
+        articleBO.setMontant(80.0);
+        articleBO.setCommandeDemande(commandeDemandeBO);
+        articleBO = commandeDemandeArticleRepository.save(articleBO);
+        LOGGER.info("Created [ articleBO {}] ", articleBO);
+        articles.add(articleBO);
+        commandeDemandeBO.setCommandesDemandesArticles(articles);
+        commandeDemandeBO = commandeDemandeRepository.save(commandeDemandeBO);
+        LOGGER.info("Updated [ commandeDemandeBO {}] ", commandeDemandeBO);
+
+        commandeBO.getCommandesDemandes().add(commandeDemandeBO);
         commandeBO.setOperations(new ArrayList<>());
         commandeBO = commandeRepository.save(commandeBO);
+        LOGGER.info("Updated [ commandeBO {}] ", commandeBO);
 
         moyenPaiementBO.setDateLimite(LocalDateTime.MIN);
         moyenPaiementBO.setMoyenPaiementType(MoyenPaiementTypeEnum.DIFFERE);
         moyenPaiementBO.setMoyenPaiementStatut(MoyenPaiementStatutEnum.VALIDE);
         moyenPaiementBO.setCommande(commandeBO);
         moyenPaiementRepository.save(moyenPaiementBO);
+        LOGGER.info("Created [ moyenPaiementBO {}] ", moyenPaiementBO);
 
         DemandeDTO demandeDTO = new DemandeDTO();
+        demandeDTO.setPkDemandes(demandeBO.getPkDemandes());
         ContenuTestDTO contenuTestDTO = new ContenuTestDTO();
         Paiement paiement = new Paiement();
         paiement.setTableau(new Tableau[]{new Tableau("objet", "80")});

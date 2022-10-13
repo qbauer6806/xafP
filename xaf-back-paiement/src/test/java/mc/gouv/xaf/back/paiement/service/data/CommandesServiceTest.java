@@ -5,6 +5,7 @@ import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandesDataBO;
 import mc.gouv.xaf.back.paiement.data.dao.CommandeRepository;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeBO;
+import mc.gouv.xaf.back.paiement.data.entity.CommandeDemandeArticleBO;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeDemandeBO;
 import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
 import mc.gouv.xaf.back.paiement.data.enums.MoyenPaiementStatutEnum;
@@ -69,6 +70,10 @@ public class CommandesServiceTest {
 
         CommandeDemandeBO commandeDemandeBO = new CommandeDemandeBO();
         commandeDemandeBO.setDemande(demandeBO);
+
+        CommandeDemandeArticleBO articleBO = new CommandeDemandeArticleBO();
+        articleBO.setCommandeDemande(commandeDemandeBO);
+        commandeDemandeBO.setCommandesDemandesArticles(Collections.singletonList(articleBO));
 
         CommandeBO commandeBO = new CommandeBO();
         commandeBO.setMontantInitial(122);

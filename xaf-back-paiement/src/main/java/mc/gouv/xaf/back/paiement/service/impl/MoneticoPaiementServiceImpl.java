@@ -68,6 +68,9 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
     private CommandeDemandeRepository commandeDemandeRepository;
 
     @Autowired
+    private CommandeDemandeArticleRepository commandeDemandeArticleRepository;
+
+    @Autowired
     private DemandesRepository demandesRepository;
 
     @Autowired
@@ -101,16 +104,20 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
     private PropertiesService propertiesService;
 
     @Override
+
     public PaiementDTO create(String demandesId, String langue, Integer usagerId, boolean iframe) {
         logStartMethod(LOGGER);
         String demarcheId = gouvPropertiesResolver.getDemarcheId();
         LOGGER.info("Parameters [ demandesId {}, langue {}, usagerId {} ] ", demandesId, langue, usagerId);
+
         String codeSociete = iframe ? paiementPropertiesResolver.getXafMoneticoCodeSiteIframe() : paiementPropertiesResolver.getCodeSiteStandard();
         List<Integer> demandesIdList = Stream.of(demandesId.split(",")).map(String::trim).map(Integer::parseInt).collect(Collectors.toList());
-        HashMap<Integer, BigDecimal> montants = new HashMap<>();
-        HashMap<Integer, DemandeBO> demandes = new HashMap<>();
-        StringJoiner listePkDemandes = new StringJoiner(",");
-        BigDecimal montant = BigDecimal.ZERO;
+        StringJoiner listeIdentifiantsDemandes = new StringJoiner(",");
+        BigDecimal totalCommande = BigDecimal.ZERO;
+        Map<Integer, BigDecimal> totauxDemandes = new HashMap<>();
+        Map<Integer, DemandeBO> demandes = new HashMap<>();
+        Map<Integer, Map<String, BigDecimal>> articlesDemandes = new HashMap<>();
+
         for (Integer demandeId : demandesIdList) {
             Optional<DemandeBO> demandeBOOptional = demandesRepository.findById(demandeId);
             if (!demandeBOOptional.isPresent()) {
@@ -118,7 +125,7 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
             }
             DemandeBO demandeBO = demandeBOOptional.get();
             demandes.put(demandeId, demandeBO);
-            listePkDemandes.add(demandeBO.getIdentifiant());
+            listeIdentifiantsDemandes.add(demandeBO.getIdentifiant());
 
             // TODO Changer le moyen de récupérer le statut d'un paiement
             DemandeDataDTO data = demandesDataService.getDemandeData(demarcheId, demandeId, PaiementDemandeDataKeysEnum.STATUT_PAIEMENT.name());
@@ -126,9 +133,14 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
                 throw new DemarchesServiceException("La demande " + demandeId + " a déjà une empreinte bancaire valide.", HttpStatus.CONFLICT);
             }
 
-            BigDecimal montantdemande = montantService.getMontant(DemandesTransformer.bo2Dto(demandeBO, new String[]{}));
-            montants.put(demandeId, montantdemande);
-            montant = montant.add(montantdemande);
+            Map<String, BigDecimal> articlesDemande = montantService.getArticles(DemandesTransformer.bo2Dto(demandeBO, new String[]{}));
+            BigDecimal montantdemande = BigDecimal.ZERO;
+            for (Map.Entry<String, BigDecimal> entry : articlesDemande.entrySet()) {
+                montantdemande = montantdemande.add(entry.getValue());
+            }
+            articlesDemandes.put(demandeId, articlesDemande);
+            totauxDemandes.put(demandeId, montantdemande);
+            totalCommande = totalCommande.add(montantdemande);
         }
 
         LocalDateTime now = LocalDateTime.now();
@@ -137,28 +149,38 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
         MoyenPaiementBO moyenPaiement = new MoyenPaiementBO();
         moyenPaiement.setPkMoyensPaiements(referenceFactoryService.createSimpleReference12Digits());
         commande.setDateCreation(now);
-        commande.setMontantInitial(montant.doubleValue());
-        commande.setMontantRestant(montant.doubleValue());
+        commande.setMontantInitial(totalCommande.doubleValue());
+        commande.setMontantRestant(totalCommande.doubleValue());
         commande.setMontantDejaCapture(0);
         commande.setMoyenPaiement(moyenPaiement);
         commandeRepository.save(commande);
         LOGGER.info("Created [ commande {}] ", commande);
 
+        commande.setCommandesDemandes(new ArrayList<>());
         for (Integer demandeId : demandesIdList) {
             CommandeDemandeBO commandeDemande = new CommandeDemandeBO();
             commandeDemande.setCommande(commande);
             commandeDemande.setDemande(demandes.get(demandeId));
-            commandeDemande.setMontant(montants.get(demandeId).doubleValue());
+            commandeDemande.setMontant(totauxDemandes.get(demandeId).doubleValue());
+            commandeDemande.setCommandesDemandesArticles(new ArrayList<>());
             commandeDemande = commandeDemandeRepository.save(commandeDemande);
             LOGGER.info("Created [ commandeDemande {}] ", commandeDemande);
 
-            if (commande.getCommandesDemandes() != null) {
-                commande.getCommandesDemandes().add(commandeDemande);
-            } else {
-                List<CommandeDemandeBO> commandeDemandeBOList = new ArrayList<>();
-                commandeDemandeBOList.add(commandeDemande);
-                commande.setCommandesDemandes(commandeDemandeBOList);
+            List<CommandeDemandeArticleBO> articles = new ArrayList<>();
+            for (Map.Entry<String, BigDecimal> entry : articlesDemandes.get(demandeId).entrySet()) {
+                CommandeDemandeArticleBO articleBO = new CommandeDemandeArticleBO();
+                articleBO.setCommandeDemande(commandeDemande);
+                articleBO.setCodeTarif(entry.getKey());
+                articleBO.setMontant(entry.getValue().doubleValue());
+                articleBO = commandeDemandeArticleRepository.save(articleBO);
+                LOGGER.info("Created [ commandeDemandeArticle {}] ", articleBO);
+                articles.add(articleBO);
             }
+
+            commandeDemande.setCommandesDemandesArticles(articles);
+            commandeDemandeRepository.save(commandeDemande);
+            LOGGER.info("Updated [ commandeDemande {}] ", commande);
+            commande.getCommandesDemandes().add(commandeDemande);
         }
 
         commandeRepository.save(commande);
@@ -190,7 +212,7 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
         String date = paiementSecurityService.dateFormat(new Date());
         paiementDTO.setDate(date);
         paiementDTO.setThreeDSecureChallenge(paiementPropertiesResolver.getXafMonetico3dsv2Scenario());
-        paiementDTO.setMontant(montant + paiementPropertiesResolver.getCurrency());
+        paiementDTO.setMontant(totalCommande + paiementPropertiesResolver.getCurrency());
         paiementDTO.setReference(moyenPaiement.getPkMoyensPaiements());
         paiementDTO.setMail(usager.getEmail());
         if (iframe) {
@@ -198,7 +220,7 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
         }
         paiementDTO.setSociete(codeSociete);
         paiementDTO.setTPE(paiementPropertiesResolver.getTpe());
-        paiementDTO.setTexteLibre(paiementPropertiesResolver.getXafMoneticoTexteAller() + date + " - demandes [" + listePkDemandes + "]");
+        paiementDTO.setTexteLibre(paiementPropertiesResolver.getXafMoneticoTexteAller() + date + " - demandes [" + listeIdentifiantsDemandes + "]");
         paiementDTO.setUrlRetourErr(paiementPropertiesResolver.getEchecUrl());
         paiementDTO.setUrlRetourOk(paiementPropertiesResolver.getSuccesUrl());
         paiementDTO.setVersion(paiementPropertiesResolver.getVersionAller());

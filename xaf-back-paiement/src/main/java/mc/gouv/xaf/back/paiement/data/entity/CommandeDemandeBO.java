@@ -3,6 +3,7 @@ package mc.gouv.xaf.back.paiement.data.entity;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "PMNT_COMMANDES_DEMANDES")
@@ -22,6 +23,9 @@ public class CommandeDemandeBO {
     private DemandeBO demande;
 
     private double montant;
+
+    @OneToMany(mappedBy = "commandeDemande", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<CommandeDemandeArticleBO> commandesDemandesArticles;
 
     public Integer getPkCommandesDemandes() {
         return pkCommandesDemandes;
@@ -53,6 +57,14 @@ public class CommandeDemandeBO {
 
     public void setMontant(double montant) {
         this.montant = montant;
+    }
+
+    public List<CommandeDemandeArticleBO> getCommandesDemandesArticles() {
+        return commandesDemandesArticles;
+    }
+
+    public void setCommandesDemandesArticles(List<CommandeDemandeArticleBO> commandesDemandesArticles) {
+        this.commandesDemandesArticles = commandesDemandesArticles;
     }
 
     @Override

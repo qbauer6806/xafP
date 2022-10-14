@@ -59,7 +59,7 @@
 						<button type="button" class="btn btn-action ripple-effect greyTooltip" onclick="setCurrentPopup(this)"
 									data-placement="bottom" data-toggle="tooltip" title=""
 									th:id="${file.compFile} ? previewButton + ${file.pkDemandesComplementsFiles} : previewButton + ${file.pkDemandesFiles}"
-									th:disabled="${#strings.endsWith(file.url,'.tif')} or ${#strings.endsWith(file.url,'.docx')} or ${#strings.endsWith(file.url,'.tiff')}"
+									th:disabled="${#strings.endsWith(file.url,'.tif')} or ${#strings.endsWith(file.url,'.docx')} or ${#strings.endsWith(file.url,'.tiff')} or ${#strings.endsWith(file.url,'.xlsx')}"
 									th:data-original-title="Prévisualiser">
 							<i class="icon-action_voir"></i>
 							</button>

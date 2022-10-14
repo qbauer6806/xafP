@@ -232,6 +232,18 @@ public class AfServletGouvPropertiesResolver {
     public static String getGichkeyClientSecret() {
         return Static.getValue(GICHKEY_CLIENT_SECRET);
     }
+    
+    public static final String PAIEMENT_PROVIDER = "mc.gouv.appfactory" + applicationPrefix + ".paiement.provider";
+
+    public static String getPaiementProvider() {
+        return Static.getValue(PAIEMENT_PROVIDER);
+    }
+    
+    public static final String MONETICO_URL = "mc.gouv.appfactory" + applicationPrefix + ".monetico.url";
+
+    public static String getMoneticoUrl() {
+        return Static.getValue(MONETICO_URL);
+    }
 
     static {
         //Vérification que chaque propriété a bien été configurée
@@ -282,6 +294,8 @@ public class AfServletGouvPropertiesResolver {
         propertiesDTOS.add(new PropertiesDTO(FRONTOFFICE_COPYRIGHT_YEARS, getFrontofficeCopyrightYears()));
         propertiesDTOS.add(new PropertiesDTO(FRONTOFFICE_PIWIK_SITE_ID, getFrontofficePiwikSiteId()));
         propertiesDTOS.add(new PropertiesDTO(FRONTOFFICE_PIWIK_URL, getFrontofficePiwikURL()));
+        propertiesDTOS.add(new PropertiesDTO(PAIEMENT_PROVIDER, getPaiementProvider()));
+        propertiesDTOS.add(new PropertiesDTO(MONETICO_URL, getMoneticoUrl()));
         return propertiesDTOS;
     }
 }

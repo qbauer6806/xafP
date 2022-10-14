@@ -1,0 +1,198 @@
+package mc.gouv.xaf.back.service.impl;
+
+import fr.opensagres.poi.xwpf.converter.pdf.PdfConverter;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.ConvertisseurTiffService;
+import mc.gouv.xaf.back.service.data.PropertiesService;
+import mc.gouv.xaf.back.service.itg.file.FileService;
+import mc.gouv.xaf.back.service.utils.DitheringUtils;
+import mc.gouv.xaf.shared.dto.DemandeFileDTO;
+import mc.gouv.xaf.shared.dto.PropertiesDTO;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
+import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
+import org.apache.pdfbox.rendering.PDFRenderer;
+import org.apache.pdfbox.tools.imageio.ImageIOUtil;
+import org.apache.poi.openxml4j.exceptions.NotOfficeXmlFileException;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URLEncoder;
+import java.util.List;
+import java.util.*;
+
+
+@Service
+public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ConvertisseurTiffServiceImpl.class);
+
+    @Autowired
+    private FileService fileService;
+
+    @Autowired
+    private GouvPropertiesResolver gouvPropertiesResolver;
+
+    @Autowired
+    private PropertiesService propertiesService;
+
+    public Map<String, InputStream> generateTiffs(List<DemandeFileDTO> files) throws IOException {
+        Map<String, InputStream> fileMap = new HashMap<>();
+        for (DemandeFileDTO file : files) {
+            fileMap.putAll(generateTiffs(file));
+        }
+        return fileMap;
+    }
+
+    public Map<String, InputStream> generateTiffs(DemandeFileDTO file) throws IOException {
+
+        // TODO To remove after testing
+        PropertiesDTO errorProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "TEMP_FAIL_CONVERTISSEUR");
+        if (errorProp != null && "true".equals(errorProp.getValue()) ) {
+            throw new IOException();
+        }
+
+        // Récupération du fichier dans file
+        String filePathEncoded = URLEncoder.encode(file.getUrl(), "UTF-8");
+        InputStream is = fileService.getFile(filePathEncoded, gouvPropertiesResolver.getContainerId());
+
+        // Récupération de l'extension et le nom du fichier
+        int indexInit = file.getName().lastIndexOf("\\");
+        String extension = file.getName().substring(file.getName().lastIndexOf(".")).toLowerCase();
+        String filename = file.getName().substring(Math.max(indexInit, 0), file.getName().indexOf("."));
+
+        List<InputStream> isList = convertFileToTiff(is, extension);
+
+        // Création des FileDTO
+        return createNewFileDTOs(file, isList, filename);
+    }
+
+    /**
+     * Conversion d'un fichier docx, png, jpg ou jpeg en TIFF compressé
+     *
+     * @param is
+     * @param extension
+     * @throws IOException
+     */
+    private List<InputStream> convertFileToTiff(InputStream is, String extension) throws IOException {
+
+        List<InputStream> isList = new ArrayList<>();
+
+        // Conversion des fichiers en pdf
+        if (extension.equals(".pdf") || extension.equals(".docx")) {
+
+            // conversion des docs en pdf
+            if (extension.equals(".docx")) {
+                is = generatePdfFromDocx(is);
+            }
+
+            // génération des tiffs depuis PDF
+            isList = generateTiffsFromPDF(is);
+
+        } else if (extension.equals(".png") || extension.equals(".jpg") || extension.equals(".jpeg") || extension.equals(".tif")) {
+            // Si c'est une image, générer dictement un tiff sans passer par la case PDF
+            BufferedImage bim = generateTiffFromImage(ImageIO.read(is));
+            isList.add(writeImageCCITTT4(bim));
+        }
+
+        return isList;
+    }
+
+    /**
+     * Génère des PDF à partir des docx
+     * @param is Fichier d'entrée DocX
+     * @return Fichier PDF converti
+     * @throws IOException
+     */
+    private InputStream generatePdfFromDocx(InputStream is) throws IOException {
+        XWPFDocument document;
+        try {
+            document = new XWPFDocument(is);
+        } catch (NotOfficeXmlFileException e) {
+            LOGGER.error("Lecture du fichier DOCX impossible !");
+            throw new IOException("Lecture du fichier DOCX impossible !", e);
+        }
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            PdfConverter.getInstance().convert(document, out, null);
+            document.close();
+            return new ByteArrayInputStream(out.toByteArray());
+        }
+    }
+
+    /**
+     * Génère un/plusieurs fichier tiff à partir d'un PDF (éventuellement multipages)
+     * @param is Fichier PDF d'entée
+     * @return Liste de fichiers tiff
+     * @throws IOException
+     */
+    private List<InputStream> generateTiffsFromPDF(InputStream is) throws IOException {
+        List<InputStream> imagesIS = new ArrayList<>();
+
+        // Chargement du document PDF
+        PDDocument document = PDDocument.load(is);
+        PDFRenderer pdfRenderer = new PDFRenderer(document);
+
+        // Parcours du PDF multipages
+        for (int page = 0; page < document.getNumberOfPages(); ++page) {
+
+            // Conversion de l'image en tiff
+            BufferedImage bim = generateTiffFromImage(pdfRenderer.renderImageWithDPI(page, 240));
+
+            imagesIS.add(writeImageCCITTT4(bim));
+        }
+        document.close();
+        return imagesIS;
+    }
+
+    public BufferedImage generateTiffFromImage(BufferedImage inputImage) {
+
+        // Conversion en Noir et blanc en "dithering"
+        // Plus d'infos: https://en.wikipedia.org/wiki/Floyd%E2%80%93Steinberg_dithering
+        BufferedImage output = DitheringUtils.floydSteinbergDithering(inputImage);
+
+        // Conversion d'une image indexée sur 32 bits à 1 bit (noir et blanc)
+        // Chaque pixel ce n'est plus un hexadécimal, mais un bit 1 (blanc) ou 0 (noir)
+        BufferedImage myBWImage = new BufferedImage(
+                output.getWidth(),
+                output.getHeight(),
+                BufferedImage.TYPE_BYTE_BINARY);
+
+        Graphics2D graphic = myBWImage.createGraphics();
+        graphic.drawImage(output, 0, 0, Color.WHITE, null);
+        graphic.dispose();
+
+        return myBWImage;
+    }
+
+    private InputStream writeImageCCITTT4(BufferedImage bim) throws IOException {
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            // Sauvegarde de l'image sans perte (compression quality 1f) + comression CCITT T.4 (standard fax/scanner)
+            ImageIOUtil.writeImage(bim, "tiff", out, 240, 1f, "CCITT T.4");
+            return new ByteArrayInputStream(out.toByteArray());
+        }
+    }
+
+    private Map<String, InputStream> createNewFileDTOs(DemandeFileDTO file, List<InputStream> isList, String filename) {
+        Map<String, InputStream> filesMap= new LinkedHashMap<>();
+
+        for (int i = 0; i < isList.size(); i++) {
+            InputStream is = isList.get(i);
+            filesMap.put(filename + ((i > 0) ? "-" + i : "") + ".tiff", is);
+        }
+
+        return filesMap;
+    }
+
+}

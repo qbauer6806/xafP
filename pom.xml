@@ -27,16 +27,18 @@
   </scm>
 
 
-    <modules>
-        <module>xaf-servlet</module>
-        <module>xaf-back</module>
-        <module>xaf-apiclient</module>
-        <module>xaf-backweb</module>
+	<modules>
+		<module>xaf-apiclient</module>
+		<module>xaf-apiclient-paiement</module>
+		<module>xaf-servlet</module>
+		<module>xaf-back</module>
+		<module>xaf-backweb</module>
         <module>xaf-shared</module>
-        <module>xaf-back-denjs</module>
-        <module>xaf-back-dsp</module>
-        <module>xaf-backweb-denjs</module>
-        <module>xaf-sup</module>
+		<module>xaf-back-denjs</module>
+		<module>xaf-back-dsp</module>
+		<module>xaf-back-paiement</module>
+		<module>xaf-backweb-denjs</module>
+		<module>xaf-sup</module>
     </modules>
 
     <dependencyManagement>

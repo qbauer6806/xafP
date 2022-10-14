@@ -86,6 +86,7 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
         file.setUrl('/' + url);
         file.setDate(new Date());
         file.setMeta(FileUtils.META_BACK + "RECAP");
+        file.setTypedoc(FileUtils.META_BACK + "RECAP");
         demandesFileService.saveFile(file, gouvPropertiesResolver.getDemarcheId(), demande.getPkDemandes());
 
         if (indexedDemandeService != null) {

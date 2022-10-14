@@ -505,7 +505,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
             if (n instanceof ObjectNode) {
                 ObjectNode list = (ObjectNode) n;
                 Iterator<Map.Entry<String, JsonNode>> it = list.fields();
-                String ret = "";
+                StringBuilder retBuilder = new StringBuilder();
                 String mapping = champ.get("mapping").toString();
                 while (it.hasNext()) {
                     Map.Entry<String, JsonNode> entry = it.next();
@@ -515,13 +515,19 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
                         Object[] parameters = {entry.getKey().toUpperCase(), true};
                         Object value = klass.getMethod("forValue", String.class, boolean.class).invoke(klass, parameters);
                         LOGGER.debug("n={}, path={}, klass={}, parameters={}, value={}", n, champ.get("path"), klass, parameters, value);
-                        if (!ret.equals("")) {
-                            ret += ", ";
+                        if (retBuilder.length() != 0) {
+                            retBuilder.append(", ");
                         }
-                        ret += value.toString();
+                        retBuilder.append(value);
+                    }
+                    if (StringUtils.equals("autre", entry.getKey())) {
+                        if (retBuilder.length() != 0) {
+                            retBuilder.append(", ");
+                        }
+                        retBuilder.append("Autre: ").append(entry.getValue());
                     }
                 }
-                return ret;
+                return retBuilder.toString();
             }
             return "";
         } else if (StringUtils.equals(type, "adresse")) {

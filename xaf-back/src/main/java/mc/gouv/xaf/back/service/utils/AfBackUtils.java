@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -93,9 +94,11 @@ public class AfBackUtils {
 
     public DateFormat SDF_JJ_MM_AAAA_HH_MM = new SimpleDateFormat(DEFAULT_FRENCH_DATE_HOURS_FORMAT);
 
-    public DateFormat FILE_DATE_SUFFIX = new SimpleDateFormat("HHmmssSSS");
+    public static DateFormat FILE_DATE_SUFFIX = new SimpleDateFormat("HHmmssSSS");
 
-    public DateFormat FILE_DATE_AND_TIME_SUFFIX = new SimpleDateFormat("yyyyMMddHHmmssSS");
+    public static DateTimeFormatter DTF_AAAA_MM_JJ = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+    
+    public static DateFormat FILE_DATE_AND_TIME_SUFFIX = new SimpleDateFormat("yyyyMMddHHmmssSS");
     
     public static DateFormat MCONNECT_DATE_AND_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
 
@@ -110,6 +113,7 @@ public class AfBackUtils {
     private DemarcheDTO demarche = null;
 
     @Autowired
+    @Lazy
     private GouvPropertiesResolver gouvPropertiesResolver;
 
     private MailClient mailClient = null;
@@ -117,24 +121,31 @@ public class AfBackUtils {
     private FileClient fileClient = null;
 
     @Autowired
+    @Lazy
     private UsagersCache usagersCache;
 
     @Autowired
+    @Lazy
     private UtilisateursCache utilisateursCache;
 
     @Autowired
+    @Lazy
     private DemarchesService demarchesService;
 
     @Autowired
+    @Lazy
     private DemarchesDataProvider demarchesDataProvider;
 
     @Autowired
+    @Lazy
     private MessageSource messageSource;
 
     @Autowired
+    @Lazy
     private UtilisateursUtils utilisateursUtils;
 
     @Autowired
+    @Lazy
     private MotifTemplateService motifTemplateService;
 
     public static final short GENDER_MR_INDEX = 0;
@@ -247,7 +258,7 @@ public class AfBackUtils {
      * Génère un suffixe de fichier en fonction de la date de génération conformément au
      * pattern suivant: HHmmssSSS
      */
-    public String generateFileDateSuffix() {
+    public static String generateFileDateSuffix() {
         return FILE_DATE_SUFFIX.format(new Date());
     }
 
@@ -255,7 +266,7 @@ public class AfBackUtils {
      * Génère un suffixe de fichier en fonction de la date de génération conformément au
      * pattern suivant: YYYYMMDDHHmmssSS
      */
-    public String generateFileDateAndTimeSuffix() {
+    public static String generateFileDateAndTimeSuffix() {
         return FILE_DATE_AND_TIME_SUFFIX.format(new Date());
     }
 

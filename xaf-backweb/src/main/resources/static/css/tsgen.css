@@ -401,7 +401,7 @@ dd span {
 }
 
 .file-name-col {
-	width: 85%;
+	width: 80%;
 }
 
 .file-name-col-small {
@@ -409,7 +409,7 @@ dd span {
 }
 
 .typedoc-col {
-	width: 35%;
+	width: 30%;
 }
 
 .date-col {
@@ -417,7 +417,7 @@ dd span {
 }
 
 .action-col {
-	width: 5%;
+	width: 10%;
 }
 
 .file-name-col, .file-name-col-small {
@@ -427,6 +427,10 @@ dd span {
 
 .file-name-col, .file-name-col-small, .typedoc-col, .date-col, .action-col {
 	padding-right: 0 !important;
+}
+
+.bouton-action {
+	display: inline-block;
 }
 
 .no-margin-row {

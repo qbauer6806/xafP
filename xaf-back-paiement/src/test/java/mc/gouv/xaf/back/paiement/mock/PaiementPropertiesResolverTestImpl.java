@@ -85,32 +85,32 @@ public class PaiementPropertiesResolverTestImpl implements PaiementPropertiesRes
 
     @Override
     public String getNomParDefaut() {
-        return null;
+        return "nom";
     }
 
     @Override
     public String getPrenomParDefaut() {
-        return null;
+        return "prenom";
     }
 
     @Override
     public String getAdresseParDefaut() {
-        return null;
+        return "adresse";
     }
 
     @Override
     public String getVilleParDefaut() {
-        return null;
+        return "Monaco";
     }
 
     @Override
     public String getCodePostalParDefaut() {
-        return null;
+        return "98000";
     }
 
     @Override
     public String getCodePaysParDefaut() {
-        return null;
+        return "MC";
     }
 
     @Override

@@ -54,6 +54,8 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
     private static final Logger LOGGER = LoggerFactory.getLogger(MoneticoPaiementServiceImpl.class);
     private static final String CODE_RETOUR_OK = "0";
     private static final String CODE_RETOUR_KO = "1";
+    private static final int TAILLE_MAX_NOMS = 45;
+    private static final int TAILLE_MAX_OBJETS = 50;
 
     @Autowired
     private CommandeRepository commandeRepository;
@@ -197,16 +199,8 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
         paiementDTO.setDate(paiementSecurityService.dateFormat(new Date()));
         GichuniUsagerDTO usager = usagersCache.get(usagerId);
 
-        BillingDTO billingDTO = new BillingDTO();
-        billingDTO.setFirstName(usager.getPrenom() == null ? paiementPropertiesResolver.getPrenomParDefaut() : usager.getPrenom());
-        billingDTO.setLastName(usager.getNom() == null ? paiementPropertiesResolver.getNomParDefaut() : usager.getNom());
-        billingDTO.setAddressLine1(usager.getAdresse1() == null ? paiementPropertiesResolver.getAdresseParDefaut() : usager.getAdresse1());
-        billingDTO.setCity(usager.getVille() == null ? paiementPropertiesResolver.getVilleParDefaut() : usager.getVille());
-        billingDTO.setPostalCode(usager.getCodePostal() == null ? paiementPropertiesResolver.getCodePostalParDefaut() : usager.getCodePostal());
-        billingDTO.setCountry(usager.getPaysCode() == null ? paiementPropertiesResolver.getCodePaysParDefaut() : usager.getPaysCode());
-
         ContexteCommandeDTO contexteCommandeDTO = new ContexteCommandeDTO();
-        contexteCommandeDTO.setBilling(billingDTO);
+        contexteCommandeDTO.setBilling(createBillingDTO(usager));
 
         paiementDTO.setContexte_commande(paiementSecurityService.contexteCommandeDTOtoBase64(contexteCommandeDTO));
         String date = paiementSecurityService.dateFormat(new Date());
@@ -234,6 +228,43 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
 
         LOGGER.info("Return [ paiementDTO {}] ", paiementDTO);
         return paiementDTO;
+    }
+
+    private BillingDTO createBillingDTO(GichuniUsagerDTO usager) {
+        BillingDTO billingDTO = new BillingDTO();
+        String prenom = usager.getPrenom() == null ? paiementPropertiesResolver.getPrenomParDefaut() : usager.getPrenom();
+        if (prenom.length() > TAILLE_MAX_NOMS) {
+            prenom = prenom.substring(0, TAILLE_MAX_NOMS);
+        }
+        billingDTO.setFirstName(prenom);
+        String nom = usager.getNom() == null ? paiementPropertiesResolver.getNomParDefaut() : usager.getNom();
+        if (nom.length() > TAILLE_MAX_NOMS) {
+            nom = nom.substring(0, TAILLE_MAX_NOMS);
+        }
+        billingDTO.setLastName(nom);
+        String adresse1 = usager.getAdresse1() == null ? paiementPropertiesResolver.getAdresseParDefaut() : usager.getAdresse1();
+        if (adresse1.length() > TAILLE_MAX_OBJETS) {
+            adresse1 = adresse1.substring(0, TAILLE_MAX_OBJETS);
+        }
+        billingDTO.setAddressLine1(adresse1);
+        String adresse2 = usager.getAdresse2() == null ? "" : usager.getAdresse2();
+        if (adresse2.length() > TAILLE_MAX_OBJETS) {
+            adresse2 = adresse2.substring(0, TAILLE_MAX_OBJETS);
+        }
+        billingDTO.setAddressLine2(adresse2);
+        String adresse3 = usager.getComplementAdresse() == null ? "" : usager.getComplementAdresse();
+        if (adresse3.length() > TAILLE_MAX_OBJETS) {
+            adresse3 = adresse3.substring(0, TAILLE_MAX_OBJETS);
+        }
+        billingDTO.setAddressLine3(adresse3);
+        String ville = usager.getVille() == null ? paiementPropertiesResolver.getVilleParDefaut() : usager.getVille();
+        if (ville.length() > TAILLE_MAX_OBJETS) {
+            ville = ville.substring(0, TAILLE_MAX_OBJETS);
+        }
+        billingDTO.setCity(ville);
+        billingDTO.setPostalCode(usager.getCodePostal() == null ? paiementPropertiesResolver.getCodePostalParDefaut() : usager.getCodePostal());
+        billingDTO.setCountry(usager.getPaysCode() == null ? paiementPropertiesResolver.getCodePaysParDefaut() : usager.getPaysCode());
+        return billingDTO;
     }
 
     @Override

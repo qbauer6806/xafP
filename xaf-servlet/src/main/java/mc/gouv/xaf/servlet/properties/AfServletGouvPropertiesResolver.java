@@ -236,13 +236,15 @@ public class AfServletGouvPropertiesResolver {
     public static final String PAIEMENT_PROVIDER = "mc.gouv.appfactory" + applicationPrefix + ".paiement.provider";
 
     public static String getPaiementProvider() {
-        return Static.getValue(PAIEMENT_PROVIDER);
+        String value = Static.getValue(PAIEMENT_PROVIDER);
+        return StringUtils.isBlank(value) ? "vide" : value;
     }
-    
+
     public static final String MONETICO_URL = "mc.gouv.appfactory" + applicationPrefix + ".monetico.url";
 
     public static String getMoneticoUrl() {
-        return Static.getValue(MONETICO_URL);
+        String value = Static.getValue(MONETICO_URL);
+        return StringUtils.isBlank(value) ? "vide" : value;
     }
 
     static {
@@ -278,7 +280,6 @@ public class AfServletGouvPropertiesResolver {
         }
 
         if (!propertiesNotFound.isEmpty()) {
-
             LOGGER.error("Des propriétés n'ont pas été trouvées : {}", propertiesNotFound);
             System.exit(1);
         }

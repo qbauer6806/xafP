@@ -106,8 +106,8 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
             BufferedImage bimToScale = ImageIO.read(is);
             BufferedImage bim;
             // Downscale à une image fullHD
-            if (bimToScale.getWidth() > 1920 || bimToScale.getHeight() > 1080) {
-                bim = generateTiffFromImage(scaleImage(1920, 1080, bimToScale));
+            if (bimToScale.getWidth() > 2560 || bimToScale.getHeight() > 1440) {
+                bim = generateTiffFromImage(scaleImage(2560, 1440, bimToScale));
             } else {
                 bim = bimToScale;
             }

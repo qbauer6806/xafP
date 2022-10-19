@@ -247,16 +247,20 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
             adresse1 = adresse1.substring(0, TAILLE_MAX_OBJETS);
         }
         billingDTO.setAddressLine1(adresse1);
-        String adresse2 = usager.getAdresse2() == null ? "" : usager.getAdresse2();
-        if (adresse2.length() > TAILLE_MAX_OBJETS) {
-            adresse2 = adresse2.substring(0, TAILLE_MAX_OBJETS);
+        String adresse2 = usager.getAdresse2();
+        if (StringUtils.isNotEmpty(adresse2)) {
+            if (adresse2.length() > TAILLE_MAX_OBJETS) {
+                adresse2 = adresse2.substring(0, TAILLE_MAX_OBJETS);
+            }
+            billingDTO.setAddressLine2(adresse2);
         }
-        billingDTO.setAddressLine2(adresse2);
-        String adresse3 = usager.getComplementAdresse() == null ? "" : usager.getComplementAdresse();
-        if (adresse3.length() > TAILLE_MAX_OBJETS) {
-            adresse3 = adresse3.substring(0, TAILLE_MAX_OBJETS);
+        String adresse3 = usager.getComplementAdresse();
+        if (StringUtils.isNotEmpty(adresse3)) {
+            if (adresse3.length() > TAILLE_MAX_OBJETS) {
+                adresse3 = adresse3.substring(0, TAILLE_MAX_OBJETS);
+            }
+            billingDTO.setAddressLine3(adresse3);
         }
-        billingDTO.setAddressLine3(adresse3);
         String ville = usager.getVille() == null ? paiementPropertiesResolver.getVilleParDefaut() : usager.getVille();
         if (ville.length() > TAILLE_MAX_OBJETS) {
             ville = ville.substring(0, TAILLE_MAX_OBJETS);

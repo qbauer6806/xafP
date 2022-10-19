@@ -103,7 +103,14 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
 
         } else if (extension.equals(".png") || extension.equals(".jpg") || extension.equals(".jpeg") || extension.equals(".tif")) {
             // Si c'est une image, générer dictement un tiff sans passer par la case PDF
-            BufferedImage bim = generateTiffFromImage(ImageIO.read(is));
+            BufferedImage bimToScale = ImageIO.read(is);
+            BufferedImage bim;
+            // Downscale à une image fullHD
+            if (bimToScale.getWidth() > 1920 || bimToScale.getHeight() > 1080) {
+                bim = generateTiffFromImage(scaleImage(1920, 1080, bimToScale));
+            } else {
+                bim = bimToScale;
+            }
             isList.add(writeImageCCITTT4(bim));
         }
 
@@ -148,8 +155,7 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
         for (int page = 0; page < document.getNumberOfPages(); ++page) {
 
             // Conversion de l'image en tiff
-            BufferedImage bim = generateTiffFromImage(pdfRenderer.renderImageWithDPI(page, 240));
-
+            BufferedImage bim = generateTiffFromImage(pdfRenderer.renderImageWithDPI(page, 160));
             imagesIS.add(writeImageCCITTT4(bim));
         }
         document.close();
@@ -195,4 +201,48 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
         return filesMap;
     }
 
+    /**
+     * Redimensionne une image en préservant le ratio
+     * @param scaledWidth Largeur souhaitée
+     * @param scaledHeight Hauteur souhaitée
+     * @param img Image initiale
+     * @return Image redimentsionnée
+     */
+    private BufferedImage scaleImage(int scaledWidth, int scaledHeight, BufferedImage img){
+        Image im = img;
+        double scale;
+        double imWidth = img.getWidth();
+        double imHeight = img.getHeight();
+        if (scaledWidth > imWidth && scaledHeight > imHeight){
+            im = img;
+        } else if(scaledWidth/imWidth < scaledHeight/imHeight){
+            scale = scaledWidth/imWidth;
+            im = img.getScaledInstance((int) (scale*imWidth), (int) (scale*imHeight), Image.SCALE_SMOOTH);
+        } else if (scaledWidth/imWidth > scaledHeight/imHeight){
+            scale = scaledHeight/imHeight;
+            im = img.getScaledInstance((int) (scale*imWidth), (int) (scale*imHeight), Image.SCALE_SMOOTH);
+        } else if (scaledWidth/imWidth == scaledHeight/imHeight){
+            scale = scaledWidth/imWidth;
+            im = img.getScaledInstance((int) (scale*imWidth), (int) (scale*imHeight), Image.SCALE_SMOOTH);
+        }
+        return toBufferedImage(im);
+    }
+
+    /**
+     * Convert Image to BufferedImage
+     * @param img Image à convertir
+     * @return Image bufferisée
+     */
+    public BufferedImage toBufferedImage(Image img){
+        if (img instanceof BufferedImage) {
+            return (BufferedImage) img;
+        }
+
+        BufferedImage bimage = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+        Graphics2D bGr = bimage.createGraphics();
+        bGr.drawImage(img, 0, 0, null);
+        bGr.dispose();
+
+        return bimage;
+    }
 }

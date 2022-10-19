@@ -58,6 +58,7 @@ public class PaiementSecurityServiceTest {
         String mac = paiementSecurityService.getHmacStringInterfaceRetour(responseDTO);
         assertThat(mac).isEqualTo("0C2E747CF0DB6F4D6B42321804E5A27716F88B11");
         // CB0BD147C7FEAC57D1ABFEC970ECE7992341FE0E
+        // 0C2E747CF0DB6F4D6B42321804E5A27716F88B11
     }
 
     @Test

@@ -55,5 +55,9 @@ public interface PaiementPropertiesResolver {
     String getXafPaiementImmediatHeureDiffere();
 
     String getCodePaiement();
+    
+    String getXafMoneticoLibelleSociete();
+    
+    String getXafMoneticoLibelleLieu();
 
 }

@@ -218,6 +218,8 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
         paiementDTO.setUrlRetourErr(paiementPropertiesResolver.getEchecUrl());
         paiementDTO.setUrlRetourOk(paiementPropertiesResolver.getSuccesUrl());
         paiementDTO.setVersion(paiementPropertiesResolver.getVersionAller());
+        paiementDTO.setLibelleMonetique(paiementPropertiesResolver.getXafMoneticoLibelleSociete());
+        paiementDTO.setlibelleMonetiqueLocalite(paiementPropertiesResolver.getXafMoneticoLibelleLieu());
 
         // Création d'une clé MAC
         String mac = paiementSecurityService.getHmacStringInterfaceAller(paiementDTO);

@@ -91,6 +91,8 @@ public class MoneticoPaiementSecurityServiceImpl implements PaiementSecurityServ
                 "dateech3=" + paiementDTO.getDateech3(),
                 "dateech4=" + paiementDTO.getDateech4(),
                 "lgue=" + paiementDTO.getLgue(),
+                "libelleMonetique=" + paiementDTO.getLibelleMonetique(),
+                "libelleMonetiqueLocalite=" + paiementDTO.getlibelleMonetiqueLocalite(),
                 "mail=" + paiementDTO.getMail(),
                 "mode_affichage=" + paiementDTO.getMode_affichage(),
                 "montant=" + paiementDTO.getMontant(),

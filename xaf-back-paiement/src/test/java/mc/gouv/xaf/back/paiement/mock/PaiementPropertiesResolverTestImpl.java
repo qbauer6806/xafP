@@ -143,4 +143,14 @@ public class PaiementPropertiesResolverTestImpl implements PaiementPropertiesRes
         return null;
     }
 
+	@Override
+	public String getXafMoneticoLibelleSociete() {
+		return null;
+	}
+
+	@Override
+	public String getXafMoneticoLibelleLieu() {
+		return null;
+	}
+
 }

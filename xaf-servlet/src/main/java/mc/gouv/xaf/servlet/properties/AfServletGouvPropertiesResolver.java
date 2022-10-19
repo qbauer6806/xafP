@@ -2,10 +2,8 @@ package mc.gouv.xaf.servlet.properties;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -232,53 +230,41 @@ public class AfServletGouvPropertiesResolver {
     public static String getGichkeyClientSecret() {
         return Static.getValue(GICHKEY_CLIENT_SECRET);
     }
-    
+
     public static final String PAIEMENT_PROVIDER = "mc.gouv.appfactory" + applicationPrefix + ".paiement.provider";
 
     public static String getPaiementProvider() {
-        return Static.getValue(PAIEMENT_PROVIDER);
+        String value = Static.getValue(PAIEMENT_PROVIDER);
+        return StringUtils.isBlank(value) ? "vide" : value;
     }
-    
+
     public static final String MONETICO_URL = "mc.gouv.appfactory" + applicationPrefix + ".monetico.url";
 
     public static String getMoneticoUrl() {
-        return Static.getValue(MONETICO_URL);
+        String value = Static.getValue(MONETICO_URL);
+        return StringUtils.isBlank(value) ? "vide" : value;
     }
 
     static {
         //Vérification que chaque propriété a bien été configurée
         List<String> propertiesNotFound = new ArrayList<>();
         try {
-            Method m = Static.class.getDeclaredMethod("getValue", String.class);
-
-            Field[] fields = AfServletGouvPropertiesResolver.class.getDeclaredFields();
-            for (Field f : fields) {
-                if (Modifier.isStatic(f.getModifiers()) && !f.getName().equals("LOGGER")
-                        && !f.getName().equals("applicationName") && !f.getName().equals("applicationPrefix")) {
-                    LOGGER.info("Vérification de la propriété {}", f.getName());
-                    String propertyName = (String) f.get(null);
-                    String value = (String) m.invoke(null, f.get(null));
-
+            Method[] methods = AfServletGouvPropertiesResolver.class.getDeclaredMethods();
+            for (Method m : methods) {
+                if (!StringUtils.equals(m.getName(), "getFrontProperties")) {
+                    LOGGER.info("Vérification de la propriété {}", m.getName());
+                    String value = (String) m.invoke(null);
                     if (StringUtils.isBlank(value)) {
-                        propertiesNotFound.add(propertyName);
+                        propertiesNotFound.add(m.getName());
                     }
                 }
             }
 
-        } catch (NoSuchMethodException e) {
-            LOGGER.error("Erreur lors de l'introspection", e);
-        } catch (SecurityException e) {
-            LOGGER.error("Erreur lors de l'introspection", e);
-        } catch (IllegalAccessException e) {
-            LOGGER.error("Erreur lors de l'introspection", e);
-        } catch (IllegalArgumentException e) {
-            LOGGER.error("Erreur lors de l'introspection", e);
-        } catch (InvocationTargetException e) {
+        } catch (InvocationTargetException | IllegalAccessException e) {
             LOGGER.error("Erreur lors de l'introspection", e);
         }
 
         if (!propertiesNotFound.isEmpty()) {
-
             LOGGER.error("Des propriétés n'ont pas été trouvées : {}", propertiesNotFound);
             System.exit(1);
         }

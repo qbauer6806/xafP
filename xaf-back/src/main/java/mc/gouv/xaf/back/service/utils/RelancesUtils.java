@@ -28,7 +28,7 @@ public class RelancesUtils {
 
 	public static final String NB_JOURS_AVANT_EXPIRATION_KEY = "NB_JOURS_AVANT_EXPIRATION_PAIEMENT";
 
-	private static final String DEMANDE_IC_DEJA_RELANCEE_KEY_PREFIX = "DEMANDE_IC_DEJA_RELANCEE_";
+	private static final String DEMANDE_IC_DEJA_RELANCEE_KEY = "DEMANDE_IC_DEJA_RELANCEE";
 
 	@Autowired
 	private DemandesDataService demandesDataService;
@@ -50,7 +50,7 @@ public class RelancesUtils {
 	public void setRelanceDate(DemandeDTO demande) {
 		try {
 			demandesDataService.saveOrUpdateDemandeData(gouvPropertiesResolver.getDemarcheId(), demande.getPkDemandes(),
-					DEMANDE_IC_DEJA_RELANCEE_KEY_PREFIX + demande.getPkDemandes().toString(),
+					DEMANDE_IC_DEJA_RELANCEE_KEY,
 					ZonedDateTime.now().toString());
 		} catch (Exception e) {
 			LOGGER.error("Erreur lors de demandesDataService.saveOrUpdateDemandeData()", e);
@@ -80,7 +80,7 @@ public class RelancesUtils {
 	 */
 	public boolean isEligiblePourUnMailDeRelance(DemandeDTO demande, Integer intervalleEntreDeuxRelance) {
 		DemandeDataDTO demandeData = demandesDataService.getDemandeData(gouvPropertiesResolver.getDemarcheId(),
-				demande.getPkDemandes(), DEMANDE_IC_DEJA_RELANCEE_KEY_PREFIX + demande.getPkDemandes().toString());
+				demande.getPkDemandes(), DEMANDE_IC_DEJA_RELANCEE_KEY);
 		if (null != demandeData) {
 			ZonedDateTime now = ZonedDateTime.now();
 			ZonedDateTime dateDerniereRelance = ZonedDateTime.parse(demandeData.getValue());

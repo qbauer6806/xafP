@@ -90,6 +90,9 @@ public class PaiementDTO {
     private String montantech3 = "";
     private String dateech4 = "";
     private String montantech4 = "";
+    private String libelleMonetique;
+    private String libelleMonetiqueLocalite;
+    
 
 
     public PaiementDTO() {
@@ -300,6 +303,22 @@ public class PaiementDTO {
     public void setMontantech4(String montantech4) {
         this.montantech4 = montantech4;
     }
+    
+    public String getLibelleMonetique() {
+        return libelleMonetique;
+    }
+
+    public void setLibelleMonetique(String libelleMonetique) {
+        this.libelleMonetique = libelleMonetique;
+    }
+    
+    public String getlibelleMonetiqueLocalite() {
+        return libelleMonetiqueLocalite;
+    }
+
+    public void setlibelleMonetiqueLocalite(String libelleMonetiqueLocalite) {
+        this.libelleMonetiqueLocalite = libelleMonetiqueLocalite;
+    }
 
     @Override
     public String toString() {
@@ -328,6 +347,8 @@ public class PaiementDTO {
                 ", montantech3='" + montantech3 + '\'' +
                 ", dateech4='" + dateech4 + '\'' +
                 ", montantech4='" + montantech4 + '\'' +
+                ", libelleMonetique='" + libelleMonetique + '\'' +
+                ", libelleMonetiqueLocalite='" + libelleMonetiqueLocalite + '\'' +
                 '}';
     }
 }

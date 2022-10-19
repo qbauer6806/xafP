@@ -104,7 +104,13 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
         } else if (extension.equals(".png") || extension.equals(".jpg") || extension.equals(".jpeg") || extension.equals(".tif")) {
             // Si c'est une image, générer dictement un tiff sans passer par la case PDF
             BufferedImage bimToScale = ImageIO.read(is);
-            BufferedImage bim = generateTiffFromImage(scaleImage(1920, 1080, bimToScale));
+            BufferedImage bim;
+            // Downscale à une image fullHD
+            if (bimToScale.getWidth() > 1920 || bimToScale.getHeight() > 1080) {
+                bim = generateTiffFromImage(scaleImage(1920, 1080, bimToScale));
+            } else {
+                bim = bimToScale;
+            }
             isList.add(writeImageCCITTT4(bim));
         }
 
@@ -149,7 +155,7 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
         for (int page = 0; page < document.getNumberOfPages(); ++page) {
 
             // Conversion de l'image en tiff
-            BufferedImage bim = generateTiffFromImage(pdfRenderer.renderImageWithDPI(page, 120));
+            BufferedImage bim = generateTiffFromImage(pdfRenderer.renderImageWithDPI(page, 160));
             imagesIS.add(writeImageCCITTT4(bim));
         }
         document.close();

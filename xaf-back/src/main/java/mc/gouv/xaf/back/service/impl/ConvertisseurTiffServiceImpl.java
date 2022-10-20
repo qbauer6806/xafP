@@ -91,17 +91,19 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
         List<InputStream> isList = new ArrayList<>();
 
         // Conversion des fichiers en pdf
-        if (extension.equals(".pdf") || extension.equals(".docx")) {
+        if (extension.equalsIgnoreCase(".pdf") || extension.equalsIgnoreCase(".docx")) {
 
             // conversion des docs en pdf
-            if (extension.equals(".docx")) {
+            if (extension.equalsIgnoreCase(".docx")) {
                 is = generatePdfFromDocx(is);
             }
 
             // génération des tiffs depuis PDF
             isList = generateTiffsFromPDF(is);
 
-        } else if (extension.equals(".png") || extension.equals(".jpg") || extension.equals(".jpeg") || extension.equals(".tif")) {
+        } else if (extension.equalsIgnoreCase(".png") || extension.equalsIgnoreCase(".jpg")
+                || extension.equalsIgnoreCase(".jpeg") || extension.equalsIgnoreCase(".tif")
+                || extension.equalsIgnoreCase(".tiff")) {
             // Si c'est une image, générer dictement un tiff sans passer par la case PDF
             BufferedImage bimToScale = ImageIO.read(is);
             BufferedImage bim;

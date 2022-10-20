@@ -35,7 +35,6 @@ import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.utils.DitheringUtils;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
-import net.sf.image4j.util.ConvertUtil;
 
 
 @Service
@@ -113,10 +112,11 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
             BufferedImage bim;
             // Downscale à une image fullHD
             if (bimToScale.getWidth() > 2560 || bimToScale.getHeight() > 1440) {
-                bim = generateTiffFromImage(scaleImage(2560, 1440, bimToScale));
+                bim = scaleImage(2560, 1440, bimToScale);
             } else {
                 bim = bimToScale;
             }
+            bim = generateTiffFromImage(bim);
             isList.add(writeImageCCITTT4(bim));
         }
 
@@ -191,7 +191,7 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
     private InputStream writeImageCCITTT4(BufferedImage bim) throws IOException {
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             // Sauvegarde de l'image sans perte (compression quality 1f) + comression CCITT T.4 (standard fax/scanner)
-            ImageIOUtil.writeImage(ConvertUtil.convert1(bim), "tiff", out, 240, 1f, "CCITT T.4");
+            ImageIOUtil.writeImage(bim, "tiff", out, 240, 1f, "CCITT T.4");
             return new ByteArrayInputStream(out.toByteArray());
         }
     }

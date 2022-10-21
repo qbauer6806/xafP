@@ -49,7 +49,7 @@
             </td>
             <td class="action-col">
                 <div class="bouton-action">
-                    <a th:href="@{/ws/file/get}+${file.url}">
+                    <a class="nopadding" th:href="@{/ws/file/get}+${file.url}">
                         <button class="btn btn-action ripple-effect greyTooltip" data-original-title="Télécharger"
                                 data-placement="bottom"
                                 data-toggle="tooltip" title="" type="button">
@@ -58,7 +58,7 @@
                     </a>
                 </div>
                 <div class="bouton-action">
-                    <a id="popup" th:value="@{/ws/file/get/apercu}+${file.url}">
+                    <a class="nopadding" id="popup" th:value="@{/ws/file/get/apercu}+${file.url}">
                         <button class="btn btn-action ripple-effect greyTooltip" data-placement="bottom"
                                 data-toggle="tooltip"
                                 onclick="setCurrentPopup(this)" th:data-original-title="Prévisualiser" th:disabled="${#strings.endsWith(file.url,'.tif')} or ${#strings.endsWith(file.url,'.docx')} or ${#strings.endsWith(file.url,'.tiff')} or ${#strings.endsWith(file.url,'.xlsx')}"

@@ -9,5 +9,7 @@ public interface CommandeDemandeRepository extends JpaRepository<CommandeDemande
 
     List<CommandeDemandeBO> findByDemande_PkDemandes(Integer pkDemande);
 
+    List<CommandeDemandeBO> findByDemande_PkDemandesOrderByCommande_DateCreationDesc(Integer pkDemande);
+
     List<CommandeDemandeBO> findByCommande_PkCommandes(Integer pkCommande);
 }

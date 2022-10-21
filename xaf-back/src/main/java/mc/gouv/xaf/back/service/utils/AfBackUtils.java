@@ -12,6 +12,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -216,6 +217,20 @@ public class AfBackUtils {
 
         return null;
     }
+    
+    /**
+	 * Retourne le code alpha2 de la nationalitée en fonction du code alpha3 donné en paramètre
+	 * @param alpha3Code
+	 * @return
+	 */
+	public static String getAlpha2Code(String alpha3Code) {
+		Map<String, String> isoCodeMap = new HashMap<>();
+		for (String currentCountry : Locale.getISOCountries()) {
+			Locale currentCountryLocaleFr = new Locale("fr", currentCountry);
+			isoCodeMap.put(currentCountryLocaleFr.getISO3Country().toUpperCase(), currentCountry);
+		}
+		return isoCodeMap.get(alpha3Code);
+	}
 
     public String getLogonUrl() {
         return gouvPropertiesResolver.getGouvSharedLogonUrl();

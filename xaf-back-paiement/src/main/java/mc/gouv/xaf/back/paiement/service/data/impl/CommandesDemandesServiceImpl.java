@@ -19,7 +19,8 @@ public class CommandesDemandesServiceImpl implements CommandesDemandesService {
     @Override
     public CommandeDemandeDTO getDerniereCommandeDemande(Integer demandeId) {
         List<CommandeDemandeBO> commandeDemandeBOS = commandeDemandeRepository.findByDemande_PkDemandesOrderByCommande_DateCreationDesc(demandeId);
-        return CommandeDemandeTransformer.bo2Dto(commandeDemandeBOS.get(0));
+        if (!commandeDemandeBOS.isEmpty()) {
+        	return CommandeDemandeTransformer.bo2Dto(commandeDemandeBOS.get(0));
+        } else return null;
     }
-
 }

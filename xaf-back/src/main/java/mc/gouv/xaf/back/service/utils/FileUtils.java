@@ -122,7 +122,7 @@ public class FileUtils {
         for(FileCategoryDTO categoryDTO : filesAvecCategorie) {
             if (FileUtils.CAT_INITIALE.equals(categoryDTO.getName()) || FileUtils.CAT_COMPLEMENTS.equals(categoryDTO.getName())) {
                 for (DemandeFileDTO file : categoryDTO.getFiles()) {
-                    if (file.getTypedoc() == null) {
+                    if (StringUtils.isEmpty(file.getTypedoc())) {
                         nbSansCategorie++;
                     }
                 }

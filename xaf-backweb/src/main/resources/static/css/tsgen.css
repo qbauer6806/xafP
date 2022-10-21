@@ -399,11 +399,11 @@ dd span {
 }
 
 .file-name-col {
-	width: 80%;
+	width: 70%;
 }
 
 .file-name-col-small {
-	width: 50%;
+	width: 25%;
 }
 
 .typedoc-col {
@@ -411,20 +411,33 @@ dd span {
 }
 
 .date-col {
-	width: 10%;
+	width: 15%;
 }
 
 .action-col {
-	width: 10%;
+	width: 15%;
+}
+
+.check-col {
+	width: 15%;
 }
 
 .file-name-col, .file-name-col-small {
 	overflow: hidden;
 	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
-.file-name-col, .file-name-col-small, .typedoc-col, .date-col, .action-col {
+.file-name-col, .file-name-col-small, .typedoc-col, .date-col, .action-col, .check-col {
 	padding-right: 0 !important;
+}
+
+.valid-background {
+	background-color: #5cb85c20 !important;
+}
+
+.non-applicable-background {
+	background-color: #ec971f20 !important;
 }
 
 .bouton-action {
@@ -434,11 +447,6 @@ dd span {
 .no-margin-row {
 	margin-left: 0;
 	margin-right: 0;
-}
-
-/* #18771: Ajout d'une propriété pour casser les mots trop long */
-.table>tbody>tr>td {
-    word-break: break-word;
 }
 
 /* overrides bootstrap datetimepicker */

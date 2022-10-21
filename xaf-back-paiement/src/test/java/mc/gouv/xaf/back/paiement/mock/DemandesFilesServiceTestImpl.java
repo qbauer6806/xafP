@@ -20,7 +20,7 @@ public class DemandesFilesServiceTestImpl implements DemandesFilesService {
     }
 
     @Override
-    public boolean updateTypedocs(Map<String, String> changes) {
+    public boolean updateTypedocs(Map<String, String> changes, Map<String, Boolean> checkboxes) {
         return false;
     }
 }

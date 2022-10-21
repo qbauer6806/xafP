@@ -16,6 +16,6 @@ public interface DemandesFilesService {
 
 	void saveFile(DemandeFileDTO demandeFile, String demarcheId, Integer pkDemande);
 
-	boolean updateTypedocs(Map<String, String> changes);
+	boolean updateTypedocs(Map<String, String> changes, Map<String, Boolean> checkboxes);
 
 }

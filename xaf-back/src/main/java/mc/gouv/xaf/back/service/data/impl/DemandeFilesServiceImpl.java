@@ -98,26 +98,37 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
 	}
 
 	@Override
-	public boolean updateTypedocs(Map<String, String> changes) {
-		LOGGER.info("updateTypedocs({})", changes);
+	public boolean updateTypedocs(Map<String, String> changes, Map<String, Boolean> checkboxes) {
+		LOGGER.info("updateTypedocs({}, {})", changes, checkboxes);
 		AtomicBoolean success = new AtomicBoolean(true);
-		if (!changes.isEmpty()) {
-			String demarcheId = gouvPropertiesResolver.getDemarcheId();
+		if (!changes.isEmpty() || !checkboxes.isEmpty()) {
 			List<Integer> keys = changes.keySet().stream()
 					.map(Integer::parseInt)
 					.collect(Collectors.toList());
+			checkboxes.keySet().forEach(k -> {
+				Integer parsed = Integer.parseInt(k);
+				if (!keys.contains(parsed)) {
+					keys.add(parsed);
+				}
+			});
 			Iterable<DemandesFilesBO> files = demandesFilesRepository.findAllById(keys);
 			files.forEach(file -> {
-				String typedoc = changes.get("" + file.getPkDemandesFiles());
-				if (StringUtils.isNotBlank(typedoc)) {
-					file.setTypedoc(typedoc);
-					try {
-						fileService.updateFileMetadata(file.getUrl(), demarcheId, FileService.FILE_METADATA_TYPEDOC, typedoc);
-					} catch (Exception e) {
-						LOGGER.error("Impossible d'affecter la métadonnée typedoc au fichier {} à l'url {}", file.getName(), file.getUrl(), e);
+				String pk = "" + file.getPkDemandesFiles();
+				if (changes.containsKey(pk)) {
+					String typedoc = changes.get(pk);
+					if (StringUtils.isNotBlank(typedoc)) {
+						file.setTypedoc(typedoc);
+						try {
+							fileService.updateFileMetadata(file.getUrl(), gouvPropertiesResolver.getDemarcheId(), FileService.FILE_METADATA_TYPEDOC, typedoc);
+						} catch (Exception e) {
+							LOGGER.error("Impossible d'affecter la métadonnée typedoc au fichier {} à l'url {}", file.getName(), file.getUrl(), e);
+						}
+					} else if (success.get()) {
+						success.set(false);
 					}
-				} else if (success.get()) {
-					success.set(false);
+				}
+				if (checkboxes.containsKey(pk)) {
+					file.setVerification(checkboxes.get(pk));
 				}
 			});
 			demandesFilesRepository.saveAll(files);

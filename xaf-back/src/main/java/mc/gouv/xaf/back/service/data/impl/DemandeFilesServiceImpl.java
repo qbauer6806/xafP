@@ -136,4 +136,9 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
 		LOGGER.info("Fin updateTypedocs()");
 		return success.get();
 	}
+
+	@Override
+	public List<DemandeFileDTO> getFileByDemandeIdAndMeta(Integer pkDemande, String meta) {
+		return DemandesFilesTransformer.bo2Dto(demandesFilesRepository.findAllByFkDemandes_PkDemandesAndMeta(pkDemande, meta));
+	}
 }

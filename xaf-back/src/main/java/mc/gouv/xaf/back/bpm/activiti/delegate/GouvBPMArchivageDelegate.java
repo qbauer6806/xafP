@@ -26,6 +26,7 @@ public class GouvBPMArchivageDelegate implements JavaDelegate {
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMArchivageDelegate.class);
 
     private static final String XAF_ARCHIVAGE_ACTIVATION = "XAF_ARCHIVAGE_ACTIVATION";
+    public static final String ARCHIVAGE_RIO_COMPLETED = "ARCHIVAGE_RIO_COMPLETED";
 
     public static final String MC_REFERENCE_PERMIS = "MC_REFERENCE_PERMIS";
     public static final String MC_ORDRE_FICHIERS = "MC_ORDRE_FICHIERS";
@@ -114,9 +115,10 @@ public class GouvBPMArchivageDelegate implements JavaDelegate {
             }
         } else {
             LOGGER.info("Archivage désactivé");
-            archivageService.archivageProgress.put(demandeId, 1d);
+            ArchivageService.archivageProgress.put(demandeId, 1d);
         }
 
+        demandesDataService.saveOrUpdateDemandeData(demarcheId, demandeId, ARCHIVAGE_RIO_COMPLETED, "true");
 
         LOGGER.info("==== xaf-back-stc Archivage <fin>");
     }

@@ -153,7 +153,7 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
 		String subjectTemplateCode = mailKey + "_OBJET";
 		GichuniUsagerDTO usager = usagersCache.get(demandeDTO.getUsagerId(), true);
 		EmailInfoDTO emailInfo = new EmailInfoDTO();
-		emailInfo.setLangue("fr");
+		emailInfo.setLangue(demandeDTO.getLangue());
 		emailInfo.setBodyTemplateCode(bodyTemplateCode);
 		emailInfo.setSubjectTemplateCode(subjectTemplateCode);
 		emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(),

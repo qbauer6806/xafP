@@ -73,8 +73,8 @@
             <td class="check-col" th:if="${cat.typedoc}">
                 <div class="form-group">
                     <div class="checkbox-custom checkbox-default">
-                        <input type="checkbox" th:checked="${file.verification}" th:id="${file.compFile} ? compCheckbox + ${file.pkDemandesComplementsFiles} : fileCheckbox + ${file.pkDemandesFiles}" th:disabled="!${editionTypedocActive}" onchange="updateCheckboxJSON(this)" />
-                        <label th:for="checkbox + ${file.pkDemandesFiles}" th:id="checklabel + ${file.pkDemandesFiles}" th:text="${file.verification} ? 'Vérifié' : 'À vérifier'" >A Valider</label>
+                        <input type="checkbox" th:checked="${file.verification}" th:id="${file.compFile} ? 'compCheckbox' + ${file.pkDemandesComplementsFiles} : 'fileCheckbox' + ${file.pkDemandesFiles}" th:disabled="!${editionTypedocActive}" onchange="updateCheckboxJSON(this)" />
+                        <label th:for="${file.compFile} ? 'compCheckbox' + ${file.pkDemandesComplementsFiles} : 'fileCheckbox' + ${file.pkDemandesFiles}" th:id="'checklabel' + (${file.compFile} ? ${file.pkDemandesComplementsFiles} : ${file.pkDemandesFiles})">Vérifié</label>
                     </div>
                 </div>
             </td>

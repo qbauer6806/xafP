@@ -196,4 +196,25 @@ var openPdfPrevisuModal = function (containerId, buttonId) {
         }
     });
 };
+
+function checkRemplissageFichiers() {
+    let tousRemplis = true;
+    $('select[id^="file"], select[id^="comp"]').each(function(index, element) {
+        if (!element.value || element.value === '') {
+            return tousRemplis = false;
+        }
+    });
+    return tousRemplis;
+}
+
+function checkVerificationFichiers() {
+    let tousVerif = true;
+    $('input[id^="fileCheckbox"], input[id^="compCheckbox"]').each(function(index, element) {
+        if (!element.checked) {
+            return tousVerif = false;
+        }
+    });
+    return tousVerif;
+}
+
 /*]]>*/

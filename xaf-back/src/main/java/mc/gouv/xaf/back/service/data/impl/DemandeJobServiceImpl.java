@@ -26,6 +26,7 @@ import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.KafkaOutboxTraitementJob;
 import mc.gouv.xaf.back.service.data.DemandeJobService;
 import mc.gouv.xaf.back.service.data.DemandesStatutsRefreshService;
+import mc.gouv.xaf.back.service.data.KafkaOutboxService;
 import mc.gouv.xaf.back.service.es.IndexedDemandeService;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaDLTConsumer;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
@@ -63,6 +64,9 @@ public class DemandeJobServiceImpl implements DemandeJobService {
     
     @Autowired
     private GUKafkaProducer guKafkaProducer;
+    
+    @Autowired
+    private KafkaOutboxService kafkaOutboxService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandeJobServiceImpl.class);
 
@@ -150,7 +154,17 @@ public class DemandeJobServiceImpl implements DemandeJobService {
             if (job.getJobName().equals(JobNamesEnum.SYNCHRONISATION_GLOBALE_GU)) {
         	    List<UsagerDemandesRecapDTO> usagerDemandesRecaps = guKafkaUtils.getUsagerDemandesRecapList();
         	    guKafkaProducer.sendSynchronisationDemandesMessage(usagerDemandesRecaps);
-        	    msg = "Message envoyé";
+        	    msg = "Message placé dans l'Outbox Kafka pour envoi";
+            }
+            if (job.getJobName().equals(JobNamesEnum.RECUPERATION_NOMBRE_MESSAGES_OUTBOX_KAFKA)) {
+            	Integer nbMessages = kafkaOutboxService.getNbOutboxElements();
+            	msg = "L'Outbox Kafka contient " + nbMessages;
+            	if (nbMessages > 1) {
+            		msg += " messages.";
+            	}
+            	else {
+            		 msg += " message.";
+            	}
             }
 
             context.getBean(DemandeJobServiceImpl.class).logSuccess(job.getId(), msg);

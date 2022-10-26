@@ -211,6 +211,21 @@ public class GouvPropertiesResolverTestImpl implements GouvPropertiesResolver {
     }
 
     @Override
+    public String getGUKafkaProducerMaxRequestSize() {
+        return null;
+    }
+
+    @Override
+    public String getGUKafkaConsumerFetchMaxBytes() {
+        return null;
+    }
+
+    @Override
+    public String getGUKafkaConsumerMaxPartitionFetchBytes() {
+        return null;
+    }
+
+    @Override
     public String getGichkeyUrl() {
         return null;
     }

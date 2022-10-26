@@ -3,8 +3,8 @@ package mc.gouv.xaf.back.paiement.service.itg.monetico;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 import mc.gouv.xaf.back.paiement.data.enums.OperationStatutEnum;
 import mc.gouv.xaf.back.paiement.dto.CommandeDTO;
-import mc.gouv.xaf.back.paiement.dto.MoyenPaiementDTO;
 import mc.gouv.xaf.back.paiement.dto.CommandeOperationDTO;
+import mc.gouv.xaf.back.paiement.dto.MoyenPaiementDTO;
 import mc.gouv.xaf.back.paiement.properties.PaiementPropertiesResolver;
 import mc.gouv.xaf.back.paiement.retry.Operation;
 import mc.gouv.xaf.back.paiement.retry.OperationHelper;
@@ -119,6 +119,20 @@ public class MoneticoApiClient implements PaiementApiClient {
                     throw new HttpResponseException(Response.Status.BAD_REQUEST.getStatusCode(), "Capture du paiement désactivé");
                 }
 
+                // Permet de désactiver la capture en simulant un code retour -1
+                // TODO To remove after testing
+                PropertiesDTO errorProp2 = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "TEMP_FAIL_CAPTURE_PAIEMENT_MONETICO_CODE_RETOUR");
+                if ((errorProp2 != null && "true".equals(errorProp2.getValue()))) {
+                    String responseString = "version=1.0\n" +
+                            "reference=" + moyenPaiementDTO.getPkMoyenPaiements() + '\n' +
+                            "cdr=-1\n" +
+                            "lib=la demande ne peut aboutir";
+                    LOGGER.info("Capture [ responseString {}] ", responseString);
+                    setResult(responseString);
+                    extractResult(responseString, commandeOperationDTO);
+                    throw new HttpResponseException(200, "Operation non acceptee");
+                }
+
                 Response response = getTarget().queryParam("TPE", getTpe())
                         .queryParam("montant", montant)
                         .queryParam("montant_a_capturer", montantACapturer)
@@ -137,11 +151,7 @@ public class MoneticoApiClient implements PaiementApiClient {
                 setResult(responseString);
                 extractResult(responseString, commandeOperationDTO);
 
-
-                // Permet de désactiver la capture en simulant un code retour -1
-                // TODO To remove after testing
-                PropertiesDTO errorProp2 = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "TEMP_FAIL_CAPTURE_PAIEMENT_MONETICO_CODE_RETOUR");
-                if (!OperationStatutEnum.ACCEPTEE.name().equals(commandeOperationDTO.getOperationStatut()) || (errorProp2 != null && "true".equals(errorProp2.getValue()))) {
+                if (!OperationStatutEnum.ACCEPTEE.name().equals(commandeOperationDTO.getOperationStatut())) {
                     throw new HttpResponseException(response.getStatus(), "Operation non acceptee");
                 }
             }
@@ -198,6 +208,7 @@ public class MoneticoApiClient implements PaiementApiClient {
             Map<String, Object> model = new HashMap<>();
             model.put("incident", incident);
             model.put("dateTimeString", dateTimeString);
+            model.put("identifiant", demandeDTO.getIdentifiant());
             model.put("Pkdemandes", demandeDTO.getPkDemandes());
             model.put("resultat", operation == null ? null : operation.getResult());
             try {

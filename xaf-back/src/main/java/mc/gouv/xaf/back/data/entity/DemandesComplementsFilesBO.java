@@ -48,6 +48,9 @@ public class DemandesComplementsFilesBO {
     @Column(name = "TYPEDOC", length = 128)
     private String typedoc;
 
+    @Column(name = "VERIFICATION")
+    private boolean verification;
+
     public Integer getPkDemandesComplementsFiles() {
         return pkDemandesComplementsFiles;
     }
@@ -94,5 +97,13 @@ public class DemandesComplementsFilesBO {
 
     public void setTypedoc(String typedoc) {
         this.typedoc = typedoc;
+    }
+
+    public boolean isVerification() {
+        return verification;
+    }
+
+    public void setVerification(boolean verification) {
+        this.verification = verification;
     }
 }

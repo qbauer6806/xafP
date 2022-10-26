@@ -93,6 +93,8 @@ public class MoneticoDTO {
     private String montantech3 = "";
     private String dateech4 = "";
     private String montantech4 = "";
+    private String libelleMonetique = "";
+    private String libelleMonetiqueLocalite = "";
 
 
     public MoneticoDTO() {
@@ -324,6 +326,28 @@ public class MoneticoDTO {
                 ", montantech3='" + montantech3 + '\'' +
                 ", dateech4='" + dateech4 + '\'' +
                 ", montantech4='" + montantech4 + '\'' +
+                ", libelleMonetique='" + libelleMonetique + '\'' +
+                ", libelleMonetiqueLocalite='" + libelleMonetiqueLocalite + '\'' +
                 '}';
     }
+
+
+	public String getLibelleMonetique() {
+		return libelleMonetique;
+	}
+
+
+	public void setLibelleMonetique(String libelleMonetique) {
+		this.libelleMonetique = libelleMonetique;
+	}
+
+
+	public String getLibelleMonetiqueLocalite() {
+		return libelleMonetiqueLocalite;
+	}
+
+
+	public void setLibelleMonetiqueLocalite(String libelleMonetiqueLocalite) {
+		this.libelleMonetiqueLocalite = libelleMonetiqueLocalite;
+	}
 }

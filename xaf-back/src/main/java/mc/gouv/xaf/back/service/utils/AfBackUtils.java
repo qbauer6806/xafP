@@ -12,6 +12,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -89,6 +90,9 @@ public class AfBackUtils {
 
     // French date format with 24 hours
     public static String DEFAULT_FRENCH_DATE_HOURS_FORMAT = "dd/MM/yyyy HH:mm";
+    
+ // French date format with 24 hours
+    public static final String DEFAULT_FRENCH_DATE_HOURS_MINUTES_SECONDS_FORMAT = "dd/MM/yyyy HH:mm:ss";
 
     public DateFormat SDF_JJ_MM_AAAA = new SimpleDateFormat(DEFAULT_FRENCH_DATE_FORMAT);
 
@@ -216,6 +220,20 @@ public class AfBackUtils {
 
         return null;
     }
+    
+    /**
+	 * Retourne le code alpha2 de la nationalitée en fonction du code alpha3 donné en paramètre
+	 * @param alpha3Code
+	 * @return
+	 */
+	public static String getAlpha2Code(String alpha3Code) {
+		Map<String, String> isoCodeMap = new HashMap<>();
+		for (String currentCountry : Locale.getISOCountries()) {
+			Locale currentCountryLocaleFr = new Locale("fr", currentCountry);
+			isoCodeMap.put(currentCountryLocaleFr.getISO3Country().toUpperCase(), currentCountry);
+		}
+		return isoCodeMap.get(alpha3Code);
+	}
 
     public String getLogonUrl() {
         return gouvPropertiesResolver.getGouvSharedLogonUrl();
@@ -633,6 +651,20 @@ public class AfBackUtils {
     		}
     	}
     	return null;
+    }
+    
+    /*
+     * Retourne le texte tronqué avec "(...)" à la fin (pour affichage)
+     */
+    public static String tronquerTextePourAffichage(String texte, Integer nbChars) {
+	    if (texte != null) {
+	    	String ret = texte.substring(0, (texte.length() > nbChars ? nbChars : texte.length()));
+	    	if (ret.length() > 3000) {
+	    		ret += " (...)";
+	    	}
+	    	return ret;
+	    }
+	    return null;
     }
     
     public static List<String> donneesCertifieesJsonToList(String json) {

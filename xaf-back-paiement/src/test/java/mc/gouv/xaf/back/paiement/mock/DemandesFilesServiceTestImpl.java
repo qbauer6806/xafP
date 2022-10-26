@@ -5,6 +5,7 @@ import mc.gouv.xaf.back.service.data.DemandesFilesService;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -20,7 +21,12 @@ public class DemandesFilesServiceTestImpl implements DemandesFilesService {
     }
 
     @Override
-    public boolean updateTypedocs(Map<String, String> changes) {
+    public boolean updateTypedocs(Map<String, String> changes, Map<String, Boolean> checkboxes) {
         return false;
+    }
+
+    @Override
+    public List<DemandeFileDTO> getFileByDemandeIdAndMeta(Integer pkDemande, String meta) {
+        return null;
     }
 }

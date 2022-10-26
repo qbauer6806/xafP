@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,23 +58,17 @@ public class GUKafkaConsumerConfig {
 
     @Bean
     public ConsumerFactory<String, String> consumerFactory() {
-    	System.out.println("consumerFactory()");
+    	LOGGER.info("Création du GUKafkaConsumer...");
         Map<String, Object> configProps = new HashMap<>();
-        configProps.put(
-          ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, 
-          gouvPropertiesResolver.getGUKafkaBootstrapServersConfig());
+        configProps.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, gouvPropertiesResolver.getGUKafkaBootstrapServersConfig());
         
         // GroupID : le code appli (DemarcheID)
-        configProps.put(
-          ConsumerConfig.GROUP_ID_CONFIG, 
-          gouvPropertiesResolver.getDemarcheId());
-        configProps.put(
-          ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, 
-          StringDeserializer.class);
-        configProps.put(
-          ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, 
-          StringDeserializer.class);
-        //return new DefaultKafkaConsumerFactory<>(props);
+        configProps.put(ConsumerConfig.GROUP_ID_CONFIG, gouvPropertiesResolver.getDemarcheId());
+        configProps.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        configProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+
+        configProps.put(ConsumerConfig.FETCH_MAX_BYTES_CONFIG, gouvPropertiesResolver.getGUKafkaConsumerFetchMaxBytes()); 
+        configProps.put(ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG, gouvPropertiesResolver.getGUKafkaConsumerMaxPartitionFetchBytes());
         
         boolean sslEnabled = gouvPropertiesResolver.getGUKafkaSSLEnabled();
         if (sslEnabled) {        	

@@ -43,6 +43,12 @@ public class KafkaOutboxServiceImpl implements KafkaOutboxService {
 		LOGGER.debug("Transformation bo -> dto ...");
 		return KafkaOutboxTransformer.bo2Dto(bos);
 	}
+	
+	@Override
+	public Integer getNbOutboxElements() {
+		LOGGER.info("Comptage des éléments Outbox Kafka...");
+		return Math.toIntExact(kafkaOutboxRepository.count());
+	}
 
 	@Override
 	public KafkaOutboxDTO createOutboxElement(KafkaOutboxDTO outboxElement) {

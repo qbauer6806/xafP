@@ -1,18 +1,23 @@
 package mc.gouv.xaf.back.service.impl;
 
-import fr.opensagres.poi.xwpf.converter.pdf.PdfConverter;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.ConvertisseurTiffService;
-import mc.gouv.xaf.back.service.data.PropertiesService;
-import mc.gouv.xaf.back.service.itg.file.FileService;
-import mc.gouv.xaf.back.service.utils.DitheringUtils;
-import mc.gouv.xaf.shared.dto.DemandeFileDTO;
-import mc.gouv.xaf.shared.dto.PropertiesDTO;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.imageio.ImageIO;
+
 import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.PDPageContentStream;
-import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
-import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.apache.pdfbox.tools.imageio.ImageIOUtil;
 import org.apache.poi.openxml4j.exceptions.NotOfficeXmlFileException;
@@ -22,16 +27,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URLEncoder;
-import java.util.List;
-import java.util.*;
+import fr.opensagres.poi.xwpf.converter.pdf.PdfConverter;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.ConvertisseurTiffService;
+import mc.gouv.xaf.back.service.data.PropertiesService;
+import mc.gouv.xaf.back.service.itg.file.FileService;
+import mc.gouv.xaf.back.service.utils.DitheringUtils;
+import mc.gouv.xaf.shared.dto.DemandeFileDTO;
+import mc.gouv.xaf.shared.dto.PropertiesDTO;
 
 
 @Service
@@ -91,19 +94,29 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
         List<InputStream> isList = new ArrayList<>();
 
         // Conversion des fichiers en pdf
-        if (extension.equals(".pdf") || extension.equals(".docx")) {
+        if (extension.equalsIgnoreCase(".pdf") || extension.equalsIgnoreCase(".docx")) {
 
             // conversion des docs en pdf
-            if (extension.equals(".docx")) {
+            if (extension.equalsIgnoreCase(".docx")) {
                 is = generatePdfFromDocx(is);
             }
 
             // génération des tiffs depuis PDF
             isList = generateTiffsFromPDF(is);
 
-        } else if (extension.equals(".png") || extension.equals(".jpg") || extension.equals(".jpeg") || extension.equals(".tif")) {
+        } else if (extension.equalsIgnoreCase(".png") || extension.equalsIgnoreCase(".jpg")
+                || extension.equalsIgnoreCase(".jpeg") || extension.equalsIgnoreCase(".tif")
+                || extension.equalsIgnoreCase(".tiff")) {
             // Si c'est une image, générer dictement un tiff sans passer par la case PDF
-            BufferedImage bim = generateTiffFromImage(ImageIO.read(is));
+            BufferedImage bimToScale = ImageIO.read(is);
+            BufferedImage bim;
+            // Downscale à une image fullHD
+            if (bimToScale.getWidth() > 2560 || bimToScale.getHeight() > 1440) {
+                bim = scaleImage(2560, 1440, bimToScale);
+            } else {
+                bim = bimToScale;
+            }
+            bim = generateTiffFromImage(bim);
             isList.add(writeImageCCITTT4(bim));
         }
 
@@ -148,8 +161,7 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
         for (int page = 0; page < document.getNumberOfPages(); ++page) {
 
             // Conversion de l'image en tiff
-            BufferedImage bim = generateTiffFromImage(pdfRenderer.renderImageWithDPI(page, 240));
-
+            BufferedImage bim = generateTiffFromImage(pdfRenderer.renderImageWithDPI(page, 160));
             imagesIS.add(writeImageCCITTT4(bim));
         }
         document.close();
@@ -195,4 +207,48 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
         return filesMap;
     }
 
+    /**
+     * Redimensionne une image en préservant le ratio
+     * @param scaledWidth Largeur souhaitée
+     * @param scaledHeight Hauteur souhaitée
+     * @param img Image initiale
+     * @return Image redimentsionnée
+     */
+    private BufferedImage scaleImage(int scaledWidth, int scaledHeight, BufferedImage img){
+        Image im = img;
+        double scale;
+        double imWidth = img.getWidth();
+        double imHeight = img.getHeight();
+        if (scaledWidth > imWidth && scaledHeight > imHeight){
+            im = img;
+        } else if(scaledWidth/imWidth < scaledHeight/imHeight){
+            scale = scaledWidth/imWidth;
+            im = img.getScaledInstance((int) (scale*imWidth), (int) (scale*imHeight), Image.SCALE_SMOOTH);
+        } else if (scaledWidth/imWidth > scaledHeight/imHeight){
+            scale = scaledHeight/imHeight;
+            im = img.getScaledInstance((int) (scale*imWidth), (int) (scale*imHeight), Image.SCALE_SMOOTH);
+        } else if (scaledWidth/imWidth == scaledHeight/imHeight){
+            scale = scaledWidth/imWidth;
+            im = img.getScaledInstance((int) (scale*imWidth), (int) (scale*imHeight), Image.SCALE_SMOOTH);
+        }
+        return toBufferedImage(im);
+    }
+
+    /**
+     * Convert Image to BufferedImage
+     * @param img Image à convertir
+     * @return Image bufferisée
+     */
+    public BufferedImage toBufferedImage(Image img){
+        if (img instanceof BufferedImage) {
+            return (BufferedImage) img;
+        }
+
+        BufferedImage bimage = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+        Graphics2D bGr = bimage.createGraphics();
+        bGr.drawImage(img, 0, 0, null);
+        bGr.dispose();
+
+        return bimage;
+    }
 }

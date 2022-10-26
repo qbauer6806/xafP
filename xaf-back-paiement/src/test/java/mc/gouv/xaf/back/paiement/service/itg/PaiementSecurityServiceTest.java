@@ -32,7 +32,7 @@ public class PaiementSecurityServiceTest {
     @Test
     public void getHmacString_Test() {
         String result = paiementSecurityService.getHmacStringInterfaceAller(new PaiementDTO());
-        assertThat(result).isEqualTo("e3e93094f85b8ab18ac66db5398bd4b1a7a529b5");
+        assertThat(result).isEqualTo("bb3cac15490e59ef100b4b34998dc765dd5bfb50");
     }
 
     @Test

@@ -111,7 +111,7 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
             }
 
         } catch (Exception e) {
-            LOGGER.error("Error Capture paiement", e);
+            LOGGER.error("Erreur Capture paiement", e);
         }
 
         LOGGER.info("Mise à jour du statut du paiement et ajout de l'historique de paiement...");
@@ -153,7 +153,7 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
 		String subjectTemplateCode = mailKey + "_OBJET";
 		GichuniUsagerDTO usager = usagersCache.get(demandeDTO.getUsagerId(), true);
 		EmailInfoDTO emailInfo = new EmailInfoDTO();
-		emailInfo.setLangue("fr");
+		emailInfo.setLangue(demandeDTO.getLangue());
 		emailInfo.setBodyTemplateCode(bodyTemplateCode);
 		emailInfo.setSubjectTemplateCode(subjectTemplateCode);
 		emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(),

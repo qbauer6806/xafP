@@ -27,6 +27,8 @@ public class PaiementPropertiesResolverImpl implements PaiementPropertiesResolve
     private static final String XAF_MONETICO_CONTEXTE_COMMANDE_CODE_POSTAL = "XAF_MONETICO_CONTEXTE_COMMANDE_CODE_POSTAL";
     private static final String XAF_MONETICO_CONTEXTE_COMMANDE_PAYS = "XAF_MONETICO_CONTEXTE_COMMANDE_PAYS";
     private static final String XAF_MONETICO_3DSV2_SCENARIO = "XAF_MONETICO_3DSV2_SCENARIO";
+    private static final String XAF_MONETICO_LIBELLE_SOCIETE = "XAF_MONETICO_LIBELLE_SOCIETE";
+    private static final String XAF_MONETICO_LIBELLE_LIEU = "XAF_MONETICO_LIBELLE_LIEU";
 
     private static final String XAF_CODE_PAIEMENT = "XAF_CODE_PAIEMENT";
     private static final String XAF_RETRY_INITIAL_DELAY = "XAF_RETRY_INITIAL_DELAY";
@@ -191,5 +193,17 @@ public class PaiementPropertiesResolverImpl implements PaiementPropertiesResolve
         PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_CODE_PAIEMENT);
         return propertiesDTO.getValue();
     }
+
+	@Override
+	public String getXafMoneticoLibelleSociete() {
+		PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_MONETICO_LIBELLE_SOCIETE);
+		return propertiesDTO.getValue();
+	}
+
+	@Override
+	public String getXafMoneticoLibelleLieu() {
+		PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_MONETICO_LIBELLE_LIEU);
+		return propertiesDTO.getValue();
+	}
 
 }

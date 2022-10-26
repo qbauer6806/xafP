@@ -72,6 +72,7 @@ public class MoneticoPaiementSecurityServiceImpl implements PaiementSecurityServ
         }
         Gson gson = new Gson();
         String json = gson.toJson(contexte);
+        LOGGER.info("JSON A ENCODER : {}", json);
         byte[] ptext = json.getBytes(ISO_8859_1);
         String utf8ContexteCommande = new String(ptext, UTF_8);
         return encode(utf8ContexteCommande.getBytes(UTF_8));
@@ -90,6 +91,8 @@ public class MoneticoPaiementSecurityServiceImpl implements PaiementSecurityServ
                 "dateech3=" + paiementDTO.getDateech3(),
                 "dateech4=" + paiementDTO.getDateech4(),
                 "lgue=" + paiementDTO.getLgue(),
+                "libelleMonetique=" + paiementDTO.getLibelleMonetique(),
+                "libelleMonetiqueLocalite=" + paiementDTO.getlibelleMonetiqueLocalite(),
                 "mail=" + paiementDTO.getMail(),
                 "mode_affichage=" + paiementDTO.getMode_affichage(),
                 "montant=" + paiementDTO.getMontant(),

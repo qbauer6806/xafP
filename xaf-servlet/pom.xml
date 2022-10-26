@@ -150,8 +150,4 @@
             <version>${vscan.version}</version>
         </dependency>
 	</dependencies>
-
-  <scm>
-    <tag>xaf-10.0.2-SNAPSHOT</tag>
-  </scm>
 </project>

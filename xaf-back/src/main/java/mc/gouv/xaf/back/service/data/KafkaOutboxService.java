@@ -25,4 +25,6 @@ public interface KafkaOutboxService {
 	
 	public Integer resetAllOutboxElements();
 
+	public Integer getNbOutboxElements();
+
 }

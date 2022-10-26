@@ -445,5 +445,32 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     public String getGichkeyClientSecret() {
         return Static.getValue("mc.gouv" + applicationPrefix + ".external.gichkey.client_secret");
     }
+    
+    @Override
+    public String getGUKafkaProducerMaxRequestSize() {
+        String value = Static.getValue("mc.gouv" + applicationPrefix + ".backapi.kafka.producer.maxrequestsizeconfig");
+        if (value == null) {
+        	return "20971520";
+        }
+        return value;
+    }
+
+	@Override
+	public String getGUKafkaConsumerFetchMaxBytes() {
+        String value = Static.getValue("mc.gouv" + applicationPrefix + ".backapi.kafka.consumer.fetchmaxbytes");
+        if (value == null) {
+        	return "20971520";
+        }
+        return value;
+	}
+
+	@Override
+	public String getGUKafkaConsumerMaxPartitionFetchBytes() {
+        String value = Static.getValue("mc.gouv" + applicationPrefix + ".backapi.kafka.consumer.maxpartitionfetchbytes");
+        if (value == null) {
+        	return "20971520";
+        }
+        return value;
+	}
 
 }

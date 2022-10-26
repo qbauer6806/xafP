@@ -94,7 +94,7 @@ public class KafkaOutboxDTO {
 	@Override
 	public String toString() {
 		return "KafkaOutboxDTO [pkKafkaOutbox=" + pkKafkaOutbox + ", topic=" + topic + ", key=" + key + ", contenu="
-				+ contenu + ", dateCreation=" + dateCreation + ", dateLastAttempt=" + dateLastAttempt + ", nbFailedAttempts="
+				+ (contenu == null ? null : (contenu.substring(0, (contenu.length() > 3000 ? 3000 : contenu.length())) + " (...)")) + ", dateCreation=" + dateCreation + ", dateLastAttempt=" + dateLastAttempt + ", nbFailedAttempts="
 				+ nbFailedAttempts + ", statut=" + statut + "]";
 	}
     

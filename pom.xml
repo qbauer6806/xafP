@@ -22,7 +22,6 @@
 		<url>https://git.monaco-gouvernement.mc/libs/xaf.git</url>
 		<connection>scm:git:git@git.monaco-gouvernement.mc:libs/xaf.git</connection>
 		<developerConnection>scm:git:git@git.monaco-gouvernement.mc:libs/xaf.git</developerConnection>
-	  <tag>xaf-10.0.2-SNAPSHOT</tag>
   </scm>
 
 

@@ -20,6 +20,12 @@
 							<span style="color: rgb(94, 97, 100);">Veuillez sélectionner un établissement dans la liste ci-dessous pour affecter la demande :</span>
 							<br />
 							<br/>
+							<!-- les 3 champs suivants sont disabled par défaut, car selon le TS, il peut y avoir ou pas changement de statut lors d'une réaffectation, et si changement de statut alors on enregistre les motifs/commentaires. -->
+							<!-- La page principale (traitement.html) doit donc récupèrer les valeurs du formulaire de traitement, les assigner à ces 3 champs hidden et activer les champs -->
+							<input type="hidden" name="codeMotifChoisi" id="codeMotifChoisiAffectation" disabled="disabled">
+							<input type="hidden" name="commentaireUsager" id="commentaireUsagerAffectation" disabled="disabled">
+							<input type="hidden" name="texteAEnvoyer" id="texteAEnvoyerAffectation" disabled="disabled">		
+												
 							<input type="hidden" name="pkDemande" id="affecterPkDemande" th:value="${demandeDTO.pkDemandes}"/>
 							<input type="hidden" name="activeTaskDefinitionKey" th:value="${activeTaskDefinitionKey}" />
 		                    <select id="etablissementCode" required type="text" name="etablissementCode" class="form-control">

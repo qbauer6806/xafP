@@ -1,5 +1,6 @@
 package mc.gouv.xaf.back.paiement.data.transformer;
 
+import mc.gouv.xaf.back.paiement.data.entity.CommandeBO;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeOperationBO;
 import mc.gouv.xaf.back.paiement.dto.CommandeOperationDTO;
 
@@ -17,6 +18,7 @@ public class CommandeOperationTransformer {
     public static CommandeOperationDTO bo2Dto(CommandeOperationBO bo) {
         CommandeOperationDTO dto = new CommandeOperationDTO();
         dto.setPkOperations(bo.getPkOperations());
+        dto.setFkCommandes(bo.getCommande().getPkCommandes());
         dto.setOperationType(OperationTypeTransformer.bo2String(bo.getOperationType()));
         dto.setOperationStatut(OperationStatutTransformer.bo2String(bo.getOperationStatut()));
         dto.setDateCreation(bo.getDateCreation());

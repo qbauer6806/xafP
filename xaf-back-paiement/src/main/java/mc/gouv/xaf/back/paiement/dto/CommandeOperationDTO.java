@@ -8,6 +8,8 @@ import java.time.LocalDateTime;
 public class CommandeOperationDTO {
 
     private String pkOperations;
+    
+    private Integer fkCommandes;
 
     private String operationType;
 
@@ -33,6 +35,14 @@ public class CommandeOperationDTO {
 
     public void setCodeRetour(String codeRetour) {
         this.codeRetour = codeRetour;
+    }
+    
+    public Integer getFkCommandes() {
+        return fkCommandes;
+    }
+
+    public void setFkCommandes(Integer fkCommandes) {
+        this.fkCommandes = fkCommandes;
     }
 
     public String getLibelle() {

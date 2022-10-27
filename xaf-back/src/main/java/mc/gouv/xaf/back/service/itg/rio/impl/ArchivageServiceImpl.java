@@ -236,7 +236,7 @@ public class ArchivageServiceImpl implements ArchivageService {
 
     private ArchivageFichierInitalDTO createFichierInitial(DemandeFileDTO file) {
         ArchivageFichierInitalDTO fichierInitalDTO = new ArchivageFichierInitalDTO();
-        String filename = file.getName().substring(0, file.getName().indexOf("."));
+        String filename = file.getName().substring(0, file.getName().lastIndexOf("."));
         String extension = file.getName().substring(file.getName().lastIndexOf(".")).toLowerCase();
         fichierInitalDTO.setNom(filename);
         fichierInitalDTO.setFormat(extension);

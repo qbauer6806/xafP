@@ -8,12 +8,7 @@ import java.net.HttpURLConnection;
 import java.net.Proxy;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -24,6 +19,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import mc.gouv.xaf.back.paiement.dto.CommandeDemandeArticleDTO;
+import mc.gouv.xaf.shared.enums.MailSupportEnum;
 import org.apache.http.client.HttpResponseException;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.HttpUrlConnectorProvider;
@@ -43,9 +39,7 @@ import mc.gouv.xaf.back.paiement.retry.OperationHelper;
 import mc.gouv.xaf.back.paiement.service.itg.FactureApiClient;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.PropertiesService;
-import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
-import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 
@@ -58,30 +52,20 @@ public class CirApiApiClient implements FactureApiClient {
     public static final String PAIEMENT_ROUTE = "v1/ts/ecritures/paiement/";
     public static final String FACTURE_ROUTE = "v1/ts/ecritures/getfacture";
     public static final String PERMIS_ROUTE = "v1/permis/{numPermis}";
-    public static final String XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE = "XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE";
-
-
-    private static SimpleDateFormat simpleDateTimeFormat = new SimpleDateFormat("dd/MM/yyyy:HH:mm:ss");
-
     private final WebTarget targetCheck;
     private final WebTarget targetCreate;
     private final WebTarget targetGet;
     private final WebTarget targetGetPermis;
-
     private final OperationHelper operationHelper;
-
     private final PaiementPropertiesResolver paiementPropertiesResolver;
-
-    private MailService mailService;
-    private AfBackUtils afBackUtils;
-    private PropertiesService propertiesService;
-    private GouvPropertiesResolver gouvPropertiesResolver;
+    private final MailService mailService;
+    private final PropertiesService propertiesService;
+    private final GouvPropertiesResolver gouvPropertiesResolver;
 
     public CirApiApiClient(Proxy proxy,
                            PaiementPropertiesResolver paiementPropertiesResolver,
                            OperationHelper operationHelper,
                            MailService mailService,
-                           AfBackUtils afBackUtils,
                            PropertiesService propertiesService,
                            GouvPropertiesResolver gouvPropertiesResolver) {
         String serviceUrl = paiementPropertiesResolver.getFactureUrl();
@@ -100,7 +84,6 @@ public class CirApiApiClient implements FactureApiClient {
         this.paiementPropertiesResolver = paiementPropertiesResolver;
         this.operationHelper = operationHelper;
         this.mailService = mailService;
-        this.afBackUtils = afBackUtils;
         this.propertiesService = propertiesService;
         this.gouvPropertiesResolver = gouvPropertiesResolver;
     }
@@ -119,7 +102,6 @@ public class CirApiApiClient implements FactureApiClient {
         LOGGER.info("return : {}", responseString);
         return responseString;
     }
-
 
     @Override
     public Optional<String> createFacture(String numPermis, String numImmat, double montant, String codeTransaction, InformationFacturationDTO infoFacturation, List<CommandeDemandeArticleDTO> articles, DemandeDTO demandeDTO, CommandeOperationDTO commandeOperationDto) {
@@ -188,8 +170,7 @@ public class CirApiApiClient implements FactureApiClient {
             LOGGER.info("return : {}", operation.getResult());
             return operation.getResult();
         } catch (Exception e) {
-            sendMailTechnique(demandeDTO, operation, 6);
-            sendMailFonctionnel(demandeDTO, operation, 6);
+            sendMail(demandeDTO, operation, 6);
         }
         return Optional.empty();
     }
@@ -233,8 +214,7 @@ public class CirApiApiClient implements FactureApiClient {
             logEndMethod(LOGGER);
             return operation.getResult();
         } catch (Exception e) {
-            sendMailTechnique(demandeDTO, operation, 7);
-            sendMailFonctionnel(demandeDTO, operation, 7);
+            sendMail(demandeDTO, operation, 7);
             throw e;
         }
     }
@@ -272,81 +252,12 @@ public class CirApiApiClient implements FactureApiClient {
         return operation.getResult();
     }
 
-    private void sendMailTechnique(DemandeDTO demandeDTO, Operation<?> operation, int incident) {
-        Date date = new Date(System.currentTimeMillis());
-        String dateTimeString = simpleDateTimeFormat.format(date);
-        String bodyTemplateCode = "MAIL_CIR_ECHEC_TECH_CORPS";
-        String subjectTemplateCode = "MAIL_CIR_ECHEC_TECH_OBJET";
-
-        EmailInfoDTO emailInfo = new EmailInfoDTO();
-        emailInfo.setBodyTemplateCode(bodyTemplateCode);
-        emailInfo.setSubjectTemplateCode(subjectTemplateCode);
-        emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(), afBackUtils.getDemarcheInfos()
-                .getEmailFromNom());
-        emailInfo.setReplyto(afBackUtils.getDemarcheInfos().getEmailReplyto(), afBackUtils.getDemarcheInfos()
-                .getEmailReplytoNom());
-
-        PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE);
-
-        if (propertiesDTO.getValue() != null) {
-            String[] adresses = propertiesDTO.getValue().trim().split(",");
-
-            for (String adresseMail : adresses) {
-                emailInfo.addTo(adresseMail, "Support Technique");
-            }
-        }
-
-        emailInfo.setLangue("fr");
-
-
+    private void sendMail(DemandeDTO demandeDTO, Operation<?> operation, int incident) {
+        String bodyTemplateCode = "MAIL_CIR_ECHEC_CORPS";
+        String subjectTemplateCode = "MAIL_CIR_ECHEC_OBJET";
+        Set<String> mailingLists = mailService.getMailingLists(MailSupportEnum.XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE.name(), MailSupportEnum.XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE_CIR.name(), MailSupportEnum.XAF_ADRESSES_MAIL_ADMIN_METIER.name());
         Map<String, Object> model = new HashMap<>();
-        model.put("incident", incident);
-        model.put("dateTimeString", dateTimeString);
-        model.put("PkDemandes", demandeDTO.getPkDemandes());
-        model.put("reponse", operation.getResult());
-        try {
-            mailService.sendMail(emailInfo, model);
-        } catch (Exception e) {
-            LOGGER.error("Erreur lors de l'envoi de l'email", e);
-        }
-    }
-
-    private void sendMailFonctionnel(DemandeDTO demandeDTO, Operation<?> operation, int incident) {
-        Date date = new Date(System.currentTimeMillis());
-        String dateTimeString = simpleDateTimeFormat.format(date);
-        String bodyTemplateCode = "MAIL_CIR_ECHEC_FONC_CORPS";
-        String subjectTemplateCode = "MAIL_CIR_ECHEC_FONC_OBJET";
-
-        EmailInfoDTO emailInfo = new EmailInfoDTO();
-        emailInfo.setBodyTemplateCode(bodyTemplateCode);
-        emailInfo.setSubjectTemplateCode(subjectTemplateCode);
-        emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(), afBackUtils.getDemarcheInfos()
-                .getEmailFromNom());
-        emailInfo.setReplyto(afBackUtils.getDemarcheInfos().getEmailReplyto(), afBackUtils.getDemarcheInfos()
-                .getEmailReplytoNom());
-
-        PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE);
-
-        if (propertiesDTO.getValue() != null) {
-            String[] adresses = propertiesDTO.getValue().trim().split(",");
-
-            for (String adresseMail : adresses) {
-                emailInfo.addTo(adresseMail, "Support Technique");
-            }
-        }
-
-        emailInfo.setLangue("fr");
-
-
-        Map<String, Object> model = new HashMap<>();
-        model.put("incident", incident);
-        model.put("dateTimeString", dateTimeString);
-        model.put("PkDemandes", demandeDTO.getPkDemandes());
-        model.put("reponse", operation.getResult());
-        try {
-            mailService.sendMail(emailInfo, model);
-        } catch (Exception e) {
-            LOGGER.error("Erreur lors de l'envoi de l'email", e);
-        }
+        model.put("resultat", operation.getResult());
+        mailService.sendMailSupport(subjectTemplateCode, bodyTemplateCode, mailingLists, demandeDTO.getPkDemandes(), demandeDTO.getIdentifiant(), incident, model, null);
     }
 }

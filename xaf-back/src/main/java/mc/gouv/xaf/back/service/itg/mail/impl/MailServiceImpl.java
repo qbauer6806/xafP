@@ -8,6 +8,7 @@ import java.util.*;
 
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.PropertiesService;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.velocity.app.Velocity;
@@ -191,7 +192,7 @@ public class MailServiceImpl implements MailService {
 	}
 
     @Override
-    public void sendMailSupport(String subjectTemplateCode, String bodyTemplateCode, Set<String> mails,
+    public void sendMailSupport(String subjectTemplateCode, String bodyTemplateCode, Set<String> mails,Integer pkDemande,
                                 String identifiantDemande, int incident, Map<String, Object> modelAdd, Map<String, InputStream> attachments) {
         Date date = new Date(System.currentTimeMillis());
         final SimpleDateFormat simpleDateTimeFormat = new SimpleDateFormat("dd/MM/yyyy:HH:mm:ss");
@@ -203,7 +204,7 @@ public class MailServiceImpl implements MailService {
         emailInfo.setSubjectTemplateCode(subjectTemplateCode);
         emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(), afBackUtils.getDemarcheInfos().getEmailFromNom());
         emailInfo.setReplyto(afBackUtils.getDemarcheInfos().getEmailReplyto(), afBackUtils.getDemarcheInfos().getEmailReplytoNom());
-        emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, identifiantDemande + "");
+        emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, identifiantDemande);
 
         for (String adresseMail : mails) {
             emailInfo.addTo(adresseMail, "Support Technique");
@@ -213,6 +214,7 @@ public class MailServiceImpl implements MailService {
         model.put("incident", incident);
         model.put("dateTimeString", dateTimeString);
         model.put("identifiant", identifiantDemande);
+        model.put("Pkdemandes", pkDemande);
         if(modelAdd != null) {
             model.putAll(modelAdd);
         }

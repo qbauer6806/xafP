@@ -35,4 +35,10 @@ public class ExcelExportModelProviderImplTest implements ExcelExportModelProvide
         
         return model;
 	}
+
+	@Override
+	public Map<String, Object> getModelDebits(ExcelRechercheDTO excelRecherche) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

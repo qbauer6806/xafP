@@ -104,6 +104,8 @@ public class CaptureServiceImpl implements CaptureService {
             if (optionalNumFacture.isPresent()) {
                 LOGGER.info("Created [ facture n°{}] ", optionalNumFacture.get());
                 operation.setNumeroFacture(optionalNumFacture.get());
+            } else {
+                operation.setNumeroFacture(FactureApiClient.INCIDENT);
             }
 
             CommandeOperationBO commandeOperationBO = CommandeOperationTransformer.dto2Bo(operation);

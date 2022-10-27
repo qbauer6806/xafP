@@ -38,25 +38,25 @@ public class PermisServiceImpl implements PermisService {
     private MailService mailService;
 
     @Override
-    public PermisDTO getPermis(String numPermis, int pkDemande) throws Exception {
+    public PermisDTO getPermis(String numPermis, int pkDemande, String identifiantDemande) throws Exception {
         logStartMethod(LOGGER);
 
         PermisDTO permisDTO;
         try {
             permisDTO = factureApiClient.getPermis(numPermis).get();
         } catch (Exception e) {
-            sendMailProblemeCir(pkDemande);
+            sendMailProblemeCir(identifiantDemande);
             throw e;
         }
 
         return permisDTO;
     }
 
-    private void sendMailProblemeCir(int demandeId) {
+    private void sendMailProblemeCir(String identifiant) {
         String subjectTemplateCode = "MAIL_ECHEC_CIR_TABLE_PERMIS_OBJET";
         String bodyTemplateCode = "MAIL_ECHEC_CIR_TABLE_PERMIS_CORPS";
-        List<String> list = mailService.getMailingLists(MailSupportEnum.XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE.name(),
+        Set<String> list = mailService.getMailingLists(MailSupportEnum.XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE.name(),
                 MailSupportEnum.XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE_CIR.name());
-        mailService.sendMailSupport(subjectTemplateCode, bodyTemplateCode, list, demandeId, 5, null);
+        mailService.sendMailSupport(subjectTemplateCode, bodyTemplateCode, list, identifiant, 5, null, null);
     }
 }

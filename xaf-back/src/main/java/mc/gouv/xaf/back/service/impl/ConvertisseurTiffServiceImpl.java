@@ -74,7 +74,7 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
         // Récupération de l'extension et le nom du fichier
         int indexInit = file.getName().lastIndexOf("\\");
         String extension = file.getName().substring(file.getName().lastIndexOf(".")).toLowerCase();
-        String filename = file.getName().substring(Math.max(indexInit, 0), file.getName().indexOf("."));
+        String filename = file.getName().substring(Math.max(indexInit, 0), file.getName().lastIndexOf("."));
 
         List<InputStream> isList = convertFileToTiff(is, extension);
 

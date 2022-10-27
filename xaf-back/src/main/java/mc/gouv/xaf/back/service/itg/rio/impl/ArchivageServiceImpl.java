@@ -37,7 +37,7 @@ public class ArchivageServiceImpl implements ArchivageService {
 
     private static Logger LOGGER = LoggerFactory.getLogger(ArchivageServiceImpl.class);
 
-    private final SimpleDateFormat simpleDateTimeFormat = new SimpleDateFormat("dd/MM/yyyy:HH:mm:ss");
+    private final SimpleDateFormat simpleDateTimeFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
     private final String STATUT_OK = "Succès";
     private final String STATUT_KO = "Échec";
 
@@ -73,6 +73,8 @@ public class ArchivageServiceImpl implements ArchivageService {
         double progresArchivage = 0;
         double valeurStep = 1d / files.size();
         int demandeId = demandeDTO.getPkDemandes();
+        boolean erreurRIO = false;
+        boolean erreurConvertisseur = false;
 
         ArchivageRapportExportDTO archivageRapportExportDTO = new ArchivageRapportExportDTO();
         archivageProgress.put(demandeId, progresArchivage);
@@ -96,7 +98,7 @@ public class ArchivageServiceImpl implements ArchivageService {
             }
         } catch (Exception e) {
             LOGGER.info("Problème avec l'api RIO");
-            sendMailProblemeRIO(demandeId);
+            erreurRIO = true;
         }
 
         for (DemandeFileDTO file : files) {
@@ -113,16 +115,17 @@ public class ArchivageServiceImpl implements ArchivageService {
                 LOGGER.error("Erreur lors de la conversion du document {}", file.getName(), e);
                 archivageRapportExportDTO.addFichiersConvertis(createFichierConverti(file, STATUT_KO, ""));
                 archivageRapportExportDTO.addFichiersDeposes(createFichierDepose(file, STATUT_KO, ""));
-                sendMailProblemeConvertisseur(demandeId);
 
                 // On fait avancer les steps d'archivage
                 progresArchivage += valeurStep;
                 archivageProgress.put(demandeId, progresArchivage);
 
+                erreurConvertisseur = true;
+
                 continue;
             }
 
-            boolean erreurArchivageFichier = false;
+            boolean erreurArchivageFichierCourrant = false;
             for (Map.Entry<String, InputStream> fileTiff : filesTiff.entrySet()) {
                 try {
                     LOGGER.info("Envoi du documents en GED pour {}", fileTiff.getKey());
@@ -132,8 +135,8 @@ public class ArchivageServiceImpl implements ArchivageService {
                 } catch (Exception e) {
                     LOGGER.error("Erreur lors de l'archivage du document {}", file.getName(), e);
                     archivageRapportExportDTO.addFichiersDeposes(createFichierDepose(file, STATUT_KO, fileTiff.getKey()));
-                    sendMailProblemeRIO(demandeId);
-                    erreurArchivageFichier = true;
+                    erreurRIO = true;
+                    erreurArchivageFichierCourrant = true;
                 }
             }
 
@@ -142,7 +145,7 @@ public class ArchivageServiceImpl implements ArchivageService {
             archivageProgress.put(demandeId, progresArchivage);
 
             // On marque le document comme "archivé" si et seulement si toutes ses pages (docs tiff) ont été archivés
-            if (!erreurArchivageFichier) {
+            if (!erreurArchivageFichierCourrant) {
                 fileDocumentList.add(file);
             }
         }
@@ -154,8 +157,8 @@ public class ArchivageServiceImpl implements ArchivageService {
         archivageRapportExportDTO.setDemarcheId(demandeDTO.getDemarcheId());
         archivageRapportExportDTO.setDemandeFlatDTO(afBackUtils.demandeDTOToDemandeFlatDTO(demandeDTO));
 
-        try {
-            generateArchivageRecap(archivageRapportExportDTO, demandeDTO);
+        try (ByteArrayOutputStream rapport = generateArchivageRecap(archivageRapportExportDTO, demandeDTO)) {
+            processErreursArchivage(erreurRIO, erreurConvertisseur, demandeDTO.getIdentifiant(), rapport);
         } catch (Exception e) {
             LOGGER.error("Erreur lors de la génération du rapport d'archivage pour la demande {}", demandeId, e);
         }
@@ -163,24 +166,36 @@ public class ArchivageServiceImpl implements ArchivageService {
         return fileDocumentList;
     }
 
-    private void sendMailProblemeConvertisseur(int demandeId) {
+    private void processErreursArchivage(boolean erreurRIO, boolean erreurConvertisseur, String identifiant, ByteArrayOutputStream rapport) {
+        if (erreurRIO) {
+            sendMailProblemeRIO(identifiant, rapport);
+        } else if (erreurConvertisseur) {
+            sendMailProblemeConvertisseur(identifiant, rapport);
+        }
+    }
+
+    private void sendMailProblemeConvertisseur(String identifiant, ByteArrayOutputStream rapport) {
         String subjectTemplateCode = "MAIL_ECHEC_CONVERTISSEUR_OBJET";
         String bodyTemplateCode = "MAIL_ECHEC_CONVERTISSEUR_CORPS";
-        List<String> list = mailService.getMailingLists(MailSupportEnum.XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE.name(),
+        Set<String> list = mailService.getMailingLists(MailSupportEnum.XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE.name(),
                 MailSupportEnum.XAF_ADRESSES_MAIL_ADMIN_METIER.name());
-        mailService.sendMailSupport(subjectTemplateCode, bodyTemplateCode, list, demandeId, 8, null);
+        Map<String, InputStream> pj = new HashMap<>();
+        pj.put("Rapport archivage.xlsx", new ByteArrayInputStream(rapport.toByteArray()));
+        mailService.sendMailSupport(subjectTemplateCode, bodyTemplateCode, list, identifiant, 8, null, pj);
     }
 
-    private void sendMailProblemeRIO(int demandeId) {
+    private void sendMailProblemeRIO(String identifiant, ByteArrayOutputStream rapport) {
         String subjectTemplateCode = "MAIL_RIO_ECHEC_ARCHIVAGE_OBJET";
         String bodyTemplateCode = "MAIL_RIO_ECHEC_ARCHIVAGE_CORPS";
-        List<String> list = mailService.getMailingLists(MailSupportEnum.XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE.name(),
+        Set<String> list = mailService.getMailingLists(MailSupportEnum.XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE.name(),
                 MailSupportEnum.XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE_RIO.name(),
                 MailSupportEnum.XAF_ADRESSES_MAIL_ADMIN_METIER.name());
-        mailService.sendMailSupport(subjectTemplateCode, bodyTemplateCode, list, demandeId, 9, null);
+        Map<String, InputStream> pj = new HashMap<>();
+        pj.put("Rapport archivage.xlsx", new ByteArrayInputStream(rapport.toByteArray()));
+        mailService.sendMailSupport(subjectTemplateCode, bodyTemplateCode, list, identifiant, 9, null, pj);
     }
 
-    private void generateArchivageRecap(ArchivageRapportExportDTO rapportExportDTO, DemandeDTO demandeDTO) throws Exception {
+    private ByteArrayOutputStream generateArchivageRecap(ArchivageRapportExportDTO rapportExportDTO, DemandeDTO demandeDTO) throws Exception {
         LOGGER.info("Constitution du modèle pour la génération du recap archivage...");
         Map<String, Object> model = new HashMap<>();
         model.put("demarcheId", rapportExportDTO.getDemarcheId());
@@ -203,10 +218,11 @@ public class ArchivageServiceImpl implements ArchivageService {
         String url = fileService.saveFile(demandeDTO, fileName, gouvPropertiesResolver.getContainerId(),
                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", new ByteArrayInputStream(output.toByteArray()), outputSave);
 
-        output.close();
         outputSave.close();
 
         saveFichier(fileName, url, demandeDTO, demandeDTO.getDemarcheId());
+
+        return output;
     }
 
     private void saveFichier(String fileName, String url, DemandeDTO demande, String demarcheId) {

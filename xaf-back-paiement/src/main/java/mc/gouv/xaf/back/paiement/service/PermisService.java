@@ -4,5 +4,5 @@ import mc.gouv.xaf.back.paiement.dto.itg.cir.PermisDTO;
 
 public interface PermisService {
 
-    PermisDTO getPermis(String numPermis, int pkDemande) throws Exception;
+    PermisDTO getPermis(String numPermis, int pkDemande, String identifiantDemande) throws Exception;
 }

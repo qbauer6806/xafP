@@ -35,7 +35,7 @@ import java.util.*;
 @Service
 public class ArchivageServiceImpl implements ArchivageService {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(ArchivageServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ArchivageServiceImpl.class);
 
     private final SimpleDateFormat simpleDateTimeFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
     private final String STATUT_OK = "Succès";
@@ -158,7 +158,7 @@ public class ArchivageServiceImpl implements ArchivageService {
         archivageRapportExportDTO.setDemandeFlatDTO(afBackUtils.demandeDTOToDemandeFlatDTO(demandeDTO));
 
         try (ByteArrayOutputStream rapport = generateArchivageRecap(archivageRapportExportDTO, demandeDTO)) {
-            processErreursArchivage(erreurRIO, erreurConvertisseur, demandeDTO.getIdentifiant(), rapport);
+            processErreursArchivage(erreurRIO, erreurConvertisseur, demandeDTO, rapport);
         } catch (Exception e) {
             LOGGER.error("Erreur lors de la génération du rapport d'archivage pour la demande {}", demandeId, e);
         }
@@ -166,25 +166,25 @@ public class ArchivageServiceImpl implements ArchivageService {
         return fileDocumentList;
     }
 
-    private void processErreursArchivage(boolean erreurRIO, boolean erreurConvertisseur, String identifiant, ByteArrayOutputStream rapport) {
+    private void processErreursArchivage(boolean erreurRIO, boolean erreurConvertisseur, DemandeDTO demandeDTO, ByteArrayOutputStream rapport) {
         if (erreurRIO) {
-            sendMailProblemeRIO(identifiant, rapport);
+            sendMailProblemeRIO(demandeDTO, rapport);
         } else if (erreurConvertisseur) {
-            sendMailProblemeConvertisseur(identifiant, rapport);
+            sendMailProblemeConvertisseur(demandeDTO, rapport);
         }
     }
 
-    private void sendMailProblemeConvertisseur(String identifiant, ByteArrayOutputStream rapport) {
+    private void sendMailProblemeConvertisseur(DemandeDTO demandeDTO, ByteArrayOutputStream rapport) {
         String subjectTemplateCode = "MAIL_ECHEC_CONVERTISSEUR_OBJET";
         String bodyTemplateCode = "MAIL_ECHEC_CONVERTISSEUR_CORPS";
         Set<String> list = mailService.getMailingLists(MailSupportEnum.XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE.name(),
                 MailSupportEnum.XAF_ADRESSES_MAIL_ADMIN_METIER.name());
         Map<String, InputStream> pj = new HashMap<>();
         pj.put("Rapport archivage.xlsx", new ByteArrayInputStream(rapport.toByteArray()));
-        mailService.sendMailSupport(subjectTemplateCode, bodyTemplateCode, list, identifiant, 8, null, pj);
+        mailService.sendMailSupport(subjectTemplateCode, bodyTemplateCode, list, demandeDTO.getPkDemandes(), demandeDTO.getIdentifiant(), 8, null, pj);
     }
 
-    private void sendMailProblemeRIO(String identifiant, ByteArrayOutputStream rapport) {
+    private void sendMailProblemeRIO(DemandeDTO demandeDTO, ByteArrayOutputStream rapport) {
         String subjectTemplateCode = "MAIL_RIO_ECHEC_ARCHIVAGE_OBJET";
         String bodyTemplateCode = "MAIL_RIO_ECHEC_ARCHIVAGE_CORPS";
         Set<String> list = mailService.getMailingLists(MailSupportEnum.XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE.name(),
@@ -192,7 +192,7 @@ public class ArchivageServiceImpl implements ArchivageService {
                 MailSupportEnum.XAF_ADRESSES_MAIL_ADMIN_METIER.name());
         Map<String, InputStream> pj = new HashMap<>();
         pj.put("Rapport archivage.xlsx", new ByteArrayInputStream(rapport.toByteArray()));
-        mailService.sendMailSupport(subjectTemplateCode, bodyTemplateCode, list, identifiant, 9, null, pj);
+        mailService.sendMailSupport(subjectTemplateCode, bodyTemplateCode, list, demandeDTO.getPkDemandes(), demandeDTO.getIdentifiant(), 9, null, pj);
     }
 
     private ByteArrayOutputStream generateArchivageRecap(ArchivageRapportExportDTO rapportExportDTO, DemandeDTO demandeDTO) throws Exception {

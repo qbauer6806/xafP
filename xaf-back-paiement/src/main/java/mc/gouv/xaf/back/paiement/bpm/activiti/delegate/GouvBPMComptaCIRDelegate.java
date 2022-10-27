@@ -1,8 +1,12 @@
 package mc.gouv.xaf.back.paiement.bpm.activiti.delegate;
 
 import mc.gouv.xaf.back.bpm.GouvBPM;
+import mc.gouv.xaf.back.paiement.enums.PaiementDemandeDataKeysEnum;
 import mc.gouv.xaf.back.paiement.service.FactureService;
+import mc.gouv.xaf.back.paiement.service.itg.FactureApiClient;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.AfHistoService;
+import mc.gouv.xaf.back.service.data.DemandesDataService;
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.delegate.JavaDelegate;
 import org.slf4j.Logger;
@@ -27,6 +31,12 @@ public class GouvBPMComptaCIRDelegate implements JavaDelegate {
     @Autowired
     private AfHistoService histoService;
 
+    @Autowired
+    private GouvPropertiesResolver gouvPropertiesResolver;
+
+    @Autowired
+    private DemandesDataService demandesDataService;
+
     @Override
     public void execute(DelegateExecution execution) {
         LOGGER.info("==== xaf-back-stc compta CIR ...");
@@ -44,6 +54,7 @@ public class GouvBPMComptaCIRDelegate implements JavaDelegate {
             LOGGER.error("Error compta CIR", e);
             gouvBPM.setProcessBusinessVariable(demandeId, MC_COMPTA_RESULT, false);
             histoService.actionSysteme(demandeId, "ECHEC", "Ecriture comptable automatique en échec");
+            demandesDataService.saveOrUpdateDemandeData(gouvPropertiesResolver.getDemarcheId(), demandeId, PaiementDemandeDataKeysEnum.NUMERO_FACTURE.name(), FactureApiClient.INCIDENT);
         }
 
         LOGGER.info("==== xaf-back-stc compta CIR <fin>");

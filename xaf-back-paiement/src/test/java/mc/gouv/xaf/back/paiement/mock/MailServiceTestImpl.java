@@ -3,13 +3,13 @@ package mc.gouv.xaf.back.paiement.mock;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
 import org.apache.velocity.exception.MethodInvocationException;
 import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Component;
 
 import java.io.InputStream;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -36,8 +36,8 @@ public class MailServiceTestImpl implements MailService {
     }
 
     @Override
-    public void sendMailSupport(String subjectTemplateCode, String bodyTemplateCode, Set<String> mailingLists,
-                                String identifiant, int incident, Map<String, Object> modelAdd, Map<String, InputStream> attachments) {
+    public void sendMailSupport(String subjectTemplateCode, String bodyTemplateCode, Set<String> mailingLists, Integer pkDemande,
+                                String identifiantDemande,  int incident, Map<String, Object> modelAdd, Map<String, InputStream> attachments) {
 
     }
 

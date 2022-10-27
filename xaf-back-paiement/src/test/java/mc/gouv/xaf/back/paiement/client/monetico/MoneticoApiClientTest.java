@@ -18,7 +18,6 @@ public class MoneticoApiClientTest {
             new OperationHelper(new PaiementPropertiesResolverTestImpl()),
             null,
             null,
-            null,
             null
     );
 

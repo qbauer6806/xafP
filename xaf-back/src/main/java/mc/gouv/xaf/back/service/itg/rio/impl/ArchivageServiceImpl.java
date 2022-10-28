@@ -235,7 +235,7 @@ public class ArchivageServiceImpl implements ArchivageService {
         file.setUrl('/' + url);
         file.setDate(new Date());
         file.setMeta("BACK_RAPPORT_ARCHIVAGE");
-        demandesFilesService.saveFile(file, demarcheId, demande.getPkDemandes());
+        demandesFilesService.saveFile(file, demarcheId, demande.getPkDemandes(), false);
     }
 
     private ArchivageFichierInitalDTO createFichierInitial(DemandeFileDTO file) {

@@ -1,20 +1,5 @@
 package mc.gouv.xaf.back.service.data.impl;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
 import mc.gouv.xaf.back.data.dao.DemandesFilesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
@@ -25,6 +10,16 @@ import mc.gouv.xaf.back.service.data.DemandesFilesService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 /**
  * Service permettant la manipulation des fichiers joints aux demandes.
@@ -74,10 +69,15 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
 
 	@Override
 	public void saveFile(DemandeFileDTO demandeFile, String demarcheId, Integer pkDemande) {
+		saveFile(demandeFile, demarcheId, pkDemande, true);
+	}
 
-		LOGGER.info("saveFile({}, {}, {})", demandeFile, demarcheId, pkDemande);
+	@Override
+	public void saveFile(DemandeFileDTO demandeFile, String demarcheId, Integer pkDemande, boolean checkActive) {
 
-		DemandeBO demandeBo = demandesService.getDemandeBo(demarcheId, pkDemande);
+		LOGGER.info("saveFile({}, {}, {}, {})", demandeFile, demarcheId, pkDemande, checkActive);
+
+		DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(demarcheId, pkDemande, checkActive);
 
 		DemandesFilesBO demandeFileBo = DemandesFilesTransformer.dto2Bo(demandeFile);
 		demandeFileBo.setFkDemandes(demandeBo);

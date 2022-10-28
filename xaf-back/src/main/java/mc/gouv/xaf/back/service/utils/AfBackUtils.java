@@ -87,6 +87,9 @@ public class AfBackUtils {
 
     // 24 hours time format
     public static String DEFAULT_FRENCH_TIME_FORMAT = "HH:mm";
+    
+ // 24 hours time format with seconds
+    public static String DEFAULT_FRENCH_TIME_FORMAT_SECONDS = "HH:mm:ss";
 
     // French date format with 24 hours
     public static String DEFAULT_FRENCH_DATE_HOURS_FORMAT = "dd/MM/yyyy HH:mm";

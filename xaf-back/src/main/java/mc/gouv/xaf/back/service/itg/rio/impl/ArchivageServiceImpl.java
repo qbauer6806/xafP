@@ -11,10 +11,7 @@ import mc.gouv.xaf.back.service.itg.rio.RioService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
-import mc.gouv.xaf.shared.dto.export.archivage.ArchivageFichierConvertiDTO;
-import mc.gouv.xaf.shared.dto.export.archivage.ArchivageFichierDeposeDTO;
-import mc.gouv.xaf.shared.dto.export.archivage.ArchivageFichierInitalDTO;
-import mc.gouv.xaf.shared.dto.export.archivage.ArchivageRapportExportDTO;
+import mc.gouv.xaf.shared.dto.export.archivage.*;
 import mc.gouv.xaf.shared.dto.itg.rio.RioDocumentDTO;
 import mc.gouv.xaf.shared.enums.MailSupportEnum;
 import org.apache.commons.io.IOUtils;
@@ -75,9 +72,12 @@ public class ArchivageServiceImpl implements ArchivageService {
         int demandeId = demandeDTO.getPkDemandes();
         boolean erreurRIO = false;
         boolean erreurConvertisseur = false;
+        ArchivageStatutDTO archivageStatut = new ArchivageStatutDTO();
+        archivageStatut.setAvancement(ArchivageStatutAvancementEnum.EN_COURS);
+        archivageStatut.setProgression(progresArchivage);
+        archivageProgress.put(demandeId, archivageStatut);
 
         ArchivageRapportExportDTO archivageRapportExportDTO = new ArchivageRapportExportDTO();
-        archivageProgress.put(demandeId, progresArchivage);
 
         // En début de process, on boucle sur les fichiers pour initialiser le rapport d'archivage
         // Si on le fait après, il pourrait y avoir une erreur qui stop le process
@@ -118,9 +118,10 @@ public class ArchivageServiceImpl implements ArchivageService {
 
                 // On fait avancer les steps d'archivage
                 progresArchivage += valeurStep;
-                archivageProgress.put(demandeId, progresArchivage);
+                archivageStatut.setProgression(progresArchivage);
 
                 erreurConvertisseur = true;
+                archivageStatut.setNbFichiersEnErreur(archivageStatut.getNbFichiersEnErreur()+1);
 
                 continue;
             }
@@ -142,15 +143,18 @@ public class ArchivageServiceImpl implements ArchivageService {
 
             // On fait avancer le step de l'archivage au prochain fichier
             progresArchivage += valeurStep;
-            archivageProgress.put(demandeId, progresArchivage);
+            archivageStatut.setProgression(progresArchivage);
 
             // On marque le document comme "archivé" si et seulement si toutes ses pages (docs tiff) ont été archivés
-            if (!erreurArchivageFichierCourrant) {
+            if (erreurArchivageFichierCourrant) {
+                archivageStatut.setNbFichiersEnErreur(archivageStatut.getNbFichiersEnErreur()+1);
+            } else {
                 fileDocumentList.add(file);
             }
         }
 
-        archivageProgress.put(demandeId, 1d);
+        archivageStatut.setProgression(1d);
+        archivageStatut.setAvancement(ArchivageStatutAvancementEnum.COMPLETE);
 
         LOGGER.info("Fin archivage des documents");
 

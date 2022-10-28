@@ -9,6 +9,8 @@ import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.rio.ArchivageService;
 import mc.gouv.xaf.shared.dto.*;
+import mc.gouv.xaf.shared.dto.export.archivage.ArchivageStatutAvancementEnum;
+import mc.gouv.xaf.shared.dto.export.archivage.ArchivageStatutDTO;
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.delegate.JavaDelegate;
 import org.slf4j.Logger;
@@ -115,7 +117,10 @@ public class GouvBPMArchivageDelegate implements JavaDelegate {
             }
         } else {
             LOGGER.info("Archivage désactivé");
-            ArchivageService.archivageProgress.put(demandeId, 1d);
+            ArchivageStatutDTO statutDTO = new ArchivageStatutDTO();
+            statutDTO.setAvancement(ArchivageStatutAvancementEnum.COMPLETE);
+            statutDTO.setProgression(1d);
+            ArchivageService.archivageProgress.put(demandeId, statutDTO);
         }
 
         demandesDataService.saveOrUpdateDemandeData(demarcheId, demandeId, ARCHIVAGE_RIO_COMPLETED, "true");

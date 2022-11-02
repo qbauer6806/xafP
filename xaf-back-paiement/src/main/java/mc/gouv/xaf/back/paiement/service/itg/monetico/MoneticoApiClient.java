@@ -9,8 +9,11 @@ import mc.gouv.xaf.back.paiement.properties.PaiementPropertiesResolver;
 import mc.gouv.xaf.back.paiement.retry.Operation;
 import mc.gouv.xaf.back.paiement.retry.OperationHelper;
 import mc.gouv.xaf.back.paiement.service.itg.PaiementApiClient;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.enums.MailSupportEnum;
 import org.apache.http.client.HttpResponseException;
 import org.glassfish.jersey.client.ClientConfig;
@@ -44,6 +47,8 @@ public class MoneticoApiClient implements PaiementApiClient {
     private final PaiementPropertiesResolver paiementPropertiesResolver;
     private final OperationHelper operationHelper;
     private final MailService mailService;
+    private final PropertiesService propertiesService;
+    private final GouvPropertiesResolver gouvPropertiesResolver;
 
     DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy:HH:mm:ss");
@@ -51,7 +56,9 @@ public class MoneticoApiClient implements PaiementApiClient {
     public MoneticoApiClient(Proxy proxy,
                              PaiementPropertiesResolver paiementPropertiesResolver,
                              OperationHelper operationHelper,
-                             MailService mailService) {
+                             MailService mailService,
+                             PropertiesService propertiesService,
+                             GouvPropertiesResolver gouvPropertiesResolver) {
 
         ClientConfig config = new ClientConfig();
 
@@ -67,6 +74,8 @@ public class MoneticoApiClient implements PaiementApiClient {
         this.paiementPropertiesResolver = paiementPropertiesResolver;
         this.operationHelper = operationHelper;
         this.mailService = mailService;
+        this.propertiesService = propertiesService;
+        this.gouvPropertiesResolver = gouvPropertiesResolver;
     }
 
     public boolean capture(CommandeDTO commandeDTO, CommandeOperationDTO commandeOperationDTO, DemandeDTO demandeDTO) {
@@ -93,11 +102,11 @@ public class MoneticoApiClient implements PaiementApiClient {
                         moyenPaiementDTO.getPkMoyenPaiements(), dateCapture, dateCommande, moyenPaiementDTO.getCodeSociete(), version);
 
                 // Permet de désactiver la capture en simulant monetico injoignable
-//                PropertiesDTO errorProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "TEMP_FAIL_CAPTURE_PAIEMENT_MONETICO_INJOIGNABLE");
-//                if (errorProp != null && "true".equals(errorProp.getValue()) ) {
-//                    // On met le statut 400 pour éviter de faire plusieurs tentatives
-//                    throw new HttpResponseException(Response.Status.BAD_REQUEST.getStatusCode(), "Capture du paiement désactivé");
-//                }
+                PropertiesDTO errorProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "TEMP_FAIL_CAPTURE_PAIEMENT_MONETICO_INJOIGNABLE");
+                if (errorProp != null && "true".equals(errorProp.getValue()) ) {
+                    // On met le statut 400 pour éviter de faire plusieurs tentatives
+                    throw new HttpResponseException(Response.Status.BAD_REQUEST.getStatusCode(), "Capture du paiement désactivé");
+                }
 
                 // Permet de désactiver la capture en simulant un code retour -1
 //                PropertiesDTO errorProp2 = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "TEMP_FAIL_CAPTURE_PAIEMENT_MONETICO_CODE_RETOUR");

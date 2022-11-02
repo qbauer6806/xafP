@@ -19,5 +19,5 @@ public interface FactureApiClient {
 
     Optional<InputStream> getFacture(String numFacture, DemandeDTO demandeDTO) throws Exception;
 
-    Optional<PermisDTO> getPermis(String numPermis) throws Exception;
+    PermisDTO getPermis(String numPermis) throws Exception;
 }

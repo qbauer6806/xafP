@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
@@ -30,20 +32,22 @@ public class PermisServiceImpl implements PermisService {
 
         PermisDTO permisDTO;
         try {
-            permisDTO = factureApiClient.getPermis(numPermis).get();
+            permisDTO = factureApiClient.getPermis(numPermis);
         } catch (Exception e) {
-            sendMailProblemeCir(pkDemande, identifiantDemande);
+            sendMailProblemeCir(pkDemande, identifiantDemande, e.getMessage());
             throw e;
         }
 
         return permisDTO;
     }
 
-    private void sendMailProblemeCir(int pkDemande, String identifiant) {
+    private void sendMailProblemeCir(int pkDemande, String identifiant, String reponse) {
         String subjectTemplateCode = "MAIL_ECHEC_CIR_TABLE_PERMIS_OBJET";
         String bodyTemplateCode = "MAIL_ECHEC_CIR_TABLE_PERMIS_CORPS";
         Set<String> list = mailService.getMailingLists(MailSupportEnum.XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE.name(),
                 MailSupportEnum.XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE_CIR.name());
-        mailService.sendMailSupport(subjectTemplateCode, bodyTemplateCode, list, pkDemande, identifiant, 5, null, null);
+        Map<String, Object> model = new HashMap<>();
+        model.put("reponseApi", reponse);
+        mailService.sendMailSupport(subjectTemplateCode, bodyTemplateCode, list, pkDemande, identifiant, 5, model, null);
     }
 }

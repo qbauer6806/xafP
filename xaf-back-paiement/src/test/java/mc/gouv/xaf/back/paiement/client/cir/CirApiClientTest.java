@@ -16,7 +16,7 @@ import java.util.List;
 public class CirApiClientTest {
 
     CirApiApiClient cirApiClient = new CirApiApiClient(Proxy.NO_PROXY, new PaiementPropertiesResolverTestImpl(),
-            new OperationHelper(new PaiementPropertiesResolverTestImpl()), null, null, null);
+            new OperationHelper(new PaiementPropertiesResolverTestImpl()), null);
 
 
     @Test

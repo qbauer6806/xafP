@@ -16,8 +16,6 @@ public class MoneticoApiClientTest {
     MoneticoApiClient moneticoApiClient = new MoneticoApiClient(Proxy.NO_PROXY,
             new PaiementPropertiesResolverTestImpl(),
             new OperationHelper(new PaiementPropertiesResolverTestImpl()),
-            null,
-            null,
             null
     );
 

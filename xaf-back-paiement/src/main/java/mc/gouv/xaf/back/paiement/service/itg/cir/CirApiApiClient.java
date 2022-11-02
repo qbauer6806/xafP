@@ -37,11 +37,8 @@ import mc.gouv.xaf.back.paiement.properties.PaiementPropertiesResolver;
 import mc.gouv.xaf.back.paiement.retry.Operation;
 import mc.gouv.xaf.back.paiement.retry.OperationHelper;
 import mc.gouv.xaf.back.paiement.service.itg.FactureApiClient;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.xaf.shared.dto.PropertiesDTO;
 
 @Component
 public class CirApiApiClient implements FactureApiClient {
@@ -59,15 +56,11 @@ public class CirApiApiClient implements FactureApiClient {
     private final OperationHelper operationHelper;
     private final PaiementPropertiesResolver paiementPropertiesResolver;
     private final MailService mailService;
-    private final PropertiesService propertiesService;
-    private final GouvPropertiesResolver gouvPropertiesResolver;
 
     public CirApiApiClient(Proxy proxy,
                            PaiementPropertiesResolver paiementPropertiesResolver,
                            OperationHelper operationHelper,
-                           MailService mailService,
-                           PropertiesService propertiesService,
-                           GouvPropertiesResolver gouvPropertiesResolver) {
+                           MailService mailService) {
         String serviceUrl = paiementPropertiesResolver.getFactureUrl();
         ClientConfig config = new ClientConfig();
 
@@ -84,8 +77,6 @@ public class CirApiApiClient implements FactureApiClient {
         this.paiementPropertiesResolver = paiementPropertiesResolver;
         this.operationHelper = operationHelper;
         this.mailService = mailService;
-        this.propertiesService = propertiesService;
-        this.gouvPropertiesResolver = gouvPropertiesResolver;
     }
 
     @Override
@@ -148,12 +139,15 @@ public class CirApiApiClient implements FactureApiClient {
                         .header(HttpHeaders.AUTHORIZATION, BEARER_PREFIX + paiementPropertiesResolver.getFactureToken())
                         .post(Entity.entity(cirRequestDTOS, MediaType.APPLICATION_JSON));
 
-                // Permet simuler un appel en erreur à CIR
-                // TODO To remove after testing
-                PropertiesDTO errorProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "TEMP_FAIL_CIR_ECRITURE_COMPTABLE");
-                if (response.getStatus() != Response.Status.CREATED.getStatusCode() || (errorProp != null && "true".equals(errorProp.getValue()))) {
+                if (response.getStatus() != Response.Status.CREATED.getStatusCode()) {
                     throw new HttpResponseException(response.getStatus(), "CIR createFacture() failed");
                 }
+
+                // Propriétés de tests pour bloquer les appels d'API
+//                PropertiesDTO errorProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "TEMP_FAIL_CIR_ECRITURE_COMPTABLE");
+//                if (response.getStatus() != Response.Status.CREATED.getStatusCode() || (errorProp != null && "true".equals(errorProp.getValue()))) {
+//                    throw new HttpResponseException(response.getStatus(), "CIR createFacture() failed");
+//                }
                 setResult(response.readEntity(String.class));
             }
 
@@ -191,12 +185,15 @@ public class CirApiApiClient implements FactureApiClient {
                         .header(HttpHeaders.AUTHORIZATION, BEARER_PREFIX + paiementPropertiesResolver.getFactureToken())
                         .get();
 
-                // Permet simuler un appel en erreur à CIR
-                // TODO To remove after testing
-                PropertiesDTO errorProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "TEMP_FAIL_CIR_RECUP_FACTURE");
-                if (response.getStatus() != Response.Status.OK.getStatusCode() || (errorProp != null && "true".equals(errorProp.getValue()))) {
+                if (response.getStatus() != Response.Status.OK.getStatusCode()) {
                     throw new HttpResponseException(response.getStatus(), "CIR getFacture() failed");
                 }
+
+                // Propriétés de tests pour bloquer les appels d'API
+//                PropertiesDTO errorProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "TEMP_FAIL_CIR_RECUP_FACTURE");
+//                if (response.getStatus() != Response.Status.OK.getStatusCode() || (errorProp != null && "true".equals(errorProp.getValue()))) {
+//                    throw new HttpResponseException(response.getStatus(), "CIR getFacture() failed");
+//                }
                 InputStream inputStream = response.readEntity(InputStream.class);
                 setResult(inputStream);
                 logEndMethod(getLogger());
@@ -229,12 +226,15 @@ public class CirApiApiClient implements FactureApiClient {
                 .header(HttpHeaders.AUTHORIZATION, BEARER_PREFIX + paiementPropertiesResolver.getFactureToken())
                 .get();
 
-        // TODO To remove after testing
-        PropertiesDTO errorProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "TEMP_FAIL_CIR_TABLE_PERMIS");
-        if (response.getStatus() != Response.Status.OK.getStatusCode() || (errorProp != null && "true".equals(errorProp.getValue()))) {
-            //throw new HttpResponseException(response.getStatus(), "CIR getPermis() failed");
-            throw new HttpResponseException(500, response.toString());
+        if (response.getStatus() != Response.Status.OK.getStatusCode()) {
+            throw new HttpResponseException(response.getStatus(), response.toString());
         }
+
+        // Propriétés de tests pour bloquer les appels d'API
+//        PropertiesDTO errorProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "TEMP_FAIL_CIR_TABLE_PERMIS");
+//        if (response.getStatus() != Response.Status.OK.getStatusCode() || (errorProp != null && "true".equals(errorProp.getValue()))) {
+//            throw new HttpResponseException(500, response.toString());
+//        }
         PermisDTO permisDTO = response.readEntity(PermisDTO.class);
         logEndMethod(LOGGER);
         return permisDTO;

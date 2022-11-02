@@ -22,11 +22,9 @@ import mc.gouv.xaf.back.paiement.service.itg.MoneticoPaiementService;
 import mc.gouv.xaf.back.paiement.service.itg.PaiementSecurityService;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesDataService;
-import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.shared.dto.DemandeDataDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
-import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.itg.monetico.MoneticoResponseDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -102,11 +100,7 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
 
-    @Autowired
-    private PropertiesService propertiesService;
-
     @Override
-
     public PaiementDTO create(String demandesId, String langue, Integer usagerId, boolean iframe) {
         logStartMethod(LOGGER);
         String demarcheId = gouvPropertiesResolver.getDemarcheId();
@@ -278,16 +272,16 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
         logStartMethod(LOGGER);
         LOGGER.info("Parameters [ moneticoResponseDTO {}] ", moneticoResponseDTO);
 
-        // TODO To remove after testing
-        PropertiesDTO errorProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "TEMP_FAIL_RETOUR_MONETICO");
-        if (errorProp != null && "true".equals(errorProp.getValue()) ) {
-            return CODE_RETOUR_KO;
-        }
+        // Propriétés de tests pour bloquer les appels d'API
+//        PropertiesDTO errorProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "TEMP_FAIL_RETOUR_MONETICO");
+//        if (errorProp != null && "true".equals(errorProp.getValue()) ) {
+//            return CODE_RETOUR_KO;
+//        }
 
         LOGGER.info("Vérification de la clé HMAC...");
         String mac = paiementSecurityService.getHmacStringInterfaceRetour(moneticoResponseDTO);
         if (!StringUtils.equals(moneticoResponseDTO.getMac(), mac)) {
-            return CODE_RETOUR_KO + '\n' + mac;
+            return CODE_RETOUR_KO;
         }
 
         String reference = moneticoResponseDTO.getReference();

@@ -30,11 +30,9 @@ import org.springframework.stereotype.Service;
 import fr.opensagres.poi.xwpf.converter.pdf.PdfConverter;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.ConvertisseurTiffService;
-import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.utils.DitheringUtils;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
-import mc.gouv.xaf.shared.dto.PropertiesDTO;
 
 
 @Service
@@ -48,9 +46,6 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
 
-    @Autowired
-    private PropertiesService propertiesService;
-
     public Map<String, InputStream> generateTiffs(List<DemandeFileDTO> files) throws IOException {
         Map<String, InputStream> fileMap = new HashMap<>();
         for (DemandeFileDTO file : files) {
@@ -61,11 +56,11 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
 
     public Map<String, InputStream> generateTiffs(DemandeFileDTO file) throws IOException {
 
-        // TODO To remove after testing
-        PropertiesDTO errorProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "TEMP_FAIL_CONVERTISSEUR");
-        if (errorProp != null && "true".equals(errorProp.getValue()) ) {
-            throw new IOException();
-        }
+        // Propriétés de tests pour bloquer les appels d'API
+//        PropertiesDTO errorProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "TEMP_FAIL_CONVERTISSEUR");
+//        if (errorProp != null && "true".equals(errorProp.getValue()) ) {
+//            throw new IOException();
+//        }
 
         // Récupération du fichier dans file
         String filePathEncoded = URLEncoder.encode(file.getUrl(), "UTF-8");
@@ -84,10 +79,6 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
 
     /**
      * Conversion d'un fichier docx, png, jpg ou jpeg en TIFF compressé
-     *
-     * @param is
-     * @param extension
-     * @throws IOException
      */
     private List<InputStream> convertFileToTiff(InputStream is, String extension) throws IOException {
 
@@ -127,7 +118,6 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
      * Génère des PDF à partir des docx
      * @param is Fichier d'entrée DocX
      * @return Fichier PDF converti
-     * @throws IOException
      */
     private InputStream generatePdfFromDocx(InputStream is) throws IOException {
         XWPFDocument document;
@@ -148,7 +138,6 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
      * Génère un/plusieurs fichier tiff à partir d'un PDF (éventuellement multipages)
      * @param is Fichier PDF d'entée
      * @return Liste de fichiers tiff
-     * @throws IOException
      */
     private List<InputStream> generateTiffsFromPDF(InputStream is) throws IOException {
         List<InputStream> imagesIS = new ArrayList<>();

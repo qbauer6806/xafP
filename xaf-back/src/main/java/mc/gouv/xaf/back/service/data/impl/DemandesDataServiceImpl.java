@@ -36,21 +36,19 @@ public class DemandesDataServiceImpl implements DemandesDataService {
 	@Autowired
 	private DemandesService demandesService;
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public DemandeDataDTO getDemandeData(String demarcheId, Integer demandeId, String key) {
-		// Jette une exception si la demande n'existe pas
-		demandesService.getCheckDemarcheDemandeDTO(demarcheId, demandeId, true);
-		return getDemandeDataNoCheck(demarcheId, demandeId, key);
+		return getDemandeData(demarcheId, demandeId, key, true);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
-	public DemandeDataDTO getDemandeDataNoCheck(String demarcheId, Integer demandeId, String key) {
+	public DemandeDataDTO getDemandeData(String demarcheId, Integer demandeId, String key, boolean checkActive) {
+
+		// Jette une exception si la demande n'existe pas
+		if(checkActive) {
+			demandesService.getCheckDemarcheDemandeDTO(demarcheId, demandeId, true);
+		}
+
 		DemandesDataBO demandesDataBo = getDemandeDataBO(demandeId, key);
 		LOGGER.info("Transformation bo -> dto ...");
 		return DemandesDataTransformer.bo2Dto(demandesDataBo);

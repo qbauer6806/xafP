@@ -21,11 +21,11 @@ public interface DemandesDataService {
     DemandeDataDTO getDemandeData(String demarcheId, Integer demandeId, String key);
 
     /**
-     * Permet de récupérer la donnée d'une demande correspondant à un DemandeID et une clé, sans vérifier l'existance de la demande en paramètre
+     * Permet de récupérer la donnée d'une demande correspondant à un DemandeID et une clé, en vérifiant l'existance de la demande via le paramètre checkActive
      *
      * @return La donnée de demande demandée
      */
-    DemandeDataDTO getDemandeDataNoCheck(String demarcheId, Integer demandeId, String key);
+    DemandeDataDTO getDemandeData(String demarcheId, Integer demandeId, String key, boolean checkActive);
 
     /**
      * Permet de récupérer les données de demande correspondant à un DemandeID

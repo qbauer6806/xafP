@@ -220,36 +220,24 @@ public class CirApiApiClient implements FactureApiClient {
     }
 
     @Override
-    public Optional<PermisDTO> getPermis(String numPermis) throws Exception {
+    public PermisDTO getPermis(String numPermis) throws Exception {
         logStartMethod(LOGGER);
         LOGGER.info("Parameters [ getPermis {}] ", numPermis);
 
-        Operation<PermisDTO> operation = new Operation<PermisDTO>() {
-            @Override
-            public void execute() throws Exception {
-                Response response = targetGetPermis.resolveTemplate("numPermis", numPermis)
-                        .request()
-                        .header(HttpHeaders.AUTHORIZATION, BEARER_PREFIX + paiementPropertiesResolver.getFactureToken())
-                        .get();
+        Response response = targetGetPermis.resolveTemplate("numPermis", numPermis)
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, BEARER_PREFIX + paiementPropertiesResolver.getFactureToken())
+                .get();
 
-                // TODO To remove after testing
-                PropertiesDTO errorProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "TEMP_FAIL_CIR_TABLE_PERMIS");
-                if (response.getStatus() != Response.Status.OK.getStatusCode() || (errorProp != null && "true".equals(errorProp.getValue()))) {
-                    throw new HttpResponseException(response.getStatus(), "CIR getPermis() failed");
-                }
-                PermisDTO permisDTO = response.readEntity(PermisDTO.class);
-                setResult(permisDTO);
-                logEndMethod(getLogger());
-            }
-            @Override
-            public Logger getLogger() {
-                return LOGGER;
-            }
-        };
-
-        operationHelper.executeWithRetry(operation);
+        // TODO To remove after testing
+        PropertiesDTO errorProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "TEMP_FAIL_CIR_TABLE_PERMIS");
+        if (response.getStatus() != Response.Status.OK.getStatusCode() || (errorProp != null && "true".equals(errorProp.getValue()))) {
+            //throw new HttpResponseException(response.getStatus(), "CIR getPermis() failed");
+            throw new HttpResponseException(500, response.toString());
+        }
+        PermisDTO permisDTO = response.readEntity(PermisDTO.class);
         logEndMethod(LOGGER);
-        return operation.getResult();
+        return permisDTO;
     }
 
     private void sendMail(DemandeDTO demandeDTO, Operation<?> operation, int incident) {

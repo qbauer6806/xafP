@@ -28,8 +28,8 @@ public class DemandesDataServiceTestImpl implements DemandesDataService {
     }
 
     @Override
-    public DemandeDataDTO getDemandeDataNoCheck(String demarcheId, Integer demandeId, String key) {
-        return null;
+    public DemandeDataDTO getDemandeData(String demarcheId, Integer demandeId, String key, boolean checkActive) {
+        return getDemandeData(demarcheId, demandeId, key, false);
     }
 
     @Override

@@ -57,6 +57,7 @@ public class SessionsServlet extends HttpServlet {
             Cookie xsrfCookie = new Cookie(AppFactoryServletUtils.XSRF_COOKIE,
                     session.getAttribute(AppFactoryServletUtils.XSRF_SESSION_ATTRIBUTE).toString());
             xsrfCookie.setSecure(true);
+            xsrfCookie.setHttpOnly(true);
             response.addCookie(xsrfCookie);
 
             // Récupération de l'objet attaché à la session

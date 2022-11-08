@@ -958,6 +958,13 @@ public class DemandesServiceImpl implements DemandesService {
 
 		LOGGER.info("Appel du répo pour la suppression...");
 		demandesRepository.delete(demandeBo);
+		
+		String identifiant = demandeBo.getIdentifiant();
+		Date dateCreation = demandeBo.getDateCreation();
+		LOGGER.info("Envoi d'un message dans Kafka pour notifier le Guichet Unique de la suppression de la demande...");
+		List<DemandeRecapDTO> demandeRecaps = guKafkaUtils.getDemandeRecapsFromUsagerId(demandeDTO.getUsagerId());
+        RecapDemandesDTO recapDemandes = guKafkaUtils.getRecapDemandes(demandeRecaps);
+        guKafkaProducer.sendSuppressionDemandeMessage(access.getUsagerId(), demandeId, identifiant, dateCreation, recapDemandes);
 	}
 
 	private boolean isFileDeletable(List<DemandesFilesBO> existingFiles, List<String> statuts, int jours) {

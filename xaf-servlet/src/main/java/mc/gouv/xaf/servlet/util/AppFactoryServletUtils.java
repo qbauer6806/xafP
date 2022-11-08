@@ -147,7 +147,8 @@ public class AppFactoryServletUtils {
 
         // Check le csrf token seulement si POST
         if (request.getMethod().equalsIgnoreCase("POST")) {
-            String xsrfToken = request.getHeader(XSRF_HEADER);
+        	
+        	String xsrfToken = session.getAttribute(XSRF_SESSION_ATTRIBUTE).toString();
 
             if (StringUtils.isBlank(xsrfToken)) {
                 return null;

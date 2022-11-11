@@ -27,6 +27,7 @@ public class PurgeDemandesSchedulingJob implements Job {
     public static final String TRIGGER_NAME = "PurgeDemandesSchedulingTrigger";
 
     private static final String DELAI_PURGE_EN_JOURS = "DELAI_PURGE_EN_JOURS";
+    private static final int DELAI_PAR_DEFAUT_PURGE = 1095; // 3 ans de purge par défaut
     private static final String ACTIVATION_PURGE = "ACTIVATION_PURGE";
 
     @Autowired
@@ -38,29 +39,46 @@ public class PurgeDemandesSchedulingJob implements Job {
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
 
-    @Override
+    /**
+     * @return La valeur de la propriété d'activation de la purge
+     */
+    protected boolean getActivationPurge() {
+        PropertiesDTO activationPurge = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), ACTIVATION_PURGE);
+        return activationPurge != null && Boolean.parseBoolean(activationPurge.getValue());
+    }
+
+    /**
+     * @return La liste conteant les clés des statuts à purger
+     */
     @SuppressWarnings("unchecked")
+    protected List<String> getStatuts(JobExecutionContext jobExecutionContext) {
+        List<String> statuts = new ArrayList<>();
+        // Récupération de la liste des statuts à purger dans le contexte du job detail
+        Object statutsJob = jobExecutionContext.getJobDetail().getJobDataMap().get("statuts");
+        if (statutsJob instanceof List) {
+            statuts = (ArrayList<String>) statutsJob;
+        }
+        return statuts;
+    }
+
+    protected Integer getDelaiPurge() {
+        PropertiesDTO delaiPurgeProperty = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), DELAI_PURGE_EN_JOURS);
+        return delaiPurgeProperty != null ? Integer.parseInt(delaiPurgeProperty.getValue()) : DELAI_PAR_DEFAUT_PURGE;
+    }
+
+    @Override
     public void execute(JobExecutionContext jobExecutionContext) {
-        try {
-            PropertiesDTO activationPurge = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), ACTIVATION_PURGE);
-            boolean active = Boolean.parseBoolean(activationPurge.getValue());
-            if (active) {
-                List<String> statuts = new ArrayList<>();
-
-                // Récupération de la liste des statuts à purger dans le contexte du job detail
-                Object statutsJob = jobExecutionContext.getJobDetail().getJobDataMap().get("statuts");
-                if (statutsJob instanceof List) {
-                    statuts = (ArrayList<String>) statutsJob;
-                }
-                PropertiesDTO delaiPurgeProperty = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), DELAI_PURGE_EN_JOURS);
-
-                LOGGER.info("PURGE: Supression des demandes dans les états finaux à moins de {}", delaiPurgeProperty.getValue());
-                purgeDemandesService.purgerDemandesDansStatuts(statuts, Integer.parseInt(delaiPurgeProperty.getValue()));
-            } else {
-                LOGGER.info("PURGE: La fonctionnalité de la purge est désactivée, changez la propriété ACTIVATION_PURGE pour activer.");
+        if (getActivationPurge()) {
+            try {
+                List<String> statuts = getStatuts(jobExecutionContext);
+                Integer delaiPurge = getDelaiPurge();
+                LOGGER.info("PURGE: Supression des demandes dans les états finaux à moins de {} jours", delaiPurge);
+                purgeDemandesService.purgerDemandesDansStatuts(statuts, delaiPurge);
+            } catch (Exception e) {
+                LOGGER.error("Erreur lors de la purge des demandes", e);
             }
-        } catch (Exception e) {
-            LOGGER.error("Erreur lors de la purge des demandes", e);
+        } else {
+            LOGGER.info("PURGE: La fonctionnalité de la purge est désactivée, changez la propriété ACTIVATION_PURGE pour activer.");
         }
     }
 }

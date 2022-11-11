@@ -3,6 +3,7 @@ package mc.gouv.xaf.back.paiement.data.dao;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeDemandeBO;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Date;
 import java.util.List;
 
 public interface CommandeDemandeRepository extends JpaRepository<CommandeDemandeBO, Long> {
@@ -12,4 +13,6 @@ public interface CommandeDemandeRepository extends JpaRepository<CommandeDemande
     List<CommandeDemandeBO> findByDemande_PkDemandesOrderByCommande_DateCreationDesc(Integer pkDemande);
 
     List<CommandeDemandeBO> findByCommande_PkCommandes(Integer pkCommande);
+
+    List<CommandeDemandeBO> findAllByDemande_DernierStatut_LibelleInAndDemande_DernierStatut_DateLessThan(List<String> statuts, Date date);
 }

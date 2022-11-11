@@ -945,13 +945,10 @@ public class DemandesServiceImpl implements DemandesService {
 		access.getDemandes().remove(demandeBo);
 		accessRepository.save(access);
 
-		// Suppression de l'historique de la demande (pas géré par cascade, donc le
-		// faire ici)
+		// Suppression de l'historique de la demande (pas géré par cascade, donc le faire ici)
 		LOGGER.info("Suppression de l'historique de la demande...");
 		List<DemandesHistoriqueBO> histos = demandesHistoriqueRepository.findByFkDemandesPkDemandes(demandeId);
-		for (DemandesHistoriqueBO histo : histos) {
-			demandesHistoriqueRepository.delete(histo);
-		}
+		demandesHistoriqueRepository.deleteAll(histos);
 
 		LOGGER.info("Ajout d'une ligne de statistique pour la suppression de la demande...");
 		statistiquesService.saveStatistique(stat);

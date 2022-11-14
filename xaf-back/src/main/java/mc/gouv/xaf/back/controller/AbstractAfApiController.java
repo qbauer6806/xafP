@@ -76,6 +76,16 @@ public abstract class AbstractAfApiController implements AfApiController {
 
         return creerDemande(demande, usagerId);
     }
+    
+    @RequestMapping(value = "/demandes/{demandeId}", method = RequestMethod.PUT)
+    public DemandeDTO updateDemandeRequest(@PathVariable(value = "demandeId") Integer demandeId,
+    		@Valid @RequestBody DemandeInputDTO demande,
+            @RequestParam(value = "usagerId", required = true) Integer usagerId, HttpServletRequest request)
+            throws JsonProcessingException {
+        LOGGER.info("AbstractAfApiController.updateDemande(" + demandeId + "," + demande + "," + usagerId + ")");
+
+        return updateDemande(demandeId, demande, usagerId);
+    }
 
     @RequestMapping(value = "/demandes/{demandeId}/complements/{icId}", method = RequestMethod.PUT)
     public DemandeComplementsDTO repondreDemandeComplementsRequest(@PathVariable(value = "demandeId") Integer demandeId,

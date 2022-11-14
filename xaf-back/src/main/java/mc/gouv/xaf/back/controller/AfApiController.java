@@ -54,6 +54,8 @@ public interface AfApiController {
     List<MotifDTO> getMotifs();
 
     DemandeDTO creerDemande(DemandeInputDTO demande, Integer usagerId) throws JsonProcessingException;
+    
+    DemandeDTO updateDemande(Integer demandeId, DemandeInputDTO demande, Integer usagerId) throws JsonProcessingException;
 
     List<PeriodeOuvertureDTO> getPeriodesOuverture();
 

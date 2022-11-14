@@ -1,13 +1,21 @@
 package mc.gouv.xaf.back.bpm.activiti;
 
-import mc.gouv.xaf.back.bpm.GouvBPM;
-import mc.gouv.xaf.back.bpm.GouvBPMException;
-import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
-import mc.gouv.xaf.back.bpm.activiti.exception.TaskAlreadyClaimedException;
-import mc.gouv.xaf.back.bpm.model.*;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.es.IndexedDemandeService;
-import org.activiti.engine.*;
+import java.io.IOException;
+import java.security.InvalidParameterException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.activiti.engine.ActivitiObjectNotFoundException;
+import org.activiti.engine.ActivitiTaskAlreadyClaimedException;
+import org.activiti.engine.FormService;
+import org.activiti.engine.ProcessEngine;
+import org.activiti.engine.ProcessEngineConfiguration;
+import org.activiti.engine.RuntimeService;
+import org.activiti.engine.TaskService;
 import org.activiti.engine.form.FormProperty;
 import org.activiti.engine.impl.ProcessEngineImpl;
 import org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl;
@@ -29,10 +37,18 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.xml.sax.SAXException;
 
-import java.io.IOException;
-import java.security.InvalidParameterException;
-import java.util.*;
-import java.util.stream.Collectors;
+import mc.gouv.xaf.back.bpm.GouvBPM;
+import mc.gouv.xaf.back.bpm.GouvBPMException;
+import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
+import mc.gouv.xaf.back.bpm.activiti.exception.TaskAlreadyClaimedException;
+import mc.gouv.xaf.back.bpm.model.CommentaireInterneDTO;
+import mc.gouv.xaf.back.bpm.model.GouvBPMGroup;
+import mc.gouv.xaf.back.bpm.model.GouvBPMStatutAction;
+import mc.gouv.xaf.back.bpm.model.GouvBPMTask;
+import mc.gouv.xaf.back.bpm.model.GouvBPMUser;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.es.IndexedDemandeService;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
 
 /**
  * Composant exposant le BPM interne d'AppFactory
@@ -45,6 +61,8 @@ public class GouvBPMImpl implements GouvBPM {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMImpl.class);
     private static final String NULL_PI = "ProcessInstance null !";
+    
+    private static final String RECTIFICATION_DEMANDE_USERTASK_ID = "rectificationDemandeUsertask";
 
     @Autowired
     private RuntimeService runtimeService;
@@ -457,9 +475,9 @@ public class GouvBPMImpl implements GouvBPM {
             variables.put(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_AGENT.name(), agent.getId());
         }
 
-        //normalement il y en a une seule
+        // Normalement il y en a une seule
 
-        LOGGER.info("Nombre d'executions candidats à l'annulation pour la demande {} : {}", demandeId,
+        LOGGER.info("Nombre d'executions candidates à l'annulation pour la demande {} : {}", demandeId,
                 executions.size());
 
         if (executions.isEmpty()) {
@@ -469,6 +487,87 @@ public class GouvBPMImpl implements GouvBPM {
         for (Execution ex : executions) {
             runtimeService.messageEventReceived("annulationMessage", ex.getId(), variables);
         }
+    }
+    
+    @Override
+    public void demanderRectification(Integer demandeId, GouvBPMUser agent, String codeMotif, String commentaire, String statutDemandeRectification) {
+        LOGGER.info("Demande de rectification de la demande {} par l'agent '{}'", demandeId, agent);
+        List<Execution> executions = runtimeService.createExecutionQuery()
+                .processInstanceBusinessKey(demandeId.toString(), true)
+                .messageEventSubscriptionName("demandeRectificationMessage").list();
+
+        Map<String, Object> variables = new HashMap<>();
+        variables.put(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name(), codeMotif);
+        variables.put(GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name(), commentaire);
+        variables.put(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE.name(), statutDemandeRectification);
+        variables.put(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_AGENT.name(), agent.getId());
+        
+        variables.put(GouvBPMProcessVariableTypeEnum.MC_DEMANDE_RECTIFICATION_EN_COURS.name(), true);
+        
+        // Normalement il y en a une seule
+
+        LOGGER.info("Nombre d'executions candidates à la demande de rectification pour la demande {} : {}", demandeId,
+                executions.size());
+
+        if (executions.isEmpty()) {
+            throw new GouvBPMException("Aucune execution pour effectuer une demande de rectification de la demande : " + demandeId);
+        }
+
+        for (Execution ex : executions) {
+            runtimeService.messageEventReceived("demandeRectificationMessage", ex.getId(), variables);
+        }
+    }
+    
+    @Override
+    public void rectificationSpontanee(Integer demandeId) {
+        LOGGER.info("Rectification spontanée de la demande {} par l'usager", demandeId);
+        List<Execution> executions = runtimeService.createExecutionQuery()
+                .processInstanceBusinessKey(demandeId.toString(), true)
+                .messageEventSubscriptionName("rectificationMessage").list();
+
+        Map<String, Object> variables = new HashMap<>();
+        variables.put(GouvBPMProcessVariableTypeEnum.MC_DEMANDE_RECTIFICATION_EN_COURS.name(), false);
+        
+        // Normalement il y en a une seule
+
+        LOGGER.info("Nombre d'executions candidates à rectification spontanée pour la demande {} : {}", demandeId,
+                executions.size());
+
+        if (executions.isEmpty()) {
+            throw new GouvBPMException("Aucune execution pour effectuer une rectification spontanée de la demande : " + demandeId);
+        }
+
+        for (Execution ex : executions) {
+            runtimeService.messageEventReceived("rectificationMessage", ex.getId(), variables);
+        }
+    }
+    
+    @Override
+    public void reponseRectification(Integer pkDemande, Integer usagerId) throws TaskAlreadyClaimedException, IOException, SAXException {
+        LOGGER.info("Réponse à la demande de rectification de la demande {} par l'usager", pkDemande);
+
+		List<GouvBPMTask> activeTasks = getActiveTasksForDemande(pkDemande);
+		GouvBPMTask activeTask = null;
+		//activeTasks.get(0);
+		for (GouvBPMTask task : activeTasks) {
+			if (RECTIFICATION_DEMANDE_USERTASK_ID.equals(task.getTaskDefinitionKey())) {
+				activeTask = task;
+			}
+		}
+		LOGGER.info("ActiveTask pour rectification de demande : {}", activeTask);
+		
+		// Pour le delegate GouvBPMRestorePreviousStatusDelegate
+		setProcessBusinessVariable(pkDemande, GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_USAGER.name(), usagerId.toString());
+		
+		GouvBPMUser user = new GouvBPMUser();
+		user.setId(usagerId.toString());
+		claimTask(activeTask, user);
+		Map<String, String> formData = new HashMap<>();
+		try {
+			submitTaskFormData(activeTask, formData, pkDemande);
+		} catch (TikaException e) {
+			LOGGER.error("Erreur lors de reponseRectification()", e);
+		}
     }
 
 }

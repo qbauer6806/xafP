@@ -13,8 +13,8 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
  */
 public interface PdfRecapGenerationService {
 
-	public void generateAndStorePdf(DemandeDTO demande) throws Exception;
+	void generateAndStorePdf(DemandeDTO demande) throws Exception;
 
-	public File generatePdf(DemandeDTO demande) throws Exception;
+	File generatePdf(DemandeDTO demande) throws Exception;
 
 }

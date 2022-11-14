@@ -1,14 +1,13 @@
 package mc.gouv.xaf.back.service.utils;
 
+import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
+import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
+import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
-import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
-import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 
 /**
  * Classe utilitaire pour la gestion des usagers. 
@@ -83,6 +82,41 @@ public class UsagersUtils {
         }
 
         return titre;
+    }
+
+    /**
+     * Change le titre en paramètre en son équivalant littéral.
+     *
+     * @param titre, le titre de l'usager sous forme d'un nombre
+     * @return une chaêne de charactères contenant le titre de l'usager
+     */
+    public static String titreToString(Integer titre) {
+        if (titre != null) {
+            return titreShortToString(titre.shortValue());
+        }
+        return null;
+    }
+
+    /**
+     * Change le titre en paramètre en son équivalant littéral.
+     *
+     * @param titre, le titre de l'usager sous forme d'un nombre
+     * @return une chaêne de charactères contenant le titre de l'usager
+     */
+    public static String titreShortToString(Short titre) {
+        if (null != titre) {
+            switch (titre) {
+                case AfBackUtils.GENDER_MR_INDEX:
+                    return "Monsieur";
+                case AfBackUtils.GENDER_MME_INDEX:
+                    return "Madame";
+                case AfBackUtils.GENDER_MLLE_INDEX:
+                    return "Mademoiselle";
+                default:
+                    break;
+            }
+        }
+        return "Madame, Monsieur";
     }
 
     public static GichuniUsagerDTO convertUsagerCourrierDTOToGichuniUsagerDTO(UsagerCourrierDTO uc) {

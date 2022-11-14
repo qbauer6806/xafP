@@ -21,6 +21,8 @@ public class DemandeComplementsFileDTO {
 
     private String typedoc;
 
+    private boolean verification;
+
     public Integer getPkDemandesComplementsFiles() {
         return pkDemandesComplementsFiles;
     }
@@ -59,5 +61,13 @@ public class DemandeComplementsFileDTO {
 
     public void setTypedoc(String typedoc) {
         this.typedoc = typedoc;
+    }
+
+    public boolean isVerification() {
+        return verification;
+    }
+
+    public void setVerification(boolean verification) {
+        this.verification = verification;
     }
 }

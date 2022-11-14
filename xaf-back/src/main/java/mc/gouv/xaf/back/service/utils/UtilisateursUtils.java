@@ -4,6 +4,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import mc.gouv.logon.shared.User;
@@ -25,6 +26,7 @@ public class UtilisateursUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(UtilisateursUtils.class);
 
     @Autowired
+    @Lazy
     private UtilisateursCache utilisateursCache;
 
     /**

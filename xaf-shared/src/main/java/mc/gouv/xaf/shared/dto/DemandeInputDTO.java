@@ -45,7 +45,8 @@ public class DemandeInputDTO {
     // En cas de renouvellement d'une demande
     private Integer demandeSourceId;
 
-	public JsonNode getContenu() {
+    public JsonNode getContenu() {
+
         return contenu;
     }
 
@@ -174,5 +175,5 @@ public class DemandeInputDTO {
 				+ ", recapType=" + recapType + ", brouillonId=" + brouillonId + ", donneesMConnect=" + donneesMConnect
 				+ ", demandeSourceId=" + demandeSourceId + "]";
 	}
-
+	
 }

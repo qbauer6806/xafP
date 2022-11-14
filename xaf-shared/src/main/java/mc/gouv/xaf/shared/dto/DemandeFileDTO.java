@@ -21,6 +21,7 @@ public class DemandeFileDTO {
 	protected String typedoc;
 	private Integer pkDemandesComplementsFiles;
 	private boolean compFile;
+	private boolean verification;
 
 	public Integer getPkDemandesFiles() {
 		return pkDemandesFiles;
@@ -92,5 +93,13 @@ public class DemandeFileDTO {
 
 	public void setCompFile(boolean compFile) {
 		this.compFile = compFile;
+	}
+
+	public boolean isVerification() {
+		return verification;
+	}
+
+	public void setVerification(boolean verification) {
+		this.verification = verification;
 	}
 }

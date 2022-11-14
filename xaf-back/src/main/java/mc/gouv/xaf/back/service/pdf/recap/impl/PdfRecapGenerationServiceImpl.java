@@ -1,13 +1,9 @@
 package mc.gouv.xaf.back.service.pdf.recap.impl;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintWriter;
+import java.io.*;
+import java.net.URLEncoder;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -28,10 +24,11 @@ import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.pdf.recap.PdfHeaderFooterProvider;
 import mc.gouv.xaf.back.service.pdf.recap.PdfRecapGenerationService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import mc.gouv.xaf.back.service.utils.FileUtils;
 import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
+
+import static mc.gouv.xaf.back.service.utils.FileUtils.META_RECAP;
 
 @Component
 public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService {
@@ -80,12 +77,27 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
             LOGGER.warn("La suppression du fichier temporaire a échoué");
         }
 
-        LOGGER.info("Ajout de la référence à ce fichier interne dans DEM...");
+        LOGGER.info("Vérification de l'existance d'un fichier récap...");
+        List<DemandeFileDTO> files = demandesFileService.getFileByDemandeIdAndMeta(demande.getPkDemandes(), META_RECAP);
+
         DemandeFileDTO file = new DemandeFileDTO();
+        if (!files.isEmpty()) {
+            file = files.get(0);
+            LOGGER.info("Suppression de l'ancien fichier dans FILES...");
+            try {
+                String urlASuppr = URLEncoder.encode(file.getUrl(), "UTF-8");
+                fileService.deleteFile("ROOT", urlASuppr);
+            } catch (UnsupportedEncodingException e) {
+                LOGGER.error("Problème lors de l'encoding du fichier.", e);
+            }
+        }
+
+        LOGGER.info("Ajout de la référence à ce fichier interne dans DEM...");
         file.setName(fileName);
         file.setUrl('/' + url);
         file.setDate(new Date());
-        file.setMeta(FileUtils.META_BACK + "RECAP");
+        file.setMeta(META_RECAP);
+        file.setTypedoc(META_RECAP);
         demandesFileService.saveFile(file, gouvPropertiesResolver.getDemarcheId(), demande.getPkDemandes());
 
         if (indexedDemandeService != null) {

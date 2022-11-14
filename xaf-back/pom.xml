@@ -98,6 +98,8 @@
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-core</artifactId>
 		</dependency>
+<!-- Thanks for using https://jar-download.com -->
+		
 
 
 		<!-- Apache Velocity -->

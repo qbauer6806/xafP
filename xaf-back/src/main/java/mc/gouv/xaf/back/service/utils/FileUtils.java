@@ -30,10 +30,9 @@ import org.xml.sax.SAXException;
 public class FileUtils {
 
     public static final String META_BACK = "BACK_";
-
     public static final String META_FRONT = "FRONT_";
-
     public static final String META_BACK_FRONT = "BACK_FRONT_";
+    public static final String META_RECAP = META_BACK + "RECAP";
 
     // Categories fichiers pour DemandeFilesCategorizer
     public static final String CAT_INITIALE = "Fichiers de la demande initiale";
@@ -122,7 +121,7 @@ public class FileUtils {
         for(FileCategoryDTO categoryDTO : filesAvecCategorie) {
             if (FileUtils.CAT_INITIALE.equals(categoryDTO.getName()) || FileUtils.CAT_COMPLEMENTS.equals(categoryDTO.getName())) {
                 for (DemandeFileDTO file : categoryDTO.getFiles()) {
-                    if (file.getTypedoc() == null) {
+                    if (StringUtils.isEmpty(file.getTypedoc())) {
                         nbSansCategorie++;
                     }
                 }

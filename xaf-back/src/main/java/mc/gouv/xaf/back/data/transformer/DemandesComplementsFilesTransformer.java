@@ -23,6 +23,7 @@ public class DemandesComplementsFilesTransformer {
         dto.setUrl(bo.getUrl());
         dto.setMeta(bo.getMeta());
         dto.setTypedoc(bo.getTypedoc());
+        dto.setVerification(bo.isVerification());
         return dto;
     }
 
@@ -33,6 +34,7 @@ public class DemandesComplementsFilesTransformer {
         dto.setUrl(bo.getUrl());
         dto.setMeta(bo.getMeta());
         dto.setTypedoc(bo.getTypedoc());
+        dto.setVerification(bo.isVerification());
         return dto;
     }
 
@@ -44,6 +46,7 @@ public class DemandesComplementsFilesTransformer {
         dto.setMeta(demandeComplementsFileDTO.getMeta());
         dto.setTypedoc(demandeComplementsFileDTO.getTypedoc());
         dto.setCompFile(true);
+        dto.setVerification(demandeComplementsFileDTO.isVerification());
         return dto;
     }
 
@@ -60,6 +63,7 @@ public class DemandesComplementsFilesTransformer {
         bo.setUrl(dto.getUrl());
         bo.setMeta(dto.getMeta());
         bo.setTypedoc(dto.getTypedoc());
+        bo.setVerification(dto.isVerification());
         return bo;
     }
 

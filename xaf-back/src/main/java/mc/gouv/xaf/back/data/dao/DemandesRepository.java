@@ -49,6 +49,9 @@ public interface DemandesRepository extends CrudRepository<DemandeBO, Integer> {
 
     List<DemandeBO> findAllByDernierStatut_Libelle(String dernierStatut);
 
+
+    List<DemandeBO> findAllByDernierStatut_LibelleAndDernierStatutDateLessThan(String dernierStatut, Date date);
+
     /**
      * Permet de récupérer les demandes créées entre deux dates
      *
@@ -113,6 +116,7 @@ public interface DemandesRepository extends CrudRepository<DemandeBO, Integer> {
     Page<DemandeBO> findByDemarcheIdAndIdAndUsagerIdAndStatuts(@Param("demarcheId") String demarcheId, @Param("usagerId") Integer usagerId,
                                                                @Param("status") String[] status, @Param("langue") String langue,
                                                                Pageable pageRequest);
+    
     
     @Query("select d.pkDemandes as pkDemandes,d.identifiant as identifiant,d.dateCreation as dateCreation,s.libelle as dernierStatut from DemandeBO d inner join d.fkAccess fa inner join d.dernierStatut s where fa.usagerId = :usagerId and fa.demarcheId= :demarcheId and fa.active = true and s.fkDemandes = d.pkDemandes")
     List<DemandeRecapProjection> findByUsagerIdForDemandeRecapDTO(@Param("demarcheId") String demarcheId, @Param("usagerId") Integer usagerId);

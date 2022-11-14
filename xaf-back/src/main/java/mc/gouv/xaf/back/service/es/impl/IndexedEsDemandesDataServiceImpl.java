@@ -3,6 +3,7 @@ package mc.gouv.xaf.back.service.es.impl;
 import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
 import mc.gouv.xaf.back.data.es.model.EsErrorEventDTO;
 import mc.gouv.xaf.back.exception.AfIndexingException;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.impl.DemandesDataServiceImpl;
 import mc.gouv.xaf.back.service.es.IndexedDemandeService;
 import mc.gouv.xaf.back.service.es.handlers.EsTransactionErrorsHandler;
@@ -33,6 +34,9 @@ public class IndexedEsDemandesDataServiceImpl extends DemandesDataServiceImpl {
     @Autowired
     private ApplicationEventPublisher applicationEventPublisher;
 
+    @Autowired
+    private GouvPropertiesResolver gouvPropertiesResolver;
+
     @Override
     public DemandeDataDTO saveOrUpdateDemandeData(String demarcheId, Integer demandeId, String key, String value) {
         DemandeDataDTO demandeDataDto = super.saveOrUpdateDemandeData(demarcheId, demandeId, key, value);
@@ -50,6 +54,13 @@ public class IndexedEsDemandesDataServiceImpl extends DemandesDataServiceImpl {
     public void deleteDemandeData(String demarcheId, Integer demandeId, String key) {
         super.deleteDemandeData(demarcheId, demandeId, key);
         indexDemandeData(demarcheId, demandeId);
+    }
+
+    @Override
+    public DemandeDataDTO updateDemandeData(DemandeDataDTO dataDTO) {
+        DemandeDataDTO updated = super.updateDemandeData(dataDTO);
+        indexDemandeData(gouvPropertiesResolver.getDemarcheId(), updated.getDemandeId());
+        return updated;
     }
 
     private void indexDemandeData(String demarcheId, Integer demandeId) {

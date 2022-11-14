@@ -136,8 +136,11 @@ public class EsSchemaUtils {
                     }
                 }
             	// TODO quick fix pour le bon fonctionnement, mais adresse à prendre en compte
-            	else if (column.get("type") != null && !"adresse".equals(column.get("type").textValue())) {
+            	else if (column.get("type") != null && !"adresse".equals(column.get("type").textValue()) && !"telephone".equals(column.get("type").textValue())) {
                     buildJsonProperty((pathTableau + "." + column.get(RECAP_CHAMP_PATH).textValue()).split("\\."), RecapChampType.TABLEAU.getType(), contenu, mapper);
+                } else if ("telephone".equals(column.get("type").textValue())) {
+                    buildJsonProperty(getPropertiesAsArray(column, INDICATIF), type, contenu, mapper);
+                    buildJsonProperty(getPropertiesAsArray(column, NUMERO), type, contenu, mapper);
                 }
             }
             return;

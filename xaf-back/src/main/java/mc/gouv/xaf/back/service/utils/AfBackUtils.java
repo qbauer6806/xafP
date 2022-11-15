@@ -537,6 +537,9 @@ public class AfBackUtils {
             if (str.contains("\u001A")) {
                 str = StringUtils.replace(str, "\u001A", " ");
             }
+            if (str.contains("\u0017")) {
+                str = StringUtils.replace(str, "\u0017", " ");
+            }
             result = str;
         }
         return result;

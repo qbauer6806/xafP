@@ -34,7 +34,7 @@ public class EsSchemaUtils {
     /**
      * Fichier de configuartion par défaut des mappings ES
      */
-    private static final String ES_TEMPLATE_FILE_PATH = "C:\\Workspace\\xaf\\xaf-sup\\src\\main\\resources\\ts-es-schema.json";
+    private static final String ES_TEMPLATE_FILE_PATH = "C:\\java_dev_env\\Workspace\\xaf\\xaf-sup\\src\\main\\resources\\ts-es-schema.json";
 
     /**
      * TAG indiquant où insérer le mapping du contenu de la demande

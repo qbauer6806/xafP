@@ -93,7 +93,7 @@
                     <div th:replace="fragments/panelfichiersjointstypedoctable :: panelfichiersjointstypedoctable"></div>
                 </div>
 
-                <div th:if="${cat.name} == 'Fichiers de la demande initiale' and ${editionTypedocActive} and (${cat.files.size() > 0} or ${cat.subCategories.size() > 0})">
+                <div th:if="${cat.name} == 'Fichiers de la demande initiale' and ${editionTypedocActive} and ((${cat.files != null} and ${cat.files.size() > 0}) or (${cat.subCategories != null} and ${cat.subCategories.size() > 0}))">
                     <input class="btn btn-action ripple-effect"
                            disabled="disabled" id="typedoc-files-button"
                            style="float: right;"

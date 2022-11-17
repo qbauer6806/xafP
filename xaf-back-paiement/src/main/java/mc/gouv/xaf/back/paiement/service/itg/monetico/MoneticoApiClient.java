@@ -197,7 +197,7 @@ public class MoneticoApiClient implements PaiementApiClient {
                     }
                     break;
                 case "aut": // aut = Numéro d’autorisation du paiement si celui-ci a été accepté
-                    operation.setNumeroAutorisation(Integer.parseInt(keyValue[1]));
+                    operation.setNumeroAutorisation(keyValue[1]);
                     break;
                 case "lib": // lib = Libellé détaillé précisant la nature du code retour
                     operation.setLibelle(keyValue[1]);

@@ -4,6 +4,7 @@ import mc.gouv.xaf.back.paiement.dto.ContexteCommandeDTO;
 import mc.gouv.xaf.back.paiement.dto.PaiementDTO;
 import mc.gouv.xaf.shared.dto.itg.monetico.MoneticoResponseDTO;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,7 @@ public class PaiementSecurityServiceTest {
     }
 
     @Test
+    @Ignore
     public void getHmacStringInterfaceRetourTest() {
         MoneticoResponseDTO responseDTO = new MoneticoResponseDTO();
         responseDTO.setTpe("7527409");

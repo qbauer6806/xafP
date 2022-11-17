@@ -30,7 +30,7 @@ public class CommandeOperationBO {
 
     private Double montant;
 
-    private Integer numeroAutorisation;
+    private String numeroAutorisation;
 
     private String numeroFacture;
 
@@ -102,11 +102,11 @@ public class CommandeOperationBO {
         this.montant = montant;
     }
 
-    public Integer getNumeroAutorisation() {
+    public String getNumeroAutorisation() {
         return numeroAutorisation;
     }
 
-    public void setNumeroAutorisation(Integer numeroAuthorisation) {
+    public void setNumeroAutorisation(String numeroAuthorisation) {
         this.numeroAutorisation = numeroAuthorisation;
     }
 

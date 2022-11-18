@@ -22,7 +22,7 @@ import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.CreationDemandeMessage;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.DesinscriptionUsagerTSMessage;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.GUKafkaMessage;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.RecapDemandesDTO;
-import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.StatutSimplifieEnum;
+import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.SuppressionDemandeMessage;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.SynchronisationDemandesMessage;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.UsagerDemandesRecapDTO;

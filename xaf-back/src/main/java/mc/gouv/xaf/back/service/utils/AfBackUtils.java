@@ -585,6 +585,16 @@ public class AfBackUtils {
     }
 
     /**
+     * Echappe les caractères posant problèmes dans les logs selon la règle Sonar javasecurity:S5145
+     */
+    public static String logSafe(String str) {
+        if (StringUtils.isEmpty(str)) {
+            return str;
+        }
+        return str.replaceAll("[\n\r\t]", "_");
+    }
+
+    /**
      * Retourne le nom d'un utilisateur à partir de son matricule
      * <br>
      * deprecated : Utiliser la méthode de {@link UtilisateursUtils}

@@ -11,20 +11,21 @@
 		<servicerest_client.version>2.2.15</servicerest_client.version>
 		<tika.version>1.22</tika.version>
 		<xcb-wlib.version>1.2.0</xcb-wlib.version>
+		<maven.compiler.source>8</maven.compiler.source>
+		<maven.compiler.target>8</maven.compiler.target>
 	</properties>
 
 	<groupId>mc.gouv.xaf</groupId>
 	<artifactId>xaf</artifactId>
-	<version>10.2.1-SNAPSHOT</version>
+	<version>10.4.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<scm>
 		<url>https://git.monaco-gouvernement.mc/libs/xaf.git</url>
 		<connection>scm:git:git@git.monaco-gouvernement.mc:libs/xaf.git</connection>
 		<developerConnection>scm:git:git@git.monaco-gouvernement.mc:libs/xaf.git</developerConnection>
-    <tag>HEAD</tag>
-  </scm>
-
+    	<tag>HEAD</tag>
+  	</scm>
 
 	<modules>
 		<module>xaf-apiclient</module>
@@ -105,14 +106,14 @@
 				<version>1.19</version>
 			</dependency>
 
-			<!-- CWE-300 -->
+			<!-- CWE-300 -->
 			<dependency>
 				<groupId>org.jgroups</groupId>
 				<artifactId>jgroups</artifactId>
 				<version>4.1.1.Final</version>
 			</dependency>
 
-			<!-- CVE-2018-10237 -->
+			<!-- CVE-2018-10237 -->
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>

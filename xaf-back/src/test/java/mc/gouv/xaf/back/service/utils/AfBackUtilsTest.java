@@ -99,4 +99,13 @@ public class AfBackUtilsTest {
         assertEquals("€1,000,000.00", formatted);
     }
 
+    @Test
+    public void logSafeTest() {
+        String safe = "Safe String";
+        String resultSafe = AfBackUtils.logSafe(safe);
+        String resultUnsafe = AfBackUtils.logSafe("Un\tsafe\nSt\rring");
+        assertEquals(safe, resultSafe);
+        assertEquals("Un_safe_St_ring", resultUnsafe);
+    }
+
 }

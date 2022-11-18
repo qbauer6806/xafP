@@ -1,4 +1,4 @@
-package mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1;
+package mc.gouv.xaf.shared.enums;
 
 /**
  * 

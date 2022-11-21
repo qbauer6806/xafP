@@ -1066,6 +1066,7 @@ public class DemandesServiceImpl implements DemandesService {
 				fileBo.setPkDemandesFiles(null);
 				fileBo.setFkDemandes(newDemandeBo);
 				fileBo.setTypedoc(null);
+				fileBo.setVerification(false);
 				demandesFilesRepository.save(fileBo);
 			}
 			newDemandeBo.setFiles(new HashSet<>(filesBo));
@@ -1094,6 +1095,7 @@ public class DemandesServiceImpl implements DemandesService {
 						dcfileBo.setPkDemandesComplementsFiles(null);
 						dcfileBo.setFkDemandesComplements(dcBo);
 						dcfileBo.setTypedoc(null);
+						dcfileBo.setVerification(false);
 						demandesComplementsFilesRepository.save(dcfileBo);
 					}
 					dcBo.setFiles(new HashSet<>(dcfilesBo));

@@ -54,6 +54,8 @@ public class GouvBPMEnvoiEmailAgentsWithRolesDelegate implements JavaDelegate {
     private Expression emailSubjectTemplateCode;
     
     private Expression roles;
+    
+    private Expression copieAuService;
 
     @Override
     public void execute(DelegateExecution execution) throws Exception {
@@ -62,6 +64,10 @@ public class GouvBPMEnvoiEmailAgentsWithRolesDelegate implements JavaDelegate {
         
         String bodyTemplateCode = (String)emailBodyTemplateCode.getValue(execution);
         String subjectTemplateCode = (String)emailSubjectTemplateCode.getValue(execution);
+        String copieAuServiceStr = null;
+        if (copieAuService != null) {
+        	copieAuServiceStr = (String) copieAuService.getValue(execution);
+        }
         
         EmailInfoDTO emailInfo = new EmailInfoDTO();
         emailInfo.setBodyTemplateCode(bodyTemplateCode);
@@ -88,6 +94,11 @@ public class GouvBPMEnvoiEmailAgentsWithRolesDelegate implements JavaDelegate {
             
             emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, execution.getProcessBusinessKey());
             emailInfo.setLangue("fr");
+            
+            if (copieAuServiceStr != null && "true".equals(copieAuServiceStr)) {
+            	LOGGER.info("Paramètre \"copieAuService\" spécifié, placer le service en copie carbone...");
+            	emailInfo.addCc(afBackUtils.getDemarcheInfos().getEmailService(), afBackUtils.getDemarcheInfos().getEmailServiceNom());
+            }
             
             String codeMotif = (String) execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name());
             String commentaire = (String) execution

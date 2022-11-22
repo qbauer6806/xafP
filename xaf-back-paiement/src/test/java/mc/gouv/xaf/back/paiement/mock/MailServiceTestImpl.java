@@ -3,18 +3,25 @@ package mc.gouv.xaf.back.paiement.mock;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
 import org.apache.velocity.exception.MethodInvocationException;
 import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
+import java.io.InputStream;
 import java.util.Map;
+import java.util.Set;
 
 @Component
 public class MailServiceTestImpl implements MailService {
     @Override
     public void sendMail(EmailInfoDTO emailInfo, Map<String, Object> model) throws JsonProcessingException {
+
+    }
+
+    @Override
+    public void sendMail(EmailInfoDTO emailInfo, Map<String, Object> model, Map<String, InputStream> attachments) throws JsonProcessingException {
 
     }
 
@@ -29,12 +36,13 @@ public class MailServiceTestImpl implements MailService {
     }
 
     @Override
-    public void sendMailSupport(String subjectTemplateCode, String bodyTemplateCode, List<String> mailingLists, int demandeId, int incident, Map<String, Object> modelAdd) {
+    public void sendMailSupport(String subjectTemplateCode, String bodyTemplateCode, Set<String> mailingLists, Integer pkDemande,
+                                String identifiantDemande,  int incident, Map<String, Object> modelAdd, Map<String, InputStream> attachments) {
 
     }
 
     @Override
-    public List<String> getMailingLists(String... mailingListProps) {
+    public Set<String> getMailingLists(String... mailingListProps) {
         return null;
     }
 

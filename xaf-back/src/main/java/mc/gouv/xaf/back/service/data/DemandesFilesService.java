@@ -17,6 +17,8 @@ public interface DemandesFilesService {
 
 	void saveFile(DemandeFileDTO demandeFile, String demarcheId, Integer pkDemande);
 
+	void saveFile(DemandeFileDTO demandeFile, String demarcheId, Integer pkDemande, boolean checkActive);
+
 	boolean updateTypedocs(Map<String, String> changes, Map<String, Boolean> checkboxes);
 
 	List<DemandeFileDTO> getFileByDemandeIdAndMeta(Integer pkDemande, String meta);

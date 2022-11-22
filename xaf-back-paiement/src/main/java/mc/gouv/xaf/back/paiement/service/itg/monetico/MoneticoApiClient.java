@@ -11,11 +11,10 @@ import mc.gouv.xaf.back.paiement.retry.OperationHelper;
 import mc.gouv.xaf.back.paiement.service.itg.PaiementApiClient;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.PropertiesService;
-import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
-import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
+import mc.gouv.xaf.shared.enums.MailSupportEnum;
 import org.apache.http.client.HttpResponseException;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.HttpUrlConnectorProvider;
@@ -30,34 +29,27 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.HttpURLConnection;
 import java.net.Proxy;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
 
 @Component
 public class MoneticoApiClient implements PaiementApiClient {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(MoneticoApiClient.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MoneticoApiClient.class);
 
     private final WebTarget target;
     private final String tpe;
-
     private final PaiementPropertiesResolver paiementPropertiesResolver;
-
     private final OperationHelper operationHelper;
+    private final MailService mailService;
+    private final PropertiesService propertiesService;
+    private final GouvPropertiesResolver gouvPropertiesResolver;
 
-    private MailService mailService;
-    private AfBackUtils afBackUtils;
-    private PropertiesService propertiesService;
-    private GouvPropertiesResolver gouvPropertiesResolver;
-
-    private static String XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE = "XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE";
-    private static SimpleDateFormat simpleDateTimeFormat = new SimpleDateFormat("dd/MM/yyyy:HH:mm:ss");
     DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy:HH:mm:ss");
 
@@ -65,7 +57,6 @@ public class MoneticoApiClient implements PaiementApiClient {
                              PaiementPropertiesResolver paiementPropertiesResolver,
                              OperationHelper operationHelper,
                              MailService mailService,
-                             AfBackUtils afBackUtils,
                              PropertiesService propertiesService,
                              GouvPropertiesResolver gouvPropertiesResolver) {
 
@@ -83,7 +74,6 @@ public class MoneticoApiClient implements PaiementApiClient {
         this.paiementPropertiesResolver = paiementPropertiesResolver;
         this.operationHelper = operationHelper;
         this.mailService = mailService;
-        this.afBackUtils = afBackUtils;
         this.propertiesService = propertiesService;
         this.gouvPropertiesResolver = gouvPropertiesResolver;
     }
@@ -112,7 +102,6 @@ public class MoneticoApiClient implements PaiementApiClient {
                         moyenPaiementDTO.getPkMoyenPaiements(), dateCapture, dateCommande, moyenPaiementDTO.getCodeSociete(), version);
 
                 // Permet de désactiver la capture en simulant monetico injoignable
-                // TODO To remove after testing
                 PropertiesDTO errorProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "TEMP_FAIL_CAPTURE_PAIEMENT_MONETICO_INJOIGNABLE");
                 if (errorProp != null && "true".equals(errorProp.getValue()) ) {
                     // On met le statut 400 pour éviter de faire plusieurs tentatives
@@ -120,18 +109,17 @@ public class MoneticoApiClient implements PaiementApiClient {
                 }
 
                 // Permet de désactiver la capture en simulant un code retour -1
-                // TODO To remove after testing
-                PropertiesDTO errorProp2 = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "TEMP_FAIL_CAPTURE_PAIEMENT_MONETICO_CODE_RETOUR");
-                if ((errorProp2 != null && "true".equals(errorProp2.getValue()))) {
-                    String responseString = "version=1.0\n" +
-                            "reference=" + moyenPaiementDTO.getPkMoyenPaiements() + '\n' +
-                            "cdr=-1\n" +
-                            "lib=la demande ne peut aboutir";
-                    LOGGER.info("Capture [ responseString {}] ", responseString);
-                    setResult(responseString);
-                    extractResult(responseString, commandeOperationDTO);
-                    throw new HttpResponseException(200, "Operation non acceptee");
-                }
+//                PropertiesDTO errorProp2 = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "TEMP_FAIL_CAPTURE_PAIEMENT_MONETICO_CODE_RETOUR");
+//                if ((errorProp2 != null && "true".equals(errorProp2.getValue()))) {
+//                    String responseString = "version=1.0\n" +
+//                            "reference=" + moyenPaiementDTO.getPkMoyenPaiements() + '\n' +
+//                            "cdr=-1\n" +
+//                            "lib=la demande ne peut aboutir";
+//                    LOGGER.info("Capture [ responseString {}] ", responseString);
+//                    setResult(responseString);
+//                    extractResult(responseString, commandeOperationDTO);
+//                    throw new HttpResponseException(200, "Operation non acceptee");
+//                }
 
                 Response response = getTarget().queryParam("TPE", getTpe())
                         .queryParam("montant", montant)
@@ -184,39 +172,13 @@ public class MoneticoApiClient implements PaiementApiClient {
         return true;
     }
 
-    private void sendMail(DemandeDTO demandeDTO, Operation<String> operation, int incident) {
-        Date date = new Date(System.currentTimeMillis());
-        String dateTimeString = simpleDateTimeFormat.format(date);
+    private void sendMail(DemandeDTO demandeDTO, Operation<?> operation, int incident) {
         String bodyTemplateCode = "MAIL_CAPTURE_ECHEC_CORPS";
         String subjectTemplateCode = "MAIL_CAPTURE_ECHEC_OBJET";
-        PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE);
-
-        if (propertiesDTO.getValue() != null) {
-            EmailInfoDTO emailInfo = new EmailInfoDTO();
-            emailInfo.setLangue("fr");
-            emailInfo.setBodyTemplateCode(bodyTemplateCode);
-            emailInfo.setSubjectTemplateCode(subjectTemplateCode);
-            emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(), afBackUtils.getDemarcheInfos().getEmailFromNom());
-            emailInfo.setReplyto(afBackUtils.getDemarcheInfos().getEmailReplyto(), afBackUtils.getDemarcheInfos().getEmailReplytoNom());
-            emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, demandeDTO.getIdentifiant());
-
-            String[] adresses = propertiesDTO.getValue().trim().split(",");
-            for (String adresseMail : adresses) {
-                emailInfo.addTo(adresseMail, "Support Technique");
-            }
-
-            Map<String, Object> model = new HashMap<>();
-            model.put("incident", incident);
-            model.put("dateTimeString", dateTimeString);
-            model.put("identifiant", demandeDTO.getIdentifiant());
-            model.put("Pkdemandes", demandeDTO.getPkDemandes());
-            model.put("resultat", operation == null ? null : operation.getResult());
-            try {
-                mailService.sendMail(emailInfo, model);
-            } catch (Exception e) {
-                LOGGER.error("Erreur lors de l'envoi de l'email", e);
-            }
-        }
+        Set<String> mailingLists = mailService.getMailingLists(MailSupportEnum.XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE.name());
+        Map<String, Object> model = new HashMap<>();
+        model.put("resultat", operation == null ? null : operation.getResult());
+        mailService.sendMailSupport(subjectTemplateCode, bodyTemplateCode, mailingLists, demandeDTO.getPkDemandes(), demandeDTO.getIdentifiant(), incident, model, null);
     }
 
     private void extractResult(String responseString, CommandeOperationDTO operation) {
@@ -235,7 +197,7 @@ public class MoneticoApiClient implements PaiementApiClient {
                     }
                     break;
                 case "aut": // aut = Numéro d’autorisation du paiement si celui-ci a été accepté
-                    operation.setNumeroAutorisation(Integer.parseInt(keyValue[1]));
+                    operation.setNumeroAutorisation(keyValue[1]);
                     break;
                 case "lib": // lib = Libellé détaillé précisant la nature du code retour
                     operation.setLibelle(keyValue[1]);

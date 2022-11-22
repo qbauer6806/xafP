@@ -38,7 +38,9 @@ public class FactureApiClientTestImpl implements FactureApiClient {
     }
 
     @Override
-    public Optional<PermisDTO> getPermis(String numPermis) {
-        return Optional.of(new PermisDTO());
+    public PermisDTO getPermis(String numPermis) {
+        PermisDTO permisDTO = new PermisDTO();
+        permisDTO.setNumPermis(numPermis);
+        return permisDTO;
     }
 }

@@ -7,4 +7,5 @@ import java.util.Map;
 public interface ExcelExportModelProvider {
 
     Map<String, Object> getModel(ExcelRechercheDTO excelRecherche);
+
 }

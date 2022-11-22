@@ -1,9 +1,7 @@
 package mc.gouv.xaf.back.service.itg.rio.impl;
 
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.rio.RioApiClient;
-import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.itg.rio.RioDocumentDTO;
 import mc.gouv.xaf.shared.dto.itg.rio.RioDocumentRequestDTO;
 import mc.gouv.xaf.shared.dto.itg.rio.RioFileDocumentDTO;
@@ -49,9 +47,6 @@ public class RioApiClientImpl implements RioApiClient {
 
     @Autowired
     private RestTemplateBuilder restTemplateBuilder;
-
-    @Autowired
-    private PropertiesService propertiesService;
 
     @PostConstruct
     @SuppressWarnings("squid:S2696")
@@ -158,7 +153,7 @@ public class RioApiClientImpl implements RioApiClient {
         
         LOGGER.info("Statut de la réponse de RIO : {}", responseEntity.getStatusCode());
         if(null != responseEntity.getBody()) {
-        	LOGGER.info("Contenu de la réponse de RIO : {}", responseEntity.getBody().toString());
+        	LOGGER.info("Contenu de la réponse de RIO : {}", responseEntity.getBody());
         }
 
         LOGGER.info("-------- Fin création du fichier (filename) {} pour le document {}", filename, refDocument);
@@ -206,13 +201,11 @@ public class RioApiClientImpl implements RioApiClient {
     }
 
     private RestTemplate getRestTemplate() {
-        // Je simule que l'url est non valide pour générer des erreurs sur les appels à RIO
-        // TODO To remove after testing
-        String url = this.url;
-        PropertiesDTO errorProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "TEMP_FAIL_RIO");
-        if (errorProp != null && "true".equals(errorProp.getValue()) ) {
-            throw new RuntimeException();
-        }
+        // Propriétés de tests pour bloquer les appels d'API
+//        PropertiesDTO errorProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "TEMP_FAIL_RIO");
+//        if (errorProp != null && "true".equals(errorProp.getValue()) ) {
+//            throw new RuntimeException();
+//        }
 
         RestTemplate rest = restTemplateBuilder.build();
         rest.getMessageConverters().add(new StringHttpMessageConverter(StandardCharsets.UTF_8));

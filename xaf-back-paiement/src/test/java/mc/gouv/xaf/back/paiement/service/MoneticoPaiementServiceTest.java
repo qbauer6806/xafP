@@ -340,10 +340,9 @@ public class MoneticoPaiementServiceTest {
         moneticoResponseDTO.setReference(paiementDTO.getReference());
         moneticoResponseDTO.setCodeRetour(status);
         moneticoResponseDTO.setVld("1223");
-        String mac = paiementSecurityService.getHmacStringInterfaceRetour(moneticoResponseDTO);
         moneticoResponseDTO.setMac("mauvais mac");
         String result = moneticoPaiementService.updateStatus(moneticoResponseDTO);
-        assertThat(result).isEqualTo("1\n" + mac);
+        assertThat(result).isEqualTo("1");
     }
 
 }

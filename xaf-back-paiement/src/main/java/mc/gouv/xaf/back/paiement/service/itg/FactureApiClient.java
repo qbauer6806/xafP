@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface FactureApiClient {
+    String INCIDENT = "#Incident";
 
     String check(String numFacture);
 
@@ -18,5 +19,5 @@ public interface FactureApiClient {
 
     Optional<InputStream> getFacture(String numFacture, DemandeDTO demandeDTO) throws Exception;
 
-    Optional<PermisDTO> getPermis(String numPermis) throws Exception;
+    PermisDTO getPermis(String numPermis) throws Exception;
 }

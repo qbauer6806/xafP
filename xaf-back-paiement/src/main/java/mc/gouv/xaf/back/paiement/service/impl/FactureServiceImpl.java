@@ -7,15 +7,17 @@ import java.io.InputStream;
 import java.util.Date;
 import java.util.Optional;
 
+import mc.gouv.xaf.back.exception.DemarchesServiceException;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import mc.gouv.xaf.back.paiement.service.itg.FactureApiClient;
 import mc.gouv.xaf.back.paiement.enums.PaiementDemandeDataKeysEnum;
 import mc.gouv.xaf.back.paiement.service.FactureService;
-import mc.gouv.xaf.back.paiement.service.ReferenceFactoryService;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesDataService;
 import mc.gouv.xaf.back.service.data.DemandesFilesService;
@@ -27,7 +29,7 @@ import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 
 @Service
 public class FactureServiceImpl implements FactureService {
-    private static Logger LOGGER = LoggerFactory.getLogger(ReferenceFactoryService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FactureServiceImpl.class);
 
     public static final String PREFIX_FACTURE = "Justificatif_Facture_";
 
@@ -51,6 +53,11 @@ public class FactureServiceImpl implements FactureService {
     public void saveFacture(String reference, Integer demandeId) throws Exception {
         logStartMethod(LOGGER);
         String demarcheId = gouvPropertiesResolver.getDemarcheId();
+
+        if (StringUtils.isEmpty(reference) || StringUtils.equals(FactureApiClient.INCIDENT, reference)) {
+            throw new DemarchesServiceException("Le numéro de la facture est incorrect", HttpStatus.BAD_REQUEST);
+        }
+
         DemandeDTO demande = demandesService.getDemande(demarcheId, demandeId);
         Optional<InputStream> optionalFactureIS = factureApiClient.getFacture(reference, demande);
         if (optionalFactureIS.isPresent()) {

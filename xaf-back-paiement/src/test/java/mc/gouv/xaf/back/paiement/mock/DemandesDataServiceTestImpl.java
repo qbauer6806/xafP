@@ -28,6 +28,11 @@ public class DemandesDataServiceTestImpl implements DemandesDataService {
     }
 
     @Override
+    public DemandeDataDTO getDemandeData(String demarcheId, Integer demandeId, String key, boolean checkActive) {
+        return getDemandeData(demarcheId, demandeId, key, false);
+    }
+
+    @Override
     public List<DemandeDataDTO> getDemandeDatas(String demarcheId, Integer demandeId) {
         return null;
     }
@@ -44,6 +49,11 @@ public class DemandesDataServiceTestImpl implements DemandesDataService {
 
     @Override
     public DemandeDataDTO saveOrUpdateDemandeData(String demarcheId, Integer demandeId, String key, String value) {
+        return null;
+    }
+
+    @Override
+    public DemandeDataDTO saveOrUpdateDemandeData(String demarcheId, Integer demandeId, String key, String value, boolean checkActive) {
         return null;
     }
 

@@ -13,4 +13,7 @@ import mc.gouv.xaf.back.data.entity.DemandesFilesBO;
 public interface DemandesFilesRepository extends CrudRepository<DemandesFilesBO, Integer> {
 	
     List<DemandesFilesBO> findAllByUrl(String url);
+
+    List<DemandesFilesBO> findAllByFkDemandes_PkDemandesAndMeta(Integer pkDemande, String meta);
+
 }

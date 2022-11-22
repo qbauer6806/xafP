@@ -1,10 +1,15 @@
 package mc.gouv.xaf.back.service.itg.mail.impl;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringWriter;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.data.PropertiesService;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.context.Context;
@@ -53,22 +58,48 @@ public class MailServiceImpl implements MailService {
     @Autowired
     private AfBackUtils afBackUtils;
 
+    @Autowired
+    private PropertiesService propertiesService;
+
+    @Autowired
+    private GouvPropertiesResolver gouvPropertiesResolver;
+
     /**
      * {@inheritDoc}
      * @throws JsonProcessingException 
      */
     @Override
     public void sendMail(EmailInfoDTO emailInfo, Map<String, Object> model) throws JsonProcessingException {
+        sendMail(emailInfo, model, null);
+    }
 
-        LOGGER.info("MailServiceImpl.sendMail({},{})", emailInfo, model);
+    /**
+     * {@inheritDoc}
+     * @throws JsonProcessingException
+     */
+    @Override
+    public void sendMail(EmailInfoDTO emailInfo, Map<String, Object> model, Map<String, InputStream> attachments) throws JsonProcessingException {
 
+        LOGGER.info("MailServiceImpl.sendMail({},{}, {})", emailInfo, model, attachments);
+        MailDTO email = createMailContent(emailInfo, model);
+
+        if (email == null) {
+            return;
+        }
+
+        LOGGER.info("Appel à MAIL pour envoi de l'email...");
+        MailClient mailClient = afBackUtils.getMailClient();
+        mailClient.sendEmail(email, attachments);
+    }
+
+    private MailDTO createMailContent(EmailInfoDTO emailInfo, Map<String, Object> model) {
         String[] subjectAndBody;
-		try {
-			subjectAndBody = getSubjectAndBody(emailInfo.getSubjectTemplateCode(), emailInfo.getBodyTemplateCode(), emailInfo.getLangue(), model);
-		} catch (Exception e) {
-			LOGGER.error("Erreur lors de la récupération du corps et du sujet de l'e-mail", e);
-			return;
-		}
+        try {
+            subjectAndBody = getSubjectAndBody(emailInfo.getSubjectTemplateCode(), emailInfo.getBodyTemplateCode(), emailInfo.getLangue(), model);
+        } catch (Exception e) {
+            LOGGER.error("Erreur lors de la récupération du corps et du sujet de l'e-mail", e);
+            return null;
+        }
 
         LOGGER.info("Transformation des informations d'email vers les structures pour MAIL...");
         List<AddressBlockDTO> to = EmailTransformer.toMailApiAddresses(emailInfo.getTo());
@@ -89,9 +120,7 @@ public class MailServiceImpl implements MailService {
         email.setHtml(subjectAndBody[1]);
         // Pas de email.setText() ==> on considère que les templates body des démarches sont toujours en HTML !
 
-        LOGGER.info("Appel à MAIL pour envoi de l'email...");
-        MailClient mailClient = afBackUtils.getMailClient();
-        mailClient.sendEmail(email);
+        return email;
     }
 
     /**
@@ -161,5 +190,51 @@ public class MailServiceImpl implements MailService {
 		}
 		return commentaire;
 	}
+
+    @Override
+    public void sendMailSupport(String subjectTemplateCode, String bodyTemplateCode, Set<String> mails,Integer pkDemande,
+                                String identifiantDemande, int incident, Map<String, Object> modelAdd, Map<String, InputStream> attachments) {
+        Date date = new Date(System.currentTimeMillis());
+        final SimpleDateFormat simpleDateTimeFormat = new SimpleDateFormat("dd/MM/yyyy:HH:mm:ss");
+        String dateTimeString = simpleDateTimeFormat.format(date);
+
+        EmailInfoDTO emailInfo = new EmailInfoDTO();
+        emailInfo.setLangue("fr");
+        emailInfo.setBodyTemplateCode(bodyTemplateCode);
+        emailInfo.setSubjectTemplateCode(subjectTemplateCode);
+        emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(), afBackUtils.getDemarcheInfos().getEmailFromNom());
+        emailInfo.setReplyto(afBackUtils.getDemarcheInfos().getEmailReplyto(), afBackUtils.getDemarcheInfos().getEmailReplytoNom());
+        emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, identifiantDemande);
+
+        for (String adresseMail : mails) {
+            emailInfo.addTo(adresseMail, "Support Technique");
+        }
+
+        Map<String, Object> model = new HashMap<>();
+        model.put("incident", incident);
+        model.put("dateTimeString", dateTimeString);
+        model.put("identifiant", identifiantDemande);
+        model.put("Pkdemandes", pkDemande);
+        if(modelAdd != null) {
+            model.putAll(modelAdd);
+        }
+        try {
+            sendMail(emailInfo, model, attachments);
+        } catch (Exception e) {
+            LOGGER.error("Erreur lors de l'envoi de l'email", e);
+        }
+    }
+
+    @Override
+    public Set<String> getMailingLists(String... mailingListProps) {
+        Set<String> list = new TreeSet<>();
+        for(String mailProp : mailingListProps) {
+            PropertiesDTO mailProperty = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), mailProp);
+            if (mailProperty != null && StringUtils.isNotBlank(mailProperty.getValue())) {
+                list.addAll(Arrays.asList(mailProperty.getValue().trim().split(",")));
+            }
+        }
+        return list;
+    }
 
 }

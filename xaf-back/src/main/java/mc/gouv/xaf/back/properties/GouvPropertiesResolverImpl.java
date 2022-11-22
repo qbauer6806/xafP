@@ -1,14 +1,6 @@
 package mc.gouv.xaf.back.properties;
 
-import java.beans.IntrospectionException;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.annotation.PostConstruct;
-
+import mc.gouv.Static;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,15 +11,19 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import mc.gouv.Static;
+import javax.annotation.PostConstruct;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * 
  * Composant permettant de récupérer des éléments de configuration propres au gouvernement. Proxy vers Static.getValue()
  * permettant via Spring de mocker les appels à Static.getValue().
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Component
 @Profile("gouv")
@@ -41,7 +37,7 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
      */
     @Value("${application.name}")
     private String applicationName;
-    
+
     @Value("${application.module}")
     private String applicationModule;
 
@@ -55,7 +51,7 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
 
     /*
      * .hab
-     * Sert à gérer s'il n'y a pas de fichier config.properties alors 
+     * Sert à gérer s'il n'y a pas de fichier config.properties alors
      * nous prenons en compte les properties sans prefix ex : mc.gouv.appfactory.url et non pas mc.gouv.appfactory.hab.url
      */
     private String applicationPrefix = StringUtils.EMPTY;
@@ -94,26 +90,39 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
                     String indexingPropStr = environment
                             .getProperty("mc.gouv" + applicationPrefix + ".indexing.enabled");
                     boolean indexingEnabled = false;
-                    if (StringUtils.isNotBlank(indexingPropStr) && indexingPropStr.equals("true")) {
+                    if (StringUtils.isNotBlank(indexingPropStr) && indexingPropStr.equals(true)) {
                         indexingEnabled = true;
                     }
-                    
+
                     // Est-ce que le SSL est activé ?
                     boolean sslEnabled = getGUKafkaSSLEnabled();
+
+                    // Est ce que l'archivage est activé ?
+                    String archivagePropStr = environment
+                            .getProperty("mc.gouv" + applicationPrefix + ".archivage.enabled");
+                    boolean archivageEnabled = StringUtils.isNotBlank(archivagePropStr) && archivagePropStr.equals("true");
 
                     // On ignore la présence de la property si la méthode possède @GouvIndexationProperty mais que l'appli a indexationEnabled=false
                     boolean pasIgnorerIndexing = !(method.getDeclaredAnnotation(GouvIndexationProperty.class) instanceof GouvIndexationProperty)
                             || (method.getDeclaredAnnotation(
-                                    GouvIndexationProperty.class) instanceof GouvIndexationProperty
-                                    && indexingEnabled);
-                    
+                            GouvIndexationProperty.class) instanceof GouvIndexationProperty
+                            && indexingEnabled);
+
                     // On ignore la présence de la property si la méthode possède @GouvSSLProperty mais que l'appli a
-                	// mc.gouv.af.back.external.gichuni.kafka.ssl.enabled=false
+                    // mc.gouv.af.back.external.gichuni.kafka.ssl.enabled=false
                     boolean pasIgnorerSSL = !(method.getDeclaredAnnotation(GouvSSLProperty.class) instanceof GouvSSLProperty)
                             || (method.getDeclaredAnnotation(
-                            		GouvSSLProperty.class) instanceof GouvSSLProperty
-                                    && sslEnabled);
-                    if (pasIgnorerIndexing && pasIgnorerSSL) {
+                            GouvSSLProperty.class) instanceof GouvSSLProperty
+                            && sslEnabled);
+
+                    // On ignore la présence de la property si la méthode possède @GouvArchivageProperty mais que l'appli a
+                    // archivage.enabled=false ou pas présente
+                    boolean pasIgnorerArchivage = !(method.getDeclaredAnnotation(GouvArchivageProperty.class) instanceof GouvArchivageProperty)
+                            || (method.getDeclaredAnnotation(
+                            GouvArchivageProperty.class) instanceof GouvArchivageProperty
+                            && archivageEnabled);
+
+                    if (pasIgnorerIndexing && pasIgnorerSSL && pasIgnorerArchivage) {
                         Object value = method.invoke(this);
                         if (value instanceof String) {
                             if (StringUtils.isBlank((String) value)) {
@@ -352,8 +361,8 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
         return Boolean.parseBoolean(value);
     }
 
-	@Override
-	public Integer getUsagersPageSize() {
+    @Override
+    public Integer getUsagersPageSize() {
         String pageSize = Static.getValue("mc.gouv.demarches.external.usagers.pagesize");
 
         if (StringUtils.isNotBlank(pageSize)) {
@@ -362,28 +371,28 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
 
         // Valeur par défaut de 500 usagers par page
         return 500;
-	}
+    }
 
-	@Override
-	public boolean isApiserver() {
-		return "apiserver".equals(applicationModule);
-	}
-	
-	@Override
-	public boolean isBackserver() {
-		return "backserver".equals(applicationModule);
-	}
-	
+    @Override
+    public boolean isApiserver() {
+        return "apiserver".equals(applicationModule);
+    }
+
+    @Override
+    public boolean isBackserver() {
+        return "backserver".equals(applicationModule);
+    }
+
     @Override
     public String getGUKafkaBootstrapServersConfig() {
         return Static.getValue("mc.gouv.af.back.external.gichuni.kafka.bootstrapserversconfig");
     }
-    
+
     @Override
     public String getApplicationName() {
         return applicationName;
     }
-    
+
     @Override
     public boolean getGUKafkaSSLEnabled() {
         String value = Static.getValue("mc.gouv.af.back.external.gichuni.kafka.ssl.enabled");
@@ -392,31 +401,31 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
         }
         return Boolean.parseBoolean(value);
     }
-    
+
     @GouvSSLProperty
     @Override
     public String getGUKafkaSSLTrustStoreLocation() {
         return Static.getValue("mc.gouv.af.back.external.gichuni.kafka.ssl.truststore.location");
     }
-    
+
     @GouvSSLProperty
     @Override
     public String getGUKafkaSSLTrustStorePassword() {
         return Static.getValue("mc.gouv.af.back.external.gichuni.kafka.ssl.truststore.password");
     }
-    
+
     @GouvSSLProperty
     @Override
     public String getGUKafkaSSLKeyStoreLocation() {
         return Static.getValue("mc.gouv.af.back.external.gichuni.kafka.ssl.keystore.location");
     }
-    
+
     @GouvSSLProperty
     @Override
     public String getGUKafkaSSLKeyStorePassword() {
         return Static.getValue("mc.gouv.af.back.external.gichuni.kafka.ssl.keystore.password");
     }
-    
+
     @Override
     public boolean getKafkaEnabled() {
         String value = Static.getValue("mc.gouv" + applicationPrefix + ".backapi.kafka.enabled");
@@ -425,22 +434,22 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
         }
         return Boolean.parseBoolean(value);
     }
-    
+
     @Override
     public String getGichkeyUrl() {
         return Static.getValue("mc.gouv.af.back.external.gichkey.url");
     }
-    
+
     @Override
     public String getGichuniUrl() {
         return Static.getValue("mc.gouv.af.back.external.gichuni.url");
     }
-    
+
     @Override
     public String getGichkeyClientId() {
         return Static.getValue("mc.gouv" + applicationPrefix + ".external.gichkey.client_id");
     }
-    
+
     @Override
     public String getGichkeyClientSecret() {
         return Static.getValue("mc.gouv" + applicationPrefix + ".external.gichkey.client_secret");
@@ -473,4 +482,41 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
         return value;
 	}
 
+    public String getApplicationPrefix() {
+        return applicationPrefix;
+    }
+
+    @Override
+    public String getProxyUrl() {
+        return Static.getValue("ADR-IP-PROXY");
+    }
+
+    @Override
+    public String getProxyPort() {
+        return Static.getValue("PORT-PROXY");
+    }
+
+    @GouvArchivageProperty
+    @Override
+    public String getApiRioUrl() {
+        return Static.getValue("mc.gouv" + applicationPrefix + ".rio.url");
+    }
+
+    @GouvArchivageProperty
+    @Override
+    public String getApiRioJwt() {
+        return Static.getValue("mc.gouv" + applicationPrefix + ".rio.jwt");
+    }
+
+    @GouvArchivageProperty
+    @Override
+    public String getApiRioCodeAppli() {
+        return Static.getValue("mc.gouv" + applicationPrefix + ".rio.codeAppli");
+    }
+
+    @GouvArchivageProperty
+    @Override
+    public String getApiRioCodeNotice() {
+        return Static.getValue("mc.gouv" + applicationPrefix + ".rio.codeNotice");
+    }
 }

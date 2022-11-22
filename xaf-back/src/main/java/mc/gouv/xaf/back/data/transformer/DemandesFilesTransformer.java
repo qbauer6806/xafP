@@ -24,6 +24,7 @@ public class DemandesFilesTransformer {
         dto.setMeta(bo.getMeta());
         dto.setDate(bo.getDate());
         dto.setTypedoc(bo.getTypedoc());
+        dto.setVerification(bo.isVerification());
         return dto;
     }
 
@@ -41,6 +42,7 @@ public class DemandesFilesTransformer {
         bo.setMeta(dto.getMeta());
         bo.setDate(dto.getDate());
         bo.setTypedoc(dto.getTypedoc());
+        bo.setVerification(dto.isVerification());
         return bo;
     }
 

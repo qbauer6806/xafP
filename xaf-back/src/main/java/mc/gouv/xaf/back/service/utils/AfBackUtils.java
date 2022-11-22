@@ -12,6 +12,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -26,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -85,17 +87,25 @@ public class AfBackUtils {
 
     // 24 hours time format
     public static String DEFAULT_FRENCH_TIME_FORMAT = "HH:mm";
+    
+ // 24 hours time format with seconds
+    public static String DEFAULT_FRENCH_TIME_FORMAT_SECONDS = "HH:mm:ss";
 
     // French date format with 24 hours
     public static String DEFAULT_FRENCH_DATE_HOURS_FORMAT = "dd/MM/yyyy HH:mm";
+    
+ // French date format with 24 hours
+    public static final String DEFAULT_FRENCH_DATE_HOURS_MINUTES_SECONDS_FORMAT = "dd/MM/yyyy HH:mm:ss";
 
     public DateFormat SDF_JJ_MM_AAAA = new SimpleDateFormat(DEFAULT_FRENCH_DATE_FORMAT);
 
     public DateFormat SDF_JJ_MM_AAAA_HH_MM = new SimpleDateFormat(DEFAULT_FRENCH_DATE_HOURS_FORMAT);
 
-    public DateFormat FILE_DATE_SUFFIX = new SimpleDateFormat("HHmmssSSS");
+    public static DateFormat FILE_DATE_SUFFIX = new SimpleDateFormat("HHmmssSSS");
 
-    public DateFormat FILE_DATE_AND_TIME_SUFFIX = new SimpleDateFormat("yyyyMMddHHmmssSS");
+    public static DateTimeFormatter DTF_AAAA_MM_JJ = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+    
+    public static DateFormat FILE_DATE_AND_TIME_SUFFIX = new SimpleDateFormat("yyyyMMddHHmmssSS");
     
     public static DateFormat MCONNECT_DATE_AND_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
 
@@ -110,6 +120,7 @@ public class AfBackUtils {
     private DemarcheDTO demarche = null;
 
     @Autowired
+    @Lazy
     private GouvPropertiesResolver gouvPropertiesResolver;
 
     private MailClient mailClient = null;
@@ -117,24 +128,31 @@ public class AfBackUtils {
     private FileClient fileClient = null;
 
     @Autowired
+    @Lazy
     private UsagersCache usagersCache;
 
     @Autowired
+    @Lazy
     private UtilisateursCache utilisateursCache;
 
     @Autowired
+    @Lazy
     private DemarchesService demarchesService;
 
     @Autowired
+    @Lazy
     private DemarchesDataProvider demarchesDataProvider;
 
     @Autowired
+    @Lazy
     private MessageSource messageSource;
 
     @Autowired
+    @Lazy
     private UtilisateursUtils utilisateursUtils;
 
     @Autowired
+    @Lazy
     private MotifTemplateService motifTemplateService;
 
     public static final short GENDER_MR_INDEX = 0;
@@ -205,6 +223,20 @@ public class AfBackUtils {
 
         return null;
     }
+    
+    /**
+	 * Retourne le code alpha2 de la nationalitée en fonction du code alpha3 donné en paramètre
+	 * @param alpha3Code
+	 * @return
+	 */
+	public static String getAlpha2Code(String alpha3Code) {
+		Map<String, String> isoCodeMap = new HashMap<>();
+		for (String currentCountry : Locale.getISOCountries()) {
+			Locale currentCountryLocaleFr = new Locale("fr", currentCountry);
+			isoCodeMap.put(currentCountryLocaleFr.getISO3Country().toUpperCase(), currentCountry);
+		}
+		return isoCodeMap.get(alpha3Code);
+	}
 
     public String getLogonUrl() {
         return gouvPropertiesResolver.getGouvSharedLogonUrl();
@@ -247,7 +279,7 @@ public class AfBackUtils {
      * Génère un suffixe de fichier en fonction de la date de génération conformément au
      * pattern suivant: HHmmssSSS
      */
-    public String generateFileDateSuffix() {
+    public static String generateFileDateSuffix() {
         return FILE_DATE_SUFFIX.format(new Date());
     }
 
@@ -255,7 +287,7 @@ public class AfBackUtils {
      * Génère un suffixe de fichier en fonction de la date de génération conformément au
      * pattern suivant: YYYYMMDDHHmmssSS
      */
-    public String generateFileDateAndTimeSuffix() {
+    public static String generateFileDateAndTimeSuffix() {
         return FILE_DATE_AND_TIME_SUFFIX.format(new Date());
     }
 

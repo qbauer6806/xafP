@@ -13,8 +13,10 @@ import mc.gouv.xaf.back.data.entity.MotifBO;
  */
 public interface MotifsRepository extends CrudRepository<MotifBO, Integer> {
     
-    public MotifBO findByDemarcheIdAndPkMotifs(String demarcheId, Integer pkMotifs);
+    MotifBO findByDemarcheIdAndPkMotifs(String demarcheId, Integer pkMotifs);
 
-    public List<MotifBO> findByDemarcheId(String demarcheId);
+    List<MotifBO> findByDemarcheId(String demarcheId);
+
+    List<MotifBO> findByDemarcheIdAndStatut(String demarcheId, String statut);
     
 }

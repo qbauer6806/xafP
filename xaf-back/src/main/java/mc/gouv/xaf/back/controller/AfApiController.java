@@ -1,14 +1,12 @@
 package mc.gouv.xaf.back.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import org.xml.sax.SAXException;
 import mc.gouv.xaf.shared.dto.*;
-
 import org.apache.tika.exception.TikaException;
 import org.springframework.http.ResponseEntity;
-import org.xml.sax.SAXException;
 
 import javax.servlet.http.HttpServletRequest;
-
 import java.io.IOException;
 import java.util.List;
 
@@ -38,10 +36,9 @@ public interface AfApiController {
     DemandeDTO associerDemandeCourrier(String identifiantDemande, String stringToCheck, Integer usagerId);
 
     /**
-     * 
      * @param usagerId
      * @param langue
-     * @param fromGU true si la désinscription du TS est demandée à cause d'une désinscription depuis le Guichet Unique
+     * @param fromGU   true si la désinscription du TS est demandée à cause d'une désinscription depuis le Guichet Unique
      */
     void desinscriptionUsager(Integer usagerId, String langue, boolean fromGU);
 
@@ -70,17 +67,17 @@ public interface AfApiController {
     ResponseEntity deleteCustomRequest(HttpServletRequest request);
 
     List<PropertiesDTO> getFrontProperties();
-    
+
     BrouillonDTO creerBrouillon(BrouillonDTO brouillon, Integer usagerId);
-    
+
     BrouillonDTO updateBrouillon(BrouillonDTO brouillon);
-    
+
     List<BrouillonDTO> getBrouillons(Integer usagerId);
-    
+
     Page<BrouillonDTO> getBrouillonsPageable(Integer usagerId, PageParamDTO paramDTO);
-    
+
     BrouillonDTO getBrouillon(Integer pkBrouillons);
-    
+
     void deleteBrouillon(Integer pkBrouillons) throws JsonProcessingException;
 
 }

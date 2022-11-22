@@ -1,16 +1,5 @@
 package mc.gouv.xaf.back.service.data.impl;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
 import mc.gouv.xaf.back.data.dao.DemarchesRepository;
 import mc.gouv.xaf.back.data.dao.MotifsRepository;
 import mc.gouv.xaf.back.data.entity.DemarchesBO;
@@ -19,12 +8,23 @@ import mc.gouv.xaf.back.data.transformer.MotifTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.service.data.MotifsService;
 import mc.gouv.xaf.shared.dto.MotifDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Service permettant la manipulation des motifs.
  * 
  * @author qdeme
- *
  */
 @Component
 @Transactional(rollbackFor = Exception.class)
@@ -55,6 +55,16 @@ public class MotifsServiceImpl implements MotifsService {
         LOGGER.info("Transformation bo -> dto ...");
 
         return MotifTransformer.bo2Dto(motifBo);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Map<String, MotifDTO> getMotifs(String demarcheId, String statut) {
+        LOGGER.info("Récupération en base des motifs ({},{})...", demarcheId, statut);
+        List<MotifBO> motifBos = motifsRepository.findByDemarcheIdAndStatut(demarcheId, statut);
+        return motifBos.stream().collect(Collectors.toMap(m -> m.getCode() + '_' + m.getLangue().toUpperCase(), MotifTransformer::bo2Dto));
     }
 
     /**

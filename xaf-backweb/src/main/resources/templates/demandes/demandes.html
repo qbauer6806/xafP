@@ -306,7 +306,7 @@
 
 				<div class="row">
 					<div class="col-xs-12">
-						<div th:insert="demandes/demandetable"></div>
+						<div id="demandesTable" th:insert="demandes/demandetable"></div>
 					</div>
 				</div>
 
@@ -493,6 +493,8 @@
 
 		function rechercheTerminee() {
 			rechercheEnCours(false);
+			// #44100: On focus le tableau des demandes
+			document.getElementById("demandesTable").scrollIntoView();
 		}
 
 		function rechercheEnCours(desactiverChamps) {

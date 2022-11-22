@@ -10,8 +10,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
@@ -29,7 +29,7 @@ import mc.gouv.xaf.shared.dto.ExcelRechercheDTO;
  * 
  */
 @Controller
-@Secured("ROLE_PARAMETRAGE")
+@Secured("ROLE_EXPORT")
 @RequestMapping("/ws/export")
 public class DemandeExportController extends AbstractController {
 
@@ -44,13 +44,10 @@ public class DemandeExportController extends AbstractController {
 
     @Autowired
     private DemarchesService demarchesService;
-    
-    @Autowired
-    private AfBackUtils afBackUtils;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandeExportController.class);
 
-    @RequestMapping(method = RequestMethod.GET, value = "/excel")
+    @GetMapping(value = "/excel")
     public void exportExcel(HttpServletResponse response, @RequestParam(required = false) String creationStartDate , @RequestParam(required = false) String creationEndDate) {
 
         LOGGER.info("======================= Appel du controller /ws/export/excel");
@@ -59,7 +56,7 @@ public class DemandeExportController extends AbstractController {
             String demarcheId = gouvPropertiesResolver.getDemarcheId();
             response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
             response.setHeader("Content-disposition", "attachment; filename=" +
-                    demarchesService.getDemarche(demarcheId).getIdentifiantPrefixe() + "_Donnees_Stat_" + afBackUtils.generateFileDateAndTimeSuffix() + ".xlsx");
+                    demarchesService.getDemarche(demarcheId).getIdentifiantPrefixe() + "_Donnees_Stat_" + AfBackUtils.generateFileDateAndTimeSuffix() + ".xlsx");
 
             // Création du cookie pour notifier du téléchargement terminé (2 minutes max age)
             Cookie telechargementCookie = new Cookie("exportEnCours", "0");

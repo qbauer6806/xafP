@@ -36,29 +36,27 @@ public class DemandesDataServiceImpl implements DemandesDataService {
 	@Autowired
 	private DemandesService demandesService;
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public DemandeDataDTO getDemandeData(String demarcheId, Integer demandeId, String key) {
+		return getDemandeData(demarcheId, demandeId, key, true);
+	}
+
+	@Override
+	public DemandeDataDTO getDemandeData(String demarcheId, Integer demandeId, String key, boolean checkActive) {
 
 		// Jette une exception si la demande n'existe pas
-		demandesService.getCheckDemarcheDemandeDTO(demarcheId, demandeId, true);
+		if(checkActive) {
+			demandesService.getCheckDemarcheDemandeDTO(demarcheId, demandeId, true);
+		}
 
 		DemandesDataBO demandesDataBo = getDemandeDataBO(demandeId, key);
-
 		LOGGER.info("Transformation bo -> dto ...");
-
 		return DemandesDataTransformer.bo2Dto(demandesDataBo);
 	}
 
 	private DemandesDataBO getDemandeDataBO(Integer demandeId, String key) {
-
 		LOGGER.info("Récupération en base de la donnée de demande...");
-
-		DemandesDataBO demandesDataBo = demandesDataRepository.findByFkDemandesPkDemandesAndKey(demandeId, key);
-
-		return demandesDataBo;
+		return demandesDataRepository.findByFkDemandesPkDemandesAndKey(demandeId, key);
 	}
 
 	/**
@@ -109,9 +107,18 @@ public class DemandesDataServiceImpl implements DemandesDataService {
 	 */
 	@Override
 	public DemandeDataDTO saveOrUpdateDemandeData(String demarcheId, Integer demandeId, String key, String value) {
+		return saveOrUpdateDemandeData(demarcheId, demandeId, key, value,true);
+	}
 
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @throws Exception
+	 */
+	@Override
+	public DemandeDataDTO saveOrUpdateDemandeData(String demarcheId, Integer demandeId, String key, String value, boolean checkActive) {
 		// Jette une exception si la demande n'existe pas
-		DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(demarcheId, demandeId, true);
+		DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(demarcheId, demandeId, checkActive);
 		return saveOrUpdateDemandeDatas(demandeBo, key, value);
 	}
 
@@ -148,7 +155,7 @@ public class DemandesDataServiceImpl implements DemandesDataService {
 			demandesDataBo.setKey(key);
 			demandesDataBo.setValue(value);
 			if (demandeBo.getData() == null) {
-				demandeBo.setData(new HashSet<DemandesDataBO>());
+				demandeBo.setData(new HashSet<>());
 			}
 
 			demandeBo.getData().add(demandesDataBo);

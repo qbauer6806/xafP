@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>mc.gouv.xboot</groupId>
 		<artifactId>xboot-spring-starter-parent</artifactId>
-		<version>3.2.1</version>
+		<version>3.2.2</version>
 	</parent>
 
 	<properties>
@@ -15,24 +15,27 @@
 
 	<groupId>mc.gouv.xaf</groupId>
 	<artifactId>xaf</artifactId>
-	<version>10.0.3-SNAPSHOT</version>
+	<version>10.2.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<scm>
 		<url>https://git.monaco-gouvernement.mc/libs/xaf.git</url>
 		<connection>scm:git:git@git.monaco-gouvernement.mc:libs/xaf.git</connection>
 		<developerConnection>scm:git:git@git.monaco-gouvernement.mc:libs/xaf.git</developerConnection>
+    <tag>HEAD</tag>
   </scm>
 
 
 	<modules>
+		<module>xaf-apiclient</module>
+		<module>xaf-apiclient-paiement</module>
 		<module>xaf-servlet</module>
 		<module>xaf-back</module>
-		<module>xaf-apiclient</module>
 		<module>xaf-backweb</module>
         <module>xaf-shared</module>
 		<module>xaf-back-denjs</module>
 		<module>xaf-back-dsp</module>
+		<module>xaf-back-paiement</module>
 		<module>xaf-backweb-denjs</module>
 		<module>xaf-sup</module>
     </modules>

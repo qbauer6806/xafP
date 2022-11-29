@@ -15,11 +15,6 @@ public interface CommandeOperationService {
 	
 	/**
      * Retournes les commande operation dont l'operation a été acceptée entre la date de départ et d'arrivée
-     *
-     * @param demarcheId
-     * @param startDate
-     * @param endDate
-     * @return
      */
     List<CommandeOperationDTO> getAllCommandeOperationsAccepteeFilteredByDate(Date startDate, Date endDate);
 

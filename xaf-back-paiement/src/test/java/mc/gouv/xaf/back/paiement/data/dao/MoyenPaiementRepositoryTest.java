@@ -1,6 +1,6 @@
 package mc.gouv.xaf.back.paiement.data.dao;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 
 import java.time.LocalDateTime;
 
@@ -23,10 +23,8 @@ public class MoyenPaiementRepositoryTest {
     @Autowired
     CommandeRepository commandeRepository;
 
-
     @Test
     public void findByCommande_Id_test() {
-
         CommandeBO commandeBO = new CommandeBO();
         commandeBO.setDateCreation(LocalDateTime.now());
         commandeBO =  commandeRepository.save(commandeBO);
@@ -36,8 +34,7 @@ public class MoyenPaiementRepositoryTest {
         moyenPaiementRepository.save(moyenPaiementBO);
 
         MoyenPaiementBO moyenPaiement = moyenPaiementRepository.findByCommande_PkCommandes(commandeBO.getPkCommandes());
-        assertThat(moyenPaiement.getCommande().equals(commandeBO));
-
+        assertEquals(commandeBO, moyenPaiement.getCommande());
     }
 
 }

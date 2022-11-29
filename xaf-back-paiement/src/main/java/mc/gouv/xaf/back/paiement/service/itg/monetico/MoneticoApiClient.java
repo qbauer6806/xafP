@@ -89,7 +89,7 @@ public class MoneticoApiClient implements PaiementApiClient {
         String dateCapture = LocalDateTime.now().format(dateTimeFormatter);
         Operation<String> operation = new Operation<String>() {
             @Override
-            public void execute() throws Exception {
+            public void execute() throws HttpResponseException {
 
                 String montant = commandeDTO.getMontantInitial() + paiementPropertiesResolver.getCurrency();
                 String montantACapturer = commandeOperationDTO.getMontant() + paiementPropertiesResolver.getCurrency();
@@ -202,6 +202,8 @@ public class MoneticoApiClient implements PaiementApiClient {
                 case "lib": // lib = Libellé détaillé précisant la nature du code retour
                     operation.setLibelle(keyValue[1]);
                     break;
+                default:
+                    LOGGER.info("Clé de paramètre inconnue : {}", keyValue[0]);
             }
         }
     }

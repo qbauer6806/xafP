@@ -226,42 +226,31 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
         return paiementDTO;
     }
 
+    private String couperSiTropGrand(String str, int max) {
+        if (str.length() > max) {
+            str = str.substring(0, max);
+        }
+        return str;
+    }
+
     private BillingDTO createBillingDTO(GichuniUsagerDTO usager) {
         BillingDTO billingDTO = new BillingDTO();
         String prenom = usager.getPrenom() == null ? paiementPropertiesResolver.getPrenomParDefaut() : usager.getPrenom();
-        if (prenom.length() > TAILLE_MAX_NOMS) {
-            prenom = prenom.substring(0, TAILLE_MAX_NOMS);
-        }
-        billingDTO.setFirstName(prenom);
+        billingDTO.setFirstName(couperSiTropGrand(prenom, TAILLE_MAX_NOMS));
         String nom = usager.getNom() == null ? paiementPropertiesResolver.getNomParDefaut() : usager.getNom();
-        if (nom.length() > TAILLE_MAX_NOMS) {
-            nom = nom.substring(0, TAILLE_MAX_NOMS);
-        }
-        billingDTO.setLastName(nom);
+        billingDTO.setLastName(couperSiTropGrand(nom, TAILLE_MAX_NOMS));
         String adresse1 = usager.getAdresse1() == null ? paiementPropertiesResolver.getAdresseParDefaut() : usager.getAdresse1();
-        if (adresse1.length() > TAILLE_MAX_OBJETS) {
-            adresse1 = adresse1.substring(0, TAILLE_MAX_OBJETS);
-        }
-        billingDTO.setAddressLine1(adresse1);
+        billingDTO.setAddressLine1(couperSiTropGrand(adresse1, TAILLE_MAX_OBJETS));
         String adresse2 = usager.getAdresse2();
         if (StringUtils.isNotEmpty(adresse2)) {
-            if (adresse2.length() > TAILLE_MAX_OBJETS) {
-                adresse2 = adresse2.substring(0, TAILLE_MAX_OBJETS);
-            }
-            billingDTO.setAddressLine2(adresse2);
+            billingDTO.setAddressLine2(couperSiTropGrand(adresse2, TAILLE_MAX_OBJETS));
         }
         String adresse3 = usager.getComplementAdresse();
         if (StringUtils.isNotEmpty(adresse3)) {
-            if (adresse3.length() > TAILLE_MAX_OBJETS) {
-                adresse3 = adresse3.substring(0, TAILLE_MAX_OBJETS);
-            }
-            billingDTO.setAddressLine3(adresse3);
+            billingDTO.setAddressLine3(couperSiTropGrand(adresse3, TAILLE_MAX_OBJETS));
         }
         String ville = usager.getVille() == null ? paiementPropertiesResolver.getVilleParDefaut() : usager.getVille();
-        if (ville.length() > TAILLE_MAX_OBJETS) {
-            ville = ville.substring(0, TAILLE_MAX_OBJETS);
-        }
-        billingDTO.setCity(ville);
+        billingDTO.setCity(couperSiTropGrand(ville, TAILLE_MAX_OBJETS));
         billingDTO.setPostalCode(usager.getCodePostal() == null ? paiementPropertiesResolver.getCodePostalParDefaut() : usager.getCodePostal());
         billingDTO.setCountry(usager.getPaysCode() == null ? paiementPropertiesResolver.getCodePaysParDefaut() : usager.getPaysCode());
         return billingDTO;

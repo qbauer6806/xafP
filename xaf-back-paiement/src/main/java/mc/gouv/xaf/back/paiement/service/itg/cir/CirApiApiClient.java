@@ -133,7 +133,7 @@ public class CirApiApiClient implements FactureApiClient {
 
         Operation<String> operation = new Operation<String>() {
             @Override
-            public void execute() throws Exception {
+            public void execute() throws HttpResponseException {
                 Response response = targetCreate
                         .request()
                         .header(HttpHeaders.AUTHORIZATION, BEARER_PREFIX + paiementPropertiesResolver.getFactureToken())
@@ -158,9 +158,7 @@ public class CirApiApiClient implements FactureApiClient {
         };
 
         try {
-
             operationHelper.executeWithRetry(operation);
-
             LOGGER.info("return : {}", operation.getResult());
             return operation.getResult();
         } catch (Exception e) {
@@ -170,7 +168,7 @@ public class CirApiApiClient implements FactureApiClient {
     }
 
     @Override
-    public Optional<InputStream> getFacture(String numFacture, DemandeDTO demandeDTO) throws Exception {
+    public Optional<InputStream> getFacture(String numFacture, DemandeDTO demandeDTO) throws HttpResponseException {
         logStartMethod(LOGGER);
         LOGGER.info("Parameters [ numFacture {}] ", numFacture);
         LOGGER.info("Properties [ registre {}] ", paiementPropertiesResolver.getRegistre());
@@ -178,7 +176,7 @@ public class CirApiApiClient implements FactureApiClient {
 
         Operation<InputStream> operation = new Operation<InputStream>() {
             @Override
-            public void execute() throws Exception {
+            public void execute() throws HttpResponseException {
                 Response response = targetGet.queryParam("numFacture", "" + numFacture)
                         .queryParam("registre", "" + paiementPropertiesResolver.getRegistre())
                         .request("application/pdf")
@@ -197,7 +195,6 @@ public class CirApiApiClient implements FactureApiClient {
                 InputStream inputStream = response.readEntity(InputStream.class);
                 setResult(inputStream);
                 logEndMethod(getLogger());
-
             }
 
             @Override
@@ -217,7 +214,7 @@ public class CirApiApiClient implements FactureApiClient {
     }
 
     @Override
-    public PermisDTO getPermis(String numPermis) throws Exception {
+    public PermisDTO getPermis(String numPermis) throws HttpResponseException {
         logStartMethod(LOGGER);
         LOGGER.info("Parameters [ getPermis {}] ", numPermis);
 

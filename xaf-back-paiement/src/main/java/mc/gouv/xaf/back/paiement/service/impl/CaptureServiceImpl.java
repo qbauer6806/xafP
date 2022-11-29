@@ -61,7 +61,7 @@ public class CaptureServiceImpl implements CaptureService {
     private MoyenPaiementRepository moyenPaiementRepository;
 
     @Override
-    public CommandeOperationDTO capture(CommandeDTO commandeDTO, DemandeDTO demandeDTO) throws Exception {
+    public CommandeOperationDTO capture(CommandeDTO commandeDTO, DemandeDTO demandeDTO) throws DemarchesServiceException {
         logStartMethod(LOGGER);
         LOGGER.info("Parameters [ commandeDTO {}] ", commandeDTO);
         CommandeOperationDTO operation = new CommandeOperationDTO();

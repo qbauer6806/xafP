@@ -20,6 +20,11 @@ public class DemarchesServiceException extends RuntimeException {
         this.httpStatus = httpStatus;
     }
 
+    public DemarchesServiceException(String message, HttpStatus httpStatus, Throwable throwable) {
+        super(message, throwable);
+        this.httpStatus = httpStatus;
+    }
+
     public HttpStatus getHttpStatus() {
         return httpStatus;
     }

@@ -5,6 +5,7 @@ import mc.gouv.xaf.back.paiement.service.PermisService;
 import mc.gouv.xaf.back.paiement.service.itg.FactureApiClient;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.shared.enums.MailSupportEnum;
+import org.apache.http.client.HttpResponseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,13 +28,13 @@ public class PermisServiceImpl implements PermisService {
     private MailService mailService;
 
     @Override
-    public PermisDTO getPermis(String numPermis, int pkDemande, String identifiantDemande) throws Exception {
+    public PermisDTO getPermis(String numPermis, int pkDemande, String identifiantDemande) throws HttpResponseException {
         logStartMethod(LOGGER);
 
         PermisDTO permisDTO;
         try {
             permisDTO = factureApiClient.getPermis(numPermis);
-        } catch (Exception e) {
+        } catch (HttpResponseException e) {
             sendMailProblemeCir(pkDemande, identifiantDemande, e.getMessage());
             throw e;
         }

@@ -12,7 +12,7 @@ import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
 
 @Service
 public class ReferenceFactoryService {
-    private static Logger LOGGER = LoggerFactory.getLogger(ReferenceFactoryService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReferenceFactoryService.class);
 
     public String createSimpleReference12Digits() {
         logStartMethod(LOGGER);

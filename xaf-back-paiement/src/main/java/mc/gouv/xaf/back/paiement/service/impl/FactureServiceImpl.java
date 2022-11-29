@@ -3,12 +3,14 @@ package mc.gouv.xaf.back.paiement.service.impl;
 import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Date;
 import java.util.Optional;
 
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.HttpResponseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +52,7 @@ public class FactureServiceImpl implements FactureService {
     private DemandesDataService demandesDataService;
 
     @Override
-    public void saveFacture(String reference, Integer demandeId) throws Exception {
+    public void saveFacture(String reference, Integer demandeId) throws IOException {
         logStartMethod(LOGGER);
         String demarcheId = gouvPropertiesResolver.getDemarcheId();
 

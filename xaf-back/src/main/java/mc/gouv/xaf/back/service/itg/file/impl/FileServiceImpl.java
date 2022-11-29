@@ -88,7 +88,7 @@ public class FileServiceImpl implements FileService {
 
 	@Override
 	public void getFile(String filename, String containerId, HttpServletResponse response) throws IOException {
-		LOGGER.info("FileService.getFile({}, {}, {})", filename, containerId, response);
+		LOGGER.info("FileService.getFile({}, {})", filename, containerId);
 		String accountId = gouvPropertiesResolver.getDemarcheId();
 		// Remplacement des espaces par des "+"...
 		filename = filename.replace(" ", "+");

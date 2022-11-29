@@ -118,7 +118,9 @@ public abstract class AbstractAfApiController implements AfApiController {
             @RequestParam(value = "identifiantDemande") String identifiantDemande,
             @RequestParam(value = "nomProprio") String nomProprio,
             @RequestParam(value = "usagerId") Integer usagerId) {
-        LOGGER.info("AbstractAfApiController.associerDemandeCourrierRequest({}, {}, {})", identifiantDemande, nomProprio, usagerId);
+        String safeIndentifiant = identifiantDemande.replaceAll("[\n\r\t]", "_");
+        String safeNom = nomProprio.replaceAll("[\n\r\t]", "_");
+        LOGGER.info("AbstractAfApiController.associerDemandeCourrierRequest({}, {}, {})", safeIndentifiant, safeNom, usagerId);
         return associerDemandeCourrier(identifiantDemande, nomProprio, usagerId);
     }
 

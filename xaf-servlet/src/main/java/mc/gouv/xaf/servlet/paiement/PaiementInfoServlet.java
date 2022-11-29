@@ -57,7 +57,8 @@ public class PaiementInfoServlet extends AbstractAfServlet {
         // Récupération de l'ID de l'usager
         Integer usagerId = usagerInfosDTO.getId();
 
-        LOGGER.info("Récupération des données de paiement pour la demande {}...", demandeIds);
+        String safeIds = demandeIds.replaceAll("[\n\r\t]", "_");
+        LOGGER.info("Récupération des données de paiement pour la demande {}...", safeIds);
         MoneticoDTO paiement = getStcApiClient().getPaiement(demandeIds, langue, usagerId, iframe);
 
         response.setStatus(HttpStatus.SC_OK);

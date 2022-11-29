@@ -157,11 +157,6 @@ public class IndexedDemandeServiceTestImpl implements IndexedDemandeService {
     }
 
     @Override
-    public DemandeBO getDemandeBo(String demarcheId, Integer pkDemandes) {
-        return null;
-    }
-
-    @Override
     public List<DemandeDTO> getAllDemandes(String demarcheId) {
         return null;
     }

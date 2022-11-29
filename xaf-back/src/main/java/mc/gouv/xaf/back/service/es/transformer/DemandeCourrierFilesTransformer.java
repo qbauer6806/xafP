@@ -11,6 +11,9 @@ import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 
 public class DemandeCourrierFilesTransformer {
 
+    private DemandeCourrierFilesTransformer() {
+    }
+
     /**
      * Méthode permettant transformer des DemandeCourrierDTO en DemandeFileDTO
      *

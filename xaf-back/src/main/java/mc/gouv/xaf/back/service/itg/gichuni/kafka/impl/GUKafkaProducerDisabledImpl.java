@@ -25,7 +25,7 @@ import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.UsagerDemandesRecapDTO;
 @Conditional(KafkaDisabledCondition.class)
 public class GUKafkaProducerDisabledImpl implements GUKafkaProducer {
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(GUKafkaProducer.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(GUKafkaProducerDisabledImpl.class);
 	
 	@Override
 	public void sendCreationDemandeMessage(Integer usagerId, Integer demandeId, String identifiant, Date dateCreation, RecapDemandesDTO recapDemandes) {

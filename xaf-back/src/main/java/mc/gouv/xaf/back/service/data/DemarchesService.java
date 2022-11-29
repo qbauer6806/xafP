@@ -5,32 +5,34 @@ import mc.gouv.xaf.shared.dto.DemarcheDTO;
 
 /**
  * Service permettant la manipulation des démarches.
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 public interface DemarchesService {
 
     /**
      * Permet de récupérer la démarche correspondant au DemarcheID
-     * @param démarche
-     * @return La démarche demandée
+     *
+     * @param demarcheId l'id de la démarche à récupérer
+     * @return Un objet DTO de la démarche demandée
      */
-    public DemarcheDTO getDemarche(String demarcheId);
-    
+    DemarcheDTO getDemarche(String demarcheId);
+
     /**
-     * Permet de récupérer la démarche correspondant au DemarcheID
-     * Fonction réservée aux autres Services
-     * @param demarche
-     * @return
+     * <p>Permet de récupérer la démarche correspondant au DemarcheID</p>
+     * <p>Fonction réservée aux autres Services</p>
+     *
+     * @param demarcheId l'id de la démarche à récupérer
+     * @return Un objet BO de la démarche demandée
      */
-    public DemarchesBO getCheckDemarche(String demarcheId);
-    
+    DemarchesBO getCheckDemarche(String demarcheId);
+
     /**
      * Permet de modifier une démarche à partir du DemarcheID
-     * @param démarche
+     *
+     * @param demarche l'objet de la démarche à modifier
      * @return La démarche modifiée
      */
-    public DemarcheDTO updateDemarche(DemarcheDTO demarche);
-    
+    DemarcheDTO updateDemarche(DemarcheDTO demarche);
+
 }

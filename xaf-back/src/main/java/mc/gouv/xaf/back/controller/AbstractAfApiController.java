@@ -14,14 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.xml.sax.SAXException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -61,42 +54,39 @@ public abstract class AbstractAfApiController implements AfApiController {
     @Autowired
     private DemandesService demandesService;
 
-    @RequestMapping(value = "/demandes/{demandeId}/annuler", method = RequestMethod.PUT)
+    @PutMapping(value = "/demandes/{demandeId}/annuler")
     public void annulerDemandeRequest(@PathVariable(value = "demandeId") Integer demandeId,
-            @RequestParam(value = "usagerId", required = true) Integer usagerId) {
-        LOGGER.info("AbstractAfApiController.annulerDemande(" + demandeId + "," + usagerId + ")");
+            @RequestParam(value = "usagerId") Integer usagerId) {
+        LOGGER.info("AbstractAfApiController.annulerDemande({}, {})", demandeId, usagerId);
         annulerDemande(demandeId, usagerId);
     }
 
-    @RequestMapping(value = "/demandes", method = RequestMethod.POST)
+    @PostMapping(value = "/demandes")
     public DemandeDTO creerDemandeRequest(@Valid @RequestBody DemandeInputDTO demande,
-            @RequestParam(value = "usagerId", required = true) Integer usagerId, HttpServletRequest request)
+            @RequestParam(value = "usagerId") Integer usagerId, HttpServletRequest request)
             throws JsonProcessingException {
-        LOGGER.info("AbstractAfApiController.creerDemande(" + demande + "," + usagerId + ")");
-
+        LOGGER.info("AbstractAfApiController.creerDemande({}, {})", demande, usagerId);
         return creerDemande(demande, usagerId);
     }
 
-    @RequestMapping(value = "/demandes/{demandeId}/complements/{icId}", method = RequestMethod.PUT)
+    @PutMapping(value = "/demandes/{demandeId}/complements/{icId}")
     public DemandeComplementsDTO repondreDemandeComplementsRequest(@PathVariable(value = "demandeId") Integer demandeId,
             @PathVariable(value = "icId") Integer icId, @Valid @RequestBody DemandeComplementsReponseDTO reponse)
-            throws Exception {
-        LOGGER.info(
-                "AbstractAfApiController.repondreDemandeComplements(" + demandeId + "," + icId + "," + reponse + ")");
+            throws IOException, TikaException, SAXException {
+        LOGGER.info("AbstractAfApiController.repondreDemandeComplements({}, {}, {})", demandeId, icId, reponse);
         return repondreDemandeComplements(demandeId, icId, reponse);
     }
 
-    @RequestMapping(value = "/usagers/{usagerId}/demandes/{demandeId}", method = RequestMethod.GET)
+    @GetMapping(value = "/usagers/{usagerId}/demandes/{demandeId}")
     public @ResponseBody DemandeDTO getDemandeRequest(@PathVariable(value = "usagerId") Integer usagerId,
             @PathVariable(value = "demandeId") Integer demandeId) {
-        LOGGER.info("AbstractAfApiController.getDemande(" + usagerId + "," + demandeId + ")");
+        LOGGER.info("AbstractAfApiController.getDemande({}, {})", usagerId, demandeId);
         return getDemande(usagerId, demandeId);
     }
 
-    @RequestMapping(value = "/demandes", method = RequestMethod.GET)
-    public @ResponseBody List<DemandeDTO> getDemandesRequest(
-            @RequestParam(value = "usagerId", required = true) Integer usagerId) {
-        LOGGER.info("AbstractAfApiController.getDemandes(" + usagerId + ")");
+    @GetMapping(value = "/demandes")
+    public @ResponseBody List<DemandeDTO> getDemandesRequest(@RequestParam(value = "usagerId") Integer usagerId) {
+        LOGGER.info("AbstractAfApiController.getDemandes({})", usagerId);
         return getDemandes(usagerId);
     }
 
@@ -109,65 +99,64 @@ public abstract class AbstractAfApiController implements AfApiController {
         return getDemandesPageable(usagerId, new PageParamDTO(page, size, sort, direction, status, lang));
     }
 
-    @RequestMapping(value = "/demandes/{demandeId}/complements", method = RequestMethod.GET)
+    @GetMapping(value = "/demandes/{demandeId}/complements")
     public @ResponseBody List<DemandeComplementsDTO> getDemandeComplementsRequest(
             @PathVariable(value = "demandeId") Integer demandeId) {
-        LOGGER.info("AbstractAfApiController.getDemandeComplements(" + demandeId + ")");
+        LOGGER.info("AbstractAfApiController.getDemandeComplements({})", demandeId);
         return getDemandeComplements(demandeId);
     }
 
-    @RequestMapping(value = "/demandes/{demandeId}/complements/{icId}", method = RequestMethod.GET)
+    @GetMapping(value = "/demandes/{demandeId}/complements/{icId}")
     public @ResponseBody DemandeComplementsDTO getDemandeComplementsRequest(
             @PathVariable(value = "demandeId") Integer demandeId, @PathVariable(value = "icId") Integer icId) {
-        LOGGER.info("AbstractAfApiController.getDemandeComplements(" + demandeId + "," + icId + ")");
+        LOGGER.info("AbstractAfApiController.getDemandeComplements({}, {})", demandeId, icId);
         return getDemandeComplements(demandeId, icId);
     }
 
-    @RequestMapping(value = "/demandes/associerDemandeCourrier", method = RequestMethod.POST)
+    @PostMapping(value = "/demandes/associerDemandeCourrier")
     public DemandeDTO associerDemandeCourrierRequest(
-            @RequestParam(value = "identifiantDemande", required = true) String identifiantDemande,
-            @RequestParam(value = "nomProprio", required = true) String nomProprio,
-            @RequestParam(value = "usagerId", required = true) Integer usagerId) {
-        LOGGER.info("AbstractAfApiController.associerDemandeCourrierRequest(" + identifiantDemande + "," + nomProprio
-                + "," + usagerId + ")");
+            @RequestParam(value = "identifiantDemande") String identifiantDemande,
+            @RequestParam(value = "nomProprio") String nomProprio,
+            @RequestParam(value = "usagerId") Integer usagerId) {
+        LOGGER.info("AbstractAfApiController.associerDemandeCourrierRequest({}, {}, {})", identifiantDemande, nomProprio, usagerId);
         return associerDemandeCourrier(identifiantDemande, nomProprio, usagerId);
     }
 
-    @RequestMapping(value = "/accesses/{usagerId}", method = RequestMethod.DELETE)
+    @DeleteMapping(value = "/accesses/{usagerId}")
 	public void desinscriptionUsagerRequest(@PathVariable(value = "usagerId") Integer usagerId,
-                                            @RequestParam(value = "langue", required = true) String langue) {
+                                            @RequestParam(value = "langue") String langue) {
         LOGGER.info("AbstractAfApiController.desinscriptionUsagerRequest({}, {})", usagerId, langue);
 		desinscriptionUsager(usagerId, langue, false);
 	}
 
-    @RequestMapping(value = "/accesses/{usagerId}", method = RequestMethod.POST)
+    @PostMapping(value = "/accesses/{usagerId}")
     public AccessDTO createOrUpdateAccessRequest(@PathVariable(value = "usagerId") Integer usagerId,
             @Valid @RequestBody AccessInputDTO dto) {
-        LOGGER.info("AbstractAfApiController.createOrUpdateAccessRequest(" + usagerId + " (+dto))");
+        LOGGER.info("AbstractAfApiController.createOrUpdateAccessRequest({}, +dto)", usagerId);
         return createOrUpdateAccess(usagerId, dto);
     }
 
-    @RequestMapping(value = "/accesses/{usagerId}", method = RequestMethod.GET)
+    @GetMapping(value = "/accesses/{usagerId}")
     public AccessDTO getAccessRequest(@PathVariable(value = "usagerId") Integer usagerId) {
-        LOGGER.info("AbstractAfApiController.getAccessRequest(" + usagerId + ")");
+        LOGGER.info("AbstractAfApiController.getAccessRequest({})", usagerId);
         return getAccess(usagerId);
     }
 
-    @RequestMapping(value = "/usagerscourrier/{usagerCourrierId}", method = RequestMethod.GET)
+    @GetMapping(value = "/usagerscourrier/{usagerCourrierId}")
     public UsagerCourrierDTO getUsagerCourrierRequest(
             @PathVariable(value = "usagerCourrierId") Integer usagerCourrierId) {
-        LOGGER.info("AbstractAfApiController.getUsagerCourrierRequest(" + usagerCourrierId + ")");
+        LOGGER.info("AbstractAfApiController.getUsagerCourrierRequest({})", usagerCourrierId);
         return getUsagerCourrier(usagerCourrierId);
     }
 
-    @RequestMapping(value = "/motifs", method = RequestMethod.GET)
+    @GetMapping(value = "/motifs")
     public List<MotifDTO> getMotifsRequest() {
         LOGGER.info("AbstractAfApiController.getMotifsRequest()");
         return getMotifs();
     }
 
-    @RequestMapping(value = "/reindex", method = RequestMethod.POST)
-    public String reindex() throws IOException, SAXException, TikaException {
+    @PostMapping(value = "/reindex")
+    public String reindex() throws IOException {
 
         LOGGER.info("======================= Appel de /ws/demandes/reindex");
 
@@ -187,84 +176,78 @@ public abstract class AbstractAfApiController implements AfApiController {
             LOGGER.info("======================= Fin appel de /ws/demandes/reindex");
             return "Indexing is disabled, please enable it";
         }
-
     }
 
-    @RequestMapping(value = "/periodesouverture", method = RequestMethod.GET)
+    @GetMapping(value = "/periodesouverture")
     public List<PeriodeOuvertureDTO> getPeriodesOuvertureRequest() {
         LOGGER.info("AbstractAfApiController.getPeriodesOuverture()");
         return getPeriodesOuverture();
     }
 
-    @RequestMapping(value = "/properties", method = RequestMethod.GET)
+    @GetMapping(value = "/properties")
     public List<PropertiesDTO> getFrontPropertiesRequest() {
         LOGGER.info("AbstractAfApiController.getFrontPropertiesRequest()");
         return getFrontProperties();
     }
 
     @SuppressWarnings("rawtypes")
-	@RequestMapping(value = "/customRequest/**", method = RequestMethod.GET)
+	@GetMapping(value = "/customRequest/**")
     public ResponseEntity getCustomRequestRequest(HttpServletRequest request) {
         LOGGER.info("AbstractAfApiController.getCustomRequest()");
         return getCustomRequest(request);
     }
 
     @SuppressWarnings("rawtypes")
-	@RequestMapping(value = "/customRequest/**", method = RequestMethod.POST)
+	@PostMapping(value = "/customRequest/**")
     public ResponseEntity postCustomRequestRequest(HttpServletRequest request) {
         LOGGER.info("AbstractAfApiController.postCustomRequest()");
         return postCustomRequest(request);
     }
 
     @SuppressWarnings("rawtypes")
-	@RequestMapping(value = "/customRequest/**", method = RequestMethod.PUT)
+	@PutMapping(value = "/customRequest/**")
     public ResponseEntity putCustomRequestRequest(HttpServletRequest request) {
         LOGGER.info("AbstractAfApiController.putCustomRequest()");
         return putCustomRequest(request);
     }
 
     @SuppressWarnings("rawtypes")
-	@RequestMapping(value = "/customRequest/**", method = RequestMethod.DELETE)
+	@DeleteMapping(value = "/customRequest/**")
     public ResponseEntity deleteCustomRequestRequest(HttpServletRequest request) {
         LOGGER.info("AbstractAfApiController.deleteCustomRequest()");
         return deleteCustomRequest(request);
     }
     
-    @RequestMapping(value = "/brouillons", method = RequestMethod.POST)
+    @PostMapping(value = "/brouillons")
     public BrouillonDTO creerBrouillonRequest(@Valid @RequestBody BrouillonDTO brouillon,
-    		@RequestParam(value = "usagerId", required = true) Integer usagerId) {
-        LOGGER.info("AbstractAfApiController.creerBrouillonRequest(" + brouillon + "," + usagerId + ")");
-
+    		@RequestParam(value = "usagerId") Integer usagerId) {
+        LOGGER.info("AbstractAfApiController.creerBrouillonRequest({}, {})", brouillon, usagerId);
         return creerBrouillon(brouillon, usagerId);
     }
     
-    @RequestMapping(value = "/brouillons/{brouillonId}", method = RequestMethod.PUT)
+    @PutMapping(value = "/brouillons/{brouillonId}")
     public BrouillonDTO updateBrouillonRequest(@Valid @RequestBody BrouillonDTO brouillon,
     		@PathVariable(value = "brouillonId") Integer brouillonId) {
-        LOGGER.info("AbstractAfApiController.updateBrouillonRequest(" + brouillon + "," + brouillonId + ")");
-
+        LOGGER.info("AbstractAfApiController.updateBrouillonRequest({}, {})", brouillon, brouillonId);
         brouillon.setPkBrouillons(brouillonId);
         return updateBrouillon(brouillon);
     }
     
-    @RequestMapping(value = "/brouillons", method = RequestMethod.GET)
-    public @ResponseBody List<BrouillonDTO> getBrouillonsRequest(@RequestParam(value = "usagerId", required = true) Integer usagerId) {
-        LOGGER.info("AbstractAfApiController.getBrouillonsRequest(" + usagerId + ")");
-
+    @GetMapping(value = "/brouillons")
+    public @ResponseBody List<BrouillonDTO> getBrouillonsRequest(@RequestParam(value = "usagerId") Integer usagerId) {
+        LOGGER.info("AbstractAfApiController.getBrouillonsRequest({})", usagerId);
         return getBrouillons(usagerId);
     }
     
-    @RequestMapping(value = "/brouillons/{brouillonId}", method = RequestMethod.GET)
+    @GetMapping(value = "/brouillons/{brouillonId}")
     public @ResponseBody BrouillonDTO getBrouillonRequest(@PathVariable(value = "brouillonId") Integer brouillonId) {
-        LOGGER.info("AbstractAfApiController.getBrouillonRequest(" + brouillonId + ")");
-
+        LOGGER.info("AbstractAfApiController.getBrouillonRequest({})", brouillonId);
         return getBrouillon(brouillonId);
     }
     
-    @RequestMapping(value = "/brouillons/{brouillonId}", method = RequestMethod.DELETE)
+    @DeleteMapping(value = "/brouillons/{brouillonId}")
     public void deleteBrouillonRequest(@PathVariable(value = "brouillonId") Integer brouillonId) throws JsonProcessingException {
-        LOGGER.info("AbstractAfApiController.deleteBrouillonRequest(" + brouillonId + ")");
-
+        LOGGER.info("AbstractAfApiController.deleteBrouillonRequest({})", brouillonId);
         deleteBrouillon(brouillonId);
     }
     

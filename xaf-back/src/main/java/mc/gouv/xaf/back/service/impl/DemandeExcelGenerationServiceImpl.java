@@ -91,7 +91,7 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
     @Autowired
     private DemarchesDataProvider demarchesDataProvider;
     
-    private static final List<byte[]> colorList = new ArrayList<byte[]>();
+    private static final List<byte[]> colorList = new ArrayList<>();
     
     static {
     	colorList.add(new byte[] { (byte)253, (byte)233, (byte)217 });

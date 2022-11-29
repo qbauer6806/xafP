@@ -121,7 +121,14 @@ public class DemandeFileEsTransformer {
         return demarcheId + "/" + gouvPropertiesResolver.getContainerId() + "/" + finalFilename;
     }
 
-    private InputStream getFileInputStream(String fileUrl) throws IOException {
+    /**
+     * Récupère le contenu d'un fichier dans File.
+     *
+     * @param fileUrl l'URL du fichier
+     * @throws IOException             Exception I/O
+     * @throws FileConnectionException Exception lors de la connextion à File
+     */
+    private InputStream getFileInputStream(String fileUrl) throws IOException, FileConnectionException {
         InputStream is;
         try {
             FileClient fileClient = new FileClient(gouvPropertiesResolver.getFileUrl(), gouvPropertiesResolver.getFileJwt());

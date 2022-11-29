@@ -1,11 +1,9 @@
 package mc.gouv.xaf.back.service.data.impl;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,8 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import mc.gouv.xaf.back.data.dao.DemarchesRepository;
@@ -66,7 +62,7 @@ public class PropertiesServiceImpl implements PropertiesService {
      */
     @Override
     public List<PropertiesDTO> getProperties() {
-        LOGGER.info("Récupération en base des propriétés ...");
+        LOGGER.info(SharedMessages.RECUPERATION_EN_BASE);
         String demarcheId = gouvPropertiesResolver.getDemarcheId();
         List<PropertiesBO> bos = propertiesRepository.findByDemarchePkDemarches(demarcheId);
         LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
@@ -81,7 +77,7 @@ public class PropertiesServiceImpl implements PropertiesService {
      */
     @Override
     public List<PropertiesDTO> getPropertiesByType(PropertiesTypeEnum type) {
-        LOGGER.info("Récupération en base des propriétés ...");
+        LOGGER.info(SharedMessages.RECUPERATION_EN_BASE);
         String demarcheId = gouvPropertiesResolver.getDemarcheId();
         List<PropertiesBO> bos = propertiesRepository.findByDemarchePkDemarchesAndType(demarcheId, type.name());
         LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
@@ -102,7 +98,7 @@ public class PropertiesServiceImpl implements PropertiesService {
         } else {
             List<String> typeStr = new ArrayList<>(types.size());
             types.forEach(type -> typeStr.add(type.name()));
-            LOGGER.info("Récupération en base des propriétés ...");
+            LOGGER.info(SharedMessages.RECUPERATION_EN_BASE);
             String demarcheId = gouvPropertiesResolver.getDemarcheId();
             List<PropertiesBO> bos = propertiesRepository.findAllInListOfTypes(demarcheId, typeStr);
             LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
@@ -132,21 +128,17 @@ public class PropertiesServiceImpl implements PropertiesService {
     	if (!StringUtils.isEmpty(propertiesDTO.getValue())) {
 			try {
 				jsonObjectsToDisplay = Arrays.asList(mapper.readValue(propertiesDTO.getValue(), PropertiesListEntityDTO[].class));
-				Collections.sort(jsonObjectsToDisplay, new Comparator<PropertiesListEntityDTO>() {
-		    		  @Override
-		    		  public int compare(PropertiesListEntityDTO p1, PropertiesListEntityDTO p2) {
-		    			  // On veut laisser le libelle Autre en 1ere position dans la liste
-		    			  if (p1.getLabel().equals("AUTRE") || p2.getLabel().equals("AUTRE")) {
-		    				  // je retourne 1 si AUTRE commme ça il reste au début de la liste
-		    				  return 1;
-		    			  } 
-		    		    return p1.getLabel().toUpperCase().compareTo(p2.getLabel().toUpperCase());
-		    		  }
-		    	});
+				Collections.sort(jsonObjectsToDisplay, (p1, p2) -> {
+                    // On veut laisser le libelle Autre en 1ere position dans la liste
+                    if (p1.getLabel().equals("AUTRE") || p2.getLabel().equals("AUTRE")) {
+                        // je retourne 1 si AUTRE commme ça il reste au début de la liste
+                        return 1;
+                    }
+                  return p1.getLabel().toUpperCase().compareTo(p2.getLabel().toUpperCase());
+                });
 				ByteArrayOutputStream out = new ByteArrayOutputStream();
 		    	mapper.writeValue(out, jsonObjectsToDisplay);
-				final byte[] valueToAdd = out.toByteArray();
-				propertiesDTO.setValue(new String(valueToAdd));
+                propertiesDTO.setValue(out.toString());
 			} catch (Exception e) {
 				LOGGER.error("Erreur dans sortValueOfGivenProperty", e);
 			}
@@ -188,7 +180,7 @@ public class PropertiesServiceImpl implements PropertiesService {
             LOGGER.info("Mise à jour d'une propriété");
             Optional<PropertiesBO> propertiesBoOpt = propertiesRepository.findById(toSave.getPkProperties());
             if (!propertiesBoOpt.isPresent()) {
-                throw new DemarchesServiceException("La propriété spécifiée est introuvable", HttpStatus.NOT_FOUND);
+                throw new DemarchesServiceException(SharedMessages.DONNEE_INTROUVABLE, HttpStatus.NOT_FOUND);
             }
             PropertiesBO bo = propertiesBoOpt.get();
             bo.setValue(toSave.getValue());
@@ -210,7 +202,7 @@ public class PropertiesServiceImpl implements PropertiesService {
     public void deleteProperties(Integer propertiesId) {
         Optional<PropertiesBO> propertiesBoOpt = propertiesRepository.findById(propertiesId);
         if (!propertiesBoOpt.isPresent()) {
-            throw new DemarchesServiceException("La propriété spécifiée est introuvable", HttpStatus.NOT_FOUND);
+            throw new DemarchesServiceException(SharedMessages.DONNEE_INTROUVABLE, HttpStatus.NOT_FOUND);
         }
         LOGGER.info("Suppression de la propriété ...");
         propertiesRepository.delete(propertiesBoOpt.get());

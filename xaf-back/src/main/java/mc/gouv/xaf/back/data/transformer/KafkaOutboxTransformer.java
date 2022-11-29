@@ -43,7 +43,7 @@ public class KafkaOutboxTransformer {
     }
     
     public static List<KafkaOutboxDTO> bo2Dto(List<KafkaOutboxBO> bos) {
-        ArrayList<KafkaOutboxDTO> dtos = new ArrayList<KafkaOutboxDTO>();
+        ArrayList<KafkaOutboxDTO> dtos = new ArrayList<>();
         for (KafkaOutboxBO bo : bos) {
             dtos.add(bo2Dto(bo));
         }
@@ -51,7 +51,7 @@ public class KafkaOutboxTransformer {
     }
     
     public static List<KafkaOutboxBO> dto2Bo(List<KafkaOutboxDTO> dtos) {
-        ArrayList<KafkaOutboxBO> bos = new ArrayList<KafkaOutboxBO>();
+        ArrayList<KafkaOutboxBO> bos = new ArrayList<>();
         for (KafkaOutboxDTO dto : dtos) {
             bos.add(dto2Bo(dto));
         }

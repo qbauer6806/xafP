@@ -1,86 +1,15 @@
 package mc.gouv.xaf.back.service.data.impl;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.math.BigInteger;
-import java.net.URLEncoder;
-import java.security.SecureRandom;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-
-import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import javax.persistence.criteria.Subquery;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DateUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.domain.Sort.Order;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-import org.xml.sax.SAXException;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import mc.gouv.xaf.back.data.dao.AccessRepository;
-import mc.gouv.xaf.back.data.dao.DemandesComplementsFilesRepository;
-import mc.gouv.xaf.back.data.dao.DemandesComplementsRepository;
-import mc.gouv.xaf.back.data.dao.DemandesDataRepository;
-import mc.gouv.xaf.back.data.dao.DemandesFilesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesHistoriqueRepository;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
-import mc.gouv.xaf.back.data.dao.DemandesStatutsRepository;
-import mc.gouv.xaf.back.data.entity.AccessBO;
-import mc.gouv.xaf.back.data.entity.DemandeBO;
-import mc.gouv.xaf.back.data.entity.DemandesComplementsBO;
-import mc.gouv.xaf.back.data.entity.DemandesComplementsFilesBO;
-import mc.gouv.xaf.back.data.entity.DemandesDataBO;
-import mc.gouv.xaf.back.data.entity.DemandesFilesBO;
-import mc.gouv.xaf.back.data.entity.DemandesHistoriqueBO;
-import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
-import mc.gouv.xaf.back.data.transformer.DemandesComplementsFilesTransformer;
-import mc.gouv.xaf.back.data.transformer.DemandesComplementsTransformer;
-import mc.gouv.xaf.back.data.transformer.DemandesDataTransformer;
-import mc.gouv.xaf.back.data.transformer.DemandesFilesTransformer;
-import mc.gouv.xaf.back.data.transformer.DemandesStatutsTransformer;
+import mc.gouv.xaf.back.data.entity.*;
 import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.service.DemandePostprocessingService;
-import mc.gouv.xaf.back.service.data.DemandesFilesService;
-import mc.gouv.xaf.back.service.data.DemandesService;
-import mc.gouv.xaf.back.service.data.DemandesStatutsService;
-import mc.gouv.xaf.back.service.data.DemarchesService;
-import mc.gouv.xaf.back.service.data.StatistiquesService;
+import mc.gouv.xaf.back.service.data.*;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.DemandeRecapDTO;
@@ -88,18 +17,33 @@ import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.RecapDemandesDTO;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.utils.GUKafkaUtils;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
-import mc.gouv.xaf.back.service.utils.FileUtils;
-import mc.gouv.xaf.shared.dto.DataRechercheDTO;
-import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
-import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
-import mc.gouv.xaf.shared.dto.DemandeComplementsFileDTO;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.xaf.shared.dto.DemandeDataDTO;
-import mc.gouv.xaf.shared.dto.DemandeFileDTO;
-import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
-import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
-import mc.gouv.xaf.shared.dto.PageParamDTO;
-import mc.gouv.xaf.shared.dto.StatistiqueDTO;
+import mc.gouv.xaf.shared.SharedMessages;
+import mc.gouv.xaf.shared.dto.*;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.*;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort.Order;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+import org.xml.sax.SAXException;
+
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.*;
+import java.io.IOException;
+import java.math.BigInteger;
+import java.security.SecureRandom;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * Service permettant la manipulation des demandes.
@@ -112,30 +56,17 @@ import mc.gouv.xaf.shared.dto.StatistiqueDTO;
 public class DemandesServiceImpl implements DemandesService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DemandesServiceImpl.class);
+	private static final String RECUPERATION_DEMANDES = "Récupération en base des demandes...";
+	private static final String RECUPERATION_DEMANDE = "Récupération en base de la demande...";
 
 	@Autowired
 	private DemandesRepository demandesRepository;
-
-	@Autowired
-	private DemandesFilesRepository demandesFilesRepository;
 
 	@Autowired
 	private AccessRepository accessRepository;
 
 	@Autowired
 	private DemandesStatutsService demandesStatutsService;
-
-	@Autowired
-	private DemandesStatutsRepository demandesStatutsRepository;
-
-	@Autowired
-	private DemandesDataRepository demandesDataRepository;
-
-	@Autowired
-	private DemandesComplementsRepository demandesComplementsRepository;
-
-	@Autowired
-	private DemandesComplementsFilesRepository demandesComplementsFilesRepository;
 
 	@Autowired
 	private DemandesHistoriqueRepository demandesHistoriqueRepository;
@@ -148,6 +79,12 @@ public class DemandesServiceImpl implements DemandesService {
 
 	@Autowired
 	private DemandesFilesService demandesFilesService;
+
+	@Autowired
+	private DemandesComplementsService demandesComplementsService;
+
+	@Autowired
+	private DemandesDataService demandesDataService;
 
 	@Autowired
 	private StatistiquesService statistiquesService;
@@ -164,10 +101,6 @@ public class DemandesServiceImpl implements DemandesService {
 	@Autowired
     private ApplicationContext appContext;
 
-	private DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
-
-	private SecureRandom random = new SecureRandom();
-
 	public static final String DATE_PATTERN = "dd/MM/yyyy";
 	
 	public static final String SUPPRIMEE_STATUT = "SUPPRIMEE";
@@ -176,18 +109,16 @@ public class DemandesServiceImpl implements DemandesService {
 	private EntityManager em;
 
 	private String generatePublicIDWithoutCollisionCheck(String prefixe) {
+		DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
 		String stringDate = dateFormat.format(new Date());
+		SecureRandom random = new SecureRandom();
 		String randomPart = new BigInteger(130, random).toString(32).substring(0, 4);
 		String ret = prefixe + "-" + stringDate + "-" + randomPart;
 		return ret.toUpperCase();
 	}
 
 	/**
-	 * Permet de générer l'ID public d'une demande
-	 * demarcheId-yyyyMMdd-randomAlphaNumerique(4) Exemple : HAB-20161014-n6kd
-	 *
-	 * @param demarcheId
-	 * @return
+	 * Permet de générer l'ID public d'une demande demarcheId-yyyyMMdd-randomAlphaNumerique(4) Exemple : HAB-20161014-n6kd
 	 */
 	private String generatePublicID(String demarcheId) {
 		LOGGER.info("Récupération du préfixe d'identifiant depuis la démarche associée...");
@@ -195,22 +126,18 @@ public class DemandesServiceImpl implements DemandesService {
 
 		// Génération de l'identifiant de la demande (ID public)
 		String identifiant = generatePublicIDWithoutCollisionCheck(prefixe);
-		LOGGER.info("Identifiant généré : " + identifiant);
-		// Puis on s'assure que cet ID généré n'existe pas déjà (extrêmement rare, mais
-		// on fait la vérification quand
-		// même)
+		LOGGER.info("Identifiant généré : {}", identifiant);
+
+		// Puis on s'assure que cet ID généré n'existe pas déjà (extrêmement rare, mais on fait la vérification quand même)
 		while (demandesRepository.findByIdentifiant(identifiant) != null) {
 			identifiant = generatePublicIDWithoutCollisionCheck(prefixe);
-			LOGGER.info("COLLISION : génération d'un nouvel identifiant : " + identifiant);
+			LOGGER.info("COLLISION : génération d'un nouvel identifiant : {}", identifiant);
 		}
 		return identifiant;
 	}
 
 	/**
 	 * {@inheritDoc}
-	 * @throws IOException 
-	 * 
-	 * @throws Exception
 	 */
 	@Override
 	public DemandeDTO saveDemande(DemandeDTO demande, String premierStatut) throws IOException {
@@ -219,6 +146,8 @@ public class DemandesServiceImpl implements DemandesService {
 			throw new DemarchesServiceException("Canal non spécifié", HttpStatus.BAD_REQUEST);
 		}
 
+
+		// TODO #45676 : Créer une méthode dans le AccessService
 		LOGGER.info("Récupération en base de l'accès correspondant...");
 
 		AccessBO accessBo = null;
@@ -246,8 +175,6 @@ public class DemandesServiceImpl implements DemandesService {
 			LOGGER.error("Une erreur est survenue lors du postprocessing de la demande", e);
 		}
 
-		LOGGER.info("Transformation dto -> bo ...");
-
 		if (demande.getFichiers() != null) {
 			for (DemandeFileDTO file : demande.getFichiers()) {
 				file.setDate(new Date());
@@ -266,11 +193,11 @@ public class DemandesServiceImpl implements DemandesService {
 		// traitement d'une demande) :
 		demande.setObservations(null);
 
+		LOGGER.info(SharedMessages.TRANSFORMATION_DTO_BO);
 		DemandeBO demandeBo = DemandesTransformer.dto2Bo(demande);
 		demandeBo.setFkAccess(accessBo);
 
-		LOGGER.info("Sauvegarder en base...");
-
+		LOGGER.info(SharedMessages.SAUVEGARDE_EN_BASE);
 		demandeBo = demandesRepository.save(demandeBo);
 
 		// Maintenant on s'occupe d'attacher et de persister les pièces jointes...
@@ -288,20 +215,12 @@ public class DemandesServiceImpl implements DemandesService {
 					demandeBo.getPkDemandes());
 		}
 
-		LOGGER.info("Transformation bo -> dto ...");
-
-		DemandeDTO demandeDTO = DemandesTransformer.bo2Dto(demandeBo);
-
-		return demandeDTO;
+		LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
+		return DemandesTransformer.bo2Dto(demandeBo);
 	}
 
 	/**
 	 * {@inheritDoc}
-	 * @throws SAXException 
-	 * @throws IOException 
-	 * 
-	 * @throws Exception
-	 *
 	 */
 	@Override
 	public DemandeDTO saveOrUpdateDemande(DemandeDTO demande, boolean partialUpdate, String premierStatut) throws IOException, SAXException {
@@ -313,7 +232,6 @@ public class DemandesServiceImpl implements DemandesService {
 			// UsagerID et DemarcheID fournis, il faut donc créer une nouvelle demande
 			demandeDTO = saveDemande(demande, premierStatut);
 		}
-
 		return demandeDTO;
 	}
 
@@ -334,8 +252,9 @@ public class DemandesServiceImpl implements DemandesService {
 	}
 
 	private List<DemandeDTO> getDemandesUsager(String demarcheId, Integer usagerId, boolean active) {
-		LOGGER.info("Récupération en base des demandes...");
+		LOGGER.info(RECUPERATION_DEMANDES);
 
+		// TODO #45676 : Créer une méthode dans le AccessService
 		AccessBO accessBo = null;
 		List<AccessBO> accessBos = accessRepository.getByDemarcheIdAndUsagerIdAndActive(demarcheId, usagerId, active);
 		if (accessBos != null && !accessBos.isEmpty()) {
@@ -348,9 +267,8 @@ public class DemandesServiceImpl implements DemandesService {
 			throw new DemarchesServiceException("Accès correspondant introuvable", HttpStatus.NOT_FOUND);
 		}
 
-		LOGGER.info("Transformation bo -> dto ...");
-
-		return DemandesTransformer.bo2Dto(new ArrayList<DemandeBO>(accessBo.getDemandes()));
+		LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
+		return DemandesTransformer.bo2Dto(new ArrayList<>(accessBo.getDemandes()));
 	}
 
 	/**
@@ -358,7 +276,6 @@ public class DemandesServiceImpl implements DemandesService {
 	 */
 	@Override
 	public List<DemandeDTO> getDemandesFilterFiles(String demarcheId, Integer usagerId) {
-
 		List<DemandeDTO> demandes = getDemandes(demarcheId, usagerId);
 		for (DemandeDTO demande : demandes) {
 			DemandeFileDTO[] fichiers = demande.getFichiers();
@@ -366,7 +283,6 @@ public class DemandesServiceImpl implements DemandesService {
 				demande.setFichiers(DemarchesUtils.filterFiles(fichiers));
 			}
 		}
-
 		return demandes;
 	}
 
@@ -375,15 +291,10 @@ public class DemandesServiceImpl implements DemandesService {
 	 */
 	@Override
 	public List<DemandeDTO> getDemandesByIdentifiants(List<String> identifiants) {
-
-		LOGGER.info("Récupération en base des demandes...");
-
+		LOGGER.info(RECUPERATION_DEMANDES);
 		List<DemandeBO> demandes = demandesRepository.findAllByIdentifiantIn(identifiants);
-
-		LOGGER.info("Transformation bo -> dto ...");
-
+		LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
 		return DemandesTransformer.bo2Dto(demandes);
-
 	}
 
 	/**
@@ -392,20 +303,18 @@ public class DemandesServiceImpl implements DemandesService {
 	@Override
 	public List<DemandeDTO> getDemandes(String demarcheId) {
 
-		LOGGER.info("Récupération en base des demandes...");
+		LOGGER.info(RECUPERATION_DEMANDES);
 
 		// Si usagerId null, alors rechercher tous les accès de ce demarcheId, qui sont
 		// actifs
-		ArrayList<DemandeBO> demandes = new ArrayList<DemandeBO>();
+		ArrayList<DemandeBO> demandes = new ArrayList<>();
 		List<AccessBO> accessBos = accessRepository.getByDemarcheIdAndActive(demarcheId, true);
 		for (AccessBO access : accessBos) {
 			demandes.addAll(access.getDemandes());
 		}
 
-		LOGGER.info("Transformation bo -> dto ...");
-
+		LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
 		return DemandesTransformer.bo2Dto(demandes);
-
 	}
 
 	/**
@@ -413,27 +322,17 @@ public class DemandesServiceImpl implements DemandesService {
 	 */
 	@Override
 	public List<DemandeDTO> getAllDemandes(String demarcheId) {
-
-		LOGGER.info("Récupération en base des demandes...");
-
+		LOGGER.info(RECUPERATION_DEMANDES);
 		List<DemandeBO> demandes = getAllDemarchesBoById(demarcheId);
-
-		LOGGER.info("Transformation bo -> dto ...");
-
+		LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
 		return DemandesTransformer.bo2Dto(demandes);
-
 	}
 
 	/**
-	 * Return all demanched BO from demarche id
-	 * 
-	 * @param demarcheId
-	 * @return
+	 * Récupère toutes les demandes liées au demarcheId
 	 */
 	private List<DemandeBO> getAllDemarchesBoById(String demarcheId) {
-		// Si usagerId null, alors rechercher tous les accès de ce demarcheId, qui sont
-		// actifs
-		List<DemandeBO> demandes = new ArrayList<DemandeBO>();
+		List<DemandeBO> demandes = new ArrayList<>();
 		List<AccessBO> accessBos = accessRepository.getByDemarcheId(demarcheId);
 		for (AccessBO access : accessBos) {
 			demandes.addAll(access.getDemandes());
@@ -460,10 +359,8 @@ public class DemandesServiceImpl implements DemandesService {
 			demandes = demandesRepository.findAll();
 		}
 
-		LOGGER.info("Transformation bo -> dto ...");
-
+		LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
 		return DemandesTransformer.bo2Dto(demandes);
-
 	}
 
 	/**
@@ -486,10 +383,8 @@ public class DemandesServiceImpl implements DemandesService {
 			demandes = demandesRepository.findAllByDernierStatut_Libelle(statut);
 		}
 
-		LOGGER.info("Transformation bo -> dto ...");
-
+		LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
 		return DemandesTransformer.bo2Dto(demandes);
-
 	}
 
 	/**
@@ -501,12 +396,11 @@ public class DemandesServiceImpl implements DemandesService {
 
 		LOGGER.info("Récupération en base des demandes filtrées par date et par statut...");
 
-		final String DATE_ACCEPTATION = "dateValidationDemande";
-
 		List<DemandeBO> demandes = demandesRepository.findAllByDernierStatut_Libelle(statut);
 
 		// Dans le cas où on ne séléctionne pas de dates on retourne toute la list
 		if (startDate == null && endDate == null) {
+			LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
 			return DemandesTransformer.bo2Dto(demandes);
 		}
 
@@ -516,36 +410,37 @@ public class DemandesServiceImpl implements DemandesService {
 			if (demande.getData() != null) {
 				// Recherche de l'attribut dateAcceptation
 				for (DemandesDataBO dataBO : demande.getData()) {
-					// Récupération de la date d'acceptation
-					if (DATE_ACCEPTATION.equals(dataBO.getKey())) {
-						boolean ajouterDemande = false;
-						try {
-							Date dateAComparer = afBackUtils.convertStartDate(dataBO.getValue());
-							// Ajouter une heure pour éviter l'exclusion sur la date de départ
-							dateAComparer = DateUtils.addHours(dateAComparer, 1);
-							if (startDate != null && endDate != null) {
-								ajouterDemande = startDate.before(dateAComparer) && endDate.after(dateAComparer);
-							} else if (startDate != null) {
-								ajouterDemande = startDate.before(dateAComparer);
-							} else {
-								ajouterDemande = endDate.after(dateAComparer);
-							}
-						} catch (ParseException e) {
-							LOGGER.error("Problème lors de la conversion de la date d'accepation", e);
-						}
-
-						if (ajouterDemande) {
-							demandesFiltres.add(demande);
-						}
+					if (ajouterDemande(dataBO, startDate, endDate)) {
+						demandesFiltres.add(demande);
 					}
 				}
 			}
 		}
 
-		LOGGER.info("Transformation bo -> dto ...");
-
+		LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
 		return DemandesTransformer.bo2Dto(demandesFiltres);
+	}
 
+	private boolean ajouterDemande(DemandesDataBO dataBO,Date startDate, Date endDate) {
+		boolean ajouterDemande = false;
+		final String DATE_ACCEPTATION = "dateValidationDemande";
+		if (StringUtils.equals(DATE_ACCEPTATION, dataBO.getKey())) {
+			try {
+				Date dateAComparer = afBackUtils.convertStartDate(dataBO.getValue());
+				// Ajouter une heure pour éviter l'exclusion sur la date de départ
+				dateAComparer = DateUtils.addHours(dateAComparer, 1);
+				if (startDate != null && endDate != null) {
+					ajouterDemande = startDate.before(dateAComparer) && endDate.after(dateAComparer);
+				} else if (startDate != null) {
+					ajouterDemande = startDate.before(dateAComparer);
+				} else {
+					ajouterDemande = endDate.after(dateAComparer);
+				}
+			} catch (ParseException e) {
+				LOGGER.error("Problème lors de la conversion de la date d'accepation", e);
+			}
+		}
+		return ajouterDemande;
 	}
 
 	/**
@@ -554,7 +449,7 @@ public class DemandesServiceImpl implements DemandesService {
 	@Override
 	public List<DemandeDTO> getAllDemandesFilteredByStatut(String statut) {
 		List<DemandeBO> demandes = demandesRepository.findAllByDernierStatut_Libelle(statut);
-		LOGGER.info("Transformation bo -> dto ...");
+		LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
 		return DemandesTransformer.bo2Dto(demandes);
 	}
 
@@ -564,7 +459,7 @@ public class DemandesServiceImpl implements DemandesService {
 	@Override
 	public List<DemandeDTO> getAllDemandesFilteredByStatutAndDateDernierStatut(String statut, Date date) {
 		List<DemandeBO> demandes = demandesRepository.findAllByDernierStatut_LibelleAndDernierStatutDateLessThan(statut, date);
-		LOGGER.info("Transformation bo -> dto ...");
+		LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
 		return DemandesTransformer.bo2Dto(demandes);
 	}
 
@@ -573,11 +468,7 @@ public class DemandesServiceImpl implements DemandesService {
 	 */
 	@Override
 	public DemandeBO getCheckDemarcheDemandeBO(String demarcheId, DemandeDTO demande, boolean checkActive) {
-
-		LOGGER.info("Récupération en base de la demande...");
-
 		return getCheckDemarcheDemandeBO(demarcheId, demande.getPkDemandes(), checkActive);
-
 	}
 
 	/**
@@ -586,7 +477,7 @@ public class DemandesServiceImpl implements DemandesService {
 	@Override
 	public DemandeBO getCheckDemarcheDemandeBO(String demarcheId, Integer demandeId, boolean checkActive) {
 
-		LOGGER.info("Récupération en base de la demande...");
+		LOGGER.info(RECUPERATION_DEMANDE);
 
 		Optional<DemandeBO> demandeBoOp = demandesRepository.findById(demandeId);
 
@@ -602,7 +493,6 @@ public class DemandesServiceImpl implements DemandesService {
 		}
 
 		return demandeBoOp.get();
-
 	}
 
 	/**
@@ -610,15 +500,11 @@ public class DemandesServiceImpl implements DemandesService {
 	 */
 	@Override
 	public DemandeDTO getCheckDemarcheDemandeDTO(String demarcheId, Integer demandeId, boolean checkActive) {
-
 		DemandeBO demandeBo = getCheckDemarcheDemandeBO(demarcheId, demandeId, checkActive);
-
 		if (demandeBo == null) {
 			return null;
 		}
-
 		return DemandesTransformer.bo2Dto(demandeBo);
-
 	}
 
 	/**
@@ -626,17 +512,12 @@ public class DemandesServiceImpl implements DemandesService {
 	 */
 	@Override
 	public DemandeDTO getDemande(String demarcheId, Integer pkDemande, Integer usagerId) {
-
-		LOGGER.info("Récupération en base de la demande...");
-
+		LOGGER.info(RECUPERATION_DEMANDE);
 		DemandeBO demandeBo = demandesRepository.findByDemarcheIdAndIdAndUsagerId(demarcheId, pkDemande, usagerId);
-
 		if (demandeBo == null) {
-			throw new DemarchesServiceException("Demande introuvable", HttpStatus.NOT_FOUND);
+			throw new DemarchesServiceException(SharedMessages.DONNEE_INTROUVABLE, HttpStatus.NOT_FOUND);
 		}
-
-		LOGGER.info("Transformation bo -> dto ...");
-
+		LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
 		return DemandesTransformer.bo2Dto(demandeBo);
 	}
 
@@ -645,65 +526,34 @@ public class DemandesServiceImpl implements DemandesService {
 	 */
 	@Override
 	public DemandeDTO getDemandeFilterFiles(String demarcheId, Integer pkDemande, Integer usagerId) {
-
 		DemandeDTO demande = getDemande(demarcheId, pkDemande, usagerId);
 		DemandeFileDTO[] fichiers = demande.getFichiers();
 		if (fichiers != null) {
 			demande.setFichiers(DemarchesUtils.filterFiles(fichiers));
 		}
-
 		return demande;
-	}
-
-	@Override
-	public DemandeDTO getDemande(String demarcheId, Integer pkDemandes) {
-		DemandeBO demandeBo = getDemandeBo(demarcheId, pkDemandes);
-		LOGGER.info("Transformation bo -> dto ...");
-		return DemandesTransformer.bo2Dto(demandeBo);
-	}
-
-	@Override
-	public DemandeBO getDemandeBo(String demarcheId, Integer pkDemandes) {
-
-		LOGGER.info("Récupération en base de la demande...");
-
-		DemandeBO demandeBo = getCheckDemarcheDemandeBO(demarcheId, pkDemandes, true);
-
-		// Gérer les accès désactivés
-		// Ne pas renvoyer si front user
-		if (demandeBo != null && !demandeBo.getFkAccess().isActive() && DemarchesUtils.isFrontUser()) {
-			throw new DemarchesServiceException("Demande introuvable", HttpStatus.NOT_FOUND);
-		}
-
-		return demandeBo;
 	}
 
 	/**
 	 * {@inheritDoc}
-	 *
-	 * @throws SAXException
-	 * @throws IOException
+	 */
+	@Override
+	public DemandeDTO getDemande(String demarcheId, Integer pkDemandes) {
+		DemandeBO demandeBo = getCheckDemarcheDemandeBO(demarcheId, pkDemandes, true);
+		LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
+		return DemandesTransformer.bo2Dto(demandeBo);
+	}
+
+	/**
+	 * {@inheritDoc}
 	 */
 	@Override
 	public DemandeDTO updateDemande(DemandeDTO demande, boolean partialUpdate) throws IOException, SAXException {
 
-		LOGGER.info("Récupération en base de la demande...");
-
-		Optional<DemandeBO> demandeBoOp = demandesRepository.findById(demande.getPkDemandes());
-
-		// Gérer les accès désactivés
-		if (demandeBoOp.isPresent() && !demandeBoOp.get().getFkAccess().isActive() && DemarchesUtils.isFrontUser()) {
-			demandeBoOp = Optional.empty();
-		}
-
-		if (!demandeBoOp.isPresent()) {
-			throw new DemarchesServiceException("Demande introuvable", HttpStatus.NOT_FOUND);
-		}
-
-		DemandeBO demandeBo = demandeBoOp.get();
+		DemandeBO demandeBo = getCheckDemarcheDemandeBO(demande.getDemarcheId(), demande, true);
 
 		// Mise à jour du contenu
-		if (!partialUpdate || (partialUpdate && demande.getContenu() != null && !demande.getContenu().isNull())) {
+		if (!partialUpdate || demande.getContenu() != null && !demande.getContenu().isNull()) {
 			ObjectMapper mapper = new ObjectMapper();
 			try {
 				demandeBo.setContenu(mapper.writeValueAsString(demande.getContenu()));
@@ -713,226 +563,63 @@ public class DemandesServiceImpl implements DemandesService {
 		}
 
 		// Mise à jour des observations
-		if (!partialUpdate || (partialUpdate && demande.getObservations() != null)) {
-			demandeBoOp.get().setObservations(demande.getObservations());
+		if (!partialUpdate || demande.getObservations() != null) {
+			demandeBo.setObservations(demande.getObservations());
 		}
-		if (!partialUpdate || (partialUpdate && demande.getAgentAffecteId() != null)) {
+		if (!partialUpdate || demande.getAgentAffecteId() != null) {
 			demandeBo.setAgentAffecteId(demande.getAgentAffecteId());
 		}
 
 		// Mise à jour du canal
-		if (!partialUpdate || (partialUpdate && demande.getCanal() != null)) {
-			if (demande.getCanal() != null) {
-				demandeBo.setCanal(demande.getCanal().name());
-			}
+		if (!partialUpdate && demande.getCanal() != null) {
+			demandeBo.setCanal(demande.getCanal().name());
 		}
 
 		// Mise à jour de la date de dernière modification
 		demandeBo.setDateDerModif(new Date());
 
 		// Supprimer les pièces jointes déjà existantes
-		if (!partialUpdate || (partialUpdate && demande.getFichiers() != null)) {
-			for (DemandesFilesBO bo : demandeBo.getFiles()) {
-				demandesFilesRepository.delete(bo);
-			}
-			demandeBo.getFiles().clear();
-			// Mise à jour des pièces jointes
-			if (demande.getFichiers() != null && demande.getFichiers().length > 0) {
-				// Ajouter la nouvelle image
-				demandeBo.setFiles(new HashSet<DemandesFilesBO>(
-						DemandesFilesTransformer.dto2Bo(Arrays.asList(demande.getFichiers()))));
-				for (DemandesFilesBO bo : demandeBo.getFiles()) {
-					bo.setFkDemandes(demandeBo);
-				}
-				demandesFilesRepository.saveAll(demandeBo.getFiles());
-			}
+		if (!partialUpdate) {
+			demandesFilesService.updateFichiers(demandeBo, demande.getFichiers());
 		}
 
 		demandeBo = demandesRepository.save(demandeBo);
 
-		LOGGER.info("Transformation bo -> dto ...");
-
+		LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
 		DemandeDTO dto = DemandesTransformer.bo2Dto(demandeBo);
 		dto.setUpdated(true);
-
 		return dto;
 	}
 
 	/**
 	 * {@inheritDoc}
-	 *
-	 * @throws JsonProcessingException
 	 */
 	@Override
 	public void deleteDemande(String demarcheId, Integer demandeId) throws JsonProcessingException {
 
-		LOGGER.info("Suppression de la demande {} de la demarche {}...", demandeId, demarcheId);
 		DemandeBO demandeBo = getCheckDemarcheDemandeBO(demarcheId, demandeId, false);
-
 		if (demandeBo == null) {
 			throw new DemarchesServiceException("Demande introuvable", HttpStatus.NOT_FOUND);
 		}
-
-		LOGGER.info("Suppression des fichiers de la demande {} de la demarche {}...", demandeId, demarcheId);
-		// Suppression des fichiers liés à la demande au moment de la supression de
-		// cette dernière
 		DemandeDTO demandeDTO = DemandesTransformer.bo2Dto(demandeBo);
-		if (null != demandeDTO.getFichiers() && !Arrays.asList(demandeDTO.getFichiers()).isEmpty()) {
-			for (DemandeFileDTO currentFileToDelete : demandeDTO.getFichiers()) {
-				// On ne supprime le fichier dans file que lorsqu'il n'est plus utilisé par la
-				// demande ou ses enfants (ie les demandes dupliquées qui découlent de cette
-				// demande)
-				List<DemandesFilesBO> existingFiles = demandesFilesRepository
-						.findAllByUrl(currentFileToDelete.getUrl());
-				if(null != existingFiles && !existingFiles.isEmpty() && existingFiles.size() == 1) {
-					try {
-						String url = URLEncoder.encode(currentFileToDelete.getUrl(), "UTF-8");
-						fileService.deleteFile("ROOT", url);
-					} catch (UnsupportedEncodingException e) {
-						LOGGER.error("Problème lors de l'encoding des urls des fichiers initiaux", e);
-					}
-				}
-			}
-		}
-		
-		LOGGER.info("Suppression des fichiers complémentaires de la demande {} de la demarche {}...", demandeId, demarcheId);
-		// Suppression des fichiers complémentaires de la demande s'il y'en a 
-		if (null != demandeDTO.getComplements() && !Arrays.asList(demandeDTO.getComplements()).isEmpty()) {
-			for (DemandeComplementsDTO demandeComplementsDTO : demandeDTO.getComplements()) {
-				Optional<DemandesComplementsBO> demandeComplementBO = demandesComplementsRepository
-						.findById(demandeComplementsDTO.getPkDemandeComplements());
-				if (demandeComplementBO.isPresent()) {
-					Set<DemandesComplementsFilesBO> files = demandeComplementBO.get().getFiles();
-					if (null != files && !files.isEmpty()) {
-						for (DemandesComplementsFilesBO currentFileToDelete : files) {
-							List<DemandesComplementsFilesBO> existingFiles = demandesComplementsFilesRepository
-									.findAllByUrl(currentFileToDelete.getUrl());
-							if (null != existingFiles && !existingFiles.isEmpty() && existingFiles.size() == 1) {
-								// Hard fix: Les fichiers complémentaires ajoutés via le BO sont stockés en BDD avec un url encodé,
-								// à l'inverse ceux depuis le FO le sont pas. Il faut une façon de différencier les deux: on check si le nom de fichier
-								// existe dans l'url décodé.
-								String url = currentFileToDelete.getUrl();
-								if (url.contains(currentFileToDelete.getName())) {
-									try {
-										url = URLEncoder.encode(url, "UTF-8");
-									} catch (UnsupportedEncodingException e) {
-										LOGGER.error("Problème lors de l'encoding des urls des fichiers complémentaires", e);
-									}
-								}
-								fileService.deleteFile("ROOT", url);
-							}
-						}
-					}
-				}
-			}
-		}
-
-		StatistiqueDTO stat = new StatistiqueDTO();
-		stat.setCanal(demandeBo.getCanal());
-		stat.setDate(new Date());
-		stat.setDemandeId(demandeId);
-		stat.setDemarcheId(demarcheId);
-		stat.setIdentifiantDemande(demandeBo.getIdentifiant());
-		stat.setStatutPublic(AfBackUtils.STATUT_PUBLIC_SUPPRIMEE);
-
-		AccessBO access = demandeBo.getFkAccess();
-		access.getDemandes().remove(demandeBo);
-		accessRepository.save(access);
-
-		// Suppression de l'historique de la demande (pas géré par cascade, donc le
-		// faire ici)
-		LOGGER.info("Suppression de l'historique de la demande...");
-		List<DemandesHistoriqueBO> histos = demandesHistoriqueRepository.findByFkDemandesPkDemandes(demandeId);
-		for (DemandesHistoriqueBO histo : histos) {
-			demandesHistoriqueRepository.delete(histo);
-		}
-
-		LOGGER.info("Ajout d'une ligne de statistique pour la suppression de la demande...");
-		statistiquesService.saveStatistique(stat);
-		
 		String identifiant = demandeBo.getIdentifiant();
 		Date dateCreation = demandeBo.getDateCreation();
 
-		LOGGER.info("Appel du répo pour la suppression...");
-		demandesRepository.delete(demandeBo);
+		LOGGER.info("Suppression des fichiers de la demande {} de la demarche {}...", demandeId, demarcheId);
+		demandesFilesService.suppressionDesFichiers(demandeDTO, false, null, 0);
+		
+		LOGGER.info("Suppression des fichiers complémentaires de la demande {} de la demarche {}...", demandeId, demarcheId);
+		demandesComplementsService.suppressionDesFichiersDesDemandesComplementaires(demandeDTO, false, null, 0);
+
+		AccessBO access = suppressionDeLaDemande(demandeBo, demarcheId, demandeId);
 		
 		LOGGER.info("Envoi d'un message dans Kafka pour notifier le Guichet Unique de la suppression de la demande...");
 		List<DemandeRecapDTO> demandeRecaps = guKafkaUtils.getDemandeRecapsFromUsagerId(demandeDTO.getUsagerId());
         RecapDemandesDTO recapDemandes = guKafkaUtils.getRecapDemandes(demandeRecaps);
         guKafkaProducer.sendSuppressionDemandeMessage(access.getUsagerId(), demandeId, identifiant, dateCreation, recapDemandes);
-        
 	}
-	
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @throws JsonProcessingException
-	 */
-	@Override
-	public void deleteDemandeInGivenStatus(String demarcheId, Integer demandeId, List<String> statuts, int jours) throws JsonProcessingException {
 
-		LOGGER.info("Suppression de la demande {} de la demarche {}...", demandeId, demarcheId);
-		DemandeBO demandeBo = getCheckDemarcheDemandeBO(demarcheId, demandeId, false);
-
-		if (demandeBo == null) {
-			throw new DemarchesServiceException("Demande introuvable", HttpStatus.NOT_FOUND);
-		}
-
-		LOGGER.info("Suppression des fichiers de la demande {} de la demarche {}...", demandeId, demarcheId);
-		// Suppression des fichiers liés à la demande au moment de la supression de
-		// cette dernière
-		DemandeDTO demandeDTO = DemandesTransformer.bo2Dto(demandeBo);
-		if (null != demandeDTO.getFichiers() && !Arrays.asList(demandeDTO.getFichiers()).isEmpty()) {
-			for (DemandeFileDTO currentFileToDelete : demandeDTO.getFichiers()) {
-				// On ne supprime le fichier dans file que lorsqu'il n'est plus utilisé par la
-				// demande ou ses enfants (ie les demandes dupliquées qui découlent de cette
-				// demande)
-				List<DemandesFilesBO> existingFiles = demandesFilesRepository
-						.findAllByUrl(currentFileToDelete.getUrl());
-				if(null != existingFiles && !existingFiles.isEmpty() && isFileDeletable(existingFiles, statuts, jours)) {
-					try {
-						String url = URLEncoder.encode(currentFileToDelete.getUrl(), "UTF-8");
-						fileService.deleteFile("ROOT", url);
-					} catch (UnsupportedEncodingException e) {
-						LOGGER.error("Problème lors de l'encoding des urls des fichiers initiaux", e);
-					}
-				}
-			}
-		}
-		
-		LOGGER.info("Suppression des fichiers complémentaires de la demande {} de la demarche {}...", demandeId, demarcheId);
-		// Suppression des fichiers complémentaires de la demande s'il y'en a 
-		if (null != demandeDTO.getComplements() && !Arrays.asList(demandeDTO.getComplements()).isEmpty()) {
-			for (DemandeComplementsDTO demandeComplementsDTO : demandeDTO.getComplements()) {
-				Optional<DemandesComplementsBO> demandeComplementBO = demandesComplementsRepository
-						.findById(demandeComplementsDTO.getPkDemandeComplements());
-				if (demandeComplementBO.isPresent()) {
-					Set<DemandesComplementsFilesBO> files = demandeComplementBO.get().getFiles();
-					if (null != files && !files.isEmpty()) {
-						for (DemandesComplementsFilesBO currentFileToDelete : files) {
-							List<DemandesComplementsFilesBO> existingFiles = demandesComplementsFilesRepository
-									.findAllByUrl(currentFileToDelete.getUrl());
-							if (null != existingFiles && !existingFiles.isEmpty()
-									&& isComplementsFileDeletable(existingFiles, statuts, jours)) {
-								// Hard fix: Les fichiers complémentaires ajoutés via le BO sont stockés en BDD avec un url encodé,
-								// à l'inverse ceux depuis le FO le sont pas. Il faut une façon de différencier les deux: on check si le nom de fichier
-								// existe dans l'url décodé.
-								String url = currentFileToDelete.getUrl();
-								if (url.contains(currentFileToDelete.getName())) {
-									try {
-										url = URLEncoder.encode(url, "UTF-8");
-									} catch (UnsupportedEncodingException e) {
-										LOGGER.error("Problème lors de l'encoding des urls des fichiers complémentaires", e);
-									}
-								}
-								fileService.deleteFile("ROOT", url);
-							}
-						}
-					}
-				}
-			}
-		}
-
+	private AccessBO suppressionDeLaDemande(DemandeBO demandeBo, String demarcheId, Integer demandeId) {
 		StatistiqueDTO stat = new StatistiqueDTO();
 		stat.setCanal(demandeBo.getCanal());
 		stat.setDate(new Date());
@@ -943,7 +630,7 @@ public class DemandesServiceImpl implements DemandesService {
 
 		AccessBO access = demandeBo.getFkAccess();
 		access.getDemandes().remove(demandeBo);
-		accessRepository.save(access);
+		access = accessRepository.save(access);
 
 		// Suppression de l'historique de la demande (pas géré par cascade, donc le faire ici)
 		LOGGER.info("Suppression de l'historique de la demande...");
@@ -953,83 +640,46 @@ public class DemandesServiceImpl implements DemandesService {
 		LOGGER.info("Ajout d'une ligne de statistique pour la suppression de la demande...");
 		statistiquesService.saveStatistique(stat);
 
-		LOGGER.info("Appel du répo pour la suppression...");
+		LOGGER.info("Suppression de la demande {} de la demarche {}...", demandeId, demarcheId);
 		demandesRepository.delete(demandeBo);
-	}
 
-	private boolean isFileDeletable(List<DemandesFilesBO> existingFiles, List<String> statuts, int jours) {
-		boolean isFileDeletable = false;
-		if (existingFiles.size() <= 1) { 
-			for (DemandesFilesBO demandesFilesBO : existingFiles) {
-				DemandeBO concernedDemandeBO = demandesFilesBO.getFkDemandes();
-				DemandeDTO concernedDemandeDTO = DemandesTransformer.bo2Dto(concernedDemandeBO);
-				isFileDeletable = !isDemandeUsingFile(statuts, jours, concernedDemandeDTO);
-				LOGGER.info("Le fichier {} n'a pas été supprimé car la demande {} l'utilise", demandesFilesBO.getName() , concernedDemandeDTO.getPkDemandes());
-			}
-		}
-		LOGGER.info("Le fichier {} n'a pas été supprimé car il est référencé dans une autre demande", existingFiles.get(0).getName());
-		return isFileDeletable;
+		return access;
 	}
 	
-	private boolean isComplementsFileDeletable(List<DemandesComplementsFilesBO> existingFiles, List<String> statuts, int jours) {
-		boolean isComplementFileDeletable = false;
-		if (existingFiles.size() <= 1) { 
-			for (DemandesComplementsFilesBO demandesFilesBO : existingFiles) {
-				DemandeBO concernedDemandeBO = demandesFilesBO.getFkDemandesComplements().getFkDemandes();
-				DemandeDTO concernedDemandeDTO = DemandesTransformer.bo2Dto(concernedDemandeBO);
-				isComplementFileDeletable = !isDemandeUsingFile(statuts, jours, concernedDemandeDTO);
-				LOGGER.info("Le fichier {} n'a pas été supprimé car la demande {} l'utilise", demandesFilesBO.getName() , concernedDemandeDTO.getPkDemandes());
-			}
-		}
-		LOGGER.info("Le fichier {} n'a pas été supprimé car il est référencé dans une autre demande", existingFiles.get(0).getName());
-		return isComplementFileDeletable;
-	}
-	
-	private boolean isDemandeUsingFile(List<String> statuts, int jours, DemandeDTO concernedDemandeDTO) {
-		long diffInMillies = Math.abs(new Date().getTime() - concernedDemandeDTO.getDernierStatut().getDate().getTime());
-		long diff = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
-		if(!statuts.contains(concernedDemandeDTO.getDernierStatut().getLibelle()) || diff < jours) {
-			return true;
-		}
-		return false;
-	}
-
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
-	// TODO Récup de la demande "BO" factorisable entre plusieurs des fonctions de
-	// cette classe...
-	public Integer getAccessIdFromDemande(DemandeDTO demande) {
+	public void deleteDemandeInGivenStatus(String demarcheId, Integer demandeId, List<String> statuts, int jours) throws JsonProcessingException {
 
-		LOGGER.info("Récupération en base de la demande...");
-
-		Optional<DemandeBO> demandeBoOp = demandesRepository.findById(demande.getPkDemandes());
-
-		// Gérer les accès désactivés
-		if (demandeBoOp.isPresent() && !demandeBoOp.get().getFkAccess().isActive() && DemarchesUtils.isFrontUser()) {
-			demandeBoOp = Optional.empty();
-		}
-
-		if (!demandeBoOp.isPresent()) {
-			throw new DemarchesServiceException("Demande introuvable", HttpStatus.NOT_FOUND);
-		}
-
-		return demandeBoOp.get().getFkAccess().getPkAccess();
-	}
-
-	@Override
-	public DemandeDTO cloneDemande(String demarcheId, Integer pkDemande) {
-
-		LOGGER.info("Récupération en base de la demande...");
-
-		DemandeBO demandeBo = getCheckDemarcheDemandeBO(demarcheId, pkDemande, false);
-
-		// Gérer les accès désactivés
-		if (demandeBo != null && !demandeBo.getFkAccess().isActive() && DemarchesUtils.isFrontUser()) {
-			demandeBo = null;
-		}
-
+		LOGGER.info("Suppression de la demande {} de la demarche {}...", demandeId, demarcheId);
+		DemandeBO demandeBo = getCheckDemarcheDemandeBO(demarcheId, demandeId, false);
 		if (demandeBo == null) {
 			throw new DemarchesServiceException("Demande introuvable", HttpStatus.NOT_FOUND);
 		}
+		DemandeDTO demandeDTO = DemandesTransformer.bo2Dto(demandeBo);
+
+		LOGGER.info("Suppression des fichiers de la demande {} de la demarche {}...", demandeId, demarcheId);
+		demandesFilesService.suppressionDesFichiers(demandeDTO, true, statuts, jours);
+		
+		LOGGER.info("Suppression des fichiers complémentaires de la demande {} de la demarche {}...", demandeId, demarcheId);
+		demandesComplementsService.suppressionDesFichiersDesDemandesComplementaires(demandeDTO, true, statuts, jours);
+
+		suppressionDeLaDemande(demandeBo, demarcheId, demandeId);
+	}
+
+	@Override
+	public Integer getAccessIdFromDemande(DemandeDTO demande) {
+		return getCheckDemarcheDemandeBO(demande.getDemarcheId(), demande, true).getFkAccess().getPkAccess();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public DemandeDTO cloneDemande(String demarcheId, Integer pkDemande) {
+
+		DemandeBO demandeBo = getCheckDemarcheDemandeBO(demarcheId, pkDemande, true);
 
 		LOGGER.info("Duplication de la demande...");
 		DemandeDTO demandeDto = DemandesTransformer.bo2Dto(demandeBo);
@@ -1047,120 +697,16 @@ public class DemandesServiceImpl implements DemandesService {
 		newDemandeBo = demandesRepository.save(newDemandeBo);
 
 		// Pièces jointes des demandes
-		if (demandeBo.getFiles() != null) {
-			LOGGER.info("Etape pièces jointes");
-			List<DemandeFileDTO> filesDto = DemandesFilesTransformer
-					.bo2Dto(new ArrayList<>(getFichiersUsager(demandeBo)));
-			List<DemandesFilesBO> filesBo = DemandesFilesTransformer.dto2Bo(filesDto);
-			for (DemandesFilesBO fileBo : filesBo) {
-				fileBo.setPkDemandesFiles(null);
-				fileBo.setFkDemandes(newDemandeBo);
-				fileBo.setTypedoc(null);
-				demandesFilesRepository.save(fileBo);
-			}
-			newDemandeBo.setFiles(new HashSet<>(filesBo));
-		}
+		demandesFilesService.clonerDesPiecesJointes(demandeBo, newDemandeBo);
 
 		// Demandes d'informations complémentaires des demandes
-		if (demandeBo.getDemandesComplements() != null) {
-			LOGGER.info("Etape demandes d'informations complémentaires");
-			List<DemandeComplementsDTO> dcsDto = DemandesComplementsTransformer
-					.bo2Dto(new ArrayList<>(demandeBo.getDemandesComplements()));
-			List<DemandesComplementsBO> dcsBo = DemandesComplementsTransformer.dto2Bo(dcsDto);
-			for (DemandesComplementsBO dcBo : dcsBo) {
-				dcBo.setPkDemandesComplements(null);
-				dcBo.setFkDemandes(newDemandeBo);
-				Set<DemandesComplementsFilesBO> dcBoFiles = dcBo.getFiles();
-				dcBo.setFiles(null);
-				demandesComplementsRepository.save(dcBo);
-
-				// Fichiers des demandes d'informations complémentaires des demandes
-				if (dcBoFiles != null) {
-					LOGGER.info("Etape pièces jointes des demandes d'informations complémentaires");
-					List<DemandeComplementsFileDTO> dcfilesDto = DemandesComplementsFilesTransformer
-							.bo2Dto(new ArrayList<>(dcBoFiles));
-					List<DemandesComplementsFilesBO> dcfilesBo = DemandesComplementsFilesTransformer.dto2Bo(dcfilesDto);
-					for (DemandesComplementsFilesBO dcfileBo : dcfilesBo) {
-						dcfileBo.setPkDemandesComplementsFiles(null);
-						dcfileBo.setFkDemandesComplements(dcBo);
-						dcfileBo.setTypedoc(null);
-						demandesComplementsFilesRepository.save(dcfileBo);
-					}
-					dcBo.setFiles(new HashSet<>(dcfilesBo));
-					demandesComplementsRepository.save(dcBo);
-				}
-			}
-			newDemandeBo.setDemandesComplements(new HashSet<>(dcsBo));
-		}
+		demandesComplementsService.clonerDemandeComplements(demandeBo, newDemandeBo);
 
 		// Statuts des demandes
-		// Cette map sert pour l'étape de l'historique de la demande.
-		// Elle permet de mapper l'ancien pkStatut des statuts, avec leurs nouveaux
-		// statutsBo correspondants
-		Map<Integer, DemandesStatutsBO> statusMap = new HashMap<>();
-		// Cette variable sert à stocker le futur dernier statut
-		DemandesStatutsBO dernierStatutBo = null;
-		if (demandeBo.getStatuts() != null) {
-			LOGGER.info("Etape statuts des demandes");
-			List<DemandeStatutDTO> statutsDto = DemandesStatutsTransformer
-					.bo2Dto(new ArrayList<>(demandeBo.getStatuts()));
-			List<DemandesStatutsBO> statutsBo = new ArrayList<>();
-			for (DemandeStatutDTO statutDto : statutsDto) {
-				DemandesStatutsBO statutBo = DemandesStatutsTransformer.dto2Bo(statutDto);
-				statutBo.setPkDemandesStatuts(null);
-				statutBo.setFkDemandes(newDemandeBo);
-				demandesStatutsRepository.save(statutBo);
-				statutsBo.add(statutBo);
-				statusMap.put(statutDto.getPkStatut(), statutBo);
-				if (demandeBo.getDernierStatut().getPkDemandesStatuts().equals(statutDto.getPkStatut())) {
-					// Il s'agit du dernier statut de la demande
-					dernierStatutBo = statutBo;
-				}
-			}
-			newDemandeBo.setStatuts(new HashSet<>(statutsBo));
-		}
-
-		// "Dernier statut" d'une demande
-		newDemandeBo.setDernierStatut(dernierStatutBo);
-
-		// Finalement ne plus dupliquer l'historique de la demande (#4679)
-		// // Historique de la demande
-		// List<DemandeHistoriqueDTO> histosDto =
-		// demandesHistoriqueService.getHistorique(demande);
-		// for (DemandeHistoriqueDTO histoDto : histosDto) {
-		// DemandesHistoriqueBO histoBo =
-		// DemandesHistoriqueTransformer.dto2Bo(histoDto);
-		// histoBo.setPkDemandesHistorique(null);
-		// histoBo.setFkDemandes(newDemandeBo);
-		// // On se sert de la map précédement créée afin de récupérer le nouveau
-		// StatutBO correspondant
-		// // à l'ancien pkStatut
-		// histoBo.setFkStatut(statusMap.get(histoDto.getFkStatut().getPkStatut()));
-		// histoBo.setAgentId(histoDto.getAgentId());
-		// histoBo.setUsagerId(histoDto.getUsagerId());
-		// histoBo.setDate(histoDto.getDate());
-		// ObjectMapper mapper = new ObjectMapper();
-		// try {
-		// histoBo.setContenu(mapper.writeValueAsString(histoDto.getContenu()));
-		// } catch (JsonProcessingException e) {
-		// LOGGER.error("Erreur lors de la conversion JSON", e);
-		// }
-		// demandesHistoriqueRepository.save(histoBo);
-		// }
+		demandesStatutsService.clonerStatuts(demandeBo, newDemandeBo);
 
 		// Data des demandes
-		if (demandeBo.getData() != null) {
-			LOGGER.info("Etape data");
-			List<DemandeDataDTO> datasDto = DemandesDataTransformer
-					.bo2Dto(new ArrayList<DemandesDataBO>(demandeBo.getData()));
-			List<DemandesDataBO> datasBo = DemandesDataTransformer.dto2Bo(datasDto);
-			for (DemandesDataBO dataBo : datasBo) {
-				dataBo.setPkDemandesData(null);
-				dataBo.setFkDemandes(newDemandeBo);
-				demandesDataRepository.save(dataBo);
-			}
-			newDemandeBo.setData(new HashSet<DemandesDataBO>(datasBo));
-		}
+		demandesDataService.clonerDemandeData(demandeBo, newDemandeBo);
 
 		// Génération d'un nouvel identifiant de demande
 		String identifiant = generatePublicID(demarcheId);
@@ -1173,38 +719,24 @@ public class DemandesServiceImpl implements DemandesService {
 		return DemandesTransformer.bo2Dto(newDemandeBo);
 	}
 
-	private List<DemandesFilesBO> getFichiersUsager(DemandeBO demandeBo) {
-		return demandeBo.getFiles().stream().filter(fichier -> FileUtils.isFileCreatedByFront(fichier.getMeta()))
-				.collect(Collectors.toList());
-	}
-
-	@Override
-	public Page<DemandeDTO> getDemandes(DemandeRechercheDTO demandeRecherche, Pageable pageable, String[] fields) {
-
-		CriteriaBuilder builder = em.getCriteriaBuilder();
-		CriteriaQuery<DemandeBO> cquery = builder.createQuery(DemandeBO.class);
-
-		Root<DemandeBO> root = cquery.from(DemandeBO.class);
-		List<Predicate> predicats = new ArrayList<Predicate>();
+	private Predicate genererPredicate(DemandeRechercheDTO demandeRecherche, Root<DemandeBO> root, CriteriaBuilder builder) {
+		List<Predicate> predicats = new ArrayList<>();
 
 		// Créer des prédicats pour la recherche textuelle
-		List<Predicate> predicatsTexte = new ArrayList<Predicate>();
+		List<Predicate> predicatsTexte = new ArrayList<>();
 		if (!StringUtils.isBlank(demandeRecherche.getTexte())) {
-			predicatsTexte.add(builder.like(root.<String>get("observations"), "%" + demandeRecherche.getTexte() + "%"));
-			predicatsTexte.add(builder.like(root.<String>get("identifiant"), "%" + demandeRecherche.getTexte() + "%"));
-			predicatsTexte
-					.add(builder.like(root.<String>get("courrierRefInterne"), "%" + demandeRecherche.getTexte() + "%"));
+			predicatsTexte.add(builder.like(root.get("observations"), "%" + demandeRecherche.getTexte() + "%"));
+			predicatsTexte.add(builder.like(root.get("identifiant"), "%" + demandeRecherche.getTexte() + "%"));
+			predicatsTexte.add(builder.like(root.get("courrierRefInterne"), "%" + demandeRecherche.getTexte() + "%"));
 			predicats.add(builder.or(predicatsTexte.toArray(new Predicate[predicatsTexte.size()])));
 		}
 
 		// Créer des prédicats pour les statuts recherchés
-		List<Predicate> predicatsStatuts = new ArrayList<Predicate>();
-		@SuppressWarnings({ "unchecked", "rawtypes" })
-		Join<DemandeBO, DemandesStatutsBO> dernierStatut = (Join) root.join("dernierStatut");
+		List<Predicate> predicatsStatuts = new ArrayList<>();
+		Join<DemandeBO, DemandesStatutsBO> dernierStatut = root.join("dernierStatut");
 		if (demandeRecherche.getStatuts() != null) {
-
 			for (String statut : demandeRecherche.getStatuts()) {
-				predicatsStatuts.add(builder.equal(root.get("dernierStatut").get("libelle"), statut));
+				predicatsStatuts.add(builder.equal(dernierStatut.<String>get("libelle"), statut));
 			}
 			predicats.add(builder.or(predicatsStatuts.toArray(new Predicate[predicatsStatuts.size()])));
 		}
@@ -1219,13 +751,12 @@ public class DemandesServiceImpl implements DemandesService {
 		}
 
 		// Créer un prédicat pour la démarche (nécessite un join sur AccessBO)
-		@SuppressWarnings({ "unchecked", "rawtypes" })
-		Join<DemandeBO, AccessBO> access = (Join) root.join("fkAccess");
+		Join<DemandeBO, AccessBO> access = root.join("fkAccess");
 		// Pour le front on remonte que des actifs
 		if (DemarchesUtils.isFrontUser()) {
 			predicats.add(builder.equal(access.<String>get("active"), true));
 		}
-		predicats.add(builder.equal(root.get("fkAccess").get("demarcheId"), demandeRecherche.getDemarcheId()));
+		predicats.add(builder.equal(access.<String>get("demarcheId"), demandeRecherche.getDemarcheId()));
 
 		// Créer un prédicat pour l'usagerId (nécessite d'utiliser le join créé
 		// précédemment car info dans AccessBO)
@@ -1245,7 +776,7 @@ public class DemandesServiceImpl implements DemandesService {
 			cal.set(Calendar.HOUR_OF_DAY, 0);
 			cal.set(Calendar.MINUTE, 0);
 			cal.set(Calendar.SECOND, 0);
-			predicats.add(builder.greaterThanOrEqualTo(root.<Date>get("dateCreation"), cal.getTime()));
+			predicats.add(builder.greaterThanOrEqualTo(root.get("dateCreation"), cal.getTime()));
 		}
 
 		// Créer un prédicat pour le creationEndDate
@@ -1255,7 +786,7 @@ public class DemandesServiceImpl implements DemandesService {
 			cal.set(Calendar.HOUR_OF_DAY, 23);
 			cal.set(Calendar.MINUTE, 59);
 			cal.set(Calendar.SECOND, 59);
-			predicats.add(builder.lessThanOrEqualTo(root.<Date>get("dateCreation"), cal.getTime()));
+			predicats.add(builder.lessThanOrEqualTo(root.get("dateCreation"), cal.getTime()));
 		}
 
 		// Créer un prédicat pour l'identifiant de la demande
@@ -1263,19 +794,14 @@ public class DemandesServiceImpl implements DemandesService {
 			predicats.add(builder.equal(root.<String>get("identifiant"), demandeRecherche.getIdentifiant()));
 		}
 
+		return builder.and(predicats.toArray(new Predicate[predicats.size()]));
+	}
+
+	private CriteriaQuery<DemandeBO> createQuery(DemandeRechercheDTO demandeRecherche, CriteriaQuery<DemandeBO> cquery, Root<DemandeBO> root, CriteriaBuilder builder) {
+		Predicate pAttributs = genererPredicate(demandeRecherche, root, builder);
+		boolean predicatAnd = false;
 		Predicate predicatData = null;
 		DataRechercheDTO dataRechercheDTO = demandeRecherche.getData();
-
-		Predicate pAttributs = builder.and(predicats.toArray(new Predicate[predicats.size()]));
-
-		// Pour le moment nous faisons un OU sur les data pour remonter
-		// Les demandes en cours de traitement ET sur un agent OU
-		// data.IS_EN_ATTENTE_TRAITEMENT=1
-		// En attendant un vrai service de recherche ou on pourra définir les OU / ET
-		// via json body (comme ES par
-		// exemple)
-
-		boolean predicatAnd = false;
 
 		if (dataRechercheDTO != null) {
 			if (dataRechercheDTO.getOperand() != null
@@ -1283,8 +809,6 @@ public class DemandesServiceImpl implements DemandesService {
 				predicatAnd = true;
 			}
 			// Pour le moment en fait on n'en gère qu'un
-			//
-
 			// HACK pour avoir tout ceux qui n'ont pas de data IS_EN_ATTENTE_VALIDATION
 			// data=IS_EN_ATTENTE_VALIDATION=null
 			// C'est à dire ceux dont le statut est en attente de traitement mais qui n'ont
@@ -1311,46 +835,58 @@ public class DemandesServiceImpl implements DemandesService {
 				subquery.select(rootSubquery);
 				// Vérification de l'existance
 				predicatData = builder.exists(subquery);
-
 			}
-
 		}
 
+		// Création de la query select
 		CriteriaQuery<DemandeBO> select;
-
 		if (predicatData != null) {
-
 			if (predicatAnd) {
 				select = cquery.select(root).where(builder.and(pAttributs, predicatData));
 			} else {
 				select = cquery.select(root).where(builder.or(pAttributs, predicatData));
 			}
-
 		} else {
 			select = cquery.select(root).where(builder.and(pAttributs));
 		}
 
-		// Ajout du order
-		if (pageable.getSort() != null) {
-			Order order = pageable.getSort().iterator().next();
-			if (order != null) {
-				String property = order.getProperty();
-				// Property racine demandeBO à part si filtre sur usager id 'fkAccess.usagerId'
-				// On pouyrrait faire mieux avec un algorithme plus générique
-				@SuppressWarnings("rawtypes")
-				From f = root;
-				if (StringUtils.equalsIgnoreCase(order.getProperty(), "usagerId")) {
-					f = access;
-				} else if (StringUtils.equalsIgnoreCase(order.getProperty(), "dernierStatut.libelle")) {
-					f = dernierStatut;
-					property = "libelle";
-				}
-				if (order.getDirection() == Direction.ASC) {
-					select.orderBy(builder.asc(f.get(property)));
-				} else {
-					select.orderBy(builder.desc(f.get(property)));
-				}
+		return select;
+	}
 
+	@Override
+	@SuppressWarnings({"rawtypes" })
+	public Page<DemandeDTO> getDemandes(DemandeRechercheDTO demandeRecherche, Pageable pageable, String[] fields) {
+
+		CriteriaBuilder builder = em.getCriteriaBuilder();
+		CriteriaQuery<DemandeBO> cquery = builder.createQuery(DemandeBO.class);
+		Root<DemandeBO> root = cquery.from(DemandeBO.class);
+
+		// Pour le moment nous faisons un OU sur les data pour remonter
+		// Les demandes en cours de traitement ET sur un agent OU
+		// data.IS_EN_ATTENTE_TRAITEMENT=1
+		// En attendant un vrai service de recherche ou on pourra définir les OU / ET
+		// via json body (comme ES par
+		// exemple)
+		CriteriaQuery<DemandeBO> select = createQuery(demandeRecherche, cquery, root, builder);
+
+		// Ajout du order
+		pageable.getSort();
+		Order order = pageable.getSort().iterator().next();
+		if (order != null) {
+			String property = order.getProperty();
+			// Property racine demandeBO à part si filtre sur usager id 'fkAccess.usagerId'
+			// On pouyrrait faire mieux avec un algorithme plus générique
+			From f = root;
+			if (StringUtils.equalsIgnoreCase(order.getProperty(), "usagerId")) {
+				f = root.join("fkAccess");
+			} else if (StringUtils.equalsIgnoreCase(order.getProperty(), "dernierStatut.libelle")) {
+				f = root.join("dernierStatut");
+				property = "libelle";
+			}
+			if (order.getDirection() == Direction.ASC) {
+				select.orderBy(builder.asc(f.get(property)));
+			} else {
+				select.orderBy(builder.desc(f.get(property)));
 			}
 		}
 
@@ -1365,7 +901,6 @@ public class DemandesServiceImpl implements DemandesService {
 		List<DemandeDTO> demandesDto = DemandesTransformer.bo2Dto(demandes, fields);
 
 		return new PageImpl<>(demandesDto, pageable, count);
-
 	}
 
 	@Override
@@ -1381,103 +916,18 @@ public class DemandesServiceImpl implements DemandesService {
 
 	@Override
 	public List<DemandeDTO> getDemandes(DemandeRechercheDTO demandeRecherche) {
-
 		CriteriaBuilder builder = em.getCriteriaBuilder();
 		CriteriaQuery<DemandeBO> cquery = builder.createQuery(DemandeBO.class);
-
 		Root<DemandeBO> root = cquery.from(DemandeBO.class);
-		List<Predicate> predicats = new ArrayList<>();
-
-		// Créer des prédicats pour la recherche textuelle
-		List<Predicate> predicatsTexte = new ArrayList<>();
-		if (!StringUtils.isBlank(demandeRecherche.getTexte())) {
-			predicatsTexte.add(builder.like(root.<String>get("observations"), "%" + demandeRecherche.getTexte() + "%"));
-			predicatsTexte.add(builder.like(root.<String>get("identifiant"), "%" + demandeRecherche.getTexte() + "%"));
-			predicatsTexte
-					.add(builder.like(root.<String>get("courrierRefInterne"), "%" + demandeRecherche.getTexte() + "%"));
-			predicats.add(builder.or(predicatsTexte.toArray(new Predicate[predicatsTexte.size()])));
-		}
-
-		// Créer des prédicats pour les statuts recherchés
-		List<Predicate> predicatsStatuts = new ArrayList<>();
-		if (demandeRecherche.getStatuts() != null) {
-			for (String statut : demandeRecherche.getStatuts()) {
-				Join<DemandeBO, DemandesStatutsBO> dernierStatut = root.join("dernierStatut");
-				predicatsStatuts.add(builder.equal(dernierStatut.<String>get("libelle"), statut));
-			}
-			predicats.add(builder.or(predicatsStatuts.toArray(new Predicate[predicatsStatuts.size()])));
-		}
-
-		// Créer des prédicats pour les canaux recherchés
-		List<Predicate> predicatsCanaux = new ArrayList<>();
-		if (demandeRecherche.getCanaux() != null) {
-			for (DemandeCanalEnum canal : demandeRecherche.getCanaux()) {
-				predicatsCanaux.add(builder.equal(root.<String>get("canal"), canal.name()));
-			}
-			predicats.add(builder.or(predicatsCanaux.toArray(new Predicate[predicatsCanaux.size()])));
-		}
-
-		// Créer un prédicat pour la démarche (nécessite un join sur AccessBO)
-		Join<DemandeBO, AccessBO> access = root.join("fkAccess");
-
-		// Pour le front on remonte que des actifs
-		if (DemarchesUtils.isFrontUser()) {
-			predicats.add(builder.equal(access.<String>get("active"), true));
-		}
-
-		predicats.add(builder.equal(access.<String>get("demarcheId"), demandeRecherche.getDemarcheId()));
-
-		// Créer un prédicat pour l'usagerId (nécessite d'utiliser le join créé
-		// précédemment car info dans AccessBO)
-		if (demandeRecherche.getUsagerId() != null) {
-			predicats.add(builder.equal(access.<Integer>get("usagerId"), demandeRecherche.getUsagerId()));
-		}
-
-		// Créer un prédicat pour l'agent affecté
-		if (!StringUtils.isBlank(demandeRecherche.getAgentAffecteId())) {
-			predicats.add(builder.equal(root.<String>get("agentAffecteId"), demandeRecherche.getAgentAffecteId()));
-		}
-
-		// Créer un prédicat pour le creationStartDate
-		if (demandeRecherche.getCreationStartDate() != null) {
-			Calendar cal = Calendar.getInstance();
-			cal.setTime(demandeRecherche.getCreationStartDate());
-			cal.set(Calendar.HOUR_OF_DAY, 0);
-			cal.set(Calendar.MINUTE, 0);
-			cal.set(Calendar.SECOND, 0);
-			predicats.add(builder.greaterThanOrEqualTo(root.<Date>get("dateCreation"), cal.getTime()));
-		}
-
-		// Créer un prédicat pour le creationEndDate
-		if (demandeRecherche.getCreationEndDate() != null) {
-			Calendar cal = Calendar.getInstance();
-			cal.setTime(demandeRecherche.getCreationEndDate());
-			cal.set(Calendar.HOUR_OF_DAY, 23);
-			cal.set(Calendar.MINUTE, 59);
-			cal.set(Calendar.SECOND, 59);
-			predicats.add(builder.lessThanOrEqualTo(root.<Date>get("dateCreation"), cal.getTime()));
-		}
-
-		// Créer un prédicat pour l'identifiant de la demande
-		if (!StringUtils.isBlank(demandeRecherche.getIdentifiant())) {
-			predicats.add(builder.equal(root.<String>get("identifiant"), demandeRecherche.getIdentifiant()));
-		}
-
-		Predicate pAttributs = builder.and(predicats.toArray(new Predicate[predicats.size()]));
-
+		Predicate pAttributs = genererPredicate(demandeRecherche, root, builder);
 		CriteriaQuery<DemandeBO> select = cquery.select(root).where(pAttributs);
-
 		TypedQuery<DemandeBO> typedQuery = em.createQuery(select);
 		List<DemandeBO> demandes = typedQuery.getResultList();
-
 		return DemandesTransformer.bo2Dto(demandes);
-
 	}
 
 	@Override
 	public DemandeDTO associerDemandeCourrier(String demarcheId, Integer pkDemande, Integer pkAccess) {
-
-		LOGGER.info("Récupération en base de la demande...");
 
 		DemandeBO demandeBo = getCheckDemarcheDemandeBO(demarcheId, pkDemande, false);
 
@@ -1502,49 +952,20 @@ public class DemandesServiceImpl implements DemandesService {
 
 	@Override
 	public boolean isAccesDesactive(String demarcheId, Integer pkDemande) {
-
-		LOGGER.info("Récupération en base de la demande...");
-
 		DemandeBO demandeBo = getCheckDemarcheDemandeBO(demarcheId, pkDemande, false);
-
 		return !demandeBo.getFkAccess().isActive();
-
 	}
 
 	/**
-	 * Change l'affectation de la demande sans trigger un full update dans le cas où
-	 * on veut SUPPRIMER l'affectation (car lors d'un partialUpdate on vérifie si le
-	 * champs est null avant de mettre à jour le champs en question)
-	 * 
-	 * @param demarcheId
-	 * @param pkDemandes
-	 * @param agentAffecteId
-	 * @return
+	 * {@inheritDoc}
 	 */
+	@Override
 	public DemandeDTO changerAffectationDemande(String demarcheId, int pkDemandes, String agentAffecteId) {
-		LOGGER.info("Récupération en base de la demande...");
-
-		Optional<DemandeBO> demandeBoOp = demandesRepository.findById(pkDemandes);
-
-		// Gérer les accès désactivés
-		if (demandeBoOp.isPresent() && !demandeBoOp.get().getFkAccess().isActive() && DemarchesUtils.isFrontUser()) {
-			demandeBoOp = Optional.empty();
-		}
-
-		if (!demandeBoOp.isPresent()) {
-			throw new DemarchesServiceException("Demande introuvable", HttpStatus.NOT_FOUND);
-		}
-
-		DemandeBO demandeBo = demandeBoOp.get();
-
+		DemandeBO demandeBo = getCheckDemarcheDemandeBO(demarcheId, pkDemandes, true);
 		demandeBo.setAgentAffecteId(agentAffecteId);
-
 		demandesRepository.save(demandeBo);
-
 		DemandeDTO demandeDTO = DemandesTransformer.bo2Dto(demandeBo);
-
 		LOGGER.info("Fin changement affectation...");
-
 		return demandeDTO;
 	}
 
@@ -1553,7 +974,7 @@ public class DemandesServiceImpl implements DemandesService {
 	 */
 	@Override
 	public DemandeDTO getDemande(String identifiant) {
-		LOGGER.info("Récupération en base de la demande...");
+		LOGGER.info(RECUPERATION_DEMANDE);
 		DemandeBO demandeBo = demandesRepository.findByIdentifiant(identifiant);
 		return DemandesTransformer.bo2Dto(demandeBo);
 	}

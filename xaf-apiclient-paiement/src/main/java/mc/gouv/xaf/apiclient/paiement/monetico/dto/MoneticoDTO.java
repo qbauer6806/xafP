@@ -98,8 +98,8 @@ public class MoneticoDTO {
 
 
     public MoneticoDTO() {
+        super();
     }
-
 
     @JsonGetter("TPE")
     public String getTPE() {

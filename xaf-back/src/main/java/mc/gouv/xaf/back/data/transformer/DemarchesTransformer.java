@@ -45,7 +45,7 @@ public class DemarchesTransformer {
     }
     
     public static List<DemarcheDTO> bo2Dto(List<DemarchesBO> bos) {
-        ArrayList<DemarcheDTO> dtos = new ArrayList<DemarcheDTO>();
+        ArrayList<DemarcheDTO> dtos = new ArrayList<>();
         for (DemarchesBO bo : bos) {
             dtos.add(bo2Dto(bo));
         }
@@ -53,7 +53,7 @@ public class DemarchesTransformer {
     }
     
     public static List<DemarchesBO> dto2Bo(List<DemarcheDTO> dtos) {
-        ArrayList<DemarchesBO> bos = new ArrayList<DemarchesBO>();
+        ArrayList<DemarchesBO> bos = new ArrayList<>();
         for (DemarcheDTO dto : dtos) {
             bos.add(dto2Bo(dto));
         }

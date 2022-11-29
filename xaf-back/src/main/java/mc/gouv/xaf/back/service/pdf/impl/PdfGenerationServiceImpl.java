@@ -7,10 +7,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Date;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.tika.exception.TikaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +40,7 @@ import mc.gouv.xaf.shared.dto.DemandeCourrierDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.PdfTemplateAndModelDTO;
+import org.xml.sax.SAXException;
 
 /**
  * 
@@ -51,6 +55,7 @@ import mc.gouv.xaf.shared.dto.PdfTemplateAndModelDTO;
 public class PdfGenerationServiceImpl implements PdfGenerationService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(PdfGenerationServiceImpl.class);
+	private static final String APPEL_MESSAGE = "Appel au TemplateAndModelProvider de la démarche {}...";
 
 	@Autowired
 	private PdfTemplateAndModelProvider pdfTemplateAndModelProvider;
@@ -74,7 +79,7 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 	private AfBackUtils afBackUtils;
 
 	@Override
-	public void generateAndStorePdf(DemandeDTO demande, PdfTypeEnum pdfType, String meta) throws Exception {
+	public void generateAndStorePdf(DemandeDTO demande, PdfTypeEnum pdfType, String meta) throws IOException, TikaException, SAXException {
 
 		LOGGER.info("PdfGenerationServiceImpl.generateAndStorePdf({}, {})", demande.getPkDemandes(), pdfType);
 
@@ -91,8 +96,10 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 		
 		// Supprimer le fichier temporaire car il n'est plus utile
 		LOGGER.info("Suppression du fichier temporaire...");
-		if (!tempFile.delete()) {
-			LOGGER.warn("La suppression du fichier temporaire a échoué");
+		try {
+			Files.delete(Paths.get(tempFile.getPath()));
+		} catch (IOException e) {
+			LOGGER.warn("La suppression du fichier temporaire a échoué", e);
 		}
 
 		if (pdfType == PdfTypeEnum.FICHIER) {
@@ -108,17 +115,16 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 		LOGGER.info("Fin PdfGenerationServiceImpl.generateAndStorePdf({}, {})", demande.getPkDemandes(), pdfType);
 	}
 
-	private void saveCourrier(String fileName, String url, DemandeDTO demande, String meta) throws Exception {
+	private void saveCourrier(String fileName, String url, DemandeDTO demande, String meta) {
 		LOGGER.info("Ajout de la référence à ce courrier dans DEM...");
 		DemandeCourrierDTO courrier = new DemandeCourrierDTO();
 		courrier.setName(fileName);
 		courrier.setUrl(url);
 		courrier.setMeta(meta);
-		demandesCourriersService.saveCourrier(gouvPropertiesResolver.getDemarcheId(), demande.getPkDemandes(),
-				courrier);
+		demandesCourriersService.saveCourrier(gouvPropertiesResolver.getDemarcheId(), demande.getPkDemandes(), courrier);
 	}
 
-	private void saveFichier(String fileName, String url, DemandeDTO demande, String meta) throws Exception {
+	private void saveFichier(String fileName, String url, DemandeDTO demande, String meta) {
 		LOGGER.info("Ajout de la référence à ce fichier interne dans DEM...");
 		DemandeFileDTO file = new DemandeFileDTO();
 		file.setName(fileName);
@@ -129,36 +135,36 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 	}
 
 	private File generatePdf(DemandeDTO demande, PdfTypeEnum pdfType) {
-		LOGGER.info("Appel au TemplateAndModelProvider de la démarche {}...", gouvPropertiesResolver.getDemarcheId());
+		LOGGER.info(APPEL_MESSAGE, gouvPropertiesResolver.getDemarcheId());
 		PdfTemplateAndModelDTO dto = pdfTemplateAndModelProvider.getTemplateAndModel(demande, pdfType);
-		return generateToFile(demande, dto);
+		return generateToFile(dto);
 	}
 
 	@Override
 	public File generatePdfPreview(DemandeDTO demande, String statutSuivant, String codeMotif, String langue,
 			String commentaire, String texteAEnvoyer, PdfTypeEnum pdfType) {
 
-		LOGGER.info("Appel au TemplateAndModelProvider de la démarche {}...", gouvPropertiesResolver.getDemarcheId());
+		LOGGER.info(APPEL_MESSAGE, gouvPropertiesResolver.getDemarcheId());
 		PdfTemplateAndModelDTO dto = pdfTemplateAndModelProvider
 				.getTemplateAndModelForPreview(demande, statutSuivant, codeMotif, langue, commentaire, texteAEnvoyer, pdfType);
-		return generateToFile(demande, dto);
+		return generateToFile(dto);
 	}
 
 	public byte[] generatePdfToStream(DemandeDTO demande) throws IOException, XDocReportException {
-		LOGGER.info("Appel au TemplateAndModelProvider de la démarche {}...", gouvPropertiesResolver.getDemarcheId());
+		LOGGER.info(APPEL_MESSAGE, gouvPropertiesResolver.getDemarcheId());
 		PdfTemplateAndModelDTO dto = pdfTemplateAndModelProvider.getTemplateAndModel(demande, PdfTypeEnum.COURRIER);
-		return generateToStream(demande, dto);
+		return generateToStream(dto);
 	}
 
-	private File generateToFile(DemandeDTO demande, PdfTemplateAndModelDTO dto) {
+	private File generateToFile(PdfTemplateAndModelDTO dto) {
 
 		String tempDir = System.getProperty("java.io.tmpdir");
-		String fileName = dto.getFilename() + afBackUtils.generateFileDateSuffix() + ".pdf";
+		String fileName = dto.getFilename() + AfBackUtils.generateFileDateSuffix() + ".pdf";
 		File temp = new File(tempDir, fileName);
 
 		try {
 			try (OutputStream out = new FileOutputStream(temp)) {
-				byte[] bytes = generateToStream(demande, dto);
+				byte[] bytes = generateToStream(dto);
 				out.write(bytes);
 			}
 		} catch (IOException | XDocReportException e) {
@@ -168,15 +174,14 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 		return temp;
 	}
 
-	private byte[] generateToStream(DemandeDTO demande, PdfTemplateAndModelDTO dto)
+	private byte[] generateToStream(PdfTemplateAndModelDTO dto)
 			throws IOException, XDocReportException {
 
-		byte[] bytes = null;
+		byte[] bytes;
 
 		try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
 			LOGGER.info("Chargement du template {} via appel à FILE...", dto.getTemplateFilename());
 			// #16180 Ancienne façon : aller chercher dans src/main/resources... maintenant on cherche dans FILE
-			//InputStream in = new ClassPathResource("/pdf/" + dto.getTemplateFilename()).getInputStream();
 			InputStream in = afBackUtils.getFileClient().getFile(gouvPropertiesResolver.getDemarcheId(), "MODELES", dto.getTemplateFilename());
 			IXDocReport report = XDocReportRegistry.getRegistry().loadReport(in, TemplateEngineKind.Velocity);
 

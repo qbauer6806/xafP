@@ -31,12 +31,11 @@ public class ExcelExportServiceImpl implements ExcelExportService {
     public void exportExcel(String templateFileName, Map<String, Object> model, OutputStream outputStream) {
 
     	// #16180 Ancienne façon : aller chercher dans src/main/resources... maintenant on cherche dans FILE
-        //try (InputStream is = new ClassPathResource("/xls/" + templateFileName).getInputStream()) {
-    	LOGGER.info("Chargement du template " + templateFileName + " via appel à FILE...");
+    	LOGGER.info("Chargement du template {} via appel à FILE...", templateFileName);
     	try (InputStream is = afBackUtils.getFileClient().getFile(gouvPropertiesResolver.getDemarcheId(), "MODELES", templateFileName)) {
             Context context = new Context();
-            for (String key : model.keySet()) {
-                context.putVar(key, model.get(key));
+            for (Map.Entry<String,Object> entry : model.entrySet()) {
+                context.putVar(entry.getKey(), entry.getValue());
             }
             JxlsHelper.getInstance().processTemplate(is, outputStream, context);
         } catch (IOException e) {

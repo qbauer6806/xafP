@@ -45,7 +45,7 @@ public class MotifTransformer {
     }
     
     public static List<MotifDTO> bo2Dto(List<MotifBO> bos) {
-        ArrayList<MotifDTO> dtos = new ArrayList<MotifDTO>();
+        ArrayList<MotifDTO> dtos = new ArrayList<>();
         for (MotifBO bo : bos) {
             dtos.add(bo2Dto(bo));
         }
@@ -53,7 +53,7 @@ public class MotifTransformer {
     }
     
     public static List<MotifBO> dto2Bo(List<MotifDTO> dtos) {
-        ArrayList<MotifBO> bos = new ArrayList<MotifBO>();
+        ArrayList<MotifBO> bos = new ArrayList<>();
         for (MotifDTO dto : dtos) {
             bos.add(dto2Bo(dto));
         }

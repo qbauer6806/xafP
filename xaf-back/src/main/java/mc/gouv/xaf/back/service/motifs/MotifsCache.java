@@ -1,25 +1,23 @@
 package mc.gouv.xaf.back.service.motifs;
 
-import java.util.List;
-
 import mc.gouv.xaf.shared.dto.MotifDTO;
 import mc.gouv.xboot.caching.GouvCache;
 
+import java.util.List;
+
 /**
- * 
  * Implémentation de l'interface MotifsCache
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 public interface MotifsCache extends GouvCache<Integer, MotifDTO> {
 
-    public MotifDTO getMotif(String codeMotif, String langue);
-    
-    public List<MotifDTO> getMotifs(String langue);
-    
-    public List<MotifDTO> getMotifs(String langue, String statut);
+    MotifDTO getMotif(String codeMotif, String langue);
 
-    public List<MotifDTO> getFilteredMotifs(String langue, List<String> codes);
+    List<MotifDTO> getMotifs(String langue);
+
+    List<MotifDTO> getMotifs(String langue, String statut);
+
+    List<MotifDTO> getFilteredMotifs(String langue, List<String> codes);
 
 }

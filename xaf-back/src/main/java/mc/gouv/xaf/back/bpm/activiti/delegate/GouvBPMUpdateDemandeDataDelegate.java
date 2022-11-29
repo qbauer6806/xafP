@@ -36,9 +36,9 @@ public class GouvBPMUpdateDemandeDataDelegate implements JavaDelegate {
 
         String dataKeyStr = (String) dataKey.getValue(execution);
         String dataValueStr = (String) dataValue.getValue(execution);
-        LOGGER.info("Demande : " + demandeId);
-        LOGGER.info("Data key : " + dataKeyStr);
-        LOGGER.info("Data value : " + dataValueStr);
+        LOGGER.info("Demande : {}", demandeId);
+        LOGGER.info("Data key : {}", dataKeyStr);
+        LOGGER.info("Data value : {}", dataValueStr);
 
         if (StringUtils.isBlank(dataKeyStr)) {
             throw new GouvBPMException("Impossible d'insérer une data avec une clé vide");

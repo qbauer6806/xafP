@@ -12,6 +12,6 @@ import mc.gouv.xboot.caching.GouvCache;
  */
 public interface TemplatesCache extends GouvCache<Integer, TemplateDTO> {
     
-    public TemplateDTO getTemplate(String codeTemplate, String langue);
+    TemplateDTO getTemplate(String codeTemplate, String langue);
     
 }

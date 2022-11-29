@@ -1,10 +1,10 @@
 package mc.gouv.xaf.back.service.es.handlers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
 import mc.gouv.xaf.back.data.es.model.EsErrorEventDTO;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.PropertiesService;
-import mc.gouv.xaf.back.service.es.IndexedDemandeService;
 import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
@@ -42,13 +42,10 @@ public class EsTransactionErrorsHandler {
     private static final String MAIL_TEMPLATE_ES_ROLLBACK_CORPS = "MAIL_TEMPLATE_ES_ROLLBACK_CORPS";
 
     @Autowired
-    PropertiesService propertiesService;
+    private PropertiesService propertiesService;
 
     @Autowired
-    MailService mailService;
-
-    @Autowired
-    IndexedDemandeService demandesService;
+    private MailService mailService;
 
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
@@ -88,7 +85,7 @@ public class EsTransactionErrorsHandler {
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_ROLLBACK)
-    public void handleEsRollbackEvent(EsErrorEventDTO errorEventDTO) throws Exception {
+    public void handleEsRollbackEvent(EsErrorEventDTO errorEventDTO) throws JsonProcessingException {
         LOGGER.error("Erreur ES - Rollback de la BDD ");
         LOGGER.error("Récupération des adresses mails de contact");
         PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE);

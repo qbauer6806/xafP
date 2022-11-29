@@ -6,15 +6,15 @@ import java.util.Set;
 
 import mc.gouv.xaf.back.data.entity.DemandesComplementsFilesBO;
 import mc.gouv.xaf.back.data.es.model.DemandeFileEsDTO;
-import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 
 /**
  * 
  * @author qdeme
  *
  */
-public class DemandesComplementsFilesTransformer
-        extends mc.gouv.xaf.back.data.transformer.DemandesComplementsFilesTransformer {
+public class DemandesComplementsFilesEsTransformer {
+
+    private DemandesComplementsFilesEsTransformer() {}
 
     public static DemandeFileEsDTO toEs(DemandesComplementsFilesBO bo, String parent) {
         DemandeFileEsDTO dto = new DemandeFileEsDTO(parent);
@@ -36,17 +36,6 @@ public class DemandesComplementsFilesTransformer
         ArrayList<DemandeFileEsDTO> dtos = new ArrayList<>();
         for (DemandesComplementsFilesBO bo : bos) {
             dtos.add(toEs(bo, parent));
-        }
-        return dtos;
-    }
-
-    public static List<DemandeFileDTO> toDemandeFileDTO(Set<DemandesComplementsFilesBO> bos,
-            DemandeFileEsDTO.TYPE type) {
-        ArrayList<DemandeFileDTO> dtos = new ArrayList<>();
-        if (bos != null) {
-            for (DemandesComplementsFilesBO bo : bos) {
-                dtos.add(toDemandeFileDTO(bo));
-            }
         }
         return dtos;
     }

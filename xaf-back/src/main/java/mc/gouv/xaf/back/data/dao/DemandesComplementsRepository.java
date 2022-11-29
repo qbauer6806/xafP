@@ -10,6 +10,6 @@ import mc.gouv.xaf.back.data.entity.DemandesComplementsBO;
  */
 public interface DemandesComplementsRepository extends CrudRepository<DemandesComplementsBO, Integer> {
 
-    public DemandesComplementsBO findByPkDemandesComplementsAndFkDemandesPkDemandesAndFkDemandesFkAccessDemarcheId(Integer pkDemandesComplements, Integer pkDemandes, String demarcheId);
+    DemandesComplementsBO findByPkDemandesComplementsAndFkDemandesPkDemandesAndFkDemandesFkAccessDemarcheId(Integer pkDemandesComplements, Integer pkDemandes, String demarcheId);
     
 }

@@ -11,6 +11,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
@@ -83,7 +84,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
     @Autowired
     private MessageSource messageSource;
 
-	public void purgerDemandesDansStatuts(List<String> statuts, int jours) throws Exception {
+	public void purgerDemandesDansStatuts(List<String> statuts, int jours) throws JsonProcessingException {
 		String demarcheId = gouvPropertiesResolver.getDemarcheId();
 		StringBuilder demandesAPurger = new StringBuilder();
 		int demandesSuppr = 0;

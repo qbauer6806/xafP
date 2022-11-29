@@ -13,6 +13,6 @@ import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.GUKafkaMessage;
  */
 public interface GUKafkaEventListener {
 
-	public void desinscriptionUsagerGuichetUnique(GUKafkaMessage message);
+	void desinscriptionUsagerGuichetUnique(GUKafkaMessage message);
 	
 }

@@ -13,9 +13,6 @@ public class DemarchesServiceException extends RuntimeException {
      */
     private final HttpStatus httpStatus;
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = 1107512027061289756L;
 
     public DemarchesServiceException(String message, HttpStatus httpStatus) {

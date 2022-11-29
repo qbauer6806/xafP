@@ -39,6 +39,7 @@ public class IndexedEsDemandesStatutsServiceImpl extends DemandesStatutsServiceI
      * {@inheritDoc}
      */
     @Override
+    // TODO: Alerte Sonar sur le trop grand nombre de commentaire
     public DemandeDTO updateStatut(String demarcheId, Integer demandeId, String statut, String agentId,
                                    Integer usagerId, String codeMotif, String commentaire, String texteAEnvoyer) {
 

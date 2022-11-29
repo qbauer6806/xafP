@@ -10,6 +10,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import mc.gouv.xaf.shared.SharedMessages;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,29 +69,28 @@ public class UsagersCourrierServiceImpl implements UsagersCourrierService {
     @Autowired
     private DemarchesService demarchesService;
 
+    private UsagersCourrierBO getCourrierBO(String demarcheId, Integer pkUsagersCourrier) {
+        LOGGER.info("Récupération en base de l'usager courrier...");
+        UsagersCourrierBO usagersCourrierBO = usagersCourrierRepository.findByDemarcheIdAndPkUsagersCourrier(demarcheId,
+                pkUsagersCourrier);
+        if (usagersCourrierBO == null) {
+            throw new DemarchesServiceException("Usager courrier introuvable", HttpStatus.NOT_FOUND);
+        }
+        return usagersCourrierBO;
+    }
+
     /**
      * {@inheritDoc}
      */
     @Override
     public UsagerCourrierDTO getUsagerCourrier(String demarcheId, Integer pkUsagersCourrier) {
-
-        LOGGER.info("Récupération en base de l'usager courrier...");
-
-        UsagersCourrierBO usagersCourrierBO = usagersCourrierRepository.findByDemarcheIdAndPkUsagersCourrier(demarcheId,
-                pkUsagersCourrier);
-
-        if (usagersCourrierBO == null) {
-            return null;
-        }
-
-        LOGGER.info("Transformation bo -> dto ...");
+        UsagersCourrierBO usagersCourrierBO = getCourrierBO(demarcheId, pkUsagersCourrier);
+        LOGGER.info(SharedMessages.SUCCESS_MESSAGES);
         UsagerCourrierDTO usagerCourrierDto = UsagerCourrierTransformer.bo2Dto(usagersCourrierBO);
-
         LOGGER.info("Récupération du nombre de demandes effectuées par cet usager courrier...");
         Integer nbDemandes = demandesRepository.getNbDemandesForUsager(usagersCourrierBO.getDemarcheId(),
                 usagersCourrierBO.getPkUsagersCourrier());
         usagerCourrierDto.setNbDemandes(nbDemandes);
-
         return usagerCourrierDto;
     }
 
@@ -113,7 +113,7 @@ public class UsagersCourrierServiceImpl implements UsagersCourrierService {
             // Créer un predicat pour la démarche
             Predicate isDemarche = builder.equal(root.<String> get("demarcheId"), demarcheId);
             // Créer un predicat par mot présent dans la query
-            List<Predicate> predicats = new ArrayList<Predicate>();
+            List<Predicate> predicats = new ArrayList<>();
             String[] mots = query.split(" ");
             for (String mot : mots) {
                 String pattern = "%" + mot.toLowerCase() + "%";
@@ -154,7 +154,6 @@ public class UsagersCourrierServiceImpl implements UsagersCourrierService {
      */
     @Override
     public UsagerCourrierDTO saveOrUpdateUsagerCourrier(String demarcheId, UsagerCourrierDTO usagerCourrier) {
-
         if (usagerCourrier.getPkUsagersCourrier() != null) {
             // PkUsagersCourrier fourni, il faut donc mettre à jour un usager courrier
             return updateUsagerCourrier(demarcheId, usagerCourrier);
@@ -162,7 +161,6 @@ public class UsagersCourrierServiceImpl implements UsagersCourrierService {
             // Pas de PkUsagersCourrier fourni, il faut donc créer un nouvel usager courrier
             return saveUsagerCourrier(demarcheId, usagerCourrier);
         }
-
     }
 
     /**
@@ -216,24 +214,13 @@ public class UsagersCourrierServiceImpl implements UsagersCourrierService {
      */
     @Override
     public UsagerCourrierDTO updateUsagerCourrier(String demarcheId, UsagerCourrierDTO usagerCourrier) {
-
-        LOGGER.info("Récupération en base de l'usager courrier...");
-
-        UsagersCourrierBO usagerCourrierBo = usagersCourrierRepository.findByDemarcheIdAndPkUsagersCourrier(demarcheId,
-                usagerCourrier.getPkUsagersCourrier());
-
-        if (usagerCourrierBo == null) {
-            throw new DemarchesServiceException("Usager courrier introuvable", HttpStatus.NOT_FOUND);
-        }
-
+        UsagersCourrierBO usagerCourrierBo = getCourrierBO(demarcheId, usagerCourrier.getPkUsagersCourrier());
         LOGGER.info("Mise à jour de l'usager courrier...");
-
         usagerCourrierBo.setAdresse1(usagerCourrier.getAdresse1());
         usagerCourrierBo.setAdresse2(usagerCourrier.getAdresse2());
         usagerCourrierBo.setAdresseComplement(usagerCourrier.getAdresseComplement());
         usagerCourrierBo.setCodePostal(usagerCourrier.getCodePostal());
         usagerCourrierBo.setDateDerModif(new Date());
-        //usagerCourrierBo.setDemarcheId(usagerCourrier.getDemarcheId());
         usagerCourrierBo.setEmail(usagerCourrier.getEmail());
         usagerCourrierBo.setLogin(usagerCourrier.getLogin());
         usagerCourrierBo.setNom(usagerCourrier.getNom());
@@ -243,14 +230,10 @@ public class UsagersCourrierServiceImpl implements UsagersCourrierService {
         usagerCourrierBo.setTelephone(usagerCourrier.getTelephone());
         usagerCourrierBo.setTitre(usagerCourrier.getTitre());
         usagerCourrierBo.setVille(usagerCourrier.getVille());
-
         usagerCourrierBo = usagersCourrierRepository.save(usagerCourrierBo);
-
-        LOGGER.info("Transformation bo -> dto ...");
-
+        LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
         UsagerCourrierDTO ret = UsagerCourrierTransformer.bo2Dto(usagerCourrierBo);
         ret.setUpdated(true);
-
         return ret;
     }
 
@@ -259,18 +242,8 @@ public class UsagersCourrierServiceImpl implements UsagersCourrierService {
      */
     @Override
     public void deleteUsagerCourrier(String demarcheId, Integer pkUsagersCourrier) {
-
-        LOGGER.info("Récupération en base de l'usager courrier...");
-
-        UsagersCourrierBO usagerCourrierBo = usagersCourrierRepository.findByDemarcheIdAndPkUsagersCourrier(demarcheId,
-                pkUsagersCourrier);
-
-        if (usagerCourrierBo == null) {
-            throw new DemarchesServiceException("Usager courrier introuvable", HttpStatus.NOT_FOUND);
-        }
-
+        UsagersCourrierBO usagerCourrierBo = getCourrierBO(demarcheId, pkUsagersCourrier);
         LOGGER.info("Suppression de l'usager courrier...");
-
         usagersCourrierRepository.delete(usagerCourrierBo);
     }
 
@@ -281,6 +254,7 @@ public class UsagersCourrierServiceImpl implements UsagersCourrierService {
     public void transferer(String demarcheId, Integer usagerCourrierSourceId, Integer usagerCourrierCibleId,
             List<Integer> demandeIds) {
 
+        // TODO #45676 : Créer une méthode dans le AccessService
         LOGGER.info("Récupération de l'accès cible...");
 
         AccessBO accesCible = accessService.getAccessBO(demarcheId, usagerCourrierCibleId);
@@ -292,9 +266,8 @@ public class UsagersCourrierServiceImpl implements UsagersCourrierService {
         }
 
         for (Integer demandeId : demandeIds) {
-
-            LOGGER.info("Transfert de la demande " + demandeId + " de l'usager courrier source "
-                    + usagerCourrierSourceId + " vers l'usager courrier cible " + usagerCourrierCibleId + "...");
+            LOGGER.info("Transfert de la demande {} de l'usager courrier source {} vers l'usager courrier cible {}...",
+                    demandeId, usagerCourrierSourceId, usagerCourrierCibleId);
 
             DemandeBO demande = demandesService.getCheckDemarcheDemandeBO(demarcheId, demandeId, true);
             AccessBO accesSource = demande.getFkAccess();
@@ -309,7 +282,6 @@ public class UsagersCourrierServiceImpl implements UsagersCourrierService {
             demande.setFkAccess(accesCible);
             demandesRepository.save(demande);
         }
-
     }
 
 }

@@ -78,9 +78,7 @@ public class StatistiquesServiceImpl implements StatistiquesService {
     public void deleteStatistiques(String demarcheId, Integer pkDemande) {
         LOGGER.info("Suppression des statistiques de la demande {}", pkDemande);
         List<StatistiqueBO> statistiquesBO = statRepository.findByDemandeIdAndDemarcheId(pkDemande, demarcheId);
-        for (StatistiqueBO stat : statistiquesBO) {
-        	statRepository.delete(stat);
-        }
+        statRepository.deleteAll(statistiquesBO);
     }
 
 

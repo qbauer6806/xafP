@@ -9,6 +9,7 @@ import java.util.Date;
  *
  * @author qdeme
  */
+// TODO : Classe à Supprimer (voir ticket #20760)
 public class CommentaireInterneDTO implements Serializable {
     private static final long serialVersionUID = -3630330943792014082L;
 

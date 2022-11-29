@@ -9,6 +9,7 @@ import mc.gouv.xaf.back.service.data.StatistiquesService;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.DemandeRecapDTO;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.RecapDemandesDTO;
+import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.utils.GUKafkaUtils;
 
@@ -26,7 +27,6 @@ import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
 import mc.gouv.xaf.back.data.transformer.DemandesStatutsTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.DemandesStatutsService;
@@ -62,9 +62,6 @@ public class DemandesStatutsServiceImpl implements DemandesStatutsService {
     private DemarchesDataProvider demarchesDataProvider;
     
     @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
-    
-    @Autowired
     private GUKafkaUtils guKafkaUtils;
     
     @Autowired
@@ -74,18 +71,17 @@ public class DemandesStatutsServiceImpl implements DemandesStatutsService {
      * {@inheritDoc}
      */
     @Override
+    // TODO: Alerte Sonar sur le trop grand nombre de paramètres
     public DemandeDTO updateStatut(String demarcheId, Integer demandeId, String statut, String agentId, Integer usagerId,
             String codeMotif, String commentaire, String texteAEnvoyer) {
-
-        LOGGER.info("Récupération en base de la demande...");
-
+        
         DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(demarcheId, demandeId, false);
 
         // Gérer les accès désactivés
         //#4877 - Traitement après désinscription, Il faut pouvoir mettre à jour des statuts de demande même si l'usager s'est désactivé de la démarche
 
         if (demandeBo == null) {
-            throw new DemarchesServiceException("Demande introuvable", HttpStatus.NOT_FOUND);
+            throw new DemarchesServiceException(SharedMessages.DEMANDE_ASSOCIEE_INTROUVABLE, HttpStatus.NOT_FOUND);
         }
 
         demandeBo = updateStatut(demandeBo, statut, agentId, usagerId, codeMotif, commentaire, texteAEnvoyer);
@@ -100,15 +96,14 @@ public class DemandesStatutsServiceImpl implements DemandesStatutsService {
     public DemandeBO updateStatut(DemandeBO demande, String statut, String agentId, Integer usagerId,
             String codeMotif, String commentaire, String texteAEnvoyer) {
     	
-    	LOGGER.info("updateStatut(" + demande.getPkDemandes() + "," + statut + "," + agentId + "," + usagerId + "," + codeMotif
-    			+ "," + commentaire + "," + texteAEnvoyer + ")");
+    	LOGGER.info("updateStatut({}, {}, {}, {}, {}, {}, {})", demande.getPkDemandes(), statut, agentId, usagerId, codeMotif, commentaire, texteAEnvoyer);
     	
     	String statutInitial = null;
     	if (demande.getDernierStatut() != null) {
     		statutInitial = demande.getDernierStatut().getLibelle();
     	}
     	
-        LOGGER.info("Constitution du nouveau statut (" + statut + ") et sauvegarde en base...");
+        LOGGER.info("Constitution du nouveau statut ({}) et sauvegarde en base...", statut);
         DemandeStatutDTO statutDto = new DemandeStatutDTO();
         statutDto.setLibelle(statut);
         statutDto.setDate(new Date());
@@ -120,12 +115,8 @@ public class DemandesStatutsServiceImpl implements DemandesStatutsService {
         DemandesStatutsBO statutBo = DemandesStatutsTransformer.dto2Bo(statutDto);
         statutBo.setFkDemandes(demande);
         if (demande.getStatuts() == null) {
-            demande.setStatuts(new HashSet<DemandesStatutsBO>());
+            demande.setStatuts(new HashSet<>());
         }
-//        demande.getStatuts().add(statutBo);
-//        demandesStatutsRepository.save(statutBo);
-//        demande.setDernierStatut(statutBo);
-//        demande = demandesRepository.save(demande);
         statutBo = demandesStatutsRepository.save(statutBo);
         demande.getStatuts().add(statutBo);
         demande.setDernierStatut(statutBo);
@@ -164,14 +155,11 @@ public class DemandesStatutsServiceImpl implements DemandesStatutsService {
     @Override
     public DemandeStatutDTO getStatut(String demarcheId, Integer demandeId) {
 
-        LOGGER.info("Récupération en base de la demande...");
-
         DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(demarcheId, demandeId, false);
 
         // Gérer les accès désactivés
-
         if (demandeBo == null) {
-            throw new DemarchesServiceException("Demande introuvable", HttpStatus.NOT_FOUND);
+            throw new DemarchesServiceException(SharedMessages.DEMANDE_ASSOCIEE_INTROUVABLE, HttpStatus.NOT_FOUND);
         }
 
         DemandesStatutsBO statut = DemarchesUtils.getLatestStatus(demandeBo);
@@ -185,15 +173,41 @@ public class DemandesStatutsServiceImpl implements DemandesStatutsService {
     @Override
     public List<DemandeStatutDTO> getStatuts(String demarcheId, Integer demandeId) {
 
-        LOGGER.info("Récupération en base de la demande...");
-
         DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(demarcheId, demandeId, false);
 
         if (demandeBo == null) {
-            throw new DemarchesServiceException("Demande introuvable", HttpStatus.NOT_FOUND);
+            throw new DemarchesServiceException(SharedMessages.DEMANDE_ASSOCIEE_INTROUVABLE, HttpStatus.NOT_FOUND);
         }
 
-        return DemandesStatutsTransformer.bo2Dto(new ArrayList<DemandesStatutsBO>(demandeBo.getStatuts()));
+        return DemandesStatutsTransformer.bo2Dto(new ArrayList<>(demandeBo.getStatuts()));
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void clonerStatuts(DemandeBO demandeBo, DemandeBO newDemandeBo) {
+        // Cette variable sert à stocker le futur dernier statut
+        DemandesStatutsBO dernierStatutBo = null;
+        if (demandeBo.getStatuts() != null) {
+            LOGGER.info("Duplication des statuts de la demande");
+            List<DemandeStatutDTO> statutsDto = DemandesStatutsTransformer.bo2Dto(new ArrayList<>(demandeBo.getStatuts()));
+            List<DemandesStatutsBO> statutsBo = new ArrayList<>();
+            for (DemandeStatutDTO statutDto : statutsDto) {
+                DemandesStatutsBO statutBo = DemandesStatutsTransformer.dto2Bo(statutDto);
+                statutBo.setPkDemandesStatuts(null);
+                statutBo.setFkDemandes(newDemandeBo);
+                demandesStatutsRepository.save(statutBo);
+                statutsBo.add(statutBo);
+                if (demandeBo.getDernierStatut().getPkDemandesStatuts().equals(statutDto.getPkStatut())) {
+                    // Il s'agit du dernier statut de la demande
+                    dernierStatutBo = statutBo;
+                }
+            }
+            newDemandeBo.setStatuts(new HashSet<>(statutsBo));
+        }
+
+        // "Dernier statut" d'une demande
+        newDemandeBo.setDernierStatut(dernierStatutBo);
+    }
 }

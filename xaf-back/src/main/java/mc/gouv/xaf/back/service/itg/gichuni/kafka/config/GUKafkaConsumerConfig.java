@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,8 +43,8 @@ public class GUKafkaConsumerConfig {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(GUKafkaConsumerConfig.class);
 	
-	private final String XAF_GU_KAFKA_CONSUMER_BACKOFF_INTERVAL = "XAF_GU_KAFKA_CONSUMER_BACKOFF_INTERVAL";
-	private final String XAF_GU_KAFKA_CONSUMER_BACKOFF_MAXATTEMPTS = "XAF_GU_KAFKA_CONSUMER_BACKOFF_MAXATTEMPTS";
+	private static final String XAF_GU_KAFKA_CONSUMER_BACKOFF_INTERVAL = "XAF_GU_KAFKA_CONSUMER_BACKOFF_INTERVAL";
+	private static final String XAF_GU_KAFKA_CONSUMER_BACKOFF_MAXATTEMPTS = "XAF_GU_KAFKA_CONSUMER_BACKOFF_MAXATTEMPTS";
 	
 	@Autowired
 	private KafkaTemplate<String, String> kafkaTemplate;

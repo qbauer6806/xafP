@@ -1,22 +1,24 @@
 package mc.gouv.xaf.back.service.pdf;
 
-import java.io.File;
-
 import mc.gouv.xaf.shared.dto.DemandeDTO;
+import org.apache.tika.exception.TikaException;
+import org.xml.sax.SAXException;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
- * 
- * @author qdeme
- * 
  * Classe appelée par le workflow BPM, permettant d'appeler un sous-service de génération de PDF (implémenté
  * dans la démarche cible et de stocker le résultat de cette génération.
  *
+ * @author qdeme
  */
 public interface PdfGenerationService {
 
-    public void generateAndStorePdf(DemandeDTO demande, PdfTypeEnum pdfType, String meta) throws Exception;
+    void generateAndStorePdf(DemandeDTO demande, PdfTypeEnum pdfType, String meta)
+            throws IOException, TikaException, SAXException;
 
-    public File generatePdfPreview(DemandeDTO demande, String statutSuivant, String codeMotif, String langue,
-            String commentaire, String texteAEnvoyer, PdfTypeEnum pdfType);
-    
+    File generatePdfPreview(DemandeDTO demande, String statutSuivant, String codeMotif, String langue,
+                            String commentaire, String texteAEnvoyer, PdfTypeEnum pdfType);
+
 }

@@ -160,11 +160,11 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     //Liste des champs à exclure de la recherche dans les fichiers associés aux demandes
     private final List<String> fichiersFieldsToExclude = new ArrayList<>();
     @Autowired
-    IndexedDemandeService demandesService;
+    private IndexedDemandeService demandesService;
     @Inject
-    RechercheChampConfigRepository rechercheChampConfigRepository;
+    private RechercheChampConfigRepository rechercheChampConfigRepository;
     @Inject
-    DemarchesDataProvider demarchesDataProvider;
+    private DemarchesDataProvider demarchesDataProvider;
     List<EsProperty> allProperties = new ArrayList<>();
     @Autowired
     private ApplicationEventPublisher applicationEventPublisher;
@@ -574,18 +574,17 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      */
     @Override
     public void indexDemande(String demarcheId, Integer demandeId) {
-        DemandeBO demandeBo = getDemandeBo(demarcheId, demandeId);
-        DemandeDTO demandeDto = DemandesTransformer.bo2Dto(demandeBo);
+        DemandeBO demandeBo = getCheckDemarcheDemandeBO(demarcheId, demandeId, true);
         DemandeEsDTO demandeEsDTO = demandeEsTransformer.bo2Dto(demandeBo, null);
         try {
             demandeEsRepository.save(demandeEsDTO);
         } catch (Exception e) {
             LOGGER.error("Erreur d'indexation lors du clone de la demande.");
-            EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("IndexedEsDemandeServiceImpl - méthode indexDemande()", demandeDto, e);
+            EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("IndexedEsDemandeServiceImpl - méthode indexDemande()",
+                    demandeEsDTO.getAccess().getDemarcheId(), demandeEsDTO.getPkDemandes(), e);
             applicationEventPublisher.publishEvent(esErrorEventDTO);
             throw new AfIndexingException(e.getMessage(), e);
         }
-
     }
 
     /**

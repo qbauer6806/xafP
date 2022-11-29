@@ -11,6 +11,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.metamodel.EntityType;
 
+import mc.gouv.xaf.shared.SharedMessages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,7 +66,6 @@ public class AccessServiceImpl implements AccessService {
     public AccessDTO saveOrUpdateAccess(String demarcheId, Integer usagerId, AccessDTO access) {
 
         LOGGER.info("Vérification de l'unicité...");
-        // AccessDTO dto = getAccess(demarcheId, usagerId);
         AccessDTO dto = AccessTransformer.bo2Dto(getAccessBO(demarcheId, usagerId));
 
         if (dto != null) {
@@ -73,14 +73,14 @@ public class AccessServiceImpl implements AccessService {
             dto.setContenu(access.getContenu());
             dto.setDateDerModif(new Date());
 
-            LOGGER.info("Transformation dto -> bo ...");
+            LOGGER.info(SharedMessages.TRANSFORMATION_DTO_BO);
 
             AccessBO bo = AccessTransformer.dto2Bo(dto);
 
             bo.setActive(true); // existait déjà, donc true
             bo = accessRepository.save(bo);
 
-            LOGGER.info("Transformation bo -> dto ...");
+            LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
 
             dto = AccessTransformer.bo2Dto(bo);
             dto.setUpdated(true);
@@ -96,8 +96,7 @@ public class AccessServiceImpl implements AccessService {
         }
 
         boolean isUsagerCourrier = DemarchesUtils.isUsagerCourrier(access.getUsagerId());
-
-        LOGGER.info("Usager courrier : " + isUsagerCourrier);
+        LOGGER.info("Usager courrier : {}", isUsagerCourrier);
 
         if (isUsagerCourrier) {
             // Vérifier que l'usagerId existe dans la table USAGERS_COURRIER s'il s'agit d'un usager courrier
@@ -110,7 +109,7 @@ public class AccessServiceImpl implements AccessService {
             }
         }
 
-        LOGGER.info("Transformation dto -> bo ...");
+        LOGGER.info(SharedMessages.TRANSFORMATION_DTO_BO);
 
         access.setDateCreation(new Date());
         access.setDateDerModif(access.getDateCreation());
@@ -124,7 +123,7 @@ public class AccessServiceImpl implements AccessService {
 
         bo = accessRepository.save(bo);
 
-        LOGGER.info("Transformation bo -> dto ...");
+        LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
         
         LOGGER.info("Envoi d'un message au GU via Kafka...");
         guKafkaProducer.sendCreationAccesTSMessage(usagerId);
@@ -138,16 +137,16 @@ public class AccessServiceImpl implements AccessService {
     @Override
     public AccessDTO getAccess(String demarcheId, Integer usagerId) {
 
-        LOGGER.info("Récupération en base...");
+        LOGGER.info(SharedMessages.RECUPERATION_EN_BASE);
 
         AccessBO bo = getAccessBO(demarcheId, usagerId);
 
         if (bo == null) {
-            LOGGER.error("Accès introuvable");
-            throw new DemarchesServiceException("Accès introuvable", HttpStatus.NOT_FOUND);
+            LOGGER.error(SharedMessages.DONNEE_INTROUVABLE);
+            throw new DemarchesServiceException(SharedMessages.DONNEE_INTROUVABLE, HttpStatus.NOT_FOUND);
         }
 
-        LOGGER.info("Transformation bo -> dto ...");
+        LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
 
         return AccessTransformer.bo2Dto(bo);
     }
@@ -158,16 +157,16 @@ public class AccessServiceImpl implements AccessService {
     @Override
     public AccessDTO getAccess(Integer pkAccess) {
 
-        LOGGER.info("Récupération en base...");
+        LOGGER.info(SharedMessages.RECUPERATION_EN_BASE);
 
         Optional<AccessBO> boOp = getAccessBO(pkAccess);
 
         if (!boOp.isPresent()) {
-            LOGGER.error("Accès introuvable");
-            throw new DemarchesServiceException("Accès introuvable", HttpStatus.NOT_FOUND);
+            LOGGER.error(SharedMessages.DONNEE_INTROUVABLE);
+            throw new DemarchesServiceException(SharedMessages.DONNEE_INTROUVABLE, HttpStatus.NOT_FOUND);
         }
 
-        LOGGER.info("Transformation bo -> dto ...");
+        LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
 
         return AccessTransformer.bo2Dto(boOp.get());
     }
@@ -183,8 +182,6 @@ public class AccessServiceImpl implements AccessService {
         List<AccessBO> bos = accessRepository.getByDemarcheIdAndUsagerIdAndActive(demarcheId, usagerId, true);
         if (bos != null && !bos.isEmpty()) {
             bo = bos.get(0);
-        } else {
-            bo = null;
         }
 
         // Gérer les accès désactivés
@@ -217,24 +214,17 @@ public class AccessServiceImpl implements AccessService {
     @Override
     public void deleteAccess(String demarcheId, Integer usagerId) {
 
-        LOGGER.info("Récupération en base...");
+        LOGGER.info(SharedMessages.RECUPERATION_EN_BASE);
 
         AccessDTO dto = getAccess(demarcheId, usagerId);
 
         if (dto == null) {
-            throw new DemarchesServiceException("Accès introuvable", HttpStatus.NOT_FOUND);
+            throw new DemarchesServiceException(SharedMessages.DONNEE_INTROUVABLE, HttpStatus.NOT_FOUND);
         }
 
-        LOGGER.info("Transformation dto -> bo ...");
+        LOGGER.info(SharedMessages.TRANSFORMATION_DTO_BO);
 
         AccessBO bo = AccessTransformer.dto2Bo(dto);
-
-        // ============= ANCIENNE METHODE
-        // DELETE physique effectué avant que l'on décide que désormais, les suppressions consistent en l'écriture
-        // d'un flag Active = false, pour des besoins d'archivage d'accès et de demandes associées
-        // accessRepository.delete(bo);
-
-        // ============= NOUVELLE METHODE
         bo.setActive(false);
         accessRepository.save(bo);
     }
@@ -247,24 +237,18 @@ public class AccessServiceImpl implements AccessService {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Integer> cq = cb.createQuery(Integer.class);
         Root<AccessBO> root = cq.from(AccessBO.class);
-        EntityType<AccessBO> accessBo_ = root.getModel();
+        EntityType<AccessBO> accessBo = root.getModel();
         Predicate predicateDemarche = cb.equal(root.<String> get("demarcheId"), demarcheId);
-        cq.select(root.get(accessBo_.getSingularAttribute("usagerId", Integer.class))).where(predicateDemarche)
+        cq.select(root.get(accessBo.getSingularAttribute("usagerId", Integer.class))).where(predicateDemarche)
                 .distinct(true);
 
         return em.createQuery(cq).getResultList();
-
     }
 
     @Override
-    public Boolean isAccessActive(Integer pkAccess) {
+    public boolean isAccessActive(Integer pkAccess) {
         Optional<AccessBO> boOp = accessRepository.findById(pkAccess);
-
-        if (boOp.isPresent()) {
-            return boOp.get().isActive();
-        }
-
-        return null;
+        return boOp.map(AccessBO::isActive).orElse(false);
     }
 
 }

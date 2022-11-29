@@ -55,6 +55,48 @@ public class GouvBPMArchivageDelegate implements JavaDelegate {
     @Autowired
     private AfHistoService histoService;
 
+    /**
+     * Récupération des fichiers de la demande
+     */
+    private List<DemandeFileDTO> getAllFichiers(DemandeDTO demandeDto) {
+        String ordreFichiers = (String) gouvBPM.getProcessBusinessVariables(demandeDto.getPkDemandes()).get(MC_ORDRE_FICHIERS);
+        List<DemandeFileDTO> fichiers = new ArrayList<>(Arrays.asList(demandeDto.getFichiers()));
+
+        // Récupération des fichiers complémentaires
+        if (demandeDto.getComplements() != null) {
+            for (DemandeComplementsDTO complements : demandeDto.getComplements()) {
+                if (complements.getReponse() != null) {
+                    List<DemandeComplementsFileDTO> demandeFileDTOList = Arrays.asList(complements.getReponse().getFichiers());
+                    fichiers.addAll(DemandesComplementsFilesTransformer.toDemandeFileDTO(demandeFileDTOList));
+                }
+            }
+        }
+
+        // refs #43237 - [BO] Qualification des documents : On remove les fichiers qui ne doivent pas partir à l'archivage
+        for (DemandeFileDTO currentFichier : new ArrayList<>(fichiers)) {
+            if(null != currentFichier.getTypedoc() && currentFichier.getTypedoc().equals("NON_APPLICABLE")) {
+                fichiers.remove(currentFichier);
+            }
+        }
+
+
+        // Gestion de l'ordre d'envoi
+        // Si une variable d'ordre est définie, trier les fichiers
+        if (!ordreFichiers.isEmpty()) {
+            List<DemandeFileDTO> fichiersTries = new ArrayList<>();
+            for (String typeDoc : ordreFichiers.split(",")) {
+                for (DemandeFileDTO file : fichiers) {
+                    if (typeDoc.equals(file.getTypedoc())) {
+                        fichiersTries.add(file);
+                    }
+                }
+            }
+            fichiers = fichiersTries;
+        }
+
+        return fichiers;
+    }
+
     @Override
     public void execute(DelegateExecution execution) {
         LOGGER.info("==== xaf-back-stc Archivage ...");
@@ -69,42 +111,8 @@ public class GouvBPMArchivageDelegate implements JavaDelegate {
         if (propertiesDTO != null && Boolean.parseBoolean(propertiesDTO.getValue())) {
 
             String reference = (String) gouvBPM.getProcessBusinessVariables(demandeId).get(MC_REFERENCE_PERMIS);
-            String ordreFichiers = (String) gouvBPM.getProcessBusinessVariables(demandeId).get(MC_ORDRE_FICHIERS);
 
-            // Récupération des fichiers de la demande
-            List<DemandeFileDTO> fichiers = new ArrayList<>(Arrays.asList(demandeDto.getFichiers()));
-
-            // Récupération des fichiers complémentaires
-            if (demandeDto.getComplements() != null) {
-                for (DemandeComplementsDTO complements : demandeDto.getComplements()) {
-                    if (complements.getReponse() != null) {
-                        List<DemandeComplementsFileDTO> demandeFileDTOList = Arrays.asList(complements.getReponse().getFichiers());
-                        fichiers.addAll(DemandesComplementsFilesTransformer.toDemandeFileDTO(demandeFileDTOList));
-                    }
-                }
-            }
-            
-            // refs #43237 - [BO] Qualification des documents : On remove les fichiers qui ne doivent pas partir à l'archivage
-            for (DemandeFileDTO currentFichier : new ArrayList<DemandeFileDTO>(fichiers)) {
-            	if(null != currentFichier.getTypedoc() && currentFichier.getTypedoc().equals("NON_APPLICABLE")) {
-            		fichiers.remove(currentFichier);
-            	}
-			}
-
-
-            // Gestion de l'ordre d'envoi
-            // Si une variable d'ordre est définie, trier les fichiers
-            if (!ordreFichiers.isEmpty()) {
-                List<DemandeFileDTO> fichiersTries = new ArrayList<>();
-                for (String typeDoc : ordreFichiers.split(",")) {
-                    for (DemandeFileDTO file : fichiers) {
-                        if (typeDoc.equals(file.getTypedoc())) {
-                            fichiersTries.add(file);
-                        }
-                    }
-                }
-                fichiers = fichiersTries;
-            }
+            List<DemandeFileDTO> fichiers = getAllFichiers(demandeDto);
             List<DemandeFileDTO> fichiersArchives = archivageService.archivageDocuments(reference, fichiers, demandeDto);
 
             int differenceFichiersArchives = fichiers.size() - fichiersArchives.size();

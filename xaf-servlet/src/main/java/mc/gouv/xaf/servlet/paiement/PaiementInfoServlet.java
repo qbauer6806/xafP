@@ -8,6 +8,7 @@ import mc.gouv.xaf.servlet.AbstractAfServlet;
 import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
 import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
+import mc.gouv.xaf.shared.RequestConstant;
 import org.apache.commons.compress.utils.IOUtils;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
@@ -47,9 +48,9 @@ public class PaiementInfoServlet extends AbstractAfServlet {
         }
 
         LOGGER.info("Récupération des paramètres...");
-        String demandeIds = request.getParameter(PaiementConstant.DEMANDES_ID_PARAM);
+        String demandeIds = request.getParameter(RequestConstant.DEMANDES_ID_PARAM);
 
-        String langue = request.getParameter(PaiementConstant.LANGUE_PARAM);
+        String langue = request.getParameter(RequestConstant.LANGUE_PARAM);
         boolean iframe = Boolean.parseBoolean(request.getParameter(PaiementConstant.IFRAME_PARAM));
 
 

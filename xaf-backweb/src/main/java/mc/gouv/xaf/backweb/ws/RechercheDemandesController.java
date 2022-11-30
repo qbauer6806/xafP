@@ -74,6 +74,7 @@ public class RechercheDemandesController extends AbstractController {
         demandeRecherche.setAucunCanal(aucunCanal);
         demandeRecherche.setAucunStatut(aucunStatut);
 
+        // TODO sort non null ?
         if (pageable.getSort() != null) {
             Order order = pageable.getSort().iterator().next();
             if (order != null) {

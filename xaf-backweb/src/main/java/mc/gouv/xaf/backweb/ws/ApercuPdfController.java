@@ -3,6 +3,8 @@ package mc.gouv.xaf.backweb.ws;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -80,9 +82,11 @@ public class ApercuPdfController extends AbstractController {
         
 		// Supprimer le fichier temporaire car il n'est plus utile
 		LOGGER.info("Suppression du fichier temporaire...");
-		if (!file.delete()) {
-			LOGGER.warn("La suppression du fichier temporaire a échoué");
-		}
+        try {
+            Files.delete(Paths.get(file.getPath()));
+        } catch (IOException e) {
+            LOGGER.warn("La suppression du fichier temporaire a échoué", e);
+        }
 
         LOGGER.info("======================= Fin /pdf/apercu");
     }

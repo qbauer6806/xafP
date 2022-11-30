@@ -90,17 +90,12 @@ public class FileController {
 	@GetMapping(value = "/get/**")
 	@ResponseStatus(HttpStatus.OK) // 200
 	public void getFile(HttpServletRequest request, HttpServletResponse response) throws IOException {
-
 		LOGGER.info("====================== getFile()");
-
 		String file = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
 		file = file.replace("/ws/file/get/", "");
-
 		// Bugfix #16805: encodage des noms des fichiers avec caractères spéciaux
 		String filePathEncoded = URLEncoder.encode(file, UTF_8);
-
 		fileService.getFile(filePathEncoded, gouvPropertiesResolver.getContainerId(), response);
-
 		LOGGER.info("====================== getFile() terminé, retour au client...");
 	}
 
@@ -123,7 +118,6 @@ public class FileController {
 		tmp.toFile().deleteOnExit();
 		List<File> filesToZip = getFilesToInclude(fileType, fichiers, tmp.toFile());
 		createZipFile(filesToZip, tmp.toFile(), fileName);
-
 		// Préparation de la requête
 		HttpHeaders headers = setHeaders(fileName);
 		InputStreamResource isr = setInputStream(fileName, tmp);
@@ -164,7 +158,6 @@ public class FileController {
 	 * @param tmp      : Localisation du dossier temporaire qui sera supprimé une
 	 *                 fois la requête terminée
 	 * @return : L'input stream resource utilisé dans la requête
-	 * @throws FileNotFoundException
 	 */
 	private InputStreamResource setInputStream(String fileName, Path tmp) throws FileNotFoundException {
 		File result = new File(tmp.toAbsolutePath().toString(), fileName);
@@ -241,14 +234,7 @@ public class FileController {
 	}
 
 	/**
-	 * Méthode permettant de récupérer les fichiers à zipper en fonction du bouton
-	 * cliqué
-	 * 
-	 * @param fileType
-	 * @param fichiers
-	 * @param tmp
-	 * @return
-	 * @throws IOException
+	 * Méthode permettant de récupérer les fichiers à zipper en fonction du bouton cliqué
 	 */
 	private List<File> getFilesToInclude(String fileType, List<DemandeFileDTO> fichiers, File tmp) throws IOException {
 		List<File> result = new ArrayList<>();
@@ -332,37 +318,21 @@ public class FileController {
 	/**
 	 * Appelle FILE afin de sauvegarder différents fichiers contenus dans la request
 	 * MultiPart Retourne une Map correspondant aux fichiers (fileName, fileUrl)
-	 * 
-	 * @param usagerId
-	 * @param request
-	 * @param response
-	 * @return
-	 * @throws Exception
 	 */
-	public Map<String, String> saveFiles(Integer demandeId, MultipartFile[] files, HttpServletResponse response,
-			Integer pkDemande) throws Exception {
-
+	public Map<String, String> saveFiles(Integer demandeId, MultipartFile[] files, HttpServletResponse response) throws IOException {
 		LOGGER.info("====================== saveFiles()");
 		LOGGER.info("Appel de DEM afin de récupérer la demande pour le calcul...");
-
 		DemandeDTO demande = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), demandeId);
-
 		Map<String, String> fileNames = new HashMap<>();
-
 		for (MultipartFile file : files) {
 			if (!StringUtils.isBlank(file.getOriginalFilename())) {
 				LOGGER.info("Part à traiter : {}", file.getOriginalFilename());
-
 				LOGGER.info("Appel au FileService...");
-				String filename = fileService.saveFile(demande, gouvPropertiesResolver.getContainerId(), file,
-						response);
-
+				String filename = fileService.saveFile(demande, gouvPropertiesResolver.getContainerId(), file, response);
 				fileNames.put(file.getOriginalFilename(), filename);
 			}
 		}
-
 		LOGGER.info("====================== saveFiles() terminé, retour au client...");
-
 		return fileNames;
 	}
 }

@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.transaction.Transactional;
 
+import mc.gouv.xaf.shared.RequestConstant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,7 @@ public class GestionPeriodesOuvertureController {
     private static final String MODIFIER_SUCCES = "La période d'ouverture a été modifiée.";
     private static final String SUPPRIMER_SUCCES = "La période d'ouverture a été supprimée.";
     private static final String SUPPRIMER_TOUS_SUCCES = "Toutes les périodes d'ouverture ont été supprimées.";
+    private static final String REDIRECT_PERIODES = "redirect:/gestion/periodesouverture?pageLength=";
 
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
@@ -63,6 +65,17 @@ public class GestionPeriodesOuvertureController {
         return mav;
     }
 
+    private ModelAndView redirectSuccess(Integer pageLengthNumber, RedirectAttributes redirectAttributes, String message) {
+        ModelAndView mav = new ModelAndView(RequestConstant.REDIRECT);
+        if (null != pageLengthNumber) {
+            mav = new ModelAndView(REDIRECT_PERIODES + pageLengthNumber);
+        }
+        List<String> messages = new ArrayList<>();
+        messages.add(message);
+        redirectAttributes.addFlashAttribute(SharedMessages.SUCCESS_MESSAGES, messages);
+        return mav;
+    }
+
     @PostMapping(value = "/edit", params = "action=ajouter")
     @Transactional
     public ModelAndView ajouter(@RequestParam Date periodeStartDate, @RequestParam Date periodeEndDate, @RequestParam Integer pageLengthNumber,
@@ -74,17 +87,8 @@ public class GestionPeriodesOuvertureController {
         periode.setDateFin(periodeEndDate);
         periode.setDemarcheId(gouvPropertiesResolver.getDemarcheId());
         periodesOuvertureService.saveOrUpdatePeriodeOuverture(gouvPropertiesResolver.getDemarcheId(), periode);
-
-        ModelAndView mav = new ModelAndView("redirect:");
-        if (null != pageLengthNumber) {
-            mav = new ModelAndView("redirect:/gestion/periodesouverture?pageLength=" + pageLengthNumber);
-        }
-        List<String> messages = new ArrayList<>();
-        messages.add(AJOUTER_SUCCES);
-        redirectAttributes.addFlashAttribute(SharedMessages.SUCCESS_MESSAGES, messages);
-
+        ModelAndView mav = redirectSuccess(pageLengthNumber, redirectAttributes, AJOUTER_SUCCES);
         LOGGER.info("======================= Fin /gestion/periodesouverture/ajouter");
-
         return mav;
     }
 
@@ -100,37 +104,18 @@ public class GestionPeriodesOuvertureController {
         periode.setDemarcheId(gouvPropertiesResolver.getDemarcheId());
         periode.setPkPeriodesOuverture(pkPeriodesOuverture);
         periodesOuvertureService.saveOrUpdatePeriodeOuverture(gouvPropertiesResolver.getDemarcheId(), periode);
-
-        ModelAndView mav = new ModelAndView("redirect:");
-        if (null != pageLengthNumber) {
-            mav = new ModelAndView("redirect:/gestion/periodesouverture?pageLength=" + pageLengthNumber);
-        }
-        List<String> messages = new ArrayList<>();
-        messages.add(MODIFIER_SUCCES);
-        redirectAttributes.addFlashAttribute(SharedMessages.SUCCESS_MESSAGES, messages);
-
+        ModelAndView mav = redirectSuccess(pageLengthNumber, redirectAttributes, MODIFIER_SUCCES);
         LOGGER.info("======================= Fin /gestion/periodesouverture/modifier");
-
         return mav;
     }
 
     @PostMapping(value = "/supprimer")
     @Transactional
     public ModelAndView supprimer(@RequestParam Integer pkPeriodesOuverture, @RequestParam Integer pageLengthNumber, final RedirectAttributes redirectAttributes) {
-
         LOGGER.info("======================= Appel de la page /gestion/periodesouverture/supprimer ({})", pkPeriodesOuverture);
-        PeriodeOuvertureDTO periode = new PeriodeOuvertureDTO();
-        periode.setDemarcheId(gouvPropertiesResolver.getDemarcheId());
-        periode.setPkPeriodesOuverture(pkPeriodesOuverture);
         periodesOuvertureService.deletePeriodeOuverture(gouvPropertiesResolver.getDemarcheId(), pkPeriodesOuverture);
-
-        ModelAndView mav = new ModelAndView("redirect:/gestion/periodesouverture?pageLength=" + pageLengthNumber);
-        List<String> messages = new ArrayList<>();
-        messages.add(SUPPRIMER_SUCCES);
-        redirectAttributes.addFlashAttribute(SharedMessages.SUCCESS_MESSAGES, messages);
-
+        ModelAndView mav = redirectSuccess(pageLengthNumber, redirectAttributes, SUPPRIMER_SUCCES);
         LOGGER.info("======================= Fin /gestion/periodesouverture/supprimer");
-
         return mav;
     }
 
@@ -139,12 +124,11 @@ public class GestionPeriodesOuvertureController {
     public ModelAndView supprimerTous(final RedirectAttributes redirectAttributes) {
         LOGGER.info("======================= Appel de la page /gestion/periodesouverture/supprimertous");
         periodesOuvertureService.deleteAllPeriodeOuverture(gouvPropertiesResolver.getDemarcheId());
-        ModelAndView mav = new ModelAndView("redirect:");
+        ModelAndView mav = new ModelAndView(RequestConstant.REDIRECT);
         List<String> messages = new ArrayList<>();
         messages.add(SUPPRIMER_TOUS_SUCCES);
         redirectAttributes.addFlashAttribute(SharedMessages.SUCCESS_MESSAGES, messages);
         LOGGER.info("======================= Fin /gestion/periodesouverture/supprimertous");
         return mav;
     }
-
 }

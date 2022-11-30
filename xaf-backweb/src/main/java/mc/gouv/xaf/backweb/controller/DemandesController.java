@@ -3,20 +3,19 @@ package mc.gouv.xaf.backweb.controller;
 import mc.gouv.logon.shared.User;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
+import mc.gouv.xaf.back.service.utils.AgentComparator;
 import mc.gouv.xaf.backweb.dto.AgentAffichageDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -38,20 +37,20 @@ public class DemandesController extends AbstractController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandesController.class);
 
-    @RequestMapping(method = RequestMethod.GET)
+    @GetMapping
     public ModelAndView form(@RequestParam(value = "statut", required = false) String statut,
             @RequestParam(value = "agentId", required = false) String agentId,
             @RequestParam(required = false) String texte) {
 
         LOGGER.info("======================= Appel de la page /demandes");
 
-        List<User> agents = new ArrayList<User>(utilisateursCache.getAll().values());
+        List<User> agents = new ArrayList<>(utilisateursCache.getAll().values());
 
         // Tri des agents par nom
-        if (agents != null) {
-            Collections.sort(agents, new AgentComparator());
+        if (!agents.isEmpty()) {
+            agents.sort(new AgentComparator());
         }
-        List<AgentAffichageDTO> agentsAffichage = new ArrayList<AgentAffichageDTO>();
+        List<AgentAffichageDTO> agentsAffichage = new ArrayList<>();
         for (User u : agents) {
             agentsAffichage.add(getAgentAffichageFromUser(u));
         }
@@ -63,23 +62,6 @@ public class DemandesController extends AbstractController {
         mav.addObject("statuts", demarchesDataProvider.getStatusMap());
         mav.addObject("texte", texte);
         return mav;
-    }
-
-    public class AgentComparator implements Comparator<User> {
-
-        @Override
-        public int compare(User u1, User u2) {
-            String u1Prenom = "";
-            if (u1.getPrenom() != null) {
-                u1Prenom = u1.getPrenom();
-            }
-            String u2Prenom = "";
-            if (u2.getPrenom() != null) {
-                u2Prenom = u2.getPrenom();
-            }
-            return u1Prenom.compareTo(u2Prenom);
-        }
-
     }
 
     public String getDisplayNameFromUser(User u) {
@@ -102,5 +84,4 @@ public class DemandesController extends AbstractController {
         a.setMatricule(u.getMatricule());
         return a;
     }
-
 }

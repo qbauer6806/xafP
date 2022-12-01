@@ -743,6 +743,7 @@ public class DemandesServiceImpl implements DemandesService {
 						DemandesFilesTransformer.dto2Bo(Arrays.asList(demande.getFichiers()))));
 				for (DemandesFilesBO bo : demandeBo.getFiles()) {
 					bo.setFkDemandes(demandeBo);
+					bo.setDate(new Date());
 				}
 				demandesFilesRepository.saveAll(demandeBo.getFiles());
 			}

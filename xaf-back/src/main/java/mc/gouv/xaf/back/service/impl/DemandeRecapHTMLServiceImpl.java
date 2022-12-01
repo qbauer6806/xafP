@@ -372,7 +372,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
             ArrayNode valeurs = (ArrayNode) getNode(demande.getContenu(), section, "path");
             if (valeurs.size() > 0) {
                 String classPdfRecap = isPdfRecap?"pdf-recap":"";
-                html.append("<dd style=\"width: 100%\"><table id=\"datatable-demandes\" class=\"table table-striped ").append(classPdfRecap).append("\">");
+                html.append("<dd style=\"width: 100%\"><table id=\"datatable-demandes\" class=\"table table-striped recaptable").append(classPdfRecap).append("\">");
                 JSONArray columns = (JSONArray) section.get("columns");
                 html.append("<thead><tr>");
                 for (Object column : columns.toArray()) {

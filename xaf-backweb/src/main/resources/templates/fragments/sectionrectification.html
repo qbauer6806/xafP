@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<body>
+
+	<div id="sectionrectification" th:fragment="sectionrectification"
+		th:remove="tag">
+		<div class="row mt-15">
+			<div class="col-xs-12">
+				<form id="infos-demande" action="#"
+					th:action="@{/demandes/demandeRectification}" method="post">
+					<div class="panel-group accordion" role="tablist"
+						aria-multiselectable="true">
+						<div class="panel panel-default">
+							<div class="panel-heading" role="tab" id="heading4">
+								<h4 class="panel-title">
+									<a role="button" data-toggle="collapse"
+										data-parent="#accordion9" href="#collapse9"
+										aria-controls="collapse9" 
+										th:attr="aria-expanded=${isRectificationPanelActive}"
+										th:class="${isRectificationPanelActive}  ? '' : collapsed "> 
+										<i	class="pannelState" 
+										th:classappend="${isRectificationPanelActive} ? icon-action_accordeon-ouvert : icon-action_accordeon-ferme"></i>
+										Demande de rectification
+										</a>
+								</h4>
+							</div>
+							<div id="collapse9" class="panel-collapse collapse" th:classappend="${isRectificationPanelActive} ? in:out"
+								role="tabpanel" aria-labelledby="heading4">
+								<div class="panel-body">
+									<div class="row">
+										<div class="col-xs-12">
+												<div class="row mt-15">
+													<div id="commentaireRectificationFormGroup"
+														class="col-xs-12 form-group">
+														<label for="commentaireRectification">INFORMATIONS À RECTIFIER</label>
+														<textarea id="commentaireRectification"
+															class="form-control greyTooltip"
+															oninput="checkRectificationFormValidity()"
+															data-toggle="tooltip" data-placement="bottom"
+															title="Commentaire limité à 1000 caractères"
+															th:disabled="!${isRectificationPanelActive}"
+															th:field="${traitementFormBean.texteDemandeRectification}"
+															rows="5"></textarea>
+													</div>
+												</div>
+
+													<br/>
+												<div class="row mt-15">
+													<div class="col-xs-12 text-right">
+														<input id="envoyerDemandeRectifButton" th:disabled="!${isRectificationPanelActive}" class="btn btn-action ripple-effect" type="submit"
+															name="action" value="Envoyer"/>
+														<input id="confirmer-rectif-button" type="submit" name="action" value="Envoyer" style="display: none" />
+													</div>
+												</div>
+												<input type="hidden" name="pkDemande"
+													th:value="${demandeDTO.pkDemandes}" />
+										</div>
+	
+	
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</body>
+<script>
+
+</script>
+</html>

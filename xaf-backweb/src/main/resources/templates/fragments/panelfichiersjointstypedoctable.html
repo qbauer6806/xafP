@@ -61,7 +61,7 @@
                     <a class="nopadding" id="popup" th:value="@{/ws/file/get/apercu}+${file.url}">
                         <button class="btn btn-action ripple-effect greyTooltip" data-placement="bottom"
                                 data-toggle="tooltip"
-                                onclick="setCurrentPopup(this)" th:data-original-title="Prévisualiser" th:disabled="${#strings.endsWith(file.url,'.tif')} or ${#strings.endsWith(file.url,'.docx')} or ${#strings.endsWith(file.url,'.tiff')} or ${#strings.endsWith(file.url,'.xlsx')} or ${#strings.endsWith(file.url,'.doc')} or ${#strings.endsWith(file.url,'.rtf')}"
+                                onclick="setCurrentPopup(this)" th:data-original-title="Prévisualiser" th:disabled="!(${#strings.endsWith(#strings.toLowerCase(file.url),'.pdf')} or ${#strings.endsWith(#strings.toLowerCase(file.url),'.png')} or ${#strings.endsWith(#strings.toLowerCase(file.url),'.jpg')} or ${#strings.endsWith(#strings.toLowerCase(file.url),'.jpeg')} or ${#strings.endsWith(#strings.toLowerCase(file.url),'.doc')} or ${#strings.endsWith(#strings.toLowerCase(file.url),'.rtf')})"
                                 th:id="${file.compFile} ? previewButton + ${file.pkDemandesComplementsFiles} : previewButton + ${file.pkDemandesFiles}"
                                 title=""
                                 type="button">

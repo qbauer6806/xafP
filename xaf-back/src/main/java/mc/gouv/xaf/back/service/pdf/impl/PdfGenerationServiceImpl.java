@@ -82,12 +82,7 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 		File tempFile = generatePdf(demande, pdfType);
 		String fileName = tempFile.getName();
 
-		LOGGER.info("Stockage du PDF généré dans FILE...");
-		ByteArrayOutputStream output = new ByteArrayOutputStream();
-		FileInputStream fis = new FileInputStream(tempFile);
-		String url = fileService.saveFile(demande, fileName, gouvPropertiesResolver.getContainerId(), "application/pdf", fis, output);
-		output.close();
-		fis.close();
+		String url = sendToFile(tempFile, demande, fileName);
 		
 		// Supprimer le fichier temporaire car il n'est plus utile
 		LOGGER.info("Suppression du fichier temporaire...");
@@ -107,6 +102,17 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 
 		LOGGER.info("Fin PdfGenerationServiceImpl.generateAndStorePdf({}, {})", demande.getPkDemandes(), pdfType);
 	}
+	
+	@Override
+	public String sendToFile(File tempFile, DemandeDTO demande, String fileName) throws IOException {
+		LOGGER.info("Stockage du PDF généré dans FILE...");
+		ByteArrayOutputStream output = new ByteArrayOutputStream();
+		FileInputStream fis = new FileInputStream(tempFile);
+		String url = fileService.saveFile(demande, fileName, gouvPropertiesResolver.getContainerId(), "application/pdf", fis, output);
+		output.close();
+		fis.close();
+		return url;
+	}
 
 	private void saveCourrier(String fileName, String url, DemandeDTO demande, String meta) throws Exception {
 		LOGGER.info("Ajout de la référence à ce courrier dans DEM...");
@@ -118,7 +124,8 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 				courrier);
 	}
 
-	private void saveFichier(String fileName, String url, DemandeDTO demande, String meta) throws Exception {
+	@Override
+	public void saveFichier(String fileName, String url, DemandeDTO demande, String meta) throws Exception {
 		LOGGER.info("Ajout de la référence à ce fichier interne dans DEM...");
 		DemandeFileDTO file = new DemandeFileDTO();
 		file.setName(fileName);
@@ -150,7 +157,8 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 		return generateToStream(demande, dto);
 	}
 
-	private File generateToFile(DemandeDTO demande, PdfTemplateAndModelDTO dto) {
+	@Override
+	public File generateToFile(DemandeDTO demande, PdfTemplateAndModelDTO dto) {
 
 		String tempDir = System.getProperty("java.io.tmpdir");
 		String fileName = dto.getFilename() + afBackUtils.generateFileDateSuffix() + ".pdf";

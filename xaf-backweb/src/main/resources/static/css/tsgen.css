@@ -494,3 +494,8 @@ dd span {
 .nouvelledonnee-contenu {
 	background-color: #def1f5;
 }
+
+.recaptable {
+	display: block;
+    overflow-x: auto;
+}

@@ -4,9 +4,6 @@ import java.util.List;
 
 public class GouvPropertyNotFoundException extends Exception {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = 5998373316409301775L;
 
     public GouvPropertyNotFoundException(String prop) {
@@ -18,12 +15,12 @@ public class GouvPropertyNotFoundException extends Exception {
     }
 
     private static String computeMessage(List<String> props) {
-        StringBuffer strBuff = new StringBuffer();
+        StringBuilder builder = new StringBuilder();
         for (String prop : props) {
-            strBuff.append(prop);
-            strBuff.append(", ");
+            builder.append(prop);
+            builder.append(", ");
         }
-        return strBuff + " inexistants dans les fichiers de properties";
+        return builder.append(" inexistants dans les fichiers de properties").toString();
     }
 
 }

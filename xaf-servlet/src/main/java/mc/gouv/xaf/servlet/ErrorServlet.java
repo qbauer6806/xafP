@@ -6,15 +6,10 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.gson.*;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
@@ -31,9 +26,8 @@ public class ErrorServlet extends AbstractAfServlet {
 
     private static final long serialVersionUID = 520893456441444275L;
 
-    private static Logger LOGGER = LoggerFactory.getLogger(ErrorServlet.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ErrorServlet.class);
 
- 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) {
         LOGGER.info("====================== /error doPost()");
@@ -50,7 +44,6 @@ public class ErrorServlet extends AbstractAfServlet {
         BufferedReader reader;
 		try {
 			reader = request.getReader();
-
 	        String line;
 	        while ((line = reader.readLine()) != null) {
 	            buffer.append(line);
@@ -62,7 +55,7 @@ public class ErrorServlet extends AbstractAfServlet {
 	        }
 	        
 	        String jsonError = buffer.toString();
-	        LOGGER.error("Erreur reçue du FO (json brut) : " + jsonError);
+	        LOGGER.error("Erreur reçue du FO (json brut) : {}", jsonError);
 	        
 	        JsonArray array = JsonParser.parseString(jsonError).getAsJsonArray();
 
@@ -77,7 +70,7 @@ public class ErrorServlet extends AbstractAfServlet {
 		        }
 	        }
         
-		} catch (IOException e) {
+		} catch (IOException | JsonSyntaxException e) {
 			LOGGER.error("Erreur dans ErrorServlet", e);
 		}
         

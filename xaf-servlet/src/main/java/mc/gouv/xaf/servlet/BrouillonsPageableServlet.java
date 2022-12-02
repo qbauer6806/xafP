@@ -5,7 +5,9 @@ import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.MediaType;
 
+import mc.gouv.xaf.shared.RequestConstant;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
@@ -29,13 +31,8 @@ import mc.gouv.xaf.shared.dto.PageParamDTO;
  */
 public class BrouillonsPageableServlet extends AbstractAfServlet {
 
-
 	private static final long serialVersionUID = 6946764515064886781L;
 	private static final Logger LOGGER = LoggerFactory.getLogger(BrouillonsPageableServlet.class);
-    private static final String PAGE_PARAM = "page";
-    private static final String SIZE_PARAM = "size";
-    private static final String SORT_PARAM = "sort";
-    private static final String DIRECTION_PARAM = "direction";
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -44,7 +41,7 @@ public class BrouillonsPageableServlet extends AbstractAfServlet {
 
         UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(request);
         if (usagerInfosDTO == null) {
-            response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
+            AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
                     "Utilisateur non autorisé");
             return;
         }
@@ -54,19 +51,26 @@ public class BrouillonsPageableServlet extends AbstractAfServlet {
 
         // Récupération des paramètres
         PageParamDTO paramDTO = new PageParamDTO();
-        String pageNbr = request.getParameter(PAGE_PARAM);
-        if (StringUtils.isNotBlank(pageNbr)) {
-            paramDTO.setPage(Integer.parseInt(pageNbr));
+        try {
+            String pageNbr = request.getParameter(RequestConstant.PAGE_PARAM);
+            if (StringUtils.isNotBlank(pageNbr)) {
+                paramDTO.setPage(Integer.parseInt(pageNbr));
+            }
+            String size = request.getParameter(RequestConstant.SIZE_PARAM);
+            if (StringUtils.isNotBlank(size)) {
+                paramDTO.setSize(Integer.parseInt(size));
+            }
+        } catch (NumberFormatException e) {
+            AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_INTERNAL_SERVER_ERROR,
+                    "Problème lors du parsing des paramètres");
+            return;
         }
-        String size = request.getParameter(SIZE_PARAM);
-        if (StringUtils.isNotBlank(size)) {
-            paramDTO.setSize(Integer.parseInt(size));
-        }
-        String sort = request.getParameter(SORT_PARAM);
+
+        String sort = request.getParameter(RequestConstant.SORT_PARAM);
         if (StringUtils.isNotBlank(sort)) {
             paramDTO.setSort(sort);
         }
-        String direction = request.getParameter(DIRECTION_PARAM);
+        String direction = request.getParameter(RequestConstant.DIRECTION_PARAM);
         if (StringUtils.isNotBlank(direction)) {
             paramDTO.setDirection(direction);
         }
@@ -74,14 +78,17 @@ public class BrouillonsPageableServlet extends AbstractAfServlet {
         LOGGER.info("Récupération des brouillons pour l'usager dont usagerId = {}", usagerId);
         Page<BrouillonDTO> page = getAfApiClient().getBrouillonsPageable(usagerId, paramDTO);
 
-        response.setStatus(HttpStatus.SC_OK);
-        ObjectMapper mapper = new ObjectMapper();
-        String repJson = mapper.writeValueAsString(page);
-
-        response.setContentType("application/json");
-        IOUtils.copy(new ByteArrayInputStream(repJson.getBytes()), response.getOutputStream());
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            String repJson = mapper.writeValueAsString(page);
+            response.setContentType(MediaType.APPLICATION_JSON);
+            IOUtils.copy(new ByteArrayInputStream(repJson.getBytes()), response.getOutputStream());
+            response.setStatus(HttpStatus.SC_OK);
+        } catch (IOException e) {
+            AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_INTERNAL_SERVER_ERROR,
+                    "BrouillonsPageableServlet - Une erreur est survenue lors de l'appel à la méthode GET");
+        }
 
         LOGGER.info("====================== FIN /brouillonspage doGet()");
-
     }
 }

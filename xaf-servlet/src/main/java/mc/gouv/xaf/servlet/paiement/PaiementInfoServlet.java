@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.MediaType;
 import java.io.ByteArrayInputStream;
 
 /**
@@ -39,40 +40,31 @@ public class PaiementInfoServlet extends AbstractAfServlet {
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) {
         LOGGER.info("====================== /paiement-info doGet()");
-
         UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(request);
         if (usagerInfosDTO == null) {
             AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
                     "Utilisateur non autorisé");
             return;
         }
-
         LOGGER.info("Récupération des paramètres...");
         String demandeIds = request.getParameter(RequestConstant.DEMANDES_ID_PARAM);
-
         String langue = request.getParameter(RequestConstant.LANGUE_PARAM);
         boolean iframe = Boolean.parseBoolean(request.getParameter(PaiementConstant.IFRAME_PARAM));
-
-
         // Récupération de l'ID de l'usager
         Integer usagerId = usagerInfosDTO.getId();
-
         String safeIds = demandeIds.replaceAll("[\n\r\t]", "_");
         LOGGER.info("Récupération des données de paiement pour la demande {}...", safeIds);
         MoneticoDTO paiement = getStcApiClient().getPaiement(demandeIds, langue, usagerId, iframe);
-
-        response.setStatus(HttpStatus.SC_OK);
         ObjectMapper mapper = new ObjectMapper();
-
         try {
             String repJson = mapper.writeValueAsString(paiement);
-            response.setContentType("application/json");
+            response.setContentType(MediaType.APPLICATION_JSON);
             IOUtils.copy(new ByteArrayInputStream(repJson.getBytes()), response.getOutputStream());
+            response.setStatus(HttpStatus.SC_OK);
         } catch (Exception e) {
             LOGGER.error("PaiementInfoServlet - Une erreur est survenue lors de l'appel à la méthode GET", e);
             response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
         }
-
         LOGGER.info("====================== Fin /paiement-info doGet()\n");
     }
 }

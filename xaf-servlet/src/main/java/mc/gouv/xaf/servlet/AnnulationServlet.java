@@ -23,7 +23,7 @@ public class AnnulationServlet extends AbstractAfServlet {
 
     private static final long serialVersionUID = -7898768899143027088L;
 
-    private static Logger LOGGER = LoggerFactory.getLogger(AnnulationServlet.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AnnulationServlet.class);
 
     @Override
     public void doDelete(HttpServletRequest request, HttpServletResponse response) {
@@ -55,12 +55,19 @@ public class AnnulationServlet extends AbstractAfServlet {
 
         Integer usagerId = usagerInfosDTO.getId();
 
-        LOGGER.info("DemarcheID=" + demarcheId + ", UsagerID=" + usagerId + ", DemandeID=" + demandeId);
+        LOGGER.info("DemarcheID={}, UsagerID={}, DemandeID={}", demarcheId, usagerId, demandeId);
 
         LOGGER.info("Appel à la démarche...");
 
         AfApiClient afApiClient = getAfApiClient();
-        afApiClient.annulerDemande(Integer.parseInt(demandeId), usagerId);
+        try {
+            afApiClient.annulerDemande(Integer.parseInt(demandeId), usagerId);
+        } catch (NumberFormatException e) {
+            LOGGER.error("Problème lors du parsing du demandeId");
+            AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_INTERNAL_SERVER_ERROR,
+                    "Problème lors du parsing du demandeId");
+            return;
+        }
 
         LOGGER.info("Retour au client...");
 

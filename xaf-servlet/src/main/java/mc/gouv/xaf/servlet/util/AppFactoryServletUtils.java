@@ -7,6 +7,7 @@ import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -30,7 +31,7 @@ import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
  */
 public class AppFactoryServletUtils {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(AppFactoryServletUtils.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AppFactoryServletUtils.class);
 
     public static final String DEMARCHEID_KEY = "DemarcheID";
 
@@ -70,21 +71,18 @@ public class AppFactoryServletUtils {
      * @param e
      *            L'exception
      * @return Reponse de la servlet
-     * @throws IOException
-     *             Exception Input/Output
      */
     public static HttpServletResponse logAndSendError(Logger logger, HttpServletResponse response, int httpStatus,
             String errMsg, Exception e) {
         logger.error(errMsg, e);
         response.setStatus(httpStatus);
-        response.setContentType("application/json");
+        response.setContentType(MediaType.APPLICATION_JSON);
         try {
             response.getOutputStream().write(("{ \"errors\" : [ { \"libelle\" : \"" + errMsg + "\" } ] }").getBytes());
         } catch (IOException ee) {
             LOGGER.error("AppFactoryServletUtils - Impossible d'écrire dans l'output steam de la réponse", ee);
             response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
         }
-
         return response;
     }
 
@@ -100,14 +98,12 @@ public class AppFactoryServletUtils {
      * @param errMsg
      *            Le message d'erreur à renvoyer
      * @return Réponse de la servlet
-     * @throws IOException
-     *             Exception Input/Output
      */
     public static HttpServletResponse logAndSendError(Logger logger, HttpServletResponse response, int httpStatus,
             String errMsg) {
         logger.error(errMsg);
         response.setStatus(httpStatus);
-        response.setContentType("application/json");
+        response.setContentType(MediaType.APPLICATION_JSON);
         try {
             response.getOutputStream().write(("{ \"errors\" : [ { \"libelle\" : \"" + errMsg + "\" } ] }").getBytes());
         } catch (IOException e) {
@@ -125,8 +121,7 @@ public class AppFactoryServletUtils {
     public static UUID generateUUID() {
         EthernetAddress addr = EthernetAddress.fromInterface();
         TimeBasedGenerator uuidGenerator = Generators.timeBasedGenerator(addr);
-        UUID uuid = uuidGenerator.generate();
-        return uuid;
+        return uuidGenerator.generate();
     }
 
     /**
@@ -158,7 +153,7 @@ public class AppFactoryServletUtils {
             }
 
             if (!StringUtils.equals(xsrfToken, session.getAttribute(XSRF_SESSION_ATTRIBUTE).toString())) {
-                LOGGER.warn("Mauvais XSRF TOKEN : " + xsrfToken);
+                LOGGER.warn("Mauvais XSRF TOKEN : {}", xsrfToken);
                 return null;
 
             }
@@ -187,28 +182,20 @@ public class AppFactoryServletUtils {
     /**
      * Retourne le header d'authentification JWT correspondant au service à appeler
      * 
-     * @param serviceTarget
-     *            Service à appeler
+     * @param serviceTarget Service à appeler
      * @return Le header d'authentification JWT
      */
     public static String getAuthHeader(ServiceTarget serviceTarget) {
-
-        String jwt = null;
-
-        switch (serviceTarget) {
-            case FILE:
-                jwt = AfServletGouvPropertiesResolver.getFileJwt();
-                break;
+        String jwt = "Bearer ";
+        if (ServiceTarget.FILE.equals(serviceTarget)) {
+            jwt += AfServletGouvPropertiesResolver.getFileJwt();
         }
-
-        // Authentification JWT
-        return "Bearer " + jwt;
+        return jwt;
     }
     
     public static String createXsrfToken(HttpSession session) {
         String xsrfToken = session.getId() + Calendar.getInstance().getTime();
-        String xsrfTokenHash = DigestUtils.sha256Hex(xsrfToken);
-        return xsrfTokenHash;
+        return DigestUtils.sha256Hex(xsrfToken);
     }
     
     public static AfApiClient getAfApiClient() {

@@ -7,7 +7,9 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.MediaType;
 
+import mc.gouv.xaf.shared.RequestConstant;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
@@ -35,15 +37,23 @@ public class BrouillonsServlet extends AbstractAfServlet {
 
     private static final long serialVersionUID = -7898768899143027088L;
 
-    private static Logger LOGGER = LoggerFactory.getLogger(BrouillonsServlet.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BrouillonsServlet.class);
 
-    public HttpServletResponse doHttpMethod(HttpServletRequest request, HttpServletResponse response,
-            HttpMethod httpMethod) throws UnsupportedOperationException, IOException {
+    /**
+     * Prépare les objets communs aux requêtes :<br>
+     * <ol>
+     *     <li>Un UsagerInfosDTO contenant les infos de l'usager.</li>
+     *     <li>L'id du brouillon à manipuler (si présent)</li>
+     *     <li>Le client de l'API XAF</li>
+     * </ol>
+     */
+    private Object[] setup(HttpServletRequest request, HttpServletResponse response) {
 
         UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(request);
         if (usagerInfosDTO == null) {
-            return AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
+            AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
                     "Utilisateur non autorisé");
+            return new Object[0];
         }
 
         String pathInfo = request.getPathInfo();
@@ -59,16 +69,42 @@ public class BrouillonsServlet extends AbstractAfServlet {
         // Récupération de l'ID de la démarche dans le Context-Param
         String demarcheId = getServletContext().getInitParameter(AppFactoryServletUtils.DEMARCHEID_KEY);
 
-        LOGGER.info("DemarcheID=" + demarcheId + ", UsagerID=" + usagerId + ", BrouillonID=" + brouillonId);
+        LOGGER.info("DemarcheID={}, UsagerID={}, BrouillonID={}", demarcheId, usagerId, brouillonId);
 
         AfApiClient afApiClient = getAfApiClient();
-        ObjectMapper mapper = new ObjectMapper();
 
-        String repJson = null;
-        if (HttpMethod.PUT.equals(httpMethod) || HttpMethod.POST.equals(httpMethod)) {
-            // Récupération du JSON reçu en input et transmission au 2ème service en
-            // UTF8
-            StringBuilder buffer = new StringBuilder();
+        return new Object[]{usagerInfosDTO, brouillonId, afApiClient};
+    }
+
+    /**
+     * Factorisation des méthodes PUT et POST
+     *
+     * @param request
+     *            Requête initiale de la Servlet
+     * @param response
+     *            Réponse initiale de la Servlet
+     * @param httpMethod
+     *            Indique si l'on souhaite effectuer un POST ou un PUT
+     */
+    private void doHttpMethod(HttpServletRequest request, HttpServletResponse response, HttpMethod httpMethod) {
+
+        if (!HttpMethod.PUT.equals(httpMethod) && !HttpMethod.POST.equals(httpMethod)) {
+            AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_INTERNAL_SERVER_ERROR,
+                    "Mauvais appel de méthode.");
+            return;
+        }
+
+        Object[] params = setup(request, response);
+        if (params.length == 0) {
+            return;
+        }
+        UsagerInfosDTO usagerInfosDTO = (UsagerInfosDTO) params[0];
+        String brouillonId = (String) params[1];
+        AfApiClient afApiClient = (AfApiClient) params[2];
+
+        // Récupération du JSON reçu en input et transmission au 2ème service en UTF8
+        StringBuilder buffer = new StringBuilder();
+        try {
             BufferedReader reader = request.getReader();
             String line;
             while ((line = reader.readLine()) != null) {
@@ -76,77 +112,46 @@ public class BrouillonsServlet extends AbstractAfServlet {
             }
 
             if (buffer.toString().length() == 0) {
-                return AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_BAD_REQUEST,
+                AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_BAD_REQUEST,
                         "Erreur: JSON manquant");
+                return;
             }
 
             LOGGER.info("Appel à la démarche pour créer le brouillon");
+            ObjectMapper mapper = new ObjectMapper();
             BrouillonDTO brouillonInput = mapper.readValue(buffer.toString(), BrouillonDTO.class);
             BrouillonDTO brouillonDto = null;
             if (HttpMethod.POST.equals(httpMethod)) {
-            	brouillonDto = afApiClient.creerBrouillon(brouillonInput, usagerId);
-            	response.setStatus(HttpStatus.SC_CREATED);
-            }
-            else {
-            	brouillonDto = afApiClient.updateBrouillon(brouillonInput, Integer.parseInt(brouillonId));
-            	response.setStatus(HttpStatus.SC_OK);
+                brouillonDto = afApiClient.creerBrouillon(brouillonInput, usagerInfosDTO.getId());
+                response.setStatus(HttpStatus.SC_CREATED);
+            } else {
+                brouillonDto = afApiClient.updateBrouillon(brouillonInput, Integer.parseInt(brouillonId));
+                response.setStatus(HttpStatus.SC_OK);
             }
 
             // TODO : gestion des erreurs
-            repJson = mapper.writeValueAsString(brouillonDto);
+            String repJson = mapper.writeValueAsString(brouillonDto);
             IOUtils.copy(new ByteArrayInputStream(repJson.getBytes()), response.getOutputStream());
-
-        } else if (HttpMethod.GET.equals(httpMethod)) {
-        	if (StringUtils.isBlank(brouillonId)) {
-	            LOGGER.info("Appel à la démarche pour récupérer tous les brouillons de l'usager");
-	            List<BrouillonDTO> brouillonDtos = afApiClient.getBrouillons(usagerId);
-	            // TODO : gestion des erreurs
-	            response.setStatus(HttpStatus.SC_OK);
-	            repJson = mapper.writeValueAsString(brouillonDtos);
-        	}
-        	else {
-	            LOGGER.info("Appel à la démarche pour récupérer le brouillon " + brouillonId);
-	            BrouillonDTO brouillonDto = afApiClient.getBrouillon(Integer.parseInt(brouillonId));
-	            // TODO : gestion des erreurs
-	            response.setStatus(HttpStatus.SC_OK);
-	            repJson = mapper.writeValueAsString(brouillonDto);
-        	}
-        	IOUtils.copy(new ByteArrayInputStream(repJson.getBytes()), response.getOutputStream());
-        } else if (HttpMethod.DELETE.equals(httpMethod)) {
-        	LOGGER.info("Appel à la démarche pour supprimer le brouillon");
-        	afApiClient.deleteBrouillon(Integer.parseInt(brouillonId));
+        } catch (IOException | NumberFormatException e) {
+            AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_INTERNAL_SERVER_ERROR,
+                    "BrouillonsServlet - Une erreur est survenue lors de l'appel à la méthode " + httpMethod.name());
+            return;
         }
 
-        response.setContentType("application/json");
-
-        return response;
+        response.setContentType(MediaType.APPLICATION_JSON);
     }
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) {
         LOGGER.info("====================== /brouillons doPost()");
-
-        try {
-            doHttpMethod(request, response, HttpMethod.POST);
-        } catch (IOException e) {
-            LOGGER.error("BrouillonsServlet - Une erreur est survenue lors de l'appel à la méthode POST", e);
-            response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
-        }
-
+        doHttpMethod(request, response, HttpMethod.POST);
         LOGGER.info("====================== Fin /brouillons doPost()");
     }
 
     @Override
     public void doPut(HttpServletRequest request, HttpServletResponse response) {
         LOGGER.info("====================== /brouillons doPut()");
-
-        try {
-            doHttpMethod(request, response, HttpMethod.PUT);
-        } catch (IOException e) {
-            LOGGER.error("BrouillonsServlet - Une erreur est survenue lors de l'appel à la méthode PUT", e);
-            response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
-        }
-
+        doHttpMethod(request, response, HttpMethod.PUT);
         LOGGER.info("====================== Fin /brouillons doPut()");
     }
 
@@ -154,13 +159,38 @@ public class BrouillonsServlet extends AbstractAfServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response) {
         LOGGER.info("====================== /brouillons doGet()");
 
+        Object[] params = setup(request, response);
+        if (params.length == 0) {
+            return;
+        }
+        UsagerInfosDTO usagerInfosDTO = (UsagerInfosDTO) params[0];
+        String brouillonId = (String) params[1];
+        AfApiClient afApiClient = (AfApiClient) params[2];
+
         try {
-            doHttpMethod(request, response, HttpMethod.GET);
+            String repJson;
+            ObjectMapper mapper = new ObjectMapper();
+            if (StringUtils.isBlank(brouillonId)) {
+                LOGGER.info("Appel à la démarche pour récupérer tous les brouillons de l'usager");
+                List<BrouillonDTO> brouillonDtos = afApiClient.getBrouillons(usagerInfosDTO.getId());
+                // TODO : gestion des erreurs
+                response.setStatus(HttpStatus.SC_OK);
+                repJson = mapper.writeValueAsString(brouillonDtos);
+            }
+            else {
+                LOGGER.info("Appel à la démarche pour récupérer le brouillon {}", brouillonId);
+                BrouillonDTO brouillonDto = afApiClient.getBrouillon(Integer.parseInt(brouillonId));
+                // TODO : gestion des erreurs
+                response.setStatus(HttpStatus.SC_OK);
+                repJson = mapper.writeValueAsString(brouillonDto);
+            }
+            IOUtils.copy(new ByteArrayInputStream(repJson.getBytes()), response.getOutputStream());
         } catch (Exception e) {
             LOGGER.error("BrouillonsServlet - Une erreur est survenue lors de l'appel à la méthode GET", e);
             response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
         }
 
+        response.setContentType(MediaType.APPLICATION_JSON);
         LOGGER.info("====================== Fin /brouillons doGet()");
     }
     
@@ -168,13 +198,23 @@ public class BrouillonsServlet extends AbstractAfServlet {
     public void doDelete(HttpServletRequest request, HttpServletResponse response) {
         LOGGER.info("====================== /brouillons doDelete()");
 
+        Object[] params = setup(request, response);
+        if (params.length == 0) {
+            return;
+        }
+        String brouillonId = (String) params[1];
+        AfApiClient afApiClient = (AfApiClient) params[2];
+
+        LOGGER.info("Appel à la démarche pour supprimer le brouillon");
         try {
-            doHttpMethod(request, response, HttpMethod.DELETE);
-        } catch (Exception e) {
+            afApiClient.deleteBrouillon(Integer.parseInt(brouillonId));
+            response.setStatus(HttpStatus.SC_OK);
+        } catch (NumberFormatException e) {
             LOGGER.error("BrouillonsServlet - Une erreur est survenue lors de l'appel à la méthode DELETE", e);
             response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
         }
 
+        response.setContentType(MediaType.APPLICATION_JSON);
         LOGGER.info("====================== Fin /brouillons doDelete()");
     }
 }

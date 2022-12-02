@@ -23,7 +23,7 @@ public class AssociationDemandeCourrierServlet extends AbstractAfServlet {
 
     private static final long serialVersionUID = -5171815930561560391L;
     
-    private static Logger LOGGER = LoggerFactory.getLogger(AssociationDemandeCourrierServlet.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AssociationDemandeCourrierServlet.class);
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) {
@@ -56,7 +56,7 @@ public class AssociationDemandeCourrierServlet extends AbstractAfServlet {
 
         Integer usagerId = usagerInfosDTO.getId();
 
-        LOGGER.info("DemarcheID=" + demarcheId + ", UsagerID=" + usagerId + ", IdentifiantDemande=" + identifiant + ", NomProprio=" + nomProprio);
+        LOGGER.info("DemarcheID={}, UsagerID={}, IdentifiantDemande={}, NomProprio={}", demarcheId, usagerId, identifiant, nomProprio);
 
         LOGGER.info("Appel à la démarche...");
 

@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.fluent.Request;
@@ -31,8 +32,7 @@ public class VerificationIbanServlet extends AbstractAfServlet {
 
     private static final long serialVersionUID = 520893456441444275L;
 
-    private static Logger LOGGER = LoggerFactory.getLogger(VerificationIbanServlet.class);
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(VerificationIbanServlet.class);
  
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) {
@@ -46,8 +46,8 @@ public class VerificationIbanServlet extends AbstractAfServlet {
         }
 
         Request serviceRequest = Request.Post(AfServletGouvPropertiesResolver.getTgfApiUrl());
-        serviceRequest.setHeader("Content-Type", "application/json; charset=utf-8");
-        serviceRequest.setHeader("Authorization", "Bearer " + AfServletGouvPropertiesResolver.getTgfApiJwt());
+        serviceRequest.setHeader(HttpHeaders.CONTENT_TYPE, "application/json; charset=utf-8");
+        serviceRequest.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + AfServletGouvPropertiesResolver.getTgfApiJwt());
 
         try {
             serviceRequest.bodyStream(request.getInputStream());
@@ -57,7 +57,7 @@ public class VerificationIbanServlet extends AbstractAfServlet {
             response.setContentType(serviceResponse.getEntity().getContentType().getValue());
             
             String responseContent = IOUtils.toString(serviceResponse.getEntity().getContent());
-            LOGGER.info("Response content:" + responseContent);
+            LOGGER.info("Response content: {}", responseContent);
             if (StringUtils.isBlank(responseContent)) {
             	IOUtils.copy(serviceResponse.getEntity().getContent(), response.getOutputStream());
             }

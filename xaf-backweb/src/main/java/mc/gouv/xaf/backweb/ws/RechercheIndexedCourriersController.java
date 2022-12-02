@@ -65,8 +65,9 @@ public class RechercheIndexedCourriersController extends AbstractController {
                                                        @RequestParam(value = "aucunStatut", required = false) boolean aucunStatut, Pageable pageable) {
 
         String safeAgentId = agentId.replaceAll("[\n\r\t]", "_");
+        String safeTexte = texte.replaceAll("[\n\r\t]", "_");
         LOGGER.info("======================= Appel de /ws/demandes/pageable (statuts={}, canaux={}, agentId={}, creationStartDate={}, creationEndDate={}, texte={}, data={})",
-                statuts, canaux, safeAgentId, creationStartDate, creationEndDate, texte, data);
+                statuts, canaux, safeAgentId, creationStartDate, creationEndDate, safeTexte, data);
 
         DemandeCourrierRechercheDTO demandeRecherche = new DemandeCourrierRechercheDTO();
         demandeRecherche.setDemarcheId(gouvPropertiesResolver.getDemarcheId());

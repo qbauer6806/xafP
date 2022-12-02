@@ -67,7 +67,9 @@ public class PaiementServlet extends AbstractAfServlet {
                 String key = entry.getKey().toLowerCase();
                 String value = entry.getValue()[0];
                 paiementNode.put(key, value);
-                LOGGER.info("{}={}", key, value);
+                String safeKey = key.replaceAll("[\n\r\t]", "_");
+                String safeValue = value.replaceAll("[\n\r\t]", "_");
+                LOGGER.info("{}={}", safeKey, safeValue);
             }
             MoneticoResponseDTO moneticoResponseDTO = mapper.treeToValue(paiementNode, MoneticoResponseDTO.class);
             moneticoResponseDTO.setCodeRetour(codeRetour);

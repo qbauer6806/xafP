@@ -9,7 +9,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import mc.gouv.xaf.servlet.enums.HttpMethod;
 import mc.gouv.xaf.shared.RequestConstant;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;

@@ -85,8 +85,8 @@ public class LoginServlet extends AbstractAfServlet {
         if (StringUtils.isBlank(sessionId)) {
         	sessionId = request.getParameter("code");
         }
-
-        LOGGER.info("SessionID = {}", sessionId);
+        String safe = sessionId.replaceAll("[\n\r\t]", "_");
+        LOGGER.info("SessionID = {}", safe);
 
         if (StringUtils.isBlank(sessionId)) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -178,7 +178,8 @@ public class LoginServlet extends AbstractAfServlet {
 
         // Le SessionID est stocké dans l'URL parameter "id"
         String sessionId = request.getParameter("id");
-        LOGGER.info("SessionID = {}", sessionId);
+        String safe = sessionId.replaceAll("[\n\r\t]", "_");
+        LOGGER.info("SessionID = {}", safe);
 
         if (StringUtils.isBlank(sessionId)) {
             // Pas d'ID donné en paramètre, donc appel à GICHKEY pour faire le logout

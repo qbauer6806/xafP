@@ -1,5 +1,6 @@
 package mc.gouv.sup.es.utils;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
@@ -28,9 +29,6 @@ public class EsSchemaUtils {
     // Logger permettant de tracer l'execution
     private static final Logger LOGGER = LoggerFactory.getLogger(EsSchemaUtils.class);
 
-    private static final String DEST_SQL_FILE_PATH = "configration-recherche{0}.sql";
-    private static final String DEST_ES_MAPPINGS_FILE_PATH = "{0}-es-schema.json";
-
     /**
      * Fichier de configuartion par défaut des mappings ES
      */
@@ -58,15 +56,16 @@ public class EsSchemaUtils {
     private static final String RECAP_CHAMP_PATH = "path";
     private static final String RECAP_CHAMP_CAMELKEY = "camelKey";
 
+    private EsSchemaUtils() {
+    }
+
     /**
      *
      * Méthode permettant de générer les fichiers de configuration de la recherche avancée
      * @param path Chemin du fichier récapitulatif à parser
-     * @param schema Schéma de la base de données
-     * @throws Exception Exception suite à la génération des fichiers de configuration
+     * @throws IOException Exception suite à la génération des fichiers de configuration
      */
-    @SuppressWarnings("unchecked")
-    public static String generateEsMappings(String path, String schema, Map<String, String> datas) throws Exception {
+    public static String generateEsMappings(String path, Map<String, String> datas) throws IOException {
         LOGGER.info("Début de la génération des fichiers de configuration de la recherche avancée...");
 
         byte[] recapMapData = Files.readAllBytes(Paths.get(path));
@@ -76,7 +75,7 @@ public class EsSchemaUtils {
         ObjectNode contenu = objectMapper.createObjectNode();
 
         // Appel à la recherche résursive
-        depthFirstSearchESMapping(getProjectDemandeRecap(root), "NC", contenu, objectMapper, schema);
+        depthFirstSearchESMapping(getProjectDemandeRecap(root), "NC", contenu, objectMapper);
 
         ObjectNode data = objectMapper.createObjectNode();
 
@@ -92,7 +91,7 @@ public class EsSchemaUtils {
         if (!datas.isEmpty()) {
             jsonTemplate = getJsonFromTemplate(jsonTemplate, data, ES_TEMPLATE_CHANGE_ME_DATA_TAG);
         } else {
-            jsonTemplate = jsonTemplate.replaceAll(ES_TEMPLATE_CHANGE_ME_DATA_TAG, "");
+            jsonTemplate = jsonTemplate.replace(ES_TEMPLATE_CHANGE_ME_DATA_TAG, "");
         }
         objectMapper.configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true);
         jsonTemplate = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(objectMapper.readValue(jsonTemplate.getBytes(), Object.class));
@@ -109,7 +108,7 @@ public class EsSchemaUtils {
     }
 
 
-    private static void depthFirstSearchESMapping(JsonNode node, String sectionTitle, ObjectNode contenu, ObjectMapper mapper, String schema) {
+    private static void depthFirstSearchESMapping(JsonNode node, String sectionTitle, ObjectNode contenu, ObjectMapper mapper) {
         if (node.get("titre") != null) {
             sectionTitle = getEscapedColumnValue(node.get("titre").textValue());
         }
@@ -125,21 +124,7 @@ public class EsSchemaUtils {
         }
 
         if (RecapChampType.TABLEAU.getType().equals(type)) {
-            String pathTableau = getEscapedColumnValue(node.get("path").textValue());
-            for(JsonNode column : node.get("columns")) {
-            	// Gérer les choixMultiples dans les tableaux (qdeme)
-            	if (column.get("type") != null && "choixMultiple".equals(column.get("type").textValue())) {
-                    String pathChoixMultiple = getEscapedColumnValue(node.get("path").textValue());
-                    for(JsonNode choixNode : column.get("mappingValues")) {
-                    	String columnPathChoixMultiple = getEscapedColumnValue(column.get("path").textValue());
-                        buildJsonProperty((pathChoixMultiple + "." + columnPathChoixMultiple + "." + choixNode.get(RECAP_CHAMP_CAMELKEY).textValue()).split("\\."), RecapChampType.CHOIX.getType(), contenu, mapper);
-                    }
-                }
-            	// TODO quick fix pour le bon fonctionnement, mais adresse à prendre en compte
-            	else if (column.get("type") != null && !"adresse".equals(column.get("type").textValue())) {
-                    buildJsonProperty((pathTableau + "." + column.get(RECAP_CHAMP_PATH).textValue()).split("\\."), RecapChampType.TABLEAU.getType(), contenu, mapper);
-                }
-            }
+            buildTableau(node, contenu, mapper);
             return;
         }
 
@@ -173,7 +158,25 @@ public class EsSchemaUtils {
 
         for (JsonNode child : node) {
             if (child.isContainerNode()) {
-                depthFirstSearchESMapping(child, sectionTitle, contenu, mapper, schema);
+                depthFirstSearchESMapping(child, sectionTitle, contenu, mapper);
+            }
+        }
+    }
+
+    private static void buildTableau(JsonNode node, ObjectNode contenu, ObjectMapper mapper) {
+        String pathTableau = getEscapedColumnValue(node.get("path").textValue());
+        for(JsonNode column : node.get("columns")) {
+            // Gérer les choixMultiples dans les tableaux (qdeme)
+            if (column.get("type") != null && "choixMultiple".equals(column.get("type").textValue())) {
+                String pathChoixMultiple = getEscapedColumnValue(node.get("path").textValue());
+                for(JsonNode choixNode : column.get("mappingValues")) {
+                    String columnPathChoixMultiple = getEscapedColumnValue(column.get("path").textValue());
+                    buildJsonProperty((pathChoixMultiple + "." + columnPathChoixMultiple + "." + choixNode.get(RECAP_CHAMP_CAMELKEY).textValue()).split("\\."), RecapChampType.CHOIX.getType(), contenu, mapper);
+                }
+            }
+            // TODO quick fix pour le bon fonctionnement, mais adresse à prendre en compte
+            else if (column.get("type") != null && !"adresse".equals(column.get("type").textValue())) {
+                buildJsonProperty((pathTableau + "." + column.get(RECAP_CHAMP_PATH).textValue()).split("\\."), RecapChampType.TABLEAU.getType(), contenu, mapper);
             }
         }
     }

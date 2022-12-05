@@ -94,7 +94,7 @@ public class MotifTemplateServiceImpl implements MotifTemplateService {
         for (MotifDTO motif : motifsList) {
 
             // Cloner l'objet pour ne pas impacter le cache
-            MotifDTO clonedMotif = (MotifDTO) motif.clone();
+            MotifDTO clonedMotif = new MotifDTO(motif);
 
             // Population du motif
             StringWriter output = new StringWriter();

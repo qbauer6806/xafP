@@ -1,5 +1,6 @@
 package mc.gouv.xaf.backweb.controller;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -45,13 +46,10 @@ public class GestionPeriodesOuvertureController {
 
     @Autowired
     private PeriodesOuvertureService periodesOuvertureService;
-    
-    @Autowired
-    private AfBackUtils afBackUtils;
 
     @InitBinder
     protected void initBinder(WebDataBinder binder) {
-        binder.registerCustomEditor(Date.class, new CustomDateEditor(afBackUtils.SDF_JJ_MM_AAAA_HH_MM, false));
+        binder.registerCustomEditor(Date.class, new CustomDateEditor(new SimpleDateFormat(AfBackUtils.DEFAULT_FRENCH_DATE_HOURS_FORMAT), false));
     }
 
     @GetMapping

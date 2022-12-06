@@ -1,7 +1,6 @@
 package mc.gouv.xaf.back.service.utils;
 
 import java.nio.charset.StandardCharsets;
-import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
@@ -11,6 +10,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -88,26 +88,23 @@ public class AfBackUtils {
     // 24 hours time format
     public static final String DEFAULT_FRENCH_TIME_FORMAT = "HH:mm";
     
- // 24 hours time format with seconds
+    // 24 hours time format with seconds
     public static final String DEFAULT_FRENCH_TIME_FORMAT_SECONDS = "HH:mm:ss";
 
     // French date format with 24 hours
     public static final String DEFAULT_FRENCH_DATE_HOURS_FORMAT = "dd/MM/yyyy HH:mm";
-    
- // French date format with 24 hours
+
+    // French date format with 24 hours
     public static final String DEFAULT_FRENCH_DATE_HOURS_MINUTES_SECONDS_FORMAT = "dd/MM/yyyy HH:mm:ss";
 
-    public static final DateFormat SDF_JJ_MM_AAAA = new SimpleDateFormat(DEFAULT_FRENCH_DATE_FORMAT);
+    // Suffix pour l'unicité des fichiers
+    public static final String FILE_DATE_SUFFIX_FORMAT = "HHmmssSSS";
+    public static final String FILE_DATE_AND_TIME_SUFFIX_FORMAT = "yyyyMMddHHmmssSS";
 
-    public static final DateFormat SDF_JJ_MM_AAAA_HH_MM = new SimpleDateFormat(DEFAULT_FRENCH_DATE_HOURS_FORMAT);
-
-    public static final DateFormat FILE_DATE_SUFFIX = new SimpleDateFormat("HHmmssSSS");
+    // Pattern pour les dates MCONNECT
+    public static final String MCONNECT_DATE_AND_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
 
     public static final DateTimeFormatter DTF_AAAA_MM_JJ = DateTimeFormatter.ofPattern("yyyy/MM/dd");
-    
-    public static final DateFormat FILE_DATE_AND_TIME_SUFFIX = new SimpleDateFormat("yyyyMMddHHmmssSS");
-    
-    public static final DateFormat MCONNECT_DATE_AND_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
 
     public static final String MESSAGE_ERREURS_FORMULAIRE = "Le formulaire contient des erreurs.";
     
@@ -160,6 +157,7 @@ public class AfBackUtils {
     public static final short GENDER_MLLE_INDEX = 2;
 
     @PostConstruct
+    // TODO sonar n'aime cette méthode, car elle n'est pas static
     public void postConstructEnv() {
         String env = gouvPropertiesResolver.getGouvSharedEnv();
         // Si production, ne rien afficher
@@ -188,11 +186,12 @@ public class AfBackUtils {
     }
 
     @PostConstruct
+    // TODO utile ?
     public void postConstructRestTemplate() {
         restTemplate = new RestTemplate();
-        List<HttpMessageConverter<?>> list = new ArrayList<HttpMessageConverter<?>>();
+        List<HttpMessageConverter<?>> list = new ArrayList<>();
         MappingJackson2HttpMessageConverter conv = new MappingJackson2HttpMessageConverter();
-        List<MediaType> mediaTypes = new ArrayList<MediaType>();
+        List<MediaType> mediaTypes = new ArrayList<>();
         mediaTypes.add(new MediaType("application", "json", StandardCharsets.UTF_8));
         mediaTypes.add(new MediaType("text", "html", StandardCharsets.UTF_8));
         conv.setSupportedMediaTypes(mediaTypes);
@@ -263,32 +262,27 @@ public class AfBackUtils {
     }
 
     /**
-     * Génère un UUID version 1 (time+location based UUID) TODO copié de
-     * afservlet, supprimer dans l'un des deux
-     *
-     * @return
+     * Génère un UUID version 1 (time+location based UUID)
+     * TODO copié de afservlet, supprimer dans l'un des deux
      */
     public static UUID generateUUID() {
         EthernetAddress addr = EthernetAddress.fromInterface();
         TimeBasedGenerator uuidGenerator = Generators.timeBasedGenerator(addr);
-        UUID uuid = uuidGenerator.generate();
-        return uuid;
+        return uuidGenerator.generate();
     }
 
     /**
-     * Génère un suffixe de fichier en fonction de la date de génération conformément au
-     * pattern suivant: HHmmssSSS
+     * Génère un suffixe de fichier en fonction de la date de génération conformément au pattern suivant: HHmmssSSS
      */
     public static String generateFileDateSuffix() {
-        return FILE_DATE_SUFFIX.format(new Date());
+        return new SimpleDateFormat(FILE_DATE_SUFFIX_FORMAT).format(new Date());
     }
 
     /**
-     * Génère un suffixe de fichier en fonction de la date de génération conformément au
-     * pattern suivant: YYYYMMDDHHmmssSS
+     * Génère un suffixe de fichier en fonction de la date de génération conformément au pattern suivant: YYYYMMDDHHmmssSS
      */
     public static String generateFileDateAndTimeSuffix() {
-        return FILE_DATE_AND_TIME_SUFFIX.format(new Date());
+        return new SimpleDateFormat(FILE_DATE_AND_TIME_SUFFIX_FORMAT).format(new Date());
     }
 
     public MailClient getMailClient() {
@@ -462,14 +456,14 @@ public class AfBackUtils {
         if (date == null) {
             return "";
         }
-        return SDF_JJ_MM_AAAA.format(date);
+        return new SimpleDateFormat(DEFAULT_FRENCH_DATE_FORMAT).format(date);
     }
 
     public String convertDateTimeToString(final Date date) {
         if (date == null) {
             return "";
         }
-        return SDF_JJ_MM_AAAA_HH_MM.format(date);
+        return new SimpleDateFormat(DEFAULT_FRENCH_DATE_HOURS_FORMAT).format(date);
     }
 
     public static String changeDateStringFormat(final String dateString) {
@@ -542,11 +536,11 @@ public class AfBackUtils {
     }
 
     public Date convertStartDate(String startDate) throws ParseException {
-        return SDF_JJ_MM_AAAA.parse(startDate);
+        return new SimpleDateFormat(DEFAULT_FRENCH_DATE_FORMAT).parse(startDate);
     }
 
     public Date convertEndDate(String plainEndDate) throws ParseException {
-        Date endDate = SDF_JJ_MM_AAAA.parse(plainEndDate);
+        Date endDate = new SimpleDateFormat(DEFAULT_FRENCH_DATE_FORMAT).parse(plainEndDate);
 
         // Last moment of days
         Calendar cal = Calendar.getInstance();
@@ -597,9 +591,8 @@ public class AfBackUtils {
     /**
      * Retourne le nom d'un utilisateur à partir de son matricule
      * <br>
-     * deprecated : Utiliser la méthode de {@link UtilisateursUtils}
-     * <br>
      * Attention cette méthode est appelée dans les pages HTML avec thymeleaf, bien vérifier les appels lors d'une suppression
+     * @deprecated : Utiliser la méthode de {@link UtilisateursUtils}
      */
     @Deprecated
     public String getUserNameFromID(String matricule) {
@@ -610,12 +603,11 @@ public class AfBackUtils {
 	public static Map<String, String> getListFromDemProperty(String demPropertyValue) {
     	ObjectMapper mapper = new ObjectMapper();
     	try {
-			Map<String, String> map = mapper.readValue(demPropertyValue, Map.class);
-			return map;
+            return mapper.readValue(demPropertyValue, Map.class);
 		} catch (JsonProcessingException e) {
 			LOGGER.error("Erreur lors de AfBackUtils.getListFromDemProperty()", e);
 		}
-    	return null;
+    	return Collections.emptyMap();
     }
 
     public static PropertiesListEntityDTO[] parserPropertiesListJson(String json) {
@@ -689,7 +681,7 @@ public class AfBackUtils {
 				LOGGER.error("Erreur dans donneesCertifieesJsonToList()", e);
 			}
     	}
-    	return new ArrayList<String>();
+    	return new ArrayList<>();
     }
     
     public static String donneesCertifieesListToJson(List<String> list) {
@@ -709,7 +701,7 @@ public class AfBackUtils {
 	}
 	
 	public static String mConnectDateToString(Date date) {
-		return MCONNECT_DATE_AND_TIME_FORMAT.format(date);
+		return new SimpleDateFormat(MCONNECT_DATE_AND_TIME_FORMAT).format(date);
 	}
     
 }

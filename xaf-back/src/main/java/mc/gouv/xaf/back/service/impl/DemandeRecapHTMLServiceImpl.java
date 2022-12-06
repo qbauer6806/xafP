@@ -6,6 +6,8 @@ import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -45,8 +47,7 @@ import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 
 /**
- * Service permettant de générer une page HTML contenant le récapitulatif d'une
- * demande.
+ * Service permettant de générer une page HTML contenant le récapitulatif d'une demande.
  *
  * @author qdeme
  * @author mboutelier.ext
@@ -55,6 +56,8 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
 public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandeRecapHTMLServiceImpl.class);
+
+    private final DateFormat sdf = new SimpleDateFormat(AfBackUtils.DEFAULT_FRENCH_DATE_HOURS_FORMAT);
 
     private static final String CONTENU_DTO = "ContenuProjectDemandeDTO";
     private static final String SPAN_DD = "</span></dd>";
@@ -102,14 +105,14 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
         htmlBuilder.append(isVirtuel ? "transmission" : "dépôt");
         htmlBuilder.append("</span></dt><dd><span>");
         Date dateCreation = isVirtuel ? demande.getDateCreation() : demande.getCourrierDateReception();
-        htmlBuilder.append(AfBackUtils.SDF_JJ_MM_AAAA_HH_MM.format(dateCreation));
+        htmlBuilder.append(sdf.format(dateCreation));
         htmlBuilder.append(SPAN_DD);
 
         // Etat de la demande
         htmlBuilder.append("<dt><span>État de la demande</span></dt><dd><span>");
         htmlBuilder.append(afBackUtils.getStatusLibelleFromName(demande.getDernierStatut().getLibelle()));
         htmlBuilder.append(" le ");
-        htmlBuilder.append(AfBackUtils.SDF_JJ_MM_AAAA_HH_MM.format(demande.getDernierStatut().getDate()));
+        htmlBuilder.append(sdf.format(demande.getDernierStatut().getDate()));
         htmlBuilder.append(SPAN_DD);
 
         // Langue
@@ -131,7 +134,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
         for (DemandeComplementsDTO complement : demande.getComplements()) {
             DemandeComplementsQuestionDTO question = complement.getQuestion();
             DemandeComplementsReponseDTO reponse = complement.getReponse();
-            String date = AfBackUtils.SDF_JJ_MM_AAAA_HH_MM.format(question.getDate());
+            String date = sdf.format(question.getDate());
 
             htmlBuilder.append("<h3>Compléments du ");
             htmlBuilder.append(date);
@@ -167,7 +170,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
                 Date reponseDate = reponse.getDate();
                 htmlBuilder.append("<dl><dt><span>Date</span></dt><dd><span>");
                 if (null != reponseDate) {
-                    htmlBuilder.append(AfBackUtils.SDF_JJ_MM_AAAA_HH_MM.format(reponseDate));
+                    htmlBuilder.append(sdf.format(reponseDate));
                 }
                 htmlBuilder.append(SPAN_DD);
 

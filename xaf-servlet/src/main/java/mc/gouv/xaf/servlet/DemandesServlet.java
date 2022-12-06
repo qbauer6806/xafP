@@ -147,14 +147,13 @@ public class DemandesServlet extends AbstractAfServlet {
                     demandeInput.setDonneesMConnect(usagerInfosDTO.getDonneesExternes().getMconnect());
                 }
                 
-                DemandeDTO demandeDto = null;
+                DemandeDTO demandeDto;
             	if (HttpMethod.POST.equals(httpMethod)) {
 	                LOGGER.info("Appel à la démarche pour créer la demande");
-	                demandeDto = afApiClient.creerDemande(demandeInput, usagerId);
-            	}
-            	else if (HttpMethod.PUT.equals(httpMethod)) {
+	                demandeDto = afApiClient.creerDemande(demandeInput, usagerInfosDTO.getId());
+            	} else {
 	                LOGGER.info("Appel à la démarche pour mettre à jour la demande {}", demandeId);
-	                demandeDto = afApiClient.updateDemande(Integer.parseInt(demandeId), demandeInput, usagerId);
+	                demandeDto = afApiClient.updateDemande(demandeId, demandeInput, usagerInfosDTO.getId());
             	}
             	
                 // TODO : gestion des erreurs

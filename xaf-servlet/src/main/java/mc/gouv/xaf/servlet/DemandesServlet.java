@@ -140,15 +140,23 @@ public class DemandesServlet extends AbstractAfServlet {
                 response.setStatus(HttpStatus.SC_OK);
                 repJson = mapper.writeValueAsString(demandeComplement);
             } else {
-                LOGGER.info("Appel à la démarche pour créer la demande");
                 DemandeInputDTO demandeInput = mapper.readValue(buffer.toString(), DemandeInputDTO.class);
                 // Ajout des données externes MConnect si elles sont présentes (afin que l'API puisse les prendre en compte pour les places dans les bons endroits
                 // du contenu de la demande. Ceci afin d'éviter un potentiel "hack" de la part de l'usager sur le FO)
                 if (usagerInfosDTO.getDonneesExternes() != null && usagerInfosDTO.getDonneesExternes().getMconnect() != null) {
                     demandeInput.setDonneesMConnect(usagerInfosDTO.getDonneesExternes().getMconnect());
                 }
-                DemandeDTO demandeDto = afApiClient.creerDemande(demandeInput, usagerInfosDTO.getId());
-
+                
+                DemandeDTO demandeDto = null;
+            	if (HttpMethod.POST.equals(httpMethod)) {
+	                LOGGER.info("Appel à la démarche pour créer la demande");
+	                demandeDto = afApiClient.creerDemande(demandeInput, usagerId);
+            	}
+            	else if (HttpMethod.PUT.equals(httpMethod)) {
+	                LOGGER.info("Appel à la démarche pour mettre à jour la demande {}", demandeId);
+	                demandeDto = afApiClient.updateDemande(Integer.parseInt(demandeId), demandeInput, usagerId);
+            	}
+            	
                 // TODO : gestion des erreurs
                 response.setStatus(HttpStatus.SC_CREATED);
                 repJson = mapper.writeValueAsString(demandeDto);

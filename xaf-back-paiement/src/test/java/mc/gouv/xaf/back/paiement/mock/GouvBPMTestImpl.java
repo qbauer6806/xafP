@@ -1,19 +1,29 @@
 package mc.gouv.xaf.back.paiement.mock;
 
-import mc.gouv.xaf.back.bpm.GouvBPM;
-import mc.gouv.xaf.back.bpm.activiti.exception.TaskAlreadyClaimedException;
-import mc.gouv.xaf.back.bpm.model.*;
-import mc.gouv.xaf.back.data.dao.DemandesRepository;
-import mc.gouv.xaf.back.data.dao.DemandesStatutsRepository;
-import mc.gouv.xaf.back.data.entity.DemandeBO;
-import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import org.apache.tika.exception.TikaException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.xml.sax.SAXException;
 
-import java.io.IOException;
-import java.util.*;
+import mc.gouv.xaf.back.bpm.GouvBPM;
+import mc.gouv.xaf.back.bpm.activiti.exception.TaskAlreadyClaimedException;
+import mc.gouv.xaf.back.bpm.model.CommentaireInterneDTO;
+import mc.gouv.xaf.back.bpm.model.GouvBPMGroup;
+import mc.gouv.xaf.back.bpm.model.GouvBPMStatutAction;
+import mc.gouv.xaf.back.bpm.model.GouvBPMTask;
+import mc.gouv.xaf.back.bpm.model.GouvBPMUser;
+import mc.gouv.xaf.back.data.dao.DemandesRepository;
+import mc.gouv.xaf.back.data.dao.DemandesStatutsRepository;
+import mc.gouv.xaf.back.data.entity.DemandeBO;
+import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
 
 @Component
 public class GouvBPMTestImpl implements GouvBPM {
@@ -154,4 +164,24 @@ public class GouvBPMTestImpl implements GouvBPM {
     public void setAssignee(Integer demandeId, String assignee) {
 
     }
+
+	@Override
+	public void demanderRectification(Integer demandeId, GouvBPMUser agent, String codeMotif, String commentaire,
+			String statutAnnulation) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void reponseRectification(Integer pkDemande, Integer usagerId)
+			throws TaskAlreadyClaimedException, IOException, SAXException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void rectificationSpontanee(Integer demandeId) {
+		// TODO Auto-generated method stub
+		
+	}
 }

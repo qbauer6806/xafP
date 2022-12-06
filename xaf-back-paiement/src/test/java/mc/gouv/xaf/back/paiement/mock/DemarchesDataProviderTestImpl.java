@@ -108,4 +108,10 @@ public class DemarchesDataProviderTestImpl implements DemarchesDataProvider {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public boolean isEligibleRectification(DemandeDTO demande) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

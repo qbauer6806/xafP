@@ -2,7 +2,6 @@ package mc.gouv.xaf.back.service.pdf.impl;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -87,12 +86,7 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 		File tempFile = generatePdf(demande, pdfType);
 		String fileName = tempFile.getName();
 
-		LOGGER.info("Stockage du PDF généré dans FILE...");
-		ByteArrayOutputStream output = new ByteArrayOutputStream();
-		FileInputStream fis = new FileInputStream(tempFile);
-		String url = fileService.saveFile(demande, fileName, gouvPropertiesResolver.getContainerId(), "application/pdf", fis, output);
-		output.close();
-		fis.close();
+		String url = fileService.sendToFile(tempFile, demande, fileName);
 		
 		// Supprimer le fichier temporaire car il n'est plus utile
 		LOGGER.info("Suppression du fichier temporaire...");
@@ -124,7 +118,8 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 		demandesCourriersService.saveCourrier(gouvPropertiesResolver.getDemarcheId(), demande.getPkDemandes(), courrier);
 	}
 
-	private void saveFichier(String fileName, String url, DemandeDTO demande, String meta) {
+	@Override
+	public void saveFichier(String fileName, String url, DemandeDTO demande, String meta) {
 		LOGGER.info("Ajout de la référence à ce fichier interne dans DEM...");
 		DemandeFileDTO file = new DemandeFileDTO();
 		file.setName(fileName);
@@ -137,7 +132,7 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 	private File generatePdf(DemandeDTO demande, PdfTypeEnum pdfType) {
 		LOGGER.info(APPEL_MESSAGE, gouvPropertiesResolver.getDemarcheId());
 		PdfTemplateAndModelDTO dto = pdfTemplateAndModelProvider.getTemplateAndModel(demande, pdfType);
-		return generateToFile(dto);
+		return generateToFile(demande, dto);
 	}
 
 	@Override
@@ -147,7 +142,7 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 		LOGGER.info(APPEL_MESSAGE, gouvPropertiesResolver.getDemarcheId());
 		PdfTemplateAndModelDTO dto = pdfTemplateAndModelProvider
 				.getTemplateAndModelForPreview(demande, statutSuivant, codeMotif, langue, commentaire, texteAEnvoyer, pdfType);
-		return generateToFile(dto);
+		return generateToFile(demande, dto);
 	}
 
 	public byte[] generatePdfToStream(DemandeDTO demande) throws IOException, XDocReportException {
@@ -156,7 +151,8 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 		return generateToStream(dto);
 	}
 
-	private File generateToFile(PdfTemplateAndModelDTO dto) {
+	@Override
+	public File generateToFile(DemandeDTO demande, PdfTemplateAndModelDTO dto) {
 
 		String tempDir = System.getProperty("java.io.tmpdir");
 		String fileName = dto.getFilename() + AfBackUtils.generateFileDateSuffix() + ".pdf";

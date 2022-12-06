@@ -1,10 +1,6 @@
 package mc.gouv.xaf.back.service.itg.file.impl;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -195,6 +191,17 @@ public class FileServiceImpl implements FileService {
 			throw new DemarchesServiceException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
+	}
+
+	@Override
+	public String sendToFile(File tempFile, DemandeDTO demande, String fileName) throws IOException {
+		LOGGER.info("Stockage du PDF généré dans FILE...");
+		ByteArrayOutputStream output = new ByteArrayOutputStream();
+		FileInputStream fis = new FileInputStream(tempFile);
+		String url = saveFile(demande, fileName, gouvPropertiesResolver.getContainerId(), "application/pdf", fis, output);
+		output.close();
+		fis.close();
+		return url;
 	}
 
 	private boolean estExtensionDansWhitelist(String filename) {

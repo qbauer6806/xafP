@@ -63,13 +63,7 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
         LOGGER.info("Génération du PDF avec Open HTML to PDF...");
         File tempFile = generatePdf(demande);
         String fileName = tempFile.getName();
-
-        LOGGER.info("Stockage du PDF généré dans FILE...");
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
-        FileInputStream fis = new FileInputStream(tempFile);
-        String url = fileService.saveFile(demande, fileName, gouvPropertiesResolver.getContainerId(), "application/pdf", fis, output);
-        output.close();
-        fis.close();
+        String url = fileService.sendToFile(tempFile, demande, fileName);
 
         // Supprimer le fichier temporaire car il n'est plus utile
         LOGGER.info("Suppression du fichier temporaire...");

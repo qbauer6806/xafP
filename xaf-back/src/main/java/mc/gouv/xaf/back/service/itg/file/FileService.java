@@ -1,5 +1,6 @@
 package mc.gouv.xaf.back.service.itg.file;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -33,6 +34,8 @@ public interface FileService {
 	String saveFile(DemandeDTO demande, String filename, String container, String contentType, InputStream inputStream, OutputStream outputStream);
 
 	String saveFile(DemandeDTO demande, String container, MultipartFile file, HttpServletResponse response) throws IOException;
+
+	String sendToFile(File tempFile, DemandeDTO demande, String fileName) throws IOException;
 	
 	/**
 	 *  Appelle le WS FILE DELETE pour supprimer un fichier dans file 

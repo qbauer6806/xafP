@@ -7,6 +7,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -223,6 +225,31 @@ public class PropertiesServiceImpl implements PropertiesService {
             return PropertiesTransformer.bo2Dto(propertiesBO);
         }
         return null;
+    }
+
+    @Override
+    public String getPropertyPourRecap(String key, JsonNode pathNode, boolean recap) {
+        PropertiesDTO prop = getProperty(gouvPropertiesResolver.getDemarcheId(), key);
+        if (prop != null) {
+            PropertiesListEntityDTO[] entreprises = AfBackUtils.parserPropertiesListJson(prop.getValue());
+            if (null == entreprises || entreprises.length == 0) {
+                LOGGER.warn("Impossible de transformer la valeur de la dem_property (key={}) en map", key);
+                return "ERREUR";
+            }
+            Optional<PropertiesListEntityDTO> matchingObject = Arrays.stream(entreprises).
+                    filter(e -> e.getId().equals(pathNode.asText())).
+                    findFirst();
+            String result = matchingObject.map(PropertiesListEntityDTO::getLabel).orElse(null);
+            if (null != result) {
+                // refs #33280 - [BO] Traitement de la demande - Erreur 500 suite à tentative de génération du récap pour une demande ayant ''&" dans le nom de l'entreprise partenaire
+                return recap ? result.replace("&", "&#38;").replace("<", "&lt;").replace(">", "&gt;") : result;
+            } else {
+                return "";
+            }
+        } else {
+            LOGGER.warn("Impossible de récupérer la dem_property requise par le fichier récap (key={})", key);
+            return "ERREUR";
+        }
     }
 
     /**

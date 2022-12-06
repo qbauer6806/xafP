@@ -1,5 +1,6 @@
 package mc.gouv.xaf.back.paiement.mock;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.PropertiesTypeEnum;
@@ -48,6 +49,11 @@ public class PropertiesTestServiceImpl implements PropertiesService {
     public PropertiesDTO getProperty(String demarcheId, String key) {
         if ("PERMC".equals(demarcheId) && "XAF_TARIF_ECHANGE".equals(key))
             return new PropertiesDTO("amount", "80.00");
+        return null;
+    }
+
+    @Override
+    public String getPropertyPourRecap(String key, JsonNode pathNode, boolean recap) {
         return null;
     }
 

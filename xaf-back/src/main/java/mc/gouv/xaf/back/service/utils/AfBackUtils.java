@@ -83,36 +83,36 @@ public class AfBackUtils {
 
     private static String envColor;
 
-    public static String DEFAULT_FRENCH_DATE_FORMAT = "dd/MM/yyyy";
+    public static final String DEFAULT_FRENCH_DATE_FORMAT = "dd/MM/yyyy";
 
     // 24 hours time format
-    public static String DEFAULT_FRENCH_TIME_FORMAT = "HH:mm";
+    public static final String DEFAULT_FRENCH_TIME_FORMAT = "HH:mm";
     
  // 24 hours time format with seconds
-    public static String DEFAULT_FRENCH_TIME_FORMAT_SECONDS = "HH:mm:ss";
+    public static final String DEFAULT_FRENCH_TIME_FORMAT_SECONDS = "HH:mm:ss";
 
     // French date format with 24 hours
-    public static String DEFAULT_FRENCH_DATE_HOURS_FORMAT = "dd/MM/yyyy HH:mm";
+    public static final String DEFAULT_FRENCH_DATE_HOURS_FORMAT = "dd/MM/yyyy HH:mm";
     
  // French date format with 24 hours
     public static final String DEFAULT_FRENCH_DATE_HOURS_MINUTES_SECONDS_FORMAT = "dd/MM/yyyy HH:mm:ss";
 
-    public DateFormat SDF_JJ_MM_AAAA = new SimpleDateFormat(DEFAULT_FRENCH_DATE_FORMAT);
+    public static final DateFormat SDF_JJ_MM_AAAA = new SimpleDateFormat(DEFAULT_FRENCH_DATE_FORMAT);
 
-    public DateFormat SDF_JJ_MM_AAAA_HH_MM = new SimpleDateFormat(DEFAULT_FRENCH_DATE_HOURS_FORMAT);
+    public static final DateFormat SDF_JJ_MM_AAAA_HH_MM = new SimpleDateFormat(DEFAULT_FRENCH_DATE_HOURS_FORMAT);
 
-    public static DateFormat FILE_DATE_SUFFIX = new SimpleDateFormat("HHmmssSSS");
+    public static final DateFormat FILE_DATE_SUFFIX = new SimpleDateFormat("HHmmssSSS");
 
-    public static DateTimeFormatter DTF_AAAA_MM_JJ = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+    public static final DateTimeFormatter DTF_AAAA_MM_JJ = DateTimeFormatter.ofPattern("yyyy/MM/dd");
     
-    public static DateFormat FILE_DATE_AND_TIME_SUFFIX = new SimpleDateFormat("yyyyMMddHHmmssSS");
+    public static final DateFormat FILE_DATE_AND_TIME_SUFFIX = new SimpleDateFormat("yyyyMMddHHmmssSS");
     
-    public static DateFormat MCONNECT_DATE_AND_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+    public static final DateFormat MCONNECT_DATE_AND_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
 
     public static final String MESSAGE_ERREURS_FORMULAIRE = "Le formulaire contient des erreurs.";
     
     // Préfix de la meta d'un fichier indiquant l'ID de la section correspondante
-    public static String META_FICHIER_SECTION_PREFIX = "SECTION_ID_";
+    public static final String META_FICHIER_SECTION_PREFIX = "SECTION_ID_";
 
     /**
      * Version en cache des infos de la démarche

@@ -53,9 +53,15 @@ public class SQLScriptsUtils {
             String pathTableau = getEscapedColumnValue(node.get("path").textValue());
             for (JsonNode column : node.get("columns")) {
                 // TODO quick fix pour le bon fonctionnement, mais adresse à prendre en compte
-                if (column.get("type") != null && !"adresse".equals(column.get("type").textValue())) {
+                if (column.get("type") != null && !"adresse".equals(column.get("type").textValue()) && !"telephone".equals(column.get("type").textValue())) {
                     sqlBuilder.append(MessageFormat.format(INSERT_CHAMP_REQUEST_TEMPLATE, schema, TRUE,
                             pathTableau + "." + getEscapedColumnValue(column.get(RECAP_CHAMP_PATH).textValue()), getEscapedColumnValue(column.get("label").textValue()), sectionTitle, FALSE)).append("\n");
+                }
+                else if ("telephone".equals(column.get("type").textValue())) {
+                    sqlBuilder.append(MessageFormat.format(INSERT_CHAMP_REQUEST_TEMPLATE, schema, TRUE,
+                    		getEscapedColumnValue(column.get(RECAP_CHAMP_NUMERO).textValue()), getEscapedColumnValue(column.get("label").textValue()) , sectionTitle, FALSE)).append("\n");
+                    sqlBuilder.append(MessageFormat.format(INSERT_CHAMP_REQUEST_TEMPLATE, schema, TRUE,
+                    		getEscapedColumnValue(column.get(RECAP_CHAMP_INDICATIF).textValue()), "Indicatif téléphone du demandeur" , sectionTitle, FALSE)).append("\n");
                 }
             }
             return;

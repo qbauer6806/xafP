@@ -34,7 +34,7 @@ public class EsSchemaUtils {
     /**
      * Fichier de configuartion par défaut des mappings ES
      */
-    private static final String ES_TEMPLATE_FILE_PATH = "C:\\Workspace\\xaf\\xaf-sup\\src\\main\\resources\\ts-es-schema.json";
+    private static final String ES_TEMPLATE_FILE_PATH = "C:\\java_dev_env\\Workspace\\xaf\\xaf-sup\\src\\main\\resources\\ts-es-schema.json";
 
     /**
      * TAG indiquant où insérer le mapping du contenu de la demande
@@ -136,8 +136,11 @@ public class EsSchemaUtils {
                     }
                 }
             	// TODO quick fix pour le bon fonctionnement, mais adresse à prendre en compte
-            	else if (column.get("type") != null && !"adresse".equals(column.get("type").textValue())) {
+            	else if (column.get("type") != null && !"adresse".equals(column.get("type").textValue()) && !"telephone".equals(column.get("type").textValue())) {
                     buildJsonProperty((pathTableau + "." + column.get(RECAP_CHAMP_PATH).textValue()).split("\\."), RecapChampType.TABLEAU.getType(), contenu, mapper);
+                } else if ("telephone".equals(column.get("type").textValue())) {
+                    buildJsonProperty(getPropertiesAsArray(column, INDICATIF), type, contenu, mapper);
+                    buildJsonProperty(getPropertiesAsArray(column, NUMERO), type, contenu, mapper);
                 }
             }
             return;

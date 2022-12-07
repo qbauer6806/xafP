@@ -78,6 +78,16 @@ public class AfApiClient extends ApiClient {
 
         return res.readEntity(DemandeDTO.class);
     }
+    
+    public DemandeDTO updateDemande(Integer demandeId, DemandeInputDTO demande, Integer usagerId) {
+        Response res = getTarget().path("demandes/" + demandeId).queryParam("usagerId", usagerId).request(MediaType.APPLICATION_JSON)
+                .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue())
+                .put(Entity.entity(demande, MediaType.APPLICATION_JSON));
+
+        ExceptionManager.checkExceptionResponse(res);
+
+        return res.readEntity(DemandeDTO.class);
+    }
 
     public DemandeComplementsDTO repondreDemandeComplements(Integer demandeId, Integer icId,
                                                             DemandeComplementsReponseDTO reponse) {

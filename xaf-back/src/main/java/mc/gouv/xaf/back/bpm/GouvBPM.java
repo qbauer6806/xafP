@@ -238,4 +238,11 @@ public interface GouvBPM {
 
     void setAssignee(Integer demandeId, String assignee);
 
+	void demanderRectification(Integer demandeId, GouvBPMUser agent, String codeMotif,
+			String commentaire, String statutAnnulation);
+
+	void reponseRectification(Integer pkDemande, Integer usagerId) throws TaskAlreadyClaimedException, IOException, SAXException;
+
+	void rectificationSpontanee(Integer demandeId);
+
 }

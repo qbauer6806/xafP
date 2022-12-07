@@ -54,4 +54,6 @@ public interface DemarchesDataProvider {
 	
 	DemandeExcelGenerationDTO getDemandeExcelGenerationDTO();
 
+	boolean isEligibleRectification(DemandeDTO demande);
+
 }

@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import mc.gouv.xaf.shared.SharedMessages;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
@@ -85,7 +86,7 @@ public class LoginServlet extends AbstractAfServlet {
         if (StringUtils.isBlank(sessionId)) {
         	sessionId = request.getParameter("code");
         }
-        String safe = sessionId.replaceAll("[\n\r\t]", "_");
+        String safe = sessionId.replaceAll(SharedMessages.UNSAFE_CHARS, "_");
         LOGGER.info("SessionID = {}", safe);
 
         if (StringUtils.isBlank(sessionId)) {
@@ -178,7 +179,7 @@ public class LoginServlet extends AbstractAfServlet {
 
         // Le SessionID est stocké dans l'URL parameter "id"
         String sessionId = request.getParameter("id");
-        String safe = sessionId.replaceAll("[\n\r\t]", "_");
+        String safe = sessionId.replaceAll(SharedMessages.UNSAFE_CHARS, "_");
         LOGGER.info("SessionID = {}", safe);
 
         if (StringUtils.isBlank(sessionId)) {

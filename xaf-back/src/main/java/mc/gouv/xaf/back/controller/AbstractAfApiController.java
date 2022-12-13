@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import mc.gouv.xaf.shared.SharedMessages;
 import org.apache.tika.exception.TikaException;
 import org.hibernate.TransactionException;
 import org.slf4j.Logger;
@@ -128,8 +129,8 @@ public abstract class AbstractAfApiController implements AfApiController {
             @RequestParam(value = "identifiantDemande") String identifiantDemande,
             @RequestParam(value = "nomProprio") String nomProprio,
             @RequestParam(value = "usagerId") Integer usagerId) {
-        String safeIndentifiant = identifiantDemande.replaceAll("[\n\r\t]", "_");
-        String safeNom = nomProprio.replaceAll("[\n\r\t]", "_");
+        String safeIndentifiant = identifiantDemande.replaceAll(SharedMessages.UNSAFE_CHARS, "_");
+        String safeNom = nomProprio.replaceAll(SharedMessages.UNSAFE_CHARS, "_");
         LOGGER.info("AbstractAfApiController.associerDemandeCourrierRequest({}, {}, {})", safeIndentifiant, safeNom, usagerId);
         return associerDemandeCourrier(identifiantDemande, nomProprio, usagerId);
     }

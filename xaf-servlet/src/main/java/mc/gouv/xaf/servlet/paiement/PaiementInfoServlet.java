@@ -9,6 +9,7 @@ import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
 import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
 import mc.gouv.xaf.shared.RequestConstant;
+import mc.gouv.xaf.shared.SharedMessages;
 import org.apache.commons.compress.utils.IOUtils;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
@@ -52,7 +53,7 @@ public class PaiementInfoServlet extends AbstractAfServlet {
         boolean iframe = Boolean.parseBoolean(request.getParameter(PaiementConstant.IFRAME_PARAM));
         // Récupération de l'ID de l'usager
         Integer usagerId = usagerInfosDTO.getId();
-        String safeIds = demandeIds.replaceAll("[\n\r\t]", "_");
+        String safeIds = demandeIds.replaceAll(SharedMessages.UNSAFE_CHARS, "_");
         LOGGER.info("Récupération des données de paiement pour la demande {}...", safeIds);
         MoneticoDTO paiement = getStcApiClient().getPaiement(demandeIds, langue, usagerId, iframe);
         ObjectMapper mapper = new ObjectMapper();

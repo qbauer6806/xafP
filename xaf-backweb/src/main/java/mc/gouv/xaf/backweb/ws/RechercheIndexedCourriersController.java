@@ -6,6 +6,7 @@ import mc.gouv.xaf.back.data.es.model.DemandeFileEsRechercheDTO;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.es.IndexedDemandeService;
 import mc.gouv.xaf.backweb.controller.AbstractController;
+import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.DataRechercheDTO;
 import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
 import mc.gouv.xaf.shared.dto.DemandeCourrierRechercheDTO;
@@ -64,8 +65,8 @@ public class RechercheIndexedCourriersController extends AbstractController {
                                                        @RequestParam(value = "aucunCanal", required = false) boolean aucunCanal,
                                                        @RequestParam(value = "aucunStatut", required = false) boolean aucunStatut, Pageable pageable) {
 
-        String safeAgentId = agentId.replaceAll("[\n\r\t]", "_");
-        String safeTexte = texte.replaceAll("[\n\r\t]", "_");
+        String safeAgentId = agentId.replaceAll(SharedMessages.UNSAFE_CHARS, "_");
+        String safeTexte = texte.replaceAll(SharedMessages.UNSAFE_CHARS, "_");
         LOGGER.info("======================= Appel de /ws/demandes/pageable (statuts={}, canaux={}, agentId={}, creationStartDate={}, creationEndDate={}, texte={}, data={})",
                 statuts, canaux, safeAgentId, creationStartDate, creationEndDate, safeTexte, data);
 

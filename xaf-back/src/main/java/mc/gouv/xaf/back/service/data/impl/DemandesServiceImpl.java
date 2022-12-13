@@ -95,9 +95,6 @@ public class DemandesServiceImpl implements DemandesService {
     @Autowired
     private GUKafkaUtils guKafkaUtils;
     
-    @Autowired
-    private AfBackUtils afBackUtils;
-    
 	@Autowired
     private ApplicationContext appContext;
 
@@ -426,7 +423,7 @@ public class DemandesServiceImpl implements DemandesService {
 		final String DATE_ACCEPTATION = "dateValidationDemande";
 		if (StringUtils.equals(DATE_ACCEPTATION, dataBO.getKey())) {
 			try {
-				Date dateAComparer = afBackUtils.convertStartDate(dataBO.getValue());
+				Date dateAComparer = AfBackUtils.convertDate(dataBO.getValue(), false);
 				// Ajouter une heure pour éviter l'exclusion sur la date de départ
 				dateAComparer = DateUtils.addHours(dateAComparer, 1);
 				if (startDate != null && endDate != null) {

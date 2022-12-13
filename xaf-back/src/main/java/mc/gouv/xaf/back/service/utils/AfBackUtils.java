@@ -22,6 +22,7 @@ import java.util.UUID;
 
 import javax.annotation.PostConstruct;
 
+import mc.gouv.xaf.shared.SharedMessages;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -535,22 +536,25 @@ public class AfBackUtils {
         return demarchesDataProvider.getDemarcheCanHandleProperties();
     }
 
-    public Date convertStartDate(String startDate) throws ParseException {
-        return new SimpleDateFormat(DEFAULT_FRENCH_DATE_FORMAT).parse(startDate);
-    }
-
-    public Date convertEndDate(String plainEndDate) throws ParseException {
-        Date endDate = new SimpleDateFormat(DEFAULT_FRENCH_DATE_FORMAT).parse(plainEndDate);
-
-        // Last moment of days
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(endDate);
-        cal.set(Calendar.HOUR_OF_DAY, cal.getMaximum(Calendar.HOUR_OF_DAY));
-        cal.set(Calendar.MINUTE, cal.getMaximum(Calendar.MINUTE));
-        cal.set(Calendar.SECOND, cal.getMaximum(Calendar.SECOND));
-        endDate = cal.getTime();
-
-        return endDate;
+    /**
+     * Permet de parser une string en un objet Date au format déclaré dans AfBackUtils.DEFAULT_FRENCH_DATE_FORMAT
+     */
+    public static Date convertDate(String dateStr, boolean endDate) throws ParseException {
+        Date date = null;
+        if (StringUtils.isNotEmpty(dateStr)) {
+            SimpleDateFormat sdf = new SimpleDateFormat(AfBackUtils.DEFAULT_FRENCH_DATE_FORMAT);
+            date = sdf.parse(dateStr);
+            if (endDate) {
+                // On applique le dernier instant de la journée
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(date);
+                cal.set(Calendar.HOUR_OF_DAY, cal.getMaximum(Calendar.HOUR_OF_DAY));
+                cal.set(Calendar.MINUTE, cal.getMaximum(Calendar.MINUTE));
+                cal.set(Calendar.SECOND, cal.getMaximum(Calendar.SECOND));
+                date = cal.getTime();
+            }
+        }
+        return date;
     }
     
     /**
@@ -585,7 +589,7 @@ public class AfBackUtils {
         if (StringUtils.isEmpty(str)) {
             return str;
         }
-        return str.replaceAll("[\n\r\t]", "_");
+        return str.replaceAll(SharedMessages.UNSAFE_CHARS, "_");
     }
 
     /**

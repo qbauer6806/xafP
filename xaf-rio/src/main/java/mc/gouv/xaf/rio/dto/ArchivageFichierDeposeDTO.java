@@ -1,6 +1,6 @@
-package mc.gouv.xaf.shared.dto.export.archivage;
+package mc.gouv.xaf.rio.dto;
 
-public class ArchivageFichierConvertiDTO {
+public class ArchivageFichierDeposeDTO {
 
     private String rang;
 
@@ -10,7 +10,7 @@ public class ArchivageFichierConvertiDTO {
 
     private String statut;
 
-    private String dateConversion;
+    private String date;
 
     public String getRang() {
         return rang;
@@ -44,11 +44,11 @@ public class ArchivageFichierConvertiDTO {
         this.statut = statut;
     }
 
-    public String getDateConversion() {
-        return dateConversion;
+    public String getDate() {
+        return date;
     }
 
-    public void setDateConversion(String dateConversion) {
-        this.dateConversion = dateConversion;
+    public void setDate(String date) {
+        this.date = date;
     }
 }

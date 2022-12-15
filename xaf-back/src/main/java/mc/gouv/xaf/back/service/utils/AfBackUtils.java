@@ -538,6 +538,7 @@ public class AfBackUtils {
 
     /**
      * Permet de parser une string en un objet Date au format déclaré dans AfBackUtils.DEFAULT_FRENCH_DATE_FORMAT
+     * @throws ParseException en cas d'erreurs de parsing du SimpleDateFormat
      */
     public static Date convertDate(String dateStr, boolean endDate) throws ParseException {
         Date date = null;

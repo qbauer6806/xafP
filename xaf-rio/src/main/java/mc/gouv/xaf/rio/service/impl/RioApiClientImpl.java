@@ -1,10 +1,10 @@
-package mc.gouv.xaf.back.service.itg.rio.impl;
+package mc.gouv.xaf.rio.service.impl;
 
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.itg.rio.RioApiClient;
-import mc.gouv.xaf.shared.dto.itg.rio.RioDocumentDTO;
-import mc.gouv.xaf.shared.dto.itg.rio.RioDocumentRequestDTO;
-import mc.gouv.xaf.shared.dto.itg.rio.RioFileDocumentDTO;
+import mc.gouv.xaf.rio.dto.RioDocumentDTO;
+import mc.gouv.xaf.rio.dto.RioDocumentRequestDTO;
+import mc.gouv.xaf.rio.dto.RioFileDocumentDTO;
+import mc.gouv.xaf.rio.service.RioApiClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

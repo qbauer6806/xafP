@@ -1,8 +1,8 @@
-package mc.gouv.xaf.back.service.itg.rio;
+package mc.gouv.xaf.rio.service;
 
+import mc.gouv.xaf.rio.dto.ArchivageStatutDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
-import mc.gouv.xaf.shared.dto.export.archivage.ArchivageStatutDTO;
 
 import java.util.List;
 import java.util.Map;

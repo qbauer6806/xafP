@@ -1,8 +1,7 @@
-package mc.gouv.xaf.back.service.itg.rio;
+package mc.gouv.xaf.rio.service;
 
-
-import mc.gouv.xaf.shared.dto.itg.rio.RioDocumentDTO;
-import mc.gouv.xaf.shared.dto.itg.rio.RioFileDocumentDTO;
+import mc.gouv.xaf.rio.dto.RioDocumentDTO;
+import mc.gouv.xaf.rio.dto.RioFileDocumentDTO;
 
 public interface RioService {
 

@@ -1,18 +1,18 @@
-package mc.gouv.xaf.back.service.itg.rio.impl;
+package mc.gouv.xaf.rio.service.impl;
 
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.ConvertisseurTiffService;
 import mc.gouv.xaf.back.service.data.DemandesFilesService;
 import mc.gouv.xaf.back.service.excel.ExcelExportService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
-import mc.gouv.xaf.back.service.itg.rio.ArchivageService;
-import mc.gouv.xaf.back.service.itg.rio.RioService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.rio.dto.*;
+import mc.gouv.xaf.rio.enums.ArchivageStatutAvancementEnum;
+import mc.gouv.xaf.rio.service.ArchivageService;
+import mc.gouv.xaf.rio.service.ConvertisseurTiffService;
+import mc.gouv.xaf.rio.service.RioService;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
-import mc.gouv.xaf.shared.dto.export.archivage.*;
-import mc.gouv.xaf.shared.dto.itg.rio.RioDocumentDTO;
 import mc.gouv.xaf.shared.enums.MailSupportEnum;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;

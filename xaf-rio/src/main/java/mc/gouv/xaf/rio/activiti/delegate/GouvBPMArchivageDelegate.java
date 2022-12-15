@@ -1,4 +1,4 @@
-package mc.gouv.xaf.back.bpm.activiti.delegate;
+package mc.gouv.xaf.rio.activiti.delegate;
 
 import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.data.transformer.DemandesComplementsFilesTransformer;
@@ -7,10 +7,10 @@ import mc.gouv.xaf.back.service.AfHistoService;
 import mc.gouv.xaf.back.service.data.DemandesDataService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
-import mc.gouv.xaf.back.service.itg.rio.ArchivageService;
+import mc.gouv.xaf.rio.dto.ArchivageStatutDTO;
+import mc.gouv.xaf.rio.enums.ArchivageStatutAvancementEnum;
+import mc.gouv.xaf.rio.service.ArchivageService;
 import mc.gouv.xaf.shared.dto.*;
-import mc.gouv.xaf.shared.dto.export.archivage.ArchivageStatutAvancementEnum;
-import mc.gouv.xaf.shared.dto.export.archivage.ArchivageStatutDTO;
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.delegate.JavaDelegate;
 import org.slf4j.Logger;

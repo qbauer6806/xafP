@@ -1,4 +1,4 @@
-package mc.gouv.xaf.shared.dto.itg.rio;
+package mc.gouv.xaf.rio.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 

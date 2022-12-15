@@ -1,4 +1,4 @@
-package mc.gouv.xaf.shared.dto.export.archivage;
+package mc.gouv.xaf.rio.dto;
 
 public class ArchivageFichierInitalDTO {
 

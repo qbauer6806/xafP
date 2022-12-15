@@ -1,9 +1,12 @@
-package mc.gouv.xaf.back.service.utils;
+package mc.gouv.xaf.rio.utils;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
 public class DitheringUtils {
+
+    private DitheringUtils() {
+    }
 
     private static class C3 {
         int r, g, b;

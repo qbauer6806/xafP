@@ -1,4 +1,6 @@
-package mc.gouv.xaf.shared.dto.export.archivage;
+package mc.gouv.xaf.rio.dto;
+
+import mc.gouv.xaf.rio.enums.ArchivageStatutAvancementEnum;
 
 public class ArchivageStatutDTO {
 

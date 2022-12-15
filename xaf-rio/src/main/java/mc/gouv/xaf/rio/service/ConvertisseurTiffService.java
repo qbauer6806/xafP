@@ -1,4 +1,4 @@
-package mc.gouv.xaf.back.service;
+package mc.gouv.xaf.rio.service;
 
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 

@@ -14,14 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.xml.sax.SAXException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -238,13 +231,13 @@ public abstract class AbstractAfApiController implements AfApiController {
         return creerBrouillon(brouillon, usagerId);
     }
     
-    @RequestMapping(value = "/brouillons/{brouillonId}", method = RequestMethod.PUT)
+    @PutMapping(value = "/brouillons/{brouillonId}")
     public BrouillonDTO updateBrouillonRequest(@Valid @RequestBody BrouillonDTO brouillon,
-    		@PathVariable(value = "brouillonId") Integer brouillonId) {
-        LOGGER.info("AbstractAfApiController.updateBrouillonRequest(" + brouillon + "," + brouillonId + ")");
-
+    		@PathVariable(value = "brouillonId") Integer brouillonId,
+            @RequestParam(value = "usagerId") Integer usagerId) {
+        LOGGER.info("AbstractAfApiController.updateBrouillonRequest({}, {}, {})", brouillon, brouillonId, usagerId);
         brouillon.setPkBrouillons(brouillonId);
-        return updateBrouillon(brouillon);
+        return updateBrouillon(brouillon, usagerId);
     }
     
     @RequestMapping(value = "/brouillons", method = RequestMethod.GET)
@@ -254,18 +247,18 @@ public abstract class AbstractAfApiController implements AfApiController {
         return getBrouillons(usagerId);
     }
     
-    @RequestMapping(value = "/brouillons/{brouillonId}", method = RequestMethod.GET)
-    public @ResponseBody BrouillonDTO getBrouillonRequest(@PathVariable(value = "brouillonId") Integer brouillonId) {
-        LOGGER.info("AbstractAfApiController.getBrouillonRequest(" + brouillonId + ")");
-
-        return getBrouillon(brouillonId);
+    @GetMapping(value = "/brouillons/{brouillonId}")
+    public @ResponseBody BrouillonDTO getBrouillonRequest(@PathVariable(value = "brouillonId") Integer brouillonId,
+                                                          @RequestParam(value = "usagerId") Integer usagerId) {
+        LOGGER.info("AbstractAfApiController.getBrouillonRequest({}, {})", brouillonId, usagerId);
+        return getBrouillon(brouillonId, usagerId);
     }
     
     @RequestMapping(value = "/brouillons/{brouillonId}", method = RequestMethod.DELETE)
-    public void deleteBrouillonRequest(@PathVariable(value = "brouillonId") Integer brouillonId) throws JsonProcessingException {
-        LOGGER.info("AbstractAfApiController.deleteBrouillonRequest(" + brouillonId + ")");
-
-        deleteBrouillon(brouillonId);
+    public void deleteBrouillonRequest(@PathVariable(value = "brouillonId") Integer brouillonId,
+                                       @RequestParam(value = "usagerId") Integer usagerId) throws JsonProcessingException {
+        LOGGER.info("AbstractAfApiController.deleteBrouillonRequest({}, {})", brouillonId, usagerId);
+        deleteBrouillon(brouillonId, usagerId);
     }
     
     @GetMapping(value = "/brouillonspage")

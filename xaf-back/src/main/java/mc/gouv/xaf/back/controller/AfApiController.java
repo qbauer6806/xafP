@@ -67,15 +67,15 @@ public interface AfApiController {
     List<PropertiesDTO> getFrontProperties();
     
     BrouillonDTO creerBrouillon(BrouillonDTO brouillon, Integer usagerId);
-    
-    BrouillonDTO updateBrouillon(BrouillonDTO brouillon);
-    
+
+    BrouillonDTO updateBrouillon(BrouillonDTO brouillon, Integer usagerId);
+
     List<BrouillonDTO> getBrouillons(Integer usagerId);
     
     Page<BrouillonDTO> getBrouillonsPageable(Integer usagerId, PageParamDTO paramDTO);
-    
-    BrouillonDTO getBrouillon(Integer pkBrouillons);
-    
-    void deleteBrouillon(Integer pkBrouillons) throws JsonProcessingException;
+
+    BrouillonDTO getBrouillon(Integer pkBrouillons, Integer usagerId);
+
+    void deleteBrouillon(Integer pkBrouillons, Integer usagerId) throws JsonProcessingException;
 
 }

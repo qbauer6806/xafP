@@ -9,6 +9,10 @@
 
     <artifactId>xaf-backweb</artifactId>
 
+    <properties>
+        <logon-apiclient.version>5.2.2</logon-apiclient.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>mc.gouv.xaf</groupId>
@@ -26,6 +30,18 @@
             <groupId>org.webjars</groupId>
             <artifactId>Eonasdan-bootstrap-datetimepicker</artifactId>
             <version>4.17.47</version>
+        </dependency>
+
+        <dependency>
+            <groupId>mc.gouv.logon</groupId>
+            <artifactId>logon-caching</artifactId>
+            <version>${logon-apiclient.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>mc.gouv.logon</groupId>
+            <artifactId>logon-apiclient</artifactId>
+            <version>${logon-apiclient.version}</version>
         </dependency>
     </dependencies>
 

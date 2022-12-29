@@ -228,8 +228,10 @@ public class AfApiClient extends ApiClient {
         return res.readEntity(BrouillonDTO.class);
     }
     
-    public BrouillonDTO updateBrouillon(BrouillonDTO brouillon, Integer brouillonId) {
-        Response res = getTarget().path("brouillons/" + brouillonId).request(MediaType.APPLICATION_JSON)
+    public BrouillonDTO updateBrouillon(BrouillonDTO brouillon, Integer brouillonId, Integer usagerId) {
+        Response res = getTarget().path("brouillons/" + brouillonId)
+                .queryParam("usagerId", usagerId)
+                .request(MediaType.APPLICATION_JSON)
                 .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue())
                 .put(Entity.entity(brouillon, MediaType.APPLICATION_JSON));
 
@@ -248,8 +250,9 @@ public class AfApiClient extends ApiClient {
         });
     }
     
-    public BrouillonDTO getBrouillon(Integer brouillonId) {
+    public BrouillonDTO getBrouillon(Integer brouillonId, Integer usagerId) {
         Response res = getTarget().path("/brouillons/" + brouillonId)
+                .queryParam("usagerId", usagerId)
                 .request(MediaType.APPLICATION_JSON)
                 .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue()).get();
 
@@ -258,8 +261,9 @@ public class AfApiClient extends ApiClient {
         return res.readEntity(BrouillonDTO.class);
     }
     
-    public void deleteBrouillon(Integer brouillonId) {
+    public void deleteBrouillon(Integer brouillonId, Integer usagerId) {
         Response res = getTarget().path("/brouillons/" + brouillonId)
+                .queryParam("usagerId", usagerId)
                 .request(MediaType.APPLICATION_JSON)
                 .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue()).delete();
 

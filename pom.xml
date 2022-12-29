@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>mc.gouv.xboot</groupId>
 		<artifactId>xboot-spring-starter-parent</artifactId>
-		<version>3.2.1</version>
+		<version>3.2.2</version>
 	</parent>
 
 	<properties>
@@ -22,7 +22,7 @@
 		<url>https://git.monaco-gouvernement.mc/libs/xaf.git</url>
 		<connection>scm:git:git@git.monaco-gouvernement.mc:libs/xaf.git</connection>
 		<developerConnection>scm:git:git@git.monaco-gouvernement.mc:libs/xaf.git</developerConnection>
-	  <tag>xaf-9.3.0.0-SNAPSHOT</tag>
+	  <tag>HEAD</tag>
   </scm>
 
 

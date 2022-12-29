@@ -9,6 +9,10 @@
 
 	<artifactId>xaf-back-dsp</artifactId>
 
+	<properties>
+		<logon-apiclient.version>5.2.2</logon-apiclient.version>
+	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>mc.gouv.xaf</groupId>

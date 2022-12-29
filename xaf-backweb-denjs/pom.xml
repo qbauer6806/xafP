@@ -4,7 +4,7 @@
     <parent>
         <groupId>mc.gouv.xaf</groupId>
         <artifactId>xaf</artifactId>
-        <version>9.2.0</version>
+        <version>9.2.0.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>xaf-backweb-denjs</artifactId>
@@ -13,13 +13,13 @@
         <dependency>
             <groupId>mc.gouv.xaf</groupId>
             <artifactId>xaf-backweb</artifactId>
-            <version>9.2.0</version>
+            <version>9.2.0.0-SNAPSHOT</version>
         </dependency>
         
         <dependency>
             <groupId>mc.gouv.xaf</groupId>
             <artifactId>xaf-back-denjs</artifactId>
-            <version>9.2.0</version>
+            <version>9.2.0.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>

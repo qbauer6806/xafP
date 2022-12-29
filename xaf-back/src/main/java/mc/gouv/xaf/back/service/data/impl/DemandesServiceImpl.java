@@ -1035,6 +1035,7 @@ public class DemandesServiceImpl implements DemandesService {
 			for (DemandesComplementsBO dcBo : dcsBo) {
 				dcBo.setPkDemandesComplements(null);
 				dcBo.setFkDemandes(newDemandeBo);
+				dcBo.setDateReponse(new Date());
 				Set<DemandesComplementsFilesBO> dcBoFiles = dcBo.getFiles();
 				dcBo.setFiles(null);
 				demandesComplementsRepository.save(dcBo);

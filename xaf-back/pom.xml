@@ -145,6 +145,7 @@
 		<dependency>
 			<groupId>mc.gouv.logon</groupId>
 			<artifactId>logon-apiclient</artifactId>
+			<version>${logon-apiclient.version}</version>
 		</dependency>
 
 

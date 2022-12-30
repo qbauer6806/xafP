@@ -9,6 +9,10 @@
 
     <artifactId>xaf-backweb</artifactId>
 
+    <properties>
+        <logon-apiclient.version>5.2.2</logon-apiclient.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>mc.gouv.xaf</groupId>
@@ -42,6 +46,18 @@
 			<artifactId>jbig2-imageio</artifactId>
 			<version>3.0.2</version>
 		</dependency>
+
+        <dependency>
+            <groupId>mc.gouv.logon</groupId>
+            <artifactId>logon-caching</artifactId>
+            <version>${logon-apiclient.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>mc.gouv.logon</groupId>
+            <artifactId>logon-apiclient</artifactId>
+            <version>${logon-apiclient.version}</version>
+        </dependency>
 
 
 	</dependencies>

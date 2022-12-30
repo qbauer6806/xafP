@@ -52,11 +52,18 @@ public class GUKafkaProducerListener implements ProducerListener<String, String>
     @Autowired
     private AfBackUtils afBackUtils;
     
+    @Autowired
+    private KafkaOutboxSchedulingConfig kafkaOutboxSchedulingConfig;
+    
     private static String XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE = "XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE";
     
     private static String MAIL_TEMPLATE_KAFKA_DLT_CORPS = "MAIL_TEMPLATE_KAFKA_DLT_CORPS";
     
     private static String MAIL_TEMPLATE_KAFKA_DLT_OBJET = "MAIL_TEMPLATE_KAFKA_DLT_OBJET";
+    
+    private static String MAIL_TEMPLATE_KAFKA_ERREUR_ENVOI_CORPS = "MAIL_TEMPLATE_KAFKA_ERREUR_ENVOI_CORPS";
+    
+    private static String MAIL_TEMPLATE_KAFKA_ERREUR_ENVOI_OBJET = "MAIL_TEMPLATE_KAFKA_ERREUR_ENVOI_OBJET";
 
 	@Override
 	public void onSuccess(ProducerRecord<String, String> producerRecord, RecordMetadata recordMetadata) {
@@ -64,27 +71,7 @@ public class GUKafkaProducerListener implements ProducerListener<String, String>
 		if (producerRecord.topic().endsWith(".DLT")) {
 			LOGGER.info("Message envoyé avec succès sur le DLT " + producerRecord.topic() + " (key=" + producerRecord.key() + ", partition=" + producerRecord.partition() + ", value=" + producerRecord.value() + ")");
 			
-			LOGGER.info("Envoi d'un e-mail à la liste du support technique...");
-			PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE);
-	        if (propertiesDTO.getValue() != null) {
-	            String[] adresses = propertiesDTO.getValue().trim().split(",");
-	            // Composition du mail
-	            Map<String, Object> model = new HashMap<>();
-	            model.put("topic", producerRecord.topic());
-	            model.put("key", producerRecord.key());
-	            model.put("partition", producerRecord.partition());
-	            model.put("value", producerRecord.value());
-	            model.put("demarcheId", gouvPropertiesResolver.getDemarcheId());
-	            EmailInfoDTO emailInfoDTO = createMailRollbackES(producerRecord);
-	            for (String adresseMail : adresses) {
-	                emailInfoDTO.addTo(adresseMail, "Support Technique");
-	            }
-	            try {
-					mailService.sendMail(emailInfoDTO, model);
-				} catch (Exception e) {
-					LOGGER.error("Erreur lors de l'envoi de l'e-mail au support technique suite à envoi d'un message Kafka sur le DLT");
-				}
-	        }
+			sendMailKafka(producerRecord, null, MAIL_TEMPLATE_KAFKA_DLT_OBJET, MAIL_TEMPLATE_KAFKA_DLT_CORPS);
 			
 		}
 		else if (pkKafkaOutbox == null) {
@@ -96,33 +83,31 @@ public class GUKafkaProducerListener implements ProducerListener<String, String>
 			kafkaOutboxService.deleteOutboxElement(pkKafkaOutbox);
 		}
 	}
-	
-    private EmailInfoDTO createMailRollbackES(ProducerRecord<String, String> producerRecord) {
-        EmailInfoDTO emailInfo = new EmailInfoDTO();
-        emailInfo.setBodyTemplateCode(MAIL_TEMPLATE_KAFKA_DLT_CORPS);
-        emailInfo.setSubjectTemplateCode(MAIL_TEMPLATE_KAFKA_DLT_OBJET);
-        emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(), afBackUtils.getDemarcheInfos().getEmailFromNom());
-        emailInfo.setReplyto(afBackUtils.getDemarcheInfos().getEmailReplyto(), afBackUtils.getDemarcheInfos().getEmailReplytoNom());
-        emailInfo.setLangue("fr");
-        return emailInfo;
-    }
 
 	@Override
 	public void onError(ProducerRecord<String, String> producerRecord, Exception exception) {
 		Integer pkKafkaOutbox = getPkKafkaOutboxFromProducerRecord(producerRecord);
 		if (pkKafkaOutbox == null) {
 			LOGGER.error("Erreur lors de l'envoi du message dans Kafka et pkKafkaOutbox null ! Situation anormale, impossible de mettre à jour son statut dans l'Outbox pour un retry", exception);
+			sendMailKafka(producerRecord, null, MAIL_TEMPLATE_KAFKA_ERREUR_ENVOI_OBJET, MAIL_TEMPLATE_KAFKA_ERREUR_ENVOI_CORPS);
 		}
 		else {
 			LOGGER.error("Erreur lors de l'envoi du message dans Kafka (pkKafkaOutbox " + pkKafkaOutbox + ")", exception);
 			LOGGER.error("Mise à jour du statut du message dans l'Outbox Kafka...");
 			KafkaOutboxDTO dto = kafkaOutboxService.getOutboxElement(pkKafkaOutbox);
+			
 			dto.setStatut(KafkaOutboxSchedulingConfig.KAFKA_OUTBOX_STATUT_ECHEC);
 			dto.setNbFailedAttempts(dto.getNbFailedAttempts()+1);
 			if (dto.getDateLastAttempt() == null) {
 				dto.setDateLastAttempt(new Date());
 			}
 			kafkaOutboxService.updateOutboxElement(dto);
+			
+			// Plus de retry possible, envoyer un e-mail support technique
+			if (dto.getNbFailedAttempts() >= kafkaOutboxSchedulingConfig.getRetryNb()) {
+				sendMailKafka(producerRecord, dto, MAIL_TEMPLATE_KAFKA_ERREUR_ENVOI_OBJET, MAIL_TEMPLATE_KAFKA_ERREUR_ENVOI_CORPS);
+			}
+			
 		}
 	}
 	
@@ -138,5 +123,42 @@ public class GUKafkaProducerListener implements ProducerListener<String, String>
 		return Integer.parseInt(new String(it.next().value()));
 		
 	}
+	
+    private void sendMailKafka(ProducerRecord<String, String> producerRecord, KafkaOutboxDTO kafkaOutbox, String objet, String corps) {
+    	LOGGER.info("Envoi d'un e-mail à la liste du support technique...");
+		PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE);
+        if (propertiesDTO.getValue() != null) {
+            String[] adresses = propertiesDTO.getValue().trim().split(",");
+            // Composition du mail
+            Map<String, Object> model = new HashMap<>();
+            model.put("topic", producerRecord.topic());
+            model.put("key", producerRecord.key());
+            model.put("partition", producerRecord.partition());
+            String value = AfBackUtils.tronquerTextePourAffichage(producerRecord.value(), 3000);
+            model.put("value", value);
+            model.put("demarcheId", gouvPropertiesResolver.getDemarcheId());
+            if (kafkaOutbox != null) {
+            	model.put("pkKafkaOutbox", kafkaOutbox.getPkKafkaOutbox());
+            	model.put("nbFailedAttempts", kafkaOutbox.getNbFailedAttempts());
+            }
+	        EmailInfoDTO emailInfo = new EmailInfoDTO();
+	        emailInfo.setBodyTemplateCode(corps);
+	        emailInfo.setSubjectTemplateCode(objet);
+	        emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(), afBackUtils.getDemarcheInfos().getEmailFromNom());
+	        emailInfo.setReplyto(afBackUtils.getDemarcheInfos().getEmailReplyto(), afBackUtils.getDemarcheInfos().getEmailReplytoNom());
+	        emailInfo.setLangue("fr");
+            for (String adresseMail : adresses) {
+            	emailInfo.addTo(adresseMail, "Support Technique");
+            }
+            try {
+				mailService.sendMail(emailInfo, model);
+			} catch (Exception e) {
+				LOGGER.error("Erreur lors de l'envoi de l'e-mail au support technique.", e);
+			}
+        }
+        else {
+        	LOGGER.error("Erreur lors de l'envoi de l'e-mail : propriété XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE manquante !");
+        }
+    }
 
 }

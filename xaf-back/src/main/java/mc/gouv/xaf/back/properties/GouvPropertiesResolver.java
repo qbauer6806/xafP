@@ -92,6 +92,12 @@ public interface GouvPropertiesResolver {
 
 	boolean getKafkaEnabled();
 
+	String getGUKafkaProducerMaxRequestSize();
+
+	String getGUKafkaConsumerFetchMaxBytes();
+	
+	String getGUKafkaConsumerMaxPartitionFetchBytes();
+
 	String getGichkeyUrl();
 
 	String getGichuniUrl();

@@ -151,7 +151,6 @@ public class DemandesComplementsServiceImpl implements DemandesComplementsServic
     }
 
     @Override
-
     @Transactional
     public DemandeComplementsDTO updateDemandeComplements(String demarcheId, Integer pkDemande,
             Integer pkDemandeComplements, DemandeComplementsQuestionDTO demandeComplements) {
@@ -205,7 +204,6 @@ public class DemandesComplementsServiceImpl implements DemandesComplementsServic
     }
 
     @Override
-
     @Transactional
     public DemandeComplementsDTO repondreDemandeComplements(String demarcheId, Integer pkDemande,
             Integer pkDemandeComplements, DemandeComplementsReponseDTO demandeComplementsReponse) {
@@ -217,10 +215,15 @@ public class DemandesComplementsServiceImpl implements DemandesComplementsServic
         }
 
         LOGGER.info("Récupération en base de la demande d'informations complémentaires correspondante...");
-
         DemandesComplementsBO demandesComplementsBO = demandesComplementsRepository
                 .findByPkDemandesComplementsAndFkDemandesPkDemandesAndFkDemandesFkAccessDemarcheId(pkDemandeComplements,
                         pkDemande, demarcheId);
+
+        // #46414 - Faille de sécurité, il faut vérifier que l'usager qui a créé cette demande est à l'origine du changement
+        if (demandeComplementsReponse.getUsagerId() != null
+                && !demandeComplementsReponse.getUsagerId().equals(demandesComplementsBO.getFkDemandes().getFkAccess().getUsagerId())) {
+            throw new DemarchesServiceException("Utilisateur non autorisé", HttpStatus.UNAUTHORIZED);
+        }
 
         // Gérer les accès désactivés
         if (demandesComplementsBO != null && !demandesComplementsBO.getFkDemandes().getFkAccess().isActive()) {

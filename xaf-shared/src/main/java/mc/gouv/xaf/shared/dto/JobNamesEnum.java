@@ -9,7 +9,8 @@ public enum JobNamesEnum {
     RAFRAICHISSEMENT_STATUS("Rafraîchissement du statut des demandes"),
     TRAITEMENT_DEAD_LETTER_TOPIC_GU_KAFKA("Traitement du Dead Letter Topic du Guichet Unique sur Kafka"),
     TRAITEMENT_OUTBOX_KAFKA("Traitement de l'Outbox Kafka"),
-    SYNCHRONISATION_GLOBALE_GU("Synchronisation globale des demandes des usagers avec le Guichet Unique");
+    SYNCHRONISATION_GLOBALE_GU("Synchronisation globale des demandes des usagers avec le Guichet Unique"),
+    RECUPERATION_NOMBRE_MESSAGES_OUTBOX_KAFKA("Récupération du nombre de messages contenus dans l'Outbox Kafka");
 
     private String libelle;
 

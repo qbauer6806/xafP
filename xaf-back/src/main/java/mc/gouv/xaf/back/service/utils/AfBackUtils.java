@@ -547,6 +547,9 @@ public class AfBackUtils {
             if (str.contains("\u001A")) {
                 str = StringUtils.replace(str, "\u001A", " ");
             }
+            if (str.contains("\u0017")) {
+                str = StringUtils.replace(str, "\u0017", " ");
+            }
             result = str;
         }
         return result;
@@ -622,6 +625,20 @@ public class AfBackUtils {
     		}
     	}
     	return null;
+    }
+    
+    /*
+     * Retourne le texte tronqué avec "(...)" à la fin (pour affichage)
+     */
+    public static String tronquerTextePourAffichage(String texte, Integer nbChars) {
+	    if (texte != null) {
+	    	String ret = texte.substring(0, (texte.length() > nbChars ? nbChars : texte.length()));
+	    	if (ret.length() > 3000) {
+	    		ret += " (...)";
+	    	}
+	    	return ret;
+	    }
+	    return null;
     }
     
     public static List<String> donneesCertifieesJsonToList(String json) {

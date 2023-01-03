@@ -119,7 +119,7 @@ public class FileUtils {
     public static int getNbFileNonTypes(List<FileCategoryDTO> filesAvecCategorie) {
         int nbSansCategorie = 0;
         for(FileCategoryDTO categoryDTO : filesAvecCategorie) {
-            if (FileUtils.CAT_INITIALE.equals(categoryDTO.getName()) || FileUtils.CAT_COMPLEMENTS.equals(categoryDTO.getName())) {
+            if (categoryDTO.isTypedoc()) {
                 for (DemandeFileDTO file : categoryDTO.getFiles()) {
                     if (StringUtils.isEmpty(file.getTypedoc())) {
                         nbSansCategorie++;
@@ -136,11 +136,21 @@ public class FileUtils {
      * @return Type du fichier
      */
     public static DemandeFileEsDTO.TYPE getDemandeFileType(DemandeFileDTO file) {
+        return getDemandeFileType(file.getMeta());
+    }
+
+    /**
+     * Méthode permettant de récupérer le type du fichier associé à la demande en se basant sur ses metas
+     *
+     * @param meta la meta du fichier
+     * @return Type du fichier
+     */
+    public static DemandeFileEsDTO.TYPE getDemandeFileType(String meta) {
         DemandeFileEsDTO.TYPE fileType;
-        if (FileUtils.isFileCreatedByFront(file.getMeta())) {
+        if (FileUtils.isFileCreatedByFront(meta)) {
             fileType = DemandeFileEsDTO.TYPE.PIECE_JOINTE;
         }
-        if (FileUtils.isFileCreatedByBack(file.getMeta()) && file.getMeta().contains(PdfTypeEnum.COURRIER.name())) {
+        if (FileUtils.isFileCreatedByBack(meta) && meta.contains(PdfTypeEnum.COURRIER.name())) {
             fileType = DemandeFileEsDTO.TYPE.COURRIER;
         } else {
             fileType = DemandeFileEsDTO.TYPE.FICHIER_INTERNE;

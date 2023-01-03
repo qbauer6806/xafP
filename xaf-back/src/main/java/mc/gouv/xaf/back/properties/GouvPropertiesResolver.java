@@ -118,10 +118,4 @@ public interface GouvPropertiesResolver {
 
     String getApiRioCodeNotice();
 
-	String getGUKafkaProducerMaxRequestSize();
-
-	String getGUKafkaConsumerFetchMaxBytes();
-	
-	String getGUKafkaConsumerMaxPartitionFetchBytes();
-
 }

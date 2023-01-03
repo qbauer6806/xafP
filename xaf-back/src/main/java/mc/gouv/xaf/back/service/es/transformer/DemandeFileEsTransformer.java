@@ -2,6 +2,10 @@ package mc.gouv.xaf.back.service.es.transformer;
 
 import mc.gouv.file.apiclient.FileClient;
 import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
+import mc.gouv.xaf.back.data.entity.DemandesComplementsBO;
+import mc.gouv.xaf.back.data.entity.DemandesComplementsFilesBO;
+import mc.gouv.xaf.back.data.entity.DemandesCourriersBO;
+import mc.gouv.xaf.back.data.entity.DemandesFilesBO;
 import mc.gouv.xaf.back.data.es.model.DemandeFileEsDTO;
 import mc.gouv.xaf.back.exception.FileConnectionException;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
@@ -22,7 +26,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.ConnectException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @Conditional(IndexationEnabledCondition.class)
@@ -32,6 +38,105 @@ public class DemandeFileEsTransformer {
 
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
+
+    /**
+     * Méthode permettant de transformer une liste de fichiers BOs pour indexation ES
+     * <br/>
+     * les contenus des fichiers sont récupérés depuis le web service file
+     *
+     * @param demFiles Set des fichiers BOs
+     * @return Liste des DTOs des fichiers à indexer
+     * @throws IOException en cas d'erreur de récupération du contenu du fichier
+     */
+    public List<DemandeFileEsDTO> getListFileEsContentFromFichiers(Set<DemandesFilesBO> demFiles) throws IOException {
+        List<DemandeFileEsDTO> filesList = new ArrayList<>();
+        if (demFiles != null) {
+            for (DemandesFilesBO fichier : demFiles) {
+                String identifiantDem = fichier.getFkDemandes().getIdentifiant();
+                DemandeFileEsDTO demandeFileEsDTO = new DemandeFileEsDTO(identifiantDem, fichier.getUrl());
+                demandeFileEsDTO.setMeta(fichier.getMeta());
+                demandeFileEsDTO.setName(fichier.getName());
+                demandeFileEsDTO.setTypeFichier(FileUtils.getDemandeFileType(fichier.getMeta()).name());
+                demandeFileEsDTO.setPkDemandes(fichier.getFkDemandes().getPkDemandes());
+                demandeFileEsDTO.setPkDemandeFile(fichier.getPkDemandesFiles());
+                demandeFileEsDTO.setTypedoc(fichier.getTypedoc());
+                demandeFileEsDTO.setContent(getFileText(fichier.getUrl()));
+                demandeFileEsDTO.setLanguage(fichier.getFkDemandes().getLangue());
+                demandeFileEsDTO.setDateCreation(fichier.getDate());
+                filesList.add(demandeFileEsDTO);
+            }
+        }
+        return filesList;
+    }
+
+    /**
+     * Méthode permettant de transformer une liste de courriers BOs pour indexation ES
+     * <br/>
+     * les contenus des fichiers sont récupérés depuis le web service file
+     *
+     * @param demFiles Set des courriers BOs
+     * @return Liste des DTOs des fichiers à indexer
+     * @throws IOException en cas d'erreur de récupération du contenu du fichier
+     */
+    public List<DemandeFileEsDTO> getListFileEsContentFromCourriers(Set<DemandesCourriersBO> demFiles) throws IOException {
+        List<DemandeFileEsDTO> filesList = new ArrayList<>();
+        if (demFiles != null) {
+            for (DemandesCourriersBO fichier : demFiles) {
+                String identifiantDem = fichier.getFkDemandes().getIdentifiant();
+                DemandeFileEsDTO demandeFileEsDTO = new DemandeFileEsDTO(identifiantDem, fichier.getUrl());
+                demandeFileEsDTO.setMeta(fichier.getMeta());
+                demandeFileEsDTO.setName(fichier.getName());
+                demandeFileEsDTO.setTypeFichier(DemandeFileEsDTO.TYPE.COURRIER.name());
+                demandeFileEsDTO.setPkDemandes(fichier.getFkDemandes().getPkDemandes());
+                demandeFileEsDTO.setPkDemandeFile(fichier.getPkDemandesCourriers());
+                demandeFileEsDTO.setContent(getFileText(fichier.getUrl()));
+                demandeFileEsDTO.setLanguage(fichier.getFkDemandes().getLangue());
+                demandeFileEsDTO.setDateCreation(fichier.getDateCreation());
+                demandeFileEsDTO.setDatePrinted(fichier.getDatePrinted());
+                demandeFileEsDTO.setIdentifiantFichier(fichier.getIdentifiant());
+                demandeFileEsDTO.setStatut(fichier.getFkDemandesStatuts().getLibelle());
+                filesList.add(demandeFileEsDTO);
+            }
+        }
+        return filesList;
+    }
+
+    /**
+     * Méthode permettant de transformer une liste demandes complémentaires en fichier pour indexation ES
+     * <br/>
+     * les contenus des fichiers sont récupérés depuis le web service file
+     *
+     * @param demandesComplementsBO Set des compléments BOs contenant les fichiers à indexer
+     * @return Liste des DTOs des fichiers à indexer
+     * @throws IOException en cas d'erreur de récupération du contenu du fichier
+     */
+    public List<DemandeFileEsDTO> getListFileEsContentFromComplements(Set<DemandesComplementsBO> demandesComplementsBO) throws IOException {
+        List<DemandeFileEsDTO> filesList = new ArrayList<>();
+        String type = DemandeFileEsDTO.TYPE.COMPLEMENT.name();
+        if (demandesComplementsBO != null) {
+            for (DemandesComplementsBO demComplement : demandesComplementsBO) {
+                String identifiantDem = demComplement.getFkDemandes().getIdentifiant();
+                String langue = demComplement.getFkDemandes().getLangue();
+                // La date de création des fichiers = date de réponse de la demande d'information complémentaires
+                Date date = demComplement.getDateReponse();
+                Set<DemandesComplementsFilesBO> demComplementsFiles = demComplement.getFiles();
+                for (DemandesComplementsFilesBO fichier : demComplementsFiles) {
+                    DemandeFileEsDTO demandeFileEsDTO = new DemandeFileEsDTO(identifiantDem, fichier.getUrl());
+                    demandeFileEsDTO.setMeta(fichier.getMeta());
+                    demandeFileEsDTO.setName(fichier.getName());
+                    demandeFileEsDTO.setTypeFichier(type);
+                    demandeFileEsDTO.setPkDemandes(demComplement.getFkDemandes().getPkDemandes());
+                    demandeFileEsDTO.setPkDemandeFile(fichier.getPkDemandesComplementsFiles());
+                    demandeFileEsDTO.setTypedoc(fichier.getTypedoc());
+                    demandeFileEsDTO.setContent(getFileText(fichier.getUrl()));
+                    demandeFileEsDTO.setLanguage(langue);
+                    demandeFileEsDTO.setDateCreation(date);
+                    filesList.add(demandeFileEsDTO);
+                }
+            }
+        }
+        return filesList;
+    }
 
     /**
      * Méthode permettant de récupérer une liste de DTO avec le contenu des fichier sous forme de chaine de caractéres
@@ -45,7 +150,7 @@ public class DemandeFileEsTransformer {
      * @throws IOException
      */
     public List<DemandeFileEsDTO> getListFileEsContent(DemandeDTO demandeDTO, DemandeFileEsDTO.TYPE type,
-                                                   List<DemandeFileDTO> demandeFileDTOs) throws IOException {
+                                                       List<DemandeFileDTO> demandeFileDTOs) throws IOException {
         List<DemandeFileEsDTO> filesList = new ArrayList<>();
         if (demandeFileDTOs != null) {
             for (DemandeFileDTO demandeFileDTO : demandeFileDTOs) {
@@ -67,16 +172,16 @@ public class DemandeFileEsTransformer {
     public DemandeFileEsDTO getFileEsContent(DemandeDTO demande, DemandeFileEsDTO.TYPE type,
                                              DemandeFileDTO fichier) throws IOException {
         if (fichier != null) {
-            DemandeFileEsDTO demandeFileEsDTO = new DemandeFileEsDTO(demande.getIdentifiant());
-            demandeFileEsDTO.getFichiers().setMeta(fichier.getMeta());
-            demandeFileEsDTO.getFichiers().setName(fichier.getName());
-            demandeFileEsDTO.getFichiers().setUrl(fichier.getUrl());
-            demandeFileEsDTO.getFichiers().setType(type.name());
-            demandeFileEsDTO.getFichiers().setPkDemande(demande.getPkDemandes());
-            demandeFileEsDTO.getFichiers().setIdentifiantDemande(demande.getIdentifiant());
-            demandeFileEsDTO.getFichiers().setTypedoc(fichier.getTypedoc());
-            demandeFileEsDTO.getFichiers().setContent(getFileText(fichier.getUrl(), demande.getDemarcheId()));
-            demandeFileEsDTO.getFichiers().setLanguage(demande.getLangue());
+            DemandeFileEsDTO demandeFileEsDTO = new DemandeFileEsDTO(demande.getIdentifiant(), fichier.getUrl());
+            demandeFileEsDTO.setMeta(fichier.getMeta());
+            demandeFileEsDTO.setName(fichier.getName());
+            demandeFileEsDTO.setTypeFichier(type.name());
+            demandeFileEsDTO.setPkDemandes(demande.getPkDemandes());
+            demandeFileEsDTO.setPkDemandeFile(fichier.getPkDemandesFiles());
+            demandeFileEsDTO.setTypedoc(fichier.getTypedoc());
+            demandeFileEsDTO.setContent(getFileText(fichier.getUrl()));
+            demandeFileEsDTO.setLanguage(demande.getLangue());
+            demandeFileEsDTO.setDateCreation(fichier.getDate());
             return demandeFileEsDTO;
         }
         return null;
@@ -92,33 +197,34 @@ public class DemandeFileEsTransformer {
      * @throws IOException
      */
     public DemandeFileEsDTO getFileEsContent(DemandeDTO demande, DemandeFileEsDTO.TYPE type,
-                                          DemandeCourrierDTO fichier) throws IOException {
+                                             DemandeCourrierDTO fichier) throws IOException {
         if (fichier != null) {
-            DemandeFileEsDTO demandeFileEsDTO = new DemandeFileEsDTO(demande.getIdentifiant());
-            demandeFileEsDTO.getFichiers().setMeta(fichier.getMeta());
-            demandeFileEsDTO.getFichiers().setName(fichier.getName());
-            demandeFileEsDTO.getFichiers().setUrl(fichier.getUrl());
-            demandeFileEsDTO.getFichiers().setType(type.name());
-            demandeFileEsDTO.getFichiers().setIdentifiantDemande(demande.getIdentifiant());
-            demandeFileEsDTO.getFichiers().setIdentifiant(fichier.getIdentifiant());
-            demandeFileEsDTO.getFichiers().setPkDemandeFile(fichier.getPkCourrier());
-            demandeFileEsDTO.getFichiers().setDateCreation(fichier.getDateCreation());
-            demandeFileEsDTO.getFichiers().setPkDemande(demande.getPkDemandes());
-            demandeFileEsDTO.getFichiers().setStatut(fichier.getFkStatut().getLibelle());
-            demandeFileEsDTO.getFichiers().setDatePrinted(fichier.getDatePrinted());
-            demandeFileEsDTO.getFichiers().setContent(getFileText(fichier.getUrl(), demande.getDemarcheId()));
-            demandeFileEsDTO.getFichiers().setLanguage(demande.getLangue());
+            DemandeFileEsDTO demandeFileEsDTO = new DemandeFileEsDTO(demande.getIdentifiant(), fichier.getUrl());
+            demandeFileEsDTO.setMeta(fichier.getMeta());
+            demandeFileEsDTO.setName(fichier.getName());
+            demandeFileEsDTO.setTypeFichier(type.name());
+            demandeFileEsDTO.setIdentifiantFichier(fichier.getIdentifiant());
+            demandeFileEsDTO.setPkDemandeFile(fichier.getPkCourrier());
+            demandeFileEsDTO.setDateCreation(fichier.getDateCreation());
+            demandeFileEsDTO.setPkDemandes(demande.getPkDemandes());
+            demandeFileEsDTO.setStatut(fichier.getFkStatut().getLibelle());
+            demandeFileEsDTO.setDatePrinted(fichier.getDatePrinted());
+            demandeFileEsDTO.setContent(getFileText(fichier.getUrl()));
+            demandeFileEsDTO.setLanguage(demande.getLangue());
             return demandeFileEsDTO;
         }
         return null;
     }
 
-    private String getFileURL(String url, String demarcheId) throws UnsupportedEncodingException {
+    private String getFileURL(String url) throws UnsupportedEncodingException {
+        if (url.startsWith("/")) {
+            url = url.substring(1);
+        }
         String finalFilename = url;
         String[] split = url.split("/");
         String isolatedFileName = split[split.length - 1];
         finalFilename = finalFilename.replace(isolatedFileName, URLEncoder.encode(isolatedFileName, "UTF-8"));
-        return demarcheId + "/" + gouvPropertiesResolver.getContainerId() + "/" + finalFilename;
+        return gouvPropertiesResolver.getDemarcheId() + "/" + gouvPropertiesResolver.getContainerId() + "/" + finalFilename;
     }
 
     private InputStream getFileInputStream(String fileUrl) throws IOException {
@@ -133,8 +239,8 @@ public class DemandeFileEsTransformer {
         return is;
     }
 
-    private String getFileText(String url, String demarcheId) throws IOException {
-        String fileUrl = getFileURL(url, demarcheId);
+    private String getFileText(String url) throws IOException {
+        String fileUrl = getFileURL(url);
         InputStream is = getFileInputStream(fileUrl);
         String fileText = "";
         if (is != null) {

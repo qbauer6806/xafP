@@ -18,12 +18,13 @@ public class DemandesComplementsFilesTransformer
 
     public static DemandeFileEsDTO toEs(DemandesComplementsFilesBO bo, String parent) {
         DemandeFileEsDTO dto = new DemandeFileEsDTO(parent);
-        dto.getFichiers().setName(bo.getName());
-        dto.getFichiers().setUrl(bo.getUrl());
-        dto.getFichiers().setMeta(bo.getMeta());
+        dto.setName(bo.getName());
+        dto.setUrl(bo.getUrl());
+        dto.setMeta(bo.getMeta());
         return dto;
     }
 
+    // TODO inutile ?
     public static List<DemandeFileEsDTO> toEs(List<DemandesComplementsFilesBO> bos, String parent) {
         ArrayList<DemandeFileEsDTO> dtos = new ArrayList<>();
         for (DemandesComplementsFilesBO bo : bos) {
@@ -32,6 +33,7 @@ public class DemandesComplementsFilesTransformer
         return dtos;
     }
 
+    // TODO inutile ?
     public static List<DemandeFileEsDTO> toEs(Set<DemandesComplementsFilesBO> bos, String parent) {
         ArrayList<DemandeFileEsDTO> dtos = new ArrayList<>();
         for (DemandesComplementsFilesBO bo : bos) {
@@ -40,6 +42,7 @@ public class DemandesComplementsFilesTransformer
         return dtos;
     }
 
+    // TODO inutile ?
     public static List<DemandeFileDTO> toDemandeFileDTO(Set<DemandesComplementsFilesBO> bos,
             DemandeFileEsDTO.TYPE type) {
         ArrayList<DemandeFileDTO> dtos = new ArrayList<>();

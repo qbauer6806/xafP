@@ -9,14 +9,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 public class AbstractDemandeDTO {
 
     public static final String OBSERVATION_FIELD_NAME = "observations";
-    public static final String IDENTIFIANT_FIELD_NAME = "identifiant";
     public static final String COURRIER_REF_INTERNE_FIELD_NAME = "courrierRefInterne";
-    public static final String DERNIER_STATUT_FIELD_NAME = "dernierStatut";
-    public static final String CANAL_FIELD_NAME = "canal";
     public static final String DEMARCHE_ID_FIELD_NAME = "demarcheId";
     public static final String USAGER_ID_FIELD_NAME = "usagerId";
     public static final String DATE_CREATION_FIELD_NAME = "dateCreation";
-    public static final String DATE_DEMANDE_FIELD_NAME = "dateDemande";
     public static final String PK_DEMANDE_FIELD_NAME = "pkDemandes";
 
     @JsonFormat(locale = "fr", shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", timezone = "GMT+1")

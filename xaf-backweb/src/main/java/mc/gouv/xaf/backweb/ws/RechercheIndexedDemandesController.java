@@ -100,9 +100,9 @@ public class RechercheIndexedDemandesController extends AbstractController {
             newPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
         }
 
+        Page<DemandeEsRechercheDTO> rechercheDTOS = demandesService.getIndexedDemandes(demandeRecherche, newPageable, new String[]{});
         LOGGER.info("======================= Fin appel de /ws/demandes/pageable");
-
-        return processCustomData(demandesService.getIndexedDemandes(demandeRecherche, newPageable, new String[]{}));
+        return processCustomData(rechercheDTOS);
     }
 
     @GetMapping(value = "/facets")
@@ -130,9 +130,11 @@ public class RechercheIndexedDemandesController extends AbstractController {
     }
 
     private Page<AfBackDemandeEsDTO> processCustomData(Page<DemandeEsRechercheDTO> demandes) {
-
-        if (demandes == null || !demandes.hasContent()) {
+        if (demandes == null) {
             return Page.empty();
+        }
+        if (demandes.isEmpty()) {
+            return Page.empty(demandes.getPageable());
         }
         List<AfBackDemandeEsDTO> newDemandes = new ArrayList<>();
         for (DemandeEsRechercheDTO demande : demandes) {

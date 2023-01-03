@@ -126,14 +126,14 @@
                 </div>
                 <div class="col-xs-12 text-center form-group" id="formWarning"></div>
                 <div class="col-xs-12 col-md-6 form-group">
-                    <label for="periodeStartDatePicker">Date de début<span class="required"></span></label>
+                    <label for="periodeStartDatePicker">Date de début</label>
                     <div class="input-group date" id="periodeStartDatePicker">
                         <input class="form-control" id="periodeStartDate" name="periodeStartDate" type="text"/>
                         <span class="input-group-addon"><i class="icon-action_calendrier"></i></span>
                     </div>
                 </div>
                 <div class="col-xs-12 col-md-6 form-group">
-                    <label for="periodeEndDatePicker">Date de fin<span class="required"></span></label>
+                    <label for="periodeEndDatePicker">Date de fin</label>
                     <div class="input-group date" id="periodeEndDatePicker">
                         <input class="form-control" id="periodeEndDate" name="periodeEndDate" type="text"/>
                         <span class="input-group-addon"><i class="icon-action_calendrier"></i></span>
@@ -449,11 +449,14 @@
             var startDate = $('#periodeStartDate').val();
             var endDate = $('#periodeEndDate').val();
 
-            if (startDate !== '' && endDate !== '') {
-                var startMoment = moment(startDate, momentFormat);
-                var endMoment = moment(endDate, momentFormat);
+            if (startDate === '' && endDate === '') {
+                $('#formError').html('Veuillez renseignner au moins une des deux dates.');
+            } else {
                 var today = moment();
                 today.set({hour: 0, minute: 0, second: 0, millisecond: 0});
+                var startMoment = (startDate !== '') ? moment(startDate, momentFormat) : today;
+                var endMoment = (endDate !== '') ? moment(endDate, momentFormat)
+                    : moment().set({hour: 23, minute: 59, second: 0, millisecond: 0}).add(100, 'years');
 
                 // On vérifie en cas de création ou de modification de la date de début,
                 // Si la périodes est après la date d'aujourd'hui
@@ -466,14 +469,13 @@
                     if (pageLength) {
                         $('#pageLengthNumber').val(pageLength);
                     }
+                    $('#periodeStartDate').val(startMoment.format(momentFormat));
+                    $('#periodeEndDate').val(endMoment.format(momentFormat));
                     $('#formError').html('');
                     $('#formSubmit').click();
                     $('#saveBtn').prop('disabled', true);
                     return true;
                 }
-
-            } else {
-                $('#formError').html('Les dates doivent être renseignées.');
             }
 
             e.preventDefault();

@@ -44,7 +44,7 @@ public class PaiementInfoServlet extends AbstractAfServlet {
         UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(request);
         if (usagerInfosDTO == null) {
             AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
-                    "Utilisateur non autorisé");
+                    SharedMessages.UTILISATEUR_NON_AUTORISE);
             return;
         }
         LOGGER.info("Récupération des paramètres...");

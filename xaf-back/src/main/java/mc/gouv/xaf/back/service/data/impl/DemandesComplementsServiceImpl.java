@@ -190,7 +190,7 @@ public class DemandesComplementsServiceImpl implements DemandesComplementsServic
         // #46414 - Faille de sécurité, il faut vérifier que l'usager qui a créé cette demande est à l'origine du changement
         if (demandeComplementsReponse.getUsagerId() != null
                 && !demandeComplementsReponse.getUsagerId().equals(demandesComplementsBO.getFkDemandes().getFkAccess().getUsagerId())) {
-            throw new DemarchesServiceException("Utilisateur non autorisé", HttpStatus.UNAUTHORIZED);
+            throw new DemarchesServiceException(SharedMessages.UTILISATEUR_NON_AUTORISE, HttpStatus.UNAUTHORIZED);
         }
 
         // Ne pas répondre deux fois à une demande

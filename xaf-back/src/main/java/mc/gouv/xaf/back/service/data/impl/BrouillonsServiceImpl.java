@@ -150,7 +150,7 @@ public class BrouillonsServiceImpl implements BrouillonsService {
 
         // #46373 - Faille de sécurité, il faut vérifier que l'usager qui a créé ce brouillon est à l'origine du changement
         if (!usagerId.equals(brouillonBo.getFkAccess().getUsagerId())) {
-            throw new DemarchesServiceException("Utilisateur non autorisé", HttpStatus.UNAUTHORIZED);
+            throw new DemarchesServiceException(SharedMessages.UTILISATEUR_NON_AUTORISE, HttpStatus.UNAUTHORIZED);
         }
 
 	LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
@@ -185,7 +185,7 @@ public class BrouillonsServiceImpl implements BrouillonsService {
 
         // #46373 - Faille de sécurité, il faut vérifier que l'usager qui a créé ce brouillon est à l'origine du changement
         if (!usagerId.equals(brouillonBo.getFkAccess().getUsagerId())) {
-            throw new DemarchesServiceException("Utilisateur non autorisé", HttpStatus.UNAUTHORIZED);
+            throw new DemarchesServiceException(SharedMessages.UTILISATEUR_NON_AUTORISE, HttpStatus.UNAUTHORIZED);
         }
 
         ObjectMapper mapper = new ObjectMapper();
@@ -239,7 +239,7 @@ public class BrouillonsServiceImpl implements BrouillonsService {
         AccessBO access = brouillonBo.getFkAccess();
         // #46373 - Faille de sécurité, il faut vérifier que l'usager qui a créé ce brouillon est à l'origine du changement
         if (!usagerId.equals(access.getUsagerId())) {
-            throw new DemarchesServiceException("Utilisateur non autorisé", HttpStatus.UNAUTHORIZED);
+            throw new DemarchesServiceException(SharedMessages.UTILISATEUR_NON_AUTORISE, HttpStatus.UNAUTHORIZED);
         }
 
         access.getBrouillons().remove(brouillonBo);

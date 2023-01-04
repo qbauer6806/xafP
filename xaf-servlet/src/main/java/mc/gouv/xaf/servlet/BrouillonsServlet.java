@@ -124,7 +124,7 @@ public class BrouillonsServlet extends AbstractAfServlet {
                 brouillonDto = afApiClient.creerBrouillon(brouillonInput, usagerInfosDTO.getId());
                 response.setStatus(HttpStatus.SC_CREATED);
             } else {
-                brouillonDto = afApiClient.updateBrouillon(brouillonInput, Integer.parseInt(brouillonId));
+                brouillonDto = afApiClient.updateBrouillon(brouillonInput, Integer.parseInt(brouillonId), usagerInfosDTO.getId());
                 response.setStatus(HttpStatus.SC_OK);
             }
 
@@ -178,7 +178,7 @@ public class BrouillonsServlet extends AbstractAfServlet {
             }
             else {
                 LOGGER.info("Appel à la démarche pour récupérer le brouillon {}", brouillonId);
-                BrouillonDTO brouillonDto = afApiClient.getBrouillon(Integer.parseInt(brouillonId));
+                BrouillonDTO brouillonDto = afApiClient.getBrouillon(Integer.parseInt(brouillonId), usagerInfosDTO.getId());
                 // TODO : gestion des erreurs
                 response.setStatus(HttpStatus.SC_OK);
                 repJson = mapper.writeValueAsString(brouillonDto);
@@ -201,12 +201,13 @@ public class BrouillonsServlet extends AbstractAfServlet {
         if (params.length == 0) {
             return;
         }
+        UsagerInfosDTO usagerInfosDTO = (UsagerInfosDTO) params[0];
         String brouillonId = (String) params[1];
         AfApiClient afApiClient = (AfApiClient) params[2];
 
         LOGGER.info("Appel à la démarche pour supprimer le brouillon");
         try {
-            afApiClient.deleteBrouillon(Integer.parseInt(brouillonId));
+            afApiClient.deleteBrouillon(Integer.parseInt(brouillonId), usagerInfosDTO.getId());
             response.setStatus(HttpStatus.SC_OK);
         } catch (NumberFormatException e) {
             LOGGER.error("BrouillonsServlet - Une erreur est survenue lors de l'appel à la méthode DELETE", e);

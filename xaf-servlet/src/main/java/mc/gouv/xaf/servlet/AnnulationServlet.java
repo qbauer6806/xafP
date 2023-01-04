@@ -22,7 +22,7 @@ import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
 public class AnnulationServlet extends AbstractAfServlet {
 
     private static final long serialVersionUID = -7898768899143027088L;
-
+    
     private static final Logger LOGGER = LoggerFactory.getLogger(AnnulationServlet.class);
 
     @Override
@@ -36,6 +36,7 @@ public class AnnulationServlet extends AbstractAfServlet {
                     "Utilisateur non autorisé");
             return;
         }
+        
 
         String pathInfo = request.getPathInfo();
         String demandeId = null;
@@ -60,14 +61,26 @@ public class AnnulationServlet extends AbstractAfServlet {
         LOGGER.info("Appel à la démarche...");
 
         AfApiClient afApiClient = getAfApiClient();
+        Integer demandeIdParsed;
+        
         try {
-            afApiClient.annulerDemande(Integer.parseInt(demandeId), usagerId);
+        	demandeIdParsed = Integer.parseInt(demandeId);
         } catch (NumberFormatException e) {
             LOGGER.error("Problème lors du parsing du demandeId");
             AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_INTERNAL_SERVER_ERROR,
                     "Problème lors du parsing du demandeId");
             return;
         }
+        
+        try {
+			afApiClient.getDemande(usagerId, demandeIdParsed);
+		} catch (Exception exception) {
+			AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
+                    "Utilisateur non autorisé");
+            return;
+		}
+
+            afApiClient.annulerDemande(demandeIdParsed, usagerId);
 
         LOGGER.info("Retour au client...");
 

@@ -83,7 +83,9 @@ public class AfApiClient extends ApiClient {
     }
     
     public DemandeDTO updateDemande(Integer demandeId, DemandeInputDTO demande, Integer usagerId) {
-        Response res = getTarget().path("demandes/" + demandeId).queryParam("usagerId", usagerId).request(MediaType.APPLICATION_JSON)
+        Response res = getTarget().path("demandes/" + demandeId)
+                .queryParam(RequestConstant.USAGERID_PARAM, usagerId)
+                .request(MediaType.APPLICATION_JSON)
                 .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue())
                 .put(Entity.entity(demande, MediaType.APPLICATION_JSON));
 
@@ -261,8 +263,9 @@ public class AfApiClient extends ApiClient {
         return res.readEntity(BrouillonDTO.class);
     }
     
-    public BrouillonDTO updateBrouillon(BrouillonDTO brouillon, Integer brouillonId) {
+    public BrouillonDTO updateBrouillon(BrouillonDTO brouillon, Integer brouillonId, Integer usagerId) {
         Response res = getTarget().path(RequestConstant.BROUILLONS_PATH + '/' + brouillonId)
+                .queryParam(RequestConstant.USAGERID_PARAM, usagerId)
                 .request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
                 .put(Entity.entity(brouillon, MediaType.APPLICATION_JSON));
@@ -284,8 +287,9 @@ public class AfApiClient extends ApiClient {
         });
     }
     
-    public BrouillonDTO getBrouillon(Integer brouillonId) {
+    public BrouillonDTO getBrouillon(Integer brouillonId, Integer usagerId) {
         Response res = getTarget().path('/' + RequestConstant.BROUILLONS_PATH + '/' + brouillonId)
+                .queryParam(RequestConstant.USAGERID_PARAM, usagerId)
                 .request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue()).get();
 
@@ -294,8 +298,9 @@ public class AfApiClient extends ApiClient {
         return res.readEntity(BrouillonDTO.class);
     }
     
-    public void deleteBrouillon(Integer brouillonId) {
+    public void deleteBrouillon(Integer brouillonId, Integer usagerId) {
         Response res = getTarget().path('/' + RequestConstant.BROUILLONS_PATH + '/' + brouillonId)
+                .queryParam(RequestConstant.USAGERID_PARAM, usagerId)
                 .request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue()).delete();
 

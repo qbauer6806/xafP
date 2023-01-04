@@ -240,10 +240,11 @@ public abstract class AbstractAfApiController implements AfApiController {
     
     @PutMapping(value = "/brouillons/{brouillonId}")
     public BrouillonDTO updateBrouillonRequest(@Valid @RequestBody BrouillonDTO brouillon,
-    		@PathVariable(value = "brouillonId") Integer brouillonId) {
-        LOGGER.info("AbstractAfApiController.updateBrouillonRequest({}, {})", brouillon, brouillonId);
+    		@PathVariable(value = "brouillonId") Integer brouillonId,
+            @RequestParam(value = "usagerId") Integer usagerId) {
+        LOGGER.info("AbstractAfApiController.updateBrouillonRequest({}, {}, {})", brouillon, brouillonId, usagerId);
         brouillon.setPkBrouillons(brouillonId);
-        return updateBrouillon(brouillon);
+        return updateBrouillon(brouillon, usagerId);
     }
     
     @GetMapping(value = "/brouillons")
@@ -253,15 +254,17 @@ public abstract class AbstractAfApiController implements AfApiController {
     }
     
     @GetMapping(value = "/brouillons/{brouillonId}")
-    public @ResponseBody BrouillonDTO getBrouillonRequest(@PathVariable(value = "brouillonId") Integer brouillonId) {
-        LOGGER.info("AbstractAfApiController.getBrouillonRequest({})", brouillonId);
-        return getBrouillon(brouillonId);
+    public @ResponseBody BrouillonDTO getBrouillonRequest(@PathVariable(value = "brouillonId") Integer brouillonId,
+                                                          @RequestParam(value = "usagerId") Integer usagerId) {
+        LOGGER.info("AbstractAfApiController.getBrouillonRequest({}, {})", brouillonId, usagerId);
+        return getBrouillon(brouillonId, usagerId);
     }
     
     @DeleteMapping(value = "/brouillons/{brouillonId}")
-    public void deleteBrouillonRequest(@PathVariable(value = "brouillonId") Integer brouillonId) throws JsonProcessingException {
-        LOGGER.info("AbstractAfApiController.deleteBrouillonRequest({})", brouillonId);
-        deleteBrouillon(brouillonId);
+    public void deleteBrouillonRequest(@PathVariable(value = "brouillonId") Integer brouillonId,
+                                       @RequestParam(value = "usagerId") Integer usagerId) throws JsonProcessingException {
+        LOGGER.info("AbstractAfApiController.deleteBrouillonRequest({}, {})", brouillonId, usagerId);
+        deleteBrouillon(brouillonId, usagerId);
     }
     
     @GetMapping(value = "/brouillonspage")

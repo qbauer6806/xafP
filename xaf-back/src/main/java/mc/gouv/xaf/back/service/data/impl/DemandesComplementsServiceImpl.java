@@ -187,6 +187,12 @@ public class DemandesComplementsServiceImpl implements DemandesComplementsServic
 
         DemandesComplementsBO demandesComplementsBO = getDemandeComplementsBO(demarcheId, pkDemande, pkDemandeComplements);
 
+        // #46414 - Faille de sécurité, il faut vérifier que l'usager qui a créé cette demande est à l'origine du changement
+        if (demandeComplementsReponse.getUsagerId() != null
+                && !demandeComplementsReponse.getUsagerId().equals(demandesComplementsBO.getFkDemandes().getFkAccess().getUsagerId())) {
+            throw new DemarchesServiceException("Utilisateur non autorisé", HttpStatus.UNAUTHORIZED);
+        }
+
         // Ne pas répondre deux fois à une demande
         if (demandesComplementsBO.getStatut().equals(DemandeComplementsStatutEnum.REPONDUE.name())) {
             throw new DemarchesServiceException(
@@ -276,6 +282,7 @@ public class DemandesComplementsServiceImpl implements DemandesComplementsServic
             for (DemandesComplementsBO dcBo : dcsBo) {
                 dcBo.setPkDemandesComplements(null);
                 dcBo.setFkDemandes(newDemandeBo);
+                dcBo.setDateReponse(new Date());
                 Set<DemandesComplementsFilesBO> dcBoFiles = dcBo.getFiles();
                 dcBo.setFiles(null);
                 demandesComplementsRepository.save(dcBo);

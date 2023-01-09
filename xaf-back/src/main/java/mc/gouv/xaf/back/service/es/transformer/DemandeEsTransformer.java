@@ -42,7 +42,6 @@ import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.DemandesHistoriqueService;
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
-import mc.gouv.xaf.back.service.motifs.MotifsCache;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
 import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
 import mc.gouv.xaf.shared.dto.DemandeCourrierDTO;
@@ -77,9 +76,6 @@ public class DemandeEsTransformer {
     IndexedDemandeDataJsonNodeTransformer indexedDemandeDataJsonNodeTransformer;
 
     @Inject
-    MotifsCache motifsCache;
-
-    @Inject
     DemandesStatutsEsTransformer demandesStatutsEsTransformer;
 
     @Inject
@@ -108,6 +104,14 @@ public class DemandeEsTransformer {
 
         return new PageImpl<>(demandesEs);
 
+    }
+
+    public List<DemandeEsDTO> toEs(List<DemandeDTO> demandes) {
+        List<DemandeEsDTO> demandesEs = new ArrayList<>();
+        for (DemandeDTO dem : demandes) {
+            demandesEs.add(toEs(dem, true));
+        }
+        return demandesEs;
     }
 
     public DemandeEsDTO toEs(DemandeBO demande) throws IOException {
@@ -271,12 +275,6 @@ public class DemandeEsTransformer {
         demandeEsDTO.setJustificatifsTraitement(justifs);
 
         return demandeEsDTO;
-    }
-
-    public DemandeEsDTO toEs(DemandeDTO demandeDTO) {
-
-        return toEs(demandeDTO, null);
-
     }
 
     public DemandeEsDTO bo2Dto(DemandeBO bo, String[] fields) {

@@ -1,4 +1,4 @@
-package mc.gouv.xaf.back.paiement.data.service;
+package mc.gouv.xaf.back.paiement.service.data;
 
 import java.util.Date;
 import java.util.List;

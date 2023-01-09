@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 
+import mc.gouv.xaf.back.data.entity.AccessBO;
 import mc.gouv.xaf.back.service.data.StatistiquesService;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.DemandeRecapDTO;
@@ -79,21 +80,18 @@ public class DemandesStatutsServiceImpl implements DemandesStatutsService {
 
         // Gérer les accès désactivés
         //#4877 - Traitement après désinscription, Il faut pouvoir mettre à jour des statuts de demande même si l'usager s'est désactivé de la démarche
-
         if (demandeBo == null) {
             throw new DemarchesServiceException(SharedMessages.DEMANDE_ASSOCIEE_INTROUVABLE, HttpStatus.NOT_FOUND);
         }
 
-        demandeBo = updateStatut(demandeBo, statut, agentId, usagerId, codeMotif, commentaire, texteAEnvoyer);
-
-        return DemandesTransformer.bo2Dto(demandeBo);
+        return updateStatut(demandeBo, statut, agentId, usagerId, codeMotif, commentaire, texteAEnvoyer);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public DemandeBO updateStatut(DemandeBO demande, String statut, String agentId, Integer usagerId,
+    public DemandeDTO updateStatut(DemandeBO demande, String statut, String agentId, Integer usagerId,
             String codeMotif, String commentaire, String texteAEnvoyer) {
     	
     	LOGGER.info("updateStatut({}, {}, {}, {}, {}, {}, {})", demande.getPkDemandes(), statut, agentId, usagerId, codeMotif, commentaire, texteAEnvoyer);
@@ -104,15 +102,14 @@ public class DemandesStatutsServiceImpl implements DemandesStatutsService {
     	}
     	
         LOGGER.info("Constitution du nouveau statut ({}) et sauvegarde en base...", statut);
-        DemandeStatutDTO statutDto = new DemandeStatutDTO();
-        statutDto.setLibelle(statut);
-        statutDto.setDate(new Date());
-        statutDto.setUsagerId(usagerId);
-        statutDto.setAgentId(agentId);
-        statutDto.setCodeMotif(codeMotif);
-        statutDto.setCommentaire(commentaire);
-        statutDto.setTexteAEnvoyer(texteAEnvoyer);
-        DemandesStatutsBO statutBo = DemandesStatutsTransformer.dto2Bo(statutDto);
+        DemandesStatutsBO statutBo = new DemandesStatutsBO();
+        statutBo.setLibelle(statut);
+        statutBo.setDate(new Date());
+        statutBo.setUsagerId(usagerId);
+        statutBo.setAgentId(agentId);
+        statutBo.setCodeMotif(codeMotif);
+        statutBo.setCommentaire(commentaire);
+        statutBo.setTexteAEnvoyer(texteAEnvoyer);
         statutBo.setFkDemandes(demande);
         if (demande.getStatuts() == null) {
             demande.setStatuts(new HashSet<>());
@@ -146,7 +143,26 @@ public class DemandesStatutsServiceImpl implements DemandesStatutsService {
         DemandeDTO demandeDTO = DemandesTransformer.bo2Dto(demande);
         statistiquesService.saveStatistique(demandeDTO);
 
-        return demande;
+        return demandeDTO;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<DemandeDTO> updateMultipleStatuts(List<DemandeDTO> demandes, String statut) {
+        List<DemandeDTO> saved = new ArrayList<>();
+        for (DemandeDTO demandeDTO : demandes) {
+            DemandeBO demandeBO = DemandesTransformer.dto2Bo(demandeDTO);
+            AccessBO accessBO = new AccessBO();
+            accessBO.setPkAccess(demandeDTO.getFkAccess());
+            accessBO.setDemarcheId(demandeDTO.getDemarcheId());
+            accessBO.setUsagerId(demandeDTO.getUsagerId());
+            demandeBO.setFkAccess(accessBO);
+            DemandeDTO demandeDTOSaved = updateStatut(demandeBO, statut, null, null, null, null, null);
+            saved.add(demandeDTOSaved);
+        }
+        return saved;
     }
 
     /**

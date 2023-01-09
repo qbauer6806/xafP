@@ -83,7 +83,6 @@ import org.springframework.data.elasticsearch.core.query.SearchQuery;
 import org.springframework.data.elasticsearch.core.query.SourceFilter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-import org.xml.sax.SAXException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -565,6 +564,13 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             }
         }
         LOGGER.info("Fin de l'indexation de la demande.");
+    }
+
+    @Override
+    public void indexElements(List<DemandeDTO> demandes) {
+        List<DemandeEsDTO> demandesEs = demandeEsTransformer.toEs(demandes);
+        demandeEsRepository.saveAll(demandesEs);
+        LOGGER.info("Fin de l'indexation des demandes.");
     }
 
     /**
@@ -1494,7 +1500,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      * Méhode permettant de mettre à jour une demande et de la réindexer
      */
     @Override
-    public DemandeDTO updateDemande(DemandeDTO demande, boolean partialUpdate) throws IOException, SAXException {
+    public DemandeDTO updateDemande(DemandeDTO demande, boolean partialUpdate) {
         DemandeDTO demandeDTO = super.updateDemande(demande, partialUpdate);
         try {
             indexDemande(demandeDTO);

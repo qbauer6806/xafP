@@ -3,6 +3,7 @@ package mc.gouv.xaf.back.service.es.impl;
 import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
 import mc.gouv.xaf.back.data.es.model.EsErrorEventDTO;
 import mc.gouv.xaf.back.exception.AfIndexingException;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.impl.DemandesStatutsServiceImpl;
 import mc.gouv.xaf.back.service.es.IndexedDemandeService;
 import mc.gouv.xaf.back.service.es.handlers.EsTransactionErrorsHandler;
@@ -15,6 +16,8 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 /**
  * @author dsaidiparto.ext
@@ -35,6 +38,9 @@ public class IndexedEsDemandesStatutsServiceImpl extends DemandesStatutsServiceI
     @Autowired
     private ApplicationEventPublisher applicationEventPublisher;
 
+    @Autowired
+    private GouvPropertiesResolver gouvPropertiesResolver;
+
     /**
      * {@inheritDoc}
      */
@@ -53,6 +59,23 @@ public class IndexedEsDemandesStatutsServiceImpl extends DemandesStatutsServiceI
             indexDemandeStatus(demandeDTO);
         }
         return demandeDTO;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<DemandeDTO> updateMultipleStatuts(List<DemandeDTO> demandes, String statut) {
+        List<DemandeDTO> saved = super.updateMultipleStatuts(demandes, statut);
+        LOGGER.info("Indexation des Statuts des demandes.");
+        try {
+            indexedDemandeService.indexElements(saved);
+        } catch (Exception e) {
+            EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("IndexedEsDemandesStatutsServiceImpl - méthode updateMultipleStatuts()", demandes, gouvPropertiesResolver.getDemarcheId(), e);
+            applicationEventPublisher.publishEvent(esErrorEventDTO);
+            throw new AfIndexingException(e.getMessage(), e);
+        }
+        return saved;
     }
 
     private void indexDemandeStatus(DemandeDTO demandeDTO) {

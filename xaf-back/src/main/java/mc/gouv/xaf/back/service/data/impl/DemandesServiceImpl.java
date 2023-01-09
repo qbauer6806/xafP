@@ -202,7 +202,7 @@ public class DemandesServiceImpl implements DemandesService {
 
 		// Créer le premier statut de la demande
 		LOGGER.info("Création d'un statut \"En attente\" pour la demande...");
-		demandeBo = demandesStatutsService.updateStatut(demandeBo, premierStatut, null,
+		DemandeDTO demandeDTO = demandesStatutsService.updateStatut(demandeBo, premierStatut, null,
 				demandeBo.getFkAccess().getUsagerId(), null, null, null);
 
 		// Lier les fichiers de la demande au DemandeID, dans FILE
@@ -212,8 +212,7 @@ public class DemandesServiceImpl implements DemandesService {
 					demandeBo.getPkDemandes());
 		}
 
-		LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
-		return DemandesTransformer.bo2Dto(demandeBo);
+		return demandeDTO;
 	}
 
 	/**
@@ -545,9 +544,16 @@ public class DemandesServiceImpl implements DemandesService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public DemandeDTO updateDemande(DemandeDTO demande, boolean partialUpdate) throws IOException, SAXException {
+	public DemandeDTO updateDemande(DemandeDTO demande, boolean partialUpdate) {
+		return updateDemande(demande, partialUpdate, true);
+	}
 
-		DemandeBO demandeBo = getCheckDemarcheDemandeBO(demande.getDemarcheId(), demande, true);
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public DemandeDTO updateDemande(DemandeDTO demande, boolean partialUpdate, boolean checkActive) {
+		DemandeBO demandeBo = getCheckDemarcheDemandeBO(demande.getDemarcheId(), demande, checkActive);
 
 		// Mise à jour du contenu
 		if (!partialUpdate || demande.getContenu() != null && !demande.getContenu().isNull()) {

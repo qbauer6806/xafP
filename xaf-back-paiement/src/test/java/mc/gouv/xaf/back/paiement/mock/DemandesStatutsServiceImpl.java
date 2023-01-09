@@ -1,0 +1,42 @@
+package mc.gouv.xaf.back.paiement.mock;
+
+import mc.gouv.xaf.back.data.entity.DemandeBO;
+import mc.gouv.xaf.back.service.data.DemandesStatutsService;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+
+@Component
+public class DemandesStatutsServiceImpl implements DemandesStatutsService {
+    @Override
+    public DemandeDTO updateStatut(String demarcheId, Integer demandeId, String statut, String agentId, Integer usagerId, String codeMotif, String commentaire, String texteAEnvoyer) {
+        return null;
+    }
+
+    @Override
+    public DemandeDTO updateStatut(DemandeBO demande, String statut, String agentId, Integer usagerId, String codeMotif, String commentaire, String texteAEnvoyer) {
+        return null;
+    }
+
+    @Override
+    public List<DemandeDTO> updateMultipleStatuts(List<DemandeDTO> demandes, String statut) {
+        return null;
+    }
+
+    @Override
+    public DemandeStatutDTO getStatut(String demarcheId, Integer demandeId) {
+        return null;
+    }
+
+    @Override
+    public List<DemandeStatutDTO> getStatuts(String demarcheId, Integer demandeId) {
+        return null;
+    }
+
+    @Override
+    public void clonerStatuts(DemandeBO demandeBo, DemandeBO newDemandeBo) {
+
+    }
+}

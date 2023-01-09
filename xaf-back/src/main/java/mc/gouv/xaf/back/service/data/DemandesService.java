@@ -21,13 +21,6 @@ import java.util.List;
 public interface DemandesService {
 
     /**
-     * Permet de sauvegarder en base une demande
-     *
-     * @return La demande sauvegardée
-     */
-    DemandeDTO saveDemande(DemandeDTO demande, String premierStatut) throws IOException;
-
-    /**
      * Permet de récupérer les demandes correspondant au DemarcheID et qui matchent les identifiants
      */
     List<DemandeDTO> getDemandesByIdentifiants(List<String> identifiants);
@@ -91,7 +84,16 @@ public interface DemandesService {
      * @param partialUpdate true si il faut effectuer une mise à jour partielle
      * @return La demande modifiée
      */
-    DemandeDTO updateDemande(DemandeDTO demande, boolean partialUpdate) throws IOException, SAXException;
+    DemandeDTO updateDemande(DemandeDTO demande, boolean partialUpdate);
+
+    /**
+     * Permet de modifier une demande
+     *
+     * @param partialUpdate true si il faut effectuer une mise à jour partielle
+     *
+     * @return La demande modifiée
+     */
+    DemandeDTO updateDemande(DemandeDTO demande, boolean partialUpdate, boolean checkActive);
 
     /**
      * Permet de supprimer une demande à partir du DemarcheID et de l'UsagerID
@@ -99,6 +101,13 @@ public interface DemandesService {
     void deleteDemande(String demarcheId, Integer demandeId) throws JsonProcessingException;
 
     void deleteDemandeInGivenStatus(String demarcheId, Integer demandeId, List<String> statuts, int jours) throws JsonProcessingException;
+
+    /**
+     * Permet de sauvegarder en base une demande
+     *
+     * @return La demande sauvegardée
+     */
+    DemandeDTO saveDemande(DemandeDTO demande, String premierStatut) throws IOException;
 
     /**
      * Permet de sauvegarder ou mettre à jour une demande en base

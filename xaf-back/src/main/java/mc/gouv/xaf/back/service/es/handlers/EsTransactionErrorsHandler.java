@@ -22,8 +22,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Service permettant de handle les erreurs relatives à ES dans un contexte Transactionnel
@@ -54,12 +53,17 @@ public class EsTransactionErrorsHandler {
     private AfBackUtils afBackUtils;
 
     public static EsErrorEventDTO createErrorEvent(String contexte, DemandeDTO demandeDTO, Exception e) {
+        return createErrorEvent(contexte, Collections.singletonList(demandeDTO), demandeDTO.getDemarcheId(), e);
+    }
+
+    public static EsErrorEventDTO createErrorEvent(String contexte, List<DemandeDTO> demandeDTOS, String demarcheId, Exception e) {
+        String[] tab = preparerMail(demandeDTOS);
         EsErrorEventDTO errorEventDTO = new EsErrorEventDTO();
         errorEventDTO.setContexte(contexte);
         errorEventDTO.setDateTransaction(LocalDateTime.now());
-        errorEventDTO.setDemandeId(demandeDTO.getPkDemandes());
-        errorEventDTO.setDemarcheId(demandeDTO.getDemarcheId());
-        errorEventDTO.setIdentifiantDemande(demandeDTO.getIdentifiant());
+        errorEventDTO.setDemandeIds(tab[0]);
+        errorEventDTO.setPhraseDemandes(tab[1]);
+        errorEventDTO.setDemarcheId(demarcheId);
         errorEventDTO.setException(convertExceptionToHtmlString(e));
         return errorEventDTO;
     }
@@ -68,10 +72,25 @@ public class EsTransactionErrorsHandler {
         EsErrorEventDTO errorEventDTO = new EsErrorEventDTO();
         errorEventDTO.setContexte(contexte);
         errorEventDTO.setDateTransaction(LocalDateTime.now());
-        errorEventDTO.setDemandeId(demandeId);
+        errorEventDTO.setPhraseDemandes("La demande impactée avait pour id: <b>" + demandeId + "</b>.");
         errorEventDTO.setDemarcheId(demarcheId);
         errorEventDTO.setException(convertExceptionToHtmlString(e));
         return errorEventDTO;
+    }
+
+    private static String[] preparerMail(List<DemandeDTO> demandeDTOS) {
+        StringBuilder phraseBuilder = new StringBuilder("Les demandes suivantes sont impactées :<br><ul>");
+        StringJoiner listeIdDemandes = new StringJoiner(",");
+        for (DemandeDTO d : demandeDTOS) {
+            listeIdDemandes.add("" + d.getPkDemandes());
+            phraseBuilder.append("<li><b>")
+                    .append(d.getIdentifiant())
+                    .append("</b> qui avait pour id: <b>")
+                    .append(d.getPkDemandes())
+                    .append("</b>.</li>");
+        }
+        phraseBuilder.append("</ul>");
+        return new String[]{listeIdDemandes.toString(), phraseBuilder.toString()};
     }
 
     private static String convertExceptionToHtmlString(Exception e) {
@@ -109,7 +128,7 @@ public class EsTransactionErrorsHandler {
         emailInfo.setSubjectTemplateCode(MAIL_TEMPLATE_ES_ROLLBACK_OBJET);
         emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(), afBackUtils.getDemarcheInfos().getEmailFromNom());
         emailInfo.setReplyto(afBackUtils.getDemarcheInfos().getEmailReplyto(), afBackUtils.getDemarcheInfos().getEmailReplytoNom());
-        emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, errorEventDTO.getIdentifiantDemande());
+        emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, errorEventDTO.getDemandeIds());
         emailInfo.setLangue("fr");
         return emailInfo;
     }

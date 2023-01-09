@@ -41,7 +41,16 @@ public interface DemandesStatutsService {
      * @param texteAEnvoyer Le texte du justificatif / courrier à envoyer à l'usagé associé au changement de statut, si nécessaire
      * @return L'objet BO de la demande mise à jour
      */
-    DemandeBO updateStatut(DemandeBO demande, String statut, String agentId, Integer usagerId, String codeMotif, String commentaire, String texteAEnvoyer);
+    DemandeDTO updateStatut(DemandeBO demande, String statut, String agentId, Integer usagerId, String codeMotif, String commentaire, String texteAEnvoyer);
+
+    /**
+     * Permet de mettre le même statut sur plusieurs demandes en même temps.
+     *
+     * @param demandes  La liste des demandes à mettre à jour
+     * @param statut    Le nouveau statut
+     * @return          La liste à jour des demandes
+     */
+    List<DemandeDTO> updateMultipleStatuts(List<DemandeDTO> demandes, String statut);
 
     /**
      * Récupérer le dernier statut d'une demande

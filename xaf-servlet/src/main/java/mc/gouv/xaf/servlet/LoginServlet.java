@@ -179,11 +179,13 @@ public class LoginServlet extends AbstractAfServlet {
 
         // Le SessionID est stocké dans l'URL parameter "id"
         String sessionId = request.getParameter("id");
-        String safe = sessionId.replaceAll(SharedMessages.UNSAFE_CHARS, "_");
-        LOGGER.info("SessionID = {}", safe);
+        if (null != sessionId) {
+            String safe = sessionId.replaceAll(SharedMessages.UNSAFE_CHARS, "_");
+            LOGGER.info("SessionID = {}", safe);
+        }
 
         if (StringUtils.isBlank(sessionId)) {
-            // Pas d'ID donné en paramètre, donc appel à GICHKEY pour faire le logout
+            LOGGER.info("Pas d'ID donné en paramètre, donc appel à GICHKEY pour faire le logout");
         	UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(request);
         	HttpResponse postResponse = GichkeyService.logout(usagerInfosDTO);
         	int statusCode = postResponse.getStatusLine().getStatusCode();

@@ -15,6 +15,7 @@ import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.enums.MailSupportEnum;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.HttpResponseException;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.HttpUrlConnectorProvider;
@@ -41,7 +42,6 @@ import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
 public class MoneticoApiClient implements PaiementApiClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MoneticoApiClient.class);
-
     private final WebTarget target;
     private final String tpe;
     private final PaiementPropertiesResolver paiementPropertiesResolver;
@@ -85,70 +85,7 @@ public class MoneticoApiClient implements PaiementApiClient {
         LOGGER.info("Parameters [ OperationBO {}] ", commandeOperationDTO);
         LOGGER.info("Parameters [ DemandeDTO {}] ", demandeDTO);
 
-        String dateCommande = commandeDTO.getDateCreation().format(dateFormatter);
-        String dateCapture = LocalDateTime.now().format(dateTimeFormatter);
-        Operation<String> operation = new Operation<String>() {
-            @Override
-            public void execute() throws HttpResponseException {
-
-                String montant = commandeDTO.getMontantInitial() + paiementPropertiesResolver.getCurrency();
-                String montantACapturer = commandeOperationDTO.getMontant() + paiementPropertiesResolver.getCurrency();
-                String montantDejaCapture = commandeDTO.getMontantDejaCapture() + paiementPropertiesResolver.getCurrency();
-                String montantRestant = (commandeDTO.getMontantRestant() - commandeOperationDTO.getMontant()) + paiementPropertiesResolver.getCurrency();
-                String version = paiementPropertiesResolver.getVersionCapture();
-                MoyenPaiementDTO moyenPaiementDTO = commandeDTO.getMoyenPaiement();
-                LOGGER.info("Paramètres Capture:\nURL: {}\nTPE: {}\nmontant: {}\nmontant_a_capturer: {}\nmontant_deja_capture: {}\nmontant_restant: {}\nlgue: {}\nreference: {}\ndate (date de la capture): {}\ndate_commande: {}\nsociete: {}\nversion {}",
-                        paiementPropertiesResolver.getCaptureUrl(), getTpe(), montant, montantACapturer, montantDejaCapture, montantRestant, moyenPaiementDTO.getLangue(),
-                        moyenPaiementDTO.getPkMoyenPaiements(), dateCapture, dateCommande, moyenPaiementDTO.getCodeSociete(), version);
-
-                // Permet de désactiver la capture en simulant monetico injoignable
-                PropertiesDTO errorProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "TEMP_FAIL_CAPTURE_PAIEMENT_MONETICO_INJOIGNABLE");
-                if (errorProp != null && "true".equals(errorProp.getValue()) ) {
-                    // On met le statut 400 pour éviter de faire plusieurs tentatives
-                    throw new HttpResponseException(Response.Status.BAD_REQUEST.getStatusCode(), "Capture du paiement désactivé");
-                }
-
-                // Permet de désactiver la capture en simulant un code retour -1
-//                PropertiesDTO errorProp2 = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "TEMP_FAIL_CAPTURE_PAIEMENT_MONETICO_CODE_RETOUR");
-//                if ((errorProp2 != null && "true".equals(errorProp2.getValue()))) {
-//                    String responseString = "version=1.0\n" +
-//                            "reference=" + moyenPaiementDTO.getPkMoyenPaiements() + '\n' +
-//                            "cdr=-1\n" +
-//                            "lib=la demande ne peut aboutir";
-//                    LOGGER.info("Capture [ responseString {}] ", responseString);
-//                    setResult(responseString);
-//                    extractResult(responseString, commandeOperationDTO);
-//                    throw new HttpResponseException(200, "Operation non acceptee");
-//                }
-
-                Response response = getTarget().queryParam("TPE", getTpe())
-                        .queryParam("montant", montant)
-                        .queryParam("montant_a_capturer", montantACapturer)
-                        .queryParam("montant_deja_capture", montantDejaCapture)
-                        .queryParam("montant_restant", montantRestant)
-                        .queryParam("lgue", moyenPaiementDTO.getLangue())
-                        .queryParam("reference", moyenPaiementDTO.getPkMoyenPaiements())
-                        .queryParam("date", dateCapture)
-                        .queryParam("date_commande", dateCommande)
-                        .queryParam("societe", moyenPaiementDTO.getCodeSociete())
-                        .queryParam("version", version)
-                        .request(MediaType.APPLICATION_JSON).get();
-
-                String responseString = response.readEntity(String.class);
-                LOGGER.info("Capture [ responseString {}] ", responseString);
-                setResult(responseString);
-                extractResult(responseString, commandeOperationDTO);
-
-                if (!OperationStatutEnum.ACCEPTEE.name().equals(commandeOperationDTO.getOperationStatut())) {
-                    throw new HttpResponseException(response.getStatus(), "Operation non acceptee");
-                }
-            }
-
-            @Override
-            public Logger getLogger() {
-                return LOGGER;
-            }
-        };
+        Operation<String> operation = buildOperation(commandeDTO, commandeOperationDTO);
 
         try {
             operationHelper.executeWithRetry(operation);
@@ -163,13 +100,10 @@ public class MoneticoApiClient implements PaiementApiClient {
                     commandeOperationDTO.setOperationStatut(OperationStatutEnum.ERREUR.name());
                     sendMail(demandeDTO, operation, 3);
                 }
-
             }
-
-            return false;
         }
 
-        return true;
+        return StringUtils.equals(commandeOperationDTO.getOperationStatut(), OperationStatutEnum.ACCEPTEE.name());
     }
 
     private void sendMail(DemandeDTO demandeDTO, Operation<?> operation, int incident) {
@@ -214,5 +148,75 @@ public class MoneticoApiClient implements PaiementApiClient {
 
     public String getTpe() {
         return tpe;
+    }
+
+    private Operation<String> buildOperation(CommandeDTO commandeDTO, CommandeOperationDTO commandeOperationDTO) {
+        String dateCommande = commandeDTO.getDateCreation().format(dateFormatter);
+        String dateCapture = LocalDateTime.now().format(dateTimeFormatter);
+        return new Operation<String>() {
+            @Override
+            public void execute() throws HttpResponseException {
+                String montant = commandeDTO.getMontantInitial() + paiementPropertiesResolver.getCurrency();
+                String montantACapturer = commandeOperationDTO.getMontant() + paiementPropertiesResolver.getCurrency();
+                String montantDejaCapture = commandeDTO.getMontantDejaCapture() + paiementPropertiesResolver.getCurrency();
+                String montantRestant = (commandeDTO.getMontantRestant() - commandeOperationDTO.getMontant()) + paiementPropertiesResolver.getCurrency();
+                String version = paiementPropertiesResolver.getVersionCapture();
+                MoyenPaiementDTO moyenPaiementDTO = commandeDTO.getMoyenPaiement();
+                LOGGER.info("Paramètres Capture:\nURL: {}\nTPE: {}\nmontant: {}\nmontant_a_capturer: {}\nmontant_deja_capture: {}\nmontant_restant: {}\nlgue: {}\nreference: {}\ndate (date de la capture): {}\ndate_commande: {}\nsociete: {}\nversion {}",
+                        paiementPropertiesResolver.getCaptureUrl(), getTpe(), montant, montantACapturer, montantDejaCapture, montantRestant, moyenPaiementDTO.getLangue(),
+                        moyenPaiementDTO.getPkMoyenPaiements(), dateCapture, dateCommande, moyenPaiementDTO.getCodeSociete(), version);
+
+                // Permet de désactiver la capture en simulant monetico injoignable
+                PropertiesDTO errorProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "TEMP_FAIL_CAPTURE_PAIEMENT_MONETICO_INJOIGNABLE");
+                if (errorProp != null && "true".equals(errorProp.getValue()) ) {
+                    // On met le statut 400 pour éviter de faire plusieurs tentatives
+                    throw new HttpResponseException(Response.Status.BAD_REQUEST.getStatusCode(), "Capture du paiement désactivé");
+                }
+
+                // Permet de désactiver la capture en simulant un code retour 0
+                PropertiesDTO errorProp2 = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "TEMP_FAIL_CAPTURE_PAIEMENT_MONETICO_CODE_RETOUR");
+                int statutCode;
+                if ((errorProp2 != null && "true".equals(errorProp2.getValue()))) {
+                    String responseString = "version=1.0\n" +
+                            "reference=" + moyenPaiementDTO.getPkMoyenPaiements() + '\n' +
+                            "cdr=0\n" +
+                            "lib=autorisation refusee";
+                    statutCode = 200;
+                    LOGGER.info("Capture [ responseString {}] ", responseString);
+                    setResult(responseString);
+                    extractResult(responseString, commandeOperationDTO);
+                } else {
+                    Response response = getTarget().queryParam("TPE", getTpe())
+                            .queryParam("montant", montant)
+                            .queryParam("montant_a_capturer", montantACapturer)
+                            .queryParam("montant_deja_capture", montantDejaCapture)
+                            .queryParam("montant_restant", montantRestant)
+                            .queryParam("lgue", moyenPaiementDTO.getLangue())
+                            .queryParam("reference", moyenPaiementDTO.getPkMoyenPaiements())
+                            .queryParam("date", dateCapture)
+                            .queryParam("date_commande", dateCommande)
+                            .queryParam("societe", moyenPaiementDTO.getCodeSociete())
+                            .queryParam("version", version)
+                            .request(MediaType.APPLICATION_JSON).get();
+
+                    String responseString = response.readEntity(String.class);
+                    statutCode = response.getStatus();
+                    LOGGER.info("Capture [ responseString {}] ", responseString);
+                    setResult(responseString);
+                    extractResult(responseString, commandeOperationDTO);
+                }
+
+                String statut = commandeOperationDTO.getOperationStatut();
+                if (StringUtils.equals(statut, OperationStatutEnum.ERREUR.name())
+                        || StringUtils.equals(statut, OperationStatutEnum.INCIDENT.name())) {
+                    throw new HttpResponseException(statutCode, "Operation non acceptee");
+                }
+            }
+
+            @Override
+            public Logger getLogger() {
+                return LOGGER;
+            }
+        };
     }
 }

@@ -84,7 +84,15 @@ public class CaptureServiceImpl implements CaptureService {
         }
 
         operation.setMontant(commandeDemandeDTO.getMontant());
-        if (paiementApiClient.capture(commandeDTO, operation, demandeDTO)) {
+        boolean resultatCapture = paiementApiClient.capture(commandeDTO, operation, demandeDTO);
+
+        operation.setPkOperations(referenceFactoryService.createSimpleReferenceDigitsNumeric(7));
+        LocalDateTime now = LocalDateTime.now();
+        operation.setDateCreation(now);
+        operation.setDateDerniereModification(now);
+        operation.setOperationType(OperationTypeEnum.DEBIT.name());
+
+        if (resultatCapture) {
             BigDecimal montantDejaCapture = BigDecimal.valueOf(commandeDTO.getMontantDejaCapture());
             montantDejaCapture = montantDejaCapture.add(BigDecimal.valueOf(commandeDemandeDTO.getMontant()));
             commandeDTO.setMontantDejaCapture(montantDejaCapture.doubleValue());
@@ -92,12 +100,6 @@ public class CaptureServiceImpl implements CaptureService {
             BigDecimal montantRestant = BigDecimal.valueOf(commandeDTO.getMontantRestant());
             montantRestant = montantRestant.subtract(BigDecimal.valueOf(commandeDemandeDTO.getMontant()));
             commandeDTO.setMontantRestant(montantRestant.doubleValue());
-
-            operation.setPkOperations(referenceFactoryService.createSimpleReferenceDigitsNumeric(7));
-            LocalDateTime now = LocalDateTime.now();
-            operation.setDateCreation(now);
-            operation.setDateDerniereModification(now);
-            operation.setOperationType(OperationTypeEnum.DEBIT.name());
 
             MoyenPaiementBO paiement = moyenPaiementRepository.findByCommande_PkCommandes(commandeDTO.getPkCommandes());
             Optional<String> optionalNumFacture = factureApiClient.createFacture(numeroPermis, "0", operation.getMontant(), paiement.getPkMoyensPaiements(), paiementsDataProvider.getInfosFacturation(demandeDTO), commandeDemandeDTO.getCommandeDemandeArticles(), demandeDTO, operation);
@@ -107,22 +109,23 @@ public class CaptureServiceImpl implements CaptureService {
             } else {
                 operation.setNumeroFacture(FactureApiClient.INCIDENT);
             }
-
-            CommandeOperationBO commandeOperationBO = CommandeOperationTransformer.dto2Bo(operation);
-            CommandeBO commandeBO = CommandeTransformer.dto2Bo(commandeDTO);
-            if (commandeBO.getOperations() != null) {
-                commandeBO.getOperations().add(commandeOperationBO);
-            } else {
-                List<CommandeOperationBO> commandeOperationBOList = new ArrayList<>();
-                commandeOperationBOList.add(commandeOperationBO);
-                commandeBO.setOperations(commandeOperationBOList);
-            }
-            commandeBO = commandeRepository.save(commandeBO);
-
-            LOGGER.info("Created [ operation {}] ", operation);
-            commandeOperationBO.setCommande(commandeBO);
-            commandeOperationRepository.save(commandeOperationBO);
         }
+
+        // Enregistrement de l'opéation même en cas d'échec ou d'incident
+        CommandeOperationBO commandeOperationBO = CommandeOperationTransformer.dto2Bo(operation);
+        CommandeBO commandeBO = CommandeTransformer.dto2Bo(commandeDTO);
+        if (commandeBO.getOperations() != null) {
+            commandeBO.getOperations().add(commandeOperationBO);
+        } else {
+            List<CommandeOperationBO> commandeOperationBOList = new ArrayList<>();
+            commandeOperationBOList.add(commandeOperationBO);
+            commandeBO.setOperations(commandeOperationBOList);
+        }
+        commandeBO = commandeRepository.save(commandeBO);
+
+        LOGGER.info("Created [ operation {}] ", operation);
+        commandeOperationBO.setCommande(commandeBO);
+        commandeOperationRepository.save(commandeOperationBO);
 
         return operation;
     }

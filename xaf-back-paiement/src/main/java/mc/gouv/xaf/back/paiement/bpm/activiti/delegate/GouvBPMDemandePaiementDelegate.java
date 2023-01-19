@@ -95,26 +95,19 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
         String demarcheId = gouvPropertiesResolver.getDemarcheId();
         Integer demandeId = Integer.parseInt(execution.getProcessBusinessKey());
         CommandeOperationDTO operation = null;
+        CommandeDTO commandeDTO = null;
         DemandeDTO demandeDto = demandesService.getDemande(demarcheId, demandeId);
         DemandeDataDTO statutPaiementData = demandesDataService.getDemandeData(demarcheId, demandeId, PaiementDemandeDataKeysEnum.STATUT_PAIEMENT.name());
 
         try {
-            CommandeDTO commandeDTO = commandesService.getDerniereCommande(demandeId);
+            commandeDTO = commandesService.getDerniereCommande(demandeId);
             LOGGER.info("Recuperation commandeDTO : {}", commandeDTO);
             LOGGER.info("Statut de l'empreinte de paiement : {}", statutPaiementData.getValue());
-
             if (commandeDTO != null && StringUtils.equals(statutPaiementData.getValue(), PaiementStatutEnum.EMPREINTE_VALIDE.name())) {
                 LOGGER.info("Début capture paiement pour la demande: {}", demandeId);
-
                 operation = captureService.capture(commandeDTO, demandeDto);
-                LOGGER.info("Recuperation reference : {}", operation.getNumeroFacture());
-
-                ticketRecapitulatifService.sendMail(operation, commandeDTO, demandeId);
-                gouvBPM.setProcessBusinessVariable(demandeId, MC_FACTURE_REFERENCE, operation.getNumeroFacture());
-
-                LOGGER.info("Fin capture paiement");
+                LOGGER.info("Fin capture paiement : {}", operation.getOperationStatut());
             }
-
         } catch (Exception e) {
             LOGGER.error("Erreur Capture paiement", e);
         }
@@ -149,6 +142,9 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
             } else {
                 histoService.actionSysteme(demandeId, "SUCCES", "Débit réalisé avec succès");
             }
+            LOGGER.info("Recuperation reference : {}", operation.getNumeroFacture());
+            ticketRecapitulatifService.sendMail(operation, commandeDTO, demandeId);
+            gouvBPM.setProcessBusinessVariable(demandeId, MC_FACTURE_REFERENCE, operation.getNumeroFacture());
         }
         LOGGER.info("==== xaf-back-paiement CAPTURE PAIEMENT <fin>");
     }

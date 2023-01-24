@@ -129,9 +129,9 @@ public class MoneticoPaiementSecurityServiceImpl implements PaiementSecurityServ
 
         MoneticoPaiementHmac hmac = new MoneticoPaiementHmac(paiementPropertiesResolver.getPaiementClef());
         try {
-            String hmacString = hmac.computeHmac(sChaineMAC);
+            String hmacString = hmac.computeHmac(sChaineMAC).toUpperCase();
             LOGGER.info("HMAC : {}", hmacString);
-            return hmacString.toUpperCase();
+            return hmacString;
         } catch (Exception e) {
             LOGGER.error("Impossible de créer la chaîne MAC pour l'interface RETOUR", e);
         }

@@ -65,7 +65,6 @@ public class PaiementSecurityServiceTest {
 
     @Test
     public void getHmacStringInterfaceRetourTest2() {
-
         MoneticoResponseDTO responseDTO = new MoneticoResponseDTO();
         responseDTO.setTpe("7527409");
         responseDTO.setAuthentification("ewogICAicHJvdG9jb2wiIDogIjNEU2VjdXJlIiwKICAgInN0YXR1cyIgOiAibm90X2Vucm9sbGVkIiwKICAgInZlcnNpb24iIDogIjEuMC4yIgp9Cg==");
@@ -90,6 +89,36 @@ public class PaiementSecurityServiceTest {
         responseDTO.setVld("0125");
         String mac = paiementSecurityService.getHmacStringInterfaceRetour(responseDTO);
         assertThat(mac).isEqualTo("FD9EA1C30518B9D4E9688C41C57D7A9CE840EAAF");
+    }
+
+    @Test
+    public void getHmacStringInterfaceRetourTest3() {
+        MoneticoResponseDTO responseDTO = new MoneticoResponseDTO();
+        responseDTO.setTpe("7527409");
+        responseDTO.setDate("24/01/2023_a_13:47:08");
+        responseDTO.setMontant("0.11EUR");
+        responseDTO.setReference("S4QBaERt4SVa");
+        responseDTO.setAuthentification("ewogICAicHJvdG9jb2wiIDogIjNEU2VjdXJlIiwKICAgInN0YXR1cyIgOiAibm90X2Vucm9sbGVkIiwKICAgInZlcnNpb24iIDogIjEuMC4yIgp9Cg==");
+        responseDTO.setBrand("VI");
+        responseDTO.setCbmasquee("00000100******01");
+        responseDTO.setCodeRetour("Annulation");
+        responseDTO.setCvx("oui");
+        responseDTO.setVld("1223");
+        responseDTO.setTexteLibre("Demander l echange d un permis de conduire etranger - Commande du 24/01/2023:13:46:36 - demandes [PEC-20230124-6B5V]");
+        responseDTO.setMotifrefus("Refus");
+        responseDTO.setMotifrefusautorisation("Refus test");
+        responseDTO.setTypecompte("inconnu");
+        responseDTO.setUsage("inconnu");
+        responseDTO.setEcard("non");
+        responseDTO.setBincb("00000100");
+        responseDTO.setHpancb("280452D8743BC9070D85BEF2E1D686945680F9F7");
+        responseDTO.setIpclient("82.113.11.254");
+        responseDTO.setModepaiement("CB");
+        responseDTO.setOriginecb("FRA");
+        responseDTO.setOriginetr("MCO");
+        responseDTO.setNumauto("");
+        String mac = paiementSecurityService.getHmacStringInterfaceRetour(responseDTO);
+        assertThat(mac).isEqualTo("C0C5EF71F8E4F1C1725062EEDB8181E400D388EC");
     }
 
 }

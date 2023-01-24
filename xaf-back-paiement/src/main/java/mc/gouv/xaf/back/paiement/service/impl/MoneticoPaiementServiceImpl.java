@@ -305,8 +305,7 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
             dateValidite = moyenPaiementBO.getDateLimite();
         }
 
-        String status = moneticoResponseDTO.getCodeRetour();
-        if (status.equals("payetest") || status.equals("paiement")) {
+        if (moneticoResponseDTO.isCoderetourValid()) {
             moyenPaiementBO.setMoyenPaiementStatut(MoyenPaiementStatutEnum.VALIDE);
             List<DemandeDTO> demandes = commandesDemandesService.getDemandesFromCommande(moyenPaiementBO.getCommande().getPkCommandes());
             demandesStatutsService.updateMultipleStatuts(demandes, EN_COURS_PAIEMENT_STATUT_KEY);

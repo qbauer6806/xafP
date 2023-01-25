@@ -119,17 +119,14 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
             if (StringUtils.equals(statutPaiementData.getValue(), PaiementStatutEnum.EMPREINTE_VALIDE.name())) {
                 demandesDataService.saveOrUpdateDemandeData(demarcheId, demandeId, PaiementDemandeDataKeysEnum.STATUT_PAIEMENT.name(), PaiementStatutEnum.DEBIT_ECHEC.name());
                 paiementHistoriqueService.ajouterHistoriqueDebitEchec(demandeDto);
-                // On ajoute un flag dans le BPMN pour savoir qu'un débit a déjà été émis
-                gouvBPM.setProcessBusinessVariable(demandeId, MC_IS_DEBIT_KO, true);
                 // #43127 Envoi du mail débit en echec (MAIL_NOTIFICATION_DEMANDE_ECHEC_DEBIT_USAGER_CORPS)
                 sendMail(demandeDto, "MAIL_NOTIFICATION_DEMANDE_ECHEC_DEBIT_USAGER");
-                
             } else if (StringUtils.equals(statutPaiementData.getValue(), PaiementStatutEnum.EMPREINTE_EXPIREE.name())) {
             	// #43127 Envoi du mail empreinte expirée (MAIL_NOTIFICATION_DEMANDE_EXPIRATION_EMPREINTE_USAGER_CORPS)
-            	gouvBPM.setProcessBusinessVariable(demandeId, MC_IS_DEBIT_KO, true);
             	sendMail(demandeDto, "MAIL_NOTIFICATION_DEMANDE_EXPIRATION_EMPREINTE_USAGER");
             }
-            
+            // On ajoute un flag dans le BPMN pour savoir qu'un débit a déjà été émis
+            gouvBPM.setProcessBusinessVariable(demandeId, MC_IS_DEBIT_KO, true);
             histoService.actionSysteme(demandeId, "ECHEC", "Débit en échec. Demande de paiement envoyée");
         } else {
             // TODO sauvegarder le statut du paiement de façon plus correct que dans les demandes data

@@ -102,7 +102,7 @@ public class CaptureServiceImpl implements CaptureService {
             commandeDTO.setMontantRestant(montantRestant.doubleValue());
 
             MoyenPaiementBO paiement = moyenPaiementRepository.findByCommande_PkCommandes(commandeDTO.getPkCommandes());
-            Optional<String> optionalNumFacture = factureApiClient.createFacture(numeroPermis, "0", operation.getMontant(), paiement.getPkMoyensPaiements(), paiementsDataProvider.getInfosFacturation(demandeDTO), commandeDemandeDTO.getCommandeDemandeArticles(), demandeDTO, operation);
+            Optional<String> optionalNumFacture = factureApiClient.createFacture(numeroPermis, null, operation.getMontant(), paiement.getPkMoyensPaiements(), paiementsDataProvider.getInfosFacturation(demandeDTO), commandeDemandeDTO.getCommandeDemandeArticles(), demandeDTO, operation);
             if (optionalNumFacture.isPresent()) {
                 LOGGER.info("Created [ facture n°{}] ", optionalNumFacture.get());
                 operation.setNumeroFacture(optionalNumFacture.get());

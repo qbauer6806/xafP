@@ -28,6 +28,7 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.Proxy;
 import java.time.LocalDateTime;
@@ -159,11 +160,13 @@ public class MoneticoApiClient implements PaiementApiClient {
                 String montant = commandeDTO.getMontantInitial() + paiementPropertiesResolver.getCurrency();
                 String montantACapturer = commandeOperationDTO.getMontant() + paiementPropertiesResolver.getCurrency();
                 String montantDejaCapture = commandeDTO.getMontantDejaCapture() + paiementPropertiesResolver.getCurrency();
-                String montantRestant = (commandeDTO.getMontantRestant() - commandeOperationDTO.getMontant()) + paiementPropertiesResolver.getCurrency();
+                BigDecimal montantRestant = BigDecimal.valueOf(commandeDTO.getMontantRestant());
+                montantRestant = montantRestant.subtract(BigDecimal.valueOf(commandeOperationDTO.getMontant()));
+                String montantRestantStr = montantRestant + paiementPropertiesResolver.getCurrency();
                 String version = paiementPropertiesResolver.getVersionCapture();
                 MoyenPaiementDTO moyenPaiementDTO = commandeDTO.getMoyenPaiement();
                 LOGGER.info("Paramètres Capture:\nURL: {}\nTPE: {}\nmontant: {}\nmontant_a_capturer: {}\nmontant_deja_capture: {}\nmontant_restant: {}\nlgue: {}\nreference: {}\ndate (date de la capture): {}\ndate_commande: {}\nsociete: {}\nversion {}",
-                        paiementPropertiesResolver.getCaptureUrl(), getTpe(), montant, montantACapturer, montantDejaCapture, montantRestant, moyenPaiementDTO.getLangue(),
+                        paiementPropertiesResolver.getCaptureUrl(), getTpe(), montant, montantACapturer, montantDejaCapture, montantRestantStr, moyenPaiementDTO.getLangue(),
                         moyenPaiementDTO.getPkMoyenPaiements(), dateCapture, dateCommande, moyenPaiementDTO.getCodeSociete(), version);
 
                 // Permet de désactiver la capture en simulant monetico injoignable
@@ -190,7 +193,7 @@ public class MoneticoApiClient implements PaiementApiClient {
                             .queryParam("montant", montant)
                             .queryParam("montant_a_capturer", montantACapturer)
                             .queryParam("montant_deja_capture", montantDejaCapture)
-                            .queryParam("montant_restant", montantRestant)
+                            .queryParam("montant_restant", montantRestantStr)
                             .queryParam("lgue", moyenPaiementDTO.getLangue())
                             .queryParam("reference", moyenPaiementDTO.getPkMoyenPaiements())
                             .queryParam("date", dateCapture)

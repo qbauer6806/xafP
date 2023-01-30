@@ -320,15 +320,18 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
                     
                     // Pour mettre l'ID HTML de la donnée, récupéré depuis le fichier Recap (pour les testeurs)
 					String idPrefix = (String)champ.get("idPrefix");
-					String idTag1 = "";
+					String idTag1 = "<span";
 					String idTag2 = "";
 					if (StringUtils.isNotBlank(idPrefix)) {
 						// Si ce qui est retourné de getSecondLevelHTML est un champ composé (en HTML), comme l'adresse, alors les spans sont déjà dedans
 						// et idTag aussi
 						if (!type.equals("adresse") && !type.equals("adresseMc")) {
-							idTag1 = "<span id=\"" + idPrefix + "\">";
+							idTag1 += " id=\"" + idPrefix + "\">";
 							idTag2 = "</span>";
 						}
+					} else {
+						idTag1 += ">";
+						idTag2 = "</span>";
 					}
 					
 					String imgTag = "<img src=\"../img/icone_identite_numerique_valide.svg\"></img>";

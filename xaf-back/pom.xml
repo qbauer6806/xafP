@@ -19,6 +19,8 @@
 		<xdocreport.version>2.0.2</xdocreport.version>
 		<poi.version>4.1.0</poi.version>
 		<vscan.version>1.0.0</vscan.version>
+		<maven.compiler.source>11</maven.compiler.source>
+		<maven.compiler.target>11</maven.compiler.target>
 	</properties>
 
 	<dependencies>
@@ -145,6 +147,7 @@
 		<dependency>
 			<groupId>mc.gouv.logon</groupId>
 			<artifactId>logon-apiclient</artifactId>
+			<version>${logon-apiclient.version}</version>
 		</dependency>
 
 

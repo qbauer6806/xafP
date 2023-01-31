@@ -14,9 +14,9 @@
 	
 	<properties>
 		<vscan.version>1.0.0</vscan.version>
+		<maven.compiler.source>11</maven.compiler.source>
+		<maven.compiler.target>11</maven.compiler.target>
 	</properties>
-	
-	
 
 	<build>
 		<finalName>AppFactoryServlet</finalName>
@@ -171,6 +171,6 @@
 	</dependencies>
 
   <scm>
-    <tag>xaf-11.0.0</tag>
+    <tag>xaf-10.3.0.0-SNAPSHOT</tag>
   </scm>
 </project>

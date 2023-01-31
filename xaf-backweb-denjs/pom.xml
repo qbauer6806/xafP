@@ -9,6 +9,12 @@
 
     <artifactId>xaf-backweb-denjs</artifactId>
 
+    <properties>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+        <logon-apiclient.version>5.2.2</logon-apiclient.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>mc.gouv.xaf</groupId>

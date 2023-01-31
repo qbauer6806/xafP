@@ -22,7 +22,7 @@ import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
 public class AnnulationServlet extends AbstractAfServlet {
 
     private static final long serialVersionUID = -7898768899143027088L;
-
+    
     private static Logger LOGGER = LoggerFactory.getLogger(AnnulationServlet.class);
 
     @Override
@@ -36,6 +36,7 @@ public class AnnulationServlet extends AbstractAfServlet {
                     "Utilisateur non autorisé");
             return;
         }
+        
 
         String pathInfo = request.getPathInfo();
         String demandeId = null;
@@ -60,6 +61,14 @@ public class AnnulationServlet extends AbstractAfServlet {
         LOGGER.info("Appel à la démarche...");
 
         AfApiClient afApiClient = getAfApiClient();
+		try {
+			afApiClient.getDemande(usagerId, Integer.valueOf(demandeId));
+		} catch (Exception exception) {
+			AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
+                    "Utilisateur non autorisé");
+            return;
+		}
+
         afApiClient.annulerDemande(Integer.parseInt(demandeId), usagerId);
 
         LOGGER.info("Retour au client...");

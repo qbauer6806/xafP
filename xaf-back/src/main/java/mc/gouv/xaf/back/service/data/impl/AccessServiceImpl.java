@@ -66,7 +66,7 @@ public class AccessServiceImpl implements AccessService {
     public AccessDTO saveOrUpdateAccess(String demarcheId, Integer usagerId, AccessDTO access) {
 
         LOGGER.info("Vérification de l'unicité...");
-        AccessDTO dto = AccessTransformer.bo2Dto(getAccessBO(demarcheId, usagerId));
+        AccessDTO dto = AccessTransformer.bo2Dto(getAccessBO(demarcheId, usagerId, true));
 
         if (dto != null) {
             // Accès déjà existant, le mettre à jour
@@ -136,18 +136,9 @@ public class AccessServiceImpl implements AccessService {
      */
     @Override
     public AccessDTO getAccess(String demarcheId, Integer usagerId) {
-
         LOGGER.info(SharedMessages.RECUPERATION_EN_BASE);
-
         AccessBO bo = getAccessBO(demarcheId, usagerId);
-
-        if (bo == null) {
-            LOGGER.error(SharedMessages.DONNEE_INTROUVABLE);
-            throw new DemarchesServiceException(SharedMessages.DONNEE_INTROUVABLE, HttpStatus.NOT_FOUND);
-        }
-
         LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
-
         return AccessTransformer.bo2Dto(bo);
     }
 
@@ -176,16 +167,24 @@ public class AccessServiceImpl implements AccessService {
      */
     @Override
     public AccessBO getAccessBO(String demarcheId, Integer usagerId) {
+        AccessBO accessBO = getAccessBO(demarcheId, usagerId, true);
+        if (accessBO == null) {
+            throw new DemarchesServiceException("Accès correspondant introuvable", HttpStatus.NOT_FOUND);
+        }
+        return accessBO;
+    }
 
+    @Override
+    public AccessBO getAccessBO(String demarcheId, Integer usagerId, boolean active) {
         AccessBO bo = null;
 
-        List<AccessBO> bos = accessRepository.getByDemarcheIdAndUsagerIdAndActive(demarcheId, usagerId, true);
+        List<AccessBO> bos = accessRepository.getByDemarcheIdAndUsagerIdAndActive(demarcheId, usagerId, active);
         if (bos != null && !bos.isEmpty()) {
             bo = bos.get(0);
         }
 
         // Gérer les accès désactivés
-        if (bo != null && !bo.isActive()) {
+        if (active && bo != null && !bo.isActive()) {
             bo = null;
         }
 
@@ -213,17 +212,9 @@ public class AccessServiceImpl implements AccessService {
      */
     @Override
     public void deleteAccess(String demarcheId, Integer usagerId) {
-
         LOGGER.info(SharedMessages.RECUPERATION_EN_BASE);
-
         AccessDTO dto = getAccess(demarcheId, usagerId);
-
-        if (dto == null) {
-            throw new DemarchesServiceException(SharedMessages.DONNEE_INTROUVABLE, HttpStatus.NOT_FOUND);
-        }
-
         LOGGER.info(SharedMessages.TRANSFORMATION_DTO_BO);
-
         AccessBO bo = AccessTransformer.dto2Bo(dto);
         bo.setActive(false);
         accessRepository.save(bo);

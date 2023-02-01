@@ -62,6 +62,11 @@ public interface AccessService {
     /**
      * Similaire à getAccess() mais retourne un BO, pour être utilisé par d'autres classes de la couche service
      */
+    AccessBO getAccessBO(String demarcheId, Integer usagerId, boolean active);
+
+    /**
+     * Similaire à getAccess() mais retourne un BO, pour être utilisé par d'autres classes de la couche service
+     */
     Optional<AccessBO> getAccessBO(Integer pkAccess);
 
 }

@@ -254,16 +254,8 @@ public class UsagersCourrierServiceImpl implements UsagersCourrierService {
     public void transferer(String demarcheId, Integer usagerCourrierSourceId, Integer usagerCourrierCibleId,
             List<Integer> demandeIds) {
 
-        // TODO #45676 : Créer une méthode dans le AccessService
         LOGGER.info("Récupération de l'accès cible...");
-
         AccessBO accesCible = accessService.getAccessBO(demarcheId, usagerCourrierCibleId);
-
-        if (accesCible == null) {
-            throw new DemarchesServiceException(
-                    "L'accès correspondant à l'usager courrier cible " + usagerCourrierCibleId + " n'existe pas.",
-                    HttpStatus.NOT_FOUND);
-        }
 
         for (Integer demandeId : demandeIds) {
             LOGGER.info("Transfert de la demande {} de l'usager courrier source {} vers l'usager courrier cible {}...",

@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
+import mc.gouv.xaf.back.service.data.AccessService;
 import mc.gouv.xaf.shared.SharedMessages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,37 +62,26 @@ public class BrouillonsServiceImpl implements BrouillonsService {
     @Autowired
     private AccessRepository accessRepository;
 
+    @Autowired
+    private AccessService accessService;
+
     /**
      * {@inheritDoc}
      */
     @Override
     public BrouillonDTO saveBrouillon(BrouillonDTO brouillon) {
-
         LOGGER.info("Récupération en base de l'accès correspondant...");
-
-        // TODO #45676 : Créer une méthode dans le AccessService
-        AccessBO accessBo = null;
-        List<AccessBO> accessBos = accessRepository.getByDemarcheIdAndUsagerIdAndActive(brouillon.getDemarcheId(),
-        		brouillon.getUsagerId(), true);
-        if (accessBos != null && !accessBos.isEmpty()) {
-            accessBo = accessBos.get(0);
-        }
-
-        if (accessBo == null) {
-            throw new DemarchesServiceException("Accès correspondant introuvable", HttpStatus.NOT_FOUND);
-        }
-
-        LOGGER.info(SharedMessages.TRANSFORMATION_DTO_BO);
+        AccessBO accessBo = accessService.getAccessBO(brouillon.getDemarcheId(), brouillon.getUsagerId());
 
         if (brouillon.getFichiers() != null) {
             for (BrouillonFileDTO file : brouillon.getFichiers()) {
                 file.setDate(new Date());
             }
         }
-
         brouillon.setDateCreation(new Date());
         brouillon.setDateDerModif(brouillon.getDateCreation());
 
+        LOGGER.info(SharedMessages.TRANSFORMATION_DTO_BO);
         BrouillonBO brouillonBo = BrouillonsTransformer.dto2Bo(brouillon);
         brouillonBo.setFkAccess(accessBo);
 
@@ -127,20 +117,8 @@ public class BrouillonsServiceImpl implements BrouillonsService {
     @Override
     public List<BrouillonDTO> getBrouillons(String demarcheId, Integer usagerId) {
         LOGGER.info(SharedMessages.RECUPERATION_EN_BASE);
-
-        // TODO #45676 : Créer une méthode dans le AccessService
-        AccessBO accessBo = null;
-        List<AccessBO> accessBos = accessRepository.getByDemarcheIdAndUsagerIdAndActive(demarcheId, usagerId, true);
-        if (accessBos != null && !accessBos.isEmpty()) {
-            accessBo = accessBos.get(0);
-        }
-
-        if (accessBo == null) {
-            throw new DemarchesServiceException("Accès correspondant introuvable", HttpStatus.NOT_FOUND);
-        }
-
+        AccessBO accessBo = accessService.getAccessBO(demarcheId, usagerId);
         LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
-
         return BrouillonsTransformer.bo2Dto(new ArrayList<>(accessBo.getBrouillons()));
     }
 
@@ -153,7 +131,7 @@ public class BrouillonsServiceImpl implements BrouillonsService {
             throw new DemarchesServiceException(SharedMessages.UTILISATEUR_NON_AUTORISE, HttpStatus.UNAUTHORIZED);
         }
 
-	LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
+	    LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
         return BrouillonsTransformer.bo2Dto(brouillonBo);
     }
 

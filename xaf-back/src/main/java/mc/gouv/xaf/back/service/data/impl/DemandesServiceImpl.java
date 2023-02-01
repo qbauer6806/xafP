@@ -32,7 +32,6 @@ import org.springframework.data.domain.Sort.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.xml.sax.SAXException;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
@@ -64,6 +63,9 @@ public class DemandesServiceImpl implements DemandesService {
 
 	@Autowired
 	private AccessRepository accessRepository;
+
+	@Autowired
+	private AccessService accessService;
 
 	@Autowired
 	private DemandesStatutsService demandesStatutsService;
@@ -143,22 +145,8 @@ public class DemandesServiceImpl implements DemandesService {
 			throw new DemarchesServiceException("Canal non spécifié", HttpStatus.BAD_REQUEST);
 		}
 
-
-		// TODO #45676 : Créer une méthode dans le AccessService
 		LOGGER.info("Récupération en base de l'accès correspondant...");
-
-		AccessBO accessBo = null;
-		List<AccessBO> accessBos = accessRepository.getByDemarcheIdAndUsagerIdAndActive(demande.getDemarcheId(),
-				demande.getUsagerId(), true);
-		if (accessBos != null && !accessBos.isEmpty()) {
-			accessBo = accessBos.get(0);
-		} else {
-			accessBo = null;
-		}
-
-		if (accessBo == null) {
-			throw new DemarchesServiceException("Accès correspondant introuvable", HttpStatus.NOT_FOUND);
-		}
+		AccessBO accessBo = accessService.getAccessBO(demande.getDemarcheId(), demande.getUsagerId());
 		
 		LOGGER.info("Postprocessing de la demande...");
 		try {
@@ -219,7 +207,7 @@ public class DemandesServiceImpl implements DemandesService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public DemandeDTO saveOrUpdateDemande(DemandeDTO demande, boolean partialUpdate, String premierStatut) throws IOException, SAXException {
+	public DemandeDTO saveOrUpdateDemande(DemandeDTO demande, boolean partialUpdate, String premierStatut) throws IOException {
 		DemandeDTO demandeDTO;
 		if (demande.getPkDemandes() != null) {
 			// ID de la demande fourni, il faut donc mettre à jour une demande
@@ -249,20 +237,10 @@ public class DemandesServiceImpl implements DemandesService {
 
 	private List<DemandeDTO> getDemandesUsager(String demarcheId, Integer usagerId, boolean active) {
 		LOGGER.info(RECUPERATION_DEMANDES);
-
-		// TODO #45676 : Créer une méthode dans le AccessService
-		AccessBO accessBo = null;
-		List<AccessBO> accessBos = accessRepository.getByDemarcheIdAndUsagerIdAndActive(demarcheId, usagerId, active);
-		if (accessBos != null && !accessBos.isEmpty()) {
-			accessBo = accessBos.get(0);
-		} else {
-			accessBo = null;
-		}
-
+		AccessBO accessBo = accessService.getAccessBO(demarcheId, usagerId, active);
 		if (accessBo == null) {
 			throw new DemarchesServiceException("Accès correspondant introuvable", HttpStatus.NOT_FOUND);
 		}
-
 		LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
 		return DemandesTransformer.bo2Dto(new ArrayList<>(accessBo.getDemandes()));
 	}

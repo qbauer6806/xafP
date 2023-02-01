@@ -33,54 +33,60 @@ public class DemandesPageableServlet extends AbstractAfServlet {
 
         LOGGER.info("====================== /demandespage doGet()");
 
-        UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(request);
-        if (usagerInfosDTO == null) {
-            response = AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
-                    "Utilisateur non autorisé");
-            return;
-        }
+        try {
+            UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(request);
+            if (usagerInfosDTO == null) {
+                AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
+                        "Utilisateur non autorisé");
+                return;
+            }
 
-        // Récupération de l'ID de l'usager
-        Integer usagerId = usagerInfosDTO.getId();
+            // Récupération de l'ID de l'usager
+            Integer usagerId = usagerInfosDTO.getId();
 
-        // Récupération des paramètres
-        PageParamDTO paramDTO = new PageParamDTO();
-        String pageNbr = request.getParameter(PAGE_PARAM);
-        if (StringUtils.isNotBlank(pageNbr)) {
-            paramDTO.setPage(Integer.parseInt(pageNbr));
-        }
-        String size = request.getParameter(SIZE_PARAM);
-        if (StringUtils.isNotBlank(size)) {
-            paramDTO.setSize(Integer.parseInt(size));
-        }
-        String sort = request.getParameter(SORT_PARAM);
-        if (StringUtils.isNotBlank(sort)) {
-            paramDTO.setSort(sort);
-        }
-        String direction = request.getParameter(DIRECTION_PARAM);
-        if (StringUtils.isNotBlank(direction)) {
-            paramDTO.setDirection(direction);
-        }
-        String status = request.getParameter(STATUS_PARAM);
-        if (StringUtils.isNotBlank(status)) {
-            paramDTO.setStatus(status);
-        }
-        String lang = request.getParameter(LANG_PARAM);
-        if (StringUtils.isNotBlank(lang)) {
-            paramDTO.setLang(lang);
-        }
+            // Récupération des paramètres
+            PageParamDTO paramDTO = new PageParamDTO();
+            String pageNbr = request.getParameter(PAGE_PARAM);
+            if (StringUtils.isNotBlank(pageNbr)) {
+                paramDTO.setPage(Integer.parseInt(pageNbr));
+            }
+            String size = request.getParameter(SIZE_PARAM);
+            if (StringUtils.isNotBlank(size)) {
+                paramDTO.setSize(Integer.parseInt(size));
+            }
+            String sort = request.getParameter(SORT_PARAM);
+            if (StringUtils.isNotBlank(sort)) {
+                paramDTO.setSort(sort);
+            }
+            String direction = request.getParameter(DIRECTION_PARAM);
+            if (StringUtils.isNotBlank(direction)) {
+                paramDTO.setDirection(direction);
+            }
+            String status = request.getParameter(STATUS_PARAM);
+            if (StringUtils.isNotBlank(status)) {
+                paramDTO.setStatus(status);
+            }
+            String lang = request.getParameter(LANG_PARAM);
+            if (StringUtils.isNotBlank(lang)) {
+                paramDTO.setLang(lang);
+            }
 
-        LOGGER.info("Récupération des demandes pour l'usager dont usagerId = {}", usagerId);
-        Page<DemandeDTO> page = getAfApiClient().getDemandesPageable(usagerId, paramDTO);
+            LOGGER.info("Récupération des demandes pour l'usager dont usagerId = {}", usagerId);
 
-        response.setStatus(HttpStatus.SC_OK);
-        ObjectMapper mapper = new ObjectMapper();
-        String repJson = mapper.writeValueAsString(page);
+            Page<DemandeDTO> page = getAfApiClient().getDemandesPageable(usagerId, paramDTO);
 
-        response.setContentType("application/json");
-        IOUtils.copy(new ByteArrayInputStream(repJson.getBytes()), response.getOutputStream());
+            response.setStatus(HttpStatus.SC_OK);
+            ObjectMapper mapper = new ObjectMapper();
+            String repJson = mapper.writeValueAsString(page);
+
+            response.setContentType("application/json");
+            IOUtils.copy(new ByteArrayInputStream(repJson.getBytes()), response.getOutputStream());
+        } catch (Exception ex) {
+            LOGGER.error("DemandesPageableServlet - Une erreur est survenue lors de l'appel à la méthode GET", ex);
+            int codeStatut = getCodeErreur(ex);
+            response.setStatus(codeStatut);
+        }
 
         LOGGER.info("====================== FIN /demandespage doGet()");
-
     }
 }

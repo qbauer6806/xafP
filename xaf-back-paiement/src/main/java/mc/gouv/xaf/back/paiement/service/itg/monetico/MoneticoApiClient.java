@@ -5,10 +5,12 @@ import mc.gouv.xaf.back.paiement.data.enums.OperationStatutEnum;
 import mc.gouv.xaf.back.paiement.dto.CommandeDTO;
 import mc.gouv.xaf.back.paiement.dto.CommandeOperationDTO;
 import mc.gouv.xaf.back.paiement.dto.MoyenPaiementDTO;
+import mc.gouv.xaf.back.paiement.dto.itg.monetico.CaptureDTO;
 import mc.gouv.xaf.back.paiement.properties.PaiementPropertiesResolver;
 import mc.gouv.xaf.back.paiement.retry.Operation;
 import mc.gouv.xaf.back.paiement.retry.OperationHelper;
 import mc.gouv.xaf.back.paiement.service.itg.PaiementApiClient;
+import mc.gouv.xaf.back.paiement.service.itg.PaiementSecurityService;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
@@ -50,6 +52,7 @@ public class MoneticoApiClient implements PaiementApiClient {
     private final MailService mailService;
     private final PropertiesService propertiesService;
     private final GouvPropertiesResolver gouvPropertiesResolver;
+    private final PaiementSecurityService paiementSecurityService;
 
     DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy:HH:mm:ss");
@@ -59,7 +62,8 @@ public class MoneticoApiClient implements PaiementApiClient {
                              OperationHelper operationHelper,
                              MailService mailService,
                              PropertiesService propertiesService,
-                             GouvPropertiesResolver gouvPropertiesResolver) {
+                             GouvPropertiesResolver gouvPropertiesResolver,
+                             PaiementSecurityService paiementSecurityService) {
 
         ClientConfig config = new ClientConfig();
 
@@ -77,6 +81,7 @@ public class MoneticoApiClient implements PaiementApiClient {
         this.mailService = mailService;
         this.propertiesService = propertiesService;
         this.gouvPropertiesResolver = gouvPropertiesResolver;
+        this.paiementSecurityService = paiementSecurityService;
     }
 
     public boolean capture(CommandeDTO commandeDTO, CommandeOperationDTO commandeOperationDTO, DemandeDTO demandeDTO) {
@@ -152,22 +157,30 @@ public class MoneticoApiClient implements PaiementApiClient {
     }
 
     private Operation<String> buildOperation(CommandeDTO commandeDTO, CommandeOperationDTO commandeOperationDTO) {
-        String dateCommande = commandeDTO.getDateCreation().format(dateFormatter);
-        String dateCapture = LocalDateTime.now().format(dateTimeFormatter);
         return new Operation<String>() {
             @Override
             public void execute() throws HttpResponseException {
-                String montant = commandeDTO.getMontantInitial() + paiementPropertiesResolver.getCurrency();
-                String montantACapturer = commandeOperationDTO.getMontant() + paiementPropertiesResolver.getCurrency();
-                String montantDejaCapture = commandeDTO.getMontantDejaCapture() + paiementPropertiesResolver.getCurrency();
+                String currency = paiementPropertiesResolver.getCurrency();
+                MoyenPaiementDTO moyenPaiementDTO = commandeDTO.getMoyenPaiement();
+                CaptureDTO captureDTO = new CaptureDTO();
+                captureDTO.setTpe(getTpe());
+                captureDTO.setDate(LocalDateTime.now().format(dateTimeFormatter));
+                captureDTO.setDateCommande(commandeDTO.getDateCreation().format(dateFormatter));
+                captureDTO.setLgue(moyenPaiementDTO.getLangue());
+                captureDTO.setMontant(commandeDTO.getMontantInitial() + currency);
+                captureDTO.setMontantACapturer(commandeOperationDTO.getMontant() + currency);
+                captureDTO.setMontantDejaCapture(commandeDTO.getMontantDejaCapture() + currency);
                 BigDecimal montantRestant = BigDecimal.valueOf(commandeDTO.getMontantRestant());
                 montantRestant = montantRestant.subtract(BigDecimal.valueOf(commandeOperationDTO.getMontant()));
-                String montantRestantStr = montantRestant + paiementPropertiesResolver.getCurrency();
-                String version = paiementPropertiesResolver.getVersionCapture();
-                MoyenPaiementDTO moyenPaiementDTO = commandeDTO.getMoyenPaiement();
-                LOGGER.info("Paramètres Capture:\nURL: {}\nTPE: {}\nmontant: {}\nmontant_a_capturer: {}\nmontant_deja_capture: {}\nmontant_restant: {}\nlgue: {}\nreference: {}\ndate (date de la capture): {}\ndate_commande: {}\nsociete: {}\nversion {}",
-                        paiementPropertiesResolver.getCaptureUrl(), getTpe(), montant, montantACapturer, montantDejaCapture, montantRestantStr, moyenPaiementDTO.getLangue(),
-                        moyenPaiementDTO.getPkMoyenPaiements(), dateCapture, dateCommande, moyenPaiementDTO.getCodeSociete(), version);
+                captureDTO.setMontantRestant(montantRestant + currency);
+                captureDTO.setReference(moyenPaiementDTO.getPkMoyenPaiements());
+                captureDTO.setSociete(moyenPaiementDTO.getCodeSociete());
+                captureDTO.setVersion(paiementPropertiesResolver.getVersionCapture());
+
+                LOGGER.info("Paramètres Capture:\nURL: {}\n{}", paiementPropertiesResolver.getCaptureUrl(), captureDTO);
+
+                // Création d'une clé MAC
+                String mac = paiementSecurityService.getHmacStringCapture(captureDTO);
 
                 // Permet de désactiver la capture en simulant monetico injoignable
                 PropertiesDTO errorProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "TEMP_FAIL_CAPTURE_PAIEMENT_MONETICO_INJOIGNABLE");
@@ -189,17 +202,18 @@ public class MoneticoApiClient implements PaiementApiClient {
                     setResult(responseString);
                     extractResult(responseString, commandeOperationDTO);
                 } else {
-                    Response response = getTarget().queryParam("TPE", getTpe())
-                            .queryParam("montant", montant)
-                            .queryParam("montant_a_capturer", montantACapturer)
-                            .queryParam("montant_deja_capture", montantDejaCapture)
-                            .queryParam("montant_restant", montantRestantStr)
-                            .queryParam("lgue", moyenPaiementDTO.getLangue())
-                            .queryParam("reference", moyenPaiementDTO.getPkMoyenPaiements())
-                            .queryParam("date", dateCapture)
-                            .queryParam("date_commande", dateCommande)
-                            .queryParam("societe", moyenPaiementDTO.getCodeSociete())
-                            .queryParam("version", version)
+                    Response response = getTarget().queryParam("TPE", captureDTO.getTpe())
+                            .queryParam("date", captureDTO.getDate())
+                            .queryParam("date_commande", captureDTO.getDateCommande())
+                            .queryParam("lgue", captureDTO.getLgue())
+                            .queryParam("montant", captureDTO.getMontant())
+                            .queryParam("montant_a_capturer", captureDTO.getMontantACapturer())
+                            .queryParam("montant_deja_capture", captureDTO.getMontantDejaCapture())
+                            .queryParam("montant_restant", captureDTO.getMontantRestant())
+                            .queryParam("reference", captureDTO.getReference())
+                            .queryParam("societe", captureDTO.getSociete())
+                            .queryParam("version", captureDTO.getVersion())
+                            .queryParam("MAC", mac)
                             .request(MediaType.APPLICATION_JSON).get();
 
                     String responseString = response.readEntity(String.class);

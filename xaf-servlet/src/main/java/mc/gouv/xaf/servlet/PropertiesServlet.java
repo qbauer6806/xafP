@@ -24,21 +24,23 @@ public class PropertiesServlet extends AbstractAfServlet {
         LOGGER.info("====================== /properties doGet()");
 
         LOGGER.info("Appel de la démarche afin de récupérer les propriétés FRONT ...");
-        List<PropertiesDTO> properties = getAfApiClient().getFrontProperties();
-
-        LOGGER.info("Ajout des properties du fichier frontserver.properties...");
-        properties.addAll(AfServletGouvPropertiesResolver.getFrontProperties());
-
-        response.setStatus(HttpStatus.SC_OK);
-        ObjectMapper mapper = new ObjectMapper();
 
         try {
+            List<PropertiesDTO> properties = getAfApiClient().getFrontProperties();
+
+            LOGGER.info("Ajout des properties du fichier frontserver.properties...");
+            properties.addAll(AfServletGouvPropertiesResolver.getFrontProperties());
+
+            response.setStatus(HttpStatus.SC_OK);
+            ObjectMapper mapper = new ObjectMapper();
+
             String repJson = mapper.writeValueAsString(properties);
             response.setContentType("application/json");
             IOUtils.copy(new ByteArrayInputStream(repJson.getBytes()), response.getOutputStream());
         } catch (Exception e) {
             LOGGER.error("PropertiesServlet - Une erreur est survenue lors de l'appel à la méthode GET", e);
-            response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+            int codeStatut = getCodeErreur(e);
+            response.setStatus(codeStatut);
         }
 
         LOGGER.info("====================== Fin /properties doGet()");

@@ -123,10 +123,11 @@ public class AccessServiceImpl implements AccessService {
 
         bo = accessRepository.save(bo);
 
+        if (!isUsagerCourrier) {
+	        LOGGER.info("Envoi d'un message au GU via Kafka...");
+	        guKafkaProducer.sendCreationAccesTSMessage(usagerId);
+        }
         LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
-        
-        LOGGER.info("Envoi d'un message au GU via Kafka...");
-        guKafkaProducer.sendCreationAccesTSMessage(usagerId);
 
         return AccessTransformer.bo2Dto(bo);
     }

@@ -183,7 +183,7 @@
             data: "value",
             keyword: false,
             render: function (data, type, property) {
-                return property.value;
+                return textRenderer(property.value);
             }
         },
         {
@@ -197,6 +197,7 @@
             }
         }];
 
+    var textRenderer = $.fn.dataTable.render.text().display;
     /*<![CDATA[*/
     $(document).ready(function () {
         var properties = /*[[${properties}]]*/'default';

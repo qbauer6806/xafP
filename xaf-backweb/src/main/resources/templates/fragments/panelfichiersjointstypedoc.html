@@ -68,17 +68,21 @@
                             <div class="panel-heading" role="tab"
                                  th:id="'heading' + ${iter.index}">
                                 <h4 class="panel-title">
-                                    <a aria-expanded="false" class="collapsed" data-parent="#subcataccordion"
+                                    <a data-parent="#subcataccordion"
+                                    th:class="${isPanelTypeFichierOuvert} ? '' : collapsed "
                                        data-toggle="collapse" role="button"
-                                       th:attr="aria-controls='subcat'+${iter.index}"
+                                       th:attr="aria-controls='subcat'+${iter.index},aria-expanded=${isPanelTypeFichierOuvert}?'true':'false'"
                                        th:href="${'#subcat'+iter.index}">
-										<i class="pannelState icon-action_accordeon-ferme"></i>
+										<i class="pannelState"
+										th:classappend="${isPanelTypeFichierOuvert} ? icon-action_accordeon-ouvert : icon-action_accordeon-ferme"
+										></i>
 										<span th:text="${subcat.name}"></span>
 									</a>
                                 </h4>
                             </div>
 
                             <div class="panel-body sectionic panel-collapse collapse"
+                            th:classappend="${isPanelTypeFichierOuvert} ? in : out"
                                  role="tabpanel"
                                  th:attr="aria-labelledby='heading' + ${iter.index}"
                                  th:id="${'subcat'+iter.index}">

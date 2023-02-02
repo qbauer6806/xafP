@@ -3,7 +3,7 @@
     <parent>
         <artifactId>xaf</artifactId>
         <groupId>mc.gouv.xaf</groupId>
-        <version>10.4.0-SNAPSHOT</version>
+        <version>11.0.2-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -11,8 +11,9 @@
 
     <properties>
         <buildDate>${maven.build.timestamp}</buildDate>
-        <java.version>1.8</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
     </properties>
 
     <dependencies>

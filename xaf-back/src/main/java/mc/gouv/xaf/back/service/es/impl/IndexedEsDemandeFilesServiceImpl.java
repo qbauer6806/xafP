@@ -1,15 +1,10 @@
 package mc.gouv.xaf.back.service.es.impl;
 
 import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
-import mc.gouv.xaf.back.data.entity.DemandeBO;
-import mc.gouv.xaf.back.data.entity.DemandesComplementsBO;
-import mc.gouv.xaf.back.data.entity.DemandesCourriersBO;
-import mc.gouv.xaf.back.data.es.model.DemandeEsDTO;
+import mc.gouv.xaf.back.data.entity.*;
 import mc.gouv.xaf.back.data.es.model.DemandeFileEsDTO;
 import mc.gouv.xaf.back.data.es.model.EsErrorEventDTO;
 import mc.gouv.xaf.back.data.transformer.DemandesComplementsFilesTransformer;
-import mc.gouv.xaf.back.data.transformer.DemandesCourriersTransformer;
-import mc.gouv.xaf.back.data.transformer.DemandesFilesTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
 import mc.gouv.xaf.back.exception.AfIndexingException;
 import mc.gouv.xaf.back.service.data.DemandesService;
@@ -23,13 +18,9 @@ import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
 import mc.gouv.xaf.shared.dto.DemandeCourrierDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
+import org.elasticsearch.ElasticsearchException;
 import org.elasticsearch.action.bulk.BulkItemResponse;
-import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
-import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.client.Requests;
-import org.glassfish.jersey.internal.guava.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,19 +29,14 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Page;
-import org.springframework.data.elasticsearch.ElasticsearchException;
-import org.springframework.data.elasticsearch.core.DefaultResultMapper;
-import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
-import org.springframework.data.elasticsearch.core.ResultsMapper;
+import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.convert.ElasticsearchConverter;
-import org.springframework.data.elasticsearch.core.convert.MappingElasticsearchConverter;
-import org.springframework.data.elasticsearch.core.mapping.SimpleElasticsearchMappingContext;
+import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 import org.springframework.data.elasticsearch.core.query.IndexQuery;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.util.*;
@@ -68,26 +54,17 @@ public class IndexedEsDemandeFilesServiceImpl extends DemandeFilesServiceImpl im
     @Value("${application.name}")
     private String indexAlias;
 
-    private ResultsMapper resultsMapper;
-
     @Autowired
     private DemandesService demandesService;
 
-    @Autowired
+     @Autowired
     private ApplicationEventPublisher applicationEventPublisher;
 
     @Autowired
     private DemandeFileEsTransformer demandeFileEsTransformer;
 
     @Inject
-    private ElasticsearchRestTemplate elasticsearchTemplate;
-
-    @PostConstruct
-    public void init() {
-        ElasticsearchConverter elasticsearchConverter = new MappingElasticsearchConverter(
-                new SimpleElasticsearchMappingContext());
-        resultsMapper = new DefaultResultMapper(elasticsearchConverter.getMappingContext());
-    }
+    private ElasticsearchOperations elasticsearchTemplate;
 
     @Override
     public void saveFile(DemandeFileDTO demandeFile, String demarcheId, Integer pkDemande) {
@@ -106,6 +83,24 @@ public class IndexedEsDemandeFilesServiceImpl extends DemandeFilesServiceImpl im
             applicationEventPublisher.publishEvent(esErrorEventDTO);
             throw new AfIndexingException(e.getMessage(), e);
         }
+    }
+
+    /**
+     * Méthode permettant d'indexer un fichier
+     *
+     * @param demandeFileEsDTO Fichier à indexer
+     * @return Fichier indexé
+     */
+    private DemandeFileEsDTO indexFile(DemandeFileEsDTO demandeFileEsDTO) {
+
+        if (demandeFileEsDTO != null) {
+            IndexQuery index = new IndexQuery();
+            index.setId(demandeFileEsDTO.getIdentifiant());
+            index.setObject(demandeFileEsDTO);
+            index.setSource(demandeFileEsDTO.getDemandeJoinField().getParent());
+            elasticsearchTemplate.index(index, IndexCoordinates.of(indexAlias));
+        }
+        return demandeFileEsDTO;
     }
 
     @Override
@@ -216,7 +211,7 @@ public class IndexedEsDemandeFilesServiceImpl extends DemandeFilesServiceImpl im
         if (demandeFileEsDTOs != null) {
             for (DemandeFileEsDTO demFile : demandeFileEsDTOs) {
                 IndexQuery index = new IndexQuery();
-                index.setId(demFile.getFichiers().getPkDemande() + "-" + demFile.getFichiers().getId());
+                index.setId(demFile.getPkDemandes() + "-" + demFile.getIdentifiant());
                 index.setObject(demFile);
                 index.setParentId(demFile.getDemandeJoinField().getParent());
                 indexList.add(index);
@@ -224,54 +219,33 @@ public class IndexedEsDemandeFilesServiceImpl extends DemandeFilesServiceImpl im
 
             if (!indexList.isEmpty()) {
                 bulkIndex(indexList);
-                elasticsearchTemplate.refresh(DemandeFileEsDTO.class);
             }
 
         }
         return demandeFileEsDTOs;
     }
 
-    private void bulkIndex(List<IndexQuery> queries) throws IOException {
-        BulkRequest bulkRequest = new BulkRequest();
-
+    private void bulkIndex(List<IndexQuery> queries) {
+        List<IndexQuery> bulkQueries = new ArrayList<>();
         int nombreBulks = (queries.size() + MAX_BULK_SIZE - 1) / MAX_BULK_SIZE;
         LOGGER.info("Début indexation pour {} fichiers en {} requêtes", queries.size(), nombreBulks);
 
         for (int i = 0; i < queries.size(); i++) {
             // Envois et Création d'une nouvelle bulk request si on arrive au max bulk size
             if (i != 0 && i % MAX_BULK_SIZE == 0) {
-                LOGGER.info("Indexation du bulk {}/{}", i / MAX_BULK_SIZE , nombreBulks);
-                checkForBulkUpdateFailure(elasticsearchTemplate.getClient().bulk(bulkRequest, RequestOptions.DEFAULT));
-                bulkRequest = new BulkRequest();
+                LOGGER.info("Indexation du bulk {}/{}", i / MAX_BULK_SIZE, nombreBulks);
+                // TODO checkForBulkUpdateFailure(elasticsearchTemplate.getClient().bulk(bulkRequest, RequestOptions.DEFAULT));
+                elasticsearchTemplate.bulkIndex(bulkQueries, IndexCoordinates.of(indexAlias));
+                bulkQueries.clear();
             }
-            bulkRequest.add(prepareIndex(queries.get(i)));
+            IndexQuery query = queries.get(i);
+            query.setRouting(query.getParentId());
+            bulkQueries.add(query);
         }
 
         LOGGER.info("Indexation du bulk {}/{}", nombreBulks, nombreBulks);
-        checkForBulkUpdateFailure(elasticsearchTemplate.getClient().bulk(bulkRequest, RequestOptions.DEFAULT));
-    }
-
-    private IndexRequest prepareIndex(IndexQuery query) {
-        try {
-
-            IndexRequest indexRequest;
-
-            if (query.getObject() != null) {
-                // If we have a query id and a document id, do not ask ES to generate one.
-                indexRequest = new IndexRequest(indexAlias).type(DemandeEsDTO.INDEX_TYPE).id(query.getId());
-                indexRequest.source(resultsMapper.getEntityMapper().mapToString(query.getObject()),
-                        Requests.INDEX_CONTENT_TYPE);
-            } else {
-                throw new ElasticsearchException(
-                        "object or source is null, failed to index the document [id: " + query.getId() + "]");
-            }
-
-            indexRequest.routing(query.getParentId());
-
-            return indexRequest;
-        } catch (IOException e) {
-            throw new ElasticsearchException("failed to index the document [id: " + query.getId() + "]", e);
-        }
+        // TODO checkForBulkUpdateFailure(elasticsearchTemplate.getClient().bulk(bulkRequest, RequestOptions.DEFAULT));
+        elasticsearchTemplate.bulkIndex(bulkQueries, IndexCoordinates.of(indexAlias));
     }
 
     private void checkForBulkUpdateFailure(BulkResponse bulkResponse) {
@@ -293,31 +267,17 @@ public class IndexedEsDemandeFilesServiceImpl extends DemandeFilesServiceImpl im
      */
     @Override
     public void fillFilesList(List<DemandeFileEsDTO> files, DemandeBO demande) throws IOException {
+        // Fichier interne de la demande
+        Set<DemandesFilesBO> demFiles = demande.getFiles();
+        files.addAll(demandeFileEsTransformer.getListFileEsContentFromFichiers(demFiles));
 
-        List<DemandeFileDTO> demFiles = DemandesFilesTransformer.bo2Dto(new ArrayList<>(demande.getFiles()));
+        // Courriers de la demande
+        Set<DemandesCourriersBO> demCourriers = demande.getCourriers();
+        files.addAll(demandeFileEsTransformer.getListFileEsContentFromCourriers(demCourriers));
 
-        demFiles.addAll(DemandeCourrierFilesTransformer.recupererCourriersDemandeFromBO(demande.getCourriers()));
-
+        // FLes demandes complémentaires (il faut récupérer les fichiers dans chacune d'entres elles)
         Set<DemandesComplementsBO> demComplements = demande.getDemandesComplements();
-        DemandeDTO demandeDTO = DemandesTransformer.bo2Dto(demande);
-
-        if (demComplements != null) {
-            for (DemandesComplementsBO demComplement : demComplements) {
-                List<DemandeFileDTO> cfiles = DemandesComplementsFilesTransformer.toDemandeFileDTO(demComplement.getFiles());
-                if (!cfiles.isEmpty()) {
-                    files.addAll(demandeFileEsTransformer.getListFileEsContent(demandeDTO, DemandeFileEsDTO.TYPE.COMPLEMENT, cfiles));
-                }
-            }
-        }
-
-        fillPjsAndFichiersInternesAndCourriers(demFiles, files, demandeDTO);
-
-        // Récupération des courriers
-        Set<DemandesCourriersBO> courrierBOs = demande.getCourriers();
-        if (courrierBOs != null) {
-            List<DemandeCourrierDTO> courriers = DemandesCourriersTransformer.bo2Dto(Lists.newArrayList(courrierBOs));
-            fillCourriers(courriers, files, demandeDTO);
-        }
+        files.addAll(demandeFileEsTransformer.getListFileEsContentFromComplements(demComplements));
     }
 
     /**

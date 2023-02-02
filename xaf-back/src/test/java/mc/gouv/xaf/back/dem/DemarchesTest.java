@@ -10,7 +10,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -335,13 +334,7 @@ public class DemarchesTest {
         private String headerValue;
 
         private HttpJwtRequestPostProcessor(String secret, String sub, String role, String aud) {
-
-            try {
-                this.headerValue = JwtUtils.createJwtHeaderValue(secret, sub, role, aud);
-            } catch (UnsupportedEncodingException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+            this.headerValue = JwtUtils.createJwtHeaderValue(secret, sub, role, aud);
         }
 
         @Override

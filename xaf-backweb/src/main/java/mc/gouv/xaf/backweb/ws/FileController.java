@@ -7,7 +7,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -47,7 +49,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.HandlerMapping;
 
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
@@ -91,8 +92,13 @@ public class FileController {
 	@ResponseStatus(HttpStatus.OK) // 200
 	public void getFile(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		LOGGER.info("====================== getFile()");
-		String file = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
+
+		// Bugfix #41714 - Modification de la façon de récupération du chemin du fichier, suite à la migration Java 11,
+		// cet élément reste encodé
+		String file = request.getServletPath();
 		file = file.replace("/ws/file/get/", "");
+		LOGGER.info("Chemin du fichier récupérée dans la requête : {}", file);
+
 		// Bugfix #16805: encodage des noms des fichiers avec caractères spéciaux
 		String filePathEncoded = URLEncoder.encode(file, UTF_8);
 		fileService.getFile(filePathEncoded, gouvPropertiesResolver.getContainerId(), response);
@@ -150,18 +156,19 @@ public class FileController {
 	}
 
 	/**
-	 * Méthode en charge de créer un InputStreamResource (et de redéfinir le
-	 * comportement du close). Cet ISR sera le fichier PDF renvoyée en réponse à la
-	 * requête
+	 * Méthode en charge de créer un InputStreamResource (et de redéfinir le comportement du close). Cet ISR sera le
+	 * fichier PDF renvoyée en réponse à la requête
 	 * 
-	 * @param fileName : Nom du fichier retourné par la requête
-	 * @param tmp      : Localisation du dossier temporaire qui sera supprimé une
-	 *                 fois la requête terminée
+	 * @param fileName
+	 *            : Nom du fichier retourné par la requête
+	 * @param tmp
+	 *            : Localisation du dossier temporaire qui sera supprimé une fois la requête terminée
 	 * @return : L'input stream resource utilisé dans la requête
 	 */
 	private InputStreamResource setInputStream(String fileName, Path tmp) throws FileNotFoundException {
 		File result = new File(tmp.toAbsolutePath().toString(), fileName);
 		return new InputStreamResource(new FileInputStream(result) {
+
 			// Ici on override le close classique afin de pouvoir supprimer les fichiers
 			// générés à la volée une fois la requête terminée (ie la réponse renvoyée)
 			@Override
@@ -179,10 +186,10 @@ public class FileController {
 		headers.setContentDisposition(contentDisposition);
 		return headers;
 	}
-	
+
 	private void constructPdf(File dest, List<File> files, String pdfName) throws IOException {
 		PDFMergerUtility pdfMerger = new PDFMergerUtility();
-		pdfMerger.setDestinationFileName(dest.getAbsolutePath()+ "/" + pdfName);
+		pdfMerger.setDestinationFileName(dest.getAbsolutePath() + "/" + pdfName);
 		try (PDDocument doc = new PDDocument()) {
 			for (File file : files) {
 				if (!file.getAbsolutePath().toLowerCase().endsWith(".pdf")) {
@@ -254,8 +261,8 @@ public class FileController {
 			if (StringUtils.isNotBlank(currentFile.getTypedoc())) {
 				typeDoc = currentFile.getTypedoc() + "_";
 			}
-			File fileToAdd = new File(tmp.getAbsolutePath(), typeDoc
-					+ fileName.replace("." + extension, "-" + count + "." + extension));
+			File fileToAdd = new File(tmp.getAbsolutePath(),
+					typeDoc + fileName.replace("." + extension, "-" + count + "." + extension));
 			InputStream is = fileService.getFile(gouvPropertiesResolver.getDemarcheId() + "/"
 					+ gouvPropertiesResolver.getContainerId() + "/" + filePathEncoded);
 			copyInputStreamToFile(is, fileToAdd);
@@ -298,8 +305,9 @@ public class FileController {
 	public void getApercuFile(HttpServletRequest request, HttpServletResponse response) {
 
 		LOGGER.info("====================== getFile()");
-
-		String file = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
+		// Bugfix #41714 - Modification de la façon de récupération du chemin du fichier, suite à la migration Java 11,
+		// cet élément reste encodé
+		String file = request.getServletPath();
 		file = file.replace("/ws/file/get/apercu", "");
 		try {
 			// Bugfix #16805: encodage des noms des fichiers avec caractères spéciaux
@@ -328,8 +336,11 @@ public class FileController {
 			if (!StringUtils.isBlank(file.getOriginalFilename())) {
 				LOGGER.info("Part à traiter : {}", file.getOriginalFilename());
 				LOGGER.info("Appel au FileService...");
-				String filename = fileService.saveFile(demande, gouvPropertiesResolver.getContainerId(), file, response);
-				fileNames.put(file.getOriginalFilename(), filename);
+				String filename = fileService.saveFile(demande, gouvPropertiesResolver.getContainerId(), file,
+						response);
+
+				// #41757 - On décode de l'url du fichier pour qu'il soit affiché en clair dans le FO
+				fileNames.put(file.getOriginalFilename(), URLDecoder.decode(filename, StandardCharsets.UTF_8));
 			}
 		}
 		LOGGER.info("====================== saveFiles() terminé, retour au client...");

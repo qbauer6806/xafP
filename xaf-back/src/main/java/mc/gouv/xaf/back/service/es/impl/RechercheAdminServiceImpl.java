@@ -1,6 +1,5 @@
 package mc.gouv.xaf.back.service.es.impl;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,6 +14,7 @@ import mc.gouv.xaf.back.exception.UsedCategoryException;
 import mc.gouv.xaf.back.service.es.IndexedDemandeService;
 import mc.gouv.xaf.back.service.es.RechercheAdminService;
 import mc.gouv.xaf.back.service.es.RechercheDynamicJSService;
+import mc.gouv.xaf.back.service.es.utils.EsUtils;
 import mc.gouv.xaf.back.service.utils.HTMLEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -36,29 +36,39 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
     private static final Logger LOGGER = LoggerFactory.getLogger(RechercheAdminServiceImpl.class);
 
     @Autowired
-    RechercheChampConfigRepository rechercheChampConfigRepository;
+    private RechercheChampConfigRepository rechercheChampConfigRepository;
 
     @Autowired
-    RechercheCatConfigRepository rechercheCatConfigRepository;
+    private RechercheCatConfigRepository rechercheCatConfigRepository;
 
     @Autowired
-    IndexedDemandeService indexedDemandeService;
+    private IndexedDemandeService indexedDemandeService;
 
     @Autowired
-    RechercheDynamicJSService rechercheDynamicJSService;
+    private RechercheDynamicJSService rechercheDynamicJSService;
 
     @Override
     public List<EsProperty> getPropertiesWithLabels() {
 
+        // Récupération des propriétés à partir de l'index ES
         List<EsProperty> properties = new ArrayList<>(indexedDemandeService.getProperties(false));
 
+        // Récupération des champs associés aux propriéts dans la BDD
         Map<String, RechercheChampConfigBO> champsMap = getChampsMap();
-        properties.removeIf(p -> p.getType().equals(EsProperty.BOOLEAN_TYPE)
-                || p.getName().startsWith(DemandeEsDTO.JOIN_FIELD_NAME));
-        Map<String, EsProperty> complementsFichiersPropertiesMap = addComplementsFilesAndInternalFilesProperties(
-                properties);
+
+        // On enlève les propriétés techniques
+        properties.removeIf(p -> p.getType() == null
+                || StringUtils.equals(p.getType(), EsProperty.BOOLEAN_TYPE)
+                || StringUtils.startsWith(p.getName(), EsUtils.JOIN_FIELD));
+
+        // On ajoute les propriétés pour les fichiers
+        addComplementsFilesAndInternalFilesProperties(properties);
+
+        // On récupère les catégories pour classer les propriétés
         List<EsCategory> categories = getCategories();
         Collections.sort(categories);
+
+        // On ajoute les valeurs issues de la BDD dans les propriétés
         for (EsProperty property : properties) {
             RechercheChampConfigBO champBo = champsMap.get(property.getName());
             if (champBo != null) {
@@ -67,17 +77,6 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
                 property.setCategoryId((champBo.getCategorie() != null) ? champBo.getCategorie().getId() : null);
                 property.setEnabled(champBo.isEnabled());
                 property.setEditable(champBo.isEditable());
-                if (property.getName().startsWith(IndexedEsDemandeServiceImpl.FILE_PROPERTIES_PREFIX)) {
-                    complementsFichiersPropertiesMap.get(
-                            IndexedEsDemandeServiceImpl.FILE_COMPLEMENT_HIGHLIGHT_AND_FACET_PREFIX + champBo.getCle())
-                            .setEnabled(champBo.isEnabled());
-                    complementsFichiersPropertiesMap.get(
-                            IndexedEsDemandeServiceImpl.INTERNAL_FILE_HIGHLIGHT_AND_FACET_PREFIX + champBo.getCle())
-                            .setEnabled(champBo.isEnabled());
-                    complementsFichiersPropertiesMap.get(
-                            IndexedEsDemandeServiceImpl.COURRIER_FILE_HIGHLIGHT_AND_FACET_PREFIX + champBo.getCle())
-                            .setEnabled(champBo.isEnabled());
-                }
             } else {
                 property.setEditable(true);
             }
@@ -87,36 +86,25 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
         return properties;
     }
 
-    private Map<String, EsProperty> addComplementsFilesAndInternalFilesProperties(List<EsProperty> properties) {
-        Map<String, EsProperty> complementsFilesAndInternalFilesPropertiesMap = new HashMap<>();
-        List<EsProperty> complementsAndInternalFilesProperties = new ArrayList<>();
-        for (EsProperty property : properties) {
-            if (property.getName().startsWith(IndexedEsDemandeServiceImpl.FILE_PROPERTIES_PREFIX)) {
-                EsProperty complementProperty = new EsProperty(
-                        IndexedEsDemandeServiceImpl.FILE_COMPLEMENT_HIGHLIGHT_AND_FACET_PREFIX + property.getName(),
-                        property.getType(), property.getFields());
-                EsProperty internalFileProperty = new EsProperty(
-                        IndexedEsDemandeServiceImpl.INTERNAL_FILE_HIGHLIGHT_AND_FACET_PREFIX + property.getName(),
-                        property.getType(), property.getFields());
-                EsProperty courrierProperty = new EsProperty(
-                        IndexedEsDemandeServiceImpl.COURRIER_FILE_HIGHLIGHT_AND_FACET_PREFIX + property.getName(),
-                        property.getType(), property.getFields());
-
-                complementsAndInternalFilesProperties.add(complementProperty);
-                complementsAndInternalFilesProperties.add(internalFileProperty);
-                complementsAndInternalFilesProperties.add(courrierProperty);
-                complementsFilesAndInternalFilesPropertiesMap.put(complementProperty.getName(), complementProperty);
-                complementsFilesAndInternalFilesPropertiesMap.put(internalFileProperty.getName(), internalFileProperty);
-                complementsFilesAndInternalFilesPropertiesMap.put(courrierProperty.getName(), courrierProperty);
-            }
+    /**
+     * Ajoute les propriétés liées aux fichiers
+     */
+    private void addComplementsFilesAndInternalFilesProperties(List<EsProperty> properties) {
+        Set<String> mappingFichiers = EsUtils.getMappingFichiers();
+        for (String property : mappingFichiers) {
+            EsProperty complementProperty = new EsProperty(
+                    IndexedEsDemandeServiceImpl.FILE_COMPLEMENT_HIGHLIGHT_AND_FACET_PREFIX + property, null, null);
+            EsProperty internalFileProperty = new EsProperty(
+                    IndexedEsDemandeServiceImpl.INTERNAL_FILE_HIGHLIGHT_AND_FACET_PREFIX + property, null, null);
+            EsProperty courrierProperty = new EsProperty(
+                    IndexedEsDemandeServiceImpl.COURRIER_FILE_HIGHLIGHT_AND_FACET_PREFIX + property, null, null);
+            EsProperty fichiersProperty = new EsProperty(
+                    IndexedEsDemandeServiceImpl.FILE_PROPERTIES_PREFIX + property, null, null);
+            properties.add(complementProperty);
+            properties.add(internalFileProperty);
+            properties.add(courrierProperty);
+            properties.add(fichiersProperty);
         }
-
-        if (!complementsAndInternalFilesProperties.isEmpty()) {
-            properties.addAll(complementsAndInternalFilesProperties);
-        }
-
-        return complementsFilesAndInternalFilesPropertiesMap;
-
     }
 
     @Override
@@ -242,77 +230,55 @@ public class RechercheAdminServiceImpl implements RechercheAdminService {
 
     @Override
     public List<EsCategory> getCategories() {
-
         LOGGER.info("Début de la récupération des catégories");
         Iterable<RechercheCatConfigBO> categoriesBo = rechercheCatConfigRepository.findAll();
         List<EsCategory> categories = new ArrayList<>();
-
-        if (categoriesBo != null) {
-            for (RechercheCatConfigBO cat : categoriesBo) {
-                String escapedLabel = HTMLEscapeUtils.escape(cat.getLibelle());
-                categories.add(new EsCategory(cat.getId(), escapedLabel, cat.isEditable()));
-            }
+        for (RechercheCatConfigBO cat : categoriesBo) {
+            String escapedLabel = HTMLEscapeUtils.escape(cat.getLibelle());
+            categories.add(new EsCategory(cat.getId(), escapedLabel, cat.isEditable()));
         }
-
         LOGGER.info("Fin de la récupération des catégories");
         return categories;
     }
 
     @Override
     public Map<String, RechercheChampConfigBO> getChampsMap() {
-
         Iterable<RechercheChampConfigBO> champs = rechercheChampConfigRepository.findAll();
-        if (champs != null) {
-            Map<String, RechercheChampConfigBO> champsMap = new HashMap<>();
-            for (RechercheChampConfigBO champ : champs) {
-                champsMap.put(champ.getCle(), champ);
-            }
-
-            return champsMap;
+        Map<String, RechercheChampConfigBO> champsMap = new HashMap<>();
+        for (RechercheChampConfigBO champ : champs) {
+            champsMap.put(champ.getCle(), champ);
         }
-        return new HashMap<>();
+        return champsMap;
     }
 
     @Override
-    public String exportConfig() throws JsonGenerationException, JsonMappingException, IOException {
+    public String exportConfig() throws IOException {
 
         LOGGER.info("Début de l'export de la configuration");
 
         ExportImportConfigDTO exportConfig = new ExportImportConfigDTO();
         Iterable<RechercheCatConfigBO> categoriesBo = rechercheCatConfigRepository.findAll();
-
-        if (categoriesBo != null) {
-
-            for (RechercheCatConfigBO catConfig : categoriesBo) {
-                exportConfig.getCategories()
-                        .add(new ExportImportCategoryDTO(catConfig.getLibelle(), catConfig.isEditable()));
-            }
+        for (RechercheCatConfigBO catConfig : categoriesBo) {
+            exportConfig.getCategories()
+                    .add(new ExportImportCategoryDTO(catConfig.getLibelle(), catConfig.isEditable()));
         }
 
         Iterable<RechercheChampConfigBO> champsBo = rechercheChampConfigRepository.findAll();
-
-        if (champsBo != null) {
-            for (RechercheChampConfigBO configConfig : champsBo) {
-
-                ExportImportConfigPropertyDTO exportConfigPropertyDTO = new ExportImportConfigPropertyDTO();
-                if (configConfig.getCategorie() != null) {
-                    exportConfigPropertyDTO.setCategoryName(configConfig.getCategorie().getLibelle());
-                }
-                exportConfigPropertyDTO.setEditable(configConfig.isEditable());
-                exportConfigPropertyDTO.setEnabled(configConfig.isEnabled());
-                exportConfigPropertyDTO.setLabel(configConfig.getLibelle());
-                exportConfigPropertyDTO.setName(configConfig.getCle());
-
-                exportConfig.getProperties().add(exportConfigPropertyDTO);
+        for (RechercheChampConfigBO configConfig : champsBo) {
+            ExportImportConfigPropertyDTO exportConfigPropertyDTO = new ExportImportConfigPropertyDTO();
+            if (configConfig.getCategorie() != null) {
+                exportConfigPropertyDTO.setCategoryName(configConfig.getCategorie().getLibelle());
             }
+            exportConfigPropertyDTO.setEditable(configConfig.isEditable());
+            exportConfigPropertyDTO.setEnabled(configConfig.isEnabled());
+            exportConfigPropertyDTO.setLabel(configConfig.getLibelle());
+            exportConfigPropertyDTO.setName(configConfig.getCle());
+            exportConfig.getProperties().add(exportConfigPropertyDTO);
         }
 
         ObjectMapper mapper = new ObjectMapper();
-
         String exportedConfig = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(exportConfig);
-
         LOGGER.info("Fin de l'export de la configuration, fichier exporté {}", exportedConfig);
-
         return exportedConfig;
     }
 

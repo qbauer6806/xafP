@@ -6,16 +6,13 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import org.elasticsearch.client.RequestOptions;
-import org.elasticsearch.index.query.TermQueryBuilder;
-import org.elasticsearch.index.reindex.DeleteByQueryRequest;
+import mc.gouv.xaf.back.data.es.dao.DemandesFilesEsRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Primary;
-import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,7 +20,6 @@ import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
 import mc.gouv.xaf.back.data.es.model.DemandeFileEsDTO;
 import mc.gouv.xaf.back.data.es.model.EsErrorEventDTO;
 import mc.gouv.xaf.back.exception.AfIndexingException;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.impl.DemandesCourriersServiceImpl;
 import mc.gouv.xaf.back.service.es.IndexedDemandeService;
 import mc.gouv.xaf.back.service.es.IndexedFilesService;
@@ -48,17 +44,14 @@ public class IndexedEsDemandesCourriersServiceImpl extends DemandesCourriersServ
     @Autowired
     private ApplicationEventPublisher applicationEventPublisher;
     
-    @Inject
-    private ElasticsearchRestTemplate elasticsearchTemplate;
-
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
-    
     @Autowired
     private DemandeFileEsTransformer demandeFileEsTransformer;
     
     @Autowired
     private IndexedFilesService indexedFilesService;
+
+    @Inject
+    private DemandesFilesEsRepository demandesFilesEsRepository;
 
     @Override
     public DemandeCourrierDTO saveCourrier(String demarcheId, Integer pkDemande, DemandeCourrierDTO courrierDto) {
@@ -107,20 +100,19 @@ public class IndexedEsDemandesCourriersServiceImpl extends DemandesCourriersServ
         try {
             List<DemandeCourrierDTO> courriersToDelete = getCourriers(demarcheId, demandeId);
     		if(null != courriersToDelete && !courriersToDelete.isEmpty()) {
+                List<String> idsToDelete = new ArrayList<>();
     			for (DemandeCourrierDTO currentCourriersToDelete : courriersToDelete) {
-    				// Ici le format de l'ID d'un courrier dans ES est {pkDemande}-{courrierUrl (avec "/" remplacé par des "-")}
-    				// C'est ce qu'on détermine ici
-    				String demandeIdStr = Integer.toString(demandeId);
+                    // L'identifiant ES est formé à partir de l'url du fichier
     				String identifiantCourrierStr = currentCourriersToDelete.getUrl().replace("/", "-");
-    				String currentCourrierEsId = demandeIdStr + "-"+identifiantCourrierStr;
-    				LOGGER.info("Début suppression du courrier : {} dans ElasticSearch", currentCourrierEsId);
-    				// Puis on requete ES pour supprimer tous les index matchant avec l'ID calculé plus haut
-    				DeleteByQueryRequest request = new DeleteByQueryRequest(gouvPropertiesResolver.getApplicationName());
-					request.setQuery(new TermQueryBuilder("_id", currentCourrierEsId));
-					request.setRefresh(true);
-					elasticsearchTemplate.getClient().deleteByQuery(request, RequestOptions.DEFAULT);
-					LOGGER.info("Fin suppression du courrier : {} dans ElasticSearch", currentCourrierEsId);
-    			}
+                    // Ici le format de l'ID d'un courrier dans ES est {pkDemande}-{identifiant}
+    				String currentCourrierEsId = demandeId + "-" + identifiantCourrierStr;
+    				// On ajoute à la liste d'ids à supprimer
+                    idsToDelete.add(currentCourrierEsId);
+                }
+                // Puis on appel le repo pour supprimer les fichiers
+                LOGGER.info("Début suppression des courriers : {} dans ElasticSearch", idsToDelete);
+                demandesFilesEsRepository.deleteAllById(idsToDelete);
+                LOGGER.info("Fin suppression des courriers : {} dans ElasticSearch", idsToDelete);
     		}
     		super.deleteCourriers(demarcheId, demandeId);
         } catch (Exception e) {

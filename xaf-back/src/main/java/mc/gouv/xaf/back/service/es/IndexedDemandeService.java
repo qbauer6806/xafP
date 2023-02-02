@@ -58,7 +58,7 @@ public interface IndexedDemandeService extends DemandesService {
     Long reindexDemandes() throws IOException;
 
     /**
-     * Méthode d'afficher les demandes désynchonisées entre BDD et ES
+     * Méthode permettant de récuperer les demandes désynchonisées entre BDD et ES
      *
      * @return message à afficher à l'utilisateur
      */

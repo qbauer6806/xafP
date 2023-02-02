@@ -21,13 +21,11 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import mc.gouv.logon.shared.User;
 import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
 import mc.gouv.xaf.back.data.entity.AccessBO;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
-import mc.gouv.xaf.back.data.entity.DemandesCourriersBO;
 import mc.gouv.xaf.back.data.entity.DemandesDataBO;
 import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
 import mc.gouv.xaf.back.data.es.model.CanalEsDto;
@@ -35,6 +33,8 @@ import mc.gouv.xaf.back.data.es.model.DemandeAccessEsDTO;
 import mc.gouv.xaf.back.data.es.model.DemandeEsDTO;
 import mc.gouv.xaf.back.data.es.model.DemandeJoinFieldEsDTO;
 import mc.gouv.xaf.back.data.es.model.DemandeStatutEsDTO;
+import mc.gouv.xaf.back.data.es.model.GenericContenuEsDTO;
+import mc.gouv.xaf.back.data.es.model.GenericDemandeDataEsDTO;
 import mc.gouv.xaf.back.data.transformer.DemandesCourriersTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesStatutsTransformer;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
@@ -57,7 +57,6 @@ public class DemandeEsTransformer {
 
     private static final String FIELD_COURRIER = "courriers";
     private static final String FIELD_STATUS = "statuts";
-    private static final String FIELD_DEM_COMPL = "demandesComplements";
     private static final String FIELD_DATA = "data";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandeEsTransformer.class);
@@ -121,7 +120,7 @@ public class DemandeEsTransformer {
         }
 
         DemandeEsDTO demandeEsDTO = new DemandeEsDTO();
-        demandeEsDTO.setDemandeJoinField(new DemandeJoinFieldEsDTO(DemandeEsDTO.INDEX_TYPE));
+        demandeEsDTO.setDemandeJoinField(new DemandeJoinFieldEsDTO("demandes"));
         DemandeAccessEsDTO demandeAccessEsDto = new DemandeAccessEsDTO();
 
         AccessBO accessBO = demande.getFkAccess();
@@ -155,28 +154,24 @@ public class DemandeEsTransformer {
 
         ObjectMapper mapper = new ObjectMapper();
         JsonNode contenu = mapper.readTree(demande.getContenu());
-        demandeEsDTO.setContenu(transformContenu(contenu));
+        demandeEsDTO.setContenu(transformContenu(contenu, demande.getBuildId()));
         demandeEsDTO.setCourrierDateReception(demande.getCourrierDateReception());
         demandeEsDTO.setCourrierRefInterne(demande.getCourrierRefInterne());
-        
+
         demandeEsDTO.setStatutPublicOuInterne(demarchesDataProvider.getStatutPublicOuInterne(demande.getPkDemandes(), demande.getDernierStatut().getLibelle()).getName());
 
         Set<DemandeCourrierDTO> courriers = DemandesCourriersTransformer.bo2Dto(demande.getCourriers());
 
-        if (courriers != null && !courriers.isEmpty()) {
+        if (!courriers.isEmpty()) {
             List<String> nomsCourriers = courriers.stream().map(DemandeCourrierDTO::getName)
                     .collect(Collectors.toList());
             demandeEsDTO.setNomsCourriers(nomsCourriers);
         }
         demandeEsDTO.setAgentAffecteId(demande.getAgentAffecteId());
 
-        JsonNode data = mapper.createObjectNode();
-        if (demande.getData() != null) {
-            for (DemandesDataBO demandesDataBO : demande.getData()) {
-                ((ObjectNode) data).put(demandesDataBO.getKey(), demandesDataBO.getValue());
-            }
-        }
-        demandeEsDTO.setData(transformData(data));
+        // Mapping des demandes data
+        demandeEsDTO.setData(transformDataBO(demande.getData()));
+
         demandeEsDTO.setDateCreation(demande.getDateCreation());
         demandeEsDTO.setDateDerModif(demande.getDateDerModif());
         demandeEsDTO.setDernierStatut(
@@ -230,10 +225,10 @@ public class DemandeEsTransformer {
             }
         }
 
-        demandeEsDTO.setContenu(transformContenu(demandeDTO.getContenu()));
+        demandeEsDTO.setContenu(transformContenu(demandeDTO.getContenu(), demandeDTO.getBuildId()));
         demandeEsDTO.setCourrierDateReception(demandeDTO.getCourrierDateReception());
         demandeEsDTO.setCourrierRefInterne(demandeDTO.getCourrierRefInterne());
-        
+
         demandeEsDTO.setStatutPublicOuInterne(demarchesDataProvider.getStatutPublicOuInterne(demandeDTO.getPkDemandes(), demandeDTO.getDernierStatut().getLibelle()).getName());
 
         if (demandeDTO.getCourriers() != null && demandeDTO.getCourriers().length > 0) {
@@ -244,14 +239,9 @@ public class DemandeEsTransformer {
 
         demandeEsDTO.setAgentAffecteId(demandeDTO.getAgentAffecteId());
 
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode data = mapper.createObjectNode();
-        if (demandeDTO.getData() != null) {
-            for (DemandeDataDTO demandeDataDTO : demandeDTO.getData()) {
-                ((ObjectNode) data).put(demandeDataDTO.getKey(), demandeDataDTO.getValue());
-            }
-        }
-        demandeEsDTO.setData(transformData(data));
+        // Mapping des demandes data
+        demandeEsDTO.setData(transformDataDTO(demandeDTO.getData()));
+
         demandeEsDTO.setDateCreation(demandeDTO.getDateCreation());
         demandeEsDTO.setDateDerModif(demandeDTO.getDateDerModif());
         demandeEsDTO.setDernierStatut(
@@ -284,19 +274,14 @@ public class DemandeEsTransformer {
 
         boolean addCourriersField = false;
         boolean addStatutsField = false;
-        boolean addDemandesComplementsField = false;
         boolean addDataField = false;
         if (fields != null) {
             for (String field : fields) {
                 if (StringUtils.equals(FIELD_COURRIER, field)) {
                     addCourriersField = true;
                 }
-
                 if (StringUtils.equals(FIELD_STATUS, field)) {
                     addStatutsField = true;
-                }
-                if (StringUtils.equals(FIELD_DEM_COMPL, field)) {
-                    addDemandesComplementsField = true;
                 }
                 if (StringUtils.equals(FIELD_DATA, field)) {
                     addDataField = true;
@@ -306,7 +291,6 @@ public class DemandeEsTransformer {
             // Dans le cas ou il n'y avait pas de fields on retourne l'objet complet
             addCourriersField = true;
             addStatutsField = true;
-            addDemandesComplementsField = true;
             addDataField = true;
         }
         DemandeEsDTO dto = new DemandeEsDTO();
@@ -357,8 +341,7 @@ public class DemandeEsTransformer {
                 DemandeStatutDTO statutDto = DemandesStatutsTransformer.bo2Dto(statut);
                 // Cacher l'agentId au Front Office
                 statutDto.setAgentId(null);
-                dto.setStatuts(
-                        new DemandeStatutEsDTO[] { demandesStatutsEsTransformer.toEs(statutDto, bo.getPkDemandes()) });
+                dto.setStatuts(new DemandeStatutEsDTO[] { demandesStatutsEsTransformer.toEs(statutDto, bo.getPkDemandes()) });
             } else {
                 // Back Office : tout remonter
                 Set<DemandeStatutEsDTO> statuts = demandesStatutsEsTransformer.bo2Dto(bo.getStatuts(),
@@ -376,45 +359,30 @@ public class DemandeEsTransformer {
             }
             dto.setDernierStatut(demandesStatutsEsTransformer.toEs(statutDto, bo.getPkDemandes()));
         }
-        // Mapper les courriers
-        if (addCourriersField && bo.getCourriers() != null && !bo.getCourriers().isEmpty()) {
-            // Ne remonter les courriers que pour le back
-            if (!DemarchesUtils.isFrontUser()) {
-                // Back Office : tout remonter
-
-                List<DemandeCourrierDTO> courriers = DemandesCourriersTransformer
-                        .bo2Dto(new ArrayList<DemandesCourriersBO>(bo.getCourriers()));
-
-                if (courriers != null && !courriers.isEmpty()) {
-                    List<String> nomsCourriers = courriers.stream().map(DemandeCourrierDTO::getName)
-                            .collect(Collectors.toList());
-                    dto.setNomsCourriers(nomsCourriers);
-                }
-
+        // Mapper les courriers (que pour le Back-Office)
+        if (addCourriersField && bo.getCourriers() != null && !bo.getCourriers().isEmpty()
+                && !DemarchesUtils.isFrontUser()) {
+            List<DemandeCourrierDTO> courriers = DemandesCourriersTransformer.bo2Dto(new ArrayList<>(bo.getCourriers()));
+            if (!courriers.isEmpty()) {
+                List<String> nomsCourriers = courriers.stream().map(DemandeCourrierDTO::getName)
+                        .collect(Collectors.toList());
+                dto.setNomsCourriers(nomsCourriers);
             }
         }
         dto.setIdentifiant(bo.getIdentifiant());
         dto.setCourrierDateReception(bo.getCourrierDateReception());
         dto.setCourrierRefInterne(bo.getCourrierRefInterne());
-        
+
         dto.setStatutPublicOuInterne(demarchesDataProvider.getStatutPublicOuInterne(bo.getPkDemandes(), bo.getDernierStatut().getLibelle()).getName());
 
-        // Mapper les données de demande
+        // Mapping des demandes data
         if (addDataField) {
-
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode data = mapper.createObjectNode();
-            if (bo.getData() != null) {
-                for (DemandesDataBO demandesDataBO : bo.getData()) {
-                    ((ObjectNode) data).put(demandesDataBO.getKey(), demandesDataBO.getValue());
-                }
-            }
-            dto.setData(transformData(data));
+            dto.setData(transformDataBO(bo.getData()));
         }
 
         ObjectMapper mapper = new ObjectMapper();
         try {
-            dto.setContenu(transformContenu(mapper.readTree(bo.getContenu())));
+            dto.setContenu(transformContenu(mapper.readTree(bo.getContenu()), bo.getBuildId()));
         } catch (IOException e) {
             LOGGER.error("Erreur lors de la conversion JSON", e);
         }
@@ -444,22 +412,25 @@ public class DemandeEsTransformer {
         return null;
     }
 
-    private JsonNode transformContenu(JsonNode jsonNode) {
-
+    private GenericContenuEsDTO transformContenu(JsonNode node, String buildId) {
         if (indexedDemandeJsonNodeTransformer != null) {
-            return indexedDemandeJsonNodeTransformer.transform(jsonNode);
+            return indexedDemandeJsonNodeTransformer.buildGenericContenu(node, buildId);
         }
-
-        return jsonNode;
+        return null;
     }
 
-    private JsonNode transformData(JsonNode jsonNode) {
-
+    private GenericDemandeDataEsDTO transformDataBO(Set<DemandesDataBO> dataBOS) {
         if (indexedDemandeDataJsonNodeTransformer != null) {
-            return indexedDemandeDataJsonNodeTransformer.transform(jsonNode);
+            return indexedDemandeDataJsonNodeTransformer.buildDemandeDataBO(dataBOS);
         }
+        return null;
+    }
 
-        return jsonNode;
+    private GenericDemandeDataEsDTO transformDataDTO(DemandeDataDTO[] dataDTOS) {
+        if (dataDTOS != null && indexedDemandeDataJsonNodeTransformer != null) {
+            return indexedDemandeDataJsonNodeTransformer.buildDemandeDataDTO(dataDTOS);
+        }
+        return null;
     }
 
     /**

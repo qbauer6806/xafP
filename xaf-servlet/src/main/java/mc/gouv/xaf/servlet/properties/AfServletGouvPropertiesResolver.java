@@ -154,13 +154,13 @@ public class AfServletGouvPropertiesResolver {
     public static final String TGFAPI_URL = "mc.gouv.appfactory.tgfapi.url";
 
     public static String getTgfApiUrl() {
-        return Static.getValue(TGFAPI_URL);
+        return StringUtils.isBlank(Static.getValue(TGFAPI_URL)) ? "vide" : Static.getValue(TGFAPI_URL);
     }
 
     public static final String TGFAPI_JWT = "mc.gouv.appfactory.tgfapi.jwt";
 
     public static String getTgfApiJwt() {
-        return Static.getValue(TGFAPI_JWT);
+        return StringUtils.isBlank(Static.getValue(TGFAPI_JWT)) ? "vide" : Static.getValue(TGFAPI_JWT);
     }
 
     public static final String VSCAN_URL = "mc.gouv.appfactory.external.vscan.url";

@@ -17,6 +17,8 @@ public class SharedMessages {
     public static final String CLAIM_AND_SUBMIT_TASK = "claimTask() puis submitTaskFormData()...";
     public static final String UTILISATEUR_NON_AUTORISE = "Utilisateur non autorisé";
 
+    public static final String ERREUR_INDEXATION = "Erreur lors de l'indexation de la demande.";
+
     private SharedMessages() {
     }
 

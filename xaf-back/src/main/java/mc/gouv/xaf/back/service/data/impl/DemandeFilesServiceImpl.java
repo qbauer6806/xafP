@@ -207,7 +207,6 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
         }
     }
 
-
     private boolean isFileDeletable(List<DemandesFilesBO> existingFiles, boolean statutCheck, List<String> statuts, int jours) {
         boolean isFileDeletable = false;
         if (existingFiles.size() <= 1) {

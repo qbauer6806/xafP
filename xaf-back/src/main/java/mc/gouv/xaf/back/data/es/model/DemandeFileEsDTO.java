@@ -1,51 +1,73 @@
 package mc.gouv.xaf.back.data.es.model;
 
-import javax.validation.constraints.NotNull;
-
+import com.fasterxml.jackson.annotation.JsonFormat;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
-@Document(indexName = "#{propertiesResolver.indexAlias}", type = DemandeEsDTO.INDEX_TYPE, createIndex = false)
+@Document(indexName = "#{@environment.getProperty('application.name')}", createIndex = false)
 public class DemandeFileEsDTO {
 
+    /**
+     * @deprecated les jointures seront supprimées dans ES8
+     */
+    @Deprecated
     public static final String INDEX_FILES_JOIN_DOC = "fichiers";
-    public static final String TYPE_FIELD = "fichiers.type";
-    public static final String IDENTIFIANT_FIELD = "fichiers.identifiant";
-    public static final String DATE_PRINTED_FIELD = "fichiers.datePrinted";
-
-    public enum TYPE {
-        PIECE_JOINTE,
-        FICHIER_INTERNE,
-        COMPLEMENT,
-        COURRIER
-    }
-
-    private Fichiers fichiers;
-    private DemandeJoinFieldEsDTO demandeJoinField;
-    
+    /**
+     * Id unique, différent de la pkDemandeFile (généré à partir de l'url et nom) et utilisé par ES
+     */
     @Id
-    protected String identifiant;
+    private String identifiant;
+    /**
+     * @deprecated les jointures seront supprimées dans ES8
+     */
+    @Deprecated
+    private DemandeJoinFieldEsDTO demandeJoinField;
+    @NotNull
+    private String name;
+    @NotNull
+    private String url;
+    private String meta;
+    private String content;
+    private String language;
+    private String typeFichier;
+    private String statut;
+    @JsonFormat(locale = "fr", shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", timezone = "GMT+1")
+    private Date dateCreation;
+    private Integer pkDemandes;
+    private Integer pkDemandeFile;
+    private String typedoc;
+    @JsonFormat(locale = "fr", shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", timezone = "GMT+1")
+    private Date datePrinted;
+    /**
+     * Référence Interne, principalement utilisée lors de l'impression des courriers
+     */
+    private String identifiantFichier;
+    /**
+     * Identifiant de la demande
+     */
+    private String identifiantDemande;
 
-    public String getIdentifiant() {
-		return identifiant;
-	}
-
-	public void setIdentifiant(String identifiant) {
-		this.identifiant = identifiant;
-	}
-
-	public DemandeJoinFieldEsDTO getDemandeJoinField() {
-        return demandeJoinField;
-    }
-
-    public void setDemandeJoinField(DemandeJoinFieldEsDTO demandeJoinField) {
-        this.demandeJoinField = demandeJoinField;
-    }
-
+    /**
+     * TODO les jointures seront supprimées dans ES8
+     */
     public DemandeFileEsDTO(String parent) {
-        fichiers = new Fichiers();
+        this.identifiantDemande = parent;
+        setDemandeJoinField(new DemandeJoinFieldEsDTO(INDEX_FILES_JOIN_DOC, parent));
+    }
+
+    /**
+     * TODO les jointures seront supprimées dans ES8
+     */
+    public DemandeFileEsDTO(String parent, String url) {
+        this.identifiantDemande = parent;
+        this.url = url;
+        if (StringUtils.isNotEmpty(url)) {
+            this.identifiant = url.replace('/', '-');
+        }
         setDemandeJoinField(new DemandeJoinFieldEsDTO(INDEX_FILES_JOIN_DOC, parent));
     }
 
@@ -53,167 +75,144 @@ public class DemandeFileEsDTO {
 
     }
 
-    public Fichiers getFichiers() {
-        return fichiers;
+    public String getIdentifiant() {
+        return identifiant;
     }
 
-    public void setFichiers(Fichiers fichiers) {
-        this.fichiers = fichiers;
+    public void setIdentifiant(String identifiant) {
+        this.identifiant = identifiant;
     }
 
-    public static class Fichiers {
+    @Deprecated
+    public DemandeJoinFieldEsDTO getDemandeJoinField() {
+        return demandeJoinField;
+    }
 
-        @NotNull
-        protected String name;
+    /**
+     * @deprecated les jointures seront supprimées dans ES8
+     */
+    @Deprecated
+    public void setDemandeJoinField(DemandeJoinFieldEsDTO demandeJoinField) {
+        this.demandeJoinField = demandeJoinField;
+    }
 
-        /**
-         * Id unique, différent de la pkDemandeFile (généré à partir de l'url et nom) et utilisé par ES
-         */
-        @Id
-        protected String id;
+    public String getName() {
+        return name;
+    }
 
-        @NotNull
-        protected String url;
-        protected String meta;
-        private String content;
-        private String language;
-        private String type;
-        private String statut;
-        private Date dateCreation;
-        private Integer pkDemande;
-        private Integer pkDemandeFile;
-        private String typedoc;
-        private Date datePrinted;
+    public void setName(String name) {
+        this.name = name;
+    }
 
-        /**
-         * Identifiant courrier (ref_interne sur la page gestioncourrier)
-         */
-        private String identifiant;
+    public String getUrl() {
+        return url;
+    }
 
-        /**
-         * Identifiant de la demande
-         */
-        private String identifiantDemande;
+    public void setUrl(String url) {
+        this.url = url;
+    }
 
-        public String getName() {
-            return name;
-        }
+    public String getMeta() {
+        return meta;
+    }
 
-        public void setName(String name) {
-            this.name = name;
-        }
+    public void setMeta(String meta) {
+        this.meta = meta;
+    }
 
-        public String getUrl() {
-            return url;
-        }
+    public String getContent() {
+        return content;
+    }
 
-        public void setUrl(String url) {
-            this.url = url;
-        }
+    public void setContent(String content) {
+        this.content = content;
+    }
 
-        public String getMeta() {
-            return meta;
-        }
+    public String getLanguage() {
+        return language;
+    }
 
-        public void setMeta(String meta) {
-            this.meta = meta;
-        }
+    public void setLanguage(String language) {
+        this.language = language;
+    }
 
-        public String getContent() {
-            return content;
-        }
+    public String getTypeFichier() {
+        return typeFichier;
+    }
 
-        public void setContent(String content) {
-            this.content = content;
-        }
+    public void setTypeFichier(String typeFichier) {
+        this.typeFichier = typeFichier;
+    }
 
-        public String getLanguage() {
-            return language;
-        }
+    public String getStatut() {
+        return statut;
+    }
 
-        public void setLanguage(String language) {
-            this.language = language;
-        }
+    public void setStatut(String statut) {
+        this.statut = statut;
+    }
 
-        public void setId(String id) {
-            this.id = id;
-        }
+    public Date getDateCreation() {
+        return dateCreation;
+    }
 
-        public String getId() {
-            return url.replace("/", "-").replace("\\", "-");
-        }
+    public void setDateCreation(Date dateCreation) {
+        this.dateCreation = dateCreation;
+    }
 
-        public String getType() {
-            return type;
-        }
+    public Integer getPkDemandes() {
+        return pkDemandes;
+    }
 
-        public void setType(String type) {
-            this.type = type;
-        }
+    public void setPkDemandes(Integer pkDemandes) {
+        this.pkDemandes = pkDemandes;
+    }
 
-        public String getStatut() {
-            return statut;
-        }
+    public Integer getPkDemandeFile() {
+        return pkDemandeFile;
+    }
 
-        public void setStatut(String statut) {
-            this.statut = statut;
-        }
+    public void setPkDemandeFile(Integer pkDemandeFile) {
+        this.pkDemandeFile = pkDemandeFile;
+    }
 
-        public Date getDateCreation() {
-            return dateCreation;
-        }
+    public String getTypedoc() {
+        return typedoc;
+    }
 
-        public void setDateCreation(Date dateCreation) {
-            this.dateCreation = dateCreation;
-        }
+    public void setTypedoc(String typedoc) {
+        this.typedoc = typedoc;
+    }
 
-        public Integer getPkDemande() {
-            return pkDemande;
-        }
+    public Date getDatePrinted() {
+        return datePrinted;
+    }
 
-        public void setPkDemande(Integer pkDemande) {
-            this.pkDemande = pkDemande;
-        }
+    public void setDatePrinted(Date datePrinted) {
+        this.datePrinted = datePrinted;
+    }
 
-        public Integer getPkDemandeFile() {
-            return pkDemandeFile;
-        }
+    public String getIdentifiantFichier() {
+        return identifiantFichier;
+    }
 
-        public void setPkDemandeFile(Integer pkDemandeFile) {
-            this.pkDemandeFile = pkDemandeFile;
-        }
+    public void setIdentifiantFichier(String identifiantFichier) {
+        this.identifiantFichier = identifiantFichier;
+    }
 
-        public String getIdentifiant() {
-            return identifiant;
-        }
+    public String getIdentifiantDemande() {
+        return identifiantDemande;
+    }
 
-        public void setIdentifiant(String identifiant) {
-            this.identifiant = identifiant;
-        }
+    public void setIdentifiantDemande(String identifiantDemande) {
+        this.identifiantDemande = identifiantDemande;
+    }
 
-        public String getIdentifiantDemande() {
-            return identifiantDemande;
-        }
-
-        public void setIdentifiantDemande(String identifiantDemande) {
-            this.identifiantDemande = identifiantDemande;
-        }
-
-		public Date getDatePrinted() {
-			return datePrinted;
-		}
-
-		public void setDatePrinted(Date datePrinted) {
-			this.datePrinted = datePrinted;
-		}
-
-        public String getTypedoc() {
-            return typedoc;
-        }
-
-        public void setTypedoc(String typedoc) {
-            this.typedoc = typedoc;
-        }
+    public enum TYPE {
+        PIECE_JOINTE,
+        FICHIER_INTERNE,
+        COMPLEMENT,
+        COURRIER
     }
 
 }

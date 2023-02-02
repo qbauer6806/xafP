@@ -583,8 +583,6 @@ public class DemandesServiceImpl implements DemandesService {
 			throw new DemarchesServiceException("Demande introuvable", HttpStatus.NOT_FOUND);
 		}
 		DemandeDTO demandeDTO = DemandesTransformer.bo2Dto(demandeBo);
-		String identifiant = demandeBo.getIdentifiant();
-		Date dateCreation = demandeBo.getDateCreation();
 
 		LOGGER.info("Suppression des fichiers de la demande {} de la demarche {}...", demandeId, demarcheId);
 		demandesFilesService.suppressionDesFichiers(demandeDTO, false, null, 0);
@@ -593,7 +591,9 @@ public class DemandesServiceImpl implements DemandesService {
 		demandesComplementsService.suppressionDesFichiersDesDemandesComplementaires(demandeDTO, false, null, 0);
 
 		AccessBO access = suppressionDeLaDemande(demandeBo, demarcheId, demandeId);
-		
+
+		String identifiant = demandeBo.getIdentifiant();
+		Date dateCreation = demandeBo.getDateCreation();
 		LOGGER.info("Envoi d'un message dans Kafka pour notifier le Guichet Unique de la suppression de la demande...");
 		List<DemandeRecapDTO> demandeRecaps = guKafkaUtils.getDemandeRecapsFromUsagerId(demandeDTO.getUsagerId());
         RecapDemandesDTO recapDemandes = guKafkaUtils.getRecapDemandes(demandeRecaps);
@@ -646,7 +646,14 @@ public class DemandesServiceImpl implements DemandesService {
 		LOGGER.info("Suppression des fichiers complémentaires de la demande {} de la demarche {}...", demandeId, demarcheId);
 		demandesComplementsService.suppressionDesFichiersDesDemandesComplementaires(demandeDTO, true, statuts, jours);
 
-		suppressionDeLaDemande(demandeBo, demarcheId, demandeId);
+		AccessBO access = suppressionDeLaDemande(demandeBo, demarcheId, demandeId);
+		
+		String identifiant = demandeBo.getIdentifiant();
+		Date dateCreation = demandeBo.getDateCreation();
+		LOGGER.info("Envoi d'un message dans Kafka pour notifier le Guichet Unique de la suppression de la demande...");
+		List<DemandeRecapDTO> demandeRecaps = guKafkaUtils.getDemandeRecapsFromUsagerId(demandeDTO.getUsagerId());
+        RecapDemandesDTO recapDemandes = guKafkaUtils.getRecapDemandes(demandeRecaps);
+        guKafkaProducer.sendSuppressionDemandeMessage(access.getUsagerId(), demandeId, identifiant, dateCreation, recapDemandes);
 	}
 
 	@Override

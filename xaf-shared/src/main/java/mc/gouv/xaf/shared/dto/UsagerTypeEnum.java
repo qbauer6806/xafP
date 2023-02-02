@@ -1,13 +1,28 @@
 package mc.gouv.xaf.shared.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum UsagerTypeEnum {
 
 	@JsonProperty("individual")
-	INDIVIDUAL,
+	INDIVIDUAL("individual"),
 	
 	@JsonProperty("company")
-	COMPANY;
+	COMPANY("company"),
+	
+	@JsonProperty("")
+	UNDEFINED("");
+	
+    private String value;
+
+    UsagerTypeEnum(String value) {
+        this.value = value;
+    }
+
+    @JsonValue
+    public String getValue() {
+        return value;
+    }
 	
 }

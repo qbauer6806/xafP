@@ -4,7 +4,6 @@ import org.springframework.http.HttpStatus;
 
 /**
  * @author qdeme
- *
  */
 public class DemarchesServiceException extends RuntimeException {
 

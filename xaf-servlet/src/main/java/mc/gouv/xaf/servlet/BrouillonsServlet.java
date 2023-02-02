@@ -88,7 +88,7 @@ public class BrouillonsServlet extends AbstractAfServlet {
             	response.setStatus(HttpStatus.SC_CREATED);
             }
             else {
-            	brouillonDto = afApiClient.updateBrouillon(brouillonInput, Integer.parseInt(brouillonId));
+            	brouillonDto = afApiClient.updateBrouillon(brouillonInput, Integer.parseInt(brouillonId), usagerId);
             	response.setStatus(HttpStatus.SC_OK);
             }
 
@@ -106,7 +106,7 @@ public class BrouillonsServlet extends AbstractAfServlet {
         	}
         	else {
 	            LOGGER.info("Appel à la démarche pour récupérer le brouillon " + brouillonId);
-	            BrouillonDTO brouillonDto = afApiClient.getBrouillon(Integer.parseInt(brouillonId));
+	            BrouillonDTO brouillonDto = afApiClient.getBrouillon(Integer.parseInt(brouillonId), usagerId);
 	            // TODO : gestion des erreurs
 	            response.setStatus(HttpStatus.SC_OK);
 	            repJson = mapper.writeValueAsString(brouillonDto);
@@ -114,7 +114,7 @@ public class BrouillonsServlet extends AbstractAfServlet {
         	IOUtils.copy(new ByteArrayInputStream(repJson.getBytes()), response.getOutputStream());
         } else if (HttpMethod.DELETE.equals(httpMethod)) {
         	LOGGER.info("Appel à la démarche pour supprimer le brouillon");
-        	afApiClient.deleteBrouillon(Integer.parseInt(brouillonId));
+        	afApiClient.deleteBrouillon(Integer.parseInt(brouillonId), usagerId);
         }
 
         response.setContentType("application/json");

@@ -461,7 +461,7 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
         }
         return value;
 	}
-
+    
     @Override
     public String getGichkeyUrl() {
         return Static.getValue("mc.gouv.af.back.external.gichkey.url");

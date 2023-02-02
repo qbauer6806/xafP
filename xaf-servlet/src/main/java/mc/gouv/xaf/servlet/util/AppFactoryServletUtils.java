@@ -168,7 +168,9 @@ public class AppFactoryServletUtils {
         
         UsagerInfosDTO usagerInfosDTO = (UsagerInfosDTO) session.getAttribute("login");
         if (usagerInfosDTO == null) {
-        	return null;
+        	// #47087 - [FO] expiration - Page d'erreur furtive sur click de lien menu en FR et EN
+        	// Ici on invalide la session afin d'être redirigé vers la page de login lorsque les infos usager sont null coté mon guichet
+        	session.invalidate();
         }
         
         // Si ce n'est pas un usager courrier

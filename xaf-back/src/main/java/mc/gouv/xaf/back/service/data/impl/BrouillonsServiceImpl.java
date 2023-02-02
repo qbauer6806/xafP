@@ -118,12 +118,12 @@ public class BrouillonsServiceImpl implements BrouillonsService {
      *
      */
     @Override
-    public BrouillonDTO saveOrUpdateBrouillon(BrouillonDTO brouillon, boolean partialUpdate)
+    public BrouillonDTO saveOrUpdateBrouillon(BrouillonDTO brouillon, Integer usagerId, boolean partialUpdate)
             throws Exception {
     	BrouillonDTO brouillonDTO;
         if (brouillon.getPkBrouillons() != null) {
             // ID du brouillon fourni, il faut donc mettre à jour un brouillon
-            brouillonDTO = updateBrouillon(brouillon);
+            brouillonDTO = updateBrouillon(brouillon, usagerId);
         } else {
             // UsagerID et DemarcheID fournis, il faut donc créer un nouveau brouillon
             brouillonDTO = saveBrouillon(brouillon);
@@ -158,8 +158,14 @@ public class BrouillonsServiceImpl implements BrouillonsService {
     }
 
     @Override
-    public BrouillonDTO getBrouillon(String demarcheId, Integer pkBrouillons) {
+    public BrouillonDTO getBrouillon(String demarcheId, Integer pkBrouillons, Integer usagerId) {
         BrouillonBO brouillonBo = getBrouillonBo(demarcheId, pkBrouillons);
+
+        // #46373 - Faille de sécurité, il faut vérifier que l'usager qui a créé ce brouillon est à l'origine du changement
+        if (!usagerId.equals(brouillonBo.getFkAccess().getUsagerId())) {
+            throw new DemarchesServiceException("Utilisateur non autorisé", HttpStatus.UNAUTHORIZED);
+        }
+
         LOGGER.info("Transformation bo -> dto ...");
         return BrouillonsTransformer.bo2Dto(brouillonBo);
     }
@@ -180,12 +186,9 @@ public class BrouillonsServiceImpl implements BrouillonsService {
 
     /**
      * {@inheritDoc}
-     *
-     * @throws SAXException
-     * @throws IOException
      */
     @Override
-    public BrouillonDTO updateBrouillon(BrouillonDTO brouillon) throws IOException, SAXException {
+    public BrouillonDTO updateBrouillon(BrouillonDTO brouillon, Integer usagerId) throws IOException, SAXException {
 
         LOGGER.info("Récupération en base du brouillon...");
 
@@ -196,6 +199,11 @@ public class BrouillonsServiceImpl implements BrouillonsService {
         }
 
         BrouillonBO brouillonBo = brouillonBoOp.get();
+
+        // #46373 - Faille de sécurité, il faut vérifier que l'usager qui a créé ce brouillon est à l'origine du changement
+        if (!usagerId.equals(brouillonBo.getFkAccess().getUsagerId())) {
+            throw new DemarchesServiceException("Utilisateur non autorisé", HttpStatus.UNAUTHORIZED);
+        }
 
         ObjectMapper mapper = new ObjectMapper();
         try {
@@ -246,11 +254,9 @@ public class BrouillonsServiceImpl implements BrouillonsService {
 
     /**
      * {@inheritDoc}
-     *
-     * @throws JsonProcessingException
      */
     @Override
-    public void deleteBrouillon(String demarcheId, Integer pkBrouillons) {
+    public void deleteBrouillon(String demarcheId, Integer pkBrouillons, Integer usagerId) {
 
         LOGGER.info("Récupération en base du brouillon...");
 
@@ -261,6 +267,11 @@ public class BrouillonsServiceImpl implements BrouillonsService {
         }
 
         AccessBO access = brouillonBo.getFkAccess();
+        // #46373 - Faille de sécurité, il faut vérifier que l'usager qui a créé ce brouillon est à l'origine du changement
+        if (!usagerId.equals(access.getUsagerId())) {
+            throw new DemarchesServiceException("Utilisateur non autorisé", HttpStatus.UNAUTHORIZED);
+        }
+
         access.getBrouillons().remove(brouillonBo);
         accessRepository.save(access);
 

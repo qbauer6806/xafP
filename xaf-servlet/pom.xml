@@ -171,6 +171,6 @@
 	</dependencies>
 
   <scm>
-    <tag>xaf-10.3.0.0-SNAPSHOT</tag>
+    <tag>HEAD</tag>
   </scm>
 </project>

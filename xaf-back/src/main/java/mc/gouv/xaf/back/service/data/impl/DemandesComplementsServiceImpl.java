@@ -210,8 +210,6 @@ public class DemandesComplementsServiceImpl implements DemandesComplementsServic
 
         // Prise en charge des pièces jointes
         if (demandeComplementsReponse.getFichiers() != null) {
-            // TODO MAJ
-            // updateFilesContents(demandeComplementsReponse.getFichiers(), demarcheId);
             List<DemandesComplementsFilesBO> fichiers = DemandesComplementsFilesTransformer
                     .dto2Bo(Arrays.asList(demandeComplementsReponse.getFichiers()));
             for (DemandesComplementsFilesBO fichier : fichiers) {

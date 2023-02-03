@@ -5,7 +5,6 @@ import mc.gouv.xaf.back.data.entity.*;
 import mc.gouv.xaf.back.data.es.model.DemandeFileEsDTO;
 import mc.gouv.xaf.back.data.es.model.EsErrorEventDTO;
 import mc.gouv.xaf.back.data.transformer.DemandesComplementsFilesTransformer;
-import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
 import mc.gouv.xaf.back.exception.AfIndexingException;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.impl.DemandeFilesServiceImpl;
@@ -30,7 +29,6 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Page;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
-import org.springframework.data.elasticsearch.core.convert.ElasticsearchConverter;
 import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 import org.springframework.data.elasticsearch.core.query.IndexQuery;
 import org.springframework.scheduling.annotation.Async;
@@ -83,24 +81,6 @@ public class IndexedEsDemandeFilesServiceImpl extends DemandeFilesServiceImpl im
             applicationEventPublisher.publishEvent(esErrorEventDTO);
             throw new AfIndexingException(e.getMessage(), e);
         }
-    }
-
-    /**
-     * Méthode permettant d'indexer un fichier
-     *
-     * @param demandeFileEsDTO Fichier à indexer
-     * @return Fichier indexé
-     */
-    private DemandeFileEsDTO indexFile(DemandeFileEsDTO demandeFileEsDTO) {
-
-        if (demandeFileEsDTO != null) {
-            IndexQuery index = new IndexQuery();
-            index.setId(demandeFileEsDTO.getIdentifiant());
-            index.setObject(demandeFileEsDTO);
-            index.setSource(demandeFileEsDTO.getDemandeJoinField().getParent());
-            elasticsearchTemplate.index(index, IndexCoordinates.of(indexAlias));
-        }
-        return demandeFileEsDTO;
     }
 
     @Override

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 /**
  * @deprecated les jointures seront supprimées dans ES8
  */
-@Deprecated
+@Deprecated(forRemoval = true)
 public class DemandeJoinFieldEsDTO {
 
     private String name;

@@ -10,6 +10,8 @@ import mc.gouv.xaf.back.data.entity.DemandesFilesBO;
  * @author qdeme
  *
  */
+// On désactive la règle de Sonar sur le nommage des méthodes, car pour construire des requêtes on est obligé de mettre des '_'
+@SuppressWarnings("java:S100")
 public interface DemandesFilesRepository extends CrudRepository<DemandesFilesBO, Integer> {
 	
     List<DemandesFilesBO> findAllByUrl(String url);

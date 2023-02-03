@@ -173,7 +173,7 @@ public class FileServiceImpl implements FileService {
 		}
 
 		String filename = "/" + demande.getFkAccess() + "/" + AfBackUtils.generateUUID() + "/"
-				+ URLEncoder.encode(file.getOriginalFilename(), "UTF-8");
+				+ URLEncoder.encode(file.getOriginalFilename(), StandardCharsets.UTF_8);
 
 		LOGGER.info("Filename à donner à FILE : {}", filename);
 
@@ -244,10 +244,6 @@ public class FileServiceImpl implements FileService {
 		HttpClient clientVscan = HttpClientBuilder.create().build();
 		MultipartEntityBuilder builderVscan = MultipartEntityBuilder.create();
 		builderVscan.addPart("file", new InputStreamBody(file.getInputStream(), ContentType.create(file.getContentType()), file.getName()));
-
-		// Pour tester avec un fichier vérolé (EICAR)
-		//builderVscan.addPart("file", new InputStreamBody(new ByteArrayInputStream("X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*".getBytes()), "blason.jpg"));
-
 		ScanRequestDTO scanRequest = new ScanRequestDTO();
 		scanRequest.setCodeAppli(gouvPropertiesResolver.getDemarcheId());
 		scanRequest.setFilename(file.getName());

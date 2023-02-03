@@ -26,7 +26,7 @@ public interface DemandesStatutsService {
      * @param texteAEnvoyer Le texte du justificatif / courrier à envoyer à l'usagé associé au changement de statut, si nécessaire
      * @return L'objet DTO de la demande mise à jour
      */
-    // TODO: Alerte Sonar sur le trop grand nombre de commentaire
+    // TODO: Alerte Sonar sur le trop grand nombre de paramètres
     DemandeDTO updateStatut(String demarcheId, Integer demandeId, String statut, String agentId, Integer usagerId, String codeMotif, String commentaire, String texteAEnvoyer);
 
     /**

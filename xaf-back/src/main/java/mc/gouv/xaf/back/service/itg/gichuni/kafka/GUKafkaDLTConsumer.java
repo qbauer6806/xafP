@@ -113,7 +113,7 @@ public class GUKafkaDLTConsumer {
 	@SuppressWarnings("unchecked")
 	private Map<Integer,Integer> getLogEndOffsets(Consumer<?, ?> consumer) {
 		List<KafkaMetric> me = (List<KafkaMetric>) consumer.metrics().values().stream().filter(m -> "records-lead".equals(m.metricName().name())).collect(Collectors.toList());
-		Map<Integer,Integer> map = new HashMap<Integer,Integer>();
+		Map<Integer,Integer> map = new HashMap<>();
 		for (KafkaMetric km : me) {
 			for (String key : km.metricName().tags().keySet()) {
 				if ("partition".equals(key)) {

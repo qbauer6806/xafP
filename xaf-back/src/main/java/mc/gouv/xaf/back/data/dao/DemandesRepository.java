@@ -15,6 +15,8 @@ import mc.gouv.xaf.shared.dto.DemandeRecapProjection;
 /**
  * @author qdeme
  */
+// On désactive la règle de Sonar sur le nommage des méthodes, car pour construire des requêtes on est obligé de mettre des '_'
+@SuppressWarnings("java:S100")
 public interface DemandesRepository extends CrudRepository<DemandeBO, Integer> {
 
     DemandeBO findByIdentifiant(String identifiant);

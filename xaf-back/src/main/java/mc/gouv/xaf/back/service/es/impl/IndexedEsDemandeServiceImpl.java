@@ -186,7 +186,12 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     private GouvPropertiesResolver gouvPropertiesResolver;
     @Autowired
     private IndexedFilesService indexedFilesService;
+
+    /**
+     * @deprecated RestHighLevelClient est deprecated, il faut remplacer par Elasticsearch Java API Client
+     */
     @Inject
+    @Deprecated(forRemoval = true)
     private RestHighLevelClient client;
 
     @PostConstruct
@@ -239,7 +244,8 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     }
 
     /**
-     * Récupération des du mapping à partir d'un alias
+     * <p>TODO remplacer l'utilisation du RestHighLevelClient par Elasticsearch Java API Client</p>
+     * <p>Récupération des du mapping à partir d'un alias</p>
      *
      * @param aliasName Nom de l'alias
      * @return Mapping Elasticsearch

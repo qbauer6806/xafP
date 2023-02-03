@@ -47,17 +47,15 @@ public class RechercheDynamicJSServiceImpl implements RechercheDynamicJSService 
         StringBuilder dynamicJsSB = new StringBuilder("var recherche_libelles = new Map();");
 
         Iterable<RechercheChampConfigBO> champs = rechercheChampConfigRepository.findAll();
-        if (champs != null) {
-            for (RechercheChampConfigBO champBo : champs) {
-                if (champBo != null && champBo.isEnabled() && champBo.getLibelle() != null) {
-                    String category = champBo.getCategorie() != null
-                            ? HTMLEscapeUtils.escape(champBo.getCategorie().getLibelle())
-                            : "Autres";
-                    String escapedLibelle = HTMLEscapeUtils.escape(champBo.getLibelle());
-                    String jsLine = MessageFormat.format(RECHERCHE_LIBELLE_JS_TEMPLATE, champBo.getCle(),
-                            escapedLibelle, category);
-                    dynamicJsSB.append("\n").append(jsLine);
-                }
+        for (RechercheChampConfigBO champBo : champs) {
+            if (champBo != null && champBo.isEnabled() && champBo.getLibelle() != null) {
+                String category = champBo.getCategorie() != null
+                        ? HTMLEscapeUtils.escape(champBo.getCategorie().getLibelle())
+                        : "Autres";
+                String escapedLibelle = HTMLEscapeUtils.escape(champBo.getLibelle());
+                String jsLine = MessageFormat.format(RECHERCHE_LIBELLE_JS_TEMPLATE, champBo.getCle(),
+                        escapedLibelle, category);
+                dynamicJsSB.append("\n").append(jsLine);
             }
         }
         dynamicJs = dynamicJsSB.toString();

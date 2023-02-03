@@ -52,8 +52,7 @@ public class DemandesComplementsTransformer {
             reponse.setUsagerId(bo.getReponseUsagerId());
             reponse.setDate(bo.getDateReponse());
             if (null != bo.getFiles()) {
-				ArrayList<DemandesComplementsFilesBO> filesBo = new ArrayList<DemandesComplementsFilesBO>(
-						bo.getFiles());
+				ArrayList<DemandesComplementsFilesBO> filesBo = new ArrayList<>(bo.getFiles());
 				reponse.setFichiers(DemandesComplementsFilesTransformer.bo2Dto(filesBo)
 						.toArray(new DemandeComplementsFileDTO[filesBo.size()]));
 			}

@@ -279,4 +279,9 @@ public class GouvPropertiesResolverTestImpl implements GouvPropertiesResolver {
     public String getApiRioCodeNotice() {
         return null;
     }
+
+    @Override
+    public boolean isPaiementEnabled() {
+        return true;
+    }
 }

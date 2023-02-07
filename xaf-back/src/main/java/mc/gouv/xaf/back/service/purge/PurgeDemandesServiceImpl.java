@@ -33,7 +33,6 @@ import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
-import mc.gouv.xaf.back.service.scheduling.PurgeDemandesSchedulingJob;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
@@ -189,7 +188,9 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 	public Date getDateDerniereExecution() {
 		Date date = null;
 		try {
-			Trigger trigger = gouvSchedulerService.getTrigger(PurgeDemandesSchedulingJob.TRIGGER_NAME);
+			String triggerName = gouvPropertiesResolver.isPaiementEnabled() ? PAIEMENTS_TRIGGER_NAME : DEMANDES_TRIGGER_NAME;
+			LOGGER.info("Récupération de la dernière date d'éxecution du job {}.", triggerName);
+			Trigger trigger = gouvSchedulerService.getTrigger(triggerName);
 			if (trigger != null) {
 				date = trigger.getPreviousFireTime();
 			}

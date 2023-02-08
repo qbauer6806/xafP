@@ -519,4 +519,10 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     public String getApiRioCodeNotice() {
         return Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".rio.codeNotice");
     }
+
+    @Override
+    public boolean isPaiementEnabled() {
+        String paiementProviderStr = environment.getProperty(MC_GOUV_PREFIX + applicationPrefix + ".paiement.enabled");
+        return StringUtils.equals(paiementProviderStr, "true");
+    }
 }

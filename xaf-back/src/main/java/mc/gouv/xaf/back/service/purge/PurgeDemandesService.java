@@ -8,6 +8,9 @@ import mc.gouv.xaf.shared.dto.PurgeDemandeDTO;
 
 public interface PurgeDemandesService {
 
+	String DEMANDES_TRIGGER_NAME = "PurgeDemandesSchedulingTrigger";
+	String PAIEMENTS_TRIGGER_NAME = "PurgeDemandesPaiementsSchedulingTrigger";
+
 	void purgerDemandesDansStatuts(List<String> statuts, int jours) throws JsonProcessingException;
 
 	/**

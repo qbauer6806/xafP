@@ -1,4 +1,4 @@
-package mc.gouv.xaf.back.data.es.model;
+package mc.gouv.xaf.shared.dto.es;
 
 public class GenericDemandeDataEsDTO {
 }

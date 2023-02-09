@@ -2,6 +2,8 @@ package mc.gouv.xaf.back.data.es.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import mc.gouv.xaf.shared.dto.es.GenericContenuEsDTO;
+import mc.gouv.xaf.shared.dto.es.GenericDemandeDataEsDTO;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 

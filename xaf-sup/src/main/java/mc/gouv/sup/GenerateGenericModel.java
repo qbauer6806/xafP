@@ -16,7 +16,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import mc.gouv.xaf.shared.dto.es.GenericContenuEsDTO;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,6 +55,7 @@ public class GenerateGenericModel {
     private static final PackageObject PACKAGE_GENERIC = new PackageObject(GENERIC_NAME);
     private static final File GENERIC_DIRECTORY = new File(PATH_GENERIC);
     private static final List<String> WARNINGS = new ArrayList<>();
+    private static final String CONTENU_PROJECT_DEMANDE_DTO = "ContenuProjectDemandeDTO";
 
     public static void main(String[] args) throws IOException {
         if (GENERIC_DIRECTORY.exists()) {
@@ -150,7 +153,7 @@ public class GenerateGenericModel {
                 writer.append(INDENT).append(PUBLIC).append(' ').append(field.getType()).append(" get").append(fieldNameWithUpper).append(EMPTY_METHOD_PARAM);
                 writer.append(INDENT).append(INDENT).append("return ").append(field.getName()).append(";\n");
                 writer.append(INDENT).append(END_OF_BLOCK);
-                writer.append(INDENT).append(PUBLIC).append("void set").append(fieldNameWithUpper).append('(').append(field.getType()).append(" value) {\n");
+                writer.append(INDENT).append(PUBLIC).append(" void set").append(fieldNameWithUpper).append('(').append(field.getType()).append(" value) {\n");
             }
             writer.append(INDENT).append(INDENT).append(THIS).append(field.getName()).append(" = value;\n");
             writer.append(INDENT).append(END_OF_BLOCK);
@@ -170,7 +173,8 @@ public class GenerateGenericModel {
             WARNINGS.add("The class [" + classObject.getName() + "] contains some conflicts with fields : { " + duplicateFields.stream().collect(Collectors.joining(",")) + " }");
         }
 
-        File file = new File(PATH_GENERIC + "/" + GENERIC_CLASS_PREFIX + classObject.getName() + JAVA_EXTENSION);
+        String className = classObject.getName();
+        File file = new File(PATH_GENERIC + "/" + GENERIC_CLASS_PREFIX + className + JAVA_EXTENSION);
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
 	        writer.append("package " + GENERIC_PACKAGE + "; \n\n");
 	        writer.append("import com.fasterxml.jackson.annotation.JsonIgnoreProperties;\n\n");
@@ -180,7 +184,12 @@ public class GenerateGenericModel {
 	        }
 	
 	        writer.append("\n@JsonIgnoreProperties(ignoreUnknown = true)\n");
-	        writer.append(PUBLIC).append(" class ").append(GENERIC_CLASS_PREFIX).append(classObject.getName()).append(" implements Serializable {\n\n");
+	        writer.append(PUBLIC).append(" class ").append(GENERIC_CLASS_PREFIX).append(className);
+            // On ajoute une extension du DTO Générique d'ElasticSearch si la classe en cours d'écriture est l'objet racine
+            if (StringUtils.equals(CONTENU_PROJECT_DEMANDE_DTO, className)) {
+                writer.append(" extends ").append(GenericContenuEsDTO.class.getName());
+            }
+            writer.append(" implements Serializable {\n\n");
 
 	        writeMembersVariables(writer, classObject);
 

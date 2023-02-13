@@ -29,7 +29,7 @@ public class ProxyServiceImpl implements ProxyService {
         String proxyUrl = gouvPropertiesResolver.getProxyUrl();
         if (StringUtils.isNotBlank(proxyUrl)) {
             String proxyPort = gouvPropertiesResolver.getProxyPort();
-            LOGGER.info("CREATE PROXY\nurl={}\nport={}", proxyUrl, proxyPort);
+            LOGGER.info("CREATE PROXY WITH \nurl={}\nport={}", proxyUrl, proxyPort);
             return new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyUrl, Integer.parseInt(proxyPort)));
         }
         LOGGER.info("NO PROXY");

@@ -721,8 +721,9 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     /**
      * Méthode permettant d'ajouter les filtres à la query pour récuperer les fichiers
-     *
+     * @deprecated les jointures seront supprimées dans ES8
      */
+    @Deprecated
     private void addFileFilters(List<KeyedFilter> queryStringQueryBuilders, SimpleQueryStringBuilder sqsb, String propertyName, String propertyType) {
         if (!fichiersFieldsToExclude.contains(propertyName)) {
             TermQueryBuilder termQueryBuilder = termQuery(EsUtils.TYPE_FILE_FIELD, propertyType);

@@ -11,6 +11,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
@@ -32,7 +33,6 @@ import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
-import mc.gouv.xaf.back.service.scheduling.PurgeDemandesSchedulingJob;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
@@ -83,7 +83,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
     @Autowired
     private MessageSource messageSource;
 
-	public void purgerDemandesDansStatuts(List<String> statuts, int jours) throws Exception {
+	public void purgerDemandesDansStatuts(List<String> statuts, int jours) throws JsonProcessingException {
 		String demarcheId = gouvPropertiesResolver.getDemarcheId();
 		StringBuilder demandesAPurger = new StringBuilder();
 		int demandesSuppr = 0;
@@ -188,7 +188,9 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 	public Date getDateDerniereExecution() {
 		Date date = null;
 		try {
-			Trigger trigger = gouvSchedulerService.getTrigger(PurgeDemandesSchedulingJob.TRIGGER_NAME);
+			String triggerName = gouvPropertiesResolver.isPaiementEnabled() ? PAIEMENTS_TRIGGER_NAME : DEMANDES_TRIGGER_NAME;
+			LOGGER.info("Récupération de la dernière date d'éxecution du job {}.", triggerName);
+			Trigger trigger = gouvSchedulerService.getTrigger(triggerName);
 			if (trigger != null) {
 				date = trigger.getPreviousFireTime();
 			}

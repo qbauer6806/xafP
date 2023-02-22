@@ -9,6 +9,6 @@ import mc.gouv.xaf.shared.dto.ExcelRechercheDTO;
 
 public interface DemandeExcelGenerationService {
 
-	public void generateExcel(ExcelRechercheDTO excelRechercheDto, DemandeExcelRechercheProvider demandeExcelRechercheProvider, OutputStream outputStream) throws IOException, ParseException;
+	void generateExcel(ExcelRechercheDTO excelRechercheDto, DemandeExcelRechercheProvider demandeExcelRechercheProvider, OutputStream outputStream) throws IOException, ParseException;
 	
 }

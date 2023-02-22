@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
  */
 public class IPFilter implements Filter {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(IPFilter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(IPFilter.class);
     
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -34,12 +34,11 @@ public class IPFilter implements Filter {
             throws IOException, ServletException {
         if (!request.getRemoteAddr().equals(request.getLocalAddr())) {
             // Si les adresses IP Remote et Local ne sont pas les mêmes, alors on ne continue pas
-            LOGGER.info("Adresse IP incorrecte. Local=" + request.getLocalAddr() + ", Remote=" + request.getRemoteAddr());
+            LOGGER.info("Adresse IP incorrecte. Local={}, Remote={}", request.getLocalAddr(), request.getRemoteAddr());
             if (response instanceof HttpServletResponse) {
                 ((HttpServletResponse)response).setStatus(HttpStatus.SC_UNAUTHORIZED);
             }
-        }
-        else {
+        } else {
             // Si les adresses IP sont les mêmes, alors on continue
             chain.doFilter(request, response);
         }

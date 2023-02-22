@@ -1,7 +1,7 @@
 package mc.gouv.xaf.back.paiement.mock;
 
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
-import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.StatutSimplifieEnum;
+import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeExcelGenerationDTO;
 import mc.gouv.xaf.shared.dto.GenericStatusDTO;

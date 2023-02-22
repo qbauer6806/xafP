@@ -27,7 +27,7 @@
             <artifactId>xaf-back-denjs</artifactId>
             <version>11.0.2-SNAPSHOT</version>
         </dependency>
-
+        
         <dependency>
             <groupId>mc.gouv.xboot</groupId>
             <artifactId>xboot-spring-starter-web</artifactId>

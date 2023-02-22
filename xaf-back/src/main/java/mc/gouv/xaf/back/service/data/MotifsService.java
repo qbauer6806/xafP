@@ -40,7 +40,8 @@ public interface MotifsService {
     MotifDTO saveOrUpdateMotif(String demarcheId, MotifDTO motif);
     
     /**
-     * Permet de supprimer un motif à partir du DemarcheID et du MotifID
+     * <p>Permet de supprimer un motif à partir du DemarcheID et du MotifID</p>
+     * <p>Attention : ce n'est pas une suppression réelle, mais plutôt un archivage.</p>
      * @param demarcheId, id de la démarche
      * @param pkMotif, id du motif
      */

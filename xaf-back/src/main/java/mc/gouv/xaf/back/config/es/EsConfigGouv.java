@@ -40,12 +40,13 @@ public class EsConfigGouv extends AbstractElasticsearchConfiguration {
 
     /**
      * Méthode permettant de configurer un High Lvel REST Elasticsearch client.
-     *
+     * @deprecated remplacer l'utilisation du RestHighLevelClient par Elasticsearch Java API Client
      * @return RestHighLevelClient
      */
     @NotNull
     @Bean
     @Override
+    @Deprecated(forRemoval = true)
     public RestHighLevelClient elasticsearchClient() {
 
         String[] clusterHosts = StringUtils.split(gouvPropertiesResolver.getEsClusterHosts(),
@@ -58,7 +59,7 @@ public class EsConfigGouv extends AbstractElasticsearchConfiguration {
 
         Integer connectTimeout = gouvPropertiesResolver.getEsConnectTimeout();
         Integer socketTimeout = gouvPropertiesResolver.getEsSocketTimeout();
-        RestClientBuilder builder = RestClient.builder(hosts.toArray(new HttpHost[hosts.size()]))
+        RestClientBuilder builder = RestClient.builder(hosts.toArray(new HttpHost[0]))
                 .setRequestConfigCallback(requestConfigBuilder -> requestConfigBuilder
                         .setConnectTimeout(connectTimeout)
                         .setSocketTimeout(socketTimeout));

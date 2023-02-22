@@ -8,9 +8,6 @@ package mc.gouv.xaf.back.exception;
  */
 public class AfIndexingException extends RuntimeException {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = -5386824328579375094L;
 
     public AfIndexingException(String message, Throwable cause) {

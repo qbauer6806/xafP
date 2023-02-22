@@ -74,12 +74,20 @@ public interface DemandesDataService {
     void deleteDemandeData(String demarcheId, Integer demandeId, String key);
 
     /**
-     * Méthode permettant de sauvgarder plusieurs données de la demande en base
+     * <p>Méthode permettant de sauvgarder plusieurs données de la demande en base.</p>
+     * <p>Cette méthode est a utiliser pour éviter de bombarder elasticsearch si on met à jours plusieurs clès valeurs</p>
      *
      * @param demarcheId Identifiant de la démarche
      * @param demandeId  Identifiant de la demande
      * @param datas      Données à mettre à jour
      */
     void saveOrUpdateDemandeDatas(String demarcheId, Integer demandeId, Map<String, String> datas);
+
+    /**
+     * Duplication des données d'une demande vers une nouvelle demande.
+     * @param demandeBo L'objet BO de la demande à cloner
+     * @param newDemandeBo le nouvel objet BO
+     */
+    void clonerDemandeData(DemandeBO demandeBo, DemandeBO newDemandeBo);
 
 }

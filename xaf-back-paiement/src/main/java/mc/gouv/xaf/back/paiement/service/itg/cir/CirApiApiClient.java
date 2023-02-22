@@ -20,6 +20,7 @@ import javax.ws.rs.core.Response;
 
 import mc.gouv.xaf.back.paiement.dto.CommandeDemandeArticleDTO;
 import mc.gouv.xaf.shared.enums.MailSupportEnum;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.HttpResponseException;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.HttpUrlConnectorProvider;
@@ -49,6 +50,8 @@ public class CirApiApiClient implements FactureApiClient {
     public static final String PAIEMENT_ROUTE = "v1/ts/ecritures/paiement/";
     public static final String FACTURE_ROUTE = "v1/ts/ecritures/getfacture";
     public static final String PERMIS_ROUTE = "v1/permis/{numPermis}";
+    private static final String NUMERO_IMMAT_DEFAUT = "";
+    private static final String NUMERO_PERMIS_DEFAUT = "0";
     private final WebTarget targetCheck;
     private final WebTarget targetCreate;
     private final WebTarget targetGet;
@@ -106,6 +109,14 @@ public class CirApiApiClient implements FactureApiClient {
         int registre = paiementPropertiesResolver.getRegistre();
         String codePaiement = paiementPropertiesResolver.getCodePaiement();
 
+        // Ajout de valeurs par défaut
+        if (null == numPermis) {
+            numPermis = NUMERO_PERMIS_DEFAUT;
+        }
+        if (null == numImmat) {
+            numImmat = NUMERO_IMMAT_DEFAUT;
+        }
+
         for (CommandeDemandeArticleDTO article : articles) {
             CirRequestDTO request = new CirRequestDTO();
             request.setNumTpe(tpe);
@@ -133,7 +144,7 @@ public class CirApiApiClient implements FactureApiClient {
 
         Operation<String> operation = new Operation<String>() {
             @Override
-            public void execute() throws Exception {
+            public void execute() throws HttpResponseException {
                 Response response = targetCreate
                         .request()
                         .header(HttpHeaders.AUTHORIZATION, BEARER_PREFIX + paiementPropertiesResolver.getFactureToken())
@@ -158,9 +169,7 @@ public class CirApiApiClient implements FactureApiClient {
         };
 
         try {
-
             operationHelper.executeWithRetry(operation);
-
             LOGGER.info("return : {}", operation.getResult());
             return operation.getResult();
         } catch (Exception e) {
@@ -170,7 +179,7 @@ public class CirApiApiClient implements FactureApiClient {
     }
 
     @Override
-    public Optional<InputStream> getFacture(String numFacture, DemandeDTO demandeDTO) throws Exception {
+    public Optional<InputStream> getFacture(String numFacture, DemandeDTO demandeDTO) throws HttpResponseException {
         logStartMethod(LOGGER);
         LOGGER.info("Parameters [ numFacture {}] ", numFacture);
         LOGGER.info("Properties [ registre {}] ", paiementPropertiesResolver.getRegistre());
@@ -178,7 +187,7 @@ public class CirApiApiClient implements FactureApiClient {
 
         Operation<InputStream> operation = new Operation<InputStream>() {
             @Override
-            public void execute() throws Exception {
+            public void execute() throws HttpResponseException {
                 Response response = targetGet.queryParam("numFacture", "" + numFacture)
                         .queryParam("registre", "" + paiementPropertiesResolver.getRegistre())
                         .request("application/pdf")
@@ -197,7 +206,6 @@ public class CirApiApiClient implements FactureApiClient {
                 InputStream inputStream = response.readEntity(InputStream.class);
                 setResult(inputStream);
                 logEndMethod(getLogger());
-
             }
 
             @Override
@@ -217,7 +225,7 @@ public class CirApiApiClient implements FactureApiClient {
     }
 
     @Override
-    public PermisDTO getPermis(String numPermis) throws Exception {
+    public PermisDTO getPermis(String numPermis) throws HttpResponseException {
         logStartMethod(LOGGER);
         LOGGER.info("Parameters [ getPermis {}] ", numPermis);
 

@@ -8,6 +8,7 @@ import java.util.Date;
  *
  * @author qdeme
  */
+// TODO : Supprimer le doublon de cette classe (voir ticket #20760)
 public class CommentaireInterneDTO extends mc.gouv.af.back.bpm.model.CommentaireInterneDTO {
 
     private static final long serialVersionUID = -3630330943792014082L;

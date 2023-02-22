@@ -12,6 +12,6 @@ import mc.gouv.xaf.back.data.entity.DemandesHistoriqueBO;
  */
 public interface DemandesHistoriqueRepository extends CrudRepository<DemandesHistoriqueBO, Integer> {
 
-    public List<DemandesHistoriqueBO> findByFkDemandesPkDemandes(Integer pkDemandes);
+    List<DemandesHistoriqueBO> findByFkDemandesPkDemandes(Integer pkDemandes);
     
 }

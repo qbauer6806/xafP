@@ -71,4 +71,9 @@ public class DemandesDataServiceTestImpl implements DemandesDataService {
     public void saveOrUpdateDemandeDatas(String demarcheId, Integer demandeId, Map<String, String> datas) {
 
     }
+
+    @Override
+    public void clonerDemandeData(DemandeBO demandeBo, DemandeBO newDemandeBo) {
+
+    }
 }

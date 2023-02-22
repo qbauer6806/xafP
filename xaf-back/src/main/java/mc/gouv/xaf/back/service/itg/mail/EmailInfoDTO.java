@@ -28,11 +28,11 @@ public class EmailInfoDTO {
      */
     private String langue;
     
-    private List<EmailInfoAddressDTO> to = new ArrayList<EmailInfoAddressDTO>();
+    private final List<EmailInfoAddressDTO> to = new ArrayList<>();
 
-    private List<EmailInfoAddressDTO> cc = new ArrayList<EmailInfoAddressDTO>();
+    private final List<EmailInfoAddressDTO> cc = new ArrayList<>();
 
-    private List<EmailInfoAddressDTO> bcc = new ArrayList<EmailInfoAddressDTO>();
+    private final List<EmailInfoAddressDTO> bcc = new ArrayList<>();
 
     private EmailInfoAddressDTO from;
 
@@ -41,11 +41,7 @@ public class EmailInfoDTO {
     /**
      * Liste de métadonnées optionnelles à donner au service de mail
      */
-    private List<EmailInfoParamDTO> params = new ArrayList<EmailInfoParamDTO>();
-    
-    public EmailInfoDTO() {
-        
-    }
+    private final List<EmailInfoParamDTO> params = new ArrayList<>();
 
     public String getBodyTemplateCode() {
         return bodyTemplateCode;

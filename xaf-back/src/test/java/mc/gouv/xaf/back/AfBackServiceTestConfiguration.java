@@ -10,8 +10,10 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @Configuration
-@SpringBootApplication(exclude = { MongoAutoConfiguration.class, SecurityAutoConfiguration.class })
-@ComponentScan(basePackages = { "mc.gouv.xaf.back" })
+@SpringBootApplication(
+        exclude = { MongoAutoConfiguration.class, SecurityAutoConfiguration.class },
+        scanBasePackages = { "mc.gouv.xaf.back" }
+)
 @EnableJpaRepositories(basePackages = { "mc.gouv.xaf.back.data" })
 @EntityScan(basePackages = { "mc.gouv.xaf.back.data" })
 @PropertySource("classpath:application-test.properties")

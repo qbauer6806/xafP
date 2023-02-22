@@ -40,7 +40,7 @@ public class BrouillonsFilesServiceImpl implements BrouillonsFilesService {
 	private BrouillonsService brouillonsService;
 
 	@Override
-	public void saveFiles(BrouillonFileDTO[] brouillonFiles, BrouillonBO brouillonBo) throws Exception {
+	public void saveFiles(BrouillonFileDTO[] brouillonFiles, BrouillonBO brouillonBo) {
 
 		LOGGER.info("saveFiles({}, {})", brouillonFiles, brouillonBo);
 
@@ -60,7 +60,7 @@ public class BrouillonsFilesServiceImpl implements BrouillonsFilesService {
 	}
 
 	@Override
-	public void saveFile(BrouillonFileDTO brouillonFile, String demarcheId, Integer pkBrouillon) throws Exception {
+	public void saveFile(BrouillonFileDTO brouillonFile, String demarcheId, Integer pkBrouillon) {
 
 		LOGGER.info("saveFile({}, {}, {})", brouillonFile, demarcheId, pkBrouillon);
 

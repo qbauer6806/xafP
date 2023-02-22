@@ -5,16 +5,19 @@ import mc.gouv.xaf.back.paiement.data.enums.OperationStatutEnum;
 import mc.gouv.xaf.back.paiement.dto.CommandeDTO;
 import mc.gouv.xaf.back.paiement.dto.CommandeOperationDTO;
 import mc.gouv.xaf.back.paiement.dto.MoyenPaiementDTO;
+import mc.gouv.xaf.back.paiement.dto.itg.monetico.CaptureDTO;
 import mc.gouv.xaf.back.paiement.properties.PaiementPropertiesResolver;
 import mc.gouv.xaf.back.paiement.retry.Operation;
 import mc.gouv.xaf.back.paiement.retry.OperationHelper;
 import mc.gouv.xaf.back.paiement.service.itg.PaiementApiClient;
+import mc.gouv.xaf.back.paiement.service.itg.PaiementSecurityService;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.enums.MailSupportEnum;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.HttpResponseException;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.HttpUrlConnectorProvider;
@@ -27,6 +30,7 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.Proxy;
 import java.time.LocalDateTime;
@@ -41,7 +45,6 @@ import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
 public class MoneticoApiClient implements PaiementApiClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MoneticoApiClient.class);
-
     private final WebTarget target;
     private final String tpe;
     private final PaiementPropertiesResolver paiementPropertiesResolver;
@@ -49,6 +52,7 @@ public class MoneticoApiClient implements PaiementApiClient {
     private final MailService mailService;
     private final PropertiesService propertiesService;
     private final GouvPropertiesResolver gouvPropertiesResolver;
+    private final PaiementSecurityService paiementSecurityService;
 
     DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy:HH:mm:ss");
@@ -58,7 +62,8 @@ public class MoneticoApiClient implements PaiementApiClient {
                              OperationHelper operationHelper,
                              MailService mailService,
                              PropertiesService propertiesService,
-                             GouvPropertiesResolver gouvPropertiesResolver) {
+                             GouvPropertiesResolver gouvPropertiesResolver,
+                             PaiementSecurityService paiementSecurityService) {
 
         ClientConfig config = new ClientConfig();
 
@@ -76,6 +81,7 @@ public class MoneticoApiClient implements PaiementApiClient {
         this.mailService = mailService;
         this.propertiesService = propertiesService;
         this.gouvPropertiesResolver = gouvPropertiesResolver;
+        this.paiementSecurityService = paiementSecurityService;
     }
 
     public boolean capture(CommandeDTO commandeDTO, CommandeOperationDTO commandeOperationDTO, DemandeDTO demandeDTO) {
@@ -85,70 +91,7 @@ public class MoneticoApiClient implements PaiementApiClient {
         LOGGER.info("Parameters [ OperationBO {}] ", commandeOperationDTO);
         LOGGER.info("Parameters [ DemandeDTO {}] ", demandeDTO);
 
-        String dateCommande = commandeDTO.getDateCreation().format(dateFormatter);
-        String dateCapture = LocalDateTime.now().format(dateTimeFormatter);
-        Operation<String> operation = new Operation<String>() {
-            @Override
-            public void execute() throws Exception {
-
-                String montant = commandeDTO.getMontantInitial() + paiementPropertiesResolver.getCurrency();
-                String montantACapturer = commandeOperationDTO.getMontant() + paiementPropertiesResolver.getCurrency();
-                String montantDejaCapture = commandeDTO.getMontantDejaCapture() + paiementPropertiesResolver.getCurrency();
-                String montantRestant = (commandeDTO.getMontantRestant() - commandeOperationDTO.getMontant()) + paiementPropertiesResolver.getCurrency();
-                String version = paiementPropertiesResolver.getVersionCapture();
-                MoyenPaiementDTO moyenPaiementDTO = commandeDTO.getMoyenPaiement();
-                LOGGER.info("Paramètres Capture:\nURL: {}\nTPE: {}\nmontant: {}\nmontant_a_capturer: {}\nmontant_deja_capture: {}\nmontant_restant: {}\nlgue: {}\nreference: {}\ndate (date de la capture): {}\ndate_commande: {}\nsociete: {}\nversion {}",
-                        paiementPropertiesResolver.getCaptureUrl(), getTpe(), montant, montantACapturer, montantDejaCapture, montantRestant, moyenPaiementDTO.getLangue(),
-                        moyenPaiementDTO.getPkMoyenPaiements(), dateCapture, dateCommande, moyenPaiementDTO.getCodeSociete(), version);
-
-                // Permet de désactiver la capture en simulant monetico injoignable
-                PropertiesDTO errorProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "TEMP_FAIL_CAPTURE_PAIEMENT_MONETICO_INJOIGNABLE");
-                if (errorProp != null && "true".equals(errorProp.getValue()) ) {
-                    // On met le statut 400 pour éviter de faire plusieurs tentatives
-                    throw new HttpResponseException(Response.Status.BAD_REQUEST.getStatusCode(), "Capture du paiement désactivé");
-                }
-
-                // Permet de désactiver la capture en simulant un code retour -1
-//                PropertiesDTO errorProp2 = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "TEMP_FAIL_CAPTURE_PAIEMENT_MONETICO_CODE_RETOUR");
-//                if ((errorProp2 != null && "true".equals(errorProp2.getValue()))) {
-//                    String responseString = "version=1.0\n" +
-//                            "reference=" + moyenPaiementDTO.getPkMoyenPaiements() + '\n' +
-//                            "cdr=-1\n" +
-//                            "lib=la demande ne peut aboutir";
-//                    LOGGER.info("Capture [ responseString {}] ", responseString);
-//                    setResult(responseString);
-//                    extractResult(responseString, commandeOperationDTO);
-//                    throw new HttpResponseException(200, "Operation non acceptee");
-//                }
-
-                Response response = getTarget().queryParam("TPE", getTpe())
-                        .queryParam("montant", montant)
-                        .queryParam("montant_a_capturer", montantACapturer)
-                        .queryParam("montant_deja_capture", montantDejaCapture)
-                        .queryParam("montant_restant", montantRestant)
-                        .queryParam("lgue", moyenPaiementDTO.getLangue())
-                        .queryParam("reference", moyenPaiementDTO.getPkMoyenPaiements())
-                        .queryParam("date", dateCapture)
-                        .queryParam("date_commande", dateCommande)
-                        .queryParam("societe", moyenPaiementDTO.getCodeSociete())
-                        .queryParam("version", version)
-                        .request(MediaType.APPLICATION_JSON).get();
-
-                String responseString = response.readEntity(String.class);
-                LOGGER.info("Capture [ responseString {}] ", responseString);
-                setResult(responseString);
-                extractResult(responseString, commandeOperationDTO);
-
-                if (!OperationStatutEnum.ACCEPTEE.name().equals(commandeOperationDTO.getOperationStatut())) {
-                    throw new HttpResponseException(response.getStatus(), "Operation non acceptee");
-                }
-            }
-
-            @Override
-            public Logger getLogger() {
-                return LOGGER;
-            }
-        };
+        Operation<String> operation = buildOperation(commandeDTO, commandeOperationDTO);
 
         try {
             operationHelper.executeWithRetry(operation);
@@ -163,13 +106,10 @@ public class MoneticoApiClient implements PaiementApiClient {
                     commandeOperationDTO.setOperationStatut(OperationStatutEnum.ERREUR.name());
                     sendMail(demandeDTO, operation, 3);
                 }
-
             }
-
-            return false;
         }
 
-        return true;
+        return StringUtils.equals(commandeOperationDTO.getOperationStatut(), OperationStatutEnum.ACCEPTEE.name());
     }
 
     private void sendMail(DemandeDTO demandeDTO, Operation<?> operation, int incident) {
@@ -202,6 +142,8 @@ public class MoneticoApiClient implements PaiementApiClient {
                 case "lib": // lib = Libellé détaillé précisant la nature du code retour
                     operation.setLibelle(keyValue[1]);
                     break;
+                default:
+                    LOGGER.info("Clé de paramètre inconnue : {}", keyValue[0]);
             }
         }
     }
@@ -212,5 +154,86 @@ public class MoneticoApiClient implements PaiementApiClient {
 
     public String getTpe() {
         return tpe;
+    }
+
+    private Operation<String> buildOperation(CommandeDTO commandeDTO, CommandeOperationDTO commandeOperationDTO) {
+        return new Operation<String>() {
+            @Override
+            public void execute() throws HttpResponseException {
+                String currency = paiementPropertiesResolver.getCurrency();
+                MoyenPaiementDTO moyenPaiementDTO = commandeDTO.getMoyenPaiement();
+                CaptureDTO captureDTO = new CaptureDTO();
+                captureDTO.setTpe(getTpe());
+                captureDTO.setDate(LocalDateTime.now().format(dateTimeFormatter));
+                captureDTO.setDateCommande(commandeDTO.getDateCreation().format(dateFormatter));
+                captureDTO.setLgue(moyenPaiementDTO.getLangue());
+                captureDTO.setMontant(commandeDTO.getMontantInitial() + currency);
+                captureDTO.setMontantACapturer(commandeOperationDTO.getMontant() + currency);
+                captureDTO.setMontantDejaCapture(commandeDTO.getMontantDejaCapture() + currency);
+                BigDecimal montantRestant = BigDecimal.valueOf(commandeDTO.getMontantRestant());
+                montantRestant = montantRestant.subtract(BigDecimal.valueOf(commandeOperationDTO.getMontant()));
+                captureDTO.setMontantRestant(montantRestant + currency);
+                captureDTO.setReference(moyenPaiementDTO.getPkMoyenPaiements());
+                captureDTO.setSociete(moyenPaiementDTO.getCodeSociete());
+                captureDTO.setVersion(paiementPropertiesResolver.getVersionCapture());
+
+                LOGGER.info("Paramètres Capture:\nURL: {}\n{}", paiementPropertiesResolver.getCaptureUrl(), captureDTO);
+
+                // Création d'une clé MAC
+                String mac = paiementSecurityService.getHmacStringCapture(captureDTO);
+
+                // Permet de désactiver la capture en simulant monetico injoignable
+                PropertiesDTO errorProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "TEMP_FAIL_CAPTURE_PAIEMENT_MONETICO_INJOIGNABLE");
+                if (errorProp != null && "true".equals(errorProp.getValue())) {
+                    // On met le statut 400 pour éviter de faire plusieurs tentatives
+                    throw new HttpResponseException(Response.Status.BAD_REQUEST.getStatusCode(), "Capture du paiement désactivé");
+                }
+
+                // Permet de désactiver la capture en simulant un code retour 0
+                PropertiesDTO errorProp2 = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "TEMP_FAIL_CAPTURE_PAIEMENT_MONETICO_CODE_RETOUR");
+                int statutCode;
+                if ((errorProp2 != null && "true".equals(errorProp2.getValue()))) {
+                    String responseString = "version=1.0\n" +
+                            "reference=" + moyenPaiementDTO.getPkMoyenPaiements() + '\n' +
+                            "cdr=0\n" +
+                            "lib=autorisation refusee";
+                    statutCode = 200;
+                    LOGGER.info("Capture [ responseString {}] ", responseString);
+                    setResult(responseString);
+                    extractResult(responseString, commandeOperationDTO);
+                } else {
+                    Response response = getTarget().queryParam("TPE", captureDTO.getTpe())
+                            .queryParam("date", captureDTO.getDate())
+                            .queryParam("date_commande", captureDTO.getDateCommande())
+                            .queryParam("lgue", captureDTO.getLgue())
+                            .queryParam("montant", captureDTO.getMontant())
+                            .queryParam("montant_a_capturer", captureDTO.getMontantACapturer())
+                            .queryParam("montant_deja_capture", captureDTO.getMontantDejaCapture())
+                            .queryParam("montant_restant", captureDTO.getMontantRestant())
+                            .queryParam("reference", captureDTO.getReference())
+                            .queryParam("societe", captureDTO.getSociete())
+                            .queryParam("version", captureDTO.getVersion())
+                            .queryParam("MAC", mac)
+                            .request(MediaType.APPLICATION_JSON).get();
+
+                    String responseString = response.readEntity(String.class);
+                    statutCode = response.getStatus();
+                    LOGGER.info("Capture [ responseString {}] ", responseString);
+                    setResult(responseString);
+                    extractResult(responseString, commandeOperationDTO);
+                }
+
+                String statut = commandeOperationDTO.getOperationStatut();
+                if (StringUtils.equals(statut, OperationStatutEnum.ERREUR.name())
+                        || StringUtils.equals(statut, OperationStatutEnum.INCIDENT.name())) {
+                    throw new HttpResponseException(statutCode, "Operation non acceptee");
+                }
+            }
+
+            @Override
+            public Logger getLogger() {
+                return LOGGER;
+            }
+        };
     }
 }

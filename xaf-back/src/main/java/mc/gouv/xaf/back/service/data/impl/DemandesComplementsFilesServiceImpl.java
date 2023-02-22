@@ -37,6 +37,26 @@ public class DemandesComplementsFilesServiceImpl implements DemandesComplementsF
 	@Autowired
 	private GouvPropertiesResolver gouvPropertiesResolver;
 
+	private void updateMetadata(DemandesComplementsFilesBO file, Map<String, String> changes, Map<String, Boolean> checkboxes, AtomicBoolean success) {
+		String pk = "" + file.getPkDemandesComplementsFiles();
+		if (changes.containsKey(pk)) {
+			String typedoc = changes.get(pk);
+			if (StringUtils.isNotBlank(typedoc)) {
+				file.setTypedoc(typedoc);
+				try {
+					fileService.updateFileMetadata(file.getUrl(), gouvPropertiesResolver.getDemarcheId(), FileService.FILE_METADATA_TYPEDOC, typedoc);
+				} catch (Exception e) {
+					LOGGER.error("Impossible d'affecter la métadonnée typedoc au fichier {} à l'url {}", file.getName(), file.getUrl(), e);
+				}
+			} else if (success.get()) {
+				success.set(false);
+			}
+		}
+		if (checkboxes.containsKey(pk)) {
+			file.setVerification(checkboxes.get(pk));
+		}
+	}
+
 	@Override
 	public boolean updateTypedocs(Map<String, String> changes, Map<String, Boolean> checkboxes) {
 		LOGGER.info("updateTypedocs({}, {})", changes, checkboxes);
@@ -52,25 +72,7 @@ public class DemandesComplementsFilesServiceImpl implements DemandesComplementsF
 				}
 			});
 			Iterable<DemandesComplementsFilesBO> files = demandesComplementsFilesRepository.findAllById(keys);
-			files.forEach(file -> {
-				String pk = "" + file.getPkDemandesComplementsFiles();
-				if (changes.containsKey(pk)) {
-					String typedoc = changes.get(pk);
-					if (StringUtils.isNotBlank(typedoc)) {
-						file.setTypedoc(typedoc);
-						try {
-							fileService.updateFileMetadata(file.getUrl(), gouvPropertiesResolver.getDemarcheId(), FileService.FILE_METADATA_TYPEDOC, typedoc);
-						} catch (Exception e) {
-							LOGGER.error("Impossible d'affecter la métadonnée typedoc au fichier {} à l'url {}", file.getName(), file.getUrl(), e);
-						}
-					} else if (success.get()) {
-						success.set(false);
-					}
-				}
-				if (checkboxes.containsKey(pk)) {
-					file.setVerification(checkboxes.get(pk));
-				}
-			});
+			files.forEach(file -> updateMetadata(file, changes, checkboxes, success));
 			demandesComplementsFilesRepository.saveAll(files);
 		}
 		LOGGER.info("Fin updateTypedocs()");

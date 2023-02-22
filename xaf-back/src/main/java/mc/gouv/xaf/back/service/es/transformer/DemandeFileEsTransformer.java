@@ -227,7 +227,14 @@ public class DemandeFileEsTransformer {
         return gouvPropertiesResolver.getDemarcheId() + "/" + gouvPropertiesResolver.getContainerId() + "/" + finalFilename;
     }
 
-    private InputStream getFileInputStream(String fileUrl) throws IOException {
+    /**
+     * Récupère le contenu d'un fichier dans File.
+     *
+     * @param fileUrl l'URL du fichier
+     * @throws IOException             Exception I/O
+     * @throws FileConnectionException Exception lors de la connextion à File
+     */
+    private InputStream getFileInputStream(String fileUrl) throws IOException, FileConnectionException {
         InputStream is;
         try {
             FileClient fileClient = new FileClient(gouvPropertiesResolver.getFileUrl(), gouvPropertiesResolver.getFileJwt());
@@ -246,8 +253,6 @@ public class DemandeFileEsTransformer {
         if (is != null) {
             try {
                 fileText = FileUtils.parseToPlainText(is);
-            } catch (ZeroByteFileException e) {
-                LOGGER.info("Le fichier : {} est vide (a une taille de 0 byte)", fileUrl);
             } catch (Exception e) {
                 LOGGER.error(e.getMessage(), e);
             }

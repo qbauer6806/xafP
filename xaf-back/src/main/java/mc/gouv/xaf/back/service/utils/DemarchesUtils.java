@@ -41,14 +41,11 @@ public class DemarchesUtils {
 
     /**
      * Permet de traiter différemment une exception technique d'une exception métier
-     * 
-     * @param logger
-     * @param e
      */
     public static void logError(Logger logger, Exception e) {
         if (e instanceof DemarchesServiceException) {
             // Exception métier, afficher uniquement le message d'erreur, et non toute la stacktrace
-            logger.error("Erreur : " + e.getMessage());
+            logger.error("Erreur : {}", e.getMessage());
         } else {
             // Exception technique, afficher toute la stacktrace
             logger.error("Erreur", e);
@@ -58,7 +55,7 @@ public class DemarchesUtils {
     public static Map<String, Object> generateErrorsList(String errorMessage) {
         HashMap<String, String> map = new HashMap<>();
         map.put("libelle", errorMessage);
-        Set<Object> liste = new HashSet<Object>();
+        Set<Object> liste = new HashSet<>();
         liste.add(map);
         HashMap<String, Object> result = new HashMap<>();
         result.put("errors", liste);
@@ -67,9 +64,6 @@ public class DemarchesUtils {
 
     /**
      * Retourne le dernier statut d'une demande BO
-     * 
-     * @param demandeBO
-     * @return
      */
     public static DemandesStatutsBO getLatestStatus(DemandeBO demandeBO) {
         DemandesStatutsBO ret = null;
@@ -85,9 +79,6 @@ public class DemarchesUtils {
 
     /**
      * Retourne le dernier statut d'une demande DTO
-     * 
-     * @param demandeDTO
-     * @return
      */
     public static DemandeStatutDTO getLatestStatus(DemandeDTO demandeDTO) {
         DemandeStatutDTO ret = null;
@@ -103,30 +94,21 @@ public class DemarchesUtils {
 
     /**
      * Indique si l'utilisateur connecté correspond à l'application Front Office
-     * 
-     * @return
      */
     public static boolean isFrontUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || StringUtils.isBlank(auth.getName())) {
-//            throw new DemarchesServiceException("Erreur lors de la récupération de l'utilisateur connecté",
-//                    HttpStatus.INTERNAL_SERVER_ERROR);
             // Suppression de la levée d'exception car c'est problématique dans le cas où un Delegate d'Af est exécuté via
             // l'ApiServer sur Timer Activiti par exemple (pas d'authentification du coup...)
             // Répondre FRONT par défaut car c'est celui qui reçoit le moins d'infos sensibles
             return true;
         }
-
         return auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_FRONT"));
-
     }
 
     /**
      * Indique si l'usager correspond à un usager courrier ou pas. Si l'usagerId est supérieur à un milliard, alors il
      * s'agit d'un usager courrier.
-     * 
-     * @param usagerId
-     * @return
      */
     public static boolean isUsagerCourrier(Integer usagerId) {
         return usagerId > USAGERID_OFFSET;
@@ -134,8 +116,6 @@ public class DemarchesUtils {
     
     /**
      * Prend une liste de fichiers d'une demande, et ne retourne que ceux qui sont à destination du FRONT
-     * @param files
-     * @return
      */
     public static DemandeFileDTO[] filterFiles(DemandeFileDTO[] files) {
     	List<DemandeFileDTO> newFiles = new ArrayList<>();
@@ -144,7 +124,7 @@ public class DemarchesUtils {
     			newFiles.add(file);
     		}
     	}
-    	return newFiles.toArray(new DemandeFileDTO[newFiles.size()]);
+    	return newFiles.toArray(new DemandeFileDTO[0]);
     }
 
 }

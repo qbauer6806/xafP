@@ -14,9 +14,6 @@ import javax.servlet.http.HttpServlet;
  */
 public class AbstractAfServlet extends HttpServlet {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = 416073998020317223L;
 
     protected AfApiClient getAfApiClient() {

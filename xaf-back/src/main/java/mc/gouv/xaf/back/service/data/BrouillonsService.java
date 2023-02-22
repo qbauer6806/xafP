@@ -1,11 +1,6 @@
 package mc.gouv.xaf.back.service.data;
 
-import java.io.IOException;
 import java.util.List;
-
-import org.xml.sax.SAXException;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 import mc.gouv.xaf.back.data.entity.BrouillonBO;
 import mc.gouv.xaf.shared.dto.BrouillonDTO;
@@ -14,9 +9,9 @@ import mc.gouv.xaf.shared.dto.PageParamDTO;
 
 public interface BrouillonsService {
 
-	BrouillonDTO saveBrouillon(BrouillonDTO brouillon) throws Exception;
+	BrouillonDTO saveBrouillon(BrouillonDTO brouillon);
 
-	BrouillonDTO saveOrUpdateBrouillon(BrouillonDTO brouillon, Integer usagerId, boolean partialUpdate) throws Exception;
+	BrouillonDTO saveOrUpdateBrouillon(BrouillonDTO brouillon, Integer usagerId, boolean partialUpdate);
 
 	List<BrouillonDTO> getBrouillons(String demarcheId, Integer usagerId);
 
@@ -29,7 +24,7 @@ public interface BrouillonsService {
 	 * @param brouillon Objet DTO pour mettre à jour le brouillon
 	 * @param usagerId ID de l'usager faisant la mise à jour, à vérifier avec celui dans le brouillon
 	 */
-	BrouillonDTO updateBrouillon(BrouillonDTO brouillon, Integer usagerId) throws IOException, SAXException;
+	BrouillonDTO updateBrouillon(BrouillonDTO brouillon, Integer usagerId);
 
 	/**
 	 * Permet de supprimer un brouillon

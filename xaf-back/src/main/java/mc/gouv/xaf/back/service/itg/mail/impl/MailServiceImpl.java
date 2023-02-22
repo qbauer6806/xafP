@@ -1,21 +1,17 @@
 package mc.gouv.xaf.back.service.itg.mail.impl;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.PropertiesService;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.context.Context;
-import org.apache.velocity.exception.MethodInvocationException;
-import org.apache.velocity.exception.ParseErrorException;
-import org.apache.velocity.exception.ResourceNotFoundException;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.log.NullLogChute;
 import org.apache.velocity.tools.ToolManager;
@@ -23,6 +19,7 @@ import org.apache.velocity.tools.generic.DateTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -66,7 +63,6 @@ public class MailServiceImpl implements MailService {
 
     /**
      * {@inheritDoc}
-     * @throws JsonProcessingException 
      */
     @Override
     public void sendMail(EmailInfoDTO emailInfo, Map<String, Object> model) throws JsonProcessingException {
@@ -75,18 +71,14 @@ public class MailServiceImpl implements MailService {
 
     /**
      * {@inheritDoc}
-     * @throws JsonProcessingException
      */
     @Override
     public void sendMail(EmailInfoDTO emailInfo, Map<String, Object> model, Map<String, InputStream> attachments) throws JsonProcessingException {
-
-        LOGGER.info("MailServiceImpl.sendMail({},{}, {})", emailInfo, model, attachments);
+        LOGGER.info("MailServiceImpl.sendMail({}, {}, {})", emailInfo, model, attachments);
         MailDTO email = createMailContent(emailInfo, model);
-
         if (email == null) {
             return;
         }
-
         LOGGER.info("Appel à MAIL pour envoi de l'email...");
         MailClient mailClient = afBackUtils.getMailClient();
         mailClient.sendEmail(email, attachments);
@@ -125,21 +117,14 @@ public class MailServiceImpl implements MailService {
 
     /**
      * {@inheritDoc}
-     * @throws IOException 
-     * @throws ResourceNotFoundException 
-     * @throws MethodInvocationException 
-     * @throws ParseErrorException 
-     * 
-     * @throws Exception
      */
     @Override
-    public String[] getMailPreview(String bodyTemplateCode, String subjectTemplateCode, String langue, Map<String, Object> model) throws ParseErrorException, MethodInvocationException, ResourceNotFoundException, Exception {
+    public String[] getMailPreview(String bodyTemplateCode, String subjectTemplateCode, String langue, Map<String, Object> model) throws Exception {
         LOGGER.info("MailServiceImpl.getMailPreview({},{})", bodyTemplateCode, subjectTemplateCode);
-
         return getSubjectAndBody(subjectTemplateCode, bodyTemplateCode, langue, model);
     }
     
-    private String[] getSubjectAndBody(String subjectTemplateCode, String bodyTemplateCode, String langue, Map<String, Object> model) throws ParseErrorException, MethodInvocationException, ResourceNotFoundException, Exception {
+    private String[] getSubjectAndBody(String subjectTemplateCode, String bodyTemplateCode, String langue, Map<String, Object> model) throws Exception {
         
         LOGGER.info("Récupération du template demandé pour le corps de l'email...");
         TemplateDTO templateBody = templatesCache.getTemplate(bodyTemplateCode, langue);
@@ -152,23 +137,20 @@ public class MailServiceImpl implements MailService {
         Velocity.init();
         Context context = getContext();
         if (model != null) {
-            for (String key : model.keySet()) {
-                context.put(key, model.get(key));
+            for (Map.Entry<String,Object> entry : model.entrySet()) {
+                context.put(entry.getKey(), entry.getValue());
             }
         }
-
         StringWriter output = new StringWriter();
-
         if (!Velocity.evaluate(context, output, templateBody.getCode(), templateBody.getContenu())) {
-            throw new Exception("Velocity.evaluate() n'a pas fonctionné.");
+            throw new DemarchesServiceException("Velocity.evaluate() n'a pas fonctionné.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
         String mailBodyToSend = output.toString();
         output = new StringWriter();
         if (!Velocity.evaluate(context, output, templateSubject.getCode(), templateSubject.getContenu())) {
-            throw new Exception("Velocity.evaluate() n'a pas fonctionné.");
+            throw new DemarchesServiceException("Velocity.evaluate() n'a pas fonctionné.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
         String mailSubjectToSend = output.toString();
-        
         return new String[] { mailSubjectToSend, mailBodyToSend };
     }
     
@@ -191,6 +173,9 @@ public class MailServiceImpl implements MailService {
 		return commentaire;
 	}
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void sendMailSupport(String subjectTemplateCode, String bodyTemplateCode, Set<String> mails,Integer pkDemande,
                                 String identifiantDemande, int incident, Map<String, Object> modelAdd, Map<String, InputStream> attachments) {
@@ -225,6 +210,9 @@ public class MailServiceImpl implements MailService {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Set<String> getMailingLists(String... mailingListProps) {
         Set<String> list = new TreeSet<>();

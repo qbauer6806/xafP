@@ -3,6 +3,7 @@ package mc.gouv.xaf.back.service.data.impl;
 import java.util.Date;
 import java.util.List;
 
+import mc.gouv.xaf.shared.SharedMessages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,24 +36,23 @@ public class TemplatesServiceImpl implements TemplatesService {
     
     @Autowired
     private DemarchesService demarchesService;
+
+    private TemplateBO getTemplateBO(String demarcheId, Integer templateId) {
+        LOGGER.info(SharedMessages.RECUPERATION_EN_BASE);
+        TemplateBO templateBo = templatesRepository.findByDemarcheIdAndPkTemplates(demarcheId, templateId);
+        if (templateBo == null) {
+            throw new DemarchesServiceException(SharedMessages.DONNEE_INTROUVABLE, HttpStatus.NOT_FOUND);
+        }
+        return templateBo;
+    }
     
     /**
      * {@inheritDoc}
      */
     @Override
     public TemplateDTO getTemplate(String demarcheId, Integer templateId) {
-        
-        LOGGER.info("Récupération en base du template...");
-        
-        TemplateBO templateBo = templatesRepository.findByDemarcheIdAndPkTemplates(demarcheId, templateId);
-        
-        if (templateBo == null) {
-            throw new DemarchesServiceException("Template introuvable",
-                    HttpStatus.NOT_FOUND);
-        }
-        
-        LOGGER.info("Transformation bo -> dto ...");
-        
+        TemplateBO templateBo = getTemplateBO(demarcheId, templateId);
+        LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
         return TemplatesTransformer.bo2Dto(templateBo);
     }
     
@@ -61,18 +61,13 @@ public class TemplatesServiceImpl implements TemplatesService {
      */
     @Override
     public TemplateDTO getTemplateByDemarcheIdAndCodeAndLangue(String demarcheId, String code, String langue) {
-        
-        LOGGER.info("Récupération en base du template...");
-        
+        LOGGER.info(SharedMessages.RECUPERATION_EN_BASE);
         TemplateBO templateBo = templatesRepository.findByDemarcheIdAndCodeAndLangue(demarcheId, code, langue);
-        
         if (templateBo == null) {
-            throw new DemarchesServiceException("Template introuvable",
+            throw new DemarchesServiceException(SharedMessages.DONNEE_INTROUVABLE,
                     HttpStatus.NOT_FOUND);
         }
-        
-        LOGGER.info("Transformation bo -> dto ...");
-        
+        LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
         return TemplatesTransformer.bo2Dto(templateBo);
     }
 
@@ -81,13 +76,9 @@ public class TemplatesServiceImpl implements TemplatesService {
      */
     @Override
     public List<TemplateDTO> getTemplates(String demarcheId) {
-
         LOGGER.info("Récupération en base des templates...");
-        
         List<TemplateBO> templateBos = templatesRepository.findByDemarcheId(demarcheId);
-        
-        LOGGER.info("Transformation bo -> dto ...");
-        
+        LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
         return TemplatesTransformer.bo2Dto(templateBos);
     }
 
@@ -96,13 +87,9 @@ public class TemplatesServiceImpl implements TemplatesService {
      */
     @Override
     public List<TemplateDTO> getTemplates(String demarcheId, String langue) {
-
         LOGGER.info("Récupération en base des templates...");
-
         List<TemplateBO> templateBos = templatesRepository.findByDemarcheIdAndLangue(demarcheId, langue);
-
-        LOGGER.info("Transformation bo -> dto ...");
-
+        LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
         return TemplatesTransformer.bo2Dto(templateBos);
     }
 
@@ -111,7 +98,6 @@ public class TemplatesServiceImpl implements TemplatesService {
      */
     @Override
     public TemplateDTO saveOrUpdateTemplate(String demarcheId, TemplateDTO template) {
-        
         if (template.getPkTemplates() != null) {
             // PkTemplates fourni, il faut donc mettre à jour un template
             return updateTemplate(demarcheId, template);
@@ -119,7 +105,6 @@ public class TemplatesServiceImpl implements TemplatesService {
             // Pas de PkTemplates fourni, il faut donc créer un nouveau template
             return saveTemplate(demarcheId, template);
         }
-        
     }
 
     /**
@@ -130,20 +115,15 @@ public class TemplatesServiceImpl implements TemplatesService {
         
         // Vérification préalable de l'existence de la démarche indiquée
         demarchesService.getCheckDemarche(demarcheId);
-
-        LOGGER.info("Transformation dto -> bo");
-        
+        LOGGER.info(SharedMessages.TRANSFORMATION_DTO_BO);
         TemplateBO bo = TemplatesTransformer.dto2Bo(template);
 
         // La date de création correspond à la date de dernière modification
         if (bo.getDateModif() == null) {
             bo.setDateModif(new Date());
         }
-
         bo = templatesRepository.save(bo);
-        
-        LOGGER.info("Transformation bo -> dto ...");
-        
+        LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
         return TemplatesTransformer.bo2Dto(bo);
     }
 
@@ -152,18 +132,9 @@ public class TemplatesServiceImpl implements TemplatesService {
      */
     @Override
     public TemplateDTO updateTemplate(String demarcheId, TemplateDTO template) {
-        
-        LOGGER.info("Récupération en base du template...");
-        
-        TemplateBO templateBo = templatesRepository.findByDemarcheIdAndPkTemplates(demarcheId, template.getPkTemplates());
-        
-        if (templateBo == null) {
-            throw new DemarchesServiceException("Template introuvable",
-                    HttpStatus.NOT_FOUND);
-        }
+        TemplateBO templateBo = getTemplateBO(demarcheId, template.getPkTemplates());
         
         LOGGER.info("Mise à jour du template...");
-        
         templateBo.setLangue(template.getLangue());
         templateBo.setCode(template.getCode());
         templateBo.setContenu(template.getContenu());
@@ -177,7 +148,7 @@ public class TemplatesServiceImpl implements TemplatesService {
 
         templateBo = templatesRepository.save(templateBo);
         
-        LOGGER.info("Transformation bo -> dto ...");
+        LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
         
         TemplateDTO ret = TemplatesTransformer.bo2Dto(templateBo);
         ret.setUpdated(true);
@@ -190,18 +161,8 @@ public class TemplatesServiceImpl implements TemplatesService {
      */
     @Override
     public void deleteTemplate(String demarcheId, Integer templateId) {
-
-        LOGGER.info("Récupération en base du template...");
-        
-        TemplateBO templateBo = templatesRepository.findByDemarcheIdAndPkTemplates(demarcheId, templateId);
-        
-        if (templateBo == null) {
-            throw new DemarchesServiceException("Template introuvable",
-                    HttpStatus.NOT_FOUND);
-        }
-        
+        TemplateBO templateBo = getTemplateBO(demarcheId, templateId);
         LOGGER.info("Suppression du template...");
-        
         templatesRepository.delete(templateBo);
     }
 

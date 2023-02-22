@@ -118,4 +118,6 @@ public interface GouvPropertiesResolver {
 
     String getApiRioCodeNotice();
 
+    boolean isPaiementEnabled();
+
 }

@@ -4,7 +4,6 @@ import mc.gouv.xaf.back.data.dao.StatistiquesRepository;
 import mc.gouv.xaf.back.data.entity.StatistiqueBO;
 import mc.gouv.xaf.back.data.transformer.StatistiqueTransformer;
 import mc.gouv.xaf.back.service.data.StatistiquesService;
-import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.StatistiqueDTO;
 import org.slf4j.Logger;
@@ -13,12 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
 import java.util.List;
 
 /**
  * Service permettant la manipulation des statistiques.
- *
  */
 @Component
 @Transactional(rollbackFor = Exception.class)
@@ -78,9 +75,7 @@ public class StatistiquesServiceImpl implements StatistiquesService {
     public void deleteStatistiques(String demarcheId, Integer pkDemande) {
         LOGGER.info("Suppression des statistiques de la demande {}", pkDemande);
         List<StatistiqueBO> statistiquesBO = statRepository.findByDemandeIdAndDemarcheId(pkDemande, demarcheId);
-        for (StatistiqueBO stat : statistiquesBO) {
-        	statRepository.delete(stat);
-        }
+        statRepository.deleteAll(statistiquesBO);
     }
 
 

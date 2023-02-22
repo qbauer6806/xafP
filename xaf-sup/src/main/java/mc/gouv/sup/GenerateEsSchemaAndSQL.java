@@ -19,8 +19,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static mc.gouv.sup.es.utils.EsSchemaUtils.getProjectDemandeRecap;
-
 /**
  *
  * Classe permettant de générer le fichier sql des requetes de la configuration des champs et des catégories
@@ -71,8 +69,8 @@ public class GenerateEsSchemaAndSQL {
 
         // Lancement des générations
         StringBuilder sqlBuilder = new StringBuilder();
-        SQLScriptsUtils.generateSQLScripts(getProjectDemandeRecap(root), "NC", schema, sqlBuilder);
-        String jsonEsSchema = EsSchemaUtils.generateEsMappings(path, schema, datas);
+        SQLScriptsUtils.generateSQLScripts(EsSchemaUtils.getProjectDemandeRecap(root), "NC", schema, sqlBuilder);
+        String jsonEsSchema = EsSchemaUtils.generateEsMappings(path, datas);
 
         // Ecriture dans les dossiers
         createSqlFile(sqlBuilder.toString(), schema);

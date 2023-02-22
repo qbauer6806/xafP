@@ -1,10 +1,6 @@
 package mc.gouv.xaf.back.service.itg.file.impl;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -88,7 +84,7 @@ public class FileServiceImpl implements FileService {
 
 	@Override
 	public void getFile(String filename, String containerId, HttpServletResponse response) throws IOException {
-		LOGGER.info("FileService.getFile({})", filename);
+		LOGGER.info("FileService.getFile({}, {})", filename, containerId);
 		String accountId = gouvPropertiesResolver.getDemarcheId();
 		// Remplacement des espaces par des "+"...
 		filename = filename.replace(" ", "+");
@@ -98,7 +94,7 @@ public class FileServiceImpl implements FileService {
 
 	@Override
 	public InputStream getFile(String filename, String containerId) throws IOException {
-		LOGGER.info("FileService.getFile({})", filename);
+		LOGGER.info("FileService.getFile({}, {})", filename, containerId);
 		String accountId = gouvPropertiesResolver.getDemarcheId();
 		// Remplacement des espaces par des "+"...
 		filename = filename.replace(" ", "+");
@@ -135,7 +131,7 @@ public class FileServiceImpl implements FileService {
 			return afBackUtils.getFileClient().saveFile(accountId, containerId, inputStream, filename, contentType, customHeaders,
 					outputStream);
 		} catch (Exception e) {
-			LOGGER.error("Erreur dans FileServiceImpl.saveFile()", e);
+			LOGGER.error("Erreur dans FileServiceImpl.saveFile()");
 			throw new DemarchesServiceException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
@@ -177,7 +173,7 @@ public class FileServiceImpl implements FileService {
 		}
 
 		String filename = "/" + demande.getFkAccess() + "/" + AfBackUtils.generateUUID() + "/"
-				+ URLEncoder.encode(file.getOriginalFilename(), "UTF-8");
+				+ URLEncoder.encode(file.getOriginalFilename(), StandardCharsets.UTF_8);
 
 		LOGGER.info("Filename à donner à FILE : {}", filename);
 
@@ -191,10 +187,21 @@ public class FileServiceImpl implements FileService {
 		try {
 			return afBackUtils.getFileClient().saveFile(accountId, containerId, file.getInputStream(), filename, file.getContentType(), customHeaders, outputStream);
 		} catch (Exception e) {
-			LOGGER.error("Erreur dans FileServiceImpl.saveFile()", e);
+			LOGGER.error("Erreur dans FileServiceImpl.saveFile()");
 			throw new DemarchesServiceException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
+	}
+
+	@Override
+	public String sendToFile(File tempFile, DemandeDTO demande, String fileName) throws IOException {
+		LOGGER.info("Stockage du PDF généré dans FILE...");
+		ByteArrayOutputStream output = new ByteArrayOutputStream();
+		FileInputStream fis = new FileInputStream(tempFile);
+		String url = saveFile(demande, fileName, gouvPropertiesResolver.getContainerId(), "application/pdf", fis, output);
+		output.close();
+		fis.close();
+		return url;
 	}
 
 	private boolean estExtensionDansWhitelist(String filename) {
@@ -237,10 +244,6 @@ public class FileServiceImpl implements FileService {
 		HttpClient clientVscan = HttpClientBuilder.create().build();
 		MultipartEntityBuilder builderVscan = MultipartEntityBuilder.create();
 		builderVscan.addPart("file", new InputStreamBody(file.getInputStream(), ContentType.create(file.getContentType()), file.getName()));
-
-		// Pour tester avec un fichier vérolé (EICAR)
-		//builderVscan.addPart("file", new InputStreamBody(new ByteArrayInputStream("X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*".getBytes()), "blason.jpg"));
-
 		ScanRequestDTO scanRequest = new ScanRequestDTO();
 		scanRequest.setCodeAppli(gouvPropertiesResolver.getDemarcheId());
 		scanRequest.setFilename(file.getName());
@@ -263,11 +266,6 @@ public class FileServiceImpl implements FileService {
 		if (restTemplate == null) {
 			LOGGER.info("Initialisation du RestTemplate...");
 			try {
-//                restTemplate = new RestTemplate(new AuthHttpComponentsClientHttpRequestFactory(
-//                        new HttpHost(new URL(DemarchesUtils.FILE_REST_URL).getHost(),
-//                                new URL(DemarchesUtils.FILE_REST_URL).getPort(), "http"),
-//                        DemarchesUtils.FILE_USER, DemarchesUtils.FILE_PWD));
-
 				restTemplate = new RestTemplate();
 				List<HttpMessageConverter<?>> list = new ArrayList<>();
 				MappingJackson2HttpMessageConverter conv = new MappingJackson2HttpMessageConverter();
@@ -302,7 +300,7 @@ public class FileServiceImpl implements FileService {
 		return url;
 	}
 
-	private Map<String, String> getFileMetadata(String fileUrl) throws IOException {
+	private Map<String, String> getFileMetadata(String fileUrl) {
 		HttpHeaders headers = new HttpHeaders();
 		headers.add(org.apache.http.HttpHeaders.AUTHORIZATION, AUTHORIZATION_PREFIX + gouvPropertiesResolver.getFileJwt());
 		org.springframework.http.HttpEntity<Object> requestEntity = new org.springframework.http.HttpEntity<>(null, headers);
@@ -318,7 +316,7 @@ public class FileServiceImpl implements FileService {
 				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 	}
 
-	private void updateFileMetadataGeneric(String fileUrl, String metadata, String value) throws IOException {
+	private void updateFileMetadataGeneric(String fileUrl, String metadata, String value) {
 		// Appel du getFile pour avoir les anciennes metadonnées
 		Map<String, String> oldMetadatas = getFileMetadata(fileUrl);
 
@@ -390,7 +388,7 @@ public class FileServiceImpl implements FileService {
 	@Override
 	public void deleteFile(String containerId, String fileName) {
 		String accountId = gouvPropertiesResolver.getDemarcheId();
-		LOGGER.info("Début suppression du fichier : {} sur la démarche :", fileName, accountId);
+		LOGGER.info("Début suppression du fichier : {} sur la démarche : {}", fileName, accountId);
 		try {
 			afBackUtils.getFileClient().deleteFile(accountId, containerId, fileName);
 		} catch (Exception e) {

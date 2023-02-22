@@ -34,8 +34,8 @@ public class GouvBPMDeleteDemandeDataDelegate implements JavaDelegate {
         Integer demandeId = Integer.parseInt(execution.getProcessBusinessKey());
 
         String dataKeyStr = (String) dataKey.getValue(execution);
-        LOGGER.info("Demande : " + demandeId);
-        LOGGER.info("Data key : " + dataKeyStr);
+        LOGGER.info("Demande : {}", demandeId);
+        LOGGER.info("Data key : {}", dataKeyStr);
 
         if (StringUtils.isBlank(dataKeyStr)) {
             throw new GouvBPMException("Impossible d'insérer une data avec une clé vide");

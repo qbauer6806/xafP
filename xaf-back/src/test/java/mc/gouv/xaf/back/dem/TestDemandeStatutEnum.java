@@ -36,13 +36,11 @@ public enum TestDemandeStatutEnum {
 
     /**
      * Retourne la liste des statuts pour lesquels des motifs peuvent correspondre
-     * 
-     * @return
      */
     public List<TestDemandeStatutEnum> getCandidatesForMotifs() {
-        List<TestDemandeStatutEnum> listEnumtoTrue = new ArrayList<TestDemandeStatutEnum>();
+        List<TestDemandeStatutEnum> listEnumtoTrue = new ArrayList<>();
         for (TestDemandeStatutEnum obj : TestDemandeStatutEnum.values()) {
-            if (obj.containsMotifs == true) {
+            if (obj.containsMotifs) {
                 listEnumtoTrue.add(obj);
             }
         }

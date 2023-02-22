@@ -41,7 +41,7 @@ public class GouvBPMUserManager extends UserEntityManager {
     @Override
     public UserEntity findUserById(String userLogin) {
 
-        LOGGER.info("GouvBPMUserManager.findUserById(" + userLogin + ")");
+        LOGGER.info("GouvBPMUserManager.findUserById({})", userLogin);
 
         // Vérification si c'est un usager
 
@@ -73,20 +73,14 @@ public class GouvBPMUserManager extends UserEntityManager {
 
     @Override
     public List<User> findUserByQueryCriteria(UserQueryImpl query, Page page) {
-
-        LOGGER.info("GouvBPMUserManager.findUserByQueryCriteria(query)");
-
-        List<User> userList = new ArrayList<User>();
-        UserQueryImpl userQuery = (UserQueryImpl) query;
-        if (StringUtils.isNotEmpty(userQuery.getId())) {
-            userList.add(findUserById(userQuery.getId()));
-            return userList;
-        } else if (StringUtils.isNotEmpty(userQuery.getLastName())) {
-            userList.add(findUserById(userQuery.getLastName()));
-            return userList;
-        } else {
-            return null;
+        LOGGER.info("GouvBPMUserManager.findUserByQueryCriteria({}, {})", query, page);
+        List<User> userList = new ArrayList<>();
+        if (StringUtils.isNotEmpty(query.getId())) {
+            userList.add(findUserById(query.getId()));
+        } else if (StringUtils.isNotEmpty(query.getLastName())) {
+            userList.add(findUserById(query.getLastName()));
         }
+        return userList;
     }
 
     @Override

@@ -18,11 +18,15 @@ import mc.gouv.xaf.back.paiement.enums.PaiementStatutEnum;
 import mc.gouv.xaf.back.paiement.properties.PaiementPropertiesResolver;
 import mc.gouv.xaf.back.paiement.service.MontantService;
 import mc.gouv.xaf.back.paiement.service.ReferenceFactoryService;
+import mc.gouv.xaf.back.paiement.service.data.CommandesDemandesService;
 import mc.gouv.xaf.back.paiement.service.itg.MoneticoPaiementService;
 import mc.gouv.xaf.back.paiement.service.itg.PaiementSecurityService;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesDataService;
+import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
+import mc.gouv.xaf.shared.SharedMessages;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeDataDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.itg.monetico.MoneticoResponseDTO;
@@ -55,6 +59,9 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
     private static final int TAILLE_MAX_NOMS = 45;
     private static final int TAILLE_MAX_OBJETS = 50;
 
+    // TODO propre ?
+    private static final String EN_COURS_PAIEMENT_STATUT_KEY = "EN_COURS_PAIEMENT";
+
     @Autowired
     private CommandeRepository commandeRepository;
 
@@ -66,6 +73,9 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
 
     @Autowired
     private CommandeDemandeRepository commandeDemandeRepository;
+
+    @Autowired
+    private CommandesDemandesService commandesDemandesService;
 
     @Autowired
     private CommandeDemandeArticleRepository commandeDemandeArticleRepository;
@@ -99,6 +109,9 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
 
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
+
+    @Autowired
+    private DemandesStatutsService demandesStatutsService;
 
     @Override
     public PaiementDTO create(String demandesId, String langue, Integer usagerId, boolean iframe) {
@@ -226,42 +239,31 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
         return paiementDTO;
     }
 
+    private String couperSiTropGrand(String str, int max) {
+        if (str.length() > max) {
+            str = str.substring(0, max);
+        }
+        return str;
+    }
+
     private BillingDTO createBillingDTO(GichuniUsagerDTO usager) {
         BillingDTO billingDTO = new BillingDTO();
         String prenom = usager.getPrenom() == null ? paiementPropertiesResolver.getPrenomParDefaut() : usager.getPrenom();
-        if (prenom.length() > TAILLE_MAX_NOMS) {
-            prenom = prenom.substring(0, TAILLE_MAX_NOMS);
-        }
-        billingDTO.setFirstName(prenom);
+        billingDTO.setFirstName(couperSiTropGrand(prenom, TAILLE_MAX_NOMS));
         String nom = usager.getNom() == null ? paiementPropertiesResolver.getNomParDefaut() : usager.getNom();
-        if (nom.length() > TAILLE_MAX_NOMS) {
-            nom = nom.substring(0, TAILLE_MAX_NOMS);
-        }
-        billingDTO.setLastName(nom);
+        billingDTO.setLastName(couperSiTropGrand(nom, TAILLE_MAX_NOMS));
         String adresse1 = usager.getAdresse1() == null ? paiementPropertiesResolver.getAdresseParDefaut() : usager.getAdresse1();
-        if (adresse1.length() > TAILLE_MAX_OBJETS) {
-            adresse1 = adresse1.substring(0, TAILLE_MAX_OBJETS);
-        }
-        billingDTO.setAddressLine1(adresse1);
+        billingDTO.setAddressLine1(couperSiTropGrand(adresse1, TAILLE_MAX_OBJETS));
         String adresse2 = usager.getAdresse2();
         if (StringUtils.isNotEmpty(adresse2)) {
-            if (adresse2.length() > TAILLE_MAX_OBJETS) {
-                adresse2 = adresse2.substring(0, TAILLE_MAX_OBJETS);
-            }
-            billingDTO.setAddressLine2(adresse2);
+            billingDTO.setAddressLine2(couperSiTropGrand(adresse2, TAILLE_MAX_OBJETS));
         }
         String adresse3 = usager.getComplementAdresse();
         if (StringUtils.isNotEmpty(adresse3)) {
-            if (adresse3.length() > TAILLE_MAX_OBJETS) {
-                adresse3 = adresse3.substring(0, TAILLE_MAX_OBJETS);
-            }
-            billingDTO.setAddressLine3(adresse3);
+            billingDTO.setAddressLine3(couperSiTropGrand(adresse3, TAILLE_MAX_OBJETS));
         }
         String ville = usager.getVille() == null ? paiementPropertiesResolver.getVilleParDefaut() : usager.getVille();
-        if (ville.length() > TAILLE_MAX_OBJETS) {
-            ville = ville.substring(0, TAILLE_MAX_OBJETS);
-        }
-        billingDTO.setCity(ville);
+        billingDTO.setCity(couperSiTropGrand(ville, TAILLE_MAX_OBJETS));
         billingDTO.setPostalCode(usager.getCodePostal() == null ? paiementPropertiesResolver.getCodePostalParDefaut() : usager.getCodePostal());
         billingDTO.setCountry(usager.getPaysCode() == null ? paiementPropertiesResolver.getCodePaysParDefaut() : usager.getPaysCode());
         return billingDTO;
@@ -285,7 +287,8 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
         }
 
         String reference = moneticoResponseDTO.getReference();
-        LOGGER.info("Récupération en BDD des informations de paiement avec la référence {}", reference);
+        String safeReference = reference.replaceAll(SharedMessages.UNSAFE_CHARS, "_");
+        LOGGER.info("Récupération en BDD des informations de paiement avec la référence {}", safeReference);
         Optional<MoyenPaiementBO> moyenPaiementBOOptional = moyenPaiementRepository.findById(reference);
         if (!moyenPaiementBOOptional.isPresent()) {
             throw new DemarchesServiceException("Aucun paiement portant la référence " + reference + " n'a été trouvé.", HttpStatus.NOT_FOUND);
@@ -302,11 +305,11 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
             dateValidite = moyenPaiementBO.getDateLimite();
         }
 
-        String status = moneticoResponseDTO.getCodeRetour();
-        if (status.equals("payetest") || status.equals("paiement")) {
+        if (moneticoResponseDTO.isCoderetourValid()) {
             moyenPaiementBO.setMoyenPaiementStatut(MoyenPaiementStatutEnum.VALIDE);
-            List<CommandeDemandeBO> commandeDemandeBOList = commandeDemandeRepository.findByCommande_PkCommandes(moyenPaiementBO.getCommande().getPkCommandes());
-            updateDemandeData(commandeDemandeBOList, dateValidite, moneticoResponseDTO);
+            List<DemandeDTO> demandes = commandesDemandesService.getDemandesFromCommande(moyenPaiementBO.getCommande().getPkCommandes());
+            demandesStatutsService.updateMultipleStatuts(demandes, EN_COURS_PAIEMENT_STATUT_KEY);
+            updateDemandeData(demandes, dateValidite, moneticoResponseDTO);
         } else {
             moyenPaiementBO.setMoyenPaiementStatut(MoyenPaiementStatutEnum.INVALIDE);
         }
@@ -340,14 +343,13 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
 
     // TODO sauvegarder le statut du paiement de manière plus correct que dans les demandes data
     @Async
-    void updateDemandeData(List<CommandeDemandeBO> commandeDemandeBOList, LocalDateTime dateValidite, MoneticoResponseDTO moneticoResponseDTO) {
+    void updateDemandeData(List<DemandeDTO> demandes, LocalDateTime dateValidite, MoneticoResponseDTO moneticoResponseDTO) {
         Thread t = new Thread(() -> {
             Timestamp date = Timestamp.valueOf(LocalDateTime.now());
-            for (CommandeDemandeBO commandeDemandeBO : commandeDemandeBOList) {
-                DemandeBO demandeBO = commandeDemandeBO.getDemande();
+            for (DemandeDTO demande : demandes) {
 
-                Integer pkDemande = demandeBO.getPkDemandes();
-                Integer usagerId = demandeBO.getFkAccess().getUsagerId();
+                Integer pkDemande = demande.getPkDemandes();
+                Integer usagerId = demande.getUsagerId();
                 GouvBPMUser user = new GouvBPMUser();
                 user.setId(usagerId.toString());
 
@@ -363,11 +365,11 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
 
                 LOGGER.info("Ajout de l'historique de paiement...");
                 PaiementHistoriqueBO historique = new PaiementHistoriqueBO();
-                historique.setFkDemandes(demandeBO);
-                historique.setContenu("Usager " + demandeBO.getUsagerPrenom() + " " + demandeBO.getUsagerNom() + " : Effectue une empreinte bancaire");
+                historique.setFkDemandes(DemandesTransformer.dto2Bo(demande));
+                historique.setContenu("Usager " + demande.getUsagerPrenom() + " " + demande.getUsagerNom() + " : Effectue une empreinte bancaire");
                 historique.setStatut(PaiementStatutEnum.EMPREINTE_VALIDE.name());
                 historique.setDate(date);
-                historique.setUsagerId(demandeBO.getFkAccess().getUsagerId());
+                historique.setUsagerId(demande.getUsagerId());
                 paiementHistoriqueRepository.save(historique);
 
                 LOGGER.info("Progression dans le BPM...");

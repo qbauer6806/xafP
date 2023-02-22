@@ -76,19 +76,25 @@ public interface IndexedDemandeService extends DemandesService {
      *
      * @param demarcheId Identifiant de la demarche
      * @param demandeId  Identifiant de la demande
-     * @throws IOException   Exception I/O
-     * @throws SAXException  Exception SAX
-     * @throws TikaException Exception du parsing de la piece jointe
      */
-    void indexDemande(String demarcheId, Integer demandeId) throws IOException, SAXException, TikaException;
+    void indexDemande(String demarcheId, Integer demandeId);
 
     /**
-     * Méthode permettant d'envoyer une à ES afin d'être indexer
+     * Méthode permettant d'envoyer une demande à ES afin d'être indexer
      *
      * @param demandeDTO DTO de la demande
      * @param indexFiles Boolean pour indiquer si on doit indexer les fichiers associés à la demande
      */
     void indexElement(DemandeDTO demandeDTO, boolean indexFiles);
+
+    /**
+     * Méthode permettant d'envoyer une liste de demandes à ES afin d'être indexer
+     * <br>
+     * Attention : ne fait pas l'indexation des fichiers !
+     *
+     * @param demandes Liste de demandes DTO
+     */
+    void indexElements(List<DemandeDTO> demandes);
 
     /**
      * Méthode permettant de rechercher des demandes à partir des critères en input

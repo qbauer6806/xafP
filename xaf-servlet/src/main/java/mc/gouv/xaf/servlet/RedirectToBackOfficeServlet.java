@@ -3,6 +3,7 @@ package mc.gouv.xaf.servlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import mc.gouv.xaf.shared.SharedMessages;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
@@ -21,11 +22,8 @@ import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
  */
 public class RedirectToBackOfficeServlet extends AbstractAfServlet {
 
-    /**
-     * 
-     */
     private static final long serialVersionUID = -9158173804027496532L;
-    private static Logger LOGGER = LoggerFactory.getLogger(RedirectToBackOfficeServlet.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RedirectToBackOfficeServlet.class);
 
     private static final String TOKEN_ID_DEMANDE = "<id>";
 
@@ -36,7 +34,7 @@ public class RedirectToBackOfficeServlet extends AbstractAfServlet {
         UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(request);
         if (usagerInfosDTO == null) {
             AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
-                    "Utilisateur non autorisé");
+                    SharedMessages.UTILISATEUR_NON_AUTORISE);
             return;
         }
 
@@ -52,20 +50,18 @@ public class RedirectToBackOfficeServlet extends AbstractAfServlet {
         try {
             //dans le cas de la fin de la création
             String idDemandeStr = request.getParameter("id");
-
             if(StringUtils.isNotBlank(idDemandeStr)) {
                 int idDemande = Integer.parseInt(idDemandeStr);
                 urlDemande = AfServletGouvPropertiesResolver.getBackOfficeDemandeUrl();
                 urlDemande = StringUtils.replace(urlDemande, TOKEN_ID_DEMANDE, idDemande + "");
             }
-
             response.sendRedirect(urlDemande);
+            LOGGER.info("Redirection vers : {}", urlDemande);
         } catch (Exception e) {
             AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_BAD_REQUEST,
                     "RedirectToBackOfficeServlet - Une erreur est survenue lors de l'appel à la méthode GET");
         }
 
-        LOGGER.info("Redirection vers : " + urlDemande);
         LOGGER.info("====================== Fin /redirect-to-backoffice doGet()");
     }
 }

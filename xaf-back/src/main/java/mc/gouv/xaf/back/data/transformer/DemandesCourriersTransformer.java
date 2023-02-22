@@ -15,6 +15,8 @@ import mc.gouv.xaf.shared.dto.DemandeCourrierDTO;
  */
 public class DemandesCourriersTransformer {
 
+    private DemandesCourriersTransformer() {}
+
     public static DemandeCourrierDTO bo2Dto(DemandesCourriersBO bo) {
         if (bo == null) {
             return null;
@@ -36,9 +38,6 @@ public class DemandesCourriersTransformer {
     /**
      * L'entité retournée est à rattacher à un DemandeBO après l'appel à cette fonction Mapper le statut concerné après
      * appel à cette fonction, si besoin
-     * 
-     * @param dto
-     * @return
      */
     public static DemandesCourriersBO dto2Bo(DemandeCourrierDTO dto) {
         if (dto == null) {
@@ -56,7 +55,7 @@ public class DemandesCourriersTransformer {
     }
 
     public static List<DemandeCourrierDTO> bo2Dto(List<DemandesCourriersBO> bos) {
-        ArrayList<DemandeCourrierDTO> dtos = new ArrayList<DemandeCourrierDTO>();
+        ArrayList<DemandeCourrierDTO> dtos = new ArrayList<>();
         for (DemandesCourriersBO bo : bos) {
             dtos.add(bo2Dto(bo));
         }
@@ -72,7 +71,7 @@ public class DemandesCourriersTransformer {
     }
 
     public static List<DemandesCourriersBO> dto2Bo(List<DemandeCourrierDTO> dtos) {
-        ArrayList<DemandesCourriersBO> bos = new ArrayList<DemandesCourriersBO>();
+        ArrayList<DemandesCourriersBO> bos = new ArrayList<>();
         for (DemandeCourrierDTO dto : dtos) {
             bos.add(dto2Bo(dto));
         }

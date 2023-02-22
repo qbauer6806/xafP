@@ -2,7 +2,6 @@ package mc.gouv.xaf.back.service.templates.impl;
 
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.TemplatesService;
-import mc.gouv.xaf.back.service.templates.GestionTemplateService;
 import mc.gouv.xaf.back.service.templates.TemplatesCache;
 import mc.gouv.xaf.shared.dto.TemplateDTO;
 import mc.gouv.xaf.shared.formbean.TemplateFormBean;
@@ -34,6 +33,7 @@ public class GestionTemplateServiceImplTest {
     @Mock
     private TemplatesService templatesService;
 
+    // Mock utilisé pour le saveTemplateForm
     @Mock
     private TemplatesCache templatesCache;
 
@@ -46,7 +46,7 @@ public class GestionTemplateServiceImplTest {
     private TemplateDTO templateObjet;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         templateCorps = new TemplateDTO();
         templateCorps.setPkTemplates(1);
         templateCorps.setCode("CODE_TEMPLATE_CORPS");

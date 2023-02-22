@@ -12,6 +12,6 @@ import mc.gouv.xaf.back.data.entity.DemandesCourriersBO;
  */
 public interface DemandesCourriersRepository extends CrudRepository<DemandesCourriersBO, Integer> {
 
-    public List<DemandesCourriersBO> findByFkDemandesFkAccessDemarcheId(String demarcheId);
+    List<DemandesCourriersBO> findByFkDemandesFkAccessDemarcheId(String demarcheId);
     
 }

@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
@@ -19,7 +20,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
 import mc.gouv.xaf.servlet.util.GichkeyService;
-import mc.gouv.xaf.servlet.util.GichuniService;
 
 /**
  * 
@@ -33,6 +33,8 @@ public class SessionsServlet extends HttpServlet {
     private static final long serialVersionUID = -7833206552171322810L;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SessionsServlet.class);
+
+    private static final String LOGIN = "login";
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) {
@@ -61,10 +63,10 @@ public class SessionsServlet extends HttpServlet {
             response.addCookie(xsrfCookie);
 
             // Récupération de l'objet attaché à la session
-            UsagerInfosDTO usagerInfosDTO = (UsagerInfosDTO) session.getAttribute("login");
+            UsagerInfosDTO usagerInfosDTO = (UsagerInfosDTO) session.getAttribute(LOGIN);
             LOGGER.info("usagerInfosDTO : {}", usagerInfosDTO);
             // Retour au client
-            response.setContentType("application/json");
+            response.setContentType(MediaType.APPLICATION_JSON);
             try {
                 ObjectMapper mapper = new ObjectMapper();
                 mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
@@ -93,31 +95,30 @@ public class SessionsServlet extends HttpServlet {
 		LOGGER.info("SESSION : {}", session);
 		if (session != null) {
 			// Récupération de l'objet attaché à la session
-			UsagerInfosDTO usagerInfosDTO = (UsagerInfosDTO) session.getAttribute("login");
+			UsagerInfosDTO usagerInfosDTO = (UsagerInfosDTO) session.getAttribute(LOGIN);
 			Integer accessId = usagerInfosDTO.getAccessId();
 			LOGGER.info("usagerInfosDTO : {}, userId={}, accessId={}", usagerInfosDTO, usagerInfosDTO.getId(), accessId);
 
 			// On ne met pas à jour s'il s'agit d'un usager courrier
-			if (!AppFactoryServletUtils.isUsagerCourrier(usagerInfosDTO.getId())) {
-				usagerInfosDTO = GichkeyService.checkTokens(usagerInfosDTO, true);
+			if (AppFactoryServletUtils.isUsagerCourrier(usagerInfosDTO.getId())) {
+			    return;
+            }
 
-				if (usagerInfosDTO != null) {
-					
-					// Stockage de cet objet d'infos d'usager dans la session HTTP
-					session = request.getSession();
-	
-					session.setAttribute("login", usagerInfosDTO);
-					// https://docs.angularjs.org/api/ng/service/$http#cross-site-request-forgery-xsrf-protection
-					session.setAttribute(AppFactoryServletUtils.XSRF_SESSION_ATTRIBUTE,
-							AppFactoryServletUtils.createXsrfToken(session));
-					
-					LOGGER.info("====================== Fin /sessions doPut()");
-					return;
-				}
-			}
-			else {
-				return;
-			}
+            usagerInfosDTO = GichkeyService.checkTokens(usagerInfosDTO, true);
+
+            if (usagerInfosDTO != null) {
+
+                // Stockage de cet objet d'infos d'usager dans la session HTTP
+                session = request.getSession();
+
+                session.setAttribute(LOGIN, usagerInfosDTO);
+                // https://docs.angularjs.org/api/ng/service/$http#cross-site-request-forgery-xsrf-protection
+                session.setAttribute(AppFactoryServletUtils.XSRF_SESSION_ATTRIBUTE,
+                        AppFactoryServletUtils.createXsrfToken(session));
+
+                LOGGER.info("====================== Fin /sessions doPut()");
+                return;
+            }
 		}
 
 		// Pas de session trouvée

@@ -11,7 +11,7 @@ public class EsUtils {
     /**
      * @deprecated les jointures seront supprimées dans ES8
      */
-    @Deprecated
+    @Deprecated(forRemoval = true)
     public static final String JOIN_FIELD = "demandeJoinField";
     public static final String DATE_CREATION_FIELD = "dateCreation";
     public static final String PK_DEMANDE_FIELD = "pkDemandes";

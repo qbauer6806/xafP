@@ -34,6 +34,22 @@
           rel="stylesheet"/>
     <link th:href="@{/css/tsdem.css(${applicationBuildTimestamp})}"
           rel="stylesheet"/>
+
+    <style>
+        .dataTables_wrapper .dataTables_filter {
+            padding: 10px;
+            border-left: 2px solid #068BAD;
+            border-right: 2px solid #068BAD;
+            background: #E7F4F8;
+            color: #068BAD;
+            filter:progid:DXImageTransform.Microsoft.Shadow(color=#656565, Direction=180, Strength=15);
+        }
+
+        .tableContent .table {
+            -webkit-box-shadow: none;
+            box-shadow: none;
+        }
+    </style>
 </head>
 <body th:with="pageConfigurationActive='active'">
 
@@ -60,23 +76,25 @@
                     <h1>Administration des propriétés</h1>
                 </div>
 
-                <div th:if="${AfBackUtils.getDemarcheCanHandleProperties()}" class="col-xs-12 tableContent">
-                    <div class="tableTitle">
-                        Liste des propriétés
-                        <span class="badge" id="propertiesTableCounter">0</span>
+                <div th:if="${AfBackUtils.getDemarcheCanHandleProperties()}" class="col-xs-12">
+                    <div class="tableContent">
+                        <div class="tableTitle">
+                            Liste des propriétés
+                            <span class="badge" id="propertiesTableCounter">0</span>
+                        </div>
+                        <table id="datatable-properties" class="table table-striped" style="width: 100%">
+                            <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Type</th>
+                                <th>Clé</th>
+                                <th>Descriptif</th>
+                                <th>Valeur</th>
+                                <th>Action</th>
+                            </tr>
+                            </thead>
+                        </table>
                     </div>
-                    <table id="datatable-properties" class="table table-striped" style="width: 100%">
-                        <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Type</th>
-                            <th>Clé</th>
-                            <th>Descriptif</th>
-                            <th>Valeur</th>
-                            <th>Action</th>
-                        </tr>
-                        </thead>
-                    </table>
                 </div>
 
                 <div th:unless="${AfBackUtils.getDemarcheCanHandleProperties()}" class="col-xs-12">
@@ -185,7 +203,7 @@
         var properties = /*[[${properties}]]*/'default';
         $('#datatable-properties').DataTable({
             paging: false,
-            searching: false,
+            //searching: false,
             select: false,
             bInfo: false,
             columns: columnsProperties,

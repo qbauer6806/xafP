@@ -97,7 +97,12 @@ public class IndexedDemandeServiceTestImpl implements IndexedDemandeService {
     }
 
     @Override
-    public DemandeDTO updateDemande(DemandeDTO demande, boolean partialUpdate) throws IOException, SAXException {
+    public DemandeDTO updateDemande(DemandeDTO demande, boolean partialUpdate) {
+        return updateDemande(demande, partialUpdate, true);
+    }
+
+    @Override
+    public DemandeDTO updateDemande(DemandeDTO demande, boolean partialUpdate, boolean checkActive) {
         return null;
     }
 
@@ -153,11 +158,6 @@ public class IndexedDemandeServiceTestImpl implements IndexedDemandeService {
 
     @Override
     public DemandeDTO changerAffectationDemande(String demarcheId, int pkDemande, String agentAffecteId) {
-        return null;
-    }
-
-    @Override
-    public DemandeBO getDemandeBo(String demarcheId, Integer pkDemandes) {
         return null;
     }
 
@@ -232,12 +232,17 @@ public class IndexedDemandeServiceTestImpl implements IndexedDemandeService {
     }
 
     @Override
-    public void indexDemande(String demarcheId, Integer demandeId) throws IOException, SAXException, TikaException {
+    public void indexDemande(String demarcheId, Integer demandeId) {
 
     }
 
     @Override
     public void indexElement(DemandeDTO demandeDTO, boolean indexFiles) {
+
+    }
+
+    @Override
+    public void indexElements(List<DemandeDTO> demandes) {
 
     }
 

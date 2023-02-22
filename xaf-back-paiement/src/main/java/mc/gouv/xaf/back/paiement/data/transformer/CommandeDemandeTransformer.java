@@ -18,7 +18,9 @@ public class CommandeDemandeTransformer {
         CommandeDemandeDTO dto = new CommandeDemandeDTO();
         dto.setPkCommandeDemandes(bo.getPkCommandesDemandes());
         dto.setFkCommandes(bo.getCommande().getPkCommandes());
-        dto.setFkDemandes(bo.getDemande().getPkDemandes());
+        if (null != bo.getDemande()) {
+            dto.setFkDemandes(bo.getDemande().getPkDemandes());
+        }
         dto.setMontant(bo.getMontant());
         dto.setCommandeDemandeArticles(CommandeDemandeArticleTransformer.bos2Dtos(bo.getCommandesDemandesArticles()));
         return dto;

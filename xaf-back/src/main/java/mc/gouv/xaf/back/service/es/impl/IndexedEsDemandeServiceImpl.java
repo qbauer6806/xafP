@@ -76,7 +76,6 @@ import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilde
 import org.springframework.data.elasticsearch.core.query.SourceFilter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-import org.xml.sax.SAXException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
@@ -157,9 +156,9 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     private final List<String> fichiersFieldsToExclude = new ArrayList<>();
 
     @Inject
-    RechercheChampConfigRepository rechercheChampConfigRepository;
+    private RechercheChampConfigRepository rechercheChampConfigRepository;
     @Inject
-    DemarchesDataProvider demarchesDataProvider;
+    private DemarchesDataProvider demarchesDataProvider;
     List<EsProperty> allProperties = new ArrayList<>();
     @Autowired
     private ApplicationEventPublisher applicationEventPublisher;
@@ -187,7 +186,12 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     private GouvPropertiesResolver gouvPropertiesResolver;
     @Autowired
     private IndexedFilesService indexedFilesService;
+
+    /**
+     * @deprecated RestHighLevelClient est deprecated, il faut remplacer par Elasticsearch Java API Client
+     */
     @Inject
+    @Deprecated(forRemoval = true)
     private RestHighLevelClient client;
 
     @PostConstruct
@@ -240,7 +244,8 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     }
 
     /**
-     * Récupération des du mapping à partir d'un alias
+     * <p>TODO remplacer l'utilisation du RestHighLevelClient par Elasticsearch Java API Client</p>
+     * <p>Récupération des du mapping à partir d'un alias</p>
      *
      * @param aliasName Nom de l'alias
      * @return Mapping Elasticsearch
@@ -570,6 +575,13 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         LOGGER.info("Fin de l'indexation de la demande.");
     }
 
+    @Override
+    public void indexElements(List<DemandeDTO> demandes) {
+        List<DemandeEsDTO> demandesEs = demandeEsTransformer.toEs(demandes);
+        demandeEsRepository.saveAll(demandesEs);
+        LOGGER.info("Fin de l'indexation des demandes.");
+    }
+
     /**
      * Méthode permettant de récupérer une demande de la base et de l'indexer
      *
@@ -577,14 +589,13 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      */
     @Override
     public void indexDemande(String demarcheId, Integer demandeId) {
-        DemandeBO demandeBo = getDemandeBo(demarcheId, demandeId);
-        DemandeDTO demandeDto = DemandesTransformer.bo2Dto(demandeBo);
+        DemandeBO demandeBo = getCheckDemarcheDemandeBO(demarcheId, demandeId, true);
         DemandeEsDTO demandeEsDTO = demandeEsTransformer.bo2Dto(demandeBo, null);
         try {
             demandeEsRepository.save(demandeEsDTO);
         } catch (Exception e) {
             LOGGER.error(SharedMessages.ERREUR_INDEXATION);
-            EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("IndexedEsDemandeServiceImpl - méthode indexDemande()", demandeDto, e);
+            EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("IndexedEsDemandeServiceImpl - méthode indexDemande()", demarcheId, demandeId, e);
             applicationEventPublisher.publishEvent(esErrorEventDTO);
             throw new AfIndexingException(e.getMessage(), e);
         }
@@ -1487,7 +1498,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      * Méhode permettant de mettre à jour une demande et de la réindexer
      */
     @Override
-    public DemandeDTO updateDemande(DemandeDTO demande, boolean partialUpdate) throws IOException, SAXException {
+    public DemandeDTO updateDemande(DemandeDTO demande, boolean partialUpdate) {
         DemandeDTO demandeDTO = super.updateDemande(demande, partialUpdate);
         try {
             indexDemande(demandeDTO);

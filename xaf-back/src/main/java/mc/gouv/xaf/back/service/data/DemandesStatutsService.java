@@ -18,36 +18,46 @@ public interface DemandesStatutsService {
      *
      * @param demarcheId    ID de la démarche
      * @param demandeId     ID de la demande
-     * @param statut
+     * @param statut        Le nouveau statut
      * @param agentId       AgentID à associer au statut
      * @param usagerId      UsagerID à associer au statut
      * @param codeMotif     Le codeMotif du motif associé au changement de statut, si nécessaire
      * @param commentaire   Le commentaire associé au changement de statut, si nécessaire
      * @param texteAEnvoyer Le texte du justificatif / courrier à envoyer à l'usagé associé au changement de statut, si nécessaire
-     * @return La demande mise à jour
+     * @return L'objet DTO de la demande mise à jour
      */
+    // TODO: Alerte Sonar sur le trop grand nombre de paramètres
     DemandeDTO updateStatut(String demarcheId, Integer demandeId, String statut, String agentId, Integer usagerId, String codeMotif, String commentaire, String texteAEnvoyer);
 
     /**
      * Permet d'ajouter un statut à une demande, version appelable par d'autres services, sans check préalable
      *
-     * @param demande
-     * @param statut
+     * @param demande       La demande
+     * @param statut        Le nouveau statut
      * @param agentId       AgentID à associer au statut
      * @param usagerId      UsagerID à associer au statut
      * @param codeMotif     Le codeMotif du motif associé au changement de statut, si nécessaire
      * @param commentaire   Le commentaire associé au changement de statut, si nécessaire
      * @param texteAEnvoyer Le texte du justificatif / courrier à envoyer à l'usagé associé au changement de statut, si nécessaire
-     * @return
+     * @return L'objet BO de la demande mise à jour
      */
-    DemandeBO updateStatut(DemandeBO demande, String statut, String agentId, Integer usagerId, String codeMotif, String commentaire, String texteAEnvoyer);
+    DemandeDTO updateStatut(DemandeBO demande, String statut, String agentId, Integer usagerId, String codeMotif, String commentaire, String texteAEnvoyer);
+
+    /**
+     * Permet de mettre le même statut sur plusieurs demandes en même temps.
+     *
+     * @param demandes  La liste des demandes à mettre à jour
+     * @param statut    Le nouveau statut
+     * @return          La liste à jour des demandes
+     */
+    List<DemandeDTO> updateMultipleStatuts(List<DemandeDTO> demandes, String statut);
 
     /**
      * Récupérer le dernier statut d'une demande
      *
      * @param demarcheId ID de la démarche
      * @param demandeId  ID de la demande
-     * @return
+     * @return L'objet DTO du statut
      */
     DemandeStatutDTO getStatut(String demarcheId, Integer demandeId);
 
@@ -56,8 +66,15 @@ public interface DemandesStatutsService {
      *
      * @param demarcheId ID de la démarche
      * @param demandeId  ID de la demande
-     * @return
+     * @return Une liste de statut DTO
      */
     List<DemandeStatutDTO> getStatuts(String demarcheId, Integer demandeId);
+
+    /**
+     * Duplication des statuts d'une demande vers une nouvelle demande.
+     * @param demandeBo L'objet BO de la demande à cloner
+     * @param newDemandeBo le nouvel objet BO
+     */
+    void clonerStatuts(DemandeBO demandeBo, DemandeBO newDemandeBo);
 
 }

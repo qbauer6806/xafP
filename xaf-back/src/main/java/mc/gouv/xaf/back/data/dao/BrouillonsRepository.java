@@ -17,11 +17,6 @@ public interface BrouillonsRepository extends CrudRepository<BrouillonBO, Intege
 
     /**
      * Récupération d'un brouillon pour une démarche et un usager
-     *
-     * @param demarcheId
-     * @param id
-     * @param usagerId
-     * @return
      */
     BrouillonBO findByFkAccessDemarcheIdAndPkBrouillons(String demarcheId, Integer pkBrouillons);
 

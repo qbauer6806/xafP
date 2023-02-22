@@ -15,7 +15,7 @@ public class MoneticoDTO {
     /**
      * ex: "1234567"
      */
-    private String TPE;
+    private String tpe;
 
     /**
      * Version du système de paiement utilisée
@@ -45,15 +45,15 @@ public class MoneticoDTO {
     /**
      * ex: f97861e0f3e296b7eece2cfd86dc46c43ac88049
      */
-    private String MAC;
+    private String mac;
 
     /**
      * Informations relatives à la commande au format JSON en Base64
      */
-    private String contexte_commande;
+    private String contexteCommande;
 
     /**
-     *
+     * Nom de la société lié au numéro de TPE
      */
     private String societe;
 
@@ -80,10 +80,8 @@ public class MoneticoDTO {
     @JsonProperty("url_retour_err")
     private String urlRetourErr;
 
-
-    private String ThreeDSecureChallenge;
-
-    private String mode_affichage;
+    private String threeDSecureChallenge;
+    private String modeAffichage;
     private String nbrech = "";
     private String dateech1 = "";
     private String montantech1 = "";
@@ -96,19 +94,18 @@ public class MoneticoDTO {
     private String libelleMonetique = "";
     private String libelleMonetiqueLocalite = "";
 
-
     public MoneticoDTO() {
+        super();
     }
 
-
     @JsonGetter("TPE")
-    public String getTPE() {
-        return TPE;
+    public String getTpe() {
+        return tpe;
     }
 
     @JsonSetter("TPE")
-    public void setTPE(String TPE) {
-        this.TPE = TPE;
+    public void setTpe(String tpe) {
+        this.tpe = tpe;
     }
 
     public String getVersion() {
@@ -152,21 +149,21 @@ public class MoneticoDTO {
     }
 
     @JsonGetter("MAC")
-    public String getMAC() {
-        return MAC;
+    public String getMac() {
+        return mac;
     }
 
     @JsonSetter("MAC")
-    public void setMAC(String MAC) {
-        this.MAC = MAC;
+    public void setMac(String mac) {
+        this.mac = mac;
     }
 
-    public String getContexte_commande() {
-        return contexte_commande;
+    public String getContexteCommande() {
+        return contexteCommande;
     }
 
-    public void setContexte_commande(String contexte_commande) {
-        this.contexte_commande = contexte_commande;
+    public void setContexteCommande(String contexteCommande) {
+        this.contexteCommande = contexteCommande;
     }
 
     public String getSociete() {
@@ -211,20 +208,20 @@ public class MoneticoDTO {
 
     @JsonGetter("ThreeDSecureChallenge")
     public String getThreeDSecureChallenge() {
-        return ThreeDSecureChallenge;
+        return threeDSecureChallenge;
     }
 
     @JsonSetter("ThreeDSecureChallenge")
     public void setThreeDSecureChallenge(String threeDSecureChallenge) {
-        this.ThreeDSecureChallenge = threeDSecureChallenge;
+        this.threeDSecureChallenge = threeDSecureChallenge;
     }
 
-    public String getMode_affichage() {
-        return mode_affichage;
+    public String getModeAffichage() {
+        return modeAffichage;
     }
 
-    public void setMode_affichage(String mode_affichage) {
-        this.mode_affichage = mode_affichage;
+    public void setModeAffichage(String modeAffichage) {
+        this.modeAffichage = modeAffichage;
     }
 
     public String getNbrech() {
@@ -302,21 +299,21 @@ public class MoneticoDTO {
     @Override
     public String toString() {
         return "PaiementDTO{" +
-                "TPE='" + TPE + '\'' +
+                "TPE='" + tpe + '\'' +
                 ", version='" + version + '\'' +
                 ", date='" + date + '\'' +
                 ", montant='" + montant + '\'' +
                 ", reference='" + reference + '\'' +
                 ", lgue='" + lgue + '\'' +
-                ", MAC='" + MAC + '\'' +
-                ", contexte_commande='" + contexte_commande + '\'' +
+                ", MAC='" + mac + '\'' +
+                ", contexte_commande='" + contexteCommande + '\'' +
                 ", societe='" + societe + '\'' +
                 ", texteLibre='" + texteLibre + '\'' +
                 ", mail='" + mail + '\'' +
                 ", urlRetourOk='" + urlRetourOk + '\'' +
                 ", urlRetourErr='" + urlRetourErr + '\'' +
                 //", ThreeDSecureChallenge='" + ThreeDSecureChallenge + '\'' +
-                ", mode_affichage='" + mode_affichage + '\'' +
+                ", mode_affichage='" + modeAffichage + '\'' +
                 ", nbrech='" + nbrech + '\'' +
                 ", dateech1='" + dateech1 + '\'' +
                 ", montantech1='" + montantech1 + '\'' +

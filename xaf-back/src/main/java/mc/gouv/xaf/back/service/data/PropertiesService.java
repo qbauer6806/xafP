@@ -1,5 +1,6 @@
 package mc.gouv.xaf.back.service.data;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.PropertiesTypeEnum;
 
@@ -68,6 +69,18 @@ public interface PropertiesService {
      * @return le PropertiesDTO correspondant
      */    
     PropertiesDTO getProperty(String demarcheId, String key);
+
+    /**
+     * Récupérer une Property par sa clé pour les récaps.<br>
+     * Si la demande est appelée par le service de construction de la page de récap, on doit sécurisé le résultat pour du HTML<br>
+     * Renvoie ERREUR en cas d'erreurs ou une chaine vide si non trouvé.
+     *
+     * @param key la clé de la propriété à récupérer.
+     * @param pathNode le chemin du noeux dans le récaps.
+     * @param recap Flag permettant de savoir d'où est appelé la méthode.
+     * @return le contenu de la PropertiesDTO correspondant
+     */
+    String getPropertyPourRecap(String key, JsonNode pathNode, boolean recap);
 
 	/**
 	 * Ajoute ou mets à jour la valeur d'une Properties

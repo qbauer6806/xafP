@@ -8,10 +8,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.UsagersCourrierService;
@@ -39,29 +36,20 @@ public class UsagersCourrierAutocompleteController {
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
 
-    @RequestMapping(value = "/usagers", method = RequestMethod.GET, produces = "application/json")
-    public @ResponseBody AutocompleteUsagerListeDTO usagersAutoComplete(
-            @RequestParam(required = true) String query) throws Exception {
-
+    @GetMapping(value = "/usagers", produces = "application/json")
+    public @ResponseBody AutocompleteUsagerListeDTO usagersAutoComplete(@RequestParam String query) {
         LOGGER.info("======================= Appel de /ws/demandesCourrierAutocomplete/usagers");
-
         AutocompleteUsagerListeDTO ret = usagersAutoComplete(query, false);
-
         LOGGER.info("======================= Fin appel de /ws/demandesCourrierAutocomplete/usagers");
-
         return ret;
-
     }
     
-    @RequestMapping(value = "/usagersFullText", method = RequestMethod.GET, produces = "application/json")
-    public @ResponseBody AutocompleteUsagerListeDTO usagersAutoCompleteFullText(
-            @RequestParam(required = true) String query,
-            @RequestParam(required = true) Integer usagerSourceId) throws Exception {
+    @GetMapping(value = "/usagersFullText", produces = "application/json")
+    public @ResponseBody AutocompleteUsagerListeDTO usagersAutoCompleteFullText(@RequestParam String query,
+            @RequestParam Integer usagerSourceId) {
 
         LOGGER.info("======================= Appel de /ws/demandesCourrierAutocomplete/usagersFullText");
-
         AutocompleteUsagerListeDTO ret = usagersAutoComplete(query, true);
-        
         // Supprimer des suggestions l'usager source
         AutocompleteUsagerDTO toRemove = null;
         for (AutocompleteUsagerDTO dcau : ret.getSuggestions()) {
@@ -72,18 +60,15 @@ public class UsagersCourrierAutocompleteController {
         if (toRemove != null) {
             ret.setSuggestions(ArrayUtils.removeElement(ret.getSuggestions(), toRemove));
         }
-
         LOGGER.info("======================= Fin appel de /ws/demandesCourrierAutocomplete/usagersFullText");
-
         return ret;
-
     }
     
     private AutocompleteUsagerListeDTO usagersAutoComplete(String query, boolean fullText) {
 
         List<UsagerCourrierDTO> usagers = usagersCourrierService.getUsagersCourrier(gouvPropertiesResolver.getDemarcheId(), query);
         
-        List<AutocompleteUsagerDTO> liste = new ArrayList<AutocompleteUsagerDTO>();
+        List<AutocompleteUsagerDTO> liste = new ArrayList<>();
         for (UsagerCourrierDTO usager : usagers) {
             AutocompleteUsagerDTO u = new AutocompleteUsagerDTO();
 
@@ -108,8 +93,7 @@ public class UsagersCourrierAutocompleteController {
             liste.add(u);
         }
         AutocompleteUsagerListeDTO ret = new AutocompleteUsagerListeDTO();
-        ret.setSuggestions(liste.toArray(new AutocompleteUsagerDTO[liste.size()]));
-        
+        ret.setSuggestions(liste.toArray(new AutocompleteUsagerDTO[0]));
         return ret;
     }
 

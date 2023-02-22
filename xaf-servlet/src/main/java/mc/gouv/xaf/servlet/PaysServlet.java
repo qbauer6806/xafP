@@ -2,8 +2,11 @@ package mc.gouv.xaf.servlet;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.MediaType;
 
+import mc.gouv.xaf.shared.SharedMessages;
 import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.fluent.Request;
@@ -25,7 +28,7 @@ public class PaysServlet extends AbstractAfServlet {
 
     private static final long serialVersionUID = 4105537492545284465L;
 
-    private static Logger LOGGER = LoggerFactory.getLogger(PaysServlet.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PaysServlet.class);
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) {
@@ -34,7 +37,7 @@ public class PaysServlet extends AbstractAfServlet {
         UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(request);
         if (usagerInfosDTO == null) {
             AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
-                    "Utilisateur non autorisé");
+                    SharedMessages.UTILISATEUR_NON_AUTORISE);
             return;
         }
         String pathToQuery = request.getPathInfo();
@@ -43,10 +46,10 @@ public class PaysServlet extends AbstractAfServlet {
         String serviceUrl = AfServletGouvPropertiesResolver.getPaysUrl() + (pathToQuery != null ? pathToQuery : "")
                 + (queryString != null ? "?" + queryString : "");
 
-        LOGGER.info("Appel à " + serviceUrl);
+        LOGGER.info("Appel à {}", serviceUrl);
 
         Request serviceRequest = Request.Get(serviceUrl);
-        serviceRequest.setHeader("Accept", "application/json");
+        serviceRequest.setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
         try {
             HttpResponse serviceResponse = serviceRequest.execute().returnResponse();
             int statusCode = serviceResponse.getStatusLine().getStatusCode();

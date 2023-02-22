@@ -25,7 +25,9 @@ import mc.gouv.xaf.shared.dto.PropertiesDTO;
  */
 public class AfServletGouvPropertiesResolver {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(AfServletGouvPropertiesResolver.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AfServletGouvPropertiesResolver.class);
+    private static final String APPFACTORY_PREFIX = "mc.gouv.appfactory";
+    private static final String MC_GOUV_PREFIX = "mc.gouv";
 
     /*
      * hab
@@ -64,7 +66,9 @@ public class AfServletGouvPropertiesResolver {
             LOGGER.warn(
                     "Impossible de charger config.properties dans le classpath pour avoir la propriété application.name");
         }
+    }
 
+    private AfServletGouvPropertiesResolver() {
     }
 
     public static final String PAYS_URL = "mc.gouv.appfactory.external.pays.url";
@@ -85,13 +89,13 @@ public class AfServletGouvPropertiesResolver {
         return Static.getValue(LOGIN_KEEP_ALIVE);
     }
 
-    public static final String GICHKEY_REDIRECT_URL = "mc.gouv.appfactory" + applicationPrefix + ".gichkey.redirect.url";
+    public static final String GICHKEY_REDIRECT_URL = APPFACTORY_PREFIX + applicationPrefix + ".gichkey.redirect.url";
 
     public static String getGichkeyRedirectUrl() {
         return Static.getValue(GICHKEY_REDIRECT_URL).replace("<redirect_uri>", getGichkeyKeycloakRedirectUri());
     }
     
-    public static final String GICHKEY_KEYCLOAK_REIRECT_URI = "mc.gouv.appfactory" + applicationPrefix + ".gichkey.keycloak.redirect.uri";
+    public static final String GICHKEY_KEYCLOAK_REIRECT_URI = APPFACTORY_PREFIX + applicationPrefix + ".gichkey.keycloak.redirect.uri";
 
     public static String getGichkeyKeycloakRedirectUri() {
         return Static.getValue(GICHKEY_KEYCLOAK_REIRECT_URI);
@@ -111,37 +115,37 @@ public class AfServletGouvPropertiesResolver {
 
     /* Properties propres à la démarche */
 
-    public static final String API_URL = "mc.gouv.appfactory" + applicationPrefix + ".api.url";
+    public static final String API_URL = APPFACTORY_PREFIX + applicationPrefix + ".api.url";
 
     public static String getApiUrl() {
         return Static.getValue(API_URL);
     }
 
-    public static final String BACKOFFICE_URL = "mc.gouv.appfactory" + applicationPrefix + ".url";
+    public static final String BACKOFFICE_URL = APPFACTORY_PREFIX + applicationPrefix + ".url";
 
     public static String getBackOfficeUrl() {
         return Static.getValue(BACKOFFICE_URL);
     }
 
-    public static final String BACKOFFICE_DEMANDE_URL = "mc.gouv.appfactory" + applicationPrefix + ".demande.url";
+    public static final String BACKOFFICE_DEMANDE_URL = APPFACTORY_PREFIX + applicationPrefix + ".demande.url";
 
     public static String getBackOfficeDemandeUrl() {
         return Static.getValue(BACKOFFICE_DEMANDE_URL);
     }
 
-    public static final String SHARED_KEY = "mc.gouv" + applicationPrefix + ".frontserver.key";
+    public static final String SHARED_KEY = MC_GOUV_PREFIX + applicationPrefix + ".frontserver.key";
 
     public static String getSharedKey() {
         return Static.getValue(SHARED_KEY);
     }
 
-    public static final String FILE_JWT = "mc.gouv" + applicationPrefix + ".frontserver.file.jwt";
+    public static final String FILE_JWT = MC_GOUV_PREFIX + applicationPrefix + ".frontserver.file.jwt";
 
     public static String getFileJwt() {
         return Static.getValue(FILE_JWT);
     }
 
-    public static final String API_JWT = "mc.gouv" + applicationPrefix + ".frontserver.jwt";
+    public static final String API_JWT = MC_GOUV_PREFIX + applicationPrefix + ".frontserver.jwt";
 
     public static String getApiJwt() {
         return Static.getValue(API_JWT);
@@ -165,31 +169,31 @@ public class AfServletGouvPropertiesResolver {
         return Static.getValue(VSCAN_URL);
     }
 
-    public static final String VSCAN_JWT = "mc.gouv" + applicationPrefix + ".frontserver.vscan.jwt";
+    public static final String VSCAN_JWT = MC_GOUV_PREFIX + applicationPrefix + ".frontserver.vscan.jwt";
 
     public static String getVscanJwt() {
         return Static.getValue(VSCAN_JWT);
     }
 
-    public static final String MAX_UPLOAD_PAR_INTERVALLE = "mc.gouv" + applicationPrefix + ".frontserver.maxUploadParIntervalle";
+    public static final String MAX_UPLOAD_PAR_INTERVALLE = MC_GOUV_PREFIX + applicationPrefix + ".frontserver.maxUploadParIntervalle";
 
     public static String getMaxUploadParIntervalle() {
         return Static.getValue(MAX_UPLOAD_PAR_INTERVALLE);
     }
 
-    public static final String TEMPS_INTERVALLE_UPLOAD = "mc.gouv" + applicationPrefix + ".frontserver.tempsIntervalleUpload";
+    public static final String TEMPS_INTERVALLE_UPLOAD = MC_GOUV_PREFIX + applicationPrefix + ".frontserver.tempsIntervalleUpload";
 
     public static String getTempsIntervalleUpload() {
         return Static.getValue(TEMPS_INTERVALLE_UPLOAD);
     }
 
-    public static final String FRONTOFFICE_CONTACT_URL = "mc.gouv.appfactory" + applicationPrefix + ".front.login.contact.url";
+    public static final String FRONTOFFICE_CONTACT_URL = APPFACTORY_PREFIX + applicationPrefix + ".front.login.contact.url";
 
     public static String getFrontofficeContactUrl() {
         return Static.getValue(FRONTOFFICE_CONTACT_URL);
     }
 
-    public static final String FRONTOFFICE_COPYRIGHT_YEARS = "mc.gouv.appfactory" + applicationPrefix + ".front.copyright.years";
+    public static final String FRONTOFFICE_COPYRIGHT_YEARS = APPFACTORY_PREFIX + applicationPrefix + ".front.copyright.years";
 
     public static String getFrontofficeCopyrightYears() {
         return Static.getValue(FRONTOFFICE_COPYRIGHT_YEARS);
@@ -219,26 +223,26 @@ public class AfServletGouvPropertiesResolver {
         return Static.getValue(GICHUNI_URL);
     }
     
-    public static final String GICHKEY_CLIENT_ID = "mc.gouv.appfactory" + applicationPrefix + ".gichkey.client_id";
+    public static final String GICHKEY_CLIENT_ID = APPFACTORY_PREFIX + applicationPrefix + ".gichkey.client_id";
 
     public static String getGichkeyClientId() {
         return Static.getValue(GICHKEY_CLIENT_ID);
     }
     
-    public static final String GICHKEY_CLIENT_SECRET = "mc.gouv.appfactory" + applicationPrefix + ".gichkey.client_secret";
+    public static final String GICHKEY_CLIENT_SECRET = APPFACTORY_PREFIX + applicationPrefix + ".gichkey.client_secret";
 
     public static String getGichkeyClientSecret() {
         return Static.getValue(GICHKEY_CLIENT_SECRET);
     }
 
-    public static final String PAIEMENT_PROVIDER = "mc.gouv.appfactory" + applicationPrefix + ".paiement.provider";
+    public static final String PAIEMENT_PROVIDER = APPFACTORY_PREFIX + applicationPrefix + ".paiement.provider";
 
     public static String getPaiementProvider() {
         String value = Static.getValue(PAIEMENT_PROVIDER);
         return StringUtils.isBlank(value) ? "vide" : value;
     }
 
-    public static final String MONETICO_URL = "mc.gouv.appfactory" + applicationPrefix + ".monetico.url";
+    public static final String MONETICO_URL = APPFACTORY_PREFIX + applicationPrefix + ".monetico.url";
 
     public static String getMoneticoUrl() {
         String value = Static.getValue(MONETICO_URL);

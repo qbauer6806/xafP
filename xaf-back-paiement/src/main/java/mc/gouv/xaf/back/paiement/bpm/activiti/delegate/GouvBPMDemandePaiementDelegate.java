@@ -95,26 +95,19 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
         String demarcheId = gouvPropertiesResolver.getDemarcheId();
         Integer demandeId = Integer.parseInt(execution.getProcessBusinessKey());
         CommandeOperationDTO operation = null;
+        CommandeDTO commandeDTO = null;
         DemandeDTO demandeDto = demandesService.getDemande(demarcheId, demandeId);
         DemandeDataDTO statutPaiementData = demandesDataService.getDemandeData(demarcheId, demandeId, PaiementDemandeDataKeysEnum.STATUT_PAIEMENT.name());
 
         try {
-            CommandeDTO commandeDTO = commandesService.getDerniereCommande(demandeId);
+            commandeDTO = commandesService.getDerniereCommande(demandeId);
             LOGGER.info("Recuperation commandeDTO : {}", commandeDTO);
             LOGGER.info("Statut de l'empreinte de paiement : {}", statutPaiementData.getValue());
-
             if (commandeDTO != null && StringUtils.equals(statutPaiementData.getValue(), PaiementStatutEnum.EMPREINTE_VALIDE.name())) {
                 LOGGER.info("Début capture paiement pour la demande: {}", demandeId);
-
                 operation = captureService.capture(commandeDTO, demandeDto);
-                LOGGER.info("Recuperation reference : {}", operation.getNumeroFacture());
-
-                ticketRecapitulatifService.sendMail(operation, commandeDTO, demandeId);
-                gouvBPM.setProcessBusinessVariable(demandeId, MC_FACTURE_REFERENCE, operation.getNumeroFacture());
-
-                LOGGER.info("Fin capture paiement");
+                LOGGER.info("Fin capture paiement : {}", operation.getOperationStatut());
             }
-
         } catch (Exception e) {
             LOGGER.error("Erreur Capture paiement", e);
         }
@@ -126,17 +119,14 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
             if (StringUtils.equals(statutPaiementData.getValue(), PaiementStatutEnum.EMPREINTE_VALIDE.name())) {
                 demandesDataService.saveOrUpdateDemandeData(demarcheId, demandeId, PaiementDemandeDataKeysEnum.STATUT_PAIEMENT.name(), PaiementStatutEnum.DEBIT_ECHEC.name());
                 paiementHistoriqueService.ajouterHistoriqueDebitEchec(demandeDto);
-                // On ajoute un flag dans le BPMN pour savoir qu'un débit a déjà été émis
-                gouvBPM.setProcessBusinessVariable(demandeId, MC_IS_DEBIT_KO, true);
                 // #43127 Envoi du mail débit en echec (MAIL_NOTIFICATION_DEMANDE_ECHEC_DEBIT_USAGER_CORPS)
                 sendMail(demandeDto, "MAIL_NOTIFICATION_DEMANDE_ECHEC_DEBIT_USAGER");
-                
             } else if (StringUtils.equals(statutPaiementData.getValue(), PaiementStatutEnum.EMPREINTE_EXPIREE.name())) {
             	// #43127 Envoi du mail empreinte expirée (MAIL_NOTIFICATION_DEMANDE_EXPIRATION_EMPREINTE_USAGER_CORPS)
-            	gouvBPM.setProcessBusinessVariable(demandeId, MC_IS_DEBIT_KO, true);
             	sendMail(demandeDto, "MAIL_NOTIFICATION_DEMANDE_EXPIRATION_EMPREINTE_USAGER");
             }
-            
+            // On ajoute un flag dans le BPMN pour savoir qu'un débit a déjà été émis
+            gouvBPM.setProcessBusinessVariable(demandeId, MC_IS_DEBIT_KO, true);
             histoService.actionSysteme(demandeId, "ECHEC", "Débit en échec. Demande de paiement envoyée");
         } else {
             // TODO sauvegarder le statut du paiement de façon plus correct que dans les demandes data
@@ -149,6 +139,9 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
             } else {
                 histoService.actionSysteme(demandeId, "SUCCES", "Débit réalisé avec succès");
             }
+            LOGGER.info("Recuperation reference : {}", operation.getNumeroFacture());
+            ticketRecapitulatifService.sendMail(operation, commandeDTO, demandeId);
+            gouvBPM.setProcessBusinessVariable(demandeId, MC_FACTURE_REFERENCE, operation.getNumeroFacture());
         }
         LOGGER.info("==== xaf-back-paiement CAPTURE PAIEMENT <fin>");
     }

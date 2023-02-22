@@ -8,6 +8,8 @@ import mc.gouv.mail.shared.dto.ParamDTO;
 
 public class EmailTransformer {
 
+    private EmailTransformer() {}
+
     public static AddressBlockDTO toMailApiAddress(EmailInfoAddressDTO addr) {
         if (addr == null) {
             return null;
@@ -19,7 +21,7 @@ public class EmailTransformer {
     }
     
     public static List<AddressBlockDTO> toMailApiAddresses(List<EmailInfoAddressDTO> addrList) {
-        List<AddressBlockDTO> to = new ArrayList<AddressBlockDTO>();
+        List<AddressBlockDTO> to = new ArrayList<>();
         for (EmailInfoAddressDTO addr : addrList) {
             to.add(toMailApiAddress(addr));
         }
@@ -37,7 +39,7 @@ public class EmailTransformer {
     }
 
     public static List<ParamDTO> toMailApiParams(List<EmailInfoParamDTO> params) {
-        List<ParamDTO> retParams = new ArrayList<ParamDTO>();
+        List<ParamDTO> retParams = new ArrayList<>();
         for (EmailInfoParamDTO param : params) {
             retParams.add(toMailApiParam(param));
         }

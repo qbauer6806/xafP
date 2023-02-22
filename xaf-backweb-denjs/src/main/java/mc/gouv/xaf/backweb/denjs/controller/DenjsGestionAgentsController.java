@@ -59,14 +59,12 @@ public class DenjsGestionAgentsController {
         List<DenjsAffectationAgentDTO> affectations = denjsAffectationService.getAffectationsAgents();
         List<DenjsEtablissementDTO> etablissements = denjsAffectationService.getEtablissements();
         
-        List<User> list = null;
-
+        List<User> list;
         try {
-        	//String toRemove = "http://linuxdev1/logon/rest";
             LogonApiClient logonApiClient = new LogonApiClient(Static.getValue(LogonApiClient.DEFAULT_GOUV_PROPERTY_URL));
             list = logonApiClient.getRessUser().getListUserByCodeAppli(gouvPropertiesResolver.getDemarcheId());
             
-            List<DenjsAgentEtablissementDTO> agents = new ArrayList<DenjsAgentEtablissementDTO>();
+            List<DenjsAgentEtablissementDTO> agents = new ArrayList<>();
             for (User user : list) {
             	DenjsAgentEtablissementDTO agent = new DenjsAgentEtablissementDTO();
             	agent.setAgentNom(user.getNom());
@@ -84,7 +82,7 @@ public class DenjsGestionAgentsController {
             mav.addObject("agents", agents);
             mav.addObject("etablissements", etablissements);
         } catch (Exception e) {
-            LOGGER.error("Exception rencontrée dans formUser. Msg : " + e);
+            LOGGER.error("Exception rencontrée dans formUser.", e);
         }
 
         LOGGER.info("======================= Fin /denjs/gestion/agents. Méthode form");

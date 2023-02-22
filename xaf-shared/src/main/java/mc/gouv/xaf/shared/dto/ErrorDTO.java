@@ -6,6 +6,7 @@ package mc.gouv.xaf.shared.dto;
  * @author qdeme
  *
  */
+// TODO est-ce que cette classe est urilisée ?
 public class ErrorDTO {
 
     private Libelle[] errors;
@@ -15,7 +16,8 @@ public class ErrorDTO {
     }
     
     public static class Libelle {
-        
+
+        // TODO à renommer
         private String libelle;
         
         public Libelle(String libelle) {

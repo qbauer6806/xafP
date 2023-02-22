@@ -17,10 +17,7 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
@@ -41,46 +38,46 @@ public class RechercheAdminController extends AbstractController {
     private static final Logger LOGGER = LoggerFactory.getLogger(RechercheAdminController.class);
 
     @Autowired
-    RechercheAdminService rechercheAdminService;
+    private RechercheAdminService rechercheAdminService;
 
-    @RequestMapping(value = "/properties", method = RequestMethod.GET)
+    @GetMapping(value = "/properties")
     public List<EsProperty> getSearchProperties() {
         LOGGER.info("Appel du webservice /ws/admin/properties");
         return rechercheAdminService.getPropertiesWithLabels();
     }
 
-    @RequestMapping(value = "/updateproperties", method = RequestMethod.POST)
+    @PostMapping(value = "/updateproperties")
     public String updateProperties(@RequestBody ConfigPropertiesDTO properties) {
         LOGGER.info("Appel du webservice /ws/admin/updateproperties");
         rechercheAdminService.updateProperties(properties);
         return "Mise à jour effectuée avec succès";
     }
 
-    @RequestMapping(value = "/categories", method = RequestMethod.GET)
+    @GetMapping(value = "/categories")
     public List<EsCategory> getSearchCategories() {
         LOGGER.info("Appel du webservice /ws/admin/categories");
         return rechercheAdminService.getCategories();
     }
 
-    @RequestMapping(value = "/addcategory", method = RequestMethod.POST)
+    @PostMapping(value = "/addcategory")
     public EsCategory addCategory(@RequestParam("label") String label) {
         LOGGER.info("Appel du webservice /ws/admin/addcategory");
         return rechercheAdminService.addCategory(label);
     }
 
-    @RequestMapping(value = "/updatecategories", method = RequestMethod.POST)
+    @PostMapping(value = "/updatecategories")
     public List<EsCategory> updateCategory(@RequestBody ConfigCategoriesDTO categories) {
         LOGGER.info("Appel du webservice /ws/admin/updatecategories");
         return rechercheAdminService.updateCategories(categories);
     }
 
-    @RequestMapping(value = "/deletecategory", method = RequestMethod.DELETE)
+    @DeleteMapping(value = "/deletecategory")
     public void deleteCategory(@RequestParam("id") Integer id) {
         LOGGER.info("Appel du webservice /ws/admin/deletecategory");
         rechercheAdminService.deleteCategory(id);
     }
 
-    @RequestMapping(path = "/export", method = RequestMethod.GET)
+    @GetMapping(path = "/export")
     public ResponseEntity<InputStreamResource> exportConfig(HttpServletRequest request) throws IOException {
 
         LOGGER.info("Appel du webservice /ws/admin/export");
@@ -95,10 +92,9 @@ public class RechercheAdminController extends AbstractController {
                 new ByteArrayInputStream(jsonFile.getBytes(StandardCharsets.UTF_8)));
 
         return ResponseEntity.ok().headers(responseHeaders).body(isr);
-
     }
 
-    @RequestMapping(path = "/import", method = RequestMethod.POST)
+    @PostMapping(path = "/import")
     public String importConfig(@RequestParam("file") MultipartFile file) throws IOException {
         LOGGER.info("Appel du webservice /ws/admin/import");
         rechercheAdminService.importConfig(file.getBytes());

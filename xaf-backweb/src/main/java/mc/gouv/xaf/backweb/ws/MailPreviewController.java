@@ -9,9 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
 import mc.gouv.xaf.back.bpm.GouvBPM;
@@ -75,21 +75,16 @@ public class MailPreviewController extends AbstractController {
 		return mav;
 	}
 
-	@RequestMapping(method = RequestMethod.POST, consumes = "application/json")
+	@PostMapping(consumes = "application/json")
 	public ModelAndView mailpreview(@Valid @RequestBody PreviewFormBean mailPreviewFormBean) throws Exception {
-
 		String action = mailPreviewFormBean.getAction();
 		String codeMotifChoisi = mailPreviewFormBean.getCodeMotifChoisi();
 		Integer pkDemande = mailPreviewFormBean.getPkDemande();
 		String commentaire = mailPreviewFormBean.getCommentaire();
-
 		LOGGER.info("======================= Appel de /ws/mailpreview ({}, {}, {}, {})", action, codeMotifChoisi,
 				pkDemande, commentaire);
-
 		ModelAndView mav = buildMailPreview(action, codeMotifChoisi, pkDemande, commentaire);
-
 		LOGGER.info("======================= Fin /ws/mailpreview");
-
 		return mav;
 
 	}

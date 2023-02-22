@@ -45,7 +45,6 @@ import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
 public class MoneticoApiClient implements PaiementApiClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MoneticoApiClient.class);
-
     private final WebTarget target;
     private final String tpe;
     private final PaiementPropertiesResolver paiementPropertiesResolver;
@@ -107,13 +106,10 @@ public class MoneticoApiClient implements PaiementApiClient {
                     commandeOperationDTO.setOperationStatut(OperationStatutEnum.ERREUR.name());
                     sendMail(demandeDTO, operation, 3);
                 }
-
             }
-
-            return false;
         }
 
-        return true;
+        return StringUtils.equals(commandeOperationDTO.getOperationStatut(), OperationStatutEnum.ACCEPTEE.name());
     }
 
     private void sendMail(DemandeDTO demandeDTO, Operation<?> operation, int incident) {
@@ -146,6 +142,8 @@ public class MoneticoApiClient implements PaiementApiClient {
                 case "lib": // lib = Libellé détaillé précisant la nature du code retour
                     operation.setLibelle(keyValue[1]);
                     break;
+                default:
+                    LOGGER.info("Clé de paramètre inconnue : {}", keyValue[0]);
             }
         }
     }

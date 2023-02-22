@@ -27,7 +27,7 @@ import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 @Transactional(rollbackFor = Exception.class)
 public class UsagersServiceImpl implements UsagersService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(UsagersCourrierServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UsagersServiceImpl.class);
 
     @Autowired
     private DemandesService demandesService;
@@ -54,14 +54,6 @@ public class UsagersServiceImpl implements UsagersService {
         demandeRecherche.setUsagerId(usagerId);
         List<DemandeDTO> demandes = demandesService.getDemandes(demandeRecherche);
 
-        // LOGGER.info("Mise à jour du canal des demandes...");
-        // for (DemandeDTO demande : demandes) {
-        // DemandeDTO newDem = new DemandeDTO();
-        // newDem.setPkDemandes(demande.getPkDemandes());
-        // newDem.setCanal(DemandeCanalEnum.COURRIER);
-        // demandesService.updateDemande(newDem, true);
-        // }
-
         LOGGER.info("Mise à jour du statut des demandes...");
         for (DemandeDTO demande : demandes) {
             boolean isFinal = false;
@@ -81,13 +73,11 @@ public class UsagersServiceImpl implements UsagersService {
 
         LOGGER.info("Suppression de l'accès...");
         accessService.deleteAccess(demarcheId, usagerId);
-
     }
     
     @Override
     public Integer getNbDemandesUsager(String demarcheId, Integer usagerId) {
-    	return demandesRepository.getNbDemandesForUsager(demarcheId,
-    			usagerId);
+    	return demandesRepository.getNbDemandesForUsager(demarcheId, usagerId);
     }
 
 }

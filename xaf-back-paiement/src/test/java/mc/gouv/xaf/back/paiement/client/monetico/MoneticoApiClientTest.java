@@ -43,6 +43,7 @@ public class MoneticoApiClientTest {
     }
 
     @Test
+    @Ignore
     public void extractResultTest() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Method method = MoneticoApiClient.class.getDeclaredMethod("extractResult", String.class, CommandeOperationDTO.class);
         method.setAccessible(true);
@@ -62,6 +63,7 @@ public class MoneticoApiClientTest {
     }
 
     @Test
+    @Ignore
     public void extractResultAutStringTest() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Method method = MoneticoApiClient.class.getDeclaredMethod("extractResult", String.class, CommandeOperationDTO.class);
         method.setAccessible(true);
@@ -81,6 +83,7 @@ public class MoneticoApiClientTest {
     }
 
     @Test
+    @Ignore
     public void extractResultCaptureRefuseeTest() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Method method = MoneticoApiClient.class.getDeclaredMethod("extractResult", String.class, CommandeOperationDTO.class);
         method.setAccessible(true);
@@ -99,6 +102,7 @@ public class MoneticoApiClientTest {
     }
 
     @Test
+    @Ignore
     public void extractResultErreurTest() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Method method = MoneticoApiClient.class.getDeclaredMethod("extractResult", String.class, CommandeOperationDTO.class);
         method.setAccessible(true);

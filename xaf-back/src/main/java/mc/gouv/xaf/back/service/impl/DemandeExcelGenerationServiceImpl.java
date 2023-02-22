@@ -8,11 +8,9 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.BorderStyle;
@@ -44,7 +42,6 @@ import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemandeExcelGenerationService;
 import mc.gouv.xaf.back.service.DemandeExcelRechercheProvider;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
@@ -55,8 +52,6 @@ import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeExcelGenerationDTO;
 import mc.gouv.xaf.shared.dto.ExcelRechercheDTO;
-import mc.gouv.xaf.shared.dto.PropertiesDTO;
-import mc.gouv.xaf.shared.dto.PropertiesListEntityDTO;
 
 /**
  * 
@@ -83,15 +78,12 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
     private PropertiesService propertiesService;
     
     @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
-    
-    @Autowired
     private DemandesService demandesService;
     
     @Autowired
     private DemarchesDataProvider demarchesDataProvider;
     
-    private static final List<byte[]> colorList = new ArrayList<byte[]>();
+    private static final List<byte[]> colorList = new ArrayList<>();
     
     static {
     	colorList.add(new byte[] { (byte)253, (byte)233, (byte)217 });
@@ -333,26 +325,7 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
                     	return "N/A";
                     }
                 	String key = mapping.substring(11, mapping.length()) + "_FR";
-                	PropertiesDTO prop = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), key);
-                	if (prop != null) {
-                        PropertiesListEntityDTO[] entreprises = AfBackUtils.parserPropertiesListJson(prop.getValue());
-                        if (null == entreprises || entreprises.length == 0) {
-                            LOGGER.warn("Impossible de transformer la valeur de la dem_property (key={}) en map", key);
-                            return "ERREUR";
-                        }
-                        Optional<PropertiesListEntityDTO> matchingObject = Arrays.stream(entreprises).
-                                filter(e -> e.getId().equals(pathNode.asText())).
-                                findFirst();
-                        String result = matchingObject.map(PropertiesListEntityDTO::getLabel).orElse(null);
-                        if (null != result) {
-                        	return result;
-                        } else {
-                        	return "";
-                        }
-                    } else {
-                		LOGGER.warn("Impossible de récupérer la dem_property requise par le fichier récap (key={})", key);
-                		return "ERREUR";
-                	}
+					return propertiesService.getPropertyPourRecap(key, pathNode, true);
                 } else {
                     String path = jsonObject.get("path").toString().replace("contenu.", "/").replace(".", "/");
                     if (path.charAt(0) != '/') {

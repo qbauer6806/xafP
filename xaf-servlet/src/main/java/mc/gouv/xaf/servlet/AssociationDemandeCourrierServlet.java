@@ -3,6 +3,7 @@ package mc.gouv.xaf.servlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import mc.gouv.xaf.shared.SharedMessages;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
@@ -23,7 +24,7 @@ public class AssociationDemandeCourrierServlet extends AbstractAfServlet {
 
     private static final long serialVersionUID = -5171815930561560391L;
     
-    private static Logger LOGGER = LoggerFactory.getLogger(AssociationDemandeCourrierServlet.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AssociationDemandeCourrierServlet.class);
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) {
@@ -33,7 +34,7 @@ public class AssociationDemandeCourrierServlet extends AbstractAfServlet {
         UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(request);
         if (usagerInfosDTO == null) {
             AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
-                    "Utilisateur non autorisé");
+                    SharedMessages.UTILISATEUR_NON_AUTORISE);
             return;
         }
 
@@ -56,7 +57,7 @@ public class AssociationDemandeCourrierServlet extends AbstractAfServlet {
 
         Integer usagerId = usagerInfosDTO.getId();
 
-        LOGGER.info("DemarcheID=" + demarcheId + ", UsagerID=" + usagerId + ", IdentifiantDemande=" + identifiant + ", NomProprio=" + nomProprio);
+        LOGGER.info("DemarcheID={}, UsagerID={}, IdentifiantDemande={}, NomProprio={}", demarcheId, usagerId, identifiant, nomProprio);
 
         LOGGER.info("Appel à la démarche...");
 

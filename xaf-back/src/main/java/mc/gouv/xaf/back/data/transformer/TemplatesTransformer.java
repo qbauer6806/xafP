@@ -13,6 +13,8 @@ import mc.gouv.xaf.shared.dto.TemplateDTO;
  */
 public class TemplatesTransformer {
 
+    private TemplatesTransformer() {}
+
     public static TemplateDTO bo2Dto(TemplateBO bo) {
         TemplateDTO dto = new TemplateDTO();
         dto.setCode(bo.getCode());
@@ -36,7 +38,7 @@ public class TemplatesTransformer {
     }
     
     public static List<TemplateDTO> bo2Dto(List<TemplateBO> bos) {
-        ArrayList<TemplateDTO> dtos = new ArrayList<TemplateDTO>();
+        ArrayList<TemplateDTO> dtos = new ArrayList<>();
         for (TemplateBO bo : bos) {
             dtos.add(bo2Dto(bo));
         }
@@ -44,7 +46,7 @@ public class TemplatesTransformer {
     }
     
     public static List<TemplateBO> dto2Bo(List<TemplateDTO> dtos) {
-        ArrayList<TemplateBO> bos = new ArrayList<TemplateBO>();
+        ArrayList<TemplateBO> bos = new ArrayList<>();
         for (TemplateDTO dto : dtos) {
             bos.add(dto2Bo(dto));
         }

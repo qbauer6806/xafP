@@ -3,6 +3,7 @@ package mc.gouv.xaf.servlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import mc.gouv.xaf.shared.SharedMessages;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +24,7 @@ public class AnnulationServlet extends AbstractAfServlet {
 
     private static final long serialVersionUID = -7898768899143027088L;
     
-    private static Logger LOGGER = LoggerFactory.getLogger(AnnulationServlet.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AnnulationServlet.class);
 
     @Override
     public void doDelete(HttpServletRequest request, HttpServletResponse response) {
@@ -33,7 +34,7 @@ public class AnnulationServlet extends AbstractAfServlet {
         UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(request);
         if (usagerInfosDTO == null) {
             AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
-                    "Utilisateur non autorisé");
+                    SharedMessages.UTILISATEUR_NON_AUTORISE);
             return;
         }
         
@@ -56,20 +57,31 @@ public class AnnulationServlet extends AbstractAfServlet {
 
         Integer usagerId = usagerInfosDTO.getId();
 
-        LOGGER.info("DemarcheID=" + demarcheId + ", UsagerID=" + usagerId + ", DemandeID=" + demandeId);
+        LOGGER.info("DemarcheID={}, UsagerID={}, DemandeID={}", demarcheId, usagerId, demandeId);
 
         LOGGER.info("Appel à la démarche...");
 
         AfApiClient afApiClient = getAfApiClient();
-		try {
-			afApiClient.getDemande(usagerId, Integer.valueOf(demandeId));
+        Integer demandeIdParsed;
+        
+        try {
+        	demandeIdParsed = Integer.parseInt(demandeId);
+        } catch (NumberFormatException e) {
+            LOGGER.error("Problème lors du parsing du demandeId");
+            AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_INTERNAL_SERVER_ERROR,
+                    "Problème lors du parsing du demandeId");
+            return;
+        }
+        
+        try {
+			afApiClient.getDemande(usagerId, demandeIdParsed);
 		} catch (Exception exception) {
 			AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
-                    "Utilisateur non autorisé");
+                    SharedMessages.UTILISATEUR_NON_AUTORISE);
             return;
 		}
 
-        afApiClient.annulerDemande(Integer.parseInt(demandeId), usagerId);
+            afApiClient.annulerDemande(demandeIdParsed, usagerId);
 
         LOGGER.info("Retour au client...");
 

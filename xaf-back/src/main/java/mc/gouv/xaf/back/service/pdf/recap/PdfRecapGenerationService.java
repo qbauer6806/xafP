@@ -1,6 +1,7 @@
 package mc.gouv.xaf.back.service.pdf.recap;
 
 import java.io.File;
+import java.io.IOException;
 
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 
@@ -13,8 +14,8 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
  */
 public interface PdfRecapGenerationService {
 
-	void generateAndStorePdf(DemandeDTO demande) throws Exception;
+	void generateAndStorePdf(DemandeDTO demande) throws IOException;
 
-	File generatePdf(DemandeDTO demande) throws Exception;
+	File generatePdf(DemandeDTO demande);
 
 }

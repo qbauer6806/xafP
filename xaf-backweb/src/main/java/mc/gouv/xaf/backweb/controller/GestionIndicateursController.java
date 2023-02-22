@@ -22,13 +22,9 @@ public class GestionIndicateursController extends AbstractController {
     @Secured("ROLE_EXPORT")
     @GetMapping
     public ModelAndView formUser() {
-
         LOGGER.info("Appel de la page /gestion/indicateurs. Méthode formUser");
-
         ModelAndView mav = new ModelAndView("gestion/indicateurs/indicateurs");
-
         LOGGER.info("======================= Fin /gestion/indicateurs. Méthode formUser");
-
         return mav;
     }
 }

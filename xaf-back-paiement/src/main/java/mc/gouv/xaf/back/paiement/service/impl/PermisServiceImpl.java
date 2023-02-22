@@ -5,11 +5,13 @@ import mc.gouv.xaf.back.paiement.service.PermisService;
 import mc.gouv.xaf.back.paiement.service.itg.FactureApiClient;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.shared.enums.MailSupportEnum;
+import org.apache.http.client.HttpResponseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.ws.rs.core.Response;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -27,17 +29,18 @@ public class PermisServiceImpl implements PermisService {
     private MailService mailService;
 
     @Override
-    public PermisDTO getPermis(String numPermis, int pkDemande, String identifiantDemande) throws Exception {
+    public PermisDTO getPermis(String numPermis, int pkDemande, String identifiantDemande) throws HttpResponseException {
         logStartMethod(LOGGER);
-
         PermisDTO permisDTO;
         try {
             permisDTO = factureApiClient.getPermis(numPermis);
-        } catch (Exception e) {
-            sendMailProblemeCir(pkDemande, identifiantDemande, e.getMessage());
+        } catch (HttpResponseException e) {
+            // On envoie le mail d'incident qu'en cas d'erreur au niveau du serveur CIR
+            if (Response.Status.Family.familyOf(e.getStatusCode()) == Response.Status.Family.SERVER_ERROR) {
+                sendMailProblemeCir(pkDemande, identifiantDemande, e.getMessage());
+            }
             throw e;
         }
-
         return permisDTO;
     }
 

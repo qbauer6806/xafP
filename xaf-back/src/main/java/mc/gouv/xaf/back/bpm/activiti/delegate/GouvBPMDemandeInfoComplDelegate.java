@@ -52,7 +52,7 @@ public class GouvBPMDemandeInfoComplDelegate implements JavaDelegate {
 
         Integer demandeId = Integer.parseInt(execution.getProcessBusinessKey());
 
-        LOGGER.info("Demande : " + demandeId);
+        LOGGER.info("Demande : {}", demandeId);
 
         
 		String codeMotifStr = null;
@@ -76,8 +76,8 @@ public class GouvBPMDemandeInfoComplDelegate implements JavaDelegate {
         	codeMotifStr = (String) execution.getVariables().get(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name());
         }
 
-        LOGGER.info("Commentaire usager : " + commentaireUsagerStr);
-        LOGGER.info("Code motif : " + codeMotifStr);
+        LOGGER.info("Commentaire usager : {}", commentaireUsagerStr);
+        LOGGER.info("Code motif : {}", codeMotifStr);
 
         DemandeComplementsQuestionDTO questionDto = new DemandeComplementsQuestionDTO();
         questionDto.setAgentId(AfBackUtils.getAuthenticatedAgentId());

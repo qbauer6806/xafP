@@ -1,9 +1,7 @@
 package mc.gouv.xaf.back.service.itg.mail;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.apache.velocity.exception.MethodInvocationException;
-import org.apache.velocity.exception.ParseErrorException;
-import org.apache.velocity.exception.ResourceNotFoundException;
+import mc.gouv.xaf.back.exception.DemarchesServiceException;
 
 import java.io.InputStream;
 import java.util.Map;
@@ -30,9 +28,9 @@ public interface MailService {
 	 * Permet d'obtenir un aperçu de l'email qui serait envoyé
 	 *
 	 * @return [0] contient le titre, [1] contient le contenu en HTML
+	 * @throws DemarchesServiceException si les appels à velocity ne fonctionne pas
 	 */
-	String[] getMailPreview(String bodyTemplateCode, String subjectTemplateCode, String langue,
-			Map<String, Object> model) throws ParseErrorException, MethodInvocationException, ResourceNotFoundException, Exception;
+	String[] getMailPreview(String bodyTemplateCode, String subjectTemplateCode, String langue, Map<String, Object> model) throws Exception;
 
 	/**
 	 * Permet de formater le commentaire afin d'y ajouter les sauts de lignes

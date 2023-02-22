@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public abstract class EnumMixIn {
     @JsonValue(false)
-    abstract public String toValue();
+    public abstract String toValue();
 
     @JsonValue
-    abstract public String toString();
+    public abstract String toString();
 }

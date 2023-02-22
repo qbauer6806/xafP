@@ -50,19 +50,9 @@ public class IndexedDemandesComplementsServiceImpl extends DemandesComplementsSe
     public DemandeComplementsDTO saveDemandeComplements(String demarcheId, Integer demandeId,
                                                         DemandeComplementsQuestionDTO demandeComplements) {
         // Sauvegarde en BDD
-        DemandeComplementsDTO demandeComplementsDTO = super.saveDemandeComplements(demarcheId, demandeId,
-                demandeComplements);
-
+        DemandeComplementsDTO demandeComplementsDTO = super.saveDemandeComplements(demarcheId, demandeId, demandeComplements);
         // Indexation
-        try {
-            indexedDemandeService.indexDemande(demarcheId, demandeId);
-        } catch (Exception e) {
-            LOGGER.error("Erreur lors de l'indexation du complément de la demande.");
-            EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("IndexedDemandesComplementsServiceImpl - méthode saveDemandeComplements()", demarcheId, demandeId, e);
-            applicationEventPublisher.publishEvent(esErrorEventDTO);
-            throw new AfIndexingException(e.getMessage(), e);
-        }
-
+        indexedDemandeService.indexDemande(demarcheId, demandeId);
         return demandeComplementsDTO;
     }
 

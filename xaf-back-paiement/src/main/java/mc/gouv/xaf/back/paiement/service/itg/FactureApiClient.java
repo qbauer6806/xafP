@@ -5,6 +5,7 @@ import mc.gouv.xaf.back.paiement.dto.InformationFacturationDTO;
 import mc.gouv.xaf.back.paiement.dto.CommandeOperationDTO;
 import mc.gouv.xaf.back.paiement.dto.itg.cir.PermisDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
+import org.apache.http.client.HttpResponseException;
 
 import java.io.InputStream;
 import java.util.List;
@@ -17,7 +18,7 @@ public interface FactureApiClient {
 
     Optional<String> createFacture(String numPermis, String numImmat, double montant, String codeTransaction, InformationFacturationDTO infoFacturation, List<CommandeDemandeArticleDTO> articles, DemandeDTO demandeDTO, CommandeOperationDTO operationdto);
 
-    Optional<InputStream> getFacture(String numFacture, DemandeDTO demandeDTO) throws Exception;
+    Optional<InputStream> getFacture(String numFacture, DemandeDTO demandeDTO) throws HttpResponseException;
 
-    PermisDTO getPermis(String numPermis) throws Exception;
+    PermisDTO getPermis(String numPermis) throws HttpResponseException;
 }

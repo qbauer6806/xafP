@@ -87,10 +87,10 @@ public class GouvBPMEnvoiEmailAgentsWithRolesDelegate implements JavaDelegate {
                     emailInfo.addTo(dest.getMail(), dest.getNom());
                 }
                 else {
-                    LOGGER.warn("Attention : l'utilisateur " + dest.getMatricule() + " n'a pas d'adresse email associée. Pas d'envoi d'email.");
+                    LOGGER.warn("Attention : l'utilisateur {} n'a pas d'adresse email associée. Pas d'envoi d'email.", dest.getMatricule());
                 }
             }
-            LOGGER.info("Liste de destinataires calculée pour la liste de rôles [" + rolesStr + "] : " + emailInfo.getTo());
+            LOGGER.info("Liste de destinataires calculée pour la liste de rôles [{}] : {}", rolesStr, emailInfo.getTo());
             
             emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, execution.getProcessBusinessKey());
             emailInfo.setLangue("fr");

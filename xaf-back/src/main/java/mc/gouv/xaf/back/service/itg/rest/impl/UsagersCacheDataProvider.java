@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
-import mc.gouv.servicerest.usager.model.UsagerBean;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.AccessService;
 import mc.gouv.xaf.back.service.data.UsagersCourrierService;
@@ -45,90 +44,101 @@ public class UsagersCacheDataProvider implements GouvCacheDataProvider<Integer, 
     
     @Autowired
     private AccessService accessService;
-    
-    @Override
-    public ConcurrentHashMap<Integer, GichuniUsagerDTO> getAll() {
-        List<GichuniUsagerDTO> usagers = new ArrayList<GichuniUsagerDTO>();
 
-        //Récupération de tous les ids des usagers
-        //List<Integer> usagersIds = demClient.getUsagersIds(gouvPropertiesResolver.getDemarcheId());
+    /**
+     * Filtre les ids des usagers en fonction de s'ils sont en ligne ou non.
+     */
+    private void filtrerUsagersIds(List<Integer> usagersCourriersIds, List<Integer> usagersInternetIds) {
         List<Integer> usagersIds = accessService.getUsagersIds(gouvPropertiesResolver.getDemarcheId());
-        List<Integer> usagersCourriersIds = new ArrayList<Integer>();
-        List<Integer> usagersInternetIds = new ArrayList<Integer>();
-
         for (Integer usagerId : usagersIds) {
             if (!isUsagerCourrier(usagerId)) {
                 usagersInternetIds.add(usagerId);
 
             } else {
                 usagersCourriersIds.add(usagerId);
-
             }
         }
-        //Si des usagers se sont désinscrits, il m'en sortira moins que le nombre d'ids donnés en paramètre
+    }
+
+    /**
+     * Construit les requettes paginées à envoyer au client gichuni
+     */
+    private List<List<Integer>> pagesBuilder(List<Integer> usagersInternetIds) {
+        // Paginer par pages de (500 par défaut)
+        Integer pageSize = gouvPropertiesResolver.getUsagersPageSize();
+        LOGGER.info("Pagination : appel par pages de {}... {} usagers à récupérer...", pageSize, usagersInternetIds.size());
+        List<List<Integer>> pages = new ArrayList<>();
+        pages.add(new ArrayList<>());
+        int pageCounter = 0;
+        for (Integer usager : usagersInternetIds) {
+            if (pages.get(pageCounter).size() == pageSize) {
+                pages.add(new ArrayList<>());
+                pageCounter++;
+            }
+            pages.get(pageCounter).add(usager);
+        }
+        LOGGER.info("Résultat de la pagination : {} pages", pages.size());
+        return pages;
+    }
+
+    /**
+     * Récupère les usagers en ligne
+     */
+    private void getUsagersInternet(List<Integer> usagersInternetIds, List<GichuniUsagerDTO> usagers) {
+        // Si des usagers se sont désinscrits, il m'en sortira moins que le nombre d'ids donnés en paramètre
         if (!usagersInternetIds.isEmpty()) {
-        	LOGGER.info("Récupération des usagers INTERNET: {}", usagersInternetIds);
+            LOGGER.info("Récupération des usagers INTERNET: {}", usagersInternetIds);
             if (usagersInternetIds.size() == 1) {
                 GichuniUsagerDTO usagerBean = gichuniApiClient.getUsager(usagersInternetIds.get(0));
                 if (usagerBean != null) {
                     usagers.add(usagerBean);
                 }
-
             } else {
-            	
-            	// Paginer par pages de (500 par défaut)
-            	Integer pageSize = gouvPropertiesResolver.getUsagersPageSize();
-            	LOGGER.info("Pagination : appel par pages de " + pageSize + "... " + usagersInternetIds.size() + " usagers à récupérer");
-            	List<List<Integer>> pages = new ArrayList<List<Integer>>();
-            	pages.add(new ArrayList<Integer>());
-            	int pageCounter = 0;
-            	for (Integer usager : usagersInternetIds) {
-            		if (pages.get(pageCounter).size() == pageSize) {
-            			pages.add(new ArrayList<Integer>());
-            			pageCounter++;
-            		}
-            		
-            		pages.get(pageCounter).add(usager);
-            	}
-            	
-            	LOGGER.info("Résultat de la pagination : " + pages.size() + " pages");
-            	
-            	usagers = new ArrayList<GichuniUsagerDTO>();
-            	int nb = 0;
-            	for (List<Integer> page : pages) {
-            		nb++;
-            		List<GichuniUsagerDTO> usagersTmp = new ArrayList<GichuniUsagerDTO>();
-            		LOGGER.info("Appel pour la page " + nb + " : " + page);
-            		usagersTmp = gichuniApiClient.getUsagers(page);
-            		if (usagersTmp != null) {
-            			usagers.addAll(usagersTmp);
-            		}
-            	}
-            	
-            	LOGGER.info("Fin appel paginé : " + usagers.size() + " usagers récupérés");
+                List<List<Integer>> pages = pagesBuilder(usagersInternetIds);
+                usagers = new ArrayList<>();
+                int nb = 0;
+                for (List<Integer> page : pages) {
+                    nb++;
+                    LOGGER.info("Appel pour la page {} : {}", nb, page);
+                    List<GichuniUsagerDTO> usagersTmp = gichuniApiClient.getUsagers(page);
+                    if (usagersTmp != null) {
+                        usagers.addAll(usagersTmp);
+                    }
+                }
+
+                LOGGER.info("Fin appel paginé : {}  usagers récupérés.", usagers.size());
             }
         }
+    }
+    
+    @Override
+    public ConcurrentHashMap<Integer, GichuniUsagerDTO> getAll() {
+        List<GichuniUsagerDTO> usagers = new ArrayList<>();
+        List<Integer> usagersCourriersIds = new ArrayList<>();
+        List<Integer> usagersInternetIds = new ArrayList<>();
+
+        // Récupération de tous les ids des usagers
+        filtrerUsagersIds(usagersCourriersIds, usagersInternetIds);
+
+        // Récupération des usagers Internet
+        getUsagersInternet(usagersInternetIds, usagers);
 
         LOGGER.info("Récupération des usagers COURRIER: {}", usagersCourriersIds);
-        List<GichuniUsagerDTO> usagersCourriers = new ArrayList<GichuniUsagerDTO>();
+        List<GichuniUsagerDTO> usagersCourriers = new ArrayList<>();
         //Voir pour faire la fonction qui prend une liste d'ids
         for (Integer usagerCourrierId : usagersCourriersIds) {
-//                UsagerCourrierDTO uc = demClient.getUsagerCourrier(gouvPropertiesResolver.getDemarcheId(),
-//                        usagerCourrierId);
             UsagerCourrierDTO uc = usagersCourrierService.getUsagerCourrier(gouvPropertiesResolver.getDemarcheId(), usagerCourrierId);
             if (uc != null) {
             	GichuniUsagerDTO ub = UsagersUtils.convertUsagerCourrierDTOToGichuniUsagerDTO(uc);
                 usagersCourriers.add(ub);
             }
-
         }
-        //Ajout des usagers courriers à la liste
+        // Ajout des usagers courriers à la liste
         usagers.addAll(usagersCourriers);
-
-        LOGGER.info(usagers.toString());
+        LOGGER.info("Liste des usagers : {}", usagers);
         
         // Transformation de la liste vers la ConcurrentHashMap
-        ConcurrentHashMap<Integer, GichuniUsagerDTO> usagersMap = new ConcurrentHashMap<Integer, GichuniUsagerDTO>();
+        ConcurrentHashMap<Integer, GichuniUsagerDTO> usagersMap = new ConcurrentHashMap<>();
         for (GichuniUsagerDTO usager : usagers) {
             usagersMap.put(usager.getId(), usager);
         }
@@ -139,12 +149,9 @@ public class UsagersCacheDataProvider implements GouvCacheDataProvider<Integer, 
     public GichuniUsagerDTO get(Integer key) {
         if (isUsagerCourrier(key)) {
             UsagerCourrierDTO uc = usagersCourrierService.getUsagerCourrier(gouvPropertiesResolver.getDemarcheId(), key);
-            GichuniUsagerDTO ub = UsagersUtils.convertUsagerCourrierDTOToGichuniUsagerDTO(uc);
-            return ub;
-        }
-        else {
-        	GichuniUsagerDTO usagerBean = gichuniApiClient.getUsager(key);
-            return usagerBean;
+            return UsagersUtils.convertUsagerCourrierDTOToGichuniUsagerDTO(uc);
+        } else {
+            return gichuniApiClient.getUsager(key);
         }
     }
     

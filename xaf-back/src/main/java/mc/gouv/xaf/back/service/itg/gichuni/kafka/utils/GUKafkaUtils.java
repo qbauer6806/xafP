@@ -20,7 +20,7 @@ import mc.gouv.xaf.back.service.data.AccessService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.DemandeRecapDTO;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.RecapDemandesDTO;
-import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.StatutSimplifieEnum;
+import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.UsagerDemandesRecapDTO;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
 import mc.gouv.xaf.shared.dto.DemandeRecapProjection;
@@ -68,7 +68,7 @@ public class GUKafkaUtils {
     }
 	
 	public boolean isMessageVersionSupported(String version) {
-		return Arrays.stream(demarchesDataProvider.getGUKafkaSupportedVersions()).anyMatch(version::equals);
+		return Arrays.asList(demarchesDataProvider.getGUKafkaSupportedVersions()).contains(version);
 	}
 	
 	public Integer getDltConsumerJobTimeout() {
@@ -101,7 +101,7 @@ public class GUKafkaUtils {
 	
 	public List<DemandeRecapDTO> getDemandeRecapsFromUsagerId(Integer usagerId) {
 		LOGGER.info("Constitution de la liste de DemandeRecapDTO...");
-		List<DemandeRecapDTO> demandeRecaps = new ArrayList<DemandeRecapDTO>();
+		List<DemandeRecapDTO> demandeRecaps = new ArrayList<>();
 		List<DemandeRecapProjection> recapsProj = demandesRepository.findByUsagerIdForDemandeRecapDTO(gouvPropertiesResolver.getDemarcheId(), usagerId);
 		for (DemandeRecapProjection r : recapsProj) {
 			DemandeRecapDTO recap = new DemandeRecapDTO();
@@ -116,7 +116,7 @@ public class GUKafkaUtils {
 	}
 	
 	public UsagerDemandesRecapDTO getUsagerDemandesRecap(Integer usagerId) {
-		LOGGER.info("==================== getUsagerDemandesRecap(" + usagerId + ")");
+		LOGGER.info("==================== getUsagerDemandesRecap({})", usagerId);
 		UsagerDemandesRecapDTO usagerDemandesRecap = new UsagerDemandesRecapDTO();
 		usagerDemandesRecap.setUsagerId(usagerId.toString());
 
@@ -126,12 +126,12 @@ public class GUKafkaUtils {
 		RecapDemandesDTO recapDemandes = getRecapDemandes(usagerDemandesRecap.getDemandeRecaps());
 		usagerDemandesRecap.setRecapDemandes(recapDemandes);
 		
-		LOGGER.info("==================== Fin getUsagerDemandesRecap(" + usagerId + ")");
+		LOGGER.info("==================== Fin getUsagerDemandesRecap({})", usagerId);
 		return usagerDemandesRecap;
 	}
 	
 	public List<UsagerDemandesRecapDTO> getUsagerDemandesRecapList() {
-		List<UsagerDemandesRecapDTO> ret = new ArrayList<UsagerDemandesRecapDTO>();
+		List<UsagerDemandesRecapDTO> ret = new ArrayList<>();
 		List<Integer> usagerIds = accessService.getUsagersIds(gouvPropertiesResolver.getDemarcheId());
 		for (Integer usagerId : usagerIds) {
 			if (!DemarchesUtils.isUsagerCourrier(usagerId)) {

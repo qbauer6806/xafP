@@ -14,11 +14,20 @@ public class MoneticoResponseDTO {
     private String cvx = "";
     private String vld = "";
     private String brand = "";
+
+    /**
+     * Numéro d'autorisation pour les débits immédiats, non utilisé sur les TS, car la capture n'est pas immédiate.
+     */
     private String numauto = "";
     private String usage = "";
     private String typecompte = "";
     private String ecard = "";
     private String motifrefus = "";
+
+    /**
+     * Motifs de refus plus détaillé que motifrefus, seulement utilisé dans le cas des refus.
+     */
+    private String motifrefusautorisation = "";
     private String originecb = "";
     private String cbmasquee = "";
     private String bincb = "";
@@ -141,6 +150,14 @@ public class MoneticoResponseDTO {
         this.motifrefus = motifrefus;
     }
 
+    public String getMotifrefusautorisation() {
+        return motifrefusautorisation;
+    }
+
+    public void setMotifrefusautorisation(String motifrefusautorisation) {
+        this.motifrefusautorisation = motifrefusautorisation;
+    }
+
     public String getOriginecb() {
         return originecb;
     }
@@ -230,6 +247,7 @@ public class MoneticoResponseDTO {
                 ", typecompte='" + typecompte + '\'' +
                 ", ecard='" + ecard + '\'' +
                 ", motifrefus='" + motifrefus + '\'' +
+                ", motifrefusautorisation='" + motifrefusautorisation + '\'' +
                 ", originecb='" + originecb + '\'' +
                 ", cbmasquee='" + cbmasquee + '\'' +
                 ", bincb='" + bincb + '\'' +
@@ -242,7 +260,18 @@ public class MoneticoResponseDTO {
                 '}';
     }
 
+    public boolean isCoderetourValid() {
+        if (null == this.codeRetour) {
+            return false;
+        }
+        return "payetest".equals(this.codeRetour) || "paiement".equals(this.codeRetour);
+    }
+
     public String toStringHmac() {
+        return this.isCoderetourValid() ? toStringHmacAutorisation() : toStringHmacRefus();
+    }
+
+    private String toStringHmacAutorisation() {
         return String.join("*",
                 "TPE=" + this.getTpe(),
                 "authentification=" + this.getAuthentification(),
@@ -258,6 +287,33 @@ public class MoneticoResponseDTO {
                 "modepaiement=" + this.getModepaiement(),
                 "montant=" + this.getMontant(),
                 "motifrefus=" + this.getMotifrefus(),
+                "originecb=" + this.getOriginecb(),
+                "originetr=" + this.getOriginetr(),
+                "reference=" + this.getReference(),
+                "texte-libre=" + this.getTexteLibre(),
+                "typecompte=" + this.getTypecompte(),
+                "usage=" + this.getUsage(),
+                "vld=" + this.getVld()
+        );
+    }
+
+    private String toStringHmacRefus() {
+        return String.join("*",
+                "TPE=" + this.getTpe(),
+                "authentification=" + this.getAuthentification(),
+                "bincb=" + this.getBincb(),
+                "brand=" + this.getBrand(),
+                "cbmasquee=" + this.getCbmasquee(),
+                "code-retour=" + this.getCodeRetour(),
+                "cvx=" + this.getCvx(),
+                "date=" + this.getDate(),
+                "ecard=" + this.getEcard(),
+                "hpancb=" + this.getHpancb(),
+                "ipclient=" + this.getIpclient(),
+                "modepaiement=" + this.getModepaiement(),
+                "montant=" + this.getMontant(),
+                "motifrefus=" + this.getMotifrefus(),
+                "motifrefusautorisation=" + this.getMotifrefusautorisation(),
                 "originecb=" + this.getOriginecb(),
                 "originetr=" + this.getOriginetr(),
                 "reference=" + this.getReference(),

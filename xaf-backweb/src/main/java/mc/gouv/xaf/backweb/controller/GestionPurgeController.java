@@ -15,7 +15,6 @@ import org.springframework.web.servlet.ModelAndView;
  * Controller pour la page /purge
  * 
  * @author mpavone.Ext
- *
  */
 @Controller
 @RequestMapping("/gestion/purge")
@@ -32,18 +31,13 @@ public class GestionPurgeController extends AbstractController {
 
     @GetMapping()
     public ModelAndView form() {
-
         LOGGER.info("======================= Appel de la page /gestion/purge");
-
         ModelAndView mav = new ModelAndView("gestion/purge/gestionpurge");
-
         mav.addObject("demandesPurgees", purgeService.getDemandesPurgees());
         mav.addObject("statutsAPurger", demarchesDataProvider.getStatutsAPurger());
         mav.addObject("derniereExec", purgeService.getDateDerniereExecution());
         mav.addObject("statutsMap", demarchesDataProvider.getStatusMap());
-
         LOGGER.info("======================= Fin /gestion/purge");
-
         return mav;
     }
 }

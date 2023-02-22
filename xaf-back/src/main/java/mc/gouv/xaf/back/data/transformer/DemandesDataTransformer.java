@@ -15,6 +15,8 @@ import mc.gouv.xaf.shared.dto.DemandeDataDTO;
  */
 public class DemandesDataTransformer {
 
+    private DemandesDataTransformer() {}
+
     public static DemandeDataDTO bo2Dto(DemandesDataBO bo) {
     	if (bo == null) {
     		return null;
@@ -29,9 +31,6 @@ public class DemandesDataTransformer {
 
     /**
      * L'entité retournée est à rattacher à un DemandeBO après l'appel à cette fonction
-     * 
-     * @param dto
-     * @return
      */
     public static DemandesDataBO dto2Bo(DemandeDataDTO dto) {
     	if (dto == null) {
@@ -45,7 +44,7 @@ public class DemandesDataTransformer {
     }
 
     public static List<DemandeDataDTO> bo2Dto(List<DemandesDataBO> bos) {
-        ArrayList<DemandeDataDTO> dtos = new ArrayList<DemandeDataDTO>();
+        ArrayList<DemandeDataDTO> dtos = new ArrayList<>();
         for (DemandesDataBO bo : bos) {
             dtos.add(bo2Dto(bo));
         }
@@ -61,7 +60,7 @@ public class DemandesDataTransformer {
     }
 
     public static List<DemandesDataBO> dto2Bo(List<DemandeDataDTO> dtos) {
-        ArrayList<DemandesDataBO> bos = new ArrayList<DemandesDataBO>();
+        ArrayList<DemandesDataBO> bos = new ArrayList<>();
         for (DemandeDataDTO dto : dtos) {
             bos.add(dto2Bo(dto));
         }

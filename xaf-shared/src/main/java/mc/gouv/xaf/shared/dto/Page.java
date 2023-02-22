@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.List;
 
 /**
- * Dupliquer de org.springframework.data.domain.Page pour ne pas avoir de dépendance avec Spring dans le client
+ * Copie de la classe org.springframework.data.domain.Page pour ne pas avoir de dépendance avec Spring dans le client
  *
  * @param <T>
  * @author fgaujous
@@ -43,7 +43,7 @@ public class Page<T> {
     }
 
     /**
-     * @return the number of the current {@link org.springframework.data.domain.Slice}.
+     * @return the number of the current page.
      */
     public int getNumber() {
         return this.number;
@@ -54,7 +54,7 @@ public class Page<T> {
     }
 
     /**
-     * @return the size of the {@link org.springframework.data.domain.Slice}.
+     * @return the number of elements in one page.
      */
     public int getSize() {
         return this.size;
@@ -65,7 +65,7 @@ public class Page<T> {
     }
 
     /**
-     * @return the number of elements currently on this {@link org.springframework.data.domain.Slice}.
+     * @return the number of elements in all of the pages.
      */
     public int getNumberOfElements() {
         return this.numberOfElements;
@@ -98,7 +98,7 @@ public class Page<T> {
     }
 
     /**
-     * @return whether the current {@link org.springframework.data.domain.Slice} is the first one.
+     * @return whether the current page is the first one.
      */
     public boolean isFirst() {
         return first;
@@ -109,7 +109,7 @@ public class Page<T> {
     }
 
     /**
-     * @return whether the current {@link org.springframework.data.domain.Slice} is the last one.
+     * @return whether the current page is the last one.
      */
     public boolean isLast() {
         return last;

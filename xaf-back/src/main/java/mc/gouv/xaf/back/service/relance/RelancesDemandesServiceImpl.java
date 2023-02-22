@@ -42,8 +42,6 @@ public class RelancesDemandesServiceImpl implements RelancesDemandesService {
 		}
 	}
 
-	
-
 	@Override
 	public void envoiEmailUsagerRelance(DemandeDTO demande, String codeMailPrefix) {
 		final String subjectTemplateCode = codeMailPrefix + "_OBJET";

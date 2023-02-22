@@ -58,57 +58,52 @@ public class GUKafkaDLTConsumer {
 	private GUKafkaUtils guKafkaUtils;
 	
 	/**
-	 * KafkaListener du DLT du topic gichuni-to-ts-{codeAppli} (gichuni-to-ts-${codeAppli}.DLT)
-	 * Jamais actif sauf sur activation via Job depuis la page des Jobs du BO.
-	 * Il sert à copier les messages sur le topic initial afin que l'API les traite une nouvelle fois.
+	 * KafkaListener du DLT du topic gichuni-to-ts-{codeAppli} (gichuni-to-ts-${codeAppli}.DLT)<br>
+	 * Jamais actif sauf sur activation via Job depuis la page des Jobs du BO.<br>
+	 * Il sert à copier les messages sur le topic initial afin que l'API les traite une nouvelle fois.<br>
 	 * Les messages sont acknowledged sur le DLT.
-	 * 
-	 * @param consumerRecord
-	 * @param header
-	 * @param consumer
 	 */
 	@KafkaListener(id = "gichuni-to-ts-consumer-dlt", topics = "gichuni-to-ts-${application.name}.DLT", groupId = "${application.name}", autoStartup = "false")
 	public void dltListen(ConsumerRecord<String, Object> consumerRecord,
 			@Headers Map<String, String> header, Consumer<?, ?> consumer) {
-		
-		LOGGER.info("Message reçu sur le DLT (" + consumerRecord.topic() + "," + consumerRecord.partition() + "," + consumerRecord.offset()
-		+ "," + consumerRecord.key() + ") : " + consumerRecord.value());
+
+		String topic = consumerRecord.topic();
+		String key = consumerRecord.key();
+		Object value = consumerRecord.value();
+		LOGGER.info("Message reçu sur le DLT ({}, {}, {}, {}) : {}", topic, consumerRecord.partition(), consumerRecord.offset(), key, value);
 		
 		if (initialEndOffsetsPerPartition == null) {
 			initialEndOffsetsPerPartition = getLogEndOffsets(consumer);
 			for (Integer partition : initialEndOffsetsPerPartition.keySet()) {
 				nbMessagesTraitesParPartition.put(partition, 0);
 			}
-			LOGGER.info("Stockage des logEndOffsets initiaux par partition : " + initialEndOffsetsPerPartition);
+			LOGGER.info("Stockage des logEndOffsets initiaux par partition : {}", initialEndOffsetsPerPartition);
 		}
 		
-		LOGGER.info("Current offset : " + consumerRecord.offset() + ", initialLogEndOffset : " + initialEndOffsetsPerPartition.get(consumerRecord.partition()));
+		LOGGER.info("Current offset : {}, initialLogEndOffset : {}", consumerRecord.offset(), initialEndOffsetsPerPartition.get(consumerRecord.partition()));
 		
-		String topicInitial = "gichuni-to-ts-" + gouvPropertiesResolver.getDemarcheId().toLowerCase();
-		LOGGER.info("Remise du message sur le topic initial (" + topicInitial + "), sur la même partition (" + consumerRecord.partition() + ") et avec la même clé (" + consumerRecord.key() + ")...");
-		kafkaTemplate.send(topicInitial, consumerRecord.partition(), consumerRecord.key(), consumerRecord.value().toString());
+		String topicInitial = "gichuni-to-ts-" + gouvPropertiesResolver.getApplicationName();
+		LOGGER.info("Remise du message sur le topic initial ({}), sur la même partition ({}) et avec la même clé ({})...", topicInitial, consumerRecord.partition(), key);
+		kafkaTemplate.send(topicInitial, consumerRecord.partition(), key, value.toString());
 		
 		// Mise à jour du nombre de messages traités par partition
-		nbMessagesTraitesParPartition.put(consumerRecord.partition(), nbMessagesTraitesParPartition.get(consumerRecord.partition())+1);
+		nbMessagesTraitesParPartition.put(consumerRecord.partition(), nbMessagesTraitesParPartition.get(consumerRecord.partition()) + 1);
 		LOGGER.info("Fin de la remise du message.");
-		
-		currentOffsetsPerPartition.put(consumerRecord.partition(), (int)consumerRecord.offset());
-		
+
+		currentOffsetsPerPartition.put(consumerRecord.partition(), (int) consumerRecord.offset());
+
 		// Ne pas processer plus de messages que ceux présents initialement dans le topic au moment du lancement du Job
 		if (hasEverythingBeenRead()) {
 			LOGGER.info("logEndOffset atteint sur toutes les partitions, arrêt du du KafkaListener gichuni-to-ts-consumer-dlt...");
 			kafkaListenerEndpointRegistry.getListenerContainer("gichuni-to-ts-consumer-dlt").stop();
-			
 			jobOn = false;
 		}
-		
 	}
 	
 	private boolean hasEverythingBeenRead() {
-		for (Integer partition : initialEndOffsetsPerPartition.keySet()) {
-			Integer partitionInitialEndOffset = initialEndOffsetsPerPartition.get(partition);
-			Integer partitionCurrentOffset = currentOffsetsPerPartition.get(partition);
-			if (partitionCurrentOffset != null && (partitionCurrentOffset < (partitionInitialEndOffset-1))) {
+		for (Map.Entry<Integer, Integer> entry : initialEndOffsetsPerPartition.entrySet()) {
+			Integer partitionCurrentOffset = currentOffsetsPerPartition.get(entry.getKey());
+			if (partitionCurrentOffset != null && (partitionCurrentOffset < (entry.getValue() - 1))) {
 				return false;
 			}
 		}
@@ -118,7 +113,7 @@ public class GUKafkaDLTConsumer {
 	@SuppressWarnings("unchecked")
 	private Map<Integer,Integer> getLogEndOffsets(Consumer<?, ?> consumer) {
 		List<KafkaMetric> me = (List<KafkaMetric>) consumer.metrics().values().stream().filter(m -> "records-lead".equals(m.metricName().name())).collect(Collectors.toList());
-		Map<Integer,Integer> map = new HashMap<Integer,Integer>();
+		Map<Integer,Integer> map = new HashMap<>();
 		for (KafkaMetric km : me) {
 			for (String key : km.metricName().tags().keySet()) {
 				if ("partition".equals(key)) {
@@ -136,16 +131,14 @@ public class GUKafkaDLTConsumer {
 		
 		Integer timeout = guKafkaUtils.getDltConsumerJobTimeout();
 		
-		String msg = "";
 		try {
-		
 			initialEndOffsetsPerPartition = null;
-			currentOffsetsPerPartition = new HashMap<Integer,Integer>();
-			nbMessagesTraitesParPartition = new HashMap<Integer,Integer>();
+			currentOffsetsPerPartition = new HashMap<>();
+			nbMessagesTraitesParPartition = new HashMap<>();
 			jobOn = true;
 			kafkaListenerEndpointRegistry.getListenerContainer("gichuni-to-ts-consumer-dlt").start();
 			
-			Integer nbSleep = 0;
+			int nbSleep = 0;
 			while (jobOn) {
 				Thread.sleep(1000);
 				nbSleep++;
@@ -164,27 +157,30 @@ public class GUKafkaDLTConsumer {
 		LOGGER.info("jobOn = false, le Job est terminé, renvoi d'un message textuel pour DemandeJobServiceImpl...");
 		String topicInitial = "gichuni-to-ts-" + gouvPropertiesResolver.getDemarcheId().toLowerCase();
 		
-		Integer nbMessagesTraites = 0;
-		String partitionDetails = "";
-		for (Integer partition : nbMessagesTraitesParPartition.keySet()) {
-			Integer nb = nbMessagesTraitesParPartition.get(partition);
+		int nbMessagesTraites = 0;
+		StringBuilder builder = new StringBuilder();
+
+		for (Map.Entry<Integer, Integer> entry : nbMessagesTraitesParPartition.entrySet()) {
+			Integer nb = entry.getValue();
 			if (nb > 0) {
 				nbMessagesTraites += nb;
-				if (partitionDetails.length() > 0) {
-					partitionDetails += ", ";
+				if (builder.length() > 0) {
+					builder.append(", ");
 				}
-				partitionDetails += nb + " sur p" + partition;
+				builder.append(nb).append(" sur p").append(entry.getKey());
 			}
 		}
-		if (partitionDetails.length() > 0) {
-			partitionDetails = "(" + partitionDetails + ")";
+
+		if (builder.length() > 0) {
+			builder.insert(0, '(');
+			builder.append(')');
 		}
-		
+
+		String msg;
 		if (nbMessagesTraites <= 1) {
-			msg = nbMessagesTraites + " message du Dead Letter Topic a été remis sur le topic initial " + topicInitial + " " + partitionDetails + ".";
-		}
-		else {
-			msg = nbMessagesTraites + " messages du Dead Letter Topic ont été remis sur le topic initial " + topicInitial + " " + partitionDetails + ".";
+			msg = nbMessagesTraites + " message du Dead Letter Topic a été remis sur le topic initial " + topicInitial + " " + builder + ".";
+		} else {
+			msg = nbMessagesTraites + " messages du Dead Letter Topic ont été remis sur le topic initial " + topicInitial + " " + builder + ".";
 		}
 		LOGGER.info("================ Fin GUKafkaDLTConsumer.traiterDLT()");
 		

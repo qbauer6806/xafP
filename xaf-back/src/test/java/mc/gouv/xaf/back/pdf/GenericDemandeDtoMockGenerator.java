@@ -4,7 +4,7 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
 
 public class GenericDemandeDtoMockGenerator {
 
-    public static final DemandeDTO getGenericMockDemandeDTO() {
+    public static DemandeDTO getGenericMockDemandeDTO() {
         DemandeDTO dto;
         dto = new DemandeDTO();
         dto.setPkDemandes(1);

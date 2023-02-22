@@ -10,8 +10,8 @@ import mc.gouv.xaf.shared.dto.BrouillonFileDTO;
  */
 public interface BrouillonsFilesService {
 
-	void saveFiles(BrouillonFileDTO[] brouillonFiles, BrouillonBO brouillonBo) throws Exception;
+	void saveFiles(BrouillonFileDTO[] brouillonFiles, BrouillonBO brouillonBo);
 
-	void saveFile(BrouillonFileDTO brouillonFile, String demarcheId, Integer pkBrouillon) throws Exception;
+	void saveFile(BrouillonFileDTO brouillonFile, String demarcheId, Integer pkBrouillon);
 
 }

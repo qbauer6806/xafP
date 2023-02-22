@@ -19,6 +19,10 @@ import mc.gouv.xaf.back.bpm.model.GouvBPMUser;
  *
  */
 public class GouvBPMTransformer {
+
+    private GouvBPMTransformer() {
+        throw new IllegalStateException("Utility class");
+    }
     
     public static GouvBPMTask toGouvModelTask(Task task) {
         GouvBPMTask gouvTask = new GouvBPMTask();
@@ -30,7 +34,7 @@ public class GouvBPMTransformer {
     }
     
     public static List<GouvBPMTask> toGouvModelTasks(List<Task> tasks) {
-        ArrayList<GouvBPMTask> gouvTasks = new ArrayList<GouvBPMTask>();
+        ArrayList<GouvBPMTask> gouvTasks = new ArrayList<>();
         for (Task task : tasks) {
             gouvTasks.add(toGouvModelTask(task));
         }
@@ -48,7 +52,7 @@ public class GouvBPMTransformer {
     }
     
     public static List<GouvBPMUser> toGouvModelUsers(List<User> users) {
-        ArrayList<GouvBPMUser> gouvUsers = new ArrayList<GouvBPMUser>();
+        ArrayList<GouvBPMUser> gouvUsers = new ArrayList<>();
         for (User user : users) {
             gouvUsers.add(toGouvModelUser(user));
         }
@@ -64,7 +68,7 @@ public class GouvBPMTransformer {
     }
     
     public static List<GouvBPMGroup> toGouvModelGroups(List<Group> groups) {
-        ArrayList<GouvBPMGroup> gouvGroups = new ArrayList<GouvBPMGroup>();
+        ArrayList<GouvBPMGroup> gouvGroups = new ArrayList<>();
         for (Group group : groups) {
             gouvGroups.add(toGouvModelGroup(group));
         }

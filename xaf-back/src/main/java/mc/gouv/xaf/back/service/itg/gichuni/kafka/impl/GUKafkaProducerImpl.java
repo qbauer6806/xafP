@@ -22,7 +22,7 @@ import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.CreationDemandeMessage;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.DesinscriptionUsagerTSMessage;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.GUKafkaMessage;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.RecapDemandesDTO;
-import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.StatutSimplifieEnum;
+import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.SuppressionDemandeMessage;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.SynchronisationDemandesMessage;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.UsagerDemandesRecapDTO;
@@ -41,7 +41,7 @@ import mc.gouv.xaf.shared.dto.KafkaOutboxDTO;
 @Conditional(KafkaEnabledCondition.class)
 public class GUKafkaProducerImpl implements GUKafkaProducer {
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(GUKafkaProducer.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(GUKafkaProducerImpl.class);
 	
 	@Autowired
 	private GouvPropertiesResolver gouvPropertiesResolver;
@@ -50,7 +50,7 @@ public class GUKafkaProducerImpl implements GUKafkaProducer {
 	private KafkaOutboxService guKafkaOutboxService;
 	
 	
-	private static ObjectMapper mapper = new ObjectMapper();
+	private static final ObjectMapper mapper = new ObjectMapper();
 	
 	@Override
 	public void sendCreationDemandeMessage(Integer usagerId, Integer demandeId, String identifiant, Date dateCreation, RecapDemandesDTO recapDemandes) {
@@ -67,10 +67,10 @@ public class GUKafkaProducerImpl implements GUKafkaProducer {
 	@Override
 	public void sendChangementStatutDemandeMessage(Integer usagerId, Integer demandeId, String identifiant, StatutSimplifieEnum statutSimplifie, Date dateStatutSimplifie, RecapDemandesDTO recapDemandes) {
 		if (DemarchesUtils.isUsagerCourrier(usagerId)) {
-			LOGGER.info("sendCreationDemandeMessage - L'usager est un usager courrier, aucun message à envoyer au Guichet Unique...");
+			LOGGER.info("sendChangementStatutDemandeMessage - L'usager est un usager courrier, aucun message à envoyer au Guichet Unique...");
 			return;
 		}
-		LOGGER.info("sendCreationDemandeMessage - Placement du message à envoyer au Guichet Unique dans l'Outbox Kafka...");
+		LOGGER.info("sendChangementStatutDemandeMessage - Placement du message à envoyer au Guichet Unique dans l'Outbox Kafka...");
 		ChangementStatutDemandeMessage cdm = new ChangementStatutDemandeMessage(gouvPropertiesResolver.getDemarcheId(), usagerId.toString(), demandeId, identifiant,
 				dateStatutSimplifie, statutSimplifie.name(), recapDemandes);
 		sendToOutbox(cdm, cdm.getUsagerId(), GUKafkaUtils.GU_TO_TS_TOPIC);
@@ -79,10 +79,10 @@ public class GUKafkaProducerImpl implements GUKafkaProducer {
 	@Override
 	public void sendSuppressionDemandeMessage(Integer usagerId, Integer demandeId, String identifiant, Date dateSuppression, RecapDemandesDTO recapDemandes) {
 		if (DemarchesUtils.isUsagerCourrier(usagerId)) {
-			LOGGER.info("sendCreationDemandeMessage - L'usager est un usager courrier, aucun message à envoyer au Guichet Unique...");
+			LOGGER.info("sendSuppressionDemandeMessage - L'usager est un usager courrier, aucun message à envoyer au Guichet Unique...");
 			return;
 		}
-		LOGGER.info("sendCreationDemandeMessage - Placement du message à envoyer au Guichet Unique dans l'Outbox Kafka...");
+		LOGGER.info("sendSuppressionDemandeMessage - Placement du message à envoyer au Guichet Unique dans l'Outbox Kafka...");
 		SuppressionDemandeMessage cdm = new SuppressionDemandeMessage(gouvPropertiesResolver.getDemarcheId(), usagerId.toString(), demandeId, identifiant,
 				dateSuppression, recapDemandes);
 		sendToOutbox(cdm, cdm.getUsagerId(), GUKafkaUtils.GU_TO_TS_TOPIC);
@@ -100,10 +100,9 @@ public class GUKafkaProducerImpl implements GUKafkaProducer {
 		LOGGER.info("sendSynchronisationDemandesMessage - Placement du message à envoyer au Guichet Unique dans l'Outbox Kafka...");
 		String demarcheId = gouvPropertiesResolver.getDemarcheId();
 		SynchronisationDemandesMessage sdm = new SynchronisationDemandesMessage(demarcheId, usagerDemandesRecap);
-		ObjectMapper mapper = new ObjectMapper();
 		try {
 			String json = mapper.writeValueAsString(sdm);
-			LOGGER.info("Message à envoyer : " + json);
+			LOGGER.info("Message à envoyer : {}", json);
 		} catch (JsonProcessingException e) {
 			LOGGER.error("Erreur lors du mapper.writeValueAsString(sdm)", e);
 		}
@@ -119,7 +118,7 @@ public class GUKafkaProducerImpl implements GUKafkaProducer {
 			dto.setTopic(topic);
 			dto = guKafkaOutboxService.createOutboxElement(dto);
 			
-			LOGGER.info("Élément Outbox créé : " + dto);
+			LOGGER.info("Élément Outbox créé : {}", dto);
 		} catch (JsonProcessingException e) {
 			LOGGER.error("Erreur lors du mapper.writeValueAsString()", e);
 		}

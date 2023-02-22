@@ -30,9 +30,6 @@ public class DemandesFilesTransformer {
 
     /**
      * L'entité retournée est à rattacher à un DemandeBO après l'appel à cette fonction
-     * 
-     * @param dto
-     * @return
      */
     public static DemandesFilesBO dto2Bo(DemandeFileDTO dto) {
         DemandesFilesBO bo = new DemandesFilesBO();

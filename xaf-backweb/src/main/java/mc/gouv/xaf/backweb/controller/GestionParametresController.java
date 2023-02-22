@@ -1,46 +1,45 @@
 package mc.gouv.xaf.backweb.controller;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
-import javax.validation.Valid;
-
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.annotation.Secured;
-import org.springframework.stereotype.Controller;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
-
+import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.MotifsService;
 import mc.gouv.xaf.back.service.motifs.MotifsCache;
-import mc.gouv.xaf.shared.dto.GenericStatusDTO;
-import mc.gouv.xaf.shared.dto.MotifDTO;
 import mc.gouv.xaf.backweb.dto.CustomMotifDTO;
 import mc.gouv.xaf.backweb.formbean.MotifsFormBean;
+import mc.gouv.xaf.shared.dto.GenericStatusDTO;
+import mc.gouv.xaf.shared.dto.MotifDTO;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+
+import javax.validation.Valid;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * Controller pour les fonctionnalites (onglets) Utilisateurs et Paramtres
- * 
+ *
  * @author tverdoyan
- * 
  */
 @Controller
 @Secured({"ROLE_PARAMETRAGE", "ROLE_CONFIGURATION"})
 @RequestMapping("/gestion/parametres")
 public class GestionParametresController extends AbstractController {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(GestionParametresController.class);
+    private static final String ERROR_LIST = "errorList";
+    private static final String PARAMETRE_NEW_URL = "gestion/parametres/parametresNew";
+    private static final String STATUT_PARAM = "statuts";
+    private static final String ERR_CONTACT = "Un problème technique a été rencontré veuillez contacter la Direction Informatique.";
+    private static final String REDIRECT_GESTION_PARAMETRES = "redirect:/gestion/parametres";
 
     @Autowired
     private MotifsCache motifsCache;
@@ -54,100 +53,87 @@ public class GestionParametresController extends AbstractController {
     @Autowired
     private DemarchesDataProvider demarchesDataProvider;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GestionParametresController.class);
-
-    private String errContact = "Un problème technique a été rencontré veuillez contacter la Direction Informatique.";
-
-    @RequestMapping(method = RequestMethod.GET)
-    public ModelAndView form(@ModelAttribute("motifsFormBean") MotifsFormBean motifsFormBean) throws Exception {
-
+    @GetMapping
+    public ModelAndView form(@ModelAttribute("motifsFormBean") MotifsFormBean motifsFormBean) {
         LOGGER.info("Appel de la page /gestion/parametres. Méthode form");
         String errorList = null;
         ModelAndView mav = new ModelAndView("gestion/parametres/parametres");
-
         try {
             List<MotifDTO> list = motifsService.getMotifs(gouvPropertiesResolver.getDemarcheId());
-
             List<CustomMotifDTO> customlist = regroupeLibelle(list);
-            if (customlist == null) {
-                errorList = errContact;
+            if (customlist.isEmpty()) {
+                errorList = ERR_CONTACT;
             }
-
             mav.addObject("motifs", customlist);
         } catch (Exception e) {
-            LOGGER.error("Exception rencontrée dans form (/)", e);
-            throw new Exception(e);
+            LOGGER.error("Exception rencontrée dans form (/)");
+            throw new DemarchesServiceException("Exception rencontrée dans GestionParametresController.form()", HttpStatus.INTERNAL_SERVER_ERROR, e);
         }
-
-        mav.addObject("errorList", errorList);
-
+        mav.addObject(ERROR_LIST, errorList);
         LOGGER.info("======================= Fin /gestion/parametres. Méthode form");
-
         return mav;
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/newInit")
-    public ModelAndView formInit(@ModelAttribute("motifsFormBean") MotifsFormBean motifsFormBean) throws Exception {
-
+    @GetMapping(value = "/newInit")
+    public ModelAndView formInit(@ModelAttribute("motifsFormBean") MotifsFormBean motifsFormBean) {
         LOGGER.info("Appel de la page /gestion/parametres/newInit. Méthode formInit");
-
-        ModelAndView mav = new ModelAndView("gestion/parametres/parametresNew");
-
+        ModelAndView mav = new ModelAndView(PARAMETRE_NEW_URL);
         try {
             // Liste des enum actuellement utilisés
             List<GenericStatusDTO> list = demarchesDataProvider.getCandidateStatusesForMotifs();
-            mav.addObject("statuts", list);
+            mav.addObject(STATUT_PARAM, list);
         } catch (Exception e) {
-            LOGGER.error("Exception rencontrée dans formInit (/newInit)", e);
-            throw new Exception(e);
+            LOGGER.error("Exception rencontrée dans formInit (/newInit)");
+            throw new DemarchesServiceException("Exception rencontrée dans formInit (/newInit)", HttpStatus.INTERNAL_SERVER_ERROR, e);
         }
-
         LOGGER.info("======================= Fin /gestion/parametres/newInit. Méthode formInit");
-
         return mav;
     }
 
     /**
      * Activation du motif (mise de la date du jour)
-     * 
-     * @param code
-     *            code du motif devant être activer (date mise à null)
+     *
+     * @param motifsFormBean le formulaire de la page des motifs
      */
-    private boolean activationMotif(String code) throws Exception {
-
-        LOGGER.info("Appel de la fonction activationMotif");
+    private ModelAndView activationMotif(MotifsFormBean motifsFormBean) {
+        LOGGER.info("Activation du motif de code : {}", motifsFormBean.getCodeVisible());
+        String code = motifsFormBean.getCode();
         boolean isMotifFound = false;
-        boolean isCodeMotif = false;
-
         if (StringUtils.isNotBlank(code)) {
-            isCodeMotif = true;
             List<MotifDTO> listMotif = motifsService.getMotifs(gouvPropertiesResolver.getDemarcheId());
             for (MotifDTO motif : listMotif) {
                 if (motif.getCode().equals(code)) {
                     motif.setDateArchive(null);
                     motifsService.saveOrUpdateMotif(gouvPropertiesResolver.getDemarcheId(), motif);
-
                     isMotifFound = true;
                 }
             }
         }
-
-        return isMotifFound && isCodeMotif;
+        try {
+            if (!isMotifFound) {
+                // Code motif non exploitable ou non existant
+                motifsFormBean.setIsErrGlobale(true);
+            } else {
+                motifsCache.refresh();
+            }
+        } catch (Exception e) {
+            LOGGER.error("Exception rencontrée dans activationMotif");
+            throw new DemarchesServiceException("Exception rencontrée dans activationMotif", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        LOGGER.info("sortie méthode activationMotif");
+        return new ModelAndView(REDIRECT_GESTION_PARAMETRES);
     }
 
     /**
-     * Desactivation du motif (mise de la date du jour) * @param le code du motif devant être desactiver (date à
-     * renseigner)
+     * Desactivation du motif (mise de la date du jour) *
+     *
+     * @param motifsFormBean le formulaire de la page des motifs
      */
-    private boolean desactivationMotif(String code) throws Exception {
-
-        LOGGER.info("Appel de la fonction desactivationMotif");
+    private ModelAndView desactivationMotif(MotifsFormBean motifsFormBean) {
+        LOGGER.info("Desactivation du motif de code : {}", motifsFormBean.getCodeVisible());
+        String code = motifsFormBean.getCode();
         boolean isMotifFound = false;
-        boolean isCodeMotif = false;
-
         if ((StringUtils.isNotBlank(code))) {
-            isCodeMotif = true;
-
             // Liste des motifs
             List<MotifDTO> listMotif = motifsService.getMotifs(gouvPropertiesResolver.getDemarcheId());
             for (MotifDTO motif : listMotif) {
@@ -157,17 +143,27 @@ public class GestionParametresController extends AbstractController {
                 }
             }
         }
-
-        return (isMotifFound && isCodeMotif);
+        try {
+            if (!isMotifFound) {
+                // Code motif non exploitable ou non existant
+                motifsFormBean.setIsErrGlobale(true);
+            } else {
+                motifsCache.refresh();
+            }
+        } catch (Exception e) {
+            LOGGER.error("Exception rencontrée dans desactivationMotif");
+            throw new DemarchesServiceException("Exception rencontrée dans desactivationMotif", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        LOGGER.info("sortie méthode desactivationMotif");
+        return new ModelAndView(REDIRECT_GESTION_PARAMETRES);
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "/newCreate")
+    @PostMapping(value = "/newCreate")
     public ModelAndView formCreate(@Valid @ModelAttribute("motifsFormBean") MotifsFormBean motifsFormBean,
-            BindingResult results, @RequestParam(required = false) String desactiveMotif,
-            @RequestParam(required = false) String activeMotif) throws Exception {
+                                   BindingResult results, @RequestParam(required = false) String desactiveMotif,
+                                   @RequestParam(required = false) String activeMotif) {
 
         LOGGER.info("Appel de la page /gestion/parametres/newCreate. Méthode formCreate");
-        boolean bIsErrDetec = false;
 
         // Recupere le code hidden (codeVisible), si renseigné
         if (StringUtils.isBlank(motifsFormBean.getCode()) && StringUtils.isNotBlank(motifsFormBean.getCodeVisible())) {
@@ -178,192 +174,135 @@ public class GestionParametresController extends AbstractController {
         motifsFormBean.setCodeVisible(null);
 
         if (StringUtils.isNotBlank(desactiveMotif)) {
-            LOGGER.info("Desactivation du motif de code : " + motifsFormBean.getCodeVisible());
-
-            try {
-                if (desactivationMotif(motifsFormBean.getCode()) == false) {
-                    // Code motif non exploitable ou non existant
-                    motifsFormBean.setIsErrGlobale(true);
-                } else {
-                    motifsCache.refresh();
-                }
-            } catch (Exception e) {
-                LOGGER.error("Exception rencontrée dans desactivationMotif", e);
-                throw new Exception(e);
-            }
-
-            LOGGER.info("sortie méthode desactivationMotif");
-            ModelAndView mav = new ModelAndView("redirect:/gestion/parametres");
-            return mav;
-        } else if (StringUtils.isNotBlank(activeMotif)) {
-            LOGGER.info("Activation du motif de code : " + motifsFormBean.getCodeVisible());
-
-            try {
-                if (activationMotif(motifsFormBean.getCode()) == false) {
-                    // Code motif non exploitable ou non existant
-                    motifsFormBean.setIsErrGlobale(true);
-                } else {
-                    motifsCache.refresh();
-                }
-            } catch (Exception e) {
-                LOGGER.error("Exception rencontrée dans activationMotif", e);
-                throw new Exception(e);
-            }
-
-            LOGGER.info("sortie méthode activationMotif");
-            ModelAndView mav = new ModelAndView("redirect:/gestion/parametres");
-            return mav;
-        } else {
-            ModelAndView mav;
-            String errorList = "";
-            boolean bIsUpd = false;
-
-            if (results.hasErrors()) {
-                bIsErrDetec = true;
-            } else {
-                bIsUpd = motifsFormBean.getMotifPkFr() != null && motifsFormBean.getMotifPkFr() > 0;
-                if (bIsUpd) {
-                    LOGGER.info("Méthode formCreate --> update");
-                    try {
-
-                        Integer pkMotFr = motifsFormBean.getMotifPkFr();
-
-                        if ((pkMotFr == null || (pkMotFr != null && pkMotFr <= 0))) {
-                            motifsFormBean.setIsErrGlobale(true);
-                            errorList = "Motif(s) non identifié(s)";
-                        } else {
-                            miseAjourMotif(motifsFormBean);
-                        }
-
-                        // MAJ du cache
-                        motifsCache.refresh();
-
-                    } catch (Exception e) {
-                        LOGGER.error("Exception rencontrée dans formCreate", e);
-                        errorList = errContact;
-                        throw new Exception(e);
-                    }
-                } else {
-
-                    LOGGER.info("Méthode formCreate --> create");
-
-                    try {
-
-                        boolean bIsCodeOK = StringUtils.isNotBlank(motifsFormBean.getCode());
-                        boolean bIsLibFrOK = StringUtils.isNotBlank(motifsFormBean.getLibelleFr());
-
-                        if (bIsCodeOK && bIsLibFrOK && motifsFormBean.getStatutEnum() != null) {
-                            // Saisie des donnees
-
-                            List<MotifDTO> localAllMotifs = motifsService
-                                    .getMotifs(gouvPropertiesResolver.getDemarcheId());
-
-                            boolean bIsMotifCodeExists = checkCodeExistence(localAllMotifs,
-                                    motifsFormBean.getCode().replaceAll(" ", "_").toUpperCase());
-
-                            if (!bIsMotifCodeExists) {
-                                // Donnees communes
-                                MotifDTO motif = new MotifDTO();
-                                motif.setCode(motifsFormBean.getCode().replaceAll(" ", "_").toUpperCase());
-                                motif.setCode(StringUtils.stripAccents(motif.getCode()));
-
-                                String statEnum = motifsFormBean.getStatutEnum();
-                                if (statEnum == null) {
-                                    errorList = "Un problème technique a été rencontré. " + errContact;
-                                } else {
-                                    motif.setStatut(statEnum);
-                                }
-
-                                motif.setDemarcheId(gouvPropertiesResolver.getDemarcheId().trim());
-
-                                // Donnees specifiques et insert (français)
-                                motif.setLibelle(motifsFormBean.getLibelleFr());
-                                motif.setCommentairePrerempli(motifsFormBean.getCommentairePrerempliFr());
-                                motif.setTexteAEnvoyer(motifsFormBean.getTexteAEnvoyerFr());
-                                motif.setLangue("fr");
-                                motifsService.saveOrUpdateMotif(gouvPropertiesResolver.getDemarcheId(), motif);
-
-                                // Donnees specifiques et insert (anglais)
-                                if (StringUtils.isNotBlank(motifsFormBean.getLibelleEn())) {
-                                    motif.setLibelle(motifsFormBean.getLibelleEn());
-                                    motif.setCommentairePrerempli(motifsFormBean.getCommentairePrerempliEn());
-                                    motif.setTexteAEnvoyer(motifsFormBean.getTexteAEnvoyerEn());
-                                }
-                                // Si les champs ne sont pas renseigné, on insère les données FR
-                                motif.setLangue("en");
-                                motifsService.saveOrUpdateMotif(gouvPropertiesResolver.getDemarcheId(), motif);
-
-                                // MAJ du cache
-                                motifsCache.refresh();
-
-                            } else {
-                                motifsFormBean.setIsErrCodeExiste(true);
-                                motifsFormBean.setIsErrGlobale(true);
-                            }
-                        } else {
-                            LOGGER.error("Mise à jour impossible. Données isuffisantes pour le motif de code : "
-                                    + motifsFormBean.getCode());
-                            errorList = "Mise à jour impossible. Données isuffisantes pour le motif de code : "
-                                    + motifsFormBean.getCode();
-                        }
-                    } catch (Exception e) {
-                        LOGGER.error("Exception rencontrée dans formCreate", e);
-                        errorList = "Un problème technique a été rencontrée";
-                        throw new Exception(e);
-                    }
-                }
-            }
-
-            if (motifsFormBean.getIsErrGlobale() || bIsErrDetec) {
-                mav = new ModelAndView("gestion/parametres/parametresNew");
-
-                // Liste des enum actuellement utilisés
-                List<GenericStatusDTO> list = demarchesDataProvider.getCandidateStatusesForMotifs();
-                mav.addObject("statuts", list);
-
-                mav.addObject("errorList", errorList);
-            } else {
-                mav = new ModelAndView("redirect:/gestion/parametres");
-            }
-
-            LOGGER.info("======================= Fin /gestion/parametres/newCreate. Méthode formCreate");
-
-            return mav;
-
+            return desactivationMotif(motifsFormBean);
         }
+
+        if (StringUtils.isNotBlank(activeMotif)) {
+            return activationMotif(motifsFormBean);
+        }
+
+        if (!(motifsFormBean.getIsErrGlobale() || results.hasErrors())) {
+            return new ModelAndView(REDIRECT_GESTION_PARAMETRES);
+        }
+
+        String errorList = getErrorList(motifsFormBean);
+        ModelAndView mav = new ModelAndView(PARAMETRE_NEW_URL);
+
+        // Liste des enum actuellement utilisés
+        List<GenericStatusDTO> list = demarchesDataProvider.getCandidateStatusesForMotifs();
+        mav.addObject(STATUT_PARAM, list);
+        mav.addObject(ERROR_LIST, errorList);
+
+        LOGGER.info("======================= Fin /gestion/parametres/newCreate. Méthode formCreate");
+
+        return mav;
+    }
+
+    private String getErrorList(MotifsFormBean motifsFormBean) {
+        String errorList = "";
+        if (motifsFormBean.getMotifPkFr() != null && motifsFormBean.getMotifPkFr() > 0) {
+            errorList = miseAjourMotif(motifsFormBean);
+        } else {
+            if (StringUtils.isNotBlank(motifsFormBean.getCode())
+                    && StringUtils.isNotBlank(motifsFormBean.getLibelleFr())
+                    && motifsFormBean.getStatutEnum() != null) {
+                // Saisie des donnees
+                List<MotifDTO> localAllMotifs = motifsService.getMotifs(gouvPropertiesResolver.getDemarcheId());
+                String code = StringUtils.stripAccents(motifsFormBean.getCode().replace(" ", "_").toUpperCase());
+                if (checkCodeExistence(localAllMotifs, code)) {
+                    motifsFormBean.setIsErrCodeExiste(true);
+                    motifsFormBean.setIsErrGlobale(true);
+                } else {
+                    errorList = createMotif(motifsFormBean, code);
+                }
+            } else {
+                errorList = "Mise à jour impossible. Données isuffisantes pour le motif de code : " + motifsFormBean.getCode();
+                LOGGER.error(errorList);
+            }
+        }
+        return errorList;
     }
 
     /**
      * Mise à jour d'un motif
      */
-    private void miseAjourMotif(MotifsFormBean motifsFormBean) throws Exception {
-        MotifDTO motif = new MotifDTO();
-
-        if (motifsFormBean.getMotifPkFr() != null) {
-            motif = motifsService.getMotif(gouvPropertiesResolver.getDemarcheId(), motifsFormBean.getMotifPkFr());
-            motif.setCode(motifsFormBean.getCode());
-            motif.setStatut(motifsFormBean.getStatutEnum());
-            motif.setLibelle(motifsFormBean.getLibelleFr());
-            motif.setCommentairePrerempli(motifsFormBean.getCommentairePrerempliFr());
-            motif.setTexteAEnvoyer(motifsFormBean.getTexteAEnvoyerFr());
-            motifsService.saveOrUpdateMotif(gouvPropertiesResolver.getDemarcheId(), motif);
-        }
-
-        if (motifsFormBean.getMotifPkEn() != null) {
-            motif = motifsService.getMotif(gouvPropertiesResolver.getDemarcheId(), motifsFormBean.getMotifPkEn());
-            motif.setCode(motifsFormBean.getCode());
-            motif.setStatut(motifsFormBean.getStatutEnum());
-            if (StringUtils.isNotBlank(motifsFormBean.getLibelleEn())) {
-                motif.setLibelle(motifsFormBean.getLibelleEn());
-                motif.setCommentairePrerempli(motifsFormBean.getCommentairePrerempliEn());
-                motif.setTexteAEnvoyer(motifsFormBean.getTexteAEnvoyerEn());
-            } else {
+    private String miseAjourMotif(MotifsFormBean motifsFormBean) {
+        LOGGER.info("Méthode formCreate --> update");
+        Integer pkMotFr = motifsFormBean.getMotifPkFr();
+        String errorList = "";
+        if (pkMotFr == null || pkMotFr <= 0) {
+            motifsFormBean.setIsErrGlobale(true);
+            errorList = "Motif(s) non identifié(s)";
+        } else {
+            MotifDTO motif;
+            String demarcheId = gouvPropertiesResolver.getDemarcheId();
+            if (motifsFormBean.getMotifPkFr() != null) {
+                motif = motifsService.getMotif(demarcheId, motifsFormBean.getMotifPkFr());
+                motif.setCode(motifsFormBean.getCode());
+                motif.setStatut(motifsFormBean.getStatutEnum());
                 motif.setLibelle(motifsFormBean.getLibelleFr());
                 motif.setCommentairePrerempli(motifsFormBean.getCommentairePrerempliFr());
                 motif.setTexteAEnvoyer(motifsFormBean.getTexteAEnvoyerFr());
+                motifsService.saveOrUpdateMotif(demarcheId, motif);
             }
-            motifsService.saveOrUpdateMotif(gouvPropertiesResolver.getDemarcheId(), motif);
+            if (motifsFormBean.getMotifPkEn() != null) {
+                motif = motifsService.getMotif(demarcheId, motifsFormBean.getMotifPkEn());
+                motif.setCode(motifsFormBean.getCode());
+                motif.setStatut(motifsFormBean.getStatutEnum());
+                if (StringUtils.isNotBlank(motifsFormBean.getLibelleEn())) {
+                    motif.setLibelle(motifsFormBean.getLibelleEn());
+                    motif.setCommentairePrerempli(motifsFormBean.getCommentairePrerempliEn());
+                    motif.setTexteAEnvoyer(motifsFormBean.getTexteAEnvoyerEn());
+                } else {
+                    motif.setLibelle(motifsFormBean.getLibelleFr());
+                    motif.setCommentairePrerempli(motifsFormBean.getCommentairePrerempliFr());
+                    motif.setTexteAEnvoyer(motifsFormBean.getTexteAEnvoyerFr());
+                }
+                motifsService.saveOrUpdateMotif(demarcheId, motif);
+            }
         }
+        // MAJ du cache
+        motifsCache.refresh();
+        return errorList;
+    }
+
+    private String createMotif(MotifsFormBean motifsFormBean, String code) {
+        LOGGER.info("Méthode formCreate --> create");
+        String errorList = "";
+        String demarcheId = gouvPropertiesResolver.getDemarcheId();
+
+        // Donnees communes
+        MotifDTO motif = new MotifDTO();
+        motif.setCode(code);
+
+        String statEnum = motifsFormBean.getStatutEnum();
+        if (statEnum == null) {
+            errorList = "Un problème technique a été rencontré. " + ERR_CONTACT;
+        } else {
+            motif.setStatut(statEnum);
+        }
+        motif.setDemarcheId(demarcheId);
+
+        // Donnees specifiques et insert (français)
+        motif.setLibelle(motifsFormBean.getLibelleFr());
+        motif.setCommentairePrerempli(motifsFormBean.getCommentairePrerempliFr());
+        motif.setTexteAEnvoyer(motifsFormBean.getTexteAEnvoyerFr());
+        motif.setLangue("fr");
+        motifsService.saveOrUpdateMotif(demarcheId, motif);
+
+        // Donnees specifiques et insert (anglais)
+        if (StringUtils.isNotBlank(motifsFormBean.getLibelleEn())) {
+            motif.setLibelle(motifsFormBean.getLibelleEn());
+            motif.setCommentairePrerempli(motifsFormBean.getCommentairePrerempliEn());
+            motif.setTexteAEnvoyer(motifsFormBean.getTexteAEnvoyerEn());
+        }
+        // Si les champs ne sont pas renseigné, on insère les données FR
+        motif.setLangue("en");
+        motifsService.saveOrUpdateMotif(demarcheId, motif);
+
+        // MAJ du cache
+        motifsCache.refresh();
+        return errorList;
     }
 
     /**
@@ -375,27 +314,19 @@ public class GestionParametresController extends AbstractController {
                 return true;
             }
         }
-
         return false;
     }
 
-    @RequestMapping(method = RequestMethod.GET, path = "/updateInit")
-    public ModelAndView formUpdateInit(@ModelAttribute("motifsFormBean") MotifsFormBean motifsFormBean)
-            throws Exception {
-
+    @GetMapping(path = "/updateInit")
+    public ModelAndView formUpdateInit(@ModelAttribute("motifsFormBean") MotifsFormBean motifsFormBean) {
         LOGGER.info("Appel de la page /gestion/parametres/updateInit. Méthode formUpdateInit");
         String errorList = "";
-        ModelAndView mav = null;
-
+        ModelAndView mav;
         try {
-            mav = new ModelAndView("gestion/parametres/parametresNew");
-
+            mav = new ModelAndView(PARAMETRE_NEW_URL);
             if (StringUtils.isNotBlank(motifsFormBean.getCode())) {
-                // Saisie des donnees
-
                 // Donnees communes
                 List<MotifDTO> listMotif = motifsService.getMotifs(gouvPropertiesResolver.getDemarcheId());
-
                 // Donnees specifiques et insert (français)
                 for (MotifDTO motif : listMotif) {
                     if (motif.getCode().equals(motifsFormBean.getCode())) {
@@ -409,7 +340,6 @@ public class GestionParametresController extends AbstractController {
                             motifsFormBean.setCommentairePrerempliEn(motif.getCommentairePrerempli());
                             motifsFormBean.setMotifPkEn(motif.getPkMotifs());
                         }
-
                         motifsFormBean.setDateArchive(getDateArchiveStr(motif));
                         motifsFormBean.setStatutEnum(motif.getStatut());
                         motifsFormBean.setStatut(motif.getStatut());
@@ -422,19 +352,15 @@ public class GestionParametresController extends AbstractController {
             }
 
             // Liste des enum actuellement utilisés
-            mav.addObject("statuts", getListEnumsContainsMotifs());
-
+            mav.addObject(STATUT_PARAM, getListEnumsContainsMotifs());
             if (errorList.length() > 0) {
-                mav.addObject("errorList", errorList);
+                mav.addObject(ERROR_LIST, errorList);
             }
-
         } catch (Exception e) {
-            LOGGER.error("Exception rencontrée dans formUpdateInit. Msg : " + e);
-            throw new Exception(e);
+            LOGGER.error("Exception rencontrée dans formUpdateInit.");
+            throw new DemarchesServiceException("Exception rencontrée dans formUpdateInit.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
         LOGGER.info("======================= Fin /gestion/parametres/updateInit. Méthode formUpdateInit");
-
         return mav;
     }
 
@@ -445,9 +371,8 @@ public class GestionParametresController extends AbstractController {
         return demarchesDataProvider.getCandidateStatusesForMotifs();
     }
 
-    private String getDateArchiveStr(MotifDTO motif) throws Exception {
+    private String getDateArchiveStr(MotifDTO motif) {
         try {
-
             if (motif.getDateArchive() != null) {
                 Locale.setDefault(Locale.FRANCE);
                 String frm = "dd/MM/yyyy";
@@ -455,23 +380,21 @@ public class GestionParametresController extends AbstractController {
                 return sf.format(motif.getDateArchive());
             }
         } catch (Exception e) {
-            LOGGER.error("Exception rencontrée dans getDateArchiveStr", e);
-            throw new Exception(e);
+            LOGGER.error("Exception rencontrée dans getDateArchiveStr");
+            throw new DemarchesServiceException("Exception rencontrée dans getDateArchiveStr", HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
         return "";
     }
 
     /**
      * Regroupement des libellés fr et en
      */
-    List<CustomMotifDTO> regroupeLibelle(List<MotifDTO> list) throws Exception {
-
-        List<CustomMotifDTO> listFinale = null;
+    private List<CustomMotifDTO> regroupeLibelle(List<MotifDTO> list) {
+        List<CustomMotifDTO> listFinale;
         try {
-            listFinale = new ArrayList<CustomMotifDTO>();
-            Map<String, CustomMotifDTO> map = new HashMap<String, CustomMotifDTO>();
-            CustomMotifDTO customMotifDTO = null;
+            listFinale = new ArrayList<>();
+            Map<String, CustomMotifDTO> map = new HashMap<>();
+            CustomMotifDTO customMotifDTO;
 
             // Regroupe Les libellés
             for (MotifDTO m : list) {
@@ -495,16 +418,13 @@ public class GestionParametresController extends AbstractController {
                     customMotifDTO.setCommentairePrerempliEn(m.getCommentairePrerempli());
                 }
             }
-
             for (Map.Entry<String, CustomMotifDTO> entry : map.entrySet()) {
                 listFinale.add(entry.getValue());
             }
         } catch (Exception e) {
-            LOGGER.error("Exception rencontrée dans regroupeLibelle", e);
-            throw new Exception(e);
+            LOGGER.error("Exception rencontrée dans regroupeLibelle");
+            throw new DemarchesServiceException("Exception rencontrée dans regroupeLibelle", HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
         return listFinale;
     }
-
 }

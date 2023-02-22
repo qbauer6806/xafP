@@ -22,19 +22,13 @@ public class ActivitiConfig {
 
     /**
      * Configuration des UserIdentityManager et GroupIdentityManager du gouvernement
-     * 
-     * @param configuration
-     * @return
      */
     @Bean
     InitializingBean processEngineConfigurationInitializer(final SpringProcessEngineConfiguration configuration,
             final GouvBPMUserManagerFactory userManagerFactory, final GouvBPMGroupManagerFactory groupManagerFactory) {
-        return new InitializingBean() {
-
-            public void afterPropertiesSet() {
-                configuration.getSessionFactories().put(UserIdentityManager.class, userManagerFactory);
-                configuration.getSessionFactories().put(GroupIdentityManager.class, groupManagerFactory);
-            }
+        return () -> {
+            configuration.getSessionFactories().put(UserIdentityManager.class, userManagerFactory);
+            configuration.getSessionFactories().put(GroupIdentityManager.class, groupManagerFactory);
         };
     }
 

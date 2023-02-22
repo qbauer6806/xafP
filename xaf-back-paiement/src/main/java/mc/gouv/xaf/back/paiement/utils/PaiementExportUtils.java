@@ -8,6 +8,9 @@ import java.util.StringJoiner;
 
 public class PaiementExportUtils {
 
+    private PaiementExportUtils() {
+    }
+
     public static String toCSV(CommandeDTO commandeDTO) {
         StringJoiner csvString = new StringJoiner(";");
         MoyenPaiementDTO moyenPaiementDTO = commandeDTO.getMoyenPaiement();

@@ -2,12 +2,15 @@ package mc.gouv.xaf.back.dsp.exception;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import mc.gouv.xaf.back.dsp.dto.ResidErrorDTO;
+import mc.gouv.xaf.back.dsp.utils.MessageUtils;
 
 import java.io.IOException;
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ResidHttpResponseException extends IOException {
+
+    private static final long serialVersionUID = -939170818731423898L;
 
     private int httpStatus;
 
@@ -47,11 +50,7 @@ public class ResidHttpResponseException extends IOException {
     }
 
     public String toStringMessage() {
-        String erreurs = "";
-        for (ResidErrorDTO erreur : this.errors) {
-            erreurs +=  "  - " + erreur.getClef() + " / " + erreur.getNom() + " / " + erreur.getLibelle() + "<br>";
-        }
-        return "Erreur " + httpStatus + " - " + message +" :<br>" + erreurs;
+        return MessageUtils.toStringMessage(httpStatus, message, this.errors);
     }
 
     @Override

@@ -34,6 +34,7 @@ import java.util.Map;
 public class MotifTemplateServiceImpl implements MotifTemplateService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MotifTemplateServiceImpl.class);
+    private static final String ECHEC_VELOCITY = "Velocity.evaluate() n'a pas fonctionné.";
 
     private ToolManager manager = new ToolManager();
 
@@ -86,24 +87,19 @@ public class MotifTemplateServiceImpl implements MotifTemplateService {
 			Velocity.init();
 		} catch (Exception e) {
 			LOGGER.error("Erreur lors de Velocity.init()", e);
-			return new ArrayList<MotifDTO>();
+			return new ArrayList<>();
 		}
-        Context context = getContext();
-        if (model != null) {
-            for (String key : model.keySet()) {
-                context.put(key, model.get(key));
-            }
-        }
+        Context context = getContext(model);
 
         for (MotifDTO motif : motifsList) {
 
             // Cloner l'objet pour ne pas impacter le cache
-            MotifDTO clonedMotif = (MotifDTO) motif.clone();
+            MotifDTO clonedMotif = new MotifDTO(motif);
 
             // Population du motif
             StringWriter output = new StringWriter();
             if (!Velocity.evaluate(context, output, clonedMotif.getCode(), clonedMotif.getLibelle())) {
-                throw new DemarchesServiceException("Velocity.evaluate() n'a pas fonctionné.", HttpStatus.INTERNAL_SERVER_ERROR);
+                throw new DemarchesServiceException(ECHEC_VELOCITY, HttpStatus.INTERNAL_SERVER_ERROR);
             }
             clonedMotif.setLibelle(output.toString());
 
@@ -111,7 +107,7 @@ public class MotifTemplateServiceImpl implements MotifTemplateService {
             if (motif.getCommentairePrerempli() != null) {
                 output = new StringWriter();
                 if (!Velocity.evaluate(context, output, clonedMotif.getCode(), clonedMotif.getCommentairePrerempli())) {
-                    throw new DemarchesServiceException("Velocity.evaluate() n'a pas fonctionné.", HttpStatus.INTERNAL_SERVER_ERROR);
+                    throw new DemarchesServiceException(ECHEC_VELOCITY, HttpStatus.INTERNAL_SERVER_ERROR);
                 }
                 clonedMotif.setCommentairePrerempli(output.toString());
             }
@@ -120,7 +116,7 @@ public class MotifTemplateServiceImpl implements MotifTemplateService {
             if (motif.getTexteAEnvoyer() != null) {
                 output = new StringWriter();
                 if (!Velocity.evaluate(context, output, clonedMotif.getCode(), clonedMotif.getTexteAEnvoyer())) {
-                    throw new DemarchesServiceException("Velocity.evaluate() n'a pas fonctionné.", HttpStatus.INTERNAL_SERVER_ERROR);
+                    throw new DemarchesServiceException(ECHEC_VELOCITY, HttpStatus.INTERNAL_SERVER_ERROR);
                 }
                 clonedMotif.setTexteAEnvoyer(output.toString());
             }
@@ -131,10 +127,15 @@ public class MotifTemplateServiceImpl implements MotifTemplateService {
         return motifDTOList;
     }
 
-    private Context getContext() {
+    private Context getContext(Map<String, Object> model) {
         Context context = manager.createContext();
         context.put("StringUtils", StringUtils.class);
         context.put("date", new DateTool());
+        if (model != null) {
+            for (Map.Entry<String,Object> entry : model.entrySet()) {
+                context.put(entry.getKey(), entry.getValue());
+            }
+        }
         return context;
     }
 }

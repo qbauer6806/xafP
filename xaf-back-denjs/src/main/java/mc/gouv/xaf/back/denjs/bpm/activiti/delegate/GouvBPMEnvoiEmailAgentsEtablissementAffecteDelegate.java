@@ -76,7 +76,7 @@ public class GouvBPMEnvoiEmailAgentsEtablissementAffecteDelegate implements Java
         
         Integer demandeId = Integer.parseInt(execution.getProcessBusinessKey());
         
-        List<String> matriculesDestinataires = new ArrayList<String>();
+        List<String> matriculesDestinataires = new ArrayList<>();
         String etablissementCode = denjsAffectationService.getAffectationDemandeEtablissement(demandeId);
         if (etablissementCode != null) {
         	List<DenjsAffectationAgentDTO> affectations = denjsAffectationService.getAffectationsAgents();

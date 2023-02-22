@@ -88,15 +88,12 @@ public class MockSecurityContext implements SecurityContext {
                         return "USER";
                     }
                 };
-                ArrayList<GrantedAuthority> l = new ArrayList<GrantedAuthority>();
+                ArrayList<GrantedAuthority> l = new ArrayList<>();
                 l.add(ga);
                 return l;
             }
         };
 
-        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(ud,
-                ud.getPassword(), ud.getAuthorities());
-
-        return authentication;
+        return new UsernamePasswordAuthenticationToken(ud, ud.getPassword(), ud.getAuthorities());
     }
 }

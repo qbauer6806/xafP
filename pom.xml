@@ -18,13 +18,13 @@
 
     <groupId>mc.gouv.xaf</groupId>
     <artifactId>xaf</artifactId>
-    <version>11.0.2-SNAPSHOT</version>
+    <version>11.0.2</version>
     <packaging>pom</packaging>
 	<scm>
 		<url>https://git.monaco-gouvernement.mc/libs/xaf.git</url>
 		<connection>scm:git:git@git.monaco-gouvernement.mc:libs/xaf.git</connection>
 		<developerConnection>scm:git:git@git.monaco-gouvernement.mc:libs/xaf.git</developerConnection>
-  	  <tag>HEAD</tag>
+  	  <tag>xaf-11.0.2</tag>
   </scm>
 
 

@@ -14,11 +14,9 @@ import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
 
 /**
- * 
  * Servlet permettant de rediriger l'usager sur le Back-Office
- * 
+ *
  * @author qdeme
- * 
  */
 public class RedirectToBackOfficeServlet extends AbstractAfServlet {
 
@@ -50,7 +48,7 @@ public class RedirectToBackOfficeServlet extends AbstractAfServlet {
         try {
             //dans le cas de la fin de la création
             String idDemandeStr = request.getParameter("id");
-            if(StringUtils.isNotBlank(idDemandeStr)) {
+            if (StringUtils.isNotBlank(idDemandeStr)) {
                 int idDemande = Integer.parseInt(idDemandeStr);
                 urlDemande = AfServletGouvPropertiesResolver.getBackOfficeDemandeUrl();
                 urlDemande = StringUtils.replace(urlDemande, TOKEN_ID_DEMANDE, idDemande + "");
@@ -58,8 +56,9 @@ public class RedirectToBackOfficeServlet extends AbstractAfServlet {
             response.sendRedirect(urlDemande);
             LOGGER.info("Redirection vers : {}", urlDemande);
         } catch (Exception e) {
-            AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_BAD_REQUEST,
-                    "RedirectToBackOfficeServlet - Une erreur est survenue lors de l'appel à la méthode GET");
+            LOGGER.error("RedirectToBackOfficeServlet - Une erreur est survenue lors de l'appel à la méthode GET", e);
+            int codeStatut = getCodeErreur(e);
+            response.setStatus(codeStatut);
         }
 
         LOGGER.info("====================== Fin /redirect-to-backoffice doGet()");

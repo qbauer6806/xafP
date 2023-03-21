@@ -1,9 +1,11 @@
 package mc.gouv.xaf.servlet;
 
-import javax.servlet.http.HttpServlet;
-
 import mc.gouv.xaf.apiclient.AfApiClient;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
+import mc.gouv.xapi.error.exception.WebException;
+import org.apache.http.HttpStatus;
+
+import javax.servlet.http.HttpServlet;
 
 /**
  * 
@@ -16,6 +18,11 @@ public class AbstractAfServlet extends HttpServlet {
 
     protected AfApiClient getAfApiClient() {
         return AppFactoryServletUtils.getAfApiClient();
+    }
+
+    protected int getCodeErreur(Exception exception){
+        return exception instanceof WebException ? ((WebException) exception).getHttpStatus() :
+                HttpStatus.SC_INTERNAL_SERVER_ERROR;
     }
 
 }

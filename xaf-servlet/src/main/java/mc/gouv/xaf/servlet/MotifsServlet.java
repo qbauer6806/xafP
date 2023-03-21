@@ -20,12 +20,10 @@ import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
 
 /**
- * 
  * Servlet mettant à disposition le service /motifs avec uniquement la méthode GET pour le front.
  * Cette servlet récupère le DemarcheID et appelle le WS dans le back-end générique.
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 public class MotifsServlet extends AbstractAfServlet {
 
@@ -42,18 +40,21 @@ public class MotifsServlet extends AbstractAfServlet {
                     SharedMessages.UTILISATEUR_NON_AUTORISE);
             return;
         }
-        LOGGER.info("Appel de la démarche afin de récupérer les motifs...");
-        List<MotifDTO> motifs = getAfApiClient().getMotifs();
-        ObjectMapper mapper = new ObjectMapper();
+
         try {
+            LOGGER.info("Appel de la démarche afin de récupérer les motifs...");
+            List<MotifDTO> motifs = getAfApiClient().getMotifs();
+            ObjectMapper mapper = new ObjectMapper();
             String repJson = mapper.writeValueAsString(motifs);
             response.setContentType(MediaType.APPLICATION_JSON);
             IOUtils.copy(new ByteArrayInputStream(repJson.getBytes()), response.getOutputStream());
             response.setStatus(HttpStatus.SC_OK);
         } catch (Exception e) {
             LOGGER.error("MotifsServlet - Une erreur est survenue lors de l'appel à la méthode GET", e);
-            response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+            int codeStatut = getCodeErreur(e);
+            response.setStatus(codeStatut);
         }
+
         LOGGER.info("====================== Fin /motifs doGet()");
     }
 }

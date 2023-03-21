@@ -14,16 +14,14 @@ import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
 
 /**
- * 
  * Servlet permettant d'associer une demande courrier à un usager téléservice.
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 public class AssociationDemandeCourrierServlet extends AbstractAfServlet {
 
     private static final long serialVersionUID = -5171815930561560391L;
-    
+
     private static final Logger LOGGER = LoggerFactory.getLogger(AssociationDemandeCourrierServlet.class);
 
     @Override
@@ -52,20 +50,27 @@ public class AssociationDemandeCourrierServlet extends AbstractAfServlet {
             return;
         }
 
-        // Récupération de l'ID de la démarche dans le Context-Param
-        String demarcheId = getServletContext().getInitParameter(AppFactoryServletUtils.DEMARCHEID_KEY);
+        try {
+            // Récupération de l'ID de la démarche dans le Context-Param
+            String demarcheId = getServletContext().getInitParameter(AppFactoryServletUtils.DEMARCHEID_KEY);
 
-        Integer usagerId = usagerInfosDTO.getId();
+            Integer usagerId = usagerInfosDTO.getId();
 
-        LOGGER.info("DemarcheID={}, UsagerID={}, IdentifiantDemande={}, NomProprio={}", demarcheId, usagerId, identifiant, nomProprio);
+            LOGGER.info("DemarcheID={}, UsagerID={}, IdentifiantDemande={}, NomProprio={}", demarcheId, usagerId, identifiant, nomProprio);
 
-        LOGGER.info("Appel à la démarche...");
+            LOGGER.info("Appel à la démarche...");
 
-        AfApiClient afApiClient = getAfApiClient();
-                
-        afApiClient.associerDemandeCourrier(identifiant, nomProprio, usagerId);
+            AfApiClient afApiClient = getAfApiClient();
 
-        LOGGER.info("Retour au client...");
+            afApiClient.associerDemandeCourrier(identifiant, nomProprio, usagerId);
+            response.setStatus(HttpStatus.SC_OK);
+            LOGGER.info("Retour au client...");
+        } catch (Exception exception) {
+            LOGGER.error("AssociationDemandeCourrierServlet - Une erreur est survenue lors de l'appel à la méthode POST",
+                    exception);
+            int codeStatut = getCodeErreur(exception);
+            response.setStatus(codeStatut);
+        }
 
         LOGGER.info("====================== Fin /associerDemandeCourrier doPost()");
     }

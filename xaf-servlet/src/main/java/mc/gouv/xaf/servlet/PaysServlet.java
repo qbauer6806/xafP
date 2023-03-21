@@ -18,11 +18,9 @@ import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
 
 /**
- * 
  * Proxy vers le référentiel Pays
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 public class PaysServlet extends AbstractAfServlet {
 
@@ -59,8 +57,9 @@ public class PaysServlet extends AbstractAfServlet {
                 IOUtils.copy(serviceResponse.getEntity().getContent(), response.getOutputStream());
             }
         } catch (Exception e) {
-            response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
-            LOGGER.error("Erreur lors du traitement de la réponse", e);
+            LOGGER.error("PaysServlet - Une erreur est survenue lors de l'appel à la méthode GET", e);
+            int codeStatut = getCodeErreur(e);
+            response.setStatus(codeStatut);
         }
 
         LOGGER.info("====================== Fin /pays doGet()");

@@ -311,13 +311,17 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
         String type = (String) champ.get("type");
 
         // Pour mettre l'ID HTML de la donnée, récupéré depuis le fichier Recap (pour les testeurs)
-        String idPrefix = (String) champ.get(ID_PREFIX);
+        String idPrefix = (String)champ.get(ID_PREFIX);
         String idTag1 = "";
         String idTag2 = "";
-        // Si ce qui est retourné de getSecondLevelHTML est un champ composé (en HTML), comme l'adresse, alors les spans et idTags sont déjà dedans
-        if (StringUtils.isNotBlank(idPrefix) && !type.equals(ADRESSE) && !type.equals("adresseMc")) {
-            idTag1 = "<span id=\"" + idPrefix + "\">";
+        if (StringUtils.isNotBlank(idPrefix)) {
+            idTag1 = "<span>";
             idTag2 = SPAN;
+            if (StringUtils.isNotBlank(idPrefix)) {
+                // Si ce qui est retourné de getSecondLevelHTML est un champ composé (en HTML), comme l'adresse, alors les spans sont déjà dedans
+                // et idTag aussi
+                idTag1 = "<span id=\"" + idPrefix + "\">";
+            }
         }
 
         String imgTag = "<img src=\"../img/icone_identite_numerique_valide.svg\"></img>";
@@ -516,7 +520,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
         }
         return dateTime.format(DateTimeFormatter.ofPattern(format));
     }
-    
+
     private void buildAdresseHTML(StringBuilder adresseBuilder, JsonNode node, JSONObject champ, boolean isPdfRecap) {
     	String idPrefix = (String)champ.get(ID_PREFIX);
         String ligne1 = escape(getNode(node, champ, "ligne1").textValue(), isPdfRecap);

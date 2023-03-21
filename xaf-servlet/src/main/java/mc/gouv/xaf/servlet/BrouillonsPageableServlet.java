@@ -24,11 +24,9 @@ import mc.gouv.xaf.shared.dto.Page;
 import mc.gouv.xaf.shared.dto.PageParamDTO;
 
 /**
- * 
  * Servlet servant à récupérer les brouillons d'un usager de façon paginée.
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 public class BrouillonsPageableServlet extends AbstractAfServlet {
 
@@ -43,7 +41,7 @@ public class BrouillonsPageableServlet extends AbstractAfServlet {
         UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(request);
         if (usagerInfosDTO == null) {
             AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
-                    SharedMessages.UTILISATEUR_NON_AUTORISE);
+                SharedMessages.UTILISATEUR_NON_AUTORISE);
             return;
         }
 
@@ -76,18 +74,18 @@ public class BrouillonsPageableServlet extends AbstractAfServlet {
             paramDTO.setDirection(direction);
         }
 
-        LOGGER.info("Récupération des brouillons pour l'usager dont usagerId = {}", usagerId);
-        Page<BrouillonDTO> page = getAfApiClient().getBrouillonsPageable(usagerId, paramDTO);
-
         try {
+            LOGGER.info("Récupération des brouillons pour l'usager dont usagerId = {}", usagerId);
+            Page<BrouillonDTO> page = getAfApiClient().getBrouillonsPageable(usagerId, paramDTO);
             ObjectMapper mapper = new ObjectMapper();
             String repJson = mapper.writeValueAsString(page);
             response.setContentType(MediaType.APPLICATION_JSON);
             IOUtils.copy(new ByteArrayInputStream(repJson.getBytes()), response.getOutputStream());
             response.setStatus(HttpStatus.SC_OK);
-        } catch (IOException e) {
-            AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_INTERNAL_SERVER_ERROR,
-                    "BrouillonsPageableServlet - Une erreur est survenue lors de l'appel à la méthode GET");
+        } catch (Exception ex) {
+            LOGGER.error("BrouillonsPageableServlet - Une erreur est survenue lors de l'appel à la méthode GET", ex);
+            int codeStatut = getCodeErreur(ex);
+            response.setStatus(codeStatut);
         }
 
         LOGGER.info("====================== FIN /brouillonspage doGet()");

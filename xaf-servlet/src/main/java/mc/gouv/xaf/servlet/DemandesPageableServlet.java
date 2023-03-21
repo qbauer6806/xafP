@@ -74,21 +74,22 @@ public class DemandesPageableServlet extends AbstractAfServlet {
             paramDTO.setLang(lang);
         }
 
-        LOGGER.info("Récupération des demandes pour l'usager dont usagerId = {}", usagerId);
-        Page<DemandeDTO> page = getAfApiClient().getDemandesPageable(usagerId, paramDTO);
-
         try {
+            LOGGER.info("Récupération des demandes pour l'usager dont usagerId = {}", usagerId);
+            Page<DemandeDTO> page = getAfApiClient().getDemandesPageable(usagerId, paramDTO);
+
             ObjectMapper mapper = new ObjectMapper();
             String repJson = mapper.writeValueAsString(page);
-            response.setContentType(MediaType.APPLICATION_JSON);
+
+            response.setContentType("application/json");
             IOUtils.copy(new ByteArrayInputStream(repJson.getBytes()), response.getOutputStream());
             response.setStatus(HttpStatus.SC_OK);
-        } catch (IOException e) {
-            AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_INTERNAL_SERVER_ERROR,
-                    "DemandesPageableServlet - Une erreur est survenue lors de l'appel à la méthode GET");
+        } catch (Exception ex) {
+            LOGGER.error("DemandesPageableServlet - Une erreur est survenue lors de l'appel à la méthode GET", ex);
+            int codeStatut = getCodeErreur(ex);
+            response.setStatus(codeStatut);
         }
 
         LOGGER.info("====================== FIN /demandespage doGet()");
-
     }
 }

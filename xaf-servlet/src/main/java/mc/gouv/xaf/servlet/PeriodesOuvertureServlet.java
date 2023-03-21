@@ -22,9 +22,8 @@ import mc.gouv.xaf.shared.dto.PeriodeOuvertureDTO;
 /**
  * Servlet mettant à disposition le service /periodesouverture avec uniquement la méthode GET pour le front.
  * Cette servlet récupère le DemarcheID et appelle le WS dans le back-end générique.
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 public class PeriodesOuvertureServlet extends AbstractAfServlet {
 
@@ -51,7 +50,8 @@ public class PeriodesOuvertureServlet extends AbstractAfServlet {
             response.setStatus(HttpStatus.SC_OK);
         } catch (Exception e) {
             LOGGER.error("PeriodesOuvertureServlet - Une erreur est survenue lors de l'appel à la méthode GET", e);
-            response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+            int codeStatut = getCodeErreur(e);
+            response.setStatus(codeStatut);
         }
 
         LOGGER.info("====================== Fin /periodesouverture doGet()");

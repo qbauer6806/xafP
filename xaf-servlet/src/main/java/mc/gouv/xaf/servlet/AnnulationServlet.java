@@ -13,12 +13,10 @@ import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
 
 /**
- * 
  * Servlet mettant à disposition le service /annulation avec la méthode POST, permettant
  * d'annuler une demande depuis le Front.
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 public class AnnulationServlet extends AbstractAfServlet {
 
@@ -30,14 +28,12 @@ public class AnnulationServlet extends AbstractAfServlet {
     public void doDelete(HttpServletRequest request, HttpServletResponse response) {
 
         LOGGER.info("====================== /annulation doDelete()");
-
         UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(request);
         if (usagerInfosDTO == null) {
             AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
                     SharedMessages.UTILISATEUR_NON_AUTORISE);
             return;
         }
-        
 
         String pathInfo = request.getPathInfo();
         String demandeId = null;
@@ -57,13 +53,13 @@ public class AnnulationServlet extends AbstractAfServlet {
 
         Integer usagerId = usagerInfosDTO.getId();
 
-        LOGGER.info("DemarcheID={}, UsagerID={}, DemandeID={}", demarcheId, usagerId, demandeId);
+        LOGGER.info("DemarcheID= {}, UsagerID= {}, DemandeID= {}", demarcheId, usagerId, demandeId);
 
         LOGGER.info("Appel à la démarche...");
 
         AfApiClient afApiClient = getAfApiClient();
         Integer demandeIdParsed;
-        
+
         try {
         	demandeIdParsed = Integer.parseInt(demandeId);
         } catch (NumberFormatException e) {
@@ -72,7 +68,7 @@ public class AnnulationServlet extends AbstractAfServlet {
                     "Problème lors du parsing du demandeId");
             return;
         }
-        
+
         try {
 			afApiClient.getDemande(usagerId, demandeIdParsed);
 		} catch (Exception exception) {
@@ -81,13 +77,15 @@ public class AnnulationServlet extends AbstractAfServlet {
             return;
 		}
 
+        try {
             afApiClient.annulerDemande(demandeIdParsed, usagerId);
-
-        LOGGER.info("Retour au client...");
-
-        // TODO Gestion des erreurs ?
-        response.setStatus(HttpStatus.SC_OK);
-
+            LOGGER.info("Retour au client...");
+            response.setStatus(HttpStatus.SC_OK);
+        } catch (Exception exception) {
+            LOGGER.error("AnnulationServlet - Une erreur est survenue lors de l'appel à la méthode DELETE", exception);
+            int codeErreur = getCodeErreur(exception);
+            response.setStatus(codeErreur);
+        }
         LOGGER.info("====================== Fin /annulation doDelete()");
     }
 }

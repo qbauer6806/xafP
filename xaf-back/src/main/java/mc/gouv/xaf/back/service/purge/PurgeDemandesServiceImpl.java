@@ -102,7 +102,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 					demandesCourriersService.deleteCourriers(demarcheId, demandeDTO.getPkDemandes());
 				}
 				// Ensuite on supprime la demande elle même
-				demandesService.deleteDemandeInGivenStatus(demarcheId, demandeDTO.getPkDemandes(), statuts, jours);
+				demandesService.deleteDemandeInGivenStatus(demarcheId, demandeDTO.getPkDemandes(), statuts, jours, false);
 				demandesSuppr++;
 
 			} else if(statuts.contains(demandeDTO.getDernierStatut().getLibelle()) && diff == jours - Long.parseLong(delaiEnvoiEmailProp.getValue())) {

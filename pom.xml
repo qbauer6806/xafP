@@ -17,7 +17,7 @@
 
 	<groupId>mc.gouv.xaf</groupId>
 	<artifactId>xaf</artifactId>
-	<version>10.4.0</version>
+	<version>10.4.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<scm>

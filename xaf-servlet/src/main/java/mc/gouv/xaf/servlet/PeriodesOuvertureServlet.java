@@ -43,7 +43,6 @@ public class PeriodesOuvertureServlet extends AbstractAfServlet {
         LOGGER.info("Appel de la démarche afin de récupérer les périodes d'ouverture...");
         try {
             List<PeriodeOuvertureDTO> periodes = getAfApiClient().getPeriodesOuverture();
-            response.setStatus(HttpStatus.SC_OK);
             ObjectMapper mapper = new ObjectMapper();
             String repJson = mapper.writeValueAsString(periodes);
             response.setContentType(MediaType.APPLICATION_JSON);

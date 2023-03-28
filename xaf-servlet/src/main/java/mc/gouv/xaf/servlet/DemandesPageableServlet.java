@@ -57,6 +57,7 @@ public class DemandesPageableServlet extends AbstractAfServlet {
                     "Problème lors du parsing des paramètres");
             return;
         }
+
         String sort = request.getParameter(RequestConstant.SORT_PARAM);
         if (StringUtils.isNotBlank(sort)) {
             paramDTO.setSort(sort);
@@ -74,8 +75,8 @@ public class DemandesPageableServlet extends AbstractAfServlet {
             paramDTO.setLang(lang);
         }
 
-        LOGGER.info("Récupération des demandes pour l'usager dont usagerId = {}", usagerId);
         try {
+            LOGGER.info("Récupération des demandes pour l'usager dont usagerId = {}", usagerId);
             Page<DemandeDTO> page = getAfApiClient().getDemandesPageable(usagerId, paramDTO);
             ObjectMapper mapper = new ObjectMapper();
             String repJson = mapper.writeValueAsString(page);

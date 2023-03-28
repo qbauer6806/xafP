@@ -40,8 +40,8 @@ public class MotifsServlet extends AbstractAfServlet {
             return;
         }
 
-        LOGGER.info("Appel de la démarche afin de récupérer les motifs...");
         try {
+            LOGGER.info("Appel de la démarche afin de récupérer les motifs...");
             List<MotifDTO> motifs = getAfApiClient().getMotifs();
             ObjectMapper mapper = new ObjectMapper();
             String repJson = mapper.writeValueAsString(motifs);

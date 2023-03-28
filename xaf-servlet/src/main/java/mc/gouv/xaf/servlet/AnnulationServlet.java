@@ -68,12 +68,12 @@ public class AnnulationServlet extends AbstractAfServlet {
 
         // Vérification si l'usager à le droit d'annuler cette demande
         try {
-            afApiClient.getDemande(usagerId, demandeIdParsed);
-        } catch (Exception exception) {
-            AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
+			afApiClient.getDemande(usagerId, demandeIdParsed);
+		} catch (Exception exception) {
+			AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
                     SharedMessages.UTILISATEUR_NON_AUTORISE);
             return;
-        }
+		}
 
         // Annulation de la demande
         try {

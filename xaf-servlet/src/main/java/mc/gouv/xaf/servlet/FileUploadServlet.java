@@ -1,28 +1,18 @@
 package mc.gouv.xaf.servlet;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import javax.servlet.annotation.MultipartConfig;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.Part;
-import javax.ws.rs.core.MediaType;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import mc.gouv.vscan.shared.dto.ScanDTO;
+import mc.gouv.vscan.shared.dto.ScanRequestDTO;
+import mc.gouv.xaf.servlet.dto.FileUploadCompteurDTO;
+import mc.gouv.xaf.servlet.dto.FileUploadResponseDTO;
+import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
+import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
+import mc.gouv.xaf.servlet.util.AppFactoryServletFrontPropertiesCache;
+import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
+import mc.gouv.xaf.servlet.util.AppFactoryServletUtils.ServiceTarget;
 import mc.gouv.xaf.shared.SharedMessages;
+import mc.gouv.xaf.shared.dto.AccessDTO;
+import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
@@ -39,19 +29,19 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import mc.gouv.vscan.shared.dto.ScanDTO;
-import mc.gouv.vscan.shared.dto.ScanRequestDTO;
-import mc.gouv.xaf.servlet.dto.FileUploadCompteurDTO;
-import mc.gouv.xaf.servlet.dto.FileUploadResponseDTO;
-import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
-import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
-import mc.gouv.xaf.servlet.util.AppFactoryServletFrontPropertiesCache;
-import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
-import mc.gouv.xaf.servlet.util.AppFactoryServletUtils.ServiceTarget;
-import mc.gouv.xaf.shared.dto.AccessDTO;
-import mc.gouv.xaf.shared.dto.PropertiesDTO;
+import javax.servlet.annotation.MultipartConfig;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.Part;
+import javax.ws.rs.core.MediaType;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.*;
 
 /**
  * Servlet servant à uploader un fichier dans FILE.
@@ -67,10 +57,10 @@ public class FileUploadServlet extends AbstractAfServlet {
     private static final String EXTENSIONS_WHITELIST = "EXTENSIONS_WHITELIST";
     private static final String MAX_TAILLE_FICHIER = "MAX_TAILLE_FICHIER";
     private static final String VSCAN_ACTIVATION = "VSCAN_ACTIVATION";
+    private static final String SLASH = "/";
 
     // Enregistre l'historique d'upload par session
     private static final Map<HttpSession, FileUploadCompteurDTO> usagersFileUploadCompteurs = new HashMap<>();
-    private static final String SLASH = "/";
 
     // Compteur permettant de trigger un refresh des sessions et supprimer celles qui ne sont plus utilisées
     private static int compteurCleanSessions;
@@ -79,6 +69,7 @@ public class FileUploadServlet extends AbstractAfServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response) {
         LOGGER.info("====================== /fileupload doPost()");
 
+        // Vérification si l'usager est connecté
         UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(request);
         if (usagerInfosDTO == null) {
             AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
@@ -151,9 +142,7 @@ public class FileUploadServlet extends AbstractAfServlet {
             LOGGER.info("Appel à la démarche pour récupérer l'AccessID correspondant..");
             AccessDTO access = getAfApiClient().getAccess(usagerInfosDTO.getId());
             Integer accessId = access.getPkAccess();
-            
             LOGGER.debug("AccessID = {}", accessId);
-
             if (accessId == null) {
                 AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_NOT_FOUND,
                         "Erreur: impossible de récupérer l'accès");
@@ -171,7 +160,7 @@ public class FileUploadServlet extends AbstractAfServlet {
             LOGGER.info("URL d'appel : {}", url);
 
             // Extraction du demandeId si le client le connaît déjà et l'a fourni à AFS
-            extractDemandeId(postRequest, request);
+            extraireDemandeId(postRequest, request);
 
             // Constitution de la requête
             HttpClient client = HttpClientBuilder.create().build();
@@ -300,7 +289,7 @@ public class FileUploadServlet extends AbstractAfServlet {
     /**
      * Renseigne le demandeId dans la requête de création du fichier s'il est déjà connu
      */
-    private void extractDemandeId(HttpPost postRequest, HttpServletRequest request) {
+    private void extraireDemandeId(HttpPost postRequest, HttpServletRequest request) {
         String demandeId = null;
         Enumeration<String> headers = request.getHeaderNames();
         while (headers.hasMoreElements()) {
@@ -314,13 +303,15 @@ public class FileUploadServlet extends AbstractAfServlet {
         }
     }
 
+    /**
+     * Constitution de la réponse en redirigeant la réponse du WS ansi que son code réponse
+     */
     private void constituerReponse(HttpServletResponse response, String filename, UUID uuid, Integer accessId, HttpResponse postResponse) throws IOException {
         response.setContentType(MediaType.APPLICATION_JSON);
         int statusCode = postResponse.getStatusLine().getStatusCode();
         response.setStatus(statusCode);
         if (statusCode == HttpServletResponse.SC_OK || statusCode == HttpServletResponse.SC_CREATED) {
-            // Si tout s'est bien passé, alors on forme une réponse différente que celle qui nous est retournée par
-            // FILE
+            // Si tout s'est bien passé, alors on forme une réponse différente que celle qui nous est retournée par FILE
             ObjectMapper mapper = new ObjectMapper();
             // Répondre accessId/uuid/nomDuFichier
             FileUploadResponseDTO responseObj = new FileUploadResponseDTO(accessId + SLASH + uuid + SLASH + filename);

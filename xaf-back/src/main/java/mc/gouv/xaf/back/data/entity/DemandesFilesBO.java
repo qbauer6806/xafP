@@ -55,6 +55,7 @@ public class DemandesFilesBO {
     @Column(name = "TYPEDOC", length = 128)
     private String typedoc;
 
+    // Correspond à la checkbox de vérification de pièces jointes dans le BO
     @Column(name = "VERIFICATION")
     private boolean verification;
 

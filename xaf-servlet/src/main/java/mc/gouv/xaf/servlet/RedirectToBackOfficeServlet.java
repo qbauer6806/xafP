@@ -1,17 +1,16 @@
 package mc.gouv.xaf.servlet;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
+import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
+import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
 import mc.gouv.xaf.shared.SharedMessages;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
-import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
-import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Servlet permettant de rediriger l'usager sur le Back-Office
@@ -22,13 +21,13 @@ public class RedirectToBackOfficeServlet extends AbstractAfServlet {
 
     private static final long serialVersionUID = -9158173804027496532L;
     private static final Logger LOGGER = LoggerFactory.getLogger(RedirectToBackOfficeServlet.class);
-
     private static final String TOKEN_ID_DEMANDE = "<id>";
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) {
         LOGGER.info("====================== /redirect-to-backoffice doGet()");
 
+        // Vérification si l'usager est connecté
         UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(request);
         if (usagerInfosDTO == null) {
             AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
@@ -36,16 +35,16 @@ public class RedirectToBackOfficeServlet extends AbstractAfServlet {
             return;
         }
 
+        // Action impossible pour les usagers venant d'une création de demande courrier
         if (!usagerInfosDTO.isUsagerCourrier()) {
             AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
                     "Utilisateur non autorisé car non usager courrier");
             return;
         }
 
-        //redirection par default sur l'accueil car le lien abandon a été cliqué
-        String urlDemande = AfServletGouvPropertiesResolver.getBackOfficeUrl();
-
         try {
+            //redirection par default sur l'accueil car le lien abandon a été cliqué
+            String urlDemande = AfServletGouvPropertiesResolver.getBackOfficeUrl();
             //dans le cas de la fin de la création
             String idDemandeStr = request.getParameter("id");
             if (StringUtils.isNotBlank(idDemandeStr)) {

@@ -1,9 +1,8 @@
 package mc.gouv.xaf.servlet;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.MediaType;
-
+import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
+import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
+import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
 import mc.gouv.xaf.shared.SharedMessages;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpHeaders;
@@ -13,9 +12,9 @@ import org.apache.http.client.fluent.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
-import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
-import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.MediaType;
 
 /**
  * Proxy vers le référentiel Pays
@@ -32,23 +31,22 @@ public class PaysServlet extends AbstractAfServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response) {
         LOGGER.info("====================== /pays doGet()");
 
+        // Vérification si l'usager est connecté
         UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(request);
         if (usagerInfosDTO == null) {
             AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
                     SharedMessages.UTILISATEUR_NON_AUTORISE);
             return;
         }
-        String pathToQuery = request.getPathInfo();
-        String queryString = request.getQueryString();
 
-        String serviceUrl = AfServletGouvPropertiesResolver.getPaysUrl() + (pathToQuery != null ? pathToQuery : "")
-                + (queryString != null ? "?" + queryString : "");
-
-        LOGGER.info("Appel à {}", serviceUrl);
-
-        Request serviceRequest = Request.Get(serviceUrl);
-        serviceRequest.setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
         try {
+            String pathToQuery = request.getPathInfo();
+            String queryString = request.getQueryString();
+            String serviceUrl = AfServletGouvPropertiesResolver.getPaysUrl() + (pathToQuery != null ? pathToQuery : "")
+                    + (queryString != null ? "?" + queryString : "");
+            LOGGER.info("Appel à {}", serviceUrl);
+            Request serviceRequest = Request.Get(serviceUrl);
+            serviceRequest.setHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON);
             HttpResponse serviceResponse = serviceRequest.execute().returnResponse();
             int statusCode = serviceResponse.getStatusLine().getStatusCode();
             response.setStatus(statusCode);

@@ -1,27 +1,24 @@
 package mc.gouv.xaf.servlet;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.MediaType;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
+import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
 import mc.gouv.xaf.shared.RequestConstant;
 import mc.gouv.xaf.shared.SharedMessages;
+import mc.gouv.xaf.shared.dto.BrouillonDTO;
+import mc.gouv.xaf.shared.dto.Page;
+import mc.gouv.xaf.shared.dto.PageParamDTO;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
-import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
-import mc.gouv.xaf.shared.dto.BrouillonDTO;
-import mc.gouv.xaf.shared.dto.Page;
-import mc.gouv.xaf.shared.dto.PageParamDTO;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.MediaType;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 
 /**
  * Servlet servant à récupérer les brouillons d'un usager de façon paginée.
@@ -30,18 +27,19 @@ import mc.gouv.xaf.shared.dto.PageParamDTO;
  */
 public class BrouillonsPageableServlet extends AbstractAfServlet {
 
-	private static final long serialVersionUID = 6946764515064886781L;
-	private static final Logger LOGGER = LoggerFactory.getLogger(BrouillonsPageableServlet.class);
+    private static final long serialVersionUID = 6946764515064886781L;
+    private static final Logger LOGGER = LoggerFactory.getLogger(BrouillonsPageableServlet.class);
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         LOGGER.info("====================== /brouillonspage doGet()");
 
+        // Vérification si l'usager est connecté
         UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(request);
         if (usagerInfosDTO == null) {
             AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
-                SharedMessages.UTILISATEUR_NON_AUTORISE);
+                    SharedMessages.UTILISATEUR_NON_AUTORISE);
             return;
         }
 

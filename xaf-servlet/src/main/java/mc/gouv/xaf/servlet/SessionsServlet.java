@@ -1,24 +1,21 @@
 package mc.gouv.xaf.servlet;
 
-import java.text.SimpleDateFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
+import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
+import mc.gouv.xaf.servlet.util.GichkeyService;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.ws.rs.core.MediaType;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
-import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
-import mc.gouv.xaf.servlet.util.GichkeyService;
+import java.text.SimpleDateFormat;
 
 /**
  * Servlet permettant de gérer les sessions des usagers.
@@ -28,9 +25,7 @@ import mc.gouv.xaf.servlet.util.GichkeyService;
 public class SessionsServlet extends AbstractAfServlet {
 
     private static final long serialVersionUID = -7833206552171322810L;
-
     private static final Logger LOGGER = LoggerFactory.getLogger(SessionsServlet.class);
-
     private static final String LOGIN = "login";
 
     @Override
@@ -41,7 +36,6 @@ public class SessionsServlet extends AbstractAfServlet {
 
             // On tente de récupérer une session existante sans en créer une
             HttpSession session = request.getSession(false);
-
             LOGGER.info("SESSION : {}", session);
             if (session == null) {
                 // Pas de session trouvée

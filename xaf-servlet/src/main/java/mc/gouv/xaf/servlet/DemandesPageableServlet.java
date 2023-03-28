@@ -30,10 +30,11 @@ public class DemandesPageableServlet extends AbstractAfServlet {
 
         LOGGER.info("====================== /demandespage doGet()");
 
+        // Vérification si l'usager est connecté
         UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(request);
         if (usagerInfosDTO == null) {
-             AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
-                     SharedMessages.UTILISATEUR_NON_AUTORISE);
+            AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
+                    SharedMessages.UTILISATEUR_NON_AUTORISE);
             return;
         }
 
@@ -77,11 +78,9 @@ public class DemandesPageableServlet extends AbstractAfServlet {
         try {
             LOGGER.info("Récupération des demandes pour l'usager dont usagerId = {}", usagerId);
             Page<DemandeDTO> page = getAfApiClient().getDemandesPageable(usagerId, paramDTO);
-
             ObjectMapper mapper = new ObjectMapper();
             String repJson = mapper.writeValueAsString(page);
-
-            response.setContentType("application/json");
+            response.setContentType(MediaType.APPLICATION_JSON);
             IOUtils.copy(new ByteArrayInputStream(repJson.getBytes()), response.getOutputStream());
             response.setStatus(HttpStatus.SC_OK);
         } catch (Exception ex) {

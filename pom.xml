@@ -15,7 +15,6 @@
         <tika.version>1.22</tika.version>
         <xcb-wlib.version>1.2.0</xcb-wlib.version>
     </properties>
-
     <groupId>mc.gouv.xaf</groupId>
     <artifactId>xaf</artifactId>
     <version>11.0.3-SNAPSHOT</version>

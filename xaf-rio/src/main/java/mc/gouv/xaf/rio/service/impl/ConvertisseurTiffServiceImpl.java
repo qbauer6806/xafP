@@ -136,25 +136,32 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
         List<InputStream> imagesIS = new ArrayList<>();
 
         // Chargement du document PDF
-        PDDocument document = PDDocument.load(is);
-        PDFRenderer pdfRenderer = new PDFRenderer(document);
-
-        // Parcours du PDF multipages
-        for (int page = 0; page < document.getNumberOfPages(); ++page) {
-
-            // Conversion de l'image en tiff
-            BufferedImage bim = generateTiffFromImage(pdfRenderer.renderImageWithDPI(page, 160));
-            imagesIS.add(writeImageCCITTT4(bim));
+        try (PDDocument document = PDDocument.load(is)) {
+	        PDFRenderer pdfRenderer = new PDFRenderer(document);
+	
+	        // Parcours du PDF multipages
+	        for (int page = 0; page < document.getNumberOfPages(); ++page) {
+	
+	            // Conversion de l'image en tiff
+	            BufferedImage bim = generateTiffFromImage(pdfRenderer.renderImageWithDPI(page, 160));
+	            imagesIS.add(writeImageCCITTT4(bim));
+	        }
         }
-        document.close();
         return imagesIS;
     }
 
     public BufferedImage generateTiffFromImage(BufferedImage inputImage) {
 
+    	// Downscale du PDF si besoin
+    	BufferedImage bim;
+    	if (inputImage.getWidth() > 2560 || inputImage.getHeight() > 1440) {
+            bim = scaleImage(2560, 1440, inputImage);
+        } else {
+            bim = inputImage;
+        }
         // Conversion en Noir et blanc en "dithering"
         // Plus d'infos: https://en.wikipedia.org/wiki/Floyd%E2%80%93Steinberg_dithering
-        BufferedImage output = DitheringUtils.floydSteinbergDithering(inputImage);
+        BufferedImage output = DitheringUtils.floydSteinbergDithering(bim);
 
         // Conversion d'une image indexée sur 32 bits à 1 bit (noir et blanc)
         // Chaque pixel ce n'est plus un hexadécimal, mais un bit 1 (blanc) ou 0 (noir)

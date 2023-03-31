@@ -78,6 +78,15 @@
         <servlet-name>FileDownloadServlet</servlet-name>
         <url-pattern>/filedownload/*</url-pattern>
     </servlet-mapping>
+
+    <servlet>
+        <servlet-name>FilePreviewServlet</servlet-name>
+        <servlet-class>mc.gouv.xaf.servlet.FilePreviewServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>FilePreviewServlet</servlet-name>
+        <url-pattern>/filepreview/*</url-pattern>
+    </servlet-mapping>
     
     <servlet>
         <servlet-name>MotifsServlet</servlet-name>

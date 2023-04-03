@@ -3,6 +3,7 @@ package mc.gouv.xaf.back.dsp.enums;
 public enum ResidRelationEnum {
 
     PRO("PRO"),
+    CDV("CDV"),
     AMI("AMI"),
     BEA("BEA"),
     PAR("PAR"),

@@ -1,13 +1,15 @@
 package mc.gouv.xaf.back.dsp.dto.v2;
 
+import java.io.Serializable;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import java.io.Serializable;
+import mc.gouv.xaf.back.dsp.dto.ResidMoyensExistenceDTO;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ResidResidentCorrespondanceDTO implements Serializable {
+public class ResidUsagerDLN1FDTO implements Serializable {
 
     private static final long serialVersionUID = 1151801717747924423L;
     
@@ -17,7 +19,7 @@ public class ResidResidentCorrespondanceDTO implements Serializable {
     
     private ResidResidenceDTO residence;
     
-    private ResidMoyenExistenceDTO moyenExistence;
+    private ResidMoyensExistenceDTO moyenExistence;
     
     private ResidAdresseDTO adresse;
     
@@ -53,11 +55,11 @@ public class ResidResidentCorrespondanceDTO implements Serializable {
 		this.residence = residence;
 	}
 
-	public ResidMoyenExistenceDTO getMoyenExistence() {
+	public ResidMoyensExistenceDTO getMoyenExistence() {
 		return moyenExistence;
 	}
 
-	public void setMoyenExistence(ResidMoyenExistenceDTO moyenExistence) {
+	public void setMoyenExistence(ResidMoyensExistenceDTO moyenExistence) {
 		this.moyenExistence = moyenExistence;
 	}
 
@@ -104,15 +106,15 @@ public class ResidResidentCorrespondanceDTO implements Serializable {
     @Override
     public String toString() {
         return "ResidResidentCorrespondanceDTO{" +
-                "numeroUsager='" + numeroUsager + '\'' +
-                ", nom='" + nom + '\'' +
-                ", nomUsage='" + nomUsage + '\'' +
-                ", prenom='" + prenom + '\'' +
-                ", dateNaissance='" + dateNaissance + '\'' +
-                ", villeNaissance='" + villeNaissance + '\'' +
-                ", paysNaissanceCode='" + paysNaissanceCode + '\'' +
-                ", paysNaissanceLibelle='" + paysNaissanceLibelle + '\'' +
-                ", adresse=" + adresse +
+                "identite='" + identite.toString() + '\'' +
+                ", contacts='" + contacts.toString() + '\'' +
+                ", residence='" + residence.toString() + '\'' +
+                ", moyenExistence='" + moyenExistence.toString() + '\'' +
+                ", adresse='" + adresse.toString() + '\'' +
+                ", nationalite='" + nationalite.toString() + '\'' +
+                ", resident='" + resident.toString() + '\'' +
+                ", situationFamiliale='" + situationFamiliale.toString() + '\'' +
+                ", enfants=" + enfants.toString() +
                 '}';
     }
 }

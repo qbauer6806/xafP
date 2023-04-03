@@ -5,6 +5,8 @@ import java.io.Serializable;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import mc.gouv.xaf.back.dsp.enums.ResidTypeCarteMroadEnum;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ResidResidentDTO implements Serializable {
@@ -17,7 +19,7 @@ public class ResidResidentDTO implements Serializable {
 
 	private String dateFinValidite;
 
-	private String type;
+	private ResidTypeCarteMroadEnum type;
 
 	private String dateEtablissementMonaco;
 
@@ -45,11 +47,11 @@ public class ResidResidentDTO implements Serializable {
 		this.dateFinValidite = dateFinValidite;
 	}
 
-	public String getType() {
+	public ResidTypeCarteMroadEnum getType() {
 		return type;
 	}
 
-	public void setType(String type) {
+	public void setType(ResidTypeCarteMroadEnum type) {
 		this.type = type;
 	}
 

@@ -1,6 +1,7 @@
 package mc.gouv.xaf.back.dsp.service.itg.resid;
 
 import mc.gouv.xaf.back.dsp.dto.*;
+import mc.gouv.xaf.back.dsp.dto.v2.ResidUsagerDLN1FDTO;
 import mc.gouv.xaf.back.dsp.exception.ResidHttpResponseException;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 
@@ -26,4 +27,6 @@ public interface ResidApiService {
     ResidEtatsDemandesUpdatedAfterDTO getEtatsDemandesUpdated(String updatedAfter, String url, String jwt) throws ResidHttpResponseException;
 
     List<ResidResidentCorrespondanceDTO> getListResidCorrespondance(String numeroCarte, String url, String jwt);
+    
+    ResidUsagerDLN1FDTO getUsagerDln1f(String nom, String prenom, String dateNaissance, String heureNaissance, String villeNaissance, String paysNaissance, String url, String jwt);
 }

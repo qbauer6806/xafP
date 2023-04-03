@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 import mc.gouv.xaf.back.service.data.AccessService;
+import mc.gouv.xaf.back.service.utils.AbstractTsUtils;
 import mc.gouv.xaf.shared.SharedMessages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,6 +65,9 @@ public class BrouillonsServiceImpl implements BrouillonsService {
 
     @Autowired
     private AccessService accessService;
+
+    @Autowired
+    private AbstractTsUtils abstractTsUtils;
 
     /**
      * {@inheritDoc}
@@ -247,7 +251,10 @@ public class BrouillonsServiceImpl implements BrouillonsService {
         Sort sort = "DESC".equals(paramDTO.getDirection()) ? Sort.by(sortColumn).descending() : Sort.by(sortColumn);
         Pageable pageable = PageRequest.of(paramDTO.getPage(), paramDTO.getSize(), sort);
         Page<BrouillonBO> bos = brouillonsRepository.findByDemarcheIdAndIdAndUsagerIdAndActive(demarcheId, usagerId, true, pageable);
-        return BrouillonsTransformer.boPage2DtoPage(bos);
+        mc.gouv.xaf.shared.dto.Page<BrouillonDTO> brouillonDTOS = BrouillonsTransformer.boPage2DtoPage(bos);
+        // Set dernier statut pour tous les brouillons récupérés
+        brouillonDTOS.getContent().forEach(brouillonDto -> BrouillonsTransformer.setDernierStatut(brouillonDto, abstractTsUtils.getLastBuildId(), abstractTsUtils.getNotTransmitted(), abstractTsUtils.getDeprecated()));
+        return brouillonDTOS;
     }
 
 }

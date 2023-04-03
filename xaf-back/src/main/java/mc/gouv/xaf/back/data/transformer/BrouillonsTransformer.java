@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -102,6 +103,22 @@ public class BrouillonsTransformer {
         page.setLast(bos.isLast());
         page.setSort(bos.getSort());
         return page;
+    }
+
+    public static void setDernierStatut(BrouillonDTO brouillonDTO, String lastBuildId, String notTransmitted, String deprecated) {
+        if (brouillonDTO.getBuildId().equals(lastBuildId)) {
+            // statut not transmitted
+            setDernierStatut(brouillonDTO, notTransmitted);
+        } else {
+            // statut deprecated
+            setDernierStatut(brouillonDTO, deprecated);
+        }
+    }
+
+    public static void setDernierStatut(BrouillonDTO brouillonDTO, String statut) {
+        DemandeStatutDTO demandeStatutDTO = new DemandeStatutDTO();
+        demandeStatutDTO.setLibelle(statut);
+        brouillonDTO.setDernierStatut(demandeStatutDTO);
     }
 
 }

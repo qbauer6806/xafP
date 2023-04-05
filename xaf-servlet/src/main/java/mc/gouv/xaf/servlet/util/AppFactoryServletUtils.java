@@ -1,27 +1,24 @@
 package mc.gouv.xaf.servlet.util;
 
-import java.io.IOException;
-import java.util.Calendar;
-import java.util.UUID;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import javax.ws.rs.core.MediaType;
-
+import com.fasterxml.uuid.EthernetAddress;
+import com.fasterxml.uuid.Generators;
+import com.fasterxml.uuid.impl.TimeBasedGenerator;
+import mc.gouv.xaf.apiclient.AfApiClient;
+import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
+import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.uuid.EthernetAddress;
-import com.fasterxml.uuid.Generators;
-import com.fasterxml.uuid.impl.TimeBasedGenerator;
-
-import mc.gouv.xaf.apiclient.AfApiClient;
-import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
-import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import javax.ws.rs.core.MediaType;
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.UUID;
 
 /**
  * Classe utilitaire pour xaf-servlet
@@ -37,21 +34,14 @@ public class AppFactoryServletUtils {
 
     public static final String CONTAINER_KEY = "ContainerID";
 
-    public static final String CODE_MOTIF_ANNULATION_KEY = "CodeMotifAnnulation";
-
     public static final String FILE_METADATA_DEMANDEID = "X-MC-DEMANDEID";
-
-    public static final String FILE_METADATA_DEMANDESTATUT = "X-MC-DEMANDESTATUT";
 
     public static final String FILE_METADATA_SCANEXECUTE = "X-MC-SCANEXECUTE";
 
-    public static final String CAPTCHA_TOKEN_REGEXP = "^recaptcha_([0-9.]+)_(.*)_(.*)$";
-
     public static final String XSRF_COOKIE = "XSRF-TOKEN";
-    public static final String XSRF_HEADER = "X-XSRF-TOKEN";
     public static final String XSRF_SESSION_ATTRIBUTE = "XSRF-TOKEN";
-    
     public static final int USAGERID_OFFSET = 1000000000;
+    private static final String POST = "POST";
 
     public enum ServiceTarget {
         FILE
@@ -141,40 +131,30 @@ public class AppFactoryServletUtils {
         }
 
         // Check le csrf token seulement si POST
-        if (request.getMethod().equalsIgnoreCase("POST")) {
-        	
-        	String xsrfToken = session.getAttribute(XSRF_SESSION_ATTRIBUTE).toString();
+        if (POST.equalsIgnoreCase(request.getMethod())) {
 
-            if (StringUtils.isBlank(xsrfToken)) {
-                return null;
-            }
+            String xsrfToken = session.getAttribute(XSRF_SESSION_ATTRIBUTE).toString();
 
-            if (session.getAttribute(XSRF_SESSION_ATTRIBUTE) == null) {
-                return null;
-            }
-
-            if (!StringUtils.equals(xsrfToken, session.getAttribute(XSRF_SESSION_ATTRIBUTE).toString())) {
+            if (StringUtils.isBlank(xsrfToken) || !xsrfToken.equals(session.getAttribute(XSRF_SESSION_ATTRIBUTE))) {
                 LOGGER.warn("Mauvais XSRF TOKEN : {}", xsrfToken);
                 return null;
-
             }
         }
 
-        
         UsagerInfosDTO usagerInfosDTO = (UsagerInfosDTO) session.getAttribute("login");
         if (usagerInfosDTO == null) {
-        	// #47087 - [FO] expiration - Page d'erreur furtive sur click de lien menu en FR et EN
-        	// Ici on invalide la session afin d'être redirigé vers la page de login lorsque les infos usager sont null coté mon guichet
-        	session.invalidate();
+            // #47087 - [FO] expiration - Page d'erreur furtive sur click de lien menu en FR et EN
+            // Ici on invalide la session afin d'être redirigé vers la page de login lorsque les infos usager sont null coté mon guichet
+            session.invalidate();
+        } else {
+            // Si ce n'est pas un usager courrier
+            if (!isUsagerCourrier(usagerInfosDTO.getId())) {
+                // Vérifier la validité des tokens
+                usagerInfosDTO = GichkeyService.checkTokens(usagerInfosDTO, false);
+            }
+            session.setAttribute("login", usagerInfosDTO);
         }
-        
-        // Si ce n'est pas un usager courrier
-        if (!isUsagerCourrier(usagerInfosDTO.getId())) {
-	        // Vérifier la validité des tokens
-	        usagerInfosDTO = GichkeyService.checkTokens(usagerInfosDTO, false);
-        }
-        session.setAttribute("login", usagerInfosDTO);
-        
+
         return usagerInfosDTO;
     }
     

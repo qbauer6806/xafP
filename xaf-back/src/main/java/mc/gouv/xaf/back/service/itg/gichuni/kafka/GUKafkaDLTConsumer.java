@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.config.KafkaListenerEndpointRegistry;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.listener.MessageListenerContainer;
 import org.springframework.messaging.handler.annotation.Headers;
 import org.springframework.stereotype.Service;
 
@@ -95,7 +96,11 @@ public class GUKafkaDLTConsumer {
 		// Ne pas processer plus de messages que ceux présents initialement dans le topic au moment du lancement du Job
 		if (hasEverythingBeenRead()) {
 			LOGGER.info("logEndOffset atteint sur toutes les partitions, arrêt du du KafkaListener gichuni-to-ts-consumer-dlt...");
-			kafkaListenerEndpointRegistry.getListenerContainer("gichuni-to-ts-consumer-dlt").stop();
+			MessageListenerContainer listenerContainer =
+					kafkaListenerEndpointRegistry.getListenerContainer("gichuni-to-ts-consumer-dlt");
+			if(listenerContainer != null){
+				listenerContainer.stop();
+			}
 			jobOn = false;
 		}
 	}

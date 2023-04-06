@@ -39,6 +39,8 @@ public class BrouillonDTO {
     
     private JsonNode meta;
 
+	private DemandeStatutDTO dernierStatut;
+
 	public Integer getPkBrouillons() {
 		return pkBrouillons;
 	}
@@ -135,4 +137,11 @@ public class BrouillonDTO {
 				+ ", recapType=" + recapType + "]";
 	}
 
+	public DemandeStatutDTO getDernierStatut() {
+		return dernierStatut;
+	}
+
+	public void setDernierStatut(DemandeStatutDTO dernierStatut) {
+		this.dernierStatut = dernierStatut;
+	}
 }

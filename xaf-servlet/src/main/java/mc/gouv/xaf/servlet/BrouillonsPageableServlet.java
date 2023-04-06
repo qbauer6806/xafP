@@ -62,6 +62,7 @@ public class BrouillonsPageableServlet extends AbstractAfServlet {
                     "Problème lors du parsing des paramètres");
             return;
         }
+
         String sort = request.getParameter(RequestConstant.SORT_PARAM);
         if (StringUtils.isNotBlank(sort)) {
             paramDTO.setSort(sort);
@@ -76,9 +77,9 @@ public class BrouillonsPageableServlet extends AbstractAfServlet {
             Page<BrouillonDTO> page = getAfApiClient().getBrouillonsPageable(usagerId, paramDTO);
             ObjectMapper mapper = new ObjectMapper();
             String repJson = mapper.writeValueAsString(page);
-            response.setStatus(HttpStatus.SC_OK);
             response.setContentType(MediaType.APPLICATION_JSON);
             IOUtils.copy(new ByteArrayInputStream(repJson.getBytes()), response.getOutputStream());
+            response.setStatus(HttpStatus.SC_OK);
         } catch (Exception ex) {
             LOGGER.error("BrouillonsPageableServlet - Une erreur est survenue lors de l'appel à la méthode GET", ex);
             int codeStatut = getCodeErreur(ex);

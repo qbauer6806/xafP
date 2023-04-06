@@ -65,93 +65,6 @@ public class FileUploadServlet extends AbstractAfServlet {
     // Compteur permettant de trigger un refresh des sessions et supprimer celles qui ne sont plus utilisées
     private static int compteurCleanSessions;
 
-    private static synchronized void ajouterCompteurUpload(HttpSession session) {
-        FileUploadCompteurDTO compteurUpload = usagersFileUploadCompteurs.get(session);
-        if (compteurUpload == null) {
-            compteurUpload = new FileUploadCompteurDTO();
-            compteurUpload.setCompteur(0);
-            compteurUpload.setDatePremierUpload(LocalDateTime.now());
-        }
-        // Ajouter au compteur qu'un nouveau fichier a été uploadé
-        compteurUpload.setCompteur(compteurUpload.getCompteur() + 1);
-        usagersFileUploadCompteurs.put(session, compteurUpload);
-        compteurCleanSessions++;
-    }
-
-    /**
-     * Methode qui parcours toutes les sessions stockées et supprime les entrées qui ne servent plus. ex:
-     * Une session dont la date du premier upload > x secondes
-     */
-    private static synchronized void reinitialierSessionsInutilisees() {
-        for (Iterator<Map.Entry<HttpSession, FileUploadCompteurDTO>> it = usagersFileUploadCompteurs.entrySet().iterator(); it.hasNext(); ) {
-            Map.Entry<HttpSession, FileUploadCompteurDTO> entry = it.next();
-            LocalDateTime datePremierUpload = entry.getValue().getDatePremierUpload();
-            Duration duration = Duration.between(datePremierUpload, LocalDateTime.now());
-            int tempsParIntervalle = Integer.parseInt(AfServletGouvPropertiesResolver.getTempsIntervalleUpload());
-            if (duration.toMillis() > tempsParIntervalle) {
-                it.remove();
-            }
-        }
-        compteurCleanSessions = 0;
-    }
-
-    /**
-     * Méthode permettant d'appeler VSCAN afin d'effectuer le scan antivirus.
-     */
-    private boolean vscan(Part part0, String filename, HttpPost postRequest, HttpServletResponse response) throws IOException {
-        // Varification de l'activation de VSCAN
-        PropertiesDTO propActivationVscan = AppFactoryServletFrontPropertiesCache.getFrontProperty(VSCAN_ACTIVATION);
-        if (propActivationVscan == null) {
-            AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_INTERNAL_SERVER_ERROR,
-                    "La propriété obligatoire VSCAN_ACTIVATION ne semble pas définie");
-            return false;
-        }
-
-        // Constitution de la requête
-        boolean activationVscan = Boolean.parseBoolean(propActivationVscan.getValue());
-        // Rajouter l'information si le fichier a été scanné par VSCAN ou pas
-        postRequest.setHeader(AppFactoryServletUtils.FILE_METADATA_SCANEXECUTE, activationVscan + "");
-        LOGGER.info("Activation de VSCAN: {}", activationVscan);
-
-        if (activationVscan) {
-            LOGGER.info("Appel à VSCAN...");
-
-            String urlVscan = AfServletGouvPropertiesResolver.getVscanUrl();
-            LOGGER.info("URL = {}", urlVscan);
-            HttpClient clientVscan = HttpClientBuilder.create().build();
-            MultipartEntityBuilder builderVscan = MultipartEntityBuilder.create();
-            builderVscan.addPart("file", new InputStreamBody(part0.getInputStream(),
-                    ContentType.create(part0.getContentType()), part0.getSubmittedFileName()));
-
-            ScanRequestDTO scanRequest = new ScanRequestDTO();
-            scanRequest.setCodeAppli(getServletContext().getInitParameter(AppFactoryServletUtils.DEMARCHEID_KEY));
-            scanRequest.setFilename(filename);
-            scanRequest.setEnduserAppModule(getServletContext().getInitParameter(AppFactoryServletUtils.DEMARCHEID_KEY).toLowerCase() + "-frontserver");
-
-            ObjectMapper mapper = new ObjectMapper();
-            String scanRequestStr = mapper.writeValueAsString(scanRequest);
-            builderVscan.addPart("scanRequest", new StringBody(scanRequestStr, ContentType.TEXT_PLAIN));
-            HttpEntity multipartVscan = builderVscan.build();
-            HttpPost postRequestVscan = new HttpPost(urlVscan);
-            postRequestVscan.setEntity(multipartVscan);
-            postRequestVscan.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + AfServletGouvPropertiesResolver.getVscanJwt());
-            HttpResponse postResponseVscan = clientVscan.execute(postRequestVscan);
-            String vscanResp = IOUtils.toString(postResponseVscan.getEntity().getContent());
-            LOGGER.info("VSCAN Response : {} ({})", postResponseVscan.getStatusLine(), vscanResp);
-
-            ScanDTO scanDto = mapper.readValue(vscanResp, ScanDTO.class);
-            if (!scanDto.isResult()) {
-                LOGGER.info("VSCAN a détecté le fichier comme vérolé, fin du traitement, pas d'upload dans FILE");
-                AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_BAD_REQUEST,
-                        "Erreur: le fichier soumis semble corrompu");
-                return false;
-            }
-
-            LOGGER.info("VSCAN n'a pas considéré le fichier soumis comme vérolé");
-        }
-        return true;
-    }
-
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) {
         LOGGER.info("====================== /fileupload doPost()");
@@ -262,21 +175,22 @@ public class FileUploadServlet extends AbstractAfServlet {
             HttpResponse postResponse = client.execute(postRequest);
 
             // Constitution de la réponse en redirigeant la réponse du WS ansi que son code réponse
+            LOGGER.info("Constitution de la réponse pour retour au client");
             constituerReponse(response, filename, uuid, accessId, postResponse);
+
+            // Supression des sessions inutilisées chaque 10 requêtes d'upload
+            if (compteurCleanSessions > 50) {
+                reinitialierSessionsInutilisees();
+            }
+
+            // Ajout dans l'historique par session
+            ajouterCompteurUpload(session);
 
         } catch (Exception e) {
             LOGGER.error("FileUploadServlet - Une erreur est survenue lors de l'appel à la méthode POST", e);
             int codeStatut = getCodeErreur(e);
             response.setStatus(codeStatut);
         }
-
-        // Supression des sessions inutilisées chaque 10 requêtes d'upload
-        if (compteurCleanSessions > 50) {
-            reinitialierSessionsInutilisees();
-        }
-
-        // Ajout dans l'historique par session
-        ajouterCompteurUpload(session);
 
         LOGGER.info("====================== Fin /fileupload doPost()");
     }
@@ -304,12 +218,72 @@ public class FileUploadServlet extends AbstractAfServlet {
         return false;
     }
 
+    /**
+     * Permet de parser le nom du fichier depuis le Path Info de la requête
+     */
     private String getFilename(String pathInfo) {
         String filename = null;
         if (pathInfo != null && pathInfo.length() > 1) {
             filename = pathInfo.split(SLASH)[1];
         }
         return filename;
+    }
+
+    /**
+     * Méthode permettant d'appeler VSCAN afin d'effectuer le scan antivirus.
+     */
+    private boolean vscan(Part part0, String filename, HttpPost postRequest, HttpServletResponse response) throws IOException {
+        // Varification de l'activation de VSCAN
+        PropertiesDTO propActivationVscan = AppFactoryServletFrontPropertiesCache.getFrontProperty(VSCAN_ACTIVATION);
+        if (propActivationVscan == null) {
+            AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_INTERNAL_SERVER_ERROR,
+                    "La propriété obligatoire VSCAN_ACTIVATION ne semble pas définie");
+            return false;
+        }
+
+        // Constitution de la requête
+        boolean activationVscan = Boolean.parseBoolean(propActivationVscan.getValue());
+        // Rajouter l'information si le fichier a été scanné par VSCAN ou pas
+        postRequest.setHeader(AppFactoryServletUtils.FILE_METADATA_SCANEXECUTE, activationVscan + "");
+        LOGGER.info("Activation de VSCAN: {}", activationVscan);
+
+        if (activationVscan) {
+            LOGGER.info("Appel à VSCAN...");
+
+            String urlVscan = AfServletGouvPropertiesResolver.getVscanUrl();
+            LOGGER.info("URL = {}", urlVscan);
+            HttpClient clientVscan = HttpClientBuilder.create().build();
+            MultipartEntityBuilder builderVscan = MultipartEntityBuilder.create();
+            builderVscan.addPart("file", new InputStreamBody(part0.getInputStream(),
+                    ContentType.create(part0.getContentType()), part0.getSubmittedFileName()));
+
+            ScanRequestDTO scanRequest = new ScanRequestDTO();
+            scanRequest.setCodeAppli(getServletContext().getInitParameter(AppFactoryServletUtils.DEMARCHEID_KEY));
+            scanRequest.setFilename(filename);
+            scanRequest.setEnduserAppModule(getServletContext().getInitParameter(AppFactoryServletUtils.DEMARCHEID_KEY).toLowerCase() + "-frontserver");
+
+            ObjectMapper mapper = new ObjectMapper();
+            String scanRequestStr = mapper.writeValueAsString(scanRequest);
+            builderVscan.addPart("scanRequest", new StringBody(scanRequestStr, ContentType.TEXT_PLAIN));
+            HttpEntity multipartVscan = builderVscan.build();
+            HttpPost postRequestVscan = new HttpPost(urlVscan);
+            postRequestVscan.setEntity(multipartVscan);
+            postRequestVscan.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + AfServletGouvPropertiesResolver.getVscanJwt());
+            HttpResponse postResponseVscan = clientVscan.execute(postRequestVscan);
+            String vscanResp = IOUtils.toString(postResponseVscan.getEntity().getContent());
+            LOGGER.info("VSCAN Response : {} ({})", postResponseVscan.getStatusLine(), vscanResp);
+
+            ScanDTO scanDto = mapper.readValue(vscanResp, ScanDTO.class);
+            if (!scanDto.isResult()) {
+                LOGGER.info("VSCAN a détecté le fichier comme vérolé, fin du traitement, pas d'upload dans FILE");
+                AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_BAD_REQUEST,
+                        "Erreur: le fichier soumis semble corrompu");
+                return false;
+            }
+
+            LOGGER.info("VSCAN n'a pas considéré le fichier soumis comme vérolé");
+        }
+        return true;
     }
 
     /**
@@ -333,7 +307,6 @@ public class FileUploadServlet extends AbstractAfServlet {
      * Constitution de la réponse en redirigeant la réponse du WS ansi que son code réponse
      */
     private void constituerReponse(HttpServletResponse response, String filename, UUID uuid, Integer accessId, HttpResponse postResponse) throws IOException {
-        LOGGER.info("Constitution de la réponse pour retour au client");
         response.setContentType(MediaType.APPLICATION_JSON);
         int statusCode = postResponse.getStatusLine().getStatusCode();
         response.setStatus(statusCode);
@@ -368,5 +341,35 @@ public class FileUploadServlet extends AbstractAfServlet {
         }
 
         return extensions;
+    }
+
+    private static synchronized void ajouterCompteurUpload(HttpSession session) {
+        FileUploadCompteurDTO compteurUpload = usagersFileUploadCompteurs.get(session);
+        if (compteurUpload == null) {
+            compteurUpload = new FileUploadCompteurDTO();
+            compteurUpload.setCompteur(0);
+            compteurUpload.setDatePremierUpload(LocalDateTime.now());
+        }
+        // Ajouter au compteur qu'un nouveau fichier a été uploadé
+        compteurUpload.setCompteur(compteurUpload.getCompteur() + 1);
+        usagersFileUploadCompteurs.put(session, compteurUpload);
+        compteurCleanSessions++;
+    }
+
+    /**
+     * Methode qui parcours toutes les sessions stockées et supprime les entrées qui ne servent plus. ex:
+     * Une session dont la date du premier upload > x secondes
+     */
+    private static synchronized void reinitialierSessionsInutilisees() {
+        for (Iterator<Map.Entry<HttpSession, FileUploadCompteurDTO>> it = usagersFileUploadCompteurs.entrySet().iterator(); it.hasNext(); ) {
+            Map.Entry<HttpSession, FileUploadCompteurDTO> entry = it.next();
+            LocalDateTime datePremierUpload = entry.getValue().getDatePremierUpload();
+            Duration duration = Duration.between(datePremierUpload, LocalDateTime.now());
+            int tempsParIntervalle = Integer.parseInt(AfServletGouvPropertiesResolver.getTempsIntervalleUpload());
+            if (duration.toMillis() > tempsParIntervalle) {
+                it.remove();
+            }
+        }
+        compteurCleanSessions = 0;
     }
 }

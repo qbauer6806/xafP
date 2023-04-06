@@ -11,29 +11,29 @@ import java.io.IOException;
 
 /**
  * 
- * Servlet servant à télécharger un fichier de FILE.
+ * Servlet servant à visualiser dans le navigateur un fichier de FILE.
  * 
- * @author qdeme
+ * @author uek
  *
  */
-public class FileDownloadServlet extends FileServlet {
+public class FilePreviewServlet extends FileServlet {
 
     private static final long serialVersionUID = -2464829773835748491L;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FileDownloadServlet.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FilePreviewServlet.class);
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        LOGGER.info("====================== /filedownload doGet()");
+        LOGGER.info("====================== /filepreview doGet()");
 
         try {
-            super.doGet(request, response, false);
+            super.doGet(request, response, true);
         } catch (Exception e) {
-            LOGGER.error("FileDownloadServlet - Une erreur est survenue lors de l'appel à la méthode GET", e);
+            LOGGER.error("FilePreviewServlet - Une erreur est survenue lors de l'appel à la méthode GET", e);
             response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
         }
 
-        LOGGER.info("====================== Fin /filedownload doGet()");
+        LOGGER.info("====================== Fin /filepreview doGet()");
 
     }
 

@@ -1,13 +1,13 @@
 package mc.gouv.xaf.back.service;
 
-import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
+import java.util.List;
+import java.util.Map;
+
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeExcelGenerationDTO;
 import mc.gouv.xaf.shared.dto.GenericStatusDTO;
 import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
-
-import java.util.List;
-import java.util.Map;
+import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 
 /**
  * Service implémenté par la démarche permettant de fournir à xaf-back des informations propres à chaque démarche.
@@ -42,18 +42,20 @@ public interface DemarchesDataProvider {
 
     boolean getDemarcheCanHandleProperties();
 
-	boolean getDemarcheCanHandleDenjsGestionAgents();
-	
-	String[] getGUKafkaSupportedVersions();
+    boolean getDemarcheCanHandleDenjsGestionAgents();
 
-	StatutSimplifieEnum getStatutSimplifieFromStatutPublic(String statutPublic);
+    String[] getGUKafkaSupportedVersions();
 
-	List<String> getStatutsAPurger();
-	
-	boolean isValideTypedoc(String typedoc);
-	
-	DemandeExcelGenerationDTO getDemandeExcelGenerationDTO();
+    StatutSimplifieEnum getStatutSimplifieFromStatutPublic(String statutPublic);
 
-	boolean isEligibleRectification(DemandeDTO demande);
+    List<String> getStatutsAPurger();
+
+    boolean isValideTypedoc(String typedoc);
+
+    DemandeExcelGenerationDTO getDemandeExcelGenerationDTO();
+
+    boolean isEligibleRectification(DemandeDTO demande);
+
+    List<String> getStatutsPourDuplication();
 
 }

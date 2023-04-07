@@ -168,6 +168,20 @@
 										</div>
 									</div>
 								</div>
+								
+								<br />
+								<div class="row" th:if="${duplicationKeyId != null}">
+									<div id="duplicationFormGroup">
+										<div class="col-xs-3">
+											&nbsp;
+										</div>
+										<div class="col-xs-9">
+											<input id="duplicationKeyId" type="checkbox" name="duplicationKeyId" >&nbsp;&nbsp;Renouveler la demande
+											<a target="_new"
+												th:href="@{/demandes/}+${duplicationKeyId}">[[${duplicationIdentifiant}]]</a>
+										</div>
+									</div>
+								</div>
 
 								<br />
 								<div class="row">
@@ -200,6 +214,9 @@
 
 	<script>
 		$(document).ready(function() {
+			
+			
+			$('#duplicationKeyId').val('[[${duplicationKeyId}]]');
 
 			//Initialisaiton des tooltips pour les erreurs
 			$(".errorTooltip").each(function() {
@@ -225,7 +242,6 @@
 			$('.input-group-addon').click(function() {
 				var $input = $(this).closest('div').find(':input');
 				$input.focus();
-				console.log("test");
 			});
 
 			$('#submitButton').click(function() {

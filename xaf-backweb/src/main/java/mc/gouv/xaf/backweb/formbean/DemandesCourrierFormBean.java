@@ -11,58 +11,68 @@ import javax.validation.constraints.Size;
  */
 public class DemandesCourrierFormBean {
 
-	private Integer usagerId;
+    private Integer usagerId;
 
-	@NotEmpty
-	private String dateReception;
+    @NotEmpty
+    private String dateReception;
 
     @Size(min = 0, max = 128, message = "La référence interne ne peut contenir plus de 128 caractères")
     private String refInterne;
 
     @NotEmpty
-	private String canal;
+    private String canal;
 
     @NotEmpty
-	private String langue;
+    private String langue;
 
-	public Integer getUsagerId() {
-		return usagerId;
-	}
+    private String duplicationKeyId;
 
-	public void setUsagerId(Integer usagerId) {
-		this.usagerId = usagerId;
-	}
+    public Integer getUsagerId() {
+        return usagerId;
+    }
 
-	public String getDateReception() {
-		return dateReception;
-	}
+    public void setUsagerId(Integer usagerId) {
+        this.usagerId = usagerId;
+    }
 
-	public void setDateReception(String dateReception) {
-		this.dateReception = dateReception;
-	}
+    public String getDateReception() {
+        return dateReception;
+    }
 
-	public String getRefInterne() {
-		return refInterne;
-	}
+    public void setDateReception(String dateReception) {
+        this.dateReception = dateReception;
+    }
 
-	public void setRefInterne(String refInterne) {
-		this.refInterne = refInterne;
-	}
+    public String getRefInterne() {
+        return refInterne;
+    }
 
-	public String getCanal() {
-		return canal;
-	}
+    public void setRefInterne(String refInterne) {
+        this.refInterne = refInterne;
+    }
 
-	public void setCanal(String canal) {
-		this.canal = canal;
-	}
+    public String getCanal() {
+        return canal;
+    }
 
-	public String getLangue() {
-		return langue;
-	}
+    public void setCanal(String canal) {
+        this.canal = canal;
+    }
 
-	public void setLangue(String langue) {
-		this.langue = langue;
-	}
+    public String getLangue() {
+        return langue;
+    }
+
+    public void setLangue(String langue) {
+        this.langue = langue;
+    }
+
+    public String getDuplicationKeyId() {
+        return duplicationKeyId;
+    }
+
+    public void setDuplicationKeyId(String duplicationKeyId) {
+        this.duplicationKeyId = duplicationKeyId;
+    }
 
 }

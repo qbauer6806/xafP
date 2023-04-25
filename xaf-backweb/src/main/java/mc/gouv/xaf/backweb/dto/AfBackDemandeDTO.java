@@ -37,6 +37,7 @@ public class AfBackDemandeDTO extends DemandeDTO {
         setPkDemandes(demande.getPkDemandes());
         setStatuts(demande.getStatuts());
         setUsagerId(demande.getUsagerId());
+        setModificationTimestamp(demande.getModificationTimestamp());
     }
 
     public String getAgentAffectePrenom() {

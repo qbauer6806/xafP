@@ -42,7 +42,7 @@ public class DemandeLockSessionListener implements HttpSessionListener {
             if (modificationDemandeId != null && modificationDemandeUsagerId != null) {
                 AfApiClient afApiClient = AppFactoryServletUtils.getAfApiClient();
                 afApiClient.unlockDemande(modificationDemandeId, modificationDemandeUsagerId);
-                LOGGER.info("HttpSessionListenerImpl: Demande {} déverrouillée", modificationDemandeId);
+                LOGGER.info("DemandeLockSessionListener: Demande {} déverrouillée", modificationDemandeId);
             }
             httpSession.invalidate();
         }

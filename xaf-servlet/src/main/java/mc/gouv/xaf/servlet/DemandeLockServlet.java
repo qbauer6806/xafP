@@ -3,6 +3,7 @@ package mc.gouv.xaf.servlet;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.Instant;
+import java.util.Date;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -24,7 +25,7 @@ import mc.gouv.xaf.shared.SharedMessages;
 
 /**
  * Servlet permettant de verrouiller/deverrouiller une demande en y aposant un timestamp. le timestamp correspond à la
- * durée de vie de la session.
+ * durée de vie de la session
  *
  * @author agaidi
  */
@@ -148,7 +149,9 @@ public class DemandeLockServlet extends AbstractAfServlet {
 
                 afApiClient.unlockDemande(modificationDemandeId, modificationDemandeUsagerId);
 
-                LOGGER.info("DemandeLockServlet: Demande {} déverrouillée", modificationDemandeId);
+                LOGGER.info(
+                        "DemandeLockServlet verrouillerDemande: Demande {} déverrouillée suite au verrouillage de la demande {}",
+                        modificationDemandeId, demandeId);
             }
 
             /*
@@ -159,6 +162,8 @@ public class DemandeLockServlet extends AbstractAfServlet {
                     + 60000L;
             /* on lock la demande */
             afApiClient.lockDemande(demandeId, usagerId, timestampValue);
+            LOGGER.info("DemandeLockServlet verrouillerDemande: Demande {} verrouillée jusque {}", demandeId,
+                    new Date(timestampValue));
             request.getSession().setAttribute(SessionConstant.SESSION_MODIFICATION_DEMANDE_ID, demandeId);
             request.getSession().setAttribute(SessionConstant.SESSION_MODIFICATION_USAGER_ID, usagerId);
         }
@@ -169,22 +174,25 @@ public class DemandeLockServlet extends AbstractAfServlet {
 
         HttpSession httpSession = request.getSession(false);
 
-        /* on unlock une autre demande eventuellement lockée par la session */
         if (httpSession != null) {
             Integer modificationDemandeId = (Integer) httpSession
                     .getAttribute(SessionConstant.SESSION_MODIFICATION_DEMANDE_ID);
             Integer modificationDemandeUsagerId = (Integer) httpSession
                     .getAttribute(SessionConstant.SESSION_MODIFICATION_USAGER_ID);
 
+            /*
+             * si la demande dont on a demandé l'annulation est toujours référencée au niveau session on la retire de la
+             * session
+             */
             if (modificationDemandeId != null && modificationDemandeUsagerId != null
-                    && !demandeId.equals(modificationDemandeId)) {
+                    && demandeId.equals(modificationDemandeId)) {
 
-                afApiClient.unlockDemande(modificationDemandeId, modificationDemandeUsagerId);
-                LOGGER.info("DemandeLockServlet: Demande {} déverrouillée", modificationDemandeId);
+                httpSession.setAttribute(SessionConstant.SESSION_MODIFICATION_DEMANDE_ID, null);
+                LOGGER.info("DemandeLockServlet deverrouillerDemande: Demande {} retirée de la session",
+                        modificationDemandeId);
             }
             afApiClient.unlockDemande(demandeId, usagerId);
-            httpSession.setAttribute(SessionConstant.SESSION_MODIFICATION_DEMANDE_ID, null);
-            httpSession.setAttribute(SessionConstant.SESSION_MODIFICATION_USAGER_ID, null);
+            LOGGER.info("DemandeLockServlet deverrouillerDemande: Demande {} déverrouillée", demandeId);
         }
 
     }

@@ -62,7 +62,8 @@ public class DemandeLockFilter implements Filter {
                     Long timestampValue = Instant.now().toEpochMilli() + (httpSession.getMaxInactiveInterval() * 1000L)
                             + 60000L;
                     afApiClient.lockDemande(modificationDemandeId, modificationDemandeUsagerId, timestampValue);
-                    LOGGER.info("LockDemandeFilter: Verrouillage demande {} prolongé", modificationDemandeId);
+                    LOGGER.info("LockDemandeFilter: Verrouillage demande {} prolongé jusqu'a {}", modificationDemandeId,
+                            timestampValue);
                 }
             }
 

@@ -1,6 +1,15 @@
 package mc.gouv.xaf.back.properties;
 
-import mc.gouv.Static;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,14 +20,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
-import java.beans.IntrospectionException;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
+import mc.gouv.Static;
 
 /**
  * Composant permettant de récupérer des éléments de configuration propres au gouvernement. Proxy vers Static.getValue()
@@ -53,9 +55,8 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     private Environment environment;
 
     /*
-     * .hab
-     * Sert à gérer s'il n'y a pas de fichier config.properties alors
-     * nous prenons en compte les properties sans prefix ex : mc.gouv.appfactory.url et non pas mc.gouv.appfactory.hab.url
+     * .hab Sert à gérer s'il n'y a pas de fichier config.properties alors nous prenons en compte les properties sans
+     * prefix ex : mc.gouv.appfactory.url et non pas mc.gouv.appfactory.hab.url
      */
     private String applicationPrefix = StringUtils.EMPTY;
 
@@ -74,7 +75,8 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
         return method;
     }
 
-    private void checkProperties(List<String> propertiesNotFound, Method method, PropertyDescriptor propertyDescriptor) throws InvocationTargetException, IllegalAccessException {
+    private void checkProperties(List<String> propertiesNotFound, Method method, PropertyDescriptor propertyDescriptor)
+            throws InvocationTargetException, IllegalAccessException {
         try {
 
             // Est-ce que l'indexation est activée ?
@@ -85,28 +87,28 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
             boolean sslEnabled = getGUKafkaSSLEnabled();
 
             // Est ce que l'archivage est activé ?
-            String archivagePropStr = environment.getProperty(MC_GOUV_PREFIX + applicationPrefix + ".archivage.enabled");
+            String archivagePropStr = environment
+                    .getProperty(MC_GOUV_PREFIX + applicationPrefix + ".archivage.enabled");
             boolean archivageEnabled = StringUtils.equals(archivagePropStr, "true");
 
-            // On ignore la présence de la property si la méthode possède @GouvIndexationProperty mais que l'appli a indexationEnabled=false
-            boolean pasIgnorerIndexing = !(method.getDeclaredAnnotation(GouvIndexationProperty.class) instanceof GouvIndexationProperty)
-                    || (method.getDeclaredAnnotation(
-                    GouvIndexationProperty.class) instanceof GouvIndexationProperty
-                    && indexingEnabled);
+            // On ignore la présence de la property si la méthode possède @GouvIndexationProperty mais que l'appli a
+            // indexationEnabled=false
+            boolean pasIgnorerIndexing = !(method
+                    .getDeclaredAnnotation(GouvIndexationProperty.class) instanceof GouvIndexationProperty)
+                    || (method.getDeclaredAnnotation(GouvIndexationProperty.class) instanceof GouvIndexationProperty
+                            && indexingEnabled);
 
             // On ignore la présence de la property si la méthode possède @GouvSSLProperty mais que l'appli a
             // mc.gouv.af.back.external.gichuni.kafka.ssl.enabled=false
             boolean pasIgnorerSSL = !(method.getDeclaredAnnotation(GouvSSLProperty.class) instanceof GouvSSLProperty)
-                    || (method.getDeclaredAnnotation(
-                    GouvSSLProperty.class) instanceof GouvSSLProperty
-                    && sslEnabled);
+                    || (method.getDeclaredAnnotation(GouvSSLProperty.class) instanceof GouvSSLProperty && sslEnabled);
 
             // On ignore la présence de la property si la méthode possède @GouvArchivageProperty mais que l'appli a
             // archivage.enabled=false ou pas présente
-            boolean pasIgnorerArchivage = !(method.getDeclaredAnnotation(GouvArchivageProperty.class) instanceof GouvArchivageProperty)
-                    || (method.getDeclaredAnnotation(
-                    GouvArchivageProperty.class) instanceof GouvArchivageProperty
-                    && archivageEnabled);
+            boolean pasIgnorerArchivage = !(method
+                    .getDeclaredAnnotation(GouvArchivageProperty.class) instanceof GouvArchivageProperty)
+                    || (method.getDeclaredAnnotation(GouvArchivageProperty.class) instanceof GouvArchivageProperty
+                            && archivageEnabled);
 
             if (pasIgnorerIndexing && pasIgnorerSSL && pasIgnorerArchivage) {
                 Object value = method.invoke(this);
@@ -133,7 +135,7 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
             demarcheId = StringUtils.upperCase(applicationName);
         }
 
-        //Vérification que chaque propriété a bien été configurée
+        // Vérification que chaque propriété a bien été configurée
         List<String> propertiesNotFound = new ArrayList<>();
         try {
 
@@ -269,7 +271,8 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
 
     @Override
     public long getUsagersCacheDuration() {
-        return Long.parseLong(Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".backserver.usagerscache.duration"));
+        return Long
+                .parseLong(Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".backserver.usagerscache.duration"));
     }
 
     @GouvIndexationProperty
@@ -319,7 +322,8 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     @GouvIndexationProperty
     @Override
     public Integer getEsReindexBulkSize() {
-        String esReindexBulkSize = Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".elasticsearch.reindex.bulksize");
+        String esReindexBulkSize = Static
+                .getValue(MC_GOUV_PREFIX + applicationPrefix + ".elasticsearch.reindex.bulksize");
 
         if (esReindexBulkSize != null) {
             return Integer.parseInt(esReindexBulkSize);
@@ -434,7 +438,7 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
         }
         return Boolean.parseBoolean(value);
     }
-    
+
     @Override
     public String getGichkeyUrl() {
         return Static.getValue("mc.gouv.af.back.external.gichkey.url");
@@ -454,33 +458,35 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     public String getGichkeyClientSecret() {
         return Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".external.gichkey.client_secret");
     }
-    
+
     @Override
     public String getGUKafkaProducerMaxRequestSize() {
-        String value = Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".backapi.kafka.producer.maxrequestsizeconfig");
+        String value = Static
+                .getValue(MC_GOUV_PREFIX + applicationPrefix + ".backapi.kafka.producer.maxrequestsizeconfig");
         if (value == null) {
-        	return MAX_BYTE;
+            return MAX_BYTE;
         }
         return value;
     }
 
-	@Override
-	public String getGUKafkaConsumerFetchMaxBytes() {
+    @Override
+    public String getGUKafkaConsumerFetchMaxBytes() {
         String value = Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".backapi.kafka.consumer.fetchmaxbytes");
         if (value == null) {
-        	return MAX_BYTE;
+            return MAX_BYTE;
         }
         return value;
-	}
+    }
 
-	@Override
-	public String getGUKafkaConsumerMaxPartitionFetchBytes() {
-        String value = Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".backapi.kafka.consumer.maxpartitionfetchbytes");
+    @Override
+    public String getGUKafkaConsumerMaxPartitionFetchBytes() {
+        String value = Static
+                .getValue(MC_GOUV_PREFIX + applicationPrefix + ".backapi.kafka.consumer.maxpartitionfetchbytes");
         if (value == null) {
-        	return MAX_BYTE;
+            return MAX_BYTE;
         }
         return value;
-	}
+    }
 
     public String getApplicationPrefix() {
         return applicationPrefix;
@@ -524,5 +530,30 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     public boolean isPaiementEnabled() {
         String paiementProviderStr = environment.getProperty(MC_GOUV_PREFIX + applicationPrefix + ".paiement.enabled");
         return StringUtils.equals(paiementProviderStr, "true");
+    }
+
+    @Override
+    public String getApiUlisMoyensGenerauxUrl() {
+        return Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".ulis.url.moyens-generaux");
+    }
+
+    @Override
+    public String getApiUlisTiersOrganisationUrl() {
+        return Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".ulis.url.tiers-organisation");
+    }
+
+    @Override
+    public String getApiUlisAuthenticationUser() {
+        return Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".ulis.authentication.user");
+    }
+
+    @Override
+    public String getApiUlisAuthenticationPassword() {
+        return Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".ulis.authentication.password");
+    }
+
+    @Override
+    public String getApiUlisFunctionalUser() {
+        return Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".ulis.account");
     }
 }

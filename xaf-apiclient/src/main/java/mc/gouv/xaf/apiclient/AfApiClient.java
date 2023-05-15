@@ -11,6 +11,7 @@ import javax.ws.rs.core.Response;
 
 import org.glassfish.jersey.media.multipart.internal.MultiPartWriter;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 
 import mc.gouv.xaf.shared.RequestConstant;
@@ -254,6 +255,17 @@ public class AfApiClient extends ApiClient {
         ExceptionManager.checkExceptionResponse(res);
 
         return res.readEntity(new GenericType<List<PeriodeOuvertureDTO>>() {
+        });
+    }
+
+    public JsonNode getDonneesExternes(Integer usagerId) {
+        Response res = getTarget().path("/donneesexternes").queryParam(RequestConstant.USAGERID_PARAM, usagerId)
+                .request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue()).get();
+
+        ExceptionManager.checkExceptionResponse(res);
+
+        return res.readEntity(new GenericType<JsonNode>() {
         });
     }
 

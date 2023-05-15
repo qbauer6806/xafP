@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.xml.sax.SAXException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.es.impl.IndexedEsDemandeServiceImpl;
@@ -219,6 +220,13 @@ public abstract class AbstractAfApiController implements AfApiController {
     public List<PeriodeOuvertureDTO> getPeriodesOuvertureRequest() {
         LOGGER.info("AbstractAfApiController.getPeriodesOuverture()");
         return getPeriodesOuverture();
+    }
+
+    @GetMapping(value = "/donneesexternes")
+    public JsonNode getDonneesExternesRequest(@RequestParam(value = "usagerId") Integer usagerId)
+            throws JsonProcessingException {
+        LOGGER.info("AbstractAfApiController.getDonneesExternesRequest()");
+        return getDonneesExternes(usagerId);
     }
 
     @GetMapping(value = "/properties")

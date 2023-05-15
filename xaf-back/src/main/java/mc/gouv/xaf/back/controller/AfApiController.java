@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.xml.sax.SAXException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 
 import mc.gouv.xaf.shared.dto.AccessDTO;
 import mc.gouv.xaf.shared.dto.AccessInputDTO;
@@ -101,4 +102,5 @@ public interface AfApiController {
 
     void deleteBrouillon(Integer pkBrouillons, Integer usagerId) throws JsonProcessingException;
 
+    JsonNode getDonneesExternes(Integer usagerId) throws JsonProcessingException;
 }

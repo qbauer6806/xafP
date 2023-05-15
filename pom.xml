@@ -11,6 +11,7 @@
         <java.version>11</java.version>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
+        <maven-jar-plugin.version>3.1.1</maven-jar-plugin.version>
         <servicerest_client.version>2.2.15</servicerest_client.version>
         <tika.version>1.22</tika.version>
         <xcb-wlib.version>1.2.0</xcb-wlib.version>

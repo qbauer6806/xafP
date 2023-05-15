@@ -5,15 +5,19 @@ import java.io.Serializable;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import mc.gouv.xaf.back.dsp.enums.ResidCiviliteEnum;
+import mc.gouv.xaf.back.dsp.enums.ResidRelationEnum;
+import mc.gouv.xaf.back.dsp.enums.ResidSituationFamilialeEnum;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ResidSituationFamilialeDTO implements Serializable {
 
 	private static final long serialVersionUID = -2369443223981508962L;
 
-	private String situationFamiliale;
+	private ResidSituationFamilialeEnum situationFamiliale;
 
-	private String titre;
+	private ResidCiviliteEnum titre;
 
 	private String nom;
 
@@ -23,23 +27,23 @@ public class ResidSituationFamilialeDTO implements Serializable {
 
 	private String nationalite;
 
-	private String relation;
+	private ResidRelationEnum relation;
 
 	private boolean foyer;
 
-	public String getSituationFamiliale() {
+	public ResidSituationFamilialeEnum getSituationFamiliale() {
 		return situationFamiliale;
 	}
 
-	public void setSituationFamiliale(String situationFamiliale) {
+	public void setSituationFamiliale(ResidSituationFamilialeEnum situationFamiliale) {
 		this.situationFamiliale = situationFamiliale;
 	}
 
-	public String getTitre() {
+	public ResidCiviliteEnum getTitre() {
 		return titre;
 	}
 
-	public void setTitre(String titre) {
+	public void setTitre(ResidCiviliteEnum titre) {
 		this.titre = titre;
 	}
 
@@ -75,11 +79,11 @@ public class ResidSituationFamilialeDTO implements Serializable {
 		this.nationalite = nationalite;
 	}
 
-	public String getRelation() {
+	public ResidRelationEnum getRelation() {
 		return relation;
 	}
 
-	public void setRelation(String relation) {
+	public void setRelation(ResidRelationEnum relation) {
 		this.relation = relation;
 	}
 

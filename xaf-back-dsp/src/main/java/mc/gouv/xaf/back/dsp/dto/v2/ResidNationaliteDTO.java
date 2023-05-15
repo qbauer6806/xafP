@@ -5,6 +5,8 @@ import java.io.Serializable;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import mc.gouv.xaf.back.dsp.enums.ResidTypePieceIdentiteEnum;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ResidNationaliteDTO implements Serializable {
@@ -13,7 +15,7 @@ public class ResidNationaliteDTO implements Serializable {
 
 	private String nationalite1;
 
-	private String typePiece;
+	private ResidTypePieceIdentiteEnum typePiece;
 
 	private String numeroPiece;
 
@@ -35,11 +37,11 @@ public class ResidNationaliteDTO implements Serializable {
 		this.nationalite1 = nationalite1;
 	}
 
-	public String getTypePiece() {
+	public ResidTypePieceIdentiteEnum getTypePiece() {
 		return typePiece;
 	}
 
-	public void setTypePiece(String typePiece) {
+	public void setTypePiece(ResidTypePieceIdentiteEnum typePiece) {
 		this.typePiece = typePiece;
 	}
 

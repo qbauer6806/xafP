@@ -8,8 +8,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,9 +28,8 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import mc.gouv.xaf.back.dsp.dto.ResidDemandeCertificatResidenceCompleteDTO;
 import mc.gouv.xaf.back.dsp.dto.ResidDemandeChangementSituationCompleteDTO;
 import mc.gouv.xaf.back.dsp.dto.ResidDemandeDuplicataCarteCompleteDTO;
@@ -43,6 +40,7 @@ import mc.gouv.xaf.back.dsp.dto.ResidHttpResponseDTO;
 import mc.gouv.xaf.back.dsp.dto.ResidIdTSDTO;
 import mc.gouv.xaf.back.dsp.dto.ResidResidentCorrespondanceDTO;
 import mc.gouv.xaf.back.dsp.dto.ResidStatutDemandeDTO;
+import mc.gouv.xaf.back.dsp.dto.v2.ResidUsagerDLN1FDTO;
 import mc.gouv.xaf.back.dsp.exception.ResidHttpResponseException;
 import mc.gouv.xaf.back.dsp.service.itg.resid.ResidApiService;
 import mc.gouv.xaf.back.dsp.service.itg.resid.ResidErrorResponseErrorHandler;
@@ -383,7 +381,7 @@ public class ResidApiServiceImpl implements ResidApiService {
 	@Override
 	public List<ResidResidentCorrespondanceDTO> getListResidCorrespondance(String numeroCarte, String url, String jwt) throws RestClientException {
 
-		LOGGER.info("Appel à l'API RESID pour demander les usagers correspondants");
+		LOGGER.info("Appel à l'API RESID v1 pour demander les usagers correspondants");
 
 		RestTemplate rest = new RestTemplate();
 		rest.getMessageConverters().add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
@@ -406,6 +404,40 @@ public class ResidApiServiceImpl implements ResidApiService {
 
 		if (!HttpStatus.OK.equals(responseEntity.getStatusCode())) {
 			return Collections.emptyList();
+		}
+
+		return responseEntity.getBody();
+	}
+	
+	@Override
+	public ResidUsagerDLN1FDTO getUsagerDln1f(String nom, String prenom, String dateNaissance, String heureNaissance,
+			String villeNaissance, String paysNaissance, String url, String jwt) {
+		LOGGER.info("Appel à l'API RESID v2 pour demander l'usager correspondant");
+		RestTemplate rest = new RestTemplate();
+		rest.getMessageConverters().add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
+		HttpHeaders headers = getResidRequestHeaders(jwt);
+
+		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url + RESID_USAGERS_PATH)
+				.queryParam("nom", nom)
+				.queryParam("prenoms", prenom)
+				.queryParam("dateNaissance", dateNaissance)
+				.queryParam("heureNaissance", heureNaissance)
+				.queryParam("villeNaissance", villeNaissance)
+				.queryParam("paysNaissance", paysNaissance);
+		URI uri = builder.build().encode().toUri();
+
+		HttpEntity<String> requestEntity = new HttpEntity<>(headers);
+		LOGGER.debug("-- Appel RESID Get usager v2");
+		LOGGER.debug("URL: {} {}", HttpMethod.GET, uri);
+		LOGGER.debug("Headers: {}", headers);
+
+		ResponseEntity<ResidUsagerDLN1FDTO> responseEntity = rest.exchange(uri,
+				HttpMethod.GET, requestEntity, new ParameterizedTypeReference<ResidUsagerDLN1FDTO>(){});
+
+		LOGGER.info("Fin appel RESID");
+
+		if (!HttpStatus.OK.equals(responseEntity.getStatusCode())) {
+			return null;
 		}
 
 		return responseEntity.getBody();

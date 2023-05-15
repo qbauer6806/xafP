@@ -5,13 +5,16 @@ import java.io.Serializable;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import mc.gouv.xaf.back.dsp.enums.ResidCiviliteEnum;
+import mc.gouv.xaf.back.dsp.enums.ResidSexeEnum;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ResidIdentiteDTO implements Serializable {
 
 	private static final long serialVersionUID = 2762334113370075251L;
 
-	private String titreUsager;
+	private ResidCiviliteEnum titreUsager;
 
 	private String nomUsager;
 
@@ -27,15 +30,15 @@ public class ResidIdentiteDTO implements Serializable {
 
 	private String paysNaissanceUsager;
 
-	private String sexeUsager;
+	private ResidSexeEnum sexeUsager;
 
 	private boolean personnaliteSensible;
 
-	public String getTitreUsager() {
+	public ResidCiviliteEnum getTitreUsager() {
 		return titreUsager;
 	}
 
-	public void setTitreUsager(String titreUsager) {
+	public void setTitreUsager(ResidCiviliteEnum titreUsager) {
 		this.titreUsager = titreUsager;
 	}
 
@@ -79,11 +82,11 @@ public class ResidIdentiteDTO implements Serializable {
 		this.paysNaissanceUsager = paysNaissanceUsager;
 	}
 
-	public String getSexeUsager() {
+	public ResidSexeEnum getSexeUsager() {
 		return sexeUsager;
 	}
 
-	public void setSexeUsager(String sexeUsager) {
+	public void setSexeUsager(ResidSexeEnum sexeUsager) {
 		this.sexeUsager = sexeUsager;
 	}
 

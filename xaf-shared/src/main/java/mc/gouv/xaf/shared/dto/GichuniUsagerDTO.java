@@ -1,6 +1,7 @@
 package mc.gouv.xaf.shared.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.JsonNode;
 
 /**
  * 
@@ -30,7 +31,7 @@ public class GichuniUsagerDTO {
     private String paysCode;
     private UsagerTypeEnum type;
     
-    protected DonneesExternesDTO donneesExternes;
+    protected JsonNode donneesExternes;
     
 	public Integer getId() {
 		return id;
@@ -134,10 +135,10 @@ public class GichuniUsagerDTO {
 	public void setType(UsagerTypeEnum type) {
 		this.type = type;
 	}
-	public DonneesExternesDTO getDonneesExternes() {
+	public JsonNode getDonneesExternes() {
 		return donneesExternes;
 	}
-	public void setDonneesExternes(DonneesExternesDTO donneesExternes) {
+	public void setDonneesExternes(JsonNode donneesExternes) {
 		this.donneesExternes = donneesExternes;
 	}
 

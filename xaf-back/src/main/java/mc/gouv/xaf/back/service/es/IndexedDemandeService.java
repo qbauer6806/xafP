@@ -105,6 +105,23 @@ public interface IndexedDemandeService extends DemandesService {
     List<DemandeEsDTO> getIndexedDemandes(DemandeRechercheDTO demandeRecherche);
 
     /**
+     * Méthode permettant de rechercher des demandes à partir des critères en input pageable
+     *
+     * @param demandeRecherche Critères de recherche
+     * @param pageable pageable
+     * @return Résultat de la recherche
+     */
+    List<DemandeEsDTO> getIndexedDemandesPageable(DemandeRechercheDTO demandeRecherche, Pageable pageable);
+
+    /**
+     * Méthode permettant de rechercher le nombre de demandes à partir des critères en input
+     *
+     * @param demandeRecherche Critères de recherche
+     * @return nombre de demandes
+     */
+    long getCountIndexedDemandes(DemandeRechercheDTO demandeRecherche);
+
+    /**
      * Méthode permettant de rechercher des demandes à partir des critères en input (recherche paginée)
      *
      * @param demandeRecherche Critères de recherche

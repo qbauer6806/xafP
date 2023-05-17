@@ -56,4 +56,8 @@ public interface DemarchesDataProvider {
 
 	boolean isEligibleRectification(DemandeDTO demande);
 
+    default String getExportLibelle() {
+        return null;
+    }
+
 }

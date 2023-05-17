@@ -1,7 +1,9 @@
 package mc.gouv.xaf.servlet;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
 import mc.gouv.xaf.servlet.util.GichkeyService;
@@ -16,6 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.ws.rs.core.MediaType;
 import java.text.SimpleDateFormat;
+import java.util.Map;
 
 /**
  * Servlet permettant de gérer les sessions des usagers.
@@ -62,6 +65,19 @@ public class SessionsServlet extends AbstractAfServlet {
             // Récupération de l'objet attaché à la session
             UsagerInfosDTO usagerInfosDTO = (UsagerInfosDTO) session.getAttribute(LOGIN);
             LOGGER.info("usagerInfosDTO : {}", usagerInfosDTO);
+            // refresh donneesexterne
+            JsonNode tsName = getAfApiClient().getDonneesExternes(usagerInfosDTO.getId());
+            if(tsName != null && tsName.fields() != null && tsName.fields().hasNext()) {
+                JsonNode donneesExternes = usagerInfosDTO.getDonneesExternes();
+                if(donneesExternes == null) {
+                    ObjectMapper mapper = new ObjectMapper();
+                    donneesExternes = mapper.createObjectNode();
+                }
+                Map.Entry<String, JsonNode> entry = tsName.fields().next();
+                ((ObjectNode)donneesExternes).put(entry.getKey(), entry.getValue());
+                usagerInfosDTO.setDonneesExternes(donneesExternes);
+            }
+
             // Retour au client
             response.setContentType(MediaType.APPLICATION_JSON);
             ObjectMapper mapper = new ObjectMapper();

@@ -624,13 +624,30 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
     @Override
     public List<DemandeEsDTO> getIndexedDemandes(DemandeRechercheDTO demandeRecherche) {
-        demandeRecherche.setTexte(ESQueryUtils.getFormatedQuery(demandeRecherche.getTexte(),
-                afBackUtils.getDemarcheInfos().getIdentifiantPrefixe()));
-        NativeSearchQueryBuilder nativeSearchQueryBuilder = new NativeSearchQueryBuilder()
-                .withQuery(getQueryBuilder(demandeRecherche));
+        NativeSearchQueryBuilder nativeSearchQueryBuilder = prepareQuery(demandeRecherche);
         return elasticsearchTemplate.search(nativeSearchQueryBuilder.build(), DemandeEsDTO.class).stream()
                 .map(SearchHit::getContent)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<DemandeEsDTO> getIndexedDemandesPageable(DemandeRechercheDTO demandeRecherche, Pageable pageable) {
+        NativeSearchQueryBuilder nativeSearchQueryBuilder = prepareQuery(demandeRecherche).withPageable(pageable);
+        return elasticsearchTemplate.search(nativeSearchQueryBuilder.build(), DemandeEsDTO.class).stream()
+                .map(SearchHit::getContent)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public long getCountIndexedDemandes(DemandeRechercheDTO demandeRecherche) {
+        NativeSearchQueryBuilder nativeSearchQueryBuilder = prepareQuery(demandeRecherche);
+        return elasticsearchTemplate.count(nativeSearchQueryBuilder.build(), DemandeEsDTO.class);
+    }
+
+    private NativeSearchQueryBuilder prepareQuery(DemandeRechercheDTO demandeRecherche) {
+        demandeRecherche.setTexte(ESQueryUtils.getFormatedQuery(demandeRecherche.getTexte(),
+                afBackUtils.getDemarcheInfos().getIdentifiantPrefixe()));
+        return new NativeSearchQueryBuilder().withQuery(getQueryBuilder(demandeRecherche));
     }
 
     @Override

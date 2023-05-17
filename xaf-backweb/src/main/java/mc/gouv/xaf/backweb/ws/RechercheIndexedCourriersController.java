@@ -60,8 +60,8 @@ public class RechercheIndexedCourriersController extends AbstractController {
                                                        @RequestParam(value = "aucunCanal", required = false) boolean aucunCanal,
                                                        @RequestParam(value = "aucunStatut", required = false) boolean aucunStatut, Pageable pageable) {
 
-        String safeAgentId = agentId.replaceAll(SharedMessages.UNSAFE_CHARS, "_");
-        String safeTexte = texte.replaceAll(SharedMessages.UNSAFE_CHARS, "_");
+        String safeAgentId = agentId != null ? agentId.replaceAll(SharedMessages.UNSAFE_CHARS, "_") : null;
+        String safeTexte = texte != null ? texte.replaceAll(SharedMessages.UNSAFE_CHARS, "_") : null;
         LOGGER.info("======================= Appel de /ws/courriers/pageable (userId=\"{}\", statuts=\"{}\", canaux=\"{}\", agentId=\"{}\", creationStartDate=\"{}\", creationEndDate=\"{}\", texte=\"{}\", data=\"{}\")",
                 usagerId, statuts, canaux, safeAgentId, creationStartDate, creationEndDate, safeTexte, data);
 

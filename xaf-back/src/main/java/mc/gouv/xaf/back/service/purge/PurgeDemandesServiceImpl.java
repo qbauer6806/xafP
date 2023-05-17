@@ -155,10 +155,11 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 		Map<String,Object> model = new HashMap<>();
         model.put("identifiant", identifiant);
         model.put("delai", delai);
-        String titre = messageSource.getMessage("civilite."+usager.getTitre(), null, new Locale(demandeDTO.getLangue()));
-        model.put("titre", titre);
-
-        try {
+		String titre = messageSource.getMessage("civilite." + usager.getTitre(), null, new Locale(demandeDTO.getLangue()));
+		model.put("titre", titre);
+		model.put("urlFront", gouvPropertiesResolver.getFrontUrl());
+		model.put("pkDemande", demandeDTO.getPkDemandes());
+		try {
 			mailService.sendMail(emailInfoDTO, model);
 		} catch (Exception e) {
 			LOGGER.error("Erreur lors de l'envoi de l'email de purge pour les agents", e);

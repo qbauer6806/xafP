@@ -20,6 +20,7 @@ import mc.gouv.xaf.shared.dto.DemandeFileDTO;
  */
 public interface FileService {
 
+
 	String FILE_METADATA_DEMANDEID = "X-MC-DEMANDEID";
 	String FILE_METADATA_DEMANDESTATUT = "X-MC-DEMANDESTATUT";
 	String FILE_METADATA_SCANEXECUTE = "X-MC-SCANEXECUTE";
@@ -36,7 +37,9 @@ public interface FileService {
 	String saveFile(DemandeDTO demande, String container, MultipartFile file, HttpServletResponse response) throws IOException;
 
 	String sendToFile(File tempFile, DemandeDTO demande, String fileName) throws IOException;
-	
+
+	String saveFilePublication(String codePublication, String container, MultipartFile file) throws IOException;
+
 	/**
 	 *  Appelle le WS FILE DELETE pour supprimer un fichier dans file 
 	 *  @param containerId, l'id du container du fichier à supprimer

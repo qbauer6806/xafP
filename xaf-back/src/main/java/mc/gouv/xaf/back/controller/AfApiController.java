@@ -1,6 +1,7 @@
 package mc.gouv.xaf.back.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.xml.sax.SAXException;
 import mc.gouv.xaf.shared.dto.*;
 import org.apache.tika.exception.TikaException;
@@ -53,6 +54,8 @@ public interface AfApiController {
     DemandeDTO updateDemande(Integer demandeId, DemandeInputDTO demande, Integer usagerId) throws JsonProcessingException;
 
     List<PeriodeOuvertureDTO> getPeriodesOuverture();
+
+    JsonNode getDonneesExternes(Integer usagerId);
 
     @SuppressWarnings("rawtypes")
     ResponseEntity getCustomRequest(HttpServletRequest request);

@@ -65,7 +65,7 @@ public class MotifTemplateServiceImpl implements MotifTemplateService {
         return populateMotifs(demande, motifList);
     }
 
-    private List<MotifDTO> populateMotifs(DemandeDTO demande, List<MotifDTO> motifList) throws ParseErrorException, MethodInvocationException, ResourceNotFoundException, IOException {
+    public List<MotifDTO> populateMotifs(DemandeDTO demande, List<MotifDTO> motifList) throws ParseErrorException, MethodInvocationException, ResourceNotFoundException, IOException {
         Map<String, Object> motifsModel = motifsTemplateModelProvider.getModel(demande);
         List<MotifDTO> motifListPopulated = motifList;
 

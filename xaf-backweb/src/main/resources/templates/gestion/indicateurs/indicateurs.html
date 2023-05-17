@@ -57,14 +57,14 @@
             <div class="breadcrumbContent">
                 <div class="breadcrumb">
                     <a id="ariane0" th:href="@{/}" class="breadcrumb-item">ACCUEIL</a>&nbsp;&gt;&nbsp;
-                    <a id="ariane1" th:href="@{/gestion/indicateurs}" class="breadcrumb-item">EXPORT ANONYMISÉ</a>&nbsp;&gt;&nbsp;
+                    <a id="ariane1" th:href="@{/gestion/indicateurs}" class="breadcrumb-item" th:text="${AfBackUtils.getExportLibelle()}"></a>&nbsp;&gt;&nbsp;
                 </div>
                 <div class="triangleTopright"></div>
             </div>
 
             <div class="container-fluid">
                 <div class="text-center">
-                    <h1>Export Anonymisé</h1>
+                    <h1 th:text="${AfBackUtils.getExportLibelle()}"></h1>
                 </div>
                 <br />
                 <br />

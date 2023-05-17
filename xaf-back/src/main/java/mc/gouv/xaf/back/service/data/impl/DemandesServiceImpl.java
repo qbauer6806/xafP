@@ -894,7 +894,7 @@ public class DemandesServiceImpl implements DemandesService {
 	@Override
 	public mc.gouv.xaf.shared.dto.Page<DemandeDTO> getDemandesPageable(String demarcheId, Integer usagerId,
 			String[] status, PageParamDTO paramDTO) {
-		String sortColumn = "statut".equalsIgnoreCase(paramDTO.getSort()) ? "t.valeur" : paramDTO.getSort();
+		String sortColumn = paramDTO.getSort();
 		Sort sort = "DESC".equals(paramDTO.getDirection()) ? Sort.by(sortColumn).descending() : Sort.by(sortColumn);
 		Pageable pageable = PageRequest.of(paramDTO.getPage(), paramDTO.getSize(), sort);
 		Page<DemandeBO> bos = demandesRepository.findByDemarcheIdAndIdAndUsagerIdAndStatuts(demarcheId, usagerId,

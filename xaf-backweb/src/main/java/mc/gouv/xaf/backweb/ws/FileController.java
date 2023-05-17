@@ -46,6 +46,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -235,7 +236,7 @@ public class FileController {
 				contentStream.restoreGraphicsState();
 			}
 		} catch (IOException | NullPointerException e) {
-			e.printStackTrace();
+			LOGGER.error("Erreur FileController - copyFileInDestination", e);
 		}
 	}
 
@@ -349,7 +350,7 @@ public class FileController {
 		DemandeDTO demande = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), demandeId);
 		Map<String, String> fileNames = new HashMap<>();
 		for (MultipartFile file : files) {
-			if (!StringUtils.isBlank(file.getOriginalFilename())) {
+			if (StringUtils.isNotBlank(file.getOriginalFilename())) {
 				LOGGER.info("Part à traiter : {}", file.getOriginalFilename());
 				LOGGER.info("Appel au FileService...");
 				String filename = fileService.saveFile(demande, gouvPropertiesResolver.getContainerId(), file,
@@ -361,5 +362,30 @@ public class FileController {
 		}
 		LOGGER.info("====================== saveFiles() terminé, retour au client...");
 		return fileNames;
+	}
+
+	/**
+	 * Appelle FILE afin de sauvegarder différents fichiers liées à une publication
+	 */
+	public String saveFilesPublication(String codePublication, MultipartFile[] files) throws IOException {
+
+		LOGGER.info("====================== saveFiles()");
+		LOGGER.info("Appel de DEM afin de récupérer la demande pour le calcul...");
+
+		for (MultipartFile file : files) {
+			if (StringUtils.isNotBlank(file.getOriginalFilename())) {
+				LOGGER.info("Part à traiter : {}", file.getOriginalFilename());
+
+				LOGGER.info("Appel au FileService...");
+				String filename = fileService.saveFilePublication(codePublication, gouvPropertiesResolver.getContainerId(), file);
+
+				// #41757 - On décode de l'url du fichier pour qu'il soit affiché en clair dans le FO
+				return URLDecoder.decode(filename, StandardCharsets.UTF_8);
+			}
+		}
+
+		LOGGER.info("====================== saveFiles() terminé, retour au client...");
+
+		return null;
 	}
 }

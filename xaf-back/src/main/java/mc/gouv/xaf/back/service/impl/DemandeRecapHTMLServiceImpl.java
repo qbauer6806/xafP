@@ -508,13 +508,19 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
         if (node0 == null || node0 instanceof NullNode || StringUtils.isBlank(node0.asText())) {
             return "";
         }
-        LocalDateTime dateTime = LocalDateTime.parse(node0.asText(), DateTimeFormatter.ISO_OFFSET_DATE_TIME);
-        // Si la date a un format d'affichage
-        String format = (String) champ.get("displayJavaFormat");
-        if (StringUtils.isBlank(format)) {
-            format = AfBackUtils.DEFAULT_FRENCH_DATE_FORMAT;
+        try {
+            LocalDateTime dateTime = LocalDateTime.parse(node0.asText(), DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+            // Si la date a un format d'affichage
+            String format = (String) champ.get("displayJavaFormat");
+            if (StringUtils.isBlank(format)) {
+                format = AfBackUtils.DEFAULT_FRENCH_DATE_FORMAT;
+            }
+            return dateTime.format(DateTimeFormatter.ofPattern(format));
+        } catch (Exception e) {
+            // au cas où il y ait une erreur de formattage sur la date
+            return "";
         }
-        return dateTime.format(DateTimeFormatter.ofPattern(format));
+
     }
 
     private void buildAdresseHTML(StringBuilder adresseBuilder, JsonNode node, JSONObject champ, boolean isPdfRecap) {

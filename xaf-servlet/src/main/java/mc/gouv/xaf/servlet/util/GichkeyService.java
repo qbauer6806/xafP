@@ -212,8 +212,9 @@ public class GichkeyService {
                 mConnectUInfos.setAuthority(authorityNode.asText());
                 mConnectUInfos.setBirthPlaceCountry(birthPlaceCountryNode.asText());
                 mConnectUInfos.setBirthPlaceCity(birthPlaceCityNode.asText());
-                DonneesExternesDTO donneesExternes = new DonneesExternesDTO();
-                donneesExternes.setMconnect(mConnectUInfos);
+                ObjectMapper mapper = new ObjectMapper();
+                ObjectNode donneesExternes = mapper.createObjectNode();
+                donneesExternes.put("mconnect", mapper.valueToTree(mConnectUInfos));
                 uinfos.setDonneesExternes(donneesExternes);
                 LOGGER.info("Informations MConnect disponibles : {}", mConnectUInfos);
                 uinfos.setmConnect(true);

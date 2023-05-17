@@ -114,4 +114,9 @@ public class DemarchesDataProviderTestImpl implements DemarchesDataProvider {
 		// TODO Auto-generated method stub
 		return false;
 	}
+
+    @Override
+    public String getExportLibelle() {
+        return null;
+    }
 }

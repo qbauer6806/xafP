@@ -11,6 +11,7 @@ import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
 import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeInputDTO;
+import mc.gouv.xaf.shared.dto.DonneesMConnectDTO;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
@@ -144,8 +145,8 @@ public class DemandesServlet extends AbstractAfServlet {
                 DemandeInputDTO demandeInput = mapper.readValue(buffer.toString(), DemandeInputDTO.class);
                 // Ajout des données externes MConnect si elles sont présentes (afin que l'API puisse les prendre en compte pour les places dans les bons endroits
                 // du contenu de la demande. Ceci afin d'éviter un potentiel "hack" de la part de l'usager sur le FO)
-                if (usagerInfosDTO.getDonneesExternes() != null && usagerInfosDTO.getDonneesExternes().getMconnect() != null) {
-                    demandeInput.setDonneesMConnect(usagerInfosDTO.getDonneesExternes().getMconnect());
+                if (usagerInfosDTO.getDonneesExternes() != null && usagerInfosDTO.getDonneesExternes().get("mconnect") != null) {
+                    demandeInput.setDonneesMConnect(mapper.treeToValue(usagerInfosDTO.getDonneesExternes().get("mconnect"), DonneesMConnectDTO.class));
                 }
                 
                 DemandeDTO demandeDto;

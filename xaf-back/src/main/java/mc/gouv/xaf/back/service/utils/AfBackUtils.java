@@ -22,7 +22,9 @@ import java.util.UUID;
 
 import javax.annotation.PostConstruct;
 
+import mc.gouv.xaf.back.service.motifs.MotifsCache;
 import mc.gouv.xaf.shared.SharedMessages;
+import mc.gouv.xaf.shared.dto.MotifDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -152,6 +154,10 @@ public class AfBackUtils {
     @Autowired
     @Lazy
     private MotifTemplateService motifTemplateService;
+
+    @Autowired
+    @Lazy
+    private MotifsCache motifsCache;
 
     public static final short GENDER_MR_INDEX = 0;
     public static final short GENDER_MME_INDEX = 1;
@@ -375,6 +381,11 @@ public class AfBackUtils {
         flat.setUsagerPrenom(getSafeString(demande.getUsagerPrenom()));
         flat.setUsagerEmail(getSafeString(demande.getUsagerEmail()));
         flat.setBuildId(demande.getBuildId());
+        // motif
+        if (demande.getDernierStatut() != null && demande.getDernierStatut().getCodeMotif() != null) {
+            MotifDTO motif = motifsCache.getMotif(demande.getDernierStatut().getCodeMotif(), "fr");
+            flat.setMotif(motif != null ? motif.getLibelle() : null);
+        }
         return flat;
     }
 
@@ -394,6 +405,10 @@ public class AfBackUtils {
 
     public String getStatusLibelleFromName(String status) {
         return demarchesDataProvider.getStatusLibelle(status);
+    }
+
+    public String getExportLibelle() {
+        return demarchesDataProvider.getExportLibelle() != null ? demarchesDataProvider.getExportLibelle() : "Export Anonymisé";
     }
 
     /**
@@ -458,6 +473,13 @@ public class AfBackUtils {
             return "";
         }
         return new SimpleDateFormat(DEFAULT_FRENCH_DATE_FORMAT).format(date);
+    }
+
+    public String convertDateToTimeString(final Date date) {
+        if (date == null) {
+            return "";
+        }
+        return new SimpleDateFormat(DEFAULT_FRENCH_TIME_FORMAT).format(date);
     }
 
     public String convertDateTimeToString(final Date date) {

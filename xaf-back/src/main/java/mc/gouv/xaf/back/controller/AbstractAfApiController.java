@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import mc.gouv.xaf.shared.SharedMessages;
 import org.apache.tika.exception.TikaException;
 import org.hibernate.TransactionException;
@@ -195,6 +196,12 @@ public abstract class AbstractAfApiController implements AfApiController {
     public List<PeriodeOuvertureDTO> getPeriodesOuvertureRequest() {
         LOGGER.info("AbstractAfApiController.getPeriodesOuverture()");
         return getPeriodesOuverture();
+    }
+
+    @GetMapping(value = "/donneesexternes")
+    public JsonNode getDonneesExternesRequest(@RequestParam(value = "usagerId") Integer usagerId) {
+        LOGGER.info("AbstractAfApiController.getDonneesExternesRequest()");
+        return getDonneesExternes(usagerId);
     }
 
     @GetMapping(value = "/properties")

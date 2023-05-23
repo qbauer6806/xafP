@@ -81,9 +81,7 @@
 										th:field="*{titre}">
 										<option th:value="null">Veuillez sélectionner une
 											valeur...</option>
-										<option th:value="Mr">Monsieur</option>
-										<option th:value="Mme">Madame</option>
-										<option th:value="Mlle">Mademoiselle</option>
+										<option th:each="titre : ${DemarchesDataProvider.getTitres()}" th:value="${titre.value}" th:text="${titre.libelle}"></option>
 									</select>
 								</div>
 							</div>

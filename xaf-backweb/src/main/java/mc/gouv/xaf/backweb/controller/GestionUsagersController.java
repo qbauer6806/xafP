@@ -189,7 +189,7 @@ public class GestionUsagersController extends AbstractController {
         usagerCourrier.setRaisonSociale(usagerCourrierFormBean.getRaisonSociale());
         usagerCourrier.setTelephone(usagerCourrierFormBean.getTelephone());
         usagerCourrier.setVille(usagerCourrierFormBean.getVille());
-        usagerCourrier.setTitre(UsagersUtils.abbreviationToTitre(usagerCourrierFormBean.getTitre()));
+        usagerCourrier.setTitre(usagerCourrierFormBean.getTitre());
         usagerCourrier.setPays(usagerCourrierFormBean.getPaysChoisi());
 
         if (StringUtils.isBlank(usagerCourrierFormBean.getNom())
@@ -277,7 +277,7 @@ public class GestionUsagersController extends AbstractController {
         usagerCourrierFormBean.setPrenom(usager.getPrenom());
         usagerCourrierFormBean.setRaisonSociale(usager.getRaisonSociale());
         usagerCourrierFormBean.setTelephone(usager.getTelephone());
-        usagerCourrierFormBean.setTitre(UsagersUtils.titreToAbbreviation(usager.getTitre()));
+        usagerCourrierFormBean.setTitre(usager.getTitre());
         usagerCourrierFormBean.setVille(usager.getVille());
 
         LOGGER.info("======================= Fin /gestion/usagers");

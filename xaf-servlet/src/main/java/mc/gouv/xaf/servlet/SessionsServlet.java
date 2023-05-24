@@ -1,6 +1,7 @@
 package mc.gouv.xaf.servlet;
 
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.Cookie;
@@ -15,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -22,6 +24,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
 import mc.gouv.xaf.servlet.util.GichkeyService;
+import mc.gouv.xaf.shared.dto.DonneesExternesDTO;
 
 /**
  * Servlet permettant de gérer les sessions des usagers.
@@ -33,6 +36,10 @@ public class SessionsServlet extends AbstractAfServlet {
     private static final long serialVersionUID = -7833206552171322810L;
     private static final Logger LOGGER = LoggerFactory.getLogger(SessionsServlet.class);
     private static final String LOGIN = "login";
+
+    private static final String MCONNECT_PARAM_GIVENNAME = "GivenName";
+    private static final String MCONNECT_PARAM_FAMILYNAME = "FamilyName";
+    private static final String MCONNECT_PARAM_BIRTHDATE = "BirthDatetime";
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) {
@@ -68,8 +75,20 @@ public class SessionsServlet extends AbstractAfServlet {
             // Récupération de l'objet attaché à la session
             UsagerInfosDTO usagerInfosDTO = (UsagerInfosDTO) session.getAttribute(LOGIN);
             LOGGER.info("usagerInfosDTO : {}", usagerInfosDTO);
+            Map<String, String> data = new HashMap<>();
+
+            if (usagerInfosDTO.ismConnect()) {
+                JsonNode usagerJson = usagerInfosDTO.getDonneesExternes();
+                ObjectMapper omapper = new ObjectMapper();
+                omapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+                DonneesExternesDTO donneesMConnectDTO = omapper.treeToValue(usagerJson, DonneesExternesDTO.class);
+                data.put(MCONNECT_PARAM_FAMILYNAME, donneesMConnectDTO.getMconnect().getFamilyName());
+                data.put(MCONNECT_PARAM_GIVENNAME, donneesMConnectDTO.getMconnect().getGivenName());
+                data.put(MCONNECT_PARAM_BIRTHDATE, new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX")
+                        .format(donneesMConnectDTO.getMconnect().getBirthDatetime()));
+            }
             // refresh donneesexterne
-            JsonNode candifp = getAfApiClient().getDonneesExternes(usagerInfosDTO.getId());
+            JsonNode candifp = getAfApiClient().getDonneesExternes(usagerInfosDTO.getId(), data);
             if (candifp != null && candifp.fields() != null && candifp.fields().hasNext()) {
                 JsonNode donneesExternes = usagerInfosDTO.getDonneesExternes();
                 if (donneesExternes == null) {

@@ -2,6 +2,7 @@ package mc.gouv.xaf.back.controller;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -102,5 +103,5 @@ public interface AfApiController {
 
     void deleteBrouillon(Integer pkBrouillons, Integer usagerId) throws JsonProcessingException;
 
-    JsonNode getDonneesExternes(Integer usagerId) throws JsonProcessingException;
+    JsonNode getDonneesExternes(Integer usagerId, Map<String, String> params) throws JsonProcessingException;
 }

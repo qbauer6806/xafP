@@ -3,6 +3,7 @@ package mc.gouv.xaf.back.controller;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -223,10 +224,10 @@ public abstract class AbstractAfApiController implements AfApiController {
     }
 
     @GetMapping(value = "/donneesexternes")
-    public JsonNode getDonneesExternesRequest(@RequestParam(value = "usagerId") Integer usagerId)
-            throws JsonProcessingException {
+    public JsonNode getDonneesExternesRequest(@RequestParam(value = "usagerId") Integer usagerId,
+            @RequestParam Map<String, String> map) throws JsonProcessingException {
         LOGGER.info("AbstractAfApiController.getDonneesExternesRequest()");
-        return getDonneesExternes(usagerId);
+        return getDonneesExternes(usagerId, map);
     }
 
     @GetMapping(value = "/properties")

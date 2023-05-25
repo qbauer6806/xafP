@@ -2,7 +2,9 @@ package mc.gouv.xaf.servlet;
 
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -89,15 +91,20 @@ public class SessionsServlet extends AbstractAfServlet {
             }
             // refresh donneesexterne
             JsonNode candifp = getAfApiClient().getDonneesExternes(usagerInfosDTO.getId(), data);
-            if (candifp != null && candifp.fields() != null && candifp.fields().hasNext()) {
+            if (candifp != null && candifp.fields() != null) {
                 JsonNode donneesExternes = usagerInfosDTO.getDonneesExternes();
                 if (donneesExternes == null) {
                     ObjectMapper mapper = new ObjectMapper();
                     donneesExternes = mapper.createObjectNode();
                 }
-                Map.Entry<String, JsonNode> entry = candifp.fields().next();
-                ((ObjectNode) donneesExternes).put(entry.getKey(), entry.getValue());
+
+                Iterator<Entry<String, JsonNode>> it = candifp.fields();
+                while (it.hasNext()) {
+                    Map.Entry<String, JsonNode> entry = it.next();
+                    ((ObjectNode) donneesExternes).put(entry.getKey(), entry.getValue());
+                }
                 usagerInfosDTO.setDonneesExternes(donneesExternes);
+
             }
 
             // Retour au client

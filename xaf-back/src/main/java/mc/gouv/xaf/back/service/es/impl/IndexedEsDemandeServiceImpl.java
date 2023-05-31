@@ -357,7 +357,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         Set<String> mappingFichiers = EsUtils.getMappingFichiers();
         for (Entry<String, Map> subMapentry : entrySet) {
             String key = subMapentry.getKey();
-            if (!fieldsToExclude.contains(key) && !(isFilesDocs || mappingFichiers.contains(key))) {
+            if (!fieldsToExclude.contains(key) && (!isFilesDocs || mappingFichiers.contains(key))) {
                 properties.add(new EsProperty(subMapentry.getKey()));
                 getPropertyName(subMapentry.getValue(), subMapentry.getKey(), properties);
             }
@@ -666,7 +666,6 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
         if (!StringUtils.isBlank(demandeRecherche.getTexte())) {
             NativeSearchQueryBuilder builder = getFacetsAggregationQuery(demandeRecherche);
-            // LOGGER.info("BoolQueryBuilder = {}", builder.build().getQuery());
             SearchHits<DemandeEsRechercheDTO> searchHits = elasticsearchTemplate.search(builder.build(),
                     DemandeEsRechercheDTO.class);
 
@@ -871,13 +870,11 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             for (SearchHit<?> searchInnerHit : searchHitsArray) {
                 DemandeEsRechercheDTO content = (DemandeEsRechercheDTO) searchInnerHit.getContent();
                 String type = content.getTypeFichier();
-                if (type != null) {
-                    boolean isInternalFile = type.equals(DemandeFileEsDTO.TYPE.FICHIER_INTERNE.name());
-                    boolean isComplement = type.equals(DemandeFileEsDTO.TYPE.COMPLEMENT.name());
-                    boolean isCourrier = type.equals(DemandeFileEsDTO.TYPE.COURRIER.name());
-                    updateHighLightedFieldList(searchInnerHit.getHighlightFields(), demEsHighlightFields,
-                            isInternalFile, isComplement, isCourrier);
-                }
+                boolean isInternalFile = type.equals(DemandeFileEsDTO.TYPE.FICHIER_INTERNE.name());
+                boolean isComplement = type.equals(DemandeFileEsDTO.TYPE.COMPLEMENT.name());
+                boolean isCourrier = type.equals(DemandeFileEsDTO.TYPE.COURRIER.name());
+                updateHighLightedFieldList(searchInnerHit.getHighlightFields(), demEsHighlightFields, isInternalFile,
+                        isComplement, isCourrier);
             }
         }
     }
@@ -1164,9 +1161,8 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                         filesQueryStringQueryBuilder, demandeRecherche.getTexte(), boolQueryBuilder);
             }
         }
-        BoolQueryBuilder qb = getUiFilterQuery(boolQueryBuilder, demandeRecherche);
-        // LOGGER.info("BoolQueryBuilder = {}", qb);
-        return qb;
+
+        return getUiFilterQuery(boolQueryBuilder, demandeRecherche);
 
     }
 

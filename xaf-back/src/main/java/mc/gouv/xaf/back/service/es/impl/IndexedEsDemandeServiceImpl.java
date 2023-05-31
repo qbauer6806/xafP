@@ -357,7 +357,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         Set<String> mappingFichiers = EsUtils.getMappingFichiers();
         for (Entry<String, Map> subMapentry : entrySet) {
             String key = subMapentry.getKey();
-            if (!fieldsToExclude.contains(key) && (!isFilesDocs || mappingFichiers.contains(key))) {
+            if (!fieldsToExclude.contains(key) && !(isFilesDocs || mappingFichiers.contains(key))) {
                 properties.add(new EsProperty(subMapentry.getKey()));
                 getPropertyName(subMapentry.getValue(), subMapentry.getKey(), properties);
             }
@@ -666,6 +666,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
         if (!StringUtils.isBlank(demandeRecherche.getTexte())) {
             NativeSearchQueryBuilder builder = getFacetsAggregationQuery(demandeRecherche);
+            // LOGGER.info("BoolQueryBuilder = {}", builder.build().getQuery());
             SearchHits<DemandeEsRechercheDTO> searchHits = elasticsearchTemplate.search(builder.build(),
                     DemandeEsRechercheDTO.class);
 
@@ -1164,7 +1165,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             }
         }
         BoolQueryBuilder qb = getUiFilterQuery(boolQueryBuilder, demandeRecherche);
-        LOGGER.info("BoolQueryBuilder = {}", qb);
+        // LOGGER.info("BoolQueryBuilder = {}", qb);
         return qb;
 
     }

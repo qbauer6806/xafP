@@ -1161,8 +1161,9 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
                         filesQueryStringQueryBuilder, demandeRecherche.getTexte(), boolQueryBuilder);
             }
         }
-
-        return getUiFilterQuery(boolQueryBuilder, demandeRecherche);
+        BoolQueryBuilder qb = getUiFilterQuery(boolQueryBuilder, demandeRecherche);
+        LOGGER.debug("BoolQueryBuilder = {}", qb);
+        return qb;
 
     }
 

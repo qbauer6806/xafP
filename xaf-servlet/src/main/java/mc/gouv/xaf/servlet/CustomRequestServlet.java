@@ -122,7 +122,7 @@ public class CustomRequestServlet extends AbstractAfServlet {
                                         StandardCharsets.UTF_8.toString()),
                                 URLEncoder.encode(rechercheInput.getData().getNumeroFacture(),
                                         StandardCharsets.UTF_8.toString()),
-                                URLEncoder.encode(rechercheInput.getData().getNumeroFacture(),
+                                URLEncoder.encode(rechercheInput.getData().getNumeroTiers(),
                                         StandardCharsets.UTF_8.toString()));
                         serviceUrl += sComplementPost;
                     }

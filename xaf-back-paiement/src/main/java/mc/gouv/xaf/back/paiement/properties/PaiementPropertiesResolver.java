@@ -20,6 +20,10 @@ public interface PaiementPropertiesResolver {
 
     int getRegistre();
 
+    int getPermis();
+
+    String getImmat();
+
     String getVersionAller();
 
     String getVersionCapture();

@@ -2,16 +2,13 @@ package mc.gouv.xaf.back.paiement.dto.itg.cir;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ * Représente un objet pour les requêtes vers CIR
+ */
 public class CirRequestDTO {
 
     @JsonProperty("NumTpe")
     public String numTpe;
-    @JsonProperty("numPermis")
-    public String numPermis;
-    @JsonProperty("numImmat")
-    public String numImmat;
-    @JsonProperty("registre")
-    public Integer registre;
     @JsonProperty("dateOperation")
     public String dateOperation;
     @JsonProperty("montant")
@@ -26,10 +23,16 @@ public class CirRequestDTO {
     public String autorisation;
     @JsonProperty("transactionId")
     public String transactionId;
-    @JsonProperty("codeReglement")
-    public String codeReglement;
     @JsonProperty("email")
     public String email;
+    @JsonProperty("codeReglement")
+    public String codeReglement;
+    @JsonProperty("numPermis")
+    public String numPermis;
+    @JsonProperty("numImmat")
+    public String numImmat;
+    @JsonProperty("registre")
+    public Integer registre;
     @JsonProperty("codeOperation")
     public String codeOperation;
     @JsonProperty("montantOperation")
@@ -41,30 +44,6 @@ public class CirRequestDTO {
 
     public void setNumTpe(String numTpe) {
         this.numTpe = numTpe;
-    }
-
-    public String getNumPermis() {
-        return numPermis;
-    }
-
-    public void setNumPermis(String numPermis) {
-        this.numPermis = numPermis;
-    }
-
-    public String getNumImmat() {
-        return numImmat;
-    }
-
-    public void setNumImmat(String numImmat) {
-        this.numImmat = numImmat;
-    }
-
-    public Integer getRegistre() {
-        return registre;
-    }
-
-    public void setRegistre(Integer registre) {
-        this.registre = registre;
     }
 
     public String getDateOperation() {
@@ -123,6 +102,14 @@ public class CirRequestDTO {
         this.transactionId = transactionId;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     public String getCodeReglement() {
         return codeReglement;
     }
@@ -131,12 +118,28 @@ public class CirRequestDTO {
         this.codeReglement = codeReglement;
     }
 
-    public String getEmail() {
-        return email;
+    public String getNumPermis() {
+        return numPermis;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setNumPermis(String numPermis) {
+        this.numPermis = numPermis;
+    }
+
+    public String getNumImmat() {
+        return numImmat;
+    }
+
+    public void setNumImmat(String numImmat) {
+        this.numImmat = numImmat;
+    }
+
+    public Integer getRegistre() {
+        return registre;
+    }
+
+    public void setRegistre(Integer registre) {
+        this.registre = registre;
     }
 
     public String getCodeOperation() {
@@ -157,11 +160,8 @@ public class CirRequestDTO {
 
     @Override
     public String toString() {
-        return "CirRequest{" +
+        return "CirRequestDTO{" +
                 "numTpe='" + numTpe + '\'' +
-                ", numPermis='" + numPermis + '\'' +
-                ", numImmat='" + numImmat + '\'' +
-                ", registre=" + registre +
                 ", dateOperation='" + dateOperation + '\'' +
                 ", montant=" + montant +
                 ", nomPropr='" + nomPropr + '\'' +
@@ -169,8 +169,11 @@ public class CirRequestDTO {
                 ", codeTransaction='" + codeTransaction + '\'' +
                 ", autorisation='" + autorisation + '\'' +
                 ", transactionId='" + transactionId + '\'' +
-                ", codeReglement='" + codeReglement + '\'' +
                 ", email='" + email + '\'' +
+                ", codeReglement='" + codeReglement + '\'' +
+                ", numPermis='" + numPermis + '\'' +
+                ", numImmat='" + numImmat + '\'' +
+                ", registre=" + registre +
                 ", codeOperation='" + codeOperation + '\'' +
                 ", montantOperation='" + montantOperation + '\'' +
                 '}';

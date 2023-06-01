@@ -40,9 +40,11 @@ public interface DemarchesDataProvider {
 
     boolean getDemarcheCanHandleProperties();
 
-    boolean getDemarcheCanHandleDenjsGestionAgents();
+	boolean getDemarcheCanHandleDenjsGestionAgents();
 
-    String[] getGUKafkaSupportedVersions();
+    boolean getDemarcheCanHandleTaches();
+
+	String[] getGUKafkaSupportedVersions();
 
     StatutSimplifieEnum getStatutSimplifieFromStatutPublic(String statutPublic);
 

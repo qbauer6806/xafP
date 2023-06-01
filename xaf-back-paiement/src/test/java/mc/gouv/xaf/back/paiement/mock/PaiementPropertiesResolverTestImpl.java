@@ -23,6 +23,16 @@ public class PaiementPropertiesResolverTestImpl implements PaiementPropertiesRes
     }
 
     @Override
+    public int getPermis() {
+        return 0;
+    }
+
+    @Override
+    public String getImmat() {
+        return "";
+    }
+
+    @Override
     public String getVersionAller() {
         return null;
     }

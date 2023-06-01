@@ -62,11 +62,7 @@ public class DonneesPaiementsServiceImpl implements DonneesPaiementsService {
                             .format(DateTimeFormatter.ofPattern(AfBackUtils.DEFAULT_FRENCH_DATE_FORMAT)));
         }
 
-        CommandeDemandeDTO commandeDemandeDTO = commandesDemandesService.getDerniereCommandeDemande(demandeId);
-        if (null != commandeDemandeDTO) {
-            NumberFormat format = NumberFormat.getCurrencyInstance(Locale.FRANCE);
-            mav.addObject("montantPaiement", format.format(commandeDemandeDTO.getMontant()));
-        }
+        mav.addObject("montantPaiement", getMontant(demande));
 
         DemandeDataDTO datePaiement = demandesDataService.getDemandeData(demarcheId, demandeId, PaiementDemandeDataKeysEnum.DATE_PAIEMENT.name());
         if (datePaiement != null && StringUtils.isNotBlank(datePaiement.getValue())) {
@@ -87,4 +83,19 @@ public class DonneesPaiementsServiceImpl implements DonneesPaiementsService {
         }
     }
 
+    private String getMontant(DemandeDTO demandeDTO) {
+        String demarcheId = gouvPropertiesResolver.getDemarcheId();
+        NumberFormat format = NumberFormat.getCurrencyInstance(Locale.FRANCE);
+        if (demarchesDataProvider.getDemarcheCanHandleTaches()) {
+            DemandeDataDTO dataMontant = demandesDataService.getDemandeData(demarcheId, demandeDTO.getPkDemandes(), PaiementDemandeDataKeysEnum.MONTANT_PAYE.name());
+            if (null != dataMontant) {
+                return format.format(Double.parseDouble(dataMontant.getValue()));
+            }
+        }
+        CommandeDemandeDTO commandeDemandeDTO = commandesDemandesService.getDerniereCommandeDemande(demandeDTO.getPkDemandes());
+        if (null != commandeDemandeDTO) {
+            return format.format(commandeDemandeDTO.getMontant());
+        }
+        return "";
+    }
 }

@@ -15,6 +15,7 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.enums.MailSupportEnum;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,7 @@ import org.springframework.web.client.HttpServerErrorException;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -35,8 +37,10 @@ public class ArchivageServiceImpl implements ArchivageService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArchivageServiceImpl.class);
 
     private final SimpleDateFormat simpleDateTimeFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-    private final String STATUT_OK = "Succès";
-    private final String STATUT_KO = "Échec";
+    private static final String STATUT_OK = "Succès";
+    private static final String STATUT_KO = "Échec";
+    private static final String CODE_NOTICE_PERMIS = "CIR_PERMIS";
+    private static final String CODE_NOTICE_REGISTRE = "CIR_CG";
 
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
@@ -63,9 +67,18 @@ public class ArchivageServiceImpl implements ArchivageService {
     private AfBackUtils afBackUtils;
 
     @Transactional
-    public List<DemandeFileDTO> archivageDocuments(String refPermis, List<DemandeFileDTO> files, DemandeDTO demandeDTO) {
-
-        LOGGER.info("Début archivage des documents");
+    public List<DemandeFileDTO> archivagePermis(String refPermis, List<DemandeFileDTO> files, DemandeDTO demandeDTO) {
+        LOGGER.info("Début archivage des documents dans le permis {}", refPermis);
+        return archivageDocument(refPermis, files, demandeDTO, CODE_NOTICE_PERMIS);
+    }
+    
+    @Transactional
+    public List<DemandeFileDTO> archivageRegistre(String refRegistre, List<DemandeFileDTO> files, DemandeDTO demandeDTO) {
+        LOGGER.info("Début archivage des documents dans le registre {}", refRegistre);
+        return archivageDocument(refRegistre, files, demandeDTO, CODE_NOTICE_REGISTRE);
+    }
+    
+    private List<DemandeFileDTO> archivageDocument(String ref, List<DemandeFileDTO> files, DemandeDTO demandeDTO, String codeNotice) {
         List<DemandeFileDTO> fileDocumentList = new ArrayList<>();
         double progresArchivage = 0;
         double valeurStep = 1d / files.size();
@@ -76,8 +89,9 @@ public class ArchivageServiceImpl implements ArchivageService {
         archivageStatut.setAvancement(ArchivageStatutAvancementEnum.EN_COURS);
         archivageStatut.setProgression(progresArchivage);
         archivageProgress.put(demandeId, archivageStatut);
-
         ArchivageRapportExportDTO archivageRapportExportDTO = new ArchivageRapportExportDTO();
+        archivageRapportExportDTO.setCodeNotice(codeNotice);
+        archivageRapportExportDTO.setRefDocument(ref);
 
         // En début de process, on boucle sur les fichiers pour initialiser le rapport d'archivage
         // Si on le fait après, il pourrait y avoir une erreur qui stop le process
@@ -88,13 +102,11 @@ public class ArchivageServiceImpl implements ArchivageService {
         LOGGER.info("Vérification de l'existence du document");
         RioDocumentDTO rioDocumentDTO = new RioDocumentDTO();
         try {
-            try {
-                rioDocumentDTO = rioService.getDocument(refPermis);
-            } catch (HttpServerErrorException e) {
-                // Si le document n'existe pas, nous devons le créer
-                if (e.getStatusCode().equals(HttpStatus.INTERNAL_SERVER_ERROR)) {
-                    rioDocumentDTO = rioService.createDocument(refPermis);
-                }
+            rioDocumentDTO = rioService.getDocument(ref, codeNotice);
+        } catch (HttpServerErrorException e) {
+            // Si le document n'existe pas, nous devons le créer
+            if (e.getStatusCode().equals(HttpStatus.INTERNAL_SERVER_ERROR)) {
+                rioDocumentDTO = rioService.createDocument(ref, codeNotice);
             }
         } catch (Exception e) {
             LOGGER.info("Problème avec l'api RIO");
@@ -130,7 +142,7 @@ public class ArchivageServiceImpl implements ArchivageService {
             for (Map.Entry<String, InputStream> fileTiff : filesTiff.entrySet()) {
                 try {
                     LOGGER.info("Envoi du documents en GED pour {}", fileTiff.getKey());
-                    rioService.createFileDocument(rioDocumentDTO.getRefDocument(), fileTiff.getKey(), IOUtils.toByteArray(fileTiff.getValue()));
+                    rioService.createFileDocument(rioDocumentDTO.getRefDocument(), fileTiff.getKey(), IOUtils.toByteArray(fileTiff.getValue()), codeNotice);
                     fileTiff.getValue().close();
                     archivageRapportExportDTO.addFichiersDeposes(createFichierDepose(file, STATUT_OK, fileTiff.getKey()));
                 } catch (Exception e) {
@@ -153,53 +165,50 @@ public class ArchivageServiceImpl implements ArchivageService {
             }
         }
 
-        archivageStatut.setProgression(1d);
-        archivageStatut.setAvancement(ArchivageStatutAvancementEnum.COMPLETE);
-
         LOGGER.info("Fin archivage des documents");
 
         archivageRapportExportDTO.setDemarcheId(demandeDTO.getDemarcheId());
         archivageRapportExportDTO.setDemandeFlatDTO(afBackUtils.demandeDTOToDemandeFlatDTO(demandeDTO));
 
-        try (ByteArrayOutputStream rapport = generateArchivageRecap(archivageRapportExportDTO, demandeDTO)) {
-            processErreursArchivage(erreurRIO, erreurConvertisseur, demandeDTO, rapport);
+        String nomRapport = genererNomRapport(demandeDTO.getIdentifiant(), archivageRapportExportDTO);
+        try (ByteArrayOutputStream rapport = generateArchivageRecap(archivageRapportExportDTO, demandeDTO, nomRapport)) {
+            processErreursArchivage(erreurRIO, erreurConvertisseur, demandeDTO, rapport, nomRapport);
         } catch (Exception e) {
             LOGGER.error("Erreur lors de la génération du rapport d'archivage pour la demande {}", demandeId, e);
         }
-
         return fileDocumentList;
     }
 
-    private void processErreursArchivage(boolean erreurRIO, boolean erreurConvertisseur, DemandeDTO demandeDTO, ByteArrayOutputStream rapport) {
+    private void processErreursArchivage(boolean erreurRIO, boolean erreurConvertisseur, DemandeDTO demandeDTO, ByteArrayOutputStream rapport, String nomRapport) {
         if (erreurRIO) {
-            sendMailProblemeRIO(demandeDTO, rapport);
+            sendMailProblemeRIO(demandeDTO, rapport, nomRapport);
         } else if (erreurConvertisseur) {
-            sendMailProblemeConvertisseur(demandeDTO, rapport);
+            sendMailProblemeConvertisseur(demandeDTO, rapport, nomRapport);
         }
     }
 
-    private void sendMailProblemeConvertisseur(DemandeDTO demandeDTO, ByteArrayOutputStream rapport) {
+    private void sendMailProblemeConvertisseur(DemandeDTO demandeDTO, ByteArrayOutputStream rapport, String nomRapport) {
         String subjectTemplateCode = "MAIL_ECHEC_CONVERTISSEUR_OBJET";
         String bodyTemplateCode = "MAIL_ECHEC_CONVERTISSEUR_CORPS";
         Set<String> list = mailService.getMailingLists(MailSupportEnum.XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE.name(),
                 MailSupportEnum.XAF_ADRESSES_MAIL_ADMIN_METIER.name());
         Map<String, InputStream> pj = new HashMap<>();
-        pj.put("Rapport archivage.xlsx", new ByteArrayInputStream(rapport.toByteArray()));
+        pj.put(nomRapport, new ByteArrayInputStream(rapport.toByteArray()));
         mailService.sendMailSupport(subjectTemplateCode, bodyTemplateCode, list, demandeDTO.getPkDemandes(), demandeDTO.getIdentifiant(), 8, null, pj);
     }
 
-    private void sendMailProblemeRIO(DemandeDTO demandeDTO, ByteArrayOutputStream rapport) {
+    private void sendMailProblemeRIO(DemandeDTO demandeDTO, ByteArrayOutputStream rapport, String nomRapport) {
         String subjectTemplateCode = "MAIL_RIO_ECHEC_ARCHIVAGE_OBJET";
         String bodyTemplateCode = "MAIL_RIO_ECHEC_ARCHIVAGE_CORPS";
         Set<String> list = mailService.getMailingLists(MailSupportEnum.XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE.name(),
                 MailSupportEnum.XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE_RIO.name(),
                 MailSupportEnum.XAF_ADRESSES_MAIL_ADMIN_METIER.name());
         Map<String, InputStream> pj = new HashMap<>();
-        pj.put("Rapport archivage.xlsx", new ByteArrayInputStream(rapport.toByteArray()));
+        pj.put(nomRapport, new ByteArrayInputStream(rapport.toByteArray()));
         mailService.sendMailSupport(subjectTemplateCode, bodyTemplateCode, list, demandeDTO.getPkDemandes(), demandeDTO.getIdentifiant(), 9, null, pj);
     }
 
-    private ByteArrayOutputStream generateArchivageRecap(ArchivageRapportExportDTO rapportExportDTO, DemandeDTO demandeDTO) throws Exception {
+    private ByteArrayOutputStream generateArchivageRecap(ArchivageRapportExportDTO rapportExportDTO, DemandeDTO demandeDTO, String nomRapport) throws IOException {
         LOGGER.info("Constitution du modèle pour la génération du recap archivage...");
         Map<String, Object> model = new HashMap<>();
         model.put("demarcheId", rapportExportDTO.getDemarcheId());
@@ -216,17 +225,27 @@ public class ArchivageServiceImpl implements ArchivageService {
         excelExportService.exportExcel("rapport_archivage.xlsx", model, output);
 
         LOGGER.info("Sauvegarde du fichier...");
-
-        String fileName = "Export_Archivage_" + demandeDTO.getIdentifiant() + "_" + AfBackUtils.generateFileDateSuffix() + ".xlsx";
         ByteArrayOutputStream outputSave = new ByteArrayOutputStream();
-        String url = fileService.saveFile(demandeDTO, fileName, gouvPropertiesResolver.getContainerId(),
+        String url = fileService.saveFile(demandeDTO, nomRapport, gouvPropertiesResolver.getContainerId(),
                 "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", new ByteArrayInputStream(output.toByteArray()), outputSave);
 
         outputSave.close();
 
-        saveFichier(fileName, url, demandeDTO, demandeDTO.getDemarcheId());
+        saveFichier(nomRapport, url, demandeDTO, demandeDTO.getDemarcheId());
 
         return output;
+    }
+
+    private String genererNomRapport(String identifiant, ArchivageRapportExportDTO rapportExportDTO) {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Export_Archivage_");
+        if (StringUtils.equals(rapportExportDTO.getCodeNotice(), CODE_NOTICE_PERMIS)) {
+            builder.append("Permis_").append(rapportExportDTO.getRefDocument()).append('_');
+        } else if (StringUtils.equals(rapportExportDTO.getCodeNotice(), CODE_NOTICE_REGISTRE)) {
+            builder.append("Registre_").append(rapportExportDTO.getRefDocument()).append('_');
+        }
+        builder.append(identifiant).append('_').append(AfBackUtils.generateFileDateSuffix()).append(".xlsx");
+        return builder.toString();
     }
 
     private void saveFichier(String fileName, String url, DemandeDTO demande, String demarcheId) {

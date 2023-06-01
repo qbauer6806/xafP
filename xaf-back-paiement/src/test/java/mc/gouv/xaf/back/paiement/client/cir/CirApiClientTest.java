@@ -1,40 +1,45 @@
 package mc.gouv.xaf.back.paiement.client.cir;
 
-import mc.gouv.xaf.back.paiement.dto.CommandeDemandeArticleDTO;
-import mc.gouv.xaf.back.paiement.dto.InformationFacturationDTO;
-import mc.gouv.xaf.back.paiement.mock.PaiementPropertiesResolverTestImpl;
-import mc.gouv.xaf.back.paiement.retry.OperationHelper;
-import mc.gouv.xaf.back.paiement.service.itg.cir.CirApiApiClient;
-import org.junit.Ignore;
-import org.junit.Test;
-
 import java.io.InputStream;
-import java.net.Proxy;
 import java.util.ArrayList;
 import java.util.List;
 
+import mc.gouv.xaf.back.paiement.dto.itg.cir.CirRequestDTO;
+import org.junit.Ignore;
+import org.junit.Test;
+
+import mc.gouv.xaf.back.paiement.mock.PaiementPropertiesResolverTestImpl;
+import mc.gouv.xaf.back.paiement.retry.OperationHelper;
+import mc.gouv.xaf.back.paiement.service.impl.FactureApiClientImpl;
+
 public class CirApiClientTest {
 
-    CirApiApiClient cirApiClient = new CirApiApiClient(Proxy.NO_PROXY, new PaiementPropertiesResolverTestImpl(),
+    FactureApiClientImpl cirApiClient = new FactureApiClientImpl(new PaiementPropertiesResolverTestImpl(),
             new OperationHelper(new PaiementPropertiesResolverTestImpl()), null);
 
 
     @Test
     @Ignore
     public void createFactureTest() {
-        String numPermis = "292093";
-        String numImmat = " ";
-        String codeTransaction = "1591658";
-        CommandeDemandeArticleDTO articleDTO = new CommandeDemandeArticleDTO();
-        articleDTO.setCodeTarif("a");
-        articleDTO.setMontant(90.0);
-        List<CommandeDemandeArticleDTO> articles = new ArrayList<>();
-        articles.add(articleDTO);
-        InformationFacturationDTO infoFacturation = new InformationFacturationDTO();
-        infoFacturation.setNomTitulaire("Nom");
-        infoFacturation.setPrenomTitulaire("Prenom");
-        infoFacturation.setEmailUsager("mail");
-        String resultat = cirApiClient.createFacture(numPermis, numImmat, 90.0, codeTransaction, infoFacturation, articles, null, null).get();
+        List<CirRequestDTO> lignes = new ArrayList<>();
+        CirRequestDTO request = new CirRequestDTO();
+        request.setNumTpe("TPEnum");
+        request.setNumPermis("292093");
+        request.setNumImmat("");
+        request.setRegistre(0);
+        request.setDateOperation("2023-04-09");
+        request.setMontant(90.0);
+        request.setNomPropr("Nom");
+        request.setPrenomPropr("Prenom");
+        request.setCodeTransaction("1111");
+        request.setAutorisation("1111");
+        request.setTransactionId("1111");
+        request.setCodeReglement("Y");
+        request.setEmail("mail");
+        request.setCodeOperation("P2");
+        request.setMontantOperation("20.0");
+        lignes.add(request);
+        String resultat = cirApiClient.createFacture(lignes, null).get();
         System.out.println(resultat);
     }
 

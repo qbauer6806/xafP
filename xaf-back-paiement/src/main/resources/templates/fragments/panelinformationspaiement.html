@@ -17,7 +17,8 @@
 
         <div class="row mt-15">
             <div class="col-xs-6">
-                <label for="montant">Montant de la demande : </label>
+                <label th:if="${statutPaiementCode} != 'DEBIT_REALISE'" for="montant">Montant de la demande : </label>
+                <label th:if="${statutPaiementCode} == 'DEBIT_REALISE'" for="montant">Montant débité : </label>
                 <br>
                 <input class="form-control" type="text" id="montant" th:value="${montantPaiement}" disabled="true" />
             </div>

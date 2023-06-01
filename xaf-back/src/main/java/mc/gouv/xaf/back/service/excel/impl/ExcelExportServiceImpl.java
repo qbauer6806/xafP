@@ -16,31 +16,45 @@ import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.excel.ExcelExportService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 
+import javax.servlet.http.Cookie;
+
 @Component
 public class ExcelExportServiceImpl implements ExcelExportService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExcelExportServiceImpl.class);
-    
+
     @Autowired
     private AfBackUtils afBackUtils;
-    
+
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
 
     @Override
     public void exportExcel(String templateFileName, Map<String, Object> model, OutputStream outputStream) {
 
-    	// #16180 Ancienne façon : aller chercher dans src/main/resources... maintenant on cherche dans FILE
-    	LOGGER.info("Chargement du template {} via appel à FILE...", templateFileName);
-    	try (InputStream is = afBackUtils.getFileClient().getFile(gouvPropertiesResolver.getDemarcheId(), "MODELES", templateFileName)) {
+        // #16180 Ancienne façon : aller chercher dans src/main/resources... maintenant on cherche dans FILE
+        LOGGER.info("Chargement du template {} via appel à FILE...", templateFileName);
+        try (InputStream is = afBackUtils.getFileClient().getFile(gouvPropertiesResolver.getDemarcheId(), "MODELES", templateFileName)) {
             Context context = new Context();
-            for (Map.Entry<String,Object> entry : model.entrySet()) {
+            for (Map.Entry<String, Object> entry : model.entrySet()) {
                 context.putVar(entry.getKey(), entry.getValue());
             }
             JxlsHelper.getInstance().processTemplate(is, outputStream, context);
         } catch (IOException e) {
             LOGGER.error("Erreur lors de la génération Excel", e);
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Cookie creerCookieTelechargement() {
+        Cookie telechargementCookie = new Cookie("exportEnCours", "0");
+        telechargementCookie.setMaxAge(60 * 2);
+        telechargementCookie.setSecure(true);
+        telechargementCookie.setPath("/");
+        return telechargementCookie;
     }
 
 }

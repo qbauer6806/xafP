@@ -59,7 +59,6 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
     private static final int TAILLE_MAX_NOMS = 45;
     private static final int TAILLE_MAX_OBJETS = 50;
 
-    // TODO propre ?
     private static final String EN_COURS_PAIEMENT_STATUT_KEY = "EN_COURS_PAIEMENT";
 
     @Autowired
@@ -125,7 +124,7 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
         BigDecimal totalCommande = BigDecimal.ZERO;
         Map<Integer, BigDecimal> totauxDemandes = new HashMap<>();
         Map<Integer, DemandeBO> demandes = new HashMap<>();
-        Map<Integer, Map<String, BigDecimal>> articlesDemandes = new HashMap<>();
+        Map<Integer, List<CommandeDemandeArticleBO>> articlesDemandes = new HashMap<>();
 
         for (Integer demandeId : demandesIdList) {
             Optional<DemandeBO> demandeBOOptional = demandesRepository.findById(demandeId);
@@ -142,10 +141,11 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
                 throw new DemarchesServiceException("La demande " + demandeId + " a déjà une empreinte bancaire valide.", HttpStatus.CONFLICT);
             }
 
-            Map<String, BigDecimal> articlesDemande = montantService.getArticles(DemandesTransformer.bo2Dto(demandeBO, new String[]{}));
+            var articlesDemande = montantService.getArticles(DemandesTransformer.bo2Dto(demandeBO, new String[]{}));
             BigDecimal montantdemande = BigDecimal.ZERO;
-            for (Map.Entry<String, BigDecimal> entry : articlesDemande.entrySet()) {
-                montantdemande = montantdemande.add(entry.getValue());
+            for (CommandeDemandeArticleBO article : articlesDemande) {
+                BigDecimal montantArticle = BigDecimal.valueOf(article.getMontant());
+                montantdemande = montantdemande.add(montantArticle);
             }
             articlesDemandes.put(demandeId, articlesDemande);
             totauxDemandes.put(demandeId, montantdemande);
@@ -175,12 +175,9 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
             commandeDemande = commandeDemandeRepository.save(commandeDemande);
             LOGGER.info("Created [ commandeDemande {}] ", commandeDemande);
 
-            List<CommandeDemandeArticleBO> articles = new ArrayList<>();
-            for (Map.Entry<String, BigDecimal> entry : articlesDemandes.get(demandeId).entrySet()) {
-                CommandeDemandeArticleBO articleBO = new CommandeDemandeArticleBO();
+            var articles = new ArrayList<CommandeDemandeArticleBO>();
+            for (CommandeDemandeArticleBO articleBO : articlesDemandes.get(demandeId)) {
                 articleBO.setCommandeDemande(commandeDemande);
-                articleBO.setCodeTarif(entry.getKey());
-                articleBO.setMontant(entry.getValue().doubleValue());
                 articleBO = commandeDemandeArticleRepository.save(articleBO);
                 LOGGER.info("Created [ commandeDemandeArticle {}] ", articleBO);
                 articles.add(articleBO);

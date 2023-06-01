@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import mc.gouv.xaf.back.service.data.PropertiesService;
+import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.delegate.JavaDelegate;
 import org.apache.commons.lang3.BooleanUtils;
@@ -47,6 +49,7 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
     public static final String MC_CAPTURE_RESULT = "MC_CAPTURE_RESULT";
     public static final String MC_FACTURE_REFERENCE = "MC_FACTURE_REFERENCE";
     public static final String MC_IS_DEBIT_KO = "MC_IS_DEBIT_KO";
+    private static final String NB_JOURS_AVANT_EXPIRATION_PAIEMENT = "NB_JOURS_AVANT_EXPIRATION_PAIEMENT";
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMDemandePaiementDelegate.class);
 
     @Autowired
@@ -87,6 +90,9 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
     
     @Autowired
     private MessageSource messageSource;
+
+    @Autowired
+    private PropertiesService propertiesService;
 
     @Override
     public void execute(DelegateExecution execution) throws Exception {
@@ -132,6 +138,7 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
             // TODO sauvegarder le statut du paiement de façon plus correct que dans les demandes data
             demandesDataService.saveOrUpdateDemandeData(demarcheId, demandeId, PaiementDemandeDataKeysEnum.STATUT_PAIEMENT.name(), PaiementStatutEnum.DEBIT_REALISE.name());
             demandesDataService.saveOrUpdateDemandeData(demarcheId, demandeId, PaiementDemandeDataKeysEnum.DATE_PAIEMENT.name(), LocalDateTime.now().format(DTF_AAAA_MM_JJ));
+            demandesDataService.saveOrUpdateDemandeData(demarcheId, demandeId, PaiementDemandeDataKeysEnum.MONTANT_PAYE.name(), operation.getMontant().toString());
             paiementHistoriqueService.ajouterHistoriqueDebitOK(demandeDto);
             // On récupère le flag pour l'historique
             if (BooleanUtils.isTrue((Boolean) gouvBPM.getProcessBusinessVariables(demandeId).get(MC_IS_DEBIT_KO))) {
@@ -154,8 +161,7 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
 		emailInfo.setLangue(demandeDTO.getLangue());
 		emailInfo.setBodyTemplateCode(bodyTemplateCode);
 		emailInfo.setSubjectTemplateCode(subjectTemplateCode);
-		emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(),
-				afBackUtils.getDemarcheInfos().getEmailFromNom());
+		emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(), afBackUtils.getDemarcheInfos().getEmailFromNom());
 		emailInfo.addTo(demandeDTO.getUsagerEmail(), demandeDTO.getUsagerPrenom() + " " + demandeDTO.getUsagerNom());
 		emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, demandeDTO.getIdentifiant());
 		Map<String, Object> model = new HashMap<>();
@@ -164,7 +170,11 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
 		model.put("urlFront", gouvPropertiesResolver.getFrontUrl());
 		model.put("identifiant", demandeDTO.getIdentifiant());
 		model.put("pkDemande", demandeDTO.getPkDemandes());
-		model.put("dateExpirationPaiement", LocalDate.now().plusDays(35)
+
+        // Calcul de la date d'expoiration de la demande avec valeur par défaut à 35 jours
+        PropertiesDTO prop = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), NB_JOURS_AVANT_EXPIRATION_PAIEMENT);
+        int nbJoursAvantExpiration =  (null != prop) ? Integer.parseInt(prop.getValue()) : 35;
+		model.put("dateExpirationPaiement", LocalDate.now().plusDays(nbJoursAvantExpiration)
 				.format(DateTimeFormatter.ofPattern(AfBackUtils.DEFAULT_FRENCH_DATE_FORMAT)));
 		try {
 			mailService.sendMail(emailInfo, model);

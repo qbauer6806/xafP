@@ -9,6 +9,10 @@ public class ArchivageRapportExportDTO {
 
     private String demarcheId;
 
+    private String codeNotice;
+
+    private String refDocument;
+
     private DemandeFlatDTO demandeFlatDTO;
 
     private List<ArchivageFichierInitalDTO> fichiersInitiaux;
@@ -23,6 +27,22 @@ public class ArchivageRapportExportDTO {
 
     public void setDemarcheId(String demarcheId) {
         this.demarcheId = demarcheId;
+    }
+
+    public String getCodeNotice() {
+        return codeNotice;
+    }
+
+    public void setCodeNotice(String codeNotice) {
+        this.codeNotice = codeNotice;
+    }
+
+    public String getRefDocument() {
+        return refDocument;
+    }
+
+    public void setRefDocument(String refDocument) {
+        this.refDocument = refDocument;
     }
 
     public List<ArchivageFichierInitalDTO> getFichiersInitiaux() {
@@ -77,7 +97,7 @@ public class ArchivageRapportExportDTO {
         }
 
         if (fichier != null) {
-            fichier.setRang(this.fichiersDeposes.size() + 1 + "");
+            fichier.setRang(String.valueOf(this.fichiersDeposes.size() + 1));
             this.fichiersDeposes.add(fichier);
         }
     }

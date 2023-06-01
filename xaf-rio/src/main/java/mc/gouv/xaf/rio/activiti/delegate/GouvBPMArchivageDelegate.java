@@ -31,6 +31,7 @@ public class GouvBPMArchivageDelegate implements JavaDelegate {
     public static final String ARCHIVAGE_RIO_COMPLETED = "ARCHIVAGE_RIO_COMPLETED";
 
     public static final String MC_REFERENCE_PERMIS = "MC_REFERENCE_PERMIS";
+    public static final String CODE_NOTICE_PERMIS = "CODE_NOTICE_PERMIS";
     public static final String MC_ORDRE_FICHIERS = "MC_ORDRE_FICHIERS";
     public static final String NOMBRE_FICHIERS_ERREUR_ARCHIVAGE = "NOMBRE_FICHIERS_ERREUR_ARCHIVAGE";
 
@@ -113,24 +114,24 @@ public class GouvBPMArchivageDelegate implements JavaDelegate {
             String reference = (String) gouvBPM.getProcessBusinessVariables(demandeId).get(MC_REFERENCE_PERMIS);
 
             List<DemandeFileDTO> fichiers = getAllFichiers(demandeDto);
-            List<DemandeFileDTO> fichiersArchives = archivageService.archivageDocuments(reference, fichiers, demandeDto);
+            List<DemandeFileDTO> fichiersArchives = archivageService.archivagePermis(reference, fichiers, demandeDto);
 
             int differenceFichiersArchives = fichiers.size() - fichiersArchives.size();
             if (differenceFichiersArchives > 0) {
                 // Sauvegarde du numéro de facture dans les données de la demande
-                demandesDataService.saveOrUpdateDemandeData(demarcheId, demandeId, NOMBRE_FICHIERS_ERREUR_ARCHIVAGE, differenceFichiersArchives + "");
+                demandesDataService.saveOrUpdateDemandeData(demarcheId, demandeId, NOMBRE_FICHIERS_ERREUR_ARCHIVAGE, String.valueOf(differenceFichiersArchives));
                 histoService.actionSysteme(demandeId, "ECHEC", "Archivage automatique des fichiers en échec");
             } else {
                 histoService.actionSysteme(demandeId, "SUCCES", "Archivage automatique des fichiers réalisé avec succès");
             }
         } else {
             LOGGER.info("Archivage désactivé");
-            ArchivageStatutDTO statutDTO = new ArchivageStatutDTO();
-            statutDTO.setAvancement(ArchivageStatutAvancementEnum.COMPLETE);
-            statutDTO.setProgression(1d);
-            ArchivageService.archivageProgress.put(demandeId, statutDTO);
         }
 
+        ArchivageStatutDTO statutDTO = new ArchivageStatutDTO();
+        statutDTO.setAvancement(ArchivageStatutAvancementEnum.COMPLETE);
+        statutDTO.setProgression(1d);
+        ArchivageService.archivageProgress.put(demandeId, statutDTO);
         demandesDataService.saveOrUpdateDemandeData(demarcheId, demandeId, ARCHIVAGE_RIO_COMPLETED, "true");
 
         LOGGER.info("==== xaf-back-stc Archivage <fin>");

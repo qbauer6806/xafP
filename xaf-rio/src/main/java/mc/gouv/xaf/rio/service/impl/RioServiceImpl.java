@@ -13,7 +13,6 @@ public class RioServiceImpl implements RioService {
 
     // Variabiliser si besoin
     private static final String CODE_APPLI = "CIR";
-    private static final String CODE_NOTICE = "CIR_PERMIS";
 
     @Autowired
     private RioApiClient rioApiClient;
@@ -22,31 +21,31 @@ public class RioServiceImpl implements RioService {
     private GouvPropertiesResolver propertiesResolver;
 
     @Override
-    public RioDocumentDTO createDocument(String refDocument) {
-        return rioApiClient.createDocument(CODE_APPLI, propertiesResolver.getDemarcheId(), CODE_NOTICE, refDocument);
+    public RioDocumentDTO createDocument(String refDocument, String codeNotice) {
+        return rioApiClient.createDocument(CODE_APPLI, propertiesResolver.getDemarcheId(), codeNotice, refDocument);
     }
 
     @Override
-    public RioDocumentDTO getDocument(String refDocument) {
-        return rioApiClient.getDocument(CODE_APPLI, refDocument, CODE_NOTICE, propertiesResolver.getDemarcheId());
+    public RioDocumentDTO getDocument(String refDocument, String codeNotice) {
+        return rioApiClient.getDocument(CODE_APPLI, refDocument, codeNotice, propertiesResolver.getDemarcheId());
     }
 
     @Override
-    public RioDocumentDTO deleteDocument(String refDocument) {
-        return rioApiClient.deleteDocument(CODE_APPLI, refDocument, CODE_NOTICE, propertiesResolver.getDemarcheId());
+    public RioDocumentDTO deleteDocument(String refDocument, String codeNotice) {
+        return rioApiClient.deleteDocument(CODE_APPLI, refDocument, codeNotice, propertiesResolver.getDemarcheId());
     }
 
     @Override
-    public RioFileDocumentDTO createFileDocument(String refDocument, String filename, byte[] file) {
+    public RioFileDocumentDTO createFileDocument(String refDocument, String filename, byte[] file, String codeNotice) {
         // Récupération de la version du document actuelle pour modifier la dernière
-        RioDocumentDTO rioDocumentDTO = getDocument(refDocument);
+        RioDocumentDTO rioDocumentDTO = getDocument(refDocument, codeNotice);
         Long keyDocument = rioDocumentDTO.getKeyDocument();
 
-        return rioApiClient.createFileDocument(CODE_APPLI, refDocument, keyDocument, CODE_NOTICE, propertiesResolver.getDemarcheId(), filename, file);
+        return rioApiClient.createFileDocument(CODE_APPLI, refDocument, keyDocument, codeNotice, propertiesResolver.getDemarcheId(), filename, file);
     }
 
     @Override
-    public RioFileDocumentDTO getFileDocument(String refDocument, Integer keyFile) {
-        return rioApiClient.getFileDocument(CODE_APPLI, refDocument, keyFile, CODE_NOTICE, propertiesResolver.getDemarcheId());
+    public RioFileDocumentDTO getFileDocument(String refDocument, Integer keyFile, String codeNotice) {
+        return rioApiClient.getFileDocument(CODE_APPLI, refDocument, keyFile, codeNotice, propertiesResolver.getDemarcheId());
     }
 }

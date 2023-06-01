@@ -50,7 +50,7 @@ public class MoneticoDTO {
     /**
      * Informations relatives à la commande au format JSON en Base64
      */
-    private String contexteCommande;
+    private String contexte_commande;
 
     /**
      * Nom de la société lié au numéro de TPE
@@ -81,7 +81,7 @@ public class MoneticoDTO {
     private String urlRetourErr;
 
     private String threeDSecureChallenge;
-    private String modeAffichage;
+    private String mode_affichage;
     private String nbrech = "";
     private String dateech1 = "";
     private String montantech1 = "";
@@ -158,12 +158,12 @@ public class MoneticoDTO {
         this.mac = mac;
     }
 
-    public String getContexteCommande() {
-        return contexteCommande;
+    public String getContexte_commande() {
+        return contexte_commande;
     }
 
-    public void setContexteCommande(String contexteCommande) {
-        this.contexteCommande = contexteCommande;
+    public void setContexte_commande(String contexte_commande) {
+        this.contexte_commande = contexte_commande;
     }
 
     public String getSociete() {
@@ -216,12 +216,12 @@ public class MoneticoDTO {
         this.threeDSecureChallenge = threeDSecureChallenge;
     }
 
-    public String getModeAffichage() {
-        return modeAffichage;
+    public String getMode_affichage() {
+        return mode_affichage;
     }
 
-    public void setModeAffichage(String modeAffichage) {
-        this.modeAffichage = modeAffichage;
+    public void setMode_affichage(String mode_affichage) {
+        this.mode_affichage = mode_affichage;
     }
 
     public String getNbrech() {
@@ -306,14 +306,14 @@ public class MoneticoDTO {
                 ", reference='" + reference + '\'' +
                 ", lgue='" + lgue + '\'' +
                 ", MAC='" + mac + '\'' +
-                ", contexte_commande='" + contexteCommande + '\'' +
+                ", contexte_commande='" + contexte_commande + '\'' +
                 ", societe='" + societe + '\'' +
                 ", texteLibre='" + texteLibre + '\'' +
                 ", mail='" + mail + '\'' +
                 ", urlRetourOk='" + urlRetourOk + '\'' +
                 ", urlRetourErr='" + urlRetourErr + '\'' +
                 //", ThreeDSecureChallenge='" + ThreeDSecureChallenge + '\'' +
-                ", mode_affichage='" + modeAffichage + '\'' +
+                ", mode_affichage='" + mode_affichage + '\'' +
                 ", nbrech='" + nbrech + '\'' +
                 ", dateech1='" + dateech1 + '\'' +
                 ", montantech1='" + montantech1 + '\'' +

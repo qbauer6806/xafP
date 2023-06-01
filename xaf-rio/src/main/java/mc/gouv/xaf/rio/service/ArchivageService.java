@@ -16,12 +16,21 @@ public interface ArchivageService {
     Map<Integer, ArchivageStatutDTO> archivageProgress = new ConcurrentHashMap<>();
 
     /**
-     * Archive les documents en attribut
+     * Archive les documents en attribut dans un registre donné
      *
      * @param refPermis     Référence permis
      * @param files         Fichiers à archiver
      * @param demandeDTO    demande
      * @return Liste des fichiers archivés
      */
-    List<DemandeFileDTO> archivageDocuments(String refPermis, List<DemandeFileDTO> files, DemandeDTO demandeDTO);
+    List<DemandeFileDTO> archivagePermis(String refPermis, List<DemandeFileDTO> files, DemandeDTO demandeDTO);
+    
+    /**
+     * Archive les documents en attribut dans un registre donné
+     * @param refRegistre	Référence permis
+     * @param files			Fichiers à archiver
+     * @param demandeDTO	demande
+     * @return
+     */
+    List<DemandeFileDTO> archivageRegistre(String refRegistre, List<DemandeFileDTO> files, DemandeDTO demandeDTO);
 }

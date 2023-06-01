@@ -1,6 +1,31 @@
 package mc.gouv.xaf.back.paiement.service.itg.monetico;
 
+import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
+
+import java.math.BigDecimal;
+import java.net.HttpURLConnection;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.HttpResponseException;
+import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.client.HttpUrlConnectorProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+
 import mc.gouv.xaf.back.paiement.data.enums.OperationStatutEnum;
 import mc.gouv.xaf.back.paiement.dto.CommandeDTO;
 import mc.gouv.xaf.back.paiement.dto.CommandeOperationDTO;
@@ -17,29 +42,6 @@ import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.enums.MailSupportEnum;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.http.client.HttpResponseException;
-import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.client.HttpUrlConnectorProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.math.BigDecimal;
-import java.net.HttpURLConnection;
-import java.net.Proxy;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
-import static mc.gouv.xaf.back.paiement.LoggerMethodeUtils.logStartMethod;
 
 @Component
 public class MoneticoApiClient implements PaiementApiClient {
@@ -57,8 +59,7 @@ public class MoneticoApiClient implements PaiementApiClient {
     DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy:HH:mm:ss");
 
-    public MoneticoApiClient(Proxy proxy,
-                             PaiementPropertiesResolver paiementPropertiesResolver,
+    public MoneticoApiClient(PaiementPropertiesResolver paiementPropertiesResolver,
                              OperationHelper operationHelper,
                              MailService mailService,
                              PropertiesService propertiesService,
@@ -69,7 +70,7 @@ public class MoneticoApiClient implements PaiementApiClient {
 
         HttpUrlConnectorProvider cp = new HttpUrlConnectorProvider();
         config.connectorProvider(cp);
-        cp.connectionFactory(url -> (HttpURLConnection) url.openConnection(proxy));
+        cp.connectionFactory(url -> (HttpURLConnection) url.openConnection());
         config.register(JacksonJsonProvider.class);
         Client client = ClientBuilder.newClient(config);
 

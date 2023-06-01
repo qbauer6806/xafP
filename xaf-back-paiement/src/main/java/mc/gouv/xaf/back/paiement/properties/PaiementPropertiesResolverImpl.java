@@ -4,6 +4,7 @@ import mc.gouv.Static;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -62,9 +63,36 @@ public class PaiementPropertiesResolverImpl implements PaiementPropertiesResolve
         return Static.getValue(MC_GOUV_PREFIX + gouvPropertiesResolver.getApplicationPrefix() + ".cir.token");
     }
 
+    /**
+     * Permet de récupérer la valeur par défaut pour les numéros de registres.
+     * <br>
+     * On force une valeur par défaut à 0 si la propriété n'existe pas ou est vide.
+     */
     @Override
     public int getRegistre() {
-        return Integer.parseInt(Static.getValue(MC_GOUV_PREFIX + gouvPropertiesResolver.getApplicationPrefix() + ".cir.registre"));
+        String registre = Static.getValue(MC_GOUV_PREFIX + gouvPropertiesResolver.getApplicationPrefix() + ".cir.registre");
+        return StringUtils.isNotEmpty(registre) ? Integer.parseInt(registre) : 0;
+    }
+
+    /**
+     * Permet de récupérer la valeur par défaut pour les numéros de permis.
+     * <br>
+     * On force une valeur par défaut à 0 si la propriété n'existe pas ou est vide.
+     */
+    @Override
+    public int getPermis() {
+        String permis = Static.getValue(MC_GOUV_PREFIX + gouvPropertiesResolver.getApplicationPrefix() + ".cir.permis");
+        return StringUtils.isNotEmpty(permis) ? Integer.parseInt(permis) : 0;
+    }
+
+    /**
+     * Permet de récupérer la valeur par défaut pour les immatriculations.
+     * <br>
+     * On force une chaîne vide par défaut si la propriété n'est pas présente ou null.
+     */
+    @Override
+    public String getImmat() {
+        return Static.getValue(MC_GOUV_PREFIX + gouvPropertiesResolver.getApplicationPrefix() + ".cir.immat", "");
     }
 
     @Override
@@ -195,16 +223,16 @@ public class PaiementPropertiesResolverImpl implements PaiementPropertiesResolve
         return propertiesDTO.getValue();
     }
 
-	@Override
-	public String getXafMoneticoLibelleSociete() {
-		PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_MONETICO_LIBELLE_SOCIETE);
-		return propertiesDTO.getValue();
-	}
+    @Override
+    public String getXafMoneticoLibelleSociete() {
+        PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_MONETICO_LIBELLE_SOCIETE);
+        return propertiesDTO.getValue();
+    }
 
-	@Override
-	public String getXafMoneticoLibelleLieu() {
-		PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_MONETICO_LIBELLE_LIEU);
-		return propertiesDTO.getValue();
-	}
+    @Override
+    public String getXafMoneticoLibelleLieu() {
+        PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_MONETICO_LIBELLE_LIEU);
+        return propertiesDTO.getValue();
+    }
 
 }

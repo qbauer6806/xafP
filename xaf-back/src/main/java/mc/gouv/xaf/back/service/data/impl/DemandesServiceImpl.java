@@ -189,7 +189,7 @@ public class DemandesServiceImpl implements DemandesService {
 		demandesFilesService.saveFiles(demande.getFichiers(), demandeBo);
 
 		// Créer le premier statut de la demande
-		LOGGER.info("Création d'un statut \"En attente\" pour la demande...");
+		LOGGER.info("Création d'un statut \"{}\" pour la demande...", premierStatut);
 		DemandeDTO demandeDTO = demandesStatutsService.updateStatut(demandeBo, premierStatut, null,
 				demandeBo.getFkAccess().getUsagerId(), null, null, null);
 
@@ -461,7 +461,7 @@ public class DemandesServiceImpl implements DemandesService {
 			demandeBoOp = Optional.empty();
 		}
 
-		if (!demandeBoOp.isPresent() || !demandeBoOp.get().getFkAccess().getDemarcheId().equals(demarcheId)) {
+		if (demandeBoOp.isEmpty() || !demandeBoOp.get().getFkAccess().getDemarcheId().equals(demarcheId)) {
 			LOGGER.error("Le demande ID: {}, pour la démarche {}, est introuvable.", demandeId, demarcheId);
 			throw new DemarchesServiceException("Demande introuvable ou supprimée", HttpStatus.NOT_FOUND);
 		}

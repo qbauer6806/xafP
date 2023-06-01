@@ -1,5 +1,15 @@
 package mc.gouv.xaf.back.paiement.client.monetico;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Collections;
+
+import org.junit.Ignore;
+import org.junit.Test;
+
 import mc.gouv.xaf.back.paiement.data.enums.OperationStatutEnum;
 import mc.gouv.xaf.back.paiement.dto.CommandeDTO;
 import mc.gouv.xaf.back.paiement.dto.CommandeOperationDTO;
@@ -7,24 +17,10 @@ import mc.gouv.xaf.back.paiement.dto.MoyenPaiementDTO;
 import mc.gouv.xaf.back.paiement.mock.PaiementPropertiesResolverTestImpl;
 import mc.gouv.xaf.back.paiement.retry.OperationHelper;
 import mc.gouv.xaf.back.paiement.service.itg.monetico.MoneticoApiClient;
-import org.junit.Ignore;
-import org.junit.Test;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.net.Proxy;
-import java.util.Collections;
-
-import static org.junit.Assert.assertEquals;
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class MoneticoApiClientTest {
-    MoneticoApiClient moneticoApiClient = new MoneticoApiClient(Proxy.NO_PROXY,
-            new PaiementPropertiesResolverTestImpl(),
-            new OperationHelper(new PaiementPropertiesResolverTestImpl()),
-            null, null, null, null
-    );
-
+	MoneticoApiClient moneticoApiClient = new MoneticoApiClient(new PaiementPropertiesResolverTestImpl(),
+			new OperationHelper(new PaiementPropertiesResolverTestImpl()), null, null, null, null);
 
     @Test
     @Ignore

@@ -100,6 +100,9 @@ public class AfBackUtils {
     // French date format with 24 hours
     public static final String DEFAULT_FRENCH_DATE_HOURS_MINUTES_SECONDS_FORMAT = "dd/MM/yyyy HH:mm:ss";
 
+    // Format de date en Anglais
+    public static final String DEFAULT_ENGLISH_DATE_FORMAT = "MM/dd/yyyy";
+
     // Suffix pour l'unicité des fichiers
     public static final String FILE_DATE_SUFFIX_FORMAT = "HHmmssSSS";
     public static final String FILE_DATE_AND_TIME_SUFFIX_FORMAT = "yyyyMMddHHmmssSS";

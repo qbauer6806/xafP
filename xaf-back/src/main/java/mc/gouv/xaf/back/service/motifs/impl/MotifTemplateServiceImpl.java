@@ -82,7 +82,7 @@ public class MotifTemplateServiceImpl implements MotifTemplateService {
         List<MotifDTO> motifDTOList = new ArrayList<>();
 
         LOGGER.info("Appel à Velocity pour le templating du corps et du sujet du motif...");
-        Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM, new NullLogChute());
+        Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_INSTANCE, LOGGER);
         try {
 			Velocity.init();
 		} catch (Exception e) {

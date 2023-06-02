@@ -870,11 +870,13 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             for (SearchHit<?> searchInnerHit : searchHitsArray) {
                 DemandeEsRechercheDTO content = (DemandeEsRechercheDTO) searchInnerHit.getContent();
                 String type = content.getTypeFichier();
-                boolean isInternalFile = type.equals(DemandeFileEsDTO.TYPE.FICHIER_INTERNE.name());
-                boolean isComplement = type.equals(DemandeFileEsDTO.TYPE.COMPLEMENT.name());
-                boolean isCourrier = type.equals(DemandeFileEsDTO.TYPE.COURRIER.name());
-                updateHighLightedFieldList(searchInnerHit.getHighlightFields(), demEsHighlightFields, isInternalFile,
-                        isComplement, isCourrier);
+                if (type != null) {
+                    boolean isInternalFile = type.equals(DemandeFileEsDTO.TYPE.FICHIER_INTERNE.name());
+                    boolean isComplement = type.equals(DemandeFileEsDTO.TYPE.COMPLEMENT.name());
+                    boolean isCourrier = type.equals(DemandeFileEsDTO.TYPE.COURRIER.name());
+                    updateHighLightedFieldList(searchInnerHit.getHighlightFields(), demEsHighlightFields,
+                            isInternalFile, isComplement, isCourrier);
+                }
             }
         }
     }

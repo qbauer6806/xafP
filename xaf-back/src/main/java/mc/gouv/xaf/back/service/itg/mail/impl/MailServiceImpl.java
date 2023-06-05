@@ -133,7 +133,7 @@ public class MailServiceImpl implements MailService {
         TemplateDTO templateSubject = templatesCache.getTemplate(subjectTemplateCode, langue);
 
         LOGGER.info("Appel à Velocity pour le templating du corps et du sujet de l'email...");
-        Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_INSTANCE, LOGGER);
+        Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM, new NullLogChute());
         Velocity.init();
         Context context = getContext();
         if (model != null) {

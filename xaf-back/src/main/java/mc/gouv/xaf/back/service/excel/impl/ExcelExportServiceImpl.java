@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Map;
 
+import javax.servlet.http.Cookie;
+
 import org.jxls.common.Context;
 import org.jxls.util.JxlsHelper;
 import org.slf4j.Logger;
@@ -42,5 +44,16 @@ public class ExcelExportServiceImpl implements ExcelExportService {
             LOGGER.error("Erreur lors de la génération Excel", e);
         }
     }
-
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Cookie creerCookieTelechargement() {
+        Cookie telechargementCookie = new Cookie("exportEnCours", "0");
+        telechargementCookie.setMaxAge(60 * 2);
+        telechargementCookie.setSecure(true);
+        telechargementCookie.setPath("/");
+        return telechargementCookie;
+    }
 }

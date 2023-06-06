@@ -71,6 +71,7 @@
 										une expression de recherche</label>
 									<div class="row">
 										<div class="col-xs-8">
+											<input type="hidden" id="searchFields" th:value="${searchFields}"/>
 											<input type="text" th:value="${texte}" name="texte"
 												class="form-control" id="txtRechercheDemande"
 												maxlength="160"></input>
@@ -356,8 +357,14 @@
 			//Suppression de toutes les valeurs renvoyées par datatable
 			params.columns = null;
 			params.search = null;
-			params.searchFields = APP.selectedField
-
+			params.searchFields = null;
+			var searchFields = $("#searchFields").val();
+			// Si des searchFields sont récupérés depuis l'url, alors on les utilise
+			if (APP.selectedField != null) {
+				params.searchFields = APP.selectedField;
+			} else if (searchFields != null && searchFields !== '') {
+				params.searchFields = searchFields;
+			}
 			//conversion des params pour Pageable Spring MVC
 			params.size = params.length;
 			params.page = params.start / params.length;

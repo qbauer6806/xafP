@@ -194,7 +194,8 @@ public class GouvBPMImpl implements GouvBPM {
     @Override
     public List<String> getNumberActiveDemandesInState(String state) {
         LOGGER.debug("getNumberActiveDemandesInState({})", state);
-        List<Task> tasks = taskService.createTaskQuery().taskDefinitionKey(state).active().list();
+        // Permets de retrouver les task ID de type EN_ATTENTE_TRAIT_task1
+        List<Task> tasks = taskService.createTaskQuery().taskDefinitionKeyLike(state + "%").active().list();
         Set<String> tasksProcessIds = tasks.stream().map(Task::getProcessInstanceId).collect(Collectors.toSet());
         List<String> instancesIds = new ArrayList<>();
         if (!tasksProcessIds.isEmpty()) {

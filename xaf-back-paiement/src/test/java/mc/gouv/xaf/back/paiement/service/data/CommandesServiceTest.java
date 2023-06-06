@@ -12,7 +12,6 @@ import mc.gouv.xaf.back.paiement.data.enums.MoyenPaiementStatutEnum;
 import mc.gouv.xaf.back.paiement.dto.CommandeDTO;
 import mc.gouv.xaf.back.paiement.enums.PaiementDemandeDataKeysEnum;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,10 +27,6 @@ import java.util.Set;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-/**
- * TODO: Impossible de créer des tables depuis le merge XAF 11
- */
-@Ignore
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class CommandesServiceTest {
@@ -51,12 +46,8 @@ public class CommandesServiceTest {
         demandesRepository.deleteAll();
     }
 
-    /**
-     * TODO: Impossible de créer des tables depuis le merge XAF 11
-     */
     @Test
     @Transactional
-    @Ignore
     public void getCommandeOk() {
         DemandeBO demandeBO = new DemandeBO();
         demandeBO.setContenu("contenu");

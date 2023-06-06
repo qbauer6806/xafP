@@ -44,12 +44,8 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.fail;
 
-/**
- * TODO: Impossible de créer des tables depuis le merge XAF 11
- */
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@Ignore
 public class MoneticoPaiementServiceTest {
 
     @Autowired
@@ -143,7 +139,7 @@ public class MoneticoPaiementServiceTest {
         demandeBO2.setData(demandesDataBOS2);
         demandeBO2 = demandesRepository.save(demandeBO2);
         String langue = "FR";
-        String demandesId = "" + demandeBO.getPkDemandes() + "," + demandeBO2.getPkDemandes();
+        String demandesId = demandeBO.getPkDemandes() + "," + demandeBO2.getPkDemandes();
         PaiementDTO paiementDTO = moneticoPaiementService.create(demandesId, langue, 1, true);
 
         assertThat(paiementDTO.getReference()).hasSize(12);
@@ -225,7 +221,7 @@ public class MoneticoPaiementServiceTest {
 
         demandeBO2 = demandesRepository.save(demandeBO2);
         String langue = "FR";
-        String demandesId = "" + demandeBO.getPkDemandes() + "," + demandeBO2.getPkDemandes();
+        String demandesId = demandeBO.getPkDemandes() + "," + demandeBO2.getPkDemandes();
         PaiementDTO paiementDTO = moneticoPaiementService.create(demandesId, langue, 1, true);
 
         demandesRepository.findAll().stream()
@@ -327,7 +323,7 @@ public class MoneticoPaiementServiceTest {
 
         demandeBO2 = demandesRepository.save(demandeBO2);
         String langue = "FR";
-        String demandesId = "" + demandeBO.getPkDemandes() + "," + demandeBO2.getPkDemandes();
+        String demandesId = demandeBO.getPkDemandes() + "," + demandeBO2.getPkDemandes();
         PaiementDTO paiementDTO = moneticoPaiementService.create(demandesId, langue, 1, true);
 
         demandesRepository.findAll().stream()

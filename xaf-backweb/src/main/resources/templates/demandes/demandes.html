@@ -349,6 +349,8 @@
 			return params
 		}
 
+		var firstLoad = true;
+
 		var buildSearchDatafunction = function(params) {
 
 			//Ajout des champs de recherche
@@ -362,9 +364,10 @@
 			// Si des searchFields sont récupérés depuis l'url, alors on les utilise
 			if (APP.selectedField != null) {
 				params.searchFields = APP.selectedField;
-			} else if (searchFields != null && searchFields !== '') {
+			} else if (firstLoad && searchFields != null && searchFields !== '') {
 				params.searchFields = searchFields;
 			}
+			firstLoad = false;
 			//conversion des params pour Pageable Spring MVC
 			params.size = params.length;
 			params.page = params.start / params.length;

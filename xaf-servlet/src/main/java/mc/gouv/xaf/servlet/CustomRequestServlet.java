@@ -99,9 +99,13 @@ public class CustomRequestServlet extends AbstractAfServlet {
         serviceUrl += "?";
 
         if (StringUtils.isNotBlank(request.getQueryString())) {
-            serviceUrl += request.getQueryString() + sComplement;
+            serviceUrl += request.getQueryString();
         }
         serviceUrl += sComplement;
+        if (request.getParameter("usagerId") == null) {
+            serviceUrl += "&usagerId=" + usagerInfosDTO.getId();
+        }
+
         LOGGER.info("Appel à {}", serviceUrl);
 
         Request serviceRequest = null;

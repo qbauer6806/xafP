@@ -260,12 +260,16 @@ public class AfApiClient extends ApiClient {
         });
     }
 
-    public JsonNode getDonneesExternes(Integer usagerId, Map<String, String> params) {
+    public JsonNode getDonneesExternes(Integer usagerId, Map<String, String[]> params) {
 
         WebTarget webTarget = getTarget();
         if (params != null)
-            for (Map.Entry<String, String> entry : params.entrySet())
-                webTarget = webTarget.queryParam(entry.getKey(), entry.getValue());
+            for (Map.Entry<String, String[]> entry : params.entrySet()) {
+                if (entry.getValue() != null) {
+                    for (String str : entry.getValue())
+                        webTarget = webTarget.queryParam(entry.getKey(), str);
+                }
+            }
 
         Response res = webTarget.path("/donneesexternes").queryParam(RequestConstant.USAGERID_PARAM, usagerId)
                 .request(MediaType.APPLICATION_JSON)

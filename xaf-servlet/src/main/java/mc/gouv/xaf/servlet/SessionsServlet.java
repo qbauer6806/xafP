@@ -77,17 +77,18 @@ public class SessionsServlet extends AbstractAfServlet {
             // Récupération de l'objet attaché à la session
             UsagerInfosDTO usagerInfosDTO = (UsagerInfosDTO) session.getAttribute(LOGIN);
             LOGGER.info("usagerInfosDTO : {}", usagerInfosDTO);
-            Map<String, String> data = new HashMap<>();
+            Map<String, String[]> data = new HashMap<>();
+            data.putAll(request.getParameterMap());
 
             if (usagerInfosDTO.ismConnect()) {
                 JsonNode usagerJson = usagerInfosDTO.getDonneesExternes();
                 ObjectMapper omapper = new ObjectMapper();
                 omapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
                 DonneesExternesDTO donneesMConnectDTO = omapper.treeToValue(usagerJson, DonneesExternesDTO.class);
-                data.put(MCONNECT_PARAM_FAMILYNAME, donneesMConnectDTO.getMconnect().getFamilyName());
-                data.put(MCONNECT_PARAM_GIVENNAME, donneesMConnectDTO.getMconnect().getGivenName());
-                data.put(MCONNECT_PARAM_BIRTHDATE, new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX")
-                        .format(donneesMConnectDTO.getMconnect().getBirthDatetime()));
+                data.put(MCONNECT_PARAM_FAMILYNAME, new String[] { donneesMConnectDTO.getMconnect().getFamilyName() });
+                data.put(MCONNECT_PARAM_GIVENNAME, new String[] { donneesMConnectDTO.getMconnect().getGivenName() });
+                data.put(MCONNECT_PARAM_BIRTHDATE, new String[] { new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX")
+                        .format(donneesMConnectDTO.getMconnect().getBirthDatetime()) });
             }
             // refresh donneesexterne
             JsonNode candifp = getAfApiClient().getDonneesExternes(usagerInfosDTO.getId(), data);

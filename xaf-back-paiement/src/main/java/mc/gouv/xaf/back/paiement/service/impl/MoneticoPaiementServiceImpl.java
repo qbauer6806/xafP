@@ -58,6 +58,7 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
     private static final String CODE_RETOUR_KO = "1";
     private static final int TAILLE_MAX_NOMS = 45;
     private static final int TAILLE_MAX_OBJETS = 50;
+    private static final int TAILLE_MAX_CODE_POSTAL = 10;
 
     private static final String EN_COURS_PAIEMENT_STATUT_KEY = "EN_COURS_PAIEMENT";
 
@@ -261,7 +262,7 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
         }
         String ville = usager.getVille() == null ? paiementPropertiesResolver.getVilleParDefaut() : usager.getVille();
         billingDTO.setCity(couperSiTropGrand(ville, TAILLE_MAX_OBJETS));
-        billingDTO.setPostalCode(usager.getCodePostal() == null ? paiementPropertiesResolver.getCodePostalParDefaut() : usager.getCodePostal());
+        billingDTO.setPostalCode(usager.getCodePostal() == null ? paiementPropertiesResolver.getCodePostalParDefaut() : couperSiTropGrand(usager.getCodePostal(), TAILLE_MAX_CODE_POSTAL));
         billingDTO.setCountry(usager.getPaysCode() == null ? paiementPropertiesResolver.getCodePaysParDefaut() : usager.getPaysCode());
         return billingDTO;
     }

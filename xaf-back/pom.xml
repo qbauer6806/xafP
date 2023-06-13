@@ -16,7 +16,7 @@
 			LGPL). -->
 		<openhtml.version>1.0.1</openhtml.version>
 		<pdfbox.version>2.0.15</pdfbox.version>
-		<xdocreport.version>2.0.2</xdocreport.version>
+		<xdocreport.version>2.0.4</xdocreport.version>
 		<poi.version>4.1.0</poi.version>
 		<vscan.version>1.0.0</vscan.version>
 		<maven.compiler.source>11</maven.compiler.source>
@@ -115,9 +115,9 @@
 
 		<!-- Apache Velocity -->
 		<dependency>
-			<groupId>org.apache.velocity</groupId>
-			<artifactId>velocity-tools</artifactId>
-			<version>2.0</version>
+			<groupId>org.apache.velocity.tools</groupId>
+			<artifactId>velocity-tools-generic</artifactId>
+			<version>3.1</version>
 			<exclusions>
 				<exclusion>
 					<groupId>javax.servlet</groupId>
@@ -125,6 +125,14 @@
 				</exclusion>
 				<exclusion>
 					<groupId>org.apache.struts</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>commons-beanutils</groupId>
+					<artifactId>commons-beanutils</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.commons</groupId>
 					<artifactId>*</artifactId>
 				</exclusion>
 			</exclusions>
@@ -211,10 +219,14 @@
 			<groupId>fr.opensagres.xdocreport</groupId>
 			<artifactId>fr.opensagres.poi.xwpf.converter.core</artifactId>
 			<version>${xdocreport.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
 			<exclusions>
 				<exclusion>
 					<groupId>org.apache.poi</groupId>
-					<artifactId>poi-ooxml</artifactId>
+					<artifactId>poi-ooxml-lite</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>

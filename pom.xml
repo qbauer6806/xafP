@@ -15,6 +15,8 @@
         <tika.version>1.22</tika.version>
         <xcb-wlib.version>1.2.0</xcb-wlib.version>
         <commons-fileupload.version>1.5</commons-fileupload.version>
+        <poi-ooxml.version>5.2.0</poi-ooxml.version>
+        <commons-io.version>2.11.0</commons-io.version>
     </properties>
 
     <groupId>mc.gouv.xaf</groupId>
@@ -121,6 +123,18 @@
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>25.1-jre</version>
+            </dependency>
+
+            <!-- CVE-2020-10683 -->
+            <dependency>
+                <groupId>org.apache.poi</groupId>
+                <artifactId>poi-ooxml</artifactId>
+                <version>${poi-ooxml.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${commons-io.version}</version>
             </dependency>
 
         </dependencies>

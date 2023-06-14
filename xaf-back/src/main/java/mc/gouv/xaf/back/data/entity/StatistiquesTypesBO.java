@@ -28,7 +28,7 @@ public class StatistiquesTypesBO {
     @Size(min = 1, max = 30)
     private String identifiantDemande;
 	
-	@Column(name = "VALUE", length = 250)
+	@Column(name = "\"VALUE\"", length = 250)
     @Size(min = 1, max = 250)
     private String value;
 	

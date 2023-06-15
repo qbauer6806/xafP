@@ -1,10 +1,8 @@
 package mc.gouv.xaf.servlet;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
 import java.util.Enumeration;
 
 import javax.servlet.http.HttpServletRequest;
@@ -18,9 +16,6 @@ import org.apache.http.client.fluent.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import mc.gouv.xaf.servlet.dto.CustomRequestRechercheDTO;
@@ -29,7 +24,6 @@ import mc.gouv.xaf.servlet.enums.HttpMethod;
 import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
 import mc.gouv.xaf.shared.SharedMessages;
-import mc.gouv.xaf.shared.dto.DonneesExternesDTO;
 
 /**
  * 
@@ -55,30 +49,6 @@ public class CustomRequestServlet extends AbstractAfServlet {
         }
 
         // Récupération de l'objet attaché à la session
-        String sComplement = "";
-
-        if (usagerInfosDTO.ismConnect()) {
-            JsonNode usagerJson = usagerInfosDTO.getDonneesExternes();
-            ObjectMapper omapper = new ObjectMapper();
-            omapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            DonneesExternesDTO donneesMConnectDTO;
-            try {
-                donneesMConnectDTO = omapper.treeToValue(usagerJson, DonneesExternesDTO.class);
-                sComplement = String.format("&FamilyName=%s&GivenName=%s&BirthDatetime=%s",
-                        URLEncoder.encode(donneesMConnectDTO.getMconnect().getFamilyName(),
-                                StandardCharsets.UTF_8.toString()),
-                        URLEncoder.encode(donneesMConnectDTO.getMconnect().getGivenName(),
-                                StandardCharsets.UTF_8.toString()),
-                        URLEncoder.encode(
-                                new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX")
-                                        .format(donneesMConnectDTO.getMconnect().getBirthDatetime()),
-                                StandardCharsets.UTF_8.toString()));
-
-            } catch (JsonProcessingException | UnsupportedEncodingException e) {
-                LOGGER.error("CustomRequestServlet - Une erreur est survenue dans doHttpMethod: {}", e.getMessage(), e);
-            }
-
-        }
 
         // Récupération de l'ID de l'usager
         Integer usagerId = usagerInfosDTO.getId();
@@ -101,7 +71,7 @@ public class CustomRequestServlet extends AbstractAfServlet {
         if (StringUtils.isNotBlank(request.getQueryString())) {
             serviceUrl += request.getQueryString();
         }
-        serviceUrl += sComplement;
+
         if (request.getParameter("usagerId") == null) {
             serviceUrl += "&usagerId=" + usagerInfosDTO.getId();
         }

@@ -1,7 +1,11 @@
 package mc.gouv.xaf.servlet;
 
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -12,23 +16,31 @@ import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import mc.gouv.xaf.apiclient.AfApiClient;
 import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
 import mc.gouv.xaf.shared.SessionConstant;
 import mc.gouv.xaf.shared.SharedMessages;
+import mc.gouv.xaf.shared.dto.DonneesExternesDTO;
 
 /**
- * Servlet permettant de verrouiller/deverrouiller une demande en y aposant un timestamp. le timestamp correspond à la
- * durée de vie de la session
+ * Servlet mettant à disposition les donnees externes
  *
  * @author agaidi
  */
-public class DemandeLockServlet extends AbstractAfServlet {
+public class InitialDemandeServlet extends AbstractAfServlet {
 
     private static final long serialVersionUID = -7898768899143027084L;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(DemandeLockServlet.class);
+    private static final String MCONNECT_PARAM_GIVENNAME = "GivenName";
+    private static final String MCONNECT_PARAM_FAMILYNAME = "FamilyName";
+    private static final String MCONNECT_PARAM_BIRTHDATE = "BirthDatetime";
+    private static final Logger LOGGER = LoggerFactory.getLogger(InitialDemandeServlet.class);
 
     /**
      * Vérifie si l'utilisateur est autorisé à faire la requête et prépare les objets communs aux requêtes :<br>
@@ -54,29 +66,63 @@ public class DemandeLockServlet extends AbstractAfServlet {
     }
 
     @Override
-    public void doPut(HttpServletRequest request, HttpServletResponse response) {
-        LOGGER.info("====================== /demandeLock doPut()");
+    public void doGet(HttpServletRequest request, HttpServletResponse response) {
+        LOGGER.info("====================== /InitialDemandeServlet doGet()");
 
         Object[] params = setup(request, response);
         if (params.length == 0) {
             return;
         }
-        Integer usagerId = ((UsagerInfosDTO) params[0]).getId();
-        Integer demandeId = (Integer) params[1];
 
-        AfApiClient afApiClient = getAfApiClient();
+        UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(request);
+        if (usagerInfosDTO == null) {
+            AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
+                    SharedMessages.UTILISATEUR_NON_AUTORISE);
+            return;
+        }
 
-        if (demandeId != null) {
-            /* gestion du lock */
-            verrouillerDemande(request, afApiClient, usagerId, demandeId);
+        if (usagerInfosDTO.ismConnect()) {
+
+            DonneesExternesDTO donneesMConnectDTO;
+
+            Map<String, String[]> data = new HashMap<>();
+
+            if (usagerInfosDTO.ismConnect()) {
+                JsonNode usagerJson = usagerInfosDTO.getDonneesExternes();
+                ObjectMapper omapper = new ObjectMapper();
+                omapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+                data.put("usagerId", new String[] { usagerInfosDTO.getId() + "" });
+                try {
+                    donneesMConnectDTO = omapper.treeToValue(usagerJson, DonneesExternesDTO.class);
+                    data.put(MCONNECT_PARAM_FAMILYNAME,
+                            new String[] { donneesMConnectDTO.getMconnect().getFamilyName() });
+                    data.put(MCONNECT_PARAM_GIVENNAME,
+                            new String[] { donneesMConnectDTO.getMconnect().getGivenName() });
+                    data.put(MCONNECT_PARAM_BIRTHDATE, new String[] { new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX")
+                            .format(donneesMConnectDTO.getMconnect().getBirthDatetime()) });
+
+                    JsonNode retour = getAfApiClient().getDonneesExternes(usagerInfosDTO.getId(), data);
+
+                    response.setContentType(MediaType.APPLICATION_JSON);
+                    ObjectMapper mapper = new ObjectMapper();
+                    mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+                    mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX"));
+                    mapper.writeValue(response.getOutputStream(), retour);
+                    response.setStatus(HttpStatus.SC_OK);
+                    response.getOutputStream().flush();
+                } catch (JsonProcessingException e) {
+                    response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+                    LOGGER.error("JsonProcessingException. Impossible de recuperer les donnees externes", e);
+                } catch (IOException e) {
+                    response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+                    LOGGER.error("IOException. Impossible de recuperer les donnees externes", e);
+                }
+
+            }
 
         }
 
-        response.setContentType(MediaType.APPLICATION_JSON);
-
-        response.setStatus(HttpStatus.SC_CREATED);
-
-        LOGGER.info("====================== Fin /demandeLock doPut()");
+        LOGGER.info("====================== Fin /InitialDemandeServlet doGet()");
     }
 
     @Override

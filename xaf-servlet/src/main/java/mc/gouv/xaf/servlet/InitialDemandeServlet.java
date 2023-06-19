@@ -2,14 +2,11 @@ package mc.gouv.xaf.servlet;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.http.HttpStatus;
@@ -22,12 +19,11 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import mc.gouv.xaf.apiclient.AfApiClient;
 import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
-import mc.gouv.xaf.shared.SessionConstant;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.DonneesExternesDTO;
+import mc.gouv.xaf.shared.dto.DonneesExternesDemandeDTO;
 
 /**
  * Servlet mettant à disposition les donnees externes
@@ -91,6 +87,9 @@ public class InitialDemandeServlet extends AbstractAfServlet {
                 JsonNode usagerJson = usagerInfosDTO.getDonneesExternes();
                 ObjectMapper omapper = new ObjectMapper();
                 omapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+                data.put("numerocontrat", request.getParameterMap().get("numerocontrat"));
+                data.put("numerotiers", request.getParameterMap().get("numerotiers"));
+                data.put("numerofacture", request.getParameterMap().get("numerofacture"));
                 data.put("usagerId", new String[] { usagerInfosDTO.getId() + "" });
                 try {
                     donneesMConnectDTO = omapper.treeToValue(usagerJson, DonneesExternesDTO.class);
@@ -102,13 +101,17 @@ public class InitialDemandeServlet extends AbstractAfServlet {
                             .format(donneesMConnectDTO.getMconnect().getBirthDatetime()) });
 
                     JsonNode retour = getAfApiClient().getDonneesExternes(usagerInfosDTO.getId(), data);
-
-                    response.setContentType(MediaType.APPLICATION_JSON);
                     ObjectMapper mapper = new ObjectMapper();
                     mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
                     mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX"));
-                    mapper.writeValue(response.getOutputStream(), retour);
-                    response.setStatus(HttpStatus.SC_OK);
+
+                    DonneesExternesDemandeDTO resultSearch = mapper.treeToValue(retour,
+                            DonneesExternesDemandeDTO.class);
+
+                    response.setContentType(MediaType.APPLICATION_JSON);
+                    if (resultSearch.getStatut() == 200)
+                        mapper.writeValue(response.getOutputStream(), resultSearch.getDemande());
+                    response.setStatus(resultSearch.getStatut());
                     response.getOutputStream().flush();
                 } catch (JsonProcessingException e) {
                     response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
@@ -129,90 +132,7 @@ public class InitialDemandeServlet extends AbstractAfServlet {
     public void doDelete(HttpServletRequest request, HttpServletResponse response) {
         LOGGER.info("====================== /demandeLock doDelete()");
 
-        Object[] params = setup(request, response);
-        if (params.length == 0) {
-            return;
-        }
-        Integer usagerId = ((UsagerInfosDTO) params[0]).getId();
-        Integer demandeId = (Integer) params[1];
-
-        AfApiClient afApiClient = getAfApiClient();
-
-        if (demandeId != null) {
-            /* gestion du lock */
-            deverrouillerDemande(request, afApiClient, usagerId, demandeId);
-
-        }
-
-        response.setContentType(MediaType.APPLICATION_JSON);
-
-        response.setStatus(HttpStatus.SC_CREATED);
-
         LOGGER.info("====================== Fin /demandeLock doDelete()");
     }
 
-    private void verrouillerDemande(HttpServletRequest request, AfApiClient afApiClient, Integer usagerId,
-            Integer demandeId) {
-
-        HttpSession httpSession = request.getSession(false);
-
-        /* on unlock une autre demande eventuellement lockée par la session */
-        if (httpSession != null) {
-            Integer modificationDemandeId = (Integer) httpSession
-                    .getAttribute(SessionConstant.SESSION_MODIFICATION_DEMANDE_ID);
-            Integer modificationDemandeUsagerId = (Integer) httpSession
-                    .getAttribute(SessionConstant.SESSION_MODIFICATION_USAGER_ID);
-
-            if (modificationDemandeId != null && modificationDemandeUsagerId != null
-                    && !demandeId.equals(modificationDemandeId)) {
-
-                afApiClient.unlockDemande(modificationDemandeId, modificationDemandeUsagerId);
-
-                LOGGER.info(
-                        "DemandeLockServlet verrouillerDemande: Demande {} déverrouillée suite au verrouillage de la demande {}",
-                        modificationDemandeId, demandeId);
-            }
-
-            /*
-             * la demande sera lockée jusqu'à l'expiration de la session, cad l'instant présent + durée max d'inactivité
-             * de la session plus une minute de marge.
-             */
-            Long timestampValue = Instant.now().toEpochMilli() + (httpSession.getMaxInactiveInterval() * 1000L)
-                    + 60000L;
-            /* on lock la demande */
-            afApiClient.lockDemande(demandeId, usagerId, timestampValue);
-            LOGGER.info("DemandeLockServlet verrouillerDemande: Demande {} verrouillée jusque {}", demandeId,
-                    new Date(timestampValue));
-            request.getSession().setAttribute(SessionConstant.SESSION_MODIFICATION_DEMANDE_ID, demandeId);
-            request.getSession().setAttribute(SessionConstant.SESSION_MODIFICATION_USAGER_ID, usagerId);
-        }
-    }
-
-    private void deverrouillerDemande(HttpServletRequest request, AfApiClient afApiClient, Integer usagerId,
-            Integer demandeId) {
-
-        HttpSession httpSession = request.getSession(false);
-
-        if (httpSession != null) {
-            Integer modificationDemandeId = (Integer) httpSession
-                    .getAttribute(SessionConstant.SESSION_MODIFICATION_DEMANDE_ID);
-            Integer modificationDemandeUsagerId = (Integer) httpSession
-                    .getAttribute(SessionConstant.SESSION_MODIFICATION_USAGER_ID);
-
-            /*
-             * si la demande dont on a demandé l'annulation est toujours référencée au niveau session on la retire de la
-             * session
-             */
-            if (modificationDemandeId != null && modificationDemandeUsagerId != null
-                    && demandeId.equals(modificationDemandeId)) {
-
-                httpSession.setAttribute(SessionConstant.SESSION_MODIFICATION_DEMANDE_ID, null);
-                LOGGER.info("DemandeLockServlet deverrouillerDemande: Demande {} retirée de la session",
-                        modificationDemandeId);
-            }
-            afApiClient.unlockDemande(demandeId, usagerId);
-            LOGGER.info("DemandeLockServlet deverrouillerDemande: Demande {} déverrouillée", demandeId);
-        }
-
-    }
 }

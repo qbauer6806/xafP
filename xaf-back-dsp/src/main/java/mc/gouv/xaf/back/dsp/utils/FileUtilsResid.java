@@ -60,27 +60,31 @@ public class FileUtilsResid extends FileUtils {
     }
     
 	private static boolean isTransmiseAResid(DemandeFileDTO fileDTO) {
+//		return (fileDTO.getTypedoc() != null
+//				&& (ResidPieceJustificativeTypeEnum.NON_APPLICABLE.name().equals(fileDTO.getTypedoc())
+//						|| ResidPieceJustificativeTypeEnum.ACTE_MARIAGE_OU_FAMILLE.name().equals(fileDTO.getTypedoc())
+//						|| ResidPieceJustificativeTypeEnum.ACTE_NAISSANCE.name().equals(fileDTO.getTypedoc())
+//						|| ResidPieceJustificativeTypeEnum.ATTESTATION_COMPTABLE.name().equals(fileDTO.getTypedoc())
+//						|| ResidPieceJustificativeTypeEnum.AUTORISATION_EMBAUCHAGE.name().equals(fileDTO.getTypedoc())
+//						|| ResidPieceJustificativeTypeEnum.AUTORISATION_MINISTERIELLE.name()
+//								.equals(fileDTO.getTypedoc())
+//						|| ResidPieceJustificativeTypeEnum.AVIS_IMPOTS.name().equals(fileDTO.getTypedoc())
+//						|| ResidPieceJustificativeTypeEnum.CARTE_PROFESSIONNELLE.name().equals(fileDTO.getTypedoc())
+//						|| ResidPieceJustificativeTypeEnum.CERTIF_SCOLARITE.name().equals(fileDTO.getTypedoc())
+//						|| ResidPieceJustificativeTypeEnum.CONTRAT_TRAVAIL.name().equals(fileDTO.getTypedoc())
+//						|| ResidPieceJustificativeTypeEnum.DOCUMENT_BANCAIRE.name().equals(fileDTO.getTypedoc())
+//						|| ResidPieceJustificativeTypeEnum.FACTURE_SMEG.name().equals(fileDTO.getTypedoc())
+//						|| ResidPieceJustificativeTypeEnum.JUSTIF_PERTE_NATIONALITE.name().equals(fileDTO.getTypedoc())
+//						|| ResidPieceJustificativeTypeEnum.ALLOCATION_POLE_EMPLOI.name().equals(fileDTO.getTypedoc())
+//						|| ResidPieceJustificativeTypeEnum.NOUVEAU_CONTRAT_ELECTRICITE.name()
+//								.equals(fileDTO.getTypedoc())
+//						|| ResidPieceJustificativeTypeEnum.PERMIS_TRAVAIL.name().equals(fileDTO.getTypedoc())
+//						|| ResidPieceJustificativeTypeEnum.STATUTS_SCI.name().equals(fileDTO.getTypedoc())
+//						|| ResidPieceJustificativeTypeEnum.PENSION_RETRAITE.name().equals(fileDTO.getTypedoc())
+//						|| ResidPieceJustificativeTypeEnum.AUTRE.name().equals(fileDTO.getTypedoc())));
 		return (fileDTO.getTypedoc() != null
 				&& (ResidPieceJustificativeTypeEnum.NON_APPLICABLE.name().equals(fileDTO.getTypedoc())
-						|| ResidPieceJustificativeTypeEnum.ACTE_MARIAGE_OU_FAMILLE.name().equals(fileDTO.getTypedoc())
-						|| ResidPieceJustificativeTypeEnum.ACTE_NAISSANCE.name().equals(fileDTO.getTypedoc())
-						|| ResidPieceJustificativeTypeEnum.ATTESTATION_COMPTABLE.name().equals(fileDTO.getTypedoc())
-						|| ResidPieceJustificativeTypeEnum.AUTORISATION_EMBAUCHAGE.name().equals(fileDTO.getTypedoc())
-						|| ResidPieceJustificativeTypeEnum.AUTORISATION_MINISTERIELLE.name()
-								.equals(fileDTO.getTypedoc())
-						|| ResidPieceJustificativeTypeEnum.AVIS_IMPOTS.name().equals(fileDTO.getTypedoc())
-						|| ResidPieceJustificativeTypeEnum.CARTE_PROFESSIONNELLE.name().equals(fileDTO.getTypedoc())
-						|| ResidPieceJustificativeTypeEnum.CERTIF_SCOLARITE.name().equals(fileDTO.getTypedoc())
-						|| ResidPieceJustificativeTypeEnum.CONTRAT_TRAVAIL.name().equals(fileDTO.getTypedoc())
-						|| ResidPieceJustificativeTypeEnum.DOCUMENT_BANCAIRE.name().equals(fileDTO.getTypedoc())
-						|| ResidPieceJustificativeTypeEnum.FACTURE_SMEG.name().equals(fileDTO.getTypedoc())
-						|| ResidPieceJustificativeTypeEnum.JUSTIF_PERTE_NATIONALITE.name().equals(fileDTO.getTypedoc())
-						|| ResidPieceJustificativeTypeEnum.ALLOCATION_POLE_EMPLOI.name().equals(fileDTO.getTypedoc())
-						|| ResidPieceJustificativeTypeEnum.NOUVEAU_CONTRAT_ELECTRICITE.name()
-								.equals(fileDTO.getTypedoc())
-						|| ResidPieceJustificativeTypeEnum.PERMIS_TRAVAIL.name().equals(fileDTO.getTypedoc())
-						|| ResidPieceJustificativeTypeEnum.STATUTS_SCI.name().equals(fileDTO.getTypedoc())
-						|| ResidPieceJustificativeTypeEnum.PENSION_RETRAITE.name().equals(fileDTO.getTypedoc())
+						|| ResidPieceJustificativeTypeEnum.MANDATAIRE.name().equals(fileDTO.getTypedoc())
 						|| ResidPieceJustificativeTypeEnum.AUTRE.name().equals(fileDTO.getTypedoc())));
 
 	}

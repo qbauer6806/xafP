@@ -102,7 +102,7 @@ public class AfApiClient extends ApiClient {
     }
 
     public DemandeDTO lockDemande(Integer demandeId, Integer usagerId, Long timestamp) {
-        Response res = getTarget().path("demandes/lock/" + demandeId)
+        Response res = getTarget().path("demandes/" + demandeId + "/lock")
                 .queryParam(RequestConstant.USAGERID_PARAM, usagerId)
                 .queryParam(RequestConstant.TIMESTAMP_MODIFICATION, timestamp).request(MediaType.APPLICATION_JSON)
                 .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue())
@@ -114,7 +114,7 @@ public class AfApiClient extends ApiClient {
     }
 
     public DemandeDTO unlockDemande(Integer demandeId, Integer usagerId) {
-        Response res = getTarget().path("demandes/unlock/" + demandeId)
+        Response res = getTarget().path("demandes/" + demandeId + "/unlock")
                 .queryParam(RequestConstant.USAGERID_PARAM, usagerId).request(MediaType.APPLICATION_JSON)
                 .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue())
                 .put(Entity.entity("", MediaType.APPLICATION_JSON));

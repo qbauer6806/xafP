@@ -88,7 +88,7 @@ public abstract class AbstractAfApiController implements AfApiController {
         return updateDemande(demandeId, demande, usagerId);
     }
 
-    @PutMapping(value = "/demandes/lock/{demandeId}")
+    @PutMapping(value = "/demandes/{demandeId}/lock")
     public DemandeDTO updateDemandeLockRequest(@PathVariable(value = "demandeId") Integer demandeId,
             @RequestParam(value = "usagerId") Integer usagerId, @RequestParam(value = "timestamp") Long timestamp,
             HttpServletRequest request) throws JsonProcessingException {
@@ -97,7 +97,7 @@ public abstract class AbstractAfApiController implements AfApiController {
         return lockDemande(demandeId, usagerId, timestamp);
     }
 
-    @PutMapping(value = "/demandes/unlock/{demandeId}")
+    @PutMapping(value = "/demandes/{demandeId}/unlock")
     public DemandeDTO updateDemandeUnlockRequest(@PathVariable(value = "demandeId") Integer demandeId,
             @RequestParam(value = "usagerId") Integer usagerId, HttpServletRequest request)
             throws JsonProcessingException {

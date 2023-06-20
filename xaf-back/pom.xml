@@ -14,7 +14,7 @@
 		<logon-apiclient.version>5.2.2</logon-apiclient.version>
 		<!-- Librairie pour generer le fichier recap d'une demande (sous license 
 			LGPL). -->
-		<openhtml.version>1.0.1</openhtml.version>
+		<openhtml.version>1.0.10</openhtml.version>
 		<pdfbox.version>2.0.15</pdfbox.version>
 		<xdocreport.version>2.0.4</xdocreport.version>
 		<poi.version>4.1.0</poi.version>

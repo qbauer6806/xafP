@@ -109,8 +109,8 @@ $(document).ready(function() {
 			{
 				$("#affinerDiv").hide()
 			}
-			// Si on filtre directement les searchFields via l'url en query param alors on laisse le panel "affiner" collapsé
-			if ($("#affinerLink").hasClass('collapsed') === true && $("#searchFields").val() === '') {
+
+			if ($("#affinerLink").hasClass('collapsed') === true) {
 				$("#affinerLink").click()
 			}
 

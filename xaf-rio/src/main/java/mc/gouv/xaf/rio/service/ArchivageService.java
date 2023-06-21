@@ -33,4 +33,13 @@ public interface ArchivageService {
      * @return
      */
     List<DemandeFileDTO> archivageRegistre(String refRegistre, List<DemandeFileDTO> files, DemandeDTO demandeDTO);
+
+    /**
+     * Archive les documents en attribut dans un registre donné
+     * @param references	Référence permis
+     * @param files			Fichiers à archiver
+     * @param demandeDTO	demande
+     * @return
+     */
+    Map<String, Integer> archiver(Map<String, String> references, List<DemandeFileDTO> files, DemandeDTO demandeDTO);
 }

@@ -24,17 +24,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpServerErrorException;
 
+import javax.validation.constraints.NotNull;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ArchivageServiceImpl implements ArchivageService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ArchivageServiceImpl.class);
+    private static final String TYPE_REGISTRE = "IMMAT";
 
     private final SimpleDateFormat simpleDateTimeFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
     private static final String STATUT_OK = "Succès";
@@ -77,7 +80,14 @@ public class ArchivageServiceImpl implements ArchivageService {
         LOGGER.info("Début archivage des documents dans le registre {}", refRegistre);
         return archivageDocument(refRegistre, files, demandeDTO, CODE_NOTICE_REGISTRE);
     }
-    
+
+    @Transactional
+    @Override
+    public Map<String, Integer> archiver(Map<String, String> references, List<DemandeFileDTO> files, DemandeDTO demandeDTO) {
+        LOGGER.info("Début archivage des documents pour les références {}", references);
+        return archiverDocument(references, files, demandeDTO);
+    }
+
     private List<DemandeFileDTO> archivageDocument(String ref, List<DemandeFileDTO> files, DemandeDTO demandeDTO, String codeNotice) {
         List<DemandeFileDTO> fileDocumentList = new ArrayList<>();
         double progresArchivage = 0;
@@ -178,6 +188,128 @@ public class ArchivageServiceImpl implements ArchivageService {
         }
         return fileDocumentList;
     }
+
+    private Map<String, Integer> archiverDocument(@NotNull Map<String, String> references, List<DemandeFileDTO> files, DemandeDTO demandeDTO) {
+        Map<String, Integer> archives = new HashMap<>();
+        String fichiers = "fichiers";
+        archives.putIfAbsent(fichiers, 0);
+        double progresArchivage = 0;
+        double valeurStep = 1d / files.size();
+        int demandeId = demandeDTO.getPkDemandes();
+        boolean erreurRIO = false;
+        boolean erreurConvertisseur = false;
+        ArchivageStatutDTO archivageStatut = new ArchivageStatutDTO();
+        archivageStatut.setAvancement(ArchivageStatutAvancementEnum.EN_COURS);
+        archivageStatut.setProgression(progresArchivage);
+        archivageProgress.put(demandeId, archivageStatut);
+        ArchivageRapportExportDTO archivageRapportExportDTO = new ArchivageRapportExportDTO();
+        archivageRapportExportDTO.setCodeNotice("codeNotice");
+        archivageRapportExportDTO.setRefDocument("ref");
+
+        // En début de process, on boucle sur les fichiers pour initialiser le rapport d'archivage
+        // Si on le fait après, il pourrait y avoir une erreur qui stop le process
+        for (DemandeFileDTO file : files) {
+            archivageRapportExportDTO.addFichiersInitiaux(createFichierInitial(file));
+        }
+
+        List<RioDocumentDTO> rioDocumentDTOs = references.entrySet().stream()
+                .map(entry->getRioDocumentDTO(entry.getKey(), entry.getValue()))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+        for (DemandeFileDTO file : files) {
+            try {
+                LOGGER.info("Génération des images TIFFs pour fichier {}", file.getName());
+                Map<String, InputStream> filesTiff = convertisseurTiffService.generateTiffs(file);
+                boolean erreurArchivageFichierCourrant = false;
+                // Ajout dans la liste des fichiers qui ont bien été convertis
+                for (Map.Entry<String, InputStream> fileTiff : filesTiff.entrySet()) {
+                    archivageRapportExportDTO.addFichiersConvertis(createFichierConverti(file, STATUT_OK, fileTiff.getKey()));
+
+                    boolean enErreur = this.archiverFichier(archives, archivageRapportExportDTO, rioDocumentDTOs, file, fileTiff);
+                    if(enErreur){
+                        erreurRIO = true;
+                        erreurArchivageFichierCourrant = true;
+                    }
+                    // On fait avancer le step de l'archivage au prochain fichier
+                    progresArchivage += valeurStep;
+                    archivageStatut.setProgression(progresArchivage);
+                }
+                if(erreurArchivageFichierCourrant) {
+                    archivageStatut.setNbFichiersEnErreur(archivageStatut.getNbFichiersEnErreur() + 1);
+                }
+            } catch (Exception e) {
+                LOGGER.error("Erreur lors de la conversion du document {}", file.getName(), e);
+                archivageRapportExportDTO.addFichiersConvertis(createFichierConverti(file, STATUT_KO, ""));
+                archivageRapportExportDTO.addFichiersDeposes(createFichierDepose(file, STATUT_KO, ""));
+
+                // On fait avancer les steps d'archivage
+                progresArchivage += valeurStep;
+                archivageStatut.setProgression(progresArchivage);
+
+                erreurConvertisseur = true;
+                archivageStatut.setNbFichiersEnErreur(archivageStatut.getNbFichiersEnErreur()+1);
+                archives.computeIfPresent(fichiers, (fichier, compteur) -> compteur + 1);
+            }
+        }
+
+        LOGGER.info("Fin archivage des documents");
+
+        archivageRapportExportDTO.setDemarcheId(demandeDTO.getDemarcheId());
+        archivageRapportExportDTO.setDemandeFlatDTO(afBackUtils.demandeDTOToDemandeFlatDTO(demandeDTO));
+
+        String nomRapport = genererNomRapport(demandeDTO.getIdentifiant(), archivageRapportExportDTO);
+        try (ByteArrayOutputStream rapport = generateArchivageRecap(archivageRapportExportDTO, demandeDTO, nomRapport)) {
+            processErreursArchivage(erreurRIO, erreurConvertisseur, demandeDTO, rapport, nomRapport);
+        } catch (Exception e) {
+            LOGGER.error("Erreur lors de la génération du rapport d'archivage pour la demande {}", demandeId, e);
+        }
+        return archives;
+    }
+
+    private boolean archiverFichier(Map<String, Integer> archives,
+                                 ArchivageRapportExportDTO archivageRapportExportDTO, List<RioDocumentDTO> rioDocumentDTOs,
+                                 DemandeFileDTO file, Map.Entry<String, InputStream> fileTiff) {
+        boolean erreurArchivage = false;
+        String refDocument = "";
+        try (InputStream value = fileTiff.getValue()) {
+            //Il faut sortir le tableau de bytes dans la bouble sinon, au deuxième élément, value.readAllBytes() renvoi un tableau vide
+            byte[] bytes = value.readAllBytes();
+            for (RioDocumentDTO rioDocumentDTO : rioDocumentDTOs) {
+                refDocument = rioDocumentDTO.getRefDocument();
+                archives.putIfAbsent(refDocument, 0);
+
+                LOGGER.info("Envoi du documents en GED pour {}", fileTiff.getKey());
+
+                rioService.createFileDocument(refDocument, fileTiff.getKey(), bytes, rioDocumentDTO.getCodeNotice());
+                archivageRapportExportDTO.addFichiersDeposes(createFichierDepose(file, STATUT_OK, fileTiff.getKey()));
+            }
+        } catch(Exception e) {
+            LOGGER.error("Erreur lors de l'archivage du document {}", file.getName(), e);
+            archivageRapportExportDTO.addFichiersDeposes(createFichierDepose(file, STATUT_KO, fileTiff.getKey()));
+            archives.computeIfPresent(refDocument, (ref, compteur) -> compteur + 1);
+            erreurArchivage = true;
+        }
+        return erreurArchivage;
+    }
+
+    private RioDocumentDTO getRioDocumentDTO(String ref, String codeType) {
+        LOGGER.info("Vérification de l'existence du document");
+        RioDocumentDTO rioDocumentDTO = null;
+        String codeNotice = TYPE_REGISTRE.equals(codeType) ? CODE_NOTICE_REGISTRE : CODE_NOTICE_PERMIS;
+        try {
+            rioDocumentDTO = rioService.getDocument(ref, codeNotice);
+        } catch (HttpServerErrorException e) {
+            // Si le document n'existe pas, nous devons le créer
+            if (e.getStatusCode().equals(HttpStatus.INTERNAL_SERVER_ERROR)) {
+                rioDocumentDTO = rioService.createDocument(ref, codeNotice);
+            }
+        } catch (Exception e) {
+            LOGGER.info("Problème avec l'api RIO");
+        }
+        return rioDocumentDTO;
+    }
+
 
     private void processErreursArchivage(boolean erreurRIO, boolean erreurConvertisseur, DemandeDTO demandeDTO, ByteArrayOutputStream rapport, String nomRapport) {
         if (erreurRIO) {

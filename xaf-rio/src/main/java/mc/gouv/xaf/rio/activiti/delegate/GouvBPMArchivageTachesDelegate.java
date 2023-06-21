@@ -16,14 +16,14 @@ import mc.gouv.xaf.shared.dto.*;
 import mc.gouv.xaf.shared.enums.StatutTachesEnum;
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.delegate.JavaDelegate;
+import org.apache.commons.collections4.MapUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Component
 public class GouvBPMArchivageTachesDelegate implements JavaDelegate {
@@ -63,6 +63,44 @@ public class GouvBPMArchivageTachesDelegate implements JavaDelegate {
     @Autowired
     private TachesService tachesService;
 
+    @Override
+    public void execute(DelegateExecution execution) {
+        LOGGER.info("==== xaf-back-stc Archivage ...");
+
+        Integer demandeId = Integer.parseInt(execution.getProcessBusinessKey());
+        String demarcheId = gouvPropertiesResolver.getDemarcheId();
+
+        DemandeDTO demandeDto = demandesService.getDemande(demarcheId, demandeId);
+
+        PropertiesDTO isArchivageActif = propertiesService.getProperty(demarcheId, XAF_ARCHIVAGE_ACTIVATION);
+
+        if (isArchivageActif != null && Boolean.parseBoolean(isArchivageActif.getValue())) {
+            List<DemandeFileDTO> fichiers = getAllFichiers(demandeDto);
+
+            List<TacheDTO> taches = tachesService.getTachesByDemandeID(demandeId);
+
+            //Archiver les fichiers par passant une liste de référence des taches
+            Map<String, String> referencesTaches = this.getReferencesTaches(taches);
+            AtomicInteger erreursFichiers = new AtomicInteger(0);
+            if(MapUtils.isNotEmpty(referencesTaches)){
+                Map<String, Integer> resultatArchivage = archivageService.archiver(referencesTaches, fichiers, demandeDto);
+                this.updateTaches(taches, erreursFichiers, resultatArchivage);
+            }
+
+            updateHisto(demandeId, erreursFichiers.get());
+        } else {
+            LOGGER.info("Archivage désactivé");
+        }
+
+        ArchivageStatutDTO statutDTO = new ArchivageStatutDTO();
+        statutDTO.setAvancement(ArchivageStatutAvancementEnum.COMPLETE);
+        statutDTO.setProgression(1d);
+        ArchivageService.archivageProgress.put(demandeId, statutDTO);
+        demandesDataService.saveOrUpdateDemandeData(demarcheId, demandeId, ARCHIVAGE_RIO_COMPLETED, "true");
+
+        LOGGER.info("==== xaf-back-stc Archivage <fin>");
+    }
+
     /**
      * Récupération des fichiers de la demande
      */
@@ -81,11 +119,7 @@ public class GouvBPMArchivageTachesDelegate implements JavaDelegate {
         }
 
         // refs #43237 - [BO] Qualification des documents : On remove les fichiers qui ne doivent pas partir à l'archivage
-        for (DemandeFileDTO currentFichier : new ArrayList<>(fichiers)) {
-            if (null != currentFichier.getTypedoc() && currentFichier.getTypedoc().equals("NON_APPLICABLE")) {
-                fichiers.remove(currentFichier);
-            }
-        }
+        fichiers.removeIf(currentFichier -> null != currentFichier.getTypedoc() && currentFichier.getTypedoc().equals("NON_APPLICABLE"));
 
         // Gestion de l'ordre d'envoi
         // Si une variable d'ordre est définie, trier les fichiers
@@ -116,52 +150,18 @@ public class GouvBPMArchivageTachesDelegate implements JavaDelegate {
         return fichiersTries;
     }
 
-    @Override
-    public void execute(DelegateExecution execution) {
-        LOGGER.info("==== xaf-back-stc Archivage ...");
-
-        Integer demandeId = Integer.parseInt(execution.getProcessBusinessKey());
-        String demarcheId = gouvPropertiesResolver.getDemarcheId();
-
-        DemandeDTO demandeDto = demandesService.getDemande(demarcheId, demandeId);
-
-        PropertiesDTO isArchivageActif = propertiesService.getProperty(demarcheId, XAF_ARCHIVAGE_ACTIVATION);
-        int erreursFichiers = 0;
-
-        if (isArchivageActif != null && Boolean.parseBoolean(isArchivageActif.getValue())) {
-            List<DemandeFileDTO> fichiers = getAllFichiers(demandeDto);
-            // Pour chaque taches je procède à l'archivage
-            List<TacheDTO> taches = tachesService.getTachesByDemandeID(demandeId);
-            List<DemandeFileDTO> fichiersArchives = new ArrayList<>();
-            for (TacheDTO tacheDTO : taches) {
-                if (tacheDTO.getStatutValideur().equals(StatutTachesEnum.VALIDER)) {
-                    fichiersArchives.addAll(processArchivage(tacheDTO, fichiers, demandeDto));
-                    // On set dans le contenu de la tache un statut archivage complété pour ne pas ré-archiver les fichiers
-                    // dans cette tache pendant le batch nocturne
-                    // On archive tous les fichiers pour chaque tache
-                    int differenceFichiersArchives = fichiers.size() - fichiersArchives.size();
-                    if (differenceFichiersArchives > 0) {
-                        erreursFichiers += differenceFichiersArchives;
-                    } else {
-                        ((ObjectNode) tacheDTO.getContenu()).put("archivagePartiel", true);
-                        tachesService.saveOrUpdate(tacheDTO);
-                    }
-                } else {
-                    LOGGER.info("Archivage de la tache {} ignoré car en statut valideur : {}", tacheDTO.getPkTaches(), tacheDTO.getStatutValideur());
+    private void updateTaches(List<TacheDTO> taches, AtomicInteger erreursFichiers, Map<String, Integer> archives) {
+        archives.forEach((ref, nbErreurs) -> {
+            if ("fichiers".equals(ref) || nbErreurs > 0) {
+                erreursFichiers.addAndGet(nbErreurs);
+            } else {
+                Optional<TacheDTO> tacheDTO = taches.stream().filter(tache -> ref.equals(tache.getCodeType())).findFirst();
+                if(tacheDTO.isPresent()){
+                    ((ObjectNode) tacheDTO.get().getContenu()).put("archivagePartiel", true);
+                    tachesService.saveOrUpdate(tacheDTO.get());
                 }
             }
-            updateHisto(demandeId, erreursFichiers);
-        } else {
-            LOGGER.info("Archivage désactivé");
-        }
-
-        ArchivageStatutDTO statutDTO = new ArchivageStatutDTO();
-        statutDTO.setAvancement(ArchivageStatutAvancementEnum.COMPLETE);
-        statutDTO.setProgression(1d);
-        ArchivageService.archivageProgress.put(demandeId, statutDTO);
-        demandesDataService.saveOrUpdateDemandeData(demarcheId, demandeId, ARCHIVAGE_RIO_COMPLETED, "true");
-
-        LOGGER.info("==== xaf-back-stc Archivage <fin>");
+        });
     }
 
     private void updateHisto(Integer demandeId, int erreursFichiers) {
@@ -173,15 +173,21 @@ public class GouvBPMArchivageTachesDelegate implements JavaDelegate {
         }
     }
 
-    private List<DemandeFileDTO> processArchivage(TacheDTO tache, List<DemandeFileDTO> fichiers, DemandeDTO demandeDto) {
-        String codeType = tache.getCodeType();
-        // Soit permis, on va chercher le numéro de permis
-        if (codeType.equals(CODE_TYPE_PERMIS)) {
-            return archivageService.archivagePermis(tache.getContenu().at("/numPermis").asText(), fichiers, demandeDto);
-        } else if (codeType.equals(CODE_TYPE_IMMAT)) {
-            // Sinon on va cherche le numéro de registre
-            return archivageService.archivageRegistre(tache.getContenu().at("/numRegistre").asText(), fichiers, demandeDto);
+    private Map<String, String> getReferencesTaches(List<TacheDTO> taches) {
+        Map<String, String> referencesTaches = new HashMap<>();
+        for (TacheDTO tacheDTO : taches) {
+            if (tacheDTO.getStatutValideur().equals(StatutTachesEnum.VALIDER)) {
+                // Soit permis, on va chercher le numéro de permis
+                if (CODE_TYPE_PERMIS.equals(tacheDTO.getCodeType())) {
+                    referencesTaches.put(tacheDTO.getContenu().at("/numPermis").asText(), tacheDTO.getCodeType());
+                } else if (CODE_TYPE_IMMAT.equals(tacheDTO.getCodeType())) {
+                    // Sinon on va cherche le numéro de registre
+                    referencesTaches.put(tacheDTO.getContenu().at("/numRegistre").asText(), tacheDTO.getCodeType());
+                }
+            } else {
+                LOGGER.info("Archivage de la tache {} ignoré car en statut valideur : {}", tacheDTO.getPkTaches(), tacheDTO.getStatutValideur());
+            }
         }
-        return new ArrayList<>();
+        return referencesTaches;
     }
 }

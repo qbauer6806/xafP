@@ -88,13 +88,16 @@ public class InitialDemandeServlet extends AbstractAfServlet {
         omapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
         List<PropertiesDTO> properties = getAfApiClient().getFrontProperties();
-        Map<String, String[]> data = new HashMap<>();
-        /* liste des params propres aux TS, que le front peut utiliser pour faire une recherche de donnees externes */
-
         PropertiesDTO property = properties.stream()
                 .filter(prop -> "XAF_DONNEES_EXTERNES_PARAMETER_LIST".equals(prop.getKey())).findFirst().orElse(null);
 
-        if (property != null) {
+        /*
+         * liste des params propres aux TS, que le front peut utiliser pour faire une recherche de donnees externes. Ces
+         * params sont forwardés à l'api lors de l'appel vers donneesExternes.
+         */
+        Map<String, String[]> data = new HashMap<>();
+
+        if (property != null && property.getValue() != null) {
             try {
                 List<String> parameters = omapper.readValue(property.getValue(), new TypeReference<List<String>>() {
                 });
@@ -107,11 +110,9 @@ public class InitialDemandeServlet extends AbstractAfServlet {
             }
         }
 
-        DonneesExternesDTO donneesMConnectDTO;
-
         try {
-
             if (usagerInfosDTO.ismConnect()) {
+                DonneesExternesDTO donneesMConnectDTO;
                 JsonNode usagerJson = usagerInfosDTO.getDonneesExternes();
                 donneesMConnectDTO = omapper.treeToValue(usagerJson, DonneesExternesDTO.class);
                 data.put("usagerId", new String[] { usagerInfosDTO.getId() + "" });

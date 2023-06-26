@@ -1,5 +1,25 @@
 package mc.gouv.xaf.backweb.ws;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Conditional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Order;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.format.annotation.DateTimeFormat.ISO;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 import mc.gouv.logon.shared.User;
 import mc.gouv.xaf.back.config.es.IndexationDisabledCondition;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
@@ -12,21 +32,6 @@ import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 import mc.gouv.xboot.config.web.annotation.GouvRestController;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Conditional;
-import org.springframework.data.domain.*;
-import org.springframework.data.domain.Sort.Order;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.format.annotation.DateTimeFormat.ISO;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 @GouvRestController
 @RequestMapping("/ws/demandes")
@@ -54,7 +59,9 @@ public class RechercheDemandesController extends AbstractController {
             @RequestParam(value = "texte", required = false) String texte,
             @RequestParam(value = "data", required = false) DataRechercheDTO data,
             @RequestParam(value = "aucunCanal", required = false) boolean aucunCanal,
-            @RequestParam(value = "aucunStatut", required = false) boolean aucunStatut, Pageable pageable) {
+            @RequestParam(value = "aucunStatut", required = false) boolean aucunStatut,
+            @RequestParam(value = "checkTimestamp", required = false, defaultValue = "false") boolean checkTimestamp,
+            Pageable pageable) {
 
         LOGGER.info(
                 "======================= Appel de /ws/demandes/pageable (statuts={}, canaux={}, agentId={}, creationStartDate={}, creationEndDate={}, texte={}, data={})",
@@ -73,6 +80,7 @@ public class RechercheDemandesController extends AbstractController {
         demandeRecherche.setIdentifiant(null);
         demandeRecherche.setAucunCanal(aucunCanal);
         demandeRecherche.setAucunStatut(aucunStatut);
+        demandeRecherche.setCheckTimestamp(checkTimestamp);
 
         // TODO sort non null ?
         if (pageable.getSort() != null) {

@@ -1,6 +1,22 @@
 package mc.gouv.xaf.servlet;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.MediaType;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import mc.gouv.xaf.apiclient.AfApiClient;
 import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
 import mc.gouv.xaf.servlet.enums.HttpMethod;
@@ -11,24 +27,11 @@ import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
 import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeInputDTO;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.MediaType;
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.util.List;
+import mc.gouv.xaf.shared.dto.DonneesMConnectDTO;
 
 /**
- * Servlet mettant à disposition le service /demandes avec les méthodes PUT, POST, GET, DELETE.
- * Cette servlet récupère le DemarcheID ainsi que l'UsagerID (depuis la session) et appelle les WS
- * correspondants dans le back-end générique.
+ * Servlet mettant à disposition le service /demandes avec les méthodes PUT, POST, GET, DELETE. Cette servlet récupère
+ * le DemarcheID ainsi que l'UsagerID (depuis la session) et appelle les WS correspondants dans le back-end générique.
  *
  * @author qdeme
  */
@@ -41,10 +44,10 @@ public class DemandesServlet extends AbstractAfServlet {
     /**
      * Vérifie si l'utilisateur est autorisé à faire la requête et prépare les objets communs aux requêtes :<br>
      * <ol>
-     *     <li>Un UsagerInfosDTO contenant les infos de l'usager.</li>
-     *     <li>L'id de la demande déjà parsé en entier (si présent)</li>
-     *     <li>Flag indiquant la présence de demandes complémentaires</li>
-     *     <li>L'id de la demande d'information complémentaire déjà parsé en entier (si présent)</li>
+     * <li>Un UsagerInfosDTO contenant les infos de l'usager.</li>
+     * <li>L'id de la demande déjà parsé en entier (si présent)</li>
+     * <li>Flag indiquant la présence de demandes complémentaires</li>
+     * <li>L'id de la demande d'information complémentaire déjà parsé en entier (si présent)</li>
      * </ol>
      */
     private Object[] setup(HttpServletRequest request, HttpServletResponse response) {
@@ -66,7 +69,8 @@ public class DemandesServlet extends AbstractAfServlet {
             // Et le cas des affectations à une demande
             if (pathElems.length > 2) {
                 if (!StringUtils.equals(pathElems[2], RequestConstant.COMPLEMENTS_PATH)) {
-                    // Opération interdite (exemple /statuts ou /affectations, auxquelles le FRONT ne doit pas avoir accès)
+                    // Opération interdite (exemple /statuts ou /affectations, auxquelles le FRONT ne doit pas avoir
+                    // accès)
                     AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_FORBIDDEN,
                             "Erreur: opération interdite");
                     return new Object[0];
@@ -84,17 +88,20 @@ public class DemandesServlet extends AbstractAfServlet {
         // Récupération de l'ID de la démarche dans le Context-Param
         String demarcheId = getServletContext().getInitParameter(AppFactoryServletUtils.DEMARCHEID_KEY);
 
-        LOGGER.info("DemarcheID={}, UsagerID={}, DemandeID={}, DemandeCompl?={}, DemandeComplID={}",
-                demarcheId, usagerId, demandeId, demandeInfosCompl, demandeInfosComplId);
-        return new Object[]{usagerInfosDTO, demandeId, demandeInfosCompl, demandeInfosComplId};
+        LOGGER.info("DemarcheID={}, UsagerID={}, DemandeID={}, DemandeCompl?={}, DemandeComplID={}", demarcheId,
+                usagerId, demandeId, demandeInfosCompl, demandeInfosComplId);
+        return new Object[] { usagerInfosDTO, demandeId, demandeInfosCompl, demandeInfosComplId };
     }
 
     /**
      * Factorisation des méthodes PUT et POST
      *
-     * @param request    Requête initiale de la Servlet
-     * @param response   Réponse initiale de la Servlet
-     * @param httpMethod Indique si l'on souhaite effectuer un POST ou un PUT
+     * @param request
+     *            Requête initiale de la Servlet
+     * @param response
+     *            Réponse initiale de la Servlet
+     * @param httpMethod
+     *            Indique si l'on souhaite effectuer un POST ou un PUT
      */
     public void doHttpMethod(HttpServletRequest request, HttpServletResponse response, HttpMethod httpMethod) {
 
@@ -132,31 +139,36 @@ public class DemandesServlet extends AbstractAfServlet {
             ObjectMapper mapper = new ObjectMapper();
             if (demandeInfosCompl) {
                 LOGGER.info("Appel à la démarche pour répondre à la demande d'informations complémentaires");
-                DemandeComplementsReponseDTO reponse = mapper.readValue(buffer.toString(), DemandeComplementsReponseDTO.class);
+                DemandeComplementsReponseDTO reponse = mapper.readValue(buffer.toString(),
+                        DemandeComplementsReponseDTO.class);
                 reponse.setAgentId(null);
                 reponse.setUsagerId(usagerInfosDTO.getId());
-                DemandeComplementsDTO demandeComplement = afApiClient.repondreDemandeComplements(demandeId, demandeInfosComplId, reponse);
+                DemandeComplementsDTO demandeComplement = afApiClient.repondreDemandeComplements(demandeId,
+                        demandeInfosComplId, reponse);
 
                 // TODO : gestion des erreurs
                 response.setStatus(HttpStatus.SC_OK);
                 repJson = mapper.writeValueAsString(demandeComplement);
             } else {
                 DemandeInputDTO demandeInput = mapper.readValue(buffer.toString(), DemandeInputDTO.class);
-                // Ajout des données externes MConnect si elles sont présentes (afin que l'API puisse les prendre en compte pour les places dans les bons endroits
+                // Ajout des données externes MConnect si elles sont présentes (afin que l'API puisse les prendre en
+                // compte pour les places dans les bons endroits
                 // du contenu de la demande. Ceci afin d'éviter un potentiel "hack" de la part de l'usager sur le FO)
-                if (usagerInfosDTO.getDonneesExternes() != null && usagerInfosDTO.getDonneesExternes().getMconnect() != null) {
-                    demandeInput.setDonneesMConnect(usagerInfosDTO.getDonneesExternes().getMconnect());
+                if (usagerInfosDTO.getDonneesExternes() != null
+                        && usagerInfosDTO.getDonneesExternes().get("mconnect") != null) {
+                    demandeInput.setDonneesMConnect(mapper.treeToValue(
+                            usagerInfosDTO.getDonneesExternes().get("mconnect"), DonneesMConnectDTO.class));
                 }
-                
+
                 DemandeDTO demandeDto;
-            	if (HttpMethod.POST.equals(httpMethod)) {
-	                LOGGER.info("Appel à la démarche pour créer la demande");
-	                demandeDto = afApiClient.creerDemande(demandeInput, usagerInfosDTO.getId());
-            	} else {
-	                LOGGER.info("Appel à la démarche pour mettre à jour la demande {}", demandeId);
-	                demandeDto = afApiClient.updateDemande(demandeId, demandeInput, usagerInfosDTO.getId());
-            	}
-            	
+                if (HttpMethod.POST.equals(httpMethod)) {
+                    LOGGER.info("Appel à la démarche pour créer la demande");
+                    demandeDto = afApiClient.creerDemande(demandeInput, usagerInfosDTO.getId());
+                } else {
+                    LOGGER.info("Appel à la démarche pour mettre à jour la demande {}", demandeId);
+                    demandeDto = afApiClient.updateDemande(demandeId, demandeInput, usagerInfosDTO.getId());
+                }
+
                 // TODO : gestion des erreurs
                 response.setStatus(HttpStatus.SC_CREATED);
                 repJson = mapper.writeValueAsString(demandeDto);
@@ -218,7 +230,8 @@ public class DemandesServlet extends AbstractAfServlet {
             } else {
                 if (demandeInfosComplId != null) {
                     LOGGER.info("Appel à la démarche pour récupérer la demande d'informations complémentaires");
-                    DemandeComplementsDTO demandeComplementsDto = afApiClient.getDemandeComplements(demandeId, demandeInfosComplId);
+                    DemandeComplementsDTO demandeComplementsDto = afApiClient.getDemandeComplements(demandeId,
+                            demandeInfosComplId);
                     // TODO : gestion des erreurs
                     repJson = mapper.writeValueAsString(demandeComplementsDto);
                 } else {

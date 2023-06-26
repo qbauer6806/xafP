@@ -1,18 +1,17 @@
 package mc.gouv.xaf.servlet.util;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.IntNode;
-import com.fasterxml.jackson.databind.node.NullNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
-import mc.gouv.xaf.servlet.dto.KeycloakTokenInfo;
-import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
-import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
-import mc.gouv.xaf.shared.RequestConstant;
-import mc.gouv.xaf.shared.dto.DonneesExternesDTO;
-import mc.gouv.xaf.shared.dto.DonneesMConnectDTO;
-import mc.gouv.xaf.shared.dto.UsagerTypeEnum;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpHeaders;
@@ -26,17 +25,22 @@ import org.apache.http.message.BasicNameValuePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.IntNode;
+import com.fasterxml.jackson.databind.node.NullNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
+
+import mc.gouv.xaf.servlet.dto.KeycloakTokenInfo;
+import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
+import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
+import mc.gouv.xaf.shared.RequestConstant;
+import mc.gouv.xaf.shared.dto.DonneesMConnectDTO;
+import mc.gouv.xaf.shared.dto.UsagerTypeEnum;
 
 /**
- * Classe permettant d'appeler GICHKEY afin de gérer le login/logout de l'usager, le rafraîchissement
- * des tokens, etc.
+ * Classe permettant d'appeler GICHKEY afin de gérer le login/logout de l'usager, le rafraîchissement des tokens, etc.
  *
  * @author qdeme
  */
@@ -79,9 +83,12 @@ public class GichkeyService {
 
         List<NameValuePair> nvps = new ArrayList<>();
         nvps.add(new BasicNameValuePair("code", code));
-        nvps.add(new BasicNameValuePair(RequestConstant.CLIENT_ID_PARAM, AfServletGouvPropertiesResolver.getGichkeyClientId()));
-        nvps.add(new BasicNameValuePair(RequestConstant.CLIENT_SECRET_PARAM, AfServletGouvPropertiesResolver.getGichkeyClientSecret()));
-        nvps.add(new BasicNameValuePair("redirect_uri", AfServletGouvPropertiesResolver.getGichkeyKeycloakRedirectUri()));
+        nvps.add(new BasicNameValuePair(RequestConstant.CLIENT_ID_PARAM,
+                AfServletGouvPropertiesResolver.getGichkeyClientId()));
+        nvps.add(new BasicNameValuePair(RequestConstant.CLIENT_SECRET_PARAM,
+                AfServletGouvPropertiesResolver.getGichkeyClientSecret()));
+        nvps.add(new BasicNameValuePair("redirect_uri",
+                AfServletGouvPropertiesResolver.getGichkeyKeycloakRedirectUri()));
         nvps.add(new BasicNameValuePair("grant_type", "authorization_code"));
         nvps.add(new BasicNameValuePair(RequestConstant.SCOPE_PARAM, "openid mconnect monguichet"));
 
@@ -208,12 +215,14 @@ public class GichkeyService {
                 mConnectUInfos.setBirthName(birthNameNode.asText());
                 mConnectUInfos.setGender(genderNode.asText());
                 mConnectUInfos.setBirthPlace(birthPlaceNode.asText());
-                mConnectUInfos.setBirthDatetime(new SimpleDateFormat("yyyyMMddHHmmss").parse(birthDatetimeNode.asText()));
+                mConnectUInfos
+                        .setBirthDatetime(new SimpleDateFormat("yyyyMMddHHmmss").parse(birthDatetimeNode.asText()));
                 mConnectUInfos.setAuthority(authorityNode.asText());
                 mConnectUInfos.setBirthPlaceCountry(birthPlaceCountryNode.asText());
                 mConnectUInfos.setBirthPlaceCity(birthPlaceCityNode.asText());
-                DonneesExternesDTO donneesExternes = new DonneesExternesDTO();
-                donneesExternes.setMconnect(mConnectUInfos);
+                ObjectMapper mapper = new ObjectMapper();
+                ObjectNode donneesExternes = mapper.createObjectNode();
+                donneesExternes.put("mconnect", mapper.valueToTree(mConnectUInfos));
                 uinfos.setDonneesExternes(donneesExternes);
                 LOGGER.info("Informations MConnect disponibles : {}", mConnectUInfos);
                 uinfos.setmConnect(true);
@@ -238,15 +247,17 @@ public class GichkeyService {
         HttpPost postRequest = new HttpPost(url.toString());
 
         List<NameValuePair> nvps = new ArrayList<>();
-        nvps.add(new BasicNameValuePair(RequestConstant.CLIENT_ID_PARAM, AfServletGouvPropertiesResolver.getGichkeyClientId()));
-        nvps.add(new BasicNameValuePair(RequestConstant.CLIENT_SECRET_PARAM, AfServletGouvPropertiesResolver.getGichkeyClientSecret()));
+        nvps.add(new BasicNameValuePair(RequestConstant.CLIENT_ID_PARAM,
+                AfServletGouvPropertiesResolver.getGichkeyClientId()));
+        nvps.add(new BasicNameValuePair(RequestConstant.CLIENT_SECRET_PARAM,
+                AfServletGouvPropertiesResolver.getGichkeyClientSecret()));
         nvps.add(new BasicNameValuePair(RequestConstant.REFRESH_TOKEN_PARAM, uinfos.getTokenInfo().getRefreshToken()));
 
         postRequest.setEntity(new UrlEncodedFormEntity(nvps, StandardCharsets.UTF_8));
 
         postRequest.setHeader(HttpHeaders.CONNECTION, KEEP_ALIVE);
-		postRequest.setHeader(HttpHeaders.ACCEPT_ENCODING, ENCODING);
-		postRequest.setHeader(HttpHeaders.ACCEPT, ACCEPT);
+        postRequest.setHeader(HttpHeaders.ACCEPT_ENCODING, ENCODING);
+        postRequest.setHeader(HttpHeaders.ACCEPT, ACCEPT);
         postRequest.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + uinfos.getTokenInfo().getAccessToken());
 
         LOGGER.info(APPEL_GICHKEY);
@@ -311,16 +322,18 @@ public class GichkeyService {
 
         List<NameValuePair> nvps = new ArrayList<>();
         nvps.add(new BasicNameValuePair(RequestConstant.REFRESH_TOKEN_PARAM, tokenInfo.getRefreshToken()));
-        nvps.add(new BasicNameValuePair(RequestConstant.CLIENT_ID_PARAM, AfServletGouvPropertiesResolver.getGichkeyClientId()));
-        nvps.add(new BasicNameValuePair(RequestConstant.CLIENT_SECRET_PARAM, AfServletGouvPropertiesResolver.getGichkeyClientSecret()));
+        nvps.add(new BasicNameValuePair(RequestConstant.CLIENT_ID_PARAM,
+                AfServletGouvPropertiesResolver.getGichkeyClientId()));
+        nvps.add(new BasicNameValuePair(RequestConstant.CLIENT_SECRET_PARAM,
+                AfServletGouvPropertiesResolver.getGichkeyClientSecret()));
         nvps.add(new BasicNameValuePair("grant_type", RequestConstant.REFRESH_TOKEN_PARAM));
         nvps.add(new BasicNameValuePair(RequestConstant.SCOPE_PARAM, "openid mconnect monguichet"));
 
         postRequest.setEntity(new UrlEncodedFormEntity(nvps, StandardCharsets.UTF_8));
 
-		postRequest.setHeader(HttpHeaders.CONNECTION, KEEP_ALIVE);
-		postRequest.setHeader(HttpHeaders.ACCEPT_ENCODING, ENCODING);
-		postRequest.setHeader(HttpHeaders.ACCEPT, ACCEPT);
+        postRequest.setHeader(HttpHeaders.CONNECTION, KEEP_ALIVE);
+        postRequest.setHeader(HttpHeaders.ACCEPT_ENCODING, ENCODING);
+        postRequest.setHeader(HttpHeaders.ACCEPT, ACCEPT);
 
         LOGGER.info(APPEL_GICHKEY);
         try {

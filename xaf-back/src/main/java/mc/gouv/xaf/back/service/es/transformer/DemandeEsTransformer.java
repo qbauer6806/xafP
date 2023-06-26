@@ -33,8 +33,6 @@ import mc.gouv.xaf.back.data.es.model.DemandeAccessEsDTO;
 import mc.gouv.xaf.back.data.es.model.DemandeEsDTO;
 import mc.gouv.xaf.back.data.es.model.DemandeJoinFieldEsDTO;
 import mc.gouv.xaf.back.data.es.model.DemandeStatutEsDTO;
-import mc.gouv.xaf.shared.dto.es.GenericContenuEsDTO;
-import mc.gouv.xaf.shared.dto.es.GenericDemandeDataEsDTO;
 import mc.gouv.xaf.back.data.transformer.DemandesCourriersTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesStatutsTransformer;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
@@ -50,6 +48,8 @@ import mc.gouv.xaf.shared.dto.DemandeDataDTO;
 import mc.gouv.xaf.shared.dto.DemandeHistoriqueDTO;
 import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
+import mc.gouv.xaf.shared.dto.es.GenericContenuEsDTO;
+import mc.gouv.xaf.shared.dto.es.GenericDemandeDataEsDTO;
 
 @Service
 @Conditional(IndexationEnabledCondition.class)
@@ -132,7 +132,7 @@ public class DemandeEsTransformer {
         demandeEsDTO.setAccess(demandeAccessEsDto);
 
         if (accessBO.getUsagerId() != null) {
-        	GichuniUsagerDTO usagerBean = usagersCache.get(accessBO.getUsagerId());
+            GichuniUsagerDTO usagerBean = usagersCache.get(accessBO.getUsagerId());
             demandeEsDTO.setUsager(UsagerTransformer.bo2Dto(usagerBean));
         }
 
@@ -158,7 +158,8 @@ public class DemandeEsTransformer {
         demandeEsDTO.setCourrierDateReception(demande.getCourrierDateReception());
         demandeEsDTO.setCourrierRefInterne(demande.getCourrierRefInterne());
 
-        demandeEsDTO.setStatutPublicOuInterne(demarchesDataProvider.getStatutPublicOuInterne(demande.getPkDemandes(), demande.getDernierStatut().getLibelle()).getName());
+        demandeEsDTO.setStatutPublicOuInterne(demarchesDataProvider
+                .getStatutPublicOuInterne(demande.getPkDemandes(), demande.getDernierStatut().getLibelle()).getName());
 
         Set<DemandeCourrierDTO> courriers = DemandesCourriersTransformer.bo2Dto(demande.getCourriers());
 
@@ -190,6 +191,8 @@ public class DemandeEsTransformer {
             demandeEsDTO.setAgentAffecteNomAffichage(getAgentAffecteNomAffichage(user));
         }
 
+        demandeEsDTO.setModificationTimestamp(demande.getModificationTimestamp());
+
         return demandeEsDTO;
     }
 
@@ -206,7 +209,7 @@ public class DemandeEsTransformer {
         demandeAccessEsDto.setActive(activeAccess);
         demandeEsDTO.setAccess(demandeAccessEsDto);
         if (demandeDTO.getUsagerId() != null) {
-        	GichuniUsagerDTO usagerBean = usagersCache.get(demandeDTO.getUsagerId());
+            GichuniUsagerDTO usagerBean = usagersCache.get(demandeDTO.getUsagerId());
             demandeEsDTO.setUsager(UsagerTransformer.bo2Dto(usagerBean));
         }
         if (demandeDTO.getAgentAffecteId() != null) {
@@ -229,7 +232,9 @@ public class DemandeEsTransformer {
         demandeEsDTO.setCourrierDateReception(demandeDTO.getCourrierDateReception());
         demandeEsDTO.setCourrierRefInterne(demandeDTO.getCourrierRefInterne());
 
-        demandeEsDTO.setStatutPublicOuInterne(demarchesDataProvider.getStatutPublicOuInterne(demandeDTO.getPkDemandes(), demandeDTO.getDernierStatut().getLibelle()).getName());
+        demandeEsDTO.setStatutPublicOuInterne(demarchesDataProvider
+                .getStatutPublicOuInterne(demandeDTO.getPkDemandes(), demandeDTO.getDernierStatut().getLibelle())
+                .getName());
 
         if (demandeDTO.getCourriers() != null && demandeDTO.getCourriers().length > 0) {
             List<String> nomsCourriers = Arrays.stream(demandeDTO.getCourriers()).map(DemandeCourrierDTO::getName)
@@ -263,7 +268,7 @@ public class DemandeEsTransformer {
         List<String> justifs = getJustificatifsTraitement(gouvPropertiesResolver.getDemarcheId(),
                 demandeDTO.getPkDemandes());
         demandeEsDTO.setJustificatifsTraitement(justifs);
-
+        demandeEsDTO.setModificationTimestamp(demandeDTO.getModificationTimestamp());
         return demandeEsDTO;
     }
 
@@ -301,7 +306,7 @@ public class DemandeEsTransformer {
         acess.setUsagerId(bo.getFkAccess().getUsagerId());
         dto.setAccess(acess);
         if (acess.getUsagerId() != null) {
-        	GichuniUsagerDTO usagerBean = usagersCache.get(acess.getUsagerId());
+            GichuniUsagerDTO usagerBean = usagersCache.get(acess.getUsagerId());
             dto.setUsager(UsagerTransformer.bo2Dto(usagerBean));
         }
 
@@ -341,7 +346,8 @@ public class DemandeEsTransformer {
                 DemandeStatutDTO statutDto = DemandesStatutsTransformer.bo2Dto(statut);
                 // Cacher l'agentId au Front Office
                 statutDto.setAgentId(null);
-                dto.setStatuts(new DemandeStatutEsDTO[] { demandesStatutsEsTransformer.toEs(statutDto, bo.getPkDemandes()) });
+                dto.setStatuts(
+                        new DemandeStatutEsDTO[] { demandesStatutsEsTransformer.toEs(statutDto, bo.getPkDemandes()) });
             } else {
                 // Back Office : tout remonter
                 Set<DemandeStatutEsDTO> statuts = demandesStatutsEsTransformer.bo2Dto(bo.getStatuts(),
@@ -362,7 +368,8 @@ public class DemandeEsTransformer {
         // Mapper les courriers (que pour le Back-Office)
         if (addCourriersField && bo.getCourriers() != null && !bo.getCourriers().isEmpty()
                 && !DemarchesUtils.isFrontUser()) {
-            List<DemandeCourrierDTO> courriers = DemandesCourriersTransformer.bo2Dto(new ArrayList<>(bo.getCourriers()));
+            List<DemandeCourrierDTO> courriers = DemandesCourriersTransformer
+                    .bo2Dto(new ArrayList<>(bo.getCourriers()));
             if (!courriers.isEmpty()) {
                 List<String> nomsCourriers = courriers.stream().map(DemandeCourrierDTO::getName)
                         .collect(Collectors.toList());
@@ -373,7 +380,8 @@ public class DemandeEsTransformer {
         dto.setCourrierDateReception(bo.getCourrierDateReception());
         dto.setCourrierRefInterne(bo.getCourrierRefInterne());
 
-        dto.setStatutPublicOuInterne(demarchesDataProvider.getStatutPublicOuInterne(bo.getPkDemandes(), bo.getDernierStatut().getLibelle()).getName());
+        dto.setStatutPublicOuInterne(demarchesDataProvider
+                .getStatutPublicOuInterne(bo.getPkDemandes(), bo.getDernierStatut().getLibelle()).getName());
 
         // Mapping des demandes data
         if (addDataField) {
@@ -390,7 +398,7 @@ public class DemandeEsTransformer {
         // Justificatifs de traitment dans l'historique de la demande
         List<String> justifs = getJustificatifsTraitement(gouvPropertiesResolver.getDemarcheId(), bo.getPkDemandes());
         dto.setJustificatifsTraitement(justifs);
-
+        dto.setModificationTimestamp(bo.getModificationTimestamp());
         return dto;
     }
 
@@ -440,7 +448,8 @@ public class DemandeEsTransformer {
         List<String> justifs = new ArrayList<>();
         List<DemandeHistoriqueDTO> histosDem = demandesHistoriqueService.getHistorique(demarcheId, demandeId);
         if (histosDem != null && !histosDem.isEmpty()) {
-            justifs = histosDem.stream().map(DemandeHistoriqueDTO::getJustificatifTraitement).collect(Collectors.toList());
+            justifs = histosDem.stream().map(DemandeHistoriqueDTO::getJustificatifTraitement)
+                    .collect(Collectors.toList());
         }
         return justifs;
     }

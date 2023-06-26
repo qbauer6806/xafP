@@ -1,13 +1,13 @@
 package mc.gouv.xaf.servlet;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import mc.gouv.xaf.servlet.enums.HttpMethod;
-import mc.gouv.xaf.shared.SharedMessages;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
@@ -16,14 +16,19 @@ import org.apache.http.client.fluent.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import mc.gouv.xaf.servlet.dto.CustomRequestRechercheDTO;
 import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
+import mc.gouv.xaf.servlet.enums.HttpMethod;
 import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
+import mc.gouv.xaf.shared.SharedMessages;
 
 /**
  * 
- * Servlet mettant à disposition le service /customRequest avec les méthodes PUT, POST, GET, DELETE.
- * Cette servlet permet d'appeler des fonctions API custom/spécifiques d'une démarche
+ * Servlet mettant à disposition le service /customRequest avec les méthodes PUT, POST, GET, DELETE. Cette servlet
+ * permet d'appeler des fonctions API custom/spécifiques d'une démarche
  * 
  * @author qdeme
  *
@@ -43,6 +48,8 @@ public class CustomRequestServlet extends AbstractAfServlet {
             return;
         }
 
+        // Récupération de l'objet attaché à la session
+
         // Récupération de l'ID de l'usager
         Integer usagerId = usagerInfosDTO.getId();
         LOGGER.info("UsagerID={}", usagerId);
@@ -50,31 +57,58 @@ public class CustomRequestServlet extends AbstractAfServlet {
         String pathInfo = request.getPathInfo();
         String restOfUrl = null;
         if (pathInfo != null && pathInfo.length() > 1) {
-        	restOfUrl = "/" + pathInfo.split("/")[1];
+            restOfUrl = "/" + pathInfo.split("/")[1];
         }
-        
+
         String serviceUrl = AfServletGouvPropertiesResolver.getApiUrl() + "/customRequest";
-        
+
         if (StringUtils.isNotBlank(restOfUrl)) {
-        	serviceUrl += restOfUrl;
+            serviceUrl += restOfUrl;
         }
-        
+
+        serviceUrl += "?";
+
         if (StringUtils.isNotBlank(request.getQueryString())) {
-        	serviceUrl += "?" + request.getQueryString();
+            serviceUrl += request.getQueryString();
         }
+
+        if (request.getParameter("usagerId") == null) {
+            serviceUrl += "&usagerId=" + usagerInfosDTO.getId();
+        }
+
         LOGGER.info("Appel à {}", serviceUrl);
 
         Request serviceRequest = null;
-
+        String body = null;
         try {
             if (HttpMethod.GET.equals(httpMethod)) {
                 serviceRequest = Request.Get(serviceUrl);
             } else if (HttpMethod.POST.equals(httpMethod)) {
+
+                body = IOUtils.toString(request.getInputStream());
+
+                ObjectMapper mapper = new ObjectMapper();
+                try {
+                    CustomRequestRechercheDTO rechercheInput = mapper.readValue(body, CustomRequestRechercheDTO.class);
+                    if (rechercheInput.getData() != null) {
+                        String sComplementPost = String.format("&numeroContrat=%s&numeroFacture=%s&numeroTiers=%s",
+                                URLEncoder.encode(rechercheInput.getData().getNumeroContrat(),
+                                        StandardCharsets.UTF_8.toString()),
+                                URLEncoder.encode(rechercheInput.getData().getNumeroFacture(),
+                                        StandardCharsets.UTF_8.toString()),
+                                URLEncoder.encode(rechercheInput.getData().getNumeroTiers(),
+                                        StandardCharsets.UTF_8.toString()));
+                        serviceUrl += sComplementPost;
+                    }
+                } catch (Exception e) {
+                    LOGGER.info("Exception lors de la deserialization de CustomRequestRechercheDTO{}", e);
+                }
                 serviceRequest = Request.Post(serviceUrl);
-                serviceRequest.bodyByteArray(IOUtils.toString(request.getInputStream()).getBytes());
+                serviceRequest.bodyByteArray(body.getBytes());
             } else if (HttpMethod.PUT.equals(httpMethod)) {
                 serviceRequest = Request.Put(serviceUrl);
-                serviceRequest.bodyByteArray(IOUtils.toString(request.getInputStream()).getBytes());
+                body = IOUtils.toString(request.getInputStream());
+                serviceRequest.bodyByteArray(body.getBytes());
             } else if (HttpMethod.DELETE.equals(httpMethod)) {
                 serviceRequest = Request.Delete(serviceUrl);
             }
@@ -90,16 +124,16 @@ public class CustomRequestServlet extends AbstractAfServlet {
             return;
         }
         serviceRequest.setHeader("Authorization", "Bearer " + AfServletGouvPropertiesResolver.getApiJwt());
-        
+
         // Copier les headers
         Enumeration<String> headers = request.getHeaderNames();
         while (headers.hasMoreElements()) {
-        	String elem = headers.nextElement();
-        	if (!"Content-Length".equals(elem)) {
-        		serviceRequest.setHeader(elem, request.getHeader(elem));
-        	}
+            String elem = headers.nextElement();
+            if (!"Content-Length".equals(elem)) {
+                serviceRequest.setHeader(elem, request.getHeader(elem));
+            }
         }
-        
+
         try {
             HttpResponse serviceResponse = serviceRequest.execute().returnResponse();
             int statusCode = serviceResponse.getStatusLine().getStatusCode();
@@ -113,7 +147,7 @@ public class CustomRequestServlet extends AbstractAfServlet {
     }
 
     @Override
-    public void doPost(HttpServletRequest request, HttpServletResponse response) {
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         LOGGER.info("====================== /customRequest doPost()");
         doHttpMethod(request, response, HttpMethod.POST);
         LOGGER.info("====================== Fin /customRequest doPost()");
@@ -132,7 +166,7 @@ public class CustomRequestServlet extends AbstractAfServlet {
         doHttpMethod(request, response, HttpMethod.GET);
         LOGGER.info("====================== Fin /customRequest doGet()");
     }
-    
+
     @Override
     public void doDelete(HttpServletRequest request, HttpServletResponse response) {
         LOGGER.info("====================== /demandes doDelete()");

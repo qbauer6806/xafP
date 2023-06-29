@@ -4,13 +4,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.data.transformer.DemandesComplementsFilesTransformer;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.AfHistoService;
-import mc.gouv.xaf.back.service.data.DemandesDataService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.data.TachesService;
-import mc.gouv.xaf.rio.dto.ArchivageStatutDTO;
-import mc.gouv.xaf.rio.enums.ArchivageStatutAvancementEnum;
 import mc.gouv.xaf.rio.service.ArchivageService;
 import mc.gouv.xaf.shared.dto.*;
 import mc.gouv.xaf.shared.enums.StatutTachesEnum;
@@ -23,20 +19,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
+
+import static mc.gouv.xaf.rio.utils.ArchivageUtils.*;
 
 @Component
 public class GouvBPMArchivageTachesDelegate implements JavaDelegate {
 
-    public static final String ARCHIVAGE_RIO_COMPLETED = "ARCHIVAGE_RIO_COMPLETED";
-    public static final String MC_REFERENCE_PERMIS = "MC_REFERENCE_PERMIS";
-    public static final String MC_REFERENCE_REGISTRE = "MC_REFERENCE_REGISTRE";
-    public static final String CODE_TYPE_PERMIS = "PERMIS";
-    public static final String CODE_TYPE_IMMAT = "IMMAT";
-    public static final String CODE_NOTICE_PERMIS = "CODE_NOTICE_PERMIS";
-    public static final String CODE_NOTICE_REGISTRE = "CODE_NOTICE_REGISTRE";
     public static final String MC_ORDRE_FICHIERS = "MC_ORDRE_FICHIERS";
-    public static final String NOMBRE_FICHIERS_ERREUR_ARCHIVAGE = "NOMBRE_FICHIERS_ERREUR_ARCHIVAGE";
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMArchivageTachesDelegate.class);
     private static final String XAF_ARCHIVAGE_ACTIVATION = "XAF_ARCHIVAGE_ACTIVATION";
     @Autowired
@@ -53,12 +42,6 @@ public class GouvBPMArchivageTachesDelegate implements JavaDelegate {
 
     @Autowired
     private PropertiesService propertiesService;
-
-    @Autowired
-    private DemandesDataService demandesDataService;
-
-    @Autowired
-    private AfHistoService histoService;
 
     @Autowired
     private TachesService tachesService;
@@ -79,24 +62,21 @@ public class GouvBPMArchivageTachesDelegate implements JavaDelegate {
 
             List<TacheDTO> taches = tachesService.getTachesByDemandeID(demandeId);
 
-            //Archiver les fichiers par passant une liste de référence des taches
+            //Archiver les fichiers en passant une liste de référence des taches
             Map<String, String> referencesTaches = this.getReferencesTaches(taches);
-            AtomicInteger erreursFichiers = new AtomicInteger(0);
-            if(MapUtils.isNotEmpty(referencesTaches)){
-                Map<String, Integer> resultatArchivage = archivageService.archiver(referencesTaches, fichiers, demandeDto);
-                this.updateTaches(taches, erreursFichiers, resultatArchivage);
+            if (MapUtils.isNotEmpty(referencesTaches)) {
+                List<String> referencesTraitees = archivageService.archiver(referencesTaches, fichiers, demandeDto);
+                referencesTraitees.forEach(ref -> {
+                    Optional<TacheDTO> tacheDTO = taches.stream().filter(filtrerTache(ref)).findFirst();
+                    if (tacheDTO.isPresent()) {
+                        ((ObjectNode) tacheDTO.get().getContenu()).put("archivagePartiel", true);
+                        tachesService.saveOrUpdate(tacheDTO.get());
+                    }
+                });
             }
-
-            updateHisto(demandeId, erreursFichiers.get());
         } else {
             LOGGER.info("Archivage désactivé");
         }
-
-        ArchivageStatutDTO statutDTO = new ArchivageStatutDTO();
-        statutDTO.setAvancement(ArchivageStatutAvancementEnum.COMPLETE);
-        statutDTO.setProgression(1d);
-        ArchivageService.archivageProgress.put(demandeId, statutDTO);
-        demandesDataService.saveOrUpdateDemandeData(demarcheId, demandeId, ARCHIVAGE_RIO_COMPLETED, "true");
 
         LOGGER.info("==== xaf-back-stc Archivage <fin>");
     }
@@ -148,29 +128,6 @@ public class GouvBPMArchivageTachesDelegate implements JavaDelegate {
             }
         }
         return fichiersTries;
-    }
-
-    private void updateTaches(List<TacheDTO> taches, AtomicInteger erreursFichiers, Map<String, Integer> archives) {
-        archives.forEach((ref, nbErreurs) -> {
-            if ("fichiers".equals(ref) || nbErreurs > 0) {
-                erreursFichiers.addAndGet(nbErreurs);
-            } else {
-                Optional<TacheDTO> tacheDTO = taches.stream().filter(tache -> ref.equals(tache.getCodeType())).findFirst();
-                if(tacheDTO.isPresent()){
-                    ((ObjectNode) tacheDTO.get().getContenu()).put("archivagePartiel", true);
-                    tachesService.saveOrUpdate(tacheDTO.get());
-                }
-            }
-        });
-    }
-
-    private void updateHisto(Integer demandeId, int erreursFichiers) {
-        if (erreursFichiers > 0) {
-            demandesDataService.saveOrUpdateDemandeData(gouvPropertiesResolver.getDemarcheId(), demandeId, NOMBRE_FICHIERS_ERREUR_ARCHIVAGE, String.valueOf(erreursFichiers));
-            histoService.actionSysteme(demandeId, "ECHEC", "Archivage automatique des fichiers en échec");
-        } else {
-            histoService.actionSysteme(demandeId, "SUCCES", "Archivage automatique des fichiers réalisé avec succès");
-        }
     }
 
     private Map<String, String> getReferencesTaches(List<TacheDTO> taches) {

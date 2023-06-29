@@ -45,7 +45,11 @@ public class ArchivageUtils {
      * Récupération des fichiers de la demande
      */
     public static List<DemandeFileDTO> getAllFichiers(DemandeDTO demandeDto, String ordreFichiers) {
-        List<DemandeFileDTO> fichiers = new ArrayList<>(Arrays.asList(demandeDto.getFichiers()));
+        if (demandeDto == null) {
+            return new ArrayList<>();
+        }
+        List<DemandeFileDTO> fichiers = demandeDto.getFichiers() == null ? new ArrayList<>() :
+                new ArrayList<>(Arrays.asList(demandeDto.getFichiers()));
         // Récupération des fichiers complémentaires
         if (demandeDto.getComplements() != null) {
             for (DemandeComplementsDTO complements : demandeDto.getComplements()) {
@@ -85,6 +89,9 @@ public class ArchivageUtils {
     public static List<DemandeFileDTO> trierFichiers(String ordreFichiers, List<DemandeFileDTO> fichiers) {
         if (StringUtils.isBlank(ordreFichiers)) {
             return fichiers;
+        }
+        if (fichiers == null) {
+            return new ArrayList<>();
         }
         List<DemandeFileDTO> fichiersTries = new ArrayList<>();
         for (String typeDoc : ordreFichiers.split(",")) {

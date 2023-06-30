@@ -1,6 +1,8 @@
 package mc.gouv.xaf.rio.service.impl;
 
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.AfHistoService;
+import mc.gouv.xaf.back.service.data.DemandesDataService;
 import mc.gouv.xaf.back.service.data.DemandesFilesService;
 import mc.gouv.xaf.back.service.excel.ExcelExportService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
@@ -14,7 +16,6 @@ import mc.gouv.xaf.rio.service.RioService;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.enums.MailSupportEnum;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,12 +31,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+
+import static mc.gouv.xaf.rio.utils.ArchivageUtils.*;
 
 @Service
 public class ArchivageServiceImpl implements ArchivageService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ArchivageServiceImpl.class);
-
     private final SimpleDateFormat simpleDateTimeFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
     private static final String STATUT_OK = "Succès";
     private static final String STATUT_KO = "Échec";
@@ -65,33 +70,60 @@ public class ArchivageServiceImpl implements ArchivageService {
 
     @Autowired
     private AfBackUtils afBackUtils;
+    @Autowired
+    private AfHistoService histoService;
+    @Autowired
+    private DemandesDataService demandesDataService;
 
+    /**
+     * {@inheritDoc}
+     */
     @Transactional
-    public List<DemandeFileDTO> archivagePermis(String refPermis, List<DemandeFileDTO> files, DemandeDTO demandeDTO) {
+    @Override
+    public List<String> archivagePermis(String refPermis, List<DemandeFileDTO> files, DemandeDTO demandeDTO) {
         LOGGER.info("Début archivage des documents dans le permis {}", refPermis);
-        return archivageDocument(refPermis, files, demandeDTO, CODE_NOTICE_PERMIS);
+        Map<String, String> references = new HashMap<>();
+        references.put(refPermis, CODE_TYPE_PERMIS);
+        return archiver(references, files, demandeDTO);
     }
-    
+
+    /**
+     * {@inheritDoc}
+     */
     @Transactional
-    public List<DemandeFileDTO> archivageRegistre(String refRegistre, List<DemandeFileDTO> files, DemandeDTO demandeDTO) {
+    @Override
+    public List<String> archivageRegistre(String refRegistre, List<DemandeFileDTO> files, DemandeDTO demandeDTO) {
         LOGGER.info("Début archivage des documents dans le registre {}", refRegistre);
-        return archivageDocument(refRegistre, files, demandeDTO, CODE_NOTICE_REGISTRE);
+        Map<String, String> references = new HashMap<>();
+        references.put(refRegistre, CODE_TYPE_IMMAT);
+        return archiver(references, files, demandeDTO);
     }
-    
-    private List<DemandeFileDTO> archivageDocument(String ref, List<DemandeFileDTO> files, DemandeDTO demandeDTO, String codeNotice) {
-        List<DemandeFileDTO> fileDocumentList = new ArrayList<>();
+
+    /**
+     * {@inheritDoc}
+     */
+    @Transactional
+    @Override
+    public List<String> archiver(Map<String, String> references, List<DemandeFileDTO> files, DemandeDTO demandeDTO) {
+        LOGGER.info("Début archivage des documents pour les références {}", references);
+        return archiverDocument(references, files, demandeDTO);
+    }
+
+    private List<String> archiverDocument(Map<String, String> references, List<DemandeFileDTO> files, DemandeDTO demandeDTO) {
         double progresArchivage = 0;
         double valeurStep = 1d / files.size();
         int demandeId = demandeDTO.getPkDemandes();
-        boolean erreurRIO = false;
+        AtomicBoolean erreurRio = new AtomicBoolean();
         boolean erreurConvertisseur = false;
         ArchivageStatutDTO archivageStatut = new ArchivageStatutDTO();
         archivageStatut.setAvancement(ArchivageStatutAvancementEnum.EN_COURS);
         archivageStatut.setProgression(progresArchivage);
         archivageProgress.put(demandeId, archivageStatut);
         ArchivageRapportExportDTO archivageRapportExportDTO = new ArchivageRapportExportDTO();
-        archivageRapportExportDTO.setCodeNotice(codeNotice);
-        archivageRapportExportDTO.setRefDocument(ref);
+
+        Map<String, Integer> referencesTraitees = new HashMap<>();
+
+        AtomicInteger fichiersEnErreurs = new AtomicInteger(0);
 
         // En début de process, on boucle sur les fichiers pour initialiser le rapport d'archivage
         // Si on le fait après, il pourrait y avoir une erreur qui stop le process
@@ -99,69 +131,51 @@ public class ArchivageServiceImpl implements ArchivageService {
             archivageRapportExportDTO.addFichiersInitiaux(createFichierInitial(file));
         }
 
-        LOGGER.info("Vérification de l'existence du document");
-        RioDocumentDTO rioDocumentDTO = new RioDocumentDTO();
-        try {
-            rioDocumentDTO = rioService.getDocument(ref, codeNotice);
-        } catch (HttpServerErrorException e) {
-            // Si le document n'existe pas, nous devons le créer
-            if (e.getStatusCode().equals(HttpStatus.INTERNAL_SERVER_ERROR)) {
-                rioDocumentDTO = rioService.createDocument(ref, codeNotice);
-            }
-        } catch (Exception e) {
-            LOGGER.info("Problème avec l'api RIO");
-            erreurRIO = true;
-        }
+        List<RioDocumentDTO> rioDocumentDTOs = references.entrySet().stream()
+                .map(entry -> getRioDocumentDTO(entry.getKey(), entry.getValue(), erreurRio))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
 
         for (DemandeFileDTO file : files) {
-            Map<String, InputStream> filesTiff;
             try {
                 LOGGER.info("Génération des images TIFFs pour fichier {}", file.getName());
-                filesTiff = convertisseurTiffService.generateTiffs(file);
+                Map<String, InputStream> filesTiff = convertisseurTiffService.generateTiffs(file);
 
-                // Ajout dans la liste des fichiers qui ont bien été convertis
+                boolean erreurArchivageFichierCourant = false;
+                LOGGER.info("Archivage des pages du document {}", file.getName());
+
                 for (Map.Entry<String, InputStream> fileTiff : filesTiff.entrySet()) {
+                    // Ajout dans la liste des fichiers qui ont bien été convertis
                     archivageRapportExportDTO.addFichiersConvertis(createFichierConverti(file, STATUT_OK, fileTiff.getKey()));
+
+                    //On appel à l'archivage de la page courante
+                    boolean erreurArchivagePageCourante = this.archiverPageFichier(erreurRio, archivageRapportExportDTO,
+                            referencesTraitees, rioDocumentDTOs, file, fileTiff);
+
+                    if (erreurArchivagePageCourante) {
+                        archivageRapportExportDTO.addFichiersDeposes(createFichierDepose(file, STATUT_KO, fileTiff.getKey(), ""));
+                        fichiersEnErreurs.incrementAndGet();
+                        erreurArchivageFichierCourant = true;
+                    }
+                    // On fait avancer le step de l'archivage au prochain fichier
+                    progresArchivage += valeurStep;
+                    archivageStatut.setProgression(progresArchivage);
+                }
+                if (erreurArchivageFichierCourant) {
+                    archivageStatut.setNbFichiersEnErreur(archivageStatut.getNbFichiersEnErreur() + 1);
                 }
             } catch (Exception e) {
                 LOGGER.error("Erreur lors de la conversion du document {}", file.getName(), e);
                 archivageRapportExportDTO.addFichiersConvertis(createFichierConverti(file, STATUT_KO, ""));
-                archivageRapportExportDTO.addFichiersDeposes(createFichierDepose(file, STATUT_KO, ""));
+                archivageRapportExportDTO.addFichiersDeposes(createFichierDepose(file, STATUT_KO, "", ""));
 
                 // On fait avancer les steps d'archivage
                 progresArchivage += valeurStep;
                 archivageStatut.setProgression(progresArchivage);
 
                 erreurConvertisseur = true;
-                archivageStatut.setNbFichiersEnErreur(archivageStatut.getNbFichiersEnErreur()+1);
-
-                continue;
-            }
-
-            boolean erreurArchivageFichierCourrant = false;
-            for (Map.Entry<String, InputStream> fileTiff : filesTiff.entrySet()) {
-                try {
-                    LOGGER.info("Envoi du documents en GED pour {}", fileTiff.getKey());
-                    rioService.createFileDocument(rioDocumentDTO.getRefDocument(), fileTiff.getKey(), IOUtils.toByteArray(fileTiff.getValue()), codeNotice);
-                    fileTiff.getValue().close();
-                    archivageRapportExportDTO.addFichiersDeposes(createFichierDepose(file, STATUT_OK, fileTiff.getKey()));
-                } catch (Exception e) {
-                    LOGGER.error("Erreur lors de l'archivage du document {}", file.getName(), e);
-                    archivageRapportExportDTO.addFichiersDeposes(createFichierDepose(file, STATUT_KO, fileTiff.getKey()));
-                    erreurRIO = true;
-                    erreurArchivageFichierCourrant = true;
-                }
-            }
-
-            // On fait avancer le step de l'archivage au prochain fichier
-            progresArchivage += valeurStep;
-            archivageStatut.setProgression(progresArchivage);
-
-            // On marque le document comme "archivé" si et seulement si toutes ses pages (docs tiff) ont été archivés
-            if (erreurArchivageFichierCourrant) {
-                archivageStatut.setNbFichiersEnErreur(archivageStatut.getNbFichiersEnErreur()+1);
-            } else {
-                fileDocumentList.add(file);
+                archivageStatut.setNbFichiersEnErreur(archivageStatut.getNbFichiersEnErreur() + 1);
+                fichiersEnErreurs.incrementAndGet();
             }
         }
 
@@ -172,12 +186,88 @@ public class ArchivageServiceImpl implements ArchivageService {
 
         String nomRapport = genererNomRapport(demandeDTO.getIdentifiant(), archivageRapportExportDTO);
         try (ByteArrayOutputStream rapport = generateArchivageRecap(archivageRapportExportDTO, demandeDTO, nomRapport)) {
-            processErreursArchivage(erreurRIO, erreurConvertisseur, demandeDTO, rapport, nomRapport);
+            processErreursArchivage(erreurRio.get(), erreurConvertisseur, demandeDTO, rapport, nomRapport);
         } catch (Exception e) {
             LOGGER.error("Erreur lors de la génération du rapport d'archivage pour la demande {}", demandeId, e);
         }
-        return fileDocumentList;
+        List<String> listeReferences = referencesTraitees.entrySet().stream()
+                .filter(entry -> entry.getValue() == 0)
+                .map(Map.Entry::getKey).collect(Collectors.toList());
+
+        if (fichiersEnErreurs.get() > 0) {
+            // Sauvegarde du numéro de facture dans les données de la demande
+            demandesDataService.saveOrUpdateDemandeData(demandeDTO.getDemarcheId(), demandeId, NOMBRE_FICHIERS_ERREUR_ARCHIVAGE,
+                    String.valueOf(fichiersEnErreurs.get()));
+            histoService.actionSysteme(demandeId, "ECHEC", "Archivage automatique des fichiers en échec");
+        } else {
+            histoService.actionSysteme(demandeId, "SUCCES", "Archivage automatique des fichiers réalisé avec succès");
+        }
+        ArchivageStatutDTO statutDTO = new ArchivageStatutDTO();
+        statutDTO.setAvancement(ArchivageStatutAvancementEnum.COMPLETE);
+        statutDTO.setProgression(1d);
+        archivageProgress.put(demandeId, statutDTO);
+        demandesDataService.saveOrUpdateDemandeData(demandeDTO.getDemarcheId(), demandeId, ARCHIVAGE_RIO_COMPLETED, "true");
+
+        return listeReferences;
     }
+
+    private boolean archiverPageFichier(AtomicBoolean erreurRio, ArchivageRapportExportDTO archivageRapportExportDTO,
+                                        Map<String, Integer> referencesTraites, List<RioDocumentDTO> rioDocumentDTOs,
+                                        DemandeFileDTO file, Map.Entry<String, InputStream> fileTiff) {
+        try (InputStream value = fileTiff.getValue()) {
+            //Il faut sortir le tableau de bytes dans la boucle sinon, au deuxième élément, value.readAllBytes() renvoi un tableau vide
+            byte[] bytes = value.readAllBytes();
+
+            return this.envoyerPageDocumentEnGed(archivageRapportExportDTO, rioDocumentDTOs, file,
+                    fileTiff, bytes, referencesTraites, erreurRio);
+        } catch (IOException e) {
+            LOGGER.error("Erreur lors de l'archivage du document {}", file.getName(), e);
+            return true;
+        }
+    }
+
+    private boolean envoyerPageDocumentEnGed(ArchivageRapportExportDTO archivageRapportExportDTO, List<RioDocumentDTO> rioDocumentDTOs,
+                                             DemandeFileDTO file, Map.Entry<String, InputStream> fileTiff, byte[] bytes,
+                                             Map<String, Integer> referencesTraites, AtomicBoolean erreurRio) {
+        boolean erreurMiseEnGed = false;
+        String refDocument = StringUtils.EMPTY;
+        for (RioDocumentDTO rioDocumentDTO : rioDocumentDTOs) {
+            try {
+
+                LOGGER.info("Envoi du documents en GED pour {}", fileTiff.getKey());
+
+                refDocument = rioDocumentDTO.getRefDocument();
+                rioService.createFileDocument(refDocument, fileTiff.getKey(), bytes, rioDocumentDTO.getCodeNotice());
+                archivageRapportExportDTO.addFichiersDeposes(createFichierDepose(file, STATUT_OK, fileTiff.getKey(), refDocument));
+                referencesTraites.putIfAbsent(refDocument, 0);
+            } catch (Exception e) {
+                LOGGER.error("Erreur lors de l'envoi du documents en GED pour {}", file.getName(), e);
+                erreurMiseEnGed = true;
+                referencesTraites.computeIfPresent(refDocument, (ref, nbErreurs) -> nbErreurs + 1);
+                erreurRio.set(true);
+            }
+        }
+        return erreurMiseEnGed;
+    }
+
+    private RioDocumentDTO getRioDocumentDTO(String ref, String codeType, AtomicBoolean erreurRio) {
+        LOGGER.info("Vérification de l'existence du document");
+        RioDocumentDTO rioDocumentDTO = null;
+        String codeNotice = CODE_TYPE_IMMAT.equals(codeType) ? CODE_NOTICE_REGISTRE : CODE_NOTICE_PERMIS;
+        try {
+            rioDocumentDTO = rioService.getDocument(ref, codeNotice);
+        } catch (HttpServerErrorException e) {
+            // Si le document n'existe pas, nous devons le créer
+            if (e.getStatusCode().equals(HttpStatus.INTERNAL_SERVER_ERROR)) {
+                rioDocumentDTO = rioService.createDocument(ref, codeNotice);
+            }
+        } catch (Exception e) {
+            LOGGER.info("Problème avec l'api RIO");
+            erreurRio.set(true);
+        }
+        return rioDocumentDTO;
+    }
+
 
     private void processErreursArchivage(boolean erreurRIO, boolean erreurConvertisseur, DemandeDTO demandeDTO, ByteArrayOutputStream rapport, String nomRapport) {
         if (erreurRIO) {
@@ -277,7 +367,7 @@ public class ArchivageServiceImpl implements ArchivageService {
         return fichierConvertiDTO;
     }
 
-    private ArchivageFichierDeposeDTO createFichierDepose(DemandeFileDTO file, String statut, String nomTiff) {
+    private ArchivageFichierDeposeDTO createFichierDepose(DemandeFileDTO file, String statut, String nomTiff, String referenceDossier) {
         ArchivageFichierDeposeDTO fichierDeposeDTO = new ArchivageFichierDeposeDTO();
         Date date = new Date(System.currentTimeMillis());
         String dateTimeString = simpleDateTimeFormat.format(date);
@@ -285,6 +375,7 @@ public class ArchivageServiceImpl implements ArchivageService {
         fichierDeposeDTO.setNomTiff(nomTiff);
         fichierDeposeDTO.setStatut(statut);
         fichierDeposeDTO.setDate(dateTimeString);
+        fichierDeposeDTO.setReferenceDossier(referenceDossier);
         return fichierDeposeDTO;
     }
 }

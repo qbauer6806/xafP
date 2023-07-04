@@ -1,28 +1,13 @@
 package mc.gouv.xaf.backweb.ws;
 
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
-
-import javax.imageio.ImageIO;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.DemarchesDataProvider;
+import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.back.service.itg.file.FileService;
+import mc.gouv.xaf.back.service.utils.FileUtils;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeFileDTO;
+import mc.gouv.xboot.config.web.annotation.GouvRestController;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
@@ -50,27 +35,38 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.multipart.MultipartFile;
 
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.DemarchesDataProvider;
-import mc.gouv.xaf.back.service.data.DemandesService;
-import mc.gouv.xaf.back.service.itg.file.FileService;
-import mc.gouv.xaf.back.service.utils.FileUtils;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.xaf.shared.dto.DemandeFileDTO;
-import mc.gouv.xboot.config.web.annotation.GouvRestController;
+import javax.imageio.ImageIO;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
- * 
+ *
  * Proxy permettant d'accéder au service FILE depuis la démarche
- * 
+ *
  * @author qdeme
  *
  */
 @GouvRestController
 @RequestMapping("/ws/file")
 public class FileController {
-
-	private static final String UTF_8 = "UTF-8";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(FileController.class);
 
@@ -122,11 +118,14 @@ public class FileController {
 		// Création du dossier temporaire qui contiendra le zip final
 		Path tmp = Files.createTempDirectory("tmp");
 		tmp.toFile().deleteOnExit();
+
+		// on crée le fichier de sortie
+		File destination = this.createFileDestination(tmp.toFile(), fileName);
 		List<File> filesToZip = getFilesToInclude(fileType, fichiers, tmp.toFile());
-		createZipFile(filesToZip, tmp.toFile(), fileName);
+		createZipFile(filesToZip, destination);
 		// Préparation de la requête
 		HttpHeaders headers = setHeaders(fileName);
-		InputStreamResource isr = setInputStream(fileName, tmp);
+		InputStreamResource isr = setInputStream(destination);
 		return new ResponseEntity<>(isr, headers, HttpStatus.OK);
 	}
 
@@ -147,34 +146,33 @@ public class FileController {
 		// Création du dossier temporaire qui contiendra le zip final
 		Path tmp = Files.createTempDirectory("tmp");
 		tmp.toFile().deleteOnExit();
+
+		File destination = this.createFileDestination(tmp.toFile(), fileName);
 		List<File> filesToZip = getFilesToInclude(fileType, fichiers, tmp.toFile());
-		constructPdf(tmp.toFile(), filesToZip, fileName);
+		constructPdf(filesToZip, destination);
 
 		HttpHeaders headers = setHeaders(fileName);
-		InputStreamResource isr = setInputStream(fileName, tmp);
+		InputStreamResource isr = setInputStream(destination);
 		return new ResponseEntity<>(isr, headers, HttpStatus.OK);
 	}
 
 	/**
 	 * Méthode en charge de créer un InputStreamResource (et de redéfinir le comportement du close). Cet ISR sera le
 	 * fichier PDF renvoyée en réponse à la requête
-	 * 
-	 * @param fileName
-	 *            : Nom du fichier retourné par la requête
-	 * @param tmp
-	 *            : Localisation du dossier temporaire qui sera supprimé une fois la requête terminée
+	 *
+	 * @param destination
+	 *            : le fichier retourné par la requête
 	 * @return : L'input stream resource utilisé dans la requête
 	 */
-	private InputStreamResource setInputStream(String fileName, Path tmp) throws FileNotFoundException {
-		File result = new File(tmp.toAbsolutePath().toString(), fileName);
-		return new InputStreamResource(new FileInputStream(result) {
+	private InputStreamResource setInputStream(File destination) throws IOException {
+		return new InputStreamResource(new FileInputStream(destination) {
 
 			// Ici on override le close classique afin de pouvoir supprimer les fichiers
 			// générés à la volée une fois la requête terminée (ie la réponse renvoyée)
 			@Override
 			public void close() throws IOException {
 				super.close();
-				org.apache.commons.io.FileUtils.deleteDirectory(tmp.toFile());
+				org.apache.commons.io.FileUtils.deleteDirectory(destination.getParentFile());
 			}
 		});
 	}
@@ -187,9 +185,9 @@ public class FileController {
 		return headers;
 	}
 
-	private void constructPdf(File dest, List<File> files, String pdfName) throws IOException {
+	private void constructPdf(List<File> files, File destination) throws IOException {
 		PDFMergerUtility pdfMerger = new PDFMergerUtility();
-		pdfMerger.setDestinationFileName(dest.getAbsolutePath() + "/" + pdfName);
+		pdfMerger.setDestinationFileName(destination.getAbsolutePath());
 		try (PDDocument doc = new PDDocument()) {
 			for (File file : files) {
 				if (!file.getAbsolutePath().toLowerCase().endsWith(".pdf")) {
@@ -198,8 +196,9 @@ public class FileController {
 					pdfMerger.addSource(file);
 				}
 			}
-			doc.save(dest.getAbsolutePath() + "/JpegToPdfFile.pdf");
-			pdfMerger.addSource(new File(dest.getAbsolutePath() + "/JpegToPdfFile.pdf"));
+			File parentFile = destination.getParentFile();
+			doc.save(parentFile.getAbsolutePath() + "/JpegToPdfFile.pdf");
+			pdfMerger.addSource(new File(parentFile.getAbsolutePath() + "/JpegToPdfFile.pdf"));
 			pdfMerger.mergeDocuments(null);
 		}
 	}
@@ -272,11 +271,11 @@ public class FileController {
 		return result;
 	}
 
-	private void createZipFile(List<File> filesToZip, File tmp, String fileName) throws IOException {
+	private void createZipFile(List<File> filesToZip, File destination) throws IOException {
 		byte[] buffer = new byte[1024];
+
 		// creation du fichier ZIP
-		FileOutputStream fos = new FileOutputStream(tmp.getAbsolutePath() + "/" + fileName);
-		try (ZipOutputStream zos = new ZipOutputStream(fos)) {
+		try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(destination))) {
 			for (File currentFile : filesToZip) {
 				try (FileInputStream fis = new FileInputStream(currentFile)) {
 					zos.putNextEntry(new ZipEntry(currentFile.getName()));
@@ -288,6 +287,23 @@ public class FileController {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Permets de créer le fichier de sortie à partir du répertoire de temp
+	 *
+	 * @param fileName le nom du fichier à créer
+	 * @param tmp le répertoire qui contiendra le fichier créé
+	 * @return : le fichier créé
+	 * @throws IOException
+	 */
+	private File createFileDestination(File tmp, String fileName) throws IOException {
+		String parent = tmp.getAbsolutePath();
+		File file = new File(parent + File.separator + fileName);
+		if (!file.getCanonicalPath().startsWith(parent)) {
+			throw new IOException(String.format("L'entrée %s est en dehors du répertoire cible", fileName));
+		}
+		return file;
 	}
 
 	private void copyInputStreamToFile(InputStream inputStream, File file) throws IOException {
@@ -340,7 +356,7 @@ public class FileController {
 						response);
 
 				// #41757 - On décode de l'url du fichier pour qu'il soit affiché en clair dans le FO
-				fileNames.put(file.getOriginalFilename(), URLDecoder.decode(filename, StandardCharsets.UTF_8));
+				fileNames.put(file.getOriginalFilename(), URLDecoder.decode(filename, UTF_8));
 			}
 		}
 		LOGGER.info("====================== saveFiles() terminé, retour au client...");

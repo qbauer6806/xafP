@@ -63,5 +63,29 @@ public interface DemarchesDataProvider {
     default List<TitreUsagerEnum> getTitres() {
         return Arrays.asList(TitreUsagerEnum.values());
     }
-
+    
+    String getStatutAnnulee();
+    
+    String getCodeMotifAnnulationParUsager();
+    
+    String getCodeMotifAnnulationDesinscription();
+    
+    String getPremierStatutCreationDemande();
+    
+    String getStatutEnAttenteRectification();
+    
+    boolean checkAssociationCourrier(DemandeDTO demande, String stringToCheck);
+    
+    public List<String> getStatutsFinauxPourAnnulationCauseDesinscription();
+    
+    String getMailBodyTemplateCodeDesinscriptionUsagerPourAgents();
+    
+    String getMailSubjectTemplateCodeDesinscriptionUsagerPourAgents();
+    
+    String getMailBodyTemplateCodeDesinscriptionUsagerPourUsager();
+    
+    String getMailSubjectTemplateCodeDesinscriptionUsagerPourUsager();
+    
+    public String[] getAllStatuts();
+    
 }

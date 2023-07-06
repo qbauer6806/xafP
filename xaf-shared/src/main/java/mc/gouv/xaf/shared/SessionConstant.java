@@ -7,6 +7,6 @@ public class SessionConstant {
 
     public static final String SESSION_MODIFICATION_DEMANDE_ID = "modificationDemande";
     public static final String SESSION_MODIFICATION_USAGER_ID = "modificationDemandeUsagerId";
-    public static final String SESSION_INITIAL_DEMANDE = "initialDemande";
+    public static final String SESSION_DEMANDE_INITIALE = "initialDemande";
 
 }

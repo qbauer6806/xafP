@@ -3,7 +3,14 @@ package mc.gouv.xaf.shared.dto;
 public class DonneesExternesDemandeDTO {
 
     private DemandeDTO demande;
-    private Integer statut;
+    private DonneesExternesStatutRetourEnum statutRetour;
+    private String source;
+
+    public enum DonneesExternesStatutRetourEnum {
+        OK,
+        NOK,
+        CONFLICT
+    }
 
     public DemandeDTO getDemande() {
         return demande;
@@ -13,12 +20,28 @@ public class DonneesExternesDemandeDTO {
         this.demande = demande;
     }
 
-    public Integer getStatut() {
-        return statut;
+    public DonneesExternesStatutRetourEnum getStatut() {
+        return statutRetour;
     }
 
-    public void setStatut(Integer statut) {
-        this.statut = statut;
+    public void setStatut(DonneesExternesStatutRetourEnum statut) {
+        this.statutRetour = statut;
+    }
+
+    public DonneesExternesStatutRetourEnum getStatutRetour() {
+        return statutRetour;
+    }
+
+    public void setStatutRetour(DonneesExternesStatutRetourEnum statutRetour) {
+        this.statutRetour = statutRetour;
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
     }
 
 }

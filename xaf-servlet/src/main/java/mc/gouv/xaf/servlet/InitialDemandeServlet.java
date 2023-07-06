@@ -37,13 +37,11 @@ import mc.gouv.xaf.shared.dto.PropertiesDTO;
 public class InitialDemandeServlet extends AbstractAfServlet {
 
     private static final long serialVersionUID = -7898768899143027084L;
+    private static final Logger LOGGER = LoggerFactory.getLogger(InitialDemandeServlet.class);
+
     private static final String MCONNECT_PARAM_GIVENNAME = "GivenName";
     private static final String MCONNECT_PARAM_FAMILYNAME = "FamilyName";
     private static final String MCONNECT_PARAM_BIRTHDATE = "BirthDatetime";
-    private static final String ULIS_PARAM_CONTRAT = "numerocontrat";
-    private static final String ULIS_PARAM_FACTURE = "numerocontrat";
-    private static final String ULIS_PARAM_TIERS = "numerotiers";
-    private static final Logger LOGGER = LoggerFactory.getLogger(InitialDemandeServlet.class);
 
     /**
      * Vérifie si l'utilisateur est autorisé à faire la requête et prépare les objets communs aux requêtes :<br>
@@ -130,12 +128,19 @@ public class InitialDemandeServlet extends AbstractAfServlet {
             DonneesExternesDemandeDTO resultSearch = mapper.treeToValue(retour, DonneesExternesDemandeDTO.class);
 
             response.setContentType(MediaType.APPLICATION_JSON);
-            if (resultSearch.getStatut() == 200) {
+            if (resultSearch.getStatut() == DonneesExternesDemandeDTO.DonneesExternesStatutRetourEnum.OK) {
                 mapper.writeValue(response.getOutputStream(), resultSearch.getDemande());
-                /* TODO: check si on stocke l'objet en session de façon à le récupérer à la creation de la demande */
-                request.getSession().setAttribute(SessionConstant.SESSION_INITIAL_DEMANDE, resultSearch.getDemande());
+                request.getSession().setAttribute(SessionConstant.SESSION_DEMANDE_INITIALE, resultSearch.getDemande());
             }
-            response.setStatus(resultSearch.getStatut());
+            if (DonneesExternesDemandeDTO.DonneesExternesStatutRetourEnum.OK.equals(resultSearch.getStatut())) {
+                response.setStatus(HttpStatus.SC_OK);
+            } else if (DonneesExternesDemandeDTO.DonneesExternesStatutRetourEnum.CONFLICT
+                    .equals(resultSearch.getStatut())) {
+                response.setStatus(HttpStatus.SC_CONFLICT);
+            } else {
+                response.setStatus(HttpStatus.SC_NOT_FOUND);
+            }
+
             response.getOutputStream().flush();
         } catch (JsonProcessingException e) {
             response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);

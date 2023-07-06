@@ -33,6 +33,9 @@ public class TemplateFormBean {
     @NotNull(message = "Une date de modification doit être renseignée")
     private String date;
 
+    @Size(max = 128, message = "Le type d'audience d'email doit avoir une taille maximale de 128 charactères")
+    private String audience;
+
     public String getCode() {
         return code;
     }
@@ -71,5 +74,13 @@ public class TemplateFormBean {
 
     public void setDate(String date) {
         this.date = date;
+    }
+
+    public String getAudience() {
+        return audience;
+    }
+
+    public void setAudience(String audience) {
+        this.audience = audience;
     }
 }

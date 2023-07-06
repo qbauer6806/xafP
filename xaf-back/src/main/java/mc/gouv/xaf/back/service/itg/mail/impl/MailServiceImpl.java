@@ -1,14 +1,22 @@
 package mc.gouv.xaf.back.service.itg.mail.impl;
 
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.text.SimpleDateFormat;
-import java.util.*;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import mc.gouv.mail.apiclient.client.MailClient;
+import mc.gouv.mail.shared.dto.AddressBlockDTO;
+import mc.gouv.mail.shared.dto.MailDTO;
+import mc.gouv.mail.shared.dto.ParamDTO;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.PropertiesService;
+import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
+import mc.gouv.xaf.back.service.itg.mail.EmailTransformer;
+import mc.gouv.xaf.back.service.itg.mail.MailService;
+import mc.gouv.xaf.back.service.templates.TemplatesCache;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
+import mc.gouv.xaf.shared.dto.TemplateDTO;
+import mc.gouv.xaf.shared.enums.MailTemplateAudienceEnum;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.context.Context;
@@ -21,36 +29,30 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
-import mc.gouv.mail.apiclient.client.MailClient;
-import mc.gouv.mail.shared.dto.AddressBlockDTO;
-import mc.gouv.mail.shared.dto.MailDTO;
-import mc.gouv.mail.shared.dto.ParamDTO;
-import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
-import mc.gouv.xaf.back.service.itg.mail.EmailTransformer;
-import mc.gouv.xaf.back.service.itg.mail.MailService;
-import mc.gouv.xaf.back.service.templates.TemplatesCache;
-import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import mc.gouv.xaf.shared.dto.TemplateDTO;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
- * 
+ *
  * Composant permettant l'envoi d'emails "templatés"
- * 
+ *
  * @author qdeme
- * 
+ *
  */
 @Component
 public class MailServiceImpl implements MailService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MailServiceImpl.class);
 
+    private static final String XAF_NOTIFICATION_MAIL_AGENT = "XAF_NOTIFICATION_MAIL_AGENT";
+
     private ToolManager manager = new ToolManager();
 
     @Autowired
     private TemplatesCache templatesCache;
-    
+
     @Autowired
     private AfBackUtils afBackUtils;
 
@@ -74,6 +76,10 @@ public class MailServiceImpl implements MailService {
     @Override
     public void sendMail(EmailInfoDTO emailInfo, Map<String, Object> model, Map<String, InputStream> attachments) throws JsonProcessingException {
         LOGGER.info("MailServiceImpl.sendMail({}, {}, {})", emailInfo, model, attachments);
+        if (this.estTemplateMailAgentSansEnvoiMail(emailInfo)) {
+            LOGGER.info("PAS d'envoi email aux agents du service {}", gouvPropertiesResolver.getDemarcheId());
+            return;
+        }
         MailDTO email = createMailContent(emailInfo, model);
         if (email == null) {
             return;
@@ -81,6 +87,17 @@ public class MailServiceImpl implements MailService {
         LOGGER.info("Appel à MAIL pour envoi de l'email...");
         MailClient mailClient = afBackUtils.getMailClient();
         mailClient.sendEmail(email, attachments);
+    }
+
+    private boolean estTemplateMailAgentSansEnvoiMail(EmailInfoDTO emailInfo) {
+        TemplateDTO templateBody = templatesCache.getTemplate(emailInfo.getBodyTemplateCode(), emailInfo.getLangue());
+        if (templateBody == null || !MailTemplateAudienceEnum.AGENT.equals(templateBody.getAudience())) {
+            //il ne s'agit pas d'un template mail agent
+            return false;
+        }
+        PropertiesDTO mailProperty =
+                propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_NOTIFICATION_MAIL_AGENT);
+        return mailProperty != null && !BooleanUtils.toBoolean(mailProperty.getValue());
     }
 
     private MailDTO createMailContent(EmailInfoDTO emailInfo, Map<String, Object> model) {

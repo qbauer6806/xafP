@@ -1,6 +1,7 @@
 package mc.gouv.xaf.shared.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import mc.gouv.xaf.shared.enums.MailTemplateAudienceEnum;
 
 import java.util.Date;
 
@@ -18,6 +19,8 @@ public class TemplateDTO {
     private String demarcheId;
 
     private String code;
+
+    private MailTemplateAudienceEnum audience;
 
     private String contenu;
 
@@ -50,6 +53,18 @@ public class TemplateDTO {
 
     public void setCode(String code) {
         this.code = code;
+    }
+
+    public MailTemplateAudienceEnum getAudience() {
+        return audience;
+    }
+
+    public void setAudience(MailTemplateAudienceEnum audience) {
+        this.audience = audience;
+    }
+
+    public void setAudience(String typeStr) {
+        this.audience = null != typeStr ? MailTemplateAudienceEnum.valueOf(typeStr) : null;
     }
 
     public String getContenu() {

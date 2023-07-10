@@ -4,7 +4,7 @@
     <parent>
         <groupId>mc.gouv.xaf</groupId>
         <artifactId>xaf</artifactId>
-        <version>11.1.1-rc3</version>
+        <version>11.1.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>xaf-backweb</artifactId>
@@ -19,7 +19,7 @@
         <dependency>
             <groupId>mc.gouv.xaf</groupId>
             <artifactId>xaf-back</artifactId>
-            <version>11.1.1-rc3</version>
+            <version>11.1.1-SNAPSHOT</version>
         </dependency>
 
         <dependency>

@@ -14,15 +14,15 @@ import com.fasterxml.jackson.databind.JsonNode;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class BrouillonDTO {
-	
+
     protected Integer pkBrouillons;
-    
+
     private Integer fkAccess;
-    
+
     private Integer usagerId;
-    
+
     private String demarcheId;
-    
+
     @JsonFormat(locale = "fr", shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", timezone = "GMT+1")
     protected Date dateCreation;
 
@@ -34,114 +34,124 @@ public class BrouillonDTO {
     private BrouillonFileDTO[] fichiers;
 
     private String buildId;
-    
+
     private String recapType;
-    
+
     private JsonNode meta;
 
-	private DemandeStatutDTO dernierStatut;
+    private DemandeStatutDTO dernierStatut;
 
-	public Integer getPkBrouillons() {
-		return pkBrouillons;
-	}
+    private JsonNode contenuInitial;
 
-	public void setPkBrouillons(Integer pkBrouillons) {
-		this.pkBrouillons = pkBrouillons;
-	}
+    public Integer getPkBrouillons() {
+        return pkBrouillons;
+    }
 
-	public Integer getFkAccess() {
-		return fkAccess;
-	}
+    public void setPkBrouillons(Integer pkBrouillons) {
+        this.pkBrouillons = pkBrouillons;
+    }
 
-	public void setFkAccess(Integer fkAccess) {
-		this.fkAccess = fkAccess;
-	}
+    public Integer getFkAccess() {
+        return fkAccess;
+    }
 
-	public Integer getUsagerId() {
-		return usagerId;
-	}
+    public void setFkAccess(Integer fkAccess) {
+        this.fkAccess = fkAccess;
+    }
 
-	public void setUsagerId(Integer usagerId) {
-		this.usagerId = usagerId;
-	}
+    public Integer getUsagerId() {
+        return usagerId;
+    }
 
-	public String getDemarcheId() {
-		return demarcheId;
-	}
+    public void setUsagerId(Integer usagerId) {
+        this.usagerId = usagerId;
+    }
 
-	public void setDemarcheId(String demarcheId) {
-		this.demarcheId = demarcheId;
-	}
+    public String getDemarcheId() {
+        return demarcheId;
+    }
 
-	public Date getDateCreation() {
-		return dateCreation;
-	}
+    public void setDemarcheId(String demarcheId) {
+        this.demarcheId = demarcheId;
+    }
 
-	public void setDateCreation(Date dateCreation) {
-		this.dateCreation = dateCreation;
-	}
+    public Date getDateCreation() {
+        return dateCreation;
+    }
 
-	public Date getDateDerModif() {
-		return dateDerModif;
-	}
+    public void setDateCreation(Date dateCreation) {
+        this.dateCreation = dateCreation;
+    }
 
-	public void setDateDerModif(Date dateDerModif) {
-		this.dateDerModif = dateDerModif;
-	}
+    public Date getDateDerModif() {
+        return dateDerModif;
+    }
 
-	public JsonNode getContenu() {
-		return contenu;
-	}
+    public void setDateDerModif(Date dateDerModif) {
+        this.dateDerModif = dateDerModif;
+    }
 
-	public void setContenu(JsonNode contenu) {
-		this.contenu = contenu;
-	}
+    public JsonNode getContenu() {
+        return contenu;
+    }
 
-	public BrouillonFileDTO[] getFichiers() {
-		return fichiers;
-	}
+    public void setContenu(JsonNode contenu) {
+        this.contenu = contenu;
+    }
 
-	public void setFichiers(BrouillonFileDTO[] fichiers) {
-		this.fichiers = fichiers;
-	}
+    public BrouillonFileDTO[] getFichiers() {
+        return fichiers;
+    }
 
-	public String getBuildId() {
-		return buildId;
-	}
+    public void setFichiers(BrouillonFileDTO[] fichiers) {
+        this.fichiers = fichiers;
+    }
 
-	public void setBuildId(String buildId) {
-		this.buildId = buildId;
-	}
+    public String getBuildId() {
+        return buildId;
+    }
 
-	public String getRecapType() {
-		return recapType;
-	}
+    public void setBuildId(String buildId) {
+        this.buildId = buildId;
+    }
 
-	public void setRecapType(String recapType) {
-		this.recapType = recapType;
-	}
+    public String getRecapType() {
+        return recapType;
+    }
 
-	public JsonNode getMeta() {
-		return meta;
-	}
+    public void setRecapType(String recapType) {
+        this.recapType = recapType;
+    }
 
-	public void setMeta(JsonNode meta) {
-		this.meta = meta;
-	}
+    public JsonNode getMeta() {
+        return meta;
+    }
 
-	@Override
-	public String toString() {
-		return "BrouillonDTO [pkBrouillons=" + pkBrouillons + ", fkAccess=" + fkAccess + ", usagerId=" + usagerId
-				+ ", demarcheId=" + demarcheId + ", dateCreation=" + dateCreation + ", dateDerModif=" + dateDerModif
-				+ ", contenu=" + contenu + ", fichiers=" + Arrays.toString(fichiers) + ", buildId=" + buildId
-				+ ", recapType=" + recapType + "]";
-	}
+    public void setMeta(JsonNode meta) {
+        this.meta = meta;
+    }
 
-	public DemandeStatutDTO getDernierStatut() {
-		return dernierStatut;
-	}
+    @Override
+    public String toString() {
+        return "BrouillonDTO [pkBrouillons=" + pkBrouillons + ", fkAccess=" + fkAccess + ", usagerId=" + usagerId
+                + ", demarcheId=" + demarcheId + ", dateCreation=" + dateCreation + ", dateDerModif=" + dateDerModif
+                + ", contenu=" + contenu + ", fichiers=" + Arrays.toString(fichiers) + ", buildId=" + buildId
+                + ", recapType=" + recapType + "]";
+    }
 
-	public void setDernierStatut(DemandeStatutDTO dernierStatut) {
-		this.dernierStatut = dernierStatut;
-	}
+    public DemandeStatutDTO getDernierStatut() {
+        return dernierStatut;
+    }
+
+    public void setDernierStatut(DemandeStatutDTO dernierStatut) {
+        this.dernierStatut = dernierStatut;
+    }
+
+    public JsonNode getContenuInitial() {
+        return contenuInitial;
+    }
+
+    public void setContenuInitial(JsonNode contenuInitial) {
+        this.contenuInitial = contenuInitial;
+    }
 }

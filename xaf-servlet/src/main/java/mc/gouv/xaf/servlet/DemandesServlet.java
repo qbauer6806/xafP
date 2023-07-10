@@ -22,6 +22,7 @@ import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
 import mc.gouv.xaf.servlet.enums.HttpMethod;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
 import mc.gouv.xaf.shared.RequestConstant;
+import mc.gouv.xaf.shared.SessionConstant;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
 import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
@@ -161,9 +162,15 @@ public class DemandesServlet extends AbstractAfServlet {
                 }
 
                 DemandeDTO demandeDto;
+
                 if (HttpMethod.POST.equals(httpMethod)) {
                     LOGGER.info("Appel à la démarche pour créer la demande");
+                    if (request.getSession().getAttribute(SessionConstant.SESSION_DEMANDE_INITIALE) != null) {
+                        demandeInput.setContenuInitial(mapper.valueToTree(
+                                request.getSession().getAttribute(SessionConstant.SESSION_DEMANDE_INITIALE)));
+                    }
                     demandeDto = afApiClient.creerDemande(demandeInput, usagerInfosDTO.getId());
+                    request.getSession().setAttribute(SessionConstant.SESSION_DEMANDE_INITIALE, null);
                 } else {
                     LOGGER.info("Appel à la démarche pour mettre à jour la demande {}", demandeId);
                     demandeDto = afApiClient.updateDemande(demandeId, demandeInput, usagerInfosDTO.getId());

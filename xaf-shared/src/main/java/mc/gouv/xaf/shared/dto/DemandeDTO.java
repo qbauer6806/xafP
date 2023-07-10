@@ -3,6 +3,7 @@ package mc.gouv.xaf.shared.dto;
 import java.util.Arrays;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.JsonNode;
 
 /**
  * Modélise une demande
@@ -33,6 +34,7 @@ public class DemandeDTO extends AbstractDemandeDTO {
     private String donneesCertifiees;
     private Integer pkDemandeSource;
     private Long modificationTimestamp;
+    private JsonNode contenuInitial;
 
     public Long getModificationTimestamp() {
         return modificationTimestamp;
@@ -214,6 +216,14 @@ public class DemandeDTO extends AbstractDemandeDTO {
                 + ", usagerNom=" + usagerNom + ", usagerPrenom=" + usagerPrenom + ", usagerEmail=" + usagerEmail
                 + ", buildId=" + buildId + ", recapType=" + recapType + ", donneesMConnect=" + donneesMConnect
                 + ", donneesCertifiees=" + donneesCertifiees + ", pkDemandeSource=" + pkDemandeSource + "]";
+    }
+
+    public JsonNode getContenuInitial() {
+        return contenuInitial;
+    }
+
+    public void setContenuInitial(JsonNode contenuInitial) {
+        this.contenuInitial = contenuInitial;
     }
 
 }

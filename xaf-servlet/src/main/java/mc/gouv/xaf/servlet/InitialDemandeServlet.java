@@ -114,7 +114,8 @@ public class InitialDemandeServlet extends AbstractAfServlet {
                 JsonNode usagerJson = usagerInfosDTO.getDonneesExternes();
                 donneesMConnectDTO = omapper.treeToValue(usagerJson, DonneesExternesDTO.class);
                 data.put("usagerId", new String[] { usagerInfosDTO.getId() + "" });
-                data.put(MCONNECT_PARAM_FAMILYNAME, new String[] { donneesMConnectDTO.getMconnect().getFamilyName() });
+                data.put(MCONNECT_PARAM_FAMILYNAME,
+                        new String[] { donneesMConnectDTO.getMconnect().getBirthName().toUpperCase() });
                 data.put(MCONNECT_PARAM_GIVENNAME, new String[] { donneesMConnectDTO.getMconnect().getGivenName() });
                 data.put(MCONNECT_PARAM_BIRTHDATE, new String[] { new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX")
                         .format(donneesMConnectDTO.getMconnect().getBirthDatetime()) });

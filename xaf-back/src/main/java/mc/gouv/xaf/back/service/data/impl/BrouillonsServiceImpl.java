@@ -7,9 +7,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
-import mc.gouv.xaf.back.service.data.AccessService;
-import mc.gouv.xaf.back.service.utils.AbstractTsUtils;
-import mc.gouv.xaf.shared.SharedMessages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,8 +30,11 @@ import mc.gouv.xaf.back.data.entity.BrouillonsFilesBO;
 import mc.gouv.xaf.back.data.transformer.BrouillonsFilesTransformer;
 import mc.gouv.xaf.back.data.transformer.BrouillonsTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
+import mc.gouv.xaf.back.service.data.AccessService;
 import mc.gouv.xaf.back.service.data.BrouillonsFilesService;
 import mc.gouv.xaf.back.service.data.BrouillonsService;
+import mc.gouv.xaf.back.service.utils.AbstractTsUtils;
+import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.BrouillonDTO;
 import mc.gouv.xaf.shared.dto.BrouillonFileDTO;
 import mc.gouv.xaf.shared.dto.PageParamDTO;
@@ -53,7 +53,7 @@ public class BrouillonsServiceImpl implements BrouillonsService {
 
     @Autowired
     private BrouillonsRepository brouillonsRepository;
-    
+
     @Autowired
     BrouillonsFilesService brouillonsFilesService;
 
@@ -104,7 +104,7 @@ public class BrouillonsServiceImpl implements BrouillonsService {
      */
     @Override
     public BrouillonDTO saveOrUpdateBrouillon(BrouillonDTO brouillon, Integer usagerId, boolean partialUpdate) {
-    	BrouillonDTO brouillonDTO;
+        BrouillonDTO brouillonDTO;
         if (brouillon.getPkBrouillons() != null) {
             // ID du brouillon fourni, il faut donc mettre à jour un brouillon
             brouillonDTO = updateBrouillon(brouillon, usagerId);
@@ -130,19 +130,21 @@ public class BrouillonsServiceImpl implements BrouillonsService {
     public BrouillonDTO getBrouillon(String demarcheId, Integer pkBrouillons, Integer usagerId) {
         BrouillonBO brouillonBo = getBrouillonBo(demarcheId, pkBrouillons);
 
-        // #46373 - Faille de sécurité, il faut vérifier que l'usager qui a créé ce brouillon est à l'origine du changement
+        // #46373 - Faille de sécurité, il faut vérifier que l'usager qui a créé ce brouillon est à l'origine du
+        // changement
         if (!usagerId.equals(brouillonBo.getFkAccess().getUsagerId())) {
             throw new DemarchesServiceException(SharedMessages.UTILISATEUR_NON_AUTORISE, HttpStatus.UNAUTHORIZED);
         }
 
-	    LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
+        LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
         return BrouillonsTransformer.bo2Dto(brouillonBo);
     }
 
     @Override
     public BrouillonBO getBrouillonBo(String demarcheId, Integer pkBrouillons) {
         LOGGER.info(SharedMessages.RECUPERATION_EN_BASE);
-        BrouillonBO brouillonBo = brouillonsRepository.findByFkAccessDemarcheIdAndPkBrouillons(demarcheId, pkBrouillons);
+        BrouillonBO brouillonBo = brouillonsRepository.findByFkAccessDemarcheIdAndPkBrouillons(demarcheId,
+                pkBrouillons);
         if (brouillonBo == null) {
             throw new DemarchesServiceException(SharedMessages.DONNEE_INTROUVABLE, HttpStatus.NOT_FOUND);
         }
@@ -165,7 +167,8 @@ public class BrouillonsServiceImpl implements BrouillonsService {
 
         BrouillonBO brouillonBo = brouillonBoOp.get();
 
-        // #46373 - Faille de sécurité, il faut vérifier que l'usager qui a créé ce brouillon est à l'origine du changement
+        // #46373 - Faille de sécurité, il faut vérifier que l'usager qui a créé ce brouillon est à l'origine du
+        // changement
         if (!usagerId.equals(brouillonBo.getFkAccess().getUsagerId())) {
             throw new DemarchesServiceException(SharedMessages.UTILISATEUR_NON_AUTORISE, HttpStatus.UNAUTHORIZED);
         }
@@ -173,8 +176,9 @@ public class BrouillonsServiceImpl implements BrouillonsService {
         ObjectMapper mapper = new ObjectMapper();
         try {
             brouillonBo.setContenu(mapper.writeValueAsString(brouillon.getContenu()));
+            brouillonBo.setContenuInitial(mapper.writeValueAsString(brouillon.getContenuInitial()));
             if (brouillon.getMeta() != null) {
-            	brouillonBo.setMeta(mapper.writeValueAsString(brouillon.getMeta()));
+                brouillonBo.setMeta(mapper.writeValueAsString(brouillon.getMeta()));
             }
         } catch (JsonProcessingException e) {
             LOGGER.error("Problème lors de la conversion JSON", e);
@@ -186,20 +190,20 @@ public class BrouillonsServiceImpl implements BrouillonsService {
         // Supprimer les pièces jointes déjà existantes
         brouillonsFilesRepository.deleteAll(brouillonBo.getFiles());
         brouillonBo.getFiles().clear();
-        
+
         // Mise à jour des dates des pièces jointes
         if (brouillon.getFichiers() != null) {
             for (BrouillonFileDTO file : brouillon.getFichiers()) {
-            	if (file.getDate() == null) {
-            		file.setDate(new Date());
-            	}
+                if (file.getDate() == null) {
+                    file.setDate(new Date());
+                }
             }
         }
-        
+
         if (brouillon.getFichiers() != null && brouillon.getFichiers().length > 0) {
             // Ajouter la nouvelle image
-            brouillonBo.setFiles(new HashSet<>(
-                    BrouillonsFilesTransformer.dto2Bo(Arrays.asList(brouillon.getFichiers()))));
+            brouillonBo
+                    .setFiles(new HashSet<>(BrouillonsFilesTransformer.dto2Bo(Arrays.asList(brouillon.getFichiers()))));
             for (BrouillonsFilesBO bo : brouillonBo.getFiles()) {
                 bo.setFkBrouillons(brouillonBo);
             }
@@ -219,7 +223,8 @@ public class BrouillonsServiceImpl implements BrouillonsService {
     public void deleteBrouillon(String demarcheId, Integer pkBrouillons, Integer usagerId) {
         BrouillonBO brouillonBo = getBrouillonBo(demarcheId, pkBrouillons);
         AccessBO access = brouillonBo.getFkAccess();
-        // #46373 - Faille de sécurité, il faut vérifier que l'usager qui a créé ce brouillon est à l'origine du changement
+        // #46373 - Faille de sécurité, il faut vérifier que l'usager qui a créé ce brouillon est à l'origine du
+        // changement
         if (!usagerId.equals(access.getUsagerId())) {
             throw new DemarchesServiceException(SharedMessages.UTILISATEUR_NON_AUTORISE, HttpStatus.UNAUTHORIZED);
         }
@@ -228,7 +233,7 @@ public class BrouillonsServiceImpl implements BrouillonsService {
         accessRepository.save(access);
         brouillonsRepository.delete(brouillonBo);
     }
-    
+
     /**
      * {@inheritDoc}
      */
@@ -245,15 +250,20 @@ public class BrouillonsServiceImpl implements BrouillonsService {
     }
 
     @Override
-    public mc.gouv.xaf.shared.dto.Page<BrouillonDTO> getBrouillonsPageable(String demarcheId, Integer usagerId, PageParamDTO paramDTO) {
-    	// b.dateDerModif ?
-        String sortColumn = "statut".equalsIgnoreCase(paramDTO.getSort()) ? "t.valeur" :  paramDTO.getSort();
+    public mc.gouv.xaf.shared.dto.Page<BrouillonDTO> getBrouillonsPageable(String demarcheId, Integer usagerId,
+            PageParamDTO paramDTO) {
+        // b.dateDerModif ?
+        String sortColumn = "statut".equalsIgnoreCase(paramDTO.getSort()) ? "t.valeur" : paramDTO.getSort();
         Sort sort = "DESC".equals(paramDTO.getDirection()) ? Sort.by(sortColumn).descending() : Sort.by(sortColumn);
         Pageable pageable = PageRequest.of(paramDTO.getPage(), paramDTO.getSize(), sort);
-        Page<BrouillonBO> bos = brouillonsRepository.findByDemarcheIdAndIdAndUsagerIdAndActive(demarcheId, usagerId, true, pageable);
+        Page<BrouillonBO> bos = brouillonsRepository.findByDemarcheIdAndIdAndUsagerIdAndActive(demarcheId, usagerId,
+                true, pageable);
         mc.gouv.xaf.shared.dto.Page<BrouillonDTO> brouillonDTOS = BrouillonsTransformer.boPage2DtoPage(bos);
         // Set dernier statut pour tous les brouillons récupérés
-        brouillonDTOS.getContent().forEach(brouillonDto -> BrouillonsTransformer.setDernierStatut(brouillonDto, abstractTsUtils.getLastBuildId(), abstractTsUtils.getNotTransmitted(), abstractTsUtils.getDeprecated()));
+        brouillonDTOS.getContent()
+                .forEach(brouillonDto -> BrouillonsTransformer.setDernierStatut(brouillonDto,
+                        abstractTsUtils.getLastBuildId(), abstractTsUtils.getNotTransmitted(),
+                        abstractTsUtils.getDeprecated()));
         return brouillonDTOS;
     }
 

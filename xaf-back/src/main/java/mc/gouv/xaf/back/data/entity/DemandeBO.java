@@ -129,6 +129,9 @@ public class DemandeBO {
     @Column(name = "MODIFICATION_TIMESTAMP")
     private Long modificationTimestamp;
 
+    @Column(name = "CONTENU_INITIAL", columnDefinition = "TEXT", nullable = true)
+    private String contenuInitial;
+
     public Long getModificationTimestamp() {
         return modificationTimestamp;
     }
@@ -348,6 +351,14 @@ public class DemandeBO {
 
     public void setPkDemandeSource(Integer pkDemandeSource) {
         this.pkDemandeSource = pkDemandeSource;
+    }
+
+    public String getContenuInitial() {
+        return contenuInitial;
+    }
+
+    public void setContenuInitial(String contenuInitial) {
+        this.contenuInitial = contenuInitial;
     }
 
 }

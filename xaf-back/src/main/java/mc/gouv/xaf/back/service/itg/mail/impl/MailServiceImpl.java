@@ -1,14 +1,18 @@
 package mc.gouv.xaf.back.service.itg.mail.impl;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
-import mc.gouv.xaf.back.exception.DemarchesServiceException;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.data.PropertiesService;
-import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.context.Context;
@@ -17,7 +21,9 @@ import org.apache.velocity.tools.ToolManager;
 import org.apache.velocity.tools.generic.DateTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.helpers.NOPLogger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
@@ -27,11 +33,15 @@ import mc.gouv.mail.apiclient.client.MailClient;
 import mc.gouv.mail.shared.dto.AddressBlockDTO;
 import mc.gouv.mail.shared.dto.MailDTO;
 import mc.gouv.mail.shared.dto.ParamDTO;
+import mc.gouv.xaf.back.exception.DemarchesServiceException;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.EmailTransformer;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.templates.TemplatesCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.TemplateDTO;
 
 /**
@@ -118,13 +128,13 @@ public class MailServiceImpl implements MailService {
      * {@inheritDoc}
      */
     @Override
-    public String[] getMailPreview(String bodyTemplateCode, String subjectTemplateCode, String langue, Map<String, Object> model) throws Exception {
+    public String[] getMailPreview(String bodyTemplateCode, String subjectTemplateCode, String langue, Map<String, Object> model) throws IOException {
         LOGGER.info("MailServiceImpl.getMailPreview({},{})", bodyTemplateCode, subjectTemplateCode);
         return getSubjectAndBody(subjectTemplateCode, bodyTemplateCode, langue, model);
     }
-    
-    private String[] getSubjectAndBody(String subjectTemplateCode, String bodyTemplateCode, String langue, Map<String, Object> model) {
-        
+
+    private String[] getSubjectAndBody(String subjectTemplateCode, String bodyTemplateCode, String langue, Map<String, Object> model) throws IOException {
+
         LOGGER.info("Récupération du template demandé pour le corps de l'email...");
         TemplateDTO templateBody = templatesCache.getTemplate(bodyTemplateCode, langue);
 
@@ -145,14 +155,30 @@ public class MailServiceImpl implements MailService {
             throw new DemarchesServiceException("Velocity.evaluate() n'a pas fonctionné.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
         String mailBodyToSend = output.toString();
+
         output = new StringWriter();
         if (!Velocity.evaluate(context, output, templateSubject.getCode(), templateSubject.getContenu())) {
             throw new DemarchesServiceException("Velocity.evaluate() n'a pas fonctionné.", HttpStatus.INTERNAL_SERVER_ERROR);
         }
         String mailSubjectToSend = output.toString();
+
+        LOGGER.info("Appel à Velocity pour intégrer le corps de l'email dans le template HTML de XAF...");
+        Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_INSTANCE, LOGGER);
+		Velocity.init();
+        context = getContext();
+        context.put("emailBodyToSend", mailBodyToSend);
+        context.put("titreTs", afBackUtils.getDemarcheNom());
+        InputStream inputStream = new ClassPathResource("/email/email-template.html").getInputStream();
+        String contenu = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+        output = new StringWriter();
+        if (!Velocity.evaluate(context, output, templateBody.getCode(), contenu)) {
+            throw new DemarchesServiceException("Velocity.evaluate() n'a pas fonctionné.", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        mailBodyToSend = output.toString();
+
         return new String[] { mailSubjectToSend, mailBodyToSend };
     }
-    
+
     private Context getContext() {
         Context context = manager.createContext();
         context.put("StringUtils", StringUtils.class);

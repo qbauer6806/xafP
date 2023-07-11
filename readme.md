@@ -12,8 +12,8 @@ Impact:
 Impact
 	Code: XAF
 	DB:
-		ALTER TABLE logdomc.dem_demandes ADD COLUMN contenuInitial character varying(10000);
-		ALTER TABLE logdomc.dem_brouillons ADD COLUMN contenuInitial character varying(10000);
+		ALTER TABLE logdomc.dem_demandes ADD COLUMN contenu_initial character varying(10000);
+		ALTER TABLE logdomc.dem_brouillons ADD COLUMN contenu_initial character varying(10000);
 
 Parameters liés aux données externes
 	Pour permettre au front d'envoyer au back des parameters à la recherche de données externes, on définit une liste de parameters

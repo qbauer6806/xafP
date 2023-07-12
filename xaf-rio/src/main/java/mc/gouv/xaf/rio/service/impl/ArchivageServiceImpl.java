@@ -8,7 +8,12 @@ import mc.gouv.xaf.back.service.excel.ExcelExportService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import mc.gouv.xaf.rio.dto.*;
+import mc.gouv.xaf.rio.dto.ArchivageFichierConvertiDTO;
+import mc.gouv.xaf.rio.dto.ArchivageFichierDeposeDTO;
+import mc.gouv.xaf.rio.dto.ArchivageFichierInitalDTO;
+import mc.gouv.xaf.rio.dto.ArchivageRapportExportDTO;
+import mc.gouv.xaf.rio.dto.ArchivageStatutDTO;
+import mc.gouv.xaf.rio.dto.RioDocumentDTO;
 import mc.gouv.xaf.rio.enums.ArchivageStatutAvancementEnum;
 import mc.gouv.xaf.rio.service.ArchivageService;
 import mc.gouv.xaf.rio.service.ConvertisseurTiffService;
@@ -30,12 +35,20 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import static mc.gouv.xaf.rio.utils.ArchivageUtils.*;
+import static mc.gouv.xaf.rio.utils.ArchivageUtils.ARCHIVAGE_RIO_COMPLETED;
+import static mc.gouv.xaf.rio.utils.ArchivageUtils.CODE_TYPE_IMMAT;
+import static mc.gouv.xaf.rio.utils.ArchivageUtils.CODE_TYPE_PERMIS;
+import static mc.gouv.xaf.rio.utils.ArchivageUtils.NOMBRE_FICHIERS_ERREUR_ARCHIVAGE;
 
 @Service
 public class ArchivageServiceImpl implements ArchivageService {
@@ -197,7 +210,7 @@ public class ArchivageServiceImpl implements ArchivageService {
         if (fichiersEnErreurs.get() > 0) {
             // Sauvegarde du numéro de facture dans les données de la demande
             demandesDataService.saveOrUpdateDemandeData(demandeDTO.getDemarcheId(), demandeId, NOMBRE_FICHIERS_ERREUR_ARCHIVAGE,
-                    String.valueOf(fichiersEnErreurs.get()));
+                    String.valueOf(fichiersEnErreurs.get()), false);
             histoService.actionSysteme(demandeId, "ECHEC", "Archivage automatique des fichiers en échec");
         } else {
             histoService.actionSysteme(demandeId, "SUCCES", "Archivage automatique des fichiers réalisé avec succès");
@@ -206,7 +219,7 @@ public class ArchivageServiceImpl implements ArchivageService {
         statutDTO.setAvancement(ArchivageStatutAvancementEnum.COMPLETE);
         statutDTO.setProgression(1d);
         archivageProgress.put(demandeId, statutDTO);
-        demandesDataService.saveOrUpdateDemandeData(demandeDTO.getDemarcheId(), demandeId, ARCHIVAGE_RIO_COMPLETED, "true");
+        demandesDataService.saveOrUpdateDemandeData(demandeDTO.getDemarcheId(), demandeId, ARCHIVAGE_RIO_COMPLETED, "true", false);
 
         return listeReferences;
     }

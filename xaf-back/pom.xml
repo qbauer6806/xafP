@@ -15,7 +15,7 @@
 		<!-- Librairie pour generer le fichier recap d'une demande (sous license 
 			LGPL). -->
 		<openhtml.version>1.0.10</openhtml.version>
-		<pdfbox.version>2.0.15</pdfbox.version>
+		<pdfbox.version>2.0.26</pdfbox.version>
 		<xdocreport.version>2.0.4</xdocreport.version>
 		<poi.version>4.1.0</poi.version>
 		<vscan.version>1.0.0</vscan.version>
@@ -293,11 +293,6 @@
 		<dependency>
 			<groupId>org.apache.tika</groupId>
 			<artifactId>tika-parsers</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.tika</groupId>
-			<artifactId>tika-langdetect</artifactId>
 		</dependency>
 
 		<dependency>

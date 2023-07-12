@@ -17,6 +17,7 @@
         <commons-fileupload.version>1.5</commons-fileupload.version>
         <poi-ooxml.version>5.2.0</poi-ooxml.version>
         <commons-io.version>2.11.0</commons-io.version>
+        <jackson-bom.version>2.15.2</jackson-bom.version>
     </properties>
 
     <groupId>mc.gouv.xaf</groupId>

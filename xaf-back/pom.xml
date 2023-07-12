@@ -352,12 +352,6 @@
 
 	<dependencyManagement>
 		<dependencies>
-			<!-- CVE-2018-10054 -->
-			<dependency>
-				<groupId>com.h2database</groupId>
-				<artifactId>h2</artifactId>
-				<version>1.4.200</version>
-			</dependency>
 
 			<!-- CVE-2019-16869 -->
 			<dependency>

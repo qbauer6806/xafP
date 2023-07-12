@@ -12,9 +12,9 @@ import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.FileCategoryDTO;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tika.Tika;
-import org.apache.tika.io.IOUtils;
 import org.springframework.stereotype.Component;
 
 /**

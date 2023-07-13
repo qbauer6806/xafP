@@ -24,9 +24,9 @@ public class DocHolderCategoriesServlet extends AbstractAfServlet {
 
     /**
      * Méthode pour l'opération <b>getDocCategories</b>
-     *
+     * Elle permet de récupérer toutes les catégories de documents disponibles pour le porte-documents
      * @param req
-     * @param resp
+     * @param resp L'objet de réponse, avec en valeur de retour un tableau de {@link String} ex : ["Photo", "Carte"]
      * @throws ServletException
      * @throws IOException
      */

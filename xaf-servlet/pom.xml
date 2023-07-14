@@ -167,24 +167,17 @@
 		</dependency>
 
 		<dependency>
+			<artifactId>xboot-spring-starter-test</artifactId>
+			<groupId>mc.gouv.xboot</groupId>
+		</dependency>
+
+		<!-- Mockito inline est une extension de mockito-core qui permet de mocker des objets statiques -->
+		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-inline</artifactId>
-			<version>5.2.0</version>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter</artifactId>
-			<version>5.8.2</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.mockito</groupId>
-			<artifactId>mockito-junit-jupiter</artifactId>
-			<version>4.5.1</version>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
+    </dependencies>
 
   <scm>
     <tag>HEAD</tag>

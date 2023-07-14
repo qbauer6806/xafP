@@ -1,13 +1,10 @@
 package mc.gouv.xaf.servlet;
 
-import mc.gouv.xaf.servlet.dto.FileResponseDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 public class DocHolderServlet extends AbstractAfServlet {
     private final static long serialVersionUID = -314577095316396789L;
@@ -19,19 +16,10 @@ public class DocHolderServlet extends AbstractAfServlet {
      *
      * @param req
      * @param resp
-     * @throws ServletException
-     * @throws IOException
      */
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-
-
-        FileResponseDTO responseDto = new FileResponseDTO();
-        responseDto.setMessage("OK");
-
-        resp.setStatus(200);
-
-        super.doPost(req, resp);
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
+        throw new UnsupportedOperationException("Méthode non implémentée");
     }
 
     /**
@@ -40,11 +28,9 @@ public class DocHolderServlet extends AbstractAfServlet {
      *
      * @param req
      * @param resp
-     * @throws ServletException
-     * @throws IOException
      */
     @Override
-    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        super.doDelete(req, resp);
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) {
+        throw new UnsupportedOperationException("Méthode non implémentée");
     }
 }

@@ -17,6 +17,7 @@ public class SharedMessages {
     public static final String UTILISATEUR_NON_AUTORISE = "Utilisateur non autorisé";
     public static final String ERREUR_INDEXATION = "Erreur lors de l'indexation de la demande.";
     public static final String REQUETE_MALFORMEE = "Impossible de continuer le traitement : requête malformée.";
+    public static final String TROP_DE_FICHIERS = "Impossible de continuer le traitement : trop de fichiers envoyés dans la requête.";
 
     private SharedMessages() {
     }

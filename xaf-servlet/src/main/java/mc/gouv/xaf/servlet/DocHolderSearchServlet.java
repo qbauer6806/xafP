@@ -27,7 +27,8 @@ public class DocHolderSearchServlet extends AbstractAfServlet {
 
     /**
      * Méthode pour l'opération <b>searchFiles</b>
-     * Elle permet de récupérer la liste de tous les documents enregistrés dans le porte-document de l'utilisateur
+     * Elle permet de récupérer la liste de tous les documents enregistrés dans le porte-document de l'utilisateur connecté
+     *
      * @param req
      * @param resp
      * @throws ServletException

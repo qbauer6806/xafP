@@ -22,12 +22,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Collection;
 
+@MultipartConfig
 public class DocHolderFileServlet extends AbstractAfServlet {
     private final static long serialVersionUID = -314577095316396789L;
     private static Logger LOGGER = LoggerFactory.getLogger(DocHolderFileServlet.class);
@@ -96,6 +99,7 @@ public class DocHolderFileServlet extends AbstractAfServlet {
     /**
      * Méthode pour l'opération <b>saveFile</b>
      * Elle permet de sauvegarder un fichier dans le porte-document de l'utilisateur connecté
+     *
      * @param req
      * @param resp
      * @throws ServletException
@@ -122,26 +126,35 @@ public class DocHolderFileServlet extends AbstractAfServlet {
 
         LOGGER.info("Vérification du fichier");
         try {
-            Part filePart = req.getParts().iterator().next();
+            Collection<Part> parts = req.getParts();
+
+            if (parts.isEmpty()) {
+                AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_BAD_REQUEST, SharedMessages.REQUETE_MALFORMEE);
+                return;
+            } else if (parts.size() > 1) {
+                AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_BAD_REQUEST, SharedMessages.REQUETE_MALFORMEE);
+                return;
+            }
+
+            Part filePart = parts.iterator().next();
 
             // Vérification du nombre de fichier uploadés sur la demande
         /*LOGGER.info("Vérification du nombre de fichiers déjà uploadés...");
         HttpSession session = request.getSession();
         if (verifierNombreFichiers(response, session)) {
             return;
-        }
+        }*/
 
-        // Récupération du nom du fichier à envoyer
-        String filename = getFilename(request.getPathInfo());
-        if (StringUtils.isBlank(filename)) {
-            AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_BAD_REQUEST,
-                    "Erreur: nom du fichier manquant");
-            return;
-        }
+            // Récupération du nom du fichier à envoyer
+            String filename = filePart.getSubmittedFileName();
+            if (StringUtils.isEmpty(filename)) {
+                AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_BAD_REQUEST, "Erreur : nom du fichier manquant");
+                return;
+            }
 
-        // ---  Vérification de la conformité du fichier
-        // Vérification du type du fichier
-        LOGGER.info("Vérification du type pour le fichier {} ...", filename);
+            // ---  Vérification de la conformité du fichier
+            // Vérification du type du fichier
+        /*LOGGER.info("Vérification du type pour le fichier {} ...", filename);
         if (!estExtensionDansWhitelist(filename)) {
             LOGGER.info("Le type de fichier ne correspond pas aux types whitelistés ({}), pas d'upload dans FILE", getExtensionsWhitelist());
             AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_FORBIDDEN,
@@ -149,7 +162,7 @@ public class DocHolderFileServlet extends AbstractAfServlet {
             return;
         }*/
 
-            // TODO : VSCAN !!!
+            // TODO : VSCAN ?
 
 
             LOGGER.info("Création de la requête");

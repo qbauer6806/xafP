@@ -1,51 +1,129 @@
 package mc.gouv.xaf.servlet;
 
+import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
-import mc.gouv.xaf.shared.SharedMessages;
 import org.apache.http.HttpStatus;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.Part;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+
 
 @ExtendWith(MockitoExtension.class)
 public class DocHolderServletsTest {
 
-    @InjectMocks
-    private DocHolderSearchServlet docHolderSearchServlet;
+    @Mock
+    private HttpServletRequest request;
+    @Mock
+    private HttpServletResponse response;
+    @Mock
+    private ServletOutputStream servletOutputStream;
+
+    MockedStatic<AppFactoryServletUtils> servletUtilsMocked;
+
+    @BeforeEach
+    public void initialize() throws IOException {
+        // On utilise CALLS_REAL_METHOD ici. Cela sert à mocker par exemple la méthode getLoggedUser
+        // mais aussi pouvoir continuer le test quand d'autres méthodes comme logAndSendError sont appelées
+        // et ainsi vérifier les statusCode définis dans les responses des Servlets.
+        servletUtilsMocked = mockStatic(AppFactoryServletUtils.class, CALLS_REAL_METHODS);
+
+        when(response.getOutputStream()).thenReturn(servletOutputStream);
+    }
+
+    @AfterEach
+    public void finalize() {
+        // Important ! Sinon, la classe statique n'est pas remise à zéro entre les tests.
+        // Dans le cas où vous devez vous en passez, déclarez le mock statique dans un bloc try-with-resource
+        servletUtilsMocked.close();
+    }
 
     @Test
     public void failOnUserNotLoggedTest() throws ServletException, IOException {
-        HttpServletRequest request = mock(HttpServletRequest.class);
-        HttpServletResponse response = mock(HttpServletResponse.class);
+        servletUtilsMocked.when(() -> AppFactoryServletUtils.getLoggedUser(any())).thenReturn(null);
 
-        StringWriter stringWriter = new StringWriter();
-        PrintWriter writer = new PrintWriter(stringWriter);
-        when(response.getWriter()).thenReturn(writer);
+        DocHolderSearchServlet docHolderSearchServlet = new DocHolderSearchServlet();
+        docHolderSearchServlet.doGet(request, response);
 
-        try(MockedStatic<AppFactoryServletUtils> servletUtilsMocked = mockStatic(AppFactoryServletUtils.class)) {
-            servletUtilsMocked.when(() -> AppFactoryServletUtils.getLoggedUser(any())).thenReturn(null);
+        verify(response).setStatus(HttpStatus.SC_UNAUTHORIZED);
+        verify(response, never()).setStatus(HttpStatus.SC_OK); // La vérification de l'authentification est la première chose à vérifier !
+    }
 
-            docHolderSearchServlet.doGet(request, response);
-        }
+    private static Stream<Arguments> emptyOrInvalidFileParameters() {
+        return Stream.of(
+                Arguments.of(null, null),
+                Arguments.of(null, ""),
+                Arguments.of("", null),
+                Arguments.of("", "")
+        );
+    }
 
-        Logger logger = LoggerFactory.getLogger(DocHolderSearchServlet.class);
-        verify(logger, times(1)).error(SharedMessages.UTILISATEUR_NON_AUTORISE);
+    @ParameterizedTest
+    @MethodSource("emptyOrInvalidFileParameters")
+    public void failOnBadParameters(String typedoc, String preferedName) throws ServletException, IOException {
+        UsagerInfosDTO usagerInfosDTO = mock(UsagerInfosDTO.class);
+        DocHolderFileServlet fileServlet = new DocHolderFileServlet();
 
-        assertEquals(response.getStatus(), HttpStatus.SC_UNAUTHORIZED);
+        servletUtilsMocked.when(() -> AppFactoryServletUtils.getLoggedUser(any())).thenReturn(usagerInfosDTO);
+
+        when(request.getParameter(eq("typedoc"))).thenReturn(typedoc);
+        when(request.getParameter(eq("preferedName"))).thenReturn(preferedName);
+
+        fileServlet.doPost(request, response);
+
+        verify(response).setStatus(HttpStatus.SC_BAD_REQUEST);
+    }
+
+    @Test
+    public void failOnNoFileProvided() throws ServletException, IOException {
+        UsagerInfosDTO usagerInfosDTO = mock(UsagerInfosDTO.class);
+        servletUtilsMocked.when(() -> AppFactoryServletUtils.getLoggedUser(any())).thenReturn(usagerInfosDTO);
+
+        when(request.getParameter("typedoc")).thenReturn("mockedTypeDoc");
+        when(request.getParameter("preferedName")).thenReturn("monbeaufichier.txt");
+        when(request.getParts()).thenReturn(Collections.emptyList());
+
+        DocHolderFileServlet fileServlet = new DocHolderFileServlet();
+        fileServlet.doPost(request, response);
+
+        verify(response).setStatus(HttpStatus.SC_BAD_REQUEST);
+    }
+
+    @Test
+    public void failOnTooManyFilesProvided() throws ServletException, IOException {
+        UsagerInfosDTO usagerInfosDTO = mock(UsagerInfosDTO.class);
+        servletUtilsMocked.when(() -> AppFactoryServletUtils.getLoggedUser(any())).thenReturn(usagerInfosDTO);
+
+        when(request.getParameter("typedoc")).thenReturn("mockedTypeDoc");
+        when(request.getParameter("preferedName")).thenReturn("monbeaufichier.txt");
+
+        Part filePartA = mock(Part.class);
+        Part filePartB = mock(Part.class);
+
+        when(request.getParts()).thenReturn(List.of(filePartA, filePartB));
+
+        DocHolderFileServlet fileServlet = new DocHolderFileServlet();
+        fileServlet.doPost(request, response);
+
+        verify(response).setStatus(HttpStatus.SC_BAD_REQUEST);
     }
 }

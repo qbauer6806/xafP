@@ -22,10 +22,7 @@ public class DocHolderFilesServlet extends AbstractAfServlet {
      */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String[] filenames = req.getParameterValues("filenames[]");
-        String zipName = req.getParameter("zipName");
-
-
+        throw new UnsupportedOperationException("Méthode non implémentée");
     }
 
     /**
@@ -38,6 +35,6 @@ public class DocHolderFilesServlet extends AbstractAfServlet {
      */
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String[] filenames = req.getParameterValues("filenames[]");
+        throw new UnsupportedOperationException("Méthode non implémentée");
     }
 }

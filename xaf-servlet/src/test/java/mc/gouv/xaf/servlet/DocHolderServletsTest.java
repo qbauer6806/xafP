@@ -41,7 +41,7 @@ public class DocHolderServletsTest {
     MockedStatic<AppFactoryServletUtils> servletUtilsMocked;
 
     @BeforeEach
-    public void initialize() throws IOException {
+    public void setup() throws IOException {
         // On utilise CALLS_REAL_METHOD ici. Cela sert à mocker par exemple la méthode getLoggedUser
         // mais aussi pouvoir continuer le test quand d'autres méthodes comme logAndSendError sont appelées
         // et ainsi vérifier les statusCode définis dans les responses des Servlets.
@@ -51,7 +51,7 @@ public class DocHolderServletsTest {
     }
 
     @AfterEach
-    public void finalize() {
+    public void shutdown() {
         // Important ! Sinon, la classe statique n'est pas remise à zéro entre les tests.
         // Dans le cas où vous devez vous en passer, déclarez le mock statique dans un bloc try-with-resource
         servletUtilsMocked.close();

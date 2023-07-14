@@ -22,7 +22,6 @@ import java.util.UUID;
 
 import javax.annotation.PostConstruct;
 
-import mc.gouv.xaf.shared.SharedMessages;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,10 +50,12 @@ import mc.gouv.logon.shared.User;
 import mc.gouv.mail.apiclient.client.MailClient;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
+import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.motifs.MotifTemplateService;
+import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeDataDTO;
 import mc.gouv.xaf.shared.dto.DemandeFlatDTO;
@@ -152,6 +153,10 @@ public class AfBackUtils {
     @Autowired
     @Lazy
     private MotifTemplateService motifTemplateService;
+    
+    @Autowired
+    @Lazy
+    private DemandesService demandesService;
 
     public static final short GENDER_MR_INDEX = 0;
     public static final short GENDER_MME_INDEX = 1;
@@ -710,6 +715,11 @@ public class AfBackUtils {
 	
 	public static String mConnectDateToString(Date date) {
 		return new SimpleDateFormat(MCONNECT_DATE_AND_TIME_FORMAT).format(date);
+	}
+	
+	public String getIdentifiantFromPkDemande(Integer pkDemande) {
+		DemandeDTO demande = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), pkDemande);
+		return demande.getIdentifiant();
 	}
     
 }

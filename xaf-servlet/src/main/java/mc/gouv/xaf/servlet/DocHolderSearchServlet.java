@@ -22,7 +22,7 @@ import java.io.IOException;
 
 public class DocHolderSearchServlet extends AbstractAfServlet {
     private final static long serialVersionUID = -314577095316396789L;
-    private static Logger LOGGER = LoggerFactory.getLogger(DocHolderSearchServlet.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DocHolderSearchServlet.class);
     private static final String serviceUrl = AfServletGouvPropertiesResolver.getPorteDocUrl() + "/search";
 
     /**

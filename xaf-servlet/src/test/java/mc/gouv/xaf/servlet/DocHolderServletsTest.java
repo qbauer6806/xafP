@@ -53,7 +53,7 @@ public class DocHolderServletsTest {
     @AfterEach
     public void finalize() {
         // Important ! Sinon, la classe statique n'est pas remise à zéro entre les tests.
-        // Dans le cas où vous devez vous en passez, déclarez le mock statique dans un bloc try-with-resource
+        // Dans le cas où vous devez vous en passer, déclarez le mock statique dans un bloc try-with-resource
         servletUtilsMocked.close();
     }
 
@@ -73,7 +73,10 @@ public class DocHolderServletsTest {
                 Arguments.of(null, null),
                 Arguments.of(null, ""),
                 Arguments.of("", null),
-                Arguments.of("", "")
+                Arguments.of("", ""),
+                Arguments.of("", "  "),
+                Arguments.of("  ", ""),
+                Arguments.of("  ", "  ")
         );
     }
 

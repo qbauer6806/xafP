@@ -5,6 +5,7 @@ import mc.gouv.xaf.servlet.dto.DocHolderFileSearchDTO;
 import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
 import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
+import mc.gouv.xaf.servlet.util.FileServletUtils;
 import mc.gouv.xaf.shared.RequestConstant;
 import mc.gouv.xaf.shared.SharedMessages;
 import org.apache.commons.io.IOUtils;
@@ -33,7 +34,7 @@ import java.util.Collection;
 @MultipartConfig
 public class DocHolderFileServlet extends AbstractAfServlet {
     private final static long serialVersionUID = -314577095316396789L;
-    private static Logger LOGGER = LoggerFactory.getLogger(DocHolderFileServlet.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DocHolderFileServlet.class);
     private static final String serviceUrl = AfServletGouvPropertiesResolver.getPorteDocUrl() + "/file";
 
     /**
@@ -138,32 +139,39 @@ public class DocHolderFileServlet extends AbstractAfServlet {
 
             Part filePart = parts.iterator().next();
 
-            // Vérification du nombre de fichier uploadés sur la demande
-        /*LOGGER.info("Vérification du nombre de fichiers déjà uploadés...");
-        HttpSession session = request.getSession();
-        if (verifierNombreFichiers(response, session)) {
-            return;
-        }*/
+            /* TODO : finir
+            if(FileServletUtils.limiteUploadAtteinte(map, session)) {
+                LOGGER.info(SharedMessages.FICHIER_LIMITE_UPLOAD_ATTEINTE);
+                AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_METHOD_NOT_ALLOWED, SharedMessages.FICHIER_LIMITE_UPLOAD_ATTEINTE);
+                return;
+            }*/
 
             // Récupération du nom du fichier à envoyer
             String filename = filePart.getSubmittedFileName();
             if (StringUtils.isEmpty(filename)) {
-                AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_BAD_REQUEST, "Erreur : nom du fichier manquant");
+                AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_BAD_REQUEST, SharedMessages.FICHIER_NOM_MANQUANT);
                 return;
             }
 
-            // ---  Vérification de la conformité du fichier
-            // Vérification du type du fichier
-        /*LOGGER.info("Vérification du type pour le fichier {} ...", filename);
-        if (!estExtensionDansWhitelist(filename)) {
-            LOGGER.info("Le type de fichier ne correspond pas aux types whitelistés ({}), pas d'upload dans FILE", getExtensionsWhitelist());
-            AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_FORBIDDEN,
-                    "Erreur: le type/extension du fichier soumis n'est pas valide");
-            return;
-        }*/
+            LOGGER.info("Vérification de la taille du fichier...");
+            if(!FileServletUtils.tailleFichierValide(filePart)) {
+                LOGGER.info("La taille du fichier depasse la taille max definie dans les propriétés (taille du fichier : {} B)", filePart.getSize());
+                AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_FORBIDDEN, SharedMessages.FICHIER_TROP_GRAND);
+                return;
+            }
 
-            // TODO : VSCAN ?
+            LOGGER.info("Vérification du type pour le fichier {} ...", filename);
+            if(!FileServletUtils.estExtensionDansWhitelist(filename)) {
+                LOGGER.info("Le type de fichier ne correspond pas aux types whitelistés ({})", FileServletUtils.getExtensionsWhitelist());
+                AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_BAD_REQUEST, SharedMessages.FICHIER_TYPE_EXTENTION_INVALIDE);
+                return;
+            }
 
+            // TODO : finir VSCAN ?
+            /*HttpPost postRequest = new HttpPost();
+            if(!FileServletUtils.vscan(filePart, filename, postRequest, resp, getServletContext())) {
+                return;
+            }*/
 
             LOGGER.info("Création de la requête");
             MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create()

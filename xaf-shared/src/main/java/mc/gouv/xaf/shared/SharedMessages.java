@@ -16,8 +16,12 @@ public class SharedMessages {
     public static final String CLAIM_AND_SUBMIT_TASK = "claimTask() puis submitTaskFormData()...";
     public static final String UTILISATEUR_NON_AUTORISE = "Utilisateur non autorisé";
     public static final String ERREUR_INDEXATION = "Erreur lors de l'indexation de la demande.";
-    public static final String REQUETE_MALFORMEE = "Impossible de continuer le traitement : requête malformée.";
-    public static final String TROP_DE_FICHIERS = "Impossible de continuer le traitement : trop de fichiers envoyés dans la requête.";
+    public static final String REQUETE_MALFORMEE = "Requête malformée";
+    public static final String TROP_DE_FICHIERS = "Trop de fichiers envoyés dans la requête";
+    public static final String FICHIER_TYPE_EXTENTION_INVALIDE = "Le type/extension du fichier soumis n'est pas valide";
+    public static final String FICHIER_NOM_MANQUANT = "Nom du fichier manquant";
+    public static final String FICHIER_TROP_GRAND = "La taille du fichier est trop grande";
+    public static final String FICHIER_LIMITE_UPLOAD_ATTEINTE = "La limite de nombre de fichiers uploadés a été atteinte";
 
     private SharedMessages() {
     }

@@ -3,7 +3,17 @@ package mc.gouv.xaf.back.data.entity;
 import java.util.Date;
 import java.util.Set;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotBlank;
@@ -37,91 +47,102 @@ public class BrouillonBO {
     @Column(name = "CONTENU", columnDefinition = "TEXT", nullable = false)
     @NotBlank
     private String contenu;
-    
+
     @OneToMany(mappedBy = "fkBrouillons", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<BrouillonsFilesBO> files;
-    
+
     @Column(name = "BUILD_ID", length = 32, nullable = true)
     @Size(min = 0, max = 32)
     private String buildId;
-    
+
     @Column(name = "RECAP_TYPE", length = 256, nullable = true)
     @Size(min = 0, max = 256)
     private String recapType;
-    
+
     @Column(name = "META", columnDefinition = "TEXT", nullable = true)
     private String meta;
 
-	public Integer getPkBrouillons() {
-		return pkBrouillons;
-	}
+    @Column(name = "CONTENU_INITIAL", columnDefinition = "TEXT", nullable = true)
+    private String contenuInitial;
 
-	public void setPkBrouillons(Integer pkBrouillons) {
-		this.pkBrouillons = pkBrouillons;
-	}
+    public Integer getPkBrouillons() {
+        return pkBrouillons;
+    }
 
-	public AccessBO getFkAccess() {
-		return fkAccess;
-	}
+    public void setPkBrouillons(Integer pkBrouillons) {
+        this.pkBrouillons = pkBrouillons;
+    }
 
-	public void setFkAccess(AccessBO fkAccess) {
-		this.fkAccess = fkAccess;
-	}
+    public AccessBO getFkAccess() {
+        return fkAccess;
+    }
 
-	public Date getDateCreation() {
-		return dateCreation;
-	}
+    public void setFkAccess(AccessBO fkAccess) {
+        this.fkAccess = fkAccess;
+    }
 
-	public void setDateCreation(Date dateCreation) {
-		this.dateCreation = dateCreation;
-	}
+    public Date getDateCreation() {
+        return dateCreation;
+    }
 
-	public Date getDateDerModif() {
-		return dateDerModif;
-	}
+    public void setDateCreation(Date dateCreation) {
+        this.dateCreation = dateCreation;
+    }
 
-	public void setDateDerModif(Date dateDerModif) {
-		this.dateDerModif = dateDerModif;
-	}
+    public Date getDateDerModif() {
+        return dateDerModif;
+    }
 
-	public String getContenu() {
-		return contenu;
-	}
+    public void setDateDerModif(Date dateDerModif) {
+        this.dateDerModif = dateDerModif;
+    }
 
-	public void setContenu(String contenu) {
-		this.contenu = contenu;
-	}
+    public String getContenu() {
+        return contenu;
+    }
 
-	public Set<BrouillonsFilesBO> getFiles() {
-		return files;
-	}
+    public void setContenu(String contenu) {
+        this.contenu = contenu;
+    }
 
-	public void setFiles(Set<BrouillonsFilesBO> files) {
-		this.files = files;
-	}
+    public Set<BrouillonsFilesBO> getFiles() {
+        return files;
+    }
 
-	public String getBuildId() {
-		return buildId;
-	}
+    public void setFiles(Set<BrouillonsFilesBO> files) {
+        this.files = files;
+    }
 
-	public void setBuildId(String buildId) {
-		this.buildId = buildId;
-	}
+    public String getBuildId() {
+        return buildId;
+    }
 
-	public String getRecapType() {
-		return recapType;
-	}
+    public void setBuildId(String buildId) {
+        this.buildId = buildId;
+    }
 
-	public void setRecapType(String recapType) {
-		this.recapType = recapType;
-	}
+    public String getRecapType() {
+        return recapType;
+    }
 
-	public String getMeta() {
-		return meta;
-	}
+    public void setRecapType(String recapType) {
+        this.recapType = recapType;
+    }
 
-	public void setMeta(String meta) {
-		this.meta = meta;
-	}
+    public String getMeta() {
+        return meta;
+    }
+
+    public void setMeta(String meta) {
+        this.meta = meta;
+    }
+
+    public String getContenuInitial() {
+        return contenuInitial;
+    }
+
+    public void setContenuInitial(String contenuInitial) {
+        this.contenuInitial = contenuInitial;
+    }
 
 }

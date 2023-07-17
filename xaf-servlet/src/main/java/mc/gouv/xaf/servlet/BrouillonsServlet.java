@@ -9,7 +9,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.MediaType;
 
-import mc.gouv.xaf.shared.SharedMessages;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
@@ -22,13 +21,14 @@ import mc.gouv.xaf.apiclient.AfApiClient;
 import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
 import mc.gouv.xaf.servlet.enums.HttpMethod;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
+import mc.gouv.xaf.shared.SessionConstant;
+import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.BrouillonDTO;
 
 /**
  * 
- * Servlet mettant à disposition le service /brouillons avec les méthodes PUT, POST, GET, DELETE.
- * Cette servlet récupère le DemarcheID ainsi que l'UsagerID (depuis la session) et appelle les WS
- * correspondants dans le back-end générique.
+ * Servlet mettant à disposition le service /brouillons avec les méthodes PUT, POST, GET, DELETE. Cette servlet récupère
+ * le DemarcheID ainsi que l'UsagerID (depuis la session) et appelle les WS correspondants dans le back-end générique.
  * 
  * @author qdeme
  *
@@ -42,9 +42,9 @@ public class BrouillonsServlet extends AbstractAfServlet {
     /**
      * Prépare les objets communs aux requêtes :<br>
      * <ol>
-     *     <li>Un UsagerInfosDTO contenant les infos de l'usager.</li>
-     *     <li>L'id du brouillon à manipuler (si présent)</li>
-     *     <li>Le client de l'API XAF</li>
+     * <li>Un UsagerInfosDTO contenant les infos de l'usager.</li>
+     * <li>L'id du brouillon à manipuler (si présent)</li>
+     * <li>Le client de l'API XAF</li>
      * </ol>
      */
     private Object[] setup(HttpServletRequest request, HttpServletResponse response) {
@@ -73,7 +73,7 @@ public class BrouillonsServlet extends AbstractAfServlet {
 
         AfApiClient afApiClient = getAfApiClient();
 
-        return new Object[]{usagerInfosDTO, brouillonId, afApiClient};
+        return new Object[] { usagerInfosDTO, brouillonId, afApiClient };
     }
 
     /**
@@ -121,11 +121,16 @@ public class BrouillonsServlet extends AbstractAfServlet {
             ObjectMapper mapper = new ObjectMapper();
             BrouillonDTO brouillonInput = mapper.readValue(buffer.toString(), BrouillonDTO.class);
             BrouillonDTO brouillonDto = null;
+            if (request.getSession().getAttribute(SessionConstant.SESSION_DEMANDE_INITIALE) != null) {
+                brouillonInput.setContenuInitial(mapper
+                        .valueToTree(request.getSession().getAttribute(SessionConstant.SESSION_DEMANDE_INITIALE)));
+            }
             if (HttpMethod.POST.equals(httpMethod)) {
                 brouillonDto = afApiClient.creerBrouillon(brouillonInput, usagerInfosDTO.getId());
                 response.setStatus(HttpStatus.SC_CREATED);
             } else {
-                brouillonDto = afApiClient.updateBrouillon(brouillonInput, Integer.parseInt(brouillonId), usagerInfosDTO.getId());
+                brouillonDto = afApiClient.updateBrouillon(brouillonInput, Integer.parseInt(brouillonId),
+                        usagerInfosDTO.getId());
                 response.setStatus(HttpStatus.SC_OK);
             }
 
@@ -176,10 +181,11 @@ public class BrouillonsServlet extends AbstractAfServlet {
                 // TODO : gestion des erreurs
                 response.setStatus(HttpStatus.SC_OK);
                 repJson = mapper.writeValueAsString(brouillonDtos);
-            }
-            else {
+            } else {
                 LOGGER.info("Appel à la démarche pour récupérer le brouillon {}", brouillonId);
-                BrouillonDTO brouillonDto = afApiClient.getBrouillon(Integer.parseInt(brouillonId), usagerInfosDTO.getId());
+                BrouillonDTO brouillonDto = afApiClient.getBrouillon(Integer.parseInt(brouillonId),
+                        usagerInfosDTO.getId());
+
                 // TODO : gestion des erreurs
                 response.setStatus(HttpStatus.SC_OK);
                 repJson = mapper.writeValueAsString(brouillonDto);
@@ -193,7 +199,7 @@ public class BrouillonsServlet extends AbstractAfServlet {
         response.setContentType(MediaType.APPLICATION_JSON);
         LOGGER.info("====================== Fin /brouillons doGet()");
     }
-    
+
     @Override
     public void doDelete(HttpServletRequest request, HttpServletResponse response) {
         LOGGER.info("====================== /brouillons doDelete()");

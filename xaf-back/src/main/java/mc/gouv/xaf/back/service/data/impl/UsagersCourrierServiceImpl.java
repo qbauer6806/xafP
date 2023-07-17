@@ -87,12 +87,17 @@ public class UsagersCourrierServiceImpl implements UsagersCourrierService {
      */
     @Override
     public UsagerCourrierDTO getUsagerCourrier(String demarcheId, Integer pkUsagersCourrier) {
-        UsagersCourrierBO usagersCourrierBO = getCourrierBO(demarcheId, pkUsagersCourrier);
+        LOGGER.info("Récupération en base de l'usager courrier...");
+        UsagersCourrierBO usagersCourrierBO = usagersCourrierRepository.findByDemarcheIdAndPkUsagersCourrier(demarcheId, pkUsagersCourrier);
+
+        if (usagersCourrierBO == null) {
+            return null;
+        }
+
         LOGGER.info(SharedMessages.SUCCESS_MESSAGES);
         UsagerCourrierDTO usagerCourrierDto = UsagerCourrierTransformer.bo2Dto(usagersCourrierBO);
         LOGGER.info("Récupération du nombre de demandes effectuées par cet usager courrier...");
-        Integer nbDemandes = demandesRepository.getNbDemandesForUsager(usagersCourrierBO.getDemarcheId(),
-                usagersCourrierBO.getPkUsagersCourrier());
+        Integer nbDemandes = demandesRepository.getNbDemandesForUsager(usagersCourrierBO.getDemarcheId(), usagersCourrierBO.getPkUsagersCourrier());
         usagerCourrierDto.setNbDemandes(nbDemandes);
         return usagerCourrierDto;
     }

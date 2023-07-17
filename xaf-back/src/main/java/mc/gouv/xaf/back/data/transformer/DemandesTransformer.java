@@ -187,6 +187,14 @@ public class DemandesTransformer {
             LOGGER.error("Erreur lors de la conversion JSON", e);
         }
 
+        // Mapper le contenu de la demande préremplie
+        try {
+            if (bo.getContenuInitial() != null)
+                dto.setContenuInitial(mapper.readTree(bo.getContenuInitial()));
+        } catch (IOException e) {
+            LOGGER.error("Erreur lors de la conversion JSON", e);
+        }
+
         return dto;
     }
 
@@ -242,6 +250,12 @@ public class DemandesTransformer {
         } catch (JsonProcessingException e) {
             LOGGER.error("Erreur lors de la conversion JSON", e);
         }
+        try {
+            bo.setContenuInitial(mapper.writeValueAsString(dto.getContenuInitial()));
+        } catch (JsonProcessingException e) {
+            LOGGER.error("Erreur lors de la conversion JSON", e);
+        }
+
         return bo;
     }
 

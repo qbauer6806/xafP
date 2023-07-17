@@ -580,6 +580,16 @@ public class DemandesServiceImpl implements DemandesService {
             }
         }
 
+        // Mise à jour du contenu
+        if (!partialUpdate || demande.getContenuInitial() != null && !demande.getContenuInitial().isNull()) {
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                demandeBo.setContenuInitial(mapper.writeValueAsString(demande.getContenuInitial()));
+            } catch (JsonProcessingException e) {
+                LOGGER.error("Problème lors de la conversion JSON", e);
+            }
+        }
+
         // Mise à jour du timestamp pour verrouillage
         demandeBo.setModificationTimestamp(demande.getModificationTimestamp());
 

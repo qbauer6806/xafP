@@ -38,6 +38,7 @@ public class AfBackDemandeDTO extends DemandeDTO {
         setStatuts(demande.getStatuts());
         setUsagerId(demande.getUsagerId());
         setModificationTimestamp(demande.getModificationTimestamp());
+        setContenuInitial(demande.getContenuInitial());
     }
 
     public String getAgentAffectePrenom() {

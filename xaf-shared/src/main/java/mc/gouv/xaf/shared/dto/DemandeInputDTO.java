@@ -15,6 +15,8 @@ public class DemandeInputDTO {
 
     private JsonNode contenu;
 
+    private JsonNode contenuInitial;
+
     private DemandeFileDTO[] fichiers;
 
     private String langue;
@@ -30,18 +32,18 @@ public class DemandeInputDTO {
     private String courrierRefInterne;
 
     private String creeParAgentId;
-    
+
     private boolean novalidate;
-    
+
     private String buildId;
-    
+
     private String recapType;
-    
+
     private Integer brouillonId;
-    
+
     // Données envoyées à l'API si l'usager s'est connecté via MConnect
     private DonneesMConnectDTO donneesMConnect;
-    
+
     // En cas de renouvellement d'une demande
     private Integer demandeSourceId;
 
@@ -117,63 +119,71 @@ public class DemandeInputDTO {
     public void setCreeParAgentId(String creeParAgentId) {
         this.creeParAgentId = creeParAgentId;
     }
-    
+
     public boolean isNovalidate() {
         return novalidate;
     }
-    
+
     public void setNovalidate(boolean novalidate) {
         this.novalidate = novalidate;
     }
 
-	public String getBuildId() {
-		return buildId;
-	}
+    public String getBuildId() {
+        return buildId;
+    }
 
-	public void setBuildId(String buildId) {
-		this.buildId = buildId;
-	}
+    public void setBuildId(String buildId) {
+        this.buildId = buildId;
+    }
 
-	public String getRecapType() {
-		return recapType;
-	}
+    public String getRecapType() {
+        return recapType;
+    }
 
-	public void setRecapType(String recapType) {
-		this.recapType = recapType;
-	}
+    public void setRecapType(String recapType) {
+        this.recapType = recapType;
+    }
 
-	public Integer getBrouillonId() {
-		return brouillonId;
-	}
+    public Integer getBrouillonId() {
+        return brouillonId;
+    }
 
-	public void setBrouillonId(Integer brouillonId) {
-		this.brouillonId = brouillonId;
-	}
+    public void setBrouillonId(Integer brouillonId) {
+        this.brouillonId = brouillonId;
+    }
 
-	public DonneesMConnectDTO getDonneesMConnect() {
-		return donneesMConnect;
-	}
+    public DonneesMConnectDTO getDonneesMConnect() {
+        return donneesMConnect;
+    }
 
-	public void setDonneesMConnect(DonneesMConnectDTO donneesMConnect) {
-		this.donneesMConnect = donneesMConnect;
-	}
-	
+    public void setDonneesMConnect(DonneesMConnectDTO donneesMConnect) {
+        this.donneesMConnect = donneesMConnect;
+    }
+
     public Integer getDemandeSourceId() {
-		return demandeSourceId;
-	}
+        return demandeSourceId;
+    }
 
-	public void setDemandeSourceId(Integer demandeSourceId) {
-		this.demandeSourceId = demandeSourceId;
-	}
+    public void setDemandeSourceId(Integer demandeSourceId) {
+        this.demandeSourceId = demandeSourceId;
+    }
 
-	@Override
-	public String toString() {
-		return "DemandeInputDTO [contenu=" + contenu + ", fichiers=" + Arrays.toString(fichiers) + ", langue=" + langue
-				+ ", canal=" + canal + ", observations=" + observations + ", agentAffecteId=" + agentAffecteId
-				+ ", courrierDateReception=" + courrierDateReception + ", courrierRefInterne=" + courrierRefInterne
-				+ ", creeParAgentId=" + creeParAgentId + ", novalidate=" + novalidate + ", buildId=" + buildId
-				+ ", recapType=" + recapType + ", brouillonId=" + brouillonId + ", donneesMConnect=" + donneesMConnect
-				+ ", demandeSourceId=" + demandeSourceId + "]";
-	}
-	
+    @Override
+    public String toString() {
+        return "DemandeInputDTO [contenu=" + contenu + ", fichiers=" + Arrays.toString(fichiers) + ", langue=" + langue
+                + ", canal=" + canal + ", observations=" + observations + ", agentAffecteId=" + agentAffecteId
+                + ", courrierDateReception=" + courrierDateReception + ", courrierRefInterne=" + courrierRefInterne
+                + ", creeParAgentId=" + creeParAgentId + ", novalidate=" + novalidate + ", buildId=" + buildId
+                + ", recapType=" + recapType + ", brouillonId=" + brouillonId + ", donneesMConnect=" + donneesMConnect
+                + ", demandeSourceId=" + demandeSourceId + "]";
+    }
+
+    public JsonNode getContenuInitial() {
+        return contenuInitial;
+    }
+
+    public void setContenuInitial(JsonNode contenuInitial) {
+        this.contenuInitial = contenuInitial;
+    }
+
 }

@@ -14,8 +14,8 @@
 		<logon-apiclient.version>5.2.2</logon-apiclient.version>
 		<!-- Librairie pour generer le fichier recap d'une demande (sous license 
 			LGPL). -->
-		<openhtml.version>1.0.1</openhtml.version>
-		<pdfbox.version>2.0.15</pdfbox.version>
+		<openhtml.version>1.0.10</openhtml.version>
+		<pdfbox.version>2.0.26</pdfbox.version>
 		<xdocreport.version>2.0.4</xdocreport.version>
 		<poi.version>4.1.0</poi.version>
 		<vscan.version>1.0.0</vscan.version>
@@ -92,11 +92,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
-        <dependency>
-			<groupId>commons-beanutils</groupId>
-			<artifactId>commons-beanutils</artifactId>
-			<version>1.9.3</version>
-		</dependency>
 
         <dependency>
             <groupId>mc.gouv.xboot</groupId>
@@ -126,10 +121,6 @@
 				<exclusion>
 					<groupId>org.apache.struts</groupId>
 					<artifactId>*</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>commons-beanutils</groupId>
-					<artifactId>commons-beanutils</artifactId>
 				</exclusion>
 				<exclusion>
 					<groupId>org.apache.commons</groupId>
@@ -292,12 +283,14 @@
 
 		<dependency>
 			<groupId>org.apache.tika</groupId>
-			<artifactId>tika-parsers</artifactId>
+			<artifactId>tika-core</artifactId>
+			<version>${tika.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.tika</groupId>
-			<artifactId>tika-langdetect</artifactId>
+			<artifactId>tika-parsers-standard-package</artifactId>
+			<version>${tika.version}</version>
 		</dependency>
 
 		<dependency>
@@ -366,12 +359,6 @@
 
 	<dependencyManagement>
 		<dependencies>
-			<!-- CVE-2018-10054 -->
-			<dependency>
-				<groupId>com.h2database</groupId>
-				<artifactId>h2</artifactId>
-				<version>1.4.200</version>
-			</dependency>
 
 			<!-- CVE-2019-16869 -->
 			<dependency>

@@ -4,7 +4,7 @@
     <parent>
         <groupId>mc.gouv.xboot</groupId>
         <artifactId>xboot-spring-starter-parent</artifactId>
-        <version>4.0.0</version>
+        <version>4.0.1-SNAPSHOT</version>
     </parent>
 
     <properties>
@@ -12,11 +12,13 @@
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
         <servicerest_client.version>2.2.15</servicerest_client.version>
-        <tika.version>1.22</tika.version>
+        <tika.version>2.8.0</tika.version>
         <xcb-wlib.version>1.2.0</xcb-wlib.version>
         <commons-fileupload.version>1.5</commons-fileupload.version>
         <poi-ooxml.version>5.2.0</poi-ooxml.version>
         <commons-io.version>2.11.0</commons-io.version>
+        <!-- Remove jackson-bom version when spring boot 3 -->
+        <jackson-bom.version>2.15.2</jackson-bom.version>
     </properties>
 
     <groupId>mc.gouv.xaf</groupId>
@@ -48,60 +50,17 @@
 
     <dependencyManagement>
         <dependencies>
-            <!-- CVE-2019-12415 -->
+
             <dependency>
                 <groupId>org.apache.tika</groupId>
-                <artifactId>tika-app</artifactId>
+                <artifactId>tika-core</artifactId>
                 <version>${tika.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.cxf</groupId>
-                        <artifactId>cxf-rt-rs-client</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>xerces</groupId>
-                        <artifactId>xercesImpl</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.tika</groupId>
-                <artifactId>tika-parsers</artifactId>
+                <artifactId>tika-parsers-standard-package</artifactId>
                 <version>${tika.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.cxf</groupId>
-                        <artifactId>cxf-rt-rs-client</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.poi</groupId>
-                        <artifactId>poi-ooxml</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.poi</groupId>
-                        <artifactId>poi</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>xerces</groupId>
-                        <artifactId>xercesImpl</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.tika</groupId>
-                <artifactId>tika-langdetect</artifactId>
-                <version>${tika.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.cxf</groupId>
-                        <artifactId>cxf-rt-rs-client</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>xerces</groupId>
-                        <artifactId>xercesImpl</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
 
             <!-- CVE-2019-12402 -->

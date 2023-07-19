@@ -159,6 +159,26 @@
         <filter-name>IPFilter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
+
+    <filter>
+        <filter-name>FileUploadLimitFilter</filter-name>
+        <filter-class>mc.gouv.xaf.servlet.filter.FileUploadLimitFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>FileUploadLimitFilter</filter-name>
+        <url-pattern>/doc-holder/file</url-pattern>
+        <url-pattern>/doc-holder/files</url-pattern>
+    </filter-mapping>
+
+    <filter>
+        <filter-name>DocHolderFilter</filter-name>
+        <filter-class>mc.gouv.xaf.servlet.filter.DocHolderFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>DocHolderFilter</filter-name>
+        <url-pattern>/doc-holder/*</url-pattern>
+        <url-pattern>/doc-holder</url-pattern>
+    </filter-mapping>
     
     <context-param>
         <param-name>DemarcheID</param-name>

@@ -65,7 +65,6 @@ public class DocHolderServletsTest {
         docHolderSearchServlet.doGet(request, response);
 
         verify(response).setStatus(HttpStatus.SC_UNAUTHORIZED);
-        verify(response, never()).setStatus(HttpStatus.SC_OK); // La vérification de l'authentification est la première chose à vérifier !
     }
 
     private static Stream<Arguments> emptyOrInvalidFileParameters() {

@@ -1,7 +1,7 @@
 package mc.gouv.xaf.servlet;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import mc.gouv.xaf.servlet.dto.DocHolderFileSearchDTO;
 import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
 import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
@@ -30,6 +30,7 @@ import javax.servlet.http.Part;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Collection;
+import java.util.Map;
 
 @MultipartConfig
 public class DocHolderFileServlet extends AbstractAfServlet {
@@ -181,14 +182,14 @@ public class DocHolderFileServlet extends AbstractAfServlet {
 
             Request serviceRequest = Request.Post(serviceUrl);
             serviceRequest.body(entityBuilder.build());
-            serviceRequest.setHeader(HttpHeaders.AUTHORIZATION, AppFactoryServletUtils.getAuthHeader(AppFactoryServletUtils.ServiceTarget.FILE));
+            serviceRequest.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + usagerInfosDTO.getTokenInfo().getAccessToken());
 
             LOGGER.info("Envoi de la requête");
             HttpResponse serviceResponse = serviceRequest.execute().returnResponse();
             int statusCode = serviceResponse.getStatusLine().getStatusCode();
             resp.setStatus(statusCode);
 
-            if (statusCode == HttpStatus.SC_OK) {
+            if (statusCode == HttpStatus.SC_OK || statusCode == HttpStatus.SC_CREATED) {
                 resp.setContentType(serviceResponse.getEntity().getContentType().getValue());
                 IOUtils.copy(serviceResponse.getEntity().getContent(), resp.getOutputStream());
             }
@@ -222,18 +223,19 @@ public class DocHolderFileServlet extends AbstractAfServlet {
         }
 
         LOGGER.info("Vérification des paramètres envoyés");
-        DocHolderFileSearchDTO fileSearchDTO = mapper.readValue(req.getInputStream(), DocHolderFileSearchDTO.class);
-        if (fileSearchDTO == null) {
+        String filename = req.getParameter("filename");
+        if (StringUtils.isEmpty(filename)) {
             AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_BAD_REQUEST, SharedMessages.REQUETE_MALFORMEE);
             return;
         }
 
+        LOGGER.info("Préparation de la requête");
         Request serviceRequest = Request.Delete(serviceUrl);
         serviceRequest.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + usagerInfosDTO.getTokenInfo().getAccessToken());
 
         try {
-            String fileSearchJson = mapper.writeValueAsString(fileSearchDTO);
-            serviceRequest.bodyString(fileSearchJson, ContentType.APPLICATION_JSON);
+            serviceRequest.bodyString(mapper.writeValueAsString(Map.of("filename", filename)), ContentType.APPLICATION_JSON);
+            LOGGER.info("Envoi de la requête");
             HttpResponse serviceResponse = serviceRequest.execute().returnResponse();
             int statusCode = serviceResponse.getStatusLine().getStatusCode();
             resp.setStatus(statusCode);
@@ -263,20 +265,43 @@ public class DocHolderFileServlet extends AbstractAfServlet {
     protected void doPatch(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         LOGGER.info("====================== " + req.getPathInfo() + " doPatch()");
 
-        // String authorization = req.getHeader("Authorization"); ??????
+        LOGGER.info("Vérification usager connecté");
+        UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(req);
+        if (usagerInfosDTO == null) {
+            AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_UNAUTHORIZED, SharedMessages.UTILISATEUR_NON_AUTORISE);
+            return;
+        }
 
-        /*Request serviceRequest = Request.Patch(MOCKSERVER);
-        serviceRequest.setHeader(HttpHeaders.CONTENT_TYPE, "application/json; charset=utf-8");
-        serviceRequest.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + AppFactoryServletUtils.getAuthHeader(AppFactoryServletUtils.ServiceTarget.FILE));
+        LOGGER.info("Vérification des paramètres envoyés");
+        String filename = req.getParameter("filename");
+        String typedoc = req.getParameter("typedoc");
+        String preferedName = req.getParameter("preferedName");
+        if(StringUtils.isEmpty(filename) || StringUtils.isEmpty(typedoc) || StringUtils.isEmpty(preferedName)) {
+            AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_BAD_REQUEST, SharedMessages.REQUETE_MALFORMEE);
+            return;
+        }
+
+        Map<String, String> parameters = Map.of("filename", filename, "typedoc", typedoc, "preferedName", preferedName);
 
         try {
-            serviceRequest.bodyStream(req.getInputStream());
-            HttpResponse serviceResponse = serviceRequest.execute().returnResponse();
+            LOGGER.info("Préparation de la requête");
+            Request serviceRequest = Request.Patch(serviceUrl);
+            serviceRequest.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + usagerInfosDTO.getTokenInfo().getAccessToken());
+            serviceRequest.bodyString(new ObjectMapper().writeValueAsString(parameters), ContentType.APPLICATION_JSON);
 
-        } catch (IOException e) {
+            LOGGER.info("Envoi de la requête");
+            HttpResponse serviceResponse = serviceRequest.execute().returnResponse();
+            int statusCode = serviceResponse.getStatusLine().getStatusCode();
+            resp.setStatus(statusCode);
+
+        } catch (JsonProcessingException jpe) {
+            LOGGER.info("Erreur lors de la conversion des paramètres en json");
             resp.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
-            LOGGER.error("Erreur lors de l'appel à l'API Porte-Documents doPatch", e);
-        }*/
+        } catch (IOException ioe) {
+            LOGGER.info("Erreur lors de l'envoi de la requête à Monguichet");
+            resp.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+        }
+
 
         LOGGER.info("====================== Fin " + req.getPathInfo() + " doPatch()");
     }

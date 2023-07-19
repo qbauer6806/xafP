@@ -30,10 +30,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class FileServletUtils {
 
@@ -142,6 +139,7 @@ public class FileServletUtils {
 
     /**
      * Vérification du nombre de fichier uploadés sur la demande
+     *
      * @param usagersFileUploadCompteurs
      * @param session
      * @return true si la limite a été atteinte, false si il est toujours possible d'uploader
@@ -161,5 +159,33 @@ public class FileServletUtils {
             }
         }
         return false;
+    }
+
+    public static synchronized void ajouterCompteurUpload(Map<HttpSession, FileUploadCompteurDTO> usagersFileUploadCompteurs, HttpSession session) {
+        FileUploadCompteurDTO compteurUpload = usagersFileUploadCompteurs.get(session);
+        if (compteurUpload == null) {
+            compteurUpload = new FileUploadCompteurDTO();
+            compteurUpload.setCompteur(0);
+            compteurUpload.setDatePremierUpload(LocalDateTime.now());
+        }
+        // Ajouter au compteur qu'un nouveau fichier a été uploadé
+        compteurUpload.setCompteur(compteurUpload.getCompteur() + 1);
+        usagersFileUploadCompteurs.put(session, compteurUpload);
+    }
+
+    /**
+     * Methode qui parcours toutes les sessions stockées et supprime les entrées qui ne servent plus. ex:
+     * Une session dont la date du premier upload > x secondes
+     */
+    public static synchronized void reinitialierSessionsInutilisees(Map<HttpSession, FileUploadCompteurDTO> usagersFileUploadCompteurs) {
+        for (Iterator<Map.Entry<HttpSession, FileUploadCompteurDTO>> it = usagersFileUploadCompteurs.entrySet().iterator(); it.hasNext(); ) {
+            Map.Entry<HttpSession, FileUploadCompteurDTO> entry = it.next();
+            LocalDateTime datePremierUpload = entry.getValue().getDatePremierUpload();
+            Duration duration = Duration.between(datePremierUpload, LocalDateTime.now());
+            int tempsParIntervalle = Integer.parseInt(AfServletGouvPropertiesResolver.getTempsIntervalleUpload());
+            if (duration.toMillis() > tempsParIntervalle) {
+                it.remove();
+            }
+        }
     }
 }

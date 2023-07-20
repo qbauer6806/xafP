@@ -28,11 +28,6 @@ public class DocHolderSearchServlet extends AbstractAfServlet {
     /**
      * Méthode pour l'opération <b>searchFiles</b>
      * Elle permet de récupérer la liste de tous les documents enregistrés dans le porte-document de l'utilisateur connecté
-     *
-     * @param req
-     * @param resp
-     * @throws ServletException
-     * @throws IOException
      */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -59,11 +54,8 @@ public class DocHolderSearchServlet extends AbstractAfServlet {
             HttpResponse serviceResponse = serviceRequest.execute().returnResponse();
             int statusCode = serviceResponse.getStatusLine().getStatusCode();
             resp.setStatus(statusCode);
-
-            if (statusCode == HttpStatus.SC_OK) {
-                resp.setContentType(serviceResponse.getEntity().getContentType().getValue());
-                IOUtils.copy(serviceResponse.getEntity().getContent(), resp.getOutputStream());
-            }
+            resp.setContentType(serviceResponse.getEntity().getContentType().getValue());
+            IOUtils.copy(serviceResponse.getEntity().getContent(), resp.getOutputStream());
         } catch (IOException e) {
             resp.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
             LOGGER.error("Erreur lors de l'appel à l'API Porte-Documents searchFiles", e);

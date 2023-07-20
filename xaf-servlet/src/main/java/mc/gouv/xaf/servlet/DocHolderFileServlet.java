@@ -40,17 +40,10 @@ public class DocHolderFileServlet extends AbstractAfServlet {
 
     /**
      * Méthode pour l'opération <b>getFile</b>
-     *
-     * @param req
-     * @param resp
-     * @throws ServletException
-     * @throws IOException
      */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         LOGGER.info("====================== " + req.getServletPath() + " doGet()");
-
-        ObjectMapper mapper = new ObjectMapper();
 
         LOGGER.info("Vérification usager connecté");
         UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(req);
@@ -81,10 +74,8 @@ public class DocHolderFileServlet extends AbstractAfServlet {
             LOGGER.info("Constitution de la réponse pour retour au client");
             Header contentDispositionHeader = serviceResponse.getFirstHeader(RequestConstant.CONTENT_DISPOSITION_HEADER);
             resp.setHeader(RequestConstant.CONTENT_DISPOSITION_HEADER, contentDispositionHeader.getValue());
-
             resp.setStatus(serviceResponse.getStatusLine().getStatusCode());
             resp.setContentType(serviceResponse.getEntity().getContentType().getValue());
-
             IOUtils.copy(serviceResponse.getEntity().getContent(), resp.getOutputStream());
 
         } catch (URISyntaxException e) {
@@ -101,11 +92,6 @@ public class DocHolderFileServlet extends AbstractAfServlet {
     /**
      * Méthode pour l'opération <b>saveFile</b>
      * Elle permet de sauvegarder un fichier dans le porte-document de l'utilisateur connecté
-     *
-     * @param req
-     * @param resp
-     * @throws ServletException
-     * @throws IOException
      */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -140,13 +126,6 @@ public class DocHolderFileServlet extends AbstractAfServlet {
 
             Part filePart = parts.iterator().next();
 
-            /* TODO : finir
-            if(FileServletUtils.limiteUploadAtteinte(map, session)) {
-                LOGGER.info(SharedMessages.FICHIER_LIMITE_UPLOAD_ATTEINTE);
-                AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_METHOD_NOT_ALLOWED, SharedMessages.FICHIER_LIMITE_UPLOAD_ATTEINTE);
-                return;
-            }*/
-
             // Récupération du nom du fichier à envoyer
             String filename = filePart.getSubmittedFileName();
             if (StringUtils.isEmpty(filename)) {
@@ -155,24 +134,18 @@ public class DocHolderFileServlet extends AbstractAfServlet {
             }
 
             LOGGER.info("Vérification de la taille du fichier...");
-            if(!FileServletUtils.tailleFichierValide(filePart)) {
+            if (!FileServletUtils.tailleFichierValide(filePart)) {
                 LOGGER.info("La taille du fichier depasse la taille max definie dans les propriétés (taille du fichier : {} B)", filePart.getSize());
                 AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_FORBIDDEN, SharedMessages.FICHIER_TROP_GRAND);
                 return;
             }
 
             LOGGER.info("Vérification du type pour le fichier {} ...", filename);
-            if(!FileServletUtils.estExtensionDansWhitelist(filename)) {
+            if (!FileServletUtils.estExtensionDansWhitelist(filename)) {
                 LOGGER.info("Le type de fichier ne correspond pas aux types whitelistés ({})", FileServletUtils.getExtensionsWhitelist());
                 AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_BAD_REQUEST, SharedMessages.FICHIER_TYPE_EXTENTION_INVALIDE);
                 return;
             }
-
-            // TODO : finir VSCAN ?
-            /*HttpPost postRequest = new HttpPost();
-            if(!FileServletUtils.vscan(filePart, filename, postRequest, resp, getServletContext())) {
-                return;
-            }*/
 
             LOGGER.info("Création de la requête");
             MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create()
@@ -188,11 +161,8 @@ public class DocHolderFileServlet extends AbstractAfServlet {
             HttpResponse serviceResponse = serviceRequest.execute().returnResponse();
             int statusCode = serviceResponse.getStatusLine().getStatusCode();
             resp.setStatus(statusCode);
-
-            if (statusCode == HttpStatus.SC_OK || statusCode == HttpStatus.SC_CREATED) {
-                resp.setContentType(serviceResponse.getEntity().getContentType().getValue());
-                IOUtils.copy(serviceResponse.getEntity().getContent(), resp.getOutputStream());
-            }
+            resp.setContentType(serviceResponse.getEntity().getContentType().getValue());
+            IOUtils.copy(serviceResponse.getEntity().getContent(), resp.getOutputStream());
         } catch (IOException ioe) {
             resp.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
             LOGGER.error("Erreur lors de l'appel à l'API Porte-Documents searchFiles", ioe);
@@ -203,14 +173,9 @@ public class DocHolderFileServlet extends AbstractAfServlet {
 
     /**
      * Méthode pour l'opération "deleteFile"
-     *
-     * @param req
-     * @param resp
-     * @throws ServletException
-     * @throws IOException
      */
     @Override
-    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) {
         LOGGER.info("====================== " + req.getPathInfo() + " doDelete()");
 
         ObjectMapper mapper = new ObjectMapper();
@@ -239,12 +204,8 @@ public class DocHolderFileServlet extends AbstractAfServlet {
             HttpResponse serviceResponse = serviceRequest.execute().returnResponse();
             int statusCode = serviceResponse.getStatusLine().getStatusCode();
             resp.setStatus(statusCode);
-
-            if (statusCode == HttpStatus.SC_OK) {
-                resp.setContentType(serviceResponse.getEntity().getContentType().getValue());
-                IOUtils.copy(serviceResponse.getEntity().getContent(), resp.getOutputStream());
-            }
-
+            resp.setContentType(serviceResponse.getEntity().getContentType().getValue());
+            IOUtils.copy(serviceResponse.getEntity().getContent(), resp.getOutputStream());
         } catch (IOException e) {
             resp.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
             LOGGER.error("Erreur lors de l'appel à l'API Porte-Documents searchFiles", e);
@@ -255,14 +216,9 @@ public class DocHolderFileServlet extends AbstractAfServlet {
 
     /**
      * Méthode pour l'opération <b>patchFile</b>
-     *
-     * @param req
-     * @param resp
-     * @throws ServletException
-     * @throws IOException
      */
     @Override
-    protected void doPatch(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPatch(HttpServletRequest req, HttpServletResponse resp) {
         LOGGER.info("====================== " + req.getPathInfo() + " doPatch()");
 
         LOGGER.info("Vérification usager connecté");
@@ -276,7 +232,7 @@ public class DocHolderFileServlet extends AbstractAfServlet {
         String filename = req.getParameter("filename");
         String typedoc = req.getParameter("typedoc");
         String preferedName = req.getParameter("preferedName");
-        if(StringUtils.isEmpty(filename) || StringUtils.isEmpty(typedoc) || StringUtils.isEmpty(preferedName)) {
+        if (StringUtils.isEmpty(filename) || StringUtils.isEmpty(typedoc) || StringUtils.isEmpty(preferedName)) {
             AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_BAD_REQUEST, SharedMessages.REQUETE_MALFORMEE);
             return;
         }
@@ -293,7 +249,8 @@ public class DocHolderFileServlet extends AbstractAfServlet {
             HttpResponse serviceResponse = serviceRequest.execute().returnResponse();
             int statusCode = serviceResponse.getStatusLine().getStatusCode();
             resp.setStatus(statusCode);
-
+            resp.setContentType(serviceResponse.getEntity().getContentType().getValue());
+            IOUtils.copy(serviceResponse.getEntity().getContent(), resp.getOutputStream());
         } catch (JsonProcessingException jpe) {
             LOGGER.info("Erreur lors de la conversion des paramètres en json");
             resp.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);

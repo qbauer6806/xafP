@@ -22,21 +22,20 @@ import java.net.URISyntaxException;
 
 public class DocHolderFilesServlet extends AbstractAfServlet {
     private final static long serialVersionUID = -314577095316396789L;
-    private static Logger LOGGER = LoggerFactory.getLogger(DocHolderFilesServlet.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DocHolderFilesServlet.class);
     private static final String serviceUrl = AfServletGouvPropertiesResolver.getPorteDocUrl() + "/files";
 
 
     /**
      * Méthode pour l'opération <b>getMultipleFiles</b>
-     *
-     * @param req
-     * @param resp
-     * @throws ServletException
-     * @throws IOException
      */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(req);
+        if (usagerInfosDTO == null) {
+            AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_UNAUTHORIZED, SharedMessages.UTILISATEUR_NON_AUTORISE);
+            return;
+        }
 
         String filenames = req.getParameter("filenames[]");
         String zipName = req.getParameter("zipName");
@@ -70,15 +69,14 @@ public class DocHolderFilesServlet extends AbstractAfServlet {
 
     /**
      * Méthode pour l'opération <b>deleteMultipleFiles</b>
-     *
-     * @param req
-     * @param resp
-     * @throws ServletException
-     * @throws IOException
      */
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(req);
+        if (usagerInfosDTO == null) {
+            AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_UNAUTHORIZED, SharedMessages.UTILISATEUR_NON_AUTORISE);
+            return;
+        }
 
         String filenames = req.getParameter("filenames");
         if (StringUtils.isEmpty(filenames)) {

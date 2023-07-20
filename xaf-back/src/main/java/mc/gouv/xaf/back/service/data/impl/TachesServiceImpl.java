@@ -114,6 +114,7 @@ public class TachesServiceImpl implements TachesService {
         for (TacheBO tacheBO : taches) {
             if (StatutTachesEnum.RETOUR_GUICHET.name().equals(tacheBO.getCodeStatutValideur())) {
                 tacheBO.setCodeStatutAgent(null);
+                tacheBO.setCodeStatutValideur(null);
             } else {
                 tacheBO.setCodeStatutAgent(tacheBO.getCodeStatutValideur());
                 tacheBO.setLocked(true);

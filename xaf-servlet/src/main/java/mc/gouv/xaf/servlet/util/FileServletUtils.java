@@ -42,6 +42,11 @@ public class FileServletUtils {
 
     public static boolean estExtensionDansWhitelist(String filename) {
         String[] filenameSplit = filename.split("\\.");
+
+        if (filenameSplit.length <= 1) {
+            return false;
+        }
+
         String fileExtension = filenameSplit[filenameSplit.length - 1].toLowerCase();
         return getExtensionsWhitelist().contains(fileExtension);
     }
@@ -65,9 +70,9 @@ public class FileServletUtils {
             throw new PropertyNotFoundException("La propriété obligatoire MAX_TAILLE_FICHIER ne semble pas définie");
         }
 
-        int tailleMaxFichier = Integer.parseInt(propMaxTailleFichiers.getValue());
+        long tailleMaxFichier = Long.parseLong(propMaxTailleFichiers.getValue());
         // transformation B en MB
-        int tailleMaxFichierMB = tailleMaxFichier * 1000000;
+        long tailleMaxFichierMB = tailleMaxFichier * 1_000_000;
 
         return part.getSize() <= tailleMaxFichierMB;
     }
@@ -127,24 +132,11 @@ public class FileServletUtils {
     }
 
     /**
-     * Permet de parser le nom du fichier depuis le Path Info de la requête
-     */
-    public static String getFilename(String pathInfo) {
-        String filename = null;
-        if (pathInfo != null && pathInfo.length() > 1) {
-            filename = pathInfo.split(SLASH)[1];
-        }
-        return filename;
-    }
-
-    /**
      * Vérification du nombre de fichier uploadés sur la demande
      *
-     * @param usagersFileUploadCompteurs
-     * @param session
      * @return true si la limite a été atteinte, false si il est toujours possible d'uploader
      */
-    public static boolean limiteUploadAtteinte(Map<HttpSession, FileUploadCompteurDTO> usagersFileUploadCompteurs, HttpSession session) {
+    public static synchronized boolean limiteUploadAtteinte(Map<HttpSession, FileUploadCompteurDTO> usagersFileUploadCompteurs, HttpSession session) {
         FileUploadCompteurDTO compteurUpload = usagersFileUploadCompteurs.get(session);
         if (compteurUpload != null) {
             Duration duration = Duration.between(compteurUpload.getDatePremierUpload(), LocalDateTime.now());

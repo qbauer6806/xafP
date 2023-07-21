@@ -1,6 +1,8 @@
 package mc.gouv.xaf.servlet.filter;
 
+import mc.gouv.xaf.servlet.dto.KeycloakTokenInfo;
 import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
+import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
 import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.AfterEach;
@@ -13,6 +15,7 @@ import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -37,45 +40,81 @@ public class DocHolderFilterTest {
 
     MockedStatic<AppFactoryServletUtils> servletUtilsMocked;
 
+    MockedStatic<AfServletGouvPropertiesResolver> propertiesResolver;
+
     @BeforeEach
-    public void setup() throws IOException {
+    public void setup() {
         servletUtilsMocked = mockStatic(AppFactoryServletUtils.class, CALLS_REAL_METHODS);
-        when(response.getOutputStream()).thenReturn(servletOutputStream);
+        propertiesResolver = mockStatic(AfServletGouvPropertiesResolver.class, CALLS_REAL_METHODS);
+        servletOutputStream = mock(ServletOutputStream.class);
     }
 
     @AfterEach
     public void shutdown() {
         servletUtilsMocked.close();
+        propertiesResolver.close();
+        docHolderFilter.destroy();
     }
 
     @Test
-    void testDocHolderEnabled() throws ServletException, IOException {
-        UsagerInfosDTO usagerInfosDTO = new UsagerInfosDTO();
-        servletUtilsMocked.when(() -> AppFactoryServletUtils.getLoggedUser(any())).thenReturn(usagerInfosDTO);
+    void testDocHolderEnabledUserLogged() throws ServletException, IOException {
+        UsagerInfosDTO usagerInfosDTO = mock(UsagerInfosDTO.class);
+        KeycloakTokenInfo tokenInfo = mock(KeycloakTokenInfo.class);
+        when(usagerInfosDTO.getTokenInfo()).thenReturn(tokenInfo);
 
+        propertiesResolver.when(AfServletGouvPropertiesResolver::isPorteDocEnabled).thenReturn("true");
+
+        servletUtilsMocked.when(() -> AppFactoryServletUtils.getLoggedUser(any())).thenReturn(usagerInfosDTO);
+        docHolderFilter.init(mock(FilterConfig.class));
         docHolderFilter.doFilter(request, response, filterChain);
 
         verify(filterChain, times(1)).doFilter(eq(request), eq(response));
     }
 
     @Test
-    void testDocHolderDisabled() throws ServletException, IOException {
-        UsagerInfosDTO usagerInfosDTO = new UsagerInfosDTO();
-        servletUtilsMocked.when(() -> AppFactoryServletUtils.getLoggedUser(any())).thenReturn(usagerInfosDTO);
-        //TODO :  AfServletGouvPropertiesResolver.isPorteDocEnabled();
-        docHolderFilter.doFilter(request, response, filterChain);
+    void testDocHolderEnabledUserNotLogged() throws ServletException, IOException {
+        propertiesResolver.when(AfServletGouvPropertiesResolver::isPorteDocEnabled).thenReturn("true");
+        when(response.getOutputStream()).thenReturn(servletOutputStream);
 
-        verify(filterChain, never()).doFilter(eq(request), eq(response));
-    }
-
-    @Test
-    void testUserNotConnected() throws ServletException, IOException {
-        servletUtilsMocked.when(() -> AppFactoryServletUtils.getLoggedUser(any())).thenReturn(null);
-
-        when(request.getPathInfo()).thenReturn("PATH");
-
+        docHolderFilter.init(mock(FilterConfig.class));
         docHolderFilter.doFilter(request, response, filterChain);
 
         verify(response).setStatus(HttpStatus.SC_UNAUTHORIZED);
+    }
+
+    @Test
+    void testDocHolderEnabledUserLoggedNoTokenInfo() throws ServletException, IOException {
+        UsagerInfosDTO usagerInfosDTO = mock(UsagerInfosDTO.class);
+        when(usagerInfosDTO.getTokenInfo()).thenReturn(null);
+
+        servletUtilsMocked.when(() -> AppFactoryServletUtils.getLoggedUser(eq(request))).thenReturn(usagerInfosDTO);
+        propertiesResolver.when(AfServletGouvPropertiesResolver::isPorteDocEnabled).thenReturn("true");
+        when(response.getOutputStream()).thenReturn(servletOutputStream);
+
+        docHolderFilter.init(mock(FilterConfig.class));
+        docHolderFilter.doFilter(request, response, filterChain);
+
+        verify(response).setStatus(HttpStatus.SC_UNAUTHORIZED);
+    }
+
+    @Test
+    void testDocHolderDisabled() throws ServletException, IOException {
+        propertiesResolver.when(AfServletGouvPropertiesResolver::isPorteDocEnabled).thenReturn("false");
+
+        docHolderFilter.init(mock(FilterConfig.class));
+        docHolderFilter.doFilter(request, response, filterChain);
+
+        verify(response).setStatus(HttpStatus.SC_FORBIDDEN);
+    }
+
+    @Test
+    void testDocHolderDisabledUserNotLogged() throws ServletException, IOException {
+        servletUtilsMocked.when(() -> AppFactoryServletUtils.getLoggedUser(eq(request))).thenReturn(null);
+        propertiesResolver.when(AfServletGouvPropertiesResolver::isPorteDocEnabled).thenReturn("false");
+
+        docHolderFilter.init(mock(FilterConfig.class));
+        docHolderFilter.doFilter(request, response, filterChain);
+
+        verify(response).setStatus(HttpStatus.SC_FORBIDDEN);
     }
 }

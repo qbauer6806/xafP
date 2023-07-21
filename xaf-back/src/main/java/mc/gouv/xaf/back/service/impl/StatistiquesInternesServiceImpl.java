@@ -58,7 +58,6 @@ public class StatistiquesInternesServiceImpl implements StatistiquesInternesServ
                 // If a public status retrieve it from db, else from bpm
                 if (!privateStatusMap.containsKey(status)) {
                     count = getNumberDemandesFilteredByStatusAndCanal(demarcheId, canal.name(), status);
-                    totalByCanal += count;
                 }
                 else {
                     List<String> tasksIds = gouvBPM.getNumberActiveDemandesInState(status);
@@ -67,6 +66,7 @@ public class StatistiquesInternesServiceImpl implements StatistiquesInternesServ
                     List<Integer> taskIntIds = tasksIds.stream().map(Integer::parseInt).collect(Collectors.toList());
                     count = getNumberDemandesFilteredByStatusAndCanalWithIds(taskIntIds, canal.name());
                 }
+                totalByCanal += count;
                 nbByStatus.put(status, count);
             }
 

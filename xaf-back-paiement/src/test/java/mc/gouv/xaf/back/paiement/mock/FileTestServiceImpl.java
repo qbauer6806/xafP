@@ -46,6 +46,11 @@ public class FileTestServiceImpl implements FileService {
     }
 
     @Override
+    public String saveFilePublication(String codePublication, String container, MultipartFile file) throws IOException {
+        return null;
+    }
+
+    @Override
     public void deleteFile(String containerId, String fileName) {
 
     }

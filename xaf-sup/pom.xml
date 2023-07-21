@@ -42,7 +42,6 @@
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
-			<version>2.6</version>
 		</dependency>
 	</dependencies>
 	<build>
@@ -111,8 +110,6 @@
 	<profiles>
 		<profile>
 			<id>gents-dev</id>
-			<!-- <activation> <file> <exists>src/main/resources/vars/${tscode}/dev.properties</exists> 
-				</file> </activation> -->
 			<properties>
 				<env>dev</env>
 				<env.id>1</env.id>
@@ -135,7 +132,6 @@
 			</properties>
 			<build>
 				<filters>
-					<!-- <filter>src/main/resources/vars/${tscode}/dev.properties</filter> -->
 					<filter>${vars-path}</filter>
 				</filters>
 				<plugins>
@@ -207,7 +203,6 @@
 
 									<target name="Renomage des fichiers pour le Teleservice [${tscode}] pour l'envrionnement [${env}]">
 										<echo>Renommage du fichier [README.MD]</echo>
-										<!-- <move file="${global.generated.source.dir}/README.MD" tofile="${global.generated.target.dir}/README.MD" verbose="true" /> -->
 
 										<echo>Renommage des fichiers de [mc_modules]</echo>
 										<move file="${global.generated.mc.modules.source.path}/apiserver.yml" tofile="${global.generated.mc.modules.target.path}/${tscode}-apiserver.yml" verbose="true" />
@@ -226,7 +221,6 @@
 										<echo>Supression du repertoire
 											[${global.generated.source.dir}]
 										</echo>
-										<!-- <delete dir="${global.generated.source.dir}" /> -->
 									</target>
 
 								</configuration>
@@ -239,8 +233,6 @@
 
 		<profile>
 			<id>gents-rec</id>
-			<!-- <activation> <file> <exists>src/main/resources/vars/${tscode}/rec.properties</exists> 
-				</file> </activation> -->
 			<properties>
 				<env>rec</env>
 				<env.id>3</env.id>
@@ -338,7 +330,6 @@
 								<configuration>
 									<target name="Renomage des fichiers pour le Teleservice [${tscode}] pour l'envrionnement [${env}]">
 										<echo>Renommage du fichier [README.MD]</echo>
-										<!-- <move file="${global.generated.source.dir}/README.MD" tofile="${global.generated.target.dir}/README.MD" verbose="true" /> -->
 
 										<echo>Renommage des fichiers de [mc_modules]</echo>
 										<move file="${global.generated.mc.modules.source.path}/apiserver.yml" tofile="${global.generated.mc.modules.target.path}/${tscode}-apiserver.yml" verbose="true" />
@@ -369,7 +360,6 @@
 										<echo>Supression du repertoire
 											[${global.generated.source.dir}]
 										</echo>
-										<!-- <delete dir="${global.generated.source.dir}" /> -->
 									</target>
 
 								</configuration>
@@ -381,8 +371,6 @@
 		</profile>
 		<profile>
 			<id>gents-prod</id>
-			<!-- <activation> <file> <exists>src/main/resources/vars/${tscode}/prod.properties</exists> 
-				</file> </activation> -->
 			<properties>
 				<env>prod</env>
 				<env.id>0</env.id>
@@ -479,7 +467,6 @@
 								<configuration>
 									<target name="Renomage des fichiers pour le Teleservice [${tscode}] pour l'envrionnement [${env}]">
 										<echo>Renommage du fichier [README.MD]</echo>
-										<!-- <move file="${global.generated.source.dir}/README.MD" tofile="${global.generated.target.dir}/README.MD" verbose="true" /> -->
 										<echo>Renommage des fichiers de [mc_modules]</echo>
 										<move file="${global.generated.mc.modules.source.path}/apiserver.yml" tofile="${global.generated.mc.modules.target.path}/${tscode}-apiserver.yml" verbose="true" />
 										<move file="${global.generated.mc.modules.source.path}/backserver.yml" tofile="${global.generated.mc.modules.target.path}/${tscode}-backserver.yml" verbose="true" />
@@ -495,7 +482,6 @@
 										<move file="${global.generated.inventory.source.path}/modules" tofile="${global.generated.inventory.target.path}/${tscode}-modules" verbose="true" />
 										<move file="${global.generated.inventory.source.path}/tscode" tofile="${global.generated.inventory.target.path}/${tscode}" verbose="true" />
 										<move file="${global.generated.inventory.group_vars.source.path}/all.yml" tofile="${global.generated.inventory.group_vars.target.path}/all.yml" verbose="true" />
-										<!-- <move file="${global.generated.inventory.group_vars.source.path}/as-server.yml" tofile="${global.generated.inventory.group_vars.target.path}/as-server.yml" verbose="true" /> -->
 										<move file="${global.generated.inventory.group_vars.source.path}/as.yml" tofile="${global.generated.inventory.group_vars.target.path}/as.yml" verbose="true" />
 
 										<move file="${global.generated.inventory.host_vars.source.path}/appl1-${env.id}.yml" tofile="${global.generated.inventory.host_vars.target.path}/${tscode}-appl1-${env.id}.yml" verbose="true" />
@@ -507,7 +493,6 @@
 										<echo>Supression du repertoire
 											[${global.generated.source.dir}]
 										</echo>
-										<!-- <delete dir="${global.generated.source.dir}" /> -->
 									</target>
 
 								</configuration>
@@ -520,8 +505,6 @@
 
 		<profile>
 			<id>gentsa-dev</id>
-			<!-- <activation> <file> <exists>src/main/resources/vars/${tscode}/dev.properties</exists> 
-				</file> </activation> -->
 			<properties>
 				<env>dev</env>
 				<env.id>1</env.id>
@@ -545,7 +528,6 @@
 			</properties>
 			<build>
 				<filters>
-					<!-- <filter>src/main/resources/vars/${tscode}/dev.properties</filter> -->
 					<filter>${vars-path}</filter>
 				</filters>
 				<plugins>
@@ -605,7 +587,6 @@
 
 									<target name="Renomage des fichiers pour le Teleservice [${tscode}] pour l'envrionnement [${env}]">
 										<echo>Renommage du fichier [README.MD]</echo>
-										<!-- <move file="${global.generated.source.dir}/README.MD" tofile="${global.generated.target.dir}/README.MD" verbose="true" /> -->
 										<echo>Renommage des fichiers de [mc_modules]</echo>
 										<move file="${global.generated.mc.modules.source.path}/apiserver.yml" tofile="${global.generated.mc.modules.target.path}/${tscode}-apiserver.yml" verbose="true" />
 										<move file="${global.generated.mc.modules.source.path}/backserver.yml" tofile="${global.generated.mc.modules.target.path}/${tscode}-backserver.yml" verbose="true" />
@@ -628,7 +609,6 @@
 										<echo>Supression du repertoire
 											[${global.generated.source.dir}]
 										</echo>
-										<!-- <delete dir="${global.generated.source.dir}" /> -->
 									</target>
 
 								</configuration>
@@ -640,8 +620,6 @@
 		</profile>
 		<profile>
 			<id>gentsa-rec</id>
-			<!-- <activation> <file> <exists>src/main/resources/vars/${tscode}/dev.properties</exists> 
-				</file> </activation> -->
 			<properties>
 				<env>rec</env>
 				<env.id>3</env.id>
@@ -665,7 +643,6 @@
 			</properties>
 			<build>
 				<filters>
-					<!-- <filter>src/main/resources/vars/${tscode}/dev.properties</filter> -->
 					<filter>${vars-path}</filter>
 				</filters>
 				<plugins>
@@ -725,7 +702,6 @@
 
 									<target name="Renomage des fichiers pour le Teleservice [${tscode}] pour l'envrionnement [${env}]">
 										<echo>Renommage du fichier [README.MD]</echo>
-										<!-- <move file="${global.generated.source.dir}/README.MD" tofile="${global.generated.target.dir}/README.MD" verbose="true" /> -->
 										<echo>Renommage des fichiers de [mc_modules]</echo>
 										<move file="${global.generated.mc.modules.source.path}/apiserver.yml" tofile="${global.generated.mc.modules.target.path}/${tscode}-apiserver.yml" verbose="true" />
 										<move file="${global.generated.mc.modules.source.path}/backserver.yml" tofile="${global.generated.mc.modules.target.path}/${tscode}-backserver.yml" verbose="true" />
@@ -749,7 +725,6 @@
 										<echo>Supression du repertoire
 											[${global.generated.source.dir}]
 										</echo>
-										<!-- <delete dir="${global.generated.source.dir}" /> -->
 									</target>
 
 								</configuration>
@@ -761,8 +736,6 @@
 		</profile>
 		<profile>
 			<id>gentsa-prod</id>
-			<!-- <activation> <file> <exists>src/main/resources/vars/${tscode}/dev.properties</exists> 
-				</file> </activation> -->
 			<properties>
 				<env>prod</env>
 				<env.id>0</env.id>
@@ -786,7 +759,6 @@
 			</properties>
 			<build>
 				<filters>
-					<!-- <filter>src/main/resources/vars/${tscode}/dev.properties</filter> -->
 					<filter>${vars-path}</filter>
 				</filters>
 				<plugins>
@@ -846,7 +818,6 @@
 
 									<target name="Renomage des fichiers pour le Teleservice [${tscode}] pour l'envrionnement [${env}]">
 										<echo>Renommage du fichier [README.MD]</echo>
-										<!-- <move file="${global.generated.source.dir}/README.MD" tofile="${global.generated.target.dir}/README.MD" verbose="true" /> -->
 
 										<echo>Renommage des fichiers de [mc_modules]</echo>
 										<move file="${global.generated.mc.modules.source.path}/apiserver.yml" tofile="${global.generated.mc.modules.target.path}/${tscode}-apiserver.yml" verbose="true" />
@@ -872,7 +843,6 @@
 										<echo>Supression du repertoire
 											[${global.generated.source.dir}]
 										</echo>
-										<!-- <delete dir="${global.generated.source.dir}" /> -->
 									</target>
 
 								</configuration>
@@ -886,8 +856,6 @@
 		<!-- Profile pour générer les contenus des tickets Redmine -->
 		<profile>
 			<id>redmine</id>
-			<!-- <activation> <file> <exists>src/main/resources/vars/${tscode}/rec.properties</exists> 
-				</file> </activation> -->
 			<properties>
 				<env>rec</env>
 				<env.id>3</env.id>

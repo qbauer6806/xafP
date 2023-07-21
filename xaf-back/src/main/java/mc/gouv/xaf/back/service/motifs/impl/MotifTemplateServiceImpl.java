@@ -14,7 +14,6 @@ import org.apache.velocity.exception.MethodInvocationException;
 import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;
 import org.apache.velocity.runtime.RuntimeConstants;
-import org.apache.velocity.runtime.log.NullLogChute;
 import org.apache.velocity.tools.ToolManager;
 import org.apache.velocity.tools.generic.DateTool;
 import org.slf4j.Logger;
@@ -65,7 +64,7 @@ public class MotifTemplateServiceImpl implements MotifTemplateService {
         return populateMotifs(demande, motifList);
     }
 
-    private List<MotifDTO> populateMotifs(DemandeDTO demande, List<MotifDTO> motifList) throws ParseErrorException, MethodInvocationException, ResourceNotFoundException, IOException {
+    public List<MotifDTO> populateMotifs(DemandeDTO demande, List<MotifDTO> motifList) throws ParseErrorException, MethodInvocationException, ResourceNotFoundException, IOException {
         Map<String, Object> motifsModel = motifsTemplateModelProvider.getModel(demande);
         List<MotifDTO> motifListPopulated = motifList;
 
@@ -77,12 +76,12 @@ public class MotifTemplateServiceImpl implements MotifTemplateService {
         return motifListPopulated;
     }
 
-    private List<MotifDTO> getPopulatedMotifs(List<MotifDTO> motifsList, Map<String, Object> model) throws ParseErrorException, MethodInvocationException, ResourceNotFoundException, IOException {
+    private List<MotifDTO> getPopulatedMotifs(List<MotifDTO> motifsList, Map<String, Object> model) throws ParseErrorException, MethodInvocationException, ResourceNotFoundException {
 
         List<MotifDTO> motifDTOList = new ArrayList<>();
 
         LOGGER.info("Appel à Velocity pour le templating du corps et du sujet du motif...");
-        Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM, new NullLogChute());
+        Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_INSTANCE, LOGGER);
         try {
 			Velocity.init();
 		} catch (Exception e) {

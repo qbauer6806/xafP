@@ -42,6 +42,8 @@ public class InitialDemandeServlet extends AbstractAfServlet {
     private static final String MCONNECT_PARAM_GIVENNAME = "GivenName";
     private static final String MCONNECT_PARAM_FAMILYNAME = "FamilyName";
     private static final String MCONNECT_PARAM_BIRTHDATE = "BirthDatetime";
+    private static final String MCONNECT_BIRTHPLACECITY = "BirthPlaceCity";
+    private static final String MCONNECT_BIRTHPLACECOUNTRY = "BirthPlaceCountry";
 
     /**
      * Vérifie si l'utilisateur est autorisé à faire la requête et prépare les objets communs aux requêtes :<br>
@@ -119,6 +121,8 @@ public class InitialDemandeServlet extends AbstractAfServlet {
                 data.put(MCONNECT_PARAM_GIVENNAME, new String[] { donneesMConnectDTO.getMconnect().getGivenName() });
                 data.put(MCONNECT_PARAM_BIRTHDATE, new String[] { new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX")
                         .format(donneesMConnectDTO.getMconnect().getBirthDatetime()) });
+                data.put(MCONNECT_BIRTHPLACECOUNTRY, new String[] { donneesMConnectDTO.getMconnect().getBirthPlaceCountry() });
+                data.put(MCONNECT_BIRTHPLACECITY, new String[] { donneesMConnectDTO.getMconnect().getBirthPlaceCity() });
             }
 
             JsonNode retour = getAfApiClient().getDonneesExternes(usagerInfosDTO.getId(), data);

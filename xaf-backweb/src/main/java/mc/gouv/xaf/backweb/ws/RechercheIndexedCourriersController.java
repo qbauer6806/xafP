@@ -48,24 +48,23 @@ public class RechercheIndexedCourriersController extends AbstractController {
     private IndexedDemandeService demandesService;
 
     @GetMapping(value = "/pageable")
-    public Page<DemandeFileEsRechercheDTO> getDemandes(
-            @RequestParam(value = "usagerId", required = false) Integer usagerId,
-            @RequestParam(value = "statut", required = false) List<String> statuts,
-            @RequestParam(value = "canal", required = false) List<DemandeCanalEnum> canaux,
-            @RequestParam(value = "agentId", required = false) String agentId,
-            @RequestParam(value = "creationStartDate", required = false) @DateTimeFormat(iso = ISO.DATE) Date creationStartDate,
-            @RequestParam(value = "creationEndDate", required = false) @DateTimeFormat(iso = ISO.DATE) Date creationEndDate,
-            @RequestParam(value = "texte", required = false) String texte,
-            @RequestParam(value = "searchFields", required = false) List<String> searchFields,
-            @RequestParam(value = "data", required = false) DataRechercheDTO data,
-            @RequestParam(value = "imprime", required = false) boolean imprime,
-            @RequestParam(value = "aucunCanal", required = false) boolean aucunCanal,
-            @RequestParam(value = "aucunStatut", required = false) boolean aucunStatut, Pageable pageable) {
 
-        String safeAgentId = agentId == null ? "" : agentId.replaceAll(SharedMessages.UNSAFE_CHARS, "_");
-        String safeTexte = texte == null ? "" : texte.replaceAll(SharedMessages.UNSAFE_CHARS, "_");
-        LOGGER.info(
-                "======================= Appel de /ws/courriers/pageable (userId=\"{}\", statuts=\"{}\", canaux=\"{}\", agentId=\"{}\", creationStartDate=\"{}\", creationEndDate=\"{}\", texte=\"{}\", data=\"{}\")",
+    public Page<DemandeFileEsRechercheDTO> getDemandes(@RequestParam(value = "usagerId", required = false) Integer usagerId,
+                                                       @RequestParam(value = "statut", required = false) List<String> statuts,
+                                                       @RequestParam(value = "canal", required = false) List<DemandeCanalEnum> canaux,
+                                                       @RequestParam(value = "agentId", required = false) String agentId,
+                                                       @RequestParam(value = "creationStartDate", required = false) @DateTimeFormat(iso = ISO.DATE) Date creationStartDate,
+                                                       @RequestParam(value = "creationEndDate", required = false) @DateTimeFormat(iso = ISO.DATE) Date creationEndDate,
+                                                       @RequestParam(value = "texte", required = false) String texte,
+                                                       @RequestParam(value = "searchFields", required = false) List<String> searchFields,
+                                                       @RequestParam(value = "data", required = false) DataRechercheDTO data,
+                                                       @RequestParam(value = "imprime", required = false) boolean imprime,
+                                                       @RequestParam(value = "aucunCanal", required = false) boolean aucunCanal,
+                                                       @RequestParam(value = "aucunStatut", required = false) boolean aucunStatut, Pageable pageable) {
+
+        String safeAgentId = agentId != null ? agentId.replaceAll(SharedMessages.UNSAFE_CHARS, "_") : null;
+        String safeTexte = texte != null ? texte.replaceAll(SharedMessages.UNSAFE_CHARS, "_") : null;
+        LOGGER.info("======================= Appel de /ws/courriers/pageable (userId=\"{}\", statuts=\"{}\", canaux=\"{}\", agentId=\"{}\", creationStartDate=\"{}\", creationEndDate=\"{}\", texte=\"{}\", data=\"{}\")",
                 usagerId, statuts, canaux, safeAgentId, creationStartDate, creationEndDate, safeTexte, data);
 
         DemandeCourrierRechercheDTO demandeRecherche = new DemandeCourrierRechercheDTO();

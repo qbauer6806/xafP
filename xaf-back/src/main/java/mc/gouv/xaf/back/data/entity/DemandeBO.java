@@ -22,7 +22,7 @@ import org.hibernate.validator.constraints.NotBlank;
 /**
  * 
  * Classe BO de la table DEM.DEMANDES
- * 
+ * <br>
  * Attention ! À chaque ajout de Set<> dans ce BO, penser à mettre à jour l'algorithme de duplication de demandes pour
  * les prendre en compte. Et mettre à jour les transformers pour toute donnée ajoutée.
  * 

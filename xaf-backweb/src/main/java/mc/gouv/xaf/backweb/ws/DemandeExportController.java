@@ -2,7 +2,6 @@ package mc.gouv.xaf.backweb.ws;
 
 import java.util.Map;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
@@ -26,7 +25,6 @@ import mc.gouv.xaf.shared.dto.ExcelRechercheDTO;
  * Controller pour l'extraction des données des demandes (export excel)
  * 
  * @author qdeme
- * 
  */
 @Controller
 @Secured("ROLE_EXPORT")
@@ -57,13 +55,7 @@ public class DemandeExportController extends AbstractController {
             response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
             response.setHeader("Content-disposition", "attachment; filename=" +
                     demarchesService.getDemarche(demarcheId).getIdentifiantPrefixe() + "_Donnees_Stat_" + AfBackUtils.generateFileDateAndTimeSuffix() + ".xlsx");
-
-            // Création du cookie pour notifier du téléchargement terminé (2 minutes max age)
-            Cookie telechargementCookie = new Cookie("exportEnCours", "0");
-            telechargementCookie.setMaxAge(60 * 2);
-            telechargementCookie.setSecure(true);
-            telechargementCookie.setPath("/");
-            response.addCookie(telechargementCookie);
+            response.addCookie(excelExportService.creerCookieTelechargement());
 
             ExcelRechercheDTO excelRechercheDTO = new ExcelRechercheDTO();
             excelRechercheDTO.setCreationStartDate(creationStartDate);

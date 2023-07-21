@@ -252,6 +252,16 @@ public class IndexedDemandeServiceTestImpl implements IndexedDemandeService {
     }
 
     @Override
+    public List<DemandeEsDTO> getIndexedDemandesPageable(DemandeRechercheDTO demandeRecherche, Pageable pageable) {
+        return null;
+    }
+
+    @Override
+    public long getCountIndexedDemandes(DemandeRechercheDTO demandeRecherche) {
+        return 0;
+    }
+
+    @Override
     public Page<DemandeEsRechercheDTO> getIndexedDemandes(DemandeRechercheDTO demandeRecherche, Pageable pageable, String[] fields) {
         return null;
     }

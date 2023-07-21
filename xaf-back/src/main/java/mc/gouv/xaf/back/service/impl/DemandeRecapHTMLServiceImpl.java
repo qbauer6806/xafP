@@ -490,7 +490,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
             if (node0 == null || node0 instanceof NullNode || StringUtils.isBlank(node0.asText())) {
                 return "";
             }
-            return paysCache.get(node0.asText(), "fr").getLibelleCourt();
+            return paysCache.get(node0.asText(), "fr").getNom();
         }
 
         String path = champ.get("path").toString().replace(CONTENU, "/").replace(".", "/");
@@ -731,3 +731,4 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
         return valueSource;
     }
 }
+

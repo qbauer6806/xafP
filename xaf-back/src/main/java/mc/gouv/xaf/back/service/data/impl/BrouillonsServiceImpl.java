@@ -1,5 +1,7 @@
 package mc.gouv.xaf.back.service.data.impl;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -33,6 +35,7 @@ import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.service.data.AccessService;
 import mc.gouv.xaf.back.service.data.BrouillonsFilesService;
 import mc.gouv.xaf.back.service.data.BrouillonsService;
+import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.utils.AbstractTsUtils;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.BrouillonDTO;
@@ -68,6 +71,9 @@ public class BrouillonsServiceImpl implements BrouillonsService {
 
     @Autowired
     private AbstractTsUtils abstractTsUtils;
+    
+    @Autowired
+    private FileService fileService;
 
     /**
      * {@inheritDoc}
@@ -221,17 +227,8 @@ public class BrouillonsServiceImpl implements BrouillonsService {
      */
     @Override
     public void deleteBrouillon(String demarcheId, Integer pkBrouillons, Integer usagerId) {
-        BrouillonBO brouillonBo = getBrouillonBo(demarcheId, pkBrouillons);
-        AccessBO access = brouillonBo.getFkAccess();
-        // #46373 - Faille de sécurité, il faut vérifier que l'usager qui a créé ce brouillon est à l'origine du
-        // changement
-        if (!usagerId.equals(access.getUsagerId())) {
-            throw new DemarchesServiceException(SharedMessages.UTILISATEUR_NON_AUTORISE, HttpStatus.UNAUTHORIZED);
-        }
-
-        access.getBrouillons().remove(brouillonBo);
-        accessRepository.save(access);
-        brouillonsRepository.delete(brouillonBo);
+    	deleteBrouillon(demarcheId, pkBrouillons, usagerId, false);
+        
     }
 
     /**
@@ -267,4 +264,52 @@ public class BrouillonsServiceImpl implements BrouillonsService {
         return brouillonDTOS;
     }
 
+	@Override
+	public List<BrouillonDTO> getAllBrouillons(String demarcheId) {
+		LOGGER.info("Récupération en base des brouillons...");
+
+        List<BrouillonBO> brouillons = new ArrayList<>();
+        List<AccessBO> accessBos = accessRepository.getByDemarcheId(demarcheId);
+        for (AccessBO access : accessBos) {
+            brouillons.addAll(access.getBrouillons());
+        }
+
+        LOGGER.info("Transformation bo -> dto ...");
+
+        List<BrouillonDTO> brouillonsDTO = BrouillonsTransformer.bo2Dto(brouillons);
+        brouillonsDTO.forEach(brouillonDto -> BrouillonsTransformer.setDernierStatut(brouillonDto, abstractTsUtils.getLastBuildId(), abstractTsUtils.getNotTransmitted(), abstractTsUtils.getDeprecated()));
+        return brouillonsDTO;
+	}
+
+	@Override
+	public void deleteBrouillon(String demarcheId, Integer pkBrouillons, Integer usagerId, boolean deleteFiles) {
+		BrouillonBO brouillonBo = getBrouillonBo(demarcheId, pkBrouillons);
+        AccessBO access = brouillonBo.getFkAccess();
+        // #46373 - Faille de sécurité, il faut vérifier que l'usager qui a créé ce brouillon est à l'origine du
+        // changement
+        if (!usagerId.equals(access.getUsagerId())) {
+            throw new DemarchesServiceException(SharedMessages.UTILISATEUR_NON_AUTORISE, HttpStatus.UNAUTHORIZED);
+        }
+        if (deleteFiles) {
+            // Suppression des fichiers liés au brouillon
+            BrouillonDTO brouillonDTO = BrouillonsTransformer.bo2Dto(brouillonBo);
+            if (brouillonDTO.getFichiers() != null && !Arrays.asList(brouillonDTO.getFichiers()).isEmpty()) {
+                for (BrouillonFileDTO currentFileToDelete : brouillonDTO.getFichiers()) {
+                    List<BrouillonsFilesBO> existingFiles = brouillonsFilesRepository.findAllByUrl(currentFileToDelete.getUrl());
+                    if (existingFiles != null && !existingFiles.isEmpty()) {
+                        String url = URLEncoder.encode(currentFileToDelete.getUrl(), StandardCharsets.UTF_8);
+                        fileService.deleteFile("ROOT", url);
+                    }
+                }
+            }
+        }
+
+
+        access.getBrouillons().remove(brouillonBo);
+        accessRepository.save(access);
+        brouillonsRepository.delete(brouillonBo);
+		
+	}
+
 }
+

@@ -86,6 +86,11 @@ public class DemarchesDataProviderTestImpl implements DemarchesDataProvider {
     }
 
     @Override
+    public boolean getDemarcheCanHandleTaches() {
+        return false;
+    }
+
+    @Override
     public String[] getGUKafkaSupportedVersions() {
         return new String[0];
     }
@@ -120,6 +125,11 @@ public class DemarchesDataProviderTestImpl implements DemarchesDataProvider {
     @Override
     public List<String> getStatutsPourDuplication() {
         // TODO Auto-generated method stub
+    	return null;
+	}
+
+    @Override
+    public String getExportLibelle() {
         return null;
     }
 }

@@ -428,8 +428,8 @@ public class ResidApiServiceImpl implements ResidApiService {
 
 		HttpEntity<String> requestEntity = new HttpEntity<>(headers);
 		LOGGER.debug("-- Appel RESID Get usager v2");
-		LOGGER.debug("URL: {} {}", HttpMethod.GET, uri);
-		LOGGER.debug("Headers: {}", headers);
+		LOGGER.debug(URL_LOG, HttpMethod.GET, uri);
+		LOGGER.debug(HEADERS_LOG, headers);
 
 		ResponseEntity<ResidUsagerDLN1FDTO> responseEntity = rest.exchange(uri,
 				HttpMethod.GET, requestEntity, new ParameterizedTypeReference<ResidUsagerDLN1FDTO>(){});

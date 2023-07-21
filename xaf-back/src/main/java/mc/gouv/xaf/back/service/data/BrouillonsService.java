@@ -15,6 +15,8 @@ public interface BrouillonsService {
 
 	List<BrouillonDTO> getBrouillons(String demarcheId, Integer usagerId);
 
+	List<BrouillonDTO> getAllBrouillons(String demarcheId);
+
 	BrouillonDTO getBrouillon(String demarcheId, Integer pkBrouillons, Integer usagerId);
 
 	BrouillonBO getBrouillonBo(String demarcheId, Integer pkBrouillons);
@@ -33,6 +35,7 @@ public interface BrouillonsService {
 	 * @param usagerId ID de l'usager faisant la suppression, à vérifier avec celui dans le brouillon
 	 */
 	void deleteBrouillon(String demarcheId, Integer pkBrouillons, Integer usagerId);
+	void deleteBrouillon(String demarcheId, Integer pkBrouillons, Integer usagerId, boolean deleteFiles);
 
 	Page<BrouillonDTO> getBrouillonsPageable(String demarcheId, Integer usagerId, PageParamDTO paramDTO);
 

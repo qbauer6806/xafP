@@ -81,7 +81,12 @@ public class RelancesUtils {
 	public boolean isEligiblePourUnMailDeRelance(DemandeDTO demande, Integer intervalleEntreDeuxRelance) {
 		DemandeDataDTO demandeData = demandesDataService.getDemandeData(gouvPropertiesResolver.getDemarcheId(),
 				demande.getPkDemandes(), DEMANDE_IC_DEJA_RELANCEE_KEY);
-		if (null != demandeData) {
+		// Si on a deja relancé
+		if (demandeData != null) {
+			// Si on n'a pas spécifié d'intervalle entre 2 relances, on envoie rien
+			if (intervalleEntreDeuxRelance == null) {
+				return false;
+			}
 			ZonedDateTime now = ZonedDateTime.now();
 			ZonedDateTime dateDerniereRelance = ZonedDateTime.parse(demandeData.getValue());
 			// On enlève l'interval entre 2 relances et on compare à la date de la dernière relance
@@ -111,6 +116,9 @@ public class RelancesUtils {
 
 	public String getExpirationTime(DemandeDTO demande) {
 		Integer nbJoursAvantExpiration = getNbJoursAvantExpiration();
+		if (nbJoursAvantExpiration == null) {
+			return null;
+		}
 		Date dateStatutEnAttenteIC = demande.getDernierStatut().getDate();
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(dateStatutEnAttenteIC);
@@ -130,7 +138,11 @@ public class RelancesUtils {
 		for (RelanceStatutDemandeConf relanceDemandeSetting : relanceDemandeSettings) {
 			String currentStatut = relanceDemandeSetting.getStatutARelancer();
 			int nbJoursAvantRelance = Integer.parseInt(propertiesService.getProperty(demarcheId, relanceDemandeSetting.getCleDelaiAvantPremiereRelance()).getValue());
-			int delaiEntreDauxRelances = Integer.parseInt(propertiesService.getProperty(demarcheId, relanceDemandeSetting.getCleDelaiEntreDeuxRelances()).getValue());
+			String delaiEntreDeuxRelancesString = relanceDemandeSetting.getCleDelaiEntreDeuxRelances();
+			Integer delaiEntreDauxRelances = null;
+			if (delaiEntreDeuxRelancesString != null) {
+				delaiEntreDauxRelances = Integer.parseInt(propertiesService.getProperty(demarcheId, delaiEntreDeuxRelancesString).getValue());
+			}
 			// On va chercher toutes les demandes dans le status à expirer
 			List<DemandeDTO> demandeDTOList = demandesService.getAllDemandesFilteredByStatut(currentStatut);
 			if (null != demandeDTOList && !demandeDTOList.isEmpty()) {

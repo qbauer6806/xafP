@@ -31,10 +31,6 @@ public class SessionsServlet extends AbstractAfServlet {
     private static final Logger LOGGER = LoggerFactory.getLogger(SessionsServlet.class);
     private static final String LOGIN = "login";
 
-    private static final String MCONNECT_PARAM_GIVENNAME = "GivenName";
-    private static final String MCONNECT_PARAM_FAMILYNAME = "FamilyName";
-    private static final String MCONNECT_PARAM_BIRTHDATE = "BirthDatetime";
-
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) {
 

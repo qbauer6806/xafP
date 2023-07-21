@@ -14,9 +14,9 @@
 		<logon-apiclient.version>5.2.2</logon-apiclient.version>
 		<!-- Librairie pour generer le fichier recap d'une demande (sous license 
 			LGPL). -->
-		<openhtml.version>1.0.1</openhtml.version>
-		<pdfbox.version>2.0.15</pdfbox.version>
-		<xdocreport.version>2.0.2</xdocreport.version>
+		<openhtml.version>1.0.10</openhtml.version>
+		<pdfbox.version>2.0.26</pdfbox.version>
+		<xdocreport.version>2.0.4</xdocreport.version>
 		<poi.version>4.1.0</poi.version>
 		<vscan.version>1.0.0</vscan.version>
 		<maven.compiler.source>11</maven.compiler.source>
@@ -51,6 +51,12 @@
 			<groupId>mc.gouv.file</groupId>
 			<artifactId>file-apiclient</artifactId>
 			<version>1.3.2</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>commons-fileupload</artifactId>
+					<groupId>commons-fileupload</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -63,6 +69,12 @@
 			<groupId>mc.gouv.vscan</groupId>
 			<artifactId>vscan-shared</artifactId>
 			<version>${vscan.version}</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>commons-fileupload</artifactId>
+					<groupId>commons-fileupload</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -80,11 +92,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
-        <dependency>
-			<groupId>commons-beanutils</groupId>
-			<artifactId>commons-beanutils</artifactId>
-			<version>1.9.3</version>
-		</dependency>
 
         <dependency>
             <groupId>mc.gouv.xboot</groupId>
@@ -100,15 +107,12 @@
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-core</artifactId>
 		</dependency>
-<!-- Thanks for using https://jar-download.com -->
-		
-
 
 		<!-- Apache Velocity -->
 		<dependency>
-			<groupId>org.apache.velocity</groupId>
-			<artifactId>velocity-tools</artifactId>
-			<version>2.0</version>
+			<groupId>org.apache.velocity.tools</groupId>
+			<artifactId>velocity-tools-generic</artifactId>
+			<version>3.1</version>
 			<exclusions>
 				<exclusion>
 					<groupId>javax.servlet</groupId>
@@ -116,6 +120,10 @@
 				</exclusion>
 				<exclusion>
 					<groupId>org.apache.struts</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.commons</groupId>
 					<artifactId>*</artifactId>
 				</exclusion>
 			</exclusions>
@@ -149,7 +157,6 @@
 			<artifactId>logon-apiclient</artifactId>
 			<version>${logon-apiclient.version}</version>
 		</dependency>
-
 
 		<dependency>
 			<artifactId>xboot-spring-starter-test</artifactId>
@@ -203,10 +210,14 @@
 			<groupId>fr.opensagres.xdocreport</groupId>
 			<artifactId>fr.opensagres.poi.xwpf.converter.core</artifactId>
 			<version>${xdocreport.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
 			<exclusions>
 				<exclusion>
 					<groupId>org.apache.poi</groupId>
-					<artifactId>poi-ooxml</artifactId>
+					<artifactId>poi-ooxml-lite</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
@@ -272,12 +283,20 @@
 
 		<dependency>
 			<groupId>org.apache.tika</groupId>
-			<artifactId>tika-parsers</artifactId>
+			<artifactId>tika-core</artifactId>
+			<version>${tika.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.tika</groupId>
-			<artifactId>tika-langdetect</artifactId>
+			<artifactId>tika-parsers-standard-package</artifactId>
+			<version>${tika.version}</version>
+			<exclusions>
+	            <exclusion>
+	                <groupId>xml-apis</groupId>
+	                <artifactId>xml-apis</artifactId>
+	            </exclusion>
+        	</exclusions>
 		</dependency>
 
 		<dependency>
@@ -335,16 +354,17 @@
 			<artifactId>spring-security-oauth2-autoconfigure</artifactId>
 			<version>2.0.0.RELEASE</version>
 		</dependency>
+
+		<dependency>
+			<groupId>commons-fileupload</groupId>
+			<artifactId>commons-fileupload</artifactId>
+			<version>${commons-fileupload.version}</version>
+		</dependency>
+
 	</dependencies>
 
 	<dependencyManagement>
 		<dependencies>
-			<!-- CVE-2018-10054 -->
-			<dependency>
-				<groupId>com.h2database</groupId>
-				<artifactId>h2</artifactId>
-				<version>1.4.200</version>
-			</dependency>
 
 			<!-- CVE-2019-16869 -->
 			<dependency>

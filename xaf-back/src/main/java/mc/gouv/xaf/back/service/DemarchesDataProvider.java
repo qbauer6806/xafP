@@ -1,5 +1,6 @@
 package mc.gouv.xaf.back.service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -7,7 +8,9 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeExcelGenerationDTO;
 import mc.gouv.xaf.shared.dto.GenericStatusDTO;
 import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
+import mc.gouv.xaf.shared.dto.TitreUsagerEnum;
 import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
+
 
 /**
  * Service implémenté par la démarche permettant de fournir à xaf-back des informations propres à chaque démarche.
@@ -41,10 +44,12 @@ public interface DemarchesDataProvider {
     boolean getDemarcheCanHandlePeriodesOuverture();
 
     boolean getDemarcheCanHandleProperties();
-
+    
     boolean getDemarcheCanHandleDenjsGestionAgents();
 
-    String[] getGUKafkaSupportedVersions();
+    boolean getDemarcheCanHandleTaches();
+
+	String[] getGUKafkaSupportedVersions();
 
     StatutSimplifieEnum getStatutSimplifieFromStatutPublic(String statutPublic);
 
@@ -55,7 +60,15 @@ public interface DemarchesDataProvider {
     DemandeExcelGenerationDTO getDemandeExcelGenerationDTO();
 
     boolean isEligibleRectification(DemandeDTO demande);
-
+    
     List<String> getStatutsPourDuplication();
+
+    default String getExportLibelle() {
+        return null;
+    }
+
+    default List<TitreUsagerEnum> getTitres() {
+        return Arrays.asList(TitreUsagerEnum.values());
+    }
 
 }

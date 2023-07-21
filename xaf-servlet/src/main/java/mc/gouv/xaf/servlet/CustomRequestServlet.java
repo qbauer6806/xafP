@@ -3,6 +3,7 @@ package mc.gouv.xaf.servlet;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Enumeration;
 
 import javax.servlet.http.HttpServletRequest;
@@ -38,6 +39,33 @@ public class CustomRequestServlet extends AbstractAfServlet {
     private static final long serialVersionUID = -7898768899143027088L;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CustomRequestServlet.class);
+
+    // List des headers qui sont interdits à copier, voir https://hg.openjdk.org/jdk8u/jdk8u-dev/jdk/file/31bc1a681b51/src/share/classes/sun/net/www/protocol/http/HttpURLConnection.java#l186
+    private final String[] restrictedHeaders = {
+            /* Restricted by XMLHttpRequest2 */
+            //"Accept-Charset",
+            //"Accept-Encoding",
+            "Access-Control-Request-Headers",
+            "Access-Control-Request-Method",
+            "Connection", /* close is allowed */
+            "Content-Length",
+            //"Cookie",
+            //"Cookie2",
+            "Content-Transfer-Encoding",
+            //"Date",
+            //"Expect",
+            "Host",
+            "Keep-Alive",
+            "Origin",
+            // "Referer",
+            // "TE",
+            "Trailer",
+            "Transfer-Encoding",
+            "Upgrade",
+            //"User-Agent",
+            "Via"
+    };
+
 
     public void doHttpMethod(HttpServletRequest request, HttpServletResponse response, HttpMethod httpMethod) {
 
@@ -128,10 +156,10 @@ public class CustomRequestServlet extends AbstractAfServlet {
         // Copier les headers
         Enumeration<String> headers = request.getHeaderNames();
         while (headers.hasMoreElements()) {
-            String elem = headers.nextElement();
-            if (!"Content-Length".equals(elem)) {
-                serviceRequest.setHeader(elem, request.getHeader(elem));
-            }
+        	String elem = headers.nextElement();
+        	if (!Arrays.asList(restrictedHeaders).contains(elem)) {
+        		serviceRequest.setHeader(elem, request.getHeader(elem));
+        	}
         }
 
         try {

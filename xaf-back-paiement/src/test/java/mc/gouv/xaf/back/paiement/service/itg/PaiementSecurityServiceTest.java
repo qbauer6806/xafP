@@ -12,10 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-/**
- * TODO: Impossible de créer des tables depuis le merge XAF 11
- */
-@Ignore
+
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class PaiementSecurityServiceTest {

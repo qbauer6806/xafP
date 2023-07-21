@@ -141,36 +141,7 @@ public class FileServiceImpl implements FileService {
 
 		LOGGER.info("FileService.saveFile({}, {})", demande.getPkDemandes(), file.getOriginalFilename());
 
-		// Vérification de l'extension du fichier
-		if (file.getOriginalFilename() != null && !estExtensionDansWhitelist(file.getOriginalFilename())) {
-			LOGGER.info("Le type de fichier ne correspond pas aux types whitelistés ({}), pas d'upload dans FILE", getExtensionsWhitelist());
-			throw new FileUploadException("Erreur: le type du fichier soumis n'est pas valide", FileUploadErrorEnum.EXTENSION_ERROR);
-		}
-
-		// Vérification de la taille maximum du fichier
-		PropertiesDTO tailleMaxFichiersProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), MAX_TAILLE_FICHIER);
-		int tailleMaxFichiers = Integer.parseInt(tailleMaxFichiersProp.getValue());
-
-		// transformation B en MB
-		int tailleMaxFichierMB = tailleMaxFichiers * 1000000;
-		if (file.getSize() > tailleMaxFichierMB) {
-			LOGGER.info("La taille du fichier depasse la taille max definie dans les propriétés ({})", tailleMaxFichiers);
-			throw new FileUploadException("Erreur: la taille du fichier transféré dépasse la limite autorisée", FileUploadErrorEnum.TAILLE_MAX_ERROR);
-		}
-
-		// Appel à VSCAN pour vérifier la virulance du fichier
-		PropertiesDTO vscanActivationProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), VSCAN_ACTIVATION);
-		boolean vscanActivation = Boolean.parseBoolean(vscanActivationProp.getValue());
-
-		LOGGER.info("Activation de VSCAN: {}", vscanActivation);
-		if (vscanActivation) {
-			ScanDTO scanDTO = verificationVSCAN(file);
-			if (!scanDTO.isResult()) {
-				LOGGER.info("VSCAN a détecté le fichier comme vérolé, fin du traitement, pas d'upload dans FILE");
-				throw new VScanException("Erreur: le fichier soumis semble corrompu");
-			}
-			LOGGER.info("VSCAN n'a pas considéré le fichier soumis comme vérolé");
-		}
+		boolean vscanActivation = prepareSave(file);
 
 		String filename = "/" + demande.getFkAccess() + "/" + AfBackUtils.generateUUID() + "/"
 				+ URLEncoder.encode(file.getOriginalFilename(), StandardCharsets.UTF_8);
@@ -202,6 +173,68 @@ public class FileServiceImpl implements FileService {
 		output.close();
 		fis.close();
 		return url;
+	}
+
+	@Override
+	public String saveFilePublication(String codePublication, String containerId, MultipartFile file) throws IOException {
+		LOGGER.info("FileService.saveFilePublication({}, {})", codePublication, file.getOriginalFilename());
+
+		boolean vscanActivation = prepareSave(file);
+
+		String filename = "/publications/" + AfBackUtils.generateUUID() + "/"
+				+ URLEncoder.encode(file.getOriginalFilename(), StandardCharsets.UTF_8);
+
+		LOGGER.info("Filename à donner à FILE : {}", filename);
+
+		Map<String, String> customHeaders = new HashMap<>();
+		customHeaders.put(FILE_METADATA_SCANEXECUTE, vscanActivation + "");
+
+		String accountId = gouvPropertiesResolver.getDemarcheId();
+		LOGGER.info("FileClient.saveFile({}, {}, {})", accountId, containerId, filename);
+
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+		try {
+			return afBackUtils.getFileClient().saveFile(accountId, containerId, file.getInputStream(), filename, file.getContentType(), customHeaders, outputStream);
+		} catch (Exception e) {
+			LOGGER.error("Erreur dans FileServiceImpl.saveFile()", e);
+			throw new DemarchesServiceException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+
+	}
+
+	private boolean prepareSave(MultipartFile file) throws IOException {
+		// Vérification de l'extension du fichier
+		if (file.getOriginalFilename() != null && !estExtensionDansWhitelist(file.getOriginalFilename())) {
+			LOGGER.info("Le type de fichier ne correspond pas aux types whitelistés ({}), pas d'upload dans FILE", getExtensionsWhitelist());
+			throw new FileUploadException("Erreur: le type du fichier soumis n'est pas valide", FileUploadErrorEnum.EXTENSION_ERROR);
+		}
+
+		// Vérification de la taille maximum du fichier
+		PropertiesDTO tailleMaxFichiersProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), MAX_TAILLE_FICHIER);
+		int tailleMaxFichiers = Integer.parseInt(tailleMaxFichiersProp.getValue());
+
+		// transformation B en MB
+		int tailleMaxFichierMB = tailleMaxFichiers * 1000000;
+		if (file.getSize() > tailleMaxFichierMB) {
+			LOGGER.info("La taille du fichier depasse la taille max definie dans les propriétés ({})", tailleMaxFichiers);
+			throw new FileUploadException("Erreur: la taille du fichier transféré dépasse la limite autorisée", FileUploadErrorEnum.TAILLE_MAX_ERROR);
+		}
+
+		// Appel à VSCAN pour vérifier la virulance du fichier
+		PropertiesDTO vscanActivationProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), VSCAN_ACTIVATION);
+		boolean vscanActivation = Boolean.parseBoolean(vscanActivationProp.getValue());
+
+		LOGGER.info("Activation de VSCAN: {}", vscanActivation);
+		if (vscanActivation) {
+			ScanDTO scanDTO = verificationVSCAN(file);
+			if (!scanDTO.isResult()) {
+				LOGGER.info("VSCAN a détecté le fichier comme vérolé, fin du traitement, pas d'upload dans FILE");
+				throw new VScanException("Erreur: le fichier soumis semble corrompu");
+			}
+			LOGGER.info("VSCAN n'a pas considéré le fichier soumis comme vérolé");
+		}
+		return vscanActivation;
 	}
 
 	private boolean estExtensionDansWhitelist(String filename) {

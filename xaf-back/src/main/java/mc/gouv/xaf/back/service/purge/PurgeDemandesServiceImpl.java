@@ -30,6 +30,7 @@ import mc.gouv.xaf.back.service.GouvSchedulerService;
 import mc.gouv.xaf.back.service.data.DemandesCourriersService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
+import mc.gouv.xaf.back.service.data.TachesService;
 import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
@@ -83,11 +84,14 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
     @Autowired
     private MessageSource messageSource;
 
-	public void purgerDemandesDansStatuts(List<String> statuts, int jours) throws JsonProcessingException {
-		String demarcheId = gouvPropertiesResolver.getDemarcheId();
-		StringBuilder demandesAPurger = new StringBuilder();
-		int demandesSuppr = 0;
-		PropertiesDTO delaiEnvoiEmailProp = propertiesService.getProperty(demarcheId, DELAI_ENVOI_MAIL_PURGE);
+    @Autowired
+    private TachesService tachesService;
+
+    public void purgerDemandesDansStatuts(List<String> statuts, int jours) throws JsonProcessingException {
+        String demarcheId = gouvPropertiesResolver.getDemarcheId();
+        StringBuilder demandesAPurger = new StringBuilder();
+        int demandesSuppr = 0;
+        PropertiesDTO delaiEnvoiEmailProp = propertiesService.getProperty(demarcheId, DELAI_ENVOI_MAIL_PURGE);
 
 		LOGGER.info("Début de la purge des demandes ...");
 
@@ -95,20 +99,24 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 			long diffInMillies = Math.abs(new Date().getTime() - demandeDTO.getDernierStatut().getDate().getTime());
 			long diff = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
 
-			if (statuts.contains(demandeDTO.getDernierStatut().getLibelle()) && diff >= jours) {
-				// Si la demande est une demande courrier ou gichet on supprime d'abord les courriers associés à cette demande
-				if(!demandeDTO.getCanal().equals(DemandeCanalEnum.GUICHET_VIRTUEL)) {
-					// Suppression des courriers de la demande
-					demandesCourriersService.deleteCourriers(demarcheId, demandeDTO.getPkDemandes());
-				}
-				// Ensuite on supprime la demande elle même
-				demandesService.deleteDemandeInGivenStatus(demarcheId, demandeDTO.getPkDemandes(), statuts, jours);
-				demandesSuppr++;
+            if (statuts.contains(demandeDTO.getDernierStatut().getLibelle()) && diff >= jours) {
+                // Si la demande est une demande courrier ou gichet on supprime d'abord les courriers associés à cette demande
+                if (!demandeDTO.getCanal().equals(DemandeCanalEnum.GUICHET_VIRTUEL)) {
+                    // Suppression des courriers de la demande
+                    demandesCourriersService.deleteCourriers(demarcheId, demandeDTO.getPkDemandes());
+                }
+                // Suppression des tâches liées à la demande, si la démarche gère les tâches
+                if (demarchesDataProvider.getDemarcheCanHandleTaches()) {
+                    tachesService.deleteTaches(demandeDTO.getPkDemandes());
+                }
+                // Ensuite on supprime la demande elle même
+                demandesService.deleteDemandeInGivenStatus(demarcheId, demandeDTO.getPkDemandes(), statuts, jours);
+                demandesSuppr++;
 
-			} else if(statuts.contains(demandeDTO.getDernierStatut().getLibelle()) && diff == jours - Long.parseLong(delaiEnvoiEmailProp.getValue())) {
-				// L'envois des emails se fait 15 jours avant la supression effective de la demande
-				// Envois des emails aux usagers
-				envoisMailUsagerPurge(demandeDTO.getIdentifiant(), demandeDTO, delaiEnvoiEmailProp.getValue());
+            } else if (statuts.contains(demandeDTO.getDernierStatut().getLibelle()) && diff == jours - Long.parseLong(delaiEnvoiEmailProp.getValue())) {
+                // L'envois des emails se fait 15 jours avant la supression effective de la demande
+                // Envois des emails aux usagers
+                envoisMailUsagerPurge(demandeDTO.getIdentifiant(), demandeDTO, delaiEnvoiEmailProp.getValue());
 
 				// Ajout à la liste des demandes à envoyer
 				demandesAPurger.append("- ").append(demandeDTO.getIdentifiant()).append(" - ").append(demandeDTO.getDernierStatut().getLibelle()).append("<br/>");
@@ -154,16 +162,18 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 		emailInfoDTO.addTo(usager.getEmail(), prenom + " " + nom);
 		Map<String,Object> model = new HashMap<>();
         model.put("identifiant", identifiant);
+        model.put("pkDemande", demandeDTO.getPkDemandes());
         model.put("delai", delai);
-        String titre = messageSource.getMessage("civilite."+usager.getTitre(), null, new Locale(demandeDTO.getLangue()));
+        String titre = messageSource.getMessage("civilite." + usager.getTitre(), null, new Locale(demandeDTO.getLangue()));
         model.put("titre", titre);
+        model.put("urlFront", gouvPropertiesResolver.getFrontUrl());
 
         try {
-			mailService.sendMail(emailInfoDTO, model);
-		} catch (Exception e) {
-			LOGGER.error("Erreur lors de l'envoi de l'email de purge pour les agents", e);
-		}
-	}
+            mailService.sendMail(emailInfoDTO, model);
+        } catch (Exception e) {
+            LOGGER.error("Erreur lors de l'envoi de l'email de purge pour les agents", e);
+        }
+    }
 
     @Override
 	public void envoisMailAgentPurge(String demandesAPurger, String delai) {

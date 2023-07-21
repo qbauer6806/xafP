@@ -55,12 +55,14 @@ import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.motifs.MotifTemplateService;
+import mc.gouv.xaf.back.service.motifs.MotifsCache;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeDataDTO;
 import mc.gouv.xaf.shared.dto.DemandeFlatDTO;
 import mc.gouv.xaf.shared.dto.DemarcheDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
+import mc.gouv.xaf.shared.dto.MotifDTO;
 import mc.gouv.xaf.shared.dto.PropertiesListEntityDTO;
 import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
 
@@ -98,6 +100,9 @@ public class AfBackUtils {
 
     // French date format with 24 hours
     public static final String DEFAULT_FRENCH_DATE_HOURS_MINUTES_SECONDS_FORMAT = "dd/MM/yyyy HH:mm:ss";
+
+    // Format de date en Anglais
+    public static final String DEFAULT_ENGLISH_DATE_FORMAT = "MM/dd/yyyy";
 
     // Suffix pour l'unicité des fichiers
     public static final String FILE_DATE_SUFFIX_FORMAT = "HHmmssSSS";
@@ -157,6 +162,10 @@ public class AfBackUtils {
     @Autowired
     @Lazy
     private DemandesService demandesService;
+
+    @Autowired
+    @Lazy
+    private MotifsCache motifsCache;
 
     public static final short GENDER_MR_INDEX = 0;
     public static final short GENDER_MME_INDEX = 1;
@@ -380,6 +389,11 @@ public class AfBackUtils {
         flat.setUsagerPrenom(getSafeString(demande.getUsagerPrenom()));
         flat.setUsagerEmail(getSafeString(demande.getUsagerEmail()));
         flat.setBuildId(demande.getBuildId());
+        // motif
+        if (demande.getDernierStatut() != null && demande.getDernierStatut().getCodeMotif() != null) {
+            MotifDTO motif = motifsCache.getMotif(demande.getDernierStatut().getCodeMotif(), "fr");
+            flat.setMotif(motif != null ? motif.getLibelle() : null);
+        }
         return flat;
     }
 
@@ -399,6 +413,10 @@ public class AfBackUtils {
 
     public String getStatusLibelleFromName(String status) {
         return demarchesDataProvider.getStatusLibelle(status);
+    }
+
+    public String getExportLibelle() {
+        return demarchesDataProvider.getExportLibelle() != null ? demarchesDataProvider.getExportLibelle() : "Export Anonymisé";
     }
 
     /**
@@ -463,6 +481,13 @@ public class AfBackUtils {
             return "";
         }
         return new SimpleDateFormat(DEFAULT_FRENCH_DATE_FORMAT).format(date);
+    }
+
+    public String convertDateToTimeString(final Date date) {
+        if (date == null) {
+            return "";
+        }
+        return new SimpleDateFormat(DEFAULT_FRENCH_TIME_FORMAT).format(date);
     }
 
     public String convertDateTimeToString(final Date date) {

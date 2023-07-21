@@ -38,32 +38,10 @@ import org.apache.velocity.tools.ToolManager;
 import org.apache.velocity.tools.generic.DateTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.helpers.NOPLogger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-
-import mc.gouv.mail.apiclient.client.MailClient;
-import mc.gouv.mail.shared.dto.AddressBlockDTO;
-import mc.gouv.mail.shared.dto.MailDTO;
-import mc.gouv.mail.shared.dto.ParamDTO;
-import mc.gouv.xaf.back.exception.DemarchesServiceException;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.data.PropertiesService;
-import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
-import mc.gouv.xaf.back.service.itg.mail.EmailTransformer;
-import mc.gouv.xaf.back.service.itg.mail.MailService;
-import mc.gouv.xaf.back.service.templates.TemplatesCache;
-import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import mc.gouv.xaf.shared.dto.PropertiesDTO;
-import mc.gouv.xaf.shared.dto.TemplateDTO;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.text.SimpleDateFormat;
-import java.util.*;
 
 /**
  *
@@ -190,13 +168,15 @@ public class MailServiceImpl implements MailService {
         }
         StringWriter output = new StringWriter();
         if (!Velocity.evaluate(context, output, templateBody.getCode(), templateBody.getContenu())) {
-            throw new DemarchesServiceException("Velocity.evaluate() n'a pas fonctionné.", HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new DemarchesServiceException("Velocity.evaluate() pour le contenu du body n'a pas fonctionné.",
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
         String mailBodyToSend = output.toString();
 
         output = new StringWriter();
         if (!Velocity.evaluate(context, output, templateSubject.getCode(), templateSubject.getContenu())) {
-            throw new DemarchesServiceException("Velocity.evaluate() n'a pas fonctionné.", HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new DemarchesServiceException("Velocity.evaluate() pour le contenu du subject n'a pas fonctionné.",
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
         String mailSubjectToSend = output.toString();
 

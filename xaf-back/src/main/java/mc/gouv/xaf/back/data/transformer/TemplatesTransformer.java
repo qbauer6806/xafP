@@ -1,10 +1,10 @@
 package mc.gouv.xaf.back.data.transformer;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import mc.gouv.xaf.back.data.entity.TemplateBO;
 import mc.gouv.xaf.shared.dto.TemplateDTO;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 
@@ -18,6 +18,7 @@ public class TemplatesTransformer {
     public static TemplateDTO bo2Dto(TemplateBO bo) {
         TemplateDTO dto = new TemplateDTO();
         dto.setCode(bo.getCode());
+        dto.setAudience(bo.getAudience());
         dto.setContenu(bo.getContenu());
         dto.setDemarcheId(bo.getDemarcheId());
         dto.setLangue(bo.getLangue());
@@ -29,6 +30,7 @@ public class TemplatesTransformer {
     public static TemplateBO dto2Bo(TemplateDTO dto) {
         TemplateBO bo = new TemplateBO();
         bo.setCode(dto.getCode());
+        bo.setAudience(dto.getAudience() != null ? dto.getAudience().name() : null);
         bo.setContenu(dto.getContenu());
         bo.setDemarcheId(dto.getDemarcheId());
         bo.setLangue(dto.getLangue());

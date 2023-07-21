@@ -89,8 +89,9 @@
                                 <div class="row mt-15" style="display: none"
                                      th:id="${'motifTacheFormGroup' + tache.pkTaches}">
                                     <div class="col-xs-12 form-group">
-                                        <label class="titre" th:for="${'motifTacheSelect' + tache.pkTaches}">Motif
-                                            :</label>
+                                        <label class="titre"
+                                               th:for="${'motifTacheSelect' + tache.pkTaches}">Motif</label><span
+                                            class="mandatory">&nbsp;*</span>
                                         <select class="form-control"
                                                 th:disabled="${tache.locked} or (${statutPublicOuInterneDTO.name} != ${statutValidationTache} and ${tache.statutAgent} != null) or (${statutPublicOuInterneDTO.name} == ${statutValidationTache} and ${tache.statutValideur} != null)"
                                                 th:field="*{codeMotifChoisi}"

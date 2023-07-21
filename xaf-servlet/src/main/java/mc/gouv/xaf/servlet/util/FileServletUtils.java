@@ -43,6 +43,8 @@ public class FileServletUtils {
     public static boolean estExtensionDansWhitelist(String filename) {
         String[] filenameSplit = filename.split("\\.");
 
+        // Dans le cas où filename = "pdf", on vérifie qu'on a bien un couple nom.ext
+        // sinon un fichier nommé "pdf" passerait pour un fichier à l'extension pdf, bien qu'il puisse s'agir d'un .txt par exemple.
         if (filenameSplit.length <= 1) {
             return false;
         }

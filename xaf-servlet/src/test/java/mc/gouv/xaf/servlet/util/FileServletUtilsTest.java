@@ -76,6 +76,12 @@ public class FileServletUtilsTest {
     }
 
     @Test
+    void testExtensionWhiteListNonTrouvee() {
+        propertiesCache.when(() -> AppFactoryServletFrontPropertiesCache.getFrontProperty(EXTENSIONS_WHITELIST)).thenReturn(null);
+        assertTrue(FileServletUtils.getExtensionsWhitelist().isEmpty());
+    }
+
+    @Test
     void testTailleFichierValide() {
         PropertiesDTO tailleMaxProperty = mock(PropertiesDTO.class);
         when(tailleMaxProperty.getValue()).thenReturn("3"); // 3 MB

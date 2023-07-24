@@ -220,4 +220,50 @@
         <url-pattern>/brouillonspage/*</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>DocHolderServlet</servlet-name>
+        <servlet-class>mc.gouv.xaf.servlet.DocHolderServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>DocHolderServlet</servlet-name>
+        <url-pattern>/doc-holder</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>DocHolderSearchServlet</servlet-name>
+        <servlet-class>mc.gouv.xaf.servlet.DocHolderSearchServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>DocHolderSearchServlet</servlet-name>
+        <url-pattern>/doc-holder/search</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>DocHolderFileServlet</servlet-name>
+        <servlet-class>mc.gouv.xaf.servlet.DocHolderFileServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>DocHolderFileServlet</servlet-name>
+        <url-pattern>/doc-holder/file</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>DocHolderFilesServlet</servlet-name>
+        <servlet-class>mc.gouv.xaf.servlet.DocHolderFilesServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>DocHolderFilesServlet</servlet-name>
+        <url-pattern>/doc-holder/files</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>DocHolderCategoriesServlet</servlet-name>
+        <servlet-class>mc.gouv.xaf.servlet.DocHolderCategoriesServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>DocHolderCategoriesServlet</servlet-name>
+        <url-pattern>/doc-holder/categories</url-pattern>
+        <url-pattern>/categories</url-pattern>
+    </servlet-mapping>
+
 </web-app>

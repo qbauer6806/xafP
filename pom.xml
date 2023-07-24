@@ -23,7 +23,7 @@
 
     <groupId>mc.gouv.xaf</groupId>
     <artifactId>xaf</artifactId>
-    <version>11.1.3-SNAPSHOT</version>
+    <version>11.1.2-DOCHOLDER-SNAPSHOT</version>
     <packaging>pom</packaging>
 	<scm>
 		<url>https://git.monaco-gouvernement.mc/libs/xaf.git</url>

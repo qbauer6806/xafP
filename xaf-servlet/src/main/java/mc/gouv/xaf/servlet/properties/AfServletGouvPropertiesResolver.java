@@ -249,6 +249,13 @@ public class AfServletGouvPropertiesResolver {
         return StringUtils.isBlank(value) ? "vide" : value;
     }
 
+    public static final String PORTEDOC_URL = APPFACTORY_PREFIX + applicationPrefix + ".portedoc.url";
+
+    public static String getPorteDocUrl() {
+        String value = Static.getValue(PORTEDOC_URL);
+        return StringUtils.isBlank(value) ? "vide" : value;
+    }
+
     static {
         //Vérification que chaque propriété a bien été configurée
         List<String> propertiesNotFound = new ArrayList<>();

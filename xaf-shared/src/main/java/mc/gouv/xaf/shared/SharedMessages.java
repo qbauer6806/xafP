@@ -3,7 +3,6 @@ package mc.gouv.xaf.shared;
 public class SharedMessages {
 
     public static final String UNSAFE_CHARS = "[\n\r\t]";
-
     public static final String SUCCESS_MESSAGES = "successMessages";
     public static final String ERROR_MESSAGES = "errorMessages";
     public static final String TRANSFORMATION_BO_DTO = "Transformation bo -> dto ...";
@@ -16,8 +15,8 @@ public class SharedMessages {
     public static final String ERREUR_HISTORIQUE = "Erreur lors de la création de l'historique {}";
     public static final String CLAIM_AND_SUBMIT_TASK = "claimTask() puis submitTaskFormData()...";
     public static final String UTILISATEUR_NON_AUTORISE = "Utilisateur non autorisé";
-
     public static final String ERREUR_INDEXATION = "Erreur lors de l'indexation de la demande.";
+    public static final String REQUETE_MALFORMEE = "Impossible de continuer le traitement : requête malformée.";
 
     private SharedMessages() {
     }

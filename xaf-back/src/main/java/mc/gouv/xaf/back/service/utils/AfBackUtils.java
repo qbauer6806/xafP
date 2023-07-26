@@ -331,6 +331,15 @@ public class AfBackUtils {
     public String getDemarcheNom() {
         return getDemarcheInfos().getNom();
     }
+    
+    /**
+     * Retourne le nom complet de la démarche en Anglais
+     *
+     * @return
+     */
+    public String getDemarcheNomEn() {
+        return getDemarcheInfos().getNomEn();
+    }
 
     /**
      * Permet de récupérer une donnée d'une demande

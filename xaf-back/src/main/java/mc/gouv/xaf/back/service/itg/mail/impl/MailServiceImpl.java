@@ -185,7 +185,12 @@ public class MailServiceImpl implements MailService {
 		Velocity.init();
         context = getContext();
         context.put("emailBodyToSend", mailBodyToSend);
-        context.put("titreTs", afBackUtils.getDemarcheNom());
+        if (langue.equals("en") && StringUtils.isNotBlank(afBackUtils.getDemarcheInfos().getNomEn())) {
+        	context.put("titreTs", afBackUtils.getDemarcheNomEn());
+        }
+        else {
+        	context.put("titreTs", afBackUtils.getDemarcheNom());
+        }
         InputStream inputStream = new ClassPathResource("/email/email-template.html").getInputStream();
         String contenu = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
         output = new StringWriter();

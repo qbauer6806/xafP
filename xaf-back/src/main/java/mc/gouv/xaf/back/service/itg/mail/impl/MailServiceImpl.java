@@ -183,7 +183,7 @@ public class MailServiceImpl implements MailService {
         // Intégrer le corps de l'e-mail dans le template HTML de XAF si fonctionnalité activée
         if (afBackUtils.isEmailHtmlEnabled()) {
 	        LOGGER.info("Appel à Velocity pour intégrer le corps de l'email dans le template HTML de XAF...");
-	        Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM, new NullLogChute());
+	        Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_INSTANCE, LOGGER);
 			Velocity.init();
 	        context = getContext();
 	        context.put("emailBodyToSend", mailBodyToSend);

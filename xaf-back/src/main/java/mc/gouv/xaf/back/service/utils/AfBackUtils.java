@@ -22,6 +22,8 @@ import java.util.UUID;
 
 import javax.annotation.PostConstruct;
 
+import mc.gouv.xaf.back.service.motifs.MotifsCache;
+import mc.gouv.xaf.shared.dto.MotifDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,17 +54,17 @@ import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.DemarchesService;
+import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.motifs.MotifTemplateService;
-import mc.gouv.xaf.back.service.motifs.MotifsCache;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeDataDTO;
 import mc.gouv.xaf.shared.dto.DemandeFlatDTO;
 import mc.gouv.xaf.shared.dto.DemarcheDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
-import mc.gouv.xaf.shared.dto.MotifDTO;
+import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.PropertiesListEntityDTO;
 import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
 
@@ -118,6 +120,8 @@ public class AfBackUtils {
     // Préfix de la meta d'un fichier indiquant l'ID de la section correspondante
     public static final String META_FICHIER_SECTION_PREFIX = "SECTION_ID_";
 
+    public static final String XAF_EMAIL_HTML_ENABLED = "XAF_EMAIL_HTML_ENABLED";
+
     /**
      * Version en cache des infos de la démarche
      */
@@ -162,6 +166,10 @@ public class AfBackUtils {
     @Autowired
     @Lazy
     private DemandesService demandesService;
+
+    @Autowired
+    @Lazy
+    private PropertiesService propertiesService;
 
     @Autowired
     @Lazy
@@ -335,6 +343,15 @@ public class AfBackUtils {
      */
     public String getDemarcheNom() {
         return getDemarcheInfos().getNom();
+    }
+    
+    /**
+     * Retourne le nom complet de la démarche en Anglais
+     *
+     * @return
+     */
+    public String getDemarcheNomEn() {
+        return getDemarcheInfos().getNomEn();
     }
 
     /**
@@ -747,4 +764,12 @@ public class AfBackUtils {
 		return demande.getIdentifiant();
 	}
     
+	public boolean isEmailHtmlEnabled() {
+        PropertiesDTO emailHtmlEnabledProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_EMAIL_HTML_ENABLED);
+        if (emailHtmlEnabledProp == null || StringUtils.isBlank(emailHtmlEnabledProp.getValue())) {
+        	return false;
+        }
+        return Boolean.valueOf(emailHtmlEnabledProp.getValue());
+	}
+
 }

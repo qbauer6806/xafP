@@ -1,6 +1,7 @@
 package mc.gouv.xaf.shared.dto.itg.monetico;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.apache.commons.lang3.StringUtils;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class MoneticoResponseDTO {
@@ -268,7 +269,9 @@ public class MoneticoResponseDTO {
     }
 
     public String toStringHmac() {
-        return this.isCoderetourValid() ? toStringHmacAutorisation() : toStringHmacRefus();
+        //#49733: le champ motifrefusautorisation n’est pas présent dans le cas de demande d’autorisation acceptée
+        // ou Une transaction en échec à la suite d’un échec authentification 3DS
+        return StringUtils.isBlank(motifrefusautorisation) ? toStringHmacAutorisation() : toStringHmacRefus();
     }
 
     private String toStringHmacAutorisation() {

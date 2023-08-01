@@ -13,22 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.velocity.app.Velocity;
-import org.apache.velocity.context.Context;
-import org.apache.velocity.runtime.RuntimeConstants;
-import org.apache.velocity.tools.ToolManager;
-import org.apache.velocity.tools.generic.DateTool;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.helpers.NOPLogger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
-
 import mc.gouv.mail.apiclient.client.MailClient;
 import mc.gouv.mail.shared.dto.AddressBlockDTO;
 import mc.gouv.mail.shared.dto.MailDTO;
@@ -43,24 +28,40 @@ import mc.gouv.xaf.back.service.templates.TemplatesCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.TemplateDTO;
+import mc.gouv.xaf.shared.enums.MailTemplateAudienceEnum;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.velocity.app.Velocity;
+import org.apache.velocity.context.Context;
+import org.apache.velocity.runtime.RuntimeConstants;
+import org.apache.velocity.tools.ToolManager;
+import org.apache.velocity.tools.generic.DateTool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
 
 /**
- * 
+ *
  * Composant permettant l'envoi d'emails "templatés"
- * 
+ *
  * @author qdeme
- * 
+ *
  */
 @Component
 public class MailServiceImpl implements MailService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MailServiceImpl.class);
 
+    private static final String XAF_NOTIFICATION_MAIL_AGENT = "XAF_NOTIFICATION_MAIL_AGENT";
+
     private ToolManager manager = new ToolManager();
 
     @Autowired
     private TemplatesCache templatesCache;
-    
+
     @Autowired
     private AfBackUtils afBackUtils;
 
@@ -84,6 +85,10 @@ public class MailServiceImpl implements MailService {
     @Override
     public void sendMail(EmailInfoDTO emailInfo, Map<String, Object> model, Map<String, InputStream> attachments) throws JsonProcessingException {
         LOGGER.info("MailServiceImpl.sendMail({}, {}, {})", emailInfo, model, attachments);
+        if (this.estTemplateMailAgentSansEnvoiMail(emailInfo)) {
+            LOGGER.info("PAS d'envoi email aux agents du service {}", gouvPropertiesResolver.getDemarcheId());
+            return;
+        }
         MailDTO email = createMailContent(emailInfo, model);
         if (email == null) {
             return;
@@ -91,6 +96,17 @@ public class MailServiceImpl implements MailService {
         LOGGER.info("Appel à MAIL pour envoi de l'email...");
         MailClient mailClient = afBackUtils.getMailClient();
         mailClient.sendEmail(email, attachments);
+    }
+
+    private boolean estTemplateMailAgentSansEnvoiMail(EmailInfoDTO emailInfo) {
+        TemplateDTO templateBody = templatesCache.getTemplate(emailInfo.getBodyTemplateCode(), emailInfo.getLangue());
+        if (templateBody == null || !MailTemplateAudienceEnum.AGENT.equals(templateBody.getAudience())) {
+            //il ne s'agit pas d'un template mail agent
+            return false;
+        }
+        PropertiesDTO mailProperty =
+                propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_NOTIFICATION_MAIL_AGENT);
+        return mailProperty != null && !BooleanUtils.toBoolean(mailProperty.getValue());
     }
 
     private MailDTO createMailContent(EmailInfoDTO emailInfo, Map<String, Object> model) {
@@ -152,30 +168,40 @@ public class MailServiceImpl implements MailService {
         }
         StringWriter output = new StringWriter();
         if (!Velocity.evaluate(context, output, templateBody.getCode(), templateBody.getContenu())) {
-            throw new DemarchesServiceException("Velocity.evaluate() n'a pas fonctionné.", HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new DemarchesServiceException("Velocity.evaluate() pour le contenu du body n'a pas fonctionné.",
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
         String mailBodyToSend = output.toString();
 
         output = new StringWriter();
         if (!Velocity.evaluate(context, output, templateSubject.getCode(), templateSubject.getContenu())) {
-            throw new DemarchesServiceException("Velocity.evaluate() n'a pas fonctionné.", HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new DemarchesServiceException("Velocity.evaluate() pour le contenu du subject n'a pas fonctionné.",
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
         String mailSubjectToSend = output.toString();
-
-        LOGGER.info("Appel à Velocity pour intégrer le corps de l'email dans le template HTML de XAF...");
-        Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_INSTANCE, LOGGER);
-		Velocity.init();
-        context = getContext();
-        context.put("emailBodyToSend", mailBodyToSend);
-        context.put("titreTs", afBackUtils.getDemarcheNom());
-        InputStream inputStream = new ClassPathResource("/email/email-template.html").getInputStream();
-        String contenu = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-        output = new StringWriter();
-        if (!Velocity.evaluate(context, output, templateBody.getCode(), contenu)) {
-            throw new DemarchesServiceException("Velocity.evaluate() n'a pas fonctionné.", HttpStatus.INTERNAL_SERVER_ERROR);
+        
+        // Intégrer le corps de l'e-mail dans le template HTML de XAF si fonctionnalité activée
+        if (afBackUtils.isEmailHtmlEnabled()) {
+	        LOGGER.info("Appel à Velocity pour intégrer le corps de l'email dans le template HTML de XAF...");
+	        Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_INSTANCE, LOGGER);
+			Velocity.init();
+	        context = getContext();
+	        context.put("emailBodyToSend", mailBodyToSend);
+	        if (langue.equals("en") && StringUtils.isNotBlank(afBackUtils.getDemarcheInfos().getNomEn())) {
+	        	context.put("titreTs", afBackUtils.getDemarcheNomEn());
+	        }
+	        else {
+	        	context.put("titreTs", afBackUtils.getDemarcheNom());
+	        }
+	        InputStream inputStream = new ClassPathResource("/email/email-template.html").getInputStream();
+	        String contenu = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+	        output = new StringWriter();
+	        if (!Velocity.evaluate(context, output, templateBody.getCode(), contenu)) {
+	            throw new DemarchesServiceException("Velocity.evaluate() n'a pas fonctionné.", HttpStatus.INTERNAL_SERVER_ERROR);
+	        }
+	        mailBodyToSend = output.toString();
         }
-        mailBodyToSend = output.toString();
-
+        
         return new String[] { mailSubjectToSend, mailBodyToSend };
     }
 

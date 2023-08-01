@@ -104,15 +104,10 @@ function confirmerRepriseEnChrage(e) {
 
 /**
  * Permet d'ajouter un commentaire à la discussion sans rehcarger toute la demande
- * @param e
+ * @param $this L'objet jQuery du formulaire
  */
-function ajouterCommentaireDiscussion(e) {
-    // On empêche le comportement par défaut du navigateur, c-à-d de soumettre le formulaire
-    e.preventDefault();
-
-    const $this = $(this); // L'objet jQuery du formulaire
+function ajouterCommentaireDiscussion($this) {
     const commentaire = $('#com-interne-input');
-
     if (!commentaire.val()) {
         $.notify({
             message: "Veuillez renseigner un commentaire."

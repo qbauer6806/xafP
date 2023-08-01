@@ -179,21 +179,29 @@ public class MailServiceImpl implements MailService {
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
         String mailSubjectToSend = output.toString();
-
-        LOGGER.info("Appel à Velocity pour intégrer le corps de l'email dans le template HTML de XAF...");
-        Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_INSTANCE, LOGGER);
-		Velocity.init();
-        context = getContext();
-        context.put("emailBodyToSend", mailBodyToSend);
-        context.put("titreTs", afBackUtils.getDemarcheNom());
-        InputStream inputStream = new ClassPathResource("/email/email-template.html").getInputStream();
-        String contenu = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-        output = new StringWriter();
-        if (!Velocity.evaluate(context, output, templateBody.getCode(), contenu)) {
-            throw new DemarchesServiceException("Velocity.evaluate() n'a pas fonctionné.", HttpStatus.INTERNAL_SERVER_ERROR);
+        
+        // Intégrer le corps de l'e-mail dans le template HTML de XAF si fonctionnalité activée
+        if (afBackUtils.isEmailHtmlEnabled()) {
+	        LOGGER.info("Appel à Velocity pour intégrer le corps de l'email dans le template HTML de XAF...");
+	        Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM, new NullLogChute());
+			Velocity.init();
+	        context = getContext();
+	        context.put("emailBodyToSend", mailBodyToSend);
+	        if (langue.equals("en") && StringUtils.isNotBlank(afBackUtils.getDemarcheInfos().getNomEn())) {
+	        	context.put("titreTs", afBackUtils.getDemarcheNomEn());
+	        }
+	        else {
+	        	context.put("titreTs", afBackUtils.getDemarcheNom());
+	        }
+	        InputStream inputStream = new ClassPathResource("/email/email-template.html").getInputStream();
+	        String contenu = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+	        output = new StringWriter();
+	        if (!Velocity.evaluate(context, output, templateBody.getCode(), contenu)) {
+	            throw new DemarchesServiceException("Velocity.evaluate() n'a pas fonctionné.", HttpStatus.INTERNAL_SERVER_ERROR);
+	        }
+	        mailBodyToSend = output.toString();
         }
-        mailBodyToSend = output.toString();
-
+        
         return new String[] { mailSubjectToSend, mailBodyToSend };
     }
 

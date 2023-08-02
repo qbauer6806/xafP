@@ -124,4 +124,14 @@ public class DemarchesDataProviderImpl implements DemarchesDataProvider {
     public String getExportLibelle() {
         return null;
     }
+
+    @Override
+    public String getBrouillonStatutNotTransmitted() {
+        return null;
+    }
+
+    @Override
+    public String getBrouillonStatutDeprecated() {
+        return null;
+    }
 }

@@ -1,26 +1,5 @@
 package mc.gouv.xaf.back.service.data.impl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-
-import mc.gouv.xaf.back.service.data.AccessService;
-import mc.gouv.xaf.back.service.utils.AbstractTsUtils;
-import mc.gouv.xaf.shared.SharedMessages;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import mc.gouv.xaf.back.data.dao.AccessRepository;
@@ -32,10 +11,13 @@ import mc.gouv.xaf.back.data.entity.BrouillonsFilesBO;
 import mc.gouv.xaf.back.data.transformer.BrouillonsFilesTransformer;
 import mc.gouv.xaf.back.data.transformer.BrouillonsTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
+import mc.gouv.xaf.back.service.DemarchesDataProvider;
+import mc.gouv.xaf.back.service.data.AccessService;
 import mc.gouv.xaf.back.service.data.BrouillonsFilesService;
 import mc.gouv.xaf.back.service.data.BrouillonsService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.utils.AbstractTsUtils;
+import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.BrouillonDTO;
 import mc.gouv.xaf.shared.dto.BrouillonFileDTO;
 import mc.gouv.xaf.shared.dto.PageParamDTO;
@@ -90,6 +72,9 @@ public class BrouillonsServiceImpl implements BrouillonsService {
     private AbstractTsUtils abstractTsUtils;
 
     @Autowired
+    private DemarchesDataProvider demarchesDataProvider;
+
+    @Autowired
     private FileService fileService;
 
     /**
@@ -136,7 +121,7 @@ public class BrouillonsServiceImpl implements BrouillonsService {
         LOGGER.info("Transformation bo -> dto ...");
 
         List<BrouillonDTO> brouillonsDTO = BrouillonsTransformer.bo2Dto(brouillons);
-        brouillonsDTO.forEach(brouillonDto -> BrouillonsTransformer.setDernierStatut(brouillonDto, abstractTsUtils.getLastBuildId(), abstractTsUtils.getNotTransmitted(), abstractTsUtils.getDeprecated()));
+        brouillonsDTO.forEach(brouillonDto -> BrouillonsTransformer.setDernierStatut(brouillonDto, abstractTsUtils.getLastBuildId(), demarchesDataProvider.getBrouillonStatutNotTransmitted(), demarchesDataProvider.getBrouillonStatutDeprecated()));
         return brouillonsDTO;
 
     }
@@ -314,7 +299,7 @@ public class BrouillonsServiceImpl implements BrouillonsService {
         Page<BrouillonBO> bos = brouillonsRepository.findByDemarcheIdAndIdAndUsagerIdAndActive(demarcheId, usagerId, true, pageable);
         mc.gouv.xaf.shared.dto.Page<BrouillonDTO> brouillonDTOS = BrouillonsTransformer.boPage2DtoPage(bos);
         // Set dernier statut pour tous les brouillons récupérés
-        brouillonDTOS.getContent().forEach(brouillonDto -> BrouillonsTransformer.setDernierStatut(brouillonDto, abstractTsUtils.getLastBuildId(), abstractTsUtils.getNotTransmitted(), abstractTsUtils.getDeprecated()));
+        brouillonDTOS.getContent().forEach(brouillonDto -> BrouillonsTransformer.setDernierStatut(brouillonDto, abstractTsUtils.getLastBuildId(), demarchesDataProvider.getBrouillonStatutNotTransmitted(), demarchesDataProvider.getBrouillonStatutDeprecated()));
         return brouillonDTOS;
     }
 

@@ -1,6 +1,6 @@
 package mc.gouv.xaf.shared.enums;
 
-public enum MailTemplateAudienceEnum {
+public enum MailAudienceEnum {
 
     AGENT, USAGER, TECHNIQUE
 

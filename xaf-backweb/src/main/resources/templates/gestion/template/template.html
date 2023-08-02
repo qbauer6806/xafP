@@ -130,7 +130,6 @@
 						<thead>
 						<tr>
 							<th>Code</th>
-							<th>Audience</th>
 							<th>Objet du mail</th>
 							<th>Contenu du mail</th>
 							<th>Langue</th>
@@ -175,13 +174,6 @@
 			}
 		},
 		{
-			data: "audience",
-			keyword: false,
-			render: function (data, type, template) {
-				return textRenderer(template.audience);
-			}
-		},
-		{
 			data: "objet",
 			keyword: false,
 			render: function (data, type, template) {
@@ -223,7 +215,7 @@
 			render: function (data, type, template, meta) {
 				return '<button class="boutonVisualiser btn btn-action ripple-effect greyTooltip" style="margin-right: 8px" data-ligne="' + meta.row + '">' +
 						'<i class="icon-action_editer"></i></button>' +
-						'<a href="' + APP.getContextPath() + '/gestion/template/update?code=' + template.code + '&langue=' + template.langue + '&audience=' + template.audience + '">' +
+						'<a href="' + APP.getContextPath() + '/gestion/template/update?code=' + template.code + '&langue=' + template.langue + '">' +
 						'<span class="btn btn-action ripple-effect greyTooltip" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Modifier">' +
 						'<i class="icon-action_modifier"></i></a>';
 			}
@@ -257,8 +249,8 @@
 		templateList.forEach(function(template) {
 			sqlFinal += "delete from " + tsCode + ".DEM_TEMPLATES where code = '" + template.code + "_OBJET' and langue = '" + template.langue + "';\r\n";
 			sqlFinal += "delete from " + tsCode + ".DEM_TEMPLATES where code = '" + template.code + "_CORPS' and langue = '" + template.langue + "';\r\n";
-			sqlFinal += "insert into " + tsCode + ".DEM_TEMPLATES values (default, '" + tsCode + "', '" + template.code + "_OBJET', '" + template.objet.replaceAll("\'", "\\'") + "', '" + template.langue + "', default, '" + template.audience + "');\r\n";
-			sqlFinal += "insert into " + tsCode + ".DEM_TEMPLATES values (default, '" + tsCode + "', '" + template.code + "_CORPS', '" + template.corps.replaceAll("\'", "\\'") + "', '" + template.langue + "', default, '" + template.audience + "');\r\n\r\n";
+			sqlFinal += "insert into " + tsCode + ".DEM_TEMPLATES values (default, '" + tsCode + "', '" + template.code + "_OBJET', '" + template.objet.replaceAll("\'", "\\'") + "', '" + template.langue + "');\r\n";
+			sqlFinal += "insert into " + tsCode + ".DEM_TEMPLATES values (default, '" + tsCode + "', '" + template.code + "_CORPS', '" + template.corps.replaceAll("\'", "\\'") + "', '" + template.langue + "');\r\n\r\n";
 		});
 		return sqlFinal;
 	};
@@ -283,7 +275,6 @@
 				var templateCode = template.code.substring(0, indexObjet);
 				templateListRegrouped.push({
 					code: templateCode,
-					audience: template.audience != null ? template.audience : "",
 					objet: template.contenu,
 					corps: "",
 					langue: template.langue,
@@ -319,7 +310,7 @@
 		});
 
 		// Filtrer par FR au départ
-		table.columns(4).search('fr', true, false).draw();
+		table.columns(3).search('fr', true, false).draw();
 
 
 		table.on('click', 'button.boutonVisualiser', function (e) {
@@ -344,9 +335,9 @@
 		$("#switchLangue").click(function() {
 			// false == anglais --- true == francais
 			if(this.checked) {
-				table.columns(4).search('fr', true, false).draw();
+				table.columns(3).search('fr', true, false).draw();
 			} else {
-				table.columns(4).search('en', true, false).draw();
+				table.columns(3).search('en', true, false).draw();
 			}
 		});
 

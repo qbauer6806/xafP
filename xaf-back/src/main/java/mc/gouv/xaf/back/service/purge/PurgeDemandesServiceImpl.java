@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import mc.gouv.xaf.shared.enums.MailAudienceEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
@@ -171,7 +172,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
         try {
             mailService.sendMail(emailInfoDTO, model);
         } catch (Exception e) {
-            LOGGER.error("Erreur lors de l'envoi de l'email de purge pour les agents", e);
+            LOGGER.error("Erreur lors de l'envoi de l'email de purge pour les usagers", e);
         }
     }
 
@@ -188,9 +189,9 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 		model.put("delai", delai);
 
 		try {
-			mailService.sendMail(emailInfoDTO, model);
+			mailService.sendMail(emailInfoDTO, model, MailAudienceEnum.AGENT);
 		} catch (Exception e) {
-			LOGGER.error("Erreur lors de l'envoi de l'email de purge pour les usagers", e);
+			LOGGER.error("Erreur lors de l'envoi de l'email de purge pour les agents", e);
 		}
 	}
 

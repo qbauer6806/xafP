@@ -28,7 +28,7 @@ import mc.gouv.xaf.back.service.templates.TemplatesCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.TemplateDTO;
-import mc.gouv.xaf.shared.enums.MailTemplateAudienceEnum;
+import mc.gouv.xaf.shared.enums.MailAudienceEnum;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.velocity.app.Velocity;
@@ -76,16 +76,26 @@ public class MailServiceImpl implements MailService {
      */
     @Override
     public void sendMail(EmailInfoDTO emailInfo, Map<String, Object> model) throws JsonProcessingException {
-        sendMail(emailInfo, model, null);
+        sendMail(emailInfo, model, null, null);
+    }
+
+    @Override
+    public void sendMail(EmailInfoDTO emailInfo, Map<String, Object> model, MailAudienceEnum audienceMail) throws JsonProcessingException {
+        sendMail(emailInfo, model, null, audienceMail);
+    }
+
+    @Override
+    public void sendMail(EmailInfoDTO emailInfo, Map<String, Object> model, Map<String, InputStream> attachments) throws JsonProcessingException {
+        sendMail(emailInfo, model, attachments, null);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void sendMail(EmailInfoDTO emailInfo, Map<String, Object> model, Map<String, InputStream> attachments) throws JsonProcessingException {
-        LOGGER.info("MailServiceImpl.sendMail({}, {}, {})", emailInfo, model, attachments);
-        if (this.estTemplateMailAgentSansEnvoiMail(emailInfo)) {
+    public void sendMail(EmailInfoDTO emailInfo, Map<String, Object> model, Map<String, InputStream> attachments, MailAudienceEnum audienceMail) throws JsonProcessingException {
+        LOGGER.info("MailServiceImpl.sendMail({}, {}, {}, {})", emailInfo, model, attachments, audienceMail);
+        if (MailAudienceEnum.AGENT.equals(audienceMail) && !notificationMailAgentProperty()) {
             LOGGER.info("PAS d'envoi email aux agents du service {}", gouvPropertiesResolver.getDemarcheId());
             return;
         }
@@ -98,15 +108,13 @@ public class MailServiceImpl implements MailService {
         mailClient.sendEmail(email, attachments);
     }
 
-    private boolean estTemplateMailAgentSansEnvoiMail(EmailInfoDTO emailInfo) {
-        TemplateDTO templateBody = templatesCache.getTemplate(emailInfo.getBodyTemplateCode(), emailInfo.getLangue());
-        if (templateBody == null || !MailTemplateAudienceEnum.AGENT.equals(templateBody.getAudience())) {
-            //il ne s'agit pas d'un template mail agent
-            return false;
+    private boolean notificationMailAgentProperty() {
+        PropertiesDTO enableMailsAgentProperty = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_NOTIFICATION_MAIL_AGENT);
+        // Si la propriété n'existe pas alors on active les notifications mails agent par défaut
+        if (enableMailsAgentProperty == null) {
+            return true;
         }
-        PropertiesDTO mailProperty =
-                propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_NOTIFICATION_MAIL_AGENT);
-        return mailProperty != null && !BooleanUtils.toBoolean(mailProperty.getValue());
+        return BooleanUtils.toBoolean(enableMailsAgentProperty.getValue());
     }
 
     private MailDTO createMailContent(EmailInfoDTO emailInfo, Map<String, Object> model) {

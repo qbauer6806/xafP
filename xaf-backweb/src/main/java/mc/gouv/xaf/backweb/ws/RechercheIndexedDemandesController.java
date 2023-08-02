@@ -63,8 +63,8 @@ public class RechercheIndexedDemandesController extends AbstractController {
                                                 @RequestParam(value = "statutPublicOuInterne", required = false) String statutPublicOuInterne, Pageable pageable) {
 
         LOGGER.info(
-                "======================= Appel de /ws/demandes/pageable (userId=\"{}\", statuts=\"{}\", canaux=\"{}\", agentId=\"{}\", creationStartDate=\"{}\", creationEndDate=\"{}\", texte=\"{}\", data=\"{}\")",
-                usagerId, statuts, canaux, agentId, creationStartDate, creationEndDate, texte, data);
+                "======================= Appel de /ws/demandes/pageable (userId=\"{}\", statuts=\"{}\", canaux=\"{}\", agentId=\"{}\", creationStartDate=\"{}\", creationEndDate=\"{}\", texte=\"{}\", data=\"{}\", searchFields=\"{}\")",
+                usagerId, statuts, canaux, agentId, creationStartDate, creationEndDate, texte, data, searchFields);
 
         DemandeRechercheDTO demandeRecherche = new DemandeRechercheDTO();
         demandeRecherche.setDemarcheId(gouvPropertiesResolver.getDemarcheId());

@@ -35,9 +35,6 @@ public class TemplateBO {
     @Size(min = 1, max = 256)
     private String code;
 
-    @Column(name = "AUDIENCE", length = 128)
-    private String audience;
-
     @Column(name = "CONTENU", length = 10000, nullable = false)
     @NotBlank
     @Size(min = 1, max = 10000)
@@ -72,14 +69,6 @@ public class TemplateBO {
 
     public void setCode(String code) {
         this.code = code;
-    }
-
-    public String getAudience() {
-        return audience;
-    }
-
-    public void setAudience(String audience) {
-        this.audience = audience;
     }
 
     public String getContenu() {

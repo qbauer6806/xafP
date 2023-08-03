@@ -31,22 +31,5 @@ public abstract class AbstractTsUtils {
         return buildIds.last();
     }
 
-    /**
-     * Retourne le libellé du statut brouillon non transmis
-     */
-    public abstract String getNotTransmitted();
-
-    /**
-     * Retourne le libellé du statut brouillon obsolète
-     */
-    public abstract String getDeprecated();
-
-    /**
-     * Retourne le libellé du statut brouillon expiré
-     */
-    public String getExpired() {
-        return "";
-    }
-
     
 }

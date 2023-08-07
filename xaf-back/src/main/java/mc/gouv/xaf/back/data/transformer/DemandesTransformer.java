@@ -252,6 +252,10 @@ public class DemandesTransformer {
         }
         try {
             bo.setContenuInitial(mapper.writeValueAsString(dto.getContenuInitial()));
+            // Ce qui suit afin d'éviter l'insertion d'une chaîne "null" en base
+            if (bo.getContenuInitial() != null && "null".equals(bo.getContenuInitial())) {
+            	bo.setContenuInitial(null);
+            }
         } catch (JsonProcessingException e) {
             LOGGER.error("Erreur lors de la conversion JSON", e);
         }

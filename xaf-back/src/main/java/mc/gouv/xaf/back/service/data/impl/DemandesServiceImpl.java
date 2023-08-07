@@ -548,6 +548,10 @@ public class DemandesServiceImpl implements DemandesService {
             ObjectMapper mapper = new ObjectMapper();
             try {
                 demandeBo.setContenuInitial(mapper.writeValueAsString(demande.getContenuInitial()));
+             // Ce qui suit afin d'éviter l'insertion d'une chaîne "null" en base
+                if (demandeBo.getContenuInitial() != null && "null".equals(demandeBo.getContenuInitial())) {
+                	demandeBo.setContenuInitial(null);
+                }
             } catch (JsonProcessingException e) {
                 LOGGER.error("Problème lors de la conversion JSON", e);
             }
@@ -571,7 +575,7 @@ public class DemandesServiceImpl implements DemandesService {
 		demandeBo.setDateDerModif(new Date());
 
 		// Supprimer les pièces jointes déjà existantes
-		if (!partialUpdate) {
+		if (!partialUpdate || demande.getFichiers() != null) {
 			demandesFilesService.updateFichiers(demandeBo, demande.getFichiers());
 		}
 

@@ -183,6 +183,10 @@ public class BrouillonsServiceImpl implements BrouillonsService {
         try {
             brouillonBo.setContenu(mapper.writeValueAsString(brouillon.getContenu()));
             brouillonBo.setContenuInitial(mapper.writeValueAsString(brouillon.getContenuInitial()));
+            // Ce qui suit afin d'éviter l'insertion d'une chaîne "null" en base
+            if (brouillonBo.getContenuInitial() != null && "null".equals(brouillonBo.getContenuInitial())) {
+            	brouillonBo.setContenuInitial(null);
+            }
             if (brouillon.getMeta() != null) {
                 brouillonBo.setMeta(mapper.writeValueAsString(brouillon.getMeta()));
             }

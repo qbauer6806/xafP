@@ -198,12 +198,12 @@
 			document.body.removeChild(element);
 		}
 
-		var exportSQLTemplate = function (tsCode, templateCode, templateObjet, templateCorps, templateLangue, templateAudience) {
+		var exportSQLTemplate = function (tsCode, templateCode, templateObjet, templateCorps, templateLangue) {
 			var sqlFinal = "";
 			sqlFinal += "delete from " + tsCode + ".DEM_TEMPLATES where code = '" + templateCode + "_OBJET' and langue = '" + templateLangue + "';\r\n";
 			sqlFinal += "delete from " + tsCode + ".DEM_TEMPLATES where code = '" + templateCode + "_CORPS' and langue = '" + templateLangue + "';\r\n";
-			sqlFinal += "insert into " + tsCode + ".DEM_TEMPLATES values (default, '" + tsCode + "', '" + templateCode + "_OBJET', '" + templateObjet.replaceAll("\'", "\'\'") + "', '" + templateLangue + "', default, '" + templateAudience + "');\r\n";
-			sqlFinal += "insert into " + tsCode + ".DEM_TEMPLATES values (default, '" + tsCode + "', '" + templateCode + "_CORPS', '" + templateCorps.replaceAll("\'", "\'\'") + "', '" + templateLangue + "', default, '" + templateAudience + "');\r\n\r\n";
+			sqlFinal += "insert into " + tsCode + ".DEM_TEMPLATES values (default, '" + tsCode + "', '" + templateCode + "_OBJET', '" + templateObjet.replaceAll("\'", "\'\'") + "', '" + templateLangue + "');\r\n";
+			sqlFinal += "insert into " + tsCode + ".DEM_TEMPLATES values (default, '" + tsCode + "', '" + templateCode + "_CORPS', '" + templateCorps.replaceAll("\'", "\'\'") + "', '" + templateLangue + "');\r\n\r\n";
 			return sqlFinal;
 		};
 
@@ -255,7 +255,7 @@
 			});
 
 			$("#exportSqlBouton").click(function() {
-				var sqlGenere = exportSQLTemplate(tsCode, templateFormBean.code, templateFormBean.objet, templateFormBean.corps, templateFormBean.langue, templateFormBean.audience);
+				var sqlGenere = exportSQLTemplate(tsCode, templateFormBean.code, templateFormBean.objet, templateFormBean.corps, templateFormBean.langue);
 				download("exportSQL-" + templateFormBean.code + ".sql", sqlGenere);
 			});
 

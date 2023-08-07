@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import mc.gouv.xaf.shared.enums.MailAudienceEnum;
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.delegate.JavaDelegate;
 import org.activiti.engine.impl.el.Expression;
@@ -114,7 +115,7 @@ public class GouvBPMEnvoiEmailAgentsEtablissementAffecteDelegate implements Java
 				execution.getVariables(), null, null);
 
 		try {
-			mailService.sendMail(emailInfo, model);
+			mailService.sendMail(emailInfo, model, MailAudienceEnum.AGENT);
 		} catch (Exception e) {
 			LOGGER.error("Erreur lors de l'envoi de l'email", e);
 		}

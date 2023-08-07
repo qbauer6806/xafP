@@ -71,4 +71,21 @@ public interface DemarchesDataProvider {
         return Arrays.asList(TitreUsagerEnum.values());
     }
 
+    /**
+     * Retourne le libellé du statut brouillon non transmis
+     */
+    String getBrouillonStatutNotTransmitted();
+
+    /**
+     * Retourne le libellé du statut brouillon obsolète
+     */
+    String getBrouillonStatutDeprecated();
+
+    /**
+     * Retourne le libellé du statut brouillon expiré
+     */
+    default String getBrouillonStatutExpired() {
+        return "";
+    }
+
 }

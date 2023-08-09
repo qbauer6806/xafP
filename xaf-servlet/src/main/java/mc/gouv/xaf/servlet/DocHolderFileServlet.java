@@ -81,7 +81,7 @@ public class DocHolderFileServlet extends AbstractAfServlet {
         } catch (URISyntaxException e) {
             AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_BAD_REQUEST, SharedMessages.REQUETE_MALFORMEE);
             return;
-        } catch (IOException ioe) {
+        } catch (UnsupportedOperationException | IOException ioe) {
             AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_INTERNAL_SERVER_ERROR, "Erreur interne");
             return;
         }

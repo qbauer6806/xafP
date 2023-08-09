@@ -140,7 +140,7 @@ public class DocHolderFileServlet extends AbstractAfServlet {
                 return;
             }
 
-            LOGGER.info("Vérification du type pour le fichier {} ...", filename);
+            LOGGER.info("Vérification du type pour le fichier {} ...", filename.replaceAll(SharedMessages.UNSAFE_CHARS, "_"));
             if (!FileServletUtils.estExtensionDansWhitelist(filename)) {
                 LOGGER.info("Le type de fichier ne correspond pas aux types whitelistés ({})", FileServletUtils.getExtensionsWhitelist());
                 AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_BAD_REQUEST, SharedMessages.FICHIER_TYPE_EXTENTION_INVALIDE);
@@ -163,9 +163,12 @@ public class DocHolderFileServlet extends AbstractAfServlet {
             resp.setStatus(statusCode);
             resp.setContentType(serviceResponse.getEntity().getContentType().getValue());
             IOUtils.copy(serviceResponse.getEntity().getContent(), resp.getOutputStream());
-        } catch (IOException ioe) {
+        } catch (ServletException e) {
             resp.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
-            LOGGER.error("Erreur lors de l'appel à l'API Porte-Documents searchFiles", ioe);
+            LOGGER.error("Erreur lors de l'appel à l'API Porte-Documents saveFile, la requête n'est pas de type multipart/form-data", e);
+        } catch (UnsupportedOperationException | IOException ioe) {
+            resp.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+            LOGGER.error("Erreur lors de l'appel à l'API Porte-Documents saveFile", ioe);
         }
 
         LOGGER.info("====================== Fin " + req.getServletPath() + " doPost()");
@@ -206,9 +209,9 @@ public class DocHolderFileServlet extends AbstractAfServlet {
             resp.setStatus(statusCode);
             resp.setContentType(serviceResponse.getEntity().getContentType().getValue());
             IOUtils.copy(serviceResponse.getEntity().getContent(), resp.getOutputStream());
-        } catch (IOException e) {
+        } catch (UnsupportedOperationException | IOException e) {
             resp.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
-            LOGGER.error("Erreur lors de l'appel à l'API Porte-Documents searchFiles", e);
+            LOGGER.error("Erreur lors de l'appel à l'API Porte-Documents deleteFile", e);
         }
 
         LOGGER.info("====================== Fin " + req.getPathInfo() + " doDelete()");
@@ -254,7 +257,7 @@ public class DocHolderFileServlet extends AbstractAfServlet {
         } catch (JsonProcessingException jpe) {
             LOGGER.info("Erreur lors de la conversion des paramètres en json");
             resp.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
-        } catch (IOException ioe) {
+        } catch (UnsupportedOperationException | IOException ioe) {
             LOGGER.info("Erreur lors de l'envoi de la requête à Monguichet");
             resp.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
         }

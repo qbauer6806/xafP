@@ -61,7 +61,7 @@ public class DocHolderFilesServlet extends AbstractAfServlet {
         } catch (URISyntaxException e) {
             LOGGER.info("Erreur lors de la création de l'URL :", e);
             AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_INTERNAL_SERVER_ERROR, "Erreur interne");
-        } catch (IOException ioe) {
+        } catch (UnsupportedOperationException | IOException ioe) {
             LOGGER.info("Erreur interne : ", ioe);
             AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_INTERNAL_SERVER_ERROR, "Erreur interne");
         }
@@ -71,7 +71,7 @@ public class DocHolderFilesServlet extends AbstractAfServlet {
      * Méthode pour l'opération <b>deleteMultipleFiles</b>
      */
     @Override
-    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) {
         UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(req);
         if (usagerInfosDTO == null) {
             AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_UNAUTHORIZED, SharedMessages.UTILISATEUR_NON_AUTORISE);
@@ -98,6 +98,9 @@ public class DocHolderFilesServlet extends AbstractAfServlet {
 
         } catch (URISyntaxException e) {
             LOGGER.info("Erreur lors de la création de l'URL ", e);
+            AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_INTERNAL_SERVER_ERROR, "Erreur interne");
+        } catch (UnsupportedOperationException | IOException e) {
+            LOGGER.info("Erreur lors de la lecture de la réponse monguichet ", e);
             AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_INTERNAL_SERVER_ERROR, "Erreur interne");
         }
     }

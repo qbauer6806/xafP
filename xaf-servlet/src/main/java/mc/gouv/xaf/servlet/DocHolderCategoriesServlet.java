@@ -8,6 +8,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.fluent.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +48,12 @@ public class DocHolderCategoriesServlet extends AbstractAfServlet {
             resp.setStatus(statusCode);
             resp.setContentType(serviceResponse.getEntity().getContentType().getValue());
             IOUtils.copy(serviceResponse.getEntity().getContent(), resp.getOutputStream());
-        } catch (IOException e) {
+        }
+        catch(ClientProtocolException e) {
+            resp.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+            LOGGER.error("Erreur lors de lexécution de l'appel à monguichet, erreur protocole HTTP", e);
+        }
+        catch (UnsupportedOperationException | IOException e) {
             resp.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
             LOGGER.error("Erreur lors de l'appel à l'API Porte-Documents searchFiles", e);
         }

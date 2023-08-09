@@ -45,7 +45,7 @@ public class DocHolderServlet extends AbstractAfServlet {
             resp.setContentType(serviceResponse.getEntity().getContentType().getValue());
             IOUtils.copy(serviceResponse.getEntity().getContent(), resp.getOutputStream());
 
-        } catch (IOException e) {
+        } catch (UnsupportedOperationException | IOException e) {
             resp.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
             LOGGER.error("Erreur lors de l'appel à l'API Porte-Documents createDocumentHolder", e);
         }
@@ -77,7 +77,7 @@ public class DocHolderServlet extends AbstractAfServlet {
             resp.setContentType(serviceResponse.getEntity().getContentType().getValue());
             IOUtils.copy(serviceResponse.getEntity().getContent(), resp.getOutputStream());
 
-        } catch (IOException e) {
+        } catch (UnsupportedOperationException | IOException e) {
             resp.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
             LOGGER.error("Erreur lors de l'appel à l'API Porte-Documents deleteDocumentHolder", e);
         }

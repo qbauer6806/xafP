@@ -25,7 +25,7 @@ import java.io.IOException;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class DocHolderFilterTest {
+class DocHolderFilterTest {
 
     @Mock
     private HttpServletRequest request;
@@ -43,14 +43,14 @@ public class DocHolderFilterTest {
     MockedStatic<AfServletGouvPropertiesResolver> propertiesResolver;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         servletUtilsMocked = mockStatic(AppFactoryServletUtils.class, CALLS_REAL_METHODS);
         propertiesResolver = mockStatic(AfServletGouvPropertiesResolver.class, CALLS_REAL_METHODS);
         servletOutputStream = mock(ServletOutputStream.class);
     }
 
     @AfterEach
-    public void shutdown() {
+    void shutdown() {
         servletUtilsMocked.close();
         propertiesResolver.close();
         docHolderFilter.destroy();
@@ -68,7 +68,7 @@ public class DocHolderFilterTest {
         docHolderFilter.init(mock(FilterConfig.class));
         docHolderFilter.doFilter(request, response, filterChain);
 
-        verify(filterChain, times(1)).doFilter(eq(request), eq(response));
+        verify(filterChain, times(1)).doFilter(request, response);
     }
 
     @Test

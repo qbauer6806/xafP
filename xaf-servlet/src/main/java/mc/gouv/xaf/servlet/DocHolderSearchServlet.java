@@ -21,9 +21,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public class DocHolderSearchServlet extends AbstractAfServlet {
-    private final static long serialVersionUID = -314577095316396789L;
+    private static final long serialVersionUID = -314577095316396789L;
     private static final Logger LOGGER = LoggerFactory.getLogger(DocHolderSearchServlet.class);
-    private static final String serviceUrl = AfServletGouvPropertiesResolver.getPorteDocUrl() + "/search";
+    private static final String SERVICE_URL = AfServletGouvPropertiesResolver.getPorteDocUrl() + "/search";
 
     /**
      * Méthode pour l'opération <b>searchFiles</b>
@@ -31,7 +31,7 @@ public class DocHolderSearchServlet extends AbstractAfServlet {
      */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        LOGGER.info("====================== " + req.getServletPath() + " doGet()");
+        LOGGER.info("====================== {} doGet()", req.getServletPath());
 
         ObjectMapper mapper = new ObjectMapper();
 
@@ -45,7 +45,7 @@ public class DocHolderSearchServlet extends AbstractAfServlet {
         DocHolderFileSearchDTO fileSearchDTO = new DocHolderFileSearchDTO();
         fileSearchDTO.setOperator(DocHolderFileSearchDTO.OperatorEnum.AND);
 
-        Request serviceRequest = Request.Post(serviceUrl);
+        Request serviceRequest = Request.Post(SERVICE_URL);
         serviceRequest.setHeader(HttpHeaders.CONTENT_TYPE, "application/json; charset=utf-8");
         serviceRequest.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + usagerInfosDTO.getTokenInfo().getAccessToken());
 
@@ -61,6 +61,6 @@ public class DocHolderSearchServlet extends AbstractAfServlet {
             LOGGER.error("Erreur lors de l'appel à l'API Porte-Documents searchFiles", e);
         }
 
-        LOGGER.info("====================== Fin " + req.getServletPath() + " doGet()");
+        LOGGER.info("====================== Fin {} doGet()", req.getServletPath());
     }
 }

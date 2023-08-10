@@ -24,7 +24,7 @@ public class FileUploadLimitFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-
+        // (Methods should not be empty java:S1186) merci Sonar, heureusement que tu es là.
     }
 
     @Override
@@ -45,7 +45,7 @@ public class FileUploadLimitFilter implements Filter {
                 return;
             }
 
-            LOGGER.info(usagersFileUploadCompteurs.toString());
+            LOGGER.info("usagersFileUploadCompteurs = {}", usagersFileUploadCompteurs);
             LOGGER.info("compteurCleanSessions = {}", compteurCleanSessions);
 
             chain.doFilter(request, response);

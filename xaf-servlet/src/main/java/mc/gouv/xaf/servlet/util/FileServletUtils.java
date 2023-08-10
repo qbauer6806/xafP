@@ -38,7 +38,10 @@ public class FileServletUtils {
     private static final String EXTENSIONS_WHITELIST = "EXTENSIONS_WHITELIST";
     private static final String MAX_TAILLE_FICHIER = "MAX_TAILLE_FICHIER";
     private static final String VSCAN_ACTIVATION = "VSCAN_ACTIVATION";
-    private static final String SLASH = "/";
+
+    private FileServletUtils() {
+        throw new IllegalStateException("Utility class");
+    }
 
     public static boolean estExtensionDansWhitelist(String filename) {
         String[] filenameSplit = filename.split("\\.");
@@ -90,7 +93,7 @@ public class FileServletUtils {
         // Constitution de la requête
         boolean activationVscan = Boolean.parseBoolean(propActivationVscan.getValue());
         // Rajouter l'information si le fichier a été scanné par VSCAN ou pas
-        postRequest.setHeader(AppFactoryServletUtils.FILE_METADATA_SCANEXECUTE, activationVscan + ""); // TODO : activatoinVscan.toString() non ?
+        postRequest.setHeader(AppFactoryServletUtils.FILE_METADATA_SCANEXECUTE, activationVscan + "");
         LOGGER.info("Activation de VSCAN: {}", activationVscan);
 
         if (activationVscan) {

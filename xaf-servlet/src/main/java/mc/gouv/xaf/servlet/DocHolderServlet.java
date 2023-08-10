@@ -17,9 +17,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public class DocHolderServlet extends AbstractAfServlet {
-    private final static long serialVersionUID = -314577095316396789L;
+    private static final long serialVersionUID = -314577095316396789L;
     private static final Logger LOGGER = LoggerFactory.getLogger(DocHolderServlet.class);
-    private static final String serviceUrl = AfServletGouvPropertiesResolver.getPorteDocUrl();
+    private static final String SERVICE_URL = AfServletGouvPropertiesResolver.getPorteDocUrl();
 
     /**
      * Methode pour l'opération <b>createDocumentHolder</b>
@@ -27,7 +27,7 @@ public class DocHolderServlet extends AbstractAfServlet {
      */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
-        LOGGER.info("====================== " + req.getServletPath() + " doPost()");
+        LOGGER.info("====================== {} doPost()", req.getServletPath());
 
         UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(req);
         if (usagerInfosDTO == null) {
@@ -35,7 +35,7 @@ public class DocHolderServlet extends AbstractAfServlet {
             return;
         }
 
-        Request serviceRequest = Request.Post(serviceUrl);
+        Request serviceRequest = Request.Post(SERVICE_URL);
         serviceRequest.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + usagerInfosDTO.getTokenInfo().getAccessToken());
 
         try {
@@ -50,7 +50,7 @@ public class DocHolderServlet extends AbstractAfServlet {
             LOGGER.error("Erreur lors de l'appel à l'API Porte-Documents createDocumentHolder", e);
         }
 
-        LOGGER.info("====================== Fin " + req.getServletPath() + " doPost()");
+        LOGGER.info("====================== Fin {} doPost()", req.getServletPath());
     }
 
     /**
@@ -59,7 +59,7 @@ public class DocHolderServlet extends AbstractAfServlet {
      */
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) {
-        LOGGER.info("====================== " + req.getServletPath() + " doDelete()");
+        LOGGER.info("====================== {} doDelete()", req.getServletPath());
 
         UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(req);
         if (usagerInfosDTO == null) {
@@ -67,7 +67,7 @@ public class DocHolderServlet extends AbstractAfServlet {
             return;
         }
 
-        Request serviceRequest = Request.Delete(serviceUrl);
+        Request serviceRequest = Request.Delete(SERVICE_URL);
         serviceRequest.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + usagerInfosDTO.getTokenInfo().getAccessToken());
 
         try {
@@ -82,6 +82,6 @@ public class DocHolderServlet extends AbstractAfServlet {
             LOGGER.error("Erreur lors de l'appel à l'API Porte-Documents deleteDocumentHolder", e);
         }
 
-        LOGGER.info("====================== Fin " + req.getServletPath() + " doDelete()");
+        LOGGER.info("====================== Fin {} doDelete()", req.getServletPath());
     }
 }

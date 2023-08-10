@@ -29,7 +29,7 @@ import static org.mockito.Mockito.*;
 
 
 @ExtendWith(MockitoExtension.class)
-public class DocHolderServletsTest {
+class DocHolderServletsTest {
 
     @Mock
     private HttpServletRequest request;
@@ -41,7 +41,7 @@ public class DocHolderServletsTest {
     MockedStatic<AppFactoryServletUtils> servletUtilsMocked;
 
     @BeforeEach
-    public void setup() throws IOException {
+    void setup() throws IOException {
         // On utilise CALLS_REAL_METHOD ici. Cela sert à mocker par exemple la méthode getLoggedUser
         // mais aussi pouvoir continuer le test quand d'autres méthodes comme logAndSendError sont appelées
         // et ainsi vérifier les statusCode définis dans les responses des Servlets.
@@ -51,14 +51,14 @@ public class DocHolderServletsTest {
     }
 
     @AfterEach
-    public void shutdown() {
+    void shutdown() {
         // Important ! Sinon, la classe statique n'est pas remise à zéro entre les tests.
         // Dans le cas où vous devez vous en passer, déclarez le mock statique dans un bloc try-with-resource
         servletUtilsMocked.close();
     }
 
     @Test
-    public void failOnUserNotLoggedTest() throws ServletException, IOException {
+    void failOnUserNotLoggedTest() throws ServletException, IOException {
         servletUtilsMocked.when(() -> AppFactoryServletUtils.getLoggedUser(any())).thenReturn(null);
 
         DocHolderSearchServlet docHolderSearchServlet = new DocHolderSearchServlet();
@@ -81,14 +81,14 @@ public class DocHolderServletsTest {
 
     @ParameterizedTest
     @MethodSource("emptyOrInvalidFileParameters")
-    public void failOnBadParameters(String typedoc, String preferedName) throws ServletException, IOException {
+    void failOnBadParameters(String typedoc, String preferedName) throws ServletException, IOException {
         UsagerInfosDTO usagerInfosDTO = mock(UsagerInfosDTO.class);
         DocHolderFileServlet fileServlet = new DocHolderFileServlet();
 
         servletUtilsMocked.when(() -> AppFactoryServletUtils.getLoggedUser(any())).thenReturn(usagerInfosDTO);
 
-        when(request.getParameter(eq("typedoc"))).thenReturn(typedoc);
-        when(request.getParameter(eq("preferedName"))).thenReturn(preferedName);
+        when(request.getParameter("typedoc")).thenReturn(typedoc);
+        when(request.getParameter("preferedName")).thenReturn(preferedName);
 
         fileServlet.doPost(request, response);
 
@@ -96,7 +96,7 @@ public class DocHolderServletsTest {
     }
 
     @Test
-    public void failOnNoFileProvided() throws ServletException, IOException {
+    void failOnNoFileProvided() throws ServletException, IOException {
         UsagerInfosDTO usagerInfosDTO = mock(UsagerInfosDTO.class);
         servletUtilsMocked.when(() -> AppFactoryServletUtils.getLoggedUser(any())).thenReturn(usagerInfosDTO);
 
@@ -111,7 +111,7 @@ public class DocHolderServletsTest {
     }
 
     @Test
-    public void failOnTooManyFilesProvided() throws ServletException, IOException {
+    void failOnTooManyFilesProvided() throws ServletException, IOException {
         UsagerInfosDTO usagerInfosDTO = mock(UsagerInfosDTO.class);
         servletUtilsMocked.when(() -> AppFactoryServletUtils.getLoggedUser(any())).thenReturn(usagerInfosDTO);
 

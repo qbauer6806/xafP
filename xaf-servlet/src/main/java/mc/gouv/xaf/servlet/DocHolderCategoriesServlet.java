@@ -19,9 +19,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public class DocHolderCategoriesServlet extends AbstractAfServlet {
-    private final static long serialVersionUID = -314577095316396789L;
+    private static final long serialVersionUID = -314577095316396789L;
     private static final Logger LOGGER = LoggerFactory.getLogger(DocHolderCategoriesServlet.class);
-    private static final String serviceUrl = AfServletGouvPropertiesResolver.getPorteDocUrl() + "/categories";
+    private static final String SERVICE_URL = AfServletGouvPropertiesResolver.getPorteDocUrl() + "/categories";
 
     /**
      * Méthode pour l'opération <b>getDocCategories</b>
@@ -31,7 +31,7 @@ public class DocHolderCategoriesServlet extends AbstractAfServlet {
      */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        LOGGER.info("====================== " + req.getServletPath() + " doGet()");
+        LOGGER.info("====================== {} doGet()", req.getServletPath());
 
         UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(req);
         if (usagerInfosDTO == null) {
@@ -39,7 +39,7 @@ public class DocHolderCategoriesServlet extends AbstractAfServlet {
             return;
         }
 
-        Request serviceRequest = Request.Get(serviceUrl);
+        Request serviceRequest = Request.Get(SERVICE_URL);
         serviceRequest.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + usagerInfosDTO.getTokenInfo().getAccessToken());
 
         try {
@@ -48,16 +48,14 @@ public class DocHolderCategoriesServlet extends AbstractAfServlet {
             resp.setStatus(statusCode);
             resp.setContentType(serviceResponse.getEntity().getContentType().getValue());
             IOUtils.copy(serviceResponse.getEntity().getContent(), resp.getOutputStream());
-        }
-        catch(ClientProtocolException e) {
+        } catch (ClientProtocolException e) {
             resp.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
             LOGGER.error("Erreur lors de lexécution de l'appel à monguichet, erreur protocole HTTP", e);
-        }
-        catch (UnsupportedOperationException | IOException e) {
+        } catch (UnsupportedOperationException | IOException e) {
             resp.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
             LOGGER.error("Erreur lors de l'appel à l'API Porte-Documents searchFiles", e);
         }
 
-        LOGGER.info("====================== Fin " + req.getServletPath() + " doGet()");
+        LOGGER.info("====================== Fin {} doGet()", req.getServletPath());
     }
 }

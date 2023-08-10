@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class FileServletUtilsTest {
+class FileServletUtilsTest {
 
     private static final String EXTENSIONS_WHITELIST = "EXTENSIONS_WHITELIST";
     private static final String MAX_TAILLE_FICHIER = "MAX_TAILLE_FICHIER";
@@ -140,7 +140,7 @@ public class FileServletUtilsTest {
 
         when(compteurUpload.getDatePremierUpload()).thenReturn(zeroDate.plus(tempsIntervaleActuel, ChronoUnit.MILLIS));
         when(compteurUpload.getCompteur()).thenReturn(maxUploadActuel);
-        when(usagersFileUploadCompteurs.get(eq(session))).thenReturn(compteurUpload);
+        when(usagersFileUploadCompteurs.get(session)).thenReturn(compteurUpload);
 
         try (MockedStatic<LocalDateTime> localDateTime = mockStatic(LocalDateTime.class, CALLS_REAL_METHODS);
              MockedStatic<AfServletGouvPropertiesResolver> propertiesResolver = mockStatic(AfServletGouvPropertiesResolver.class)) {
@@ -176,7 +176,7 @@ public class FileServletUtilsTest {
 
         when(compteurUpload.getDatePremierUpload()).thenReturn(zeroDate.plus(tempsIntervaleActuel, ChronoUnit.MILLIS));
         when(compteurUpload.getCompteur()).thenReturn(maxUploadActuel);
-        when(usagersFileUploadCompteurs.get(eq(session))).thenReturn(compteurUpload);
+        when(usagersFileUploadCompteurs.get(session)).thenReturn(compteurUpload);
 
         try (MockedStatic<LocalDateTime> localDateTime = mockStatic(LocalDateTime.class, CALLS_REAL_METHODS);
              MockedStatic<AfServletGouvPropertiesResolver> propertiesResolver = mockStatic(AfServletGouvPropertiesResolver.class)) {
@@ -188,9 +188,9 @@ public class FileServletUtilsTest {
             FileServletUtils.limiteUploadAtteinte(usagersFileUploadCompteurs, session);
 
             if (verifieSupprime) {
-                verify(usagersFileUploadCompteurs).remove(eq(session));
+                verify(usagersFileUploadCompteurs).remove(session);
             } else {
-                verify(usagersFileUploadCompteurs, never()).remove(eq(session));
+                verify(usagersFileUploadCompteurs, never()).remove(session);
             }
         }
     }
@@ -200,7 +200,6 @@ public class FileServletUtilsTest {
         HttpSession session1 = mock(HttpSession.class);
         HttpSession session2 = mock(HttpSession.class);
         HttpSession session3 = mock(HttpSession.class);
-        HttpSession session4 = mock(HttpSession.class);
 
         FileUploadCompteurDTO compteur1 = new FileUploadCompteurDTO();
         compteur1.setDatePremierUpload(zeroDate.minusMinutes(100));
@@ -225,7 +224,7 @@ public class FileServletUtilsTest {
             FileServletUtils.reinitialierSessionsInutilisees(usagersFileUploadCompteurs);
         }
 
-        assertEquals(usagersFileUploadCompteurs.size(), 2);
+        assertEquals(2, usagersFileUploadCompteurs.size());
 
         compteur1 = usagersFileUploadCompteurs.get(session1);
         compteur2 = usagersFileUploadCompteurs.get(session2);

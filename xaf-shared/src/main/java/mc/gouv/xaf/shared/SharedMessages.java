@@ -22,6 +22,7 @@ public class SharedMessages {
     public static final String FICHIER_NOM_MANQUANT = "Nom du fichier manquant";
     public static final String FICHIER_TROP_GRAND = "La taille du fichier est trop grande";
     public static final String FICHIER_LIMITE_UPLOAD_ATTEINTE = "La limite de nombre de fichiers uploadés a été atteinte";
+    public static final String ERREUR_INTERNE = "Erreur interne lors du traitement";
 
     private SharedMessages() {
     }

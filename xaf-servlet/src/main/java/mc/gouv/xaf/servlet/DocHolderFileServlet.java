@@ -34,18 +34,23 @@ import java.util.Map;
 
 @MultipartConfig
 public class DocHolderFileServlet extends AbstractAfServlet {
-    private final static long serialVersionUID = -314577095316396789L;
+    private static final long serialVersionUID = -314577095316396789L;
     private static final Logger LOGGER = LoggerFactory.getLogger(DocHolderFileServlet.class);
-    private static final String serviceUrl = AfServletGouvPropertiesResolver.getPorteDocUrl() + "/file";
+    private static final String SERVICE_URL = AfServletGouvPropertiesResolver.getPorteDocUrl() + "/file";
+    public static final String VERIFICATION_USAGER_CONNECTE = "Vérification usager connecté";
+
+    public static final String FILENAME = "filename";
+    public static final String TYPEDOC = "typedoc";
+    public static final String PREFERED_NAME = "preferedName";
 
     /**
      * Méthode pour l'opération <b>getFile</b>
      */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        LOGGER.info("====================== " + req.getServletPath() + " doGet()");
+        LOGGER.info("====================== {} doGet()", req.getServletPath());
 
-        LOGGER.info("Vérification usager connecté");
+        LOGGER.info(VERIFICATION_USAGER_CONNECTE);
         UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(req);
         if (usagerInfosDTO == null) {
             AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_UNAUTHORIZED, SharedMessages.UTILISATEUR_NON_AUTORISE);
@@ -53,16 +58,15 @@ public class DocHolderFileServlet extends AbstractAfServlet {
         }
 
         LOGGER.info("Récupération du paramètre 'filename' dans l'url");
-        String filename = req.getParameter("filename");
+        String filename = req.getParameter(FILENAME);
         if (StringUtils.isEmpty(filename)) {
             AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_BAD_REQUEST, SharedMessages.REQUETE_MALFORMEE);
             return;
         }
 
         try {
-            // TODO : traitements sur "filename" ? (encodage, entités etc...)
-            URIBuilder uriBuilder = new URIBuilder(serviceUrl);
-            uriBuilder.addParameter("filename", filename);
+            URIBuilder uriBuilder = new URIBuilder(SERVICE_URL);
+            uriBuilder.addParameter(FILENAME, filename);
 
             LOGGER.info("Génération de la requête porte-document");
             Request serviceRequest = Request.Get(uriBuilder.build());
@@ -86,7 +90,7 @@ public class DocHolderFileServlet extends AbstractAfServlet {
             return;
         }
 
-        LOGGER.info("====================== Fin " + req.getServletPath() + " doGet()");
+        LOGGER.info("====================== Fin {} doGet()", req.getServletPath());
     }
 
     /**
@@ -95,9 +99,9 @@ public class DocHolderFileServlet extends AbstractAfServlet {
      */
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        LOGGER.info("====================== " + req.getServletPath() + " doPost()");
+        LOGGER.info("====================== {} doPost()", req.getServletPath());
 
-        LOGGER.info("Vérification usager connecté");
+        LOGGER.info(VERIFICATION_USAGER_CONNECTE);
         UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(req);
         if (usagerInfosDTO == null) {
             AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_UNAUTHORIZED, SharedMessages.UTILISATEUR_NON_AUTORISE);
@@ -105,8 +109,8 @@ public class DocHolderFileServlet extends AbstractAfServlet {
         }
 
         LOGGER.info("Vérification des paramètres envoyés");
-        String typedoc = req.getParameter("typedoc");
-        String preferedName = req.getParameter("preferedName");
+        String typedoc = req.getParameter(TYPEDOC);
+        String preferedName = req.getParameter(PREFERED_NAME);
         if (StringUtils.isEmpty(typedoc) && StringUtils.isEmpty(preferedName)) {
             AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_BAD_REQUEST, SharedMessages.REQUETE_MALFORMEE);
             return;
@@ -116,10 +120,7 @@ public class DocHolderFileServlet extends AbstractAfServlet {
         try {
             Collection<Part> parts = req.getParts();
 
-            if (parts.isEmpty()) {
-                AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_BAD_REQUEST, SharedMessages.REQUETE_MALFORMEE);
-                return;
-            } else if (parts.size() > 1) {
+            if (parts.size() != 1) {
                 AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_BAD_REQUEST, SharedMessages.REQUETE_MALFORMEE);
                 return;
             }
@@ -140,7 +141,8 @@ public class DocHolderFileServlet extends AbstractAfServlet {
                 return;
             }
 
-            LOGGER.info("Vérification du type pour le fichier {} ...", filename.replaceAll(SharedMessages.UNSAFE_CHARS, "_"));
+            String safeFilename = filename.replaceAll(SharedMessages.UNSAFE_CHARS, "_");
+            LOGGER.info("Vérification du type pour le fichier {} ...", safeFilename);
             if (!FileServletUtils.estExtensionDansWhitelist(filename)) {
                 LOGGER.info("Le type de fichier ne correspond pas aux types whitelistés ({})", FileServletUtils.getExtensionsWhitelist());
                 AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_BAD_REQUEST, SharedMessages.FICHIER_TYPE_EXTENTION_INVALIDE);
@@ -150,10 +152,10 @@ public class DocHolderFileServlet extends AbstractAfServlet {
             LOGGER.info("Création de la requête");
             MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create()
                     .addPart("file", new InputStreamBody(filePart.getInputStream(), ContentType.create(filePart.getContentType()), filePart.getSubmittedFileName()))
-                    .addTextBody("preferedName", preferedName)
-                    .addTextBody("typedoc", typedoc);
+                    .addTextBody(PREFERED_NAME, preferedName)
+                    .addTextBody(TYPEDOC, typedoc);
 
-            Request serviceRequest = Request.Post(serviceUrl);
+            Request serviceRequest = Request.Post(SERVICE_URL);
             serviceRequest.body(entityBuilder.build());
             serviceRequest.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + usagerInfosDTO.getTokenInfo().getAccessToken());
 
@@ -171,7 +173,7 @@ public class DocHolderFileServlet extends AbstractAfServlet {
             LOGGER.error("Erreur lors de l'appel à l'API Porte-Documents saveFile", ioe);
         }
 
-        LOGGER.info("====================== Fin " + req.getServletPath() + " doPost()");
+        LOGGER.info("====================== Fin {} doPost()", req.getServletPath());
     }
 
     /**
@@ -179,11 +181,11 @@ public class DocHolderFileServlet extends AbstractAfServlet {
      */
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) {
-        LOGGER.info("====================== " + req.getPathInfo() + " doDelete()");
+        LOGGER.info("====================== {} doDelete()", req.getServletPath());
 
         ObjectMapper mapper = new ObjectMapper();
 
-        LOGGER.info("Vérification usager connecté");
+        LOGGER.info(VERIFICATION_USAGER_CONNECTE);
         UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(req);
         if (usagerInfosDTO == null) {
             AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_UNAUTHORIZED, SharedMessages.UTILISATEUR_NON_AUTORISE);
@@ -191,18 +193,18 @@ public class DocHolderFileServlet extends AbstractAfServlet {
         }
 
         LOGGER.info("Vérification des paramètres envoyés");
-        String filename = req.getParameter("filename");
+        String filename = req.getParameter(FILENAME);
         if (StringUtils.isEmpty(filename)) {
             AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_BAD_REQUEST, SharedMessages.REQUETE_MALFORMEE);
             return;
         }
 
         LOGGER.info("Préparation de la requête");
-        Request serviceRequest = Request.Delete(serviceUrl);
+        Request serviceRequest = Request.Delete(SERVICE_URL);
         serviceRequest.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + usagerInfosDTO.getTokenInfo().getAccessToken());
 
         try {
-            serviceRequest.bodyString(mapper.writeValueAsString(Map.of("filename", filename)), ContentType.APPLICATION_JSON);
+            serviceRequest.bodyString(mapper.writeValueAsString(Map.of(FILENAME, filename)), ContentType.APPLICATION_JSON);
             LOGGER.info("Envoi de la requête");
             HttpResponse serviceResponse = serviceRequest.execute().returnResponse();
             int statusCode = serviceResponse.getStatusLine().getStatusCode();
@@ -214,7 +216,7 @@ public class DocHolderFileServlet extends AbstractAfServlet {
             LOGGER.error("Erreur lors de l'appel à l'API Porte-Documents deleteFile", e);
         }
 
-        LOGGER.info("====================== Fin " + req.getPathInfo() + " doDelete()");
+        LOGGER.info("====================== Fin {} doDelete()", req.getServletPath());
     }
 
     /**
@@ -222,9 +224,9 @@ public class DocHolderFileServlet extends AbstractAfServlet {
      */
     @Override
     protected void doPatch(HttpServletRequest req, HttpServletResponse resp) {
-        LOGGER.info("====================== " + req.getPathInfo() + " doPatch()");
+        LOGGER.info("====================== {} doPatch()", req.getServletPath());
 
-        LOGGER.info("Vérification usager connecté");
+        LOGGER.info(VERIFICATION_USAGER_CONNECTE);
         UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(req);
         if (usagerInfosDTO == null) {
             AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_UNAUTHORIZED, SharedMessages.UTILISATEUR_NON_AUTORISE);
@@ -232,19 +234,19 @@ public class DocHolderFileServlet extends AbstractAfServlet {
         }
 
         LOGGER.info("Vérification des paramètres envoyés");
-        String filename = req.getParameter("filename");
-        String typedoc = req.getParameter("typedoc");
-        String preferedName = req.getParameter("preferedName");
+        String filename = req.getParameter(FILENAME);
+        String typedoc = req.getParameter(TYPEDOC);
+        String preferedName = req.getParameter(PREFERED_NAME);
         if (StringUtils.isEmpty(filename) || StringUtils.isEmpty(typedoc) || StringUtils.isEmpty(preferedName)) {
             AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_BAD_REQUEST, SharedMessages.REQUETE_MALFORMEE);
             return;
         }
 
-        Map<String, String> parameters = Map.of("filename", filename, "typedoc", typedoc, "preferedName", preferedName);
+        Map<String, String> parameters = Map.of(FILENAME, filename, TYPEDOC, typedoc, PREFERED_NAME, preferedName);
 
         try {
             LOGGER.info("Préparation de la requête");
-            Request serviceRequest = Request.Patch(serviceUrl);
+            Request serviceRequest = Request.Patch(SERVICE_URL);
             serviceRequest.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + usagerInfosDTO.getTokenInfo().getAccessToken());
             serviceRequest.bodyString(new ObjectMapper().writeValueAsString(parameters), ContentType.APPLICATION_JSON);
 
@@ -263,6 +265,6 @@ public class DocHolderFileServlet extends AbstractAfServlet {
         }
 
 
-        LOGGER.info("====================== Fin " + req.getPathInfo() + " doPatch()");
+        LOGGER.info("====================== Fin {} doPatch()", req.getServletPath());
     }
 }

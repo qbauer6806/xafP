@@ -21,9 +21,12 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 
 public class DocHolderFilesServlet extends AbstractAfServlet {
-    private final static long serialVersionUID = -314577095316396789L;
+    private static final long serialVersionUID = -314577095316396789L;
     private static final Logger LOGGER = LoggerFactory.getLogger(DocHolderFilesServlet.class);
-    private static final String serviceUrl = AfServletGouvPropertiesResolver.getPorteDocUrl() + "/files";
+    private static final String SERVICE_URL = AfServletGouvPropertiesResolver.getPorteDocUrl() + "/files";
+    public static final String FILENAMES = "filenames";
+    public static final String ZIP_NAME = "zipName";
+    public static final String FILENAMES_ARRAY = "filenames[]";
 
 
     /**
@@ -31,23 +34,24 @@ public class DocHolderFilesServlet extends AbstractAfServlet {
      */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        LOGGER.info("====================== {} doGet()", req.getServletPath());
         UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(req);
         if (usagerInfosDTO == null) {
             AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_UNAUTHORIZED, SharedMessages.UTILISATEUR_NON_AUTORISE);
             return;
         }
 
-        String filenames = req.getParameter("filenames[]");
-        String zipName = req.getParameter("zipName");
+        String filenames = req.getParameter(FILENAMES_ARRAY);
+        String zipName = req.getParameter(ZIP_NAME);
         if (StringUtils.isEmpty(zipName) || StringUtils.isEmpty(filenames)) {
             AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_BAD_REQUEST, SharedMessages.REQUETE_MALFORMEE);
             return;
         }
 
         try {
-            URIBuilder uriBuilder = new URIBuilder(serviceUrl)
-                    .addParameter("filenames[]", filenames)
-                    .addParameter("zipName", zipName);
+            URIBuilder uriBuilder = new URIBuilder(SERVICE_URL)
+                    .addParameter(FILENAMES_ARRAY, filenames)
+                    .addParameter(ZIP_NAME, zipName);
 
             Request serviceRequest = Request.Get(uriBuilder.build());
             serviceRequest.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + usagerInfosDTO.getTokenInfo().getAccessToken());
@@ -60,11 +64,12 @@ public class DocHolderFilesServlet extends AbstractAfServlet {
 
         } catch (URISyntaxException e) {
             LOGGER.info("Erreur lors de la création de l'URL :", e);
-            AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_INTERNAL_SERVER_ERROR, "Erreur interne");
+            AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_INTERNAL_SERVER_ERROR, SharedMessages.ERREUR_INTERNE);
         } catch (UnsupportedOperationException | IOException ioe) {
             LOGGER.info("Erreur interne : ", ioe);
-            AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_INTERNAL_SERVER_ERROR, "Erreur interne");
+            AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_INTERNAL_SERVER_ERROR, SharedMessages.ERREUR_INTERNE);
         }
+        LOGGER.info("====================== Fin {} doGet()", req.getServletPath());
     }
 
     /**
@@ -72,20 +77,22 @@ public class DocHolderFilesServlet extends AbstractAfServlet {
      */
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) {
+        LOGGER.info("====================== {} doDelete()", req.getServletPath());
+
         UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(req);
         if (usagerInfosDTO == null) {
             AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_UNAUTHORIZED, SharedMessages.UTILISATEUR_NON_AUTORISE);
             return;
         }
 
-        String filenames = req.getParameter("filenames");
+        String filenames = req.getParameter(FILENAMES);
         if (StringUtils.isEmpty(filenames)) {
             AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_BAD_REQUEST, SharedMessages.REQUETE_MALFORMEE);
             return;
         }
 
         try {
-            URIBuilder uriBuilder = new URIBuilder(serviceUrl).addParameter("filenames[]", filenames);
+            URIBuilder uriBuilder = new URIBuilder(SERVICE_URL).addParameter(FILENAMES_ARRAY, filenames);
 
             Request serviceRequest = Request.Delete(uriBuilder.build());
             serviceRequest.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + usagerInfosDTO.getTokenInfo().getAccessToken());
@@ -98,10 +105,12 @@ public class DocHolderFilesServlet extends AbstractAfServlet {
 
         } catch (URISyntaxException e) {
             LOGGER.info("Erreur lors de la création de l'URL ", e);
-            AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_INTERNAL_SERVER_ERROR, "Erreur interne");
+            AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_INTERNAL_SERVER_ERROR, SharedMessages.ERREUR_INTERNE);
         } catch (UnsupportedOperationException | IOException e) {
             LOGGER.info("Erreur lors de la lecture de la réponse monguichet ", e);
-            AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_INTERNAL_SERVER_ERROR, "Erreur interne");
+            AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_INTERNAL_SERVER_ERROR, SharedMessages.ERREUR_INTERNE);
         }
+
+        LOGGER.info("====================== Fin {} doDelete()", req.getServletPath());
     }
 }

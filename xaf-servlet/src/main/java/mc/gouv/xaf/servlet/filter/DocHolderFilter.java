@@ -52,5 +52,8 @@ public class DocHolderFilter implements Filter {
 
     @Override
     public void destroy() {
+        /* (Methods should not be empty java:S1186)
+         * N'oubliez pas de détruire toutes ressources créés dans init ici !
+         */
     }
 }

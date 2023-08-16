@@ -181,6 +181,15 @@ public class DemandesTransformer {
             LOGGER.error("Erreur lors de la conversion JSON", e);
         }
 
+
+        // Meta
+        try {
+            if (bo.getMeta() != null)
+                dto.setMeta(mapper.readTree(bo.getMeta()));
+        } catch (IOException e) {
+            LOGGER.error("Erreur lors de la conversion JSON", e);
+        }
+
         return dto;
     }
 
@@ -234,6 +243,7 @@ public class DemandesTransformer {
         ObjectMapper mapper = new ObjectMapper();
         try {
             bo.setContenu(mapper.writeValueAsString(dto.getContenu()));
+            bo.setMeta(mapper.writeValueAsString(dto.getMeta()));
         } catch (JsonProcessingException e) {
             LOGGER.error("Erreur lors de la conversion JSON", e);
         }

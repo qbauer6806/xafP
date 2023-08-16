@@ -115,6 +115,9 @@ public class DemandeBO {
     @Column(name = "DONNEES_CERTIFIEES", columnDefinition = "TEXT", nullable = true)
     private String donneesCertifiees;
     
+
+    @Column(name = "META", columnDefinition = "TEXT", nullable = true)
+    private String meta;
     // De type Integer et non DemandeBO (autrement dit : pas de foreign key en base)
     // Ceci afin d'être tranquille le jour où cette demande source doit être purgée (supprimée)
     @Column(name = "PK_DEMANDE_SOURCE", nullable = true)
@@ -326,6 +329,15 @@ public class DemandeBO {
 
 	public void setPkDemandeSource(Integer pkDemandeSource) {
 		this.pkDemandeSource = pkDemandeSource;
+	}
+
+
+	public String getMeta() {
+		return meta;
+	}
+
+	public void setMeta(String meta) {
+		this.meta = meta;
 	}
 
 }

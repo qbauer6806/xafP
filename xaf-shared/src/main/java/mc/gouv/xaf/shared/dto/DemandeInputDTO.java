@@ -39,6 +39,9 @@ public class DemandeInputDTO {
     
     private Integer brouillonId;
     
+
+    private JsonNode meta;
+
     // Données envoyées à l'API si l'usager s'est connecté via MConnect
     private DonneesMConnectDTO donneesMConnect;
     
@@ -168,12 +171,20 @@ public class DemandeInputDTO {
 
 	@Override
 	public String toString() {
-		return "DemandeInputDTO [contenu=" + contenu + ", fichiers=" + Arrays.toString(fichiers) + ", langue=" + langue
-				+ ", canal=" + canal + ", observations=" + observations + ", agentAffecteId=" + agentAffecteId
-				+ ", courrierDateReception=" + courrierDateReception + ", courrierRefInterne=" + courrierRefInterne
-				+ ", creeParAgentId=" + creeParAgentId + ", novalidate=" + novalidate + ", buildId=" + buildId
-				+ ", recapType=" + recapType + ", brouillonId=" + brouillonId + ", donneesMConnect=" + donneesMConnect
-				+ ", demandeSourceId=" + demandeSourceId + "]";
+        return "DemandeInputDTO [contenu=" + contenu + ", fichiers=" + Arrays.toString(fichiers) + ", langue=" + langue
+                + ", canal=" + canal + ", observations=" + observations + ", agentAffecteId=" + agentAffecteId
+                + ", courrierDateReception=" + courrierDateReception + ", courrierRefInterne=" + courrierRefInterne
+                + ", creeParAgentId=" + creeParAgentId + ", novalidate=" + novalidate + ", buildId=" + buildId
+                + ", recapType=" + recapType + ", brouillonId=" + brouillonId + ", donneesMConnect=" + donneesMConnect
+                + ", demandeSourceId=" + demandeSourceId + "]";
+    }
+
+	public JsonNode getMeta() {
+		return meta;
 	}
-	
+
+	public void setMeta(JsonNode meta) {
+		this.meta = meta;
+	}
+
 }

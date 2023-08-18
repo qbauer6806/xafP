@@ -2,12 +2,12 @@ package mc.gouv.xaf.back.dsp.enums;
 
 public enum ResidLoyerPeriodiciteEnum {
 
-    JOURNALIER("JOURNALIER"),
-    MENSUEL("MENSUEL"),
-    TRIMESTRIEL("TRIMESTRIEL"),
-    SEMESTRIEL("SEMESTRIEL"),
-    ANNUEL("ANNUEL"),
-    AUCUNE("AUCUNE");
+    JOU("JOU"),
+    MEN("MEN"),
+    TRI("TRI"),
+    SEM("SEM"),
+    ANU("ANU"),
+    AUC("AUC");
 
     public String value;
 

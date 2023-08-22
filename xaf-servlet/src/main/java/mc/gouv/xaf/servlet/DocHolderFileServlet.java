@@ -111,7 +111,7 @@ public class DocHolderFileServlet extends AbstractAfServlet {
         LOGGER.info("Vérification des paramètres envoyés");
         String typedoc = req.getParameter(TYPEDOC);
         String preferedName = req.getParameter(PREFERED_NAME);
-        if (StringUtils.isEmpty(typedoc) && StringUtils.isEmpty(preferedName)) {
+        if (StringUtils.isEmpty(typedoc) || StringUtils.isEmpty(preferedName)) {
             AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_BAD_REQUEST, SharedMessages.REQUETE_MALFORMEE);
             return;
         }
@@ -120,15 +120,15 @@ public class DocHolderFileServlet extends AbstractAfServlet {
         try {
             Collection<Part> parts = req.getParts();
 
-            if (parts.size() != 1) {
+            if (parts.size() == 0) {
                 AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_BAD_REQUEST, SharedMessages.REQUETE_MALFORMEE);
                 return;
             }
 
-            Part filePart = parts.iterator().next();
-
             // Récupération du nom du fichier à envoyer
-            String filename = filePart.getSubmittedFileName();
+            Part filePart = req.getPart("file");
+            String filename = filePart != null ? filePart.getSubmittedFileName() : null;
+
             if (StringUtils.isEmpty(filename)) {
                 AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_BAD_REQUEST, SharedMessages.FICHIER_NOM_MANQUANT);
                 return;

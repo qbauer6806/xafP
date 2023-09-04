@@ -145,4 +145,9 @@ public class DemarchesDataProviderImpl implements DemarchesDataProvider {
     public String getBrouillonStatutDeprecated() {
         return null;
     }
+
+	@Override
+	public List<String> getSpansIdAMarquer(DemandeDTO demande) {
+		return null;
+	}
 }

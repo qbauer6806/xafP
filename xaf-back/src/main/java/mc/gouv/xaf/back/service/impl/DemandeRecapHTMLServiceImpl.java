@@ -39,6 +39,7 @@ import com.fasterxml.jackson.databind.node.TextNode;
 
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemandeRecapHTMLService;
+import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.rest.PaysCache;
@@ -60,7 +61,9 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
 @Component
 public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DemandeRecapHTMLServiceImpl.class);
+    private static final String BOLT_UDERLINE_END = "</u></b>";
+	private static final String BOLT_UDERLINE_START = "<b><u>";
+	private static final Logger LOGGER = LoggerFactory.getLogger(DemandeRecapHTMLServiceImpl.class);
     private static final String CONTENU_DTO = "ContenuProjectDemandeDTO";
     private static final String SPAN_OPEN = "<span>";
     private static final String SPAN_DD = "</span></dd>";
@@ -94,6 +97,9 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 
     @Autowired
     private DemandesService demandesService;
+    
+    @Autowired
+    private DemarchesDataProvider demarchesDataProvider;
 
     @Override
     public String getHTMLDemandeGeneric(DemandeDTO demande) {
@@ -321,19 +327,22 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
             if (!StringUtils.isBlank(value)) {
                 // Pour mettre une icône s'il s'agit d'une donnée certifiée
                 boolean isDonneeCertifiee = donneesCertififiees.contains(champ.get("path"));
-                buildHTML(html, demandeSource, value, isDonneeCertifiee, isPdfRecap, champ);
+                buildHTML(html, demandeSource, value, isDonneeCertifiee, isPdfRecap, champ, demande);
             }
         }
     }
 
     private void buildHTML(StringBuilder html, DemandeDTO demandeSource, String value, boolean isDonneeCertifiee,
-            boolean isPdfRecap, JSONObject champ)
+            boolean isPdfRecap, JSONObject champ, DemandeDTO demande)
             throws ClassNotFoundException, InvocationTargetException, IllegalAccessException, NoSuchMethodException {
 
         String type = (String) champ.get("type");
+        List<String> spansIdAMarquer = demarchesDataProvider.getSpansIdAMarquer(demande);
+        
 
         // Pour mettre l'ID HTML de la donnée, récupéré depuis le fichier Recap (pour les testeurs)
         String idPrefix = (String) champ.get(ID_PREFIX);
+        boolean champAMarquer = spansIdAMarquer.contains(idPrefix);
         String idTag1 = "";
         String idTag2 = "";
         // Si ce qui est retourné de getSecondLevelHTML est un champ composé (en HTML), comme l'adresse, alors les spans
@@ -355,10 +364,11 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
                 valueSource = "(vide)";
             }
             html.append("<dt class='nouvelledonnee-titre'>").append(champ.get(LABEL)).append("</dt>");
-            html.append("<dd class='nouvelledonnee-titre'>").append(idTag1)
-                    .append(value.replace(SPAN_OPEN, "<span class='nouvelledonnee-contenu'>")
-                            .replace("<dt>", "<dt class='nouvelledonnee-titre'>")
-                            .replace("<dd>", "<dd class='nouvelledonnee-contenu'>"))
+            String newValue = value.replace(SPAN_OPEN, "<span class='nouvelledonnee-contenu'>")
+			        .replace("<dt>", "<dt class='nouvelledonnee-titre'>")
+			        .replace("<dd>", "<dd class='nouvelledonnee-contenu'>");
+			html.append("<dd class='nouvelledonnee-titre'>").append(idTag1)
+                    .append(champAMarquer ? BOLT_UDERLINE_START + newValue +BOLT_UDERLINE_END: newValue)
                     .append(idTag2);
             if (isDonneeCertifiee) {
                 html.append(" <span class=\"nouvelledonnee\" title=\"Donnée certifiée\">").append(imgTag)
@@ -368,13 +378,14 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 
             html.append("<dt class='anciennedonnee-titre' title='Donnée modifiée'>").append(champ.get(LABEL))
                     .append("</dt>");
-            html.append("<dd class='anciennedonnee-titre' title='Donnée modifiée'>")
-                    .append(valueSource.replace(SPAN_OPEN, "<span class='anciennedonnee-contenu'>")
-                            .replace("<dt>", "<dt class='anciennedonnee-titre' title='Donnée modifiée'>")
-                            .replace("<dd>", "<dd class='anciennedonnee-contenu' title='Donnée modifiée'>"));
+            String newValueSource = valueSource.replace(SPAN_OPEN, "<span class='anciennedonnee-contenu'>")
+			        .replace("<dt>", "<dt class='anciennedonnee-titre' title='Donnée modifiée'>")
+			        .replace("<dd>", "<dd class='anciennedonnee-contenu' title='Donnée modifiée'>");
+			html.append("<dd class='anciennedonnee-titre' title='Donnée modifiée'>")
+                    .append(champAMarquer ? BOLT_UDERLINE_START + newValueSource +BOLT_UDERLINE_END : newValueSource);
         } else {
             html.append("<dt><span>").append(champ.get(LABEL)).append("</span></dt>");
-            html.append("<dd>").append(idTag1).append(value).append(idTag2);
+            html.append("<dd>").append(idTag1).append(champAMarquer ? BOLT_UDERLINE_START + value + BOLT_UDERLINE_END: value).append(idTag2);
             if (isDonneeCertifiee) {
                 html.append(" <span title=\"Donnée certifiée\">").append(imgTag).append(SPAN_CLOSE);
             }

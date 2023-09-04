@@ -1,5 +1,6 @@
 package mc.gouv.xaf.back.service;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -69,6 +70,10 @@ public interface DemarchesDataProvider {
 
     default List<TitreUsagerEnum> getTitres() {
         return Arrays.asList(TitreUsagerEnum.values());
+    }
+    
+    default List<String> getSpansIdAMarquer(DemandeDTO demande) {
+    	return new ArrayList<>();
     }
 
     /**

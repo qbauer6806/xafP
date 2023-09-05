@@ -287,7 +287,7 @@ public class ResidApiServiceImpl implements ResidApiService {
 	}
 
 	@Override
-	public ResidStatutDemandeDTO getEtatDemande(ResidIdTSDTO idDemande, String url, String jwt) throws JsonProcessingException {
+	public ResidStatutDemandeDTO getEtatDemande(ResidIdTSDTO idDemande, String url, String jwt) throws JsonProcessingException, ResidHttpResponseException {
 		LOGGER.info("Récupération du statut RESID de {}", idDemande);
 
 		ResidStatutDemandeDTO statut = null;
@@ -301,7 +301,7 @@ public class ResidApiServiceImpl implements ResidApiService {
 	}
 
 	@Override
-	public List<ResidStatutDemandeDTO> getEtatMultipleDemandes(List<ResidIdTSDTO> idsDemandes, String url, String jwt) throws JsonProcessingException {
+	public List<ResidStatutDemandeDTO> getEtatMultipleDemandes(List<ResidIdTSDTO> idsDemandes, String url, String jwt) throws JsonProcessingException, ResidHttpResponseException {
 		LOGGER.info("Récupération des statuts RESID de {}", idsDemandes);
 
 		// Construction du rest template

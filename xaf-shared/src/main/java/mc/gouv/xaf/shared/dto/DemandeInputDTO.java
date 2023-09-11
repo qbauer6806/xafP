@@ -41,6 +41,8 @@ public class DemandeInputDTO {
 
     private Integer brouillonId;
 
+    private JsonNode meta;
+
     // Données envoyées à l'API si l'usager s'est connecté via MConnect
     private DonneesMConnectDTO donneesMConnect;
 
@@ -161,15 +163,16 @@ public class DemandeInputDTO {
     }
 
     public Integer getDemandeSourceId() {
-        return demandeSourceId;
-    }
 
-    public void setDemandeSourceId(Integer demandeSourceId) {
-        this.demandeSourceId = demandeSourceId;
-    }
+		return demandeSourceId;
+	}
 
-    @Override
-    public String toString() {
+	public void setDemandeSourceId(Integer demandeSourceId) {
+		this.demandeSourceId = demandeSourceId;
+	}
+
+	@Override
+	public String toString() {
         return "DemandeInputDTO [contenu=" + contenu + ", fichiers=" + Arrays.toString(fichiers) + ", langue=" + langue
                 + ", canal=" + canal + ", observations=" + observations + ", agentAffecteId=" + agentAffecteId
                 + ", courrierDateReception=" + courrierDateReception + ", courrierRefInterne=" + courrierRefInterne
@@ -185,5 +188,12 @@ public class DemandeInputDTO {
     public void setContenuInitial(JsonNode contenuInitial) {
         this.contenuInitial = contenuInitial;
     }
+	public JsonNode getMeta() {
+		return meta;
+	}
+
+	public void setMeta(JsonNode meta) {
+		this.meta = meta;
+	}
 
 }

@@ -35,7 +35,8 @@ public class DemandeDTO extends AbstractDemandeDTO {
     private Integer pkDemandeSource;
     private Long modificationTimestamp;
     private JsonNode contenuInitial;
-
+    private JsonNode meta;
+    
     public Long getModificationTimestamp() {
         return modificationTimestamp;
     }
@@ -43,6 +44,7 @@ public class DemandeDTO extends AbstractDemandeDTO {
     public void setModificationTimestamp(Long modificationTimestamp) {
         this.modificationTimestamp = modificationTimestamp;
     }
+
 
     public Integer getFkAccess() {
         return fkAccess;
@@ -225,5 +227,13 @@ public class DemandeDTO extends AbstractDemandeDTO {
     public void setContenuInitial(JsonNode contenuInitial) {
         this.contenuInitial = contenuInitial;
     }
+
+	public JsonNode getMeta() {
+		return meta;
+	}
+
+	public void setMeta(JsonNode meta) {
+		this.meta = meta;
+	}
 
 }

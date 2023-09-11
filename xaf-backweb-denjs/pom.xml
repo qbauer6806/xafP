@@ -1,31 +1,26 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>mc.gouv.xaf</groupId>
         <artifactId>xaf</artifactId>
-        <version>11.1.0-RESCART-SNAPSHOT</version>
+        <version>${revision}</version>
     </parent>
 
     <artifactId>xaf-backweb-denjs</artifactId>
-
-    <properties>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
-        <logon-apiclient.version>5.2.2</logon-apiclient.version>
-    </properties>
 
     <dependencies>
         <dependency>
             <groupId>mc.gouv.xaf</groupId>
             <artifactId>xaf-backweb</artifactId>
-            <version>11.1.0-RESCART-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
-        
+
         <dependency>
             <groupId>mc.gouv.xaf</groupId>
             <artifactId>xaf-back-denjs</artifactId>
-            <version>11.1.0-RESCART-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>

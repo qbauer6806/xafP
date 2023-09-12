@@ -60,6 +60,10 @@ public interface DemarchesDataProvider {
         return null;
     }
 
+    default String getRecapOrientation() {
+        return "landscape";
+    }
+
     default List<TitreUsagerEnum> getTitres() {
         return Arrays.asList(TitreUsagerEnum.values());
     }

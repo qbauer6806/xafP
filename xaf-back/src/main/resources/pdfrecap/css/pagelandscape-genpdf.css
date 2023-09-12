@@ -1,0 +1,11 @@
+@page {
+	size: letter landscape;
+}
+
+#pageHeader {
+	margin-left: 185px;
+}
+
+#pageFooter {
+	margin-left: 185px;
+}

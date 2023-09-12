@@ -3,7 +3,6 @@
 	margin-bottom: 80px;
 	margin-left: 0px;
 	margin-right: 0px;
-	size: letter landscape;
 	@top-center {
 		content: element( pageHeader);
 	}
@@ -17,14 +16,12 @@
 	width: 700px;
 	height: 60px;
 	padding-top: 20px;
-	margin-left: 185px;
 }
 
 #pageFooter {
 	position: running(pageFooter);
 	width: 700px;
 	height: 80px;
-	margin-left: 185px;
 }
 
 #pageHeader>img, #pageFooter>img {

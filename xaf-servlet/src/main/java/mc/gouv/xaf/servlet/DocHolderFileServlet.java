@@ -34,6 +34,7 @@ import java.util.Map;
 
 @MultipartConfig
 public class DocHolderFileServlet extends AbstractAfServlet {
+    public static final String END_OF_VALIDITY = "endOfValidity";
     private static final long serialVersionUID = -314577095316396789L;
     private static final Logger LOGGER = LoggerFactory.getLogger(DocHolderFileServlet.class);
     private static final String SERVICE_URL = AfServletGouvPropertiesResolver.getPorteDocUrl() + "/file";
@@ -81,7 +82,6 @@ public class DocHolderFileServlet extends AbstractAfServlet {
             resp.setStatus(serviceResponse.getStatusLine().getStatusCode());
             resp.setContentType(serviceResponse.getEntity().getContentType().getValue());
             IOUtils.copy(serviceResponse.getEntity().getContent(), resp.getOutputStream());
-
         } catch (URISyntaxException e) {
             AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_BAD_REQUEST, SharedMessages.REQUETE_MALFORMEE);
             return;
@@ -111,6 +111,7 @@ public class DocHolderFileServlet extends AbstractAfServlet {
         LOGGER.info("Vérification des paramètres envoyés");
         String typedoc = req.getParameter(TYPEDOC);
         String preferedName = req.getParameter(PREFERED_NAME);
+        String endOfValidity = req.getParameter(END_OF_VALIDITY); // paramètre optionnel
         if (StringUtils.isEmpty(typedoc) || StringUtils.isEmpty(preferedName)) {
             AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_BAD_REQUEST, SharedMessages.REQUETE_MALFORMEE);
             return;
@@ -154,6 +155,10 @@ public class DocHolderFileServlet extends AbstractAfServlet {
                     .addPart("file", new InputStreamBody(filePart.getInputStream(), ContentType.create(filePart.getContentType()), filePart.getSubmittedFileName()))
                     .addTextBody(PREFERED_NAME, preferedName)
                     .addTextBody(TYPEDOC, typedoc);
+
+            if(!StringUtils.isEmpty(endOfValidity)) {
+                entityBuilder.addTextBody(END_OF_VALIDITY, endOfValidity);
+            }
 
             Request serviceRequest = Request.Post(SERVICE_URL);
             serviceRequest.body(entityBuilder.build());

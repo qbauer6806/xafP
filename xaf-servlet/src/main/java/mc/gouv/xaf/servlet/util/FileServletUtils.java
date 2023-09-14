@@ -5,12 +5,13 @@ import mc.gouv.vscan.shared.dto.ScanDTO;
 import mc.gouv.vscan.shared.dto.ScanRequestDTO;
 import mc.gouv.xaf.servlet.dto.FileUploadCompteurDTO;
 import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
+import mc.gouv.xaf.shared.RequestConstant;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpHeaders;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.http.*;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
@@ -27,6 +28,10 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.Part;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -183,6 +188,85 @@ public class FileServletUtils {
             if (duration.toMillis() > tempsParIntervalle) {
                 it.remove();
             }
+        }
+    }
+
+    /**
+     * Obtiens un {@link InputStream} d'un fichier distant.
+     * Important, le pathInfo doit être au format non encodé et en UTF8 ex :
+     * carte d'identité.png (valide)
+     * carte+d%27identit%C3%A9.png (invalide)
+     *
+     * @param pathInfo           nom du fichier à récupérer (Format: /accessId/uuid/filename)
+     * @param isPreview          si vrai remplace dans l'entête Content-disposition-header la valeur attachment par inline
+     * @param usagerInfoAccessId usagerInfosDTO.getAccessId()
+     * @return Un flux correspondant aux données du fichier demandé ou null.
+     */
+    public static InputStream downloadFile(String pathInfo, boolean isPreview, Integer usagerInfoAccessId, ServletContext servletContext, HttpServletResponse response) {
+        try {
+            // Récupération du nom du fichier à récupérer (Format: /accessId/uuid/filename)
+            String filename = null;
+            Integer accessId = null;
+            if (pathInfo != null && pathInfo.length() > 1) {
+                String[] pathElems = pathInfo.split("/");
+                accessId = !pathElems[1].equals("publications") ? Integer.valueOf(pathElems[1]) : null;
+                filename = pathElems[1] + "/" + pathElems[2] + "/" + URLEncoder.encode(pathElems[3], StandardCharsets.UTF_8);
+            }
+
+            if (StringUtils.isBlank(filename)) {
+                AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_BAD_REQUEST, "Erreur: nom ou ID du fichier manquant");
+                return null;
+            }
+
+            if (accessId != null && (usagerInfoAccessId == null || !usagerInfoAccessId.equals(accessId))) {
+                AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_FORBIDDEN, "Erreur: accès à ce fichier non autorisé");
+                return null;
+            }
+
+            String accountId = servletContext.getInitParameter(AppFactoryServletUtils.DEMARCHEID_KEY);
+            String containerId = servletContext.getInitParameter(AppFactoryServletUtils.CONTAINER_KEY);
+
+            LOGGER.debug("accountId = {}, containerId = {}", accountId, containerId);
+
+            // Constitution du chemin virtuel du fichier
+            // /appfactory/demarcheId/accessId/UUID/nomDuFichier
+            String virtualPath = "/" + accountId + "/" + containerId + "/" + filename;
+            LOGGER.info("Chemin virtuel : {}", virtualPath);
+
+            // Constitution de l'URL d'appel
+            URL url = new URL(AfServletGouvPropertiesResolver.getFileUrl() + virtualPath);
+            LOGGER.info("URL d'appel : {}", url);
+
+            // Constitution de la requête
+            HttpClient client = HttpClientBuilder.create().build();
+            HttpGet getRequest = new HttpGet(url.toString());
+
+            getRequest.setHeader(HttpHeaders.AUTHORIZATION, AppFactoryServletUtils.getAuthHeader(AppFactoryServletUtils.ServiceTarget.FILE));
+
+            LOGGER.info("Appel du WS FILE");
+            HttpResponse getResponse = client.execute(getRequest);
+
+            LOGGER.info("Constitution de la réponse pour retour au client");
+            response.setStatus(getResponse.getStatusLine().getStatusCode());
+            response.setContentType(getResponse.getEntity().getContentType().getValue());
+            // Ajout de la métadonnée indiquant le demandeId lié
+            for (Header header : getResponse.getAllHeaders()) {
+                if (header.getName().startsWith(AppFactoryServletUtils.FILE_METADATA_DEMANDEID)) {
+                    response.addHeader(header.getName(), header.getValue());
+                } else if (header.getName().equals(RequestConstant.CONTENT_DISPOSITION_HEADER)) {
+                    String headerValue = isPreview ? header.getValue().replace("attachment;", "inline;") : header.getValue();
+                    response.addHeader(header.getName(), URLDecoder.decode(headerValue, StandardCharsets.UTF_8));
+                }
+            }
+
+            // Et en dernier on copie le stream... Car si on met les headers après, ils sont tous ignorés !
+            //IOUtils.copy(getResponse.getEntity().getContent(), response.getOutputStream());
+            return getResponse.getEntity().getContent();
+
+        } catch (IOException | NumberFormatException e) {
+            LOGGER.error("FileServlet - Une erreur est survenue lors de l'appel à la méthode GET", e);
+            response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+            return null;
         }
     }
 }

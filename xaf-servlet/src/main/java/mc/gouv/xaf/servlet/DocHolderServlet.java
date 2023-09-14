@@ -22,6 +22,34 @@ public class DocHolderServlet extends AbstractAfServlet {
     private static final String SERVICE_URL = AfServletGouvPropertiesResolver.getPorteDocUrl();
 
     /**
+     * Permet de savoir si l'utilisateur courrant possède un porte-document ou non
+     */
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
+        LOGGER.info("====================== {} doGet()", req.getServletPath());
+
+        UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(req);
+        if (usagerInfosDTO == null) {
+            AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_UNAUTHORIZED, SharedMessages.UTILISATEUR_NON_AUTORISE);
+            return;
+        }
+
+        Request serviceRequest = Request.Get(SERVICE_URL);
+        serviceRequest.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + usagerInfosDTO.getTokenInfo().getAccessToken());
+
+        try {
+            HttpResponse serviceResponse = serviceRequest.execute().returnResponse();
+            resp.setStatus(serviceResponse.getStatusLine().getStatusCode());
+            resp.setContentType(serviceResponse.getEntity().getContentType().getValue());
+            IOUtils.copy(serviceResponse.getEntity().getContent(), resp.getOutputStream());
+        } catch (UnsupportedOperationException | IOException e) {
+            resp.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+            LOGGER.error("Erreur lors de l'appel à l'API Porte-Documents getDocumentHolder", e);
+        }
+
+        LOGGER.info("====================== Fin {} doGet()", req.getServletPath());
+    }
+
+    /**
      * Methode pour l'opération <b>createDocumentHolder</b>
      * Elle permet la création d'un nouveau "document-holder" ou "porte-document"
      */

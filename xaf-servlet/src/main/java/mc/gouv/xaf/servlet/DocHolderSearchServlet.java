@@ -1,5 +1,6 @@
 package mc.gouv.xaf.servlet;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import mc.gouv.xaf.servlet.dto.DocHolderFileSearchDTO;
 import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
@@ -30,10 +31,10 @@ public class DocHolderSearchServlet extends AbstractAfServlet {
      * Elle permet de récupérer la liste de tous les documents enregistrés dans le porte-document de l'utilisateur connecté
      */
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        LOGGER.info("====================== {} doGet()", req.getServletPath());
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        LOGGER.info("====================== {} doPost()", req.getServletPath());
 
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
         LOGGER.info("Vérification usager connecté");
         UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(req);
@@ -42,8 +43,12 @@ public class DocHolderSearchServlet extends AbstractAfServlet {
             return;
         }
 
-        DocHolderFileSearchDTO fileSearchDTO = new DocHolderFileSearchDTO();
-        fileSearchDTO.setOperator(DocHolderFileSearchDTO.OperatorEnum.AND);
+        DocHolderFileSearchDTO fileSearchDTO = mapper.readValue(req.getInputStream(), DocHolderFileSearchDTO.class);
+
+        // Si aucun opérateur n'est donnée, on utilise AND par défaut
+        if (fileSearchDTO.getOperator() == null) {
+            fileSearchDTO.setOperator(DocHolderFileSearchDTO.OperatorEnum.AND);
+        }
 
         Request serviceRequest = Request.Post(SERVICE_URL);
         serviceRequest.setHeader(HttpHeaders.CONTENT_TYPE, "application/json; charset=utf-8");
@@ -61,6 +66,6 @@ public class DocHolderSearchServlet extends AbstractAfServlet {
             LOGGER.error("Erreur lors de l'appel à l'API Porte-Documents searchFiles", e);
         }
 
-        LOGGER.info("====================== Fin {} doGet()", req.getServletPath());
+        LOGGER.info("====================== Fin {} doPost()", req.getServletPath());
     }
 }

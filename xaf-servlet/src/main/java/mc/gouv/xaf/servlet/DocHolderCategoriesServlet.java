@@ -50,10 +50,10 @@ public class DocHolderCategoriesServlet extends AbstractAfServlet {
             IOUtils.copy(serviceResponse.getEntity().getContent(), resp.getOutputStream());
         } catch (ClientProtocolException e) {
             resp.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
-            LOGGER.error("Erreur lors de lexécution de l'appel à monguichet, erreur protocole HTTP", e);
+            LOGGER.error("Erreur lors de l'exécution de l'appel à monguichet, erreur protocole HTTP", e);
         } catch (UnsupportedOperationException | IOException e) {
             resp.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
-            LOGGER.error("Erreur lors de l'appel à l'API Porte-Documents searchFiles", e);
+            LOGGER.error("Erreur lors de l'appel à l'API Porte-Documents getCategories", e);
         }
 
         LOGGER.info("====================== Fin {} doGet()", req.getServletPath());

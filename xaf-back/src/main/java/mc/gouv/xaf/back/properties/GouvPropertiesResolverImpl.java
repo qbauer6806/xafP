@@ -525,4 +525,18 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
         String paiementProviderStr = environment.getProperty(MC_GOUV_PREFIX + applicationPrefix + ".paiement.enabled");
         return StringUtils.equals(paiementProviderStr, "true");
     }
+
+    public final String PORTEDOC_URL = MC_GOUV_PREFIX + ".external" + ".portedoc.url";
+
+    public  String getPorteDocUrl() {
+        String value = Static.getValue(PORTEDOC_URL);
+        return StringUtils.isBlank(value) ? "vide" : value;
+    }
+
+    public final String PORTEDOC_ENABLED = MC_GOUV_PREFIX + applicationPrefix + ".portedoc.enabled";
+
+    public boolean isPorteDocEnabled() {
+        String value = Static.getValue(PORTEDOC_ENABLED);
+        return StringUtils.equals("true", value);
+    }
 }

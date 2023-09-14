@@ -61,8 +61,8 @@ class DocHolderServletsTest {
     void failOnUserNotLoggedTest() throws ServletException, IOException {
         servletUtilsMocked.when(() -> AppFactoryServletUtils.getLoggedUser(any())).thenReturn(null);
 
-        DocHolderSearchServlet docHolderSearchServlet = new DocHolderSearchServlet();
-        docHolderSearchServlet.doGet(request, response);
+        DocHolderCategoriesServlet docHolderCategoriesServlet = new DocHolderCategoriesServlet();
+        docHolderCategoriesServlet.doGet(request, response);
 
         verify(response).setStatus(HttpStatus.SC_UNAUTHORIZED);
     }

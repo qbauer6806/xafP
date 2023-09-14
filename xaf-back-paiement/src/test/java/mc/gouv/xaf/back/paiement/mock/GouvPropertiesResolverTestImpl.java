@@ -284,4 +284,14 @@ public class GouvPropertiesResolverTestImpl implements GouvPropertiesResolver {
     public boolean isPaiementEnabled() {
         return true;
     }
+
+    @Override
+    public String getPorteDocUrl() {
+        return null;
+    }
+
+    @Override
+    public boolean isPorteDocEnabled() {
+        return false;
+    }
 }

@@ -112,6 +112,7 @@ public class DemandesTransformer {
         dto.setRecapType(bo.getRecapType());
         dto.setDonneesCertifiees(bo.getDonneesCertifiees());
         dto.setPkDemandeSource(bo.getPkDemandeSource());
+        dto.setModificationTimestamp(bo.getModificationTimestamp());
 
         // Mapper les demandes d'informations complémentaires
         if (addDemandesComplementsField) {
@@ -181,7 +182,14 @@ public class DemandesTransformer {
             LOGGER.error("Erreur lors de la conversion JSON", e);
         }
 
-
+        // Mapper le contenu de la demande préremplie
+        try {
+            if (bo.getContenuInitial() != null)
+                dto.setContenuInitial(mapper.readTree(bo.getContenuInitial()));
+        } catch (IOException e) {
+            LOGGER.error("Erreur lors de la conversion JSON", e);
+        }
+        
         // Meta
         try {
             if (bo.getMeta() != null)
@@ -247,6 +255,16 @@ public class DemandesTransformer {
         } catch (JsonProcessingException e) {
             LOGGER.error("Erreur lors de la conversion JSON", e);
         }
+        try {
+            bo.setContenuInitial(mapper.writeValueAsString(dto.getContenuInitial()));
+            // Ce qui suit afin d'éviter l'insertion d'une chaîne "null" en base
+            if (bo.getContenuInitial() != null && "null".equals(bo.getContenuInitial())) {
+            	bo.setContenuInitial(null);
+            }
+        } catch (JsonProcessingException e) {
+            LOGGER.error("Erreur lors de la conversion JSON", e);
+        }
+
         return bo;
     }
 

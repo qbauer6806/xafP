@@ -31,5 +31,4 @@ public abstract class AbstractTsUtils {
         return buildIds.last();
     }
 
-    
 }

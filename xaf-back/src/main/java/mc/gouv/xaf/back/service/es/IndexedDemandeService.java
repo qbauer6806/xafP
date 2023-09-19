@@ -164,4 +164,6 @@ public interface IndexedDemandeService extends DemandesService {
      */
     void loadProperties();
 
+    Long reindexDemandesCourrier() throws IOException;
+
 }

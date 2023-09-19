@@ -33,8 +33,17 @@ public class DemandeDTO extends AbstractDemandeDTO {
     private DonneesMConnectDTO donneesMConnect;
     private String donneesCertifiees;
     private Integer pkDemandeSource;
+    private Long modificationTimestamp;
+    private JsonNode contenuInitial;
     private JsonNode meta;
 
+    public Long getModificationTimestamp() {
+        return modificationTimestamp;
+    }
+
+    public void setModificationTimestamp(Long modificationTimestamp) {
+        this.modificationTimestamp = modificationTimestamp;
+    }
 
     public Integer getFkAccess() {
         return fkAccess;
@@ -175,7 +184,6 @@ public class DemandeDTO extends AbstractDemandeDTO {
     public DonneesMConnectDTO getDonneesMConnect() {
 		return donneesMConnect;
 	}
-
 	public void setDonneesMConnect(DonneesMConnectDTO donneesMConnect) {
 		this.donneesMConnect = donneesMConnect;
 	}
@@ -208,6 +216,14 @@ public class DemandeDTO extends AbstractDemandeDTO {
                 ", usagerNom=" + usagerNom + ", usagerPrenom="
                 + usagerPrenom + ", usagerEmail=" + usagerEmail + ", buildId=" + buildId + ", recapType=" + recapType + ", donneesMConnect=" +
                 donneesMConnect + ", donneesCertifiees=" + donneesCertifiees + ", pkDemandeSource=" + pkDemandeSource + "]";
+    }
+
+    public JsonNode getContenuInitial() {
+        return contenuInitial;
+    }
+
+    public void setContenuInitial(JsonNode contenuInitial) {
+        this.contenuInitial = contenuInitial;
     }
 
 	public JsonNode getMeta() {

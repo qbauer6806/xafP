@@ -1,6 +1,8 @@
 package mc.gouv.xaf.back.service.data.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -34,6 +36,7 @@ import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.data.UsagersCourrierService;
 import mc.gouv.xaf.shared.dto.AccessDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 
 /**
@@ -281,4 +284,19 @@ public class UsagersCourrierServiceImpl implements UsagersCourrierService {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public DemandeDTO getDerniereDemandePourDuplication(String demarcheId, Integer usagerId, List<String> statuts,
+            List<String> buildIds) {
+
+        List<DemandeDTO> listDemandes = demandesService.getDemandes(demarcheId, usagerId, true);
+        return listDemandes.stream()
+                .filter(dem -> statuts.contains(dem.getDernierStatut().getLibelle())
+                        && buildIds.contains(dem.getBuildId()))
+                .sorted(Collections.reverseOrder(Comparator.comparing(DemandeDTO::getDateCreation))).findFirst()
+                .orElse(null);
+
+    }
 }

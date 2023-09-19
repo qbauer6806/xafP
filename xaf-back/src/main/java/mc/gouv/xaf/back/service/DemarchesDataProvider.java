@@ -1,11 +1,16 @@
 package mc.gouv.xaf.back.service;
 
-import mc.gouv.xaf.shared.dto.*;
-import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
-
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeExcelGenerationDTO;
+import mc.gouv.xaf.shared.dto.GenericStatusDTO;
+import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
+import mc.gouv.xaf.shared.dto.TitreUsagerEnum;
+import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 
 /**
  * Service implémenté par la démarche permettant de fournir à xaf-back des informations propres à chaque démarche.
@@ -40,11 +45,11 @@ public interface DemarchesDataProvider {
 
     boolean getDemarcheCanHandleProperties();
 
-	boolean getDemarcheCanHandleDenjsGestionAgents();
+    boolean getDemarcheCanHandleDenjsGestionAgents();
 
     boolean getDemarcheCanHandleTaches();
 
-	String[] getGUKafkaSupportedVersions();
+    String[] getGUKafkaSupportedVersions();
 
     StatutSimplifieEnum getStatutSimplifieFromStatutPublic(String statutPublic);
 
@@ -83,6 +88,20 @@ public interface DemarchesDataProvider {
      */
     default String getBrouillonStatutExpired() {
         return "";
+    }
+
+    /**
+     * Un filtrage est appliqué sur les statuts des demandes éligibles à un renouvellement de demande courrier.
+     */
+    default List<String> getStatutsPourDuplication() {
+        return new ArrayList<>();
+    };
+
+    /**
+     * Un filtrage est appliqué sur les versions des demandes éligibles à un renouvellement de demande courrier.
+     */
+    default List<String> getBuildIdsPourDuplication() {
+        return new ArrayList<>();
     }
 
 }

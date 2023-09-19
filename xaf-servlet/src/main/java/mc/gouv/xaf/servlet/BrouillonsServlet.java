@@ -22,6 +22,8 @@ import mc.gouv.xaf.apiclient.AfApiClient;
 import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
 import mc.gouv.xaf.servlet.enums.HttpMethod;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
+import mc.gouv.xaf.shared.SessionConstant;
+import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.BrouillonDTO;
 
 /**
@@ -121,6 +123,10 @@ public class BrouillonsServlet extends AbstractAfServlet {
             ObjectMapper mapper = new ObjectMapper();
             BrouillonDTO brouillonInput = mapper.readValue(buffer.toString(), BrouillonDTO.class);
             BrouillonDTO brouillonDto = null;
+            if (request.getSession().getAttribute(SessionConstant.SESSION_DEMANDE_INITIALE) != null) {
+                brouillonInput.setContenuInitial(mapper
+                        .valueToTree(request.getSession().getAttribute(SessionConstant.SESSION_DEMANDE_INITIALE)));
+            }
             if (HttpMethod.POST.equals(httpMethod)) {
                 brouillonDto = afApiClient.creerBrouillon(brouillonInput, usagerInfosDTO.getId());
                 response.setStatus(HttpStatus.SC_CREATED);
@@ -176,10 +182,16 @@ public class BrouillonsServlet extends AbstractAfServlet {
                 // TODO : gestion des erreurs
                 response.setStatus(HttpStatus.SC_OK);
                 repJson = mapper.writeValueAsString(brouillonDtos);
-            }
-            else {
+            } else {
                 LOGGER.info("Appel à la démarche pour récupérer le brouillon {}", brouillonId);
-                BrouillonDTO brouillonDto = afApiClient.getBrouillon(Integer.parseInt(brouillonId), usagerInfosDTO.getId());
+                BrouillonDTO brouillonDto = afApiClient.getBrouillon(Integer.parseInt(brouillonId),
+                        usagerInfosDTO.getId());
+
+                if (brouillonDto.getContenuInitial() != null) {
+                    request.getSession().setAttribute(SessionConstant.SESSION_DEMANDE_INITIALE,
+                            brouillonDto.getContenuInitial());
+                }
+
                 // TODO : gestion des erreurs
                 response.setStatus(HttpStatus.SC_OK);
                 repJson = mapper.writeValueAsString(brouillonDto);

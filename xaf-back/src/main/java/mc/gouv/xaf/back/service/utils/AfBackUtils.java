@@ -14,6 +14,7 @@ import mc.gouv.logon.shared.User;
 import mc.gouv.mail.apiclient.client.MailClient;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
+import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
@@ -158,6 +159,10 @@ public class AfBackUtils {
     @Autowired
     @Lazy
     private MotifTemplateService motifTemplateService;
+
+    @Autowired
+    @Lazy
+    private DemandesService demandesService;
 
     @Autowired
     @Lazy
@@ -754,7 +759,12 @@ public class AfBackUtils {
 	public static String mConnectDateToString(Date date) {
 		return new SimpleDateFormat(MCONNECT_DATE_AND_TIME_FORMAT).format(date);
 	}
-
+	
+	public String getIdentifiantFromPkDemande(Integer pkDemande) {
+		DemandeDTO demande = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), pkDemande);
+		return demande.getIdentifiant();
+	}
+	
 	public boolean isEmailHtmlEnabled() {
         PropertiesDTO emailHtmlEnabledProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_EMAIL_HTML_ENABLED);
         if (emailHtmlEnabledProp == null || StringUtils.isBlank(emailHtmlEnabledProp.getValue())) {

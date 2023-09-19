@@ -49,6 +49,8 @@ public class BrouillonsTransformer {
             if (bo.getMeta() != null) {
             	dto.setMeta(mapper.readTree(bo.getMeta()));
             }
+            if (bo.getContenuInitial() != null)
+                dto.setContenuInitial(mapper.readTree(bo.getContenuInitial()));
         } catch (IOException e) {
             LOGGER.error("Erreur lors de la conversion JSON", e);
         }
@@ -83,7 +85,12 @@ public class BrouillonsTransformer {
         try {
             bo.setContenu(mapper.writeValueAsString(dto.getContenu()));
             if (dto.getMeta() != null) {
-            	bo.setMeta(mapper.writeValueAsString(dto.getMeta()));
+                bo.setMeta(mapper.writeValueAsString(dto.getMeta()));
+            }
+            bo.setContenuInitial(mapper.writeValueAsString(dto.getContenuInitial()));
+            // Ce qui suit afin d'éviter l'insertion d'une chaîne "null" en base
+            if (bo.getContenuInitial() != null && "null".equals(bo.getContenuInitial())) {
+            	bo.setContenuInitial(null);
             }
         } catch (JsonProcessingException e) {
             LOGGER.error("Erreur lors de la conversion JSON", e);

@@ -15,6 +15,8 @@ public class DemandeInputDTO {
 
     private JsonNode contenu;
 
+    private JsonNode contenuInitial;
+
     private DemandeFileDTO[] fichiers;
 
     private String langue;
@@ -177,6 +179,14 @@ public class DemandeInputDTO {
                 + ", creeParAgentId=" + creeParAgentId + ", novalidate=" + novalidate + ", buildId=" + buildId
                 + ", recapType=" + recapType + ", brouillonId=" + brouillonId + ", donneesMConnect=" + donneesMConnect
                 + ", demandeSourceId=" + demandeSourceId + "]";
+    }
+
+    public JsonNode getContenuInitial() {
+        return contenuInitial;
+    }
+
+    public void setContenuInitial(JsonNode contenuInitial) {
+        this.contenuInitial = contenuInitial;
     }
 
 	public JsonNode getMeta() {

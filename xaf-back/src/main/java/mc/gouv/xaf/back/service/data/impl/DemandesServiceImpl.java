@@ -543,6 +543,23 @@ public class DemandesServiceImpl implements DemandesService {
 			}
 		}
 
+        // Mise à jour du contenu initial
+        if (!partialUpdate || demande.getContenuInitial() != null && !demande.getContenuInitial().isNull()) {
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                demandeBo.setContenuInitial(mapper.writeValueAsString(demande.getContenuInitial()));
+                // Ce qui suit afin d'éviter l'insertion d'une chaîne "null" en base
+                if (demandeBo.getContenuInitial() != null && "null".equals(demandeBo.getContenuInitial())) {
+                	demandeBo.setContenuInitial(null);
+                }
+            } catch (JsonProcessingException e) {
+                LOGGER.error("Problème lors de la conversion JSON", e);
+            }
+        }
+
+        // Mise à jour du timestamp pour verrouillage
+        demandeBo.setModificationTimestamp(demande.getModificationTimestamp());
+
 		// Mise à jour des observations
 		if (!partialUpdate || demande.getObservations() != null) {
 			demandeBo.setObservations(demande.getObservations());

@@ -120,4 +120,14 @@ public interface GouvPropertiesResolver {
 
     boolean isPaiementEnabled();
 
+    String getApiUlisMoyensGenerauxUrl();
+
+    String getApiUlisTiersOrganisationUrl();
+
+    String getApiUlisAuthenticationUser();
+
+    String getApiUlisAuthenticationPassword();
+
+    String getApiUlisFunctionalUser();
+
 }

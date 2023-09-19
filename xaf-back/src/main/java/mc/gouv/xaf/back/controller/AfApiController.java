@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Interface spécifiant les méthodes devant être implémentées en tant que Web Services dans les démarches BACK.
@@ -50,12 +51,15 @@ public interface AfApiController {
     List<MotifDTO> getMotifs();
 
     DemandeDTO creerDemande(DemandeInputDTO demande, Integer usagerId) throws JsonProcessingException;
-    
-    DemandeDTO updateDemande(Integer demandeId, DemandeInputDTO demande, Integer usagerId) throws JsonProcessingException;
+
+    DemandeDTO updateDemande(Integer demandeId, DemandeInputDTO demande, Integer usagerId)
+            throws JsonProcessingException;
+
+    DemandeDTO lockDemande(Integer demandeId, Integer usagerId, Long timestamp) throws JsonProcessingException;
+
+    DemandeDTO unlockDemande(Integer demandeId, Integer usagerId) throws JsonProcessingException;
 
     List<PeriodeOuvertureDTO> getPeriodesOuverture();
-
-    JsonNode getDonneesExternes(Integer usagerId);
 
     @SuppressWarnings("rawtypes")
     ResponseEntity getCustomRequest(HttpServletRequest request);
@@ -83,4 +87,5 @@ public interface AfApiController {
 
     void deleteBrouillon(Integer pkBrouillons, Integer usagerId) throws JsonProcessingException;
 
+    JsonNode getDonneesExternes(Integer usagerId, Map<String, String[]> params) throws JsonProcessingException;
 }

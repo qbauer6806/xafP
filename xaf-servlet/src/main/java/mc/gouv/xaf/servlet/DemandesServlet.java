@@ -6,6 +6,7 @@ import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
 import mc.gouv.xaf.servlet.enums.HttpMethod;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
 import mc.gouv.xaf.shared.RequestConstant;
+import mc.gouv.xaf.shared.SessionConstant;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
 import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
@@ -143,21 +144,30 @@ public class DemandesServlet extends AbstractAfServlet {
                 repJson = mapper.writeValueAsString(demandeComplement);
             } else {
                 DemandeInputDTO demandeInput = mapper.readValue(buffer.toString(), DemandeInputDTO.class);
-                // Ajout des données externes MConnect si elles sont présentes (afin que l'API puisse les prendre en compte pour les places dans les bons endroits
+                // Ajout des données externes MConnect si elles sont présentes (afin que l'API puisse les prendre en
+                // compte pour les places dans les bons endroits
                 // du contenu de la demande. Ceci afin d'éviter un potentiel "hack" de la part de l'usager sur le FO)
-                if (usagerInfosDTO.getDonneesExternes() != null && usagerInfosDTO.getDonneesExternes().get("mconnect") != null) {
-                    demandeInput.setDonneesMConnect(mapper.treeToValue(usagerInfosDTO.getDonneesExternes().get("mconnect"), DonneesMConnectDTO.class));
+                if (usagerInfosDTO.getDonneesExternes() != null
+                        && usagerInfosDTO.getDonneesExternes().get("mconnect") != null) {
+                    demandeInput.setDonneesMConnect(mapper.treeToValue(
+                            usagerInfosDTO.getDonneesExternes().get("mconnect"), DonneesMConnectDTO.class));
                 }
-                
+
                 DemandeDTO demandeDto;
-            	if (HttpMethod.POST.equals(httpMethod)) {
-	                LOGGER.info("Appel à la démarche pour créer la demande");
-	                demandeDto = afApiClient.creerDemande(demandeInput, usagerInfosDTO.getId());
-            	} else {
-	                LOGGER.info("Appel à la démarche pour mettre à jour la demande {}", demandeId);
-	                demandeDto = afApiClient.updateDemande(demandeId, demandeInput, usagerInfosDTO.getId());
-            	}
-            	
+
+                if (HttpMethod.POST.equals(httpMethod)) {
+                    LOGGER.info("Appel à la démarche pour créer la demande");
+                    if (request.getSession().getAttribute(SessionConstant.SESSION_DEMANDE_INITIALE) != null) {
+                        demandeInput.setContenuInitial(mapper.valueToTree(
+                                request.getSession().getAttribute(SessionConstant.SESSION_DEMANDE_INITIALE)));
+                    }
+                    demandeDto = afApiClient.creerDemande(demandeInput, usagerInfosDTO.getId());
+                    request.getSession().setAttribute(SessionConstant.SESSION_DEMANDE_INITIALE, null);
+                } else {
+                    LOGGER.info("Appel à la démarche pour mettre à jour la demande {}", demandeId);
+                    demandeDto = afApiClient.updateDemande(demandeId, demandeInput, usagerInfosDTO.getId());
+                }
+
                 // TODO : gestion des erreurs
                 response.setStatus(HttpStatus.SC_CREATED);
                 repJson = mapper.writeValueAsString(demandeDto);

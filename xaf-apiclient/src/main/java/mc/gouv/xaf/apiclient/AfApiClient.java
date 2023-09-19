@@ -1,9 +1,11 @@
 package mc.gouv.xaf.apiclient;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -89,6 +91,29 @@ public class AfApiClient extends ApiClient {
                 .request(MediaType.APPLICATION_JSON)
                 .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue())
                 .put(Entity.entity(demande, MediaType.APPLICATION_JSON));
+
+        ExceptionManager.checkExceptionResponse(res);
+
+        return res.readEntity(DemandeDTO.class);
+    }
+
+    public DemandeDTO lockDemande(Integer demandeId, Integer usagerId, Long timestamp) {
+        Response res = getTarget().path("demandes/" + demandeId + "/lock")
+                .queryParam(RequestConstant.USAGERID_PARAM, usagerId)
+                .queryParam(RequestConstant.TIMESTAMP_MODIFICATION, timestamp).request(MediaType.APPLICATION_JSON)
+                .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue())
+                .put(Entity.entity("", MediaType.APPLICATION_JSON));
+
+        ExceptionManager.checkExceptionResponse(res);
+
+        return res.readEntity(DemandeDTO.class);
+    }
+
+    public DemandeDTO unlockDemande(Integer demandeId, Integer usagerId) {
+        Response res = getTarget().path("demandes/" + demandeId + "/unlock")
+                .queryParam(RequestConstant.USAGERID_PARAM, usagerId).request(MediaType.APPLICATION_JSON)
+                .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue())
+                .put(Entity.entity("", MediaType.APPLICATION_JSON));
 
         ExceptionManager.checkExceptionResponse(res);
 
@@ -241,9 +266,18 @@ public class AfApiClient extends ApiClient {
         });
     }
 
-    public JsonNode getDonneesExternes(Integer usagerId) {
-        Response res = getTarget().path("/donneesexternes")
-                .queryParam(RequestConstant.USAGERID_PARAM, usagerId)
+    public JsonNode getDonneesExternes(Integer usagerId, Map<String, String[]> params) {
+
+        WebTarget webTarget = getTarget();
+        if (params != null)
+            for (Map.Entry<String, String[]> entry : params.entrySet()) {
+                if (entry.getValue() != null) {
+                    for (String str : entry.getValue())
+                        webTarget = webTarget.queryParam(entry.getKey(), str);
+                }
+            }
+
+        Response res = webTarget.path("/donneesexternes").queryParam(RequestConstant.USAGERID_PARAM, usagerId)
                 .request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue()).get();
 

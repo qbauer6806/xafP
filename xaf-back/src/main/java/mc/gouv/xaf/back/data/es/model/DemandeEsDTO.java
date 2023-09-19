@@ -56,6 +56,15 @@ public class DemandeEsDTO {
     private UsagerEsDTO usager;
     private DemandeStatutEsDTO[] statuts;
     private List<String> justificatifsTraitement;
+    private Long modificationTimestamp;
+
+    public Long getModificationTimestamp() {
+        return modificationTimestamp;
+    }
+
+    public void setModificationTimestamp(Long modificationTimestamp) {
+        this.modificationTimestamp = modificationTimestamp;
+    }
 
     @JsonIgnore
     protected boolean updated = false;

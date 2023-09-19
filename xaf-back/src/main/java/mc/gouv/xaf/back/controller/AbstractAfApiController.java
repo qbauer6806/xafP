@@ -73,12 +73,29 @@ public abstract class AbstractAfApiController implements AfApiController {
     
     @PutMapping(value = "/demandes/{demandeId}")
     public DemandeDTO updateDemandeRequest(@PathVariable(value = "demandeId") Integer demandeId,
-    		@Valid @RequestBody DemandeInputDTO demande,
-            @RequestParam(value = "usagerId") Integer usagerId, HttpServletRequest request)
-            throws JsonProcessingException {
-        LOGGER.info("AbstractAfApiController.updateDemande({}, {}, {})", demandeId , demande, usagerId);
+            @Valid @RequestBody DemandeInputDTO demande, @RequestParam(value = "usagerId") Integer usagerId,
+            HttpServletRequest request) throws JsonProcessingException {
+        LOGGER.info("AbstractAfApiController.updateDemande({}, {}, {})", demandeId, demande, usagerId);
 
         return updateDemande(demandeId, demande, usagerId);
+    }
+
+    @PutMapping(value = "/demandes/{demandeId}/lock")
+    public DemandeDTO updateDemandeLockRequest(@PathVariable(value = "demandeId") Integer demandeId,
+            @RequestParam(value = "usagerId") Integer usagerId, @RequestParam(value = "timestamp") Long timestamp,
+            HttpServletRequest request) throws JsonProcessingException {
+        LOGGER.info("AbstractAfApiController.updateDemandeLockRequest({}, {})", demandeId, usagerId);
+
+        return lockDemande(demandeId, usagerId, timestamp);
+    }
+
+    @PutMapping(value = "/demandes/{demandeId}/unlock")
+    public DemandeDTO updateDemandeUnlockRequest(@PathVariable(value = "demandeId") Integer demandeId,
+            @RequestParam(value = "usagerId") Integer usagerId, HttpServletRequest request)
+            throws JsonProcessingException {
+        LOGGER.info("AbstractAfApiController.updateDemandeLockRequest({}, {})", demandeId, usagerId);
+
+        return unlockDemande(demandeId, usagerId);
     }
 
     @PutMapping(value = "/demandes/{demandeId}/complements/{icId}")
@@ -199,9 +216,10 @@ public abstract class AbstractAfApiController implements AfApiController {
     }
 
     @GetMapping(value = "/donneesexternes")
-    public JsonNode getDonneesExternesRequest(@RequestParam(value = "usagerId") Integer usagerId) {
+    public JsonNode getDonneesExternesRequest(HttpServletRequest request,
+            @RequestParam(value = "usagerId") Integer usagerId) throws JsonProcessingException {
         LOGGER.info("AbstractAfApiController.getDonneesExternesRequest()");
-        return getDonneesExternes(usagerId);
+        return getDonneesExternes(usagerId, request.getParameterMap());
     }
 
     @GetMapping(value = "/properties")

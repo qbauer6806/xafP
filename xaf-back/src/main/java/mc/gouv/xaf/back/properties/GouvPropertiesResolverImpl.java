@@ -526,11 +526,9 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
         return StringUtils.equals(paiementProviderStr, "true");
     }
 
-    public final String PORTEDOC_URL = MC_GOUV_PREFIX + ".external" + ".portedoc.url";
-
     public  String getPorteDocUrl() {
-        String value = Static.getValue(PORTEDOC_URL);
-        return StringUtils.isBlank(value) ? "vide" : value;
+        String value = getGichuniUrl();
+        return StringUtils.isBlank(value) ? "vide" : value + "/public/doc-holder";
     }
 
     public final String PORTEDOC_ENABLED = MC_GOUV_PREFIX + applicationPrefix + ".portedoc.enabled";

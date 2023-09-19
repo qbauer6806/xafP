@@ -249,11 +249,9 @@ public class AfServletGouvPropertiesResolver {
         return StringUtils.isBlank(value) ? "vide" : value;
     }
 
-    public static final String PORTEDOC_URL = MC_GOUV_PREFIX + ".external" + ".portedoc.url";
-
     public static String getPorteDocUrl() {
-        String value = Static.getValue(PORTEDOC_URL);
-        return StringUtils.isBlank(value) ? "vide" : value;
+        String value = getGichuniUrl();
+        return StringUtils.isBlank(value) ? "vide" : value + "/public/doc-holder";
     }
 
     public static final String PORTEDOC_ENABLED = MC_GOUV_PREFIX + applicationPrefix + ".portedoc.enabled";
@@ -300,7 +298,6 @@ public class AfServletGouvPropertiesResolver {
         propertiesDTOS.add(new PropertiesDTO(FRONTOFFICE_PIWIK_URL, getFrontofficePiwikURL()));
         propertiesDTOS.add(new PropertiesDTO(PAIEMENT_PROVIDER, getPaiementProvider()));
         propertiesDTOS.add(new PropertiesDTO(MONETICO_URL, getMoneticoUrl()));
-        propertiesDTOS.add(new PropertiesDTO(PORTEDOC_URL, getPorteDocUrl()));
         propertiesDTOS.add(new PropertiesDTO(PORTEDOC_ENABLED, isPorteDocEnabled()));
         return propertiesDTOS;
     }

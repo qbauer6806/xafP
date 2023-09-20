@@ -1,16 +1,31 @@
 package mc.gouv.xaf.back.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import org.xml.sax.SAXException;
-import mc.gouv.xaf.shared.dto.*;
-import org.apache.tika.exception.TikaException;
-import org.springframework.http.ResponseEntity;
-
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.tika.exception.TikaException;
+import org.springframework.http.ResponseEntity;
+import org.xml.sax.SAXException;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+
+import mc.gouv.xaf.shared.dto.AccessDTO;
+import mc.gouv.xaf.shared.dto.AccessInputDTO;
+import mc.gouv.xaf.shared.dto.BrouillonDTO;
+import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
+import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeInputDTO;
+import mc.gouv.xaf.shared.dto.MotifDTO;
+import mc.gouv.xaf.shared.dto.Page;
+import mc.gouv.xaf.shared.dto.PageParamDTO;
+import mc.gouv.xaf.shared.dto.PeriodeOuvertureDTO;
+import mc.gouv.xaf.shared.dto.PropertiesDTO;
+import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 
 /**
  * Interface spécifiant les méthodes devant être implémentées en tant que Web Services dans les démarches BACK.
@@ -23,7 +38,7 @@ public interface AfApiController {
     void annulerDemande(Integer demandeId, Integer usagerId);
 
     DemandeComplementsDTO repondreDemandeComplements(Integer demandeId, Integer icId,
-                                                     DemandeComplementsReponseDTO reponse) throws IOException, TikaException, SAXException;
+            DemandeComplementsReponseDTO reponse) throws IOException, TikaException, SAXException;
 
     DemandeDTO getDemande(Integer usagerId, Integer demandeId);
 
@@ -38,7 +53,8 @@ public interface AfApiController {
     DemandeDTO associerDemandeCourrier(String identifiantDemande, String stringToCheck, Integer usagerId);
 
     /**
-     * @param fromGU   true si la désinscription du TS est demandée à cause d'une désinscription depuis le Guichet Unique
+     * @param fromGU
+     *            true si la désinscription du TS est demandée à cause d'une désinscription depuis le Guichet Unique
      */
     void desinscriptionUsager(Integer usagerId, String langue, boolean fromGU);
 
@@ -52,12 +68,18 @@ public interface AfApiController {
 
     DemandeDTO creerDemande(DemandeInputDTO demande, Integer usagerId) throws JsonProcessingException;
 
-    DemandeDTO updateDemande(Integer demandeId, DemandeInputDTO demande, Integer usagerId)
-            throws JsonProcessingException;
+    default DemandeDTO updateDemande(Integer demandeId, DemandeInputDTO demande, Integer usagerId)
+            throws JsonProcessingException {
+        return new DemandeDTO();
+    }
 
-    DemandeDTO lockDemande(Integer demandeId, Integer usagerId, Long timestamp) throws JsonProcessingException;
+    default DemandeDTO lockDemande(Integer demandeId, Integer usagerId, Long timestamp) throws JsonProcessingException {
+        return new DemandeDTO();
+    }
 
-    DemandeDTO unlockDemande(Integer demandeId, Integer usagerId) throws JsonProcessingException;
+    default DemandeDTO unlockDemande(Integer demandeId, Integer usagerId) throws JsonProcessingException {
+        return new DemandeDTO();
+    }
 
     List<PeriodeOuvertureDTO> getPeriodesOuverture();
 

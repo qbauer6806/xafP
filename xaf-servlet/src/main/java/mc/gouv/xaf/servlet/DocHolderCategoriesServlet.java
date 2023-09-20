@@ -21,7 +21,7 @@ import java.io.IOException;
 public class DocHolderCategoriesServlet extends AbstractAfServlet {
     private static final long serialVersionUID = -314577095316396789L;
     private static final Logger LOGGER = LoggerFactory.getLogger(DocHolderCategoriesServlet.class);
-    private static final String SERVICE_URL = AfServletGouvPropertiesResolver.getPorteDocUrl() + "/categories";
+    private static final String SERVICE_URL = AfServletGouvPropertiesResolver.getPorteDocUrl() + "/typedoc";
 
     /**
      * Méthode pour l'opération <b>getDocCategories</b>

@@ -109,5 +109,7 @@ public interface AfApiController {
 
     void deleteBrouillon(Integer pkBrouillons, Integer usagerId) throws JsonProcessingException;
 
-    JsonNode getDonneesExternes(Integer usagerId, Map<String, String[]> params) throws JsonProcessingException;
+    default JsonNode getDonneesExternes(Integer usagerId, Map<String, String[]> params) throws JsonProcessingException {
+        return null;
+    }
 }

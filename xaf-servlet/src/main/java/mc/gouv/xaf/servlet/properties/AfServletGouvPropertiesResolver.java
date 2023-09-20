@@ -298,6 +298,7 @@ public class AfServletGouvPropertiesResolver {
         propertiesDTOS.add(new PropertiesDTO(FRONTOFFICE_PIWIK_URL, getFrontofficePiwikURL()));
         propertiesDTOS.add(new PropertiesDTO(PAIEMENT_PROVIDER, getPaiementProvider()));
         propertiesDTOS.add(new PropertiesDTO(MONETICO_URL, getMoneticoUrl()));
+        propertiesDTOS.add(new PropertiesDTO(GICHUNI_URL, getGichuniUrl()));
         propertiesDTOS.add(new PropertiesDTO(PORTEDOC_ENABLED, isPorteDocEnabled()));
         return propertiesDTOS;
     }

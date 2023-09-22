@@ -277,13 +277,21 @@
     </servlet-mapping>
 
     <servlet>
-        <servlet-name>DocHolderCategoriesServlet</servlet-name>
-        <servlet-class>mc.gouv.xaf.servlet.DocHolderCategoriesServlet</servlet-class>
+        <servlet-name>DocHolderTypedocServlet</servlet-name>
+        <servlet-class>mc.gouv.xaf.servlet.DocHolderTypedocServlet</servlet-class>
     </servlet>
     <servlet-mapping>
-        <servlet-name>DocHolderCategoriesServlet</servlet-name>
-        <url-pattern>/doc-holder/categories</url-pattern>
-        <url-pattern>/categories</url-pattern>
+        <servlet-name>DocHolderTypedocServlet</servlet-name>
+        <url-pattern>/doc-holder/typedoc</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>DocHolderToFileServlet</servlet-name>
+        <servlet-class>mc.gouv.xaf.servlet.DocHolderToFileServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>DocHolderToFileServlet</servlet-name>
+        <url-pattern>/doc-holder/tofile</url-pattern>
     </servlet-mapping>
 
 </web-app>

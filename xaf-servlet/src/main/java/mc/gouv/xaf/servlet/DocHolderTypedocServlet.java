@@ -18,16 +18,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-public class DocHolderCategoriesServlet extends AbstractAfServlet {
+public class DocHolderTypedocServlet extends AbstractAfServlet {
     private static final long serialVersionUID = -314577095316396789L;
-    private static final Logger LOGGER = LoggerFactory.getLogger(DocHolderCategoriesServlet.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DocHolderTypedocServlet.class);
     private static final String SERVICE_URL = AfServletGouvPropertiesResolver.getPorteDocUrl() + "/typedoc";
 
     /**
-     * Méthode pour l'opération <b>getDocCategories</b>
+     * Méthode pour l'opération <b>getDocTypedoc</b>
      * Elle permet de récupérer toutes les catégories de documents disponibles pour le porte-documents
-     *
-     * @param resp L'objet de réponse, avec en valeur de retour un tableau de {@link String} ex : ["Photo", "Carte"]
      */
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -53,7 +51,7 @@ public class DocHolderCategoriesServlet extends AbstractAfServlet {
             LOGGER.error("Erreur lors de l'exécution de l'appel à monguichet, erreur protocole HTTP", e);
         } catch (UnsupportedOperationException | IOException e) {
             resp.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
-            LOGGER.error("Erreur lors de l'appel à l'API Porte-Documents getCategories", e);
+            LOGGER.error("Erreur lors de l'appel à l'API Porte-Documents getTypedoc", e);
         }
 
         LOGGER.info("====================== Fin {} doGet()", req.getServletPath());

@@ -42,7 +42,7 @@ public class DocHolderFileServlet extends AbstractAfServlet {
 
     public static final String FILENAME = "filename";
     public static final String TYPEDOC = "typedoc";
-    public static final String PREFERED_NAME = "preferedName";
+    public static final String PREFERRED_NAME = "preferredName";
 
     /**
      * Méthode pour l'opération <b>getFile</b>
@@ -69,12 +69,8 @@ public class DocHolderFileServlet extends AbstractAfServlet {
             URIBuilder uriBuilder = new URIBuilder(SERVICE_URL);
             uriBuilder.addParameter(FILENAME, filename);
 
-            LOGGER.info("Génération de la requête porte-document");
-            Request serviceRequest = Request.Get(uriBuilder.build());
-            serviceRequest.setHeader(HttpHeaders.CONTENT_TYPE, "application/json; charset=utf-8");
-            serviceRequest.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + usagerInfosDTO.getTokenInfo().getAccessToken());
-
-            HttpResponse serviceResponse = serviceRequest.execute().returnResponse();
+            LOGGER.info("Envoi de la requête porte-document");
+            HttpResponse serviceResponse = FileServletUtils.downloadFromDocHolder(SERVICE_URL, filename, usagerInfosDTO.getTokenInfo().getAccessToken());
 
             LOGGER.info("Constitution de la réponse pour retour au client");
             Header contentDispositionHeader = serviceResponse.getFirstHeader(RequestConstant.CONTENT_DISPOSITION_HEADER);
@@ -85,7 +81,7 @@ public class DocHolderFileServlet extends AbstractAfServlet {
         } catch (URISyntaxException e) {
             AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_BAD_REQUEST, SharedMessages.REQUETE_MALFORMEE);
             return;
-        } catch (UnsupportedOperationException | IOException ioe) {
+        } catch (UnsupportedOperationException | IOException | InterruptedException ioe) {
             AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_INTERNAL_SERVER_ERROR, "Erreur interne");
             return;
         }
@@ -110,7 +106,7 @@ public class DocHolderFileServlet extends AbstractAfServlet {
 
         LOGGER.info("Vérification des paramètres envoyés");
         String typedoc = req.getParameter(TYPEDOC);
-        String preferedName = req.getParameter(PREFERED_NAME);
+        String preferedName = req.getParameter(PREFERRED_NAME);
         String endOfValidity = req.getParameter(END_OF_VALIDITY); // paramètre optionnel
         if (StringUtils.isEmpty(typedoc) || StringUtils.isEmpty(preferedName)) {
             AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_BAD_REQUEST, SharedMessages.REQUETE_MALFORMEE);
@@ -153,7 +149,7 @@ public class DocHolderFileServlet extends AbstractAfServlet {
             LOGGER.info("Création de la requête");
             MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create()
                     .addPart("file", new InputStreamBody(filePart.getInputStream(), ContentType.create(filePart.getContentType()), filePart.getSubmittedFileName()))
-                    .addTextBody(PREFERED_NAME, preferedName)
+                    .addTextBody(PREFERRED_NAME, preferedName)
                     .addTextBody(TYPEDOC, typedoc);
 
             if(!StringUtils.isEmpty(endOfValidity)) {
@@ -241,13 +237,13 @@ public class DocHolderFileServlet extends AbstractAfServlet {
         LOGGER.info("Vérification des paramètres envoyés");
         String filename = req.getParameter(FILENAME);
         String typedoc = req.getParameter(TYPEDOC);
-        String preferedName = req.getParameter(PREFERED_NAME);
+        String preferedName = req.getParameter(PREFERRED_NAME);
         if (StringUtils.isEmpty(filename) || StringUtils.isEmpty(typedoc) || StringUtils.isEmpty(preferedName)) {
             AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_BAD_REQUEST, SharedMessages.REQUETE_MALFORMEE);
             return;
         }
 
-        Map<String, String> parameters = Map.of(FILENAME, filename, TYPEDOC, typedoc, PREFERED_NAME, preferedName);
+        Map<String, String> parameters = Map.of(FILENAME, filename, TYPEDOC, typedoc, PREFERRED_NAME, preferedName);
 
         try {
             LOGGER.info("Préparation de la requête");

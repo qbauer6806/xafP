@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -12,7 +13,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import mc.gouv.xaf.back.data.entity.BrouillonBO;
-import mc.gouv.xaf.back.data.entity.BrouillonsFilesBO;
 import mc.gouv.xaf.shared.dto.BrouillonDTO;
 import mc.gouv.xaf.shared.dto.BrouillonFileDTO;
 
@@ -23,16 +23,12 @@ import mc.gouv.xaf.shared.dto.BrouillonFileDTO;
  */
 public class BrouillonsTransformer {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DemandesTransformer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BrouillonsTransformer.class);
 
     private BrouillonsTransformer() {
     }
 
     public static BrouillonDTO bo2Dto(BrouillonBO bo) {
-        return bo2Dto(bo, null);
-    }
-
-    public static BrouillonDTO bo2Dto(BrouillonBO bo, String[] fields) {
         if (bo == null) {
             return null;
         }
@@ -43,8 +39,8 @@ public class BrouillonsTransformer {
         dto.setPkBrouillons(bo.getPkBrouillons());
         dto.setUsagerId(bo.getFkAccess().getUsagerId());
         // Mapper les fichiers
-        if (bo.getFiles() != null && bo.getFiles().size() > 0) {
-            dto.setFichiers(BrouillonsFilesTransformer.bo2Dto(new ArrayList<BrouillonsFilesBO>(bo.getFiles()))
+        if (bo.getFiles() != null && !bo.getFiles().isEmpty()) {
+            dto.setFichiers(BrouillonsFilesTransformer.bo2Dto(new ArrayList<>(bo.getFiles()))
                     .toArray(new BrouillonFileDTO[bo.getFiles().size()]));
         }
         ObjectMapper mapper = new ObjectMapper();
@@ -53,6 +49,8 @@ public class BrouillonsTransformer {
             if (bo.getMeta() != null) {
             	dto.setMeta(mapper.readTree(bo.getMeta()));
             }
+            if (bo.getContenuInitial() != null)
+                dto.setContenuInitial(mapper.readTree(bo.getContenuInitial()));
         } catch (IOException e) {
             LOGGER.error("Erreur lors de la conversion JSON", e);
         }
@@ -61,18 +59,10 @@ public class BrouillonsTransformer {
         return dto;
     }
 
-    public static List<BrouillonDTO> bo2Dto(List<BrouillonBO> bos, String[] fields) {
-        ArrayList<BrouillonDTO> dtos = new ArrayList<BrouillonDTO>();
-        for (BrouillonBO bo : bos) {
-            dtos.add(bo2Dto(bo, fields));
-        }
-        return dtos;
-    }
-
     public static List<BrouillonDTO> bo2Dto(List<BrouillonBO> bos) {
-        ArrayList<BrouillonDTO> dtos = new ArrayList<BrouillonDTO>();
+        ArrayList<BrouillonDTO> dtos = new ArrayList<>();
         for (BrouillonBO bo : bos) {
-            dtos.add(bo2Dto(bo, null));
+            dtos.add(bo2Dto(bo));
         }
         return dtos;
     }
@@ -80,8 +70,6 @@ public class BrouillonsTransformer {
     /**
      * L'entité retournée est à rattacher à un AccessBO après l'appel à cette fonction
      * Mapper les fichiers attachés après appel à cette fonction, si besoin
-     * @param dto
-     * @return
      */
     public static BrouillonBO dto2Bo(BrouillonDTO dto) {
         if (dto == null) {
@@ -97,7 +85,12 @@ public class BrouillonsTransformer {
         try {
             bo.setContenu(mapper.writeValueAsString(dto.getContenu()));
             if (dto.getMeta() != null) {
-            	bo.setMeta(mapper.writeValueAsString(dto.getMeta()));
+                bo.setMeta(mapper.writeValueAsString(dto.getMeta()));
+            }
+            bo.setContenuInitial(mapper.writeValueAsString(dto.getContenuInitial()));
+            // Ce qui suit afin d'éviter l'insertion d'une chaîne "null" en base
+            if (bo.getContenuInitial() != null && "null".equals(bo.getContenuInitial())) {
+            	bo.setContenuInitial(null);
             }
         } catch (JsonProcessingException e) {
             LOGGER.error("Erreur lors de la conversion JSON", e);
@@ -117,6 +110,22 @@ public class BrouillonsTransformer {
         page.setLast(bos.isLast());
         page.setSort(bos.getSort());
         return page;
+    }
+
+    public static void setDernierStatut(BrouillonDTO brouillonDTO, String lastBuildId, String notTransmitted, String deprecated) {
+        if (brouillonDTO.getBuildId().equals(lastBuildId)) {
+            // statut not transmitted
+            setDernierStatut(brouillonDTO, notTransmitted);
+        } else {
+            // statut deprecated
+            setDernierStatut(brouillonDTO, deprecated);
+        }
+    }
+
+    public static void setDernierStatut(BrouillonDTO brouillonDTO, String statut) {
+        DemandeStatutDTO demandeStatutDTO = new DemandeStatutDTO();
+        demandeStatutDTO.setLibelle(statut);
+        brouillonDTO.setDernierStatut(demandeStatutDTO);
     }
 
 }

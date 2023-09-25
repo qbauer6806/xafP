@@ -1,30 +1,28 @@
 package mc.gouv.xaf.back.service.data;
 
-import java.util.List;
-
 import mc.gouv.xaf.shared.dto.KafkaOutboxDTO;
 
+import java.util.List;
+
 /**
- * 
  * Service permettant la manipulation de l'outbox direction Kafka
  *
  * @author qdeme
- * 
  */
 public interface KafkaOutboxService {
-	
-	public List<KafkaOutboxDTO> getOutboxElements();
-	
-	public KafkaOutboxDTO getOutboxElement(Integer pkOutboxElement);
-	
-	public KafkaOutboxDTO createOutboxElement(KafkaOutboxDTO outboxElement);
-	
-	public KafkaOutboxDTO updateOutboxElement(KafkaOutboxDTO outboxElement);
-	
-	public void deleteOutboxElement(Integer pkGUKafkaOutbox);
-	
-	public Integer resetAllOutboxElements();
 
-	public Integer getNbOutboxElements();
+    List<KafkaOutboxDTO> getOutboxElements();
+
+    KafkaOutboxDTO getOutboxElement(Integer pkOutboxElement);
+
+    KafkaOutboxDTO createOutboxElement(KafkaOutboxDTO outboxElement);
+
+    KafkaOutboxDTO updateOutboxElement(KafkaOutboxDTO outboxElement);
+
+    void deleteOutboxElement(Integer pkGUKafkaOutbox);
+
+    Integer resetAllOutboxElements();
+
+    Integer getNbOutboxElements();
 
 }

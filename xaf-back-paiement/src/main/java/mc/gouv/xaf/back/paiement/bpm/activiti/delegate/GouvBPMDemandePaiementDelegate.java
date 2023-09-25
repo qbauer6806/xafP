@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import mc.gouv.xaf.back.service.data.PropertiesService;
+import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.delegate.JavaDelegate;
 import org.apache.commons.lang3.BooleanUtils;
@@ -47,6 +49,7 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
     public static final String MC_CAPTURE_RESULT = "MC_CAPTURE_RESULT";
     public static final String MC_FACTURE_REFERENCE = "MC_FACTURE_REFERENCE";
     public static final String MC_IS_DEBIT_KO = "MC_IS_DEBIT_KO";
+    private static final String NB_JOURS_AVANT_EXPIRATION_PAIEMENT = "NB_JOURS_AVANT_EXPIRATION_PAIEMENT";
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMDemandePaiementDelegate.class);
 
     @Autowired
@@ -88,6 +91,9 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
     @Autowired
     private MessageSource messageSource;
 
+    @Autowired
+    private PropertiesService propertiesService;
+
     @Override
     public void execute(DelegateExecution execution) throws Exception {
         LOGGER.info("==== xaf-back-paiement CAPTURE PAIEMENT ...");
@@ -95,26 +101,19 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
         String demarcheId = gouvPropertiesResolver.getDemarcheId();
         Integer demandeId = Integer.parseInt(execution.getProcessBusinessKey());
         CommandeOperationDTO operation = null;
+        CommandeDTO commandeDTO = null;
         DemandeDTO demandeDto = demandesService.getDemande(demarcheId, demandeId);
         DemandeDataDTO statutPaiementData = demandesDataService.getDemandeData(demarcheId, demandeId, PaiementDemandeDataKeysEnum.STATUT_PAIEMENT.name());
 
         try {
-            CommandeDTO commandeDTO = commandesService.getDerniereCommande(demandeId);
+            commandeDTO = commandesService.getDerniereCommande(demandeId);
             LOGGER.info("Recuperation commandeDTO : {}", commandeDTO);
             LOGGER.info("Statut de l'empreinte de paiement : {}", statutPaiementData.getValue());
-
             if (commandeDTO != null && StringUtils.equals(statutPaiementData.getValue(), PaiementStatutEnum.EMPREINTE_VALIDE.name())) {
                 LOGGER.info("Début capture paiement pour la demande: {}", demandeId);
-
                 operation = captureService.capture(commandeDTO, demandeDto);
-                LOGGER.info("Recuperation reference : {}", operation.getNumeroFacture());
-
-                ticketRecapitulatifService.sendMail(operation, commandeDTO, demandeId);
-                gouvBPM.setProcessBusinessVariable(demandeId, MC_FACTURE_REFERENCE, operation.getNumeroFacture());
-
-                LOGGER.info("Fin capture paiement");
+                LOGGER.info("Fin capture paiement : {}", operation.getOperationStatut());
             }
-
         } catch (Exception e) {
             LOGGER.error("Erreur Capture paiement", e);
         }
@@ -126,22 +125,20 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
             if (StringUtils.equals(statutPaiementData.getValue(), PaiementStatutEnum.EMPREINTE_VALIDE.name())) {
                 demandesDataService.saveOrUpdateDemandeData(demarcheId, demandeId, PaiementDemandeDataKeysEnum.STATUT_PAIEMENT.name(), PaiementStatutEnum.DEBIT_ECHEC.name());
                 paiementHistoriqueService.ajouterHistoriqueDebitEchec(demandeDto);
-                // On ajoute un flag dans le BPMN pour savoir qu'un débit a déjà été émis
-                gouvBPM.setProcessBusinessVariable(demandeId, MC_IS_DEBIT_KO, true);
                 // #43127 Envoi du mail débit en echec (MAIL_NOTIFICATION_DEMANDE_ECHEC_DEBIT_USAGER_CORPS)
                 sendMail(demandeDto, "MAIL_NOTIFICATION_DEMANDE_ECHEC_DEBIT_USAGER");
-                
             } else if (StringUtils.equals(statutPaiementData.getValue(), PaiementStatutEnum.EMPREINTE_EXPIREE.name())) {
             	// #43127 Envoi du mail empreinte expirée (MAIL_NOTIFICATION_DEMANDE_EXPIRATION_EMPREINTE_USAGER_CORPS)
-            	gouvBPM.setProcessBusinessVariable(demandeId, MC_IS_DEBIT_KO, true);
             	sendMail(demandeDto, "MAIL_NOTIFICATION_DEMANDE_EXPIRATION_EMPREINTE_USAGER");
             }
-            
+            // On ajoute un flag dans le BPMN pour savoir qu'un débit a déjà été émis
+            gouvBPM.setProcessBusinessVariable(demandeId, MC_IS_DEBIT_KO, true);
             histoService.actionSysteme(demandeId, "ECHEC", "Débit en échec. Demande de paiement envoyée");
         } else {
             // TODO sauvegarder le statut du paiement de façon plus correct que dans les demandes data
             demandesDataService.saveOrUpdateDemandeData(demarcheId, demandeId, PaiementDemandeDataKeysEnum.STATUT_PAIEMENT.name(), PaiementStatutEnum.DEBIT_REALISE.name());
             demandesDataService.saveOrUpdateDemandeData(demarcheId, demandeId, PaiementDemandeDataKeysEnum.DATE_PAIEMENT.name(), LocalDateTime.now().format(DTF_AAAA_MM_JJ));
+            demandesDataService.saveOrUpdateDemandeData(demarcheId, demandeId, PaiementDemandeDataKeysEnum.MONTANT_PAYE.name(), operation.getMontant().toString());
             paiementHistoriqueService.ajouterHistoriqueDebitOK(demandeDto);
             // On récupère le flag pour l'historique
             if (BooleanUtils.isTrue((Boolean) gouvBPM.getProcessBusinessVariables(demandeId).get(MC_IS_DEBIT_KO))) {
@@ -149,6 +146,9 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
             } else {
                 histoService.actionSysteme(demandeId, "SUCCES", "Débit réalisé avec succès");
             }
+            LOGGER.info("Recuperation reference : {}", operation.getNumeroFacture());
+            ticketRecapitulatifService.sendMail(operation, commandeDTO, demandeId);
+            gouvBPM.setProcessBusinessVariable(demandeId, MC_FACTURE_REFERENCE, operation.getNumeroFacture());
         }
         LOGGER.info("==== xaf-back-paiement CAPTURE PAIEMENT <fin>");
     }
@@ -161,8 +161,7 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
 		emailInfo.setLangue(demandeDTO.getLangue());
 		emailInfo.setBodyTemplateCode(bodyTemplateCode);
 		emailInfo.setSubjectTemplateCode(subjectTemplateCode);
-		emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(),
-				afBackUtils.getDemarcheInfos().getEmailFromNom());
+		emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(), afBackUtils.getDemarcheInfos().getEmailFromNom());
 		emailInfo.addTo(demandeDTO.getUsagerEmail(), demandeDTO.getUsagerPrenom() + " " + demandeDTO.getUsagerNom());
 		emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, demandeDTO.getIdentifiant());
 		Map<String, Object> model = new HashMap<>();
@@ -171,7 +170,11 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
 		model.put("urlFront", gouvPropertiesResolver.getFrontUrl());
 		model.put("identifiant", demandeDTO.getIdentifiant());
 		model.put("pkDemande", demandeDTO.getPkDemandes());
-		model.put("dateExpirationPaiement", LocalDate.now().plusDays(35)
+
+        // Calcul de la date d'expoiration de la demande avec valeur par défaut à 35 jours
+        PropertiesDTO prop = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), NB_JOURS_AVANT_EXPIRATION_PAIEMENT);
+        int nbJoursAvantExpiration =  (null != prop) ? Integer.parseInt(prop.getValue()) : 35;
+		model.put("dateExpirationPaiement", LocalDate.now().plusDays(nbJoursAvantExpiration)
 				.format(DateTimeFormatter.ofPattern(AfBackUtils.DEFAULT_FRENCH_DATE_FORMAT)));
 		try {
 			mailService.sendMail(emailInfo, model);

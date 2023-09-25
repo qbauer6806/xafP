@@ -1,16 +1,9 @@
 package mc.gouv.xaf.back.data.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
-import javax.validation.constraints.Size;
-
 import org.hibernate.validator.constraints.NotBlank;
 
+import javax.persistence.*;
+import javax.validation.constraints.Size;
 import java.util.Date;
 
 /**
@@ -47,8 +40,8 @@ public class TemplateBO {
     @Size(min = 1, max = 10000)
     private String contenu;
 
-    @Column(name = "LANGUE", length = 2, nullable = true)
-    @Size(min = 0, max = 2)
+    @Column(name = "LANGUE", length = 2)
+    @Size(max = 2)
     private String langue;
 
     @Column(name = "DATE_MODIF", nullable = false)

@@ -1,9 +1,8 @@
 package mc.gouv.xaf.back.service.itg.mail;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.apache.velocity.exception.MethodInvocationException;
-import org.apache.velocity.exception.ParseErrorException;
-import org.apache.velocity.exception.ResourceNotFoundException;
+import mc.gouv.xaf.back.exception.DemarchesServiceException;
+import mc.gouv.xaf.shared.enums.MailAudienceEnum;
 
 import java.io.InputStream;
 import java.util.Map;
@@ -21,18 +20,22 @@ public interface MailService {
 	 */
 	void sendMail(EmailInfoDTO emailInfo, Map<String, Object> model) throws JsonProcessingException;
 
+	void sendMail(EmailInfoDTO emailInfo, Map<String, Object> model, MailAudienceEnum audienceMail) throws JsonProcessingException;
+
 	/**
 	 * Permet d'envoyer un email avec substitution de variables (templating) + pièces jointes
 	 */
 	void sendMail(EmailInfoDTO emailInfo, Map<String, Object> model, Map<String, InputStream> attachments) throws JsonProcessingException;
 
+	void sendMail(EmailInfoDTO emailInfo, Map<String, Object> model, Map<String, InputStream> attachments, MailAudienceEnum audienceMail) throws JsonProcessingException;
+
 	/**
 	 * Permet d'obtenir un aperçu de l'email qui serait envoyé
 	 *
 	 * @return [0] contient le titre, [1] contient le contenu en HTML
+	 * @throws DemarchesServiceException si les appels à velocity ne fonctionne pas
 	 */
-	String[] getMailPreview(String bodyTemplateCode, String subjectTemplateCode, String langue,
-			Map<String, Object> model) throws ParseErrorException, MethodInvocationException, ResourceNotFoundException, Exception;
+	String[] getMailPreview(String bodyTemplateCode, String subjectTemplateCode, String langue, Map<String, Object> model) throws Exception;
 
 	/**
 	 * Permet de formater le commentaire afin d'y ajouter les sauts de lignes

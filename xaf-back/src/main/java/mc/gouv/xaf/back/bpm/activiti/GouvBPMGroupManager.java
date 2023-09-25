@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.activiti.engine.identity.Group;
-import org.activiti.engine.identity.GroupQuery;
 import org.activiti.engine.impl.GroupQueryImpl;
 import org.activiti.engine.impl.QueryVariableValue;
 import org.activiti.engine.impl.TaskQueryImpl;
@@ -50,38 +49,24 @@ public class GouvBPMGroupManager extends GroupEntityManager {
 
     @Override
     public List<Group> findGroupsByUser(String userId) {
-        LOGGER.debug("GouvBPMGroupManager.findGroupsByUser(" + userId + ")");
+        LOGGER.debug("GouvBPMGroupManager.findGroupsByUser({})", userId);
 
         // Il faut récupérer le code appli pour appeler getUserByMatricule() du Logon
         String codeAppli = null;
         List<QueryVariableValue> variables = ((TaskQueryImpl) Context.getCommandContext().getCommand())
                 .getQueryVariableValues();
-        for (QueryVariableValue var : variables) {
-            if (GouvBPMProcessVariableTypeEnum.MC_CODEAPPLI.name().equals(var.getName())) {
-                codeAppli = var.getTextValue();
+        for (QueryVariableValue v : variables) {
+            if (GouvBPMProcessVariableTypeEnum.MC_CODEAPPLI.name().equals(v.getName())) {
+                codeAppli = v.getTextValue();
             }
         }
 
-        ArrayList<Group> liste = new ArrayList<Group>();
+        List<Group> liste = new ArrayList<>();
         if (codeAppli != null) {
 
             User user = utilisateursCache.get(userId);
             if (user != null) {
-                Set<Role> roles = user.getRoles();
-                if (roles != null) {
-                    for (Role role : roles) {
-                        // Il faut que ces droits concernent l'application en question
-                        if (role.getAppli().getCode().equals(codeAppli)) {
-                            Set<Droit> droits = role.getDroits();
-                            for (Droit droit : droits) {
-                                GroupEntity ge = new GroupEntity();
-                                ge.setId(droit.getCode());
-                                ge.setName(droit.getTitre());
-                                liste.add(ge);
-                            }
-                        }
-                    }
-                }
+                addAllRoles(user, liste, codeAppli);
             } else {
                 // On teste si c'est un usager
             	GichuniUsagerDTO usager = usagerCache.get(Integer.parseInt(userId));
@@ -99,29 +84,22 @@ public class GouvBPMGroupManager extends GroupEntityManager {
         return liste;
     }
 
-    @Override
-    public Group createNewGroup(String groupId) {
-        return super.createNewGroup(groupId);
-    }
-
-    @Override
-    public void insertGroup(Group group) {
-        super.insertGroup(group);
-    }
-
-    @Override
-    public void updateGroup(Group updatedGroup) {
-        super.updateGroup(updatedGroup);
-    }
-
-    @Override
-    public void deleteGroup(String groupId) {
-        super.deleteGroup(groupId);
-    }
-
-    @Override
-    public GroupQuery createNewGroupQuery() {
-        return super.createNewGroupQuery();
+    private void addAllRoles(User user, List<Group> liste, String codeAppli) {
+        Set<Role> roles = user.getRoles();
+        if (roles != null) {
+            for (Role role : roles) {
+                // Il faut que ces droits concernent l'application en question
+                if (role.getAppli().getCode().equals(codeAppli)) {
+                    Set<Droit> droits = role.getDroits();
+                    for (Droit droit : droits) {
+                        GroupEntity ge = new GroupEntity();
+                        ge.setId(droit.getCode());
+                        ge.setName(droit.getTitre());
+                        liste.add(ge);
+                    }
+                }
+            }
+        }
     }
 
 }

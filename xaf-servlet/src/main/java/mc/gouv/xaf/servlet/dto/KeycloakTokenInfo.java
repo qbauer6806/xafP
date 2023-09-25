@@ -1,5 +1,6 @@
 package mc.gouv.xaf.servlet.dto;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -9,8 +10,10 @@ import java.util.Date;
  * @author qdeme
  * 
  */
-public class KeycloakTokenInfo {
-	
+public class KeycloakTokenInfo implements Serializable {
+
+	private static final long serialVersionUID = -5604923412541200687L;
+
 	private String accessToken;
 	
 	private Integer expiresIn;

@@ -4,10 +4,6 @@ public class ContexteCommandeDTO {
 
     private BillingDTO billing;
 
-
-    public ContexteCommandeDTO() {
-    }
-
     public BillingDTO getBilling() {
         return billing;
     }
@@ -15,6 +11,5 @@ public class ContexteCommandeDTO {
     public void setBilling(BillingDTO billing) {
         this.billing = billing;
     }
-
 
 }

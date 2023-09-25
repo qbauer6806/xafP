@@ -118,4 +118,16 @@ public interface GouvPropertiesResolver {
 
     String getApiRioCodeNotice();
 
+    boolean isPaiementEnabled();
+
+    String getApiUlisMoyensGenerauxUrl();
+
+    String getApiUlisTiersOrganisationUrl();
+
+    String getApiUlisAuthenticationUser();
+
+    String getApiUlisAuthenticationPassword();
+
+    String getApiUlisFunctionalUser();
+
 }

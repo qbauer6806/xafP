@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<body>
+<div id="panelinformationspaiement" th:fragment="panelinformationspaiement" th:remove="tag">
+    <div class="tab-pane" id="tab4" role="tabpanel">
+        <div class="row">
+            <div class="col-xs-6">
+                <label>Statut de paiement : </label>&nbsp;
+                <span th:class="'label statusbox ' + ${statutPaiementColor}" th:text="${statutPaiement}"></span>
+            </div>
+            <div class="col-xs-6">
+                <label>Date de l'expiration de l'empreinte bancaire : </label>&nbsp;
+                <span class="date-expiration" th:text="${dateExpirationEmpreinte}"></span>
+            </div>
+        </div>
+
+        <div class="row mt-15">
+            <div class="col-xs-6">
+                <label th:if="${statutPaiementCode} != 'DEBIT_REALISE'" for="montant">Montant de la demande : </label>
+                <label th:if="${statutPaiementCode} == 'DEBIT_REALISE'" for="montant">Montant débité : </label>
+                <br>
+                <input class="form-control" type="text" id="montant" th:value="${montantPaiement}" disabled="true" />
+            </div>
+            <div class="col-xs-6">
+                <label for="numFacture">Numéro de facture : </label>
+                <br>
+                <input class="form-control" type="text" id="numFacture" th:value="${numeroFacture}" disabled="true" />
+            </div>
+            <div class="col-xs-6">
+                <label th:if="${statutPaiementCode} != 'DEBIT_REALISE'" for="dateEmpreinte">Date de validation de l'empreinte bancaire : </label>
+                <label th:if="${statutPaiementCode} == 'DEBIT_REALISE'" for="dateEmpreinte">Date de réalisation du débit : </label>
+                <br>
+                <input class="form-control" type="text" id="dateEmpreinte" th:value="${datePaiement}" disabled="true" />
+            </div>
+            <div class="col-xs-6">
+                <label for="moyenPaiement">Moyen de paiement : </label>
+                <br>
+                <input class="form-control" type="text" id="moyenPaiement" th:value="${moyenPaiement}" disabled="true" />
+            </div>
+        </div>
+
+        <hr>
+
+        <h4 class="h4">HISTORIQUE DE PAIEMENT</h4>
+
+        <div th:each="histo : ${paiementHisto}">
+            <div th:if="${histo != null}">
+                <span style="vertical-align: middle" th:class="'label statusbox ' + ${histo.getCouleur()}">&nbsp;</span>&nbsp;
+                <span th:if="${histo.getDate() != null}" style="font-weight: bold" th:text="${histo.getDate().format(formatDate)}"></span>&nbsp;
+                <span th:text="${histo.getContenu()}"></span>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

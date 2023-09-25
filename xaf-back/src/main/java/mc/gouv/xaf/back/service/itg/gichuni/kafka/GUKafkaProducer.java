@@ -4,7 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.RecapDemandesDTO;
-import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.StatutSimplifieEnum;
+import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.UsagerDemandesRecapDTO;
 
 /**

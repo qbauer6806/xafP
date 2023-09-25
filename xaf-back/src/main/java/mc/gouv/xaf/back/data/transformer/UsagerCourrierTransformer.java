@@ -61,7 +61,7 @@ public class UsagerCourrierTransformer {
     }
     
     public static List<UsagerCourrierDTO> bo2Dto(List<UsagersCourrierBO> bos) {
-        ArrayList<UsagerCourrierDTO> dtos = new ArrayList<UsagerCourrierDTO>();
+        ArrayList<UsagerCourrierDTO> dtos = new ArrayList<>();
         for (UsagersCourrierBO bo : bos) {
             dtos.add(bo2Dto(bo));
         }
@@ -69,7 +69,7 @@ public class UsagerCourrierTransformer {
     }
     
     public static List<UsagersCourrierBO> dto2Bo(List<UsagerCourrierDTO> dtos) {
-        ArrayList<UsagersCourrierBO> bos = new ArrayList<UsagersCourrierBO>();
+        ArrayList<UsagersCourrierBO> bos = new ArrayList<>();
         for (UsagerCourrierDTO dto : dtos) {
             bos.add(dto2Bo(dto));
         }

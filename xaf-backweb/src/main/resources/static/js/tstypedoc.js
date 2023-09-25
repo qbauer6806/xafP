@@ -181,11 +181,11 @@ var disablePanelLoading = function () {
     loaderMessage.classList.add("hide");
 }
 
-enableButton = (buttonId) => {
+function enableButton(buttonId) {
     // Déverouillage des champs en cas d'annulation
     document.getElementById(buttonId).removeAttribute('disabled');
     document.getElementById(buttonId).classList.remove("loading");
-};
+}
 
 var openPdfPrevisuModal = function (containerId, buttonId) {
     $.fancybox.open({
@@ -199,7 +199,7 @@ var openPdfPrevisuModal = function (containerId, buttonId) {
 
 function checkRemplissageFichiers() {
     let tousRemplis = true;
-    $('select[id^="file"], select[id^="comp"]').each(function(index, element) {
+    $('select[id^="file"], select[id^="comp"]').each(function (index, element) {
         if (!element.value || element.value === '') {
             return tousRemplis = false;
         }
@@ -209,7 +209,7 @@ function checkRemplissageFichiers() {
 
 function checkVerificationFichiers() {
     let tousVerif = true;
-    $('input[id^="fileCheckbox"], input[id^="compCheckbox"]').each(function(index, element) {
+    $('input[id^="fileCheckbox"], input[id^="compCheckbox"]').each(function (index, element) {
         if (!element.checked) {
             return tousVerif = false;
         }

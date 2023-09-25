@@ -40,15 +40,13 @@ public class GichuniApiClientConfig {
 
 	@Bean
 	public OAuth2ClientContext oauth2ClientContext() {
-	    DefaultOAuth2ClientContext defaultOAuth2ClientContext = new DefaultOAuth2ClientContext();
-	    return defaultOAuth2ClientContext;
+	    return new DefaultOAuth2ClientContext();
 	}
 
 	@Bean
 	public OAuth2RestTemplate oAuth2RestTemplate(OAuth2ProtectedResourceDetails oAuth2ProtectedResourceDetails, OAuth2ClientContext oauth2ClientContext) {
 	    OAuth2RestTemplate restTemplate = new OAuth2RestTemplate(oAuth2ProtectedResourceDetails, oauth2ClientContext);
 	    SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-
 	    restTemplate.setRequestFactory(factory);
 	    return restTemplate;
 	}

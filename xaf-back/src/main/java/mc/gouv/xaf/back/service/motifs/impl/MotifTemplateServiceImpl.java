@@ -14,7 +14,6 @@ import org.apache.velocity.exception.MethodInvocationException;
 import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;
 import org.apache.velocity.runtime.RuntimeConstants;
-import org.apache.velocity.runtime.log.NullLogChute;
 import org.apache.velocity.tools.ToolManager;
 import org.apache.velocity.tools.generic.DateTool;
 import org.slf4j.Logger;
@@ -34,6 +33,7 @@ import java.util.Map;
 public class MotifTemplateServiceImpl implements MotifTemplateService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MotifTemplateServiceImpl.class);
+    private static final String ECHEC_VELOCITY = "Velocity.evaluate() n'a pas fonctionné.";
 
     private ToolManager manager = new ToolManager();
 
@@ -64,7 +64,7 @@ public class MotifTemplateServiceImpl implements MotifTemplateService {
         return populateMotifs(demande, motifList);
     }
 
-    private List<MotifDTO> populateMotifs(DemandeDTO demande, List<MotifDTO> motifList) throws ParseErrorException, MethodInvocationException, ResourceNotFoundException, IOException {
+    public List<MotifDTO> populateMotifs(DemandeDTO demande, List<MotifDTO> motifList) throws ParseErrorException, MethodInvocationException, ResourceNotFoundException, IOException {
         Map<String, Object> motifsModel = motifsTemplateModelProvider.getModel(demande);
         List<MotifDTO> motifListPopulated = motifList;
 
@@ -76,34 +76,29 @@ public class MotifTemplateServiceImpl implements MotifTemplateService {
         return motifListPopulated;
     }
 
-    private List<MotifDTO> getPopulatedMotifs(List<MotifDTO> motifsList, Map<String, Object> model) throws ParseErrorException, MethodInvocationException, ResourceNotFoundException, IOException {
+    private List<MotifDTO> getPopulatedMotifs(List<MotifDTO> motifsList, Map<String, Object> model) throws ParseErrorException, MethodInvocationException, ResourceNotFoundException {
 
         List<MotifDTO> motifDTOList = new ArrayList<>();
 
         LOGGER.info("Appel à Velocity pour le templating du corps et du sujet du motif...");
-        Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_LOGSYSTEM, new NullLogChute());
+        Velocity.setProperty(RuntimeConstants.RUNTIME_LOG_INSTANCE, LOGGER);
         try {
 			Velocity.init();
 		} catch (Exception e) {
 			LOGGER.error("Erreur lors de Velocity.init()", e);
-			return new ArrayList<MotifDTO>();
+			return new ArrayList<>();
 		}
-        Context context = getContext();
-        if (model != null) {
-            for (String key : model.keySet()) {
-                context.put(key, model.get(key));
-            }
-        }
+        Context context = getContext(model);
 
         for (MotifDTO motif : motifsList) {
 
             // Cloner l'objet pour ne pas impacter le cache
-            MotifDTO clonedMotif = (MotifDTO) motif.clone();
+            MotifDTO clonedMotif = new MotifDTO(motif);
 
             // Population du motif
             StringWriter output = new StringWriter();
             if (!Velocity.evaluate(context, output, clonedMotif.getCode(), clonedMotif.getLibelle())) {
-                throw new DemarchesServiceException("Velocity.evaluate() n'a pas fonctionné.", HttpStatus.INTERNAL_SERVER_ERROR);
+                throw new DemarchesServiceException(ECHEC_VELOCITY, HttpStatus.INTERNAL_SERVER_ERROR);
             }
             clonedMotif.setLibelle(output.toString());
 
@@ -111,7 +106,7 @@ public class MotifTemplateServiceImpl implements MotifTemplateService {
             if (motif.getCommentairePrerempli() != null) {
                 output = new StringWriter();
                 if (!Velocity.evaluate(context, output, clonedMotif.getCode(), clonedMotif.getCommentairePrerempli())) {
-                    throw new DemarchesServiceException("Velocity.evaluate() n'a pas fonctionné.", HttpStatus.INTERNAL_SERVER_ERROR);
+                    throw new DemarchesServiceException(ECHEC_VELOCITY, HttpStatus.INTERNAL_SERVER_ERROR);
                 }
                 clonedMotif.setCommentairePrerempli(output.toString());
             }
@@ -120,7 +115,7 @@ public class MotifTemplateServiceImpl implements MotifTemplateService {
             if (motif.getTexteAEnvoyer() != null) {
                 output = new StringWriter();
                 if (!Velocity.evaluate(context, output, clonedMotif.getCode(), clonedMotif.getTexteAEnvoyer())) {
-                    throw new DemarchesServiceException("Velocity.evaluate() n'a pas fonctionné.", HttpStatus.INTERNAL_SERVER_ERROR);
+                    throw new DemarchesServiceException(ECHEC_VELOCITY, HttpStatus.INTERNAL_SERVER_ERROR);
                 }
                 clonedMotif.setTexteAEnvoyer(output.toString());
             }
@@ -131,10 +126,15 @@ public class MotifTemplateServiceImpl implements MotifTemplateService {
         return motifDTOList;
     }
 
-    private Context getContext() {
+    private Context getContext(Map<String, Object> model) {
         Context context = manager.createContext();
         context.put("StringUtils", StringUtils.class);
         context.put("date", new DateTool());
+        if (model != null) {
+            for (Map.Entry<String,Object> entry : model.entrySet()) {
+                context.put(entry.getKey(), entry.getValue());
+            }
+        }
         return context;
     }
 }

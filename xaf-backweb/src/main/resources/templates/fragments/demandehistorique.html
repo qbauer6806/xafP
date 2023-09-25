@@ -16,7 +16,8 @@
 									href="#collapseOne" aria-expanded="true"
 									aria-controls="collapseOne"> <i
 									class="pannelState icon-action_accordeon-ouvert"></i>
-									HISTORIQUE DE LA DEMANDE
+									<span th:if="${histoLibelle != null}" th:text="${histoLibelle}"></span>
+									<span th:unless="${histoLibelle != null}">HISTORIQUE DE LA DEMANDE</span>
 								</a>
 							</h4>
 						</div>

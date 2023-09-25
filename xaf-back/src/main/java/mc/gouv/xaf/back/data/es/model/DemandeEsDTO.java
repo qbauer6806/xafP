@@ -2,6 +2,8 @@ package mc.gouv.xaf.back.data.es.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import mc.gouv.xaf.shared.dto.es.GenericContenuEsDTO;
+import mc.gouv.xaf.shared.dto.es.GenericDemandeDataEsDTO;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 
@@ -41,7 +43,7 @@ public class DemandeEsDTO {
     /**
      * @deprecated les jointures seront supprimées dans ES8
      */
-    @Deprecated
+    @Deprecated(forRemoval = true)
     private DemandeJoinFieldEsDTO demandeJoinField;
     private DemandeStatutEsDTO dernierStatut;
     @Id
@@ -54,6 +56,15 @@ public class DemandeEsDTO {
     private UsagerEsDTO usager;
     private DemandeStatutEsDTO[] statuts;
     private List<String> justificatifsTraitement;
+    private Long modificationTimestamp;
+
+    public Long getModificationTimestamp() {
+        return modificationTimestamp;
+    }
+
+    public void setModificationTimestamp(Long modificationTimestamp) {
+        this.modificationTimestamp = modificationTimestamp;
+    }
 
     @JsonIgnore
     protected boolean updated = false;
@@ -187,7 +198,7 @@ public class DemandeEsDTO {
     /**
      * @deprecated les jointures seront supprimées dans ES8
      */
-    @Deprecated
+    @Deprecated(forRemoval = true)
     public DemandeJoinFieldEsDTO getDemandeJoinField() {
         return demandeJoinField;
     }
@@ -195,7 +206,7 @@ public class DemandeEsDTO {
     /**
      * @deprecated les jointures seront supprimées dans ES8
      */
-    @Deprecated
+    @Deprecated(forRemoval = true)
     public void setDemandeJoinField(DemandeJoinFieldEsDTO demandeJoinField) {
         this.demandeJoinField = demandeJoinField;
     }

@@ -1,13 +1,26 @@
 package mc.gouv.xaf.back.service.data.impl;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import mc.gouv.xaf.back.data.dao.AccessRepository;
+import mc.gouv.xaf.back.data.dao.BrouillonsFilesRepository;
+import mc.gouv.xaf.back.data.dao.BrouillonsRepository;
+import mc.gouv.xaf.back.data.entity.AccessBO;
+import mc.gouv.xaf.back.data.entity.BrouillonBO;
+import mc.gouv.xaf.back.data.entity.BrouillonsFilesBO;
+import mc.gouv.xaf.back.data.transformer.BrouillonsFilesTransformer;
+import mc.gouv.xaf.back.data.transformer.BrouillonsTransformer;
+import mc.gouv.xaf.back.exception.DemarchesServiceException;
+import mc.gouv.xaf.back.service.DemarchesDataProvider;
+import mc.gouv.xaf.back.service.data.AccessService;
+import mc.gouv.xaf.back.service.data.BrouillonsFilesService;
+import mc.gouv.xaf.back.service.data.BrouillonsService;
+import mc.gouv.xaf.back.service.itg.file.FileService;
+import mc.gouv.xaf.back.service.utils.AbstractTsUtils;
+import mc.gouv.xaf.shared.SharedMessages;
+import mc.gouv.xaf.shared.dto.BrouillonDTO;
+import mc.gouv.xaf.shared.dto.BrouillonFileDTO;
+import mc.gouv.xaf.shared.dto.PageParamDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,25 +31,15 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.xml.sax.SAXException;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import mc.gouv.xaf.back.data.dao.AccessRepository;
-import mc.gouv.xaf.back.data.dao.BrouillonsFilesRepository;
-import mc.gouv.xaf.back.data.dao.BrouillonsRepository;
-import mc.gouv.xaf.back.data.entity.AccessBO;
-import mc.gouv.xaf.back.data.entity.BrouillonBO;
-import mc.gouv.xaf.back.data.entity.BrouillonsFilesBO;
-import mc.gouv.xaf.back.data.transformer.BrouillonsFilesTransformer;
-import mc.gouv.xaf.back.data.transformer.BrouillonsTransformer;
-import mc.gouv.xaf.back.exception.DemarchesServiceException;
-import mc.gouv.xaf.back.service.data.BrouillonsFilesService;
-import mc.gouv.xaf.back.service.data.BrouillonsService;
-import mc.gouv.xaf.shared.dto.BrouillonDTO;
-import mc.gouv.xaf.shared.dto.BrouillonFileDTO;
-import mc.gouv.xaf.shared.dto.PageParamDTO;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Service permettant la manipulation des brouillons.
@@ -62,64 +65,72 @@ public class BrouillonsServiceImpl implements BrouillonsService {
     @Autowired
     private AccessRepository accessRepository;
 
+    @Autowired
+    private AccessService accessService;
+
+    @Autowired
+    private AbstractTsUtils abstractTsUtils;
+
+    @Autowired
+    private DemarchesDataProvider demarchesDataProvider;
+
+    @Autowired
+    private FileService fileService;
+
     /**
      * {@inheritDoc}
-     * @throws Exception
      */
     @Override
-    public BrouillonDTO saveBrouillon(BrouillonDTO brouillon) throws Exception {
-
+    public BrouillonDTO saveBrouillon(BrouillonDTO brouillon) {
         LOGGER.info("Récupération en base de l'accès correspondant...");
-
-        AccessBO accessBo = null;
-        List<AccessBO> accessBos = accessRepository.getByDemarcheIdAndUsagerIdAndActive(brouillon.getDemarcheId(),
-        		brouillon.getUsagerId(), true);
-        if (accessBos != null && !accessBos.isEmpty()) {
-            accessBo = accessBos.get(0);
-        } else {
-            accessBo = null;
-        }
-
-        if (accessBo == null) {
-            throw new DemarchesServiceException("Accès correspondant introuvable", HttpStatus.NOT_FOUND);
-        }
-
-        LOGGER.info("Transformation dto -> bo ...");
+        AccessBO accessBo = accessService.getAccessBO(brouillon.getDemarcheId(), brouillon.getUsagerId());
 
         if (brouillon.getFichiers() != null) {
             for (BrouillonFileDTO file : brouillon.getFichiers()) {
                 file.setDate(new Date());
             }
         }
-
         brouillon.setDateCreation(new Date());
         brouillon.setDateDerModif(brouillon.getDateCreation());
 
+        LOGGER.info(SharedMessages.TRANSFORMATION_DTO_BO);
         BrouillonBO brouillonBo = BrouillonsTransformer.dto2Bo(brouillon);
         brouillonBo.setFkAccess(accessBo);
 
-        LOGGER.info("Sauvegarder en base...");
-
+        LOGGER.info(SharedMessages.SAUVEGARDE_EN_BASE);
         brouillonBo = brouillonsRepository.save(brouillonBo);
 
         // Maintenant on s'occupe d'attacher et de persister les pièces jointes...
         brouillonsFilesService.saveFiles(brouillon.getFichiers(), brouillonBo);
 
+        LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
+        return BrouillonsTransformer.bo2Dto(brouillonBo);
+    }
+
+    @Override
+    public List<BrouillonDTO> getAllBrouillons(String demarcheId) {
+
+        LOGGER.info("Récupération en base des brouillons...");
+
+        List<BrouillonBO> brouillons = new ArrayList<>();
+        List<AccessBO> accessBos = accessRepository.getByDemarcheId(demarcheId);
+        for (AccessBO access : accessBos) {
+            brouillons.addAll(access.getBrouillons());
+        }
+
         LOGGER.info("Transformation bo -> dto ...");
 
-        BrouillonDTO brouillonDTO = BrouillonsTransformer.bo2Dto(brouillonBo);
+        List<BrouillonDTO> brouillonsDTO = BrouillonsTransformer.bo2Dto(brouillons);
+        brouillonsDTO.forEach(brouillonDto -> BrouillonsTransformer.setDernierStatut(brouillonDto, abstractTsUtils.getLastBuildId(), demarchesDataProvider.getBrouillonStatutNotTransmitted(), demarchesDataProvider.getBrouillonStatutDeprecated()));
+        return brouillonsDTO;
 
-        return brouillonDTO;
     }
 
     /**
      * {@inheritDoc}
-     * @throws Exception
-     *
      */
     @Override
-    public BrouillonDTO saveOrUpdateBrouillon(BrouillonDTO brouillon, Integer usagerId, boolean partialUpdate)
-            throws Exception {
+    public BrouillonDTO saveOrUpdateBrouillon(BrouillonDTO brouillon, Integer usagerId, boolean partialUpdate) {
     	BrouillonDTO brouillonDTO;
         if (brouillon.getPkBrouillons() != null) {
             // ID du brouillon fourni, il faut donc mettre à jour un brouillon
@@ -128,7 +139,6 @@ public class BrouillonsServiceImpl implements BrouillonsService {
             // UsagerID et DemarcheID fournis, il faut donc créer un nouveau brouillon
             brouillonDTO = saveBrouillon(brouillon);
         }
-
         return brouillonDTO;
     }
 
@@ -137,24 +147,10 @@ public class BrouillonsServiceImpl implements BrouillonsService {
      */
     @Override
     public List<BrouillonDTO> getBrouillons(String demarcheId, Integer usagerId) {
-
-        LOGGER.info("Récupération en base des brouillons...");
-
-        AccessBO accessBo = null;
-        List<AccessBO> accessBos = accessRepository.getByDemarcheIdAndUsagerIdAndActive(demarcheId, usagerId, true);
-        if (accessBos != null && !accessBos.isEmpty()) {
-            accessBo = accessBos.get(0);
-        } else {
-            accessBo = null;
-        }
-
-        if (accessBo == null) {
-            throw new DemarchesServiceException("Accès correspondant introuvable", HttpStatus.NOT_FOUND);
-        }
-
-        LOGGER.info("Transformation bo -> dto ...");
-
-        return BrouillonsTransformer.bo2Dto(new ArrayList<BrouillonBO>(accessBo.getBrouillons()));
+        LOGGER.info(SharedMessages.RECUPERATION_EN_BASE);
+        AccessBO accessBo = accessService.getAccessBO(demarcheId, usagerId);
+        LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
+        return BrouillonsTransformer.bo2Dto(new ArrayList<>(accessBo.getBrouillons()));
     }
 
     @Override
@@ -163,24 +159,20 @@ public class BrouillonsServiceImpl implements BrouillonsService {
 
         // #46373 - Faille de sécurité, il faut vérifier que l'usager qui a créé ce brouillon est à l'origine du changement
         if (!usagerId.equals(brouillonBo.getFkAccess().getUsagerId())) {
-            throw new DemarchesServiceException("Utilisateur non autorisé", HttpStatus.UNAUTHORIZED);
+            throw new DemarchesServiceException(SharedMessages.UTILISATEUR_NON_AUTORISE, HttpStatus.UNAUTHORIZED);
         }
 
-        LOGGER.info("Transformation bo -> dto ...");
+	    LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
         return BrouillonsTransformer.bo2Dto(brouillonBo);
     }
 
     @Override
     public BrouillonBO getBrouillonBo(String demarcheId, Integer pkBrouillons) {
-
-        LOGGER.info("Récupération en base du brouillon...");
-
+        LOGGER.info(SharedMessages.RECUPERATION_EN_BASE);
         BrouillonBO brouillonBo = brouillonsRepository.findByFkAccessDemarcheIdAndPkBrouillons(demarcheId, pkBrouillons);
-
         if (brouillonBo == null) {
-            throw new DemarchesServiceException("Brouillon introuvable", HttpStatus.NOT_FOUND);
+            throw new DemarchesServiceException(SharedMessages.DONNEE_INTROUVABLE, HttpStatus.NOT_FOUND);
         }
-
         return brouillonBo;
     }
 
@@ -188,21 +180,21 @@ public class BrouillonsServiceImpl implements BrouillonsService {
      * {@inheritDoc}
      */
     @Override
-    public BrouillonDTO updateBrouillon(BrouillonDTO brouillon, Integer usagerId) throws IOException, SAXException {
+    public BrouillonDTO updateBrouillon(BrouillonDTO brouillon, Integer usagerId) {
 
-        LOGGER.info("Récupération en base du brouillon...");
+        LOGGER.info(SharedMessages.RECUPERATION_EN_BASE);
 
         Optional<BrouillonBO> brouillonBoOp = brouillonsRepository.findById(brouillon.getPkBrouillons());
 
         if (!brouillonBoOp.isPresent()) {
-            throw new DemarchesServiceException("Brouillon introuvable", HttpStatus.NOT_FOUND);
+            throw new DemarchesServiceException(SharedMessages.DONNEE_INTROUVABLE, HttpStatus.NOT_FOUND);
         }
 
         BrouillonBO brouillonBo = brouillonBoOp.get();
 
         // #46373 - Faille de sécurité, il faut vérifier que l'usager qui a créé ce brouillon est à l'origine du changement
         if (!usagerId.equals(brouillonBo.getFkAccess().getUsagerId())) {
-            throw new DemarchesServiceException("Utilisateur non autorisé", HttpStatus.UNAUTHORIZED);
+            throw new DemarchesServiceException(SharedMessages.UTILISATEUR_NON_AUTORISE, HttpStatus.UNAUTHORIZED);
         }
 
         ObjectMapper mapper = new ObjectMapper();
@@ -219,9 +211,7 @@ public class BrouillonsServiceImpl implements BrouillonsService {
         brouillonBo.setDateDerModif(new Date());
 
         // Supprimer les pièces jointes déjà existantes
-        for (BrouillonsFilesBO bo : brouillonBo.getFiles()) {
-            brouillonsFilesRepository.delete(bo);
-        }
+        brouillonsFilesRepository.deleteAll(brouillonBo.getFiles());
         brouillonBo.getFiles().clear();
         
         // Mise à jour des dates des pièces jointes
@@ -235,7 +225,7 @@ public class BrouillonsServiceImpl implements BrouillonsService {
         
         if (brouillon.getFichiers() != null && brouillon.getFichiers().length > 0) {
             // Ajouter la nouvelle image
-            brouillonBo.setFiles(new HashSet<BrouillonsFilesBO>(
+            brouillonBo.setFiles(new HashSet<>(
                     BrouillonsFilesTransformer.dto2Bo(Arrays.asList(brouillon.getFichiers()))));
             for (BrouillonsFilesBO bo : brouillonBo.getFiles()) {
                 bo.setFkBrouillons(brouillonBo);
@@ -245,11 +235,8 @@ public class BrouillonsServiceImpl implements BrouillonsService {
 
         brouillonBo = brouillonsRepository.save(brouillonBo);
 
-        LOGGER.info("Transformation bo -> dto ...");
-
-        BrouillonDTO dto = BrouillonsTransformer.bo2Dto(brouillonBo);
-
-        return dto;
+        LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
+        return BrouillonsTransformer.bo2Dto(brouillonBo);
     }
 
     /**
@@ -257,39 +244,44 @@ public class BrouillonsServiceImpl implements BrouillonsService {
      */
     @Override
     public void deleteBrouillon(String demarcheId, Integer pkBrouillons, Integer usagerId) {
+        deleteBrouillon(demarcheId, pkBrouillons, usagerId, false);
+    }
 
-        LOGGER.info("Récupération en base du brouillon...");
-
-        BrouillonBO brouillonBo = brouillonsRepository.findByFkAccessDemarcheIdAndPkBrouillons(demarcheId, pkBrouillons);
-
-        if (brouillonBo == null) {
-            throw new DemarchesServiceException("Brouillon introuvable", HttpStatus.NOT_FOUND);
-        }
-
+    @Override
+    public void deleteBrouillon(String demarcheId, Integer pkBrouillons, Integer usagerId, boolean deleteFiles) {
+        BrouillonBO brouillonBo = getBrouillonBo(demarcheId, pkBrouillons);
         AccessBO access = brouillonBo.getFkAccess();
         // #46373 - Faille de sécurité, il faut vérifier que l'usager qui a créé ce brouillon est à l'origine du changement
         if (!usagerId.equals(access.getUsagerId())) {
-            throw new DemarchesServiceException("Utilisateur non autorisé", HttpStatus.UNAUTHORIZED);
+            throw new DemarchesServiceException(SharedMessages.UTILISATEUR_NON_AUTORISE, HttpStatus.UNAUTHORIZED);
+        }
+
+        if (deleteFiles) {
+            // Suppression des fichiers liés au brouillon
+            BrouillonDTO brouillonDTO = BrouillonsTransformer.bo2Dto(brouillonBo);
+            if (brouillonDTO.getFichiers() != null && !Arrays.asList(brouillonDTO.getFichiers()).isEmpty()) {
+                for (BrouillonFileDTO currentFileToDelete : brouillonDTO.getFichiers()) {
+                    List<BrouillonsFilesBO> existingFiles = brouillonsFilesRepository.findAllByUrl(currentFileToDelete.getUrl());
+                    if (existingFiles != null && !existingFiles.isEmpty()) {
+                        String url = URLEncoder.encode(currentFileToDelete.getUrl(), StandardCharsets.UTF_8);
+                        fileService.deleteFile("ROOT", url);
+                    }
+                }
+            }
         }
 
         access.getBrouillons().remove(brouillonBo);
         accessRepository.save(access);
-
         brouillonsRepository.delete(brouillonBo);
     }
     
     /**
      * {@inheritDoc}
-     *
-     * @throws JsonProcessingException
      */
     @Override
     public void deleteBrouillons(String demarcheId, Integer usagerId) {
-
-        LOGGER.info("Récupération en base des brouillons...");
-
+        LOGGER.info(SharedMessages.RECUPERATION_EN_BASE);
         List<BrouillonBO> brouillons = brouillonsRepository.findByDemarcheIdAndUsagerId(demarcheId, usagerId);
-
         brouillonsRepository.deleteAll(brouillons);
     }
 
@@ -305,7 +297,10 @@ public class BrouillonsServiceImpl implements BrouillonsService {
         Sort sort = "DESC".equals(paramDTO.getDirection()) ? Sort.by(sortColumn).descending() : Sort.by(sortColumn);
         Pageable pageable = PageRequest.of(paramDTO.getPage(), paramDTO.getSize(), sort);
         Page<BrouillonBO> bos = brouillonsRepository.findByDemarcheIdAndIdAndUsagerIdAndActive(demarcheId, usagerId, true, pageable);
-        return BrouillonsTransformer.boPage2DtoPage(bos);
+        mc.gouv.xaf.shared.dto.Page<BrouillonDTO> brouillonDTOS = BrouillonsTransformer.boPage2DtoPage(bos);
+        // Set dernier statut pour tous les brouillons récupérés
+        brouillonDTOS.getContent().forEach(brouillonDto -> BrouillonsTransformer.setDernierStatut(brouillonDto, abstractTsUtils.getLastBuildId(), demarchesDataProvider.getBrouillonStatutNotTransmitted(), demarchesDataProvider.getBrouillonStatutDeprecated()));
+        return brouillonDTOS;
     }
 
 }

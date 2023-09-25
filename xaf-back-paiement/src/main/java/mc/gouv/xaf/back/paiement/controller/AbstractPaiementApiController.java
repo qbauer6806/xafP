@@ -10,6 +10,7 @@ import mc.gouv.xaf.back.paiement.utils.PaiementExportUtils;
 import mc.gouv.xaf.shared.dto.itg.monetico.MoneticoResponseDTO;
 import mc.gouv.xapi.error.dto.ErrorsDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
@@ -62,20 +63,13 @@ public abstract class AbstractPaiementApiController {
         try {
             response.getWriter().println(PaiementExportUtils.headerOperationCSV());
             response.setContentType("text/plain; charset=utf-8");
-
-           for(CommandeOperationDTO commandeOperationDTO : moneticoPaiementService.getAllOperations()) {
-                try {
-                    response.getWriter().println(PaiementExportUtils.toCSV(commandeOperationDTO));
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+            for (CommandeOperationDTO commandeOperationDTO : moneticoPaiementService.getAllOperations()) {
+                response.getWriter().println(PaiementExportUtils.toCSV(commandeOperationDTO));
             }
-
             response.getWriter().close();
         } catch (IOException ex) {
-            throw new RuntimeException("IOError writing file to output stream");
+            throw new DemarchesServiceException("IOError writing file to output stream", HttpStatus.INTERNAL_SERVER_ERROR, ex);
         }
-
     }
 
     /**
@@ -87,19 +81,13 @@ public abstract class AbstractPaiementApiController {
         try {
             response.getWriter().println(PaiementExportUtils.headerCommandeCSV());
             response.setContentType("text/plain; charset=utf-8");
-
-            for(CommandeDTO commandeDTO : commandesService.getAllCommandes()) {
-                try {
-                    response.getWriter().println(PaiementExportUtils.toCSV(commandeDTO));
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+            for (CommandeDTO commandeDTO : commandesService.getAllCommandes()) {
+                response.getWriter().println(PaiementExportUtils.toCSV(commandeDTO));
             }
             response.getWriter().close();
         } catch (IOException ex) {
-            throw new RuntimeException("IOError writing file to output stream");
+            throw new DemarchesServiceException("IOError writing file to output stream", HttpStatus.INTERNAL_SERVER_ERROR, ex);
         }
-
     }
 
     /**

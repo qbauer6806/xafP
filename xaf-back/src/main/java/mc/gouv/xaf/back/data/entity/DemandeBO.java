@@ -11,7 +11,7 @@ import org.hibernate.validator.constraints.NotBlank;
 /**
  * 
  * Classe BO de la table DEM.DEMANDES
- * 
+ * <br>
  * Attention ! À chaque ajout de Set<> dans ce BO, penser à mettre à jour l'algorithme de duplication de demandes pour
  * les prendre en compte. Et mettre à jour les transformers pour toute donnée ajoutée.
  * 
@@ -114,7 +114,25 @@ public class DemandeBO {
     
     @Column(name = "DONNEES_CERTIFIEES", columnDefinition = "TEXT", nullable = true)
     private String donneesCertifiees;
+
+    @Column(name = "MODIFICATION_TIMESTAMP")
+    private Long modificationTimestamp;
+
+    @Column(name = "CONTENU_INITIAL", columnDefinition = "TEXT", nullable = true)
+    private String contenuInitial;
     
+
+    @Column(name = "META", columnDefinition = "TEXT", nullable = true)
+    private String meta;
+
+    public Long getModificationTimestamp() {
+        return modificationTimestamp;
+    }
+
+    public void setModificationTimestamp(Long modificationTimestamp) {
+        this.modificationTimestamp = modificationTimestamp;
+    }
+
     // De type Integer et non DemandeBO (autrement dit : pas de foreign key en base)
     // Ceci afin d'être tranquille le jour où cette demande source doit être purgée (supprimée)
     @Column(name = "PK_DEMANDE_SOURCE", nullable = true)
@@ -316,16 +334,32 @@ public class DemandeBO {
 		return donneesCertifiees;
 	}
 
-	public void setDonneesCertifiees(String donneesCertifiees) {
-		this.donneesCertifiees = donneesCertifiees;
+    public void setDonneesCertifiees(String donneesCertifiees) {
+        this.donneesCertifiees = donneesCertifiees;
+    }
+
+    public Integer getPkDemandeSource() {
+        return pkDemandeSource;
+    }
+
+    public void setPkDemandeSource(Integer pkDemandeSource) {
+        this.pkDemandeSource = pkDemandeSource;
+    }
+
+    public String getContenuInitial() {
+        return contenuInitial;
+    }
+
+    public void setContenuInitial(String contenuInitial) {
+        this.contenuInitial = contenuInitial;
+    }
+
+	public String getMeta() {
+		return meta;
 	}
 
-	public Integer getPkDemandeSource() {
-		return pkDemandeSource;
-	}
-
-	public void setPkDemandeSource(Integer pkDemandeSource) {
-		this.pkDemandeSource = pkDemandeSource;
+	public void setMeta(String meta) {
+		this.meta = meta;
 	}
 
 }

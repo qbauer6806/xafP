@@ -38,7 +38,7 @@ public class MotifsCacheImpl extends GouvMemoryCache<Integer, MotifDTO> implemen
     }
     
     public List<MotifDTO> getMotifs(String langue) {
-        List<MotifDTO> motifs = new ArrayList<MotifDTO>();
+        List<MotifDTO> motifs = new ArrayList<>();
         for (MotifDTO motif : getValues()) {
             if (motif.getLangue().equals(langue) && motif.getDateArchive() == null) {
                 motifs.add(motif);
@@ -48,7 +48,7 @@ public class MotifsCacheImpl extends GouvMemoryCache<Integer, MotifDTO> implemen
     }
     
     public List<MotifDTO> getMotifs(String langue, String statut) {
-        List<MotifDTO> ret = new ArrayList<MotifDTO>();
+        List<MotifDTO> ret = new ArrayList<>();
         for (MotifDTO motif : getValues()) {
             if (motif.getLangue().equals(langue) && motif.getStatut().equals(statut) && motif.getDateArchive() == null) {
                 ret.add(motif);

@@ -55,6 +55,7 @@ public class AfBackDemandeEsDTO extends DemandeEsRechercheDTO {
         setStatuts(demande.getStatuts());
         setHighlightedField(demande.getHighlightedField());
         setAgentAffecteNomAffichage(demande.getAgentAffecteNomAffichage());
+        setModificationTimestamp(demande.getModificationTimestamp());
     }
 
     public String getAgentAffectePrenom() {

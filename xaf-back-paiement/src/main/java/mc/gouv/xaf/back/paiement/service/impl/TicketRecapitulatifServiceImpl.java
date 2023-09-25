@@ -96,7 +96,7 @@ public class TicketRecapitulatifServiceImpl implements TicketRecapitulatifServic
 		model.put("moyenPaiement", moyenPaiement.getModepaiement());
 		model.put("typeTransaction", operation.getOperationType());
 		model.put("numCarte", moyenPaiement.getCbmasquee());
-		model.put("numeroAutorisation", operation.getNumeroAutorisation());
+        model.put("numeroAutorisation", null == operation.getNumeroAutorisation() ? "" : operation.getNumeroAutorisation());
 		model.put("titre", titre);
 		return model;
 	}

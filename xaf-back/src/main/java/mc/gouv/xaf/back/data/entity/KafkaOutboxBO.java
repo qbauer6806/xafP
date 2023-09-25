@@ -32,7 +32,7 @@ public class KafkaOutboxBO {
     @Size(min = 1, max = 256)
     private String topic;
 
-    @Column(name = "KEY", length = 256, nullable = false)
+    @Column(name = "\"KEY\"", length = 256, nullable = false)
     @Size(min = 0, max = 256)
     private String key;
     

@@ -21,5 +21,7 @@ public interface MotifTemplateService {
 
     List<MotifDTO> getMotifs(DemandeDTO demande, String langue, String statut) throws ParseErrorException, MethodInvocationException, ResourceNotFoundException, IOException;
 
+    List<MotifDTO> populateMotifs(DemandeDTO demande, List<MotifDTO> motifList) throws ParseErrorException, MethodInvocationException, ResourceNotFoundException, IOException;
+
     List<MotifDTO> getFilteredMotifs(DemandeDTO demande, String langue, List<String> codes) throws ParseErrorException, MethodInvocationException, ResourceNotFoundException, IOException;
 }

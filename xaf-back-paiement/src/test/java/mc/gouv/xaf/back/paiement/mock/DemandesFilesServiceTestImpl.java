@@ -2,6 +2,7 @@ package mc.gouv.xaf.back.paiement.mock;
 
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.service.data.DemandesFilesService;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import org.springframework.stereotype.Component;
 
@@ -33,5 +34,20 @@ public class DemandesFilesServiceTestImpl implements DemandesFilesService {
     @Override
     public List<DemandeFileDTO> getFileByDemandeIdAndMeta(Integer pkDemande, String meta) {
         return null;
+    }
+
+    @Override
+    public void clonerDesPiecesJointes(DemandeBO demandeBO, DemandeBO newDemandeBO) {
+
+    }
+
+    @Override
+    public void updateFichiers(DemandeBO demandeBo, DemandeFileDTO[] fichiers) {
+
+    }
+
+    @Override
+    public void suppressionDesFichiers(DemandeDTO demandeDTO, boolean statutCheck, List<String> statuts, int jours) {
+
     }
 }

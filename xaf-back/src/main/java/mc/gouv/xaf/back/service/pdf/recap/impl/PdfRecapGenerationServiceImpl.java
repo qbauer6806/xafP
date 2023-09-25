@@ -1,21 +1,10 @@
 package mc.gouv.xaf.back.service.pdf.recap.impl;
 
-import java.io.*;
-import java.net.URLEncoder;
-import java.util.Date;
-import java.util.List;
-
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import com.openhtmltopdf.slf4j.Slf4jLogger;
 import com.openhtmltopdf.svgsupport.BatikSVGDrawer;
 import com.openhtmltopdf.util.XRLog;
-
+import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemandeRecapHTMLService;
 import mc.gouv.xaf.back.service.data.DemandesFilesService;
@@ -27,6 +16,26 @@ import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Date;
+import java.util.List;
 
 import static mc.gouv.xaf.back.service.utils.FileUtils.META_RECAP;
 
@@ -57,24 +66,24 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
     private AfBackUtils afBackUtils;
 
     @Override
-    public void generateAndStorePdf(DemandeDTO demande) throws Exception {
+    public void generateAndStorePdf(DemandeDTO demande) throws IOException {
+        generateAndStorePdf(demande, generatePdf(demande));
+    }
+
+    @Override
+    public void generateAndStorePdf(DemandeDTO demande, File tempFile) throws IOException {
         LOGGER.info("RecapGenerationServiceImpl.generateAndStorePdf({})", demande.getPkDemandes());
 
         LOGGER.info("Génération du PDF avec Open HTML to PDF...");
-        File tempFile = generatePdf(demande);
         String fileName = tempFile.getName();
-
-        LOGGER.info("Stockage du PDF généré dans FILE...");
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
-        FileInputStream fis = new FileInputStream(tempFile);
-        String url = fileService.saveFile(demande, fileName, gouvPropertiesResolver.getContainerId(), "application/pdf", fis, output);
-        output.close();
-        fis.close();
+        String url = fileService.sendToFile(tempFile, demande, fileName);
 
         // Supprimer le fichier temporaire car il n'est plus utile
         LOGGER.info("Suppression du fichier temporaire...");
-        if (!tempFile.delete()) {
-            LOGGER.warn("La suppression du fichier temporaire a échoué");
+        try {
+            Files.delete(Paths.get(tempFile.getPath()));
+        } catch (IOException e) {
+            LOGGER.warn("La suppression du fichier temporaire a échoué", e);
         }
 
         LOGGER.info("Vérification de l'existance d'un fichier récap...");
@@ -84,12 +93,8 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
         if (!files.isEmpty()) {
             file = files.get(0);
             LOGGER.info("Suppression de l'ancien fichier dans FILES...");
-            try {
-                String urlASuppr = URLEncoder.encode(file.getUrl(), "UTF-8");
-                fileService.deleteFile("ROOT", urlASuppr);
-            } catch (UnsupportedEncodingException e) {
-                LOGGER.error("Problème lors de l'encoding du fichier.", e);
-            }
+            String urlASuppr = URLEncoder.encode(file.getUrl(), StandardCharsets.UTF_8);
+            fileService.deleteFile("ROOT", urlASuppr);
         }
 
         LOGGER.info("Ajout de la référence à ce fichier interne dans DEM...");
@@ -105,14 +110,19 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
         }
 
         LOGGER.info("Fin PdfGenerationServiceImpl.generateAndStorePdf({})", demande.getPkDemandes());
+
     }
 
     @Override
-    public File generatePdf(DemandeDTO demande) throws Exception {
-        LOGGER.info("Récuppération des images pour le header et le footer...");
+    public File generatePdf(DemandeDTO demande) {
+        return generatePdf(demande, null);
+    }
+
+    public File generatePdf(DemandeDTO demande, String extraContent) {
+        LOGGER.info("Récupération des images pour le header et le footer...");
         File header = pdfHeaderFooterProvider.getHeader();
         File footer = pdfHeaderFooterProvider.getFooter();
-        File htmlSource = generateHtmlSource(demande, header, footer);
+        File htmlSource = generateHtmlSource(demande, header, footer, extraContent);
 
         LOGGER.info("Conversion du code HTML en PDF...");
         File pdfDest = createTempFile("Demande_" + demande.getIdentifiant() + "_");
@@ -125,26 +135,30 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
             PdfRendererBuilder builder = new PdfRendererBuilder();
             builder.useFastMode();
             builder.useSVGDrawer(new BatikSVGDrawer());
-            try(FileInputStream inputStream = new FileInputStream(htmlSource)) {     
+            try(FileInputStream inputStream = new FileInputStream(htmlSource)) {
                 String contenu = IOUtils.toString(inputStream);
-                LOGGER.info("HTML Source : " + contenu);
+                LOGGER.info("HTML Source : {}", contenu);
             }
             builder.withFile(htmlSource);
             builder.toStream(os);
             builder.run();
         } catch (Exception e) {
-            LOGGER.error("Erreur lors de la construction du fichier PDF: ", e);
-            throw e;
+            LOGGER.error("Erreur lors de la construction du fichier PDF: {}", e.getMessage());
+            throw new DemarchesServiceException("Erreur lors de la construction du fichier PDF", HttpStatus.INTERNAL_SERVER_ERROR);
         } finally {
             LOGGER.info("Suppression des fichiers temporaires...");
-            if (null != htmlSource) {
-                htmlSource.delete();
-            }
-            if (null != header) {
-                header.delete();
-            }
-            if (null != footer) {
-                footer.delete();
+            try {
+                if (null != htmlSource) {
+                    Files.delete(Paths.get(htmlSource.getPath()));
+                }
+                if (null != header) {
+                    Files.delete(Paths.get(header.getPath()));
+                }
+                if (null != footer) {
+                    Files.delete(Paths.get(footer.getPath()));
+                }
+            } catch (IOException e) {
+                LOGGER.warn("La suppression des fichiers temporaires a échoué", e);
             }
         }
 
@@ -152,7 +166,7 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
         return pdfDest;
     }
 
-    private File generateHtmlSource(DemandeDTO demande, File header, File footer) {
+    private File generateHtmlSource(DemandeDTO demande, File header, File footer, String extraContent) {
         File htmlSource = null;
 
         try {
@@ -172,19 +186,27 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
             htmlSource = File.createTempFile("tmpRecapHtml", ".html");
             try (PrintWriter writer = new PrintWriter(htmlSource)) {
 	            writer.println("<!DOCTYPE html><html><head>");
-	
-	            LOGGER.info("Récupération de l'InputStream pour le fichier CSS pdfrecap/css/genpdf.css ...");
-	            InputStream fis = this.getClass().getResourceAsStream("/pdfrecap/css/genpdf.css");
-	            LOGGER.info("Largeur du fchier CSS à lire : {} bytes...", fis.available());
-	            writer.println("<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>");
+
+                writer.println("<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'/>");
 	            writer.println("<style>");
-	
-	            int content;
-	            while ((content = fis.read()) != -1) {
-	                // conversion en char avant écriture
-	                writer.print((char) content);
-	            }
-	            fis.close();
+
+                // pageOrientation
+                try (InputStream pageOrientation = this.getClass().getResourceAsStream("/pdfrecap/css/page" + afBackUtils.getRecapOrientation() +"-genpdf.css")) {
+                    int content;
+                    while ((content = pageOrientation.read()) != -1) {
+                        // conversion en char avant écriture
+                        writer.print((char) content);
+                    }
+                }
+                // genpdf
+                try (InputStream genpdf = this.getClass().getResourceAsStream("/pdfrecap/css/genpdf.css")) {
+                    LOGGER.info("Largeur du fchier CSS à lire : {} bytes...", genpdf.available());
+                    int content;
+                    while ((content = genpdf.read()) != -1) {
+                        // conversion en char avant écriture
+                        writer.print((char) content);
+                    }
+                }
 	
 	            writer.println("</style></head><body>");
 	            LOGGER.info("Fin de l'écriture du CSS...");
@@ -226,6 +248,10 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
 	            writer.println("<tr><th class=\"table-section\">Demande Initiale</th></tr><tr><td>");
 	            writer.println(htmlRecap);
 	            writer.println("</td></tr></table>");
+
+                if(extraContent != null) {
+                    writer.println(extraContent);
+                }
 	
 	            writer.println("</body></html>");
             }
@@ -239,7 +265,7 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
 
     private File createTempFile(String filename) {
         String tempDir = System.getProperty("java.io.tmpdir");
-        String fileName = filename + afBackUtils.generateFileDateSuffix() + ".pdf";
+        String fileName = filename + AfBackUtils.generateFileDateSuffix() + ".pdf";
         return new File(tempDir, fileName);
     }
 

@@ -11,6 +11,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import mc.gouv.xaf.shared.enums.MailAudienceEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
@@ -29,10 +31,10 @@ import mc.gouv.xaf.back.service.GouvSchedulerService;
 import mc.gouv.xaf.back.service.data.DemandesCourriersService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
+import mc.gouv.xaf.back.service.data.TachesService;
 import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
-import mc.gouv.xaf.back.service.scheduling.PurgeDemandesSchedulingJob;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
@@ -83,11 +85,14 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
     @Autowired
     private MessageSource messageSource;
 
-	public void purgerDemandesDansStatuts(List<String> statuts, int jours) throws Exception {
-		String demarcheId = gouvPropertiesResolver.getDemarcheId();
-		StringBuilder demandesAPurger = new StringBuilder();
-		int demandesSuppr = 0;
-		PropertiesDTO delaiEnvoiEmailProp = propertiesService.getProperty(demarcheId, DELAI_ENVOI_MAIL_PURGE);
+    @Autowired
+    private TachesService tachesService;
+
+    public void purgerDemandesDansStatuts(List<String> statuts, int jours) throws JsonProcessingException {
+        String demarcheId = gouvPropertiesResolver.getDemarcheId();
+        StringBuilder demandesAPurger = new StringBuilder();
+        int demandesSuppr = 0;
+        PropertiesDTO delaiEnvoiEmailProp = propertiesService.getProperty(demarcheId, DELAI_ENVOI_MAIL_PURGE);
 
 		LOGGER.info("Début de la purge des demandes ...");
 
@@ -105,10 +110,10 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 				demandesService.deleteDemandeInGivenStatus(demarcheId, demandeDTO.getPkDemandes(), statuts, jours, false);
 				demandesSuppr++;
 
-			} else if(statuts.contains(demandeDTO.getDernierStatut().getLibelle()) && diff == jours - Long.parseLong(delaiEnvoiEmailProp.getValue())) {
-				// L'envois des emails se fait 15 jours avant la supression effective de la demande
-				// Envois des emails aux usagers
-				envoisMailUsagerPurge(demandeDTO.getIdentifiant(), demandeDTO, delaiEnvoiEmailProp.getValue());
+            } else if (statuts.contains(demandeDTO.getDernierStatut().getLibelle()) && diff == jours - Long.parseLong(delaiEnvoiEmailProp.getValue())) {
+                // L'envois des emails se fait 15 jours avant la supression effective de la demande
+                // Envois des emails aux usagers
+                envoisMailUsagerPurge(demandeDTO.getIdentifiant(), demandeDTO, delaiEnvoiEmailProp.getValue());
 
 				// Ajout à la liste des demandes à envoyer
 				demandesAPurger.append("- ").append(demandeDTO.getIdentifiant()).append(" - ").append(demandeDTO.getDernierStatut().getLibelle()).append("<br/>");
@@ -154,16 +159,18 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 		emailInfoDTO.addTo(usager.getEmail(), prenom + " " + nom);
 		Map<String,Object> model = new HashMap<>();
         model.put("identifiant", identifiant);
+        model.put("pkDemande", demandeDTO.getPkDemandes());
         model.put("delai", delai);
-        String titre = messageSource.getMessage("civilite."+usager.getTitre(), null, new Locale(demandeDTO.getLangue()));
+        String titre = messageSource.getMessage("civilite." + usager.getTitre(), null, new Locale(demandeDTO.getLangue()));
         model.put("titre", titre);
+        model.put("urlFront", gouvPropertiesResolver.getFrontUrl());
 
         try {
-			mailService.sendMail(emailInfoDTO, model);
-		} catch (Exception e) {
-			LOGGER.error("Erreur lors de l'envoi de l'email de purge pour les agents", e);
-		}
-	}
+            mailService.sendMail(emailInfoDTO, model);
+        } catch (Exception e) {
+            LOGGER.error("Erreur lors de l'envoi de l'email de purge pour les usagers", e);
+        }
+    }
 
     @Override
 	public void envoisMailAgentPurge(String demandesAPurger, String delai) {
@@ -178,9 +185,9 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 		model.put("delai", delai);
 
 		try {
-			mailService.sendMail(emailInfoDTO, model);
+			mailService.sendMail(emailInfoDTO, model, MailAudienceEnum.AGENT);
 		} catch (Exception e) {
-			LOGGER.error("Erreur lors de l'envoi de l'email de purge pour les usagers", e);
+			LOGGER.error("Erreur lors de l'envoi de l'email de purge pour les agents", e);
 		}
 	}
 
@@ -188,7 +195,9 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 	public Date getDateDerniereExecution() {
 		Date date = null;
 		try {
-			Trigger trigger = gouvSchedulerService.getTrigger(PurgeDemandesSchedulingJob.TRIGGER_NAME);
+			String triggerName = gouvPropertiesResolver.isPaiementEnabled() ? PAIEMENTS_TRIGGER_NAME : DEMANDES_TRIGGER_NAME;
+			LOGGER.info("Récupération de la dernière date d'éxecution du job {}.", triggerName);
+			Trigger trigger = gouvSchedulerService.getTrigger(triggerName);
 			if (trigger != null) {
 				date = trigger.getPreviousFireTime();
 			}

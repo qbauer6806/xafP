@@ -10,7 +10,6 @@ import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
@@ -19,6 +18,7 @@ import org.springframework.data.elasticsearch.config.AbstractElasticsearchConfig
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,12 +40,13 @@ public class EsConfigGouv extends AbstractElasticsearchConfiguration {
 
     /**
      * Méthode permettant de configurer un High Lvel REST Elasticsearch client.
-     *
+     * @deprecated remplacer l'utilisation du RestHighLevelClient par Elasticsearch Java API Client
      * @return RestHighLevelClient
      */
     @NotNull
     @Bean
     @Override
+    @Deprecated(forRemoval = true)
     public RestHighLevelClient elasticsearchClient() {
 
         String[] clusterHosts = StringUtils.split(gouvPropertiesResolver.getEsClusterHosts(),
@@ -58,7 +59,7 @@ public class EsConfigGouv extends AbstractElasticsearchConfiguration {
 
         Integer connectTimeout = gouvPropertiesResolver.getEsConnectTimeout();
         Integer socketTimeout = gouvPropertiesResolver.getEsSocketTimeout();
-        RestClientBuilder builder = RestClient.builder(hosts.toArray(new HttpHost[hosts.size()]))
+        RestClientBuilder builder = RestClient.builder(hosts.toArray(new HttpHost[0]))
                 .setRequestConfigCallback(requestConfigBuilder -> requestConfigBuilder
                         .setConnectTimeout(connectTimeout)
                         .setSocketTimeout(socketTimeout));

@@ -1,5 +1,6 @@
 package mc.gouv.xaf.back.dsp.service.itg.resid.impl;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URLEncoder;
@@ -8,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,6 +57,8 @@ import mc.gouv.xaf.shared.dto.PropertiesDTO;
 public class ResidApiServiceImpl implements ResidApiService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ResidApiServiceImpl.class);
+	private static final String URL_LOG = "URL: {} {}";
+	private static final String HEADERS_LOG = "Headers: {}";
 
 	// Entrypoints
 	public static final String RESID_NOUVELLE_CARTE_PATH = "/demandes/nouvelleCarte";
@@ -82,7 +86,7 @@ public class ResidApiServiceImpl implements ResidApiService {
 
 
 	@Override
-	public ResidHttpResponseDTO submitNouvelleCarteResid(ResidDemandeNouvelleCarteCompleteDTO nouvelleCarte, Map<Integer, DemandeFileDTO> files, String url, String jwt) throws Exception {
+	public ResidHttpResponseDTO submitNouvelleCarteResid(ResidDemandeNouvelleCarteCompleteDTO nouvelleCarte, Map<Integer, DemandeFileDTO> files, String url, String jwt) throws IOException {
 
 		LOGGER.info("Appel à l'API RESID pour la création d'une carte");
 
@@ -99,7 +103,7 @@ public class ResidApiServiceImpl implements ResidApiService {
 	}
 
 	@Override
-	public ResidHttpResponseDTO submitRenouvellementCarteResid(ResidDemandeRenouvellementCarteCompleteDTO renouvellement, Map<Integer, DemandeFileDTO> files, String url, String jwt) throws Exception {
+	public ResidHttpResponseDTO submitRenouvellementCarteResid(ResidDemandeRenouvellementCarteCompleteDTO renouvellement, Map<Integer, DemandeFileDTO> files, String url, String jwt) throws IOException {
 
 		LOGGER.info("Appel à l'API RESID pour le renouvellement d'une carte");
 
@@ -117,7 +121,7 @@ public class ResidApiServiceImpl implements ResidApiService {
 				if (null != body.getWarnings()
 						&& !body.getWarnings().isEmpty()) {
 					residHttpResponseDTO.setWarnings(body.getWarnings());
-				} 
+				}
 			}
 			return residHttpResponseDTO;
 		}
@@ -125,7 +129,7 @@ public class ResidApiServiceImpl implements ResidApiService {
 	}
 
 	@Override
-	public ResidHttpResponseDTO submitDuplicataCarteResid(ResidDemandeDuplicataCarteCompleteDTO duplicataCarte, Map<Integer, DemandeFileDTO> files, String url, String jwt) throws Exception {
+	public ResidHttpResponseDTO submitDuplicataCarteResid(ResidDemandeDuplicataCarteCompleteDTO duplicataCarte, Map<Integer, DemandeFileDTO> files, String url, String jwt) throws IOException {
 
 		LOGGER.info("Appel à l'API RESID pour le duplicata d'une carte");
 
@@ -154,7 +158,7 @@ public class ResidApiServiceImpl implements ResidApiService {
 	}
 
 	@Override
-	public ResidHttpResponseDTO submitChangementSituationResid(ResidDemandeChangementSituationCompleteDTO changementsituation, Map<Integer, DemandeFileDTO> files, String url, String jwt) throws Exception {
+	public ResidHttpResponseDTO submitChangementSituationResid(ResidDemandeChangementSituationCompleteDTO changementsituation, Map<Integer, DemandeFileDTO> files, String url, String jwt) throws IOException {
 
 		LOGGER.info("Appel à l'API RESID pour le changement de situation");
 
@@ -172,7 +176,7 @@ public class ResidApiServiceImpl implements ResidApiService {
 				if (null != body.getWarnings()
 						&& !body.getWarnings().isEmpty()) {
 					residHttpResponseDTO.setWarnings(body.getWarnings());
-				} 
+				}
 			}
 			return residHttpResponseDTO;
 		}
@@ -181,7 +185,7 @@ public class ResidApiServiceImpl implements ResidApiService {
 	}
 
 	@Override
-	public ResidHttpResponseDTO submitCertificatResid(ResidDemandeCertificatResidenceCompleteDTO certificatResidence, Map<Integer, DemandeFileDTO> files, String url, String jwt) throws Exception {
+	public ResidHttpResponseDTO submitCertificatResid(ResidDemandeCertificatResidenceCompleteDTO certificatResidence, Map<Integer, DemandeFileDTO> files, String url, String jwt) throws IOException {
 
 		LOGGER.info("Appel à l'API RESID pour le certificat de residence");
 
@@ -199,7 +203,7 @@ public class ResidApiServiceImpl implements ResidApiService {
 				if (null != body.getWarnings()
 						&& !body.getWarnings().isEmpty()) {
 					residHttpResponseDTO.setWarnings(body.getWarnings());
-				} 
+				}
 			}
 			return residHttpResponseDTO;
 		}
@@ -207,7 +211,7 @@ public class ResidApiServiceImpl implements ResidApiService {
 		return responseEntity.getBody();
 	}
 
-	public <T, Y> ResponseEntity<Y> submitDemandeResident(T residObject, ParameterizedTypeReference<Y> type, Map<Integer, DemandeFileDTO> files, String residUrl, final String entryPoint, String jwt) throws Exception {
+	public <T, Y> ResponseEntity<Y> submitDemandeResident(T residObject, ParameterizedTypeReference<Y> type, Map<Integer, DemandeFileDTO> files, String residUrl, final String entryPoint, String jwt) throws IOException {
 
 		MultiValueMap<String, Object> parts = createMultiparts(residObject, files);
 		HttpHeaders headers = getResidMultipartRequestHeaders(jwt);
@@ -221,9 +225,10 @@ public class ResidApiServiceImpl implements ResidApiService {
 
 		ObjectMapper mapper = new ObjectMapper();
 		LOGGER.debug("-- Appel RESID submit nouvelle carte");
-		LOGGER.debug("URL: {} {}", HttpMethod.POST, uri.toURL());
-		LOGGER.debug("Headers: {}", headers);
-		LOGGER.debug("Body: {}", mapper.writerWithDefaultPrettyPrinter().writeValueAsString(residObject));
+		LOGGER.debug(URL_LOG, HttpMethod.POST, uri.toURL());
+		LOGGER.debug(HEADERS_LOG, headers);
+		String body = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(residObject);
+		LOGGER.debug("Body: {}", body);
 
 		ResponseEntity<Y> responseEntity = rest.exchange(uri, HttpMethod.POST, requestEntity, type);
 
@@ -233,7 +238,7 @@ public class ResidApiServiceImpl implements ResidApiService {
         return responseEntity;
     }
 
-	private <T> MultiValueMap<String, Object> createMultiparts(T residObject, Map<Integer, DemandeFileDTO> files) throws Exception {
+	private <T> MultiValueMap<String, Object> createMultiparts(T residObject, Map<Integer, DemandeFileDTO> files) throws IOException {
 		MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
 
 		LOGGER.info("Création de la requête multipart");
@@ -284,7 +289,7 @@ public class ResidApiServiceImpl implements ResidApiService {
 	}
 
 	@Override
-	public ResidStatutDemandeDTO getEtatDemande(ResidIdTSDTO idDemande, String url, String jwt) throws Exception {
+	public ResidStatutDemandeDTO getEtatDemande(ResidIdTSDTO idDemande, String url, String jwt) throws JsonProcessingException {
 		LOGGER.info("Récupération du statut RESID de {}", idDemande);
 
 		ResidStatutDemandeDTO statut = null;
@@ -298,7 +303,7 @@ public class ResidApiServiceImpl implements ResidApiService {
 	}
 
 	@Override
-	public List<ResidStatutDemandeDTO> getEtatMultipleDemandes(List<ResidIdTSDTO> idsDemandes, String url, String jwt) throws Exception {
+	public List<ResidStatutDemandeDTO> getEtatMultipleDemandes(List<ResidIdTSDTO> idsDemandes, String url, String jwt) throws JsonProcessingException {
 		LOGGER.info("Récupération des statuts RESID de {}", idsDemandes);
 
 		// Construction du rest template
@@ -317,9 +322,10 @@ public class ResidApiServiceImpl implements ResidApiService {
 
 		// Logs DEBUG
 		LOGGER.debug("-- Appel RESID Get état d'une demande");
-		LOGGER.debug("URL: {} {}", HttpMethod.POST, uri.toString());
-		LOGGER.debug("Headers: {}", headers);
-		LOGGER.debug("Body: {}", mapper.writerWithDefaultPrettyPrinter().writeValueAsString(idsDemandes));
+		LOGGER.debug(URL_LOG, HttpMethod.POST, uri);
+		LOGGER.debug(HEADERS_LOG, headers);
+		String body = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(idsDemandes);
+		LOGGER.debug("Body: {}", body);
 
 		// Appel et réponse
 		ResponseEntity<List<ResidStatutDemandeDTO>> responseEntity = rest.exchange(uri, HttpMethod.POST, requestEntity,
@@ -355,8 +361,8 @@ public class ResidApiServiceImpl implements ResidApiService {
 
         // Logs DEBUG
         LOGGER.debug("-- Appel RESID Get all demandes updated after");
-        LOGGER.debug("URL: {} {}", HttpMethod.GET, uri.toString());
-        LOGGER.debug("Headers: {}", headers);
+        LOGGER.debug(URL_LOG, HttpMethod.GET, uri);
+        LOGGER.debug(HEADERS_LOG, headers);
 
         // Appel et réponse API
         ResponseEntity<ResidEtatsDemandesUpdatedAfterDTO> responseEntity = rest.exchange(uri, HttpMethod.GET, requestEntity, ResidEtatsDemandesUpdatedAfterDTO.class);
@@ -390,8 +396,8 @@ public class ResidApiServiceImpl implements ResidApiService {
 
 		HttpEntity<String> requestEntity = new HttpEntity<>(headers);
 		LOGGER.debug("-- Appel RESID Get liste usagers correspondance");
-		LOGGER.debug("URL: {} {}", HttpMethod.GET, uri.toString());
-		LOGGER.debug("Headers: {}", headers);
+		LOGGER.debug(URL_LOG, HttpMethod.GET, uri);
+		LOGGER.debug(HEADERS_LOG, headers);
 
 		ResponseEntity<List<ResidResidentCorrespondanceDTO>> responseEntity = rest.exchange(uri,
 				HttpMethod.GET, requestEntity, new ParameterizedTypeReference<List<ResidResidentCorrespondanceDTO>>(){});

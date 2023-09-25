@@ -5,7 +5,6 @@ import mc.gouv.xaf.back.data.entity.*;
 import mc.gouv.xaf.back.data.es.model.DemandeFileEsDTO;
 import mc.gouv.xaf.back.data.es.model.EsErrorEventDTO;
 import mc.gouv.xaf.back.data.transformer.DemandesComplementsFilesTransformer;
-import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
 import mc.gouv.xaf.back.exception.AfIndexingException;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.impl.DemandeFilesServiceImpl;
@@ -30,7 +29,6 @@ import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Page;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
-import org.springframework.data.elasticsearch.core.convert.ElasticsearchConverter;
 import org.springframework.data.elasticsearch.core.mapping.IndexCoordinates;
 import org.springframework.data.elasticsearch.core.query.IndexQuery;
 import org.springframework.scheduling.annotation.Async;
@@ -69,8 +67,7 @@ public class IndexedEsDemandeFilesServiceImpl extends DemandeFilesServiceImpl im
     @Override
     public void saveFile(DemandeFileDTO demandeFile, String demarcheId, Integer pkDemande) {
         super.saveFile(demandeFile, demarcheId, pkDemande);
-        DemandeBO demandeBo = demandesService.getDemandeBo(demarcheId, pkDemande);
-        DemandeDTO demandeDTO = DemandesTransformer.bo2Dto(demandeBo);
+        DemandeDTO demandeDTO = demandesService.getDemande(demarcheId, pkDemande);
         // Indexation
         try {
             DemandeFileEsDTO demandeFileEsDTO = demandeFileEsTransformer.getFileEsContent(demandeDTO, FileUtils.getDemandeFileType(demandeFile), demandeFile);
@@ -86,37 +83,15 @@ public class IndexedEsDemandeFilesServiceImpl extends DemandeFilesServiceImpl im
         }
     }
 
-    /**
-     * Méthode permettant d'indexer un fichier
-     *
-     * @param demandeFileEsDTO Fichier à indexer
-     * @return Fichier indexé
-     */
-    private DemandeFileEsDTO indexFile(DemandeFileEsDTO demandeFileEsDTO) {
-
-        if (demandeFileEsDTO != null) {
-            IndexQuery index = new IndexQuery();
-            index.setId(demandeFileEsDTO.getIdentifiant());
-            index.setObject(demandeFileEsDTO);
-            index.setSource(demandeFileEsDTO.getDemandeJoinField().getParent());
-            elasticsearchTemplate.index(index, IndexCoordinates.of(indexAlias));
-        }
-        return demandeFileEsDTO;
-    }
-
     @Override
     public void indexElement(DemandeFileDTO demandeFileDTO, DemandeDTO demandeDTO) throws IOException {
-
         if (demandeFileDTO != null) {
-
             DemandeFileEsDTO demandeFileEsDTO = demandeFileEsTransformer.getFileEsContent(demandeDTO, FileUtils.getDemandeFileType(demandeFileDTO), demandeFileDTO);
             List<DemandeFileEsDTO> demFileEsDtoList = new ArrayList<>();
             demFileEsDtoList.add(demandeFileEsDTO);
-
             LOGGER.info("Appel de la méthode indexFiles");
             indexFiles(demFileEsDtoList);
         }
-
         LOGGER.info("Fin de l'indexation des fichiers");
     }
 
@@ -125,21 +100,18 @@ public class IndexedEsDemandeFilesServiceImpl extends DemandeFilesServiceImpl im
             throws IOException {
 
         if (demandeFileDTOList != null) {
-
             List<DemandeFileEsDTO> demFileEsDtoList = new ArrayList<>();
             for (DemandeFileDTO file : demandeFileDTOList) {
                 demFileEsDtoList.add(demandeFileEsTransformer.getFileEsContent(demandeDTO, FileUtils.getDemandeFileType(file), file));
             }
-
             LOGGER.info("Appel de la méthode indexFiles.");
             indexFiles(demFileEsDtoList);
         }
-
         LOGGER.info("Fin de l'indexation des fichiers.");
     }
 
     /**
-     * Permet d'indexer les fichiers d'une demande de manière asynchrone
+     * {@inheritDoc}
      */
     @Async
     @Override
@@ -148,7 +120,7 @@ public class IndexedEsDemandeFilesServiceImpl extends DemandeFilesServiceImpl im
         try {
             fillFilesList(files, demandeDTO);
         } catch (IOException e) {
-            LOGGER.error("Indexation des fichiers Asynchrone - Problème lors du parsing des fichiers", e);
+            LOGGER.error("Indexation des fichiers Asynchrone - Problème lors du parsing des fichiers");
             EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("IndexedEsDemandeFilesServiceImpl - méthode indexFilesAsynchrone() - parsing des fichiers", demandeDTO, e);
             applicationEventPublisher.publishEvent(esErrorEventDTO);
             throw new AfIndexingException(e.getMessage(), e);
@@ -161,7 +133,7 @@ public class IndexedEsDemandeFilesServiceImpl extends DemandeFilesServiceImpl im
             try {
                 indexFiles(files);
             } catch (IOException e) {
-                LOGGER.error("Indexation des fichiers Asynchrone - Problème lors de l'indexation des fichiers", e);
+                LOGGER.error("Indexation des fichiers Asynchrone - Problème lors de l'indexation des fichiers");
                 EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent("IndexedEsDemandeFilesServiceImpl - méthode indexFilesAsynchrone() - indexation des fichiers", demandeDTO, e);
                 applicationEventPublisher.publishEvent(esErrorEventDTO);
                 throw new AfIndexingException(e.getMessage(), e);
@@ -171,10 +143,7 @@ public class IndexedEsDemandeFilesServiceImpl extends DemandeFilesServiceImpl im
     }
 
     /**
-     * Méthode permettant l'indexation des fichiers d'une demande
-     *
-     * @param demande Liste des demandes dont on va indexer les fichiers
-     * @throws IOException
+     * {@inheritDoc}
      */
     @Override
     public void indexFiles(DemandeBO demande) throws IOException {
@@ -186,10 +155,7 @@ public class IndexedEsDemandeFilesServiceImpl extends DemandeFilesServiceImpl im
     }
 
     /**
-     * Méthode permettant l'indexation des fichiers d'une demande
-     *
-     * @param demande Demande dont on va indexer les fichiers
-     * @throws IOException
+     * {@inheritDoc}
      */
     @Override
     public void indexFiles(DemandeDTO demande) throws IOException {
@@ -201,9 +167,7 @@ public class IndexedEsDemandeFilesServiceImpl extends DemandeFilesServiceImpl im
     }
 
     /**
-     * Méthode permettant l'indexation des fichiers des demandes
-     *
-     * @param demandes Liste des demandes dont on va indexer les fichiers
+     * {@inheritDoc}
      */
     @Override
     public void indexFiles(Page<DemandeBO> demandes) throws IOException {
@@ -217,10 +181,21 @@ public class IndexedEsDemandeFilesServiceImpl extends DemandeFilesServiceImpl im
     }
 
     /**
-     * Méthode permettant d'indexer une liste de fichiers
-     *
-     * @param demandeFileEsDTOs Liste des fichiers à indexer
-     * @return Liste des fichiers indexées
+     * {@inheritDoc}
+     */
+    @Override
+    public void indexFilesForListDemande(List<DemandeBO> demandes) throws IOException {
+        if (demandes != null) {
+            List<DemandeFileEsDTO> files = new ArrayList<>();
+            for (DemandeBO demande : demandes) {
+                fillFilesList(files, demande);
+            }
+            indexFiles(files);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
      */
     @Override
     public List<DemandeFileEsDTO> indexFiles(List<DemandeFileEsDTO> demandeFileEsDTOs) throws IOException {
@@ -282,11 +257,7 @@ public class IndexedEsDemandeFilesServiceImpl extends DemandeFilesServiceImpl im
     }
 
     /**
-     * Méthode permettant de récupérer la liste des pieces jointes, des complements et courriers au format elasticsearch
-     *
-     * @param files   Liste des fichiers à remplir
-     * @param demande Demande concernée
-     * @throws IOException
+     * {@inheritDoc}
      */
     @Override
     public void fillFilesList(List<DemandeFileEsDTO> files, DemandeBO demande) throws IOException {
@@ -304,11 +275,7 @@ public class IndexedEsDemandeFilesServiceImpl extends DemandeFilesServiceImpl im
     }
 
     /**
-     * Méthode permettant de récupérer la liste des pieces jointes, des complements et courriers au format elasticsearch
-     *
-     * @param files   Liste des fichiers à remplir
-     * @param demande Demande concernée
-     * @throws IOException
+     * {@inheritDoc}
      */
     @Override
     public void fillFilesList(List<DemandeFileEsDTO> files, DemandeDTO demande) throws IOException {

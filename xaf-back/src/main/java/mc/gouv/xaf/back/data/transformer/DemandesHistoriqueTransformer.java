@@ -44,10 +44,7 @@ public class DemandesHistoriqueTransformer {
     }
     
     /**
-     * Cette entité est à rattacher à une demande et à un statut de demande
-     * après appel à cette fonction
-     * @param dto
-     * @return
+     * Cette entité est à rattacher à une demande et à un statut de demande après appel à cette fonction
      */
     public static DemandesHistoriqueBO dto2Bo(DemandeHistoriqueDTO dto) {
         DemandesHistoriqueBO bo = new DemandesHistoriqueBO();
@@ -66,7 +63,7 @@ public class DemandesHistoriqueTransformer {
     }
     
     public static List<DemandeHistoriqueDTO> bo2Dto(List<DemandesHistoriqueBO> bos) {
-        ArrayList<DemandeHistoriqueDTO> dtos = new ArrayList<DemandeHistoriqueDTO>();
+        ArrayList<DemandeHistoriqueDTO> dtos = new ArrayList<>();
         for (DemandesHistoriqueBO bo : bos) {
             dtos.add(bo2Dto(bo));
         }
@@ -74,7 +71,7 @@ public class DemandesHistoriqueTransformer {
     }
     
     public static List<DemandesHistoriqueBO> dto2Bo(List<DemandeHistoriqueDTO> dtos) {
-        ArrayList<DemandesHistoriqueBO> bos = new ArrayList<DemandesHistoriqueBO>();
+        ArrayList<DemandesHistoriqueBO> bos = new ArrayList<>();
         for (DemandeHistoriqueDTO dto : dtos) {
             bos.add(dto2Bo(dto));
         }

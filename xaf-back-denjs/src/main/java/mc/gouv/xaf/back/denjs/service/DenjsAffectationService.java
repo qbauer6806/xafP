@@ -16,56 +16,46 @@ public interface DenjsAffectationService {
 
 	/**
 	 * Récupérer la liste des affectations des agents à des établissements, depuis la base
-	 * @return
 	 */
-	public List<DenjsAffectationAgentDTO> getAffectationsAgents();
+	List<DenjsAffectationAgentDTO> getAffectationsAgents();
 	
 	/**
 	 * Récupérer la liste des établissements, depuis la base
-	 * @return
 	 */
-	public List<DenjsEtablissementDTO> getEtablissements();
+	List<DenjsEtablissementDTO> getEtablissements();
 	
 	/**
 	 * Affecter un agent à un établissement
 	 * @param affectation Mettre etablissementCode à null ou "" pour désaffecter
-	 * @return
 	 */
-	public List<DenjsAffectationAgentDTO> affecterAgentEtablissement(DenjsAffectationAgentDTO affectation);
+	List<DenjsAffectationAgentDTO> affecterAgentEtablissement(DenjsAffectationAgentDTO affectation);
 	
 	/**
 	 * Affecter une demande à un établissement
 	 * @param pkDemande pkDemande de la demande à affecter
 	 * @param etablissementCode Code de l'établissement
 	 */
-	public void affecterDemandeEtablissement(Integer pkDemande, String etablissementCode);
+	void affecterDemandeEtablissement(Integer pkDemande, String etablissementCode);
 	
 	/**
 	 * Désaffecter une demande d'un établissement
 	 * @param pkDemande pkDemande de la demande à désaffecter
 	 */
-	public void desaffecterDemandeEtablissement(Integer pkDemande);
+	void desaffecterDemandeEtablissement(Integer pkDemande);
 	
 	/**
 	 * Récupérer l'établissement auquel est affecté une demande
-	 * @param pkDemande
-	 * @return
 	 */
-	public String getAffectationDemandeEtablissement(Integer pkDemande);
+	String getAffectationDemandeEtablissement(Integer pkDemande);
 
 	/**
 	 * Récupérer un établissement à partir de son code
-	 * @param code
-	 * @param etabs
-	 * @return
 	 */
-	public DenjsEtablissementDTO getEtablissementFromCode(String code, List<DenjsEtablissementDTO> etabs);
+	DenjsEtablissementDTO getEtablissementFromCode(String code, List<DenjsEtablissementDTO> etabs);
 
 	/**
 	 * Récupère l'affectation d'un agent à un établissement
-	 * @param matricule
-	 * @return
 	 */
-	public DenjsAffectationAgentDTO getAffectationAgent(String matricule);
+	DenjsAffectationAgentDTO getAffectationAgent(String matricule);
 	
 }

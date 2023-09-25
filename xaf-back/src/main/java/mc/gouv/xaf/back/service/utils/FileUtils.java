@@ -12,12 +12,10 @@ import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.FileCategoryDTO;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tika.Tika;
-import org.apache.tika.exception.TikaException;
-import org.apache.tika.io.IOUtils;
 import org.springframework.stereotype.Component;
-import org.xml.sax.SAXException;
 
 /**
  * 
@@ -46,14 +44,11 @@ public class FileUtils {
      * @param stream
      *            InputStream à lire
      * @return Le fichier sous forme d'une chaine de caractéres
-     * @throws IOException
-     * @throws SAXException
-     * @throws TikaException
      */
-    public static final String parseToPlainText(InputStream stream) throws IOException, SAXException, TikaException {
+    public static String parseToPlainText(InputStream stream) throws IOException {
         Tika tika = new Tika();
         Reader fulltext = null;
-        String contentStr = null;
+        String contentStr;
         try {
             fulltext = tika.parse(stream);
             contentStr = IOUtils.toString(fulltext);
@@ -146,16 +141,13 @@ public class FileUtils {
      * @return Type du fichier
      */
     public static DemandeFileEsDTO.TYPE getDemandeFileType(String meta) {
-        DemandeFileEsDTO.TYPE fileType;
         if (FileUtils.isFileCreatedByFront(meta)) {
-            fileType = DemandeFileEsDTO.TYPE.PIECE_JOINTE;
+            return DemandeFileEsDTO.TYPE.PIECE_JOINTE;
         }
         if (FileUtils.isFileCreatedByBack(meta) && meta.contains(PdfTypeEnum.COURRIER.name())) {
-            fileType = DemandeFileEsDTO.TYPE.COURRIER;
-        } else {
-            fileType = DemandeFileEsDTO.TYPE.FICHIER_INTERNE;
+            return DemandeFileEsDTO.TYPE.COURRIER;
         }
-        return fileType;
+        return DemandeFileEsDTO.TYPE.FICHIER_INTERNE;
     }
 
 }

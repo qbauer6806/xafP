@@ -55,30 +55,25 @@ public class GUKafkaProducerListener implements ProducerListener<String, String>
     @Autowired
     private KafkaOutboxSchedulingConfig kafkaOutboxSchedulingConfig;
     
-    private static String XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE = "XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE";
-    
-    private static String MAIL_TEMPLATE_KAFKA_DLT_CORPS = "MAIL_TEMPLATE_KAFKA_DLT_CORPS";
-    
-    private static String MAIL_TEMPLATE_KAFKA_DLT_OBJET = "MAIL_TEMPLATE_KAFKA_DLT_OBJET";
-    
-    private static String MAIL_TEMPLATE_KAFKA_ERREUR_ENVOI_CORPS = "MAIL_TEMPLATE_KAFKA_ERREUR_ENVOI_CORPS";
-    
-    private static String MAIL_TEMPLATE_KAFKA_ERREUR_ENVOI_OBJET = "MAIL_TEMPLATE_KAFKA_ERREUR_ENVOI_OBJET";
+    private static final String XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE = "XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE";
+    private static final String MAIL_TEMPLATE_KAFKA_DLT_CORPS = "MAIL_TEMPLATE_KAFKA_DLT_CORPS";
+    private static final String MAIL_TEMPLATE_KAFKA_DLT_OBJET = "MAIL_TEMPLATE_KAFKA_DLT_OBJET";
+    private static final String MAIL_TEMPLATE_KAFKA_ERREUR_ENVOI_CORPS = "MAIL_TEMPLATE_KAFKA_ERREUR_ENVOI_CORPS";
+    private static final String MAIL_TEMPLATE_KAFKA_ERREUR_ENVOI_OBJET = "MAIL_TEMPLATE_KAFKA_ERREUR_ENVOI_OBJET";
 
 	@Override
 	public void onSuccess(ProducerRecord<String, String> producerRecord, RecordMetadata recordMetadata) {
 		Integer pkKafkaOutbox = getPkKafkaOutboxFromProducerRecord(producerRecord);
-		if (producerRecord.topic().endsWith(".DLT")) {
-			LOGGER.info("Message envoyé avec succès sur le DLT " + producerRecord.topic() + " (key=" + producerRecord.key() + ", partition=" + producerRecord.partition() + ", value=" + producerRecord.value() + ")");
-			
+		String topic = producerRecord.topic();
+		if (topic.endsWith(".DLT")) {
+			String key = producerRecord.key();
+			String value = producerRecord.value();
+			LOGGER.info("Message envoyé avec succès sur le DLT {} (key={}, partition={}, value={})", topic, key, producerRecord.partition(), value);
 			sendMailKafka(producerRecord, null, MAIL_TEMPLATE_KAFKA_DLT_OBJET, MAIL_TEMPLATE_KAFKA_DLT_CORPS);
-			
-		}
-		else if (pkKafkaOutbox == null) {
+		} else if (pkKafkaOutbox == null) {
 			LOGGER.error("Message envoyé avec succès mais pkKafkaOutbox null ! Situation anormale, impossible de supprimer le message de l'outbox");
-		}
-		else {
-			LOGGER.info("Message envoyé avec succès (pkKafkaOutbox " + pkKafkaOutbox + ")");
+		} else {
+			LOGGER.info("Message envoyé avec succès (pkKafkaOutbox {})", pkKafkaOutbox);
 			LOGGER.info("Suppression du message de l'Outbox Kafka...");
 			kafkaOutboxService.deleteOutboxElement(pkKafkaOutbox);
 		}
@@ -90,9 +85,8 @@ public class GUKafkaProducerListener implements ProducerListener<String, String>
 		if (pkKafkaOutbox == null) {
 			LOGGER.error("Erreur lors de l'envoi du message dans Kafka et pkKafkaOutbox null ! Situation anormale, impossible de mettre à jour son statut dans l'Outbox pour un retry", exception);
 			sendMailKafka(producerRecord, null, MAIL_TEMPLATE_KAFKA_ERREUR_ENVOI_OBJET, MAIL_TEMPLATE_KAFKA_ERREUR_ENVOI_CORPS);
-		}
-		else {
-			LOGGER.error("Erreur lors de l'envoi du message dans Kafka (pkKafkaOutbox " + pkKafkaOutbox + ")", exception);
+		} else {
+			LOGGER.error("Erreur lors de l'envoi du message dans Kafka (pkKafkaOutbox {})", pkKafkaOutbox, exception);
 			LOGGER.error("Mise à jour du statut du message dans l'Outbox Kafka...");
 			KafkaOutboxDTO dto = kafkaOutboxService.getOutboxElement(pkKafkaOutbox);
 			
@@ -107,7 +101,6 @@ public class GUKafkaProducerListener implements ProducerListener<String, String>
 			if (dto.getNbFailedAttempts() >= kafkaOutboxSchedulingConfig.getRetryNb()) {
 				sendMailKafka(producerRecord, dto, MAIL_TEMPLATE_KAFKA_ERREUR_ENVOI_OBJET, MAIL_TEMPLATE_KAFKA_ERREUR_ENVOI_CORPS);
 			}
-			
 		}
 	}
 	
@@ -121,7 +114,6 @@ public class GUKafkaProducerListener implements ProducerListener<String, String>
 			return null;
 		}
 		return Integer.parseInt(new String(it.next().value()));
-		
 	}
 	
     private void sendMailKafka(ProducerRecord<String, String> producerRecord, KafkaOutboxDTO kafkaOutbox, String objet, String corps) {
@@ -155,8 +147,7 @@ public class GUKafkaProducerListener implements ProducerListener<String, String>
 			} catch (Exception e) {
 				LOGGER.error("Erreur lors de l'envoi de l'e-mail au support technique.", e);
 			}
-        }
-        else {
+        } else {
         	LOGGER.error("Erreur lors de l'envoi de l'e-mail : propriété XAF_ADRESSES_MAIL_SUPPORT_TECHNIQUE manquante !");
         }
     }

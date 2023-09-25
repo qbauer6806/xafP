@@ -26,7 +26,6 @@ import mc.gouv.xaf.shared.dto.ExcelRechercheDTO;
  * Controller pour l'extraction des données des demandes (export excel)
  * 
  * @author qdeme
- * 
  */
 @Controller
 @Secured("ROLE_EXPORT")

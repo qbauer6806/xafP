@@ -20,6 +20,7 @@ public class DemarchesTransformer {
         DemarcheDTO dto = new DemarcheDTO();
         dto.setPkDemarches(bo.getPkDemarches());
         dto.setNom(bo.getNom());
+        dto.setNomEn(bo.getNomEn());
         dto.setEmailService(bo.getEmailService());
         dto.setEmailServiceNom(bo.getEmailServiceNom());
         dto.setEmailReplyto(bo.getEmailReplyto());
@@ -34,6 +35,7 @@ public class DemarchesTransformer {
         DemarchesBO bo = new DemarchesBO();
         bo.setPkDemarches(dto.getPkDemarches());
         bo.setNom(dto.getNom());
+        bo.setNomEn(dto.getNomEn());
         bo.setEmailService(dto.getEmailService());
         bo.setEmailServiceNom(dto.getEmailServiceNom());
         bo.setEmailReplyto(dto.getEmailReplyto());
@@ -45,7 +47,7 @@ public class DemarchesTransformer {
     }
     
     public static List<DemarcheDTO> bo2Dto(List<DemarchesBO> bos) {
-        ArrayList<DemarcheDTO> dtos = new ArrayList<DemarcheDTO>();
+        ArrayList<DemarcheDTO> dtos = new ArrayList<>();
         for (DemarchesBO bo : bos) {
             dtos.add(bo2Dto(bo));
         }
@@ -53,7 +55,7 @@ public class DemarchesTransformer {
     }
     
     public static List<DemarchesBO> dto2Bo(List<DemarcheDTO> dtos) {
-        ArrayList<DemarchesBO> bos = new ArrayList<DemarchesBO>();
+        ArrayList<DemarchesBO> bos = new ArrayList<>();
         for (DemarcheDTO dto : dtos) {
             bos.add(dto2Bo(dto));
         }

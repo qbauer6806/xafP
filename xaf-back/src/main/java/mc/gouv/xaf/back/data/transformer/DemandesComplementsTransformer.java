@@ -52,8 +52,7 @@ public class DemandesComplementsTransformer {
             reponse.setUsagerId(bo.getReponseUsagerId());
             reponse.setDate(bo.getDateReponse());
             if (null != bo.getFiles()) {
-				ArrayList<DemandesComplementsFilesBO> filesBo = new ArrayList<DemandesComplementsFilesBO>(
-						bo.getFiles());
+				ArrayList<DemandesComplementsFilesBO> filesBo = new ArrayList<>(bo.getFiles());
 				reponse.setFichiers(DemandesComplementsFilesTransformer.bo2Dto(filesBo)
 						.toArray(new DemandeComplementsFileDTO[filesBo.size()]));
 			}
@@ -68,9 +67,6 @@ public class DemandesComplementsTransformer {
 
     /**
      * L'entité retournée est à rattacher à un DemandeBO après l'appel à cette fonction Ainsi que les fichiers associés
-     * 
-     * @param dto
-     * @return
      */
     public static DemandesComplementsBO dto2Bo(DemandeComplementsDTO dto) {
         if (dto == null) {
@@ -80,8 +76,8 @@ public class DemandesComplementsTransformer {
         if (dto.getReponse() != null) {
             bo.setDateReponse(dto.getReponse().getDate());
             List<DemandesComplementsFilesBO> filesBo = DemandesComplementsFilesTransformer
-                    .dto2Bo(new ArrayList<DemandeComplementsFileDTO>(Arrays.asList(dto.getReponse().getFichiers())));
-            bo.setFiles(new HashSet<DemandesComplementsFilesBO>(filesBo));
+                    .dto2Bo(new ArrayList<>(Arrays.asList(dto.getReponse().getFichiers())));
+            bo.setFiles(new HashSet<>(filesBo));
             bo.setReponse(dto.getReponse().getTexte());
             bo.setReponseAgentId(dto.getReponse().getAgentId());
             bo.setReponseUsagerId(dto.getReponse().getUsagerId());
@@ -98,7 +94,7 @@ public class DemandesComplementsTransformer {
     }
 
     public static List<DemandeComplementsDTO> bo2Dto(List<DemandesComplementsBO> bos) {
-        ArrayList<DemandeComplementsDTO> dtos = new ArrayList<DemandeComplementsDTO>();
+        ArrayList<DemandeComplementsDTO> dtos = new ArrayList<>();
         for (DemandesComplementsBO bo : bos) {
             dtos.add(bo2Dto(bo));
         }
@@ -114,7 +110,7 @@ public class DemandesComplementsTransformer {
     }
 
     public static List<DemandesComplementsBO> dto2Bo(List<DemandeComplementsDTO> dtos) {
-        ArrayList<DemandesComplementsBO> bos = new ArrayList<DemandesComplementsBO>();
+        ArrayList<DemandesComplementsBO> bos = new ArrayList<>();
         for (DemandeComplementsDTO dto : dtos) {
             bos.add(dto2Bo(dto));
         }

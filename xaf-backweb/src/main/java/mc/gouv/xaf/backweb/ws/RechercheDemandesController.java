@@ -54,7 +54,9 @@ public class RechercheDemandesController extends AbstractController {
             @RequestParam(value = "texte", required = false) String texte,
             @RequestParam(value = "data", required = false) DataRechercheDTO data,
             @RequestParam(value = "aucunCanal", required = false) boolean aucunCanal,
-            @RequestParam(value = "aucunStatut", required = false) boolean aucunStatut, Pageable pageable) {
+            @RequestParam(value = "aucunStatut", required = false) boolean aucunStatut,
+            @RequestParam(value = "checkTimestamp", required = false, defaultValue = "false") boolean checkTimestamp,
+            Pageable pageable) {
 
         LOGGER.info(
                 "======================= Appel de /ws/demandes/pageable (statuts={}, canaux={}, agentId={}, creationStartDate={}, creationEndDate={}, texte={}, data={})",
@@ -73,7 +75,9 @@ public class RechercheDemandesController extends AbstractController {
         demandeRecherche.setIdentifiant(null);
         demandeRecherche.setAucunCanal(aucunCanal);
         demandeRecherche.setAucunStatut(aucunStatut);
+        demandeRecherche.setCheckTimestamp(checkTimestamp);
 
+        // TODO sort non null ?
         if (pageable.getSort() != null) {
             Order order = pageable.getSort().iterator().next();
             if (order != null) {

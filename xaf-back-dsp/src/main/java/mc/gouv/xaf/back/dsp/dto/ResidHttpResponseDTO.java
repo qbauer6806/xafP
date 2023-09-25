@@ -2,6 +2,7 @@ package mc.gouv.xaf.back.dsp.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import mc.gouv.xaf.back.dsp.utils.MessageUtils;
 
 import java.io.Serializable;
 import java.util.List;
@@ -53,11 +54,7 @@ public class ResidHttpResponseDTO implements Serializable {
     }
 
     public String toStringMessage() {
-        String erreurs = "";
-        for (ResidErrorDTO erreur : this.errors) {
-            erreurs +=  "  - " + erreur.getClef() + " / " + erreur.getNom() + " / " + erreur.getLibelle() + "<br>";
-        }
-        return "Erreur " + httpStatus + " - " + message +" :<br>" + erreurs;
+        return MessageUtils.toStringMessage(httpStatus, message, this.errors);
     }
 
     @Override

@@ -54,16 +54,16 @@ public class GouvBPMExpirationCheckDelegate implements JavaDelegate {
         LocalDate currentDate = Instant.now().atZone(ZoneId.systemDefault()).toLocalDate();
         final long days = ChronoUnit.DAYS.between(lastStatusDate, currentDate);
 
-        Integer numberOfDaysInt = Integer.parseInt((String)numberOfDays.getValue(execution));
+        int numberOfDaysInt = Integer.parseInt((String)numberOfDays.getValue(execution));
         
-        LOGGER.info("pkDemande = " + demandeDto.getPkDemandes() + ", days = " + days + ", numberOfDaysInt = " + numberOfDaysInt);
+        LOGGER.info("pkDemande = {}, days = {}, numberOfDaysInt = {}", demandeDto.getPkDemandes(), days, numberOfDaysInt);
         
         if (days > numberOfDaysInt) {
             LOGGER.info("Demande expirée !");
             gouvBPM.setProcessBusinessVariable(demandeDto.getPkDemandes(), GouvBPMProcessVariableTypeEnum.MC_EXPIRED.name(), true);
         }
         
-        System.out.println("Demande : " + demandeDto.getPkDemandes());
+        LOGGER.info("Demande : {}", demandeDto.getPkDemandes());
         
         LOGGER.info("==== xaf-back GouvBPMExpirationCheckDelegate <fin>");
     }

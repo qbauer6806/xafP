@@ -16,6 +16,7 @@ import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +32,8 @@ import java.util.List;
 public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvPropertiesResolverImpl.class);
+    private static final String MC_GOUV_PREFIX = "mc.gouv";
+    private static final String MAX_BYTE = "20971520";
 
     /*
      * hab
@@ -56,6 +59,71 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
      */
     private String applicationPrefix = StringUtils.EMPTY;
 
+    /**
+     * propertyEditor.getReadMethod() expose le getter, peut être null si on a une prorpriété en écriture seule
+     */
+    private Method getMethod(PropertyDescriptor propertyDescriptor) {
+        Method method;
+        try {
+            LOGGER.info("Vérification de la propriété via le get : {}", propertyDescriptor.getReadMethod());
+            method = propertyDescriptor.getReadMethod();
+        } catch (SecurityException e) {
+            LOGGER.error("Erreur lors de la récupération de la méthode");
+            throw e;
+        }
+        return method;
+    }
+
+    private void checkProperties(List<String> propertiesNotFound, Method method, PropertyDescriptor propertyDescriptor) throws InvocationTargetException, IllegalAccessException {
+        try {
+
+            // Est-ce que l'indexation est activée ?
+            String indexingPropStr = environment.getProperty(MC_GOUV_PREFIX + applicationPrefix + ".indexing.enabled");
+            boolean indexingEnabled = StringUtils.equals(indexingPropStr, "true");
+
+            // Est-ce que le SSL est activé ?
+            boolean sslEnabled = getGUKafkaSSLEnabled();
+
+            // Est ce que l'archivage est activé ?
+            String archivagePropStr = environment.getProperty(MC_GOUV_PREFIX + applicationPrefix + ".archivage.enabled");
+            boolean archivageEnabled = StringUtils.equals(archivagePropStr, "true");
+
+            // On ignore la présence de la property si la méthode possède @GouvIndexationProperty mais que l'appli a indexationEnabled=false
+            boolean pasIgnorerIndexing = !(method.getDeclaredAnnotation(GouvIndexationProperty.class) instanceof GouvIndexationProperty)
+                    || (method.getDeclaredAnnotation(
+                    GouvIndexationProperty.class) instanceof GouvIndexationProperty
+                    && indexingEnabled);
+
+            // On ignore la présence de la property si la méthode possède @GouvSSLProperty mais que l'appli a
+            // mc.gouv.af.back.external.gichuni.kafka.ssl.enabled=false
+            boolean pasIgnorerSSL = !(method.getDeclaredAnnotation(GouvSSLProperty.class) instanceof GouvSSLProperty)
+                    || (method.getDeclaredAnnotation(
+                    GouvSSLProperty.class) instanceof GouvSSLProperty
+                    && sslEnabled);
+
+            // On ignore la présence de la property si la méthode possède @GouvArchivageProperty mais que l'appli a
+            // archivage.enabled=false ou pas présente
+            boolean pasIgnorerArchivage = !(method.getDeclaredAnnotation(GouvArchivageProperty.class) instanceof GouvArchivageProperty)
+                    || (method.getDeclaredAnnotation(
+                    GouvArchivageProperty.class) instanceof GouvArchivageProperty
+                    && archivageEnabled);
+
+            if (pasIgnorerIndexing && pasIgnorerSSL && pasIgnorerArchivage) {
+                Object value = method.invoke(this);
+                if (value instanceof String) {
+                    if (StringUtils.isBlank((String) value)) {
+                        propertiesNotFound.add(propertyDescriptor.getReadMethod().toString());
+                    }
+                } else if (value == null) {
+                    propertiesNotFound.add(propertyDescriptor.getReadMethod().toString());
+                }
+            }
+        } catch (IllegalArgumentException | InvocationTargetException | IllegalAccessException e) {
+            LOGGER.error("Erreur lors de l'invocation de la méthode");
+            throw e;
+        }
+    }
+
     @PostConstruct
     private void initPrefix() throws IntrospectionException, IllegalAccessException, InvocationTargetException,
             GouvPropertyNotFoundException {
@@ -66,87 +134,19 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
         }
 
         //Vérification que chaque propriété a bien été configurée
-        List<String> propertiesNotFound = new ArrayList<String>();
+        List<String> propertiesNotFound = new ArrayList<>();
         try {
 
             for (PropertyDescriptor propertyDescriptor : Introspector
                     .getBeanInfo(GouvPropertiesResolverImpl.class, Object.class).getPropertyDescriptors()) {
 
-                // propertyEditor.getReadMethod() exposes the getter
-                // btw, this may be null if you have a write-only property
+                Method method = getMethod(propertyDescriptor);
 
-                java.lang.reflect.Method method = null;
-                try {
-                    LOGGER.info("Vérification de la propriété via le get : {}", propertyDescriptor.getReadMethod());
-                    method = propertyDescriptor.getReadMethod();
-                } catch (SecurityException e) {
-                    LOGGER.error("Erreur lors de la récupération de la méthode", e);
-                    throw e;
-                }
-
-                try {
-
-                    // Est-ce que l'indexation est activée ?
-                    String indexingPropStr = environment
-                            .getProperty("mc.gouv" + applicationPrefix + ".indexing.enabled");
-                    boolean indexingEnabled = false;
-                    if (StringUtils.isNotBlank(indexingPropStr) && indexingPropStr.equals(true)) {
-                        indexingEnabled = true;
-                    }
-
-                    // Est-ce que le SSL est activé ?
-                    boolean sslEnabled = getGUKafkaSSLEnabled();
-
-                    // Est ce que l'archivage est activé ?
-                    String archivagePropStr = environment
-                            .getProperty("mc.gouv" + applicationPrefix + ".archivage.enabled");
-                    boolean archivageEnabled = StringUtils.isNotBlank(archivagePropStr) && archivagePropStr.equals("true");
-
-                    // On ignore la présence de la property si la méthode possède @GouvIndexationProperty mais que l'appli a indexationEnabled=false
-                    boolean pasIgnorerIndexing = !(method.getDeclaredAnnotation(GouvIndexationProperty.class) instanceof GouvIndexationProperty)
-                            || (method.getDeclaredAnnotation(
-                            GouvIndexationProperty.class) instanceof GouvIndexationProperty
-                            && indexingEnabled);
-
-                    // On ignore la présence de la property si la méthode possède @GouvSSLProperty mais que l'appli a
-                    // mc.gouv.af.back.external.gichuni.kafka.ssl.enabled=false
-                    boolean pasIgnorerSSL = !(method.getDeclaredAnnotation(GouvSSLProperty.class) instanceof GouvSSLProperty)
-                            || (method.getDeclaredAnnotation(
-                            GouvSSLProperty.class) instanceof GouvSSLProperty
-                            && sslEnabled);
-
-                    // On ignore la présence de la property si la méthode possède @GouvArchivageProperty mais que l'appli a
-                    // archivage.enabled=false ou pas présente
-                    boolean pasIgnorerArchivage = !(method.getDeclaredAnnotation(GouvArchivageProperty.class) instanceof GouvArchivageProperty)
-                            || (method.getDeclaredAnnotation(
-                            GouvArchivageProperty.class) instanceof GouvArchivageProperty
-                            && archivageEnabled);
-
-                    if (pasIgnorerIndexing && pasIgnorerSSL && pasIgnorerArchivage) {
-                        Object value = method.invoke(this);
-                        if (value instanceof String) {
-                            if (StringUtils.isBlank((String) value)) {
-                                propertiesNotFound.add(propertyDescriptor.getReadMethod().toString());
-                            }
-                        } else if (value == null) {
-                            propertiesNotFound.add(propertyDescriptor.getReadMethod().toString());
-                        }
-                    }
-                } catch (IllegalArgumentException e) {
-                    LOGGER.error("Erreur lors de l'invocation de la méthode", e);
-                    throw e;
-                } catch (IllegalAccessException e) {
-                    LOGGER.error("Erreur lors de l'invocation de la méthode", e);
-                    throw e;
-                } catch (InvocationTargetException e) {
-                    LOGGER.error("Erreur lors de l'invocation de la méthode", e);
-                    throw e;
-                }
-
+                checkProperties(propertiesNotFound, method, propertyDescriptor);
             }
 
         } catch (IntrospectionException e) {
-            LOGGER.error("Erreur lors de l'introspection", e);
+            LOGGER.error("Erreur lors de l'introspection");
             throw e;
         }
 
@@ -158,7 +158,7 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
 
     @Override
     public String getContainerId() {
-        return Static.getValue("mc.gouv" + applicationPrefix + ".backserver.file.containerId");
+        return Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".backserver.file.containerId");
     }
 
     @Override
@@ -168,7 +168,7 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
 
     @Override
     public String getProcessDefinitionKey() {
-        return Static.getValue("mc.gouv" + applicationPrefix + ".backserver.processDefinitionKey");
+        return Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".backserver.processDefinitionKey");
     }
 
     private static final String FILE_URL = "mc.gouv.af.back.file.url";
@@ -196,7 +196,7 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
 
     @Override
     public String getVscanJwt() {
-        return Static.getValue("mc.gouv" + applicationPrefix + ".backserver.vscan.jwt");
+        return Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".backserver.vscan.jwt");
     }
 
     @Override
@@ -206,37 +206,37 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
 
     @Override
     public String getFileJwt() {
-        return Static.getValue("mc.gouv" + applicationPrefix + ".backserver.file.jwt");
+        return Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".backserver.file.jwt");
     }
 
     @Override
     public String getMailJwt() {
-        return Static.getValue("mc.gouv" + applicationPrefix + ".backserver.mail.jwt");
+        return Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".backserver.mail.jwt");
     }
 
     @Override
     public String getFrontUrl() {
-        return Static.getValue("mc.gouv" + applicationPrefix + ".backserver.front.url");
+        return Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".backserver.front.url");
     }
 
     @Override
     public String getBackUrl() {
-        return Static.getValue("mc.gouv" + applicationPrefix + ".backserver.back.url");
+        return Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".backserver.back.url");
     }
 
     @Override
     public String getFrontSharedKey() {
-        return Static.getValue("mc.gouv" + applicationPrefix + ".backserver.front.key");
+        return Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".backserver.front.key");
     }
 
     @Override
     public String getHelpUrl() {
-        return Static.getValue("mc.gouv" + applicationPrefix + ".backserver.help.url");
+        return Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".backserver.help.url");
     }
 
     @Override
     public String getFrontFormStartPage() {
-        return Static.getValue("mc.gouv" + applicationPrefix + ".backserver.front.formstartpage");
+        return Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".backserver.front.formstartpage");
     }
 
     private static final String GOUV_SHARED_ENV = "mc.gouv.shared.env";
@@ -269,45 +269,45 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
 
     @Override
     public long getUsagersCacheDuration() {
-        return Long.parseLong(Static.getValue("mc.gouv" + applicationPrefix + ".backserver.usagerscache.duration"));
+        return Long.parseLong(Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".backserver.usagerscache.duration"));
     }
 
     @GouvIndexationProperty
     @Override
     public String getSearchHighlightPreTags() {
-        String searchPreTags = Static.getValue("mc.gouv" + applicationPrefix + ".search.highlight.pretags");
+        String searchPreTags = Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".search.highlight.pretags");
         return searchPreTags != null ? searchPreTags : "<b>";
     }
 
     @GouvIndexationProperty
     @Override
     public String getSearchHighlightPostTags() {
-        String searchPostTags = Static.getValue("mc.gouv" + applicationPrefix + ".search.highlight.posttags");
+        String searchPostTags = Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".search.highlight.posttags");
         return searchPostTags != null ? searchPostTags : "</b>";
     }
 
     @GouvIndexationProperty
     @Override
     public String getEsUser() {
-        return Static.getValue("mc.gouv" + applicationPrefix + ".elasticsearch.user");
+        return Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".elasticsearch.user");
     }
 
     @GouvIndexationProperty
     @Override
     public String getEsPassword() {
-        return Static.getValue("mc.gouv" + applicationPrefix + ".elasticsearch.password");
+        return Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".elasticsearch.password");
     }
 
     @GouvIndexationProperty
     @Override
     public String getEsClusterHosts() {
-        return Static.getValue("mc.gouv" + applicationPrefix + ".elasticsearch.clusterHosts");
+        return Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".elasticsearch.clusterHosts");
     }
 
     @GouvIndexationProperty
     @Override
     public Integer getEsPort() {
-        String batchSize = Static.getValue("mc.gouv" + applicationPrefix + ".elasticsearch.port");
+        String batchSize = Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".elasticsearch.port");
 
         if (batchSize != null) {
             return Integer.parseInt(batchSize);
@@ -319,7 +319,7 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     @GouvIndexationProperty
     @Override
     public Integer getEsReindexBulkSize() {
-        String esReindexBulkSize = Static.getValue("mc.gouv" + applicationPrefix + ".elasticsearch.reindex.bulksize");
+        String esReindexBulkSize = Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".elasticsearch.reindex.bulksize");
 
         if (esReindexBulkSize != null) {
             return Integer.parseInt(esReindexBulkSize);
@@ -330,7 +330,7 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
 
     @Override
     public Integer getEsConnectTimeout() {
-        String connectTimeout = Static.getValue("mc.gouv" + applicationPrefix + ".elasticsearch.connectTimeout");
+        String connectTimeout = Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".elasticsearch.connectTimeout");
 
         if (StringUtils.isNotBlank(connectTimeout)) {
             return Integer.parseInt(connectTimeout);
@@ -342,7 +342,7 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
 
     @Override
     public Integer getEsSocketTimeout() {
-        String socketTimeout = Static.getValue("mc.gouv" + applicationPrefix + ".elasticsearch.socketTimeout");
+        String socketTimeout = Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".elasticsearch.socketTimeout");
 
         if (StringUtils.isNotBlank(socketTimeout)) {
             return Integer.parseInt(socketTimeout);
@@ -354,7 +354,7 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
 
     @Override
     public boolean getNovalidate() {
-        String value = Static.getValue("mc.gouv" + applicationPrefix + ".novalidate");
+        String value = Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".novalidate");
         if (value == null) {
             return false;
         }
@@ -428,7 +428,7 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
 
     @Override
     public boolean getKafkaEnabled() {
-        String value = Static.getValue("mc.gouv" + applicationPrefix + ".backapi.kafka.enabled");
+        String value = Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".backapi.kafka.enabled");
         if (value == null) {
             return false;
         }
@@ -447,37 +447,37 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
 
     @Override
     public String getGichkeyClientId() {
-        return Static.getValue("mc.gouv" + applicationPrefix + ".external.gichkey.client_id");
+        return Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".external.gichkey.client_id");
     }
 
     @Override
     public String getGichkeyClientSecret() {
-        return Static.getValue("mc.gouv" + applicationPrefix + ".external.gichkey.client_secret");
+        return Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".external.gichkey.client_secret");
     }
     
     @Override
     public String getGUKafkaProducerMaxRequestSize() {
-        String value = Static.getValue("mc.gouv" + applicationPrefix + ".backapi.kafka.producer.maxrequestsizeconfig");
+        String value = Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".backapi.kafka.producer.maxrequestsizeconfig");
         if (value == null) {
-        	return "20971520";
+        	return MAX_BYTE;
         }
         return value;
     }
 
 	@Override
 	public String getGUKafkaConsumerFetchMaxBytes() {
-        String value = Static.getValue("mc.gouv" + applicationPrefix + ".backapi.kafka.consumer.fetchmaxbytes");
+        String value = Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".backapi.kafka.consumer.fetchmaxbytes");
         if (value == null) {
-        	return "20971520";
+        	return MAX_BYTE;
         }
         return value;
 	}
 
 	@Override
 	public String getGUKafkaConsumerMaxPartitionFetchBytes() {
-        String value = Static.getValue("mc.gouv" + applicationPrefix + ".backapi.kafka.consumer.maxpartitionfetchbytes");
+        String value = Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".backapi.kafka.consumer.maxpartitionfetchbytes");
         if (value == null) {
-        	return "20971520";
+        	return MAX_BYTE;
         }
         return value;
 	}
@@ -499,24 +499,55 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     @GouvArchivageProperty
     @Override
     public String getApiRioUrl() {
-        return Static.getValue("mc.gouv" + applicationPrefix + ".rio.url");
+        return Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".rio.url");
     }
 
     @GouvArchivageProperty
     @Override
     public String getApiRioJwt() {
-        return Static.getValue("mc.gouv" + applicationPrefix + ".rio.jwt");
+        return Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".rio.jwt");
     }
 
     @GouvArchivageProperty
     @Override
     public String getApiRioCodeAppli() {
-        return Static.getValue("mc.gouv" + applicationPrefix + ".rio.codeAppli");
+        return Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".rio.codeAppli");
     }
 
     @GouvArchivageProperty
     @Override
     public String getApiRioCodeNotice() {
-        return Static.getValue("mc.gouv" + applicationPrefix + ".rio.codeNotice");
+        return Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".rio.codeNotice");
+    }
+
+    @Override
+    public boolean isPaiementEnabled() {
+        String paiementProviderStr = environment.getProperty(MC_GOUV_PREFIX + applicationPrefix + ".paiement.enabled");
+        return StringUtils.equals(paiementProviderStr, "true");
+    }
+
+    @Override
+    public String getApiUlisMoyensGenerauxUrl() {
+        return Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".ulis.url.moyens-generaux", "N/D");
+    }
+
+    @Override
+    public String getApiUlisTiersOrganisationUrl() {
+        return Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".ulis.url.tiers-organisation", "N/D");
+    }
+
+    @Override
+    public String getApiUlisAuthenticationUser() {
+        return Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".ulis.authentication.user", "N/D");
+    }
+
+    @Override
+    public String getApiUlisAuthenticationPassword() {
+        return Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".ulis.authentication.password", "N/D");
+    }
+
+    @Override
+    public String getApiUlisFunctionalUser() {
+        return Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".ulis.account", "N/D");
     }
 }

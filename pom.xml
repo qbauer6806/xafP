@@ -1,111 +1,69 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>mc.gouv.xboot</groupId>
         <artifactId>xboot-spring-starter-parent</artifactId>
-        <version>4.0.0</version>
+        <version>4.0.1</version>
     </parent>
 
     <properties>
+        <revision>0.0.0-SNAPSHOT</revision>
         <java.version>11</java.version>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
+        <logon-apiclient.version>5.2.2</logon-apiclient.version>
         <servicerest_client.version>2.2.15</servicerest_client.version>
-        <tika.version>1.22</tika.version>
+        <tika.version>2.8.0</tika.version>
         <xcb-wlib.version>1.2.0</xcb-wlib.version>
+        <commons-fileupload.version>1.5</commons-fileupload.version>
+        <poi-ooxml.version>5.2.0</poi-ooxml.version>
+        <commons-io.version>2.11.0</commons-io.version>
+        <!-- Remove jackson-bom version when spring boot 3 -->
+        <jackson-bom.version>2.15.2</jackson-bom.version>
     </properties>
 
     <groupId>mc.gouv.xaf</groupId>
     <artifactId>xaf</artifactId>
-    <version>11.0.2-SNAPSHOT</version>
+    <version>${revision}</version>
     <packaging>pom</packaging>
-	<scm>
-		<url>https://git.monaco-gouvernement.mc/libs/xaf.git</url>
-		<connection>scm:git:git@git.monaco-gouvernement.mc:libs/xaf.git</connection>
-		<developerConnection>scm:git:git@git.monaco-gouvernement.mc:libs/xaf.git</developerConnection>
-  	  <tag>HEAD</tag>
-  </scm>
 
-
-
-	<modules>
-		<module>xaf-apiclient</module>
-		<module>xaf-apiclient-paiement</module>
-		<module>xaf-servlet</module>
-		<module>xaf-back</module>
-		<module>xaf-backweb</module>
+    <modules>
+        <module>xaf-apiclient</module>
+        <module>xaf-apiclient-paiement</module>
+        <module>xaf-back</module>
+        <module>xaf-back-denjs</module>
+        <module>xaf-back-dsp</module>
+        <module>xaf-back-paiement</module>
+        <module>xaf-backweb</module>
+        <module>xaf-backweb-denjs</module>
+        <module>xaf-rio</module>
+        <module>xaf-servlet</module>
         <module>xaf-shared</module>
-		<module>xaf-back-denjs</module>
-		<module>xaf-back-dsp</module>
-		<module>xaf-back-paiement</module>
-		<module>xaf-backweb-denjs</module>
-		<module>xaf-sup</module>
+        <module>xaf-sup</module>
     </modules>
 
     <dependencyManagement>
         <dependencies>
-            <!-- CVE-2019-12415 -->
+
             <dependency>
                 <groupId>org.apache.tika</groupId>
-                <artifactId>tika-app</artifactId>
+                <artifactId>tika-core</artifactId>
                 <version>${tika.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.cxf</groupId>
-                        <artifactId>cxf-rt-rs-client</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>xerces</groupId>
-                        <artifactId>xercesImpl</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
 
             <dependency>
                 <groupId>org.apache.tika</groupId>
-                <artifactId>tika-parsers</artifactId>
+                <artifactId>tika-parsers-standard-package</artifactId>
                 <version>${tika.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.cxf</groupId>
-                        <artifactId>cxf-rt-rs-client</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.poi</groupId>
-                        <artifactId>poi-ooxml</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.poi</groupId>
-                        <artifactId>poi</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>xerces</groupId>
-                        <artifactId>xercesImpl</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.tika</groupId>
-                <artifactId>tika-langdetect</artifactId>
-                <version>${tika.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.cxf</groupId>
-                        <artifactId>cxf-rt-rs-client</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>xerces</groupId>
-                        <artifactId>xercesImpl</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
 
             <!-- CVE-2019-12402 -->
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-compress</artifactId>
-                <version>1.19</version>
+                <version>1.21</version>
             </dependency>
 
             <!-- CWE-300 -->
@@ -122,7 +80,75 @@
                 <version>25.1-jre</version>
             </dependency>
 
+            <!-- CVE-2020-10683 -->
+            <dependency>
+                <groupId>org.apache.poi</groupId>
+                <artifactId>poi-ooxml</artifactId>
+                <version>${poi-ooxml.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>${commons-io.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
+
+    <build>
+        <plugins>
+            <!-- https://maven.apache.org/maven-ci-friendly.html -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+                <version>1.3.0</version>
+                <configuration>
+                    <updatePomFile>true</updatePomFile>
+                    <flattenMode>resolveCiFriendliesOnly</flattenMode>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>flatten</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>flatten</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>flatten.clean</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>enforce-versions</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireReleaseDeps>
+                                    <message>No Snapshots Allowed in RELEASE build!</message>
+                                    <onlyWhenRelease>true</onlyWhenRelease>
+                                </requireReleaseDeps>
+                            </rules>
+                            <fail>true</fail>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

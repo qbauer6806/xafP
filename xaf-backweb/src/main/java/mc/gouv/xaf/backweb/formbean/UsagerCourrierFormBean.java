@@ -12,7 +12,7 @@ import javax.validation.constraints.Size;
  */
 public class UsagerCourrierFormBean {
 
-    private String titre;
+    private Integer titre;
 
     @Size(min = 0, max = 50, message = "Maximum 50 lettres autorisées")
     private String nom;
@@ -133,11 +133,11 @@ public class UsagerCourrierFormBean {
         this.email = email;
     }
 
-    public String getTitre() {
+    public Integer getTitre() {
         return titre;
     }
 
-    public void setTitre(String titre) {
+    public void setTitre(Integer titre) {
         this.titre = titre;
     }
 

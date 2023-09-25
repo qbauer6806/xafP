@@ -60,11 +60,13 @@ public class RechercheIndexedDemandesController extends AbstractController {
                                                 @RequestParam(value = "aucunCanal", required = false) boolean aucunCanal,
                                                 @RequestParam(value = "aucunResponsable", required = false) boolean aucunResponsable,
                                                 @RequestParam(value = "aucunStatut", required = false) boolean aucunStatut,
-                                                @RequestParam(value = "statutPublicOuInterne", required = false) String statutPublicOuInterne, Pageable pageable) {
+                                                @RequestParam(value = "statutPublicOuInterne", required = false) String statutPublicOuInterne, 
+                                                @RequestParam(value = "checkTimestamp", required = false, defaultValue = "false") boolean checkTimestamp,
+                                                Pageable pageable) {
 
         LOGGER.info(
-                "======================= Appel de /ws/demandes/pageable (userId=\"{}\", statuts=\"{}\", canaux=\"{}\", agentId=\"{}\", creationStartDate=\"{}\", creationEndDate=\"{}\", texte=\"{}\", data=\"{}\")",
-                usagerId, statuts, canaux, agentId, creationStartDate, creationEndDate, texte, data);
+                "======================= Appel de /ws/demandes/pageable (userId=\"{}\", statuts=\"{}\", canaux=\"{}\", agentId=\"{}\", creationStartDate=\"{}\", creationEndDate=\"{}\", texte=\"{}\", data=\"{}\", searchFields=\"{}\")",
+                usagerId, statuts, canaux, agentId, creationStartDate, creationEndDate, texte, data, searchFields);
 
         DemandeRechercheDTO demandeRecherche = new DemandeRechercheDTO();
         demandeRecherche.setDemarcheId(gouvPropertiesResolver.getDemarcheId());
@@ -82,6 +84,7 @@ public class RechercheIndexedDemandesController extends AbstractController {
         demandeRecherche.setAucunResponsable(aucunResponsable);
         demandeRecherche.setStatutPublicOuInterne(statutPublicOuInterne);
         demandeRecherche.setSearchFields(searchFields);
+        demandeRecherche.setCheckTimestamp(checkTimestamp);
 
         if (!pageable.getSort().isUnsorted()) {
             Order order = pageable.getSort().iterator().next();

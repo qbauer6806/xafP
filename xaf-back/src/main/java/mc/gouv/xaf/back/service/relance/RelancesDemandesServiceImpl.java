@@ -2,11 +2,15 @@ package mc.gouv.xaf.back.service.relance;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
+import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
+import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +35,12 @@ public class RelancesDemandesServiceImpl implements RelancesDemandesService {
 	
 	@Autowired
 	private RelancesUtils relanceUtils;
+
+	@Autowired
+	private MessageSource messageSource;
+
+	@Autowired
+	private UsagersCache usagersCache;
 	
 	@Override
 	public void sendRelancesMail(List<RelanceStatutDemandeConf> statutsARelancer) {
@@ -41,8 +51,6 @@ public class RelancesDemandesServiceImpl implements RelancesDemandesService {
 			relanceUtils.setRelanceDate(entry.getKey());
 		}
 	}
-
-	
 
 	@Override
 	public void envoiEmailUsagerRelance(DemandeDTO demande, String codeMailPrefix) {
@@ -58,6 +66,9 @@ public class RelancesDemandesServiceImpl implements RelancesDemandesService {
 		model.put("expireDans", relanceUtils.getExpirationTime(demande));
 		model.put("pkDemande", demande.getPkDemandes());
 		model.put("urlFront", gouvPropertiesResolver.getFrontUrl());
+		GichuniUsagerDTO usager = usagersCache.get(demande.getUsagerId());
+		String titre = messageSource.getMessage("civilite." + usager.getTitre(), null, new Locale(demande.getLangue()));
+		model.put("titre", titre);
 
 		try {
 			mailService.sendMail(emailInfoDTO, model);

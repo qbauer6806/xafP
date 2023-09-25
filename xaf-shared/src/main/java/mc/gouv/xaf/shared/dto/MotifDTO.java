@@ -42,6 +42,30 @@ public class MotifDTO {
 
     private String texteAEnvoyer;
 
+    public MotifDTO() {
+        super();
+    }
+
+    /**
+     * Constructeur remplaçant la méthode clone()<br>
+     * Copie l'objet source donné en paramètre.
+     *
+     * @param source l'objet à copier
+     */
+    public MotifDTO(MotifDTO source) {
+        super();
+        this.pkMotifs = source.getPkMotifs();
+        this.demarcheId = source.getDemarcheId();
+        this.code = source.getCode();
+        this.libelle = source.getLibelle();
+        this.statut = source.getStatut();
+        this.langue = source.getLangue();
+        this.updated = source.isUpdated();
+        this.dateArchive = source.getDateArchive();
+        this.commentairePrerempli = source.getCommentairePrerempli();
+        this.texteAEnvoyer = source.getTexteAEnvoyer();
+    }
+
     public Integer getPkMotifs() {
         return pkMotifs;
     }
@@ -122,19 +146,4 @@ public class MotifDTO {
         this.texteAEnvoyer = texteAEnvoyer;
     }
 
-    @Override
-    public Object clone() {
-        MotifDTO motifDTO = new MotifDTO();
-        motifDTO.pkMotifs = this.pkMotifs;
-        motifDTO.demarcheId = this.demarcheId;
-        motifDTO.code = this.code;
-        motifDTO.libelle = this.libelle;
-        motifDTO.statut = this.statut;
-        motifDTO.langue = this.langue;
-        motifDTO.updated = this.updated;
-        motifDTO.dateArchive = this.dateArchive;
-        motifDTO.commentairePrerempli = this.commentairePrerempli;
-        motifDTO.texteAEnvoyer = this.texteAEnvoyer;
-        return motifDTO;
-    }
 }

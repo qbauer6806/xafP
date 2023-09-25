@@ -1,0 +1,47 @@
+package mc.gouv.xaf.rio.service;
+
+import mc.gouv.xaf.rio.dto.ArchivageStatutDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeFileDTO;
+
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+public interface ArchivageService {
+
+    // Il est impossible de sauvegarder / accéder à une même ressource en parrallèle avec Hibernate
+    // Hibernate utilise un pessimist locking qui bloque l'accès concurrent à la même ressource, nous sommes donc
+    // obligés de passer par une variable dans le code et sauvegarder uniquement le résultat final en BDD
+    Map<Integer, ArchivageStatutDTO> archivageProgress = new ConcurrentHashMap<>();
+
+    /**
+     * Archive les documents en attribut dans un registre donné
+     *
+     * @param refPermis  Référence permis
+     * @param files      Fichiers à archiver
+     * @param demandeDTO demande
+     * @return Liste des fichiers archivés
+     */
+    List<String> archivagePermis(String refPermis, List<DemandeFileDTO> files, DemandeDTO demandeDTO);
+
+    /**
+     * Archive les documents en attribut dans un registre donné
+     *
+     * @param refRegistre Référence permis
+     * @param files       Fichiers à archiver
+     * @param demandeDTO  demande
+     * @return
+     */
+    List<String> archivageRegistre(String refRegistre, List<DemandeFileDTO> files, DemandeDTO demandeDTO);
+
+    /**
+     * Archive les documents sur les références en paramètres
+     *
+     * @param references map de référence et type de référence
+     * @param files      Fichiers à archiver
+     * @param demandeDTO demande
+     * @return la liste des références proprement archivées
+     */
+    List<String> archiver(Map<String, String> references, List<DemandeFileDTO> files, DemandeDTO demandeDTO);
+}

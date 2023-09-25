@@ -144,8 +144,7 @@ public class FileUploadServlet extends AbstractAfServlet {
             Integer accessId = access.getPkAccess();
             LOGGER.debug("AccessID = {}", accessId);
             if (accessId == null) {
-                AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_NOT_FOUND,
-                        "Erreur: impossible de récupérer l'accès");
+                AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_NOT_FOUND,"Erreur: impossible de récupérer l'accès");
                 return;
             }
 

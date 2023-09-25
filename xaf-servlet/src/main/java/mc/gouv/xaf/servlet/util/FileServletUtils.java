@@ -4,8 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import mc.gouv.vscan.shared.dto.ScanDTO;
 import mc.gouv.vscan.shared.dto.ScanRequestDTO;
 import mc.gouv.xaf.servlet.dto.FileUploadCompteurDTO;
+import mc.gouv.xaf.servlet.dto.FileUploadResponseDTO;
+import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
 import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
 import mc.gouv.xaf.shared.RequestConstant;
+import mc.gouv.xaf.shared.SharedMessages;
+import mc.gouv.xaf.shared.dto.AccessDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -24,18 +28,21 @@ import org.slf4j.LoggerFactory;
 
 import javax.el.PropertyNotFoundException;
 import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.Part;
+import javax.ws.rs.core.MediaType;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
+import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
+
+import static mc.gouv.xaf.servlet.util.AppFactoryServletUtils.getAfApiClient;
 
 public class FileServletUtils {
 
@@ -43,6 +50,7 @@ public class FileServletUtils {
     private static final String EXTENSIONS_WHITELIST = "EXTENSIONS_WHITELIST";
     private static final String MAX_TAILLE_FICHIER = "MAX_TAILLE_FICHIER";
     private static final String VSCAN_ACTIVATION = "VSCAN_ACTIVATION";
+    private static final String SLASH = "/";
 
     private FileServletUtils() {
         throw new IllegalStateException("Utility class");
@@ -268,5 +276,134 @@ public class FileServletUtils {
             response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
             return null;
         }
+    }
+
+    /**
+     *
+     * @param docHolderUrl l'adresse à laquelle envoyer la requête
+     * @param filename le nom du fichier à télécharger dans le portedocument ex : d738aa26-588a-11ee-a76d-005056bfb0c9/docholderwishlist.png
+     * @param accessToken le token d'accès à l'API, du compte connecté
+     */
+    public static HttpResponse downloadFromDocHolder(String docHolderUrl, String filename, String accessToken) throws IOException, URISyntaxException, InterruptedException {
+        String url = AfServletGouvPropertiesResolver.getPorteDocUrl() + "/file";
+
+        MultipartEntityBuilder multipart = MultipartEntityBuilder.create().addTextBody("filename", filename);
+
+        HttpClient client = HttpClientBuilder.create().build();
+        HttpGetWithEntity request = new HttpGetWithEntity();
+        request.setURI(URI.create(url));
+        request.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
+        request.setEntity(multipart.build());
+
+        return client.execute(request);
+    }
+
+    /**
+     * Upload un fichier dans FILE.
+     * <b>/!\ Attention : aucune validation vscan/taille n'est faite dans la méthode !</b>
+     * @param filename le nom du fichier à envoyer dans FILE
+     * @param filestream un flux qui contiens les données du fichier
+     */
+    public static void uploadToFILE(HttpServletResponse response, ServletContext servletContext, UsagerInfosDTO usagerInfosDTO, String filename, String typeModele, InputStream filestream) throws URISyntaxException, IOException {
+        // Génération de l'UUID
+        UUID uuid = AppFactoryServletUtils.generateUUID();
+        LOGGER.debug("UUID généré : {}", uuid);
+
+        // Récupération de l'AccessID via appel WS à Demarches
+        LOGGER.info("Appel à la démarche pour récupérer l'AccessID correspondant..");
+        AccessDTO access = getAfApiClient().getAccess(usagerInfosDTO.getId());
+        Integer accessId = access.getPkAccess();
+        LOGGER.debug("AccessID = {}", accessId);
+        if (accessId == null) {
+            AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_NOT_FOUND,"Erreur : impossible de récupérer l'accès");
+            return;
+        }
+
+        HttpPost postRequest = new HttpPost();
+        URI uri = generateFileUrl(servletContext, uuid, accessId, filename);
+        postRequest.setURI(uri);
+
+        // Extraction du demandeId si le client le connaît déjà et l'a fourni à AFS
+        //extraireDemandeId(postRequest, request);
+        postRequest.setHeader(AppFactoryServletUtils.FILE_METADATA_TYPEMODELE, typeModele);
+
+        // Constitution de la requête
+        HttpClient client = HttpClientBuilder.create().build();
+        MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+        builder.addPart("data", new InputStreamBody(filestream, filename));
+        HttpEntity multipart = builder.build();
+        postRequest.setEntity(multipart);
+        postRequest.setHeader(HttpHeaders.AUTHORIZATION, AppFactoryServletUtils.getAuthHeader(AppFactoryServletUtils.ServiceTarget.FILE));
+
+        LOGGER.info("Appel du WS FILE");
+        HttpResponse postResponse = client.execute(postRequest);
+
+        // Constitution de la réponse en redirigeant la réponse du WS ansi que son code réponse
+        LOGGER.info("Constitution de la réponse pour retour au client");
+        constituerReponse(response, filename, uuid, accessId, postResponse);
+    }
+
+    /**
+     * Constitution de la réponse en redirigeant la réponse du WS ansi que son code réponse
+     */
+    public static void constituerReponse(HttpServletResponse response, String filename, UUID uuid, Integer accessId, HttpResponse postResponse) throws IOException {
+        response.setContentType(MediaType.APPLICATION_JSON);
+        int statusCode = postResponse.getStatusLine().getStatusCode();
+        response.setStatus(statusCode);
+        if (statusCode == HttpServletResponse.SC_OK || statusCode == HttpServletResponse.SC_CREATED) {
+            // Si tout s'est bien passé, alors on forme une réponse différente que celle qui nous est retournée par FILE
+            ObjectMapper mapper = new ObjectMapper();
+            // Répondre accessId/uuid/nomDuFichier
+            FileUploadResponseDTO responseObj = new FileUploadResponseDTO(accessId + SLASH + uuid + SLASH + filename);
+            String responseStr = mapper.writeValueAsString(responseObj);
+            response.getOutputStream().write(responseStr.getBytes());
+        } else {
+            LOGGER.error("Status code : {}", statusCode);
+            // S'il y a eu un problème, alors on retourne le message d'erreur au client
+            IOUtils.copy(postResponse.getEntity().getContent(), response.getOutputStream());
+        }
+    }
+
+    /**
+     * Renseigne le demandeId dans la requête de création du fichier s'il est déjà connu
+     */
+    public static void extraireDemandeId(HttpPost postRequest, HttpServletRequest request) {
+        String demandeId = null;
+        Enumeration<String> headers = request.getHeaderNames();
+        while (headers.hasMoreElements()) {
+            String headerName = headers.nextElement();
+            if (headerName.startsWith(AppFactoryServletUtils.FILE_METADATA_DEMANDEID)) {
+                demandeId = request.getHeader(headerName);
+            }
+        }
+        if (demandeId != null) {
+            postRequest.setHeader(AppFactoryServletUtils.FILE_METADATA_DEMANDEID, demandeId);
+        }
+    }
+
+    /**
+     * Permet de parser le nom du fichier depuis le Path Info de la requête
+     */
+    public static String getFilename(String pathInfo) {
+        String filename = null;
+        if (pathInfo != null && pathInfo.length() > 1) {
+            filename = pathInfo.split(SLASH)[1];
+        }
+        return filename;
+    }
+
+    public static URI generateFileUrl(ServletContext servletContext, UUID uuid, Integer accessId, String filename) throws URISyntaxException {
+        String accountId = servletContext.getInitParameter(AppFactoryServletUtils.DEMARCHEID_KEY);
+        String containerId = servletContext.getInitParameter(AppFactoryServletUtils.CONTAINER_KEY);
+
+        LOGGER.debug("accountId = {}, containerId = {}", accountId, containerId);
+
+        // Constitution du chemin virtuel du fichier
+        // /appfactory/demarcheId/accessId/UUID/nomDuFichier
+        String virtualPath = SLASH + accountId + SLASH + containerId + SLASH + accessId + SLASH + uuid + SLASH + URLEncoder.encode(filename, StandardCharsets.UTF_8);
+        LOGGER.info("Chemin virtuel : {}", virtualPath);
+
+        // Constitution de l'URL d'appel
+        return new URI(AfServletGouvPropertiesResolver.getFileUrl() + virtualPath);
     }
 }

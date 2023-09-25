@@ -53,7 +53,7 @@ public class DocHolderSearchServlet extends AbstractAfServlet {
             return;
         }
 
-        // Si aucun opérateur n'est donnée, on utilise AND par défaut
+        // Si aucun opérateur n'est donné, on utilise AND par défaut
         if (fileSearchDTO.getOperator() == null) {
             fileSearchDTO.setOperator(DocHolderFileSearchDTO.OperatorEnum.AND);
         }

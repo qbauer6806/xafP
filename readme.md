@@ -32,42 +32,6 @@ INSERT INTO LOGDOMC.DEM_PROPERTIES (fk_demarcheid, type, key, descriptif, value)
 INSERT INTO LOGDOMC.DEM_PROPERTIES (fk_demarcheid, type, key, descriptif, value) VALUES ('LOGDOMC', 'FRONT_AF', 'XAF_ULIS_DOWNLOAD', 'logdomc: recevoir les données depuis Ulis à l''initialisation d''une demande', 'false');
 ```
 
-# Resid usager v2
-
-## Fonction de surlignage de données dans le recap
-
-Au cours de l'implémentation de RESCART un besoin a été soulevé pour souligner en gras des champs dans le recap BO d'une demande.
-
-Afin d'en faire bénéficier tous les téléservices une méthode à Overrider à été ajouté dans le service DemarchesDataProvider. 
-
-Cette méthode, getSpansIdAMarquer(DemandeDTO demande) retourne une liste de String, ces String étant l'id du span à souligner. Un exemple d'implémentation adapté à RESCART est décrit ci dessous
-
-```java
-@Override
-	public List<String> getSpansIdAMarquer(DemandeDTO demande) {
-		List<String> result = new ArrayList<>();
-		if(rescartUtils.isRenouvellementOuChangement(demande)) {
-			result.add("donneeIdentiteNom");
-			result.add("donneeIdentitePrenoms");
-			result.add("donneeIdentiteNomusage");
-			result.add("donneeIdentiteSexe");
-			result.add("donneeIdentiteDatenaissance");
-			result.add("donneeIdentiteLieunaissanceville");
-			result.add("donneeIdentitePaysnaissance");
-			result.add("donneeIdentiteNationalite");
-			result.add("donneeIdentiteTypedocument");
-			result.add("donneeIdentiteCin");
-			result.add("donneeIdentiteDatedevalidite");
-			result.add("donneeIdentitePaysdelivrancepiece");
-			result.add("donneeIdentiteAutrenationalite");
-			result.add("donneeIdentiteDatedelivraison");
-		}
-		return result;
-	}
-```
-
-Si cette fonctionnalitée n'est pas utile dans un autre TS une méthode par défaut a été implémenté dans l'interface retournant une liste vide.
-
 # Backlog #47828
 
 Dans la méthode {TsCode}ApiServiceImpl.creerDemande dans le catch en cas d'exception il faut ajouter à la méthode de suppression un booléen indiquant si un brouillon est présent ou non. S'il l'est (booléen à true) alors les fichiers rattaché à ce brouillon ne seront pas supprimé dans file.

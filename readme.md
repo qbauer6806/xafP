@@ -67,3 +67,7 @@ Cette méthode, getSpansIdAMarquer(DemandeDTO demande) retourne une liste de Str
 ```
 
 Si cette fonctionnalitée n'est pas utile dans un autre TS une méthode par défaut a été implémenté dans l'interface retournant une liste vide.
+
+# Backlog #47828
+
+Dans la méthode {TsCode}ApiServiceImpl.creerDemande dans le catch en cas d'exception il faut ajouter à la méthode de suppression un booléen indiquant si un brouillon est présent ou non. S'il l'est (booléen à true) alors les fichiers rattaché à ce brouillon ne seront pas supprimé dans file.

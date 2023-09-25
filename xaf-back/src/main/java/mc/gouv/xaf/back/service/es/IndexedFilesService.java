@@ -68,8 +68,9 @@ public interface IndexedFilesService {
     /**
      * Méthode permettant d'indexer les pieces jointes
      *
-     * @param demandeFileEsDTOs Liste des DTOs de la piece jointe
-     * @return Liste des DTOs de la piece jointe
+     * @param demandeFileEsDTOs Liste des Fichiers DTOs à indexer
+     * @return Liste des fichiers indexées
+     * @throws IOException   Exception I/O
      */
     List<DemandeFileEsDTO> indexFiles(List<DemandeFileEsDTO> demandeFileEsDTOs) throws IOException;
 
@@ -78,6 +79,7 @@ public interface IndexedFilesService {
      *
      * @param files   Liste des fichiers à remplir
      * @param demande Demande concernée
+     * @throws IOException   Exception I/O
      */
     void fillFilesList(List<DemandeFileEsDTO> files, DemandeBO demande) throws IOException;
 
@@ -86,6 +88,9 @@ public interface IndexedFilesService {
      *
      * @param files   Liste des fichiers à remplir
      * @param demande Demande concernée
+     * @throws IOException   Exception I/O
      */
     void fillFilesList(List<DemandeFileEsDTO> files, DemandeDTO demande) throws IOException;
+
+    void indexFilesForListDemande(List<DemandeBO> demandes) throws IOException;
 }

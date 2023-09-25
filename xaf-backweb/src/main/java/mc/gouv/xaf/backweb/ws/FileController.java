@@ -1,28 +1,13 @@
 package mc.gouv.xaf.backweb.ws;
 
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
-
-import javax.imageio.ImageIO;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.DemarchesDataProvider;
+import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.back.service.itg.file.FileService;
+import mc.gouv.xaf.back.service.utils.FileUtils;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeFileDTO;
+import mc.gouv.xboot.config.web.annotation.GouvRestController;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
@@ -50,27 +35,39 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.multipart.MultipartFile;
 
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.DemarchesDataProvider;
-import mc.gouv.xaf.back.service.data.DemandesService;
-import mc.gouv.xaf.back.service.itg.file.FileService;
-import mc.gouv.xaf.back.service.utils.FileUtils;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.xaf.shared.dto.DemandeFileDTO;
-import mc.gouv.xboot.config.web.annotation.GouvRestController;
+import javax.imageio.ImageIO;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
- * 
+ *
  * Proxy permettant d'accéder au service FILE depuis la démarche
- * 
+ *
  * @author qdeme
  *
  */
 @GouvRestController
 @RequestMapping("/ws/file")
 public class FileController {
-
-	private static final String UTF_8 = "UTF-8";
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(FileController.class);
 
@@ -91,7 +88,6 @@ public class FileController {
 	@GetMapping(value = "/get/**")
 	@ResponseStatus(HttpStatus.OK) // 200
 	public void getFile(HttpServletRequest request, HttpServletResponse response) throws IOException {
-
 		LOGGER.info("====================== getFile()");
 
 		// Bugfix #41714 - Modification de la façon de récupération du chemin du fichier, suite à la migration Java 11,
@@ -102,9 +98,7 @@ public class FileController {
 
 		// Bugfix #16805: encodage des noms des fichiers avec caractères spéciaux
 		String filePathEncoded = URLEncoder.encode(file, UTF_8);
-
 		fileService.getFile(filePathEncoded, gouvPropertiesResolver.getContainerId(), response);
-
 		LOGGER.info("====================== getFile() terminé, retour au client...");
 	}
 
@@ -125,12 +119,14 @@ public class FileController {
 		// Création du dossier temporaire qui contiendra le zip final
 		Path tmp = Files.createTempDirectory("tmp");
 		tmp.toFile().deleteOnExit();
-		List<File> filesToZip = getFilesToInclude(fileType, fichiers, tmp.toFile());
-		createZipFile(filesToZip, tmp.toFile(), fileName);
 
+		// on crée le fichier de sortie
+		File destination = this.createFileDestination(tmp.toFile(), fileName);
+		List<File> filesToZip = getFilesToInclude(fileType, fichiers, tmp.toFile());
+		createZipFile(filesToZip, destination);
 		// Préparation de la requête
 		HttpHeaders headers = setHeaders(fileName);
-		InputStreamResource isr = setInputStream(fileName, tmp);
+		InputStreamResource isr = setInputStream(destination);
 		return new ResponseEntity<>(isr, headers, HttpStatus.OK);
 	}
 
@@ -151,35 +147,33 @@ public class FileController {
 		// Création du dossier temporaire qui contiendra le zip final
 		Path tmp = Files.createTempDirectory("tmp");
 		tmp.toFile().deleteOnExit();
+
+		File destination = this.createFileDestination(tmp.toFile(), fileName);
 		List<File> filesToZip = getFilesToInclude(fileType, fichiers, tmp.toFile());
-		constructPdf(tmp.toFile(), filesToZip, fileName);
+		constructPdf(filesToZip, destination);
 
 		HttpHeaders headers = setHeaders(fileName);
-		InputStreamResource isr = setInputStream(fileName, tmp);
+		InputStreamResource isr = setInputStream(destination);
 		return new ResponseEntity<>(isr, headers, HttpStatus.OK);
 	}
 
 	/**
 	 * Méthode en charge de créer un InputStreamResource (et de redéfinir le comportement du close). Cet ISR sera le
 	 * fichier PDF renvoyée en réponse à la requête
-	 * 
-	 * @param fileName
-	 *            : Nom du fichier retourné par la requête
-	 * @param tmp
-	 *            : Localisation du dossier temporaire qui sera supprimé une fois la requête terminée
+	 *
+	 * @param destination
+	 *            : le fichier retourné par la requête
 	 * @return : L'input stream resource utilisé dans la requête
-	 * @throws FileNotFoundException
 	 */
-	private InputStreamResource setInputStream(String fileName, Path tmp) throws FileNotFoundException {
-		File result = new File(tmp.toAbsolutePath().toString(), fileName);
-		return new InputStreamResource(new FileInputStream(result) {
+	private InputStreamResource setInputStream(File destination) throws IOException {
+		return new InputStreamResource(new FileInputStream(destination) {
 
 			// Ici on override le close classique afin de pouvoir supprimer les fichiers
 			// générés à la volée une fois la requête terminée (ie la réponse renvoyée)
 			@Override
 			public void close() throws IOException {
 				super.close();
-				org.apache.commons.io.FileUtils.deleteDirectory(tmp.toFile());
+				org.apache.commons.io.FileUtils.deleteDirectory(destination.getParentFile());
 			}
 		});
 	}
@@ -192,9 +186,9 @@ public class FileController {
 		return headers;
 	}
 
-	private void constructPdf(File dest, List<File> files, String pdfName) throws IOException {
+	private void constructPdf(List<File> files, File destination) throws IOException {
 		PDFMergerUtility pdfMerger = new PDFMergerUtility();
-		pdfMerger.setDestinationFileName(dest.getAbsolutePath() + "/" + pdfName);
+		pdfMerger.setDestinationFileName(destination.getAbsolutePath());
 		try (PDDocument doc = new PDDocument()) {
 			for (File file : files) {
 				if (!file.getAbsolutePath().toLowerCase().endsWith(".pdf")) {
@@ -203,8 +197,9 @@ public class FileController {
 					pdfMerger.addSource(file);
 				}
 			}
-			doc.save(dest.getAbsolutePath() + "/JpegToPdfFile.pdf");
-			pdfMerger.addSource(new File(dest.getAbsolutePath() + "/JpegToPdfFile.pdf"));
+			File parentFile = destination.getParentFile();
+			doc.save(parentFile.getAbsolutePath() + "/JpegToPdfFile.pdf");
+			pdfMerger.addSource(new File(parentFile.getAbsolutePath() + "/JpegToPdfFile.pdf"));
 			pdfMerger.mergeDocuments(null);
 		}
 	}
@@ -241,18 +236,12 @@ public class FileController {
 				contentStream.restoreGraphicsState();
 			}
 		} catch (IOException | NullPointerException e) {
-			e.printStackTrace();
+			LOGGER.error("Erreur FileController - copyFileInDestination", e);
 		}
 	}
 
 	/**
 	 * Méthode permettant de récupérer les fichiers à zipper en fonction du bouton cliqué
-	 * 
-	 * @param fileType
-	 * @param fichiers
-	 * @param tmp
-	 * @return
-	 * @throws IOException
 	 */
 	private List<File> getFilesToInclude(String fileType, List<DemandeFileDTO> fichiers, File tmp) throws IOException {
 		List<File> result = new ArrayList<>();
@@ -283,11 +272,11 @@ public class FileController {
 		return result;
 	}
 
-	private void createZipFile(List<File> filesToZip, File tmp, String fileName) throws IOException {
+	private void createZipFile(List<File> filesToZip, File destination) throws IOException {
 		byte[] buffer = new byte[1024];
+
 		// creation du fichier ZIP
-		FileOutputStream fos = new FileOutputStream(tmp.getAbsolutePath() + "/" + fileName);
-		try (ZipOutputStream zos = new ZipOutputStream(fos)) {
+		try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(destination))) {
 			for (File currentFile : filesToZip) {
 				try (FileInputStream fis = new FileInputStream(currentFile)) {
 					zos.putNextEntry(new ZipEntry(currentFile.getName()));
@@ -299,6 +288,23 @@ public class FileController {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Permets de créer le fichier de sortie à partir du répertoire de temp
+	 *
+	 * @param fileName le nom du fichier à créer
+	 * @param tmp le répertoire qui contiendra le fichier créé
+	 * @return : le fichier créé
+	 * @throws IOException
+	 */
+	private File createFileDestination(File tmp, String fileName) throws IOException {
+		String parent = tmp.getAbsolutePath();
+		File file = new File(parent + File.separator + fileName);
+		if (!file.getCanonicalPath().startsWith(parent)) {
+			throw new IOException(String.format("L'entrée %s est en dehors du répertoire cible", fileName));
+		}
+		return file;
 	}
 
 	private void copyInputStreamToFile(InputStream inputStream, File file) throws IOException {
@@ -335,40 +341,51 @@ public class FileController {
 	}
 
 	/**
-	 * Appelle FILE afin de sauvegarder différents fichiers contenus dans la request MultiPart Retourne une Map
-	 * correspondant aux fichiers (fileName, fileUrl)
-	 * 
-	 * @param usagerId
-	 * @param request
-	 * @param response
-	 * @return
-	 * @throws Exception
+	 * Appelle FILE afin de sauvegarder différents fichiers contenus dans la request
+	 * MultiPart Retourne une Map correspondant aux fichiers (fileName, fileUrl)
 	 */
-	public Map<String, String> saveFiles(Integer demandeId, MultipartFile[] files, HttpServletResponse response,
-			Integer pkDemande) throws Exception {
-
+	public Map<String, String> saveFiles(Integer demandeId, MultipartFile[] files, HttpServletResponse response) throws IOException {
 		LOGGER.info("====================== saveFiles()");
 		LOGGER.info("Appel de DEM afin de récupérer la demande pour le calcul...");
-
 		DemandeDTO demande = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), demandeId);
-
 		Map<String, String> fileNames = new HashMap<>();
-
 		for (MultipartFile file : files) {
-			if (!StringUtils.isBlank(file.getOriginalFilename())) {
+			if (StringUtils.isNotBlank(file.getOriginalFilename())) {
 				LOGGER.info("Part à traiter : {}", file.getOriginalFilename());
-
 				LOGGER.info("Appel au FileService...");
 				String filename = fileService.saveFile(demande, gouvPropertiesResolver.getContainerId(), file,
 						response);
 
 				// #41757 - On décode de l'url du fichier pour qu'il soit affiché en clair dans le FO
-				fileNames.put(file.getOriginalFilename(), URLDecoder.decode(filename, StandardCharsets.UTF_8));
+				fileNames.put(file.getOriginalFilename(), URLDecoder.decode(filename, UTF_8));
+			}
+		}
+		LOGGER.info("====================== saveFiles() terminé, retour au client...");
+		return fileNames;
+	}
+
+	/**
+	 * Appelle FILE afin de sauvegarder différents fichiers liées à une publication
+	 */
+	public String saveFilesPublication(String codePublication, MultipartFile[] files) throws IOException {
+
+		LOGGER.info("====================== saveFiles()");
+		LOGGER.info("Appel de DEM afin de récupérer la demande pour le calcul...");
+
+		for (MultipartFile file : files) {
+			if (StringUtils.isNotBlank(file.getOriginalFilename())) {
+				LOGGER.info("Part à traiter : {}", file.getOriginalFilename());
+
+				LOGGER.info("Appel au FileService...");
+				String filename = fileService.saveFilePublication(codePublication, gouvPropertiesResolver.getContainerId(), file);
+
+				// #41757 - On décode de l'url du fichier pour qu'il soit affiché en clair dans le FO
+				return URLDecoder.decode(filename, StandardCharsets.UTF_8);
 			}
 		}
 
 		LOGGER.info("====================== saveFiles() terminé, retour au client...");
 
-		return fileNames;
+		return null;
 	}
 }

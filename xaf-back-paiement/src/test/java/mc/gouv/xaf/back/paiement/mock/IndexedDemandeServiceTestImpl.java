@@ -97,7 +97,12 @@ public class IndexedDemandeServiceTestImpl implements IndexedDemandeService {
     }
 
     @Override
-    public DemandeDTO updateDemande(DemandeDTO demande, boolean partialUpdate) throws IOException, SAXException {
+    public DemandeDTO updateDemande(DemandeDTO demande, boolean partialUpdate) {
+        return updateDemande(demande, partialUpdate, true);
+    }
+
+    @Override
+    public DemandeDTO updateDemande(DemandeDTO demande, boolean partialUpdate, boolean checkActive) {
         return null;
     }
 
@@ -153,11 +158,6 @@ public class IndexedDemandeServiceTestImpl implements IndexedDemandeService {
 
     @Override
     public DemandeDTO changerAffectationDemande(String demarcheId, int pkDemande, String agentAffecteId) {
-        return null;
-    }
-
-    @Override
-    public DemandeBO getDemandeBo(String demarcheId, Integer pkDemandes) {
         return null;
     }
 
@@ -232,7 +232,7 @@ public class IndexedDemandeServiceTestImpl implements IndexedDemandeService {
     }
 
     @Override
-    public void indexDemande(String demarcheId, Integer demandeId) throws IOException, SAXException, TikaException {
+    public void indexDemande(String demarcheId, Integer demandeId) {
 
     }
 
@@ -242,8 +242,23 @@ public class IndexedDemandeServiceTestImpl implements IndexedDemandeService {
     }
 
     @Override
+    public void indexElements(List<DemandeDTO> demandes) {
+
+    }
+
+    @Override
     public List<DemandeEsDTO> getIndexedDemandes(DemandeRechercheDTO demandeRecherche) {
         return null;
+    }
+
+    @Override
+    public List<DemandeEsDTO> getIndexedDemandesPageable(DemandeRechercheDTO demandeRecherche, Pageable pageable) {
+        return null;
+    }
+
+    @Override
+    public long getCountIndexedDemandes(DemandeRechercheDTO demandeRecherche) {
+        return 0;
     }
 
     @Override
@@ -271,9 +286,15 @@ public class IndexedDemandeServiceTestImpl implements IndexedDemandeService {
 
     }
 
-	@Override
-	public List<String> getAllBuildIds() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public List<String> getAllBuildIds() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Long reindexDemandesCourrier() throws IOException {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }

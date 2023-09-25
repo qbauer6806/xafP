@@ -16,6 +16,8 @@ import mc.gouv.xaf.shared.dto.DemandeFileDTO;
  */
 public class DemandesComplementsFilesTransformer {
 
+    private DemandesComplementsFilesTransformer() {}
+
     public static DemandeComplementsFileDTO bo2Dto(DemandesComplementsFilesBO bo) {
         DemandeComplementsFileDTO dto = new DemandeComplementsFileDTO();
         dto.setPkDemandesComplementsFiles(bo.getPkDemandesComplementsFiles());
@@ -52,9 +54,6 @@ public class DemandesComplementsFilesTransformer {
 
     /**
      * L'entité retournée est à rattacher à un DemandeComplementsBO après l'appel à cette fonction
-     * 
-     * @param dto
-     * @return
      */
     public static DemandesComplementsFilesBO dto2Bo(DemandeComplementsFileDTO dto) {
         DemandesComplementsFilesBO bo = new DemandesComplementsFilesBO();

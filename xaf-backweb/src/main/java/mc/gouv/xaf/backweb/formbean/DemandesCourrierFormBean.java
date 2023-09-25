@@ -24,6 +24,7 @@ public class DemandesCourrierFormBean {
 
     @NotEmpty
 	private String langue;
+	private String duplicationKeyId;
 
 	public Integer getUsagerId() {
 		return usagerId;
@@ -64,5 +65,13 @@ public class DemandesCourrierFormBean {
 	public void setLangue(String langue) {
 		this.langue = langue;
 	}
+	
+	    public String getDuplicationKeyId() {
+        return duplicationKeyId;
+    }
+
+    public void setDuplicationKeyId(String duplicationKeyId) {
+        this.duplicationKeyId = duplicationKeyId;
+    }
 
 }

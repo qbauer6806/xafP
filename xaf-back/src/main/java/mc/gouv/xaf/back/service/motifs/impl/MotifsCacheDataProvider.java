@@ -24,7 +24,7 @@ public class MotifsCacheDataProvider implements GouvCacheDataProvider<Integer, M
 
     @Override
     public ConcurrentHashMap<Integer, MotifDTO> getAll() {
-        ConcurrentHashMap<Integer, MotifDTO> ret = new ConcurrentHashMap<Integer, MotifDTO>();
+        ConcurrentHashMap<Integer, MotifDTO> ret = new ConcurrentHashMap<>();
         List<MotifDTO> motifs = motifsService.getMotifs(gouvPropertiesResolver.getDemarcheId());
         for (MotifDTO motif : motifs) {
             ret.put(motif.getPkMotifs(), motif);

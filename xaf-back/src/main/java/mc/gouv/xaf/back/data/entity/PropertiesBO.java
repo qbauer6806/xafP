@@ -27,7 +27,7 @@ public class PropertiesBO {
     @Size(min = 1, max = 256)
     private String type;
 
-    @Column(name = "KEY", length = 256, nullable = false)
+    @Column(name = "\"KEY\"", length = 256, nullable = false)
     @NotEmpty
     @Size(min = 1, max = 256)
     private String key;
@@ -36,7 +36,7 @@ public class PropertiesBO {
     @Size(min = 0, max = 256)
     private String descriptif;
 
-    @Column(name = "VALUE", columnDefinition = "TEXT")
+    @Column(name = "\"VALUE\"", columnDefinition = "TEXT")
     private String value;
 
     public Integer getPkProperties() {

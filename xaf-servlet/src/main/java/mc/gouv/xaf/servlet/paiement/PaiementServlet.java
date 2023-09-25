@@ -6,6 +6,7 @@ import mc.gouv.xaf.apiclient.paiement.PaiementApiClient;
 import mc.gouv.xaf.servlet.AbstractAfServlet;
 import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
+import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.itg.monetico.MoneticoResponseDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
@@ -64,8 +65,12 @@ public class PaiementServlet extends AbstractAfServlet {
             ObjectMapper mapper = new ObjectMapper();
             ObjectNode paiementNode = mapper.createObjectNode();
             for (Map.Entry<String, String[]> entry : request.getParameterMap().entrySet()) {
-                paiementNode.put(entry.getKey().toLowerCase(), entry.getValue()[0]);
-                LOGGER.info("{}={}",entry.getKey().toLowerCase(), entry.getValue()[0]);
+                String key = entry.getKey().toLowerCase();
+                String value = entry.getValue()[0];
+                paiementNode.put(key, value);
+                String safeKey = key.replaceAll(SharedMessages.UNSAFE_CHARS, "_");
+                String safeValue = value.replaceAll(SharedMessages.UNSAFE_CHARS, "_");
+                LOGGER.info("{}={}", safeKey, safeValue);
             }
             MoneticoResponseDTO moneticoResponseDTO = mapper.treeToValue(paiementNode, MoneticoResponseDTO.class);
             moneticoResponseDTO.setCodeRetour(codeRetour);

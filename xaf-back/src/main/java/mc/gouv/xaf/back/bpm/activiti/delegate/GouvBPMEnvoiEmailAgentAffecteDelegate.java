@@ -2,6 +2,7 @@ package mc.gouv.xaf.back.bpm.activiti.delegate;
 
 import java.util.Map;
 
+import mc.gouv.xaf.shared.enums.MailAudienceEnum;
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.delegate.JavaDelegate;
 import org.activiti.engine.impl.el.Expression;
@@ -69,8 +70,8 @@ public class GouvBPMEnvoiEmailAgentAffecteDelegate implements JavaDelegate {
         	copieAuServiceStr = (String) copieAuService.getValue(execution);
         }
         
-        LOGGER.info("bodyTemplateCode : " + bodyTemplateCode);
-        LOGGER.info("subjectTemplateCode : " + subjectTemplateCode);
+        LOGGER.info("bodyTemplateCode : {}", bodyTemplateCode);
+        LOGGER.info("subjectTemplateCode : {}", subjectTemplateCode);
         
         EmailInfoDTO emailInfo = new EmailInfoDTO();
         emailInfo.setBodyTemplateCode(bodyTemplateCode);
@@ -83,7 +84,7 @@ public class GouvBPMEnvoiEmailAgentAffecteDelegate implements JavaDelegate {
         // Récupérer l'adresse email de l'agent affecté à la demande
         String agentId = (String) execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_ASSIGNEE.name());
         User agent = utilisateursCache.get(agentId);
-        LOGGER.info("Adresse / Nom de l'agent affecté à la demande : " + agent.getMail() + " / " + agent.getNom());
+        LOGGER.info("Adresse / Nom de l'agent affecté à la demande : {} / {}", agent.getMail(), agent.getNom());
         emailInfo.addTo(agent.getMail(), agent.getNom());
         
         if (copieAuServiceStr != null && "true".equals(copieAuServiceStr)) {
@@ -105,13 +106,12 @@ public class GouvBPMEnvoiEmailAgentAffecteDelegate implements JavaDelegate {
             Map<String,Object> model = mailTemplateModelProvider.getModel(subjectTemplateCode, bodyTemplateCode, demande, execution.getVariables(), codeMotif, commentaire);
     
             try {
-                mailService.sendMail(emailInfo, model);
+                mailService.sendMail(emailInfo, model, MailAudienceEnum.AGENT);
             } catch (Exception e) {
                 LOGGER.error("Erreur lors de l'envoi de l'email", e);
             }
-        }
-        else {
-            LOGGER.warn("Attention : l'utilisateur " + agent.getMatricule() + " n'a pas d'adresse email associée. Pas d'envoi d'email.");
+        } else {
+            LOGGER.warn("Attention : l'utilisateur {} n'a pas d'adresse email associée. Pas d'envoi d'email.", agent.getMatricule());
         }
         
         LOGGER.info("==== xaf-back ENVOI EMAIL AGENT AFFECTÉ <fin>");

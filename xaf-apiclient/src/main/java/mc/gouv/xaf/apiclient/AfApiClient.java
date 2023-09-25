@@ -1,13 +1,18 @@
 package mc.gouv.xaf.apiclient;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import mc.gouv.xaf.shared.RequestConstant;
 import org.glassfish.jersey.media.multipart.internal.MultiPartWriter;
 
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
@@ -61,17 +66,18 @@ public class AfApiClient extends ApiClient {
     }
 
     public void annulerDemande(Integer demandeId, Integer usagerId) {
-        Response res = getTarget().path("demandes/" + demandeId + "/annuler").queryParam("usagerId", usagerId)
+        Response res = getTarget().path(RequestConstant.DEMANDES_PATH + '/' + demandeId + "/annuler")
+                .queryParam(RequestConstant.USAGERID_PARAM, usagerId)
                 .request(MediaType.APPLICATION_JSON)
-                .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue()).put(Entity.text(""));
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue()).put(Entity.text(""));
 
         ExceptionManager.checkExceptionResponse(res);
-
     }
 
     public DemandeDTO creerDemande(DemandeInputDTO demande, Integer usagerId) {
-        Response res = getTarget().path("demandes").queryParam("usagerId", usagerId).request(MediaType.APPLICATION_JSON)
-                .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue())
+        Response res = getTarget().path(RequestConstant.DEMANDES_PATH)
+                .queryParam(RequestConstant.USAGERID_PARAM, usagerId).request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
                 .post(Entity.entity(demande, MediaType.APPLICATION_JSON));
 
         ExceptionManager.checkExceptionResponse(res);
@@ -80,7 +86,9 @@ public class AfApiClient extends ApiClient {
     }
     
     public DemandeDTO updateDemande(Integer demandeId, DemandeInputDTO demande, Integer usagerId) {
-        Response res = getTarget().path("demandes/" + demandeId).queryParam("usagerId", usagerId).request(MediaType.APPLICATION_JSON)
+        Response res = getTarget().path("demandes/" + demandeId)
+                .queryParam(RequestConstant.USAGERID_PARAM, usagerId)
+                .request(MediaType.APPLICATION_JSON)
                 .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue())
                 .put(Entity.entity(demande, MediaType.APPLICATION_JSON));
 
@@ -89,11 +97,34 @@ public class AfApiClient extends ApiClient {
         return res.readEntity(DemandeDTO.class);
     }
 
+    public DemandeDTO lockDemande(Integer demandeId, Integer usagerId, Long timestamp) {
+        Response res = getTarget().path("demandes/" + demandeId + "/lock")
+                .queryParam(RequestConstant.USAGERID_PARAM, usagerId)
+                .queryParam(RequestConstant.TIMESTAMP_MODIFICATION, timestamp).request(MediaType.APPLICATION_JSON)
+                .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue())
+                .put(Entity.entity("", MediaType.APPLICATION_JSON));
+
+        ExceptionManager.checkExceptionResponse(res);
+
+        return res.readEntity(DemandeDTO.class);
+    }
+
+    public DemandeDTO unlockDemande(Integer demandeId, Integer usagerId) {
+        Response res = getTarget().path("demandes/" + demandeId + "/unlock")
+                .queryParam(RequestConstant.USAGERID_PARAM, usagerId).request(MediaType.APPLICATION_JSON)
+                .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue())
+                .put(Entity.entity("", MediaType.APPLICATION_JSON));
+
+        ExceptionManager.checkExceptionResponse(res);
+
+        return res.readEntity(DemandeDTO.class);
+    }
+
     public DemandeComplementsDTO repondreDemandeComplements(Integer demandeId, Integer icId,
                                                             DemandeComplementsReponseDTO reponse) {
-        Response res = getTarget().path("demandes/" + demandeId + "/complements/" + icId)
+        Response res = getTarget().path(RequestConstant.DEMANDES_PATH + '/' + demandeId + "/complements/" + icId)
                 .request(MediaType.APPLICATION_JSON)
-                .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue())
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
                 .put(Entity.entity(reponse, MediaType.APPLICATION_JSON));
 
         ExceptionManager.checkExceptionResponse(res);
@@ -102,9 +133,9 @@ public class AfApiClient extends ApiClient {
     }
 
     public DemandeDTO getDemande(Integer usagerId, Integer demandeId) {
-        Response res = getTarget().path("/usagers/" + usagerId + "/demandes/" + demandeId)
+        Response res = getTarget().path("/usagers/" + usagerId + '/' + RequestConstant.DEMANDES_PATH + '/' + demandeId)
                 .request(MediaType.APPLICATION_JSON)
-                .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue()).get();
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue()).get();
 
         ExceptionManager.checkExceptionResponse(res);
 
@@ -112,8 +143,10 @@ public class AfApiClient extends ApiClient {
     }
 
     public List<DemandeDTO> getDemandes(Integer usagerId) {
-        Response res = getTarget().path("demandes").queryParam("usagerId", usagerId).request(MediaType.APPLICATION_JSON)
-                .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue()).get();
+        Response res = getTarget().path(RequestConstant.DEMANDES_PATH)
+                .queryParam(RequestConstant.USAGERID_PARAM, usagerId)
+                .request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue()).get();
 
         ExceptionManager.checkExceptionResponse(res);
 
@@ -122,19 +155,25 @@ public class AfApiClient extends ApiClient {
     }
 
     public Page<DemandeDTO> getDemandesPageable(Integer usagerId, PageParamDTO paramDTO) {
-        Response res = getTarget().path("demandespage").queryParam("usagerId", usagerId).queryParam("page", paramDTO.getPage())
-                .queryParam("size", paramDTO.getSize()).queryParam("sort", paramDTO.getSort()).queryParam("direction", paramDTO.getDirection())
-                .queryParam("status", paramDTO.getStatus()).queryParam("lang", paramDTO.getLang())
-                .request(MediaType.APPLICATION_JSON).header("Authorization", getAuthorizationHeaderProvider().getHeaderValue()).get();
+        Response res = getTarget().path("demandespage")
+                .queryParam(RequestConstant.USAGERID_PARAM, usagerId)
+                .queryParam("page", paramDTO.getPage())
+                .queryParam("size", paramDTO.getSize())
+                .queryParam("sort", paramDTO.getSort())
+                .queryParam("direction", paramDTO.getDirection())
+                .queryParam("status", paramDTO.getStatus())
+                .queryParam("lang", paramDTO.getLang())
+                .request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue()).get();
         ExceptionManager.checkExceptionResponse(res);
         return res.readEntity(new GenericType<Page<DemandeDTO>>() {
         });
     }
 
     public DemandeComplementsDTO getDemandeComplements(Integer demandeId, Integer icId) {
-        Response res = getTarget().path("demandes/" + demandeId + "/complements/" + icId)
+        Response res = getTarget().path(RequestConstant.DEMANDES_PATH + '/' + demandeId + "/complements/" + icId)
                 .request(MediaType.APPLICATION_JSON)
-                .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue()).get();
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue()).get();
 
         ExceptionManager.checkExceptionResponse(res);
 
@@ -142,8 +181,9 @@ public class AfApiClient extends ApiClient {
     }
 
     public List<DemandeComplementsDTO> getDemandesComplements(Integer demandeId) {
-        Response res = getTarget().path("demandes/" + demandeId + "/complements").request(MediaType.APPLICATION_JSON)
-                .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue()).get();
+        Response res = getTarget().path(RequestConstant.DEMANDES_PATH + '/' + demandeId + "/complements")
+                .request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue()).get();
 
         ExceptionManager.checkExceptionResponse(res);
 
@@ -152,10 +192,12 @@ public class AfApiClient extends ApiClient {
     }
 
     public DemandeDTO associerDemandeCourrier(String identifiantDemande, String nomProprio, Integer usagerId) {
-        Response res = getTarget().path("demandes/associerDemandeCourrier")
-                .queryParam("identifiantDemande", identifiantDemande).queryParam("nomProprio", nomProprio)
-                .queryParam("usagerId", usagerId).request(MediaType.APPLICATION_JSON)
-                .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue()).post(Entity.json(null));
+        Response res = getTarget().path(RequestConstant.DEMANDES_PATH + "/associerDemandeCourrier")
+                .queryParam("identifiantDemande", identifiantDemande)
+                .queryParam("nomProprio", nomProprio)
+                .queryParam(RequestConstant.USAGERID_PARAM, usagerId)
+                .request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue()).post(Entity.json(null));
 
         ExceptionManager.checkExceptionResponse(res);
 
@@ -163,16 +205,18 @@ public class AfApiClient extends ApiClient {
     }
 
     public void desinscriptionUsager(Integer usagerId, String langue) {
-        Response res = getTarget().path("/accesses/" + usagerId).queryParam("langue", langue)
+        Response res = getTarget().path('/' + RequestConstant.ACCESSES_PATH + '/' + usagerId)
+                .queryParam("langue", langue)
                 .request(MediaType.APPLICATION_JSON)
-                .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue()).delete();
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue()).delete();
 
         ExceptionManager.checkExceptionResponse(res);
     }
 
     public AccessDTO createOrUpdateAccess(Integer usagerId, AccessInputDTO dto) {
-        Response res = getTarget().path("/accesses/" + usagerId).request(MediaType.APPLICATION_JSON)
-                .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue())
+        Response res = getTarget().path('/' + RequestConstant.ACCESSES_PATH + '/' + usagerId)
+                .request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
                 .post(Entity.entity(dto, MediaType.APPLICATION_JSON));
 
         ExceptionManager.checkExceptionResponse(res);
@@ -181,8 +225,9 @@ public class AfApiClient extends ApiClient {
     }
 
     public AccessDTO getAccess(Integer usagerId) {
-        Response res = getTarget().path("/accesses/" + usagerId).request(MediaType.APPLICATION_JSON)
-                .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue()).get();
+        Response res = getTarget().path('/' + RequestConstant.ACCESSES_PATH + '/' + usagerId)
+                .request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue()).get();
 
         ExceptionManager.checkExceptionResponse(res);
 
@@ -190,8 +235,9 @@ public class AfApiClient extends ApiClient {
     }
 
     public UsagerCourrierDTO getUsagerCourrier(Integer usagerCourrierId) {
-        Response res = getTarget().path("/usagerscourrier/" + usagerCourrierId).request(MediaType.APPLICATION_JSON)
-                .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue()).get();
+        Response res = getTarget().path("/usagerscourrier/" + usagerCourrierId)
+                .request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue()).get();
 
         ExceptionManager.checkExceptionResponse(res);
 
@@ -199,8 +245,9 @@ public class AfApiClient extends ApiClient {
     }
 
     public List<MotifDTO> getMotifs() {
-        Response res = getTarget().path("/motifs").request(MediaType.APPLICATION_JSON)
-                .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue()).get();
+        Response res = getTarget().path("/motifs")
+                .request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue()).get();
 
         ExceptionManager.checkExceptionResponse(res);
 
@@ -209,8 +256,9 @@ public class AfApiClient extends ApiClient {
     }
 
     public List<PeriodeOuvertureDTO> getPeriodesOuverture() {
-        Response res = getTarget().path("/periodesouverture").request(MediaType.APPLICATION_JSON)
-                .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue()).get();
+        Response res = getTarget().path("/periodesouverture")
+                .request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue()).get();
 
         ExceptionManager.checkExceptionResponse(res);
 
@@ -218,9 +266,31 @@ public class AfApiClient extends ApiClient {
         });
     }
 
+    public JsonNode getDonneesExternes(Integer usagerId, Map<String, String[]> params) {
+
+        WebTarget webTarget = getTarget();
+        if (params != null)
+            for (Map.Entry<String, String[]> entry : params.entrySet()) {
+                if (entry.getValue() != null) {
+                    for (String str : entry.getValue())
+                        webTarget = webTarget.queryParam(entry.getKey(), str);
+                }
+            }
+
+        Response res = webTarget.path("/donneesexternes").queryParam(RequestConstant.USAGERID_PARAM, usagerId)
+                .request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue()).get();
+
+        ExceptionManager.checkExceptionResponse(res);
+
+        return res.readEntity(new GenericType<JsonNode>() {
+        });
+    }
+
     public List<PropertiesDTO> getFrontProperties() {
-        Response res = getTarget().path("/properties").request(MediaType.APPLICATION_JSON)
-                .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue()).get();
+        Response res = getTarget().path("/properties")
+                .request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue()).get();
 
         ExceptionManager.checkExceptionResponse(res);
 
@@ -229,8 +299,10 @@ public class AfApiClient extends ApiClient {
     }
     
     public BrouillonDTO creerBrouillon(BrouillonDTO brouillon, Integer usagerId) {
-        Response res = getTarget().path("brouillons").queryParam("usagerId", usagerId).request(MediaType.APPLICATION_JSON)
-                .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue())
+        Response res = getTarget().path(RequestConstant.BROUILLONS_PATH)
+                .queryParam(RequestConstant.USAGERID_PARAM, usagerId)
+                .request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
                 .post(Entity.entity(brouillon, MediaType.APPLICATION_JSON));
 
         ExceptionManager.checkExceptionResponse(res);
@@ -239,10 +311,10 @@ public class AfApiClient extends ApiClient {
     }
     
     public BrouillonDTO updateBrouillon(BrouillonDTO brouillon, Integer brouillonId, Integer usagerId) {
-        Response res = getTarget().path("brouillons/" + brouillonId)
-                .queryParam("usagerId", usagerId)
+        Response res = getTarget().path(RequestConstant.BROUILLONS_PATH + '/' + brouillonId)
+                .queryParam(RequestConstant.USAGERID_PARAM, usagerId)
                 .request(MediaType.APPLICATION_JSON)
-                .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue())
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
                 .put(Entity.entity(brouillon, MediaType.APPLICATION_JSON));
 
         ExceptionManager.checkExceptionResponse(res);
@@ -251,8 +323,10 @@ public class AfApiClient extends ApiClient {
     }
     
     public List<BrouillonDTO> getBrouillons(Integer usagerId) {
-        Response res = getTarget().path("brouillons").queryParam("usagerId", usagerId).request(MediaType.APPLICATION_JSON)
-                .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue()).get();
+        Response res = getTarget().path(RequestConstant.BROUILLONS_PATH)
+                .queryParam(RequestConstant.USAGERID_PARAM, usagerId)
+                .request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue()).get();
 
         ExceptionManager.checkExceptionResponse(res);
 
@@ -261,10 +335,10 @@ public class AfApiClient extends ApiClient {
     }
     
     public BrouillonDTO getBrouillon(Integer brouillonId, Integer usagerId) {
-        Response res = getTarget().path("/brouillons/" + brouillonId)
-                .queryParam("usagerId", usagerId)
+        Response res = getTarget().path('/' + RequestConstant.BROUILLONS_PATH + '/' + brouillonId)
+                .queryParam(RequestConstant.USAGERID_PARAM, usagerId)
                 .request(MediaType.APPLICATION_JSON)
-                .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue()).get();
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue()).get();
 
         ExceptionManager.checkExceptionResponse(res);
 
@@ -272,18 +346,23 @@ public class AfApiClient extends ApiClient {
     }
     
     public void deleteBrouillon(Integer brouillonId, Integer usagerId) {
-        Response res = getTarget().path("/brouillons/" + brouillonId)
-                .queryParam("usagerId", usagerId)
+        Response res = getTarget().path('/' + RequestConstant.BROUILLONS_PATH + '/' + brouillonId)
+                .queryParam(RequestConstant.USAGERID_PARAM, usagerId)
                 .request(MediaType.APPLICATION_JSON)
-                .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue()).delete();
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue()).delete();
 
         ExceptionManager.checkExceptionResponse(res);
     }
     
     public Page<BrouillonDTO> getBrouillonsPageable(Integer usagerId, PageParamDTO paramDTO) {
-        Response res = getTarget().path("brouillonspage").queryParam("usagerId", usagerId).queryParam("page", paramDTO.getPage())
-                .queryParam("size", paramDTO.getSize()).queryParam("sort", paramDTO.getSort()).queryParam("direction", paramDTO.getDirection())
-                .request(MediaType.APPLICATION_JSON).header("Authorization", getAuthorizationHeaderProvider().getHeaderValue()).get();
+        Response res = getTarget().path("brouillonspage")
+                .queryParam(RequestConstant.USAGERID_PARAM, usagerId)
+                .queryParam("page", paramDTO.getPage())
+                .queryParam("size", paramDTO.getSize())
+                .queryParam("sort", paramDTO.getSort())
+                .queryParam("direction", paramDTO.getDirection())
+                .request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue()).get();
         ExceptionManager.checkExceptionResponse(res);
         return res.readEntity(new GenericType<Page<BrouillonDTO>>() {
         });

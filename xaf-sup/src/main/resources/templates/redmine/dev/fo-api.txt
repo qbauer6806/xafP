@@ -1,1 +1,0 @@
-curl -H "Content-Type: application/json" -H "Authorization: ${TSAPIJWT}" --request GET https://${tscode}-api.monaco-gouvernement.mc/${tscode}/api/v1/motifs

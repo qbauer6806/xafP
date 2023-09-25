@@ -18,17 +18,20 @@ import mc.gouv.xaf.shared.dto.PropertiesDTO;
  */
 public class AppFactoryServletFrontPropertiesCache {
 	
-	private static Logger LOGGER = LoggerFactory.getLogger(AppFactoryServletFrontPropertiesCache.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(AppFactoryServletFrontPropertiesCache.class);
 	
 	static List<PropertiesDTO> properties = null;
 	
 	static Long lastRefresh = null;
 	
 	// Rafraîchir le cache si les propriétés sont plus anciennes que 60 secondes
-	static final long dureeExpirationMs = 60000; 
+	static final long DUREE_EXPIRATION_MS = 60000;
+
+	private AppFactoryServletFrontPropertiesCache()  {
+	}
 	
 	public static List<PropertiesDTO> getFrontProperties() {
-		if (properties == null || (lastRefresh == null || (System.currentTimeMillis() - lastRefresh) > dureeExpirationMs)) {
+		if (properties == null || (lastRefresh == null || (System.currentTimeMillis() - lastRefresh) > DUREE_EXPIRATION_MS)) {
 			LOGGER.info("Expiration des FrontProperties, récupération depuis l'API...");
 			properties = AppFactoryServletUtils.getAfApiClient().getFrontProperties();
 			lastRefresh = System.currentTimeMillis();
@@ -38,7 +41,7 @@ public class AppFactoryServletFrontPropertiesCache {
 	
 	public static PropertiesDTO getFrontProperty(String key) {
 		List<PropertiesDTO> propFiltrees = getFrontProperties().stream().filter(prop -> prop.getKey().equals(key)).collect(Collectors.toList());
-        return (propFiltrees.size() > 0) ? propFiltrees.get(0) : null;
+        return (!propFiltrees.isEmpty()) ? propFiltrees.get(0) : null;
 	}
 
 }

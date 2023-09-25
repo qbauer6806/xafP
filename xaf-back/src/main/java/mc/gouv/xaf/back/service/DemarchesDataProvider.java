@@ -1,13 +1,16 @@
 package mc.gouv.xaf.back.service;
 
-import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.StatutSimplifieEnum;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeExcelGenerationDTO;
 import mc.gouv.xaf.shared.dto.GenericStatusDTO;
 import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
-
-import java.util.List;
-import java.util.Map;
+import mc.gouv.xaf.shared.dto.TitreUsagerEnum;
+import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 
 /**
  * Service implémenté par la démarche permettant de fournir à xaf-back des informations propres à chaque démarche.
@@ -42,18 +45,63 @@ public interface DemarchesDataProvider {
 
     boolean getDemarcheCanHandleProperties();
 
-	boolean getDemarcheCanHandleDenjsGestionAgents();
-	
-	String[] getGUKafkaSupportedVersions();
+    boolean getDemarcheCanHandleDenjsGestionAgents();
 
-	StatutSimplifieEnum getStatutSimplifieFromStatutPublic(String statutPublic);
+    boolean getDemarcheCanHandleTaches();
 
-	List<String> getStatutsAPurger();
-	
-	boolean isValideTypedoc(String typedoc);
-	
-	DemandeExcelGenerationDTO getDemandeExcelGenerationDTO();
+    String[] getGUKafkaSupportedVersions();
 
-	boolean isEligibleRectification(DemandeDTO demande);
+    StatutSimplifieEnum getStatutSimplifieFromStatutPublic(String statutPublic);
+
+    List<String> getStatutsAPurger();
+
+    boolean isValideTypedoc(String typedoc);
+
+    DemandeExcelGenerationDTO getDemandeExcelGenerationDTO();
+
+    boolean isEligibleRectification(DemandeDTO demande);
+
+    default String getExportLibelle() {
+        return null;
+    }
+
+    default String getRecapOrientation() {
+        return "landscape";
+    }
+
+    default List<TitreUsagerEnum> getTitres() {
+        return Arrays.asList(TitreUsagerEnum.values());
+    }
+
+    /**
+     * Retourne le libellé du statut brouillon non transmis
+     */
+    String getBrouillonStatutNotTransmitted();
+
+    /**
+     * Retourne le libellé du statut brouillon obsolète
+     */
+    String getBrouillonStatutDeprecated();
+
+    /**
+     * Retourne le libellé du statut brouillon expiré
+     */
+    default String getBrouillonStatutExpired() {
+        return "";
+    }
+
+    /**
+     * Un filtrage est appliqué sur les statuts des demandes éligibles à un renouvellement de demande courrier.
+     */
+    default List<String> getStatutsPourDuplication() {
+        return new ArrayList<>();
+    };
+
+    /**
+     * Un filtrage est appliqué sur les versions des demandes éligibles à un renouvellement de demande courrier.
+     */
+    default List<String> getBuildIdsPourDuplication() {
+        return new ArrayList<>();
+    }
 
 }

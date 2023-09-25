@@ -1,19 +1,18 @@
 package mc.gouv.xaf.back.service.data.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import mc.gouv.xaf.back.data.dao.StatistiquesTypesRepository;
+import mc.gouv.xaf.back.data.entity.StatistiquesTypesBO;
+import mc.gouv.xaf.back.data.transformer.StatistiquesTypesTransformer;
+import mc.gouv.xaf.back.service.data.StatistiquesTypesService;
+import mc.gouv.xaf.shared.dto.StatistiquesTypesDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import mc.gouv.xaf.back.data.dao.StatistiquesTypesRepository;
-import mc.gouv.xaf.back.data.entity.StatistiquesTypesBO;
-import mc.gouv.xaf.back.data.transformer.StatistiquesTypesTransformer;
-import mc.gouv.xaf.back.service.data.StatistiquesTypesService;
-import mc.gouv.xaf.shared.dto.StatistiquesTypesDTO;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Service permettant la manipulation des statistiques types.
@@ -32,10 +31,8 @@ public class StatistiquesTypesServiceImpl implements StatistiquesTypesService {
 	public void deleteStatistiquesTypes(String identifiantDemande) {
 		LOGGER.info("Supression de types pour la demande {}", identifiantDemande);
 		List<StatistiquesTypesBO> typesToDelete = statTypeRepository.findByIdentifiantDemande(identifiantDemande);
-		if(null != typesToDelete && !typesToDelete.isEmpty()) {
-			for (StatistiquesTypesBO statistiquesTypesBO : typesToDelete) {
-				statTypeRepository.delete(statistiquesTypesBO);
-			}
+		if (null != typesToDelete && !typesToDelete.isEmpty()) {
+			statTypeRepository.deleteAll(typesToDelete);
 		}
 	}
 
@@ -49,7 +46,7 @@ public class StatistiquesTypesServiceImpl implements StatistiquesTypesService {
 
 	@Override
 	public List<StatistiquesTypesDTO> getStatistiquesTypes(String identifiantDemande) {
-		List<StatistiquesTypesDTO> result = new ArrayList<StatistiquesTypesDTO>();
+		List<StatistiquesTypesDTO> result = new ArrayList<>();
 		LOGGER.info("Recupération des types de la demande {}", identifiantDemande);
 		List<StatistiquesTypesBO> typesToReturn = statTypeRepository.findByIdentifiantDemande(identifiantDemande);
 		for (StatistiquesTypesBO statistiquesTypesBO : typesToReturn) {

@@ -13,6 +13,7 @@ import java.util.List;
 import javax.transaction.Transactional;
 import javax.ws.rs.BadRequestException;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,11 +22,7 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -45,10 +42,13 @@ import mc.gouv.xboot.config.web.annotation.GouvRestController;
 @Controller
 @RequestMapping("/gestion/configjson")
 public class GestionConfigJsonController {
+
 	@Autowired
-	PropertiesService propertiesService;
+	private PropertiesService propertiesService;
+
 	@Autowired
-	AfBackUtils afBackUtils;
+	private AfBackUtils afBackUtils;
+
 	private static final String REDIRECT = "redirect:/gestion/properties";
 	private static final String MODIFIER_SUCCES = "La propriété a été modifiée.";
 	private static final String IMPORT_SUCCESS = "La configuration a été importée avec succès";
@@ -56,8 +56,8 @@ public class GestionConfigJsonController {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(GestionConfigJsonController.class);
 
-	@RequestMapping(method = RequestMethod.GET)
-	public ModelAndView form(@RequestParam(name = "key", required = false) String key) throws Exception {
+	@GetMapping
+	public ModelAndView form(@RequestParam(name = "key", required = false) String key) {
 		LOGGER.info("Appel de la page gestion/configjson. Méthode form");
 		ModelAndView mav = new ModelAndView("gestion/configjson/configjson");
 		mav.addObject("key", key);
@@ -65,10 +65,10 @@ public class GestionConfigJsonController {
 		return mav;
 	}
 	
-	@RequestMapping(path = "/properties", method = RequestMethod.GET)
-	public List<PropertiesListEntityDTO> getJsonProperties(@RequestParam(name = "key", required = true) String key) throws Exception {
+	@GetMapping(path = "/properties")
+	public List<PropertiesListEntityDTO> getJsonProperties(@RequestParam(name = "key") String key) throws BadRequestException, JsonProcessingException {
 
-		List<PropertiesListEntityDTO> jsonObjectsToDisplay = new ArrayList<PropertiesListEntityDTO>();
+		List<PropertiesListEntityDTO> jsonObjectsToDisplay = new ArrayList<>();
 		PropertiesDTO property = propertiesService.getProperty(afBackUtils.getDemarcheInfos().getPkDemarches(), key);
 		LOGGER.info("Appel de la page gestion/configjson. Méthode form");
 		// Récupération du json représentant le fichier
@@ -85,21 +85,18 @@ public class GestionConfigJsonController {
 		LOGGER.info("======================= Fin /gestion/properties. Méthode form");
 		return jsonObjectsToDisplay;
 	}
-	
-	
 
 	@PostMapping(value = "/edit")
 	@Transactional
-	public ModelAndView modifier(@RequestParam(name = "key", required = true) String key, @RequestBody String newValue,
-			final RedirectAttributes redirectAttributes) throws Exception {
+	public ModelAndView modifier(@RequestParam(name = "key") String key, @RequestBody String newValue,
+			final RedirectAttributes redirectAttributes) throws IOException {
 
 		LOGGER.info("======================= Appel de la page /gestion/configjson/edit ({}, {})", key, newValue);
 		ObjectMapper mapper = new ObjectMapper();
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 
 		// Je reçois un json représentant les valeurs à ajouter associées à leur id
-		List<PropertiesListEntityDTO> valuesToAdd = Arrays.asList(
-				mapper.readValue(mapper.readTree(newValue).get("value").toString(), PropertiesListEntityDTO[].class));
+		PropertiesListEntityDTO[] valuesToAdd = mapper.readValue(mapper.readTree(newValue).get("value").toString(), PropertiesListEntityDTO[].class);
 
 		// Je recupère la propriété BO a update
 		PropertiesDTO propertyToUpdate = propertiesService.getProperty(afBackUtils.getDemarcheInfos().getPkDemarches(),
@@ -124,8 +121,7 @@ public class GestionConfigJsonController {
 
 		// Ensuite je converti la liste obtenue en JSON puis en string pour la set en DB
 		mapper.writeValue(out, valuesToUpdates);
-		final byte[] valueToAdd = out.toByteArray();
-		propertyToUpdate.setValue(new String(valueToAdd));
+		propertyToUpdate.setValue(out.toString());
 		propertiesService.saveOrUpdateProperties(propertyToUpdate);
 		List<String> messages = new ArrayList<>();
 		messages.add(MODIFIER_SUCCES);
@@ -136,9 +132,8 @@ public class GestionConfigJsonController {
 		return mav;
 	}
 
-	@RequestMapping(path = "/export", method = RequestMethod.GET)
-	public ResponseEntity<InputStreamResource> exportConfig(@RequestParam(name = "key", required = true) String key)
-			throws IOException {
+	@GetMapping(path = "/export")
+	public ResponseEntity<InputStreamResource> exportConfig(@RequestParam(name = "key") String key) {
 
 		LOGGER.info("Appel du webservice /gestion/configjson/export");
 		PropertiesDTO propertyToExport = propertiesService.getProperty(afBackUtils.getDemarcheInfos().getPkDemarches(),
@@ -154,11 +149,10 @@ public class GestionConfigJsonController {
 				new ByteArrayInputStream(jsonFile.getBytes(StandardCharsets.UTF_8)));
 
 		return ResponseEntity.ok().headers(responseHeaders).body(isr);
-
 	}
 
-	@RequestMapping(path = "/import", method = RequestMethod.POST)
-	public ModelAndView importConfig(@RequestParam(name = "key", required = true) String key,
+	@PostMapping(path = "/import")
+	public ModelAndView importConfig(@RequestParam(name = "key") String key,
 			@RequestParam("file") MultipartFile file, final RedirectAttributes redirectAttributes) throws IOException {
 		LOGGER.info("Appel du webservice /gestion/configjson/import");
 		PropertiesDTO property = propertiesService.getProperty(afBackUtils.getDemarcheInfos().getPkDemarches(), key);
@@ -182,15 +176,15 @@ public class GestionConfigJsonController {
 		return mav;
 	}
 	
-	@RequestMapping(path = "/addlibelle", method = RequestMethod.POST)
-	public ModelAndView addLibelle(@RequestParam(name = "label", required = true) String label, @RequestParam(name = "cle", required = true) String cle, @RequestParam(name = "key", required = true) String key, final RedirectAttributes redirectAttributes) throws IOException {
+	@PostMapping(path = "/addlibelle")
+	public ModelAndView addLibelle(@RequestParam(name = "label") String label, @RequestParam(name = "cle") String cle, @RequestParam(name = "key") String key, final RedirectAttributes redirectAttributes) throws IOException {
 		LOGGER.info("Appel du webservice /gestion/configjson/addlibelle");
 		PropertiesDTO propertyToUpdate = propertiesService.getProperty(afBackUtils.getDemarcheInfos().getPkDemarches(), key);
-		List<PropertiesListEntityDTO> values = new ArrayList<PropertiesListEntityDTO>();
+		List<PropertiesListEntityDTO> values = new ArrayList<>();
 		// Je recupère la value existante
 		ObjectMapper mapper = new ObjectMapper();
 		if (!StringUtils.isEmpty(propertyToUpdate.getValue())) {
-			values = new ArrayList<PropertiesListEntityDTO>(
+			values = new ArrayList<>(
 					Arrays.asList(mapper.readValue(propertyToUpdate.getValue(), PropertiesListEntityDTO[].class)));
 		}
 		
@@ -204,8 +198,7 @@ public class GestionConfigJsonController {
 		
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		mapper.writeValue(out, values);
-		final byte[] valueArray = out.toByteArray();
-		propertyToUpdate.setValue(new String(valueArray));
+		propertyToUpdate.setValue(out.toString());
 		
 		// Puis je met a jour la property
 		propertiesService.saveOrUpdateProperties(propertyToUpdate);

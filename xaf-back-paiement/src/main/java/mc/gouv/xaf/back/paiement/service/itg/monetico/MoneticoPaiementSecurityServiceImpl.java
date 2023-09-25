@@ -3,6 +3,7 @@ package mc.gouv.xaf.back.paiement.service.itg.monetico;
 import com.google.gson.Gson;
 import mc.gouv.xaf.back.paiement.dto.ContexteCommandeDTO;
 import mc.gouv.xaf.back.paiement.dto.PaiementDTO;
+import mc.gouv.xaf.back.paiement.dto.itg.monetico.CaptureDTO;
 import mc.gouv.xaf.back.paiement.properties.PaiementPropertiesResolver;
 import mc.gouv.xaf.back.paiement.service.itg.PaiementSecurityService;
 import mc.gouv.xaf.shared.dto.itg.monetico.MoneticoResponseDTO;
@@ -23,6 +24,8 @@ public class MoneticoPaiementSecurityServiceImpl implements PaiementSecurityServ
     private static final Logger LOGGER = LoggerFactory.getLogger(MoneticoPaiementSecurityServiceImpl.class);
     private static final String MONETICO_DATE_FORMAT = "dd/MM/yyyy:HH:mm:ss";
     private static final char[] ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".toCharArray();
+    private static final String CHIANE_POUR_HMAC = "CHAINE POUR HMAC : {}";
+    private static final String HMAC = "HMAC : {}";
 
     @Autowired
     public PaiementPropertiesResolver paiementPropertiesResolver;
@@ -108,12 +111,12 @@ public class MoneticoPaiementSecurityServiceImpl implements PaiementSecurityServ
                 "url_retour_ok=" + paiementDTO.getUrlRetourOk(),
                 "version=" + paiementDTO.getVersion()
         );
-        LOGGER.info("CHAINE POUR HMAC : {}", sChaineMAC);
+        LOGGER.info(CHIANE_POUR_HMAC, sChaineMAC);
 
         MoneticoPaiementHmac hmac = new MoneticoPaiementHmac(paiementPropertiesResolver.getPaiementClef());
         try {
             String hmacString = hmac.computeHmac(sChaineMAC);
-            LOGGER.info("HMAC : {}", hmacString);
+            LOGGER.info(HMAC, hmacString);
             return hmacString;
         } catch (Exception e) {
             LOGGER.error("Impossible de créer la chaîne MAC pour l'interface ALLER", e);
@@ -125,15 +128,32 @@ public class MoneticoPaiementSecurityServiceImpl implements PaiementSecurityServ
     public String getHmacStringInterfaceRetour(MoneticoResponseDTO moneticoResponseDTO) {
         logStartMethod(LOGGER);
         String sChaineMAC = moneticoResponseDTO.toStringHmac();
-        LOGGER.info("CHAINE POUR HMAC : {}", sChaineMAC);
+        LOGGER.info(CHIANE_POUR_HMAC, sChaineMAC);
+
+        MoneticoPaiementHmac hmac = new MoneticoPaiementHmac(paiementPropertiesResolver.getPaiementClef());
+        try {
+            String hmacString = hmac.computeHmac(sChaineMAC).toUpperCase();
+            LOGGER.info(HMAC, hmacString);
+            return hmacString;
+        } catch (Exception e) {
+            LOGGER.error("Impossible de créer la chaîne MAC pour l'interface RETOUR", e);
+        }
+        return null;
+    }
+
+    @Override
+    public String getHmacStringCapture(CaptureDTO captureDTO) {
+        logStartMethod(LOGGER);
+        String sChaineMAC = captureDTO.toStringHmac();
+        LOGGER.info(CHIANE_POUR_HMAC, sChaineMAC);
 
         MoneticoPaiementHmac hmac = new MoneticoPaiementHmac(paiementPropertiesResolver.getPaiementClef());
         try {
             String hmacString = hmac.computeHmac(sChaineMAC);
-            LOGGER.info("HMAC : {}", hmacString);
-            return hmacString.toUpperCase();
+            LOGGER.info(HMAC, hmacString);
+            return hmacString;
         } catch (Exception e) {
-            LOGGER.error("Impossible de créer la chaîne MAC pour l'interface RETOUR", e);
+            LOGGER.error("Impossible de créer la chaîne MAC pour la capture", e);
         }
         return null;
     }

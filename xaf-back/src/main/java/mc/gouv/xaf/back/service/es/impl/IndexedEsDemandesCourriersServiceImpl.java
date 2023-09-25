@@ -39,7 +39,7 @@ public class IndexedEsDemandesCourriersServiceImpl extends DemandesCourriersServ
     private static final Logger LOGGER = LoggerFactory.getLogger(IndexedEsDemandesCourriersServiceImpl.class);
 
     @Inject
-    IndexedDemandeService indexedDemandeService;
+    private IndexedDemandeService indexedDemandeService;
 
     @Autowired
     private ApplicationEventPublisher applicationEventPublisher;

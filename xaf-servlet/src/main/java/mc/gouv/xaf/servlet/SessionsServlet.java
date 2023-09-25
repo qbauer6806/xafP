@@ -1,7 +1,9 @@
 package mc.gouv.xaf.servlet;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
 import mc.gouv.xaf.servlet.util.GichkeyService;
@@ -14,7 +16,9 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.ws.rs.core.MediaType;
 import java.text.SimpleDateFormat;
+import java.util.Map;
 
 /**
  * Servlet permettant de gérer les sessions des usagers.
@@ -24,9 +28,8 @@ import java.text.SimpleDateFormat;
 public class SessionsServlet extends AbstractAfServlet {
 
     private static final long serialVersionUID = -7833206552171322810L;
-
     private static final Logger LOGGER = LoggerFactory.getLogger(SessionsServlet.class);
-    public static final String LOGIN = "login";
+    private static final String LOGIN = "login";
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) {
@@ -36,7 +39,6 @@ public class SessionsServlet extends AbstractAfServlet {
 
             // On tente de récupérer une session existante sans en créer une
             HttpSession session = request.getSession(false);
-
             LOGGER.info("SESSION : {}", session);
             if (session == null) {
                 // Pas de session trouvée
@@ -63,8 +65,9 @@ public class SessionsServlet extends AbstractAfServlet {
             // Récupération de l'objet attaché à la session
             UsagerInfosDTO usagerInfosDTO = (UsagerInfosDTO) session.getAttribute(LOGIN);
             LOGGER.info("usagerInfosDTO : {}", usagerInfosDTO);
+
             // Retour au client
-            response.setContentType("application/json");
+            response.setContentType(MediaType.APPLICATION_JSON);
             ObjectMapper mapper = new ObjectMapper();
             mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
             mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX"));

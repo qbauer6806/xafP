@@ -1,6 +1,5 @@
 package mc.gouv.xaf.back.bpm.activiti;
 
-import java.io.IOException;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,7 +34,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.xml.sax.SAXException;
 
 import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.bpm.GouvBPMException;
@@ -48,7 +46,6 @@ import mc.gouv.xaf.back.bpm.model.GouvBPMTask;
 import mc.gouv.xaf.back.bpm.model.GouvBPMUser;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.es.IndexedDemandeService;
-import mc.gouv.xaf.back.service.utils.AfBackUtils;
 
 /**
  * Composant exposant le BPM interne d'AppFactory
@@ -140,7 +137,7 @@ public class GouvBPMImpl implements GouvBPM {
         ProcessInstance processInstance = getActiveProcessInstanceForDemandeId(demandeId);
         if (processInstance == null) {
             LOGGER.error(NULL_PI);
-            return null;
+            return new HashMap<>();
         }
         return runtimeService.getVariables(processInstance.getId());
     }
@@ -197,7 +194,8 @@ public class GouvBPMImpl implements GouvBPM {
     @Override
     public List<String> getNumberActiveDemandesInState(String state) {
         LOGGER.debug("getNumberActiveDemandesInState({})", state);
-        List<Task> tasks = taskService.createTaskQuery().taskDefinitionKey(state).active().list();
+        // Permets de retrouver les task ID de type EN_ATTENTE_TRAIT_task1
+        List<Task> tasks = taskService.createTaskQuery().taskDefinitionKeyLike(state + "%").active().list();
         Set<String> tasksProcessIds = tasks.stream().map(Task::getProcessInstanceId).collect(Collectors.toSet());
         List<String> instancesIds = new ArrayList<>();
         if (!tasksProcessIds.isEmpty()) {
@@ -230,11 +228,9 @@ public class GouvBPMImpl implements GouvBPM {
     }
 
     @Override
-    public void completeTask(GouvBPMTask task, Integer demandeId) throws IOException, TikaException, SAXException {
+    public void completeTask(GouvBPMTask task, Integer demandeId) {
         LOGGER.info("completeTask({})", task);
-
         taskService.complete(task.getId());
-
         // Réindexation pour prendre en compte le nouveau statutPublicOuInterne
         reindex(demandeId);
     }
@@ -421,7 +417,7 @@ public class GouvBPMImpl implements GouvBPM {
     }
 
     @Override
-    public void submitTaskFormData(GouvBPMTask task, Map<String, String> properties, Integer demandeId) throws IOException, TikaException, SAXException {
+    public void submitTaskFormData(GouvBPMTask task, Map<String, String> properties, Integer demandeId) throws TikaException {
         // Pour éviter les NPE dans Activiti et éviter d'avoir à déclarer de nouveaux HashMaps
         // si on ne veut rien transmettre dans le formulaire
         Map<String, String> propertiesSafe = (properties == null) ? new HashMap<>() : properties;
@@ -430,7 +426,7 @@ public class GouvBPMImpl implements GouvBPM {
         reindex(demandeId);
     }
 
-    private void reindex(Integer demandeId) throws IOException, TikaException, SAXException {
+    private void reindex(Integer demandeId) {
         // Réindexation pour prendre en compte le nouveau statutPublicOuInterne
         if (indexedDemandeService != null) {
             indexedDemandeService.indexDemande(gouvPropertiesResolver.getDemarcheId(), demandeId);
@@ -543,12 +539,11 @@ public class GouvBPMImpl implements GouvBPM {
     }
     
     @Override
-    public void reponseRectification(Integer pkDemande, Integer usagerId) throws TaskAlreadyClaimedException, IOException, SAXException {
+    public void reponseRectification(Integer pkDemande, Integer usagerId) throws TaskAlreadyClaimedException {
         LOGGER.info("Réponse à la demande de rectification de la demande {} par l'usager", pkDemande);
 
 		List<GouvBPMTask> activeTasks = getActiveTasksForDemande(pkDemande);
 		GouvBPMTask activeTask = null;
-		//activeTasks.get(0);
 		for (GouvBPMTask task : activeTasks) {
 			if (RECTIFICATION_DEMANDE_USERTASK_ID.equals(task.getTaskDefinitionKey())) {
 				activeTask = task;

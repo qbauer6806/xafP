@@ -1,8 +1,0 @@
----
-ansible_host: gentsa-frnt2-3-mgmt
-zabbix_host_name: 10.0.98.11
-
-tcp_checks:
-  - name: ${tscode}-apiserver
-    host: ${tscode}-api-rec.monaco-gouvernement.mc
-    port: 443

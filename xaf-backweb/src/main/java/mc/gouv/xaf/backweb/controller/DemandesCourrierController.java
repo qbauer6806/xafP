@@ -1,5 +1,7 @@
 package mc.gouv.xaf.backweb.controller;
 
+import java.net.URISyntaxException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -15,21 +17,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
+import mc.gouv.xaf.back.service.data.UsagersCourrierService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.UsagersUtils;
 import mc.gouv.xaf.backweb.formbean.DemandesCourrierFormBean;
 import mc.gouv.xaf.backweb.formbean.UsagerCourrierFormBean;
 import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
 
 /**
  * Controller pour les demandes courrier
@@ -52,33 +51,31 @@ public class DemandesCourrierController extends AbstractController {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DemandesCourrierController.class);
 
+    @Autowired
+    private UsagersCourrierService usagersCourrierService;
+
 	@Secured("ROLE_SAISIE")
-	@RequestMapping(method = RequestMethod.GET)
-	public ModelAndView form(@ModelAttribute("usagerCourrierFormBean") UsagerCourrierFormBean usagerCourrierFormBean)
-			throws JsonProcessingException {
-
+	@GetMapping
+	public ModelAndView form(@ModelAttribute("usagerCourrierFormBean") UsagerCourrierFormBean usagerCourrierFormBean) {
 		LOGGER.info("======================= Appel de la page /demandes/courriers");
-
 		ModelAndView mav = new ModelAndView("demandes/demandescourrier");
-
 		LOGGER.info("======================= Fin /demandes/courriers");
-
 		return mav;
 	}
 
 	@Secured({"ROLE_TRAITEMENT","ROLE_SAISIE"})
-	@RequestMapping(value = "/creer/{usagerId}", method = RequestMethod.POST)
+	@PostMapping(value = "/creer/{usagerId}")
 	public ModelAndView creerDemandeCourrier(@PathVariable(value = "usagerId") Integer usagerId,
 			@Valid @ModelAttribute("demandesCourrierFormBean") DemandesCourrierFormBean demandesCourrierFormBean,
-			BindingResult bindingResult) throws Exception {
+			BindingResult bindingResult) throws URISyntaxException, ParseException {
 
 		ModelAndView mav;
-		LOGGER.info("======================= Appel de la page POST /demandes/courriers/creer/{usagerId}");
+		LOGGER.info("======================= Appel de la page POST /demandes/courriers/creer/{}", usagerId);
 		
 		if (bindingResult.hasErrors()) {
 			mav = new ModelAndView("demandes/demandescourrier2");
-			mav = initForm(mav, usagerId);
-			List<String> errors = new ArrayList<String>();
+			initForm(mav, usagerId);
+			List<String> errors = new ArrayList<>();
 			errors.add(AfBackUtils.MESSAGE_ERREURS_FORMULAIRE);
 			mav.addObject("errors", errors);
 			return mav;
@@ -119,42 +116,42 @@ public class DemandesCourrierController extends AbstractController {
 
 		String redirect = "redirect:" + ub;
 		
-		LOGGER.info("URL de redirection vers le front : " + redirect);
+		LOGGER.info("URL de redirection vers le front : {}", redirect);
 
 		mav = new ModelAndView(redirect);
 
-		LOGGER.info("======================= Fin /demandes/courriers/redirFront");
+		LOGGER.info("======================= Fin /demandes/courriers/creer/{}", usagerId);
 
 		return mav;
 	}
 
 	@Secured({"ROLE_TRAITEMENT","ROLE_SAISIE"})
-	@RequestMapping(value = "/creer/{usagerId}", method = RequestMethod.GET)
+	@GetMapping(value = "/creer/{usagerId}")
 	public ModelAndView form(@PathVariable(value = "usagerId") Integer usagerId,
-			@ModelAttribute("demandesCourrierFormBean") DemandesCourrierFormBean demandesCourrierFormBean)
-			throws JsonProcessingException {
+			@ModelAttribute("demandesCourrierFormBean") DemandesCourrierFormBean demandesCourrierFormBean) {
 
-		LOGGER.info("======================= Appel de la page /demandes/courriers/creer/" + usagerId);
-
+		LOGGER.info("======================= Appel de la page /demandes/courriers/creer/{}", usagerId);
 		ModelAndView mav = new ModelAndView("demandes/demandescourrier2");
-
-		mav = initForm(mav, usagerId);
-
-		LOGGER.info("======================= Fin /demandes/courriers/creer");
-
+		initForm(mav, usagerId);
+		LOGGER.info("======================= Fin /demandes/courriers/creer/{}", usagerId);
 		return mav;
 	}
 
-	private ModelAndView initForm(ModelAndView mav, Integer usagerId) {
+    private void initForm(ModelAndView mav, Integer usagerId) {
+        mav.addObject("usager", usagersUtils.getUsagerCourrierFromId(usagerId));
+        ArrayList<DemandeCanalEnum> canaux = new ArrayList<>();
+        canaux.add(DemandeCanalEnum.COURRIER);
+        canaux.add(DemandeCanalEnum.GUICHET_PHYSIQUE);
+        mav.addObject("canaux", canaux);
+        mav.addObject("langues", demarchesDataProvider.getLanguesDisponibles());
 
-		mav.addObject("usager", usagersUtils.getUsagerCourrierFromId(usagerId));
-
-		ArrayList<DemandeCanalEnum> canaux = new ArrayList<DemandeCanalEnum>();
-		canaux.add(DemandeCanalEnum.COURRIER);
-		canaux.add(DemandeCanalEnum.GUICHET_PHYSIQUE);
-		mav.addObject("canaux", canaux);
-		mav.addObject("langues", demarchesDataProvider.getLanguesDisponibles());
-		return mav;
-	}
-
+        // Récuperation de la dernière demande pour duplication
+        DemandeDTO derniereDemande = usagersCourrierService.getDerniereDemandePourDuplication(
+                gouvPropertiesResolver.getDemarcheId(), usagerId, demarchesDataProvider.getStatutsPourDuplication(),
+                demarchesDataProvider.getBuildIdsPourDuplication());
+        if (derniereDemande != null) {
+            mav.addObject("duplicationKeyId", derniereDemande.getPkDemandes());
+            mav.addObject("duplicationIdentifiant", derniereDemande.getIdentifiant());
+        }
+    }
 }

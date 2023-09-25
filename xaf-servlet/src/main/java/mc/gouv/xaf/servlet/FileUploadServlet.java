@@ -10,6 +10,7 @@ import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
 import mc.gouv.xaf.servlet.util.AppFactoryServletFrontPropertiesCache;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils.ServiceTarget;
+import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.AccessDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import org.apache.commons.io.IOUtils;
@@ -20,6 +21,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.InputStreamBody;
 import org.apache.http.entity.mime.content.StringBody;
@@ -32,8 +34,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.Part;
+import javax.ws.rs.core.MediaType;
 import java.io.IOException;
-import java.net.URL;
+import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -54,68 +57,67 @@ public class FileUploadServlet extends AbstractAfServlet {
     private static final String EXTENSIONS_WHITELIST = "EXTENSIONS_WHITELIST";
     private static final String MAX_TAILLE_FICHIER = "MAX_TAILLE_FICHIER";
     private static final String VSCAN_ACTIVATION = "VSCAN_ACTIVATION";
+    private static final String SLASH = "/";
 
     // Enregistre l'historique d'upload par session
     private static final Map<HttpSession, FileUploadCompteurDTO> usagersFileUploadCompteurs = new HashMap<>();
-    private static final String SLASH = "/";
 
     // Compteur permettant de trigger un refresh des sessions et supprimer celles qui ne sont plus utilisées
     private static int compteurCleanSessions;
 
-    @SuppressWarnings("deprecation")
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) {
         LOGGER.info("====================== /fileupload doPost()");
 
+        // Vérification si l'usager est connecté
+        UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(request);
+        if (usagerInfosDTO == null) {
+            AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
+                    SharedMessages.UTILISATEUR_NON_AUTORISE);
+            return;
+        }
+
+        // Vérification du nombre de fichier uploadés sur la demande
+        LOGGER.info("Vérification du nombre de fichiers déjà uploadés...");
+        HttpSession session = request.getSession();
+        if (verifierNombreFichiers(response, session)) {
+            return;
+        }
+
+        // Récupération du nom du fichier à envoyer
+        String filename = getFilename(request.getPathInfo());
+        if (StringUtils.isBlank(filename)) {
+            AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_BAD_REQUEST,
+                    "Erreur: nom du fichier manquant");
+            return;
+        }
+
+        // ---  Vérification de la conformité du fichier
+        // Vérification du type du fichier
+        LOGGER.info("Vérification du type pour le fichier {} ...", filename);
+        if (!estExtensionDansWhitelist(filename)) {
+            LOGGER.info("Le type de fichier ne correspond pas aux types whitelistés ({}), pas d'upload dans FILE", getExtensionsWhitelist());
+            AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_FORBIDDEN,
+                    "Erreur: le type/extension du fichier soumis n'est pas valide");
+            return;
+        }
+
         try {
-            UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(request);
-            if (usagerInfosDTO == null) {
-                AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
-                        "Utilisateur non autorisé");
-                return;
-            }
-
-            // Vérification du nombre de fichier uploadés sur la demande
-            LOGGER.info("Vérification du nombre de fichiers déjà uploadés...");
-            HttpSession session = request.getSession();
-            if (verifierNombreFichiers(response, session)) {
-                return;
-            }
-
-            // Récupération du nom du fichier à envoyer
-            String filename = getFilename(request.getPathInfo());
-            if (StringUtils.isBlank(filename)) {
-                AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_BAD_REQUEST,
-                        "Erreur: nom du fichier manquant");
-                return;
-            }
-
-            // ---  Vérification de la conformité du fichier
-            // Vérification du type du fichier
-            LOGGER.info("Vérification du type pour le fichier {} ...", filename);
-            if (!estExtensionDansWhitelist(filename)) {
-                LOGGER.info("Le type de fichier ne correspond pas aux types whitelistés ({}), pas d'upload dans FILE", getExtensionsWhitelist());
-                AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_FORBIDDEN,
-                        "Erreur: le type/extension du fichier soumis n'est pas valide");
-                return;
-            }
-
-            ObjectMapper mapper = new ObjectMapper();
+            HttpPost postRequest = new HttpPost();
+            Part part = request.getParts().iterator().next();
 
             LOGGER.info("Vérification de la taille...");
             // Vérification de la taille du fichier
-            Part part0 = request.getParts().iterator().next();
             PropertiesDTO propMaxTailleFichiers = AppFactoryServletFrontPropertiesCache.getFrontProperty(MAX_TAILLE_FICHIER);
-            PropertiesDTO propActivationVscan = AppFactoryServletFrontPropertiesCache.getFrontProperty(VSCAN_ACTIVATION);
-            if (propMaxTailleFichiers == null || propActivationVscan == null) {
+            if (propMaxTailleFichiers == null) {
                 AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_INTERNAL_SERVER_ERROR,
-                        "Une propriété obligatoire semble ne pas être définie");
+                        "La propriété obligatoire MAX_TAILLE_FICHIER ne semble pas définie");
                 return;
             }
             int tailleMaxFichier = Integer.parseInt(propMaxTailleFichiers.getValue());
             // transformation B en MB
             int tailleMaxFichierMB = tailleMaxFichier * 1000000;
-            if (part0.getSize() > tailleMaxFichierMB) {
+            if (part.getSize() > tailleMaxFichierMB) {
                 LOGGER.info("La taille du fichier depasse la taille max definie dans les propriétés ({})", tailleMaxFichier);
                 AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_FORBIDDEN,
                         "Erreur: la taille du fichier depasse la taille max definie dans les propriétés");
@@ -123,46 +125,8 @@ public class FileUploadServlet extends AbstractAfServlet {
             }
 
             // Appel à VSCAN afin d'effectuer le scan antivirus
-            // Constitution de la requête
-            boolean activationVscan = Boolean.parseBoolean(propActivationVscan.getValue());
-            LOGGER.info("Activation de VSCAN: {}", activationVscan);
-
-            if (activationVscan) {
-                LOGGER.info("Appel à VSCAN...");
-
-                String urlVscan = AfServletGouvPropertiesResolver.getVscanUrl();
-                LOGGER.info("URL = {}", urlVscan);
-                HttpClient clientVscan = HttpClientBuilder.create().build();
-                MultipartEntityBuilder builderVscan = MultipartEntityBuilder.create();
-                builderVscan.addPart("file", new InputStreamBody(part0.getInputStream(), part0.getContentType(), part0.getSubmittedFileName()));
-
-                // Pour tester avec un fichier vérolé (EICAR)
-
-                ScanRequestDTO scanRequest = new ScanRequestDTO();
-                scanRequest.setCodeAppli(getServletContext().getInitParameter(AppFactoryServletUtils.DEMARCHEID_KEY));
-                scanRequest.setFilename(filename);
-                scanRequest.setEnduserAppModule(getServletContext().getInitParameter(AppFactoryServletUtils.DEMARCHEID_KEY).toLowerCase() + "-frontserver");
-
-                String scanRequestStr = mapper.writeValueAsString(scanRequest);
-                builderVscan.addPart("scanRequest", new StringBody(scanRequestStr));
-                HttpEntity multipartVscan = builderVscan.build();
-                HttpPost postRequestVscan = new HttpPost(urlVscan);
-                postRequestVscan.setEntity(multipartVscan);
-                postRequestVscan.addHeader("Authorization", "Bearer " + AfServletGouvPropertiesResolver.getVscanJwt());
-                HttpResponse postResponseVscan = clientVscan.execute(postRequestVscan);
-                String vscanResp = IOUtils.toString(postResponseVscan.getEntity().getContent());
-                LOGGER.info("VSCAN Response : {} ({})", postResponseVscan.getStatusLine(), vscanResp);
-
-                ScanDTO scanDto = mapper.readValue(vscanResp, ScanDTO.class);
-
-                if (!scanDto.isResult()) {
-                    LOGGER.info("VSCAN a détecté le fichier comme vérolé, fin du traitement, pas d'upload dans FILE");
-                    AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_BAD_REQUEST,
-                            "Erreur: le fichier soumis semble corrompu");
-                    return;
-                }
-
-                LOGGER.info("VSCAN n'a pas considéré le fichier soumis comme vérolé");
+            if (!vscan(part, filename, postRequest, response)) {
+                return;
             }
 
             // Génération de l'UUID
@@ -176,12 +140,9 @@ public class FileUploadServlet extends AbstractAfServlet {
 
             // Récupération de l'AccessID via appel WS à Demarches
             LOGGER.info("Appel à la démarche pour récupérer l'AccessID correspondant..");
-
             AccessDTO access = getAfApiClient().getAccess(usagerInfosDTO.getId());
             Integer accessId = access.getPkAccess();
-
             LOGGER.debug("AccessID = {}", accessId);
-
             if (accessId == null) {
                 AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_NOT_FOUND,
                         "Erreur: impossible de récupérer l'accès");
@@ -194,29 +155,20 @@ public class FileUploadServlet extends AbstractAfServlet {
             LOGGER.info("Chemin virtuel : {}", virtualPath);
 
             // Constitution de l'URL d'appel
-            URL url = new URL(AfServletGouvPropertiesResolver.getFileUrl() + virtualPath);
+            URI url = new URI(AfServletGouvPropertiesResolver.getFileUrl() + virtualPath);
+            postRequest.setURI(url);
             LOGGER.info("URL d'appel : {}", url);
 
             // Extraction du demandeId si le client le connaît déjà et l'a fourni à AFS
-            String demandeId = extraireDemandeId(request);
+            extraireDemandeId(postRequest, request);
 
             // Constitution de la requête
             HttpClient client = HttpClientBuilder.create().build();
-            Part part = request.getParts().iterator().next();
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
             builder.addPart("data",
-                    new InputStreamBody(part.getInputStream(), part.getContentType(), part.getSubmittedFileName()));
+                    new InputStreamBody(part.getInputStream(), ContentType.create(part.getContentType()), part.getSubmittedFileName()));
             HttpEntity multipart = builder.build();
-            HttpPost postRequest = new HttpPost(url.toString());
             postRequest.setEntity(multipart);
-            // Renseigner le demandeId le cas échéant
-            if (demandeId != null) {
-                postRequest.setHeader(AppFactoryServletUtils.FILE_METADATA_DEMANDEID, demandeId);
-            }
-
-            // Rajouter l'information si le fichier a été scanné par VSCAN ou pas
-            postRequest.setHeader(AppFactoryServletUtils.FILE_METADATA_SCANEXECUTE, activationVscan + "");
-
             postRequest.setHeader(HttpHeaders.AUTHORIZATION, AppFactoryServletUtils.getAuthHeader(ServiceTarget.FILE));
 
             LOGGER.info("Appel du WS FILE");
@@ -224,8 +176,7 @@ public class FileUploadServlet extends AbstractAfServlet {
 
             // Constitution de la réponse en redirigeant la réponse du WS ansi que son code réponse
             LOGGER.info("Constitution de la réponse pour retour au client");
-
-            this.constituerReponse(response, filename, uuid, accessId, postResponse);
+            constituerReponse(response, filename, uuid, accessId, postResponse);
 
             // Supression des sessions inutilisées chaque 10 requêtes d'upload
             if (compteurCleanSessions > 50) {
@@ -244,6 +195,9 @@ public class FileUploadServlet extends AbstractAfServlet {
         LOGGER.info("====================== Fin /fileupload doPost()");
     }
 
+    /**
+     * Vérification du nombre de fichier uploadés sur la demande
+     */
     private boolean verifierNombreFichiers(HttpServletResponse response, HttpSession session) {
         FileUploadCompteurDTO compteurUpload = usagersFileUploadCompteurs.get(session);
         if (compteurUpload != null) {
@@ -264,7 +218,78 @@ public class FileUploadServlet extends AbstractAfServlet {
         return false;
     }
 
-    private String extraireDemandeId(HttpServletRequest request) {
+    /**
+     * Permet de parser le nom du fichier depuis le Path Info de la requête
+     */
+    private String getFilename(String pathInfo) {
+        String filename = null;
+        if (pathInfo != null && pathInfo.length() > 1) {
+            filename = pathInfo.split(SLASH)[1];
+        }
+        return filename;
+    }
+
+    /**
+     * Méthode permettant d'appeler VSCAN afin d'effectuer le scan antivirus.
+     */
+    private boolean vscan(Part part0, String filename, HttpPost postRequest, HttpServletResponse response) throws IOException {
+        // Varification de l'activation de VSCAN
+        PropertiesDTO propActivationVscan = AppFactoryServletFrontPropertiesCache.getFrontProperty(VSCAN_ACTIVATION);
+        if (propActivationVscan == null) {
+            AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_INTERNAL_SERVER_ERROR,
+                    "La propriété obligatoire VSCAN_ACTIVATION ne semble pas définie");
+            return false;
+        }
+
+        // Constitution de la requête
+        boolean activationVscan = Boolean.parseBoolean(propActivationVscan.getValue());
+        // Rajouter l'information si le fichier a été scanné par VSCAN ou pas
+        postRequest.setHeader(AppFactoryServletUtils.FILE_METADATA_SCANEXECUTE, activationVscan + "");
+        LOGGER.info("Activation de VSCAN: {}", activationVscan);
+
+        if (activationVscan) {
+            LOGGER.info("Appel à VSCAN...");
+
+            String urlVscan = AfServletGouvPropertiesResolver.getVscanUrl();
+            LOGGER.info("URL = {}", urlVscan);
+            HttpClient clientVscan = HttpClientBuilder.create().build();
+            MultipartEntityBuilder builderVscan = MultipartEntityBuilder.create();
+            builderVscan.addPart("file", new InputStreamBody(part0.getInputStream(),
+                    ContentType.create(part0.getContentType()), part0.getSubmittedFileName()));
+
+            ScanRequestDTO scanRequest = new ScanRequestDTO();
+            scanRequest.setCodeAppli(getServletContext().getInitParameter(AppFactoryServletUtils.DEMARCHEID_KEY));
+            scanRequest.setFilename(filename);
+            scanRequest.setEnduserAppModule(getServletContext().getInitParameter(AppFactoryServletUtils.DEMARCHEID_KEY).toLowerCase() + "-frontserver");
+
+            ObjectMapper mapper = new ObjectMapper();
+            String scanRequestStr = mapper.writeValueAsString(scanRequest);
+            builderVscan.addPart("scanRequest", new StringBody(scanRequestStr, ContentType.TEXT_PLAIN));
+            HttpEntity multipartVscan = builderVscan.build();
+            HttpPost postRequestVscan = new HttpPost(urlVscan);
+            postRequestVscan.setEntity(multipartVscan);
+            postRequestVscan.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + AfServletGouvPropertiesResolver.getVscanJwt());
+            HttpResponse postResponseVscan = clientVscan.execute(postRequestVscan);
+            String vscanResp = IOUtils.toString(postResponseVscan.getEntity().getContent());
+            LOGGER.info("VSCAN Response : {} ({})", postResponseVscan.getStatusLine(), vscanResp);
+
+            ScanDTO scanDto = mapper.readValue(vscanResp, ScanDTO.class);
+            if (!scanDto.isResult()) {
+                LOGGER.info("VSCAN a détecté le fichier comme vérolé, fin du traitement, pas d'upload dans FILE");
+                AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_BAD_REQUEST,
+                        "Erreur: le fichier soumis semble corrompu");
+                return false;
+            }
+
+            LOGGER.info("VSCAN n'a pas considéré le fichier soumis comme vérolé");
+        }
+        return true;
+    }
+
+    /**
+     * Renseigne le demandeId dans la requête de création du fichier s'il est déjà connu
+     */
+    private void extraireDemandeId(HttpPost postRequest, HttpServletRequest request) {
         String demandeId = null;
         Enumeration<String> headers = request.getHeaderNames();
         while (headers.hasMoreElements()) {
@@ -273,16 +298,20 @@ public class FileUploadServlet extends AbstractAfServlet {
                 demandeId = request.getHeader(headerName);
             }
         }
-        return demandeId;
+        if (demandeId != null) {
+            postRequest.setHeader(AppFactoryServletUtils.FILE_METADATA_DEMANDEID, demandeId);
+        }
     }
 
+    /**
+     * Constitution de la réponse en redirigeant la réponse du WS ansi que son code réponse
+     */
     private void constituerReponse(HttpServletResponse response, String filename, UUID uuid, Integer accessId, HttpResponse postResponse) throws IOException {
-        response.setContentType("application/json");
+        response.setContentType(MediaType.APPLICATION_JSON);
         int statusCode = postResponse.getStatusLine().getStatusCode();
         response.setStatus(statusCode);
         if (statusCode == HttpServletResponse.SC_OK || statusCode == HttpServletResponse.SC_CREATED) {
-            // Si tout s'est bien passé, alors on forme une réponse différente que celle qui nous est retournée par
-            // FILE
+            // Si tout s'est bien passé, alors on forme une réponse différente que celle qui nous est retournée par FILE
             ObjectMapper mapper = new ObjectMapper();
             // Répondre accessId/uuid/nomDuFichier
             FileUploadResponseDTO responseObj = new FileUploadResponseDTO(accessId + SLASH + uuid + SLASH + filename);
@@ -295,20 +324,11 @@ public class FileUploadServlet extends AbstractAfServlet {
         }
     }
 
-    private String getFilename(String pathInfo) {
-        String filename = null;
-        if (pathInfo != null && pathInfo.length() > 1) {
-            filename = pathInfo.split(SLASH)[1];
-        }
-        return filename;
-    }
-
     private boolean estExtensionDansWhitelist(String filename) {
         String[] filenameSplit = filename.split("\\.");
         String fileExtension = filenameSplit[filenameSplit.length - 1].toLowerCase();
         return getExtensionsWhitelist().contains(fileExtension);
     }
-
 
     private List<String> getExtensionsWhitelist() {
         List<String> extensions = new ArrayList<>();

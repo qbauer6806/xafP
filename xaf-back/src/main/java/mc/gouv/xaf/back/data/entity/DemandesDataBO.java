@@ -33,12 +33,12 @@ public class DemandesDataBO {
     @JoinColumn(name = "FK_DEMANDES")
     private DemandeBO fkDemandes;
 
-    @Column(name = "KEY", length = 256, nullable = false)
+    @Column(name = "\"KEY\"", length = 256, nullable = false)
     @NotBlank
     @Size(min = 1, max = 256)
     private String key;
 
-    @Column(name = "VALUE", length = 10000, nullable = true)
+    @Column(name = "\"VALUE\"", length = 10000, nullable = true)
     @Size(min = 0, max = 10000)
     private String value;
 

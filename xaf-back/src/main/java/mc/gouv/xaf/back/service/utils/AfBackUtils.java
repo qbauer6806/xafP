@@ -1,27 +1,36 @@
 package mc.gouv.xaf.back.service.utils;
 
-import java.nio.charset.StandardCharsets;
-import java.text.DateFormat;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.text.NumberFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-
-import javax.annotation.PostConstruct;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.uuid.EthernetAddress;
+import com.fasterxml.uuid.Generators;
+import com.fasterxml.uuid.impl.TimeBasedGenerator;
+import com.google.gson.Gson;
+import mc.gouv.file.apiclient.FileClient;
+import mc.gouv.logon.shared.Droit;
+import mc.gouv.logon.shared.Role;
+import mc.gouv.logon.shared.User;
+import mc.gouv.mail.apiclient.client.MailClient;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.DemarchesDataProvider;
+import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.back.service.data.DemarchesService;
+import mc.gouv.xaf.back.service.data.PropertiesService;
+import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
+import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
+import mc.gouv.xaf.back.service.motifs.MotifTemplateService;
+import mc.gouv.xaf.back.service.motifs.MotifsCache;
+import mc.gouv.xaf.shared.SharedMessages;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeDataDTO;
+import mc.gouv.xaf.shared.dto.DemandeFlatDTO;
+import mc.gouv.xaf.shared.dto.DemarcheDTO;
+import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
+import mc.gouv.xaf.shared.dto.MotifDTO;
+import mc.gouv.xaf.shared.dto.PropertiesDTO;
+import mc.gouv.xaf.shared.dto.PropertiesListEntityDTO;
+import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,32 +44,26 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.uuid.EthernetAddress;
-import com.fasterxml.uuid.Generators;
-import com.fasterxml.uuid.impl.TimeBasedGenerator;
-import com.google.gson.Gson;
-
-import mc.gouv.file.apiclient.FileClient;
-import mc.gouv.logon.shared.Droit;
-import mc.gouv.logon.shared.Role;
-import mc.gouv.logon.shared.User;
-import mc.gouv.mail.apiclient.client.MailClient;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.DemarchesDataProvider;
-import mc.gouv.xaf.back.service.data.DemarchesService;
-import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
-import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
-import mc.gouv.xaf.back.service.motifs.MotifTemplateService;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.xaf.shared.dto.DemandeDataDTO;
-import mc.gouv.xaf.shared.dto.DemandeFlatDTO;
-import mc.gouv.xaf.shared.dto.DemarcheDTO;
-import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
-import mc.gouv.xaf.shared.dto.PropertiesListEntityDTO;
-import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
+import javax.annotation.PostConstruct;
+import java.nio.charset.StandardCharsets;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * Classe utilitaire pour le projet xaf-back
@@ -83,36 +86,38 @@ public class AfBackUtils {
 
     private static String envColor;
 
-    public static String DEFAULT_FRENCH_DATE_FORMAT = "dd/MM/yyyy";
+    public static final String DEFAULT_FRENCH_DATE_FORMAT = "dd/MM/yyyy";
 
     // 24 hours time format
-    public static String DEFAULT_FRENCH_TIME_FORMAT = "HH:mm";
+    public static final String DEFAULT_FRENCH_TIME_FORMAT = "HH:mm";
     
- // 24 hours time format with seconds
-    public static String DEFAULT_FRENCH_TIME_FORMAT_SECONDS = "HH:mm:ss";
+    // 24 hours time format with seconds
+    public static final String DEFAULT_FRENCH_TIME_FORMAT_SECONDS = "HH:mm:ss";
 
     // French date format with 24 hours
-    public static String DEFAULT_FRENCH_DATE_HOURS_FORMAT = "dd/MM/yyyy HH:mm";
-    
- // French date format with 24 hours
+    public static final String DEFAULT_FRENCH_DATE_HOURS_FORMAT = "dd/MM/yyyy HH:mm";
+
+    // French date format with 24 hours
     public static final String DEFAULT_FRENCH_DATE_HOURS_MINUTES_SECONDS_FORMAT = "dd/MM/yyyy HH:mm:ss";
 
-    public DateFormat SDF_JJ_MM_AAAA = new SimpleDateFormat(DEFAULT_FRENCH_DATE_FORMAT);
+    // Format de date en Anglais
+    public static final String DEFAULT_ENGLISH_DATE_FORMAT = "MM/dd/yyyy";
 
-    public DateFormat SDF_JJ_MM_AAAA_HH_MM = new SimpleDateFormat(DEFAULT_FRENCH_DATE_HOURS_FORMAT);
+    // Suffix pour l'unicité des fichiers
+    public static final String FILE_DATE_SUFFIX_FORMAT = "HHmmssSSS";
+    public static final String FILE_DATE_AND_TIME_SUFFIX_FORMAT = "yyyyMMddHHmmssSS";
 
-    public static DateFormat FILE_DATE_SUFFIX = new SimpleDateFormat("HHmmssSSS");
+    // Pattern pour les dates MCONNECT
+    public static final String MCONNECT_DATE_AND_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
 
-    public static DateTimeFormatter DTF_AAAA_MM_JJ = DateTimeFormatter.ofPattern("yyyy/MM/dd");
-    
-    public static DateFormat FILE_DATE_AND_TIME_SUFFIX = new SimpleDateFormat("yyyyMMddHHmmssSS");
-    
-    public static DateFormat MCONNECT_DATE_AND_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+    public static final DateTimeFormatter DTF_AAAA_MM_JJ = DateTimeFormatter.ofPattern("yyyy/MM/dd");
 
     public static final String MESSAGE_ERREURS_FORMULAIRE = "Le formulaire contient des erreurs.";
     
     // Préfix de la meta d'un fichier indiquant l'ID de la section correspondante
-    public static String META_FICHIER_SECTION_PREFIX = "SECTION_ID_";
+    public static final String META_FICHIER_SECTION_PREFIX = "SECTION_ID_";
+
+    public static final String XAF_EMAIL_HTML_ENABLED = "XAF_EMAIL_HTML_ENABLED";
 
     /**
      * Version en cache des infos de la démarche
@@ -155,11 +160,24 @@ public class AfBackUtils {
     @Lazy
     private MotifTemplateService motifTemplateService;
 
+    @Autowired
+    @Lazy
+    private DemandesService demandesService;
+
+    @Autowired
+    @Lazy
+    private PropertiesService propertiesService;
+
+    @Autowired
+    @Lazy
+    private MotifsCache motifsCache;
+
     public static final short GENDER_MR_INDEX = 0;
     public static final short GENDER_MME_INDEX = 1;
     public static final short GENDER_MLLE_INDEX = 2;
 
     @PostConstruct
+    // TODO sonar n'aime cette méthode, car elle n'est pas static
     public void postConstructEnv() {
         String env = gouvPropertiesResolver.getGouvSharedEnv();
         // Si production, ne rien afficher
@@ -188,11 +206,12 @@ public class AfBackUtils {
     }
 
     @PostConstruct
+    // TODO utile ?
     public void postConstructRestTemplate() {
         restTemplate = new RestTemplate();
-        List<HttpMessageConverter<?>> list = new ArrayList<HttpMessageConverter<?>>();
+        List<HttpMessageConverter<?>> list = new ArrayList<>();
         MappingJackson2HttpMessageConverter conv = new MappingJackson2HttpMessageConverter();
-        List<MediaType> mediaTypes = new ArrayList<MediaType>();
+        List<MediaType> mediaTypes = new ArrayList<>();
         mediaTypes.add(new MediaType("application", "json", StandardCharsets.UTF_8));
         mediaTypes.add(new MediaType("text", "html", StandardCharsets.UTF_8));
         conv.setSupportedMediaTypes(mediaTypes);
@@ -263,32 +282,27 @@ public class AfBackUtils {
     }
 
     /**
-     * Génère un UUID version 1 (time+location based UUID) TODO copié de
-     * afservlet, supprimer dans l'un des deux
-     *
-     * @return
+     * Génère un UUID version 1 (time+location based UUID)
+     * TODO copié de afservlet, supprimer dans l'un des deux
      */
     public static UUID generateUUID() {
         EthernetAddress addr = EthernetAddress.fromInterface();
         TimeBasedGenerator uuidGenerator = Generators.timeBasedGenerator(addr);
-        UUID uuid = uuidGenerator.generate();
-        return uuid;
+        return uuidGenerator.generate();
     }
 
     /**
-     * Génère un suffixe de fichier en fonction de la date de génération conformément au
-     * pattern suivant: HHmmssSSS
+     * Génère un suffixe de fichier en fonction de la date de génération conformément au pattern suivant: HHmmssSSS
      */
     public static String generateFileDateSuffix() {
-        return FILE_DATE_SUFFIX.format(new Date());
+        return new SimpleDateFormat(FILE_DATE_SUFFIX_FORMAT).format(new Date());
     }
 
     /**
-     * Génère un suffixe de fichier en fonction de la date de génération conformément au
-     * pattern suivant: YYYYMMDDHHmmssSS
+     * Génère un suffixe de fichier en fonction de la date de génération conformément au pattern suivant: YYYYMMDDHHmmssSS
      */
     public static String generateFileDateAndTimeSuffix() {
-        return FILE_DATE_AND_TIME_SUFFIX.format(new Date());
+        return new SimpleDateFormat(FILE_DATE_AND_TIME_SUFFIX_FORMAT).format(new Date());
     }
 
     public MailClient getMailClient() {
@@ -326,6 +340,15 @@ public class AfBackUtils {
      */
     public String getDemarcheNom() {
         return getDemarcheInfos().getNom();
+    }
+    
+    /**
+     * Retourne le nom complet de la démarche en Anglais
+     *
+     * @return
+     */
+    public String getDemarcheNomEn() {
+        return getDemarcheInfos().getNomEn();
     }
 
     /**
@@ -380,6 +403,11 @@ public class AfBackUtils {
         flat.setUsagerPrenom(getSafeString(demande.getUsagerPrenom()));
         flat.setUsagerEmail(getSafeString(demande.getUsagerEmail()));
         flat.setBuildId(demande.getBuildId());
+        // motif
+        if (demande.getDernierStatut() != null && demande.getDernierStatut().getCodeMotif() != null) {
+            MotifDTO motif = motifsCache.getMotif(demande.getDernierStatut().getCodeMotif(), "fr");
+            flat.setMotif(motif != null ? motif.getLibelle() : null);
+        }
         return flat;
     }
 
@@ -399,6 +427,14 @@ public class AfBackUtils {
 
     public String getStatusLibelleFromName(String status) {
         return demarchesDataProvider.getStatusLibelle(status);
+    }
+
+    public String getExportLibelle() {
+        return demarchesDataProvider.getExportLibelle() != null ? demarchesDataProvider.getExportLibelle() : "Export Anonymisé";
+    }
+
+    public String getRecapOrientation() {
+        return demarchesDataProvider.getRecapOrientation();
     }
 
     /**
@@ -462,14 +498,21 @@ public class AfBackUtils {
         if (date == null) {
             return "";
         }
-        return SDF_JJ_MM_AAAA.format(date);
+        return new SimpleDateFormat(DEFAULT_FRENCH_DATE_FORMAT).format(date);
+    }
+
+    public String convertDateToTimeString(final Date date) {
+        if (date == null) {
+            return "";
+        }
+        return new SimpleDateFormat(DEFAULT_FRENCH_TIME_FORMAT).format(date);
     }
 
     public String convertDateTimeToString(final Date date) {
         if (date == null) {
             return "";
         }
-        return SDF_JJ_MM_AAAA_HH_MM.format(date);
+        return new SimpleDateFormat(DEFAULT_FRENCH_DATE_HOURS_FORMAT).format(date);
     }
 
     public static String changeDateStringFormat(final String dateString) {
@@ -541,22 +584,26 @@ public class AfBackUtils {
         return demarchesDataProvider.getDemarcheCanHandleProperties();
     }
 
-    public Date convertStartDate(String startDate) throws ParseException {
-        return SDF_JJ_MM_AAAA.parse(startDate);
-    }
-
-    public Date convertEndDate(String plainEndDate) throws ParseException {
-        Date endDate = SDF_JJ_MM_AAAA.parse(plainEndDate);
-
-        // Last moment of days
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(endDate);
-        cal.set(Calendar.HOUR_OF_DAY, cal.getMaximum(Calendar.HOUR_OF_DAY));
-        cal.set(Calendar.MINUTE, cal.getMaximum(Calendar.MINUTE));
-        cal.set(Calendar.SECOND, cal.getMaximum(Calendar.SECOND));
-        endDate = cal.getTime();
-
-        return endDate;
+    /**
+     * Permet de parser une string en un objet Date au format déclaré dans AfBackUtils.DEFAULT_FRENCH_DATE_FORMAT
+     * @throws ParseException en cas d'erreurs de parsing du SimpleDateFormat
+     */
+    public static Date convertDate(String dateStr, boolean endDate) throws ParseException {
+        Date date = null;
+        if (StringUtils.isNotEmpty(dateStr)) {
+            SimpleDateFormat sdf = new SimpleDateFormat(AfBackUtils.DEFAULT_FRENCH_DATE_FORMAT);
+            date = sdf.parse(dateStr);
+            if (endDate) {
+                // On applique le dernier instant de la journée
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(date);
+                cal.set(Calendar.HOUR_OF_DAY, cal.getMaximum(Calendar.HOUR_OF_DAY));
+                cal.set(Calendar.MINUTE, cal.getMaximum(Calendar.MINUTE));
+                cal.set(Calendar.SECOND, cal.getMaximum(Calendar.SECOND));
+                date = cal.getTime();
+            }
+        }
+        return date;
     }
     
     /**
@@ -588,11 +635,20 @@ public class AfBackUtils {
     }
 
     /**
+     * Echappe les caractères posant problèmes dans les logs selon la règle Sonar javasecurity:S5145
+     */
+    public static String logSafe(String str) {
+        if (StringUtils.isEmpty(str)) {
+            return str;
+        }
+        return str.replaceAll(SharedMessages.UNSAFE_CHARS, "_");
+    }
+
+    /**
      * Retourne le nom d'un utilisateur à partir de son matricule
      * <br>
-     * deprecated : Utiliser la méthode de {@link UtilisateursUtils}
-     * <br>
      * Attention cette méthode est appelée dans les pages HTML avec thymeleaf, bien vérifier les appels lors d'une suppression
+     * @deprecated : Utiliser la méthode de {@link UtilisateursUtils}
      */
     @Deprecated
     public String getUserNameFromID(String matricule) {
@@ -603,12 +659,11 @@ public class AfBackUtils {
 	public static Map<String, String> getListFromDemProperty(String demPropertyValue) {
     	ObjectMapper mapper = new ObjectMapper();
     	try {
-			Map<String, String> map = mapper.readValue(demPropertyValue, Map.class);
-			return map;
+            return mapper.readValue(demPropertyValue, Map.class);
 		} catch (JsonProcessingException e) {
 			LOGGER.error("Erreur lors de AfBackUtils.getListFromDemProperty()", e);
 		}
-    	return null;
+    	return Collections.emptyMap();
     }
 
     public static PropertiesListEntityDTO[] parserPropertiesListJson(String json) {
@@ -682,7 +737,7 @@ public class AfBackUtils {
 				LOGGER.error("Erreur dans donneesCertifieesJsonToList()", e);
 			}
     	}
-    	return new ArrayList<String>();
+    	return new ArrayList<>();
     }
     
     public static String donneesCertifieesListToJson(List<String> list) {
@@ -702,7 +757,20 @@ public class AfBackUtils {
 	}
 	
 	public static String mConnectDateToString(Date date) {
-		return MCONNECT_DATE_AND_TIME_FORMAT.format(date);
+		return new SimpleDateFormat(MCONNECT_DATE_AND_TIME_FORMAT).format(date);
 	}
-    
+	
+	public String getIdentifiantFromPkDemande(Integer pkDemande) {
+		DemandeDTO demande = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), pkDemande);
+		return demande.getIdentifiant();
+	}
+	
+	public boolean isEmailHtmlEnabled() {
+        PropertiesDTO emailHtmlEnabledProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_EMAIL_HTML_ENABLED);
+        if (emailHtmlEnabledProp == null || StringUtils.isBlank(emailHtmlEnabledProp.getValue())) {
+        	return false;
+        }
+        return Boolean.valueOf(emailHtmlEnabledProp.getValue());
+	}
+
 }

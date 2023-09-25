@@ -11,10 +11,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
@@ -39,14 +36,13 @@ public class UsagersAutocompleteController {
     @Autowired
     private UsagersCache usagersCache;
 
-    @RequestMapping(value = "/usagers", method = RequestMethod.GET, produces = "application/json")
-    public @ResponseBody AutocompleteUsagerListeDTO usagersAutoComplete(
-            @RequestParam(required = true) String query) throws Exception {
+    @GetMapping(value = "/usagers", produces = "application/json")
+    public @ResponseBody AutocompleteUsagerListeDTO usagersAutoComplete(@RequestParam String query) {
 
         LOGGER.info("======================= Appel de /ws/usagersAutocomplete/usagers");
 
         Collection<GichuniUsagerDTO> usagers = usagersCache.getAll().values();
-        Set<AutocompleteUsagerDTO> liste = new TreeSet<AutocompleteUsagerDTO>();
+        Set<AutocompleteUsagerDTO> liste = new TreeSet<>();
         for (GichuniUsagerDTO usager : usagers) {
             AutocompleteUsagerDTO u = new AutocompleteUsagerDTO();
 
@@ -67,13 +63,13 @@ public class UsagersAutocompleteController {
             liste.add(u);
         }
 
-        List<AutocompleteUsagerDTO> toDelete = new ArrayList<AutocompleteUsagerDTO>();
+        List<AutocompleteUsagerDTO> toDelete = new ArrayList<>();
         for (AutocompleteUsagerDTO dcau : liste) {
             if (!Pattern.compile(Pattern.quote(query), Pattern.CASE_INSENSITIVE).matcher(dcau.getValue()).find()) {
                 toDelete.add(dcau);
             }
         }
-        liste.removeAll(toDelete);
+        toDelete.forEach(liste::remove);
 
         for (AutocompleteUsagerDTO dcau : liste) {
             if (Integer.parseInt(dcau.getData()) >= DemarchesUtils.USAGERID_OFFSET) {
@@ -83,7 +79,7 @@ public class UsagersAutocompleteController {
 
         AutocompleteUsagerListeDTO ret = new AutocompleteUsagerListeDTO();
 
-        ret.setSuggestions(liste.toArray(new AutocompleteUsagerDTO[liste.size()]));
+        ret.setSuggestions(liste.toArray(new AutocompleteUsagerDTO[0]));
 
         LOGGER.info("======================= Fin appel de /ws/usagersAutocomplete/usagers");
 

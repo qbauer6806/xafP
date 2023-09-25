@@ -17,7 +17,6 @@ import mc.gouv.xaf.back.paiement.data.transformer.CommandeTransformer;
 import mc.gouv.xaf.back.paiement.dto.*;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
@@ -34,10 +33,6 @@ import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-/**
- * TODO: Impossible de créer des tables depuis le merge XAF 11
- */
-@Ignore
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class CaptureServiceTest {
@@ -78,7 +73,7 @@ public class CaptureServiceTest {
 
     @Transactional
     @Test
-    public void captureOk() throws Exception {
+    public void captureOk() {
         DemandeBO demandeBO = new DemandeBO();
         demandeBO.setContenu("{\"donnee\":{\"demandeur\":{\"titre\":\"0\",\"nom\":\"Test\",\"prenom\":\"Test\",\"email\":\"test.ext@gouv.mc\"}},\"contact\":{\"telephone\":{\"indicatif\":\"t377\",\"numero\":\"98981234\"}},\"titulaire\":{\"adresse\":{\"ligne1\":\"1\",\"ligne2\":\"\",\"ligne3\":\"\",\"codePostal\":\"98000\",\"ville\":\"Monaco\",\"pays\":\"MC\"},\"cartemonegasque\":{\"expiration\":\"2022-09-22T00:00:00+02:00\",\"numero\":\"12345\"},\"cartesejour\":{\"numero\":null,\"categorie\":null,\"delivrance\":null,\"expiration\":null},\"pioupasseport\":\"PI\",\"datenaissance\":\"2022-09-22T00:00:00+02:00\",\"declarantouinon\":\"NO\",\"titre\":\"0\",\"prenom\":\"Test\",\"nom\":\"Test\",\"monegasque\":\"MC\",\"mandatairerlsociete\":null,\"representantlegal\":null,\"nomusage\":null,\"passeportnumero\":null,\"dateexpiration\":null},\"titre\":{\"categorie\":{\"b\":true},\"validitepermis\":\"2022-09-22T00:00:00+02:00\",\"numeropermis\":\"12345\",\"paysdelivrance\":\"FR\",\"permisinternational\":\"OUI\",\"langue\":null},\"paiement\":{\"tableau\":[{\"objet\":\"PERMIS\",\"montant\":80.0},{\"objet\":\"PERMIS_INTERNATIONAL\",\"montant\":30.0}],\"total\":\"110,00 €\"},\"declaration3\":\"DECLARATION_3\",\"declarations2\":\"DECLARATION2\",\"declarations1\":null,\"titreautrecateg\":null}");
         demandeBO.setCanal("canal");
@@ -146,11 +141,11 @@ public class CaptureServiceTest {
 
         CommandeDTO commandeDTO = CommandeTransformer.bo2Dto(commandeBO);
 
-        CommandeOperationDTO resutat = captureService.capture(commandeDTO, demandeDTO);
-        assertThat(resutat.getMontant()).isEqualTo(80.0);
-        assertThat(resutat.getOperationType()).isEqualTo(OperationTypeEnum.DEBIT.name());
-        assertThat(resutat.getOperationStatut()).isEqualTo(OperationStatutEnum.ACCEPTEE.name());
-        assertThat(resutat.getNumeroFacture()).isEqualTo("facture001");
+        CommandeOperationDTO resultat = captureService.capture(commandeDTO, demandeDTO);
+        assertThat(resultat.getMontant()).isEqualTo(80.0);
+        assertThat(resultat.getOperationType()).isEqualTo(OperationTypeEnum.DEBIT.name());
+        assertThat(resultat.getOperationStatut()).isEqualTo(OperationStatutEnum.ACCEPTEE.name());
+        assertThat(resultat.getNumeroFacture()).isEqualTo("facture001");
     }
 
 }

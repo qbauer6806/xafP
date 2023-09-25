@@ -20,7 +20,13 @@ public class DemandeFileDTO {
 	protected String identifiant;
 	protected String typedoc;
 	private Integer pkDemandesComplementsFiles;
+	
+	// Dixit mboutelier.ext : "Flag pour indiquer si c'est un fichier d'une demande complémentaire"
+	// Ne va pas jusqu'en base
 	private boolean compFile;
+	
+	// Correspond à la checkbox de vérification de pièces jointes dans le BO
+	// Va jusqu'en base
 	private boolean verification;
 
 	public Integer getPkDemandesFiles() {

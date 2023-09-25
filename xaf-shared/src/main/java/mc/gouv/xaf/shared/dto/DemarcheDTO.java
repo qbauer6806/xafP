@@ -11,6 +11,8 @@ public class DemarcheDTO {
     private String pkDemarches;
     
     private String nom;
+    
+    private String nomEn;
 
     private String emailService;
     
@@ -97,5 +99,13 @@ public class DemarcheDTO {
     public void setIdentifiantPrefixe(String identifiantPrefixe) {
         this.identifiantPrefixe = identifiantPrefixe;
     }
+
+	public String getNomEn() {
+		return nomEn;
+	}
+
+	public void setNomEn(String nomEn) {
+		this.nomEn = nomEn;
+	}
     
 }

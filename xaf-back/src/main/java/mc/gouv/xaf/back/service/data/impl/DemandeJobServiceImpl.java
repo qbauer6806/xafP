@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 
+import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -40,6 +42,8 @@ import mc.gouv.xaf.shared.dto.JobStatutsEnum;
 @Conditional(IndexationEnabledCondition.class)
 @Transactional(rollbackFor = Exception.class)
 public class DemandeJobServiceImpl implements DemandeJobService {
+
+    private static final String LES_DEMANDES = "Les demandes ";
 
     @Inject
     IndexedDemandeService indexedDemandeService;
@@ -89,16 +93,32 @@ public class DemandeJobServiceImpl implements DemandeJobService {
             context.getBean(DemandeJobServiceImpl.class).launch(job);
 
         } catch (IllegalArgumentException e) {
-
-            LOGGER.error("Une erreur est survenue lors du lancement du job : {}", e.getMessage());
-            throw new IllegalArgumentException(e.getMessage());
-
+            LOGGER.error("Une erreur est survenue lors du lancement du job.");
+            throw e;
         } catch (Exception e) {
-
             context.getBean(DemandeJobServiceImpl.class).logErrors(job.getId(), e);
-
         }
+    }
 
+    /**
+     * <p>Job de recherche des demandes désynchronisées entre ES et la BDD.</p>
+     * <p>[0] Demandes présentes dans ES mais pas en BDD</p>
+     * <p>[1] Demandes présentes en BDD mais pas dans ES</p>
+     * @return Un message contenant le résultat de la recherche.
+     */
+    private String getDemandesDesynchroJob() {
+        List<List<String>> ret = indexedDemandeService.getDemandesDesynchro();
+        String msg = "";
+        if (ret != null && !ret.get(0).isEmpty()) {
+            msg = LES_DEMANDES + ret.get(0) + " sont présentes dans ES mais pas en BDD<br/>";
+        }
+        if (ret != null && !ret.get(1).isEmpty()) {
+            msg += LES_DEMANDES + ret.get(1) + " sont présentes en BDD mais pas dans ES";
+        }
+        if (ret == null || ret.get(0).isEmpty() && ret.get(1).isEmpty()) {
+            msg = "Aucune demande désynchronisée";
+        }
+        return msg;
     }
 
     @Async
@@ -106,65 +126,59 @@ public class DemandeJobServiceImpl implements DemandeJobService {
     public void launch(DemandeJobBO job) {
         try {
             String msg = "";
-            if (job.getJobName().equals(JobNamesEnum.REINDEXATION)) {
-                Long demCount = indexedDemandeService.reindex();
-                msg = "Tous les fichiers et contenus des " + demCount + " demandes ont été reindéxés";
-            }
-            if (job.getJobName().equals(JobNamesEnum.REINDEXATION_DEMANDES)) {
-                Long demCount = indexedDemandeService.reindexDemandes();
-                msg = demCount + " demandes ont été reindéxées";
-            }
-            if (job.getJobName().equals(JobNamesEnum.REINDEXATION_DEMANDES_DESYNCHRO)) {
-                List<String> demandes = indexedDemandeService.reindexDemandesDesynchro();
-                if (!demandes.isEmpty()) {
-                    msg = "Les demandes " + demandes + " ont été synchronisées (supprimées d'ES et/ou reindéxées)";
-                } else {
-                    msg = "Aucune demande n'a été synchronisée";
-                }
-            }
-            if (job.getJobName().equals(JobNamesEnum.GET_DEMANDES_DESYNCHRONISEES)) {
-                // [0] Demandes présentes dans ES mais pas en BDD
-                // [1] Demandes présentes en BDD mais pas dans ES
-                List<List<String>> ret = indexedDemandeService.getDemandesDesynchro();
-                if (ret != null && ret.get(0).size() > 0) {
-                    msg = "Les demandes " + ret.get(0) + " sont présentes dans ES mais pas en BDD<br/>";
-                }
-                if (ret != null && ret.get(1).size() > 0) {
-                    msg += "Les demandes " + ret.get(1) + " sont présentes en BDD mais pas dans ES";
-                }
-                if (ret == null || ret.get(0).isEmpty() && ret.get(1).isEmpty()) {
-                    msg = "Aucune demande désynchronisée";
-                }
-            }
-            if (job.getJobName().equals(JobNamesEnum.RAFRAICHISSEMENT_STATUS)) {
-                msg = demandesStatutsRefreshService.refreshStatuts();
-            }
-            if (job.getJobName().equals(JobNamesEnum.TRAITEMENT_DEAD_LETTER_TOPIC_GU_KAFKA)) {
-            	if (gouvPropertiesResolver.isBackserver()) {
-            		// Pas d'@Inject ni d'@Autowired car l'API doit pouvoir démarrer sans ça
-            		msg = context.getBean(GUKafkaDLTConsumer.class).traiterDLT();
-            	}
-            	else {
-            		throw new Exception("Ce job doit être lancé par le backserver");
-            	}
-            }
-            if (job.getJobName().equals(JobNamesEnum.TRAITEMENT_OUTBOX_KAFKA)) {
-            	msg = kafkaOutboxTraitementJob.execute();
-            }
-            if (job.getJobName().equals(JobNamesEnum.SYNCHRONISATION_GLOBALE_GU)) {
-        	    List<UsagerDemandesRecapDTO> usagerDemandesRecaps = guKafkaUtils.getUsagerDemandesRecapList();
-        	    guKafkaProducer.sendSynchronisationDemandesMessage(usagerDemandesRecaps);
-        	    msg = "Message placé dans l'Outbox Kafka pour envoi";
-            }
-            if (job.getJobName().equals(JobNamesEnum.RECUPERATION_NOMBRE_MESSAGES_OUTBOX_KAFKA)) {
-            	Integer nbMessages = kafkaOutboxService.getNbOutboxElements();
-            	msg = "L'Outbox Kafka contient " + nbMessages;
-            	if (nbMessages > 1) {
-            		msg += " messages.";
-            	}
-            	else {
-            		 msg += " message.";
-            	}
+            Long demCount;
+
+            switch (job.getJobName()) {
+                case GET_DEMANDES_DESYNCHRONISEES:
+                    msg = getDemandesDesynchroJob();
+                    break;
+                case REINDEXATION_DEMANDES_DESYNCHRO:
+                    List<String> demandes = indexedDemandeService.reindexDemandesDesynchro();
+                    if (!demandes.isEmpty()) {
+                        msg = LES_DEMANDES + demandes + " ont été synchronisées (supprimées d'ES et/ou reindéxées)";
+                    } else {
+                        msg = "Aucune demande n'a été synchronisée";
+                    }
+                    break;
+                case REINDEXATION:
+                    demCount = indexedDemandeService.reindex();
+                    msg = "Tous les fichiers et contenus des " + demCount + " demandes ont été reindéxés";
+                    break;
+                case REINDEXATION_DEMANDES:
+                    demCount = indexedDemandeService.reindexDemandes();
+                    msg = demCount + " demandes ont été reindéxées";
+                    break;
+                case RAFRAICHISSEMENT_STATUS:
+                    msg = demandesStatutsRefreshService.refreshStatuts();
+                    break;
+                case TRAITEMENT_DEAD_LETTER_TOPIC_GU_KAFKA:
+                    if (gouvPropertiesResolver.isBackserver()) {
+                        // Pas d'@Inject ni d'@Autowired car l'API doit pouvoir démarrer sans ça
+                        msg = context.getBean(GUKafkaDLTConsumer.class).traiterDLT();
+                    } else {
+                        throw new DemarchesServiceException("Ce job doit être lancé par le backserver", HttpStatus.UNAUTHORIZED);
+                    }
+                    break;
+                case TRAITEMENT_OUTBOX_KAFKA:
+                    msg = kafkaOutboxTraitementJob.execute();
+                    break;
+                case SYNCHRONISATION_GLOBALE_GU:
+                    List<UsagerDemandesRecapDTO> usagerDemandesRecaps = guKafkaUtils.getUsagerDemandesRecapList();
+                    guKafkaProducer.sendSynchronisationDemandesMessage(usagerDemandesRecaps);
+                    msg = "Message placé dans l'Outbox Kafka pour envoi";
+                    break;
+                case RECUPERATION_NOMBRE_MESSAGES_OUTBOX_KAFKA:
+                    Integer nbMessages = kafkaOutboxService.getNbOutboxElements();
+                    msg = "L'Outbox Kafka contient " + nbMessages;
+                    if (nbMessages > 1) {
+                        msg += " messages.";
+                    }
+                    else {
+                        msg += " message.";
+                    }
+                    break;
+                default:
+                    break;
             }
 
             context.getBean(DemandeJobServiceImpl.class).logSuccess(job.getId(), msg);

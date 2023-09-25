@@ -7,10 +7,7 @@ import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemandeRecapHTMLService;
@@ -38,23 +35,16 @@ public class RecapGenerationController {
 	@Autowired
 	private DemandeRecapHTMLService demandeRecapHTMLService;
 
-	@RequestMapping(value = "/{pkDemande}", method = RequestMethod.GET, produces = "text/html")
-	public @ResponseBody String getRecap(@PathVariable(value = "pkDemande") Integer pkDemande) throws Exception {
-
-		LOGGER.info("======================= Appel de /ws/recap/" + pkDemande);
-
+	@GetMapping(value = "/{pkDemande}", produces = "text/html")
+	public @ResponseBody String getRecap(@PathVariable(value = "pkDemande") Integer pkDemande) throws IOException, ParseException, ClassNotFoundException, InvocationTargetException, IllegalAccessException, NoSuchMethodException {
+		LOGGER.info("======================= Appel de /ws/recap/{}", pkDemande);
 		DemandeDTO demande = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), pkDemande);
-
 		String ret = "";
-
 		if (demande != null) {
 			ret = getHTML(demande);
 		}
-
-		LOGGER.info("======================= Fin appel de /ws/recap/" + pkDemande);
-
+		LOGGER.info("======================= Fin appel de /ws/recap/{}", pkDemande);
 		return ret;
-
 	}
 
 	public String getHTML(DemandeDTO demande)

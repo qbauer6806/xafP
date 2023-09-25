@@ -1,9 +1,11 @@
 package mc.gouv.xaf.back.service.data.impl;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
+import mc.gouv.xaf.shared.SharedMessages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +52,7 @@ public class DemandesDataServiceImpl implements DemandesDataService {
 		}
 
 		DemandesDataBO demandesDataBo = getDemandeDataBO(demandeId, key);
-		LOGGER.info("Transformation bo -> dto ...");
+		LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
 		return DemandesDataTransformer.bo2Dto(demandesDataBo);
 	}
 
@@ -72,7 +74,7 @@ public class DemandesDataServiceImpl implements DemandesDataService {
 
 		List<DemandesDataBO> demandesDatasBo = demandesDataRepository.findByFkDemandesPkDemandes(demandeId);
 
-		LOGGER.info("Transformation bo -> dto ...");
+		LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
 
 		return DemandesDataTransformer.bo2Dto(demandesDatasBo);
 	}
@@ -84,7 +86,7 @@ public class DemandesDataServiceImpl implements DemandesDataService {
     public List<DemandeDataDTO> getDemandeDatasByKeyAndValue(String key, String value) {
         LOGGER.info("Récupération en base des IDs des demandes...");
         List<DemandesDataBO> demandesDatasBo = demandesDataRepository.findByKeyAndValue(key, value);
-        LOGGER.info("Transformation bo -> dto ...");
+        LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
         return DemandesDataTransformer.bo2Dto(demandesDatasBo);
     }
 
@@ -96,14 +98,12 @@ public class DemandesDataServiceImpl implements DemandesDataService {
             List<DemandeBO> demandeIds) {
         LOGGER.info("Récupération en base des IDs des demandes...");
         List<DemandesDataBO> demandesDatasBo = demandesDataRepository.findByKeyAndValueAndFkDemandesIn(key, value, demandeIds);
-        LOGGER.info("Transformation bo -> dto ...");
+        LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
         return DemandesDataTransformer.bo2Dto(demandesDatasBo);
     }
 
 	/**
 	 * {@inheritDoc}
-	 * 
-	 * @throws Exception
 	 */
 	@Override
 	public DemandeDataDTO saveOrUpdateDemandeData(String demarcheId, Integer demandeId, String key, String value) {
@@ -112,8 +112,6 @@ public class DemandesDataServiceImpl implements DemandesDataService {
 
 	/**
 	 * {@inheritDoc}
-	 *
-	 * @throws Exception
 	 */
 	@Override
 	public DemandeDataDTO saveOrUpdateDemandeData(String demarcheId, Integer demandeId, String key, String value, boolean checkActive) {
@@ -124,11 +122,7 @@ public class DemandesDataServiceImpl implements DemandesDataService {
 
 	/**
 	 * {@inheritDoc}
-	 * 
-	 * @throws Exception
 	 */
-	// Cette méthode est créée pour ne pas bombarder elasticsearch si on met à jours
-	// plusieurs clès valeurs avec la méthode saveOrUpdateDemandeData
 	@Override
 	public void saveOrUpdateDemandeDatas(String demarcheId, Integer demandeId, Map<String, String> datas) {
 
@@ -140,7 +134,6 @@ public class DemandesDataServiceImpl implements DemandesDataService {
 				saveOrUpdateDemandeDatas(demandeBo, entry.getKey(), entry.getValue());
 			}
 		}
-
 	}
 
 	private DemandeDataDTO saveOrUpdateDemandeDatas(DemandeBO demandeBo, String key, String value) {
@@ -175,7 +168,7 @@ public class DemandesDataServiceImpl implements DemandesDataService {
 			demandesDataBo = demandesDataRepository.save(demandesDataBo);
 		}
 
-		LOGGER.info("Transformation bo -> dto ...");
+		LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
 
 		return DemandesDataTransformer.bo2Dto(demandesDataBo);
 	}
@@ -194,8 +187,6 @@ public class DemandesDataServiceImpl implements DemandesDataService {
 
 	/**
 	 * {@inheritDoc}
-	 * 
-	 * @throws Exception
 	 */
 	@Override
 	public void deleteDemandeData(String demarcheId, Integer demandeId, String key) {
@@ -210,7 +201,20 @@ public class DemandesDataServiceImpl implements DemandesDataService {
 			demandesDataBo.getFkDemandes().getData().remove(demandesDataBo);
 			demandesDataRepository.delete(demandesDataBo);
 		}
-
 	}
 
+	public void clonerDemandeData(DemandeBO demandeBo, DemandeBO newDemandeBo) {
+		if (demandeBo.getData() != null) {
+			LOGGER.info("Dupliquer des données de la demande");
+			List<DemandeDataDTO> datasDto = DemandesDataTransformer
+					.bo2Dto(new ArrayList<>(demandeBo.getData()));
+			List<DemandesDataBO> datasBo = DemandesDataTransformer.dto2Bo(datasDto);
+			for (DemandesDataBO dataBo : datasBo) {
+				dataBo.setPkDemandesData(null);
+				dataBo.setFkDemandes(newDemandeBo);
+				demandesDataRepository.save(dataBo);
+			}
+			newDemandeBo.setData(new HashSet<>(datasBo));
+		}
+	}
 }

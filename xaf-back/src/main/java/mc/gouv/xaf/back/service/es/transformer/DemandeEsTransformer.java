@@ -33,8 +33,8 @@ import mc.gouv.xaf.back.data.es.model.DemandeAccessEsDTO;
 import mc.gouv.xaf.back.data.es.model.DemandeEsDTO;
 import mc.gouv.xaf.back.data.es.model.DemandeJoinFieldEsDTO;
 import mc.gouv.xaf.back.data.es.model.DemandeStatutEsDTO;
-import mc.gouv.xaf.back.data.es.model.GenericContenuEsDTO;
-import mc.gouv.xaf.back.data.es.model.GenericDemandeDataEsDTO;
+import mc.gouv.xaf.shared.dto.es.GenericContenuEsDTO;
+import mc.gouv.xaf.shared.dto.es.GenericDemandeDataEsDTO;
 import mc.gouv.xaf.back.data.transformer.DemandesCourriersTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesStatutsTransformer;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
@@ -103,6 +103,14 @@ public class DemandeEsTransformer {
 
         return new PageImpl<>(demandesEs);
 
+    }
+
+    public List<DemandeEsDTO> toEs(List<DemandeDTO> demandes) {
+        List<DemandeEsDTO> demandesEs = new ArrayList<>();
+        for (DemandeDTO dem : demandes) {
+            demandesEs.add(toEs(dem, true));
+        }
+        return demandesEs;
     }
 
     public DemandeEsDTO toEs(DemandeBO demande) throws IOException {
@@ -182,6 +190,8 @@ public class DemandeEsTransformer {
             demandeEsDTO.setAgentAffecteNomAffichage(getAgentAffecteNomAffichage(user));
         }
 
+        demandeEsDTO.setModificationTimestamp(demande.getModificationTimestamp());
+
         return demandeEsDTO;
     }
 
@@ -255,14 +265,8 @@ public class DemandeEsTransformer {
         List<String> justifs = getJustificatifsTraitement(gouvPropertiesResolver.getDemarcheId(),
                 demandeDTO.getPkDemandes());
         demandeEsDTO.setJustificatifsTraitement(justifs);
-
+        demandeEsDTO.setModificationTimestamp(demandeDTO.getModificationTimestamp());
         return demandeEsDTO;
-    }
-
-    public DemandeEsDTO toEs(DemandeDTO demandeDTO) {
-
-        return toEs(demandeDTO, null);
-
     }
 
     public DemandeEsDTO bo2Dto(DemandeBO bo, String[] fields) {
@@ -388,7 +392,7 @@ public class DemandeEsTransformer {
         // Justificatifs de traitment dans l'historique de la demande
         List<String> justifs = getJustificatifsTraitement(gouvPropertiesResolver.getDemarcheId(), bo.getPkDemandes());
         dto.setJustificatifsTraitement(justifs);
-
+        dto.setModificationTimestamp(bo.getModificationTimestamp());
         return dto;
     }
 

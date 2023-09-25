@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.MediaType;
 import java.io.ByteArrayInputStream;
 import java.util.List;
 
@@ -22,27 +23,21 @@ public class PropertiesServlet extends AbstractAfServlet {
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) {
         LOGGER.info("====================== /properties doGet()");
-
         LOGGER.info("Appel de la démarche afin de récupérer les propriétés FRONT ...");
-
         try {
             List<PropertiesDTO> properties = getAfApiClient().getFrontProperties();
-
             LOGGER.info("Ajout des properties du fichier frontserver.properties...");
             properties.addAll(AfServletGouvPropertiesResolver.getFrontProperties());
-
-            response.setStatus(HttpStatus.SC_OK);
             ObjectMapper mapper = new ObjectMapper();
-
             String repJson = mapper.writeValueAsString(properties);
-            response.setContentType("application/json");
+            response.setContentType(MediaType.APPLICATION_JSON);
             IOUtils.copy(new ByteArrayInputStream(repJson.getBytes()), response.getOutputStream());
+            response.setStatus(HttpStatus.SC_OK);
         } catch (Exception e) {
             LOGGER.error("PropertiesServlet - Une erreur est survenue lors de l'appel à la méthode GET", e);
             int codeStatut = getCodeErreur(e);
             response.setStatus(codeStatut);
         }
-
         LOGGER.info("====================== Fin /properties doGet()");
     }
 }

@@ -29,9 +29,6 @@ public class BrouillonsFilesTransformer {
 
     /**
      * L'entité retournée est à rattacher à un DemandeBO après l'appel à cette fonction
-     * 
-     * @param dto
-     * @return
      */
     public static BrouillonsFilesBO dto2Bo(BrouillonFileDTO dto) {
         BrouillonsFilesBO bo = new BrouillonsFilesBO();

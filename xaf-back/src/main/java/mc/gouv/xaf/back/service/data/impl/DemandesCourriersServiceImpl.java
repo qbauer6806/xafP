@@ -1,6 +1,5 @@
 package mc.gouv.xaf.back.service.data.impl;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -8,13 +7,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import mc.gouv.xaf.shared.SharedMessages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.xml.sax.SAXException;
 
 import mc.gouv.xaf.back.data.dao.DemandesCourriersRepository;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
@@ -57,18 +56,13 @@ public class DemandesCourriersServiceImpl implements DemandesCourriersService {
 
     /**
      * {@inheritDoc}
-     * @throws SAXException 
-     * @throws IOException 
      */
     @Override
     public DemandeCourrierDTO saveCourrier(String demarcheId, Integer pkDemande, DemandeCourrierDTO courrierDto) {
 
-        LOGGER.info("Récupération de la demande associée...");
-
         DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(demarcheId, pkDemande, true);
-
         if (demandeBo == null) {
-            throw new DemarchesServiceException("Demande associée introuvable", HttpStatus.NOT_FOUND);
+            throw new DemarchesServiceException(SharedMessages.DEMANDE_ASSOCIEE_INTROUVABLE, HttpStatus.NOT_FOUND);
         }
 
         LOGGER.info("Constitution du nouveau courrier et sauvegarde en base...");
@@ -82,7 +76,7 @@ public class DemandesCourriersServiceImpl implements DemandesCourriersService {
         DemandesCourriersBO retourBo = demandesCourriersRepository.save(bo);
         updateDemandeCourrier(demandeBo, bo);
 
-        LOGGER.info("Transformation bo -> dto ...");
+        LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
         return DemandesCourriersTransformer.bo2Dto(retourBo);
     }
 
@@ -91,26 +85,19 @@ public class DemandesCourriersServiceImpl implements DemandesCourriersService {
      */
     @Override
     public DemandeCourrierDTO getCourrier(String demarcheId, Integer pkDemande, Integer pkCourrier) {
-
         DemandesCourriersBO courrierBo = getCourrierBo(demarcheId, pkDemande, pkCourrier);
-
-        LOGGER.info("Transformation bo -> dto ...");
+        LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
         return DemandesCourriersTransformer.bo2Dto(courrierBo);
-
     }
 
     private DemandesCourriersBO getCourrierBo(String demarcheId, Integer pkDemande, Integer pkCourrier) {
 
-        LOGGER.info("Récupération de la demande associée...");
-
         DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(demarcheId, pkDemande, true);
-
         if (demandeBo == null) {
-            throw new DemarchesServiceException("Demande associée introuvable", HttpStatus.NOT_FOUND);
+            throw new DemarchesServiceException(SharedMessages.DEMANDE_ASSOCIEE_INTROUVABLE, HttpStatus.NOT_FOUND);
         }
 
         Optional<DemandesCourriersBO> courrierBoOp = demandesCourriersRepository.findById(pkCourrier);
-
         if (!courrierBoOp.isPresent()) {
             throw new DemarchesServiceException("Courrier introuvable", HttpStatus.NOT_FOUND);
         }
@@ -124,16 +111,13 @@ public class DemandesCourriersServiceImpl implements DemandesCourriersService {
     @Override
     public List<DemandeCourrierDTO> getCourriers(String demarcheId, Integer pkDemande) {
 
-        LOGGER.info("Récupération de la demande associée...");
-
         DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(demarcheId, pkDemande, true);
-
         if (demandeBo == null) {
-            throw new DemarchesServiceException("Demande associée introuvable", HttpStatus.NOT_FOUND);
+            throw new DemarchesServiceException(SharedMessages.DEMANDE_ASSOCIEE_INTROUVABLE, HttpStatus.NOT_FOUND);
         }
 
-        LOGGER.info("Transformation bo -> dto ...");
-        return DemandesCourriersTransformer.bo2Dto(new ArrayList<DemandesCourriersBO>(demandeBo.getCourriers()));
+        LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
+        return DemandesCourriersTransformer.bo2Dto(new ArrayList<>(demandeBo.getCourriers()));
     }
 
     /**
@@ -141,17 +125,10 @@ public class DemandesCourriersServiceImpl implements DemandesCourriersService {
      */
     @Override
     public List<DemandeCourrierDTO> getCourriersPourDemarche(String demarcheId) {
-
-        LOGGER.info("Récupération de la démarche associée...");
-
         demarchesService.getCheckDemarche(demarcheId);
-
-        List<DemandesCourriersBO> courriers = demandesCourriersRepository
-                .findByFkDemandesFkAccessDemarcheId(demarcheId);
-
-        LOGGER.info("Transformation bo -> dto ...");
+        List<DemandesCourriersBO> courriers = demandesCourriersRepository.findByFkDemandesFkAccessDemarcheId(demarcheId);
+        LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
         return DemandesCourriersTransformer.bo2Dto(courriers);
-
     }
 
     private void updateDemandeCourrier(DemandeBO demandeBo, DemandesCourriersBO courrierBo) {
@@ -169,7 +146,6 @@ public class DemandesCourriersServiceImpl implements DemandesCourriersService {
 
     /**
      * {@inheritDoc}
-     * @throws Exception 
      */
     @Override
     public DemandeCourrierDTO updateCourrier(String demarcheId, Integer pkDemande, DemandeCourrierDTO courrierDto) {
@@ -188,9 +164,8 @@ public class DemandesCourriersServiceImpl implements DemandesCourriersService {
         DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(demarcheId, pkDemande, true);
         updateDemandeCourrier(demandeBo, courrierBo);
 
-        LOGGER.info("Transformation bo -> dto ...");
+        LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
         return DemandesCourriersTransformer.bo2Dto(courrierBo);
-
     }
 
 	@Override

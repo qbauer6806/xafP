@@ -11,7 +11,7 @@ public class EsUtils {
     /**
      * @deprecated les jointures seront supprimées dans ES8
      */
-    @Deprecated
+    @Deprecated(forRemoval = true)
     public static final String JOIN_FIELD = "demandeJoinField";
     public static final String DATE_CREATION_FIELD = "dateCreation";
     public static final String PK_DEMANDE_FIELD = "pkDemandes";
@@ -29,6 +29,7 @@ public class EsUtils {
     public static final String DATE_PRINTED_FILE_FIELD = "datePrinted";
     public static final String DEMANDEID_FILE_FIELD = "identifiantDemande";
     public static final String REFINTERNE_FILE_FIELD = "identifiantFichier";
+    public static final String INDEX_FILES_JOIN_DOC = "fichiers";
 
     // Champs pour la recherche des courriers
     private static final String COURRIER_DATE_RECEPTION_FIELD = "courrierDateReception";

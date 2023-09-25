@@ -7,6 +7,7 @@ import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.es.IndexedDemandeService;
 import mc.gouv.xaf.back.service.es.utils.EsUtils;
 import mc.gouv.xaf.backweb.controller.AbstractController;
+import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.DataRechercheDTO;
 import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
 import mc.gouv.xaf.shared.dto.DemandeCourrierRechercheDTO;
@@ -59,9 +60,10 @@ public class RechercheIndexedCourriersController extends AbstractController {
                                                        @RequestParam(value = "aucunCanal", required = false) boolean aucunCanal,
                                                        @RequestParam(value = "aucunStatut", required = false) boolean aucunStatut, Pageable pageable) {
 
-        LOGGER.info(
-                "======================= Appel de /ws/courriers/pageable (userId=\"{}\", statuts=\"{}\", canaux=\"{}\", agentId=\"{}\", creationStartDate=\"{}\", creationEndDate=\"{}\", texte=\"{}\", data=\"{}\")",
-                usagerId, statuts, canaux, agentId, creationStartDate, creationEndDate, texte, data);
+        String safeAgentId = agentId != null ? agentId.replaceAll(SharedMessages.UNSAFE_CHARS, "_") : null;
+        String safeTexte = texte != null ? texte.replaceAll(SharedMessages.UNSAFE_CHARS, "_") : null;
+        LOGGER.info("======================= Appel de /ws/courriers/pageable (userId=\"{}\", statuts=\"{}\", canaux=\"{}\", agentId=\"{}\", creationStartDate=\"{}\", creationEndDate=\"{}\", texte=\"{}\", data=\"{}\")",
+                usagerId, statuts, canaux, safeAgentId, creationStartDate, creationEndDate, safeTexte, data);
 
         DemandeCourrierRechercheDTO demandeRecherche = new DemandeCourrierRechercheDTO();
         demandeRecherche.setDemarcheId(gouvPropertiesResolver.getDemarcheId());

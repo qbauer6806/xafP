@@ -44,9 +44,13 @@ public class DemandesTransformer {
         return bo2Dto(bo, null);
     }
 
-    public static DemandeDTO bo2Dto(DemandeBO bo, String[] fields) {
-        if (bo == null) {
-            return null;
+    /**
+     * <p>Détermine quels champs vont être ajoutés à l'objet Demande.</p>
+     * <p>Dans le cas où fields est null, on retourne un objet complet.</p>
+     */
+    private static boolean[] getAllFields(String[] fields) {
+        if (null == fields) {
+            return new boolean[]{true, true, true, true, true};
         }
 
         boolean addCourriersField = false;
@@ -54,32 +58,38 @@ public class DemandesTransformer {
         boolean addStatutsField = false;
         boolean addDemandesComplementsField = false;
         boolean addDataField = false;
-        if (fields != null) {
-            for (String field : fields) {
-                if (StringUtils.equals(FIELD_COURRIER, field)) {
-                    addCourriersField = true;
-                }
-                if (StringUtils.equals(FIELD_FILES, field)) {
-                    addFilesField = true;
-                }
-                if (StringUtils.equals(FIELD_STATUS, field)) {
-                    addStatutsField = true;
-                }
-                if (StringUtils.equals(FIELD_DEM_COMPL, field)) {
-                    addDemandesComplementsField = true;
-                }
-                if (StringUtils.equals(FIELD_DATA, field)) {
-                    addDataField = true;
-                }
+        for (String field : fields) {
+            if (StringUtils.equals(FIELD_COURRIER, field)) {
+                addCourriersField = true;
             }
-        } else {
-            //Dans le cas ou il n'y avait pas de fields on retourne l'objet complet
-            addCourriersField = true;
-            addFilesField = true;
-            addStatutsField = true;
-            addDemandesComplementsField = true;
-            addDataField = true;
+            if (StringUtils.equals(FIELD_FILES, field)) {
+                addFilesField = true;
+            }
+            if (StringUtils.equals(FIELD_STATUS, field)) {
+                addStatutsField = true;
+            }
+            if (StringUtils.equals(FIELD_DEM_COMPL, field)) {
+                addDemandesComplementsField = true;
+            }
+            if (StringUtils.equals(FIELD_DATA, field)) {
+                addDataField = true;
+            }
         }
+        return new boolean[]{addCourriersField, addFilesField, addStatutsField, addDemandesComplementsField, addDataField};
+    }
+
+    public static DemandeDTO bo2Dto(DemandeBO bo, String[] fields) {
+        if (bo == null) {
+            return null;
+        }
+
+        boolean[] addFields = getAllFields(fields);
+        boolean addCourriersField = addFields[0] && bo.getCourriers() != null && !bo.getCourriers().isEmpty();
+        boolean addFilesField = addFields[1] && bo.getFiles() != null && !bo.getFiles().isEmpty();
+        boolean addStatutsField = addFields[2] && bo.getStatuts() != null && !bo.getStatuts().isEmpty();
+        boolean addDemandesComplementsField = addFields[3] && bo.getDemandesComplements() != null && !bo.getDemandesComplements().isEmpty();
+        boolean addDataField = addFields[4] && bo.getData() != null && !bo.getData().isEmpty();
+
         DemandeDTO dto = new DemandeDTO();
         dto.setFkAccess(bo.getFkAccess().getPkAccess());
         dto.setDateCreation(bo.getDateCreation());
@@ -90,20 +100,35 @@ public class DemandesTransformer {
         dto.setDemarcheId(bo.getFkAccess().getDemarcheId());
         dto.setPkDemandes(bo.getPkDemandes());
         dto.setCreeParAgentId(bo.getCreeParAgentId());
+        dto.setAgentAffecteId(bo.getAgentAffecteId());
+        dto.setIdentifiant(bo.getIdentifiant());
+        dto.setCourrierDateReception(bo.getCourrierDateReception());
+        dto.setCourrierRefInterne(bo.getCourrierRefInterne());
+        dto.setUsagerId(bo.getFkAccess().getUsagerId());
+        dto.setUsagerNom(bo.getUsagerNom());
+        dto.setUsagerPrenom(bo.getUsagerPrenom());
+        dto.setUsagerEmail(bo.getUsagerEmail());
+        dto.setBuildId(bo.getBuildId());
+        dto.setRecapType(bo.getRecapType());
+        dto.setDonneesCertifiees(bo.getDonneesCertifiees());
+        dto.setPkDemandeSource(bo.getPkDemandeSource());
+        dto.setModificationTimestamp(bo.getModificationTimestamp());
+
         // Mapper les demandes d'informations complémentaires
-        if (addDemandesComplementsField && bo.getDemandesComplements() != null
-                && bo.getDemandesComplements().size() > 0) {
+        if (addDemandesComplementsField) {
             dto.setComplements(DemandesComplementsTransformer
-                    .bo2Dto(new ArrayList<DemandesComplementsBO>(bo.getDemandesComplements()))
+                    .bo2Dto(new ArrayList<>(bo.getDemandesComplements()))
                     .toArray(new DemandeComplementsDTO[bo.getDemandesComplements().size()]));
         }
+
         // Mapper les fichiers
-        if (addFilesField && bo.getFiles() != null && bo.getFiles().size() > 0) {
-            dto.setFichiers(DemandesFilesTransformer.bo2Dto(new ArrayList<DemandesFilesBO>(bo.getFiles()))
+        if (addFilesField) {
+            dto.setFichiers(DemandesFilesTransformer.bo2Dto(new ArrayList<>(bo.getFiles()))
                     .toArray(new DemandeFileDTO[bo.getFiles().size()]));
         }
+
         // Mapper les statuts
-        if (addStatutsField && bo.getStatuts() != null && bo.getStatuts().size() > 0) {
+        if (addStatutsField) {
             if (DemarchesUtils.isFrontUser()) {
                 // Front Office : remonter uniquement le dernier statut de la demande
                 DemandesStatutsBO statut = DemarchesUtils.getLatestStatus(bo);
@@ -113,10 +138,11 @@ public class DemandesTransformer {
                 dto.setStatuts(new DemandeStatutDTO[] { statutDto });
             } else {
                 // Back Office : tout remonter
-                dto.setStatuts(DemandesStatutsTransformer.bo2Dto(new ArrayList<DemandesStatutsBO>(bo.getStatuts()))
+                dto.setStatuts(DemandesStatutsTransformer.bo2Dto(new ArrayList<>(bo.getStatuts()))
                         .toArray(new DemandeStatutDTO[bo.getStatuts().size()]));
             }
         }
+
         // Mapper le "dernier statut"
         if (bo.getDernierStatut() != null) {
             DemandesStatutsBO statut = bo.getDernierStatut();
@@ -127,8 +153,9 @@ public class DemandesTransformer {
             }
             dto.setDernierStatut(statutDto);
         }
+
         // Mapper les courriers
-        if (addCourriersField && bo.getCourriers() != null && bo.getCourriers().size() > 0) {
+        if (addCourriersField) {
         	// Ticket https://redmine.monaco-gouvernement.mc/issues/25476
         	// Avant le fix de ce ticket, on ne remontait pas les courriers à l'user FRONT
         	// Donc lors de la création d'une demande courrier par l'API, les courriers ne sont pas indexés !
@@ -137,39 +164,45 @@ public class DemandesTransformer {
         	// Décision prise de remonter les courriers dans les deux cas : FO (API) et BO
         	// Car cela ne pose aucun problème de sécurité
             dto.setCourriers(
-                    DemandesCourriersTransformer.bo2Dto(new ArrayList<DemandesCourriersBO>(bo.getCourriers()))
+                    DemandesCourriersTransformer.bo2Dto(new ArrayList<>(bo.getCourriers()))
                             .toArray(new DemandeCourrierDTO[bo.getCourriers().size()]));
         }
-        dto.setAgentAffecteId(bo.getAgentAffecteId());
-        dto.setIdentifiant(bo.getIdentifiant());
-        dto.setCourrierDateReception(bo.getCourrierDateReception());
-        dto.setCourrierRefInterne(bo.getCourrierRefInterne());
 
         // Mapper les données de demande
-        if (addDataField && bo.getData() != null && bo.getData().size() > 0) {
-            dto.setData(DemandesDataTransformer.bo2Dto(new ArrayList<DemandesDataBO>(bo.getData()))
+        if (addDataField) {
+            dto.setData(DemandesDataTransformer.bo2Dto(new ArrayList<>(bo.getData()))
                     .toArray(new DemandeDataDTO[bo.getData().size()]));
         }
 
+        // Mapper le contenu de la demande
         ObjectMapper mapper = new ObjectMapper();
         try {
             dto.setContenu(mapper.readTree(bo.getContenu()));
         } catch (IOException e) {
             LOGGER.error("Erreur lors de la conversion JSON", e);
         }
-        dto.setUsagerId(bo.getFkAccess().getUsagerId());
-        dto.setUsagerNom(bo.getUsagerNom());
-        dto.setUsagerPrenom(bo.getUsagerPrenom());
-        dto.setUsagerEmail(bo.getUsagerEmail());
-        dto.setBuildId(bo.getBuildId());
-        dto.setRecapType(bo.getRecapType());
-        dto.setDonneesCertifiees(bo.getDonneesCertifiees());
-        dto.setPkDemandeSource(bo.getPkDemandeSource());
+
+        // Mapper le contenu de la demande préremplie
+        try {
+            if (bo.getContenuInitial() != null)
+                dto.setContenuInitial(mapper.readTree(bo.getContenuInitial()));
+        } catch (IOException e) {
+            LOGGER.error("Erreur lors de la conversion JSON", e);
+        }
+        
+        // Meta
+        try {
+            if (bo.getMeta() != null)
+                dto.setMeta(mapper.readTree(bo.getMeta()));
+        } catch (IOException e) {
+            LOGGER.error("Erreur lors de la conversion JSON", e);
+        }
+
         return dto;
     }
 
     public static List<DemandeDTO> bo2Dto(List<DemandeBO> bos, String[] fields) {
-        ArrayList<DemandeDTO> dtos = new ArrayList<DemandeDTO>();
+        ArrayList<DemandeDTO> dtos = new ArrayList<>();
         for (DemandeBO bo : bos) {
             dtos.add(bo2Dto(bo, fields));
         }
@@ -177,7 +210,7 @@ public class DemandesTransformer {
     }
 
     public static List<DemandeDTO> bo2Dto(List<DemandeBO> bos) {
-        ArrayList<DemandeDTO> dtos = new ArrayList<DemandeDTO>();
+        ArrayList<DemandeDTO> dtos = new ArrayList<>();
         for (DemandeBO bo : bos) {
             dtos.add(bo2Dto(bo, null));
         }
@@ -191,8 +224,6 @@ public class DemandesTransformer {
      * Mapper les statuts attachés après appel à cette fonction, si besoin (y compris le "dernier statut")
      * Mapper les données de demande ("data") attachées après appel à cette fonction, si besoin
      * Mapper les courriers attachés après appel à cette fonction, si besoin
-     * @param dto
-     * @return
      */
     public static DemandeBO dto2Bo(DemandeDTO dto) {
         if (dto == null) {
@@ -220,9 +251,20 @@ public class DemandesTransformer {
         ObjectMapper mapper = new ObjectMapper();
         try {
             bo.setContenu(mapper.writeValueAsString(dto.getContenu()));
+            bo.setMeta(mapper.writeValueAsString(dto.getMeta()));
         } catch (JsonProcessingException e) {
             LOGGER.error("Erreur lors de la conversion JSON", e);
         }
+        try {
+            bo.setContenuInitial(mapper.writeValueAsString(dto.getContenuInitial()));
+            // Ce qui suit afin d'éviter l'insertion d'une chaîne "null" en base
+            if (bo.getContenuInitial() != null && "null".equals(bo.getContenuInitial())) {
+            	bo.setContenuInitial(null);
+            }
+        } catch (JsonProcessingException e) {
+            LOGGER.error("Erreur lors de la conversion JSON", e);
+        }
+
         return bo;
     }
 

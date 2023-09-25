@@ -1,8 +1,11 @@
 package mc.gouv.xaf.back.bpm.activiti.delegate;
 
-import java.util.Collections;
-import java.util.List;
-
+import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
+import mc.gouv.xaf.back.exception.DemarchesServiceException;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.data.DemandesStatutsService;
+import mc.gouv.xaf.back.service.utils.DemandeStatutComparator;
+import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.delegate.JavaDelegate;
 import org.slf4j.Logger;
@@ -10,19 +13,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.data.DemandesStatutsService;
-import mc.gouv.xaf.back.service.utils.DemandeStatutComparator;
-import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
+import java.util.List;
+import org.springframework.http.HttpStatus;
 
 /**
- * 
  * Classe service appelée par le process Activiti afin de remettre le statut d'avant (dans une
  * nouvelle instance de statut évidemment).
- * 
- * @author qdeme
  *
+ * @author qdeme
  */
 @Component
 public class GouvBPMRestorePreviousStatusDelegate implements JavaDelegate {
@@ -44,7 +42,7 @@ public class GouvBPMRestorePreviousStatusDelegate implements JavaDelegate {
 
         Integer demandeId = Integer.parseInt(execution.getProcessBusinessKey());
 
-        LOGGER.info("Demande : " + demandeId);
+        LOGGER.info("Demande : {}", demandeId);
 
         // Récupération du commentaire usager, du texte à envoyer et du code motif si besoin plus tard dans le traitement
         String commentaireUsager = (String) execution
@@ -56,28 +54,26 @@ public class GouvBPMRestorePreviousStatusDelegate implements JavaDelegate {
 
         String usagerId = (String) execution
                 .getVariable(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_USAGER.name());
+        if (null == usagerId) {
+            throw new DemarchesServiceException("UsagerID null !", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
 
-        LOGGER.info("Commentaire usager : " + commentaireUsager);
-        LOGGER.info("Texte à envoyer : " + texteAEnvoyer);
-        LOGGER.info("Code motif : " + codeMotifStr);
-        
+        LOGGER.info("Commentaire usager : {}", commentaireUsager);
+        LOGGER.info("Texte à envoyer : {}", texteAEnvoyer);
+        LOGGER.info("Code motif : {}", codeMotifStr);
+
         LOGGER.info("Récupération du statut précédent...");
         List<DemandeStatutDTO> statuts = demandesStatutsService.getStatuts(gouvPropertiesResolver.getDemarcheId(), demandeId);
-        Collections.sort(statuts, new DemandeStatutComparator());
+        statuts.sort(new DemandeStatutComparator());
         // Récupération du statut avant le statut courant
-        DemandeStatutDTO statut = statuts.get(statuts.size()-2);
-        
+        DemandeStatutDTO statut = statuts.get(statuts.size() - 2);
+
         LOGGER.info("Statut à créer : {}", statut.getLibelle());
 
         LOGGER.info("Appel à demandesStatutsService.updateStatut()...");
 
-        if (usagerId != null) {
-            demandesStatutsService.updateStatut(gouvPropertiesResolver.getDemarcheId(), demandeId, statut.getLibelle(), null,
-                    Integer.parseInt(usagerId), codeMotifStr, commentaireUsager, texteAEnvoyer);
-        }
-        else {
-        	throw new Exception("UsagerID null !");
-        }
+        demandesStatutsService.updateStatut(gouvPropertiesResolver.getDemarcheId(), demandeId, statut.getLibelle(), null,
+                Integer.parseInt(usagerId), codeMotifStr, commentaireUsager, texteAEnvoyer);
 
         LOGGER.info("==== xaf-back RESTORE PREVIOUS STATUS DELEGATE <fin>");
     }

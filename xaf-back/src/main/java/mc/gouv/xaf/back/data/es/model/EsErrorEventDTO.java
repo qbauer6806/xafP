@@ -4,9 +4,9 @@ import java.time.LocalDateTime;
 
 public class EsErrorEventDTO {
 
-    private String identifiantDemande;
+    private String phraseDemandes;
 
-    private Integer demandeId;
+    private String demandeIds;
 
     private String demarcheId;
 
@@ -16,20 +16,20 @@ public class EsErrorEventDTO {
 
     private String exception;
 
-    public String getIdentifiantDemande() {
-        return identifiantDemande;
+    public String getPhraseDemandes() {
+        return phraseDemandes;
     }
 
-    public void setIdentifiantDemande(String identifiantDemande) {
-        this.identifiantDemande = identifiantDemande;
+    public void setPhraseDemandes(String phraseDemandes) {
+        this.phraseDemandes = phraseDemandes;
     }
 
-    public Integer getDemandeId() {
-        return demandeId;
+    public String getDemandeIds() {
+        return demandeIds;
     }
 
-    public void setDemandeId(Integer demandeId) {
-        this.demandeId = demandeId;
+    public void setDemandeIds(String demandeIds) {
+        this.demandeIds = demandeIds;
     }
 
     public String getDemarcheId() {

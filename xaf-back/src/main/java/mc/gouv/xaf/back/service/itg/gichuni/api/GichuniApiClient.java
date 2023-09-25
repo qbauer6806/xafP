@@ -1,5 +1,6 @@
 package mc.gouv.xaf.back.service.itg.gichuni.api;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -37,19 +38,20 @@ public class GichuniApiClient {
     
     public List<GichuniUsagerDTO> getUsagers(List<Integer> ids) {
 	    // Concaténation des ids fournis pour le WS
-	    String listId = null;
+		StringBuilder builder = new StringBuilder();
 	    for (Integer id : ids) {
-	        if (listId == null) {
-	            listId = id.toString();
-	        }
-	        else {
-	            listId += "," + id.toString();
-	        }
+	    	if (builder.length() != 0) {
+	    		builder.append(',');
+			}
+	    	builder.append(id);
 	    }
 	    
-    	GichuniUsagerDTO[] usagers = restTemplate.getForObject(gouvPropertiesResolver.getGichuniUrl() + "/profiles/profile-ids/" + listId,
+    	GichuniUsagerDTO[] usagers = restTemplate.getForObject(gouvPropertiesResolver.getGichuniUrl() + "/profiles/profile-ids/" + builder,
     			GichuniUsagerDTO[].class);
-    	
+
+		if (usagers == null || usagers.length == 0) {
+			return new ArrayList<>();
+		}
     	return Arrays.asList(usagers);
     }
 }

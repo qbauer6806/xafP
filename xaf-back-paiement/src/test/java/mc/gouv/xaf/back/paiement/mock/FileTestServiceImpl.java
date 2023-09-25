@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -36,6 +37,16 @@ public class FileTestServiceImpl implements FileService {
 
     @Override
     public String saveFile(DemandeDTO demande, String container, MultipartFile file, HttpServletResponse response) throws IOException {
+        return null;
+    }
+
+    @Override
+    public String sendToFile(File tempFile, DemandeDTO demande, String fileName) throws IOException {
+        return null;
+    }
+
+    @Override
+    public String saveFilePublication(String codePublication, String container, MultipartFile file) throws IOException {
         return null;
     }
 

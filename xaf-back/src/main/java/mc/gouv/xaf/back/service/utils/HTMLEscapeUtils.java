@@ -4,7 +4,6 @@ import org.apache.commons.lang3.text.translate.AggregateTranslator;
 import org.apache.commons.lang3.text.translate.CharSequenceTranslator;
 import org.apache.commons.lang3.text.translate.EntityArrays;
 import org.apache.commons.lang3.text.translate.LookupTranslator;
-import org.springframework.stereotype.Component;
 
 /**
  * Classe utilitaire pour échapper des caractères HTML
@@ -12,8 +11,11 @@ import org.springframework.stereotype.Component;
  * @author mboutelier.ext
  *
  */
-@Component
 public class HTMLEscapeUtils {
+
+    private HTMLEscapeUtils() {
+        throw new IllegalStateException("Utility class");
+    }
     
     // Ajoutez ici les caractères à échapper
     private static final String[][] HTML_ESCAPE_CHARS = {

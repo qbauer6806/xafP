@@ -15,6 +15,6 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
  */
 public interface DemandePostprocessingService {
 
-	public DemandeDTO postprocess(DemandeDTO demande) throws IOException;
+	DemandeDTO postprocess(DemandeDTO demande) throws IOException;
 
 }

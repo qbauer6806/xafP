@@ -1,12 +1,14 @@
 package mc.gouv.xaf.servlet;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Enumeration;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import mc.gouv.xaf.servlet.enums.HttpMethod;
+import mc.gouv.xaf.shared.SharedMessages;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
@@ -31,21 +33,47 @@ public class CustomRequestServlet extends AbstractAfServlet {
 
     private static final long serialVersionUID = -7898768899143027088L;
 
-    private static Logger LOGGER = LoggerFactory.getLogger(CustomRequestServlet.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CustomRequestServlet.class);
 
-    public HttpServletResponse doHttpMethod(HttpServletRequest request, HttpServletResponse response,
-            HttpMethod httpMethod) throws IOException {
+    // List des headers qui sont interdits à copier, voir https://hg.openjdk.org/jdk8u/jdk8u-dev/jdk/file/31bc1a681b51/src/share/classes/sun/net/www/protocol/http/HttpURLConnection.java#l186
+    private final String[] restrictedHeaders = {
+            /* Restricted by XMLHttpRequest2 */
+            //"Accept-Charset",
+            //"Accept-Encoding",
+            "Access-Control-Request-Headers",
+            "Access-Control-Request-Method",
+            "Connection", /* close is allowed */
+            "Content-Length",
+            //"Cookie",
+            //"Cookie2",
+            "Content-Transfer-Encoding",
+            //"Date",
+            //"Expect",
+            "Host",
+            "Keep-Alive",
+            "Origin",
+            // "Referer",
+            // "TE",
+            "Trailer",
+            "Transfer-Encoding",
+            "Upgrade",
+            //"User-Agent",
+            "Via"
+    };
+
+
+    public void doHttpMethod(HttpServletRequest request, HttpServletResponse response, HttpMethod httpMethod) {
 
         UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(request);
         if (usagerInfosDTO == null) {
-            return AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
-                    "Utilisateur non autorisé");
+            AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
+                    SharedMessages.UTILISATEUR_NON_AUTORISE);
+            return;
         }
 
         // Récupération de l'ID de l'usager
         Integer usagerId = usagerInfosDTO.getId();
-
-        LOGGER.info("UsagerID=" + usagerId);
+        LOGGER.info("UsagerID={}", usagerId);
 
         String pathInfo = request.getPathInfo();
         String restOfUrl = null;
@@ -62,28 +90,32 @@ public class CustomRequestServlet extends AbstractAfServlet {
         if (StringUtils.isNotBlank(request.getQueryString())) {
         	serviceUrl += "?" + request.getQueryString();
         }
-
-        LOGGER.info("Appel à " + serviceUrl);
+        LOGGER.info("Appel à {}", serviceUrl);
 
         Request serviceRequest = null;
-        if (HttpMethod.GET.equals(httpMethod)) {
-        	serviceRequest = Request.Get(serviceUrl);
+
+        try {
+            if (HttpMethod.GET.equals(httpMethod)) {
+                serviceRequest = Request.Get(serviceUrl);
+            } else if (HttpMethod.POST.equals(httpMethod)) {
+                serviceRequest = Request.Post(serviceUrl);
+                serviceRequest.bodyByteArray(IOUtils.toString(request.getInputStream()).getBytes());
+            } else if (HttpMethod.PUT.equals(httpMethod)) {
+                serviceRequest = Request.Put(serviceUrl);
+                serviceRequest.bodyByteArray(IOUtils.toString(request.getInputStream()).getBytes());
+            } else if (HttpMethod.DELETE.equals(httpMethod)) {
+                serviceRequest = Request.Delete(serviceUrl);
+            }
+        } catch (IOException e) {
+            AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
+                    "CustomRequestServlet - Une erreur est survenue lors de l'appel à la méthode " + httpMethod.name());
+            return;
         }
-        else if (HttpMethod.POST.equals(httpMethod)) {
-        	serviceRequest = Request.Post(serviceUrl);
-        	serviceRequest.bodyByteArray(IOUtils.toString(request.getInputStream()).getBytes());
-        }
-        else if (HttpMethod.PUT.equals(httpMethod)) {
-        	serviceRequest = Request.Put(serviceUrl);
-        	serviceRequest.bodyByteArray(IOUtils.toString(request.getInputStream()).getBytes());
-        }
-        else if (HttpMethod.DELETE.equals(httpMethod)) {
-        	serviceRequest = Request.Delete(serviceUrl);
-        }
+
         if (serviceRequest == null) {
-            response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
-            LOGGER.error("Situation anormale : serviceRequest == null");
-            return response;
+            AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_INTERNAL_SERVER_ERROR,
+                    "Situation anormale : serviceRequest == null");
+            return;
         }
         serviceRequest.setHeader("Authorization", "Bearer " + AfServletGouvPropertiesResolver.getApiJwt());
         
@@ -91,7 +123,7 @@ public class CustomRequestServlet extends AbstractAfServlet {
         Enumeration<String> headers = request.getHeaderNames();
         while (headers.hasMoreElements()) {
         	String elem = headers.nextElement();
-        	if (!"Content-Length".equals(elem)) {
+        	if (!Arrays.asList(restrictedHeaders).contains(elem)) {
         		serviceRequest.setHeader(elem, request.getHeader(elem));
         	}
         }
@@ -103,66 +135,36 @@ public class CustomRequestServlet extends AbstractAfServlet {
             response.setContentType(serviceResponse.getEntity().getContentType().getValue());
             IOUtils.copy(serviceResponse.getEntity().getContent(), response.getOutputStream());
         } catch (Exception e) {
-            response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
-            LOGGER.error("Erreur lors du traitement de la réponse", e);
+            AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_INTERNAL_SERVER_ERROR,
+                    "Erreur lors du traitement de la réponse");
         }
-
-        return response;
     }
 
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response) {
         LOGGER.info("====================== /customRequest doPost()");
-
-        try {
-            doHttpMethod(request, response, HttpMethod.POST);
-        } catch (Exception e) {
-            LOGGER.error("CustomRequestServlet - Une erreur est survenue lors de l'appel à la méthode POST", e);
-            response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
-        }
-
+        doHttpMethod(request, response, HttpMethod.POST);
         LOGGER.info("====================== Fin /customRequest doPost()");
     }
 
     @Override
     public void doPut(HttpServletRequest request, HttpServletResponse response) {
         LOGGER.info("====================== /customRequest doPut()");
-
-        try {
-            doHttpMethod(request, response, HttpMethod.PUT);
-        } catch (Exception e) {
-            LOGGER.error("CustomRequestServlet - Une erreur est survenue lors de l'appel à la méthode PUT", e);
-            response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
-        }
-
+        doHttpMethod(request, response, HttpMethod.PUT);
         LOGGER.info("====================== Fin /customRequest doPut()");
     }
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) {
         LOGGER.info("====================== /customRequest doGet()");
-
-        try {
-            doHttpMethod(request, response, HttpMethod.GET);
-        } catch (Exception e) {
-            LOGGER.error("CustomRequestServlet - Une erreur est survenue lors de l'appel à la méthode GET", e);
-            response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
-        }
-
+        doHttpMethod(request, response, HttpMethod.GET);
         LOGGER.info("====================== Fin /customRequest doGet()");
     }
     
     @Override
     public void doDelete(HttpServletRequest request, HttpServletResponse response) {
         LOGGER.info("====================== /demandes doDelete()");
-
-        try {
-            doHttpMethod(request, response, HttpMethod.DELETE);
-        } catch (Exception e) {
-            LOGGER.error("CustomRequestServlet - Une erreur est survenue lors de l'appel à la méthode DELETE", e);
-            response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
-        }
-
+        doHttpMethod(request, response, HttpMethod.DELETE);
         LOGGER.info("====================== Fin /demandes doDelete()");
     }
 }

@@ -39,7 +39,6 @@ public class KafkaOutboxSchedulingConfig {
 	public static final String PK_KAFKA_OUTBOX = "pkKafkaOutbox";
 	
 	public static final String XAF_KAFKA_OUTBOX_SCHEDULING_CRONEXPRESSION = "XAF_KAFKA_OUTBOX_SCHEDULING_CRONEXPRESSION";
-	private String cronExpression = null;
 	public static final String XAF_KAFKA_OUTBOX_RETRY_NB = "XAF_KAFKA_OUTBOX_RETRY_NB";
 	private Integer retryNb = null;
 	public static final String XAF_KAFKA_OUTBOX_RETRY_INTERVAL = "XAF_KAFKA_OUTBOX_RETRY_INTERVAL";
@@ -57,7 +56,7 @@ public class KafkaOutboxSchedulingConfig {
     @PostConstruct
     private void init() throws SchedulerException, DemPropertyNotFoundException {
     	LOGGER.info("Récupération en base des propriétés nécessaires à la configuration de l'Outbox Kafka...");
-    	cronExpression = retrieveCronExpression();
+    	String cronExpression = retrieveCronExpression();
     	retryNb = retrieveRetryNb();
     	retryInterval = retrieveRetryInterval();
     	

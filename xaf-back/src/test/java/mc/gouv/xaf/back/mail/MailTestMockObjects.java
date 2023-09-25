@@ -4,7 +4,7 @@ import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 
 public class MailTestMockObjects {
 
-    public static final EmailInfoDTO emailInfoDTOMock() {
+    public static EmailInfoDTO emailInfoDTOMock() {
         EmailInfoDTO dto = new EmailInfoDTO();
         dto.setBodyTemplateCode("MAIL_CREATION_DEMANDE_USAGER_OBJET");
         dto.setFrom("adresse0@gouv.mc", "MR TestMan");
@@ -12,7 +12,6 @@ public class MailTestMockObjects {
         dto.addBcc("bcc1@gouv.mc", "Test de BCC");
         dto.addCc("cc1@gouv.mc", "Carbon copy tester");
         dto.addTo("adresse1@gouv.mc", "Mr no one");
-
         return dto;
     }
 

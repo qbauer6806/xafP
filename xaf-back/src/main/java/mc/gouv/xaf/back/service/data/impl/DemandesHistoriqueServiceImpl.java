@@ -49,7 +49,7 @@ public class DemandesHistoriqueServiceImpl implements DemandesHistoriqueService 
 
         List<DemandesHistoriqueBO> demandeHistorique = demandesHistoriqueRepository.findByFkDemandesPkDemandes(demandeId);
 
-        LOGGER.info("Transformation bo -> dto ...");
+        LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
         return DemandesHistoriqueTransformer.bo2Dto(demandeHistorique);
     }
 
@@ -62,17 +62,17 @@ public class DemandesHistoriqueServiceImpl implements DemandesHistoriqueService 
     public DemandeHistoriqueDTO saveHistoriqueActionAuto(String demarcheId, Integer demandeId, DemandeHistoriqueDTO demandeHistoriqueDto) {
         DemandeBO demandeBo = demandesService.getCheckDemarcheDemandeBO(demarcheId, demandeId, false);
 
-        LOGGER.info("Transformation dto -> bo");
+        LOGGER.info(SharedMessages.TRANSFORMATION_DTO_BO);
         DemandesHistoriqueBO demandeHistoriqueBo = DemandesHistoriqueTransformer.dto2Bo(demandeHistoriqueDto);
 
         demandeHistoriqueBo.setFkDemandes(demandeBo);
         demandeHistoriqueBo.setFkStatut(demandeBo.getDernierStatut());
         demandeHistoriqueBo.setDate(new Date());
 
-        LOGGER.info("Sauvegarde en base...");
+        LOGGER.info(SharedMessages.SAUVEGARDE_EN_BASE);
         demandeHistoriqueBo = demandesHistoriqueRepository.save(demandeHistoriqueBo);
 
-        LOGGER.info("Transformation bo -> dto ...");
+        LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
         return DemandesHistoriqueTransformer.bo2Dto(demandeHistoriqueBo);
     }
 

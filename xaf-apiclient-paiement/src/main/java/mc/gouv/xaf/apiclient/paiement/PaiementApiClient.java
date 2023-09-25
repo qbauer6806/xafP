@@ -2,6 +2,7 @@ package mc.gouv.xaf.apiclient.paiement;
 
 import mc.gouv.xaf.apiclient.AfApiClient;
 import mc.gouv.xaf.apiclient.paiement.monetico.dto.MoneticoDTO;
+import mc.gouv.xaf.shared.RequestConstant;
 import mc.gouv.xaf.shared.dto.itg.monetico.MoneticoResponseDTO;
 import mc.gouv.xboot.apiclient.exception.ExceptionManager;
 
@@ -32,9 +33,9 @@ public class PaiementApiClient extends AfApiClient {
      */
     public MoneticoDTO getPaiement(String demandesId, String langue, Integer usagerId, boolean iframe) {
         Response res = getTarget().path("/paiement")
-                .queryParam("demandesId", demandesId)
-                .queryParam(PaiementConstant.LANGUE_PARAM, langue)
-                .queryParam(PaiementConstant.USAGERID_PARAM, usagerId)
+                .queryParam(RequestConstant.DEMANDES_ID_PARAM, demandesId)
+                .queryParam(RequestConstant.LANGUE_PARAM, langue)
+                .queryParam(RequestConstant.USAGERID_PARAM, usagerId)
                 .queryParam(PaiementConstant.IFRAME_PARAM, iframe)
                 .request(MediaType.APPLICATION_JSON)
                 .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue()).get();

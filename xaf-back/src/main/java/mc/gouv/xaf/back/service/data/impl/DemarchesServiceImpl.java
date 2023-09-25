@@ -2,6 +2,7 @@ package mc.gouv.xaf.back.service.data.impl;
 
 import java.util.Optional;
 
+import mc.gouv.xaf.shared.SharedMessages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,24 +34,13 @@ public class DemarchesServiceImpl implements DemarchesService {
 
     @Override
     public DemarcheDTO getDemarche(String demarcheId) {
-
-        LOGGER.info("Récupération en base de la démarche...");
-
         DemarchesBO demarcheBo = getCheckDemarche(demarcheId);
-
-        LOGGER.info("Transformation bo -> dto ...");
-        
-        DemarcheDTO demarcheDto = DemarchesTransformer.bo2Dto(demarcheBo);
-
-        return demarcheDto;
-
+        LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
+        return DemarchesTransformer.bo2Dto(demarcheBo);
     }
 
     @Override
     public DemarcheDTO updateDemarche(DemarcheDTO demarche) {
-
-        LOGGER.info("Récupération en base de la démarche...");
-
         DemarchesBO demarcheBo = getCheckDemarche(demarche.getPkDemarches());
 
         LOGGER.info("Mise à jour de la démarche...");
@@ -58,21 +48,17 @@ public class DemarchesServiceImpl implements DemarchesService {
         demarcheBo.setEmailService(demarche.getEmailService());
         demarcheBo = demarchesRepository.save(demarcheBo);
 
-        LOGGER.info("Transformation bo -> dto ...");
-
+        LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
         return DemarchesTransformer.bo2Dto(demarcheBo);
     }
 
     @Override
     public DemarchesBO getCheckDemarche(String demarcheId) {
-
         LOGGER.info("Récupération en base de la démarche...");
-
         Optional<DemarchesBO> demarcheBoOp = demarchesRepository.findById(demarcheId);
         if (!demarcheBoOp.isPresent()) {
             throw new DemarchesServiceException("La démarche spécifiée est introuvable", HttpStatus.NOT_FOUND);
         }
-
         return demarcheBoOp.get();
     }
 

@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import mc.gouv.xaf.shared.SharedMessages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +41,7 @@ public class KafkaOutboxServiceImpl implements KafkaOutboxService {
 		// Log DEBUG pour le GET, car exécuté périodiquement et trop souvent, cela polluerait les logs
 		LOGGER.debug("Récupération en base des éléments Outbox Kafka...");
 		List<KafkaOutboxBO> bos = kafkaOutboxRepository.findAll();
-		LOGGER.debug("Transformation bo -> dto ...");
+		LOGGER.debug(SharedMessages.TRANSFORMATION_BO_DTO);
 		return KafkaOutboxTransformer.bo2Dto(bos);
 	}
 	
@@ -58,7 +59,7 @@ public class KafkaOutboxServiceImpl implements KafkaOutboxService {
 		outboxElement.setStatut(KafkaOutboxSchedulingConfig.KAFKA_OUTBOX_STATUT_NOUVEAU);
 		KafkaOutboxBO bo = KafkaOutboxTransformer.dto2Bo(outboxElement);
 		bo = kafkaOutboxRepository.save(bo);
-		LOGGER.debug("Transformation bo -> dto ...");
+		LOGGER.debug(SharedMessages.TRANSFORMATION_BO_DTO);
 		return KafkaOutboxTransformer.bo2Dto(bo);
 	}
 
@@ -82,7 +83,7 @@ public class KafkaOutboxServiceImpl implements KafkaOutboxService {
 		bo.setTopic(outboxElement.getTopic());
 		bo = kafkaOutboxRepository.save(bo);
 		
-		LOGGER.debug("Transformation bo -> dto ...");
+		LOGGER.debug(SharedMessages.TRANSFORMATION_BO_DTO);
 		return KafkaOutboxTransformer.bo2Dto(bo);
 	}
 
@@ -99,12 +100,12 @@ public class KafkaOutboxServiceImpl implements KafkaOutboxService {
 
 	@Override
 	public KafkaOutboxDTO getOutboxElement(Integer pkOutboxElement) {
-		LOGGER.debug("Récupération de l'élément Outbox Kafka de pkOutboxElement=" + pkOutboxElement + "...");
+		LOGGER.debug("Récupération de l'élément Outbox Kafka de pkOutboxElement={}...", pkOutboxElement);
 		Optional<KafkaOutboxBO> bo = kafkaOutboxRepository.findById(pkOutboxElement);
 		if (!bo.isPresent()) {
 			return null;
 		}
-		LOGGER.debug("Transformation bo -> dto ...");
+		LOGGER.debug(SharedMessages.TRANSFORMATION_BO_DTO);
 		return KafkaOutboxTransformer.bo2Dto(bo.get());
 		
 	}
@@ -113,7 +114,7 @@ public class KafkaOutboxServiceImpl implements KafkaOutboxService {
 	public Integer resetAllOutboxElements() {
 		LOGGER.info("KafkaOutboxServiceImpl.resetAllOutboxElements() - Récupération en base des éléments Outbox Kafka...");
 		List<KafkaOutboxBO> bos = kafkaOutboxRepository.findAll();
-		if (bos != null && bos.size() > 0) {
+		if (bos != null && !bos.isEmpty()) {
 			for (KafkaOutboxBO bo : bos ) {
 				bo.setDateLastAttempt(null);
 				bo.setNbFailedAttempts(0);

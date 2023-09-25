@@ -48,8 +48,8 @@ public class GouvBPMStatusChangeDelegate implements JavaDelegate {
 
         Integer demandeId = Integer.parseInt(execution.getProcessBusinessKey());
 
-        LOGGER.info("Demande : " + demandeId);
-        LOGGER.info("Statut à mettre : " + statut);
+        LOGGER.info("Demande : {}", demandeId);
+        LOGGER.info("Statut à mettre : {}", statut);
 
         String codeMotifStr = null;
         if (codeMotif != null && codeMotif.getValue(execution) != null) {
@@ -74,9 +74,9 @@ public class GouvBPMStatusChangeDelegate implements JavaDelegate {
         // execution.removeVariable(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_AGENT.name());
         // execution.removeVariable(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_USAGER.name());
 
-        LOGGER.info("Commentaire usager : " + commentaireUsager);
-        LOGGER.info("Texte à envoyer : " + texteAEnvoyer);
-        LOGGER.info("Code motif : " + codeMotifStr);
+        LOGGER.info("Commentaire usager : {}", commentaireUsager);
+        LOGGER.info("Texte à envoyer : {}", texteAEnvoyer);
+        LOGGER.info("Code motif : {}", codeMotifStr);
 
         // TODO Peut-être gérer les variables autrement... si on met après ce serviceTask, un autre qui en a besoin
         // alors y'a un problème
@@ -118,9 +118,6 @@ public class GouvBPMStatusChangeDelegate implements JavaDelegate {
      * Permet de retourner l'état dans lequel il faut mettre la demande Soit il a été défini dans le .bpmn (
      * <serviceTask><extensionElements><activiti:field name="targetState"><activiti:string>AFFECTEE ...) Soit il a été
      * défini dans la variable "targetState" du process auparavant
-     * 
-     * @param execution
-     * @return
      */
     private String getTargetState(DelegateExecution execution) {
         if (targetState != null) {

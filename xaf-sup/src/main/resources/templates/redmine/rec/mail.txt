@@ -1,3 +1,0 @@
-#Depuis le serveur sur lequel sera hébergé le backserver
-
-curl -H "Content-Type: application/json" -H "Authorization: ${TSMAILJWT}" --request POST --data '{"to":[{"address":"adiallo.ext@gouv.mc","name":"Adresse 1"}],"from":{"address":"adresse0@gouv.mc" ,"name":"Adresse 0"},"subject":"Test mail ${TSCODE} REC","text":"Test envoi mail","html":"<html><body><p>Test envoi mail (HTML)</p></body></html>"}' http://as-api-1-rec.monaco-gouvernement.mc:30480/mail/api/v1/mail

@@ -1,13 +1,16 @@
 package mc.gouv.xaf.back.paiement.service.data.impl;
 
+import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
 import mc.gouv.xaf.back.paiement.data.dao.CommandeDemandeRepository;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeDemandeBO;
 import mc.gouv.xaf.back.paiement.data.transformer.CommandeDemandeTransformer;
 import mc.gouv.xaf.back.paiement.dto.CommandeDemandeDTO;
 import mc.gouv.xaf.back.paiement.service.data.CommandesDemandesService;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -23,5 +26,15 @@ public class CommandesDemandesServiceImpl implements CommandesDemandesService {
         	return CommandeDemandeTransformer.bo2Dto(commandeDemandeBOS.get(0));
         } 
         return null;
+    }
+
+    @Override
+    public List<DemandeDTO> getDemandesFromCommande(Integer pkCommandes) {
+        List<DemandeDTO> demandes = new ArrayList<>();
+        List<CommandeDemandeBO> commandeDemandeBOList = commandeDemandeRepository.findByCommande_PkCommandes(pkCommandes);
+        for (CommandeDemandeBO commandeDemandeBO : commandeDemandeBOList) {
+            demandes.add(DemandesTransformer.bo2Dto(commandeDemandeBO.getDemande(), new String[]{}));
+        }
+        return demandes;
     }
 }

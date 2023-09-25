@@ -21,24 +21,21 @@ public class DataRechercheDTO {
 
     /**
      * Key value séparés par "="
-     * @param keyValue
      */
     public DataRechercheDTO(String keyValue) {
         if (keyValue != null) {
-
             StringTokenizer operandArray = new StringTokenizer(keyValue, SEPARATOR_AFTER_OPERAND);
-            if (operandArray != null && operandArray.countTokens() == 2) {
+            if (operandArray.countTokens() == 2) {
                 //Une operand a étét saisie
                 this.operand = DataRechercheOperand.valueOf(operandArray.nextToken().toUpperCase());
             }
             StringTokenizer keyValueArray = new StringTokenizer(operandArray.nextToken(), SEPARATOR);
-            if (keyValueArray != null && keyValueArray.countTokens() == 2) {
+            if (keyValueArray.countTokens() == 2) {
                 this.key = keyValueArray.nextToken();
                 this.value = keyValueArray.nextToken();
 
             }
         }
-
     }
 
     public String getKey() {

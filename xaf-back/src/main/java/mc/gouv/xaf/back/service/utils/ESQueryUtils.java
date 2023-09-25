@@ -35,31 +35,28 @@ public class ESQueryUtils {
         if (query != null) {
             String[] queryTokenized = query.split(" ");
             int apostropheCount = 0;
-            if (queryTokenized != null) {
-                StringBuilder formatedQuery = new StringBuilder("");
-                for (String token : queryTokenized) {
+            StringBuilder formatedQuery = new StringBuilder();
+            for (String token : queryTokenized) {
 
-                    Matcher matcher = pattern.matcher(token);
-                    if (matcher.matches()) {
-                        token = token.replace("-", "_");
-                    }
-
-                    if (token.contains("\"")) {
-                        apostropheCount++;
-                    }
-
-                    if (apostropheCount % 2 == 0 && !token.contains("\"") && token.startsWith("-")) {
-                        token = "+" + token;
-                    }
-
-                    formatedQuery.append(token).append(" ");
+                Matcher matcher = pattern.matcher(token);
+                if (matcher.matches()) {
+                    token = token.replace("-", "_");
                 }
-                query = formatedQuery.toString();
+
+                if (token.contains("\"")) {
+                    apostropheCount++;
+                }
+
+                if (apostropheCount % 2 == 0 && !token.contains("\"") && token.startsWith("-")) {
+                    token = "+" + token;
+                }
+
+                formatedQuery.append(token).append(" ");
             }
+            query = formatedQuery.toString();
         }
 
         return query;
-
     }
 
 }

@@ -1,7 +1,6 @@
 package mc.gouv.xaf.servlet;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import mc.gouv.xaf.servlet.dto.DocHolderFileSearchDTO;
 import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
@@ -48,7 +47,8 @@ public class DocHolderSearchServlet extends AbstractAfServlet {
 
         try {
             fileSearchDTO = mapper.readValue(req.getInputStream(), DocHolderFileSearchDTO.class);
-        } catch (JsonMappingException jme) {
+        } catch (IOException ioe) {
+            LOGGER.error("Impossible de déserialiser la requête", ioe);
             AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_BAD_REQUEST, SharedMessages.REQUETE_MALFORMEE);
             return;
         }

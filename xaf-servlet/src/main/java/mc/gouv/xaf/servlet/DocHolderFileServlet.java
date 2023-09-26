@@ -2,10 +2,13 @@ package mc.gouv.xaf.servlet;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import mc.gouv.xaf.servlet.dto.DocHolderFileDTO;
+import mc.gouv.xaf.servlet.dto.DocHolderFileUpdateDTO;
 import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
 import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
 import mc.gouv.xaf.servlet.util.FileServletUtils;
+import mc.gouv.xaf.servlet.util.HttpRequestWithEntity;
 import mc.gouv.xaf.shared.RequestConstant;
 import mc.gouv.xaf.shared.SharedMessages;
 import org.apache.commons.io.IOUtils;
@@ -14,11 +17,14 @@ import org.apache.http.Header;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.InputStreamBody;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +34,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Map;
 
@@ -73,10 +81,13 @@ public class DocHolderFileServlet extends AbstractAfServlet {
             HttpResponse serviceResponse = FileServletUtils.downloadFromDocHolder(SERVICE_URL, filename, usagerInfosDTO.getTokenInfo().getAccessToken());
 
             LOGGER.info("Constitution de la réponse pour retour au client");
-            Header contentDispositionHeader = serviceResponse.getFirstHeader(RequestConstant.CONTENT_DISPOSITION_HEADER);
-            resp.setHeader(RequestConstant.CONTENT_DISPOSITION_HEADER, contentDispositionHeader.getValue());
+
+            if(serviceResponse.getStatusLine().getStatusCode() == 200) {
+                Header contentDispositionHeader = serviceResponse.getFirstHeader(RequestConstant.CONTENT_DISPOSITION_HEADER);
+                resp.setHeader(RequestConstant.CONTENT_DISPOSITION_HEADER, contentDispositionHeader.getValue());
+                resp.setContentType(serviceResponse.getEntity().getContentType().getValue());
+            }
             resp.setStatus(serviceResponse.getStatusLine().getStatusCode());
-            resp.setContentType(serviceResponse.getEntity().getContentType().getValue());
             IOUtils.copy(serviceResponse.getEntity().getContent(), resp.getOutputStream());
         } catch (URISyntaxException e) {
             AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_BAD_REQUEST, SharedMessages.REQUETE_MALFORMEE);
@@ -106,9 +117,9 @@ public class DocHolderFileServlet extends AbstractAfServlet {
 
         LOGGER.info("Vérification des paramètres envoyés");
         String typedoc = req.getParameter(TYPEDOC);
-        String preferedName = req.getParameter(PREFERRED_NAME);
+        String preferredName = req.getParameter(PREFERRED_NAME);
         String endOfValidity = req.getParameter(END_OF_VALIDITY); // paramètre optionnel
-        if (StringUtils.isEmpty(typedoc) || StringUtils.isEmpty(preferedName)) {
+        if (StringUtils.isEmpty(typedoc) || StringUtils.isEmpty(preferredName)) {
             AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_BAD_REQUEST, SharedMessages.REQUETE_MALFORMEE);
             return;
         }
@@ -148,11 +159,11 @@ public class DocHolderFileServlet extends AbstractAfServlet {
 
             LOGGER.info("Création de la requête");
             MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create()
-                    .addPart("file", new InputStreamBody(filePart.getInputStream(), ContentType.create(filePart.getContentType()), filePart.getSubmittedFileName()))
-                    .addTextBody(PREFERRED_NAME, preferedName)
+                    .addPart("file", new InputStreamBody(filePart.getInputStream(), ContentType.create(filePart.getContentType(), StandardCharsets.UTF_8), filePart.getSubmittedFileName()))
+                    .addTextBody(PREFERRED_NAME, preferredName)
                     .addTextBody(TYPEDOC, typedoc);
 
-            if(!StringUtils.isEmpty(endOfValidity)) {
+            if (!StringUtils.isEmpty(endOfValidity)) {
                 entityBuilder.addTextBody(END_OF_VALIDITY, endOfValidity);
             }
 
@@ -164,7 +175,6 @@ public class DocHolderFileServlet extends AbstractAfServlet {
             HttpResponse serviceResponse = serviceRequest.execute().returnResponse();
             int statusCode = serviceResponse.getStatusLine().getStatusCode();
             resp.setStatus(statusCode);
-            resp.setContentType(serviceResponse.getEntity().getContentType().getValue());
             IOUtils.copy(serviceResponse.getEntity().getContent(), resp.getOutputStream());
         } catch (ServletException e) {
             resp.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
@@ -194,23 +204,36 @@ public class DocHolderFileServlet extends AbstractAfServlet {
         }
 
         LOGGER.info("Vérification des paramètres envoyés");
-        String filename = req.getParameter(FILENAME);
-        if (StringUtils.isEmpty(filename)) {
+        DocHolderFileDTO fileDTO = null;
+        try {
+            fileDTO = mapper.readValue(req.getInputStream(), DocHolderFileDTO.class);
+        } catch (IOException e) {
+            LOGGER.error("Impossible de déserialiser la requête", e);
+            AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_BAD_REQUEST, SharedMessages.REQUETE_MALFORMEE);
+        }
+
+        if (fileDTO == null || StringUtils.isEmpty(fileDTO.getFilename())) {
+            LOGGER.error("L'objet de requête est null");
             AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_BAD_REQUEST, SharedMessages.REQUETE_MALFORMEE);
             return;
         }
 
         LOGGER.info("Préparation de la requête");
-        Request serviceRequest = Request.Delete(SERVICE_URL);
+        HttpClient client = HttpClientBuilder.create().build();
+        HttpRequestWithEntity serviceRequest = new HttpRequestWithEntity("DELETE");
+        serviceRequest.setURI(URI.create(SERVICE_URL));
         serviceRequest.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + usagerInfosDTO.getTokenInfo().getAccessToken());
 
         try {
-            serviceRequest.bodyString(mapper.writeValueAsString(Map.of(FILENAME, filename)), ContentType.APPLICATION_JSON);
+            StringEntity entity = new StringEntity(mapper.writeValueAsString(Map.of(FILENAME, fileDTO.getFilename())));
+            serviceRequest.setEntity(entity);
+            serviceRequest.setHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.toString());
+
             LOGGER.info("Envoi de la requête");
-            HttpResponse serviceResponse = serviceRequest.execute().returnResponse();
+            HttpResponse serviceResponse = client.execute(serviceRequest);
+
             int statusCode = serviceResponse.getStatusLine().getStatusCode();
             resp.setStatus(statusCode);
-            resp.setContentType(serviceResponse.getEntity().getContentType().getValue());
             IOUtils.copy(serviceResponse.getEntity().getContent(), resp.getOutputStream());
         } catch (UnsupportedOperationException | IOException e) {
             resp.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
@@ -227,6 +250,8 @@ public class DocHolderFileServlet extends AbstractAfServlet {
     protected void doPatch(HttpServletRequest req, HttpServletResponse resp) {
         LOGGER.info("====================== {} doPatch()", req.getServletPath());
 
+        ObjectMapper mapper = new ObjectMapper();
+
         LOGGER.info(VERIFICATION_USAGER_CONNECTE);
         UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(req);
         if (usagerInfosDTO == null) {
@@ -235,27 +260,31 @@ public class DocHolderFileServlet extends AbstractAfServlet {
         }
 
         LOGGER.info("Vérification des paramètres envoyés");
-        String filename = req.getParameter(FILENAME);
-        String typedoc = req.getParameter(TYPEDOC);
-        String preferedName = req.getParameter(PREFERRED_NAME);
-        if (StringUtils.isEmpty(filename) || StringUtils.isEmpty(typedoc) || StringUtils.isEmpty(preferedName)) {
+        DocHolderFileUpdateDTO fileUpdateDTO = null;
+        try {
+            fileUpdateDTO = mapper.readValue(req.getInputStream(), DocHolderFileUpdateDTO.class);
+        } catch (IOException e) {
+            LOGGER.error("Impossible de déserialiser la requête", e);
+            AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_BAD_REQUEST, SharedMessages.REQUETE_MALFORMEE);
+        }
+
+        if (fileUpdateDTO == null) {
+            LOGGER.error("L'objet de requête est null");
             AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_BAD_REQUEST, SharedMessages.REQUETE_MALFORMEE);
             return;
         }
-
-        Map<String, String> parameters = Map.of(FILENAME, filename, TYPEDOC, typedoc, PREFERRED_NAME, preferedName);
 
         try {
             LOGGER.info("Préparation de la requête");
             Request serviceRequest = Request.Patch(SERVICE_URL);
             serviceRequest.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + usagerInfosDTO.getTokenInfo().getAccessToken());
-            serviceRequest.bodyString(new ObjectMapper().writeValueAsString(parameters), ContentType.APPLICATION_JSON);
+            //serviceRequest.body(multipartEntityBuilder.build());
+            serviceRequest.bodyString(new ObjectMapper().writeValueAsString(fileUpdateDTO), ContentType.APPLICATION_JSON);
 
             LOGGER.info("Envoi de la requête");
             HttpResponse serviceResponse = serviceRequest.execute().returnResponse();
             int statusCode = serviceResponse.getStatusLine().getStatusCode();
             resp.setStatus(statusCode);
-            resp.setContentType(serviceResponse.getEntity().getContentType().getValue());
             IOUtils.copy(serviceResponse.getEntity().getContent(), resp.getOutputStream());
         } catch (JsonProcessingException jpe) {
             LOGGER.info("Erreur lors de la conversion des paramètres en json");
@@ -264,7 +293,6 @@ public class DocHolderFileServlet extends AbstractAfServlet {
             LOGGER.info("Erreur lors de l'envoi de la requête à Monguichet");
             resp.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
         }
-
 
         LOGGER.info("====================== Fin {} doPatch()", req.getServletPath());
     }

@@ -3,7 +3,8 @@ package mc.gouv.xaf.servlet.dto;
 public class DocHolderFileUpdateDTO {
     private String filename;
     private String typedoc;
-    private String preferedName;
+    private String preferredName;
+    private String endOfValidity;
 
     public String getFilename() {
         return filename;
@@ -21,11 +22,19 @@ public class DocHolderFileUpdateDTO {
         this.typedoc = typedoc;
     }
 
-    public String getPreferedName() {
-        return preferedName;
+    public String getPreferredName() {
+        return preferredName;
     }
 
-    public void setPreferedName(String preferedName) {
-        this.preferedName = preferedName;
+    public void setPreferredName(String preferredName) {
+        this.preferredName = preferredName;
+    }
+
+    public String getEndOfValidity() {
+        return endOfValidity;
+    }
+
+    public void setEndOfValidity(String endOfValidity) {
+        this.endOfValidity = endOfValidity;
     }
 }

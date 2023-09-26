@@ -81,14 +81,14 @@ class DocHolderServletsTest {
 
     @ParameterizedTest
     @MethodSource("emptyOrInvalidFileParameters")
-    void failOnBadParameters(String typedoc, String preferedName) throws ServletException, IOException {
+    void failOnBadParameters(String typedoc, String preferredName) throws ServletException, IOException {
         UsagerInfosDTO usagerInfosDTO = mock(UsagerInfosDTO.class);
         DocHolderFileServlet fileServlet = new DocHolderFileServlet();
 
         servletUtilsMocked.when(() -> AppFactoryServletUtils.getLoggedUser(any())).thenReturn(usagerInfosDTO);
 
         when(request.getParameter("typedoc")).thenReturn(typedoc);
-        when(request.getParameter("preferedName")).thenReturn(preferedName);
+        when(request.getParameter("preferredName")).thenReturn(preferredName);
 
         fileServlet.doPost(request, response);
 
@@ -101,7 +101,7 @@ class DocHolderServletsTest {
         servletUtilsMocked.when(() -> AppFactoryServletUtils.getLoggedUser(any())).thenReturn(usagerInfosDTO);
 
         when(request.getParameter("typedoc")).thenReturn("mockedTypeDoc");
-        when(request.getParameter("preferedName")).thenReturn("monbeaufichier.txt");
+        when(request.getParameter("preferredName")).thenReturn("monbeaufichier.txt");
         when(request.getParts()).thenReturn(Collections.emptyList());
 
         DocHolderFileServlet fileServlet = new DocHolderFileServlet();
@@ -116,7 +116,7 @@ class DocHolderServletsTest {
         servletUtilsMocked.when(() -> AppFactoryServletUtils.getLoggedUser(any())).thenReturn(usagerInfosDTO);
 
         when(request.getParameter("typedoc")).thenReturn("mockedTypeDoc");
-        when(request.getParameter("preferedName")).thenReturn("monbeaufichier.txt");
+        when(request.getParameter("preferredName")).thenReturn("monbeaufichier.txt");
 
         Part filePartA = mock(Part.class);
         Part filePartB = mock(Part.class);

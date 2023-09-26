@@ -8,7 +8,6 @@ import mc.gouv.xaf.servlet.dto.FileUploadResponseDTO;
 import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
 import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
 import mc.gouv.xaf.shared.RequestConstant;
-import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.AccessDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import org.apache.commons.io.IOUtils;
@@ -33,7 +32,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.Part;
 import javax.ws.rs.core.MediaType;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.*;
@@ -279,10 +277,9 @@ public class FileServletUtils {
     }
 
     /**
-     *
      * @param docHolderUrl l'adresse à laquelle envoyer la requête
-     * @param filename le nom du fichier à télécharger dans le portedocument ex : d738aa26-588a-11ee-a76d-005056bfb0c9/docholderwishlist.png
-     * @param accessToken le token d'accès à l'API, du compte connecté
+     * @param filename     le nom du fichier à télécharger dans le portedocument ex : d738aa26-588a-11ee-a76d-005056bfb0c9/docholderwishlist.png
+     * @param accessToken  le token d'accès à l'API, du compte connecté
      */
     public static HttpResponse downloadFromDocHolder(String docHolderUrl, String filename, String accessToken) throws IOException, URISyntaxException, InterruptedException {
         String url = AfServletGouvPropertiesResolver.getPorteDocUrl() + "/file";
@@ -290,7 +287,7 @@ public class FileServletUtils {
         MultipartEntityBuilder multipart = MultipartEntityBuilder.create().addTextBody("filename", filename);
 
         HttpClient client = HttpClientBuilder.create().build();
-        HttpGetWithEntity request = new HttpGetWithEntity();
+        HttpRequestWithEntity request = new HttpRequestWithEntity("GET");
         request.setURI(URI.create(url));
         request.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
         request.setEntity(multipart.build());
@@ -301,8 +298,13 @@ public class FileServletUtils {
     /**
      * Upload un fichier dans FILE.
      * <b>/!\ Attention : aucune validation vscan/taille n'est faite dans la méthode !</b>
-     * @param filename le nom du fichier à envoyer dans FILE
-     * @param filestream un flux qui contiens les données du fichier
+     *
+     * @param response       l'objet de réponse qui sera modifié
+     * @param servletContext le contexte actuel de la servlet qui appelle cette méthode
+     * @param usagerInfosDTO les information de l'usager connecté (non null)
+     * @param filename       le nom du fichier à envoyer
+     * @param typeModele     le type de modèle de document, valeur de l'en-tête X-MC-TypeModele
+     * @param filestream     le flux du fichier à envoyer
      */
     public static void uploadToFILE(HttpServletResponse response, ServletContext servletContext, UsagerInfosDTO usagerInfosDTO, String filename, String typeModele, InputStream filestream) throws URISyntaxException, IOException {
         // Génération de l'UUID
@@ -315,7 +317,7 @@ public class FileServletUtils {
         Integer accessId = access.getPkAccess();
         LOGGER.debug("AccessID = {}", accessId);
         if (accessId == null) {
-            AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_NOT_FOUND,"Erreur : impossible de récupérer l'accès");
+            AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_NOT_FOUND, "Erreur : impossible de récupérer l'accès");
             return;
         }
 

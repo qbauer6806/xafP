@@ -98,9 +98,10 @@ public interface DemandesService {
     /**
      * Permet de supprimer une demande à partir du DemarcheID et de l'UsagerID
      */
-    void deleteDemande(String demarcheId, Integer demandeId) throws JsonProcessingException;
-
-    void deleteDemandeInGivenStatus(String demarcheId, Integer demandeId, List<String> statuts, int jours) throws JsonProcessingException;
+    void deleteDemande(String demarcheId, Integer demandeId, boolean brouillonExistant) throws JsonProcessingException;
+    
+    
+    void deleteDemandeInGivenStatus(String demarcheId, Integer demandeId, List<String> statuts, int jours, boolean brouillonExistant) throws JsonProcessingException;
 
     /**
      * Permet de sauvegarder en base une demande

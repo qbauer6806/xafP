@@ -100,19 +100,15 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 			long diffInMillies = Math.abs(new Date().getTime() - demandeDTO.getDernierStatut().getDate().getTime());
 			long diff = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
 
-            if (statuts.contains(demandeDTO.getDernierStatut().getLibelle()) && diff >= jours) {
-                // Si la demande est une demande courrier ou gichet on supprime d'abord les courriers associés à cette demande
-                if (!demandeDTO.getCanal().equals(DemandeCanalEnum.GUICHET_VIRTUEL)) {
-                    // Suppression des courriers de la demande
-                    demandesCourriersService.deleteCourriers(demarcheId, demandeDTO.getPkDemandes());
-                }
-                // Suppression des tâches liées à la demande, si la démarche gère les tâches
-                if (demarchesDataProvider.getDemarcheCanHandleTaches()) {
-                    tachesService.deleteTaches(demandeDTO.getPkDemandes());
-                }
-                // Ensuite on supprime la demande elle même
-                demandesService.deleteDemandeInGivenStatus(demarcheId, demandeDTO.getPkDemandes(), statuts, jours);
-                demandesSuppr++;
+			if (statuts.contains(demandeDTO.getDernierStatut().getLibelle()) && diff >= jours) {
+				// Si la demande est une demande courrier ou gichet on supprime d'abord les courriers associés à cette demande
+				if(!demandeDTO.getCanal().equals(DemandeCanalEnum.GUICHET_VIRTUEL)) {
+					// Suppression des courriers de la demande
+					demandesCourriersService.deleteCourriers(demarcheId, demandeDTO.getPkDemandes());
+				}
+				// Ensuite on supprime la demande elle même
+				demandesService.deleteDemandeInGivenStatus(demarcheId, demandeDTO.getPkDemandes(), statuts, jours, false);
+				demandesSuppr++;
 
             } else if (statuts.contains(demandeDTO.getDernierStatut().getLibelle()) && diff == jours - Long.parseLong(delaiEnvoiEmailProp.getValue())) {
                 // L'envois des emails se fait 15 jours avant la supression effective de la demande

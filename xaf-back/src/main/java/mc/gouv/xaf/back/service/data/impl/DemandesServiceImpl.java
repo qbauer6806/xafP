@@ -593,7 +593,7 @@ public class DemandesServiceImpl implements DemandesService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void deleteDemande(String demarcheId, Integer demandeId) throws JsonProcessingException {
+	public void deleteDemande(String demarcheId, Integer demandeId, boolean brouillonExistant) throws JsonProcessingException {
 
 		DemandeBO demandeBo = getCheckDemarcheDemandeBO(demarcheId, demandeId, false);
 		if (demandeBo == null) {
@@ -602,7 +602,27 @@ public class DemandesServiceImpl implements DemandesService {
 		DemandeDTO demandeDTO = DemandesTransformer.bo2Dto(demandeBo);
 
 		LOGGER.info("Suppression des fichiers de la demande {} de la demarche {}...", demandeId, demarcheId);
-		demandesFilesService.suppressionDesFichiers(demandeDTO, false, null, 0);
+		// Suppression des fichiers liés à la demande au moment de la supression de
+		// cette dernière
+		// #refs #47828 - Lors du rollback de création de demande, ne pas supprimer dans FILE les fichiers de la demande si elle émane d'un brouillon
+		DemandeDTO demandeDTO = DemandesTransformer.bo2Dto(demandeBo);
+		if (null != demandeDTO.getFichiers() && !Arrays.asList(demandeDTO.getFichiers()).isEmpty() && !brouillonExistant) {
+			for (DemandeFileDTO currentFileToDelete : demandeDTO.getFichiers()) {
+				// On ne supprime le fichier dans file que lorsqu'il n'est plus utilisé par la
+				// demande ou ses enfants (ie les demandes dupliquées qui découlent de cette
+				// demande)
+				List<DemandesFilesBO> existingFiles = demandesFilesRepository
+						.findAllByUrl(currentFileToDelete.getUrl());
+				if(null != existingFiles && !existingFiles.isEmpty() && existingFiles.size() == 1) {
+					try {
+						String url = URLEncoder.encode(currentFileToDelete.getUrl(), "UTF-8");
+						fileService.deleteFile("ROOT", url);
+					} catch (UnsupportedEncodingException e) {
+						LOGGER.error("Problème lors de l'encoding des urls des fichiers initiaux", e);
+					}
+				}
+			}
+		}
 		
 		LOGGER.info("Suppression des fichiers complémentaires de la demande {} de la demarche {}...", demandeId, demarcheId);
 		demandesComplementsService.suppressionDesFichiersDesDemandesComplementaires(demandeDTO, false, null, 0);
@@ -648,7 +668,7 @@ public class DemandesServiceImpl implements DemandesService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void deleteDemandeInGivenStatus(String demarcheId, Integer demandeId, List<String> statuts, int jours) throws JsonProcessingException {
+	public void deleteDemandeInGivenStatus(String demarcheId, Integer demandeId, List<String> statuts, int jours, boolean brouillonExistant) throws JsonProcessingException {
 
 		LOGGER.info("Suppression de la demande {} de la demarche {}...", demandeId, demarcheId);
 		DemandeBO demandeBo = getCheckDemarcheDemandeBO(demarcheId, demandeId, false);
@@ -658,7 +678,26 @@ public class DemandesServiceImpl implements DemandesService {
 		DemandeDTO demandeDTO = DemandesTransformer.bo2Dto(demandeBo);
 
 		LOGGER.info("Suppression des fichiers de la demande {} de la demarche {}...", demandeId, demarcheId);
-		demandesFilesService.suppressionDesFichiers(demandeDTO, true, statuts, jours);
+		// Suppression des fichiers liés à la demande au moment de la supression de
+		// cette dernière
+		DemandeDTO demandeDTO = DemandesTransformer.bo2Dto(demandeBo);
+		if (null != demandeDTO.getFichiers() && !Arrays.asList(demandeDTO.getFichiers()).isEmpty() && !brouillonExistant) {
+			for (DemandeFileDTO currentFileToDelete : demandeDTO.getFichiers()) {
+				// On ne supprime le fichier dans file que lorsqu'il n'est plus utilisé par la
+				// demande ou ses enfants (ie les demandes dupliquées qui découlent de cette
+				// demande)
+				List<DemandesFilesBO> existingFiles = demandesFilesRepository
+						.findAllByUrl(currentFileToDelete.getUrl());
+				if(null != existingFiles && !existingFiles.isEmpty() && isFileDeletable(existingFiles, statuts, jours)) {
+					try {
+						String url = URLEncoder.encode(currentFileToDelete.getUrl(), "UTF-8");
+						fileService.deleteFile("ROOT", url);
+					} catch (UnsupportedEncodingException e) {
+						LOGGER.error("Problème lors de l'encoding des urls des fichiers initiaux", e);
+					}
+				}
+			}
+		}
 		
 		LOGGER.info("Suppression des fichiers complémentaires de la demande {} de la demarche {}...", demandeId, demarcheId);
 		demandesComplementsService.suppressionDesFichiersDesDemandesComplementaires(demandeDTO, true, statuts, jours);

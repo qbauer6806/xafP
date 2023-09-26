@@ -1486,10 +1486,10 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      * @see mc.gouv.xaf.back.service.data.impl.DemandesServiceImpl#deleteDemande(java.lang.String, java.lang.Integer)
      */
     @Override
-    public void deleteDemande(String demarcheId, Integer demandeId) throws JsonProcessingException {
+    public void deleteDemande(String demarcheId, Integer demandeId, boolean brouillonExistant) throws JsonProcessingException {
         LOGGER.info("Début de suppression des références des fichiers de la demande {} dans Elasticsearch...", demandeId);
         try {
-            deleteDemandeInGivenStatus(demarcheId, demandeId, new ArrayList<>(), -1);
+            deleteDemandeInGivenStatus(demarcheId, demandeId, new ArrayList<>(), -1, brouillonExistant);
         } catch (Exception e) {
             LOGGER.error("Erreur d'indexation lors de la suppression de la demande.");
             EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent(
@@ -1527,7 +1527,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      * @see mc.gouv.xaf.back.service.data.impl.DemandesServiceImpl#deleteDemandeInGivenStatus(String, Integer, List, int)
      */
     @Override
-    public void deleteDemandeInGivenStatus(String demarcheId, Integer demandeId, List<String> statuts, int jours) throws JsonProcessingException {
+    public void deleteDemandeInGivenStatus(String demarcheId, Integer demandeId, List<String> statuts, int jours, boolean brouillonExistant) throws JsonProcessingException {
         LOGGER.info("Début de suppression des références des fichiers de la demande {} dans Elasticsearch...", demandeId);
         try {
             DemandeBO demandeBo = getCheckDemarcheDemandeBO(demarcheId, demandeId, false);
@@ -1544,13 +1544,13 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
              * Dans ce cas là, le deleteDemande va supprimer les fichiers rattachés à cette demande sans tests préalable.
              */
             if (statuts.isEmpty() && jours < 0) {
-                super.deleteDemande(demarcheId, demandeId);
+                super.deleteDemande(demarcheId, demandeId, brouillonExistant);
             } else {
                 /* Lors de l'appel a ce super.deleteDemandeInGivenStatus, un test sera fait en amont pour juger si oui ou non les fichiers rattachés à cette demande sont supprimables
                  * Les fichiers rattachés à une demande d'origine sont les mêmes (DANS FILE) que les fichiers des demandes dupliquées à partir de l'initiale.
                  * Il faut donc veiller à ce que plus personne n'ait besoin de ces fichiers dans file avant de les supprimer
                  */
-                super.deleteDemandeInGivenStatus(demarcheId, demandeId, statuts, jours);
+                super.deleteDemandeInGivenStatus(demarcheId, demandeId, statuts, jours, false);
             }
         } catch (Exception e) {
             LOGGER.error("Erreur d'indexation lors de la suppression de la demande.");

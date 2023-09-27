@@ -1,15 +1,12 @@
 package mc.gouv.xaf.back.service.data.impl;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
-import java.net.URLEncoder;
 import java.security.SecureRandom;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -46,13 +43,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import mc.gouv.xaf.back.data.dao.AccessRepository;
-import mc.gouv.xaf.back.data.dao.DemandesFilesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesHistoriqueRepository;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.entity.AccessBO;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandesDataBO;
-import mc.gouv.xaf.back.data.entity.DemandesFilesBO;
 import mc.gouv.xaf.back.data.entity.DemandesHistoriqueBO;
 import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
 import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
@@ -99,9 +94,6 @@ public class DemandesServiceImpl implements DemandesService {
 	@Autowired
 	private DemandesRepository demandesRepository;
 	
-	@Autowired
-	private DemandesFilesRepository demandesFilesRepository;
-
 	@Autowired
 	private AccessRepository accessRepository;
 
@@ -641,27 +633,13 @@ public class DemandesServiceImpl implements DemandesService {
 			throw new DemarchesServiceException("Demande introuvable", HttpStatus.NOT_FOUND);
 		}
 
-		LOGGER.info("Suppression des fichiers de la demande {} de la demarche {}...", demandeId, demarcheId);
 		// Suppression des fichiers liés à la demande au moment de la supression de
 		// cette dernière
 		// #refs #47828 - Lors du rollback de création de demande, ne pas supprimer dans FILE les fichiers de la demande si elle émane d'un brouillon
 		DemandeDTO demandeDTO = DemandesTransformer.bo2Dto(demandeBo);
-		if (null != demandeDTO.getFichiers() && !Arrays.asList(demandeDTO.getFichiers()).isEmpty() && !brouillonExistant) {
-			for (DemandeFileDTO currentFileToDelete : demandeDTO.getFichiers()) {
-				// On ne supprime le fichier dans file que lorsqu'il n'est plus utilisé par la
-				// demande ou ses enfants (ie les demandes dupliquées qui découlent de cette
-				// demande)
-				List<DemandesFilesBO> existingFiles = demandesFilesRepository
-						.findAllByUrl(currentFileToDelete.getUrl());
-				if(null != existingFiles && !existingFiles.isEmpty() && existingFiles.size() == 1) {
-					try {
-						String url = URLEncoder.encode(currentFileToDelete.getUrl(), "UTF-8");
-						fileService.deleteFile("ROOT", url);
-					} catch (UnsupportedEncodingException e) {
-						LOGGER.error("Problème lors de l'encoding des urls des fichiers initiaux", e);
-					}
-				}
-			}
+		LOGGER.info("Suppression des fichiers de la demande {} de la demarche {}...", demandeId, demarcheId);
+		if(!brouillonExistant) {
+			demandesFilesService.suppressionDesFichiers(demandeDTO, false, null, 0);
 		}
 		
 		LOGGER.info("Suppression des fichiers complémentaires de la demande {} de la demarche {}...", demandeId, demarcheId);

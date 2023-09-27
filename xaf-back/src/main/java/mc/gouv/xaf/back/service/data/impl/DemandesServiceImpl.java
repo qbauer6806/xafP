@@ -1,15 +1,71 @@
 package mc.gouv.xaf.back.service.data.impl;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
+import java.net.URLEncoder;
+import java.security.SecureRandom;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.From;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort.Order;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import mc.gouv.xaf.back.data.dao.AccessRepository;
+import mc.gouv.xaf.back.data.dao.DemandesFilesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesHistoriqueRepository;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
-import mc.gouv.xaf.back.data.entity.*;
+import mc.gouv.xaf.back.data.entity.AccessBO;
+import mc.gouv.xaf.back.data.entity.DemandeBO;
+import mc.gouv.xaf.back.data.entity.DemandesDataBO;
+import mc.gouv.xaf.back.data.entity.DemandesFilesBO;
+import mc.gouv.xaf.back.data.entity.DemandesHistoriqueBO;
+import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
 import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.service.DemandePostprocessingService;
-import mc.gouv.xaf.back.service.data.*;
+import mc.gouv.xaf.back.service.data.AccessService;
+import mc.gouv.xaf.back.service.data.DemandesComplementsService;
+import mc.gouv.xaf.back.service.data.DemandesDataService;
+import mc.gouv.xaf.back.service.data.DemandesFilesService;
+import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.back.service.data.DemandesStatutsService;
+import mc.gouv.xaf.back.service.data.DemarchesService;
+import mc.gouv.xaf.back.service.data.StatistiquesService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.DemandeRecapDTO;
@@ -18,31 +74,13 @@ import mc.gouv.xaf.back.service.itg.gichuni.kafka.utils.GUKafkaUtils;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
 import mc.gouv.xaf.shared.SharedMessages;
-import mc.gouv.xaf.shared.dto.*;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DateUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.*;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.domain.Sort.Order;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.*;
-import java.io.IOException;
-import java.math.BigInteger;
-import java.security.SecureRandom;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import mc.gouv.xaf.shared.dto.DataRechercheDTO;
+import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeFileDTO;
+import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
+import mc.gouv.xaf.shared.dto.PageParamDTO;
+import mc.gouv.xaf.shared.dto.StatistiqueDTO;
 
 /**
  * Service permettant la manipulation des demandes.
@@ -60,6 +98,9 @@ public class DemandesServiceImpl implements DemandesService {
 
 	@Autowired
 	private DemandesRepository demandesRepository;
+	
+	@Autowired
+	private DemandesFilesRepository demandesFilesRepository;
 
 	@Autowired
 	private AccessRepository accessRepository;
@@ -599,7 +640,6 @@ public class DemandesServiceImpl implements DemandesService {
 		if (demandeBo == null) {
 			throw new DemarchesServiceException("Demande introuvable", HttpStatus.NOT_FOUND);
 		}
-		DemandeDTO demandeDTO = DemandesTransformer.bo2Dto(demandeBo);
 
 		LOGGER.info("Suppression des fichiers de la demande {} de la demarche {}...", demandeId, demarcheId);
 		// Suppression des fichiers liés à la demande au moment de la supression de
@@ -676,27 +716,9 @@ public class DemandesServiceImpl implements DemandesService {
 			throw new DemarchesServiceException("Demande introuvable", HttpStatus.NOT_FOUND);
 		}
 		DemandeDTO demandeDTO = DemandesTransformer.bo2Dto(demandeBo);
-
 		LOGGER.info("Suppression des fichiers de la demande {} de la demarche {}...", demandeId, demarcheId);
-		// Suppression des fichiers liés à la demande au moment de la supression de
-		// cette dernière
-		DemandeDTO demandeDTO = DemandesTransformer.bo2Dto(demandeBo);
-		if (null != demandeDTO.getFichiers() && !Arrays.asList(demandeDTO.getFichiers()).isEmpty() && !brouillonExistant) {
-			for (DemandeFileDTO currentFileToDelete : demandeDTO.getFichiers()) {
-				// On ne supprime le fichier dans file que lorsqu'il n'est plus utilisé par la
-				// demande ou ses enfants (ie les demandes dupliquées qui découlent de cette
-				// demande)
-				List<DemandesFilesBO> existingFiles = demandesFilesRepository
-						.findAllByUrl(currentFileToDelete.getUrl());
-				if(null != existingFiles && !existingFiles.isEmpty() && isFileDeletable(existingFiles, statuts, jours)) {
-					try {
-						String url = URLEncoder.encode(currentFileToDelete.getUrl(), "UTF-8");
-						fileService.deleteFile("ROOT", url);
-					} catch (UnsupportedEncodingException e) {
-						LOGGER.error("Problème lors de l'encoding des urls des fichiers initiaux", e);
-					}
-				}
-			}
+		if(!brouillonExistant) {
+			demandesFilesService.suppressionDesFichiers(demandeDTO, true, statuts, jours);
 		}
 		
 		LOGGER.info("Suppression des fichiers complémentaires de la demande {} de la demarche {}...", demandeId, demarcheId);
@@ -711,7 +733,7 @@ public class DemandesServiceImpl implements DemandesService {
         RecapDemandesDTO recapDemandes = guKafkaUtils.getRecapDemandes(demandeRecaps);
         guKafkaProducer.sendSuppressionDemandeMessage(access.getUsagerId(), demandeId, identifiant, dateCreation, recapDemandes);
 	}
-
+	
 	@Override
 	public Integer getAccessIdFromDemande(DemandeDTO demande) {
 		return getCheckDemarcheDemandeBO(demande.getDemarcheId(), demande, true).getFkAccess().getPkAccess();

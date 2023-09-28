@@ -1,7 +1,10 @@
 package mc.gouv.xaf.servlet;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import mc.gouv.xaf.servlet.dto.DocHolderFilePostDTO;
 import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
+import mc.gouv.xaf.servlet.util.FileServletUtils;
 import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,15 +16,15 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.DelegatingServletInputStream;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.Part;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
+import java.nio.charset.StandardCharsets;
 import java.util.stream.Stream;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -39,6 +42,7 @@ class DocHolderServletsTest {
     private ServletOutputStream servletOutputStream;
 
     MockedStatic<AppFactoryServletUtils> servletUtilsMocked;
+    MockedStatic<FileServletUtils> fileServletUtilsMocked;
 
     @BeforeEach
     void setup() throws IOException {
@@ -46,6 +50,7 @@ class DocHolderServletsTest {
         // mais aussi pouvoir continuer le test quand d'autres méthodes comme logAndSendError sont appelées
         // et ainsi vérifier les statusCode définis dans les responses des Servlets.
         servletUtilsMocked = mockStatic(AppFactoryServletUtils.class, CALLS_REAL_METHODS);
+        fileServletUtilsMocked = mockStatic(FileServletUtils.class, CALLS_REAL_METHODS);
 
         when(response.getOutputStream()).thenReturn(servletOutputStream);
     }
@@ -55,6 +60,7 @@ class DocHolderServletsTest {
         // Important ! Sinon, la classe statique n'est pas remise à zéro entre les tests.
         // Dans le cas où vous devez vous en passer, déclarez le mock statique dans un bloc try-with-resource
         servletUtilsMocked.close();
+        fileServletUtilsMocked.close();
     }
 
     @Test
@@ -69,63 +75,39 @@ class DocHolderServletsTest {
 
     private static Stream<Arguments> emptyOrInvalidFileParameters() {
         return Stream.of(
-                Arguments.of(null, null),
-                Arguments.of(null, ""),
-                Arguments.of("", null),
-                Arguments.of("", ""),
-                Arguments.of("", "  "),
-                Arguments.of("  ", ""),
-                Arguments.of("  ", "  ")
+                Arguments.of(null, null, null),
+                Arguments.of(null, null, ""),
+                Arguments.of(null, "", null),
+                Arguments.of("", "", null),
+                Arguments.of("", "  ", null),
+                Arguments.of("", "", ""),
+                Arguments.of("  ", "  ", "  ")
         );
     }
 
     @ParameterizedTest
     @MethodSource("emptyOrInvalidFileParameters")
-    void failOnBadParameters(String typedoc, String preferredName) throws ServletException, IOException {
+    void failOnBadParameters(String url, String typedoc, String preferredName) throws ServletException, IOException {
         UsagerInfosDTO usagerInfosDTO = mock(UsagerInfosDTO.class);
         DocHolderFileServlet fileServlet = new DocHolderFileServlet();
 
         servletUtilsMocked.when(() -> AppFactoryServletUtils.getLoggedUser(any())).thenReturn(usagerInfosDTO);
 
-        when(request.getParameter("typedoc")).thenReturn(typedoc);
-        when(request.getParameter("preferredName")).thenReturn(preferredName);
+        DocHolderFilePostDTO filePostDTO = new DocHolderFilePostDTO();
+        filePostDTO.setUrl(url);
+        filePostDTO.setTypedoc(typedoc);
+        filePostDTO.setPreferredName(preferredName);
 
-        fileServlet.doPost(request, response);
+        ObjectMapper mapper = new ObjectMapper();
+        String body = mapper.writeValueAsString(filePostDTO);
 
-        verify(response).setStatus(HttpStatus.SC_BAD_REQUEST);
-    }
+        try (ByteArrayInputStream bais = new ByteArrayInputStream(body.getBytes(StandardCharsets.UTF_8));
+             DelegatingServletInputStream dsis = new DelegatingServletInputStream(bais)) {
+            when(request.getInputStream()).thenReturn(dsis);
 
-    @Test
-    void failOnNoFileProvided() throws ServletException, IOException {
-        UsagerInfosDTO usagerInfosDTO = mock(UsagerInfosDTO.class);
-        servletUtilsMocked.when(() -> AppFactoryServletUtils.getLoggedUser(any())).thenReturn(usagerInfosDTO);
+            fileServlet.doPost(request, response);
 
-        when(request.getParameter("typedoc")).thenReturn("mockedTypeDoc");
-        when(request.getParameter("preferredName")).thenReturn("monbeaufichier.txt");
-        when(request.getParts()).thenReturn(Collections.emptyList());
-
-        DocHolderFileServlet fileServlet = new DocHolderFileServlet();
-        fileServlet.doPost(request, response);
-
-        verify(response).setStatus(HttpStatus.SC_BAD_REQUEST);
-    }
-
-    @Test
-    void failOnTooManyFilesProvided() throws ServletException, IOException {
-        UsagerInfosDTO usagerInfosDTO = mock(UsagerInfosDTO.class);
-        servletUtilsMocked.when(() -> AppFactoryServletUtils.getLoggedUser(any())).thenReturn(usagerInfosDTO);
-
-        when(request.getParameter("typedoc")).thenReturn("mockedTypeDoc");
-        when(request.getParameter("preferredName")).thenReturn("monbeaufichier.txt");
-
-        Part filePartA = mock(Part.class);
-        Part filePartB = mock(Part.class);
-
-        when(request.getParts()).thenReturn(List.of(filePartA, filePartB));
-
-        DocHolderFileServlet fileServlet = new DocHolderFileServlet();
-        fileServlet.doPost(request, response);
-
-        verify(response).setStatus(HttpStatus.SC_BAD_REQUEST);
+            verify(response).setStatus(HttpStatus.SC_BAD_REQUEST);
+        }
     }
 }

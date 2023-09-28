@@ -121,7 +121,7 @@ public class DocHolderFileServlet extends AbstractAfServlet {
             return;
         }
 
-        if (StringUtils.isEmpty(filePostDTO.getUrl()) || StringUtils.isEmpty(filePostDTO.getPreferredName()) || StringUtils.isEmpty(filePostDTO.getTypedoc())) {
+        if (StringUtils.isBlank(filePostDTO.getUrl()) || StringUtils.isBlank(filePostDTO.getPreferredName()) || StringUtils.isBlank(filePostDTO.getTypedoc())) {
             LOGGER.error("Champs manquant dans la requête");
             AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_BAD_REQUEST, SharedMessages.REQUETE_MALFORMEE);
             return;

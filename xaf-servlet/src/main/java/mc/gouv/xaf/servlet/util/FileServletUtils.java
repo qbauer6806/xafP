@@ -14,6 +14,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.*;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.fluent.Request;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
@@ -282,17 +283,34 @@ public class FileServletUtils {
      * @param accessToken  le token d'accès à l'API, du compte connecté
      */
     public static HttpResponse downloadFromDocHolder(String docHolderUrl, String filename, String accessToken) throws IOException, URISyntaxException, InterruptedException {
-        String url = AfServletGouvPropertiesResolver.getPorteDocUrl() + "/file";
-
         MultipartEntityBuilder multipart = MultipartEntityBuilder.create().addTextBody("filename", filename);
 
         HttpClient client = HttpClientBuilder.create().build();
         HttpRequestWithEntity request = new HttpRequestWithEntity("GET");
-        request.setURI(URI.create(url));
+        request.setURI(URI.create(docHolderUrl));
         request.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
         request.setEntity(multipart.build());
 
         return client.execute(request);
+    }
+
+    public static HttpResponse uploadToDocHolder(String docHolderUrl, InputStream filestream, String accessToken, String filename, String typedoc, String preferredName, String endOfValidity) throws IOException {
+        MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create()
+                .setCharset(StandardCharsets.UTF_8)
+                .addPart("file", new InputStreamBody(filestream, filename))
+                .addTextBody("preferredName", preferredName)
+                .addTextBody("typedoc", typedoc);
+
+        if (!StringUtils.isEmpty(endOfValidity)) {
+            entityBuilder.addTextBody("endOfValidity", endOfValidity);
+        }
+
+        Request serviceRequest = Request.Post(docHolderUrl);
+        serviceRequest.body(entityBuilder.build());
+        serviceRequest.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
+
+        LOGGER.info("Envoi de la requête");
+        return serviceRequest.execute().returnResponse();
     }
 
     /**
@@ -385,11 +403,15 @@ public class FileServletUtils {
 
     /**
      * Permet de parser le nom du fichier depuis le Path Info de la requête
+     *
+     * @param pathInfo ex : /2/8a9b43f1-5de1-11ee-b33e-9efce89c72aa/docholderwishlist.png
+     * @return null ou le nom du fichier (docholderwishlist.png selon l'exemple)
      */
     public static String getFilename(String pathInfo) {
         String filename = null;
         if (pathInfo != null && pathInfo.length() > 1) {
-            filename = pathInfo.split(SLASH)[1];
+            String[] splitPath = pathInfo.split(SLASH);
+            filename = splitPath[splitPath.length - 1];
         }
         return filename;
     }

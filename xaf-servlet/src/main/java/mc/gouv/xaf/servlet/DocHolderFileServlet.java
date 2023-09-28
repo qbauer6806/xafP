@@ -1,8 +1,10 @@
 package mc.gouv.xaf.servlet;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import mc.gouv.xaf.servlet.dto.DocHolderFileDTO;
+import mc.gouv.xaf.servlet.dto.DocHolderFilePostDTO;
 import mc.gouv.xaf.servlet.dto.DocHolderFileUpdateDTO;
 import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
 import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
@@ -22,8 +24,6 @@ import org.apache.http.client.fluent.Request;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.entity.mime.content.InputStreamBody;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,25 +32,20 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.Part;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
-import java.util.Collection;
 import java.util.Map;
 
 @MultipartConfig
 public class DocHolderFileServlet extends AbstractAfServlet {
-    public static final String END_OF_VALIDITY = "endOfValidity";
     private static final long serialVersionUID = -314577095316396789L;
     private static final Logger LOGGER = LoggerFactory.getLogger(DocHolderFileServlet.class);
     private static final String SERVICE_URL = AfServletGouvPropertiesResolver.getPorteDocUrl() + "/file";
     public static final String VERIFICATION_USAGER_CONNECTE = "Vérification usager connecté";
 
     public static final String FILENAME = "filename";
-    public static final String TYPEDOC = "typedoc";
-    public static final String PREFERRED_NAME = "preferredName";
 
     /**
      * Méthode pour l'opération <b>getFile</b>
@@ -81,8 +76,7 @@ public class DocHolderFileServlet extends AbstractAfServlet {
             HttpResponse serviceResponse = FileServletUtils.downloadFromDocHolder(SERVICE_URL, filename, usagerInfosDTO.getTokenInfo().getAccessToken());
 
             LOGGER.info("Constitution de la réponse pour retour au client");
-
-            if(serviceResponse.getStatusLine().getStatusCode() == 200) {
+            if (serviceResponse.getStatusLine().getStatusCode() == 200) {
                 Header contentDispositionHeader = serviceResponse.getFirstHeader(RequestConstant.CONTENT_DISPOSITION_HEADER);
                 resp.setHeader(RequestConstant.CONTENT_DISPOSITION_HEADER, contentDispositionHeader.getValue());
                 resp.setContentType(serviceResponse.getEntity().getContentType().getValue());
@@ -108,6 +102,8 @@ public class DocHolderFileServlet extends AbstractAfServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         LOGGER.info("====================== {} doPost()", req.getServletPath());
 
+        ObjectMapper mapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
         LOGGER.info(VERIFICATION_USAGER_CONNECTE);
         UsagerInfosDTO usagerInfosDTO = AppFactoryServletUtils.getLoggedUser(req);
         if (usagerInfosDTO == null) {
@@ -116,69 +112,42 @@ public class DocHolderFileServlet extends AbstractAfServlet {
         }
 
         LOGGER.info("Vérification des paramètres envoyés");
-        String typedoc = req.getParameter(TYPEDOC);
-        String preferredName = req.getParameter(PREFERRED_NAME);
-        String endOfValidity = req.getParameter(END_OF_VALIDITY); // paramètre optionnel
-        if (StringUtils.isEmpty(typedoc) || StringUtils.isEmpty(preferredName)) {
+        DocHolderFilePostDTO filePostDTO;
+        try {
+            filePostDTO = mapper.readValue(req.getInputStream(), DocHolderFilePostDTO.class);
+        } catch (IOException ioe) {
+            LOGGER.error("Erreur lors de la déserialisation de la requête", ioe);
             AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_BAD_REQUEST, SharedMessages.REQUETE_MALFORMEE);
             return;
         }
 
-        LOGGER.info("Vérification du fichier");
+        if (StringUtils.isEmpty(filePostDTO.getUrl()) || StringUtils.isEmpty(filePostDTO.getPreferredName()) || StringUtils.isEmpty(filePostDTO.getTypedoc())) {
+            LOGGER.error("Champs manquant dans la requête");
+            AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_BAD_REQUEST, SharedMessages.REQUETE_MALFORMEE);
+            return;
+        }
+
+        LOGGER.info("Téléchargement du fichier depuis FILE, url = " + filePostDTO.getUrl());
         try {
-            Collection<Part> parts = req.getParts();
+            try (InputStream filestream = FileServletUtils.downloadFile(filePostDTO.getUrl(), false, usagerInfosDTO.getAccessId(), getServletContext(), resp)) {
+                if (resp.getStatus() == HttpServletResponse.SC_OK && filestream != null) {
+                    LOGGER.info("Téléchargement réussi");
+                    String filename = FileServletUtils.getFilename(filePostDTO.getUrl());
+                    LOGGER.info("Upload du fichier vers PorteDocument");
+                    HttpResponse uploadResponse = FileServletUtils.uploadToDocHolder(
+                            SERVICE_URL,
+                            filestream,
+                            usagerInfosDTO.getTokenInfo().getAccessToken(),
+                            filename, filePostDTO.getTypedoc(),
+                            filePostDTO.getPreferredName(),
+                            filePostDTO.getEndOfValidity());
 
-            if (parts.size() == 0) {
-                AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_BAD_REQUEST, SharedMessages.REQUETE_MALFORMEE);
-                return;
+                    int statusCode = uploadResponse.getStatusLine().getStatusCode();
+                    LOGGER.info("Code retour de l'upload dans PorteDocument : " + statusCode);
+                    resp.setStatus(statusCode);
+                    IOUtils.copy(uploadResponse.getEntity().getContent(), resp.getOutputStream());
+                }
             }
-
-            // Récupération du nom du fichier à envoyer
-            Part filePart = req.getPart("file");
-            String filename = filePart != null ? filePart.getSubmittedFileName() : null;
-
-            if (StringUtils.isEmpty(filename)) {
-                AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_BAD_REQUEST, SharedMessages.FICHIER_NOM_MANQUANT);
-                return;
-            }
-
-            LOGGER.info("Vérification de la taille du fichier...");
-            if (!FileServletUtils.tailleFichierValide(filePart)) {
-                LOGGER.info("La taille du fichier depasse la taille max definie dans les propriétés (taille du fichier : {} B)", filePart.getSize());
-                AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_FORBIDDEN, SharedMessages.FICHIER_TROP_GRAND);
-                return;
-            }
-
-            String safeFilename = filename.replaceAll(SharedMessages.UNSAFE_CHARS, "_");
-            LOGGER.info("Vérification du type pour le fichier {} ...", safeFilename);
-            if (!FileServletUtils.estExtensionDansWhitelist(filename)) {
-                LOGGER.info("Le type de fichier ne correspond pas aux types whitelistés ({})", FileServletUtils.getExtensionsWhitelist());
-                AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_BAD_REQUEST, SharedMessages.FICHIER_TYPE_EXTENTION_INVALIDE);
-                return;
-            }
-
-            LOGGER.info("Création de la requête");
-            MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create()
-                    .addPart("file", new InputStreamBody(filePart.getInputStream(), ContentType.create(filePart.getContentType(), StandardCharsets.UTF_8), filePart.getSubmittedFileName()))
-                    .addTextBody(PREFERRED_NAME, preferredName)
-                    .addTextBody(TYPEDOC, typedoc);
-
-            if (!StringUtils.isEmpty(endOfValidity)) {
-                entityBuilder.addTextBody(END_OF_VALIDITY, endOfValidity);
-            }
-
-            Request serviceRequest = Request.Post(SERVICE_URL);
-            serviceRequest.body(entityBuilder.build());
-            serviceRequest.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + usagerInfosDTO.getTokenInfo().getAccessToken());
-
-            LOGGER.info("Envoi de la requête");
-            HttpResponse serviceResponse = serviceRequest.execute().returnResponse();
-            int statusCode = serviceResponse.getStatusLine().getStatusCode();
-            resp.setStatus(statusCode);
-            IOUtils.copy(serviceResponse.getEntity().getContent(), resp.getOutputStream());
-        } catch (ServletException e) {
-            resp.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
-            LOGGER.error("Erreur lors de l'appel à l'API Porte-Documents saveFile, la requête n'est pas de type multipart/form-data", e);
         } catch (UnsupportedOperationException | IOException ioe) {
             resp.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
             LOGGER.error("Erreur lors de l'appel à l'API Porte-Documents saveFile", ioe);

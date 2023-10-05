@@ -1,3 +1,4 @@
+
 package mc.gouv.xaf.back.paiement.mock;
 
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
@@ -119,6 +120,18 @@ public class DemarchesDataProviderTestImpl implements DemarchesDataProvider {
 		// TODO Auto-generated method stub
 		return false;
 	}
+
+    @Override
+    public List<String> getStatutsPourDuplication() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public List<String> getBuildIdsPourDuplication() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
     @Override
     public String getExportLibelle() {

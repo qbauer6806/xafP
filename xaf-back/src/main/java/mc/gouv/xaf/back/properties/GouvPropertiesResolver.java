@@ -123,5 +123,15 @@ public interface GouvPropertiesResolver {
     String getPorteDocUrl();
 
     boolean isPorteDocEnabled();
+    
+    String getApiUlisMoyensGenerauxUrl();
+
+    String getApiUlisTiersOrganisationUrl();
+
+    String getApiUlisAuthenticationUser();
+
+    String getApiUlisAuthenticationPassword();
+
+    String getApiUlisFunctionalUser();
 
 }

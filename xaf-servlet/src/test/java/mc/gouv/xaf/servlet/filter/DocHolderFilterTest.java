@@ -1,9 +1,16 @@
 package mc.gouv.xaf.servlet.filter;
 
-import mc.gouv.xaf.servlet.dto.KeycloakTokenInfo;
-import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
-import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
-import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
+import static org.mockito.Mockito.*;
+
+import java.io.IOException;
+
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,15 +21,10 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-
-import static org.mockito.Mockito.*;
+import mc.gouv.xaf.servlet.dto.KeycloakTokenInfo;
+import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
+import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
+import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
 
 @ExtendWith(MockitoExtension.class)
 class DocHolderFilterTest {

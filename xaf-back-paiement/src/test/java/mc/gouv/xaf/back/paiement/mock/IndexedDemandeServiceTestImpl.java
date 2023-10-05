@@ -107,12 +107,12 @@ public class IndexedDemandeServiceTestImpl implements IndexedDemandeService {
     }
 
     @Override
-    public void deleteDemande(String demarcheId, Integer demandeId) throws JsonProcessingException {
+    public void deleteDemande(String demarcheId, Integer demandeId, boolean brouillonExistant) throws JsonProcessingException {
 
     }
 
     @Override
-    public void deleteDemandeInGivenStatus(String demarcheId, Integer demandeId, List<String> statuts, int jours) throws JsonProcessingException {
+    public void deleteDemandeInGivenStatus(String demarcheId, Integer demandeId, List<String> statuts, int jours, boolean brouillonExistant) throws JsonProcessingException {
 
     }
 
@@ -286,9 +286,15 @@ public class IndexedDemandeServiceTestImpl implements IndexedDemandeService {
 
     }
 
-	@Override
-	public List<String> getAllBuildIds() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public List<String> getAllBuildIds() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Long reindexDemandesCourrier() throws IOException {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }

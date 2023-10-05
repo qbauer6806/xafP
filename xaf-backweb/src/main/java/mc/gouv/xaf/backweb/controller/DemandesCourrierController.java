@@ -22,11 +22,13 @@ import org.springframework.web.servlet.ModelAndView;
 
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
+import mc.gouv.xaf.back.service.data.UsagersCourrierService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.UsagersUtils;
 import mc.gouv.xaf.backweb.formbean.DemandesCourrierFormBean;
 import mc.gouv.xaf.backweb.formbean.UsagerCourrierFormBean;
 import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
 
 /**
  * Controller pour les demandes courrier
@@ -48,6 +50,9 @@ public class DemandesCourrierController extends AbstractController {
 	private UsagersUtils usagersUtils;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(DemandesCourrierController.class);
+
+    @Autowired
+    private UsagersCourrierService usagersCourrierService;
 
 	@Secured("ROLE_SAISIE")
 	@GetMapping
@@ -132,12 +137,21 @@ public class DemandesCourrierController extends AbstractController {
 		return mav;
 	}
 
-	private void initForm(ModelAndView mav, Integer usagerId) {
-		mav.addObject("usager", usagersUtils.getUsagerCourrierFromId(usagerId));
-		ArrayList<DemandeCanalEnum> canaux = new ArrayList<>();
-		canaux.add(DemandeCanalEnum.COURRIER);
-		canaux.add(DemandeCanalEnum.GUICHET_PHYSIQUE);
-		mav.addObject("canaux", canaux);
-		mav.addObject("langues", demarchesDataProvider.getLanguesDisponibles());
-	}
+    private void initForm(ModelAndView mav, Integer usagerId) {
+        mav.addObject("usager", usagersUtils.getUsagerCourrierFromId(usagerId));
+        ArrayList<DemandeCanalEnum> canaux = new ArrayList<>();
+        canaux.add(DemandeCanalEnum.COURRIER);
+        canaux.add(DemandeCanalEnum.GUICHET_PHYSIQUE);
+        mav.addObject("canaux", canaux);
+        mav.addObject("langues", demarchesDataProvider.getLanguesDisponibles());
+
+        // Récuperation de la dernière demande pour duplication
+        DemandeDTO derniereDemande = usagersCourrierService.getDerniereDemandePourDuplication(
+                gouvPropertiesResolver.getDemarcheId(), usagerId, demarchesDataProvider.getStatutsPourDuplication(),
+                demarchesDataProvider.getBuildIdsPourDuplication());
+        if (derniereDemande != null) {
+            mav.addObject("duplicationKeyId", derniereDemande.getPkDemandes());
+            mav.addObject("duplicationIdentifiant", derniereDemande.getIdentifiant());
+        }
+    }
 }

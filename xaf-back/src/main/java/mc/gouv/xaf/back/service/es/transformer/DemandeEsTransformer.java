@@ -190,6 +190,8 @@ public class DemandeEsTransformer {
             demandeEsDTO.setAgentAffecteNomAffichage(getAgentAffecteNomAffichage(user));
         }
 
+        demandeEsDTO.setModificationTimestamp(demande.getModificationTimestamp());
+
         return demandeEsDTO;
     }
 
@@ -263,7 +265,7 @@ public class DemandeEsTransformer {
         List<String> justifs = getJustificatifsTraitement(gouvPropertiesResolver.getDemarcheId(),
                 demandeDTO.getPkDemandes());
         demandeEsDTO.setJustificatifsTraitement(justifs);
-
+        demandeEsDTO.setModificationTimestamp(demandeDTO.getModificationTimestamp());
         return demandeEsDTO;
     }
 
@@ -390,7 +392,7 @@ public class DemandeEsTransformer {
         // Justificatifs de traitment dans l'historique de la demande
         List<String> justifs = getJustificatifsTraitement(gouvPropertiesResolver.getDemarcheId(), bo.getPkDemandes());
         dto.setJustificatifsTraitement(justifs);
-
+        dto.setModificationTimestamp(bo.getModificationTimestamp());
         return dto;
     }
 

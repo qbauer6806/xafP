@@ -22,8 +22,6 @@ import java.util.UUID;
 
 import javax.annotation.PostConstruct;
 
-import mc.gouv.xaf.back.service.motifs.MotifsCache;
-import mc.gouv.xaf.shared.dto.MotifDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,17 +50,20 @@ import mc.gouv.logon.shared.User;
 import mc.gouv.mail.apiclient.client.MailClient;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
+import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.motifs.MotifTemplateService;
+import mc.gouv.xaf.back.service.motifs.MotifsCache;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeDataDTO;
 import mc.gouv.xaf.shared.dto.DemandeFlatDTO;
 import mc.gouv.xaf.shared.dto.DemarcheDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
+import mc.gouv.xaf.shared.dto.MotifDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.PropertiesListEntityDTO;
 import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
@@ -161,6 +162,10 @@ public class AfBackUtils {
     @Autowired
     @Lazy
     private MotifTemplateService motifTemplateService;
+
+    @Autowired
+    @Lazy
+    private DemandesService demandesService;
 
     @Autowired
     @Lazy
@@ -429,6 +434,10 @@ public class AfBackUtils {
 
     public String getExportLibelle() {
         return demarchesDataProvider.getExportLibelle() != null ? demarchesDataProvider.getExportLibelle() : "Export Anonymisé";
+    }
+
+    public String getRecapOrientation() {
+        return demarchesDataProvider.getRecapOrientation();
     }
 
     /**
@@ -753,7 +762,12 @@ public class AfBackUtils {
 	public static String mConnectDateToString(Date date) {
 		return new SimpleDateFormat(MCONNECT_DATE_AND_TIME_FORMAT).format(date);
 	}
-
+	
+	public String getIdentifiantFromPkDemande(Integer pkDemande) {
+		DemandeDTO demande = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), pkDemande);
+		return demande.getIdentifiant();
+	}
+	
 	public boolean isEmailHtmlEnabled() {
         PropertiesDTO emailHtmlEnabledProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_EMAIL_HTML_ENABLED);
         if (emailHtmlEnabledProp == null || StringUtils.isBlank(emailHtmlEnabledProp.getValue())) {

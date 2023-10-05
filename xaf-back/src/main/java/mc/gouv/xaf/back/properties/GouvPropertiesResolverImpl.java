@@ -537,4 +537,29 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
         String value = Static.getValue(PORTEDOC_ENABLED);
         return StringUtils.equals("true", value);
     }
+        
+    @Override
+    public String getApiUlisMoyensGenerauxUrl() {
+        return Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".ulis.url.moyens-generaux", "N/D");
+    }
+
+    @Override
+    public String getApiUlisTiersOrganisationUrl() {
+        return Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".ulis.url.tiers-organisation", "N/D");
+    }
+
+    @Override
+    public String getApiUlisAuthenticationUser() {
+        return Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".ulis.authentication.user", "N/D");
+    }
+
+    @Override
+    public String getApiUlisAuthenticationPassword() {
+        return Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".ulis.authentication.password", "N/D");
+    }
+
+    @Override
+    public String getApiUlisFunctionalUser() {
+        return Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".ulis.account", "N/D");
+    }
 }

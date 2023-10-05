@@ -42,8 +42,6 @@ public interface AfHistoService {
     
     public DemandeHistoriqueDTO historiqueDuplicationAncienneDemande(Integer demandeId, Integer oldDemandeId, String demarcheId, String agentId);
     
-    public DemandeHistoriqueDTO historiqueDemanderAvisClub(Integer demandeId, String targetState, String agentId);
-    
     public DemandeHistoriqueDTO demanderRectification(Integer demandeId, String agentId);
     
     public DemandeHistoriqueDTO updateDemande(DemandeDTO demande, Integer usagerId, String agentId, String targetStateStr);

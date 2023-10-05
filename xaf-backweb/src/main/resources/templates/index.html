@@ -152,46 +152,6 @@
 					</div>
 				</div>
 			</div>
-			
-			<div class="row">
-				<div class="col-xs-12" sec:authorize="hasRole('ROLE_TRAITEMENT')">
-					<div class="panel-group" role="tablist"
-						 aria-multiselectable="true">
-						<div class="panel panel-default">
-							<div class="panel-heading" role="tab" id="headingClubs">
-								<h4 class="panel-title">
-									<a role="button" data-toggle="collapse" href="#collapseClubs" aria-expanded="true"
-									   aria-controls="collapseClubs"> <span
-											class="pannelState icon-action_accordeon-ouvert"></span> En attente de réponse club <span class="badge badgeState info"
-													  id="demandesEnAttenteRepClubCounter">0</span>
-									</a>
-								</h4>
-							</div>
-							<div id="collapseClubs" class="panel-collapse collapse in"
-								 role="tabpanel" aria-labelledby="headingClubs">
-								<div class="panel-body">
-									<table id="demandesEnAttenteRepClub" class="table table-striped"
-										   th:attr="data-href=@{'~/pocts/ws/demandes/pageable?statut=EN_ATTENTE_REPONSE_CLUB&amp;agentId='+${agentId}}">
-										<thead>
-										<tr>
-											<th>Identifiant</th>
-											<th>Date demande</th>
-											<th>État</th>
-											<th>Demandeur</th>
-											<th>Type de demande</th>
-											<th>Langue</th>
-											<th>Mode de réception</th>
-											<th>Responsable</th>
-											<th>Actions</th>
-										</tr>
-										</thead>
-									</table>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
 
 			<div class="row">
 				<div class="col-xs-12" sec:authorize="hasRole('ROLE_VALIDATION')">
@@ -290,7 +250,7 @@
 
 <script>
 	$(document).ready(function() {
-		$('#nouvellesDemandes,#demandesATraiter,#demandesAttenteIC,#demandesAAccepter,#demandesEnAttenteRepClub').each(function(index, value) {
+		$('#nouvellesDemandes,#demandesATraiter,#demandesAttenteIC,#demandesAAccepter').each(function(index, value) {
 			//Affichage de 10 éléments
 			var id = this.id;
 			configurationDataTable.iDisplayLength = 5;

@@ -102,240 +102,250 @@
         </dependency>
 
         <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-core</artifactId>
-        </dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-core</artifactId>
+		</dependency>
 
-        <!-- Apache Velocity -->
-        <dependency>
-            <groupId>org.apache.velocity.tools</groupId>
-            <artifactId>velocity-tools-generic</artifactId>
-            <version>3.1</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>javax.servlet</groupId>
-                    <artifactId>servlet-api</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.struts</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.commons</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <!-- Fin Apache Velocity -->
+		<!-- Apache Velocity -->
+		<dependency>
+			<groupId>org.apache.velocity.tools</groupId>
+			<artifactId>velocity-tools-generic</artifactId>
+			<version>3.1</version>
+			<exclusions>
+				<exclusion>
+					<groupId>javax.servlet</groupId>
+					<artifactId>servlet-api</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>xml-apis</groupId>
+					<artifactId>xml-apis</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.struts</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.commons</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<!-- Fin Apache Velocity -->
 
-        <dependency>
-            <groupId>mc.gouv.xboot</groupId>
-            <artifactId>xboot-caching</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>mc.gouv.xboot</groupId>
+			<artifactId>xboot-caching</artifactId>
+		</dependency>
 
-        <dependency>
-            <groupId>mc.gouv.server</groupId>
-            <artifactId>servicerest_client</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>mc.gouv.server</groupId>
+			<artifactId>servicerest_client</artifactId>
+		</dependency>
 
-        <dependency>
-            <groupId>mc.gouv.servicerest</groupId>
-            <artifactId>servicerest-caching</artifactId>
-            <version>2.2.15</version>
-        </dependency>
+		<dependency>
+			<groupId>mc.gouv.servicerest</groupId>
+			<artifactId>servicerest-caching</artifactId>
+			<version>2.2.15</version>
+		</dependency>
 
-        <dependency>
-            <groupId>mc.gouv.logon</groupId>
-            <artifactId>logon-caching</artifactId>
-            <version>${logon-apiclient.version}</version>
-        </dependency>
+		<dependency>
+			<groupId>mc.gouv.logon</groupId>
+			<artifactId>logon-caching</artifactId>
+			<version>${logon-apiclient.version}</version>
+		</dependency>
 
-        <dependency>
-            <groupId>mc.gouv.logon</groupId>
-            <artifactId>logon-apiclient</artifactId>
-            <version>${logon-apiclient.version}</version>
-        </dependency>
+		<dependency>
+			<groupId>mc.gouv.logon</groupId>
+			<artifactId>logon-apiclient</artifactId>
+			<version>${logon-apiclient.version}</version>
+		</dependency>
 
-        <dependency>
-            <artifactId>xboot-spring-starter-test</artifactId>
-            <groupId>mc.gouv.xboot</groupId>
-        </dependency>
-        <!-- Pour la génération de PDF : -->
+		<dependency>
+			<artifactId>xboot-spring-starter-test</artifactId>
+			<groupId>mc.gouv.xboot</groupId>
+		</dependency>
+		<!-- Pour la génération de PDF : -->
 
-        <dependency>
-            <groupId>fr.opensagres.xdocreport</groupId>
-            <artifactId>fr.opensagres.xdocreport.document</artifactId>
-            <version>${xdocreport.version}</version>
-        </dependency>
+		<dependency>
+			<groupId>fr.opensagres.xdocreport</groupId>
+			<artifactId>fr.opensagres.xdocreport.document</artifactId>
+			<version>${xdocreport.version}</version>
+		</dependency>
 
-        <dependency>
-            <groupId>fr.opensagres.xdocreport</groupId>
-            <artifactId>fr.opensagres.xdocreport.document.docx</artifactId>
-            <version>${xdocreport.version}</version>
-        </dependency>
+		<dependency>
+			<groupId>fr.opensagres.xdocreport</groupId>
+			<artifactId>fr.opensagres.xdocreport.document.docx</artifactId>
+			<version>${xdocreport.version}</version>
+		</dependency>
 
-        <dependency>
-            <groupId>fr.opensagres.xdocreport</groupId>
-            <artifactId>fr.opensagres.xdocreport.template.velocity</artifactId>
-            <version>${xdocreport.version}</version>
-        </dependency>
+		<dependency>
+			<groupId>fr.opensagres.xdocreport</groupId>
+			<artifactId>fr.opensagres.xdocreport.template.velocity</artifactId>
+			<version>${xdocreport.version}</version>
+		</dependency>
 
-        <dependency>
-            <groupId>fr.opensagres.xdocreport</groupId>
-            <artifactId>fr.opensagres.xdocreport.converter</artifactId>
-            <version>${xdocreport.version}</version>
-        </dependency>
+		<dependency>
+			<groupId>fr.opensagres.xdocreport</groupId>
+			<artifactId>fr.opensagres.xdocreport.converter</artifactId>
+			<version>${xdocreport.version}</version>
+		</dependency>
 
-        <dependency>
-            <groupId>fr.opensagres.xdocreport</groupId>
-            <artifactId>fr.opensagres.xdocreport.converter.docx.xwpf</artifactId>
-            <version>${xdocreport.version}</version>
-        </dependency>
+		<dependency>
+			<groupId>fr.opensagres.xdocreport</groupId>
+			<artifactId>fr.opensagres.xdocreport.converter.docx.xwpf</artifactId>
+			<version>${xdocreport.version}</version>
+		</dependency>
 
-        <dependency>
-            <groupId>fr.opensagres.xdocreport</groupId>
-            <artifactId>fr.opensagres.xdocreport.document.odt</artifactId>
-            <version>${xdocreport.version}</version>
+		<dependency>
+			<groupId>fr.opensagres.xdocreport</groupId>
+			<artifactId>fr.opensagres.xdocreport.document.odt</artifactId>
+			<version>${xdocreport.version}</version>
 
-        </dependency>
-        <dependency>
-            <groupId>fr.opensagres.xdocreport</groupId>
-            <artifactId>fr.opensagres.xdocreport.document.ods</artifactId>
-            <version>${xdocreport.version}</version>
-        </dependency>
+		</dependency>
+		<dependency>
+			<groupId>fr.opensagres.xdocreport</groupId>
+			<artifactId>fr.opensagres.xdocreport.document.ods</artifactId>
+			<version>${xdocreport.version}</version>
+		</dependency>
 
-        <dependency>
-            <groupId>fr.opensagres.xdocreport</groupId>
-            <artifactId>fr.opensagres.poi.xwpf.converter.core</artifactId>
-            <version>${xdocreport.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi-ooxml</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.poi</groupId>
-                    <artifactId>poi-ooxml-lite</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
+		<dependency>
+			<groupId>fr.opensagres.xdocreport</groupId>
+			<artifactId>fr.opensagres.poi.xwpf.converter.core</artifactId>
+			<version>${xdocreport.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.poi</groupId>
+					<artifactId>poi-ooxml-lite</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
 
-        <!-- Fin génération de PDF -->
+		<!-- Fin génération de PDF -->
 
-        <!-- Génération de fichier PDF à partir de HTML -->
+		<!-- Génération de fichier PDF à partir de HTML -->
 
-        <dependency>
-            <groupId>com.openhtmltopdf</groupId>
-            <artifactId>openhtmltopdf-core</artifactId>
-            <version>${openhtml.version}</version>
-        </dependency>
+		<dependency>
+			<groupId>com.openhtmltopdf</groupId>
+			<artifactId>openhtmltopdf-core</artifactId>
+			<version>${openhtml.version}</version>
+		</dependency>
 
-        <dependency>
-            <groupId>com.openhtmltopdf</groupId>
-            <artifactId>openhtmltopdf-pdfbox</artifactId>
-            <version>${openhtml.version}</version>
-        </dependency>
+		<dependency>
+			<groupId>com.openhtmltopdf</groupId>
+			<artifactId>openhtmltopdf-pdfbox</artifactId>
+			<version>${openhtml.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>com.openhtmltopdf</groupId>
+			<artifactId>openhtmltopdf-svg-support</artifactId>
+			<version>${openhtml.version}</version>
+			<!-- https://stackoverflow.com/questions/55571046/eclipse-is-confused-by-imports-accessible-from-more-than-one-module -->
+			<exclusions>
+	            <exclusion>
+	                <groupId>xml-apis</groupId>
+	                <artifactId>xml-apis</artifactId>
+	            </exclusion>
+	        </exclusions>
+		</dependency>
+		
+		<!-- https://stackoverflow.com/questions/7891250/batik-not-in-classpath-error-when-running-servlet -->
+		<dependency>
+		    <groupId>xml-apis</groupId>
+		    <artifactId>xml-apis-ext</artifactId>
+		    <version>1.3.04</version>
+		</dependency>
 
-        <dependency>
-            <groupId>com.openhtmltopdf</groupId>
-            <artifactId>openhtmltopdf-svg-support</artifactId>
-            <version>${openhtml.version}</version>
-            <!-- https://stackoverflow.com/questions/55571046/eclipse-is-confused-by-imports-accessible-from-more-than-one-module -->
-            <exclusions>
-                <exclusion>
-                    <groupId>xml-apis</groupId>
-                    <artifactId>xml-apis</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
+		<dependency>
+	  	    <!-- logs via slf4j. -->
+	  		<groupId>com.openhtmltopdf</groupId>
+	  		<artifactId>openhtmltopdf-slf4j</artifactId>
+	  		<version>${openhtml.version}</version>
+	  	</dependency>
 
-        <!-- https://stackoverflow.com/questions/7891250/batik-not-in-classpath-error-when-running-servlet -->
-        <dependency>
-            <groupId>xml-apis</groupId>
-            <artifactId>xml-apis-ext</artifactId>
-            <version>1.3.04</version>
-        </dependency>
+		<!-- Fin HTML to PDF -->
 
-        <dependency>
-            <!-- logs via slf4j. -->
-            <groupId>com.openhtmltopdf</groupId>
-            <artifactId>openhtmltopdf-slf4j</artifactId>
-            <version>${openhtml.version}</version>
-        </dependency>
+		<!-- Pour export Excel -->
 
-        <!-- Fin HTML to PDF -->
+		<dependency>
+			<groupId>org.jxls</groupId>
+			<artifactId>jxls</artifactId>
+			<version>2.7.2</version>
+		</dependency>
 
-        <!-- Pour export Excel -->
+		<dependency>
+			<groupId>org.jxls</groupId>
+			<artifactId>jxls-poi</artifactId>
+			<version>1.3.1</version>
+		</dependency>
 
-        <dependency>
-            <groupId>org.jxls</groupId>
-            <artifactId>jxls</artifactId>
-            <version>2.7.2</version>
-        </dependency>
+		<dependency>
+			<groupId>org.apache.tika</groupId>
+			<artifactId>tika-core</artifactId>
+			<version>${tika.version}</version>
+		</dependency>
 
-        <dependency>
-            <groupId>org.jxls</groupId>
-            <artifactId>jxls-poi</artifactId>
-            <version>1.3.1</version>
-        </dependency>
+		<dependency>
+			<groupId>org.apache.tika</groupId>
+			<artifactId>tika-parsers-standard-package</artifactId>
+			<version>${tika.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>xml-apis</groupId>
+					<artifactId>xml-apis</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
 
-        <dependency>
-            <groupId>org.apache.tika</groupId>
-            <artifactId>tika-core</artifactId>
-            <version>${tika.version}</version>
-        </dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-collections4</artifactId>
+			<version>4.1</version>
+		</dependency>
 
-        <dependency>
-            <groupId>org.apache.tika</groupId>
-            <artifactId>tika-parsers-standard-package</artifactId>
-            <version>${tika.version}</version>
-        </dependency>
+		<dependency>
+			<groupId>org.apache.pdfbox</groupId>
+			<artifactId>jbig2-imageio</artifactId>
+			<version>3.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.pdfbox</groupId>
+			<artifactId>pdfbox</artifactId>
+			<version>${pdfbox.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.pdfbox</groupId>
+			<artifactId>fontbox</artifactId>
+			<version>${pdfbox.version}</version>
+		</dependency>
 
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-collections4</artifactId>
-            <version>4.1</version>
-        </dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-compress</artifactId>
+		</dependency>
 
-        <dependency>
-            <groupId>org.apache.pdfbox</groupId>
-            <artifactId>jbig2-imageio</artifactId>
-            <version>3.0.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.pdfbox</groupId>
-            <artifactId>pdfbox</artifactId>
-            <version>${pdfbox.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.pdfbox</groupId>
-            <artifactId>fontbox</artifactId>
-            <version>${pdfbox.version}</version>
-        </dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-elasticsearch</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.elasticsearch.client</groupId>
+					<artifactId>transport</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
 
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-compress</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-elasticsearch</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.elasticsearch.client</groupId>
-                    <artifactId>transport</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>org.elasticsearch.client</groupId>
-            <artifactId>elasticsearch-rest-high-level-client</artifactId>
-        </dependency>
-
-        <!-- Quartz -->
-        <dependency>
+		<dependency>
+			<groupId>org.elasticsearch.client</groupId>
+			<artifactId>elasticsearch-rest-high-level-client</artifactId>
+		</dependency>
+		
+		<!-- Quartz -->
+		<dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-quartz</artifactId>
         </dependency>

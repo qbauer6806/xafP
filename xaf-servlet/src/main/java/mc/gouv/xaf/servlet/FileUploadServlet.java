@@ -312,8 +312,8 @@ public class FileUploadServlet extends AbstractAfServlet {
         if (statusCode == HttpServletResponse.SC_OK || statusCode == HttpServletResponse.SC_CREATED) {
             // Si tout s'est bien passé, alors on forme une réponse différente que celle qui nous est retournée par FILE
             ObjectMapper mapper = new ObjectMapper();
-            // Répondre accessId/uuid/nomDuFichier
-            FileUploadResponseDTO responseObj = new FileUploadResponseDTO(accessId + SLASH + uuid + SLASH + filename);
+            // Répondre /accessId/uuid/nomDuFichier
+            FileUploadResponseDTO responseObj = new FileUploadResponseDTO(SLASH + accessId + SLASH + uuid + SLASH + filename);
             String responseStr = mapper.writeValueAsString(responseObj);
             response.getOutputStream().write(responseStr.getBytes());
         } else {

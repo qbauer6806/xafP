@@ -1,33 +1,46 @@
 package mc.gouv.xaf.back.service.es.impl;
 
-import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
-import static org.elasticsearch.index.query.QueryBuilders.existsQuery;
-import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
-import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
-import static org.elasticsearch.index.query.QueryBuilders.rangeQuery;
-import static org.elasticsearch.index.query.QueryBuilders.simpleQueryStringQuery;
-import static org.elasticsearch.index.query.QueryBuilders.termQuery;
-import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
-import static org.elasticsearch.join.query.JoinQueryBuilders.hasChildQuery;
-
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import javax.transaction.Transactional;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
+import mc.gouv.xaf.back.data.dao.DemandesRepository;
+import mc.gouv.xaf.back.data.dao.RechercheChampConfigRepository;
+import mc.gouv.xaf.back.data.entity.DemandeBO;
+import mc.gouv.xaf.back.data.entity.RechercheChampConfigBO;
+import mc.gouv.xaf.back.data.es.dao.DemandeEsRepository;
+import mc.gouv.xaf.back.data.es.dao.DemandesFilesEsRepository;
+import mc.gouv.xaf.back.data.es.model.AgentEsDTO;
+import mc.gouv.xaf.back.data.es.model.CanalEsDto;
+import mc.gouv.xaf.back.data.es.model.DemandeAccessEsDTO;
+import mc.gouv.xaf.back.data.es.model.DemandeEsDTO;
+import mc.gouv.xaf.back.data.es.model.DemandeEsRechercheDTO;
+import mc.gouv.xaf.back.data.es.model.DemandeFileEsDTO;
+import mc.gouv.xaf.back.data.es.model.DemandeFileEsRechercheDTO;
+import mc.gouv.xaf.back.data.es.model.DemandeStatutEsDTO;
+import mc.gouv.xaf.back.data.es.model.DemandesFacet;
+import mc.gouv.xaf.back.data.es.model.DemandesFacets;
+import mc.gouv.xaf.back.data.es.model.EsErrorEventDTO;
+import mc.gouv.xaf.back.data.es.model.EsProperty;
+import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
+import mc.gouv.xaf.back.exception.AfIndexingException;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.DemarchesDataProvider;
+import mc.gouv.xaf.back.service.data.AccessService;
+import mc.gouv.xaf.back.service.data.impl.DemandesServiceImpl;
+import mc.gouv.xaf.back.service.es.IndexedDemandeService;
+import mc.gouv.xaf.back.service.es.IndexedFilesService;
+import mc.gouv.xaf.back.service.es.handlers.EsTransactionErrorsHandler;
+import mc.gouv.xaf.back.service.es.transformer.DemandeEsTransformer;
+import mc.gouv.xaf.back.service.es.utils.EsUtils;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.back.service.utils.DemarchesUtils;
+import mc.gouv.xaf.back.service.utils.ESQueryUtils;
+import mc.gouv.xaf.shared.SharedMessages;
+import mc.gouv.xaf.shared.dto.DataRechercheDTO;
+import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
+import mc.gouv.xaf.shared.dto.DemandeCourrierRechercheDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeFileDTO;
+import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.search.join.ScoreMode;
@@ -79,48 +92,32 @@ import org.springframework.data.elasticsearch.core.query.SourceFilter;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
-import mc.gouv.xaf.back.data.dao.DemandesRepository;
-import mc.gouv.xaf.back.data.dao.RechercheChampConfigRepository;
-import mc.gouv.xaf.back.data.entity.DemandeBO;
-import mc.gouv.xaf.back.data.entity.RechercheChampConfigBO;
-import mc.gouv.xaf.back.data.es.dao.DemandeEsRepository;
-import mc.gouv.xaf.back.data.es.dao.DemandesFilesEsRepository;
-import mc.gouv.xaf.back.data.es.model.AgentEsDTO;
-import mc.gouv.xaf.back.data.es.model.CanalEsDto;
-import mc.gouv.xaf.back.data.es.model.DemandeAccessEsDTO;
-import mc.gouv.xaf.back.data.es.model.DemandeEsDTO;
-import mc.gouv.xaf.back.data.es.model.DemandeEsRechercheDTO;
-import mc.gouv.xaf.back.data.es.model.DemandeFileEsDTO;
-import mc.gouv.xaf.back.data.es.model.DemandeFileEsRechercheDTO;
-import mc.gouv.xaf.back.data.es.model.DemandeStatutEsDTO;
-import mc.gouv.xaf.back.data.es.model.DemandesFacet;
-import mc.gouv.xaf.back.data.es.model.DemandesFacets;
-import mc.gouv.xaf.back.data.es.model.EsErrorEventDTO;
-import mc.gouv.xaf.back.data.es.model.EsProperty;
-import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
-import mc.gouv.xaf.back.exception.AfIndexingException;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.DemarchesDataProvider;
-import mc.gouv.xaf.back.service.data.AccessService;
-import mc.gouv.xaf.back.service.data.impl.DemandesServiceImpl;
-import mc.gouv.xaf.back.service.es.IndexedDemandeService;
-import mc.gouv.xaf.back.service.es.IndexedFilesService;
-import mc.gouv.xaf.back.service.es.handlers.EsTransactionErrorsHandler;
-import mc.gouv.xaf.back.service.es.transformer.DemandeEsTransformer;
-import mc.gouv.xaf.back.service.es.utils.EsUtils;
-import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import mc.gouv.xaf.back.service.utils.DemarchesUtils;
-import mc.gouv.xaf.back.service.utils.ESQueryUtils;
-import mc.gouv.xaf.shared.SharedMessages;
-import mc.gouv.xaf.shared.dto.DataRechercheDTO;
-import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
-import mc.gouv.xaf.shared.dto.DemandeCourrierRechercheDTO;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.xaf.shared.dto.DemandeFileDTO;
-import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.elasticsearch.index.query.QueryBuilders.existsQuery;
+import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
+import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
+import static org.elasticsearch.index.query.QueryBuilders.rangeQuery;
+import static org.elasticsearch.index.query.QueryBuilders.simpleQueryStringQuery;
+import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
+import static org.elasticsearch.join.query.JoinQueryBuilders.hasChildQuery;
 
 /**
  * Service permettant de faire de la recherche full-text sur les demandes en utilisant le moteur elasticsearch
@@ -1486,10 +1483,10 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      * @see mc.gouv.xaf.back.service.data.impl.DemandesServiceImpl#deleteDemande(java.lang.String, java.lang.Integer)
      */
     @Override
-    public void deleteDemande(String demarcheId, Integer demandeId, boolean brouillonExistant) throws JsonProcessingException {
+    public void deleteDemande(String demarcheId, Integer demandeId) throws JsonProcessingException {
         LOGGER.info("Début de suppression des références des fichiers de la demande {} dans Elasticsearch...", demandeId);
         try {
-            deleteDemandeInGivenStatus(demarcheId, demandeId, new ArrayList<>(), -1, brouillonExistant);
+            deleteDemandeInGivenStatus(demarcheId, demandeId, new ArrayList<>(), -1);
         } catch (Exception e) {
             LOGGER.error("Erreur d'indexation lors de la suppression de la demande.");
             EsErrorEventDTO esErrorEventDTO = EsTransactionErrorsHandler.createErrorEvent(
@@ -1527,7 +1524,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
      * @see mc.gouv.xaf.back.service.data.impl.DemandesServiceImpl#deleteDemandeInGivenStatus(String, Integer, List, int)
      */
     @Override
-    public void deleteDemandeInGivenStatus(String demarcheId, Integer demandeId, List<String> statuts, int jours, boolean brouillonExistant) throws JsonProcessingException {
+    public void deleteDemandeInGivenStatus(String demarcheId, Integer demandeId, List<String> statuts, int jours) throws JsonProcessingException {
         LOGGER.info("Début de suppression des références des fichiers de la demande {} dans Elasticsearch...", demandeId);
         try {
             DemandeBO demandeBo = getCheckDemarcheDemandeBO(demarcheId, demandeId, false);
@@ -1544,13 +1541,13 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
              * Dans ce cas là, le deleteDemande va supprimer les fichiers rattachés à cette demande sans tests préalable.
              */
             if (statuts.isEmpty() && jours < 0) {
-                super.deleteDemande(demarcheId, demandeId, brouillonExistant);
+                super.deleteDemande(demarcheId, demandeId);
             } else {
                 /* Lors de l'appel a ce super.deleteDemandeInGivenStatus, un test sera fait en amont pour juger si oui ou non les fichiers rattachés à cette demande sont supprimables
                  * Les fichiers rattachés à une demande d'origine sont les mêmes (DANS FILE) que les fichiers des demandes dupliquées à partir de l'initiale.
                  * Il faut donc veiller à ce que plus personne n'ait besoin de ces fichiers dans file avant de les supprimer
                  */
-                super.deleteDemandeInGivenStatus(demarcheId, demandeId, statuts, jours, false);
+                super.deleteDemandeInGivenStatus(demarcheId, demandeId, statuts, jours);
             }
         } catch (Exception e) {
             LOGGER.error("Erreur d'indexation lors de la suppression de la demande.");

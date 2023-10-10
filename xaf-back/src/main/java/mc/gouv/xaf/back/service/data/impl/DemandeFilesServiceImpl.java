@@ -1,26 +1,9 @@
 package mc.gouv.xaf.back.service.data.impl;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
+import mc.gouv.xaf.back.data.dao.BrouillonsFilesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesFilesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
+import mc.gouv.xaf.back.data.entity.BrouillonsFilesBO;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandesFilesBO;
 import mc.gouv.xaf.back.data.transformer.DemandesFilesTransformer;
@@ -32,6 +15,24 @@ import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.utils.FileUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 /**
  * Service permettant la manipulation des fichiers joints aux demandes.
@@ -49,6 +50,9 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
 
     @Autowired
     private DemandesFilesRepository demandesFilesRepository;
+
+    @Autowired
+    private BrouillonsFilesRepository brouillonsFilesRepository;
 
     @Autowired
     private DemandesService demandesService;
@@ -200,8 +204,10 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
             for (DemandeFileDTO currentFileToDelete : demandeDTO.getFichiers()) {
                 // On ne supprime le fichier dans file que lorsqu'il n'est plus utilisé par la
                 // demande ou ses enfants (ie les demandes dupliquées qui découlent de cette demande)
+                // On vérifie également si le fichier est présent dans un brouillon, dans ce cas on ne supprime pas
                 List<DemandesFilesBO> existingFiles = demandesFilesRepository.findAllByUrl(currentFileToDelete.getUrl());
-                if (null != existingFiles && isFileDeletable(existingFiles, statutCheck, statuts, jours)) {
+                List<BrouillonsFilesBO> existingFilesBrouillons = brouillonsFilesRepository.findAllByUrl(currentFileToDelete.getUrl());
+                if (null != existingFiles && isFileDeletable(existingFiles, existingFilesBrouillons, statutCheck, statuts, jours)) {
                     try {
                         String url = URLEncoder.encode(currentFileToDelete.getUrl(), "UTF-8");
                         fileService.deleteFile("ROOT", url);
@@ -213,9 +219,9 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
         }
     }
 
-    private boolean isFileDeletable(List<DemandesFilesBO> existingFiles, boolean statutCheck, List<String> statuts, int jours) {
+    private boolean isFileDeletable(List<DemandesFilesBO> existingFiles, List<BrouillonsFilesBO> existingFilesBrouillons, boolean statutCheck, List<String> statuts, int jours) {
         boolean isFileDeletable = false;
-        if (existingFiles.size() <= 1) {
+        if (existingFiles.size() <= 1 && (existingFilesBrouillons == null || existingFilesBrouillons.isEmpty())) {
             if (statutCheck) {
                 for (DemandesFilesBO demandesFilesBO : existingFiles) {
                     DemandeBO concernedDemandeBO = demandesFilesBO.getFkDemandes();

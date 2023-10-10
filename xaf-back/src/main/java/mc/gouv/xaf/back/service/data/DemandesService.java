@@ -1,19 +1,17 @@
 package mc.gouv.xaf.back.service.data;
 
-import java.io.IOException;
-import java.util.Date;
-import java.util.List;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.xml.sax.SAXException;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
-
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 import mc.gouv.xaf.shared.dto.PageParamDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.xml.sax.SAXException;
+
+import java.io.IOException;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Service permettant la manipulation des demandes.
@@ -100,10 +98,10 @@ public interface DemandesService {
     /**
      * Permet de supprimer une demande à partir du DemarcheID et de l'UsagerID
      */
-    void deleteDemande(String demarcheId, Integer demandeId, boolean brouillonExistant) throws JsonProcessingException;
+    void deleteDemande(String demarcheId, Integer demandeId) throws JsonProcessingException;
     
     
-    void deleteDemandeInGivenStatus(String demarcheId, Integer demandeId, List<String> statuts, int jours, boolean brouillonExistant) throws JsonProcessingException;
+    void deleteDemandeInGivenStatus(String demarcheId, Integer demandeId, List<String> statuts, int jours) throws JsonProcessingException;
 
     /**
      * Permet de sauvegarder en base une demande

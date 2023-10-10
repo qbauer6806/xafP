@@ -6,6 +6,8 @@ import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.rio.service.ConvertisseurTiffService;
 import mc.gouv.xaf.rio.utils.DitheringUtils;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
+import org.apache.commons.io.IOUtils;
+import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.apache.pdfbox.tools.imageio.ImageIOUtil;
@@ -24,8 +26,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
 
 
 @Service
@@ -136,7 +141,7 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
         List<InputStream> imagesIS = new ArrayList<>();
 
         // Chargement du document PDF
-        try (PDDocument document = PDDocument.load(is)) {
+        try (PDDocument document = Loader.loadPDF(IOUtils.toByteArray(is))) {
 	        PDFRenderer pdfRenderer = new PDFRenderer(document);
 	
 	        // Parcours du PDF multipages

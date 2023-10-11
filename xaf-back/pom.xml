@@ -14,7 +14,7 @@
         <activiti.version>5.23.0</activiti.version>
         <!-- Librairie pour generer le fichier recap d'une demande (sous license LGPL). -->
         <openhtml.version>1.0.10</openhtml.version>
-        <pdfbox.version>3.0.0</pdfbox.version>
+        <pdfbox.version>2.0.29</pdfbox.version>
         <xdocreport.version>2.0.4</xdocreport.version>
         <poi.version>4.1.0</poi.version>
         <vscan.version>1.0.0</vscan.version>

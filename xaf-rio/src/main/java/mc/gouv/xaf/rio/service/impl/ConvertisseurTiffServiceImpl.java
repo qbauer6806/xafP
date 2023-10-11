@@ -6,8 +6,6 @@ import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.rio.service.ConvertisseurTiffService;
 import mc.gouv.xaf.rio.utils.DitheringUtils;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
-import org.apache.commons.io.IOUtils;
-import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.apache.pdfbox.tools.imageio.ImageIOUtil;
@@ -141,7 +139,7 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
         List<InputStream> imagesIS = new ArrayList<>();
 
         // Chargement du document PDF
-        try (PDDocument document = Loader.loadPDF(IOUtils.toByteArray(is))) {
+        try (PDDocument document = PDDocument.load(is)) {
 	        PDFRenderer pdfRenderer = new PDFRenderer(document);
 	
 	        // Parcours du PDF multipages

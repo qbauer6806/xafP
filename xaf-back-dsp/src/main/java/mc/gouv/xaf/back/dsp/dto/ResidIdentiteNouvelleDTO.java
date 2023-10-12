@@ -1,16 +1,15 @@
 package mc.gouv.xaf.back.dsp.dto;
 
+import java.io.Serializable;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-import mc.gouv.xaf.back.dsp.enums.*;
 import mc.gouv.xaf.back.dsp.enums.common.ResidCanalCommunicationEnum;
 import mc.gouv.xaf.back.dsp.enums.common.ResidCiviliteEnum;
 import mc.gouv.xaf.back.dsp.enums.common.ResidLanguePrefereeEnum;
 import mc.gouv.xaf.back.dsp.enums.common.ResidSexeEnum;
 import mc.gouv.xaf.back.dsp.enums.common.ResidSituationFamilialeEnum;
-
-import java.io.Serializable;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)

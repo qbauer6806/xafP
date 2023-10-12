@@ -2,7 +2,8 @@ package mc.gouv.xaf.back.dsp.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import mc.gouv.xaf.back.dsp.enums.ResidMotifDuplicataEnum;
+
+import mc.gouv.xaf.back.dsp.enums.common.ResidMotifDuplicataEnum;
 
 import java.io.Serializable;
 

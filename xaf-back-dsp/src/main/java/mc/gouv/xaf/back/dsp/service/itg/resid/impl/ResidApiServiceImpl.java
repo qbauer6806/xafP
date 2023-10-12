@@ -30,6 +30,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import mc.gouv.xaf.back.dsp.dto.ResidDemandeCertificatResidenceCompleteDTO;
 import mc.gouv.xaf.back.dsp.dto.ResidDemandeChangementSituationCompleteDTO;
 import mc.gouv.xaf.back.dsp.dto.ResidDemandeDuplicataCarteCompleteDTO;
@@ -40,7 +41,7 @@ import mc.gouv.xaf.back.dsp.dto.ResidHttpResponseDTO;
 import mc.gouv.xaf.back.dsp.dto.ResidIdTSDTO;
 import mc.gouv.xaf.back.dsp.dto.ResidResidentCorrespondanceDTO;
 import mc.gouv.xaf.back.dsp.dto.ResidStatutDemandeDTO;
-import mc.gouv.xaf.back.dsp.dto.v2.ResidUsagerDLN1FDTO;
+import mc.gouv.xaf.back.dsp.dto.dlnuf.ResidUsagerNpdhlDTO;
 import mc.gouv.xaf.back.dsp.exception.ResidHttpResponseException;
 import mc.gouv.xaf.back.dsp.service.itg.resid.ResidApiService;
 import mc.gouv.xaf.back.dsp.service.itg.resid.ResidErrorResponseErrorHandler;
@@ -410,7 +411,7 @@ public class ResidApiServiceImpl implements ResidApiService {
 	}
 	
 	@Override
-	public ResidUsagerDLN1FDTO getUsagerDln1f(String nom, String prenom, String dateNaissance, String heureNaissance,
+	public ResidUsagerNpdhlDTO getUsagerDln1f(String nom, String prenom, String dateNaissance, String heureNaissance,
 			String villeNaissance, String paysNaissance, String url, String jwt) {
 		LOGGER.info("Appel à l'API RESID v2 pour demander l'usager correspondant");
 		RestTemplate rest = new RestTemplate();
@@ -431,8 +432,8 @@ public class ResidApiServiceImpl implements ResidApiService {
 		LOGGER.debug(URL_LOG, HttpMethod.GET, uri);
 		LOGGER.debug(HEADERS_LOG, headers);
 
-		ResponseEntity<ResidUsagerDLN1FDTO> responseEntity = rest.exchange(uri,
-				HttpMethod.GET, requestEntity, new ParameterizedTypeReference<ResidUsagerDLN1FDTO>(){});
+		ResponseEntity<ResidUsagerNpdhlDTO> responseEntity = rest.exchange(uri,
+				HttpMethod.GET, requestEntity, new ParameterizedTypeReference<ResidUsagerNpdhlDTO>(){});
 
 		LOGGER.info("Fin appel RESID");
 

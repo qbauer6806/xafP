@@ -2,7 +2,7 @@ package mc.gouv.xaf.back.dsp.service.itg.resid;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import mc.gouv.xaf.back.dsp.dto.*;
-import mc.gouv.xaf.back.dsp.dto.v2.ResidUsagerDLN1FDTO;
+import mc.gouv.xaf.back.dsp.dto.dlnuf.ResidUsagerNpdhlDTO;
 import mc.gouv.xaf.back.dsp.exception.ResidHttpResponseException;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 
@@ -30,5 +30,5 @@ public interface ResidApiService {
 
     List<ResidResidentCorrespondanceDTO> getListResidCorrespondance(String numeroCarte, String url, String jwt);
     
-    ResidUsagerDLN1FDTO getUsagerDln1f(String nom, String prenom, String dateNaissance, String heureNaissance, String villeNaissance, String paysNaissance, String url, String jwt);
+    ResidUsagerNpdhlDTO getUsagerDln1f(String nom, String prenom, String dateNaissance, String heureNaissance, String villeNaissance, String paysNaissance, String url, String jwt);
 }

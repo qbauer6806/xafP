@@ -1,14 +1,19 @@
 package mc.gouv.xaf.back.dsp.utils;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.stereotype.Component;
+
 import mc.gouv.xaf.back.data.transformer.DemandesComplementsFilesTransformer;
-import mc.gouv.xaf.back.dsp.enums.ResidPieceJustificativeTypeEnum;
+import mc.gouv.xaf.back.dsp.enums.common.ResidPieceJustificativeTypeEnum;
 import mc.gouv.xaf.back.service.utils.FileUtils;
 import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
-import org.springframework.stereotype.Component;
-
-import java.util.*;
 
 /**
  * 
@@ -59,7 +64,7 @@ public class FileUtilsResid extends FileUtils {
         return filenameConcat.replaceAll("[^a-zA-Z0-9_]", "_") + "." + extension;
     }
     
-	private static boolean isTransmiseAResid(DemandeFileDTO fileDTO) {
+	public static boolean isTransmiseAResid(DemandeFileDTO fileDTO) {
 //		return (fileDTO.getTypedoc() != null
 //				&& (ResidPieceJustificativeTypeEnum.NON_APPLICABLE.name().equals(fileDTO.getTypedoc())
 //						|| ResidPieceJustificativeTypeEnum.ACTE_MARIAGE_OU_FAMILLE.name().equals(fileDTO.getTypedoc())

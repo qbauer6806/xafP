@@ -2,8 +2,9 @@ package mc.gouv.xaf.back.dsp.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import mc.gouv.xaf.back.dsp.enums.ResidLoyerPeriodiciteEnum;
-import mc.gouv.xaf.back.dsp.enums.ResidQualiteEnum;
+
+import mc.gouv.xaf.back.dsp.enums.common.ResidLoyerPeriodiciteEnum;
+import mc.gouv.xaf.back.dsp.enums.common.ResidQualiteEnum;
 
 import java.io.Serializable;
 

@@ -1,19 +1,8 @@
 package mc.gouv.xaf.back.paiement.mock;
 
-import java.io.IOException;
-import java.util.Date;
-import java.util.List;
-
-import org.apache.tika.exception.TikaException;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Component;
-import org.xml.sax.SAXException;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.es.model.DemandeEsDTO;
 import mc.gouv.xaf.back.data.es.model.DemandeEsRechercheDTO;
@@ -29,6 +18,15 @@ import mc.gouv.xaf.shared.dto.DemandeCourrierRechercheDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 import mc.gouv.xaf.shared.dto.PageParamDTO;
+import org.apache.tika.exception.TikaException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Component;
+import org.xml.sax.SAXException;
+
+import java.io.IOException;
+import java.util.Date;
+import java.util.List;
 
 @Component
 public class IndexedDemandeServiceTestImpl implements IndexedDemandeService {
@@ -286,9 +284,15 @@ public class IndexedDemandeServiceTestImpl implements IndexedDemandeService {
 
     }
 
-	@Override
-	public List<String> getAllBuildIds() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public List<String> getAllBuildIds() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Long reindexDemandesCourrier() throws IOException {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }

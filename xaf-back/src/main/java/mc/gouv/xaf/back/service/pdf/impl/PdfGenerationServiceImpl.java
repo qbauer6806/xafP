@@ -1,23 +1,5 @@
 package mc.gouv.xaf.back.service.pdf.impl;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Date;
-import java.util.Map.Entry;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.tika.exception.TikaException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import fr.opensagres.poi.xwpf.converter.pdf.PdfOptions;
 import fr.opensagres.xdocreport.converter.ConverterTypeTo;
 import fr.opensagres.xdocreport.converter.Options;
@@ -39,7 +21,22 @@ import mc.gouv.xaf.shared.dto.DemandeCourrierDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.PdfTemplateAndModelDTO;
-import org.xml.sax.SAXException;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Date;
+import java.util.Map.Entry;
 
 /**
  * 
@@ -78,16 +75,19 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 	private AfBackUtils afBackUtils;
 
 	@Override
-	public void generateAndStorePdf(DemandeDTO demande, PdfTypeEnum pdfType, String meta) throws IOException, TikaException, SAXException {
+	public void generateAndStorePdf(DemandeDTO demande, PdfTypeEnum pdfType, String meta) throws IOException {
+		generateAndStorePdf(demande,pdfType, meta, generatePdf(demande, pdfType));
+	}
+
+	@Override
+	public void generateAndStorePdf(DemandeDTO demande, PdfTypeEnum pdfType, String meta, File tempFile) throws IOException {
 
 		LOGGER.info("PdfGenerationServiceImpl.generateAndStorePdf({}, {})", demande.getPkDemandes(), pdfType);
 
-		LOGGER.info("Génération du PDF avec XDocReport...");
-		File tempFile = generatePdf(demande, pdfType);
 		String fileName = tempFile.getName();
 
 		String url = fileService.sendToFile(tempFile, demande, fileName);
-		
+
 		// Supprimer le fichier temporaire car il n'est plus utile
 		LOGGER.info("Suppression du fichier temporaire...");
 		try {

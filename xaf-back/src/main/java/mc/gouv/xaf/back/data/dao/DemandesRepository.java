@@ -76,6 +76,12 @@ public interface DemandesRepository extends CrudRepository<DemandeBO, Integer> {
     List<DemandeBO> findAllByDateCreationFromAndDernierStatut(Date startDate, String dernierStatut);
 
     /**
+     * Permet de récupérer les demandes créées par les canaux courrier et guichet physique
+     */
+    @Query("select d from DemandeBO d where d.canal='COURRIER' or d.canal='GUICHET_PHYSIQUE'")
+    List<DemandeBO> findAllDemandesCourrier();
+
+    /**
      * Permet de récupérer les demandes créées à jusqu'à une date donnée
      */
     @Query("select d from DemandeBO d inner join d.dernierStatut ds where d.dateCreation <= :endDate and ds.libelle = :dernierStatut")
@@ -99,4 +105,11 @@ public interface DemandesRepository extends CrudRepository<DemandeBO, Integer> {
      */
     @Query("select distinct buildId from DemandeBO d")
     List<String> getAllBuildIds();
+
+    /**
+     * Récupération des demandes d'usager FRONT
+     */
+    @Query("select d from DemandeBO d inner join d.fkAccess fa where fa.demarcheId = :demarcheId and fa.usagerId = :usagerId")
+    List<DemandeBO> findByDemarcheIdAndUsagerId(@Param("demarcheId") String demarcheId,
+            @Param("usagerId") Integer usagerId);
 }

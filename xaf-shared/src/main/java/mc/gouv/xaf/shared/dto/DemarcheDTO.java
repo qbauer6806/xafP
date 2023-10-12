@@ -11,6 +11,8 @@ public class DemarcheDTO {
     private String pkDemarches;
     
     private String nom;
+    
+    private String nomEn;
 
     private String emailService;
     
@@ -106,6 +108,14 @@ public class DemarcheDTO {
 
 	public void setLangues(String langues) {
 		this.langues = langues;
+	}
+	
+	public String getNomEn() {
+		return nomEn;
+	}
+
+	public void setNomEn(String nomEn) {
+		this.nomEn = nomEn;
 	}
     
 }

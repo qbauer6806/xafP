@@ -11,6 +11,7 @@ public class ArchivageFichierDeposeDTO {
     private String statut;
 
     private String date;
+    private String referenceDossier;
 
     public String getRang() {
         return rang;
@@ -50,5 +51,13 @@ public class ArchivageFichierDeposeDTO {
 
     public void setDate(String date) {
         this.date = date;
+    }
+
+    public String getReferenceDossier() {
+        return referenceDossier;
+    }
+
+    public void setReferenceDossier(String referenceDossier) {
+        this.referenceDossier = referenceDossier;
     }
 }

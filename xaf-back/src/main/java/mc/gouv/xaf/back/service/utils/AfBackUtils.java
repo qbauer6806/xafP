@@ -1,5 +1,50 @@
 package mc.gouv.xaf.back.service.utils;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.uuid.EthernetAddress;
+import com.fasterxml.uuid.Generators;
+import com.fasterxml.uuid.impl.TimeBasedGenerator;
+import com.google.gson.Gson;
+import mc.gouv.file.apiclient.FileClient;
+import mc.gouv.logon.shared.Droit;
+import mc.gouv.logon.shared.Role;
+import mc.gouv.logon.shared.User;
+import mc.gouv.mail.apiclient.client.MailClient;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.DemarchesDataProvider;
+import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.back.service.data.DemarchesService;
+import mc.gouv.xaf.back.service.data.PropertiesService;
+import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
+import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
+import mc.gouv.xaf.back.service.motifs.MotifTemplateService;
+import mc.gouv.xaf.back.service.motifs.MotifsCache;
+import mc.gouv.xaf.shared.SharedMessages;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeDataDTO;
+import mc.gouv.xaf.shared.dto.DemandeFlatDTO;
+import mc.gouv.xaf.shared.dto.DemarcheDTO;
+import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
+import mc.gouv.xaf.shared.dto.MotifDTO;
+import mc.gouv.xaf.shared.dto.PropertiesDTO;
+import mc.gouv.xaf.shared.dto.PropertiesListEntityDTO;
+import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
+
+import javax.annotation.PostConstruct;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -19,51 +64,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-
-import javax.annotation.PostConstruct;
-
-import mc.gouv.xaf.back.service.motifs.MotifsCache;
-import mc.gouv.xaf.shared.SharedMessages;
-import mc.gouv.xaf.shared.dto.MotifDTO;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.http.MediaType;
-import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.uuid.EthernetAddress;
-import com.fasterxml.uuid.Generators;
-import com.fasterxml.uuid.impl.TimeBasedGenerator;
-import com.google.gson.Gson;
-
-import mc.gouv.file.apiclient.FileClient;
-import mc.gouv.logon.shared.Droit;
-import mc.gouv.logon.shared.Role;
-import mc.gouv.logon.shared.User;
-import mc.gouv.mail.apiclient.client.MailClient;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.DemarchesDataProvider;
-import mc.gouv.xaf.back.service.data.DemarchesService;
-import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
-import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
-import mc.gouv.xaf.back.service.motifs.MotifTemplateService;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.xaf.shared.dto.DemandeDataDTO;
-import mc.gouv.xaf.shared.dto.DemandeFlatDTO;
-import mc.gouv.xaf.shared.dto.DemarcheDTO;
-import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
-import mc.gouv.xaf.shared.dto.PropertiesListEntityDTO;
-import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
 
 /**
  * Classe utilitaire pour le projet xaf-back
@@ -117,6 +117,8 @@ public class AfBackUtils {
     // Préfix de la meta d'un fichier indiquant l'ID de la section correspondante
     public static final String META_FICHIER_SECTION_PREFIX = "SECTION_ID_";
 
+    public static final String XAF_EMAIL_HTML_ENABLED = "XAF_EMAIL_HTML_ENABLED";
+
     @Autowired
     @Lazy
     private GouvPropertiesResolver gouvPropertiesResolver;
@@ -152,6 +154,14 @@ public class AfBackUtils {
     @Autowired
     @Lazy
     private MotifTemplateService motifTemplateService;
+
+    @Autowired
+    @Lazy
+    private DemandesService demandesService;
+
+    @Autowired
+    @Lazy
+    private PropertiesService propertiesService;
 
     @Autowired
     @Lazy
@@ -323,6 +333,15 @@ public class AfBackUtils {
     public String getDemarcheNom() {
         return getDemarcheInfos().getNom();
     }
+    
+    /**
+     * Retourne le nom complet de la démarche en Anglais
+     *
+     * @return
+     */
+    public String getDemarcheNomEn() {
+        return getDemarcheInfos().getNomEn();
+    }
 
     /**
      * Permet de récupérer une donnée d'une demande
@@ -404,6 +423,10 @@ public class AfBackUtils {
 
     public String getExportLibelle() {
         return demarchesDataProvider.getExportLibelle() != null ? demarchesDataProvider.getExportLibelle() : "Export Anonymisé";
+    }
+
+    public String getRecapOrientation() {
+        return demarchesDataProvider.getRecapOrientation();
     }
 
     /**
@@ -728,7 +751,7 @@ public class AfBackUtils {
 	public static String mConnectDateToString(Date date) {
 		return new SimpleDateFormat(MCONNECT_DATE_AND_TIME_FORMAT).format(date);
 	}
-	
+
 	public Map<String, String> getLanguesDisponibles() {
 		DemarcheDTO demarche = getDemarcheInfos();
 		Map<String, String> langues = new HashMap<>();
@@ -744,4 +767,17 @@ public class AfBackUtils {
 		return langues;
 	}
     
+	public String getIdentifiantFromPkDemande(Integer pkDemande) {
+		DemandeDTO demande = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), pkDemande);
+		return demande.getIdentifiant();
+	}
+	
+	public boolean isEmailHtmlEnabled() {
+        PropertiesDTO emailHtmlEnabledProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_EMAIL_HTML_ENABLED);
+        if (emailHtmlEnabledProp == null || StringUtils.isBlank(emailHtmlEnabledProp.getValue())) {
+        	return false;
+        }
+        return Boolean.valueOf(emailHtmlEnabledProp.getValue());
+	}
+
 }

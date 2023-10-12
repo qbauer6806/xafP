@@ -40,7 +40,7 @@ public class DemandesController extends AbstractController {
     @GetMapping
     public ModelAndView form(@RequestParam(value = "statut", required = false) String statut,
             @RequestParam(value = "agentId", required = false) String agentId,
-            @RequestParam(required = false) String texte, @RequestParam(required = false) String searchFields) {
+            @RequestParam(required = false) String texte) {
 
         LOGGER.info("======================= Appel de la page /demandes");
 
@@ -61,7 +61,6 @@ public class DemandesController extends AbstractController {
         mav.addObject("agentsInit", agentsAffichage);
         mav.addObject("statuts", demarchesDataProvider.getStatusMap());
         mav.addObject("texte", texte);
-        mav.addObject("searchFields", searchFields);
         return mav;
     }
 

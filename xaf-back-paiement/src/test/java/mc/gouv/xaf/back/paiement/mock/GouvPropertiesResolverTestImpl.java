@@ -1,10 +1,12 @@
 package mc.gouv.xaf.back.paiement.mock;
 
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import org.springframework.stereotype.Component;
+
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 
 @Component
 public class GouvPropertiesResolverTestImpl implements GouvPropertiesResolver {
+
     @Override
     public String getFileUrl() {
         return null;
@@ -283,5 +285,35 @@ public class GouvPropertiesResolverTestImpl implements GouvPropertiesResolver {
     @Override
     public boolean isPaiementEnabled() {
         return true;
+    }
+
+    @Override
+    public String getApiUlisMoyensGenerauxUrl() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public String getApiUlisTiersOrganisationUrl() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public String getApiUlisAuthenticationUser() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public String getApiUlisAuthenticationPassword() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public String getApiUlisFunctionalUser() {
+        // TODO Auto-generated method stub
+        return null;
     }
 }

@@ -1,27 +1,6 @@
 package mc.gouv.xaf.back.service.purge;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.apache.commons.lang3.StringUtils;
-import org.quartz.SchedulerException;
-import org.quartz.Trigger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.stereotype.Service;
-
 import mc.gouv.xaf.back.data.dao.StatistiquesRepository;
 import mc.gouv.xaf.back.data.entity.StatistiqueBO;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
@@ -40,6 +19,27 @@ import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.PurgeDemandeDTO;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
+import mc.gouv.xaf.shared.enums.MailAudienceEnum;
+import org.apache.commons.lang3.StringUtils;
+import org.quartz.SchedulerException;
+import org.quartz.Trigger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @EnableScheduling
@@ -99,19 +99,15 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 			long diffInMillies = Math.abs(new Date().getTime() - demandeDTO.getDernierStatut().getDate().getTime());
 			long diff = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
 
-            if (statuts.contains(demandeDTO.getDernierStatut().getLibelle()) && diff >= jours) {
-                // Si la demande est une demande courrier ou gichet on supprime d'abord les courriers associés à cette demande
-                if (!demandeDTO.getCanal().equals(DemandeCanalEnum.GUICHET_VIRTUEL)) {
-                    // Suppression des courriers de la demande
-                    demandesCourriersService.deleteCourriers(demarcheId, demandeDTO.getPkDemandes());
-                }
-                // Suppression des tâches liées à la demande, si la démarche gère les tâches
-                if (demarchesDataProvider.getDemarcheCanHandleTaches()) {
-                    tachesService.deleteTaches(demandeDTO.getPkDemandes());
-                }
-                // Ensuite on supprime la demande elle même
-                demandesService.deleteDemandeInGivenStatus(demarcheId, demandeDTO.getPkDemandes(), statuts, jours);
-                demandesSuppr++;
+			if (statuts.contains(demandeDTO.getDernierStatut().getLibelle()) && diff >= jours) {
+				// Si la demande est une demande courrier ou gichet on supprime d'abord les courriers associés à cette demande
+				if(!demandeDTO.getCanal().equals(DemandeCanalEnum.GUICHET_VIRTUEL)) {
+					// Suppression des courriers de la demande
+					demandesCourriersService.deleteCourriers(demarcheId, demandeDTO.getPkDemandes());
+				}
+				// Ensuite on supprime la demande elle même
+				demandesService.deleteDemandeInGivenStatus(demarcheId, demandeDTO.getPkDemandes(), statuts, jours);
+				demandesSuppr++;
 
             } else if (statuts.contains(demandeDTO.getDernierStatut().getLibelle()) && diff == jours - Long.parseLong(delaiEnvoiEmailProp.getValue())) {
                 // L'envois des emails se fait 15 jours avant la supression effective de la demande
@@ -171,7 +167,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
         try {
             mailService.sendMail(emailInfoDTO, model);
         } catch (Exception e) {
-            LOGGER.error("Erreur lors de l'envoi de l'email de purge pour les agents", e);
+            LOGGER.error("Erreur lors de l'envoi de l'email de purge pour les usagers", e);
         }
     }
 
@@ -188,9 +184,9 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 		model.put("delai", delai);
 
 		try {
-			mailService.sendMail(emailInfoDTO, model);
+			mailService.sendMail(emailInfoDTO, model, MailAudienceEnum.AGENT);
 		} catch (Exception e) {
-			LOGGER.error("Erreur lors de l'envoi de l'email de purge pour les usagers", e);
+			LOGGER.error("Erreur lors de l'envoi de l'email de purge pour les agents", e);
 		}
 	}
 

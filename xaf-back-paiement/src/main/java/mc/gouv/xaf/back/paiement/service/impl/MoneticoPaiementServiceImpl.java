@@ -8,11 +8,24 @@ import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
-import mc.gouv.xaf.back.paiement.data.dao.*;
-import mc.gouv.xaf.back.paiement.data.entity.*;
+import mc.gouv.xaf.back.paiement.data.dao.CommandeDemandeArticleRepository;
+import mc.gouv.xaf.back.paiement.data.dao.CommandeDemandeRepository;
+import mc.gouv.xaf.back.paiement.data.dao.CommandeOperationRepository;
+import mc.gouv.xaf.back.paiement.data.dao.CommandeRepository;
+import mc.gouv.xaf.back.paiement.data.dao.MoyenPaiementRepository;
+import mc.gouv.xaf.back.paiement.data.dao.PaiementHistoriqueRepository;
+import mc.gouv.xaf.back.paiement.data.entity.CommandeBO;
+import mc.gouv.xaf.back.paiement.data.entity.CommandeDemandeArticleBO;
+import mc.gouv.xaf.back.paiement.data.entity.CommandeDemandeBO;
+import mc.gouv.xaf.back.paiement.data.entity.CommandeOperationBO;
+import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
+import mc.gouv.xaf.back.paiement.data.entity.PaiementHistoriqueBO;
 import mc.gouv.xaf.back.paiement.data.enums.MoyenPaiementStatutEnum;
 import mc.gouv.xaf.back.paiement.data.transformer.CommandeOperationTransformer;
-import mc.gouv.xaf.back.paiement.dto.*;
+import mc.gouv.xaf.back.paiement.dto.BillingDTO;
+import mc.gouv.xaf.back.paiement.dto.CommandeOperationDTO;
+import mc.gouv.xaf.back.paiement.dto.ContexteCommandeDTO;
+import mc.gouv.xaf.back.paiement.dto.PaiementDTO;
 import mc.gouv.xaf.back.paiement.enums.PaiementDemandeDataKeysEnum;
 import mc.gouv.xaf.back.paiement.enums.PaiementStatutEnum;
 import mc.gouv.xaf.back.paiement.properties.PaiementPropertiesResolver;
@@ -43,7 +56,12 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -128,11 +146,8 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
         Map<Integer, List<CommandeDemandeArticleBO>> articlesDemandes = new HashMap<>();
 
         for (Integer demandeId : demandesIdList) {
-            Optional<DemandeBO> demandeBOOptional = demandesRepository.findById(demandeId);
-            if (!demandeBOOptional.isPresent()) {
-                throw new DemarchesServiceException("La demande " + demandeId + " est introuvable.", HttpStatus.NOT_FOUND);
-            }
-            DemandeBO demandeBO = demandeBOOptional.get();
+            DemandeBO demandeBO = demandesRepository.findById(demandeId)
+                    .orElseThrow(() -> new DemarchesServiceException("La demande " + demandeId + " est introuvable.", HttpStatus.NOT_FOUND));
             demandes.put(demandeId, demandeBO);
             listeIdentifiantsDemandes.add(demandeBO.getIdentifiant());
 
@@ -287,11 +302,8 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
         String reference = moneticoResponseDTO.getReference();
         String safeReference = reference.replaceAll(SharedMessages.UNSAFE_CHARS, "_");
         LOGGER.info("Récupération en BDD des informations de paiement avec la référence {}", safeReference);
-        Optional<MoyenPaiementBO> moyenPaiementBOOptional = moyenPaiementRepository.findById(reference);
-        if (!moyenPaiementBOOptional.isPresent()) {
-            throw new DemarchesServiceException("Aucun paiement portant la référence " + reference + " n'a été trouvé.", HttpStatus.NOT_FOUND);
-        }
-        MoyenPaiementBO moyenPaiementBO = moyenPaiementBOOptional.get();
+        MoyenPaiementBO moyenPaiementBO = moyenPaiementRepository.findById(reference)
+                .orElseThrow(() -> new DemarchesServiceException("Aucun paiement portant la référence " + reference + " n'a été trouvé.", HttpStatus.NOT_FOUND));
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMyy");
         YearMonth yeaMonthValidite = YearMonth.parse(moneticoResponseDTO.getVld(), formatter);

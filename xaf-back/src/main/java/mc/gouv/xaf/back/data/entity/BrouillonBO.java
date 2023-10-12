@@ -52,6 +52,9 @@ public class BrouillonBO {
     @Column(name = "META", columnDefinition = "TEXT", nullable = true)
     private String meta;
 
+    @Column(name = "CONTENU_INITIAL", columnDefinition = "TEXT", nullable = true)
+    private String contenuInitial;
+
 	public Integer getPkBrouillons() {
 		return pkBrouillons;
 	}
@@ -123,5 +126,12 @@ public class BrouillonBO {
 	public void setMeta(String meta) {
 		this.meta = meta;
 	}
+    public String getContenuInitial() {
+        return contenuInitial;
+    }
+
+    public void setContenuInitial(String contenuInitial) {
+        this.contenuInitial = contenuInitial;
+    }
 
 }

@@ -313,7 +313,7 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
                     	return "";
                     }
                     else {
-                    	return paysCache.get(node0.asText(), "fr").getLibelleCourt();
+                    	return paysCache.get(node0.asText(), "fr").getNom();
                     }
                 } else if (mapping.toLowerCase().startsWith("properties_")) {
                     String path = jsonObject.get("path").toString().replace("contenu.", "/").replace(".", "/");

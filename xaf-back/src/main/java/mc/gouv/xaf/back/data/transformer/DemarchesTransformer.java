@@ -20,6 +20,7 @@ public class DemarchesTransformer {
         DemarcheDTO dto = new DemarcheDTO();
         dto.setPkDemarches(bo.getPkDemarches());
         dto.setNom(bo.getNom());
+        dto.setNomEn(bo.getNomEn());
         dto.setEmailService(bo.getEmailService());
         dto.setEmailServiceNom(bo.getEmailServiceNom());
         dto.setEmailReplyto(bo.getEmailReplyto());
@@ -35,6 +36,7 @@ public class DemarchesTransformer {
         DemarchesBO bo = new DemarchesBO();
         bo.setPkDemarches(dto.getPkDemarches());
         bo.setNom(dto.getNom());
+        bo.setNomEn(dto.getNomEn());
         bo.setEmailService(dto.getEmailService());
         bo.setEmailServiceNom(dto.getEmailServiceNom());
         bo.setEmailReplyto(dto.getEmailReplyto());

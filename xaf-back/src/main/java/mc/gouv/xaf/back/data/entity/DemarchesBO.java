@@ -27,6 +27,10 @@ public class DemarchesBO {
     @NotBlank
     @Size(min = 1, max = 256)
     private String nom;
+    
+    @Column(name = "NOM_EN", length = 256, nullable = true)
+    @Size(min = 0, max = 256)
+    private String nomEn;
 
     @Column(name = "EMAIL_SERVICE", length = 256, nullable = false)
     @NotBlank
@@ -168,6 +172,14 @@ public class DemarchesBO {
 
 	public void setLangues(String langues) {
 		this.langues = langues;
+	}
+
+	public String getNomEn() {
+		return nomEn;
+	}
+
+	public void setNomEn(String nomEn) {
+		this.nomEn = nomEn;
 	}
 
 }

@@ -44,6 +44,16 @@ public class DemandeRechercheDTO {
 
     private String statutPublicOuInterne;
 
+    private boolean checkTimestamp;
+
+    public boolean isCheckTimestamp() {
+        return checkTimestamp;
+    }
+
+    public void setCheckTimestamp(boolean checkTimestamp) {
+        this.checkTimestamp = checkTimestamp;
+    }
+
     public DemandeRechercheDTO() {
         super();
     }

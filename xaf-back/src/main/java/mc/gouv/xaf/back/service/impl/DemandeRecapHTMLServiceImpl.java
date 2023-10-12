@@ -10,7 +10,10 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -25,7 +28,9 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.HtmlUtils;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.MissingNode;
 import com.fasterxml.jackson.databind.node.NullNode;
@@ -290,8 +295,18 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 
         JSONArray champs = (JSONArray) section.get("champs");
         DemandeDTO demandeSource = null;
-        if (demande.getPkDemandeSource() != null) {
-            demandeSource = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), demande.getPkDemandeSource());
+
+        if (demande.getContenuInitial() != null && !demande.getContenuInitial().isNull()) {
+            ObjectMapper om = new ObjectMapper();
+            try {
+                demandeSource = om.treeToValue(demande.getContenuInitial(), DemandeDTO.class);
+                demandeSource.setBuildId(demande.getBuildId());
+            } catch (JsonProcessingException e) {
+                LOGGER.error("Impossible de parser le contenu initial de la demande" + demande.getIdentifiant(), e);
+            }
+        } else if (demande.getPkDemandeSource() != null) {
+            demandeSource = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(),
+                    demande.getPkDemandeSource());
         }
         List<String> donneesCertififiees = AfBackUtils.donneesCertifieesJsonToList(demande.getDonneesCertifiees());
         for (Object o : champs) {
@@ -334,7 +349,8 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
             html.append("<dt class='nouvelledonnee-titre'>").append(champ.get(LABEL)).append("</dt>");
             html.append("<dd class='nouvelledonnee-titre'>").append(idTag1).append(value.replace(SPAN_OPEN, "<span class='nouvelledonnee-contenu'>").replace("<dt>", "<dt class='nouvelledonnee-titre'>").replace("<dd>", "<dd class='nouvelledonnee-contenu'>")).append(idTag2);
             if (isDonneeCertifiee) {
-                html.append(" <span class=\"nouvelledonnee\" title=\"Donnée certifiée\">").append(imgTag).append(SPAN_CLOSE);
+                html.append(" <span class=\"nouvelledonnee\" title=\"Information vérifiée\">").append(imgTag)
+                        .append(SPAN_CLOSE);
             }
             html.append(DD);
 
@@ -344,7 +360,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
             html.append("<dt><span>").append(champ.get(LABEL)).append("</span></dt>");
             html.append("<dd>").append(idTag1).append(value).append(idTag2);
             if (isDonneeCertifiee) {
-                html.append(" <span title=\"Donnée certifiée\">").append(imgTag).append(SPAN_CLOSE);
+                html.append(" <span title=\"Information vérifiée\">").append(imgTag).append(SPAN_CLOSE);
             }
         }
         html.append(DD);
@@ -455,7 +471,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
             if (node0 == null || node0 instanceof NullNode || StringUtils.isBlank(node0.asText())) {
                 return "";
             }
-            return paysCache.get(node0.asText(), "fr").getLibelleCourt();
+            return paysCache.get(node0.asText(), "fr").getNom();
         }
 
         String path = champ.get("path").toString().replace(CONTENU, "/").replace(".", "/");
@@ -517,8 +533,8 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
             }
             return dateTime.format(DateTimeFormatter.ofPattern(format));
         } catch (Exception e) {
-            // au cas où il y ait une erreur de formattage sur la date
-            return "";
+            LOGGER.error("buildDateHTML exception: vérifier le format en entrée");
+            return "date en erreur";
         }
 
     }

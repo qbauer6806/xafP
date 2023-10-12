@@ -1,10 +1,10 @@
 package mc.gouv.xaf.back.data.transformer;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import mc.gouv.xaf.back.data.entity.TemplateBO;
 import mc.gouv.xaf.shared.dto.TemplateDTO;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 

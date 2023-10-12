@@ -12,7 +12,8 @@ import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
 import mc.gouv.xaf.shared.RequestConstant;
 import mc.gouv.xaf.shared.dto.DonneesExternesDTO;
 import mc.gouv.xaf.shared.dto.DonneesMConnectDTO;
-import mc.gouv.xaf.shared.dto.UsagerTypeEnum;
+import mc.gouv.xaf.shared.enums.UsagerTypeEnum;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpHeaders;

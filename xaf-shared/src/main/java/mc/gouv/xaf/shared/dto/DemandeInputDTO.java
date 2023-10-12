@@ -5,6 +5,8 @@ import java.util.Date;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
+
 /**
  * Input de WS pour les demandes
  * 

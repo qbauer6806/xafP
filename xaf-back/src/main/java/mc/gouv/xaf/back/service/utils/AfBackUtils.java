@@ -117,11 +117,6 @@ public class AfBackUtils {
     // Préfix de la meta d'un fichier indiquant l'ID de la section correspondante
     public static final String META_FICHIER_SECTION_PREFIX = "SECTION_ID_";
 
-    /**
-     * Version en cache des infos de la démarche
-     */
-    private DemarcheDTO demarche = null;
-
     @Autowired
     @Lazy
     private GouvPropertiesResolver gouvPropertiesResolver;
@@ -317,10 +312,7 @@ public class AfBackUtils {
      * @return
      */
     public DemarcheDTO getDemarcheInfos() {
-        if (demarche == null) {
-            demarche = demarchesService.getDemarche(gouvPropertiesResolver.getDemarcheId());
-        }
-        return demarche;
+        return demarchesService.getDemarche(gouvPropertiesResolver.getDemarcheId());
     }
 
     /**
@@ -735,6 +727,21 @@ public class AfBackUtils {
 	
 	public static String mConnectDateToString(Date date) {
 		return new SimpleDateFormat(MCONNECT_DATE_AND_TIME_FORMAT).format(date);
+	}
+	
+	public Map<String, String> getLanguesDisponibles() {
+		DemarcheDTO demarche = getDemarcheInfos();
+		Map<String, String> langues = new HashMap<>();
+		if (demarche.getLangues().contains("fr")) {
+			langues.put("fr", "Français");
+		}
+		if (demarche.getLangues().contains("en")) {
+			langues.put("en", "Anglais");
+		}
+		if (demarche.getLangues().contains("it")) {
+			langues.put("it", "Italien");
+		}
+		return langues;
 	}
     
 }

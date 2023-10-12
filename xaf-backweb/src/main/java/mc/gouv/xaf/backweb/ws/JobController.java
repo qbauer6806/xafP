@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
 import mc.gouv.xaf.back.service.data.DemandeJobService;
 import mc.gouv.xaf.shared.dto.DemandeJobDTO;
-import mc.gouv.xaf.shared.dto.JobNamesEnum;
+import mc.gouv.xaf.shared.enums.JobNamesEnum;
 import mc.gouv.xboot.config.web.annotation.GouvRestController;
 
 @GouvRestController

@@ -4,7 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import mc.gouv.xaf.shared.dto.DemandeJobDTO;
-import mc.gouv.xaf.shared.dto.JobNamesEnum;
+import mc.gouv.xaf.shared.enums.JobNamesEnum;
 
 public interface DemandeJobService {
 

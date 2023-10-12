@@ -2,7 +2,6 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <body>
-
 	<div id="sectiondiscussion" th:fragment="sectiondiscussion"
 		th:remove="tag">
 		<div class="col-xs-12">
@@ -15,13 +14,17 @@
 							<h4 class="panel-title">
 								<a role="button" data-toggle="collapse"
 									data-parent="#accordion5" href="#collapse5"
-									aria-expanded="true" aria-controls="collapse5"> <i
-									class="pannelState icon-action_accordeon-ouvert"></i>
+									aria-controls="collapse5"
+									th:attr="aria-expanded=${isDiscussionPanelActive}"
+									th:class="${isDiscussionPanelActive}  ? '' : collapsed "> <i
+									class="pannelState icon-action_accordeon-ouvert"
+									th:classappend="${isDiscussionPanelActive} ? icon-action_accordeon-ouvert : icon-action_accordeon-ferme"></i>
 									Discussion administration
 								</a>
 							</h4>
 						</div>
-						<div id="collapse5" class="panel-collapse collapse in"
+						<div id="collapse5" class="panel-collapse collapse"
+							th:classappend="${isDiscussionPanelActive} ? in:out"
 							role="tabpanel" aria-labelledby="heading5">
 							<div class="panel-body">
 								<div class="row">
@@ -33,15 +36,25 @@
 
 											<div class="row" th:each="comm : ${commInternes}">
 
-												<div class="col-xs-12"
+												<div th:if="comm != null" class="col-xs-12"
 													style="background-color: #ffffff; line-height: 1em">
-													<div
+													<div th:if="comm.date != null"
 														th:text="${#dates.format(comm.date,'dd/MM/yyyy HH:mm:ss')}"
 														style="font-size: 0.8em; font-weight: bold; color: rgb(94, 97, 100);"></div>
 													<div style="font-weight: bold;"
+														th:if="comm.agentId != null"
 														th:text="${AfBackUtils.getUserNameFromID(comm.agentId)}"></div>
-													<div th:text="${comm.commentaire}"
-														style="margin: 5px 0 8px 0;"></div>
+													<div th:unless="comm.agentId != null"
+														style="font-weight: bold; color: red;">Erreur dans
+														la récupération des informations du commentaire...</div>
+													<div th:if="comm.commentaire != null"
+														th:text="${comm.commentaire}" style="margin: 5px 0 8px 0;"></div>
+												</div>
+
+												<div th:unless="comm != null" class="col-xs-12"
+													style="background-color: #ffffff; line-height: 1em">
+													<div style="font-weight: bold; color: red;">Erreur
+														dans la récupération du commentaire...</div>
 												</div>
 
 											</div>
@@ -52,12 +65,17 @@
 
 
 										<div class="row">
-											<div class="col-xs-12">
+											<div id="com-interne-inputFormGroup"
+												class="col-xs-12 form-group">
 												<label for="com-interne-input">AJOUTER UN
-													COMMENTAIRE</label> <input type="text" class="form-control"
-													th:field="${traitementFormBean.commentaireInterne}"
+													COMMENTAIRE</label>
+												<textarea class="form-control greyTooltip"
+													oninput="checkCommentaireDiscussionValidity()"
+													data-toggle="tooltip" data-placement="bottom"
+													title="Commentaire limité à 140 caractères"
+													th:field="${xafTraitementFormBean.commentaireInterne}"
 													id="com-interne-input"
-													th:disabled="!${#authorization.expression('hasRole(''ROLE_TRAITEMENT'')')}" />
+													th:disabled="!${isDiscussionPanelActive}"></textarea>
 											</div>
 
 										</div>
@@ -68,17 +86,13 @@
 													type="submit" name="action" value="Publier"
 													class="btn btn-action ripple-effect"
 													id="envoyer-commentaire-button"
-													th:disabled="!${#authorization.expression('hasRole(''ROLE_TRAITEMENT'')')}" />
+													th:disabled="!${isDiscussionPanelActive}" />
 											</div>
 
 										</div>
 
 									</div>
 								</div>
-
-
-
-
 
 							</div>
 						</div>

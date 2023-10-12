@@ -68,6 +68,11 @@ public class DemarchesBO {
 
     @OneToMany(mappedBy = "demarche", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<PropertiesBO> properties;
+    
+    @Column(name = "LANGUES", length = 256, nullable = false)
+    @NotBlank
+    @Size(min = 1, max = 256)
+    private String langues;
 
 	public String getPkDemarches() {
         return pkDemarches;
@@ -156,5 +161,13 @@ public class DemarchesBO {
     public void setProperties(Set<PropertiesBO> properties) {
         this.properties = properties;
     }
+
+	public String getLangues() {
+		return langues;
+	}
+
+	public void setLangues(String langues) {
+		this.langues = langues;
+	}
 
 }

@@ -3,6 +3,8 @@ package mc.gouv.xaf.shared.dto;
 import java.util.Date;
 import java.util.List;
 
+import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
+
 /**
  * DTO interne regrouper des critères de recherche des courriers
  *

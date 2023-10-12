@@ -40,11 +40,11 @@ import mc.gouv.xaf.back.service.itg.rest.PaysCache;
 import mc.gouv.xaf.back.service.motifs.MotifsCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.UtilisateursUtils;
-import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
 import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
 import mc.gouv.xaf.shared.dto.DemandeComplementsQuestionDTO;
 import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 
 /**
  * Service permettant de générer une page HTML contenant le récapitulatif d'une demande.

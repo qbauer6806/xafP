@@ -33,8 +33,9 @@ import mc.gouv.xaf.back.data.es.model.DemandeAccessEsDTO;
 import mc.gouv.xaf.back.data.es.model.DemandeEsDTO;
 import mc.gouv.xaf.back.data.es.model.DemandeJoinFieldEsDTO;
 import mc.gouv.xaf.back.data.es.model.DemandeStatutEsDTO;
-import mc.gouv.xaf.shared.dto.es.GenericContenuEsDTO;
+import mc.gouv.xaf.shared.dto.es.GenericContenuDTO;
 import mc.gouv.xaf.shared.dto.es.GenericDemandeDataEsDTO;
+import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 import mc.gouv.xaf.back.data.transformer.DemandesCourriersTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesStatutsTransformer;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
@@ -43,7 +44,6 @@ import mc.gouv.xaf.back.service.data.DemandesHistoriqueService;
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
-import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
 import mc.gouv.xaf.shared.dto.DemandeCourrierDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeDataDTO;
@@ -412,7 +412,7 @@ public class DemandeEsTransformer {
         return null;
     }
 
-    private GenericContenuEsDTO transformContenu(JsonNode node, String buildId) {
+    private GenericContenuDTO transformContenu(JsonNode node, String buildId) {
         if (indexedDemandeJsonNodeTransformer != null) {
             return indexedDemandeJsonNodeTransformer.buildGenericContenu(node, buildId);
         }

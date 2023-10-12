@@ -54,12 +54,10 @@ import mc.gouv.xaf.back.data.entity.DemandesFilesBO;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
 import mc.gouv.xaf.shared.dto.AccessDTO;
 import mc.gouv.xaf.shared.dto.AccessInputDTO;
-import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
 import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
 import mc.gouv.xaf.shared.dto.DemandeComplementsFileDTO;
 import mc.gouv.xaf.shared.dto.DemandeComplementsQuestionDTO;
 import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
-import mc.gouv.xaf.shared.dto.DemandeComplementsStatutEnum;
 import mc.gouv.xaf.shared.dto.DemandeCourrierDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeDataDTO;
@@ -73,6 +71,8 @@ import mc.gouv.xaf.shared.dto.MotifDTO;
 import mc.gouv.xaf.shared.dto.StatutInputDTO;
 import mc.gouv.xaf.shared.dto.TemplateDTO;
 import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
+import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
+import mc.gouv.xaf.shared.enums.DemandeComplementsStatutEnum;
 import mc.gouv.xboot.test.jwt.JwtUtils;
 
 /**

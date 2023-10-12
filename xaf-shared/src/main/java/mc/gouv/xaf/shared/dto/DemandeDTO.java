@@ -2,6 +2,8 @@ package mc.gouv.xaf.shared.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
+
 import java.util.Arrays;
 
 /**

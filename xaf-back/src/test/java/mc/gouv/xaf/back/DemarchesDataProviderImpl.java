@@ -60,11 +60,6 @@ public class DemarchesDataProviderImpl implements DemarchesDataProvider {
         return null;
     }
 
-	@Override
-	public Map<String, String> getLanguesDisponibles() {
-		return null;
-	}
-
     @Override
     public boolean getDemarcheCanGenerateCourriers() {
         return false;

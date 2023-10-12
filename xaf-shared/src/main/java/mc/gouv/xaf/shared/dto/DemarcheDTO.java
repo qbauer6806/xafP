@@ -25,6 +25,8 @@ public class DemarcheDTO {
     private String emailFromNom;
     
     private String identifiantPrefixe;
+    
+    private String langues;
 
     public String getPkDemarches() {
         return pkDemarches;
@@ -97,5 +99,13 @@ public class DemarcheDTO {
     public void setIdentifiantPrefixe(String identifiantPrefixe) {
         this.identifiantPrefixe = identifiantPrefixe;
     }
+
+	public String getLangues() {
+		return langues;
+	}
+
+	public void setLangues(String langues) {
+		this.langues = langues;
+	}
     
 }

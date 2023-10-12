@@ -29,10 +29,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import mc.gouv.xaf.apiclient.AfApiClient;
-import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.DemandeInputDTO;
+import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 import mc.gouv.xapi.error.exception.server.InternalErrorWebException;
 
 /**

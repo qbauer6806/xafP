@@ -27,6 +27,7 @@ public class DemarchesTransformer {
         dto.setEmailFrom(bo.getEmailFrom());
         dto.setEmailFromNom(bo.getEmailFromNom());
         dto.setIdentifiantPrefixe(bo.getIdentifiantPrefixe());
+        dto.setLangues(bo.getLangues());
         return dto;
     }
 
@@ -41,6 +42,7 @@ public class DemarchesTransformer {
         bo.setEmailFrom(dto.getEmailFrom());
         bo.setEmailFromNom(dto.getEmailFromNom());
         bo.setIdentifiantPrefixe(dto.getIdentifiantPrefixe());
+        bo.setLangues(dto.getLangues());
         return bo;
     }
     

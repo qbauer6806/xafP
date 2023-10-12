@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.shared.dto.JobNamesEnum;
+import mc.gouv.xaf.shared.enums.JobNamesEnum;
 
 @Controller
 @RequestMapping("/gestion/jobs")

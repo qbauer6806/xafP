@@ -1,4 +1,4 @@
-package mc.gouv.xaf.shared.dto;
+package mc.gouv.xaf.shared.enums;
 
 /**
  * Enum représentant les états possibles pour une demande d'informations complémentaires

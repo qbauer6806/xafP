@@ -35,8 +35,8 @@ import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.UsagerDemandesRecapDTO;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.utils.GUKafkaUtils;
 import mc.gouv.xaf.shared.dto.DemandeJobDTO;
-import mc.gouv.xaf.shared.dto.JobNamesEnum;
-import mc.gouv.xaf.shared.dto.JobStatutsEnum;
+import mc.gouv.xaf.shared.enums.JobNamesEnum;
+import mc.gouv.xaf.shared.enums.JobStatutsEnum;
 
 @Service
 @Conditional(IndexationEnabledCondition.class)

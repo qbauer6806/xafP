@@ -15,8 +15,8 @@ import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.context.annotation.Conditional;
 
 import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
-import mc.gouv.xaf.shared.dto.JobNamesEnum;
-import mc.gouv.xaf.shared.dto.JobStatutsEnum;
+import mc.gouv.xaf.shared.enums.JobNamesEnum;
+import mc.gouv.xaf.shared.enums.JobStatutsEnum;
 
 @Conditional(IndexationEnabledCondition.class)
 @Entity

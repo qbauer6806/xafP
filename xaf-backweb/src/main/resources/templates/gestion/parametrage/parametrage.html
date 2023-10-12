@@ -1,0 +1,250 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org"
+      class="no-js sidebar-left-collapsed" lang="fr" dir="ltr">
+
+<head>
+
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title th:text="${AfBackUtils.getDemarcheNom()}"></title>
+
+    <!-- Import FONTS -->
+    <link rel="stylesheet" th:href="@{/css/font-style.css(${applicationBuildTimestamp})}"/>
+    <link rel="stylesheet" th:href="@{/webjars/xcb-wlib/fonts/ie7/ie7.css}" />
+
+    <!-- Import CSS -->
+    <link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"
+          rel="stylesheet" type="text/css" />
+    <link th:href="@{/webjars/xcb-wlib/css/template.css}" rel="stylesheet" />
+    <link th:href="@{/webjars/xcb-wlib/css/sidebar.css}" rel="stylesheet" />
+    <link th:href="@{/webjars/xcb-wlib/css/element.css}" rel="stylesheet" />
+    <link th:href="@{/webjars/datatables/css/dataTables.bootstrap.css}"
+          rel="stylesheet" />
+    <link
+            th:href="@{/webjars/bootstrap-datepicker/css/bootstrap-datepicker.css}"
+            rel="stylesheet" />
+
+    <link rel="shortcut icon" type="image/x-icon"
+          th:href="@{/img/favicon.ico}" />
+    <link th:href="@{/css/tsgen.css(${applicationBuildTimestamp})}"
+          rel="stylesheet" />
+    <link th:href="@{/css/tsdem.css(${applicationBuildTimestamp})}"
+          rel="stylesheet" />
+    <link
+            th:href="@{/webjars/bootstrap-datepicker/css/bootstrap-datepicker.css}"
+            rel="stylesheet" />
+
+</head>
+
+<body th:with="pageExportsActive='active'">
+
+<div th:replace="fragments/header :: header"></div>
+
+<div id="wrapper">
+
+    <div th:replace="fragments/sidebar :: sidebar"></div>
+
+    <!-- DEBUT CONTENU -->
+    <div id="page-content-wrapper">
+
+        <!-- DEBUT CONTENU -->
+        <div id="page-content-wrapper">
+
+				<div class="breadcrumbContent">
+					<div class="breadcrumb">
+						<a id="ariane0" th:href="@{/}" class="breadcrumb-item">ACCUEIL</a>&nbsp;&gt;&nbsp;
+						<a id="ariane1" th:href="@{/gestion/parametrage}"
+							class="breadcrumb-item">PARAMÉTRAGE DE LA DÉMARCHE</a> &gt;
+					</div>
+					<div class="triangleTopright"></div>
+				</div>
+
+				<div class="container-fluid">
+                <div class="text-center">
+                    <h1>Paramétrage de la démarche</h1>
+                </div>
+                <br />
+                <br />
+                <form id="form-parametrage" style="display: inline;"
+                      th:action="@{/gestion/parametrage/sauvegarder}" method="post"
+					th:object="${parametrageFormBean}">
+
+					<div class="container-fluid">
+						<h1>Propriétés principales</h1>
+					</div>
+					
+                    <div class="panel panel-simple">
+						<div class="row container-fluid">
+							<div
+								th:class="${#fields.hasErrors('nomDemarche')} ? 'form-group error' : 'form-group'">
+								<div class="col-xs-2">
+									<label for="nomDemarche">Titre de la démarche</label>
+								</div>
+								<div class="col-xs-10">
+									<input type="text" class="form-control" id="nomDemarche"
+										th:field="*{nomDemarche}" th:errorclass="errorTooltip"
+										th:attr="data-title=${#fields.hasErrors('nomDemarche')} ? ${#fields.errors('nomDemarche')} :''" />
+								</div>
+							</div>
+						</div>
+						<br/>
+						<div class="row container-fluid">
+							<div
+								th:class="${#fields.hasErrors('emailService')} ? 'form-group error' : 'form-group'">
+								<div class="col-xs-2">
+									<label for="emailService">Adresse e-mail du service</label>
+								</div>
+								<div class="col-xs-10">
+									<input type="text" class="form-control" id="emailService"
+										th:field="*{emailService}" th:errorclass="errorTooltip"
+										th:attr="data-title=${#fields.hasErrors('emailService')} ? ${#fields.errors('emailService')} :''" />
+								</div>
+							</div>
+						</div>
+						<br/>
+						<div class="row container-fluid">
+							<div
+								th:class="${#fields.hasErrors('emailServiceNom')} ? 'form-group error' : 'form-group'">
+								<div class="col-xs-2">
+									<label for="emailServiceNom">Nom associé à l'adresse e-mail du service</label>
+								</div>
+								<div class="col-xs-10">
+									<input type="text" class="form-control" id="emailServiceNom"
+										th:field="*{emailServiceNom}" th:errorclass="errorTooltip"
+										th:attr="data-title=${#fields.hasErrors('emailServiceNom')} ? ${#fields.errors('emailServiceNom')} :''" />
+								</div>
+							</div>
+						</div>
+						<br/>
+						<div class="row container-fluid">
+							<div
+								th:class="${#fields.hasErrors('emailReplyto')} ? 'form-group error' : 'form-group'">
+								<div class="col-xs-2">
+									<label for="emailReplyto">Adresse e-mail reply-to du service</label>
+								</div>
+								<div class="col-xs-10">
+									<input type="text" class="form-control" id="emailReplyto"
+										th:field="*{emailReplyto}" th:errorclass="errorTooltip"
+										th:attr="data-title=${#fields.hasErrors('emailReplyto')} ? ${#fields.errors('emailReplyto')} :''" />
+								</div>
+							</div>
+						</div>
+						<br/>
+						<div class="row container-fluid">
+							<div
+								th:class="${#fields.hasErrors('emailReplytoNom')} ? 'form-group error' : 'form-group'">
+								<div class="col-xs-2">
+									<label for="emailReplytoNom">Nom associé à l'adresse e-mail reply-to du service</label>
+								</div>
+								<div class="col-xs-10">
+									<input type="text" class="form-control" id="emailReplytoNom"
+										th:field="*{emailReplytoNom}" th:errorclass="errorTooltip"
+										th:attr="data-title=${#fields.hasErrors('emailReplytoNom')} ? ${#fields.errors('emailReplytoNom')} :''" />
+								</div>
+							</div>
+						</div>
+						<br/>
+						<div class="row container-fluid">
+							<div
+								th:class="${#fields.hasErrors('emailFrom')} ? 'form-group error' : 'form-group'">
+								<div class="col-xs-2">
+									<label for="emailFrom">Adresse e-mail "from" du service</label>
+								</div>
+								<div class="col-xs-10">
+									<input type="text" class="form-control" id="emailFrom"
+										th:field="*{emailFrom}" th:errorclass="errorTooltip"
+										th:attr="data-title=${#fields.hasErrors('emailFrom')} ? ${#fields.errors('emailFrom')} :''" />
+								</div>
+							</div>
+						</div>
+						<br/>
+						<div class="row container-fluid">
+							<div
+								th:class="${#fields.hasErrors('emailFromNom')} ? 'form-group error' : 'form-group'">
+								<div class="col-xs-2">
+									<label for="emailFromNom">Nom associé à l'adresse e-mail "from" du service</label>
+								</div>
+								<div class="col-xs-10">
+									<input type="text" class="form-control" id="emailFromNom"
+										th:field="*{emailFromNom}" th:errorclass="errorTooltip"
+										th:attr="data-title=${#fields.hasErrors('emailFromNom')} ? ${#fields.errors('emailFromNom')} :''" />
+								</div>
+							</div>
+						</div>
+						<br/>
+						<div class="row container-fluid">
+							<div
+								th:class="${#fields.hasErrors('identifiantPrefixe')} ? 'form-group error' : 'form-group'">
+								<div class="col-xs-2">
+									<label for="identifiantPrefixe">Préfixe des identifiants des demandes</label>
+								</div>
+								<div class="col-xs-10">
+									<input type="text" class="form-control" id="identifiantPrefixe"
+										th:field="*{identifiantPrefixe}" th:errorclass="errorTooltip"
+										th:attr="data-title=${#fields.hasErrors('identifiantPrefixe')} ? ${#fields.errors('identifiantPrefixe')} :''" />
+								</div>
+							</div>
+						</div>
+						<br/>
+						<div class="row container-fluid">
+							<div
+								th:class="${#fields.hasErrors('langueFr')} ? 'form-group error' : 'form-group'">
+								<div class="col-xs-2">
+									<label for="langues">Langues prises en charge par le téléservice</label>
+								</div>
+								<div class="col-xs-1">
+									<label>Français</label>
+            						<input type="checkbox" th:field="*{langueFr}"/>
+								</div>
+								<div class="col-xs-1">
+									<label>Anglais</label>
+            						<input type="checkbox" th:field="*{langueEn}"/>
+								</div>
+								<div class="col-xs-1">
+									<label>Italien</label>
+            						<input type="checkbox" th:field="*{langueIt}"/>
+								</div>
+								<div class="col-xs-7">
+								</div>
+							</div>
+						</div>
+					</div>
+					
+					<div class="row container-fluid">
+						<div class="col-xs-12">
+							<div class="text-center">
+								<input id="sauvegarder-button" type="submit" name="action"
+									value="Sauvegarder" class="btn btn-action ripple-effect" /> 
+							</div>
+						</div>
+					</div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div th:replace="fragments/footer :: footer"></div>
+</body>
+
+<script type="text/javascript" th:inline="javascript">
+
+    $(document).ready(function() {
+
+    });
+
+</script>
+</html>
+
+
+
+
+
+
+
+

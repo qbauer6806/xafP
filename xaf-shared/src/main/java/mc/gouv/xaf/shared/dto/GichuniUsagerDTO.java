@@ -3,6 +3,8 @@ package mc.gouv.xaf.shared.dto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 
+import mc.gouv.xaf.shared.enums.UsagerTypeEnum;
+
 /**
  * 
  * Cette classe représente un usager tel que retourné par l'API GICHUNI

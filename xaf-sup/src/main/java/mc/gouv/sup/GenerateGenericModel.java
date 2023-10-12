@@ -16,7 +16,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import mc.gouv.xaf.shared.dto.es.GenericContenuEsDTO;
+import mc.gouv.xaf.shared.dto.es.GenericContenuDTO;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -187,7 +187,7 @@ public class GenerateGenericModel {
 	        writer.append(PUBLIC).append(" class ").append(GENERIC_CLASS_PREFIX).append(className);
             // On ajoute une extension du DTO Générique d'ElasticSearch si la classe en cours d'écriture est l'objet racine
             if (StringUtils.equals(CONTENU_PROJECT_DEMANDE_DTO, className)) {
-                writer.append(" extends ").append(GenericContenuEsDTO.class.getName());
+                writer.append(" extends ").append(GenericContenuDTO.class.getName());
             }
             writer.append(" implements Serializable {\n\n");
 

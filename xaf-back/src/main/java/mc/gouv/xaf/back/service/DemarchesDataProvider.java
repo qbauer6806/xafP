@@ -2,6 +2,7 @@ package mc.gouv.xaf.back.service;
 
 import mc.gouv.xaf.shared.dto.*;
 import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
+import mc.gouv.xaf.shared.enums.TitreUsagerEnum;
 
 import java.util.Arrays;
 import java.util.List;
@@ -31,8 +32,6 @@ public interface DemarchesDataProvider {
     String getVersion();
 
     StatutPublicOuInterneDTO getStatutPublicOuInterne(Integer pkDemande, String statutLibelle);
-
-    Map<String, String> getLanguesDisponibles();
 
     boolean getDemarcheCanGenerateCourriers();
 

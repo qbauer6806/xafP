@@ -1,4 +1,4 @@
-package mc.gouv.xaf.shared.dto;
+package mc.gouv.xaf.shared.enums;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;

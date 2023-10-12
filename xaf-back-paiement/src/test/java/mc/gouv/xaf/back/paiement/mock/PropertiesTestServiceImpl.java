@@ -3,7 +3,8 @@ package mc.gouv.xaf.back.paiement.mock;
 import com.fasterxml.jackson.databind.JsonNode;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
-import mc.gouv.xaf.shared.dto.PropertiesTypeEnum;
+import mc.gouv.xaf.shared.enums.PropertiesTypeEnum;
+
 import org.springframework.stereotype.Component;
 
 import java.util.List;

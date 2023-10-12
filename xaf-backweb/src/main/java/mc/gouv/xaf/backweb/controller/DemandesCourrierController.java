@@ -17,16 +17,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.UsagersUtils;
 import mc.gouv.xaf.backweb.formbean.DemandesCourrierFormBean;
 import mc.gouv.xaf.backweb.formbean.UsagerCourrierFormBean;
-import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
+import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 
 /**
  * Controller pour les demandes courrier
@@ -39,10 +42,10 @@ import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
 public class DemandesCourrierController extends AbstractController {
 
 	@Autowired
-	private DemarchesDataProvider demarchesDataProvider;
-
-	@Autowired
 	private GouvPropertiesResolver gouvPropertiesResolver;
+	
+	@Autowired
+	private AfBackUtils afBackUtils;
 
 	@Autowired
 	private UsagersUtils usagersUtils;
@@ -138,6 +141,6 @@ public class DemandesCourrierController extends AbstractController {
 		canaux.add(DemandeCanalEnum.COURRIER);
 		canaux.add(DemandeCanalEnum.GUICHET_PHYSIQUE);
 		mav.addObject("canaux", canaux);
-		mav.addObject("langues", demarchesDataProvider.getLanguesDisponibles());
+		mav.addObject("langues", afBackUtils.getLanguesDisponibles());
 	}
 }

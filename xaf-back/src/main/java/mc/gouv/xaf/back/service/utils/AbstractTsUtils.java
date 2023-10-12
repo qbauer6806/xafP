@@ -121,6 +121,5 @@ public abstract class AbstractTsUtils {
         demHisto.setContenu(mapper.valueToTree(tsHistoContenu));
         return demHisto;
     }
-
     
 }

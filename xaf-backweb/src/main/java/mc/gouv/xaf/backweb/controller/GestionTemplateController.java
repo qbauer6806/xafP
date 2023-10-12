@@ -1,21 +1,26 @@
 package mc.gouv.xaf.backweb.controller;
 
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.DemarchesDataProvider;
-import mc.gouv.xaf.back.service.data.TemplatesService;
-import mc.gouv.xaf.back.service.templates.GestionTemplateService;
-import mc.gouv.xaf.shared.SharedMessages;
-import mc.gouv.xaf.shared.dto.TemplateDTO;
-import mc.gouv.xaf.shared.formbean.TemplateFormBean;
+import java.util.List;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.util.List;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.data.TemplatesService;
+import mc.gouv.xaf.back.service.templates.GestionTemplateService;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.shared.SharedMessages;
+import mc.gouv.xaf.shared.dto.TemplateDTO;
+import mc.gouv.xaf.shared.formbean.TemplateFormBean;
 
 /**
  * Controller la modification de templates
@@ -35,10 +40,10 @@ public class GestionTemplateController extends AbstractController {
     private GouvPropertiesResolver gouvPropertiesResolver;
 
     @Autowired
-    private DemarchesDataProvider demarchesDataProvider;
-
-    @Autowired
     private TemplatesService templatesService;
+    
+    @Autowired
+    private AfBackUtils afBackUtils;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GestionTemplateController.class);
     private static final String TS_CODE_VAR = "tsCode";
@@ -89,6 +94,7 @@ public class GestionTemplateController extends AbstractController {
 
     private boolean isFrenchOnly() {
         // S'il n'y a qu'une langue on ne récupère que les templates FR
-        return demarchesDataProvider.getLanguesDisponibles().size() == 1;
+    	Map<String, String> langues = afBackUtils.getLanguesDisponibles();
+        return langues.size() == 1 && langues.containsKey("fr");
     }
 }

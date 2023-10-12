@@ -45,7 +45,7 @@ public class DemarchesServiceImpl implements DemarchesService {
 
         LOGGER.info("Mise à jour de la démarche...");
 
-        demarcheBo.setEmailService(demarche.getEmailService());
+        demarcheBo = DemarchesTransformer.dto2Bo(demarche);
         demarcheBo = demarchesRepository.save(demarcheBo);
 
         LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);

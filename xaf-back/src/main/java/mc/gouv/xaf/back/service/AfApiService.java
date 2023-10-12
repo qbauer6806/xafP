@@ -19,7 +19,6 @@ import org.springframework.http.ResponseEntity;
 import org.xml.sax.SAXException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 
 import mc.gouv.logon.shared.User;
 import mc.gouv.xaf.back.bpm.GouvBPM;
@@ -783,12 +782,6 @@ public abstract class AfApiService implements AfApiController {
 	@Override
 	public void deleteBrouillon(Integer pkBrouillons, Integer usagerId) throws JsonProcessingException {
 		brouillonsService.deleteBrouillon(gouvPropertiesResolver.getDemarcheId(), pkBrouillons, usagerId);
-	}
-
-	@Override
-	public JsonNode getDonneesExternes(Integer usagerId) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 	
 }

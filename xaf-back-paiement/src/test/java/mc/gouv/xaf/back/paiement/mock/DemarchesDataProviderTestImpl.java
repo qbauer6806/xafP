@@ -59,11 +59,6 @@ public class DemarchesDataProviderTestImpl implements DemarchesDataProvider {
     }
 
     @Override
-    public Map<String, String> getLanguesDisponibles() {
-        return null;
-    }
-
-    @Override
     public boolean getDemarcheCanGenerateCourriers() {
         return false;
     }
@@ -146,4 +141,76 @@ public class DemarchesDataProviderTestImpl implements DemarchesDataProvider {
     public String getBrouillonStatutDeprecated() {
         return null;
     }
+
+	@Override
+	public String getStatutAnnulee() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getCodeMotifAnnulationParUsager() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getCodeMotifAnnulationDesinscription() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getPremierStatutCreationDemande() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getStatutEnAttenteRectification() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean checkAssociationCourrier(DemandeDTO demande, String stringToCheck) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public List<String> getStatutsFinauxPourAnnulationCauseDesinscription() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getMailBodyTemplateCodeDesinscriptionUsagerPourAgents() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getMailSubjectTemplateCodeDesinscriptionUsagerPourAgents() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getMailBodyTemplateCodeDesinscriptionUsagerPourUsager() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getMailSubjectTemplateCodeDesinscriptionUsagerPourUsager() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String[] getAllStatuts() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

@@ -32,9 +32,6 @@ public class ResidUsagerExistantDTO implements Serializable {
     private ResidMoyensExistenceDTO moyensExistence;
 
     @JsonInclude()
-    private ResidConjointDTO conjoint;
-
-    @JsonInclude()
     private List<ResidMembreFoyerDTO> membresFoyer;
 
     public ResidTypeUsagerEnum getUsagerType() {
@@ -99,14 +96,6 @@ public class ResidUsagerExistantDTO implements Serializable {
 
     public void setMoyensExistence(ResidMoyensExistenceDTO moyensExistence) {
         this.moyensExistence = moyensExistence;
-    }
-
-    public ResidConjointDTO getConjoint() {
-        return conjoint;
-    }
-
-    public void setConjoint(ResidConjointDTO conjoint) {
-        this.conjoint = conjoint;
     }
 
     public List<ResidMembreFoyerDTO> getMembresFoyer() {

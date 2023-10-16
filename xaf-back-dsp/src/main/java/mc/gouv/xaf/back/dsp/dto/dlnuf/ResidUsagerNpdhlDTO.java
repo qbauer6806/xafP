@@ -22,6 +22,7 @@ public class ResidUsagerNpdhlDTO implements Serializable {
     
     private ResidMoyensExistenceDTO moyenExistence;
     
+    @JsonInclude()
     private ResidAdresseDTO adresse;
     
     private ResidNationalite1Et2DTO nationalite;
@@ -30,8 +31,10 @@ public class ResidUsagerNpdhlDTO implements Serializable {
     
     private ResidSituationFamilialeDLN1FDTO situationFamiliale;
     
+    @JsonInclude()
     private ResidEnfantsDLN1FDTO enfants;
     
+    @JsonInclude()
     private ResidMembresFoyerDLN1FDTO membresFoyer;
     
     public ResidIdentiteDLN1FDTO getIdentite() {

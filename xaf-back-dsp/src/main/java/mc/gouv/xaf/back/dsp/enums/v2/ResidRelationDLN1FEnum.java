@@ -14,7 +14,11 @@ public enum ResidRelationDLN1FEnum {
     ENF("ENF"),
     PET("PET"),
     BFI("BFI"),
-    BFR("BFR");
+    BFR("BFR"),
+    EPO("EPO"),
+    XPO("XPO"),
+    CDV("CDV"),
+    CON("CON");
 
     public String value;
 

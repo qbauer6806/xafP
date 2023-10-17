@@ -23,6 +23,7 @@ public class ResidLogementDTO implements Serializable {
 
     private int loyer;
 
+    @JsonInclude()
     private ResidLoyerPeriodiciteEnum loyerPeriodicite;
 
     @JsonInclude()

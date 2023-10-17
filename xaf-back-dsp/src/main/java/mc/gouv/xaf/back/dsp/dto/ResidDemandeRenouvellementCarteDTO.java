@@ -1,11 +1,12 @@
 package mc.gouv.xaf.back.dsp.dto;
 
+import java.io.Serializable;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import mc.gouv.xaf.back.dsp.enums.common.ResidMotifRenouvellementEnum;
-
-import java.io.Serializable;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -19,6 +20,7 @@ public class ResidDemandeRenouvellementCarteDTO implements Serializable {
 
     private ResidMotifRenouvellementEnum motifRenouvellement;
 
+    @JsonProperty("demandeBaseV2")
     public ResidDemandeBaseDTO getDemandeBase() {
         return demandeBase;
     }

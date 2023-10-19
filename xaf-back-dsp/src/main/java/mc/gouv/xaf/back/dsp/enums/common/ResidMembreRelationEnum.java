@@ -17,6 +17,7 @@ public enum ResidMembreRelationEnum {
     BFR("BFR"),
     EPO("EPO"),
     XPO("XPO"),
+    CON("CON"),
     CDV("CDV");
 
     public String value;

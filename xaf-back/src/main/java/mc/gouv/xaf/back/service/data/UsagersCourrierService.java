@@ -63,5 +63,6 @@ public interface UsagersCourrierService {
     /**
      * Permet de récupérer la derniere demande connue selon les statuts definis
      */
-    DemandeDTO getDerniereDemandePourDuplication(String demarcheId, Integer usagerId, List<String> statuts);
+    DemandeDTO getDerniereDemandePourDuplication(String demarcheId, Integer usagerId, List<String> statuts,
+            List<String> buildIds);
 }

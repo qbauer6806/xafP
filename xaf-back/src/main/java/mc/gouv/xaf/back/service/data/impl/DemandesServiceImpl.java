@@ -558,6 +558,23 @@ public class DemandesServiceImpl implements DemandesService {
         }
 
 
+        // Mise à jour du contenu initial
+        if (!partialUpdate || demande.getContenuInitial() != null && !demande.getContenuInitial().isNull()) {
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                demandeBo.setContenuInitial(mapper.writeValueAsString(demande.getContenuInitial()));
+                // Ce qui suit afin d'éviter l'insertion d'une chaîne "null" en base
+                if (demandeBo.getContenuInitial() != null && "null".equals(demandeBo.getContenuInitial())) {
+                	demandeBo.setContenuInitial(null);
+                }
+            } catch (JsonProcessingException e) {
+                LOGGER.error("Problème lors de la conversion JSON", e);
+            }
+        }
+
+        // Mise à jour du timestamp pour verrouillage
+        demandeBo.setModificationTimestamp(demande.getModificationTimestamp());
+
 		// Mise à jour des observations
 		if (!partialUpdate || demande.getObservations() != null) {
 			demandeBo.setObservations(demande.getObservations());
@@ -597,12 +614,13 @@ public class DemandesServiceImpl implements DemandesService {
 		if (demandeBo == null) {
 			throw new DemarchesServiceException("Demande introuvable", HttpStatus.NOT_FOUND);
 		}
-		DemandeDTO demandeDTO = DemandesTransformer.bo2Dto(demandeBo);
 
+		DemandeDTO demandeDTO = DemandesTransformer.bo2Dto(demandeBo);
 		LOGGER.info("Suppression des fichiers de la demande {} de la demarche {}...", demandeId, demarcheId);
 		demandesFilesService.suppressionDesFichiers(demandeDTO, false, null, 0);
-		
-		LOGGER.info("Suppression des fichiers complémentaires de la demande {} de la demarche {}...", demandeId, demarcheId);
+
+		LOGGER.info("Suppression des fichiers complémentaires de la demande {} de la demarche {}...", demandeId,
+				demarcheId);
 		demandesComplementsService.suppressionDesFichiersDesDemandesComplementaires(demandeDTO, false, null, 0);
 
 		AccessBO access = suppressionDeLaDemande(demandeBo, demarcheId, demandeId);
@@ -611,8 +629,9 @@ public class DemandesServiceImpl implements DemandesService {
 		Date dateCreation = demandeBo.getDateCreation();
 		LOGGER.info("Envoi d'un message dans Kafka pour notifier le Guichet Unique de la suppression de la demande...");
 		List<DemandeRecapDTO> demandeRecaps = guKafkaUtils.getDemandeRecapsFromUsagerId(demandeDTO.getUsagerId());
-        RecapDemandesDTO recapDemandes = guKafkaUtils.getRecapDemandes(demandeRecaps);
-        guKafkaProducer.sendSuppressionDemandeMessage(access.getUsagerId(), demandeId, identifiant, dateCreation, recapDemandes);
+		RecapDemandesDTO recapDemandes = guKafkaUtils.getRecapDemandes(demandeRecaps);
+		guKafkaProducer.sendSuppressionDemandeMessage(access.getUsagerId(), demandeId, identifiant, dateCreation,
+				recapDemandes);
 	}
 
 	private AccessBO suppressionDeLaDemande(DemandeBO demandeBo, String demarcheId, Integer demandeId) {
@@ -654,7 +673,6 @@ public class DemandesServiceImpl implements DemandesService {
 			throw new DemarchesServiceException("Demande introuvable", HttpStatus.NOT_FOUND);
 		}
 		DemandeDTO demandeDTO = DemandesTransformer.bo2Dto(demandeBo);
-
 		LOGGER.info("Suppression des fichiers de la demande {} de la demarche {}...", demandeId, demarcheId);
 		demandesFilesService.suppressionDesFichiers(demandeDTO, true, statuts, jours);
 		

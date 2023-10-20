@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -14,7 +15,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import mc.gouv.xaf.back.data.entity.BrouillonBO;
 import mc.gouv.xaf.shared.dto.BrouillonDTO;
 import mc.gouv.xaf.shared.dto.BrouillonFileDTO;
-import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
 
 /**
  * 
@@ -47,7 +47,7 @@ public class BrouillonsTransformer {
         try {
             dto.setContenu(mapper.readTree(bo.getContenu()));
             if (bo.getMeta() != null) {
-                dto.setMeta(mapper.readTree(bo.getMeta()));
+            	dto.setMeta(mapper.readTree(bo.getMeta()));
             }
             if (bo.getContenuInitial() != null)
                 dto.setContenuInitial(mapper.readTree(bo.getContenuInitial()));
@@ -68,8 +68,8 @@ public class BrouillonsTransformer {
     }
 
     /**
-     * L'entité retournée est à rattacher à un AccessBO après l'appel à cette fonction Mapper les fichiers attachés
-     * après appel à cette fonction, si besoin
+     * L'entité retournée est à rattacher à un AccessBO après l'appel à cette fonction
+     * Mapper les fichiers attachés après appel à cette fonction, si besoin
      */
     public static BrouillonBO dto2Bo(BrouillonDTO dto) {
         if (dto == null) {
@@ -92,7 +92,6 @@ public class BrouillonsTransformer {
             if (bo.getContenuInitial() != null && "null".equals(bo.getContenuInitial())) {
             	bo.setContenuInitial(null);
             }
-
         } catch (JsonProcessingException e) {
             LOGGER.error("Erreur lors de la conversion JSON", e);
         }
@@ -113,8 +112,7 @@ public class BrouillonsTransformer {
         return page;
     }
 
-    public static void setDernierStatut(BrouillonDTO brouillonDTO, String lastBuildId, String notTransmitted,
-            String deprecated) {
+    public static void setDernierStatut(BrouillonDTO brouillonDTO, String lastBuildId, String notTransmitted, String deprecated) {
         if (brouillonDTO.getBuildId().equals(lastBuildId)) {
             // statut not transmitted
             setDernierStatut(brouillonDTO, notTransmitted);

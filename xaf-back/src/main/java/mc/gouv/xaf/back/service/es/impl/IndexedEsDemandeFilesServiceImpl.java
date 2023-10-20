@@ -184,6 +184,20 @@ public class IndexedEsDemandeFilesServiceImpl extends DemandeFilesServiceImpl im
      * {@inheritDoc}
      */
     @Override
+    public void indexFilesForListDemande(List<DemandeBO> demandes) throws IOException {
+        if (demandes != null) {
+            List<DemandeFileEsDTO> files = new ArrayList<>();
+            for (DemandeBO demande : demandes) {
+                fillFilesList(files, demande);
+            }
+            indexFiles(files);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public List<DemandeFileEsDTO> indexFiles(List<DemandeFileEsDTO> demandeFileEsDTOs) throws IOException {
 
         List<IndexQuery> indexList = new ArrayList<>();

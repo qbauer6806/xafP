@@ -12,7 +12,6 @@ import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
 import mc.gouv.xaf.shared.dto.TitreUsagerEnum;
 import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 
-
 /**
  * Service implémenté par la démarche permettant de fournir à xaf-back des informations propres à chaque démarche.
  *
@@ -45,12 +44,12 @@ public interface DemarchesDataProvider {
     boolean getDemarcheCanHandlePeriodesOuverture();
 
     boolean getDemarcheCanHandleProperties();
-    
+
     boolean getDemarcheCanHandleDenjsGestionAgents();
 
     boolean getDemarcheCanHandleTaches();
 
-	String[] getGUKafkaSupportedVersions();
+    String[] getGUKafkaSupportedVersions();
 
     StatutSimplifieEnum getStatutSimplifieFromStatutPublic(String statutPublic);
 
@@ -61,19 +60,17 @@ public interface DemarchesDataProvider {
     DemandeExcelGenerationDTO getDemandeExcelGenerationDTO();
 
     boolean isEligibleRectification(DemandeDTO demande);
-    
-    List<String> getStatutsPourDuplication();
 
     default String getExportLibelle() {
         return null;
     }
 
+    default String getRecapOrientation() {
+        return "landscape";
+    }
+
     default List<TitreUsagerEnum> getTitres() {
         return Arrays.asList(TitreUsagerEnum.values());
-    }
-    
-    default List<String> getSpansIdAMarquer(DemandeDTO demande) {
-    	return new ArrayList<>();
     }
 
     /**
@@ -93,4 +90,21 @@ public interface DemarchesDataProvider {
         return "";
     }
 
+    /**
+     * Un filtrage est appliqué sur les statuts des demandes éligibles à un renouvellement de demande courrier.
+     */
+    default List<String> getStatutsPourDuplication() {
+        return new ArrayList<>();
+    };
+
+    /**
+     * Un filtrage est appliqué sur les versions des demandes éligibles à un renouvellement de demande courrier.
+     */
+    default List<String> getBuildIdsPourDuplication() {
+        return new ArrayList<>();
+    }
+    
+    default List<String> getSpansIdAMarquer(DemandeDTO demande) {
+    	return new ArrayList<>();
+	}
 }

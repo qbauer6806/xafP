@@ -57,8 +57,8 @@ public class DemandeRechercheDTO {
     }
 
     public DemandeRechercheDTO(String demarcheId, String texte, List<String> statuts, List<DemandeCanalEnum> canaux,
-            String agentAffecteId, Integer usagerId, Date creationStartDate, Date creationEndDate,
-            DataRechercheDTO data, String identifiant) {
+                               String agentAffecteId, Integer usagerId, Date creationStartDate, Date creationEndDate,
+                               DataRechercheDTO data, String identifiant) {
         super();
         this.demarcheId = demarcheId;
         this.texte = texte;
@@ -177,12 +177,12 @@ public class DemandeRechercheDTO {
     }
 
     public String getStatutPublicOuInterne() {
-        return statutPublicOuInterne;
-    }
+		return statutPublicOuInterne;
+	}
 
-    public void setStatutPublicOuInterne(String statutPublicOuInterne) {
-        this.statutPublicOuInterne = statutPublicOuInterne;
-    }
+	public void setStatutPublicOuInterne(String statutPublicOuInterne) {
+		this.statutPublicOuInterne = statutPublicOuInterne;
+	}
 
     public boolean isAucunResponsable() {
         return aucunResponsable;

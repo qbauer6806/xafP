@@ -1,4 +1,3 @@
-
 # XAF 11.1.0 - LOGDOMC Changes
 
 ## Fonctionnalité de modification d'une demande dans un état "EN ATTENTE DE TRAITEMENT"

@@ -188,6 +188,7 @@ public class DemandeInputDTO {
     public void setContenuInitial(JsonNode contenuInitial) {
         this.contenuInitial = contenuInitial;
     }
+    
 	public JsonNode getMeta() {
 		return meta;
 	}

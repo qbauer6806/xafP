@@ -91,4 +91,6 @@ public interface IndexedFilesService {
      * @throws IOException   Exception I/O
      */
     void fillFilesList(List<DemandeFileEsDTO> files, DemandeDTO demande) throws IOException;
+
+    void indexFilesForListDemande(List<DemandeBO> demandes) throws IOException;
 }

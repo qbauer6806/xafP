@@ -288,10 +288,13 @@ public class UsagersCourrierServiceImpl implements UsagersCourrierService {
      * {@inheritDoc}
      */
     @Override
-    public DemandeDTO getDerniereDemandePourDuplication(String demarcheId, Integer usagerId, List<String> statuts) {
 
+    public DemandeDTO getDerniereDemandePourDuplication(String demarcheId, Integer usagerId, List<String> statuts,
+            List<String> buildIds) {
         List<DemandeDTO> listDemandes = demandesService.getDemandes(demarcheId, usagerId, true);
-        return listDemandes.stream().filter(dem -> statuts.contains(dem.getDernierStatut().getLibelle()))
+        return listDemandes.stream()
+                .filter(dem -> statuts.contains(dem.getDernierStatut().getLibelle())
+                        && buildIds.contains(dem.getBuildId()))
                 .sorted(Collections.reverseOrder(Comparator.comparing(DemandeDTO::getDateCreation))).findFirst()
                 .orElse(null);
 

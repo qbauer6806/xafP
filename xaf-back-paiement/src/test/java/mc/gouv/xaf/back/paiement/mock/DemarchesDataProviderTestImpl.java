@@ -1,20 +1,18 @@
 package mc.gouv.xaf.back.paiement.mock;
 
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.stereotype.Component;
-
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
+import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeExcelGenerationDTO;
 import mc.gouv.xaf.shared.dto.GenericStatusDTO;
 import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
-import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.Map;
 
 @Component
 public class DemarchesDataProviderTestImpl implements DemarchesDataProvider {
-
     @Override
     public String getStatusLibelle(String status) {
         return null;
@@ -110,23 +108,29 @@ public class DemarchesDataProviderTestImpl implements DemarchesDataProvider {
         return false;
     }
 
+	@Override
+	public DemandeExcelGenerationDTO getDemandeExcelGenerationDTO() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean isEligibleRectification(DemandeDTO demande) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
     @Override
-    public DemandeExcelGenerationDTO getDemandeExcelGenerationDTO() {
+    public List<String> getStatutsPourDuplication() {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public boolean isEligibleRectification(DemandeDTO demande) {
+    public List<String> getBuildIdsPourDuplication() {
         // TODO Auto-generated method stub
-        return false;
+        return null;
     }
-
-    @Override
-    public List<String> getStatutsPourDuplication() {
-        // TODO Auto-generated method stub
-    	return null;
-	}
 
     @Override
     public String getExportLibelle() {

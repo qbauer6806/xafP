@@ -68,12 +68,18 @@ public interface AfApiController {
 
     DemandeDTO creerDemande(DemandeInputDTO demande, Integer usagerId) throws JsonProcessingException;
 
-    DemandeDTO updateDemande(Integer demandeId, DemandeInputDTO demande, Integer usagerId)
-            throws JsonProcessingException;
+    default DemandeDTO updateDemande(Integer demandeId, DemandeInputDTO demande, Integer usagerId)
+            throws JsonProcessingException {
+        return new DemandeDTO();
+    }
 
-    DemandeDTO lockDemande(Integer demandeId, Integer usagerId, Long timestamp) throws JsonProcessingException;
+    default DemandeDTO lockDemande(Integer demandeId, Integer usagerId, Long timestamp) throws JsonProcessingException {
+        return new DemandeDTO();
+    }
 
-    DemandeDTO unlockDemande(Integer demandeId, Integer usagerId) throws JsonProcessingException;
+    default DemandeDTO unlockDemande(Integer demandeId, Integer usagerId) throws JsonProcessingException {
+        return new DemandeDTO();
+    }
 
     List<PeriodeOuvertureDTO> getPeriodesOuverture();
 
@@ -103,5 +109,7 @@ public interface AfApiController {
 
     void deleteBrouillon(Integer pkBrouillons, Integer usagerId) throws JsonProcessingException;
 
-    JsonNode getDonneesExternes(Integer usagerId, Map<String, String[]> params) throws JsonProcessingException;
+    default JsonNode getDonneesExternes(Integer usagerId, Map<String, String[]> params) throws JsonProcessingException {
+        return null;
+    }
 }

@@ -285,6 +285,10 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
     public synchronized void initMappingProperties(boolean reload) {
 
         Map<String, Map> mapping = getMapping(indexAlias);
+        boolean mappingFichierPresentDansMappingES = false;
+        if (mapping.get("properties") != null && mapping.get("properties").containsKey("fichiers")) {
+            mappingFichierPresentDansMappingES = true;
+        }
 
         if (reload) {
             clearProperties();
@@ -300,7 +304,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             initMappingPropertiesMap(demandesProperties, demandesPropertiesWithBoost);
         }
 
-        if (filesProperties.isEmpty() || reload) {
+        if ((filesProperties.isEmpty() || reload) && !mappingFichierPresentDansMappingES) {
             initMappingProperties(filesProperties, mapping, fichiersFieldsToExclude, true);
             initMappingPropertiesMap(filesProperties, filesPropertiesWithBoost);
         }
@@ -488,6 +492,41 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             return demCount;
         }
         LOGGER.info("Fin de la réindexation des demandes");
+        return 0L;
+    }
+
+    @Override
+    public Long reindexDemandesCourrier() throws IOException {
+
+        LOGGER.info("Début de la réindexation des DEMANDES");
+        if (demandeEsRepository != null) {
+
+            long demCount = demandesRepository.findAllDemandesCourrier().size();
+
+            LOGGER.info("Nombre de demandes courrier à réindexer : {}", demCount);
+            List<DemandeBO> demandes = demandesRepository.findAllDemandesCourrier();
+            List<DemandeEsDTO> demandesEs = demandeEsTransformer.toEs(DemandesTransformer.bo2Dto(demandes));
+            demandeEsRepository.deleteAll(demandesEs);
+
+            if (demandesEs != null) {
+
+                List<IndexQuery> indexList = new ArrayList<>();
+                for (DemandeEsDTO dem : demandesEs) {
+                    IndexQuery index = new IndexQuery();
+                    index.setId(dem.getIdentifiant());
+                    index.setObject(dem);
+                    indexList.add(index);
+                }
+                elasticsearchTemplate.bulkIndex(indexList, IndexCoordinates.of(indexAlias));
+
+                indexedFilesService.indexFilesForListDemande(demandes);
+
+            }
+
+            LOGGER.info("Fin de la réindexation des demandes courrier");
+            return demCount;
+        }
+        LOGGER.info("Fin de la réindexation des demandes courrier");
         return 0L;
     }
 
@@ -905,7 +944,9 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
         demandeRecherche.setTexte(ESQueryUtils.getFormatedQuery(demandeRecherche.getTexte(),
                 afBackUtils.getDemarcheInfos().getIdentifiantPrefixe()));
-        initMappingProperties(false);
+
+        Map<String, Map> mapping = getMapping(indexAlias);
+        initMappingProperties(filesProperties, mapping, fichiersFieldsToExclude, true);
 
         NativeSearchQueryBuilder nativeSearchQueryBuilder = new NativeSearchQueryBuilder()
                 .withQuery(getQueryBuilderForCourrier(demandeRecherche)).withPageable(pageable);

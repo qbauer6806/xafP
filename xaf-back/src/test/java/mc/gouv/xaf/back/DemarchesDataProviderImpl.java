@@ -128,9 +128,15 @@ public class DemarchesDataProviderImpl implements DemarchesDataProvider {
 
     @Override
     public List<String> getStatutsPourDuplication() {
-    	return null;
+        return null;
     }
-	
+
+    @Override
+    public List<String> getBuildIdsPourDuplication() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
     @Override
     public String getExportLibelle() {
         return null;

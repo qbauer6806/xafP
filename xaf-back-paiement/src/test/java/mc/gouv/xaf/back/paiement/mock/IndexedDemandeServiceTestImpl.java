@@ -286,9 +286,15 @@ public class IndexedDemandeServiceTestImpl implements IndexedDemandeService {
 
     }
 
-	@Override
-	public List<String> getAllBuildIds() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public List<String> getAllBuildIds() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Long reindexDemandesCourrier() throws IOException {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }

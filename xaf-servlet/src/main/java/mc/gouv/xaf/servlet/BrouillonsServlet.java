@@ -186,6 +186,11 @@ public class BrouillonsServlet extends AbstractAfServlet {
                 BrouillonDTO brouillonDto = afApiClient.getBrouillon(Integer.parseInt(brouillonId),
                         usagerInfosDTO.getId());
 
+                if (brouillonDto.getContenuInitial() != null) {
+                    request.getSession().setAttribute(SessionConstant.SESSION_DEMANDE_INITIALE,
+                            brouillonDto.getContenuInitial());
+                }
+
                 // TODO : gestion des erreurs
                 response.setStatus(HttpStatus.SC_OK);
                 repJson = mapper.writeValueAsString(brouillonDto);

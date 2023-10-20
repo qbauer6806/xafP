@@ -54,20 +54,20 @@ public class RechercheIndexedDemandesController extends AbstractController {
 
     @GetMapping(value = "/pageable")
     public Page<AfBackDemandeEsDTO> getDemandes(@RequestParam(value = "usagerId", required = false) Integer usagerId,
-            @RequestParam(value = "statut", required = false) List<String> statuts,
-            @RequestParam(value = "canal", required = false) List<DemandeCanalEnum> canaux,
-            @RequestParam(value = "agentId", required = false) String agentId,
-            @RequestParam(value = "creationStartDate", required = false) @DateTimeFormat(iso = ISO.DATE) Date creationStartDate,
-            @RequestParam(value = "creationEndDate", required = false) @DateTimeFormat(iso = ISO.DATE) Date creationEndDate,
-            @RequestParam(value = "texte", required = false) String texte,
-            @RequestParam(value = "searchFields", required = false) String[] searchFields,
-            @RequestParam(value = "data", required = false) DataRechercheDTO data,
-            @RequestParam(value = "aucunCanal", required = false) boolean aucunCanal,
-            @RequestParam(value = "aucunResponsable", required = false) boolean aucunResponsable,
-            @RequestParam(value = "aucunStatut", required = false) boolean aucunStatut,
-            @RequestParam(value = "statutPublicOuInterne", required = false) String statutPublicOuInterne,
-            @RequestParam(value = "checkTimestamp", required = false, defaultValue = "false") boolean checkTimestamp,
-            Pageable pageable) {
+                                                @RequestParam(value = "statut", required = false) List<String> statuts,
+                                                @RequestParam(value = "canal", required = false) List<DemandeCanalEnum> canaux,
+                                                @RequestParam(value = "agentId", required = false) String agentId,
+                                                @RequestParam(value = "creationStartDate", required = false) @DateTimeFormat(iso = ISO.DATE) Date creationStartDate,
+                                                @RequestParam(value = "creationEndDate", required = false) @DateTimeFormat(iso = ISO.DATE) Date creationEndDate,
+                                                @RequestParam(value = "texte", required = false) String texte,
+                                                @RequestParam(value = "searchFields", required = false) String[] searchFields,
+                                                @RequestParam(value = "data", required = false) DataRechercheDTO data,
+                                                @RequestParam(value = "aucunCanal", required = false) boolean aucunCanal,
+                                                @RequestParam(value = "aucunResponsable", required = false) boolean aucunResponsable,
+                                                @RequestParam(value = "aucunStatut", required = false) boolean aucunStatut,
+                                                @RequestParam(value = "statutPublicOuInterne", required = false) String statutPublicOuInterne, 
+                                                @RequestParam(value = "checkTimestamp", required = false, defaultValue = "false") boolean checkTimestamp,
+                                                Pageable pageable) {
 
         LOGGER.info(
                 "======================= Appel de /ws/demandes/pageable (userId=\"{}\", statuts=\"{}\", canaux=\"{}\", agentId=\"{}\", creationStartDate=\"{}\", creationEndDate=\"{}\", texte=\"{}\", data=\"{}\", searchFields=\"{}\")",

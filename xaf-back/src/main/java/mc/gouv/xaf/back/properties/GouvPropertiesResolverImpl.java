@@ -534,26 +534,26 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
 
     @Override
     public String getApiUlisMoyensGenerauxUrl() {
-        return Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".ulis.url.moyens-generaux");
+        return Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".ulis.url.moyens-generaux", "N/D");
     }
 
     @Override
     public String getApiUlisTiersOrganisationUrl() {
-        return Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".ulis.url.tiers-organisation");
+        return Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".ulis.url.tiers-organisation", "N/D");
     }
 
     @Override
     public String getApiUlisAuthenticationUser() {
-        return Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".ulis.authentication.user");
+        return Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".ulis.authentication.user", "N/D");
     }
 
     @Override
     public String getApiUlisAuthenticationPassword() {
-        return Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".ulis.authentication.password");
+        return Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".ulis.authentication.password", "N/D");
     }
 
     @Override
     public String getApiUlisFunctionalUser() {
-        return Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".ulis.account");
+        return Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".ulis.account", "N/D");
     }
 }

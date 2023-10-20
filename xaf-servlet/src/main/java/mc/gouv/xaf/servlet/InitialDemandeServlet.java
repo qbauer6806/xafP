@@ -42,8 +42,9 @@ public class InitialDemandeServlet extends AbstractAfServlet {
     private static final String MCONNECT_PARAM_GIVENNAME = "GivenName";
     private static final String MCONNECT_PARAM_FAMILYNAME = "FamilyName";
     private static final String MCONNECT_PARAM_BIRTHDATE = "BirthDatetime";
-    private static final String MCONNECT_BIRTHPLACECITY = "BirthPlaceCity";
-    private static final String MCONNECT_BIRTHPLACECOUNTRY = "BirthPlaceCountry";
+    private static final String MCONNECT_PARAM_BIRTHNAME = "BirthName";
+    private static final String MCONNECT_PARAM_BIRTHPLACE = "birthPlace";
+    private static final String MCONNECT_PARAM_BIRTHCITY = "birthPlaceCity";
 
     /**
      * Vérifie si l'utilisateur est autorisé à faire la requête et prépare les objets communs aux requêtes :<br>
@@ -117,12 +118,15 @@ public class InitialDemandeServlet extends AbstractAfServlet {
                 donneesMConnectDTO = omapper.treeToValue(usagerJson, DonneesExternesDTO.class);
                 data.put("usagerId", new String[] { usagerInfosDTO.getId() + "" });
                 data.put(MCONNECT_PARAM_FAMILYNAME,
-                        new String[] { donneesMConnectDTO.getMconnect().getBirthName().toUpperCase() });
+                        new String[] { donneesMConnectDTO.getMconnect().getFamilyName().toUpperCase() });
                 data.put(MCONNECT_PARAM_GIVENNAME, new String[] { donneesMConnectDTO.getMconnect().getGivenName() });
                 data.put(MCONNECT_PARAM_BIRTHDATE, new String[] { new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX")
                         .format(donneesMConnectDTO.getMconnect().getBirthDatetime()) });
-                data.put(MCONNECT_BIRTHPLACECOUNTRY, new String[] { donneesMConnectDTO.getMconnect().getBirthPlaceCountry() });
-                data.put(MCONNECT_BIRTHPLACECITY, new String[] { donneesMConnectDTO.getMconnect().getBirthPlaceCity() });
+                data.put(MCONNECT_PARAM_BIRTHNAME, new String[] { donneesMConnectDTO.getMconnect().getBirthName() });
+                data.put(MCONNECT_PARAM_BIRTHPLACE, new String[] { donneesMConnectDTO.getMconnect().getBirthPlace() });
+                data.put(MCONNECT_PARAM_BIRTHCITY,
+                        new String[] { donneesMConnectDTO.getMconnect().getBirthPlaceCity() });
+
             }
 
             JsonNode retour = getAfApiClient().getDonneesExternes(usagerInfosDTO.getId(), data);
@@ -161,7 +165,7 @@ public class InitialDemandeServlet extends AbstractAfServlet {
     @Override
     public void doDelete(HttpServletRequest request, HttpServletResponse response) {
         LOGGER.info("====================== /demandeLock doDelete()");
-
+        request.getSession().setAttribute(SessionConstant.SESSION_DEMANDE_INITIALE, null);
         LOGGER.info("====================== Fin /demandeLock doDelete()");
     }
 

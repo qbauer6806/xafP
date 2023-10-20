@@ -132,6 +132,9 @@ public class DemandeBO {
     @Column(name = "CONTENU_INITIAL", columnDefinition = "TEXT", nullable = true)
     private String contenuInitial;
 
+    @Column(name = "META", columnDefinition = "TEXT", nullable = true)
+    private String meta;
+
     public Long getModificationTimestamp() {
         return modificationTimestamp;
     }
@@ -140,8 +143,6 @@ public class DemandeBO {
         this.modificationTimestamp = modificationTimestamp;
     }
 
-    @Column(name = "META", columnDefinition = "TEXT", nullable = true)
-    private String meta;
     // De type Integer et non DemandeBO (autrement dit : pas de foreign key en base)
     // Ceci afin d'être tranquille le jour où cette demande source doit être purgée (supprimée)
     @Column(name = "PK_DEMANDE_SOURCE", nullable = true)
@@ -362,7 +363,6 @@ public class DemandeBO {
     public void setContenuInitial(String contenuInitial) {
         this.contenuInitial = contenuInitial;
     }
-
 
 	public String getMeta() {
 		return meta;

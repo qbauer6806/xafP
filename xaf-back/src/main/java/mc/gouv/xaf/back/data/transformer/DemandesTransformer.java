@@ -187,7 +187,7 @@ public class DemandesTransformer {
             LOGGER.error("Erreur lors de la conversion JSON", e);
         }
 
-     // Mapper le contenu de la demande préremplie
+        // Mapper le contenu de la demande préremplie
         try {
             if (bo.getContenuInitial() != null)
                 dto.setContenuInitial(mapper.readTree(bo.getContenuInitial()));

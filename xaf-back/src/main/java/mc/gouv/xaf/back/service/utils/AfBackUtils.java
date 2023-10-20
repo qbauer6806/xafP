@@ -22,8 +22,6 @@ import java.util.UUID;
 
 import javax.annotation.PostConstruct;
 
-import mc.gouv.xaf.back.service.motifs.MotifsCache;
-import mc.gouv.xaf.shared.dto.MotifDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,12 +56,14 @@ import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.motifs.MotifTemplateService;
+import mc.gouv.xaf.back.service.motifs.MotifsCache;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeDataDTO;
 import mc.gouv.xaf.shared.dto.DemandeFlatDTO;
 import mc.gouv.xaf.shared.dto.DemarcheDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
+import mc.gouv.xaf.shared.dto.MotifDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.PropertiesListEntityDTO;
 import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
@@ -436,6 +436,10 @@ public class AfBackUtils {
         return demarchesDataProvider.getExportLibelle() != null ? demarchesDataProvider.getExportLibelle() : "Export Anonymisé";
     }
 
+    public String getRecapOrientation() {
+        return demarchesDataProvider.getRecapOrientation();
+    }
+
     /**
      * Retourne la classe CSS de la couleur associée à un statut
      * Attention, changer la fonction js getStatusColorClass
@@ -763,7 +767,6 @@ public class AfBackUtils {
 		DemandeDTO demande = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), pkDemande);
 		return demande.getIdentifiant();
 	}
-    
 	public boolean isEmailHtmlEnabled() {
         PropertiesDTO emailHtmlEnabledProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_EMAIL_HTML_ENABLED);
         if (emailHtmlEnabledProp == null || StringUtils.isBlank(emailHtmlEnabledProp.getValue())) {

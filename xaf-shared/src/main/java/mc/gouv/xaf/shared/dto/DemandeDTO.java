@@ -45,7 +45,6 @@ public class DemandeDTO extends AbstractDemandeDTO {
         this.modificationTimestamp = modificationTimestamp;
     }
 
-
     public Integer getFkAccess() {
         return fkAccess;
     }
@@ -183,12 +182,11 @@ public class DemandeDTO extends AbstractDemandeDTO {
     }
 
     public DonneesMConnectDTO getDonneesMConnect() {
-        return donneesMConnect;
-    }
-
-    public void setDonneesMConnect(DonneesMConnectDTO donneesMConnect) {
-        this.donneesMConnect = donneesMConnect;
-    }
+		return donneesMConnect;
+	}
+	public void setDonneesMConnect(DonneesMConnectDTO donneesMConnect) {
+		this.donneesMConnect = donneesMConnect;
+	}
 
     public String getDonneesCertifiees() {
         return donneesCertifiees;

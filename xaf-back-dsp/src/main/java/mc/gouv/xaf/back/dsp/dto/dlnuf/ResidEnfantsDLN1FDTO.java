@@ -16,9 +16,7 @@ public class ResidEnfantsDLN1FDTO implements Serializable {
 
 	private boolean hasEnfantMineur;
 	
-	private Integer nombreEnfantFoyer;
-	
-	private Integer nombreEnfantTotal;
+	private Integer nombreEnfantsMineur;
 	
 	private List<ResidEnfantDTO> enfants;
 
@@ -30,21 +28,14 @@ public class ResidEnfantsDLN1FDTO implements Serializable {
 		this.hasEnfantMineur = hasEnfantMineur;
 	}
 
-	public Integer getNombreEnfantFoyer() {
-		return nombreEnfantFoyer;
+	public Integer getNombreEnfantsMineur() {
+		return nombreEnfantsMineur;
 	}
 
-	public void setNombreEnfantFoyer(Integer nombreEnfantFoyer) {
-		this.nombreEnfantFoyer = nombreEnfantFoyer;
+	public void setNombreEnfantsMineur(Integer nombreEnfantFoyer) {
+		this.nombreEnfantsMineur = nombreEnfantFoyer;
 	}
 
-	public Integer getNombreEnfantTotal() {
-		return nombreEnfantTotal;
-	}
-
-	public void setNombreEnfantTotal(Integer nombreEnfantTotal) {
-		this.nombreEnfantTotal = nombreEnfantTotal;
-	}
 
 	public List<ResidEnfantDTO> getEnfants() {
 		return enfants;

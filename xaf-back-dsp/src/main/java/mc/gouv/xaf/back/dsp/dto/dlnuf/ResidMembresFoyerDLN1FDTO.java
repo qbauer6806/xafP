@@ -14,6 +14,8 @@ public class ResidMembresFoyerDLN1FDTO implements Serializable {
 	
 	private boolean hasOtherPersonne;
 	
+	private Integer nombreOtherPersonne;
+	
 	private List<ResidPersonneDLN1FDTO> personne;
 
 	public boolean isHasOtherPersonne() {
@@ -30,5 +32,13 @@ public class ResidMembresFoyerDLN1FDTO implements Serializable {
 
 	public void setPersonne(List<ResidPersonneDLN1FDTO> personne) {
 		this.personne = personne;
+	}
+
+	public Integer getNombreOtherPersonne() {
+		return nombreOtherPersonne;
+	}
+
+	public void setNombreOtherPersonne(Integer nombreOtherPersonne) {
+		this.nombreOtherPersonne = nombreOtherPersonne;
 	}
 }

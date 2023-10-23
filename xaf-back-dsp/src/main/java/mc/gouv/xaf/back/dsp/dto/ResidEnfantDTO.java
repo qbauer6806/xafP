@@ -33,7 +33,7 @@ public class ResidEnfantDTO implements Serializable {
 	
 	private boolean foyerEnfant;
 	
-	private boolean autoriteParentaleEnfant;
+	private Boolean autoriteParentaleEnfant;
 	
 	private ResidAdresseDTO adresseEnfant;
 
@@ -109,11 +109,14 @@ public class ResidEnfantDTO implements Serializable {
 		this.foyerEnfant = foyerEnfant;
 	}
 
-	public boolean isAutoriteParentaleEnfant() {
+	public Boolean isAutoriteParentaleEnfant() {
 		return autoriteParentaleEnfant;
 	}
 
-	public void setAutoriteParentaleEnfant(boolean autoriteParentaleEnfant) {
+	public void setAutoriteParentaleEnfant(Boolean autoriteParentaleEnfant) {
+		if(autoriteParentaleEnfant == null) {
+			this.autoriteParentaleEnfant = true;
+		}
 		this.autoriteParentaleEnfant = autoriteParentaleEnfant;
 	}
 

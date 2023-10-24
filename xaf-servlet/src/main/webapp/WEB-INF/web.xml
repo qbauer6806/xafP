@@ -294,4 +294,13 @@
         <url-pattern>/doc-holder/tofile</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>DocHolderConsentServlet</servlet-name>
+        <servlet-class>mc.gouv.xaf.servlet.DocHolderConsentServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>DocHolderConsentServlet</servlet-name>
+        <url-pattern>/doc-holder/consent</url-pattern>
+    </servlet-mapping>
+
 </web-app>

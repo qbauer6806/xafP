@@ -30,6 +30,8 @@ public class ResidSituationFamilialeDLN1FDTO implements Serializable {
 	private ResidRelationEnum relation;
 
 	private boolean foyer;
+	
+	private String lieuNomEntreprise;
 
 	public ResidSituationFamilialeEnum getSituationFamiliale() {
 		return situationFamiliale;
@@ -100,5 +102,13 @@ public class ResidSituationFamilialeDLN1FDTO implements Serializable {
 		return "ResidSituationFamilialeDTO{" + "situationFamiliale='" + situationFamiliale + '\'' + ", titre='" + titre
 				+ '\'' + ", nom='" + nom + '\'' + ", prenom='" + prenom + '\'' + ", dateNaissance='" + dateNaissance
 				+ ", nationalite='" + nationalite + ", relation='" + relation + ", foyer='" + foyer + '}';
+	}
+
+	public String getLieuNomEntreprise() {
+		return lieuNomEntreprise;
+	}
+
+	public void setLieuNomEntreprise(String lieuNomEntreprise) {
+		this.lieuNomEntreprise = lieuNomEntreprise;
 	}
 }

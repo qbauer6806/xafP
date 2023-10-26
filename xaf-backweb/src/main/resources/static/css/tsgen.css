@@ -491,12 +491,15 @@ dd span {
 
 .anciennedonnee-contenu {
     background-color: #eee;
+    color: #676767;
     display: none;
 }
 
 .nouvelledonnee-contenu {
     background-color: #def1f5;
+    color: #676767;
 }
+
 
 .recaptable {
     display: block;

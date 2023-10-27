@@ -23,6 +23,8 @@ public class DocHolderUtils {
     public static final String CONSENTING_NODE = "consenting";
     public static final String DATE_CREATION_NODE = "dateCreation";
     public static final String JSON_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
+    
+    private static final ZoneId zoneId = ZoneId.of("Europe/Monaco");
 
     private DocHolderUtils() {
 
@@ -40,7 +42,7 @@ public class DocHolderUtils {
             boolean consent = access.getContenu().findPath(DOCHOLDER_CONSENT_NODE).findPath(CONSENTING_NODE).asBoolean();
             if (consent) {
                 AccessInputDTO accessInputDTO = new AccessInputDTO();
-                ((ObjectNode) access.getContenu().findPath(DOCHOLDER_CONSENT_NODE)).put(DATE_CREATION_NODE, new SimpleDateFormat(JSON_DATE_FORMAT).format(Date.from(LocalDateTime.now().atZone(ZoneId.of("Europe/Monaco")).toInstant())));
+                ((ObjectNode) access.getContenu().findPath(DOCHOLDER_CONSENT_NODE)).put(DATE_CREATION_NODE, new SimpleDateFormat(JSON_DATE_FORMAT).format(Date.from(LocalDateTime.now().atZone(zoneId).toInstant())));
                 accessInputDTO.setContenu(access.getContenu());
 
                 getAfApiClient().createOrUpdateAccess(usagerId, accessInputDTO);
@@ -75,8 +77,8 @@ public class DocHolderUtils {
         try {
             boolean consent = access.getContenu().findPath(DOCHOLDER_CONSENT_NODE).findPath(CONSENTING_NODE).asBoolean();
             Date dateConsent = dateFormat.parse(dateNode.asText());
-            Date oneYearPlusOneMonth = Date.from(dateConsent.toInstant().atZone(ZoneId.of("Europe/Monaco")).plusYears(1).plusMonths(1).toInstant());
-            Date today = Date.from(Instant.now().atZone(ZoneId.of("Europe/Monaco")).toInstant());
+            Date oneYearPlusOneMonth = Date.from(dateConsent.toInstant().atZone(zoneId).plusYears(1).plusMonths(1).toInstant());
+            Date today = Date.from(Instant.now().atZone(zoneId).toInstant());
 
             return consent && (oneYearPlusOneMonth.before(today));
 

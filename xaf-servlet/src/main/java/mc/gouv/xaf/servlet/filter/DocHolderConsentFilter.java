@@ -33,7 +33,7 @@ public class DocHolderConsentFilter implements Filter {
         if (usagerInfosDTO != null && DocHolderUtils.isConsenting(usagerInfosDTO.getId())) {
             chain.doFilter(request, response);
         } else {
-            LOGGER.info("L'usager n'a pas consenti et a appellé " + servletRequest.getRequestURI());
+            LOGGER.info("L'usager n'a pas consenti et a appellé {}", servletRequest.getRequestURI());
             servletResponse.setStatus(HttpServletResponse.SC_FORBIDDEN);
         }
     }

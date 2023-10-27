@@ -22,7 +22,7 @@ import java.util.stream.Stream;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class ExpirationDocHolderConsentSchedulingJobTest {
+class ExpirationDocHolderConsentSchedulingJobTest {
     @Mock
     GouvPropertiesResolver gouvPropertiesResolver;
     @Mock

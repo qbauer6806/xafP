@@ -186,7 +186,6 @@
     <filter-mapping>
         <filter-name>DocHolderConsentFilter</filter-name>
         <url-pattern>/doc-holder/file</url-pattern>
-        <url-pattern>/doc-holder/tofile</url-pattern>
     </filter-mapping>
     
     <context-param>

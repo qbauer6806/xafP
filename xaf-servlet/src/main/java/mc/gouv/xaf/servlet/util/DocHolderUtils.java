@@ -80,7 +80,7 @@ public class DocHolderUtils {
             Date oneYearPlusOneMonth = Date.from(dateConsent.toInstant().atZone(zoneId).plusYears(1).plusMonths(1).toInstant());
             Date today = Date.from(Instant.now().atZone(zoneId).toInstant());
 
-            return consent && (oneYearPlusOneMonth.before(today));
+            return consent && (!oneYearPlusOneMonth.before(today));
 
         } catch (ParseException e) {
             LOGGER.error("Impossible de parser la date de consentement au porte-documents de l'utilisateur", e);

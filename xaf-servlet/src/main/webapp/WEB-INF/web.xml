@@ -167,7 +167,6 @@
     <filter-mapping>
         <filter-name>FileUploadLimitFilter</filter-name>
         <url-pattern>/doc-holder/file</url-pattern>
-        <url-pattern>/doc-holder/files</url-pattern>
     </filter-mapping>
 
     <filter>
@@ -187,7 +186,6 @@
     <filter-mapping>
         <filter-name>DocHolderConsentFilter</filter-name>
         <url-pattern>/doc-holder/file</url-pattern>
-        <url-pattern>/doc-holder/files</url-pattern>
         <url-pattern>/doc-holder/tofile</url-pattern>
     </filter-mapping>
     
@@ -276,15 +274,6 @@
     <servlet-mapping>
         <servlet-name>DocHolderFileServlet</servlet-name>
         <url-pattern>/doc-holder/file</url-pattern>
-    </servlet-mapping>
-
-    <servlet>
-        <servlet-name>DocHolderFilesServlet</servlet-name>
-        <servlet-class>mc.gouv.xaf.servlet.DocHolderFilesServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>DocHolderFilesServlet</servlet-name>
-        <url-pattern>/doc-holder/files</url-pattern>
     </servlet-mapping>
 
     <servlet>

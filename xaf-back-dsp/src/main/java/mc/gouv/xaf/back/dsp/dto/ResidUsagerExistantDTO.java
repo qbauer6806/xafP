@@ -31,7 +31,6 @@ public class ResidUsagerExistantDTO implements Serializable {
 
     private ResidMoyensExistenceDTO moyensExistence;
 
-    @JsonInclude()
     private List<ResidMembreFoyerDTO> membresFoyer;
 
     public ResidTypeUsagerEnum getUsagerType() {

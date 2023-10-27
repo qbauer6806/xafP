@@ -9,6 +9,7 @@ import mc.gouv.xaf.servlet.dto.DocHolderFileUpdateDTO;
 import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
 import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
+import mc.gouv.xaf.servlet.util.DocHolderUtils;
 import mc.gouv.xaf.servlet.util.FileServletUtils;
 import mc.gouv.xaf.servlet.util.HttpRequestWithEntity;
 import mc.gouv.xaf.shared.RequestConstant;
@@ -76,10 +77,16 @@ public class DocHolderFileServlet extends AbstractAfServlet {
             HttpResponse serviceResponse = FileServletUtils.downloadFromDocHolder(SERVICE_URL, filename, usagerInfosDTO.getTokenInfo().getAccessToken());
 
             LOGGER.info("Constitution de la réponse pour retour au client");
-            if (serviceResponse.getStatusLine().getStatusCode() == 200) {
+            int statusCode = serviceResponse.getStatusLine().getStatusCode();
+            if (statusCode == 200) {
                 Header contentDispositionHeader = serviceResponse.getFirstHeader(RequestConstant.CONTENT_DISPOSITION_HEADER);
                 resp.setHeader(RequestConstant.CONTENT_DISPOSITION_HEADER, contentDispositionHeader.getValue());
                 resp.setContentType(serviceResponse.getEntity().getContentType().getValue());
+
+                LOGGER.info("Mise à jour de la date de consentement TS du porte-documents");
+                if (!DocHolderUtils.updateConsentDate(usagerInfosDTO.getId())) {
+                    LOGGER.error("Impossible de mettre à jour la date de consentement TS du porte-documents");
+                }
             }
             resp.setStatus(serviceResponse.getStatusLine().getStatusCode());
             IOUtils.copy(serviceResponse.getEntity().getContent(), resp.getOutputStream());
@@ -143,7 +150,14 @@ public class DocHolderFileServlet extends AbstractAfServlet {
                             filePostDTO.getEndOfValidity());
 
                     int statusCode = uploadResponse.getStatusLine().getStatusCode();
-                    LOGGER.info("Code retour de l'upload dans PorteDocument : " + statusCode);
+
+                    if (statusCode == HttpStatus.SC_OK) {
+                        LOGGER.info("Mise à jour de la date de consentement TS du porte-documents");
+                        if (!DocHolderUtils.updateConsentDate(usagerInfosDTO.getId())) {
+                            LOGGER.error("Impossible de mettre à jour la date de consentement TS du porte-documents");
+                        }
+                    }
+
                     resp.setStatus(statusCode);
                     IOUtils.copy(uploadResponse.getEntity().getContent(), resp.getOutputStream());
                 }
@@ -200,8 +214,15 @@ public class DocHolderFileServlet extends AbstractAfServlet {
 
             LOGGER.info("Envoi de la requête");
             HttpResponse serviceResponse = client.execute(serviceRequest);
-
             int statusCode = serviceResponse.getStatusLine().getStatusCode();
+
+            if (statusCode == HttpStatus.SC_OK) {
+                LOGGER.info("Mise à jour de la date de consentement TS du porte-documents");
+                if (!DocHolderUtils.updateConsentDate(usagerInfosDTO.getId())) {
+                    LOGGER.error("Impossible de mettre à jour la date de consentement TS du porte-documents");
+                }
+            }
+
             resp.setStatus(statusCode);
             IOUtils.copy(serviceResponse.getEntity().getContent(), resp.getOutputStream());
         } catch (UnsupportedOperationException | IOException e) {
@@ -253,6 +274,14 @@ public class DocHolderFileServlet extends AbstractAfServlet {
             LOGGER.info("Envoi de la requête");
             HttpResponse serviceResponse = serviceRequest.execute().returnResponse();
             int statusCode = serviceResponse.getStatusLine().getStatusCode();
+
+            if (statusCode == HttpStatus.SC_OK) {
+                LOGGER.info("Mise à jour de la date de consentement TS du porte-documents");
+                if (!DocHolderUtils.updateConsentDate(usagerInfosDTO.getId())) {
+                    LOGGER.error("Impossible de mettre à jour la date de consentement TS du porte-documents");
+                }
+            }
+
             resp.setStatus(statusCode);
             IOUtils.copy(serviceResponse.getEntity().getContent(), resp.getOutputStream());
         } catch (JsonProcessingException jpe) {

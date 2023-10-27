@@ -7,6 +7,7 @@ import com.google.gson.JsonParseException;
 import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
 import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
+import mc.gouv.xaf.servlet.util.DocHolderUtils;
 import mc.gouv.xaf.servlet.util.FileServletUtils;
 import mc.gouv.xaf.shared.SharedMessages;
 import org.apache.commons.io.IOUtils;
@@ -70,6 +71,12 @@ public class DocHolderToFileServlet extends AbstractAfServlet {
 
             if (docholderResponse.getStatusLine().getStatusCode() == 200) {
                 FileServletUtils.uploadToFILE(resp, getServletContext(), usagerInfosDTO, filename, "AUTRES", docholderResponse.getEntity().getContent());
+
+                LOGGER.info("Mise à jour de la date de consentement TS du porte-documents");
+                if (!DocHolderUtils.updateConsentDate(usagerInfosDTO.getId())) {
+                    LOGGER.error("Impossible de mettre à jour la date de consentement TS du porte-documents");
+                }
+
             } else {
                 resp.setStatus(docholderResponse.getStatusLine().getStatusCode());
                 IOUtils.copy(docholderResponse.getEntity().getContent(), resp.getOutputStream());

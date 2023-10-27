@@ -179,6 +179,17 @@
         <url-pattern>/doc-holder/*</url-pattern>
         <url-pattern>/doc-holder</url-pattern>
     </filter-mapping>
+
+    <filter>
+        <filter-name>DocHolderConsentFilter</filter-name>
+        <filter-class>mc.gouv.xaf.servlet.filter.DocHolderConsentFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>DocHolderConsentFilter</filter-name>
+        <url-pattern>/doc-holder/file</url-pattern>
+        <url-pattern>/doc-holder/files</url-pattern>
+        <url-pattern>/doc-holder/tofile</url-pattern>
+    </filter-mapping>
     
     <context-param>
         <param-name>DemarcheID</param-name>

@@ -282,7 +282,7 @@ public class FileServletUtils {
      * @param filename     le nom du fichier à télécharger dans le portedocument ex : d738aa26-588a-11ee-a76d-005056bfb0c9/docholderwishlist.png
      * @param accessToken  le token d'accès à l'API, du compte connecté
      */
-    public static HttpResponse downloadFromDocHolder(String docHolderUrl, String filename, String accessToken) throws IOException, URISyntaxException, InterruptedException {
+    public static HttpResponse downloadFromDocHolder(String docHolderUrl, String filename, String accessToken) throws IOException, URISyntaxException {
         MultipartEntityBuilder multipart = MultipartEntityBuilder.create().addTextBody("filename", filename);
 
         HttpClient client = HttpClientBuilder.create().build();

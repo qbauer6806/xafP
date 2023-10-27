@@ -81,7 +81,7 @@ public class DocHolderToFileServlet extends AbstractAfServlet {
                 resp.setStatus(docholderResponse.getStatusLine().getStatusCode());
                 IOUtils.copy(docholderResponse.getEntity().getContent(), resp.getOutputStream());
             }
-        } catch (URISyntaxException | InterruptedException e) {
+        } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }
 

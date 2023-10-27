@@ -81,8 +81,10 @@ public class DocHolderToFileServlet extends AbstractAfServlet {
                 resp.setStatus(docholderResponse.getStatusLine().getStatusCode());
                 IOUtils.copy(docholderResponse.getEntity().getContent(), resp.getOutputStream());
             }
-        } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
+        } catch (IOException | URISyntaxException | UnsupportedOperationException e) {
+            LOGGER.error("Une erreur est survenue lors du téléchargement du fichier", e);
+            AppFactoryServletUtils.logAndSendError(LOGGER, resp, HttpStatus.SC_INTERNAL_SERVER_ERROR, SharedMessages.ERREUR_INTERNE);
+
         }
 
         LOGGER.info("====================== Fin {} doPost()", req.getServletPath());

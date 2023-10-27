@@ -268,7 +268,6 @@ public class DocHolderFileServlet extends AbstractAfServlet {
             LOGGER.info("Préparation de la requête");
             Request serviceRequest = Request.Patch(SERVICE_URL);
             serviceRequest.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + usagerInfosDTO.getTokenInfo().getAccessToken());
-            //serviceRequest.body(multipartEntityBuilder.build());
             serviceRequest.bodyString(new ObjectMapper().writeValueAsString(fileUpdateDTO), ContentType.APPLICATION_JSON);
 
             LOGGER.info("Envoi de la requête");

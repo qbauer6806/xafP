@@ -61,7 +61,8 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
 @Component
 public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 
-    private static final String CLOSING_TD = "</td>";
+    private static final String CLOSING_TR = "</tr>";
+	private static final String CLOSING_TD = "</td>";
 	private static final String BOLT_UDERLINE_END = "</u></b>";
 	private static final String BOLT_UDERLINE_START = "<b><u>";
 	private static final Logger LOGGER = LoggerFactory.getLogger(DemandeRecapHTMLServiceImpl.class);
@@ -405,59 +406,94 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
             throws ClassNotFoundException, InvocationTargetException, IllegalAccessException, NoSuchMethodException {
     	
         ArrayNode newValeurs = (ArrayNode) getNode(demande.getContenu(), section, "path");
-        ArrayNode demandeSourceValeurs = (ArrayNode) getNode(demandeSource.getContenu(), section, "path");
-        if (newValeurs.size() > 0) {
-        	
-            String classPdfRecap = isPdfRecap ? "pdf-recap" : "";
-            html.append(
-                    "<dd style=\"width: 100%\"><table id=\"datatable-demandes-recap\" class=\"table table-striped recaptable")
-                    .append(classPdfRecap).append("\">");
-            JSONArray columns = (JSONArray) section.get("columns");
-            html.append("<thead><tr onclick=\"switchTS()\">");
-            for (Object column : columns.toArray()) {
-                html.append("<th>").append(((JSONObject) column).get(LABEL)).append("</th>");
-            }
-            html.append("</tr></thead>");
-            Iterator<JsonNode> itNew = newValeurs.elements();
-            Iterator<JsonNode> itDemandeSource = demandeSourceValeurs.elements();
-            html.append("<tbody>");
-            while (itNew.hasNext() && itDemandeSource.hasNext()) {
-                JsonNode newValeur = itNew.next();
-                JsonNode demandeSourceValeur = itDemandeSource.next();
-                html.append("<tr>");
-                for (Object column : columns.toArray()) {
-                	String valueSource = getSecondLevelHTML(demandeSourceValeur, (JSONObject) column, pojo, isPdfRecap, true);
-                	String value = getSecondLevelHTML(newValeur, (JSONObject) column, pojo, isPdfRecap, true);
-                	if (demandeSource != null && !value.equalsIgnoreCase(valueSource)) {
-                        if (StringUtils.isBlank(valueSource)) {
-                            valueSource = "N/A";
-                        }
-                        String newValue = StringUtils.isNoneBlank(value) ? value : "";
-                        html.append("<td  onclick=\"switchTS()\"class='nouvelledonnee-contenu'>").append(newValue).append(CLOSING_TD);
-                        String newValueSource = StringUtils.isNoneBlank(valueSource) ? valueSource : "";
-                        html.append("<td class='anciennedonnee-contenu' title='Donnée modifiée'>").append(newValueSource).append(CLOSING_TD);
-                	} else {
-                		html.append("<td>").append(StringUtils.isNoneBlank(value) ? value : "").append(CLOSING_TD);
-                	}
-                }
-                html.append("</tr>");
-            }
-            // On fini de remplir le tableau avec les nouvelles valeurs (un nouvel enfant par exemple)
-            if (itNew.hasNext()) {
-            	while (itNew.hasNext()) {
-            		JsonNode newValeur = itNew.next();
-            		html.append("<tr>");
-            		for (Object column : columns.toArray()) {
-	            		String value = getSecondLevelHTML(newValeur, (JSONObject) column, pojo, isPdfRecap, true);
-	            		html.append("<td onclick=\"switchTS()\"class='nouvelledonnee-contenu'>").append(StringUtils.isNoneBlank(value) ? value : "").append(CLOSING_TD);
-	            		html.append("<td class='anciennedonnee-contenu' title='Donnée modifiée'>").append("N/A").append(CLOSING_TD);
-            		}
-            	}
-            	html.append("</tr>");
-            }
-            html.append("</tbody></table></dd>");
-        }
+		if (newValeurs.size() > 0) {
+			String classPdfRecap = isPdfRecap ? "pdf-recap" : "";
+			html.append(
+					"<dd style=\"width: 100%\"><table id=\"datatable-demandes-recap\" class=\"table table-striped recaptable")
+					.append(classPdfRecap).append("\">");
+			JSONArray columns = (JSONArray) section.get("columns");
+			html.append("<thead><tr onclick=\"switchTS()\">");
+			for (Object column : columns.toArray()) {
+				html.append("<th>").append(((JSONObject) column).get(LABEL)).append("</th>");
+			}
+			html.append("</tr></thead>");
+			Iterator<JsonNode> itNew = newValeurs.elements();
+			if (demandeSource!= null && null != demandeSource.getContenu()) {
+				contructTableauWithDiff(demandeSource, section, isPdfRecap, pojo, html, columns, itNew);
+			} else contructSimpleTableau(demande, section, isPdfRecap, pojo, html);
+		}
     }
+
+	private void contructSimpleTableau(DemandeDTO demande, JSONObject section, boolean isPdfRecap, String pojo,
+			StringBuilder html) throws ClassNotFoundException, IllegalAccessException, IllegalArgumentException,
+			InvocationTargetException, NoSuchMethodException, SecurityException {
+		ArrayNode valeurs = (ArrayNode) getNode(demande.getContenu(), section, "path");
+		if (valeurs.size() > 0) {
+			JSONArray columns = (JSONArray) section.get("columns");
+			Iterator<JsonNode> it = valeurs.elements();
+			html.append("<tbody>");
+			while (it.hasNext()) {
+				JsonNode valeur = it.next();
+				html.append("<tr>");
+				for (Object column : columns.toArray()) {
+					String value = getSecondLevelHTML(valeur, (JSONObject) column, pojo, isPdfRecap, true);
+					String result = StringUtils.isNoneBlank(value) ? value : "";
+					html.append("<td>").append(result).append(CLOSING_TD);
+				}
+				html.append(CLOSING_TR);
+			}
+			html.append("</tbody></table></dd>");
+		}
+	}
+
+	private void contructTableauWithDiff(DemandeDTO demandeSource, JSONObject section, boolean isPdfRecap, String pojo,
+			StringBuilder html, JSONArray columns, Iterator<JsonNode> itNew)
+			throws ClassNotFoundException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+		ArrayNode demandeSourceValeurs = (ArrayNode) getNode(demandeSource.getContenu(), section, "path");
+		Iterator<JsonNode> itDemandeSource = demandeSourceValeurs.elements();
+		html.append("<tbody>");
+		while (itNew.hasNext() && itDemandeSource.hasNext()) {
+			JsonNode newValeur = itNew.next();
+			JsonNode demandeSourceValeur = itDemandeSource.next();
+			html.append("<tr>");
+			for (Object column : columns.toArray()) {
+				String valueSource = getSecondLevelHTML(demandeSourceValeur, (JSONObject) column, pojo,
+						isPdfRecap, true);
+				String value = getSecondLevelHTML(newValeur, (JSONObject) column, pojo, isPdfRecap, true);
+				if (demandeSource != null && !value.equalsIgnoreCase(valueSource)) {
+					if (StringUtils.isBlank(valueSource)) {
+						valueSource = "N/A";
+					}
+					String newValue = StringUtils.isNoneBlank(value) ? value : "";
+					html.append("<td  onclick=\"switchTS()\"class='nouvelledonnee-contenu'>").append(newValue)
+							.append(CLOSING_TD);
+					String newValueSource = StringUtils.isNoneBlank(valueSource) ? valueSource : "";
+					html.append("<td class='anciennedonnee-contenu' title='Donnée modifiée'>")
+							.append(newValueSource).append(CLOSING_TD);
+				} else {
+					html.append("<td>").append(StringUtils.isNoneBlank(value) ? value : "").append(CLOSING_TD);
+				}
+			}
+			html.append(CLOSING_TR);
+		}
+		// On fini de remplir le tableau avec les nouvelles valeurs (un nouvel enfant
+		// par exemple)
+		if (itNew.hasNext()) {
+			while (itNew.hasNext()) {
+				JsonNode newValeur = itNew.next();
+				html.append("<tr>");
+				for (Object column : columns.toArray()) {
+					String value = getSecondLevelHTML(newValeur, (JSONObject) column, pojo, isPdfRecap, true);
+					html.append("<td onclick=\"switchTS()\"class='nouvelledonnee-contenu'>")
+							.append(StringUtils.isNoneBlank(value) ? value : "").append(CLOSING_TD);
+					html.append("<td class='anciennedonnee-contenu' title='Donnée modifiée'>").append("N/A")
+							.append(CLOSING_TD);
+				}
+			}
+			html.append(CLOSING_TR);
+		}
+		html.append("</tbody></table></dd>");
+	}
 
 	private String getSecondLevelHTML(JsonNode node, JSONObject champ, String pojo, boolean isPdfRecap,
             boolean pourTableau) throws ClassNotFoundException, IllegalAccessException, IllegalArgumentException,

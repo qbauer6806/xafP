@@ -531,10 +531,8 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
         return StringUtils.isBlank(value) ? "vide" : value + "/public/doc-holder";
     }
 
-    public final String PORTEDOC_ENABLED = MC_GOUV_PREFIX + applicationPrefix + ".portedoc.enabled";
-
     public boolean isPorteDocEnabled() {
-        String value = Static.getValue(PORTEDOC_ENABLED);
+        String value = Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".portedoc.enabled");
         return StringUtils.equals("true", value);
     }
         

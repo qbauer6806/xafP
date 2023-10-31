@@ -107,4 +107,8 @@ public interface DemarchesDataProvider {
     default List<String> getSpansIdAMarquer(DemandeDTO demande) {
     	return new ArrayList<>();
 	}
+    
+    default boolean isTypedocApplicable(String typedoc) {
+    	return !typedoc.equals("NON_APPLICABLE");
+    }
 }

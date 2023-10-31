@@ -22,7 +22,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr th:each="file : ${cat.files}" th:classappend="${file.verification} and ${file.typedoc} != null and ${file.typedoc} != '' ? (${file.typedoc} == 'NON_APPLICABLE'  ? 'non-applicable-background' : 'valid-background') : ''">
+        <tr th:each="file : ${cat.files}" th:classappend="${file.verification} and ${file.typedoc} != null and ${file.typedoc} != '' ? (${AfBackUtils.isTypedocApplicable(file.typedoc)} ? 'valid-background' : 'non-applicable-background') : ''">
             <td th:class="${cat.typedoc} ? 'file-name-col-small' : 'file-name-col'" th:text="${file.name}"
                 th:title="${file.name}"></td>
             <td class="date-col" th:text="${#dates.format(file.date, 'dd/MM/yyyy HH:mm')}"></td>

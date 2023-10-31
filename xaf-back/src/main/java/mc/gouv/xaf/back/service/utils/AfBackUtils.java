@@ -774,5 +774,13 @@ public class AfBackUtils {
         }
         return Boolean.valueOf(emailHtmlEnabledProp.getValue());
 	}
+	
+	/**
+     * Permet de savoir si la démarche prend en charge des propriétés
+     * @return
+     */
+    public boolean isTypedocApplicable(String typedoc) {
+        return demarchesDataProvider.isTypedocApplicable(typedoc);
+    }
 
 }

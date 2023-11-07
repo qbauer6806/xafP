@@ -18,6 +18,7 @@ import org.apache.http.client.fluent.Request;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.InputStreamBody;
 import org.apache.http.entity.mime.content.StringBody;
@@ -279,11 +280,11 @@ public class FileServletUtils {
 
     /**
      * @param docHolderUrl l'adresse à laquelle envoyer la requête
-     * @param filename     le nom du fichier à télécharger dans le portedocument ex : d738aa26-588a-11ee-a76d-005056bfb0c9/docholderwishlist.png
+     * @param pathInfo     le nom du fichier à télécharger dans le portedocument ex : d738aa26-588a-11ee-a76d-005056bfb0c9/docholderwishlist.png
      * @param accessToken  le token d'accès à l'API, du compte connecté
      */
-    public static HttpResponse downloadFromDocHolder(String docHolderUrl, String filename, String accessToken) throws IOException, URISyntaxException {
-        MultipartEntityBuilder multipart = MultipartEntityBuilder.create().addTextBody("filename", filename);
+    public static HttpResponse downloadFromDocHolder(String docHolderUrl, String pathInfo, String accessToken) throws IOException, URISyntaxException {
+        MultipartEntityBuilder multipart = MultipartEntityBuilder.create().addPart("filename", new StringBody(pathInfo, ContentType.MULTIPART_FORM_DATA.withCharset("UTF-8")));
 
         HttpClient client = HttpClientBuilder.create().build();
         HttpRequestWithEntity request = new HttpRequestWithEntity("GET");
@@ -298,8 +299,9 @@ public class FileServletUtils {
         MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create()
                 .setCharset(StandardCharsets.UTF_8)
                 .addPart("file", new InputStreamBody(filestream, filename))
-                .addTextBody("preferredName", preferredName)
-                .addTextBody("typedoc", typedoc);
+                .addPart("preferredName", new StringBody(preferredName, ContentType.MULTIPART_FORM_DATA.withCharset("UTF-8")))
+                .addTextBody("typedoc", typedoc)
+                .setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
 
         if (!StringUtils.isEmpty(endOfValidity)) {
             entityBuilder.addTextBody("endOfValidity", endOfValidity);
@@ -350,7 +352,7 @@ public class FileServletUtils {
         // Constitution de la requête
         HttpClient client = HttpClientBuilder.create().build();
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-        builder.addPart("data", new InputStreamBody(filestream, filename));
+        builder.addPart("data", new InputStreamBody(filestream, URLEncoder.encode(filename, StandardCharsets.UTF_8)));
         HttpEntity multipart = builder.build();
         postRequest.setEntity(multipart);
         postRequest.setHeader(HttpHeaders.AUTHORIZATION, AppFactoryServletUtils.getAuthHeader(AppFactoryServletUtils.ServiceTarget.FILE));

@@ -37,6 +37,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 @MultipartConfig
@@ -145,7 +147,8 @@ public class DocHolderFileServlet extends AbstractAfServlet {
                             SERVICE_URL,
                             filestream,
                             usagerInfosDTO.getTokenInfo().getAccessToken(),
-                            filename, filePostDTO.getTypedoc(),
+                            filename,
+                            filePostDTO.getTypedoc(),
                             filePostDTO.getPreferredName(),
                             filePostDTO.getEndOfValidity());
 
@@ -208,7 +211,7 @@ public class DocHolderFileServlet extends AbstractAfServlet {
         serviceRequest.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + usagerInfosDTO.getTokenInfo().getAccessToken());
 
         try {
-            StringEntity entity = new StringEntity(mapper.writeValueAsString(Map.of(FILENAME, fileDTO.getFilename())));
+            StringEntity entity = new StringEntity(mapper.writeValueAsString(Map.of(FILENAME, URLEncoder.encode(fileDTO.getFilename(), StandardCharsets.UTF_8))));
             serviceRequest.setEntity(entity);
             serviceRequest.setHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.toString());
 

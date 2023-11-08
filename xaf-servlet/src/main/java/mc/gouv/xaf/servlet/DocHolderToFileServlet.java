@@ -67,9 +67,11 @@ public class DocHolderToFileServlet extends AbstractAfServlet {
         String filename = FileServletUtils.getFilename(fileUrl);
 
         try {
+            LOGGER.info("Téléchargement du fichier {} depuis le porte-documents", fileUrl);
             HttpResponse docholderResponse = FileServletUtils.downloadFromDocHolder(docHolderFileServiceUrl, fileUrl, usagerInfosDTO.getTokenInfo().getAccessToken());
 
             if (docholderResponse.getStatusLine().getStatusCode() == 200) {
+                LOGGER.info("Téléversement du fichier {} dans FILE", filename);
                 FileServletUtils.uploadToFILE(resp, getServletContext(), usagerInfosDTO, filename, "AUTRES", docholderResponse.getEntity().getContent());
 
                 LOGGER.info("Mise à jour de la date de consentement TS du porte-documents");

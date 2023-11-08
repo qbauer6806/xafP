@@ -352,7 +352,7 @@ public class FileServletUtils {
         // Constitution de la requête
         HttpClient client = HttpClientBuilder.create().build();
         MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-        builder.addPart("data", new InputStreamBody(filestream, URLEncoder.encode(filename, StandardCharsets.UTF_8)));
+        builder.addPart("data", new InputStreamBody(filestream, filename));
         HttpEntity multipart = builder.build();
         postRequest.setEntity(multipart);
         postRequest.setHeader(HttpHeaders.AUTHORIZATION, AppFactoryServletUtils.getAuthHeader(AppFactoryServletUtils.ServiceTarget.FILE));

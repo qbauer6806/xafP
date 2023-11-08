@@ -147,6 +147,7 @@ public class RechercheIndexedDemandesController extends AbstractController {
         }
         List<AfBackDemandeEsDTO> newDemandes = new ArrayList<>();
         for (DemandeEsRechercheDTO demande : demandes) {
+            LOGGER.info("Transformation de la demande {} : {}", demande.getIdentifiant(), demande);
             AfBackDemandeEsDTO newDem = new AfBackDemandeEsDTO(demande);
             if (demande.getAgent() != null && demande.getAgent().getMatricule() != null) {
                 User user = utilisateursCache.get(demande.getAgent().getMatricule());

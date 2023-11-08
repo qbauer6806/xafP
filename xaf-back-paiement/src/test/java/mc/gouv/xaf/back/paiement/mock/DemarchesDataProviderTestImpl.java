@@ -178,13 +178,12 @@ public class DemarchesDataProviderTestImpl implements DemarchesDataProvider {
 		return false;
 	}
 
-	@Override
-	public List<String> getStatutsFinauxPourAnnulationCauseDesinscription() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public StatutSimplifieEnum getStatutSimplifie(String statut) {
+        return null;
+    }
 
-	@Override
+    @Override
 	public String getMailBodyTemplateCodeDesinscriptionUsagerPourAgents() {
 		// TODO Auto-generated method stub
 		return null;

@@ -1,14 +1,14 @@
 package mc.gouv.xaf.back.mail;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.AbstractMap.SimpleEntry;
-import java.util.Map.Entry;
+import mc.gouv.xaf.back.service.itg.mail.MailTemplateModelProvider;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
 import org.springframework.stereotype.Component;
 import org.springframework.test.context.ActiveProfiles;
 
-import mc.gouv.xaf.back.service.itg.mail.MailTemplateModelProvider;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 @ActiveProfiles("test")
 @Component
@@ -20,7 +20,7 @@ public class MailTemplateModelProviderImplTest implements MailTemplateModelProvi
         String bodyTemplateCode = MailTemplateMock.accepteContentFRCode;
         String subjectTemplateCode = MailTemplateMock.acceptSubjectFRCode;
 
-        return new SimpleEntry<String, String>(bodyTemplateCode, subjectTemplateCode);
+        return new SimpleEntry<>(bodyTemplateCode, subjectTemplateCode);
 
     }
 
@@ -28,7 +28,7 @@ public class MailTemplateModelProviderImplTest implements MailTemplateModelProvi
     public Map<String, Object> getModel(String subjectTemplateCode, String bodyTemplateCode, DemandeDTO demande,
             Map<String, Object> bpmVariables, String codeMotif, String commentaire) {
 
-        Map<String, Object> model = new HashMap<String, Object>();
+        Map<String, Object> model = new HashMap<>();
 
         model.put("identifiant", MailTestMockObjects.IDENTIFIER);
         model.put("motif", MailTestMockObjects.MOTIF);
@@ -43,5 +43,20 @@ public class MailTemplateModelProviderImplTest implements MailTemplateModelProvi
         model.put("utilisateur", MailTestMockObjects.UTILISATEUR);
 
         return model;
+    }
+
+    @Override
+    public Map<String, Object> getGenericModelDemande(DemandeDTO demande, String codeMotif, String commentaire, Map<String, Object> bpmVariables) {
+        return null;
+    }
+
+    @Override
+    public Map<String, Object> getGenericModelDemande(DemandeDTO demande) {
+        return null;
+    }
+
+    @Override
+    public Map<String, Object> getGenericModel() {
+        return null;
     }
 }

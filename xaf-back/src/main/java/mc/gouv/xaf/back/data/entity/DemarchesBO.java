@@ -61,6 +61,26 @@ public class DemarchesBO {
     @NotBlank
     @Size(min = 1, max = 256)
     private String emailFromNom;
+
+    @Column(name = "NOM_DIRECTION", length = 256, nullable = true)
+    @NotBlank
+    @Size(min = 1, max = 256)
+    private String nomDirection;
+
+    @Column(name = "NOM_DIRECTION_COMPLEMENT", length = 256, nullable = true)
+    @NotBlank
+    @Size(min = 1, max = 256)
+    private String nomDirectionComplement;
+
+    @Column(name = "NOM_FOOTER", length = 256, nullable = true)
+    @NotBlank
+    @Size(min = 1, max = 256)
+    private String nomFooter;
+
+    @Column(name = "ADRESSE_SERVICE", length = 256, nullable = true)
+    @NotBlank
+    @Size(min = 1, max = 256)
+    private String adresseService;
     
     @Column(name = "IDENTIFIANT_PREFIXE", length = 256, nullable = false)
     @NotBlank
@@ -182,4 +202,35 @@ public class DemarchesBO {
 		this.nomEn = nomEn;
 	}
 
+    public String getNomDirection() {
+        return nomDirection;
+    }
+
+    public void setNomDirection(String nomDirection) {
+        this.nomDirection = nomDirection;
+    }
+
+    public String getNomDirectionComplement() {
+        return nomDirectionComplement;
+    }
+
+    public void setNomDirectionComplement(String nomDirectionComplement) {
+        this.nomDirectionComplement = nomDirectionComplement;
+    }
+
+    public String getNomFooter() {
+        return nomFooter;
+    }
+
+    public void setNomFooter(String nomFooter) {
+        this.nomFooter = nomFooter;
+    }
+
+    public String getAdresseService() {
+        return adresseService;
+    }
+
+    public void setAdresseService(String adresseService) {
+        this.adresseService = adresseService;
+    }
 }

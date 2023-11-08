@@ -1,16 +1,5 @@
 package mc.gouv.xaf.back.paiement.service.impl;
 
-import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.stereotype.Component;
-
 import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.xaf.back.paiement.dto.CommandeDTO;
@@ -21,10 +10,20 @@ import mc.gouv.xaf.back.paiement.service.TicketRecapitulatifService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
+import mc.gouv.xaf.back.service.itg.mail.MailTemplateModelProvider;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.stereotype.Component;
+
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
+import java.util.Map;
 
 @Component
 public class TicketRecapitulatifServiceImpl implements TicketRecapitulatifService {
@@ -51,6 +50,9 @@ public class TicketRecapitulatifServiceImpl implements TicketRecapitulatifServic
     
     @Autowired
     private MessageSource messageSource;
+
+    @Autowired
+    private MailTemplateModelProvider mailTemplateModelProvider;
 
     @Override
     public void sendMail(CommandeOperationDTO operation, CommandeDTO commandeDTO, Integer demandeId) {
@@ -85,7 +87,7 @@ public class TicketRecapitulatifServiceImpl implements TicketRecapitulatifServic
 
 	private Map<String, Object> getModel(CommandeOperationDTO operation, MoyenPaiementDTO moyenPaiement,
 			GichuniUsagerDTO usager, DemandeDTO demande) {
-		Map<String, Object> model = new HashMap<>();
+        Map<String, Object> model = mailTemplateModelProvider.getGenericModelDemande(demande);
 		String titre = messageSource.getMessage("civilite." + usager.getTitre(), null, new Locale(demande.getLangue()));
 		model.put("numTPE", paiementPropertiesResolver.getTpe());
 		model.put("pkOperation", operation.getPkOperations());

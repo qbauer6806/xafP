@@ -2,10 +2,8 @@ package mc.gouv.xaf.back.service.pdf.recap;
 
 import java.io.File;
 
-public interface PdfHeaderFooterProvider {
+public interface PdfHeaderProvider {
 
     File getHeader();
-
-    File getFooter();
 
 }

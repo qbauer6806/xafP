@@ -1,21 +1,19 @@
 package mc.gouv.xaf.back.service.utils;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import mc.gouv.xaf.shared.dto.DemandeHistoriqueAffichageDTO;
+import mc.gouv.xaf.shared.dto.DemandeHistoriqueContenuDTO;
+import mc.gouv.xaf.shared.dto.DemandeHistoriqueDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import mc.gouv.xaf.shared.dto.DemandeHistoriqueAffichageDTO;
-import mc.gouv.xaf.shared.dto.DemandeHistoriqueContenuDTO;
-import mc.gouv.xaf.shared.dto.DemandeHistoriqueDTO;
 
 /**
  * Classe utilitaire à extends pour les classes TSNAMEUtils
@@ -44,23 +42,6 @@ public abstract class AbstractTsUtils {
             }
         }
         return buildIds.last();
-    }
-
-    /**
-     * Retourne le libellé du statut brouillon non transmis
-     */
-    public abstract String getNotTransmitted();
-
-    /**
-     * Retourne le libellé du statut brouillon obsolète
-     */
-    public abstract String getDeprecated();
-
-    /**
-     * Retourne le libellé du statut brouillon expiré
-     */
-    public String getExpired() {
-        return "";
     }
     
     /**

@@ -1,16 +1,17 @@
 package mc.gouv.xaf.back.service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeExcelGenerationDTO;
 import mc.gouv.xaf.shared.dto.GenericStatusDTO;
 import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
 import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 import mc.gouv.xaf.shared.enums.TitreUsagerEnum;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Service implémenté par la démarche permettant de fournir à xaf-back des informations propres à chaque démarche.
@@ -39,25 +40,41 @@ public interface DemarchesDataProvider {
 
     boolean getDemarcheCanGenerateCourriers();
 
-    boolean getDemarcheCanHandlePeriodesOuverture();
+    default boolean getDemarcheCanHandlePeriodesOuverture() {
+        return true;
+    }
 
-    boolean getDemarcheCanHandleProperties();
+    default boolean getDemarcheCanHandleProperties() {
+        return true;
+    }
 
-	boolean getDemarcheCanHandleDenjsGestionAgents();
+	default boolean getDemarcheCanHandleDenjsGestionAgents() {
+        return false;
+    }
 
-    boolean getDemarcheCanHandleTaches();
+    default boolean getDemarcheCanHandleTaches() {
+        return false;
+    }
 
-	String[] getGUKafkaSupportedVersions();
+	default String[] getGUKafkaSupportedVersions() {
+        return new String[]{ "v1" };
+    }
 
     StatutSimplifieEnum getStatutSimplifieFromStatutPublic(String statutPublic);
 
     List<String> getStatutsAPurger();
 
-    boolean isValideTypedoc(String typedoc);
+    default boolean isValideTypedoc(String typedoc) {
+        return StringUtils.isNotBlank(typedoc) && !typedoc.equals("NON_APPLICABLE");
+    }
 
-    DemandeExcelGenerationDTO getDemandeExcelGenerationDTO();
+    default DemandeExcelGenerationDTO getDemandeExcelGenerationDTO() {
+        return null;
+    }
 
-    boolean isEligibleRectification(DemandeDTO demande);
+    default boolean isEligibleRectification(DemandeDTO demande) {
+        return false;
+    }
 
     default String getExportLibelle() {
         return null;
@@ -70,30 +87,70 @@ public interface DemarchesDataProvider {
     default List<TitreUsagerEnum> getTitres() {
         return Arrays.asList(TitreUsagerEnum.values());
     }
-    
+
+    /**
+     * @return TSCODEDemandeStatutEnum.ANNULEE.name()
+     */
     String getStatutAnnulee();
-    
+
+    /**
+     * @return TSCODECodeMotifEnum.ANNULATION_PAR_USAGER.name()
+     */
     String getCodeMotifAnnulationParUsager();
-    
+
+    /**
+     * @return TSCODECodeMotifEnum.ANNULATION_DESINSCRIPTION.name()
+     */
     String getCodeMotifAnnulationDesinscription();
-    
+
+    /**
+     * @return TSCODEDemandeStatutEnum.EN_ATTENTE_TRAIT.name();
+     */
     String getPremierStatutCreationDemande();
-    
-    String getStatutEnAttenteRectification();
-    
+
+    /**
+     * @return TSCODEDemandeStatutEnum.EN_ATTENTE_RECTIFICATION.name()
+     */
+    default String getStatutEnAttenteRectification() {
+        return null;
+    }
+
+    /**
+     * TSCODEGenericContenuProjectDemandeDTO contenu = TSCODEUtils.getGenericContenuDemande(demande);
+     * return contenu != null && contenu.getDonnee().getDemandeur().getNomusage() != null && StringUtils.equalsIgnoreCase(contenu.getDonnee().getDemandeur().getNomusage(), stringToCheck);
+     */
     boolean checkAssociationCourrier(DemandeDTO demande, String stringToCheck);
-    
-    public List<String> getStatutsFinauxPourAnnulationCauseDesinscription();
-    
+
+    /**
+     * TSCODEDemandeStatutEnum s = TSCODEDemandeStatutEnum.valueOf(statut);
+     * return s.statutSimplifie;
+     */
+    StatutSimplifieEnum getStatutSimplifie(String statut);
+
+    /**
+     * @return TSCODETemplateEnum.MAIL_DESINSCRIPTION_USAGER_POUR_AGENT_CORPS.name();
+     */
     String getMailBodyTemplateCodeDesinscriptionUsagerPourAgents();
-    
+
+    /**
+     * @return TSCODETemplateEnum.MAIL_DESINSCRIPTION_USAGER_POUR_AGENT_OBJET.name();
+     */
     String getMailSubjectTemplateCodeDesinscriptionUsagerPourAgents();
-    
+
+    /**
+     * @return TSCODETemplateEnum.MAIL_DESINSCRIPTION_USAGER_POUR_USAGER_CORPS.name();
+     */
     String getMailBodyTemplateCodeDesinscriptionUsagerPourUsager();
-    
+
+    /**
+     * @return TSCODETemplateEnum.MAIL_DESINSCRIPTION_USAGER_POUR_USAGER_OBJET.name();
+     */
     String getMailSubjectTemplateCodeDesinscriptionUsagerPourUsager();
-    
-    public String[] getAllStatuts();
+
+    /**
+     * @return TSCODEDemandeStatutEnum.getAllStatuts();
+     */
+    String[] getAllStatuts();
     
     /**
      * Retourne le libellé du statut brouillon non transmis

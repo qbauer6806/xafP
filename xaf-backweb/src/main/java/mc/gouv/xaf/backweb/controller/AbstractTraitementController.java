@@ -1,24 +1,21 @@
 package mc.gouv.xaf.backweb.controller;
 
-import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-
-import javax.transaction.Transactional;
-
+import mc.gouv.xaf.back.bpm.GouvBPM;
+import mc.gouv.xaf.back.bpm.model.CommentaireInterneDTO;
+import mc.gouv.xaf.back.bpm.model.GouvBPMTask;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.backweb.formbean.XafTraitementFormBean;
+import mc.gouv.xaf.shared.SharedMessages;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.context.MessageSource;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -28,15 +25,12 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.xml.sax.SAXException;
 
-import mc.gouv.xaf.back.bpm.GouvBPM;
-import mc.gouv.xaf.back.bpm.model.CommentaireInterneDTO;
-import mc.gouv.xaf.back.bpm.model.GouvBPMTask;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.data.DemandesService;
-import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import mc.gouv.xaf.backweb.formbean.XafTraitementFormBean;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
+import javax.transaction.Transactional;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 public class AbstractTraitementController extends AbstractController {
 
@@ -57,15 +51,9 @@ public class AbstractTraitementController extends AbstractController {
 	// Pour les informations liées à la demande
 	private static final String I18N_SAUVEGARDE_SUCCESS_CODE_MESSAGE = "message.success.sauvegarde";
 
-    @Override
-    @InitBinder
-    public void initBinder(WebDataBinder binder) {
-    	DateFormat df = new SimpleDateFormat(AfBackUtils.DEFAULT_FRENCH_DATE_FORMAT);
-        CustomDateEditor editor = new CustomDateEditor(df, true);
-        binder.registerCustomEditor(Date.class, editor);
-    }
-    
-	@Secured({ "ROLE_TRAITEMENT", "ROLE_VALIDATION", "ROLE_LECTURE" })
+	private static final String REDIRECT = "redirect:";
+
+    @Secured({ "ROLE_TRAITEMENT", "ROLE_VALIDATION", "ROLE_LECTURE" })
 	@RequestMapping(value = "/infosAdministration", method = RequestMethod.POST)
 	@Transactional
 	public ModelAndView infosAdministration(@ModelAttribute("traitementFormBean") XafTraitementFormBean xafTraitementFormBean,
@@ -121,7 +109,17 @@ public class AbstractTraitementController extends AbstractController {
 		List<String> messages = new ArrayList<>();
 		messages.add(messageSource.getMessage(messageCode, null, Locale.FRENCH));
 		redirectAttributes.addFlashAttribute("successMessages", messages);
-		return new ModelAndView("redirect:" + pkDemande);
+		return new ModelAndView(REDIRECT + pkDemande);
+	}
+
+	protected ModelAndView returnSuccessMessage(Integer pkDemande, String messageCode, String demandeTab,
+											  final RedirectAttributes redirectAttributes) {
+		List<String> messages = new ArrayList<>();
+		messages.add(messageSource.getMessage(messageCode, null, Locale.FRENCH));
+		redirectAttributes.addFlashAttribute(SharedMessages.SUCCESS_MESSAGES, messages);
+		String url = StringUtils.isBlank(demandeTab) ? REDIRECT + pkDemande
+				: REDIRECT + pkDemande + "?demandeTab=" + demandeTab;
+		return new ModelAndView(url);
 	}
 	
 	protected ModelAndView returnErrorMessage(Integer pkDemande, String messageCode,
@@ -129,15 +127,25 @@ public class AbstractTraitementController extends AbstractController {
 		List<String> messages = new ArrayList<>();
 		messages.add(messageSource.getMessage(messageCode, null, Locale.FRENCH));
 		redirectAttributes.addFlashAttribute("errorMessages", messages);
-		return new ModelAndView("redirect:" + pkDemande);
+		return new ModelAndView(REDIRECT + pkDemande);
 	}
-	
+
+	protected ModelAndView returnErrorMessage(Integer pkDemande, String messageCode, String demandeTab,
+											final RedirectAttributes redirectAttributes) {
+		List<String> messages = new ArrayList<>();
+		messages.add(messageSource.getMessage(messageCode, null, Locale.FRENCH));
+		redirectAttributes.addFlashAttribute("errorMessages", messages);
+		String url = StringUtils.isBlank(demandeTab) ? REDIRECT + pkDemande
+				: REDIRECT + pkDemande + "?demandeTab=" + demandeTab;
+		return new ModelAndView(url);
+	}
+
 	protected ModelAndView returnErrorMessageWithArgs(Integer pkDemande, String messageCode,
 			final RedirectAttributes redirectAttributes, Object[] args) {
 		List<String> messages = new ArrayList<>();
 		messages.add(messageSource.getMessage(messageCode, args, Locale.FRENCH));
 		redirectAttributes.addFlashAttribute("errorMessages", messages);
-		return new ModelAndView("redirect:" + pkDemande);
+		return new ModelAndView(REDIRECT + pkDemande);
 	}
 	
 	/**

@@ -1,18 +1,17 @@
 package mc.gouv.xaf.back.service.scheduling;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.data.PropertiesService;
+import mc.gouv.xaf.back.service.purge.PurgeDemandesService;
+import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.data.PropertiesService;
-import mc.gouv.xaf.back.service.purge.PurgeDemandesService;
-import mc.gouv.xaf.shared.dto.PropertiesDTO;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Job permettant d'appeler le service de purge des demandes.
@@ -22,8 +21,6 @@ import mc.gouv.xaf.shared.dto.PropertiesDTO;
 public class PurgeDemandesSchedulingJob implements Job {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PurgeDemandesSchedulingJob.class);
-
-    public static final String JOB_NAME = "PurgeDemandesSchedulingJob";
 
     private static final String DELAI_PURGE_EN_JOURS = "DELAI_PURGE_EN_JOURS";
     private static final int DELAI_PAR_DEFAUT_PURGE = 1095; // 3 ans de purge par défaut

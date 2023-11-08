@@ -168,8 +168,7 @@ public class DemarchesDataProviderImpl implements DemarchesDataProvider {
 	}
 
 	@Override
-	public List<String> getStatutsFinauxPourAnnulationCauseDesinscription() {
-		// TODO Auto-generated method stub
+	public StatutSimplifieEnum getStatutSimplifie(String statut) {
 		return null;
 	}
 

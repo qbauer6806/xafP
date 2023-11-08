@@ -1,8 +1,12 @@
 package mc.gouv.xaf.back.service.data.impl;
 
-import java.util.Optional;
-
+import mc.gouv.xaf.back.data.dao.DemarchesRepository;
+import mc.gouv.xaf.back.data.entity.DemarchesBO;
+import mc.gouv.xaf.back.data.transformer.DemarchesTransformer;
+import mc.gouv.xaf.back.exception.DemarchesServiceException;
+import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.shared.SharedMessages;
+import mc.gouv.xaf.shared.dto.DemarcheDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,12 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import mc.gouv.xaf.back.data.dao.DemarchesRepository;
-import mc.gouv.xaf.back.data.entity.DemarchesBO;
-import mc.gouv.xaf.back.data.transformer.DemarchesTransformer;
-import mc.gouv.xaf.back.exception.DemarchesServiceException;
-import mc.gouv.xaf.back.service.data.DemarchesService;
-import mc.gouv.xaf.shared.dto.DemarcheDTO;
+import java.util.Optional;
 
 /**
  * Service permettant la manipulation des démarches.
@@ -41,11 +40,8 @@ public class DemarchesServiceImpl implements DemarchesService {
 
     @Override
     public DemarcheDTO updateDemarche(DemarcheDTO demarche) {
-        DemarchesBO demarcheBo = getCheckDemarche(demarche.getPkDemarches());
-
         LOGGER.info("Mise à jour de la démarche...");
-
-        demarcheBo = DemarchesTransformer.dto2Bo(demarche);
+        DemarchesBO demarcheBo = DemarchesTransformer.dto2Bo(demarche);
         demarcheBo = demarchesRepository.save(demarcheBo);
 
         LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);

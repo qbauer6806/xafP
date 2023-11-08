@@ -2,16 +2,19 @@ package mc.gouv.xaf.shared.dto;
 
 import mc.gouv.xaf.shared.dto.es.GenericContenuDTO;
 
-public class DemandeExcelFlatDTO {
+public class AfDemandeExcelFlatDTO {
 
-    public DemandeExcelFlatDTO(DemandeFlatDTO generic, GenericContenuDTO contenu) {
+    public AfDemandeExcelFlatDTO() {
+    }
+
+    public AfDemandeExcelFlatDTO(DemandeFlatDTO generic, GenericContenuDTO contenu) {
         this.generic = generic;
         this.contenu = contenu;
     }
 
-    private DemandeFlatDTO generic;
+    protected DemandeFlatDTO generic;
 
-    private GenericContenuDTO contenu;
+    protected GenericContenuDTO contenu;
 
     private String etatInterne;
 

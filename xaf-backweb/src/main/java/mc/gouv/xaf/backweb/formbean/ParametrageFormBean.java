@@ -15,8 +15,15 @@ public class ParametrageFormBean {
     private String emailFrom;
     
     private String emailFromNom;
-    
     private String identifiantPrefixe;
+
+	private String nomDirection;
+
+	private String nomDirectionComplement;
+
+	private String nomFooter;
+
+	private String adresseService;
     
     private boolean langueFr;
     
@@ -111,5 +118,36 @@ public class ParametrageFormBean {
 	public void setLangueIt(boolean langueIt) {
 		this.langueIt = langueIt;
 	}
-	
+
+	public String getNomDirection() {
+		return nomDirection;
+	}
+
+	public void setNomDirection(String nomDirection) {
+		this.nomDirection = nomDirection;
+	}
+
+	public String getNomDirectionComplement() {
+		return nomDirectionComplement;
+	}
+
+	public void setNomDirectionComplement(String nomDirectionComplement) {
+		this.nomDirectionComplement = nomDirectionComplement;
+	}
+
+	public String getNomFooter() {
+		return nomFooter;
+	}
+
+	public void setNomFooter(String nomFooter) {
+		this.nomFooter = nomFooter;
+	}
+
+	public String getAdresseService() {
+		return adresseService;
+	}
+
+	public void setAdresseService(String adresseService) {
+		this.adresseService = adresseService;
+	}
 }

@@ -1,24 +1,22 @@
 package mc.gouv.xaf.back.pdf;
 
-import java.awt.Color;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Component;
-
 import com.lowagie.text.Font;
 import com.lowagie.text.FontFactory;
 import com.lowagie.text.pdf.BaseFont;
-
 import fr.opensagres.poi.xwpf.converter.pdf.PdfOptions;
 import fr.opensagres.xdocreport.itext.extension.font.IFontProvider;
 import mc.gouv.xaf.back.service.pdf.PdfTemplateAndModelProvider;
 import mc.gouv.xaf.back.service.pdf.PdfTypeEnum;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.PdfTemplateAndModelDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Component;
+
+import java.awt.Color;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 @Profile("test")
@@ -108,4 +106,15 @@ public class PdfTemplateAndModelProviderImpl implements PdfTemplateAndModelProvi
 
         return pdfOptions;
     }
+
+    @Override
+    public Map<String, Object> getGenericModelDemande(DemandeDTO demande, String codeMotif, String commentaire, String texteAEnvoyer) {
+        return null;
+    }
+
+    @Override
+    public Map<String, Object> getGenericModel() {
+        return null;
+    }
+
 }

@@ -9,9 +9,9 @@ import mc.gouv.xaf.back.service.GouvSchedulerService;
 import mc.gouv.xaf.back.service.data.DemandesCourriersService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
-import mc.gouv.xaf.back.service.data.TachesService;
 import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
+import mc.gouv.xaf.back.service.itg.mail.MailTemplateModelProvider;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
@@ -35,7 +35,6 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -85,7 +84,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
     private MessageSource messageSource;
 
     @Autowired
-    private TachesService tachesService;
+    private MailTemplateModelProvider mailTemplateModelProvider;
 
     public void purgerDemandesDansStatuts(List<String> statuts, int jours) throws JsonProcessingException {
         String demarcheId = gouvPropertiesResolver.getDemarcheId();
@@ -112,7 +111,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
             } else if (statuts.contains(demandeDTO.getDernierStatut().getLibelle()) && diff == jours - Long.parseLong(delaiEnvoiEmailProp.getValue())) {
                 // L'envois des emails se fait 15 jours avant la supression effective de la demande
                 // Envois des emails aux usagers
-                envoisMailUsagerPurge(demandeDTO.getIdentifiant(), demandeDTO, delaiEnvoiEmailProp.getValue());
+                envoisMailUsagerPurge(demandeDTO, delaiEnvoiEmailProp.getValue());
 
 				// Ajout à la liste des demandes à envoyer
 				demandesAPurger.append("- ").append(demandeDTO.getIdentifiant()).append(" - ").append(demandeDTO.getDernierStatut().getLibelle()).append("<br/>");
@@ -130,7 +129,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 		LOGGER.info("Fin purge des demandes, {} demande(s) supprimée(s)...", demandesSuppr);
 	}
 
-    private void envoisMailUsagerPurge(String identifiant, DemandeDTO demandeDTO, String delai) {
+    private void envoisMailUsagerPurge(DemandeDTO demandeDTO, String delai) {
 		final String subjectTemplateCode = "MAIL_PURGE_DEMANDES_POUR_USAGER_OBJET";
 		final String bodyTemplateCode = "MAIL_PURGE_DEMANDES_POUR_USAGER_CORPS";
 
@@ -156,13 +155,10 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
         }
 		
 		emailInfoDTO.addTo(usager.getEmail(), prenom + " " + nom);
-		Map<String,Object> model = new HashMap<>();
-        model.put("identifiant", identifiant);
-        model.put("pkDemande", demandeDTO.getPkDemandes());
+		Map<String,Object> model = mailTemplateModelProvider.getGenericModelDemande(demandeDTO);
         model.put("delai", delai);
         String titre = messageSource.getMessage("civilite." + usager.getTitre(), null, new Locale(demandeDTO.getLangue()));
         model.put("titre", titre);
-        model.put("urlFront", gouvPropertiesResolver.getFrontUrl());
 
         try {
             mailService.sendMail(emailInfoDTO, model);
@@ -179,7 +175,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 		EmailInfoDTO emailInfoDTO = creationMailPurge(bodyTemplateCode, subjectTemplateCode, "fr");
 		emailInfoDTO.addTo(afBackUtils.getDemarcheInfos().getEmailService(), afBackUtils.getDemarcheInfos()
 				.getEmailServiceNom());
-		Map<String,Object> model = new HashMap<>();
+		Map<String,Object> model = mailTemplateModelProvider.getGenericModel();
 		model.put("demandes", demandesAPurger);
 		model.put("delai", delai);
 

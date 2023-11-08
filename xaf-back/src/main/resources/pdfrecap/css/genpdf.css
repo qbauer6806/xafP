@@ -11,22 +11,52 @@
 	}
 }
 
+#pageHeader, #pageFooter {
+	margin-left: 50px;
+	margin-right: 50px;
+}
+
+#nomDirection, #adresseService, #nomDirectionComplement, #nomFooter {
+	width:350px;
+}
+
 #pageHeader {
 	position: running(pageHeader);
-	width: 700px;
-	height: 60px;
-	padding-top: 20px;
+}
+
+#imgLogo {
+	width:230px;
+}
+
+#nomDirection {
+	font-size: 16px;
+	float: right;
+	text-align: right;
+	margin-top: 15px;
+}
+
+#nomDirectionComplement {
+	font-size: 12px;
+	float: right;
+	font-style: italic;
+	text-align: right;
+	margin-top: -10px;
 }
 
 #pageFooter {
 	position: running(pageFooter);
-	width: 700px;
-	height: 80px;
+	color: rgb(127,127,127);
 }
 
-#pageHeader>img, #pageFooter>img {
-	max-width: 100%;
-	height: auto;
+#adresseService {
+	font-size: 10px;
+	float: left;
+}
+
+#nomFooter {
+	font-size: 12px;
+	float: right;
+	text-align: right;
 }
 
 /* CSS pour ajouter une font

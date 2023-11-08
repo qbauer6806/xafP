@@ -30,6 +30,11 @@ public class DemarcheDTO {
     
     private String langues;
 
+    private String nomDirection;
+    private String nomDirectionComplement;
+    private String nomFooter;
+    private String adresseService;
+
     public String getPkDemarches() {
         return pkDemarches;
     }
@@ -117,5 +122,36 @@ public class DemarcheDTO {
 	public void setNomEn(String nomEn) {
 		this.nomEn = nomEn;
 	}
-    
+
+    public String getNomDirection() {
+        return nomDirection;
+    }
+
+    public void setNomDirection(String nomDirection) {
+        this.nomDirection = nomDirection;
+    }
+
+    public String getNomDirectionComplement() {
+        return nomDirectionComplement;
+    }
+
+    public void setNomDirectionComplement(String nomDirectionComplement) {
+        this.nomDirectionComplement = nomDirectionComplement;
+    }
+
+    public String getAdresseService() {
+        return adresseService;
+    }
+
+    public void setAdresseService(String adresseService) {
+        this.adresseService = adresseService;
+    }
+
+    public String getNomFooter() {
+        return nomFooter;
+    }
+
+    public void setNomFooter(String nomFooter) {
+        this.nomFooter = nomFooter;
+    }
 }

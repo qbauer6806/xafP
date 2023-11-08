@@ -1,10 +1,10 @@
 package mc.gouv.xaf.back.data.transformer;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import mc.gouv.xaf.back.data.entity.DemarchesBO;
 import mc.gouv.xaf.shared.dto.DemarcheDTO;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 
@@ -27,6 +27,10 @@ public class DemarchesTransformer {
         dto.setEmailReplytoNom(bo.getEmailReplytoNom());
         dto.setEmailFrom(bo.getEmailFrom());
         dto.setEmailFromNom(bo.getEmailFromNom());
+        dto.setNomDirection(bo.getNomDirection());
+        dto.setNomDirectionComplement(bo.getNomDirectionComplement());
+        dto.setNomFooter(bo.getNomFooter());
+        dto.setAdresseService(bo.getAdresseService());
         dto.setIdentifiantPrefixe(bo.getIdentifiantPrefixe());
         dto.setLangues(bo.getLangues());
         return dto;
@@ -43,6 +47,10 @@ public class DemarchesTransformer {
         bo.setEmailReplytoNom(dto.getEmailReplytoNom());
         bo.setEmailFrom(dto.getEmailFrom());
         bo.setEmailFromNom(dto.getEmailFromNom());
+        bo.setNomDirection(dto.getNomDirection());
+        bo.setNomDirectionComplement(dto.getNomDirectionComplement());
+        bo.setNomFooter(dto.getNomFooter());
+        bo.setAdresseService(dto.getAdresseService());
         bo.setIdentifiantPrefixe(dto.getIdentifiantPrefixe());
         bo.setLangues(dto.getLangues());
         return bo;

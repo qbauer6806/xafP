@@ -27,7 +27,7 @@ import java.net.URISyntaxException;
 
 public class DocHolderToFileServlet extends AbstractAfServlet {
     private static final long serialVersionUID = -314577095316396789L;
-    private static final Logger LOGGER = LoggerFactory.getLogger(DocHolderFileServlet.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DocHolderToFileServlet.class);
 
     /**
      * Méthode qui permet de transférer un fichier du porte-document à FILE

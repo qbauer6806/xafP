@@ -211,7 +211,7 @@ public class DocHolderFileServlet extends AbstractAfServlet {
         serviceRequest.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + usagerInfosDTO.getTokenInfo().getAccessToken());
 
         try {
-            StringEntity entity = new StringEntity(mapper.writeValueAsString(Map.of(FILENAME, URLEncoder.encode(fileDTO.getFilename(), StandardCharsets.UTF_8))));
+            StringEntity entity = new StringEntity(mapper.writeValueAsString(Map.of(FILENAME, fileDTO.getFilename())), StandardCharsets.UTF_8);
             serviceRequest.setEntity(entity);
             serviceRequest.setHeader(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.toString());
 

@@ -879,7 +879,6 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
         NativeSearchQuery query = nativeSearchQueryBuilder.build();
         SearchHits<DemandeEsRechercheDTO> searchHits = elasticsearchTemplate.search(query, DemandeEsRechercheDTO.class);
-        LOGGER.info("DEMANDES : {}", searchHits);
         return aggregateResults(searchHits, pageable);
     }
 
@@ -901,7 +900,6 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
         List<DemandeEsRechercheDTO> demandesEsList = new ArrayList<>();
         for (SearchHit<DemandeEsRechercheDTO> searchHit : searchHits) {
             DemandeEsRechercheDTO demandeEsRechercheDTO = searchHit.getContent();
-            LOGGER.info("ID demande en cours {} : {}", demandeEsRechercheDTO.getIdentifiant(), demandeEsRechercheDTO);
             Map<String, List<String>> highlightFields = searchHit.getHighlightFields();
             Map<String, String> demEsHighlightFields = new HashMap<>();
             updateHighLightedFieldList(highlightFields, demEsHighlightFields, false, false, false);

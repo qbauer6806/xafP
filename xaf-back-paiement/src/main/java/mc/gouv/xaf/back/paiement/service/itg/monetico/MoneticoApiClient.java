@@ -133,25 +133,27 @@ public class MoneticoApiClient implements PaiementApiClient {
         for (String s : responseString.split("\n")) {
             String[] keyValue = s.split("=");
 
-            switch (keyValue[0]) {
-                case CDR: // cdr = Code retour indiquant le résultat de la capture
-                    operation.setCodeRetour(keyValue[1]);
-                    if (UN.equals(keyValue[1])) {
-                        operation.setOperationStatut(OperationStatutEnum.ACCEPTEE.name());
-                    } else if (ZERO.equals(keyValue[1])) {
-                        operation.setOperationStatut(OperationStatutEnum.REFUSEE.name());
-                    } else {
-                        operation.setOperationStatut(OperationStatutEnum.ERREUR.name());
-                    }
-                    break;
-                case AUT: // aut = Numéro d’autorisation du paiement si celui-ci a été accepté
-                    operation.setNumeroAutorisation(keyValue[1]);
-                    break;
-                case LIB: // lib = Libellé détaillé précisant la nature du code retour
-                    operation.setLibelle(keyValue[1]);
-                    break;
-                default:
-                    LOGGER.info("Clé de paramètre inconnue : {}", keyValue[0]);
+            if (keyValue.length == 2) {
+                switch (keyValue[0]) {
+                    case CDR: // cdr = Code retour indiquant le résultat de la capture
+                        operation.setCodeRetour(keyValue[1]);
+                        if (UN.equals(keyValue[1])) {
+                            operation.setOperationStatut(OperationStatutEnum.ACCEPTEE.name());
+                        } else if (ZERO.equals(keyValue[1])) {
+                            operation.setOperationStatut(OperationStatutEnum.REFUSEE.name());
+                        } else {
+                            operation.setOperationStatut(OperationStatutEnum.ERREUR.name());
+                        }
+                        break;
+                    case AUT: // aut = Numéro d’autorisation du paiement si celui-ci a été accepté
+                        operation.setNumeroAutorisation(keyValue[1]);
+                        break;
+                    case LIB: // lib = Libellé détaillé précisant la nature du code retour
+                        operation.setLibelle(keyValue[1]);
+                        break;
+                    default:
+                        LOGGER.info("Clé de paramètre inconnue : {}", keyValue[0]);
+                }
             }
         }
         if(StringUtils.equals(UN, operation.getCodeRetour()) && StringUtils.isBlank(operation.getNumeroAutorisation())){

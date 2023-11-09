@@ -134,7 +134,7 @@
 		            const contentDisposition = xhr.getResponseHeader('content-disposition');
 		            const filename = /filename=([^;]*)/.exec(contentDisposition)[1];
 		            const link = document.createElement("a");
-		            link.href = window.URL.createObjectURL(xhr.response);
+		            link.href = url;
 		            link.download = filename.split('"').join('');
 		            link.style.display = 'block';
 		            link.click();

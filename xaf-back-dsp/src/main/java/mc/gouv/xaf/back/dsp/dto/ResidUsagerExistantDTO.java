@@ -26,7 +26,6 @@ public class ResidUsagerExistantDTO implements Serializable {
 
     private ResidLogementDTO logement;
 
-    @JsonInclude()
     private ResidHebergeantDTO hebergeant;
 
     private ResidMoyensExistenceDTO moyensExistence;

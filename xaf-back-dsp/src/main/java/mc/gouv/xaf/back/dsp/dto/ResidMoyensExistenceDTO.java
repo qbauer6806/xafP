@@ -3,9 +3,11 @@ package mc.gouv.xaf.back.dsp.dto;
 import java.io.Serializable;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import mc.gouv.xaf.back.dsp.enums.common.ResidSituationEnum;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ResidMoyensExistenceDTO implements Serializable {
 

@@ -84,6 +84,10 @@ public class AccessesServlet extends AbstractAfServlet {
             AccessInputDTO accessInput = mapper.readValue(buffer.toString(), AccessInputDTO.class);
             LOGGER.info("Appel à la démarche pour créer l'accès...");
             AccessDTO access = getAfApiClient().createOrUpdateAccess(usagerInfosDTO.getId(), accessInput);
+            LOGGER.info("Incorporer l'AccessID dans la session pour protéger les appels à FILE... accessId={}", access.getPkAccess());
+            HttpSession session = request.getSession();
+            usagerInfosDTO.setAccessId(access.getPkAccess());
+            session.setAttribute("login", usagerInfosDTO);
 
             String repJson = mapper.writeValueAsString(access);
             response.setContentType(MediaType.APPLICATION_JSON);

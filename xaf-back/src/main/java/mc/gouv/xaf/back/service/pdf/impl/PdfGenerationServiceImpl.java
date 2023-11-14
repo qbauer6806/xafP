@@ -22,6 +22,7 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.PdfTemplateAndModelDTO;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.tika.Tika;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,7 +85,10 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 
 		LOGGER.info("PdfGenerationServiceImpl.generateAndStorePdf({}, {})", demande.getPkDemandes(), pdfType);
 
+		Tika tika = new Tika();
+		long fileSizebytes = tempFile.length();
 		String fileName = tempFile.getName();
+		String mimetype = tika.detect(tempFile);
 
 		String url = fileService.sendToFile(tempFile, demande, fileName);
 
@@ -95,6 +99,10 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 		} catch (IOException e) {
 			LOGGER.warn("La suppression du fichier temporaire a échoué", e);
 		}
+
+		// Ajout des données concernant le fichier généré aux métas
+		meta += ";SIZE_" + fileSizebytes;
+		meta += ";TYPE_" + mimetype;
 
 		if (pdfType == PdfTypeEnum.FICHIER) {
 			saveFichier(fileName, url, demande, meta);

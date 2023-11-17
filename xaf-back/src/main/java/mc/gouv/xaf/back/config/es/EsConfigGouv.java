@@ -14,12 +14,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.data.convert.ReadingConverter;
+import org.springframework.data.convert.WritingConverter;
 import org.springframework.data.elasticsearch.config.AbstractElasticsearchConfiguration;
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -78,4 +83,28 @@ public class EsConfigGouv extends AbstractElasticsearchConfiguration {
         return new RestHighLevelClient(builder);
     }
 
+    @WritingConverter
+    public enum DateToStringConverter implements Converter<Date, String> {
+        INSTANCE;
+        @Override
+        public String convert(Date date) {
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+            return formatter.format(date);
+        }
+    }
+
+    @ReadingConverter
+    public enum StringToDateConverter implements Converter<String, Date> {
+        INSTANCE;
+        @Override
+        public Date convert(String date) {
+            try {
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+                return formatter.parse(date);
+            } catch (Exception e) {
+                LOGGER.warn("StringToDateConverter exception. Impossible de parser la date {}", date, e);
+                return null;
+            }
+        }
+    }
 }

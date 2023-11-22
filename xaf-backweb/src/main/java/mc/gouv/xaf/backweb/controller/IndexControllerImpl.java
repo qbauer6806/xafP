@@ -8,13 +8,11 @@ public class IndexControllerImpl implements IndexControllerInterface {
 
 	@Override
 	public ModelAndView form() {
-		System.out.println("xaff");
 		return new ModelAndView("redirect:/index");
 	}
 
 	@Override
 	public ModelAndView formIndex() {
-		System.out.println("xaff");
 		return new ModelAndView("index");
 	}
 

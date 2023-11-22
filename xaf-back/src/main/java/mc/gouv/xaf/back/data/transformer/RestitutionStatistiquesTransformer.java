@@ -18,12 +18,6 @@ public class RestitutionStatistiquesTransformer {
         dto.setHttpCode(bo.getHttpCode());
         dto.setMessage(bo.getMessage());
         dto.setDate(bo.getDate());
-        dto.setNom(bo.getNom());
-        dto.setPrenoms(bo.getPrenoms());
-        dto.setDateNaissance(bo.getDateNaissance());
-        dto.setHeureNaissance(bo.getHeureNaissance());
-        dto.setVilleNaissance(bo.getVilleNaissance());
-        dto.setPaysNaissance(bo.getPaysNaissance());
         return dto;
     }
     
@@ -37,12 +31,6 @@ public class RestitutionStatistiquesTransformer {
         bo.setHttpCode(dto.getHttpCode());
         bo.setMessage(dto.getMessage());
         bo.setDate(dto.getDate());
-        bo.setNom(dto.getNom());
-        bo.setPrenoms(dto.getPrenoms());
-        bo.setDateNaissance(dto.getDateNaissance());
-        bo.setHeureNaissance(dto.getHeureNaissance());
-        bo.setVilleNaissance(dto.getVilleNaissance());
-        bo.setPaysNaissance(dto.getPaysNaissance());
         return bo;
     }
     

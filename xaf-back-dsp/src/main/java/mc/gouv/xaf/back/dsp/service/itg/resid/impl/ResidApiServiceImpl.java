@@ -6,8 +6,10 @@ import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +30,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -47,10 +50,12 @@ import mc.gouv.xaf.back.dsp.service.itg.resid.ResidApiService;
 import mc.gouv.xaf.back.dsp.service.itg.resid.ResidErrorResponseErrorHandler;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.PropertiesService;
+import mc.gouv.xaf.back.service.data.RestitutionStatistiquesService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.utils.FileUtils;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
+import mc.gouv.xaf.shared.dto.RestitutionStatistiquesDTO;
 
 @Component
 public class ResidApiServiceImpl implements ResidApiService {
@@ -82,6 +87,9 @@ public class ResidApiServiceImpl implements ResidApiService {
 
 	@Autowired
 	private RestTemplateBuilder restTemplateBuilder;
+	
+	@Autowired
+	private RestitutionStatistiquesService restitutionStatsService;
 
 
 	@Override
@@ -412,9 +420,25 @@ public class ResidApiServiceImpl implements ResidApiService {
 	
 	@Override
 	public ResidUsagerNpdhlDTO getUsagerDln1f(String nom, String prenom, String dateNaissance, String heureNaissance,
-			String villeNaissance, String paysNaissance, String url, String jwt) {
+			String villeNaissance, String paysNaissance, String url, String jwt) throws IOException {
 		LOGGER.info("Appel à l'API RESID v2 pour demander l'usager correspondant");
-		RestTemplate rest = new RestTemplate();
+		RestTemplate rest = restTemplateBuilder.errorHandler(new ResidErrorResponseErrorHandler()).build();
+//		rest.getMessageConverters().add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
+//
+//		String requestUrl = residUrl + entryPoint;
+//		URI uri = UriComponentsBuilder.fromHttpUrl(requestUrl).build().encode().toUri();
+//
+//		ObjectMapper mapper = new ObjectMapper();
+//		LOGGER.debug("-- Appel RESID submit nouvelle carte");
+//		LOGGER.debug(URL_LOG, HttpMethod.POST, uri.toURL());
+//		LOGGER.debug(HEADERS_LOG, headers);
+//		String body = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(residObject);
+//		LOGGER.debug("Body: {}", body);
+//
+//		ResponseEntity<Y> responseEntity = rest.exchange(uri, HttpMethod.POST, requestEntity, type);
+//
+//        // RESID Appel de l'API
+//        LOGGER.info("Fin appel RESID");
 		rest.getMessageConverters().add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
 		HttpHeaders headers = getResidRequestHeaders(jwt);
 
@@ -431,16 +455,33 @@ public class ResidApiServiceImpl implements ResidApiService {
 		LOGGER.debug("-- Appel RESID Get usager v2");
 		LOGGER.debug(URL_LOG, HttpMethod.GET, uri);
 		LOGGER.debug(HEADERS_LOG, headers);
+		ResidUsagerNpdhlDTO result = new ResidUsagerNpdhlDTO();
 
-		ResponseEntity<ResidUsagerNpdhlDTO> responseEntity = rest.exchange(uri,
-				HttpMethod.GET, requestEntity, new ParameterizedTypeReference<ResidUsagerNpdhlDTO>(){});
-
-		LOGGER.info("Fin appel RESID");
-
-		if (!HttpStatus.OK.equals(responseEntity.getStatusCode())) {
-			return null;
+		try {
+			result = rest.exchange(uri,
+					HttpMethod.GET, requestEntity, new ParameterizedTypeReference<ResidUsagerNpdhlDTO>(){}).getBody();
 		}
-
-		return responseEntity.getBody();
+		catch (IOException e) {
+			if (e.getCause() instanceof ResidHttpResponseException) {
+				LOGGER.info("Erreur lors de l'appel à RESID Get usager v2");
+				ResidHttpResponseException residException = (ResidHttpResponseException) e.getCause();
+				RestitutionStatistiquesDTO statsAStocker = new RestitutionStatistiquesDTO();
+				// Stockage des infos de la requete
+				statsAStocker.setHttpCode(residException.getHttpStatus());
+				statsAStocker.setMessage(residException.getMessage());
+				statsAStocker.setDate(new Date());
+				// Stockage des infos usager Mconnect
+				statsAStocker.setDateNaissance(dateNaissance);
+				statsAStocker.setHeureNaissance(heureNaissance);
+				statsAStocker.setNom(nom);
+				statsAStocker.setPrenoms(prenom);
+				statsAStocker.setVilleNaissance(villeNaissance);
+				statsAStocker.setPaysNaissance(paysNaissance);
+				restitutionStatsService.saveRestitutionStatistique(statsAStocker);
+				return null;
+			}
+		}
+		LOGGER.info("Fin appel RESID");
+		return result;
 	}
 }

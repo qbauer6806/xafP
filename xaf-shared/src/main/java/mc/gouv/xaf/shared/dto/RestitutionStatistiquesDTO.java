@@ -2,6 +2,8 @@ package mc.gouv.xaf.shared.dto;
 
 import java.util.Date;
 
+import javax.persistence.Column;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
@@ -19,8 +21,68 @@ public class RestitutionStatistiquesDTO {
     private String message;
 
     private Date date;
+    
+    private String nom;
+    
+    private String prenoms;
+    
+    private String dateNaissance;
+    
+    private String heureNaissance;
+    
+    private String villeNaissance;
+    
+    private String paysNaissance;
 
-    public Integer getPkStatistique() {
+    public String getNom() {
+		return nom;
+	}
+
+	public void setNom(String nom) {
+		this.nom = nom;
+	}
+
+	public String getPrenoms() {
+		return prenoms;
+	}
+
+	public void setPrenoms(String prenoms) {
+		this.prenoms = prenoms;
+	}
+
+	public String getDateNaissance() {
+		return dateNaissance;
+	}
+
+	public void setDateNaissance(String dateNaissance) {
+		this.dateNaissance = dateNaissance;
+	}
+
+	public String getHeureNaissance() {
+		return heureNaissance;
+	}
+
+	public void setHeureNaissance(String heureNaissance) {
+		this.heureNaissance = heureNaissance;
+	}
+
+	public String getVilleNaissance() {
+		return villeNaissance;
+	}
+
+	public void setVilleNaissance(String villeNaissance) {
+		this.villeNaissance = villeNaissance;
+	}
+
+	public String getPaysNaissance() {
+		return paysNaissance;
+	}
+
+	public void setPaysNaissance(String paysNaissance) {
+		this.paysNaissance = paysNaissance;
+	}
+
+	public Integer getPkStatistique() {
 		return pkStatistique;
 	}
 

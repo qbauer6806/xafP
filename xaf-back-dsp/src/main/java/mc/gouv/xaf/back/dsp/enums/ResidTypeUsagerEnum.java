@@ -5,7 +5,7 @@ public enum ResidTypeUsagerEnum {
     UsagerNouveau("UsagerNouveau"),
     UsagerExistant ("UsagerExistant");
 
-    public String value;
+    String value;
 
     ResidTypeUsagerEnum(String value) {
         this.value = value;

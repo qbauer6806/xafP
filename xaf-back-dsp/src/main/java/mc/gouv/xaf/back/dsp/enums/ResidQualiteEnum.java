@@ -13,7 +13,7 @@ public enum ResidQualiteEnum {
     PROPRIETAIRE("PROPRIETAIRE"),
     USUFRUITIER("USUFRUITIER");
 
-    public String value;
+    String value;
 
     ResidQualiteEnum(String value) {
         this.value = value;

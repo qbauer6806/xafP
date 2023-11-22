@@ -9,7 +9,7 @@ public enum ResidLoyerPeriodiciteEnum {
     ANNUEL("ANNUEL"),
     AUCUNE("AUCUNE");
 
-    public String value;
+    String value;
 
     ResidLoyerPeriodiciteEnum(String value) {
         this.value = value;

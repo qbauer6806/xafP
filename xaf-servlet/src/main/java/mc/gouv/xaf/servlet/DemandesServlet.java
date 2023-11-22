@@ -177,7 +177,7 @@ public class DemandesServlet extends AbstractAfServlet {
             if (repJson != null) {
                 IOUtils.copy(new ByteArrayInputStream(repJson.getBytes()), response.getOutputStream());
             }
-        } catch (IOException e) {
+        } catch (IOException | IllegalArgumentException e) {
             AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_INTERNAL_SERVER_ERROR,
                     "DemandesServlet - Une erreur est survenue lors de l'appel à la méthode " + httpMethod.name());
         }

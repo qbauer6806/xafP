@@ -6,7 +6,7 @@ public enum ResidMotifDuplicataEnum {
     PER("PER"),
     VOL("VOL");
 
-    public String value;
+    String value;
 
     ResidMotifDuplicataEnum(String value) {
         this.value = value;

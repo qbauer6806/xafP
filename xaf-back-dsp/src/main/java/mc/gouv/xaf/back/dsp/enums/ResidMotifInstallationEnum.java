@@ -11,7 +11,7 @@ public enum ResidMotifInstallationEnum {
     SANS_MOTIVATION_PRINCIPALE("SANS_MOTIVATION_PRINCIPALE"),
     A_DETERMINER("A_DETERMINER");
 
-    public String value;
+    String value;
 
     ResidMotifInstallationEnum(String value) {
         this.value = value;

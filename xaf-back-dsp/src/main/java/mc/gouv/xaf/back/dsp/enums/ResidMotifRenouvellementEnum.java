@@ -5,7 +5,7 @@ public enum ResidMotifRenouvellementEnum {
     CARTE_ECHUE("CARTE_ECHUE"),
     AUTRE("AUTRE");
 
-    public String value;
+    String value;
 
     ResidMotifRenouvellementEnum(String value) {
         this.value = value;

@@ -6,7 +6,7 @@ public enum ResidCiviliteEnum {
     MADAME("MADAME"),
     MADEMOISELLE("MADEMOISELLE");
 
-    public String value;
+    String value;
 
     ResidCiviliteEnum(String value) {
         this.value = value;

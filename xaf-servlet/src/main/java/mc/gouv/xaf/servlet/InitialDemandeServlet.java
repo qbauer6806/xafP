@@ -154,7 +154,7 @@ public class InitialDemandeServlet extends AbstractAfServlet {
         } catch (JsonProcessingException e) {
             response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
             LOGGER.error("JsonProcessingException. Impossible de recuperer les donnees externes", e);
-        } catch (IOException e) {
+        } catch (IOException | IllegalArgumentException e) {
             response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
             LOGGER.error("IOException. Impossible de recuperer les donnees externes", e);
         }

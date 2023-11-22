@@ -5,7 +5,7 @@ public enum ResidDemandeurTypeEnum {
     RES("RES"),
     AUT("AUT");
 
-    public String value;
+    String value;
 
     ResidDemandeurTypeEnum(String value) {
         this.value = value;

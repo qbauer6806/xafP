@@ -12,7 +12,7 @@ public enum ResidEtatEnum {
     REF("REF"),
     REN("REN");
 
-    public String value;
+    String value;
 
     ResidEtatEnum(String value) {
         this.value = value;

@@ -6,7 +6,7 @@ public enum ResidNatureLienEnum {
     EPO("EPO"),
     XPO("XPO");
 
-    public String value;
+    String value;
 
     ResidNatureLienEnum(String value) {
         this.value = value;

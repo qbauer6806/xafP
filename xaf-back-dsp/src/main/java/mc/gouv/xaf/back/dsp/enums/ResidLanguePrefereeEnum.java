@@ -5,7 +5,7 @@ public enum ResidLanguePrefereeEnum {
     FRA("FRA"),
     ENG("ENG");
 
-    public String value;
+    String value;
 
     ResidLanguePrefereeEnum(String value) {
         this.value = value;

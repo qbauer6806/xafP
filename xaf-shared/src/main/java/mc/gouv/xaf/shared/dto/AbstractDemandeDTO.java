@@ -5,10 +5,16 @@ import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
+import java.io.Serializable;
 
-public class AbstractDemandeDTO {
+public class AbstractDemandeDTO implements Serializable {
 
-    public static final String OBSERVATION_FIELD_NAME = "observations";
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 4591114018832121128L;
+	
+	public static final String OBSERVATION_FIELD_NAME = "observations";
     public static final String COURRIER_REF_INTERNE_FIELD_NAME = "courrierRefInterne";
     public static final String DEMARCHE_ID_FIELD_NAME = "demarcheId";
     public static final String USAGER_ID_FIELD_NAME = "usagerId";

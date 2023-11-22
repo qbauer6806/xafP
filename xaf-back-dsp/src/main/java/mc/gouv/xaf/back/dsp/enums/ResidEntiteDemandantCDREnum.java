@@ -12,7 +12,7 @@ public enum ResidEntiteDemandantCDREnum {
     BANQUE_MONACO("BANQUE_MONACO"),
     BANQUE_ETRANGER("BANQUE_ETRANGER");
 
-    public String value;
+    String value;
 
     ResidEntiteDemandantCDREnum(String value) {
         this.value = value;

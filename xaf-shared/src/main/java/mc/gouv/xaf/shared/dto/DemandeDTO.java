@@ -15,7 +15,12 @@ import java.util.Arrays;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DemandeDTO extends AbstractDemandeDTO {
 
-    protected DemandeCanalEnum canal;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 877740374924793999L;
+	
+	protected DemandeCanalEnum canal;
     protected String creeParAgentId;
     protected DemandeCourrierDTO[] courriers;
     private Integer fkAccess;

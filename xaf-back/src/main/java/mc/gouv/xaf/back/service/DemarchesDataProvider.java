@@ -103,7 +103,6 @@ public interface DemarchesDataProvider {
     default List<String> getBuildIdsPourDuplication() {
         return new ArrayList<>();
     }
-    
     default List<String> getSpansIdAMarquer(DemandeDTO demande) {
     	return new ArrayList<>();
 	}

@@ -36,6 +36,8 @@ public class AppFactoryServletUtils {
 
     public static final String FILE_METADATA_DEMANDEID = "X-MC-DEMANDEID";
 
+    public static final String FILE_METADATA_TYPEMODELE = "X-MC-TypeModele";
+
     public static final String FILE_METADATA_SCANEXECUTE = "X-MC-SCANEXECUTE";
 
     public static final String XSRF_COOKIE = "XSRF-TOKEN";

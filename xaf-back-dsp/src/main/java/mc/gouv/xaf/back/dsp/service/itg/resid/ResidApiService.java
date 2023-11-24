@@ -30,5 +30,5 @@ public interface ResidApiService {
 
     List<ResidResidentCorrespondanceDTO> getListResidCorrespondance(String numeroCarte, String url, String jwt);
     
-    ResidUsagerNpdhlDTO getUsagerDln1f(String nom, String prenom, String dateNaissance, String heureNaissance, String villeNaissance, String paysNaissance, String url, String jwt);
+    ResidUsagerNpdhlDTO getUsagerDln1f(String nom, String prenom, String dateNaissance, String heureNaissance, String villeNaissance, String paysNaissance, String url, String jwt, Integer usagerId);
 }

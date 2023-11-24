@@ -226,7 +226,7 @@ public abstract class AbstractAfApiController implements AfApiController {
 
     @GetMapping(value = "/donneesexternes")
     public JsonNode getDonneesExternesRequest(HttpServletRequest request,
-            @RequestParam(value = "usagerId") Integer usagerId) throws JsonProcessingException {
+            @RequestParam(value = "usagerId") Integer usagerId) throws IOException {
         LOGGER.info("AbstractAfApiController.getDonneesExternesRequest()");
         return getDonneesExternes(usagerId, request.getParameterMap());
     }

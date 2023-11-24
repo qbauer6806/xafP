@@ -288,12 +288,18 @@ public class GouvPropertiesResolverTestImpl implements GouvPropertiesResolver {
     }
 
     @Override
+    public String getPorteDocUrl() {
+    	return null;
+    }
     public String getApiUlisMoyensGenerauxUrl() {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
+    public boolean isPorteDocEnabled() {
+        return false;
+    }
     public String getApiUlisTiersOrganisationUrl() {
         // TODO Auto-generated method stub
         return null;

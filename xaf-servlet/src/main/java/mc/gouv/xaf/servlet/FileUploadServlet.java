@@ -144,8 +144,7 @@ public class FileUploadServlet extends AbstractAfServlet {
             Integer accessId = access.getPkAccess();
             LOGGER.debug("AccessID = {}", accessId);
             if (accessId == null) {
-                AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_NOT_FOUND,
-                        "Erreur: impossible de récupérer l'accès");
+                AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_NOT_FOUND,"Erreur: impossible de récupérer l'accès");
                 return;
             }
 
@@ -313,8 +312,8 @@ public class FileUploadServlet extends AbstractAfServlet {
         if (statusCode == HttpServletResponse.SC_OK || statusCode == HttpServletResponse.SC_CREATED) {
             // Si tout s'est bien passé, alors on forme une réponse différente que celle qui nous est retournée par FILE
             ObjectMapper mapper = new ObjectMapper();
-            // Répondre accessId/uuid/nomDuFichier
-            FileUploadResponseDTO responseObj = new FileUploadResponseDTO(accessId + SLASH + uuid + SLASH + filename);
+            // Répondre /accessId/uuid/nomDuFichier
+            FileUploadResponseDTO responseObj = new FileUploadResponseDTO(SLASH + accessId + SLASH + uuid + SLASH + filename);
             String responseStr = mapper.writeValueAsString(responseObj);
             response.getOutputStream().write(responseStr.getBytes());
         } else {

@@ -6,6 +6,7 @@ import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.io.IOUtils;
@@ -47,10 +48,12 @@ import mc.gouv.xaf.back.dsp.service.itg.resid.ResidApiService;
 import mc.gouv.xaf.back.dsp.service.itg.resid.ResidErrorResponseErrorHandler;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.PropertiesService;
+import mc.gouv.xaf.back.service.data.RestitutionStatistiquesService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.utils.FileUtils;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
+import mc.gouv.xaf.shared.dto.RestitutionStatistiquesDTO;
 
 @Component
 public class ResidApiServiceImpl implements ResidApiService {
@@ -82,6 +85,9 @@ public class ResidApiServiceImpl implements ResidApiService {
 
 	@Autowired
 	private RestTemplateBuilder restTemplateBuilder;
+	
+	@Autowired 
+	private RestitutionStatistiquesService restitutionStatsService;
 
 
 	@Override
@@ -412,18 +418,15 @@ public class ResidApiServiceImpl implements ResidApiService {
 	
 	@Override
 	public ResidUsagerNpdhlDTO getUsagerDln1f(String nom, String prenom, String dateNaissance, String heureNaissance,
-			String villeNaissance, String paysNaissance, String url, String jwt) {
+			String villeNaissance, String paysNaissance, String url, String jwt, Integer usagerId) {
 		LOGGER.info("Appel à l'API RESID v2 pour demander l'usager correspondant");
-		RestTemplate rest = new RestTemplate();
+		RestTemplate rest = restTemplateBuilder.errorHandler(new ResidErrorResponseErrorHandler()).build();
 		rest.getMessageConverters().add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
 		HttpHeaders headers = getResidRequestHeaders(jwt);
 
-		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url + RESID_USAGERS_PATH)
-				.queryParam("nom", nom)
-				.queryParam("prenoms", prenom)
-				.queryParam("dateNaissance", dateNaissance)
-				.queryParam("heureNaissance", heureNaissance)
-				.queryParam("villeNaissance", villeNaissance)
+		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url + RESID_USAGERS_PATH).queryParam("nom", nom)
+				.queryParam("prenoms", prenom).queryParam("dateNaissance", dateNaissance)
+				.queryParam("heureNaissance", heureNaissance).queryParam("villeNaissance", villeNaissance)
 				.queryParam("paysNaissance", paysNaissance);
 		URI uri = builder.build().encode().toUri();
 
@@ -432,15 +435,31 @@ public class ResidApiServiceImpl implements ResidApiService {
 		LOGGER.debug(URL_LOG, HttpMethod.GET, uri);
 		LOGGER.debug(HEADERS_LOG, headers);
 
-		ResponseEntity<ResidUsagerNpdhlDTO> responseEntity = rest.exchange(uri,
-				HttpMethod.GET, requestEntity, new ParameterizedTypeReference<ResidUsagerNpdhlDTO>(){});
-
-		LOGGER.info("Fin appel RESID");
-
-		if (!HttpStatus.OK.equals(responseEntity.getStatusCode())) {
-			return null;
+		try {
+			ResponseEntity<ResidUsagerNpdhlDTO> responseEntity = rest.exchange(uri, HttpMethod.GET, requestEntity,
+					new ParameterizedTypeReference<ResidUsagerNpdhlDTO>() {
+					});
+			restitutionStatsService
+					.saveRestitutionStatistique(createStatsAStocker(HttpStatus.OK.value(), usagerId, ""));
+			return responseEntity.getBody();
+		} catch (Exception e) {
+			if (e.getCause() instanceof ResidHttpResponseException) {
+				ResidHttpResponseException residException = (ResidHttpResponseException) e.getCause();
+				restitutionStatsService.saveRestitutionStatistique(createStatsAStocker(residException.getHttpStatus(), usagerId, residException.getMessage()));
+			}
 		}
 
-		return responseEntity.getBody();
+		LOGGER.info("Fin appel RESID");
+		return null;
+
+	}
+
+	private RestitutionStatistiquesDTO createStatsAStocker(Integer httpCode, Integer usagerId, String message) {
+		RestitutionStatistiquesDTO statsAStocker = new RestitutionStatistiquesDTO();
+		statsAStocker.setDate(new Date());
+		statsAStocker.setHttpCode(httpCode);
+		statsAStocker.setUsagerId(usagerId);
+		statsAStocker.setMessage(message);
+		return statsAStocker;
 	}
 }

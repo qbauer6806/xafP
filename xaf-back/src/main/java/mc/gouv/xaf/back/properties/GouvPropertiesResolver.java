@@ -120,6 +120,10 @@ public interface GouvPropertiesResolver {
 
     boolean isPaiementEnabled();
 
+    String getPorteDocUrl();
+
+    boolean isPorteDocEnabled();
+    
     String getApiUlisMoyensGenerauxUrl();
 
     String getApiUlisTiersOrganisationUrl();

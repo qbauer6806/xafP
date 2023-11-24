@@ -18,12 +18,10 @@ public class ResidLogementDTO implements Serializable {
 
     private int nombrePieces;
 
-    @JsonInclude()
     private Integer surface;
 
-    private int loyer;
+    private Integer loyer;
 
-    @JsonInclude()
     private ResidLoyerPeriodiciteEnum loyerPeriodicite;
 
     @JsonInclude()
@@ -73,11 +71,11 @@ public class ResidLogementDTO implements Serializable {
         this.nombrePieces = nombrePieces;
     }
 
-    public int getLoyer() {
+    public Integer getLoyer() {
         return loyer;
     }
 
-    public void setLoyer(int loyer) {
+    public void setLoyer(Integer loyer) {
         this.loyer = loyer;
     }
 

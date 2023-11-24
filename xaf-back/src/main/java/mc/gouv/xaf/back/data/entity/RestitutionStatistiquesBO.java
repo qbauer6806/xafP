@@ -28,7 +28,7 @@ public class RestitutionStatistiquesBO {
     private Integer pkStatistique;
 
     @Column(name = "USAGER_ID", nullable = false)
-    private String usagerId;
+    private Integer usagerId;
     
     @Column(name = "HTTP_CODE", nullable = false)
     private Integer httpCode;
@@ -36,7 +36,7 @@ public class RestitutionStatistiquesBO {
     @Column(name = "MESSAGE", nullable = true)
     private String message;
 
-    @Column(name = "date", nullable = false)
+    @Column(name = "TIMESTAMP_APPEL", nullable = false)
     private Date date;
     
     public Integer getPkStatistique() {
@@ -47,11 +47,11 @@ public class RestitutionStatistiquesBO {
 		this.pkStatistique = pkStatistique;
 	}
 
-	public String getUsagerId() {
+	public Integer getUsagerId() {
 		return usagerId;
 	}
 
-	public void setUsagerId(String usagerId) {
+	public void setUsagerId(Integer usagerId) {
 		this.usagerId = usagerId;
 	}
 

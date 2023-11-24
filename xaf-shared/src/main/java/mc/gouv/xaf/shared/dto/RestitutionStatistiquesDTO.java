@@ -12,7 +12,7 @@ public class RestitutionStatistiquesDTO {
 
     private Integer pkStatistique;
 
-    private String usagerId;
+    private Integer usagerId;
 
     private Integer httpCode;
     
@@ -28,11 +28,11 @@ public class RestitutionStatistiquesDTO {
 		this.pkStatistique = pkStatistique;
 	}
 
-	public String getUsagerId() {
+	public Integer getUsagerId() {
 		return usagerId;
 	}
 
-	public void setUsagerId(String usagerId) {
+	public void setUsagerId(Integer usagerId) {
 		this.usagerId = usagerId;
 	}
 

@@ -9,21 +9,9 @@ import mc.gouv.xaf.shared.dto.StatistiqueDTO;
 public interface RestitutionStatistiquesService {
 
     /**
-     * @param statistiqueId id à supprimer
-     */
-    void deleteRestitutionStatistique(Integer statistiqueId);
-
-
-    /**
      * @param stat objet à sauvegarder
      * @return objet sauvegardé
      */
-    StatistiqueDTO saveRestitutionStatistique(RestitutionStatistiquesDTO restitutionStat);
-
-
-	/**
-	 * Supprimer les statistiques liées à un usager
-	 */
-	void deleteRestitutionStatistiques(Integer usagerId);
+    void saveRestitutionStatistique(RestitutionStatistiquesDTO restitutionStat);
 
 }

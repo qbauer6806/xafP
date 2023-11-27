@@ -66,17 +66,4 @@ public class ExcelExportServiceImpl implements ExcelExportService {
             LOGGER.error("Erreur lors de la génération Excel", e);
         }
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Cookie creerCookieTelechargement() {
-        Cookie telechargementCookie = new Cookie("exportEnCours", "0");
-        telechargementCookie.setMaxAge(60 * 2);
-        telechargementCookie.setSecure(true);
-        telechargementCookie.setPath("/");
-        return telechargementCookie;
-    }
-
 }

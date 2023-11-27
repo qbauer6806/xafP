@@ -68,6 +68,7 @@
                 </div>
                 <br />
                 <br />
+
                 <form id="export-form" style="display: inline;" action="*"
                       th:action="@{/ws/export/excel}" method="GET">
                     <div class="row" style="display: flex;align-items: center;justify-content: center;">
@@ -97,7 +98,7 @@
                     </div>
                     <div class="row">
                         <div class="col-xs-12" align="center">
-                            <input class="btn btn-action ripple-effect" id="print-button" type="submit" name="action" value="Export Excel des demandes"
+                            <input class="btn btn-action ripple-effect" id="print-button" type="button" name="action" value="Export Excel des demandes"
                                    style="margin-top: 20px;" />
                         </div>
                     </div>
@@ -114,49 +115,53 @@
 <script type="text/javascript" th:inline="javascript">
 
     $(document).ready(function() {
-
-        // ------- Début hack export excel
-        // Disclaimer: Il n'y a aucune façon (pour des raisons de sécurité) de vérifier qu'un fichier a bien été téléchargé ou pas par le browser
-        // Le navigateur est l'unique responsable du téléchargement du flux de données depuis le serveur
-        //
-        // Le seul moyen viable pour vérifier la fin d'un téléchargement est que côté serveur on ajoute un Cookie à la response, et que javascript
-        // check chaque seconde avec un CRON qu'un cookie a été set dans les response headers.
-        exportEnCours(false);
-        $('#export-form').submit(function () {
+    	
+        $('#print-button').click(function () {
             exportEnCours(true);
-            setCookie('exportEnCours', "1", 60 * 2); // Création du cookie avec deux minutes d'expiracy
-            setTimeout(checkDownloadCookie, 1000); // Lancement de la boucle pour check le cookie chaque seconde
+            var form = document.getElementById('export-form');
+            var formData = new FormData(form);         
+            var search = new URLSearchParams(formData);
+            var queryString = search.toString();
+          
+            const xhr = new XMLHttpRequest();
+		    xhr.open('GET', '../ws/export/excel?' + queryString, true);
+		    xhr.responseType = 'blob';
+		    xhr.addEventListener('load', (blob) =>
+		    {
+		        if(xhr.status == 200)
+		        {
+		            const url = window.URL.createObjectURL(xhr.response);
+		            const contentDisposition = xhr.getResponseHeader('content-disposition');
+		            const filename = /filename=([^;]*)/.exec(contentDisposition)[1];
+		            const link = document.createElement("a");
+		            link.href = url;
+		            link.download = filename.split('"').join('');
+		            link.style.display = 'block';
+		            link.click();
+		            window.URL.revokeObjectURL(url);
+		            exportEnCours(false);
+		        }
+		        else
+		        {
+					$.notify({
+						message: 'Erreur lors du téléchargement'
+					},{
+						type: 'danger'
+					});
+					exportEnCours(false);
+		        }
+		    });
+		    xhr.addEventListener('error', err =>
+		    {
+				$.notify({
+					message: 'Erreur lors du téléchargement'
+				},{
+					type: 'danger'
+				});
+				exportEnCours(false);
+		    });
+		    xhr.send();
         });
-
-        var setCookie = function(name, value, expiracy) {
-            var exdate = new Date();
-            exdate.setTime(exdate.getTime() + expiracy * 1000);
-            var c_value = escape(value) + ((expiracy == null) ? "" : "; expires=" + exdate.toUTCString());
-            document.cookie = name + "=" + c_value + '; path=/';
-        };
-
-        var getCookie = function(name) {
-            var i, x, y, ARRcookies = document.cookie.split(";");
-            for (i = 0; i < ARRcookies.length; i++) {
-                x = ARRcookies[i].substr(0, ARRcookies[i].indexOf("="));
-                y = ARRcookies[i].substr(ARRcookies[i].indexOf("=") + 1);
-                x = x.replace(/^\s+|\s+$/g, "");
-                if (x == name) {
-                    return y ? decodeURI(unescape(y.replace(/\+/g, ' '))) : y; //;//unescape(decodeURI(y));
-                }
-            }
-        };
-
-        var downloadTimeout;
-        var checkDownloadCookie = function() {
-            if (getCookie("exportEnCours") === '0') {
-                setCookie("exportEnCours", "0", 60 * 2);
-                exportEnCours(false);
-            } else {
-                downloadTimeout = setTimeout(checkDownloadCookie, 1000); // Lancer le check à nouveau chaque seconde
-            }
-        };
-        // ------- Fin hack export excel
     });
 
     // Sélection d'une date dans un calendrier
@@ -179,6 +184,7 @@
         }
         $('#print-button').prop('disabled',desactiverChamps);
     }
+    
 </script>
 </html>
 

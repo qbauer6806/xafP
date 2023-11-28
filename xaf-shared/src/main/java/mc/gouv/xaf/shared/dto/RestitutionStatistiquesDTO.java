@@ -20,7 +20,7 @@ public class RestitutionStatistiquesDTO {
 
     private Date date;
     
-    private String dataProvider;
+    private String source;
 
     public Integer getPkStatistique() {
 		return pkStatistique;
@@ -62,12 +62,12 @@ public class RestitutionStatistiquesDTO {
         this.date = date;
     }
 
-	public String getDataProvider() {
-		return dataProvider;
+	public String getSource() {
+		return source;
 	}
 
-	public void setDataProvider(String dataProvider) {
-		this.dataProvider = dataProvider;
+	public void setSource(String source) {
+		this.source = source;
 	}
 
 }

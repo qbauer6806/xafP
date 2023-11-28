@@ -460,7 +460,7 @@ public class ResidApiServiceImpl implements ResidApiService {
 		statsAStocker.setHttpCode(httpCode);
 		statsAStocker.setUsagerId(usagerId);
 		statsAStocker.setMessage(message);
-		statsAStocker.setDataProvider(dataProvider);
+		statsAStocker.setSource(dataProvider);
 		return statsAStocker;
 	}
 }

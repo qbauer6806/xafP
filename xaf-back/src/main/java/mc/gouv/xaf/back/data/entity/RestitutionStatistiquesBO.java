@@ -39,15 +39,16 @@ public class RestitutionStatistiquesBO {
     @Column(name = "TIMESTAMP_APPEL", nullable = false)
     private Date date;
     
-    @Column(name = "DATA_PROVIDER", nullable = false)
-    private String dataProvider;
+    @Column(name = "SOURCE", nullable = false)
+    private String source;
     
-    public String getDataProvider() {
-		return dataProvider;
+
+	public String getSource() {
+		return source;
 	}
 
-	public void setDataProvider(String dataProvider) {
-		this.dataProvider = dataProvider;
+	public void setSource(String source) {
+		this.source = source;
 	}
 
 	public Integer getPkStatistique() {

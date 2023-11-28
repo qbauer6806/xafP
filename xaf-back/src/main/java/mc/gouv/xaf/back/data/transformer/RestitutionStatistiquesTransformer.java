@@ -18,6 +18,7 @@ public class RestitutionStatistiquesTransformer {
         dto.setHttpCode(bo.getHttpCode());
         dto.setMessage(bo.getMessage());
         dto.setDate(bo.getDate());
+        dto.setDataProvider(bo.getDataProvider());
         return dto;
     }
     
@@ -31,6 +32,7 @@ public class RestitutionStatistiquesTransformer {
         bo.setHttpCode(dto.getHttpCode());
         bo.setMessage(dto.getMessage());
         bo.setDate(dto.getDate());
+        bo.setDataProvider(dto.getDataProvider());
         return bo;
     }
     

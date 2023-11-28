@@ -19,6 +19,8 @@ public class RestitutionStatistiquesDTO {
     private String message;
 
     private Date date;
+    
+    private String dataProvider;
 
     public Integer getPkStatistique() {
 		return pkStatistique;
@@ -59,5 +61,13 @@ public class RestitutionStatistiquesDTO {
     public void setDate(Date date) {
         this.date = date;
     }
+
+	public String getDataProvider() {
+		return dataProvider;
+	}
+
+	public void setDataProvider(String dataProvider) {
+		this.dataProvider = dataProvider;
+	}
 
 }

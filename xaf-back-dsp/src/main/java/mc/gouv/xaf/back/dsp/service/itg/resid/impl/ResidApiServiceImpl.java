@@ -440,12 +440,12 @@ public class ResidApiServiceImpl implements ResidApiService {
 					new ParameterizedTypeReference<ResidUsagerNpdhlDTO>() {
 					});
 			restitutionStatsService
-					.saveRestitutionStatistique(createStatsAStocker(HttpStatus.OK.value(), usagerId, ""));
+					.saveRestitutionStatistique(createStatsAStocker(HttpStatus.OK.value(), usagerId, "", "RESID"));
 			return responseEntity.getBody();
 		} catch (Exception e) {
 			if (e.getCause() instanceof ResidHttpResponseException) {
 				ResidHttpResponseException residException = (ResidHttpResponseException) e.getCause();
-				restitutionStatsService.saveRestitutionStatistique(createStatsAStocker(residException.getHttpStatus(), usagerId, residException.getMessage()));
+				restitutionStatsService.saveRestitutionStatistique(createStatsAStocker(residException.getHttpStatus(), usagerId, residException.getMessage(), "RESID"));
 			}
 		}
 
@@ -454,12 +454,13 @@ public class ResidApiServiceImpl implements ResidApiService {
 
 	}
 
-	private RestitutionStatistiquesDTO createStatsAStocker(Integer httpCode, Integer usagerId, String message) {
+	private RestitutionStatistiquesDTO createStatsAStocker(Integer httpCode, Integer usagerId, String message, String dataProvider) {
 		RestitutionStatistiquesDTO statsAStocker = new RestitutionStatistiquesDTO();
 		statsAStocker.setDate(new Date());
 		statsAStocker.setHttpCode(httpCode);
 		statsAStocker.setUsagerId(usagerId);
 		statsAStocker.setMessage(message);
+		statsAStocker.setDataProvider(dataProvider);
 		return statsAStocker;
 	}
 }

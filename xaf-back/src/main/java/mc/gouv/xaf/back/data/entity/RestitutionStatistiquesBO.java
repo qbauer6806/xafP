@@ -39,7 +39,19 @@ public class RestitutionStatistiquesBO {
     @Column(name = "TIMESTAMP_APPEL", nullable = false)
     private Date date;
     
-    public Integer getPkStatistique() {
+    @Column(name = "SOURCE", nullable = false)
+    private String source;
+    
+
+	public String getSource() {
+		return source;
+	}
+
+	public void setSource(String source) {
+		this.source = source;
+	}
+
+	public Integer getPkStatistique() {
 		return pkStatistique;
 	}
 

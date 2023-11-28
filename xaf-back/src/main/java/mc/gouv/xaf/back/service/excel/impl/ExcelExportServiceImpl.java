@@ -1,9 +1,12 @@
 package mc.gouv.xaf.back.service.excel.impl;
 
 
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.excel.ExcelExportService;
-import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.jxls.area.Area;
@@ -16,12 +19,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import javax.servlet.http.Cookie;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.List;
-import java.util.Map;
+
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.excel.ExcelExportService;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
 
 @Component
 public class ExcelExportServiceImpl implements ExcelExportService {
@@ -65,16 +66,5 @@ public class ExcelExportServiceImpl implements ExcelExportService {
         } catch (IOException e) {
             LOGGER.error("Erreur lors de la génération Excel", e);
         }
-    }
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Cookie creerCookieTelechargement() {
-        Cookie telechargementCookie = new Cookie("exportEnCours", "0");
-        telechargementCookie.setMaxAge(60 * 2);
-        telechargementCookie.setSecure(true);
-        telechargementCookie.setPath("/");
-        return telechargementCookie;
     }
 }

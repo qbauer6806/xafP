@@ -71,6 +71,7 @@ public class ResidApiServiceImpl implements ResidApiService {
 	public static final String RESID_ETATS_DEMANDES_BY_ID_PATH = "/demandes/etatsDemandesById";
     public static final String RESID_ETATS_DEMANDES_PATH = "/demandes/etatsDemandesUpdatedAfter";
     public static final String RESID_USAGERS_PATH = "/usagers/";
+    public static final String RESID_NPDHL_PATH = "/npdhl/";
 
     public static final String LAST_SUCCESSFUL_SYNCHRO_KEY = "LAST_SUCCESSFUL_SYNCHRO";
 
@@ -388,7 +389,7 @@ public class ResidApiServiceImpl implements ResidApiService {
 	@Override
 	public List<ResidResidentCorrespondanceDTO> getListResidCorrespondance(String numeroCarte, String url, String jwt) throws RestClientException {
 
-		LOGGER.info("Appel à l'API RESID v1 pour demander les usagers correspondants");
+		LOGGER.info("Appel à l'API RESID v2 /usagers pour demander les usagers correspondants");
 
 		RestTemplate rest = new RestTemplate();
 		rest.getMessageConverters().add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
@@ -419,12 +420,12 @@ public class ResidApiServiceImpl implements ResidApiService {
 	@Override
 	public ResidUsagerNpdhlDTO getUsagerDln1f(String nom, String prenom, String dateNaissance, String heureNaissance,
 			String villeNaissance, String paysNaissance, String url, String jwt, Integer usagerId) {
-		LOGGER.info("Appel à l'API RESID v2 pour demander l'usager correspondant");
+		LOGGER.info("Appel à l'API RESID v2 /usagers/npdhl pour demander l'usager correspondant");
 		RestTemplate rest = restTemplateBuilder.errorHandler(new ResidErrorResponseErrorHandler()).build();
 		rest.getMessageConverters().add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
 		HttpHeaders headers = getResidRequestHeaders(jwt);
 
-		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url + RESID_USAGERS_PATH).queryParam("nom", nom)
+		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url + RESID_USAGERS_PATH + RESID_NPDHL_PATH).queryParam("nom", nom)
 				.queryParam("prenoms", prenom).queryParam("dateNaissance", dateNaissance)
 				.queryParam("heureNaissance", heureNaissance).queryParam("villeNaissance", villeNaissance)
 				.queryParam("paysNaissance", paysNaissance);

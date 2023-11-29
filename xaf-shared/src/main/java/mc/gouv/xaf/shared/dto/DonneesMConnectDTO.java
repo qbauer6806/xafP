@@ -18,7 +18,7 @@ public class DonneesMConnectDTO {
 	
 	private String birthPlace;
 	
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyyMMddHHmmss")
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyyMMddHHmmss'Z'", timezone = "GMT+1")
 	private Date birthDatetime;
 	
 	private String authority;

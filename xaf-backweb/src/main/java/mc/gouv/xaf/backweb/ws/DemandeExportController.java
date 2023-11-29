@@ -49,6 +49,7 @@ public class DemandeExportController extends AbstractController {
     public void exportExcel(HttpServletResponse response, @RequestParam(required = false) String creationStartDate , @RequestParam(required = false) String creationEndDate) {
 
         LOGGER.info("======================= Appel du controller /ws/export/excel");
+        LOGGER.info("Paramètres de l'export [creationStartDate={}, creationEndDate={}]", creationStartDate, creationEndDate);
 
         try {
             String demarcheId = gouvPropertiesResolver.getDemarcheId();

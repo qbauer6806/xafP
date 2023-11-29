@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.Assert;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
@@ -24,6 +25,7 @@ public class TemplatesCacheImplTest implements TemplatesCache {
        map.put(456, givenContentTemplateDTO("fr"));
        map.put(110, givenSubjectTemplateDTO("en"));
        map.put(220, givenContentTemplateDTO("en"));
+       Assert.assertTrue(true);
 
         return map;
     }

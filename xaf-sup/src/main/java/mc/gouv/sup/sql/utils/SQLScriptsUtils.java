@@ -33,6 +33,8 @@ public class SQLScriptsUtils {
     private static final String RECAP_CHAMP_CAMELKEY = "camelKey";
     private static final String RECAP_CHAMP_NUMERO = "numero";
     private static final String RECAP_CHAMP_INDICATIF = "indicatif";
+    private static final String LABEL = "label";
+    private static final String RECAP_CHAMP_TELEPHONE = "telephone";
 
     public static void generateSQLScripts(JsonNode node, String sectionTitle, String schema, StringBuilder sqlBuilder) {
         if (node.get("titre") != null) {
@@ -53,13 +55,13 @@ public class SQLScriptsUtils {
             String pathTableau = getEscapedColumnValue(node.get("path").textValue());
             for (JsonNode column : node.get("columns")) {
                 // TODO quick fix pour le bon fonctionnement, mais adresse à prendre en compte
-                if (column.get("type") != null && !"adresse".equals(column.get("type").textValue()) && !"telephone".equals(column.get("type").textValue())) {
+                if (column.get("type") != null && !"adresse".equals(column.get("type").textValue()) && !RECAP_CHAMP_TELEPHONE.equals(column.get("type").textValue())) {
                     sqlBuilder.append(MessageFormat.format(INSERT_CHAMP_REQUEST_TEMPLATE, schema, TRUE,
-                            pathTableau + "." + getEscapedColumnValue(column.get(RECAP_CHAMP_PATH).textValue()), getEscapedColumnValue(column.get("label").textValue()), sectionTitle, FALSE)).append("\n");
+                            pathTableau + "." + getEscapedColumnValue(column.get(RECAP_CHAMP_PATH).textValue()), getEscapedColumnValue(column.get(LABEL).textValue()), sectionTitle, FALSE)).append("\n");
                 }
-                else if ("telephone".equals(column.get("type").textValue())) {
+                else if (RECAP_CHAMP_TELEPHONE.equals(column.get("type").textValue())) {
                     sqlBuilder.append(MessageFormat.format(INSERT_CHAMP_REQUEST_TEMPLATE, schema, TRUE,
-                    		getEscapedColumnValue(column.get(RECAP_CHAMP_NUMERO).textValue()), getEscapedColumnValue(column.get("label").textValue()) , sectionTitle, FALSE)).append("\n");
+                    		getEscapedColumnValue(column.get(RECAP_CHAMP_NUMERO).textValue()), getEscapedColumnValue(column.get(LABEL).textValue()) , sectionTitle, FALSE)).append("\n");
                     sqlBuilder.append(MessageFormat.format(INSERT_CHAMP_REQUEST_TEMPLATE, schema, TRUE,
                     		getEscapedColumnValue(column.get(RECAP_CHAMP_INDICATIF).textValue()), "Indicatif téléphone du demandeur" , sectionTitle, FALSE)).append("\n");
                 }
@@ -67,14 +69,14 @@ public class SQLScriptsUtils {
             return;
         }
 
-        if (node.get("type") != null && "telephone".equals(node.get("type").textValue())) {
-            sqlBuilder.append(MessageFormat.format(INSERT_CHAMP_REQUEST_TEMPLATE, schema, TRUE, getEscapedColumnValue(node.get(RECAP_CHAMP_NUMERO).textValue()), getEscapedColumnValue(node.get("label").textValue()) , sectionTitle, FALSE)).append("\n");
+        if (node.get("type") != null && RECAP_CHAMP_TELEPHONE.equals(node.get("type").textValue())) {
+            sqlBuilder.append(MessageFormat.format(INSERT_CHAMP_REQUEST_TEMPLATE, schema, TRUE, getEscapedColumnValue(node.get(RECAP_CHAMP_NUMERO).textValue()), getEscapedColumnValue(node.get(LABEL).textValue()) , sectionTitle, FALSE)).append("\n");
             sqlBuilder.append(MessageFormat.format(INSERT_CHAMP_REQUEST_TEMPLATE, schema, TRUE, getEscapedColumnValue(node.get(RECAP_CHAMP_INDICATIF).textValue()), "Indicatif téléphone du demandeur" , sectionTitle, FALSE)).append("\n");
             return;
         }
 
         if (node.get("path") != null) {
-            sqlBuilder.append(MessageFormat.format(INSERT_CHAMP_REQUEST_TEMPLATE, schema, TRUE, getEscapedColumnValue(node.get(RECAP_CHAMP_PATH).textValue()), getEscapedColumnValue(node.get("label").textValue()), sectionTitle, FALSE)).append("\n");
+            sqlBuilder.append(MessageFormat.format(INSERT_CHAMP_REQUEST_TEMPLATE, schema, TRUE, getEscapedColumnValue(node.get(RECAP_CHAMP_PATH).textValue()), getEscapedColumnValue(node.get(LABEL).textValue()), sectionTitle, FALSE)).append("\n");
             return;
         }
 

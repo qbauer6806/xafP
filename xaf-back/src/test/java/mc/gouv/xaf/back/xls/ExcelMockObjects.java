@@ -63,7 +63,6 @@ public class ExcelMockObjects {
 	
 	public static DemandeExcelFlatMockDTO getDemandeExcelFlatMockDTO(){
 		DemandeExcelFlatMockDTO dto = new DemandeExcelFlatMockDTO(getDemandeFlatDtoMock(), getDemandeContenuMockDTO());
-		DemandeDTO demandeDTO = getDemandDtoMock();
 		dto.setAssermentations("Direction des Affaires Maritimes");
 		dto.setLangues(ExcelMockData.LANGUEUAGES);
 		dto.setFonctionRecherchee(ExcelMockData.VACANCY);

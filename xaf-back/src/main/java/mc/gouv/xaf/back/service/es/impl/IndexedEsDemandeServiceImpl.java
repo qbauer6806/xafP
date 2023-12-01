@@ -280,7 +280,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
         Map<String, Map> mapping = getMapping(indexAlias);
         boolean mappingFichierPresentDansMappingES = false;
-        if (mapping.get("properties") != null && mapping.get("properties").containsKey("fichiers")) {
+        if (mapping.get(EsUtils.ES_MAPPING_PROPERTIES_KEY) != null && mapping.get(EsUtils.ES_MAPPING_PROPERTIES_KEY).containsKey("fichiers")) {
             mappingFichierPresentDansMappingES = true;
         }
 

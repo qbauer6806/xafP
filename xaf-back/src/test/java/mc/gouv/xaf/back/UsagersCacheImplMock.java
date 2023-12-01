@@ -12,7 +12,7 @@ import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 @Component
 @Profile("test")
 
-public class UsagersCacheImplTest implements UsagersCache {
+public class UsagersCacheImplMock implements UsagersCache {
 
     @Override
     public Map<Integer, GichuniUsagerDTO> getAll() {

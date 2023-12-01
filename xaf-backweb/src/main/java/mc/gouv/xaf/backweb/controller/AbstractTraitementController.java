@@ -36,6 +36,8 @@ public class AbstractTraitementController extends AbstractController {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractTraitementController.class);
 	
+	private static final String ERROR_MESSAGES = "errorMessages";
+	
 	@Autowired
 	private DemandesService demandesService;
 	
@@ -62,7 +64,7 @@ public class AbstractTraitementController extends AbstractController {
 
 	    LOGGER.info("======================= Appel de la page /traitement/infosAdministration ({})", pkDemande);
 
-		LOGGER.info("Appel à DEM pour stockage des observations...");
+		LOGGER.info("Appel à DEM pour stockage des observations...");
 		DemandeDTO demUpd = new DemandeDTO();
 		demUpd.setDemarcheId(gouvPropertiesResolver.getDemarcheId());
 		demUpd.setPkDemandes(pkDemande);
@@ -126,7 +128,7 @@ public class AbstractTraitementController extends AbstractController {
 			final RedirectAttributes redirectAttributes) {
 		List<String> messages = new ArrayList<>();
 		messages.add(messageSource.getMessage(messageCode, null, Locale.FRENCH));
-		redirectAttributes.addFlashAttribute("errorMessages", messages);
+		redirectAttributes.addFlashAttribute(ERROR_MESSAGES, messages);
 		return new ModelAndView(REDIRECT + pkDemande);
 	}
 
@@ -134,7 +136,7 @@ public class AbstractTraitementController extends AbstractController {
 											final RedirectAttributes redirectAttributes) {
 		List<String> messages = new ArrayList<>();
 		messages.add(messageSource.getMessage(messageCode, null, Locale.FRENCH));
-		redirectAttributes.addFlashAttribute("errorMessages", messages);
+		redirectAttributes.addFlashAttribute(ERROR_MESSAGES, messages);
 		String url = StringUtils.isBlank(demandeTab) ? REDIRECT + pkDemande
 				: REDIRECT + pkDemande + "?demandeTab=" + demandeTab;
 		return new ModelAndView(url);
@@ -144,7 +146,7 @@ public class AbstractTraitementController extends AbstractController {
 			final RedirectAttributes redirectAttributes, Object[] args) {
 		List<String> messages = new ArrayList<>();
 		messages.add(messageSource.getMessage(messageCode, args, Locale.FRENCH));
-		redirectAttributes.addFlashAttribute("errorMessages", messages);
+		redirectAttributes.addFlashAttribute(ERROR_MESSAGES, messages);
 		return new ModelAndView(REDIRECT + pkDemande);
 	}
 	

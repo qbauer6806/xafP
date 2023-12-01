@@ -72,6 +72,10 @@ import java.util.Set;
 public abstract class AfApiService implements AfApiController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AfApiService.class);
+    private static final String ERREUR_CREATION_HISTORIQUE_LOG_MESSAGE = "Erreur lors de la création de l'historique {}";
+    private static final String AJOUT_LIGNE_HISTORIQUE_LOG_MESSAGE = "Ajout d'une ligne à l'historique...";
+    private static final String APPEL_HISTOSERVICE_LOG_MESSAGE = "Appel à demandesHistoriqueService pour historique...";
+    
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
     @Autowired
@@ -139,8 +143,8 @@ public abstract class AfApiService implements AfApiController {
     public void annulerDemande(Integer demandeId, Integer usagerId) {
 
         LOGGER.info("Annulation de la demande ...");
-        LOGGER.info("demandeId : " + demandeId);
-        LOGGER.info("usagerId : " + usagerId);
+        LOGGER.info("demandeId : {}", demandeId);
+        LOGGER.info("usagerId : {}", usagerId);
 
         GouvBPMUser usager = new GouvBPMUser();
         usager.setId(usagerId.toString());
@@ -154,11 +158,11 @@ public abstract class AfApiService implements AfApiController {
 
         DemandeHistoriqueDTO histo = histoService.statusChange(demandeId, demarchesDataProvider.getStatutAnnulee(), null,
                 usagerId, null);
-        LOGGER.info("Appel à DEM pour historique...");
+        LOGGER.info(APPEL_HISTOSERVICE_LOG_MESSAGE);
         try {
             demandesHistoriqueService.saveHistorique(gouvPropertiesResolver.getDemarcheId(), demandeId, histo);
         } catch (Exception e) {
-            LOGGER.error("Erreur lors de la création de l'historique {}", histo, e);
+            LOGGER.error(ERREUR_CREATION_HISTORIQUE_LOG_MESSAGE, histo, e);
         }
 
     }
@@ -199,18 +203,18 @@ public abstract class AfApiService implements AfApiController {
             usagersCache.refresh();
 
             // Ajout d'une ligne à l'historique
-            LOGGER.info("Ajout d'une ligne à l'historique...");
+            LOGGER.info(AJOUT_LIGNE_HISTORIQUE_LOG_MESSAGE);
 
             DemandeHistoriqueDTO histo = histoService.creationDemande(demandeDto.getPkDemandes(), usagerId,
                     demande.getCreeParAgentId());
             if (histo != null) {
-                LOGGER.info("Appel à DEM pour historique...");
+                LOGGER.info(APPEL_HISTOSERVICE_LOG_MESSAGE);
                 try {
                     demandesHistoriqueService.saveHistorique(gouvPropertiesResolver.getDemarcheId(),
                             demandeDto.getPkDemandes(), histo);
 
                 } catch (Exception e) {
-                    LOGGER.error("Erreur lors de la création de l'historique {}", histo, e);
+                    LOGGER.error(ERREUR_CREATION_HISTORIQUE_LOG_MESSAGE, histo, e);
                 }
             }
 
@@ -291,7 +295,7 @@ public abstract class AfApiService implements AfApiController {
             }
 
             // Ajout d'une ligne à l'historique
-            LOGGER.info("Ajout d'une ligne à l'historique...");
+            LOGGER.info(AJOUT_LIGNE_HISTORIQUE_LOG_MESSAGE);
 
             // Récupération du statut courant (qui vient d'être mis par le BPM) afin de déterminer le statut
             // cible à donner à l'historique
@@ -302,13 +306,13 @@ public abstract class AfApiService implements AfApiController {
                     demande.getCreeParAgentId(), statut.getLibelle());
 
             if (histo != null) {
-                LOGGER.info("Appel à DEM pour historique...");
+                LOGGER.info(APPEL_HISTOSERVICE_LOG_MESSAGE);
                 try {
                     demandesHistoriqueService.saveHistorique(gouvPropertiesResolver.getDemarcheId(),
                             demandeDto.getPkDemandes(), histo);
 
                 } catch (Exception e) {
-                    LOGGER.error("Erreur lors de la création de l'historique {}", histo, e);
+                    LOGGER.error(ERREUR_CREATION_HISTORIQUE_LOG_MESSAGE, histo, e);
                 }
             }
 
@@ -367,10 +371,10 @@ public abstract class AfApiService implements AfApiController {
     public DemandeComplementsDTO repondreDemandeComplements(Integer demandeId, Integer icId,
                                                             DemandeComplementsReponseDTO reponse) throws IOException, TikaException, SAXException {
 
-        LOGGER.info("Appel à DEM pour récupération de la demande concernée...");
+        LOGGER.info("Appel à demandesService pour récupération de la demande concernée...");
         DemandeDTO demande = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), demandeId);
 
-        LOGGER.info("Appel à DEM pour répondre à la demande d'informations complémentaires...");
+        LOGGER.info("Appel à demandesComplementsService pour répondre à la demande d'informations complémentaires...");
         DemandeComplementsDTO demandeComplementsDto = demandesComplementsService
                 .repondreDemandeComplements(gouvPropertiesResolver.getDemarcheId(), demandeId, icId, reponse);
 
@@ -409,7 +413,7 @@ public abstract class AfApiService implements AfApiController {
         gouvBPM.completeTask(task, demandeId);
 
         // Ajout d'une ligne à l'historique
-        LOGGER.info("Ajout d'une ligne à l'historique...");
+        LOGGER.info(AJOUT_LIGNE_HISTORIQUE_LOG_MESSAGE);
 
         DemandeHistoriqueDTO histo = histoService.reponseDemandeCompl(demandeId,
                 demande.getDernierStatut().getLibelle(), usagerId, agentId, demande.getAgentAffecteId());
@@ -418,7 +422,7 @@ public abstract class AfApiService implements AfApiController {
             demandesHistoriqueService.saveHistorique(gouvPropertiesResolver.getDemarcheId(), demandeId, histo);
 
         } catch (Exception e) {
-            LOGGER.error("Erreur lors de la création de l'historique {}", histo, e);
+            LOGGER.error(ERREUR_CREATION_HISTORIQUE_LOG_MESSAGE, histo, e);
         }
 
         return demandeComplementsDto;
@@ -481,7 +485,7 @@ public abstract class AfApiService implements AfApiController {
                                 demande.getPkDemandes(), histo);
 
                     } catch (Exception e) {
-                        LOGGER.error("Erreur lors de la création de l'historique {}", histo, e);
+                        LOGGER.error(ERREUR_CREATION_HISTORIQUE_LOG_MESSAGE, histo, e);
                     }
                 }
 
@@ -565,7 +569,7 @@ public abstract class AfApiService implements AfApiController {
                             demande.getPkDemandes(), histo);
 
                 } catch (Exception e) {
-                    LOGGER.error("Erreur lors de la création de l'historique {}", histo, e);
+                    LOGGER.error(ERREUR_CREATION_HISTORIQUE_LOG_MESSAGE, histo, e);
                 }
             }
         }

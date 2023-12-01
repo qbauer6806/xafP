@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Assert;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +15,7 @@ import mc.gouv.xaf.shared.dto.TemplateDTO;
 
 @Component
 @Profile("test")
-public class TemplatesCacheImplTest implements TemplatesCache {
+public class TemplatesCacheImplMock implements TemplatesCache {
 
     @Override
     public Map<Integer, TemplateDTO> getAll() {
@@ -25,7 +24,6 @@ public class TemplatesCacheImplTest implements TemplatesCache {
        map.put(456, givenContentTemplateDTO("fr"));
        map.put(110, givenSubjectTemplateDTO("en"));
        map.put(220, givenContentTemplateDTO("en"));
-       Assert.assertTrue(true);
 
         return map;
     }

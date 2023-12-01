@@ -8,10 +8,7 @@ import java.util.Date;
  *
  * @author qdeme
  */
-// TODO : Supprimer le doublon de cette classe (voir ticket #20760)
-public class CommentaireInterneDTO extends mc.gouv.af.back.bpm.model.CommentaireInterneDTO {
-
-    private static final long serialVersionUID = -3630330943792014082L;
+public class CommentaireInterneDTO {
 
     private String agentId;
 
@@ -19,32 +16,26 @@ public class CommentaireInterneDTO extends mc.gouv.af.back.bpm.model.Commentaire
 
     private String commentaire;
 
-    @Override
     public String getAgentId() {
         return agentId;
     }
 
-    @Override
     public void setAgentId(String agentId) {
         this.agentId = agentId;
     }
 
-    @Override
     public Date getDate() {
         return date;
     }
 
-    @Override
     public void setDate(Date date) {
         this.date = date;
     }
 
-    @Override
     public String getCommentaire() {
         return commentaire;
     }
 
-    @Override
     public void setCommentaire(String commentaire) {
         this.commentaire = commentaire;
     }

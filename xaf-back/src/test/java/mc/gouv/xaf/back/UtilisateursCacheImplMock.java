@@ -11,7 +11,7 @@ import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 
 @Component
 @Profile("test")
-public class UtilisateursCacheImplTest implements UtilisateursCache {
+public class UtilisateursCacheImplMock implements UtilisateursCache {
 
     @Override
     public Map<String, User> getAll() {

@@ -12,7 +12,7 @@ import mc.gouv.xaf.shared.dto.MotifDTO;
 
 @Component
 @Profile("test")
-public class MotifsCacheImplTest implements MotifsCache {
+public class MotifsCacheImplMock implements MotifsCache {
 
 	@Override
 	public Map<Integer, MotifDTO> getAll() {

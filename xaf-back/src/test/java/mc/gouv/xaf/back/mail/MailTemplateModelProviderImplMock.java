@@ -12,7 +12,7 @@ import java.util.Map.Entry;
 
 @ActiveProfiles("test")
 @Component
-public class MailTemplateModelProviderImplTest implements MailTemplateModelProvider {
+public class MailTemplateModelProviderImplMock implements MailTemplateModelProvider {
 
     @Override
     public Entry<String, String> getMailTemplateCodesForAction(String action, Integer pkDemande) {

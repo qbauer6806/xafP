@@ -2,7 +2,6 @@ package mc.gouv.xaf.back.service.itg.gichuni.api;
 
 import java.util.Collections;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
@@ -24,11 +23,8 @@ import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 @Configuration
 public class GichuniApiClientConfig {
 	
-	@Autowired
-	private GouvPropertiesResolver gouvPropertiesResolver;
-	
 	@Bean
-	public OAuth2ProtectedResourceDetails oAuth2ProtectedResourceDetails() {
+	public OAuth2ProtectedResourceDetails oAuth2ProtectedResourceDetails(GouvPropertiesResolver gouvPropertiesResolver) {
 	    ClientCredentialsResourceDetails resourceDetails = new ClientCredentialsResourceDetails();
 	    resourceDetails.setAccessTokenUri(gouvPropertiesResolver.getGichkeyUrl() + "/protocol/openid-connect/token");
 	    resourceDetails.setClientId(gouvPropertiesResolver.getGichkeyClientId());

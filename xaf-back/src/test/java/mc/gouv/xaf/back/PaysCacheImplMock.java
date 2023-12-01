@@ -11,7 +11,7 @@ import mc.gouv.xaf.back.service.itg.rest.PaysCache;
 
 @Component
 @Profile("test")
-public class PaysCacheImplTest implements PaysCache {
+public class PaysCacheImplMock implements PaysCache {
 
 	@Override
 	public PaysBean get(String codeIso, String locale) {

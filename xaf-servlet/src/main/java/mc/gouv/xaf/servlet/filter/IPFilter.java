@@ -27,6 +27,7 @@ public class IPFilter implements Filter {
     
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
+    	// Vide pour l'instant
     }
 
     @Override
@@ -46,6 +47,7 @@ public class IPFilter implements Filter {
 
     @Override
     public void destroy() {
+    	// Vide pour l'instant
     }
 
 }

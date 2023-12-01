@@ -47,13 +47,7 @@ public class GUKafkaConsumerConfig {
 	private static final String XAF_GU_KAFKA_CONSUMER_BACKOFF_MAXATTEMPTS = "XAF_GU_KAFKA_CONSUMER_BACKOFF_MAXATTEMPTS";
 	
 	@Autowired
-	private KafkaTemplate<String, String> kafkaTemplate;
-	
-	@Autowired
 	private GouvPropertiesResolver gouvPropertiesResolver;
-	
-	@Autowired
-	private PropertiesService propertiesService;
 
     @Bean
     public ConsumerFactory<String, String> consumerFactory() {
@@ -87,7 +81,7 @@ public class GUKafkaConsumerConfig {
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, String> 
-      kafkaListenerContainerFactory() throws DemPropertyNotFoundException {
+      kafkaListenerContainerFactory(KafkaTemplate<String, String> kafkaTemplate, PropertiesService propertiesService) throws DemPropertyNotFoundException {
    
         ConcurrentKafkaListenerContainerFactory<String, String> factory =
           new ConcurrentKafkaListenerContainerFactory<>();

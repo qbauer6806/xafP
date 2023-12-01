@@ -86,10 +86,10 @@ public class AfApiClient extends ApiClient {
     }
     
     public DemandeDTO updateDemande(Integer demandeId, DemandeInputDTO demande, Integer usagerId) {
-        Response res = getTarget().path("demandes/" + demandeId)
+        Response res = getTarget().path(RequestConstant.DEMANDES_PATH + '/' + demandeId)
                 .queryParam(RequestConstant.USAGERID_PARAM, usagerId)
                 .request(MediaType.APPLICATION_JSON)
-                .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue())
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
                 .put(Entity.entity(demande, MediaType.APPLICATION_JSON));
 
         ExceptionManager.checkExceptionResponse(res);
@@ -98,10 +98,10 @@ public class AfApiClient extends ApiClient {
     }
 
     public DemandeDTO lockDemande(Integer demandeId, Integer usagerId, Long timestamp) {
-        Response res = getTarget().path("demandes/" + demandeId + "/lock")
+        Response res = getTarget().path(RequestConstant.DEMANDES_PATH + '/' + demandeId + "/lock")
                 .queryParam(RequestConstant.USAGERID_PARAM, usagerId)
                 .queryParam(RequestConstant.TIMESTAMP_MODIFICATION, timestamp).request(MediaType.APPLICATION_JSON)
-                .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue())
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
                 .put(Entity.entity("", MediaType.APPLICATION_JSON));
 
         ExceptionManager.checkExceptionResponse(res);
@@ -110,9 +110,9 @@ public class AfApiClient extends ApiClient {
     }
 
     public DemandeDTO unlockDemande(Integer demandeId, Integer usagerId) {
-        Response res = getTarget().path("demandes/" + demandeId + "/unlock")
+        Response res = getTarget().path(RequestConstant.DEMANDES_PATH + '/' + demandeId + "/unlock")
                 .queryParam(RequestConstant.USAGERID_PARAM, usagerId).request(MediaType.APPLICATION_JSON)
-                .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue())
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
                 .put(Entity.entity("", MediaType.APPLICATION_JSON));
 
         ExceptionManager.checkExceptionResponse(res);

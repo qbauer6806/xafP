@@ -172,9 +172,13 @@ public class AfBackUtils {
     public static final short GENDER_MLLE_INDEX = 2;
 
     @PostConstruct
-    // TODO sonar n'aime cette méthode, car elle n'est pas static
     public void postConstructEnv() {
         String env = gouvPropertiesResolver.getGouvSharedEnv();
+        String color = gouvPropertiesResolver.getGouvSharedEnvColor();
+        setEnvironmentNameAndColor(env, color);
+    }
+    
+    private static void setEnvironmentNameAndColor(String env, String color) {
         // Si production, ne rien afficher
         if ("prod".equals(env)) {
             envName = "";
@@ -196,7 +200,7 @@ public class AfBackUtils {
         if ("prod".equals(env)) {
             envColor = "#000000";
         } else {
-            envColor = gouvPropertiesResolver.getGouvSharedEnvColor();
+            envColor = color;
         }
     }
 
@@ -468,22 +472,26 @@ public class AfBackUtils {
             boolean toAdd = false;
             Set<Role> agentRoles = agent.getRoles();
             for (Role role : agentRoles) {
-                if (role.getAppli().getCode().equals(codeAppli)) {
-                    for (Droit droit : role.getDroits()) {
-                        for (String roleFromList : rolesList) {
-                            if (roleFromList.trim().equals(droit.getCode())) {
-                                toAdd = true;
-                            }
-                        }
-                    }
-
-                }
+            	toAdd = hasRole(role, codeAppli, rolesList);
             }
             if (toAdd) {
                 destinataires.add(agent);
             }
         }
         return destinataires;
+    }
+    
+    private boolean hasRole(Role role, String codeAppli, String[] rolesList) {
+        if (role.getAppli().getCode().equals(codeAppli)) {
+            for (Droit droit : role.getDroits()) {
+                for (String roleFromList : rolesList) {
+                    if (roleFromList.trim().equals(droit.getCode())) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     public String convertDateToString(final Date date) {

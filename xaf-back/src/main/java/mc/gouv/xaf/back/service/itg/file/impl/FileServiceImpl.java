@@ -70,6 +70,10 @@ public class FileServiceImpl implements FileService {
 	private static final String MAX_TAILLE_FICHIER = "MAX_TAILLE_FICHIER";
 	private static final String MC_METADATA_PREFIX = "X-MC-";
 	private static final String AUTHORIZATION_PREFIX = "Bearer ";
+	private static final String FILENAME_DONNER_FILE_LOG_MESSAGE = "Filename à donner à FILE : {}";
+	private static final String FILECLIENT_SAVE_FILE_LOG_MESSAGE = "FileClient.saveFile({}, {}, {})";
+	private static final String SLASH_DELIMITER = "/";
+	private static final String ERREUR_FILESERVICE_LOG_MESSAGE = "Erreur dans FileServiceImpl.saveFile()";
 
 	private RestTemplate restTemplate;
 
@@ -121,17 +125,17 @@ public class FileServiceImpl implements FileService {
 		// On part du principe que le fichier a été généré côté back et n'est pas malicieux
 		Map<String, String> customHeaders = createCustomHeaders(demande, true);
 
-		filename = demande.getFkAccess() + "/" + AfBackUtils.generateUUID() + "/" + filename;
+		filename = demande.getFkAccess() + SLASH_DELIMITER + AfBackUtils.generateUUID() + SLASH_DELIMITER + filename;
 
-		LOGGER.info("Filename à donner à FILE : {}", filename);
+		LOGGER.info(FILENAME_DONNER_FILE_LOG_MESSAGE, filename);
 
 		String accountId = gouvPropertiesResolver.getDemarcheId();
-		LOGGER.info("FileClient.saveFile({}, {}, {})", accountId, containerId, filename);
+		LOGGER.info(FILECLIENT_SAVE_FILE_LOG_MESSAGE, accountId, containerId, filename);
 		try {
 			return afBackUtils.getFileClient().saveFile(accountId, containerId, inputStream, filename, contentType, customHeaders,
 					outputStream);
 		} catch (Exception e) {
-			LOGGER.error("Erreur dans FileServiceImpl.saveFile()");
+			LOGGER.error(ERREUR_FILESERVICE_LOG_MESSAGE);
 			throw new DemarchesServiceException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
@@ -143,22 +147,22 @@ public class FileServiceImpl implements FileService {
 
 		boolean vscanActivation = prepareSave(file);
 
-		String filename = "/" + demande.getFkAccess() + "/" + AfBackUtils.generateUUID() + "/"
+		String filename = SLASH_DELIMITER + demande.getFkAccess() + SLASH_DELIMITER + AfBackUtils.generateUUID() + SLASH_DELIMITER
 				+ URLEncoder.encode(file.getOriginalFilename(), StandardCharsets.UTF_8);
 
-		LOGGER.info("Filename à donner à FILE : {}", filename);
+		LOGGER.info(FILENAME_DONNER_FILE_LOG_MESSAGE, filename);
 
 		Map<String, String> customHeaders = createCustomHeaders(demande, vscanActivation);
 
 		String accountId = gouvPropertiesResolver.getDemarcheId();
-		LOGGER.info("FileClient.saveFile({}, {}, {})", accountId, containerId, filename);
+		LOGGER.info(FILECLIENT_SAVE_FILE_LOG_MESSAGE, accountId, containerId, filename);
 
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
 		try {
 			return afBackUtils.getFileClient().saveFile(accountId, containerId, file.getInputStream(), filename, file.getContentType(), customHeaders, outputStream);
 		} catch (Exception e) {
-			LOGGER.error("Erreur dans FileServiceImpl.saveFile()");
+			LOGGER.error(ERREUR_FILESERVICE_LOG_MESSAGE);
 			throw new DemarchesServiceException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
@@ -181,23 +185,23 @@ public class FileServiceImpl implements FileService {
 
 		boolean vscanActivation = prepareSave(file);
 
-		String filename = "/publications/" + AfBackUtils.generateUUID() + "/"
+		String filename = "/publications/" + AfBackUtils.generateUUID() + SLASH_DELIMITER
 				+ URLEncoder.encode(file.getOriginalFilename(), StandardCharsets.UTF_8);
 
-		LOGGER.info("Filename à donner à FILE : {}", filename);
+		LOGGER.info(FILENAME_DONNER_FILE_LOG_MESSAGE, filename);
 
 		Map<String, String> customHeaders = new HashMap<>();
 		customHeaders.put(FILE_METADATA_SCANEXECUTE, vscanActivation + "");
 
 		String accountId = gouvPropertiesResolver.getDemarcheId();
-		LOGGER.info("FileClient.saveFile({}, {}, {})", accountId, containerId, filename);
+		LOGGER.info(FILECLIENT_SAVE_FILE_LOG_MESSAGE, accountId, containerId, filename);
 
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
 		try {
 			return afBackUtils.getFileClient().saveFile(accountId, containerId, file.getInputStream(), filename, file.getContentType(), customHeaders, outputStream);
 		} catch (Exception e) {
-			LOGGER.error("Erreur dans FileServiceImpl.saveFile()", e);
+			LOGGER.error(ERREUR_FILESERVICE_LOG_MESSAGE, e);
 			throw new DemarchesServiceException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
@@ -317,7 +321,7 @@ public class FileServiceImpl implements FileService {
 	private URL getFileURL(String fileurl, String demarcheId) throws MalformedURLException {
 		// file = accessId/uuid/filename (/uuid/filename inclu dans fichier.getUrl())
 		if (fileurl.charAt(0) != '/') {
-			fileurl = "/" + fileurl;
+			fileurl = SLASH_DELIMITER + fileurl;
 		}
 
 		// Remplacer les espaces par des "+"...
@@ -326,8 +330,8 @@ public class FileServiceImpl implements FileService {
 
 		// Rajouter l'AccessID dans l'URL des fichiers
 
-		URL url = new URL(gouvPropertiesResolver.getFileUrl() + "/" + demarcheId + "/"
-				+ gouvPropertiesResolver.getContainerId() + "/" + fileurl);
+		URL url = new URL(gouvPropertiesResolver.getFileUrl() + SLASH_DELIMITER + demarcheId + SLASH_DELIMITER
+				+ gouvPropertiesResolver.getContainerId() + SLASH_DELIMITER + fileurl);
 		LOGGER.info("URL du fichier calculée : {}", url);
 
 		return url;

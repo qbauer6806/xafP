@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -37,6 +38,8 @@ public class FileServlet extends AbstractAfServlet {
     private static final long serialVersionUID = -2464829773835748491L;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileServlet.class);
+    
+    private static final String SLASH = "/";
 
     public void doGet(HttpServletRequest request, HttpServletResponse response, boolean isPreview) throws IOException {
         LOGGER.info("====================== /fileservlet doGet()");
@@ -54,9 +57,9 @@ public class FileServlet extends AbstractAfServlet {
             String filename = null;
             Integer accessId = null;
             if (pathInfo != null && pathInfo.length() > 1) {
-                String[] pathElems = pathInfo.split("/");
+                String[] pathElems = pathInfo.split(SLASH);
                 accessId = !pathElems[1].equals("publications") ? Integer.valueOf(pathElems[1]) : null;
-                filename = pathElems[1] + "/" + pathElems[2] + "/" + URLEncoder.encode(pathElems[3], "UTF-8");
+                filename = pathElems[1] + SLASH + pathElems[2] + SLASH + URLEncoder.encode(pathElems[3], "UTF-8");
             }
 
             if (StringUtils.isBlank(filename)) {
@@ -78,7 +81,7 @@ public class FileServlet extends AbstractAfServlet {
 
             // Constitution du chemin virtuel du fichier
             // /appfactory/demarcheId/accessId/UUID/nomDuFichier
-            String virtualPath = "/" + accountId + "/" + containerId + "/" + filename;
+            String virtualPath = SLASH + accountId + SLASH + containerId + SLASH + filename;
             LOGGER.info("Chemin virtuel : {}", virtualPath);
 
             // Constitution de l'URL d'appel
@@ -98,14 +101,7 @@ public class FileServlet extends AbstractAfServlet {
             response.setStatus(getResponse.getStatusLine().getStatusCode());
             response.setContentType(getResponse.getEntity().getContentType().getValue());
             // Ajout de la métadonnée indiquant le demandeId lié
-            for (Header header : getResponse.getAllHeaders()) {
-                if (header.getName().startsWith(AppFactoryServletUtils.FILE_METADATA_DEMANDEID)) {
-                    response.addHeader(header.getName(), header.getValue());
-                } else if (header.getName().equals(RequestConstant.CONTENT_DISPOSITION_HEADER)) {
-                    String headerValue = isPreview ? header.getValue().replace("attachment;", "inline;") : header.getValue();
-                    response.addHeader(header.getName(), URLDecoder.decode(headerValue, "UTF-8"));
-                }
-            }
+            addHeader(response, getResponse, isPreview);
 
             // Et en dernier on copie le stream... Car si on met les headers après, ils sont tous ignorés !
             IOUtils.copy(getResponse.getEntity().getContent(), response.getOutputStream());
@@ -116,6 +112,18 @@ public class FileServlet extends AbstractAfServlet {
 
         LOGGER.info("====================== Fin /fileservlet doGet()");
 
+    }
+    
+    private HttpServletResponse addHeader(HttpServletResponse response, HttpResponse getResponse, boolean isPreview) throws UnsupportedEncodingException {
+        for (Header header : getResponse.getAllHeaders()) {
+            if (header.getName().startsWith(AppFactoryServletUtils.FILE_METADATA_DEMANDEID)) {
+                response.addHeader(header.getName(), header.getValue());
+            } else if (header.getName().equals(RequestConstant.CONTENT_DISPOSITION_HEADER)) {
+                String headerValue = isPreview ? header.getValue().replace("attachment;", "inline;") : header.getValue();
+                response.addHeader(header.getName(), URLDecoder.decode(headerValue, "UTF-8"));
+            }
+        }
+        return response;
     }
 
 }

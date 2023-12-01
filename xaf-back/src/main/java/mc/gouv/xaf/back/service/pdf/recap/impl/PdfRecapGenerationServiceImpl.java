@@ -45,6 +45,10 @@ import static mc.gouv.xaf.back.service.utils.FileUtils.META_RECAP;
 public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PdfRecapGenerationServiceImpl.class);
+    
+    private static final String SPAN_END_TAG = "</span>";
+    
+    private static final String TD_TR_TABLE_TAG = "</td></tr></table>";
 
     @Autowired
     private FileService fileService;
@@ -218,20 +222,20 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
 	            }
                 writer.println("<span id=\"nomDirection\">");
                 writer.println(demarche.getNomDirection());
-                writer.println("</span>");
+                writer.println(SPAN_END_TAG);
                 writer.println("<br/>");
                 writer.println("<span id=\"nomDirectionComplement\">");
                 writer.println(demarche.getNomDirectionComplement());
-                writer.println("</span>");
+                writer.println(SPAN_END_TAG);
 	            writer.println("</div>");
 	
 	            writer.println("<div id=\"pageFooter\">");
                 writer.println("<span id=\"adresseService\">");
                 writer.println(demarche.getAdresseService());
-                writer.println("</span>");
+                writer.println(SPAN_END_TAG);
                 writer.println("<span id=\"nomFooter\">");
                 writer.println(demarche.getNomFooter());
-                writer.println("</span>");
+                writer.println(SPAN_END_TAG);
 	            writer.println("</div>");
 	
 	            LOGGER.info("Fin du header et footer...");
@@ -244,17 +248,17 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
 	            writer.println("<table class=\"table-section sectiondemande\">");
 	            writer.println("<tr><th class=\"table-section\">La Demande</th></tr><tr><td>");
 	            writer.println(htmlDemande);
-	            writer.println("</td></tr></table>");
+	            writer.println(TD_TR_TABLE_TAG);
 	
 	            writer.println("<table class=\"table-section sectionic\">");
 	            writer.println("<tr><th class=\"table-section\">Informations Complémentaires</th></tr><tr><td>");
 	            writer.println(htmlComp);
-	            writer.println("</td></tr></table>");
+	            writer.println(TD_TR_TABLE_TAG);
 	
 	            writer.println("<table class=\"table-section sectionrecap\">");
 	            writer.println("<tr><th class=\"table-section\">Demande Initiale</th></tr><tr><td>");
 	            writer.println(htmlRecap);
-	            writer.println("</td></tr></table>");
+	            writer.println(TD_TR_TABLE_TAG);
 
                 if(extraContent != null) {
                     writer.println(extraContent);

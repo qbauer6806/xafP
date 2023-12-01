@@ -2,8 +2,8 @@ package mc.gouv.xaf.back.dsp.enums;
 
 public enum ResidIdentificationTypeEnum {
 
-    NumeroResident("NumeroResident"),
-    NumeroCarte  ("NumeroCarte");
+    NUMERO_RESIDENT("NumeroResident"),
+    NUMERO_CARTE("NumeroCarte");
 
     String value;
 

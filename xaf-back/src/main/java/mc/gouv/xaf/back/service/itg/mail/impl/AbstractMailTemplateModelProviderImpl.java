@@ -75,18 +75,24 @@ public abstract class AbstractMailTemplateModelProviderImpl implements MailTempl
             }
 
             model.put("pkDemande", demande.getPkDemandes());
-            if(bpmVariables != null) {
-                Object mapBpm = bpmVariables.get(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_AGENT.name());
-                if(mapBpm != null) {
-                    String agentId = (String) mapBpm;
-                    // agent, à renommer agent dans les ts et ici. certains ts semblent utiliser "utilisateur"
-                    model.put("utilisateur", utilisateursUtils.getUserNameFromID(agentId));
-                }
-            }
+            
+            setAgent(model, bpmVariables);
         }
 
         model.putAll(getGenericModel());
 
+        return model;
+    }
+    
+    private Map<String, Object> setAgent(Map<String, Object> model, Map<String, Object> bpmVariables) {
+        if(bpmVariables != null) {
+            Object mapBpm = bpmVariables.get(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_AGENT.name());
+            if(mapBpm != null) {
+                String agentId = (String) mapBpm;
+                // agent, à renommer agent dans les ts et ici. certains ts semblent utiliser "utilisateur"
+                model.put("utilisateur", utilisateursUtils.getUserNameFromID(agentId));
+            }
+        }
         return model;
     }
 

@@ -15,7 +15,7 @@ import java.util.Map;
 
 @Profile("test")
 @Component
-public class ExcelExportModelProviderImplTest implements ExcelExportModelProvider {
+public class ExcelExportModelProviderImplMock implements ExcelExportModelProvider {
 
     @Autowired
     private AfBackUtils afBackUtils;

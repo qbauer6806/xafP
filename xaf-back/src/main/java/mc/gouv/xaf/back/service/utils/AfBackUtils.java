@@ -1,5 +1,35 @@
 package mc.gouv.xaf.back.service.utils;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
+import javax.annotation.PostConstruct;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -7,6 +37,7 @@ import com.fasterxml.uuid.EthernetAddress;
 import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.impl.TimeBasedGenerator;
 import com.google.gson.Gson;
+
 import mc.gouv.file.apiclient.FileClient;
 import mc.gouv.logon.shared.Droit;
 import mc.gouv.logon.shared.Role;
@@ -31,39 +62,6 @@ import mc.gouv.xaf.shared.dto.MotifDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.PropertiesListEntityDTO;
 import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.http.MediaType;
-import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
-
-import javax.annotation.PostConstruct;
-import java.nio.charset.StandardCharsets;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.text.NumberFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
 
 /**
  * Classe utilitaire pour le projet xaf-back
@@ -79,8 +77,6 @@ public class AfBackUtils {
     public static final String MAIL_METADATA_DEMANDEID = "MC_DEMANDEID";
 
     public static final String STATUT_PUBLIC_SUPPRIMEE = "SUPPRIMEE";
-
-    private static RestTemplate restTemplate;
 
     private static String envName;
 
@@ -202,20 +198,6 @@ public class AfBackUtils {
         } else {
             envColor = color;
         }
-    }
-
-    @PostConstruct
-    // TODO utile ?
-    public void postConstructRestTemplate() {
-        restTemplate = new RestTemplate();
-        List<HttpMessageConverter<?>> list = new ArrayList<>();
-        MappingJackson2HttpMessageConverter conv = new MappingJackson2HttpMessageConverter();
-        List<MediaType> mediaTypes = new ArrayList<>();
-        mediaTypes.add(new MediaType("application", "json", StandardCharsets.UTF_8));
-        mediaTypes.add(new MediaType("text", "html", StandardCharsets.UTF_8));
-        conv.setSupportedMediaTypes(mediaTypes);
-        list.add(conv);
-        restTemplate.setMessageConverters(list);
     }
 
     public static String getAuthenticatedAgentId() {

@@ -417,7 +417,7 @@ public abstract class AfApiService implements AfApiController {
 
         DemandeHistoriqueDTO histo = histoService.reponseDemandeCompl(demandeId,
                 demande.getDernierStatut().getLibelle(), usagerId, agentId, demande.getAgentAffecteId());
-        LOGGER.info("Appel à DEM pour historique...");
+        LOGGER.info(APPEL_HISTOSERVICE_LOG_MESSAGE);
         try {
             demandesHistoriqueService.saveHistorique(gouvPropertiesResolver.getDemarcheId(), demandeId, histo);
 
@@ -479,7 +479,7 @@ public abstract class AfApiService implements AfApiController {
                 DemandeHistoriqueDTO histo = histoService.associationDemandeCourrier(demande, usagerId);
 
                 if (histo != null) {
-                    LOGGER.info("Appel à DEM pour historique...");
+                    LOGGER.info(APPEL_HISTOSERVICE_LOG_MESSAGE);
                     try {
                         demandesHistoriqueService.saveHistorique(gouvPropertiesResolver.getDemarcheId(),
                                 demande.getPkDemandes(), histo);
@@ -563,7 +563,7 @@ public abstract class AfApiService implements AfApiController {
                     demandesAPasserEnAnnulee.contains(demande.getPkDemandes()));
 
             if (histo != null) {
-                LOGGER.info("Appel à DEM pour historique...");
+                LOGGER.info(APPEL_HISTOSERVICE_LOG_MESSAGE);
                 try {
                     demandesHistoriqueService.saveHistorique(gouvPropertiesResolver.getDemarcheId(),
                             demande.getPkDemandes(), histo);

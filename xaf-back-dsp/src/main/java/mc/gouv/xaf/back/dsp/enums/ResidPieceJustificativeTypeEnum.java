@@ -54,7 +54,7 @@ public enum ResidPieceJustificativeTypeEnum {
 	AUTRE("AUTRE");
 
 
-    public String value;
+    String value;
 
     ResidPieceJustificativeTypeEnum(String value) {
         this.value = value;

@@ -7,7 +7,6 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
@@ -35,15 +34,9 @@ import mc.gouv.xaf.back.service.itg.gichuni.kafka.impl.GUKafkaProducerListener;
 public class GUKafkaProducerConfig {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(GUKafkaProducerConfig.class);
-	
-	@Autowired
-	private GUKafkaProducerListener guKafkaProducerListener;
-	
-	@Autowired
-	private GouvPropertiesResolver gouvPropertiesResolver;
 
     @Bean
-    public ProducerFactory<String, String> producerFactory() {
+    public ProducerFactory<String, String> producerFactory(GouvPropertiesResolver gouvPropertiesResolver) {
     	LOGGER.info("Création du GUKafkaProducer...");
         Map<String, Object> configProps = new HashMap<>();
         configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, gouvPropertiesResolver.getGUKafkaBootstrapServersConfig());
@@ -69,8 +62,8 @@ public class GUKafkaProducerConfig {
     }
 
     @Bean
-    public KafkaTemplate<String, String> kafkaTemplate() {
-    	KafkaTemplate<String, String> kt = new KafkaTemplate<>(producerFactory());
+    public KafkaTemplate<String, String> kafkaTemplate(GUKafkaProducerListener guKafkaProducerListener, GouvPropertiesResolver gouvPropertiesResolver) {
+    	KafkaTemplate<String, String> kt = new KafkaTemplate<>(producerFactory(gouvPropertiesResolver));
     	kt.setProducerListener(guKafkaProducerListener);
         return kt;
     }

@@ -1,10 +1,8 @@
 package mc.gouv.sup.sql.utils;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.text.MessageFormat;
+
+import com.fasterxml.jackson.databind.JsonNode;
 
 /**
  * Classe permettant de générer le fichier sql des requetes de la configuration des champs et des catégories
@@ -12,9 +10,6 @@ import java.text.MessageFormat;
  * @author asouabni.ext
  */
 public class SQLScriptsUtils {
-
-    // Logger permettant de tracer l'execution
-    private static final Logger LOGGER = LoggerFactory.getLogger(SQLScriptsUtils.class);
 
     private static final String INSERT_CHAMP_REQUEST_TEMPLATE = "INSERT INTO {0}.dem_recherche_champ_config (enabled, cle, libelle, fk_categorie, editable) VALUES (''{1}'', ''{2}'', ''{3}'', (select id from {0}.dem_recherche_cat_config where libelle = ''{4}''), ''{5}'');";
     private static final String INSERT_CATEGORY_REQUEST_TEMPLATE = "INSERT INTO {0}.dem_recherche_cat_config (libelle, editable) VALUES (''{1}'', ''{2}'');";
@@ -35,6 +30,10 @@ public class SQLScriptsUtils {
     private static final String RECAP_CHAMP_INDICATIF = "indicatif";
     private static final String LABEL = "label";
     private static final String RECAP_CHAMP_TELEPHONE = "telephone";
+    
+    private SQLScriptsUtils() {
+        throw new IllegalStateException("Utility class");
+      }
 
     public static void generateSQLScripts(JsonNode node, String sectionTitle, String schema, StringBuilder sqlBuilder) {
         if (node.get("titre") != null) {

@@ -3,7 +3,7 @@ package mc.gouv.xaf.back.dsp.enums;
 public enum ResidTypeUsagerEnum {
 
     USAGER_NOUVEAU("UsagerNouveau"),
-    UsagerExistant ("UsagerExistant");
+    USAGER_EXISTANT("UsagerExistant");
 
     String value;
 

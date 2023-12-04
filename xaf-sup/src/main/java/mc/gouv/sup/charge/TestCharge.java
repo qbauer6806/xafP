@@ -66,6 +66,8 @@ public class TestCharge {
 	private static final String CONFIG_LANGUES = "langues";
 	private static final String CONFIG_BUILDID = "buildid";
 	private static final String CONFIG_USAGERIDS = "usagerids";
+	
+	private static final String LOG_SEPARATOR = "======\n";
 
 	public static void main(String[] args) throws ParseException {
 		
@@ -169,7 +171,7 @@ public class TestCharge {
         else {
         	LOGGER.info("Créer {} demandes, création toutes les {} à {} ms. {}", nombre, intervalle1, intervalle2, messageFichiers);
         }
-        LOGGER.info("======\n");
+        LOGGER.info(LOG_SEPARATOR);
 		
         LOGGER.info("====== Lancement des threads...");
 		List<Future<?>> futures = new ArrayList<>();
@@ -192,7 +194,7 @@ public class TestCharge {
 			Future<?> future = executorService.submit(() -> creerDemande(nombrefichiers, sansDoublons));
 			futures.add(future);
 		}
-		LOGGER.info("======\n");
+		LOGGER.info(LOG_SEPARATOR);
 		
 		LOGGER.info("====== En attente de la terminaison des threads...");
 		boolean allDone = false;
@@ -205,7 +207,7 @@ public class TestCharge {
 			}
 			allDone = finished;
 		}
-		LOGGER.info("======\n");
+		LOGGER.info(LOG_SEPARATOR);
 		
 		LOGGER.info("Tous les threads sont terminés");
 		
@@ -247,7 +249,9 @@ public class TestCharge {
 		
 		Integer usagerId = Integer.parseInt(getRandomConfElement(CONFIG_USAGERIDS));
 		
-		LOGGER.info("Création demande... (usagerid={}, canal={}, langue={}, fichiers={})", usagerId, input.getCanal().name(), input.getLangue(), input.getFichiers().length);
+		String canalStr = input.getCanal().name();
+		
+		LOGGER.info("Création demande... (usagerid={}, canal={}, langue={}, fichiers={})", usagerId, canalStr, input.getLangue(), input.getFichiers().length);
 		
 		try {
 			DemandeDTO demande = apiClient.creerDemande(input, usagerId);

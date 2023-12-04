@@ -223,7 +223,7 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
                 
         		Cell cell = row.createCell(row.getLastCellNum() == -1 ? 0 : row.getLastCellNum());
         		cell.setCellStyle(cellStyle);
-        		String cellValue = getFieldValue(champ, pojo, row, cellStyle, node, header);
+        		String cellValue = getFieldValue(champ, pojo, node, header);
         		if (header) {
         			cellValue = nomSection + " - " + cellValue;
         		}
@@ -245,7 +245,7 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
 	        			Iterator<JsonNode> it = ((ArrayNode)node0).iterator();
 	        			while (it.hasNext()) {
 	        				JsonNode elem = it.next();
-	        				String val = getFieldValue((JSONObject)column, pojo, row, cellStyle, elem, header);
+	        				String val = getFieldValue((JSONObject)column, pojo, elem, header);
 	        				if (StringUtils.isNotBlank(val)) {
 		        				if (valeurColonne.length() > 0) {
 		        					valeurColonne += ", ";
@@ -285,7 +285,7 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
         return ret;
     }
     
-    private String getFieldValue(JSONObject jsonObject, String pojo, Row row, CellStyle cellStyle, JsonNode node, boolean header) {
+    private String getFieldValue(JSONObject jsonObject, String pojo, JsonNode node, boolean header) {
 		String type = (String)jsonObject.get("type");
         if ("chaine".equals(type) || "texte".equals(type)) {
     		if (header) {

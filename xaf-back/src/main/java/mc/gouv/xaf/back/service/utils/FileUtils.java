@@ -37,6 +37,10 @@ public class FileUtils {
     public static final String CAT_COMPLEMENTS = "Fichiers complémentaires de l'usager";
     public static final String CAT_ADMINISTRATION = "Fichiers remis par l'Administration";
     public static final String CAT_INTERNES = "Fichiers internes";
+    
+    private FileUtils() {
+        throw new IllegalStateException("Utility class");
+    }
 
     /**
      * Méthode permettant de lire le contenu d'un fichier

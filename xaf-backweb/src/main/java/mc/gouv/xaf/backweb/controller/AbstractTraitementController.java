@@ -1,15 +1,13 @@
 package mc.gouv.xaf.backweb.controller;
 
-import mc.gouv.xaf.back.bpm.GouvBPM;
-import mc.gouv.xaf.back.bpm.model.CommentaireInterneDTO;
-import mc.gouv.xaf.back.bpm.model.GouvBPMTask;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.data.DemandesService;
-import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import mc.gouv.xaf.backweb.formbean.XafTraitementFormBean;
-import mc.gouv.xaf.shared.SharedMessages;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+
+import javax.transaction.Transactional;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,12 +23,15 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.xml.sax.SAXException;
 
-import javax.transaction.Transactional;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
+import mc.gouv.xaf.back.bpm.GouvBPM;
+import mc.gouv.xaf.back.bpm.model.CommentaireInterneDTO;
+import mc.gouv.xaf.back.bpm.model.GouvBPMTask;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.backweb.formbean.XafTraitementFormBean;
+import mc.gouv.xaf.shared.SharedMessages;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
 
 public class AbstractTraitementController extends AbstractController {
 
@@ -167,7 +168,7 @@ public class AbstractTraitementController extends AbstractController {
 		return null;
 	}
 
-	public ModelAndView form(ModelAndView mav, DemandeDTO demande, StatutPublicOuInterneDTO statutPublicOuInterne) {
+	public ModelAndView form(ModelAndView mav, DemandeDTO demande) {
 		XafTraitementFormBean xafTraitementFormBean = new XafTraitementFormBean();
 		xafTraitementFormBean.setObservations(demande.getObservations());
 		mav.addObject("xafTraitementFormBean", xafTraitementFormBean);

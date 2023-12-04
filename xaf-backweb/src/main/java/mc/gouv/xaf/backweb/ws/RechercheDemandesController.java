@@ -77,12 +77,9 @@ public class RechercheDemandesController extends AbstractController {
         demandeRecherche.setAucunStatut(aucunStatut);
         demandeRecherche.setCheckTimestamp(checkTimestamp);
 
-        // TODO sort non null ?
-        if (pageable.getSort() != null) {
-            Order order = pageable.getSort().iterator().next();
-            if (order != null) {
-                return processCustomData(demandesService.getDemandes(demandeRecherche, pageable, new String[] {}));
-            }
+        Order order = pageable.getSort().iterator().next();
+        if (order != null) {
+            return processCustomData(demandesService.getDemandes(demandeRecherche, pageable, new String[] {}));
         }
 
         Pageable newPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.Direction.ASC,

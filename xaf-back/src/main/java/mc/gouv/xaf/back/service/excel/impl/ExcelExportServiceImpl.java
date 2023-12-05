@@ -46,19 +46,14 @@ public class ExcelExportServiceImpl implements ExcelExportService {
             PoiTransformer transformer = PoiTransformer.createSxssfTransformer(workbook);
             AreaBuilder areaBuilder = new XlsCommentAreaBuilder(transformer);
             List<Area> xlsAreaList = areaBuilder.build();
+            Area xlsArea = xlsAreaList.get(0);
             Context context = new Context();
             for (Map.Entry<String, Object> entry : model.entrySet()) {
                 context.putVar(entry.getKey(), entry.getValue());
             }
             String oldSheetName = workbook.getSheetName(0);
             // create new sheet called Result and start in A1
-            //On a des templates qui ont plusieurs area. EX: rapport_archivage.xlsx dans PERMC
-            xlsAreaList.forEach(xlsArea -> {
-                CellRef startCellRef = xlsArea.getStartCellRef();
-                CellRef cellRef = new CellRef("Result", startCellRef.getRow(), startCellRef.getCol());
-                xlsArea.applyAt(cellRef, context);
-            });
-
+            xlsArea.applyAt(new CellRef("Result!A1"), context);
             context.getConfig().setIsFormulaProcessingRequired(false);
             // processing
             workbook.setForceFormulaRecalculation(true);

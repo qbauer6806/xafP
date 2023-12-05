@@ -325,7 +325,7 @@ public class ArchivageServiceImpl implements ArchivageService {
 
         LOGGER.info("Génération du fichier...");
         ByteArrayOutputStream output = new ByteArrayOutputStream();
-        excelExportService.exportExcel("rapport_archivage.xlsx", model, output);
+        excelExportService.exportExcelSimple("rapport_archivage.xlsx", model, output);
 
         LOGGER.info("Sauvegarde du fichier...");
         ByteArrayOutputStream outputSave = new ByteArrayOutputStream();

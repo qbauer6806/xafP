@@ -7,6 +7,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import mc.gouv.xaf.back.data.dao.AccessRepository;
 import mc.gouv.xaf.back.data.entity.AccessBO;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.data.PropertiesService;
+import mc.gouv.xaf.shared.dto.PropertiesDTO;
+import org.apache.http.HttpStatus;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -30,6 +33,8 @@ public class ExpirationDocHolderConsentSchedulingJob implements Job {
     private AccessRepository accessRepository;
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
+    @Autowired
+    private PropertiesService propertiesService;
 
     private static final String JOB_NAME = "ExpirationDocHolderConsentSchedulingJob";
     private static final String TRIGGER_NAME = "ExpirationDocHolderConsentSchedulingTrigger";
@@ -37,11 +42,21 @@ public class ExpirationDocHolderConsentSchedulingJob implements Job {
     private static final String CONSENTING_NODE = "consenting";
     private static final String DATE_CREATION_NODE = "dateCreation";
     private static final String JSON_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
+    private static final String XAF_PORTE_DOCUMENT_ACTIF = "XAF_PORTE_DOCUMENT_ACTIF";
 
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         LOGGER.info("====================== Démarrage du job ExpirationDocHolderConsentSchedulingJob");
-        if (gouvPropertiesResolver.isPorteDocEnabled()) {
+
+        PropertiesDTO docHolderEnabled = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_PORTE_DOCUMENT_ACTIF);
+
+        if (docHolderEnabled == null) {
+            LOGGER.error("Impossible de lancer le job d'expiration du consentement du porte-documents : la propriété {} n'a pas été trouvée.", XAF_PORTE_DOCUMENT_ACTIF);
+            return;
+        }
+
+        boolean isDocHolderEnabled = Boolean.parseBoolean(docHolderEnabled.getValue());
+        if (isDocHolderEnabled) {
             ObjectMapper mapper = new ObjectMapper();
             List<AccessBO> accesses = accessRepository.getByDemarcheIdAndActive(gouvPropertiesResolver.getDemarcheId(), true);
 

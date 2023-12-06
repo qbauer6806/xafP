@@ -296,10 +296,6 @@ public class GouvPropertiesResolverTestImpl implements GouvPropertiesResolver {
         return null;
     }
 
-    @Override
-    public boolean isPorteDocEnabled() {
-        return false;
-    }
     public String getApiUlisTiersOrganisationUrl() {
         // TODO Auto-generated method stub
         return null;

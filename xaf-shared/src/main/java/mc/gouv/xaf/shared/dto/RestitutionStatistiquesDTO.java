@@ -21,6 +21,8 @@ public class RestitutionStatistiquesDTO {
     private Date date;
     
     private String source;
+    
+    private String demarcheId;
 
     public Integer getPkStatistique() {
 		return pkStatistique;
@@ -68,6 +70,14 @@ public class RestitutionStatistiquesDTO {
 
 	public void setSource(String source) {
 		this.source = source;
+	}
+
+	public String getDemarcheId() {
+		return demarcheId;
+	}
+
+	public void setDemarcheId(String demarcheId) {
+		this.demarcheId = demarcheId;
 	}
 
 }

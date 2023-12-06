@@ -22,6 +22,8 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
+import mc.gouv.xaf.back.service.DemarchesDataProvider;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
@@ -43,7 +45,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import mc.gouv.xaf.back.data.dao.AccessRepository;
-import mc.gouv.xaf.back.data.dao.DemandesFilesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesHistoriqueRepository;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.entity.AccessBO;
@@ -131,16 +132,13 @@ public class DemandesServiceImpl implements DemandesService {
     @Autowired
     private GUKafkaUtils guKafkaUtils;
     
-    @Autowired
-    private DemandesFilesRepository demandesFilesRepository;
-    
 	@Autowired
     private ApplicationContext appContext;
+	@Autowired
+	private DemarchesDataProvider demarchesDataProvider;
 
 	public static final String DATE_PATTERN = "dd/MM/yyyy";
 	
-	public static final String SUPPRIMEE_STATUT = "SUPPRIMEE";
-
 	@Autowired
 	private EntityManager em;
 
@@ -192,6 +190,13 @@ public class DemandesServiceImpl implements DemandesService {
 			
 			// Appel au postprocessing
 			demande = dps.postprocess(demande);
+			//On ajoute le complément des données certifiées qui n'ont pas été définies par le post process
+			List<String> complementDonneesCertifiees = demarchesDataProvider.getComplementDonneesCertifiees(demande);
+			if(CollectionUtils.isNotEmpty(complementDonneesCertifiees)){
+				List<String> donneesCertifiees = AfBackUtils.donneesCertifieesJsonToList(demande.getDonneesCertifiees());
+				donneesCertifiees.addAll(complementDonneesCertifiees);
+				demande.setDonneesCertifiees(AfBackUtils.donneesCertifieesListToJson(donneesCertifiees));
+			}
 		}
 		catch (Exception e) {
 			LOGGER.error("Une erreur est survenue lors du postprocessing de la demande", e);
@@ -579,37 +584,11 @@ public class DemandesServiceImpl implements DemandesService {
 				LOGGER.error("Problème lors de la conversion JSON", e);
 			}
 		}
-		
-		// Mise à jour du contenu
-        if (!partialUpdate || demande.getContenuInitial() != null && !demande.getContenuInitial().isNull()) {
-            ObjectMapper mapper = new ObjectMapper();
-            try {
-                demandeBo.setContenuInitial(mapper.writeValueAsString(demande.getContenuInitial()));
-             // Ce qui suit afin d'éviter l'insertion d'une chaîne "null" en base
-                if (demandeBo.getContenuInitial() != null && "null".equals(demandeBo.getContenuInitial())) {
-                	demandeBo.setContenuInitial(null);
-                }
-            } catch (JsonProcessingException e) {
-                LOGGER.error("Problème lors de la conversion JSON", e);
-            }
-        }
-
 
         // Mise à jour du contenu initial
-        if (!partialUpdate || demande.getContenuInitial() != null && !demande.getContenuInitial().isNull()) {
-            ObjectMapper mapper = new ObjectMapper();
-            try {
-                demandeBo.setContenuInitial(mapper.writeValueAsString(demande.getContenuInitial()));
-                // Ce qui suit afin d'éviter l'insertion d'une chaîne "null" en base
-                if (demandeBo.getContenuInitial() != null && "null".equals(demandeBo.getContenuInitial())) {
-                	demandeBo.setContenuInitial(null);
-                }
-            } catch (JsonProcessingException e) {
-                LOGGER.error("Problème lors de la conversion JSON", e);
-            }
-        }
+		this.updateContenuInitial(demande, partialUpdate, demandeBo);
 
-        // Mise à jour du timestamp pour verrouillage
+		// Mise à jour du timestamp pour verrouillage
         demandeBo.setModificationTimestamp(demande.getModificationTimestamp());
 
 		// Mise à jour des observations
@@ -639,6 +618,21 @@ public class DemandesServiceImpl implements DemandesService {
 		DemandeDTO dto = DemandesTransformer.bo2Dto(demandeBo);
 		dto.setUpdated(true);
 		return dto;
+	}
+
+	private void updateContenuInitial(DemandeDTO demande, boolean partialUpdate, DemandeBO demandeBo) {
+		if (!partialUpdate || demande.getContenuInitial() != null && !demande.getContenuInitial().isNull()) {
+			ObjectMapper mapper = new ObjectMapper();
+			try {
+				demandeBo.setContenuInitial(mapper.writeValueAsString(demande.getContenuInitial()));
+				// Ce qui suit afin d'éviter l'insertion d'une chaîne "null" en base
+				if (demandeBo.getContenuInitial() != null && "null".equals(demandeBo.getContenuInitial())) {
+					demandeBo.setContenuInitial(null);
+				}
+			} catch (JsonProcessingException e) {
+				LOGGER.error("Problème lors de la conversion JSON", e);
+			}
+		}
 	}
 
 	/**

@@ -95,7 +95,7 @@ public interface DemarchesDataProvider {
      */
     default List<String> getStatutsPourDuplication() {
         return new ArrayList<>();
-    };
+    }
 
     /**
      * Un filtrage est appliqué sur les versions des demandes éligibles à un renouvellement de demande courrier.
@@ -109,5 +109,14 @@ public interface DemarchesDataProvider {
     
     default boolean isTypedocApplicable(String typedoc) {
     	return !typedoc.equals("NON_APPLICABLE");
+    }
+
+    /**
+     * Permets de définir une liste de complément de champs des données certifiées
+     * @param demandeDTO la demande en cours de traitement
+     * @return la liste des champs. Par défaut, une liste vide
+     */
+    default List<String> getComplementDonneesCertifiees(DemandeDTO demandeDTO){
+        return new ArrayList<>();
     }
 }

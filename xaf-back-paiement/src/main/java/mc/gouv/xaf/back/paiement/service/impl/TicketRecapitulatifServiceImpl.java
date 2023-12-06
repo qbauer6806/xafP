@@ -90,6 +90,7 @@ public class TicketRecapitulatifServiceImpl implements TicketRecapitulatifServic
 		model.put("numTPE", paiementPropertiesResolver.getTpe());
 		model.put("pkOperation", operation.getPkOperations());
 		model.put("reference", moyenPaiement.getPkMoyenPaiements());
+		model.put("identifiant", demande.getIdentifiant());
 		model.put("dateTransaction",
 				operation.getDateCreation().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
 		model.put("montant", operation.getMontant() + " EUR");

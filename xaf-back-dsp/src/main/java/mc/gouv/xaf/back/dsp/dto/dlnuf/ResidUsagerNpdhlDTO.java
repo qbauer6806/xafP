@@ -109,20 +109,20 @@ public class ResidUsagerNpdhlDTO implements Serializable {
 		this.enfants = enfants;
 	}
 
-    @Override
-    public String toString() {
-        return "ResidResidentCorrespondanceDTO{" +
-                "identite='" + identite.toString() + '\'' +
-                ", contacts='" + contacts.toString() + '\'' +
-                ", residence='" + residence.toString() + '\'' +
-                ", moyenExistence='" + moyenExistence.toString() + '\'' +
-                ", adresse='" + adresse.toString() + '\'' +
-                ", nationalite='" + nationalite.toString() + '\'' +
-                ", resident='" + resident.toString() + '\'' +
-                ", situationFamiliale='" + situationFamiliale.toString() + '\'' +
-                ", enfants=" + enfants.toString() +
-                '}';
-    }
+	@Override
+	public String toString() {
+		return "ResidResidentCorrespondanceDTO{" +
+				"identite='" + identite + '\'' +
+				", contacts='" + contacts + '\'' +
+				", residence='" + residence + '\'' +
+				", moyenExistence='" + moyenExistence + '\'' +
+				", adresse='" + adresse + '\'' +
+				", nationalite='" + nationalite + '\'' +
+				", resident='" + resident + '\'' +
+				", situationFamiliale='" + situationFamiliale + '\'' +
+				", enfants=" + enfants +
+				'}';
+	}
 
 	public ResidMembresFoyerDLN1FDTO getMembresFoyer() {
 		return membresFoyer;

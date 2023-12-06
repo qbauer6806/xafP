@@ -5,6 +5,7 @@ import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.utils.FileUtils;
+import mc.gouv.xaf.shared.dto.DemandeComplementsFileDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xboot.config.web.annotation.GouvRestController;
@@ -362,6 +363,36 @@ public class FileController {
 		}
 		LOGGER.info("====================== saveFiles() terminé, retour au client...");
 		return fileNames;
+	}
+
+	/**
+	 * Appelle FILE afin de sauvegarder différents fichiers contenus dans la request
+	 * et génère les métas concernant le fichier.
+	 * @return une {@link List<DemandeComplementsFileDTO>} contenant les fichiers sauvegardés
+	 * @throws IOException
+	 */
+	public List<DemandeComplementsFileDTO> saveFilesWithMeta(Integer demandeId, MultipartFile[] files, HttpServletResponse response) throws IOException {
+		LOGGER.info("====================== saveFiles()");
+		LOGGER.info("Appel de DEM afin de récupérer la demande pour le calcul...");
+		DemandeDTO demande = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), demandeId);
+		List<DemandeComplementsFileDTO> savedFiles = new ArrayList<>();
+		for (MultipartFile file : files) {
+			if (StringUtils.isNotBlank(file.getOriginalFilename())) {
+				LOGGER.info("Part à traiter : {}", file.getOriginalFilename());
+				LOGGER.info("Appel au FileService...");
+				String filename = fileService.saveFile(demande, gouvPropertiesResolver.getContainerId(), file, response);
+
+				DemandeComplementsFileDTO demandeComplementsFileDTO = new DemandeComplementsFileDTO();
+				// #41757 - On décode de l'url du fichier pour qu'il soit affiché en clair dans le FO
+				demandeComplementsFileDTO.setUrl(URLDecoder.decode(filename, UTF_8));
+				demandeComplementsFileDTO.setName(file.getOriginalFilename());
+				demandeComplementsFileDTO.setMeta(FileUtils.generateMetaData(file));
+
+				savedFiles.add(demandeComplementsFileDTO);
+			}
+		}
+		LOGGER.info("====================== saveFiles() terminé, retour au client...");
+		return savedFiles;
 	}
 
 	/**

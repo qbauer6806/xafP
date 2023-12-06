@@ -17,12 +17,12 @@ import mc.gouv.xaf.back.service.pdf.PdfGenerationService;
 import mc.gouv.xaf.back.service.pdf.PdfTemplateAndModelProvider;
 import mc.gouv.xaf.back.service.pdf.PdfTypeEnum;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.back.service.utils.FileUtils;
 import mc.gouv.xaf.shared.dto.DemandeCourrierDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.PdfTemplateAndModelDTO;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.tika.Tika;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,11 +85,7 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 
 		LOGGER.info("PdfGenerationServiceImpl.generateAndStorePdf({}, {})", demande.getPkDemandes(), pdfType);
 
-		Tika tika = new Tika();
-		long fileSizebytes = tempFile.length();
 		String fileName = tempFile.getName();
-		String mimetype = tika.detect(tempFile);
-
 		String url = fileService.sendToFile(tempFile, demande, fileName);
 
 		// Supprimer le fichier temporaire car il n'est plus utile
@@ -101,8 +97,7 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 		}
 
 		// Ajout des données concernant le fichier généré aux métas
-		meta += ";SIZE_" + fileSizebytes;
-		meta += ";TYPE_" + mimetype;
+		meta += ";" + FileUtils.generateMetaData(tempFile);
 
 		if (pdfType == PdfTypeEnum.FICHIER) {
 			saveFichier(fileName, url, demande, meta);

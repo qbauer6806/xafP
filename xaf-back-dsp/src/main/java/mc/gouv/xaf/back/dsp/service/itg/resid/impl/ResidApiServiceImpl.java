@@ -462,6 +462,7 @@ public class ResidApiServiceImpl implements ResidApiService {
 		statsAStocker.setUsagerId(usagerId);
 		statsAStocker.setMessage(message);
 		statsAStocker.setSource(dataProvider);
+		statsAStocker.setDemarcheId(gouvPropertiesResolver.getDemarcheId());
 		return statsAStocker;
 	}
 }

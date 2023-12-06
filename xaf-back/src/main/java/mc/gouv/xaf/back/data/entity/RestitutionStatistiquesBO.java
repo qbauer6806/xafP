@@ -8,6 +8,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.Size;
 
 /**
  * 
@@ -42,6 +43,18 @@ public class RestitutionStatistiquesBO {
     @Column(name = "SOURCE", nullable = false)
     private String source;
     
+    @Column(name = "DEMARCHE_ID", length = 128)
+    @Size(min = 1, max = 128)
+    private String demarcheId;
+    
+
+	public String getDemarcheId() {
+		return demarcheId;
+	}
+
+	public void setDemarcheId(String demarcheId) {
+		this.demarcheId = demarcheId;
+	}
 
 	public String getSource() {
 		return source;

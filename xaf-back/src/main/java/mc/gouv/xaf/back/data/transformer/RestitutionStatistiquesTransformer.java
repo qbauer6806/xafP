@@ -19,6 +19,7 @@ public class RestitutionStatistiquesTransformer {
         dto.setMessage(bo.getMessage());
         dto.setDate(bo.getDate());
         dto.setSource(bo.getSource());
+        dto.setDemarcheId(bo.getDemarcheId());
         return dto;
     }
     
@@ -33,6 +34,7 @@ public class RestitutionStatistiquesTransformer {
         bo.setMessage(dto.getMessage());
         bo.setDate(dto.getDate());
         bo.setSource(dto.getSource());
+        bo.setDemarcheId(dto.getDemarcheId());
         return bo;
     }
     

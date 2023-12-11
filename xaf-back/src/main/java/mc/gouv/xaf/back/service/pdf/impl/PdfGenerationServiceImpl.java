@@ -88,6 +88,9 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 		String fileName = tempFile.getName();
 		String url = fileService.sendToFile(tempFile, demande, fileName);
 
+		// Ajout des données concernant le fichier généré aux métas
+		meta += ";" + FileUtils.generateMetaData(tempFile);
+
 		// Supprimer le fichier temporaire car il n'est plus utile
 		LOGGER.info("Suppression du fichier temporaire...");
 		try {
@@ -95,9 +98,6 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 		} catch (IOException e) {
 			LOGGER.warn("La suppression du fichier temporaire a échoué", e);
 		}
-
-		// Ajout des données concernant le fichier généré aux métas
-		meta += ";" + FileUtils.generateMetaData(tempFile);
 
 		if (pdfType == PdfTypeEnum.FICHIER) {
 			saveFichier(fileName, url, demande, meta);

@@ -536,11 +536,6 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
         String value = getGichuniUrl();
         return StringUtils.isBlank(value) ? "vide" : value + "/public/doc-holder";
     }
-
-    public boolean isPorteDocEnabled() {
-        String value = Static.getValue(MC_GOUV_PREFIX + applicationPrefix + ".portedoc.enabled");
-        return StringUtils.equals("true", value);
-    }
         
     @Override
     public String getApiUlisMoyensGenerauxUrl() {

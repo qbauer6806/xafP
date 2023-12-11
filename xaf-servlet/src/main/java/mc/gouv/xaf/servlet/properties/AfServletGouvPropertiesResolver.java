@@ -254,13 +254,6 @@ public class AfServletGouvPropertiesResolver {
         return StringUtils.isBlank(value) ? "vide" : value + "/public/doc-holder";
     }
 
-    public static final String PORTEDOC_ENABLED = MC_GOUV_PREFIX + applicationPrefix + ".portedoc.enabled";
-
-    public static String isPorteDocEnabled() {
-        String value = Static.getValue(PORTEDOC_ENABLED);
-        return StringUtils.isBlank(value) ? "false" : value;
-    }
-
     static {
         //Vérification que chaque propriété a bien été configurée
         List<String> propertiesNotFound = new ArrayList<>();
@@ -299,7 +292,6 @@ public class AfServletGouvPropertiesResolver {
         propertiesDTOS.add(new PropertiesDTO(PAIEMENT_PROVIDER, getPaiementProvider()));
         propertiesDTOS.add(new PropertiesDTO(MONETICO_URL, getMoneticoUrl()));
         propertiesDTOS.add(new PropertiesDTO(GICHUNI_URL, getGichuniUrl()));
-        propertiesDTOS.add(new PropertiesDTO(PORTEDOC_ENABLED, isPorteDocEnabled()));
         propertiesDTOS.add(new PropertiesDTO(FILE_JWT, getFileJwt()));
         return propertiesDTOS;
     }

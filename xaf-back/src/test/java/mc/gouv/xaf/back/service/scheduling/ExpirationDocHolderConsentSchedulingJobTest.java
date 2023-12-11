@@ -3,6 +3,8 @@ package mc.gouv.xaf.back.service.scheduling;
 import mc.gouv.xaf.back.data.dao.AccessRepository;
 import mc.gouv.xaf.back.data.entity.AccessBO;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.data.PropertiesService;
+import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -27,6 +29,8 @@ class ExpirationDocHolderConsentSchedulingJobTest {
     GouvPropertiesResolver gouvPropertiesResolver;
     @Mock
     AccessRepository accessRepository;
+    @Mock
+    PropertiesService propertiesService;
 
     @InjectMocks
     ExpirationDocHolderConsentSchedulingJob job;
@@ -36,6 +40,7 @@ class ExpirationDocHolderConsentSchedulingJobTest {
     static Date notExpiredDate = Date.from(Instant.now().atZone(ZoneId.of("Europe/Monaco")).minusYears(1).toInstant());
     static final String JSON_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
     static final SimpleDateFormat dateFormat = new SimpleDateFormat(JSON_DATE_FORMAT);
+    static final String XAF_PORTE_DOCUMENT_ACTIF = "XAF_PORTE_DOCUMENT_ACTIF";
 
     private static Stream<Arguments> accesses() {
         return Stream.of(
@@ -53,7 +58,8 @@ class ExpirationDocHolderConsentSchedulingJobTest {
     @MethodSource("accesses")
     void testExecute(AccessBO access, int numberOfSave) throws JobExecutionException {
 
-        when(gouvPropertiesResolver.isPorteDocEnabled()).thenReturn(true);
+        PropertiesDTO xafPorteDocumentActif = new PropertiesDTO(XAF_PORTE_DOCUMENT_ACTIF, "true");
+        when(propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_PORTE_DOCUMENT_ACTIF)).thenReturn(xafPorteDocumentActif);
         when(gouvPropertiesResolver.getDemarcheId()).thenReturn("POCTS");
         when(accessRepository.getByDemarcheIdAndActive(anyString(), anyBoolean())).thenReturn(List.of(access));
 

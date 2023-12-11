@@ -27,10 +27,10 @@ import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
 import mc.gouv.xaf.shared.SharedMessages;
 
 /**
- * 
+ *
  * Servlet mettant à disposition le service /customRequest avec les méthodes PUT, POST, GET, DELETE. Cette servlet
  * permet d'appeler des fonctions API custom/spécifiques d'une démarche
- * 
+ *
  * @author qdeme
  *
  */
@@ -106,49 +106,10 @@ public class CustomRequestServlet extends AbstractAfServlet {
 
         LOGGER.info("Appel à {}", serviceUrl);
 
-        Request serviceRequest = null;
-        String body = null;
-        try {
-            if (HttpMethod.GET.equals(httpMethod)) {
-                serviceRequest = Request.Get(serviceUrl);
-            } else if (HttpMethod.POST.equals(httpMethod)) {
-
-                body = IOUtils.toString(request.getInputStream());
-
-                ObjectMapper mapper = new ObjectMapper();
-                try {
-                    CustomRequestRechercheDTO rechercheInput = mapper.readValue(body, CustomRequestRechercheDTO.class);
-                    if (rechercheInput.getData() != null) {
-                        String sComplementPost = String.format("&numeroContrat=%s&numeroFacture=%s&numeroTiers=%s",
-                                URLEncoder.encode(rechercheInput.getData().getNumeroContrat(),
-                                        StandardCharsets.UTF_8.toString()),
-                                URLEncoder.encode(rechercheInput.getData().getNumeroFacture(),
-                                        StandardCharsets.UTF_8.toString()),
-                                URLEncoder.encode(rechercheInput.getData().getNumeroTiers(),
-                                        StandardCharsets.UTF_8.toString()));
-                        serviceUrl += sComplementPost;
-                    }
-                } catch (Exception e) {
-                    LOGGER.info("Exception lors de la deserialization de CustomRequestRechercheDTO{}", e);
-                }
-                serviceRequest = Request.Post(serviceUrl);
-                serviceRequest.bodyByteArray(body.getBytes());
-            } else if (HttpMethod.PUT.equals(httpMethod)) {
-                serviceRequest = Request.Put(serviceUrl);
-                body = IOUtils.toString(request.getInputStream());
-                serviceRequest.bodyByteArray(body.getBytes());
-            } else if (HttpMethod.DELETE.equals(httpMethod)) {
-                serviceRequest = Request.Delete(serviceUrl);
-            }
-        } catch (IOException e) {
-            AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
-                    "CustomRequestServlet - Une erreur est survenue lors de l'appel à la méthode " + httpMethod.name());
-            return;
-        }
+        Request serviceRequest = this.getRequest(request, response, httpMethod, serviceUrl);
 
         if (serviceRequest == null) {
-            AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_INTERNAL_SERVER_ERROR,
-                    "Situation anormale : serviceRequest == null");
+            //Les logs sont gérés dans la méthode getRequest. On ne fait rien
             return;
         }
         serviceRequest.setHeader("Authorization", "Bearer " + AfServletGouvPropertiesResolver.getApiJwt());
@@ -156,12 +117,11 @@ public class CustomRequestServlet extends AbstractAfServlet {
         // Copier les headers
         Enumeration<String> headers = request.getHeaderNames();
         while (headers.hasMoreElements()) {
-        	String elem = headers.nextElement();
-        	if (!Arrays.asList(restrictedHeaders).contains(elem)) {
-        		serviceRequest.setHeader(elem, request.getHeader(elem));
-        	}
+            String elem = headers.nextElement();
+            if (!Arrays.asList(restrictedHeaders).contains(elem)) {
+                serviceRequest.setHeader(elem, request.getHeader(elem));
+            }
         }
-
         try {
             HttpResponse serviceResponse = serviceRequest.execute().returnResponse();
             int statusCode = serviceResponse.getStatusLine().getStatusCode();
@@ -172,6 +132,54 @@ public class CustomRequestServlet extends AbstractAfServlet {
             AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_INTERNAL_SERVER_ERROR,
                     "Erreur lors du traitement de la réponse");
         }
+    }
+
+    private Request getRequest(HttpServletRequest request, HttpServletResponse response, HttpMethod httpMethod, String serviceUrl) {
+        Request serviceRequest = null;
+        try {
+            if (HttpMethod.GET.equals(httpMethod)) {
+                serviceRequest = Request.Get(serviceUrl);
+            } else if (HttpMethod.POST.equals(httpMethod)) {
+                serviceRequest = this.getRequest(request, serviceUrl);
+            } else if (HttpMethod.PUT.equals(httpMethod)) {
+                serviceRequest = Request.Put(serviceUrl);
+                String body = IOUtils.toString(request.getInputStream(), StandardCharsets.UTF_8);
+                serviceRequest.bodyByteArray(body.getBytes());
+            } else if (HttpMethod.DELETE.equals(httpMethod)) {
+                serviceRequest = Request.Delete(serviceUrl);
+            }
+        } catch (IOException e) {
+            AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
+                    "CustomRequestServlet - Une erreur est survenue lors de l'appel à la méthode " + httpMethod.name());
+            return null;
+        }
+        if (serviceRequest == null) {
+            AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_INTERNAL_SERVER_ERROR,
+                    "Situation anormale : serviceRequest == null");
+        }
+        return serviceRequest;
+    }
+
+    private Request getRequest(HttpServletRequest request, String serviceUrl) throws IOException {
+        String body = IOUtils.toString(request.getInputStream(), StandardCharsets.UTF_8);
+
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            CustomRequestRechercheDTO rechercheInput = mapper.readValue(body, CustomRequestRechercheDTO.class);
+            if (rechercheInput.getData() != null) {
+                String sComplementPost = String.format("&numeroContrat=%s&numeroFacture=%s&numeroTiers=%s",
+                        URLEncoder.encode(rechercheInput.getData().getNumeroContrat(), StandardCharsets.UTF_8),
+                        URLEncoder.encode(rechercheInput.getData().getNumeroFacture(), StandardCharsets.UTF_8),
+                        URLEncoder.encode(rechercheInput.getData().getNumeroTiers(), StandardCharsets.UTF_8));
+                serviceUrl += sComplementPost;
+            }
+        } catch (Exception e) {
+            LOGGER.info("Exception lors de la deserialization de CustomRequestRechercheDTO", e);
+        }
+        Request serviceRequest = Request.Post(serviceUrl);
+        serviceRequest.bodyByteArray(body.getBytes());
+
+        return serviceRequest;
     }
 
     @Override

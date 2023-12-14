@@ -157,6 +157,11 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
     }
 
     @Override
+    public List<DemandeFileDTO> getFileByDemandeIdAndTypedoc(Integer pkDemande, String typedoc) {
+        return DemandesFilesTransformer.bo2Dto(demandesFilesRepository.findAllByFkDemandes_PkDemandesAndTypedoc(pkDemande, typedoc));
+    }
+
+    @Override
     public List<DemandeFileDTO> getFileByDemandeIdAndMeta(Integer pkDemande, String meta) {
         return DemandesFilesTransformer.bo2Dto(demandesFilesRepository.findAllByFkDemandes_PkDemandesAndMeta(pkDemande, meta));
     }

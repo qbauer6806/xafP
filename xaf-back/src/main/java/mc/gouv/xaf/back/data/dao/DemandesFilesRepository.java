@@ -16,6 +16,8 @@ public interface DemandesFilesRepository extends CrudRepository<DemandesFilesBO,
 	
     List<DemandesFilesBO> findAllByUrl(String url);
 
+    List<DemandesFilesBO> findAllByFkDemandes_PkDemandesAndTypedoc(Integer pkDemande, String typedoc);
+
     List<DemandesFilesBO> findAllByFkDemandes_PkDemandesAndMeta(Integer pkDemande, String meta);
 
 }

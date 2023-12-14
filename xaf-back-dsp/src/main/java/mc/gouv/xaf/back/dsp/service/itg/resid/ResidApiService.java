@@ -2,11 +2,13 @@ package mc.gouv.xaf.back.dsp.service.itg.resid;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import mc.gouv.xaf.back.dsp.dto.*;
+import mc.gouv.xaf.back.dsp.dto.dlnuf.ResidInitialDemandeParamDTO;
 import mc.gouv.xaf.back.dsp.dto.dlnuf.ResidUsagerNpdhlDTO;
 import mc.gouv.xaf.back.dsp.exception.ResidHttpResponseException;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
 
@@ -30,5 +32,5 @@ public interface ResidApiService {
 
     List<ResidResidentCorrespondanceDTO> getListResidCorrespondance(String numeroCarte, String url, String jwt);
     
-    ResidUsagerNpdhlDTO getUsagerDln1f(String nom, String prenom, String dateNaissance, String heureNaissance, String villeNaissance, String paysNaissance, String url, String jwt, Integer usagerId);
+    ResidUsagerNpdhlDTO getUsagerDln1f(ResidInitialDemandeParamDTO paramDTO, String url, String jwt, Integer usagerId) throws ParseException;
 }

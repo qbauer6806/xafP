@@ -5,10 +5,14 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
+import mc.gouv.xaf.back.dsp.dto.dlnuf.ResidInitialDemandeParamDTO;
+import mc.gouv.xaf.shared.enums.SourceDonneesEnum;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,6 +59,9 @@ import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.RestitutionStatistiquesDTO;
 
+import static mc.gouv.xaf.back.dsp.utils.ResidUtils.convertMConnectDateToResidDate;
+import static mc.gouv.xaf.back.dsp.utils.ResidUtils.convertMConnectDateToResidHourMinute;
+
 @Component
 public class ResidApiServiceImpl implements ResidApiService {
 
@@ -97,7 +104,7 @@ public class ResidApiServiceImpl implements ResidApiService {
 		LOGGER.info("Appel à l'API RESID pour la création d'une carte");
 
 		ResponseEntity<ResidHttpResponseDTO> responseEntity = submitDemandeResident(nouvelleCarte,
-				new ParameterizedTypeReference<ResidHttpResponseDTO>(){}, files, url, RESID_NOUVELLE_CARTE_PATH, jwt);
+				new ParameterizedTypeReference<>(){}, files, url, RESID_NOUVELLE_CARTE_PATH, jwt);
 
 		if (HttpStatus.CREATED.equals(responseEntity.getStatusCode())) {
 			ResidHttpResponseDTO residHttpResponseDTO = new ResidHttpResponseDTO();
@@ -114,7 +121,7 @@ public class ResidApiServiceImpl implements ResidApiService {
 		LOGGER.info("Appel à l'API RESID pour le renouvellement d'une carte");
 
         ResponseEntity<ResidHttpResponseDTO> responseEntity = submitDemandeResident(renouvellement,
-                new ParameterizedTypeReference<ResidHttpResponseDTO>(){}, files, url, RESID_RENOUVELLEMENT_CARTE_PATH, jwt);
+                new ParameterizedTypeReference<>(){}, files, url, RESID_RENOUVELLEMENT_CARTE_PATH, jwt);
 
 		if (HttpStatus.CREATED.equals(responseEntity.getStatusCode())) {
 			ResidHttpResponseDTO residHttpResponseDTO = new ResidHttpResponseDTO();
@@ -140,7 +147,7 @@ public class ResidApiServiceImpl implements ResidApiService {
 		LOGGER.info("Appel à l'API RESID pour le duplicata d'une carte");
 
 		ResponseEntity<ResidHttpResponseDTO> responseEntity = submitDemandeResident(duplicataCarte,
-                new ParameterizedTypeReference<ResidHttpResponseDTO>(){}, files, url, RESID_DUPLICATA_CARTE_PATH, jwt);
+                new ParameterizedTypeReference<>(){}, files, url, RESID_DUPLICATA_CARTE_PATH, jwt);
 
 		if (HttpStatus.CREATED.equals(responseEntity.getStatusCode())) {
 			ResidHttpResponseDTO residHttpResponseDTO = new ResidHttpResponseDTO();
@@ -257,7 +264,7 @@ public class ResidApiServiceImpl implements ResidApiService {
 		LOGGER.info("Ajout des fichiers");
 
 		for(Map.Entry<Integer, DemandeFileDTO> entry : files.entrySet()) {
-			String filePathEncoded = URLEncoder.encode(entry.getValue().getUrl(), "UTF-8");
+			String filePathEncoded = URLEncoder.encode(entry.getValue().getUrl(), StandardCharsets.UTF_8);
 			InputStream isf = fileService.getFile(filePathEncoded, gouvPropertiesResolver.getContainerId());
 
 			HttpHeaders requestHeadersAttachment = new HttpHeaders();
@@ -335,7 +342,7 @@ public class ResidApiServiceImpl implements ResidApiService {
 
 		// Appel et réponse
 		ResponseEntity<List<ResidStatutDemandeDTO>> responseEntity = rest.exchange(uri, HttpMethod.POST, requestEntity,
-				new ParameterizedTypeReference<List<ResidStatutDemandeDTO>>(){});
+				new ParameterizedTypeReference<>(){});
 
 		LOGGER.debug("Réponse de l'API {}", responseEntity.getBody());
 
@@ -345,7 +352,7 @@ public class ResidApiServiceImpl implements ResidApiService {
 	}
 
     @Override
-    public ResidEtatsDemandesUpdatedAfterDTO getEtatsDemandesUpdated(String updatedAfter, String url, String jwt) throws ResidHttpResponseException {
+    public ResidEtatsDemandesUpdatedAfterDTO getEtatsDemandesUpdated(String updatedAfter, String url, String jwt) {
 
         // Construction du rest template
         RestTemplate rest = restTemplateBuilder.errorHandler(new ResidErrorResponseErrorHandler()).build();
@@ -356,7 +363,7 @@ public class ResidApiServiceImpl implements ResidApiService {
         String requestUrl = url + RESID_ETATS_DEMANDES_PATH;
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(requestUrl);
         try {
-            builder.queryParam("updatedAfter", URLEncoder.encode(updatedAfter, "UTF-8"));
+            builder.queryParam("updatedAfter", URLEncoder.encode(updatedAfter, StandardCharsets.UTF_8));
         } catch (Exception e) {
             LOGGER.error("Problème dans l'encodage de la date à envoyer à RESID");
         }
@@ -406,9 +413,9 @@ public class ResidApiServiceImpl implements ResidApiService {
 		LOGGER.debug(HEADERS_LOG, headers);
 
 		ResponseEntity<List<ResidResidentCorrespondanceDTO>> responseEntity = rest.exchange(uri,
-				HttpMethod.GET, requestEntity, new ParameterizedTypeReference<List<ResidResidentCorrespondanceDTO>>(){});
+				HttpMethod.GET, requestEntity, new ParameterizedTypeReference<>(){});
 
-		LOGGER.info("Fin appel RESID");
+		LOGGER.info("Fin appel RESID getListResidCorrespondance");
 
 		if (!HttpStatus.OK.equals(responseEntity.getStatusCode())) {
 			return Collections.emptyList();
@@ -416,19 +423,21 @@ public class ResidApiServiceImpl implements ResidApiService {
 
 		return responseEntity.getBody();
 	}
-	
+
 	@Override
-	public ResidUsagerNpdhlDTO getUsagerDln1f(String nom, String prenom, String dateNaissance, String heureNaissance,
-			String villeNaissance, String paysNaissance, String url, String jwt, Integer usagerId) {
+	public ResidUsagerNpdhlDTO getUsagerDln1f(ResidInitialDemandeParamDTO paramDTO, String url, String jwt, Integer usagerId) throws ParseException {
 		LOGGER.info("Appel à l'API RESID v2 /usagers/npdhl pour demander l'usager correspondant");
 		RestTemplate rest = restTemplateBuilder.errorHandler(new ResidErrorResponseErrorHandler()).build();
 		rest.getMessageConverters().add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
 		HttpHeaders headers = getResidRequestHeaders(jwt);
 
-		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url + RESID_USAGERS_PATH + RESID_NPDHL_PATH).queryParam("nom", nom)
-				.queryParam("prenoms", prenom).queryParam("dateNaissance", dateNaissance)
-				.queryParam("heureNaissance", heureNaissance).queryParam("villeNaissance", villeNaissance)
-				.queryParam("paysNaissance", paysNaissance);
+		UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(url + RESID_USAGERS_PATH + RESID_NPDHL_PATH)
+				.queryParam("nom", paramDTO.getNom())
+				.queryParam("prenoms", paramDTO.getPrenom())
+				.queryParam("dateNaissance", convertMConnectDateToResidDate(paramDTO.getDateNaissance()))
+				.queryParam("heureNaissance", convertMConnectDateToResidHourMinute(paramDTO.getDateNaissance()))
+				.queryParam("villeNaissance", paramDTO.getVilleNaissance())
+				.queryParam("paysNaissance", paramDTO.getPaysNaissance());
 		URI uri = builder.build().encode().toUri();
 
 		HttpEntity<String> requestEntity = new HttpEntity<>(headers);
@@ -438,30 +447,31 @@ public class ResidApiServiceImpl implements ResidApiService {
 
 		try {
 			ResponseEntity<ResidUsagerNpdhlDTO> responseEntity = rest.exchange(uri, HttpMethod.GET, requestEntity,
-					new ParameterizedTypeReference<ResidUsagerNpdhlDTO>() {
+					new ParameterizedTypeReference<>() {
 					});
 			restitutionStatsService
-					.saveRestitutionStatistique(createStatsAStocker(HttpStatus.OK.value(), usagerId, "", "RESID"));
+					.saveRestitutionStatistique(createStatsAStocker(HttpStatus.OK.value(), usagerId, ""));
 			return responseEntity.getBody();
 		} catch (Exception e) {
+			LOGGER.error("====== ERREUR lors du GET Usager RESID", e);
 			if (e.getCause() instanceof ResidHttpResponseException) {
 				ResidHttpResponseException residException = (ResidHttpResponseException) e.getCause();
-				restitutionStatsService.saveRestitutionStatistique(createStatsAStocker(residException.getHttpStatus(), usagerId, residException.getMessage(), "RESID"));
+				restitutionStatsService.saveRestitutionStatistique(
+						createStatsAStocker(residException.getHttpStatus(), usagerId, residException.getMessage()));
 			}
 		}
 
-		LOGGER.info("Fin appel RESID");
+		LOGGER.info("Fin appel RESID getUsagerDln1f");
 		return null;
-
 	}
 
-	private RestitutionStatistiquesDTO createStatsAStocker(Integer httpCode, Integer usagerId, String message, String dataProvider) {
+	private RestitutionStatistiquesDTO createStatsAStocker(Integer httpCode, Integer usagerId, String message) {
 		RestitutionStatistiquesDTO statsAStocker = new RestitutionStatistiquesDTO();
 		statsAStocker.setDate(new Date());
 		statsAStocker.setHttpCode(httpCode);
 		statsAStocker.setUsagerId(usagerId);
 		statsAStocker.setMessage(message);
-		statsAStocker.setSource(dataProvider);
+		statsAStocker.setSource(SourceDonneesEnum.RESID.name());
 		statsAStocker.setDemarcheId(gouvPropertiesResolver.getDemarcheId());
 		return statsAStocker;
 	}

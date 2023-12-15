@@ -33,4 +33,6 @@ public interface ResidApiService {
     List<ResidResidentCorrespondanceDTO> getListResidCorrespondance(String numeroCarte, String url, String jwt);
     
     ResidUsagerNpdhlDTO getUsagerDln1f(ResidInitialDemandeParamDTO paramDTO, String url, String jwt, Integer usagerId) throws ParseException;
+    
+    void setLastSuccessfulSynchroProperty(String lastSuccessfulSynchroTime);
 }

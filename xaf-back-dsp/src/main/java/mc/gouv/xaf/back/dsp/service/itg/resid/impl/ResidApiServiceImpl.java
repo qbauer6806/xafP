@@ -352,7 +352,7 @@ public class ResidApiServiceImpl implements ResidApiService {
 	}
 
     @Override
-    public ResidEtatsDemandesUpdatedAfterDTO getEtatsDemandesUpdated(String updatedAfter, String url, String jwt) {
+    public ResidEtatsDemandesUpdatedAfterDTO getEtatsDemandesUpdated(String updatedAfter, String url, String jwt) throws ResidHttpResponseException {
 
         // Construction du rest template
         RestTemplate rest = restTemplateBuilder.errorHandler(new ResidErrorResponseErrorHandler()).build();
@@ -387,7 +387,8 @@ public class ResidApiServiceImpl implements ResidApiService {
         return responseEntity.getBody();
     }
 
-	protected void setLastSuccessfulSynchroProperty(String lastSuccessfulSynchroTime) {
+    @Override
+	public void setLastSuccessfulSynchroProperty(String lastSuccessfulSynchroTime) {
 		PropertiesDTO lastSynchroProperty = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), LAST_SUCCESSFUL_SYNCHRO_KEY);
 		lastSynchroProperty.setValue(lastSuccessfulSynchroTime);
 		propertiesService.saveOrUpdateProperties(lastSynchroProperty);

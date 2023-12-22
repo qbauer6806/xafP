@@ -17,8 +17,8 @@ import mc.gouv.xaf.back.paiement.service.PaiementsDataProvider;
 import mc.gouv.xaf.back.paiement.service.ReferenceFactoryService;
 import mc.gouv.xaf.back.paiement.service.itg.FactureApiClient;
 import mc.gouv.xaf.back.paiement.service.itg.PaiementApiClient;
-import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
+import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,29 +49,24 @@ public class CaptureServiceImpl implements CaptureService {
     private ReferenceFactoryService referenceFactoryService;
     @Autowired
     private PaiementsDataProvider paiementsDataProvider;
-    @Autowired
-    private DemarchesDataProvider demarchesDataProvider;
 
     @Override
     public CommandeOperationDTO capture(CommandeDTO commandeDTO, DemandeDTO demandeDTO) throws DemarchesServiceException {
         logStartMethod(LOGGER);
         LOGGER.info("Parameters [ commandeDTO {}] ", commandeDTO);
         List<CommandeDemandeDTO> commandeDemandeDTOS = commandeDTO.getCommandesDemandes();
-        CommandeDemandeDTO commandeDemandeDTO = null;
-        for (CommandeDemandeDTO c : commandeDemandeDTOS) {
-            if (c.getFkDemandes().equals(demandeDTO.getPkDemandes())) {
-                commandeDemandeDTO = c;
-                break;
-            }
+        if(CollectionUtils.isEmpty(commandeDemandeDTOS)){
+            throw new DemarchesServiceException("Aucune liaison commande - demande trouvée", HttpStatus.NOT_FOUND);
         }
+        CommandeDemandeDTO commandeDemandeDTO = commandeDemandeDTOS.stream()
+                .filter(comm -> comm.getFkDemandes().equals(demandeDTO.getPkDemandes())).findFirst()
+                .orElseThrow(()->new DemarchesServiceException("Impossible de trouver la liaison entre la demande et la commande",
+                        HttpStatus.NOT_FOUND));
 
-        if (null == commandeDemandeDTO) {
-            throw new DemarchesServiceException("Impossible de trouver la liaison entre la demande et la commande", HttpStatus.NOT_FOUND);
-        }
-
-        // Si la démarche gère des tâches il se peut que la demande soit partiellement validée, on doit calculer le montant à capturer.
         CommandeOperationDTO operation = new CommandeOperationDTO();
-        operation.setMontant(demarchesDataProvider.getDemarcheCanHandleTaches() ? paiementsDataProvider.getMontantCapture(demandeDTO) : commandeDemandeDTO.getMontant());
+        // Si la démarche gère des tâches, il se peut que la demande soit partiellement validée, on doit calculer le montant à capturer
+        // Sinon la méthode par défaut retourne le montant de la commande.
+        operation.setMontant(paiementsDataProvider.getMontantCapture(demandeDTO, commandeDemandeDTO));
         boolean resultatCapture = paiementApiClient.capture(commandeDTO, operation, demandeDTO);
 
         operation.setPkOperations(referenceFactoryService.createSimpleReferenceDigitsNumeric(7));

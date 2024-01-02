@@ -22,7 +22,6 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
-import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -55,6 +54,7 @@ import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
 import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.service.DemandePostprocessingService;
+import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.AccessService;
 import mc.gouv.xaf.back.service.data.DemandesComplementsService;
 import mc.gouv.xaf.back.service.data.DemandesDataService;
@@ -78,6 +78,7 @@ import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 import mc.gouv.xaf.shared.dto.PageParamDTO;
 import mc.gouv.xaf.shared.dto.StatistiqueDTO;
+import mc.gouv.xaf.shared.dto.sourcefiable.SourceFiableDTO;
 
 /**
  * Service permettant la manipulation des demandes.
@@ -191,9 +192,9 @@ public class DemandesServiceImpl implements DemandesService {
 			// Appel au postprocessing
 			demande = dps.postprocess(demande);
 			//On ajoute le complément des données certifiées qui n'ont pas été définies par le post process
-			List<String> complementDonneesCertifiees = demarchesDataProvider.getComplementDonneesCertifiees(demande);
+			List<SourceFiableDTO> complementDonneesCertifiees = demarchesDataProvider.getComplementDonneesCertifiees(demande);
 			if(CollectionUtils.isNotEmpty(complementDonneesCertifiees)){
-				List<String> donneesCertifiees = AfBackUtils.donneesCertifieesJsonToList(demande.getDonneesCertifiees());
+				List<SourceFiableDTO> donneesCertifiees = AfBackUtils.donneesCertifieesJsonToList(demande.getDonneesCertifiees());
 				donneesCertifiees.addAll(complementDonneesCertifiees);
 				demande.setDonneesCertifiees(AfBackUtils.donneesCertifieesListToJson(donneesCertifiees));
 			}

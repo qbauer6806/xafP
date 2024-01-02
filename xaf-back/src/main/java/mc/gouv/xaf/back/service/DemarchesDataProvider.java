@@ -10,6 +10,7 @@ import mc.gouv.xaf.shared.dto.DemandeExcelGenerationDTO;
 import mc.gouv.xaf.shared.dto.GenericStatusDTO;
 import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
 import mc.gouv.xaf.shared.dto.TitreUsagerEnum;
+import mc.gouv.xaf.shared.dto.sourcefiable.SourceFiableDTO;
 import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 
 /**
@@ -116,7 +117,7 @@ public interface DemarchesDataProvider {
      * @param demandeDTO la demande en cours de traitement
      * @return la liste des champs. Par défaut, une liste vide
      */
-    default List<String> getComplementDonneesCertifiees(DemandeDTO demandeDTO){
+    default List<SourceFiableDTO> getComplementDonneesCertifiees(DemandeDTO demandeDTO){
         return new ArrayList<>();
     }
 }

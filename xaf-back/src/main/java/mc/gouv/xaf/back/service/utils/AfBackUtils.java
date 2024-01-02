@@ -67,6 +67,7 @@ import mc.gouv.xaf.shared.dto.MotifDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.PropertiesListEntityDTO;
 import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
+import mc.gouv.xaf.shared.dto.sourcefiable.SourceFiableDTO;
 
 /**
  * Classe utilitaire pour le projet xaf-back
@@ -731,11 +732,11 @@ public class AfBackUtils {
 	    return null;
     }
     
-    public static List<String> donneesCertifieesJsonToList(String json) {
+    public static List<SourceFiableDTO> donneesCertifieesJsonToList(String json) {
     	if (json != null) {
 	    	try {
 	    		ObjectMapper mapper = new ObjectMapper();
-				return mapper.readValue(json, new TypeReference<List<String>>(){});
+				return mapper.readValue(json, new TypeReference<List<SourceFiableDTO>>(){});
 			} catch (JsonProcessingException e) {
 				LOGGER.error("Erreur dans donneesCertifieesJsonToList()", e);
 			}
@@ -743,7 +744,7 @@ public class AfBackUtils {
     	return new ArrayList<>();
     }
     
-    public static String donneesCertifieesListToJson(List<String> list) {
+    public static String donneesCertifieesListToJson(List<SourceFiableDTO> list) {
     	ObjectMapper mapper = new ObjectMapper();
     	try {
 			return mapper.writeValueAsString(list);
@@ -753,9 +754,9 @@ public class AfBackUtils {
     	return null;
     }
     
-	public static String addDonneeCertifiee(String donneesCertifiees, String path) {
-		List<String> donneesCertifieesList = donneesCertifieesJsonToList(donneesCertifiees);
-		donneesCertifieesList.add(path);
+	public static String addDonneeCertifiee(String donneesCertifiees, SourceFiableDTO sourceFiable) {
+		List<SourceFiableDTO> donneesCertifieesList = donneesCertifieesJsonToList(donneesCertifiees);
+		donneesCertifieesList.add(sourceFiable);
 		return donneesCertifieesListToJson(donneesCertifieesList);
 	}
 	

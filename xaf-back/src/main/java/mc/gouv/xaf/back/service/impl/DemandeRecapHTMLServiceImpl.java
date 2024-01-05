@@ -683,24 +683,29 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
         String ligne1 = escape(getNode(node, champ, LIGNE1).textValue(), isPdfRecap);
         String ligne2 = escape(getNode(node, champ, "ligne2").textValue(), isPdfRecap);
         String ligne3 = escape(getNode(node, champ, "ligne3").textValue(), isPdfRecap);
+
         if (StringUtils.isNotEmpty(ligne1)) {
             adresseBuilder.append("<span ");
             if (StringUtils.isNotBlank(idPrefix)) {
-                adresseBuilder.append(ID).append(idPrefix).append("-ligne1\" ").append("/>").append(ligne1);
+                adresseBuilder.append(ID).append(idPrefix).append("-ligne1\" ");
             }
+            adresseBuilder.append('>').append(ligne1).append(SPAN_CLOSE);
         }
         if (StringUtils.isNotBlank(ligne2)) {
             adresseBuilder.append("<br/><span ");
             if (StringUtils.isNotBlank(idPrefix)) {
-                adresseBuilder.append(ID).append(idPrefix).append("-ligne2\" ").append("/>").append(ligne2);
+                adresseBuilder.append(ID).append(idPrefix).append("-ligne2\" ");
             }
+            adresseBuilder.append('>').append(ligne2).append(SPAN_CLOSE);
         }
         if (StringUtils.isNotBlank(ligne3)) {
             adresseBuilder.append("<br/><span ");
             if (StringUtils.isNotBlank(idPrefix)) {
-                adresseBuilder.append(ID).append(idPrefix).append("-ligne3\" ").append("/>").append(ligne3);
+                adresseBuilder.append(ID).append(idPrefix).append("-ligne3\" ");
             }
+            adresseBuilder.append('>').append(ligne3).append(SPAN_CLOSE);
         }
+
     }
 
     private void completeSpan(String id, StringBuilder adresseBuilder, List<SourceFiableDTO> donneesCertififiees, String sectionKey,

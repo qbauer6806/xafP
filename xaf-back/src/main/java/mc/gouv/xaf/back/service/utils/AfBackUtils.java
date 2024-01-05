@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 
 import mc.gouv.xaf.shared.dto.sourcefiable.enums.SourceFiablesEnum;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -723,28 +724,28 @@ public class AfBackUtils {
 	    }
 	    return null;
     }
-    
+
     public static List<SourceFiableDTO> donneesCertifieesJsonToList(String json) {
-    	if (json != null) {
+        if (json != null) {
             ObjectMapper mapper = new ObjectMapper();
-	    	try {
-				return mapper.readValue(json, new TypeReference<>(){});
-			} catch (JsonProcessingException e) {
+            try {
+                return mapper.readValue(json, new TypeReference<>() {
+                });
+            } catch (JsonProcessingException e) {
                 try {
-                    List<String> values = mapper.readValue(json, new TypeReference<>(){});
-                    return values.stream().map(AfBackUtils::mapp).collect(Collectors.toList());
+                    List<String> values = mapper.readValue(json, new TypeReference<>() {
+                    });
+                    if (CollectionUtils.isNotEmpty(values)) {
+                        return values.stream().map(value -> new SourceFiableDTO(value, SourceFiablesEnum.MCONNECT))
+                                .collect(Collectors.toList());
+                    }
                 } catch (JsonProcessingException ex) {
                     LOGGER.error("Erreur dans donneesCertifieesJsonToList()", e);
                 }
-			}
-    	}
-    	return new ArrayList<>();
+            }
+        }
+        return new ArrayList<>();
     }
-    private static SourceFiableDTO mapp(String value){
-        return new SourceFiableDTO(value, SourceFiablesEnum.MCONNECT);
-    }
-
-    
     public static String donneesCertifieesListToJson(List<SourceFiableDTO> list) {
     	ObjectMapper mapper = new ObjectMapper();
     	try {

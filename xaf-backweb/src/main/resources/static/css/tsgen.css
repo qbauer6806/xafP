@@ -545,3 +545,8 @@ dd span {
     color: #fff;
     background: #068BAD;
 }
+/* classe pour afficher le picto vert pour les données de source fiable */
+.img-source-fiable{
+    float: right;
+    margin-right: 10px;
+}

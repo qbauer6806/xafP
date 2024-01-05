@@ -3,7 +3,8 @@ package mc.gouv.xaf.shared.dto.sourcefiable.enums;
 public enum SourceFiablesEnum {
 
     DSP_RESID("DSP-RESID"),
-    MAIRIE("Mairie-Identité numérique");
+    MAIRIE("Mairie-Identité numérique"),
+    MCONNECT("Donnée certifiée");
 
     private String libelle;
 

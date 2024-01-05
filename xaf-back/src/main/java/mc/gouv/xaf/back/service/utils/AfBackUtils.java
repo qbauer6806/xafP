@@ -8,20 +8,12 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
+import mc.gouv.xaf.shared.dto.sourcefiable.enums.SourceFiablesEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -734,15 +726,24 @@ public class AfBackUtils {
     
     public static List<SourceFiableDTO> donneesCertifieesJsonToList(String json) {
     	if (json != null) {
+            ObjectMapper mapper = new ObjectMapper();
 	    	try {
-	    		ObjectMapper mapper = new ObjectMapper();
-				return mapper.readValue(json, new TypeReference<List<SourceFiableDTO>>(){});
+				return mapper.readValue(json, new TypeReference<>(){});
 			} catch (JsonProcessingException e) {
-				LOGGER.error("Erreur dans donneesCertifieesJsonToList()", e);
+                try {
+                    List<String> values = mapper.readValue(json, new TypeReference<>(){});
+                    return values.stream().map(AfBackUtils::mapp).collect(Collectors.toList());
+                } catch (JsonProcessingException ex) {
+                    LOGGER.error("Erreur dans donneesCertifieesJsonToList()", e);
+                }
 			}
     	}
     	return new ArrayList<>();
     }
+    private static SourceFiableDTO mapp(String value){
+        return new SourceFiableDTO(value, SourceFiablesEnum.MCONNECT);
+    }
+
     
     public static String donneesCertifieesListToJson(List<SourceFiableDTO> list) {
     	ObjectMapper mapper = new ObjectMapper();

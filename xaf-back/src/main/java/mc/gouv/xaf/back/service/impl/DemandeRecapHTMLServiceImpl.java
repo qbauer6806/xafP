@@ -15,7 +15,9 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
+import mc.gouv.xaf.shared.dto.sourcefiable.enums.SourceFiablesEnum;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONArray;
@@ -63,6 +65,7 @@ import mc.gouv.xaf.shared.dto.sourcefiable.SourceFiableDTO;
 @Component
 public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 
+    public static final String DT = "</dt>";
     private static final String LIGNE1 = "ligne1";
 	private static final String CLOSING_DD_OPENING_DT = "</dd><dt>";
 	private static final String CLOSING_TR = "</tr>";
@@ -348,22 +351,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
         // Pour mettre une icône s'il s'agit d'une donnée certifiée
         String path = (String) champ.get("path");
         String idPrefix = (String) champ.get(ID_PREFIX);
-        String source = "Donnée certifiée";
-        boolean isDonneeCertifiee = false;
-    	for (SourceFiableDTO sourceFiableDTO : donneesCertififiees) {
-    		// Cas de l'adresse
-    		if(type.equals(ADRESSE) && isAdresseCertifiee(demande, champ, sourceFiableDTO.getModelPath())) {
-    			isDonneeCertifiee = true;
-    			source = sourceFiableDTO.getSourceFiable().toString();
-    			break;
-    		}
-    		if(sourceFiableDTO.getModelPath().equals(path)) {
-    			isDonneeCertifiee = true;
-    			source = sourceFiableDTO.getSourceFiable().toString();
-    			break;
-    		}
-    		
-		}
+        String source = this.getSourceDonneesFiable(champ, demande, donneesCertififiees, type, path);
 
         // Pour mettre l'ID HTML de la donnée, récupéré depuis le fichier Recap (pour les testeurs)
         boolean champAMarquer = spansIdAMarquer.contains(idPrefix);
@@ -383,7 +371,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
             if (StringUtils.isBlank(valueSource)) {
                 valueSource = "N/A";
             }
-            html.append("<dt class='nouvelledonnee-titre'>").append(champ.get(LABEL)).append("</dt>");
+            html.append("<dt class='nouvelledonnee-titre'>").append(champ.get(LABEL)).append(DT);
             
             String newValue = value.replace(SPAN_OPEN, "<span class='nouvelledonnee-contenu'>")
 			        .replace("<dt>", "<dt class='nouvelledonnee-titre'>")
@@ -395,21 +383,35 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
             html.append(DD);
 
             html.append("<dt class='anciennedonnee-titre' title='Donnée modifiée'>").append(champ.get(LABEL))
-                    .append("</dt>");
+                    .append(DT);
             String newValueSource = valueSource.replace(SPAN_OPEN, "<span class='anciennedonnee-contenu'>")
 			        .replace("<dt>", "<dt class='anciennedonnee-titre' title='Donnée modifiée'>")
 			        .replace("<dd>", "<dd class='anciennedonnee-contenu' title='Donnée modifiée'>");
 			html.append("<dd class='anciennedonnee-titre' title='Donnée modifiée'>")
                     .append(this.getValue(champAMarquer, newValueSource));
         } else {
-            html.append("<dt><span");
-            if (isDonneeCertifiee) {
-                html.append(" title='").append(source).append("'>").append(imgTag).append(StringUtils.SPACE).append(SPAN_CLOSE).append(SPAN_OPEN);
-            } else html.append(">");
-            html.append(champ.get(LABEL)).append("</span></dt>");
+            html.append("<dt><span>").append(champ.get(LABEL)).append(SPAN_CLOSE);
+            if(StringUtils.isNotBlank(source)){
+                html.append("<span class='img-source-fiable' title='").append(source).append("'>").append(imgTag).append(SPAN_CLOSE);
+            }
+            html.append(DT);
             html.append("<dd>").append(idTag1).append(this.getValue(champAMarquer, value)).append(idTag2);
         }
         html.append(DD);
+    }
+
+    private String getSourceDonneesFiable(JSONObject champ, DemandeDTO demande, List<SourceFiableDTO> donneesCertififiees,
+                                          String type, String path) {
+        return donneesCertififiees.stream().filter(this.filtrer(type, demande, champ, path))
+                .map(SourceFiableDTO::getSourceFiable)
+                .map(SourceFiablesEnum::toString)
+                .findFirst()
+                .orElse(StringUtils.EMPTY);
+    }
+
+    private Predicate<SourceFiableDTO> filtrer(String type, DemandeDTO demande, JSONObject champ, String path) {
+        return sourceFiableDTO -> (type.equals(ADRESSE) && isAdresseCertifiee(demande, champ, sourceFiableDTO.getModelPath()))
+                    || sourceFiableDTO.getModelPath().equals(path);
     }
 
     private boolean isAdresseCertifiee(DemandeDTO demande, JSONObject champ, String modelPath) {
@@ -711,29 +713,23 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
     private void completeSpan(String id, StringBuilder adresseBuilder, List<SourceFiableDTO> donneesCertififiees, String sectionKey,
     		String value, String path, String imgTag) {
     	// Valeur par défaut de la source
-        String source = "Donnée certifiée";
-        boolean isCertifiee = false;
-    	for (SourceFiableDTO sourceFiableDTO : donneesCertififiees) {
-    		if(sourceFiableDTO.getModelPath().equals(path)) {
-    			isCertifiee = true;
-    			source = sourceFiableDTO.getSourceFiable().toString();
-    			break;
-    		}
-		}
-    	
-		if (isCertifiee) {
-			adresseBuilder.append("<span title='").append(source).append("'>");
-			adresseBuilder.append(imgTag).append(StringUtils.SPACE).append(SPAN_CLOSE).append("<span class=\"nouvelledonnee\">");
-		} else {
-			adresseBuilder.append(SPAN_OPEN);
-		}
-		adresseBuilder.append(sectionKey).append("</span></dt><dd><span ");
-        if (StringUtils.isNotBlank(id)) {
-            adresseBuilder.append(ID).append(id).append("\"");
+        String source = donneesCertififiees.stream()
+                .filter(sourceFiableDTO -> sourceFiableDTO.getModelPath().equals(path))
+                .map(SourceFiableDTO::getSourceFiable).map(SourceFiablesEnum::toString)
+                .findFirst().orElse(StringUtils.EMPTY);
+
+        adresseBuilder.append(CLOSING_DD_OPENING_DT).append(SPAN_OPEN).append(sectionKey).append(SPAN_CLOSE);
+        if(StringUtils.isNotBlank(source)){
+            adresseBuilder.append("<span class='img-source-fiable' title='").append(source).append("'>")
+                    .append(imgTag).append(SPAN_CLOSE);
         }
-        adresseBuilder.append('>').append(value);
-    	
-        adresseBuilder.append(SPAN_CLOSE);
+        adresseBuilder.append(DT);
+
+        adresseBuilder.append("<dd>").append("<span");
+        if (StringUtils.isNotBlank(id)) {
+            adresseBuilder.append(StringUtils.SPACE).append(ID).append(id).append("\"");
+        }
+        adresseBuilder.append('>').append(value).append(SPAN_CLOSE);
     }
 
     private void buildComplementAdresseHTML(StringBuilder adresseBuilder, JsonNode node, JSONObject champ,
@@ -758,18 +754,15 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
         String imgTag = this.getImgTag(isPdfRecap);
         String idPrefix = (String) champ.get(ID_PREFIX);
         if (StringUtils.isNotBlank(codePostal)) {
-            adresseBuilder.append(CLOSING_DD_OPENING_DT);
             String path = (String) champ.get("codePostal");
             this.completeSpan(idPrefix + "-cp", adresseBuilder, donneesCertififiees, "Code postal", codePostal, path, imgTag);
         }
         if (StringUtils.isNotBlank(ville)) {
-        	adresseBuilder.append(CLOSING_DD_OPENING_DT);
             String path = (String) champ.get("ville");
             this.completeSpan(idPrefix + "-ville", adresseBuilder, donneesCertififiees, "Ville", ville, path, imgTag);
         }
         
         if (StringUtils.isNotBlank(pays)) {
-        	adresseBuilder.append(CLOSING_DD_OPENING_DT);
             String nomPays = paysCache.get(pays, "fr").getNom();
             String path = (String) champ.get("pays");
             this.completeSpan(idPrefix + "-pays", adresseBuilder, donneesCertififiees, "Pays", nomPays, path, imgTag);

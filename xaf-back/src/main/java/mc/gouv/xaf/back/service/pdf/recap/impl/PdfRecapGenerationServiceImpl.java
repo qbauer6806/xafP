@@ -13,6 +13,7 @@ import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.pdf.recap.PdfHeaderProvider;
 import mc.gouv.xaf.back.service.pdf.recap.PdfRecapGenerationService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.back.service.utils.FileUtils;
 import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
@@ -83,6 +84,7 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
         LOGGER.info("Génération du PDF avec Open HTML to PDF...");
         String fileName = tempFile.getName();
         String url = fileService.sendToFile(tempFile, demande, fileName);
+        String metas = META_RECAP + ";" + FileUtils.generateMetaData(tempFile);
 
         // Supprimer le fichier temporaire car il n'est plus utile
         LOGGER.info("Suppression du fichier temporaire...");
@@ -93,7 +95,7 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
         }
 
         LOGGER.info("Vérification de l'existance d'un fichier récap...");
-        List<DemandeFileDTO> files = demandesFileService.getFileByDemandeIdAndMeta(demande.getPkDemandes(), META_RECAP);
+        List<DemandeFileDTO> files = demandesFileService.getFileByDemandeIdAndTypedoc(demande.getPkDemandes(), META_RECAP);
 
         DemandeFileDTO file = new DemandeFileDTO();
         if (!files.isEmpty()) {
@@ -107,7 +109,7 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
         file.setName(fileName);
         file.setUrl('/' + url);
         file.setDate(new Date());
-        file.setMeta(META_RECAP);
+        file.setMeta( metas);
         file.setTypedoc(META_RECAP);
         demandesFileService.saveFile(file, gouvPropertiesResolver.getDemarcheId(), demande.getPkDemandes());
 

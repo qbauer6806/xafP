@@ -1,14 +1,16 @@
 package mc.gouv.xaf.back.data.es.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import mc.gouv.xaf.shared.dto.es.GenericContenuDTO;
-import mc.gouv.xaf.shared.dto.es.GenericDemandeDataEsDTO;
+import java.util.Date;
+import java.util.List;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 
-import java.util.Date;
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import mc.gouv.xaf.shared.dto.es.GenericContenuDTO;
+import mc.gouv.xaf.shared.dto.es.GenericDemandeDataEsDTO;
 
 /**
  * Modélise une demande

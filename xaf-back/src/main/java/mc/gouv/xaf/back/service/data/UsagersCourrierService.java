@@ -5,8 +5,6 @@ import java.util.List;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 
-import java.util.List;
-
 /**
  * Service permettant la manipulation des usagers courrier.
  *
@@ -24,7 +22,8 @@ public interface UsagersCourrierService {
     /**
      * Permet de récupérer les usagers courrier correspondant à un DemarcheID
      *
-     * @param query Optionnel : permet de rechercher par nom
+     * @param query
+     *            Optionnel : permet de rechercher par nom
      * @return Les usagers courrier demandés
      */
     List<UsagerCourrierDTO> getUsagersCourrier(String demarcheId, String query);
@@ -59,7 +58,7 @@ public interface UsagersCourrierService {
      * Permet de transférer des demandes d'un usager courrier à un autre.
      */
     void transferer(String demarcheId, Integer usagerCourrierSourceId, Integer usagerCourrierCibleId,
-                    List<Integer> demandeIds);
+            List<Integer> demandeIds);
 
     /**
      * Permet de récupérer la derniere demande connue selon les statuts definis

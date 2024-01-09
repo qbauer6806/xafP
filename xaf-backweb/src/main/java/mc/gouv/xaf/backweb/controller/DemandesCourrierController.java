@@ -61,6 +61,7 @@ public class DemandesCourrierController extends AbstractController {
     @Autowired
     private UsagersCourrierService usagersCourrierService;
 
+
 	@Secured("ROLE_SAISIE")
 	@GetMapping
 	public ModelAndView form(@ModelAttribute("usagerCourrierFormBean") UsagerCourrierFormBean usagerCourrierFormBean) {

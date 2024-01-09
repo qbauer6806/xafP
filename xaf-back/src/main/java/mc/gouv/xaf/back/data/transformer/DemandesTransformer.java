@@ -4,14 +4,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import mc.gouv.xaf.back.data.entity.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import mc.gouv.xaf.back.data.entity.DemandeBO;
+import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
 import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
 import mc.gouv.xaf.shared.dto.DemandeCourrierDTO;
@@ -20,8 +22,6 @@ import mc.gouv.xaf.shared.dto.DemandeDataDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
-
-import org.springframework.data.domain.Page;
 
 /**
  * 
@@ -46,12 +46,16 @@ public class DemandesTransformer {
     }
 
     /**
-     * <p>Détermine quels champs vont être ajoutés à l'objet Demande.</p>
-     * <p>Dans le cas où fields est null, on retourne un objet complet.</p>
+     * <p>
+     * Détermine quels champs vont être ajoutés à l'objet Demande.
+     * </p>
+     * <p>
+     * Dans le cas où fields est null, on retourne un objet complet.
+     * </p>
      */
     private static boolean[] getAllFields(String[] fields) {
         if (null == fields) {
-            return new boolean[]{true, true, true, true, true};
+            return new boolean[] { true, true, true, true, true };
         }
 
         boolean addCourriersField = false;
@@ -76,7 +80,8 @@ public class DemandesTransformer {
                 addDataField = true;
             }
         }
-        return new boolean[]{addCourriersField, addFilesField, addStatutsField, addDemandesComplementsField, addDataField};
+        return new boolean[] { addCourriersField, addFilesField, addStatutsField, addDemandesComplementsField,
+                addDataField };
     }
 
     public static DemandeDTO bo2Dto(DemandeBO bo, String[] fields) {
@@ -88,7 +93,8 @@ public class DemandesTransformer {
         boolean addCourriersField = addFields[0] && bo.getCourriers() != null && !bo.getCourriers().isEmpty();
         boolean addFilesField = addFields[1] && bo.getFiles() != null && !bo.getFiles().isEmpty();
         boolean addStatutsField = addFields[2] && bo.getStatuts() != null && !bo.getStatuts().isEmpty();
-        boolean addDemandesComplementsField = addFields[3] && bo.getDemandesComplements() != null && !bo.getDemandesComplements().isEmpty();
+        boolean addDemandesComplementsField = addFields[3] && bo.getDemandesComplements() != null
+                && !bo.getDemandesComplements().isEmpty();
         boolean addDataField = addFields[4] && bo.getData() != null && !bo.getData().isEmpty();
 
         DemandeDTO dto = new DemandeDTO();
@@ -117,8 +123,7 @@ public class DemandesTransformer {
 
         // Mapper les demandes d'informations complémentaires
         if (addDemandesComplementsField) {
-            dto.setComplements(DemandesComplementsTransformer
-                    .bo2Dto(new ArrayList<>(bo.getDemandesComplements()))
+            dto.setComplements(DemandesComplementsTransformer.bo2Dto(new ArrayList<>(bo.getDemandesComplements()))
                     .toArray(new DemandeComplementsDTO[bo.getDemandesComplements().size()]));
         }
 
@@ -144,16 +149,15 @@ public class DemandesTransformer {
 
         // Mapper les courriers
         if (addCourriersField) {
-        	// Ticket https://redmine.monaco-gouvernement.mc/issues/25476
-        	// Avant le fix de ce ticket, on ne remontait pas les courriers à l'user FRONT
-        	// Donc lors de la création d'une demande courrier par l'API, les courriers ne sont pas indexés !
-        	// Cela marchait jusque là car on générait les tokens FO -> API de la mauvaise manière, avec rôle USER
-        	// au lieu de FRONT. Mais maintenant qu'on a user FRONT ça ne marche plus.
-        	// Décision prise de remonter les courriers dans les deux cas : FO (API) et BO
-        	// Car cela ne pose aucun problème de sécurité
-            dto.setCourriers(
-                    DemandesCourriersTransformer.bo2Dto(new ArrayList<>(bo.getCourriers()))
-                            .toArray(new DemandeCourrierDTO[bo.getCourriers().size()]));
+            // Ticket https://redmine.monaco-gouvernement.mc/issues/25476
+            // Avant le fix de ce ticket, on ne remontait pas les courriers à l'user FRONT
+            // Donc lors de la création d'une demande courrier par l'API, les courriers ne sont pas indexés !
+            // Cela marchait jusque là car on générait les tokens FO -> API de la mauvaise manière, avec rôle USER
+            // au lieu de FRONT. Mais maintenant qu'on a user FRONT ça ne marche plus.
+            // Décision prise de remonter les courriers dans les deux cas : FO (API) et BO
+            // Car cela ne pose aucun problème de sécurité
+            dto.setCourriers(DemandesCourriersTransformer.bo2Dto(new ArrayList<>(bo.getCourriers()))
+                    .toArray(new DemandeCourrierDTO[bo.getCourriers().size()]));
         }
 
         // Mapper les données de demande
@@ -179,7 +183,7 @@ public class DemandesTransformer {
             
             // Meta
             if (bo.getMeta() != null)
-                dto.setMeta(mapper.readTree(bo.getMeta()));
+            	dto.setMeta(mapper.readTree(bo.getMeta()));
         } catch (IOException e) {
             LOGGER.error("Erreur lors de la conversion JSON", e);
         }
@@ -222,12 +226,11 @@ public class DemandesTransformer {
     }
 
     /**
-     * L'entité retournée est à rattacher à un AccessBO après l'appel à cette fonction
-     * Mapper les demandes d'informations complémentaires attachées après l'appel à cette fonction, si besoin
-     * Mapper les fichiers attachés après appel à cette fonction, si besoin
-     * Mapper les statuts attachés après appel à cette fonction, si besoin (y compris le "dernier statut")
-     * Mapper les données de demande ("data") attachées après appel à cette fonction, si besoin
-     * Mapper les courriers attachés après appel à cette fonction, si besoin
+     * L'entité retournée est à rattacher à un AccessBO après l'appel à cette fonction Mapper les demandes
+     * d'informations complémentaires attachées après l'appel à cette fonction, si besoin Mapper les fichiers attachés
+     * après appel à cette fonction, si besoin Mapper les statuts attachés après appel à cette fonction, si besoin (y
+     * compris le "dernier statut") Mapper les données de demande ("data") attachées après appel à cette fonction, si
+     * besoin Mapper les courriers attachés après appel à cette fonction, si besoin
      */
     public static DemandeBO dto2Bo(DemandeDTO dto) {
         if (dto == null) {

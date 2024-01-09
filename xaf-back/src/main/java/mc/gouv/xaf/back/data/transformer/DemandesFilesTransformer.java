@@ -35,7 +35,7 @@ public class DemandesFilesTransformer {
         DemandesFilesBO bo = new DemandesFilesBO();
         bo.setPkDemandesFiles(dto.getPkDemandesFiles());
         bo.setName(dto.getName());
-        bo.setUrl(dto.getUrl());
+        bo.setUrl(dto.getUrl().startsWith("/") ? dto.getUrl() : "/" + dto.getUrl());
         bo.setMeta(dto.getMeta());
         bo.setDate(dto.getDate());
         bo.setTypedoc(dto.getTypedoc());

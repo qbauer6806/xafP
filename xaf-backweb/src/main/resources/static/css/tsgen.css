@@ -480,21 +480,26 @@ dd span {
     background-color: #eee;
     font-weight: bold;
     display: none;
+    cursor: pointer;
 }
 
 .nouvelledonnee-titre {
     background-color: #def1f5;
     font-weight: bold;
+    cursor: pointer;
 }
 
 .anciennedonnee-contenu {
     background-color: #eee;
+    color: #676767;
     display: none;
 }
 
 .nouvelledonnee-contenu {
     background-color: #def1f5;
+    color: #676767;
 }
+
 
 .recaptable {
     display: block;
@@ -539,4 +544,9 @@ dd span {
 .btn-transparent:hover:not([disabled]), .btn-transparent:active:not([disabled]), .btn-transparent:focus:not([disabled]) {
     color: #fff;
     background: #068BAD;
+}
+/* classe pour afficher le picto vert pour les données de source fiable */
+.img-source-fiable{
+    float: right;
+    margin-right: 10px;
 }

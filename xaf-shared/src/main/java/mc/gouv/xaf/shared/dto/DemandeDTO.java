@@ -1,12 +1,11 @@
 package mc.gouv.xaf.shared.dto;
 
+import java.util.Arrays;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
-
-import java.util.Arrays;
-
 /**
  * Modélise une demande
  *
@@ -43,7 +42,7 @@ public class DemandeDTO extends AbstractDemandeDTO {
     private Long modificationTimestamp;
     private JsonNode contenuInitial;
     private JsonNode meta;
-
+    
     public Long getModificationTimestamp() {
         return modificationTimestamp;
     }
@@ -187,7 +186,7 @@ public class DemandeDTO extends AbstractDemandeDTO {
     public void setRecapType(String recapType) {
         this.recapType = recapType;
     }
-    
+
     public DonneesMConnectDTO getDonneesMConnect() {
 		return donneesMConnect;
 	}
@@ -195,23 +194,23 @@ public class DemandeDTO extends AbstractDemandeDTO {
 		this.donneesMConnect = donneesMConnect;
 	}
 
-	public String getDonneesCertifiees() {
-		return donneesCertifiees;
-	}
+    public String getDonneesCertifiees() {
+        return donneesCertifiees;
+    }
 
-	public void setDonneesCertifiees(String donneesCertifiees) {
-		this.donneesCertifiees = donneesCertifiees;
-	}
+    public void setDonneesCertifiees(String donneesCertifiees) {
+        this.donneesCertifiees = donneesCertifiees;
+    }
 
-	public Integer getPkDemandeSource() {
-		return pkDemandeSource;
-	}
+    public Integer getPkDemandeSource() {
+        return pkDemandeSource;
+    }
 
-	public void setPkDemandeSource(Integer pkDemandeSource) {
-		this.pkDemandeSource = pkDemandeSource;
-	}
+    public void setPkDemandeSource(Integer pkDemandeSource) {
+        this.pkDemandeSource = pkDemandeSource;
+    }
 
-	@Override
+    @Override
     public String toString() {
         return "DemandeDTO [pkDemandes=" + pkDemandes + ", dateCreation=" + dateCreation + ", dateDerModif="
                 + dateDerModif + ", contenu=" + contenu + ", demarcheId=" + demarcheId + ", usagerId=" + usagerId
@@ -219,10 +218,10 @@ public class DemandeDTO extends AbstractDemandeDTO {
                 + ", langue=" + langue + ", canal=" + canal + ", observations=" + observations + ", agentAffecteId="
                 + agentAffecteId + ", creeParAgentId=" + creeParAgentId + ", dernierStatut=" + dernierStatut
                 + ", identifiant=" + identifiant + ", data=" + Arrays.toString(data) + ", courrierDateReception="
-                + courrierDateReception + ", courrierRefInterne=" + courrierRefInterne + ", updated=" + updated + "]" +
-                ", usagerNom=" + usagerNom + ", usagerPrenom="
-                + usagerPrenom + ", usagerEmail=" + usagerEmail + ", buildId=" + buildId + ", recapType=" + recapType + ", donneesMConnect=" +
-                donneesMConnect + ", donneesCertifiees=" + donneesCertifiees + ", pkDemandeSource=" + pkDemandeSource + "]";
+                + courrierDateReception + ", courrierRefInterne=" + courrierRefInterne + ", updated=" + updated + "]"
+                + ", usagerNom=" + usagerNom + ", usagerPrenom=" + usagerPrenom + ", usagerEmail=" + usagerEmail
+                + ", buildId=" + buildId + ", recapType=" + recapType + ", donneesMConnect=" + donneesMConnect
+                + ", donneesCertifiees=" + donneesCertifiees + ", pkDemandeSource=" + pkDemandeSource + "]";
     }
 
     public JsonNode getContenuInitial() {

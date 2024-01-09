@@ -17,6 +17,7 @@ import mc.gouv.xaf.back.service.pdf.PdfGenerationService;
 import mc.gouv.xaf.back.service.pdf.PdfTemplateAndModelProvider;
 import mc.gouv.xaf.back.service.pdf.PdfTypeEnum;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.back.service.utils.FileUtils;
 import mc.gouv.xaf.shared.dto.DemandeCourrierDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
@@ -85,8 +86,10 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 		LOGGER.info("PdfGenerationServiceImpl.generateAndStorePdf({}, {})", demande.getPkDemandes(), pdfType);
 
 		String fileName = tempFile.getName();
-
 		String url = fileService.sendToFile(tempFile, demande, fileName);
+
+		// Ajout des données concernant le fichier généré aux métas
+		meta += ";" + FileUtils.generateMetaData(tempFile);
 
 		// Supprimer le fichier temporaire car il n'est plus utile
 		LOGGER.info("Suppression du fichier temporaire...");

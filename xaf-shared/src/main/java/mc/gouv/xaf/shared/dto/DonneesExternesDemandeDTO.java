@@ -28,10 +28,6 @@ public class DonneesExternesDemandeDTO {
         this.statutRetour = statut;
     }
 
-    public void setStatutRetour(DonneesExternesStatutRetourEnum statutRetour) {
-        this.statutRetour = statutRetour;
-    }
-
     public String getSource() {
         return source;
     }

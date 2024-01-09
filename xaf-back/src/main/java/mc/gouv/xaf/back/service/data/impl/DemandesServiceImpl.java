@@ -1,7 +1,48 @@
 package mc.gouv.xaf.back.service.data.impl;
 
+import java.io.IOException;
+import java.math.BigInteger;
+import java.security.SecureRandom;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.From;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort.Order;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import mc.gouv.xaf.back.data.dao.AccessRepository;
 import mc.gouv.xaf.back.data.dao.DemandesHistoriqueRepository;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
@@ -13,6 +54,7 @@ import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
 import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.service.DemandePostprocessingService;
+import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.AccessService;
 import mc.gouv.xaf.back.service.data.DemandesComplementsService;
 import mc.gouv.xaf.back.service.data.DemandesDataService;
@@ -36,43 +78,7 @@ import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 import mc.gouv.xaf.shared.dto.PageParamDTO;
 import mc.gouv.xaf.shared.dto.StatistiqueDTO;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DateUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.domain.Sort.Order;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
-import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import javax.persistence.criteria.Subquery;
-import java.io.IOException;
-import java.math.BigInteger;
-import java.security.SecureRandom;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import mc.gouv.xaf.shared.dto.sourcefiable.SourceFiableDTO;
 
 /**
  * Service permettant la manipulation des demandes.
@@ -129,11 +135,11 @@ public class DemandesServiceImpl implements DemandesService {
     
 	@Autowired
     private ApplicationContext appContext;
+	@Autowired
+	private DemarchesDataProvider demarchesDataProvider;
 
 	public static final String DATE_PATTERN = "dd/MM/yyyy";
 	
-	public static final String SUPPRIMEE_STATUT = "SUPPRIMEE";
-
 	@Autowired
 	private EntityManager em;
 
@@ -185,6 +191,13 @@ public class DemandesServiceImpl implements DemandesService {
 			
 			// Appel au postprocessing
 			demande = dps.postprocess(demande);
+			//On ajoute le complément des données certifiées qui n'ont pas été définies par le post process
+			List<SourceFiableDTO> complementDonneesCertifiees = demarchesDataProvider.getComplementDonneesCertifiees(demande);
+			if(CollectionUtils.isNotEmpty(complementDonneesCertifiees)){
+				List<SourceFiableDTO> donneesCertifiees = AfBackUtils.donneesCertifieesJsonToList(demande.getDonneesCertifiees());
+				donneesCertifiees.addAll(complementDonneesCertifiees);
+				demande.setDonneesCertifiees(AfBackUtils.donneesCertifieesListToJson(donneesCertifiees));
+			}
 		}
 		catch (Exception e) {
 			LOGGER.error("Une erreur est survenue lors du postprocessing de la demande", e);
@@ -567,9 +580,9 @@ public class DemandesServiceImpl implements DemandesService {
 		updateContenu(demandeBo, demande, partialUpdate);
 
         // Mise à jour du contenu initial
-        updateContenuInitial(demandeBo, demande, partialUpdate);
+		this.updateContenuInitial(demande, partialUpdate, demandeBo);
 
-        // Mise à jour du timestamp pour verrouillage
+		// Mise à jour du timestamp pour verrouillage
         demandeBo.setModificationTimestamp(demande.getModificationTimestamp());
 
 		// Mise à jour des observations
@@ -589,7 +602,7 @@ public class DemandesServiceImpl implements DemandesService {
 		demandeBo.setDateDerModif(new Date());
 
 		// Supprimer les pièces jointes déjà existantes
-		if (!partialUpdate) {
+		if (!partialUpdate || demande.getFichiers() != null) {
 			demandesFilesService.updateFichiers(demandeBo, demande.getFichiers());
 		}
 
@@ -630,6 +643,21 @@ public class DemandesServiceImpl implements DemandesService {
         return demandeBo;
 	}
 
+	private void updateContenuInitial(DemandeDTO demande, boolean partialUpdate, DemandeBO demandeBo) {
+		if (!partialUpdate || demande.getContenuInitial() != null && !demande.getContenuInitial().isNull()) {
+			ObjectMapper mapper = new ObjectMapper();
+			try {
+				demandeBo.setContenuInitial(mapper.writeValueAsString(demande.getContenuInitial()));
+				// Ce qui suit afin d'éviter l'insertion d'une chaîne "null" en base
+				if (demandeBo.getContenuInitial() != null && "null".equals(demandeBo.getContenuInitial())) {
+					demandeBo.setContenuInitial(null);
+				}
+			} catch (JsonProcessingException e) {
+				LOGGER.error("Problème lors de la conversion JSON", e);
+			}
+		}
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -644,7 +672,6 @@ public class DemandesServiceImpl implements DemandesService {
 		DemandeDTO demandeDTO = DemandesTransformer.bo2Dto(demandeBo);
 		LOGGER.info("Suppression des fichiers de la demande {} de la demarche {}...", demandeId, demarcheId);
 		demandesFilesService.suppressionDesFichiers(demandeDTO, false, null, 0);
-		
 		LOGGER.info("Suppression des fichiers complémentaires de la demande {} de la demarche {}...", demandeId, demarcheId);
 		demandesComplementsService.suppressionDesFichiersDesDemandesComplementaires(demandeDTO, false, null, 0);
 
@@ -654,8 +681,9 @@ public class DemandesServiceImpl implements DemandesService {
 		Date dateCreation = demandeBo.getDateCreation();
 		LOGGER.info("Envoi d'un message dans Kafka pour notifier le Guichet Unique de la suppression de la demande...");
 		List<DemandeRecapDTO> demandeRecaps = guKafkaUtils.getDemandeRecapsFromUsagerId(demandeDTO.getUsagerId());
-        RecapDemandesDTO recapDemandes = guKafkaUtils.getRecapDemandes(demandeRecaps);
-        guKafkaProducer.sendSuppressionDemandeMessage(access.getUsagerId(), demandeId, identifiant, dateCreation, recapDemandes);
+		RecapDemandesDTO recapDemandes = guKafkaUtils.getRecapDemandes(demandeRecaps);
+		guKafkaProducer.sendSuppressionDemandeMessage(access.getUsagerId(), demandeId, identifiant, dateCreation,
+				recapDemandes);
 	}
 
 	private AccessBO suppressionDeLaDemande(DemandeBO demandeBo, String demarcheId, Integer demandeId) {
@@ -699,18 +727,18 @@ public class DemandesServiceImpl implements DemandesService {
 		DemandeDTO demandeDTO = DemandesTransformer.bo2Dto(demandeBo);
 		LOGGER.info("Suppression des fichiers de la demande {} de la demarche {}...", demandeId, demarcheId);
 		demandesFilesService.suppressionDesFichiers(demandeDTO, true, statuts, jours);
-		
 		LOGGER.info("Suppression des fichiers complémentaires de la demande {} de la demarche {}...", demandeId, demarcheId);
 		demandesComplementsService.suppressionDesFichiersDesDemandesComplementaires(demandeDTO, true, statuts, jours);
 
 		AccessBO access = suppressionDeLaDemande(demandeBo, demarcheId, demandeId);
-		
+
 		String identifiant = demandeBo.getIdentifiant();
 		Date dateCreation = demandeBo.getDateCreation();
 		LOGGER.info("Envoi d'un message dans Kafka pour notifier le Guichet Unique de la suppression de la demande...");
 		List<DemandeRecapDTO> demandeRecaps = guKafkaUtils.getDemandeRecapsFromUsagerId(demandeDTO.getUsagerId());
-        RecapDemandesDTO recapDemandes = guKafkaUtils.getRecapDemandes(demandeRecaps);
-        guKafkaProducer.sendSuppressionDemandeMessage(access.getUsagerId(), demandeId, identifiant, dateCreation, recapDemandes);
+		RecapDemandesDTO recapDemandes = guKafkaUtils.getRecapDemandes(demandeRecaps);
+		guKafkaProducer.sendSuppressionDemandeMessage(access.getUsagerId(), demandeId, identifiant, dateCreation,
+				recapDemandes);
 	}
 	
 	@Override

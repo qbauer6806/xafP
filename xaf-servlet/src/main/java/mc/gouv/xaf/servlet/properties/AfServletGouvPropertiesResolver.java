@@ -249,6 +249,11 @@ public class AfServletGouvPropertiesResolver {
         return StringUtils.isBlank(value) ? "vide" : value;
     }
 
+    public static String getPorteDocUrl() {
+        String value = getGichuniUrl();
+        return StringUtils.isBlank(value) ? "vide" : value + "/public/doc-holder";
+    }
+
     static {
         //Vérification que chaque propriété a bien été configurée
         List<String> propertiesNotFound = new ArrayList<>();
@@ -286,6 +291,8 @@ public class AfServletGouvPropertiesResolver {
         propertiesDTOS.add(new PropertiesDTO(FRONTOFFICE_PIWIK_URL, getFrontofficePiwikURL()));
         propertiesDTOS.add(new PropertiesDTO(PAIEMENT_PROVIDER, getPaiementProvider()));
         propertiesDTOS.add(new PropertiesDTO(MONETICO_URL, getMoneticoUrl()));
+        propertiesDTOS.add(new PropertiesDTO(GICHUNI_URL, getGichuniUrl()));
+        propertiesDTOS.add(new PropertiesDTO(FILE_JWT, getFileJwt()));
         return propertiesDTOS;
     }
 }

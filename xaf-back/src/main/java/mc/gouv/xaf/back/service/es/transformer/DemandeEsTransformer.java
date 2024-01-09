@@ -33,9 +33,6 @@ import mc.gouv.xaf.back.data.es.model.DemandeAccessEsDTO;
 import mc.gouv.xaf.back.data.es.model.DemandeEsDTO;
 import mc.gouv.xaf.back.data.es.model.DemandeJoinFieldEsDTO;
 import mc.gouv.xaf.back.data.es.model.DemandeStatutEsDTO;
-import mc.gouv.xaf.shared.dto.es.GenericContenuDTO;
-import mc.gouv.xaf.shared.dto.es.GenericDemandeDataEsDTO;
-import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 import mc.gouv.xaf.back.data.transformer.DemandesCourriersTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesStatutsTransformer;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
@@ -50,6 +47,9 @@ import mc.gouv.xaf.shared.dto.DemandeDataDTO;
 import mc.gouv.xaf.shared.dto.DemandeHistoriqueDTO;
 import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
+import mc.gouv.xaf.shared.dto.es.GenericContenuDTO;
+import mc.gouv.xaf.shared.dto.es.GenericDemandeDataEsDTO;
+import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 
 @Service
 @Conditional(IndexationEnabledCondition.class)
@@ -132,7 +132,7 @@ public class DemandeEsTransformer {
         demandeEsDTO.setAccess(demandeAccessEsDto);
 
         if (accessBO.getUsagerId() != null) {
-        	GichuniUsagerDTO usagerBean = usagersCache.get(accessBO.getUsagerId());
+            GichuniUsagerDTO usagerBean = usagersCache.get(accessBO.getUsagerId());
             demandeEsDTO.setUsager(UsagerTransformer.bo2Dto(usagerBean));
         }
 
@@ -158,7 +158,8 @@ public class DemandeEsTransformer {
         demandeEsDTO.setCourrierDateReception(demande.getCourrierDateReception());
         demandeEsDTO.setCourrierRefInterne(demande.getCourrierRefInterne());
 
-        demandeEsDTO.setStatutPublicOuInterne(demarchesDataProvider.getStatutPublicOuInterne(demande.getPkDemandes(), demande.getDernierStatut().getLibelle()).getName());
+        demandeEsDTO.setStatutPublicOuInterne(demarchesDataProvider
+                .getStatutPublicOuInterne(demande.getPkDemandes(), demande.getDernierStatut().getLibelle()).getName());
 
         Set<DemandeCourrierDTO> courriers = DemandesCourriersTransformer.bo2Dto(demande.getCourriers());
 
@@ -208,7 +209,7 @@ public class DemandeEsTransformer {
         demandeAccessEsDto.setActive(activeAccess);
         demandeEsDTO.setAccess(demandeAccessEsDto);
         if (demandeDTO.getUsagerId() != null) {
-        	GichuniUsagerDTO usagerBean = usagersCache.get(demandeDTO.getUsagerId());
+            GichuniUsagerDTO usagerBean = usagersCache.get(demandeDTO.getUsagerId());
             demandeEsDTO.setUsager(UsagerTransformer.bo2Dto(usagerBean));
         }
         if (demandeDTO.getAgentAffecteId() != null) {
@@ -231,7 +232,9 @@ public class DemandeEsTransformer {
         demandeEsDTO.setCourrierDateReception(demandeDTO.getCourrierDateReception());
         demandeEsDTO.setCourrierRefInterne(demandeDTO.getCourrierRefInterne());
 
-        demandeEsDTO.setStatutPublicOuInterne(demarchesDataProvider.getStatutPublicOuInterne(demandeDTO.getPkDemandes(), demandeDTO.getDernierStatut().getLibelle()).getName());
+        demandeEsDTO.setStatutPublicOuInterne(demarchesDataProvider
+                .getStatutPublicOuInterne(demandeDTO.getPkDemandes(), demandeDTO.getDernierStatut().getLibelle())
+                .getName());
 
         if (demandeDTO.getCourriers() != null && demandeDTO.getCourriers().length > 0) {
             List<String> nomsCourriers = Arrays.stream(demandeDTO.getCourriers()).map(DemandeCourrierDTO::getName)
@@ -489,7 +492,8 @@ public class DemandeEsTransformer {
         List<String> justifs = new ArrayList<>();
         List<DemandeHistoriqueDTO> histosDem = demandesHistoriqueService.getHistorique(demarcheId, demandeId);
         if (histosDem != null && !histosDem.isEmpty()) {
-            justifs = histosDem.stream().map(DemandeHistoriqueDTO::getJustificatifTraitement).collect(Collectors.toList());
+            justifs = histosDem.stream().map(DemandeHistoriqueDTO::getJustificatifTraitement)
+                    .collect(Collectors.toList());
         }
         return justifs;
     }

@@ -56,5 +56,4 @@ public class AfBackDemandeDTO extends DemandeDTO {
     public void setAgentAffecteNom(String agentAffecteNom) {
         this.agentAffecteNom = agentAffecteNom;
     }
-
 }

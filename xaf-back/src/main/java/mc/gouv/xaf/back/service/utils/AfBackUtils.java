@@ -18,9 +18,11 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,6 +64,9 @@ import mc.gouv.xaf.shared.dto.MotifDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.PropertiesListEntityDTO;
 import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
+import mc.gouv.xaf.shared.dto.sourcefiable.SourceFiableDTO;
+import mc.gouv.xaf.shared.dto.sourcefiable.enums.SourceFiablesEnum;
+
 
 /**
  * Classe utilitaire pour le projet xaf-back
@@ -150,7 +155,7 @@ public class AfBackUtils {
     @Autowired
     @Lazy
     private MotifTemplateService motifTemplateService;
-
+    
     @Autowired
     @Lazy
     private DemandesService demandesService;
@@ -709,20 +714,29 @@ public class AfBackUtils {
 	    }
 	    return null;
     }
-    
-    public static List<String> donneesCertifieesJsonToList(String json) {
-    	if (json != null) {
-	    	try {
-	    		ObjectMapper mapper = new ObjectMapper();
-				return mapper.readValue(json, new TypeReference<List<String>>(){});
-			} catch (JsonProcessingException e) {
-				LOGGER.error("Erreur dans donneesCertifieesJsonToList()", e);
-			}
-    	}
-    	return new ArrayList<>();
+
+    public static List<SourceFiableDTO> donneesCertifieesJsonToList(String json) {
+        if (json != null) {
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                return mapper.readValue(json, new TypeReference<>() {
+                });
+            } catch (JsonProcessingException e) {
+                try {
+                    List<String> values = mapper.readValue(json, new TypeReference<>() {
+                    });
+                    if (CollectionUtils.isNotEmpty(values)) {
+                        return values.stream().map(value -> new SourceFiableDTO(value, SourceFiablesEnum.MCONNECT))
+                                .collect(Collectors.toList());
+                    }
+                } catch (JsonProcessingException ex) {
+                    LOGGER.error("Erreur dans donneesCertifieesJsonToList()", e);
+                }
+            }
+        }
+        return new ArrayList<>();
     }
-    
-    public static String donneesCertifieesListToJson(List<String> list) {
+    public static String donneesCertifieesListToJson(List<SourceFiableDTO> list) {
     	ObjectMapper mapper = new ObjectMapper();
     	try {
 			return mapper.writeValueAsString(list);
@@ -732,9 +746,9 @@ public class AfBackUtils {
     	return null;
     }
     
-	public static String addDonneeCertifiee(String donneesCertifiees, String path) {
-		List<String> donneesCertifieesList = donneesCertifieesJsonToList(donneesCertifiees);
-		donneesCertifieesList.add(path);
+	public static String addDonneeCertifiee(String donneesCertifiees, SourceFiableDTO sourceFiable) {
+		List<SourceFiableDTO> donneesCertifieesList = donneesCertifieesJsonToList(donneesCertifiees);
+		donneesCertifieesList.add(sourceFiable);
 		return donneesCertifieesListToJson(donneesCertifieesList);
 	}
 	
@@ -761,7 +775,6 @@ public class AfBackUtils {
 		DemandeDTO demande = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), pkDemande);
 		return demande.getIdentifiant();
 	}
-	
 	public boolean isEmailHtmlEnabled() {
         PropertiesDTO emailHtmlEnabledProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_EMAIL_HTML_ENABLED);
         if (emailHtmlEnabledProp == null || StringUtils.isBlank(emailHtmlEnabledProp.getValue())) {
@@ -769,5 +782,13 @@ public class AfBackUtils {
         }
         return Boolean.valueOf(emailHtmlEnabledProp.getValue());
 	}
+	
+	/**
+     * Permet de savoir si la démarche prend en charge des propriétés
+     * @return
+     */
+    public boolean isTypedocApplicable(String typedoc) {
+        return demarchesDataProvider.isTypedocApplicable(typedoc);
+    }
 
 }

@@ -4,20 +4,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import mc.gouv.xaf.shared.dto.sourcefiable.enums.SourceFiablesEnum;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONArray;
@@ -84,6 +81,11 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
     private static final String ID_PREFIX = "idPrefix";
     private static final String CONTENU = "contenu.";
     private static final String COLUMNS = "columns";
+    private static final String PROJECT_DEMANDE_RECAP = "projectDemandeRecap";
+    private static final String CHAMPS = "champs";
+    private static final String CODE_POSTAL = "codePostal";
+    private static final String VILLE = "ville";
+    private static final String ADRESSE_MC = "adresseMc";
 
     private final DateFormat sdf = new SimpleDateFormat(AfBackUtils.DEFAULT_FRENCH_DATE_HOURS_FORMAT);
 
@@ -220,7 +222,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
         StringBuilder html = new StringBuilder();
         List<SourceFiableDTO> donneesCertififiees = AfBackUtils.donneesCertifieesJsonToList(demande.getDonneesCertifiees());
         for (Object value : jsonArray) {
-            if ("projectDemandeRecap".equals(((JSONObject) value).get("name"))) {
+            if (PROJECT_DEMANDE_RECAP.equals(((JSONObject) value).get("name"))) {
                 JSONObject projectDemandeRecap = (JSONObject) value;
                 JSONArray sections = (JSONArray) projectDemandeRecap.get("sections");
                 String pojo = StringUtils.remove((String) projectDemandeRecap.get("pojo"), CONTENU_DTO);
@@ -237,8 +239,70 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
             }
         }
 
+        if(CollectionUtils.isNotEmpty(donneesCertififiees) && isPdfRecap){
+            this.ajouterSectionDonneesSourceFiable(donneesCertififiees, html, jsonArray);
+        }
 
         return html.toString();
+    }
+
+    private void ajouterSectionDonneesSourceFiable(List<SourceFiableDTO> donneesCertififiees, StringBuilder html,
+                                                   JSONArray jsonArray) {
+        Object name = jsonArray.stream().filter(value -> PROJECT_DEMANDE_RECAP.equals(((JSONObject) value).get("name")))
+                .findFirst().orElse(null);
+        if(name == null){
+            return;
+        }
+        JSONObject projectDemandeRecap = (JSONObject) name;
+        JSONArray sections = (JSONArray) projectDemandeRecap.get("sections");
+
+        List<JSONObject> liste = (List<JSONObject>) sections.stream().map(e -> ((JSONObject) e).get(CHAMPS))
+                .flatMap(e -> ((JSONArray) e).stream()).collect(Collectors.toList());
+        if(CollectionUtils.isEmpty(liste)){
+            return;
+        }
+
+        html.append("<div class=\"sectiondemande\">").append("<h3>").append("Informations provenant de sources fiables")
+                .append("</h3>");
+        for(SourceFiablesEnum sourceFiablesEnum : SourceFiablesEnum.values()){
+            List<String> sources = donneesCertififiees.stream()
+                    .filter(element -> sourceFiablesEnum.equals(element.getSourceFiable()))
+                    .map(SourceFiableDTO::getModelPath).collect(Collectors.toList());
+            if(CollectionUtils.isNotEmpty(sources)){
+                html.append("<dl><dt><span>").append("Source des informations suivantes :").append("</span></dt><br/>");
+                html.append("<dt><span>Service : </span></dt><dd><span>").append(sourceFiablesEnum.getService())
+                        .append(SPAN_DD);
+                html.append("<dt><span>Application : </span></dt><dd><span>").append(sourceFiablesEnum.getApplication())
+                        .append(SPAN_DD);
+                html.append("<dt><span>Informations : </span></dt><dd><span>");
+                List<String> listeChamps = new ArrayList<>();
+                for (String value : sources){
+                    String champ = liste.stream().filter(e->value.equals(e.get("path")) || e.containsValue(value))
+                                .map(e -> getLabel(value, e)).findFirst().orElse("");
+                    if(StringUtils.isNotBlank(champ) && !listeChamps.contains(champ)){
+                        listeChamps.add(champ);
+                    }
+                }
+                html.append(String.join("; ", listeChamps)).append("</span></dd></dl>");
+            }
+        }
+        html.append("</div>");
+    }
+
+    private String getLabel(String value, JSONObject e) {
+        if (ADRESSE.equals(e.get("type")) || ADRESSE_MC.equals(e.get("type"))) {
+            if(value.endsWith(CODE_POSTAL)){
+                return "Code postal";
+            }
+            if(value.endsWith(VILLE)){
+                return "Ville";
+            }
+            if(value.endsWith("pays")){
+                return "Pays";
+            }
+            return "Adresse";
+        }
+        return (String) e.get(LABEL);
     }
 
     private void generateSectionHTML(StringBuilder html, JSONObject section, String sectionType, DemandeDTO demande,
@@ -312,7 +376,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 
         // On créé un nouveau SB de façon à ne pas générer la section si aucune donnée n'est renseignée.
         StringBuilder html = new StringBuilder();
-        if (StringUtils.equals(sectionType, "champs")) {
+        if (StringUtils.equals(sectionType, CHAMPS)) {
             // Génération du code pour un champs HTML (titre / valeur)
             getFirstLevelChamps(demande, demandeSource, section, isPdfRecap, pojo, html, donneesCertififiees);
         } else if (StringUtils.equals(sectionType, "tableau")) {
@@ -330,7 +394,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
             StringBuilder html, List<SourceFiableDTO> donneesCertififiees)
             throws ClassNotFoundException, InvocationTargetException, IllegalAccessException, NoSuchMethodException {
 
-        JSONArray champs = (JSONArray) section.get("champs");
+        JSONArray champs = (JSONArray) section.get(CHAMPS);
         
         for (Object o : champs) {
             JSONObject champ = (JSONObject) o;
@@ -359,7 +423,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
         String idTag2 = "";
         // Si ce qui est retourné de getSecondLevelHTML est un champ composé (en HTML), comme l'adresse, alors les spans
         // et idTags sont déjà dedans
-        if (StringUtils.isNotBlank(idPrefix) && !type.equals(ADRESSE) && !type.equals("adresseMc")) {
+        if (StringUtils.isNotBlank(idPrefix) && !type.equals(ADRESSE) && !type.equals(ADRESSE_MC)) {
             idTag1 = StringUtils.isNotBlank(idPrefix) ? "<span id=\"" + idPrefix + "\">" : SPAN_OPEN;
             idTag2 = SPAN_CLOSE;
         }
@@ -390,14 +454,19 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 			html.append("<dd class='anciennedonnee-titre' title='Donnée modifiée'>")
                     .append(this.getValue(champAMarquer, newValueSource));
         } else {
-            html.append("<dt><span>").append(champ.get(LABEL)).append(SPAN_CLOSE);
-            if(StringUtils.isNotBlank(source)){
-                html.append("<span class='img-source-fiable' title='").append(source).append("'>").append(imgTag).append(SPAN_CLOSE);
-            }
+            Object obj = champ.get(LABEL);
+            html.append("<dt><span>").append(obj).append(SPAN_CLOSE);
+            this.addImmageDonneesSourceFiable(html, source, imgTag);
             html.append(DT);
             html.append("<dd>").append(idTag1).append(this.getValue(champAMarquer, value)).append(idTag2);
         }
         html.append(DD);
+    }
+
+    private void addImmageDonneesSourceFiable(StringBuilder html, String source, String imgTag) {
+        if(StringUtils.isNotBlank(source) && StringUtils.isNotBlank(imgTag)){
+            html.append("<span class='img-source-fiable' title='").append(source).append("'>").append(imgTag).append(SPAN_CLOSE);
+        }
     }
 
     private String getSourceDonneesFiable(JSONObject champ, DemandeDTO demande, List<SourceFiableDTO> donneesCertififiees,
@@ -427,12 +496,10 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
     }
 
     private String getImgTag(boolean isPdfRecap) {
-        String imgTag = "<img src=\"../img/icone_identite_numerique_valide.svg\"></img>";
-        if (isPdfRecap) {
-            URL url = getClass().getClassLoader().getResource("static/img/icone_identite_numerique_valide.svg");
-            imgTag = "<img src=\"" + url.toExternalForm() + "\"></img>";
+        if(isPdfRecap){
+            return StringUtils.EMPTY;
         }
-        return imgTag;
+        return "<img src=\"../img/icone_identite_numerique_valide.svg\"></img>";
     }
 
     /**
@@ -561,7 +628,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
             buildAdresseHTML(adresseBuilder, node, champ, isPdfRecap);
             buildComplementAdresseHTML(adresseBuilder, node, champ, isPdfRecap, pourTableau, donneesCertififiees);
             return adresseBuilder.toString();
-        } else if (StringUtils.equals(type, "adresseMc")) {
+        } else if (StringUtils.equals(type, ADRESSE_MC)) {
             StringBuilder adresseBuilder = new StringBuilder();
             buildAdresseHTML(adresseBuilder, node, champ, isPdfRecap);
             return adresseBuilder.toString();
@@ -719,10 +786,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
                 .findFirst().orElse(StringUtils.EMPTY);
 
         adresseBuilder.append(CLOSING_DD_OPENING_DT).append(SPAN_OPEN).append(sectionKey).append(SPAN_CLOSE);
-        if(StringUtils.isNotBlank(source)){
-            adresseBuilder.append("<span class='img-source-fiable' title='").append(source).append("'>")
-                    .append(imgTag).append(SPAN_CLOSE);
-        }
+        this.addImmageDonneesSourceFiable(adresseBuilder, source, imgTag);
         adresseBuilder.append(DT);
 
         adresseBuilder.append("<dd>").append("<span");
@@ -735,8 +799,8 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
     private void buildComplementAdresseHTML(StringBuilder adresseBuilder, JsonNode node, JSONObject champ,
             boolean isPdfRecap, boolean pourTableau, List<SourceFiableDTO> donneesCertififiees) {
         if (adresseBuilder.length() != 0) {
-            String codePostal = escape(getNode(node, champ, "codePostal").textValue(), isPdfRecap);
-            String ville = escape(getNode(node, champ, "ville").textValue(), isPdfRecap);
+            String codePostal = escape(getNode(node, champ, CODE_POSTAL).textValue(), isPdfRecap);
+            String ville = escape(getNode(node, champ, VILLE).textValue(), isPdfRecap);
             String pays = getNode(node, champ, "pays").textValue();
             if (pourTableau) {
                 adresseBuilder.append("<br/><span>").append(codePostal).append(' ').append(ville).append(SPAN_CLOSE);
@@ -754,11 +818,11 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
         String imgTag = this.getImgTag(isPdfRecap);
         String idPrefix = (String) champ.get(ID_PREFIX);
         if (StringUtils.isNotBlank(codePostal)) {
-            String path = (String) champ.get("codePostal");
+            String path = (String) champ.get(CODE_POSTAL);
             this.completeSpan(idPrefix + "-cp", adresseBuilder, donneesCertififiees, "Code postal", codePostal, path, imgTag);
         }
         if (StringUtils.isNotBlank(ville)) {
-            String path = (String) champ.get("ville");
+            String path = (String) champ.get(VILLE);
             this.completeSpan(idPrefix + "-ville", adresseBuilder, donneesCertififiees, "Ville", ville, path, imgTag);
         }
         
@@ -830,7 +894,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
         JSONArray jsonArray = (JSONArray) jsonParser.parse(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
 
         for (Object o : jsonArray) {
-            if ("projectDemandeRecap".equals(((JSONObject) o).get("name"))) {
+            if (PROJECT_DEMANDE_RECAP.equals(((JSONObject) o).get("name"))) {
                 JSONObject projectDemandeRecap = (JSONObject) o;
                 return StringUtils.remove((String) projectDemandeRecap.get("pojo"), CONTENU_DTO);
             }

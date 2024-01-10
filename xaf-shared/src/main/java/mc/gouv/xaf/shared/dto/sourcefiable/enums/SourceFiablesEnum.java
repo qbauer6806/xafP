@@ -2,7 +2,7 @@ package mc.gouv.xaf.shared.dto.sourcefiable.enums;
 
 public enum SourceFiablesEnum {
 
-    DSP_RESID("DSP-RESID", "DSP", "RESID"),
+    DSP_RESID("DSP - Id Num", "DSP", "RESID"),
     MAIRIE("Mairie-Identité numérique", "Autorité d’enregistrement (DSP ou Marie ou DSN)", "Mroad"),
     MCONNECT("Donnée certifiée", "DSN", "TS");
 

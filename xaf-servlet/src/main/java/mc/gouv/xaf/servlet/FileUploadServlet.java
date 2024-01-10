@@ -115,8 +115,8 @@ public class FileUploadServlet extends AbstractAfServlet {
                 return;
             }
             int tailleMaxFichier = Integer.parseInt(propMaxTailleFichiers.getValue());
-            // transformation B en MB
-            int tailleMaxFichierMB = tailleMaxFichier * 1000000;
+            // transformation B en MB: 1 Mo = 1 048 576 octets
+            int tailleMaxFichierMB = tailleMaxFichier * 1048576;
             if (part.getSize() > tailleMaxFichierMB) {
                 LOGGER.info("La taille du fichier depasse la taille max definie dans les propriétés ({})", tailleMaxFichier);
                 AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_FORBIDDEN,
@@ -269,7 +269,7 @@ public class FileUploadServlet extends AbstractAfServlet {
             postRequestVscan.setEntity(multipartVscan);
             postRequestVscan.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + AfServletGouvPropertiesResolver.getVscanJwt());
             HttpResponse postResponseVscan = clientVscan.execute(postRequestVscan);
-            String vscanResp = IOUtils.toString(postResponseVscan.getEntity().getContent());
+            String vscanResp = IOUtils.toString(postResponseVscan.getEntity().getContent(), StandardCharsets.UTF_8);
             LOGGER.info("VSCAN Response : {} ({})", postResponseVscan.getStatusLine(), vscanResp);
 
             ScanDTO scanDto = mapper.readValue(vscanResp, ScanDTO.class);

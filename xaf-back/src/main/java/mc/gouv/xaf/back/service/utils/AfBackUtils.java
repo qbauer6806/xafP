@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
+import mc.gouv.xaf.shared.dto.*;
 import mc.gouv.xaf.shared.dto.sourcefiable.enums.SourceFiablesEnum;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -51,15 +52,6 @@ import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.motifs.MotifTemplateService;
 import mc.gouv.xaf.back.service.motifs.MotifsCache;
 import mc.gouv.xaf.shared.SharedMessages;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.xaf.shared.dto.DemandeDataDTO;
-import mc.gouv.xaf.shared.dto.DemandeFlatDTO;
-import mc.gouv.xaf.shared.dto.DemarcheDTO;
-import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
-import mc.gouv.xaf.shared.dto.MotifDTO;
-import mc.gouv.xaf.shared.dto.PropertiesDTO;
-import mc.gouv.xaf.shared.dto.PropertiesListEntityDTO;
-import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
 import mc.gouv.xaf.shared.dto.sourcefiable.SourceFiableDTO;
 
 /**
@@ -732,16 +724,7 @@ public class AfBackUtils {
                 return mapper.readValue(json, new TypeReference<>() {
                 });
             } catch (JsonProcessingException e) {
-                try {
-                    List<String> values = mapper.readValue(json, new TypeReference<>() {
-                    });
-                    if (CollectionUtils.isNotEmpty(values)) {
-                        return values.stream().map(value -> new SourceFiableDTO(value, SourceFiablesEnum.MCONNECT))
-                                .collect(Collectors.toList());
-                    }
-                } catch (JsonProcessingException ex) {
-                    LOGGER.error("Erreur dans donneesCertifieesJsonToList()", e);
-                }
+                LOGGER.error("Erreur dans donneesCertifieesJsonToList()", e);
             }
         }
         return new ArrayList<>();
@@ -765,8 +748,41 @@ public class AfBackUtils {
 	public static String mConnectDateToString(Date date) {
 		return new SimpleDateFormat(MCONNECT_DATE_AND_TIME_FORMAT).format(date);
 	}
-	
-	public String getIdentifiantFromPkDemande(Integer pkDemande) {
+
+    public List<SourceFiableDTO> donneesCertifieesJsonToList(DemandeDTO demande) {
+        if (demande != null && demande.getDonneesCertifiees() != null) {
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                return mapper.readValue(demande.getDonneesCertifiees(), new TypeReference<>() {
+                });
+            } catch (JsonProcessingException e) {
+                try {
+                    List<String> values = mapper.readValue(demande.getDonneesCertifiees(), new TypeReference<>() {
+                    });
+                    if (CollectionUtils.isNotEmpty(values)) {
+                        SourceFiablesEnum sourceFiables = this.getSourceFiablesEnum(demande, mapper);
+                        return values.stream().map(value -> new SourceFiableDTO(value, sourceFiables))
+                                .collect(Collectors.toList());
+                    }
+                } catch (JsonProcessingException ex) {
+                    LOGGER.error("Erreur dans donneesCertifieesJsonToList()", e);
+                }
+            }
+        }
+        return new ArrayList<>();
+    }
+
+    private SourceFiablesEnum getSourceFiablesEnum(DemandeDTO demande, ObjectMapper mapper) throws JsonProcessingException {
+        SourceFiablesEnum sourceFiables = SourceFiablesEnum.MCONNECT;
+        GichuniUsagerDTO usagerDTO = usagersCache.get(demande.getUsagerId());
+        if(usagerDTO != null && usagerDTO.getDonneesExternes() != null && usagerDTO.getDonneesExternes().get("mconnect") != null) {
+            DonneesMConnectDTO donneesMConnectDTO = mapper.treeToValue(usagerDTO.getDonneesExternes().get("mconnect"), DonneesMConnectDTO.class);
+            sourceFiables = SourceFiablesEnum.valueOf(donneesMConnectDTO.getAuthority());
+        }
+        return sourceFiables;
+    }
+
+    public String getIdentifiantFromPkDemande(Integer pkDemande) {
 		DemandeDTO demande = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), pkDemande);
 		return demande.getIdentifiant();
 	}

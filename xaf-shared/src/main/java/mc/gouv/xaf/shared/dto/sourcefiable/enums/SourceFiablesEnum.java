@@ -2,9 +2,10 @@ package mc.gouv.xaf.shared.dto.sourcefiable.enums;
 
 public enum SourceFiablesEnum {
 
+    DSP("DSP - Identité numérique", "Autorité d’enregistrement DSP", Constants.IDENTITE_NUMERIQUE),
     DSP_RESID("DSP-RESID", "DSP", "RESID"),
-    MAIRIE("Mairie-Identité numérique", "Autorité d’enregistrement (DSP ou Marie ou DSN)", "Mroad"),
-    MCONNECT("Donnée certifiée", "DSN", "TS");
+    MAIRIE("Mairie - Identité numérique", "Autorité d’enregistrement Mairie", Constants.IDENTITE_NUMERIQUE),
+    DSN("DSN - Identité numérique", "Autorité d’enregistrement DSN", Constants.IDENTITE_NUMERIQUE);
 
     private final String libelle;
     private final String service;
@@ -27,4 +28,7 @@ public enum SourceFiablesEnum {
     }
 
 
+    private static class Constants {
+        public static final String IDENTITE_NUMERIQUE = "Identité Numérique";
+    }
 }

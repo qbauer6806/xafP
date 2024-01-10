@@ -732,16 +732,7 @@ public class AfBackUtils {
                 return mapper.readValue(json, new TypeReference<>() {
                 });
             } catch (JsonProcessingException e) {
-                try {
-                    List<String> values = mapper.readValue(json, new TypeReference<>() {
-                    });
-                    if (CollectionUtils.isNotEmpty(values)) {
-                        return values.stream().map(value -> new SourceFiableDTO(value, SourceFiablesEnum.MCONNECT))
-                                .collect(Collectors.toList());
-                    }
-                } catch (JsonProcessingException ex) {
-                    LOGGER.error("Erreur dans donneesCertifieesJsonToList()", e);
-                }
+                LOGGER.error("Erreur dans donneesCertifieesJsonToList()", e);
             }
         }
         return new ArrayList<>();
@@ -765,7 +756,29 @@ public class AfBackUtils {
 	public static String mConnectDateToString(Date date) {
 		return new SimpleDateFormat(MCONNECT_DATE_AND_TIME_FORMAT).format(date);
 	}
-	
+
+    public static List<SourceFiableDTO> donneesCertifieesJsonToList(DemandeDTO demande) {
+        if (demande != null && demande.getDonneesCertifiees() != null) {
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                return mapper.readValue(demande.getDonneesCertifiees(), new TypeReference<>() {
+                });
+            } catch (JsonProcessingException e) {
+                try {
+                    List<String> values = mapper.readValue(demande.getDonneesCertifiees(), new TypeReference<>() {
+                    });
+                    if (CollectionUtils.isNotEmpty(values)) {
+                        SourceFiablesEnum sourceFiables = SourceFiablesEnum.valueOf(demande.getDonneesMConnect().getAuthority());
+                        return values.stream().map(value -> new SourceFiableDTO(value, sourceFiables))
+                                .collect(Collectors.toList());
+                    }
+                } catch (JsonProcessingException ex) {
+                    LOGGER.error("Erreur dans donneesCertifieesJsonToList()", e);
+                }
+            }
+        }
+        return new ArrayList<>();
+    }
 	public String getIdentifiantFromPkDemande(Integer pkDemande) {
 		DemandeDTO demande = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), pkDemande);
 		return demande.getIdentifiant();

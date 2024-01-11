@@ -11,8 +11,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 
-import mc.gouv.Static;
-import mc.gouv.logon.apiclient.LogonApiClient;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.itg.logon.impl.UtilisateursCacheImpl;
@@ -50,7 +48,7 @@ public class AfBackConfig {
 
     @Bean(name = "utilisateursCacheImpl")
     public UtilisateursCache getUtilisateursCache() {
-        String url = Static.getValue(LogonApiClient.DEFAULT_GOUV_PROPERTY_URL);
+        String url = gouvPropertiesResolver.getGouvSharedLogonRestUrl();
         return new UtilisateursCacheImpl(url, gouvPropertiesResolver.getDemarcheId(), UTILISATEURS_CACHE_DURATION);
     }
 

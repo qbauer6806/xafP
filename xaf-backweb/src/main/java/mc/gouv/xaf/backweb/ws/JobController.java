@@ -2,6 +2,7 @@ package mc.gouv.xaf.backweb.ws;
 
 import javax.inject.Inject;
 
+import mc.gouv.xaf.backweb.web.config.annotation.GouvRestController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Conditional;
@@ -14,7 +15,6 @@ import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
 import mc.gouv.xaf.back.service.data.DemandeJobService;
 import mc.gouv.xaf.shared.dto.DemandeJobDTO;
 import mc.gouv.xaf.shared.enums.JobNamesEnum;
-import mc.gouv.xboot.config.web.annotation.GouvRestController;
 
 @GouvRestController
 @Conditional(IndexationEnabledCondition.class)

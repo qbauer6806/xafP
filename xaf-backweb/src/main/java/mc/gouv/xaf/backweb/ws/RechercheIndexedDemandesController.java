@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import mc.gouv.logon.shared.User;
+import mc.gouv.xaf.backweb.web.config.annotation.GouvRestController;
 import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
 import mc.gouv.xaf.back.data.es.model.DemandeEsRechercheDTO;
 import mc.gouv.xaf.back.data.es.model.DemandesFacet;
@@ -34,7 +35,6 @@ import mc.gouv.xaf.backweb.dto.AfBackDemandeEsDTO;
 import mc.gouv.xaf.shared.dto.DataRechercheDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
-import mc.gouv.xboot.config.web.annotation.GouvRestController;
 
 @GouvRestController
 @RequestMapping("/ws/demandes")
@@ -65,7 +65,7 @@ public class RechercheIndexedDemandesController extends AbstractController {
                                                 @RequestParam(value = "aucunCanal", required = false) boolean aucunCanal,
                                                 @RequestParam(value = "aucunResponsable", required = false) boolean aucunResponsable,
                                                 @RequestParam(value = "aucunStatut", required = false) boolean aucunStatut,
-                                                @RequestParam(value = "statutPublicOuInterne", required = false) String statutPublicOuInterne, 
+                                                @RequestParam(value = "statutPublicOuInterne", required = false) String statutPublicOuInterne,
                                                 @RequestParam(value = "checkTimestamp", required = false, defaultValue = "false") boolean checkTimestamp,
                                                 Pageable pageable) {
 

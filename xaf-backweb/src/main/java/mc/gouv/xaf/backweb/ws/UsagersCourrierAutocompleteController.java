@@ -3,6 +3,7 @@ package mc.gouv.xaf.backweb.ws;
 import java.util.ArrayList;
 import java.util.List;
 
+import mc.gouv.xaf.backweb.web.config.annotation.GouvRestController;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
@@ -15,7 +16,6 @@ import mc.gouv.xaf.back.service.data.UsagersCourrierService;
 import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 import mc.gouv.xaf.backweb.dto.AutocompleteUsagerDTO;
 import mc.gouv.xaf.backweb.dto.AutocompleteUsagerListeDTO;
-import mc.gouv.xboot.config.web.annotation.GouvRestController;
 
 /**
  * 

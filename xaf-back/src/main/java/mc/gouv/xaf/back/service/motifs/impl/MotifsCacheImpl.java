@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 
 import mc.gouv.xaf.back.service.motifs.MotifsCache;
 import mc.gouv.xaf.shared.dto.MotifDTO;
-import mc.gouv.xboot.caching.GouvMemoryCache;
+import mc.gouv.xaf.caching.GouvMemoryCache;
 
 /**
  * 

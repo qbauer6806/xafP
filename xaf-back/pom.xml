@@ -35,11 +35,6 @@
         </dependency>
 
         <dependency>
-            <groupId>mc.gouv.tools_jar</groupId>
-            <artifactId>tools_jar</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>mc.gouv.xaf</groupId>
             <artifactId>xaf-shared</artifactId>
             <version>${project.version}</version>
@@ -92,14 +87,92 @@
         </dependency>
 
         <dependency>
-            <groupId>mc.gouv.xboot</groupId>
-            <artifactId>xboot-spring-starter-data-jpa</artifactId>
-        </dependency>
-
-        <dependency>
+            <groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.tomcat</groupId>
+			<artifactId>tomcat-jdbc</artifactId>
+			<version>${tomcat.version}</version>
+		</dependency>
+<!--        <dependency>
             <groupId>mc.gouv.xboot</groupId>
             <artifactId>xboot-spring-starter-api</artifactId>
-        </dependency>
+        </dependency>-->
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-tomcat</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-jetty</artifactId>
+			<!-- -->
+			<exclusions>
+				<exclusion>
+					<groupId>org.eclipse.jetty</groupId>
+					<artifactId>jetty-jndi</artifactId>
+				</exclusion>
+				<!-- Exclude the Jetty-9 specific dependencies -->
+				<exclusion>
+					<groupId>org.eclipse.jetty.websocket</groupId>
+					<artifactId>websocket-server</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.eclipse.jetty.websocket</groupId>
+					<artifactId>javax-websocket-server-impl</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-jersey</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-tomcat</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.eclipse.jetty</groupId>
+			<artifactId>jetty-jmx</artifactId>
+		</dependency>
+
+		<!-- Permet le décodage automatique des objets JSON reçus en POST -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+		</dependency>
+
+
+		<!-- monitoring via monitor?token=&format=json -->
+		<dependency>
+			<groupId>mc.gouv.tools_monitor</groupId>
+			<artifactId>tools_monitor</artifactId>
+		</dependency>
+
+		<!-- Pour simulateurConfig -->
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt</artifactId>
+		</dependency>
 
         <dependency>
             <groupId>org.springframework.security</groupId>
@@ -126,12 +199,22 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <!-- Fin Apache Velocity -->
-
         <dependency>
+			<groupId>mc.gouv.tools_piwik</groupId>
+			<artifactId>tools_piwik</artifactId>
+		</dependency>
+		<!-- Fin Apache Velocity -->
+
+        <!--		<dependency>
             <groupId>mc.gouv.xboot</groupId>
             <artifactId>xboot-caching</artifactId>
-        </dependency>
+        </dependency>-->
+
+		<dependency>
+			<groupId>mc.gouv.xaf</groupId>
+			<artifactId>xaf-caching</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 
         <dependency>
             <groupId>mc.gouv.server</groupId>
@@ -156,11 +239,28 @@
             <version>${logon-apiclient.version}</version>
         </dependency>
 
-        <dependency>
+        <!--		<dependency>
             <artifactId>xboot-spring-starter-test</artifactId>
             <groupId>mc.gouv.xboot</groupId>
-        </dependency>
-        <!-- Pour la génération de PDF : -->
+        </dependency>-->
+        <dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-test</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+
+		<!--<dependency>
+			<groupId>mc.gouv.xboot</groupId>
+			<artifactId>xboot-spring-shared</artifactId>
+		</dependency>-->
+		<!-- Pour la génération de PDF : -->
 
         <dependency>
             <groupId>fr.opensagres.xdocreport</groupId>

@@ -17,11 +17,41 @@
             <version>${project.version}</version>
         </dependency>
 
-        <dependency>
+        <!--<dependency>
             <groupId>mc.gouv.xboot</groupId>
             <artifactId>xboot-spring-starter-web</artifactId>
             <exclusions>
-                <!-- Exclude the Jetty-9 specific dependencies -->
+        &lt;!&ndash; Exclude the Jetty-9 specific dependencies &ndash;&gt;
+		        <exclusion>
+		            <groupId>org.eclipse.jetty.websocket</groupId>
+		            <artifactId>websocket-server</artifactId>
+		        </exclusion>
+		        <exclusion>
+		            <groupId>org.eclipse.jetty.websocket</groupId>
+		            <artifactId>javax-websocket-server-impl</artifactId>
+		        </exclusion>
+		        <exclusion>
+					<groupId>org.eclipse.jetty</groupId>
+					<artifactId>jetty-jndi</artifactId>
+				</exclusion>
+		    </exclusions>
+        </dependency>-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-tomcat</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jetty</artifactId>
+            <!-- -->
+            <exclusions>        <!-- Exclude the Jetty-9 specific dependencies -->
                 <exclusion>
                     <groupId>org.eclipse.jetty.websocket</groupId>
                     <artifactId>websocket-server</artifactId>
@@ -35,6 +65,62 @@
                     <artifactId>jetty-jndi</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-jmx</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>mc.gouv.logon</groupId>
+            <artifactId>logon-apiclient</artifactId>
+        </dependency>
+
+        <!-- monitoring via monitor?token=&format=json -->
+        <dependency>
+            <groupId>mc.gouv.tools_monitor</groupId>
+            <artifactId>tools_monitor</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>webjars-locator-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.thymeleaf.extras</groupId>
+            <artifactId>thymeleaf-extras-springsecurity5</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>mc.gouv.xcb</groupId>
+            <artifactId>xcb-wlib</artifactId>
+        </dependency>
+
+<!--        <dependency>
+            <groupId>mc.gouv.xboot</groupId>
+            <artifactId>xboot-spring-shared</artifactId>
+        </dependency>-->
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
         </dependency>
 
         <!-- Web JS and CSS dependencies -->

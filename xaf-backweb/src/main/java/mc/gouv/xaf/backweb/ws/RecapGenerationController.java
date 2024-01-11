@@ -3,6 +3,7 @@ package mc.gouv.xaf.backweb.ws;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
+import mc.gouv.xaf.backweb.web.config.annotation.GouvRestController;
 import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +14,6 @@ import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemandeRecapHTMLService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.xboot.config.web.annotation.GouvRestController;
 
 /**
  *

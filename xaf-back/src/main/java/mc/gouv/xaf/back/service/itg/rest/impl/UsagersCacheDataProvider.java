@@ -18,7 +18,7 @@ import mc.gouv.xaf.back.service.utils.DemarchesUtils;
 import mc.gouv.xaf.back.service.utils.UsagersUtils;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
-import mc.gouv.xboot.caching.GouvCacheDataProvider;
+import mc.gouv.xaf.caching.GouvCacheDataProvider;
 
 /**
  * 

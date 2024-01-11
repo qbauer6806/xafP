@@ -1,5 +1,6 @@
 package mc.gouv.xaf.backweb.ws;
 
+import mc.gouv.xaf.backweb.web.config.annotation.GouvRestController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.http.HttpStatus;
@@ -9,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
 import mc.gouv.xaf.back.service.es.RechercheDynamicJSService;
-import mc.gouv.xboot.config.web.annotation.GouvRestController;
 
 @GouvRestController
 @RequestMapping("/recherchedynamicjs")

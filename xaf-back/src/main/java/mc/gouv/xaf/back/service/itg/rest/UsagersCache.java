@@ -1,7 +1,7 @@
 package mc.gouv.xaf.back.service.itg.rest;
 
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
-import mc.gouv.xboot.caching.GouvCache;
+import mc.gouv.xaf.caching.GouvCache;
 
 /**
  * 

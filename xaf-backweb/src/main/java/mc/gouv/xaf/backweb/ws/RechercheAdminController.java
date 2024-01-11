@@ -9,6 +9,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 
+import mc.gouv.xaf.backweb.web.config.annotation.GouvRestController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,6 @@ import mc.gouv.xaf.back.data.es.model.EsCategory;
 import mc.gouv.xaf.back.data.es.model.EsProperty;
 import mc.gouv.xaf.back.service.es.RechercheAdminService;
 import mc.gouv.xaf.backweb.controller.AbstractController;
-import mc.gouv.xboot.config.web.annotation.GouvRestController;
 
 @GouvRestController
 @Secured("ROLE_CONFIGURATION")

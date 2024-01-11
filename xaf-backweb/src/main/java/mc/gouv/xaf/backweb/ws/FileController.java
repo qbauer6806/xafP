@@ -1,5 +1,6 @@
 package mc.gouv.xaf.backweb.ws;
 
+import mc.gouv.xaf.backweb.web.config.annotation.GouvRestController;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.DemandesService;
@@ -8,7 +9,6 @@ import mc.gouv.xaf.back.service.utils.FileUtils;
 import mc.gouv.xaf.shared.dto.DemandeComplementsFileDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
-import mc.gouv.xboot.config.web.annotation.GouvRestController;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;

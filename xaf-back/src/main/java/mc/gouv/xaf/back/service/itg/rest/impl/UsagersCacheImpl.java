@@ -4,7 +4,7 @@ import org.springframework.context.annotation.Profile;
 
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
-import mc.gouv.xboot.caching.GouvMemoryCache;
+import mc.gouv.xaf.caching.GouvMemoryCache;
 
 /**
  * 

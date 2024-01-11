@@ -30,7 +30,8 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>xaf-apiclient</module>
+        <module>xaf-api</module>
+		<module>xaf-apiclient</module>
         <module>xaf-apiclient-paiement</module>
         <module>xaf-back</module>
         <module>xaf-back-denjs</module>
@@ -38,6 +39,7 @@
         <module>xaf-back-paiement</module>
         <module>xaf-backweb</module>
         <module>xaf-backweb-denjs</module>
+		<module>xaf-caching</module>
         <module>xaf-rio</module>
         <module>xaf-servlet</module>
         <module>xaf-shared</module>

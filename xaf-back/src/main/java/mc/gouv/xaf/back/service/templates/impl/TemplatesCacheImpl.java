@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 
 import mc.gouv.xaf.back.service.templates.TemplatesCache;
 import mc.gouv.xaf.shared.dto.TemplateDTO;
-import mc.gouv.xboot.caching.GouvMemoryCache;
+import mc.gouv.xaf.caching.GouvMemoryCache;
 
 /**
  * Composant permettant de gérer un cache des templates de la démarche courante

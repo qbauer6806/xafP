@@ -4,6 +4,8 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
@@ -12,7 +14,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import mc.gouv.xaf.back.config.ApiserverCondition;
-import mc.gouv.xaf.back.config.KafkaEnabledCondition;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.GUGenericKafkaMessage;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.exception.GUKafkaException;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.utils.GUKafkaUtils;
@@ -25,7 +26,8 @@ import mc.gouv.xaf.back.service.itg.gichuni.kafka.utils.GUKafkaUtils;
  *
  */
 @Service
-@Conditional({ ApiserverCondition.class, KafkaEnabledCondition.class })
+@Conditional({ ApiserverCondition.class})
+@ConditionalOnExpression(value = "'${mc.gouv.${application.name}.backapi.kafka.enabled}' == 'true'")
 public class GUKafkaConsumer {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(GUKafkaConsumer.class);

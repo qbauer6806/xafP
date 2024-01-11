@@ -14,6 +14,13 @@ import javax.ws.rs.core.Response;
 import org.glassfish.jersey.media.multipart.internal.MultiPartWriter;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import mc.gouv.xaf.apiclient.authentication.impl.BasicAuthorizationHeaderProvider;
+import mc.gouv.xaf.apiclient.authentication.impl.JwtAuthorizationHeaderProvider;
+import mc.gouv.xaf.apiclient.client.ApiClient;
+import mc.gouv.xaf.apiclient.exception.ExceptionManager;
+import mc.gouv.xaf.shared.RequestConstant;
+import org.glassfish.jersey.media.multipart.internal.MultiPartWriter;
+
 import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
 
 import mc.gouv.xaf.shared.RequestConstant;
@@ -30,10 +37,6 @@ import mc.gouv.xaf.shared.dto.PageParamDTO;
 import mc.gouv.xaf.shared.dto.PeriodeOuvertureDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
-import mc.gouv.xboot.apiclient.authentication.impl.BasicAuthorizationHeaderProvider;
-import mc.gouv.xboot.apiclient.authentication.impl.JwtAuthorizationHeaderProvider;
-import mc.gouv.xboot.apiclient.client.ApiClient;
-import mc.gouv.xboot.apiclient.exception.ExceptionManager;
 
 /**
  * Classe cliente permettant d'appeler les WS des démarches

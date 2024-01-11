@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import mc.gouv.logon.shared.User;
+import mc.gouv.xaf.backweb.web.config.annotation.GouvRestController;
 import mc.gouv.xaf.back.config.es.IndexationDisabledCondition;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesService;
@@ -31,7 +32,6 @@ import mc.gouv.xaf.shared.dto.DataRechercheDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
-import mc.gouv.xboot.config.web.annotation.GouvRestController;
 
 @GouvRestController
 @RequestMapping("/ws/demandes")

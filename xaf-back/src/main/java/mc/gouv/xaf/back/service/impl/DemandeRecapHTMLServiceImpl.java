@@ -210,7 +210,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
 
         LOGGER.info("Construction du recap HTML...");
         StringBuilder html = new StringBuilder();
-        List<SourceFiableDTO> donneesCertififiees = afBackUtils.donneesCertifieesJsonToList(demande);
+        List<SourceFiableDTO> donneesCertififiees = AfBackUtils.donneesCertifieesJsonToList(demande.getDonneesCertifiees());
         for (Object value : jsonArray) {
             if (PROJECT_DEMANDE_RECAP.equals(((JSONObject) value).get("name"))) {
                 JSONObject projectDemandeRecap = (JSONObject) value;

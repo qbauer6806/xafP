@@ -6,7 +6,7 @@ public enum SourceFiablesEnum {
     DSP_RESID("DSP-RESID", "DSP", "RESID"), // pour les données récupérées de RESID
     MAIRIE("Mairie - Identité numérique", "Autorité d’enregistrement Mairie", Constants.IDENTITE_NUMERIQUE),
     DSN("DSN - Identité numérique", "Autorité d’enregistrement DSN", Constants.IDENTITE_NUMERIQUE),
-    MCONNECT("Donnée certifiée", "", "");
+    MCONNECT("Donnée certifiée", "N/A", "N/A");
 
     private final String libelle;
     private final String service;

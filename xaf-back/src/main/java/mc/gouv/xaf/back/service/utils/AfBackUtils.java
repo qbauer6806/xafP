@@ -1,34 +1,5 @@
 package mc.gouv.xaf.back.service.utils;
 
-import java.nio.charset.StandardCharsets;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.text.NumberFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import javax.annotation.PostConstruct;
-
-import mc.gouv.xaf.shared.dto.*;
-import mc.gouv.xaf.shared.dto.sourcefiable.enums.SourceFiablesEnum;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.http.MediaType;
-import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,7 +7,6 @@ import com.fasterxml.uuid.EthernetAddress;
 import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.impl.TimeBasedGenerator;
 import com.google.gson.Gson;
-
 import mc.gouv.file.apiclient.FileClient;
 import mc.gouv.logon.shared.Droit;
 import mc.gouv.logon.shared.Role;
@@ -52,7 +22,30 @@ import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.motifs.MotifTemplateService;
 import mc.gouv.xaf.back.service.motifs.MotifsCache;
 import mc.gouv.xaf.shared.SharedMessages;
+import mc.gouv.xaf.shared.dto.*;
 import mc.gouv.xaf.shared.dto.sourcefiable.SourceFiableDTO;
+import mc.gouv.xaf.shared.dto.sourcefiable.enums.SourceFiablesEnum;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
+
+import javax.annotation.PostConstruct;
+import java.nio.charset.StandardCharsets;
+import java.text.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Classe utilitaire pour le projet xaf-back
@@ -462,25 +455,30 @@ public class AfBackUtils {
         String codeAppli = gouvPropertiesResolver.getDemarcheId();
         List<User> agents = new ArrayList<>(utilisateursCache.getAll().values());
         for (User agent : agents) {
-            boolean toAdd = false;
-            Set<Role> agentRoles = agent.getRoles();
-            for (Role role : agentRoles) {
-                if (role.getAppli().getCode().equals(codeAppli)) {
-                    for (Droit droit : role.getDroits()) {
-                        for (String roleFromList : rolesList) {
-                            if (roleFromList.trim().equals(droit.getCode())) {
-                                toAdd = true;
-                            }
-                        }
-                    }
-
-                }
-            }
+            boolean toAdd = this.isToAdd(rolesList, codeAppli, agent);
             if (toAdd) {
                 destinataires.add(agent);
             }
         }
         return destinataires;
+    }
+
+    private boolean isToAdd(String[] rolesList, String codeAppli, User agent) {
+        boolean toAdd = false;
+        Set<Role> agentRoles = agent.getRoles();
+        for (Role role : agentRoles) {
+            if (role.getAppli().getCode().equals(codeAppli)) {
+                for (Droit droit : role.getDroits()) {
+                    for (String roleFromList : rolesList) {
+                        if (roleFromList.trim().equals(droit.getCode())) {
+                            toAdd = true;
+                        }
+                    }
+                }
+
+            }
+        }
+        return toAdd;
     }
 
     public String convertDateToString(final Date date) {
@@ -724,7 +722,16 @@ public class AfBackUtils {
                 return mapper.readValue(json, new TypeReference<>() {
                 });
             } catch (JsonProcessingException e) {
-                LOGGER.error("Erreur dans donneesCertifieesJsonToList()", e);
+                try {
+                    List<String> values = mapper.readValue(json, new TypeReference<>() {
+                    });
+                    if (CollectionUtils.isNotEmpty(values)) {
+                        return values.stream().map(value -> new SourceFiableDTO(value, SourceFiablesEnum.MCONNECT))
+                                .collect(Collectors.toList());
+                    }
+                } catch (JsonProcessingException ex) {
+                    LOGGER.error("Erreur dans donneesCertifieesJsonToList()", e);
+                }
             }
         }
         return new ArrayList<>();
@@ -748,40 +755,6 @@ public class AfBackUtils {
 	public static String mConnectDateToString(Date date) {
 		return new SimpleDateFormat(MCONNECT_DATE_AND_TIME_FORMAT).format(date);
 	}
-
-    public List<SourceFiableDTO> donneesCertifieesJsonToList(DemandeDTO demande) {
-        if (demande != null && demande.getDonneesCertifiees() != null) {
-            ObjectMapper mapper = new ObjectMapper();
-            try {
-                return mapper.readValue(demande.getDonneesCertifiees(), new TypeReference<>() {
-                });
-            } catch (JsonProcessingException e) {
-                try {
-                    List<String> values = mapper.readValue(demande.getDonneesCertifiees(), new TypeReference<>() {
-                    });
-                    if (CollectionUtils.isNotEmpty(values)) {
-                        SourceFiablesEnum sourceFiables = this.getSourceFiablesEnum(demande, mapper);
-                        return values.stream().map(value -> new SourceFiableDTO(value, sourceFiables))
-                                .collect(Collectors.toList());
-                    }
-                } catch (JsonProcessingException ex) {
-                    LOGGER.error("Erreur dans donneesCertifieesJsonToList()", e);
-                }
-            }
-        }
-        return new ArrayList<>();
-    }
-
-    private SourceFiablesEnum getSourceFiablesEnum(DemandeDTO demande, ObjectMapper mapper) throws JsonProcessingException {
-        SourceFiablesEnum sourceFiables = SourceFiablesEnum.MCONNECT;
-        GichuniUsagerDTO usagerDTO = usagersCache.get(demande.getUsagerId());
-        if(usagerDTO != null && usagerDTO.getDonneesExternes() != null && usagerDTO.getDonneesExternes().get("mconnect") != null) {
-            DonneesMConnectDTO donneesMConnectDTO = mapper.treeToValue(usagerDTO.getDonneesExternes().get("mconnect"), DonneesMConnectDTO.class);
-            sourceFiables = SourceFiablesEnum.valueOf(donneesMConnectDTO.getAuthority());
-        }
-        return sourceFiables;
-    }
-
     public String getIdentifiantFromPkDemande(Integer pkDemande) {
 		DemandeDTO demande = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), pkDemande);
 		return demande.getIdentifiant();

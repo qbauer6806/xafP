@@ -17,25 +17,6 @@
             <version>${project.version}</version>
         </dependency>
 
-        <!--<dependency>
-            <groupId>mc.gouv.xboot</groupId>
-            <artifactId>xboot-spring-starter-web</artifactId>
-            <exclusions>
-        &lt;!&ndash; Exclude the Jetty-9 specific dependencies &ndash;&gt;
-		        <exclusion>
-		            <groupId>org.eclipse.jetty.websocket</groupId>
-		            <artifactId>websocket-server</artifactId>
-		        </exclusion>
-		        <exclusion>
-		            <groupId>org.eclipse.jetty.websocket</groupId>
-		            <artifactId>javax-websocket-server-impl</artifactId>
-		        </exclusion>
-		        <exclusion>
-					<groupId>org.eclipse.jetty</groupId>
-					<artifactId>jetty-jndi</artifactId>
-				</exclusion>
-		    </exclusions>
-        </dependency>-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -91,6 +72,7 @@
         <dependency>
             <groupId>mc.gouv.tools_monitor</groupId>
             <artifactId>tools_monitor</artifactId>
+            <version>${tools_monitor.version}</version>
         </dependency>
 
         <dependency>
@@ -111,12 +93,8 @@
         <dependency>
             <groupId>mc.gouv.xcb</groupId>
             <artifactId>xcb-wlib</artifactId>
+            <version>${xcb-wlib.version}</version>
         </dependency>
-
-<!--        <dependency>
-            <groupId>mc.gouv.xboot</groupId>
-            <artifactId>xboot-spring-shared</artifactId>
-        </dependency>-->
 
         <dependency>
             <groupId>org.springframework.boot</groupId>

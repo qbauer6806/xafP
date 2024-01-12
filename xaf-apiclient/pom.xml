@@ -48,6 +48,7 @@
         <dependency>
             <groupId>mc.gouv.xapi</groupId>
             <artifactId>xapi-shared</artifactId>
+            <version>${xapi.version}</version>
         </dependency>
 
         <dependency>

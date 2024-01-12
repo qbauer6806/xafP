@@ -161,10 +161,6 @@
             <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
-        <dependency>
-			<artifactId>xboot-spring-starter-test</artifactId>
-			<groupId>mc.gouv.xboot</groupId>
-		</dependency>
         <!-- Mockito inline est une extension de mockito-core qui permet de mocker des objets statiques -->
 		<dependency>
 			<groupId>org.mockito</groupId>

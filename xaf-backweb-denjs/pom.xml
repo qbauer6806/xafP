@@ -23,11 +23,6 @@
             <version>${project.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>mc.gouv.xboot</groupId>
-            <artifactId>xboot-spring-starter-web</artifactId>
-        </dependency>
-
         <!-- Web JS and CSS dependencies -->
         <dependency>
             <groupId>org.webjars</groupId>

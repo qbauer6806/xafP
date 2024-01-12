@@ -99,10 +99,6 @@
 			<artifactId>tomcat-jdbc</artifactId>
 			<version>${tomcat.version}</version>
 		</dependency>
-<!--        <dependency>
-            <groupId>mc.gouv.xboot</groupId>
-            <artifactId>xboot-spring-starter-api</artifactId>
-        </dependency>-->
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -166,13 +162,15 @@
 		<dependency>
 			<groupId>mc.gouv.tools_monitor</groupId>
 			<artifactId>tools_monitor</artifactId>
+            <version>${tools_monitor.version}</version>
 		</dependency>
 
 		<!-- Pour simulateurConfig -->
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt</artifactId>
-		</dependency>
+            <version>${jjwt.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.security</groupId>
@@ -202,13 +200,9 @@
         <dependency>
 			<groupId>mc.gouv.tools_piwik</groupId>
 			<artifactId>tools_piwik</artifactId>
+            <version>${tools_piwik.version}</version>
 		</dependency>
 		<!-- Fin Apache Velocity -->
-
-        <!--		<dependency>
-            <groupId>mc.gouv.xboot</groupId>
-            <artifactId>xboot-caching</artifactId>
-        </dependency>-->
 
 		<dependency>
 			<groupId>mc.gouv.xaf</groupId>
@@ -219,6 +213,7 @@
         <dependency>
             <groupId>mc.gouv.server</groupId>
             <artifactId>servicerest_client</artifactId>
+            <version>${servicerest_client.version}</version>
         </dependency>
 
         <dependency>
@@ -239,10 +234,6 @@
             <version>${logon-apiclient.version}</version>
         </dependency>
 
-        <!--		<dependency>
-            <artifactId>xboot-spring-starter-test</artifactId>
-            <groupId>mc.gouv.xboot</groupId>
-        </dependency>-->
         <dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
@@ -256,10 +247,6 @@
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
 
-		<!--<dependency>
-			<groupId>mc.gouv.xboot</groupId>
-			<artifactId>xboot-spring-shared</artifactId>
-		</dependency>-->
 		<!-- Pour la génération de PDF : -->
 
         <dependency>

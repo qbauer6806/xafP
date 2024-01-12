@@ -59,8 +59,8 @@ class ExpirationDocHolderConsentSchedulingJobTest {
     void testExecute(AccessBO access, int numberOfSave) throws JobExecutionException {
 
         PropertiesDTO xafPorteDocumentActif = new PropertiesDTO(XAF_PORTE_DOCUMENT_ACTIF, "true");
-        when(propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_PORTE_DOCUMENT_ACTIF)).thenReturn(xafPorteDocumentActif);
         when(gouvPropertiesResolver.getDemarcheId()).thenReturn("POCTS");
+        when(propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_PORTE_DOCUMENT_ACTIF)).thenReturn(xafPorteDocumentActif);
         when(accessRepository.getByDemarcheIdAndActive(anyString(), anyBoolean())).thenReturn(List.of(access));
 
         job.execute(null);

@@ -1,11 +1,11 @@
-package mc.gouv.candifp.frontserver.movetoxaf.controller;
+package mc.gouv.xaf.front.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import mc.gouv.candifp.frontserver.movetoxaf.dto.FileUploadCompteurDTO;
-import mc.gouv.candifp.frontserver.movetoxaf.dto.FileUploadResponseDTO;
-import mc.gouv.candifp.frontserver.movetoxaf.dto.UsagerInfosDTO;
-import mc.gouv.candifp.frontserver.movetoxaf.properties.FrontGouvPropertiesResolver;
-import mc.gouv.candifp.frontserver.movetoxaf.util.FrontControllerPropertiesCache;
+import mc.gouv.xaf.front.dto.FileUploadCompteurDTO;
+import mc.gouv.xaf.front.dto.FileUploadResponseDTO;
+import mc.gouv.xaf.front.dto.UsagerInfosDTO;
+import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
+import mc.gouv.xaf.front.util.FrontControllerPropertiesCache;
 import mc.gouv.vscan.shared.dto.ScanDTO;
 import mc.gouv.vscan.shared.dto.ScanRequestDTO;
 import mc.gouv.xaf.shared.SharedMessages;

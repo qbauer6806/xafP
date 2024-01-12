@@ -1,10 +1,10 @@
-package mc.gouv.candifp.frontserver.movetoxaf.controller;
+package mc.gouv.xaf.front.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import mc.gouv.candifp.frontserver.movetoxaf.dto.UsagerInfosDTO;
-import mc.gouv.candifp.frontserver.movetoxaf.util.GichkeyService;
+import mc.gouv.xaf.front.dto.UsagerInfosDTO;
+import mc.gouv.xaf.front.util.GichkeyService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,6 +1,6 @@
-package mc.gouv.candifp.frontserver.movetoxaf.util;
+package mc.gouv.xaf.front.util;
 
-import mc.gouv.candifp.frontserver.movetoxaf.controller.XafFrontserverUtils;
+import mc.gouv.xaf.front.controller.XafFrontserverUtils;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

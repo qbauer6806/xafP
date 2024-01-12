@@ -1,10 +1,10 @@
-package mc.gouv.candifp.frontserver.movetoxaf.controller;
+package mc.gouv.xaf.front.controller;
 
-import mc.gouv.candifp.frontserver.movetoxaf.dto.KeycloakTokenInfo;
-import mc.gouv.candifp.frontserver.movetoxaf.dto.UsagerInfosDTO;
-import mc.gouv.candifp.frontserver.movetoxaf.properties.FrontGouvPropertiesResolver;
-import mc.gouv.candifp.frontserver.movetoxaf.util.GichkeyService;
-import mc.gouv.candifp.frontserver.movetoxaf.util.GichuniService;
+import mc.gouv.xaf.front.dto.KeycloakTokenInfo;
+import mc.gouv.xaf.front.dto.UsagerInfosDTO;
+import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
+import mc.gouv.xaf.front.util.GichkeyService;
+import mc.gouv.xaf.front.util.GichuniService;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 import org.apache.commons.codec.digest.DigestUtils;

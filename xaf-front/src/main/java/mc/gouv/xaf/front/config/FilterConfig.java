@@ -1,4 +1,4 @@
-package mc.gouv.candifp.frontserver.movetoxaf;
+package mc.gouv.xaf.front.config;
 
 import org.springframework.boot.web.servlet.ServletContextInitializer;
 

@@ -1,4 +1,4 @@
-package mc.gouv.candifp.frontserver.movetoxaf.dto;
+package mc.gouv.xaf.front.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 

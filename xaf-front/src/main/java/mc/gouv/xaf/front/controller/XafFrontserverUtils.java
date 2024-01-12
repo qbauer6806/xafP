@@ -1,11 +1,11 @@
-package mc.gouv.candifp.frontserver.movetoxaf.controller;
+package mc.gouv.xaf.front.controller;
 
 import com.fasterxml.uuid.EthernetAddress;
 import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.impl.TimeBasedGenerator;
-import mc.gouv.candifp.frontserver.movetoxaf.dto.UsagerInfosDTO;
-import mc.gouv.candifp.frontserver.movetoxaf.properties.FrontGouvPropertiesResolver;
-import mc.gouv.candifp.frontserver.movetoxaf.util.GichkeyService;
+import mc.gouv.xaf.front.dto.UsagerInfosDTO;
+import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
+import mc.gouv.xaf.front.util.GichkeyService;
 import mc.gouv.xaf.apiclient.AfApiClient;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;

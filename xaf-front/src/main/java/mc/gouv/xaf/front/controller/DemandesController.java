@@ -1,9 +1,9 @@
-package mc.gouv.candifp.frontserver.movetoxaf.controller;
+package mc.gouv.xaf.front.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import mc.gouv.candifp.frontserver.movetoxaf.dto.UsagerInfosDTO;
-import mc.gouv.candifp.frontserver.movetoxaf.enums.HttpMethod;
+import mc.gouv.xaf.front.dto.UsagerInfosDTO;
+import mc.gouv.xaf.front.enums.HttpMethod;
 import mc.gouv.xaf.apiclient.AfApiClient;
 import mc.gouv.xaf.shared.dto.*;
 import org.slf4j.Logger;

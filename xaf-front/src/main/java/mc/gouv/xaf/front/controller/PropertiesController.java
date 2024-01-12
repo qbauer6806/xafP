@@ -1,7 +1,7 @@
-package mc.gouv.candifp.frontserver.movetoxaf.controller;
+package mc.gouv.xaf.front.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import mc.gouv.candifp.frontserver.movetoxaf.properties.FrontGouvPropertiesResolver;
+import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

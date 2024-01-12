@@ -1,4 +1,4 @@
-package mc.gouv.candifp.frontserver.movetoxaf.controller;
+package mc.gouv.xaf.front.controller;
 
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;

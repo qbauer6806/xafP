@@ -1,4 +1,4 @@
-package mc.gouv.candifp.frontserver.movetoxaf.properties;
+package mc.gouv.xaf.front.properties;
 
 import java.util.List;
 

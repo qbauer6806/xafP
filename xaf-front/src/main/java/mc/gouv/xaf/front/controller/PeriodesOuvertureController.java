@@ -1,6 +1,6 @@
-package mc.gouv.candifp.frontserver.movetoxaf.controller;
+package mc.gouv.xaf.front.controller;
 
-import mc.gouv.candifp.frontserver.movetoxaf.dto.UsagerInfosDTO;
+import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.PeriodeOuvertureDTO;
 import org.apache.http.HttpStatus;

@@ -1,7 +1,7 @@
-package mc.gouv.candifp.frontserver.movetoxaf.controller;
+package mc.gouv.xaf.front.controller;
 
 import com.google.gson.*;
-import mc.gouv.candifp.frontserver.movetoxaf.dto.UsagerInfosDTO;
+import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.shared.SharedMessages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

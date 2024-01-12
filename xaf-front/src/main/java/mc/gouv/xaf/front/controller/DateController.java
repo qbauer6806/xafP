@@ -1,6 +1,6 @@
-package mc.gouv.candifp.frontserver.movetoxaf.controller;
+package mc.gouv.xaf.front.controller;
 
-import mc.gouv.candifp.frontserver.movetoxaf.dto.DateDTO;
+import mc.gouv.xaf.front.dto.DateDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;

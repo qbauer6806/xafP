@@ -1,10 +1,10 @@
-package mc.gouv.candifp.frontserver.movetoxaf.paiement;
+package mc.gouv.xaf.front.paiement;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import mc.gouv.candifp.frontserver.movetoxaf.controller.AbstractXafController;
-import mc.gouv.candifp.frontserver.movetoxaf.controller.XafFrontserverUtils;
-import mc.gouv.candifp.frontserver.movetoxaf.properties.FrontGouvPropertiesResolver;
+import mc.gouv.xaf.front.controller.AbstractXafController;
+import mc.gouv.xaf.front.controller.XafFrontserverUtils;
+import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
 import mc.gouv.xaf.apiclient.paiement.PaiementApiClient;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.itg.monetico.MoneticoResponseDTO;

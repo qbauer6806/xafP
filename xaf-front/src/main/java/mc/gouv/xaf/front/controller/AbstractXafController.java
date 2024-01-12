@@ -1,4 +1,4 @@
-package mc.gouv.candifp.frontserver.movetoxaf.controller;
+package mc.gouv.xaf.front.controller;
 
 import mc.gouv.xaf.apiclient.AfApiClient;
 import mc.gouv.xapi.error.exception.WebException;

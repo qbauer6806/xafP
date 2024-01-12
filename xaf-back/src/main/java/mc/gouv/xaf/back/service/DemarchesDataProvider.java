@@ -66,6 +66,11 @@ public interface DemarchesDataProvider {
         return null;
     }
 
+    /**
+     * Permet de définir l'orientation du PDF récap.
+     * Valeurs possibles {landscape ou portrait}
+     * @return
+     */
     default String getRecapOrientation() {
         return "landscape";
     }
@@ -120,4 +125,13 @@ public interface DemarchesDataProvider {
     default List<SourceFiableDTO> getComplementDonneesCertifiees(DemandeDTO demandeDTO){
         return new ArrayList<>();
     }
+
+    /**
+     * Permet de déterminer si l'on affiche la demande source dans le récapitulatif BO.
+     * @return true par défaut
+     */
+    default boolean isAfficheDemandeSource(){
+        return true;
+    }
+
 }

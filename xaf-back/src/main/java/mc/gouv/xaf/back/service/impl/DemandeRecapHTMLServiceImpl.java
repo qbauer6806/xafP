@@ -421,7 +421,7 @@ public class DemandeRecapHTMLServiceImpl implements DemandeRecapHTMLService {
         String imgTag = this.getImgTag(isPdfRecap);
 
         String valueSource = getSourceValue(demandeSource, champ, isPdfRecap, donneesCertififiees);
-        if (demandeSource != null && !value.equalsIgnoreCase(valueSource)) {
+        if (demandeSource != null && !value.equalsIgnoreCase(valueSource) && demarchesDataProvider.isAfficheDemandeSource()) {
             if (StringUtils.isBlank(valueSource)) {
                 valueSource = "N/A";
             }

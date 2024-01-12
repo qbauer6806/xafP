@@ -63,7 +63,7 @@ public interface AfHistoService {
 
     void saveHisto(String demarcheId, Integer demandeId, DemandeHistoriqueDTO histo);
 
-    default DemandeHistoriqueDTO updateDemande(DemandeDTO demandeDto, Integer usagerId, String creeParAgentId, String libelle) {
+    default DemandeHistoriqueDTO updateDemande(DemandeDTO demandeDto, Integer usagerId, String agentId, String targetState) {
         return null;
     }
 }

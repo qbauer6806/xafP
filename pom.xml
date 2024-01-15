@@ -27,6 +27,7 @@
         <xapi.version>1.0.4</xapi.version>
         <tools_monitor.version>1.0.8</tools_monitor.version>
         <jettyVersion>9.4.46.v20220331</jettyVersion>
+        <jacoco.version>0.8.11</jacoco.version>
     </properties>
 
     <groupId>mc.gouv.xaf</groupId>
@@ -47,7 +48,6 @@
 		<module>xaf-caching</module>
 		<module>xaf-front</module>
         <module>xaf-rio</module>
-        <module>xaf-servlet</module>
         <module>xaf-shared</module>
         <module>xaf-sup</module>
     </modules>
@@ -161,6 +161,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco.version}</version>
             </plugin>
         </plugins>
     </build>

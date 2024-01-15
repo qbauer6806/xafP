@@ -63,11 +63,6 @@
             <artifactId>jetty-jmx</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>mc.gouv.logon</groupId>
-            <artifactId>logon-apiclient</artifactId>
-        </dependency>
-
         <!-- monitoring via monitor?token=&format=json -->
         <dependency>
             <groupId>mc.gouv.tools_monitor</groupId>

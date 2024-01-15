@@ -1,10 +1,8 @@
 package mc.gouv.xaf.front.controller;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.util.GichkeyService;
+import mc.gouv.xaf.front.util.XafFrontserverUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +17,6 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.util.Map;
 
 /**
  * Servlet permettant de gérer les sessions des usagers.
@@ -71,18 +68,6 @@ public class SessionsController extends AbstractXafController {
             // Récupération de l'objet attaché à la session
             UsagerInfosDTO usagerInfosDTO = (UsagerInfosDTO) session.getAttribute(LOGIN);
             LOGGER.info("usagerInfosDTO : {}", usagerInfosDTO);
-            // refresh donneesexterne
-            JsonNode tsName = getAfApiClient().getDonneesExternes(usagerInfosDTO.getId());
-            if (tsName != null && tsName.fields() != null && tsName.fields().hasNext()) {
-                JsonNode donneesExternes = usagerInfosDTO.getDonneesExternes();
-                if (donneesExternes == null) {
-                    ObjectMapper mapper = new ObjectMapper();
-                    donneesExternes = mapper.createObjectNode();
-                }
-                Map.Entry<String, JsonNode> entry = tsName.fields().next();
-                ((ObjectNode) donneesExternes).put(entry.getKey(), entry.getValue());
-                usagerInfosDTO.setDonneesExternes(donneesExternes);
-            }
 
             LOGGER.info("====================== Fin /sessions doGet()");
 
@@ -109,8 +94,8 @@ public class SessionsController extends AbstractXafController {
             }
             // Récupération de l'objet attaché à la session
             UsagerInfosDTO usagerInfosDTO = (UsagerInfosDTO) session.getAttribute(LOGIN);
-            LOGGER.info("usagerInfosDTO : {}, userId={}, accessId={}",
-                    usagerInfosDTO, usagerInfosDTO.getId(), usagerInfosDTO.getAccessId());
+            LOGGER.info("usagerInfosDTO : {}, userId={}, accessId={}", usagerInfosDTO, usagerInfosDTO.getId(),
+                    usagerInfosDTO.getAccessId());
 
             // On ne met pas à jour s'il s'agit d'un usager courrier
             if (xafFrontserverUtils.isUsagerCourrier(usagerInfosDTO.getId())) {

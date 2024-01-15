@@ -1,7 +1,5 @@
 package mc.gouv.xaf.front.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-
 import java.io.Serializable;
 import java.util.Date;
 
@@ -31,8 +29,7 @@ public class KeycloakTokenInfo implements Serializable {
 	private String sessionState;
 	
 	private String scope;
-
-	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
+	
 	private Date dateObtention;
 
 	public String getAccessToken() {

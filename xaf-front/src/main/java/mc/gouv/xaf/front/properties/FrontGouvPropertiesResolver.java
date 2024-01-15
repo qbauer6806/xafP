@@ -1,6 +1,5 @@
 package mc.gouv.xaf.front.properties;
 
-import mc.gouv.xaf.front.controller.XafFrontserverUtils;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -12,13 +11,10 @@ import javax.annotation.PostConstruct;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
 /**
  * 
@@ -31,6 +27,8 @@ import java.util.Properties;
 public class FrontGouvPropertiesResolver {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FrontGouvPropertiesResolver.class);
+
+    public static final String FILE_METADATA_TYPEMODELE = "X-MC-TypeModele";
     private static final String APPFACTORY_PREFIX = "mc.gouv.appfactory";
     private static final String MC_GOUV_PREFIX = "mc.gouv";
 
@@ -319,6 +317,11 @@ public class FrontGouvPropertiesResolver {
         return StringUtils.isBlank(value) ? "vide" : value;
     }
 
+    public String getPorteDocUrl() {
+        String value = getGichuniUrl();
+        return StringUtils.isBlank(value) ? "vide" : value + "/public/doc-holder";
+    }
+
     public List<PropertiesDTO> getFrontProperties() {
         final String LOGIN_KEEP_ALIVE = "mc.gouv.appfactory.front.login.keepalive.url";
         final String GICHKEY_REDIRECT_URL = APPFACTORY_PREFIX + "." + applicationName + ".gichkey.redirect.url";
@@ -330,6 +333,7 @@ public class FrontGouvPropertiesResolver {
         final String FRONTOFFICE_PIWIK_URL = "mc.gouv.piwik.external.piwikUrl";
         final String PAIEMENT_PROVIDER = APPFACTORY_PREFIX + "." + applicationName + ".paiement.provider";
         final String MONETICO_URL = APPFACTORY_PREFIX + "." + applicationName + ".monetico.url";
+        final String GICHUNI_URL = "mc.gouv.appfactory.front.gichuni.url";
 
         List<PropertiesDTO> propertiesDTOS = new ArrayList<>();
         propertiesDTOS.add(new PropertiesDTO(LOGIN_KEEP_ALIVE, getLoginKeepAlive()));
@@ -342,6 +346,9 @@ public class FrontGouvPropertiesResolver {
         propertiesDTOS.add(new PropertiesDTO(FRONTOFFICE_PIWIK_URL, getFrontofficePiwikURL()));
         propertiesDTOS.add(new PropertiesDTO(PAIEMENT_PROVIDER, getPaiementProvider()));
         propertiesDTOS.add(new PropertiesDTO(MONETICO_URL, getMoneticoUrl()));
+        propertiesDTOS.add(new PropertiesDTO(GICHUNI_URL, getGichuniUrl()));
+        // TODO A REVOIR
+        //propertiesDTOS.add(new PropertiesDTO(FILE_JWT, getFileJwt()));
         return propertiesDTOS;
     }
 }

@@ -1,8 +1,11 @@
 package mc.gouv.xaf.front.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import mc.gouv.xaf.front.dto.CustomRequestRechercheDTO;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.enums.HttpMethod;
 import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
+import mc.gouv.xaf.front.util.XafFrontserverUtils;
 import mc.gouv.xaf.shared.SharedMessages;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -80,33 +84,30 @@ public class CustomRequestController extends AbstractXafController {
             serviceUrl += restOfUrl;
         }
 
+        serviceUrl += "?";
+
         if (StringUtils.isNotBlank(request.getQueryString())) {
-            serviceUrl += "?" + request.getQueryString();
+            serviceUrl += request.getQueryString();
         }
+
+        if (request.getParameter("usagerId") == null) {
+            serviceUrl += "&usagerId=" + usagerInfosDTO.getId();
+        }
+
         LOGGER.info("Appel à {}", serviceUrl);
 
         Request serviceRequest = null;
-
         try {
-            if (HttpMethod.GET.equals(httpMethod)) {
-                serviceRequest = Request.Get(serviceUrl);
-            } else if (HttpMethod.POST.equals(httpMethod)) {
-                serviceRequest = Request.Post(serviceUrl);
-                serviceRequest.bodyByteArray(IOUtils.toString(request.getInputStream()).getBytes());
-            } else if (HttpMethod.PUT.equals(httpMethod)) {
-                serviceRequest = Request.Put(serviceUrl);
-                serviceRequest.bodyByteArray(IOUtils.toString(request.getInputStream()).getBytes());
-            } else if (HttpMethod.DELETE.equals(httpMethod)) {
-                serviceRequest = Request.Delete(serviceUrl);
-            }
+            serviceRequest = this.getRequest(request, httpMethod, serviceUrl);
         } catch (IOException e) {
             return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.UNAUTHORIZED,
                     "CustomRequestServlet - Une erreur est survenue lors de l'appel à la méthode " + httpMethod.name());
         }
 
         if (serviceRequest == null) {
-            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Situation anormale : serviceRequest == null");
+            //Les logs sont gérés dans la méthode getRequest. On ne fait rien
+            LOGGER.error("Situation anormale : serviceRequest == null");
+            return ResponseEntity.internalServerError().build();
         }
         serviceRequest.setHeader("Authorization", "Bearer " + propertiesResolver.getApiJwt());
 
@@ -118,19 +119,54 @@ public class CustomRequestController extends AbstractXafController {
                 serviceRequest.setHeader(elem, request.getHeader(elem));
             }
         }
-
         try {
             HttpResponse serviceResponse = serviceRequest.execute().returnResponse();
             int statusCode = serviceResponse.getStatusLine().getStatusCode();
-
-            LOGGER.info("====================== Fin /customRequest doMethod()");
-
-            return ResponseEntity.status(statusCode).contentType(MediaType.valueOf(serviceResponse.getEntity().getContentType().getValue()))
-                    .body(new String(serviceResponse.getEntity().getContent().readAllBytes(), StandardCharsets.UTF_8));
+            return ResponseEntity.status(statusCode)
+                    .contentType(MediaType.valueOf(serviceResponse.getEntity().getContentType().getValue()))
+                    .body(serviceResponse.getEntity().getContent());
         } catch (Exception e) {
             return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.INTERNAL_SERVER_ERROR,
                     "Erreur lors du traitement de la réponse");
         }
+    }
+
+    private Request getRequest(HttpServletRequest request, HttpMethod httpMethod, String serviceUrl) throws IOException {
+        Request serviceRequest = null;
+        if (HttpMethod.GET.equals(httpMethod)) {
+            serviceRequest = Request.Get(serviceUrl);
+        } else if (HttpMethod.POST.equals(httpMethod)) {
+            serviceRequest = this.getRequest(request, serviceUrl);
+        } else if (HttpMethod.PUT.equals(httpMethod)) {
+            serviceRequest = Request.Put(serviceUrl);
+            String body = IOUtils.toString(request.getInputStream(), StandardCharsets.UTF_8);
+            serviceRequest.bodyByteArray(body.getBytes());
+        } else if (HttpMethod.DELETE.equals(httpMethod)) {
+            serviceRequest = Request.Delete(serviceUrl);
+        }
+        return serviceRequest;
+    }
+
+    private Request getRequest(HttpServletRequest request, String serviceUrl) throws IOException {
+        String body = IOUtils.toString(request.getInputStream(), StandardCharsets.UTF_8);
+
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            CustomRequestRechercheDTO rechercheInput = mapper.readValue(body, CustomRequestRechercheDTO.class);
+            if (rechercheInput.getData() != null) {
+                String sComplementPost = String.format("&numeroContrat=%s&numeroFacture=%s&numeroTiers=%s",
+                        URLEncoder.encode(rechercheInput.getData().getNumeroContrat(), StandardCharsets.UTF_8),
+                        URLEncoder.encode(rechercheInput.getData().getNumeroFacture(), StandardCharsets.UTF_8),
+                        URLEncoder.encode(rechercheInput.getData().getNumeroTiers(), StandardCharsets.UTF_8));
+                serviceUrl += sComplementPost;
+            }
+        } catch (Exception e) {
+            LOGGER.info("Exception lors de la deserialization de CustomRequestRechercheDTO", e);
+        }
+        Request serviceRequest = Request.Post(serviceUrl);
+        serviceRequest.bodyByteArray(body.getBytes());
+
+        return serviceRequest;
     }
 
     @PostMapping

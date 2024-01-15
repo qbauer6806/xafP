@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.enums.HttpMethod;
 import mc.gouv.xaf.apiclient.AfApiClient;
+import mc.gouv.xaf.front.util.XafFrontserverUtils;
+import mc.gouv.xaf.shared.SessionConstant;
 import mc.gouv.xaf.shared.dto.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +58,11 @@ public class DemandesController extends AbstractXafController {
         DemandeDTO demandeDto;
         if (HttpMethod.POST.equals(httpMethod)) {
             LOGGER.info("Appel à la démarche pour créer la demande");
+            if (request.getSession().getAttribute(SessionConstant.SESSION_DEMANDE_INITIALE) != null) {
+                demandeInput.setContenuInitial(mapper.valueToTree(request.getSession().getAttribute(SessionConstant.SESSION_DEMANDE_INITIALE)));
+            }
             demandeDto = afApiClient.creerDemande(demandeInput, usagerInfosDTO.getId());
+            request.getSession().setAttribute(SessionConstant.SESSION_DEMANDE_INITIALE, null);
         } else {
             LOGGER.info("Appel à la démarche pour mettre à jour la demande {}", demandeId);
             demandeDto = afApiClient.updateDemande(demandeId, demandeInput, usagerInfosDTO.getId());

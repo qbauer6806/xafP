@@ -3,7 +3,7 @@ package mc.gouv.xaf.front.paiement;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import mc.gouv.xaf.front.controller.AbstractXafController;
-import mc.gouv.xaf.front.controller.XafFrontserverUtils;
+import mc.gouv.xaf.front.util.XafFrontserverUtils;
 import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
 import mc.gouv.xaf.apiclient.paiement.PaiementApiClient;
 import mc.gouv.xaf.shared.SharedMessages;

@@ -1,15 +1,16 @@
 package mc.gouv.xaf.front.controller;
 
 import mc.gouv.xaf.apiclient.AfApiClient;
+import mc.gouv.xaf.front.util.XafFrontserverUtils;
 import mc.gouv.xapi.error.exception.WebException;
-import org.eclipse.jetty.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Controller;
 
 /**
  * @author mpavone
  */
-@Component
+@Controller
 public class AbstractXafController {
 
     @Autowired
@@ -21,7 +22,12 @@ public class AbstractXafController {
 
     protected int getCodeErreur(Exception exception) {
         return exception instanceof WebException ? ((WebException) exception).getHttpStatus() :
-                HttpStatus.INTERNAL_SERVER_ERROR_500;
+                HttpStatus.INTERNAL_SERVER_ERROR.value();
     }
 
+//    @PatchMapping
+//    protected ResponseEntity doPatch(HttpServletRequest req) {
+//        int errno = req.getProtocol().endsWith("1.1") ? 405 : 400;
+//        return ResponseEntity.status(errno).build();
+//    }
 }

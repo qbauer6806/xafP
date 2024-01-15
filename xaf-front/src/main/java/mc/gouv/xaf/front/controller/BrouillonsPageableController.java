@@ -1,6 +1,7 @@
 package mc.gouv.xaf.front.controller;
 
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
+import mc.gouv.xaf.front.util.XafFrontserverUtils;
 import mc.gouv.xaf.shared.RequestConstant;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.BrouillonDTO;

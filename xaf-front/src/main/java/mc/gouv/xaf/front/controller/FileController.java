@@ -2,6 +2,7 @@ package mc.gouv.xaf.front.controller;
 
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
+import mc.gouv.xaf.front.util.XafFrontserverUtils;
 import mc.gouv.xaf.shared.RequestConstant;
 import mc.gouv.xaf.shared.SharedMessages;
 import org.apache.commons.lang3.StringUtils;
@@ -42,6 +43,8 @@ public class FileController extends AbstractXafController {
     @Autowired
     private FrontGouvPropertiesResolver propertiesResolver;
 
+    private static final String SLASH = "/";
+
     public ResponseEntity doGet(String accessId, String uuid, String filename, HttpServletRequest request, boolean isPreview) throws IOException {
         LOGGER.info("====================== /fileservlet doGet()");
 
@@ -79,8 +82,8 @@ public class FileController extends AbstractXafController {
 
             // Constitution du chemin virtuel du fichier
             // /appfactory/demarcheId/accessId/UUID/nomDuFichier
-            String fullFilename=accessId + "/" + uuid + "/" + URLEncoder.encode(filename, "UTF-8");
-            String virtualPath = "/" + accountId + "/" + containerId + "/" + fullFilename;
+            String fullFilename=accessId + SLASH + uuid + SLASH + URLEncoder.encode(filename, "UTF-8");
+            String virtualPath = SLASH + accountId + SLASH + containerId + SLASH + fullFilename;
             LOGGER.info("Chemin virtuel : {}", virtualPath);
 
             // Constitution de l'URL d'appel

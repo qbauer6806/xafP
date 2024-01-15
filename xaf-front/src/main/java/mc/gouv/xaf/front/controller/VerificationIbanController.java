@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import mc.gouv.xaf.front.dto.TgfApiIbanResponseDTO;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
+import mc.gouv.xaf.front.util.XafFrontserverUtils;
 import mc.gouv.xaf.shared.SharedMessages;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -64,7 +65,7 @@ public class VerificationIbanController extends AbstractXafController {
             LOGGER.info("Response content: {}", responseContent);
             if (StringUtils.isBlank(responseContent)) {
                 LOGGER.info("====================== Fin /verification-iban doPost()");
-                return response.body(serviceResponse.getEntity().getContent());
+                return response.body(responseContent);
             } else {
                 ObjectMapper mapper = new ObjectMapper();
                 TgfApiIbanResponseDTO responsePojo = mapper.readValue(responseContent, TgfApiIbanResponseDTO.class);

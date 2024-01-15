@@ -1,11 +1,10 @@
-package mc.gouv.xaf.front.controller;
+package mc.gouv.xaf.front.util;
 
 import com.fasterxml.uuid.EthernetAddress;
 import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.impl.TimeBasedGenerator;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
-import mc.gouv.xaf.front.util.GichkeyService;
 import mc.gouv.xaf.apiclient.AfApiClient;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -38,6 +37,8 @@ public class XafFrontserverUtils {
     public static final String FILE_METADATA_DEMANDEID = "X-MC-DEMANDEID";
 
     public static final String FILE_METADATA_SCANEXECUTE = "X-MC-SCANEXECUTE";
+
+    public static final String FILE_METADATA_TYPEMODELE = "X-MC-TypeModele";
 
     public static final String XSRF_COOKIE = "XSRF-TOKEN";
     public static final String XSRF_SESSION_ATTRIBUTE = "XSRF-TOKEN";

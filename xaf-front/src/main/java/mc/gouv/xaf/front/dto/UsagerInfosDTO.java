@@ -7,14 +7,15 @@ import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import java.io.Serializable;
 
 /**
- * Classe contenant les informations de l'usager
- * - Informations issues de GICHUNI (par héritage de xaf-shared)
- * - Informations pour la session de l'usager
- * - Infos de Tokens GICHKEY
- * - Infos certifiées / MConnect
- * - accessId
- * - ...
- *
+ * 
+ * Classe contenant les informations de l'usager dans xaf-servlet
+ * 	- Informations issues de GICHUNI (par héritage de xaf-shared)
+ *  - Informations pour la session de l'usager
+ *  	- Infos de Tokens GICHKEY
+ *  	- Infos certifiées / MConnect
+ *  	- accessId
+ *  	- ...
+ * 
  * @author qdeme
  */
 
@@ -29,11 +30,11 @@ public class UsagerInfosDTO extends GichuniUsagerDTO implements Serializable {
     public static final short GENDER_MLLE_INDEX = 2;
 
     protected boolean isUsagerCourrier = false;
-
+    
     protected Integer accessId;
-
+    
     protected KeycloakTokenInfo tokenInfo;
-
+    
     protected boolean mConnect = false;
 
     public String getTitreLabel() {
@@ -67,28 +68,28 @@ public class UsagerInfosDTO extends GichuniUsagerDTO implements Serializable {
         this.isUsagerCourrier = isUsagerCourrier;
     }
 
-    public Integer getAccessId() {
-        return accessId;
-    }
+	public Integer getAccessId() {
+		return accessId;
+	}
 
-    public void setAccessId(Integer accessId) {
-        this.accessId = accessId;
-    }
+	public void setAccessId(Integer accessId) {
+		this.accessId = accessId;
+	}
 
-    public KeycloakTokenInfo getTokenInfo() {
-        return tokenInfo;
-    }
+	public KeycloakTokenInfo getTokenInfo() {
+		return tokenInfo;
+	}
 
-    public void setTokenInfo(KeycloakTokenInfo tokenInfo) {
-        this.tokenInfo = tokenInfo;
-    }
+	public void setTokenInfo(KeycloakTokenInfo tokenInfo) {
+		this.tokenInfo = tokenInfo;
+	}
 
-    public boolean ismConnect() {
-        return mConnect;
-    }
+	public boolean ismConnect() {
+		return mConnect;
+	}
 
-    public void setmConnect(boolean mConnect) {
-        this.mConnect = mConnect;
-    }
+	public void setmConnect(boolean mConnect) {
+		this.mConnect = mConnect;
+	}
 
 }

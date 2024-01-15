@@ -2,9 +2,11 @@ package mc.gouv.xaf.front.controller;
 
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
+import mc.gouv.xaf.front.util.XafFrontserverUtils;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.AccessDTO;
 import mc.gouv.xaf.shared.dto.AccessInputDTO;
+import mc.gouv.xapi.error.exception.client.NotFoundWebException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +51,11 @@ public class AccessesController extends AbstractXafController {
 
         LOGGER.info("Appel à la démarche pour créer l'accès...");
         AccessDTO access = getAfApiClient().createOrUpdateAccess(usagerInfosDTO.getId(), accessInput);
+
+        LOGGER.info("Incorporer l'AccessID dans la session pour protéger les appels à FILE... accessId={}", access.getPkAccess());
+        usagerInfosDTO.setAccessId(access.getPkAccess());
+        request.getSession().setAttribute("login", usagerInfosDTO);
+
         LOGGER.info("====================== Fin /accesses doPost()");
 
         return ResponseEntity.ok(access);
@@ -68,7 +75,12 @@ public class AccessesController extends AbstractXafController {
         }
 
         LOGGER.info("Appel à la démarche pour récupérer l'accès...");
-        AccessDTO access = getAfApiClient().getAccess(usagerInfosDTO.getId());
+        AccessDTO access;
+        try {
+            access = getAfApiClient().getAccess(usagerInfosDTO.getId());
+        } catch (NotFoundWebException e) {
+            return ResponseEntity.notFound().build();
+        }
         LOGGER.info("Incorporer l'AccessID dans la session pour protéger les appels à FILE... accessId={}", access.getPkAccess());
         HttpSession session = request.getSession();
         usagerInfosDTO.setAccessId(access.getPkAccess());

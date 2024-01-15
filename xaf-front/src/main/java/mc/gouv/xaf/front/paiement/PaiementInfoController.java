@@ -1,7 +1,7 @@
 package mc.gouv.xaf.front.paiement;
 
 import mc.gouv.xaf.front.controller.AbstractXafController;
-import mc.gouv.xaf.front.controller.XafFrontserverUtils;
+import mc.gouv.xaf.front.util.XafFrontserverUtils;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
 import mc.gouv.xaf.apiclient.paiement.PaiementApiClient;

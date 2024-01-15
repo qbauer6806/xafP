@@ -5,6 +5,7 @@ import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
 import mc.gouv.xaf.front.util.GichkeyService;
 import mc.gouv.xaf.front.util.GichuniService;
+import mc.gouv.xaf.front.util.XafFrontserverUtils;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 import org.apache.commons.codec.digest.DigestUtils;

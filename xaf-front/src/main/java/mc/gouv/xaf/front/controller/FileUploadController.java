@@ -8,6 +8,7 @@ import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
 import mc.gouv.xaf.front.util.FrontControllerPropertiesCache;
 import mc.gouv.vscan.shared.dto.ScanDTO;
 import mc.gouv.vscan.shared.dto.ScanRequestDTO;
+import mc.gouv.xaf.front.util.XafFrontserverUtils;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.AccessDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
@@ -309,7 +310,7 @@ public class FileUploadController extends AbstractXafController {
         ResponseEntity response;
         if (statusCode == HttpServletResponse.SC_OK || statusCode == HttpServletResponse.SC_CREATED) {
             // Si tout s'est bien passé, alors on forme une réponse différente que celle qui nous est retournée par FILE
-            FileUploadResponseDTO responseObj = new FileUploadResponseDTO(accessId + SLASH + uuid + SLASH + filename);
+            FileUploadResponseDTO responseObj = new FileUploadResponseDTO(SLASH + accessId + SLASH + uuid + SLASH + filename);
             response = ResponseEntity.status(statusCode).body(responseObj);
         } else {
             LOGGER.error("Status code : {}", statusCode);

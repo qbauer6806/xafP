@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.enums.HttpMethod;
 import mc.gouv.xaf.apiclient.AfApiClient;
+import mc.gouv.xaf.front.util.XafFrontserverUtils;
+import mc.gouv.xaf.shared.SessionConstant;
 import mc.gouv.xaf.shared.dto.BrouillonDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -71,8 +73,14 @@ public class BrouillonsController extends XafFrontserverUtils {
             LOGGER.info("Appel à la démarche pour créer le brouillon");
             ObjectMapper mapper = new ObjectMapper();
             BrouillonDTO brouillonInput = mapper.readValue(buffer.toString(), BrouillonDTO.class);
+
             ResponseEntity.BodyBuilder response;
             BrouillonDTO brouillonDto;
+
+            if (request.getSession().getAttribute(SessionConstant.SESSION_DEMANDE_INITIALE) != null) {
+                brouillonInput.setContenuInitial(mapper
+                        .valueToTree(request.getSession().getAttribute(SessionConstant.SESSION_DEMANDE_INITIALE)));
+            }
             if (HttpMethod.POST.equals(httpMethod)) {
                 brouillonDto = afApiClient.creerBrouillon(brouillonInput, usagerInfosDTO.getId());
                 response = ResponseEntity.status(HttpStatus.CREATED);
@@ -119,7 +127,13 @@ public class BrouillonsController extends XafFrontserverUtils {
                 return ResponseEntity.ok(brouillonDtos);
             } else {
                 LOGGER.info("Appel à la démarche pour récupérer le brouillon {}", brouillonId);
-                BrouillonDTO brouillonDto = afApiClient.getBrouillon(Integer.parseInt(brouillonId), usagerInfosDTO.getId());
+                BrouillonDTO brouillonDto = afApiClient.getBrouillon(Integer.parseInt(brouillonId),
+                        usagerInfosDTO.getId());
+
+                if (brouillonDto.getContenuInitial() != null) {
+                    request.getSession().setAttribute(SessionConstant.SESSION_DEMANDE_INITIALE,
+                            brouillonDto.getContenuInitial());
+                }
                 return ResponseEntity.ok(brouillonDto);
             }
         } catch (Exception e) {

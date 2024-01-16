@@ -6,7 +6,6 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 
-import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +23,7 @@ import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
 import mc.gouv.xaf.back.data.dao.DemandeJobRepository;
 import mc.gouv.xaf.back.data.entity.DemandeJobBO;
 import mc.gouv.xaf.back.data.transformer.DemandeJobTransformer;
+import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.KafkaOutboxTraitementJob;
 import mc.gouv.xaf.back.service.data.DemandeJobService;
@@ -148,6 +148,11 @@ public class DemandeJobServiceImpl implements DemandeJobService {
                     demCount = indexedDemandeService.reindexDemandes();
                     msg = demCount + " demandes ont été reindéxées";
                     break;
+                case REINDEXATION_COURRIER:
+                    demCount = indexedDemandeService.reindexDemandesCourrier();
+                    msg = demCount + " demandes courrier ont été reindéxées";
+                    break;
+
                 case RAFRAICHISSEMENT_STATUS:
                     msg = demandesStatutsRefreshService.refreshStatuts();
                     break;

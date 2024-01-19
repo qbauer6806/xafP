@@ -35,6 +35,8 @@ public class ResidInitialDemandeServiceImpl implements ResidInitialDemandeServic
     public static final String DONNEES_EXTERNES_MCONNECT_BIRTHDATE = "BirthDatetime";
     public static final String DONNEES_EXTERNES_MCONNECT_BIRTHPLACECITY = "birthPlaceCity";
     public static final String DONNEES_EXTERNES_MCONNECT_BIRTHPLACECOUNTRY = "birthPlaceCountry";
+    public static final String DONNEES_EXTERNES_USAGER_INFO_EMAIL = "usagerInfoEmail";
+    public static final String DONNEES_EXTERNES_USAGER_INFO_TITRE = "usagerInfoTitre";
     private static final Logger LOGGER = LoggerFactory.getLogger(ResidInitialDemandeServiceImpl.class);
     @Autowired
     private ResidApiService residApiService;
@@ -80,6 +82,8 @@ public class ResidInitialDemandeServiceImpl implements ResidInitialDemandeServic
         String prenom = params.get(DONNEES_EXTERNES_MCONNECT_GIVENNAME)[0];
         String villeNaissance = params.get(DONNEES_EXTERNES_MCONNECT_BIRTHPLACECITY)[0];
         String paysNaissance = params.get(DONNEES_EXTERNES_MCONNECT_BIRTHPLACECOUNTRY)[0];
+        String email = params.get(DONNEES_EXTERNES_USAGER_INFO_EMAIL)[0];
+        String titre = params.get(DONNEES_EXTERNES_USAGER_INFO_TITRE)[0];
 
         ResidInitialDemandeParamDTO initialDemandeDTO = new ResidInitialDemandeParamDTO();
         initialDemandeDTO.setNom(nom);
@@ -88,6 +92,8 @@ public class ResidInitialDemandeServiceImpl implements ResidInitialDemandeServic
         initialDemandeDTO.setDateNaissance(dateNaissance);
         initialDemandeDTO.setVilleNaissance(villeNaissance);
         initialDemandeDTO.setPaysNaissance(paysNaissance);
+        initialDemandeDTO.setEmail(email);
+        initialDemandeDTO.setTitre(titre);
 
         ResidUsagerNpdhlDTO usagerDln1f = residApiService.getUsagerDln1f(initialDemandeDTO, residApiUrlV2, jwt, usagerId);
 

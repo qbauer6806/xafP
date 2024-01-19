@@ -12,6 +12,8 @@ public class ResidInitialDemandeParamDTO implements Serializable {
 	private String dateNaissance;
 	private String villeNaissance;
 	private String paysNaissance;
+	private String email;
+	private String titre;
 
 	public String getNom() {
 		return nom;
@@ -71,5 +73,21 @@ public class ResidInitialDemandeParamDTO implements Serializable {
 				", villeNaissance='" + villeNaissance + '\'' +
 				", paysNaissance='" + paysNaissance + '\'' +
 				'}';
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public String getTitre() {
+		return titre;
+	}
+
+	public void setTitre(String titre) {
+		this.titre = titre;
 	}
 }

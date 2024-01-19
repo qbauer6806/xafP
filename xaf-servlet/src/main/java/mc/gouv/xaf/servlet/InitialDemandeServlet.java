@@ -46,6 +46,8 @@ public class InitialDemandeServlet extends AbstractAfServlet {
     private static final String MCONNECT_PARAM_BIRTHPLACE = "birthPlace";
     private static final String MCONNECT_PARAM_BIRTHCITY = "birthPlaceCity";
     private static final String MCONNECT_PARAM_BIRTHCOUNTRY = "birthPlaceCountry";
+    private static final String USAGER_INFO_EMAIL = "usagerInfoEmail";
+    private static final String USAGER_INFO_TITRE = "usagerInfoTitre";
 
     /**
      * Vérifie si l'utilisateur est autorisé à faire la requête et prépare les objets communs aux requêtes :<br>
@@ -129,6 +131,9 @@ public class InitialDemandeServlet extends AbstractAfServlet {
                         new String[] { donneesMConnectDTO.getMconnect().getBirthPlaceCity() });
                 data.put(MCONNECT_PARAM_BIRTHCOUNTRY,
                         new String[] { donneesMConnectDTO.getMconnect().getBirthPlaceCountry() });
+                data.put(USAGER_INFO_EMAIL,
+                        new String[] { usagerInfosDTO.getEmail() });
+                data.put(USAGER_INFO_TITRE, new String[] { String.valueOf(usagerInfosDTO.getTitre()) });
 
             }
 

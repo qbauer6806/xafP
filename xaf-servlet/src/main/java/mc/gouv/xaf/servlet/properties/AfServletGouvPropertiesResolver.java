@@ -112,6 +112,48 @@ public class AfServletGouvPropertiesResolver {
     public static String getGichuniProfilCompanyUrl() {
         return Static.getValue(GICHUNI_PROFIL_COMPANY_URL);
     }
+    
+    public static final String GICHUNI_USAGER_PARTICULER_URL_FR = "mc.gouv.gichuni.particulier.url.fr";
+    public static final String GICHUNI_USAGER_PARTICULER_URL_EN = "mc.gouv.gichuni.particulier.url.en";
+    public static final String GICHUNI_USAGER_ENTREPRISE_URL_FR = "mc.gouv.gichuni.entreprise.url.fr";
+    public static final String GICHUNI_USAGER_ENTREPRISE_URL_EN = "mc.gouv.gichuni.entreprise.url.en";
+    
+	public static final String getSuiviDemarcheParticulierUrlFr() {
+		String value = getGichuniUrl();
+		String path = Static.getValue("mc.gouv.gichuni.particulier.uri.fr", "N/D");
+		return StringUtils.isBlank(value) ? "vide" : value + path;
+	}
+
+	public static final String getSuiviDemarcheParticulierUrlEn() {
+		String value = getGichuniUrl();
+		String path = Static.getValue("mc.gouv.gichuni.particulier.uri.en", "N/D");
+		return StringUtils.isBlank(value) ? "vide" : value + path;
+	}
+
+	public static final String getSuiviDemarcheEntrepriseUrlFr() {
+		String value = getGichuniUrl();
+		String path = Static.getValue("mc.gouv.gichuni.entreprise.uri.fr", "N/D");
+		return StringUtils.isBlank(value) ? "vide" : value + path;
+	}
+
+	public static final String getSuiviDemarcheEntrepriseUrlEn() {
+		String value = getGichuniUrl();
+		String path = Static.getValue("mc.gouv.gichuni.entreprise.uri.en", "N/D");
+		return StringUtils.isBlank(value) ? "vide" : value + path;
+	}
+	
+	// #58041 - [BO] Clé BO pour lien vers le formulaire de révocation des certificats électroniques
+	public static final String LIEN_REVOCATION_CERTIFS_ELECTRONIQUES_FR = "mc.gouv.mconnect.revocation.certificats.url.fr";
+	public static final String LIEN_REVOCATION_CERTIFS_ELECTRONIQUES_EN = "mc.gouv.mconnect.revocation.certificats.url.en";
+	public static final String getLienRevocationCertifsElectroniquesFr() {
+		String path = Static.getValue(LIEN_REVOCATION_CERTIFS_ELECTRONIQUES_FR, "N/D");
+		return StringUtils.isBlank(path) ? "vide" : path;
+	}
+	public static final String getLienRevocationCertifsElectroniquesEn() {
+		String path = Static.getValue(LIEN_REVOCATION_CERTIFS_ELECTRONIQUES_EN, "N/D");
+		return StringUtils.isBlank(path) ? "vide" : path;
+	}
+
 
     /* Properties propres à la démarche */
 
@@ -293,6 +335,12 @@ public class AfServletGouvPropertiesResolver {
         propertiesDTOS.add(new PropertiesDTO(MONETICO_URL, getMoneticoUrl()));
         propertiesDTOS.add(new PropertiesDTO(GICHUNI_URL, getGichuniUrl()));
         propertiesDTOS.add(new PropertiesDTO(FILE_JWT, getFileJwt()));
+        propertiesDTOS.add(new PropertiesDTO(GICHUNI_USAGER_PARTICULER_URL_FR, getSuiviDemarcheParticulierUrlFr()));
+        propertiesDTOS.add(new PropertiesDTO(GICHUNI_USAGER_PARTICULER_URL_EN, getSuiviDemarcheParticulierUrlEn()));
+        propertiesDTOS.add(new PropertiesDTO(GICHUNI_USAGER_ENTREPRISE_URL_FR, getSuiviDemarcheEntrepriseUrlFr()));
+        propertiesDTOS.add(new PropertiesDTO(GICHUNI_USAGER_ENTREPRISE_URL_EN, getSuiviDemarcheEntrepriseUrlEn()));
+        propertiesDTOS.add(new PropertiesDTO(LIEN_REVOCATION_CERTIFS_ELECTRONIQUES_FR, getLienRevocationCertifsElectroniquesFr()));
+        propertiesDTOS.add(new PropertiesDTO(LIEN_REVOCATION_CERTIFS_ELECTRONIQUES_EN, getLienRevocationCertifsElectroniquesEn()));
         return propertiesDTOS;
     }
 }

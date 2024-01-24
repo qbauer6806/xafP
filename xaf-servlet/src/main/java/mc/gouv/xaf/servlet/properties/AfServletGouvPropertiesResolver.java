@@ -113,36 +113,40 @@ public class AfServletGouvPropertiesResolver {
         return Static.getValue(GICHUNI_PROFIL_COMPANY_URL);
     }
     
+    // #58046 - Ajout de propriétés partagées par tous les Front office
     public static final String GICHUNI_USAGER_PARTICULER_URL_FR = "mc.gouv.gichuni.particulier.url.fr";
     public static final String GICHUNI_USAGER_PARTICULER_URL_EN = "mc.gouv.gichuni.particulier.url.en";
     public static final String GICHUNI_USAGER_ENTREPRISE_URL_FR = "mc.gouv.gichuni.entreprise.url.fr";
     public static final String GICHUNI_USAGER_ENTREPRISE_URL_EN = "mc.gouv.gichuni.entreprise.url.en";
     
 	public static final String getSuiviDemarcheParticulierUrlFr() {
-		String value = getGichuniUrl();
+		// Ici on concatène l'URL front de gichuni (https://gichuni-front-dev.monaco-gouvernement.mc)
+		String value = getGichuniFrontUrl();
+		// Avec le path dans la propriété mc.gouv.gichuni.particulier.uri.fr (voir https://redmine.monaco-gouvernement.mc/issues/58046)
 		String path = Static.getValue("mc.gouv.gichuni.particulier.uri.fr", "N/D");
 		return StringUtils.isBlank(value) ? "vide" : value + path;
 	}
 
 	public static final String getSuiviDemarcheParticulierUrlEn() {
-		String value = getGichuniUrl();
+		String value = getGichuniFrontUrl();
 		String path = Static.getValue("mc.gouv.gichuni.particulier.uri.en", "N/D");
 		return StringUtils.isBlank(value) ? "vide" : value + path;
 	}
 
 	public static final String getSuiviDemarcheEntrepriseUrlFr() {
-		String value = getGichuniUrl();
+		String value = getGichuniFrontUrl();
 		String path = Static.getValue("mc.gouv.gichuni.entreprise.uri.fr", "N/D");
 		return StringUtils.isBlank(value) ? "vide" : value + path;
 	}
 
 	public static final String getSuiviDemarcheEntrepriseUrlEn() {
-		String value = getGichuniUrl();
+		String value = getGichuniFrontUrl();
 		String path = Static.getValue("mc.gouv.gichuni.entreprise.uri.en", "N/D");
 		return StringUtils.isBlank(value) ? "vide" : value + path;
 	}
 	
 	// #58041 - [BO] Clé BO pour lien vers le formulaire de révocation des certificats électroniques
+	// #58046 - Ajout de propriétés partagées par tous les Front office
 	public static final String LIEN_REVOCATION_CERTIFS_ELECTRONIQUES_FR = "mc.gouv.mconnect.revocation.certificats.url.fr";
 	public static final String LIEN_REVOCATION_CERTIFS_ELECTRONIQUES_EN = "mc.gouv.mconnect.revocation.certificats.url.en";
 	public static final String getLienRevocationCertifsElectroniquesFr() {
@@ -153,7 +157,6 @@ public class AfServletGouvPropertiesResolver {
 		String path = Static.getValue(LIEN_REVOCATION_CERTIFS_ELECTRONIQUES_EN, "N/D");
 		return StringUtils.isBlank(path) ? "vide" : path;
 	}
-
 
     /* Properties propres à la démarche */
 
@@ -259,10 +262,16 @@ public class AfServletGouvPropertiesResolver {
         return Static.getValue(GICHKEY_URL);
     }
     
-    public static final String GICHUNI_URL = "mc.gouv.appfactory.front.gichuni.url";
+    public static final String GICHUNI_URL = "mc.gouv.af.back.external.gichuni.url";
 
     public static String getGichuniUrl() {
         return Static.getValue(GICHUNI_URL);
+    }
+    
+    public static final String GICHUNI_FRONT_URL = "mc.gouv.appfactory.front.gichuni.url";
+
+    public static String getGichuniFrontUrl() {
+        return Static.getValue(GICHUNI_FRONT_URL);
     }
     
     public static final String GICHKEY_CLIENT_ID = APPFACTORY_PREFIX + applicationPrefix + ".gichkey.client_id";

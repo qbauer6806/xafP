@@ -1,6 +1,7 @@
 package mc.gouv.xaf.servlet;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Enumeration;
 
@@ -88,34 +89,18 @@ public class CustomRequestServlet extends AbstractAfServlet {
         }
         
         if (StringUtils.isNotBlank(request.getQueryString())) {
-        	serviceUrl += "?" + request.getQueryString();
+        	serviceUrl += "?" + request.getQueryString() + "&usagerId="+usagerId;
+        }else {
+            serviceUrl += "?usagerId="+usagerId;
         }
         LOGGER.info("Appel à {}", serviceUrl);
 
-        Request serviceRequest = null;
-
-        try {
-            if (HttpMethod.GET.equals(httpMethod)) {
-                serviceRequest = Request.Get(serviceUrl);
-            } else if (HttpMethod.POST.equals(httpMethod)) {
-                serviceRequest = Request.Post(serviceUrl);
-                serviceRequest.bodyByteArray(IOUtils.toString(request.getInputStream()).getBytes());
-            } else if (HttpMethod.PUT.equals(httpMethod)) {
-                serviceRequest = Request.Put(serviceUrl);
-                serviceRequest.bodyByteArray(IOUtils.toString(request.getInputStream()).getBytes());
-            } else if (HttpMethod.DELETE.equals(httpMethod)) {
-                serviceRequest = Request.Delete(serviceUrl);
-            }
-        } catch (IOException e) {
+        Request serviceRequest = this.getRequest(request, httpMethod, serviceUrl);
+        if( serviceRequest == null){
             AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_UNAUTHORIZED,
                     "CustomRequestServlet - Une erreur est survenue lors de l'appel à la méthode " + httpMethod.name());
             return;
-        }
 
-        if (serviceRequest == null) {
-            AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_INTERNAL_SERVER_ERROR,
-                    "Situation anormale : serviceRequest == null");
-            return;
         }
         serviceRequest.setHeader("Authorization", "Bearer " + AfServletGouvPropertiesResolver.getApiJwt());
         
@@ -138,6 +123,27 @@ public class CustomRequestServlet extends AbstractAfServlet {
             AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_INTERNAL_SERVER_ERROR,
                     "Erreur lors du traitement de la réponse");
         }
+    }
+
+    private Request getRequest(HttpServletRequest request, HttpMethod httpMethod, String serviceUrl) {
+        Request serviceRequest = null;
+
+        try {
+            if (HttpMethod.GET.equals(httpMethod)) {
+                serviceRequest = Request.Get(serviceUrl);
+            } else if (HttpMethod.POST.equals(httpMethod)) {
+                serviceRequest = Request.Post(serviceUrl);
+                serviceRequest.bodyByteArray(IOUtils.toString(request.getInputStream(), StandardCharsets.UTF_8).getBytes());
+            } else if (HttpMethod.PUT.equals(httpMethod)) {
+                serviceRequest = Request.Put(serviceUrl);
+                serviceRequest.bodyByteArray(IOUtils.toString(request.getInputStream(), StandardCharsets.UTF_8).getBytes());
+            } else if (HttpMethod.DELETE.equals(httpMethod)) {
+                serviceRequest = Request.Delete(serviceUrl);
+            }
+        } catch (IOException e) {
+            return null;
+        }
+        return serviceRequest;
     }
 
     @Override

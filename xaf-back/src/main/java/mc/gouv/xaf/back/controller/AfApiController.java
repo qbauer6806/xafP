@@ -7,6 +7,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.tika.exception.TikaException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.xml.sax.SAXException;
 
@@ -84,16 +85,24 @@ public interface AfApiController {
     List<PeriodeOuvertureDTO> getPeriodesOuverture();
 
     @SuppressWarnings("rawtypes")
-    ResponseEntity getCustomRequest(HttpServletRequest request);
+    default ResponseEntity getCustomRequest(HttpServletRequest request, Integer usagerId){
+        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+    }
 
     @SuppressWarnings("rawtypes")
-    ResponseEntity postCustomRequest(HttpServletRequest request);
+    default ResponseEntity postCustomRequest(HttpServletRequest request, Integer usagerId){
+        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+    }
 
     @SuppressWarnings("rawtypes")
-    ResponseEntity putCustomRequest(HttpServletRequest request);
+    default ResponseEntity putCustomRequest(HttpServletRequest request, Integer usagerId){
+        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+    }
 
     @SuppressWarnings("rawtypes")
-    ResponseEntity deleteCustomRequest(HttpServletRequest request);
+    default ResponseEntity deleteCustomRequest(HttpServletRequest request, Integer usagerId){
+        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
+    }
 
     List<PropertiesDTO> getFrontProperties();
 

@@ -85,9 +85,7 @@ public interface AfApiController {
     List<PeriodeOuvertureDTO> getPeriodesOuverture();
 
     @SuppressWarnings("rawtypes")
-    default ResponseEntity getCustomRequest(HttpServletRequest request, Integer usagerId){
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
-    }
+    ResponseEntity getCustomRequest(HttpServletRequest request, Integer usagerId);
 
     @SuppressWarnings("rawtypes")
     default ResponseEntity postCustomRequest(HttpServletRequest request, Integer usagerId){

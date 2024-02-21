@@ -550,3 +550,11 @@ dd span {
     float: right;
     margin-right: 10px;
 }
+
+.encartinfoerreur dt {
+    width: 20%;
+}
+
+.encartinfoerreur dd {
+    width: 80%;
+}

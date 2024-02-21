@@ -1,12 +1,12 @@
 package mc.gouv.xaf.servlet;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import mc.gouv.Static;
 import mc.gouv.xaf.servlet.dto.DocHolderFilePostDTO;
 import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
+import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
 import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
-import mc.gouv.xaf.servlet.util.FileServletUtils;
 import org.apache.http.HttpStatus;
-import org.junit.Ignore;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,9 +29,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.stream.Stream;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-@Ignore
 @ExtendWith(MockitoExtension.class)
 class DocHolderServletsTest {
 
@@ -43,7 +47,8 @@ class DocHolderServletsTest {
     private ServletOutputStream servletOutputStream;
 
     MockedStatic<AppFactoryServletUtils> servletUtilsMocked;
-    MockedStatic<FileServletUtils> fileServletUtilsMocked;
+    MockedStatic<AfServletGouvPropertiesResolver> propertiesResolver;
+    MockedStatic<Static> mockedStatic;
 
     @BeforeEach
     void setup() throws IOException {
@@ -51,7 +56,10 @@ class DocHolderServletsTest {
         // mais aussi pouvoir continuer le test quand d'autres méthodes comme logAndSendError sont appelées
         // et ainsi vérifier les statusCode définis dans les responses des Servlets.
         servletUtilsMocked = mockStatic(AppFactoryServletUtils.class, CALLS_REAL_METHODS);
-        fileServletUtilsMocked = mockStatic(FileServletUtils.class, CALLS_REAL_METHODS);
+        mockedStatic = mockStatic(Static.class);
+        mockedStatic.when(()->Static.getValue(anyString())).thenReturn("VALUE");
+        mockedStatic.when(()->Static.getValue(anyString(), anyString())).thenReturn("VALUE");
+        propertiesResolver = mockStatic(AfServletGouvPropertiesResolver.class);
 
         when(response.getOutputStream()).thenReturn(servletOutputStream);
     }
@@ -61,16 +69,15 @@ class DocHolderServletsTest {
         // Important ! Sinon, la classe statique n'est pas remise à zéro entre les tests.
         // Dans le cas où vous devez vous en passer, déclarez le mock statique dans un bloc try-with-resource
         servletUtilsMocked.close();
-        fileServletUtilsMocked.close();
+        propertiesResolver.close();
+        mockedStatic.close();
     }
 
     @Test
     void failOnUserNotLoggedTest() throws ServletException, IOException {
         servletUtilsMocked.when(() -> AppFactoryServletUtils.getLoggedUser(any())).thenReturn(null);
-
-        DocHolderTypedocServlet DocHolderTypedocServlet = new DocHolderTypedocServlet();
-        DocHolderTypedocServlet.doGet(request, response);
-
+        DocHolderTypedocServlet docHolderTypedocServlet = new DocHolderTypedocServlet();
+        docHolderTypedocServlet.doGet(request, response);
         verify(response).setStatus(HttpStatus.SC_UNAUTHORIZED);
     }
 

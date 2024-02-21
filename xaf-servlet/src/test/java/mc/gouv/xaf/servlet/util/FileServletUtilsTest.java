@@ -1,9 +1,9 @@
 package mc.gouv.xaf.servlet.util;
 
+import mc.gouv.Static;
 import mc.gouv.xaf.servlet.dto.FileUploadCompteurDTO;
 import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
-import org.junit.Ignore;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,10 +24,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-@Ignore
 @ExtendWith(MockitoExtension.class)
 class FileServletUtilsTest {
 
@@ -51,7 +61,8 @@ class FileServletUtilsTest {
     void testExtensionsWhitelist() {
         PropertiesDTO extensionsProperty = mock(PropertiesDTO.class);
         when(extensionsProperty.getValue()).thenReturn("*.pdf,*.png, *.*, *., .*");
-        propertiesCache.when(() -> AppFactoryServletFrontPropertiesCache.getFrontProperty(EXTENSIONS_WHITELIST)).thenReturn(extensionsProperty);
+        propertiesCache.when(() -> AppFactoryServletFrontPropertiesCache.getFrontProperty(EXTENSIONS_WHITELIST))
+                .thenReturn(extensionsProperty);
 
         List<String> extensionsWhitelist = FileServletUtils.getExtensionsWhitelist();
         assertEquals(extensionsWhitelist, List.of("pdf", "png", "*", "", ".*"));
@@ -61,7 +72,8 @@ class FileServletUtilsTest {
     void testEstExtensionWhitelist() {
         PropertiesDTO extensionsProperty = mock(PropertiesDTO.class);
         when(extensionsProperty.getValue()).thenReturn("*.doc, *.docx, *.rtf, *.pdf, *.jpg, *.jpeg, *.png, *.tif");
-        propertiesCache.when(() -> AppFactoryServletFrontPropertiesCache.getFrontProperty(EXTENSIONS_WHITELIST)).thenReturn(extensionsProperty);
+        propertiesCache.when(() -> AppFactoryServletFrontPropertiesCache.getFrontProperty(EXTENSIONS_WHITELIST))
+                .thenReturn(extensionsProperty);
 
         assertTrue(FileServletUtils.estExtensionDansWhitelist("carteidentite.pdf"));
         assertTrue(FileServletUtils.estExtensionDansWhitelist("carteidentite.tif"));
@@ -79,7 +91,8 @@ class FileServletUtilsTest {
 
     @Test
     void testExtensionWhiteListNonTrouvee() {
-        propertiesCache.when(() -> AppFactoryServletFrontPropertiesCache.getFrontProperty(EXTENSIONS_WHITELIST)).thenReturn(null);
+        propertiesCache.when(() -> AppFactoryServletFrontPropertiesCache.getFrontProperty(EXTENSIONS_WHITELIST))
+                .thenReturn(null);
         assertTrue(FileServletUtils.getExtensionsWhitelist().isEmpty());
     }
 
@@ -87,7 +100,8 @@ class FileServletUtilsTest {
     void testTailleFichierValide() {
         PropertiesDTO tailleMaxProperty = mock(PropertiesDTO.class);
         when(tailleMaxProperty.getValue()).thenReturn("3"); // 3 MB
-        propertiesCache.when(() -> AppFactoryServletFrontPropertiesCache.getFrontProperty(MAX_TAILLE_FICHIER)).thenReturn(tailleMaxProperty);
+        propertiesCache.when(() -> AppFactoryServletFrontPropertiesCache.getFrontProperty(MAX_TAILLE_FICHIER))
+                .thenReturn(tailleMaxProperty);
 
         Part bigfile = mock(Part.class);
         when(bigfile.getSize()).thenReturn(4L * 1_000_000L); // 4 MB
@@ -105,7 +119,8 @@ class FileServletUtilsTest {
 
     @Test
     void testTailleFichierProprtyNotFoundException() {
-        propertiesCache.when(() -> AppFactoryServletFrontPropertiesCache.getFrontProperty(MAX_TAILLE_FICHIER)).thenReturn(null);
+        propertiesCache.when(() -> AppFactoryServletFrontPropertiesCache.getFrontProperty(MAX_TAILLE_FICHIER))
+                .thenReturn(null);
 
         assertThrows(PropertyNotFoundException.class, () -> FileServletUtils.tailleFichierValide(null));
     }
@@ -134,7 +149,8 @@ class FileServletUtilsTest {
 
     @ParameterizedTest
     @MethodSource("testLimiteUploadAtteinte")
-    void testLimiteUploadAtteinte(int tempsParIntervalle, int maxUploadParIntervalle, int tempsIntervaleActuel, int maxUploadActuel, boolean conditionAttendue) {
+    void testLimiteUploadAtteinte(int tempsParIntervalle, int maxUploadParIntervalle, int tempsIntervaleActuel,
+                                  int maxUploadActuel, boolean conditionAttendue) {
         @SuppressWarnings("unchecked") // À cause du mock d'un objet générique
         Map<HttpSession, FileUploadCompteurDTO> usagersFileUploadCompteurs = mock(HashMap.class);
         HttpSession session = mock(HttpSession.class);
@@ -143,17 +159,22 @@ class FileServletUtilsTest {
         when(compteurUpload.getDatePremierUpload()).thenReturn(zeroDate.plus(tempsIntervaleActuel, ChronoUnit.MILLIS));
         when(compteurUpload.getCompteur()).thenReturn(maxUploadActuel);
         when(usagersFileUploadCompteurs.get(session)).thenReturn(compteurUpload);
-
+        MockedStatic<Static> mockedStatic = mockStatic(Static.class);
+        mockedStatic.when(()->Static.getValue(anyString())).thenReturn("VALUE");
+        mockedStatic.when(()->Static.getValue(anyString(), anyString())).thenReturn("VALUE");
         try (MockedStatic<LocalDateTime> localDateTime = mockStatic(LocalDateTime.class, CALLS_REAL_METHODS);
              MockedStatic<AfServletGouvPropertiesResolver> propertiesResolver = mockStatic(AfServletGouvPropertiesResolver.class)) {
 
             localDateTime.when(LocalDateTime::now).thenReturn(zeroDate);
-            propertiesResolver.when(AfServletGouvPropertiesResolver::getTempsIntervalleUpload).thenReturn(String.valueOf(tempsParIntervalle));
-            propertiesResolver.when(AfServletGouvPropertiesResolver::getMaxUploadParIntervalle).thenReturn(String.valueOf(maxUploadParIntervalle));
+            propertiesResolver.when(AfServletGouvPropertiesResolver::getTempsIntervalleUpload)
+                    .thenReturn(String.valueOf(tempsParIntervalle));
+            propertiesResolver.when(AfServletGouvPropertiesResolver::getMaxUploadParIntervalle)
+                    .thenReturn(String.valueOf(maxUploadParIntervalle));
 
             boolean conditionActuelle = FileServletUtils.limiteUploadAtteinte(usagersFileUploadCompteurs, session);
             assertEquals(conditionActuelle, conditionAttendue);
         }
+        mockedStatic.close();
     }
 
     private static Stream<Arguments> testSupprimeCompteurSiDepasse() {
@@ -170,7 +191,8 @@ class FileServletUtilsTest {
 
     @ParameterizedTest
     @MethodSource("testSupprimeCompteurSiDepasse")
-    void testSupprimeCompteurSiDepasse(int tempsParIntervalle, int maxUploadParIntervalle, int tempsIntervaleActuel, int maxUploadActuel, boolean verifieSupprime) {
+    void testSupprimeCompteurSiDepasse(int tempsParIntervalle, int maxUploadParIntervalle, int tempsIntervaleActuel,
+                                       int maxUploadActuel, boolean verifieSupprime) {
         @SuppressWarnings("unchecked") // À cause du mock d'un objet générique
         Map<HttpSession, FileUploadCompteurDTO> usagersFileUploadCompteurs = mock(HashMap.class);
         HttpSession session = mock(HttpSession.class);
@@ -179,13 +201,17 @@ class FileServletUtilsTest {
         when(compteurUpload.getDatePremierUpload()).thenReturn(zeroDate.plus(tempsIntervaleActuel, ChronoUnit.MILLIS));
         when(compteurUpload.getCompteur()).thenReturn(maxUploadActuel);
         when(usagersFileUploadCompteurs.get(session)).thenReturn(compteurUpload);
-
+        MockedStatic<Static> mockedStatic = mockStatic(Static.class);
+        mockedStatic.when(()->Static.getValue(anyString())).thenReturn("VALUE");
+        mockedStatic.when(()->Static.getValue(anyString(), anyString())).thenReturn("VALUE");
         try (MockedStatic<LocalDateTime> localDateTime = mockStatic(LocalDateTime.class, CALLS_REAL_METHODS);
              MockedStatic<AfServletGouvPropertiesResolver> propertiesResolver = mockStatic(AfServletGouvPropertiesResolver.class)) {
 
             localDateTime.when(LocalDateTime::now).thenReturn(zeroDate);
-            propertiesResolver.when(AfServletGouvPropertiesResolver::getTempsIntervalleUpload).thenReturn(String.valueOf(tempsParIntervalle));
-            propertiesResolver.when(AfServletGouvPropertiesResolver::getMaxUploadParIntervalle).thenReturn(String.valueOf(maxUploadParIntervalle));
+            propertiesResolver.when(AfServletGouvPropertiesResolver::getTempsIntervalleUpload).
+                    thenReturn(String.valueOf(tempsParIntervalle));
+            propertiesResolver.when(AfServletGouvPropertiesResolver::getMaxUploadParIntervalle).
+                    thenReturn(String.valueOf(maxUploadParIntervalle));
 
             FileServletUtils.limiteUploadAtteinte(usagersFileUploadCompteurs, session);
 
@@ -195,6 +221,7 @@ class FileServletUtilsTest {
                 verify(usagersFileUploadCompteurs, never()).remove(session);
             }
         }
+        mockedStatic.close();
     }
 
     @Test

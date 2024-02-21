@@ -1,19 +1,11 @@
 package mc.gouv.xaf.servlet.filter;
 
-import static org.mockito.Mockito.*;
-
-import java.io.IOException;
-
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import mc.gouv.xaf.servlet.dto.KeycloakTokenInfo;
+import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
 import mc.gouv.xaf.servlet.util.AppFactoryServletFrontPropertiesCache;
+import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
+import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import org.apache.http.HttpStatus;
-import org.junit.Ignore;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,12 +15,24 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import mc.gouv.xaf.servlet.dto.KeycloakTokenInfo;
-import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
-import mc.gouv.xaf.servlet.properties.AfServletGouvPropertiesResolver;
-import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
-@Ignore
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 @ExtendWith(MockitoExtension.class)
 class DocHolderFilterTest {
 
@@ -45,8 +49,6 @@ class DocHolderFilterTest {
 
     MockedStatic<AppFactoryServletUtils> servletUtilsMocked;
 
-    MockedStatic<AfServletGouvPropertiesResolver> propertiesResolver;
-
     MockedStatic<AppFactoryServletFrontPropertiesCache> propertiesCacheMockedStatic;
 
     private static final String XAF_PORTE_DOCUMENT_ACTIF = "XAF_PORTE_DOCUMENT_ACTIF";
@@ -54,15 +56,14 @@ class DocHolderFilterTest {
     @BeforeEach
     void setup() {
         servletUtilsMocked = mockStatic(AppFactoryServletUtils.class, CALLS_REAL_METHODS);
-        propertiesResolver = mockStatic(AfServletGouvPropertiesResolver.class, CALLS_REAL_METHODS);
-        propertiesCacheMockedStatic = mockStatic(AppFactoryServletFrontPropertiesCache.class, CALLS_REAL_METHODS);
+        propertiesCacheMockedStatic = mockStatic(AppFactoryServletFrontPropertiesCache.class);
         servletOutputStream = mock(ServletOutputStream.class);
     }
 
     @AfterEach
     void shutdown() {
         servletUtilsMocked.close();
-        propertiesResolver.close();
+        propertiesCacheMockedStatic.close();
         docHolderFilter.destroy();
     }
 
@@ -72,7 +73,8 @@ class DocHolderFilterTest {
         KeycloakTokenInfo tokenInfo = mock(KeycloakTokenInfo.class);
         when(usagerInfosDTO.getTokenInfo()).thenReturn(tokenInfo);
 
-        propertiesCacheMockedStatic.when(() -> AppFactoryServletFrontPropertiesCache.getFrontProperty(XAF_PORTE_DOCUMENT_ACTIF)).thenReturn("true");
+        propertiesCacheMockedStatic.when(() -> AppFactoryServletFrontPropertiesCache.getFrontProperty(anyString()))
+                .thenReturn(new PropertiesDTO(XAF_PORTE_DOCUMENT_ACTIF, "true"));
 
         servletUtilsMocked.when(() -> AppFactoryServletUtils.getLoggedUser(any())).thenReturn(usagerInfosDTO);
         docHolderFilter.init(mock(FilterConfig.class));
@@ -83,7 +85,9 @@ class DocHolderFilterTest {
 
     @Test
     void testDocHolderEnabledUserNotLogged() throws ServletException, IOException {
-        propertiesCacheMockedStatic.when(() -> AppFactoryServletFrontPropertiesCache.getFrontProperty(XAF_PORTE_DOCUMENT_ACTIF)).thenReturn("true");
+        propertiesCacheMockedStatic.when(() -> AppFactoryServletFrontPropertiesCache.getFrontProperty(anyString()))
+                .thenReturn(new PropertiesDTO(XAF_PORTE_DOCUMENT_ACTIF, "true"));
+
         when(response.getOutputStream()).thenReturn(servletOutputStream);
 
         docHolderFilter.init(mock(FilterConfig.class));
@@ -98,7 +102,10 @@ class DocHolderFilterTest {
         when(usagerInfosDTO.getTokenInfo()).thenReturn(null);
 
         servletUtilsMocked.when(() -> AppFactoryServletUtils.getLoggedUser(eq(request))).thenReturn(usagerInfosDTO);
-        propertiesCacheMockedStatic.when(() -> AppFactoryServletFrontPropertiesCache.getFrontProperty(XAF_PORTE_DOCUMENT_ACTIF)).thenReturn("true");
+
+        propertiesCacheMockedStatic.when(() -> AppFactoryServletFrontPropertiesCache.getFrontProperty(anyString()))
+                .thenReturn(new PropertiesDTO(XAF_PORTE_DOCUMENT_ACTIF, "true"));
+
         when(response.getOutputStream()).thenReturn(servletOutputStream);
 
         docHolderFilter.init(mock(FilterConfig.class));
@@ -109,7 +116,8 @@ class DocHolderFilterTest {
 
     @Test
     void testDocHolderDisabled() throws ServletException, IOException {
-        propertiesCacheMockedStatic.when(() -> AppFactoryServletFrontPropertiesCache.getFrontProperty(XAF_PORTE_DOCUMENT_ACTIF)).thenReturn("false");
+        propertiesCacheMockedStatic.when(() -> AppFactoryServletFrontPropertiesCache.getFrontProperty(anyString()))
+                .thenReturn(new PropertiesDTO(XAF_PORTE_DOCUMENT_ACTIF, "false"));
 
         docHolderFilter.init(mock(FilterConfig.class));
         docHolderFilter.doFilter(request, response, filterChain);
@@ -120,7 +128,9 @@ class DocHolderFilterTest {
     @Test
     void testDocHolderDisabledUserNotLogged() throws ServletException, IOException {
         servletUtilsMocked.when(() -> AppFactoryServletUtils.getLoggedUser(eq(request))).thenReturn(null);
-        propertiesCacheMockedStatic.when(() -> AppFactoryServletFrontPropertiesCache.getFrontProperty(XAF_PORTE_DOCUMENT_ACTIF)).thenReturn("true");
+
+        propertiesCacheMockedStatic.when(() -> AppFactoryServletFrontPropertiesCache.getFrontProperty(anyString()))
+                .thenReturn(new PropertiesDTO(XAF_PORTE_DOCUMENT_ACTIF, "false"));
 
         docHolderFilter.init(mock(FilterConfig.class));
         docHolderFilter.doFilter(request, response, filterChain);

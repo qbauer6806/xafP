@@ -159,22 +159,23 @@ class FileServletUtilsTest {
         when(compteurUpload.getDatePremierUpload()).thenReturn(zeroDate.plus(tempsIntervaleActuel, ChronoUnit.MILLIS));
         when(compteurUpload.getCompteur()).thenReturn(maxUploadActuel);
         when(usagersFileUploadCompteurs.get(session)).thenReturn(compteurUpload);
-        MockedStatic<Static> mockedStatic = mockStatic(Static.class);
-        mockedStatic.when(()->Static.getValue(anyString())).thenReturn("VALUE");
-        mockedStatic.when(()->Static.getValue(anyString(), anyString())).thenReturn("VALUE");
-        try (MockedStatic<LocalDateTime> localDateTime = mockStatic(LocalDateTime.class, CALLS_REAL_METHODS);
-             MockedStatic<AfServletGouvPropertiesResolver> propertiesResolver = mockStatic(AfServletGouvPropertiesResolver.class)) {
+        try (MockedStatic<Static> mockedStatic = mockStatic(Static.class)){
+            mockedStatic.when(()->Static.getValue(anyString())).thenReturn("VALUE");
+            mockedStatic.when(()->Static.getValue(anyString(), anyString())).thenReturn("VALUE");
+            try (MockedStatic<LocalDateTime> localDateTime = mockStatic(LocalDateTime.class, CALLS_REAL_METHODS);
 
-            localDateTime.when(LocalDateTime::now).thenReturn(zeroDate);
-            propertiesResolver.when(AfServletGouvPropertiesResolver::getTempsIntervalleUpload)
-                    .thenReturn(String.valueOf(tempsParIntervalle));
-            propertiesResolver.when(AfServletGouvPropertiesResolver::getMaxUploadParIntervalle)
-                    .thenReturn(String.valueOf(maxUploadParIntervalle));
+                 MockedStatic<AfServletGouvPropertiesResolver> propertiesResolver = mockStatic(AfServletGouvPropertiesResolver.class)) {
 
-            boolean conditionActuelle = FileServletUtils.limiteUploadAtteinte(usagersFileUploadCompteurs, session);
-            assertEquals(conditionActuelle, conditionAttendue);
+                localDateTime.when(LocalDateTime::now).thenReturn(zeroDate);
+                propertiesResolver.when(AfServletGouvPropertiesResolver::getTempsIntervalleUpload)
+                        .thenReturn(String.valueOf(tempsParIntervalle));
+                propertiesResolver.when(AfServletGouvPropertiesResolver::getMaxUploadParIntervalle)
+                        .thenReturn(String.valueOf(maxUploadParIntervalle));
+
+                boolean conditionActuelle = FileServletUtils.limiteUploadAtteinte(usagersFileUploadCompteurs, session);
+                assertEquals(conditionActuelle, conditionAttendue);
+            }
         }
-        mockedStatic.close();
     }
 
     private static Stream<Arguments> testSupprimeCompteurSiDepasse() {
@@ -201,27 +202,27 @@ class FileServletUtilsTest {
         when(compteurUpload.getDatePremierUpload()).thenReturn(zeroDate.plus(tempsIntervaleActuel, ChronoUnit.MILLIS));
         when(compteurUpload.getCompteur()).thenReturn(maxUploadActuel);
         when(usagersFileUploadCompteurs.get(session)).thenReturn(compteurUpload);
-        MockedStatic<Static> mockedStatic = mockStatic(Static.class);
-        mockedStatic.when(()->Static.getValue(anyString())).thenReturn("VALUE");
-        mockedStatic.when(()->Static.getValue(anyString(), anyString())).thenReturn("VALUE");
-        try (MockedStatic<LocalDateTime> localDateTime = mockStatic(LocalDateTime.class, CALLS_REAL_METHODS);
-             MockedStatic<AfServletGouvPropertiesResolver> propertiesResolver = mockStatic(AfServletGouvPropertiesResolver.class)) {
+        try (MockedStatic<Static> mockedStatic = mockStatic(Static.class)) {
+            mockedStatic.when(() -> Static.getValue(anyString())).thenReturn("VALUE");
+            mockedStatic.when(() -> Static.getValue(anyString(), anyString())).thenReturn("VALUE");
+            try (MockedStatic<LocalDateTime> localDateTime = mockStatic(LocalDateTime.class, CALLS_REAL_METHODS);
+                 MockedStatic<AfServletGouvPropertiesResolver> propertiesResolver = mockStatic(AfServletGouvPropertiesResolver.class)) {
 
-            localDateTime.when(LocalDateTime::now).thenReturn(zeroDate);
-            propertiesResolver.when(AfServletGouvPropertiesResolver::getTempsIntervalleUpload).
-                    thenReturn(String.valueOf(tempsParIntervalle));
-            propertiesResolver.when(AfServletGouvPropertiesResolver::getMaxUploadParIntervalle).
-                    thenReturn(String.valueOf(maxUploadParIntervalle));
+                localDateTime.when(LocalDateTime::now).thenReturn(zeroDate);
+                propertiesResolver.when(AfServletGouvPropertiesResolver::getTempsIntervalleUpload).
+                        thenReturn(String.valueOf(tempsParIntervalle));
+                propertiesResolver.when(AfServletGouvPropertiesResolver::getMaxUploadParIntervalle).
+                        thenReturn(String.valueOf(maxUploadParIntervalle));
 
-            FileServletUtils.limiteUploadAtteinte(usagersFileUploadCompteurs, session);
+                FileServletUtils.limiteUploadAtteinte(usagersFileUploadCompteurs, session);
 
-            if (verifieSupprime) {
-                verify(usagersFileUploadCompteurs).remove(session);
-            } else {
-                verify(usagersFileUploadCompteurs, never()).remove(session);
+                if (verifieSupprime) {
+                    verify(usagersFileUploadCompteurs).remove(session);
+                } else {
+                    verify(usagersFileUploadCompteurs, never()).remove(session);
+                }
             }
         }
-        mockedStatic.close();
     }
 
     @Test

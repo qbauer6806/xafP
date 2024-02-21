@@ -66,7 +66,7 @@ pipeline {
         stage ('Build') {
             steps {
                 sh 'env'
-                sh 'mvn ${MC_M2_OPTS_REVISION} clean jacoco:prepare-agent install jacoco:report jacoco:report-aggregate org.cyclonedx:cyclonedx-maven-plugin:makeBom deploy'
+                sh 'mvn ${MC_M2_OPTS_REVISION} clean jacoco:prepare-agent -Dmaven.test.failure.ignore=false install jacoco:report jacoco:report-aggregate org.cyclonedx:cyclonedx-maven-plugin:makeBom deploy'
             }
             post {
                 success {

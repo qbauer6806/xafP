@@ -12,13 +12,22 @@ import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandesDataBO;
 import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
-import mc.gouv.xaf.back.paiement.data.dao.*;
+import mc.gouv.xaf.back.paiement.data.dao.CommandeDemandeArticleRepository;
+import mc.gouv.xaf.back.paiement.data.dao.CommandeDemandeRepository;
+import mc.gouv.xaf.back.paiement.data.dao.CommandeOperationRepository;
+import mc.gouv.xaf.back.paiement.data.dao.CommandeRepository;
+import mc.gouv.xaf.back.paiement.data.dao.MoyenPaiementRepository;
+import mc.gouv.xaf.back.paiement.data.dao.PaiementHistoriqueRepository;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeBO;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeDemandeArticleBO;
 import mc.gouv.xaf.back.paiement.data.entity.CommandeDemandeBO;
 import mc.gouv.xaf.back.paiement.data.entity.MoyenPaiementBO;
 import mc.gouv.xaf.back.paiement.data.enums.MoyenPaiementStatutEnum;
-import mc.gouv.xaf.back.paiement.dto.*;
+import mc.gouv.xaf.back.paiement.dto.ContenuTestDTO;
+import mc.gouv.xaf.back.paiement.dto.Paiement;
+import mc.gouv.xaf.back.paiement.dto.PaiementDTO;
+import mc.gouv.xaf.back.paiement.dto.Tableau;
+import mc.gouv.xaf.back.paiement.dto.Titre;
 import mc.gouv.xaf.back.paiement.enums.PaiementDemandeDataKeysEnum;
 import mc.gouv.xaf.back.paiement.enums.PaiementStatutEnum;
 import mc.gouv.xaf.back.paiement.mock.DemandeStatutEnum;
@@ -28,7 +37,6 @@ import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
 import mc.gouv.xaf.shared.dto.itg.monetico.MoneticoResponseDTO;
 import org.hibernate.Hibernate;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,12 +45,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.transaction.Transactional;
-import java.util.*;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.fail;
+import static org.junit.Assert.assertThrows;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -106,7 +119,7 @@ public class MoneticoPaiementServiceTest {
         accessBO.setDateCreation(new Date());
         accessBO.setDateDerModif(new Date());
         accessBO.setDemarcheId("PERMC");
-        accessBO.setUsagerId(3421);
+        accessBO.setUsagerId(1);
         accessRepository.save(accessBO);
 
         DemandeBO demandeBO = new DemandeBO();
@@ -185,6 +198,7 @@ public class MoneticoPaiementServiceTest {
         access.setUsagerId(1);
         access.setDateCreation(new Date());
         access.setDateDerModif(new Date());
+        access.setActive(true);
         accessRepository.save(access);
 
         demandeBO.setContenu(contenu.toString());
@@ -287,6 +301,7 @@ public class MoneticoPaiementServiceTest {
         access.setUsagerId(1);
         access.setDateCreation(new Date());
         access.setDateDerModif(new Date());
+        access.setActive(true);
         accessRepository.save(access);
 
         demandeBO.setContenu(contenu.toString());
@@ -341,4 +356,82 @@ public class MoneticoPaiementServiceTest {
         assertThat(result).isEqualTo("1");
     }
 
+    @Test
+    public void testWhenDemandeNotAssignedUsagerThenThrowException() {
+        DemandeBO demandeBO = new DemandeBO();
+
+        AccessBO access = new AccessBO();
+        access.setDemarcheId("PERMC");
+        access.setContenu("{\"CGU\":true}");
+        access.setUsagerId(1);
+        access.setDateCreation(new Date());
+        access.setDateDerModif(new Date());
+        access.setActive(true);
+        accessRepository.save(access);
+
+        demandeBO.setContenu("VIDE");
+        demandeBO.setCanal(DemandeCanalEnum.GUICHET_VIRTUEL.name());
+        demandeBO.setIdentifiant("monIdentifiant");
+        demandeBO.setDateCreation(new Date());
+        demandeBO.setDateDerModif(new Date());
+        demandeBO.setFkAccess(access);
+        demandeBO.setUsagerPrenom("Jon");
+        demandeBO.setUsagerNom("Doe");
+
+        DemandesStatutsBO dernierStatut = new DemandesStatutsBO();
+        dernierStatut.setLibelle(DemandeStatutEnum.EN_ATTENTE_DE_PAIEMENT.name());
+        dernierStatut.setDate(new Date());
+        demandesStatutsRepository.save(dernierStatut);
+        demandeBO.setDernierStatut(dernierStatut);
+        demandeBO = demandesRepository.save(demandeBO);
+
+        String langue = "FR";
+        String demandesId = demandeBO.getPkDemandes().toString();
+
+        assertThrows(
+                DemarchesServiceException.class,
+                () -> {
+                    // When
+                    moneticoPaiementService.create(demandesId, langue, 2, true);
+                });
+    }
+    @Test
+    public void testWhenUsagerDemandeNotActiveThenThrowException() {
+        DemandeBO demandeBO = new DemandeBO();
+
+        AccessBO access = new AccessBO();
+        access.setDemarcheId("PERMC");
+        access.setContenu("{\"CGU\":true}");
+        access.setUsagerId(1);
+        access.setDateCreation(new Date());
+        access.setDateDerModif(new Date());
+        access.setActive(false);
+        accessRepository.save(access);
+
+        demandeBO.setContenu("VIDE");
+        demandeBO.setCanal(DemandeCanalEnum.GUICHET_VIRTUEL.name());
+        demandeBO.setIdentifiant("monIdentifiant");
+        demandeBO.setDateCreation(new Date());
+        demandeBO.setDateDerModif(new Date());
+        demandeBO.setFkAccess(access);
+        demandeBO.setUsagerPrenom("Jon");
+        demandeBO.setUsagerNom("Doe");
+
+        DemandesStatutsBO dernierStatut = new DemandesStatutsBO();
+        dernierStatut.setLibelle(DemandeStatutEnum.EN_ATTENTE_DE_PAIEMENT.name());
+        dernierStatut.setDate(new Date());
+        demandesStatutsRepository.save(dernierStatut);
+        demandeBO.setDernierStatut(dernierStatut);
+        demandeBO = demandesRepository.save(demandeBO);
+
+        String langue = "FR";
+        String demandesId = demandeBO.getPkDemandes().toString();
+
+        assertThrows(
+                DemarchesServiceException.class,
+                () -> {
+                    // When
+                    moneticoPaiementService.create(demandesId, langue, 1, true);
+                });
+    }
 }

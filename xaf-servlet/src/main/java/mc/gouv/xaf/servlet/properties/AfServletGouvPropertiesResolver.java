@@ -343,7 +343,6 @@ public class AfServletGouvPropertiesResolver {
         propertiesDTOS.add(new PropertiesDTO(PAIEMENT_PROVIDER, getPaiementProvider()));
         propertiesDTOS.add(new PropertiesDTO(MONETICO_URL, getMoneticoUrl()));
         propertiesDTOS.add(new PropertiesDTO(GICHUNI_URL, getGichuniUrl()));
-        propertiesDTOS.add(new PropertiesDTO(FILE_JWT, getFileJwt()));
         propertiesDTOS.add(new PropertiesDTO(GICHUNI_FRONT_URL, getGichuniFrontUrl()));
         propertiesDTOS.add(new PropertiesDTO(GICHUNI_USAGER_PARTICULER_URL_FR, getSuiviDemarcheParticulierUrlFr()));
         propertiesDTOS.add(new PropertiesDTO(GICHUNI_USAGER_PARTICULER_URL_EN, getSuiviDemarcheParticulierUrlEn()));

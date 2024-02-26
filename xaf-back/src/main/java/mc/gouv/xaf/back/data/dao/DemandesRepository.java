@@ -97,10 +97,9 @@ public interface DemandesRepository extends CrudRepository<DemandeBO, Integer> {
     List<DemandeBO> findAllByDateCreationFromAndDernierStatut(Date startDate, String dernierStatut);
 
     /**
-     * Permet de récupérer les demandes à purger
+     * Permet de récupérer les demandes à purger au delà d'une certaine date. Utile pour l'opération de purge
      *
-     * @param startDate
-     * @param endDate
+     * @param dernierStatutDateDebut
      * @param dernierStatutList
      * @return
      */
@@ -109,8 +108,10 @@ public interface DemandesRepository extends CrudRepository<DemandeBO, Integer> {
             List<String> dernierStatutList);
 
     /**
-     * Permet de récupérer les demandes à purger
-     *
+     * Permet de récupérer les demandes à purger dans un intervalle donné. Utile pour la relance par mail avant purge.
+     * Permet de faire plusieurs relances par ex.
+     * 
+     * 
      * @param startDate
      * @param endDate
      * @param dernierStatutList

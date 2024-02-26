@@ -1,5 +1,6 @@
 package mc.gouv.xaf.back.service.purge;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -8,10 +9,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
-import mc.gouv.xaf.back.service.GouvSchedulerService;
-import mc.gouv.xaf.back.service.scheduling.PurgeDemandesSchedulingJob;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
@@ -26,12 +24,14 @@ import mc.gouv.xaf.back.data.dao.StatistiquesRepository;
 import mc.gouv.xaf.back.data.entity.StatistiqueBO;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
+import mc.gouv.xaf.back.service.GouvSchedulerService;
 import mc.gouv.xaf.back.service.data.DemandesCourriersService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
+import mc.gouv.xaf.back.service.scheduling.PurgeDemandesSchedulingJob;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
@@ -86,28 +86,32 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 
 		LOGGER.info("Début de la purge des demandes ...");
 
-		for (DemandeDTO demandeDTO : demandesService.getAllDemandes(demarcheId)) {
-			long diffInMillies = Math.abs(new Date().getTime() - demandeDTO.getDernierStatut().getDate().getTime());
-			long diff = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
 
-			if (statuts.contains(demandeDTO.getDernierStatut().getLibelle()) && diff >= jours) {
-				// Si la demande est une demande courrier ou gichet on supprime d'abord les courriers associés à cette demande
-				if(!demandeDTO.getCanal().equals(DemandeCanalEnum.GUICHET_VIRTUEL)) {
-					// Suppression des courriers de la demande
-					demandesCourriersService.deleteCourriers(demarcheId, demandeDTO.getPkDemandes());
-				}
-				// Ensuite on supprime la demande elle même
-				demandesService.deleteDemandeInGivenStatus(demarcheId, demandeDTO.getPkDemandes(), statuts, jours);
-				demandesSuppr++;
+        /* PURGE DES DEMANDES */
+        LocalDate dateLocaleDebutPurge = LocalDate.now().minusDays(jours);
+        Date dateDebutPurge = Date.from(dateLocaleDebutPurge.atStartOfDay(ZoneId.systemDefault()).toInstant());
 
-			} else if(statuts.contains(demandeDTO.getDernierStatut().getLibelle()) && diff == jours - Long.parseLong(delaiEnvoiEmailProp.getValue())) {
-				// L'envois des emails se fait 15 jours avant la supression effective de la demande
-				// Envois des emails aux usagers
-				envoisMailUsagerPurge(demandeDTO.getIdentifiant(), demandeDTO, delaiEnvoiEmailProp.getValue());
+        for (DemandeDTO demandeDTO : demandesService.getAllDemandeForPurge(demarcheId, dateDebutPurge, statuts)) {
+            if (!demandeDTO.getCanal().equals(DemandeCanalEnum.GUICHET_VIRTUEL)) {
+                // Suppression des courriers de la demande
+                demandesCourriersService.deleteCourriers(demarcheId, demandeDTO.getPkDemandes());
+            }
+            // Ensuite on supprime la demande elle même
+            demandesService.deleteDemandeInGivenStatus(demarcheId, demandeDTO.getPkDemandes(), statuts, jours);
+            demandesSuppr++;
+        }
 
-				// Ajout à la liste des demandes à envoyer
-				demandesAPurger.append("- ").append(demandeDTO.getIdentifiant()).append(" - ").append(demandeDTO.getDernierStatut().getLibelle()).append("<br/>");
-			}
+        /* MAIL AVANT PURGE */
+        dateLocaleDebutPurge = LocalDate.now().minusDays(jours + Integer.parseInt(delaiEnvoiEmailProp.getValue()));
+        dateDebutPurge = Date.from(dateLocaleDebutPurge.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        Date dateFinPurge;
+        dateFinPurge = Date.from(dateLocaleDebutPurge.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
+        for (DemandeDTO demandeDTO : demandesService.getAllDemandeForRelanceAvantPurge(demarcheId, dateDebutPurge,
+                dateFinPurge, statuts)) {
+            envoisMailUsagerPurge(demandeDTO.getIdentifiant(), demandeDTO, delaiEnvoiEmailProp.getValue());
+            // Ajout à la liste des demandes à envoyer
+            demandesAPurger.append("- ").append(demandeDTO.getIdentifiant()).append(" - ")
+                    .append(demandeDTO.getDernierStatut().getLibelle()).append("<br/>");
         }
 
 		// Envois mail agent pour suppression

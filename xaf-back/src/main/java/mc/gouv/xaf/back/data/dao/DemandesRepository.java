@@ -97,6 +97,31 @@ public interface DemandesRepository extends CrudRepository<DemandeBO, Integer> {
     List<DemandeBO> findAllByDateCreationFromAndDernierStatut(Date startDate, String dernierStatut);
 
     /**
+     * Permet de récupérer les demandes à purger
+     *
+     * @param startDate
+     * @param endDate
+     * @param dernierStatutList
+     * @return
+     */
+    @Query("select d from DemandeBO d inner join d.dernierStatut ds inner join d.fkAccess access where ds.date <= :dernierStatutDateDebut and ds.libelle in :dernierStatutList")
+    List<DemandeBO> findAllWithDateDernierStatutBeforeAndLibelleStatutIn(Date dernierStatutDateDebut,
+            List<String> dernierStatutList);
+
+    /**
+     * Permet de récupérer les demandes à purger
+     *
+     * @param startDate
+     * @param endDate
+     * @param dernierStatutList
+     * @return
+     */
+    @Query("select d from DemandeBO d inner join d.dernierStatut ds inner join d.fkAccess access where ds.date >= :dernierStatutDateDebut and ds.date < :dernierStatutDateFin and ds.libelle in :dernierStatutList")
+    List<DemandeBO> findAllWithDateDernierStatutBetweenAndLibelleStatutIn(Date dernierStatutDateDebut,
+            Date dernierStatutDateFin,
+            List<String> dernierStatutList);
+
+    /**
      * Permet de récupérer les demandes créées à jusqu'à une date donnée
      *
      * @param endDate

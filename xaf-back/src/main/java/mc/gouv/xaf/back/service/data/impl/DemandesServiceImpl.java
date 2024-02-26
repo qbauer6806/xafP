@@ -402,6 +402,26 @@ public class DemandesServiceImpl implements DemandesService {
 
 	}
 
+    @Override
+    public List<DemandeDTO> getAllDemandeForPurge(String demarcheId, Date dernierStatutDateDebut,
+            List<String> dernierStatutList) {
+
+        LOGGER.info("Appel à DemandeService.getAllDemandeForPurge");
+        return DemandesTransformer.bo2Dto(demandesRepository
+                .findAllWithDateDernierStatutBeforeAndLibelleStatutIn(dernierStatutDateDebut, dernierStatutList));
+
+    }
+
+    @Override
+    public List<DemandeDTO> getAllDemandeForRelanceAvantPurge(String demarcheId, Date dernierStatutDateDebut,
+            Date dernierStatutDateFin, List<String> dernierStatutList) {
+
+        LOGGER.info("Appel à DemandeService.getAllDemandeForPurge");
+        return DemandesTransformer.bo2Dto(demandesRepository.findAllWithDateDernierStatutBetweenAndLibelleStatutIn(
+                dernierStatutDateDebut, dernierStatutDateFin, dernierStatutList));
+
+    }
+
 	/**
 	 * Return all demanched BO from demarche id
 	 * 

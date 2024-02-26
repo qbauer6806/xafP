@@ -257,4 +257,10 @@ public interface DemandesService {
      */
     List<DemandeDTO> getDemandesFilterFiles(String demarcheId, Integer usagerId);
 
+    List<DemandeDTO> getAllDemandeForPurge(String demarcheId, Date dernierStatutDateDebut,
+            List<String> dernierStatutList);
+
+    List<DemandeDTO> getAllDemandeForRelanceAvantPurge(String demarcheId, Date dernierStatutDateDebut,
+            Date dernierStatutDateFin, List<String> dernierStatutList);
+
 }

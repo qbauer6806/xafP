@@ -267,8 +267,10 @@ public interface DemandesService {
      * @return
      */
     List<DemandeDTO> getAllDemandeForPurge(String demarcheId, Date dernierStatutDateDebut,
-            List<String> dernierStatutList);
+            List<String> dernierStatutList, List<String> canaux);
 
+    List<Integer> getAllDemandeIdsForPurge(String demarcheId, Date dernierStatutDateDebut,
+            List<String> dernierStatutList, List<String> canaux);
     /**
      * Retourne les demandes à purger par rapport à la date et à une liste de statuts à purger
      *
@@ -282,6 +284,9 @@ public interface DemandesService {
      * @return
      */
     List<DemandeDTO> getAllDemandeForRelanceAvantPurge(String demarcheId, Date dernierStatutDateDebut,
+            Date dernierStatutDateFin, List<String> dernierStatutList);
+
+    List<Integer> getAllDemandeIdsForRelanceAvantPurge(String demarcheId, Date dernierStatutDateDebut,
             Date dernierStatutDateFin, List<String> dernierStatutList);
 
 }

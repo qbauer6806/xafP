@@ -1,9 +1,12 @@
 package mc.gouv.xaf.back.service.purge;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -11,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 import org.slf4j.Logger;
@@ -91,13 +95,16 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
         LocalDate dateLocaleDebutPurge = LocalDate.now().minusDays(jours);
         Date dateDebutPurge = Date.from(dateLocaleDebutPurge.atStartOfDay(ZoneId.systemDefault()).toInstant());
 
-        for (DemandeDTO demandeDTO : demandesService.getAllDemandeForPurge(demarcheId, dateDebutPurge, statuts)) {
-            if (!demandeDTO.getCanal().equals(DemandeCanalEnum.GUICHET_VIRTUEL)) {
-                // Suppression des courriers de la demande
-                demandesCourriersService.deleteCourriers(demarcheId, demandeDTO.getPkDemandes());
-            }
-            // Ensuite on supprime la demande elle même
-            demandesService.deleteDemandeInGivenStatus(demarcheId, demandeDTO.getPkDemandes(), statuts, jours);
+        for (Integer pkDemande : demandesService.getAllDemandeIdsForPurge(demarcheId, dateDebutPurge, statuts,
+                Arrays.asList(DemandeCanalEnum.GUICHET_VIRTUEL.name()))) {
+            demandesService.deleteDemandeInGivenStatus(demarcheId, pkDemande, statuts, jours);
+            demandesSuppr++;
+        }
+
+        for (Integer pkDemande : demandesService.getAllDemandeIdsForPurge(demarcheId, dateDebutPurge, statuts,
+                Arrays.asList(DemandeCanalEnum.COURRIER.name(), DemandeCanalEnum.GUICHET_PHYSIQUE.name()))) {
+            demandesCourriersService.deleteCourriers(demarcheId, pkDemande);
+            demandesService.deleteDemandeInGivenStatus(demarcheId, pkDemande, statuts, jours);
             demandesSuppr++;
         }
 

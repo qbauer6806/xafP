@@ -2,10 +2,10 @@ package mc.gouv.xaf.back.data.dao;
 
 import java.util.List;
 
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
 import mc.gouv.xaf.back.data.entity.DemandesComplementsFilesBO;
-import mc.gouv.xaf.back.data.entity.DemandesFilesBO;
 
 /**
  * @author qdeme
@@ -14,4 +14,7 @@ import mc.gouv.xaf.back.data.entity.DemandesFilesBO;
 public interface DemandesComplementsFilesRepository extends CrudRepository<DemandesComplementsFilesBO, Integer> {
 
 	List<DemandesComplementsFilesBO> findAllByUrl(String url);
+
+    @Query("select count(demFile) from DemandesComplementsFilesBO demFile inner join demFile.fkDemandesComplements complement inner join complement.fkDemandes dem where demFile.url = :url and dem.pkDemandes != :pkDemandes")
+    public Integer findHowManyTimeIsFileReferenced(String url, Integer pkDemandes);
 }

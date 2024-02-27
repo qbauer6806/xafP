@@ -96,24 +96,29 @@ public interface DemandesRepository extends CrudRepository<DemandeBO, Integer> {
     @Query("select d from DemandeBO d inner join d.dernierStatut ds where d.dateCreation >= :startDate and ds.libelle = :dernierStatut")
     List<DemandeBO> findAllByDateCreationFromAndDernierStatut(Date startDate, String dernierStatut);
 
+
     /**
-     * Permet de récupérer les demandes à purger au delà d'une certaine date. Utile pour l'opération de purge
+     * Permet de récupérer les demandes à purger avant une certaine date. Utile pour l'opération de purge
      *
      * @param dernierStatutDateDebut
      * @param dernierStatutList
+     * @param canaux
      * @return
      */
-    @Query("select d from DemandeBO d inner join d.dernierStatut ds inner join d.fkAccess access where ds.date <= :dernierStatutDateDebut and ds.libelle in :dernierStatutList")
+    @Query("select d from DemandeBO d inner join d.dernierStatut ds inner join d.fkAccess access where ds.date <= :dernierStatutDateDebut and ds.libelle in :dernierStatutList and d.canal in :canaux")
     List<DemandeBO> findAllWithDateDernierStatutBeforeAndLibelleStatutIn(Date dernierStatutDateDebut,
-            List<String> dernierStatutList);
+            List<String> dernierStatutList, List<String> canaux);
+
+    @Query("select d.pkDemandes from DemandeBO d inner join d.dernierStatut ds inner join d.fkAccess access where ds.date <= :dernierStatutDateDebut and ds.libelle in :dernierStatutList and d.canal in :canaux")
+    List<Integer> findAllIdsWithDateDernierStatutBeforeAndLibelleStatutIn(Date dernierStatutDateDebut,
+            List<String> dernierStatutList, List<String> canaux);
 
     /**
      * Permet de récupérer les demandes à purger dans un intervalle donné. Utile pour la relance par mail avant purge.
      * Permet de faire plusieurs relances par ex.
      * 
-     * 
-     * @param startDate
-     * @param endDate
+     * @param dernierStatutDateDebut
+     * @param dernierStatutDateFin
      * @param dernierStatutList
      * @return
      */
@@ -121,6 +126,10 @@ public interface DemandesRepository extends CrudRepository<DemandeBO, Integer> {
     List<DemandeBO> findAllWithDateDernierStatutBetweenAndLibelleStatutIn(Date dernierStatutDateDebut,
             Date dernierStatutDateFin,
             List<String> dernierStatutList);
+
+    @Query("select d.pkDemandes from DemandeBO d inner join d.dernierStatut ds inner join d.fkAccess access where ds.date >= :dernierStatutDateDebut and ds.date < :dernierStatutDateFin and ds.libelle in :dernierStatutList")
+    List<Integer> findAllIdsWithDateDernierStatutBetweenAndLibelleStatutIn(Date dernierStatutDateDebut,
+            Date dernierStatutDateFin, List<String> dernierStatutList);
 
     /**
      * Permet de récupérer les demandes créées à jusqu'à une date donnée

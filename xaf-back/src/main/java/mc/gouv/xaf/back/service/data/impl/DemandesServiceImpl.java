@@ -402,25 +402,7 @@ public class DemandesServiceImpl implements DemandesService {
 
 	}
 
-    @Override
-    public List<DemandeDTO> getAllDemandeForPurge(String demarcheId, Date dernierStatutDateDebut,
-            List<String> dernierStatutList) {
 
-        LOGGER.info("Appel à DemandeService.getAllDemandeForPurge");
-        return DemandesTransformer.bo2Dto(demandesRepository
-                .findAllWithDateDernierStatutBeforeAndLibelleStatutIn(dernierStatutDateDebut, dernierStatutList));
-
-    }
-
-    @Override
-    public List<DemandeDTO> getAllDemandeForRelanceAvantPurge(String demarcheId, Date dernierStatutDateDebut,
-            Date dernierStatutDateFin, List<String> dernierStatutList) {
-
-        LOGGER.info("Appel à DemandeService.getAllDemandeForPurge");
-        return DemandesTransformer.bo2Dto(demandesRepository.findAllWithDateDernierStatutBetweenAndLibelleStatutIn(
-                dernierStatutDateDebut, dernierStatutDateFin, dernierStatutList));
-
-    }
 
 	/**
 	 * Return all demanched BO from demarche id
@@ -869,15 +851,13 @@ public class DemandesServiceImpl implements DemandesService {
 		DemandeDTO demandeDTO = DemandesTransformer.bo2Dto(demandeBo);
 		if (null != demandeDTO.getFichiers() && !Arrays.asList(demandeDTO.getFichiers()).isEmpty()) {
 			for (DemandeFileDTO currentFileToDelete : demandeDTO.getFichiers()) {
-				// On ne supprime le fichier dans file que lorsqu'il n'est plus utilisé par la
-				// demande ou ses enfants (ie les demandes dupliquées qui découlent de cette
-				// demande)
-				List<DemandesFilesBO> existingFiles = demandesFilesRepository
-						.findAllByUrl(currentFileToDelete.getUrl());
-				if(null != existingFiles && !existingFiles.isEmpty() && isFileDeletable(existingFiles, statuts, jours)) {
+                Integer refs = demandesFilesRepository.findHowManyTimeIsFileReferenced(currentFileToDelete.getUrl(),
+                        demandeId);
+                LOGGER.debug("L'url du fichier est utilisée par {}", refs);
+                if (refs.intValue() == 0) {
 					try {
 						String url = URLEncoder.encode(currentFileToDelete.getUrl(), "UTF-8");
-						fileService.deleteFile("ROOT", url);
+                        fileService.deleteFile("ROOT", url);
 					} catch (UnsupportedEncodingException e) {
 						LOGGER.error("Problème lors de l'encoding des urls des fichiers initiaux", e);
 					}
@@ -889,30 +869,28 @@ public class DemandesServiceImpl implements DemandesService {
 		// Suppression des fichiers complémentaires de la demande s'il y'en a 
 		if (null != demandeDTO.getComplements() && !Arrays.asList(demandeDTO.getComplements()).isEmpty()) {
 			for (DemandeComplementsDTO demandeComplementsDTO : demandeDTO.getComplements()) {
-				Optional<DemandesComplementsBO> demandeComplementBO = demandesComplementsRepository
-						.findById(demandeComplementsDTO.getPkDemandeComplements());
-				Set<DemandesComplementsFilesBO> files = demandeComplementBO.get().getFiles();
-				if (null != files && !files.isEmpty()) {
-					for (DemandesComplementsFilesBO currentFileToDelete : files) {
-						List<DemandesComplementsFilesBO> existingFiles = demandesComplementsFilesRepository
-								.findAllByUrl(currentFileToDelete.getUrl());
-						if (null != existingFiles && !existingFiles.isEmpty()
-								&& isComplementsFileDeletable(existingFiles, statuts, jours)) {
-							// Hard fix: Les fichiers complémentaires ajoutés via le BO sont stockés en BDD avec un url encodé,
-							// à l'inverse ceux depuis le FO le sont pas. Il faut une façon de différencier les deux: on check si le nom de fichier
-							// existe dans l'url décodé.
-							String url = currentFileToDelete.getUrl();
-							if (url.contains(currentFileToDelete.getName())) {
-								try {
-									url = URLEncoder.encode(url, "UTF-8");
-								} catch (UnsupportedEncodingException e) {
-									LOGGER.error("Problème lors de l'encoding des urls des fichiers complémentaires", e);
-								}
-							}
-							fileService.deleteFile("ROOT", url);
-						}
-					}
-				}
+                DemandesComplementsBO demandeComplementBO = demandesComplementsRepository
+                        .findById(demandeComplementsDTO.getPkDemandeComplements()).orElse(null);
+
+                if (demandeComplementBO != null) {
+                    Set<DemandesComplementsFilesBO> files = demandeComplementBO.getFiles();
+                    if (null != files && !files.isEmpty()) {
+                        for (DemandesComplementsFilesBO currentFileToDelete : files) {
+                            Integer refs = demandesComplementsFilesRepository
+                                    .findHowManyTimeIsFileReferenced(currentFileToDelete.getUrl(), demandeId);
+                            LOGGER.debug("L'url du fichier de complement est utilisée par {}", refs);
+
+                            if (refs.intValue() == 0) {
+                                try {
+                                    String url = URLEncoder.encode(currentFileToDelete.getUrl(), "UTF-8");
+                                    fileService.deleteFile("ROOT", url);
+                                } catch (UnsupportedEncodingException e) {
+                                    LOGGER.error("Problème lors de l'encoding des urls des fichiers initiaux", e);
+                                }
+                            }
+                        }
+                    }
+                }
 			}
 		}
 
@@ -931,10 +909,7 @@ public class DemandesServiceImpl implements DemandesService {
 		// Suppression de l'historique de la demande (pas géré par cascade, donc le
 		// faire ici)
 		LOGGER.info("Suppression de l'historique de la demande...");
-		List<DemandesHistoriqueBO> histos = demandesHistoriqueRepository.findByFkDemandesPkDemandes(demandeId);
-		for (DemandesHistoriqueBO histo : histos) {
-			demandesHistoriqueRepository.delete(histo);
-		}
+        demandesHistoriqueRepository.deleteHistoForGivenPkDemandes(demandeId);
 
 		LOGGER.info("Ajout d'une ligne de statistique pour la suppression de la demande...");
 		statistiquesService.saveStatistique(stat);
@@ -1543,5 +1518,43 @@ public class DemandesServiceImpl implements DemandesService {
 		DemandeBO demandeBo = demandesRepository.findByIdentifiant(identifiant);
 		return DemandesTransformer.bo2Dto(demandeBo);
 	}
+
+    @Override
+    public List<DemandeDTO> getAllDemandeForPurge(String demarcheId, Date dernierStatutDateDebut,
+            List<String> dernierStatutList, List<String> canaux) {
+
+        LOGGER.info("Appel à DemandeService.getAllDemandeForPurge");
+        return DemandesTransformer.bo2Dto(demandesRepository
+                .findAllWithDateDernierStatutBeforeAndLibelleStatutIn(dernierStatutDateDebut, dernierStatutList,
+                        canaux));
+
+    }
+
+    @Override
+    public List<DemandeDTO> getAllDemandeForRelanceAvantPurge(String demarcheId, Date dernierStatutDateDebut,
+            Date dernierStatutDateFin, List<String> dernierStatutList) {
+
+        LOGGER.info("Appel à DemandeService.getAllDemandeForPurge");
+        return DemandesTransformer.bo2Dto(demandesRepository.findAllWithDateDernierStatutBetweenAndLibelleStatutIn(
+                dernierStatutDateDebut, dernierStatutDateFin, dernierStatutList));
+
+    }
+
+    @Override
+    public List<Integer> getAllDemandeIdsForPurge(String demarcheId, Date dernierStatutDateDebut,
+            List<String> dernierStatutList, List<String> canaux) {
+        LOGGER.info("Appel à DemandeService.getAllDemandeForPurge");
+        return demandesRepository.findAllIdsWithDateDernierStatutBeforeAndLibelleStatutIn(dernierStatutDateDebut,
+                dernierStatutList, canaux);
+    }
+
+    @Override
+    public List<Integer> getAllDemandeIdsForRelanceAvantPurge(String demarcheId, Date dernierStatutDateDebut,
+            Date dernierStatutDateFin, List<String> dernierStatutList) {
+
+        LOGGER.info("Appel à DemandeService.getAllDemandeForPurge");
+        return demandesRepository.findAllIdsWithDateDernierStatutBetweenAndLibelleStatutIn(dernierStatutDateDebut,
+                dernierStatutDateFin, dernierStatutList);
+    }
 
 }

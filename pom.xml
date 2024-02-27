@@ -8,23 +8,25 @@
 	</parent>
 
 	<properties>
-		<servicerest_client.version>2.2.15</servicerest_client.version>
-		<tika.version>1.22</tika.version>
-		<xcb-wlib.version>1.2.0</xcb-wlib.version>
-	</properties>
+        <revision>0.0.0-SNAPSHOT</revision>
+        <java.version>11</java.version>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+        <logon-apiclient.version>5.2.2</logon-apiclient.version>
+        <servicerest_client.version>2.2.15</servicerest_client.version>
+        <tika.version>1.22</tika.version>
+        <xcb-wlib.version>1.2.0</xcb-wlib.version>
+        <commons-fileupload.version>1.5</commons-fileupload.version>
+        <poi-ooxml.version>5.2.0</poi-ooxml.version>
+        <commons-io.version>2.13.0</commons-io.version>
+        <!-- Remove jackson-bom version when spring boot 3 -->
+        <jackson-bom.version>2.15.2</jackson-bom.version>
+    </properties>
 
 	<groupId>mc.gouv.xaf</groupId>
 	<artifactId>xaf</artifactId>
-	<version>9.2.1.1-SNAPSHOT</version>
+	<version>${revision}</version>
 	<packaging>pom</packaging>
-
-	<scm>
-		<url>https://git.monaco-gouvernement.mc/libs/xaf.git</url>
-		<connection>scm:git:git@git.monaco-gouvernement.mc:libs/xaf.git</connection>
-		<developerConnection>scm:git:git@git.monaco-gouvernement.mc:libs/xaf.git</developerConnection>
-	  <tag>9.2.1.1-SNAPSHOT</tag>
-  </scm>
-
 
 	<modules>
 		<module>xaf-servlet</module>
@@ -56,7 +58,6 @@
 					</exclusion>
 				</exclusions>
 			</dependency>
-
 			<dependency>
 				<groupId>org.apache.tika</groupId>
 				<artifactId>tika-parsers</artifactId>
@@ -118,5 +119,60 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
+	<build>
+        <plugins>
+            <!-- https://maven.apache.org/maven-ci-friendly.html -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+                <version>1.3.0</version>
+                <configuration>
+                    <updatePomFile>true</updatePomFile>
+                    <flattenMode>resolveCiFriendliesOnly</flattenMode>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>flatten</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>flatten</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>flatten.clean</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>enforce-versions</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireReleaseDeps>
+                                    <message>No Snapshots Allowed in RELEASE build!</message>
+                                    <onlyWhenRelease>true</onlyWhenRelease>
+                                </requireReleaseDeps>
+                            </rules>
+                            <fail>true</fail>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

@@ -830,45 +830,32 @@ public class DemandesServiceImpl implements DemandesService {
         
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 *
-	 * @throws JsonProcessingException
-	 */
-	@Override
-	public void deleteDemandeInGivenStatus(String demarcheId, Integer demandeId, List<String> statuts, int jours) throws JsonProcessingException {
-
-		LOGGER.info("Suppression de la demande {} de la demarche {}...", demandeId, demarcheId);
-		DemandeBO demandeBo = getCheckDemarcheDemandeBO(demarcheId, demandeId, false);
-
-		if (demandeBo == null) {
-			throw new DemarchesServiceException("Demande introuvable", HttpStatus.NOT_FOUND);
-		}
-
-		LOGGER.info("Suppression des fichiers de la demande {} de la demarche {}...", demandeId, demarcheId);
-		// Suppression des fichiers liés à la demande au moment de la supression de
-		// cette dernière
-		DemandeDTO demandeDTO = DemandesTransformer.bo2Dto(demandeBo);
-		if (null != demandeDTO.getFichiers() && !Arrays.asList(demandeDTO.getFichiers()).isEmpty()) {
-			for (DemandeFileDTO currentFileToDelete : demandeDTO.getFichiers()) {
-                Integer refs = demandesFilesRepository.findHowManyTimeIsFileReferenced(currentFileToDelete.getUrl(),
-                        demandeId);
+    private void keep(String demarcheId, Integer demandeId, List<String> statuts, int jours) {
+        DemandeBO demandeBo = getCheckDemarcheDemandeBO(demarcheId, demandeId, false);
+        LOGGER.info("Suppression des fichiers de la demande {} de la demarche {}...", demandeId, demarcheId);
+        // Suppression des fichiers liés à la demande au moment de la supression de
+        // cette dernière
+        DemandeDTO demandeDTO = DemandesTransformer.bo2Dto(demandeBo);
+        if (null != demandeDTO.getFichiers() && !Arrays.asList(demandeDTO.getFichiers()).isEmpty()) {
+            for (DemandeFileDTO currentFileToDelete : demandeDTO.getFichiers()) {
+                Integer refs = demandesFilesRepository.findHowManyTimeIsFileReferenced(currentFileToDelete.getUrl());
                 LOGGER.debug("L'url du fichier est utilisée par {}", refs);
                 if (refs.intValue() == 0) {
-					try {
-						String url = URLEncoder.encode(currentFileToDelete.getUrl(), "UTF-8");
+                    try {
+                        String url = URLEncoder.encode(currentFileToDelete.getUrl(), "UTF-8");
                         fileService.deleteFile("ROOT", url);
-					} catch (UnsupportedEncodingException e) {
-						LOGGER.error("Problème lors de l'encoding des urls des fichiers initiaux", e);
-					}
-				}
-			}
-		}
-		
-		LOGGER.info("Suppression des fichiers complémentaires de la demande {} de la demarche {}...", demandeId, demarcheId);
-		// Suppression des fichiers complémentaires de la demande s'il y'en a 
-		if (null != demandeDTO.getComplements() && !Arrays.asList(demandeDTO.getComplements()).isEmpty()) {
-			for (DemandeComplementsDTO demandeComplementsDTO : demandeDTO.getComplements()) {
+                    } catch (UnsupportedEncodingException e) {
+                        LOGGER.error("Problème lors de l'encoding des urls des fichiers initiaux", e);
+                    }
+                }
+            }
+        }
+
+        LOGGER.info("Suppression des fichiers complémentaires de la demande {} de la demarche {}...", demandeId,
+                demarcheId);
+        // Suppression des fichiers complémentaires de la demande s'il y'en a
+        if (null != demandeDTO.getComplements() && !Arrays.asList(demandeDTO.getComplements()).isEmpty()) {
+            for (DemandeComplementsDTO demandeComplementsDTO : demandeDTO.getComplements()) {
                 DemandesComplementsBO demandeComplementBO = demandesComplementsRepository
                         .findById(demandeComplementsDTO.getPkDemandeComplements()).orElse(null);
 
@@ -891,7 +878,23 @@ public class DemandesServiceImpl implements DemandesService {
                         }
                     }
                 }
-			}
+            }
+        }
+    }
+
+	/**
+	 * {@inheritDoc}
+	 *
+	 * @throws JsonProcessingException
+	 */
+	@Override
+	public void deleteDemandeInGivenStatus(String demarcheId, Integer demandeId, List<String> statuts, int jours) throws JsonProcessingException {
+
+		LOGGER.info("Suppression de la demande {} de la demarche {}...", demandeId, demarcheId);
+		DemandeBO demandeBo = getCheckDemarcheDemandeBO(demarcheId, demandeId, false);
+
+		if (demandeBo == null) {
+			throw new DemarchesServiceException("Demande introuvable", HttpStatus.NOT_FOUND);
 		}
 
 		StatistiqueDTO stat = new StatistiqueDTO();
@@ -1556,5 +1559,15 @@ public class DemandesServiceImpl implements DemandesService {
         return demandesRepository.findAllIdsWithDateDernierStatutBetweenAndLibelleStatutIn(dernierStatutDateDebut,
                 dernierStatutDateFin, dernierStatutList);
     }
+
+    @Override
+    public void deleteDemandeBulkInGivenStatus(String demarcheId, List<Integer> demandeIdList, List<String> statuts,
+            int jours) throws JsonProcessingException {
+        for (Integer demandeId : demandeIdList) {
+            this.deleteDemandeInGivenStatus(demarcheId, demandeId, statuts, jours);
+        }
+
+    }
+
 
 }

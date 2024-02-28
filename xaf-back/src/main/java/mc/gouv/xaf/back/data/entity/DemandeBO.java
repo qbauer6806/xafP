@@ -53,11 +53,11 @@ public class DemandeBO {
     @Size(min = 0, max = 10000)
     private String observations;
 
-    @OneToMany(mappedBy = "fkDemandes", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "fkDemandes", cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
     @OrderBy("dateCreation DESC")
     private Set<DemandesComplementsBO> demandesComplements;
 
-    @OneToMany(mappedBy = "fkDemandes", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "fkDemandes", cascade = CascadeType.DETACH, fetch = FetchType.LAZY)
     private Set<DemandesFilesBO> files;
 
     @OneToMany(mappedBy = "fkDemandes", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

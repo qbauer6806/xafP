@@ -18,4 +18,6 @@ public interface DemandesFilesService {
 
 	boolean updateTypedocs(Map<String, String> changes);
 
+    void deleteAllOrphans();
+
 }

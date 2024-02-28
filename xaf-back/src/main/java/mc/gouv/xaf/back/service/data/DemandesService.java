@@ -136,6 +136,7 @@ public interface DemandesService {
     
     void deleteDemandeInGivenStatus(String demarcheId, Integer demandeId, List<String> statuts, int jours) throws JsonProcessingException;
 
+
     /**
      * Permet de sauvegarder ou mettre à jour une demande en base
      *
@@ -288,5 +289,8 @@ public interface DemandesService {
 
     List<Integer> getAllDemandeIdsForRelanceAvantPurge(String demarcheId, Date dernierStatutDateDebut,
             Date dernierStatutDateFin, List<String> dernierStatutList);
+
+    void deleteDemandeBulkInGivenStatus(String demarcheId, List<Integer> demandeIdList, List<String> statuts, int jours)
+            throws JsonProcessingException;
 
 }

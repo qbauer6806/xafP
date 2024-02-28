@@ -1,20 +1,20 @@
 package mc.gouv.xaf.back.service.purge;
 
-import java.time.Instant;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 import org.slf4j.Logger;
@@ -23,15 +23,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import mc.gouv.servicerest.usager.model.UsagerBean;
+import mc.gouv.xaf.back.data.dao.DemandesFilesRepository;
 import mc.gouv.xaf.back.data.dao.StatistiquesRepository;
+import mc.gouv.xaf.back.data.entity.DemandesFilesBO;
 import mc.gouv.xaf.back.data.entity.StatistiqueBO;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.GouvSchedulerService;
 import mc.gouv.xaf.back.service.data.DemandesCourriersService;
+import mc.gouv.xaf.back.service.data.DemandesFilesService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
+import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
@@ -77,30 +83,64 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 	private StatistiquesRepository statRepository;
 	
     @Autowired
+    private DemandesFilesRepository demandesFilesRepository;
+
+    @Autowired
     private UsagersCache usagerCache;
 
     @Autowired
     private GouvSchedulerService gouvSchedulerService;
 
+    @Autowired
+    private FileService fileService;
+
+    @Autowired
+    private DemandesFilesService demandesFilesService;
+
 	public void purgerDemandesDansStatuts(List<String> statuts, int jours) throws Exception {
 		String demarcheId = gouvPropertiesResolver.getDemarcheId();
 		StringBuilder demandesAPurger = new StringBuilder();
-		int demandesSuppr = 0;
+        int demandesSuppr = 0;
 		PropertiesDTO delaiEnvoiEmailProp = propertiesService.getProperty(demarcheId, DELAI_ENVOI_MAIL_PURGE);
 
 		LOGGER.info("Début de la purge des demandes ...");
 
+        // AtomicInteger demandesSuppr = new AtomicInteger(0);
 
         /* PURGE DES DEMANDES */
         LocalDate dateLocaleDebutPurge = LocalDate.now().minusDays(jours);
         Date dateDebutPurge = Date.from(dateLocaleDebutPurge.atStartOfDay(ZoneId.systemDefault()).toInstant());
 
-        for (Integer pkDemande : demandesService.getAllDemandeIdsForPurge(demarcheId, dateDebutPurge, statuts,
-                Arrays.asList(DemandeCanalEnum.GUICHET_VIRTUEL.name()))) {
-            demandesService.deleteDemandeInGivenStatus(demarcheId, pkDemande, statuts, jours);
+        Date debutParallel = new Date();
+        /*
+         * demandesService .getAllDemandeIdsForPurge(demarcheId, dateDebutPurge, statuts,
+         * Arrays.asList(DemandeCanalEnum.GUICHET_VIRTUEL.name())) .subList(0, 1000).parallelStream().forEach(pkDemande
+         * -> { int count = 0;
+         * 
+         * try { demandesService.deleteDemandeInGivenStatus(demarcheId, pkDemande, statuts, jours); } catch
+         * (JsonProcessingException e) { LOGGER.error(
+         * "Erreur lors de l'appel a deleteDemandeInGivenStatus lors de la purge de la demande {} ", pkDemande); } //
+         * demandesSuppr++; });
+         */
+        Date finParallel = new Date();
+
+        Date debutSequentiel = new Date();
+        List<Integer> listDem = demandesService.getAllDemandeIdsForPurge(demarcheId, dateDebutPurge, statuts,
+                Arrays.asList(DemandeCanalEnum.GUICHET_VIRTUEL.name())).subList(0, 100);
+
+        List<Integer> listDemLot = new ArrayList<>();
+        for (int idx = 0; idx < listDem.size(); idx++) {
+
+            listDemLot.add(listDem.get(idx));
+            if (idx == listDemLot.size() - 1 || idx % 8 == 0) {
+                demandesService.deleteDemandeBulkInGivenStatus(demarcheId, listDemLot, statuts, jours);
+                listDemLot.clear();
+            }
             demandesSuppr++;
         }
+        Date finSequentiel = new Date();
 
+        // if (1 == 0) {
         for (Integer pkDemande : demandesService.getAllDemandeIdsForPurge(demarcheId, dateDebutPurge, statuts,
                 Arrays.asList(DemandeCanalEnum.COURRIER.name(), DemandeCanalEnum.GUICHET_PHYSIQUE.name()))) {
             demandesCourriersService.deleteCourriers(demarcheId, pkDemande);
@@ -128,6 +168,32 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 		} else {
 			LOGGER.info("Aucune demande à purger...");
 		}
+        // }
+        Date debutFichier = new Date();
+        Iterator<DemandesFilesBO> it = demandesFilesRepository.findAllNonReferencedFiles().iterator();
+        while (it.hasNext()) {
+            DemandesFilesBO fichierOrphelin = (DemandesFilesBO) it.next();
+
+            Integer refs = demandesFilesRepository.findHowManyTimeIsFileReferenced(fichierOrphelin.getUrl());
+            LOGGER.debug("L'url du fichier est utilisée par {}", refs);
+            if (refs.intValue() == 0) {
+                try {
+                    String url = URLEncoder.encode(fichierOrphelin.getUrl(), "UTF-8");
+                    fileService.deleteFile("ROOT", url);
+                } catch (UnsupportedEncodingException e) {
+                    LOGGER.error("Problème lors de l'encoding des urls des fichiers initiaux", e);
+                }
+            }
+            Date finFichier = new Date();
+            demandesFilesRepository.delete(fichierOrphelin);
+        }
+
+        LOGGER.info("parallel debut:{}", debutParallel);
+        LOGGER.info("parellel debut:{}", finParallel);
+        LOGGER.info("sequentiel debut:{}", debutSequentiel);
+        LOGGER.info("sequentiel debut:{}", finSequentiel);
+        LOGGER.info("fichiers debut:{}", debutFichier);
+        LOGGER.info("fichiers debut:{}", debutFichier);
 
 		LOGGER.info("Fin purge des demandes, {} demande(s) supprimée(s)...", demandesSuppr);
 	}

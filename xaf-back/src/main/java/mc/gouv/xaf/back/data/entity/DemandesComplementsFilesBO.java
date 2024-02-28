@@ -27,7 +27,7 @@ public class DemandesComplementsFilesBO {
     @Column(name = "PK_DEMANDESCOMPLEMENTSFILES", nullable = false)
     private Integer pkDemandesComplementsFiles;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "FK_DEMANDESCOMPLEMENTS")
     private DemandesComplementsBO fkDemandesComplements;
 

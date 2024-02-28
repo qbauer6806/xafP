@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>xaf-servlet</artifactId>
 	<groupId>mc.gouv.xaf</groupId>
-	<version>9.2.1.1-SNAPSHOT</version>
+	<version>${revision}</version>
 	<packaging>war</packaging>
 
 	<parent>
@@ -14,6 +14,7 @@
 	
 	<properties>
 		<vscan.version>1.0.0</vscan.version>
+		<revision>0.0.0-SNAPSHOT</revision>
 	</properties>
 
 	<build>
@@ -87,7 +88,57 @@
 					<target>8</target>
 				</configuration>
 			</plugin>
-
+			<!-- https://maven.apache.org/maven-ci-friendly.html -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+                <version>1.3.0</version>
+                <configuration>
+                    <updatePomFile>true</updatePomFile>
+                    <flattenMode>resolveCiFriendliesOnly</flattenMode>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>flatten</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>flatten</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>flatten.clean</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>enforce-versions</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireReleaseDeps>
+                                    <message>No Snapshots Allowed in RELEASE build!</message>
+                                    <onlyWhenRelease>true</onlyWhenRelease>
+                                </requireReleaseDeps>
+                            </rules>
+                            <fail>true</fail>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+            </plugin>
 		</plugins>
 	</build>
 	<dependencies>
@@ -141,7 +192,7 @@
 		<dependency>
 			<groupId>mc.gouv.xaf</groupId>
 			<artifactId>xaf-apiclient</artifactId>
-			<version>9.2.1.1-SNAPSHOT</version>
+			 <version>${project.version}</version>
 		</dependency>
 
         <dependency>

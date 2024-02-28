@@ -112,6 +112,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
         Date dateDebutPurge = Date.from(dateLocaleDebutPurge.atStartOfDay(ZoneId.systemDefault()).toInstant());
 
         Date debutParallel = new Date();
+        // TODO: test parralel
         /*
          * demandesService .getAllDemandeIdsForPurge(demarcheId, dateDebutPurge, statuts,
          * Arrays.asList(DemandeCanalEnum.GUICHET_VIRTUEL.name())) .subList(0, 1000).parallelStream().forEach(pkDemande
@@ -124,9 +125,10 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
          */
         Date finParallel = new Date();
 
+        // TODO: test sequentiel
         Date debutSequentiel = new Date();
         List<Integer> listDem = demandesService.getAllDemandeIdsForPurge(demarcheId, dateDebutPurge, statuts,
-                Arrays.asList(DemandeCanalEnum.GUICHET_VIRTUEL.name())).subList(0, 100);
+                Arrays.asList(DemandeCanalEnum.GUICHET_VIRTUEL.name())).subList(0, 1000);
 
         List<Integer> listDemLot = new ArrayList<>();
         for (int idx = 0; idx < listDem.size(); idx++) {
@@ -169,6 +171,8 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 			LOGGER.info("Aucune demande à purger...");
 		}
         // }
+
+        // PURGE DES FICHIER
         Date debutFichier = new Date();
         Iterator<DemandesFilesBO> it = demandesFilesRepository.findAllNonReferencedFiles().iterator();
         while (it.hasNext()) {

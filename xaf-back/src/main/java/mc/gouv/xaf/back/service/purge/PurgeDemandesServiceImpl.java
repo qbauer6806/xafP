@@ -118,7 +118,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
         int compteGlobalTrxPG = 0;
         int demandesSuppr = 0;
 
-        LocalDate dateLocaleDebutPurge = LocalDate.now().minusDays(jours + 1);
+        LocalDate dateLocaleDebutPurge = LocalDate.now().minusDays(jours);
         Date dateDebutPurge = Date.from(dateLocaleDebutPurge.atStartOfDay(ZoneId.systemDefault()).toInstant());
 
         LOGGER.info("Début de la purge des demandes ... Demandes dont dernier statut final est antérieur à {}", dateDebutPurge);

@@ -1,7 +1,5 @@
 package mc.gouv.xaf.back.service.purge;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -15,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 import org.slf4j.Logger;
@@ -23,18 +23,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
 import mc.gouv.servicerest.usager.model.UsagerBean;
+import mc.gouv.xaf.back.data.dao.DemandesComplementsFilesRepository;
+import mc.gouv.xaf.back.data.dao.DemandesCourriersRepository;
 import mc.gouv.xaf.back.data.dao.DemandesFilesRepository;
+import mc.gouv.xaf.back.data.dao.PurgeFilesRepository;
 import mc.gouv.xaf.back.data.dao.StatistiquesRepository;
-import mc.gouv.xaf.back.data.entity.DemandesFilesBO;
+import mc.gouv.xaf.back.data.entity.PurgeFilesBO;
 import mc.gouv.xaf.back.data.entity.StatistiqueBO;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.GouvSchedulerService;
 import mc.gouv.xaf.back.service.data.DemandesCourriersService;
-import mc.gouv.xaf.back.service.data.DemandesFilesService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
@@ -55,6 +55,9 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(PurgeDemandesServiceImpl.class);
 
 	private static final Integer OFFSET_MOIS_DATE_PURGE = 1;
+
+    private static final Integer PURGE_DEMANDES_PAR_LOT_TAILLE_TRANSACTION = 4;
+    private static final Integer PURGE_DEMANDES_PAR_LOT_TAILLE_FILE = 100;
 
 	private static final String DELAI_ENVOI_MAIL_PURGE = "DELAI_ENVOI_MAIL_PURGE";
 
@@ -86,6 +89,13 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
     private DemandesFilesRepository demandesFilesRepository;
 
     @Autowired
+    private DemandesComplementsFilesRepository demandesComplementsFilesRepository;
+
+
+    @Autowired
+    private PurgeFilesRepository purgeFilesRepository;
+
+    @Autowired
     private UsagersCache usagerCache;
 
     @Autowired
@@ -95,66 +105,68 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
     private FileService fileService;
 
     @Autowired
-    private DemandesFilesService demandesFilesService;
+    private DemandesCourriersRepository demandesCourriersRepository;
 
-	public void purgerDemandesDansStatuts(List<String> statuts, int jours) throws Exception {
-		String demarcheId = gouvPropertiesResolver.getDemarcheId();
+    public void purgerDemandesDansStatuts(List<String> statuts, int jours) throws Exception {
+
+        
+
+        String demarcheId = gouvPropertiesResolver.getDemarcheId();
 		StringBuilder demandesAPurger = new StringBuilder();
+        PropertiesDTO delaiEnvoiEmailProp = propertiesService.getProperty(demarcheId, DELAI_ENVOI_MAIL_PURGE);
+
+        int compteGlobalTrxPG = 0;
         int demandesSuppr = 0;
-		PropertiesDTO delaiEnvoiEmailProp = propertiesService.getProperty(demarcheId, DELAI_ENVOI_MAIL_PURGE);
 
-		LOGGER.info("Début de la purge des demandes ...");
-
-        // AtomicInteger demandesSuppr = new AtomicInteger(0);
-
-        /* PURGE DES DEMANDES */
-        LocalDate dateLocaleDebutPurge = LocalDate.now().minusDays(jours);
+        LocalDate dateLocaleDebutPurge = LocalDate.now().minusDays(jours + 1);
         Date dateDebutPurge = Date.from(dateLocaleDebutPurge.atStartOfDay(ZoneId.systemDefault()).toInstant());
 
-        Date debutParallel = new Date();
-        // TODO: test parralel
-        /*
-         * demandesService .getAllDemandeIdsForPurge(demarcheId, dateDebutPurge, statuts,
-         * Arrays.asList(DemandeCanalEnum.GUICHET_VIRTUEL.name())) .subList(0, 1000).parallelStream().forEach(pkDemande
-         * -> { int count = 0;
-         * 
-         * try { demandesService.deleteDemandeInGivenStatus(demarcheId, pkDemande, statuts, jours); } catch
-         * (JsonProcessingException e) { LOGGER.error(
-         * "Erreur lors de l'appel a deleteDemandeInGivenStatus lors de la purge de la demande {} ", pkDemande); } //
-         * demandesSuppr++; });
-         */
-        Date finParallel = new Date();
-
-        // TODO: test sequentiel
+        LOGGER.info("Début de la purge des demandes ... Demandes dont dernier statut final est antérieur à {}", dateDebutPurge);
+        
+        /*** PURGE DES DEMANDES CANAL WEB ***/
         Date debutSequentiel = new Date();
         List<Integer> listDem = demandesService.getAllDemandeIdsForPurge(demarcheId, dateDebutPurge, statuts,
-                Arrays.asList(DemandeCanalEnum.GUICHET_VIRTUEL.name())).subList(0, 1000);
+                Arrays.asList(DemandeCanalEnum.GUICHET_VIRTUEL.name()));
+        // listDem = listDem.subList(0, listDem.size() >= 1 ? 1 : listDem.size());
 
         List<Integer> listDemLot = new ArrayList<>();
         for (int idx = 0; idx < listDem.size(); idx++) {
 
             listDemLot.add(listDem.get(idx));
-            if (idx == listDemLot.size() - 1 || idx % 8 == 0) {
+            if (idx == listDemLot.size() - 1 || idx % PURGE_DEMANDES_PAR_LOT_TAILLE_TRANSACTION == 0) {
                 demandesService.deleteDemandeBulkInGivenStatus(demarcheId, listDemLot, statuts, jours);
                 listDemLot.clear();
+                compteGlobalTrxPG++;
             }
             demandesSuppr++;
+            LOGGER.info("Demande {} incluse dans un lot. Nombre total traité: {}", listDem.get(idx), demandesSuppr);
         }
-        Date finSequentiel = new Date();
 
-        // if (1 == 0) {
-        for (Integer pkDemande : demandesService.getAllDemandeIdsForPurge(demarcheId, dateDebutPurge, statuts,
-                Arrays.asList(DemandeCanalEnum.COURRIER.name(), DemandeCanalEnum.GUICHET_PHYSIQUE.name()))) {
-            demandesCourriersService.deleteCourriers(demarcheId, pkDemande);
-            demandesService.deleteDemandeInGivenStatus(demarcheId, pkDemande, statuts, jours);
+        /*** PURGE DES DEMANDES CANAL COURRIER OU GUICHET ***/
+        listDem = demandesService.getAllDemandeIdsForPurge(demarcheId, dateDebutPurge, statuts,
+                Arrays.asList(DemandeCanalEnum.COURRIER.name(), DemandeCanalEnum.GUICHET_PHYSIQUE.name()));
+
+        listDemLot = new ArrayList<>();
+        for (int idx = 0; idx < listDem.size(); idx++) {
+
+            listDemLot.add(listDem.get(idx));
+            if (idx == listDemLot.size() - 1 || idx % PURGE_DEMANDES_PAR_LOT_TAILLE_TRANSACTION == 0) {
+                demandesService.deleteDemandeBulkInGivenStatus(demarcheId, listDemLot, statuts, jours);
+                listDemLot.clear();
+                compteGlobalTrxPG++;
+            }
+            demandesCourriersService.deleteCourriers(demarcheId, listDem.get(idx));
             demandesSuppr++;
+            LOGGER.info("Demande {} incluse dans un lot. Nombre total traité: {}", listDem.get(idx), demandesSuppr);
         }
 
-        /* MAIL AVANT PURGE */
+        /*** MAIL AVANT PURGE ***/
+        
         dateLocaleDebutPurge = LocalDate.now().minusDays(jours + Integer.parseInt(delaiEnvoiEmailProp.getValue()));
         dateDebutPurge = Date.from(dateLocaleDebutPurge.atStartOfDay(ZoneId.systemDefault()).toInstant());
         Date dateFinPurge;
         dateFinPurge = Date.from(dateLocaleDebutPurge.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
+        LOGGER.info("Début des envois mails utilisateur ... Demandes dont dernier statut final est >= à {} et < à {}", dateDebutPurge, dateFinPurge);
         for (DemandeDTO demandeDTO : demandesService.getAllDemandeForRelanceAvantPurge(demarcheId, dateDebutPurge,
                 dateFinPurge, statuts)) {
             envoisMailUsagerPurge(demandeDTO.getIdentifiant(), demandeDTO, delaiEnvoiEmailProp.getValue());
@@ -168,39 +180,62 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 			LOGGER.info("Envois du mail au service...");
 			envoisMailAgentPurge(demandesAPurger.toString(), delaiEnvoiEmailProp.getValue());
 		} else {
-			LOGGER.info("Aucune demande à purger...");
+			LOGGER.info("Pas d'envois du mail au service car aucune demande purgée...");
 		}
-        // }
 
-        // PURGE DES FICHIER
-        Date debutFichier = new Date();
-        Iterator<DemandesFilesBO> it = demandesFilesRepository.findAllNonReferencedFiles().iterator();
-        while (it.hasNext()) {
-            DemandesFilesBO fichierOrphelin = (DemandesFilesBO) it.next();
 
-            Integer refs = demandesFilesRepository.findHowManyTimeIsFileReferenced(fichierOrphelin.getUrl());
-            LOGGER.debug("L'url du fichier est utilisée par {}", refs);
-            if (refs.intValue() == 0) {
-                try {
-                    String url = URLEncoder.encode(fichierOrphelin.getUrl(), "UTF-8");
-                    fileService.deleteFile("ROOT", url);
-                } catch (UnsupportedEncodingException e) {
-                    LOGGER.error("Problème lors de l'encoding des urls des fichiers initiaux", e);
-                }
+        /*** PURGE DES FICHIERS ***/
+        Triple<Integer, Integer, Integer> result = executerPurgeFichiers();
+
+        Date finFichier = new Date();
+
+        LOGGER.info("Fin purge des demandes, {} demande(s) supprimée(s)...", demandesSuppr);
+        LOGGER.info("Fin purge des demandes, {} fichier(s) supprimé(s)...", result.getLeft());
+        LOGGER.info("Fin purge des demandes, {} fichier(s) exclus car référencés...", result.getMiddle());
+        LOGGER.info("Fin purge des demandes, {} transactions spring effectuée(s)...", compteGlobalTrxPG);
+        LOGGER.info("Fin purge des demandes, {} appels vers file effectué(s)...", result.getRight());
+        LOGGER.info("Fin purge des demandes et fichiers en {} secondes",
+                (finFichier.getTime() - debutSequentiel.getTime()) / 1000);
+        LOGGER.info("fin");
+    }
+
+    private Triple<Integer, Integer, Integer> executerPurgeFichiers() {
+
+        Integer compteGlobalFichiers = 0;
+        Integer compteGlobalAppelsFile = 0;
+        Integer compteGlobalFichiersExclus = 0;
+        Iterator<PurgeFilesBO> all = purgeFilesRepository.findAll().iterator();
+        List<String> lotCourant = new ArrayList<>();
+        int compte = 1;
+
+        while (all.hasNext()) {
+
+            PurgeFilesBO cf = all.next();
+
+            if (demandesFilesRepository.findHowManyTimeIsFileReferenced(cf.getUrl()) == 0
+                    && demandesCourriersRepository.findHowManyTimeIsFileReferenced(cf.getUrl()) == 0
+                    && demandesComplementsFilesRepository.findHowManyTimeIsFileReferenced(cf.getUrl()) == 0) {
+                lotCourant.add(cf.getUrl());
+                compteGlobalFichiers++;
+                purgeFilesRepository.delete(cf);
+            } else {
+                purgeFilesRepository.delete(cf);
+                compteGlobalFichiersExclus++;
+                break;
             }
-            Date finFichier = new Date();
-            demandesFilesRepository.delete(fichierOrphelin);
+
+            if (compte == PURGE_DEMANDES_PAR_LOT_TAILLE_FILE || !all.hasNext()) {
+                fileService.deleteFiles("ROOT", lotCourant);
+                LOGGER.info("Appel lot Vers file. Fichiers demandés:{}", StringUtils.join(lotCourant, ","));
+                lotCourant.clear();
+                compte = 1;
+                compteGlobalAppelsFile++;
+            }
+            compte++;
         }
 
-        LOGGER.info("parallel debut:{}", debutParallel);
-        LOGGER.info("parellel debut:{}", finParallel);
-        LOGGER.info("sequentiel debut:{}", debutSequentiel);
-        LOGGER.info("sequentiel debut:{}", finSequentiel);
-        LOGGER.info("fichiers debut:{}", debutFichier);
-        LOGGER.info("fichiers debut:{}", debutFichier);
-
-		LOGGER.info("Fin purge des demandes, {} demande(s) supprimée(s)...", demandesSuppr);
-	}
+        return Triple.of(compteGlobalFichiers, compteGlobalFichiersExclus, compteGlobalAppelsFile);
+    }
 
     private void envoisMailUsagerPurge(String identifiant, DemandeDTO demandeDTO, String delai) {
 		final String subjectTemplateCode = "MAIL_PURGE_DEMANDES_POUR_USAGER_OBJET";

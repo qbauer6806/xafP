@@ -15,7 +15,7 @@ public interface DemandesFilesRepository extends CrudRepository<DemandesFilesBO,
 	
     public List<DemandesFilesBO> findAllByUrl(String url);
 
-    @Query("select count(demFile) from DemandesFilesBO demFile inner join demFile.fkDemandes dem where demFile.url = :url")
+    @Query("select count(demFile) from DemandesFilesBO demFile where demFile.url = :url")
     public Integer findHowManyTimeIsFileReferenced(String url);
 
     @Query("select DF from DemandesFilesBO DF where DF.fkDemandes not in (select D.pkDemandes from DemandeBO D)")

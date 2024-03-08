@@ -59,6 +59,7 @@ import mc.gouv.xaf.back.data.dao.DemandesFilesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesHistoriqueRepository;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesStatutsRepository;
+import mc.gouv.xaf.back.data.dao.PurgeFilesRepository;
 import mc.gouv.xaf.back.data.entity.AccessBO;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandesComplementsBO;
@@ -125,6 +126,10 @@ public class DemandesServiceImpl implements DemandesService {
 
 	@Autowired
 	private DemandesStatutsRepository demandesStatutsRepository;
+
+    @Autowired
+    private PurgeFilesRepository purgeFilesRepository;
+
 
 	@Autowired
 	private DemandesDataRepository demandesDataRepository;
@@ -830,58 +835,6 @@ public class DemandesServiceImpl implements DemandesService {
         
 	}
 	
-    private void keep(String demarcheId, Integer demandeId, List<String> statuts, int jours) {
-        DemandeBO demandeBo = getCheckDemarcheDemandeBO(demarcheId, demandeId, false);
-        LOGGER.info("Suppression des fichiers de la demande {} de la demarche {}...", demandeId, demarcheId);
-        // Suppression des fichiers liés à la demande au moment de la supression de
-        // cette dernière
-        DemandeDTO demandeDTO = DemandesTransformer.bo2Dto(demandeBo);
-        if (null != demandeDTO.getFichiers() && !Arrays.asList(demandeDTO.getFichiers()).isEmpty()) {
-            for (DemandeFileDTO currentFileToDelete : demandeDTO.getFichiers()) {
-                Integer refs = demandesFilesRepository.findHowManyTimeIsFileReferenced(currentFileToDelete.getUrl());
-                LOGGER.debug("L'url du fichier est utilisée par {}", refs);
-                if (refs.intValue() == 0) {
-                    try {
-                        String url = URLEncoder.encode(currentFileToDelete.getUrl(), "UTF-8");
-                        fileService.deleteFile("ROOT", url);
-                    } catch (UnsupportedEncodingException e) {
-                        LOGGER.error("Problème lors de l'encoding des urls des fichiers initiaux", e);
-                    }
-                }
-            }
-        }
-
-        LOGGER.info("Suppression des fichiers complémentaires de la demande {} de la demarche {}...", demandeId,
-                demarcheId);
-        // Suppression des fichiers complémentaires de la demande s'il y'en a
-        if (null != demandeDTO.getComplements() && !Arrays.asList(demandeDTO.getComplements()).isEmpty()) {
-            for (DemandeComplementsDTO demandeComplementsDTO : demandeDTO.getComplements()) {
-                DemandesComplementsBO demandeComplementBO = demandesComplementsRepository
-                        .findById(demandeComplementsDTO.getPkDemandeComplements()).orElse(null);
-
-                if (demandeComplementBO != null) {
-                    Set<DemandesComplementsFilesBO> files = demandeComplementBO.getFiles();
-                    if (null != files && !files.isEmpty()) {
-                        for (DemandesComplementsFilesBO currentFileToDelete : files) {
-                            Integer refs = demandesComplementsFilesRepository
-                                    .findHowManyTimeIsFileReferenced(currentFileToDelete.getUrl(), demandeId);
-                            LOGGER.debug("L'url du fichier de complement est utilisée par {}", refs);
-
-                            if (refs.intValue() == 0) {
-                                try {
-                                    String url = URLEncoder.encode(currentFileToDelete.getUrl(), "UTF-8");
-                                    fileService.deleteFile("ROOT", url);
-                                } catch (UnsupportedEncodingException e) {
-                                    LOGGER.error("Problème lors de l'encoding des urls des fichiers initiaux", e);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
 	/**
 	 * {@inheritDoc}
 	 *
@@ -897,6 +850,8 @@ public class DemandesServiceImpl implements DemandesService {
 			throw new DemarchesServiceException("Demande introuvable", HttpStatus.NOT_FOUND);
 		}
 
+        /*** Insertion de statistique */
+        LOGGER.info("Ajout d'une ligne de statistique pour la suppression de la demande...");
 		StatistiqueDTO stat = new StatistiqueDTO();
 		stat.setCanal(demandeBo.getCanal());
 		stat.setDate(new Date());
@@ -904,59 +859,27 @@ public class DemandesServiceImpl implements DemandesService {
 		stat.setDemarcheId(demarcheId);
 		stat.setIdentifiantDemande(demandeBo.getIdentifiant());
 		stat.setStatutPublic(AfBackUtils.STATUT_PUBLIC_SUPPRIMEE);
+        statistiquesService.saveStatistique(stat);
 
-		AccessBO access = demandeBo.getFkAccess();
-		access.getDemandes().remove(demandeBo);
-		accessRepository.save(access);
-
+        /*** Suppression de l'access de la demande */
+        /* TODO: doit on vrraiment gérer l'access ici???? */
+        // accessRepository.deleteAccessForGivenPkDemandes(demandeId);
 		// Suppression de l'historique de la demande (pas géré par cascade, donc le
 		// faire ici)
 		LOGGER.info("Suppression de l'historique de la demande...");
         demandesHistoriqueRepository.deleteHistoForGivenPkDemandes(demandeId);
 
-		LOGGER.info("Ajout d'une ligne de statistique pour la suppression de la demande...");
-		statistiquesService.saveStatistique(stat);
-
+        /*** Sauvegarde des fichiers à purger avant suppression de la demande. */
+        /*** Les fichiers et compléments sont supprimés en cascade des tables liées à la suppression de la demande */
+        LOGGER.info("insertion des fichiers à purger dans la table pour la demande: {}", demandeId);
+        purgeFilesRepository.insertFilesToPurge(demandeId);
+        purgeFilesRepository.insertFilesComplementsToPurge(demandeId);
+        purgeFilesRepository.insertFilesCourrierToPurge(demandeId);
+        /*** Suppression de la demande. */
 		LOGGER.info("Appel du répo pour la suppression...");
 		demandesRepository.delete(demandeBo);
 	}
 
-	private boolean isFileDeletable(List<DemandesFilesBO> existingFiles, List<String> statuts, int jours) {
-		boolean isFileDeletable = false;
-		if (existingFiles.size() <= 1) { 
-			for (DemandesFilesBO demandesFilesBO : existingFiles) {
-				DemandeBO concernedDemandeBO = demandesFilesBO.getFkDemandes();
-				DemandeDTO concernedDemandeDTO = DemandesTransformer.bo2Dto(concernedDemandeBO);
-				isFileDeletable = !isDemandeUsingFile(statuts, jours, concernedDemandeDTO);
-				LOGGER.info("Le fichier {} n'a pas été supprimé car la demande {} l'utilise", demandesFilesBO.getName() , concernedDemandeDTO.getPkDemandes());
-			}
-		}
-		LOGGER.info("Le fichier {} n'a pas été supprimé car il est référencé dans une autre demande", existingFiles.get(0).getName());
-		return isFileDeletable;
-	}
-	
-	private boolean isComplementsFileDeletable(List<DemandesComplementsFilesBO> existingFiles, List<String> statuts, int jours) {
-		boolean isComplementFileDeletable = false;
-		if (existingFiles.size() <= 1) { 
-			for (DemandesComplementsFilesBO demandesFilesBO : existingFiles) {
-				DemandeBO concernedDemandeBO = demandesFilesBO.getFkDemandesComplements().getFkDemandes();
-				DemandeDTO concernedDemandeDTO = DemandesTransformer.bo2Dto(concernedDemandeBO);
-				isComplementFileDeletable = !isDemandeUsingFile(statuts, jours, concernedDemandeDTO);
-				LOGGER.info("Le fichier {} n'a pas été supprimé car la demande {} l'utilise", demandesFilesBO.getName() , concernedDemandeDTO.getPkDemandes());
-			}
-		}
-		LOGGER.info("Le fichier {} n'a pas été supprimé car il est référencé dans une autre demande", existingFiles.get(0).getName());
-		return isComplementFileDeletable;
-	}
-	
-	private boolean isDemandeUsingFile(List<String> statuts, int jours, DemandeDTO concernedDemandeDTO) {
-		long diffInMillies = Math.abs(new Date().getTime() - concernedDemandeDTO.getDernierStatut().getDate().getTime());
-		long diff = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
-		if(!statuts.contains(concernedDemandeDTO.getDernierStatut().getLibelle()) || diff < jours) {
-			return true;
-		}
-		return false;
-	}
 
 	@Override
 	// TODO Récup de la demande "BO" factorisable entre plusieurs des fonctions de

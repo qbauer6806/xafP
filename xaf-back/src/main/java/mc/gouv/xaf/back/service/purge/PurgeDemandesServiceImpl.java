@@ -162,7 +162,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 
         /*** MAIL AVANT PURGE ***/
         
-        dateLocaleDebutPurge = LocalDate.now().minusDays(jours + Integer.parseInt(delaiEnvoiEmailProp.getValue()));
+        dateLocaleDebutPurge = LocalDate.now().minusDays(jours - Integer.parseInt(delaiEnvoiEmailProp.getValue()));
         dateDebutPurge = Date.from(dateLocaleDebutPurge.atStartOfDay(ZoneId.systemDefault()).toInstant());
         Date dateFinPurge;
         dateFinPurge = Date.from(dateLocaleDebutPurge.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant());

@@ -105,11 +105,11 @@ public interface DemandesRepository extends CrudRepository<DemandeBO, Integer> {
      * @param canaux
      * @return
      */
-    @Query("select d from DemandeBO d inner join d.dernierStatut ds inner join d.fkAccess access where ds.date <= :dernierStatutDateDebut and ds.libelle in :dernierStatutList and d.canal in :canaux")
+    @Query("select d from DemandeBO d inner join d.dernierStatut ds inner join d.fkAccess access where ds.date < :dernierStatutDateDebut and ds.libelle in :dernierStatutList and d.canal in :canaux")
     List<DemandeBO> findAllWithDateDernierStatutBeforeAndLibelleStatutIn(Date dernierStatutDateDebut,
             List<String> dernierStatutList, List<String> canaux);
 
-    @Query("select d.pkDemandes from DemandeBO d inner join d.dernierStatut ds inner join d.fkAccess access where ds.date <= :dernierStatutDateDebut and ds.libelle in :dernierStatutList and d.canal in :canaux")
+    @Query("select d.pkDemandes from DemandeBO d inner join d.dernierStatut ds inner join d.fkAccess access where ds.date < :dernierStatutDateDebut and ds.libelle in :dernierStatutList and d.canal in :canaux")
     List<Integer> findAllIdsWithDateDernierStatutBeforeAndLibelleStatutIn(Date dernierStatutDateDebut,
             List<String> dernierStatutList, List<String> canaux);
 

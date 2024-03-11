@@ -128,23 +128,19 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
                 Arrays.asList(DemandeCanalEnum.GUICHET_VIRTUEL.name()));
         // listDem = listDem.subList(0, listDem.size() >= 1000 ? 1000 : listDem.size());
 
-        List<Integer> listDemLot = new ArrayList<>();
         for (int idx = 0; idx < listDem.size(); idx++) {
 
-            listDemLot.add(listDem.get(idx));
             demandesService.deleteDemandeInGivenStatus(demarcheId, listDem.get(idx), statuts, jours);
             demandesSuppr++;
-            LOGGER.info("Demande {} incluse dans un lot. Nombre total traité: {}", listDem.get(idx), demandesSuppr);
+            LOGGER.info("Demande {} incluse dans la purge. Nombre total traité: {}", listDem.get(idx), demandesSuppr);
         }
 
         /*** PURGE DES DEMANDES CANAL COURRIER OU GUICHET ***/
         listDem = demandesService.getAllDemandeIdsForPurge(demarcheId, dateDebutPurge, statuts,
                 Arrays.asList(DemandeCanalEnum.COURRIER.name(), DemandeCanalEnum.GUICHET_PHYSIQUE.name()));
 
-        listDemLot = new ArrayList<>();
         for (int idx = 0; idx < listDem.size(); idx++) {
 
-            listDemLot.add(listDem.get(idx));
             demandesService.deleteDemandeInGivenStatus(demarcheId, listDem.get(idx), statuts, jours);
             demandesCourriersService.deleteCourriers(demarcheId, listDem.get(idx));
             demandesSuppr++;
@@ -199,7 +195,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
         Integer compteGlobalFichiersExclus = 0;
         Iterator<PurgeFilesBO> all = purgeFilesRepository.findAll().iterator();
         List<String> lotCourant = new ArrayList<>();
-        int compte = 1;
+        int compte = 0;
         LOGGER.info("Début de la purge des fichiers de FILE");
         while (all.hasNext()) {
 
@@ -211,22 +207,23 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
                 LOGGER.info("Le fichier {} sera effacé de file.", cf.getUrl());
                 lotCourant.add(cf.getUrl());
                 compteGlobalFichiers++;
-                purgeFilesRepository.delete(cf);
+                compte++;
             } else {
                 LOGGER.info("Exclusion du fichier {} car référencé ailleurs. Ce fichier ne sera pas supprimé.",
                         cf.getUrl());
-                purgeFilesRepository.delete(cf);
                 compteGlobalFichiersExclus++;
             }
+
+            purgeFilesRepository.delete(cf);
 
             if (compte == PURGE_DEMANDES_PAR_LOT_TAILLE_FILE || !all.hasNext()) {
                 fileService.deleteFiles("ROOT", lotCourant);
                 LOGGER.info("Appel lot Vers file. Fichiers demandés:{}", StringUtils.join(lotCourant, ","));
                 lotCourant.clear();
-                compte = 1;
+                compte = 0;
                 compteGlobalAppelsFile++;
             }
-            compte++;
+
         }
 
         return Triple.of(compteGlobalFichiers, compteGlobalFichiersExclus, compteGlobalAppelsFile);

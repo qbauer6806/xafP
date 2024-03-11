@@ -230,30 +230,34 @@ public abstract class AbstractAfApiController implements AfApiController {
 
     @SuppressWarnings("rawtypes")
 	@GetMapping(value = "/customRequest/**")
-    public ResponseEntity getCustomRequestRequest(HttpServletRequest request) {
+    public ResponseEntity getCustomRequestRequest(HttpServletRequest request,
+                                                  @RequestParam(value = "usagerId") Integer usagerId) {
         LOGGER.info("AbstractAfApiController.getCustomRequest()");
-        return getCustomRequest(request);
+        return getCustomRequest(request, usagerId);
     }
 
     @SuppressWarnings("rawtypes")
 	@PostMapping(value = "/customRequest/**")
-    public ResponseEntity postCustomRequestRequest(HttpServletRequest request) {
+    public ResponseEntity postCustomRequestRequest(HttpServletRequest request,
+                                                   @RequestParam(value = "usagerId") Integer usagerId) {
         LOGGER.info("AbstractAfApiController.postCustomRequest()");
-        return postCustomRequest(request);
+        return postCustomRequest(request, usagerId);
     }
 
     @SuppressWarnings("rawtypes")
 	@PutMapping(value = "/customRequest/**")
-    public ResponseEntity putCustomRequestRequest(HttpServletRequest request) {
+    public ResponseEntity putCustomRequestRequest(HttpServletRequest request,
+                                                  @RequestParam(value = "usagerId") Integer usagerId) {
         LOGGER.info("AbstractAfApiController.putCustomRequest()");
-        return putCustomRequest(request);
+        return putCustomRequest(request, usagerId);
     }
 
     @SuppressWarnings("rawtypes")
 	@DeleteMapping(value = "/customRequest/**")
-    public ResponseEntity deleteCustomRequestRequest(HttpServletRequest request) {
+    public ResponseEntity deleteCustomRequestRequest(HttpServletRequest request,
+                                                     @RequestParam(value = "usagerId") Integer usagerId) {
         LOGGER.info("AbstractAfApiController.deleteCustomRequest()");
-        return deleteCustomRequest(request);
+        return deleteCustomRequest(request, usagerId);
     }
     
     @PostMapping(value = "/brouillons")

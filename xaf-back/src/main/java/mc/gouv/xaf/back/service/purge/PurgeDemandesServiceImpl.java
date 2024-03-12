@@ -59,7 +59,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
     private static final Integer PURGE_DEMANDES_PAR_LOT_TAILLE_FILE = 100;
 
 	private static final String DELAI_ENVOI_MAIL_PURGE = "DELAI_ENVOI_MAIL_PURGE";
-
+    private static final Integer PURGE_DEMANDES_PAR_LOT_TAILLE_TRANSACTION = 8;
 	@Autowired
 	private DemandesService demandesService;
 	
@@ -126,22 +126,34 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
         Date debutSequentiel = new Date();
         List<Integer> listDem = demandesService.getAllDemandeIdsForPurge(demarcheId, dateDebutPurge, statuts,
                 Arrays.asList(DemandeCanalEnum.GUICHET_VIRTUEL.name()));
-        // listDem = listDem.subList(0, listDem.size() >= 1000 ? 1000 : listDem.size());
+        // listDem = listDem.subList(0, listDem.size() >= 10000 ? 10000 : listDem.size());
 
+        List<Integer> listDemLot = new ArrayList<>();
         for (int idx = 0; idx < listDem.size(); idx++) {
 
-            demandesService.deleteDemandeInGivenStatus(demarcheId, listDem.get(idx), statuts, jours);
+            listDemLot.add(listDem.get(idx));
+            if (idx == listDemLot.size() - 1 || idx % PURGE_DEMANDES_PAR_LOT_TAILLE_TRANSACTION == 0) {
+                demandesService.deleteDemandeBulkInGivenStatus(demarcheId, listDemLot, statuts, jours);
+                listDemLot.clear();
+                compteGlobalTrxPG++;
+            }
             demandesSuppr++;
-            LOGGER.info("Demande {} incluse dans la purge. Nombre total traité: {}", listDem.get(idx), demandesSuppr);
+            LOGGER.info("Demande {} incluse dans un lot. Nombre total traité: {}", listDem.get(idx), demandesSuppr);
         }
 
         /*** PURGE DES DEMANDES CANAL COURRIER OU GUICHET ***/
         listDem = demandesService.getAllDemandeIdsForPurge(demarcheId, dateDebutPurge, statuts,
                 Arrays.asList(DemandeCanalEnum.COURRIER.name(), DemandeCanalEnum.GUICHET_PHYSIQUE.name()));
 
+        listDemLot = new ArrayList<>();
         for (int idx = 0; idx < listDem.size(); idx++) {
 
-            demandesService.deleteDemandeInGivenStatus(demarcheId, listDem.get(idx), statuts, jours);
+            listDemLot.add(listDem.get(idx));
+            if (idx == listDemLot.size() - 1 || idx % PURGE_DEMANDES_PAR_LOT_TAILLE_TRANSACTION == 0) {
+                demandesService.deleteDemandeBulkInGivenStatus(demarcheId, listDemLot, statuts, jours);
+                listDemLot.clear();
+                compteGlobalTrxPG++;
+            }
             demandesCourriersService.deleteCourriers(demarcheId, listDem.get(idx));
             demandesSuppr++;
             LOGGER.info("Demande {} incluse dans un lot. Nombre total traité: {}", listDem.get(idx), demandesSuppr);

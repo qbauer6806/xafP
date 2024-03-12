@@ -28,7 +28,6 @@ import mc.gouv.xaf.back.data.dao.DemandesCourriersRepository;
 import mc.gouv.xaf.back.data.dao.DemandesFilesRepository;
 import mc.gouv.xaf.back.data.dao.PurgeFilesRepository;
 import mc.gouv.xaf.back.data.dao.StatistiquesRepository;
-import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.PurgeFilesBO;
 import mc.gouv.xaf.back.data.entity.StatistiqueBO;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
@@ -59,7 +58,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
     private static final Integer PURGE_DEMANDES_PAR_LOT_TAILLE_FILE = 100;
 
 	private static final String DELAI_ENVOI_MAIL_PURGE = "DELAI_ENVOI_MAIL_PURGE";
-    private static final Integer PURGE_DEMANDES_PAR_LOT_TAILLE_TRANSACTION = 8;
+
 	@Autowired
 	private DemandesService demandesService;
 	
@@ -108,8 +107,6 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 
     public void purgerDemandesDansStatuts(List<String> statuts, int jours) throws Exception {
 
-        
-
         String demarcheId = gouvPropertiesResolver.getDemarcheId();
 		StringBuilder demandesAPurger = new StringBuilder();
         PropertiesDTO delaiEnvoiEmailProp = propertiesService.getProperty(demarcheId, DELAI_ENVOI_MAIL_PURGE);
@@ -128,15 +125,9 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
                 Arrays.asList(DemandeCanalEnum.GUICHET_VIRTUEL.name()));
         // listDem = listDem.subList(0, listDem.size() >= 10000 ? 10000 : listDem.size());
 
-        List<Integer> listDemLot = new ArrayList<>();
         for (int idx = 0; idx < listDem.size(); idx++) {
 
-            listDemLot.add(listDem.get(idx));
-            if (idx == listDemLot.size() - 1 || idx % PURGE_DEMANDES_PAR_LOT_TAILLE_TRANSACTION == 0) {
-                demandesService.deleteDemandeBulkInGivenStatus(demarcheId, listDemLot, statuts, jours);
-                listDemLot.clear();
-                compteGlobalTrxPG++;
-            }
+            demandesService.deleteDemandeInGivenStatus(demarcheId, listDem.get(idx), statuts, jours);
             demandesSuppr++;
             LOGGER.info("Demande {} incluse dans un lot. Nombre total traité: {}", listDem.get(idx), demandesSuppr);
         }
@@ -145,15 +136,10 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
         listDem = demandesService.getAllDemandeIdsForPurge(demarcheId, dateDebutPurge, statuts,
                 Arrays.asList(DemandeCanalEnum.COURRIER.name(), DemandeCanalEnum.GUICHET_PHYSIQUE.name()));
 
-        listDemLot = new ArrayList<>();
+
         for (int idx = 0; idx < listDem.size(); idx++) {
 
-            listDemLot.add(listDem.get(idx));
-            if (idx == listDemLot.size() - 1 || idx % PURGE_DEMANDES_PAR_LOT_TAILLE_TRANSACTION == 0) {
-                demandesService.deleteDemandeBulkInGivenStatus(demarcheId, listDemLot, statuts, jours);
-                listDemLot.clear();
-                compteGlobalTrxPG++;
-            }
+            demandesService.deleteDemandeInGivenStatus(demarcheId, listDem.get(idx), statuts, jours);
             demandesCourriersService.deleteCourriers(demarcheId, listDem.get(idx));
             demandesSuppr++;
             LOGGER.info("Demande {} incluse dans un lot. Nombre total traité: {}", listDem.get(idx), demandesSuppr);
@@ -182,8 +168,6 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 		} else {
 			LOGGER.info("Pas d'envois du mail au service car aucune demande purgée...");
 		}
-
-
 
         /*** PURGE DES FICHIERS ***/
         Triple<Integer, Integer, Integer> result = executerPurgeFichiers();

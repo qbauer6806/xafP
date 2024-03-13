@@ -202,7 +202,4 @@
         </dependency>
 	</dependencies>
 
-  <scm>
-    <tag>xaf-9.2.1-hotfix46550</tag>
-  </scm>
 </project>

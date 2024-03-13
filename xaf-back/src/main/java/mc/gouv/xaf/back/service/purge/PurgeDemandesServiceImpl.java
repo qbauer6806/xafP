@@ -1,5 +1,7 @@
 package mc.gouv.xaf.back.service.purge;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -23,6 +25,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Service;
 
 import mc.gouv.servicerest.usager.model.UsagerBean;
+import mc.gouv.xaf.back.data.dao.BrouillonsFilesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesComplementsFilesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesCourriersRepository;
 import mc.gouv.xaf.back.data.dao.DemandesFilesRepository;
@@ -105,6 +108,9 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
     @Autowired
     private DemandesCourriersRepository demandesCourriersRepository;
 
+    @Autowired
+    private BrouillonsFilesRepository brouillonsFilesRepository;
+
     public void purgerDemandesDansStatuts(List<String> statuts, int jours) throws Exception {
 
         String demarcheId = gouvPropertiesResolver.getDemarcheId();
@@ -123,7 +129,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
         Date debutSequentiel = new Date();
         List<Integer> listDem = demandesService.getAllDemandeIdsForPurge(demarcheId, dateDebutPurge, statuts,
                 Arrays.asList(DemandeCanalEnum.GUICHET_VIRTUEL.name()));
-        // listDem = listDem.subList(0, listDem.size() >= 10000 ? 10000 : listDem.size());
+        listDem = listDem.subList(0, listDem.size() >= 5 ? 5 : listDem.size());
 
         for (int idx = 0; idx < listDem.size(); idx++) {
 
@@ -199,9 +205,17 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 
             if (demandesFilesRepository.findHowManyTimeIsFileReferenced(cf.getUrl()) == 0
                     && demandesCourriersRepository.findHowManyTimeIsFileReferenced(cf.getUrl()) == 0
-                    && demandesComplementsFilesRepository.findHowManyTimeIsFileReferenced(cf.getUrl()) == 0) {
+                    && demandesComplementsFilesRepository.findHowManyTimeIsFileReferenced(cf.getUrl()) == 0
+                    && brouillonsFilesRepository.findHowManyTimeIsFileReferenced(cf.getUrl()) == 0) {
                 LOGGER.info("Le fichier {} sera effacé de file.", cf.getUrl());
-                lotCourant.add(cf.getUrl());
+
+                String url = cf.getUrl();
+                try {
+                    url = URLEncoder.encode(url, "UTF-8");
+                } catch (UnsupportedEncodingException e) {
+                    LOGGER.error("Problème lors de l'encoding des urls des fichiers initiaux", e);
+                }
+                lotCourant.add(url);
                 compteGlobalFichiers++;
                 compte++;
             } else {

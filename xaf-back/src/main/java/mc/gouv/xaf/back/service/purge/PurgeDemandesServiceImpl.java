@@ -129,7 +129,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
         Date debutSequentiel = new Date();
         List<Integer> listDem = demandesService.getAllDemandeIdsForPurge(demarcheId, dateDebutPurge, statuts,
                 Arrays.asList(DemandeCanalEnum.GUICHET_VIRTUEL.name()));
-        listDem = listDem.subList(0, listDem.size() >= 5 ? 5 : listDem.size());
+        // listDem = listDem.subList(0, listDem.size() >= 5 ? 5 : listDem.size());
 
         for (int idx = 0; idx < listDem.size(); idx++) {
 

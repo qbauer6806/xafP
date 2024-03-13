@@ -117,7 +117,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 		StringBuilder demandesAPurger = new StringBuilder();
         PropertiesDTO delaiEnvoiEmailProp = propertiesService.getProperty(demarcheId, DELAI_ENVOI_MAIL_PURGE);
 
-        int compteGlobalTrxPG = 0;
+
         int demandesSuppr = 0;
 
         LocalDate dateLocaleDebutPurge = LocalDate.now().minusDays(jours - 1);
@@ -129,7 +129,6 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
         Date debutSequentiel = new Date();
         List<Integer> listDem = demandesService.getAllDemandeIdsForPurge(demarcheId, dateDebutPurge, statuts,
                 Arrays.asList(DemandeCanalEnum.GUICHET_VIRTUEL.name()));
-        // listDem = listDem.subList(0, listDem.size() >= 5 ? 5 : listDem.size());
 
         for (int idx = 0; idx < listDem.size(); idx++) {
 
@@ -183,7 +182,6 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
         LOGGER.info("Fin purge des demandes, {} demande(s) supprimée(s)...", demandesSuppr);
         LOGGER.info("Fin purge des demandes, {} fichier(s) supprimé(s)...", result.getLeft());
         LOGGER.info("Fin purge des demandes, {} fichier(s) exclus car référencés...", result.getMiddle());
-        LOGGER.info("Fin purge des demandes, {} transactions spring effectuée(s)...", compteGlobalTrxPG);
         LOGGER.info("Fin purge des demandes, {} appels vers file effectué(s)...", result.getRight());
         LOGGER.info("Fin purge des demandes et fichiers en {} secondes",
                 (finFichier.getTime() - debutSequentiel.getTime()) / 1000);

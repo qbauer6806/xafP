@@ -208,11 +208,10 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
                 LOGGER.info("Le fichier {} sera effacé de file.", cf.getUrl());
 
                 String url = cf.getUrl();
-                try {
-                    url = URLEncoder.encode(url, "UTF-8");
-                } catch (UnsupportedEncodingException e) {
-                    LOGGER.error("Problème lors de l'encoding des urls des fichiers initiaux", e);
+                if (url != null && url.startsWith("/")) {
+                    url = url.substring(1);
                 }
+
                 lotCourant.add(url);
                 compteGlobalFichiers++;
                 compte++;

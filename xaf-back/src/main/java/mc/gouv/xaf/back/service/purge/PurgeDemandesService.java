@@ -13,7 +13,7 @@ public interface PurgeDemandesService {
 	 * Récupère toutes les demandes ayant comme statut "SUPPRIMEE"
 	 * @return statistiques
 	 */
-	List<PurgeDemandeDTO> getDemandesPurgees();
+    List<Object> getDemandesPurgees();
 	
 	
 	/**

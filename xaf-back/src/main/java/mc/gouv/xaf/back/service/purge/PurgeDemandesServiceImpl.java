@@ -1,21 +1,21 @@
 package mc.gouv.xaf.back.service.purge;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.EntityManager;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Triple;
+import org.hibernate.Session;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 import org.slf4j.Logger;
@@ -32,7 +32,6 @@ import mc.gouv.xaf.back.data.dao.DemandesFilesRepository;
 import mc.gouv.xaf.back.data.dao.PurgeFilesRepository;
 import mc.gouv.xaf.back.data.dao.StatistiquesRepository;
 import mc.gouv.xaf.back.data.entity.PurgeFilesBO;
-import mc.gouv.xaf.back.data.entity.StatistiqueBO;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.GouvSchedulerService;
@@ -48,7 +47,6 @@ import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
-import mc.gouv.xaf.shared.dto.PurgeDemandeDTO;
 
 @Service
 @EnableScheduling
@@ -66,13 +64,16 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 	private DemandesService demandesService;
 	
 	@Autowired
+    private DemarchesDataProvider demarchesDataProvider;
+
+    @Autowired
 	private DemandesCourriersService demandesCourriersService;
 
 	@Autowired
 	private GouvPropertiesResolver gouvPropertiesResolver;
 
-	@Autowired
-	private DemarchesDataProvider demarchesDataProvider;
+    @Autowired
+    private EntityManager em;
 
 	@Autowired
 	private MailService mailService;
@@ -320,32 +321,12 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 		return emailInfo;
 	}
 
-	public List<PurgeDemandeDTO> getDemandesPurgees() {
+    public List<Object> getDemandesPurgees() {
 		LOGGER.info("Récupération des demandes purgées à moins {} mois", OFFSET_MOIS_DATE_PURGE);
 		Date dateDebutOffset = Date.from(LocalDateTime.now().minusMonths(OFFSET_MOIS_DATE_PURGE).atZone(ZoneId.systemDefault()).toInstant());
-		List<StatistiqueBO> statsDemandesPurgees = statRepository.findByStatutPublicAndDateBetween(AfBackUtils.STATUT_PUBLIC_SUPPRIMEE,
-				dateDebutOffset , new Date());
-		statsDemandesPurgees.sort(Comparator.comparing(StatistiqueBO::getDate));
-		LOGGER.info("{} ligne(s) de statistiques de demandes purgées...", statsDemandesPurgees.size());
-
-		List<PurgeDemandeDTO> demandesPurgees = new ArrayList<>();
-		for(StatistiqueBO stat : statsDemandesPurgees) {
-			PurgeDemandeDTO purgeDemandeDTO = new PurgeDemandeDTO();
-			purgeDemandeDTO.setIdentifiantDemande(stat.getIdentifiantDemande());
-			purgeDemandeDTO.setDateSuppression(stat.getDate());
-
-			// Recherche du dernier statut non supprimé pour la stat en question
-			StatistiqueBO statDernierStatut = statRepository.findFirstByDemandeIdAndStatutPublicNotOrderByDateDesc(stat.getDemandeId(),
-					AfBackUtils.STATUT_PUBLIC_SUPPRIMEE);
-			if (null != statDernierStatut) {
-				purgeDemandeDTO.setDateStatutFinal(statDernierStatut.getDate());
-				String statutFinal = demarchesDataProvider.getStatusMap().get(statDernierStatut.getStatutPublic());
-				purgeDemandeDTO.setStatutFinal(statutFinal);
-			}
-
-			demandesPurgees.add(purgeDemandeDTO);
-		}
-
-		return demandesPurgees;
+        Session session = em.unwrap(Session.class);
+        session.enableFilter("filtreStatuts").setParameterList("statuts", demarchesDataProvider.getStatutsAPurger());
+        List<Object> statsDemandesPurgees = statRepository.findAllBetweenDates(dateDebutOffset, new Date());
+        return statsDemandesPurgees;
 	}
 }

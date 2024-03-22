@@ -76,7 +76,7 @@
                     <table id="datatable-purge" class="table table-striped" style="width: 100%">
                         <thead>
                             <tr>
-                                <th>Identifiant</th>
+                            	<th>Identifiant</th>
                                 <th>Statut final</th>
                                 <th>Date du statut final</th>
                                 <th>Date de suppression</th>
@@ -101,35 +101,26 @@
 
     var columnsProperties = [
         {
-            data: "identifiantDemande",
-            keyword: false,
-            render: function (data, type, demandePurgee) {
-                return demandePurgee.identifiantDemande;
-            }
+        	title:'Identifiant'
         },
         {
-            data: "statutFinal",
-            keyword: false,
-            render: function (data, type, demandePurgee) {
-                return demandePurgee.statutFinal;
-            }
+        	title:'Statut final'
         },
         {
-            data: "dateStatutFinal",
-            keyword: false,
+        	title:'Date du statut final',
             render: function (data, type, demandePurgee) {
-                return '<span data-sort="DD/MM/YYYY HH:mm:ss">' + moment(demandePurgee.dateStatutFinal)
+                return '<span data-sort="DD/MM/YYYY HH:mm:ss">' + moment(data)
                     .format("DD/MM/YYYY HH:mm:ss") + '</span>';
             }
         },
         {
-            data: "dateSuppression",
-            keyword: false,
+        	title:'Date de suppression',
             render: function (data, type, demandePurgee) {
-                return '<span data-sort="DD/MM/YYYY HH:mm:ss">' + moment(demandePurgee.dateSuppression)
+                return '<span data-sort="DD/MM/YYYY HH:mm:ss">' + moment(data)
                     .format("DD/MM/YYYY HH:mm:ss") + '</span>';
             }
-        }];
+        }
+];
 
     /*<![CDATA[*/
     $(document).ready(function () {

@@ -3,6 +3,8 @@ package mc.gouv.xaf.back.service.data.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import mc.gouv.xaf.back.data.dao.AccessRepository;
+import mc.gouv.xaf.back.data.dao.DemandesComplementsRepository;
+import mc.gouv.xaf.back.data.dao.DemandesDataRepository;
 import mc.gouv.xaf.back.data.dao.DemandesHistoriqueRepository;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesStatutsRepository;
@@ -98,7 +100,6 @@ public class DemandesServiceImpl implements DemandesService {
 
 	@Autowired
 	private AccessService accessService;
-	private DemandesStatutsService demandesStatutsService;
 
 	@Autowired
 	private DemandesStatutsRepository demandesStatutsRepository;
@@ -1069,7 +1070,7 @@ public class DemandesServiceImpl implements DemandesService {
     public List<DemandeDTO> getAllDemandeForRelanceAvantPurge(String demarcheId, Date dernierStatutDateDebut,
             Date dernierStatutDateFin, List<String> dernierStatutList) {
 
-        LOGGER.info("Appel à DemandeService.getAllDemandeForPurge");
+        LOGGER.info("Appel à DemandeService.getAllDemandeForRelanceAvantPurge");
         return DemandesTransformer.bo2Dto(demandesRepository.findAllWithDateDernierStatutBetweenAndLibelleStatutIn(
                 dernierStatutDateDebut, dernierStatutDateFin, dernierStatutList));
 
@@ -1078,7 +1079,7 @@ public class DemandesServiceImpl implements DemandesService {
     @Override
     public List<Integer> getAllDemandeIdsForPurge(String demarcheId, Date dernierStatutDateDebut,
             List<String> dernierStatutList, List<String> canaux) {
-        LOGGER.info("Appel à DemandeService.getAllDemandeForPurge");
+        LOGGER.info("Appel à DemandeService.getAllDemandeIdsForPurge");
         return demandesRepository.findAllIdsWithDateDernierStatutBeforeAndLibelleStatutIn(dernierStatutDateDebut,
                 dernierStatutList, canaux);
     }
@@ -1087,7 +1088,7 @@ public class DemandesServiceImpl implements DemandesService {
     public List<Integer> getAllDemandeIdsForRelanceAvantPurge(String demarcheId, Date dernierStatutDateDebut,
             Date dernierStatutDateFin, List<String> dernierStatutList) {
 
-        LOGGER.info("Appel à DemandeService.getAllDemandeForPurge");
+        LOGGER.info("Appel à DemandeService.getAllDemandeIdsForRelanceAvantPurge");
         return demandesRepository.findAllIdsWithDateDernierStatutBetweenAndLibelleStatutIn(dernierStatutDateDebut,
                 dernierStatutDateFin, dernierStatutList);
     }

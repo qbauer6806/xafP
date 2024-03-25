@@ -5,6 +5,7 @@ import mc.gouv.xaf.back.data.dao.BrouillonsFilesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesComplementsFilesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesCourriersRepository;
 import mc.gouv.xaf.back.data.dao.DemandesFilesRepository;
+import mc.gouv.xaf.back.data.dao.PurgeFilesRepository;
 import mc.gouv.xaf.back.data.dao.StatistiquesRepository;
 import mc.gouv.xaf.back.data.entity.PurgeFilesBO;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
@@ -18,13 +19,11 @@ import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
-import mc.gouv.xaf.back.service.scheduling.PurgeDemandesSchedulingJob;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
-import mc.gouv.xaf.shared.dto.PurgeDemandeDTO;
 import mc.gouv.xaf.shared.enums.MailAudienceEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Triple;
@@ -44,13 +43,12 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 @Service
 @EnableScheduling
@@ -124,9 +122,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
     public void purgerDemandesDansStatuts(List<String> statuts, int jours) throws JsonProcessingException {
         String demarcheId = gouvPropertiesResolver.getDemarcheId();
         StringBuilder demandesAPurger = new StringBuilder();
-        int demandesSuppr = 0;
         PropertiesDTO delaiEnvoiEmailProp = propertiesService.getProperty(demarcheId, DELAI_ENVOI_MAIL_PURGE);
-
 
         int demandesSuppr = 0;
 

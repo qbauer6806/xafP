@@ -50,4 +50,12 @@ public class DemandesFilesServiceTestImpl implements DemandesFilesService {
     public void suppressionDesFichiers(DemandeDTO demandeDTO, boolean statutCheck, List<String> statuts, int jours) {
 
     }
+
+    /**
+     *
+     */
+    @Override
+    public void deleteAllOrphans() {
+
+    }
 }

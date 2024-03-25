@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.List;
 
 @Component
 public class FileTestServiceImpl implements FileService {
@@ -67,6 +68,15 @@ public class FileTestServiceImpl implements FileService {
 
     @Override
     public void updateFileMetadata(String fichierURL, String demarcheId, String metaKey, String metaValue) throws IOException {
+
+    }
+
+    /**
+     * @param containerId
+     * @param fileName
+     */
+    @Override
+    public void deleteFiles(String containerId, List<String> fileName) {
 
     }
 }

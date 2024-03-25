@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import mc.gouv.xaf.back.data.dao.AccessRepository;
 import mc.gouv.xaf.back.data.dao.DemandesHistoriqueRepository;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
+import mc.gouv.xaf.back.data.dao.DemandesStatutsRepository;
+import mc.gouv.xaf.back.data.dao.PurgeFilesRepository;
 import mc.gouv.xaf.back.data.entity.AccessBO;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandesDataBO;
@@ -90,12 +92,26 @@ public class DemandesServiceImpl implements DemandesService {
 
 	@Autowired
 	private DemandesRepository demandesRepository;
-	
+
 	@Autowired
 	private AccessRepository accessRepository;
 
 	@Autowired
 	private AccessService accessService;
+	private DemandesStatutsService demandesStatutsService;
+
+	@Autowired
+	private DemandesStatutsRepository demandesStatutsRepository;
+
+    @Autowired
+    private PurgeFilesRepository purgeFilesRepository;
+
+
+	@Autowired
+	private DemandesDataRepository demandesDataRepository;
+
+	@Autowired
+	private DemandesComplementsRepository demandesComplementsRepository;
 
 	@Autowired
 	private DemandesStatutsService demandesStatutsService;
@@ -126,7 +142,7 @@ public class DemandesServiceImpl implements DemandesService {
     
     @Autowired
     private GUKafkaUtils guKafkaUtils;
-    
+
 	@Autowired
     private ApplicationContext appContext;
 
@@ -177,12 +193,12 @@ public class DemandesServiceImpl implements DemandesService {
 
 		LOGGER.info("Récupération en base de l'accès correspondant...");
 		AccessBO accessBo = accessService.getAccessBO(demande.getDemarcheId(), demande.getUsagerId());
-		
+
 		LOGGER.info("Postprocessing de la demande...");
 		try {
 			// Récupération du bean de postprocessing à la bonne version du modèle
 			DemandePostprocessingService dps = (DemandePostprocessingService)appContext.getBean("DemandePostprocessingServiceImplV" + demande.getBuildId());
-			
+
 			// Appel au postprocessing
 			demande = dps.postprocess(demande);
 		}
@@ -331,6 +347,8 @@ public class DemandesServiceImpl implements DemandesService {
 		LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
 		return DemandesTransformer.bo2Dto(demandes);
 	}
+
+
 
 	/**
 	 * Récupère toutes les demandes liées au demarcheId
@@ -685,23 +703,38 @@ public class DemandesServiceImpl implements DemandesService {
 		if (demandeBo == null) {
 			throw new DemarchesServiceException("Demande introuvable", HttpStatus.NOT_FOUND);
 		}
-		DemandeDTO demandeDTO = DemandesTransformer.bo2Dto(demandeBo);
-		LOGGER.info("Suppression des fichiers de la demande {} de la demarche {}...", demandeId, demarcheId);
-		demandesFilesService.suppressionDesFichiers(demandeDTO, true, statuts, jours);
-		
-		LOGGER.info("Suppression des fichiers complémentaires de la demande {} de la demarche {}...", demandeId, demarcheId);
-		demandesComplementsService.suppressionDesFichiersDesDemandesComplementaires(demandeDTO, true, statuts, jours);
 
-		AccessBO access = suppressionDeLaDemande(demandeBo, demarcheId, demandeId);
-		
-		String identifiant = demandeBo.getIdentifiant();
-		Date dateCreation = demandeBo.getDateCreation();
-		LOGGER.info("Envoi d'un message dans Kafka pour notifier le Guichet Unique de la suppression de la demande...");
-		List<DemandeRecapDTO> demandeRecaps = guKafkaUtils.getDemandeRecapsFromUsagerId(demandeDTO.getUsagerId());
-        RecapDemandesDTO recapDemandes = guKafkaUtils.getRecapDemandes(demandeRecaps);
-        guKafkaProducer.sendSuppressionDemandeMessage(access.getUsagerId(), demandeId, identifiant, dateCreation, recapDemandes);
+        /*** Insertion de statistique */
+        LOGGER.info("Ajout d'une ligne de statistique pour la suppression de la demande...");
+		StatistiqueDTO stat = new StatistiqueDTO();
+		stat.setCanal(demandeBo.getCanal());
+		stat.setDate(new Date());
+		stat.setDemandeId(demandeId);
+		stat.setDemarcheId(demarcheId);
+		stat.setIdentifiantDemande(demandeBo.getIdentifiant());
+		stat.setStatutPublic(AfBackUtils.STATUT_PUBLIC_SUPPRIMEE);
+        statistiquesService.saveStatistique(stat);
+
+        /*** Suppression de l'access de la demande */
+        /* TODO: doit on vrraiment gérer l'access ici???? */
+        // accessRepository.deleteAccessForGivenPkDemandes(demandeId);
+		// Suppression de l'historique de la demande (pas géré par cascade, donc le
+		// faire ici)
+		LOGGER.info("Suppression de l'historique de la demande...");
+        demandesHistoriqueRepository.deleteHistoForGivenPkDemandes(demandeId);
+
+        /*** Sauvegarde des fichiers à purger avant suppression de la demande. */
+        /*** Les fichiers et compléments sont supprimés en cascade des tables liées à la suppression de la demande */
+        LOGGER.info("insertion des fichiers à purger dans la table pour la demande: {}", demandeId);
+        purgeFilesRepository.insertFilesToPurge(demandeId);
+        purgeFilesRepository.insertFilesComplementsToPurge(demandeId);
+        purgeFilesRepository.insertFilesCourrierToPurge(demandeId);
+        /*** Suppression de la demande. */
+		LOGGER.info("Appel du répo pour la suppression...");
+		demandesRepository.delete(demandeBo);
 	}
-	
+
+
 	@Override
 	public Integer getAccessIdFromDemande(DemandeDTO demande) {
 		return getCheckDemarcheDemandeBO(demande.getDemarcheId(), demande, true).getFkAccess().getPkAccess();
@@ -1012,7 +1045,7 @@ public class DemandesServiceImpl implements DemandesService {
 		DemandeBO demandeBo = demandesRepository.findByIdentifiant(identifiant);
 		return DemandesTransformer.bo2Dto(demandeBo);
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -1020,5 +1053,53 @@ public class DemandesServiceImpl implements DemandesService {
 	public List<String> getAllBuildIds() {
 		return demandesRepository.getAllBuildIds();
 	}
+
+    @Override
+    public List<DemandeDTO> getAllDemandeForPurge(String demarcheId, Date dernierStatutDateDebut,
+            List<String> dernierStatutList, List<String> canaux) {
+
+        LOGGER.info("Appel à DemandeService.getAllDemandeForPurge");
+        return DemandesTransformer.bo2Dto(demandesRepository
+                .findAllWithDateDernierStatutBeforeAndLibelleStatutIn(dernierStatutDateDebut, dernierStatutList,
+                        canaux));
+
+    }
+
+    @Override
+    public List<DemandeDTO> getAllDemandeForRelanceAvantPurge(String demarcheId, Date dernierStatutDateDebut,
+            Date dernierStatutDateFin, List<String> dernierStatutList) {
+
+        LOGGER.info("Appel à DemandeService.getAllDemandeForPurge");
+        return DemandesTransformer.bo2Dto(demandesRepository.findAllWithDateDernierStatutBetweenAndLibelleStatutIn(
+                dernierStatutDateDebut, dernierStatutDateFin, dernierStatutList));
+
+    }
+
+    @Override
+    public List<Integer> getAllDemandeIdsForPurge(String demarcheId, Date dernierStatutDateDebut,
+            List<String> dernierStatutList, List<String> canaux) {
+        LOGGER.info("Appel à DemandeService.getAllDemandeForPurge");
+        return demandesRepository.findAllIdsWithDateDernierStatutBeforeAndLibelleStatutIn(dernierStatutDateDebut,
+                dernierStatutList, canaux);
+    }
+
+    @Override
+    public List<Integer> getAllDemandeIdsForRelanceAvantPurge(String demarcheId, Date dernierStatutDateDebut,
+            Date dernierStatutDateFin, List<String> dernierStatutList) {
+
+        LOGGER.info("Appel à DemandeService.getAllDemandeForPurge");
+        return demandesRepository.findAllIdsWithDateDernierStatutBetweenAndLibelleStatutIn(dernierStatutDateDebut,
+                dernierStatutDateFin, dernierStatutList);
+    }
+
+    @Override
+    public void deleteDemandeBulkInGivenStatus(String demarcheId, List<Integer> demandeIdList, List<String> statuts,
+            int jours) throws JsonProcessingException {
+        for (Integer demandeId : demandeIdList) {
+            this.deleteDemandeInGivenStatus(demarcheId, demandeId, statuts, jours);
+        }
+
+    }
+
 
 }

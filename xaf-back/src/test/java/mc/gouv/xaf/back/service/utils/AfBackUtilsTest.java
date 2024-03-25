@@ -1,6 +1,7 @@
 package mc.gouv.xaf.back.service.utils;
 
 import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 

@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -68,5 +70,7 @@ public interface FileService {
 	 * @param metaValue,  la valeur de la métadonnée
 	 */
 	void updateFileMetadata(String fichierURL, String demarcheId, String metaKey, String metaValue) throws IOException;
+
+    void deleteFiles(String containerId, List<String> fileName);
 
 }

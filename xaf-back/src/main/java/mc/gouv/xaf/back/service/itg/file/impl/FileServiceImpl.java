@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -40,6 +41,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import mc.gouv.file.shared.dto.FileBatchDTO;
 import mc.gouv.vscan.shared.dto.ScanDTO;
 import mc.gouv.vscan.shared.dto.ScanRequestDTO;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
@@ -391,7 +393,7 @@ public class FileServiceImpl implements FileService {
 
 	/**
 	 * {@inheritDoc}
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	@Override
 	public void updateFilesMetadataWithDemandeId(DemandeFileDTO[] fichiers, String demarcheId, Integer demandeId) throws IOException {
@@ -406,7 +408,7 @@ public class FileServiceImpl implements FileService {
 
 	/**
 	 * {@inheritDoc}
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	@Override
 	public void updateFileMetadata(String fichierURL, String demarcheId, String metaKey, String metaValue) throws IOException {
@@ -431,5 +433,20 @@ public class FileServiceImpl implements FileService {
 		LOGGER.info("Fin suppression du fichier : {}", fileName);
 		
 	}
+
+    @Override
+    public void deleteFiles(String containerId, List<String> fileList) {
+        String accountId = gouvPropertiesResolver.getDemarcheId();
+        FileBatchDTO FbDTO = new FileBatchDTO();
+        FbDTO.setFiles(fileList);
+        FbDTO.setAccount(accountId);
+        FbDTO.setContainer(containerId);
+        try {
+            afBackUtils.getFileClient().deleteFiles(accountId, containerId, FbDTO);
+        } catch (Exception e) {
+            LOGGER.error("Erreur lors de la suppression du batch de fichiers : {}", StringUtils.join(fileList, "-"));
+        }
+
+    }
 
 }

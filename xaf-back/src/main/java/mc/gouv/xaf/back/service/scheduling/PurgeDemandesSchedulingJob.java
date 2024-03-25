@@ -3,6 +3,7 @@ package mc.gouv.xaf.back.service.scheduling;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.slf4j.Logger;
@@ -19,6 +20,7 @@ import mc.gouv.xaf.shared.dto.PropertiesDTO;
  * <br>
  * Il est nécessaire de péciser la liste des statuts des demandes à purger.
  */
+@DisallowConcurrentExecution
 public class PurgeDemandesSchedulingJob implements Job {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PurgeDemandesSchedulingJob.class);

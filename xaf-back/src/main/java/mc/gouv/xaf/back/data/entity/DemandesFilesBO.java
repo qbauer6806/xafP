@@ -31,7 +31,7 @@ public class DemandesFilesBO {
     @Column(name = "PK_DEMANDESFILES", nullable = false)
     private Integer pkDemandesFiles;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "FK_DEMANDES")
     private DemandeBO fkDemandes;
 

@@ -27,6 +27,7 @@ import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -243,4 +244,25 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
 		return statuts.contains(concernedDemandeDTO.getDernierStatut().getLibelle()) && diff >= jours;
 	}
 
+	@Override
+	public void deleteAllOrphans() {
+		Iterator<DemandesFilesBO> it = demandesFilesRepository.findAllNonReferencedFiles().iterator();
+		while (it.hasNext()) {
+			DemandesFilesBO fichierOrphelin = (DemandesFilesBO) it.next();
+
+			Integer refs = demandesFilesRepository.findHowManyTimeIsFileReferenced(fichierOrphelin.getUrl());
+			LOGGER.debug("L'url du fichier est utilisée par {}", refs);
+			if (refs.intValue() == 0) {
+				try {
+					String url = URLEncoder.encode(fichierOrphelin.getUrl(), "UTF-8");
+					fileService.deleteFile("ROOT", url);
+				} catch (UnsupportedEncodingException e) {
+					LOGGER.error("Problème lors de l'encoding des urls des fichiers initiaux", e);
+				}
+			}
+
+			demandesFilesRepository.delete(fichierOrphelin);
+		}
+
+	}
 }

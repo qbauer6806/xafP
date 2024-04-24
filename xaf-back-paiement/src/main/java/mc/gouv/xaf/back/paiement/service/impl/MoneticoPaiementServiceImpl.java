@@ -146,8 +146,11 @@ public class MoneticoPaiementServiceImpl implements MoneticoPaiementService {
         Map<Integer, List<CommandeDemandeArticleBO>> articlesDemandes = new HashMap<>();
 
         for (Integer demandeId : demandesIdList) {
-            DemandeBO demandeBO = demandesRepository.findById(demandeId)
-                    .orElseThrow(() -> new DemarchesServiceException("La demande " + demandeId + " est introuvable.", HttpStatus.NOT_FOUND));
+            DemandeBO demandeBO = demandesRepository.findByDemarcheIdAndIdAndUsagerId(demarcheId, demandeId, usagerId);
+            if (demandeBO == null) {
+                throw new DemarchesServiceException("La demande " + demandeId + " est introuvable pour l'usager id " +
+                        usagerId, HttpStatus.NOT_FOUND);
+            }
             demandes.put(demandeId, demandeBO);
             listeIdentifiantsDemandes.add(demandeBO.getIdentifiant());
 

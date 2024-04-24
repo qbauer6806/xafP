@@ -3,7 +3,18 @@ package mc.gouv.xaf.back.data.entity;
 import java.util.Date;
 import java.util.Set;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
+import javax.persistence.Table;
 import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotBlank;
@@ -91,27 +102,27 @@ public class DemandeBO {
 
     @OneToMany(mappedBy = "fkDemandes", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<DemandesCourriersBO> courriers;
-    
+
     @Column(name = "USAGER_NOM", length = 256, nullable = true)
     @Size(min = 0, max = 256)
     private String usagerNom;
-    
+
     @Column(name = "USAGER_PRENOM", length = 256, nullable = true)
     @Size(min = 0, max = 256)
     private String usagerPrenom;
-    
+
     @Column(name = "USAGER_EMAIL", length = 256, nullable = true)
     @Size(min = 0, max = 256)
     private String usagerEmail;
-    
+
     @Column(name = "BUILD_ID", length = 32, nullable = true)
     @Size(min = 0, max = 32)
     private String buildId;
-    
+
     @Column(name = "RECAP_TYPE", length = 256, nullable = true)
     @Size(min = 0, max = 256)
     private String recapType;
-    
+
     @Column(name = "DONNEES_CERTIFIEES", columnDefinition = "TEXT", nullable = true)
     private String donneesCertifiees;
 
@@ -120,7 +131,6 @@ public class DemandeBO {
 
     @Column(name = "CONTENU_INITIAL", columnDefinition = "TEXT", nullable = true)
     private String contenuInitial;
-    
 
     @Column(name = "META", columnDefinition = "TEXT", nullable = true)
     private String meta;
@@ -297,11 +307,11 @@ public class DemandeBO {
     public void setUsagerNom(String usagerNom) {
         this.usagerNom = usagerNom;
     }
-    
+
     public String getUsagerPrenom() {
         return usagerPrenom;
     }
-    
+
     public void setUsagerPrenom(String usagerPrenom) {
         this.usagerPrenom = usagerPrenom;
     }
@@ -314,25 +324,25 @@ public class DemandeBO {
         this.usagerEmail = usagerEmail;
     }
 
-	public String getBuildId() {
-		return buildId;
-	}
+    public String getBuildId() {
+        return buildId;
+    }
 
-	public void setBuildId(String buildId) {
-		this.buildId = buildId;
-	}
+    public void setBuildId(String buildId) {
+        this.buildId = buildId;
+    }
 
-	public String getRecapType() {
-		return recapType;
-	}
+    public String getRecapType() {
+        return recapType;
+    }
 
-	public void setRecapType(String recapType) {
-		this.recapType = recapType;
-	}
+    public void setRecapType(String recapType) {
+        this.recapType = recapType;
+    }
 
-	public String getDonneesCertifiees() {
-		return donneesCertifiees;
-	}
+    public String getDonneesCertifiees() {
+        return donneesCertifiees;
+    }
 
     public void setDonneesCertifiees(String donneesCertifiees) {
         this.donneesCertifiees = donneesCertifiees;

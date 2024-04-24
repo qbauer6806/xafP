@@ -90,13 +90,13 @@ public interface GouvPropertiesResolver {
 
     boolean getKafkaEnabled();
 
-	String getGUKafkaProducerMaxRequestSize();
+    String getGUKafkaProducerMaxRequestSize();
 
-	String getGUKafkaConsumerFetchMaxBytes();
-	
-	String getGUKafkaConsumerMaxPartitionFetchBytes();
+    String getGUKafkaConsumerFetchMaxBytes();
 
-	String getGichkeyUrl();
+    String getGUKafkaConsumerMaxPartitionFetchBytes();
+
+    String getGichkeyUrl();
 
     String getGichuniUrl();
 
@@ -120,6 +120,8 @@ public interface GouvPropertiesResolver {
 
     boolean isPaiementEnabled();
 
+    String getPorteDocUrl();
+    
     String getApiUlisMoyensGenerauxUrl();
 
     String getApiUlisTiersOrganisationUrl();

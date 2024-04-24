@@ -2,7 +2,8 @@ package mc.gouv.xaf.back.dsp.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import mc.gouv.xaf.back.dsp.enums.ResidTypeUsagerEnum;
+
+import mc.gouv.xaf.back.dsp.enums.common.ResidTypeUsagerEnum;
 
 import java.io.Serializable;
 import java.util.List;
@@ -25,15 +26,10 @@ public class ResidUsagerExistantDTO implements Serializable {
 
     private ResidLogementDTO logement;
 
-    @JsonInclude()
     private ResidHebergeantDTO hebergeant;
 
     private ResidMoyensExistenceDTO moyensExistence;
 
-    @JsonInclude()
-    private ResidConjointDTO conjoint;
-
-    @JsonInclude()
     private List<ResidMembreFoyerDTO> membresFoyer;
 
     public ResidTypeUsagerEnum getUsagerType() {
@@ -98,14 +94,6 @@ public class ResidUsagerExistantDTO implements Serializable {
 
     public void setMoyensExistence(ResidMoyensExistenceDTO moyensExistence) {
         this.moyensExistence = moyensExistence;
-    }
-
-    public ResidConjointDTO getConjoint() {
-        return conjoint;
-    }
-
-    public void setConjoint(ResidConjointDTO conjoint) {
-        this.conjoint = conjoint;
     }
 
     public List<ResidMembreFoyerDTO> getMembresFoyer() {

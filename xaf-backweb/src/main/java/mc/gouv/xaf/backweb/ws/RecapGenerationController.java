@@ -1,19 +1,22 @@
 package mc.gouv.xaf.backweb.ws;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-
-import org.json.simple.parser.ParseException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemandeRecapHTMLService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xboot.config.web.annotation.GouvRestController;
+import org.json.simple.parser.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  *
@@ -35,6 +38,7 @@ public class RecapGenerationController {
 	@Autowired
 	private DemandeRecapHTMLService demandeRecapHTMLService;
 
+	@Secured({"ROLE_LECTURE"})
 	@GetMapping(value = "/{pkDemande}", produces = "text/html")
 	public @ResponseBody String getRecap(@PathVariable(value = "pkDemande") Integer pkDemande) throws IOException, ParseException, ClassNotFoundException, InvocationTargetException, IllegalAccessException, NoSuchMethodException {
 		LOGGER.info("======================= Appel de /ws/recap/{}", pkDemande);

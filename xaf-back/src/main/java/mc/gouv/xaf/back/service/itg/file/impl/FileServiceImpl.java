@@ -72,6 +72,9 @@ public class FileServiceImpl implements FileService {
 	private static final String MAX_TAILLE_FICHIER = "MAX_TAILLE_FICHIER";
 	private static final String MC_METADATA_PREFIX = "X-MC-";
 	private static final String AUTHORIZATION_PREFIX = "Bearer ";
+	private static final String SLASH = "/";
+	private static final String FILE_CLIENT_SAVE_FILE = "FileClient.saveFile({}, {}, {})";
+	private static final String FILENAME_A_DONNER_A_FILE = "Filename à donner à FILE : {}";
 
 	private RestTemplate restTemplate;
 
@@ -123,12 +126,12 @@ public class FileServiceImpl implements FileService {
 		// On part du principe que le fichier a été généré côté back et n'est pas malicieux
 		Map<String, String> customHeaders = createCustomHeaders(demande, true);
 
-		filename = demande.getFkAccess() + "/" + AfBackUtils.generateUUID() + "/" + filename;
+		filename = demande.getFkAccess() + SLASH + AfBackUtils.generateUUID() + SLASH + filename;
 
-		LOGGER.info("Filename à donner à FILE : {}", filename);
+		LOGGER.info(FILENAME_A_DONNER_A_FILE, filename);
 
 		String accountId = gouvPropertiesResolver.getDemarcheId();
-		LOGGER.info("FileClient.saveFile({}, {}, {})", accountId, containerId, filename);
+		LOGGER.info(FILE_CLIENT_SAVE_FILE, accountId, containerId, filename);
 		try {
 			return afBackUtils.getFileClient().saveFile(accountId, containerId, inputStream, filename, contentType, customHeaders,
 					outputStream);
@@ -145,15 +148,15 @@ public class FileServiceImpl implements FileService {
 
 		boolean vscanActivation = prepareSave(file);
 
-		String filename = "/" + demande.getFkAccess() + "/" + AfBackUtils.generateUUID() + "/"
+		String filename = SLASH + demande.getFkAccess() + SLASH + AfBackUtils.generateUUID() + SLASH
 				+ URLEncoder.encode(file.getOriginalFilename(), StandardCharsets.UTF_8);
 
-		LOGGER.info("Filename à donner à FILE : {}", filename);
+		LOGGER.info(FILENAME_A_DONNER_A_FILE, filename);
 
 		Map<String, String> customHeaders = createCustomHeaders(demande, vscanActivation);
 
 		String accountId = gouvPropertiesResolver.getDemarcheId();
-		LOGGER.info("FileClient.saveFile({}, {}, {})", accountId, containerId, filename);
+		LOGGER.info(FILE_CLIENT_SAVE_FILE, accountId, containerId, filename);
 
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
@@ -183,23 +186,22 @@ public class FileServiceImpl implements FileService {
 
 		boolean vscanActivation = prepareSave(file);
 
-		String filename = "/publications/" + AfBackUtils.generateUUID() + "/"
+		String filename = "/publications/" + AfBackUtils.generateUUID() + SLASH
 				+ URLEncoder.encode(file.getOriginalFilename(), StandardCharsets.UTF_8);
 
-		LOGGER.info("Filename à donner à FILE : {}", filename);
+		LOGGER.info(FILENAME_A_DONNER_A_FILE, filename);
 
 		Map<String, String> customHeaders = new HashMap<>();
 		customHeaders.put(FILE_METADATA_SCANEXECUTE, vscanActivation + "");
 
 		String accountId = gouvPropertiesResolver.getDemarcheId();
-		LOGGER.info("FileClient.saveFile({}, {}, {})", accountId, containerId, filename);
+		LOGGER.info(FILE_CLIENT_SAVE_FILE, accountId, containerId, filename);
 
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
 		try {
 			return afBackUtils.getFileClient().saveFile(accountId, containerId, file.getInputStream(), filename, file.getContentType(), customHeaders, outputStream);
 		} catch (Exception e) {
-			LOGGER.error("Erreur dans FileServiceImpl.saveFile()", e);
 			throw new DemarchesServiceException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
@@ -216,8 +218,8 @@ public class FileServiceImpl implements FileService {
 		PropertiesDTO tailleMaxFichiersProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), MAX_TAILLE_FICHIER);
 		int tailleMaxFichiers = Integer.parseInt(tailleMaxFichiersProp.getValue());
 
-		// transformation B en MB
-		int tailleMaxFichierMB = tailleMaxFichiers * 1000000;
+		// transformation B en MB: 1 Mo = 1 048 576 octets
+		int tailleMaxFichierMB = tailleMaxFichiers * 1048576;
 		if (file.getSize() > tailleMaxFichierMB) {
 			LOGGER.info("La taille du fichier depasse la taille max definie dans les propriétés ({})", tailleMaxFichiers);
 			throw new FileUploadException("Erreur: la taille du fichier transféré dépasse la limite autorisée", FileUploadErrorEnum.TAILLE_MAX_ERROR);
@@ -291,7 +293,7 @@ public class FileServiceImpl implements FileService {
 		postRequestVscan.setEntity(multipartVscan);
 		postRequestVscan.addHeader(org.apache.http.HttpHeaders.AUTHORIZATION, AUTHORIZATION_PREFIX + gouvPropertiesResolver.getVscanJwt());
 		HttpResponse postResponseVscan = clientVscan.execute(postRequestVscan);
-		String vscanResp = IOUtils.toString(postResponseVscan.getEntity().getContent());
+		String vscanResp = IOUtils.toString(postResponseVscan.getEntity().getContent(), StandardCharsets.UTF_8);
 		LOGGER.info("VSCAN Response : {} ({})", postResponseVscan.getStatusLine(), vscanResp);
 
 		return mapper.readValue(vscanResp, ScanDTO.class);
@@ -319,7 +321,7 @@ public class FileServiceImpl implements FileService {
 	private URL getFileURL(String fileurl, String demarcheId) throws MalformedURLException {
 		// file = accessId/uuid/filename (/uuid/filename inclu dans fichier.getUrl())
 		if (fileurl.charAt(0) != '/') {
-			fileurl = "/" + fileurl;
+			fileurl = SLASH + fileurl;
 		}
 
 		// Remplacer les espaces par des "+"...
@@ -328,8 +330,8 @@ public class FileServiceImpl implements FileService {
 
 		// Rajouter l'AccessID dans l'URL des fichiers
 
-		URL url = new URL(gouvPropertiesResolver.getFileUrl() + "/" + demarcheId + "/"
-				+ gouvPropertiesResolver.getContainerId() + "/" + fileurl);
+		URL url = new URL(gouvPropertiesResolver.getFileUrl() + SLASH + demarcheId + SLASH
+				+ gouvPropertiesResolver.getContainerId() + SLASH + fileurl);
 		LOGGER.info("URL du fichier calculée : {}", url);
 
 		return url;

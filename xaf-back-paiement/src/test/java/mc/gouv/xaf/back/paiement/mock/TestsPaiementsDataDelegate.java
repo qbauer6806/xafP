@@ -19,11 +19,6 @@ public class TestsPaiementsDataDelegate implements PaiementsDataProvider {
     }
 
     @Override
-    public double getMontantCapture(DemandeDTO demandeDTO) {
-        return 0.0;
-    }
-
-    @Override
     public List<CirRequestDTO> getLignesFacture(DemandeDTO demandeDTO, CommandeOperationDTO operation, CommandeDTO commandeDTO) {
         return new ArrayList<>();
     }

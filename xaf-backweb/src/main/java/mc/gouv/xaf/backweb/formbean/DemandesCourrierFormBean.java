@@ -73,5 +73,4 @@ public class DemandesCourrierFormBean {
     public void setDuplicationKeyId(String duplicationKeyId) {
         this.duplicationKeyId = duplicationKeyId;
     }
-
 }

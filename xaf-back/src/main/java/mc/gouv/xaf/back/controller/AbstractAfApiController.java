@@ -16,13 +16,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.xml.sax.SAXException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.es.impl.IndexedEsDemandeServiceImpl;
+import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.AccessDTO;
 import mc.gouv.xaf.shared.dto.AccessInputDTO;
 import mc.gouv.xaf.shared.dto.BrouillonDTO;
@@ -70,7 +80,7 @@ public abstract class AbstractAfApiController implements AfApiController {
         LOGGER.info("AbstractAfApiController.creerDemande({}, {})", demande, usagerId);
         return creerDemande(demande, usagerId);
     }
-    
+
     @PutMapping(value = "/demandes/{demandeId}")
     public DemandeDTO updateDemandeRequest(@PathVariable(value = "demandeId") Integer demandeId,
             @Valid @RequestBody DemandeInputDTO demande, @RequestParam(value = "usagerId") Integer usagerId,
@@ -120,10 +130,9 @@ public abstract class AbstractAfApiController implements AfApiController {
     }
 
     @GetMapping(value = "/demandespage")
-    public @ResponseBody
-    Page<DemandeDTO> getDemandesPageableRequest(@RequestParam(value = "usagerId") Integer usagerId, @RequestParam int page,
-                                                @RequestParam int size, @RequestParam String sort, @RequestParam String direction,
-                                                @RequestParam String status, @RequestParam String lang) {
+    public @ResponseBody Page<DemandeDTO> getDemandesPageableRequest(@RequestParam(value = "usagerId") Integer usagerId,
+            @RequestParam int page, @RequestParam int size, @RequestParam String sort, @RequestParam String direction,
+            @RequestParam String status, @RequestParam String lang) {
         LOGGER.info("AbstractAfApiController.getDemandesPageable({})", usagerId);
         return getDemandesPageable(usagerId, new PageParamDTO(page, size, sort, direction, status, lang));
     }
@@ -145,20 +154,20 @@ public abstract class AbstractAfApiController implements AfApiController {
     @PostMapping(value = "/demandes/associerDemandeCourrier")
     public DemandeDTO associerDemandeCourrierRequest(
             @RequestParam(value = "identifiantDemande") String identifiantDemande,
-            @RequestParam(value = "nomProprio") String nomProprio,
-            @RequestParam(value = "usagerId") Integer usagerId) {
+            @RequestParam(value = "nomProprio") String nomProprio, @RequestParam(value = "usagerId") Integer usagerId) {
         String safeIndentifiant = identifiantDemande.replaceAll(SharedMessages.UNSAFE_CHARS, "_");
         String safeNom = nomProprio.replaceAll(SharedMessages.UNSAFE_CHARS, "_");
-        LOGGER.info("AbstractAfApiController.associerDemandeCourrierRequest({}, {}, {})", safeIndentifiant, safeNom, usagerId);
+        LOGGER.info("AbstractAfApiController.associerDemandeCourrierRequest({}, {}, {})", safeIndentifiant, safeNom,
+                usagerId);
         return associerDemandeCourrier(identifiantDemande, nomProprio, usagerId);
     }
 
     @DeleteMapping(value = "/accesses/{usagerId}")
-	public void desinscriptionUsagerRequest(@PathVariable(value = "usagerId") Integer usagerId,
-                                            @RequestParam(value = "langue") String langue) {
+    public void desinscriptionUsagerRequest(@PathVariable(value = "usagerId") Integer usagerId,
+            @RequestParam(value = "langue") String langue) {
         LOGGER.info("AbstractAfApiController.desinscriptionUsagerRequest({}, {})", usagerId, langue);
-		desinscriptionUsager(usagerId, langue, false);
-	}
+        desinscriptionUsager(usagerId, langue, false);
+    }
 
     @PostMapping(value = "/accesses/{usagerId}")
     public AccessDTO createOrUpdateAccessRequest(@PathVariable(value = "usagerId") Integer usagerId,
@@ -217,7 +226,7 @@ public abstract class AbstractAfApiController implements AfApiController {
 
     @GetMapping(value = "/donneesexternes")
     public JsonNode getDonneesExternesRequest(HttpServletRequest request,
-            @RequestParam(value = "usagerId") Integer usagerId) throws JsonProcessingException {
+            @RequestParam(value = "usagerId") Integer usagerId) throws IOException {
         LOGGER.info("AbstractAfApiController.getDonneesExternesRequest()");
         return getDonneesExternes(usagerId, request.getParameterMap());
     }
@@ -259,47 +268,47 @@ public abstract class AbstractAfApiController implements AfApiController {
         LOGGER.info("AbstractAfApiController.deleteCustomRequest()");
         return deleteCustomRequest(request, usagerId);
     }
-    
+
     @PostMapping(value = "/brouillons")
     public BrouillonDTO creerBrouillonRequest(@Valid @RequestBody BrouillonDTO brouillon,
-    		@RequestParam(value = "usagerId") Integer usagerId) {
+            @RequestParam(value = "usagerId") Integer usagerId) {
         LOGGER.info("AbstractAfApiController.creerBrouillonRequest({}, {})", brouillon, usagerId);
         return creerBrouillon(brouillon, usagerId);
     }
-    
+
     @PutMapping(value = "/brouillons/{brouillonId}")
     public BrouillonDTO updateBrouillonRequest(@Valid @RequestBody BrouillonDTO brouillon,
-    		@PathVariable(value = "brouillonId") Integer brouillonId,
+            @PathVariable(value = "brouillonId") Integer brouillonId,
             @RequestParam(value = "usagerId") Integer usagerId) {
         LOGGER.info("AbstractAfApiController.updateBrouillonRequest({}, {}, {})", brouillon, brouillonId, usagerId);
         brouillon.setPkBrouillons(brouillonId);
         return updateBrouillon(brouillon, usagerId);
     }
-    
+
     @GetMapping(value = "/brouillons")
     public @ResponseBody List<BrouillonDTO> getBrouillonsRequest(@RequestParam(value = "usagerId") Integer usagerId) {
         LOGGER.info("AbstractAfApiController.getBrouillonsRequest({})", usagerId);
         return getBrouillons(usagerId);
     }
-    
+
     @GetMapping(value = "/brouillons/{brouillonId}")
     public @ResponseBody BrouillonDTO getBrouillonRequest(@PathVariable(value = "brouillonId") Integer brouillonId,
-                                                          @RequestParam(value = "usagerId") Integer usagerId) {
+            @RequestParam(value = "usagerId") Integer usagerId) {
         LOGGER.info("AbstractAfApiController.getBrouillonRequest({}, {})", brouillonId, usagerId);
         return getBrouillon(brouillonId, usagerId);
     }
-    
+
     @DeleteMapping(value = "/brouillons/{brouillonId}")
     public void deleteBrouillonRequest(@PathVariable(value = "brouillonId") Integer brouillonId,
-                                       @RequestParam(value = "usagerId") Integer usagerId) throws JsonProcessingException {
+            @RequestParam(value = "usagerId") Integer usagerId) throws JsonProcessingException {
         LOGGER.info("AbstractAfApiController.deleteBrouillonRequest({}, {})", brouillonId, usagerId);
         deleteBrouillon(brouillonId, usagerId);
     }
-    
+
     @GetMapping(value = "/brouillonspage")
-    public @ResponseBody
-    Page<BrouillonDTO> getBrouillonsPageableRequest(@RequestParam(value = "usagerId") Integer usagerId, @RequestParam int page,
-                                                @RequestParam int size, @RequestParam String sort, @RequestParam String direction) {
+    public @ResponseBody Page<BrouillonDTO> getBrouillonsPageableRequest(
+            @RequestParam(value = "usagerId") Integer usagerId, @RequestParam int page, @RequestParam int size,
+            @RequestParam String sort, @RequestParam String direction) {
         LOGGER.info("AbstractAfApiController.getBrouillonsPageable({})", usagerId);
         return getBrouillonsPageable(usagerId, new PageParamDTO(page, size, sort, direction, null, null));
     }

@@ -1,6 +1,7 @@
 package mc.gouv.xaf.shared;
 
 public class RequestConstant {
+
     public static final String REDIRECT = "redirect:";
 
     public static final String LANGUE_PARAM = "langue";

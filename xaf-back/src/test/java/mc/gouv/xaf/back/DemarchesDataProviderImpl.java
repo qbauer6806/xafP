@@ -6,11 +6,11 @@ import java.util.Map;
 import org.springframework.stereotype.Component;
 
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
-import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeExcelGenerationDTO;
 import mc.gouv.xaf.shared.dto.GenericStatusDTO;
 import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
+import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 
 @Component
 public class DemarchesDataProviderImpl implements DemarchesDataProvider {
@@ -60,6 +60,7 @@ public class DemarchesDataProviderImpl implements DemarchesDataProvider {
         return null;
     }
 
+
 	@Override
 	public Map<String, String> getLanguesDisponibles() {
 		return null;
@@ -70,6 +71,7 @@ public class DemarchesDataProviderImpl implements DemarchesDataProvider {
         return false;
     }
 
+
 	@Override
 	public boolean getDemarcheCanHandlePeriodesOuverture() {
 		return false;
@@ -79,6 +81,7 @@ public class DemarchesDataProviderImpl implements DemarchesDataProvider {
     public boolean getDemarcheCanHandleProperties() {
         return false;
     }
+
 
 	@Override
 	public boolean getDemarcheCanHandleDenjsGestionAgents() {
@@ -105,20 +108,23 @@ public class DemarchesDataProviderImpl implements DemarchesDataProvider {
         return null;
     }
 
-	@Override
-	public boolean isValideTypedoc(String typedoc) {
-		return false;
-	}
+    @Override
+    public boolean isValideTypedoc(String typedoc) {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
-	@Override
-	public DemandeExcelGenerationDTO getDemandeExcelGenerationDTO() {
-		return null;
-	}
+    @Override
+    public DemandeExcelGenerationDTO getDemandeExcelGenerationDTO() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public boolean isEligibleRectification(DemandeDTO demande) {
-		return false;
-	}
+    @Override
+    public boolean isEligibleRectification(DemandeDTO demande) {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
     @Override
     public List<String> getStatutsPourDuplication() {
@@ -145,4 +151,9 @@ public class DemarchesDataProviderImpl implements DemarchesDataProvider {
     public String getBrouillonStatutDeprecated() {
         return null;
     }
+
+	@Override
+	public List<String> getSpansIdAMarquer(DemandeDTO demande) {
+		return null;
+	}
 }

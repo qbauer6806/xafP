@@ -1,17 +1,18 @@
 package mc.gouv.xaf.back.dsp.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import mc.gouv.xaf.back.dsp.enums.ResidSituationEnum;
-
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+
+import mc.gouv.xaf.back.dsp.enums.common.ResidSituationEnum;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ResidMoyensExistenceDTO implements Serializable {
 
     private static final long serialVersionUID = -5756654094218754527L;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     private ResidSituationEnum situationPrincipale;
 
     private String employeurRaisonSociale;

@@ -10,6 +10,7 @@ import mc.gouv.xaf.shared.dto.DemandeExcelGenerationDTO;
 import mc.gouv.xaf.shared.dto.GenericStatusDTO;
 import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
 import mc.gouv.xaf.shared.dto.TitreUsagerEnum;
+import mc.gouv.xaf.shared.dto.sourcefiable.SourceFiableDTO;
 import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 
 /**
@@ -65,6 +66,11 @@ public interface DemarchesDataProvider {
         return null;
     }
 
+    /**
+     * Permet de définir l'orientation du PDF récap.
+     * Valeurs possibles {landscape ou portrait}
+     * @return
+     */
     default String getRecapOrientation() {
         return "landscape";
     }
@@ -95,13 +101,37 @@ public interface DemarchesDataProvider {
      */
     default List<String> getStatutsPourDuplication() {
         return new ArrayList<>();
-    };
+    }
 
     /**
      * Un filtrage est appliqué sur les versions des demandes éligibles à un renouvellement de demande courrier.
      */
     default List<String> getBuildIdsPourDuplication() {
         return new ArrayList<>();
+    }
+    default List<String> getSpansIdAMarquer(DemandeDTO demande) {
+    	return new ArrayList<>();
+	}
+    
+    default boolean isTypedocApplicable(String typedoc) {
+    	return !typedoc.equals("NON_APPLICABLE");
+    }
+
+    /**
+     * Permets de définir une liste de complément de champs des données certifiées
+     * @param demandeDTO la demande en cours de traitement
+     * @return la liste des champs. Par défaut, une liste vide
+     */
+    default List<SourceFiableDTO> getComplementDonneesCertifiees(DemandeDTO demandeDTO){
+        return new ArrayList<>();
+    }
+
+    /**
+     * Permet de déterminer si l'on affiche la demande source dans le récapitulatif BO.
+     * @return true par défaut
+     */
+    default boolean isAfficheDemandeSource(){
+        return true;
     }
 
 }

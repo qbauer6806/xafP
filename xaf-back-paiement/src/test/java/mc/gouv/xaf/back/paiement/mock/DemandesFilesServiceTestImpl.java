@@ -32,6 +32,11 @@ public class DemandesFilesServiceTestImpl implements DemandesFilesService {
     }
 
     @Override
+    public List<DemandeFileDTO> getFileByDemandeIdAndTypedoc(Integer pkDemande, String typedoc) {
+        return null;
+    }
+
+    @Override
     public List<DemandeFileDTO> getFileByDemandeIdAndMeta(Integer pkDemande, String meta) {
         return null;
     }

@@ -22,6 +22,8 @@ public interface DemandesFilesService {
 
 	boolean updateTypedocs(Map<String, String> changes, Map<String, Boolean> checkboxes);
 
+	List<DemandeFileDTO> getFileByDemandeIdAndTypedoc(Integer pkDemande, String typedoc);
+
 	List<DemandeFileDTO> getFileByDemandeIdAndMeta(Integer pkDemande, String meta);
 
 	/**

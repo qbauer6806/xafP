@@ -1,5 +1,6 @@
 package mc.gouv.xaf.back.service.utils;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
@@ -16,6 +17,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tika.Tika;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * 
@@ -31,6 +33,7 @@ public class FileUtils {
     public static final String META_FRONT = "FRONT_";
     public static final String META_BACK_FRONT = "BACK_FRONT_";
     public static final String META_RECAP = META_BACK + "RECAP";
+    public static final String META_COMPLEMENT = META_BACK + "COMPLEMENT";
 
     // Categories fichiers pour DemandeFilesCategorizer
     public static final String CAT_INITIALE = "Fichiers de la demande initiale";
@@ -109,6 +112,10 @@ public class FileUtils {
     public static boolean isFileCreatedByBackVisibleByFront(String meta) {
         return (!StringUtils.isBlank(meta) && meta.startsWith(META_BACK_FRONT));
     }
+
+    public static boolean isFileComplement(String meta) {
+        return (!StringUtils.isBlank(meta) && meta.contains(META_COMPLEMENT));
+    }
     // FIN Norme sur les métadonnées des fichiers
 
     public static int getNbFileNonTypes(List<FileCategoryDTO> filesAvecCategorie) {
@@ -148,6 +155,36 @@ public class FileUtils {
             return DemandeFileEsDTO.TYPE.COURRIER;
         }
         return DemandeFileEsDTO.TYPE.FICHIER_INTERNE;
+    }
+
+    /**
+     * Génère des métas à partir des données du fichier
+     * @param file le fichier en question
+     * @return une {@link String} au format 'meta' en clef_valeur séparé par un point-virgule
+     */
+    public static String generateMetaData(File file) throws IOException {
+        Tika tika = new Tika();
+        long fileSizebytes = file.length();
+        String mimetype = tika.detect(file);
+
+        return formatMetaData(fileSizebytes, mimetype);
+    }
+
+    /**
+     * Génère des métas à partir des données du fichier
+     * @param file le fichier en question
+     * @return une {@link String} au format 'meta' en clef_valeur séparé par un point-virgule
+     */
+    public static String generateMetaData(MultipartFile file) throws IOException {
+        Tika tika = new Tika();
+        long fileSizebytes = file.getSize();
+        String mimetype = StringUtils.isNotEmpty(file.getContentType()) ? file.getContentType() : tika.detect(file.getInputStream());
+
+        return formatMetaData(fileSizebytes, mimetype);
+    }
+
+    private static String formatMetaData(long fileSizebytes, String mimetype) {
+        return "SIZE_" + fileSizebytes + ";TYPE_" + mimetype;
     }
 
 }

@@ -6,10 +6,6 @@ import mc.gouv.xaf.back.data.entity.BrouillonBO;
 import mc.gouv.xaf.shared.dto.BrouillonDTO;
 import mc.gouv.xaf.shared.dto.Page;
 import mc.gouv.xaf.shared.dto.PageParamDTO;
-import org.xml.sax.SAXException;
-
-import java.io.IOException;
-import java.util.List;
 
 public interface BrouillonsService {
 

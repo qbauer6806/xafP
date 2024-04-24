@@ -2,8 +2,9 @@ package mc.gouv.xaf.back.dsp.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import mc.gouv.xaf.back.dsp.enums.ResidLoyerPeriodiciteEnum;
-import mc.gouv.xaf.back.dsp.enums.ResidQualiteEnum;
+
+import mc.gouv.xaf.back.dsp.enums.common.ResidLoyerPeriodiciteEnum;
+import mc.gouv.xaf.back.dsp.enums.common.ResidQualiteEnum;
 
 import java.io.Serializable;
 
@@ -17,10 +18,9 @@ public class ResidLogementDTO implements Serializable {
 
     private int nombrePieces;
 
-    @JsonInclude()
     private Integer surface;
 
-    private int loyer;
+    private Integer loyer;
 
     private ResidLoyerPeriodiciteEnum loyerPeriodicite;
 
@@ -71,11 +71,11 @@ public class ResidLogementDTO implements Serializable {
         this.nombrePieces = nombrePieces;
     }
 
-    public int getLoyer() {
+    public Integer getLoyer() {
         return loyer;
     }
 
-    public void setLoyer(int loyer) {
+    public void setLoyer(Integer loyer) {
         this.loyer = loyer;
     }
 

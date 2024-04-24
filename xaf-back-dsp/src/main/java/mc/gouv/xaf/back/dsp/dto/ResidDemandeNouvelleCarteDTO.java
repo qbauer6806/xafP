@@ -2,8 +2,9 @@ package mc.gouv.xaf.back.dsp.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import mc.gouv.xaf.back.dsp.enums.ResidCarteTypeEnum;
-import mc.gouv.xaf.back.dsp.enums.ResidMotifInstallationEnum;
+
+import mc.gouv.xaf.back.dsp.enums.common.ResidCarteTypeEnum;
+import mc.gouv.xaf.back.dsp.enums.common.ResidMotifInstallationEnum;
 
 import java.io.Serializable;
 

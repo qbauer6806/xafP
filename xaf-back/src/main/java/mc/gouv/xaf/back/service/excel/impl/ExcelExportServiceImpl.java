@@ -1,8 +1,12 @@
 package mc.gouv.xaf.back.service.excel.impl;
 
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.excel.ExcelExportService;
-import mc.gouv.xaf.back.service.utils.AfBackUtils;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.jxls.area.Area;
@@ -11,17 +15,15 @@ import org.jxls.builder.xls.XlsCommentAreaBuilder;
 import org.jxls.common.CellRef;
 import org.jxls.common.Context;
 import org.jxls.transform.poi.PoiTransformer;
+import org.jxls.util.JxlsHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.http.Cookie;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.List;
-import java.util.Map;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.excel.ExcelExportService;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
 
 @Component
 public class ExcelExportServiceImpl implements ExcelExportService {
@@ -64,6 +66,27 @@ public class ExcelExportServiceImpl implements ExcelExportService {
             workbookProcessed.write(outputStream);
         } catch (IOException e) {
             LOGGER.error("Erreur lors de la génération Excel", e);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * @param templateFileName
+     * @param model
+     * @param outputStream
+     */
+    @Override
+    public void exportExcelSimple(String templateFileName, Map<String, Object> model, OutputStream outputStream) {
+
+        LOGGER.info("Chargement du template {} via appel à FILE...", templateFileName);
+        try (InputStream is = afBackUtils.getFileClient().getFile(gouvPropertiesResolver.getDemarcheId(), "MODELES", templateFileName)) {
+            Context context = new Context();
+            for (Map.Entry<String, Object> entry : model.entrySet()) {
+                context.putVar(entry.getKey(), entry.getValue());
+            }
+            JxlsHelper.getInstance().processTemplate(is, outputStream, context);
+        } catch (IOException e) {
+            LOGGER.error("Erreur lors de la génération du fichier Excel", e);
         }
     }
 }

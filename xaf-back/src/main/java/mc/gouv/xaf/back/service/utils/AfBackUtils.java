@@ -22,15 +22,10 @@ import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.motifs.MotifTemplateService;
 import mc.gouv.xaf.back.service.motifs.MotifsCache;
 import mc.gouv.xaf.shared.SharedMessages;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.xaf.shared.dto.DemandeDataDTO;
-import mc.gouv.xaf.shared.dto.DemandeFlatDTO;
-import mc.gouv.xaf.shared.dto.DemarcheDTO;
-import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
-import mc.gouv.xaf.shared.dto.MotifDTO;
-import mc.gouv.xaf.shared.dto.PropertiesDTO;
-import mc.gouv.xaf.shared.dto.PropertiesListEntityDTO;
-import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
+import mc.gouv.xaf.shared.dto.*;
+import mc.gouv.xaf.shared.dto.sourcefiable.SourceFiableDTO;
+import mc.gouv.xaf.shared.dto.sourcefiable.enums.SourceFiablesEnum;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,24 +41,11 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
 import java.nio.charset.StandardCharsets;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.text.NumberFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.text.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Classe utilitaire pour le projet xaf-back
@@ -159,7 +141,7 @@ public class AfBackUtils {
     @Autowired
     @Lazy
     private MotifTemplateService motifTemplateService;
-
+    
     @Autowired
     @Lazy
     private DemandesService demandesService;
@@ -473,25 +455,30 @@ public class AfBackUtils {
         String codeAppli = gouvPropertiesResolver.getDemarcheId();
         List<User> agents = new ArrayList<>(utilisateursCache.getAll().values());
         for (User agent : agents) {
-            boolean toAdd = false;
-            Set<Role> agentRoles = agent.getRoles();
-            for (Role role : agentRoles) {
-                if (role.getAppli().getCode().equals(codeAppli)) {
-                    for (Droit droit : role.getDroits()) {
-                        for (String roleFromList : rolesList) {
-                            if (roleFromList.trim().equals(droit.getCode())) {
-                                toAdd = true;
-                            }
-                        }
-                    }
-
-                }
-            }
+            boolean toAdd = this.isToAdd(rolesList, codeAppli, agent);
             if (toAdd) {
                 destinataires.add(agent);
             }
         }
         return destinataires;
+    }
+
+    private boolean isToAdd(String[] rolesList, String codeAppli, User agent) {
+        boolean toAdd = false;
+        Set<Role> agentRoles = agent.getRoles();
+        for (Role role : agentRoles) {
+            if (role.getAppli().getCode().equals(codeAppli)) {
+                for (Droit droit : role.getDroits()) {
+                    for (String roleFromList : rolesList) {
+                        if (roleFromList.trim().equals(droit.getCode())) {
+                            toAdd = true;
+                        }
+                    }
+                }
+
+            }
+        }
+        return toAdd;
     }
 
     public String convertDateToString(final Date date) {
@@ -727,20 +714,29 @@ public class AfBackUtils {
 	    }
 	    return null;
     }
-    
-    public static List<String> donneesCertifieesJsonToList(String json) {
-    	if (json != null) {
-	    	try {
-	    		ObjectMapper mapper = new ObjectMapper();
-				return mapper.readValue(json, new TypeReference<List<String>>(){});
-			} catch (JsonProcessingException e) {
-				LOGGER.error("Erreur dans donneesCertifieesJsonToList()", e);
-			}
-    	}
-    	return new ArrayList<>();
+
+    public static List<SourceFiableDTO> donneesCertifieesJsonToList(String json) {
+        if (json != null) {
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                return mapper.readValue(json, new TypeReference<>() {
+                });
+            } catch (JsonProcessingException e) {
+                try {
+                    List<String> values = mapper.readValue(json, new TypeReference<>() {
+                    });
+                    if (CollectionUtils.isNotEmpty(values)) {
+                        return values.stream().map(value -> new SourceFiableDTO(value, SourceFiablesEnum.MCONNECT))
+                                .collect(Collectors.toList());
+                    }
+                } catch (JsonProcessingException ex) {
+                    LOGGER.error("Erreur dans donneesCertifieesJsonToList()", e);
+                }
+            }
+        }
+        return new ArrayList<>();
     }
-    
-    public static String donneesCertifieesListToJson(List<String> list) {
+    public static String donneesCertifieesListToJson(List<SourceFiableDTO> list) {
     	ObjectMapper mapper = new ObjectMapper();
     	try {
 			return mapper.writeValueAsString(list);
@@ -750,21 +746,19 @@ public class AfBackUtils {
     	return null;
     }
     
-	public static String addDonneeCertifiee(String donneesCertifiees, String path) {
-		List<String> donneesCertifieesList = donneesCertifieesJsonToList(donneesCertifiees);
-		donneesCertifieesList.add(path);
+	public static String addDonneeCertifiee(String donneesCertifiees, SourceFiableDTO sourceFiable) {
+		List<SourceFiableDTO> donneesCertifieesList = donneesCertifieesJsonToList(donneesCertifiees);
+		donneesCertifieesList.add(sourceFiable);
 		return donneesCertifieesListToJson(donneesCertifieesList);
 	}
 	
 	public static String mConnectDateToString(Date date) {
 		return new SimpleDateFormat(MCONNECT_DATE_AND_TIME_FORMAT).format(date);
 	}
-	
-	public String getIdentifiantFromPkDemande(Integer pkDemande) {
+    public String getIdentifiantFromPkDemande(Integer pkDemande) {
 		DemandeDTO demande = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), pkDemande);
 		return demande.getIdentifiant();
 	}
-	
 	public boolean isEmailHtmlEnabled() {
         PropertiesDTO emailHtmlEnabledProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_EMAIL_HTML_ENABLED);
         if (emailHtmlEnabledProp == null || StringUtils.isBlank(emailHtmlEnabledProp.getValue())) {
@@ -772,5 +766,13 @@ public class AfBackUtils {
         }
         return Boolean.valueOf(emailHtmlEnabledProp.getValue());
 	}
+	
+	/**
+     * Permet de savoir si la démarche prend en charge des propriétés
+     * @return
+     */
+    public boolean isTypedocApplicable(String typedoc) {
+        return demarchesDataProvider.isTypedocApplicable(typedoc);
+    }
 
 }

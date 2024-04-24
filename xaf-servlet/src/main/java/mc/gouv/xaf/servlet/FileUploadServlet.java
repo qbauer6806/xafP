@@ -115,8 +115,8 @@ public class FileUploadServlet extends AbstractAfServlet {
                 return;
             }
             int tailleMaxFichier = Integer.parseInt(propMaxTailleFichiers.getValue());
-            // transformation B en MB
-            int tailleMaxFichierMB = tailleMaxFichier * 1000000;
+            // transformation B en MB: 1 Mo = 1 048 576 octets
+            int tailleMaxFichierMB = tailleMaxFichier * 1048576;
             if (part.getSize() > tailleMaxFichierMB) {
                 LOGGER.info("La taille du fichier depasse la taille max definie dans les propriétés ({})", tailleMaxFichier);
                 AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_FORBIDDEN,
@@ -144,8 +144,7 @@ public class FileUploadServlet extends AbstractAfServlet {
             Integer accessId = access.getPkAccess();
             LOGGER.debug("AccessID = {}", accessId);
             if (accessId == null) {
-                AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_NOT_FOUND,
-                        "Erreur: impossible de récupérer l'accès");
+                AppFactoryServletUtils.logAndSendError(LOGGER, response, HttpStatus.SC_NOT_FOUND,"Erreur: impossible de récupérer l'accès");
                 return;
             }
 
@@ -270,7 +269,7 @@ public class FileUploadServlet extends AbstractAfServlet {
             postRequestVscan.setEntity(multipartVscan);
             postRequestVscan.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + AfServletGouvPropertiesResolver.getVscanJwt());
             HttpResponse postResponseVscan = clientVscan.execute(postRequestVscan);
-            String vscanResp = IOUtils.toString(postResponseVscan.getEntity().getContent());
+            String vscanResp = IOUtils.toString(postResponseVscan.getEntity().getContent(), StandardCharsets.UTF_8);
             LOGGER.info("VSCAN Response : {} ({})", postResponseVscan.getStatusLine(), vscanResp);
 
             ScanDTO scanDto = mapper.readValue(vscanResp, ScanDTO.class);
@@ -313,8 +312,8 @@ public class FileUploadServlet extends AbstractAfServlet {
         if (statusCode == HttpServletResponse.SC_OK || statusCode == HttpServletResponse.SC_CREATED) {
             // Si tout s'est bien passé, alors on forme une réponse différente que celle qui nous est retournée par FILE
             ObjectMapper mapper = new ObjectMapper();
-            // Répondre accessId/uuid/nomDuFichier
-            FileUploadResponseDTO responseObj = new FileUploadResponseDTO(accessId + SLASH + uuid + SLASH + filename);
+            // Répondre /accessId/uuid/nomDuFichier
+            FileUploadResponseDTO responseObj = new FileUploadResponseDTO(SLASH + accessId + SLASH + uuid + SLASH + filename);
             String responseStr = mapper.writeValueAsString(responseObj);
             response.getOutputStream().write(responseStr.getBytes());
         } else {

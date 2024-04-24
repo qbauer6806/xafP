@@ -159,6 +159,34 @@
         <filter-name>IPFilter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
+
+    <filter>
+        <filter-name>FileUploadLimitFilter</filter-name>
+        <filter-class>mc.gouv.xaf.servlet.filter.FileUploadLimitFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>FileUploadLimitFilter</filter-name>
+        <url-pattern>/doc-holder/file</url-pattern>
+    </filter-mapping>
+
+    <filter>
+        <filter-name>DocHolderFilter</filter-name>
+        <filter-class>mc.gouv.xaf.servlet.filter.DocHolderFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>DocHolderFilter</filter-name>
+        <url-pattern>/doc-holder/*</url-pattern>
+        <url-pattern>/doc-holder</url-pattern>
+    </filter-mapping>
+
+    <filter>
+        <filter-name>DocHolderConsentFilter</filter-name>
+        <filter-class>mc.gouv.xaf.servlet.filter.DocHolderConsentFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>DocHolderConsentFilter</filter-name>
+        <url-pattern>/doc-holder/file</url-pattern>
+    </filter-mapping>
     
     <context-param>
         <param-name>DemarcheID</param-name>
@@ -218,6 +246,60 @@
     <servlet-mapping>
         <servlet-name>BrouillonsPageableServlet</servlet-name>
         <url-pattern>/brouillonspage/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>DocHolderServlet</servlet-name>
+        <servlet-class>mc.gouv.xaf.servlet.DocHolderServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>DocHolderServlet</servlet-name>
+        <url-pattern>/doc-holder</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>DocHolderSearchServlet</servlet-name>
+        <servlet-class>mc.gouv.xaf.servlet.DocHolderSearchServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>DocHolderSearchServlet</servlet-name>
+        <url-pattern>/doc-holder/search</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>DocHolderFileServlet</servlet-name>
+        <servlet-class>mc.gouv.xaf.servlet.DocHolderFileServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>DocHolderFileServlet</servlet-name>
+        <url-pattern>/doc-holder/file</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>DocHolderTypedocServlet</servlet-name>
+        <servlet-class>mc.gouv.xaf.servlet.DocHolderTypedocServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>DocHolderTypedocServlet</servlet-name>
+        <url-pattern>/doc-holder/typedoc</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>DocHolderToFileServlet</servlet-name>
+        <servlet-class>mc.gouv.xaf.servlet.DocHolderToFileServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>DocHolderToFileServlet</servlet-name>
+        <url-pattern>/doc-holder/tofile</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>DocHolderConsentServlet</servlet-name>
+        <servlet-class>mc.gouv.xaf.servlet.DocHolderConsentServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>DocHolderConsentServlet</servlet-name>
+        <url-pattern>/doc-holder/consent</url-pattern>
     </servlet-mapping>
 
 </web-app>

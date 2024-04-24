@@ -1,24 +1,24 @@
 package mc.gouv.xaf.servlet;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
-import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
-import mc.gouv.xaf.servlet.util.GichkeyService;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.text.SimpleDateFormat;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.ws.rs.core.MediaType;
-import java.text.SimpleDateFormat;
-import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import mc.gouv.xaf.servlet.dto.UsagerInfosDTO;
+import mc.gouv.xaf.servlet.util.AppFactoryServletUtils;
+import mc.gouv.xaf.servlet.util.GichkeyService;
 
 /**
  * Servlet permettant de gérer les sessions des usagers.
@@ -47,8 +47,8 @@ public class SessionsServlet extends AbstractAfServlet {
                 return;
             }
 
-            //https://docs.angularjs.org/api/ng/service/$http#cross-site-request-forgery-xsrf-protection
-            //Ajout du cookie XSRF-TOKEN
+            // https://docs.angularjs.org/api/ng/service/$http#cross-site-request-forgery-xsrf-protection
+            // Ajout du cookie XSRF-TOKEN
 
             String xsrfValue = (String) session.getAttribute(AppFactoryServletUtils.XSRF_SESSION_ATTRIBUTE);
             if (StringUtils.isBlank(xsrfValue)) {
@@ -98,8 +98,8 @@ public class SessionsServlet extends AbstractAfServlet {
             }
             // Récupération de l'objet attaché à la session
             UsagerInfosDTO usagerInfosDTO = (UsagerInfosDTO) session.getAttribute(LOGIN);
-            LOGGER.info("usagerInfosDTO : {}, userId={}, accessId={}",
-                    usagerInfosDTO, usagerInfosDTO.getId(), usagerInfosDTO.getAccessId());
+            LOGGER.info("usagerInfosDTO : {}, userId={}, accessId={}", usagerInfosDTO, usagerInfosDTO.getId(),
+                    usagerInfosDTO.getAccessId());
 
             // On ne met pas à jour s'il s'agit d'un usager courrier
             if (AppFactoryServletUtils.isUsagerCourrier(usagerInfosDTO.getId())) {

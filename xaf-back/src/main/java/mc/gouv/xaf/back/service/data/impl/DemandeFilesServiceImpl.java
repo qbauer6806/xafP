@@ -63,6 +63,7 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
 
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
+    
 
     @Override
     public void saveFiles(DemandeFileDTO[] demandeFiles, DemandeBO demandeBo) {
@@ -154,6 +155,11 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
         }
         LOGGER.info("Fin updateTypedocs()");
         return success.get();
+    }
+
+    @Override
+    public List<DemandeFileDTO> getFileByDemandeIdAndTypedoc(Integer pkDemande, String typedoc) {
+        return DemandesFilesTransformer.bo2Dto(demandesFilesRepository.findAllByFkDemandes_PkDemandesAndTypedoc(pkDemande, typedoc));
     }
 
     @Override

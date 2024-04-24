@@ -2,7 +2,8 @@ package mc.gouv.xaf.back.dsp.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import mc.gouv.xaf.back.dsp.enums.ResidTypeUsagerEnum;
+
+import mc.gouv.xaf.back.dsp.enums.common.ResidTypeUsagerEnum;
 
 import java.io.Serializable;
 import java.util.List;
@@ -19,17 +20,18 @@ public class ResidUsagerNouveauDTO implements Serializable {
 
     private ResidIdentiteNouvelleDTO identite;
 
+    @JsonInclude()
     private ResidAdresseDTO adresseMonaco;
 
+    @JsonInclude()
     private ResidAdresseDTO adresseProvenance;
 
     private ResidLogementDTO logement;
 
+    @JsonInclude()
     private ResidHebergeantDTO hebergeant;
 
     private ResidMoyensExistenceDTO moyensExistence;
-
-    private ResidConjointDTO conjoint;
 
     private String situationDate;
 
@@ -97,14 +99,6 @@ public class ResidUsagerNouveauDTO implements Serializable {
 
     public void setMoyensExistence(ResidMoyensExistenceDTO moyensExistence) {
         this.moyensExistence = moyensExistence;
-    }
-
-    public ResidConjointDTO getConjoint() {
-        return conjoint;
-    }
-
-    public void setConjoint(ResidConjointDTO conjoint) {
-        this.conjoint = conjoint;
     }
 
     public String getSituationDate() {

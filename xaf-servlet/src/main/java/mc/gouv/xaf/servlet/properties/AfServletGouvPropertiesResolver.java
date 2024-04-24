@@ -112,6 +112,51 @@ public class AfServletGouvPropertiesResolver {
     public static String getGichuniProfilCompanyUrl() {
         return Static.getValue(GICHUNI_PROFIL_COMPANY_URL);
     }
+    
+    // #58046 - Ajout de propriétés partagées par tous les Front office
+    public static final String GICHUNI_USAGER_PARTICULER_URL_FR = "mc.gouv.gichuni.particulier.url.fr";
+    public static final String GICHUNI_USAGER_PARTICULER_URL_EN = "mc.gouv.gichuni.particulier.url.en";
+    public static final String GICHUNI_USAGER_ENTREPRISE_URL_FR = "mc.gouv.gichuni.entreprise.url.fr";
+    public static final String GICHUNI_USAGER_ENTREPRISE_URL_EN = "mc.gouv.gichuni.entreprise.url.en";
+    
+	public static final String getSuiviDemarcheParticulierUrlFr() {
+		// Ici on concatène l'URL front de gichuni (https://gichuni-front-dev.monaco-gouvernement.mc)
+		String value = getGichuniFrontUrl();
+		// Avec le path dans la propriété mc.gouv.gichuni.particulier.uri.fr (voir https://redmine.monaco-gouvernement.mc/issues/58046)
+		String path = Static.getValue("mc.gouv.gichuni.particulier.uri.fr", "N/D");
+		return StringUtils.isBlank(value) ? "vide" : value + path;
+	}
+
+	public static final String getSuiviDemarcheParticulierUrlEn() {
+		String value = getGichuniFrontUrl();
+		String path = Static.getValue("mc.gouv.gichuni.particulier.uri.en", "N/D");
+		return StringUtils.isBlank(value) ? "vide" : value + path;
+	}
+
+	public static final String getSuiviDemarcheEntrepriseUrlFr() {
+		String value = getGichuniFrontUrl();
+		String path = Static.getValue("mc.gouv.gichuni.entreprise.uri.fr", "N/D");
+		return StringUtils.isBlank(value) ? "vide" : value + path;
+	}
+
+	public static final String getSuiviDemarcheEntrepriseUrlEn() {
+		String value = getGichuniFrontUrl();
+		String path = Static.getValue("mc.gouv.gichuni.entreprise.uri.en", "N/D");
+		return StringUtils.isBlank(value) ? "vide" : value + path;
+	}
+	
+	// #58041 - [BO] Clé BO pour lien vers le formulaire de révocation des certificats électroniques
+	// #58046 - Ajout de propriétés partagées par tous les Front office
+	public static final String LIEN_REVOCATION_CERTIFS_ELECTRONIQUES_FR = "mc.gouv.mconnect.revocation.certificats.url.fr";
+	public static final String LIEN_REVOCATION_CERTIFS_ELECTRONIQUES_EN = "mc.gouv.mconnect.revocation.certificats.url.en";
+	public static final String getLienRevocationCertifsElectroniquesFr() {
+		String path = Static.getValue(LIEN_REVOCATION_CERTIFS_ELECTRONIQUES_FR, "N/D");
+		return StringUtils.isBlank(path) ? "vide" : path;
+	}
+	public static final String getLienRevocationCertifsElectroniquesEn() {
+		String path = Static.getValue(LIEN_REVOCATION_CERTIFS_ELECTRONIQUES_EN, "N/D");
+		return StringUtils.isBlank(path) ? "vide" : path;
+	}
 
     /* Properties propres à la démarche */
 
@@ -217,10 +262,16 @@ public class AfServletGouvPropertiesResolver {
         return Static.getValue(GICHKEY_URL);
     }
     
-    public static final String GICHUNI_URL = "mc.gouv.appfactory.front.gichuni.url";
+    public static final String GICHUNI_URL = "mc.gouv.af.back.external.gichuni.url";
 
     public static String getGichuniUrl() {
         return Static.getValue(GICHUNI_URL);
+    }
+    
+    public static final String GICHUNI_FRONT_URL = "mc.gouv.appfactory.front.gichuni.url";
+
+    public static String getGichuniFrontUrl() {
+        return Static.getValue(GICHUNI_FRONT_URL);
     }
     
     public static final String GICHKEY_CLIENT_ID = APPFACTORY_PREFIX + applicationPrefix + ".gichkey.client_id";
@@ -247,6 +298,11 @@ public class AfServletGouvPropertiesResolver {
     public static String getMoneticoUrl() {
         String value = Static.getValue(MONETICO_URL);
         return StringUtils.isBlank(value) ? "vide" : value;
+    }
+
+    public static String getPorteDocUrl() {
+        String value = getGichuniUrl();
+        return StringUtils.isBlank(value) ? "vide" : value + "/public/doc-holder";
     }
 
     static {
@@ -286,6 +342,14 @@ public class AfServletGouvPropertiesResolver {
         propertiesDTOS.add(new PropertiesDTO(FRONTOFFICE_PIWIK_URL, getFrontofficePiwikURL()));
         propertiesDTOS.add(new PropertiesDTO(PAIEMENT_PROVIDER, getPaiementProvider()));
         propertiesDTOS.add(new PropertiesDTO(MONETICO_URL, getMoneticoUrl()));
+        propertiesDTOS.add(new PropertiesDTO(GICHUNI_URL, getGichuniUrl()));
+        propertiesDTOS.add(new PropertiesDTO(GICHUNI_FRONT_URL, getGichuniFrontUrl()));
+        propertiesDTOS.add(new PropertiesDTO(GICHUNI_USAGER_PARTICULER_URL_FR, getSuiviDemarcheParticulierUrlFr()));
+        propertiesDTOS.add(new PropertiesDTO(GICHUNI_USAGER_PARTICULER_URL_EN, getSuiviDemarcheParticulierUrlEn()));
+        propertiesDTOS.add(new PropertiesDTO(GICHUNI_USAGER_ENTREPRISE_URL_FR, getSuiviDemarcheEntrepriseUrlFr()));
+        propertiesDTOS.add(new PropertiesDTO(GICHUNI_USAGER_ENTREPRISE_URL_EN, getSuiviDemarcheEntrepriseUrlEn()));
+        propertiesDTOS.add(new PropertiesDTO(LIEN_REVOCATION_CERTIFS_ELECTRONIQUES_FR, getLienRevocationCertifsElectroniquesFr()));
+        propertiesDTOS.add(new PropertiesDTO(LIEN_REVOCATION_CERTIFS_ELECTRONIQUES_EN, getLienRevocationCertifsElectroniquesEn()));
         return propertiesDTOS;
     }
 }

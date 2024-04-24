@@ -583,30 +583,12 @@ public class DemandesServiceImpl implements DemandesService {
 		DemandeBO demandeBo = getCheckDemarcheDemandeBO(demande.getDemarcheId(), demande, checkActive);
 
 		// Mise à jour du contenu
-		if (!partialUpdate || demande.getContenu() != null && !demande.getContenu().isNull()) {
-			ObjectMapper mapper = new ObjectMapper();
-			try {
-				demandeBo.setContenu(mapper.writeValueAsString(demande.getContenu()));
-			} catch (JsonProcessingException e) {
-				LOGGER.error("Problème lors de la conversion JSON", e);
-			}
-		}
+		this.setContenu(demande, partialUpdate, demandeBo);
 
-        // Mise à jour du contenu initial
-        if (!partialUpdate || demande.getContenuInitial() != null && !demande.getContenuInitial().isNull()) {
-            ObjectMapper mapper = new ObjectMapper();
-            try {
-                demandeBo.setContenuInitial(mapper.writeValueAsString(demande.getContenuInitial()));
-                // Ce qui suit afin d'éviter l'insertion d'une chaîne "null" en base
-                if (demandeBo.getContenuInitial() != null && "null".equals(demandeBo.getContenuInitial())) {
-                	demandeBo.setContenuInitial(null);
-                }
-            } catch (JsonProcessingException e) {
-                LOGGER.error("Problème lors de la conversion JSON", e);
-            }
-        }
+		// Mise à jour du contenu initial
+		this.setContenuInitial(demande, partialUpdate, demandeBo);
 
-        // Mise à jour du timestamp pour verrouillage
+		// Mise à jour du timestamp pour verrouillage
         demandeBo.setModificationTimestamp(demande.getModificationTimestamp());
 
 		// Mise à jour des observations
@@ -636,6 +618,32 @@ public class DemandesServiceImpl implements DemandesService {
 		DemandeDTO dto = DemandesTransformer.bo2Dto(demandeBo);
 		dto.setUpdated(true);
 		return dto;
+	}
+
+	private void setContenu(DemandeDTO demande, boolean partialUpdate, DemandeBO demandeBo) {
+		if (!partialUpdate || demande.getContenu() != null && !demande.getContenu().isNull()) {
+			ObjectMapper mapper = new ObjectMapper();
+			try {
+				demandeBo.setContenu(mapper.writeValueAsString(demande.getContenu()));
+			} catch (JsonProcessingException e) {
+				LOGGER.error("Problème lors de la conversion JSON", e);
+			}
+		}
+	}
+
+	private void setContenuInitial(DemandeDTO demande, boolean partialUpdate, DemandeBO demandeBo) {
+		if (!partialUpdate || demande.getContenuInitial() != null && !demande.getContenuInitial().isNull()) {
+			ObjectMapper mapper = new ObjectMapper();
+			try {
+				demandeBo.setContenuInitial(mapper.writeValueAsString(demande.getContenuInitial()));
+				// Ce qui suit afin d'éviter l'insertion d'une chaîne "null" en base
+				if (demandeBo.getContenuInitial() != null && "null".equals(demandeBo.getContenuInitial())) {
+					demandeBo.setContenuInitial(null);
+				}
+			} catch (JsonProcessingException e) {
+				LOGGER.error("Problème lors de la conversion JSON", e);
+			}
+		}
 	}
 
 	/**
@@ -704,8 +712,9 @@ public class DemandesServiceImpl implements DemandesService {
 		if (demandeBo == null) {
 			throw new DemarchesServiceException("Demande introuvable", HttpStatus.NOT_FOUND);
 		}
+		AccessBO access = demandeBo.getFkAccess();
 
-        /*** Insertion de statistique */
+		/*** Insertion de statistique */
         LOGGER.info("Ajout d'une ligne de statistique pour la suppression de la demande...");
 		StatistiqueDTO stat = new StatistiqueDTO();
 		stat.setCanal(demandeBo.getCanal());
@@ -716,11 +725,7 @@ public class DemandesServiceImpl implements DemandesService {
 		stat.setStatutPublic(AfBackUtils.STATUT_PUBLIC_SUPPRIMEE);
         statistiquesService.saveStatistique(stat);
 
-        /*** Suppression de l'access de la demande */
-        /* TODO: doit on vrraiment gérer l'access ici???? */
-        // accessRepository.deleteAccessForGivenPkDemandes(demandeId);
-		// Suppression de l'historique de la demande (pas géré par cascade, donc le
-		// faire ici)
+		// Suppression de l'historique de la demande (pas géré par cascade, donc le faire ici)
 		LOGGER.info("Suppression de l'historique de la demande...");
         demandesHistoriqueRepository.deleteHistoForGivenPkDemandes(demandeId);
 
@@ -733,6 +738,12 @@ public class DemandesServiceImpl implements DemandesService {
         /*** Suppression de la demande. */
 		LOGGER.info("Appel du répo pour la suppression...");
 		demandesRepository.delete(demandeBo);
+
+		LOGGER.info("Envoi d'un message dans Kafka pour notifier le Guichet Unique de la suppression de la demande...");
+		List<DemandeRecapDTO> demandeRecaps = guKafkaUtils.getDemandeRecapsFromUsagerId(access.getUsagerId());
+		RecapDemandesDTO recapDemandes = guKafkaUtils.getRecapDemandes(demandeRecaps);
+		guKafkaProducer.sendSuppressionDemandeMessage(access.getUsagerId(), demandeId, demandeBo.getIdentifiant(),
+				demandeBo.getDateCreation(), recapDemandes);
 	}
 
 

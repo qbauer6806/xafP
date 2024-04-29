@@ -349,7 +349,7 @@ public class AfBackUtils {
     }
 
     public String getExportLibelle() {
-        return demarchesDataProvider.getExportLibelle() != null ? demarchesDataProvider.getExportLibelle() : "Export Anonymisé";
+        return demarchesDataProvider.getExportLibelle();
     }
 
     public String getRecapOrientation() {

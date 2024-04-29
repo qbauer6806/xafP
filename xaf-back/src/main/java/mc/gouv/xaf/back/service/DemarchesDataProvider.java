@@ -79,7 +79,7 @@ public interface DemarchesDataProvider {
     }
 
     default String getExportLibelle() {
-        return null;
+        return "Export Anonymisé";
     }
 
     /**

@@ -20,10 +20,10 @@
         <maven.compiler.target>11</maven.compiler.target>
         <logon-apiclient.version>5.2.2</logon-apiclient.version>
         <servicerest_client.version>2.2.15</servicerest_client.version>
-        <tika.version>2.9.0</tika.version>
+        <tika.version>2.9.2</tika.version>
         <xcb-wlib.version>1.2.0</xcb-wlib.version>
         <commons-fileupload.version>1.5</commons-fileupload.version>
-        <poi-ooxml.version>5.2.0</poi-ooxml.version>
+        <poi-ooxml.version>5.2.5</poi-ooxml.version>
         <commons-io.version>2.13.0</commons-io.version>
         <!-- Remove jackson-bom version when spring boot 3 -->
         <jackson-bom.version>2.15.2</jackson-bom.version>
@@ -31,7 +31,6 @@
         <jjwt.version>0.7.0</jjwt.version>
         <xapi.version>1.0.4</xapi.version>
         <tools_monitor.version>1.0.8</tools_monitor.version>
-        <jettyVersion>9.4.46.v20220331</jettyVersion>
         <jacoco.version>0.8.11</jacoco.version>
     </properties>
 
@@ -94,7 +93,7 @@
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-compress</artifactId>
-                <version>1.21</version>
+                <version>1.26.1</version>
             </dependency>
 
             <!-- CWE-300 -->

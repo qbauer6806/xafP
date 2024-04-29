@@ -1,24 +1,5 @@
 package mc.gouv.xaf.back.service.data.impl;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-
-import javax.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Conditional;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
 import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
 import mc.gouv.xaf.back.data.dao.DemandeJobRepository;
 import mc.gouv.xaf.back.data.entity.DemandeJobBO;
@@ -35,8 +16,25 @@ import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.UsagerDemandesRecapDTO;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.utils.GUKafkaUtils;
 import mc.gouv.xaf.shared.dto.DemandeJobDTO;
-import mc.gouv.xaf.shared.dto.JobNamesEnum;
-import mc.gouv.xaf.shared.dto.JobStatutsEnum;
+import mc.gouv.xaf.shared.enums.JobNamesEnum;
+import mc.gouv.xaf.shared.enums.JobStatutsEnum;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Conditional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.inject.Inject;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @Conditional(IndexationEnabledCondition.class)
@@ -152,7 +150,6 @@ public class DemandeJobServiceImpl implements DemandeJobService {
                     demCount = indexedDemandeService.reindexDemandesCourrier();
                     msg = demCount + " demandes courrier ont été reindéxées";
                     break;
-
                 case RAFRAICHISSEMENT_STATUS:
                     msg = demandesStatutsRefreshService.refreshStatuts();
                     break;

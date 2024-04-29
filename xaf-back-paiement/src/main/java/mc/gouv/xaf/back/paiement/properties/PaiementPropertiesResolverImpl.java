@@ -1,11 +1,10 @@
 package mc.gouv.xaf.back.paiement.properties;
 
-import mc.gouv.Static;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -41,6 +40,52 @@ public class PaiementPropertiesResolverImpl implements PaiementPropertiesResolve
 
     private static final String MC_GOUV_PREFIX = "mc.gouv";
 
+    @Value("mc.gouv.cir.api.url")
+    private String cirServiceUrl;
+
+    @Value("mc.gouv.${application.name}.shared.backapi.cir.api.jwt")
+    private String cirServiceToken;
+
+    @Value("mc.gouv.${application.name}.shared.backapi.cir.registre:0")
+    private String cirRegistre;
+
+    @Value("mc.gouv.${application.name}.shared.backapi.cir.permis:0")
+    private String cirPermis;
+
+    @Value("mc.gouv.${application.name}.shared.backapi.cir.immat:")
+    private String cirImmat;
+
+    @Value("mc.gouv.${application.name}.shared.backapi.monetico.currency")
+    private String moneticoCurrency;
+
+    @Value("mc.gouv.${application.name}.shared.backapi.monetico.tpe")
+    private String moneticoTpe;
+
+    @Value("mc.gouv.${application.name}.shared.backapi.monetico.clesceau")
+    private String moneticoCleSceau;
+
+    @Value("mc.gouv.${application.name}.shared.backapi.monetico.versionaller")
+    private String moneticoVersionAller;
+
+    @Value("mc.gouv.${application.name}.shared.backapi.monetico.versioncapture")
+    private String moneticoVersionCapture;
+
+    @Value("mc.gouv.${application.name}.shared.backapi.monetico.codesitestandard")
+    private String moneticoCodeSiteStandard;
+
+    @Value("mc.gouv.${application.name}.shared.backapi.monetico.codesiteiframe")
+    private String moneticoCodeSiteIframe;
+
+    @Value("mc.gouv.${application.name}.shared.backapi.monetico.captureurl")
+    private String moneticoCaptureUrl;
+
+    @Value("mc.gouv.${application.name}.shared.backapi.monetico.successurl")
+    private String moneticoSuccessUrl;
+
+    @Value("mc.gouv.${application.name}.shared.backapi.monetico.echecurl")
+    private String moneticoEchecUrl;
+
+
     @Override
     public String getXafMoneticoTexteAller() {
         PropertiesDTO propertiesDTO = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), XAF_MONETICO_TEXTE_ALLER);
@@ -55,12 +100,12 @@ public class PaiementPropertiesResolverImpl implements PaiementPropertiesResolve
 
     @Override
     public String getFactureUrl() {
-        return Static.getValue(MC_GOUV_PREFIX + gouvPropertiesResolver.getApplicationPrefix() + ".cir.serviceUrl");
+        return cirServiceUrl;
     }
 
     @Override
     public String getFactureToken() {
-        return Static.getValue(MC_GOUV_PREFIX + gouvPropertiesResolver.getApplicationPrefix() + ".cir.token");
+        return cirServiceToken;
     }
 
     /**
@@ -70,8 +115,7 @@ public class PaiementPropertiesResolverImpl implements PaiementPropertiesResolve
      */
     @Override
     public int getRegistre() {
-        String registre = Static.getValue(MC_GOUV_PREFIX + gouvPropertiesResolver.getApplicationPrefix() + ".cir.registre");
-        return StringUtils.isNotEmpty(registre) ? Integer.parseInt(registre) : 0;
+        return Integer.parseInt(cirRegistre);
     }
 
     /**
@@ -81,8 +125,7 @@ public class PaiementPropertiesResolverImpl implements PaiementPropertiesResolve
      */
     @Override
     public int getPermis() {
-        String permis = Static.getValue(MC_GOUV_PREFIX + gouvPropertiesResolver.getApplicationPrefix() + ".cir.permis");
-        return StringUtils.isNotEmpty(permis) ? Integer.parseInt(permis) : 0;
+        return Integer.parseInt(cirPermis);
     }
 
     /**
@@ -92,7 +135,7 @@ public class PaiementPropertiesResolverImpl implements PaiementPropertiesResolve
      */
     @Override
     public String getImmat() {
-        return Static.getValue(MC_GOUV_PREFIX + gouvPropertiesResolver.getApplicationPrefix() + ".cir.immat", "");
+        return cirImmat;
     }
 
     @Override
@@ -153,6 +196,7 @@ public class PaiementPropertiesResolverImpl implements PaiementPropertiesResolve
     /**
      * <p>Permet de récupérer la valeur de la propriété XAF_PAIEMENT_IMMEDIAT_HEURE_DIFFERE</p>
      * <p>Si cette propriété n'est pas ajoutée dans la BDD, on utilise une valeur par défault</p>
+     *
      * @return une chaine contenant l'heure d'arrêt du paiement immédiat
      */
     @Override
@@ -163,52 +207,52 @@ public class PaiementPropertiesResolverImpl implements PaiementPropertiesResolve
 
     @Override
     public String getCurrency() {
-        return Static.getValue(MC_GOUV_PREFIX + gouvPropertiesResolver.getApplicationPrefix() + ".monetico.currency");
+        return moneticoCurrency;
     }
 
     @Override
     public String getTpe() {
-        return Static.getValue(MC_GOUV_PREFIX + gouvPropertiesResolver.getApplicationPrefix() + ".monetico.tpe");
+        return moneticoTpe;
     }
 
     @Override
     public String getPaiementClef() {
-        return Static.getValue(MC_GOUV_PREFIX + gouvPropertiesResolver.getApplicationPrefix() + ".monetico.cleSceau");
+        return moneticoCleSceau;
     }
 
     @Override
     public String getVersionAller() {
-        return Static.getValue(MC_GOUV_PREFIX + gouvPropertiesResolver.getApplicationPrefix() + ".monetico.versionAller");
+        return moneticoVersionAller;
     }
 
     @Override
     public String getVersionCapture() {
-        return Static.getValue(MC_GOUV_PREFIX + gouvPropertiesResolver.getApplicationPrefix() + ".monetico.versionCapture");
+        return moneticoVersionCapture;
     }
 
     @Override
     public String getCodeSiteStandard() {
-        return Static.getValue(MC_GOUV_PREFIX + gouvPropertiesResolver.getApplicationPrefix() + ".monetico.codeSiteStandard");
+        return moneticoCodeSiteStandard;
     }
 
     @Override
     public String getXafMoneticoCodeSiteIframe() {
-        return Static.getValue(MC_GOUV_PREFIX + gouvPropertiesResolver.getApplicationPrefix() + ".monetico.codeSiteIframe");
+        return moneticoCodeSiteIframe;
     }
 
     @Override
     public String getCaptureUrl() {
-        return Static.getValue(MC_GOUV_PREFIX + gouvPropertiesResolver.getApplicationPrefix() + ".monetico.captureUrl");
+        return moneticoCaptureUrl;
     }
 
     @Override
     public String getSuccesUrl() {
-        return Static.getValue(MC_GOUV_PREFIX + gouvPropertiesResolver.getApplicationPrefix() + ".monetico.successUrl");
+        return moneticoSuccessUrl;
     }
 
     @Override
     public String getEchecUrl() {
-        return Static.getValue(MC_GOUV_PREFIX + gouvPropertiesResolver.getApplicationPrefix() + ".monetico.echecUrl");
+        return moneticoEchecUrl;
     }
 
     @Override

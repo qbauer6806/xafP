@@ -13,7 +13,6 @@ import org.xml.sax.SAXException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-
 import mc.gouv.xaf.shared.dto.AccessDTO;
 import mc.gouv.xaf.shared.dto.AccessInputDTO;
 import mc.gouv.xaf.shared.dto.BrouillonDTO;
@@ -27,6 +26,15 @@ import mc.gouv.xaf.shared.dto.PageParamDTO;
 import mc.gouv.xaf.shared.dto.PeriodeOuvertureDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
+import org.apache.tika.exception.TikaException;
+import org.springframework.http.ResponseEntity;
+import org.xml.sax.SAXException;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Interface spécifiant les méthodes devant être implémentées en tant que Web Services dans les démarches BACK.
@@ -111,6 +119,10 @@ public interface AfApiController {
     BrouillonDTO updateBrouillon(BrouillonDTO brouillon, Integer usagerId);
 
     List<BrouillonDTO> getBrouillons(Integer usagerId);
+
+    default List<BrouillonDTO> getAllBrouillons(String demarcheId) {
+        return Collections.emptyList();
+    }
 
     Page<BrouillonDTO> getBrouillonsPageable(Integer usagerId, PageParamDTO paramDTO);
 

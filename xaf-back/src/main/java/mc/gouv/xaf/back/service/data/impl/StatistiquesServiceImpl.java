@@ -60,6 +60,7 @@ public class StatistiquesServiceImpl implements StatistiquesService {
         statistiqueDTO.setCanal(demandeDTO.getCanal().name());
         statistiqueDTO.setDate(demandeDTO.getDernierStatut().getDate());
         statistiqueDTO.setIdentifiantDemande(demandeDTO.getIdentifiant());
+        statistiqueDTO.setTypeConnexionUsager(demandeDTO.getTypeConnexionUsager());
         return saveStatistique(statistiqueDTO);
     }
 

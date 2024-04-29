@@ -1,0 +1,296 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org"
+      class="no-js sidebar-left-collapsed" lang="fr" dir="ltr">
+
+<head>
+
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+	<meta th:name="_csrf" th:content="${_csrf.token}" />
+	<meta th:name="_csrf_header" th:content="${_csrf.headerName}" />
+    <title th:text="${AfBackUtils.getDemarcheNom()}"></title>
+
+    <!-- Import FONTS -->
+    <link rel="stylesheet" th:href="@{/css/font-style.css(${applicationBuildTimestamp})}"/>
+    <link rel="stylesheet" th:href="@{/webjars/xcb-wlib/fonts/ie7/ie7.css}" />
+
+    <!-- Import CSS -->
+    <link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"
+          rel="stylesheet" type="text/css" />
+    <link th:href="@{/webjars/xcb-wlib/css/template.css}" rel="stylesheet" />
+    <link th:href="@{/webjars/xcb-wlib/css/sidebar.css}" rel="stylesheet" />
+    <link th:href="@{/webjars/xcb-wlib/css/element.css}" rel="stylesheet" />
+    <link th:href="@{/webjars/datatables/css/dataTables.bootstrap.css}"
+          rel="stylesheet" />
+    <link
+            th:href="@{/webjars/bootstrap-datepicker/css/bootstrap-datepicker.css}"
+            rel="stylesheet" />
+
+    <link rel="shortcut icon" type="image/x-icon"
+          th:href="@{/img/favicon.ico}" />
+    <link th:href="@{/css/tsgen.css(${applicationBuildTimestamp})}"
+          rel="stylesheet" />
+    <link th:href="@{/css/tsdem.css(${applicationBuildTimestamp})}"
+          rel="stylesheet" />
+    <link
+            th:href="@{/webjars/bootstrap-datepicker/css/bootstrap-datepicker.css}"
+            rel="stylesheet" />
+
+</head>
+
+<body th:with="pageConfigurationActive='active'">
+
+<div th:replace="fragments/header :: header"></div>
+
+<div id="wrapper">
+
+    <div th:replace="fragments/sidebar :: sidebar"></div>
+
+    <!-- DEBUT CONTENU -->
+	<div id="page-content-wrapper">
+
+		<div class="breadcrumbContent">
+			<div class="breadcrumb">
+				<a id="ariane0" th:href="@{/}" class="breadcrumb-item">ACCUEIL</a>&nbsp;&gt;&nbsp;
+				<a id="ariane1" th:href="@{/gestion/parametrage}"
+				   class="breadcrumb-item">PARAMÉTRAGE DE LA DÉMARCHE</a> &gt;
+			</div>
+			<div class="triangleTopright"></div>
+		</div>
+
+		<div class="container-fluid">
+			<form id="form-parametrage" style="display: inline;"
+				  th:action="@{/gestion/parametrage/sauvegarder}" method="post"
+				  th:object="${parametrageFormBean}">
+
+				<div class="container-fluid">
+					<h1>Propriétés principales</h1>
+				</div>
+
+				<div class="panel panel-simple">
+					<div class="row container-fluid">
+						<div th:class="form-group">
+							<div class="col-xs-2">
+								<label for="nomDemarche">Titre de la démarche<span class="required"></span> (nomTs): </label>
+							</div>
+							<div class="col-xs-10">
+								<input type="text" id="nomDemarche" name="nomDemarche" th:field="*{nomDemarche}" class="form-control" required maxlength="256"/>
+							</div>
+						</div>
+					</div>
+
+					<div class="row container-fluid mt-15">
+						<div th:class="form-group">
+							<div class="col-xs-2">
+								<label for="emailService">Adresse e-mail du service<span class="required"></span>: </label>
+							</div>
+							<div class="col-xs-10">
+								<input type="text" id="emailService" name="emailService" th:field="*{emailService}" class="form-control" required maxlength="256"/>
+							</div>
+						</div>
+					</div>
+
+					<div class="row container-fluid mt-15">
+						<div th:class="form-group">
+							<div class="col-xs-2">
+								<label for="emailServiceNom">Nom associé à l'adresse e-mail du service<span class="required"></span>: </label>
+							</div>
+							<div class="col-xs-10">
+								<input type="text" id="emailServiceNom" name="emailServiceNom" th:field="*{emailServiceNom}" class="form-control" required maxlength="256"/>
+							</div>
+						</div>
+					</div>
+
+					<div class="row container-fluid mt-15">
+						<div th:class="form-group">
+							<div class="col-xs-2">
+								<label for="emailReplyto">Adresse e-mail reply-to du service<span class="required"></span>: </label>
+							</div>
+							<div class="col-xs-10">
+								<input type="text" id="emailReplyto" name="emailReplyto" th:field="*{emailReplyto}" class="form-control" required maxlength="256"/>
+							</div>
+						</div>
+					</div>
+
+					<div class="row container-fluid mt-15">
+						<div th:class="form-group">
+							<div class="col-xs-2">
+								<label for="emailReplytoNom">Nom associé à l'adresse e-mail reply-to du service<span class="required"></span>: </label>
+							</div>
+							<div class="col-xs-10">
+								<input type="text" id="emailReplytoNom" name="emailReplytoNom" th:field="*{emailReplytoNom}" class="form-control" required maxlength="256"/>
+							</div>
+						</div>
+					</div>
+
+					<div class="row container-fluid mt-15">
+						<div th:class="form-group">
+							<div class="col-xs-2">
+								<label for="emailFrom">Adresse e-mail "from" du service<span class="required"></span>: </label>
+							</div>
+							<div class="col-xs-10">
+								<input type="text" id="emailFrom" name="emailFrom" th:field="*{emailFrom}" class="form-control" required maxlength="256"/>
+							</div>
+						</div>
+					</div>
+
+					<div class="row container-fluid mt-15">
+						<div th:class="form-group">
+							<div class="col-xs-2">
+								<label for="emailFromNom">Nom associé à l'adresse e-mail "from" du service<span class="required"></span>: </label>
+							</div>
+							<div class="col-xs-10">
+								<input type="text" id="emailFromNom" name="emailFromNom" th:field="*{emailFromNom}" class="form-control" required maxlength="256"/>
+							</div>
+						</div>
+					</div>
+
+					<div class="row container-fluid mt-15">
+						<div th:class="form-group">
+							<div class="col-xs-2">
+								<label for="identifiantPrefixe">Préfixe des identifiants des demandes<span class="required"></span>: </label>
+							</div>
+							<div class="col-xs-10">
+								<input type="text" id="identifiantPrefixe" name="identifiantPrefixe" th:field="*{identifiantPrefixe}" class="form-control" required minlength="3" maxlength="3"/>
+							</div>
+						</div>
+					</div>
+
+					<div class="row container-fluid mt-15">
+						<div th:class="form-group">
+							<div class="col-xs-2">
+								<label for="nomDirection">Nom direction<span class="required"></span> (nomDirection): </label>
+							</div>
+							<div class="col-xs-10">
+								<input type="text" id="nomDirection" name="nomDirection" th:field="*{nomDirection}" class="form-control" required maxlength="256"/>
+							</div>
+						</div>
+					</div>
+
+					<div class="row container-fluid mt-15">
+						<div th:class="form-group">
+							<div class="col-xs-2">
+								<label for="nomDirectionComplement">Nom direction complément (nomDirectionComplement): </label>
+							</div>
+							<div class="col-xs-10">
+								<input type="text" id="nomDirectionComplement" name="nomDirectionComplement" th:field="*{nomDirectionComplement}" class="form-control" maxlength="256"/>
+							</div>
+						</div>
+					</div>
+
+					<div class="row container-fluid mt-15">
+						<div th:class="form-group">
+							<div class="col-xs-2">
+								<label for="nomFooter">Nom footer<span class="required"></span> (nomFooter): </label>
+							</div>
+							<div class="col-xs-10">
+								<input type="text" id="nomFooter" name="nomFooter" th:field="*{nomFooter}" class="form-control" required maxlength="256"/>
+							</div>
+						</div>
+					</div>
+
+					<div class="row container-fluid mt-15">
+						<div th:class="form-group">
+							<div class="col-xs-2">
+								<label for="adresseService">Adresse service<span class="required"></span> (adresseService): </label>
+							</div>
+							<div class="col-xs-10">
+								<input type="text" id="adresseService" name="adresseService" th:field="*{adresseService}" class="form-control" required maxlength="256"/>
+							</div>
+						</div>
+					</div>
+
+					<br/>
+					<div class="row container-fluid">
+						<div
+								th:class="${#fields.hasErrors('langueFr')} ? 'form-group error' : 'form-group'">
+							<div class="col-xs-2">
+								<label>Langues prises en charge par le téléservice</label>
+							</div>
+							<div class="col-xs-1">
+								<label>Français</label>
+								<input type="checkbox" th:field="*{langueFr}"/>
+							</div>
+							<div class="col-xs-1">
+								<label>Anglais</label>
+								<input type="checkbox" th:field="*{langueEn}"/>
+							</div>
+							<div class="col-xs-7">
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="row container-fluid">
+					<div class="col-xs-12">
+						<div class="text-center">
+							<input id="sauvegarder-button" type="submit" name="action"
+								   value="Sauvegarder" class="btn btn-action ripple-effect" />
+						</div>
+					</div>
+				</div>
+			</form>
+			<div class="container-fluid">
+				<small>Les champs obligatoires sont suivis par *</small>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div th:replace="fragments/footer :: footer"></div>
+</body>
+
+<script type="text/javascript" th:inline="javascript">
+	$(document).ready(function () {
+
+
+		var messagesSuccessList = /*[[${successMessages}]]*/'default';
+
+		if (messagesSuccessList !== 'undefined' && messagesSuccessList !== null) {
+			$.each(messagesSuccessList, function(key, msg) {
+				$.notify({
+					message: msg
+				},{
+					type: 'success'
+				});
+			});
+		}
+
+		var messagesErrorList = /*[[${errorMessages}]]*/'default';
+
+		if (messagesErrorList !== 'undefined' && messagesErrorList !== null) {
+			$.each(messagesErrorList, function(key, msg) {
+				$.notify({
+					message: msg
+				},{
+					type: 'danger'
+				});
+			});
+		}
+
+		var messagesWarningList = /*[[${warningMessages}]]*/'default';
+
+		if (messagesWarningList !== 'undefined' && messagesWarningList !== null) {
+			$.each(messagesWarningList, function(key, msg) {
+				$.notify({
+					message: msg
+				},{
+					type: 'warning'
+				});
+			});
+		}
+
+
+	});
+</script>
+</html>
+
+
+
+
+
+
+
+

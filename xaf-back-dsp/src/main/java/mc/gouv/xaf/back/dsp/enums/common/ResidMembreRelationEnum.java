@@ -20,7 +20,7 @@ public enum ResidMembreRelationEnum {
     CON("CON"),
     CDV("CDV");
 
-    public String value;
+    String value;
 
     ResidMembreRelationEnum(String value) {
         this.value = value;

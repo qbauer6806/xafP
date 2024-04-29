@@ -1,11 +1,14 @@
 package mc.gouv.xaf.back.service.utils;
 
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-public class UsagersUtilsTest {
+import org.apache.commons.lang3.StringUtils;
+import org.junit.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+
+class UsagersUtilsTest {
     @Test
     public void titreToStringNullTest() {
         String resultat = UsagersUtils.titreShortToString(null);
@@ -24,21 +27,16 @@ public class UsagersUtilsTest {
         assertNull(resultat);
     }
 
-    @Test
-    public void abbreviationToTitreAbbrNull() {
-        Integer resultat = UsagersUtils.abbreviationToTitre(null);
-        assertNull(resultat);
-    }
-
-    @Test
-    public void abbreviationToTitreEmptyString() {
-        Integer resultat = UsagersUtils.abbreviationToTitre("");
-        assertNull(resultat);
-    }
-
-    @Test
-    public void abbreviationToTitreFakeData() {
-        Integer resultat = UsagersUtils.abbreviationToTitre("fake");
+    @ParameterizedTest
+    @ValueSource(strings = {"null", "", "fake"})
+    void abbreviationToTitre(String str) {
+    	Integer resultat;
+    	if (StringUtils.equals("null", str)) {
+    		resultat = UsagersUtils.abbreviationToTitre(null);
+    	}
+    	else {
+    		resultat = UsagersUtils.abbreviationToTitre(str);
+    	}
         assertNull(resultat);
     }
 

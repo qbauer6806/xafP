@@ -1,6 +1,7 @@
 package mc.gouv.xaf.shared.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import mc.gouv.xaf.shared.enums.TypeConnexionUsagerEnum;
 
 import java.util.Date;
 
@@ -23,6 +24,8 @@ public class StatistiqueDTO {
     private String demarcheId;
 
     private String identifiantDemande;
+
+    private TypeConnexionUsagerEnum typeConnexionUsager;
 
     public Integer getPkStatistiques() {
         return pkStatistiques;
@@ -78,5 +81,13 @@ public class StatistiqueDTO {
 
     public void setIdentifiantDemande(String identifiantDemande) {
         this.identifiantDemande = identifiantDemande;
+    }
+
+    public TypeConnexionUsagerEnum getTypeConnexionUsager() {
+        return typeConnexionUsager;
+    }
+
+    public void setTypeConnexionUsager(TypeConnexionUsagerEnum typeConnexionUsager) {
+        this.typeConnexionUsager = typeConnexionUsager;
     }
 }

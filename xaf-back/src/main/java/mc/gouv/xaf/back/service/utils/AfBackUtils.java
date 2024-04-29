@@ -25,6 +25,8 @@ import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.*;
 import mc.gouv.xaf.shared.dto.sourcefiable.SourceFiableDTO;
 import mc.gouv.xaf.shared.dto.sourcefiable.enums.SourceFiablesEnum;
+
+import mc.gouv.xaf.shared.dto.sourcefiable.enums.SourceFiablesEnum;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -62,12 +64,6 @@ public class AfBackUtils {
 
     public static final String STATUT_PUBLIC_SUPPRIMEE = "SUPPRIMEE";
 
-    private static RestTemplate restTemplate;
-
-    private static String envName;
-
-    private static String envColor;
-
     public static final String DEFAULT_FRENCH_DATE_FORMAT = "dd/MM/yyyy";
 
     // 24 hours time format
@@ -100,11 +96,6 @@ public class AfBackUtils {
     public static final String META_FICHIER_SECTION_PREFIX = "SECTION_ID_";
 
     public static final String XAF_EMAIL_HTML_ENABLED = "XAF_EMAIL_HTML_ENABLED";
-
-    /**
-     * Version en cache des infos de la démarche
-     */
-    private DemarcheDTO demarche = null;
 
     @Autowired
     @Lazy
@@ -157,49 +148,6 @@ public class AfBackUtils {
     public static final short GENDER_MR_INDEX = 0;
     public static final short GENDER_MME_INDEX = 1;
     public static final short GENDER_MLLE_INDEX = 2;
-
-    @PostConstruct
-    // TODO sonar n'aime cette méthode, car elle n'est pas static
-    public void postConstructEnv() {
-        String env = gouvPropertiesResolver.getGouvSharedEnv();
-        // Si production, ne rien afficher
-        if ("prod".equals(env)) {
-            envName = "";
-        } else if ("sup".equals(env)) {
-            envName = "Support";
-        } else if ("pre".equals(env)) {
-            envName = "Pré-production";
-        } else if ("rec".equals(env)) {
-            envName = "Recette";
-        } else if ("dev".equals(env)) {
-            envName = "Développement";
-        } else if ("loc".equals(env)) {
-            envName = "Local";
-        } else {
-            envName = "Environnement inconnu";
-        }
-
-        // Fond noir si environnement de production, et non pas rouge
-        if ("prod".equals(env)) {
-            envColor = "#000000";
-        } else {
-            envColor = gouvPropertiesResolver.getGouvSharedEnvColor();
-        }
-    }
-
-    @PostConstruct
-    // TODO utile ?
-    public void postConstructRestTemplate() {
-        restTemplate = new RestTemplate();
-        List<HttpMessageConverter<?>> list = new ArrayList<>();
-        MappingJackson2HttpMessageConverter conv = new MappingJackson2HttpMessageConverter();
-        List<MediaType> mediaTypes = new ArrayList<>();
-        mediaTypes.add(new MediaType("application", "json", StandardCharsets.UTF_8));
-        mediaTypes.add(new MediaType("text", "html", StandardCharsets.UTF_8));
-        conv.setSupportedMediaTypes(mediaTypes);
-        list.add(conv);
-        restTemplate.setMessageConverters(list);
-    }
 
     public static String getAuthenticatedAgentId() {
         if (SecurityContextHolder.getContext() != null
@@ -309,10 +257,7 @@ public class AfBackUtils {
      * @return
      */
     public DemarcheDTO getDemarcheInfos() {
-        if (demarche == null) {
-            demarche = demarchesService.getDemarche(gouvPropertiesResolver.getDemarcheId());
-        }
-        return demarche;
+        return demarchesService.getDemarche(gouvPropertiesResolver.getDemarcheId());
     }
 
     /**
@@ -350,14 +295,6 @@ public class AfBackUtils {
 
     public static String getYear() {
         return String.valueOf(Calendar.getInstance().get(Calendar.YEAR));
-    }
-
-    public static String getEnvName() {
-        return envName;
-    }
-
-    public static String getEnvColor() {
-        return envColor;
     }
 
     /**
@@ -455,7 +392,11 @@ public class AfBackUtils {
         String codeAppli = gouvPropertiesResolver.getDemarcheId();
         List<User> agents = new ArrayList<>(utilisateursCache.getAll().values());
         for (User agent : agents) {
-            boolean toAdd = this.isToAdd(rolesList, codeAppli, agent);
+            boolean toAdd = false;
+            Set<Role> agentRoles = agent.getRoles();
+            for (Role role : agentRoles) {
+            	toAdd = hasRole(role, codeAppli, rolesList);
+            }
             if (toAdd) {
                 destinataires.add(agent);
             }
@@ -463,22 +404,17 @@ public class AfBackUtils {
         return destinataires;
     }
 
-    private boolean isToAdd(String[] rolesList, String codeAppli, User agent) {
-        boolean toAdd = false;
-        Set<Role> agentRoles = agent.getRoles();
-        for (Role role : agentRoles) {
-            if (role.getAppli().getCode().equals(codeAppli)) {
-                for (Droit droit : role.getDroits()) {
-                    for (String roleFromList : rolesList) {
-                        if (roleFromList.trim().equals(droit.getCode())) {
-                            toAdd = true;
-                        }
+    private boolean hasRole(Role role, String codeAppli, String[] rolesList) {
+        if (role.getAppli().getCode().equals(codeAppli)) {
+            for (Droit droit : role.getDroits()) {
+                for (String roleFromList : rolesList) {
+                    if (roleFromList.trim().equals(droit.getCode())) {
+                        return true;
                     }
                 }
-
             }
         }
-        return toAdd;
+        return false;
     }
 
     public String convertDateToString(final Date date) {
@@ -755,7 +691,23 @@ public class AfBackUtils {
 	public static String mConnectDateToString(Date date) {
 		return new SimpleDateFormat(MCONNECT_DATE_AND_TIME_FORMAT).format(date);
 	}
-    public String getIdentifiantFromPkDemande(Integer pkDemande) {
+
+	public Map<String, String> getLanguesDisponibles() {
+		DemarcheDTO demarche = getDemarcheInfos();
+		Map<String, String> langues = new HashMap<>();
+		if (demarche.getLangues().contains("fr")) {
+			langues.put("fr", "Français");
+		}
+		if (demarche.getLangues().contains("en")) {
+			langues.put("en", "Anglais");
+		}
+		if (demarche.getLangues().contains("it")) {
+			langues.put("it", "Italien");
+		}
+		return langues;
+	}
+
+	public String getIdentifiantFromPkDemande(Integer pkDemande) {
 		DemandeDTO demande = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), pkDemande);
 		return demande.getIdentifiant();
 	}

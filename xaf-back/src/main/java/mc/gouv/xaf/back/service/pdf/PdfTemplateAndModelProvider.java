@@ -4,6 +4,8 @@ import fr.opensagres.poi.xwpf.converter.pdf.PdfOptions;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.PdfTemplateAndModelDTO;
 
+import java.util.Map;
+
 /**
  * Permet à la démarche d'indiquer à xaf-back quel template utiliser pour générer un PDF pour une
  * certaine demande, ainsi que le modèle associé à ce template.
@@ -18,5 +20,8 @@ public interface PdfTemplateAndModelProvider {
                                                          String codeMotif, String langue, String commentaire, String texteAEnvoyer, PdfTypeEnum pdfType);
 
     PdfOptions getPdfOptions();
+    Map<String, Object> getGenericModelDemande(DemandeDTO demande, String codeMotif, String commentaire, String texteAEnvoyer);
+
+    Map<String, Object> getGenericModel();
 
 }

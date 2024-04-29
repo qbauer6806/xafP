@@ -1,11 +1,14 @@
 package mc.gouv.xaf.backweb.denjs.controller;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.transaction.Transactional;
-import javax.validation.Valid;
-
+import mc.gouv.logon.apiclient.LogonApiClient;
+import mc.gouv.logon.shared.User;
+import mc.gouv.xaf.back.denjs.dto.DenjsAffectationAgentDTO;
+import mc.gouv.xaf.back.denjs.dto.DenjsEtablissementDTO;
+import mc.gouv.xaf.back.denjs.service.DenjsAffectationService;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.backweb.denjs.dto.DenjsAgentEtablissementDTO;
+import mc.gouv.xaf.backweb.denjs.formbean.DenjsGestionAgentsFormBean;
+import mc.gouv.xaf.shared.SharedMessages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,20 +22,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import mc.gouv.Static;
-import mc.gouv.logon.apiclient.LogonApiClient;
-import mc.gouv.logon.shared.User;
-import mc.gouv.xaf.back.denjs.dto.DenjsAffectationAgentDTO;
-import mc.gouv.xaf.back.denjs.dto.DenjsEtablissementDTO;
-import mc.gouv.xaf.back.denjs.service.DenjsAffectationService;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.backweb.denjs.dto.DenjsAgentEtablissementDTO;
-import mc.gouv.xaf.backweb.denjs.formbean.DenjsGestionAgentsFormBean;
-import mc.gouv.xaf.shared.SharedMessages;
+import javax.transaction.Transactional;
+import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Controller de la page de gestion des agents
- * 
+ *
  * @author qdeme
  *
  */
@@ -43,10 +40,10 @@ public class DenjsGestionAgentsController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DenjsGestionAgentsController.class);
     private static final String AFFECTATION_SUCCES = "L'affectation de l'agent a été modifiée avec succès.";
-    
+
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
-    
+
     @Autowired
     private DenjsAffectationService denjsAffectationService;
 
@@ -58,12 +55,12 @@ public class DenjsGestionAgentsController {
 
         List<DenjsAffectationAgentDTO> affectations = denjsAffectationService.getAffectationsAgents();
         List<DenjsEtablissementDTO> etablissements = denjsAffectationService.getEtablissements();
-        
+
         List<User> list;
         try {
-            LogonApiClient logonApiClient = new LogonApiClient(Static.getValue(LogonApiClient.DEFAULT_GOUV_PROPERTY_URL));
+            LogonApiClient logonApiClient = new LogonApiClient(gouvPropertiesResolver.getGouvSharedLogonRestUrl());
             list = logonApiClient.getRessUser().getListUserByCodeAppli(gouvPropertiesResolver.getDemarcheId());
-            
+
             List<DenjsAgentEtablissementDTO> agents = new ArrayList<>();
             for (User user : list) {
             	DenjsAgentEtablissementDTO agent = new DenjsAgentEtablissementDTO();
@@ -78,7 +75,7 @@ public class DenjsGestionAgentsController {
             	}
             	agents.add(agent);
             }
-            
+
             mav.addObject("agents", agents);
             mav.addObject("etablissements", etablissements);
         } catch (Exception e) {
@@ -101,12 +98,12 @@ public class DenjsGestionAgentsController {
         }
 
         LOGGER.info("======================= Appel de la page /denjs/gestion/agents/edit ({}, {})", agentMatricule, etablissementCode);
-        
+
         DenjsAffectationAgentDTO affectation = new DenjsAffectationAgentDTO();
         affectation.setAgentMatricule(agentMatricule);
         affectation.setEtablissementCode(etablissementCode);
         denjsAffectationService.affecterAgentEtablissement(affectation);
-        
+
         ModelAndView mav = new ModelAndView("redirect:/denjs/gestion/agents");
         List<String> messages = new ArrayList<>();
         messages.add(AFFECTATION_SUCCES);

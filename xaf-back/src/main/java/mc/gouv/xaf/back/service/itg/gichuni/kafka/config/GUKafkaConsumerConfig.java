@@ -9,6 +9,8 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
@@ -23,7 +25,6 @@ import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer;
 import org.springframework.util.backoff.BackOff;
 import org.springframework.util.backoff.FixedBackOff;
 
-import mc.gouv.xaf.back.config.KafkaEnabledCondition;
 import mc.gouv.xaf.back.properties.DemPropertyNotFoundException;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.PropertiesService;
@@ -38,7 +39,7 @@ import mc.gouv.xaf.shared.dto.PropertiesDTO;
  */
 @EnableKafka
 @Configuration
-@Conditional(KafkaEnabledCondition.class)
+@ConditionalOnExpression(value = "'${mc.gouv.${application.name}.shared.backapi.kafka.enabled}' == 'true'")
 public class GUKafkaConsumerConfig {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(GUKafkaConsumerConfig.class);
@@ -47,13 +48,7 @@ public class GUKafkaConsumerConfig {
 	private static final String XAF_GU_KAFKA_CONSUMER_BACKOFF_MAXATTEMPTS = "XAF_GU_KAFKA_CONSUMER_BACKOFF_MAXATTEMPTS";
 	
 	@Autowired
-	private KafkaTemplate<String, String> kafkaTemplate;
-	
-	@Autowired
 	private GouvPropertiesResolver gouvPropertiesResolver;
-	
-	@Autowired
-	private PropertiesService propertiesService;
 
     @Bean
     public ConsumerFactory<String, String> consumerFactory() {
@@ -87,7 +82,7 @@ public class GUKafkaConsumerConfig {
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, String> 
-      kafkaListenerContainerFactory() throws DemPropertyNotFoundException {
+      kafkaListenerContainerFactory(KafkaTemplate<String, String> kafkaTemplate, PropertiesService propertiesService) throws DemPropertyNotFoundException {
    
         ConcurrentKafkaListenerContainerFactory<String, String> factory =
           new ConcurrentKafkaListenerContainerFactory<>();

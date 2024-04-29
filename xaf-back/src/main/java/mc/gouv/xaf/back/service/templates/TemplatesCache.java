@@ -1,7 +1,7 @@
 package mc.gouv.xaf.back.service.templates;
 
 import mc.gouv.xaf.shared.dto.TemplateDTO;
-import mc.gouv.xboot.caching.GouvCache;
+import mc.gouv.xaf.caching.GouvCache;
 
 /**
  * 

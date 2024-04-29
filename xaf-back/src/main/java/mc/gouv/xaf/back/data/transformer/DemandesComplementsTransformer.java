@@ -13,7 +13,7 @@ import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
 import mc.gouv.xaf.shared.dto.DemandeComplementsFileDTO;
 import mc.gouv.xaf.shared.dto.DemandeComplementsQuestionDTO;
 import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
-import mc.gouv.xaf.shared.dto.DemandeComplementsStatutEnum;
+import mc.gouv.xaf.shared.enums.DemandeComplementsStatutEnum;
 
 /**
  * 

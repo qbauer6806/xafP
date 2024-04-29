@@ -33,8 +33,9 @@ import mc.gouv.xaf.back.paiement.enums.PaiementStatutEnum;
 import mc.gouv.xaf.back.paiement.mock.DemandeStatutEnum;
 import mc.gouv.xaf.back.paiement.service.itg.MoneticoPaiementService;
 import mc.gouv.xaf.back.paiement.service.itg.PaiementSecurityService;
-import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
 import mc.gouv.xaf.shared.dto.itg.monetico.MoneticoResponseDTO;
+import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
+
 import org.hibernate.Hibernate;
 import org.junit.Before;
 import org.junit.Test;

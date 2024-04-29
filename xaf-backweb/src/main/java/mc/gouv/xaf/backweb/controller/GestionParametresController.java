@@ -1,7 +1,7 @@
 package mc.gouv.xaf.backweb.controller;
 
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.backweb.properties.BackGouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.MotifsService;
 import mc.gouv.xaf.back.service.motifs.MotifsCache;
@@ -45,7 +45,7 @@ public class GestionParametresController extends AbstractController {
     private MotifsCache motifsCache;
 
     @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
+    private BackGouvPropertiesResolver gouvPropertiesResolver;
 
     @Autowired
     private MotifsService motifsService;

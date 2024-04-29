@@ -43,53 +43,13 @@ public class GouvPropertiesResolverTestImpl implements GouvPropertiesResolver {
     }
 
     @Override
-    public String getFrontUrl() {
-        return null;
-    }
-
-    @Override
-    public String getBackUrl() {
-        return null;
-    }
-
-    @Override
     public String getContainerId() {
-        return null;
-    }
-
-    @Override
-    public String getGouvSharedEnv() {
-        return null;
-    }
-
-    @Override
-    public String getGouvSharedEnvColor() {
-        return null;
-    }
-
-    @Override
-    public String getContactSupportUrl() {
-        return null;
-    }
-
-    @Override
-    public String getFrontSharedKey() {
-        return null;
-    }
-
-    @Override
-    public String getHelpUrl() {
         return null;
     }
 
     @Override
     public long getUsagersCacheDuration() {
         return 0;
-    }
-
-    @Override
-    public String getFrontFormStartPage() {
-        return null;
     }
 
     @Override
@@ -138,12 +98,12 @@ public class GouvPropertiesResolverTestImpl implements GouvPropertiesResolver {
     }
 
     @Override
-    public boolean getNovalidate() {
-        return false;
+    public String getGouvSharedLogonUrl() {
+        return null;
     }
 
     @Override
-    public String getGouvSharedLogonUrl() {
+    public String getGouvSharedLogonRestUrl() {
         return null;
     }
 
@@ -238,16 +198,6 @@ public class GouvPropertiesResolverTestImpl implements GouvPropertiesResolver {
     }
 
     @Override
-    public String getGichkeyClientId() {
-        return null;
-    }
-
-    @Override
-    public String getGichkeyClientSecret() {
-        return null;
-    }
-
-    @Override
     public String getApplicationPrefix() {
         return null;
     }
@@ -289,33 +239,41 @@ public class GouvPropertiesResolverTestImpl implements GouvPropertiesResolver {
 
     @Override
     public String getPorteDocUrl() {
-    	return null;
-    }
-    public String getApiUlisMoyensGenerauxUrl() {
-        // TODO Auto-generated method stub
         return null;
     }
 
+    @Override
+    public String getApiUlisMoyensGenerauxUrl() {
+        return null;
+    }
+
+    @Override
     public String getApiUlisTiersOrganisationUrl() {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public String getApiUlisAuthenticationUser() {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public String getApiUlisAuthenticationPassword() {
-        // TODO Auto-generated method stub
         return null;
     }
 
     @Override
     public String getApiUlisFunctionalUser() {
-        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public String getFrontUrl() {
+        return null;
+    }
+
+    @Override
+    public String getBackUrl() {
         return null;
     }
 }

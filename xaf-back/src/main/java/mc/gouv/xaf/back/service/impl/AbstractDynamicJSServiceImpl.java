@@ -2,8 +2,9 @@ package mc.gouv.xaf.back.service.impl;
 
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.DynamicJSService;
-import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
 import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
+import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

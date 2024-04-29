@@ -4,7 +4,7 @@ import mc.gouv.xaf.apiclient.AfApiClient;
 import mc.gouv.xaf.apiclient.paiement.monetico.dto.MoneticoDTO;
 import mc.gouv.xaf.shared.RequestConstant;
 import mc.gouv.xaf.shared.dto.itg.monetico.MoneticoResponseDTO;
-import mc.gouv.xboot.apiclient.exception.ExceptionManager;
+import mc.gouv.xaf.apiclient.exception.ExceptionManager;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;

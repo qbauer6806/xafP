@@ -1,5 +1,7 @@
 package mc.gouv.xaf.shared.dto;
 
+import mc.gouv.xaf.shared.enums.PropertiesTypeEnum;
+
 /**
  * Modélise une donnée d'un properties
  *

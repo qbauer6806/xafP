@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import mc.gouv.xaf.back.bpm.GouvBPM;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.backweb.properties.BackGouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.itg.mail.MailTemplateModelProvider;
@@ -46,7 +46,7 @@ public class MailPreviewController extends AbstractController {
 	private DemandesService demandesService;
 
 	@Autowired
-	private GouvPropertiesResolver gouvPropertiesResolver;
+	private BackGouvPropertiesResolver gouvPropertiesResolver;
 
 	@Autowired
 	private GouvBPM gouvBPM;

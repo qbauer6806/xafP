@@ -1,14 +1,7 @@
 package mc.gouv.xaf.back.service.data.impl;
 
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
+import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.AccessService;
 import mc.gouv.xaf.back.service.data.BrouillonsService;
 import mc.gouv.xaf.back.service.data.DemandesService;
@@ -16,6 +9,14 @@ import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import mc.gouv.xaf.back.service.data.UsagersService;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
+import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 /**
  * Service permettant de gérer les usagers.
@@ -44,9 +45,11 @@ public class UsagersServiceImpl implements UsagersService {
     @Autowired
     private BrouillonsService brouillonsService;
 
+    @Autowired
+    private DemarchesDataProvider demarchesDataProvider;
+
     @Override
-    public void desinscriptionUsager(String demarcheId, Integer usagerId,
-            List<String> statutsFinaux, String statutAnnulation, String codeMotif) {
+    public void desinscriptionUsager(String demarcheId, Integer usagerId, String statutAnnulation, String codeMotif) {
 
         LOGGER.info("Récupération des demandes liées à l'usager...");
         DemandeRechercheDTO demandeRecherche = new DemandeRechercheDTO();
@@ -56,12 +59,7 @@ public class UsagersServiceImpl implements UsagersService {
 
         LOGGER.info("Mise à jour du statut des demandes...");
         for (DemandeDTO demande : demandes) {
-            boolean isFinal = false;
-            for (String statut : statutsFinaux) {
-                if (statut.equals(demande.getDernierStatut().getLibelle())) {
-                    isFinal = true;
-                }
-            }
+            boolean isFinal = demarchesDataProvider.getStatutSimplifie(demande.getDernierStatut().getLibelle()).equals(StatutSimplifieEnum.TERMINEE);
             if (!isFinal && !statutAnnulation.equals(demande.getDernierStatut().getLibelle())) {
                 demandesStatutsService.updateStatut(demande.getDemarcheId(), demande.getPkDemandes(), statutAnnulation,
                         null, usagerId, codeMotif, null, null);

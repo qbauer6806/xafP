@@ -1,7 +1,14 @@
 package mc.gouv.xaf.apiclient;
 
-import java.util.List;
-import java.util.Map;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import mc.gouv.xaf.apiclient.authentication.impl.BasicAuthorizationHeaderProvider;
+import mc.gouv.xaf.apiclient.authentication.impl.JwtAuthorizationHeaderProvider;
+import mc.gouv.xaf.apiclient.client.ApiClient;
+import mc.gouv.xaf.apiclient.exception.ExceptionManager;
+import mc.gouv.xaf.shared.RequestConstant;
+import mc.gouv.xaf.shared.dto.*;
+import org.glassfish.jersey.media.multipart.internal.MultiPartWriter;
 
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -10,30 +17,8 @@ import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
-import org.glassfish.jersey.media.multipart.internal.MultiPartWriter;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
-
-import mc.gouv.xaf.shared.RequestConstant;
-import mc.gouv.xaf.shared.dto.AccessDTO;
-import mc.gouv.xaf.shared.dto.AccessInputDTO;
-import mc.gouv.xaf.shared.dto.BrouillonDTO;
-import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
-import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.xaf.shared.dto.DemandeInputDTO;
-import mc.gouv.xaf.shared.dto.MotifDTO;
-import mc.gouv.xaf.shared.dto.Page;
-import mc.gouv.xaf.shared.dto.PageParamDTO;
-import mc.gouv.xaf.shared.dto.PeriodeOuvertureDTO;
-import mc.gouv.xaf.shared.dto.PropertiesDTO;
-import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
-import mc.gouv.xboot.apiclient.authentication.impl.BasicAuthorizationHeaderProvider;
-import mc.gouv.xboot.apiclient.authentication.impl.JwtAuthorizationHeaderProvider;
-import mc.gouv.xboot.apiclient.client.ApiClient;
-import mc.gouv.xboot.apiclient.exception.ExceptionManager;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Classe cliente permettant d'appeler les WS des démarches
@@ -91,9 +76,10 @@ public class AfApiClient extends ApiClient {
     }
 
     public DemandeDTO updateDemande(Integer demandeId, DemandeInputDTO demande, Integer usagerId) {
-        Response res = getTarget().path("demandes/" + demandeId).queryParam(RequestConstant.USAGERID_PARAM, usagerId)
+        Response res = getTarget().path(RequestConstant.DEMANDES_PATH + '/' + demandeId)
+                .queryParam(RequestConstant.USAGERID_PARAM, usagerId)
                 .request(MediaType.APPLICATION_JSON)
-                .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue())
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
                 .put(Entity.entity(demande, MediaType.APPLICATION_JSON));
 
         ExceptionManager.checkExceptionResponse(res);
@@ -102,10 +88,10 @@ public class AfApiClient extends ApiClient {
     }
 
     public DemandeDTO lockDemande(Integer demandeId, Integer usagerId, Long timestamp) {
-        Response res = getTarget().path("demandes/" + demandeId + "/lock")
+        Response res = getTarget().path(RequestConstant.DEMANDES_PATH + '/' + demandeId + "/lock")
                 .queryParam(RequestConstant.USAGERID_PARAM, usagerId)
                 .queryParam(RequestConstant.TIMESTAMP_MODIFICATION, timestamp).request(MediaType.APPLICATION_JSON)
-                .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue())
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
                 .put(Entity.entity("", MediaType.APPLICATION_JSON));
 
         ExceptionManager.checkExceptionResponse(res);
@@ -114,9 +100,9 @@ public class AfApiClient extends ApiClient {
     }
 
     public DemandeDTO unlockDemande(Integer demandeId, Integer usagerId) {
-        Response res = getTarget().path("demandes/" + demandeId + "/unlock")
+        Response res = getTarget().path(RequestConstant.DEMANDES_PATH + '/' + demandeId + "/unlock")
                 .queryParam(RequestConstant.USAGERID_PARAM, usagerId).request(MediaType.APPLICATION_JSON)
-                .header("Authorization", getAuthorizationHeaderProvider().getHeaderValue())
+                .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
                 .put(Entity.entity("", MediaType.APPLICATION_JSON));
 
         ExceptionManager.checkExceptionResponse(res);

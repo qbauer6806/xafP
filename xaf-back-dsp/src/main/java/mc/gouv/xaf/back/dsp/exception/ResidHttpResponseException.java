@@ -33,6 +33,7 @@ public class ResidHttpResponseException extends IOException {
         this.httpStatus = httpStatus;
     }
 
+    @Override
     public String getMessage() {
         return message;
     }

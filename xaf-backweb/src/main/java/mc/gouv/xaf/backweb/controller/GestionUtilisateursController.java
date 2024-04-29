@@ -1,9 +1,8 @@
 package mc.gouv.xaf.backweb.controller;
 
-import mc.gouv.Static;
 import mc.gouv.logon.apiclient.LogonApiClient;
 import mc.gouv.logon.shared.User;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.backweb.properties.BackGouvPropertiesResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,13 +22,13 @@ import java.util.List;
  * @author tverdoyan
  */
 @Controller
-@Secured({"ROLE_PARAMETRAGE","ROLE_CONFIGURATION"})
+@Secured({"ROLE_PARAMETRAGE", "ROLE_CONFIGURATION"})
 @RequestMapping("/gestion/utilisateurs")
 public class GestionUtilisateursController extends AbstractController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GestionUtilisateursController.class);
     @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
+    private BackGouvPropertiesResolver gouvPropertiesResolver;
 
     @GetMapping
     public ModelAndView formUser(Model model) {
@@ -38,7 +37,7 @@ public class GestionUtilisateursController extends AbstractController {
         List<User> list = new ArrayList<>();
 
         try {
-            LogonApiClient logonApiClient = new LogonApiClient(Static.getValue(LogonApiClient.DEFAULT_GOUV_PROPERTY_URL));
+            LogonApiClient logonApiClient = new LogonApiClient(gouvPropertiesResolver.getGouvSharedLogonRestUrl());
             list = logonApiClient.getRessUser().getListUserByCodeAppli(gouvPropertiesResolver.getDemarcheId());
         } catch (Exception e) {
             LOGGER.error("Exception rencontrée dans formUser. Msg : {}", e.getMessage(), e);

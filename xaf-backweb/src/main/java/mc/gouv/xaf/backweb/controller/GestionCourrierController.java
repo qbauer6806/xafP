@@ -1,6 +1,6 @@
 package mc.gouv.xaf.backweb.controller;
 
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.backweb.properties.BackGouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.DemandesCourriersService;
 import mc.gouv.xaf.shared.dto.DemandeCourrierDTO;
@@ -28,7 +28,7 @@ public class GestionCourrierController extends AbstractController {
     private static final Logger LOGGER = LoggerFactory.getLogger(GestionCourrierController.class);
     
     @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
+    private BackGouvPropertiesResolver gouvPropertiesResolver;
     
     @Autowired
     private DemandesCourriersService demandesCourrierService;

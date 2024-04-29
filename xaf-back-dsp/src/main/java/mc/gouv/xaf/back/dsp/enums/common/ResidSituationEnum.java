@@ -14,7 +14,7 @@ public enum ResidSituationEnum {
     SANS_ACTIVITE_EN_PRINCIPAUTE("SANS_ACTIVITE_EN_PRINCIPAUTE"),
     RENTIER("RENTIER");
 
-    public String value;
+    String value;
 
     ResidSituationEnum(String value) {
         this.value = value;

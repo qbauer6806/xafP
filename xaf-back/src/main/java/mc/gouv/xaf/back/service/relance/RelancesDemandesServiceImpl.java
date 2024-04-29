@@ -1,34 +1,25 @@
 package mc.gouv.xaf.back.service.relance;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
-import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
-import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.stereotype.Service;
-
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
+import mc.gouv.xaf.back.service.itg.mail.MailTemplateModelProvider;
 import mc.gouv.xaf.back.service.relance.settings.RelanceStatutDemandeConf;
 import mc.gouv.xaf.back.service.utils.RelancesUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
 
 @Service
 @EnableScheduling
 public class RelancesDemandesServiceImpl implements RelancesDemandesService {
 	
 	private static final Logger LOGGER = LoggerFactory.getLogger(RelancesDemandesServiceImpl.class);
-	
-	@Autowired
-	private GouvPropertiesResolver gouvPropertiesResolver;
 
 	@Autowired
 	private MailService mailService;
@@ -36,11 +27,9 @@ public class RelancesDemandesServiceImpl implements RelancesDemandesService {
 	@Autowired
 	private RelancesUtils relanceUtils;
 
-	@Autowired
-	private MessageSource messageSource;
 
 	@Autowired
-	private UsagersCache usagersCache;
+	private MailTemplateModelProvider mailTemplateModelProvider;
 	
 	@Override
 	public void sendRelancesMail(List<RelanceStatutDemandeConf> statutsARelancer) {
@@ -61,14 +50,8 @@ public class RelancesDemandesServiceImpl implements RelancesDemandesService {
 		String usagerNom = demande.getUsagerNom();
 		String usagerPrenom = demande.getUsagerPrenom();
 		emailInfoDTO.addTo(demande.getUsagerEmail(), usagerPrenom + " " + usagerNom);
-		Map<String, Object> model = new HashMap<>();
-		model.put("identifiant", demande.getIdentifiant());
+		Map<String,Object> model = mailTemplateModelProvider.getGenericModelDemande(demande);
 		model.put("expireDans", relanceUtils.getExpirationTime(demande));
-		model.put("pkDemande", demande.getPkDemandes());
-		model.put("urlFront", gouvPropertiesResolver.getFrontUrl());
-		GichuniUsagerDTO usager = usagersCache.get(demande.getUsagerId());
-		String titre = messageSource.getMessage("civilite." + usager.getTitre(), null, new Locale(demande.getLangue()));
-		model.put("titre", titre);
 
 		try {
 			mailService.sendMail(emailInfoDTO, model);

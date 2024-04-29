@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.backweb.properties.BackGouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.pdf.PdfGenerationService;
 import mc.gouv.xaf.back.service.pdf.PdfTypeEnum;
@@ -39,7 +39,7 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
 public class ApercuPdfController extends AbstractController {
 
     @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
+    private BackGouvPropertiesResolver gouvPropertiesResolver;
 
     @Autowired
     private DemandesService demandesService;

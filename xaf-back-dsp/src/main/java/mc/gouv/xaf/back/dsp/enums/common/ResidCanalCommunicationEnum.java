@@ -7,7 +7,7 @@ public enum ResidCanalCommunicationEnum {
     EMS("EMS"),
     AUC("AUC");
 
-    public String value;
+    String value;
 
     ResidCanalCommunicationEnum(String value) {
         this.value = value;

@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
 
+import mc.gouv.xaf.backweb.web.config.annotation.GouvRestController;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +19,6 @@ import mc.gouv.xaf.back.service.utils.DemarchesUtils;
 import mc.gouv.xaf.backweb.dto.AutocompleteUsagerDTO;
 import mc.gouv.xaf.backweb.dto.AutocompleteUsagerListeDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
-import mc.gouv.xboot.config.web.annotation.GouvRestController;
 
 /**
  * 

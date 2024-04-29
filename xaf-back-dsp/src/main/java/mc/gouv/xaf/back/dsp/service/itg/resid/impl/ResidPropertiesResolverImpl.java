@@ -1,34 +1,37 @@
 package mc.gouv.xaf.back.dsp.service.itg.resid.impl;
 
-import mc.gouv.Static;
 import mc.gouv.xaf.back.dsp.service.itg.resid.ResidPropertiesResolver;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ResidPropertiesResolverImpl implements ResidPropertiesResolver {
 
-    private static final String RESID_API_JWT = "mc.gouv.%s.backapi.itg.residapi.jwt";
-    private static final String RESID_API_URL_V2 = "mc.gouv.%s.backapi.itg.residapi.url";
-    private static final String RESID_BACK_URL = "mc.gouv.%s.backapi.itg.residback.url";
 
-    @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
+    @Value("${mc.gouv.${application.name}.shared.backapi.resid.api.jwt}")
+    private String residApiJwt;
+
+    @Value("${mc.gouv.resid.api.url}")
+    private String residApiUrlV2;
+
+    @Value("${mc.gouv.resid.back.url}")
+    private String residBackUrl;
 
     @Override
     public String getResidApiJwt() {
-        return Static.getValue(String.format(RESID_API_JWT, gouvPropertiesResolver.getDemarcheId().toLowerCase()));
+        return residApiJwt;
     }
 
     @Override
     public String getResidApiUrlV2() {
-        return Static.getValue(String.format(RESID_API_URL_V2, gouvPropertiesResolver.getDemarcheId().toLowerCase()));
+        return residApiUrlV2;
     }
 
     @Override
     public String getResidBackUrl() {
-        return Static.getValue(String.format(RESID_BACK_URL, gouvPropertiesResolver.getDemarcheId().toLowerCase()));
+        return residBackUrl;
     }
 
 }

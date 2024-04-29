@@ -10,7 +10,7 @@ public enum ResidMotifChangementSituationEnum {
     REC("REC"),
     PAS("PAS");
 
-    public String value;
+    String value;
 
     ResidMotifChangementSituationEnum(String value) {
         this.value = value;

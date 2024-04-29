@@ -30,7 +30,7 @@ import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.PropertiesListEntityDTO;
-import mc.gouv.xaf.shared.dto.PropertiesTypeEnum;
+import mc.gouv.xaf.shared.enums.PropertiesTypeEnum;
 
 /**
  * Service permettant la manipulation des Properties d'une démarche

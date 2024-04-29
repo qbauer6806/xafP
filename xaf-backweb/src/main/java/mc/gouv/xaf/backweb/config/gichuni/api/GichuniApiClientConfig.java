@@ -1,0 +1,49 @@
+package mc.gouv.xaf.backweb.config.gichuni.api;
+
+import mc.gouv.xaf.backweb.properties.BackGouvPropertiesResolver;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.security.oauth2.client.DefaultOAuth2ClientContext;
+import org.springframework.security.oauth2.client.OAuth2ClientContext;
+import org.springframework.security.oauth2.client.OAuth2RestTemplate;
+import org.springframework.security.oauth2.client.resource.OAuth2ProtectedResourceDetails;
+import org.springframework.security.oauth2.client.token.grant.client.ClientCredentialsResourceDetails;
+
+import java.util.Collections;
+
+/**
+ * 
+ * Classe de configuration pour l'appel à l'API GICHUNI avec authentification OIDC
+ * 
+ * @author qdeme
+ * 
+ */
+@Configuration
+public class GichuniApiClientConfig {
+	
+	@Bean
+	public OAuth2ProtectedResourceDetails oAuth2ProtectedResourceDetails(BackGouvPropertiesResolver gouvPropertiesResolver) {
+	    ClientCredentialsResourceDetails resourceDetails = new ClientCredentialsResourceDetails();
+	    resourceDetails.setAccessTokenUri(gouvPropertiesResolver.getGichkeyUrl() + "/protocol/openid-connect/token");
+	    resourceDetails.setClientId(gouvPropertiesResolver.getGichkeyClientId());
+	    resourceDetails.setClientSecret(gouvPropertiesResolver.getGichkeyClientSecret());
+	    resourceDetails.setGrantType("client_credentials");
+	    resourceDetails.setScope(Collections.singletonList("openid"));
+	    return resourceDetails;
+	}
+
+	@Bean
+	public OAuth2ClientContext oauth2ClientContext() {
+	    return new DefaultOAuth2ClientContext();
+	}
+
+	@Bean
+	public OAuth2RestTemplate oAuth2RestTemplate(OAuth2ProtectedResourceDetails oAuth2ProtectedResourceDetails, OAuth2ClientContext oauth2ClientContext) {
+	    OAuth2RestTemplate restTemplate = new OAuth2RestTemplate(oAuth2ProtectedResourceDetails, oauth2ClientContext);
+	    SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+	    restTemplate.setRequestFactory(factory);
+	    return restTemplate;
+	}
+	
+}

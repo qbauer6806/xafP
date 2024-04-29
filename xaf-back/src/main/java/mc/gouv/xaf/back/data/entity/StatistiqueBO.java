@@ -42,6 +42,9 @@ public class StatistiqueBO {
     @Size(min = 1, max = 30)
     private String identifiantDemande;
 
+    @Column(name = "TYPE_CONNEXION_USAGER", length = 256, nullable = true)
+    private String typeConnexionUsager;
+
     public Integer getPkStatistiques() {
         return pkStatistiques;
     }
@@ -96,5 +99,13 @@ public class StatistiqueBO {
 
     public void setIdentifiantDemande(String identifiantDemande) {
         this.identifiantDemande = identifiantDemande;
+    }
+
+    public String getTypeConnexionUsager() {
+        return typeConnexionUsager;
+    }
+
+    public void setTypeConnexionUsager(String typeConnexionUsager) {
+        this.typeConnexionUsager = typeConnexionUsager;
     }
 }

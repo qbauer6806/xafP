@@ -1,6 +1,13 @@
 package mc.gouv.xaf.back.config.es;
 
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
@@ -20,12 +27,7 @@ import org.springframework.data.convert.WritingConverter;
 import org.springframework.data.elasticsearch.config.AbstractElasticsearchConfiguration;
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 
-import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 
 /**
  * Classe de configuration pour ElasticSearch, à étendre dans les démarches pour configurer le configurateur ES afin de mapper les enums.

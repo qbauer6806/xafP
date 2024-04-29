@@ -33,7 +33,7 @@ public class PaiementSecurityServiceTest {
     }
 
     @Test
-    @Ignore
+    @Ignore("Resultat différent sur maven install dans intellij : CB0BD147C7FEAC57D1ABFEC970ECE7992341FE0E")
     public void getHmacStringInterfaceRetourTest() {
         MoneticoResponseDTO responseDTO = new MoneticoResponseDTO();
         responseDTO.setTpe("7527409");
@@ -59,7 +59,6 @@ public class PaiementSecurityServiceTest {
         responseDTO.setVld("1222");
         String mac = paiementSecurityService.getHmacStringInterfaceRetour(responseDTO);
         assertThat(mac).isEqualTo("0C2E747CF0DB6F4D6B42321804E5A27716F88B11");
-        // TODO resultat différent sur maven install dans intellij : CB0BD147C7FEAC57D1ABFEC970ECE7992341FE0E
     }
 
     @Test

@@ -13,7 +13,7 @@ public class IndexationEnabledCondition implements Condition {
     public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
 
         return Boolean.valueOf(context.getEnvironment().getProperty(
-                PROPERTY_PREFIX + context.getEnvironment().getProperty(APPLICATION_NAME_PROPERTY) + ".indexing.enabled",
+                PROPERTY_PREFIX + context.getEnvironment().getProperty(APPLICATION_NAME_PROPERTY) + ".shared.backapi.indexing.enabled",
                 "false"));
     }
 

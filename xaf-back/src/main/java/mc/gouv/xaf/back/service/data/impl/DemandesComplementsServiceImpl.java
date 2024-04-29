@@ -9,6 +9,8 @@ import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.*;
+import mc.gouv.xaf.shared.enums.DemandeComplementsStatutEnum;
+
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

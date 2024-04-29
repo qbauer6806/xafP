@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import mc.gouv.xaf.shared.enums.TypeConnexionUsagerEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,13 +16,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
-import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
 import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
 import mc.gouv.xaf.shared.dto.DemandeCourrierDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeDataDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
+import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 
 /**
  * 
@@ -121,6 +122,10 @@ public class DemandesTransformer {
         dto.setPkDemandeSource(bo.getPkDemandeSource());
         dto.setModificationTimestamp(bo.getModificationTimestamp());
 
+        if(bo.getTypeConnexionUsager() != null) {
+            dto.setTypeConnexionUsager(TypeConnexionUsagerEnum.valueOf(bo.getTypeConnexionUsager()));
+        }
+
         // Mapper les demandes d'informations complémentaires
         if (addDemandesComplementsField) {
             dto.setComplements(DemandesComplementsTransformer.bo2Dto(new ArrayList<>(bo.getDemandesComplements()))
@@ -134,20 +139,7 @@ public class DemandesTransformer {
         }
 
         // Mapper les statuts
-        if (addStatutsField) {
-            if (DemarchesUtils.isFrontUser()) {
-                // Front Office : remonter uniquement le dernier statut de la demande
-                DemandesStatutsBO statut = DemarchesUtils.getLatestStatus(bo);
-                DemandeStatutDTO statutDto = DemandesStatutsTransformer.bo2Dto(statut);
-                // Cacher l'agentId au Front Office
-                statutDto.setAgentId(null);
-                dto.setStatuts(new DemandeStatutDTO[] { statutDto });
-            } else {
-                // Back Office : tout remonter
-                dto.setStatuts(DemandesStatutsTransformer.bo2Dto(new ArrayList<>(bo.getStatuts()))
-                        .toArray(new DemandeStatutDTO[bo.getStatuts().size()]));
-            }
-        }
+        dto = bo2DtoProcessStatuts(bo, dto, addStatutsField);
 
         // Mapper le "dernier statut"
         if (bo.getDernierStatut() != null) {
@@ -179,30 +171,46 @@ public class DemandesTransformer {
                     .toArray(new DemandeDataDTO[bo.getData().size()]));
         }
 
-        // Mapper le contenu de la demande
+        dto = bo2DtoProcessJsonFields(bo, dto);
+
+        return dto;
+    }
+    
+    private static DemandeDTO bo2DtoProcessJsonFields(DemandeBO bo, DemandeDTO dto) {
         ObjectMapper mapper = new ObjectMapper();
         try {
+        	// Mapper le contenu de la demande
             dto.setContenu(mapper.readTree(bo.getContenu()));
-        } catch (IOException e) {
-            LOGGER.error("Erreur lors de la conversion JSON", e);
-        }
-
-        // Mapper le contenu de la demande préremplie
-        try {
+            
+            // Mapper le contenu de la demande préremplie
             if (bo.getContenuInitial() != null)
                 dto.setContenuInitial(mapper.readTree(bo.getContenuInitial()));
-        } catch (IOException e) {
-            LOGGER.error("Erreur lors de la conversion JSON", e);
-        }
-        
-        // Meta
-        try {
+            
+            // Meta
             if (bo.getMeta() != null)
             	dto.setMeta(mapper.readTree(bo.getMeta()));
         } catch (IOException e) {
             LOGGER.error("Erreur lors de la conversion JSON", e);
         }
-
+        return dto;
+    }
+    
+    private static DemandeDTO bo2DtoProcessStatuts(DemandeBO bo, DemandeDTO dto, boolean addStatutsField) {
+        // Mapper les statuts
+        if (addStatutsField) {
+            if (DemarchesUtils.isFrontUser()) {
+                // Front Office : remonter uniquement le dernier statut de la demande
+                DemandesStatutsBO statut = DemarchesUtils.getLatestStatus(bo);
+                DemandeStatutDTO statutDto = DemandesStatutsTransformer.bo2Dto(statut);
+                // Cacher l'agentId au Front Office
+                statutDto.setAgentId(null);
+                dto.setStatuts(new DemandeStatutDTO[] { statutDto });
+            } else {
+                // Back Office : tout remonter
+                dto.setStatuts(DemandesStatutsTransformer.bo2Dto(new ArrayList<>(bo.getStatuts()))
+                        .toArray(new DemandeStatutDTO[bo.getStatuts().size()]));
+            }
+        }
         return dto;
     }
 
@@ -252,14 +260,14 @@ public class DemandesTransformer {
         bo.setRecapType(dto.getRecapType());
         bo.setDonneesCertifiees(dto.getDonneesCertifiees());
         bo.setPkDemandeSource(dto.getPkDemandeSource());
+        if(dto.getTypeConnexionUsager() != null) {
+            bo.setTypeConnexionUsager(dto.getTypeConnexionUsager().name());
+        }
         ObjectMapper mapper = new ObjectMapper();
         try {
             bo.setContenu(mapper.writeValueAsString(dto.getContenu()));
             bo.setMeta(mapper.writeValueAsString(dto.getMeta()));
-        } catch (JsonProcessingException e) {
-            LOGGER.error("Erreur lors de la conversion JSON", e);
-        }
-        try {
+            
             bo.setContenuInitial(mapper.writeValueAsString(dto.getContenuInitial()));
             // Ce qui suit afin d'éviter l'insertion d'une chaîne "null" en base
             if (bo.getContenuInitial() != null && "null".equals(bo.getContenuInitial())) {

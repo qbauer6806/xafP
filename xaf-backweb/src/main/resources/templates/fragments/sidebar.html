@@ -192,6 +192,11 @@
 								<div class="whiteBullet"></div> Propriétés
 							</a>
 						</li>
+						<li th:if="${AfBackUtils.getDemarcheCanHandleProperties()}">
+							<a id="menuGestionParametrage" th:href="@{/gestion/parametrage}">
+								<div class="whiteBullet"></div> Paramétrage démarche
+							</a>
+						</li>
 						<li>
 							<a id="menuRechercheAvancee" th:href="@{/gestion/adminrecherche}">
 								<div class="whiteBullet"></div> Recherche avancée

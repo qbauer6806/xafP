@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import mc.gouv.xaf.backweb.web.config.annotation.GouvRestController;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,16 +24,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import io.jsonwebtoken.lang.Collections;
 import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
 import mc.gouv.xaf.back.data.es.model.DemandeFileEsRechercheDTO;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.backweb.properties.BackGouvPropertiesResolver;
 import mc.gouv.xaf.back.service.es.IndexedDemandeService;
 import mc.gouv.xaf.back.service.es.utils.EsUtils;
 import mc.gouv.xaf.backweb.controller.AbstractController;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.DataRechercheDTO;
-import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
 import mc.gouv.xaf.shared.dto.DemandeCourrierRechercheDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
-import mc.gouv.xboot.config.web.annotation.GouvRestController;
+import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 
 @GouvRestController
 @RequestMapping("/ws/courriers")
@@ -42,7 +42,7 @@ public class RechercheIndexedCourriersController extends AbstractController {
     private static final Logger LOGGER = LoggerFactory.getLogger(RechercheIndexedCourriersController.class);
 
     @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
+    private BackGouvPropertiesResolver gouvPropertiesResolver;
 
     @Autowired
     private IndexedDemandeService demandesService;

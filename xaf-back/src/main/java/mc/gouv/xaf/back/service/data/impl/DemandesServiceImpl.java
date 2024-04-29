@@ -22,6 +22,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.persistence.criteria.Subquery;
 
+import mc.gouv.xaf.shared.enums.TypeConnexionUsagerEnum;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -75,8 +76,8 @@ import mc.gouv.xaf.back.service.itg.gichuni.kafka.utils.GUKafkaUtils;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
 import mc.gouv.xaf.shared.SharedMessages;
+import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 import mc.gouv.xaf.shared.dto.DataRechercheDTO;
-import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
@@ -143,8 +144,8 @@ public class DemandesServiceImpl implements DemandesService {
 
 	@Autowired
 	private StatistiquesService statistiquesService;
-	
-    @Autowired
+
+	@Autowired
     private GUKafkaProducer guKafkaProducer;
     
     @Autowired
@@ -215,8 +216,7 @@ public class DemandesServiceImpl implements DemandesService {
 				donneesCertifiees.addAll(complementDonneesCertifiees);
 				demande.setDonneesCertifiees(AfBackUtils.donneesCertifieesListToJson(donneesCertifiees));
 			}
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			LOGGER.error("Une erreur est survenue lors du postprocessing de la demande", e);
 		}
 
@@ -404,7 +404,7 @@ public class DemandesServiceImpl implements DemandesService {
 	 */
 	@Override
 	public List<DemandeDTO> getAllDemandesFilteredByDateAndStatut(String demarcheId, Date startDate, Date endDate,
-			String statut) {
+																  String statut) {
 
 		LOGGER.info("Récupération en base des demandes filtrées par date et par statut...");
 
@@ -428,7 +428,7 @@ public class DemandesServiceImpl implements DemandesService {
 	 */
 	@Override
 	public List<DemandeDTO> getAllDemandesFilteredByDateAcceptationAndStatut(String demarcheId, Date startDate,
-			Date endDate, String statut) {
+																			 Date endDate, String statut) {
 
 		LOGGER.info("Récupération en base des demandes filtrées par date et par statut...");
 
@@ -695,6 +695,7 @@ public class DemandesServiceImpl implements DemandesService {
 		stat.setDemarcheId(demarcheId);
 		stat.setIdentifiantDemande(demandeBo.getIdentifiant());
 		stat.setStatutPublic(AfBackUtils.STATUT_PUBLIC_SUPPRIMEE);
+		stat.setTypeConnexionUsager(TypeConnexionUsagerEnum.valueOf(demandeBo.getTypeConnexionUsager()));
 
 		AccessBO access = demandeBo.getFkAccess();
 		access.getDemandes().remove(demandeBo);
@@ -713,7 +714,7 @@ public class DemandesServiceImpl implements DemandesService {
 
 		return access;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -759,7 +760,6 @@ public class DemandesServiceImpl implements DemandesService {
 				demandeBo.getDateCreation(), recapDemandes);
 	}
 
-
 	@Override
 	public Integer getAccessIdFromDemande(DemandeDTO demande) {
 		return getCheckDemarcheDemandeBO(demande.getDemarcheId(), demande, true).getFkAccess().getPkAccess();
@@ -784,6 +784,7 @@ public class DemandesServiceImpl implements DemandesService {
 		newDemandeBo.setBuildId(demandeBo.getBuildId());
 		newDemandeBo.setRecapType(demandeBo.getRecapType());
 		newDemandeBo.setDonneesCertifiees(demandeBo.getDonneesCertifiees());
+		newDemandeBo.setTypeConnexionUsager(demandeBo.getTypeConnexionUsager());
 		// #4840 Enlever l'affectation
 		newDemandeBo.setAgentAffecteId(null);
 		newDemandeBo = demandesRepository.save(newDemandeBo);
@@ -997,7 +998,7 @@ public class DemandesServiceImpl implements DemandesService {
 
 	@Override
 	public mc.gouv.xaf.shared.dto.Page<DemandeDTO> getDemandesPageable(String demarcheId, Integer usagerId,
-			String[] status, PageParamDTO paramDTO) {
+																	   String[] status, PageParamDTO paramDTO) {
 		String sortColumn = paramDTO.getSort();
 		Sort sort = "DESC".equals(paramDTO.getDirection()) ? Sort.by(sortColumn).descending() : Sort.by(sortColumn);
 		Pageable pageable = PageRequest.of(paramDTO.getPage(), paramDTO.getSize(), sort);

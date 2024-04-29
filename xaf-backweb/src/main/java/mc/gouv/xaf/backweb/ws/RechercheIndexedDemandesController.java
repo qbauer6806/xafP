@@ -22,19 +22,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import mc.gouv.logon.shared.User;
+import mc.gouv.xaf.backweb.web.config.annotation.GouvRestController;
 import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
 import mc.gouv.xaf.back.data.es.model.DemandeEsRechercheDTO;
 import mc.gouv.xaf.back.data.es.model.DemandesFacet;
 import mc.gouv.xaf.back.data.es.model.DemandesFacets;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.backweb.properties.BackGouvPropertiesResolver;
 import mc.gouv.xaf.back.service.es.IndexedDemandeService;
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.backweb.controller.AbstractController;
 import mc.gouv.xaf.backweb.dto.AfBackDemandeEsDTO;
 import mc.gouv.xaf.shared.dto.DataRechercheDTO;
-import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
-import mc.gouv.xboot.config.web.annotation.GouvRestController;
+import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 
 @GouvRestController
 @RequestMapping("/ws/demandes")
@@ -44,7 +44,7 @@ public class RechercheIndexedDemandesController extends AbstractController {
     private static final Logger LOGGER = LoggerFactory.getLogger(RechercheIndexedDemandesController.class);
 
     @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
+    private BackGouvPropertiesResolver gouvPropertiesResolver;
 
     @Autowired
     private IndexedDemandeService demandesService;
@@ -65,7 +65,7 @@ public class RechercheIndexedDemandesController extends AbstractController {
                                                 @RequestParam(value = "aucunCanal", required = false) boolean aucunCanal,
                                                 @RequestParam(value = "aucunResponsable", required = false) boolean aucunResponsable,
                                                 @RequestParam(value = "aucunStatut", required = false) boolean aucunStatut,
-                                                @RequestParam(value = "statutPublicOuInterne", required = false) String statutPublicOuInterne, 
+                                                @RequestParam(value = "statutPublicOuInterne", required = false) String statutPublicOuInterne,
                                                 @RequestParam(value = "checkTimestamp", required = false, defaultValue = "false") boolean checkTimestamp,
                                                 Pageable pageable) {
 

@@ -21,17 +21,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import mc.gouv.logon.shared.User;
+import mc.gouv.xaf.backweb.web.config.annotation.GouvRestController;
 import mc.gouv.xaf.back.config.es.IndexationDisabledCondition;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.backweb.properties.BackGouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.backweb.controller.AbstractController;
 import mc.gouv.xaf.backweb.dto.AfBackDemandeDTO;
 import mc.gouv.xaf.shared.dto.DataRechercheDTO;
-import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
-import mc.gouv.xboot.config.web.annotation.GouvRestController;
+import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 
 @GouvRestController
 @RequestMapping("/ws/demandes")
@@ -41,7 +41,7 @@ public class RechercheDemandesController extends AbstractController {
     private static final Logger LOGGER = LoggerFactory.getLogger(RechercheDemandesController.class);
 
     @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
+    private BackGouvPropertiesResolver gouvPropertiesResolver;
 
     @Autowired
     private DemandesService demandesService;
@@ -82,12 +82,9 @@ public class RechercheDemandesController extends AbstractController {
         demandeRecherche.setAucunStatut(aucunStatut);
         demandeRecherche.setCheckTimestamp(checkTimestamp);
 
-        // TODO sort non null ?
-        if (pageable.getSort() != null) {
-            Order order = pageable.getSort().iterator().next();
-            if (order != null) {
-                return processCustomData(demandesService.getDemandes(demandeRecherche, pageable, new String[] {}));
-            }
+        Order order = pageable.getSort().iterator().next();
+        if (order != null) {
+            return processCustomData(demandesService.getDemandes(demandeRecherche, pageable, new String[] {}));
         }
 
         Pageable newPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.Direction.ASC,

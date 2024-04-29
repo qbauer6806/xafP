@@ -3,7 +3,8 @@ package mc.gouv.xaf.backweb.controller;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.StatistiquesInternesService;
 import mc.gouv.xaf.back.service.data.BrouillonsService;
-import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
+import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

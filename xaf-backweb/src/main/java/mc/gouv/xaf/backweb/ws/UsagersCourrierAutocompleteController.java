@@ -3,6 +3,7 @@ package mc.gouv.xaf.backweb.ws;
 import java.util.ArrayList;
 import java.util.List;
 
+import mc.gouv.xaf.backweb.web.config.annotation.GouvRestController;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
@@ -10,12 +11,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.backweb.properties.BackGouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.UsagersCourrierService;
 import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 import mc.gouv.xaf.backweb.dto.AutocompleteUsagerDTO;
 import mc.gouv.xaf.backweb.dto.AutocompleteUsagerListeDTO;
-import mc.gouv.xboot.config.web.annotation.GouvRestController;
 
 /**
  * 
@@ -34,7 +34,7 @@ public class UsagersCourrierAutocompleteController {
     private UsagersCourrierService usagersCourrierService;
 
     @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
+    private BackGouvPropertiesResolver gouvPropertiesResolver;
 
     @GetMapping(value = "/usagers", produces = "application/json")
     public @ResponseBody AutocompleteUsagerListeDTO usagersAutoComplete(@RequestParam String query) {

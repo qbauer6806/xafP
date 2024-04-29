@@ -29,7 +29,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import mc.gouv.file.shared.dto.FileDTO;
 import mc.gouv.file.shared.dto.MetaDTO;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.backweb.properties.BackGouvPropertiesResolver;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.FileComparator;
@@ -47,7 +47,7 @@ public class GestionModelesController {
     private AfBackUtils afBackUtils;
     
     @Autowired
-    private GouvPropertiesResolver gouvPropertiesResolver;
+    private BackGouvPropertiesResolver gouvPropertiesResolver;
     
     @Autowired
     private FileService fileService;

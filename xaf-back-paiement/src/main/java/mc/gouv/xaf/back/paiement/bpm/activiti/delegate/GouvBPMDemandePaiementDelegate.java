@@ -1,27 +1,5 @@
 package mc.gouv.xaf.back.paiement.bpm.activiti.delegate;
 
-import static mc.gouv.xaf.back.paiement.data.enums.OperationStatutEnum.ACCEPTEE;
-import static mc.gouv.xaf.back.service.utils.AfBackUtils.DTF_AAAA_MM_JJ;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-
-import mc.gouv.xaf.back.service.data.PropertiesService;
-import mc.gouv.xaf.shared.dto.PropertiesDTO;
-import org.activiti.engine.delegate.DelegateExecution;
-import org.activiti.engine.delegate.JavaDelegate;
-import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.stereotype.Component;
-
 import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.paiement.dto.CommandeDTO;
 import mc.gouv.xaf.back.paiement.dto.CommandeOperationDTO;
@@ -35,13 +13,30 @@ import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.AfHistoService;
 import mc.gouv.xaf.back.service.data.DemandesDataService;
 import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
-import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
+import mc.gouv.xaf.back.service.itg.mail.MailTemplateModelProvider;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeDataDTO;
-import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
+import mc.gouv.xaf.shared.dto.PropertiesDTO;
+import org.activiti.engine.delegate.DelegateExecution;
+import org.activiti.engine.delegate.JavaDelegate;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Map;
+
+import static mc.gouv.xaf.back.paiement.data.enums.OperationStatutEnum.ACCEPTEE;
+import static mc.gouv.xaf.back.service.utils.AfBackUtils.DTF_AAAA_MM_JJ;
 
 @Component
 public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
@@ -81,18 +76,15 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
     
     @Autowired
     private AfBackUtils afBackUtils;
-    
-    @Autowired
-    private UsagersCache usagersCache;
 
     @Autowired
     private CommandesService commandesService;
-    
-    @Autowired
-    private MessageSource messageSource;
 
     @Autowired
     private PropertiesService propertiesService;
+
+    @Autowired
+    private MailTemplateModelProvider mailTemplateModelProvider;
 
     @Override
     public void execute(DelegateExecution execution) throws Exception {
@@ -156,7 +148,6 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
 	private void sendMail(DemandeDTO demandeDTO, String mailKey) {
 		String bodyTemplateCode = mailKey + "_CORPS";
 		String subjectTemplateCode = mailKey + "_OBJET";
-		GichuniUsagerDTO usager = usagersCache.get(demandeDTO.getUsagerId(), true);
 		EmailInfoDTO emailInfo = new EmailInfoDTO();
 		emailInfo.setLangue(demandeDTO.getLangue());
 		emailInfo.setBodyTemplateCode(bodyTemplateCode);
@@ -164,14 +155,9 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
 		emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(), afBackUtils.getDemarcheInfos().getEmailFromNom());
 		emailInfo.addTo(demandeDTO.getUsagerEmail(), demandeDTO.getUsagerPrenom() + " " + demandeDTO.getUsagerNom());
 		emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, demandeDTO.getIdentifiant());
-		Map<String, Object> model = new HashMap<>();
-		String titre = messageSource.getMessage("civilite."+usager.getTitre(), null, new Locale(demandeDTO.getLangue()));
-		model.put("titre", titre);
-		model.put("urlFront", gouvPropertiesResolver.getFrontUrl());
-		model.put("identifiant", demandeDTO.getIdentifiant());
-		model.put("pkDemande", demandeDTO.getPkDemandes());
+        Map<String, Object> model = mailTemplateModelProvider.getGenericModelDemande(demandeDTO);
 
-        // Calcul de la date d'expoiration de la demande avec valeur par défaut à 35 jours
+        // Calcul de la date expiration de la demande avec valeur par défaut à 35 jours
         PropertiesDTO prop = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), NB_JOURS_AVANT_EXPIRATION_PAIEMENT);
         int nbJoursAvantExpiration =  (null != prop) ? Integer.parseInt(prop.getValue()) : 35;
 		model.put("dateExpirationPaiement", LocalDate.now().plusDays(nbJoursAvantExpiration)

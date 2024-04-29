@@ -67,6 +67,10 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandeExcelGenerationServiceImpl.class);
 
     private static final String CONTENU_DTO = "ContenuProjectDemandeDTO";
+    
+    private static final String LABEL = "label";
+    
+    private static final String CONTENU = "contenu.";
 
     @Autowired
     private PaysCache paysCache;
@@ -179,6 +183,11 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
 		}
 		
 		// Reste des colonnes, qui sont générées à partir du fichier Recap BO
+        genererColonnes(workbook, jsonArray, row, demande, header);
+	}
+	
+	private void genererColonnes(XSSFWorkbook workbook, JSONArray jsonArray, Row row, DemandeDTO demande, boolean header) {
+		// Reste des colonnes, qui sont générées à partir du fichier Recap BO
         for (int k = 0; k < jsonArray.size(); k++) {
             if ("projectDemandeRecap".equals(((JSONObject) jsonArray.get(k)).get("name"))) {
                 JSONObject projectDemandeRecap = (JSONObject) jsonArray.get(k);
@@ -214,7 +223,7 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
                 
         		Cell cell = row.createCell(row.getLastCellNum() == -1 ? 0 : row.getLastCellNum());
         		cell.setCellStyle(cellStyle);
-        		String cellValue = getFieldValue(champ, pojo, row, cellStyle, node, header);
+        		String cellValue = getFieldValue(champ, pojo, node, header);
         		if (header) {
         			cellValue = nomSection + " - " + cellValue;
         		}
@@ -227,7 +236,7 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
         		Cell cell = row.createCell(row.getLastCellNum() == -1 ? 0 : row.getLastCellNum());
         		cell.setCellStyle(cellStyle);
         		if (header) {
-    	    		cell.setCellValue(nomSection + " - " + (String)((JSONObject)column).get("label"));
+    	    		cell.setCellValue(nomSection + " - " + (String)((JSONObject)column).get(LABEL));
         		}
         		else {
 	        		JsonNode node0 = getNode(node, jsonObject, "path");
@@ -236,7 +245,7 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
 	        			Iterator<JsonNode> it = ((ArrayNode)node0).iterator();
 	        			while (it.hasNext()) {
 	        				JsonNode elem = it.next();
-	        				String val = getFieldValue((JSONObject)column, pojo, row, cellStyle, elem, header);
+	        				String val = getFieldValue((JSONObject)column, pojo, elem, header);
 	        				if (StringUtils.isNotBlank(val)) {
 		        				if (valeurColonne.length() > 0) {
 		        					valeurColonne += ", ";
@@ -252,7 +261,7 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
 	}
 	
     private JsonNode getNode(JsonNode node, JSONObject champ, String ref) {
-        String path = champ.get(ref).toString().replace("contenu.", "/").replace(".", "/");
+        String path = champ.get(ref).toString().replace(CONTENU, "/").replace(".", "/");
         if (path.charAt(0) != '/') {
             path = "/" + path;
         }
@@ -276,11 +285,11 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
         return ret;
     }
     
-    private String getFieldValue(JSONObject jsonObject, String pojo, Row row, CellStyle cellStyle, JsonNode node, boolean header) {
+    private String getFieldValue(JSONObject jsonObject, String pojo, JsonNode node, boolean header) {
 		String type = (String)jsonObject.get("type");
         if ("chaine".equals(type) || "texte".equals(type)) {
     		if (header) {
-	    		return (String)jsonObject.get("label");
+	    		return (String)jsonObject.get(LABEL);
     		}
     		else {
     			JsonNode node0 = getNode(node, jsonObject, "path");
@@ -294,7 +303,7 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
         }
         else if ("choix".equals(type)) {
     		if (header) {
-	    		return (String)jsonObject.get("label");
+	    		return (String)jsonObject.get(LABEL);
     		}
     		else {
                 String mapping = jsonObject.get("mapping").toString();
@@ -316,7 +325,7 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
                     	return paysCache.get(node0.asText(), "fr").getNom();
                     }
                 } else if (mapping.toLowerCase().startsWith("properties_")) {
-                    String path = jsonObject.get("path").toString().replace("contenu.", "/").replace(".", "/");
+                    String path = jsonObject.get("path").toString().replace(CONTENU, "/").replace(".", "/");
                     if (path.charAt(0) != '/') {
                         path = "/" + path;
                     }
@@ -327,7 +336,7 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
                 	String key = mapping.substring(11, mapping.length()) + "_FR";
 					return propertiesService.getPropertyPourRecap(key, pathNode, true);
                 } else {
-                    String path = jsonObject.get("path").toString().replace("contenu.", "/").replace(".", "/");
+                    String path = jsonObject.get("path").toString().replace(CONTENU, "/").replace(".", "/");
                     if (path.charAt(0) != '/') {
                         path = "/" + path;
                     }
@@ -374,7 +383,7 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
         }
         else if ("date".equals(type)) {
     		if (header) {
-	    		return (String)jsonObject.get("label");
+	    		return (String)jsonObject.get(LABEL);
     		}
     		else {
                 JsonNode node0 = getNode(node, jsonObject, "path");
@@ -394,7 +403,7 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
         }
         else if ("choixMultiple".equals(type)) {
         	if (header) {
-        		return (String)jsonObject.get("label");
+        		return (String)jsonObject.get(LABEL);
         	}
         	else {
                 JsonNode n = getNode(node, jsonObject, "path");
@@ -432,7 +441,7 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
         }
         else if ("adresse".equals(type)) {
     		if (header) {
-	    		return (String)jsonObject.get("label");
+	    		return (String)jsonObject.get(LABEL);
     		}
     		else {
 	           String ret = buildAdresseHTML(node, jsonObject);
@@ -450,7 +459,7 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
         }
         else if ("adresseMc".equals(type)) {
     		if (header) {
-	    		return (String)jsonObject.get("label");
+	    		return (String)jsonObject.get(LABEL);
     		}
     		else {
     			return buildAdresseHTML(node, jsonObject);
@@ -458,7 +467,7 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
         }
         else if ("iban".equals(type)) {
     		if (header) {
-	    		return (String)jsonObject.get("label");
+	    		return (String)jsonObject.get(LABEL);
     		}
     		else {
                 String titulaire = getNode(node, jsonObject, "titulaire").textValue();
@@ -469,7 +478,7 @@ public class DemandeExcelGenerationServiceImpl implements DemandeExcelGeneration
         }
         else if ("telephone".equals(type)) {
     		if (header) {
-	    		return (String)jsonObject.get("label");
+	    		return (String)jsonObject.get(LABEL);
     		}
     		else {
                 String indicatif = getNode(node, jsonObject, "indicatif").textValue();

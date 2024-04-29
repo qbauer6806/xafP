@@ -14,6 +14,7 @@ import javax.transaction.Transactional;
 import javax.ws.rs.BadRequestException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import mc.gouv.xaf.backweb.web.config.annotation.GouvRestController;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +37,6 @@ import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.PropertiesListEntityDTO;
-import mc.gouv.xboot.config.web.annotation.GouvRestController;
 
 @GouvRestController
 @Controller

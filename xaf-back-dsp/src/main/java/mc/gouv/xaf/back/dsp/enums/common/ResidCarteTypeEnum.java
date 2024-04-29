@@ -8,7 +8,7 @@ public enum ResidCarteTypeEnum {
     PRIMO_ARRIVANT_HORS_EEE_PAR_TRANSFERT("PRIMO_ARRIVANT_HORS_EEE_PAR_TRANSFERT"),
     PREMIERE_DEMANDE_MINEUR_16_ANS("PREMIERE_DEMANDE_MINEUR_16_ANS");
 
-    public String value;
+    String value;
 
     ResidCarteTypeEnum(String value) {
         this.value = value;

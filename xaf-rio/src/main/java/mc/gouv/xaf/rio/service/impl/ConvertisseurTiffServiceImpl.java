@@ -70,7 +70,7 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
         List<InputStream> isList = convertFileToTiff(is, extension);
 
         // Création des FileDTO
-        return createNewFileDTOs(file, isList, filename);
+        return createNewFileDTOs(isList, filename);
     }
 
     /**
@@ -188,7 +188,7 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
         }
     }
 
-    private Map<String, InputStream> createNewFileDTOs(DemandeFileDTO file, List<InputStream> isList, String filename) {
+    private Map<String, InputStream> createNewFileDTOs(List<InputStream> isList, String filename) {
         Map<String, InputStream> filesMap= new LinkedHashMap<>();
 
         for (int i = 0; i < isList.size(); i++) {

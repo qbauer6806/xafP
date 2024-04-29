@@ -6,7 +6,7 @@ public enum ResidSexeEnum {
     FEM("FEM"),
     AUT("AUT");
 
-    public String value;
+    String value;
 
     ResidSexeEnum(String value) {
         this.value = value;

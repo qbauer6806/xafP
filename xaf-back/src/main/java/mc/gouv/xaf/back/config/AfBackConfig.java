@@ -3,6 +3,7 @@ package mc.gouv.xaf.back.config;
 import java.text.SimpleDateFormat;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,8 +12,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 
-import mc.gouv.Static;
-import mc.gouv.logon.apiclient.LogonApiClient;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
 import mc.gouv.xaf.back.service.itg.logon.impl.UtilisateursCacheImpl;
@@ -21,6 +20,8 @@ import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.itg.rest.impl.PaysCacheImpl;
 import mc.gouv.xaf.back.service.itg.rest.impl.UsagersCacheDataProvider;
 import mc.gouv.xaf.back.service.itg.rest.impl.UsagersCacheImpl;
+
+import javax.annotation.PostConstruct;
 
 /**
  * 
@@ -43,6 +44,18 @@ public class AfBackConfig {
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
 
+    @Value("${display.name}")
+    private String displayName;
+
+    @Value("${logging.file.path}")
+    private String loggingFile;
+
+    @PostConstruct
+    public void loadProperties() {
+        System.setProperty("MC_LOGDIR", loggingFile) ;
+        System.setProperty("MC_APPNAME", displayName) ;
+    }
+
     @Bean(name = "paysCacheImpl")
     public PaysCache getPaysCache() {
         return new PaysCacheImpl(gouvPropertiesResolver.getPaysRestUrl(), null, null, PAYS_CACHE_DURATION);
@@ -50,7 +63,7 @@ public class AfBackConfig {
 
     @Bean(name = "utilisateursCacheImpl")
     public UtilisateursCache getUtilisateursCache() {
-        String url = Static.getValue(LogonApiClient.DEFAULT_GOUV_PROPERTY_URL);
+        String url = gouvPropertiesResolver.getGouvSharedLogonRestUrl();
         return new UtilisateursCacheImpl(url, gouvPropertiesResolver.getDemarcheId(), UTILISATEURS_CACHE_DURATION);
     }
 

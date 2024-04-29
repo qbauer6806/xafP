@@ -5,6 +5,9 @@ import java.util.Arrays;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 
+import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
+import mc.gouv.xaf.shared.enums.TypeConnexionUsagerEnum;
+
 /**
  * Modélise une demande
  *
@@ -13,7 +16,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DemandeDTO extends AbstractDemandeDTO {
 
-    protected DemandeCanalEnum canal;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 877740374924793999L;
+	
+	protected DemandeCanalEnum canal;
     protected String creeParAgentId;
     protected DemandeCourrierDTO[] courriers;
     private Integer fkAccess;
@@ -36,6 +44,7 @@ public class DemandeDTO extends AbstractDemandeDTO {
     private Long modificationTimestamp;
     private JsonNode contenuInitial;
     private JsonNode meta;
+    private TypeConnexionUsagerEnum typeConnexionUsager;
     
     public Long getModificationTimestamp() {
         return modificationTimestamp;
@@ -215,7 +224,8 @@ public class DemandeDTO extends AbstractDemandeDTO {
                 + courrierDateReception + ", courrierRefInterne=" + courrierRefInterne + ", updated=" + updated + "]"
                 + ", usagerNom=" + usagerNom + ", usagerPrenom=" + usagerPrenom + ", usagerEmail=" + usagerEmail
                 + ", buildId=" + buildId + ", recapType=" + recapType + ", donneesMConnect=" + donneesMConnect
-                + ", donneesCertifiees=" + donneesCertifiees + ", pkDemandeSource=" + pkDemandeSource + "]";
+                + ", donneesCertifiees=" + donneesCertifiees + ", pkDemandeSource=" + pkDemandeSource
+                + ", typeConnexionUsager=" + typeConnexionUsager + "]";
     }
 
     public JsonNode getContenuInitial() {
@@ -234,4 +244,11 @@ public class DemandeDTO extends AbstractDemandeDTO {
 		this.meta = meta;
 	}
 
+    public TypeConnexionUsagerEnum getTypeConnexionUsager() {
+        return typeConnexionUsager;
+    }
+
+    public void setTypeConnexionUsager(TypeConnexionUsagerEnum typeConnexionUsager) {
+        this.typeConnexionUsager = typeConnexionUsager;
+    }
 }

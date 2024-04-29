@@ -138,6 +138,8 @@ class ResidInitialDemandeServiceImplTest {
         params.put(ResidInitialDemandeServiceImpl.DONNEES_EXTERNES_MCONNECT_GIVENNAME, new String[]{"GIVENNAME"});
         params.put(ResidInitialDemandeServiceImpl.DONNEES_EXTERNES_MCONNECT_BIRTHPLACECITY, new String[]{"BIRTHPLACECITY"});
         params.put(ResidInitialDemandeServiceImpl.DONNEES_EXTERNES_MCONNECT_BIRTHPLACECOUNTRY, new String[]{"BIRTHPLACECOUNTRY"});
+        params.put(ResidInitialDemandeServiceImpl.DONNEES_EXTERNES_USAGER_INFO_EMAIL, new String[]{"EMAIL"});
+        params.put(ResidInitialDemandeServiceImpl.DONNEES_EXTERNES_USAGER_INFO_TITRE, new String[]{"TITRE"});
 
         return params;
     }

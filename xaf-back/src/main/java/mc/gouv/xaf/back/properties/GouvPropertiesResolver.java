@@ -1,8 +1,7 @@
 package mc.gouv.xaf.back.properties;
 
 /**
- * Composant permettant de récupérer des éléments de configuration propres au gouvernement. Proxy vers Static.getValue()
- * permettant via Spring de mocker les appels à Static.getValue().
+ * Composant permettant de récupérer des éléments de configuration propres au gouvernement.
  *
  * @author qdeme
  */
@@ -22,25 +21,9 @@ public interface GouvPropertiesResolver {
 
     String getPaysRestUrl();
 
-    String getFrontUrl();
-
-    String getBackUrl();
-
     String getContainerId();
 
-    String getGouvSharedEnv();
-
-    String getGouvSharedEnvColor();
-
-    String getContactSupportUrl();
-
-    String getFrontSharedKey();
-
-    String getHelpUrl();
-
     long getUsagersCacheDuration();
-
-    String getFrontFormStartPage();
 
     String getSearchHighlightPreTags();
 
@@ -60,9 +43,9 @@ public interface GouvPropertiesResolver {
 
     Integer getEsSocketTimeout();
 
-    boolean getNovalidate();
-
     String getGouvSharedLogonUrl();
+
+    String getGouvSharedLogonRestUrl();
 
     String getVScanUrl();
 
@@ -100,10 +83,6 @@ public interface GouvPropertiesResolver {
 
     String getGichuniUrl();
 
-    String getGichkeyClientId();
-
-    String getGichkeyClientSecret();
-
     String getApplicationPrefix();
 
     String getProxyUrl();
@@ -132,4 +111,7 @@ public interface GouvPropertiesResolver {
 
     String getApiUlisFunctionalUser();
 
+    String getFrontUrl();
+
+    String getBackUrl();
 }

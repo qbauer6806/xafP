@@ -1,10 +1,10 @@
 package mc.gouv.xaf.backweb.ws;
 
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemandeRecapHTMLService;
 import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.backweb.properties.BackGouvPropertiesResolver;
+import mc.gouv.xaf.backweb.web.config.annotation.GouvRestController;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.xboot.config.web.annotation.GouvRestController;
 import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +33,7 @@ public class RecapGenerationController {
 	private DemandesService demandesService;
 
 	@Autowired
-	private GouvPropertiesResolver gouvPropertiesResolver;
+	private BackGouvPropertiesResolver gouvPropertiesResolver;
 
 	@Autowired
 	private DemandeRecapHTMLService demandeRecapHTMLService;

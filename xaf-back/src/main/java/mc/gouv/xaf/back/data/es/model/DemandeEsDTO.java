@@ -9,7 +9,7 @@ import org.springframework.data.elasticsearch.annotations.Document;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import mc.gouv.xaf.shared.dto.es.GenericContenuEsDTO;
+import mc.gouv.xaf.shared.dto.es.GenericContenuDTO;
 import mc.gouv.xaf.shared.dto.es.GenericDemandeDataEsDTO;
 
 /**
@@ -31,7 +31,7 @@ public class DemandeEsDTO {
     private String agentAffecteId;
     private String agentAffecteNomAffichage;
     private CanalEsDto canal;
-    private GenericContenuEsDTO contenu;
+    private GenericContenuDTO contenu;
     private Date courrierDateReception;
     private String courrierRefInterne;
     private String creeParAgentId;
@@ -133,11 +133,11 @@ public class DemandeEsDTO {
         this.canal = canal;
     }
 
-    public GenericContenuEsDTO getContenu() {
+    public GenericContenuDTO getContenu() {
         return contenu;
     }
 
-    public void setContenu(GenericContenuEsDTO contenu) {
+    public void setContenu(GenericContenuDTO contenu) {
         this.contenu = contenu;
     }
 

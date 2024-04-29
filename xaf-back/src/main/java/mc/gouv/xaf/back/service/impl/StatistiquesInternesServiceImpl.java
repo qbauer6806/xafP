@@ -5,7 +5,7 @@ import mc.gouv.xaf.back.data.dao.DemandesStatistiquesInternesRepository;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.StatistiquesInternesService;
-import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
+import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

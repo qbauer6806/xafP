@@ -2,6 +2,8 @@ package mc.gouv.xaf.shared.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import mc.gouv.xaf.shared.enums.DemandeComplementsStatutEnum;
+
 /**
  * Modélise une demande d'informations complémentaires
  * 

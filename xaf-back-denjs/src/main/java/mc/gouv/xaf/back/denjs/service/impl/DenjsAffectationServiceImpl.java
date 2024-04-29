@@ -21,7 +21,7 @@ import mc.gouv.xaf.back.denjs.dto.DenjsEtablissementDTO;
 import mc.gouv.xaf.back.denjs.service.DenjsAffectationService;
 import mc.gouv.xaf.shared.dto.DemandeDataDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
-import mc.gouv.xaf.shared.dto.PropertiesTypeEnum;
+import mc.gouv.xaf.shared.enums.PropertiesTypeEnum;
 
 /**
  * Service permettant de gérer l'affectation des agents ou des demandes à des établissements, dans le cadre

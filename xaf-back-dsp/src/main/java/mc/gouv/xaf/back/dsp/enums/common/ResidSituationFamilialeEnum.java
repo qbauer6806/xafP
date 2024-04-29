@@ -11,7 +11,7 @@ public enum ResidSituationFamilialeEnum {
     PAR("PAR"),
     COH("COH");
 
-    public String value;
+    String value;
 
     ResidSituationFamilialeEnum(String value) {
         this.value = value;

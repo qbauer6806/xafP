@@ -135,6 +135,9 @@ public class DemandeBO {
     @Column(name = "META", columnDefinition = "TEXT", nullable = true)
     private String meta;
 
+    @Column(name = "TYPE_CONNEXION_USAGER", length = 256, nullable = true)
+    private String typeConnexionUsager;
+
     public Long getModificationTimestamp() {
         return modificationTimestamp;
     }
@@ -372,4 +375,11 @@ public class DemandeBO {
 		this.meta = meta;
 	}
 
+    public String getTypeConnexionUsager() {
+        return typeConnexionUsager;
+    }
+
+    public void setTypeConnexionUsager(String typeConnexionUsager) {
+        this.typeConnexionUsager = typeConnexionUsager;
+    }
 }

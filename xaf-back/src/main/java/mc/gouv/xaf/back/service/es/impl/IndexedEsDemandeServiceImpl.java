@@ -36,11 +36,11 @@ import mc.gouv.xaf.back.service.utils.DemarchesUtils;
 import mc.gouv.xaf.back.service.utils.ESQueryUtils;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.DataRechercheDTO;
-import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
 import mc.gouv.xaf.shared.dto.DemandeCourrierRechercheDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
+import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.search.join.ScoreMode;
@@ -283,7 +283,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
 
         Map<String, Map> mapping = getMapping(indexAlias);
         boolean mappingFichierPresentDansMappingES = false;
-        if (mapping.get("properties") != null && mapping.get("properties").containsKey("fichiers")) {
+        if (mapping.get(EsUtils.ES_MAPPING_PROPERTIES_KEY) != null && mapping.get(EsUtils.ES_MAPPING_PROPERTIES_KEY).containsKey("fichiers")) {
             mappingFichierPresentDansMappingES = true;
         }
 
@@ -505,7 +505,7 @@ public class IndexedEsDemandeServiceImpl extends DemandesServiceImpl implements 
             List<DemandeEsDTO> demandesEs = demandeEsTransformer.toEs(DemandesTransformer.bo2Dto(demandes));
             demandeEsRepository.deleteAll(demandesEs);
 
-            if (demandesEs != null) {
+            if (demandesEs != null && demCount > 0) {
 
                 List<IndexQuery> indexList = new ArrayList<>();
                 for (DemandeEsDTO dem : demandesEs) {

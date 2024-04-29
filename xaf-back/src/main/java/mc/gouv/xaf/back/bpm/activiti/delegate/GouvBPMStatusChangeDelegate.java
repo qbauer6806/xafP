@@ -71,19 +71,10 @@ public class GouvBPMStatusChangeDelegate implements JavaDelegate {
                 .getVariable(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_AGENT.name());
         String usagerId = (String) execution
                 .getVariable(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_USAGER.name());
-        // execution.removeVariable(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_AGENT.name());
-        // execution.removeVariable(GouvBPMProcessVariableTypeEnum.MC_TARGETSTATE_ORIGINATOR_USAGER.name());
 
         LOGGER.info("Commentaire usager : {}", commentaireUsager);
         LOGGER.info("Texte à envoyer : {}", texteAEnvoyer);
         LOGGER.info("Code motif : {}", codeMotifStr);
-
-        // TODO Peut-être gérer les variables autrement... si on met après ce serviceTask, un autre qui en a besoin
-        // alors y'a un problème
-        // Supprimer le codeMotif et le commentaireUsager du process BPM car on ne s'en sert plus
-        // (ne pas les reproposer à l'utilisateur)
-        // execution.removeVariable(GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name());
-        // execution.removeVariable(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name());
 
         LOGGER.info("Appel à DEM changerStatutDemande()...");
 

@@ -33,9 +33,6 @@ public class FrontGouvPropertiesResolver {
     @Value("${application.name}")
     private String applicationName;
 
-    private String applicationPrefix = "";
-    private String demarcheId;
-
     // GLOBAL
     @Value("${mc.gouv.servicerest.api.pays.url}")
     private String paysUrl;
@@ -87,7 +84,7 @@ public class FrontGouvPropertiesResolver {
     @Value("${mc.gouv.${application.name}.frontserver.file.jwt}")
     private String fileJwt;
 
-    @Value("${mc.gouv.pocts.frontserver.tgf.jwt}")
+    @Value("${mc.gouv.${application.name}.frontserver.tgf.jwt}")
     private String tgfApiJwt;
 
     @Value("${mc.gouv.${application.name}.frontserver.vscan.jwt}")
@@ -124,11 +121,6 @@ public class FrontGouvPropertiesResolver {
     @PostConstruct
     private void initPrefix() throws IntrospectionException, IllegalAccessException, InvocationTargetException,
             GouvPropertyNotFoundException {
-
-        if (StringUtils.isNotBlank(applicationName)) {
-            applicationPrefix = "." + applicationName;
-            demarcheId = StringUtils.upperCase(applicationName);
-        }
 
         //Vérification que chaque propriété a bien été configurée
         List<String> propertiesNotFound = new ArrayList<>();

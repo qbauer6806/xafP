@@ -91,6 +91,7 @@ public abstract class AbstractPdfTemplateAndModelProviderImpl implements PdfTemp
     @Override
     public Map<String, Object> getGenericModel() {
         Map<String, Object> model = new HashMap<>();
+        model.put("nomTs", afBackUtils.getDemarcheInfos().getNom());
         model.put("nomDirection", afBackUtils.getDemarcheInfos().getNomDirection());
         model.put("nomDirectionComplement", afBackUtils.getDemarcheInfos().getNomDirectionComplement());
         model.put("nomFooter", afBackUtils.getDemarcheInfos().getNomFooter());

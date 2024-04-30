@@ -1,34 +1,15 @@
 package mc.gouv.xaf.back.service.data.impl;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import mc.gouv.xaf.back.data.dao.AccessRepository;
 import mc.gouv.xaf.back.data.dao.BrouillonsFilesRepository;
 import mc.gouv.xaf.back.data.dao.BrouillonsRepository;
+import mc.gouv.xaf.back.data.dao.DemandesFilesRepository;
 import mc.gouv.xaf.back.data.entity.AccessBO;
 import mc.gouv.xaf.back.data.entity.BrouillonBO;
 import mc.gouv.xaf.back.data.entity.BrouillonsFilesBO;
+import mc.gouv.xaf.back.data.entity.DemandesFilesBO;
 import mc.gouv.xaf.back.data.transformer.BrouillonsFilesTransformer;
 import mc.gouv.xaf.back.data.transformer.BrouillonsTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
@@ -42,6 +23,25 @@ import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.BrouillonDTO;
 import mc.gouv.xaf.shared.dto.BrouillonFileDTO;
 import mc.gouv.xaf.shared.dto.PageParamDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Service permettant la manipulation des brouillons.
@@ -78,6 +78,9 @@ public class BrouillonsServiceImpl implements BrouillonsService {
 
     @Autowired
     private FileService fileService;
+
+    @Autowired
+    private DemandesFilesRepository demandesFilesRepository;
 
     /**
      * {@inheritDoc}
@@ -188,7 +191,7 @@ public class BrouillonsServiceImpl implements BrouillonsService {
 
         Optional<BrouillonBO> brouillonBoOp = brouillonsRepository.findById(brouillon.getPkBrouillons());
 
-        if (!brouillonBoOp.isPresent()) {
+        if (brouillonBoOp.isEmpty()) {
             throw new DemarchesServiceException(SharedMessages.DONNEE_INTROUVABLE, HttpStatus.NOT_FOUND);
         }
 
@@ -246,11 +249,6 @@ public class BrouillonsServiceImpl implements BrouillonsService {
      */
     @Override
     public void deleteBrouillon(String demarcheId, Integer pkBrouillons, Integer usagerId) {
-        deleteBrouillon(demarcheId, pkBrouillons, usagerId, false);
-    }
-
-    @Override
-    public void deleteBrouillon(String demarcheId, Integer pkBrouillons, Integer usagerId, boolean deleteFiles) {
         BrouillonBO brouillonBo = getBrouillonBo(demarcheId, pkBrouillons);
         AccessBO access = brouillonBo.getFkAccess();
         // #46373 - Faille de sécurité, il faut vérifier que l'usager qui a créé ce brouillon est à l'origine du changement
@@ -258,16 +256,15 @@ public class BrouillonsServiceImpl implements BrouillonsService {
             throw new DemarchesServiceException(SharedMessages.UTILISATEUR_NON_AUTORISE, HttpStatus.UNAUTHORIZED);
         }
 
-        if (deleteFiles) {
-            // Suppression des fichiers liés au brouillon
-            BrouillonDTO brouillonDTO = BrouillonsTransformer.bo2Dto(brouillonBo);
-            if (brouillonDTO.getFichiers() != null && !Arrays.asList(brouillonDTO.getFichiers()).isEmpty()) {
-                for (BrouillonFileDTO currentFileToDelete : brouillonDTO.getFichiers()) {
-                    List<BrouillonsFilesBO> existingFiles = brouillonsFilesRepository.findAllByUrl(currentFileToDelete.getUrl());
-                    if (existingFiles != null && !existingFiles.isEmpty()) {
-                        String url = URLEncoder.encode(currentFileToDelete.getUrl(), StandardCharsets.UTF_8);
-                        fileService.deleteFile("ROOT", url);
-                    }
+        // Suppression des fichiers liés au brouillon
+        BrouillonDTO brouillonDTO = BrouillonsTransformer.bo2Dto(brouillonBo);
+        if (brouillonDTO.getFichiers() != null && !Arrays.asList(brouillonDTO.getFichiers()).isEmpty()) {
+            for (BrouillonFileDTO currentFileToDelete : brouillonDTO.getFichiers()) {
+                List<DemandesFilesBO> existingFilesDemandes = demandesFilesRepository.findAllByUrl(currentFileToDelete.getUrl());
+                List<BrouillonsFilesBO> existingFilesBrouillons = brouillonsFilesRepository.findAllByUrl(currentFileToDelete.getUrl());
+                if (isFileDeletable(existingFilesDemandes, existingFilesBrouillons)) {
+                    String url = URLEncoder.encode(currentFileToDelete.getUrl(), StandardCharsets.UTF_8);
+                    fileService.deleteFile("ROOT", url);
                 }
             }
         }
@@ -275,6 +272,11 @@ public class BrouillonsServiceImpl implements BrouillonsService {
         access.getBrouillons().remove(brouillonBo);
         accessRepository.save(access);
         brouillonsRepository.delete(brouillonBo);
+    }
+
+    private boolean isFileDeletable(List<DemandesFilesBO> existingFilesDemandes, List<BrouillonsFilesBO> existingFilesBrouillons) {
+        // le fichier du brouillon est supprimable uniquement s'il n'est pas utilisé dans une autre demande, et s'il n'est pas utilisé dans une autre brouillon
+        return existingFilesDemandes != null && existingFilesDemandes.isEmpty() && existingFilesBrouillons != null && existingFilesBrouillons.size() <= 1;
     }
     
     /**

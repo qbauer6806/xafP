@@ -6,6 +6,7 @@ import mc.gouv.xaf.shared.enums.MailAudienceEnum;
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.delegate.JavaDelegate;
 import org.activiti.engine.impl.el.Expression;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,7 +67,7 @@ public class GouvBPMEnvoiEmailAgentsDelegate implements JavaDelegate {
                 .getEmailFromNom());
         emailInfo.setReplyto(afBackUtils.getDemarcheInfos().getEmailReplyto(), afBackUtils.getDemarcheInfos()
                 .getEmailReplytoNom());
-        emailInfo.addTo(afBackUtils.getDemarcheInfos().getEmailService(), null);
+        emailInfo.addTo(afBackUtils.getDemarcheInfos().getEmailService(), StringUtils.EMPTY);
         emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, execution.getProcessBusinessKey());
         emailInfo.setLangue("fr");
         

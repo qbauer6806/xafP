@@ -7,6 +7,7 @@ import mc.gouv.xaf.shared.enums.MailAudienceEnum;
 import org.activiti.engine.delegate.DelegateExecution;
 import org.activiti.engine.delegate.JavaDelegate;
 import org.activiti.engine.impl.el.Expression;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -98,7 +99,7 @@ public class GouvBPMEnvoiEmailAgentsWithRolesDelegate implements JavaDelegate {
             
             if ("true".equals(copieAuServiceStr)) {
             	LOGGER.info("Paramètre \"copieAuService\" spécifié, placer le service en copie carbone...");
-            	emailInfo.addCc(afBackUtils.getDemarcheInfos().getEmailService(), null);
+            	emailInfo.addCc(afBackUtils.getDemarcheInfos().getEmailService(), StringUtils.EMPTY);
             }
             
             String codeMotif = (String) execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name());

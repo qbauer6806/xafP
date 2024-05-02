@@ -109,7 +109,7 @@ public class GouvBPMEnvoiEmailUsagerDelegate implements JavaDelegate {
         
         if ("true".equals(copieCacheeAuServiceStr)) {
         	LOGGER.info("Paramètre \"copieCacheeAuService\" spécifié, placer le service en copie carbone invisible...");
-        	emailInfo.addBcc(afBackUtils.getDemarcheInfos().getEmailService(), null);
+        	emailInfo.addBcc(afBackUtils.getDemarcheInfos().getEmailService(), StringUtils.EMPTY);
         }
 
         String codeMotif = (String) execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name());

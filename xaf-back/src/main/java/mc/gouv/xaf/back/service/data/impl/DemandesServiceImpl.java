@@ -695,7 +695,9 @@ public class DemandesServiceImpl implements DemandesService {
 		stat.setDemarcheId(demarcheId);
 		stat.setIdentifiantDemande(demandeBo.getIdentifiant());
 		stat.setStatutPublic(AfBackUtils.STATUT_PUBLIC_SUPPRIMEE);
-		stat.setTypeConnexionUsager(TypeConnexionUsagerEnum.valueOf(demandeBo.getTypeConnexionUsager()));
+    if (!StringUtils.isEmpty(demandeBo.getTypeConnexionUsager())) {
+      stat.setTypeConnexionUsager(TypeConnexionUsagerEnum.valueOf(demandeBo.getTypeConnexionUsager()));
+    }
 
 		AccessBO access = demandeBo.getFkAccess();
 		access.getDemandes().remove(demandeBo);

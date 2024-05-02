@@ -24,9 +24,7 @@ public class PurgeDemandesSchedulingJob implements Job {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PurgeDemandesSchedulingJob.class);
 
-    public static final String JOB_NAME = "PurgeDemandesSchedulingJob";
-    public static final String TRIGGER_NAME = "PurgeDemandesSchedulingTrigger";
-    private static final String DELAI_PURGE_EN_JOURS = "DELAI_PURGE_EN_JOURS";
+  private static final String DELAI_PURGE_EN_JOURS = "DELAI_PURGE_EN_JOURS";
     private static final int DELAI_PAR_DEFAUT_PURGE = 1095; // 3 ans de purge par défaut
     private static final String ACTIVATION_PURGE = "ACTIVATION_PURGE";
 

@@ -107,9 +107,9 @@ public class GouvBPMEnvoiEmailUsagerDelegate implements JavaDelegate {
         emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, execution.getProcessBusinessKey());
         emailInfo.setLangue(langue);
         
-        if (copieCacheeAuServiceStr != null && "true".equals(copieCacheeAuServiceStr)) {
+        if ("true".equals(copieCacheeAuServiceStr)) {
         	LOGGER.info("Paramètre \"copieCacheeAuService\" spécifié, placer le service en copie carbone invisible...");
-        	emailInfo.addBcc(afBackUtils.getDemarcheInfos().getEmailService(), afBackUtils.getDemarcheInfos().getEmailServiceNom());
+        	emailInfo.addBcc(afBackUtils.getDemarcheInfos().getEmailService(), null);
         }
 
         String codeMotif = (String) execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name());

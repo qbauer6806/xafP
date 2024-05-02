@@ -87,9 +87,9 @@ public class GouvBPMEnvoiEmailAgentAffecteDelegate implements JavaDelegate {
         LOGGER.info("Adresse / Nom de l'agent affecté à la demande : {} / {}", agent.getMail(), agent.getNom());
         emailInfo.addTo(agent.getMail(), agent.getNom());
         
-        if (copieAuServiceStr != null && "true".equals(copieAuServiceStr)) {
+        if ("true".equals(copieAuServiceStr)) {
         	LOGGER.info("Paramètre \"copieAuService\" spécifié, placer le service en copie carbone...");
-        	emailInfo.addCc(afBackUtils.getDemarcheInfos().getEmailService(), afBackUtils.getDemarcheInfos().getEmailServiceNom());
+        	emailInfo.addCc(afBackUtils.getDemarcheInfos().getEmailService(), null);
         }
         
         if (agent.getMail() != null) {

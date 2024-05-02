@@ -66,8 +66,7 @@ public class GouvBPMEnvoiEmailAgentsDelegate implements JavaDelegate {
                 .getEmailFromNom());
         emailInfo.setReplyto(afBackUtils.getDemarcheInfos().getEmailReplyto(), afBackUtils.getDemarcheInfos()
                 .getEmailReplytoNom());
-        emailInfo.addTo(afBackUtils.getDemarcheInfos().getEmailService(), afBackUtils.getDemarcheInfos()
-                .getEmailServiceNom());
+        emailInfo.addTo(afBackUtils.getDemarcheInfos().getEmailService(), null);
         emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, execution.getProcessBusinessKey());
         emailInfo.setLangue("fr");
         

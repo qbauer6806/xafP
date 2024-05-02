@@ -28,7 +28,7 @@ public class DemarchesBO {
     @Size(min = 1, max = 256)
     private String nom;
     
-    @Column(name = "NOM_EN", length = 256, nullable = true)
+    @Column(name = "NOM_EN", length = 256)
     @Size(min = 0, max = 256)
     private String nomEn;
 
@@ -36,11 +36,6 @@ public class DemarchesBO {
     @NotBlank
     @Size(min = 1, max = 256)
     private String emailService;
-
-    @Column(name = "EMAIL_SERVICE_NOM", length = 256, nullable = false)
-    @NotBlank
-    @Size(min = 1, max = 256)
-    private String emailServiceNom;
 
     @Column(name = "EMAIL_REPLYTO", length = 256, nullable = false)
     @NotBlank
@@ -62,7 +57,7 @@ public class DemarchesBO {
     @Size(min = 1, max = 256)
     private String emailFromNom;
 
-    @Column(name = "NOM_DIRECTION", length = 256, nullable = true)
+    @Column(name = "NOM_DIRECTION", length = 256)
     @NotBlank
     @Size(min = 1, max = 256)
     private String nomDirection;
@@ -71,12 +66,12 @@ public class DemarchesBO {
     @Size(max = 256)
     private String nomDirectionComplement;
 
-    @Column(name = "NOM_FOOTER", length = 256, nullable = true)
+    @Column(name = "NOM_FOOTER", length = 256)
     @NotBlank
     @Size(min = 1, max = 256)
     private String nomFooter;
 
-    @Column(name = "ADRESSE_SERVICE", length = 256, nullable = true)
+    @Column(name = "ADRESSE_SERVICE", length = 256)
     @NotBlank
     @Size(min = 1, max = 256)
     private String adresseService;
@@ -93,7 +88,7 @@ public class DemarchesBO {
     private Set<PropertiesBO> properties;
 
     @Column(name = "LANGUES", length = 256)
-    @Size(min = 0, max = 256)
+    @Size(max = 256)
     private String langues;
 
 	public String getPkDemarches() {
@@ -118,14 +113,6 @@ public class DemarchesBO {
 
     public void setEmailService(String emailService) {
         this.emailService = emailService;
-    }
-
-    public String getEmailServiceNom() {
-        return emailServiceNom;
-    }
-
-    public void setEmailServiceNom(String emailServiceNom) {
-        this.emailServiceNom = emailServiceNom;
     }
 
     public String getEmailReplyto() {

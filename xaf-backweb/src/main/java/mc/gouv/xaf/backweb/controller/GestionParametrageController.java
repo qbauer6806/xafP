@@ -48,7 +48,6 @@ public class GestionParametrageController {
             parametrageFormBean.setEmailReplyto(demarche.getEmailReplyto());
             parametrageFormBean.setEmailReplytoNom(demarche.getEmailReplytoNom());
             parametrageFormBean.setEmailService(demarche.getEmailService());
-            parametrageFormBean.setEmailServiceNom(demarche.getEmailServiceNom());
             parametrageFormBean.setIdentifiantPrefixe(demarche.getIdentifiantPrefixe());
 
             parametrageFormBean.setNomDirection(demarche.getNomDirection());
@@ -90,7 +89,6 @@ public class GestionParametrageController {
         demarche.setEmailReplyto(parametrageFormBean.getEmailReplyto());
         demarche.setEmailReplytoNom(parametrageFormBean.getEmailReplytoNom());
         demarche.setEmailService(parametrageFormBean.getEmailService());
-        demarche.setEmailServiceNom(parametrageFormBean.getEmailServiceNom());
         // remove space from identifiantPrefixe
         demarche.setIdentifiantPrefixe(StringUtils.deleteWhitespace(parametrageFormBean.getIdentifiantPrefixe()));
         demarche.setNomDirection(parametrageFormBean.getNomDirection());

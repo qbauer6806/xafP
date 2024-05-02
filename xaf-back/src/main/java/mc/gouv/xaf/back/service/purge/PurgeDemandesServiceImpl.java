@@ -294,8 +294,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 		final String bodyTemplateCode = "MAIL_PURGE_DEMANDES_POUR_AGENT_CORPS";
 
 		EmailInfoDTO emailInfoDTO = creationMailPurge(bodyTemplateCode, subjectTemplateCode, "fr");
-		emailInfoDTO.addTo(afBackUtils.getDemarcheInfos().getEmailService(), afBackUtils.getDemarcheInfos()
-				.getEmailServiceNom());
+		emailInfoDTO.addTo(afBackUtils.getDemarcheInfos().getEmailService(), null);
 		Map<String,Object> model = mailTemplateModelProvider.getGenericModel();
 		model.put("demandes", demandesAPurger);
 		model.put("delai", delai);

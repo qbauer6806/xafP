@@ -5,9 +5,7 @@ public class ParametrageFormBean {
 	private String nomDemarche;
 	
     private String emailService;
-    
-    private String emailServiceNom;
-    
+
     private String emailReplyto;
     
     private String emailReplytoNom;
@@ -43,14 +41,6 @@ public class ParametrageFormBean {
 
 	public void setEmailService(String emailService) {
 		this.emailService = emailService;
-	}
-
-	public String getEmailServiceNom() {
-		return emailServiceNom;
-	}
-
-	public void setEmailServiceNom(String emailServiceNom) {
-		this.emailServiceNom = emailServiceNom;
 	}
 
 	public String getEmailReplyto() {

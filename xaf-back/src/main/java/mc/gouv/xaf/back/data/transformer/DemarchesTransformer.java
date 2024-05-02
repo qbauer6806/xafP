@@ -22,7 +22,6 @@ public class DemarchesTransformer {
         dto.setNom(bo.getNom());
         dto.setNomEn(bo.getNomEn());
         dto.setEmailService(bo.getEmailService());
-        dto.setEmailServiceNom(bo.getEmailServiceNom());
         dto.setEmailReplyto(bo.getEmailReplyto());
         dto.setEmailReplytoNom(bo.getEmailReplytoNom());
         dto.setEmailFrom(bo.getEmailFrom());
@@ -42,7 +41,6 @@ public class DemarchesTransformer {
         bo.setNom(dto.getNom());
         bo.setNomEn(dto.getNomEn());
         bo.setEmailService(dto.getEmailService());
-        bo.setEmailServiceNom(dto.getEmailServiceNom());
         bo.setEmailReplyto(dto.getEmailReplyto());
         bo.setEmailReplytoNom(dto.getEmailReplytoNom());
         bo.setEmailFrom(dto.getEmailFrom());

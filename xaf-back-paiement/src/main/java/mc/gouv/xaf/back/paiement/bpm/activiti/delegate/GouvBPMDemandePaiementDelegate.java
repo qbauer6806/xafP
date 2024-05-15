@@ -39,6 +39,7 @@ import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeDataDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
@@ -50,6 +51,7 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
     public static final String MC_FACTURE_REFERENCE = "MC_FACTURE_REFERENCE";
     public static final String MC_IS_DEBIT_KO = "MC_IS_DEBIT_KO";
     private static final String NB_JOURS_AVANT_EXPIRATION_PAIEMENT = "NB_JOURS_AVANT_EXPIRATION_PAIEMENT";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMDemandePaiementDelegate.class);
 
     @Autowired
@@ -157,23 +159,36 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
 		String bodyTemplateCode = mailKey + "_CORPS";
 		String subjectTemplateCode = mailKey + "_OBJET";
 		GichuniUsagerDTO usager = usagersCache.get(demandeDTO.getUsagerId(), true);
+		if (usager == null) {
+			usager = new GichuniUsagerDTO();
+			usager.setNom(demandeDTO.getUsagerNom());
+			usager.setPrenom(demandeDTO.getUsagerPrenom());
+			usager.setEmail(demandeDTO.getUsagerEmail());
+		}
 		EmailInfoDTO emailInfo = new EmailInfoDTO();
 		emailInfo.setLangue(demandeDTO.getLangue());
 		emailInfo.setBodyTemplateCode(bodyTemplateCode);
 		emailInfo.setSubjectTemplateCode(subjectTemplateCode);
-		emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(), afBackUtils.getDemarcheInfos().getEmailFromNom());
+		emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(),
+				afBackUtils.getDemarcheInfos().getEmailFromNom());
 		emailInfo.addTo(demandeDTO.getUsagerEmail(), demandeDTO.getUsagerPrenom() + " " + demandeDTO.getUsagerNom());
 		emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, demandeDTO.getIdentifiant());
 		Map<String, Object> model = new HashMap<>();
-		String titre = messageSource.getMessage("civilite."+usager.getTitre(), null, new Locale(demandeDTO.getLangue()));
+		String defaultMailTitre = demandeDTO.getLangue().equals("fr") ? SharedMessages.DEFAULT_TITRE_MAIL_FR
+				: SharedMessages.DEFAULT_TITRE_MAIL_EN;
+		String titre = usager.getTitre() != null
+				? messageSource.getMessage("civilite." + usager.getTitre(), null, new Locale(demandeDTO.getLangue()))
+				: defaultMailTitre;
 		model.put("titre", titre);
 		model.put("urlFront", gouvPropertiesResolver.getFrontUrl());
 		model.put("identifiant", demandeDTO.getIdentifiant());
 		model.put("pkDemande", demandeDTO.getPkDemandes());
 
-        // Calcul de la date d'expoiration de la demande avec valeur par défaut à 35 jours
-        PropertiesDTO prop = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), NB_JOURS_AVANT_EXPIRATION_PAIEMENT);
-        int nbJoursAvantExpiration =  (null != prop) ? Integer.parseInt(prop.getValue()) : 35;
+		// Calcul de la date d'expoiration de la demande avec valeur par défaut à 35
+		// jours
+		PropertiesDTO prop = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(),
+				NB_JOURS_AVANT_EXPIRATION_PAIEMENT);
+		int nbJoursAvantExpiration = (null != prop) ? Integer.parseInt(prop.getValue()) : 35;
 		model.put("dateExpirationPaiement", LocalDate.now().plusDays(nbJoursAvantExpiration)
 				.format(DateTimeFormatter.ofPattern(AfBackUtils.DEFAULT_FRENCH_DATE_FORMAT)));
 		try {

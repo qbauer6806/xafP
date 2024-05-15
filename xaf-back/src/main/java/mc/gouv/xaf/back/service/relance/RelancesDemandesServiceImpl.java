@@ -19,6 +19,7 @@ import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.relance.settings.RelanceStatutDemandeConf;
 import mc.gouv.xaf.back.service.utils.RelancesUtils;
+import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 
 @Service
@@ -57,7 +58,16 @@ public class RelancesDemandesServiceImpl implements RelancesDemandesService {
 		final String subjectTemplateCode = codeMailPrefix + "_OBJET";
 		final String bodyTemplateCode = codeMailPrefix + "_CORPS";
 
-		EmailInfoDTO emailInfoDTO = relanceUtils.creationMailUsager(bodyTemplateCode, subjectTemplateCode, demande.getLangue());
+		GichuniUsagerDTO usager = usagersCache.get(demande.getUsagerId());
+		if (usager == null) {
+			usager = new GichuniUsagerDTO();
+			usager.setNom(demande.getUsagerNom());
+			usager.setPrenom(demande.getUsagerPrenom());
+			usager.setEmail(demande.getUsagerEmail());
+		}
+
+		EmailInfoDTO emailInfoDTO = relanceUtils.creationMailUsager(bodyTemplateCode, subjectTemplateCode,
+				demande.getLangue());
 		String usagerNom = demande.getUsagerNom();
 		String usagerPrenom = demande.getUsagerPrenom();
 		emailInfoDTO.addTo(demande.getUsagerEmail(), usagerPrenom + " " + usagerNom);
@@ -66,8 +76,11 @@ public class RelancesDemandesServiceImpl implements RelancesDemandesService {
 		model.put("expireDans", relanceUtils.getExpirationTime(demande));
 		model.put("pkDemande", demande.getPkDemandes());
 		model.put("urlFront", gouvPropertiesResolver.getFrontUrl());
-		GichuniUsagerDTO usager = usagersCache.get(demande.getUsagerId());
-		String titre = messageSource.getMessage("civilite." + usager.getTitre(), null, new Locale(demande.getLangue()));
+		String defaultMailTitre = demande.getLangue().equals("fr") ? SharedMessages.DEFAULT_TITRE_MAIL_FR
+				: SharedMessages.DEFAULT_TITRE_MAIL_EN;
+		String titre = usager.getTitre() != null
+				? messageSource.getMessage("civilite." + usager.getTitre(), null, new Locale(demande.getLangue()))
+				: defaultMailTitre;
 		model.put("titre", titre);
 
 		try {

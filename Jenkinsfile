@@ -13,7 +13,7 @@ pipeline {
       // -Dsurefire.useFile=false : useful in CI. Displays test errors in the logs directly (instead of
       //                            having to crawl the workspace files to see the cause).
       // -Dmaven.javadoc.skip=true : Skip javadoc as it is not used.
-      MC_M2_OPTS="-B -V -U -Dsurefire.useFile=false -Dmaven.test.failure.ignore=true --fail-at-end -Dmaven.javadoc.skip=true"
+      MC_M2_OPTS="-B -V -U -Dsurefire.useFile=false -Dmaven.test.failure.ignore=false --fail-at-end -Dmaven.javadoc.skip=true"
 
       MC_APPLI = readMavenPom().getArtifactId()
     }
@@ -66,7 +66,7 @@ pipeline {
         stage ('Build') {
             steps {
                 sh 'env'
-                sh 'mvn ${MC_M2_OPTS_REVISION} clean jacoco:prepare-agent -Dmaven.test.failure.ignore=true install jacoco:report jacoco:report-aggregate org.cyclonedx:cyclonedx-maven-plugin:makeBom deploy'
+                sh 'mvn ${MC_M2_OPTS_REVISION} clean jacoco:prepare-agent install jacoco:report jacoco:report-aggregate org.cyclonedx:cyclonedx-maven-plugin:makeBom deploy'
             }
             post {
                 success {

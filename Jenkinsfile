@@ -59,7 +59,7 @@ pipeline {
                             }
                         }
                     env.MC_NEXUS_IQ_STAGE = nexusIqStage
-                    env.MC_M2_OPTS_REVISION = "${env.MC_M2_OPTS} -Drevision=${mvnVersion}"
+                    env.MC_M2_OPTS_REVISION = "${env.MC_M2_OPTS} -Drevision=${mvnVersion} -DtestFailureIgnore=false"
                 }
             }
         }

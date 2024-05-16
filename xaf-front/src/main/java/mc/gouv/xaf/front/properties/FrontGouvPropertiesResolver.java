@@ -125,6 +125,11 @@ public class FrontGouvPropertiesResolver {
     @Value("${mc.gouv.mconnect.revocation.certificats.url.en:}")
     private String lienRevocationCertifsElectroniquesEn;
 
+    @Value("${mc.gouv.gichuni.pub.mconnect.url.fr:}")
+    private String pubMconnectUrlFr;
+    @Value("${mc.gouv.gichuni.pub.mconnect.url.en:}")
+    private String pubMconnectUrlEn;
+
     @PostConstruct
     private void initPrefix() throws IntrospectionException, IllegalAccessException, InvocationTargetException,
             GouvPropertyNotFoundException {
@@ -334,6 +339,13 @@ public class FrontGouvPropertiesResolver {
     public String getLienRevocationCertifsElectroniquesEn() {
         return StringUtils.isBlank(lienRevocationCertifsElectroniquesEn) ? "vide" : lienRevocationCertifsElectroniquesEn;
     }
+    public String getPubMconnectUrlFr() {
+        return StringUtils.isBlank(pubMconnectUrlFr) ? "vide" : pubMconnectUrlFr;
+    }
+
+    public String getPubMconnectUrlEn() {
+        return StringUtils.isBlank(pubMconnectUrlEn) ? "vide" : pubMconnectUrlEn;
+    }
 
     public List<PropertiesDTO> getFrontProperties() {
         // TODO refactor le nom de ces properties une fois que le premier WYSI xaf12 sera prêt
@@ -359,6 +371,9 @@ public class FrontGouvPropertiesResolver {
         final String LIEN_REVOCATION_CERTIFS_ELECTRONIQUES_FR = "mc.gouv.mconnect.revocation.certificats.url.fr";
         final String LIEN_REVOCATION_CERTIFS_ELECTRONIQUES_EN = "mc.gouv.mconnect.revocation.certificats.url.en";
 
+        final String PUB_MCONNECT_URL_FR = "mc.gouv.gichuni.pub.mconnect.url.fr";
+        final String PUB_MCONNECT_URL_EN = "mc.gouv.gichuni.pub.mconnect.url.en";
+
         List<PropertiesDTO> propertiesDTOS = new ArrayList<>();
         propertiesDTOS.add(new PropertiesDTO(LOGIN_KEEP_ALIVE, ""));
         propertiesDTOS.add(new PropertiesDTO(GICHKEY_REDIRECT_URL, getGichkeyRedirectUrl()));
@@ -379,6 +394,9 @@ public class FrontGouvPropertiesResolver {
         propertiesDTOS.add(new PropertiesDTO(GICHUNI_USAGER_ENTREPRISE_URL_EN, getSuiviDemarcheEntrepriseUrlEn()));
         propertiesDTOS.add(new PropertiesDTO(LIEN_REVOCATION_CERTIFS_ELECTRONIQUES_FR, getLienRevocationCertifsElectroniquesFr()));
         propertiesDTOS.add(new PropertiesDTO(LIEN_REVOCATION_CERTIFS_ELECTRONIQUES_EN, getLienRevocationCertifsElectroniquesEn()));
+
+        propertiesDTOS.add(new PropertiesDTO(PUB_MCONNECT_URL_FR, getPubMconnectUrlFr()));
+        propertiesDTOS.add(new PropertiesDTO(PUB_MCONNECT_URL_EN, getPubMconnectUrlEn()));
 
         return propertiesDTOS;
     }

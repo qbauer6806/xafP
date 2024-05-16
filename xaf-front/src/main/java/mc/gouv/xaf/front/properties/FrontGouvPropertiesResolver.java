@@ -117,6 +117,13 @@ public class FrontGouvPropertiesResolver {
     @Value("${mc.gouv.${application.name}.frontserver.paiement.provider:}")
     private String paiementProvider;
 
+    @Value("${mc.gouv.gichuni.front.url}")
+    private String gichuniFrontUrl;
+
+    @Value("${mc.gouv.mconnect.revocation.certificats.url.fr:}")
+    private String lienRevocationCertifsElectroniquesFr;
+    @Value("${mc.gouv.mconnect.revocation.certificats.url.en:}")
+    private String lienRevocationCertifsElectroniquesEn;
 
     @PostConstruct
     private void initPrefix() throws IntrospectionException, IllegalAccessException, InvocationTargetException,
@@ -295,6 +302,39 @@ public class FrontGouvPropertiesResolver {
         return StringUtils.isBlank(value) ? "vide" : value + "/public/doc-holder";
     }
 
+    public String getGichuniFrontUrl() {
+        return gichuniFrontUrl;
+    }
+
+    // Ici on concatène l'URL front de gichuni (https://gichuni-front-dev.monaco-gouvernement.mc)
+    // Avec le path dans la propriété mc.gouv.gichuni.particulier.uri.fr (voir https://redmine.monaco-gouvernement.mc/issues/58046)
+    public String getSuiviDemarcheParticulierUrlFr() {
+        String value = getGichuniFrontUrl();
+        return StringUtils.isBlank(value) ? "vide" : value + "/particuliers/mes-demarches";
+    }
+
+    public String getSuiviDemarcheParticulierUrlEn() {
+        String value = getGichuniFrontUrl();
+        return StringUtils.isBlank(value) ? "vide" : value + "/en/particuliers/my-services";
+    }
+
+    public String getSuiviDemarcheEntrepriseUrlFr() {
+        String value = getGichuniFrontUrl();
+        return StringUtils.isBlank(value) ? "vide" : value + "/entrepises/mes-demarches";
+    }
+
+    public String getSuiviDemarcheEntrepriseUrlEn() {
+        String value = getGichuniFrontUrl();
+        return StringUtils.isBlank(value) ? "vide" : value + "/en/entreprises/my-services";
+    }
+
+    public String getLienRevocationCertifsElectroniquesFr() {
+        return StringUtils.isBlank(lienRevocationCertifsElectroniquesFr) ? "vide" : lienRevocationCertifsElectroniquesFr;
+    }
+    public String getLienRevocationCertifsElectroniquesEn() {
+        return StringUtils.isBlank(lienRevocationCertifsElectroniquesEn) ? "vide" : lienRevocationCertifsElectroniquesEn;
+    }
+
     public List<PropertiesDTO> getFrontProperties() {
         // TODO refactor le nom de ces properties une fois que le premier WYSI xaf12 sera prêt
         final String LOGIN_KEEP_ALIVE = "mc.gouv.appfactory.front.login.keepalive.url";
@@ -307,7 +347,17 @@ public class FrontGouvPropertiesResolver {
         final String FRONTOFFICE_PIWIK_URL = "mc.gouv.piwik.external.piwikUrl";
         final String PAIEMENT_PROVIDER = APPFACTORY_PREFIX + "." + applicationName + ".paiement.provider";
         final String MONETICO_URL = APPFACTORY_PREFIX + "." + applicationName + ".monetico.url";
-        final String GICHUNI_URL = "mc.gouv.appfactory.front.gichuni.url";
+        final String GICHUNI_FRONT_URL = "mc.gouv.appfactory.front.gichuni.url";
+
+        // #58046 - Ajout de propriétés partagées par tous les Front office
+        final String GICHUNI_USAGER_PARTICULER_URL_FR = "mc.gouv.gichuni.particulier.url.fr";
+        final String GICHUNI_USAGER_PARTICULER_URL_EN = "mc.gouv.gichuni.particulier.url.en";
+        final String GICHUNI_USAGER_ENTREPRISE_URL_FR = "mc.gouv.gichuni.entreprise.url.fr";
+        final String GICHUNI_USAGER_ENTREPRISE_URL_EN = "mc.gouv.gichuni.entreprise.url.en";
+
+        // #58041 - [BO] Clé BO pour lien vers le formulaire de révocation des certificats électroniques
+        final String LIEN_REVOCATION_CERTIFS_ELECTRONIQUES_FR = "mc.gouv.mconnect.revocation.certificats.url.fr";
+        final String LIEN_REVOCATION_CERTIFS_ELECTRONIQUES_EN = "mc.gouv.mconnect.revocation.certificats.url.en";
 
         List<PropertiesDTO> propertiesDTOS = new ArrayList<>();
         propertiesDTOS.add(new PropertiesDTO(LOGIN_KEEP_ALIVE, ""));
@@ -320,9 +370,16 @@ public class FrontGouvPropertiesResolver {
         propertiesDTOS.add(new PropertiesDTO(FRONTOFFICE_PIWIK_URL, getFrontofficePiwikURL()));
         propertiesDTOS.add(new PropertiesDTO(PAIEMENT_PROVIDER, getPaiementProvider()));
         propertiesDTOS.add(new PropertiesDTO(MONETICO_URL, getMoneticoUrl()));
-        propertiesDTOS.add(new PropertiesDTO(GICHUNI_URL, getGichuniUrl()));
-        // TODO A REVOIR
-        //propertiesDTOS.add(new PropertiesDTO(FILE_JWT, getFileJwt()));
+
+        //merge depuis la 11.3.0
+        propertiesDTOS.add(new PropertiesDTO(GICHUNI_FRONT_URL, getGichuniFrontUrl()));
+        propertiesDTOS.add(new PropertiesDTO(GICHUNI_USAGER_PARTICULER_URL_FR, getSuiviDemarcheParticulierUrlFr()));
+        propertiesDTOS.add(new PropertiesDTO(GICHUNI_USAGER_PARTICULER_URL_EN, getSuiviDemarcheParticulierUrlEn()));
+        propertiesDTOS.add(new PropertiesDTO(GICHUNI_USAGER_ENTREPRISE_URL_FR, getSuiviDemarcheEntrepriseUrlFr()));
+        propertiesDTOS.add(new PropertiesDTO(GICHUNI_USAGER_ENTREPRISE_URL_EN, getSuiviDemarcheEntrepriseUrlEn()));
+        propertiesDTOS.add(new PropertiesDTO(LIEN_REVOCATION_CERTIFS_ELECTRONIQUES_FR, getLienRevocationCertifsElectroniquesFr()));
+        propertiesDTOS.add(new PropertiesDTO(LIEN_REVOCATION_CERTIFS_ELECTRONIQUES_EN, getLienRevocationCertifsElectroniquesEn()));
+
         return propertiesDTOS;
     }
 }

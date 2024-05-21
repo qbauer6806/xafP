@@ -128,9 +128,11 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
                 demandesDataService.saveOrUpdateDemandeData(demarcheId, demandeId, PaiementDemandeDataKeysEnum.STATUT_PAIEMENT.name(), PaiementStatutEnum.DEBIT_ECHEC.name());
                 paiementHistoriqueService.ajouterHistoriqueDebitEchec(demandeDto);
                 // #43127 Envoi du mail débit en echec (MAIL_NOTIFICATION_DEMANDE_ECHEC_DEBIT_USAGER_CORPS)
+                LOGGER.info("Début d'envoi du mail de débit en échec pour la demande {}...", demandeDto.getIdentifiant());
                 sendMail(demandeDto, "MAIL_NOTIFICATION_DEMANDE_ECHEC_DEBIT_USAGER");
             } else if (StringUtils.equals(statutPaiementData.getValue(), PaiementStatutEnum.EMPREINTE_EXPIREE.name())) {
             	// #43127 Envoi du mail empreinte expirée (MAIL_NOTIFICATION_DEMANDE_EXPIRATION_EMPREINTE_USAGER_CORPS)
+            	LOGGER.info("Début d'envoi du mail d'expiration d'empreinte pour la demande {}...", demandeDto.getIdentifiant());
             	sendMail(demandeDto, "MAIL_NOTIFICATION_DEMANDE_EXPIRATION_EMPREINTE_USAGER");
             }
             // On ajoute un flag dans le BPMN pour savoir qu'un débit a déjà été émis

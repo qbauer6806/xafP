@@ -48,6 +48,7 @@ public class RelancesDemandesServiceImpl implements RelancesDemandesService {
 		// On recupère toutes les demandes du TS appelant qui feront l'objet d'une relance
 		Map<DemandeDTO, String> demandesANotifier = relanceUtils.getDemandesANotifier(statutsARelancer);
 		for (Map.Entry<DemandeDTO, String> entry : demandesANotifier.entrySet()) {
+			LOGGER.info("Début du processus de relance des demandes...");
 			envoiEmailUsagerRelance(entry.getKey(), entry.getValue());
 			relanceUtils.setRelanceDate(entry.getKey());
 		}

@@ -47,6 +47,7 @@ import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
@@ -247,50 +248,50 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
         return Triple.of(compteGlobalFichiers, compteGlobalFichiersExclus, compteGlobalAppelsFile);
     }
 
-    private void envoisMailUsagerPurge(String identifiant, DemandeDTO demandeDTO, String delai) {
+	private void envoisMailUsagerPurge(String identifiant, DemandeDTO demandeDTO, String delai) {
 		final String subjectTemplateCode = "MAIL_PURGE_DEMANDES_POUR_USAGER_OBJET";
 		final String bodyTemplateCode = "MAIL_PURGE_DEMANDES_POUR_USAGER_CORPS";
 
 		EmailInfoDTO emailInfoDTO = creationMailPurge(bodyTemplateCode, subjectTemplateCode, demandeDTO.getLangue());
-		
-        GichuniUsagerDTO usager = usagerCache.get(demandeDTO.getUsagerId(), true);
-        if (usager == null) {
-            usager = new GichuniUsagerDTO();
-            usager.setNom(demandeDTO.getUsagerNom());
-            usager.setPrenom(demandeDTO.getUsagerPrenom());
-            usager.setEmail(demandeDTO.getUsagerEmail());
-        }
-        
-        String prenom = StringUtils.EMPTY;
-        String nom = StringUtils.EMPTY;
 
-        if (StringUtils.isNotBlank(usager.getPrenom())) {
-            prenom = usager.getPrenom();
-        }
+		GichuniUsagerDTO usager = usagerCache.get(demandeDTO.getUsagerId(), true);
+		if (usager != null) {
 
-        if (StringUtils.isNotBlank(usager.getNom())) {
-            nom = usager.getNom();
-        }
-		
-		emailInfoDTO.addTo(usager.getEmail(), prenom + " " + nom);
-		Map<String,Object> model = new HashMap<>();
-        model.put("identifiant", identifiant);
-        model.put("pkDemande", demandeDTO.getPkDemandes());
-        model.put("delai", delai);
-        String titre = messageSource.getMessage("civilite." + usager.getTitre(), null, new Locale(demandeDTO.getLangue()));
-        model.put("titre", titre);
-        model.put("urlFront", gouvPropertiesResolver.getFrontUrl());
-        PropertiesDTO adresseService = propertiesService.getProperty(demandeDTO.getDemarcheId(), "ADRESSE_SERVICE");
-        if(adresseService != null) {
-        	model.put("adresseService", adresseService.getValue());
-        }
+			String prenom = StringUtils.EMPTY;
+			String nom = StringUtils.EMPTY;
 
-        try {
-            mailService.sendMail(emailInfoDTO, model);
-        } catch (Exception e) {
-            LOGGER.error("Erreur lors de l'envoi de l'email de purge pour les usagers", e);
-        }
-    }
+			if (StringUtils.isNotBlank(usager.getPrenom())) {
+				prenom = usager.getPrenom();
+			}
+
+			if (StringUtils.isNotBlank(usager.getNom())) {
+				nom = usager.getNom();
+			}
+
+			emailInfoDTO.addTo(usager.getEmail(), prenom + " " + nom);
+			Map<String, Object> model = new HashMap<>();
+			model.put("identifiant", identifiant);
+			model.put("pkDemande", demandeDTO.getPkDemandes());
+			model.put("delai", delai);
+			String defaultMailTitre = demandeDTO.getLangue().equals("fr") ? SharedMessages.DEFAULT_TITRE_MAIL_FR
+					: SharedMessages.DEFAULT_TITRE_MAIL_EN;
+			String titre = usager.getTitre() != null
+					? messageSource.getMessage("civilite." + usager.getTitre(), null, new Locale(demandeDTO.getLangue()))
+					: defaultMailTitre;
+			model.put("titre", titre);
+			model.put("urlFront", gouvPropertiesResolver.getFrontUrl());
+
+			try {
+				mailService.sendMail(emailInfoDTO, model);
+			} catch (Exception e) {
+				LOGGER.error("Erreur lors de l'envoi de l'email de purge pour les agents", e);
+			}
+		} else {
+			LOGGER.info(
+					"L'usager {} n'a pas été retrouvé dans le cache, possiblement inexistant dans MonGuichet suite suppression",
+					demandeDTO.getUsagerId());
+		}
+	}
 
     @Override
 	public void envoisMailAgentPurge(String demandesAPurger, String delai) {

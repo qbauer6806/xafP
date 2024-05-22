@@ -1,8 +1,40 @@
 package mc.gouv.xaf.back.service.purge;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
+import javax.persistence.EntityManager;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Triple;
+import org.hibernate.Session;
+import org.quartz.SchedulerException;
+import org.quartz.Trigger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.stereotype.Service;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
+
+import mc.gouv.xaf.back.data.dao.BrouillonsFilesRepository;
+import mc.gouv.xaf.back.data.dao.DemandesComplementsFilesRepository;
+import mc.gouv.xaf.back.data.dao.DemandesCourriersRepository;
+import mc.gouv.xaf.back.data.dao.DemandesFilesRepository;
+import mc.gouv.xaf.back.data.dao.PurgeFilesRepository;
 import mc.gouv.xaf.back.data.dao.StatistiquesRepository;
-import mc.gouv.xaf.back.data.entity.StatistiqueBO;
+import mc.gouv.xaf.back.data.entity.PurgeFilesBO;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.GouvSchedulerService;
@@ -10,6 +42,7 @@ import mc.gouv.xaf.back.service.data.DemandesCourriersService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.data.TachesService;
+import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
@@ -20,26 +53,6 @@ import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.PurgeDemandeDTO;
 import mc.gouv.xaf.shared.enums.MailAudienceEnum;
-import org.apache.commons.lang3.StringUtils;
-import org.quartz.SchedulerException;
-import org.quartz.Trigger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 @Service
 @EnableScheduling
@@ -49,19 +62,24 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 
 	private static final Integer OFFSET_MOIS_DATE_PURGE = 1;
 
+    private static final Integer PURGE_DEMANDES_PAR_LOT_TAILLE_FILE = 100;
+
 	private static final String DELAI_ENVOI_MAIL_PURGE = "DELAI_ENVOI_MAIL_PURGE";
 
 	@Autowired
 	private DemandesService demandesService;
 	
 	@Autowired
+    private DemarchesDataProvider demarchesDataProvider;
+
+    @Autowired
 	private DemandesCourriersService demandesCourriersService;
 
 	@Autowired
 	private GouvPropertiesResolver gouvPropertiesResolver;
 
 	@Autowired
-	private DemarchesDataProvider demarchesDataProvider;
+    private EntityManager em;
 
 	@Autowired
 	private MailService mailService;
@@ -76,6 +94,16 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 	private StatistiquesRepository statRepository;
 	
     @Autowired
+    private DemandesFilesRepository demandesFilesRepository;
+
+    @Autowired
+    private DemandesComplementsFilesRepository demandesComplementsFilesRepository;
+
+
+    @Autowired
+    private PurgeFilesRepository purgeFilesRepository;
+
+    @Autowired
     private UsagersCache usagerCache;
 
     @Autowired
@@ -86,37 +114,67 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 
     @Autowired
     private TachesService tachesService;
+	@Autowired
+	private FileService fileService;
+
+	@Autowired
+	private DemandesCourriersRepository demandesCourriersRepository;
+
+	@Autowired
+	private BrouillonsFilesRepository brouillonsFilesRepository;
 
     public void purgerDemandesDansStatuts(List<String> statuts, int jours) throws JsonProcessingException {
         String demarcheId = gouvPropertiesResolver.getDemarcheId();
         StringBuilder demandesAPurger = new StringBuilder();
-        int demandesSuppr = 0;
         PropertiesDTO delaiEnvoiEmailProp = propertiesService.getProperty(demarcheId, DELAI_ENVOI_MAIL_PURGE);
 
-		LOGGER.info("Début de la purge des demandes ...");
+        int demandesSuppr = 0;
 
-		for (DemandeDTO demandeDTO : demandesService.getAllDemandes(demarcheId)) {
-			long diffInMillies = Math.abs(new Date().getTime() - demandeDTO.getDernierStatut().getDate().getTime());
-			long diff = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
+        LocalDate dateLocaleDebutPurge = LocalDate.now().minusDays(jours - 1L);
+        Date dateDebutPurge = Date.from(dateLocaleDebutPurge.atStartOfDay(ZoneId.systemDefault()).toInstant());
 
-			if (statuts.contains(demandeDTO.getDernierStatut().getLibelle()) && diff >= jours) {
-				// Si la demande est une demande courrier ou gichet on supprime d'abord les courriers associés à cette demande
-				if(!demandeDTO.getCanal().equals(DemandeCanalEnum.GUICHET_VIRTUEL)) {
-					// Suppression des courriers de la demande
-					demandesCourriersService.deleteCourriers(demarcheId, demandeDTO.getPkDemandes());
+        LOGGER.info("Début de la purge des demandes ... Demandes dont dernier statut final est antérieur à {}", dateDebutPurge);
+
+        /*** PURGE DES DEMANDES CANAL WEB ***/
+        Date debutSequentiel = new Date();
+        List<Integer> listDem = demandesService.getAllDemandeIdsForPurge(demarcheId, dateDebutPurge, statuts,
+                Arrays.asList(DemandeCanalEnum.GUICHET_VIRTUEL.name()));
+
+        for (int idx = 0; idx < listDem.size(); idx++) {
+
+            demandesService.deleteDemandeInGivenStatus(demarcheId, listDem.get(idx), statuts, jours);
+            demandesSuppr++;
+            LOGGER.info("Demande {} incluse dans un lot. Nombre total traité: {}", listDem.get(idx), demandesSuppr);
 				}
-				// Ensuite on supprime la demande elle même
-				demandesService.deleteDemandeInGivenStatus(demarcheId, demandeDTO.getPkDemandes(), statuts, jours);
-				demandesSuppr++;
 
-            } else if (statuts.contains(demandeDTO.getDernierStatut().getLibelle()) && diff == jours - Long.parseLong(delaiEnvoiEmailProp.getValue())) {
-                // L'envois des emails se fait 15 jours avant la supression effective de la demande
-                // Envois des emails aux usagers
+        /*** PURGE DES DEMANDES CANAL COURRIER OU GUICHET ***/
+        listDem = demandesService.getAllDemandeIdsForPurge(demarcheId, dateDebutPurge, statuts,
+                Arrays.asList(DemandeCanalEnum.COURRIER.name(), DemandeCanalEnum.GUICHET_PHYSIQUE.name()));
+
+
+        for (int idx = 0; idx < listDem.size(); idx++) {
+
+            demandesService.deleteDemandeInGivenStatus(demarcheId, listDem.get(idx), statuts, jours);
+            demandesCourriersService.deleteCourriers(demarcheId, listDem.get(idx));
+				demandesSuppr++;
+            LOGGER.info("Demande {} incluse dans un lot. Nombre total traité: {}", listDem.get(idx), demandesSuppr);
+        }
+
+        /*** MAIL AVANT PURGE ***/
+        dateLocaleDebutPurge = LocalDate.now().minusDays(jours - Long.parseLong(delaiEnvoiEmailProp.getValue()));
+        dateDebutPurge = Date.from(dateLocaleDebutPurge.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        Date dateFinPurge;
+        dateFinPurge = Date.from(dateLocaleDebutPurge.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
+        LOGGER.info("Début des envois mails utilisateur ... Demandes dont dernier statut final est >= à {} et < à {}", dateDebutPurge, dateFinPurge);
+        List<DemandeDTO> listDto = demandesService.getAllDemandeForRelanceAvantPurge(demarcheId, dateDebutPurge,
+                dateFinPurge, statuts);
+        for (DemandeDTO demandeDTO : listDto) {
+
                 envoisMailUsagerPurge(demandeDTO.getIdentifiant(), demandeDTO, delaiEnvoiEmailProp.getValue());
 
 				// Ajout à la liste des demandes à envoyer
-				demandesAPurger.append("- ").append(demandeDTO.getIdentifiant()).append(" - ").append(demandeDTO.getDernierStatut().getLibelle()).append("<br/>");
-			}
+            demandesAPurger.append("- ").append(demandeDTO.getIdentifiant()).append(" - ")
+                    .append(demandeDTO.getDernierStatut().getLibelle()).append("<br/>");
         }
 
 		// Envois mail agent pour suppression
@@ -124,11 +182,70 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 			LOGGER.info("Envois du mail au service...");
 			envoisMailAgentPurge(demandesAPurger.toString(), delaiEnvoiEmailProp.getValue());
 		} else {
-			LOGGER.info("Aucune demande à purger...");
+			LOGGER.info("Pas d'envois du mail au service car aucune demande purgée...");
 		}
 
+        /*** PURGE DES FICHIERS ***/
+        Triple<Integer, Integer, Integer> result = executerPurgeFichiers();
+
+        Date finFichier = new Date();
+
 		LOGGER.info("Fin purge des demandes, {} demande(s) supprimée(s)...", demandesSuppr);
+        LOGGER.info("Fin purge des demandes, {} fichier(s) supprimé(s)...", result.getLeft());
+        LOGGER.info("Fin purge des demandes, {} fichier(s) exclus car référencés...", result.getMiddle());
+        LOGGER.info("Fin purge des demandes, {} appels vers file effectué(s)...", result.getRight());
+        LOGGER.info("Fin purge des demandes et fichiers en {} secondes",
+                (finFichier.getTime() - debutSequentiel.getTime()) / 1000);
+        LOGGER.info("fin");
+    }
+
+    private Triple<Integer, Integer, Integer> executerPurgeFichiers() {
+
+        Integer compteGlobalFichiers = 0;
+        Integer compteGlobalAppelsFile = 0;
+        Integer compteGlobalFichiersExclus = 0;
+        Iterator<PurgeFilesBO> all = purgeFilesRepository.findAll().iterator();
+        List<String> lotCourant = new ArrayList<>();
+        int compte = 0;
+        LOGGER.info("Début de la purge des fichiers de FILE");
+        while (all.hasNext()) {
+
+            PurgeFilesBO cf = all.next();
+
+            if (demandesFilesRepository.findHowManyTimeIsFileReferenced(cf.getUrl()) == 0
+                    && demandesCourriersRepository.findHowManyTimeIsFileReferenced(cf.getUrl()) == 0
+                    && demandesComplementsFilesRepository.findHowManyTimeIsFileReferenced(cf.getUrl()) == 0
+                    && brouillonsFilesRepository.findHowManyTimeIsFileReferenced(cf.getUrl()) == 0) {
+                LOGGER.info("Le fichier {} sera effacé de file.", cf.getUrl());
+
+                String url = cf.getUrl();
+                if (url != null && url.startsWith("/")) {
+                    url = url.substring(1);
 	}
+
+                lotCourant.add(url);
+                compteGlobalFichiers++;
+                compte++;
+            } else {
+                LOGGER.info("Exclusion du fichier {} car référencé ailleurs. Ce fichier ne sera pas supprimé.",
+                        cf.getUrl());
+                compteGlobalFichiersExclus++;
+            }
+
+            purgeFilesRepository.delete(cf);
+
+            if (compte == PURGE_DEMANDES_PAR_LOT_TAILLE_FILE || !all.hasNext()) {
+                fileService.deleteFiles("ROOT", lotCourant);
+                LOGGER.info("Appel lot Vers file. Fichiers demandés:{}", StringUtils.join(lotCourant, ","));
+                lotCourant.clear();
+                compte = 0;
+                compteGlobalAppelsFile++;
+            }
+
+        }
+
+        return Triple.of(compteGlobalFichiers, compteGlobalFichiersExclus, compteGlobalAppelsFile);
+    }
 
     private void envoisMailUsagerPurge(String identifiant, DemandeDTO demandeDTO, String delai) {
 		final String subjectTemplateCode = "MAIL_PURGE_DEMANDES_POUR_USAGER_OBJET";
@@ -224,32 +341,11 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 		return emailInfo;
 	}
 
-	public List<PurgeDemandeDTO> getDemandesPurgees() {
+    public List<Object> getDemandesPurgees() {
 		LOGGER.info("Récupération des demandes purgées à moins {} mois", OFFSET_MOIS_DATE_PURGE);
 		Date dateDebutOffset = Date.from(LocalDateTime.now().minusMonths(OFFSET_MOIS_DATE_PURGE).atZone(ZoneId.systemDefault()).toInstant());
-		List<StatistiqueBO> statsDemandesPurgees = statRepository.findByStatutPublicAndDateBetween(AfBackUtils.STATUT_PUBLIC_SUPPRIMEE,
-				dateDebutOffset , new Date());
-		statsDemandesPurgees.sort(Comparator.comparing(StatistiqueBO::getDate));
-		LOGGER.info("{} ligne(s) de statistiques de demandes purgées...", statsDemandesPurgees.size());
-
-		List<PurgeDemandeDTO> demandesPurgees = new ArrayList<>();
-		for(StatistiqueBO stat : statsDemandesPurgees) {
-			PurgeDemandeDTO purgeDemandeDTO = new PurgeDemandeDTO();
-			purgeDemandeDTO.setIdentifiantDemande(stat.getIdentifiantDemande());
-			purgeDemandeDTO.setDateSuppression(stat.getDate());
-
-			// Recherche du dernier statut non supprimé pour la stat en question
-			StatistiqueBO statDernierStatut = statRepository.findFirstByDemandeIdAndStatutPublicNotOrderByDateDesc(stat.getDemandeId(),
-					AfBackUtils.STATUT_PUBLIC_SUPPRIMEE);
-			if (null != statDernierStatut) {
-				purgeDemandeDTO.setDateStatutFinal(statDernierStatut.getDate());
-				String statutFinal = demarchesDataProvider.getStatusMap().get(statDernierStatut.getStatutPublic());
-				purgeDemandeDTO.setStatutFinal(statutFinal);
-			}
-
-			demandesPurgees.add(purgeDemandeDTO);
-		}
-
-		return demandesPurgees;
+        Session session = em.unwrap(Session.class);
+        session.enableFilter("filtreStatuts").setParameterList("statuts", demarchesDataProvider.getStatutsAPurger());
+        return statRepository.findAllBetweenDates(dateDebutOffset, new Date());
 	}
 }

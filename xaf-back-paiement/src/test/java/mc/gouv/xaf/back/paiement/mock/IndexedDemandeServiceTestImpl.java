@@ -290,6 +290,71 @@ public class IndexedDemandeServiceTestImpl implements IndexedDemandeService {
         return null;
     }
 
+    /**
+     * Retourne les demandes � purger par rapport � la date et � une liste de statuts � purger
+     *
+     * @param demarcheId
+     * @param dernierStatutDateDebut : la date limite (purger les demandes dont date dernier statut <= dernierStatutDateDebut)
+     * @param dernierStatutList
+     * @param canaux
+     * @return
+     */
+    @Override
+    public List<DemandeDTO> getAllDemandeForPurge(String demarcheId, Date dernierStatutDateDebut, List<String> dernierStatutList, List<String> canaux) {
+        return null;
+    }
+
+    /**
+     * @param demarcheId
+     * @param dernierStatutDateDebut
+     * @param dernierStatutList
+     * @param canaux
+     * @return
+     */
+    @Override
+    public List<Integer> getAllDemandeIdsForPurge(String demarcheId, Date dernierStatutDateDebut, List<String> dernierStatutList, List<String> canaux) {
+        return null;
+    }
+
+    /**
+     * Retourne les demandes � purger par rapport � la date et � une liste de statuts � purger
+     *
+     * @param demarcheId
+     * @param dernierStatutDateDebut : la date limite (purger les demandes dont date dernier statut <= dernierStatutDateDebut)
+     * @param dernierStatutDateFin   : la date limite (purger les demandes dont date dernier statut < dernierStatutDateDebut). en general
+     *                               DateDebut + 1 jour
+     * @param dernierStatutList
+     * @return
+     */
+    @Override
+    public List<DemandeDTO> getAllDemandeForRelanceAvantPurge(String demarcheId, Date dernierStatutDateDebut, Date dernierStatutDateFin, List<String> dernierStatutList) {
+        return null;
+    }
+
+    /**
+     * @param demarcheId
+     * @param dernierStatutDateDebut
+     * @param dernierStatutDateFin
+     * @param dernierStatutList
+     * @return
+     */
+    @Override
+    public List<Integer> getAllDemandeIdsForRelanceAvantPurge(String demarcheId, Date dernierStatutDateDebut, Date dernierStatutDateFin, List<String> dernierStatutList) {
+        return null;
+    }
+
+    /**
+     * @param demarcheId
+     * @param demandeIdList
+     * @param statuts
+     * @param jours
+     * @throws JsonProcessingException
+     */
+    @Override
+    public void deleteDemandeBulkInGivenStatus(String demarcheId, List<Integer> demandeIdList, List<String> statuts, int jours) throws JsonProcessingException {
+
+    }
+
     @Override
     public Long reindexDemandesCourrier() throws IOException {
         // TODO Auto-generated method stub

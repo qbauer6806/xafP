@@ -15,8 +15,7 @@ import mc.gouv.xaf.shared.dto.DemandeRecapProjection;
 /**
  * @author qdeme
  */
-// On désactive la règle de Sonar sur le nommage des méthodes, car pour construire des requêtes on est obligé de mettre
-// des '_'
+// On désactive la règle de Sonar sur le nommage des méthodes, car pour construire des requêtes on est obligé de mettre des '_'
 @SuppressWarnings("java:S100")
 public interface DemandesRepository extends CrudRepository<DemandeBO, Integer> {
 
@@ -75,6 +74,41 @@ public interface DemandesRepository extends CrudRepository<DemandeBO, Integer> {
     @Query("select d from DemandeBO d inner join d.dernierStatut ds where d.dateCreation >= :startDate and ds.libelle = :dernierStatut")
     List<DemandeBO> findAllByDateCreationFromAndDernierStatut(Date startDate, String dernierStatut);
 
+
+    /**
+     * Permet de récupérer les demandes à purger avant une certaine date. Utile pour l'opération de purge
+     *
+     * @param dernierStatutDateDebut
+     * @param dernierStatutList
+     * @param canaux
+     * @return
+     */
+    @Query("select d from DemandeBO d inner join d.dernierStatut ds inner join d.fkAccess access where ds.date < :dernierStatutDateDebut and ds.libelle in :dernierStatutList and d.canal in :canaux")
+    List<DemandeBO> findAllWithDateDernierStatutBeforeAndLibelleStatutIn(Date dernierStatutDateDebut,
+            List<String> dernierStatutList, List<String> canaux);
+
+    @Query("select d.pkDemandes from DemandeBO d inner join d.dernierStatut ds inner join d.fkAccess access where ds.date < :dernierStatutDateDebut and ds.libelle in :dernierStatutList and d.canal in :canaux")
+    List<Integer> findAllIdsWithDateDernierStatutBeforeAndLibelleStatutIn(Date dernierStatutDateDebut,
+            List<String> dernierStatutList, List<String> canaux);
+
+    /**
+     * Permet de récupérer les demandes à purger dans un intervalle donné. Utile pour la relance par mail avant purge.
+     * Permet de faire plusieurs relances par ex.
+     * 
+     * @param dernierStatutDateDebut
+     * @param dernierStatutDateFin
+     * @param dernierStatutList
+     * @return
+     */
+    @Query("select d from DemandeBO d inner join d.dernierStatut ds inner join d.fkAccess access where ds.date >= :dernierStatutDateDebut and ds.date < :dernierStatutDateFin and ds.libelle in :dernierStatutList")
+    List<DemandeBO> findAllWithDateDernierStatutBetweenAndLibelleStatutIn(Date dernierStatutDateDebut,
+            Date dernierStatutDateFin,
+            List<String> dernierStatutList);
+
+    @Query("select d.pkDemandes from DemandeBO d inner join d.dernierStatut ds inner join d.fkAccess access where ds.date >= :dernierStatutDateDebut and ds.date < :dernierStatutDateFin and ds.libelle in :dernierStatutList")
+    List<Integer> findAllIdsWithDateDernierStatutBetweenAndLibelleStatutIn(Date dernierStatutDateDebut,
+            Date dernierStatutDateFin, List<String> dernierStatutList);
+
     /**
      * Permet de récupérer les demandes créées par les canaux courrier et guichet physique
      */
@@ -90,15 +124,14 @@ public interface DemandesRepository extends CrudRepository<DemandeBO, Integer> {
     /**
      * Récupération demandes de l'usager FRONT (paginée)
      */
-    @Query("select d from DemandeBO d inner join d.fkAccess fa inner join TraductionBO t on (d.dernierStatut.libelle = t.cle and t.langue = :langue) "
-            + "where fa.usagerId = :usagerId and fa.demarcheId = :demarcheId and fa.active = true and d.dernierStatut.libelle in :status")
-    Page<DemandeBO> findByDemarcheIdAndIdAndUsagerIdAndStatuts(@Param("demarcheId") String demarcheId,
-            @Param("usagerId") Integer usagerId, @Param("status") String[] status, @Param("langue") String langue,
+    @Query("select d from DemandeBO d inner join d.fkAccess fa inner join TraductionBO t on (d.dernierStatut.libelle = t.cle and t.langue = :langue) " +
+            "where fa.usagerId = :usagerId and fa.demarcheId = :demarcheId and fa.active = true and d.dernierStatut.libelle in :status")
+    Page<DemandeBO> findByDemarcheIdAndIdAndUsagerIdAndStatuts(@Param("demarcheId") String demarcheId, @Param("usagerId") Integer usagerId,
+                                                               @Param("status") String[] status, @Param("langue") String langue,
             Pageable pageRequest);
 
     @Query("select d.pkDemandes as pkDemandes, d.identifiant as identifiant, d.dateCreation as dateCreation, s.libelle as dernierStatut from DemandeBO d inner join d.fkAccess fa inner join d.dernierStatut s where fa.usagerId = :usagerId and fa.demarcheId= :demarcheId and fa.active = true and s.fkDemandes = d.pkDemandes")
-    List<DemandeRecapProjection> findByUsagerIdForDemandeRecapDTO(@Param("demarcheId") String demarcheId,
-            @Param("usagerId") Integer usagerId);
+    List<DemandeRecapProjection> findByUsagerIdForDemandeRecapDTO(@Param("demarcheId") String demarcheId, @Param("usagerId") Integer usagerId);
 
     /**
      * Permet de récupérer la liste des buildId référencés par les demandes en base

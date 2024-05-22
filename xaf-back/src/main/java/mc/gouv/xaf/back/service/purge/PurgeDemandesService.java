@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.List;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import mc.gouv.xaf.shared.dto.PurgeDemandeDTO;
 
 public interface PurgeDemandesService {
 
@@ -17,7 +16,7 @@ public interface PurgeDemandesService {
 	 * Récupère toutes les demandes ayant comme statut "SUPPRIMEE"
 	 * @return statistiques
 	 */
-	List<PurgeDemandeDTO> getDemandesPurgees();
+    List<Object> getDemandesPurgees();
 	
 	/**
 	 * Spécifie la méthode d'envoi des emails aux agents

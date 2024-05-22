@@ -48,7 +48,7 @@
         <dependency>
             <groupId>mc.gouv.file</groupId>
             <artifactId>file-apiclient</artifactId>
-            <version>1.3.2</version>
+            <version>1.5.0</version>
             <exclusions>
                 <exclusion>
                     <artifactId>commons-fileupload</artifactId>

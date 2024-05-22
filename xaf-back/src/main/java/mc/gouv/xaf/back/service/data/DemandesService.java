@@ -212,4 +212,39 @@ public interface DemandesService {
      */
 	List<String> getAllBuildIds();
 
+    /**
+     * Retourne les demandes à purger par rapport à la date et à une liste de statuts à purger
+     *
+     * @param demarcheId
+     * @param dernierStatutDateDebut
+     *            : la date limite (purger les demandes dont date dernier statut <= dernierStatutDateDebut)
+     * @param dernierStatutList
+     * @return
+     */
+    List<DemandeDTO> getAllDemandeForPurge(String demarcheId, Date dernierStatutDateDebut,
+            List<String> dernierStatutList, List<String> canaux);
+
+    List<Integer> getAllDemandeIdsForPurge(String demarcheId, Date dernierStatutDateDebut,
+            List<String> dernierStatutList, List<String> canaux);
+    /**
+     * Retourne les demandes à purger par rapport à la date et à une liste de statuts à purger
+     *
+     * @param demarcheId
+     * @param dernierStatutDateDebut
+     *            : la date limite (purger les demandes dont date dernier statut <= dernierStatutDateDebut)
+     * @param dernierStatutDateFin
+     *            : la date limite (purger les demandes dont date dernier statut < dernierStatutDateDebut). en general
+     *            DateDebut + 1 jour
+     * @param dernierStatutList
+     * @return
+     */
+    List<DemandeDTO> getAllDemandeForRelanceAvantPurge(String demarcheId, Date dernierStatutDateDebut,
+            Date dernierStatutDateFin, List<String> dernierStatutList);
+
+    List<Integer> getAllDemandeIdsForRelanceAvantPurge(String demarcheId, Date dernierStatutDateDebut,
+            Date dernierStatutDateFin, List<String> dernierStatutList);
+
+    void deleteDemandeBulkInGivenStatus(String demarcheId, List<Integer> demandeIdList, List<String> statuts, int jours)
+            throws JsonProcessingException;
+
 }

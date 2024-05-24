@@ -10,6 +10,7 @@ import mc.gouv.xaf.back.service.motifs.MotifsCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.UtilisateursUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemarcheDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.MotifDTO;
 import org.apache.commons.lang3.StringUtils;
@@ -104,12 +105,16 @@ public abstract class AbstractMailTemplateModelProviderImpl implements MailTempl
     @Override
     public Map<String, Object> getGenericModel() {
         Map<String, Object> model = new HashMap<>();
-        model.put("nomTs", afBackUtils.getDemarcheInfos().getNom());
-        model.put("nomTsEn", afBackUtils.getDemarcheInfos().getNomEn());
-        model.put("nomDirection", afBackUtils.getDemarcheInfos().getNomDirection());
-        model.put("nomDirectionComplement", afBackUtils.getDemarcheInfos().getNomDirectionComplement());
-        model.put("nomFooter", afBackUtils.getDemarcheInfos().getNomFooter());
-        model.put("adresseService", afBackUtils.getDemarcheInfos().getAdresseService());
+        DemarcheDTO demarcheInfos = afBackUtils.getDemarcheInfos();
+        model.put("nomTs", demarcheInfos.getNom());
+        model.put("nomTsEn", demarcheInfos.getNomEn());
+        model.put("nomDirection", demarcheInfos.getNomDirection());
+        model.put("nomSousDirection", demarcheInfos.getNomSousDirection());
+        model.put("nomFooter", demarcheInfos.getNomFooter());
+        model.put("adresseService", demarcheInfos.getAdresseService());
+        model.put("adresseServiceInline", demarcheInfos.getAdresseService().replace("<br/>", " - "));
+        model.put("nomSousDirectionComplement", demarcheInfos.getNomSousDirection());
+        model.put("telephoneService", demarcheInfos.getAdresseService());
         model.put("urlBack", gouvPropertiesResolver.getBackUrl());
         model.put("urlFront", gouvPropertiesResolver.getFrontUrl());
         model.put("urlFicheDemarcheFr", propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "XAF_FICHE_DEMARCHE_URL_FR").getValue());

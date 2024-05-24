@@ -62,9 +62,9 @@ public class DemarchesBO {
     @Size(min = 1, max = 256)
     private String nomDirection;
 
-    @Column(name = "NOM_DIRECTION_COMPLEMENT", length = 256)
+    @Column(name = "NOM_SOUS_DIRECTION", length = 256)
     @Size(max = 256)
-    private String nomDirectionComplement;
+    private String nomSousDirection;
 
     @Column(name = "NOM_FOOTER", length = 256)
     @NotBlank
@@ -90,6 +90,13 @@ public class DemarchesBO {
     @Column(name = "LANGUES", length = 256)
     @Size(max = 256)
     private String langues;
+
+    @Column(name = "NOM_SOUS_DIRECTION_COMPLEMENT", length = 256)
+    @Size(max = 256)
+    private String nomSousDirectionComplement;
+    @Column(name = "TELEPHONE_SERVICE", length = 256)
+    @Size(max = 256)
+    private String telephoneService;
 
 	public String getPkDemarches() {
         return pkDemarches;
@@ -195,12 +202,12 @@ public class DemarchesBO {
         this.nomDirection = nomDirection;
     }
 
-    public String getNomDirectionComplement() {
-        return nomDirectionComplement;
+    public String getNomSousDirection() {
+        return nomSousDirection;
     }
 
-    public void setNomDirectionComplement(String nomDirectionComplement) {
-        this.nomDirectionComplement = nomDirectionComplement;
+    public void setNomSousDirection(String nomSousDirection) {
+        this.nomSousDirection = nomSousDirection;
     }
 
     public String getNomFooter() {
@@ -217,5 +224,21 @@ public class DemarchesBO {
 
     public void setAdresseService(String adresseService) {
         this.adresseService = adresseService;
+    }
+
+    public String getNomSousDirectionComplement() {
+        return nomSousDirectionComplement;
+    }
+
+    public void setNomSousDirectionComplement(String nomSousDirectionComplement) {
+        this.nomSousDirectionComplement = nomSousDirectionComplement;
+    }
+
+    public String getTelephoneService() {
+        return telephoneService;
+    }
+
+    public void setTelephoneService(String telephoneService) {
+        this.telephoneService = telephoneService;
     }
 }

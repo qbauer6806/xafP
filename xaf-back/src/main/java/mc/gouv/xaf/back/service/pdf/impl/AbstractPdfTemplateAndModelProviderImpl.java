@@ -12,6 +12,7 @@ import mc.gouv.xaf.back.service.pdf.PdfTemplateAndModelProvider;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.UtilisateursUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemarcheDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -91,11 +92,15 @@ public abstract class AbstractPdfTemplateAndModelProviderImpl implements PdfTemp
     @Override
     public Map<String, Object> getGenericModel() {
         Map<String, Object> model = new HashMap<>();
-        model.put("nomTs", afBackUtils.getDemarcheInfos().getNom());
-        model.put("nomDirection", afBackUtils.getDemarcheInfos().getNomDirection());
-        model.put("nomDirectionComplement", afBackUtils.getDemarcheInfos().getNomDirectionComplement());
-        model.put("nomFooter", afBackUtils.getDemarcheInfos().getNomFooter());
-        model.put("adresseService", afBackUtils.getDemarcheInfos().getAdresseService().replace("<br/>", System.lineSeparator()));
+        DemarcheDTO demarcheInfos = afBackUtils.getDemarcheInfos();
+        model.put("nomTs", demarcheInfos.getNom());
+        model.put("nomDirection", demarcheInfos.getNomDirection());
+        model.put("nomSousDirection", demarcheInfos.getNomSousDirection());
+        model.put("nomFooter", demarcheInfos.getNomFooter());
+        model.put("adresseService", demarcheInfos.getAdresseService().replace("<br/>", System.lineSeparator()));
+        model.put("adresseServiceInline", demarcheInfos.getAdresseService().replace("<br/>", " - "));
+        model.put("nomSousDirectionComplement", demarcheInfos.getNomSousDirection());
+        model.put("telephoneService", demarcheInfos.getAdresseService());
         return model;
     }
 

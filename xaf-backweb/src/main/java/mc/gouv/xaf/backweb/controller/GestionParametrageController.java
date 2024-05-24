@@ -51,9 +51,11 @@ public class GestionParametrageController {
             parametrageFormBean.setIdentifiantPrefixe(demarche.getIdentifiantPrefixe());
 
             parametrageFormBean.setNomDirection(demarche.getNomDirection());
-            parametrageFormBean.setNomDirectionComplement(demarche.getNomDirectionComplement());
+            parametrageFormBean.setNomSousDirection(demarche.getNomSousDirection());
             parametrageFormBean.setNomFooter(demarche.getNomFooter());
             parametrageFormBean.setAdresseService(demarche.getAdresseService());
+            parametrageFormBean.setNomSousDirectionComplement(demarche.getNomSousDirectionComplement());
+            parametrageFormBean.setTelephoneService(demarche.getTelephoneService());
 
             if (demarche.getLangues().contains("fr")) {
                 parametrageFormBean.setLangueFr(true);
@@ -92,9 +94,11 @@ public class GestionParametrageController {
         // remove space from identifiantPrefixe
         demarche.setIdentifiantPrefixe(StringUtils.deleteWhitespace(parametrageFormBean.getIdentifiantPrefixe()));
         demarche.setNomDirection(parametrageFormBean.getNomDirection());
-        demarche.setNomDirectionComplement(parametrageFormBean.getNomDirectionComplement());
+        demarche.setNomSousDirection(parametrageFormBean.getNomSousDirection());
         demarche.setNomFooter(parametrageFormBean.getNomFooter());
         demarche.setAdresseService(parametrageFormBean.getAdresseService());
+        demarche.setNomSousDirectionComplement(parametrageFormBean.getNomSousDirectionComplement());
+        demarche.setTelephoneService(parametrageFormBean.getTelephoneService());
 
         String newLanguesList = "";
         if (parametrageFormBean.getLangueFr()) {

@@ -27,11 +27,13 @@ public class DemarchesTransformer {
         dto.setEmailFrom(bo.getEmailFrom());
         dto.setEmailFromNom(bo.getEmailFromNom());
         dto.setNomDirection(bo.getNomDirection());
-        dto.setNomDirectionComplement(bo.getNomDirectionComplement());
+        dto.setNomSousDirection(bo.getNomSousDirection());
         dto.setNomFooter(bo.getNomFooter());
         dto.setAdresseService(bo.getAdresseService());
         dto.setIdentifiantPrefixe(bo.getIdentifiantPrefixe());
         dto.setLangues(bo.getLangues());
+        dto.setNomSousDirectionComplement(bo.getNomSousDirectionComplement());
+        dto.setTelephoneService(bo.getTelephoneService());
         return dto;
     }
 
@@ -46,11 +48,13 @@ public class DemarchesTransformer {
         bo.setEmailFrom(dto.getEmailFrom());
         bo.setEmailFromNom(dto.getEmailFromNom());
         bo.setNomDirection(dto.getNomDirection());
-        bo.setNomDirectionComplement(dto.getNomDirectionComplement());
+        bo.setNomSousDirection(dto.getNomSousDirection());
         bo.setNomFooter(dto.getNomFooter());
         bo.setAdresseService(dto.getAdresseService());
         bo.setIdentifiantPrefixe(dto.getIdentifiantPrefixe());
         bo.setLangues(dto.getLangues());
+        bo.setNomSousDirectionComplement(dto.getNomSousDirectionComplement());
+        bo.setTelephoneService(dto.getTelephoneService());
         return bo;
     }
     

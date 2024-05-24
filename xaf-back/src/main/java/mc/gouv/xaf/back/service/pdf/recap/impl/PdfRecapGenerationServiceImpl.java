@@ -227,14 +227,16 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
                 writer.println(StringEscapeUtils.escapeXml(demarche.getNomDirection()));
                 writer.println(SPAN_END_TAG);
                 writer.println("<br/>");
-                writer.println("<span id=\"nomDirectionComplement\">");
-                writer.println(StringEscapeUtils.escapeXml(demarche.getNomDirectionComplement()));
+                writer.println("<span id=\"nomSousDirection\">");
+                writer.println(StringEscapeUtils.escapeXml(demarche.getNomSousDirection()));
                 writer.println(SPAN_END_TAG);
 	            writer.println("</div>");
 	
 	            writer.println("<div id=\"pageFooter\">");
                 writer.println("<span id=\"adresseService\">");
                 writer.println(demarche.getAdresseService());
+                writer.println("<br/>");
+                writer.println(demarche.getTelephoneService());
                 writer.println(SPAN_END_TAG);
                 writer.println("<span id=\"nomFooter\">");
                 writer.println(StringEscapeUtils.escapeXml(demarche.getNomFooter()));

@@ -161,10 +161,21 @@
 					<div class="row container-fluid mt-15">
 						<div th:class="form-group">
 							<div class="col-xs-2">
-								<label for="nomDirectionComplement">Nom direction complément (nomDirectionComplement): </label>
+								<label for="nomSousDirection">Nom sous direction (nomSousDirection): </label>
 							</div>
 							<div class="col-xs-10">
-								<input type="text" id="nomDirectionComplement" name="nomDirectionComplement" th:field="*{nomDirectionComplement}" class="form-control" maxlength="256"/>
+								<input type="text" id="nomSousDirection" name="nomSousDirection" th:field="*{nomSousDirection}" class="form-control" maxlength="256"/>
+							</div>
+						</div>
+					</div>
+
+					<div class="row container-fluid mt-15">
+						<div th:class="form-group">
+							<div class="col-xs-2">
+								<label for="nomSousDirectionComplement">Nom sous direction complément (nomSousDirectionComplement): </label>
+							</div>
+							<div class="col-xs-10">
+								<input type="text" id="nomSousDirectionComplement" name="nomSousDirectionComplement" th:field="*{nomSousDirectionComplement}" class="form-control" maxlength="256"/>
 							</div>
 						</div>
 					</div>
@@ -187,6 +198,17 @@
 							</div>
 							<div class="col-xs-10">
 								<input type="text" id="adresseService" name="adresseService" th:field="*{adresseService}" class="form-control" required maxlength="256"/>
+							</div>
+						</div>
+					</div>
+
+					<div class="row container-fluid mt-15">
+						<div th:class="form-group">
+							<div class="col-xs-2">
+								<label for="telephoneService">Téléphone service<span class="required"></span> (telephoneService): </label>
+							</div>
+							<div class="col-xs-10">
+								<input type="text" id="telephoneService" name="telephoneService" th:field="*{telephoneService}" class="form-control" required maxlength="256"/>
 							</div>
 						</div>
 					</div>

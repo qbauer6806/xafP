@@ -99,8 +99,8 @@ public abstract class AbstractPdfTemplateAndModelProviderImpl implements PdfTemp
         model.put("nomFooter", demarcheInfos.getNomFooter());
         model.put("adresseService", demarcheInfos.getAdresseService().replace("<br/>", System.lineSeparator()));
         model.put("adresseServiceInline", demarcheInfos.getAdresseService().replace("<br/>", " - "));
-        model.put("nomSousDirectionComplement", demarcheInfos.getNomSousDirection());
-        model.put("telephoneService", demarcheInfos.getAdresseService());
+        model.put("nomSousDirectionComplement", demarcheInfos.getNomSousDirectionComplement());
+        model.put("telephoneService", demarcheInfos.getTelephoneService());
         return model;
     }
 

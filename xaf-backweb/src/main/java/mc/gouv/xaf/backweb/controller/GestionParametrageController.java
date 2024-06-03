@@ -22,6 +22,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringJoiner;
 
 @Controller
 @RequestMapping("/gestion/parametrage")
@@ -56,6 +57,10 @@ public class GestionParametrageController {
             parametrageFormBean.setAdresseService(demarche.getAdresseService());
             parametrageFormBean.setNomSousDirectionComplement(demarche.getNomSousDirectionComplement());
             parametrageFormBean.setTelephoneService(demarche.getTelephoneService());
+            parametrageFormBean.setNomDemarcheEn(demarche.getNomEn());
+            parametrageFormBean.setNomDirectionEn(demarche.getNomDirectionEn());
+            parametrageFormBean.setNomSousDirectionEn(demarche.getNomSousDirectionEn());
+            parametrageFormBean.setNomSousDirectionComplementEn(demarche.getNomSousDirectionComplementEn());
 
             if (demarche.getLangues().contains("fr")) {
                 parametrageFormBean.setLangueFr(true);
@@ -99,18 +104,19 @@ public class GestionParametrageController {
         demarche.setAdresseService(parametrageFormBean.getAdresseService());
         demarche.setNomSousDirectionComplement(parametrageFormBean.getNomSousDirectionComplement());
         demarche.setTelephoneService(parametrageFormBean.getTelephoneService());
+        demarche.setNomEn(parametrageFormBean.getNomDemarcheEn());
+        demarche.setNomDirectionEn(parametrageFormBean.getNomDirectionEn());
+        demarche.setNomSousDirectionEn(parametrageFormBean.getNomSousDirectionEn());
+        demarche.setNomSousDirectionComplementEn(parametrageFormBean.getNomSousDirectionComplementEn());
 
-        String newLanguesList = "";
+        StringJoiner newLanguesList = new StringJoiner(",");
         if (parametrageFormBean.getLangueFr()) {
-        	newLanguesList = "fr";
+        	newLanguesList.add("fr");
         }
         if (parametrageFormBean.getLangueEn()) {
-        	if (StringUtils.isNotBlank(newLanguesList)) {
-        		newLanguesList += ",";
-        	}
-        	newLanguesList += "en";
+        	newLanguesList.add("en");
         }
-        demarche.setLangues(newLanguesList);
+        demarche.setLangues(newLanguesList.toString());
         demarchesService.updateDemarche(demarche);
         List<String> messages = new ArrayList<>();
         messages.add("Vous venez de modifier la démarche avec succès.");

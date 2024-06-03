@@ -28,6 +28,10 @@ public class ParametrageFormBean {
     private boolean langueEn;
 	private String nomSousDirectionComplement;
 	private String telephoneService;
+	private String nomDemarcheEn;
+	private String nomDirectionEn;
+	private String nomSousDirectionEn;
+	private String nomSousDirectionComplementEn;
 
 	public String getNomDemarche() {
 		return nomDemarche;
@@ -147,5 +151,37 @@ public class ParametrageFormBean {
 
 	public void setTelephoneService(String telephoneService) {
 		this.telephoneService = telephoneService;
+	}
+
+	public String getNomDemarcheEn() {
+		return nomDemarcheEn;
+	}
+
+	public void setNomDemarcheEn(String nomDemarcheEn) {
+		this.nomDemarcheEn = nomDemarcheEn;
+	}
+
+	public String getNomDirectionEn() {
+		return nomDirectionEn;
+	}
+
+	public void setNomDirectionEn(String nomDirectionEn) {
+		this.nomDirectionEn = nomDirectionEn;
+	}
+
+	public String getNomSousDirectionEn() {
+		return nomSousDirectionEn;
+	}
+
+	public void setNomSousDirectionEn(String nomSousDirectionEn) {
+		this.nomSousDirectionEn = nomSousDirectionEn;
+	}
+
+	public String getNomSousDirectionComplementEn() {
+		return nomSousDirectionComplementEn;
+	}
+
+	public void setNomSousDirectionComplementEn(String nomSousDirectionComplementEn) {
+		this.nomSousDirectionComplementEn = nomSousDirectionComplementEn;
 	}
 }

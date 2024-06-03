@@ -34,6 +34,9 @@ public class DemarchesTransformer {
         dto.setLangues(bo.getLangues());
         dto.setNomSousDirectionComplement(bo.getNomSousDirectionComplement());
         dto.setTelephoneService(bo.getTelephoneService());
+        dto.setNomDirectionEn(bo.getNomDirectionEn());
+        dto.setNomSousDirectionEn(bo.getNomSousDirectionEn());
+        dto.setNomSousDirectionComplementEn(bo.getNomSousDirectionComplementEn());
         return dto;
     }
 
@@ -55,6 +58,9 @@ public class DemarchesTransformer {
         bo.setLangues(dto.getLangues());
         bo.setNomSousDirectionComplement(dto.getNomSousDirectionComplement());
         bo.setTelephoneService(dto.getTelephoneService());
+        bo.setNomDirectionEn(dto.getNomDirectionEn());
+        bo.setNomSousDirectionEn(dto.getNomSousDirectionEn());
+        bo.setNomSousDirectionComplementEn(dto.getNomSousDirectionComplementEn());
         return bo;
     }
     

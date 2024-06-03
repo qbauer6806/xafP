@@ -112,9 +112,12 @@ public abstract class AbstractMailTemplateModelProviderImpl implements MailTempl
         model.put("nomSousDirection", demarcheInfos.getNomSousDirection());
         model.put("nomFooter", demarcheInfos.getNomFooter());
         model.put("adresseService", demarcheInfos.getAdresseService());
-        model.put("adresseServiceInline", demarcheInfos.getAdresseService().replace("<br/>", " - "));
+        model.put("adresseServiceInline", StringUtils.replace(demarcheInfos.getAdresseService(), "<br/>", " - "));
         model.put("nomSousDirectionComplement", demarcheInfos.getNomSousDirectionComplement());
         model.put("telephoneService", demarcheInfos.getTelephoneService());
+        model.put("nomDirectionEn", demarcheInfos.getNomDirectionEn());
+        model.put("nomSousDirectionEn", demarcheInfos.getNomSousDirectionEn());
+        model.put("nomSousDirectionComplementEn", demarcheInfos.getNomSousDirectionComplementEn());
         model.put("urlBack", gouvPropertiesResolver.getBackUrl());
         model.put("urlFront", gouvPropertiesResolver.getFrontUrl());
         model.put("urlFicheDemarcheFr", propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "XAF_FICHE_DEMARCHE_URL_FR").getValue());

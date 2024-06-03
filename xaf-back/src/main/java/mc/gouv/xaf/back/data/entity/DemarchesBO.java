@@ -98,6 +98,18 @@ public class DemarchesBO {
     @Size(max = 256)
     private String telephoneService;
 
+    @Column(name = "NOM_DIRECTION_EN", length = 256)
+    @Size(max = 256)
+    private String nomDirectionEn;
+
+    @Column(name = "NOM_SOUS_DIRECTION_EN", length = 256)
+    @Size(max = 256)
+    private String nomSousDirectionEn;
+
+    @Column(name = "NOM_SOUS_DIRECTION_COMPLEMENT_EN", length = 256)
+    @Size(max = 256)
+    private String nomSousDirectionComplementEn;
+
 	public String getPkDemarches() {
         return pkDemarches;
     }
@@ -240,5 +252,29 @@ public class DemarchesBO {
 
     public void setTelephoneService(String telephoneService) {
         this.telephoneService = telephoneService;
+    }
+
+    public String getNomDirectionEn() {
+        return nomDirectionEn;
+    }
+
+    public void setNomDirectionEn(String nomDirectionEn) {
+        this.nomDirectionEn = nomDirectionEn;
+    }
+
+    public String getNomSousDirectionEn() {
+        return nomSousDirectionEn;
+    }
+
+    public void setNomSousDirectionEn(String nomSousDirectionEn) {
+        this.nomSousDirectionEn = nomSousDirectionEn;
+    }
+
+    public String getNomSousDirectionComplementEn() {
+        return nomSousDirectionComplementEn;
+    }
+
+    public void setNomSousDirectionComplementEn(String nomSousDirectionComplementEn) {
+        this.nomSousDirectionComplementEn = nomSousDirectionComplementEn;
     }
 }

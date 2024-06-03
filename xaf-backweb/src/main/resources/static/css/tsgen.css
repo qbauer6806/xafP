@@ -550,3 +550,6 @@ dd span {
     float: right;
     margin-right: 10px;
 }
+.mandatory{
+    color : red;
+}

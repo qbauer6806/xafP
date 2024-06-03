@@ -34,6 +34,9 @@ public class DemarcheDTO {
     private String adresseService;
     private String nomSousDirectionComplement;
     private String telephoneService;
+    private String nomDirectionEn;
+    private String nomSousDirectionEn;
+    private String nomSousDirectionComplementEn;
 
     public String getPkDemarches() {
         return pkDemarches;
@@ -161,5 +164,29 @@ public class DemarcheDTO {
 
     public void setTelephoneService(String telephoneService) {
         this.telephoneService = telephoneService;
+    }
+
+    public String getNomDirectionEn() {
+        return nomDirectionEn;
+    }
+
+    public void setNomDirectionEn(String nomDirectionEn) {
+        this.nomDirectionEn = nomDirectionEn;
+    }
+
+    public String getNomSousDirectionEn() {
+        return nomSousDirectionEn;
+    }
+
+    public void setNomSousDirectionEn(String nomSousDirectionEn) {
+        this.nomSousDirectionEn = nomSousDirectionEn;
+    }
+
+    public String getNomSousDirectionComplementEn() {
+        return nomSousDirectionComplementEn;
+    }
+
+    public void setNomSousDirectionComplementEn(String nomSousDirectionComplementEn) {
+        this.nomSousDirectionComplementEn = nomSousDirectionComplementEn;
     }
 }

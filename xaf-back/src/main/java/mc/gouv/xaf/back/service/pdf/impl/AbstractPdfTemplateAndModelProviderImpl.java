@@ -94,13 +94,17 @@ public abstract class AbstractPdfTemplateAndModelProviderImpl implements PdfTemp
         Map<String, Object> model = new HashMap<>();
         DemarcheDTO demarcheInfos = afBackUtils.getDemarcheInfos();
         model.put("nomTs", demarcheInfos.getNom());
+        model.put("nomTsEn", demarcheInfos.getNomEn());
         model.put("nomDirection", demarcheInfos.getNomDirection());
         model.put("nomSousDirection", demarcheInfos.getNomSousDirection());
         model.put("nomFooter", demarcheInfos.getNomFooter());
-        model.put("adresseService", demarcheInfos.getAdresseService().replace("<br/>", System.lineSeparator()));
-        model.put("adresseServiceInline", demarcheInfos.getAdresseService().replace("<br/>", " - "));
+        model.put("adresseService", StringUtils.replace(demarcheInfos.getAdresseService(),"<br/>", System.lineSeparator()));
+        model.put("adresseServiceInline", StringUtils.replace(demarcheInfos.getAdresseService(), "<br/>", " - "));
         model.put("nomSousDirectionComplement", demarcheInfos.getNomSousDirectionComplement());
         model.put("telephoneService", demarcheInfos.getTelephoneService());
+        model.put("nomDirectionEn", demarcheInfos.getNomDirectionEn());
+        model.put("nomSousDirectionEn", demarcheInfos.getNomSousDirectionEn());
+        model.put("nomSousDirectionComplementEn", demarcheInfos.getNomSousDirectionComplementEn());
         return model;
     }
 

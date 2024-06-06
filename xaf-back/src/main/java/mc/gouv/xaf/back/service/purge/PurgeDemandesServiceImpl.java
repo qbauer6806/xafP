@@ -280,6 +280,10 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 					: defaultMailTitre;
 			model.put("titre", titre);
 			model.put("urlFront", gouvPropertiesResolver.getFrontUrl());
+			PropertiesDTO adresseService = propertiesService.getProperty(demandeDTO.getDemarcheId(), "ADRESSE_SERVICE");
+	        if(adresseService != null) {
+	        	model.put("adresseService", adresseService.getValue());
+	        }
 
 			try {
 				mailService.sendMail(emailInfoDTO, model);

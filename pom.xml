@@ -9,7 +9,7 @@
     </parent>
 
     <properties>
-        <revision>0.0.0-SNAPSHOT</revision>
+        <revision>12.0.0-SNAPSHOT</revision>
         <java.version>11</java.version>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
@@ -38,6 +38,7 @@
     <modules>
         <module>xaf-api</module>
 		<module>xaf-apiclient</module>
+		<module>xaf-apiclient2tiers</module>
         <module>xaf-apiclient-paiement</module>
         <module>xaf-back</module>
         <module>xaf-back-denjs</module>

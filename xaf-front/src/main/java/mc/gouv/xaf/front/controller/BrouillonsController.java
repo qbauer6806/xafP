@@ -143,7 +143,7 @@ public class BrouillonsController extends XafFrontserverUtils {
     }
 
     @DeleteMapping(value = {"/brouillons", "/brouillons/{brouillonId}"})
-    public ResponseEntity doDelete(String brouillonId, HttpServletRequest request) {
+    public ResponseEntity doDelete(@PathVariable(required = false) String brouillonId, HttpServletRequest request) {
         LOGGER.info("====================== /brouillons doDelete()");
 
         UsagerInfosDTO usagerInfosDTO = xafFrontserverUtils.getLoggedUser(request);

@@ -45,6 +45,7 @@ import mc.gouv.logon.shared.Droit;
 import mc.gouv.logon.shared.Role;
 import mc.gouv.logon.shared.User;
 import mc.gouv.mail.apiclient.client.MailClient;
+import mc.gouv.xaf.apiclient.AfApiClient;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.DemandesService;
@@ -167,6 +168,8 @@ public class AfBackUtils {
     @Autowired
     @Lazy
     private MotifsCache motifsCache;
+    
+    private AfApiClient afApiClient2Tiers = null;
 
     public static final short GENDER_MR_INDEX = 0;
     public static final short GENDER_MME_INDEX = 1;
@@ -789,6 +792,13 @@ public class AfBackUtils {
      */
     public boolean isTypedocApplicable(String typedoc) {
         return demarchesDataProvider.isTypedocApplicable(typedoc);
+    }
+    
+    public AfApiClient getAfApiClient2Tiers() {
+    	if (afApiClient2Tiers == null) {
+    		afApiClient2Tiers = new AfApiClient(gouvPropertiesResolver.get2TiersBoUrl(), gouvPropertiesResolver.get2TiersBoJwt());
+    	}
+    	return afApiClient2Tiers;
     }
 
 }

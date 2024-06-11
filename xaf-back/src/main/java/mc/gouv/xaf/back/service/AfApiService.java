@@ -69,7 +69,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-public abstract class AfApiService implements AfApiController {
+public abstract class AfApiService extends AbstractAfApiService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AfApiService.class);
     private static final String ERREUR_CREATION_HISTORIQUE_LOG_MESSAGE = "Erreur lors de la création de l'historique {}";

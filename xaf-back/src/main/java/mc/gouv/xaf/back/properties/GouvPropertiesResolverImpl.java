@@ -176,6 +176,12 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     // Specifique
     @Value("${mc.gouv.${application.name}.novalidate:false}")
     private String noValidate;
+    
+    @Value("${mc.gouv.${application.name}.2tiers.bo.url:OPTIONAL}")
+    private String _2tiersBoUrl;
+    
+    @Value("${mc.gouv.${application.name}.2tiers.bo.jwt:OPTIONAL}")
+    private String _2tiersBoJwt;
 
     /**
      * propertyEditor.getReadMethod() expose le getter, peut être null si on a une prorpriété en écriture seule
@@ -629,5 +635,15 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     @Override
     public String getApiUlisFunctionalUser() {
         return ulisFunctionalAccount;
+    }
+    
+    @Override
+    public String get2TiersBoUrl() {
+    	return _2tiersBoUrl;
+    }
+    
+    @Override
+    public String get2TiersBoJwt() {
+    	return _2tiersBoJwt;
     }
 }

@@ -20,7 +20,7 @@ public class JwtUtils {
 
     public static void main(String[] args) {
 
-        String jwt = createJWTToken("", "EMPERSM", new String[] { "USER" }, "FILE", null, null);
+        String jwt = createJWTToken("secret", "INSENPR", new String[] { "USER" }, "FILE", null, null);
         LOGGER.info(jwt);
     }
 

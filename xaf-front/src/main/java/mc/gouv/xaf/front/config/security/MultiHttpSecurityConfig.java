@@ -1,13 +1,10 @@
-package mc.gouv.xaf.config.api.security;
+package mc.gouv.xaf.front.config.security;
 
-import mc.gouv.xaf.back.config.utils.XafSpringException;
-import mc.gouv.xaf.back.config.utils.XafSpringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -19,9 +16,13 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import mc.gouv.xaf.config.filter.jwt.JwtAuthFilter;
-import mc.gouv.xaf.config.filter.jwt.JwtAuthenticationProvider;
-
+/**
+ * 
+ * Sécurisation par JWT des endpoints /api2tiers/**
+ * 
+ * @author qdeme
+ *
+ */
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
 public class MultiHttpSecurityConfig {
@@ -30,6 +31,8 @@ public class MultiHttpSecurityConfig {
     public static class GouvBasicSecurityConfig extends WebSecurityConfigurerAdapter {
 
         private static final Logger LOGGER = LoggerFactory.getLogger(GouvBasicSecurityConfig.class);
+        
+        public static final String LANCEMENT_IMPOSSIBLE_MSG = "Lancement impossible sans la propriété ";
 
         @Value("${application.name}")
         String applicationName;
@@ -44,10 +47,10 @@ public class MultiHttpSecurityConfig {
             LOGGER.info("Vérification de la présence d'une valeur pour la propriété : {}", secretProp);
             String secretKey = env.getProperty(secretProp);
             if (StringUtils.isBlank(secretKey)) {
-                secretProp = "mc.gouv." + applicationName + ".api.security.jwt.secret";
+                secretProp = "mc.gouv." + applicationName + ".front.2tiers.security.jwt.secret";
                 secretKey = env.getProperty(secretProp);
                 if (StringUtils.isBlank(secretKey)) {
-                    throw new XafSpringException(XafSpringUtils.LANCEMENT_IMPOSSIBLE_MSG + secretProp);
+                    throw new Exception(LANCEMENT_IMPOSSIBLE_MSG + secretProp);
                 }
             }
 
@@ -59,7 +62,7 @@ public class MultiHttpSecurityConfig {
 
         @Override
         protected void configure(HttpSecurity http) throws Exception {
-            HttpSecurity httpSecured = http.antMatcher("/api/**").antMatcher("/api2tiers/**");
+            HttpSecurity httpSecured = http.antMatcher("/api2tiers/**");
 
             httpSecured.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                     .authorizeRequests().anyRequest().authenticated();
@@ -69,12 +72,12 @@ public class MultiHttpSecurityConfig {
         }
 
         /**
-         * Pour permettre d'accéder à la documentation /index.html
+         * Pour permettre d'accéder au reste de l'appli
          */
         @Override
         public void configure(WebSecurity web) throws Exception {
             //https://stackoverflow.com/questions/43651298/adding-authorization-to-annotation-driven-swagger-json-with-jersey-2-and-spring/
-            web.ignoring().antMatchers("/*", "/**/swagger.json", "/swagger/*", "/h2-console/**");
+            web.ignoring().antMatchers("/*");
         }
     }
 }

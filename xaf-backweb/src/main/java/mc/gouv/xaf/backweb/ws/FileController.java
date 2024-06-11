@@ -95,7 +95,7 @@ public class FileController {
 		// cet élément reste encodé
 		String file = request.getServletPath();
 		file = file.replace("/ws/file/get/", "");
-		LOGGER.info("Chemin du fichier récupérée dans la requête : {}", file);
+		LOGGER.info("Chemin du fichier récupéré dans la requête : {}", file);
 
 		// Bugfix #16805: encodage des noms des fichiers avec caractères spéciaux
 		String filePathEncoded = URLEncoder.encode(file, UTF_8);

@@ -137,4 +137,8 @@ public interface GouvPropertiesResolver {
 
     String getApiUlisFunctionalUser();
 
+	String get2TiersBoUrl();
+
+	String get2TiersBoJwt();
+
 }

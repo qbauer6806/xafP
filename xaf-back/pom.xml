@@ -435,6 +435,12 @@
             <artifactId>commons-fileupload</artifactId>
             <version>${commons-fileupload.version}</version>
         </dependency>
+      
+    	<dependency>
+            <groupId>mc.gouv.xaf</groupId>
+            <artifactId>xaf-apiclient</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
 	</dependencies>
 
@@ -454,6 +460,7 @@
                 <artifactId>jgroups</artifactId>
                 <version>4.1.1.Final</version>
             </dependency>
+        
         </dependencies>
     </dependencyManagement>
 

@@ -7,6 +7,11 @@ import mc.gouv.xapi.error.exception.server.InternalErrorWebException;
 import javax.ws.rs.core.Response;
 import java.net.HttpURLConnection;
 
+/**
+ * 
+ * @author qdeme
+ *
+ */
 public class ExceptionManager {
 
     public ExceptionManager() {

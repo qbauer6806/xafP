@@ -129,7 +129,10 @@ public class FrontGouvPropertiesResolver {
     private String pubMconnectUrlFr;
     @Value("${mc.gouv.gichuni.pub.mconnect.url.en:}")
     private String pubMconnectUrlEn;
-
+    
+    @Value("${mc.gouv.${application.name}.frontserver.2tiers.activation}")
+    private String proxy2tiersActivation;
+    
     @PostConstruct
     private void initPrefix() throws IntrospectionException, IllegalAccessException, InvocationTargetException,
             GouvPropertyNotFoundException {
@@ -345,6 +348,11 @@ public class FrontGouvPropertiesResolver {
 
     public String getPubMconnectUrlEn() {
         return StringUtils.isBlank(pubMconnectUrlEn) ? "vide" : pubMconnectUrlEn;
+    }
+    
+    public boolean getProxy2TiersActivation() {
+        String value = proxy2tiersActivation;
+        return StringUtils.isNotBlank(value) && value.equals("true") ? true : false;
     }
 
     public List<PropertiesDTO> getFrontProperties() {

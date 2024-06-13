@@ -31,6 +31,15 @@ import mc.gouv.xaf.shared.dto.MotifDTO;
 import mc.gouv.xaf.shared.dto.PeriodeOuvertureDTO;
 import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 
+/**
+ * 
+ * Interface spécifiant les méthodes devant être implémentées dans l'API dite "2/3"
+ * Ce sont donc des méthodes visant à être appelées par le Back Office tiers (non GENTS) via le FO GENTS
+ * (pour des raisons de ségmentation réseau)
+ * 
+ * @author qdeme
+ *
+ */
 public abstract class AbstractAfApiController2Tiers implements AfApiController2Tiers {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractAfApiController2Tiers.class);

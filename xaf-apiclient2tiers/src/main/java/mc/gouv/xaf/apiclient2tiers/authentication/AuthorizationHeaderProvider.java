@@ -1,5 +1,10 @@
 package mc.gouv.xaf.apiclient2tiers.authentication;
 
+/**
+ * 
+ * @author qdeme
+ *
+ */
 public interface AuthorizationHeaderProvider {
 
     /**

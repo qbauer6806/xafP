@@ -13,6 +13,11 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 
+/**
+ * 
+ * @author qdeme
+ *
+ */
 public abstract class ApiClient {
 
     private String serviceUrl;

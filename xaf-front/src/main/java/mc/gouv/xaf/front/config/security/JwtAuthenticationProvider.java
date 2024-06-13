@@ -31,7 +31,7 @@ import io.jsonwebtoken.UnsupportedJwtException;
 /**
  * Authentification via la vérification du token JWT
  * Le principal sera lié à la valeur du payload "sub"
- * @author fgaujous
+ * @author fgaujous, qdeme
  *
  */
 public class JwtAuthenticationProvider implements AuthenticationProvider {
@@ -139,10 +139,10 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
      */
     public Jws<Claims> verify(String token) throws Exception {
 
-        String secretProp = MC_GOUV + applicationName + ".front.2tiers.security.jwt.secret";
+        String secretProp = MC_GOUV + applicationName + ".frontserver.2tiers.security.jwt.secret";
         String secretKey = environment.getProperty(secretProp);
         if (StringUtils.isBlank(secretKey)) {
-            secretProp = "mc.gouv." + applicationName + ".front.2tiers.security.jwt.secret";
+            secretProp = "mc.gouv." + applicationName + ".frontserver.2tiers.security.jwt.secret";
             secretKey = environment.getProperty(secretProp);
         }
         if (secretKey == null) {

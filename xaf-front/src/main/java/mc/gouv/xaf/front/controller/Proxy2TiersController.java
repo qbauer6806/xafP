@@ -31,6 +31,14 @@ import org.springframework.web.multipart.MultipartFile;
 
 import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
 
+/**
+ * 
+ * Controller utilisé dans la solution 2/3, permettant d'effectuer un proxy afin que le BO tiers
+ * puisse contacter l'API GenTS
+ * 
+ * @author qdeme
+ *
+ */
 @Controller
 @RequestMapping("/api2tiers")
 public class Proxy2TiersController extends AbstractXafController {

@@ -2,6 +2,8 @@ package mc.gouv.xaf.shared.dto;
 
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 /**
  * Représente une période d'ouverture d'une démarche
  *
@@ -13,8 +15,10 @@ public class PeriodeOuvertureDTO {
 
     private String demarcheId;
 
+    @JsonFormat(shape = JsonFormat.Shape.NUMBER)
     private Date dateDebut;
 
+    @JsonFormat(shape = JsonFormat.Shape.NUMBER)
     private Date dateFin;
 
     public Integer getPkPeriodesOuverture() {

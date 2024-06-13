@@ -100,6 +100,12 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
 
     @Value("${mc.gouv.${application.name}.shared.backapi.front.url}")
     private String frontUrl;
+    
+    @Value("${mc.gouv.${application.name}.2tiers.bo.url:OPTIONAL}")
+    private String _2tiersBoUrl;
+    
+    @Value("${mc.gouv.${application.name}.2tiers.bo.jwt:OPTIONAL}")
+    private String _2tiersBoJwt;
 
     @Autowired
     private ElasticsearchProperties esProperties;
@@ -514,4 +520,14 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     public String getApiUlisFunctionalUser() {
         return ulisProperties.getUlisFunctionalAccount();
     }
+    
+	@Override
+	public String get2TiersBoUrl() {
+		return _2tiersBoUrl;
+	}
+
+	@Override
+	public String get2TiersBoJwt() {
+		return _2tiersBoJwt;
+	}
 }

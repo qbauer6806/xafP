@@ -114,4 +114,9 @@ public interface GouvPropertiesResolver {
     String getFrontUrl();
 
     String getBackUrl();
+
+	String get2TiersBoUrl();
+
+	String get2TiersBoJwt();
+
 }

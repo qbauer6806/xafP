@@ -1,49 +1,109 @@
 package mc.gouv.xaf.backweb.web.config.error;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.tika.utils.ExceptionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
+
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
 
 /**
- * Controller pour la page /form
+ * Controller pour les pages d'erreur
  * 
- * @author bbois
+ * @author qdeme
  * 
  */
 @Controller
 @RequestMapping("/error")
 // https://github.com/spring-projects/spring-boot/issues/5638
 public class ErrorController implements org.springframework.boot.web.servlet.error.ErrorController {
-
-    @Autowired
-    Environment env;
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(ErrorController.class);
 
     public static final String URL_ERROR_403 = "error/403";
     public static final String URL_ERROR_404 = "error/404";
     public static final String URL_ERROR_500 = "error/500";
+    
+    @Autowired
+    private GouvPropertiesResolver gouvPropertiesResolver;
+
+    @Value("${mc.gouv.${application.name}.backserver.env.color}")
+    private String gouvEnvironment;
 
     @RequestMapping(path = "/403")
-    public String error403(Model model) {
-
-        return URL_ERROR_403;
+    public ModelAndView error403(Model model, HttpServletRequest request) {
+    	return getModelAndViewForError(403, request);
     }
 
     @RequestMapping(path = "/404")
-    public String error404(Model model) {
-
-        return URL_ERROR_404;
+    public ModelAndView error404(Model model, HttpServletRequest request) {
+    	return getModelAndViewForError(404, request);
     }
 
     @RequestMapping(path = "/500")
-    public String error500(Model model) {
-        return URL_ERROR_500;
+    public ModelAndView error500(Model model, HttpServletRequest request) {
+    	return getModelAndViewForError(500, request);
     }
-
-    // Update Spring 2.5.9, getErroPath n'est plus dans l'interface
-    //@Override
-    public String getErrorPath() {
-        return "/__dummyErrorPath";
+    
+    private ModelAndView getModelAndViewForError(Integer errCode, HttpServletRequest request) {
+    	ModelAndView mav = new ModelAndView();
+    	if (errCode == 403) {
+    		mav.setViewName(URL_ERROR_403);
+    	}
+    	else if (errCode == 404) {
+    		mav.setViewName(URL_ERROR_404);
+    	}
+    	else if (errCode == 500) {
+    		mav.setViewName(URL_ERROR_500);
+    	}
+    	mav.addObject("tsCode", gouvPropertiesResolver.getDemarcheId());
+    	mav.addObject("envCode", gouvEnvironment);
+    	mav.addObject("environnement", libelleFromEnvCode(gouvEnvironment));
+    	mav.addObject("matricule", AfBackUtils.getAuthenticatedAgentId());
+    	mav.addObject("errCode", errCode);
+    	DateFormat dateFormat = new SimpleDateFormat(AfBackUtils.DEFAULT_FRENCH_DATE_HOURS_MINUTES_SECONDS_FORMAT);
+    	mav.addObject("errDate", dateFormat.format(new Date()));
+    	
+    	// Génération et affichage dans les logs du code d'erreur remonté à l'utilisateur
+    	String errId = "ERRTS" + System.currentTimeMillis();
+    	LOGGER.error("Code d'erreur affiché à l'utilisateur : {}", errId);
+    	mav.addObject("errId", errId);
+    	
+    	// Affichage de la stacktrace à l'utilisateur si l'on n'est pas en production
+    	if (errCode == 500 && ("loc".equals(gouvEnvironment) || "dev".equals(gouvEnvironment) || "rec".equals(gouvEnvironment))) {
+	    	Exception e = (Exception) request.getAttribute(RequestDispatcher.ERROR_EXCEPTION);
+	    	if (e != null) {
+	    		mav.addObject("stacktrace", ExceptionUtils.getStackTrace(e));
+	    	}
+    	}
+    	
+    	return mav;
+    }
+    
+    private String libelleFromEnvCode(String environnement) {
+    	if ("loc".equals(environnement)) {
+    		return "Local";
+    	} else if ("dev".equals(environnement)) {
+    		return "Développement";
+    	} else if ("rec".equals(environnement)) {
+    		return "Recette";
+    	} else if ("prod".equals(environnement)) {
+    		return "Production";
+    	} else {
+    		return "Environnement inconnu (" + environnement + ")";
+    	}
     }
 }

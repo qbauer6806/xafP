@@ -234,7 +234,10 @@
             <artifactId>logon-apiclient</artifactId>
             <version>${logon-apiclient.version}</version>
         </dependency>
-
+        <dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-test</artifactId>
@@ -435,6 +438,12 @@
             <artifactId>commons-fileupload</artifactId>
             <version>${commons-fileupload.version}</version>
         </dependency>
+      
+    	<dependency>
+            <groupId>mc.gouv.xaf</groupId>
+            <artifactId>xaf-apiclient</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.mockito</groupId>
@@ -459,6 +468,7 @@
                 <artifactId>jgroups</artifactId>
                 <version>4.1.1.Final</version>
             </dependency>
+        
         </dependencies>
     </dependencyManagement>
 

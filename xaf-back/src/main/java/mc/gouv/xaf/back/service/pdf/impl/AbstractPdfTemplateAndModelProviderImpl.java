@@ -106,6 +106,7 @@ public abstract class AbstractPdfTemplateAndModelProviderImpl implements PdfTemp
         model.put("nomSousDirectionEn", demarcheInfos.getNomSousDirectionEn());
         model.put("nomSousDirectionComplementEn", demarcheInfos.getNomSousDirectionComplementEn());
         return model;
+
     }
 
 }

@@ -1,11 +1,7 @@
 package mc.gouv.xaf.back.config;
 
-import mc.gouv.xaf.back.properties.DemPropertyNotFoundException;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.GouvSchedulerService;
-import mc.gouv.xaf.back.service.data.PropertiesService;
-import mc.gouv.xaf.back.service.impl.KafkaOutboxSchedulingJobImpl;
-import mc.gouv.xaf.shared.dto.PropertiesDTO;
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.JobDetail;
 import org.quartz.SchedulerException;
@@ -14,10 +10,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
+import mc.gouv.xaf.back.properties.DemPropertyNotFoundException;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.GouvSchedulerService;
+import mc.gouv.xaf.back.service.data.PropertiesService;
+import mc.gouv.xaf.back.service.impl.KafkaOutboxSchedulingJobImpl;
+import mc.gouv.xaf.shared.dto.PropertiesDTO;
 
 /**
  * Paramétrage du Job Quartz permettant le traitement de l'Outbox Kafka

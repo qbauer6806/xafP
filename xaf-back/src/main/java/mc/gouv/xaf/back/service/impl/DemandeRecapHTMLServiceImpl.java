@@ -44,6 +44,7 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+
 /**
  * Service permettant de générer une page HTML contenant le récapitulatif d'une demande.
  *

@@ -1,8 +1,8 @@
 package mc.gouv.xaf.back.service.impl;
 
-import mc.gouv.xaf.back.config.KafkaOutboxSchedulingConfig;
-import mc.gouv.xaf.back.service.data.KafkaOutboxService;
-import mc.gouv.xaf.shared.dto.KafkaOutboxDTO;
+import java.util.Date;
+import java.util.List;
+
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.header.internals.RecordHeader;
 import org.quartz.DisallowConcurrentExecution;
@@ -12,11 +12,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.core.KafkaTemplate;
 
-import java.util.Date;
-import java.util.List;
+import mc.gouv.xaf.back.config.KafkaOutboxSchedulingConfig;
+import mc.gouv.xaf.back.service.data.KafkaOutboxService;
+import mc.gouv.xaf.shared.dto.KafkaOutboxDTO;
 
 /**
  * Job Quartz permettant la lecture périodique de l'Outbox Kafka afin d'envoyer les messages vers Kafka

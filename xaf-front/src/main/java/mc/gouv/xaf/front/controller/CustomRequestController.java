@@ -87,9 +87,7 @@ public class CustomRequestController extends AbstractXafController {
         serviceUrl += "?";
 
         if (StringUtils.isNotBlank(request.getQueryString())) {
-        	serviceUrl += "?" + request.getQueryString() + "&usagerId="+usagerId;
-        }else {
-            serviceUrl += "?usagerId="+usagerId;
+            serviceUrl += request.getQueryString();
         }
 
         if (request.getParameter("usagerId") == null) {
@@ -98,7 +96,14 @@ public class CustomRequestController extends AbstractXafController {
 
         LOGGER.info("Appel à {}", serviceUrl);
 
-        Request serviceRequest = this.getRequest(request, httpMethod, serviceUrl);
+        Request serviceRequest = null;
+        try {
+            serviceRequest = this.getRequest(request, httpMethod, serviceUrl);
+        } catch (IOException e) {
+            return xafFrontserverUtils.logAndSendError(LOGGER, HttpStatus.UNAUTHORIZED,
+                    "CustomRequestServlet - Une erreur est survenue lors de l'appel à la méthode " + httpMethod.name());
+        }
+
         if (serviceRequest == null) {
             //Les logs sont gérés dans la méthode getRequest. On ne fait rien
             LOGGER.error("Situation anormale : serviceRequest == null");
@@ -126,23 +131,18 @@ public class CustomRequestController extends AbstractXafController {
         }
     }
 
-    private Request getRequest(HttpServletRequest request, HttpMethod httpMethod, String serviceUrl) {
+    private Request getRequest(HttpServletRequest request, HttpMethod httpMethod, String serviceUrl) throws IOException {
         Request serviceRequest = null;
-
-        try {
-            if (HttpMethod.GET.equals(httpMethod)) {
-                serviceRequest = Request.Get(serviceUrl);
-            } else if (HttpMethod.POST.equals(httpMethod)) {
-                serviceRequest = Request.Post(serviceUrl);
-                serviceRequest.bodyByteArray(IOUtils.toString(request.getInputStream(), StandardCharsets.UTF_8).getBytes());
-            } else if (HttpMethod.PUT.equals(httpMethod)) {
-                serviceRequest = Request.Put(serviceUrl);
-                serviceRequest.bodyByteArray(IOUtils.toString(request.getInputStream(), StandardCharsets.UTF_8).getBytes());
-            } else if (HttpMethod.DELETE.equals(httpMethod)) {
-                serviceRequest = Request.Delete(serviceUrl);
-            }
-        } catch (IOException e) {
-            return null;
+        if (HttpMethod.GET.equals(httpMethod)) {
+            serviceRequest = Request.Get(serviceUrl);
+        } else if (HttpMethod.POST.equals(httpMethod)) {
+            serviceRequest = this.getRequest(request, serviceUrl);
+        } else if (HttpMethod.PUT.equals(httpMethod)) {
+            serviceRequest = Request.Put(serviceUrl);
+            String body = IOUtils.toString(request.getInputStream(), StandardCharsets.UTF_8);
+            serviceRequest.bodyByteArray(body.getBytes());
+        } else if (HttpMethod.DELETE.equals(httpMethod)) {
+            serviceRequest = Request.Delete(serviceUrl);
         }
         return serviceRequest;
     }

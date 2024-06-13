@@ -189,4 +189,5 @@ public class DemarcheDTO {
     public void setNomSousDirectionComplementEn(String nomSousDirectionComplementEn) {
         this.nomSousDirectionComplementEn = nomSousDirectionComplementEn;
     }
+
 }

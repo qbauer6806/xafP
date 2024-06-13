@@ -1,6 +1,11 @@
 package mc.gouv.xaf.back.service.itg.file.impl;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -53,6 +58,7 @@ import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
+import mc.gouv.xaf.back.service.utils.FileUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
@@ -70,7 +76,6 @@ public class FileServiceImpl implements FileService {
 	private static final String EXTENSIONS_WHITELIST = "EXTENSIONS_WHITELIST";
 	private static final String VSCAN_ACTIVATION = "VSCAN_ACTIVATION";
 	private static final String MAX_TAILLE_FICHIER = "MAX_TAILLE_FICHIER";
-	private static final String MC_METADATA_PREFIX = "X-MC-";
 	private static final String AUTHORIZATION_PREFIX = "Bearer ";
 	private static final String FILENAME_DONNER_FILE_LOG_MESSAGE = "Filename à donner à FILE : {}";
 	private static final String FILECLIENT_SAVE_FILE_LOG_MESSAGE = "FileClient.saveFile({}, {}, {})";
@@ -351,7 +356,7 @@ public class FileServiceImpl implements FileService {
 		}
 		return response.getHeaders().toSingleValueMap().entrySet().stream()
 				// On ne retourne que les métadata du fichier
-				.filter(entry -> entry.getKey().startsWith(MC_METADATA_PREFIX))
+				.filter(entry -> entry.getKey().startsWith(FileUtils.MC_METADATA_PREFIX))
 				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 	}
 

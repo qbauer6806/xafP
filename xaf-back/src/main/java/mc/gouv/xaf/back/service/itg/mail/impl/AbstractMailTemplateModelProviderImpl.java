@@ -1,5 +1,14 @@
 package mc.gouv.xaf.back.service.itg.mail.impl;
 
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.stereotype.Component;
+
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.xaf.back.exception.DemarcheException;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
@@ -13,14 +22,6 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemarcheDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.MotifDTO;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.stereotype.Component;
-
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
 
 @Component
 public abstract class AbstractMailTemplateModelProviderImpl implements MailTemplateModelProvider {
@@ -123,6 +124,7 @@ public abstract class AbstractMailTemplateModelProviderImpl implements MailTempl
         model.put("urlFicheDemarcheFr", propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "XAF_FICHE_DEMARCHE_URL_FR").getValue());
         model.put("urlFicheDemarcheEn", propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "XAF_FICHE_DEMARCHE_URL_EN").getValue());
         return model;
+
     }
 
 }

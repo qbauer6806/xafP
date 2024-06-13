@@ -108,6 +108,21 @@ public class GouvPropertiesResolverTestImpl implements GouvPropertiesResolver {
     }
 
     @Override
+    public String getGouvSharedLogonRestUrl() {
+        return null;
+    }
+
+    @Override
+    public String getPiwikUrl() {
+        return null;
+    }
+
+    @Override
+    public String getPiwikSiteId() {
+        return null;
+    }
+
+    @Override
     public String getVScanUrl() {
         return null;
     }

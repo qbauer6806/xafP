@@ -632,6 +632,35 @@ public class DemandesServiceImpl implements DemandesService {
 		dto.setUpdated(true);
 		return dto;
 	}
+	
+	private DemandeBO updateContenu(DemandeBO demandeBo, DemandeDTO demande, boolean partialUpdate) {
+		if (!partialUpdate || demande.getContenu() != null && !demande.getContenu().isNull()) {
+			ObjectMapper mapper = new ObjectMapper();
+			try {
+				demandeBo.setContenu(mapper.writeValueAsString(demande.getContenu()));
+			} catch (JsonProcessingException e) {
+				LOGGER.error("Problème lors de la conversion JSON", e);
+			}
+		}
+		return demandeBo;
+	}
+	
+	private DemandeBO updateContenuInitial(DemandeBO demandeBo, DemandeDTO demande, boolean partialUpdate) {
+        // Mise à jour du contenu initial
+        if (!partialUpdate || demande.getContenuInitial() != null && !demande.getContenuInitial().isNull()) {
+            ObjectMapper mapper = new ObjectMapper();
+            try {
+                demandeBo.setContenuInitial(mapper.writeValueAsString(demande.getContenuInitial()));
+                // Ce qui suit afin d'éviter l'insertion d'une chaîne "null" en base
+                if (demandeBo.getContenuInitial() != null && "null".equals(demandeBo.getContenuInitial())) {
+                	demandeBo.setContenuInitial(null);
+                }
+            } catch (JsonProcessingException e) {
+                LOGGER.error("Problème lors de la conversion JSON", e);
+            }
+        }
+        return demandeBo;
+	}
 
 	private void setContenu(DemandeDTO demande, boolean partialUpdate, DemandeBO demandeBo) {
 		if (!partialUpdate || demande.getContenu() != null && !demande.getContenu().isNull()) {
@@ -695,9 +724,9 @@ public class DemandesServiceImpl implements DemandesService {
 		stat.setDemarcheId(demarcheId);
 		stat.setIdentifiantDemande(demandeBo.getIdentifiant());
 		stat.setStatutPublic(AfBackUtils.STATUT_PUBLIC_SUPPRIMEE);
-    if (!StringUtils.isEmpty(demandeBo.getTypeConnexionUsager())) {
-      stat.setTypeConnexionUsager(TypeConnexionUsagerEnum.valueOf(demandeBo.getTypeConnexionUsager()));
-    }
+	    if (!StringUtils.isEmpty(demandeBo.getTypeConnexionUsager())) {
+	      stat.setTypeConnexionUsager(TypeConnexionUsagerEnum.valueOf(demandeBo.getTypeConnexionUsager()));
+	    }
 
 		AccessBO access = demandeBo.getFkAccess();
 		access.getDemandes().remove(demandeBo);

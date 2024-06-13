@@ -1,16 +1,17 @@
 package mc.gouv.xaf.back.service.itg.gichuni.kafka.impl;
 
-import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
-import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.RecapDemandesDTO;
-import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.UsagerDemandesRecapDTO;
-import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
+import java.util.Date;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.List;
+import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
+import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.RecapDemandesDTO;
+import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.UsagerDemandesRecapDTO;
+import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 
 /**
  * Service permettant la production de messages pour le Guichet Unique via Kafka

@@ -1,10 +1,8 @@
 package mc.gouv.xaf.backweb.ws;
 
-import mc.gouv.xaf.back.service.DemandeRecapHTMLService;
-import mc.gouv.xaf.back.service.data.DemandesService;
-import mc.gouv.xaf.backweb.properties.BackGouvPropertiesResolver;
-import mc.gouv.xaf.backweb.web.config.annotation.GouvRestController;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+
 import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,8 +13,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
+import mc.gouv.xaf.back.service.DemandeRecapHTMLService;
+import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.backweb.properties.BackGouvPropertiesResolver;
+import mc.gouv.xaf.backweb.web.config.annotation.GouvRestController;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
 
 /**
  *

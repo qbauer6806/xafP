@@ -108,21 +108,6 @@ public class GouvPropertiesResolverTestImpl implements GouvPropertiesResolver {
     }
 
     @Override
-    public String getGouvSharedLogonRestUrl() {
-        return null;
-    }
-
-    @Override
-    public String getPiwikUrl() {
-        return null;
-    }
-
-    @Override
-    public String getPiwikSiteId() {
-        return null;
-    }
-
-    @Override
     public String getVScanUrl() {
         return null;
     }
@@ -289,6 +274,22 @@ public class GouvPropertiesResolverTestImpl implements GouvPropertiesResolver {
 
     @Override
     public String getBackUrl() {
+        return null;
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public String get2TiersBoUrl() {
+        return null;
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public String get2TiersBoJwt() {
         return null;
     }
 }

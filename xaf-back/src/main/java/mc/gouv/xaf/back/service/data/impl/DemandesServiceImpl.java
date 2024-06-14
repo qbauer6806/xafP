@@ -711,8 +711,9 @@ public class DemandesServiceImpl implements DemandesService {
 		if (demandeBo == null) {
 			throw new DemarchesServiceException("Demande introuvable", HttpStatus.NOT_FOUND);
 		}
+		AccessBO access = demandeBo.getFkAccess();
 
-        /*** Insertion de statistique */
+		/*** Insertion de statistique */
         LOGGER.info("Ajout d'une ligne de statistique pour la suppression de la demande...");
 		StatistiqueDTO stat = new StatistiqueDTO();
 		stat.setCanal(demandeBo.getCanal());
@@ -723,11 +724,7 @@ public class DemandesServiceImpl implements DemandesService {
 		stat.setStatutPublic(AfBackUtils.STATUT_PUBLIC_SUPPRIMEE);
         statistiquesService.saveStatistique(stat);
 
-        /*** Suppression de l'access de la demande */
-        /* TODO: doit on vrraiment gérer l'access ici???? */
-        // accessRepository.deleteAccessForGivenPkDemandes(demandeId);
-		// Suppression de l'historique de la demande (pas géré par cascade, donc le
-		// faire ici)
+		// Suppression de l'historique de la demande (pas géré par cascade, donc le faire ici)
 		LOGGER.info("Suppression de l'historique de la demande...");
         demandesHistoriqueRepository.deleteHistoForGivenPkDemandes(demandeId);
 
@@ -740,6 +737,12 @@ public class DemandesServiceImpl implements DemandesService {
         /*** Suppression de la demande. */
 		LOGGER.info("Appel du répo pour la suppression...");
 		demandesRepository.delete(demandeBo);
+
+		LOGGER.info("Envoi d'un message dans Kafka pour notifier le Guichet Unique de la suppression de la demande...");
+		List<DemandeRecapDTO> demandeRecaps = guKafkaUtils.getDemandeRecapsFromUsagerId(access.getUsagerId());
+		RecapDemandesDTO recapDemandes = guKafkaUtils.getRecapDemandes(demandeRecaps);
+		guKafkaProducer.sendSuppressionDemandeMessage(access.getUsagerId(), demandeId, demandeBo.getIdentifiant(),
+				demandeBo.getDateCreation(), recapDemandes);
 	}
 	
 	@Override

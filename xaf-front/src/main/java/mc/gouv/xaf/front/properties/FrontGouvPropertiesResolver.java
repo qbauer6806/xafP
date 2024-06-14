@@ -17,11 +17,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 
+ *
  * Classe permettant de récupérer les propriétés externalisées dans les fichiers .properties du serveur
- * 
+ *
  * @author qdeme
- * 
+ *
  */
 @Component
 public class FrontGouvPropertiesResolver {
@@ -129,10 +129,19 @@ public class FrontGouvPropertiesResolver {
     private String pubMconnectUrlFr;
     @Value("${mc.gouv.gichuni.pub.mconnect.url.en:}")
     private String pubMconnectUrlEn;
-    
+
     @Value("${mc.gouv.${application.name}.frontserver.2tiers.activation}")
     private String proxy2tiersActivation;
-    
+
+    @Value("${mc.gouv.gichuni.suividemarche.particulier.url.fr:OPTIONAL}")
+    private String suiviDemarcheParticulierUrlFr;
+    @Value("${mc.gouv.gichuni.suividemarche.particulier.url.en:OPTIONAL}")
+    private String suiviDemarcheParticulierUrlEn;
+    @Value("${mc.gouv.gichuni.suividemarche.entreprise.url.fr:OPTIONAL}")
+    private String suiviDemarcheEntrepriseUrlFr;
+    @Value("${mc.gouv.gichuni.suividemarche.entreprise.url.en:OPTIONAL}")
+    private String suiviDemarcheEntrepriseUrlEn;
+
     @PostConstruct
     private void initPrefix() throws IntrospectionException, IllegalAccessException, InvocationTargetException,
             GouvPropertyNotFoundException {
@@ -314,26 +323,20 @@ public class FrontGouvPropertiesResolver {
         return gichuniFrontUrl;
     }
 
-    // Ici on concatène l'URL front de gichuni (https://gichuni-front-dev.monaco-gouvernement.mc)
-    // Avec le path dans la propriété mc.gouv.gichuni.particulier.uri.fr (voir https://redmine.monaco-gouvernement.mc/issues/58046)
     public String getSuiviDemarcheParticulierUrlFr() {
-        String value = getGichuniFrontUrl();
-        return StringUtils.isBlank(value) ? "vide" : value + "/particuliers/mes-demarches";
+        return suiviDemarcheParticulierUrlFr;
     }
 
     public String getSuiviDemarcheParticulierUrlEn() {
-        String value = getGichuniFrontUrl();
-        return StringUtils.isBlank(value) ? "vide" : value + "/en/particuliers/my-services";
+        return suiviDemarcheParticulierUrlEn;
     }
 
     public String getSuiviDemarcheEntrepriseUrlFr() {
-        String value = getGichuniFrontUrl();
-        return StringUtils.isBlank(value) ? "vide" : value + "/entrepises/mes-demarches";
+        return suiviDemarcheEntrepriseUrlFr;
     }
 
     public String getSuiviDemarcheEntrepriseUrlEn() {
-        String value = getGichuniFrontUrl();
-        return StringUtils.isBlank(value) ? "vide" : value + "/en/entreprises/my-services";
+        return suiviDemarcheEntrepriseUrlEn;
     }
 
     public String getLienRevocationCertifsElectroniquesFr() {
@@ -349,7 +352,7 @@ public class FrontGouvPropertiesResolver {
     public String getPubMconnectUrlEn() {
         return StringUtils.isBlank(pubMconnectUrlEn) ? "vide" : pubMconnectUrlEn;
     }
-    
+
     public boolean getProxy2TiersActivation() {
         String value = proxy2tiersActivation;
         return StringUtils.isNotBlank(value) && value.equals("true") ? true : false;
@@ -357,17 +360,17 @@ public class FrontGouvPropertiesResolver {
 
     public List<PropertiesDTO> getFrontProperties() {
         // TODO refactor le nom de ces properties une fois que le premier WYSI xaf12 sera prêt
-        final String LOGIN_KEEP_ALIVE = "mc.gouv.appfactory.front.login.keepalive.url";
+        final String LOGIN_KEEP_ALIVE = APPFACTORY_PREFIX + ".front.login.keepalive.url";
         final String GICHKEY_REDIRECT_URL = APPFACTORY_PREFIX + "." + applicationName + ".gichkey.redirect.url";
-        final String GICHUNI_PROFIL_INDIVIDUAL_URL = "mc.gouv.appfactory.front.gichuni.profil.individual.url";
-        final String GICHUNI_PROFIL_COMPANY_URL = "mc.gouv.appfactory.front.gichuni.profil.company.url";
+        final String GICHUNI_PROFIL_INDIVIDUAL_URL = APPFACTORY_PREFIX + ".front.gichuni.profil.individual.url";
+        final String GICHUNI_PROFIL_COMPANY_URL = APPFACTORY_PREFIX + ".front.gichuni.profil.company.url";
         final String FRONTOFFICE_CONTACT_URL = APPFACTORY_PREFIX + "." + applicationName + ".front.login.contact.url";
         final String FRONTOFFICE_COPYRIGHT_YEARS = APPFACTORY_PREFIX + "." + applicationName + ".front.copyright.years";
         final String FRONTOFFICE_PIWIK_SITE_ID = "mc.gouv.piwik.external." + applicationName + ".piwikSiteId";
         final String FRONTOFFICE_PIWIK_URL = "mc.gouv.piwik.external.piwikUrl";
         final String PAIEMENT_PROVIDER = APPFACTORY_PREFIX + "." + applicationName + ".paiement.provider";
         final String MONETICO_URL = APPFACTORY_PREFIX + "." + applicationName + ".monetico.url";
-        final String GICHUNI_FRONT_URL = "mc.gouv.appfactory.front.gichuni.url";
+        final String GICHUNI_FRONT_URL = APPFACTORY_PREFIX + ".front.gichuni.url";
 
         // #58046 - Ajout de propriétés partagées par tous les Front office
         final String GICHUNI_USAGER_PARTICULER_URL_FR = "mc.gouv.gichuni.particulier.url.fr";

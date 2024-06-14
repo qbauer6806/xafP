@@ -130,7 +130,7 @@ public class FrontGouvPropertiesResolver {
     @Value("${mc.gouv.gichuni.pub.mconnect.url.en:}")
     private String pubMconnectUrlEn;
 
-    @Value("${mc.gouv.${application.name}.frontserver.2tiers.activation}")
+    @Value("${mc.gouv.${application.name}.frontserver.2tiers.activation:false}")
     private String proxy2tiersActivation;
 
     @Value("${mc.gouv.gichuni.suividemarche.particulier.url.fr:OPTIONAL}")

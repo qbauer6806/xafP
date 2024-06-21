@@ -7,6 +7,7 @@ import mc.gouv.xaf.front.util.GichkeyService;
 import mc.gouv.xaf.front.util.GichuniService;
 import mc.gouv.xaf.front.util.XafFrontserverUtils;
 import mc.gouv.xaf.shared.SharedMessages;
+import mc.gouv.xaf.shared.dto.AccessDTO;
 import mc.gouv.xaf.shared.dto.UsagerCourrierDTO;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -125,24 +126,11 @@ public class LoginController extends AbstractXafController {
             }
 
             LOGGER.info("Stockage des informations usager dans la session...");
-            UsagerInfosDTO uinfos = new UsagerInfosDTO();
-            uinfos.setAdresse1(usagerCourrier.getAdresse1());
-            uinfos.setAdresse2(usagerCourrier.getAdresse2());
-            uinfos.setCodePostal(usagerCourrier.getCodePostal());
-            uinfos.setComplementAdresse(usagerCourrier.getAdresseComplement());
-            uinfos.setEmail(usagerCourrier.getEmail());
-            uinfos.setId(usagerCourrier.getPkUsagersCourrier());
-            uinfos.setLogin(StringUtils.defaultString(usagerCourrier.getPrenom()) + " " + usagerCourrier.getNom()
-                    + " (courrier)");
-            uinfos.setNom(usagerCourrier.getNom());
-            uinfos.setPaysCode(usagerCourrier.getPays());
-            uinfos.setPrenom(usagerCourrier.getPrenom());
-            uinfos.setRaisonSociale(usagerCourrier.getRaisonSociale());
-            if (usagerCourrier.getTitre() != null) {
-                uinfos.setTitre(usagerCourrier.getTitre().shortValue());
+            UsagerInfosDTO uinfos = this.getUsagerInfosDTO(usagerCourrier);
+            AccessDTO accessDTO = getAfApiClient().getAccess(usagerCourrierId);
+            if(accessDTO != null){
+                uinfos.setAccessId(accessDTO.getPkAccess());
             }
-            uinfos.setVille(usagerCourrier.getVille());
-            uinfos.setUsagerCourrier(true);
             // Stockage de cet objet d'infos d'usager dans la session HTTP
             HttpSession session = request.getSession();
             session.setAttribute(LOGIN, uinfos);
@@ -152,6 +140,29 @@ public class LoginController extends AbstractXafController {
         LOGGER.info("====================== Fin /login doPost()");
 
         return ResponseEntity.ok().build();
+    }
+
+    private UsagerInfosDTO getUsagerInfosDTO(UsagerCourrierDTO usagerCourrier) {
+        UsagerInfosDTO uinfos = new UsagerInfosDTO();
+        uinfos.setAdresse1(usagerCourrier.getAdresse1());
+        uinfos.setAdresse2(usagerCourrier.getAdresse2());
+        uinfos.setCodePostal(usagerCourrier.getCodePostal());
+        uinfos.setComplementAdresse(usagerCourrier.getAdresseComplement());
+        uinfos.setEmail(usagerCourrier.getEmail());
+        uinfos.setId(usagerCourrier.getPkUsagersCourrier());
+        uinfos.setLogin(StringUtils.defaultString(usagerCourrier.getPrenom()) + " " + usagerCourrier.getNom()
+                + " (courrier)");
+        uinfos.setNom(usagerCourrier.getNom());
+        uinfos.setPaysCode(usagerCourrier.getPays());
+        uinfos.setPrenom(usagerCourrier.getPrenom());
+        uinfos.setRaisonSociale(usagerCourrier.getRaisonSociale());
+        if (usagerCourrier.getTitre() != null) {
+            uinfos.setTitre(usagerCourrier.getTitre().shortValue());
+        }
+        uinfos.setVille(usagerCourrier.getVille());
+        uinfos.setUsagerCourrier(true);
+
+        return uinfos;
     }
 
     @DeleteMapping

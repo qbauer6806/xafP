@@ -1,42 +1,42 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org"
-      class="no-js sidebar-left-collapsed" lang="fr" dir="ltr">
+	  class="no-js sidebar-left-collapsed" lang="fr" dir="ltr">
 
 <head>
 
-    <meta charset="utf-8" />
-    <meta http-equiv="x-ua-compatible" content="ie=edge" />
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-	<meta th:name="_csrf" th:content="${_csrf.token}" />
-	<meta th:name="_csrf_header" th:content="${_csrf.headerName}" />
-    <title th:text="${AfBackUtils.getDemarcheNom()}"></title>
+	<meta charset="utf-8"/>
+	<meta http-equiv="x-ua-compatible" content="ie=edge"/>
+	<meta name="viewport"
+		  content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+	<meta th:name="_csrf" th:content="${_csrf.token}"/>
+	<meta th:name="_csrf_header" th:content="${_csrf.headerName}"/>
+	<title th:text="${AfBackUtils.getDemarcheNom()}"></title>
 
-    <!-- Import FONTS -->
-    <link rel="stylesheet" th:href="@{/css/font-style.css(${applicationBuildTimestamp})}"/>
-    <link rel="stylesheet" th:href="@{/webjars/xcb-wlib/fonts/ie7/ie7.css}" />
+	<!-- Import FONTS -->
+	<link rel="stylesheet" th:href="@{/css/font-style.css(${applicationBuildTimestamp})}"/>
+	<link rel="stylesheet" th:href="@{/webjars/xcb-wlib/fonts/ie7/ie7.css}"/>
 
-    <!-- Import CSS -->
-    <link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"
-          rel="stylesheet" type="text/css" />
-    <link th:href="@{/webjars/xcb-wlib/css/template.css}" rel="stylesheet" />
-    <link th:href="@{/webjars/xcb-wlib/css/sidebar.css}" rel="stylesheet" />
-    <link th:href="@{/webjars/xcb-wlib/css/element.css}" rel="stylesheet" />
-    <link th:href="@{/webjars/datatables/css/dataTables.bootstrap.css}"
-          rel="stylesheet" />
-    <link
-            th:href="@{/webjars/bootstrap-datepicker/css/bootstrap-datepicker.css}"
-            rel="stylesheet" />
+	<!-- Import CSS -->
+	<link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"
+		  rel="stylesheet" type="text/css"/>
+	<link th:href="@{/webjars/xcb-wlib/css/template.css}" rel="stylesheet"/>
+	<link th:href="@{/webjars/xcb-wlib/css/sidebar.css}" rel="stylesheet"/>
+	<link th:href="@{/webjars/xcb-wlib/css/element.css}" rel="stylesheet"/>
+	<link th:href="@{/webjars/datatables/css/dataTables.bootstrap.css}"
+		  rel="stylesheet"/>
+	<link
+			th:href="@{/webjars/bootstrap-datepicker/css/bootstrap-datepicker.css}"
+			rel="stylesheet"/>
 
-    <link rel="shortcut icon" type="image/x-icon"
-          th:href="@{/img/favicon.ico}" />
-    <link th:href="@{/css/tsgen.css(${applicationBuildTimestamp})}"
-          rel="stylesheet" />
-    <link th:href="@{/css/tsdem.css(${applicationBuildTimestamp})}"
-          rel="stylesheet" />
-    <link
-            th:href="@{/webjars/bootstrap-datepicker/css/bootstrap-datepicker.css}"
-            rel="stylesheet" />
+	<link rel="shortcut icon" type="image/x-icon"
+		  th:href="@{/img/favicon.ico}"/>
+	<link th:href="@{/css/tsgen.css(${applicationBuildTimestamp})}"
+		  rel="stylesheet"/>
+	<link th:href="@{/css/tsdem.css(${applicationBuildTimestamp})}"
+		  rel="stylesheet"/>
+	<link
+			th:href="@{/webjars/bootstrap-datepicker/css/bootstrap-datepicker.css}"
+			rel="stylesheet"/>
 
 </head>
 
@@ -46,9 +46,9 @@
 
 <div id="wrapper">
 
-    <div th:replace="fragments/sidebar :: sidebar"></div>
+	<div th:replace="fragments/sidebar :: sidebar"></div>
 
-    <!-- DEBUT CONTENU -->
+	<!-- DEBUT CONTENU -->
 	<div id="page-content-wrapper">
 
 		<div class="breadcrumbContent">
@@ -71,12 +71,219 @@
 
 				<div class="panel panel-simple">
 					<div class="row container-fluid">
+						<div class="col-xs-2">
+							<label>TITRE</label>
+						</div>
+						<div class="col-xs-2">
+							<label>VARIABLE</label>
+						</div>
+						<div class="col-xs-8">
+							<label>VALEUR</label>
+						</div>
+					</div>
+					<div class="row container-fluid mt-15">
 						<div th:class="form-group">
 							<div class="col-xs-2">
-								<label for="nomDemarche">Titre de la démarche<span class="required"></span>: </label>
+								<label style="font-weight: normal" for="nomDemarche">Titre de la démarche (FR)
+									<span class="required mandatory"></span> :</label>
 							</div>
-							<div class="col-xs-10">
-								<input type="text" id="nomDemarche" name="nomDemarche" th:field="*{nomDemarche}" class="form-control" required maxlength="256"/>
+							<div class="col-xs-2">
+								<label style="font-weight: normal">${nomTs}</label>
+							</div>
+							<div class="col-xs-8">
+								<input type="text" id="nomDemarche" name="nomDemarche" th:field="*{nomDemarche}"
+									   class="form-control" required maxlength="256"/>
+							</div>
+						</div>
+					</div>
+					<div class="row container-fluid mt-15">
+						<div th:class="form-group">
+							<div class="col-xs-2">
+								<label style="font-weight: normal" for="nomDemarcheEn">Titre de la démarche (EN) :</label>
+							</div>
+							<div class="col-xs-2">
+								<label style="font-weight: normal">${nomTsEn}</label>
+							</div>
+							<div class="col-xs-8">
+								<input type="text" id="nomDemarcheEn" name="nomDemarcheEn" th:field="*{nomDemarcheEn}"
+									   class="form-control" maxlength="256"/>
+							</div>
+						</div>
+					</div>
+					<div class="row container-fluid mt-15">
+						<div th:class="form-group">
+							<div class="col-xs-2">
+								<label style="font-weight: normal" for="emailService">Adresse e-mail du service <span
+										class="required mandatory"></span> :</label>
+							</div>
+							<div class="col-xs-2">
+								<label style="font-weight: normal">${emailService}</label>
+							</div>
+							<div class="col-xs-8">
+								<input type="text" id="emailService" name="emailService" th:field="*{emailService}"
+									   class="form-control" required maxlength="256"/>
+							</div>
+						</div>
+					</div>
+					<div class="row container-fluid mt-15">
+						<div th:class="form-group">
+							<div class="col-xs-2">
+								<label style="font-weight: normal" for="emailReplyto">Adresse e-mail reply-to du service <span
+										class="required mandatory"></span> :</label>
+							</div>
+							<div class="col-xs-2">
+								<label style="font-weight: normal">${emailReplyto}</label>
+							</div>
+							<div class="col-xs-8">
+								<input type="text" id="emailReplyto" name="emailReplyto" th:field="*{emailReplyto}"
+									   class="form-control" required maxlength="256"/>
+							</div>
+						</div>
+					</div>
+					<div class="row container-fluid mt-15">
+						<div th:class="form-group">
+							<div class="col-xs-2">
+								<label style="font-weight: normal" for="emailReplytoNom">Nom associé à l'adresse e-mail reply-to du service <span
+										class="required mandatory"></span> :</label>
+							</div>
+							<div class="col-xs-2">
+								<label style="font-weight: normal">${emailReplytoNom}</label>
+							</div>
+							<div class="col-xs-8">
+								<input type="text" id="emailReplytoNom" name="emailReplytoNom"
+									   th:field="*{emailReplytoNom}" class="form-control" required maxlength="256"/>
+							</div>
+						</div>
+					</div>
+					<div class="row container-fluid mt-15">
+						<div th:class="form-group">
+							<div class="col-xs-2">
+								<label style="font-weight: normal" for="emailFrom">Adresse e-mail "from" du service <span
+										class="required mandatory"></span> :</label>
+							</div>
+							<div class="col-xs-2">
+								<label style="font-weight: normal">${emailFrom}</label>
+							</div>
+							<div class="col-xs-8">
+								<input type="text" id="emailFrom" name="emailFrom" th:field="*{emailFrom}"
+									   class="form-control" required maxlength="256"/>
+							</div>
+						</div>
+					</div>
+					<div class="row container-fluid mt-15">
+						<div th:class="form-group">
+							<div class="col-xs-2">
+								<label style="font-weight: normal" for="emailFromNom">Nom associé à l'adresse e-mail "from" du service <span
+										class="required mandatory"></span> :</label>
+							</div>
+							<div class="col-xs-2">
+								<label style="font-weight: normal">${emailFromNom}</label>
+							</div>
+							<div class="col-xs-8">
+								<input type="text" id="emailFromNom" name="emailFromNom" th:field="*{emailFromNom}"
+									   class="form-control" required maxlength="256"/>
+							</div>
+						</div>
+					</div>
+					<div class="row container-fluid mt-15">
+						<div th:class="form-group">
+							<div class="col-xs-2">
+								<label style="font-weight: normal" for="identifiantPrefixe">Préfixe des identifiants des demandes <span
+										class="required mandatory"></span> :</label>
+							</div>
+							<div class="col-xs-2">
+								<label style="font-weight: normal">${identifiantPrefixe}</label>
+							</div>
+							<div class="col-xs-8">
+								<input type="text" id="identifiantPrefixe" name="identifiantPrefixe"
+									   th:field="*{identifiantPrefixe}" class="form-control" required minlength="3"
+									   maxlength="3"/>
+							</div>
+						</div>
+					</div>
+					<div class="row container-fluid mt-15">
+						<div th:class="form-group">
+							<div class="col-xs-2">
+								<label style="font-weight: normal" for="nomDirection">Nom direction (FR) <span class="required mandatory"></span> :</label>
+							</div>
+							<div class="col-xs-2">
+								<label style="font-weight: normal">${nomDirection}</label>
+							</div>
+							<div class="col-xs-8">
+								<input type="text" id="nomDirection" name="nomDirection" th:field="*{nomDirection}"
+									   class="form-control" required maxlength="256"/>
+							</div>
+						</div>
+					</div>
+					<div class="row container-fluid mt-15">
+						<div th:class="form-group">
+							<div class="col-xs-2">
+								<label style="font-weight: normal" for="nomDirectionEn">Nom direction (EN) :</label>
+							</div>
+							<div class="col-xs-2">
+								<label style="font-weight: normal">${nomDirectionEn}</label>
+							</div>
+							<div class="col-xs-8">
+								<input type="text" id="nomDirectionEn" name="nomDirectionEn" th:field="*{nomDirectionEn}"
+									   class="form-control" maxlength="256"/>
+							</div>
+						</div>
+					</div>
+					<div class="row container-fluid mt-15">
+						<div th:class="form-group">
+							<div class="col-xs-2">
+								<label style="font-weight: normal" for="nomSousDirection">Nom sous direction (FR) :</label>
+							</div>
+							<div class="col-xs-2">
+								<label style="font-weight: normal">${nomSousDirection}</label>
+							</div>
+							<div class="col-xs-8">
+								<input type="text" id="nomSousDirection" name="nomSousDirection"
+									   th:field="*{nomSousDirection}" class="form-control" maxlength="256"/>
+							</div>
+						</div>
+					</div>
+					<div class="row container-fluid mt-15">
+						<div th:class="form-group">
+							<div class="col-xs-2">
+								<label style="font-weight: normal" for="nomSousDirectionEn">Nom sous direction (EN) :</label>
+							</div>
+							<div class="col-xs-2">
+								<label style="font-weight: normal">${nomSousDirectionEn}</label>
+							</div>
+							<div class="col-xs-8">
+								<input type="text" id="nomSousDirectionEn" name="nomSousDirectionEn"
+									   th:field="*{nomSousDirectionEn}" class="form-control" maxlength="256"/>
+							</div>
+						</div>
+					</div>
+					<div class="row container-fluid mt-15">
+						<div th:class="form-group">
+							<div class="col-xs-2">
+								<label style="font-weight: normal" for="nomSousDirectionComplement">Nom sous direction complément (FR) :</label>
+							</div>
+							<div class="col-xs-2">
+								<label style="font-weight: normal">${nomSousDirectionComplement}</label>
+							</div>
+							<div class="col-xs-8">
+								<input type="text" id="nomSousDirectionComplement" name="nomSousDirectionComplement"
+									   th:field="*{nomSousDirectionComplement}" class="form-control"
+									   maxlength="256"/>
+							</div>
+						</div>
+					</div>
+					<div class="row container-fluid mt-15">
+						<div th:class="form-group">
+							<div class="col-xs-2">
+								<label style="font-weight: normal" for="nomSousDirectionComplementEn">Nom sous direction complément (EN) :</label>
+							</div>
+							<div class="col-xs-2">
+								<label style="font-weight: normal">${nomSousDirectionComplementEn}</label>
+							</div>
+							<div class="col-xs-8">
+								<input type="text" id="nomSousDirectionComplementEn" name="nomSousDirectionComplementEn"
+									   th:field="*{nomSousDirectionComplementEn}" class="form-control"
+									   maxlength="256"/>
 							</div>
 						</div>
 					</div>
@@ -84,142 +291,62 @@
 					<div class="row container-fluid mt-15">
 						<div th:class="form-group">
 							<div class="col-xs-2">
-								<label for="emailService">Adresse e-mail du service<span class="required"></span>: </label>
+								<label style="font-weight: normal" for="nomFooter">Nom footer <span class="required mandatory"></span> :</label>
 							</div>
-							<div class="col-xs-10">
-								<input type="text" id="emailService" name="emailService" th:field="*{emailService}" class="form-control" required maxlength="256"/>
+							<div class="col-xs-2">
+								<label style="font-weight: normal">${nomFooter}</label>
+							</div>
+							<div class="col-xs-8">
+								<input type="text" id="nomFooter" name="nomFooter" th:field="*{nomFooter}"
+									   class="form-control" required maxlength="256"/>
 							</div>
 						</div>
 					</div>
-
 					<div class="row container-fluid mt-15">
 						<div th:class="form-group">
 							<div class="col-xs-2">
-								<label for="emailServiceNom">Nom associé à l'adresse e-mail du service<span class="required"></span>: </label>
+								<label style="font-weight: normal" for="adresseService">Adresse service <span class="required mandatory"></span> :</label>
 							</div>
-							<div class="col-xs-10">
-								<input type="text" id="emailServiceNom" name="emailServiceNom" th:field="*{emailServiceNom}" class="form-control" required maxlength="256"/>
+							<div class="col-xs-2">
+								<label style="font-weight: normal">${adresseService}</label>
+							</div>
+							<div class="col-xs-8">
+								<input type="text" id="adresseService" name="adresseService"
+									   th:field="*{adresseService}" class="form-control" required maxlength="256"/>
 							</div>
 						</div>
 					</div>
-
 					<div class="row container-fluid mt-15">
 						<div th:class="form-group">
 							<div class="col-xs-2">
-								<label for="emailReplyto">Adresse e-mail reply-to du service<span class="required"></span>: </label>
+								<label style="font-weight: normal" for="telephoneService">Téléphone service :</label>
 							</div>
-							<div class="col-xs-10">
-								<input type="text" id="emailReplyto" name="emailReplyto" th:field="*{emailReplyto}" class="form-control" required maxlength="256"/>
-							</div>
-						</div>
-					</div>
-
-					<div class="row container-fluid mt-15">
-						<div th:class="form-group">
 							<div class="col-xs-2">
-								<label for="emailReplytoNom">Nom associé à l'adresse e-mail reply-to du service<span class="required"></span>: </label>
+								<label style="font-weight: normal">${telephoneService}</label>
 							</div>
-							<div class="col-xs-10">
-								<input type="text" id="emailReplytoNom" name="emailReplytoNom" th:field="*{emailReplytoNom}" class="form-control" required maxlength="256"/>
-							</div>
-						</div>
-					</div>
-
-					<div class="row container-fluid mt-15">
-						<div th:class="form-group">
-							<div class="col-xs-2">
-								<label for="emailFrom">Adresse e-mail "from" du service<span class="required"></span>: </label>
-							</div>
-							<div class="col-xs-10">
-								<input type="text" id="emailFrom" name="emailFrom" th:field="*{emailFrom}" class="form-control" required maxlength="256"/>
+							<div class="col-xs-8">
+								<input type="text" id="telephoneService" name="telephoneService"
+									   th:field="*{telephoneService}" class="form-control" required
+									   maxlength="256"/>
 							</div>
 						</div>
 					</div>
-
-					<div class="row container-fluid mt-15">
-						<div th:class="form-group">
-							<div class="col-xs-2">
-								<label for="emailFromNom">Nom associé à l'adresse e-mail "from" du service<span class="required"></span>: </label>
-							</div>
-							<div class="col-xs-10">
-								<input type="text" id="emailFromNom" name="emailFromNom" th:field="*{emailFromNom}" class="form-control" required maxlength="256"/>
-							</div>
-						</div>
-					</div>
-
-					<div class="row container-fluid mt-15">
-						<div th:class="form-group">
-							<div class="col-xs-2">
-								<label for="identifiantPrefixe">Préfixe des identifiants des demandes<span class="required"></span>: </label>
-							</div>
-							<div class="col-xs-10">
-								<input type="text" id="identifiantPrefixe" name="identifiantPrefixe" th:field="*{identifiantPrefixe}" class="form-control" required minlength="3" maxlength="3"/>
-							</div>
-						</div>
-					</div>
-
-					<div class="row container-fluid mt-15">
-						<div th:class="form-group">
-							<div class="col-xs-2">
-								<label for="nomDirection">Nom direction<span class="required"></span>: </label>
-							</div>
-							<div class="col-xs-10">
-								<input type="text" id="nomDirection" name="nomDirection" th:field="*{nomDirection}" class="form-control" required maxlength="256"/>
-							</div>
-						</div>
-					</div>
-
-					<div class="row container-fluid mt-15">
-						<div th:class="form-group">
-							<div class="col-xs-2">
-								<label for="nomDirectionComplement">Nom direction complément: </label>
-							</div>
-							<div class="col-xs-10">
-								<input type="text" id="nomDirectionComplement" name="nomDirectionComplement" th:field="*{nomDirectionComplement}" class="form-control" maxlength="256"/>
-							</div>
-						</div>
-					</div>
-
-					<div class="row container-fluid mt-15">
-						<div th:class="form-group">
-							<div class="col-xs-2">
-								<label for="nomFooter">Nom footer<span class="required"></span>: </label>
-							</div>
-							<div class="col-xs-10">
-								<input type="text" id="nomFooter" name="nomFooter" th:field="*{nomFooter}" class="form-control" required maxlength="256"/>
-							</div>
-						</div>
-					</div>
-
-					<div class="row container-fluid mt-15">
-						<div th:class="form-group">
-							<div class="col-xs-2">
-								<label for="adresseService">Adresse service<span class="required"></span>: </label>
-							</div>
-							<div class="col-xs-10">
-								<input type="text" id="adresseService" name="adresseService" th:field="*{adresseService}" class="form-control" required maxlength="256"/>
-							</div>
-						</div>
-					</div>
-
 					<br/>
 					<div class="row container-fluid">
-						<div
-								th:class="${#fields.hasErrors('langueFr')} ? 'form-group error' : 'form-group'">
+						<div th:class="${#fields.hasErrors('langueFr')} ? 'form-group error' : 'form-group'">
 							<div class="col-xs-2">
-								<label>Langues prises en charge par le téléservice</label>
+								<label style="font-weight: normal">Langues prises en charge par le téléservice</label>
 							</div>
-							<div class="col-xs-1">
-								<label>Français</label>
-								<input type="checkbox" th:field="*{langueFr}"/>
+							<div class="col-xs-2">
+								<label style="font-weight: normal">${langueFr}/${langueEn}</label>
 							</div>
-							<div class="col-xs-1">
-								<label>Anglais</label>
-								<input type="checkbox" th:field="*{langueEn}"/>
+							<div class="col-xs-1 form-group">
+								<label style="font-weight: normal" for="langueFr">Français</label>
+								<input id="langueFr" type="checkbox" th:field="*{langueFr}"/>
 							</div>
-							<div class="col-xs-1">
-								<label>Italien</label>
-								<input type="checkbox" th:field="*{langueIt}"/>
+							<div class="col-xs-1 form-group">
+								<label style="font-weight: normal" for="langueEn">Anglais</label>
+								<input id="langueEn" type="checkbox" th:field="*{langueEn}"/>
 							</div>
 							<div class="col-xs-7">
 							</div>
@@ -231,13 +358,13 @@
 					<div class="col-xs-12">
 						<div class="text-center">
 							<input id="sauvegarder-button" type="submit" name="action"
-								   value="Sauvegarder" class="btn btn-action ripple-effect" />
+								   value="Sauvegarder" class="btn btn-action ripple-effect"/>
 						</div>
 					</div>
 				</div>
 			</form>
 			<div class="container-fluid">
-				<small>Les champs obligatoires sont suivis par *</small>
+				<small>Les champs obligatoires sont suivis par <span class="required mandatory"></span></small>
 			</div>
 		</div>
 	</div>
@@ -253,10 +380,10 @@
 		var messagesSuccessList = /*[[${successMessages}]]*/'default';
 
 		if (messagesSuccessList !== 'undefined' && messagesSuccessList !== null) {
-			$.each(messagesSuccessList, function(key, msg) {
+			$.each(messagesSuccessList, function (key, msg) {
 				$.notify({
 					message: msg
-				},{
+				}, {
 					type: 'success'
 				});
 			});
@@ -265,10 +392,10 @@
 		var messagesErrorList = /*[[${errorMessages}]]*/'default';
 
 		if (messagesErrorList !== 'undefined' && messagesErrorList !== null) {
-			$.each(messagesErrorList, function(key, msg) {
+			$.each(messagesErrorList, function (key, msg) {
 				$.notify({
 					message: msg
-				},{
+				}, {
 					type: 'danger'
 				});
 			});
@@ -277,10 +404,10 @@
 		var messagesWarningList = /*[[${warningMessages}]]*/'default';
 
 		if (messagesWarningList !== 'undefined' && messagesWarningList !== null) {
-			$.each(messagesWarningList, function(key, msg) {
+			$.each(messagesWarningList, function (key, msg) {
 				$.notify({
 					message: msg
-				},{
+				}, {
 					type: 'warning'
 				});
 			});

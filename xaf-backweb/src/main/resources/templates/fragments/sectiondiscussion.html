@@ -16,9 +16,10 @@
 									data-parent="#accordion5" href="#collapse5"
 									aria-controls="collapse5"
 									th:attr="aria-expanded=${isDiscussionPanelActive}"
-									th:class="${isDiscussionPanelActive}  ? '' : collapsed "> <i
-									class="pannelState icon-action_accordeon-ouvert"
-									th:classappend="${isDiscussionPanelActive} ? icon-action_accordeon-ouvert : icon-action_accordeon-ferme"></i>
+									th:class="${isDiscussionPanelActive}  ? '' : collapsed ">
+									<i class="pannelState"
+										th:classappend="${isDiscussionPanelActive} ? icon-action_accordeon-ouvert : icon-action_accordeon-ferme">
+									</i>
 									Discussion administration
 								</a>
 							</h4>
@@ -29,7 +30,6 @@
 							<div class="panel-body">
 								<div class="row">
 									<div class="col-xs-12">
-
 
 										<div id="commentairesInternes" class="container-fluid"
 											style="padding: 2px; margin-bottom: 10px; overflow-y: scroll; height: 250px; border-top: 1px solid rgb(28, 142, 172); border-bottom: 1px solid rgb(28, 142, 172);">

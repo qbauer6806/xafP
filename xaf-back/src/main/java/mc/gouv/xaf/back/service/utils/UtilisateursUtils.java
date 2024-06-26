@@ -1,5 +1,6 @@
 package mc.gouv.xaf.back.service.utils;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +43,8 @@ public class UtilisateursUtils {
         if (StringUtils.isNotBlank(matricule)) {
             User user = utilisateursCache.get(matricule);
             if (user != null) {
-                return AfBackUtils.escapeChars(user.getPrenom() + " " + user.getNomAffichage());
+                String value = AfBackUtils.escapeChars(user.getPrenom() + " " + user.getNomAffichage());
+                return StringEscapeUtils.escapeHtml(value);
             }
         }
         return null;
@@ -65,7 +67,7 @@ public class UtilisateursUtils {
                 builder.append(AfBackUtils.escapeChars(nom));
             }
         }
-        return builder.toString();
+        return StringEscapeUtils.escapeHtml(builder.toString());
     }
 
 }

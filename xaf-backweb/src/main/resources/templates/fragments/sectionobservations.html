@@ -15,16 +15,13 @@
 								<a role="button" data-toggle="collapse"
 									data-parent="#accordion4" href="#collapse4"
 									aria-controls="collapse4"
-									th:attr="aria-expanded=${isObservationPanelActive}"
-									th:class="${isObservationPanelActive}  ? '' : collapsed ">
-									<i class="pannelState"
-									th:classappend="${isObservationPanelActive} ? icon-action_accordeon-ouvert : icon-action_accordeon-ferme"></i>
+									th:attr="aria-expanded=true">
+									<i class="pannelState icon-action_accordeon-ouvert"></i>
 									Informations réservées à l'administration
 								</a>
 							</h4>
 						</div>
-						<div id="collapse4" class="panel-collapse collapse"
-							th:classappend="${isObservationPanelActive} ? in:out"
+						<div id="collapse4" class="panel-collapse collapse in"
 							role="tabpanel" aria-labelledby="heading4">
 							<div class="panel-body">
 								<div class="row">

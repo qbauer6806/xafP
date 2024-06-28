@@ -38,7 +38,6 @@ import mc.gouv.xaf.back.data.entity.PurgeFilesBO;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.GouvSchedulerService;
-import mc.gouv.xaf.back.service.data.DemandesCourriersService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
@@ -51,8 +50,9 @@ import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
-import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 import mc.gouv.xaf.shared.enums.MailAudienceEnum;
+
+import static mc.gouv.xaf.shared.enums.DemandeCanalEnum.*;
 
 @Service
 @EnableScheduling
@@ -71,9 +71,6 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 	
 	@Autowired
     private DemarchesDataProvider demarchesDataProvider;
-
-    @Autowired
-	private DemandesCourriersService demandesCourriersService;
 
 	@Autowired
 	private GouvPropertiesResolver gouvPropertiesResolver;
@@ -123,6 +120,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 	@Autowired
 	private BrouillonsFilesRepository brouillonsFilesRepository;
 
+	@Override
     public void purgerDemandesDansStatuts(List<String> statuts, int jours) throws JsonProcessingException {
         String demarcheId = gouvPropertiesResolver.getDemarcheId();
         StringBuilder demandesAPurger = new StringBuilder();
@@ -133,44 +131,34 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
         LocalDate dateLocaleDebutPurge = LocalDate.now().minusDays(jours - 1L);
         Date dateDebutPurge = Date.from(dateLocaleDebutPurge.atStartOfDay(ZoneId.systemDefault()).toInstant());
 
-        LOGGER.info("Début de la purge des demandes ... Demandes dont dernier statut final est antérieur à {}", dateDebutPurge);
+        LOGGER.info("Début de la purge des demandes ... Demandes dont dernier statut final est antérieur à {}",
+				dateDebutPurge);
 
-        /*** PURGE DES DEMANDES CANAL WEB ***/
+        /*** PURGE DES DEMANDES ***/
         Date debutSequentiel = new Date();
-        List<Integer> listDem = demandesService.getAllDemandeIdsForPurge(demarcheId, dateDebutPurge, statuts,
-                Arrays.asList(DemandeCanalEnum.GUICHET_VIRTUEL.name()));
 
-        for (int idx = 0; idx < listDem.size(); idx++) {
+		List<Integer> listDem = demandesService.getAllDemandeIdsForPurge(demarcheId, dateDebutPurge, statuts,
+                Arrays.asList(GUICHET_VIRTUEL.name(), COURRIER.name(), GUICHET_PHYSIQUE.name()));
 
-            demandesService.deleteDemandeInGivenStatus(demarcheId, listDem.get(idx), statuts, jours);
-            demandesSuppr++;
-            LOGGER.info("Demande {} incluse dans un lot. Nombre total traité: {}", listDem.get(idx), demandesSuppr);
-				}
+		for (Integer demandeId : listDem) {
 
-        /*** PURGE DES DEMANDES CANAL COURRIER OU GUICHET ***/
-        listDem = demandesService.getAllDemandeIdsForPurge(demarcheId, dateDebutPurge, statuts,
-                Arrays.asList(DemandeCanalEnum.COURRIER.name(), DemandeCanalEnum.GUICHET_PHYSIQUE.name()));
-
-
-        for (int idx = 0; idx < listDem.size(); idx++) {
-
-            demandesService.deleteDemandeInGivenStatus(demarcheId, listDem.get(idx), statuts, jours);
-            demandesCourriersService.deleteCourriers(demarcheId, listDem.get(idx));
-				demandesSuppr++;
-            LOGGER.info("Demande {} incluse dans un lot. Nombre total traité: {}", listDem.get(idx), demandesSuppr);
-        }
+			demandesService.deleteDemandeInGivenStatus(demarcheId, demandeId, statuts, jours);
+			demandesSuppr++;
+			LOGGER.info("Demande {} incluse dans un lot. Nombre total traité: {}", demandeId, demandesSuppr);
+		}
 
         /*** MAIL AVANT PURGE ***/
         dateLocaleDebutPurge = LocalDate.now().minusDays(jours - Long.parseLong(delaiEnvoiEmailProp.getValue()));
         dateDebutPurge = Date.from(dateLocaleDebutPurge.atStartOfDay(ZoneId.systemDefault()).toInstant());
         Date dateFinPurge;
         dateFinPurge = Date.from(dateLocaleDebutPurge.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
-        LOGGER.info("Début des envois mails utilisateur ... Demandes dont dernier statut final est >= à {} et < à {}", dateDebutPurge, dateFinPurge);
+        LOGGER.info("Début des envois mails utilisateur ... Demandes dont dernier statut final est >= à {} et < à {}",
+				dateDebutPurge, dateFinPurge);
         List<DemandeDTO> listDto = demandesService.getAllDemandeForRelanceAvantPurge(demarcheId, dateDebutPurge,
                 dateFinPurge, statuts);
         for (DemandeDTO demandeDTO : listDto) {
 
-                envoisMailUsagerPurge(demandeDTO.getIdentifiant(), demandeDTO, delaiEnvoiEmailProp.getValue());
+			envoisMailUsagerPurge(demandeDTO.getIdentifiant(), demandeDTO, delaiEnvoiEmailProp.getValue());
 
 				// Ajout à la liste des demandes à envoyer
             demandesAPurger.append("- ").append(demandeDTO.getIdentifiant()).append(" - ")
@@ -201,51 +189,52 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 
     private Triple<Integer, Integer, Integer> executerPurgeFichiers() {
 
-        Integer compteGlobalFichiers = 0;
-        Integer compteGlobalAppelsFile = 0;
-        Integer compteGlobalFichiersExclus = 0;
-        Iterator<PurgeFilesBO> all = purgeFilesRepository.findAll().iterator();
-        List<String> lotCourant = new ArrayList<>();
-        int compte = 0;
-        LOGGER.info("Début de la purge des fichiers de FILE");
-        while (all.hasNext()) {
+		Integer compteGlobalFichiers = 0;
+		Integer compteGlobalAppelsFile = 0;
+		Integer compteGlobalFichiersExclus = 0;
+		Iterator<PurgeFilesBO> all = purgeFilesRepository.findAll().iterator();
+		List<String> lotCourant = new ArrayList<>();
+		int compte = 0;
+		LOGGER.info("Début de la purge des fichiers de FILE");
+		while (all.hasNext()) {
 
-            PurgeFilesBO cf = all.next();
+			PurgeFilesBO cf = all.next();
 
-            if (demandesFilesRepository.findHowManyTimeIsFileReferenced(cf.getUrl()) == 0
-                    && demandesCourriersRepository.findHowManyTimeIsFileReferenced(cf.getUrl()) == 0
-                    && demandesComplementsFilesRepository.findHowManyTimeIsFileReferenced(cf.getUrl()) == 0
-                    && brouillonsFilesRepository.findHowManyTimeIsFileReferenced(cf.getUrl()) == 0) {
-                LOGGER.info("Le fichier {} sera effacé de file.", cf.getUrl());
+			if (demandesFilesRepository.findHowManyTimeIsFileReferenced(cf.getUrl()) == 0
+					&& demandesCourriersRepository.findHowManyTimeIsFileReferenced(cf.getUrl()) == 0
+					&& demandesComplementsFilesRepository.findHowManyTimeIsFileReferenced(cf.getUrl()) == 0
+					&& brouillonsFilesRepository.findHowManyTimeIsFileReferenced(cf.getUrl()) == 0) {
+				LOGGER.info("Le fichier {} sera effacé de file.", cf.getUrl());
 
-                String url = cf.getUrl();
-                if (url != null && url.startsWith("/")) {
-                    url = url.substring(1);
+				String url = cf.getUrl();
+				if (url != null && url.startsWith("/")) {
+					url = url.substring(1);
+				}
+
+				lotCourant.add(url);
+				compteGlobalFichiers++;
+				compte++;
+			} else {
+				LOGGER.info("Exclusion du fichier {} car référencé ailleurs. Ce fichier ne sera pas supprimé.",
+						cf.getUrl());
+				compteGlobalFichiersExclus++;
+			}
+
+			purgeFilesRepository.delete(cf);
+
+			if (compte == PURGE_DEMANDES_PAR_LOT_TAILLE_FILE || !all.hasNext()) {
+				fileService.deleteFiles("ROOT", lotCourant);
+				String joined = StringUtils.join(lotCourant, ",");
+				LOGGER.info("Appel lot Vers file. Fichiers demandés:{}", joined);
+				lotCourant.clear();
+				compte = 0;
+				compteGlobalAppelsFile++;
+			}
+
+		}
+
+		return Triple.of(compteGlobalFichiers, compteGlobalFichiersExclus, compteGlobalAppelsFile);
 	}
-
-                lotCourant.add(url);
-                compteGlobalFichiers++;
-                compte++;
-            } else {
-                LOGGER.info("Exclusion du fichier {} car référencé ailleurs. Ce fichier ne sera pas supprimé.",
-                        cf.getUrl());
-                compteGlobalFichiersExclus++;
-            }
-
-            purgeFilesRepository.delete(cf);
-
-            if (compte == PURGE_DEMANDES_PAR_LOT_TAILLE_FILE || !all.hasNext()) {
-                fileService.deleteFiles("ROOT", lotCourant);
-                LOGGER.info("Appel lot Vers file. Fichiers demandés:{}", StringUtils.join(lotCourant, ","));
-                lotCourant.clear();
-                compte = 0;
-                compteGlobalAppelsFile++;
-            }
-
-        }
-
-        return Triple.of(compteGlobalFichiers, compteGlobalFichiersExclus, compteGlobalAppelsFile);
-    }
 
 	private void envoisMailUsagerPurge(String identifiant, DemandeDTO demandeDTO, String delai) {
 		final String subjectTemplateCode = "MAIL_PURGE_DEMANDES_POUR_USAGER_OBJET";

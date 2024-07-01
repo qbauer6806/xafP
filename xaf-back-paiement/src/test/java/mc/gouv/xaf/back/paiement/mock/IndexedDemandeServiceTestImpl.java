@@ -291,7 +291,7 @@ public class IndexedDemandeServiceTestImpl implements IndexedDemandeService {
     }
 
     /**
-     * Retourne les demandes à purger par rapport à la date et à une liste de statuts à purger
+     * Retourne les demandes � purger par rapport � la date et � une liste de statuts � purger
      *
      * @param demarcheId
      * @param dernierStatutDateDebut : la date limite (purger les demandes dont date dernier statut <= dernierStatutDateDebut)
@@ -317,7 +317,7 @@ public class IndexedDemandeServiceTestImpl implements IndexedDemandeService {
     }
 
     /**
-     * Retourne les demandes à purger par rapport à la date et à une liste de statuts à purger
+     * Retourne les demandes � purger par rapport � la date et � une liste de statuts � purger
      *
      * @param demarcheId
      * @param dernierStatutDateDebut : la date limite (purger les demandes dont date dernier statut <= dernierStatutDateDebut)

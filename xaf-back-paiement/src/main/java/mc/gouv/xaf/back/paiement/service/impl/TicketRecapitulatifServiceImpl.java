@@ -13,6 +13,7 @@ import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.itg.mail.MailTemplateModelProvider;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import org.slf4j.Logger;
@@ -60,35 +61,44 @@ public class TicketRecapitulatifServiceImpl implements TicketRecapitulatifServic
         Map<String, Object> variables = gouvBPM.getProcessBusinessVariables(demandeId);
         Integer usagerId = (Integer) variables.get(GouvBPMProcessVariableTypeEnum.MC_USAGERID.name());
 
-        GichuniUsagerDTO usager = usagersCache.get(usagerId, true);
-        DemandeDTO demandeDto = demandesService.getDemande(afBackUtils.getDemarcheInfos().getPkDemarches(), demandeId);
+		GichuniUsagerDTO usager = usagersCache.get(usagerId, true);
+		DemandeDTO demandeDto = demandesService.getDemande(afBackUtils.getDemarcheInfos().getPkDemarches(), demandeId);
+		if (usager == null) {
+			usager = new GichuniUsagerDTO();
+			usager.setNom(demandeDto.getUsagerNom());
+			usager.setPrenom(demandeDto.getUsagerPrenom());
+			usager.setEmail(demandeDto.getUsagerEmail());
+		}
 
-        String bodyTemplateCode = "MAIL_TICKET_RECAP_USAGER_CORPS";
-        String subjectTemplateCode = "MAIL_TICKET_RECAP_USAGER_OBJET";
+		String bodyTemplateCode = "MAIL_TICKET_RECAP_USAGER_CORPS";
+		String subjectTemplateCode = "MAIL_TICKET_RECAP_USAGER_OBJET";
 
-        EmailInfoDTO emailInfo = new EmailInfoDTO();
-        emailInfo.setBodyTemplateCode(bodyTemplateCode);
-        emailInfo.setSubjectTemplateCode(subjectTemplateCode);
-        emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(), afBackUtils.getDemarcheInfos()
-                .getEmailFromNom());
-        emailInfo.setReplyto(afBackUtils.getDemarcheInfos().getEmailReplyto(), afBackUtils.getDemarcheInfos()
-                .getEmailReplytoNom());
-        emailInfo.addTo(usager.getEmail(), usager.getPrenom() + " " + usager.getNom());
-        emailInfo.setLangue(demandeDto.getLangue());
+		EmailInfoDTO emailInfo = new EmailInfoDTO();
+		emailInfo.setBodyTemplateCode(bodyTemplateCode);
+		emailInfo.setSubjectTemplateCode(subjectTemplateCode);
+		emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(),
+				afBackUtils.getDemarcheInfos().getEmailFromNom());
+		emailInfo.setReplyto(afBackUtils.getDemarcheInfos().getEmailReplyto(),
+				afBackUtils.getDemarcheInfos().getEmailReplytoNom());
+		emailInfo.addTo(usager.getEmail(), usager.getPrenom() + " " + usager.getNom());
+		emailInfo.setLangue(demandeDto.getLangue());
 
-
-        try {
-            Map<String, Object> model = getModel(operation, commandeDTO.getMoyenPaiement(), usager, demandeDto);
-            mailService.sendMail(emailInfo, model);
-        } catch (Exception e) {
-            LOGGER.error("Erreur lors de l'envoi de l'email", e);
-        }
-    }
+		try {
+			Map<String, Object> model = getModel(operation, commandeDTO.getMoyenPaiement(), usager, demandeDto);
+			mailService.sendMail(emailInfo, model);
+		} catch (Exception e) {
+			LOGGER.error("Erreur lors de l'envoi de l'email", e);
+		}
+	}
 
 	private Map<String, Object> getModel(CommandeOperationDTO operation, MoyenPaiementDTO moyenPaiement,
 			GichuniUsagerDTO usager, DemandeDTO demande) {
         Map<String, Object> model = mailTemplateModelProvider.getGenericModelDemande(demande);
-		String titre = messageSource.getMessage("civilite." + usager.getTitre(), null, new Locale(demande.getLangue()));
+        String defaultMailTitre = demande.getLangue().equals("fr") ? SharedMessages.DEFAULT_TITRE_MAIL_FR
+                : SharedMessages.DEFAULT_TITRE_MAIL_EN;
+        String titre = usager.getTitre() != null
+                ? messageSource.getMessage("civilite." + usager.getTitre(), null, new Locale(demande.getLangue()))
+                : defaultMailTitre;
 		model.put("numTPE", paiementPropertiesResolver.getTpe());
 		model.put("pkOperation", operation.getPkOperations());
 		model.put("reference", moyenPaiement.getPkMoyenPaiements());

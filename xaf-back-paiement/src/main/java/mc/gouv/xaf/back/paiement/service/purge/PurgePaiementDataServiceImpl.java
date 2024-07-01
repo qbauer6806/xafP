@@ -13,9 +13,12 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.*;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Service
 @EnableScheduling
@@ -37,8 +40,12 @@ public class PurgePaiementDataServiceImpl implements PurgePaiementDataService {
     public void purgeData(List<String> statuts, int jours) {
         // On récupère les commandeDemandes dont les demandes vont être purgées
         LOGGER.info("Récupération des commandes...");
-        LocalDateTime ldt = LocalDateTime.now().minusDays(jours);
-        List<CommandeDemandeBO> commandeDemandeBOS = commandeDemandeRepository.findAllByDemande_DernierStatut_LibelleInAndDemande_DernierStatut_DateLessThan(statuts, Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant()));
+
+        LocalDate dateLocaleDebutPurge = LocalDate.now().minusDays(jours - 1L);
+        Date dateDebutPurge = Date.from(dateLocaleDebutPurge.atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+        List<CommandeDemandeBO> commandeDemandeBOS =
+                commandeDemandeRepository.findAllByDemande_DernierStatut_LibelleInAndDemande_DernierStatut_DateLessThan(statuts, dateDebutPurge);
 
         // On vire la liaison avec les demandes, et on récupère les ids des commandes et des demandes associées
         Set<Integer> pkCommmandes = new HashSet<>();

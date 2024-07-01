@@ -1,6 +1,33 @@
 package mc.gouv.xaf.back.service.purge;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
+import javax.persistence.EntityManager;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Triple;
+import org.hibernate.Session;
+import org.quartz.SchedulerException;
+import org.quartz.Trigger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.stereotype.Service;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
+
 import mc.gouv.xaf.back.data.dao.BrouillonsFilesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesComplementsFilesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesCourriersRepository;
@@ -14,40 +41,20 @@ import mc.gouv.xaf.back.service.GouvSchedulerService;
 import mc.gouv.xaf.back.service.data.DemandesCourriersService;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.PropertiesService;
+import mc.gouv.xaf.back.service.data.TachesService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.itg.mail.MailTemplateModelProvider;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.shared.SharedMessages;
+import mc.gouv.xaf.shared.dto.DemandeCanalEnum;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 import mc.gouv.xaf.shared.enums.MailAudienceEnum;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Triple;
-import org.hibernate.Session;
-import org.quartz.SchedulerException;
-import org.quartz.Trigger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.stereotype.Service;
-
-import javax.persistence.EntityManager;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 
 @Service
 @EnableScheduling
@@ -73,7 +80,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 	@Autowired
 	private GouvPropertiesResolver gouvPropertiesResolver;
 
-    @Autowired
+	@Autowired
     private EntityManager em;
 
 	@Autowired
@@ -108,8 +115,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
     private MessageSource messageSource;
 
     @Autowired
-    private MailTemplateModelProvider mailTemplateModelProvider;
-
+    private TachesService tachesService;
 	@Autowired
 	private FileService fileService;
 
@@ -126,8 +132,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 
         int demandesSuppr = 0;
 
-        int daysToSubtract1 = jours - 1;
-        LocalDate dateLocaleDebutPurge = LocalDate.now().minusDays(daysToSubtract1);
+        LocalDate dateLocaleDebutPurge = LocalDate.now().minusDays(jours - 1L);
         Date dateDebutPurge = Date.from(dateLocaleDebutPurge.atStartOfDay(ZoneId.systemDefault()).toInstant());
 
         LOGGER.info("Début de la purge des demandes ... Demandes dont dernier statut final est antérieur à {}", dateDebutPurge);
@@ -142,7 +147,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
             demandesService.deleteDemandeInGivenStatus(demarcheId, listDem.get(idx), statuts, jours);
             demandesSuppr++;
             LOGGER.info("Demande {} incluse dans un lot. Nombre total traité: {}", listDem.get(idx), demandesSuppr);
-        }
+				}
 
         /*** PURGE DES DEMANDES CANAL COURRIER OU GUICHET ***/
         listDem = demandesService.getAllDemandeIdsForPurge(demarcheId, dateDebutPurge, statuts,
@@ -153,13 +158,12 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 
             demandesService.deleteDemandeInGivenStatus(demarcheId, listDem.get(idx), statuts, jours);
             demandesCourriersService.deleteCourriers(demarcheId, listDem.get(idx));
-            demandesSuppr++;
+				demandesSuppr++;
             LOGGER.info("Demande {} incluse dans un lot. Nombre total traité: {}", listDem.get(idx), demandesSuppr);
         }
 
         /*** MAIL AVANT PURGE ***/
-        int daysToSubtract = jours - Integer.parseInt(delaiEnvoiEmailProp.getValue());
-        dateLocaleDebutPurge = LocalDate.now().minusDays(daysToSubtract);
+        dateLocaleDebutPurge = LocalDate.now().minusDays(jours - Long.parseLong(delaiEnvoiEmailProp.getValue()));
         dateDebutPurge = Date.from(dateLocaleDebutPurge.atStartOfDay(ZoneId.systemDefault()).toInstant());
         Date dateFinPurge;
         dateFinPurge = Date.from(dateLocaleDebutPurge.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
@@ -168,8 +172,9 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
                 dateFinPurge, statuts);
         for (DemandeDTO demandeDTO : listDto) {
 
-            envoisMailUsagerPurge(demandeDTO, delaiEnvoiEmailProp.getValue());
-            // Ajout à la liste des demandes à envoyer
+                envoisMailUsagerPurge(demandeDTO.getIdentifiant(), demandeDTO, delaiEnvoiEmailProp.getValue());
+
+				// Ajout à la liste des demandes à envoyer
             demandesAPurger.append("- ").append(demandeDTO.getIdentifiant()).append(" - ")
                     .append(demandeDTO.getDernierStatut().getLibelle()).append("<br/>");
         }
@@ -187,7 +192,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 
         Date finFichier = new Date();
 
-        LOGGER.info("Fin purge des demandes, {} demande(s) supprimée(s)...", demandesSuppr);
+		LOGGER.info("Fin purge des demandes, {} demande(s) supprimée(s)...", demandesSuppr);
         LOGGER.info("Fin purge des demandes, {} fichier(s) supprimé(s)...", result.getLeft());
         LOGGER.info("Fin purge des demandes, {} fichier(s) exclus car référencés...", result.getMiddle());
         LOGGER.info("Fin purge des demandes, {} appels vers file effectué(s)...", result.getRight());
@@ -218,7 +223,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
                 String url = cf.getUrl();
                 if (url != null && url.startsWith("/")) {
                     url = url.substring(1);
-                }
+	}
 
                 lotCourant.add(url);
                 compteGlobalFichiers++;
@@ -233,8 +238,7 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
 
             if (compte == PURGE_DEMANDES_PAR_LOT_TAILLE_FILE || !all.hasNext()) {
                 fileService.deleteFiles("ROOT", lotCourant);
-                String value = StringUtils.join(lotCourant, ",");
-                LOGGER.info("Appel lot Vers file. Fichiers demandés:{}", value);
+                LOGGER.info("Appel lot Vers file. Fichiers demandés:{}", StringUtils.join(lotCourant, ","));
                 lotCourant.clear();
                 compte = 0;
                 compteGlobalAppelsFile++;
@@ -245,48 +249,54 @@ public class PurgeDemandesServiceImpl implements PurgeDemandesService {
         return Triple.of(compteGlobalFichiers, compteGlobalFichiersExclus, compteGlobalAppelsFile);
     }
 
-    private void envoisMailUsagerPurge(DemandeDTO demandeDTO, String delai) {
+	private void envoisMailUsagerPurge(String identifiant, DemandeDTO demandeDTO, String delai) {
 		final String subjectTemplateCode = "MAIL_PURGE_DEMANDES_POUR_USAGER_OBJET";
 		final String bodyTemplateCode = "MAIL_PURGE_DEMANDES_POUR_USAGER_CORPS";
 
 		EmailInfoDTO emailInfoDTO = creationMailPurge(bodyTemplateCode, subjectTemplateCode, demandeDTO.getLangue());
-		
-        GichuniUsagerDTO usager = usagerCache.get(demandeDTO.getUsagerId(), true);
-        if (usager == null) {
-            usager = new GichuniUsagerDTO();
-            usager.setNom(demandeDTO.getUsagerNom());
-            usager.setPrenom(demandeDTO.getUsagerPrenom());
-            usager.setEmail(demandeDTO.getUsagerEmail());
-        }
-        
-        String prenom = StringUtils.EMPTY;
-        String nom = StringUtils.EMPTY;
 
-        if (StringUtils.isNotBlank(usager.getPrenom())) {
-            prenom = usager.getPrenom();
-        }
+		GichuniUsagerDTO usager = usagerCache.get(demandeDTO.getUsagerId(), true);
+		if (usager != null) {
 
-        if (StringUtils.isNotBlank(usager.getNom())) {
-            nom = usager.getNom();
-        }
-		
-		emailInfoDTO.addTo(usager.getEmail(), prenom + " " + nom);
-		Map<String,Object> model = mailTemplateModelProvider.getGenericModelDemande(demandeDTO);
-        model.put("delai", delai);
-        String titre = messageSource.getMessage("civilite." + usager.getTitre(), null, new Locale(demandeDTO.getLangue()));
-        model.put("titre", titre);
-        model.put("urlFront", gouvPropertiesResolver.getFrontUrl());
-        PropertiesDTO adresseService = propertiesService.getProperty(demandeDTO.getDemarcheId(), "ADRESSE_SERVICE");
-        if(adresseService != null) {
-        	model.put("adresseService", adresseService.getValue());
-        }
+			String prenom = StringUtils.EMPTY;
+			String nom = StringUtils.EMPTY;
 
-        try {
-            mailService.sendMail(emailInfoDTO, model);
-        } catch (Exception e) {
-            LOGGER.error("Erreur lors de l'envoi de l'email de purge pour les usagers", e);
-        }
-    }
+			if (StringUtils.isNotBlank(usager.getPrenom())) {
+				prenom = usager.getPrenom();
+			}
+
+			if (StringUtils.isNotBlank(usager.getNom())) {
+				nom = usager.getNom();
+			}
+
+			emailInfoDTO.addTo(usager.getEmail(), prenom + " " + nom);
+			Map<String, Object> model = new HashMap<>();
+			model.put("identifiant", identifiant);
+			model.put("pkDemande", demandeDTO.getPkDemandes());
+			model.put("delai", delai);
+			String defaultMailTitre = demandeDTO.getLangue().equals("fr") ? SharedMessages.DEFAULT_TITRE_MAIL_FR
+					: SharedMessages.DEFAULT_TITRE_MAIL_EN;
+			String titre = usager.getTitre() != null
+					? messageSource.getMessage("civilite." + usager.getTitre(), null, new Locale(demandeDTO.getLangue()))
+					: defaultMailTitre;
+			model.put("titre", titre);
+			model.put("urlFront", gouvPropertiesResolver.getFrontUrl());
+			PropertiesDTO adresseService = propertiesService.getProperty(demandeDTO.getDemarcheId(), "ADRESSE_SERVICE");
+	        if(adresseService != null) {
+	        	model.put("adresseService", adresseService.getValue());
+	        }
+
+			try {
+				mailService.sendMail(emailInfoDTO, model);
+			} catch (Exception e) {
+				LOGGER.error("Erreur lors de l'envoi de l'email de purge pour les agents", e);
+			}
+		} else {
+			LOGGER.info(
+					"L'usager {} n'a pas été retrouvé dans le cache, possiblement inexistant dans MonGuichet suite suppression",
+					demandeDTO.getUsagerId());
+		}
+	}
 
     @Override
 	public void envoisMailAgentPurge(String demandesAPurger, String delai) {

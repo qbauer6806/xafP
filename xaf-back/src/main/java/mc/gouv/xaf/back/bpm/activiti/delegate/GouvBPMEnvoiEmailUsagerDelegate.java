@@ -59,49 +59,46 @@ public class GouvBPMEnvoiEmailUsagerDelegate implements JavaDelegate {
     private Expression copieCacheeAuService;
 
     @Override
-    public void execute(DelegateExecution execution) throws Exception {
+	public void execute(DelegateExecution execution) throws Exception {
 
-        LOGGER.info("==== xaf-back ENVOI EMAIL USAGER ...");
+		LOGGER.info("==== xaf-back ENVOI EMAIL USAGER ...");
+		Integer usagerId = (Integer) execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_USAGERID.name());
+		GichuniUsagerDTO usager = usagerCache.get(usagerId, true);
+		Integer demandeId = Integer.parseInt(execution.getProcessBusinessKey());
+		DemandeDTO demande = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), demandeId);
+		if (usager == null) {
+			usager = new GichuniUsagerDTO();
+			usager.setNom(demande.getUsagerNom());
+			usager.setPrenom(demande.getUsagerPrenom());
+			usager.setEmail(demande.getUsagerEmail());
+		}
 
-        String bodyTemplateCode = (String) emailBodyTemplateCode.getValue(execution);
-        String subjectTemplateCode = (String) emailSubjectTemplateCode.getValue(execution);
-        String copieCacheeAuServiceStr = null;
-        if (copieCacheeAuService != null) {
-        	copieCacheeAuServiceStr = (String) copieCacheeAuService.getValue(execution);
-        }
+		String bodyTemplateCode = (String) emailBodyTemplateCode.getValue(execution);
+		String subjectTemplateCode = (String) emailSubjectTemplateCode.getValue(execution);
+		String copieCacheeAuServiceStr = null;
+		if (copieCacheeAuService != null) {
+			copieCacheeAuServiceStr = (String) copieCacheeAuService.getValue(execution);
+		}
 
-        Integer usagerId = (Integer) execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_USAGERID.name());
-        String langue = (String) execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_DEMANDE_LANGUE.name());
-        
-        Integer demandeId = Integer.parseInt(execution.getProcessBusinessKey());
-        DemandeDTO demande = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), demandeId);
+		String langue = (String) execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_DEMANDE_LANGUE.name());
+		EmailInfoDTO emailInfo = new EmailInfoDTO();
+		emailInfo.setBodyTemplateCode(bodyTemplateCode);
+		emailInfo.setSubjectTemplateCode(subjectTemplateCode);
+		emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(),
+				afBackUtils.getDemarcheInfos().getEmailFromNom());
+		emailInfo.setReplyto(afBackUtils.getDemarcheInfos().getEmailReplyto(),
+				afBackUtils.getDemarcheInfos().getEmailReplytoNom());
 
-        GichuniUsagerDTO usager = usagerCache.get(usagerId, true);
-        if (usager == null) {
-            usager = new GichuniUsagerDTO();
-            usager.setNom(demande.getUsagerNom());
-            usager.setPrenom(demande.getUsagerPrenom());
-            usager.setEmail(demande.getUsagerEmail());
-        }
+		String prenom = StringUtils.EMPTY;
+		String nom = StringUtils.EMPTY;
 
-        EmailInfoDTO emailInfo = new EmailInfoDTO();
-        emailInfo.setBodyTemplateCode(bodyTemplateCode);
-        emailInfo.setSubjectTemplateCode(subjectTemplateCode);
-        emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(),
-                afBackUtils.getDemarcheInfos().getEmailFromNom());
-        emailInfo.setReplyto(afBackUtils.getDemarcheInfos().getEmailReplyto(),
-                afBackUtils.getDemarcheInfos().getEmailReplytoNom());
+		if (StringUtils.isNotBlank(usager.getPrenom())) {
+			prenom = usager.getPrenom();
+		}
 
-        String prenom = StringUtils.EMPTY;
-        String nom = StringUtils.EMPTY;
-
-        if (StringUtils.isNotBlank(usager.getPrenom())) {
-            prenom = usager.getPrenom();
-        }
-
-        if (StringUtils.isNotBlank(usager.getNom())) {
-            nom = usager.getNom();
-        }
+		if (StringUtils.isNotBlank(usager.getNom())) {
+			nom = usager.getNom();
+		}
 
         emailInfo.addTo(usager.getEmail(), prenom + " " + nom);
         emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, execution.getProcessBusinessKey());
@@ -112,21 +109,21 @@ public class GouvBPMEnvoiEmailUsagerDelegate implements JavaDelegate {
         	emailInfo.addBcc(afBackUtils.getDemarcheInfos().getEmailService(), StringUtils.EMPTY);
         }
 
-        String codeMotif = (String) execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name());
-        String commentaire = (String) execution
-                .getVariable(GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name());
-        commentaire = mailService.formatCommentaire(commentaire);
-        Map<String, Object> model = mailTemplateModelProvider.getModel(subjectTemplateCode, bodyTemplateCode, demande,
-                execution.getVariables(), codeMotif, commentaire);
+		String codeMotif = (String) execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_CODE_MOTIF.name());
+		String commentaire = (String) execution
+				.getVariable(GouvBPMProcessVariableTypeEnum.MC_COMMENTAIRE_USAGER.name());
+		commentaire = mailService.formatCommentaire(commentaire);
+		Map<String, Object> model = mailTemplateModelProvider.getModel(subjectTemplateCode, bodyTemplateCode, demande,
+				execution.getVariables(), codeMotif, commentaire);
 
-        try {
-            mailService.sendMail(emailInfo, model);
-        } catch (Exception e) {
-            LOGGER.error("Échec lors de l'envoi de l'email", e);
-        }
+		try {
+			mailService.sendMail(emailInfo, model);
+		} catch (Exception e) {
+			LOGGER.error("Échec lors de l'envoi de l'email", e);
+		}
 
-        LOGGER.info("==== xaf-back ENVOI EMAIL USAGER <fin>");
-    }
+		LOGGER.info("==== xaf-back ENVOI EMAIL USAGER <fin>");
+	}
 
     public Expression getEmailBodyTemplateCode() {
         return emailBodyTemplateCode;

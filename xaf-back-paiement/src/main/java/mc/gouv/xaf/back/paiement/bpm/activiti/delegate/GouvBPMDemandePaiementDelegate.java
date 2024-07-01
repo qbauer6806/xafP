@@ -18,6 +18,7 @@ import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
 import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.itg.mail.MailTemplateModelProvider;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeDataDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
@@ -45,6 +46,7 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
     public static final String MC_FACTURE_REFERENCE = "MC_FACTURE_REFERENCE";
     public static final String MC_IS_DEBIT_KO = "MC_IS_DEBIT_KO";
     private static final String NB_JOURS_AVANT_EXPIRATION_PAIEMENT = "NB_JOURS_AVANT_EXPIRATION_PAIEMENT";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(GouvBPMDemandePaiementDelegate.class);
 
     @Autowired
@@ -118,9 +120,11 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
                 demandesDataService.saveOrUpdateDemandeData(demarcheId, demandeId, PaiementDemandeDataKeysEnum.STATUT_PAIEMENT.name(), PaiementStatutEnum.DEBIT_ECHEC.name());
                 paiementHistoriqueService.ajouterHistoriqueDebitEchec(demandeDto);
                 // #43127 Envoi du mail débit en echec (MAIL_NOTIFICATION_DEMANDE_ECHEC_DEBIT_USAGER_CORPS)
+                LOGGER.info("Début d'envoi du mail de débit en échec pour la demande {}...", demandeDto.getIdentifiant());
                 sendMail(demandeDto, "MAIL_NOTIFICATION_DEMANDE_ECHEC_DEBIT_USAGER");
             } else if (StringUtils.equals(statutPaiementData.getValue(), PaiementStatutEnum.EMPREINTE_EXPIREE.name())) {
             	// #43127 Envoi du mail empreinte expirée (MAIL_NOTIFICATION_DEMANDE_EXPIRATION_EMPREINTE_USAGER_CORPS)
+            	LOGGER.info("Début d'envoi du mail d'expiration d'empreinte pour la demande {}...", demandeDto.getIdentifiant());
             	sendMail(demandeDto, "MAIL_NOTIFICATION_DEMANDE_EXPIRATION_EMPREINTE_USAGER");
             }
             // On ajoute un flag dans le BPMN pour savoir qu'un débit a déjà été émis
@@ -152,7 +156,8 @@ public class GouvBPMDemandePaiementDelegate implements JavaDelegate {
 		emailInfo.setLangue(demandeDTO.getLangue());
 		emailInfo.setBodyTemplateCode(bodyTemplateCode);
 		emailInfo.setSubjectTemplateCode(subjectTemplateCode);
-		emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(), afBackUtils.getDemarcheInfos().getEmailFromNom());
+		emailInfo.setFrom(afBackUtils.getDemarcheInfos().getEmailFrom(),
+				afBackUtils.getDemarcheInfos().getEmailFromNom());
 		emailInfo.addTo(demandeDTO.getUsagerEmail(), demandeDTO.getUsagerPrenom() + " " + demandeDTO.getUsagerNom());
 		emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, demandeDTO.getIdentifiant());
         Map<String, Object> model = mailTemplateModelProvider.getGenericModelDemande(demandeDTO);

@@ -5,6 +5,7 @@ import mc.gouv.xaf.back.service.itg.mail.MailService;
 import mc.gouv.xaf.back.service.itg.mail.MailTemplateModelProvider;
 import mc.gouv.xaf.back.service.relance.settings.RelanceStatutDemandeConf;
 import mc.gouv.xaf.back.service.utils.RelancesUtils;
+import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +37,7 @@ public class RelancesDemandesServiceImpl implements RelancesDemandesService {
 		// On recupère toutes les demandes du TS appelant qui feront l'objet d'une relance
 		Map<DemandeDTO, String> demandesANotifier = relanceUtils.getDemandesANotifier(statutsARelancer);
 		for (Map.Entry<DemandeDTO, String> entry : demandesANotifier.entrySet()) {
+			LOGGER.info("Début du processus de relance des demandes...");
 			envoiEmailUsagerRelance(entry.getKey(), entry.getValue());
 			relanceUtils.setRelanceDate(entry.getKey());
 		}
@@ -46,7 +48,8 @@ public class RelancesDemandesServiceImpl implements RelancesDemandesService {
 		final String subjectTemplateCode = codeMailPrefix + "_OBJET";
 		final String bodyTemplateCode = codeMailPrefix + "_CORPS";
 
-		EmailInfoDTO emailInfoDTO = relanceUtils.creationMailUsager(bodyTemplateCode, subjectTemplateCode, demande.getLangue());
+		EmailInfoDTO emailInfoDTO = relanceUtils.creationMailUsager(bodyTemplateCode, subjectTemplateCode,
+				demande.getLangue());
 		String usagerNom = demande.getUsagerNom();
 		String usagerPrenom = demande.getUsagerPrenom();
 		emailInfoDTO.addTo(demande.getUsagerEmail(), usagerPrenom + " " + usagerNom);

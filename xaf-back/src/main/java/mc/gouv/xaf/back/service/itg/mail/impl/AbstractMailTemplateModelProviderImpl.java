@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import mc.gouv.xaf.shared.SharedMessages;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -59,7 +60,11 @@ public abstract class AbstractMailTemplateModelProviderImpl implements MailTempl
                 usager.setEmail(demande.getUsagerEmail());
             }
             model.put("usager", usager.getPrenom() + " " + usager.getNom());
-            String titre = messageSource.getMessage("civilite."+usager.getTitre(), null, new Locale(demande.getLangue()));
+            String defaultMailTitre = demande.getLangue().equals("fr") ? SharedMessages.DEFAULT_TITRE_MAIL_FR
+                    : SharedMessages.DEFAULT_TITRE_MAIL_EN;
+            String titre = usager.getTitre() != null
+                    ? messageSource.getMessage("civilite." + usager.getTitre(), null, new Locale(demande.getLangue()))
+                    : defaultMailTitre;
             model.put("titre", titre);
 
             model.put("identifiant", demande.getIdentifiant());

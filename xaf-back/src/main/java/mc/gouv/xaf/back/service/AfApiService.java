@@ -7,7 +7,6 @@ import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.xaf.back.bpm.activiti.exception.TaskAlreadyClaimedException;
 import mc.gouv.xaf.back.bpm.model.GouvBPMTask;
 import mc.gouv.xaf.back.bpm.model.GouvBPMUser;
-import mc.gouv.xaf.back.controller.AfApiController;
 import mc.gouv.xaf.back.exception.DemarcheException;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.AccessService;
@@ -198,9 +197,6 @@ public abstract class AfApiService extends AbstractAfApiService {
 
             demandeDto = demandesService.saveOrUpdateDemande(demandeDto, false,
                     demarchesDataProvider.getPremierStatutCreationDemande());
-
-            // Rafraîchir le cache des usagers ayant créé une demande
-            usagersCache.refresh();
 
             // Ajout d'une ligne à l'historique
             LOGGER.info(AJOUT_LIGNE_HISTORIQUE_LOG_MESSAGE);
@@ -739,9 +735,6 @@ public abstract class AfApiService extends AbstractAfApiService {
 
             brouillonDto = brouillonsService.saveOrUpdateBrouillon(brouillonDto, usagerId, false);
 
-            // Rafraîchir le cache des usagers ayant créé un brouillon
-            usagersCache.refresh();
-
         } catch (Exception e) {
             // Renvoi d'une exception pour que l'utilisateur sache qu'il y a eu une erreur
             throw new DemarcheException("Erreur lors de la création d'un brouillon", e);
@@ -751,13 +744,10 @@ public abstract class AfApiService extends AbstractAfApiService {
 
 	@Override
 	public BrouillonDTO updateBrouillon(BrouillonDTO brouillon, Integer usagerId) {
-        BrouillonDTO brouillonDto = null;
+        BrouillonDTO brouillonDto;
         try {
 
             brouillonDto = brouillonsService.saveOrUpdateBrouillon(brouillon, usagerId, false);
-
-            // Rafraîchir le cache des usagers ayant créé un brouillon
-            usagersCache.refresh();
 
         } catch (Exception e) {
             // Renvoi d'une exception pour que l'utilisateur sache qu'il y a eu une erreur

@@ -20,6 +20,7 @@ import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.DemarcheDTO;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,8 +50,8 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
     private static final Logger LOGGER = LoggerFactory.getLogger(PdfRecapGenerationServiceImpl.class);
     
     private static final String SPAN_END_TAG = "</span>";
-    
     private static final String TD_TR_TABLE_TAG = "</td></tr></table>";
+    private static final String BR = "<br/>";
 
     @Autowired
     private FileService fileService;
@@ -226,16 +227,22 @@ public class PdfRecapGenerationServiceImpl implements PdfRecapGenerationService 
                 writer.println("<span id=\"nomDirection\">");
                 writer.println(StringEscapeUtils.escapeXml(demarche.getNomDirection()));
                 writer.println(SPAN_END_TAG);
-                writer.println("<br/>");
+                writer.println(BR);
                 writer.println("<span id=\"nomSousDirection\">");
                 writer.println(StringEscapeUtils.escapeXml(demarche.getNomSousDirection()));
                 writer.println(SPAN_END_TAG);
+                if(StringUtils.isNotBlank(demarche.getNomSousDirectionComplement())){
+                    writer.println(BR);
+                    writer.println("<span id=\"nomSousDirectionComplement\">");
+                    writer.println(StringEscapeUtils.escapeXml(demarche.getNomSousDirectionComplement()));
+                    writer.println(SPAN_END_TAG);
+                }
 	            writer.println("</div>");
 	
 	            writer.println("<div id=\"pageFooter\">");
                 writer.println("<span id=\"adresseService\">");
                 writer.println(demarche.getAdresseService());
-                writer.println("<br/>");
+                writer.println(BR);
                 writer.println(demarche.getTelephoneService());
                 writer.println(SPAN_END_TAG);
                 writer.println("<span id=\"nomFooter\">");

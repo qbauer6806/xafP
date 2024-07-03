@@ -16,7 +16,7 @@
 	margin-right: 50px;
 }
 
-#nomDirection, #adresseService, #nomSousDirection, #nomFooter {
+#nomDirection, #adresseService, #nomSousDirection, #nomFooter, #nomSousDirectionComplement {
 	width:350px;
 }
 
@@ -35,7 +35,7 @@
 	margin-top: 15px;
 }
 
-#nomSousDirection {
+#nomSousDirection,#nomSousDirectionComplement {
 	font-size: 12px;
 	float: right;
 	font-style: italic;

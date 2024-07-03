@@ -133,13 +133,13 @@ public class FrontGouvPropertiesResolver {
     @Value("${mc.gouv.${application.name}.frontserver.2tiers.activation:false}")
     private String proxy2tiersActivation;
 
-    @Value("${mc.gouv.gichuni.suividemarche.particulier.url.fr:OPTIONAL}")
+    @Value("${mc.gouv.gichuni.suivi.demarche.particulier.url.fr:OPTIONAL}")
     private String suiviDemarcheParticulierUrlFr;
-    @Value("${mc.gouv.gichuni.suividemarche.particulier.url.en:OPTIONAL}")
+    @Value("${mc.gouv.gichuni.suivi.demarche.particulier.url.en:OPTIONAL}")
     private String suiviDemarcheParticulierUrlEn;
-    @Value("${mc.gouv.gichuni.suividemarche.entreprise.url.fr:OPTIONAL}")
+    @Value("${mc.gouv.gichuni.suivi.demarche.entreprise.url.fr:OPTIONAL}")
     private String suiviDemarcheEntrepriseUrlFr;
-    @Value("${mc.gouv.gichuni.suividemarche.entreprise.url.en:OPTIONAL}")
+    @Value("${mc.gouv.gichuni.suivi.demarche.entreprise.url.en:OPTIONAL}")
     private String suiviDemarcheEntrepriseUrlEn;
 
     @PostConstruct
@@ -355,7 +355,7 @@ public class FrontGouvPropertiesResolver {
 
     public boolean getProxy2TiersActivation() {
         String value = proxy2tiersActivation;
-        return StringUtils.isNotBlank(value) && value.equals("true") ? true : false;
+        return StringUtils.isNotBlank(value) && value.equals("true");
     }
 
     public List<PropertiesDTO> getFrontProperties() {

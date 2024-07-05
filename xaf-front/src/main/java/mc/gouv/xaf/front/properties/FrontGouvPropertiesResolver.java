@@ -63,7 +63,7 @@ public class FrontGouvPropertiesResolver {
     @Value("${mc.gouv.${application.name}.frontserver.copyright.years}")
     private String copyrightYears;
 
-    @Value("${mc.gouv.${application.name}.frontserver.matomo.matomoSiteId}")
+    @Value("${mc.gouv.${application.name}.frontserver.matomo.site_id}")
     private String piwikSiteId;
 
     @Value("${mc.gouv.${application.name}.frontserver.key}")

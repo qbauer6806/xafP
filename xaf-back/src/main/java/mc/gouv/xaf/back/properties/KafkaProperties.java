@@ -9,7 +9,7 @@ public class KafkaProperties {
     @Value("${mc.gouv.${application.name}.shared.backapi.kafka.enabled:false}")
     private String kafkaEnabled;
 
-    @Value("${mc.gouv.${application.name}.shared.backapi.kafka.bootstrapserversconfig}")
+    @Value("${mc.gouv.busmsg.kafka.server.name}")
     private String bootstrapServersConfig;
 
     @Value("${mc.gouv.${application.name}.shared.backapi.kafka.ssl.enabled:false}")

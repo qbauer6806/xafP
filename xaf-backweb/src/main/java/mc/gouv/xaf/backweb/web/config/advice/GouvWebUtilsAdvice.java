@@ -26,10 +26,10 @@ public class GouvWebUtilsAdvice {
     @Value("${maven.name}")
     private String name;
 
-    @Value("${mc.gouv.${application.name}.backserver.env}")
+    @Value("${mc.gouv.backserver.env}")
     private String gouvEnvironment;
 
-    @Value("${mc.gouv.${application.name}.backserver.env.color}")
+    @Value("${mc.gouv.backserver.env.color}")
     private String gouvEnvironmentColor;
 
     @Autowired

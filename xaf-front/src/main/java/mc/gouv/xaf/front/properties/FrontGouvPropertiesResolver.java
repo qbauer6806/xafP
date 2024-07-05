@@ -90,10 +90,10 @@ public class FrontGouvPropertiesResolver {
     @Value("${mc.gouv.${application.name}.frontserver.vscan.jwt}")
     private String vscanJwt;
 
-    @Value("${mc.gouv.${application.name}.frontserver.maxUploadParIntervalle}")
+    @Value("${mc.gouv.frontserver.max.upload.intervalle}")
     private String maxUploadParIntervalle;
 
-    @Value("${mc.gouv.${application.name}.frontserver.tempsIntervalleUpload}")
+    @Value("${mc.gouv.frontserver.temps.upload.intervalle}")
     private String tempsIntervalleUpload;
 
     @Value("${mc.gouv.${application.name}.frontserver.gichkey.redirect.url}")
@@ -102,10 +102,10 @@ public class FrontGouvPropertiesResolver {
     @Value("${mc.gouv.${application.name}.frontserver.gichkey.keycloak.redirect.uri}")
     private String gichkeyKeycloakRedirectUrl;
 
-    @Value("${mc.gouv.${application.name}.frontserver.gichuni.profil.individual.url}")
+    @Value("${mc.gouv.gichuni.profil.particulier.url}")
     private String gichuniProfilIndividualUrl;
 
-    @Value("${mc.gouv.${application.name}.frontserver.gichuni.profil.company.url}")
+    @Value("${mc.gouv.gichuni.profil.entreprise.url}")
     private String gichuniProfilCompanyUrl;
 
     @Value("${mc.gouv.${application.name}.frontserver.gichkey.client_id}")
@@ -133,14 +133,14 @@ public class FrontGouvPropertiesResolver {
     @Value("${mc.gouv.${application.name}.frontserver.2tiers.activation:false}")
     private String proxy2tiersActivation;
 
-    @Value("${mc.gouv.gichuni.suivi.demarche.particulier.url.fr:OPTIONAL}")
-    private String suiviDemarcheParticulierUrlFr;
-    @Value("${mc.gouv.gichuni.suivi.demarche.particulier.url.en:OPTIONAL}")
-    private String suiviDemarcheParticulierUrlEn;
-    @Value("${mc.gouv.gichuni.suivi.demarche.entreprise.url.fr:OPTIONAL}")
-    private String suiviDemarcheEntrepriseUrlFr;
-    @Value("${mc.gouv.gichuni.suivi.demarche.entreprise.url.en:OPTIONAL}")
-    private String suiviDemarcheEntrepriseUrlEn;
+    @Value("${mc.gouv.gichuni.demarche.particulier.url.fr:OPTIONAL}")
+    private String gichuniDemarcheParticulierUrlFr;
+    @Value("${mc.gouv.gichuni.demarche.particulier.url.en:OPTIONAL}")
+    private String gichuniDemarcheParticulierUrlEn;
+    @Value("${mc.gouv.gichuni.demarche.entreprise.url.fr:OPTIONAL}")
+    private String gichuniDemarcheEntrepriseUrlFr;
+    @Value("${mc.gouv.gichuni.demarche.entreprise.url.en:OPTIONAL}")
+    private String gichuniDemarcheEntrepriseUrlEn;
 
     @PostConstruct
     private void initPrefix() throws IntrospectionException, IllegalAccessException, InvocationTargetException,
@@ -323,20 +323,20 @@ public class FrontGouvPropertiesResolver {
         return gichuniFrontUrl;
     }
 
-    public String getSuiviDemarcheParticulierUrlFr() {
-        return suiviDemarcheParticulierUrlFr;
+    public String getGichuniDemarcheParticulierUrlFr() {
+        return gichuniDemarcheParticulierUrlFr;
     }
 
-    public String getSuiviDemarcheParticulierUrlEn() {
-        return suiviDemarcheParticulierUrlEn;
+    public String getGichuniDemarcheParticulierUrlEn() {
+        return gichuniDemarcheParticulierUrlEn;
     }
 
-    public String getSuiviDemarcheEntrepriseUrlFr() {
-        return suiviDemarcheEntrepriseUrlFr;
+    public String getGichuniDemarcheEntrepriseUrlFr() {
+        return gichuniDemarcheEntrepriseUrlFr;
     }
 
-    public String getSuiviDemarcheEntrepriseUrlEn() {
-        return suiviDemarcheEntrepriseUrlEn;
+    public String getGichuniDemarcheEntrepriseUrlEn() {
+        return gichuniDemarcheEntrepriseUrlEn;
     }
 
     public String getLienRevocationCertifsElectroniquesFr() {
@@ -399,10 +399,10 @@ public class FrontGouvPropertiesResolver {
 
         //merge depuis la 11.3.0
         propertiesDTOS.add(new PropertiesDTO(GICHUNI_FRONT_URL, getGichuniFrontUrl()));
-        propertiesDTOS.add(new PropertiesDTO(GICHUNI_USAGER_PARTICULER_URL_FR, getSuiviDemarcheParticulierUrlFr()));
-        propertiesDTOS.add(new PropertiesDTO(GICHUNI_USAGER_PARTICULER_URL_EN, getSuiviDemarcheParticulierUrlEn()));
-        propertiesDTOS.add(new PropertiesDTO(GICHUNI_USAGER_ENTREPRISE_URL_FR, getSuiviDemarcheEntrepriseUrlFr()));
-        propertiesDTOS.add(new PropertiesDTO(GICHUNI_USAGER_ENTREPRISE_URL_EN, getSuiviDemarcheEntrepriseUrlEn()));
+        propertiesDTOS.add(new PropertiesDTO(GICHUNI_USAGER_PARTICULER_URL_FR, getGichuniDemarcheParticulierUrlFr()));
+        propertiesDTOS.add(new PropertiesDTO(GICHUNI_USAGER_PARTICULER_URL_EN, getGichuniDemarcheParticulierUrlEn()));
+        propertiesDTOS.add(new PropertiesDTO(GICHUNI_USAGER_ENTREPRISE_URL_FR, getGichuniDemarcheEntrepriseUrlFr()));
+        propertiesDTOS.add(new PropertiesDTO(GICHUNI_USAGER_ENTREPRISE_URL_EN, getGichuniDemarcheEntrepriseUrlEn()));
         propertiesDTOS.add(new PropertiesDTO(LIEN_REVOCATION_CERTIFS_ELECTRONIQUES_FR, getLienRevocationCertifsElectroniquesFr()));
         propertiesDTOS.add(new PropertiesDTO(LIEN_REVOCATION_CERTIFS_ELECTRONIQUES_EN, getLienRevocationCertifsElectroniquesEn()));
 

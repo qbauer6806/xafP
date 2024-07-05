@@ -40,7 +40,7 @@ public class ErrorController implements org.springframework.boot.web.servlet.err
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
 
-    @Value("${mc.gouv.${application.name}.backserver.env.color}")
+    @Value("${mc.gouv.backserver.env.color}")
     private String gouvEnvironment;
 
     @RequestMapping(path = "/403")

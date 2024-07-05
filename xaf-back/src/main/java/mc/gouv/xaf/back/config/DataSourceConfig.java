@@ -25,7 +25,7 @@ public class DataSourceConfig {
     private String displayName;
 
     // Obligatoire
-    @Value("${mc.gouv.${application.name}.shared.backapi.database.class}")
+    @Value("${mc.gouv.database.class}")
     private String driver;
 
     @Value("${mc.gouv.${application.name}.shared.backapi.database.url}")

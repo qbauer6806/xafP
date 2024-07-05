@@ -30,10 +30,10 @@ public class ElasticsearchProperties {
     @Value("${mc.gouv.${application.name}.shared.backapi.elasticsearch.socketTimeout:30000}")
     private String socketTimeout;
 
-    @Value("${mc.gouv.${application.name}.backserver.search.highlight.pretags:<strong style=\"color:red\">}")
+    @Value("${mc.gouv.backserver.search.highlight.pretags:<strong style=\"color:red\">}")
     private String pretags;
 
-    @Value("${mc.gouv.${application.name}.backserver.search.highlight.posttags:</strong>}")
+    @Value("${mc.gouv.backserver.search.highlight.posttags:</strong>}")
     private String posttags;
 
     public String getIndexingEnabled() {

@@ -1,7 +1,6 @@
 package mc.gouv.xaf.backweb.properties;
 
 import mc.gouv.xaf.back.properties.GouvPropertiesResolverImpl;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
@@ -26,16 +25,16 @@ public class BackGouvPropertiesResolverImpl extends GouvPropertiesResolverImpl i
     @Value("${mc.gouv.${application.name}.backserver.front.formstartpage:OPTIONAL}")
     private String frontFormStartPage;
 
-    @Value("${mc.gouv.${application.name}.backserver.help.url}")
+    @Value("${mc.gouv.backserver.help.url}")
     private String helpUrl;
 
-    @Value("${mc.gouv.${application.name}.backserver.contactSupport.url}")
+    @Value("${mc.gouv.backserver.contact.support.url}")
     private String contactSupportUrl;
 
-    @Value("${mc.gouv.${application.name}.backserver.env}")
+    @Value("${mc.gouv.backserver.env}")
     private String sharedEnv;
 
-    @Value("${mc.gouv.${application.name}.backserver.env.color}")
+    @Value("${mc.gouv.backserver.env.color}")
     private String sharedEnvColor;
 
     @Value("${mc.gouv.${application.name}.backserver.novalidate:false}")
@@ -46,6 +45,9 @@ public class BackGouvPropertiesResolverImpl extends GouvPropertiesResolverImpl i
 
     @Value("${mc.gouv.${application.name}.backserver.gichkey.client_secret}")
     private String gichkeyClientSecret;
+
+    @Value("${mc.gouv.${application.name}.backserver.matomo.site_id}")
+    private String matomoSiteId;
 
     @Override
     public String getFrontSharedKey() {
@@ -92,4 +94,7 @@ public class BackGouvPropertiesResolverImpl extends GouvPropertiesResolverImpl i
         return gichkeyClientSecret;
     }
 
+    public String getMatomoSiteId() {
+        return matomoSiteId;
+    }
 }

@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -29,9 +30,9 @@ import mc.gouv.xaf.back.service.utils.AfBackUtils;
 @Controller
 @RequestMapping("/error")
 // https://github.com/spring-projects/spring-boot/issues/5638
-public class ErrorController implements org.springframework.boot.web.servlet.error.ErrorController {
+public class BackErrorController implements org.springframework.boot.web.servlet.error.ErrorController {
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(ErrorController.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(BackErrorController.class);
 
     public static final String URL_ERROR_403 = "error/403";
     public static final String URL_ERROR_404 = "error/404";
@@ -40,20 +41,20 @@ public class ErrorController implements org.springframework.boot.web.servlet.err
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
 
-    @Value("${mc.gouv.backserver.env.color}")
+    @Value("${mc.gouv.backserver.env}")
     private String gouvEnvironment;
 
-    @RequestMapping(path = "/403")
+    @GetMapping(path = "/403")
     public ModelAndView error403(Model model, HttpServletRequest request) {
     	return getModelAndViewForError(403, request);
     }
 
-    @RequestMapping(path = "/404")
+    @GetMapping(path = "/404")
     public ModelAndView error404(Model model, HttpServletRequest request) {
     	return getModelAndViewForError(404, request);
     }
 
-    @RequestMapping(path = "/500")
+    @GetMapping(path = "/500")
     public ModelAndView error500(Model model, HttpServletRequest request) {
     	return getModelAndViewForError(500, request);
     }

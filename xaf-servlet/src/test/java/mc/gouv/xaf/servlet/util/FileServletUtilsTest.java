@@ -46,14 +46,14 @@ class FileServletUtilsTest {
 	private static final LocalDateTime zeroDate = LocalDateTime.of(2023, 1, 1, 0, 0, 0);
 
 	MockedStatic<AppFactoryServletFrontPropertiesCache> propertiesCache;
-	MockedStatic<Static> mockedStatic;
+	//MockedStatic<Static> mockedStatic;
 	MockedStatic<LocalDateTime> localDateTime;
 	MockedStatic<AfServletGouvPropertiesResolver> propertiesResolver;
 
 	@BeforeEach
 	void setup() {
 		propertiesCache = mockStatic(AppFactoryServletFrontPropertiesCache.class);
-		mockedStatic = mockStatic(Static.class);
+		//mockedStatic = mockStatic(Static.class);
 		localDateTime = mockStatic(LocalDateTime.class, CALLS_REAL_METHODS);
 		propertiesResolver = mockStatic(AfServletGouvPropertiesResolver.class);
 	}
@@ -61,7 +61,7 @@ class FileServletUtilsTest {
 	@AfterEach
 	void afterEach() {
 		propertiesCache.close();
-		mockedStatic.close();
+		//mockedStatic.close();
 		localDateTime.close();
 		propertiesResolver.close();
 	}
@@ -164,8 +164,8 @@ class FileServletUtilsTest {
 		when(compteurUpload.getDatePremierUpload()).thenReturn(zeroDate.plus(tempsIntervaleActuel, ChronoUnit.MILLIS));
 		when(compteurUpload.getCompteur()).thenReturn(maxUploadActuel);
 		when(usagersFileUploadCompteurs.get(session)).thenReturn(compteurUpload);
-		mockedStatic.when(() -> Static.getValue(anyString())).thenReturn("VALUE");
-		mockedStatic.when(() -> Static.getValue(anyString(), anyString())).thenReturn("VALUE");
+		when(Static.getValue(anyString())).thenReturn("VALUE");
+		when(Static.getValue(anyString(), anyString())).thenReturn("VALUE");
 
 		localDateTime.when(LocalDateTime::now).thenReturn(zeroDate);
 		propertiesResolver.when(AfServletGouvPropertiesResolver::getTempsIntervalleUpload)
@@ -198,8 +198,8 @@ class FileServletUtilsTest {
 		when(compteurUpload.getDatePremierUpload()).thenReturn(zeroDate.plus(tempsIntervaleActuel, ChronoUnit.MILLIS));
 		when(compteurUpload.getCompteur()).thenReturn(maxUploadActuel);
 		when(usagersFileUploadCompteurs.get(session)).thenReturn(compteurUpload);
-		mockedStatic.when(() -> Static.getValue(anyString())).thenReturn("VALUE");
-		mockedStatic.when(() -> Static.getValue(anyString(), anyString())).thenReturn("VALUE");
+		when(Static.getValue(anyString())).thenReturn("VALUE");
+		when(Static.getValue(anyString(), anyString())).thenReturn("VALUE");
 		localDateTime.when(LocalDateTime::now).thenReturn(zeroDate);
 		propertiesResolver.when(AfServletGouvPropertiesResolver::getTempsIntervalleUpload)
 				.thenReturn(String.valueOf(tempsParIntervalle));

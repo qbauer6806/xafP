@@ -10,7 +10,8 @@ public enum ResidEtatEnum {
     VAL("VAL"),
     VAC("VAC"),
     REF("REF"),
-    REN("REN");
+    REN("REN"),
+    VSI("VSI");
 
     public String value;
 

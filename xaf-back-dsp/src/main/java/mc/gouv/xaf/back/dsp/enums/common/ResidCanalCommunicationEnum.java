@@ -5,7 +5,8 @@ public enum ResidCanalCommunicationEnum {
     SMS("SMS"),
     EMA("EMA"),
     EMS("EMS"),
-    AUC("AUC");
+    AUC("AUC"),
+	PAP("PAP");
 
     public String value;
 

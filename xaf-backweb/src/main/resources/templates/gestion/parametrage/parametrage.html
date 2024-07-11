@@ -194,10 +194,11 @@
 							<div class="col-xs-2">
 								<label style="font-weight: normal">${identifiantPrefixe}</label>
 							</div>
+							<!-- on limite à 7, car le code des TS ne doivent pas dépasser ce nombre -->
 							<div class="col-xs-8">
 								<input type="text" id="identifiantPrefixe" name="identifiantPrefixe"
 									   th:field="*{identifiantPrefixe}" class="form-control" required minlength="3"
-									   maxlength="10"/>
+									   maxlength="7"/>
 							</div>
 						</div>
 					</div>

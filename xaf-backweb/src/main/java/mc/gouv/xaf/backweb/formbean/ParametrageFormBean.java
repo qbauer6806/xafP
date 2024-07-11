@@ -23,9 +23,6 @@ public class ParametrageFormBean {
 
 	private String adresseService;
     
-    private boolean langueFr;
-    
-    private boolean langueEn;
 	private String nomSousDirectionComplement;
 	private String telephoneService;
 	private String nomDemarcheEn;
@@ -87,22 +84,6 @@ public class ParametrageFormBean {
 
 	public void setIdentifiantPrefixe(String identifiantPrefixe) {
 		this.identifiantPrefixe = identifiantPrefixe;
-	}
-
-	public boolean getLangueFr() {
-		return langueFr;
-	}
-
-	public void setLangueFr(boolean langueFr) {
-		this.langueFr = langueFr;
-	}
-
-	public boolean getLangueEn() {
-		return langueEn;
-	}
-
-	public void setLangueEn(boolean langueEn) {
-		this.langueEn = langueEn;
 	}
 
 	public String getNomDirection() {

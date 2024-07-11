@@ -331,27 +331,6 @@
 							</div>
 						</div>
 					</div>
-					<br/>
-					<div class="row container-fluid">
-						<div th:class="${#fields.hasErrors('langueFr')} ? 'form-group error' : 'form-group'">
-							<div class="col-xs-2">
-								<label style="font-weight: normal">Langues prises en charge par le téléservice <span class="required mandatory"></span> :</label>
-							</div>
-							<div class="col-xs-2">
-								<label style="font-weight: normal">${langueFr}/${langueEn}</label>
-							</div>
-							<div class="col-xs-1 form-group">
-								<label style="font-weight: normal" for="langueFr">Français</label>
-								<input id="langueFr" type="checkbox" th:field="*{langueFr}" onclick="return false;"/>
-							</div>
-							<div class="col-xs-1 form-group">
-								<label style="font-weight: normal" for="langueEn">Anglais</label>
-								<input id="langueEn" type="checkbox" th:field="*{langueEn}"/>
-							</div>
-							<div class="col-xs-7">
-							</div>
-						</div>
-					</div>
 				</div>
 
 				<div class="row container-fluid">

@@ -22,7 +22,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.StringJoiner;
 
 @Controller
 @RequestMapping("/gestion/parametrage")
@@ -38,7 +37,8 @@ public class GestionParametrageController {
     private AfBackUtils afBackUtils;
 
     @GetMapping
-    public ModelAndView form(@ModelAttribute("parametrageFormBean") ParametrageFormBean parametrageFormBean, final RedirectAttributes redirectAttributes) {
+    public ModelAndView form(@ModelAttribute("parametrageFormBean") ParametrageFormBean parametrageFormBean,
+                             final RedirectAttributes redirectAttributes) {
         LOGGER.info("Appel de la page /gestion/parametrage. Méthode form");
         ModelAndView mav = new ModelAndView("gestion/parametrage/parametrage");
         if (afBackUtils.getDemarcheCanHandleProperties()) {
@@ -61,13 +61,6 @@ public class GestionParametrageController {
             parametrageFormBean.setNomDirectionEn(demarche.getNomDirectionEn());
             parametrageFormBean.setNomSousDirectionEn(demarche.getNomSousDirectionEn());
             parametrageFormBean.setNomSousDirectionComplementEn(demarche.getNomSousDirectionComplementEn());
-
-            if (demarche.getLangues().contains("fr")) {
-                parametrageFormBean.setLangueFr(true);
-            }
-            if (demarche.getLangues().contains("en")) {
-                parametrageFormBean.setLangueEn(true);
-            }
         }
 
         LOGGER.info("======================= Fin /gestion/parametrage. Méthode form");
@@ -109,14 +102,6 @@ public class GestionParametrageController {
         demarche.setNomSousDirectionEn(parametrageFormBean.getNomSousDirectionEn());
         demarche.setNomSousDirectionComplementEn(parametrageFormBean.getNomSousDirectionComplementEn());
 
-        StringJoiner newLanguesList = new StringJoiner(",");
-        if (parametrageFormBean.getLangueFr()) {
-        	newLanguesList.add("fr");
-        }
-        if (parametrageFormBean.getLangueEn()) {
-        	newLanguesList.add("en");
-        }
-        demarche.setLangues(newLanguesList.toString());
         demarchesService.updateDemarche(demarche);
         List<String> messages = new ArrayList<>();
         messages.add("Vous venez de modifier la démarche avec succès.");

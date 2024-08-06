@@ -2,6 +2,8 @@ package mc.gouv.xaf.front.dto;
 
 import java.io.Serializable;
 import java.util.Date;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * 
@@ -10,6 +12,8 @@ import java.util.Date;
  * @author qdeme
  * 
  */
+@Setter
+@Getter
 public class KeycloakTokenInfo implements Serializable {
 
 	private static final long serialVersionUID = -5604923412541200687L;
@@ -31,77 +35,5 @@ public class KeycloakTokenInfo implements Serializable {
 	private String scope;
 	
 	private Date dateObtention;
-
-	public String getAccessToken() {
-		return accessToken;
-	}
-
-	public void setAccessToken(String accessToken) {
-		this.accessToken = accessToken;
-	}
-
-	public Integer getExpiresIn() {
-		return expiresIn;
-	}
-
-	public void setExpiresIn(Integer expiresIn) {
-		this.expiresIn = expiresIn;
-	}
-
-	public String getRefreshToken() {
-		return refreshToken;
-	}
-
-	public void setRefreshToken(String refreshToken) {
-		this.refreshToken = refreshToken;
-	}
-
-	public Integer getRefreshExpiresIn() {
-		return refreshExpiresIn;
-	}
-
-	public void setRefreshExpiresIn(Integer refreshExpiresIn) {
-		this.refreshExpiresIn = refreshExpiresIn;
-	}
-
-	public String getTokenType() {
-		return tokenType;
-	}
-
-	public void setTokenType(String tokenType) {
-		this.tokenType = tokenType;
-	}
-
-	public Integer getNotBeforePolicy() {
-		return notBeforePolicy;
-	}
-
-	public void setNotBeforePolicy(Integer notBeforePolicy) {
-		this.notBeforePolicy = notBeforePolicy;
-	}
-
-	public String getSessionState() {
-		return sessionState;
-	}
-
-	public void setSessionState(String sessionState) {
-		this.sessionState = sessionState;
-	}
-
-	public String getScope() {
-		return scope;
-	}
-
-	public void setScope(String scope) {
-		this.scope = scope;
-	}
-
-	public Date getDateObtention() {
-		return dateObtention;
-	}
-
-	public void setDateObtention(Date dateObtention) {
-		this.dateObtention = dateObtention;
-	}
 
 }

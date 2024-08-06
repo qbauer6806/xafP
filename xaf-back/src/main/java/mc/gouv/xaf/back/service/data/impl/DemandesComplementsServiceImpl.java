@@ -1,24 +1,5 @@
 package mc.gouv.xaf.back.service.data.impl;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-
-import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
-import mc.gouv.xaf.back.service.itg.file.FileService;
-import mc.gouv.xaf.shared.SharedMessages;
-import mc.gouv.xaf.shared.dto.*;
-import mc.gouv.xaf.shared.enums.DemandeComplementsStatutEnum;
-
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
 import mc.gouv.xaf.back.data.dao.DemandesComplementsFilesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesComplementsRepository;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
@@ -27,9 +8,38 @@ import mc.gouv.xaf.back.data.entity.DemandesComplementsBO;
 import mc.gouv.xaf.back.data.entity.DemandesComplementsFilesBO;
 import mc.gouv.xaf.back.data.transformer.DemandesComplementsFilesTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesComplementsTransformer;
+import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.service.data.DemandesComplementsService;
 import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.back.data.transformer.DemandeFileTransformer;
+import mc.gouv.xaf.back.service.itg.file.FileService;
+import mc.gouv.xaf.shared.SharedMessages;
+import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
+import mc.gouv.xaf.shared.dto.DemandeComplementsFileDTO;
+import mc.gouv.xaf.shared.dto.DemandeComplementsQuestionDTO;
+import mc.gouv.xaf.shared.dto.DemandeComplementsReponseDTO;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.enums.DemandeComplementsStatutEnum;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Service permettant la manipulation des demandes d'informations complémentaires.
@@ -57,6 +67,12 @@ public class DemandesComplementsServiceImpl implements DemandesComplementsServic
 
     @Autowired
     private FileService fileService;
+
+    @Autowired
+    private DemandeFileTransformer demandeFileTransformer;
+
+    @Autowired
+    private DemandesTransformer demandesTransformer;
 
     @Override
     @Transactional
@@ -212,8 +228,15 @@ public class DemandesComplementsServiceImpl implements DemandesComplementsServic
 
         // Prise en charge des pièces jointes
         if (demandeComplementsReponse.getFichiers() != null) {
-            List<DemandesComplementsFilesBO> fichiers = DemandesComplementsFilesTransformer
-                    .dto2Bo(Arrays.asList(demandeComplementsReponse.getFichiers()));
+            List<DemandeComplementsFileDTO> demandeComplementsFileDTOS = Arrays.asList(demandeComplementsReponse.getFichiers());
+            // set contenu
+            try {
+                this.demandeFileTransformer.setComplementsFileContenu(demandeComplementsFileDTOS);
+            } catch (IOException e) {
+                LOGGER.error("Impossible de lire le contenu du fichier {}", demandeComplementsFileDTOS, e);
+            }
+
+            List<DemandesComplementsFilesBO> fichiers = DemandesComplementsFilesTransformer.dto2Bo(demandeComplementsFileDTOS);
             for (DemandesComplementsFilesBO fichier : fichiers) {
                 fichier.setFkDemandesComplements(demandesComplementsBO);
             }
@@ -337,11 +360,7 @@ public class DemandesComplementsServiceImpl implements DemandesComplementsServic
     private void suppressionFichierComplementaire(DemandesComplementsFilesBO currentFileToDelete) {
         String url = currentFileToDelete.getUrl();
         if (url.contains(currentFileToDelete.getName())) {
-            try {
-                url = URLEncoder.encode(url, "UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                LOGGER.error("Problème lors de l'encoding des urls des fichiers complémentaires", e);
-            }
+            url = URLEncoder.encode(url, StandardCharsets.UTF_8);
         }
         fileService.deleteFile("ROOT", url);
     }
@@ -352,7 +371,7 @@ public class DemandesComplementsServiceImpl implements DemandesComplementsServic
             if (statutCheck) {
                 for (DemandesComplementsFilesBO demandesFilesBO : existingFiles) {
                     DemandeBO concernedDemandeBO = demandesFilesBO.getFkDemandesComplements().getFkDemandes();
-                    DemandeDTO concernedDemandeDTO = DemandesTransformer.bo2Dto(concernedDemandeBO);
+                    DemandeDTO concernedDemandeDTO = demandesTransformer.bo2Dto(concernedDemandeBO);
                     isComplementFileDeletable = isDemandeUsingFile(statuts, jours, concernedDemandeDTO);
                     LOGGER.info("Le fichier {} n'a pas été supprimé car la demande {} l'utilise", demandesFilesBO.getName(), concernedDemandeDTO.getPkDemandes());
                 }
@@ -367,7 +386,7 @@ public class DemandesComplementsServiceImpl implements DemandesComplementsServic
     private boolean isDemandeUsingFile(List<String> statuts, int jours, DemandeDTO concernedDemandeDTO) {
         long diffInMillies = Math.abs(new Date().getTime() - concernedDemandeDTO.getDernierStatut().getDate().getTime());
         long diff = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
-        return statuts.contains(concernedDemandeDTO.getDernierStatut().getLibelle()) && diff >= jours;
+        return statuts.contains(concernedDemandeDTO.getDernierStatut().getName()) && diff >= jours;
     }
 
 }

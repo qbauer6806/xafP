@@ -4,19 +4,17 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
-import java.util.*;
-
-import mc.gouv.xaf.back.data.es.model.DemandeFileEsDTO;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import mc.gouv.xaf.back.data.transformer.DemandesComplementsFilesTransformer;
-import mc.gouv.xaf.back.service.pdf.PdfTypeEnum;
 import mc.gouv.xaf.shared.dto.DemandeComplementsDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.FileCategoryDTO;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.tika.Tika;
-import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -26,7 +24,6 @@ import org.springframework.web.multipart.MultipartFile;
  * @author asouabni.ext
  *
  */
-@Component
 public class FileUtils {
 
     public static final String META_BACK = "BACK_";
@@ -42,6 +39,10 @@ public class FileUtils {
     public static final String CAT_INTERNES = "Fichiers internes";
     
     public static final String MC_METADATA_PREFIX = "X-MC-";
+
+    private FileUtils() {
+        throw new IllegalStateException("Utility class");
+    }
 
     /**
      * Méthode permettant de lire le contenu d'un fichier
@@ -99,7 +100,7 @@ public class FileUtils {
         // On supprime l'exension du split
         String[] filenameSplit = Arrays.copyOf(filenameExtensionSplit, filenameExtensionSplit.length-1);
         String filenameConcat = String.join("", filenameSplit);
-        return filenameConcat.replaceAll("[^a-zA-Z0-9_]", "_") + "." + extension;
+        return filenameConcat.replaceAll("\\W", "_") + "." + extension;
     }
 
     // Norme sur les métadonnées des fichiers
@@ -133,31 +134,7 @@ public class FileUtils {
         }
         return nbSansCategorie;
     }
-    /**
-     * Méthode permettant de récupérer le type du fichier associé à la demande en se basant sur ses metas
-     *
-     * @param file fichier dont on doit vérifier le type
-     * @return Type du fichier
-     */
-    public static DemandeFileEsDTO.TYPE getDemandeFileType(DemandeFileDTO file) {
-        return getDemandeFileType(file.getMeta());
-    }
 
-    /**
-     * Méthode permettant de récupérer le type du fichier associé à la demande en se basant sur ses metas
-     *
-     * @param meta la meta du fichier
-     * @return Type du fichier
-     */
-    public static DemandeFileEsDTO.TYPE getDemandeFileType(String meta) {
-        if (FileUtils.isFileCreatedByFront(meta)) {
-            return DemandeFileEsDTO.TYPE.PIECE_JOINTE;
-        }
-        if (FileUtils.isFileCreatedByBack(meta) && meta.contains(PdfTypeEnum.COURRIER.name())) {
-            return DemandeFileEsDTO.TYPE.COURRIER;
-        }
-        return DemandeFileEsDTO.TYPE.FICHIER_INTERNE;
-    }
 
     /**
      * Génère des métas à partir des données du fichier

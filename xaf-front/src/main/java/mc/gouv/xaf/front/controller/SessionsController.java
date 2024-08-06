@@ -13,10 +13,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 /**
  * Servlet permettant de gérer les sessions des usagers.
@@ -32,9 +32,6 @@ public class SessionsController extends AbstractXafController {
 
     @Autowired
     private GichkeyService gichkeyService;
-
-    @Autowired
-    private XafFrontserverUtils xafFrontserverUtils;
 
     @GetMapping
     public ResponseEntity<UsagerInfosDTO> doGet(HttpServletRequest request, HttpServletResponse response) {
@@ -54,13 +51,13 @@ public class SessionsController extends AbstractXafController {
             //https://docs.angularjs.org/api/ng/service/$http#cross-site-request-forgery-xsrf-protection
             //Ajout du cookie XSRF-TOKEN
 
-            String xsrfValue = (String) session.getAttribute(xafFrontserverUtils.XSRF_SESSION_ATTRIBUTE);
+            String xsrfValue = (String) session.getAttribute(XafFrontserverUtils.XSRF_SESSION_ATTRIBUTE);
             if (StringUtils.isBlank(xsrfValue)) {
                 LOGGER.info("Aucun cookie xsrf trouvé en session");
                 return ResponseEntity.notFound().build();
             }
-            Cookie xsrfCookie = new Cookie(xafFrontserverUtils.XSRF_COOKIE,
-                    session.getAttribute(xafFrontserverUtils.XSRF_SESSION_ATTRIBUTE).toString());
+            Cookie xsrfCookie = new Cookie(XafFrontserverUtils.XSRF_COOKIE,
+                    session.getAttribute(XafFrontserverUtils.XSRF_SESSION_ATTRIBUTE).toString());
             xsrfCookie.setSecure(true);
             xsrfCookie.setHttpOnly(true);
             response.addCookie(xsrfCookie);
@@ -98,7 +95,7 @@ public class SessionsController extends AbstractXafController {
                     usagerInfosDTO.getAccessId());
 
             // On ne met pas à jour s'il s'agit d'un usager courrier
-            if (xafFrontserverUtils.isUsagerCourrier(usagerInfosDTO.getId())) {
+            if (XafFrontserverUtils.isUsagerCourrier(usagerInfosDTO.getId())) {
                 LOGGER.info("On ne met pas à jour s'il s'agit d'un usager courrier");
                 return ResponseEntity.ok().build();
             }
@@ -111,8 +108,8 @@ public class SessionsController extends AbstractXafController {
 
                 session.setAttribute(LOGIN, usagerInfosDTO);
                 // https://docs.angularjs.org/api/ng/service/$http#cross-site-request-forgery-xsrf-protection
-                session.setAttribute(xafFrontserverUtils.XSRF_SESSION_ATTRIBUTE,
-                        xafFrontserverUtils.createXsrfToken(session));
+                session.setAttribute(XafFrontserverUtils.XSRF_SESSION_ATTRIBUTE,
+                        XafFrontserverUtils.createXsrfToken(session));
             }
             LOGGER.info("====================== Fin /sessions doPut()");
 

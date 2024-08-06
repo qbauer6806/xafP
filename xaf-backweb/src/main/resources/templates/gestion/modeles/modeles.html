@@ -21,8 +21,6 @@
 
 <!-- Import FONTS -->
 <link th:href="@{/css/font-style.css(${applicationBuildTimestamp})}" rel="stylesheet" />
-<!--[if lt IE 8]><!-->
-<link rel="stylesheet" th:href="@{/webjars/xcb-wlib/fonts/ie7/ie7.css}" />
 
 <!-- Import CSS -->
 <link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"
@@ -30,10 +28,8 @@
 <link th:href="@{/webjars/xcb-wlib/css/template.css}" rel="stylesheet" />
 <link th:href="@{/webjars/xcb-wlib/css/sidebar.css}" rel="stylesheet" />
 <link th:href="@{/webjars/xcb-wlib/css/element.css}" rel="stylesheet" />
-<link th:href="@{/webjars/datatables/css/dataTables.bootstrap.css}"
+<link th:href="@{/webjars/datatables/css/dataTables.bootstrap.min.css}"
 	rel="stylesheet" />
-<link rel="stylesheet"
-	th:href="@{/webjars/fancybox/jquery.fancybox.css}" />
 <link rel="shortcut icon" type="image/x-icon"
 	th:href="@{/img/favicon.ico}" />
 <link th:href="@{/css/tsgen.css(${applicationBuildTimestamp})}"
@@ -46,203 +42,297 @@
 
 <body th:with="pageConfigurationActive='active'">
 
-	<div th:replace="fragments/header :: header"></div>
+	<div th:replace="~{fragments/header :: header}"></div>
 
 	<div id="wrapper">
 
-		<div th:replace="fragments/sidebar :: sidebar"></div>
+		<div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
-		<!-- DEBUT CONTENU -->
-		<div id="page-content-wrapper">
+    <!-- DEBUT CONTENU -->
+    <div id="page-content-wrapper">
 
 
-			<div class="breadcrumbContent">
-				<div class="breadcrumb">
+      <div class="breadcrumbContent">
+        <div class="breadcrumb">
 					<span> <a th:href="@{/}" class="breadcrumb-item active">Accueil</a>&nbsp;&gt;&nbsp;
 						<a th:href="@{/gestion/modeles}"
-						class="breadcrumb-item active">MODÈLES DE DOCUMENTS</a> &gt;
+               class="breadcrumb-item active">MODÈLES DE DOCUMENTS</a> &gt;
 					</span>
-				</div>
-				<div class="triangleTopright"></div>
-			</div>
+        </div>
+        <div class="triangleTopright"></div>
+      </div>
 
-			<div class="container-fluid">
-				<h1 class="col-xs-12 col-md-12">Administration des modèles</h1>
-
-
-					<ul class="nav nav-tabs" role="tablist">
-						<li th:classappend="${typeModele} == 'COURRIER' or ${typeModele} == null ? 'active' : ''"><a href="#tab1" aria-controls="tab1"
-											  role="tab" data-toggle="tab">COURRIERS</a></li>
-						<li th:classappend="${typeModele} == 'JUSTIFICATIF' ? 'active' : ''"><a href="#tab2" aria-controls="tab2" role="tab"
-							   data-toggle="tab">JUSTIFICATIFS
-						</a></li>
-						<li th:classappend="${typeModele} == 'EXPORT_EXCEL' ? 'active' : ''"><a href="#tab3" aria-controls="tab3" role="tab"
-							   data-toggle="tab">EXPORT EXCEL
-						</a></li>
-						<li th:classappend="${typeModele} == 'AUTRES' ? 'active' : ''"><a href="#tab4" aria-controls="tab4" role="tab"
-																								data-toggle="tab">AUTRES
-						</a></li>
-					</ul>
-					<!-- Tab panes -->
-					<div class="tab-content">
-						<div role="tabpanel" class="tab-pane" id="tab1"
-						th:classappend="${typeModele} == 'COURRIER' or ${typeModele} == null ? 'active' : ''">
-							<div th:each="courrier : ${courriers}">
-								<form name="form1" method="POST" enctype="multipart/form-data" th:action="@{/gestion/modeles/valider}+'?'+${_csrf.parameterName}+'='+${_csrf.token}">
-									<div class="sectiondemande">
-										<h2>Modèle <span th:text="${courrier.name}"></span></h2>
-										<div class="row">
-											<div class="col-xs-12 col-md-12">
-												<span>Dernière modification : </span><span th:text="${#dates.format(courrier.dateCreation,'dd/MM/yyyy HH:mm:ss')}"></span>
-											</div>
-										</div>
-										<br/>
-										<div class="row">
-											<div class="col-xs-12 col-md-12">
-												<a id="voirModele" class="btn btn-action ripple-effect" th:href="@{/gestion/modeles/get/}+${courrier.name}"><span class="icon-action_voir"></span>&nbsp;&nbsp;Voir le modèle</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-												<a id="choisirModele" class="btn btn-action ripple-effect"><input class="multiple-file-input" id="fileInput" type="file" name="fileToUpload" th:data="${courrier.name}">&nbsp;&nbsp;Test</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-												<input type="submit" value="Valider le nouveau modèle" class="btn btn-action ripple-effect" id="envoyer-button" th:data="${courrier.name}" disabled="disabled"/>
-												<input type="hidden" name="filename" th:value="${courrier.name}" />
-												<input type="hidden" name="typeModele" value="COURRIER" />
-											</div>
-										</div>
-									</div>
-								</form>
-							</div>
-						</div>
-						<div role="tabpanel" class="tab-pane" id="tab2"
-						th:classappend="${typeModele} == 'JUSTIFICATIF' ? 'active' : ''">
-							<div th:each="justificatif : ${justificatifs}">
-								<form name="form1" method="POST" enctype="multipart/form-data" th:action="@{/gestion/modeles/valider}+'?'+${_csrf.parameterName}+'='+${_csrf.token}">
-									<div class="sectiondemande">
-										<h2>Modèle <span th:text="${justificatif.name}"></span></h2>
-										<div class="row">
-											<div class="col-xs-12 col-md-12">
-												<span>Dernière modification : </span><span th:text="${#dates.format(justificatif.dateCreation,'dd/MM/yyyy HH:mm:ss')}"></span>
-											</div>
-										</div>
-										<br/>
-										<div class="row">
-											<div class="col-xs-12 col-md-12">
-												<a id="voirModele" class="btn btn-action ripple-effect" th:href="@{/gestion/modeles/get/}+${justificatif.name}"><span class="icon-action_voir"></span>&nbsp;&nbsp;Voir le modèle</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-												<a id="choisirModele" class="btn btn-action ripple-effect"><input class="multiple-file-input" id="fileInput" type="file" name="fileToUpload" th:data="${justificatif.name}">&nbsp;&nbsp;Test</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-												<input type="submit" value="Valider le nouveau modèle" class="btn btn-action ripple-effect" id="envoyer-button" th:data="${justificatif.name}" disabled="disabled"/>
-												<input type="hidden" name="filename" th:value="${justificatif.name}" />
-												<input type="hidden" name="typeModele" value="JUSTIFICATIF" />
-											</div>
-										</div>
-									</div>
-								</form>
-							</div>
-						</div>
-						<div role="tabpanel" class="tab-pane" id="tab3"
-						th:classappend="${typeModele} == 'EXPORT_EXCEL' ? 'active' : ''">
-							<form name="form1" method="POST" enctype="multipart/form-data" th:action="@{/gestion/modeles/valider}+'?'+${_csrf.parameterName}+'='+${_csrf.token}">
-								<div class="sectiondemande" th:if="${exportExcel}">
-									<h2>Modèle <span th:text="${exportExcel.name}"></span></h2>
-									<div class="row">
-										<div class="col-xs-12 col-md-12">
-											<span>Dernière modification : </span><span th:text="${#dates.format(exportExcel.dateCreation,'dd/MM/yyyy HH:mm:ss')}"></span>
-										</div>
-									</div>
-									<br/>
-									<div class="row">
-										<div class="col-xs-12 col-md-12">
-											<a id="voirModele" class="btn btn-action ripple-effect" th:href="@{/gestion/modeles/get/}+${exportExcel.name}"><span class="icon-action_voir"></span>&nbsp;&nbsp;Voir le modèle</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-											<a id="choisirModele" class="btn btn-action ripple-effect"><input class="multiple-file-input" id="fileInput" type="file" name="fileToUpload" th:data="${exportExcel.name}">&nbsp;&nbsp;Test</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-											<input type="submit" value="Valider le nouveau modèle" class="btn btn-action ripple-effect" id="envoyer-button" th:data="${exportExcel.name}" disabled="disabled"/>
-											<input type="hidden" name="filename" th:value="${exportExcel.name}" />
-											<input type="hidden" name="typeModele" value="EXPORT_EXCEL" />
-										</div>
-									</div>
-								</div>
-							</form>
-						</div>
-						<div role="tabpanel" class="tab-pane" id="tab4"
-							 th:classappend="${typeModele} == 'AUTRES' ? 'active' : ''">
-							<div th:each="fichierAutre : ${autres}">
-								<form name="form1" method="POST" enctype="multipart/form-data" th:action="@{/gestion/modeles/valider}+'?'+${_csrf.parameterName}+'='+${_csrf.token}">
-									<div class="sectiondemande">
-										<h2>Modèle <span th:text="${fichierAutre.name}"></span></h2>
-										<div class="row">
-											<div class="col-xs-12 col-md-12">
-												<span>Dernière modification : </span><span th:text="${#dates.format(fichierAutre.dateCreation,'dd/MM/yyyy HH:mm:ss')}"></span>
-											</div>
-										</div>
-										<br/>
-										<div class="row">
-											<div class="col-xs-12 col-md-12">
-												<a id="voirModele" class="btn btn-action ripple-effect" th:href="@{/gestion/modeles/get/}+${fichierAutre.name}"><span class="icon-action_voir"></span>&nbsp;&nbsp;Voir le modèle</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-												<a id="choisirModele" class="btn btn-action ripple-effect"><input class="multiple-file-input" id="fileInput" type="file" name="fileToUpload" th:data="${fichierAutre.name}">&nbsp;&nbsp;Test</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-												<input type="submit" value="Valider le nouveau modèle" class="btn btn-action ripple-effect" id="envoyer-button" th:data="${fichierAutre.name}" disabled="disabled"/>
-												<input type="hidden" name="filename" th:value="${fichierAutre.name}" />
-												<input type="hidden" name="typeModele" value="AUTRES" />
-											</div>
-										</div>
-									</div>
-								</form>
-							</div>
-						</div>
-					</div>
+      <div class="container-fluid">
+        <h1 class="col-xs-12 col-md-12">Administration des modèles</h1>
 
 
-			</div>
+        <ul class="nav nav-tabs" role="tablist">
+          <li th:classappend="${typeModele} == 'COURRIER' or ${typeModele} == null ? 'active' : ''">
+            <a aria-controls="tab1" data-toggle="tab" href="#tab1" role="tab">COURRIERS</a>
+          </li>
+          <li th:classappend="${typeModele} == 'JUSTIFICATIF' ? 'active' : ''">
+            <a aria-controls="tab2" data-toggle="tab" href="#tab2" role="tab">JUSTIFICATIFS </a>
+          </li>
+          <li th:classappend="${typeModele} == 'EXPORT_EXCEL' ? 'active' : ''">
+            <a aria-controls="tab3" data-toggle="tab" href="#tab3" role="tab">EXPORT EXCEL </a>
+          </li>
+          <li th:classappend="${typeModele} == 'AUTRES' ? 'active' : ''">
+            <a aria-controls="tab4" data-toggle="tab" href="#tab4" role="tab">AUTRES </a>
+          </li>
+        </ul>
+        <!-- Tab panes -->
+        <div class="tab-content">
+          <div role="tabpanel" class="tab-pane" id="tab1"
+               th:classappend="${typeModele} == 'COURRIER' or ${typeModele} == null ? 'active' : ''">
+            <div th:each="courrier : ${courriers}">
+              <div class="sectiondemande">
+                <div>
+                  <h2>Modèle <span th:text="${courrier.name}"></span></h2>
+                </div>
+                <div class="row">
+                  <div class="col-xs-12 col-md-12">
+                    <span>Dernière modification : </span><span th:text="${#dates.format(courrier.dateCreation,'dd/MM/yyyy HH:mm:ss')}"></span>
+                  </div>
+                </div>
+                <br/>
+                <div class="row">
+                  <div class="col-xs-12 col-md-12">
+                    <form name="form1" method="POST" enctype="multipart/form-data" th:action="@{/gestion/modeles/valider}+'?'+${_csrf.parameterName}+'='+${_csrf.token}">
+                      <a id="voirModele" class="btn btn-action ripple-effect" th:href="@{/gestion/modeles/get/}+${courrier.name}"><span class="icon-action_voir"></span>&nbsp;&nbsp;Voir le modèle</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                      <a id="choisirModele" class="btn btn-action ripple-effect"><input class="multiple-file-input" id="fileInput" type="file" name="fileToUpload" th:data="${courrier.name}">&nbsp;&nbsp;Test</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                      <input type="submit" value="Valider le nouveau modèle" class="btn btn-action ripple-effect" id="envoyer-button" th:data="${courrier.name}" disabled="disabled"/>
+                      <input type="hidden" name="filename" th:value="${courrier.name}" />
+                      <input type="hidden" name="typeModele" value="COURRIER" />
+                    </form>
+                    <a href="#" class="btn btn-action ripple-effect supprimer" id="btnSupprimer" th:data="${courrier.name}" th:attr="data-filename=${courrier.name},data-typeModele=COURRIER">
+                      <span class="icon-action_supprimer"></span> Supprimer le modèle
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="sectiondemande">
+              <h2>Ajouter un nouveau modèle</h2>
+              <div class="col-xs-12 col-md-12">
+                <form method="post" enctype="multipart/form-data" th:action="@{/gestion/modeles/ajouter}+'?'+${_csrf.parameterName}+'='+${_csrf.token}">
+                  <a id="ajouterModele" class="btn btn-action ripple-effect"><input class="new-file-input" id="fileInput" type="file" name="fileToUpload" th:data="COURRIER">&nbsp;&nbsp;Test</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                  <input type="submit" value="Ajouter un nouveau modèle" class="btn btn-action ripple-effect" id="nouveau-button" disabled="disabled" th:data="COURRIER"/>
+                  <input type="hidden" name="typeModele" value="COURRIER" />
+                </form>
+              </div>
+            </div><br/>
+          </div>
+          <div role="tabpanel" class="tab-pane" id="tab2"
+               th:classappend="${typeModele} == 'JUSTIFICATIF' ? 'active' : ''">
+            <div th:each="justificatif : ${justificatifs}">
+              <div class="sectiondemande">
+                <h2>Modèle <span th:text="${justificatif.name}"></span></h2>
+                <div class="row">
+                  <div class="col-xs-12 col-md-12">
+                    <span>Dernière modification : </span><span th:text="${#dates.format(justificatif.dateCreation,'dd/MM/yyyy HH:mm:ss')}"></span>
+                  </div>
+                </div>
+                <br/>
+                <div class="row">
+                  <div class="col-xs-12 col-md-12">
+                    <form name="form1" method="POST" enctype="multipart/form-data" th:action="@{/gestion/modeles/valider}+'?'+${_csrf.parameterName}+'='+${_csrf.token}">
+                      <a id="voirModele" class="btn btn-action ripple-effect" th:href="@{/gestion/modeles/get/}+${justificatif.name}"><span class="icon-action_voir"></span>&nbsp;&nbsp;Voir le modèle</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                      <a id="choisirModele" class="btn btn-action ripple-effect"><input class="multiple-file-input" id="fileInput" type="file" name="fileToUpload" th:data="${justificatif.name}">&nbsp;&nbsp;Test</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                      <input type="submit" value="Valider le nouveau modèle" class="btn btn-action ripple-effect" id="envoyer-button" th:data="${justificatif.name}" disabled="disabled"/>
+                      <input type="hidden" name="filename" th:value="${justificatif.name}" />
+                      <input type="hidden" name="typeModele" value="JUSTIFICATIF" />
+                    </form>
+                    <a href="#" class="btn btn-action ripple-effect supprimer" id="btnSupprimer" th:data="${justificatif.name}" th:attr="data-filename=${justificatif.name},data-typeModele=JUSTIFICATIF">
+                      <span class="icon-action_supprimer"></span> Supprimer le modèle
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="sectiondemande">
+              <h2>Ajouter un nouveau modèle</h2>
+              <div class="col-xs-12 col-md-12">
+                <form method="post" enctype="multipart/form-data" th:action="@{/gestion/modeles/ajouter}+'?'+${_csrf.parameterName}+'='+${_csrf.token}">
+                  <a id="ajouterModele" class="btn btn-action ripple-effect"><input class="new-file-input" id="fileInput" type="file" name="fileToUpload" th:data="JUSTIFICATIF">&nbsp;&nbsp;Test</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                  <input type="submit" value="Ajouter un nouveau modèle" class="btn btn-action ripple-effect" id="nouveau-button" disabled="disabled" th:data="JUSTIFICATIF"/>
+                  <input type="hidden" name="typeModele" value="JUSTIFICATIF" />
+                </form>
+              </div>
+            </div><br/>
+          </div>
+          <div role="tabpanel" class="tab-pane" id="tab3"
+               th:classappend="${typeModele} == 'EXPORT_EXCEL' ? 'active' : ''">
+            <div class="sectiondemande" th:if="${exportExcel}">
+              <h2>Modèle <span th:text="${exportExcel.name}"></span></h2>
+              <div class="row">
+                <div class="col-xs-12 col-md-12">
+                  <span>Dernière modification : </span><span th:text="${#dates.format(exportExcel.dateCreation,'dd/MM/yyyy HH:mm:ss')}"></span>
+                </div>
+              </div>
+              <br/>
+              <div class="row">
+                <div class="col-xs-12 col-md-12">
+                  <form name="form1" method="POST" enctype="multipart/form-data" th:action="@{/gestion/modeles/valider}+'?'+${_csrf.parameterName}+'='+${_csrf.token}">
+                    <a id="voirModele" class="btn btn-action ripple-effect" th:href="@{/gestion/modeles/get/}+${exportExcel.name}"><span class="icon-action_voir"></span>&nbsp;&nbsp;Voir le modèle</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a id="choisirModele" class="btn btn-action ripple-effect"><input class="multiple-file-input" id="fileInput" type="file" name="fileToUpload" th:data="${exportExcel.name}">&nbsp;&nbsp;Test</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <input type="submit" value="Valider le nouveau modèle" class="btn btn-action ripple-effect" id="envoyer-button" th:data="${exportExcel.name}" disabled="disabled"/>
+                    <input type="hidden" name="filename" th:value="${exportExcel.name}" />
+                    <input type="hidden" name="typeModele" value="EXPORT_EXCEL" />
+                  </form>
+                  <a href="#" class="btn btn-action ripple-effect supprimer" id="btnSupprimer" th:data="${exportExcel.name}" th:attr="data-filename=${exportExcel.name},data-typeModele=EXPORT_EXCEL">
+                    <span class="icon-action_supprimer"></span> Supprimer le modèle
+                  </a>
+                </div>
+              </div>
+            </div>
+            <div class="sectiondemande">
+              <h2>Ajouter un nouveau modèle</h2>
+              <div class="col-xs-12 col-md-12">
+                <form method="post" enctype="multipart/form-data" th:action="@{/gestion/modeles/ajouter}+'?'+${_csrf.parameterName}+'='+${_csrf.token}">
+                  <a id="ajouterModele" class="btn btn-action ripple-effect"><input class="new-file-input" id="fileInput" type="file" name="fileToUpload" th:data="EXPORT_EXCEL">&nbsp;&nbsp;Test</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                  <input type="submit" value="Ajouter un nouveau modèle" class="btn btn-action ripple-effect" id="nouveau-button" disabled="disabled" th:data="EXPORT_EXCEL"/>
+                  <input type="hidden" name="typeModele" value="EXPORT_EXCEL" />
+                </form>
+              </div>
+            </div><br/>
+          </div>
+          <div role="tabpanel" class="tab-pane" id="tab4"
+               th:classappend="${typeModele} == 'AUTRES' ? 'active' : ''">
+            <div th:each="fichierAutre : ${autres}">
+              <div class="sectiondemande">
+                <h2>Modèle <span th:text="${fichierAutre.name}"></span></h2>
+                <div class="row">
+                  <div class="col-xs-12 col-md-12">
+                    <span>Dernière modification : </span><span th:text="${#dates.format(fichierAutre.dateCreation,'dd/MM/yyyy HH:mm:ss')}"></span>
+                  </div>
+                </div>
+                <br/>
+                <div class="row">
+                  <div class="col-xs-12 col-md-12">
+                    <form name="form1" method="POST" enctype="multipart/form-data" th:action="@{/gestion/modeles/valider}+'?'+${_csrf.parameterName}+'='+${_csrf.token}">
+                      <a id="voirModele" class="btn btn-action ripple-effect" th:href="@{/gestion/modeles/get/}+${fichierAutre.name}"><span class="icon-action_voir"></span>&nbsp;&nbsp;Voir le modèle</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                      <a id="choisirModele" class="btn btn-action ripple-effect"><input class="multiple-file-input" id="fileInput" type="file" name="fileToUpload" th:data="${fichierAutre.name}">&nbsp;&nbsp;Test</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                      <input type="submit" value="Valider le nouveau modèle" class="btn btn-action ripple-effect" id="envoyer-button" th:data="${fichierAutre.name}" disabled="disabled"/>
+                      <input type="hidden" name="filename" th:value="${fichierAutre.name}" />
+                      <input type="hidden" name="typeModele" value="AUTRES" />
+                    </form>
+                    <a href="#" class="btn btn-action ripple-effect supprimer" id="btnSupprimer" th:data="${fichierAutre.name}" th:attr="data-filename=${fichierAutre.name},data-typeModele=AUTRES">
+                      <span class="icon-action_supprimer"></span> Supprimer le modèle
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="sectiondemande">
+              <h2>Ajouter un nouveau modèle</h2>
+              <div class="col-xs-12 col-md-12">
+                <form method="post" enctype="multipart/form-data" th:action="@{/gestion/modeles/ajouter}+'?'+${_csrf.parameterName}+'='+${_csrf.token}">
+                  <a id="ajouterModele" class="btn btn-action ripple-effect"><input class="new-file-input" id="fileInput" type="file" name="fileToUpload" th:data="AUTRES">&nbsp;&nbsp;Test</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                  <input type="submit" value="Ajouter un nouveau modèle" class="btn btn-action ripple-effect" id="nouveau-button" disabled="disabled" th:data="AUTRES"/>
+                  <input type="hidden" name="typeModele" value="AUTRES" />
+                </form>
+              </div>
+            </div><br/>
+          </div>
+        </div>
+      </div>
 
-			<input type="hidden" href="javascript:void(0);" data-type="success"
-				data-delay="5000" data-message="" id="successMessage"
-				class="notification" /> <input type="hidden"
-				href="javascript:void(0);" data-type="danger" data-delay="0"
-				data-message="" id="errorMessage" class="notification" />
+      <input type="hidden" href="javascript:void(0);" data-type="success"
+             data-delay="5000" data-message="" id="successMessage"
+             class="notification" /> <input type="hidden"
+                                            href="javascript:void(0);" data-type="danger" data-delay="0"
+                                            data-message="" id="errorMessage" class="notification" />
 
 
-			<!-- FIN CONTENU -->
-		</div>
-	</div>
+      <!-- Template Suppression -->
 
-	<div th:replace="fragments/footer :: footer"></div>
+      <div th:replace="~{fragments/supprimermodele :: supprimermodele}"></div>
 
-	<script th:src="@{/js/tsadminjobs.js(${applicationBuildTimestamp})}"></script>
 
-	<script th:inline="javascript">
+      <!-- FIN CONTENU -->
+    </div>
+  </div>
 
-		/*<![CDATA[*/
+  <div th:replace="~{fragments/footer :: footer}"></div>
 
-		$(document).ready(function() {
+  <script th:src="@{/js/tsadminjobs.js(${applicationBuildTimestamp})}"></script>
 
-			var messagesSuccessList = /*[[${successMessages}]]*/'default';
+  <script th:inline="javascript">
 
-			if (messagesSuccessList !== 'undefined' && messagesSuccessList !== null) {
-				$.each(messagesSuccessList, function(key, msg) {
-					$.notify({
-						message: msg
-					},{
-						type: 'success'
-					});
-				});
-			}
+    /*<![CDATA[*/
 
-			var messagesErrorList = /*[[${errorMessages}]]*/'default';
+    $(document).ready(function() {
 
-			if (messagesErrorList !== 'undefined' && messagesErrorList !== null) {
-				$.each(messagesErrorList, function(key, msg) {
-					$.notify({
-						message: msg
-					},{
-						type: 'danger'
-					});
-				});
-			}
+      var messagesSuccessList = /*[[${successMessages}]]*/'default';
 
-			$('.multiple-file-input').change(function() {
-				var data = this.getAttribute('data');
-				var button = $("input[data='" + data + "'][type='submit']");
-				button.prop('disabled', !button.attr('disabled'));
-			  });
+      if (messagesSuccessList !== 'undefined' && messagesSuccessList !== null) {
+        $.each(messagesSuccessList, function(key, msg) {
+          $.notify({
+            message: msg
+          },{
+            type: 'success'
+          });
+        });
+      }
 
-		});
+      var messagesErrorList = /*[[${errorMessages}]]*/'default';
 
-		/*]]>*/
-	</script>
+      if (messagesErrorList !== 'undefined' && messagesErrorList !== null) {
+        $.each(messagesErrorList, function(key, msg) {
+          $.notify({
+            message: msg
+          },{
+            type: 'danger'
+          });
+        });
+      }
+
+      $('.multiple-file-input').change(function() {
+        var data = this.getAttribute('data');
+        var button = $("input[data='" + data + "'][type='submit']");
+        button.prop('disabled', !button.attr('disabled'));
+      });
+
+      $('.new-file-input').change(function() {
+        var data = this.getAttribute('data');
+        var button = $("input[data='" + data + "'][type='submit']");
+        button.prop('disabled', !button.attr('disabled'));
+      });
+
+      $(".supprimer-annuler").click(function(e){
+        e.preventDefault();
+        $('.modal').modal('hide');
+        return false;
+      });
+
+      $("#supprimer-button").click(function(e){
+        $("#supprimer-button").prop('disabled', true);
+        e.preventDefault();
+        $('.modal').modal('hide');
+        $('#form-supprimer').submit();
+        return false;
+      });
+
+      $(".supprimer").click(function(e) {
+        e.preventDefault();
+
+        var filename = $(this).data("filename");
+        var typeModele = $(this).data("typemodele");
+
+        $('#supprimer-box').modal();
+
+        $(".filename").val(filename);
+        $("#dlgFilename").text(filename);
+        $(".typeModele").val(typeModele);
+
+        return true;
+
+      });
+
+    });
+
+    /*]]>*/
+  </script>
 
 </body>
 </html>

@@ -1,17 +1,19 @@
 package mc.gouv.xaf.back.data.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.validation.constraints.Size;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.Size;
 
-import org.hibernate.validator.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * 
@@ -20,6 +22,8 @@ import org.hibernate.validator.constraints.NotBlank;
  * @author qdeme
  *
  */
+@Setter
+@Getter
 @Entity
 @Table(name = "DEM_DEMANDES_DATA")
 public class DemandesDataBO {
@@ -38,40 +42,8 @@ public class DemandesDataBO {
     @Size(min = 1, max = 256)
     private String key;
 
-    @Column(name = "\"VALUE\"", length = 10000, nullable = true)
-    @Size(min = 0, max = 10000)
+    @Column(name = "\"VALUE\"", length = 10000)
+    @Size(max = 10000)
     private String value;
-
-    public Integer getPkDemandesData() {
-        return pkDemandesData;
-    }
-
-    public void setPkDemandesData(Integer pkDemandesData) {
-        this.pkDemandesData = pkDemandesData;
-    }
-
-    public DemandeBO getFkDemandes() {
-        return fkDemandes;
-    }
-
-    public void setFkDemandes(DemandeBO fkDemandes) {
-        this.fkDemandes = fkDemandes;
-    }
-
-    public String getKey() {
-        return key;
-    }
-
-    public void setKey(String key) {
-        this.key = key;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
 
 }

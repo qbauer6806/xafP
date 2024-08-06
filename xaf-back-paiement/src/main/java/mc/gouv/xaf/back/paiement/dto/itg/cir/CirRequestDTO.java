@@ -1,10 +1,16 @@
 package mc.gouv.xaf.back.paiement.dto.itg.cir;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  * Représente un objet pour les requêtes vers CIR
  */
+@Setter
+@Getter
+@ToString
 public class CirRequestDTO {
 
     @JsonProperty("NumTpe")
@@ -38,144 +44,4 @@ public class CirRequestDTO {
     @JsonProperty("montantOperation")
     public String montantOperation;
 
-    public String getNumTpe() {
-        return numTpe;
-    }
-
-    public void setNumTpe(String numTpe) {
-        this.numTpe = numTpe;
-    }
-
-    public String getDateOperation() {
-        return dateOperation;
-    }
-
-    public void setDateOperation(String dateOperation) {
-        this.dateOperation = dateOperation;
-    }
-
-    public Double getMontant() {
-        return montant;
-    }
-
-    public void setMontant(Double montant) {
-        this.montant = montant;
-    }
-
-    public String getNomPropr() {
-        return nomPropr;
-    }
-
-    public void setNomPropr(String nomPropr) {
-        this.nomPropr = nomPropr;
-    }
-
-    public String getPrenomPropr() {
-        return prenomPropr;
-    }
-
-    public void setPrenomPropr(String prenomPropr) {
-        this.prenomPropr = prenomPropr;
-    }
-
-    public String getCodeTransaction() {
-        return codeTransaction;
-    }
-
-    public void setCodeTransaction(String codeTransaction) {
-        this.codeTransaction = codeTransaction;
-    }
-
-    public String getAutorisation() {
-        return autorisation;
-    }
-
-    public void setAutorisation(String autorisation) {
-        this.autorisation = autorisation;
-    }
-
-    public String getTransactionId() {
-        return transactionId;
-    }
-
-    public void setTransactionId(String transactionId) {
-        this.transactionId = transactionId;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getCodeReglement() {
-        return codeReglement;
-    }
-
-    public void setCodeReglement(String codeReglement) {
-        this.codeReglement = codeReglement;
-    }
-
-    public String getNumPermis() {
-        return numPermis;
-    }
-
-    public void setNumPermis(String numPermis) {
-        this.numPermis = numPermis;
-    }
-
-    public String getNumImmat() {
-        return numImmat;
-    }
-
-    public void setNumImmat(String numImmat) {
-        this.numImmat = numImmat;
-    }
-
-    public Integer getRegistre() {
-        return registre;
-    }
-
-    public void setRegistre(Integer registre) {
-        this.registre = registre;
-    }
-
-    public String getCodeOperation() {
-        return codeOperation;
-    }
-
-    public void setCodeOperation(String codeOperation) {
-        this.codeOperation = codeOperation;
-    }
-
-    public String getMontantOperation() {
-        return montantOperation;
-    }
-
-    public void setMontantOperation(String montantOperation) {
-        this.montantOperation = montantOperation;
-    }
-
-    @Override
-    public String toString() {
-        return "CirRequestDTO{" +
-                "numTpe='" + numTpe + '\'' +
-                ", dateOperation='" + dateOperation + '\'' +
-                ", montant=" + montant +
-                ", nomPropr='" + nomPropr + '\'' +
-                ", prenomPropr='" + prenomPropr + '\'' +
-                ", codeTransaction='" + codeTransaction + '\'' +
-                ", autorisation='" + autorisation + '\'' +
-                ", transactionId='" + transactionId + '\'' +
-                ", email='" + email + '\'' +
-                ", codeReglement='" + codeReglement + '\'' +
-                ", numPermis='" + numPermis + '\'' +
-                ", numImmat='" + numImmat + '\'' +
-                ", registre=" + registre +
-                ", codeOperation='" + codeOperation + '\'' +
-                ", montantOperation='" + montantOperation + '\'' +
-                '}';
-    }
 }

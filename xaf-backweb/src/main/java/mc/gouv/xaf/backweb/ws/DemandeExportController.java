@@ -2,7 +2,7 @@ package mc.gouv.xaf.backweb.ws;
 
 import java.util.Map;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +49,9 @@ public class DemandeExportController extends AbstractController {
     public void exportExcel(HttpServletResponse response, @RequestParam(required = false) String creationStartDate , @RequestParam(required = false) String creationEndDate) {
 
         LOGGER.info("======================= Appel du controller /ws/export/excel");
-        LOGGER.info("Paramètres de l'export [creationStartDate={}, creationEndDate={}]", creationStartDate, creationEndDate);
+        String safeCreationStart = AfBackUtils.logSafe(creationStartDate);
+        String safeCreationEnd = AfBackUtils.logSafe(creationEndDate);
+        LOGGER.info("Paramètres de l'export [creationStartDate={}, creationEndDate={}]", safeCreationStart, safeCreationEnd);
 
         try {
             String demarcheId = gouvPropertiesResolver.getDemarcheId();

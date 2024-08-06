@@ -2,13 +2,15 @@ package mc.gouv.xaf.back.data.entity;
 
 import java.util.Date;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.validation.constraints.Size;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * 
@@ -19,6 +21,8 @@ import javax.validation.constraints.Size;
  * @author xdecool
  *
  */
+@Setter
+@Getter
 @Entity
 @Table(name = "DEM_RESTITUTION_STATISTIQUES")
 public class RestitutionStatistiquesBO {
@@ -34,7 +38,7 @@ public class RestitutionStatistiquesBO {
     @Column(name = "HTTP_CODE", nullable = false)
     private Integer httpCode;
     
-    @Column(name = "MESSAGE", nullable = true)
+    @Column(name = "MESSAGE")
     private String message;
 
     @Column(name = "TIMESTAMP_APPEL", nullable = false)
@@ -46,64 +50,5 @@ public class RestitutionStatistiquesBO {
     @Column(name = "DEMARCHE_ID", length = 128)
     @Size(min = 1, max = 128)
     private String demarcheId;
-    
-
-	public String getDemarcheId() {
-		return demarcheId;
-	}
-
-	public void setDemarcheId(String demarcheId) {
-		this.demarcheId = demarcheId;
-	}
-
-	public String getSource() {
-		return source;
-	}
-
-	public void setSource(String source) {
-		this.source = source;
-	}
-
-	public Integer getPkStatistique() {
-		return pkStatistique;
-	}
-
-	public void setPkStatistique(Integer pkStatistique) {
-		this.pkStatistique = pkStatistique;
-	}
-
-	public Integer getUsagerId() {
-		return usagerId;
-	}
-
-	public void setUsagerId(Integer usagerId) {
-		this.usagerId = usagerId;
-	}
-
-	public Integer getHttpCode() {
-		return httpCode;
-	}
-
-	public void setHttpCode(Integer httpCode) {
-		this.httpCode = httpCode;
-	}
-
-	public String getMessage() {
-		return message;
-	}
-
-	public void setMessage(String message) {
-		this.message = message;
-	}
-
-	public Date getDate() {
-		return date;
-	}
-
-	public void setDate(Date date) {
-		this.date = date;
-	}
-
-	
 
 }

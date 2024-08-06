@@ -1,13 +1,19 @@
 package mc.gouv.xaf.back.paiement.data.entity;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 /**
  * Classe BO de la table PMNT_COMMANDES_DEMANDES_ARTICLES
  *
  * @author mboutelier.ext
  */
+@Setter
+@Getter
 @Entity
+@ToString
 @Table(name = "PMNT_COMMANDES_DEMANDES_ARTICLES")
 public class CommandeDemandeArticleBO {
 
@@ -23,46 +29,4 @@ public class CommandeDemandeArticleBO {
     private String codeTarif;
 
     private double montant;
-
-    public Integer getPkCommandesDemandesArticles() {
-        return pkCommandesDemandesArticles;
-    }
-
-    public void setPkCommandesDemandesArticles(Integer pkCommandesDemandesArticles) {
-        this.pkCommandesDemandesArticles = pkCommandesDemandesArticles;
-    }
-
-    public CommandeDemandeBO getCommandeDemande() {
-        return commandeDemande;
-    }
-
-    public void setCommandeDemande(CommandeDemandeBO commandeDemande) {
-        this.commandeDemande = commandeDemande;
-    }
-
-    public String getCodeTarif() {
-        return codeTarif;
-    }
-
-    public void setCodeTarif(String codeTarif) {
-        this.codeTarif = codeTarif;
-    }
-
-    public double getMontant() {
-        return montant;
-    }
-
-    public void setMontant(double montant) {
-        this.montant = montant;
-    }
-
-    @Override
-    public String toString() {
-        return "CommandeDemandeArticleBO{" +
-                "pkCommandesDemandesArticles=" + pkCommandesDemandesArticles +
-                ", commandeDemande=" + commandeDemande +
-                ", codeTarif='" + codeTarif + '\'' +
-                ", montant=" + montant +
-                '}';
-    }
 }

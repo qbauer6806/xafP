@@ -2,6 +2,14 @@ package mc.gouv.xaf.back.service.data.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 import mc.gouv.xaf.back.data.dao.AccessRepository;
 import mc.gouv.xaf.back.data.dao.BrouillonsFilesRepository;
 import mc.gouv.xaf.back.data.dao.BrouillonsRepository;
@@ -17,8 +25,8 @@ import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.AccessService;
 import mc.gouv.xaf.back.service.data.BrouillonsFilesService;
 import mc.gouv.xaf.back.service.data.BrouillonsService;
+import mc.gouv.xaf.back.service.data.DemandesConfigService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
-import mc.gouv.xaf.back.service.utils.AbstractTsUtils;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.BrouillonDTO;
 import mc.gouv.xaf.shared.dto.BrouillonFileDTO;
@@ -33,15 +41,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
 
 /**
  * Service permettant la manipulation des brouillons.
@@ -71,9 +70,6 @@ public class BrouillonsServiceImpl implements BrouillonsService {
     private AccessService accessService;
 
     @Autowired
-    private AbstractTsUtils abstractTsUtils;
-
-    @Autowired
     private DemarchesDataProvider demarchesDataProvider;
 
     @Autowired
@@ -81,6 +77,9 @@ public class BrouillonsServiceImpl implements BrouillonsService {
 
     @Autowired
     private DemandesFilesRepository demandesFilesRepository;
+
+    @Autowired
+    private DemandesConfigService demandesConfigService;
 
     /**
      * {@inheritDoc}
@@ -97,6 +96,7 @@ public class BrouillonsServiceImpl implements BrouillonsService {
         }
         brouillon.setDateCreation(new Date());
         brouillon.setDateDerModif(brouillon.getDateCreation());
+        brouillon.setBuildId(demandesConfigService.getLastBuildId());
 
         LOGGER.info(SharedMessages.TRANSFORMATION_DTO_BO);
         BrouillonBO brouillonBo = BrouillonsTransformer.dto2Bo(brouillon);
@@ -126,7 +126,8 @@ public class BrouillonsServiceImpl implements BrouillonsService {
         LOGGER.info("Transformation bo -> dto ...");
 
         List<BrouillonDTO> brouillonsDTO = BrouillonsTransformer.bo2Dto(brouillons);
-        brouillonsDTO.forEach(brouillonDto -> BrouillonsTransformer.setDernierStatut(brouillonDto, abstractTsUtils.getLastBuildId(), demarchesDataProvider.getBrouillonStatutNotTransmitted(), demarchesDataProvider.getBrouillonStatutDeprecated()));
+        String lastBuildId = demandesConfigService.getLastBuildId();
+        brouillonsDTO.forEach(brouillonDto -> BrouillonsTransformer.setDernierStatut(brouillonDto, lastBuildId, demarchesDataProvider.getBrouillonStatutNotTransmitted(), demarchesDataProvider.getBrouillonStatutDeprecated()));
         return brouillonsDTO;
 
     }
@@ -303,7 +304,8 @@ public class BrouillonsServiceImpl implements BrouillonsService {
         Page<BrouillonBO> bos = brouillonsRepository.findByDemarcheIdAndIdAndUsagerIdAndActive(demarcheId, usagerId, true, pageable);
         mc.gouv.xaf.shared.dto.Page<BrouillonDTO> brouillonDTOS = BrouillonsTransformer.boPage2DtoPage(bos);
         // Set dernier statut pour tous les brouillons récupérés
-        brouillonDTOS.getContent().forEach(brouillonDto -> BrouillonsTransformer.setDernierStatut(brouillonDto, abstractTsUtils.getLastBuildId(), demarchesDataProvider.getBrouillonStatutNotTransmitted(), demarchesDataProvider.getBrouillonStatutDeprecated()));
+        String lastBuildId = demandesConfigService.getLastBuildId();
+        brouillonDTOS.getContent().forEach(brouillonDto -> BrouillonsTransformer.setDernierStatut(brouillonDto, lastBuildId, demarchesDataProvider.getBrouillonStatutNotTransmitted(), demarchesDataProvider.getBrouillonStatutDeprecated()));
         return brouillonDTOS;
     }
 }

@@ -1,6 +1,6 @@
 package mc.gouv.xaf.back.service.utils;
 
-import mc.gouv.logon.shared.User;
+import mc.gouv.xaf.back.service.itg.logon.dto.User;
 
 import java.util.Comparator;
 

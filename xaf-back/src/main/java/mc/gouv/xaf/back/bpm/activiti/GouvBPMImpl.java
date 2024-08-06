@@ -7,34 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import org.activiti.engine.ActivitiObjectNotFoundException;
-import org.activiti.engine.ActivitiTaskAlreadyClaimedException;
-import org.activiti.engine.FormService;
-import org.activiti.engine.ProcessEngine;
-import org.activiti.engine.ProcessEngineConfiguration;
-import org.activiti.engine.RuntimeService;
-import org.activiti.engine.TaskService;
-import org.activiti.engine.form.FormProperty;
-import org.activiti.engine.impl.ProcessEngineImpl;
-import org.activiti.engine.impl.cfg.ProcessEngineConfigurationImpl;
-import org.activiti.engine.impl.context.Context;
-import org.activiti.engine.impl.interceptor.CommandExecutor;
-import org.activiti.engine.impl.persistence.entity.ExecutionEntity;
-import org.activiti.engine.impl.persistence.entity.TaskEntity;
-import org.activiti.engine.impl.pvm.process.ActivityImpl;
-import org.activiti.engine.impl.pvm.process.ProcessDefinitionImpl;
-import org.activiti.engine.runtime.Execution;
-import org.activiti.engine.runtime.ProcessInstance;
-import org.activiti.engine.task.Task;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.tika.exception.TikaException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
 import mc.gouv.xaf.back.bpm.GouvBPM;
 import mc.gouv.xaf.back.bpm.GouvBPMException;
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
@@ -45,7 +17,24 @@ import mc.gouv.xaf.back.bpm.model.GouvBPMStatutAction;
 import mc.gouv.xaf.back.bpm.model.GouvBPMTask;
 import mc.gouv.xaf.back.bpm.model.GouvBPMUser;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.es.IndexedDemandeService;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.tika.exception.TikaException;
+import org.flowable.common.engine.api.FlowableObjectNotFoundException;
+import org.flowable.common.engine.api.FlowableTaskAlreadyClaimedException;
+import org.flowable.engine.FormService;
+import org.flowable.engine.ProcessEngine;
+import org.flowable.engine.ProcessEngineConfiguration;
+import org.flowable.engine.RuntimeService;
+import org.flowable.engine.TaskService;
+import org.flowable.engine.form.FormProperty;
+import org.flowable.engine.runtime.Execution;
+import org.flowable.engine.runtime.ProcessInstance;
+import org.flowable.task.api.Task;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Composant exposant le BPM interne d'AppFactory
@@ -79,9 +68,6 @@ public class GouvBPMImpl implements GouvBPM {
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
 
-    @Autowired(required = false)
-    private IndexedDemandeService indexedDemandeService;
-
     public void startProcessInstanceByKeyOrMessage(String processDefinitionKey, String messageName, GouvBPMUser user,
                                                    Integer demandeId, String codeAppli, Map<String, Object> businessVariables) {
         LOGGER.info("startProcessInstance() Démarrage d'une instance du process \"{}\" assignée à l'utilisateur \"{}\" et concernant la demande \"{}\"",
@@ -109,7 +95,7 @@ public class GouvBPMImpl implements GouvBPM {
             }
             LOGGER.info("Instance démarrée : {}, {}, {}, {}, {}", process.getDeploymentId(), process.getActivityId(),
                     process.getId(), process.getDescription(), process.getProcessInstanceId());
-        } catch (ActivitiObjectNotFoundException e) {
+        } catch (FlowableObjectNotFoundException e) {
             throw new GouvBPMException("Erreur lors du démarrage de l'instance de process", e);
         }
 
@@ -200,13 +186,13 @@ public class GouvBPMImpl implements GouvBPM {
         List<String> instancesIds = new ArrayList<>();
         if (!tasksProcessIds.isEmpty()) {
             List<ProcessInstance> processInstanceInTheState = runtimeService.createProcessInstanceQuery().processInstanceIds(tasksProcessIds).active().list();
-            instancesIds = processInstanceInTheState.stream().map(ProcessInstance::getBusinessKey).collect(Collectors.toList());
+            instancesIds = processInstanceInTheState.stream().map(ProcessInstance::getBusinessKey).toList();
         }
         return instancesIds;
     }
 
     @Override
-    @Transactional(noRollbackFor = {ActivitiTaskAlreadyClaimedException.class, TaskAlreadyClaimedException.class})
+    @Transactional(noRollbackFor = { FlowableTaskAlreadyClaimedException.class, TaskAlreadyClaimedException.class})
     public void claimTask(GouvBPMTask task, GouvBPMUser user) throws TaskAlreadyClaimedException {
         LOGGER.info("claimTask({}, {})", task, user);
 
@@ -221,7 +207,7 @@ public class GouvBPMImpl implements GouvBPM {
 
         try {
             taskService.claim(task.getId(), user.getId());
-        } catch (ActivitiTaskAlreadyClaimedException e) {
+        } catch (FlowableTaskAlreadyClaimedException e) {
             throw new TaskAlreadyClaimedException("Erreur lors du claim de la tache " + task + " pour le user :" + user,
                     e);
         }
@@ -231,8 +217,6 @@ public class GouvBPMImpl implements GouvBPM {
     public void completeTask(GouvBPMTask task, Integer demandeId) {
         LOGGER.info("completeTask({})", task);
         taskService.complete(task.getId());
-        // Réindexation pour prendre en compte le nouveau statutPublicOuInterne
-        reindex(demandeId);
     }
 
     @Override
@@ -315,41 +299,8 @@ public class GouvBPMImpl implements GouvBPM {
     }
 
     @Override
-    public void jump(Integer demandeId, final GouvBPMTask taskFrom, final GouvBPMTask taskTo) {
-
-        LOGGER.info("jump({}, {})", taskFrom.getTaskDefinitionKey(), taskTo.getTaskDefinitionKey());
-
-        final ProcessInstance process = getActiveProcessInstanceForDemandeId(demandeId);
-
-        LOGGER.info("Création de la nouvelle tâche ({})...", taskTo);
-
-        ProcessInstance pi = runtimeService.createProcessInstanceQuery()
-                .processInstanceBusinessKey(demandeId.toString()).singleResult();
-        Context.setProcessEngineConfiguration((ProcessEngineConfigurationImpl) processEngineConfiguration);
-        ProcessDefinitionImpl pdd = ((ExecutionEntity) pi).getProcessDefinition();
-
-        final ActivityImpl activityFinal = pdd.findActivity(taskTo.getTaskDefinitionKey());
-
-        CommandExecutor commandExecutor = ((ProcessEngineImpl) processEngine).getProcessEngineConfiguration()
-                .getCommandExecutor();
-        commandExecutor.execute(commandContext -> {
-            ExecutionEntity ee = commandContext.getExecutionEntityManager()
-                    .findExecutionById(process.getId());
-            ee.executeActivity(activityFinal);
-            return null;
-        });
-
-        LOGGER.info("Suppression de l'ancienne tâche ({})...", taskFrom);
-
-        Task previousTask = processEngineConfiguration.getTaskService().createTaskQuery()
-                .taskDefinitionKey(taskFrom.getTaskDefinitionKey()).singleResult();
-        final TaskEntity te = (TaskEntity) previousTask;
-
-        commandExecutor = ((ProcessEngineImpl) processEngine).getProcessEngineConfiguration().getCommandExecutor();
-        commandExecutor.execute(commandContext -> {
-            commandContext.getTaskEntityManager().deleteTask(te, "jump requested", true);
-            return null;
-        });
+    public void jump(Integer demandeId, GouvBPMTask taskFrom, GouvBPMTask taskTo) {
+        // ne semble pas utile ici mais obligation d'implémenter
     }
 
     @SuppressWarnings("unchecked")
@@ -373,7 +324,6 @@ public class GouvBPMImpl implements GouvBPM {
     @SuppressWarnings("unchecked")
     @Override
     public void putCommentaireInterne(Integer demandeId, CommentaireInterneDTO commentaire) {
-        LOGGER.debug("putCommentaireInterne({}, {})", demandeId, commentaire);
         ProcessInstance processInstance = getActiveProcessInstanceForDemandeId(demandeId);
         if (processInstance != null) {
             List<CommentaireInterneDTO> commInternes = (List<CommentaireInterneDTO>) runtimeService
@@ -422,15 +372,6 @@ public class GouvBPMImpl implements GouvBPM {
         // si on ne veut rien transmettre dans le formulaire
         Map<String, String> propertiesSafe = (properties == null) ? new HashMap<>() : properties;
         formService.submitTaskFormData(task.getId(), propertiesSafe);
-        // Réindexation pour prendre en compte le nouveau statutPublicOuInterne
-        reindex(demandeId);
-    }
-
-    private void reindex(Integer demandeId) {
-        // Réindexation pour prendre en compte le nouveau statutPublicOuInterne
-        if (indexedDemandeService != null) {
-            indexedDemandeService.indexDemande(gouvPropertiesResolver.getDemarcheId(), demandeId);
-        }
     }
 
     @SuppressWarnings({"unchecked", "java:S2864"})

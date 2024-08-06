@@ -2,18 +2,20 @@ package mc.gouv.xaf.back.data.entity;
 
 import java.util.Date;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.validation.constraints.Size;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.Size;
 
-import org.hibernate.validator.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * 
@@ -22,6 +24,8 @@ import org.hibernate.validator.constraints.NotBlank;
  * @author qdeme
  *
  */
+@Setter
+@Getter
 @Entity
 @Table(name = "DEM_DEMANDES_HISTORIQUE")
 public class DemandesHistoriqueBO {
@@ -42,11 +46,11 @@ public class DemandesHistoriqueBO {
     @JoinColumn(name = "FK_STATUT", nullable = false)
     private DemandesStatutsBO fkStatut;
 
-    @Column(name = "AGENT_ID", length = 128, nullable = true)
-    @Size(min = 0, max = 128)
+    @Column(name = "AGENT_ID", length = 128)
+    @Size(max = 128)
     private String agentId;
 
-    @Column(name = "USAGER_ID", nullable = true)
+    @Column(name = "USAGER_ID")
     private Integer usagerId;
 
     @Column(name = "JUSTIFICATIF_TRAITEMENT", length = 8000)
@@ -57,67 +61,4 @@ public class DemandesHistoriqueBO {
     @Size(min = 1, max = 10000)
     private String contenu;
 
-    public Integer getPkDemandesHistorique() {
-        return pkDemandesHistorique;
-    }
-
-    public void setPkDemandesHistorique(Integer pkDemandesHistorique) {
-        this.pkDemandesHistorique = pkDemandesHistorique;
-    }
-
-    public DemandeBO getFkDemandes() {
-        return fkDemandes;
-    }
-
-    public void setFkDemandes(DemandeBO fkDemandes) {
-        this.fkDemandes = fkDemandes;
-    }
-
-    public Date getDate() {
-        return date;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
-    }
-
-    public DemandesStatutsBO getFkStatut() {
-        return fkStatut;
-    }
-
-    public void setFkStatut(DemandesStatutsBO fkStatut) {
-        this.fkStatut = fkStatut;
-    }
-
-    public String getAgentId() {
-        return agentId;
-    }
-
-    public void setAgentId(String agentId) {
-        this.agentId = agentId;
-    }
-
-    public Integer getUsagerId() {
-        return usagerId;
-    }
-
-    public void setUsagerId(Integer usagerId) {
-        this.usagerId = usagerId;
-    }
-
-    public String getJustificatifTraitement() {
-        return justificatifTraitement;
-    }
-
-    public void setJustificatifTraitement(String justificatifTraitement) {
-        this.justificatifTraitement = justificatifTraitement;
-    }
-
-    public String getContenu() {
-        return contenu;
-    }
-
-    public void setContenu(String contenu) {
-        this.contenu = contenu;
-    }
 }

@@ -5,7 +5,11 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Getter;
+import lombok.Setter;
 
+@Setter
+@Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ResidMembresFoyerDLN1FDTO implements Serializable {
@@ -18,27 +22,4 @@ public class ResidMembresFoyerDLN1FDTO implements Serializable {
 	
 	private List<ResidPersonneDLN1FDTO> personne;
 
-	public boolean isHasOtherPersonne() {
-		return hasOtherPersonne;
-	}
-
-	public void setHasOtherPersonne(boolean hasOtherPersonne) {
-		this.hasOtherPersonne = hasOtherPersonne;
-	}
-
-	public List<ResidPersonneDLN1FDTO> getPersonne() {
-		return personne;
-	}
-
-	public void setPersonne(List<ResidPersonneDLN1FDTO> personne) {
-		this.personne = personne;
-	}
-
-	public Integer getNombreOtherPersonne() {
-		return nombreOtherPersonne;
-	}
-
-	public void setNombreOtherPersonne(Integer nombreOtherPersonne) {
-		this.nombreOtherPersonne = nombreOtherPersonne;
-	}
 }

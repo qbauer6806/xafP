@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import mc.gouv.xaf.backweb.web.config.annotation.GouvRestController;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

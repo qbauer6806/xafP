@@ -1,8 +1,10 @@
 package mc.gouv.xaf.back.data.entity;
 
-import javax.persistence.*;
-import javax.validation.constraints.Size;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
 import java.util.Date;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * 
@@ -11,6 +13,8 @@ import java.util.Date;
  * @author qdeme
  *
  */
+@Setter
+@Getter
 @Entity
 @Table(name = "DEM_STATISTIQUES")
 public class StatistiqueBO {
@@ -28,7 +32,7 @@ public class StatistiqueBO {
     private String statutPublic;
 
     @Column(name = "CANAL", length = 30, nullable = false)
-    @Size(min = 0, max = 30)
+    @Size(max = 30)
     private String canal;
 
     @Column(name = "DATE", nullable = false)
@@ -42,70 +46,7 @@ public class StatistiqueBO {
     @Size(min = 1, max = 30)
     private String identifiantDemande;
 
-    @Column(name = "TYPE_CONNEXION_USAGER", length = 256, nullable = true)
+    @Column(name = "TYPE_CONNEXION_USAGER", length = 256)
     private String typeConnexionUsager;
 
-    public Integer getPkStatistiques() {
-        return pkStatistiques;
-    }
-
-    public void setPkStatistiques(Integer pkStatistiques) {
-        this.pkStatistiques = pkStatistiques;
-    }
-
-    public Integer getDemandeId() {
-        return demandeId;
-    }
-
-    public void setDemandeId(Integer demandeId) {
-        this.demandeId = demandeId;
-    }
-
-    public String getStatutPublic() {
-        return statutPublic;
-    }
-
-    public void setStatutPublic(String statutPublic) {
-        this.statutPublic = statutPublic;
-    }
-
-    public String getCanal() {
-        return canal;
-    }
-
-    public void setCanal(String canal) {
-        this.canal = canal;
-    }
-
-    public Date getDate() {
-        return date;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
-    }
-
-    public String getDemarcheId() {
-        return demarcheId;
-    }
-
-    public void setDemarcheId(String demarcheId) {
-        this.demarcheId = demarcheId;
-    }
-
-    public String getIdentifiantDemande() {
-        return identifiantDemande;
-    }
-
-    public void setIdentifiantDemande(String identifiantDemande) {
-        this.identifiantDemande = identifiantDemande;
-    }
-
-    public String getTypeConnexionUsager() {
-        return typeConnexionUsager;
-    }
-
-    public void setTypeConnexionUsager(String typeConnexionUsager) {
-        this.typeConnexionUsager = typeConnexionUsager;
-    }
 }

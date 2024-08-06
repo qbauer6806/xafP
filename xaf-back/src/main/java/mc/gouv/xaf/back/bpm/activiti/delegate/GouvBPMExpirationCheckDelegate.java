@@ -5,9 +5,11 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 
-import org.activiti.engine.delegate.DelegateExecution;
-import org.activiti.engine.delegate.JavaDelegate;
-import org.activiti.engine.impl.el.Expression;
+import lombok.Getter;
+import lombok.Setter;
+import org.flowable.engine.delegate.DelegateExecution;
+import org.flowable.engine.delegate.JavaDelegate;
+import org.flowable.common.engine.api.delegate.Expression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,15 +42,17 @@ public class GouvBPMExpirationCheckDelegate implements JavaDelegate {
     @Autowired
     private GouvBPM gouvBPM;
     
+    @Setter
+    @Getter
     private Expression numberOfDays;
 
     @Override
-    public void execute(DelegateExecution execution) throws Exception {
+    public void execute(DelegateExecution execution) {
 
         LOGGER.info("==== xaf-back GouvBPMExpirationCheckDelegate ...");
 
         DemandeDTO demandeDto = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(),
-                Integer.parseInt(execution.getProcessBusinessKey()));
+                Integer.parseInt(execution.getProcessInstanceBusinessKey()));
         
         LocalDate lastStatusDate = Instant.ofEpochMilli(demandeDto.getDernierStatut().getDate().getTime()).atZone(ZoneId.systemDefault()).toLocalDate();
         LocalDate currentDate = Instant.now().atZone(ZoneId.systemDefault()).toLocalDate();
@@ -66,14 +70,6 @@ public class GouvBPMExpirationCheckDelegate implements JavaDelegate {
         LOGGER.info("Demande : {}", demandeDto.getPkDemandes());
         
         LOGGER.info("==== xaf-back GouvBPMExpirationCheckDelegate <fin>");
-    }
-    
-    public Expression getNumberOfDays() {
-        return numberOfDays;
-    }
-    
-    public void setNumberOfDays(Expression numberOfDays) {
-        this.numberOfDays = numberOfDays;
     }
 
 }

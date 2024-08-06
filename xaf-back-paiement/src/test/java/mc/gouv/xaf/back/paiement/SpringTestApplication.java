@@ -1,6 +1,6 @@
 package mc.gouv.xaf.back.paiement;
 
-import org.activiti.spring.boot.SecurityAutoConfiguration;
+import org.flowable.spring.boot.FlowableSecurityAutoConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -10,9 +10,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-import java.net.Proxy;
-
-@SpringBootApplication(exclude = {MongoAutoConfiguration.class, SecurityAutoConfiguration.class, KafkaAutoConfiguration.class})
+@SpringBootApplication(exclude = {MongoAutoConfiguration.class, FlowableSecurityAutoConfiguration.class, KafkaAutoConfiguration.class})
 @ComponentScan(basePackages = {"mc.gouv.xaf.back.service.utils", "mc.gouv.xaf.back.paiement"})
 @EnableJpaRepositories(basePackages = {"mc.gouv.xaf.back.data", "mc.gouv.xaf.back.paiement.data"})
 @EntityScan(basePackages = {"mc.gouv.xaf.back.data", "mc.gouv.xaf.back.paiement.data"})

@@ -1,8 +1,10 @@
 package mc.gouv.xaf.shared.formbean;
 
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Formulaire de la page de gestion des templates
@@ -10,6 +12,8 @@ import javax.validation.constraints.Size;
  * @author mpavone
  * 
  */
+@Setter
+@Getter
 public class TemplateFormBean {
 
     @NotEmpty
@@ -23,7 +27,7 @@ public class TemplateFormBean {
     private String objet;
 
     @NotNull(message = "Le contenu du mail doit être précisé")
-    @Size(min = 0, max = 1500, message = "Le contenu doit avoir une taille comprise entre 0 et 5000")
+    @Size(max = 1500, message = "Le contenu doit avoir une taille comprise entre 0 et 5000")
     private String corps;
 
     @NotNull(message = "La langue doit être précisée")
@@ -33,43 +37,4 @@ public class TemplateFormBean {
     @NotNull(message = "Une date de modification doit être renseignée")
     private String date;
 
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public String getObjet() {
-        return objet;
-    }
-
-    public void setObjet(String objet) {
-        this.objet = objet;
-    }
-
-    public String getCorps() {
-        return corps;
-    }
-
-    public void setCorps(String corps) {
-        this.corps = corps;
-    }
-
-    public String getLangue() {
-        return langue;
-    }
-
-    public void setLangue(String langue) {
-        this.langue = langue;
-    }
-
-    public String getDate() {
-        return date;
-    }
-
-    public void setDate(String date) {
-        this.date = date;
-    }
 }

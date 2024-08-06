@@ -4,10 +4,13 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import lombok.Getter;
+import lombok.Setter;
 import mc.gouv.xaf.back.dsp.enums.common.ResidEntiteDemandantCDREnum;
 
 import java.io.Serializable;
 
+@Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ResidDemandeCertificatResidenceDTO implements Serializable {
@@ -16,8 +19,10 @@ public class ResidDemandeCertificatResidenceDTO implements Serializable {
     
     private ResidDemandeBaseDTO demandeBase;
 
+    @Getter
     private String idTS;
 
+    @Getter
     private ResidEntiteDemandantCDREnum entiteDemandantCDR;
 
     @JsonProperty("demandeBaseV2")
@@ -25,23 +30,4 @@ public class ResidDemandeCertificatResidenceDTO implements Serializable {
         return demandeBase;
     }
 
-    public void setDemandeBase(ResidDemandeBaseDTO demandeBase) {
-        this.demandeBase = demandeBase;
-    }
-
-    public String getIdTS() {
-        return idTS;
-    }
-
-    public void setIdTS(String idTS) {
-        this.idTS = idTS;
-    }
-
-    public ResidEntiteDemandantCDREnum getEntiteDemandantCDR() {
-        return entiteDemandantCDR;
-    }
-
-    public void setEntiteDemandantCDR(ResidEntiteDemandantCDREnum entiteDemandantCDR) {
-        this.entiteDemandantCDR = entiteDemandantCDR;
-    }
 }

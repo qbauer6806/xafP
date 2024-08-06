@@ -1,24 +1,23 @@
 package mc.gouv.xaf.back.data.entity;
 
-import java.util.Date;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
-import org.hibernate.validator.constraints.NotBlank;
-import org.springframework.context.annotation.Conditional;
-
-import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
+import lombok.Getter;
+import lombok.Setter;
 import mc.gouv.xaf.shared.enums.JobNamesEnum;
 import mc.gouv.xaf.shared.enums.JobStatutsEnum;
+import jakarta.validation.constraints.NotBlank;
 
-@Conditional(IndexationEnabledCondition.class)
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import java.util.Date;
+
+@Setter
+@Getter
 @Entity
 @Table(name = "DEM_JOBS")
 public class DemandeJobBO {
@@ -45,53 +44,5 @@ public class DemandeJobBO {
     @NotBlank
     @Column(name = "MSG", nullable = false)
     private String msg;
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public JobNamesEnum getJobName() {
-        return jobName;
-    }
-
-    public void setJobName(JobNamesEnum jobName) {
-        this.jobName = jobName;
-    }
-
-    public Date getDateCreation() {
-        return dateCreation;
-    }
-
-    public void setDateCreation(Date dateCreation) {
-        this.dateCreation = dateCreation;
-    }
-
-    public Date getDateDernModif() {
-        return dateDernModif;
-    }
-
-    public void setDateDernModif(Date dateDernModif) {
-        this.dateDernModif = dateDernModif;
-    }
-
-    public JobStatutsEnum getStatut() {
-        return statut;
-    }
-
-    public void setStatut(JobStatutsEnum statut) {
-        this.statut = statut;
-    }
-
-    public String getMsg() {
-        return msg;
-    }
-
-    public void setMsg(String msg) {
-        this.msg = msg;
-    }
 
 }

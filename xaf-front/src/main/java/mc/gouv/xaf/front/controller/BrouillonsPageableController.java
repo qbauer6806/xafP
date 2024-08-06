@@ -1,5 +1,6 @@
 package mc.gouv.xaf.front.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.util.XafFrontserverUtils;
 import mc.gouv.xaf.shared.RequestConstant;
@@ -17,9 +18,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 
 /**
  * Servlet servant à récupérer les brouillons d'un usager de façon paginée.
@@ -40,7 +38,7 @@ public class BrouillonsPageableController extends AbstractXafController {
                                                     @RequestParam(name = RequestConstant.SIZE_PARAM) String size,
                                                     @RequestParam(name = RequestConstant.SORT_PARAM) String sort,
                                                     @RequestParam(name = RequestConstant.DIRECTION_PARAM) String direction,
-                                                    HttpServletRequest request) throws IOException {
+                                                    HttpServletRequest request) {
 
         LOGGER.info("====================== /brouillonspage doGet()");
 

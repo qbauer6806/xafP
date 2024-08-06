@@ -6,58 +6,6 @@ $(document).ready(function() {
 	var default_category = "Autres"
 
 
-	if (document.URL.includes("demandes")) {
-
-		columns.unshift({
-			"data" : "highlightedField",
-			"orderable": false,
-			"keyword" : false,
-			render : function(data, type, demande) {
-
-				var fragments = ""
-				var fragmentsCat = []
-				for (var fragment in demande.highlightedField) {
-
-					var fragmentLabel = fragment
-					var fragmentCategory = default_category
-					if (recherche_libelles.get(fragment)) {
-						var fragmentLabels = recherche_libelles.get(fragment)
-						fragmentLabel = escapeHtml(fragmentLabels.libelle)
-						fragmentCategory = escapeHtml(fragmentLabels.categorie)
-
-					}
-
-					fragmentsCat.push({
-						category : fragmentCategory + ' - ' + fragmentLabel,
-						fragment : demande.highlightedField[fragment]
-					})
-
-				}
-
-
-				fragmentsCat.sort(function(a, b) {
-					return (a.category < b.category) ? -1 : (a.category > b.category) ? 1 : 0;
-				});
-
-				for (var fc in fragmentsCat) {
-					fragments += '<span style="font-size: 15px;text-decoration: underline;">' + fragmentsCat[fc].category + ' :</span> <br/>' + fragmentsCat[fc].fragment + '<br/>'
-				}
-
-
-				if (fragments !== "") {
-					return "<a href='javascript:;' class='col-md-12 text-center greyTooltip'   data-toggle='tooltip'	data-placement='right' " +
-					"title='" + fragments + "' data-html='true' href='#'><span class='badge'>i</span></a>";
-				}
-				
-				return ""
-
-
-				
-			}
-		})
-	}
-
-
 	APP.selectedField = null
 
 	APP.buildFacets = function() {
@@ -66,8 +14,8 @@ $(document).ready(function() {
 		var orderAndInsertFacets = function(categories, facetsByCat) {
 			var categoriesArray = Object.values(categories)
 			categoriesArray.sort(function(a, b) {
-				var contentA = $(a).attr('id');
-				var contentB = $(b).attr('id');
+				var contentA = $(a).html();
+				var contentB = $(b).html();
 				return (contentA < contentB) ? -1 : (contentA > contentB) ? 1 : 0;
 			});
 
@@ -94,25 +42,11 @@ $(document).ready(function() {
 		}
 
 		$.ajax({
-			url : APP.getContextPath() + "/ws/demandes/facets",
+			url : APP.getContextPath() + "/ws/demandes/recherchechamps",
 			method : "GET",
 			traditional : true,
 			data : facetParams
 		}).done(function(facets) {
-			
-			
-			if(facets !== undefined && facets.length > 0)
-			{
-				$("#affinerDiv").show()
-			}
-			else
-			{
-				$("#affinerDiv").hide()
-			}
-
-			if ($("#affinerLink").hasClass('collapsed') === true) {
-				$("#affinerLink").click()
-			}
 
 			$("#rechercheavancee").empty()
 
@@ -129,55 +63,44 @@ $(document).ready(function() {
 
 			var categories = []
 			var facetsByCat = {}
-			for (facet in facets) {
+			for (let f in facets) {
+        var facet = facets[f];
+        if (facet.enabled) {
+          var facetName = facet.name;
+          var categoryLibelle = default_category
+          var categoryId = default_category
+          var facetLibelle = facetName;
+          facetName=facetName.replace(/'/g,"")
+          var facetLink = facetName + linkIdSuffix
+          if (facet.categoryId) {
+            categoryLibelle = facet.allCategories.find(obj => {
+              return obj.id === facet.categoryId
+            }).label;
+            facetLibelle = facet.label;
+            categoryId = facet.categoryId;
+          }
 
-				var facetSize = facets[facet].size;
-				if (facetSize != 0) {
-
-					var facetName = facets[facet].name;
-					var category = default_category
-					var categoryId = default_category
-					var libelle = facetName
-					facetName=facetName.replace(/'/g,"")
-					var facetLink = facetName + linkIdSuffix
-					if (recherche_libelles.get(facetName)) {
-						category = recherche_libelles.get(facetName).categorie
-						categoryId = category.split(' ').join('_')
-						libelle = recherche_libelles.get(facetName).libelle
-					}
-					
-					categoryId = categoryId.replace(/('|;|&|\/|\(|\)|=)/g,"");
-
-					if (!categories[categoryId]) {
-						var newfacetCategoryDiv = $("#facetCategory").clone();
-						newfacetCategoryDiv.attr("id", categoryId.replace(/'/g,""))
-						newfacetCategoryDiv
-							.find("#facetCategoryName").html(category);
-						newfacetCategoryDiv.show()
-						categories[categoryId] = newfacetCategoryDiv
-						facetsByCat[categoryId] = []
-					}
-					
-
-					var newfacetDiv = $("#facet").clone()
-					newfacetDiv.attr("id", facetName).find("#facetName").html(libelle.replace(/'/g,"&apos;"))
-					newfacetDiv.find("#facetLink").attr("id", facetLink).on("click", facetClick)
-					newfacetDiv.find("#facetSize").html(facetSize)
-					facetsByCat[categoryId].push(newfacetDiv)
-					//newfacetDiv.appendTo("#" + categoryId)
-					newfacetDiv.show();
-
-				}
+          if (!categories[categoryId]) {
+            var newfacetCategoryDiv = $("#facetCategory").clone();
+            newfacetCategoryDiv.attr("id", categoryId)
+            newfacetCategoryDiv.find("#facetCategoryName").html(categoryLibelle);
+            newfacetCategoryDiv.show()
+            categories[categoryId] = newfacetCategoryDiv
+            facetsByCat[categoryId] = []
+          }
 
 
+          var newfacetDiv = $("#facet").clone();
+          newfacetDiv.attr("id", facetName).find("#facetName").html(facetLibelle.replace(/'/g,"&apos;"));
+          newfacetDiv.find("#facetLink").attr("id", facetLink).on("click", facetClick);
+          facetsByCat[categoryId].push(newfacetDiv);
+          newfacetDiv.show();
+        }
 			}
-			
-			
-
 			orderAndInsertFacets(categories, facetsByCat)
 
 		}).fail(function(e) {
-			console.log("failed tu get facets : " + e);
+			console.log("failed to get facets : " + e);
 		});
 
 	}

@@ -1,5 +1,7 @@
 package mc.gouv.xaf.backweb.dto;
 
+import lombok.Getter;
+import lombok.Setter;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 
 /**
@@ -9,6 +11,8 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
  * @author qdeme
  *
  */
+@Setter
+@Getter
 public class AfBackDemandeDTO extends DemandeDTO {
 
     private String agentAffectePrenom;
@@ -16,10 +20,11 @@ public class AfBackDemandeDTO extends DemandeDTO {
     private String agentAffecteNom;
 
     public AfBackDemandeDTO(DemandeDTO demande) {
-        setAgentAffecteId(demande.getAgentAffecteId());
+        setAgent(demande.getAgent());
         setCanal(demande.getCanal());
         setComplements(demande.getComplements());
         setContenu(demande.getContenu());
+        setContenuTrad(demande.getContenuTrad());
         setCourrierDateReception(demande.getCourrierDateReception());
         setCourrierRefInterne(demande.getCourrierRefInterne());
         setCourriers(demande.getCourriers());
@@ -41,19 +46,4 @@ public class AfBackDemandeDTO extends DemandeDTO {
         setContenuInitial(demande.getContenuInitial());
     }
 
-    public String getAgentAffectePrenom() {
-        return agentAffectePrenom;
-    }
-
-    public void setAgentAffectePrenom(String agentAffectePrenom) {
-        this.agentAffectePrenom = agentAffectePrenom;
-    }
-
-    public String getAgentAffecteNom() {
-        return agentAffecteNom;
-    }
-
-    public void setAgentAffecteNom(String agentAffecteNom) {
-        this.agentAffecteNom = agentAffecteNom;
-    }
 }

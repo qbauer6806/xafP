@@ -1,30 +1,20 @@
 package mc.gouv.xaf.apiclient2tiers;
 
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.ws.rs.client.Entity;
+import jakarta.ws.rs.client.Invocation;
+import jakarta.ws.rs.core.GenericType;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MultivaluedHashMap;
+import jakarta.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.core.GenericType;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-
-import org.apache.commons.compress.utils.IOUtils;
-import org.glassfish.jersey.media.multipart.MultiPart;
-import org.glassfish.jersey.media.multipart.file.StreamDataBodyPart;
-import org.glassfish.jersey.media.multipart.internal.MultiPartWriter;
-
-import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
-
 import mc.gouv.xaf.apiclient2tiers.authentication.impl.BasicAuthorizationHeaderProvider;
 import mc.gouv.xaf.apiclient2tiers.authentication.impl.JwtAuthorizationHeaderProvider;
 import mc.gouv.xaf.apiclient2tiers.client.ApiClient;
@@ -35,6 +25,10 @@ import mc.gouv.xaf.apiclient2tiers.dto.RecapDemandesDTO;
 import mc.gouv.xaf.apiclient2tiers.dto.StatutSimplifieEnum;
 import mc.gouv.xaf.apiclient2tiers.dto.UsagerDemandesRecapDTO;
 import mc.gouv.xaf.apiclient2tiers.exception.ExceptionManager;
+import mc.gouv.xaf.shared.exception.XafException;
+import org.apache.commons.io.IOUtils;
+import org.glassfish.jersey.media.multipart.MultiPart;
+import org.glassfish.jersey.media.multipart.file.StreamDataBodyPart;
 
 /**
  * Classe cliente permettant d'appeler les WS des démarches
@@ -44,6 +38,10 @@ import mc.gouv.xaf.apiclient2tiers.exception.ExceptionManager;
 public class AfApiClient2Tiers extends ApiClient {
 	
 	private static final String MC_METADATA_PREFIX = "X-MC-";
+    private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
+    private static final String NOTIFY = "/notify/";
+    private static final String DEMANDE_ID = "demandeId";
+    private static final String IDENTIFIANT_DEMANDE = "identifiantDemande";
 
     /**
      * Crée une instance du client avec sécurisation Basic Auth
@@ -56,8 +54,7 @@ public class AfApiClient2Tiers extends ApiClient {
      *            Mot de passe à utiliser pour l'authentification
      */
     public AfApiClient2Tiers(String serviceUrl, String user, String password) {
-        super(serviceUrl, new BasicAuthorizationHeaderProvider(user, password),
-                ClientBuilder.newClient().register(JacksonJsonProvider.class).register(MultiPartWriter.class));
+        super(serviceUrl, new BasicAuthorizationHeaderProvider(user, password), true);
     }
 
     /**
@@ -69,8 +66,7 @@ public class AfApiClient2Tiers extends ApiClient {
      *            JWT à utiliser pour l'authentification
      */
     public AfApiClient2Tiers(String serviceUrl, String jwtToken) {
-        super(serviceUrl, new JwtAuthorizationHeaderProvider(jwtToken),
-                ClientBuilder.newClient().register(JacksonJsonProvider.class).register(MultiPartWriter.class));
+        super(serviceUrl, new JwtAuthorizationHeaderProvider(jwtToken), true);
     }
 
     public List<MotifDTO> getMotifs() {
@@ -156,7 +152,7 @@ public class AfApiClient2Tiers extends ApiClient {
     }
     
 	public String saveFile(String container, InputStream inputStream, String filename,
-			String contentType, Map<String, String> customHeaders) throws Exception {
+			String contentType, Map<String, String> customHeaders) {
 
 		// Constitution du chemin virtuel du fichier
 		// /appfactory/demarcheId/accessId/UUID/nomDuFichier
@@ -174,11 +170,13 @@ public class AfApiClient2Tiers extends ApiClient {
 		// Si le client a fourni des métadonnées (en X-MC-*), alors les transmettre à FILE
 		if (customHeaders != null) {
 			MultivaluedMap<String, Object> headers = new MultivaluedHashMap<>();
-			for (String headerName : customHeaders.keySet()) {
-				if (headerName.startsWith(MC_METADATA_PREFIX)) {
-					headers.add(headerName, customHeaders.get(headerName));
-				}
-			}
+            for (Map.Entry<String, String> entry : customHeaders.entrySet()) {
+                String headerName = entry.getKey();
+                String headerValue = entry.getValue();
+                if (headerName.startsWith(MC_METADATA_PREFIX)) {
+                    headers.add(headerName, headerValue);
+                }
+            }
 			builder.headers(headers);
 		}
 		
@@ -186,19 +184,19 @@ public class AfApiClient2Tiers extends ApiClient {
 		
 		builder.header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue());
 		
-		Response postResponse = builder.post(entity);
-
-		// Gestion des erreurs
-		int statusCode = postResponse.getStatus();
-		if (statusCode != Response.Status.CREATED.getStatusCode()) {
-			String errorMessage = postResponse.readEntity(String.class);
-			throw new Exception(errorMessage);
+		try(Response postResponse = builder.post(entity)) {
+			// Gestion des erreurs
+			int statusCode = postResponse.getStatus();
+			if (statusCode != Response.Status.CREATED.getStatusCode()) {
+				String errorMessage = postResponse.readEntity(String.class);
+				throw new XafException(errorMessage);
+			}
 		}
 
 		return filename;
 	}
 
-	public void getFile(String file, HttpServletResponse response) throws Exception {
+	public void getFile(String file, HttpServletResponse response) {
         
         // Préparation de la requête
         Invocation.Builder builder = getTarget().path("/file/ROOT/" + file).request();
@@ -222,23 +220,25 @@ public class AfApiClient2Tiers extends ApiClient {
         try {
             IOUtils.copy(remoteResponse.readEntity(InputStream.class), response.getOutputStream());
         } catch (IOException e) {
-            throw new Exception("Erreur lors de la copie du contenu de l'entité de réponse : " + e.getMessage());
+            throw new XafException("Erreur lors de la copie du contenu de l'entité de réponse : " + e.getMessage());
         }
     }
 
-	public void deleteFile(String file) throws Exception {
+	public void deleteFile(String file) {
         // Préparation de la requête
         Invocation.Builder builder = getTarget().path("/file/ROOT/" + file).request();
 		builder.header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue());
 
         // Appel du WS FILE
-        Response remoteResponse = builder.delete();
-        
-		int statusCode = remoteResponse.getStatus();
-		if (statusCode != Response.Status.OK.getStatusCode()) {
-			String errorMessage = remoteResponse.readEntity(String.class);
-			throw new Exception(errorMessage);
+        try(Response remoteResponse = builder.delete()) {
+			int statusCode = remoteResponse.getStatus();
+			if (statusCode != Response.Status.OK.getStatusCode()) {
+				String errorMessage = remoteResponse.readEntity(String.class);
+				throw new XafException(errorMessage);
+			}
 		}
+
+
 	}
 	
 	public GichuniUsagerDTO getUsager(Integer usagerId) {
@@ -253,12 +253,12 @@ public class AfApiClient2Tiers extends ApiClient {
 	public void notifyCreationDemande(Integer usagerId, Integer pkDemande, String identifiantDemande,
 			Date dateCreation, RecapDemandesDTO recapDemandes) {
 		
-		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+		SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
 		String formattedDate = dateFormat.format(dateCreation);
 		
-        Response res = getTarget().path("/notify/" + usagerId + "/creationDemande")
-        		.queryParam("demandeId", pkDemande)
-        		.queryParam("identifiantDemande", identifiantDemande)
+        Response res = getTarget().path(NOTIFY + usagerId + "/creationDemande")
+        		.queryParam(DEMANDE_ID, pkDemande)
+        		.queryParam(IDENTIFIANT_DEMANDE, identifiantDemande)
         		.queryParam("dateCreation", formattedDate)
                 .request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
@@ -270,12 +270,12 @@ public class AfApiClient2Tiers extends ApiClient {
 	public void notifyChangementStatutDemande(Integer usagerId, Integer pkDemande, String identifiantDemande,
 			StatutSimplifieEnum statutSimplifie, Date dateStatutSimplifie, RecapDemandesDTO recapDemandes) {
 		
-		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+		SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
 		String formattedDate = dateFormat.format(dateStatutSimplifie);
 		
-        Response res = getTarget().path("/notify/" + usagerId + "/changementStatutDemande")
-        		.queryParam("demandeId", pkDemande)
-        		.queryParam("identifiantDemande", identifiantDemande)
+        Response res = getTarget().path(NOTIFY + usagerId + "/changementStatutDemande")
+        		.queryParam(DEMANDE_ID, pkDemande)
+        		.queryParam(IDENTIFIANT_DEMANDE, identifiantDemande)
         		.queryParam("statutSimplifie", statutSimplifie.name())
         		.queryParam("dateStatutSimplifie", formattedDate)
                 .request(MediaType.APPLICATION_JSON)
@@ -288,12 +288,12 @@ public class AfApiClient2Tiers extends ApiClient {
 	public void notifySuppressionDemande(Integer usagerId, Integer pkDemande, String identifiantDemande,
 			Date dateSuppression, RecapDemandesDTO recapDemandes) {
 		
-		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+		SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
 		String formattedDate = dateFormat.format(dateSuppression);
 		
-        Response res = getTarget().path("/notify/" + usagerId + "/suppressionDemande")
-        		.queryParam("demandeId", pkDemande)
-        		.queryParam("identifiantDemande", identifiantDemande)
+        Response res = getTarget().path(NOTIFY + usagerId + "/suppressionDemande")
+        		.queryParam(DEMANDE_ID, pkDemande)
+        		.queryParam(IDENTIFIANT_DEMANDE, identifiantDemande)
         		.queryParam("dateSuppression", formattedDate)
                 .request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
@@ -303,7 +303,7 @@ public class AfApiClient2Tiers extends ApiClient {
 	}
 	
 	public void notifyDesinscriptionUsagerTS(Integer usagerId) {
-        Response res = getTarget().path("/notify/" + usagerId + "/desinscriptionUsagerTS")
+        Response res = getTarget().path(NOTIFY + usagerId + "/desinscriptionUsagerTS")
                 .request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
                 .post(Entity.json(""));
@@ -321,7 +321,7 @@ public class AfApiClient2Tiers extends ApiClient {
 	}
 	
 	public void notifyCreationAccesTS(Integer usagerId) {
-        Response res = getTarget().path("/notify/" + usagerId + "/creationAccesTS")
+        Response res = getTarget().path(NOTIFY + usagerId + "/creationAccesTS")
                 .request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, getAuthorizationHeaderProvider().getHeaderValue())
                 .post(Entity.json(""));

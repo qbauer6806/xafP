@@ -1,7 +1,13 @@
 package mc.gouv.xaf.rio.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
+@Setter
+@Getter
+@ToString
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RioFileDocumentDTO {
 
@@ -10,55 +16,4 @@ public class RioFileDocumentDTO {
     private Integer rank;
     private Long fileSize;
     private String description;
-
-    public Long getKeyFile() {
-        return keyFile;
-    }
-
-    public void setKeyFile(Long keyFile) {
-        this.keyFile = keyFile;
-    }
-
-    public String getFilename() {
-        return filename;
-    }
-
-    public void setFilename(String filename) {
-        this.filename = filename;
-    }
-
-    public Integer getRank() {
-        return rank;
-    }
-
-    public void setRank(Integer rank) {
-        this.rank = rank;
-    }
-
-    public Long getFileSize() {
-        return fileSize;
-    }
-
-    public void setFileSize(Long fileSize) {
-        this.fileSize = fileSize;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-    
-    @Override
-    public String toString() {
-        return "RioFileDocumentDTO{" +
-                "keyFile='"+keyFile+ '\'' +
-                ", filename='" + filename + '\'' +
-                ", rank='" + rank + '\'' +
-                ", fileSize='" + fileSize + '\'' +
-                ", description='" + description + '\'' +
-                '}';
-    }
 }

@@ -6,6 +6,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import lombok.Setter;
+import mc.gouv.xaf.shared.exception.XafException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,13 +22,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.SignatureException;
-import io.jsonwebtoken.UnsupportedJwtException;
 
 /**
  * Authentification via la vérification du token JWT
@@ -34,6 +32,7 @@ import io.jsonwebtoken.UnsupportedJwtException;
  * @author fgaujous, qdeme
  *
  */
+@Setter
 public class JwtAuthenticationProvider implements AuthenticationProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JwtAuthenticationProvider.class);
@@ -134,34 +133,25 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
      * utilisation de la librairie https://github.com/jwtk/jjwt
      * Vérification du token avec la signature
      * @param token
-     * @return 
-     * @throws Exception 
+     * @return
      */
-    public Jws<Claims> verify(String token) throws Exception {
+    public Jws<Claims> verify(String token) {
 
         String secretProp = MC_GOUV + applicationName + ".frontserver.2tiers.security.jwt.secret";
         String secretKey = environment.getProperty(secretProp);
         if (StringUtils.isBlank(secretKey)) {
-            secretProp = "mc.gouv." + applicationName + ".frontserver.2tiers.security.jwt.secret";
+            secretProp = MC_GOUV + applicationName + ".frontserver.2tiers.security.jwt.secret";
             secretKey = environment.getProperty(secretProp);
         }
         if (secretKey == null) {
-            throw new Exception("Aucune clé JWT n'a été trouvée, veuillez renseigner mc.gouv.api.<applicationName>.security.jwt.secret ou mc.gouv.<applicationName>.api.security.jwt.secret");
+            throw new XafException("Aucune clé JWT n'a été trouvée, veuillez renseigner mc.gouv.api.<applicationName>.security.jwt.secret ou mc.gouv.<applicationName>.api.security.jwt.secret");
         }
-        return Jwts.parser().setSigningKey(secretKey.getBytes(StandardCharsets.UTF_8)).parseClaimsJws(token);
+        return Jwts.parser().setSigningKey(secretKey.getBytes(StandardCharsets.UTF_8)).build().parseClaimsJws(token);
     }
 
     @Override
     public boolean supports(Class<?> authentication) {
         return JwtAuthToken.class.equals(authentication);
-    }
-
-    public void setApplicationName(String applicationName) {
-        this.applicationName = applicationName;
-    }
-
-    public void setEnvironment(Environment environment) {
-        this.environment = environment;
     }
 
 }

@@ -3,7 +3,6 @@ package mc.gouv.xaf.back.service.itg.gichuni.kafka;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -116,7 +115,7 @@ public class GUKafkaDLTConsumer {
 
     @SuppressWarnings("unchecked")
     private Map<Integer, Integer> getLogEndOffsets(Consumer<?, ?> consumer) {
-        List<KafkaMetric> me = (List<KafkaMetric>) consumer.metrics().values().stream().filter(m -> "records-lead".equals(m.metricName().name())).collect(Collectors.toList());
+        List<KafkaMetric> me = (List<KafkaMetric>) consumer.metrics().values().stream().filter(m -> "records-lead".equals(m.metricName().name())).toList();
         Map<Integer, Integer> map = new HashMap<>();
         for (KafkaMetric km : me) {
             for (String key : km.metricName().tags().keySet()) {

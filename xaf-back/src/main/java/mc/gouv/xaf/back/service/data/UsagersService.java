@@ -1,6 +1,6 @@
 package mc.gouv.xaf.back.service.data;
 
-import java.util.List;
+import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
 
 /**
  * Service permettant de gérer les usagers.
@@ -12,7 +12,7 @@ public interface UsagersService {
     /**
      * Permet de gérer les demandes et les accès suite à la désinscription d'un usager
      */
-	void desinscriptionUsager(String demarcheId, Integer usagerId, String statutAnnulation, String codeMotif);
+	void desinscriptionUsager(String demarcheId, Integer usagerId, StatutPublicOuInterneDTO statutAnnulation, String codeMotif);
 
     Integer getNbDemandesUsager(String demarcheId, Integer usagerId);
 

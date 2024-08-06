@@ -23,7 +23,7 @@
 <link th:href="@{/webjars/xcb-wlib/css/template.css}" rel="stylesheet" />
 <link th:href="@{/webjars/xcb-wlib/css/sidebar.css}" rel="stylesheet" />
 <link th:href="@{/webjars/xcb-wlib/css/element.css}" rel="stylesheet" />
-<link th:href="@{/webjars/datatables/css/dataTables.bootstrap.css}"
+<link th:href="@{/webjars/datatables/css/dataTables.bootstrap.min.css}"
 	rel="stylesheet" />
 
 <link th:href="@{/css/tsgen.css(${applicationBuildTimestamp})}"
@@ -36,7 +36,7 @@
 
 <body th:with="pageAccueilActive='active'">
 
-	<div th:replace="fragments/header :: header" />
+	<div th:replace="~{fragments/header :: header}" />
 
 	<div id="wrapper">
 
@@ -59,7 +59,7 @@
 								<span>Si vous déclarez un incident, veuillez fournir les informations suivantes.</span>
 							</div>
 							<div class="col-xs-12" style="margin-top: 20px">
-								<div th:replace="fragments/encartinfoerreur :: encartinfoerreur"></div>
+								<div th:replace="~{fragments/encartinfoerreur :: encartinfoerreur}"></div>
 							</div>
 						</div>
 					</div>
@@ -75,9 +75,9 @@
 
 		<!-- FIN CONTENU -->
 	</div>
-	
 
-	<div th:replace="fragments/footer :: footer" />
+
+	<div th:replace="~{fragments/footer :: footer}" />
 	<script th:src="@{/js/errorpages.js(${applicationBuildTimestamp})}"></script>
 
 </body>

@@ -1,7 +1,9 @@
 package mc.gouv.xaf.backweb.controller;
 
-import mc.gouv.logon.apiclient.LogonApiClient;
-import mc.gouv.logon.shared.User;
+import java.util.ArrayList;
+import java.util.List;
+import mc.gouv.xaf.back.service.itg.logon.dto.User;
+import mc.gouv.xaf.back.service.itg.logon.LogonClient;
 import mc.gouv.xaf.backweb.properties.BackGouvPropertiesResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,9 +14,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Controller pour les fonctionnalites (onglets) Utilisateurs et Parametres
@@ -30,6 +29,9 @@ public class GestionUtilisateursController extends AbstractController {
     @Autowired
     private BackGouvPropertiesResolver gouvPropertiesResolver;
 
+    @Autowired
+    private LogonClient logonClient;
+
     @GetMapping
     public ModelAndView formUser(Model model) {
 
@@ -37,8 +39,7 @@ public class GestionUtilisateursController extends AbstractController {
         List<User> list = new ArrayList<>();
 
         try {
-            LogonApiClient logonApiClient = new LogonApiClient(gouvPropertiesResolver.getGouvSharedLogonRestUrl());
-            list = logonApiClient.getRessUser().getListUserByCodeAppli(gouvPropertiesResolver.getDemarcheId());
+            list = logonClient.getListUserByCodeAppli(gouvPropertiesResolver.getDemarcheId());
         } catch (Exception e) {
             LOGGER.error("Exception rencontrée dans formUser. Msg : {}", e.getMessage(), e);
         }

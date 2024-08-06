@@ -5,111 +5,63 @@ import java.io.Serializable;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import mc.gouv.xaf.back.dsp.enums.common.ResidCiviliteEnum;
 import mc.gouv.xaf.back.dsp.enums.common.ResidSexeEnum;
 import mc.gouv.xaf.back.dsp.enums.v2.ResidRelationEnum;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@ToString
 public class ResidEnfantDTO implements Serializable {
 
 	private static final long serialVersionUID = 8706466698730319490L;
 	
-	private ResidCiviliteEnum titreEnfant;
+	@Setter
+    @Getter
+    private ResidCiviliteEnum titreEnfant;
 
-	private String nomEnfant;
+	@Setter
+    @Getter
+    private String nomEnfant;
 
-	private String prenomEnfant;
+	@Setter
+    @Getter
+    private String prenomEnfant;
 
-	private String dateNaissanceEnfant;
+	@Setter
+    @Getter
+    private String dateNaissanceEnfant;
 
-	private String nationaliteEnfant;
+	@Setter
+    @Getter
+    private String nationaliteEnfant;
 
-	private ResidRelationEnum relationEnfant;
+	@Setter
+    @Getter
+    private ResidRelationEnum relationEnfant;
 
-	private ResidSexeEnum sexeEnfant;
+	@Setter
+    @Getter
+    private ResidSexeEnum sexeEnfant;
 	
-	private String lieuScolariteTravail;
+	@Setter
+    @Getter
+    private String lieuScolariteTravail;
 	
-	private boolean foyerEnfant;
+	@Setter
+    @Getter
+    private boolean foyerEnfant;
 	
 	private Boolean autoriteParentaleEnfant;
 	
-	private ResidAdresseDTO adresseEnfant;
+	@Setter
+    @Getter
+    private ResidAdresseDTO adresseEnfant;
 
-	public ResidCiviliteEnum getTitreEnfant() {
-		return titreEnfant;
-	}
-
-	public void setTitreEnfant(ResidCiviliteEnum titreEnfant) {
-		this.titreEnfant = titreEnfant;
-	}
-
-	public String getNomEnfant() {
-		return nomEnfant;
-	}
-
-	public void setNomEnfant(String nomEnfant) {
-		this.nomEnfant = nomEnfant;
-	}
-
-	public String getPrenomEnfant() {
-		return prenomEnfant;
-	}
-
-	public void setPrenomEnfant(String prenomEnfant) {
-		this.prenomEnfant = prenomEnfant;
-	}
-
-	public String getDateNaissanceEnfant() {
-		return dateNaissanceEnfant;
-	}
-
-	public void setDateNaissanceEnfant(String dateNaissanceEnfant) {
-		this.dateNaissanceEnfant = dateNaissanceEnfant;
-	}
-
-	public String getNationaliteEnfant() {
-		return nationaliteEnfant;
-	}
-
-	public void setNationaliteEnfant(String nationaliteEnfant) {
-		this.nationaliteEnfant = nationaliteEnfant;
-	}
-
-	public ResidRelationEnum getRelationEnfant() {
-		return relationEnfant;
-	}
-
-	public void setRelationEnfant(ResidRelationEnum relationEnfant) {
-		this.relationEnfant = relationEnfant;
-	}
-
-	public ResidSexeEnum getSexeEnfant() {
-		return sexeEnfant;
-	}
-
-	public void setSexeEnfant(ResidSexeEnum sexeEnfant) {
-		this.sexeEnfant = sexeEnfant;
-	}
-
-	public String getLieuScolariteTravail() {
-		return lieuScolariteTravail;
-	}
-
-	public void setLieuScolariteTravail(String lieuScolariteTravail) {
-		this.lieuScolariteTravail = lieuScolariteTravail;
-	}
-
-	public boolean isFoyerEnfant() {
-		return foyerEnfant;
-	}
-
-	public void setFoyerEnfant(boolean foyerEnfant) {
-		this.foyerEnfant = foyerEnfant;
-	}
-
-	public Boolean isAutoriteParentaleEnfant() {
+    public Boolean isAutoriteParentaleEnfant() {
 		return autoriteParentaleEnfant;
 	}
 
@@ -118,25 +70,6 @@ public class ResidEnfantDTO implements Serializable {
 			this.autoriteParentaleEnfant = true;
 		}
 		this.autoriteParentaleEnfant = autoriteParentaleEnfant;
-	}
-
-	public ResidAdresseDTO getAdresseEnfant() {
-		return adresseEnfant;
-	}
-
-	public void setAdresseEnfant(ResidAdresseDTO adresseEnfant) {
-		this.adresseEnfant = adresseEnfant;
-	}
-	
-	@Override
-	public String toString() {
-		return "ResidEnfantDTO{" + "titreEnfant='" + titreEnfant + '\'' + ", nomEnfant='" + nomEnfant + '\''
-				+ ", prenomEnfant='" + prenomEnfant + '\'' + ", dateNaissanceEnfant='" + dateNaissanceEnfant + '\''
-				+ ", nationaliteEnfant='" + nationaliteEnfant + '\'' + ", relationEnfant='"
-				+ relationEnfant + '\'' + ", foyerEnfant='" + foyerEnfant + '\''
-				+ ", sexeEnfant='" + sexeEnfant + '\'' + ", autoriteParentaleEnfant=" + autoriteParentaleEnfant + '\''
-				+ ", lieuScolariteTravail='" + lieuScolariteTravail + '\''
-				+ ", adresseEnfant=" + adresseEnfant.toString() + '}';
 	}
 
 }

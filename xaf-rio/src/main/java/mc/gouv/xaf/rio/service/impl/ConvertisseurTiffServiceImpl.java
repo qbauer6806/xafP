@@ -1,11 +1,29 @@
 package mc.gouv.xaf.rio.service.impl;
 
 import fr.opensagres.poi.xwpf.converter.pdf.PdfConverter;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import javax.imageio.ImageIO;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.rio.service.ConvertisseurTiffService;
 import mc.gouv.xaf.rio.utils.DitheringUtils;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
+import org.apache.commons.io.IOUtils;
+import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.apache.pdfbox.tools.imageio.ImageIOUtil;
@@ -15,20 +33,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 
 
 @Service
@@ -52,14 +56,8 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
 
     public Map<String, InputStream> generateTiffs(DemandeFileDTO file) throws IOException {
 
-        // Propriétés de tests pour bloquer les appels d'API
-//        PropertiesDTO errorProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "TEMP_FAIL_CONVERTISSEUR");
-//        if (errorProp != null && "true".equals(errorProp.getValue()) ) {
-//            throw new IOException();
-//        }
-
         // Récupération du fichier dans file
-        String filePathEncoded = URLEncoder.encode(file.getUrl(), "UTF-8");
+        String filePathEncoded = URLEncoder.encode(file.getUrl(), StandardCharsets.UTF_8);
         InputStream is = fileService.getFile(filePathEncoded, gouvPropertiesResolver.getContainerId());
 
         // Récupération de l'extension et le nom du fichier
@@ -139,7 +137,7 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
         List<InputStream> imagesIS = new ArrayList<>();
 
         // Chargement du document PDF
-        try (PDDocument document = PDDocument.load(is)) {
+        try (PDDocument document = Loader.loadPDF(IOUtils.toByteArray(is))) {
 	        PDFRenderer pdfRenderer = new PDFRenderer(document);
 	
 	        // Parcours du PDF multipages
@@ -211,9 +209,7 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
         double scale;
         double imWidth = img.getWidth();
         double imHeight = img.getHeight();
-        if (scaledWidth > imWidth && scaledHeight > imHeight){
-            im = img;
-        } else if(scaledWidth/imWidth < scaledHeight/imHeight){
+        if(scaledWidth/imWidth < scaledHeight/imHeight){
             scale = scaledWidth/imWidth;
             im = img.getScaledInstance((int) (scale*imWidth), (int) (scale*imHeight), Image.SCALE_SMOOTH);
         } else if (scaledWidth/imWidth > scaledHeight/imHeight){
@@ -232,8 +228,8 @@ public class ConvertisseurTiffServiceImpl implements ConvertisseurTiffService {
      * @return Image bufferisée
      */
     public BufferedImage toBufferedImage(Image img){
-        if (img instanceof BufferedImage) {
-            return (BufferedImage) img;
+        if (img instanceof BufferedImage bufferedImage) {
+            return bufferedImage;
         }
 
         BufferedImage bimage = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_ARGB);

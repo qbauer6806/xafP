@@ -4,16 +4,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.lang3.StringUtils;
-
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeExcelGenerationDTO;
 import mc.gouv.xaf.shared.dto.GenericStatusDTO;
 import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
-import mc.gouv.xaf.shared.dto.sourcefiable.SourceFiableDTO;
 import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
 import mc.gouv.xaf.shared.enums.TitreUsagerEnum;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Service implémenté par la démarche permettant de fournir à xaf-back des informations propres à chaque démarche.
@@ -26,7 +23,7 @@ public interface DemarchesDataProvider {
 
     String getStatusColorClass(StatutPublicOuInterneDTO statutPublicOuInterne);
 
-    String getDemandeur(Object contenuDemandeDTO);
+    String getDemandeur(DemandeDTO contenuDemandeDTO);
 
     List<GenericStatusDTO> getCandidateStatusesForMotifs();
 
@@ -38,7 +35,7 @@ public interface DemarchesDataProvider {
 
     String getVersion();
 
-    StatutPublicOuInterneDTO getStatutPublicOuInterne(Integer pkDemande, String statutLibelle);
+    StatutPublicOuInterneDTO getStatutPublicOuInterne(Integer pkDemande, String statutName);
 
     boolean getDemarcheCanGenerateCourriers();
 
@@ -96,9 +93,9 @@ public interface DemarchesDataProvider {
     }
 
     /**
-     * @return TSCODEDemandeStatutEnum.ANNULEE.name()
+     * @return return new StatutPublicOuInterneDTO(TSCODEDemandeStatutEnum.ANNULEE.name(), TSCODEDemandeStatutEnum.ANNULEE.libelle);
      */
-    String getStatutAnnulee();
+    StatutPublicOuInterneDTO getStatutAnnulee();
 
     /**
      * @return TSCODECodeMotifEnum.ANNULATION_PAR_USAGER.name()
@@ -111,9 +108,9 @@ public interface DemarchesDataProvider {
     String getCodeMotifAnnulationDesinscription();
 
     /**
-     * @return TSCODEDemandeStatutEnum.EN_ATTENTE_TRAIT.name();
+     * @return return new StatutPublicOuInterneDTO(TSCODEDemandeStatutEnum.EN_ATTENTE_TRAIT.name(), TSCODEDemandeStatutEnum.EN_ATTENTE_TRAIT.libelle);
      */
-    String getPremierStatutCreationDemande();
+    StatutPublicOuInterneDTO getPremierStatutCreationDemande();
 
     /**
      * @return TSCODEDemandeStatutEnum.EN_ATTENTE_RECTIFICATION.name()
@@ -162,18 +159,22 @@ public interface DemarchesDataProvider {
     /**
      * Retourne le libellé du statut brouillon non transmis
      */
-    String getBrouillonStatutNotTransmitted();
+    default String getBrouillonStatutNotTransmitted() {
+      return "NOT_TRANSMITTED";
+    }
 
     /**
      * Retourne le libellé du statut brouillon obsolète
      */
-    String getBrouillonStatutDeprecated();
+    default String getBrouillonStatutDeprecated() {
+      return "DEPRECATED";
+    }
 
     /**
      * Retourne le libellé du statut brouillon expiré
      */
     default String getBrouillonStatutExpired() {
-        return "";
+        return "EXPIRED";
     }
 
     /**
@@ -196,15 +197,6 @@ public interface DemarchesDataProvider {
     
     default boolean isTypedocApplicable(String typedoc) {
     	return !typedoc.equals("NON_APPLICABLE");
-    }
-
-    /**
-     * Permets de définir une liste de complément de champs des données certifiées
-     * @param demandeDTO la demande en cours de traitement
-     * @return la liste des champs. Par défaut, une liste vide
-     */
-    default List<SourceFiableDTO> getComplementDonneesCertifiees(DemandeDTO demandeDTO){
-        return new ArrayList<>();
     }
 
     /**

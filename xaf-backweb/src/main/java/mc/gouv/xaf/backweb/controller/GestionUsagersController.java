@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -131,8 +131,8 @@ public class GestionUsagersController extends AbstractController {
     @Secured({"ROLE_TRAITEMENT", "ROLE_SAISIE"})
     @PostMapping(value = "/rechercher")
     public ModelAndView print(@RequestParam String usagerInput) {
-
-        LOGGER.info("======================= Appel de la page /gestion/usagers/rechercher ({})", usagerInput);
+        String safeUsager = AfBackUtils.logSafe(usagerInput);
+        LOGGER.info("======================= Appel de la page /gestion/usagers/rechercher ({})", safeUsager);
 
         LOGGER.info("Appel à DEM pour rechercher l'usager courrier...");
         List<UsagerCourrierDTO> usagersCourrierDTO = usagersCourrierService

@@ -1,23 +1,27 @@
 package mc.gouv.xaf.back.data.entity;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import io.hypersistence.utils.hibernate.type.search.PostgreSQLTSVectorType;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.Size;
 import java.util.Date;
 import java.util.Set;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OrderBy;
-import javax.persistence.Table;
-import javax.validation.constraints.Size;
-
-import org.hibernate.validator.constraints.NotBlank;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.Type;
+import org.hibernate.type.SqlTypes;
 
 /**
  * 
@@ -29,6 +33,8 @@ import org.hibernate.validator.constraints.NotBlank;
  * @author qdeme
  *
  */
+@Setter
+@Getter
 @Entity
 @Table(name = "DEM_DEMANDES")
 public class DemandeBO {
@@ -48,20 +54,24 @@ public class DemandeBO {
     @Column(name = "DATE_DERMODIF", nullable = false)
     private Date dateDerModif;
 
-    @Column(name = "CONTENU", columnDefinition = "TEXT", nullable = false)
-    @NotBlank
-    private String contenu;
+    @Column(name = "CONTENU", columnDefinition = "JSONB", nullable = false)
+    @JdbcTypeCode(SqlTypes.JSON)
+    private JsonNode contenu;
 
-    @Column(name = "LANGUE", length = 2, nullable = true)
-    @Size(min = 0, max = 2)
+    @Column(name = "CONTENU_TRAD", columnDefinition = "JSONB")
+    @JdbcTypeCode(SqlTypes.JSON)
+    private JsonNode contenuTrad;
+
+    @Column(name = "LANGUE", length = 2)
+    @Size(max = 2)
     private String langue;
 
     @Column(name = "CANAL", length = 30, nullable = false)
-    @Size(min = 0, max = 30)
+    @Size(max = 30)
     private String canal;
 
-    @Column(name = "OBSERVATIONS", length = 10000, nullable = true)
-    @Size(min = 0, max = 10000)
+    @Column(name = "OBSERVATIONS", length = 10000)
+    @Size(max = 10000)
     private String observations;
 
     @OneToMany(mappedBy = "fkDemandes", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -74,12 +84,16 @@ public class DemandeBO {
     @OneToMany(mappedBy = "fkDemandes", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<DemandesStatutsBO> statuts;
 
-    @Column(name = "AGENT_AFFECTE_ID", length = 128, nullable = true)
-    @Size(min = 0, max = 128)
-    private String agentAffecteId;
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "FK_DEMANDESAGENTS")
+    private DemandesAgentsBO agent;
 
-    @Column(name = "CREE_PAR_AGENT_ID", length = 128, nullable = true)
-    @Size(min = 0, max = 128)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "FK_CONFIG")
+    private DemandeConfigBO config;
+
+    @Column(name = "CREE_PAR_AGENT_ID", length = 128)
+    @Size(max = 128)
     private String creeParAgentId;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -93,293 +107,51 @@ public class DemandeBO {
     @OneToMany(mappedBy = "fkDemandes", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<DemandesDataBO> data;
 
-    @Column(name = "COURRIER_DATE_RECEPTION", nullable = true)
+    @Column(name = "COURRIER_DATE_RECEPTION")
     private Date courrierDateReception;
 
-    @Column(name = "COURRIER_REF_INTERNE", length = 256, nullable = true)
-    @Size(min = 0, max = 256)
+    @Column(name = "COURRIER_REF_INTERNE", length = 256)
+    @Size(max = 256)
     private String courrierRefInterne;
 
     @OneToMany(mappedBy = "fkDemandes", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<DemandesCourriersBO> courriers;
 
-    @Column(name = "USAGER_NOM", length = 256, nullable = true)
-    @Size(min = 0, max = 256)
-    private String usagerNom;
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "FK_DEMANDESUSAGERS")
+    private DemandesUsagersBO usager;
 
-    @Column(name = "USAGER_PRENOM", length = 256, nullable = true)
-    @Size(min = 0, max = 256)
-    private String usagerPrenom;
-
-    @Column(name = "USAGER_EMAIL", length = 256, nullable = true)
-    @Size(min = 0, max = 256)
-    private String usagerEmail;
-
-    @Column(name = "BUILD_ID", length = 32, nullable = true)
-    @Size(min = 0, max = 32)
-    private String buildId;
-
-    @Column(name = "RECAP_TYPE", length = 256, nullable = true)
-    @Size(min = 0, max = 256)
+    @Column(name = "RECAP_TYPE", length = 256)
+    @Size(max = 256)
     private String recapType;
 
-    @Column(name = "DONNEES_CERTIFIEES", columnDefinition = "TEXT", nullable = true)
-    private String donneesCertifiees;
+    @Column(name = "DONNEES_CERTIFIEES", columnDefinition = "JSONB")
+    @JdbcTypeCode(SqlTypes.JSON)
+    private JsonNode donneesCertifiees;
 
     @Column(name = "MODIFICATION_TIMESTAMP")
     private Long modificationTimestamp;
 
-    @Column(name = "CONTENU_INITIAL", columnDefinition = "TEXT", nullable = true)
+    @Column(name = "CONTENU_INITIAL", columnDefinition = "TEXT")
     private String contenuInitial;
 
-    @Column(name = "META", columnDefinition = "TEXT", nullable = true)
+    @Column(name = "META", columnDefinition = "TEXT")
     private String meta;
 
-    @Column(name = "TYPE_CONNEXION_USAGER", length = 256, nullable = true)
+    @Column(name = "TYPE_CONNEXION_USAGER", length = 256)
     private String typeConnexionUsager;
 
-    public Long getModificationTimestamp() {
-        return modificationTimestamp;
-    }
+    @Type(PostgreSQLTSVectorType.class)
+    @Column(name = "search_vector",columnDefinition = "tsvector", insertable = false, updatable = false)
+    private String searchVector;
 
-    public void setModificationTimestamp(Long modificationTimestamp) {
-        this.modificationTimestamp = modificationTimestamp;
-    }
+    @Type(PostgreSQLTSVectorType.class)
+    @Column(name = "search_vector_contenu",columnDefinition = "tsvector", insertable = false, updatable = false)
+    private String searchVectorContenu;
 
     // De type Integer et non DemandeBO (autrement dit : pas de foreign key en base)
     // Ceci afin d'être tranquille le jour où cette demande source doit être purgée (supprimée)
-    @Column(name = "PK_DEMANDE_SOURCE", nullable = true)
+    @Column(name = "PK_DEMANDE_SOURCE")
     private Integer pkDemandeSource;
 
-    public Integer getPkDemandes() {
-        return pkDemandes;
-    }
-
-    public void setPkDemandes(Integer pkDemandes) {
-        this.pkDemandes = pkDemandes;
-    }
-
-    public AccessBO getFkAccess() {
-        return fkAccess;
-    }
-
-    public void setFkAccess(AccessBO fkAccess) {
-        this.fkAccess = fkAccess;
-    }
-
-    public Date getDateCreation() {
-        return dateCreation;
-    }
-
-    public void setDateCreation(Date dateCreation) {
-        this.dateCreation = dateCreation;
-    }
-
-    public Date getDateDerModif() {
-        return dateDerModif;
-    }
-
-    public void setDateDerModif(Date dateDerModif) {
-        this.dateDerModif = dateDerModif;
-    }
-
-    public String getContenu() {
-        return contenu;
-    }
-
-    public void setContenu(String contenu) {
-        this.contenu = contenu;
-    }
-
-    public Set<DemandesComplementsBO> getDemandesComplements() {
-        return demandesComplements;
-    }
-
-    public void setDemandesComplements(Set<DemandesComplementsBO> demandesComplements) {
-        this.demandesComplements = demandesComplements;
-    }
-
-    public Set<DemandesFilesBO> getFiles() {
-        return files;
-    }
-
-    public void setFiles(Set<DemandesFilesBO> files) {
-        this.files = files;
-    }
-
-    public Set<DemandesStatutsBO> getStatuts() {
-        return statuts;
-    }
-
-    public void setStatuts(Set<DemandesStatutsBO> statuts) {
-        this.statuts = statuts;
-    }
-
-    public String getLangue() {
-        return langue;
-    }
-
-    public void setLangue(String langue) {
-        this.langue = langue;
-    }
-
-    public String getCanal() {
-        return canal;
-    }
-
-    public void setCanal(String canal) {
-        this.canal = canal;
-    }
-
-    public String getObservations() {
-        return observations;
-    }
-
-    public void setObservations(String observations) {
-        this.observations = observations;
-    }
-
-    public String getAgentAffecteId() {
-        return agentAffecteId;
-    }
-
-    public void setAgentAffecteId(String agentAffecteId) {
-        this.agentAffecteId = agentAffecteId;
-    }
-
-    public DemandesStatutsBO getDernierStatut() {
-        return dernierStatut;
-    }
-
-    public void setDernierStatut(DemandesStatutsBO dernierStatut) {
-        this.dernierStatut = dernierStatut;
-    }
-
-    public String getIdentifiant() {
-        return identifiant;
-    }
-
-    public void setIdentifiant(String identifiant) {
-        this.identifiant = identifiant;
-    }
-
-    public Set<DemandesDataBO> getData() {
-        return data;
-    }
-
-    public void setData(Set<DemandesDataBO> data) {
-        this.data = data;
-    }
-
-    public Date getCourrierDateReception() {
-        return courrierDateReception;
-    }
-
-    public void setCourrierDateReception(Date courrierDateReception) {
-        this.courrierDateReception = courrierDateReception;
-    }
-
-    public String getCourrierRefInterne() {
-        return courrierRefInterne;
-    }
-
-    public void setCourrierRefInterne(String courrierRefInterne) {
-        this.courrierRefInterne = courrierRefInterne;
-    }
-
-    public Set<DemandesCourriersBO> getCourriers() {
-        return courriers;
-    }
-
-    public void setCourriers(Set<DemandesCourriersBO> courriers) {
-        this.courriers = courriers;
-    }
-
-    public String getCreeParAgentId() {
-        return creeParAgentId;
-    }
-
-    public void setCreeParAgentId(String creeParAgentId) {
-        this.creeParAgentId = creeParAgentId;
-    }
-
-    public String getUsagerNom() {
-        return usagerNom;
-    }
-
-    public void setUsagerNom(String usagerNom) {
-        this.usagerNom = usagerNom;
-    }
-
-    public String getUsagerPrenom() {
-        return usagerPrenom;
-    }
-
-    public void setUsagerPrenom(String usagerPrenom) {
-        this.usagerPrenom = usagerPrenom;
-    }
-
-    public String getUsagerEmail() {
-        return usagerEmail;
-    }
-
-    public void setUsagerEmail(String usagerEmail) {
-        this.usagerEmail = usagerEmail;
-    }
-
-    public String getBuildId() {
-        return buildId;
-    }
-
-    public void setBuildId(String buildId) {
-        this.buildId = buildId;
-    }
-
-    public String getRecapType() {
-        return recapType;
-    }
-
-    public void setRecapType(String recapType) {
-        this.recapType = recapType;
-    }
-
-    public String getDonneesCertifiees() {
-        return donneesCertifiees;
-    }
-
-    public void setDonneesCertifiees(String donneesCertifiees) {
-        this.donneesCertifiees = donneesCertifiees;
-    }
-
-    public Integer getPkDemandeSource() {
-        return pkDemandeSource;
-    }
-
-    public void setPkDemandeSource(Integer pkDemandeSource) {
-        this.pkDemandeSource = pkDemandeSource;
-    }
-
-    public String getContenuInitial() {
-        return contenuInitial;
-    }
-
-    public void setContenuInitial(String contenuInitial) {
-        this.contenuInitial = contenuInitial;
-    }
-
-	public String getMeta() {
-		return meta;
-	}
-
-	public void setMeta(String meta) {
-		this.meta = meta;
-	}
-
-    public String getTypeConnexionUsager() {
-        return typeConnexionUsager;
-    }
-
-    public void setTypeConnexionUsager(String typeConnexionUsager) {
-        this.typeConnexionUsager = typeConnexionUsager;
-    }
 }

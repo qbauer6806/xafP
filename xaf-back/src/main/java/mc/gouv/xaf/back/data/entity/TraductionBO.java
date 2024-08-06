@@ -1,6 +1,8 @@
 package mc.gouv.xaf.back.data.entity;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Classe BO de la table DEM_TRADUCTIONS
@@ -9,6 +11,8 @@ import javax.persistence.*;
  *
  * @author mboutelier.ext
  */
+@Setter
+@Getter
 @Entity
 @Table(name = "DEM_TRADUCTIONS")
 public class TraductionBO {
@@ -26,37 +30,5 @@ public class TraductionBO {
 
     @Column(name = "VALEUR", length = 256, nullable = false)
     private String valeur;
-
-    public Integer getPkTraductions() {
-        return pkTraductions;
-    }
-
-    public void setPkTraductions(Integer pkTraductions) {
-        this.pkTraductions = pkTraductions;
-    }
-
-    public String getLangue() {
-        return langue;
-    }
-
-    public void setLangue(String langue) {
-        this.langue = langue;
-    }
-
-    public String getCle() {
-        return cle;
-    }
-
-    public void setCle(String cle) {
-        this.cle = cle;
-    }
-
-    public String getValeur() {
-        return valeur;
-    }
-
-    public void setValeur(String valeur) {
-        this.valeur = valeur;
-    }
 
 }

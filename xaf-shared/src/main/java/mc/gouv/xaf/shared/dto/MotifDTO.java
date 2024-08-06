@@ -1,10 +1,11 @@
 package mc.gouv.xaf.shared.dto;
 
-import java.util.Date;
-
-import javax.validation.constraints.NotNull;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.validation.constraints.NotNull;
+import java.util.Date;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * Représente un motif
@@ -12,6 +13,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  * @author qdeme
  *
  */
+@Setter
+@Getter
+@NoArgsConstructor
 public class MotifDTO {
 
     public static final String LANG_FR = "fr";
@@ -42,10 +46,6 @@ public class MotifDTO {
 
     private String texteAEnvoyer;
 
-    public MotifDTO() {
-        super();
-    }
-
     /**
      * Constructeur remplaçant la méthode clone()<br>
      * Copie l'objet source donné en paramètre.
@@ -64,86 +64,6 @@ public class MotifDTO {
         this.dateArchive = source.getDateArchive();
         this.commentairePrerempli = source.getCommentairePrerempli();
         this.texteAEnvoyer = source.getTexteAEnvoyer();
-    }
-
-    public Integer getPkMotifs() {
-        return pkMotifs;
-    }
-
-    public void setPkMotifs(Integer pkMotifs) {
-        this.pkMotifs = pkMotifs;
-    }
-
-    public String getDemarcheId() {
-        return demarcheId;
-    }
-
-    public void setDemarcheId(String demarcheId) {
-        this.demarcheId = demarcheId;
-    }
-
-    public String getLibelle() {
-        return libelle;
-    }
-
-    public void setLibelle(String libelle) {
-        this.libelle = libelle;
-    }
-
-    public String getStatut() {
-        return statut;
-    }
-
-    public void setStatut(String statut) {
-        this.statut = statut;
-    }
-
-    public String getLangue() {
-        return langue;
-    }
-
-    public void setLangue(String langue) {
-        this.langue = langue;
-    }
-
-    public boolean isUpdated() {
-        return updated;
-    }
-
-    public void setUpdated(boolean updated) {
-        this.updated = updated;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public Date getDateArchive() {
-        return dateArchive;
-    }
-
-    public void setDateArchive(Date dateArchive) {
-        this.dateArchive = dateArchive;
-    }
-    
-    public String getCommentairePrerempli() {
-        return commentairePrerempli;
-    }
-
-    public void setCommentairePrerempli(String commentairePrerempli) {
-        this.commentairePrerempli = commentairePrerempli;
-    }
-
-    public String getTexteAEnvoyer() {
-        return texteAEnvoyer;
-    }
-
-    public void setTexteAEnvoyer(String texteAEnvoyer) {
-        this.texteAEnvoyer = texteAEnvoyer;
     }
 
 }

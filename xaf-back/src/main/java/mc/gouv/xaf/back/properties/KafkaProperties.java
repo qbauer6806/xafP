@@ -1,8 +1,12 @@
 package mc.gouv.xaf.back.properties;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
+@Setter
+@Getter
 @Configuration
 public class KafkaProperties {
 
@@ -36,83 +40,4 @@ public class KafkaProperties {
     @Value("${mc.gouv.${application.name}.shared.backapi.consumer.maxpartitionfetchbytes:20971520}")
     private String maxPartitionFetchBytes;
 
-    public String getKafkaEnabled() {
-        return kafkaEnabled;
-    }
-
-    public void setKafkaEnabled(String kafkaEnabled) {
-        this.kafkaEnabled = kafkaEnabled;
-    }
-
-    public String getBootstrapServersConfig() {
-        return bootstrapServersConfig;
-    }
-
-    public void setBootstrapServersConfig(String bootstrapServersConfig) {
-        this.bootstrapServersConfig = bootstrapServersConfig;
-    }
-
-    public String getKafkaSSLEnabled() {
-        return kafkaSSLEnabled;
-    }
-
-    public void setKafkaSSLEnabled(String kafkaSSLEnabled) {
-        this.kafkaSSLEnabled = kafkaSSLEnabled;
-    }
-
-    public String getTruststoreLocation() {
-        return truststoreLocation;
-    }
-
-    public void setTruststoreLocation(String truststoreLocation) {
-        this.truststoreLocation = truststoreLocation;
-    }
-
-    public String getTruststorePassword() {
-        return truststorePassword;
-    }
-
-    public void setTruststorePassword(String truststorePassword) {
-        this.truststorePassword = truststorePassword;
-    }
-
-    public String getKeystoreLocation() {
-        return keystoreLocation;
-    }
-
-    public void setKeystoreLocation(String keystoreLocation) {
-        this.keystoreLocation = keystoreLocation;
-    }
-
-    public String getKeystorePassword() {
-        return keystorePassword;
-    }
-
-    public void setKeystorePassword(String keystorePassword) {
-        this.keystorePassword = keystorePassword;
-    }
-
-    public String getMaxRequestSizeConfig() {
-        return maxRequestSizeConfig;
-    }
-
-    public void setMaxRequestSizeConfig(String maxRequestSizeConfig) {
-        this.maxRequestSizeConfig = maxRequestSizeConfig;
-    }
-
-    public String getFetchMaxBytes() {
-        return fetchMaxBytes;
-    }
-
-    public void setFetchMaxBytes(String fetchMaxBytes) {
-        this.fetchMaxBytes = fetchMaxBytes;
-    }
-
-    public String getMaxPartitionFetchBytes() {
-        return maxPartitionFetchBytes;
-    }
-
-    public void setMaxPartitionFetchBytes(String maxPartitionFetchBytes) {
-        this.maxPartitionFetchBytes = maxPartitionFetchBytes;
-    }
 }

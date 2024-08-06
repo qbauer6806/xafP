@@ -9,7 +9,9 @@ public class DitheringUtils {
     }
 
     private static class C3 {
-        int r, g, b;
+        int r;
+        int g;
+        int b;
 
         public C3(int c) {
             Color color = new Color(c);
@@ -36,8 +38,7 @@ public class DitheringUtils {
             int Rdiff = o.r - r;
             int Gdiff = o.g - g;
             int Bdiff = o.b - b;
-            int distanceSquared = Rdiff * Rdiff + Gdiff * Gdiff + Bdiff * Bdiff;
-            return distanceSquared;
+            return Rdiff * Rdiff + Gdiff * Gdiff + Bdiff * Bdiff;
         }
 
         public C3 mul(double d) {

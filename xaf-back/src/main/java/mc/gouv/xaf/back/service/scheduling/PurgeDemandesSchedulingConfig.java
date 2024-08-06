@@ -1,6 +1,6 @@
 package mc.gouv.xaf.back.service.scheduling;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 
 import org.quartz.JobDetail;
 import org.quartz.SchedulerException;

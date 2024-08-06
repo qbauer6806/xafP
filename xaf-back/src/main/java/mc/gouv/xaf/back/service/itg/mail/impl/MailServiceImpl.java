@@ -1,5 +1,6 @@
 package mc.gouv.xaf.back.service.itg.mail.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
@@ -12,12 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import mc.gouv.mail.apiclient.client.MailClient;
-import mc.gouv.mail.shared.dto.AddressBlockDTO;
-import mc.gouv.mail.shared.dto.MailDTO;
-import mc.gouv.mail.shared.dto.ParamDTO;
+import mc.gouv.xaf.apiclient.mail.MailClient;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.PropertiesService;
@@ -28,6 +24,9 @@ import mc.gouv.xaf.back.service.templates.TemplatesCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import mc.gouv.xaf.shared.dto.TemplateDTO;
+import mc.gouv.xaf.shared.dto.mail.AddressBlockDTO;
+import mc.gouv.xaf.shared.dto.mail.MailDTO;
+import mc.gouv.xaf.shared.dto.mail.ParamDTO;
 import mc.gouv.xaf.shared.enums.MailAudienceEnum;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -135,12 +134,12 @@ public class MailServiceImpl implements MailService {
         List<ParamDTO> params = EmailTransformer.toMailApiParams(emailInfo.getParams());
 
         MailDTO email = new MailDTO();
-        email.setTo(to.toArray(new AddressBlockDTO[to.size()]));
-        email.setCc(cc.toArray(new AddressBlockDTO[cc.size()]));
-        email.setBcc(bcc.toArray(new AddressBlockDTO[bcc.size()]));
+        email.setTo(to.toArray(AddressBlockDTO[]::new));
+        email.setCc(cc.toArray(AddressBlockDTO[]::new));
+        email.setBcc(bcc.toArray(AddressBlockDTO[]::new));
         email.setFrom(from);
         email.setReplyto(replyTo);
-        email.setParams(params.toArray(new ParamDTO[params.size()]));
+        email.setParams(params.toArray(ParamDTO[]::new));
         email.setSubject(subjectAndBody[0]);
         email.setHtml(subjectAndBody[1]);
         // Pas de email.setText() ==> on considère que les templates body des démarches sont toujours en HTML !
@@ -226,7 +225,7 @@ public class MailServiceImpl implements MailService {
 	@Override
 	public String formatCommentaire(String commentaire) {
 		if (!StringUtils.isBlank(commentaire)) {
-			String lineSep = System.getProperty("line.separator");
+			String lineSep = System.lineSeparator();
 			commentaire = commentaire.replace(lineSep, "<br/>");
 		}
 		return commentaire;

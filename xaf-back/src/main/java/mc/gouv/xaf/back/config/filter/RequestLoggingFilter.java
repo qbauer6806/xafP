@@ -6,10 +6,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -42,7 +42,7 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
     protected void doFilterWrapped(ContentCachingRequestWrapper request, ContentCachingResponseWrapper response,
             FilterChain filterChain) throws ServletException, IOException {
         try {
-            beforeRequest(request, response);
+            beforeRequest(request);
             filterChain.doFilter(request, response);
         } finally {
             afterRequest(request, response);
@@ -50,7 +50,7 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
         }
     }
 
-    protected void beforeRequest(ContentCachingRequestWrapper request, ContentCachingResponseWrapper response) {
+    protected void beforeRequest(ContentCachingRequestWrapper request) {
         if (LOGGER.isInfoEnabled()) {
             logRequestHeader(request, request.getRemoteAddr() + "|>");
         }
@@ -131,16 +131,16 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
     }
 
     private static ContentCachingRequestWrapper wrapRequest(HttpServletRequest request) {
-        if (request instanceof ContentCachingRequestWrapper) {
-            return (ContentCachingRequestWrapper) request;
+        if (request instanceof ContentCachingRequestWrapper contentCachingRequestWrapper) {
+            return contentCachingRequestWrapper;
         } else {
             return new ContentCachingRequestWrapper(request);
         }
     }
 
     private static ContentCachingResponseWrapper wrapResponse(HttpServletResponse response) {
-        if (response instanceof ContentCachingResponseWrapper) {
-            return (ContentCachingResponseWrapper) response;
+        if (response instanceof ContentCachingResponseWrapper contentCachingResponseWrapper) {
+            return contentCachingResponseWrapper;
         } else {
             return new ContentCachingResponseWrapper(response);
         }

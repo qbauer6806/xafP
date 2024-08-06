@@ -2,6 +2,8 @@ package mc.gouv.xaf.shared.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * 
@@ -10,6 +12,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
  * @author qdeme
  *
  */
+@Setter
+@Getter
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DemandeDataDTO {
 
@@ -24,44 +28,4 @@ public class DemandeDataDTO {
     @JsonIgnore
     boolean updated = false;
 
-    public Integer getPkDemandesData() {
-        return pkDemandesData;
-    }
-
-    public void setPkDemandesData(Integer pkDemandesData) {
-        this.pkDemandesData = pkDemandesData;
-    }
-
-    public Integer getDemandeId() {
-        return demandeId;
-    }
-
-    public void setDemandeId(Integer demandeId) {
-        this.demandeId = demandeId;
-    }
-
-    public String getKey() {
-        return key;
-    }
-
-    public void setKey(String key) {
-        this.key = key;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
-
-    public boolean isUpdated() {
-        return updated;
-    }
-
-    public void setUpdated(boolean updated) {
-        this.updated = updated;
-    }
-    
 }

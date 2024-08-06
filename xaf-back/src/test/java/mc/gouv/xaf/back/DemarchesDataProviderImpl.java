@@ -1,16 +1,15 @@
 package mc.gouv.xaf.back;
 
-import java.util.List;
-import java.util.Map;
-
-import org.springframework.stereotype.Component;
-
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeExcelGenerationDTO;
 import mc.gouv.xaf.shared.dto.GenericStatusDTO;
 import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
 import mc.gouv.xaf.shared.enums.StatutSimplifieEnum;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.Map;
 
 @Component
 public class DemarchesDataProviderImpl implements DemarchesDataProvider {
@@ -26,7 +25,7 @@ public class DemarchesDataProviderImpl implements DemarchesDataProvider {
     }
 
     @Override
-    public String getDemandeur(Object contenuDemandeDTO) {
+    public String getDemandeur(DemandeDTO contenuDemandeDTO) {
         return null;
     }
 
@@ -56,7 +55,7 @@ public class DemarchesDataProviderImpl implements DemarchesDataProvider {
     }
 
     @Override
-    public StatutPublicOuInterneDTO getStatutPublicOuInterne(Integer pkDemande, String statutLibelle) {
+    public StatutPublicOuInterneDTO getStatutPublicOuInterne(Integer pkDemande, String statutName) {
         return null;
     }
 
@@ -137,7 +136,7 @@ public class DemarchesDataProviderImpl implements DemarchesDataProvider {
     }
 
 	@Override
-	public String getStatutAnnulee() {
+	public StatutPublicOuInterneDTO getStatutAnnulee() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -155,7 +154,7 @@ public class DemarchesDataProviderImpl implements DemarchesDataProvider {
 	}
 
 	@Override
-	public String getPremierStatutCreationDemande() {
+	public StatutPublicOuInterneDTO getPremierStatutCreationDemande() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -206,16 +205,6 @@ public class DemarchesDataProviderImpl implements DemarchesDataProvider {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
-    @Override
-    public String getBrouillonStatutNotTransmitted() {
-        return null;
-    }
-
-    @Override
-    public String getBrouillonStatutDeprecated() {
-        return null;
-    }
 
 	@Override
 	public List<String> getSpansIdAMarquer(DemandeDTO demande) {

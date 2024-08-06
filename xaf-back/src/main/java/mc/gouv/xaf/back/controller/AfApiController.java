@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.apache.tika.exception.TikaException;
 import org.springframework.http.HttpStatus;
@@ -126,4 +126,6 @@ public interface AfApiController {
     default JsonNode getDonneesExternes(Integer usagerId, Map<String, String[]> params) throws IOException {
         return null;
     }
+
+    JsonNode creerConfig(JsonNode config);
 }

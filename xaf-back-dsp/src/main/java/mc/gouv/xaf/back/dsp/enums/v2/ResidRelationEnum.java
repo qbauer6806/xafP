@@ -5,7 +5,7 @@ public enum ResidRelationEnum {
     CDV("CDV"),
     ENF("ENF");
 
-    public String value;
+    private final String value;
 
     ResidRelationEnum(String value) {
         this.value = value;

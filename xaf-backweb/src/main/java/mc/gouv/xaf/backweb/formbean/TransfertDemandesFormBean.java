@@ -1,6 +1,8 @@
 package mc.gouv.xaf.backweb.formbean;
 
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Formulaire pour le transfert de demandes
@@ -8,16 +10,10 @@ import java.util.List;
  * @author qdeme
  *
  */
+@Setter
+@Getter
 public class TransfertDemandesFormBean {
 
     private List<Integer> checkedDemandes;
-    
-    public List<Integer> getCheckedDemandes() {
-        return checkedDemandes;
-    }
-    
-    public void setCheckedDemandes(List<Integer> checkedDemandes) {
-        this.checkedDemandes = checkedDemandes;
-    }
 
 }

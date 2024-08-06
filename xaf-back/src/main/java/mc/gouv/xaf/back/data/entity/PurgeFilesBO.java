@@ -1,14 +1,16 @@
 package mc.gouv.xaf.back.data.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.validation.constraints.Size;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.Size;
 
-import org.hibernate.validator.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Classe BO de la table DEM.DEM_PURGE_FILES Contient la liste des urls des fichiers liés à des demandes purgées Ceci
@@ -16,6 +18,8 @@ import org.hibernate.validator.constraints.NotBlank;
  *
  * @author agaidi.ext
  */
+@Setter
+@Getter
 @Entity
 @Table(name = "DEM_PURGE_FILES")
 public class PurgeFilesBO {
@@ -29,23 +33,5 @@ public class PurgeFilesBO {
     @NotBlank
     @Size(min = 1, max = 1024)
     private String url;
-
-
-    public Integer getPkPurgeFile() {
-        return pkPurgeFile;
-    }
-
-    public void setPkPurgeFile(Integer pkPurgeFile) {
-        this.pkPurgeFile = pkPurgeFile;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
 
 }

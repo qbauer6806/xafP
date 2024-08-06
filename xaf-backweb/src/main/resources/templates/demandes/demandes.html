@@ -11,7 +11,6 @@
 
 <!-- Import FONTS -->
 <link th:href="@{/css/font-style.css(${applicationBuildTimestamp})}" rel="stylesheet" />
-<link rel="stylesheet" th:href="@{/webjars/xcb-wlib/fonts/ie7/ie7.css}" />
 
 <!-- Import CSS -->
 <link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"
@@ -19,10 +18,10 @@
 <link th:href="@{/webjars/xcb-wlib/css/template.css}" rel="stylesheet" />
 <link th:href="@{/webjars/xcb-wlib/css/sidebar.css}" rel="stylesheet" />
 <link th:href="@{/webjars/xcb-wlib/css/element.css}" rel="stylesheet" />
-<link th:href="@{/webjars/datatables/css/dataTables.bootstrap.css}"
+<link th:href="@{/webjars/datatables/css/dataTables.bootstrap.min.css}"
 	rel="stylesheet" />
 <link
-	th:href="@{/webjars/bootstrap-datepicker/css/bootstrap-datepicker.css}"
+	th:href="@{/webjars/bootstrap-datepicker/css/bootstrap-datepicker.min.css}"
 	rel="stylesheet" />
 
 <link rel="shortcut icon" type="image/x-icon"
@@ -31,17 +30,15 @@
 	rel="stylesheet" />
 <link th:href="@{/css/tsdem.css(${applicationBuildTimestamp})}"
 	rel="stylesheet" />
-<link rel="stylesheet"
-	th:href="@{/webjars/fancybox/jquery.fancybox.css}" />
 </head>
 
 <body th:with="pageDemandesActive='active'">
 
-	<div th:replace="fragments/header :: header"></div>
+	<div th:replace="~{fragments/header :: header}"></div>
 
 	<div id="wrapper">
 
-		<div th:replace="fragments/sidebar :: sidebar"></div>
+		<div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
 		<!-- DEBUT CONTENU -->
 		<div id="page-content-wrapper">
@@ -79,12 +76,6 @@
 											<button type="submit" class="btn btn-action ripple-effect"
 												name="action" value="Rechercher" id="btnRechercherDemande">
 												<i class="icon-action_chercher"></i>
-											</button>
-											<button class="btn btn-action ripple-effect greyTooltip"
-												data-placement="right" data-html="true"
-												data-original-title="<p style='text-align: left;'>Recherche d'une expression exacte:<br/> &quot;pierre étudiant&quot;<br/>Recherche intégrant un second terme:<br/>pierre +étudiant<br/>Recherche excluant un terme:<br/>pierre -étudiant</p>"
-												data-toggle="tooltip">
-												<i class="icon-menu_aide"></i>
 											</button>
 										</div>
 									</div>
@@ -245,7 +236,7 @@
 									</div>
 								</div>
 
-								<div class="row" id="affinerDiv" style='display: none'>
+								<div class="row" id="affinerDiv">
 									<div class="col-xs-12">
 
 										<div class="panel-group accordion" aria-multiselectable="true">
@@ -278,7 +269,6 @@
 																		<a href="javascript:;" class="greyTooltip"
 																			data-toggle="tooltip" id="facetLink">
 																			<span id="facetName">name </span>
-																			<span class="badge"	id="facetSize">size</span>
 																		</a>
 																	</div>
 																</div>
@@ -318,9 +308,7 @@
 
 	</div>
 
-	<script type="text/javascript"
-		th:src="@{/recherchedynamicjs/dynamicjs.js}"></script>
-	<div th:replace="fragments/footer :: footer"></div>
+	<div th:replace="~{fragments/footer :: footer}"></div>
 
 	<script type="text/javascript" th:src="@{/js/tsgenutils.js}"></script>
 	<script type="text/javascript" th:inline="javascript">
@@ -362,22 +350,16 @@
 			params.size = params.length;
 			params.page = params.start / params.length;
 
-			if ($("input[name='canal']:checked").length == 0) {
+			if ($("input[name='canal']:checked").length === 0) {
 				params.aucunCanal = true;
 			}
 
-			if ($("input[name='statut']:checked").length == 0) {
+			if ($("input[name='statut']:checked").length === 0) {
 				params.aucunStatut = true;
 			}
 
-			var col = columns[params.order[0].column]
-			if (col.data !== "highlightedField") {
-				var keyword = ""
-				if (col.keyword)
-					keyword = ".keyword"
-				params.sort = columns[params.order[0].column].data + keyword
-						+ "," + params.order[0].dir;
-			}
+      params.sort = columns[params.order[0].column].data
+          + "," + params.order[0].dir;
 
 		}
 
@@ -388,9 +370,6 @@
 		
 		// Action du sélecteur de pages
 		$('#pagelist').change(function(){
-			var start = $('#pagelist').find(':selected').data('start');
-			var length = $('#pagelist').find(':selected').data('length');
-			//load_data(start, length);
 			var page_number = parseInt($('#pagelist').val());
 			var test_table = $('#datatable-demandes').dataTable();
 			test_table.fnPageChange(page_number);
@@ -398,6 +377,7 @@
 
 		$(document).ready(
 				function() {
+					APP.buildFacets();
 					// Cacher le tooltip au chargement de la page
 					$("#txtRechercheDemande").tooltip("hide");
 					$("#txtRechercheDemande").tooltip("disable");

@@ -1,5 +1,8 @@
 package mc.gouv.xaf.back.paiement.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum PaiementStatutEnum {
     EMPREINTE_VALIDE("Empreinte bancaire valide"),
     EMPREINTE_EXPIREE("Empreinte bancaire expirée"),
@@ -11,10 +14,6 @@ public enum PaiementStatutEnum {
 
     PaiementStatutEnum(String libelle) {
         this.libelle = libelle;
-    }
-
-    public String getLibelle() {
-        return libelle;
     }
 
     @Override

@@ -15,8 +15,6 @@
 
     <!-- Import FONTS -->
     <link th:href="@{/css/font-style.css(${applicationBuildTimestamp})}" rel="stylesheet"/>
-    <!--[if lt IE 8]><!-->
-    <link rel="stylesheet" th:href="@{/webjars/xcb-wlib/fonts/ie7/ie7.css}"/>
 
     <!-- Import CSS -->
     <link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"
@@ -24,10 +22,8 @@
     <link th:href="@{/webjars/xcb-wlib/css/template.css}" rel="stylesheet"/>
     <link th:href="@{/webjars/xcb-wlib/css/sidebar.css}" rel="stylesheet"/>
     <link th:href="@{/webjars/xcb-wlib/css/element.css}" rel="stylesheet"/>
-    <link th:href="@{/webjars/datatables/css/dataTables.bootstrap.css}"
+    <link th:href="@{/webjars/datatables/css/dataTables.bootstrap.min.css}"
           rel="stylesheet"/>
-    <link rel="stylesheet"
-          th:href="@{/webjars/fancybox/jquery.fancybox.css}"/>
     <link rel="shortcut icon" type="image/x-icon"
           th:href="@{/img/favicon.ico}"/>
     <link th:href="@{/css/tsgen.css(${applicationBuildTimestamp})}"
@@ -53,11 +49,11 @@
 </head>
 <body th:with="pageConfigurationActive='active'">
 
-<div th:replace="fragments/header :: header"></div>
+<div th:replace="~{fragments/header :: header}"></div>
 
 <div id="wrapper">
 
-    <div th:replace="fragments/sidebar :: sidebar"></div>
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
     <!-- DEBUT CONTENU -->
     <div id="page-content-wrapper">
@@ -107,45 +103,51 @@
     <!-- FIN CONTENU -->
 
     <!-- EDITION MODAL -->
-    <div id="editionModal" style="display: none">
-        <form method="POST" id="editionPropertiesForm" th:action="@{/gestion/properties/edit}">
-            <!-- input cachée pour insérer la pk de la properties à modifier -->
-            <input type="hidden" id="pkProperties" name="pkProperties"/>
-            <div class="row no-margin-row" style="width: 400px;">
-                <div class="col-xs-12 text-center">
-                    <h2>Modification d'une propriété</h2>
+    <div id="editionModal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <form method="POST" id="editionPropertiesForm" th:action="@{/gestion/properties/edit}">
+                        <!-- input cachée pour insérer la pk de la properties à modifier -->
+                        <input type="hidden" id="pkProperties" name="pkProperties"/>
+                        <div class="row no-margin-row">
+                            <div class="col-xs-12 text-center">
+                                <h2>Modification d'une propriété</h2>
+                            </div>
+                            <div class="col-xs-12">
+                                <strong>Type :</strong>&nbsp;<span id="propertiesType"></span>
+                            </div>
+                            <div class="col-xs-12 mt-15">
+                                <strong>Clé :</strong>&nbsp;<span id="propertiesKey"></span>
+                            </div>
+                            <div class="col-xs-12 mt-15">
+                                <strong>Descriptif :</strong>&nbsp;<span id="propertiesDescriptif"></span>
+                            </div>
+                            <div class="col-xs-12 mt-15 form-group">
+                                <label for="propertiesValue">Valeur</label>
+                                <textarea id="propertiesValue" name="value" class="form-control"
+                                          style="overflow: auto; max-height: 500px"></textarea>
+                            </div>
+                            <div class="col-xs-12 text-center">
+                                <button id="annulerEditBouton" class="btn btn-action-second ripple-effect annulerBouton"
+                                        type="button" name="annuler" value="annuler">
+                                    annuler
+                                </button>
+                                <button id="saveBtn" class="btn btn-action ripple-effect" type="submit">
+                                    modifier
+                                </button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
-                <div class="col-xs-12">
-                    <strong>Type :</strong>&nbsp;<span id="propertiesType"></span>
-                </div>
-                <div class="col-xs-12 mt-15">
-                    <strong>Clé :</strong>&nbsp;<span id="propertiesKey"></span>
-                </div>
-                <div class="col-xs-12 mt-15">
-                    <strong>Descriptif :</strong>&nbsp;<span id="propertiesDescriptif"></span>
-                </div>
-                <div class="col-xs-12 mt-15 form-group">
-                    <label for="propertiesValue">Valeur</label>
-                    <textarea id="propertiesValue" name="value" class="form-control"
-                              style="overflow: auto; max-height: 500px"></textarea>
-                </div>
-                <div class="col-xs-12 text-center">
-                    <button id="annulerEditBouton" class="btn btn-action-second ripple-effect annulerBouton"
-                            type="button" name="annuler" value="annuler">
-                        annuler
-                    </button>
-                    <button id="saveBtn" class="btn btn-action ripple-effect" type="submit">
-                        modifier
-                    </button>
-                </div>
-            </div>
-        </form>
-    </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
     <!-- FIN EDITION MODAL -->
 
 </div>
 
-<div th:replace="fragments/footer :: footer"></div>
+<div th:replace="~{fragments/footer :: footer}"></div>
 
 <script th:inline="javascript">
 
@@ -249,10 +251,7 @@
             	// Redirection vers IHM d'édition du json
             	document.location.href = "configjson?key="+$(this).data('key');
             } else {
-	            $.fancybox.open({
-	                src: '#editionModal',
-	                type: 'inline'
-	            });
+                $('#editionModal').modal();
             }
 
             autosize.update($('#propertiesValue'));
@@ -261,7 +260,7 @@
 
         $('.annulerBouton').click(function (e) {
             e.preventDefault();
-            $.fancybox.close();
+            $('.modal').modal('hide');
             return true;
         });
 

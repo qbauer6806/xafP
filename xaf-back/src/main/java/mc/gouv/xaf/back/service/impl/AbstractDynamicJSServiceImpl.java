@@ -39,20 +39,13 @@ public abstract class AbstractDynamicJSServiceImpl implements DynamicJSService {
         return result;
     }
 
-    protected boolean appendTradStatut(StringBuilder builder, boolean first, String name, String libelle) {
-        boolean result = ifElse(builder, first);
-        builder.append(DEBUT).append(name).append("\" === statut) {\n");
-        builder.append(RETURN).append(libelle).append(FIN);
-        return result;
-    }
-
     protected void traductionCanal(StringBuilder builder) {
         builder.append("APP.getTraductionCanal = function(canal) {\n");
         boolean first = true;
         for (DemandeCanalEnum canal : DemandeCanalEnum.values()) {
             first = ifElse(builder, first);
             builder.append(DEBUT).append(canal.name()).append("\" === canal) {\n");
-            builder.append(RETURN).append(canal.libelle).append(FIN);
+            builder.append(RETURN).append(canal).append(FIN);
         }
         builder.append(RETURN_INCONNU);
     }

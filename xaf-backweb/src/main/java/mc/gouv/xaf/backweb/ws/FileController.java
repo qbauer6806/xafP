@@ -1,11 +1,34 @@
 package mc.gouv.xaf.backweb.ws;
 
-import mc.gouv.xaf.backweb.web.config.annotation.GouvRestController;
-import mc.gouv.xaf.backweb.properties.BackGouvPropertiesResolver;
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+import javax.imageio.ImageIO;
 import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.FileUtils;
+import mc.gouv.xaf.backweb.properties.BackGouvPropertiesResolver;
+import mc.gouv.xaf.backweb.web.config.annotation.GouvRestController;
 import mc.gouv.xaf.shared.dto.DemandeComplementsFileDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
@@ -36,29 +59,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.imageio.ImageIO;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
-
 /**
  *
  * Proxy permettant d'accéder au service FILE depuis la démarche
@@ -85,6 +85,8 @@ public class FileController {
 	private DemarchesDataProvider demarchesDataProvider;
 
 	public static final int DEFAULT_BUFFER_SIZE = 8192;
+	private static final String LOG_APPEL = "Appel de DEM afin de récupérer la demande pour le calcul...";
+	private static final String LOG_PART = "Part à traiter : {}";
 
 	@GetMapping(value = "/get/**")
 	@ResponseStatus(HttpStatus.OK) // 200
@@ -346,14 +348,13 @@ public class FileController {
 	 * MultiPart Retourne une Map correspondant aux fichiers (fileName, fileUrl)
 	 */
 	public Map<String, String> saveFiles(Integer demandeId, MultipartFile[] files, HttpServletResponse response) throws IOException {
-		LOGGER.info("====================== saveFiles()");
-		LOGGER.info("Appel de DEM afin de récupérer la demande pour le calcul...");
+		LOGGER.info(LOG_APPEL);
 		DemandeDTO demande = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), demandeId);
 		Map<String, String> fileNames = new HashMap<>();
 		for (MultipartFile file : files) {
 			if (StringUtils.isNotBlank(file.getOriginalFilename())) {
-				LOGGER.info("Part à traiter : {}", file.getOriginalFilename());
-				LOGGER.info("Appel au FileService...");
+				String safeFileName = AfBackUtils.logSafe(file.getOriginalFilename());
+				LOGGER.info(LOG_PART, safeFileName);
 				String filename = fileService.saveFile(demande, gouvPropertiesResolver.getContainerId(), file,
 						response);
 
@@ -361,7 +362,6 @@ public class FileController {
 				fileNames.put(file.getOriginalFilename(), URLDecoder.decode(filename, UTF_8));
 			}
 		}
-		LOGGER.info("====================== saveFiles() terminé, retour au client...");
 		return fileNames;
 	}
 
@@ -372,14 +372,13 @@ public class FileController {
 	 * @throws IOException
 	 */
 	public List<DemandeComplementsFileDTO> saveFilesWithMeta(Integer demandeId, MultipartFile[] files, HttpServletResponse response) throws IOException {
-		LOGGER.info("====================== saveFiles()");
 		LOGGER.info("Appel de DEM afin de récupérer la demande pour le calcul...");
 		DemandeDTO demande = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), demandeId);
 		List<DemandeComplementsFileDTO> savedFiles = new ArrayList<>();
 		for (MultipartFile file : files) {
 			if (StringUtils.isNotBlank(file.getOriginalFilename())) {
-				LOGGER.info("Part à traiter : {}", file.getOriginalFilename());
-				LOGGER.info("Appel au FileService...");
+				String safeFileName = AfBackUtils.logSafe(file.getOriginalFilename());
+				LOGGER.info(LOG_PART, safeFileName);
 				String filename = fileService.saveFile(demande, gouvPropertiesResolver.getContainerId(), file, response);
 
 				DemandeComplementsFileDTO demandeComplementsFileDTO = new DemandeComplementsFileDTO();
@@ -391,7 +390,6 @@ public class FileController {
 				savedFiles.add(demandeComplementsFileDTO);
 			}
 		}
-		LOGGER.info("====================== saveFiles() terminé, retour au client...");
 		return savedFiles;
 	}
 
@@ -400,23 +398,18 @@ public class FileController {
 	 */
 	public String saveFilesPublication(String codePublication, MultipartFile[] files) throws IOException {
 
-		LOGGER.info("====================== saveFiles()");
 		LOGGER.info("Appel de DEM afin de récupérer la demande pour le calcul...");
 
 		for (MultipartFile file : files) {
 			if (StringUtils.isNotBlank(file.getOriginalFilename())) {
-				LOGGER.info("Part à traiter : {}", file.getOriginalFilename());
-
-				LOGGER.info("Appel au FileService...");
+				String safeFileName = AfBackUtils.logSafe(file.getOriginalFilename());
+				LOGGER.info(LOG_PART, safeFileName);
 				String filename = fileService.saveFilePublication(codePublication, gouvPropertiesResolver.getContainerId(), file);
 
 				// #41757 - On décode de l'url du fichier pour qu'il soit affiché en clair dans le FO
 				return URLDecoder.decode(filename, StandardCharsets.UTF_8);
 			}
 		}
-
-		LOGGER.info("====================== saveFiles() terminé, retour au client...");
-
-		return null;
+        return null;
 	}
 }

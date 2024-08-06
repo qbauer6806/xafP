@@ -1,12 +1,12 @@
 package mc.gouv.xaf.back.data.transformer;
 
+import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
+import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
-import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
 
 /**
  * 
@@ -24,6 +24,7 @@ public class DemandesStatutsTransformer {
         DemandeStatutDTO dto = new DemandeStatutDTO();
         dto.setPkStatut(bo.getPkDemandesStatuts());
         dto.setLibelle(bo.getLibelle());
+        dto.setName(bo.getName());
         dto.setDate(bo.getDate());
         dto.setAgentId(bo.getAgentId());
         dto.setUsagerId(bo.getUsagerId());
@@ -42,6 +43,7 @@ public class DemandesStatutsTransformer {
         }
         DemandesStatutsBO bo = new DemandesStatutsBO();
         bo.setLibelle(dto.getLibelle());
+        bo.setName(dto.getName());
         bo.setDate(dto.getDate());
         bo.setAgentId(dto.getAgentId());
         bo.setUsagerId(dto.getUsagerId());

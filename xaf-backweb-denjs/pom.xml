@@ -13,22 +13,10 @@
     <dependencies>
         <dependency>
             <groupId>mc.gouv.xaf</groupId>
-            <artifactId>xaf-backweb</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>mc.gouv.xaf</groupId>
             <artifactId>xaf-back-denjs</artifactId>
             <version>${project.version}</version>
         </dependency>
 
-        <!-- Web JS and CSS dependencies -->
-        <dependency>
-            <groupId>org.webjars</groupId>
-            <artifactId>Eonasdan-bootstrap-datetimepicker</artifactId>
-            <version>4.17.47</version>
-        </dependency>
     </dependencies>
 
 </project>

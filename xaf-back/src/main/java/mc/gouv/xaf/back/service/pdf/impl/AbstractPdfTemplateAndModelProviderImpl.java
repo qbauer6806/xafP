@@ -4,31 +4,22 @@ import com.lowagie.text.Font;
 import com.lowagie.text.FontFactory;
 import com.lowagie.text.pdf.BaseFont;
 import fr.opensagres.poi.xwpf.converter.pdf.PdfOptions;
-import mc.gouv.logon.shared.User;
-import mc.gouv.xaf.back.exception.XafException;
-import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
+import java.util.HashMap;
+import java.util.Map;
+import mc.gouv.xaf.back.exception.DemarcheException;
 import mc.gouv.xaf.back.service.motifs.MotifsCache;
 import mc.gouv.xaf.back.service.pdf.PdfTemplateAndModelProvider;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import mc.gouv.xaf.back.service.utils.UtilisateursUtils;
+import mc.gouv.xaf.shared.dto.DemandeAgentDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemarcheDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public abstract class AbstractPdfTemplateAndModelProviderImpl implements PdfTemplateAndModelProvider {
 
-    @Autowired
-    private UtilisateursCache utilisateursCache;
-
-    @Autowired
-    private UtilisateursUtils utilisateursUtils;
-
-    @Autowired
-    private MotifsCache motifsCache;
+  @Autowired
+  private MotifsCache motifsCache;
 
     @Autowired
     private AfBackUtils afBackUtils;
@@ -64,7 +55,7 @@ public abstract class AbstractPdfTemplateAndModelProviderImpl implements PdfTemp
                     BaseFont baseFont = BaseFont.createFont(path, encoding, BaseFont.EMBEDDED);
                     return new Font(baseFont, size, style, color);
                 } catch (Exception e) {
-                    throw new XafException(e);
+                    throw new DemarcheException(e);
                 }
             }
             return FontFactory.getFont(familyName, encoding, size, style, color);
@@ -76,8 +67,8 @@ public abstract class AbstractPdfTemplateAndModelProviderImpl implements PdfTemp
     public Map<String, Object> getGenericModelDemande(DemandeDTO demande, String codeMotif, String commentaire, String texteAEnvoyer) {
         Map<String, Object> model = new HashMap<>();
         model.put("identifiant", demande.getIdentifiant());
-        User agent = demande.getAgentAffecteId() != null ? utilisateursCache.get(demande.getAgentAffecteId()) : null;
-        model.put("nomAgent", utilisateursUtils.getUserFullNameFromUser(agent));
+        DemandeAgentDTO agent = demande.getAgent();
+        model.put("nomAgent", agent != null ? agent.getNom() : "");
         String motif = "";
         if (StringUtils.isNotBlank(codeMotif) && motifsCache.getMotif(codeMotif, "fr") != null) {
             motif = motifsCache.getMotif(codeMotif, "fr").getLibelle();

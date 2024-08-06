@@ -1,38 +1,35 @@
 package mc.gouv.xaf.backweb.ws;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-
+import mc.gouv.xaf.back.data.model.RechercheCategoryDTO;
+import mc.gouv.xaf.back.data.model.RechercheChampDTO;
+import mc.gouv.xaf.back.service.data.RechercheAdminService;
+import mc.gouv.xaf.backweb.controller.AbstractController;
 import mc.gouv.xaf.backweb.web.config.annotation.GouvRestController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
-
-import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
-import mc.gouv.xaf.back.data.es.model.ConfigCategoriesDTO;
-import mc.gouv.xaf.back.data.es.model.ConfigPropertiesDTO;
-import mc.gouv.xaf.back.data.es.model.EsCategory;
-import mc.gouv.xaf.back.data.es.model.EsProperty;
-import mc.gouv.xaf.back.service.es.RechercheAdminService;
-import mc.gouv.xaf.backweb.controller.AbstractController;
 
 @GouvRestController
 @Secured("ROLE_CONFIGURATION")
 @RequestMapping("/ws/admin/")
-@Conditional(IndexationEnabledCondition.class)
 public class RechercheAdminController extends AbstractController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RechercheAdminController.class);
@@ -40,33 +37,27 @@ public class RechercheAdminController extends AbstractController {
     @Autowired
     private RechercheAdminService rechercheAdminService;
 
-    @GetMapping(value = "/properties")
-    public List<EsProperty> getSearchProperties() {
-        LOGGER.info("Appel du webservice /ws/admin/properties");
-        return rechercheAdminService.getPropertiesWithLabels();
-    }
-
-    @PostMapping(value = "/updateproperties")
-    public String updateProperties(@RequestBody ConfigPropertiesDTO properties) {
-        LOGGER.info("Appel du webservice /ws/admin/updateproperties");
-        rechercheAdminService.updateProperties(properties);
+    @PostMapping(value = "/updaterecherchechamps")
+    public String updateRechercheChamps(@RequestBody List<RechercheChampDTO> rechercheChamps) {
+        LOGGER.info("Appel du webservice /ws/admin/updaterecherchechamps");
+        rechercheAdminService.updateRechercheChamps(rechercheChamps);
         return "Mise à jour effectuée avec succès";
     }
 
     @GetMapping(value = "/categories")
-    public List<EsCategory> getSearchCategories() {
+    public List<RechercheCategoryDTO> getSearchCategories() {
         LOGGER.info("Appel du webservice /ws/admin/categories");
         return rechercheAdminService.getCategories();
     }
 
     @PostMapping(value = "/addcategory")
-    public EsCategory addCategory(@RequestParam("label") String label) {
+    public RechercheCategoryDTO addCategory(@RequestParam("label") String label) {
         LOGGER.info("Appel du webservice /ws/admin/addcategory");
         return rechercheAdminService.addCategory(label);
     }
 
     @PostMapping(value = "/updatecategories")
-    public List<EsCategory> updateCategory(@RequestBody ConfigCategoriesDTO categories) {
+    public List<RechercheCategoryDTO> updateCategory(@RequestBody List<RechercheCategoryDTO> categories) {
         LOGGER.info("Appel du webservice /ws/admin/updatecategories");
         return rechercheAdminService.updateCategories(categories);
     }

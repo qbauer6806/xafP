@@ -1,51 +1,80 @@
 package mc.gouv.xaf.api.config.gichuni.api;
 
-import java.util.Collections;
-
 import mc.gouv.xaf.api.properties.ApiGouvPropertiesResolver;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
-import org.springframework.security.oauth2.client.DefaultOAuth2ClientContext;
-import org.springframework.security.oauth2.client.OAuth2ClientContext;
-import org.springframework.security.oauth2.client.OAuth2RestTemplate;
-import org.springframework.security.oauth2.client.resource.OAuth2ProtectedResourceDetails;
-import org.springframework.security.oauth2.client.token.grant.client.ClientCredentialsResourceDetails;
+import org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProviderBuilder;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
+import org.springframework.security.oauth2.client.web.AuthenticatedPrincipalOAuth2AuthorizedClientRepository;
+import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizedClientManager;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.web.client.RestTemplate;
 
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-
-/**
- * 
- * Classe de configuration pour l'appel à l'API GICHUNI avec authentification OIDC
- * 
- * @author qdeme
- * 
- */
 @Configuration
 public class GichuniApiClientConfig {
-	
-	@Bean
-	public OAuth2ProtectedResourceDetails oAuth2ProtectedResourceDetails(ApiGouvPropertiesResolver gouvPropertiesResolver) {
-	    ClientCredentialsResourceDetails resourceDetails = new ClientCredentialsResourceDetails();
-	    resourceDetails.setAccessTokenUri(gouvPropertiesResolver.getGichkeyUrl() + "/protocol/openid-connect/token");
-	    resourceDetails.setClientId(gouvPropertiesResolver.getGichkeyClientId());
-	    resourceDetails.setClientSecret(gouvPropertiesResolver.getGichkeyClientSecret());
-	    resourceDetails.setGrantType("client_credentials");
-	    resourceDetails.setScope(Collections.singletonList("openid"));
-	    return resourceDetails;
-	}
 
-	@Bean
-	public OAuth2ClientContext oauth2ClientContext() {
-	    return new DefaultOAuth2ClientContext();
-	}
+    @Bean
+    public ClientRegistration clientRegistration(ApiGouvPropertiesResolver gouvPropertiesResolver) {
+        return ClientRegistration.withRegistrationId("gichuni")
+                .tokenUri(gouvPropertiesResolver.getGichkeyUrl() + "/protocol/openid-connect/token")
+                .clientId(gouvPropertiesResolver.getGichkeyClientId())
+                .clientSecret(gouvPropertiesResolver.getGichkeyClientSecret())
+                .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+                .scope("openid")
+                .build();
+    }
 
-	@Bean
-	public OAuth2RestTemplate oAuth2RestTemplate(OAuth2ProtectedResourceDetails oAuth2ProtectedResourceDetails, OAuth2ClientContext oauth2ClientContext) {
-	    OAuth2RestTemplate restTemplate = new OAuth2RestTemplate(oAuth2ProtectedResourceDetails, oauth2ClientContext);
-	    SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-	    restTemplate.setRequestFactory(factory);
-	    return restTemplate;
-	}
-	
+    @Bean
+    public ClientRegistrationRepository clientRegistrationRepository(ClientRegistration clientRegistration) {
+        return new InMemoryClientRegistrationRepository(clientRegistration);
+    }
+
+    @Bean
+    public OAuth2AuthorizedClientService authorizedClientService(ClientRegistrationRepository clientRegistrationRepository) {
+        return new InMemoryOAuth2AuthorizedClientService(clientRegistrationRepository);
+    }
+
+    @Bean
+    public OAuth2AuthorizedClientRepository authorizedClientRepository(OAuth2AuthorizedClientService authorizedClientService) {
+        return new AuthenticatedPrincipalOAuth2AuthorizedClientRepository(authorizedClientService);
+    }
+
+    @Bean
+    public OAuth2AuthorizedClientManager authorizedClientManager(ClientRegistrationRepository clientRegistrationRepository, OAuth2AuthorizedClientRepository authorizedClientRepository) {
+        OAuth2AuthorizedClientProvider authorizedClientProvider = OAuth2AuthorizedClientProviderBuilder.builder()
+                .clientCredentials()
+                .build();
+
+        DefaultOAuth2AuthorizedClientManager authorizedClientManager = new DefaultOAuth2AuthorizedClientManager(clientRegistrationRepository, authorizedClientRepository);
+        authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
+
+        return authorizedClientManager;
+    }
+
+    @Bean
+    public RestTemplate restTemplate(OAuth2AuthorizedClientManager authorizedClientManager) {
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.getInterceptors().add((request, body, execution) -> {
+            OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest.withClientRegistrationId("gichuni")
+                    .principal("gichuni-client")
+                    .build();
+
+            OAuth2AuthorizedClient authorizedClient = authorizedClientManager.authorize(authorizeRequest);
+            if (authorizedClient != null) {
+                String accessToken = authorizedClient.getAccessToken().getTokenValue();
+                request.getHeaders().setBearerAuth(accessToken);
+            }
+            return execution.execute(request, body);
+        });
+        return restTemplate;
+    }
 }

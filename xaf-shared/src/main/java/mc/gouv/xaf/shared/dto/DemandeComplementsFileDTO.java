@@ -1,12 +1,16 @@
 package mc.gouv.xaf.shared.dto;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Modélise un fichier d'une demande d'informations complémentaires
  *
  * @author qdeme
  */
+@Setter
+@Getter
 public class DemandeComplementsFileDTO {
 
     private Integer pkDemandesComplementsFiles;
@@ -23,51 +27,6 @@ public class DemandeComplementsFileDTO {
 
     private boolean verification;
 
-    public Integer getPkDemandesComplementsFiles() {
-        return pkDemandesComplementsFiles;
-    }
+    private String contenu;
 
-    public void setPkDemandesComplementsFiles(Integer pkDemandesComplementsFiles) {
-        this.pkDemandesComplementsFiles = pkDemandesComplementsFiles;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public String getMeta() {
-        return meta;
-    }
-
-    public void setMeta(String meta) {
-        this.meta = meta;
-    }
-
-    public String getTypedoc() {
-        return typedoc;
-    }
-
-    public void setTypedoc(String typedoc) {
-        this.typedoc = typedoc;
-    }
-
-    public boolean isVerification() {
-        return verification;
-    }
-
-    public void setVerification(boolean verification) {
-        this.verification = verification;
-    }
 }

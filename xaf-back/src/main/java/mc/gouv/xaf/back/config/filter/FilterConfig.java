@@ -1,7 +1,7 @@
 package mc.gouv.xaf.back.config.filter;
 
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
 
 import org.springframework.boot.web.servlet.ServletContextInitializer;
 

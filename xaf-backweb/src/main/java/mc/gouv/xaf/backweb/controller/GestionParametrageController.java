@@ -1,5 +1,8 @@
 package mc.gouv.xaf.backweb.controller;
 
+import jakarta.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
 import mc.gouv.xaf.back.service.data.DemarchesService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.backweb.formbean.ParametrageFormBean;
@@ -9,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -18,10 +22,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.List;
 
 @Controller
 @RequestMapping("/gestion/parametrage")
@@ -35,6 +35,15 @@ public class GestionParametrageController {
 
     @Autowired
     private AfBackUtils afBackUtils;
+
+    @Value("${display.name}")
+    private String displayName;
+
+    @Value("${maven.version}")
+    private String mavenVersion;
+
+    @Value("${xaf.version}")
+    private String xafVersion;
 
     @GetMapping
     public ModelAndView form(@ModelAttribute("parametrageFormBean") ParametrageFormBean parametrageFormBean,
@@ -62,6 +71,10 @@ public class GestionParametrageController {
             parametrageFormBean.setNomSousDirectionEn(demarche.getNomSousDirectionEn());
             parametrageFormBean.setNomSousDirectionComplementEn(demarche.getNomSousDirectionComplementEn());
         }
+
+        mav.addObject("displayName", displayName);
+        mav.addObject("xafVersion", xafVersion);
+        mav.addObject("tsVersion", mavenVersion);
 
         LOGGER.info("======================= Fin /gestion/parametrage. Méthode form");
         return mav;

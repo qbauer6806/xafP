@@ -8,7 +8,6 @@
 <title th:text="${AfBackUtils.getDemarcheNom()}"></title>
 <!-- Import FONTS -->
 <link th:href="@{/css/font-style.css(${applicationBuildTimestamp})}" rel="stylesheet" />
-<link rel="stylesheet" th:href="@{/webjars/xcb-wlib/fonts/ie7/ie7.css}" />
 
 <!-- Import CSS -->
 <link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"
@@ -16,13 +15,11 @@
 <link th:href="@{/webjars/xcb-wlib/css/template.css}" rel="stylesheet" />
 <link th:href="@{/webjars/xcb-wlib/css/sidebar.css}" rel="stylesheet" />
 <link th:href="@{/webjars/xcb-wlib/css/element.css}" rel="stylesheet" />
-<link th:href="@{/webjars/datatables/css/dataTables.bootstrap.css}"
+<link th:href="@{/webjars/datatables/css/dataTables.bootstrap.min.css}"
 	rel="stylesheet" />
 <link
-	th:href="@{/webjars/bootstrap-datepicker/css/bootstrap-datepicker.css}"
+	th:href="@{/webjars/bootstrap-datepicker/css/bootstrap-datepicker.min.css}"
 	rel="stylesheet" />
-<link rel="stylesheet"
-	th:href="@{/webjars/fancybox/jquery.fancybox.css}" />
 
 <link rel="shortcut icon" type="image/x-icon"
 	th:href="@{/img/favicon.ico}" />
@@ -33,11 +30,11 @@
 </head>
 <body th:with="pageUsagersActive='active'">
 
-	<div th:replace="fragments/header :: header"></div>
+	<div th:replace="~{fragments/header :: header}"></div>
 
 	<div id="wrapper">
 
-		<div th:replace="fragments/sidebar :: sidebar"></div>
+		<div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
 		<!-- DEBUT CONTENU -->
 		<div id="page-content-wrapper">
@@ -169,15 +166,15 @@
 		<!-- FIN CONTENU -->
 
 	</div>
-	<div th:replace="fragments/footer :: footer"></div>
+	<div th:replace="~{fragments/footer :: footer}"></div>
 
 	<!-- Template Suppression -->
 
-	<div th:replace="fragments/supprimerusager :: supprimerusager"></div>
+	<div th:replace="~{fragments/supprimerusager :: supprimerusager}"></div>
 
 
 	<!-- Template selection transfert -->
-	<div th:replace="fragments/selectionusagertransfert :: selectionusagertransfert"></div>
+	<div th:replace="~{fragments/selectionusagertransfert :: selectionusagertransfert}"></div>
 
 	<script type="text/javascript" th:src="@{/js/tsgenutils.js}"></script>
 
@@ -199,21 +196,21 @@
 
             $(".supprimer-annuler").click(function(e){
                 e.preventDefault();
-            	$.fancybox.close();
+            	$('.modal').modal('hide');
             	return false;
             });
             
             $("#supprimer-button").click(function(e){
                 $("#supprimer-button").prop('disabled', true);
                 e.preventDefault();
-            	$.fancybox.close();
+            	$('.modal').modal('hide');
             	$('#form-supprimer').submit();
             	return false;
             });
 
             $(".transferer-annuler").click(function(e){
                 e.preventDefault();
-            	$.fancybox.close();
+            	$('.modal').modal('hide');
             	return false;
              });
 
@@ -230,15 +227,7 @@
 
  	    		urlTransfert = urlTransfertSuppression;
 
-	            $.fancybox.open({
-	        		src: '#supprimer-box',
-	        		type: 'inline',
-	        		opts: {
-	        			autoSize: false,
-	        			minWidth : 600,
-	        			height: "auto"
-	        		}
-	        	});
+					$('#supprimer-box').modal();
 
 	    		$(".usagerId").val(usagerId);
 		  		    		
@@ -263,7 +252,7 @@
 
 		        $("#lienpopuptransfert").click(function(e) {
 			        e.preventDefault();
-			        $.fancybox.close();
+			        $('.modal').modal('hide');
 			        $("[data-usagerid=" + usagerId + "][class=transferer]").click();
 		        });
 		    	
@@ -281,19 +270,11 @@
  	    		var adresse = $(this).data("adresse");
  	    		var codePostal = $(this).data("codepostal");
  	    		var ville = $(this).data("ville");
- 
- 	    		$.fancybox.open({
-	        		src: '#transferer-box',
-	        		type: 'inline',
-	        		opts: {
-	        			autoSize: false,
-	        			minWidth : 1000,
-	        			height: "auto",
-	        			afterClose: function () {
-	        				$('.autocomplete-suggestions').hide();
-	        			}
-	        		}
-	        	});
+
+					$('#transferer-box').modal();
+					$('#transferer-box').on('hidden.bs.modal', function (e) {
+						$('.autocomplete-suggestions').hide();
+					})
 
 	            $('#autocomplete').val('');
 

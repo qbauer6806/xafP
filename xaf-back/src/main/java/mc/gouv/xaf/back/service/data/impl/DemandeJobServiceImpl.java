@@ -1,6 +1,5 @@
 package mc.gouv.xaf.back.service.data.impl;
 
-import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
 import mc.gouv.xaf.back.data.dao.DemandeJobRepository;
 import mc.gouv.xaf.back.data.entity.DemandeJobBO;
 import mc.gouv.xaf.back.data.transformer.DemandeJobTransformer;
@@ -8,9 +7,8 @@ import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.KafkaOutboxTraitementJob;
 import mc.gouv.xaf.back.service.data.DemandeJobService;
-import mc.gouv.xaf.back.service.data.DemandesStatutsRefreshService;
+import mc.gouv.xaf.back.service.data.DemandesService;
 import mc.gouv.xaf.back.service.data.KafkaOutboxService;
-import mc.gouv.xaf.back.service.es.IndexedDemandeService;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaDLTConsumer;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.UsagerDemandesRecapDTO;
@@ -22,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -31,20 +28,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 @Service
-@Conditional(IndexationEnabledCondition.class)
 @Transactional(rollbackFor = Exception.class)
 public class DemandeJobServiceImpl implements DemandeJobService {
-
-    private static final String LES_DEMANDES = "Les demandes ";
-
-    @Inject
-    IndexedDemandeService indexedDemandeService;
 
     @Inject
     DemandeJobRepository demandeJobRepository;
@@ -52,9 +43,6 @@ public class DemandeJobServiceImpl implements DemandeJobService {
     @Inject
     private ApplicationContext context;
 
-    @Inject
-    private DemandesStatutsRefreshService demandesStatutsRefreshService;
-    
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
     
@@ -69,6 +57,9 @@ public class DemandeJobServiceImpl implements DemandeJobService {
     
     @Autowired
     private KafkaOutboxService kafkaOutboxService;
+
+    @Autowired
+    private DemandesService demandesService;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DemandeJobServiceImpl.class);
 
@@ -98,61 +89,15 @@ public class DemandeJobServiceImpl implements DemandeJobService {
         }
     }
 
-    /**
-     * <p>Job de recherche des demandes désynchronisées entre ES et la BDD.</p>
-     * <p>[0] Demandes présentes dans ES mais pas en BDD</p>
-     * <p>[1] Demandes présentes en BDD mais pas dans ES</p>
-     * @return Un message contenant le résultat de la recherche.
-     */
-    private String getDemandesDesynchroJob() {
-        List<List<String>> ret = indexedDemandeService.getDemandesDesynchro();
-        String msg = "";
-        if (ret != null && !ret.get(0).isEmpty()) {
-            msg = LES_DEMANDES + ret.get(0) + " sont présentes dans ES mais pas en BDD<br/>";
-        }
-        if (ret != null && !ret.get(1).isEmpty()) {
-            msg += LES_DEMANDES + ret.get(1) + " sont présentes en BDD mais pas dans ES";
-        }
-        if (ret == null || ret.get(0).isEmpty() && ret.get(1).isEmpty()) {
-            msg = "Aucune demande désynchronisée";
-        }
-        return msg;
-    }
+
 
     @Async
     @Transactional(propagation = Propagation.REQUIRED)
     public void launch(DemandeJobBO job) {
         try {
             String msg = "";
-            Long demCount;
 
             switch (job.getJobName()) {
-                case GET_DEMANDES_DESYNCHRONISEES:
-                    msg = getDemandesDesynchroJob();
-                    break;
-                case REINDEXATION_DEMANDES_DESYNCHRO:
-                    List<String> demandes = indexedDemandeService.reindexDemandesDesynchro();
-                    if (!demandes.isEmpty()) {
-                        msg = LES_DEMANDES + demandes + " ont été synchronisées (supprimées d'ES et/ou reindéxées)";
-                    } else {
-                        msg = "Aucune demande n'a été synchronisée";
-                    }
-                    break;
-                case REINDEXATION:
-                    demCount = indexedDemandeService.reindex();
-                    msg = "Tous les fichiers et contenus des " + demCount + " demandes ont été reindéxés";
-                    break;
-                case REINDEXATION_DEMANDES:
-                    demCount = indexedDemandeService.reindexDemandes();
-                    msg = demCount + " demandes ont été reindéxées";
-                    break;
-                case REINDEXATION_COURRIER:
-                    demCount = indexedDemandeService.reindexDemandesCourrier();
-                    msg = demCount + " demandes courrier ont été reindéxées";
-                    break;
-                case RAFRAICHISSEMENT_STATUS:
-                    msg = demandesStatutsRefreshService.refreshStatuts();
-                    break;
                 case TRAITEMENT_DEAD_LETTER_TOPIC_GU_KAFKA:
                     if (gouvPropertiesResolver.isBackserver()) {
                         // Pas d'@Inject ni d'@Autowired car l'API doit pouvoir démarrer sans ça
@@ -178,6 +123,13 @@ public class DemandeJobServiceImpl implements DemandeJobService {
                     else {
                         msg += " message.";
                     }
+                    break;
+                case XAF12_MIGRATION_DONNEES:
+                    demandesService.updateContenuTrad();
+                    demandesService.updateAgents();
+                    demandesService.updateUsagers();
+
+                    msg = "Demandes migrées correctement";
                     break;
                 default:
                     break;

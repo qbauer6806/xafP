@@ -1,25 +1,14 @@
 package mc.gouv.xaf.front.dto;
 
 import java.time.LocalDateTime;
+import lombok.Getter;
+import lombok.Setter;
 
+@Setter
+@Getter
 public class FileUploadCompteurDTO {
 
     private int compteur;
     private LocalDateTime datePremierUpload;
 
-    public int getCompteur() {
-        return compteur;
-    }
-
-    public void setCompteur(int compteur) {
-        this.compteur = compteur;
-    }
-
-    public LocalDateTime getDatePremierUpload() {
-        return datePremierUpload;
-    }
-
-    public void setDatePremierUpload(LocalDateTime datePremierUpload) {
-        this.datePremierUpload = datePremierUpload;
-    }
 }

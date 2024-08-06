@@ -1,11 +1,14 @@
 package mc.gouv.xaf.back.exception;
 
+import java.io.Serial;
+
 public class DemarcheException extends RuntimeException {
 
     /**
 	 * 
 	 */
-	private static final long serialVersionUID = 5931833189971344224L;
+	@Serial
+    private static final long serialVersionUID = 5931833189971344224L;
 
 	public DemarcheException(String message) {
         super(message);

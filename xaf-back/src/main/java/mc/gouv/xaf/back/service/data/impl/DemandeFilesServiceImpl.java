@@ -1,5 +1,16 @@
 package mc.gouv.xaf.back.service.data.impl;
 
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import mc.gouv.xaf.back.data.dao.BrouillonsFilesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesFilesRepository;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
@@ -11,6 +22,7 @@ import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesFilesService;
 import mc.gouv.xaf.back.service.data.DemandesService;
+import mc.gouv.xaf.back.data.transformer.DemandeFileTransformer;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.utils.FileUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
@@ -21,19 +33,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 
 /**
  * Service permettant la manipulation des fichiers joints aux demandes.
@@ -63,7 +62,12 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
 
     @Autowired
     private GouvPropertiesResolver gouvPropertiesResolver;
-    
+
+    @Autowired
+    private DemandeFileTransformer demandeFileTransformer;
+
+    @Autowired
+    private DemandesTransformer demandesTransformer;
 
     @Override
     public void saveFiles(DemandeFileDTO[] demandeFiles, DemandeBO demandeBo) {
@@ -71,8 +75,15 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
         LOGGER.info("saveFiles({}, {})", demandeFiles, demandeBo);
 
         if (demandeFiles != null && demandeFiles.length > 0) {
-            demandeBo.setFiles(
-                    new HashSet<>(DemandesFilesTransformer.dto2Bo(Arrays.asList(demandeFiles))));
+            List<DemandeFileDTO> demandeFileDTOS = Arrays.asList(demandeFiles);
+            // set contenu
+            try {
+                this.demandeFileTransformer.setFileContenu(demandeFileDTOS);
+            } catch (IOException e) {
+                LOGGER.error("Impossible de lire le contenu du fichier {}", demandeFileDTOS, e);
+            }
+            List<DemandesFilesBO> fichiers = DemandesFilesTransformer.dto2Bo(demandeFileDTOS);
+            demandeBo.setFiles(new HashSet<>(fichiers));
             for (DemandesFilesBO bo : demandeBo.getFiles()) {
                 bo.setFkDemandes(demandeBo);
             }
@@ -142,7 +153,7 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
         if (!changes.isEmpty() || !checkboxes.isEmpty()) {
             List<Integer> keys = changes.keySet().stream()
                     .map(Integer::parseInt)
-                    .collect(Collectors.toList());
+                    .toList();
             checkboxes.keySet().forEach(k -> {
                 Integer parsed = Integer.parseInt(k);
                 if (!keys.contains(parsed)) {
@@ -169,7 +180,7 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
 
     private List<DemandesFilesBO> getFichiersUsager(DemandeBO demandeBo) {
         return demandeBo.getFiles().stream().filter(fichier -> FileUtils.isFileCreatedByFront(fichier.getMeta()))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -215,12 +226,8 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
                 List<DemandesFilesBO> existingFiles = demandesFilesRepository.findAllByUrl(currentFileToDelete.getUrl());
                 List<BrouillonsFilesBO> existingFilesBrouillons = brouillonsFilesRepository.findAllByUrl(currentFileToDelete.getUrl());
                 if (null != existingFiles && isFileDeletable(existingFiles, existingFilesBrouillons, statutCheck, statuts, jours)) {
-                    try {
-                        String url = URLEncoder.encode(currentFileToDelete.getUrl(), "UTF-8");
-                        fileService.deleteFile("ROOT", url);
-                    } catch (UnsupportedEncodingException e) {
-                        LOGGER.error("Problème lors de l'encoding des urls des fichiers initiaux", e);
-                    }
+                    String url = URLEncoder.encode(currentFileToDelete.getUrl(), StandardCharsets.UTF_8);
+                    fileService.deleteFile("ROOT", url);
                 }
             }
         }
@@ -232,7 +239,7 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
             if (statutCheck) {
                 for (DemandesFilesBO demandesFilesBO : existingFiles) {
                     DemandeBO concernedDemandeBO = demandesFilesBO.getFkDemandes();
-                    DemandeDTO concernedDemandeDTO = DemandesTransformer.bo2Dto(concernedDemandeBO);
+                    DemandeDTO concernedDemandeDTO = demandesTransformer.bo2Dto(concernedDemandeBO);
                     isFileDeletable = isDemandeUsingFile(statuts, jours, concernedDemandeDTO);
                     LOGGER.info("Le fichier {} n'a pas été supprimé car la demande {} l'utilise", demandesFilesBO.getName(), concernedDemandeDTO.getPkDemandes());
                 }
@@ -247,28 +254,21 @@ public class DemandeFilesServiceImpl implements DemandesFilesService {
 	private boolean isDemandeUsingFile(List<String> statuts, int jours, DemandeDTO concernedDemandeDTO) {
 		long diffInMillies = Math.abs(new Date().getTime() - concernedDemandeDTO.getDernierStatut().getDate().getTime());
 		long diff = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
-		return statuts.contains(concernedDemandeDTO.getDernierStatut().getLibelle()) && diff >= jours;
+		return statuts.contains(concernedDemandeDTO.getDernierStatut().getName()) && diff >= jours;
 	}
 
 	@Override
 	public void deleteAllOrphans() {
-		Iterator<DemandesFilesBO> it = demandesFilesRepository.findAllNonReferencedFiles().iterator();
-		while (it.hasNext()) {
-			DemandesFilesBO fichierOrphelin = (DemandesFilesBO) it.next();
+        for (DemandesFilesBO fichierOrphelin : demandesFilesRepository.findAllNonReferencedFiles()) {
+            Integer refs = demandesFilesRepository.findHowManyTimeIsFileReferenced(fichierOrphelin.getUrl());
+            LOGGER.debug("L'url du fichier est utilisée par {}", refs);
+            if (refs == 0) {
+                String url = URLEncoder.encode(fichierOrphelin.getUrl(), StandardCharsets.UTF_8);
+                fileService.deleteFile("ROOT", url);
+            }
 
-			Integer refs = demandesFilesRepository.findHowManyTimeIsFileReferenced(fichierOrphelin.getUrl());
-			LOGGER.debug("L'url du fichier est utilisée par {}", refs);
-			if (refs.intValue() == 0) {
-				try {
-					String url = URLEncoder.encode(fichierOrphelin.getUrl(), "UTF-8");
-					fileService.deleteFile("ROOT", url);
-				} catch (UnsupportedEncodingException e) {
-					LOGGER.error("Problème lors de l'encoding des urls des fichiers initiaux", e);
-				}
-			}
-
-			demandesFilesRepository.delete(fichierOrphelin);
-		}
+            demandesFilesRepository.delete(fichierOrphelin);
+        }
 
 	}
 }

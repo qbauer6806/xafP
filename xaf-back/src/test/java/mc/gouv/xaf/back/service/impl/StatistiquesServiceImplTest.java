@@ -50,13 +50,13 @@ public class StatistiquesServiceImplTest {
     @Before
     public void setUp() {
 
-        Mockito.when(demandesStatistiquesInternesRepository.countByFkAccessDemarcheIdAndCanalAndDernierStatutLibelle(DEMARCHE_ID,
+        Mockito.when(demandesStatistiquesInternesRepository.countByFkAccessDemarcheIdAndCanalAndDernierStatutName(DEMARCHE_ID,
                 DemandeCanalEnum.GUICHET_VIRTUEL.name(), EN_ATTENTE_TRAITENUM)).thenReturn(COUNT_ATTENTE_TRAITEMENT);
-        Mockito.when(demandesStatistiquesInternesRepository.countByFkAccessDemarcheIdAndCanalAndDernierStatutLibelle(DEMARCHE_ID,
+        Mockito.when(demandesStatistiquesInternesRepository.countByFkAccessDemarcheIdAndCanalAndDernierStatutName(DEMARCHE_ID,
                 DemandeCanalEnum.GUICHET_VIRTUEL.name(), EN_COURS_TRAIT_ENUM)).thenReturn(COUNT_TRAITEMENT);
-        Mockito.when(demandesStatistiquesInternesRepository.countByFkAccessDemarcheIdAndCanalAndDernierStatutLibelle(DEMARCHE_ID,
+        Mockito.when(demandesStatistiquesInternesRepository.countByFkAccessDemarcheIdAndCanalAndDernierStatutName(DEMARCHE_ID,
                 DemandeCanalEnum.GUICHET_PHYSIQUE.name(), EN_COURS_TRAIT_ENUM)).thenReturn(COUNT_TRAITEMENT);
-        Mockito.when(demandesStatistiquesInternesRepository.countByFkAccessDemarcheIdAndCanalAndDernierStatutLibelle(DEMARCHE_ID,
+        Mockito.when(demandesStatistiquesInternesRepository.countByFkAccessDemarcheIdAndCanalAndDernierStatutName(DEMARCHE_ID,
                 DemandeCanalEnum.COURRIER.name(), EN_ATTENTE_COMPL_ENUM)).thenReturn(COUNT_ATTENTE_INFOS);
 
         Map<String, String> statusMap = new HashMap<>();

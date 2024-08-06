@@ -1,8 +1,11 @@
 package mc.gouv.xaf.back.service.utils;
 
-import mc.gouv.logon.shared.User;
-import mc.gouv.logon.shared.User.Civilite;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
 import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
+import mc.gouv.xaf.back.service.itg.logon.dto.Civilite;
+import mc.gouv.xaf.back.service.itg.logon.dto.User;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,9 +13,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UtilisateursUtilsTest {
@@ -48,7 +48,7 @@ public class UtilisateursUtilsTest {
 
     private User createUser(String matricule, String prenom, String nom, String nomUsage, String nomNaissance, Civilite civ) {
         User user = new User();
-        user.resetData();
+//        user.resetData();
         user.setMatricule(matricule);
         user.setPrenom(prenom);
         user.setNomAffichage(nom);

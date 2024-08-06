@@ -6,6 +6,17 @@ import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 import mc.gouv.xaf.front.dto.KeycloakTokenInfo;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
@@ -14,26 +25,19 @@ import mc.gouv.xaf.shared.dto.DonneesMConnectDTO;
 import mc.gouv.xaf.shared.enums.UsagerTypeEnum;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.message.BasicNameValuePair;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
-
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
 
 /**
  * Classe permettant d'appeler GICHKEY afin de gérer le login/logout de l'usager, le rafraîchissement
@@ -102,8 +106,8 @@ public class GichkeyService {
 
         LOGGER.info(APPEL_GICHKEY);
         try {
-            HttpResponse postResponse = client.execute(postRequest);
-            LOGGER.info("resp : {}", postResponse.getStatusLine().getStatusCode());
+            ClassicHttpResponse postResponse = (ClassicHttpResponse) client.execute(postRequest);
+            LOGGER.info("resp : {}", postResponse.getCode());
             String resp = IOUtils.toString(postResponse.getEntity().getContent());
             LOGGER.info("resp = {}", resp);
 
@@ -225,7 +229,7 @@ public class GichkeyService {
                 donneesExternes.put("mconnect", mapper.valueToTree(mConnectUInfos));
                 uinfos.setDonneesExternes(donneesExternes);
                 LOGGER.info("Informations MConnect disponibles : {}", mConnectUInfos);
-                uinfos.setmConnect(true);
+                uinfos.setMConnect(true);
                 // Mettre login à "" si usager MConnect
                 uinfos.setLogin("");
             } catch (ParseException e) {
@@ -334,9 +338,9 @@ public class GichkeyService {
 
         LOGGER.info(APPEL_GICHKEY);
         try {
-            HttpResponse postResponse = client.execute(postRequest);
-            int statusCode = postResponse.getStatusLine().getStatusCode();
-            String resp = IOUtils.toString(postResponse.getEntity().getContent());
+            ClassicHttpResponse response = (ClassicHttpResponse) client.execute(postRequest);
+            int statusCode = response.getCode();
+            String resp = IOUtils.toString(response.getEntity().getContent());
             if (statusCode != 200) {
                 LOGGER.error("Erreur lors de l'appel à GICHKEY : {}", resp);
                 return null;

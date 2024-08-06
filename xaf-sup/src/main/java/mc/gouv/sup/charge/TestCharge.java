@@ -64,7 +64,6 @@ public class TestCharge {
 	private static final String CONFIG_APIJWT = "api.jwt";
 	private static final String CONFIG_CANAUX = "canaux";
 	private static final String CONFIG_LANGUES = "langues";
-	private static final String CONFIG_BUILDID = "buildid";
 	private static final String CONFIG_USAGERIDS = "usagerids";
 	
 	private static final String LOG_SEPARATOR = "======\n";
@@ -119,7 +118,7 @@ public class TestCharge {
         apiClient = new AfApiClient(conf.get(CONFIG_APIURL), conf.get(CONFIG_APIJWT));
 
         LOGGER.info("====== Analyse du scénario...");
-        Integer nombre = Integer.parseInt(cmd.getOptionValue("nombredemandes"));
+        int nombre = Integer.parseInt(cmd.getOptionValue("nombredemandes"));
         boolean random = cmd.hasOption("random");
         
         String intervalleStr = cmd.getOptionValue("intervalle");
@@ -182,7 +181,7 @@ public class TestCharge {
 				}
 				else {
 					SecureRandom r = new SecureRandom();
-					Integer duration = r.nextInt((intervalle2 - intervalle1) + 1) + intervalle1;
+					int duration = r.nextInt((intervalle2 - intervalle1) + 1) + intervalle1;
 					Thread.sleep(duration);
 				}
 			} catch (InterruptedException e) {
@@ -218,25 +217,24 @@ public class TestCharge {
 	private static void creerDemande(String nombrefichiers, boolean sansDoublons) {
 		
 		DemandeInputDTO input = new DemandeInputDTO();
-		input.setBuildId(conf.get(CONFIG_BUILDID));
 		input.setCanal(DemandeCanalEnum.valueOf(getRandomConfElement(CONFIG_CANAUX)));
 		input.setLangue(getRandomConfElement(CONFIG_LANGUES));
 		input.setRecapType("projectDemandeRecap");
 		
 		if (!"0".equals(nombrefichiers)) {
 			String[] spl = nombrefichiers.split("-");
-			Integer n1 = Integer.parseInt(spl[0]);
-			Integer n2 = Integer.parseInt(spl[1]);
+			int n1 = Integer.parseInt(spl[0]);
+			int n2 = Integer.parseInt(spl[1]);
 			SecureRandom r = new SecureRandom();
 			Integer nombredefinitif = r.nextInt((n2 - n1) + 1) + n1;
-			List<DemandeFileDTO> tmpFichiers = null;
+			List<DemandeFileDTO> tmpFichiers;
 			if (sansDoublons) {
 				tmpFichiers = getFichiersSansDoublons(nombredefinitif);
 			}
 			else {
 				tmpFichiers = getFichiersAvecDoublons(nombredefinitif);
 			}
-			input.setFichiers(tmpFichiers.stream().toArray(DemandeFileDTO[]::new));
+			input.setFichiers(tmpFichiers.toArray(DemandeFileDTO[]::new));
 		}
 		
 		JsonNode contenu = null;
@@ -258,8 +256,8 @@ public class TestCharge {
 			LOGGER.info("Demande créée : {}", demande.getPkDemandes());
 		}
 		catch (Exception e) {
-			if (e instanceof InternalErrorWebException) {
-				LOGGER.error("Erreur lors de la création de la demande (httpStatus={})", ((InternalErrorWebException) e).getHttpStatus());
+			if (e instanceof InternalErrorWebException internalErrorWebException) {
+				LOGGER.error("Erreur lors de la création de la demande (httpStatus={})", internalErrorWebException.getHttpStatus());
 			}
 			else {
 				LOGGER.error("Erreur lors de la création de la demande", e);
@@ -299,7 +297,7 @@ public class TestCharge {
 	
 	private static String getRandomConfElement(String confElement) {
 		String value = conf.get(confElement);
-		String spl[] = value.split(",");
+		String[] spl = value.split(",");
 		SecureRandom r = new SecureRandom();
 		int randomElementIndex = r.nextInt(spl.length) % spl.length;
 		return spl[randomElementIndex];
@@ -316,32 +314,31 @@ public class TestCharge {
 		try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(configFile), StandardCharsets.UTF_8))) {
 			String line;
 			while ((line = br.readLine()) != null) {
-				String curToken = "";
+                StringBuilder curToken = new StringBuilder();
 				String key = null;
 				for (int i = 0; i < line.length(); i++) {
 					if (line.charAt(i) == '=') {
-						key = curToken;
-						curToken = "";
+						key = curToken.toString();
+						curToken = new StringBuilder();
 					}
 					else {
-						curToken += line.charAt(i);
+						curToken.append(line.charAt(i));
 					}
 				}
 				if ("contenu".equals(key)) {
-					contenus.add(curToken);
+					contenus.add(curToken.toString());
 				}
 				else if ("fichier".equals(key)) {
-			        DemandeFileDTO file = mapper.readValue(curToken, DemandeFileDTO.class);
+			        DemandeFileDTO file = mapper.readValue(curToken.toString(), DemandeFileDTO.class);
 			        fichiers.add(file);
 				}
 				else {
-					conf.put(key, curToken);
+					conf.put(key, curToken.toString());
 				}
 			}
 		}
 		LOGGER.info("API URL : {}", conf.get(CONFIG_APIURL));
 		LOGGER.info("API JWT : {}", conf.get(CONFIG_APIJWT));
-		LOGGER.info("buildid : {}", conf.get(CONFIG_BUILDID));
 		LOGGER.info("canaux : {}", conf.get(CONFIG_CANAUX));
 		LOGGER.info("langues : {}", conf.get(CONFIG_LANGUES));
 		LOGGER.info("usagerids : {}", conf.get(CONFIG_USAGERIDS));

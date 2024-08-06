@@ -1,8 +1,12 @@
 package mc.gouv.xaf.back.properties;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
+@Setter
+@Getter
 @Configuration
 public class UlisProperties {
 
@@ -21,43 +25,4 @@ public class UlisProperties {
     @Value("${mc.gouv.${application.name}.shared.backapi.ulis.account:OPTIONAL}")
     private String ulisFunctionalAccount;
 
-    public String getApiUlisMoyensGenerauxUrl() {
-        return apiUlisMoyensGenerauxUrl;
-    }
-
-    public void setApiUlisMoyensGenerauxUrl(String apiUlisMoyensGenerauxUrl) {
-        this.apiUlisMoyensGenerauxUrl = apiUlisMoyensGenerauxUrl;
-    }
-
-    public String getApiUlisTiersOrganisationUrl() {
-        return apiUlisTiersOrganisationUrl;
-    }
-
-    public void setApiUlisTiersOrganisationUrl(String apiUlisTiersOrganisationUrl) {
-        this.apiUlisTiersOrganisationUrl = apiUlisTiersOrganisationUrl;
-    }
-
-    public String getApiUlisAuthentUser() {
-        return apiUlisAuthentUser;
-    }
-
-    public void setApiUlisAuthentUser(String apiUlisAuthentUser) {
-        this.apiUlisAuthentUser = apiUlisAuthentUser;
-    }
-
-    public String getApiUlisAuthentPassword() {
-        return apiUlisAuthentPassword;
-    }
-
-    public void setApiUlisAuthentPassword(String apiUlisAuthentPassword) {
-        this.apiUlisAuthentPassword = apiUlisAuthentPassword;
-    }
-
-    public String getUlisFunctionalAccount() {
-        return ulisFunctionalAccount;
-    }
-
-    public void setUlisFunctionalAccount(String ulisFunctionalAccount) {
-        this.ulisFunctionalAccount = ulisFunctionalAccount;
-    }
 }

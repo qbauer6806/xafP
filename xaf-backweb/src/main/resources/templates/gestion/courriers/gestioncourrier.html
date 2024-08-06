@@ -10,16 +10,14 @@
     <link rel="shortcut icon" th:href="@{/img/favicon.ico}"/>
     <!-- Import FONTS -->
     <link rel="stylesheet" th:href="@{/css/font-style.css(${applicationBuildTimestamp})}"/>
-    <link rel="stylesheet" th:href="@{/webjars/xcb-wlib/fonts/ie7/ie7.css}"/>
 
     <!-- Import CSS -->
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}" type="text/css"/>
     <link rel="stylesheet" th:href="@{/webjars/xcb-wlib/css/template.css}"/>
     <link rel="stylesheet" th:href="@{/webjars/xcb-wlib/css/sidebar.css}"/>
     <link rel="stylesheet" th:href="@{/webjars/xcb-wlib/css/element.css}"/>
-    <link rel="stylesheet" th:href="@{/webjars/datatables/css/dataTables.bootstrap.css}"/>
-    <link rel="stylesheet" th:href="@{/webjars/bootstrap-datepicker/css/bootstrap-datepicker.css}"/>
-    <link rel="stylesheet" th:href="@{/webjars/fancybox/jquery.fancybox.css}"/>
+    <link rel="stylesheet" th:href="@{/webjars/datatables/css/dataTables.bootstrap.min.css}"/>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap-datepicker/css/bootstrap-datepicker.min.css}"/>
 
     <link rel="shortcut icon" th:href="@{/img/favicon.ico}"
           type="image/x-icon"/>
@@ -31,11 +29,11 @@
 
 <body th:with="pageCourriersActive='active'">
 
-<div th:replace="fragments/header :: header"></div>
+<div th:replace="~{fragments/header :: header}"></div>
 
 <div id="wrapper">
 
-    <div th:replace="fragments/sidebar :: sidebar"></div>
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
     <!-- DEBUT CONTENU -->
     <div id="page-content-wrapper">
@@ -87,11 +85,6 @@
 													<span class="btn btn-action ripple-effect"
                                                           id="btnRechercherCourriers"> <i
                                                             class="icon-action_chercher"></i>
-													</span> <span class="btn btn-action ripple-effect greyTooltip"
-                                                                  data-html="true"
-                                                                  data-original-title="<p style='text-align: left;'>Recherche d'une expression exacte:<br/> &quot;pierre étudiant&quot;<br/>Recherche intégrant un second terme:<br/>pierre +étudiant<br/>Recherche excluant un terme:<br/>pierre -étudiant</p>"
-                                                                  data-placement="right"
-                                                                  data-toggle="tooltip"> <i class="icon-menu_aide"></i>
 													</span>
                                                 </div>
                                             </div>
@@ -186,28 +179,33 @@
 
 </div>
 
-<div th:replace="fragments/footer :: footer"></div>
+<div th:replace="~{fragments/footer :: footer}"></div>
 
 
 <div class="row">
-    <div class="container-fluid" id="print-box" style="display: none">
-        <div id="print-content">
-            <h2>Valider l'impression</h2>
-            <form action="#" id="form-print"
-                  method="post" th:action="@{/gestion/courriers/print}">
-                <input id="demandeId" name="demandeId" type="hidden"/>
-                <input id="courrierId" name="courrierId" type="hidden"/>
-                <span>Identifiant de courrier :</span><br/>
-                <textarea id="txtIdentifiantCourrier" maxlength="128" name="refCourrier"></textarea>
-                <div class="row-mt-5">
-                    <a class="annuler-imppr btn btn-action ripple-effect" href="">Annuler</a>
-                    <input class="btn btn-action ripple-effect" id="btnValiderIdentifiantCourrier" name="action"
-                           type="submit" value="Valider"/>
+    <div id="print-box" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div id="print-content">
+                        <h2>Valider l'impression</h2>
+                        <form action="#" id="form-print"
+                              method="post" th:action="@{/gestion/courriers/print}">
+                            <input id="demandeId" name="demandeId" type="hidden"/>
+                            <input id="courrierId" name="courrierId" type="hidden"/>
+                            <span>Identifiant de courrier :</span><br/>
+                            <textarea id="txtIdentifiantCourrier" maxlength="128" name="refCourrier"></textarea>
+                            <div class="row-mt-5">
+                                <a class="annuler-imppr btn btn-action ripple-effect" href="">Annuler</a>
+                                <input class="btn btn-action ripple-effect" id="btnValiderIdentifiantCourrier" name="action"
+                                       type="submit" value="Valider"/>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-            </form>
-        </div>
-
-    </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
 </div>
 
 
@@ -216,18 +214,15 @@
 
     $(document).ready(function () {
 
-        var statuts = /*[[${statuts}]]*/[];
         var columnsTableAttente = [
             {
                 "data": "name",
-                "keyword": true,
                 render: function (data, type, element) {
                     return element.name;
                 }
             },
             {
                 "data": "dateCreation",
-                "keyword": false,
                 render: function (data, type, element) {
                     // On ne format pas en STRING la demande si l'accès à la donnée se fait pendant un SORT ou un TYPE
                     if (type === "sort" || type === "type") {
@@ -237,29 +232,26 @@
                 }
             },
             {
-                "data": "statut",
-                "keyword": true,
+                "data": "fkStatut.libelle",
                 render: function (data, type, element) {
-                    return statuts[element.statut];
+                    return data;
                 }
             },
             {
-                "data": "identifiantDemande",
+                "data": "demandeIdentifiant",
                 "orderable": false,
-                "keyword": false,
                 render: function (data, type, element) {
-                    return "<a href='" + APP.getContextPath() + "/demandes/" + element.pkDemandes + "'><span class='identifiant-demande'>" + element.identifiantDemande + "</span></a>";
+                    return "<a href='" + APP.getContextPath() + "/demandes/" + element.demandeId + "'><span class='identifiant-demande'>" + data + "</span></a>";
                 }
             },
             {
                 "orderable": false,
-                "keyword": false,
                 render: function (data, type, element, meta) {
                     return '<a id="btnTelechargerCourrier' + meta.row + '" href="' + APP.getContextPath() + '/ws/file/get/' + element.url + '" >' +
                         '<span class="btn btn-action ripple-effect greyTooltip" data-html="true" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Télécharger"> ' +
                         '<i class="icon-action_pdf"></i></span></a>' +
 
-                        '<a id="btnValiderImpression' + meta.row + '" href="#" data-courrierid="' + element.pkDemandeFile + '" data-demandeid="' + element.pkDemandes + '" class="print"> ' +
+                        '<a id="btnValiderImpression' + meta.row + '" href="#" data-courrierid="' + element.pkCourrier + '" data-demandeid="' + element.demandeId + '" class="print"> ' +
                         '<span class="btn btn-action ripple-effect greyTooltip" data-html="true" data-toggle="tooltip" data-placement="bottom" data-original-title="Valider l\'impression" title="">' +
                         '<i class="icon-action_expedie_ok"></i></span></a>';
                 }
@@ -268,14 +260,12 @@
         var columnsTableImprimes = [
             {
                 "data": "name",
-                "keyword": true,
                 render: function (data, type, element) {
                     return element.name;
                 }
             },
             {
                 "data": "dateCreation",
-                "keyword": false,
                 render: function (data, type, element) {
                     // On ne format pas en STRING la demande si l'accès à la donnée se fait pendant un SORT ou un TYPE
                     if (type === "sort" || type === "type") {
@@ -285,31 +275,27 @@
                 }
             },
             {
-                "data": "statut",
-                "keyword": true,
+                "data": "fkStatut.libelle",
                 render: function (data, type, element) {
-                    return statuts[element.statut];
+                    return data;
                 }
             },
             {
-                "data": "identifiantDemande",
+                "data": "demandeIdentifiant",
                 "orderable": false,
-                "keyword": false,
                 render: function (data, type, element) {
-                    return "<a href='" + APP.getContextPath() + "/demandes/" + element.pkDemandes + "'><span class='identifiant-demande'>" + element.identifiantDemande + "</span></a>";
+                    return "<a href='" + APP.getContextPath() + "/demandes/" + element.demandeId + "'><span class='identifiant-demande'>" + data + "</span></a>";
                 }
             },
             {
                 "data": "identifiantFichier",
                 "orderable": false,
-                "keyword": true,
                 render: function (data, type, element) {
-                    return element.identifiantFichier;
+                    return element.identifiant;
                 }
             },
             {
                 "orderable": false,
-                "keyword": false,
                 render: function (data, type, element, meta) {
                     return '<a id="btnTelechargerCourrier' + meta.row + '" href="' + APP.getContextPath() + '/ws/file/get/' + element.url + '" >' +
                         '<span class="btn btn-action ripple-effect greyTooltip" data-html="true" data-toggle="tooltip" data-placement="bottom" data-original-title="Télécharger" title=""> ' +
@@ -357,13 +343,7 @@
                 var courrierId = $(this).data("courrierid");
                 var demandeId = $(this).data("demandeid");
 
-                $.fancybox.open({
-                    src: '#print-box',
-                    type: 'inline',
-                    btnTpl: {
-                        smallBtn: '<button id="btnFermerPopinIdentifiant" data-fancybox-close="" class="fancybox-close-small" title="Fermer"></button>'
-                    }
-                });
+                $('#print-box').modal();
 
                 $("#demandeId").val(demandeId);
                 $("#courrierId").val(courrierId);
@@ -374,7 +354,7 @@
 
         $(".annuler-imppr").click(function (e) {
             e.preventDefault();
-            $.fancybox.close();
+            $('.modal').modal('hide');
             return false;
         });
 

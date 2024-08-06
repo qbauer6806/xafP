@@ -1,67 +1,59 @@
 package mc.gouv.xaf.back.service.data.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
-
-import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.From;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import javax.persistence.criteria.Subquery;
-
-import mc.gouv.xaf.shared.enums.TypeConnexionUsagerEnum;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DateUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.domain.Sort.Order;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.SetJoin;
+import mc.gouv.xaf.back.data.dao.DemandesAgentsRepository;
+import mc.gouv.xaf.back.data.transformer.DemandesUsagersTransformer;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.itg.logon.dto.User;
 import mc.gouv.xaf.back.data.dao.AccessRepository;
-import mc.gouv.xaf.back.data.dao.DemandesComplementsRepository;
-import mc.gouv.xaf.back.data.dao.DemandesDataRepository;
 import mc.gouv.xaf.back.data.dao.DemandesHistoriqueRepository;
 import mc.gouv.xaf.back.data.dao.DemandesRepository;
-import mc.gouv.xaf.back.data.dao.DemandesStatutsRepository;
+import mc.gouv.xaf.back.data.dao.DemandesUsagersRepository;
 import mc.gouv.xaf.back.data.dao.PurgeFilesRepository;
 import mc.gouv.xaf.back.data.entity.AccessBO;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
+import mc.gouv.xaf.back.data.entity.DemandeConfigBO;
+import mc.gouv.xaf.back.data.entity.DemandesAgentsBO;
+import mc.gouv.xaf.back.data.entity.DemandesComplementsBO;
+import mc.gouv.xaf.back.data.entity.DemandesComplementsFilesBO;
 import mc.gouv.xaf.back.data.entity.DemandesDataBO;
+import mc.gouv.xaf.back.data.entity.DemandesFilesBO;
 import mc.gouv.xaf.back.data.entity.DemandesHistoriqueBO;
 import mc.gouv.xaf.back.data.entity.DemandesStatutsBO;
+import mc.gouv.xaf.back.data.entity.DemandesUsagersBO;
+import mc.gouv.xaf.back.data.transformer.DemandesAgentsTransformer;
 import mc.gouv.xaf.back.data.transformer.DemandesTransformer;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
-import mc.gouv.xaf.back.service.DemandePostprocessingService;
-import mc.gouv.xaf.back.service.DemarchesDataProvider;
 import mc.gouv.xaf.back.service.data.AccessService;
 import mc.gouv.xaf.back.service.data.DemandesComplementsService;
+import mc.gouv.xaf.back.service.data.DemandesConfigService;
 import mc.gouv.xaf.back.service.data.DemandesDataService;
 import mc.gouv.xaf.back.service.data.DemandesFilesService;
 import mc.gouv.xaf.back.service.data.DemandesService;
@@ -73,17 +65,38 @@ import mc.gouv.xaf.back.service.itg.gichuni.kafka.GUKafkaProducer;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.DemandeRecapDTO;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.dto.v1.RecapDemandesDTO;
 import mc.gouv.xaf.back.service.itg.gichuni.kafka.utils.GUKafkaUtils;
+import mc.gouv.xaf.back.service.itg.logon.UtilisateursCache;
+import mc.gouv.xaf.back.service.itg.rest.PaysCache;
+import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
+import mc.gouv.xaf.back.service.postprocessing.PostProcessingProvider;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.back.service.utils.DemarchesUtils;
 import mc.gouv.xaf.shared.SharedMessages;
-import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
 import mc.gouv.xaf.shared.dto.DataRechercheDTO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeFileDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
+import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import mc.gouv.xaf.shared.dto.PageParamDTO;
 import mc.gouv.xaf.shared.dto.StatistiqueDTO;
-import mc.gouv.xaf.shared.dto.sourcefiable.SourceFiableDTO;
+import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
+import mc.gouv.xaf.shared.enums.DemandeCanalEnum;
+import mc.gouv.xaf.shared.enums.TypeConnexionUsagerEnum;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort.Order;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service permettant la manipulation des demandes.
@@ -98,6 +111,17 @@ public class DemandesServiceImpl implements DemandesService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(DemandesServiceImpl.class);
 	private static final String RECUPERATION_DEMANDES = "Récupération en base des demandes...";
 	private static final String RECUPERATION_DEMANDE = "Récupération en base de la demande...";
+	private static final String IDENTIFIANT = "identifiant";
+	private static final String DERNIER_STATUT = "dernierStatut";
+	private static final String LIBELLE = "libelle";
+	private static final String CANAL = "canal";
+	private static final String FK_ACCESS = "fkAccess";
+	private static final String USAGER_ID = "usagerId";
+	private static final String AGENT = "agent";
+	private static final String DATE_CREATION = "dateCreation";
+	private static final String CONTENU = "contenu.";
+	private static final String FILES = "files";
+	private static final String SEARCH_VECTOR = "searchVector";
 
 	@Autowired
 	private DemandesRepository demandesRepository;
@@ -109,19 +133,19 @@ public class DemandesServiceImpl implements DemandesService {
 	private AccessService accessService;
 
 	@Autowired
-	private DemandesStatutsRepository demandesStatutsRepository;
+	private DemandesUsagersRepository demandesUsagersRepository;
 
     @Autowired
+    private DemandesAgentsRepository demandesAgentsRepository;
+
+  @Autowired
     private PurgeFilesRepository purgeFilesRepository;
 
 
-	@Autowired
-	private DemandesDataRepository demandesDataRepository;
+  @Autowired
+  private PostProcessingProvider postProcessingProvider;
 
-	@Autowired
-	private DemandesComplementsRepository demandesComplementsRepository;
-
-	@Autowired
+  @Autowired
 	private DemandesStatutsService demandesStatutsService;
 
 	@Autowired
@@ -135,6 +159,9 @@ public class DemandesServiceImpl implements DemandesService {
 
 	@Autowired
 	private DemandesFilesService demandesFilesService;
+
+	@Autowired
+	private DemandesConfigService demandesConfigService;
 
 	@Autowired
 	private DemandesComplementsService demandesComplementsService;
@@ -152,16 +179,30 @@ public class DemandesServiceImpl implements DemandesService {
     private GUKafkaUtils guKafkaUtils;
 
 	@Autowired
-    private ApplicationContext appContext;
-	@Autowired
-	private DemarchesDataProvider demarchesDataProvider;
-
-	public static final String DATE_PATTERN = "dd/MM/yyyy";
+	private DemandesTransformer demandesTransformer;
 
 	@Autowired
+	private DemandesAgentsTransformer demandesAgentsTransformer;
+
+	@Autowired
+	private UtilisateursCache utilisateursCache;
+
+	@Autowired
+	private PaysCache paysCache;
+
+    @Autowired
 	private EntityManager em;
 
-	private String generatePublicIDWithoutCollisionCheck(String prefixe) {
+    @Autowired
+    private GouvPropertiesResolver gouvPropertiesResolver;
+
+    @Autowired
+    private UsagersCache usagersCache;
+
+    @Autowired
+    private DemandesUsagersTransformer demandesUsagersTransformer;
+
+    private String generatePublicIDWithoutCollisionCheck(String prefixe) {
 		DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
 		String stringDate = dateFormat.format(new Date());
 		SecureRandom random = new SecureRandom();
@@ -193,7 +234,7 @@ public class DemandesServiceImpl implements DemandesService {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public DemandeDTO saveDemande(DemandeDTO demande, String premierStatut) throws IOException {
+	public DemandeDTO saveDemande(DemandeDTO demande, StatutPublicOuInterneDTO premierStatut, JsonNode donneesExternes) throws IOException {
 
 		if (demande.getCanal() == null) {
 			throw new DemarchesServiceException("Canal non spécifié", HttpStatus.BAD_REQUEST);
@@ -204,18 +245,7 @@ public class DemandesServiceImpl implements DemandesService {
 
 		LOGGER.info("Postprocessing de la demande...");
 		try {
-			// Récupération du bean de postprocessing à la bonne version du modèle
-			DemandePostprocessingService dps = (DemandePostprocessingService)appContext.getBean("DemandePostprocessingServiceImplV" + demande.getBuildId());
-
-			// Appel au postprocessing
-			demande = dps.postprocess(demande);
-			//On ajoute le complément des données certifiées qui n'ont pas été définies par le post process
-			List<SourceFiableDTO> complementDonneesCertifiees = demarchesDataProvider.getComplementDonneesCertifiees(demande);
-			if(CollectionUtils.isNotEmpty(complementDonneesCertifiees)){
-				List<SourceFiableDTO> donneesCertifiees = AfBackUtils.donneesCertifieesJsonToList(demande.getDonneesCertifiees());
-				donneesCertifiees.addAll(complementDonneesCertifiees);
-				demande.setDonneesCertifiees(AfBackUtils.donneesCertifieesListToJson(donneesCertifiees));
-			}
+			demande = postProcessingProvider.postprocess(demande, donneesExternes);
 		} catch (Exception e) {
 			LOGGER.error("Une erreur est survenue lors du postprocessing de la demande", e);
 		}
@@ -233,14 +263,28 @@ public class DemandesServiceImpl implements DemandesService {
 		String identifiant = generatePublicID(demande.getDemarcheId());
 		demande.setIdentifiant(identifiant);
 
-		// Création d'une nouvelle demande, ignorer les champs suivants (ils seront mis
-		// à jour plus tard lors du
-		// traitement d'une demande) :
+		// Création d'une nouvelle demande, ignorer les champs suivants (ils seront mis à jour plus tard lors du traitement d'une demande) :
 		demande.setObservations(null);
 
 		LOGGER.info(SharedMessages.TRANSFORMATION_DTO_BO);
-		DemandeBO demandeBo = DemandesTransformer.dto2Bo(demande);
+		DemandeBO demandeBo = demandesTransformer.dto2Bo(demande);
 		demandeBo.setFkAccess(accessBo);
+
+		LOGGER.info("Récupération en base de l'user correspondant...");
+		DemandesUsagersBO usagerBO = demandesUsagersRepository.findOneById(demande.getUsagerId());
+		if (usagerBO != null) {
+			// si l'usager existe déjà on le réutilise
+			demandeBo.setUsager(usagerBO);
+		}
+
+		// on utilise la dernière config déjà présente en base
+		DemandeConfigBO config = demandesConfigService.getLastConfig();
+		demandeBo.setConfig(config);
+
+		// set contenuTrad
+		JsonNode contenuTrad = demande.getContenu().deepCopy();
+		setContenuTrad(contenuTrad, config.getContenu());
+		demandeBo.setContenuTrad(contenuTrad);
 
 		LOGGER.info(SharedMessages.SAUVEGARDE_EN_BASE);
 		demandeBo = demandesRepository.save(demandeBo);
@@ -264,17 +308,99 @@ public class DemandesServiceImpl implements DemandesService {
 	}
 
 	/**
+	 * Méthode utilisée pour migration données XAF12, à supprimer plus tard
+	 */
+    public void updateContenuTrad(){
+        // récupérer toutes les demandes
+        List<DemandeBO> demandeBOS = getAllDemarchesBoById(gouvPropertiesResolver.getDemarcheId());
+        for(DemandeBO demandeBO : demandeBOS) {
+            JsonNode contenuTrad = demandeBO.getContenu().deepCopy();
+            setContenuTrad(contenuTrad, demandeBO.getConfig().getContenu());
+            demandeBO.setContenuTrad(contenuTrad);
+        }
+        demandesRepository.saveAll(demandeBOS);
+    }
+
+    /**
+     * Méthode utilisée pour migration données XAF12, à supprimer plus tard
+     */
+    public void updateUsagers(){
+        // récupérer tous les usagers
+        List<DemandesUsagersBO> usagerBOS = demandesUsagersRepository.findAll();
+        for(DemandesUsagersBO usagerBO : usagerBOS) {
+            GichuniUsagerDTO usager = usagersCache.get(usagerBO.getId());
+            demandesUsagersTransformer.user2Bo(usager, usagerBO);
+        }
+        demandesUsagersRepository.saveAll(usagerBOS);
+    }
+
+    /**
+     * Méthode utilisée pour migration données XAF12, à supprimer plus tard
+     */
+    public void updateAgents(){
+        // récupérer tous les usagers
+        List<DemandesAgentsBO> agentsBOS = demandesAgentsRepository.findAll();
+        for(DemandesAgentsBO agentsBO : agentsBOS) {
+            User user = utilisateursCache.get(String.valueOf(agentsBO.getId()));
+            demandesAgentsTransformer.user2Bo(user, agentsBO);
+        }
+        demandesAgentsRepository.saveAll(agentsBOS);
+    }
+
+	private void setContenuTrad(JsonNode contenuTrad, JsonNode config) {
+		JsonNode mappings = config.get("mappings");
+		List<JsonNode> champsNodes = config.get("recap").findValues("champs");
+		for (JsonNode champs : champsNodes) {
+			for (JsonNode champ : champs) {
+				JsonNode mapping = champ.get("mapping");
+				String path = champ.get("path").asText();
+				// le champ a un mapping
+				if (mapping != null) {
+					// on récupère le champ correspondant dans le contenu s'il existe
+					JsonNode enumKeyNode = AfBackUtils.getNodeFromPath(contenuTrad, path);
+					if (enumKeyNode != null && !enumKeyNode.isNull()) {
+						String enumValue = "";
+						String enumKey = enumKeyNode.asText();
+						if (!champ.get("isDynamic").asBoolean()) {
+							enumValue = mappings.get(mapping.asText()).get("languages").get("fr").get("values").get(enumKey).asText();
+						} else if (mapping.asText().equals("nationalites")) {
+							enumValue = StringUtils.isBlank(enumKey) ? "" : paysCache.get(enumKey, "fr").getNationalite();
+						} else if (mapping.asText().equals("pays")) {
+							enumValue = StringUtils.isBlank(enumKey) ? "" : paysCache.get(enumKey, "fr").getNom();
+						}
+						AfBackUtils.setNodeValue(contenuTrad, path, enumValue);
+					}
+				} else if (champ.get("type").asText().equals("adresse")) {
+					// le champ est de type adresse donc on doit remplacer le pays
+					path += ".pays";
+					JsonNode enumKeyNode = AfBackUtils.getNodeFromPath(contenuTrad, path);
+					if (enumKeyNode != null && !enumKeyNode.isNull()) {
+						String enumKey = enumKeyNode.asText();
+						String enumValue = StringUtils.isBlank(enumKey) ? "" : paysCache.get(enumKey, "fr").getNom();
+						AfBackUtils.setNodeValue(contenuTrad, path, enumValue);
+					}
+				}
+			}
+		}
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public DemandeDTO saveOrUpdateDemande(DemandeDTO demande, boolean partialUpdate, String premierStatut) throws IOException {
+	public DemandeDTO saveOrUpdateDemande(DemandeDTO demande, boolean partialUpdate, StatutPublicOuInterneDTO premierStatut) throws IOException {
+		return saveOrUpdateDemande(demande, partialUpdate, premierStatut, null);
+	}
+
+	@Override
+	public DemandeDTO saveOrUpdateDemande(DemandeDTO demande, boolean partialUpdate, StatutPublicOuInterneDTO premierStatut, JsonNode donneesExternes) throws IOException {
 		DemandeDTO demandeDTO;
 		if (demande.getPkDemandes() != null) {
 			// ID de la demande fourni, il faut donc mettre à jour une demande
 			demandeDTO = updateDemande(demande, partialUpdate);
 		} else {
 			// UsagerID et DemarcheID fournis, il faut donc créer une nouvelle demande
-			demandeDTO = saveDemande(demande, premierStatut);
+			demandeDTO = saveDemande(demande, premierStatut, donneesExternes);
 		}
 		return demandeDTO;
 	}
@@ -302,7 +428,7 @@ public class DemandesServiceImpl implements DemandesService {
 			throw new DemarchesServiceException("Accès correspondant introuvable", HttpStatus.NOT_FOUND);
 		}
 		LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
-		return DemandesTransformer.bo2Dto(new ArrayList<>(accessBo.getDemandes()));
+		return demandesTransformer.bo2Dto(new ArrayList<>(accessBo.getDemandes()));
 	}
 
 	/**
@@ -328,7 +454,7 @@ public class DemandesServiceImpl implements DemandesService {
 		LOGGER.info(RECUPERATION_DEMANDES);
 		List<DemandeBO> demandes = demandesRepository.findAllByIdentifiantIn(identifiants);
 		LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
-		return DemandesTransformer.bo2Dto(demandes);
+		return demandesTransformer.bo2Dto(demandes);
 	}
 
 	/**
@@ -348,7 +474,7 @@ public class DemandesServiceImpl implements DemandesService {
 		}
 
 		LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
-		return DemandesTransformer.bo2Dto(demandes);
+		return demandesTransformer.bo2Dto(demandes);
 	}
 
 	/**
@@ -359,7 +485,7 @@ public class DemandesServiceImpl implements DemandesService {
 		LOGGER.info(RECUPERATION_DEMANDES);
 		List<DemandeBO> demandes = getAllDemarchesBoById(demarcheId);
 		LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
-		return DemandesTransformer.bo2Dto(demandes);
+		return demandesTransformer.bo2Dto(demandes);
 	}
 
 
@@ -396,7 +522,7 @@ public class DemandesServiceImpl implements DemandesService {
 		}
 
 		LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
-		return DemandesTransformer.bo2Dto(demandes);
+		return demandesTransformer.bo2Dto(demandes);
 	}
 
 	/**
@@ -416,11 +542,11 @@ public class DemandesServiceImpl implements DemandesService {
 		} else if (endDate != null) {
 			demandes = demandesRepository.findAllByDateCreationUntilAndDernierStatut(endDate, statut);
 		} else {
-			demandes = demandesRepository.findAllByDernierStatut_Libelle(statut);
+			demandes = demandesRepository.findAllByDernierStatut_Name(statut);
 		}
 
 		LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
-		return DemandesTransformer.bo2Dto(demandes);
+		return demandesTransformer.bo2Dto(demandes);
 	}
 
 	/**
@@ -432,12 +558,12 @@ public class DemandesServiceImpl implements DemandesService {
 
 		LOGGER.info("Récupération en base des demandes filtrées par date et par statut...");
 
-		List<DemandeBO> demandes = demandesRepository.findAllByDernierStatut_Libelle(statut);
+		List<DemandeBO> demandes = demandesRepository.findAllByDernierStatut_Name(statut);
 
 		// Dans le cas où on ne séléctionne pas de dates on retourne toute la list
 		if (startDate == null && endDate == null) {
 			LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
-			return DemandesTransformer.bo2Dto(demandes);
+			return demandesTransformer.bo2Dto(demandes);
 		}
 
 		List<DemandeBO> demandesFiltres = new ArrayList<>();
@@ -454,7 +580,7 @@ public class DemandesServiceImpl implements DemandesService {
 		}
 
 		LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
-		return DemandesTransformer.bo2Dto(demandesFiltres);
+		return demandesTransformer.bo2Dto(demandesFiltres);
 	}
 
 	private boolean ajouterDemande(DemandesDataBO dataBO,Date startDate, Date endDate) {
@@ -484,9 +610,9 @@ public class DemandesServiceImpl implements DemandesService {
 	 */
 	@Override
 	public List<DemandeDTO> getAllDemandesFilteredByStatut(String statut) {
-		List<DemandeBO> demandes = demandesRepository.findAllByDernierStatut_Libelle(statut);
+		List<DemandeBO> demandes = demandesRepository.findAllByDernierStatut_Name(statut);
 		LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
-		return DemandesTransformer.bo2Dto(demandes);
+		return demandesTransformer.bo2Dto(demandes);
 	}
 
 	/**
@@ -494,9 +620,9 @@ public class DemandesServiceImpl implements DemandesService {
 	 */
 	@Override
 	public List<DemandeDTO> getAllDemandesFilteredByStatutAndDateDernierStatut(String statut, Date date) {
-		List<DemandeBO> demandes = demandesRepository.findAllByDernierStatut_LibelleAndDernierStatutDateLessThan(statut, date);
+		List<DemandeBO> demandes = demandesRepository.findAllByDernierStatut_NameAndDernierStatutDateLessThan(statut, date);
 		LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
-		return DemandesTransformer.bo2Dto(demandes);
+		return demandesTransformer.bo2Dto(demandes);
 	}
 
 	/**
@@ -540,7 +666,7 @@ public class DemandesServiceImpl implements DemandesService {
 		if (demandeBo == null) {
 			return null;
 		}
-		return DemandesTransformer.bo2Dto(demandeBo);
+		return demandesTransformer.bo2Dto(demandeBo);
 	}
 
 	/**
@@ -554,7 +680,7 @@ public class DemandesServiceImpl implements DemandesService {
 			throw new DemarchesServiceException(SharedMessages.DONNEE_INTROUVABLE, HttpStatus.NOT_FOUND);
 		}
 		LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
-		return DemandesTransformer.bo2Dto(demandeBo);
+		return demandesTransformer.bo2Dto(demandeBo);
 	}
 
 	/**
@@ -577,7 +703,7 @@ public class DemandesServiceImpl implements DemandesService {
 	public DemandeDTO getDemande(String demarcheId, Integer pkDemandes) {
 		DemandeBO demandeBo = getCheckDemarcheDemandeBO(demarcheId, pkDemandes, true);
 		LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
-		return DemandesTransformer.bo2Dto(demandeBo);
+		return demandesTransformer.bo2Dto(demandeBo);
 	}
 
 	/**
@@ -596,7 +722,7 @@ public class DemandesServiceImpl implements DemandesService {
 		DemandeBO demandeBo = getCheckDemarcheDemandeBO(demande.getDemarcheId(), demande, checkActive);
 
 		// Mise à jour du contenu
-		this.setContenu(demande, partialUpdate, demandeBo);
+		setContenu(demandeBo, demande, partialUpdate);
 
 		// Mise à jour du contenu initial
 		this.setContenuInitial(demande, partialUpdate, demandeBo);
@@ -608,8 +734,9 @@ public class DemandesServiceImpl implements DemandesService {
 		if (!partialUpdate || demande.getObservations() != null) {
 			demandeBo.setObservations(demande.getObservations());
 		}
-		if (!partialUpdate || demande.getAgentAffecteId() != null) {
-			demandeBo.setAgentAffecteId(demande.getAgentAffecteId());
+		if (demande.getAgent() != null) {
+			User user = utilisateursCache.get(demande.getAgent().getId());
+			demandeBo.setAgent(demandesAgentsTransformer.user2Bo(user));
 		}
 
 		// Mise à jour du canal
@@ -628,49 +755,16 @@ public class DemandesServiceImpl implements DemandesService {
 		demandeBo = demandesRepository.save(demandeBo);
 
 		LOGGER.info(SharedMessages.TRANSFORMATION_BO_DTO);
-		DemandeDTO dto = DemandesTransformer.bo2Dto(demandeBo);
+		DemandeDTO dto = demandesTransformer.bo2Dto(demandeBo);
 		dto.setUpdated(true);
 		return dto;
 	}
-	
-	private DemandeBO updateContenu(DemandeBO demandeBo, DemandeDTO demande, boolean partialUpdate) {
-		if (!partialUpdate || demande.getContenu() != null && !demande.getContenu().isNull()) {
-			ObjectMapper mapper = new ObjectMapper();
-			try {
-				demandeBo.setContenu(mapper.writeValueAsString(demande.getContenu()));
-			} catch (JsonProcessingException e) {
-				LOGGER.error("Problème lors de la conversion JSON", e);
-			}
-		}
-		return demandeBo;
-	}
-	
-	private DemandeBO updateContenuInitial(DemandeBO demandeBo, DemandeDTO demande, boolean partialUpdate) {
-        // Mise à jour du contenu initial
-        if (!partialUpdate || demande.getContenuInitial() != null && !demande.getContenuInitial().isNull()) {
-            ObjectMapper mapper = new ObjectMapper();
-            try {
-                demandeBo.setContenuInitial(mapper.writeValueAsString(demande.getContenuInitial()));
-                // Ce qui suit afin d'éviter l'insertion d'une chaîne "null" en base
-                if (demandeBo.getContenuInitial() != null && "null".equals(demandeBo.getContenuInitial())) {
-                	demandeBo.setContenuInitial(null);
-                }
-            } catch (JsonProcessingException e) {
-                LOGGER.error("Problème lors de la conversion JSON", e);
-            }
-        }
-        return demandeBo;
-	}
 
-	private void setContenu(DemandeDTO demande, boolean partialUpdate, DemandeBO demandeBo) {
+	private DemandeBO setContenu(DemandeBO demandeBo, DemandeDTO demande, boolean partialUpdate) {
 		if (!partialUpdate || demande.getContenu() != null && !demande.getContenu().isNull()) {
-			ObjectMapper mapper = new ObjectMapper();
-			try {
-				demandeBo.setContenu(mapper.writeValueAsString(demande.getContenu()));
-			} catch (JsonProcessingException e) {
-				LOGGER.error("Problème lors de la conversion JSON", e);
-			}
-		}
+            demandeBo.setContenu(demande.getContenu());
+        }
+		return demandeBo;
 	}
 
 	private void setContenuInitial(DemandeDTO demande, boolean partialUpdate, DemandeBO demandeBo) {
@@ -699,7 +793,7 @@ public class DemandesServiceImpl implements DemandesService {
 			throw new DemarchesServiceException("Demande introuvable", HttpStatus.NOT_FOUND);
 		}
 
-		DemandeDTO demandeDTO = DemandesTransformer.bo2Dto(demandeBo);
+		DemandeDTO demandeDTO = demandesTransformer.bo2Dto(demandeBo);
 		LOGGER.info("Suppression des fichiers de la demande {} de la demarche {}...", demandeId, demarcheId);
 		demandesFilesService.suppressionDesFichiers(demandeDTO, false, null, 0);
 		LOGGER.info("Suppression des fichiers complémentaires de la demande {} de la demarche {}...", demandeId, demarcheId);
@@ -757,7 +851,7 @@ public class DemandesServiceImpl implements DemandesService {
 		if (demandeBo == null) {
 			throw new DemarchesServiceException("Demande introuvable", HttpStatus.NOT_FOUND);
 		}
-		AccessBO access = demandeBo.getFkAccess();
+        AccessBO access = demandeBo.getFkAccess();
 
 		/*** Insertion de statistique */
         LOGGER.info("Ajout d'une ligne de statistique pour la suppression de la demande...");
@@ -805,19 +899,17 @@ public class DemandesServiceImpl implements DemandesService {
 		DemandeBO demandeBo = getCheckDemarcheDemandeBO(demarcheId, pkDemande, true);
 
 		LOGGER.info("Duplication de la demande...");
-		DemandeDTO demandeDto = DemandesTransformer.bo2Dto(demandeBo);
-		DemandeBO newDemandeBo = DemandesTransformer.dto2Bo(demandeDto);
+		DemandeDTO demandeDto = demandesTransformer.bo2Dto(demandeBo);
+		DemandeBO newDemandeBo = demandesTransformer.dto2Bo(demandeDto);
 		newDemandeBo.setFkAccess(demandeBo.getFkAccess());
 		newDemandeBo.setPkDemandes(null);
-		newDemandeBo.setUsagerEmail(demandeBo.getUsagerEmail());
-		newDemandeBo.setUsagerNom(demandeBo.getUsagerNom());
-		newDemandeBo.setUsagerPrenom(demandeBo.getUsagerPrenom());
-		newDemandeBo.setBuildId(demandeBo.getBuildId());
 		newDemandeBo.setRecapType(demandeBo.getRecapType());
 		newDemandeBo.setDonneesCertifiees(demandeBo.getDonneesCertifiees());
+		newDemandeBo.setConfig(demandeBo.getConfig());
 		newDemandeBo.setTypeConnexionUsager(demandeBo.getTypeConnexionUsager());
 		// #4840 Enlever l'affectation
-		newDemandeBo.setAgentAffecteId(null);
+		newDemandeBo.setAgent(null);
+		newDemandeBo.setUsager(demandeBo.getUsager());
 		newDemandeBo = demandesRepository.save(newDemandeBo);
 
 		// Pièces jointes des demandes
@@ -840,7 +932,7 @@ public class DemandesServiceImpl implements DemandesService {
 
 		LOGGER.info("Duplication terminée");
 
-		return DemandesTransformer.bo2Dto(newDemandeBo);
+		return demandesTransformer.bo2Dto(newDemandeBo);
 	}
 
 	private Predicate genererPredicate(DemandeRechercheDTO demandeRecherche, Root<DemandeBO> root, CriteriaBuilder builder) {
@@ -850,32 +942,32 @@ public class DemandesServiceImpl implements DemandesService {
 		List<Predicate> predicatsTexte = new ArrayList<>();
 		if (!StringUtils.isBlank(demandeRecherche.getTexte())) {
 			predicatsTexte.add(builder.like(root.get("observations"), "%" + demandeRecherche.getTexte() + "%"));
-			predicatsTexte.add(builder.like(root.get("identifiant"), "%" + demandeRecherche.getTexte() + "%"));
+			predicatsTexte.add(builder.like(root.get(IDENTIFIANT), "%" + demandeRecherche.getTexte() + "%"));
 			predicatsTexte.add(builder.like(root.get("courrierRefInterne"), "%" + demandeRecherche.getTexte() + "%"));
-			predicats.add(builder.or(predicatsTexte.toArray(new Predicate[predicatsTexte.size()])));
+			predicats.add(builder.or(predicatsTexte.toArray(Predicate[]::new)));
 		}
 
 		// Créer des prédicats pour les statuts recherchés
 		List<Predicate> predicatsStatuts = new ArrayList<>();
-		Join<DemandeBO, DemandesStatutsBO> dernierStatut = root.join("dernierStatut");
+		Join<DemandeBO, DemandesStatutsBO> dernierStatut = root.join(DERNIER_STATUT);
 		if (demandeRecherche.getStatuts() != null) {
 			for (String statut : demandeRecherche.getStatuts()) {
-				predicatsStatuts.add(builder.equal(dernierStatut.<String>get("libelle"), statut));
+				predicatsStatuts.add(builder.equal(dernierStatut.<String>get(LIBELLE), statut));
 			}
-			predicats.add(builder.or(predicatsStatuts.toArray(new Predicate[predicatsStatuts.size()])));
+			predicats.add(builder.or(predicatsStatuts.toArray(Predicate[]::new)));
 		}
 
 		// Créer des prédicats pour les canaux recherchés
 		List<Predicate> predicatsCanaux = new ArrayList<>();
 		if (demandeRecherche.getCanaux() != null) {
 			for (DemandeCanalEnum canal : demandeRecherche.getCanaux()) {
-				predicatsCanaux.add(builder.equal(root.<String>get("canal"), canal.name()));
+				predicatsCanaux.add(builder.equal(root.<String>get(CANAL), canal.name()));
 			}
-			predicats.add(builder.or(predicatsCanaux.toArray(new Predicate[predicatsCanaux.size()])));
+			predicats.add(builder.or(predicatsCanaux.toArray(Predicate[]::new)));
 		}
 
 		// Créer un prédicat pour la démarche (nécessite un join sur AccessBO)
-		Join<DemandeBO, AccessBO> access = root.join("fkAccess");
+		Join<DemandeBO, AccessBO> access = root.join(FK_ACCESS);
 		// Pour le front on remonte que des actifs
 		if (DemarchesUtils.isFrontUser()) {
 			predicats.add(builder.equal(access.<String>get("active"), true));
@@ -885,12 +977,13 @@ public class DemandesServiceImpl implements DemandesService {
 		// Créer un prédicat pour l'usagerId (nécessite d'utiliser le join créé
 		// précédemment car info dans AccessBO)
 		if (demandeRecherche.getUsagerId() != null) {
-			predicats.add(builder.equal(access.<Integer>get("usagerId"), demandeRecherche.getUsagerId()));
+			predicats.add(builder.equal(access.<Integer>get(USAGER_ID), demandeRecherche.getUsagerId()));
 		}
 
 		// Créer un prédicat pour l'agent affecté
+		Join<DemandeBO, DemandesAgentsBO> agent = root.join(AGENT);
 		if (!StringUtils.isBlank(demandeRecherche.getAgentAffecteId())) {
-			predicats.add(builder.equal(root.<String>get("agentAffecteId"), demandeRecherche.getAgentAffecteId()));
+			predicats.add(builder.equal(agent.<String>get("agentAffecteId"), demandeRecherche.getAgentAffecteId()));
 		}
 
 		// Créer un prédicat pour le creationStartDate
@@ -900,7 +993,7 @@ public class DemandesServiceImpl implements DemandesService {
 			cal.set(Calendar.HOUR_OF_DAY, 0);
 			cal.set(Calendar.MINUTE, 0);
 			cal.set(Calendar.SECOND, 0);
-			predicats.add(builder.greaterThanOrEqualTo(root.get("dateCreation"), cal.getTime()));
+			predicats.add(builder.greaterThanOrEqualTo(root.get(DATE_CREATION), cal.getTime()));
 		}
 
 		// Créer un prédicat pour le creationEndDate
@@ -910,122 +1003,272 @@ public class DemandesServiceImpl implements DemandesService {
 			cal.set(Calendar.HOUR_OF_DAY, 23);
 			cal.set(Calendar.MINUTE, 59);
 			cal.set(Calendar.SECOND, 59);
-			predicats.add(builder.lessThanOrEqualTo(root.get("dateCreation"), cal.getTime()));
+			predicats.add(builder.lessThanOrEqualTo(root.get(DATE_CREATION), cal.getTime()));
 		}
 
 		// Créer un prédicat pour l'identifiant de la demande
 		if (!StringUtils.isBlank(demandeRecherche.getIdentifiant())) {
-			predicats.add(builder.equal(root.<String>get("identifiant"), demandeRecherche.getIdentifiant()));
+			predicats.add(builder.equal(root.<String>get(IDENTIFIANT), demandeRecherche.getIdentifiant()));
 		}
 
-		return builder.and(predicats.toArray(new Predicate[predicats.size()]));
-	}
-
-	private CriteriaQuery<DemandeBO> createQuery(DemandeRechercheDTO demandeRecherche, CriteriaQuery<DemandeBO> cquery, Root<DemandeBO> root, CriteriaBuilder builder) {
-		Predicate pAttributs = genererPredicate(demandeRecherche, root, builder);
-		boolean predicatAnd = false;
-		Predicate predicatData = null;
-		DataRechercheDTO dataRechercheDTO = demandeRecherche.getData();
-
-		if (dataRechercheDTO != null) {
-			if (dataRechercheDTO.getOperand() != null
-					&& dataRechercheDTO.getOperand().equals(DataRechercheDTO.DataRechercheOperand.AND)) {
-				predicatAnd = true;
-			}
-			// Pour le moment en fait on n'en gère qu'un
-			// HACK pour avoir tout ceux qui n'ont pas de data IS_EN_ATTENTE_VALIDATION
-			// data=IS_EN_ATTENTE_VALIDATION=null
-			// C'est à dire ceux dont le statut est en attente de traitement mais qui n'ont
-			// pas de data c'est à dire qui
-			// ne sont pas en attente de validation
-			if (StringUtils.equalsIgnoreCase(dataRechercheDTO.getValue(), "null")) {
-				// Dans le cas d'une data null il faut faire une subquery pour vérifier que la
-				// data n'existe pas en fait
-				Subquery<DemandesDataBO> subquery = cquery.subquery(DemandesDataBO.class);
-				Root<DemandesDataBO> rootSubquery = subquery.from(DemandesDataBO.class);
-				subquery.where(builder.and(
-						builder.equal(rootSubquery.<String>get("fkDemandes"), root.<String>get("pkDemandes")),
-						builder.equal(rootSubquery.<String>get("key"), dataRechercheDTO.getKey())));
-				subquery.select(rootSubquery);
-				// Vérification de l'existance
-				predicatData = builder.not(builder.exists(subquery));
-			} else {
-				Subquery<DemandesDataBO> subquery = cquery.subquery(DemandesDataBO.class);
-				Root<DemandesDataBO> rootSubquery = subquery.from(DemandesDataBO.class);
-				subquery.where(builder.and(
-						builder.equal(rootSubquery.<String>get("fkDemandes"), root.<String>get("pkDemandes")),
-						builder.equal(rootSubquery.<String>get("value"), dataRechercheDTO.getValue()),
-						builder.equal(rootSubquery.<String>get("key"), dataRechercheDTO.getKey())));
-				subquery.select(rootSubquery);
-				// Vérification de l'existance
-				predicatData = builder.exists(subquery);
-			}
-		}
-
-		// Création de la query select
-		CriteriaQuery<DemandeBO> select;
-		if (predicatData != null) {
-			if (predicatAnd) {
-				select = cquery.select(root).where(builder.and(pAttributs, predicatData));
-			} else {
-				select = cquery.select(root).where(builder.or(pAttributs, predicatData));
-			}
-		} else {
-			select = cquery.select(root).where(builder.and(pAttributs));
-		}
-
-		return select;
+		return builder.and(predicats.toArray(Predicate[]::new));
 	}
 
 	@Override
-	@SuppressWarnings({"rawtypes" })
+	@SuppressWarnings({"rawtypes"})
 	public Page<DemandeDTO> getDemandes(DemandeRechercheDTO demandeRecherche, Pageable pageable, String[] fields) {
 
-		CriteriaBuilder builder = em.getCriteriaBuilder();
-		CriteriaQuery<DemandeBO> cquery = builder.createQuery(DemandeBO.class);
-		Root<DemandeBO> root = cquery.from(DemandeBO.class);
+		CriteriaBuilder cb = em.getCriteriaBuilder();
 
-		// Pour le moment nous faisons un OU sur les data pour remonter
-		// Les demandes en cours de traitement ET sur un agent OU
-		// data.IS_EN_ATTENTE_TRAITEMENT=1
-		// En attendant un vrai service de recherche ou on pourra définir les OU / ET
-		// via json body (comme ES par
-		// exemple)
-		CriteriaQuery<DemandeBO> select = createQuery(demandeRecherche, cquery, root, builder);
+		//count query
+		CriteriaQuery<Long> cqCount = cb.createQuery(Long.class);
+		Root<DemandeBO> rootCount = buildQuery(cqCount, demandeRecherche, cb);
+		cqCount.select(cb.countDistinct(rootCount));
+		Long totalCount = em.createQuery(cqCount).getSingleResult();
+
+		//actual query
+		CriteriaQuery<DemandeBO> cq = cb.createQuery(DemandeBO.class);
+		Root<DemandeBO> root = buildQuery(cq, demandeRecherche, cb);
 
 		// Ajout du order
 		pageable.getSort();
 		Order order = pageable.getSort().iterator().next();
+
+		// groupBy obligé lorsqu'il y a des joins pour ne pas avoir de doublons + il faut donc ajouter les conditions dans le group by lorsqu'il y a un order sur des propriétés des joins
+		List<Expression<?>> groupBy = new ArrayList<>();
+		groupBy.add(root.get("pkDemandes"));
 		if (order != null) {
 			String property = order.getProperty();
 			// Property racine demandeBO à part si filtre sur usager id 'fkAccess.usagerId'
-			// On pouyrrait faire mieux avec un algorithme plus générique
-			From f = root;
-			if (StringUtils.equalsIgnoreCase(order.getProperty(), "usagerId")) {
-				f = root.join("fkAccess");
+			Expression e = null;
+			if (StringUtils.equalsIgnoreCase(order.getProperty(), USAGER_ID)) {
+				Join<DemandeBO,AccessBO> f = root.join(FK_ACCESS, JoinType.LEFT);
+				e = f.get(property);
 			} else if (StringUtils.equalsIgnoreCase(order.getProperty(), "dernierStatut.libelle")) {
-				f = root.join("dernierStatut");
-				property = "libelle";
+				Join<DemandeBO, DemandesStatutsBO> f = root.join(DERNIER_STATUT, JoinType.LEFT);
+				e = f.get(LIBELLE);
+				groupBy.add(f.get(LIBELLE));
+			} else if (StringUtils.equalsIgnoreCase(order.getProperty(), "agent.nomAffichage")) {
+				Join<DemandeBO, DemandesAgentsBO> f = root.join(AGENT, JoinType.LEFT);
+				e = f.get("nomAffichage");
+				groupBy.add(f.get("nomAffichage"));
+			} else if (order.getProperty().startsWith(CONTENU)) {
+				String[] jsonKeys = order.getProperty().replace(CONTENU, "").split("\\.");
+				List<Expression<?>> expressions = new ArrayList<>();
+				expressions.add(root.<String>get("contenuTrad"));
+				for (String jsonKey : jsonKeys) {
+					expressions.add(cb.literal(jsonKey));
+				}
+				e = cb.function("jsonb_extract_path_text", String.class, expressions.toArray(Expression[]::new));
+			}
+			if (e == null) {
+				e = root.get(property);
 			}
 			if (order.getDirection() == Direction.ASC) {
-				select.orderBy(builder.asc(f.get(property)));
+				cq.orderBy(cb.asc(e));
 			} else {
-				select.orderBy(builder.desc(f.get(property)));
+				cq.orderBy(cb.desc(e));
 			}
 		}
-
-		TypedQuery<DemandeBO> typedQuery = em.createQuery(select);
-		int count = typedQuery.getResultList().size();
-
+		cq.groupBy(groupBy);
+		TypedQuery<DemandeBO> typedQuery = em.createQuery(cq);
 		typedQuery.setFirstResult((pageable.getPageNumber()) * pageable.getPageSize());
 		typedQuery.setMaxResults(pageable.getPageSize());
 
 		List<DemandeBO> demandes = typedQuery.getResultList();
+		List<DemandeDTO> demandesDto = demandesTransformer.bo2Dto(demandes, fields);
 
-		List<DemandeDTO> demandesDto = DemandesTransformer.bo2Dto(demandes, fields);
-
-		return new PageImpl<>(demandesDto, pageable, count);
+		return new PageImpl<>(demandesDto, pageable, totalCount);
 	}
+
+	private Calendar getDate(String s) {
+		Calendar cal = Calendar.getInstance();
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", Locale.FRANCE);
+		try {
+			cal.setTime(sdf.parse(s));
+		} catch (ParseException e) {
+			return null;
+		}
+		return cal;
+	}
+
+	private void setPredicates(String searchField, Root<DemandeBO> root, List<Predicate> predicates, CriteriaBuilder cb, String texte) {
+		// cas contenu de la demande
+		if (searchField.startsWith(CONTENU)) {
+			String[] jsonKeys = searchField.replace(CONTENU, "").split("\\.");
+			List<Expression<?>> expressions = new ArrayList<>();
+			expressions.add(root.<String>get("contenuTrad"));
+			for (String jsonKey : jsonKeys) {
+				expressions.add(cb.literal(jsonKey));
+			}
+			predicates.add(cb.equal(
+					cb.upper(cb.function("jsonb_extract_path_text", String.class, expressions.toArray(Expression[]::new))),
+					texte.toUpperCase()
+			));
+		} else if (searchField.startsWith("agent.")) {
+			// cas agent
+			Join<DemandeBO, DemandesAgentsBO> agent = root.join(AGENT, JoinType.LEFT);
+			// use String.class to cover the id type of Integer in agent table
+			predicates.add(cb.like(cb.upper(agent.get(searchField.replace("agent.", "")).as(String.class)), "%" + texte.toUpperCase() + "%"));
+		} else if (searchField.startsWith("usager.")) {
+			// cas usager
+			Join<DemandeBO, DemandesUsagersBO> usager = root.join("usager", JoinType.LEFT);
+			predicates.add(cb.like(cb.upper(usager.get(searchField.replace("usager.", ""))), "%" + texte.toUpperCase() + "%"));
+		} else if (searchField.startsWith("complement.")) {
+			// cas complements fichiers
+			SetJoin<DemandeBO, DemandesComplementsBO> demandesComplements = root.joinSet("demandesComplements", JoinType.LEFT);
+			SetJoin<DemandesComplementsBO, DemandesComplementsFilesBO> files = demandesComplements.joinSet(FILES, JoinType.LEFT);
+			predicates.add(cb.like(cb.upper(files.get(searchField.replace("complement.", ""))), "%" + texte.toUpperCase() + "%"));
+		}
+		else if (searchField.startsWith("fichiers.")) {
+			// cas pièces jointes
+			SetJoin<DemandeBO, DemandesFilesBO> files = root.joinSet(FILES, JoinType.LEFT);
+			predicates.add(cb.like(cb.upper(files.get(searchField.replace("fichiers.", ""))), "%" + texte.toUpperCase() + "%"));
+		}
+		else if (!searchField.contains(".")) {
+			// cas colonnes classiques de dem_demandes
+			// récupérer tous les champs de DemandeBO pour vérifier si le facet cliqué est de type DATE
+			List<Field> fields = new ArrayList<>(Arrays.asList(DemandeBO.class.getDeclaredFields()));
+			Optional<Field> optionalField = fields.stream().filter(f -> f.getName().equals(searchField)).findFirst();
+			if (optionalField.isPresent()) {
+				Field field = optionalField.get();
+				Class<?> fieldType = field.getType();
+				if (fieldType.isAssignableFrom(Date.class)) {
+					Calendar dateBegin = getDate(texte);
+					if (dateBegin != null) {
+						// le texte recherché est bien écrit en format date
+						Calendar dateEnd = (Calendar) dateBegin.clone();
+						dateEnd.set(Calendar.HOUR_OF_DAY, 23);
+						dateEnd.set(Calendar.MINUTE, 59);
+						dateEnd.set(Calendar.SECOND, 59);
+						predicates.add(cb.between(root.get(searchField), dateBegin.getTime(), dateEnd.getTime()));
+					} else {
+						// fake date pour éviter les problèmes de match type
+						predicates.add(cb.equal(root.get(searchField), new Date()));
+					}
+				} else {
+					// pas de champ date, recherche classique
+					predicates.add(cb.like(cb.upper(root.get(searchField)), "%" + texte.toUpperCase() + "%"));
+				}
+			}
+
+		}
+	}
+
+	private Root<DemandeBO> buildQuery(CriteriaQuery<?> cq, DemandeRechercheDTO demandeRecherche, CriteriaBuilder cb) {
+		Root<DemandeBO> root = cq.from(DemandeBO.class);
+
+		List<Predicate> predicates = new ArrayList<>();
+
+		String texte = demandeRecherche.getTexte();
+		String[] searchFields = demandeRecherche.getSearchFields();
+		// Créer des prédicats pour la recherche avec facet cliqué
+		if (searchFields != null && searchFields.length > 0 && texte != null && !texte.isEmpty()) {
+			setPredicates(searchFields[0], root, predicates, cb, texte);
+		} else if (!StringUtils.isBlank(texte)) {
+			// Créer des prédicats pour la recherche textuelle (sans facet cliqué)
+			// process du full text search
+			List<Path> paths = new ArrayList<>();
+			paths.add(root.get(SEARCH_VECTOR));
+			paths.add(root.get("searchVectorContenu"));
+			paths.add(root.join("usager", JoinType.LEFT).get(SEARCH_VECTOR));
+			paths.add(root.join(AGENT, JoinType.LEFT).get(SEARCH_VECTOR));
+			paths.add(root.join(FILES, JoinType.LEFT).get(SEARCH_VECTOR));
+			paths.add(root.join("demandesComplements", JoinType.LEFT).join(FILES, JoinType.LEFT).get(SEARCH_VECTOR));
+			setFTSPredicates(paths, predicates, cb, texte);
+		}
+
+		// Créer des prédicats pour les statuts recherchés
+		List<Predicate> predicatsStatuts = new ArrayList<>();
+		Join<DemandeBO, DemandesStatutsBO> dernierStatut = root.join(DERNIER_STATUT);
+		if (demandeRecherche.getStatuts() != null) {
+			for (String statut : demandeRecherche.getStatuts()) {
+				predicatsStatuts.add(cb.equal(dernierStatut.<String>get("name"), statut));
+			}
+			predicates.add(cb.or(predicatsStatuts.toArray(Predicate[]::new)));
+		} else if (demandeRecherche.getAucunStatut()) {
+			predicates.add(cb.and(cb.equal(dernierStatut.<String>get("name"), "")));
+		}
+
+		// Créer des prédicats pour les canaux recherchés
+		List<Predicate> predicatsCanaux = new ArrayList<>();
+		if (demandeRecherche.getCanaux() != null) {
+			for (DemandeCanalEnum canal : demandeRecherche.getCanaux()) {
+				predicatsCanaux.add(cb.equal(root.<String>get(CANAL), canal.name()));
+			}
+			predicates.add(cb.or(predicatsCanaux.toArray(Predicate[]::new)));
+		} else if(demandeRecherche.getAucunCanal()) {
+			predicates.add(cb.and(cb.equal(root.<String>get(CANAL), "")));
+		}
+
+		// Créer un prédicat pour la démarche (nécessite un join sur AccessBO)
+		Join<DemandeBO, AccessBO> access = root.join(FK_ACCESS);
+		// Pour le front on remonte que des actifs
+		if (DemarchesUtils.isFrontUser()) {
+			predicates.add(cb.equal(access.<String>get("active"), true));
+		}
+		predicates.add(cb.equal(access.<String>get("demarcheId"), demandeRecherche.getDemarcheId()));
+
+		// Créer un prédicat pour l'usagerId (nécessite d'utiliser le join créé
+		// précédemment car info dans AccessBO)
+		if (demandeRecherche.getUsagerId() != null) {
+			predicates.add(cb.equal(access.<Integer>get(USAGER_ID), demandeRecherche.getUsagerId()));
+		}
+
+		// Créer un prédicat pour l'agent affecté
+		if (!StringUtils.isBlank(demandeRecherche.getAgentAffecteId())) {
+			Join<DemandeBO, DemandesAgentsBO> agent = root.join(AGENT, JoinType.LEFT);
+			predicates.add(cb.equal(agent.<String>get("id"), demandeRecherche.getAgentAffecteId()));
+		}
+
+		// Créer un prédicat pour le creationStartDate
+		if (demandeRecherche.getCreationStartDate() != null) {
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(demandeRecherche.getCreationStartDate());
+			cal.set(Calendar.HOUR_OF_DAY, 0);
+			cal.set(Calendar.MINUTE, 0);
+			cal.set(Calendar.SECOND, 0);
+			predicates.add(cb.greaterThanOrEqualTo(root.get(DATE_CREATION), cal.getTime()));
+		}
+
+		// Créer un prédicat pour le creationEndDate
+		if (demandeRecherche.getCreationEndDate() != null) {
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(demandeRecherche.getCreationEndDate());
+			cal.set(Calendar.HOUR_OF_DAY, 23);
+			cal.set(Calendar.MINUTE, 59);
+			cal.set(Calendar.SECOND, 59);
+			predicates.add(cb.lessThanOrEqualTo(root.get(DATE_CREATION), cal.getTime()));
+		}
+
+		// Créer un prédicat pour l'identifiant de la demande
+		if (!StringUtils.isBlank(demandeRecherche.getIdentifiant())) {
+			predicates.add(cb.equal(root.<String>get(IDENTIFIANT), demandeRecherche.getIdentifiant()));
+		}
+
+		// Créer un prédicat pour data
+		DataRechercheDTO dataRechercheDTO = demandeRecherche.getData();
+		if (dataRechercheDTO != null) {
+			SetJoin<DemandeBO, DemandesDataBO> demandesData = root.joinSet("data", JoinType.LEFT);
+			predicates.add(cb.and(
+					cb.equal(demandesData.<String>get("value"), dataRechercheDTO.getValue()),
+					cb.equal(demandesData.<String>get("key"), dataRechercheDTO.getKey())));
+		}
+
+		cq.where(predicates.toArray(Predicate[]::new));
+
+		return root;
+	}
+
+    private void setFTSPredicates(List<Path> roots, List<Predicate> predicates, CriteriaBuilder cb, String texte) {
+        List<Predicate> predicatFTS = new ArrayList<>();
+        for (Path root : roots) {
+            predicatFTS.add(cb.isTrue(cb.function("tsvector_match", Boolean.class, root,
+                    cb.function("plainto_tsquery", String.class, cb.literal(texte)))));
+        }
+        predicates.add(cb.or(predicatFTS.toArray(Predicate[]::new)));
+    }
+
 
 	@Override
 	public mc.gouv.xaf.shared.dto.Page<DemandeDTO> getDemandesPageable(String demarcheId, Integer usagerId,
@@ -1035,7 +1278,7 @@ public class DemandesServiceImpl implements DemandesService {
 		Pageable pageable = PageRequest.of(paramDTO.getPage(), paramDTO.getSize(), sort);
 		Page<DemandeBO> bos = demandesRepository.findByDemarcheIdAndIdAndUsagerIdAndStatuts(demarcheId, usagerId,
 				status, paramDTO.getLang(), pageable);
-		return DemandesTransformer.boPage2DtoPage(bos);
+		return demandesTransformer.boPage2DtoPage(bos);
 	}
 
 	@Override
@@ -1047,7 +1290,7 @@ public class DemandesServiceImpl implements DemandesService {
 		CriteriaQuery<DemandeBO> select = cquery.select(root).where(pAttributs);
 		TypedQuery<DemandeBO> typedQuery = em.createQuery(select);
 		List<DemandeBO> demandes = typedQuery.getResultList();
-		return DemandesTransformer.bo2Dto(demandes);
+		return demandesTransformer.bo2Dto(demandes);
 	}
 
 	@Override
@@ -1058,7 +1301,7 @@ public class DemandesServiceImpl implements DemandesService {
 		LOGGER.info("Récupération de l'accès cible en base...");
 		Optional<AccessBO> accessBoOp = accessRepository.findById(pkAccess);
 
-		if (!accessBoOp.isPresent()) {
+		if (accessBoOp.isEmpty()) {
 			throw new DemarchesServiceException("Accès cible introuvable", HttpStatus.NOT_FOUND);
 		}
 
@@ -1071,7 +1314,7 @@ public class DemandesServiceImpl implements DemandesService {
 
 		LOGGER.info("Association terminée");
 
-		return DemandesTransformer.bo2Dto(demandeBo);
+		return demandesTransformer.bo2Dto(demandeBo);
 	}
 
 	@Override
@@ -1086,9 +1329,9 @@ public class DemandesServiceImpl implements DemandesService {
 	@Override
 	public DemandeDTO changerAffectationDemande(String demarcheId, int pkDemandes, String agentAffecteId) {
 		DemandeBO demandeBo = getCheckDemarcheDemandeBO(demarcheId, pkDemandes, true);
-		demandeBo.setAgentAffecteId(agentAffecteId);
+		demandeBo.getAgent().setId(Integer.valueOf(agentAffecteId));
 		demandesRepository.save(demandeBo);
-		DemandeDTO demandeDTO = DemandesTransformer.bo2Dto(demandeBo);
+		DemandeDTO demandeDTO = demandesTransformer.bo2Dto(demandeBo);
 		LOGGER.info("Fin changement affectation...");
 		return demandeDTO;
 	}
@@ -1100,15 +1343,7 @@ public class DemandesServiceImpl implements DemandesService {
 	public DemandeDTO getDemande(String identifiant) {
 		LOGGER.info(RECUPERATION_DEMANDE);
 		DemandeBO demandeBo = demandesRepository.findByIdentifiant(identifiant);
-		return DemandesTransformer.bo2Dto(demandeBo);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public List<String> getAllBuildIds() {
-		return demandesRepository.getAllBuildIds();
+		return demandesTransformer.bo2Dto(demandeBo);
 	}
 
     @Override
@@ -1116,8 +1351,8 @@ public class DemandesServiceImpl implements DemandesService {
             List<String> dernierStatutList, List<String> canaux) {
 
         LOGGER.info("Appel à DemandeService.getAllDemandeForPurge");
-        return DemandesTransformer.bo2Dto(demandesRepository
-                .findAllWithDateDernierStatutBeforeAndLibelleStatutIn(dernierStatutDateDebut, dernierStatutList,
+        return demandesTransformer.bo2Dto(demandesRepository
+                .findAllWithDateDernierStatutBeforeAndNameStatutIn(dernierStatutDateDebut, dernierStatutList,
                         canaux));
 
     }
@@ -1127,7 +1362,7 @@ public class DemandesServiceImpl implements DemandesService {
             Date dernierStatutDateFin, List<String> dernierStatutList) {
 
         LOGGER.info("Appel à DemandeService.getAllDemandeForRelanceAvantPurge");
-        return DemandesTransformer.bo2Dto(demandesRepository.findAllWithDateDernierStatutBetweenAndLibelleStatutIn(
+        return demandesTransformer.bo2Dto(demandesRepository.findAllWithDateDernierStatutBetweenAndNameStatutIn(
                 dernierStatutDateDebut, dernierStatutDateFin, dernierStatutList));
 
     }
@@ -1136,7 +1371,7 @@ public class DemandesServiceImpl implements DemandesService {
     public List<Integer> getAllDemandeIdsForPurge(String demarcheId, Date dernierStatutDateDebut,
             List<String> dernierStatutList, List<String> canaux) {
         LOGGER.info("Appel à DemandeService.getAllDemandeIdsForPurge");
-        return demandesRepository.findAllIdsWithDateDernierStatutBeforeAndLibelleStatutIn(dernierStatutDateDebut,
+        return demandesRepository.findAllIdsWithDateDernierStatutBeforeAndNameStatutIn(dernierStatutDateDebut,
                 dernierStatutList, canaux);
     }
 
@@ -1145,7 +1380,7 @@ public class DemandesServiceImpl implements DemandesService {
             Date dernierStatutDateFin, List<String> dernierStatutList) {
 
         LOGGER.info("Appel à DemandeService.getAllDemandeIdsForRelanceAvantPurge");
-        return demandesRepository.findAllIdsWithDateDernierStatutBetweenAndLibelleStatutIn(dernierStatutDateDebut,
+        return demandesRepository.findAllIdsWithDateDernierStatutBetweenAndNameStatutIn(dernierStatutDateDebut,
                 dernierStatutDateFin, dernierStatutList);
     }
 
@@ -1157,6 +1392,5 @@ public class DemandesServiceImpl implements DemandesService {
         }
 
     }
-
 
 }

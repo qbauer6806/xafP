@@ -1,25 +1,27 @@
 package mc.gouv.xaf.back.data.transformer;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import mc.gouv.xaf.back.data.entity.StatistiqueBO;
 import mc.gouv.xaf.shared.dto.StatistiqueDTO;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 @ExtendWith(MockitoExtension.class)
-public class StatistiqueTransformerTest {
+class StatistiqueTransformerTest {
 
     @Test
-    public void testBo2Dto() {
+    void testBo2Dto() {
         StatistiqueBO statistiqueBO = new StatistiqueBO();
         assertNull(StatistiqueTransformer.bo2Dto(null));
         assertNotNull(StatistiqueTransformer.bo2Dto(statistiqueBO));
     }
 
     @Test
-    public void testDto2Bo() {
+    void testDto2Bo() {
         StatistiqueDTO statistiqueDTO = new StatistiqueDTO();
 
         assertNull(StatistiqueTransformer.dto2Bo(null));
@@ -27,7 +29,7 @@ public class StatistiqueTransformerTest {
     }
 
     @Test
-    public void testTypeConnexionUsagerBo() {
+    void testTypeConnexionUsagerBo() {
         StatistiqueBO statistiqueBO = new StatistiqueBO();
         // Dans le cas où il y aurait par exemple, une mauvaise valeur en BDD
         statistiqueBO.setTypeConnexionUsager("ERREUR ENUM");

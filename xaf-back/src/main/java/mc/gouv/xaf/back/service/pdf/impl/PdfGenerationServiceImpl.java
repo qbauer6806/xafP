@@ -11,7 +11,6 @@ import fr.opensagres.xdocreport.template.TemplateEngineKind;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesCourriersService;
 import mc.gouv.xaf.back.service.data.DemandesFilesService;
-import mc.gouv.xaf.back.service.es.IndexedDemandeService;
 import mc.gouv.xaf.back.service.itg.file.FileService;
 import mc.gouv.xaf.back.service.pdf.PdfGenerationService;
 import mc.gouv.xaf.back.service.pdf.PdfTemplateAndModelProvider;
@@ -68,9 +67,6 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 
 	@Autowired
 	private DemandesFilesService demandesFileService;
-
-	@Autowired(required = false)
-	private IndexedDemandeService indexedDemandeService;
 	
 	@Autowired
 	private AfBackUtils afBackUtils;
@@ -103,10 +99,6 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
 			saveFichier(fileName, url, demande, meta);
 		} else {
 			saveCourrier(fileName, url, demande, meta);
-		}
-
-		if (indexedDemandeService != null) {
-			indexedDemandeService.indexDemande(gouvPropertiesResolver.getDemarcheId(), demande.getPkDemandes());
 		}
 
 		LOGGER.info("Fin PdfGenerationServiceImpl.generateAndStorePdf({}, {})", demande.getPkDemandes(), pdfType);

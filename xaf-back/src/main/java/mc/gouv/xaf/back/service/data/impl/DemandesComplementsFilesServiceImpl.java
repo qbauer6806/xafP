@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 
 /**
  * Service permettant la manipulation des fichiers joints aux  d'informations complémentaires.
@@ -64,7 +63,7 @@ public class DemandesComplementsFilesServiceImpl implements DemandesComplementsF
 		if (!changes.isEmpty() || !checkboxes.isEmpty()) {
 			List<Integer> keys = changes.keySet().stream()
 					.map(Integer::parseInt)
-					.collect(Collectors.toList());
+					.toList();
 			checkboxes.keySet().forEach(k -> {
 				Integer parsed = Integer.parseInt(k);
 				if (!keys.contains(parsed)) {

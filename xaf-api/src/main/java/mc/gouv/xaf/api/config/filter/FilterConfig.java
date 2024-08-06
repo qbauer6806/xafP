@@ -1,12 +1,9 @@
 package mc.gouv.xaf.api.config.filter;
 
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-
+import jakarta.servlet.ServletContext;
+import mc.gouv.xaf.api.config.filter.http.HttpMethodFilter;
 import mc.gouv.xaf.back.config.filter.MDCLogFilterAPI;
 import org.springframework.boot.web.servlet.ServletContextInitializer;
-
-import mc.gouv.xaf.api.config.filter.http.HttpMethodFilter;
 
 /**
  * 
@@ -19,7 +16,7 @@ import mc.gouv.xaf.api.config.filter.http.HttpMethodFilter;
 public class FilterConfig implements ServletContextInitializer {
 
     @Override
-    public void onStartup(ServletContext container) throws ServletException {
+    public void onStartup(ServletContext container) {
         container.addFilter("MDCLogFilterAPI", MDCLogFilterAPI.class).addMappingForUrlPatterns(null, false, "/*");
         container.addFilter("HttpMethodFiler", HttpMethodFilter.class).addMappingForUrlPatterns(null, false, "/*");
     }

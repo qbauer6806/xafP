@@ -197,7 +197,13 @@
 								<div class="whiteBullet"></div> Paramétrage démarche
 							</a>
 						</li>
-						<li>
+            <li th:if="${AfBackUtils.getDemarcheCanHandleProperties()}">
+              <a id="menuMarqueurs" th:href="@{/gestion/marqueurs}">
+                <div class="whiteBullet"></div> Marqueurs
+              </a>
+            </li>
+
+            <li>
 							<a id="menuRechercheAvancee" th:href="@{/gestion/adminrecherche}">
 								<div class="whiteBullet"></div> Recherche avancée
 							</a>

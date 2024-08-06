@@ -1,11 +1,10 @@
 package mc.gouv.xaf.back.service.utils;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.junit.Test;
-import org.junit.jupiter.api.Disabled;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AfBackUtilsTest {
@@ -67,7 +66,7 @@ public class AfBackUtilsTest {
     @Test
     public void formatDoubleToCurrencyTest() {
         String formatted = AfBackUtils.formatDoubleToCurrency(1000.5);
-        assertEquals("1 000,50 €", formatted);
+        assertEquals("1 000,50 €", formatted);
     }
 
     @Test
@@ -79,7 +78,7 @@ public class AfBackUtilsTest {
     @Test
     public void formatDoubleToCurrencyMillionTest() {
         String formatted = AfBackUtils.formatDoubleToCurrency(1000000.0);
-        assertEquals("1 000 000,00 €", formatted);
+        assertEquals("1 000 000,00 €", formatted);
     }
 
     @Test

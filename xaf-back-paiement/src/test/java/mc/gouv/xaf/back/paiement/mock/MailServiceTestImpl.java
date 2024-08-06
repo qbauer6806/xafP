@@ -1,18 +1,14 @@
 package mc.gouv.xaf.back.paiement.mock;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
-import mc.gouv.xaf.back.service.itg.mail.MailService;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.xaf.shared.enums.MailAudienceEnum;
-import org.apache.velocity.exception.MethodInvocationException;
-import org.apache.velocity.exception.ParseErrorException;
-import org.apache.velocity.exception.ResourceNotFoundException;
-import org.springframework.stereotype.Component;
-
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.Set;
+import mc.gouv.xaf.back.service.itg.mail.EmailInfoDTO;
+import mc.gouv.xaf.back.service.itg.mail.MailService;
+import mc.gouv.xaf.shared.enums.MailAudienceEnum;
+import org.springframework.stereotype.Component;
 
 @Component
 public class MailServiceTestImpl implements MailService {
@@ -37,7 +33,7 @@ public class MailServiceTestImpl implements MailService {
     }
 
     @Override
-    public String[] getMailPreview(String bodyTemplateCode, String subjectTemplateCode, String langue, Map<String, Object> model) throws ParseErrorException, MethodInvocationException, ResourceNotFoundException, Exception {
+    public String[] getMailPreview(String bodyTemplateCode, String subjectTemplateCode, String langue, Map<String, Object> model) throws IOException {
         return new String[0];
     }
 

@@ -2,6 +2,8 @@ package mc.gouv.xaf.back.bpm.model;
 
 import java.io.Serializable;
 import java.util.Date;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * <p>Classe représentant un commentaire interne entre intervenants du back-office</p>
@@ -9,6 +11,8 @@ import java.util.Date;
  *
  * @author qdeme
  */
+@Setter
+@Getter
 public class CommentaireInterneDTO implements Serializable {
 
     private String agentId;
@@ -17,27 +21,4 @@ public class CommentaireInterneDTO implements Serializable {
 
     private String commentaire;
 
-    public String getAgentId() {
-        return agentId;
-    }
-
-    public void setAgentId(String agentId) {
-        this.agentId = agentId;
-    }
-
-    public Date getDate() {
-        return date;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
-    }
-
-    public String getCommentaire() {
-        return commentaire;
-    }
-
-    public void setCommentaire(String commentaire) {
-        this.commentaire = commentaire;
-    }
 }

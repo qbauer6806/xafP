@@ -1,29 +1,49 @@
 package mc.gouv.xaf.front.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.annotation.MultipartConfig;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.Part;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import mc.gouv.vscan.shared.dto.ScanDTO;
+import mc.gouv.vscan.shared.dto.ScanRequestDTO;
 import mc.gouv.xaf.front.dto.FileUploadCompteurDTO;
 import mc.gouv.xaf.front.dto.FileUploadResponseDTO;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
 import mc.gouv.xaf.front.util.FrontControllerPropertiesCache;
-import mc.gouv.vscan.shared.dto.ScanDTO;
-import mc.gouv.vscan.shared.dto.ScanRequestDTO;
 import mc.gouv.xaf.front.util.XafFrontserverUtils;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.AccessDTO;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpHeaders;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.entity.mime.content.InputStreamBody;
-import org.apache.http.entity.mime.content.StringBody;
-import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.hc.client5.http.classic.HttpClient;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.entity.mime.InputStreamBody;
+import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
+import org.apache.hc.client5.http.entity.mime.StringBody;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.core5.http.ClassicHttpResponse;
+import org.apache.hc.core5.http.ContentType;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpHeaders;
+import org.apache.hc.core5.http.HttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,19 +52,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-
-import javax.servlet.annotation.MultipartConfig;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.Part;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.util.*;
 
 /**
  * Servlet servant à uploader un fichier dans FILE.
@@ -112,7 +119,6 @@ public class FileUploadController extends AbstractXafController {
         }
 
         try {
-            HttpPost postRequest = new HttpPost();
             Part part = request.getParts().iterator().next();
 
             LOGGER.info("Vérification de la taille...");
@@ -131,17 +137,12 @@ public class FileUploadController extends AbstractXafController {
                         "Erreur: la taille du fichier depasse la taille max definie dans les propriétés");
             }
 
-            // Appel à VSCAN afin d'effectuer le scan antivirus
-            if (!vscan(part, filename, postRequest)) {
-                return ResponseEntity.badRequest().build();
-            }
-
             // Génération de l'UUID
-            UUID uuid = xafFrontserverUtils.generateUUID();
+            UUID uuid = XafFrontserverUtils.generateUUID();
             LOGGER.debug("UUID généré : {}", uuid);
 
             String accountId = propertiesResolver.getDemarcheId().toUpperCase();
-            String containerId = xafFrontserverUtils.CONTAINER_ROOT;
+            String containerId = XafFrontserverUtils.CONTAINER_ROOT;
 
             LOGGER.debug("accountId = {}, containerId = {}", accountId, containerId);
 
@@ -162,8 +163,13 @@ public class FileUploadController extends AbstractXafController {
 
             // Constitution de l'URL d'appel
             URI url = new URI(propertiesResolver.getFileUrl() + virtualPath);
-            postRequest.setURI(url);
             LOGGER.info("URL d'appel : {}", url);
+            HttpPost postRequest = new HttpPost(url);
+
+            // Appel à VSCAN afin d'effectuer le scan antivirus
+            if (!vscan(part, filename, postRequest)) {
+                return ResponseEntity.badRequest().build();
+            }
 
             // Extraction du demandeId si le client le connaît déjà et l'a fourni à AFS
             extraireDemandeId(postRequest, request);
@@ -222,17 +228,6 @@ public class FileUploadController extends AbstractXafController {
     }
 
     /**
-     * Permet de parser le nom du fichier depuis le Path Info de la requête
-     */
-    private String getFilename(String pathInfo) {
-        String filename = null;
-        if (pathInfo != null && pathInfo.length() > 1) {
-            filename = pathInfo.split(SLASH)[1];
-        }
-        return filename;
-    }
-
-    /**
      * Méthode permettant d'appeler VSCAN afin d'effectuer le scan antivirus.
      */
     private boolean vscan(Part part0, String filename, HttpPost postRequest) throws IOException {
@@ -245,7 +240,7 @@ public class FileUploadController extends AbstractXafController {
         // Constitution de la requête
         boolean activationVscan = Boolean.parseBoolean(propActivationVscan.getValue());
         // Rajouter l'information si le fichier a été scanné par VSCAN ou pas
-        postRequest.setHeader(xafFrontserverUtils.FILE_METADATA_SCANEXECUTE, activationVscan + "");
+        postRequest.setHeader(XafFrontserverUtils.FILE_METADATA_SCANEXECUTE, activationVscan + "");
         LOGGER.info("Activation de VSCAN: {}", activationVscan);
 
         if (activationVscan) {
@@ -270,9 +265,9 @@ public class FileUploadController extends AbstractXafController {
             HttpPost postRequestVscan = new HttpPost(urlVscan);
             postRequestVscan.setEntity(multipartVscan);
             postRequestVscan.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + propertiesResolver.getVscanJwt());
-            HttpResponse postResponseVscan = clientVscan.execute(postRequestVscan);
+            ClassicHttpResponse postResponseVscan = (ClassicHttpResponse) clientVscan.execute(postRequestVscan);
             String vscanResp = IOUtils.toString(postResponseVscan.getEntity().getContent(), StandardCharsets.UTF_8);
-            LOGGER.info("VSCAN Response : {} ({})", postResponseVscan.getStatusLine(), vscanResp);
+            LOGGER.info("VSCAN Response : {} ({})", postResponseVscan.getCode(), vscanResp);
 
             ScanDTO scanDto = mapper.readValue(vscanResp, ScanDTO.class);
             if (!scanDto.isResult()) {
@@ -293,12 +288,12 @@ public class FileUploadController extends AbstractXafController {
         Enumeration<String> headers = request.getHeaderNames();
         while (headers.hasMoreElements()) {
             String headerName = headers.nextElement();
-            if (headerName.startsWith(xafFrontserverUtils.FILE_METADATA_DEMANDEID)) {
+            if (headerName.startsWith(XafFrontserverUtils.FILE_METADATA_DEMANDEID)) {
                 demandeId = request.getHeader(headerName);
             }
         }
         if (demandeId != null) {
-            postRequest.setHeader(xafFrontserverUtils.FILE_METADATA_DEMANDEID, demandeId);
+            postRequest.setHeader(XafFrontserverUtils.FILE_METADATA_DEMANDEID, demandeId);
         }
     }
 
@@ -306,7 +301,7 @@ public class FileUploadController extends AbstractXafController {
      * Constitution de la réponse en redirigeant la réponse du WS ansi que son code réponse
      */
     private ResponseEntity<FileUploadResponseDTO> constituerReponse(String filename, UUID uuid, Integer accessId, HttpResponse postResponse) throws IOException {
-        int statusCode = postResponse.getStatusLine().getStatusCode();
+        int statusCode = postResponse.getCode();
         ResponseEntity response;
         if (statusCode == HttpServletResponse.SC_OK || statusCode == HttpServletResponse.SC_CREATED) {
             // Si tout s'est bien passé, alors on forme une réponse différente que celle qui nous est retournée par FILE
@@ -315,7 +310,7 @@ public class FileUploadController extends AbstractXafController {
         } else {
             LOGGER.error("Status code : {}", statusCode);
             // S'il y a eu un problème, alors on retourne le message d'erreur au client
-            response = ResponseEntity.status(statusCode).body(postResponse.getEntity().getContent());
+            response = ResponseEntity.status(statusCode).body(((ClassicHttpResponse)postResponse).getEntity().getContent());
         }
 
         return response;

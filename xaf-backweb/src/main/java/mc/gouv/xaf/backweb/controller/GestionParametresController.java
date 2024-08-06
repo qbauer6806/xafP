@@ -20,7 +20,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -112,7 +112,7 @@ public class GestionParametresController extends AbstractController {
         try {
             if (!isMotifFound) {
                 // Code motif non exploitable ou non existant
-                motifsFormBean.setIsErrGlobale(true);
+                motifsFormBean.setErrGlobale(true);
             } else {
                 motifsCache.refresh();
             }
@@ -146,7 +146,7 @@ public class GestionParametresController extends AbstractController {
         try {
             if (!isMotifFound) {
                 // Code motif non exploitable ou non existant
-                motifsFormBean.setIsErrGlobale(true);
+                motifsFormBean.setErrGlobale(true);
             } else {
                 motifsCache.refresh();
             }
@@ -181,7 +181,7 @@ public class GestionParametresController extends AbstractController {
             return activationMotif(motifsFormBean);
         }
 
-        if (!(motifsFormBean.getIsErrGlobale() || results.hasErrors())) {
+        if (!(motifsFormBean.isErrGlobale() || results.hasErrors())) {
             return new ModelAndView(REDIRECT_GESTION_PARAMETRES);
         }
 
@@ -210,8 +210,8 @@ public class GestionParametresController extends AbstractController {
                 List<MotifDTO> localAllMotifs = motifsService.getMotifs(gouvPropertiesResolver.getDemarcheId());
                 String code = StringUtils.stripAccents(motifsFormBean.getCode().replace(" ", "_").toUpperCase());
                 if (checkCodeExistence(localAllMotifs, code)) {
-                    motifsFormBean.setIsErrCodeExiste(true);
-                    motifsFormBean.setIsErrGlobale(true);
+                    motifsFormBean.setErrCodeExiste(true);
+                    motifsFormBean.setErrGlobale(true);
                 } else {
                     errorList = createMotif(motifsFormBean, code);
                 }
@@ -231,7 +231,7 @@ public class GestionParametresController extends AbstractController {
         Integer pkMotFr = motifsFormBean.getMotifPkFr();
         String errorList = "";
         if (pkMotFr == null || pkMotFr <= 0) {
-            motifsFormBean.setIsErrGlobale(true);
+            motifsFormBean.setErrGlobale(true);
             errorList = "Motif(s) non identifié(s)";
         } else {
             MotifDTO motif;
@@ -347,13 +347,13 @@ public class GestionParametresController extends AbstractController {
                     }
                 }
             } else {
-                motifsFormBean.setIsErrGlobale(true);
+                motifsFormBean.setErrGlobale(true);
                 errorList = "Motif non identifié";
             }
 
             // Liste des enum actuellement utilisés
             mav.addObject(STATUT_PARAM, getListEnumsContainsMotifs());
-            if (errorList.length() > 0) {
+            if (!errorList.isEmpty()) {
                 mav.addObject(ERROR_LIST, errorList);
             }
         } catch (Exception e) {

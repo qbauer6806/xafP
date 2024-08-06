@@ -1,5 +1,8 @@
 package mc.gouv.xaf.shared.dto;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * Représente une ligne d'historique de demande pour affichage sur une page
  * Le DemandeHistoriqueDTO qui représente ce qu'il est en base, + le contenu POJOifié
@@ -8,26 +11,12 @@ package mc.gouv.xaf.shared.dto;
  * @author qdeme
  *
  */
+@Setter
+@Getter
 public class DemandeHistoriqueAffichageDTO {
     
     private DemandeHistoriqueDTO demHistorique;
     
     private DemandeHistoriqueContenuDTO contenu;
 
-    public DemandeHistoriqueDTO getDemHistorique() {
-        return demHistorique;
-    }
-
-    public void setDemHistorique(DemandeHistoriqueDTO demHistorique) {
-        this.demHistorique = demHistorique;
-    }
-
-    public DemandeHistoriqueContenuDTO getContenu() {
-        return contenu;
-    }
-
-    public void setContenu(DemandeHistoriqueContenuDTO contenu) {
-        this.contenu = contenu;
-    }
-    
 }

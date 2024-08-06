@@ -1,6 +1,8 @@
 package mc.gouv.xaf.back.data.entity;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Représentation BO de la table DEM.TACHES
@@ -19,6 +21,8 @@ import javax.persistence.*;
  *
  * @author mboutelier.ext
  */
+@Setter
+@Getter
 @Entity
 @Table(name = "DEM_TACHES")
 public class TacheBO {
@@ -53,75 +57,4 @@ public class TacheBO {
     @Column(name = "LOCKED", columnDefinition = "BOOLEAN")
     private boolean locked;
 
-    public Integer getPkTaches() {
-        return pkTaches;
-    }
-
-    public void setPkTaches(Integer pkTaches) {
-        this.pkTaches = pkTaches;
-    }
-
-    public DemandeBO getDemande() {
-        return demande;
-    }
-
-    public void setDemande(DemandeBO demande) {
-        this.demande = demande;
-    }
-
-    public String getCodeStatutAgent() {
-        return codeStatutAgent;
-    }
-
-    public void setCodeStatutAgent(String codeStatutAgent) {
-        this.codeStatutAgent = codeStatutAgent;
-    }
-
-    public String getCodeStatutValideur() {
-        return codeStatutValideur;
-    }
-
-    public void setCodeStatutValideur(String codeStatutValideur) {
-        this.codeStatutValideur = codeStatutValideur;
-    }
-
-    public String getCodeMotif() {
-        return codeMotif;
-    }
-
-    public void setCodeMotif(String codeMotif) {
-        this.codeMotif = codeMotif;
-    }
-
-    public String getCodeType() {
-        return codeType;
-    }
-
-    public void setCodeType(String codeType) {
-        this.codeType = codeType;
-    }
-
-    public String getCommentaire() {
-        return commentaire;
-    }
-
-    public void setCommentaire(String commentaire) {
-        this.commentaire = commentaire;
-    }
-
-    public String getContenu() {
-        return contenu;
-    }
-
-    public void setContenu(String contenu) {
-        this.contenu = contenu;
-    }
-
-    public boolean isLocked() {
-        return locked;
-    }
-
-    public void setLocked(boolean locked) {
-        this.locked = locked;
-    }
 }

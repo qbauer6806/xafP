@@ -15,8 +15,6 @@
 
     <!-- Import FONTS -->
     <link th:href="@{/css/font-style.css(${applicationBuildTimestamp})}" rel="stylesheet"/>
-    <!--[if lt IE 8]><!-->
-    <link rel="stylesheet" th:href="@{/webjars/xcb-wlib/fonts/ie7/ie7.css}"/>
 
     <!-- Import CSS -->
     <link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"
@@ -24,10 +22,8 @@
     <link th:href="@{/webjars/xcb-wlib/css/template.css}" rel="stylesheet"/>
     <link th:href="@{/webjars/xcb-wlib/css/sidebar.css}" rel="stylesheet"/>
     <link th:href="@{/webjars/xcb-wlib/css/element.css}" rel="stylesheet"/>
-    <link th:href="@{/webjars/datatables/css/dataTables.bootstrap.css}"
+    <link th:href="@{/webjars/datatables/css/dataTables.bootstrap.min.css}"
           rel="stylesheet"/>
-    <link rel="stylesheet"
-          th:href="@{/webjars/fancybox/jquery.fancybox.css}"/>
     <link rel="shortcut icon" type="image/x-icon"
           th:href="@{/img/favicon.ico}"/>
     <link th:href="@{/css/tsgen.css(${applicationBuildTimestamp})}"
@@ -46,11 +42,11 @@
 </head>
 <body th:with="pageStatistiquesActive='active'">
 
-<div th:replace="fragments/header :: header"></div>
+<div th:replace="~{fragments/header :: header}"></div>
 
 <div id="wrapper">
 
-    <div th:replace="fragments/sidebar :: sidebar"></div>
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
     <!-- DEBUT CONTENU -->
     <div id="page-content-wrapper">
@@ -106,7 +102,7 @@
 
 </div>
 
-<div th:replace="fragments/footer :: footer"></div>
+<div th:replace="~{fragments/footer :: footer}"></div>
 </body>
 
 </body>

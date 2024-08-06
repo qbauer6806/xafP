@@ -3,6 +3,8 @@ package mc.gouv.xaf.shared.dto;
 import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Modélise un courrier généré pour une demande
@@ -10,6 +12,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
  * @author qdeme
  *
  */
+@Setter
+@Getter
 public class DemandeCourrierDTO {
 
     private Integer pkCourrier;
@@ -34,84 +38,4 @@ public class DemandeCourrierDTO {
     
     private String demandeIdentifiant;
 
-    public Integer getPkCourrier() {
-        return pkCourrier;
-    }
-
-    public void setPkCourrier(Integer pkCourrier) {
-        this.pkCourrier = pkCourrier;
-    }
-
-    public Integer getDemandeId() {
-        return demandeId;
-    }
-
-    public void setDemandeId(Integer fkDemandeId) {
-        this.demandeId = fkDemandeId;
-    }
-
-    public DemandeStatutDTO getFkStatut() {
-        return fkStatut;
-    }
-
-    public void setFkStatut(DemandeStatutDTO fkStatut) {
-        this.fkStatut = fkStatut;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public String getMeta() {
-        return meta;
-    }
-
-    public void setMeta(String meta) {
-        this.meta = meta;
-    }
-
-    public Date getDatePrinted() {
-        return datePrinted;
-    }
-
-    public void setDatePrinted(Date datePrinted) {
-        this.datePrinted = datePrinted;
-    }
-
-    public String getIdentifiant() {
-        return identifiant;
-    }
-
-    public void setIdentifiant(String identifiant) {
-        this.identifiant = identifiant;
-    }
-
-    public Date getDateCreation() {
-        return dateCreation;
-    }
-
-    public void setDateCreation(Date dateCreation) {
-        this.dateCreation = dateCreation;
-    }
-
-    public String getDemandeIdentifiant() {
-        return demandeIdentifiant;
-    }
-
-    public void setDemandeIdentifiant(String demandeIdentifiant) {
-        this.demandeIdentifiant = demandeIdentifiant;
-    }
-    
 }

@@ -1,11 +1,11 @@
 package mc.gouv.xaf.api.error.jersey;
 
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.NotSupportedException;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.ExceptionMapper;
-import javax.ws.rs.ext.Provider;
+import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.NotSupportedException;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.ext.ExceptionMapper;
+import jakarta.ws.rs.ext.Provider;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,8 +28,7 @@ public class ApiExceptionHandler implements ExceptionMapper<Exception> {
     @Override
     public Response toResponse(Exception ex) {
         LOGGER.error("Erreur : ", ex);
-        if (ex instanceof WebException) {
-            WebException exception = (WebException) ex;
+        if (ex instanceof WebException exception) {
             var errorsDTO = new ErrorsDTO();
             errorsDTO.setHttpStatus(exception.getHttpStatus());
             errorsDTO.setMessage(exception.getMessage());

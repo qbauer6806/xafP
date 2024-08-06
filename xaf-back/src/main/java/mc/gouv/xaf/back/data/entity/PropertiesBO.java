@@ -1,14 +1,18 @@
 package mc.gouv.xaf.back.data.entity;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Size;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Classe BO de la table DEM.PROPERTIES
  *
  * @author mboutelier.ext
  */
+@Setter
+@Getter
 @Entity
 @Table(name = "DEM_PROPERTIES")
 public class PropertiesBO {
@@ -33,57 +37,10 @@ public class PropertiesBO {
     private String key;
 
     @Column(name = "DESCRIPTIF", length = 256)
-    @Size(min = 0, max = 256)
+    @Size(max = 256)
     private String descriptif;
 
     @Column(name = "\"VALUE\"", columnDefinition = "TEXT")
     private String value;
 
-    public Integer getPkProperties() {
-        return pkProperties;
-    }
-
-    public void setPkProperties(Integer pkProperties) {
-        this.pkProperties = pkProperties;
-    }
-
-    public DemarchesBO getDemarche() {
-        return demarche;
-    }
-
-    public void setDemarche(DemarchesBO demarche) {
-        this.demarche = demarche;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public String getKey() {
-        return key;
-    }
-
-    public void setKey(String key) {
-        this.key = key;
-    }
-
-    public String getDescriptif() {
-        return descriptif;
-    }
-
-    public void setDescriptif(String descriptif) {
-        this.descriptif = descriptif;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
 }

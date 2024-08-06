@@ -21,8 +21,6 @@
 
 <!-- Import FONTS -->
 <link th:href="@{/css/font-style.css(${applicationBuildTimestamp})}" rel="stylesheet" />
-<!--[if lt IE 8]><!-->
-<link rel="stylesheet" th:href="@{/webjars/xcb-wlib/fonts/ie7/ie7.css}" />
 
 <!-- Import CSS -->
 <link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}"
@@ -30,10 +28,8 @@
 <link th:href="@{/webjars/xcb-wlib/css/template.css}" rel="stylesheet" />
 <link th:href="@{/webjars/xcb-wlib/css/sidebar.css}" rel="stylesheet" />
 <link th:href="@{/webjars/xcb-wlib/css/element.css}" rel="stylesheet" />
-<link th:href="@{/webjars/datatables/css/dataTables.bootstrap.css}"
+<link th:href="@{/webjars/datatables/css/dataTables.bootstrap.min.css}"
 	rel="stylesheet" />
-<link rel="stylesheet"
-	th:href="@{/webjars/fancybox/jquery.fancybox.css}" />
 <link rel="shortcut icon" type="image/x-icon"
 	th:href="@{/img/favicon.ico}" />
 <link th:href="@{/css/tsgen.css(${applicationBuildTimestamp})}"
@@ -46,11 +42,11 @@
 
 <body th:with="pageConfigurationActive='active'">
 
-	<div th:replace="fragments/header :: header"></div>
+	<div th:replace="~{fragments/header :: header}"></div>
 
 	<div id="wrapper">
 
-		<div th:replace="fragments/sidebar :: sidebar"></div>
+		<div th:replace="~{fragments/sidebar :: sidebar}"></div>
 
 		<!-- DEBUT CONTENU -->
 		<div id="page-content-wrapper">
@@ -113,57 +109,69 @@
 					</div>
 				</div>
 			</div>
-			<div id="saveConfigJsonConfirmPanel" style="display: none">
-				<div class="container-fluid">
-					<div class="row">
-						<div class="col-xs-12" id="savePropertiesConfirmationMsg"
-							style="padding: 20px">Êtes-vous sûr de vouloir mettre à
-							jour ces libellés ?</div>
-					</div>
-					<div class="col-xs-12">
-                    	<span class="label statusbox en-cours-traitement"><b>ATTENTION</b></span>
-                	</div>
-                	<div class="col-xs-12">
-                    	<span style="color: #EC661C">La modification des libellés impacte également les anciennes demandes.</span>
-                	</div>
-					<div class="row ">
-						<div class=" text-right">
-							<a class="annuler-preview btn btn-action ripple-effect"
-								id="cancelSavePropertiesButton">Annuler</a> <a
-								class="valider-preview btn btn-action ripple-effect"
-								id="saveConfigJsonConfirmButton">Valider</a>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div id="addLibellePanel" style="display: none">
-						<form>
+			<div id="saveConfigJsonConfirmPanel" class="modal fade" tabindex="-1" role="dialog">
+				<div class="modal-dialog" role="document">
+					<div class="modal-content">
+						<div class="modal-body">
 							<div class="container-fluid">
 								<div class="row">
-									<h1>Ajouter un libellé</h1>
+									<div class="col-xs-12" id="savePropertiesConfirmationMsg"
+											 style="padding: 20px">Êtes-vous sûr de vouloir mettre à
+										jour ces libellés ?</div>
 								</div>
-								<div class="row">
-									<div class="form-group" id="addLibelleMsgDiv">
-										<p id="libelleErrorMessage" class="bg-danger"
-											style="padding: 15px; visibility: hidden; display: none;"></p>
-									</div>
-									<div class="form-group">
-										<label for=libelleInput>Libellé</label> <input
-											class="form-control" id="libelleInput">
-									</div>
+								<div class="col-xs-12">
+									<span class="label statusbox en-cours-traitement"><b>ATTENTION</b></span>
+								</div>
+								<div class="col-xs-12">
+									<span style="color: #EC661C">La modification des libellés impacte également les anciennes demandes.</span>
 								</div>
 								<div class="row ">
-									<div class="text-right">
-										<input class="annuler-preview btn btn-action ripple-effect"
-											id="cancelAddLibelleConfirmButton" value="Annuler" /> <input
+									<div class=" text-right">
+										<a class="annuler-preview btn btn-action ripple-effect"
+											 id="cancelSavePropertiesButton">Annuler</a> <a
 											class="valider-preview btn btn-action ripple-effect"
-											id="addLibelleConfirmButton" value="Valider" />
+											id="saveConfigJsonConfirmButton">Valider</a>
 									</div>
 								</div>
-
 							</div>
-						</form>
-					</div>
+						</div>
+					</div><!-- /.modal-content -->
+				</div><!-- /.modal-dialog -->
+			</div><!-- /.modal -->
+			<div id="addLibellePanel" class="modal fade" tabindex="-1" role="dialog">
+				<div class="modal-dialog" role="document">
+					<div class="modal-content">
+						<div class="modal-body">
+							<form>
+								<div class="container-fluid">
+									<div class="row">
+										<h1>Ajouter un libellé</h1>
+									</div>
+									<div class="row">
+										<div class="form-group" id="addLibelleMsgDiv">
+											<p id="libelleErrorMessage" class="bg-danger"
+												 style="padding: 15px; visibility: hidden; display: none;"></p>
+										</div>
+										<div class="form-group">
+											<label for=libelleInput>Libellé</label> <input
+												class="form-control" id="libelleInput">
+										</div>
+									</div>
+									<div class="row ">
+										<div class="text-right">
+											<input class="annuler-preview btn btn-action ripple-effect"
+														 id="cancelAddLibelleConfirmButton" value="Annuler" /> <input
+												class="valider-preview btn btn-action ripple-effect"
+												id="addLibelleConfirmButton" value="Valider" />
+										</div>
+									</div>
+
+								</div>
+							</form>
+						</div>
+					</div><!-- /.modal-content -->
+				</div><!-- /.modal-dialog -->
+			</div><!-- /.modal -->
 
 			<input type="hidden" href="javascript:void(0);" data-type="success"
 				data-delay="5000" data-message="" id="successMessage"
@@ -177,7 +185,7 @@
 
 	</div>
 
-	<div th:replace="fragments/footer :: footer"></div>
+	<div th:replace="~{fragments/footer :: footer}"></div>
 	<script th:inline="javascript">
 	/*<![CDATA[*/
     var key = /*[[${key}]]*/[];
@@ -320,16 +328,12 @@
     });
     
     $("#savePropertiesButton").click(function() {
-    	$.fancybox.open($("#saveConfigJsonConfirmPanel"), {
-    		autoSize : false,
-    		width : "30%",
-    		height : "auto"
-    	});
+			$('#saveConfigJsonConfirmPanel').modal();
 
     });
     
     $("#cancelSavePropertiesButton, #cancelAddLibelleConfirmButton").click(function() {
-		$.fancybox.close();
+		$('.modal').modal('hide');
 	});
     
     $("#saveConfigJsonConfirmButton")
@@ -371,7 +375,7 @@
 								.click();
 								console.log("Success" + data);
 								result.clear();
-								$.fancybox.close();
+								$('.modal').modal('hide');
 								$('#propertiesSetupTable').DataTable().ajax.reload(null, true);
 								checkSavePropertiesButton();
 							},
@@ -492,13 +496,7 @@
     	$("#libelleCatInput").val('');
     	$("#libelleErrorMessage").css("visibility", "hidden").css("display", "none");
 
-    	$.fancybox.open({
-    		src: '#addLibellePanel',
-    		type: 'inline',
-    		btnTpl: {
-    			smallBtn: '<button id="btnFermerPopinIdentifiant" data-fancybox-close="" class="fancybox-close-small" title="Fermer"></button>'
-    		}
-    	});
+			$('#addLibellePanel').modal();
     });
     
     $("#addLibelleConfirmButton").click(
@@ -526,7 +524,7 @@
     						$("#libelleErrorMessage").css("visibility", "hidden").css(
     							"display", "none");
     						$('#propertiesSetupTable').DataTable().ajax.reload(null, true);
-    						$.fancybox.close();
+    						$('.modal').modal('hide');
     					},
     					error : function(xhr) {
     						var error = jQuery.parseJSON(xhr.responseText);
@@ -536,7 +534,6 @@
     										+ error.message);
     						$("#libelleErrorMessage").css("visibility", "visible").css(
     							"display", "block");
-    						$.fancybox.update();
 
     						console.log("failed to submit : " + error);
     					}

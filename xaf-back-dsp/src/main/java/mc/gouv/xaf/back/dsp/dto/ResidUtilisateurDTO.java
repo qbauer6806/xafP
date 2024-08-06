@@ -4,7 +4,11 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.io.Serializable;
+import lombok.Getter;
+import lombok.Setter;
 
+@Setter
+@Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ResidUtilisateurDTO implements Serializable {
@@ -15,19 +19,4 @@ public class ResidUtilisateurDTO implements Serializable {
 
     private String utilisateurMatricule;
 
-    public String getUtilisateurNomPrenom() {
-        return utilisateurNomPrenom;
-    }
-
-    public void setUtilisateurNomPrenom(String utilisateurNomPrenom) {
-        this.utilisateurNomPrenom = utilisateurNomPrenom;
-    }
-
-    public String getUtilisateurMatricule() {
-        return utilisateurMatricule;
-    }
-
-    public void setUtilisateurMatricule(String utilisateurMatricule) {
-        this.utilisateurMatricule = utilisateurMatricule;
-    }
 }

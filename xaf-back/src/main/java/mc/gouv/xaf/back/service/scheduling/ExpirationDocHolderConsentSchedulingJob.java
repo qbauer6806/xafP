@@ -4,25 +4,23 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import mc.gouv.xaf.back.data.dao.AccessRepository;
-import mc.gouv.xaf.back.data.entity.AccessBO;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.data.PropertiesService;
-import mc.gouv.xaf.shared.dto.PropertiesDTO;
-import org.apache.http.HttpStatus;
-import org.quartz.Job;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
+import mc.gouv.xaf.back.data.dao.AccessRepository;
+import mc.gouv.xaf.back.data.entity.AccessBO;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.data.PropertiesService;
+import mc.gouv.xaf.shared.dto.PropertiesDTO;
+import org.quartz.Job;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Job permettant l'expiration des consentements porte-documents périmés côté TS
@@ -36,8 +34,6 @@ public class ExpirationDocHolderConsentSchedulingJob implements Job {
     @Autowired
     private PropertiesService propertiesService;
 
-    private static final String JOB_NAME = "ExpirationDocHolderConsentSchedulingJob";
-    private static final String TRIGGER_NAME = "ExpirationDocHolderConsentSchedulingTrigger";
     private static final String DOCHOLDER_CONSENT_NODE = "docholderConsent";
     private static final String CONSENTING_NODE = "consenting";
     private static final String DATE_CREATION_NODE = "dateCreation";

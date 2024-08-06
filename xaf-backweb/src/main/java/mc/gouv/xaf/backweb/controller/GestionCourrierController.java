@@ -1,8 +1,8 @@
 package mc.gouv.xaf.backweb.controller;
 
-import mc.gouv.xaf.backweb.properties.BackGouvPropertiesResolver;
-import mc.gouv.xaf.back.service.DemarchesDataProvider;
+import java.util.Date;
 import mc.gouv.xaf.back.service.data.DemandesCourriersService;
+import mc.gouv.xaf.backweb.properties.BackGouvPropertiesResolver;
 import mc.gouv.xaf.shared.dto.DemandeCourrierDTO;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.slf4j.Logger;
@@ -10,10 +10,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-
-import java.util.Date;
 
 /**
  * Controller pour la page /gestioncourrier
@@ -33,15 +34,11 @@ public class GestionCourrierController extends AbstractController {
     @Autowired
     private DemandesCourriersService demandesCourrierService;
 
-    @Autowired
-    private DemarchesDataProvider demarchesDataProvider;
-
     @Secured({"ROLE_TRAITEMENT","ROLE_SAISIE"})
     @GetMapping
     public ModelAndView form() {
         LOGGER.info("======================= Appel de la page /gestion/courriers");
         ModelAndView mav = new ModelAndView("gestion/courriers/gestioncourrier");
-        mav.addObject("statuts", demarchesDataProvider.getStatusMap());
         LOGGER.info("======================= Fin /gestion/courriers");
         return mav;
     }

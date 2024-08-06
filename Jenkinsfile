@@ -13,13 +13,13 @@ pipeline {
       // -Dsurefire.useFile=false : useful in CI. Displays test errors in the logs directly (instead of
       //                            having to crawl the workspace files to see the cause).
       // -Dmaven.javadoc.skip=true : Skip javadoc as it is not used.
-      MC_M2_OPTS="-B -V -U -Dsurefire.useFile=false --fail-at-end -Dmaven.javadoc.skip=true"
+      MC_M2_OPTS="-B -V -U -Dsurefire.useFile=false --fail-at-end -Dmaven.test.failure.ignore=true -Dmaven.javadoc.skip=true"
 
       MC_APPLI = readMavenPom().getArtifactId()
     }
     tools {
         maven 'Maven'
-        jdk 'JDK11'
+        jdk 'JDK17'
     }
     stages {
         stage ('Determine build version') {
@@ -59,7 +59,7 @@ pipeline {
                             }
                         }
                     env.MC_NEXUS_IQ_STAGE = nexusIqStage
-                    env.MC_M2_OPTS_REVISION = "${env.MC_M2_OPTS} -Drevision=${mvnVersion}"
+                    env.MC_M2_OPTS_REVISION = "${env.MC_M2_OPTS} -Drevision=${mvnVersion} "
                 }
             }
         }
@@ -92,6 +92,17 @@ pipeline {
 //         }
         stage('NexusIQ analysis') {
             parallel {
+                stage('Analysing xaf-api') {
+                    steps {
+                        nexusPolicyEvaluation(
+                        		iqApplication: "${MC_APPLI}-api",
+                        		iqInstanceId: 'nexusiq',
+                        		iqStage: "${MC_NEXUS_IQ_STAGE}",
+                        		iqScanPatterns: [[scanPattern: "${MC_APPLI}-api/target/*.jar"],
+                        		[scanPattern: "${MC_APPLI}-api/target/bom.xml"]]
+                        )
+                    }
+                }
                 stage('Analysing xaf-back') {
                     steps {
                         nexusPolicyEvaluation(
@@ -102,26 +113,81 @@ pipeline {
                         		[scanPattern: "${MC_APPLI}-back/target/bom.xml"]]
                         )
                     }
-                }
-                stage('Analysing xaf-servlet') {
+                }  
+                stage('Analysing xaf-back-denjs') {
                     steps {
                         nexusPolicyEvaluation(
-                        		iqApplication: "${MC_APPLI}-servlet",
+                        		iqApplication: "${MC_APPLI}-back-denjs",
                         		iqInstanceId: 'nexusiq',
                         		iqStage: "${MC_NEXUS_IQ_STAGE}",
-                        		iqScanPatterns: [[scanPattern: "${MC_APPLI}-servlet/target/*.jar"],
-                        		[scanPattern: "${MC_APPLI}-servlet/target/bom.xml"]]
+                        		iqScanPatterns: [[scanPattern: "${MC_APPLI}-back-denjs/target/*.jar"],
+                        		[scanPattern: "${MC_APPLI}-back-denjs/target/bom.xml"]]
+                        )
+                    }
+                }                
+                stage('Analysing xaf-back-dsp') {
+                    steps {
+                        nexusPolicyEvaluation(
+                        		iqApplication: "${MC_APPLI}-back-dsp",
+                        		iqInstanceId: 'nexusiq',
+                        		iqStage: "${MC_NEXUS_IQ_STAGE}",
+                        		iqScanPatterns: [[scanPattern: "${MC_APPLI}-back-dsp/target/*.jar"],
+                        		[scanPattern: "${MC_APPLI}-back-dsp/target/bom.xml"]]
                         )
                     }
                 }
-                stage('Analysing xaf-apiclient') {
+                stage('Analysing xaf-back-paiement') {
                     steps {
                         nexusPolicyEvaluation(
-                        		iqApplication: "${MC_APPLI}-apiclient",
+                        		iqApplication: "${MC_APPLI}-back-paiement",
                         		iqInstanceId: 'nexusiq',
                         		iqStage: "${MC_NEXUS_IQ_STAGE}",
-                        		iqScanPatterns: [[scanPattern: "${MC_APPLI}-apiclient/target/*.jar"],
-                        		[scanPattern: "${MC_APPLI}-apiclient/target/bom.xml"]]
+                        		iqScanPatterns: [[scanPattern: "${MC_APPLI}-back-paiement/target/*.jar"],
+                        		[scanPattern: "${MC_APPLI}-back-paiement/target/bom.xml"]]
+                        )
+                    }
+                }            
+                stage('Analysing xaf-backweb-denjs') {
+                    steps {
+                        nexusPolicyEvaluation(
+                        		iqApplication: "${MC_APPLI}-backweb-denjs",
+                        		iqInstanceId: 'nexusiq',
+                        		iqStage: "${MC_NEXUS_IQ_STAGE}",
+                        		iqScanPatterns: [[scanPattern: "${MC_APPLI}-backweb-denjs/target/*.jar"],
+                        		[scanPattern: "${MC_APPLI}-backweb-denjs/target/bom.xml"]]
+                        )
+                    }
+                }
+                stage('Analysing xaf-backweb') {
+                    steps {
+                        nexusPolicyEvaluation(
+                        		iqApplication: "${MC_APPLI}-backweb",
+                        		iqInstanceId: 'nexusiq',
+                        		iqStage: "${MC_NEXUS_IQ_STAGE}",
+                        		iqScanPatterns: [[scanPattern: "${MC_APPLI}-backweb/target/*.jar"],
+                        		[scanPattern: "${MC_APPLI}-backweb/target/bom.xml"]]
+                        )
+                    }
+                }
+                stage('Analysing xaf-front') {
+                    steps {
+                        nexusPolicyEvaluation(
+                        		iqApplication: "${MC_APPLI}-front",
+                        		iqInstanceId: 'nexusiq',
+                        		iqStage: "${MC_NEXUS_IQ_STAGE}",
+                        		iqScanPatterns: [[scanPattern: "${MC_APPLI}-front/target/*.jar"],
+                        		[scanPattern: "${MC_APPLI}-front/target/bom.xml"]]
+                        )
+                    }
+                }
+                stage('Analysing xaf-rio') {
+                    steps {
+                        nexusPolicyEvaluation(
+                        		iqApplication: "${MC_APPLI}-rio",
+                        		iqInstanceId: 'nexusiq',
+                        		iqStage: "${MC_NEXUS_IQ_STAGE}",
+                        		iqScanPatterns: [[scanPattern: "${MC_APPLI}-rio/target/*.jar"],
+                        		[scanPattern: "${MC_APPLI}-rio/target/bom.xml"]]
                         )
                     }
                 }

@@ -10,25 +10,15 @@
     <artifactId>xaf-caching</artifactId>
 
 	<properties>
-		<maven.compiler.source>11</maven.compiler.source>
-		<maven.compiler.target>11</maven.compiler.target>
+		<maven.compiler.source>17</maven.compiler.source>
+		<maven.compiler.target>17</maven.compiler.target>
 	</properties>
 
     <dependencies>
         <dependency>
-            <groupId>mc.gouv.xapi</groupId>
-            <artifactId>xapi-shared</artifactId>
-            <version>${xapi.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+          <scope>test</scope>
         </dependency>
 
         <dependency>

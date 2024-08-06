@@ -20,7 +20,7 @@ public class BasicAuthorizationHeaderProvider implements AuthorizationHeaderProv
 
     @Override
     public String getHeaderValue() {
-        return "Basic " + new String(Base64.encodeBase64(new String(user + ":" + password).getBytes()));
+        return "Basic " + new String(Base64.encodeBase64((user + ":" + password).getBytes()));
     }
 
 }

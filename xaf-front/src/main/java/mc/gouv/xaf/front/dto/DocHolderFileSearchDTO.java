@@ -2,7 +2,11 @@ package mc.gouv.xaf.front.dto;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 
+@Setter
+@Getter
 public class DocHolderFileSearchDTO {
     public enum OperatorEnum {
         AND("And"),
@@ -23,19 +27,4 @@ public class DocHolderFileSearchDTO {
         metas = new ArrayList<>();
     }
 
-    public OperatorEnum getOperator() {
-        return operator;
-    }
-
-    public void setOperator(OperatorEnum operator) {
-        this.operator = operator;
-    }
-
-    public List<DocHolderFileSearchMetaDTO> getMetas() {
-        return metas;
-    }
-
-    public void setMetas(List<DocHolderFileSearchMetaDTO> metas) {
-        this.metas = metas;
-    }
 }

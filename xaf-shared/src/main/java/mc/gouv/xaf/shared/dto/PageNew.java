@@ -1,6 +1,8 @@
 package mc.gouv.xaf.shared.dto;
 
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Copie de org.springframework.data.domain.Page pour ne pas avoir de dépendance avec Spring dans le client, et pour matcher les besoins front
@@ -9,58 +11,36 @@ import java.util.List;
  * @param <T>
  * @author uek
  */
+@Setter
+@Getter
 public class PageNew<T> {
 
-    private long itemsCounter;
-
-    private int page;
-
-    private int itemsPerPage;
-
-    private List<T> currentPageItems;
-
     /**
+     * -- GETTER --
+     *
      * @return the total amount of elements
      */
-    public long getItemsCounter() {
-        return itemsCounter;
-    }
-
-    public void setItemsCounter(long itemsCounter) {
-        this.itemsCounter = itemsCounter;
-    }
+    private long itemsCounter;
 
     /**
+     * -- GETTER --
+     *
      * @return the number of the current {@link org.springframework.data.domain.Slice}.
      */
-    public int getPage() {
-        return this.page;
-    }
-
-    public void setPage(int page) {
-        this.page = page;
-    }
+    private int page;
 
     /**
+     * -- GETTER --
+     *
      * @return the size of the {@link org.springframework.data.domain.Slice}.
      */
-    public int getItemsPerPage() {
-        return this.itemsPerPage;
-    }
-
-    public void setItemsPerPage(int itemsPerPage) {
-        this.itemsPerPage = itemsPerPage;
-    }
+    private int itemsPerPage;
 
     /**
+     * -- GETTER --
+     *
      * @return the page content as {@link List}.
      */
-    public List<T> getCurrentPageItems() {
-        return currentPageItems;
-    }
-
-    public void setCurrentPageItems(List<T> currentPageItems) {
-        this.currentPageItems = currentPageItems;
-    }
+    private List<T> currentPageItems;
 
 }

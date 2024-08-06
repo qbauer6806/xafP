@@ -2,7 +2,7 @@ package mc.gouv.xaf.back.service.utils;
 
 import java.util.Comparator;
 
-import mc.gouv.logon.shared.User;
+import mc.gouv.xaf.back.service.itg.logon.dto.User;
 
 /**
  * Classe servant à trier des agents par nom

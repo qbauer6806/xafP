@@ -1,11 +1,18 @@
 package mc.gouv.xaf.back.bpm.model;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
 /**
  * Représente un groupe du BPM du gouvernement
  * 
  * @author qdeme
  *
  */
+@ToString
+@Setter
+@Getter
 public class GouvBPMGroup {
     
     private String id;
@@ -13,34 +20,5 @@ public class GouvBPMGroup {
     private String name;
     
     private String type;
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    @Override
-    public String toString() {
-        return "GouvBPMGroup [id=" + id + ", name=" + name + ", type=" + type + "]";
-    }
     
 }

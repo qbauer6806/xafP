@@ -1,6 +1,7 @@
 package mc.gouv.xaf.back.service.itg.mail;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import java.io.IOException;
 import mc.gouv.xaf.back.exception.DemarchesServiceException;
 import mc.gouv.xaf.shared.enums.MailAudienceEnum;
 
@@ -35,7 +36,7 @@ public interface MailService {
 	 * @return [0] contient le titre, [1] contient le contenu en HTML
 	 * @throws DemarchesServiceException si les appels à velocity ne fonctionne pas
 	 */
-	String[] getMailPreview(String bodyTemplateCode, String subjectTemplateCode, String langue, Map<String, Object> model) throws Exception;
+	String[] getMailPreview(String bodyTemplateCode, String subjectTemplateCode, String langue, Map<String, Object> model) throws IOException;
 
 	/**
 	 * Permet de formater le commentaire afin d'y ajouter les sauts de lignes

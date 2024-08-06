@@ -1,5 +1,6 @@
 package mc.gouv.xaf.front.properties;
 
+import lombok.Getter;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -7,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
@@ -34,21 +35,26 @@ public class FrontGouvPropertiesResolver {
     private String applicationName;
 
     // GLOBAL
+    @Getter
     @Value("${mc.gouv.servicerest.api.pays.url}")
     private String paysUrl;
 
+    @Getter
     @Value("${mc.gouv.file.api.url}")
     private String fileUrl;
 
     @Value("${mc.gouv.tgf.api.url}")
     private String tgfApiUrl;
 
+    @Getter
     @Value("${mc.gouv.vscan.api.url}")
     private String vscanUrl;
 
+    @Getter
     @Value("${mc.gouv.gichkey.url}")
     private String gichkeyUrl;
 
+    @Getter
     @Value("${mc.gouv.gichuni.api.url}")
     private String gichuniUrl;
 
@@ -75,24 +81,29 @@ public class FrontGouvPropertiesResolver {
     @Value("${mc.gouv.${application.name}.frontserver.redirectToBo.url}")
     private String demandeUrl;
 
+    @Getter
     @Value("${mc.gouv.${application.name}.frontserver.api.url}")
     private String apiUrl;
 
     @Value("${mc.gouv.${application.name}.frontserver.jwt}")
     private String frontserverJwt;
 
+    @Getter
     @Value("${mc.gouv.${application.name}.frontserver.file.jwt}")
     private String fileJwt;
 
     @Value("${mc.gouv.${application.name}.frontserver.tgf.jwt}")
     private String tgfApiJwt;
 
+    @Getter
     @Value("${mc.gouv.${application.name}.frontserver.vscan.jwt}")
     private String vscanJwt;
 
+    @Getter
     @Value("${mc.gouv.frontserver.max.upload.intervalle}")
     private String maxUploadParIntervalle;
 
+    @Getter
     @Value("${mc.gouv.frontserver.temps.upload.intervalle}")
     private String tempsIntervalleUpload;
 
@@ -102,21 +113,26 @@ public class FrontGouvPropertiesResolver {
     @Value("${mc.gouv.${application.name}.frontserver.gichkey.keycloak.redirect.uri}")
     private String gichkeyKeycloakRedirectUrl;
 
+    @Getter
     @Value("${mc.gouv.gichuni.profil.particulier.url}")
     private String gichuniProfilIndividualUrl;
 
+    @Getter
     @Value("${mc.gouv.gichuni.profil.entreprise.url}")
     private String gichuniProfilCompanyUrl;
 
+    @Getter
     @Value("${mc.gouv.${application.name}.frontserver.gichkey.client_id}")
     private String gichkeyClientId;
 
+    @Getter
     @Value("${mc.gouv.${application.name}.frontserver.gichkey.client_secret}")
     private String gichkeyClientSecret;
 
     @Value("${mc.gouv.${application.name}.frontserver.paiement.provider:}")
     private String paiementProvider;
 
+    @Getter
     @Value("${mc.gouv.gichuni.front.url}")
     private String gichuniFrontUrl;
 
@@ -133,12 +149,16 @@ public class FrontGouvPropertiesResolver {
     @Value("${mc.gouv.${application.name}.frontserver.2tiers.activation:false}")
     private String proxy2tiersActivation;
 
+    @Getter
     @Value("${mc.gouv.gichuni.demarche.particulier.url.fr:OPTIONAL}")
     private String gichuniDemarcheParticulierUrlFr;
+    @Getter
     @Value("${mc.gouv.gichuni.demarche.particulier.url.en:OPTIONAL}")
     private String gichuniDemarcheParticulierUrlEn;
+    @Getter
     @Value("${mc.gouv.gichuni.demarche.entreprise.url.fr:OPTIONAL}")
     private String gichuniDemarcheEntrepriseUrlFr;
+    @Getter
     @Value("${mc.gouv.gichuni.demarche.entreprise.url.en:OPTIONAL}")
     private String gichuniDemarcheEntrepriseUrlEn;
 
@@ -184,8 +204,8 @@ public class FrontGouvPropertiesResolver {
     private void checkProperties(List<String> propertiesNotFound, Method method, PropertyDescriptor propertyDescriptor) throws InvocationTargetException, IllegalAccessException {
         try {
             Object value = method.invoke(this);
-            if (value instanceof String) {
-                if (StringUtils.isBlank((String) value)) {
+            if (value instanceof String s) {
+                if (StringUtils.isBlank(s)) {
                     propertiesNotFound.add(propertyDescriptor.getReadMethod().toString());
                 }
             } else if (value == null) {
@@ -201,14 +221,6 @@ public class FrontGouvPropertiesResolver {
         return applicationName;
     }
 
-    public String getPaysUrl() {
-        return paysUrl;
-    }
-
-    public String getFileUrl() {
-        return fileUrl;
-    }
-
     public String getGichkeyRedirectUrl() {
         return gichkeyRedirectUrl.replace("<redirect_uri>", getGichkeyKeycloakRedirectUri());
     }
@@ -217,19 +229,7 @@ public class FrontGouvPropertiesResolver {
         return gichkeyKeycloakRedirectUrl;
     }
 
-    public String getGichuniProfilIndividualUrl() {
-        return gichuniProfilIndividualUrl;
-    }
-
-    public String getGichuniProfilCompanyUrl() {
-        return gichuniProfilCompanyUrl;
-    }
-
     /* Properties propres à la démarche */
-
-    public String getApiUrl() {
-        return apiUrl;
-    }
 
     public String getBackOfficeUrl() {
         return backUrl;
@@ -241,10 +241,6 @@ public class FrontGouvPropertiesResolver {
 
     public String getSharedKey() {
         return frontserverKey;
-    }
-
-    public String getFileJwt() {
-        return fileJwt;
     }
 
     public String getApiJwt() {
@@ -259,23 +255,6 @@ public class FrontGouvPropertiesResolver {
         return StringUtils.isBlank(tgfApiJwt) ? "vide" : tgfApiJwt;
     }
 
-    public String getVscanUrl() {
-        return vscanUrl;
-    }
-
-    public String getVscanJwt() {
-        return vscanJwt;
-    }
-
-    public String getMaxUploadParIntervalle() {
-        return maxUploadParIntervalle;
-    }
-
-    public String getTempsIntervalleUpload() {
-        return tempsIntervalleUpload;
-    }
-
-
     public String getFrontofficeCopyrightYears() {
         return copyrightYears;
     }
@@ -286,22 +265,6 @@ public class FrontGouvPropertiesResolver {
 
     public String getFrontofficePiwikURL() {
         return piwikUrl;
-    }
-
-    public String getGichkeyUrl() {
-        return gichkeyUrl;
-    }
-
-    public String getGichuniUrl() {
-        return gichuniUrl;
-    }
-
-    public String getGichkeyClientId() {
-        return gichkeyClientId;
-    }
-
-    public String getGichkeyClientSecret() {
-        return gichkeyClientSecret;
     }
 
     public String getPaiementProvider() {
@@ -317,26 +280,6 @@ public class FrontGouvPropertiesResolver {
     public String getPorteDocUrl() {
         String value = getGichuniUrl();
         return StringUtils.isBlank(value) ? "vide" : value + "/public/doc-holder";
-    }
-
-    public String getGichuniFrontUrl() {
-        return gichuniFrontUrl;
-    }
-
-    public String getGichuniDemarcheParticulierUrlFr() {
-        return gichuniDemarcheParticulierUrlFr;
-    }
-
-    public String getGichuniDemarcheParticulierUrlEn() {
-        return gichuniDemarcheParticulierUrlEn;
-    }
-
-    public String getGichuniDemarcheEntrepriseUrlFr() {
-        return gichuniDemarcheEntrepriseUrlFr;
-    }
-
-    public String getGichuniDemarcheEntrepriseUrlEn() {
-        return gichuniDemarcheEntrepriseUrlEn;
     }
 
     public String getLienRevocationCertifsElectroniquesFr() {

@@ -2,9 +2,11 @@ package mc.gouv.xaf.shared.dto;
 
 import java.util.Date;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Modélise la partie "Question" d'une demande d'informations complémentaires
@@ -12,6 +14,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
  * @author qdeme
  *
  */
+@Setter
+@Getter
 public class DemandeComplementsQuestionDTO {
     
     @NotNull
@@ -26,36 +30,4 @@ public class DemandeComplementsQuestionDTO {
     @NotNull
     private String agentId;
 
-    public String getTexte() {
-        return texte;
-    }
-
-    public void setTexte(String texte) {
-        this.texte = texte;
-    }
-
-    public Date getDate() {
-        return date;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
-    }
-
-    public String getAgentId() {
-        return agentId;
-    }
-
-    public void setAgentId(String agentId) {
-        this.agentId = agentId;
-    }
-
-    public String getCodeMotif() {
-        return codeMotif;
-    }
-
-    public void setCodeMotif(String codeMotif) {
-        this.codeMotif = codeMotif;
-    }
-    
 }

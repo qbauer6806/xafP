@@ -4,9 +4,15 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.io.Serializable;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
+@Setter
+@Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@ToString
 public class ResidErrorDTO implements Serializable {
 
     private static final long serialVersionUID = 1816812821148531478L;
@@ -18,46 +24,4 @@ public class ResidErrorDTO implements Serializable {
     private String nom;
 
     private String clef;
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public String getLibelle() {
-        return libelle;
-    }
-
-    public void setLibelle(String libelle) {
-        this.libelle = libelle;
-    }
-
-    public String getNom() {
-        return nom;
-    }
-
-    public void setNom(String nom) {
-        this.nom = nom;
-    }
-
-    public String getClef() {
-        return clef;
-    }
-
-    public void setClef(String clef) {
-        this.clef = clef;
-    }
-
-    @Override
-    public String toString() {
-        return "ResidErrorDTO{" +
-                "code='" + code + '\'' +
-                ", libelle='" + libelle + '\'' +
-                ", nom='" + nom + '\'' +
-                ", clef='" + clef + '\'' +
-                '}';
-    }
 }

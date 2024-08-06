@@ -1,22 +1,20 @@
 package mc.gouv.xaf.back.data.entity;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import java.util.Set;
+import lombok.Getter;
+import lombok.Setter;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-
-import org.springframework.context.annotation.Conditional;
-
-import mc.gouv.xaf.back.config.es.IndexationEnabledCondition;
-
-@Conditional(IndexationEnabledCondition.class)
+@Setter
+@Getter
 @Entity
 @Table(name = "dem_recherche_cat_config")
 public class RechercheCatConfigBO {
@@ -42,38 +40,6 @@ public class RechercheCatConfigBO {
         super();
         this.libelle = libelle;
         this.editable = editable;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getLibelle() {
-        return libelle;
-    }
-
-    public void setLibelle(String libelle) {
-        this.libelle = libelle;
-    }
-
-    public boolean isEditable() {
-        return editable;
-    }
-
-    public void setEditable(boolean editable) {
-        this.editable = editable;
-    }
-
-    public Set<RechercheChampConfigBO> getChamps() {
-        return champs;
-    }
-
-    public void setChamps(Set<RechercheChampConfigBO> champs) {
-        this.champs = champs;
     }
 
 }

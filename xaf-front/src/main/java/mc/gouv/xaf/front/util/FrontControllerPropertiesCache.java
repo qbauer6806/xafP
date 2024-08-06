@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 
@@ -45,7 +44,7 @@ public class FrontControllerPropertiesCache {
 	}
 	
 	public PropertiesDTO getFrontProperty(String key) {
-		List<PropertiesDTO> propFiltrees = getFrontProperties().stream().filter(prop -> prop.getKey().equals(key)).collect(Collectors.toList());
+		List<PropertiesDTO> propFiltrees = getFrontProperties().stream().filter(prop -> prop.getKey().equals(key)).toList();
         return (!propFiltrees.isEmpty()) ? propFiltrees.get(0) : null;
 	}
 

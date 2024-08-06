@@ -1,7 +1,11 @@
 package mc.gouv.xaf.shared.dto;
 
 import java.util.Map;
+import lombok.Getter;
+import lombok.Setter;
 
+@Setter
+@Getter
 public class PdfTemplateAndModelDTO {
 	
 	private String templateFilename;
@@ -10,28 +14,4 @@ public class PdfTemplateAndModelDTO {
 	
 	private Map<String,Object> model;
 
-	public String getTemplateFilename() {
-		return templateFilename;
-	}
-
-	public void setTemplateFilename(String templateFilename) {
-		this.templateFilename = templateFilename;
-	}
-
-	public String getFilename() {
-		return filename;
-	}
-
-	public void setFilename(String filename) {
-		this.filename = filename;
-	}
-
-	public Map<String, Object> getModel() {
-		return model;
-	}
-
-	public void setModel(Map<String, Object> model) {
-		this.model = model;
-	}
-	
 }

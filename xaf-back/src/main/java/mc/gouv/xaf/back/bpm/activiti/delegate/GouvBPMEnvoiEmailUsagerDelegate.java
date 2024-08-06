@@ -1,16 +1,8 @@
 package mc.gouv.xaf.back.bpm.activiti.delegate;
 
 import java.util.Map;
-
-import org.activiti.engine.delegate.DelegateExecution;
-import org.activiti.engine.delegate.JavaDelegate;
-import org.activiti.engine.impl.el.Expression;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
+import lombok.Getter;
+import lombok.Setter;
 import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
 import mc.gouv.xaf.back.service.data.DemandesService;
@@ -20,7 +12,16 @@ import mc.gouv.xaf.back.service.itg.mail.MailTemplateModelProvider;
 import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeUsagerDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
+import org.apache.commons.lang3.StringUtils;
+import org.flowable.common.engine.api.delegate.Expression;
+import org.flowable.engine.delegate.DelegateExecution;
+import org.flowable.engine.delegate.JavaDelegate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * 
@@ -52,25 +53,32 @@ public class GouvBPMEnvoiEmailUsagerDelegate implements JavaDelegate {
     @Autowired
     private MailTemplateModelProvider mailTemplateModelProvider;
 
+    @Setter
+    @Getter
     private Expression emailBodyTemplateCode;
 
+    @Setter
+    @Getter
     private Expression emailSubjectTemplateCode;
     
     private Expression copieCacheeAuService;
 
     @Override
-	public void execute(DelegateExecution execution) throws Exception {
+    public void execute(DelegateExecution execution) {
 
 		LOGGER.info("==== xaf-back ENVOI EMAIL USAGER ...");
 		Integer usagerId = (Integer) execution.getVariable(GouvBPMProcessVariableTypeEnum.MC_USAGERID.name());
 		GichuniUsagerDTO usager = usagerCache.get(usagerId, true);
-		Integer demandeId = Integer.parseInt(execution.getProcessBusinessKey());
+		Integer demandeId = Integer.parseInt(execution.getProcessInstanceBusinessKey());
 		DemandeDTO demande = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), demandeId);
 		if (usager == null) {
-			usager = new GichuniUsagerDTO();
-			usager.setNom(demande.getUsagerNom());
-			usager.setPrenom(demande.getUsagerPrenom());
-			usager.setEmail(demande.getUsagerEmail());
+            usager = new GichuniUsagerDTO();
+            DemandeUsagerDTO usagerDto = demande.getUsager();
+            if (usagerDto != null) {
+                usager.setNom(usagerDto.getNom());
+                usager.setPrenom(usagerDto.getPrenom());
+                usager.setEmail(usagerDto.getEmail());
+            }
 		}
 
 		String bodyTemplateCode = (String) emailBodyTemplateCode.getValue(execution);
@@ -101,7 +109,7 @@ public class GouvBPMEnvoiEmailUsagerDelegate implements JavaDelegate {
 		}
 
         emailInfo.addTo(usager.getEmail(), prenom + " " + nom);
-        emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, execution.getProcessBusinessKey());
+        emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, execution.getProcessInstanceBusinessKey());
         emailInfo.setLangue(langue);
         
         if ("true".equals(copieCacheeAuServiceStr)) {
@@ -124,21 +132,5 @@ public class GouvBPMEnvoiEmailUsagerDelegate implements JavaDelegate {
 
 		LOGGER.info("==== xaf-back ENVOI EMAIL USAGER <fin>");
 	}
-
-    public Expression getEmailBodyTemplateCode() {
-        return emailBodyTemplateCode;
-    }
-
-    public void setEmailBodyTemplateCode(Expression emailBodyTemplateCode) {
-        this.emailBodyTemplateCode = emailBodyTemplateCode;
-    }
-
-    public Expression getEmailSubjectTemplateCode() {
-        return emailSubjectTemplateCode;
-    }
-
-    public void setEmailSubjectTemplateCode(Expression emailSubjectTemplateCode) {
-        this.emailSubjectTemplateCode = emailSubjectTemplateCode;
-    }
 
 }

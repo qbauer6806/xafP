@@ -6,17 +6,19 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import lombok.Getter;
+import lombok.Setter;
 import mc.gouv.xaf.shared.enums.MailAudienceEnum;
-import org.activiti.engine.delegate.DelegateExecution;
-import org.activiti.engine.delegate.JavaDelegate;
-import org.activiti.engine.impl.el.Expression;
+import org.flowable.engine.delegate.DelegateExecution;
+import org.flowable.engine.delegate.JavaDelegate;
+import org.flowable.common.engine.api.delegate.Expression;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import mc.gouv.logon.shared.User;
+import mc.gouv.xaf.back.service.itg.logon.dto.User;
 import mc.gouv.xaf.back.denjs.dto.DenjsAffectationAgentDTO;
 import mc.gouv.xaf.back.denjs.service.DenjsAffectationService;
 import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
@@ -40,7 +42,7 @@ import mc.gouv.xaf.shared.dto.DemandeDTO;
 public class GouvBPMEnvoiEmailAgentsEtablissementAffecteWithRoleDelegate implements JavaDelegate {
 
     private static final Logger LOGGER = LoggerFactory
-            .getLogger(GouvBPMEnvoiEmailAgentsEtablissementAffecteDelegate.class);
+            .getLogger(GouvBPMEnvoiEmailAgentsEtablissementAffecteWithRoleDelegate.class);
 
     @Autowired
     private AfBackUtils afBackUtils;
@@ -63,14 +65,18 @@ public class GouvBPMEnvoiEmailAgentsEtablissementAffecteWithRoleDelegate impleme
     @Autowired
     private DenjsAffectationService denjsAffectationService;
 
+    @Setter
+    @Getter
     private Expression emailBodyTemplateCode;
 
+    @Setter
+    @Getter
     private Expression emailSubjectTemplateCode;
 
     private Expression roles;
 
     @Override
-    public void execute(DelegateExecution execution) throws Exception {
+    public void execute(DelegateExecution execution) {
 
         LOGGER.info("==== xaf-denjs ENVOI EMAIL AGENT DE L'ETABLISSEMENT AFFECTÉ ...");
 
@@ -80,14 +86,14 @@ public class GouvBPMEnvoiEmailAgentsEtablissementAffecteWithRoleDelegate impleme
         LOGGER.info("bodyTemplateCode : {}", bodyTemplateCode);
         LOGGER.info("subjectTemplateCode : {}", subjectTemplateCode);
 
-        Integer demandeId = Integer.parseInt(execution.getProcessBusinessKey());
+        Integer demandeId = Integer.parseInt(execution.getProcessInstanceBusinessKey());
 
         String rolesStr = (String) roles.getValue(execution);
         String[] rolesList = rolesStr.split(",");
         Set<String> listAgentWithRole = afBackUtils.getAgentsWithRoles(rolesList).stream().map(User::getMatricule)
                 .collect(Collectors.toSet());
 
-        List<String> matriculesDestinataires = new ArrayList<String>();
+        List<String> matriculesDestinataires = new ArrayList<>();
         String etablissementCode = denjsAffectationService.getAffectationDemandeEtablissement(demandeId);
         if (etablissementCode != null) {
             List<DenjsAffectationAgentDTO> affectations = denjsAffectationService.getAffectationsAgents();
@@ -117,7 +123,7 @@ public class GouvBPMEnvoiEmailAgentsEtablissementAffecteWithRoleDelegate impleme
 
         LOGGER.info("Liste des adresses destinataires de cet e-mail : {}", emailInfo.getTo());
 
-        emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, execution.getProcessBusinessKey());
+        emailInfo.addParam(AfBackUtils.MAIL_METADATA_DEMANDEID, execution.getProcessInstanceBusinessKey());
         emailInfo.setLangue("fr");
 
         DemandeDTO demande = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(), demandeId);
@@ -150,22 +156,6 @@ public class GouvBPMEnvoiEmailAgentsEtablissementAffecteWithRoleDelegate impleme
             return null;
         }
         return agent;
-    }
-
-    public Expression getEmailBodyTemplateCode() {
-        return emailBodyTemplateCode;
-    }
-
-    public void setEmailBodyTemplateCode(Expression emailBodyTemplateCode) {
-        this.emailBodyTemplateCode = emailBodyTemplateCode;
-    }
-
-    public Expression getEmailSubjectTemplateCode() {
-        return emailSubjectTemplateCode;
-    }
-
-    public void setEmailSubjectTemplateCode(Expression emailSubjectTemplateCode) {
-        this.emailSubjectTemplateCode = emailSubjectTemplateCode;
     }
 
 }

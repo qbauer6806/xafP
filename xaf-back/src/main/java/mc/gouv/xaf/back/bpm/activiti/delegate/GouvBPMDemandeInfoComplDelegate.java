@@ -1,20 +1,18 @@
 package mc.gouv.xaf.back.bpm.activiti.delegate;
 
-import org.activiti.engine.delegate.DelegateExecution;
-import org.activiti.engine.delegate.JavaDelegate;
-import org.activiti.engine.impl.el.Expression;
+import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.data.DemandesComplementsService;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.shared.dto.DemandeComplementsQuestionDTO;
+import org.flowable.engine.delegate.DelegateExecution;
+import org.flowable.engine.delegate.JavaDelegate;
+import org.flowable.common.engine.api.delegate.Expression;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import mc.gouv.xaf.back.bpm.GouvBPMProcessVariableTypeEnum;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.data.DemandesComplementsService;
-import mc.gouv.xaf.back.service.es.IndexedDemandeService;
-import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import mc.gouv.xaf.shared.dto.DemandeComplementsQuestionDTO;
 
 /**
  * 
@@ -35,22 +33,19 @@ public class GouvBPMDemandeInfoComplDelegate implements JavaDelegate {
 
     @Autowired
     private DemandesComplementsService demandesComplementsService;
-
-    @Autowired(required = false)
-    private IndexedDemandeService indexedDemandeService;
     
     private Expression codeMotif;
     
     private Expression commentaireUsager;
 
     @Override
-    public void execute(DelegateExecution execution) throws Exception {
+    public void execute(DelegateExecution execution) {
 
         LOGGER.info("==== xaf-back CREATION INFO COMPL ...");
 
         String demarcheId = gouvPropertiesResolver.getDemarcheId();
 
-        Integer demandeId = Integer.parseInt(execution.getProcessBusinessKey());
+        Integer demandeId = Integer.parseInt(execution.getProcessInstanceBusinessKey());
 
         LOGGER.info("Demande : {}", demandeId);
 
@@ -92,9 +87,6 @@ public class GouvBPMDemandeInfoComplDelegate implements JavaDelegate {
         LOGGER.info("Appel à DEM createDemandeComplements()...");
         demandesComplementsService.saveDemandeComplements(demarcheId, demandeId, questionDto);
 
-        if (indexedDemandeService != null) {
-            indexedDemandeService.indexDemande(gouvPropertiesResolver.getDemarcheId(), demandeId);
-        }
         LOGGER.info("==== xaf-back CREATION INFO COMPL <fin>");
 
     }

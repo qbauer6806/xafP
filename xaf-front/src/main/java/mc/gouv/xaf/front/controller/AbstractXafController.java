@@ -21,13 +21,8 @@ public class AbstractXafController {
     }
 
     protected int getCodeErreur(Exception exception) {
-        return exception instanceof WebException ? ((WebException) exception).getHttpStatus() :
+        return exception instanceof WebException webException ? webException.getHttpStatus() :
                 HttpStatus.INTERNAL_SERVER_ERROR.value();
     }
 
-//    @PatchMapping
-//    protected ResponseEntity doPatch(HttpServletRequest req) {
-//        int errno = req.getProtocol().endsWith("1.1") ? 405 : 400;
-//        return ResponseEntity.status(errno).build();
-//    }
 }

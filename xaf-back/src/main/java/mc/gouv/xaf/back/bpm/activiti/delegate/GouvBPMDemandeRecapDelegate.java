@@ -1,7 +1,9 @@
 package mc.gouv.xaf.back.bpm.activiti.delegate;
 
-import org.activiti.engine.delegate.DelegateExecution;
-import org.activiti.engine.delegate.JavaDelegate;
+import java.io.IOException;
+import mc.gouv.xaf.back.exception.DemarcheException;
+import org.flowable.engine.delegate.DelegateExecution;
+import org.flowable.engine.delegate.JavaDelegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,16 +37,20 @@ public class GouvBPMDemandeRecapDelegate implements JavaDelegate {
 	private PdfRecapGenerationService pdfRecapGenerationService;
 
 	@Override
-	public void execute(DelegateExecution execution) throws Exception {
+	public void execute(DelegateExecution execution) {
 
 		LOGGER.info("==== xaf-back DEMANDE RECAP SERVICE ...");
 
 		DemandeDTO demandeDto = demandesService.getDemande(gouvPropertiesResolver.getDemarcheId(),
-				Integer.parseInt(execution.getProcessBusinessKey()));
+				Integer.parseInt(execution.getProcessInstanceBusinessKey()));
 
-		pdfRecapGenerationService.generateAndStorePdf(demandeDto);
+        try {
+            pdfRecapGenerationService.generateAndStorePdf(demandeDto);
+        } catch (IOException e) {
+			throw new DemarcheException("Erreur la génération du pdf", e);
+        }
 
-		LOGGER.info("==== xaf-back DEMANDE RECAP SERVICE <fin>");
+        LOGGER.info("==== xaf-back DEMANDE RECAP SERVICE <fin>");
 	}
 
 }

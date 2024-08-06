@@ -1,10 +1,13 @@
 package mc.gouv.xaf.backweb.controller;
 
+import jakarta.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.List;
 import mc.gouv.xaf.back.service.data.PropertiesService;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.PropertiesDTO;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,10 +19,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.List;
 
 @Controller
 @RequestMapping("/gestion/properties")
@@ -52,9 +51,9 @@ public class GestionPropertiesController {
     @PostMapping(value = "/edit")
     @Transactional
     public ModelAndView modifier(@RequestParam Integer pkProperties, @RequestParam String value, final RedirectAttributes redirectAttributes) {
-
-        LOGGER.info("======================= Appel de la page /gestion/properties/modifier ({}, {})", pkProperties, value);
-        String valueSafe = StringEscapeUtils.escapeHtml(value);
+        String safeValue = AfBackUtils.logSafe(value);
+        LOGGER.info("======================= Appel de la page /gestion/properties/modifier ({}, {})", pkProperties, safeValue);
+        String valueSafe = StringEscapeUtils.escapeHtml4(value);
         propertiesService.updatePropertyValue(pkProperties, valueSafe);
         List<String> messages = new ArrayList<>();
         messages.add(MODIFIER_SUCCES);

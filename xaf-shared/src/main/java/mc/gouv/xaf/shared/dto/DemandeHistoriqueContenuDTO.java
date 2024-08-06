@@ -1,6 +1,9 @@
 package mc.gouv.xaf.shared.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -9,6 +12,9 @@ import org.apache.commons.lang3.StringUtils;
  * @author qdeme
  *
  */
+@Setter
+@Getter
+@NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DemandeHistoriqueContenuDTO {
 
@@ -21,9 +27,6 @@ public class DemandeHistoriqueContenuDTO {
     private String usagerNom;
     
     private String utilisateurNom;
-
-    public DemandeHistoriqueContenuDTO() {
-    }
 
     public DemandeHistoriqueContenuDTO(String name, String role, String action, StatutPublicOuInterneDTO spoi) {
         StringBuilder htmlBuilder = new StringBuilder("<span class='histo-user'>").append(role);
@@ -39,44 +42,4 @@ public class DemandeHistoriqueContenuDTO {
         this.statutPublicOuInterne = spoi;
     }
 
-    public StatutPublicOuInterneDTO getStatutPublicOuInterne() {
-        return statutPublicOuInterne;
-    }
-
-    public void setStatutPublicOuInterne(StatutPublicOuInterneDTO statutPublicOuInterne) {
-        this.statutPublicOuInterne = statutPublicOuInterne;
-    }
-
-    public String getTexte() {
-        return texte;
-    }
-
-    public void setTexte(String texte) {
-        this.texte = texte;
-    }
-
-    public String getHtml() {
-        return html;
-    }
-
-    public void setHtml(String html) {
-        this.html = html;
-    }
-
-    public String getUsagerNom() {
-        return usagerNom;
-    }
-
-    public void setUsagerNom(String usagerNom) {
-        this.usagerNom = usagerNom;
-    }
-
-    public String getUtilisateurNom() {
-        return utilisateurNom;
-    }
-
-    public void setUtilisateurNom(String utilisateurNom) {
-        this.utilisateurNom = utilisateurNom;
-    }
-    
 }

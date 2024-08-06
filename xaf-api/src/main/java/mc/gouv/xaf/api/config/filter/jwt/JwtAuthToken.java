@@ -1,19 +1,20 @@
 package mc.gouv.xaf.api.config.filter.jwt;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
+import java.io.Serial;
 import java.util.Collection;
 import java.util.Map;
-
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
-
+@EqualsAndHashCode(callSuper=false)
 public class JwtAuthToken extends AbstractAuthenticationToken {
 
-    /**
-     * 
-     */
+    @Serial
     private static final long serialVersionUID = -4751312158728240194L;
 
     /**
@@ -36,11 +37,15 @@ public class JwtAuthToken extends AbstractAuthenticationToken {
      */
     private static final String GOUV_PROPERTY = "gouv";
 
-    private Object principal;
+    @Setter
+    @Getter
+    private transient Object principal;
 
-    private Jws<Claims> jws;
+    private transient Jws<Claims> jws;
 
     //Le token reçu en String
+    @Setter
+    @Getter
     private String token;
 
     //Le code de l'application lowercase ("tgf")
@@ -60,28 +65,12 @@ public class JwtAuthToken extends AbstractAuthenticationToken {
         super.setAuthenticated(true); // must use super, as we override
     }
 
-    public Object getPrincipal() {
-        return principal;
-    }
-
-    public void setPrincipal(Object principal) {
-        this.principal = principal;
-    }
-
     public Jws<Claims> getJwt() {
         return jws;
     }
 
     public void setJwt(Jws<Claims> jwt) {
         this.jws = jwt;
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
     }
 
     @Override

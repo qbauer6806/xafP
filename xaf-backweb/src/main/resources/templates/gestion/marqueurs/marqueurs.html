@@ -1,0 +1,372 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org"
+      class="no-js sidebar-left-collapsed" lang="fr" dir="ltr">
+
+<head>
+  <meta charset="utf-8"/>
+  <meta content="ie=edge" http-equiv="x-ua-compatible"/>
+  <meta content="width=device-width, initial-scale=1, shrink-to-fit=no"
+        name="viewport"/>
+  <meta content="" name="description"/>
+  <meta content="" name="author"/>
+  <meta th:content="${_csrf.token}" th:name="_csrf"/>
+  <meta th:content="${_csrf.headerName}" th:name="_csrf_header"/>
+
+
+  <title th:text="${titre}"></title>
+
+  <!-- Import FONTS -->
+  <link rel="stylesheet" th:href="@{/css/font-style.css(${applicationBuildTimestamp})}"/>
+
+  <!-- Import CSS -->
+  <link rel="stylesheet"
+        th:href="@{/webjars/bootstrap/css/bootstrap.min.css}" type="text/css"/>
+  <link rel="stylesheet" th:href="@{/webjars/xcb-wlib/css/template.css}"/>
+  <link rel="stylesheet" th:href="@{/webjars/xcb-wlib/css/sidebar.css}"/>
+  <link rel="stylesheet" th:href="@{/webjars/xcb-wlib/css/element.css}"/>
+  <link rel="stylesheet"
+        th:href="@{/webjars/datatables/css/dataTables.bootstrap.min.css}"/>
+  <link rel="shortcut icon" th:href="@{/img/favicon.ico}"
+        type="image/x-icon"/>
+  <link rel="stylesheet"
+        th:href="@{/css/tsgen.css(${applicationBuildTimestamp})}"/>
+  <link rel="stylesheet"
+        th:href="@{/css/tsdem.css(${applicationBuildTimestamp})}"/>
+  <style>
+    .dataTables_wrapper .dataTables_filter {
+      padding: 10px;
+      border-left: 2px solid #068BAD;
+      border-right: 2px solid #068BAD;
+      background: #E7F4F8;
+      color: #068BAD;
+      filter: progid:DXImageTransform.Microsoft.Shadow(color=#656565, Direction=180, Strength=15);
+    }
+
+    .tableContent .table {
+      -webkit-box-shadow: none;
+      box-shadow: none;
+    }
+
+    .marqueur-warning {
+      font-weight: bold;
+      color: red;
+    }
+  </style>
+</head>
+
+<body>
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<div id="wrapper">
+
+  <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+  <!-- DEBUT CONTENU -->
+  <div id="page-content-wrapper">
+
+    <div class="breadcrumbContent">
+      <div class="breadcrumb">
+					<span> <a id="ariane0" th:href="@{/}"
+                    class="breadcrumb-item active">ACCUEIL</a>&nbsp;&gt;&nbsp; <a
+              id="ariane1" th:href="@{/marqueurs}" class="breadcrumb-item active">MARQUEURS</a>
+						&gt;
+					</span>
+      </div>
+      <div class="triangleTopright"></div>
+    </div>
+
+
+    <div class="container-fluid">
+      <div class="col-xs-12">
+        <h1>Administration des marqueurs</h1>
+      </div>
+      <div class="col-md-3">
+        <select class="form-control" id="selectBuildId">
+          <option th:each="version : ${versions}" th:selected="${version.buildId} == ${buildId}" th:value="${version.buildId}"
+                  th:text="${version.buildId}+' ('+${version.date}+')'"></option>
+        </select>
+      </div>
+      <div class="col-md-3">
+      </div>
+      <div class="col-md-6 text-right">
+        <button class="btn btn-action ripple-effect" id="boutonAjouter">
+          <i class="icon-action_plus"></i><span>Ajouter un marqueur</span>
+        </button>
+      </div>
+
+      <div class="col-xs-12">
+        <div class="tableContent">
+          <div class="tableTitle">
+            Liste des marqueurs
+            <span class="badge" id="marqueursTableCounter">0</span>
+          </div>
+          <table id="datatable-marqueurs" class="table table-striped">
+            <thead>
+            <tr>
+              <th>ID</th>
+              <th>Description</th>
+              <th>Identifiant technique</th>
+              <th>Référence dans le formulaire usager</th>
+              <th>Actions</th>
+            </tr>
+            </thead>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FIN CONTENU -->
+
+  <!-- EDITION MODAL -->
+  <div id="editionModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-body">
+          <form id="editionPeriodesForm" method="POST" th:action="@{/gestion/marqueurs/edit}">
+            <!-- input cachée pour insérer la pk de la properties à modifier -->
+            <input id="pkMarqueur" name="pkMarqueur" type="hidden"/>
+            <input name="buildId" type="hidden" th:value="${buildId}"/>
+            <div class="row no-margin-row">
+              <div class="col-xs-12 text-center">
+                <h2 id="saveTitle">SAVE_TITLE</h2>
+              </div>
+              <div class="col-xs-12 text-center form-group" id="formWarning"></div>
+              <div class="col-xs-12 col-md-6 form-group">
+                <label for="description">Description</label>
+                <div class="input-group">
+                  <input class="form-control" id="description" name="description" type="text"/>
+                </div>
+              </div>
+              <div class="col-xs-12 col-md-6 form-group">
+                <label for="identifiant">Identifiant technique</label>
+                <div class="input-group">
+                  <input class="form-control" id="identifiant" name="identifiant" type="text"/>
+                </div>
+              </div>
+              <div class="col-xs-12 form-group">
+                <label for="chemin">Référence dans le formulaire usager</label>
+                <select class="form-control" id="chemin" name="chemin">
+                  <option th:each="chemin : ${chemins}" th:value="${chemin}" th:text="${chemin}"></option>
+                </select>
+              </div>
+              <div class="col-xs-12 text-center form-group error" id="formError"></div>
+              <div class="col-xs-12 text-center">
+                <button class="btn btn-action-second ripple-effect annulerBouton" id="annulerEditBouton"
+                        name="annuler" type="button"
+                        value="annuler">
+                  annuler
+                </button>
+                <!-- La valeur de l'action et le texte du bouton sont modifiées à l'ouverture de la popup -->
+                <button class="btn btn-action ripple-effect" id="saveBtn" type="button">
+                  SAVE_BTN
+                </button>
+                <!-- Input pour submit le formulaire -->
+                <input id="formSubmit" name="action" style="display: none" type="submit" value="save"/>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+  <!-- FIN EDITION MODAL -->
+
+  <!-- SUPRESSION MODAL -->
+  <div id="supressionModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-body">
+          <form id="suppressionForm" method="POST" th:action="@{/gestion/marqueurs/supprimer}">
+            <input id="pkMarqueurSuppr" name="pkMarqueur" type="hidden"/>
+            <input name="buildId" type="hidden" th:value="${buildId}"/>
+            <div class="row no-margin-row text-center">
+              <div class="col-xs-12">
+                <h2>Supprimer un marqueur</h2>
+              </div>
+              <div class="col-xs-12">
+                <span id="suppressionMessage">Êtes-vous sûr(e) de vouloir continuer ?</span>
+              </div>
+              <div class="col-xs-12 margin-top">
+                <button class="btn btn-action-second ripple-effect annulerBouton" id="annulerSupprBouton"
+                        name="annuler" type="button"
+                        value="annuler">
+                  annuler
+                </button>
+                <button class="btn btn-action ripple-effect" id="supprBtn" type="submit">
+                  supprimer
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+  <!-- FIN SUPPRESSION MODAL -->
+
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script th:inline="javascript">
+
+  var columnsMarqueurs = [
+    {
+      data: "pkMarqueur",
+      visible: false,
+      render: function (data, type, marqueur) {
+        return marqueur.pkMarqueur;
+      }
+    },
+    {
+      data: "description",
+      render: function (data, type, marqueur) {
+        return marqueur.description;
+      }
+    },
+    {
+      data: "identifiant",
+      render: function (data, type, marqueur) {
+        return marqueur.identifiant;
+      }
+    },
+    {
+      data: "chemin",
+      render: function (data, type, marqueur) {
+        if (marqueur.chemin != null) {
+          return marqueur.chemin;
+        }
+        return '<span class="marqueur-warning">⚠️Le chemin rempli n\'existe pas dans cette version !⚠️</span>';
+      }
+    },
+    {
+      orderable: false,
+      keyword: false,
+      render: function (data, type, marqueur) {
+        return '<button class="btn btn-action ripple-effect greyTooltip boutonModifier" style="margin-right: 8px" data-toggle="tooltip"'
+            + ' data-placement="bottom" data-original-title="Modifier le marqueur" data-pkmarqueur="'
+            + marqueur.pkMarqueur + '" data-description="' + marqueur.description
+            + '" data-identifiant="' + marqueur.identifiant + '" data-chemin="' + marqueur.chemin
+            + '"><i class="icon-action_modifier"></i></button>' +
+            '<button class="boutonSupprimer btn btn-action ripple-effect greyTooltip"' +
+            'data-pkmarqueur="' + marqueur.pkMarqueur + '" ' +
+            'data-toggle="tooltip" data-placement="bottom" data-original-title="Supprimer le marqueur">'
+            +
+            '<i class="icon-action_supprimer"></i></button>';
+      }
+    }];
+
+  /*<![CDATA[*/
+  $(document).ready(function () {
+    var marqueurs = /*[[${marqueurs}]]*/'default';
+    var table = $('#datatable-marqueurs');
+    table.DataTable({
+      paging: false,
+      searching: false,
+      select: false,
+      bInfo: false,
+      columns: columnsMarqueurs,
+      data: marqueurs,
+      language: frenchTranslation
+    });
+    $("#marqueursTableCounter").text(marqueurs.length);
+
+    table.on('click', 'button.boutonSupprimer', function (e) {
+      e.preventDefault();
+      $('#pkMarqueurSuppr').val($(this).data('pkmarqueur'));
+
+      $('#supressionModal').modal();
+      return true;
+    });
+
+    table.on('click', 'button.boutonModifier', function (e) {
+      e.preventDefault();
+
+      $('#formError').html('');
+      $('#formWarning').html('');
+      $('#saveTitle').html('Modifier un marqueur');
+      $('#formSubmit').val('modifier');
+      $('#saveBtn').html('modifier');
+
+      $('#pkMarqueur').val($(this).data('pkmarqueur'));
+      $('#description').val($(this).data('description'));
+      $('#identifiant').val($(this).data('identifiant'));
+      $('#chemin').val($(this).data('chemin'));
+
+      $('#editionModal').modal();
+      return true;
+    });
+
+    var messagesSuccessList = /*[[${successMessages}]]*/'default';
+    if (messagesSuccessList !== 'undefined' && messagesSuccessList !== null) {
+      $.each(messagesSuccessList, function (key, msg) {
+        $.notify({
+          message: msg
+        }, {
+          type: 'success'
+        });
+      });
+    }
+
+    var messagesErrorList = /*[[${errorMessages}]]*/'default';
+    if (messagesErrorList !== 'undefined' && messagesErrorList !== null) {
+      $.each(messagesErrorList, function (key, msg) {
+        $.notify({
+          message: msg
+        }, {
+          type: 'danger'
+        });
+      });
+    }
+
+    $("#boutonAjouter").click(function (e) {
+      e.preventDefault();
+      isCreate = true;
+
+      $('#formError').html('');
+      $('#formWarning').html('');
+      $('#saveTitle').html('Ajout d\'un marqueur');
+      $('#formSubmit').val('ajouter');
+      $('#saveBtn').html('ajouter');
+
+      $('#editionModal').modal();
+
+      return true;
+    });
+
+    $('#saveBtn').click(function (e) {
+      var description = $('#description').val();
+      var identifiant = $('#identifiant').val();
+
+      if (description === '' && identifiant === '') {
+        $('#formError').html('Veuillez renseigner les champs.');
+      } else {
+        $('#formError').html('');
+        $('#formSubmit').click();
+        $('#saveBtn').prop('disabled', true);
+        return true;
+      }
+
+      e.preventDefault();
+      return false;
+    });
+
+    $('.annulerBouton').click(function (e) {
+      e.preventDefault();
+      $('.modal').modal('hide');
+      return true;
+    });
+
+    $('#selectBuildId').change(function(){
+      var value = $(this).val();
+      window.location.href = APP.getContextPath()+'/gestion/marqueurs/' + value;
+    });
+
+
+  });
+  /*]]>*/
+</script>
+</body>
+</html>

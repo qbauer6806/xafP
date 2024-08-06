@@ -1,20 +1,17 @@
 package mc.gouv.xaf.backweb.dto;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * 
  * @author qdeme
  *
  */
+@Setter
+@Getter
 public class AutocompleteUsagerListeDTO {
 
     private AutocompleteUsagerDTO[] suggestions;
 
-    public AutocompleteUsagerDTO[] getSuggestions() {
-        return suggestions;
-    }
-
-    public void setSuggestions(AutocompleteUsagerDTO[] suggestions) {
-        this.suggestions = suggestions;
-    }
-    
 }

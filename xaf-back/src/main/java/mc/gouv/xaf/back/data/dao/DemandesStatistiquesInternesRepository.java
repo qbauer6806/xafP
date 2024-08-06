@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface DemandesStatistiquesInternesRepository extends CrudRepository<DemandeBO, Integer> {
 
-    Long countByFkAccessDemarcheIdAndCanalAndDernierStatutLibelle(String demarcheId, String canal, String status);
+    Long countByFkAccessDemarcheIdAndCanalAndDernierStatutName(String demarcheId, String canal, String status);
 
     Long countByPkDemandesInAndCanal(List<Integer> ids, String canal);
 

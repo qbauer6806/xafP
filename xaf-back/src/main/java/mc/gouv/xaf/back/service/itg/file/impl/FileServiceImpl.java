@@ -1,5 +1,7 @@
 package mc.gouv.xaf.back.service.itg.file.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -16,9 +18,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import javax.servlet.http.HttpServletResponse;
-
+import mc.gouv.file.shared.dto.FileBatchDTO;
+import mc.gouv.vscan.shared.dto.ScanDTO;
+import mc.gouv.vscan.shared.dto.ScanRequestDTO;
+import mc.gouv.xaf.back.exception.DemarchesServiceException;
+import mc.gouv.xaf.back.exception.FileUploadException;
+import mc.gouv.xaf.back.exception.VScanException;
+import mc.gouv.xaf.back.exception.enums.FileUploadErrorEnum;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.data.PropertiesService;
+import mc.gouv.xaf.back.service.itg.file.FileService;
+import mc.gouv.xaf.back.service.utils.AfBackUtils;
+import mc.gouv.xaf.back.service.utils.DemarchesUtils;
+import mc.gouv.xaf.back.service.utils.FileUtils;
+import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeFileDTO;
+import mc.gouv.xaf.shared.dto.PropertiesDTO;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntity;
@@ -36,6 +51,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -43,25 +59,6 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import mc.gouv.file.shared.dto.FileBatchDTO;
-import mc.gouv.vscan.shared.dto.ScanDTO;
-import mc.gouv.vscan.shared.dto.ScanRequestDTO;
-import mc.gouv.xaf.back.exception.DemarchesServiceException;
-import mc.gouv.xaf.back.exception.FileUploadException;
-import mc.gouv.xaf.back.exception.VScanException;
-import mc.gouv.xaf.back.exception.enums.FileUploadErrorEnum;
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.data.PropertiesService;
-import mc.gouv.xaf.back.service.itg.file.FileService;
-import mc.gouv.xaf.back.service.utils.AfBackUtils;
-import mc.gouv.xaf.back.service.utils.DemarchesUtils;
-import mc.gouv.xaf.back.service.utils.FileUtils;
-import mc.gouv.xaf.shared.dto.DemandeDTO;
-import mc.gouv.xaf.shared.dto.DemandeFileDTO;
-import mc.gouv.xaf.shared.dto.PropertiesDTO;
 
 /**
  * Service d'appel à FILE pour les démarches
@@ -149,8 +146,8 @@ public class FileServiceImpl implements FileService {
 	
 	@Override
 	public String saveFile(DemandeDTO demande, String containerId, MultipartFile file, HttpServletResponse response) throws IOException {
-
-		LOGGER.info("FileService.saveFile({}, {})", demande.getPkDemandes(), file.getOriginalFilename());
+		String safeFileName = AfBackUtils.logSafe(file.getOriginalFilename());
+		LOGGER.info("FileService.saveFile({}, {})", demande.getPkDemandes(), safeFileName);
 
 		boolean vscanActivation = prepareSave(file);
 
@@ -188,7 +185,8 @@ public class FileServiceImpl implements FileService {
 
 	@Override
 	public String saveFilePublication(String codePublication, String containerId, MultipartFile file) throws IOException {
-		LOGGER.info("FileService.saveFilePublication({}, {})", codePublication, file.getOriginalFilename());
+		String safeFileName = AfBackUtils.logSafe(file.getOriginalFilename());
+		LOGGER.info("FileService.saveFilePublication({}, {})", codePublication, safeFileName);
 
 		boolean vscanActivation = prepareSave(file);
 
@@ -208,7 +206,7 @@ public class FileServiceImpl implements FileService {
 		try {
 			return afBackUtils.getFileClient().saveFile(accountId, containerId, file.getInputStream(), filename, file.getContentType(), customHeaders, outputStream);
 		} catch (Exception e) {
-			LOGGER.error(ERREUR_FILESERVICE_LOG_MESSAGE, e);
+			LOGGER.error(ERREUR_FILESERVICE_LOG_MESSAGE);
 			throw new DemarchesServiceException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 
@@ -274,7 +272,7 @@ public class FileServiceImpl implements FileService {
 	private Map<String, String> createCustomHeaders(DemandeDTO demande, boolean scanExecute) {
 		Map<String, String> customHeaders = new HashMap<>();
 		customHeaders.put(FILE_METADATA_DEMANDEID, demande.getPkDemandes().toString());
-		customHeaders.put(FILE_METADATA_DEMANDESTATUT, demande.getDernierStatut().getLibelle());
+		customHeaders.put(FILE_METADATA_DEMANDESTATUT, demande.getDernierStatut().getName());
 		customHeaders.put(FILE_METADATA_SCANEXECUTE, scanExecute + "");
 		return customHeaders;
 	}
@@ -349,7 +347,7 @@ public class FileServiceImpl implements FileService {
 		headers.add(org.apache.http.HttpHeaders.AUTHORIZATION, AUTHORIZATION_PREFIX + gouvPropertiesResolver.getFileJwt());
 		org.springframework.http.HttpEntity<Object> requestEntity = new org.springframework.http.HttpEntity<>(null, headers);
 		ResponseEntity<Object> response = restTemplate.exchange(fileUrl, HttpMethod.HEAD, requestEntity, Object.class);
-		HttpStatus httpStatus = response.getStatusCode();
+		HttpStatusCode httpStatus = response.getStatusCode();
 		if (httpStatus != HttpStatus.OK) {
 			throw new DemarchesServiceException("La requête HEAD a retourné le httpStatus " + httpStatus,
 					HttpStatus.INTERNAL_SERVER_ERROR);
@@ -392,7 +390,7 @@ public class FileServiceImpl implements FileService {
 		LOGGER.info("Appel à {}", fileUrl);
 
 		ResponseEntity<Object> response = restTemplate.exchange(fileUrl, HttpMethod.POST, requestEntity, Object.class);
-		HttpStatus httpStatus = response.getStatusCode();
+		HttpStatusCode httpStatus = response.getStatusCode();
 
 		if (httpStatus != HttpStatus.OK) {
 			throw new DemarchesServiceException("La requête PATCH a retourné le httpStatus " + httpStatus,
@@ -446,12 +444,12 @@ public class FileServiceImpl implements FileService {
     @Override
     public void deleteFiles(String containerId, List<String> fileList) {
         String accountId = gouvPropertiesResolver.getDemarcheId();
-        FileBatchDTO FbDTO = new FileBatchDTO();
-        FbDTO.setFiles(fileList);
-        FbDTO.setAccount(accountId);
-        FbDTO.setContainer(containerId);
+        FileBatchDTO fileBatchDTO = new FileBatchDTO();
+        fileBatchDTO.setFiles(fileList);
+        fileBatchDTO.setAccount(accountId);
+        fileBatchDTO.setContainer(containerId);
         try {
-            afBackUtils.getFileClient().deleteFiles(accountId, containerId, FbDTO);
+            afBackUtils.getFileClient().deleteFiles(accountId, containerId, fileBatchDTO);
         } catch (Exception e) {
             LOGGER.error("Erreur lors de la suppression du batch de fichiers : {}", StringUtils.join(fileList, "-"));
         }

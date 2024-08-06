@@ -1,17 +1,18 @@
 package mc.gouv.xaf.back.service.data;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import java.io.IOException;
+import java.util.Date;
+import java.util.List;
 import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeRechercheDTO;
 import mc.gouv.xaf.shared.dto.PageParamDTO;
+import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.xml.sax.SAXException;
-
-import java.io.IOException;
-import java.util.Date;
-import java.util.List;
 
 /**
  * Service permettant la manipulation des demandes.
@@ -108,7 +109,7 @@ public interface DemandesService {
      *
      * @return La demande sauvegardée
      */
-    DemandeDTO saveDemande(DemandeDTO demande, String premierStatut) throws IOException;
+    DemandeDTO saveDemande(DemandeDTO demande, StatutPublicOuInterneDTO premierStatut, JsonNode donneesExternes) throws IOException;
 
 
     /**
@@ -117,7 +118,10 @@ public interface DemandesService {
      * @param partialUpdate true si il faut effectuer une mise à jour partielle
      * @return La demande sauvegardée ou mise à jour
      */
-    DemandeDTO saveOrUpdateDemande(DemandeDTO demande, boolean partialUpdate, String premierStatut) throws IOException, SAXException;
+    DemandeDTO saveOrUpdateDemande(DemandeDTO demande, boolean partialUpdate, StatutPublicOuInterneDTO premierStatut) throws IOException, SAXException;
+
+    DemandeDTO saveOrUpdateDemande(DemandeDTO demande, boolean partialUpdate, StatutPublicOuInterneDTO premierStatut, JsonNode donneesExternes) throws IOException, SAXException;
+
 
     /**
      * Permet de récupérer l'AccessID de l'Access lié à une demande
@@ -208,10 +212,6 @@ public interface DemandesService {
      */
     List<DemandeDTO> getDemandesFilterFiles(String demarcheId, Integer usagerId);
 
-    /**
-     * Retourne la liste de tous les buildId référencés en base dans la table DEM_DEMANDES
-     */
-	List<String> getAllBuildIds();
 
     /**
      * Retourne les demandes à purger par rapport à la date et à une liste de statuts à purger
@@ -247,5 +247,9 @@ public interface DemandesService {
 
     void deleteDemandeBulkInGivenStatus(String demarcheId, List<Integer> demandeIdList, List<String> statuts, int jours)
             throws JsonProcessingException;
+
+    void updateContenuTrad();
+    void updateUsagers();
+    void updateAgents();
 
 }

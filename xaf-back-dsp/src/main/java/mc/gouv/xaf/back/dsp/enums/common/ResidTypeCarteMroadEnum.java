@@ -9,7 +9,7 @@ public enum ResidTypeCarteMroadEnum {
 	TMP("TMP"), 
 	NAP("NAP");
 
-	public String value;
+	private final String value;
 
 	ResidTypeCarteMroadEnum(String value) {
 	        this.value = value;

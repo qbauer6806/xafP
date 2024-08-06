@@ -249,8 +249,6 @@ input[data-toggle]:checked + label:active {
     -webkit-box-shadow: 1px 4px 3px rgba(50, 50, 50, 0.64);
     -moz-box-shadow: 1px 4px 3px rgba(50, 50, 50, 0.64);
     box-shadow: 1px 4px 3px rgba(50, 50, 50, 0.64);
-    /* bugfix 16581, autocomplete derrière la fancybox */
-    z-index: 99999 !important;
 }
 
 .autocomplete-suggestion {
@@ -561,4 +559,8 @@ dd span {
 
 .encartinfoerreur dd {
     width: 80%;
+}
+
+#preview-container > .modal-dialog {
+    width: auto;
 }

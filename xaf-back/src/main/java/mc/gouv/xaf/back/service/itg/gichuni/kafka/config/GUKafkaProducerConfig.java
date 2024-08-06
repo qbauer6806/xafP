@@ -1,10 +1,22 @@
 package mc.gouv.xaf.back.service.itg.gichuni.kafka.config;
 
+import java.time.Duration;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-
+import java.util.concurrent.CompletableFuture;
+import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
+import mc.gouv.xaf.back.service.itg.gichuni.kafka.impl.GUKafkaProducerListener;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.Metric;
+import org.apache.kafka.common.MetricName;
+import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.apache.poi.ss.formula.functions.T;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
@@ -12,12 +24,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
+import org.springframework.kafka.core.KafkaOperations;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
+import org.springframework.kafka.support.SendResult;
+import org.springframework.messaging.Message;
 import org.springframework.scheduling.annotation.EnableAsync;
-
-import mc.gouv.xaf.back.properties.GouvPropertiesResolver;
-import mc.gouv.xaf.back.service.itg.gichuni.kafka.impl.GUKafkaProducerListener;
 
 /**
  * Configuration du Producer Kafka pour le Guichet Unique
@@ -63,5 +75,104 @@ public class GUKafkaProducerConfig {
         KafkaTemplate<String, String> kt = new KafkaTemplate<>(producerFactory(gouvPropertiesResolver));
         kt.setProducerListener(guKafkaProducerListener);
         return kt;
+    }
+
+    @Bean
+    public KafkaOperations kafkaTemplateFlowable() {
+        // utile pour éviter un conflit kafka avec flowable
+        return new KafkaOperations() {
+
+            @Override
+            public CompletableFuture<SendResult> sendDefault(Object data) {
+                return null;
+            }
+
+            @Override
+            public CompletableFuture<SendResult> sendDefault(Object key, Object data) {
+                return null;
+            }
+
+            @Override
+            public CompletableFuture<SendResult> sendDefault(Integer partition, Object key, Object data) {
+                return null;
+            }
+
+            @Override
+            public CompletableFuture<SendResult> sendDefault(Integer partition, Long timestamp, Object key,
+                    Object data) {
+                return null;
+            }
+
+            @Override
+            public CompletableFuture<SendResult> send(String topic, Object data) {
+                return null;
+            }
+
+            @Override
+            public CompletableFuture<SendResult> send(String topic, Object key, Object data) {
+                return null;
+            }
+
+            @Override
+            public CompletableFuture<SendResult> send(String topic, Integer partition, Object key, Object data) {
+                return null;
+            }
+
+            @Override
+            public CompletableFuture<SendResult> send(String topic, Integer partition, Long timestamp, Object key,
+                    Object data) {
+                return null;
+            }
+
+            @Override
+            public CompletableFuture<SendResult> send(ProducerRecord record) {
+                return null;
+            }
+
+            @Override
+            public List<PartitionInfo> partitionsFor(String topic) {
+                return List.of();
+            }
+
+            @Override
+            public Map<MetricName, ? extends Metric> metrics() {
+                return Map.of();
+            }
+
+            @Override
+            public void flush() {
+                // not needed
+            }
+
+            @Override
+            public boolean isTransactional() {
+                return false;
+            }
+
+            @Override
+            public ConsumerRecord receive(String topic, int partition, long offset, Duration pollTimeout) {
+                return null;
+            }
+
+            @Override
+            public ConsumerRecords receive(Collection requested, Duration pollTimeout) {
+                return null;
+            }
+
+            @Override
+            public T executeInTransaction(OperationsCallback callback) {
+                return null;
+            }
+
+            @Override
+            public T execute(ProducerCallback callback) {
+                return null;
+            }
+
+            @Override
+            public CompletableFuture<SendResult> send(Message message) {
+                return null;
+            }
+        };
     }
 }

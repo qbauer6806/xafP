@@ -58,21 +58,11 @@ var setCurrentPopup = function (previewButton) {
     // On close les tooltip
     $("[class='tooltip fade bottom in']").remove();
     if (!href.toLowerCase().endsWith('.pdf')) {
-        $.magnificPopup.open({
-            items: {
-                src: href
-            },
-            type: 'image',
-            image: {
-                tError: 'Erreur lors de l\'affichage de l\'image'
-            }
-        });
-        $.magnificPopup.instance.close = function () {
-            enableButton(previewButton.id);
-            $.magnificPopup.proto.close.call(this);
-        }
+       basicLightbox.create('<img src="'+href+'">', {
+            onClose: (instance) => enableButton(previewButton.id)
+        }).show();
     } else {
-        PDFJS.getDocument(href).then(
+        pdfjsLib.getDocument(href).promise.then(
             function (pdf) {
                 // Supprimer tous les anciens canvas générés dans le dom
                 $('.pdf-canvas').remove();
@@ -188,13 +178,9 @@ function enableButton(buttonId) {
 }
 
 var openPdfPrevisuModal = function (containerId, buttonId) {
-    $.fancybox.open({
-        src: containerId,
-        type: 'inline',
-        opts: {
-            afterClose: enableButton(buttonId)
-        }
-    });
+    $(containerId).modal();
+    $(containerId).on('hidden.bs.modal', enableButton(buttonId));
+
 };
 
 function checkRemplissageFichiers() {

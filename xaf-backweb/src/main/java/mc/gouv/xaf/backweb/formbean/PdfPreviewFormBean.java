@@ -1,7 +1,9 @@
 package mc.gouv.xaf.backweb.formbean;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
+import lombok.Getter;
+import lombok.Setter;
 import mc.gouv.xaf.back.service.pdf.PdfTypeEnum;
 
 /**
@@ -10,6 +12,8 @@ import mc.gouv.xaf.back.service.pdf.PdfTypeEnum;
  * @author mboutelier.ext
  *
  */
+@Setter
+@Getter
 public class PdfPreviewFormBean extends PreviewFormBean {
 
 	@NotNull
@@ -17,19 +21,4 @@ public class PdfPreviewFormBean extends PreviewFormBean {
 
 	private String texteAEnvoyer;
 
-	public PdfTypeEnum getPdfType() {
-		return pdfType;
-	}
-
-	public void setPdfType(PdfTypeEnum pdfType) {
-		this.pdfType = pdfType;
-	}
-
-	public String getTexteAEnvoyer() {
-		return texteAEnvoyer;
-	}
-
-	public void setTexteAEnvoyer(String texteAEnvoyer) {
-		this.texteAEnvoyer = texteAEnvoyer;
-	}
 }

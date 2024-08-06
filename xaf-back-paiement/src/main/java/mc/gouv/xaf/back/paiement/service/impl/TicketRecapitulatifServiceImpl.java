@@ -15,6 +15,7 @@ import mc.gouv.xaf.back.service.itg.rest.UsagersCache;
 import mc.gouv.xaf.back.service.utils.AfBackUtils;
 import mc.gouv.xaf.shared.SharedMessages;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
+import mc.gouv.xaf.shared.dto.DemandeUsagerDTO;
 import mc.gouv.xaf.shared.dto.GichuniUsagerDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,9 +66,12 @@ public class TicketRecapitulatifServiceImpl implements TicketRecapitulatifServic
 		DemandeDTO demandeDto = demandesService.getDemande(afBackUtils.getDemarcheInfos().getPkDemarches(), demandeId);
 		if (usager == null) {
 			usager = new GichuniUsagerDTO();
-			usager.setNom(demandeDto.getUsagerNom());
-			usager.setPrenom(demandeDto.getUsagerPrenom());
-			usager.setEmail(demandeDto.getUsagerEmail());
+			DemandeUsagerDTO usagerDto = demandeDto.getUsager();
+			if (usagerDto != null) {
+				usager.setNom(usagerDto.getNom());
+				usager.setPrenom(usagerDto.getPrenom());
+				usager.setEmail(usagerDto.getEmail());
+			}
 		}
 
 		String bodyTemplateCode = "MAIL_TICKET_RECAP_USAGER_CORPS";

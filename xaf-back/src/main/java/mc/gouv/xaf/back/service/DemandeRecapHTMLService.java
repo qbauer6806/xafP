@@ -5,7 +5,6 @@ import java.lang.reflect.InvocationTargetException;
 
 import org.json.simple.parser.ParseException;
 
-import mc.gouv.logon.apiclient.RestException;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 
 /**
@@ -26,7 +25,7 @@ public interface DemandeRecapHTMLService {
 	/**
 	 * Méthode générant la partie des informations complémentaires de la demande.
 	 */
-	String getHTMLDemandeComplements(DemandeDTO demande) throws RestException;
+	String getHTMLDemandeComplements(DemandeDTO demande);
 
 	/**
 	 * Méthode générant la partie demande initiale de la page, elle est générée en

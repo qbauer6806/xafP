@@ -4,6 +4,7 @@ import mc.gouv.xaf.back.data.entity.DemandeBO;
 import mc.gouv.xaf.back.service.data.DemandesStatutsService;
 import mc.gouv.xaf.shared.dto.DemandeDTO;
 import mc.gouv.xaf.shared.dto.DemandeStatutDTO;
+import mc.gouv.xaf.shared.dto.StatutPublicOuInterneDTO;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -11,17 +12,22 @@ import java.util.List;
 @Component
 public class DemandesStatutsServiceImpl implements DemandesStatutsService {
     @Override
-    public DemandeDTO updateStatut(String demarcheId, Integer demandeId, String statut, String agentId, Integer usagerId, String codeMotif, String commentaire, String texteAEnvoyer) {
+    public DemandeDTO updateStatut(String demarcheId, Integer demandeId, StatutPublicOuInterneDTO statut, String agentId, Integer usagerId, String codeMotif, String commentaire, String texteAEnvoyer) {
         return null;
     }
 
     @Override
-    public DemandeDTO updateStatut(DemandeBO demande, String statut, String agentId, Integer usagerId, String codeMotif, String commentaire, String texteAEnvoyer) {
+    public DemandeDTO updateStatut(String demarcheId, Integer demandeId, DemandeStatutDTO statut, String agentId, Integer usagerId, String codeMotif, String commentaire, String texteAEnvoyer) {
         return null;
     }
 
     @Override
-    public List<DemandeDTO> updateMultipleStatuts(List<DemandeDTO> demandes, String statut) {
+    public DemandeDTO updateStatut(DemandeBO demande, StatutPublicOuInterneDTO statut, String agentId, Integer usagerId, String codeMotif, String commentaire, String texteAEnvoyer) {
+        return null;
+    }
+
+    @Override
+    public List<DemandeDTO> updateMultipleStatuts(List<DemandeDTO> demandes, StatutPublicOuInterneDTO statut) {
         return null;
     }
 

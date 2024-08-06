@@ -7,11 +7,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.WebTarget;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.Response;
 
 import org.apache.http.client.HttpResponseException;
 import org.slf4j.Logger;
@@ -43,67 +43,59 @@ public class CirApiServiceImpl implements CirApiService {
 	public PermisDTO getPermis(String numPermis, int pkDemande, String identifiantDemande)
 			throws HttpResponseException {
 		logStartMethod(LOGGER);
-		Client client = ClientBuilder.newClient();
-		String serviceUrl = paiementPropertiesResolver.getFactureUrl();
-		WebTarget targetGetPermis = client.target(serviceUrl + PERMIS_ROUTE);
+		try(Client client = ClientBuilder.newClient()) {
+			String serviceUrl = paiementPropertiesResolver.getFactureUrl();
+			WebTarget targetGetPermis = client.target(serviceUrl + PERMIS_ROUTE);
+			try {
+				logStartMethod(LOGGER);
+				LOGGER.info("Parameters [ getPermis {}] ", numPermis);
+				Response response = targetGetPermis.resolveTemplate("numPermis", numPermis).request()
+						.header(HttpHeaders.AUTHORIZATION, BEARER_PREFIX + paiementPropertiesResolver.getFactureToken())
+						.get();
+				if (response.getStatus() != Response.Status.OK.getStatusCode()) {
+					throw new HttpResponseException(response.getStatus(), response.toString());
+				}
 
-		try {
-			logStartMethod(LOGGER);
-			LOGGER.info("Parameters [ getPermis {}] ", numPermis);
-			Response response = targetGetPermis.resolveTemplate("numPermis", numPermis).request()
-					.header(HttpHeaders.AUTHORIZATION, BEARER_PREFIX + paiementPropertiesResolver.getFactureToken())
-					.get();
-			if (response.getStatus() != Response.Status.OK.getStatusCode()) {
-				throw new HttpResponseException(response.getStatus(), response.toString());
+				PermisDTO permisDTO = response.readEntity(PermisDTO.class);
+				logEndMethod(LOGGER);
+				return permisDTO;
+			} catch (HttpResponseException e) {
+				// On envoie le mail d'incident qu'en cas d'erreur au niveau du serveur CIR
+				if (Response.Status.Family.familyOf(e.getStatusCode()) == Response.Status.Family.SERVER_ERROR) {
+					sendMailProblemeCir(pkDemande, identifiantDemande, e.getMessage());
+				}
+				throw e;
 			}
-
-			// Propriétés de tests pour bloquer les appels d'API
-//                PropertiesDTO errorProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "TEMP_FAIL_CIR_TABLE_PERMIS");
-//                if (response.getStatus() != Response.Status.OK.getStatusCode() || (errorProp != null && "true".equals(errorProp.getValue()))) {
-//                    throw new HttpResponseException(500, response.toString());
-//                }
-			PermisDTO permisDTO = response.readEntity(PermisDTO.class);
-			logEndMethod(LOGGER);
-			return permisDTO;
-		} catch (HttpResponseException e) {
-			// On envoie le mail d'incident qu'en cas d'erreur au niveau du serveur CIR
-			if (Response.Status.Family.familyOf(e.getStatusCode()) == Response.Status.Family.SERVER_ERROR) {
-				sendMailProblemeCir(pkDemande, identifiantDemande, e.getMessage());
-			}
-			throw e;
 		}
+
 	}
     
     @Override
 	public RegistreDTO getRegistre(Integer registre, int pkDemande, String identifiantDemande) throws HttpResponseException {
     	logStartMethod(LOGGER);
-		Client client = ClientBuilder.newClient();
-		String serviceUrl = paiementPropertiesResolver.getFactureUrl();
-		WebTarget targetGetVehicules = client.target(serviceUrl + VEHICULES_ROUTE);
-		try {
-			logStartMethod(LOGGER);
-			LOGGER.info("Parameters [ getVehicule {}] ", registre);
-			Response response = targetGetVehicules.queryParam("registre", registre, "inactif", false).request()
-					.header(HttpHeaders.AUTHORIZATION, BEARER_PREFIX + paiementPropertiesResolver.getFactureToken())
-					.get();
-			if (response.getStatus() != Response.Status.OK.getStatusCode()) {
-				throw new HttpResponseException(response.getStatus(), response.toString());
-			}
+		try(Client client = ClientBuilder.newClient()) {
+			String serviceUrl = paiementPropertiesResolver.getFactureUrl();
+			WebTarget targetGetVehicules = client.target(serviceUrl + VEHICULES_ROUTE);
+			try {
+				logStartMethod(LOGGER);
+				LOGGER.info("Parameters [ getVehicule {}] ", registre);
+				Response response = targetGetVehicules.queryParam("registre", registre, "inactif", false).request()
+						.header(HttpHeaders.AUTHORIZATION, BEARER_PREFIX + paiementPropertiesResolver.getFactureToken())
+						.get();
+				if (response.getStatus() != Response.Status.OK.getStatusCode()) {
+					throw new HttpResponseException(response.getStatus(), response.toString());
+				}
 
-			// Propriétés de tests pour bloquer les appels d'API
-//                PropertiesDTO errorProp = propertiesService.getProperty(gouvPropertiesResolver.getDemarcheId(), "TEMP_FAIL_CIR_TABLE_PERMIS");
-//                if (response.getStatus() != Response.Status.OK.getStatusCode() || (errorProp != null && "true".equals(errorProp.getValue()))) {
-//                    throw new HttpResponseException(500, response.toString());
-//                }
-			RegistreDTO registreDTO = response.readEntity(RegistreDTO.class);
-			logEndMethod(LOGGER);
-			return registreDTO;
-		} catch (HttpResponseException e) {
-			// On envoie le mail d'incident qu'en cas d'erreur au niveau du serveur CIR
-			if (Response.Status.Family.familyOf(e.getStatusCode()) == Response.Status.Family.SERVER_ERROR) {
-				sendMailProblemeCir(pkDemande, identifiantDemande, e.getMessage());
+				RegistreDTO registreDTO = response.readEntity(RegistreDTO.class);
+				logEndMethod(LOGGER);
+				return registreDTO;
+			} catch (HttpResponseException e) {
+				// On envoie le mail d'incident qu'en cas d'erreur au niveau du serveur CIR
+				if (Response.Status.Family.familyOf(e.getStatusCode()) == Response.Status.Family.SERVER_ERROR) {
+					sendMailProblemeCir(pkDemande, identifiantDemande, e.getMessage());
+				}
+				throw e;
 			}
-			throw e;
 		}
 	}
 

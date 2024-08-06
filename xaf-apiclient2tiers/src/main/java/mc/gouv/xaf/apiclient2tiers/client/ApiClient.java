@@ -3,24 +3,26 @@ package mc.gouv.xaf.apiclient2tiers.client;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
-import com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider;
-import com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider;
+import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider;
+import jakarta.ws.rs.client.Client;
+import jakarta.ws.rs.client.ClientBuilder;
+import jakarta.ws.rs.client.WebTarget;
+import lombok.Getter;
+import lombok.Setter;
 import mc.gouv.xaf.apiclient2tiers.authentication.AuthorizationHeaderProvider;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.media.multipart.internal.MultiPartWriter;
-
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.WebTarget;
 
 /**
  * 
  * @author qdeme
  *
  */
+@Getter
 public abstract class ApiClient {
 
     private String serviceUrl;
+    @Setter
     private AuthorizationHeaderProvider authorizationHeaderProvider;
 
     /**
@@ -36,7 +38,7 @@ public abstract class ApiClient {
      * @param isMultipartSupported
      *            indique si le client gère du multipart
      */
-    public ApiClient(String serviceUrl, AuthorizationHeaderProvider authorizationHeaderProvider,
+    protected ApiClient(String serviceUrl, AuthorizationHeaderProvider authorizationHeaderProvider,
             boolean isMultipartSupported) {
         this.serviceUrl = serviceUrl;
         this.authorizationHeaderProvider = authorizationHeaderProvider;
@@ -53,7 +55,7 @@ public abstract class ApiClient {
     }
 
     private JacksonJsonProvider createAndConfigureJacksonJsonProvider() {
-        final JacksonJsonProvider jacksonJsonProvider = new JacksonJaxbJsonProvider();
+        final JacksonJsonProvider jacksonJsonProvider = new JacksonJsonProvider();
 
         var om = new ObjectMapper();
         // Par défaut, on ne lève pas d'exception si des champs sont retournés dans le JSON mais n'existent pas dans le
@@ -70,7 +72,7 @@ public abstract class ApiClient {
         return jacksonJsonProvider;
     }
 
-    public ApiClient(String serviceUrl, AuthorizationHeaderProvider authorizationHeaderProvider) {
+    protected ApiClient(String serviceUrl, AuthorizationHeaderProvider authorizationHeaderProvider) {
         this.serviceUrl = serviceUrl;
         this.authorizationHeaderProvider = authorizationHeaderProvider;
         final var jacksonJsonProvider = createAndConfigureJacksonJsonProvider();
@@ -81,31 +83,11 @@ public abstract class ApiClient {
     /**
      * Constructeur permettant de configurer l'ApiCLient à partir d'un client créé et configuré en amont
      */
-    public ApiClient(String serviceUrl, AuthorizationHeaderProvider authorizationHeaderProvider, Client client) {
+    protected ApiClient(String serviceUrl, AuthorizationHeaderProvider authorizationHeaderProvider, Client client) {
         this.serviceUrl = serviceUrl;
         this.authorizationHeaderProvider = authorizationHeaderProvider;
         this.client = client;
         this.target = client.target(serviceUrl);
-    }
-
-    public String getServiceUrl() {
-        return serviceUrl;
-    }
-
-    public AuthorizationHeaderProvider getAuthorizationHeaderProvider() {
-        return authorizationHeaderProvider;
-    }
-
-    public void setAuthorizationHeaderProvider(AuthorizationHeaderProvider authorizationHeaderProvider) {
-        this.authorizationHeaderProvider = authorizationHeaderProvider;
-    }
-
-    public WebTarget getTarget() {
-        return target;
-    }
-
-    public Client getClient() {
-        return client;
     }
 
 }

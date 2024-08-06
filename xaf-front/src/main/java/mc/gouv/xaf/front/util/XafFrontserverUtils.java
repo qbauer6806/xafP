@@ -1,24 +1,31 @@
 package mc.gouv.xaf.front.util;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.uuid.EthernetAddress;
 import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.impl.TimeBasedGenerator;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.UUID;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+import mc.gouv.xaf.apiclient.AfApiClient;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
-import mc.gouv.xaf.apiclient.AfApiClient;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import java.util.Calendar;
-import java.util.UUID;
 
 /**
  * Classe utilitaire pour xaf-frontserver
@@ -50,6 +57,32 @@ public class XafFrontserverUtils {
 
     @Autowired
     private GichkeyService gichkeyService;
+
+    /**
+     * Vérifie que les donneesExternes reçues de la part de l'utilisateur ne sont pas traffiquées, en les comparant à la référence du config.json
+     * @param donneesExternesInput
+     * @param donneesExternesConfig
+     * @return
+     */
+    public boolean checkDonneesExternes(JsonNode donneesExternesInput, JsonNode donneesExternesConfig) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        Map<String, String> donneesExternesInputMap = objectMapper.convertValue(donneesExternesInput, Map.class);
+        Map<String, List<String>> donneesExternesConfigMap = objectMapper.convertValue(donneesExternesConfig, Map.class);
+        // pour chaque donnée externe présente dans l'input, on vérifie si elle est présente dans les donneesexternes définies dans le config.json
+        for (Entry<String, String> donneeExterneInput : donneesExternesInputMap.entrySet()) {
+            boolean donneeExterneInputChecked = false;
+            for (Entry<String, List<String>> donneeExterneConfig : donneesExternesConfigMap.entrySet()) {
+                if (donneeExterneInput.getKey().equals(donneeExterneConfig.getKey()) && donneeExterneConfig.getValue().contains(donneeExterneInput.getValue())) {
+                    donneeExterneInputChecked = true;
+                    break;
+                }
+            }
+            if (!donneeExterneInputChecked) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     public enum ServiceTarget {
         FILE
@@ -160,6 +193,12 @@ public class XafFrontserverUtils {
 
     public AfApiClient getAfApiClient() {
         return new AfApiClient(propertiesResolver.getApiUrl(), propertiesResolver.getApiJwt());
+    }
+
+    public JsonNode getConfig() throws IOException {
+        InputStream inputStream = new ClassPathResource("/static/config.json").getInputStream();
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(inputStream, JsonNode.class);
     }
 
 }

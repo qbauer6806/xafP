@@ -1,6 +1,8 @@
 package mc.gouv.xaf.backweb.formbean;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Formulaire pour le preview des emails
@@ -8,6 +10,8 @@ import javax.validation.constraints.NotNull;
  * @author mboutelier.ext
  *
  */
+@Setter
+@Getter
 public class PreviewFormBean {
 
 	@NotNull
@@ -19,37 +23,5 @@ public class PreviewFormBean {
 	private Integer pkDemande;
 
 	private String commentaire;
-
-	public String getAction() {
-		return action;
-	}
-
-	public void setAction(String action) {
-		this.action = action;
-	}
-
-	public String getCodeMotifChoisi() {
-		return codeMotifChoisi;
-	}
-
-	public void setCodeMotifChoisi(String codeMotifChoisi) {
-		this.codeMotifChoisi = codeMotifChoisi;
-	}
-
-	public Integer getPkDemande() {
-		return pkDemande;
-	}
-
-	public void setPkDemande(Integer pkDemande) {
-		this.pkDemande = pkDemande;
-	}
-
-	public String getCommentaire() {
-		return commentaire;
-	}
-
-	public void setCommentaire(String commentaire) {
-		this.commentaire = commentaire;
-	}
 
 }

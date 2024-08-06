@@ -4,6 +4,12 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import jakarta.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import mc.gouv.xaf.front.dto.UsagerInfosDTO;
 import mc.gouv.xaf.front.properties.FrontGouvPropertiesResolver;
 import mc.gouv.xaf.front.util.DocHolderUtils;
@@ -11,7 +17,7 @@ import mc.gouv.xaf.front.util.FileControllerUtils;
 import mc.gouv.xaf.front.util.XafFrontserverUtils;
 import mc.gouv.xaf.shared.SharedMessages;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpResponse;
+import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,14 +26,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
 
 @Controller
 @RequestMapping("/doc-holder/tofile")
@@ -82,21 +80,15 @@ public class DocHolderToFileController extends AbstractXafController {
 
         try {
             LOGGER.info("Téléchargement du fichier {} depuis le porte-documents", fileUrl);
-            HttpResponse docholderResponse = fileControllerUtils.downloadFromDocHolder(docHolderFileServiceUrl, fileUrl, usagerInfosDTO.getTokenInfo().getAccessToken());
+            ClassicHttpResponse docholderResponse = (ClassicHttpResponse)fileControllerUtils.downloadFromDocHolder(docHolderFileServiceUrl, fileUrl, usagerInfosDTO.getTokenInfo().getAccessToken());
 
-            if (docholderResponse.getStatusLine().getStatusCode() == 200) {
-//                LOGGER.info("Mise à jour de la date de consentement TS du porte-documents");
-//                if (!docHolderUtils.updateConsentDate(usagerInfosDTO.getId())) {
-//                    LOGGER.error("Impossible de mettre à jour la date de consentement TS du porte-documents");
-//                    return ResponseEntity.internalServerError().build();
-//                }
-
+            if (docholderResponse.getCode() == 200) {
                 LOGGER.info("Téléversement du fichier {} dans FILE", filename);
                 return fileControllerUtils.uploadToFILE(usagerInfosDTO, filename, "AUTRES", docholderResponse.getEntity().getContent());
 
             } else {
                 LOGGER.info("====================== Fin {} doPost()", req.getServletPath());
-                return ResponseEntity.status(docholderResponse.getStatusLine().getStatusCode())
+                return ResponseEntity.status(docholderResponse.getCode())
                         .body(new String(docholderResponse.getEntity().getContent().readAllBytes(), StandardCharsets.UTF_8));
             }
         } catch (IOException | URISyntaxException | UnsupportedOperationException e) {

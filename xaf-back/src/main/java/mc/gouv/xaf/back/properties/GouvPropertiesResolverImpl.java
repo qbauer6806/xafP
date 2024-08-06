@@ -94,7 +94,7 @@ public class GouvPropertiesResolverImpl implements GouvPropertiesResolver {
     @Value("${mc.gouv.${application.name}.shared.backapi.paiement.enabled:false}")
     private String paiementEnabled;
 
-    @Value("${mc.gouv.${application.name}.shared.backapi.rest.pagesize:500}")
+    @Value("${mc.gouv.shared.backapi.rest.pagesize:500}")
     private String usagersPageSize;
 
     @Value("${mc.gouv.${application.name}.shared.backapi.back.url}")

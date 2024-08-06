@@ -1,5 +1,0 @@
-# Lignes permettant de dire à GIT que ces fichiers sont binaires (fichier pour les fonts)
-*.eot binary
-*.ttf binary
-*.woff binary
-*.woff2 binary
